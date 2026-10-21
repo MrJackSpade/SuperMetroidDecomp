@@ -24,8 +24,8 @@ internal static class BossDisplayBindingsClippingVerification
             var original = author.Oam.Frames[selected][0].Parts[0];
             foreach ((ushort originY, int offset, byte expectedY) in new[]
             {
-                ((ushort)252, 8, (byte)4), ((ushort)4, -8, (byte)252),
-                (unchecked((ushort)-4), 8, (byte)4), ((ushort)260, -8, (byte)252),
+                new VerifyBossDisplayClippingCase(252, 8, 4), new VerifyBossDisplayClippingCase(4, -8, 252),
+                new VerifyBossDisplayClippingCase(unchecked((ushort)-4), 8, 4), new VerifyBossDisplayClippingCase(260, -8, 252),
             })
             {
                 author.Oam.Frames[selected] = [new() { OffsetX = 0, OffsetY = 0, Parts = [original with { OffsetY = offset }] }];
@@ -38,7 +38,7 @@ internal static class BossDisplayBindingsClippingVerification
                 AssertEqual(expectedY, result.LowTable[1], "new BG2-only OAM keeps its wrapped coordinate (#1308)");
                 checks++;
             }
-            foreach ((ushort x, ushort y) in new[] { ((ushort)512, (ushort)128), ((ushort)128, (ushort)512) })
+            foreach ((ushort x, ushort y) in new[] { new BossDisplayBindingsClippingVerifyBossDisplayClippingCase(512, 128), new BossDisplayBindingsClippingVerifyBossDisplayClippingCase(128, 512) })
             {
                 var fixture = new BossDisplayFixture(definition, author.Build());
                 fixture.SetFrame(frame.Pointer, false); fixture.Actor.Position = fixture.Actor.Position.WithWhole(new(x, y));

@@ -48,8 +48,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// <summary>The device the buffer lives on.</summary>
     private readonly ID3D11Device device;
     /// <summary>What the last <see cref="Pack"/> packed, so an unchanged frame skips the upload.</summary>
-    private (RoomBackgroundLayer? Bg1, RoomBackgroundLayer? Bg2, RoomDoorBackground? Door, RoomTilemapOverlay? Overlay, SkyTilemap? Sky,
-        Layer3Plane? Bg3, RoomTilemapOverlay? Bg2Overlay, Mode7MapSnapshot? Mode7, BossBg2Tilemap? BossBg2)? packed;
+    private RoomLevelLayers? packed;
 
     /// <summary>Creates an empty buffer.</summary>
     internal D3D11RoomLevelBuffer(ID3D11Device device)
@@ -78,7 +77,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     internal bool Pack(RoomBackgroundLayer? bg1, RoomBackgroundLayer? bg2, RoomDoorBackground? door, RoomTilemapOverlay? overlay,
         SkyTilemap? sky, Layer3Plane? bg3, RoomTilemapOverlay? bg2Overlay, Mode7MapSnapshot? mode7, BossBg2Tilemap? bossBg2)
     {
-        var frame = (bg1, bg2, door, overlay, sky, bg3, bg2Overlay, mode7, bossBg2);
+        var frame = new RoomLevelLayers(bg1, bg2, door, overlay, sky, bg3, bg2Overlay, mode7, bossBg2);
         // No dispatch samples t3 without one of these, so such a scene keeps the last packed room unread.
         if (packed == frame || (bg1 is null && bg2 is null && sky is null && bg3 is null && mode7 is null))
             return false;

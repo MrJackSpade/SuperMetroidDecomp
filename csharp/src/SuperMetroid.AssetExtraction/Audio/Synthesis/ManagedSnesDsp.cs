@@ -453,11 +453,11 @@ public sealed class ManagedSnesDsp
     private static short GetInterpolatedSample(Voice voice, int sampleNumber, int offset)
     {
         var taps = SnesDspTables.GaussianCoefficients(offset);
-        int output = (taps.Tap0 * voice.DecodeBuffer[sampleNumber]) >> 10;
-        output += (taps.Tap1 * voice.DecodeBuffer[sampleNumber + 1]) >> 10;
-        output += (taps.Tap2 * voice.DecodeBuffer[sampleNumber + 2]) >> 10;
+        int output = (taps[0] * voice.DecodeBuffer[sampleNumber]) >> 10;
+        output += (taps[1] * voice.DecodeBuffer[sampleNumber + 1]) >> 10;
+        output += (taps[2] * voice.DecodeBuffer[sampleNumber + 2]) >> 10;
         output = unchecked((short)output);
-        output += (taps.Tap3 * voice.DecodeBuffer[sampleNumber + 3]) >> 10;
+        output += (taps[3] * voice.DecodeBuffer[sampleNumber + 3]) >> 10;
         return unchecked((short)(Clamp16(output) >> 1));
     }
 

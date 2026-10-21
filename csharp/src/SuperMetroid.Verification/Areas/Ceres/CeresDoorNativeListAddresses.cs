@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Areas.Ceres;
 
 namespace SuperMetroid.Verification.Areas.Ceres;
@@ -13,42 +14,42 @@ internal static class CeresDoorNativeListAddresses
     internal const byte Bank = 0xa6;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (CeresDoorProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<CeresDoorProgram>[] Entries =
     [
-        (CeresDoorProgram.RidleyRoomFacingRight, 0xf53a),
-        (CeresDoorProgram.RidleyRoomFacingRightWait, 0xf55e),
-        (CeresDoorProgram.NormalFacingRight, 0xf56c),
-        (CeresDoorProgram.OpenFacingRight, 0xf578),
-        (CeresDoorProgram.CloseFacingRight, 0xf584),
-        (CeresDoorProgram.ClosedFacingRight, 0xf598),
-        (CeresDoorProgram.ClosedFacingRightWait, 0xf59c),
-        (CeresDoorProgram.NormalFacingLeft, 0xf5be),
-        (CeresDoorProgram.OpenFacingLeft, 0xf5ca),
-        (CeresDoorProgram.CloseFacingLeft, 0xf5d6),
-        (CeresDoorProgram.ClosedFacingLeft, 0xf5ea),
-        (CeresDoorProgram.ClosedFacingLeftWait, 0xf5ee),
-        (CeresDoorProgram.RotatingElevatorPreExplosionOverlay, 0xf610),
-        (CeresDoorProgram.RotatingElevatorPreExplosionOverlayLoop, 0xf612),
-        (CeresDoorProgram.RotatingElevatorInvisibleWall, 0xf61a),
-        (CeresDoorProgram.RotatingElevatorInvisibleWallLoop, 0xf622),
-        (CeresDoorProgram.RidleyEscapeMode7LeftWall, 0xf62a),
-        (CeresDoorProgram.RidleyEscapeMode7LeftWallLoop, 0xf62c),
-        (CeresDoorProgram.RidleyEscapeMode7RightWall, 0xf634),
-        (CeresDoorProgram.RidleyEscapeMode7RightWallLoop, 0xf636),
+        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RidleyRoomFacingRight, 0xf53a),
+        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RidleyRoomFacingRightWait, 0xf55e),
+        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.NormalFacingRight, 0xf56c),
+        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.OpenFacingRight, 0xf578),
+        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.CloseFacingRight, 0xf584),
+        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.ClosedFacingRight, 0xf598),
+        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.ClosedFacingRightWait, 0xf59c),
+        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.NormalFacingLeft, 0xf5be),
+        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.OpenFacingLeft, 0xf5ca),
+        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.CloseFacingLeft, 0xf5d6),
+        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.ClosedFacingLeft, 0xf5ea),
+        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.ClosedFacingLeftWait, 0xf5ee),
+        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RotatingElevatorPreExplosionOverlay, 0xf610),
+        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RotatingElevatorPreExplosionOverlayLoop, 0xf612),
+        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RotatingElevatorInvisibleWall, 0xf61a),
+        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RotatingElevatorInvisibleWallLoop, 0xf622),
+        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RidleyEscapeMode7LeftWall, 0xf62a),
+        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RidleyEscapeMode7LeftWallLoop, 0xf62c),
+        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RidleyEscapeMode7RightWall, 0xf634),
+        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RidleyEscapeMode7RightWallLoop, 0xf636),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (CeresDoorCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, CeresDoorNativeListAddressesInstruction> Instructions = new()
     {
-        [0xf63e] = (CeresDoorCueKind.GoToIfSamusDistant, "T"),
-        [0xf66a] = (CeresDoorCueKind.GoToIfAreaBossAlive, "T"),
-        [0xf678] = (CeresDoorCueKind.GoToIfRidleyNotEscaped, "T"),
-        [0xf68b] = (CeresDoorCueKind.MakeIntangible, ""),
-        [0xf695] = (CeresDoorCueKind.MakeTangible, ""),
-        [0xf69f] = (CeresDoorCueKind.HandDrawingToRidley, ""),
-        [0xf6a6] = (CeresDoorCueKind.MakeInvisible, ""),
-        [0xf6b0] = (CeresDoorCueKind.MakeVisibleAndTakeDrawingBack, ""),
-        [0xf6b3] = (CeresDoorCueKind.MakeVisible, ""),
-        [0xf6bd] = (CeresDoorCueKind.PlayOpeningSound, ""),
+        [0xf63e] = new CeresDoorNativeListAddressesInstruction(CeresDoorCueKind.GoToIfSamusDistant, "T"),
+        [0xf66a] = new CeresDoorNativeListAddressesInstruction(CeresDoorCueKind.GoToIfAreaBossAlive, "T"),
+        [0xf678] = new CeresDoorNativeListAddressesInstruction(CeresDoorCueKind.GoToIfRidleyNotEscaped, "T"),
+        [0xf68b] = new CeresDoorNativeListAddressesInstruction(CeresDoorCueKind.MakeIntangible, ""),
+        [0xf695] = new CeresDoorNativeListAddressesInstruction(CeresDoorCueKind.MakeTangible, ""),
+        [0xf69f] = new CeresDoorNativeListAddressesInstruction(CeresDoorCueKind.HandDrawingToRidley, ""),
+        [0xf6a6] = new CeresDoorNativeListAddressesInstruction(CeresDoorCueKind.MakeInvisible, ""),
+        [0xf6b0] = new CeresDoorNativeListAddressesInstruction(CeresDoorCueKind.MakeVisibleAndTakeDrawingBack, ""),
+        [0xf6b3] = new CeresDoorNativeListAddressesInstruction(CeresDoorCueKind.MakeVisible, ""),
+        [0xf6bd] = new CeresDoorNativeListAddressesInstruction(CeresDoorCueKind.PlayOpeningSound, ""),
     };
 }

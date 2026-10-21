@@ -24,13 +24,13 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
         AssertTrue(stock.Enemies.Spritemaps is not null && stock.Enemies.ExtendedFrames is not null,
             "installed Spore Spawn comparison has complete enemy art");
 
-        (SporeSpawnBodyProgram Program, int Frames)[] programs =
+        EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram[] programs =
         [
-            (SporeSpawnBodyProgram.InitialDead, 4),
-            (SporeSpawnBodyProgram.InitialAlive, 260),
-            (SporeSpawnBodyProgram.FightStarted, 2200),
-            (SporeSpawnBodyProgram.CloseAndMove, 1600),
-            (SporeSpawnBodyProgram.Death, 500),
+            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodyProgram.InitialDead, 4),
+            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodyProgram.InitialAlive, 260),
+            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodyProgram.FightStarted, 2200),
+            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodyProgram.CloseAndMove, 1600),
+            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodyProgram.Death, 500),
         ];
         int framesCompared = 0;
         var allNativeSelectors = new HashSet<ushort>();
@@ -163,13 +163,13 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
         InstalledEnemyArtwork stock,
         InstalledEnemyArtwork remapped)
     {
-        (SporeSpawnBodyProgram Program, int Frames)[] programs =
+        EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram[] programs =
         [
-            (SporeSpawnBodyProgram.InitialDead, 4),
-            (SporeSpawnBodyProgram.InitialAlive, 260),
-            (SporeSpawnBodyProgram.FightStarted, 2200),
-            (SporeSpawnBodyProgram.CloseAndMove, 1600),
-            (SporeSpawnBodyProgram.Death, 500),
+            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodyProgram.InitialDead, 4),
+            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodyProgram.InitialAlive, 260),
+            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodyProgram.FightStarted, 2200),
+            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodyProgram.CloseAndMove, 1600),
+            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodyProgram.Death, 500),
         ];
         var steps = BodyStepAddresses(CartridgeImportSource.Require(rom));
         foreach ((SporeSpawnBodyProgram program, int frames) in programs)

@@ -77,20 +77,20 @@ internal static class EnemyRomTablePointersVerification
     /// Uses one nontrivial range from every represented storage shape: byte arrays,
     /// word arrays, palettes, pointer arrays, interleaved records, and transfer tables.
     /// </summary>
-    private static (int Start, int ByteLength)[] RepresentativeEnemyRomRanges() =>
+    private static RepresentativeEnemyRomRangesResult[] RepresentativeEnemyRomRanges() =>
     [
-        (EnemyRomTablePointersCommon.SignedSineCosineWords, 512),
-        (EnemyRomTablePointersTorizo.WakeXPositions, 4),
-        (EnemyRomTablePointersChozoStatue.CarryVelocityWords, 64),
-        (EnemyRomTablePointersGunship.DustInstructionPointers, 12),
-        (EnemyRomTablePointersCrocomire.DeathGraphicsSourceWords, 14),
-        (EnemyRomTablePointersDeadSidehopper.HorizontalVelocityWords, 8),
-        (EnemyRomTablePointersGunship.LiftoffVramDestinationWords, 10),
-        (EnemyRomTablePointers.Kraid.RoomBackgroundPaletteWords, 32),
-        (EnemyRomTablePointersPhantoon.FirstRoundHidingTimerWords, 16),
-        (EnemyRomTablePointers.Ridley.HealthPaletteWords, 84),
-        (EnemyRomTablePointers.TourianStatue.StatuePaletteWords, 32),
-        (EnemyRomTablePointers.WorkRobot.InitialInstructionListWords, 4),
+        new RepresentativeEnemyRomRangesResult(EnemyRomTablePointersCommon.SignedSineCosineWords, 512),
+        new RepresentativeEnemyRomRangesResult(EnemyRomTablePointersTorizo.WakeXPositions, 4),
+        new RepresentativeEnemyRomRangesResult(EnemyRomTablePointersChozoStatue.CarryVelocityWords, 64),
+        new RepresentativeEnemyRomRangesResult(EnemyRomTablePointersGunship.DustInstructionPointers, 12),
+        new RepresentativeEnemyRomRangesResult(EnemyRomTablePointersCrocomire.DeathGraphicsSourceWords, 14),
+        new RepresentativeEnemyRomRangesResult(EnemyRomTablePointersDeadSidehopper.HorizontalVelocityWords, 8),
+        new RepresentativeEnemyRomRangesResult(EnemyRomTablePointersGunship.LiftoffVramDestinationWords, 10),
+        new RepresentativeEnemyRomRangesResult(EnemyRomTablePointers.Kraid.RoomBackgroundPaletteWords, 32),
+        new RepresentativeEnemyRomRangesResult(EnemyRomTablePointersPhantoon.FirstRoundHidingTimerWords, 16),
+        new RepresentativeEnemyRomRangesResult(EnemyRomTablePointers.Ridley.HealthPaletteWords, 84),
+        new RepresentativeEnemyRomRangesResult(EnemyRomTablePointers.TourianStatue.StatuePaletteWords, 32),
+        new RepresentativeEnemyRomRangesResult(EnemyRomTablePointers.WorkRobot.InitialInstructionListWords, 4),
     ];
 
     /// <summary>Compares Golden Torizo, Work Robot, and Tourian statue selectors with cartridge words and production initializers.</summary>

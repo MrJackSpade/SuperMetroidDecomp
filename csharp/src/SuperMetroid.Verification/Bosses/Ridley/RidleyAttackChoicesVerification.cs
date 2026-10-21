@@ -49,12 +49,12 @@ internal static class RidleyAttackChoicesVerification
         var spinning = new SamusState { Pose = SamusPoseId.SpinJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 256)) };
         // Explicit native branch cases, including spin priority over zero health,
         // health thresholds, absent Samus, and Y immediately before the pogo zone.
-        (ushort Health, SamusState? Samus, int Row)[] cases =
+        RidleyAttackChoicesCase[] cases =
         [
-            (0, standing, 5), (0, spinning, 4), (1, standing, 0),
-            (8999, standing, 0), (9000, standing, 0), (14399, low, 0),
-            (14400, standing, 2), (18000, low, 3), (18000, null, 0),
-            (18000, spinning, 4),
+            new RidleyAttackChoicesCase(0, standing, 5), new RidleyAttackChoicesCase(0, spinning, 4), new RidleyAttackChoicesCase(1, standing, 0),
+            new RidleyAttackChoicesCase(8999, standing, 0), new RidleyAttackChoicesCase(9000, standing, 0), new RidleyAttackChoicesCase(14399, low, 0),
+            new RidleyAttackChoicesCase(14400, standing, 2), new RidleyAttackChoicesCase(18000, low, 3), new RidleyAttackChoicesCase(18000, null, 0),
+            new RidleyAttackChoicesCase(18000, spinning, 4),
         ];
         foreach (var sample in cases)
         for (int raw = 0; raw <= ushort.MaxValue; raw++)

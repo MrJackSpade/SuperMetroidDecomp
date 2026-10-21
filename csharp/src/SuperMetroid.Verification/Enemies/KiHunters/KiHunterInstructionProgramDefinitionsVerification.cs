@@ -199,8 +199,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             AssertTrue(cappedKeepingFraction, $"KiHunter {(swoopLeft ? "left" : "right")} swoop caps a velocity whose fraction is kept");
         }
 
-        (RoomEnemySystem Enemies, RoomEnemySlot Body, RoomEnemySlot Wings,
-            KiHunterEnemyState BodyState, KiHunterEnemyState WingState) CreatePair()
+        CreatePairResult CreatePair()
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot> initializeBody = KiHunterBehavior.InitializeKiHunter;
@@ -217,7 +216,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             wings.Bind(wings.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
             initializeBody(body);
             initializeWings(wings);
-            return (enemies, body, wings,
+            return new CreatePairResult(enemies, body, wings,
                 (enemies.KiHunterStates[0] ?? throw new InvalidOperationException("Verification requires the initialized KiHunter state.")), (enemies.KiHunterStates[1] ?? throw new InvalidOperationException("Verification requires the initialized KiHunter state.")));
         }
 

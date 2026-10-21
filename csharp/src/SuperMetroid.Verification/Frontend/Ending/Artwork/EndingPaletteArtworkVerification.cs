@@ -50,13 +50,23 @@ internal static class EndingPaletteArtworkVerification
         // Swapping two complete source columns preserves each temporal fade but changes
         // the endpoint's spatial gradient. Recognition must keep these supplied columns.
         byte[] reordered = (byte[])original.Clone();
-        (background[1], background[2]) = (background[2], background[1]);
+        {
+            var held0 = background[2];
+            var held1 = background[1];
+            background[1] = held0;
+            background[2] = held1;
+        }
         AssertTrue(EndingLogoBackgroundPalette.TryCreate(ToColors(background)) is null, "independent shade order is not replaced");
         for (int step = 0; step < 16; step++)
         for (int lane = 0; lane < 2; lane++)
         {
             int first = (step * 32 + 1) * 2 + lane, second = (step * 32 + 2) * 2 + lane;
-            (reordered[first], reordered[second]) = (reordered[second], reordered[first]);
+            {
+                var held0 = reordered[second];
+                var held1 = reordered[first];
+                reordered[first] = held0;
+                reordered[second] = held1;
+            }
         }
         EndingLogoPaletteFade reorderedFade = EndingLogoPaletteFade.TryCreate(reordered)
             ?? throw new InvalidOperationException("Reordered endpoint shades still have the original temporal fade.");
@@ -125,14 +135,14 @@ internal static class EndingPaletteArtworkVerification
     {
         // Original indexed LDA operands select the six contiguous resources. The gunship
         // uses absolute,X in bank8B; the others use long,X. No production source constants.
-        (EndingPaletteId Role, int Load, bool Long)[] loads =
+        EndingPaletteArtworkLoad[] loads =
         [
-            (EndingPaletteId.Escape, 0x8bd4a5, true),
-            (EndingPaletteId.PostCredits, 0x8bf70c, true),
-            (EndingPaletteId.Credits, 0x8bde8d, true),
-            (EndingPaletteId.Explosion, 0x8bd97e, true),
-            (EndingPaletteId.FinalGunship, 0x8bde37, false),
-            (EndingPaletteId.LogoInitial, 0x8be57d, true),
+            new EndingPaletteArtworkLoad(EndingPaletteId.Escape, 0x8bd4a5, true),
+            new EndingPaletteArtworkLoad(EndingPaletteId.PostCredits, 0x8bf70c, true),
+            new EndingPaletteArtworkLoad(EndingPaletteId.Credits, 0x8bde8d, true),
+            new EndingPaletteArtworkLoad(EndingPaletteId.Explosion, 0x8bd97e, true),
+            new EndingPaletteArtworkLoad(EndingPaletteId.FinalGunship, 0x8bde37, false),
+            new EndingPaletteArtworkLoad(EndingPaletteId.LogoInitial, 0x8be57d, true),
         ];
         foreach (var load in loads)
         {
@@ -143,30 +153,30 @@ internal static class EndingPaletteArtworkVerification
         // Allocation boundaries in pinned bank8C, independent of partial runtime transfers.
         foreach (var allocation in new[]
         {
-            (EndingPaletteId.PostCredits, 0x8ce7e9, 0x8ce9e9),
-            (EndingPaletteId.Credits, 0x8ce9e9, 0x8cebe9),
-            (EndingPaletteId.Explosion, 0x8cebe9, 0x8cede9),
-            (EndingPaletteId.Escape, 0x8cede9, 0x8cefe9),
+            new EndingPaletteArtworkVerificationValue(EndingPaletteId.PostCredits, 0x8ce7e9, 0x8ce9e9),
+            new EndingPaletteArtworkVerificationValue(EndingPaletteId.Credits, 0x8ce9e9, 0x8cebe9),
+            new EndingPaletteArtworkVerificationValue(EndingPaletteId.Explosion, 0x8cebe9, 0x8cede9),
+            new EndingPaletteArtworkVerificationValue(EndingPaletteId.Escape, 0x8cede9, 0x8cefe9),
         })
-            AssertEqual((allocation.Item3 - allocation.Item2) / 2,
-                EndingPaletteDefinitions.ColorCount(allocation.Item1), "complete palette allocation size");
-        foreach (var single in new[] { (EndingPaletteId.FinalGunship, 0x8bde34), (EndingPaletteId.LogoInitial, 0x8be57a) })
+            AssertEqual((allocation.End - allocation.Start) / 2,
+                EndingPaletteDefinitions.ColorCount(allocation.Id), "complete palette allocation size");
+        foreach (var single in new[] { new VerifyEndingPaletteMetadataCase(EndingPaletteId.FinalGunship, 0x8bde34), new VerifyEndingPaletteMetadataCase(EndingPaletteId.LogoInitial, 0x8be57a) })
         {
-            AssertEqual(0xa2, (int)rom.ReadCartridgeByte(single.Item2), "native reverse palette LDX opcode");
-            int lastOffset = rom.ReadCartridgeWord(single.Item2 + 1);
-            AssertEqual(lastOffset / 2 + 1, EndingPaletteDefinitions.ColorCount(single.Item1), "single palette reverse-copy size");
+            AssertEqual(0xa2, (int)rom.ReadCartridgeByte(single.Second), "native reverse palette LDX opcode");
+            int lastOffset = rom.ReadCartridgeWord(single.Second + 1);
+            AssertEqual(lastOffset / 2 + 1, EndingPaletteDefinitions.ColorCount(single.First), "single palette reverse-copy size");
         }
         AssertEqual((0x8be627 - 0x8be5e7) / 2 * 16,
             EndingPaletteDefinitions.ColorCount(EndingPaletteId.LogoCrossfade), "all native crossfade pointer payloads");
-        (EndingPaletteId Role, string Name)[] published =
+        Published[] published =
         [
-            (EndingPaletteId.Escape, "ending-escape-palette.json"),
-            (EndingPaletteId.PostCredits, "ending-post-credits-palette.json"),
-            (EndingPaletteId.Credits, "ending-credits-palette.json"),
-            (EndingPaletteId.Explosion, "ending-explosion-palette.json"),
-            (EndingPaletteId.FinalGunship, "ending-final-gunship-palette.json"),
-            (EndingPaletteId.LogoInitial, "ending-logo-initial-palette.json"),
-            (EndingPaletteId.LogoCrossfade, "ending-logo-crossfade-palette.json"),
+            new Published(EndingPaletteId.Escape, "ending-escape-palette.json"),
+            new Published(EndingPaletteId.PostCredits, "ending-post-credits-palette.json"),
+            new Published(EndingPaletteId.Credits, "ending-credits-palette.json"),
+            new Published(EndingPaletteId.Explosion, "ending-explosion-palette.json"),
+            new Published(EndingPaletteId.FinalGunship, "ending-final-gunship-palette.json"),
+            new Published(EndingPaletteId.LogoInitial, "ending-logo-initial-palette.json"),
+            new Published(EndingPaletteId.LogoCrossfade, "ending-logo-crossfade-palette.json"),
         ];
         foreach (var file in published)
             AssertEqual(file.Name, EndingPaletteDefinitions.FileName(file.Role), "published palette filename compatibility");
@@ -617,13 +627,13 @@ internal static class EndingPaletteArtworkVerification
     }
 
     /// <summary>Cartridge color intervals prohibited during ROM-free installed ending playback.</summary>
-    private static readonly (EndingPaletteId Id, int Start, int End)[] EndingPaletteSourceRanges =
+    private static readonly EndingPaletteArtworkVerificationValue[] EndingPaletteSourceRanges =
         Enum.GetValues<EndingPaletteId>()
             .Where(id => id != EndingPaletteId.LogoCrossfade)
-            .Select(id => (id, EndingPaletteDefinitions.SourceAddress(id),
+            .Select(id => new EndingPaletteArtworkVerificationValue(id, EndingPaletteDefinitions.SourceAddress(id),
                 EndingPaletteDefinitions.SourceAddress(id) +
                 EndingPaletteDefinitions.ColorCount(id) * sizeof(ushort)))
-            .Append((EndingPaletteId.LogoCrossfade, 0x8cefe9, 0x8cf3e9))
+            .Append(new EndingPaletteArtworkVerificationValue(EndingPaletteId.LogoCrossfade, 0x8cefe9, 0x8cf3e9))
             .ToArray();
 
     /// <summary>

@@ -150,7 +150,7 @@ internal static class Program
             foreach (AuditCoverage coverage in report.Coverage)
                 Console.WriteLine($"  {coverage.Domain}: {coverage.References} references / {coverage.Exports} exports");
             AuditFinding[] displayed = [.. report.Findings.Where(item => item.Code == AuditReport.Missing)
-                .DistinctBy(item => (item.Domain, item.Resource)).Take(25),
+                .DistinctBy(item => new DomainResource(item.Domain, item.Resource)).Take(25),
                 .. report.Findings.Where(item => item.Code != AuditReport.Missing).Take(15)];
             foreach (AuditFinding finding in displayed)
                 Console.Error.WriteLine($"{finding.Code} {finding.Source}: {finding.Owner}: {finding.Message}");

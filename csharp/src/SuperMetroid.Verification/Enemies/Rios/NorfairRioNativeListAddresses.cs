@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Rios;
 
 namespace SuperMetroid.Verification.Enemies.Rios;
@@ -13,30 +14,30 @@ internal static class NorfairRioNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (NorfairRioProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<NorfairRioProgram>[] Entries =
     [
-        (NorfairRioProgram.Idle, 0xc0f1),
-        (NorfairRioProgram.StartDescending, 0xc107),
-        (NorfairRioProgram.Descending, 0xc12f),
-        (NorfairRioProgram.StartAscending, 0xc145),
-        (NorfairRioProgram.Ascending, 0xc179),
-        (NorfairRioProgram.FlamesAscending, 0xc18f),
-        (NorfairRioProgram.FlamesDescending, 0xc1a3),
+        new NativeProgramEntry<NorfairRioProgram>(NorfairRioProgram.Idle, 0xc0f1),
+        new NativeProgramEntry<NorfairRioProgram>(NorfairRioProgram.StartDescending, 0xc107),
+        new NativeProgramEntry<NorfairRioProgram>(NorfairRioProgram.Descending, 0xc12f),
+        new NativeProgramEntry<NorfairRioProgram>(NorfairRioProgram.StartAscending, 0xc145),
+        new NativeProgramEntry<NorfairRioProgram>(NorfairRioProgram.Ascending, 0xc179),
+        new NativeProgramEntry<NorfairRioProgram>(NorfairRioProgram.FlamesAscending, 0xc18f),
+        new NativeProgramEntry<NorfairRioProgram>(NorfairRioProgram.FlamesDescending, 0xc1a3),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (NorfairRioCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, NorfairRioNativeListAddressesInstruction> Instructions = new()
     {
-        [0xc1c9] = (NorfairRioCueKind.SwoopStartFinished, ""),
-        [0xc1d4] = (NorfairRioCueKind.FlamesAt8, ""),
-        [0xc1df] = (NorfairRioCueKind.FlamesAt8, ""),
-        [0xc1ea] = (NorfairRioCueKind.FlamesAt12, ""),
-        [0xc1f5] = (NorfairRioCueKind.FlamesAtMinus12, ""),
-        [0xc200] = (NorfairRioCueKind.FlamesAt4, ""),
-        [0xc20b] = (NorfairRioCueKind.FlamesAt0, ""),
-        [0xc216] = (NorfairRioCueKind.FlamesAtMinus4, ""),
-        [0xc221] = (NorfairRioCueKind.FlamesAtMinus12, ""),
-        [0xc22c] = (NorfairRioCueKind.FlamesAtMinus16, ""),
-        [0xc237] = (NorfairRioCueKind.FlamesAt12, ""),
+        [0xc1c9] = new NorfairRioNativeListAddressesInstruction(NorfairRioCueKind.SwoopStartFinished, ""),
+        [0xc1d4] = new NorfairRioNativeListAddressesInstruction(NorfairRioCueKind.FlamesAt8, ""),
+        [0xc1df] = new NorfairRioNativeListAddressesInstruction(NorfairRioCueKind.FlamesAt8, ""),
+        [0xc1ea] = new NorfairRioNativeListAddressesInstruction(NorfairRioCueKind.FlamesAt12, ""),
+        [0xc1f5] = new NorfairRioNativeListAddressesInstruction(NorfairRioCueKind.FlamesAtMinus12, ""),
+        [0xc200] = new NorfairRioNativeListAddressesInstruction(NorfairRioCueKind.FlamesAt4, ""),
+        [0xc20b] = new NorfairRioNativeListAddressesInstruction(NorfairRioCueKind.FlamesAt0, ""),
+        [0xc216] = new NorfairRioNativeListAddressesInstruction(NorfairRioCueKind.FlamesAtMinus4, ""),
+        [0xc221] = new NorfairRioNativeListAddressesInstruction(NorfairRioCueKind.FlamesAtMinus12, ""),
+        [0xc22c] = new NorfairRioNativeListAddressesInstruction(NorfairRioCueKind.FlamesAtMinus16, ""),
+        [0xc237] = new NorfairRioNativeListAddressesInstruction(NorfairRioCueKind.FlamesAt12, ""),
     };
 }

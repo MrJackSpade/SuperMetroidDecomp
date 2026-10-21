@@ -11,20 +11,20 @@ namespace SuperMetroid.Core.Fx;
 internal static class RoomFxDefinitionsAccess
 {
     /// <summary>Each record pointer's header and index, first header first.</summary>
-    private static readonly SortedDictionary<ushort, (RoomFxDefinition Fx, int Index)> RecordsByPointer = IndexRecords();
+    private static readonly SortedDictionary<ushort, IndexedFx> RecordsByPointer = IndexRecords();
 
     /// <summary>Each record instance's pointer.</summary>
     private static readonly Dictionary<RoomFxRecordDefinition, ushort> PointersByRecord = IndexPointers();
 
     /// <summary>Places every record of every compiled header at its bank-$83 pointer.</summary>
-    private static SortedDictionary<ushort, (RoomFxDefinition, int)> IndexRecords()
+    private static SortedDictionary<ushort, IndexedFx> IndexRecords()
     {
-        var result = new SortedDictionary<ushort, (RoomFxDefinition, int)>();
+        var result = new SortedDictionary<ushort, IndexedFx>();
         foreach (ushort header in RoomFxSources.Pointers)
         {
             RoomFxDefinition fx = RoomFxSources.Fx(header);
             for (int index = 0; index < fx.Records.Count; index++)
-                result.TryAdd(checked((ushort)(header + index * RoomFxToolingRomData.Record.ByteCount)), (fx, index));
+                result.TryAdd(checked((ushort)(header + index * RoomFxToolingRomData.Record.ByteCount)), new IndexedFx(fx, index));
         }
         return result;
     }

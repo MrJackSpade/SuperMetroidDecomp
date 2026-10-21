@@ -27,7 +27,7 @@ internal static class RoomBackgroundsFixtures
     /// BG3 plane.
     /// </summary>
     internal static RoomBackgrounds Uniform(SnesBgTilemapWord tile,
-        params ReadOnlySpan<(int Column, int Row, SnesBgTilemapWord Tile)> cells)
+        params ReadOnlySpan<TilemapCell> cells)
     {
         // Each block's four cells, top left, top right, bottom left, bottom right, as its definition stores them.
         var blockCells = new ushort[SideBlocks * SideBlocks][];
@@ -35,13 +35,13 @@ internal static class RoomBackgroundsFixtures
             blockCells[block] = [tile.Raw, tile.Raw, tile.Raw, tile.Raw];
         foreach (var (column, row, cell) in cells)
             blockCells[row / 2 * SideBlocks + column / 2][row % 2 * 2 + column % 2] = cell.Raw;
-        var definitionIndices = new Dictionary<(ushort, ushort, ushort, ushort), ushort>();
+        var definitionIndices = new Dictionary<BlockCellWords, ushort>();
         var definitions = new byte[Definitions * RoomLevelPlane.DefinitionBytes];
         var blocks = new ushort[blockCells.Length];
         for (int block = 0; block < blocks.Length; block++)
         {
             ushort[] words = blockCells[block];
-            var key = (words[0], words[1], words[2], words[3]);
+            var key = new BlockCellWords(words[0], words[1], words[2], words[3]);
             if (!definitionIndices.TryGetValue(key, out ushort index))
             {
                 index = (ushort)definitionIndices.Count;

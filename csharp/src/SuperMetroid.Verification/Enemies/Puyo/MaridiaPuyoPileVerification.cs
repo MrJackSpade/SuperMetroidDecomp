@@ -22,9 +22,9 @@ internal static class MaridiaPuyoPileVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { SeedRandom = random.SetRandomNumber }) { TileArtwork = FixtureEnemyTileArtwork() };
         enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new SnesCgram()));
         // These are the six literal retail population records, not a constructed pile.
-        (ushort X, ushort Y, ushort Delay)[] population =
-            [(87,156,0x0f00), (98,156,0x0f00), (105,156,0x0f00),
-             (91,152,0x0e00), (101,152,0x0e00), (97,148,0x0d00)];
+        Population[] population =
+            [new Population(87,156,0x0f00), new Population(98,156,0x0f00), new Population(105,156,0x0f00),
+             new Population(91,152,0x0e00), new Population(101,152,0x0e00), new Population(97,148,0x0d00)];
         AssertEqual(population.Length, enemies.SlotTable.EnemyCount, "reported room has six authored Puyos");
         for (int i = 0; i < population.Length; i++)
         {

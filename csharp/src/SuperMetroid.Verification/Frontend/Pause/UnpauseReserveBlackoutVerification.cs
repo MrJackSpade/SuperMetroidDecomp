@@ -23,7 +23,7 @@ internal static class UnpauseReserveBlackoutVerification
     /// </summary>
     internal static void VerifyUnpauseReserveBlackout()
     {
-        (SuperMetroidGame Game, SuperMetroidRuntime Runtime) Create()
+        UnpauseReserveBlackoutCreateResult Create()
         {
             var random = new CartridgeRandom();
             SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(random: random);
@@ -35,7 +35,7 @@ internal static class UnpauseReserveBlackoutVerification
             var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
             game.AdoptRuntime(runtime);
             game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
-            return (game, runtime);
+            return new UnpauseReserveBlackoutCreateResult(game, runtime);
         }
 
         var (unpausing, unpausingRuntime) = Create();

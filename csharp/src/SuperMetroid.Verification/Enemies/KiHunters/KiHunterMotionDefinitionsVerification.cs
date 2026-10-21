@@ -61,7 +61,7 @@ internal static class KiHunterMotionDefinitionsVerification
             AssertEqual((ushort)expected, actual.Fraction, "Native gravity fraction wrap");
         }
         AssertEqual(32768, arcChanges, "Detached orbit changes arc for exactly half of all advanced angles");
-        foreach ((int before, int after) in new[] { (1000, 616), (384, 0), (383, 256), (0, 256) })
+        foreach ((int before, int after) in new[] { new VerifyKiHunterMotionDefinitionsCase(1000, 616), new VerifyKiHunterMotionDefinitionsCase(384, 0), new VerifyKiHunterMotionDefinitionsCase(383, 256), new VerifyKiHunterMotionDefinitionsCase(0, 256) })
         {
             state.WingArcAngle = SnesAngle.Zero;
             state.WingFunction = KiHunterWingFunction.Orbit;

@@ -1,3 +1,4 @@
+using SuperMetroid.EnsureAnalyzer.Contracts;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -52,23 +53,23 @@ public sealed class CpuBusDeclarationAnalyzer : DiagnosticAnalyzer
         if (CartridgeEncodingScanner.IsBuildGenerated(tree.FilePath))
             return;
 
-        var found = new List<(Location Location, string What)>();
+        var found = new List<SpeciesFinding>();
         foreach (SyntaxNode node in tree.GetRoot(context.CancellationToken).DescendantNodes())
         {
             (ISymbol? symbol, ITypeSymbol? type, string kind) = node switch
             {
                 ParameterSyntax parameter when context.SemanticModel.GetDeclaredSymbol(parameter, context.CancellationToken) is IParameterSymbol p =>
-                    (p, p.Type, "parameter"),
+                    new BusDeclaration(p, p.Type, "parameter"),
                 VariableDeclaratorSyntax { Parent.Parent: FieldDeclarationSyntax } declarator when
-                    context.SemanticModel.GetDeclaredSymbol(declarator, context.CancellationToken) is IFieldSymbol f => (f, f.Type, "field"),
+                    context.SemanticModel.GetDeclaredSymbol(declarator, context.CancellationToken) is IFieldSymbol f => new BusDeclaration(f, f.Type, "field"),
                 PropertyDeclarationSyntax property when context.SemanticModel.GetDeclaredSymbol(property, context.CancellationToken) is IPropertySymbol p =>
-                    (p, p.Type, "property"),
-                _ => ((ISymbol?)null, (ITypeSymbol?)null, ""),
+                    new BusDeclaration(p, p.Type, "property"),
+                _ => new BusDeclaration(null, null, ""),
             };
             if (symbol is null || type is null || !IsBusInterface(type) ||
                 LayoutBoundaries.InBoundary(symbol, CpuBusAccessAnalyzer.BoundaryAttributeName, CpuBusAccessAnalyzer.AccessAttributeName))
                 continue;
-            found.Add((symbol.Locations[0], $"{kind} '{symbol.Name}' is typed as CPU-bus interface '{type.WithNullableAnnotation(NullableAnnotation.None).Name}'"));
+            found.Add(new SpeciesFinding(symbol.Locations[0], $"{kind} '{symbol.Name}' is typed as CPU-bus interface '{type.WithNullableAnnotation(NullableAnnotation.None).Name}'"));
         }
 
         foreach ((Location location, string what) in found)

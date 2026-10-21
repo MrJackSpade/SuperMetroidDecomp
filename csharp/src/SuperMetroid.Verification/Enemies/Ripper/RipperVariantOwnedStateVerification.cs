@@ -31,7 +31,7 @@ internal static class RipperVariantOwnedStateVerification
         AssertEqual(positive, state.XVelocity, "a reversal loads the positive half");
 
         slot.Clear();
-        AssertEqual((SnesSignedSixteenSixteen.Zero, 0), (state.XVelocity, state.SpeedTableByteOffset), "a kill empties the velocity and record");
+        AssertEqual(new VerifyRipperVariantOwnedStateCase(SnesSignedSixteenSixteen.Zero, 0), new VerifyRipperVariantOwnedStateCase(state.XVelocity, state.SpeedTableByteOffset), "a kill empties the velocity and record");
         Console.WriteLine("Ripper variant owned state: the record's velocity halves, the reversal and the cleared record match.");
     }
 

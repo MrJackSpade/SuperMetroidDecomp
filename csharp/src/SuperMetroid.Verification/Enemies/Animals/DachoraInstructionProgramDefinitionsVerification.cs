@@ -28,12 +28,12 @@ internal static class DachoraInstructionProgramDefinitionsVerification
     /// </summary>
     internal static void VerifyDachoraInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
-        (ushort Parameter, DachoraProgram Expected)[] initializerCases =
+        InitializerCase[] initializerCases =
         [
-            (0, DachoraProgram.IdleLeft),
-            (1, DachoraProgram.IdleRight),
-            (0xfffe, DachoraProgram.EchoLeft),
-            (0xffff, DachoraProgram.EchoRight),
+            new InitializerCase(0, DachoraProgram.IdleLeft),
+            new InitializerCase(1, DachoraProgram.IdleRight),
+            new InitializerCase(0xfffe, DachoraProgram.EchoLeft),
+            new InitializerCase(0xffff, DachoraProgram.EchoRight),
         ];
         foreach ((ushort parameter, DachoraProgram expected) in initializerCases)
         {
@@ -61,8 +61,8 @@ internal static class DachoraInstructionProgramDefinitionsVerification
 
         foreach ((DachoraProgram slow, DachoraProgram fast, DachoraProgram fastest) in new[]
                  {
-                     (DachoraProgram.RunningLeft, DachoraProgram.RunningLeftFast, DachoraProgram.RunningLeftVeryFast),
-                     (DachoraProgram.RunningRight, DachoraProgram.RunningRightFast, DachoraProgram.RunningRightVeryFast),
+                     new VerifyDachoraInstructionProgramDefinitionsCase(DachoraProgram.RunningLeft, DachoraProgram.RunningLeftFast, DachoraProgram.RunningLeftVeryFast),
+                     new VerifyDachoraInstructionProgramDefinitionsCase(DachoraProgram.RunningRight, DachoraProgram.RunningRightFast, DachoraProgram.RunningRightVeryFast),
                  })
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(0);
@@ -93,14 +93,14 @@ internal static class DachoraInstructionProgramDefinitionsVerification
     }
 
     /// <summary>A Dachora with spawn parameter <paramref name="parameter"/> in the first enemy slot.</summary>
-    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot) NewDachora(ushort parameter)
+    private static DachoraInstructionProgramDefinitionsNewDachoraResult NewDachora(ushort parameter)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa7 });
         slot.SetSpawnParameter1(parameter);
-        return (enemies, slot);
+        return new DachoraInstructionProgramDefinitionsNewDachoraResult(enemies, slot);
     }
 
     /// <summary>Runs the Dachora animation verification.</summary>

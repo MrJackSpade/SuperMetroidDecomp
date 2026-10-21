@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
@@ -342,7 +343,7 @@ level, right, unchecked((ushort)(frame + 1))),
 /// locates the perpendicular one. Each probe uses a copy of Samus because exact contact
 /// clears her Y subposition.
 /// </summary>
-static (ushort X, ushort Y) ObserveSolidEnemyProbeTarget(
+static MotherBrainRinkaDoorSpawnExpected ObserveSolidEnemyProbeTarget(
     SamusKinematicsState samus,
     SamusCollisionDirection direction,
     ushort distance,
@@ -397,7 +398,7 @@ static (ushort X, ushort Y) ObserveSolidEnemyProbeTarget(
             SamusCollisionDirection.NonDirectionalProbe => (minY + maxY) / 2,
         _ => (minY + maxY) / 2,
     };
-    return (unchecked((ushort)targetX), unchecked((ushort)targetY));
+    return new MotherBrainRinkaDoorSpawnExpected(unchecked((ushort)targetX), unchecked((ushort)targetY));
 }
 
 /// <summary>
@@ -425,30 +426,30 @@ internal static void VerifySamusSolidEnemyCollision()
     // `$A0:A90A-$A0:A9B7` has asymmetric-looking but literal carry/borrow rounding. Test all
     // four jump-table entries, including fractional underflow and overflow, so a later
     // refactor cannot replace this with ordinary truncation or Math.Round.
-    (ushort X, ushort Y) left = ObserveSolidEnemyProbeTarget(
+    MotherBrainRinkaDoorSpawnExpected left = ObserveSolidEnemyProbeTarget(
         samus, SamusCollisionDirection.Left, distance: 0, distanceSubposition: 0x8000);
     AssertEqual(98, left.X, "left fractional borrow plus outward decrement");
     AssertEqual(100, left.Y, "left probe preserves target Y");
 
     samus.Position = samus.Position.WithFractionX(0xf000);
-    (ushort X, ushort Y) rightCarry = ObserveSolidEnemyProbeTarget(
+    MotherBrainRinkaDoorSpawnExpected rightCarry = ObserveSolidEnemyProbeTarget(
         samus, SamusCollisionDirection.Right, distance: 0, distanceSubposition: 0x2000);
     AssertEqual(102, rightCarry.X, "right fractional carry plus outward increment");
 
     samus.Position = samus.Position.WithFractionY(0);
-    (ushort X, ushort Y) up = ObserveSolidEnemyProbeTarget(
+    MotherBrainRinkaDoorSpawnExpected up = ObserveSolidEnemyProbeTarget(
         samus, SamusCollisionDirection.Up, distance: 1, distanceSubposition: 0x8000);
     AssertEqual(97, up.Y, "up target shares negative-direction rounding");
 
     samus.Position = samus.Position.WithFractionY(0xf000);
-    (ushort X, ushort Y) down = ObserveSolidEnemyProbeTarget(
+    MotherBrainRinkaDoorSpawnExpected down = ObserveSolidEnemyProbeTarget(
         samus, SamusCollisionDirection.Down, distance: 1, distanceSubposition: 0x2000);
     AssertEqual(103, down.Y, "down target shares positive-direction rounding");
 
     // #1269: after a carry the INC sets Z from the target word, so `$A0:A9A7` rounds a
     // second pixel even when the carried fraction is exactly zero.
     samus.Position = samus.Position.WithFractionY(0x9800);
-    (ushort X, ushort Y) exactCarry = ObserveSolidEnemyProbeTarget(
+    MotherBrainRinkaDoorSpawnExpected exactCarry = ObserveSolidEnemyProbeTarget(
         samus, SamusCollisionDirection.Down, distance: 2, distanceSubposition: 0x6800);
     AssertEqual(104, exactCarry.Y, "an exact fractional carry still rounds two pixels outward");
 
@@ -676,16 +677,16 @@ internal static void VerifySamusGrabbedByDraygon()
     WriteAnimationDelayStream(bus, 0xc001, [0x0a]);
 
     SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xae18, [
-        (0x0000, 0x0a40, 0x00bb), (0x0000, 0x0640, 0x00bd), (0x0000, 0x0240, 0x00bc),
-        (0x0000, 0x0010, 0x00bb), (0x0000, 0x0020, 0x00bd), (0x0000, 0x0040, 0x00bc),
-        (0x0000, 0x0200, 0x00be), (0x0000, 0x0100, 0x00be), (0x0000, 0x0800, 0x00be),
-        (0x0000, 0x0400, 0x00be),
+        new SyntheticSamusCartridgeRecord(0x0000, 0x0a40, 0x00bb), new SyntheticSamusCartridgeRecord(0x0000, 0x0640, 0x00bd), new SyntheticSamusCartridgeRecord(0x0000, 0x0240, 0x00bc),
+        new SyntheticSamusCartridgeRecord(0x0000, 0x0010, 0x00bb), new SyntheticSamusCartridgeRecord(0x0000, 0x0020, 0x00bd), new SyntheticSamusCartridgeRecord(0x0000, 0x0040, 0x00bc),
+        new SyntheticSamusCartridgeRecord(0x0000, 0x0200, 0x00be), new SyntheticSamusCartridgeRecord(0x0000, 0x0100, 0x00be), new SyntheticSamusCartridgeRecord(0x0000, 0x0800, 0x00be),
+        new SyntheticSamusCartridgeRecord(0x0000, 0x0400, 0x00be),
     ]);
     SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xae56, [
-        (0x0000, 0x0940, 0x00ed), (0x0000, 0x0540, 0x00ef), (0x0000, 0x0140, 0x00ee),
-        (0x0000, 0x0010, 0x00ed), (0x0000, 0x0020, 0x00ef), (0x0000, 0x0040, 0x00ee),
-        (0x0000, 0x0200, 0x00f0), (0x0000, 0x0100, 0x00f0), (0x0000, 0x0800, 0x00f0),
-        (0x0000, 0x0400, 0x00f0),
+        new SyntheticSamusCartridgeRecord(0x0000, 0x0940, 0x00ed), new SyntheticSamusCartridgeRecord(0x0000, 0x0540, 0x00ef), new SyntheticSamusCartridgeRecord(0x0000, 0x0140, 0x00ee),
+        new SyntheticSamusCartridgeRecord(0x0000, 0x0010, 0x00ed), new SyntheticSamusCartridgeRecord(0x0000, 0x0020, 0x00ef), new SyntheticSamusCartridgeRecord(0x0000, 0x0040, 0x00ee),
+        new SyntheticSamusCartridgeRecord(0x0000, 0x0200, 0x00f0), new SyntheticSamusCartridgeRecord(0x0000, 0x0100, 0x00f0), new SyntheticSamusCartridgeRecord(0x0000, 0x0800, 0x00f0),
+        new SyntheticSamusCartridgeRecord(0x0000, 0x0400, 0x00f0),
     ]);
 
     foreach (bool facingRight in new[] { false, true })

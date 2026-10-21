@@ -9,7 +9,7 @@ internal sealed class AndroidSessionCommands
     /// <summary>Serializes enqueue, dequeue, and shutdown against the same mailbox state.</summary>
     private readonly Lock gate = new();
     /// <summary>Pending UI commands paired with completion sources for their worker results.</summary>
-    private readonly Queue<(Func<AndroidSessionData, string> Action, TaskCompletionSource<string> Result)> pending = new();
+    private readonly Queue<AndroidSessionRequest> pending = new();
     /// <summary>Terminal worker failure returned to later requests and pending callers.</summary>
     private Exception? stopped;
 
@@ -20,13 +20,13 @@ internal sealed class AndroidSessionCommands
         {
             if (stopped is not null) return Task.FromException<string>(stopped);
             var result = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
-            pending.Enqueue((action, result));
+            pending.Enqueue(new AndroidSessionRequest(action, result));
             return result.Task;
         }
     }
 
     /// <summary>Takes the oldest UI command under the mailbox gate if one is pending.</summary>
-    public bool TryDequeue(out (Func<AndroidSessionData, string> Action, TaskCompletionSource<string> Result) request)
+    public bool TryDequeue(out AndroidSessionRequest request)
     {
         lock (gate) return pending.TryDequeue(out request);
     }

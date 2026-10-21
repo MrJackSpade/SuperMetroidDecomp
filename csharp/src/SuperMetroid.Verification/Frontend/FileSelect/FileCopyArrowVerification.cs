@@ -28,7 +28,7 @@ internal static class FileCopyArrowVerification
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         for (int slot = 0; slot < 3; slot++)
             saves.SaveSlot(slot, new SuperMetroidSaveSnapshot { Health = 99, MaxHealth = 99 });
-        foreach (var pair in new[] { (0, 2), (0, 1), (1, 2), (2, 0), (1, 0), (2, 1) }.Select((slots, row) => (slots, row)))
+        foreach (var pair in new[] { new FileCopyArrowVerifyFileCopyArrowCase(0, 2), new FileCopyArrowVerifyFileCopyArrowCase(0, 1), new FileCopyArrowVerifyFileCopyArrowCase(1, 2), new FileCopyArrowVerifyFileCopyArrowCase(2, 0), new FileCopyArrowVerifyFileCopyArrowCase(1, 0), new FileCopyArrowVerifyFileCopyArrowCase(2, 1) }.Select((slots, row) => new VerifyFileCopyArrowCase(slots, row)))
         {
             saves.SelectSlot(0);
             var menu = new FileSelectMenuState(saves, mapPresentation: art);
@@ -47,14 +47,14 @@ internal static class FileCopyArrowVerification
             for (int i = 0; i < 3; i++) Press(SnesButton.Down);
             Press(SnesButton.A);
             Until(FileSelectPhase.CopySelectSource);
-            for (int i = 0; i < pair.slots.Item1; i++) Press(SnesButton.Down);
+            for (int i = 0; i < pair.Slots.First; i++) Press(SnesButton.Down);
             Press(SnesButton.A);
-            int firstDestination = pair.slots.Item1 == 0 ? 1 : 0;
-            if (pair.slots.Item2 != firstDestination) Press(SnesButton.Down);
+            int firstDestination = pair.Slots.First == 0 ? 1 : 0;
+            if (pair.Slots.Second != firstDestination) Press(SnesButton.Down);
             int noArrowCount = Capture().LastFinalizedSpriteCount;
             Press(SnesButton.A);
             AssertEqual(FileSelectPhase.CopyConfirm, menu.Phase, "arrow appears at confirmation");
-            int record = 0x82bb0c + pair.row * 6;
+            int record = 0x82bb0c + pair.Row * 6;
             ushort id = ReadVerificationWord(rom, record);
             ushort originX = ReadVerificationWord(rom, record + 2);
             ushort originY = ReadVerificationWord(rom, record + 4);
@@ -70,7 +70,7 @@ internal static class FileCopyArrowVerification
                 expected.AddOnScreenSpritePart(new SnesSpritemapXWord(ReadVerificationWord(rom, address)),
                     new SnesSpritemapYByte(FileCopyArrowRomByte(rom, address + 2)), (SnesObjAttributeWord)ReadVerificationWord(rom, address + 3), new Position16<OamPixels>(originX, originY));
                 AssertEqual(expected.GetEntry(part), actual.GetEntry(noArrowCount + part),
-                    $"copy {pair.slots}: exact arrow position, tile, flip, palette and priority, part {part}");
+                    $"copy {pair.Slots}: exact arrow position, tile, flip, palette and priority, part {part}");
             }
             expected.FinalizeFrame();
             Rgba32[] arrowPixels = SnesObjRenderer.Render(expected, MenuScreenFixtures.Vram(menu.screen), MenuScreenFixtures.Cgram(menu.screen), obsel: MenuRenderDefinitions.ObjectSelection);

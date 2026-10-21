@@ -42,12 +42,12 @@ internal static class WramHelperBoundaryVerification
         for (int index = 0; index < 3; index++)
             AssertEqual(new CorpseRottingTableEntry((short)(2 - index), (ushort)(2 * index)),
                 CorpseRottingTableProcessor.ReadEntry(table, index), "native rot table initialization");
-        var rows = new List<(ushort Row, bool Move)>();
+        var rows = new List<WramHelperBoundaryRow>();
         var finished = new List<ushort>();
         bool active = CorpseRottingTableProcessor.Step(table, 2, 1,
-            (row, operation) => rows.Add((row, operation == CorpseRowOperation.Move)), finished.Add);
+            (row, operation) => rows.Add(new WramHelperBoundaryRow(row, operation == CorpseRowOperation.Move)), finished.Add);
         AssertTrue(active, "a finished non-final rot entry does not finish the scheduler");
-        AssertTrue(rows.SequenceEqual(new[] { ((ushort)2, true), ((ushort)1, true), ((ushort)0, true) }),
+        AssertTrue(rows.SequenceEqual(new[] { new WramHelperBoundaryRow(2, true), new WramHelperBoundaryRow(1, true), new WramHelperBoundaryRow(0, true) }),
             "rot callback order and late-move selection");
         AssertTrue(finished.SequenceEqual(new ushort[] { 0 }), "only the expired first row finishes");
         AssertEqual(new CorpseRottingTableEntry(-1, 0),

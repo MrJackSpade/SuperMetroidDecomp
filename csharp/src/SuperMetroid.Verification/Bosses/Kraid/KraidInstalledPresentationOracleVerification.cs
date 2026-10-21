@@ -41,7 +41,7 @@ internal static class KraidInstalledPresentationOracleVerification
     /// to the display without changing the body map that later rise/growth/sink requests upload from WRAM.
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for one Kraid head tilemap frame")]
-    internal static (KraidEnemyState State, ushort[] Tilemap) ReadImportedKraidHeadFrame(
+    internal static ReadImportedKraidHeadFrameResult ReadImportedKraidHeadFrame(
         CartridgeImportAddressSpace source, ushort pointer)
     {
         byte[] bytes = RomDataReader.ReadFixedBank(source, KraidBackgroundRomData.NativeBank | pointer,
@@ -50,7 +50,7 @@ internal static class KraidInstalledPresentationOracleVerification
         for (int word = 0; word < head.Length; word++)
             head[word] = BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(word * 2));
         var state = new KraidEnemyState { HeadTilemapUploadCount = 1 };
-        return (state, KraidBodyFixtures.Tilemap(Blank(), head, Blank()));
+        return new ReadImportedKraidHeadFrameResult(state, KraidBodyFixtures.Tilemap(Blank(), head, Blank()));
 
         static ushort[] Blank() => Enumerable.Repeat(KraidBackgroundRomData.BlankTile, KraidBackgroundRomData.VisiblePageWords).ToArray();
     }

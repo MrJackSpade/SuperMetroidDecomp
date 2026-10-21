@@ -1,3 +1,5 @@
+using SuperMetroid.Verification.Bosses;
+using SuperMetroid.Verification.Enemies.Animals;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -135,7 +137,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
         // surrounding reference fixture are outside the allocation interval.
         [System.Runtime.CompilerServices.MethodImpl(
             System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
-        static (long Allocated, int Checksum) MeasureLookupAllocation(ushort frame)
+        static MeasureLookupAllocationResult MeasureLookupAllocation(ushort frame)
         {
             long before = GC.GetAllocatedBytesForCurrentThread();
             int checksum = 0;
@@ -145,7 +147,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
                 checksum += components.Length;
                 checksum += components[0].Hitboxes.Count;
             }
-            return (GC.GetAllocatedBytesForCurrentThread() - before, checksum);
+            return new MeasureLookupAllocationResult(GC.GetAllocatedBytesForCurrentThread() - before, checksum);
         }
         var guard = NewSpacePirateCollisionReadGuard(rom, nativeRanges);
         int probes = 0;
@@ -154,9 +156,9 @@ internal static class SpacePirateCollisionDefinitionsVerification
                      .Select(SpacePirateCollisionDefinitions.Frame))
         {
             foreach ((ushort originX, ushort originY) in
-                     new (ushort, ushort)[]
+                     new VerifySpacePirateCollisionDefinitionsCase[]
                      {
-                         (0x0100, 0x0100), (0x0004, 0x0006), (0xfffc, 0xfffa),
+                         new VerifySpacePirateCollisionDefinitionsCase(0x0100, 0x0100), new VerifySpacePirateCollisionDefinitionsCase(0x0004, 0x0006), new VerifySpacePirateCollisionDefinitionsCase(0xfffc, 0xfffa),
                      })
             {
                 var native = CreateSystem(rom, frame.Pointer, originX,
@@ -218,7 +220,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
                 nativeRanges.Add(0xb20000 | unchecked((ushort)(pointer + offset)));
         }
 
-        (RoomEnemySystem Enemies, RoomEnemySlot Slot) CreateSystem(
+        DachoraInstructionProgramDefinitionsNewDachoraResult CreateSystem(
             ISnesAddressSpace bus, ushort pointer, ushort x, ushort y,
             bool compiledPirate)
         {
@@ -238,10 +240,10 @@ internal static class SpacePirateCollisionDefinitionsVerification
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xb2 });
             slot.SpritemapPointer = pointer;
             slot.Position = slot.Position.WithWhole(new(x, y));
-            return (enemies, slot);
+            return new DachoraInstructionProgramDefinitionsNewDachoraResult(enemies, slot);
         }
 
-        (bool Hit, ushort Callback) Invoke(RoomEnemySystem enemies,
+        HitboxResult Invoke(RoomEnemySystem enemies,
             RoomEnemySlot slot, ushort x, ushort y, ushort radiusX,
             ushort radiusY, bool shot)
         {
@@ -250,7 +252,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
             bool hit = slot.EnemyDefinitionPointer == (EnemyDefinitionId)0xffff
                 ? ReferenceExtendedCollision(rom, arguments)
                 : ExtendedHitboxWalker.Find(enemies, arguments);
-            return (hit, (ushort)(arguments[4] ?? throw new InvalidOperationException("Verification requires arguments[4].")));
+            return new HitboxResult(hit, (ushort)(arguments[4] ?? throw new InvalidOperationException("Verification requires arguments[4].")));
         }
     }
 

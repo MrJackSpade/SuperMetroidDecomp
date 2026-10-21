@@ -23,7 +23,7 @@ internal static class RefillStationLockVerification
         for (int frame = 0; frame < 8; frame++)
             runtime.StepFrame(0);
 
-        (int Frame, ushort Timer) Animation() => (samus.AnimationFrame, samus.AnimationFrameTimer.RawValue);
+        AnimationResult Animation() => new AnimationResult(samus.AnimationFrame, samus.AnimationFrameTimer.RawValue);
         var unlocked = Animation();
         runtime.StepFrame(0);
         AssertTrue(Animation() != unlocked, "the normal beta advances Samus's animation");

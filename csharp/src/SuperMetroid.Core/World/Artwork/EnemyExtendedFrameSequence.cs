@@ -12,8 +12,11 @@ internal readonly record struct EnemyExtendedFrameSequence(int Start, int Length
     {
         get
         {
-            var (offset, length) = range.GetOffsetAndLength(Length);
-            return new(Start + offset, length);
+            int offset = range.Start.GetOffset(Length);
+            int end = range.End.GetOffset(Length);
+            if ((uint)end > (uint)Length || (uint)offset > (uint)end)
+                throw new ArgumentOutOfRangeException(nameof(range), range, $"The range does not fit the {Length} frames.");
+            return new(Start + offset, end - offset);
         }
     }
 

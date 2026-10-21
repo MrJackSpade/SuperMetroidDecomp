@@ -34,10 +34,10 @@ internal static class OwtchPatrolStateVerification
         AssertEqual((ushort)98, slot.Position.X.Whole, "Owtch leftward speed wraps its whole word");
         AssertEqual((ushort)49152, slot.Position.X.Fraction, "Owtch leftward fraction without a carry");
 
-        foreach ((int depth, int expectedDepth, OwtchBehaviorState expectedBehavior) in new (int, int, OwtchBehaviorState)[]
+        foreach ((int depth, int expectedDepth, OwtchBehaviorState expectedBehavior) in new VerifyOwtchPatrolStateCase[]
                  {
-                     (14, 15, OwtchBehaviorState.Sinking),
-                     (15, 16, OwtchBehaviorState.Underground),
+                     new VerifyOwtchPatrolStateCase(14, 15, OwtchBehaviorState.Sinking),
+                     new VerifyOwtchPatrolStateCase(15, 16, OwtchBehaviorState.Underground),
                  })
         {
             (enemies, slot, state) = NewOwtch(OwtchBehaviorState.Sinking);
@@ -64,7 +64,7 @@ internal static class OwtchPatrolStateVerification
     }
 
     /// <summary>An initialized Owtch at room position (100, 64) in <paramref name="behavior"/>, with the first travel distance and speed.</summary>
-    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, OwtchEnemyState State) NewOwtch(OwtchBehaviorState behavior)
+    private static NewOwtchResult NewOwtch(OwtchBehaviorState behavior)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         // A walk rolls the sink chance each update; a high roll keeps the Owtch walking.
@@ -76,7 +76,7 @@ internal static class OwtchPatrolStateVerification
         slot.SetSpawnParameter2(0);
         slot.Position = FixedPosition<RoomPixels>.FromWhole(new(100, 64));
         OwtchBehavior.InitializeOwtch(slot);
-        return (enemies, slot, slot.RequireSpeciesState<OwtchEnemyState>());
+        return new NewOwtchResult(enemies, slot, slot.RequireSpeciesState<OwtchEnemyState>());
     }
 
     /// <summary>Runs the Owtch patrol-state check.</summary>

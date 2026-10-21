@@ -45,8 +45,8 @@ internal static class PowerBombShapeDefinitionsVerification
         AssertEqual(4, PowerBombShapeCursor.CountOf(PowerBombShapeStream.Yellow), "four yellow shapes");
         foreach ((PowerBombShapeStream stream, int table) in new[]
         {
-            (PowerBombShapeStream.White, PowerBombShapeReferenceData.PreScaledWhite),
-            (PowerBombShapeStream.Yellow, PowerBombShapeReferenceData.PreScaledYellow),
+            new VerifyPowerBombPreScaledShapesCase(PowerBombShapeStream.White, PowerBombShapeReferenceData.PreScaledWhite),
+            new VerifyPowerBombPreScaledShapesCase(PowerBombShapeStream.Yellow, PowerBombShapeReferenceData.PreScaledYellow),
         })
         {
             for (int index = 0; index < PowerBombShapeCursor.CountOf(stream); index++)

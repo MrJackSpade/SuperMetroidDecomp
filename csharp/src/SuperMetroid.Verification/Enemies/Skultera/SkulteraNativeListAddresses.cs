@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Skultera;
 
 namespace SuperMetroid.Verification.Enemies.Skultera;
@@ -13,21 +14,21 @@ internal static class SkulteraNativeListAddresses
     internal const byte Bank = 0xa3;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (SkulteraProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<SkulteraProgram>[] Entries =
     [
-        (SkulteraProgram.SwimmingLeft, 0x902a),
-        (SkulteraProgram.SwimmingLeftLoop, 0x902c),
-        (SkulteraProgram.TurningRight, 0x903c),
-        (SkulteraProgram.SwimmingRight, 0x9060),
-        (SkulteraProgram.SwimmingRightLoop, 0x9062),
-        (SkulteraProgram.TurningLeft, 0x9072),
+        new NativeProgramEntry<SkulteraProgram>(SkulteraProgram.SwimmingLeft, 0x902a),
+        new NativeProgramEntry<SkulteraProgram>(SkulteraProgram.SwimmingLeftLoop, 0x902c),
+        new NativeProgramEntry<SkulteraProgram>(SkulteraProgram.TurningRight, 0x903c),
+        new NativeProgramEntry<SkulteraProgram>(SkulteraProgram.SwimmingRight, 0x9060),
+        new NativeProgramEntry<SkulteraProgram>(SkulteraProgram.SwimmingRightLoop, 0x9062),
+        new NativeProgramEntry<SkulteraProgram>(SkulteraProgram.TurningLeft, 0x9072),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (SkulteraCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, SkulteraNativeListAddressesInstruction> Instructions = new()
     {
-        [0x9096] = (SkulteraCueKind.DrawAboveScenery, ""),
-        [0x90a0] = (SkulteraCueKind.DrawBelowScenery, ""),
-        [0x90aa] = (SkulteraCueKind.FinishTurn, ""),
+        [0x9096] = new SkulteraNativeListAddressesInstruction(SkulteraCueKind.DrawAboveScenery, ""),
+        [0x90a0] = new SkulteraNativeListAddressesInstruction(SkulteraCueKind.DrawBelowScenery, ""),
+        [0x90aa] = new SkulteraNativeListAddressesInstruction(SkulteraCueKind.FinishTurn, ""),
     };
 }

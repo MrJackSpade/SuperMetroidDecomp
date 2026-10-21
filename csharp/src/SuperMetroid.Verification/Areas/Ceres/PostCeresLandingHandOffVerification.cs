@@ -37,15 +37,15 @@ internal static class PostCeresLandingHandOffVerification
         runtime.RoomLoader.InitializePostCeresZebesRoom();
         // $82:8057 InitializeSamus clears Samus RAM ($0A02 on) but not the inventory below it.
         SamusState landed = runtime.Player.IntroducedSamus;
-        AssertEqual((0u, 0, 0),
-            (landed.HorizontalSpeed.BaseFixed, landed.HorizontalSpeed.ExtraRunSpeed.Whole, landed.HorizontalSpeed.ExtraRunSpeed.Fraction),
+        AssertEqual(new PostCeresLandingHandOffVerifyPostCeresLandingHandOffCase(0u, 0, 0),
+            new PostCeresLandingHandOffVerifyPostCeresLandingHandOffCase(landed.HorizontalSpeed.BaseFixed, landed.HorizontalSpeed.ExtraRunSpeed.Whole, landed.HorizontalSpeed.ExtraRunSpeed.Fraction),
             "station load clears the escape's running speeds");
-        AssertEqual((7, 10), (landed.Missiles, landed.MaxMissiles),
+        AssertEqual(new VerifyPostCeresLandingHandOffCase(7, 10), new VerifyPostCeresLandingHandOffCase(landed.Missiles, landed.MaxMissiles),
             "station load keeps the inventory below Samus RAM");
         AssertEqual(SamusPoseId.ForwardFacingPowerSuitPose, landed.Pose, "station load clears Samus's pose");
         // $80:C470/$C479 write only the integer layer-one words.
-        AssertEqual(((ushort)0xa000, (ushort)0x1234),
-            (runtime.Room.LoadedCamera.Position.X.Fraction, runtime.Room.LoadedCamera.Position.Y.Fraction),
+        AssertEqual(new PostCeresLandingHandOffVerifyPostCeresLandingHandOffCase2(0xa000, 0x1234),
+            new PostCeresLandingHandOffVerifyPostCeresLandingHandOffCase2(runtime.Room.LoadedCamera.Position.X.Fraction, runtime.Room.LoadedCamera.Position.Y.Fraction),
             "station load keeps the previous camera fractions");
 
         // Hold Left+B throughout: locked handlers ignore it until the ship unlocks Samus.

@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -21,8 +22,8 @@ internal static class LinkedRestoreVisualsVerification
     /// <summary>Compares six flattened stock layouts with bank-$84 draw words and checks catalog bounds and edit isolation.</summary>
     private static void VerifyLinkedRestoreStockMapping(SuperMetroidAddressSpace rom)
     {
-        (ushort Pointer, string Id)[] frames = [(0xa4c7,"bomb-horizontal"), (0xa4cf,"bomb-vertical"),
-            (0xa4d7,"bomb-square"), (0xa4a1,"crumble-horizontal"), (0xa4a9,"crumble-vertical"), (0xa4b1,"crumble-square")];
+        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0xa4c7,"bomb-horizontal"), new LookupEscapeGateStockFrame(0xa4cf,"bomb-vertical"),
+            new LookupEscapeGateStockFrame(0xa4d7,"bomb-square"), new LookupEscapeGateStockFrame(0xa4a1,"crumble-horizontal"), new LookupEscapeGateStockFrame(0xa4a9,"crumble-vertical"), new LookupEscapeGateStockFrame(0xa4b1,"crumble-square")];
         var native = new Dictionary<ushort, ushort[]>();
         foreach (var frame in frames)
         {

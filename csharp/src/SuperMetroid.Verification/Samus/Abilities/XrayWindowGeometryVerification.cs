@@ -37,15 +37,15 @@ internal static class XrayWindowGeometryVerification
     internal static void VerifyXrayWindowGeometry(ISnesAddressSpace bus, SamusState samus, Rgba32[] reference)
     {
         if (samus.Xray.SetupStage != XraySetupStage.Complete || samus.Xray.BeamPhase is not (XrayBeamPhase.Widening or XrayBeamPhase.Full)) return;
-        foreach (var scroll in new[] { (0, 0), (160, 0), (220, 180) })
+        foreach (var scroll in new[] { new VerifyXrayWindowGeometryCase(0, 0), new VerifyXrayWindowGeometryCase(160, 0), new VerifyXrayWindowGeometryCase(220, 180) })
         {
             var source = new Rgba32(248, 128, 64);
             Array.Fill(reference, source);
             SnesGameplayFrameRenderer.ApplyXrayWindowColorMath(reference, bus, samus.Xray, samus,
-                new Position16<RoomPixels>((ushort)scroll.Item1, (ushort)scroll.Item2));
+                new Position16<RoomPixels>((ushort)scroll.First, (ushort)scroll.Second));
             var lines = SnesGameplayFrameRenderer.CaptureXrayWindowLines(
                 SamusXrayDisplaySnapshot.Capture(samus, null) ?? throw new InvalidOperationException("Active X-ray has no display snapshot."),
-                new Position16<RoomPixels>((ushort)scroll.Item1, (ushort)scroll.Item2));
+                new Position16<RoomPixels>((ushort)scroll.First, (ushort)scroll.Second));
             for (int y = 32; y < 224; y++)
             for (int x = 0; x < 256; x++)
             {

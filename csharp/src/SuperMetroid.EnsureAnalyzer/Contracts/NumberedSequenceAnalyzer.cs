@@ -91,7 +91,7 @@ public sealed class NumberedSequenceAnalyzer : DiagnosticAnalyzer
         var type = (INamedTypeSymbol)context.Symbol;
         if (type.TypeKind is not (TypeKind.Class or TypeKind.Struct or TypeKind.Interface) || IsJustified(type))
             return;
-        foreach (ImmutableArray<(ISymbol Member, int Ordinal)> family in Families(type))
+        foreach (ImmutableArray<NumberedMember> family in Families(type))
         {
             ISymbol first = family[0].Member;
             ISymbol last = family[family.Length - 1].Member;
@@ -102,9 +102,9 @@ public sealed class NumberedSequenceAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>The type's numbered families: same-typed source members whose names share a pattern and whose ordinals run gap-free from 0 or 1.</summary>
-    private static IEnumerable<ImmutableArray<(ISymbol Member, int Ordinal)>> Families(INamedTypeSymbol type)
+    private static IEnumerable<ImmutableArray<NumberedMember>> Families(INamedTypeSymbol type)
     {
-        var groups = new Dictionary<(string Pattern, bool IsStatic), List<(ISymbol Member, int Ordinal)>>();
+        var groups = new Dictionary<NumberedPatternKey, List<NumberedMember>>();
         foreach (ISymbol member in type.GetMembers())
         {
             if (member is not (IFieldSymbol or IPropertySymbol) || member.IsImplicitlyDeclared ||
@@ -112,32 +112,32 @@ public sealed class NumberedSequenceAnalyzer : DiagnosticAnalyzer
                 continue;
             foreach ((string pattern, int ordinal) in Patterns(member.Name))
             {
-                if (!groups.TryGetValue((pattern, member.IsStatic), out List<(ISymbol Member, int Ordinal)>? group))
-                    groups[(pattern, member.IsStatic)] = group = [];
-                group.Add((member, ordinal));
+                if (!groups.TryGetValue(new NumberedPatternKey(pattern, member.IsStatic), out List<NumberedMember>? group))
+                    groups[new NumberedPatternKey(pattern, member.IsStatic)] = group = [];
+                group.Add(new NumberedMember(member, ordinal));
             }
         }
-        foreach (List<(ISymbol Member, int Ordinal)> group in groups.Values)
+        foreach (List<NumberedMember> group in groups.Values)
         {
             if (group.Count < MinimumFamilySize || group.Any(entry => IsJustified(entry.Member)))
                 continue;
             ITypeSymbol? memberType = MemberType(group[0].Member);
             if (group.Any(entry => !SymbolEqualityComparer.Default.Equals(MemberType(entry.Member), memberType)))
                 continue;
-            ImmutableArray<(ISymbol Member, int Ordinal)> ordered = [.. group.OrderBy(entry => entry.Ordinal)];
+            ImmutableArray<NumberedMember> ordered = [.. group.OrderBy(entry => entry.Ordinal)];
             if (IsGapFreeFromZeroOrOne(ordered.Select(entry => entry.Ordinal)))
                 yield return ordered;
         }
     }
 
     /// <summary>Every name pattern of <paramref name="name"/>: one digit run replaced by a placeholder, with that run's value.</summary>
-    private static IEnumerable<(string Pattern, int Ordinal)> Patterns(string name)
+    private static IEnumerable<NumberedPattern> Patterns(string name)
     {
         foreach (Match run in DigitRun.Matches(name))
         {
             if (run.Length > MaximumOrdinalDigits)
                 continue;
-            yield return (name.Substring(0, run.Index) + "#" + name.Substring(run.Index + run.Length),
+            yield return new NumberedPattern(name.Substring(0, run.Index) + "#" + name.Substring(run.Index + run.Length),
                 int.Parse(run.Value, System.Globalization.CultureInfo.InvariantCulture));
         }
     }
@@ -179,7 +179,7 @@ public sealed class NumberedSequenceAnalyzer : DiagnosticAnalyzer
     private static void AnalyzeSwitchExpression(SyntaxNodeAnalysisContext context)
     {
         var switchExpression = (SwitchExpressionSyntax)context.Node;
-        var arms = new List<(long Index, ISymbol Member)>();
+        var arms = new List<NumberedArm>();
         foreach (SwitchExpressionArmSyntax arm in switchExpression.Arms)
         {
             if (arm.Pattern is DiscardPatternSyntax)
@@ -188,7 +188,7 @@ public sealed class NumberedSequenceAnalyzer : DiagnosticAnalyzer
                 IntegerConstant(context.SemanticModel, constant.Expression, context.CancellationToken) is not { } index ||
                 MemberOf(context.SemanticModel, arm.Expression, context.CancellationToken) is not { } member)
                 return;
-            arms.Add((index, member));
+            arms.Add(new NumberedArm(index, member));
         }
         ReportIndexSwitch(context, arms);
     }
@@ -197,7 +197,7 @@ public sealed class NumberedSequenceAnalyzer : DiagnosticAnalyzer
     private static void AnalyzeSwitchStatement(SyntaxNodeAnalysisContext context)
     {
         var switchStatement = (SwitchStatementSyntax)context.Node;
-        var arms = new List<(long Index, ISymbol Member)>();
+        var arms = new List<NumberedArm>();
         foreach (SwitchSectionSyntax section in switchStatement.Sections)
         {
             if (section.Labels.Any(label => label is DefaultSwitchLabelSyntax))
@@ -206,7 +206,7 @@ public sealed class NumberedSequenceAnalyzer : DiagnosticAnalyzer
                 IntegerConstant(context.SemanticModel, label.Value, context.CancellationToken) is not { } index ||
                 SectionMember(context.SemanticModel, section, context.CancellationToken) is not { } member)
                 return;
-            arms.Add((index, member));
+            arms.Add(new NumberedArm(index, member));
         }
         ReportIndexSwitch(context, arms);
     }
@@ -222,11 +222,11 @@ public sealed class NumberedSequenceAnalyzer : DiagnosticAnalyzer
         };
 
     /// <summary>Reports arms that map consecutive indices to distinct members of one numbered family.</summary>
-    private static void ReportIndexSwitch(SyntaxNodeAnalysisContext context, List<(long Index, ISymbol Member)> arms)
+    private static void ReportIndexSwitch(SyntaxNodeAnalysisContext context, List<NumberedArm> arms)
     {
         if (arms.Count < 2)
             return;
-        (long Index, ISymbol Member)[] ordered = [.. arms.OrderBy(arm => arm.Index)];
+        NumberedArm[] ordered = [.. arms.OrderBy(arm => arm.Index)];
         for (int position = 1; position < ordered.Length; position++)
         {
             if (ordered[position].Index != ordered[position - 1].Index + 1)

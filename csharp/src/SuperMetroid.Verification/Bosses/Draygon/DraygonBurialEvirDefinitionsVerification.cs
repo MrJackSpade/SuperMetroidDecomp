@@ -99,7 +99,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
     }
 
     /// <summary>Models native whole/fraction addition or subtraction for one burial axis.</summary>
-    private static (ushort Position, ushort Subposition) AddDraygonBurialSubspeed(
+    private static AddDraygonBurialSubspeedResult AddDraygonBurialSubspeed(
         ushort position,
         ushort magnitude,
         bool add)
@@ -108,7 +108,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
         fixedPosition = add
             ? unchecked(fixedPosition + magnitude)
             : unchecked(fixedPosition - magnitude);
-        return (SnesFixedPosition.WholeOf(unchecked((int)fixedPosition)), unchecked((ushort)fixedPosition));
+        return new AddDraygonBurialSubspeedResult(SnesFixedPosition.WholeOf(unchecked((int)fixedPosition)), unchecked((ushort)fixedPosition));
     }
 
     /// <summary>Rejects gameplay reads from the three migrated bank-$A5 burial tables.</summary>

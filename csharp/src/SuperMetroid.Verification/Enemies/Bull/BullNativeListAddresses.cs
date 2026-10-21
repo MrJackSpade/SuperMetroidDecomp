@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Bull;
 
 namespace SuperMetroid.Verification.Enemies.Bull;
@@ -12,11 +13,11 @@ internal static class BullNativeListAddresses
     internal const byte Bank = 0xa8;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (BullProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<BullProgram>[] Entries =
     [
-        (BullProgram.Normal, 0xd841),
-        (BullProgram.Shot, 0xd855),
-        (BullProgram.ShotLoop, 0xd859),
+        new NativeProgramEntry<BullProgram>(BullProgram.Normal, 0xd841),
+        new NativeProgramEntry<BullProgram>(BullProgram.Shot, 0xd855),
+        new NativeProgramEntry<BullProgram>(BullProgram.ShotLoop, 0xd859),
     ];
 
 }

@@ -277,14 +277,14 @@ internal static void VerifyTypedNativeWords()
     // character/attribute combinations to prove the typed boundary never normalizes them.
     // The explored/unexplored operations then prove the two renderer-specific mutations touch
     // only their documented attributes.
-    (string Name, ushort Raw)[] mapCellRoundTrips =
+    MapCellRoundTrip[] mapCellRoundTrips =
     [
-        ("blank", 0x001f),
-        ("explored room", 0x2812),
-        ("unexplored room", 0x2c12),
-        ("elevator", 0x6c0e),
-        ("item", 0xac05),
-        ("station", 0x2c1a),
+        new MapCellRoundTrip("blank", 0x001f),
+        new MapCellRoundTrip("explored room", 0x2812),
+        new MapCellRoundTrip("unexplored room", 0x2c12),
+        new MapCellRoundTrip("elevator", 0x6c0e),
+        new MapCellRoundTrip("item", 0xac05),
+        new MapCellRoundTrip("station", 0x2c1a),
     ];
     foreach ((string name, ushort raw) in mapCellRoundTrips)
     {
@@ -519,13 +519,13 @@ internal static void VerifyTypedNativeWords()
         projectileType.WithFamily(SamusProjectileFamily.MissileExplosion),
         "projectile family replacement preserves all other bits");
 
-    (ushort Raw, SamusProjectileFamily Family)[] projectileDispatchCases =
+    ProjectileDispatchCase[] projectileDispatchCases =
     [
-        (0x801f, SamusProjectileFamily.Beam),
-        (0x8110, SamusProjectileFamily.Missile),
-        (0x8210, SamusProjectileFamily.SuperMissile),
-        (0x8300, SamusProjectileFamily.PowerBomb),
-        (0x8501, SamusProjectileFamily.Bomb),
+        new ProjectileDispatchCase(0x801f, SamusProjectileFamily.Beam),
+        new ProjectileDispatchCase(0x8110, SamusProjectileFamily.Missile),
+        new ProjectileDispatchCase(0x8210, SamusProjectileFamily.SuperMissile),
+        new ProjectileDispatchCase(0x8300, SamusProjectileFamily.PowerBomb),
+        new ProjectileDispatchCase(0x8501, SamusProjectileFamily.Bomb),
     ];
     foreach ((ushort raw, SamusProjectileFamily family) in projectileDispatchCases)
     {

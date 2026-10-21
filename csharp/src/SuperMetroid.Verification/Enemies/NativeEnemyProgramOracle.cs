@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -22,7 +23,7 @@ internal static class NativeEnemyProgramOracle
     internal static int CompareAll<TProgram, TFrame, TCue>(
         IImportCartridgeSource cartridge,
         byte bank,
-        (TProgram Program, ushort Entry)[] entries,
+        NativeProgramEntry<TProgram>[] entries,
         AnimationProgramSet<TProgram, TFrame, TCue> programs,
         Func<TFrame, ushort> spritemap,
         Func<ushort, int?> operandWords,
@@ -42,7 +43,7 @@ internal static class NativeEnemyProgramOracle
     internal static int CompareAll<TProgram, TFrame, TCue>(
         IImportCartridgeSource cartridge,
         byte bank,
-        (TProgram Program, ushort Entry)[] entries,
+        NativeProgramEntry<TProgram>[] entries,
         AnimationProgramSet<TProgram, TFrame, TCue> programs,
         Func<TFrame, ushort> spritemap,
         NativeEnemyCueRules<TCue> rules)
@@ -52,13 +53,13 @@ internal static class NativeEnemyProgramOracle
         StepAddresses(cartridge, bank, entries, programs, spritemap, rules).Values.Sum(addresses => addresses.Length);
 
     /// <summary>
-    /// Compares every program with its native list, as <see cref="CompareAll{TProgram, TFrame, TCue}(IImportCartridgeSource, byte, ValueTuple{TProgram, ushort}[], AnimationProgramSet{TProgram, TFrame, TCue}, Func{TFrame, ushort}, Func{ushort, int?}, Action{ushort, ushort[], TCue, string})"/> does, and returns the native address of
+    /// Compares every program with its native list, as <see cref="CompareAll{TProgram, TFrame, TCue}(IImportCartridgeSource, byte, NativeProgramEntry{TProgram}[], AnimationProgramSet{TProgram, TFrame, TCue}, Func{TFrame, ushort}, Func{ushort, int?}, Action{ushort, ushort[], TCue, string})"/> does, and returns the native address of
     /// each program's steps. A typed cursor at a step and the native pointer at that address stand for the same state.
     /// </summary>
     internal static Dictionary<TProgram, ushort[]> StepAddresses<TProgram, TFrame, TCue>(
         IImportCartridgeSource cartridge,
         byte bank,
-        (TProgram Program, ushort Entry)[] entries,
+        NativeProgramEntry<TProgram>[] entries,
         AnimationProgramSet<TProgram, TFrame, TCue> programs,
         Func<TFrame, ushort> spritemap,
         Func<ushort, int?> operandWords,
@@ -72,7 +73,7 @@ internal static class NativeEnemyProgramOracle
     internal static Dictionary<TProgram, ushort[]> StepAddresses<TProgram, TFrame, TCue>(
         IImportCartridgeSource cartridge,
         byte bank,
-        (TProgram Program, ushort Entry)[] entries,
+        NativeProgramEntry<TProgram>[] entries,
         AnimationProgramSet<TProgram, TFrame, TCue> programs,
         Func<TFrame, ushort> spritemap,
         NativeEnemyCueRules<TCue> rules)
@@ -83,7 +84,7 @@ internal static class NativeEnemyProgramOracle
         AssertEqual(Enum.GetValues<TProgram>().Length, entries.Length, $"every typed {typeof(TProgram).Name} has a native entry");
         for (int index = 0; index < entries.Length; index++)
             AssertEqual(Enum.GetValues<TProgram>()[index], entries[index].Program, $"the {typeof(TProgram).Name} values are declared in authored order");
-        AssertTrue(entries.Zip(entries.Skip(1)).All(pair => pair.First.Entry < pair.Second.Entry), $"native {typeof(TProgram).Name} entries ascend");
+        AssertTrue(entries.Zip(entries.Skip(1), (first, second) => first.Entry < second.Entry).All(ascends => ascends), $"native {typeof(TProgram).Name} entries ascend");
         var family = new Family<TProgram, TFrame, TCue>(cartridge, bank, entries, programs, spritemap, rules);
         return entries.ToDictionary(item => item.Program, item => Compare(family, item.Program, item.Entry));
     }
@@ -98,7 +99,7 @@ internal static class NativeEnemyProgramOracle
     private sealed record Family<TProgram, TFrame, TCue>(
         IImportCartridgeSource Cartridge,
         byte Bank,
-        (TProgram Program, ushort Entry)[] Entries,
+        NativeProgramEntry<TProgram>[] Entries,
         AnimationProgramSet<TProgram, TFrame, TCue> Programs,
         Func<TFrame, ushort> Spritemap,
         NativeEnemyCueRules<TCue> Rules)
@@ -107,12 +108,12 @@ internal static class NativeEnemyProgramOracle
         where TCue : notnull;
 
     /// <summary>The native entry of <paramref name="program"/>.</summary>
-    internal static ushort EntryOf<TProgram>((TProgram Program, ushort Entry)[] entries, TProgram program)
+    internal static ushort EntryOf<TProgram>(NativeProgramEntry<TProgram>[] entries, TProgram program)
         where TProgram : struct, Enum =>
         entries.Single(item => EqualityComparer<TProgram>.Default.Equals(item.Program, program)).Entry;
 
     /// <summary>The program whose native list starts at <paramref name="address"/>, if one does.</summary>
-    private static TProgram? ProgramAt<TProgram>((TProgram Program, ushort Entry)[] entries, ushort address)
+    private static TProgram? ProgramAt<TProgram>(NativeProgramEntry<TProgram>[] entries, ushort address)
         where TProgram : struct, Enum =>
         entries.Any(item => item.Entry == address) ? entries.Single(item => item.Entry == address).Program : null;
 
@@ -122,7 +123,7 @@ internal static class NativeEnemyProgramOracle
         where TFrame : struct
         where TCue : notnull
     {
-        (IImportCartridgeSource cartridge, byte bank, (TProgram Program, ushort Entry)[] entries, AnimationProgramSet<TProgram, TFrame, TCue> programs,
+        (IImportCartridgeSource cartridge, byte bank, NativeProgramEntry<TProgram>[] entries, AnimationProgramSet<TProgram, TFrame, TCue> programs,
             Func<TFrame, ushort> spritemap, NativeEnemyCueRules<TCue> rules) = family;
         (Func<ushort, int?> operandWords, Action<ushort, ushort[], TCue, string> compareCue, Func<TCue, bool>? endsList) = rules;
         var steps = programs.Steps(program);

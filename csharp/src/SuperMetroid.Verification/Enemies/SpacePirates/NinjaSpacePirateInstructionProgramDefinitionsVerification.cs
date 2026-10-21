@@ -225,7 +225,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         }
 
         // Initializes a ninja Pirate actor with the installed shared palette.
-        (RoomEnemySystem Enemies, RoomEnemySlot Slot, SamusState Samus) CreateSystem()
+        NinjaSpacePirateInstructionProgramDefinitionsCreateSystemResult CreateSystem()
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork };
             enemies.Presentation.BindCgram(new SnesCgram());
@@ -237,7 +237,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             slot.Radius = new(8, 16);
             slot.SetSpawnParameter2(0x0080);
             enemies.NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(slot);
-            return (enemies, slot, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)) });
+            return new NinjaSpacePirateInstructionProgramDefinitionsCreateSystemResult(enemies, slot, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)) });
         }
 
         // Advances production enemy instructions for the requested number of updates.

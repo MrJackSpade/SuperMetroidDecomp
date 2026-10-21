@@ -191,17 +191,17 @@ internal static class RoomPaletteFxPresentationVerification
     {
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "Zebes explosion gunship", new PaletteFxFamilyShape { FrameCount = 16, ColorsPerFrame = 16, ColorPointer = (frame, color) => (ushort)(0xd6c0 + frame * 36 + color * 2), Definitions = [0xe1e4] }, 385));
         var original = new Dictionary<ushort, ushort>();
-        var coordinates = new Dictionary<ushort, (int Frame, int Color)>();
+        var coordinates = new Dictionary<ushort, Coordinate>();
         for (int frame = 0; frame < 16; frame++)
         for (int color = 0; color < 16; color++)
         {
             ushort pointer = (ushort)(0xd6c0 + frame * 36 + color * 2);
             original.Add(pointer, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8d0000 | pointer));
-            coordinates.Add(pointer, (frame, color));
+            coordinates.Add(pointer, new Coordinate(frame, color));
         }
         // Restrict the input view to the actual remaining source values, ensuring
         // the composed calculation works without generated endpoint/sample caches.
-        var inputs = original.Where(pair => coordinates[pair.Key].Frame == 15 || coordinates[pair.Key] == (7, 15))
+        var inputs = original.Where(pair => coordinates[pair.Key].Frame == 15 || coordinates[pair.Key] == new Coordinate(7, 15))
             .ToDictionary(pair => pair.Key, pair => pair.Value);
         AssertEqual(17, inputs.Count, "gunship reveal independent source-color count");
         ushort[] inputPointers = inputs.Keys.ToArray();
@@ -221,7 +221,7 @@ internal static class RoomPaletteFxPresentationVerification
                 AssertEqual(expected.Frame, frame, "gunship original frame identity");
                 AssertEqual(expected.Color, color, "gunship original color column");
             }
-            bool computed = owned && expected.Frame != 15 && expected != (7, 15);
+            bool computed = owned && expected.Frame != 15 && expected != new Coordinate(7, 15);
             AssertEqual(computed, EndingGunshipPaletteColorDefinitions.TryCalculatedColor(pointer, inputView, out Bgr555 calculated),
                 "gunship calculated color domain");
             if (computed) AssertEqual(original[pointer], calculated, "gunship calculated color matches original ROM");
@@ -233,10 +233,10 @@ internal static class RoomPaletteFxPresentationVerification
             SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationExtractor.Extract(bus), ArtworkJson.Options);
         // White, both dim boundaries, the special boundary color, each interpolation
         // stage and the bright base all remain independently editable.
-        foreach (var edit in new[] { (0, 1), (7, 2), (7, 15), (8, 3), (3, 4), (11, 5), (15, 6) })
+        foreach (var edit in new[] { new Coordinate(0, 1), new Coordinate(7, 2), new Coordinate(7, 15), new Coordinate(8, 3), new Coordinate(3, 4), new Coordinate(11, 5), new Coordinate(15, 6) })
         {
-            PaletteRgb5 current = document.ZebesExplosionGunship[edit.Item1][edit.Item2];
-            document.ZebesExplosionGunship[edit.Item1][edit.Item2] = current with { Red = (current.Red + 11) & 31 };
+            PaletteRgb5 current = document.ZebesExplosionGunship[edit.Frame][edit.Color];
+            document.ZebesExplosionGunship[edit.Frame][edit.Color] = current with { Red = (current.Red + 11) & 31 };
         }
         for (int color = 0; color < 16; color++)
         {
@@ -271,13 +271,13 @@ internal static class RoomPaletteFxPresentationVerification
     {
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "post-credits icon glare", new PaletteFxFamilyShape { FrameCount = 14, ColorsPerFrame = 16, ColorPointer = (frame, color) => (ushort)(0xdf9a + frame * 36 + color * 2), Definitions = [0xe200] }, 15));
         var original = new Dictionary<ushort, ushort>();
-        var coordinates = new Dictionary<ushort, (int Frame, int Color)>();
+        var coordinates = new Dictionary<ushort, Coordinate>();
         for (int frame = 0; frame < 14; frame++)
         for (int color = 0; color < 16; color++)
         {
             ushort pointer = (ushort)(0xdf9a + frame * 36 + color * 2);
             original.Add(pointer, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8d0000 | pointer));
-            coordinates.Add(pointer, (frame, color));
+            coordinates.Add(pointer, new Coordinate(frame, color));
         }
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
@@ -302,10 +302,10 @@ internal static class RoomPaletteFxPresentationVerification
             SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationExtractor.Extract(bus), ArtworkJson.Options);
         // An intermediate, its return-side counterpart, white peak and base can be
         // edited independently. Unchanged rows must not inherit a changed base value.
-        foreach (var edit in new[] { (0, 1), (12, 2), (6, 0), (13, 3) })
+        foreach (var edit in new[] { new Coordinate(0, 1), new Coordinate(12, 2), new Coordinate(6, 0), new Coordinate(13, 3) })
         {
-            PaletteRgb5 current = document.PostCreditsIconGlare[edit.Item1][edit.Item2];
-            document.PostCreditsIconGlare[edit.Item1][edit.Item2] = current with { Red = (current.Red + 11) & 31 };
+            PaletteRgb5 current = document.PostCreditsIconGlare[edit.Frame][edit.Color];
+            document.PostCreditsIconGlare[edit.Frame][edit.Color] = current with { Red = (current.Red + 11) & 31 };
         }
         using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
         RoomPaletteFxPresentation edited = RoomPaletteFxPresentation.Load(json);
@@ -353,11 +353,11 @@ internal static class RoomPaletteFxPresentationVerification
             }
         }
         var aliases = new Dictionary<ushort, ushort>();
-        List<(int Pointer, ushort[] Colors)>? powerRows = null;
+        List<RoomPaletteFxPresentationRow>? powerRows = null;
         var tinted = new HashSet<ushort>();
         foreach (int start in new[] { 0xdb62, 0xdcc8, 0xde2e })
         {
-            var rows = new List<(int Pointer, ushort[] Colors)>();
+            var rows = new List<RoomPaletteFxPresentationRow>();
             int cursor = start + 4;
             for (int group = 0; group < 4; group++)
             {
@@ -366,14 +366,14 @@ internal static class RoomPaletteFxPresentationVerification
                 for (int frame = 0; frame < 2; frame++)
                 {
                     cursor += 2;
-                    rows.Add((cursor, Enumerable.Range(0, 16).Select(color => ReadVerificationWord(bus, 0x8d0000 | (cursor + 2 * color))).ToArray()));
+                    rows.Add(new RoomPaletteFxPresentationRow(cursor, Enumerable.Range(0, 16).Select(color => ReadVerificationWord(bus, 0x8d0000 | (cursor + 2 * color))).ToArray()));
                     cursor += 34;
                 }
                 AssertEqual((ushort)0xc639, ReadVerificationWord(bus, 0x8d0000 | cursor), "Loading row decoder replay command");
                 cursor += 4;
             }
             cursor += 2;
-            rows.Add((cursor, Enumerable.Range(0, 16).Select(color => ReadVerificationWord(bus, 0x8d0000 | (cursor + 2 * color))).ToArray()));
+            rows.Add(new RoomPaletteFxPresentationRow(cursor, Enumerable.Range(0, 16).Select(color => ReadVerificationWord(bus, 0x8d0000 | (cursor + 2 * color))).ToArray()));
             if (start == 0xdb62) powerRows = rows;
             foreach (int rowIndex in new[] { 1, 5, 7 })
             foreach (int slot in start == 0xdb62 ? new[] { 3, 4, 5, 6, 7, 8, 13, 14, 15 } : start == 0xde2e ? new[] { 10, 11 } : Array.Empty<int>())
@@ -433,7 +433,7 @@ internal static class RoomPaletteFxPresentationVerification
         foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColorDefinitions.VariaTintColor(new Bgr555(0, 0, 0), invalid), "Varia tint shade rejects outside domain");
         foreach (var (peak, plateau, brightGreen, middleGreen, brightBlue, middleBlue) in
-            new[] { (15, true, 15, 5, 10, 10), (0, false, 0, 0, 10, 5), (5, false, 5, 0, 10, 5) })
+            new[] { new VerifyExtractedSamusLoadingPaletteFxPresentationCase(15, true, 15, 5, 10, 10), new VerifyExtractedSamusLoadingPaletteFxPresentationCase(0, false, 0, 0, 10, 5), new VerifyExtractedSamusLoadingPaletteFxPresentationCase(5, false, 5, 0, 10, 5) })
         for (int rgb = 0; rgb < 32768; rgb++)
         for (int shade = 0; shade < 2; shade++)
         {
@@ -548,8 +548,8 @@ internal static class RoomPaletteFxPresentationVerification
         }
         AssertEqual(0, expectedAliases.Keys.Count(stored.ContainsKey), "No complete stock heat word remains stored");
         var baseSources = new Dictionary<ushort, ushort>();
-        foreach (var (heat, loading, normal) in new (int, int, int)[]
-            { (0xe468, 0xdb6d, 0x9b9402), (0xe694, 0xdcd3, 0x9b9522), (0xe8c0, 0xde39, 0x9b9802) })
+        foreach (var (heat, loading, normal) in new VerifyExtractedSamusHeatPaletteFxPresentationCase[]
+            { new VerifyExtractedSamusHeatPaletteFxPresentationCase(0xe468, 0xdb6d, 0x9b9402), new VerifyExtractedSamusHeatPaletteFxPresentationCase(0xe694, 0xdcd3, 0x9b9522), new VerifyExtractedSamusHeatPaletteFxPresentationCase(0xe8c0, 0xde39, 0x9b9802) })
         for (int color = 0; color < 15; color++)
         {
             ushort heatPointer = (ushort)(heat + 2 * color);
@@ -647,7 +647,7 @@ internal static class RoomPaletteFxPresentationVerification
                     "Nearest-even green and shared blue delta match independent oracle");
             }
         }
-        foreach (var (endpoint, source) in new (ushort, ushort)[] { (0xe558, 0xe46a), (0xe566, 0xe478), (0xe794, 0xe6a6) })
+        foreach (var (endpoint, source) in new RoomPaletteFxPresentationVerifyExtractedSamusHeatPaletteFxPresentationCase[] { new RoomPaletteFxPresentationVerifyExtractedSamusHeatPaletteFxPresentationCase(0xe558, 0xe46a), new RoomPaletteFxPresentationVerifyExtractedSamusHeatPaletteFxPresentationCase(0xe566, 0xe478), new RoomPaletteFxPresentationVerifyExtractedSamusHeatPaletteFxPresentationCase(0xe794, 0xe6a6) })
         for (int rgb = 0; rgb < 32768; rgb++)
         {
             var supplied = new Dictionary<ushort, ushort> { [source] = (ushort)rgb };

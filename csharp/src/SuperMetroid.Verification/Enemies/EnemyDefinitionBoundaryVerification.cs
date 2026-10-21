@@ -55,7 +55,7 @@ internal static class EnemyDefinitionBoundaryVerification
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         int drawCases = 0;
         foreach (ushort frame in TorizoCollisionDefinitions.FramePointers)
-        foreach ((ushort x, ushort y) in new (ushort, ushort)[] { (128, 96), (0, 0), (511, 252) })
+        foreach ((ushort x, ushort y) in new VerifyEnemyDefinitionBoundaryCase[] { new VerifyEnemyDefinitionBoundaryCase(128, 96), new VerifyEnemyDefinitionBoundaryCase(0, 0), new VerifyEnemyDefinitionBoundaryCase(511, 252) })
         {
             AssertTrue((artwork.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires artwork.ExtendedFrames.")).TryGet(TorizoFrameDefinitions.Bank, frame, out _),
                 $"installed Torizo extended frame {frame:X4}");
@@ -162,8 +162,8 @@ internal static class EnemyDefinitionBoundaryVerification
     /// <summary>Checks corpse rotation offsets, DMA descriptors, Torizo touch boxes, and sand tile sources.</summary>
     internal static void VerifyCorpseMetadataDefinitions(ISnesAddressSpace source)
     {
-        foreach ((ushort pointer, int count) in new (ushort, int)[]
-            { (0xe226, 13), (0xe240, 6), (0xe24c, 3), (0xe252, 3), (0xe258, 5) })
+        foreach ((ushort pointer, int count) in new VerifyCorpseMetadataDefinitionsCase[]
+            { new VerifyCorpseMetadataDefinitionsCase(0xe226, 13), new VerifyCorpseMetadataDefinitionsCase(0xe240, 6), new VerifyCorpseMetadataDefinitionsCase(0xe24c, 3), new VerifyCorpseMetadataDefinitionsCase(0xe252, 3), new VerifyCorpseMetadataDefinitionsCase(0xe258, 5) })
             for (int i = 0; i < count; i++)
                 AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa90000 | (pointer + i * 2))),
                     DeadMonsterRottingDefinitionsConstants.RotationOffset(pointer, (ushort)(i * 8)), "corpse rotation offset");

@@ -125,7 +125,7 @@ internal static class ReserveAutoFrontendVerification
                 AssertTrue(samus.Control.Mode.Beta != SamusBetaHandler.ScriptLocked,
                     "completion restores the normal animation handler on the same frame");
             var pixels = SoftwareFrameSnapshotRenderer.Render(capture.Snapshot);
-            foreach ((int index, int digit) in new[] { (70, frame / 10), (71, frame % 10) })
+            foreach ((int index, int digit) in new[] { new VerifyReserveAutoFrontendCase(70, frame / 10), new VerifyReserveAutoFrontendCase(71, frame % 10) })
             {
                 AssertEqual(ReadRetailHudDigitTile(bus, digit), runtime.Vram.ReadWord(HudState.VramDestination + index),
                     "automatic refill digit becomes visible on the following accepted NMI");
@@ -148,7 +148,7 @@ internal static class ReserveAutoFrontendVerification
                 AssertTrue(!left.Value.SequenceEqual(right.Value), "different health digits render differently during recovery");
         game.StepCaptured(0, ++hostSequence, 1);
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "presentation sequence returns to gameplay");
-        foreach ((int index, int offset) in new[] { (8, 0), (9, 2), (40, 4), (41, 6), (72, 8), (73, 10) })
+        foreach ((int index, int offset) in new[] { new VerifyReserveAutoFrontendCase(8, 0), new VerifyReserveAutoFrontendCase(9, 2), new VerifyReserveAutoFrontendCase(40, 4), new VerifyReserveAutoFrontendCase(41, 6), new VerifyReserveAutoFrontendCase(72, 8), new VerifyReserveAutoFrontendCase(73, 10) })
         {
             AssertEqual(ReadRetailEmptyAutoReserveTile(bus, offset), runtime.Vram.ReadWord(HudState.VramDestination + index),
                 "completed automatic refill publishes the native empty AUTO indicator");

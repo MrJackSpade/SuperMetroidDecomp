@@ -15,13 +15,13 @@ internal static class SporeSpawnSwayVerification
     /// </summary>
     internal static void VerifySporeSpawnSwayPhaseWraps()
     {
-        foreach ((byte start, int delta, byte expected) in new (byte, int, byte)[]
+        foreach ((byte start, int delta, byte expected) in new VerifySporeSpawnSwayPhaseWrapsCase[]
                  {
-                     (1, -2, 255),
-                     (255, 1, 0),
-                     (254, 2, 0),
-                     (0, -1, 255),
-                     (128, 2, 130),
+                     new VerifySporeSpawnSwayPhaseWrapsCase(1, -2, 255),
+                     new VerifySporeSpawnSwayPhaseWrapsCase(255, 1, 0),
+                     new VerifySporeSpawnSwayPhaseWrapsCase(254, 2, 0),
+                     new VerifySporeSpawnSwayPhaseWrapsCase(0, -1, 255),
+                     new VerifySporeSpawnSwayPhaseWrapsCase(128, 2, 130),
                  })
         {
             var enemies = new RoomEnemySystem(new EnemySession());

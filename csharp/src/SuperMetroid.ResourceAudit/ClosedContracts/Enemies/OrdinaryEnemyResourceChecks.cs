@@ -13,14 +13,14 @@ internal static class OrdinaryEnemyResourceChecks
         int previousCount = EnemySpritemapDefinitions.PreAuditOrdinaryFrameCount;
         int previousVersion = (int)EnemySpritemapSchema.PreAuditOrdinary;
         // Typed families (#641) name their spritemaps; the rest still resolve compiled operands.
-        (string Name, byte Bank, ushort[]? Operands, ushort[]? Spritemaps, int Count)[] families =
+        OrdinaryEnemyResourceFamily[] families =
         [
-            ("Hibashi", HibashiVisualDefinitions.Bank, null, [.. HibashiVisualDefinitionsTooling.Spritemaps()], HibashiVisualDefinitions.FrameCount),
-            ("Zebetite", ZebetiteVisualDefinitions.Bank, null, ZebetiteVisualDefinitions.Spritemaps(), ZebetiteVisualDefinitions.FrameCount),
-            ("WreckedShipGhost", WreckedShipGhostVisualDefinitions.Bank, null, WreckedShipGhostVisualDefinitions.Spritemaps(), WreckedShipGhostVisualDefinitions.FrameCount),
-            ("Powamp", PowampVisualDefinitions.Bank, null, [.. PowampVisualDefinitions.Frames().Select(frame => frame.Pointer)], PowampVisualDefinitions.FrameCount),
-            ("Spark", SparkVisualDefinitions.Bank, null, [.. SparkVisualDefinitions.Frames().Select(frame => frame.Pointer)], SparkVisualDefinitions.FrameCount),
-            ("Shitroid", ShitroidVisualDefinitions.Bank, null, ShitroidVisualDefinitions.Spritemaps(), ShitroidVisualDefinitions.FrameCount),
+            new OrdinaryEnemyResourceFamily("Hibashi", HibashiVisualDefinitions.Bank, null, [.. HibashiVisualDefinitionsTooling.Spritemaps()], HibashiVisualDefinitions.FrameCount),
+            new OrdinaryEnemyResourceFamily("Zebetite", ZebetiteVisualDefinitions.Bank, null, ZebetiteVisualDefinitions.Spritemaps(), ZebetiteVisualDefinitions.FrameCount),
+            new OrdinaryEnemyResourceFamily("WreckedShipGhost", WreckedShipGhostVisualDefinitions.Bank, null, WreckedShipGhostVisualDefinitions.Spritemaps(), WreckedShipGhostVisualDefinitions.FrameCount),
+            new OrdinaryEnemyResourceFamily("Powamp", PowampVisualDefinitions.Bank, null, [.. PowampVisualDefinitions.Frames().Select(frame => frame.Pointer)], PowampVisualDefinitions.FrameCount),
+            new OrdinaryEnemyResourceFamily("Spark", SparkVisualDefinitions.Bank, null, [.. SparkVisualDefinitions.Frames().Select(frame => frame.Pointer)], SparkVisualDefinitions.FrameCount),
+            new OrdinaryEnemyResourceFamily("Shitroid", ShitroidVisualDefinitions.Bank, null, ShitroidVisualDefinitions.Spritemaps(), ShitroidVisualDefinitions.FrameCount),
         ];
         int offset = 0;
         foreach (var definition in families)

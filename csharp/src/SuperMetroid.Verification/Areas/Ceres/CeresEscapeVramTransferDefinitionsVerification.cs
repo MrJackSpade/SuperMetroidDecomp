@@ -71,8 +71,8 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         // Each typed list must queue exactly the ROM-checked records from its native list start to its terminator.
         foreach ((ushort start, CeresEscapeTransferCursor cursor) in new[]
                  {
-                     (CeresEscapeVramTransferDefinitions.TimerSprites, CeresEscapeTransferCursor.TimerSprites),
-                     (CeresEscapeVramTransferDefinitions.TimerBackgrounds, CeresEscapeTransferCursor.TimerBackgrounds),
+                     new VerifyCeresEscapeVramTransferDefinitionsCase(CeresEscapeVramTransferDefinitions.TimerSprites, CeresEscapeTransferCursor.TimerSprites),
+                     new VerifyCeresEscapeVramTransferDefinitionsCase(CeresEscapeVramTransferDefinitions.TimerBackgrounds, CeresEscapeTransferCursor.TimerBackgrounds),
                  })
         {
             var state = new RidleyEnemyState { CeresEscapeTransfers = cursor };

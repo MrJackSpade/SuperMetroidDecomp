@@ -79,7 +79,7 @@ public sealed class BoolFlagAnalyzer : DiagnosticAnalyzer
         {
             if (start.Compilation.AssemblyName != CheckedAssembly)
                 return;
-            var arguments = new ConcurrentBag<(IParameterSymbol Parameter, bool? Literal)>();
+            var arguments = new ConcurrentBag<BoolArgument>();
             var escaped = new ConcurrentDictionary<IMethodSymbol, bool>(SymbolEqualityComparer.Default);
             start.RegisterOperationAction(operation => RecordArguments(operation, arguments),
                 OperationKind.Invocation, OperationKind.ObjectCreation);
@@ -89,8 +89,8 @@ public sealed class BoolFlagAnalyzer : DiagnosticAnalyzer
             start.RegisterSymbolAction(AnalyzeMember, SymbolKind.Field, SymbolKind.Property);
             start.RegisterCompilationEndAction(end =>
             {
-                foreach (IGrouping<ISymbol, (IParameterSymbol Parameter, bool? Literal)> calls in
-                         arguments.GroupBy<(IParameterSymbol Parameter, bool? Literal), ISymbol>(entry => entry.Parameter, SymbolEqualityComparer.Default))
+                foreach (IGrouping<ISymbol, BoolArgument> calls in
+                         arguments.GroupBy<BoolArgument, ISymbol>(entry => entry.Parameter, SymbolEqualityComparer.Default))
                 {
                     var parameter = (IParameterSymbol)calls.Key;
                     if (calls.Any(entry => entry.Literal is null) ||
@@ -109,7 +109,7 @@ public sealed class BoolFlagAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>Records, for each bool argument of a call or creation, its literal value or null for data.</summary>
-    private static void RecordArguments(OperationAnalysisContext context, ConcurrentBag<(IParameterSymbol Parameter, bool? Literal)> arguments)
+    private static void RecordArguments(OperationAnalysisContext context, ConcurrentBag<BoolArgument> arguments)
     {
         ImmutableArray<IArgumentOperation> passed = context.Operation switch
         {
@@ -124,7 +124,7 @@ public sealed class BoolFlagAnalyzer : DiagnosticAnalyzer
             {
                 continue;
             }
-            arguments.Add((parameter.OriginalDefinition, Literal(argument)));
+            arguments.Add(new BoolArgument(parameter.OriginalDefinition, Literal(argument)));
         }
     }
 

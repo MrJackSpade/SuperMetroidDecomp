@@ -71,7 +71,7 @@ internal static class LookupCeresHazeRampVerification
                     for (int x = 0; x < 256; x++)
                     {
                         var pixel = software[y * 256 + x];
-                        AssertEqual((Expand(red), Expand(green), Expand(blue)), (pixel.R, pixel.G, pixel.B), "Software projection preserves native row across width");
+                        AssertEqual(new VerifyCeresHazeNativeRampCase(Expand(red), Expand(green), Expand(blue)), new VerifyCeresHazeNativeRampCase(pixel.R, pixel.G, pixel.B), "Software projection preserves native row across width");
                     }
                 }
             }

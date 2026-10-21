@@ -98,8 +98,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         foreach ((ushort pointer, _) in EnemyProjectileSpritemapDefinitions.Frames)
         foreach ((ushort originX, ushort originY, ushort graphicsIndex) in new[]
                  {
-                     ((ushort)0x0080, (ushort)0x0004, (ushort)0x0000),
-                     ((ushort)0x01ff, (ushort)0x00fc, FixtureGraphicsIndex),
+                     new EnemyTileArtworkProjectileSpritemapsVerifyInstalledEnemyProjectileSpritemapsCase2(0x0080, 0x0004, 0x0000),
+                     new EnemyTileArtworkProjectileSpritemapsVerifyInstalledEnemyProjectileSpritemapsCase2(0x01ff, 0x00fc, FixtureGraphicsIndex),
                  })
         {
             var nativeOam = new OamBuffer();
@@ -122,9 +122,9 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
 
         foreach ((ushort operand, ushort pointer) in new[]
                  {
-                     ((ushort)SkreeMetareeParticleOperand.Skree,
+                     new EnemyTileArtworkProjectileSpritemapsVerifyInstalledEnemyProjectileSpritemapsCase3((ushort)SkreeMetareeParticleOperand.Skree,
                          SkreeMetareeParticleVisualDefinitions.SkreeComposition),
-                     ((ushort)SkreeMetareeParticleOperand.Metaree,
+                     new EnemyTileArtworkProjectileSpritemapsVerifyInstalledEnemyProjectileSpritemapsCase3((ushort)SkreeMetareeParticleOperand.Metaree,
                          SkreeMetareeParticleVisualDefinitions.MetareeComposition),
                  })
         {
@@ -161,14 +161,13 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 $"Alcoon fireball frame {index} draws stock OAM without visual ROM reads");
         }
         foreach ((string family, RoomEnemyProjectileKind kind, int count,
-                     Func<int, ushort> addressAt) in new (string, RoomEnemyProjectileKind,
-                         int, Func<int, ushort>)[]
+                     Func<int, ushort> addressAt) in new VerifyInstalledEnemyProjectileSpritemapsCase[]
                  {
-                     ("Golden Torizo Super Missile",
+                     new VerifyInstalledEnemyProjectileSpritemapsCase("Golden Torizo Super Missile",
                          RoomEnemyProjectileKind.GoldenTorizoSuperMissile,
                          TorizoFrameCount(TorizoProjectileFamily.SuperMissile),
                          TorizoFrameKey(TorizoProjectileFamily.SuperMissile)),
-                     ("Golden Torizo eye beam",
+                     new VerifyInstalledEnemyProjectileSpritemapsCase("Golden Torizo eye beam",
                          RoomEnemyProjectileKind.GoldenTorizoEyeBeam,
                          TorizoFrameCount(TorizoProjectileFamily.EyeBeam),
                          TorizoFrameKey(TorizoProjectileFamily.EyeBeam)),
@@ -199,25 +198,24 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 native.ImageEquals(extracted),
                 $"Golden Torizo egg frame {index} draws stock OAM without visual ROM reads");
         }
-        var torizoFamilies = new (string Name, RoomEnemyProjectileKind Kind, int Count,
-            Func<int, ushort> AddressAt)[]
+        var torizoFamilies = new TorizoFamily[]
         {
-            ("drool", RoomEnemyProjectileKind.BombTorizoLowHealthDrool,
+            new TorizoFamily("drool", RoomEnemyProjectileKind.BombTorizoLowHealthDrool,
                 TorizoFrameCount(TorizoProjectileFamily.Drool),
                 TorizoFrameKey(TorizoProjectileFamily.Drool)),
-            ("explosive swipe", RoomEnemyProjectileKind.BombTorizoExplosiveSwipe,
+            new TorizoFamily("explosive swipe", RoomEnemyProjectileKind.BombTorizoExplosiveSwipe,
                 TorizoFrameCount(TorizoProjectileFamily.Swipe),
                 TorizoFrameKey(TorizoProjectileFamily.Swipe)),
-            ("sonic boom", RoomEnemyProjectileKind.BombTorizoSonicBoom,
+            new TorizoFamily("sonic boom", RoomEnemyProjectileKind.BombTorizoSonicBoom,
                 TorizoFrameCount(TorizoProjectileFamily.SonicBoom),
                 TorizoFrameKey(TorizoProjectileFamily.SonicBoom)),
-            ("landing dust", RoomEnemyProjectileKind.BombTorizoRightFootDust,
+            new TorizoFamily("landing dust", RoomEnemyProjectileKind.BombTorizoRightFootDust,
                 TorizoFrameCount(TorizoProjectileFamily.LandingDust),
                 TorizoFrameKey(TorizoProjectileFamily.LandingDust)),
-            ("explosion", RoomEnemyProjectileKind.BombTorizoLowHealthExplosion,
+            new TorizoFamily("explosion", RoomEnemyProjectileKind.BombTorizoLowHealthExplosion,
                 TorizoFrameCount(TorizoProjectileFamily.Explosion),
                 TorizoFrameKey(TorizoProjectileFamily.Explosion)),
-            ("Chozo orb", RoomEnemyProjectileKind.BombTorizoChozoOrb,
+            new TorizoFamily("Chozo orb", RoomEnemyProjectileKind.BombTorizoChozoOrb,
                 TorizoFrameCount(TorizoProjectileFamily.ChozoOrb),
                 TorizoFrameKey(TorizoProjectileFamily.ChozoOrb)),
         };
@@ -235,13 +233,12 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 $"Torizo {family} frame {index} draws stock OAM without visual ROM reads");
             }
         }
-        var genericDeathFamilies = new (string Name, RoomEnemyProjectileKind Kind, int Count,
-            Func<int, ushort> AddressAt)[]
+        var genericDeathFamilies = new TorizoFamily[]
         {
-            ("enemy pickup", RoomEnemyProjectileKind.EnemyDeathPickup,
+            new TorizoFamily("enemy pickup", RoomEnemyProjectileKind.EnemyDeathPickup,
                 EnemyDeathProjectileFrameDefinitions.PoseCount - EnemyProjectilePresentationFrameDefinitions.DeathFrameCount,
                 index => EnemyProjectileFrames.ProgramFrameKey(EnemyDeathProjectileFrameDefinitions.ShownProjectileFrames[new(EnemyProjectilePresentationFrameDefinitions.DeathFrameCount + index)])),
-            ("enemy death", RoomEnemyProjectileKind.EnemyDeathExplosion,
+            new TorizoFamily("enemy death", RoomEnemyProjectileKind.EnemyDeathExplosion,
                 EnemyProjectilePresentationFrameDefinitions.DeathFrameCount,
                 index => EnemyProjectileFrames.ProgramFrameKey(EnemyDeathProjectileFrameDefinitions.ShownProjectileFrames[new(index)])),
         };
@@ -259,40 +256,39 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 $"{family} frame {index} draws stock OAM without visual ROM reads");
             }
         }
-        var environmentAndAttackFamilies = new (string Name, RoomEnemyProjectileKind Kind,
-            int Count, Func<int, ushort> AddressAt)[]
+        var environmentAndAttackFamilies = new TorizoFamily[]
         {
-            ("Ceres falling debris", RoomEnemyProjectileKind.CeresFallingDebrisLight,
+            new TorizoFamily("Ceres falling debris", RoomEnemyProjectileKind.CeresFallingDebrisLight,
                 CeresFallingDebrisVisualDefinitions.Frames.Count,
                 index => EnemyProjectileFrames.ProgramFrameKey(CeresFallingDebrisVisualDefinitions.ShownProjectileFrames[CeresFallingDebrisVisualDefinitions.Frames[index]])),
-            ("save-station electricity", RoomEnemyProjectileKind.SaveStationElectricity,
+            new TorizoFamily("save-station electricity", RoomEnemyProjectileKind.SaveStationElectricity,
                 SaveStationElectricityFrameDefinitions.PoseCount,
                 index => EnemyProjectileFrames.ProgramFrameKey(SaveStationElectricityFrameDefinitions.ShownProjectileFrames[new(index)])),
-            ("gunship dust", RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
+            new TorizoFamily("gunship dust", RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
                 GunshipDustVisualDefinitions.Frames.Count,
                 index => EnemyProjectileFrames.ProgramFrameKey(GunshipDustVisualDefinitions.ShownProjectileFrames[GunshipDustVisualDefinitions.Frames[index]])),
-            ("falling spark", RoomEnemyProjectileKind.FallingSpark,
+            new TorizoFamily("falling spark", RoomEnemyProjectileKind.FallingSpark,
                 FallingSparkFrameDefinitions.PoseCount,
                 index => EnemyProjectileFrames.ProgramFrameKey(FallingSparkFrameDefinitions.ShownProjectileFrames[new(index)])),
-            ("Magdollite lava", RoomEnemyProjectileKind.LavaThrownByMagdollite,
+            new TorizoFamily("Magdollite lava", RoomEnemyProjectileKind.LavaThrownByMagdollite,
                 MagdolliteLavaFrameDefinitions.PoseCount,
                 index => EnemyProjectileFrames.ProgramFrameKey(MagdolliteLavaFrameDefinitions.ShownProjectileFrames[new(index)])),
-            ("Chozo/Tourian dust", RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep,
+            new TorizoFamily("Chozo/Tourian dust", RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep,
                 ChozoTourianDustFrameDefinitions.PoseCount,
                 index => EnemyProjectileFrames.ProgramFrameKey(ChozoTourianDustFrameDefinitions.ShownProjectileFrames[new(index)])),
-            ("eye-door sweat", RoomEnemyProjectileKind.EyeDoorSweat,
+            new TorizoFamily("eye-door sweat", RoomEnemyProjectileKind.EyeDoorSweat,
                 EyeDoorSweatFrameDefinitions.PoseCount,
                 index => EnemyProjectileFrames.ProgramFrameKey(EyeDoorSweatFrameDefinitions.ShownProjectileFrames[new(index)])),
-            ("Ki Hunter acid spit", RoomEnemyProjectileKind.KiHunterAcidSpitLeft,
+            new TorizoFamily("Ki Hunter acid spit", RoomEnemyProjectileKind.KiHunterAcidSpitLeft,
                 KiHunterAcidSpitFrameDefinitions.PoseCount,
                 index => EnemyProjectileFrames.ProgramFrameKey(KiHunterAcidSpitFrameDefinitions.ShownProjectileFrames[new(index)])),
-            ("Fune/Namihe fireball", RoomEnemyProjectileKind.FuneFireball,
+            new TorizoFamily("Fune/Namihe fireball", RoomEnemyProjectileKind.FuneFireball,
                 FuneNamiheFireballFrameToolingDefinitions.PoseCount,
                 index => EnemyProjectileFrames.ProgramFrameKey(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[new(index)])),
-            ("Dragon fireball", RoomEnemyProjectileKind.DragonFireball,
+            new TorizoFamily("Dragon fireball", RoomEnemyProjectileKind.DragonFireball,
                 DragonFireballFrameDefinitions.PoseCount,
                 index => EnemyProjectileFrames.ProgramFrameKey(DragonFireballFrameDefinitions.ShownProjectileFrames[new(index)])),
-            ("Powamp spike", RoomEnemyProjectileKind.PowampSpike,
+            new TorizoFamily("Powamp spike", RoomEnemyProjectileKind.PowampSpike,
                 PowampSpikeFrameDefinitions.PoseCount,
                 index => EnemyProjectileFrames.ProgramFrameKey(PowampSpikeFrameDefinitions.ShownProjectileFrames[new(index)])),
         };
@@ -310,22 +306,21 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 $"{family} frame {index} draws stock OAM without visual ROM reads");
             }
         }
-        var motherBrainAndStatueFamilies = new (string Name, RoomEnemyProjectileKind Kind,
-            int Count, Func<int, ushort> AddressAt)[]
+        var motherBrainAndStatueFamilies = new TorizoFamily[]
         {
-            ("Bomb Torizo statue fragments", RoomEnemyProjectileKind.BombTorizoStatueBreaking,
+            new TorizoFamily("Bomb Torizo statue fragments", RoomEnemyProjectileKind.BombTorizoStatueBreaking,
                 TorizoFrameCount(TorizoProjectileFamily.StatueFragment),
                 TorizoFrameKey(TorizoProjectileFamily.StatueFragment)),
-            ("Mother Brain glass", RoomEnemyProjectileKind.MotherBrainGlassShard,
+            new TorizoFamily("Mother Brain glass", RoomEnemyProjectileKind.MotherBrainGlassShard,
                 MotherBrainGlassVisualDefinitions.ProjectileFrameCount,
                 index => EnemyProjectileFrames.ProgramFrameKey(MotherBrainGlassVisualDefinitions.ShownProjectileFrames[MotherBrainGlassVisualDefinitions.ProjectileFrames[index]])),
-            ("Mother Brain hand beam", RoomEnemyProjectileKind.MotherBrainHandBeamCharging,
+            new TorizoFamily("Mother Brain hand beam", RoomEnemyProjectileKind.MotherBrainHandBeamCharging,
                 MotherBrainHandBeamVisualDefinitions.ProjectileFrameCount,
                 index => EnemyProjectileFrames.ProgramFrameKey(MotherBrainHandBeamVisualDefinitions.ShownProjectileFrames[MotherBrainHandBeamVisualDefinitions.ProjectileFrames[index]])),
-            ("Mother Brain top tube", RoomEnemyProjectileKind.MotherBrainTopRightTube,
+            new TorizoFamily("Mother Brain top tube", RoomEnemyProjectileKind.MotherBrainTopRightTube,
                 MotherBrainTopTubeInstructionProgramDefinitionsTooling.PresentationWordCount,
                 MotherBrainTopTubeInstructionProgramDefinitionsTooling.PresentationWordAddress),
-            ("Mother Brain turret", RoomEnemyProjectileKind.MotherBrainRoomTurret,
+            new TorizoFamily("Mother Brain turret", RoomEnemyProjectileKind.MotherBrainRoomTurret,
                 MotherBrainTurretVisualDefinitions.ProjectileFrameCount,
                 index => EnemyProjectileFrames.ProgramFrameKey(MotherBrainTurretVisualDefinitions.ShownProjectileFrames[MotherBrainTurretVisualDefinitions.ProjectileFrames[index]])),
         };
@@ -528,9 +523,9 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             "edited Alcoon fireball frame changes production OAM without a ROM visual read");
         foreach ((string family, ushort operand, RoomEnemyProjectileKind kind) in new[]
                  {
-                     ("Super Missile", goldenMissileOperand,
+                     new EnemyTileArtworkProjectileSpritemapsVerifyInstalledEnemyProjectileSpritemapsCase("Super Missile", goldenMissileOperand,
                          RoomEnemyProjectileKind.GoldenTorizoSuperMissile),
-                     ("eye beam", goldenEyeOperand,
+                     new EnemyTileArtworkProjectileSpritemapsVerifyInstalledEnemyProjectileSpritemapsCase("eye beam", goldenEyeOperand,
                          RoomEnemyProjectileKind.GoldenTorizoEyeBeam),
                  })
         {
@@ -737,9 +732,9 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             "version-five overrides retain their edited Alcoon fireball frames");
         foreach ((string family, ushort operand, RoomEnemyProjectileKind kind) in new[]
                  {
-                     ("Super Missile", goldenMissileOperand,
+                     new EnemyTileArtworkProjectileSpritemapsVerifyInstalledEnemyProjectileSpritemapsCase("Super Missile", goldenMissileOperand,
                          RoomEnemyProjectileKind.GoldenTorizoSuperMissile),
-                     ("eye beam", goldenEyeOperand,
+                     new EnemyTileArtworkProjectileSpritemapsVerifyInstalledEnemyProjectileSpritemapsCase("eye beam", goldenEyeOperand,
                          RoomEnemyProjectileKind.GoldenTorizoEyeBeam),
                  })
         {
@@ -914,8 +909,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 ushort nativePointer = ReadNativeEnemyProjectileProgramWord(bus, frame.OperandAddress);
                 foreach ((ushort originX, ushort originY) in new[]
                          {
-                             ((ushort)128, (ushort)96),
-                             ((ushort)0x01ff, (ushort)0x00fc),
+                             new EnemyTileArtworkProjectileSpritemapsVerifyInstalledEnemyProjectileSpritemapsCase3(128, 96),
+                             new EnemyTileArtworkProjectileSpritemapsVerifyInstalledEnemyProjectileSpritemapsCase3(0x01ff, 0x00fc),
                          })
                 {
                     var nativeOam = new OamBuffer();

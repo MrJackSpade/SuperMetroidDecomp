@@ -43,7 +43,7 @@ internal static class CeresRidleyBodyPublicationVerification
         ridley.Mode7BabyFrame = 0;
         ridley.Mode7WingFrame = 0;
         SnesAngle? previousAngle = null;
-        foreach ((int nmiFrame, CeresMode7TransferList wings) in new[] { (0, CeresMode7TransferList.WingFrame1), (8, CeresMode7TransferList.WingFrame0) })
+        foreach ((int nmiFrame, CeresMode7TransferList wings) in new[] { new VerifyCeresRidleyBodyPublicationCase(0, CeresMode7TransferList.WingFrame1), new VerifyCeresRidleyBodyPublicationCase(8, CeresMode7TransferList.WingFrame0) })
         {
             runtime.Enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyMode7Getaway(ridley, null, nmiFrame);
             runtime.FrameBoundary.BeginAcceptedFrame(0);

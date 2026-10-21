@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Rooms.Plms;
@@ -14,7 +15,7 @@ internal static class LookupChozoStockVerification
     internal static void VerifyChozoStatueStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmChozoStatueVisualCatalog installed)
     {
-        (ushort Pointer, string Id)[] frames = [(0xa2b5,"lower-norfair-cleared-hand"),(0x9cc5,"wrecked-ship-clear-slope-access"),(0x9d0f,"wrecked-ship-block-slope-access")];
+        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0xa2b5,"lower-norfair-cleared-hand"),new LookupEscapeGateStockFrame(0x9cc5,"wrecked-ship-clear-slope-access"),new LookupEscapeGateStockFrame(0x9d0f,"wrecked-ship-block-slope-access")];
         var native = new Dictionary<ushort, ushort[][]>();
         foreach (var frame in frames)
         {

@@ -26,7 +26,7 @@ namespace SuperMetroid.ResourceAudit.ClosedContracts;
 internal static class ClosedPresentationIdentityDefinitions
 {
     /// <summary>Returns audited finite argument identities for a presentation call, or null when no closed set applies.</summary>
-    internal static int[]? Get(string type, string method, string parameter) => (type, method, parameter) switch
+    internal static int[]? Get(string type, string method, string parameter) => new PresentationParameter(type, method, parameter) switch
     {
         ("GameplayMessageTitlePresentation", "Build", "messageId") =>
             GameplayMessageTitleDefinitions.MessageIds.SelectToArray(id => (int)id),

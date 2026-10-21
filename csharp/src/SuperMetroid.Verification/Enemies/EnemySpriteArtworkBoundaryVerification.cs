@@ -44,8 +44,8 @@ internal static class EnemySpriteArtworkBoundaryVerification
         int enemyCases = 0, projectileCases = 0, spriteObjectCases = 0;
 
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
-        foreach ((ushort x, ushort y, bool clip) in new (ushort, ushort, bool)[]
-            { (128, 96, false), (511, 1, true), (0, ushort.MaxValue, true) })
+        foreach ((ushort x, ushort y, bool clip) in new VerifyEnemySpriteArtworkBoundaryCase[]
+            { new VerifyEnemySpriteArtworkBoundaryCase(128, 96, false), new VerifyEnemySpriteArtworkBoundaryCase(511, 1, true), new VerifyEnemySpriteArtworkBoundaryCase(0, ushort.MaxValue, true) })
         {
             var expected = new OamBuffer(); var actual = new OamBuffer();
             DrawImportedEnemySpritemap(source, expected, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(x, y), PaletteBits = 0x0a00, BaseTileIndex = 0x01ff, ClipVerticalWrap = clip, OriginYIsOnScreen = (SnesLittleEndian.HighByteInPlace(y)) == 0 });
@@ -69,7 +69,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
 
         RoomEnemyProjectileSlot roomSlot = enemies.Projectiles.EnemyProjectiles[17];
         foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameSets.All)
-        foreach ((ushort x, ushort y) in new (ushort, ushort)[] { (128, 96), (255, 252), (0, ushort.MaxValue) })
+        foreach ((ushort x, ushort y) in new EnemySpriteArtworkBoundaryVerifyEnemySpriteArtworkBoundaryCase[] { new EnemySpriteArtworkBoundaryVerifyEnemySpriteArtworkBoundaryCase(128, 96), new EnemySpriteArtworkBoundaryVerifyEnemySpriteArtworkBoundaryCase(255, 252), new EnemySpriteArtworkBoundaryVerifyEnemySpriteArtworkBoundaryCase(0, ushort.MaxValue) })
         {
             ushort pointer = source.ReadCartridgeWordFixedBank(0x860000 | frame.OperandAddress);
             roomSlot.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;

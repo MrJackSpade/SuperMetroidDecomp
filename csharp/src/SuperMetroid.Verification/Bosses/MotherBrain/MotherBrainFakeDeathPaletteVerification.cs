@@ -78,7 +78,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
 
     /// <summary>Captures one production fake-death fade update for palette and state comparisons.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    internal static (Bgr555[] Colors, ushort FunctionTimer, MotherBrainBodyFunction Function)
+    internal static CaptureFakeDeathPaletteFrameResult
         CaptureFakeDeathPaletteFrame(MotherBrainRainbowPalettePresentation colors, bool toGrey)
     {
         var cgram = new SnesCgram();
@@ -95,6 +95,6 @@ internal static class MotherBrainFakeDeathPaletteVerification
             ? enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFadeToGray
             : enemies.MotherBrainBehavior.FakeDeath.TransitionMotherBrainFromGray;
         step(state);
-        return (cgram.Colors.ToArray(), state.FunctionTimer.RawValue, state.Function);
+        return new CaptureFakeDeathPaletteFrameResult(cgram.Colors.ToArray(), state.FunctionTimer.RawValue, state.Function);
     }
 }

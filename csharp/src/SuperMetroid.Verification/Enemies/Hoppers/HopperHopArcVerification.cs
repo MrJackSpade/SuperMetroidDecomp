@@ -22,13 +22,13 @@ internal static class HopperHopArcVerification
         var frame = new ClockedEnemyAiFrame(
             new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(), Level = level },
             new FrameCounters(0));
-        foreach ((bool falling, int start, int step, int expected, bool expectedFalling) in new (bool, int, int, int, bool)[]
+        foreach ((bool falling, int start, int step, int expected, bool expectedFalling) in new VerifyHopperHopArcRecordCase[]
                  {
-                     (false, 2, 3, 0, true),
-                     (false, 3, 3, 0, false),
-                     (false, 10, 4, 6, false),
-                     (true, 59, 4, 63, true),
-                     (true, 62, 4, 64, true),
+                     new VerifyHopperHopArcRecordCase(false, 2, 3, 0, true),
+                     new VerifyHopperHopArcRecordCase(false, 3, 3, 0, false),
+                     new VerifyHopperHopArcRecordCase(false, 10, 4, 6, false),
+                     new VerifyHopperHopArcRecordCase(true, 59, 4, 63, true),
+                     new VerifyHopperHopArcRecordCase(true, 62, 4, 64, true),
                  })
         {
             var enemies = new RoomEnemySystem(new EnemySession());

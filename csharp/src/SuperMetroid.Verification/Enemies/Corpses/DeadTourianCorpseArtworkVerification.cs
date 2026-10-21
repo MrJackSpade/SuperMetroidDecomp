@@ -41,11 +41,11 @@ internal static class DeadTourianCorpseArtworkVerification
                     $"dead-sidehopper parameter {parameter} installed corpse staging parity");
         }
 
-        foreach ((EnemyDefinitionId definition, int variantCount) in new (EnemyDefinitionId, int)[]
+        foreach ((EnemyDefinitionId definition, int variantCount) in new VerifyInstalledDeadTourianCorpseArtworkCase[]
         {
-            (EnemyDefinitionId.CorpseZoomer, 3),
-            (EnemyDefinitionId.CorpseRipper, 2),
-            (EnemyDefinitionId.CorpseSkree, 3),
+            new VerifyInstalledDeadTourianCorpseArtworkCase(EnemyDefinitionId.CorpseZoomer, 3),
+            new VerifyInstalledDeadTourianCorpseArtworkCase(EnemyDefinitionId.CorpseRipper, 2),
+            new VerifyInstalledDeadTourianCorpseArtworkCase(EnemyDefinitionId.CorpseSkree, 3),
         })
         {
             for (int variant = 0; variant < variantCount; variant++)
@@ -152,25 +152,25 @@ internal static class DeadTourianCorpseArtworkVerification
     private static void ReferenceDeadTourianCorpseGraphics(
         SuperMetroidAddressSpace bus, EnemyStagingSurfaces staging, EnemyDefinitionId definition, int variant)
     {
-        (int Source, int Destination, int Length)[] copies = (definition, variant) switch
+        DeadTorizoArtworkCopy[] copies = new DeadTourianCorpseArtworkCopy(definition, variant) switch
         {
             (EnemyDefinitionId.CorpseSidehopper, 0) =>
-                [(64, 0x040, 0x60), (512, 0x0a0, 0xa0), (1024, 0x140, 0xa0),
-                 (1536, 0x1e0, 0xa0), (2048, 0x280, 0xa0)],
+                [new DeadTorizoArtworkCopy(64, 0x040, 0x60), new DeadTorizoArtworkCopy(512, 0x0a0, 0xa0), new DeadTorizoArtworkCopy(1024, 0x140, 0xa0),
+                 new DeadTorizoArtworkCopy(1536, 0x1e0, 0xa0), new DeadTorizoArtworkCopy(2048, 0x280, 0xa0)],
             (EnemyDefinitionId.CorpseSidehopper, 1) =>
-                [(288, 0x320, 0x40), (800, 0x3c0, 0xa0), (1312, 0x460, 0xa0),
-                 (1824, 0x500, 0xa0), (2336, 0x5a0, 0xa0)],
-            (EnemyDefinitionId.CorpseZoomer, 0) => [(2656, 0x940, 0x60), (3168, 0x9a0, 0x60)],
-            (EnemyDefinitionId.CorpseZoomer, 1) => [(2752, 0xa00, 0x60), (3264, 0xa60, 0x60)],
-            (EnemyDefinitionId.CorpseZoomer, 2) => [(2848, 0xac0, 0x60), (3360, 0xb20, 0x60)],
-            (EnemyDefinitionId.CorpseRipper, 0) => [(2560, 0xb80, 0x60), (3072, 0xbe0, 0x60)],
-            (EnemyDefinitionId.CorpseRipper, 1) => [(2944, 0xc40, 0x60), (3456, 0xca0, 0x60)],
+                [new DeadTorizoArtworkCopy(288, 0x320, 0x40), new DeadTorizoArtworkCopy(800, 0x3c0, 0xa0), new DeadTorizoArtworkCopy(1312, 0x460, 0xa0),
+                 new DeadTorizoArtworkCopy(1824, 0x500, 0xa0), new DeadTorizoArtworkCopy(2336, 0x5a0, 0xa0)],
+            (EnemyDefinitionId.CorpseZoomer, 0) => [new DeadTorizoArtworkCopy(2656, 0x940, 0x60), new DeadTorizoArtworkCopy(3168, 0x9a0, 0x60)],
+            (EnemyDefinitionId.CorpseZoomer, 1) => [new DeadTorizoArtworkCopy(2752, 0xa00, 0x60), new DeadTorizoArtworkCopy(3264, 0xa60, 0x60)],
+            (EnemyDefinitionId.CorpseZoomer, 2) => [new DeadTorizoArtworkCopy(2848, 0xac0, 0x60), new DeadTorizoArtworkCopy(3360, 0xb20, 0x60)],
+            (EnemyDefinitionId.CorpseRipper, 0) => [new DeadTorizoArtworkCopy(2560, 0xb80, 0x60), new DeadTorizoArtworkCopy(3072, 0xbe0, 0x60)],
+            (EnemyDefinitionId.CorpseRipper, 1) => [new DeadTorizoArtworkCopy(2944, 0xc40, 0x60), new DeadTorizoArtworkCopy(3456, 0xca0, 0x60)],
             (EnemyDefinitionId.CorpseSkree, 0) =>
-                [(672, 0x640, 0x40), (1184, 0x680, 0x40), (1696, 0x6c0, 0x40), (2208, 0x700, 0x40)],
+                [new DeadTorizoArtworkCopy(672, 0x640, 0x40), new DeadTorizoArtworkCopy(1184, 0x680, 0x40), new DeadTorizoArtworkCopy(1696, 0x6c0, 0x40), new DeadTorizoArtworkCopy(2208, 0x700, 0x40)],
             (EnemyDefinitionId.CorpseSkree, 1) =>
-                [(224, 0x740, 0x40), (736, 0x780, 0x40), (1248, 0x7c0, 0x40), (1760, 0x800, 0x40)],
+                [new DeadTorizoArtworkCopy(224, 0x740, 0x40), new DeadTorizoArtworkCopy(736, 0x780, 0x40), new DeadTorizoArtworkCopy(1248, 0x7c0, 0x40), new DeadTorizoArtworkCopy(1760, 0x800, 0x40)],
             (EnemyDefinitionId.CorpseSkree, 2) =>
-                [(448, 0x840, 0x40), (960, 0x880, 0x40), (1472, 0x8c0, 0x40), (1984, 0x900, 0x40)],
+                [new DeadTorizoArtworkCopy(448, 0x840, 0x40), new DeadTorizoArtworkCopy(960, 0x880, 0x40), new DeadTorizoArtworkCopy(1472, 0x8c0, 0x40), new DeadTorizoArtworkCopy(1984, 0x900, 0x40)],
             _ => throw new InvalidDataException($"Unknown native corpse fixture {(ushort)definition:X4}/{variant}."),
         };
         StagingByteView tiles = staging.CorpseTiles;

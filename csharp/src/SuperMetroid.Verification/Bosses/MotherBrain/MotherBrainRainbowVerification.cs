@@ -18,7 +18,7 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
 
     // `$86:C272` uses table index angle+$40. Give angle zero a literal +$0100 entry and
     // angle $80 a literal -$0100 entry so the expected $10.00 components are unambiguous.
-    SeedSignedSineTable(bus, [(0x40, 0x0100), (0xc0, unchecked((short)0xff00))]);
+    SeedSignedSineTable(bus, [new SineSample(0x40, 0x0100), new SineSample(0xc0, unchecked((short)0xff00))]);
 
     // The helpers add a signed 8.8 velocity to the whole Y word and only the high
     // subposition byte, so the applied vertical velocity is the delta of that 8.8 view.

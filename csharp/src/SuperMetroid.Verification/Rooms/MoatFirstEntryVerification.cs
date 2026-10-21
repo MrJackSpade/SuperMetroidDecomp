@@ -25,8 +25,8 @@ internal static class MoatFirstEntryVerification
     internal static void VerifyMoatFirstEntry()
     {
 
-        var unpausedFrames = new Dictionary<(ushort Source, int Frame), Rgba32[]>();
-        var unpausedTransitionFrames = new Dictionary<(ushort Source, int Frame), Rgba32[]>();
+        var unpausedFrames = new Dictionary<UnpausedFrame, Rgba32[]>();
+        var unpausedTransitionFrames = new Dictionary<UnpausedFrame, Rgba32[]>();
         foreach (ushort source in new ushort[] { 0x948c, 0x93fe })
         foreach (bool pauseBeforeEntry in new[] { false, true })
         {
@@ -92,8 +92,8 @@ internal static class MoatFirstEntryVerification
                 // not just the already-completed destination used by older probes.
                 var snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
                 var pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
-                if (!pauseBeforeEntry) unpausedTransitionFrames[(source, frame)] = pixels;
-                else AssertTrue(pixels.SequenceEqual(unpausedTransitionFrames[(source, frame)]),
+                if (!pauseBeforeEntry) unpausedTransitionFrames[new UnpausedFrame(source, frame)] = pixels;
+                else AssertTrue(pixels.SequenceEqual(unpausedTransitionFrames[new UnpausedFrame(source, frame)]),
                     $"pause/equipment history leaves identical transition pixels at {phase}, frame {frame}");
 
                 transitionFrames++;
@@ -105,8 +105,8 @@ internal static class MoatFirstEntryVerification
                 runtime.StepFrame(0);
                 var snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
                 var pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
-                if (!pauseBeforeEntry) unpausedFrames[(source, frame)] = pixels;
-                else AssertTrue(pixels.SequenceEqual(unpausedFrames[(source, frame)]),
+                if (!pauseBeforeEntry) unpausedFrames[new UnpausedFrame(source, frame)] = pixels;
+                else AssertTrue(pixels.SequenceEqual(unpausedFrames[new UnpausedFrame(source, frame)]),
                     "pause/equipment history leaves identical first-entry water and scene pixels");
 
             }

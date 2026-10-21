@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Choot;
 
 namespace SuperMetroid.Verification.Enemies.Choot;
@@ -13,17 +14,17 @@ internal static class ChootNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (ChootProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<ChootProgram>[] Entries =
     [
-        (ChootProgram.Idle, 0xd82c),
-        (ChootProgram.Jumping, 0xd834),
-        (ChootProgram.Falling, 0xd840),
+        new NativeProgramEntry<ChootProgram>(ChootProgram.Idle, 0xd82c),
+        new NativeProgramEntry<ChootProgram>(ChootProgram.Jumping, 0xd834),
+        new NativeProgramEntry<ChootProgram>(ChootProgram.Falling, 0xd840),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (ChootCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, ChootNativeListAddressesInstruction> Instructions = new()
     {
-        [0x8173] = (ChootCueKind.ProcessOffScreen, ""),
-        [0x817d] = (ChootCueKind.StopProcessingOffScreen, ""),
+        [0x8173] = new ChootNativeListAddressesInstruction(ChootCueKind.ProcessOffScreen, ""),
+        [0x817d] = new ChootNativeListAddressesInstruction(ChootCueKind.StopProcessingOffScreen, ""),
     };
 }

@@ -73,7 +73,7 @@ public sealed class IntegerCodedModeAnalyzer : DiagnosticAnalyzer
         {
             if (start.Compilation.AssemblyName != CheckedAssembly)
                 return;
-            var equalities = new ConcurrentBag<(ISymbol Member, long Value)>();
+            var equalities = new ConcurrentBag<MemberEquality>();
             start.RegisterSyntaxNodeAction(node => AnalyzeBinary(node, equalities),
                 SyntaxKind.EqualsExpression, SyntaxKind.NotEqualsExpression, SyntaxKind.LessThanExpression,
                 SyntaxKind.LessThanOrEqualExpression, SyntaxKind.GreaterThanExpression, SyntaxKind.GreaterThanOrEqualExpression);
@@ -81,7 +81,7 @@ public sealed class IntegerCodedModeAnalyzer : DiagnosticAnalyzer
             start.RegisterSyntaxNodeAction(node => AnalyzeSwitch(node, equalities), SyntaxKind.SwitchExpression, SyntaxKind.SwitchStatement);
             start.RegisterCompilationEndAction(end =>
             {
-                foreach (IGrouping<ISymbol, (ISymbol Member, long Value)> member in
+                foreach (IGrouping<ISymbol, MemberEquality> member in
                          equalities.GroupBy(entry => entry.Member, SymbolEqualityComparer.Default))
                 {
                     long[] values = [.. member.Select(entry => entry.Value).Distinct().OrderBy(value => value)];
@@ -95,7 +95,7 @@ public sealed class IntegerCodedModeAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>Checks a comparison of a member against an integer literal.</summary>
-    private static void AnalyzeBinary(SyntaxNodeAnalysisContext context, ConcurrentBag<(ISymbol Member, long Value)> equalities)
+    private static void AnalyzeBinary(SyntaxNodeAnalysisContext context, ConcurrentBag<MemberEquality> equalities)
     {
         var binary = (BinaryExpressionSyntax)context.Node;
         bool equality = binary.IsKind(SyntaxKind.EqualsExpression) || binary.IsKind(SyntaxKind.NotEqualsExpression);
@@ -104,7 +104,7 @@ public sealed class IntegerCodedModeAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>Checks <c>member is literal</c>, <c>is not</c>, <c>or</c> and relational patterns.</summary>
-    private static void AnalyzeIsPattern(SyntaxNodeAnalysisContext context, ConcurrentBag<(ISymbol Member, long Value)> equalities)
+    private static void AnalyzeIsPattern(SyntaxNodeAnalysisContext context, ConcurrentBag<MemberEquality> equalities)
     {
         var expression = (IsPatternExpressionSyntax)context.Node;
         if (Member(expression.Expression, context) is { } member)
@@ -112,7 +112,7 @@ public sealed class IntegerCodedModeAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>Checks a switch statement's or expression's constant arms over a member.</summary>
-    private static void AnalyzeSwitch(SyntaxNodeAnalysisContext context, ConcurrentBag<(ISymbol Member, long Value)> equalities)
+    private static void AnalyzeSwitch(SyntaxNodeAnalysisContext context, ConcurrentBag<MemberEquality> equalities)
     {
         if (context.Node is SwitchExpressionSyntax switchExpression && Member(switchExpression.GoverningExpression, context) is { } governed)
         {
@@ -121,11 +121,11 @@ public sealed class IntegerCodedModeAnalyzer : DiagnosticAnalyzer
         }
         else if (context.Node is SwitchStatementSyntax switchStatement && Member(switchStatement.Expression, context) is { } member)
         {
-            var literals = new List<(long Value, bool Equality)>();
+            var literals = new List<ModeLiteral>();
             foreach (SwitchLabelSyntax label in switchStatement.Sections.SelectMany(section => section.Labels))
             {
                 if (label is CaseSwitchLabelSyntax caseLabel && Literal(caseLabel.Value, context) is { } value)
-                    literals.Add((value, true));
+                    literals.Add(new ModeLiteral(value, true));
                 else if (label is CasePatternSwitchLabelSyntax patternLabel)
                     literals.AddRange(Literals([patternLabel.Pattern], context));
             }
@@ -134,15 +134,15 @@ public sealed class IntegerCodedModeAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>The integer literals of constant (equality) and relational patterns among <paramref name="patterns"/>.</summary>
-    private static List<(long Value, bool Equality)> Literals(IEnumerable<PatternSyntax> patterns, SyntaxNodeAnalysisContext context)
+    private static List<ModeLiteral> Literals(IEnumerable<PatternSyntax> patterns, SyntaxNodeAnalysisContext context)
     {
-        var literals = new List<(long Value, bool Equality)>();
+        var literals = new List<ModeLiteral>();
         foreach (PatternSyntax pattern in patterns.SelectMany(root => root.DescendantNodesAndSelf().OfType<PatternSyntax>()))
         {
             if (pattern is ConstantPatternSyntax constant && Literal(constant.Expression, context) is { } value)
-                literals.Add((value, true));
+                literals.Add(new ModeLiteral(value, true));
             else if (pattern is RelationalPatternSyntax relational && Literal(relational.Expression, context) is { } bound)
-                literals.Add((bound, false));
+                literals.Add(new ModeLiteral(bound, false));
         }
         return literals;
     }
@@ -151,8 +151,8 @@ public sealed class IntegerCodedModeAnalyzer : DiagnosticAnalyzer
     /// Reports one comparison of a categorical member against its literals, or records its equalities for the
     /// several-literals rule; a switch over an index is a lookup, so its arms are not counted there.
     /// </summary>
-    private static void ReportAll(SyntaxNodeAnalysisContext context, ISymbol member, List<(long Value, bool Equality)> literals,
-        Location location, ConcurrentBag<(ISymbol Member, long Value)> equalities, bool countEqualities)
+    private static void ReportAll(SyntaxNodeAnalysisContext context, ISymbol member, List<ModeLiteral> literals,
+        Location location, ConcurrentBag<MemberEquality> equalities, bool countEqualities)
     {
         if (literals.Count == 0)
             return;
@@ -167,13 +167,13 @@ public sealed class IntegerCodedModeAnalyzer : DiagnosticAnalyzer
         foreach ((long value, bool equality) in literals)
         {
             if (equality)
-                equalities.Add((member, value));
+                equalities.Add(new MemberEquality(member, value));
         }
     }
 
     /// <summary>Checks one side of a comparison as the member and the other as the literal.</summary>
     private static void Check(SyntaxNodeAnalysisContext context, ExpressionSyntax memberSide, ExpressionSyntax literalSide,
-        SyntaxNode comparison, bool equality, ConcurrentBag<(ISymbol Member, long Value)> equalities)
+        SyntaxNode comparison, bool equality, ConcurrentBag<MemberEquality> equalities)
     {
         if (Member(memberSide, context) is { } member && Literal(literalSide, context) is { } value)
             Report(context, member, value, comparison.GetLocation(), equality, equalities);
@@ -181,12 +181,12 @@ public sealed class IntegerCodedModeAnalyzer : DiagnosticAnalyzer
 
     /// <summary>Reports a categorical member at once, and records an equality for the several-literals rule.</summary>
     private static void Report(SyntaxNodeAnalysisContext context, ISymbol member, long value, Location location, bool equality,
-        ConcurrentBag<(ISymbol Member, long Value)> equalities)
+        ConcurrentBag<MemberEquality> equalities)
     {
         if (IsCategorical(member))
             context.ReportDiagnostic(Diagnostic.Create(CategoricalLiteralRule, location, member.Name, value));
         else if (equality)
-            equalities.Add((member, value));
+            equalities.Add(new MemberEquality(member, value));
     }
 
     /// <summary>

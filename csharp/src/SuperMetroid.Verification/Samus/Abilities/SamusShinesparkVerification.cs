@@ -141,17 +141,17 @@ internal static void VerifySamusStoredShineAndShinespark()
     foreach ((SamusPoseId windupPose, SamusPoseId targetPose, ShinesparkPhase expectedPhase,
         bool expectsHorizontal, bool expectsVertical) in new[]
     {
-        (SamusPoseId.ShinesparkWindupRightPose, SamusPoseId.ShinesparkHorizontalRightPose,
+        new VerifySamusStoredShineAndShinesparkCase(SamusPoseId.ShinesparkWindupRightPose, SamusPoseId.ShinesparkHorizontalRightPose,
             ShinesparkPhase.Horizontal, true, false),
-        (SamusPoseId.ShinesparkWindupLeftPose, SamusPoseId.ShinesparkHorizontalLeftPose,
+        new VerifySamusStoredShineAndShinesparkCase(SamusPoseId.ShinesparkWindupLeftPose, SamusPoseId.ShinesparkHorizontalLeftPose,
             ShinesparkPhase.Horizontal, true, false),
-        (SamusPoseId.ShinesparkWindupRightPose, SamusPoseId.ShinesparkVerticalRightPose,
+        new VerifySamusStoredShineAndShinesparkCase(SamusPoseId.ShinesparkWindupRightPose, SamusPoseId.ShinesparkVerticalRightPose,
             ShinesparkPhase.Vertical, false, true),
-        (SamusPoseId.ShinesparkWindupLeftPose, SamusPoseId.ShinesparkVerticalLeftPose,
+        new VerifySamusStoredShineAndShinesparkCase(SamusPoseId.ShinesparkWindupLeftPose, SamusPoseId.ShinesparkVerticalLeftPose,
             ShinesparkPhase.Vertical, false, true),
-        (SamusPoseId.ShinesparkWindupRightPose, SamusPoseId.ShinesparkDiagonalRightPose,
+        new VerifySamusStoredShineAndShinesparkCase(SamusPoseId.ShinesparkWindupRightPose, SamusPoseId.ShinesparkDiagonalRightPose,
             ShinesparkPhase.Diagonal, true, true),
-        (SamusPoseId.ShinesparkWindupLeftPose, SamusPoseId.ShinesparkDiagonalLeftPose,
+        new VerifySamusStoredShineAndShinesparkCase(SamusPoseId.ShinesparkWindupLeftPose, SamusPoseId.ShinesparkDiagonalLeftPose,
             ShinesparkPhase.Diagonal, true, true),
     })
     {

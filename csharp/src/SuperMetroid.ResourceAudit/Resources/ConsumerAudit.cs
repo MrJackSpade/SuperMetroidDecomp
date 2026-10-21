@@ -155,7 +155,7 @@ internal static class ConsumerAudit
     }
 
     /// <summary>Maps a known presentation operation to the resource domain it addresses.</summary>
-    private static string? Domain(string type, string method) => (type, method) switch
+    private static string? Domain(string type, string method) => new PresentationMethod(type, method) switch
     {
         ("EnemySpritemapCatalog", "TryGetDisplay" or "TryGet") => ResourceDomains.EnemySimple,
         ("EnemyExtendedFrameCatalog", "TryGetDisplay" or "GetDisplayPointer" or "TryGet") => ResourceDomains.EnemyExtended,

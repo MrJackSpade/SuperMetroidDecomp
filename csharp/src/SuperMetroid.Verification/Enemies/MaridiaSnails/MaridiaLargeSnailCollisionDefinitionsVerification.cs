@@ -82,9 +82,9 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
 
             nativeSlot.SpritemapPointer = compiledSlot.SpritemapPointer = frame;
             foreach ((ushort originX, ushort originY) in
-                     new (ushort, ushort)[]
+                     new VerifyMaridiaLargeSnailCollisionDefinitionsCase[]
                      {
-                         (0x0100, 0x0100), (0x0004, 0x0006), (0xfffc, 0xfffa),
+                         new VerifyMaridiaLargeSnailCollisionDefinitionsCase(0x0100, 0x0100), new VerifyMaridiaLargeSnailCollisionDefinitionsCase(0x0004, 0x0006), new VerifyMaridiaLargeSnailCollisionDefinitionsCase(0xfffc, 0xfffa),
                      })
             {
                 compiledSlot.Position = compiledSlot.Position.WithWholeX(originX);

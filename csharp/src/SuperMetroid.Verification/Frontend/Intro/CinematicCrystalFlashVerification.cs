@@ -250,7 +250,7 @@ internal static class CinematicCrystalFlashVerification
     }
 
     /// <summary>Creates a retail-backed runtime with controlled resources and advances Flash to the selected movement-call boundary.</summary>
-    private static (SuperMetroidAddressSpace Bus, SuperMetroidRuntime Runtime, SamusState Samus)
+    private static CreateCinematicFlashRuntimeResult
         CreateCinematicFlashRuntime(int movementCalls, bool admitFlash = true)
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -281,7 +281,7 @@ internal static class CinematicCrystalFlashVerification
         AssertEqual(admitFlash, admitted, "cinematic Flash fixture admission");
         for (ushort frame = 0; frame < movementCalls; frame++)
             samus.CrystalFlash.Step(samus, frame);
-        return (bus, runtime, samus);
+        return new CreateCinematicFlashRuntimeResult(bus, runtime, samus);
     }
 
     /// <summary>Runs cinematic Flash ownership verification against the pinned native trace.</summary>

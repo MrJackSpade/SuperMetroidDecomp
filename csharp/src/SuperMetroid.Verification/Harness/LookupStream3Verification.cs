@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Verification.Enemies.Projectiles;
@@ -256,7 +257,7 @@ internal static class LookupStream3Verification
         }
         foreach ((GameOptionsPage page, int address, int count) in new[]
         {
-            (GameOptionsPage.Primary, 0x82d24b, 34), (GameOptionsPage.Controller, 0x82d2f7, 58), (GameOptionsPage.Special, 0x82d41b, 52),
+            new VerifyStream3OptionsBordersCase(GameOptionsPage.Primary, 0x82d24b, 34), new VerifyStream3OptionsBordersCase(GameOptionsPage.Controller, 0x82d2f7, 58), new VerifyStream3OptionsBordersCase(GameOptionsPage.Special, 0x82d41b, 52),
         })
         {
             string name = GameOptionsPresentationDefinitions.HeadingSpriteName(page);
@@ -328,7 +329,7 @@ internal static class LookupStream3Verification
         }
         foreach ((FileSelectBorder border, int address, int count) in new[]
         {
-            (FileSelectBorder.Main, 0x82d00b, 32), (FileSelectBorder.Copy, 0x82d0ad, 40), (FileSelectBorder.Clear, 0x82d177, 42),
+            new VerifyStream3FileSelectBordersCase(FileSelectBorder.Main, 0x82d00b, 32), new VerifyStream3FileSelectBordersCase(FileSelectBorder.Copy, 0x82d0ad, 40), new VerifyStream3FileSelectBordersCase(FileSelectBorder.Clear, 0x82d177, 42),
         })
         {
             string name = FileSelectPresentationDefinitions.BorderSpriteName(border);
@@ -636,7 +637,7 @@ internal static class LookupStream3Verification
             new EnemySpritemapDefinition(0xb4, pointer, $"room_sprite_b4_{pointer:x4}")).ToArray();
         AssertTrue(all.Skip(472).Take(expectedAdditional.Length).SequenceEqual(expectedAdditional),
             "enemy additional room-sprite sort and duplicate exclusion preserve named prefix");
-        AssertEqual(all.Length, all.Select(frame => (frame.Bank, frame.Pointer)).Distinct().Count(), "enemy frame identities remain unique");
+        AssertEqual(all.Length, all.Select(frame => new FrameAddressKey(frame.Bank, frame.Pointer)).Distinct().Count(), "enemy frame identities remain unique");
         Suite(nameof(VerifyEnemyLegacyOverrides), () => VerifyEnemyLegacyOverrides());
     }
 
@@ -649,9 +650,9 @@ internal static class LookupStream3Verification
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         foreach ((FileSelectPatch patch, int address, int count) in new[]
         {
-            (FileSelectPatch.Energy, 0x81b496, 4),
-            (FileSelectPatch.TimeColon, 0x81b4a8, 1),
-            (FileSelectPatch.NoData, 0x81b4ac, 11),
+            new VerifyStream3FileSelectPatchesCase(FileSelectPatch.Energy, 0x81b496, 4),
+            new VerifyStream3FileSelectPatchesCase(FileSelectPatch.TimeColon, 0x81b4a8, 1),
+            new VerifyStream3FileSelectPatchesCase(FileSelectPatch.NoData, 0x81b4ac, 11),
         })
         {
             string name = FileSelectPresentationDefinitions.PatchName(patch);
@@ -760,10 +761,10 @@ internal static class LookupStream3Verification
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         var stock = ReadDocument();
         var loaded = Load(stock);
-        foreach (var (field, geometry) in new (string, object?)[]
+        foreach (var (field, geometry) in new VerifyStream3OptionsGeometryCase[]
         {
-            ("controllerLabelAnchors", loaded.controllerLabelAnchors), ("languageRegions", loaded.languageRegions),
-            ("specialToggles", loaded.specialToggles), ("headingAnchors", loaded.headingAnchors), ("cursorAnchors", loaded.cursorAnchors),
+            new VerifyStream3OptionsGeometryCase("controllerLabelAnchors", loaded.controllerLabelAnchors), new VerifyStream3OptionsGeometryCase("languageRegions", loaded.languageRegions),
+            new VerifyStream3OptionsGeometryCase("specialToggles", loaded.specialToggles), new VerifyStream3OptionsGeometryCase("headingAnchors", loaded.headingAnchors), new VerifyStream3OptionsGeometryCase("cursorAnchors", loaded.cursorAnchors),
         })
             AssertTrue(geometry is null, "stock options geometry calculates " + field);
         for (int action = 0; action < 7; action++)
@@ -774,9 +775,9 @@ internal static class LookupStream3Verification
         }
         foreach ((GameOptionsPage page, int address, int count) in new[]
         {
-            (GameOptionsPage.Primary, 0x82f307, 5),
-            (GameOptionsPage.Controller, 0x82f31b, 9),
-            (GameOptionsPage.Special, 0x82f33f, 3),
+            new VerifyStream3OptionsBordersCase(GameOptionsPage.Primary, 0x82f307, 5),
+            new VerifyStream3OptionsBordersCase(GameOptionsPage.Controller, 0x82f31b, 9),
+            new VerifyStream3OptionsBordersCase(GameOptionsPage.Special, 0x82f33f, 3),
         })
             for (int row = 0; row < count; row++)
                 AssertEqual(new Position16<OamPixels>(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4)), CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4 + 2))),
@@ -1324,7 +1325,7 @@ internal static class LookupStream3Verification
                     short x = (short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b099 + 16 * group + 4 * item));
                     short y = (short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b09b + 16 * group + 4 * item));
                     AssertEqual((ushort)group, scatter.ThirdPhaseDeath.DeathAndEscapeExplosionIndex.RawValue, "stream 3 death scatter reverse group order");
-                    AssertEqual((x, y), (requests[item].Offset.X, requests[item].Offset.Y), "stream 3 selected death scatter anchors");
+                    AssertEqual(new OctantVector(x, y), new OctantVector(requests[item].Offset.X, requests[item].Offset.Y), "stream 3 selected death scatter anchors");
                     AssertEqual((ushort)(320 + x), unchecked((ushort)(scatter.State.Body.Position.X + requests[item].Offset.X)), "stream 3 death scatter body-relative X");
                     AssertEqual((ushort)(192 + y), unchecked((ushort)(scatter.State.Body.Position.Y + requests[item].Offset.Y)), "stream 3 death scatter body-relative Y");
                     AssertEqual(mixed ? (ushort)2 : (ushort)1, requests[item].ProjectileParameter, "stream 3 independent death type case");
@@ -2228,8 +2229,8 @@ internal static class LookupStream3Verification
             stock.Apply(actual, state);
             foreach (var (table, destination) in new[]
             {
-                (MotherBrainHealthPaletteRomData.BrainTable, MotherBrainRainbowPaletteRomData.BodyColor),
-                (MotherBrainHealthPaletteRomData.BackLegTable, MotherBrainRainbowPaletteRomData.SecondaryColor),
+                new VerifyStream3HealthTintCase(MotherBrainHealthPaletteRomData.BrainTable, MotherBrainRainbowPaletteRomData.BodyColor),
+                new VerifyStream3HealthTintCase(MotherBrainHealthPaletteRomData.BackLegTable, MotherBrainRainbowPaletteRomData.SecondaryColor),
             })
             {
                 int pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(table + state * 2);
@@ -2260,8 +2261,8 @@ internal static class LookupStream3Verification
                             edited.Apply(actual, checkState);
                             foreach (var (checkGroup, destination) in new[]
                             {
-                                ("body", MotherBrainRainbowPaletteRomData.BodyColor),
-                                ("backLegs", MotherBrainRainbowPaletteRomData.SecondaryColor),
+                                new LookupStream3VerifyStream3HealthTintCase("body", MotherBrainRainbowPaletteRomData.BodyColor),
+                                new LookupStream3VerifyStream3HealthTintCase("backLegs", MotherBrainRainbowPaletteRomData.SecondaryColor),
                             })
                                 for (int checkColor = 0; checkColor < 15; checkColor++)
                                 {
@@ -2880,12 +2881,12 @@ internal static class LookupStream3Verification
         }
         Confirm(stock, document);
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        foreach (var (name, supplied) in new (string, object?)[]
+        foreach (var (name, supplied) in new VerifyStream3OptionsGeometryCase[]
         {
-            ("finalRoom", stock.finalRoom.supplied),
-            ("phaseTwoAttack", stock.phaseTwoAttack.supplied),
-            ("initialGlassShard", stock.initialGlassShard.supplied),
-            ("initialTubeProjectile", stock.initialTubeProjectile.supplied),
+            new VerifyStream3OptionsGeometryCase("finalRoom", stock.finalRoom.supplied),
+            new VerifyStream3OptionsGeometryCase("phaseTwoAttack", stock.phaseTwoAttack.supplied),
+            new VerifyStream3OptionsGeometryCase("initialGlassShard", stock.initialGlassShard.supplied),
+            new VerifyStream3OptionsGeometryCase("initialTubeProjectile", stock.initialTubeProjectile.supplied),
         })
             AssertTrue(supplied is null, "stream 3 room initial palette calculates dependent stock shades: " + name);
         var finalRoom = stock.finalRoom;
@@ -3324,14 +3325,14 @@ internal static class LookupStream3Verification
         AssertEqual(2, entries.Count, "both semantic Nintendo fade entries");
         foreach (var entry in new[]
         {
-            (DefinitionPointer: NintendoLogoFadePaletteFxColorDefinitions.BootLogoDefinitionPointer,
-                ProgramStart: NintendoLogoFadePaletteFxColorDefinitionsConstants.BootLogoEntry,
-                ColorByteIndex: NintendoLogoFadePaletteFxColorDefinitionsConstants.BootLogoColorByteIndex,
-                BranchesToSharedBody: false),
-            (DefinitionPointer: NintendoLogoFadePaletteFxColorDefinitions.CopyrightDefinitionPointer,
-                ProgramStart: NintendoLogoFadePaletteFxColorDefinitionsConstants.CopyrightEntry,
-                ColorByteIndex: NintendoLogoFadePaletteFxColorDefinitionsConstants.CopyrightColorByteIndex,
-                BranchesToSharedBody: true),
+            new VerifyStream3NintendoFadeEntriesCase(DefinitionPointer:NintendoLogoFadePaletteFxColorDefinitions.BootLogoDefinitionPointer,
+ProgramStart:NintendoLogoFadePaletteFxColorDefinitionsConstants.BootLogoEntry,
+ColorByteIndex:NintendoLogoFadePaletteFxColorDefinitionsConstants.BootLogoColorByteIndex,
+BranchesToSharedBody:false),
+            new VerifyStream3NintendoFadeEntriesCase(DefinitionPointer:NintendoLogoFadePaletteFxColorDefinitions.CopyrightDefinitionPointer,
+ProgramStart:NintendoLogoFadePaletteFxColorDefinitionsConstants.CopyrightEntry,
+ColorByteIndex:NintendoLogoFadePaletteFxColorDefinitionsConstants.CopyrightColorByteIndex,
+BranchesToSharedBody:true),
         })
         {
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | (entry.DefinitionPointer + 2)), entry.ProgramStart,

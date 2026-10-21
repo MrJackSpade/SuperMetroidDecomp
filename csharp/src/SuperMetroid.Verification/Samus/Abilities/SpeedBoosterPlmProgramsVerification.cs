@@ -69,9 +69,9 @@ internal static class SpeedBoosterPlmProgramsVerification
     private static void VerifySpeedBlockSelectionField(SuperMetroidAddressSpace rom, bool instruction)
     {
         // Original bank-94 speed-entry locations, independent of named C# results.
-        (byte Bts, int Area, int Address)[] entries =
-            [(0x0e,-1,0x949155),(0x0f,-1,0x949157),(0x82,1,0x9491fd),
-             (0x83,1,0x9491ff),(0x84,1,0x949201),(0x85,1,0x949203)];
+        SpeedBoosterPlmProgramsEntry[] entries =
+            [new SpeedBoosterPlmProgramsEntry(0x0e,-1,0x949155),new SpeedBoosterPlmProgramsEntry(0x0f,-1,0x949157),new SpeedBoosterPlmProgramsEntry(0x82,1,0x9491fd),
+             new SpeedBoosterPlmProgramsEntry(0x83,1,0x9491ff),new SpeedBoosterPlmProgramsEntry(0x84,1,0x949201),new SpeedBoosterPlmProgramsEntry(0x85,1,0x949203)];
         for (int area = 0; area <= byte.MaxValue; area++)
         for (int bts = 0; bts <= byte.MaxValue; bts++)
         {
@@ -111,13 +111,13 @@ internal static class SpeedBoosterPlmProgramsVerification
 
         Suite(nameof(VerifySpeedBlockRevealDrawMapping), () => VerifySpeedBlockRevealDrawMapping(rom));
 
-        var cases = new (RoomBlockBehavior Bts, AreaId Area, bool Respawns)[]
+        var cases = new SpeedBoosterPlmProgramsCase[]
         {
-            (new RoomBlockBehavior(0x0e), AreaId.Crateria, true),
-            (new RoomBlockBehavior(0x0f), AreaId.Crateria, false),
-            (new RoomBlockBehavior(0x82), AreaId.Brinstar, true),
-            (new RoomBlockBehavior(0x83), AreaId.Brinstar, false),
-            (new RoomBlockBehavior(0x84), AreaId.Brinstar, true),
+            new SpeedBoosterPlmProgramsCase(new RoomBlockBehavior(0x0e), AreaId.Crateria, true),
+            new SpeedBoosterPlmProgramsCase(new RoomBlockBehavior(0x0f), AreaId.Crateria, false),
+            new SpeedBoosterPlmProgramsCase(new RoomBlockBehavior(0x82), AreaId.Brinstar, true),
+            new SpeedBoosterPlmProgramsCase(new RoomBlockBehavior(0x83), AreaId.Brinstar, false),
+            new SpeedBoosterPlmProgramsCase(new RoomBlockBehavior(0x84), AreaId.Brinstar, true),
         };
         foreach ((RoomBlockBehavior bts, AreaId area, bool respawns) in cases)
         {

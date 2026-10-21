@@ -57,7 +57,7 @@ internal static class SkreeMetareeBehaviorVerification
     }
 
     /// <summary>A freshly initialized Skree or Metaree and accessors for its typed animation and attack-ready flag.</summary>
-    private static (RoomEnemySystem, RoomEnemySlot, Func<AnimationProgramCursor<SkreeMetareeProgram>>, Action<SkreeMetareeProgram>, Func<bool>) Create(bool metaree)
+    private static SkreeMetareeBehaviorCreateResult Create(bool metaree)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -69,11 +69,11 @@ internal static class SkreeMetareeBehaviorVerification
         {
             MetareeBehavior.InitializeMetaree(slot);
             MetareeEnemyState state = enemies.MetareeStates[0] ?? throw new InvalidOperationException("Metaree has no state.");
-            return (enemies, slot, () => state.Program, program => Restart(slot, () => state.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(program)), () => state.AttackReady);
+            return new SkreeMetareeBehaviorCreateResult(enemies, slot, () => state.Program, program => Restart(slot, () => state.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(program)), () => state.AttackReady);
         }
         SkreeBehavior.InitializeSkree(slot);
         SkreeEnemyState skree = enemies.SkreeStates[0] ?? throw new InvalidOperationException("Skree has no state.");
-        return (enemies, slot, () => skree.Program, program => Restart(slot, () => skree.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(program)), () => skree.AttackReady);
+        return new SkreeMetareeBehaviorCreateResult(enemies, slot, () => skree.Program, program => Restart(slot, () => skree.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(program)), () => skree.AttackReady);
     }
 
     /// <summary>Starts an animation with both instruction clocks reset, as the species' install routines do.</summary>

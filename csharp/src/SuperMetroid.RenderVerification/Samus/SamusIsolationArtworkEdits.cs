@@ -53,7 +53,7 @@ internal static class SamusIsolationArtworkEdits
     }
 
     /// <summary>Reloads both the stock and a real edited JSON file through the production compiler.</summary>
-    internal static (T Stock, T Edited) Colors<T>(GameInstallation source,
+    internal static StockEditedPair<T> Colors<T>(GameInstallation source,
         GameInstallation fixture, string name, Func<Stream, T> compile)
     {
         string stockPath = Path.Combine(source.MapDirectory, name);
@@ -65,7 +65,7 @@ internal static class SamusIsolationArtworkEdits
         string editedPath = Path.Combine(fixture.MapOverrideDirectory, name);
         File.WriteAllText(editedPath, document.ToJsonString());
         using var editedStream = File.OpenRead(editedPath);
-        return (stock, compile(editedStream));
+        return new StockEditedPair<T>(stock, compile(editedStream));
     }
 
     /// <summary>Offsets every JSON entry using the source field's signed or unsigned byte representation.</summary>

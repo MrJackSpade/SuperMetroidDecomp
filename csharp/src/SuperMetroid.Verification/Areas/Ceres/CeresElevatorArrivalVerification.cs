@@ -90,8 +90,8 @@ internal static class CeresElevatorArrivalVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         foreach ((CeresElevatorProjectileDefinition definition, ushort definitionPointer) in new[]
         {
-            (CeresElevatorArrivalDefinitions.MovingPad, (ushort)0xa387),
-            (CeresElevatorArrivalDefinitions.StationaryPlatform, (ushort)0xa395),
+            new VerifyCompiledDefinitionsCase(CeresElevatorArrivalDefinitions.MovingPad, 0xa387),
+            new VerifyCompiledDefinitionsCase(CeresElevatorArrivalDefinitions.StationaryPlatform, 0xa395),
         })
         {
             int address = CeresElevatorArrivalDefinitions.BankBase | definitionPointer;

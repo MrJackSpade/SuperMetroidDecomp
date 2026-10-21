@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.FuneNamihe;
 
 namespace SuperMetroid.Verification.Enemies.FuneNamihe;
@@ -13,27 +14,27 @@ internal static class FuneNamiheNativeListAddresses
     internal const byte Bank = 0xa8;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (FuneNamiheProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<FuneNamiheProgram>[] Entries =
     [
-        (FuneNamiheProgram.FuneIdleLeft, 0x9399),
-        (FuneNamiheProgram.FuneActiveLeft, 0x939f),
-        (FuneNamiheProgram.FuneIdleRight, 0x93c9),
-        (FuneNamiheProgram.FuneActiveRight, 0x93cf),
-        (FuneNamiheProgram.NamiheIdleLeft, 0x95bd),
-        (FuneNamiheProgram.NamiheActiveLeft, 0x95c3),
-        (FuneNamiheProgram.NamiheIdleRight, 0x95f1),
-        (FuneNamiheProgram.NamiheActiveRight, 0x95f7),
+        new NativeProgramEntry<FuneNamiheProgram>(FuneNamiheProgram.FuneIdleLeft, 0x9399),
+        new NativeProgramEntry<FuneNamiheProgram>(FuneNamiheProgram.FuneActiveLeft, 0x939f),
+        new NativeProgramEntry<FuneNamiheProgram>(FuneNamiheProgram.FuneIdleRight, 0x93c9),
+        new NativeProgramEntry<FuneNamiheProgram>(FuneNamiheProgram.FuneActiveRight, 0x93cf),
+        new NativeProgramEntry<FuneNamiheProgram>(FuneNamiheProgram.NamiheIdleLeft, 0x95bd),
+        new NativeProgramEntry<FuneNamiheProgram>(FuneNamiheProgram.NamiheActiveLeft, 0x95c3),
+        new NativeProgramEntry<FuneNamiheProgram>(FuneNamiheProgram.NamiheIdleRight, 0x95f1),
+        new NativeProgramEntry<FuneNamiheProgram>(FuneNamiheProgram.NamiheActiveRight, 0x95f7),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (FuneNamiheCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, FuneNamiheNativeListAddressesInstruction> Instructions = new()
     {
-        [0x9625] = (FuneNamiheCueKind.SpitSound, ""),
-        [0x9631] = (FuneNamiheCueKind.NamiheFireLeft, ""),
-        [0x964a] = (FuneNamiheCueKind.NamiheFireRight, ""),
-        [0x9663] = (FuneNamiheCueKind.FuneFireLeft, ""),
-        [0x967c] = (FuneNamiheCueKind.FuneFireRight, ""),
-        [0x9695] = (FuneNamiheCueKind.FinishActivity, ""),
-        [0x96b4] = (FuneNamiheCueKind.FinishActivity, ""),
+        [0x9625] = new FuneNamiheNativeListAddressesInstruction(FuneNamiheCueKind.SpitSound, ""),
+        [0x9631] = new FuneNamiheNativeListAddressesInstruction(FuneNamiheCueKind.NamiheFireLeft, ""),
+        [0x964a] = new FuneNamiheNativeListAddressesInstruction(FuneNamiheCueKind.NamiheFireRight, ""),
+        [0x9663] = new FuneNamiheNativeListAddressesInstruction(FuneNamiheCueKind.FuneFireLeft, ""),
+        [0x967c] = new FuneNamiheNativeListAddressesInstruction(FuneNamiheCueKind.FuneFireRight, ""),
+        [0x9695] = new FuneNamiheNativeListAddressesInstruction(FuneNamiheCueKind.FinishActivity, ""),
+        [0x96b4] = new FuneNamiheNativeListAddressesInstruction(FuneNamiheCueKind.FinishActivity, ""),
     };
 }

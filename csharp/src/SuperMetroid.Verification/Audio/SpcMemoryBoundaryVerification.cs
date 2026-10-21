@@ -41,11 +41,11 @@ internal static class SpcMemoryBoundaryVerification
 
         // Alias: pan indices from 21 read past the 21 pan samples into the echo FIR preset table.
         player.Uploads.Upload([0x02, 0x00, 0x32, 0x1e, 0x5a, 0xa5, 0x00, 0x00]);
-        var (panBase, panNext) = ((byte, byte))player.Voices.ReadPanVolumePair(0x1e1d + 21);
-        AssertEqual((byte)0x5a, panBase, "pan index 21 aliases FIR preset byte 0");
+        var (panBase, panNext) = player.Voices.ReadPanVolumePair(0x1e1d + 21);
+        AssertEqual(0x5a, panBase, "pan index 21 aliases FIR preset byte 0");
         AssertEqual(unchecked((sbyte)0x5a), player.Music.ReadFirCoefficient(0), "FIR preset byte 0 through its own view");
         AssertEqual(unchecked((sbyte)0xa5), player.Music.ReadFirCoefficient(1), "FIR preset byte 1 through its own view");
-        AssertEqual((byte)0xa5, panNext, "pan index 21's next entry aliases FIR preset byte 1");
+        AssertEqual(0xa5, panNext, "pan index 21's next entry aliases FIR preset byte 1");
 
         // Ports are typed; an out-of-range port is rejected.
         var ports = new SpcCommandPorts();

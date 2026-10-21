@@ -42,8 +42,8 @@ internal static class GrappleFiringDefinitionsVerification
             {
                 Version = ChargeFlarePlacementDefinitions.Version,
                 Offsets = RunningStates.SelectMany(running => Enumerable.Range(0, 16)
-                    .Select(direction => (running, direction))).ToDictionary(
-                        entry => ChargeFlarePlacementDefinitions.Key(entry.running, entry.direction),
+                    .Select(direction => new EditedFlare(running, direction))).ToDictionary(
+                        entry => ChargeFlarePlacementDefinitions.Key(entry.Running, entry.Direction),
                         _ => new ChargeFlareOffset { X = 0x55aa, Y = 0x55aa }),
             })));
         // Exercise each compiled movement family with a real pose instead of rewriting

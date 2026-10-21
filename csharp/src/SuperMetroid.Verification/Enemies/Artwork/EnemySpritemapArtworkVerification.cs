@@ -463,11 +463,11 @@ internal static class EnemySpritemapArtworkVerification
             AssertTrue(stock.Enemies.Spritemaps.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                 $"installed enemy frame {frame.Name} has a display binding");
             foreach ((ushort x, ushort y, ushort palette, ushort baseTile) in
-                     new (ushort, ushort, ushort, ushort)[]
+                     new EnemySpritemapArtworkVerifyInstalledEnemySpritemapsCase4[]
                      {
-                         (0x0010, 0x0020, 0, 0),
-                         (0x01f8, 0x00fc, 0x0c00, 0x01ff),
-                         (0x0000, 0x0000, 0x0400, 0x0010),
+                         new EnemySpritemapArtworkVerifyInstalledEnemySpritemapsCase4(0x0010, 0x0020, 0, 0),
+                         new EnemySpritemapArtworkVerifyInstalledEnemySpritemapsCase4(0x01f8, 0x00fc, 0x0c00, 0x01ff),
+                         new EnemySpritemapArtworkVerifyInstalledEnemySpritemapsCase4(0x0000, 0x0000, 0x0400, 0x0010),
                      })
             {
                 var native = new OamBuffer();
@@ -1547,11 +1547,11 @@ internal static class EnemySpritemapArtworkVerification
             "Waver visual override leaves X unchanged");
         foreach ((ushort pointer, EnemyDefinitionId definition, string name) in new[]
                  {
-                     (ZoaAnimationsConstants.Spritemaps(ZoaProgram.FacingLeftShooting).First(),
+                     new EnemySpritemapArtworkVerifyInstalledEnemySpritemapsCase3(ZoaAnimationsConstants.Spritemaps(ZoaProgram.FacingLeftShooting).First(),
                          EnemyDefinitionId.Zoa, "Zoa"),
-                     (SkreeMetareeAnimationsConstants.Spritemaps(SkreeMetareeProgram.MetareeIdling).First(),
+                     new EnemySpritemapArtworkVerifyInstalledEnemySpritemapsCase3(SkreeMetareeAnimationsConstants.Spritemaps(SkreeMetareeProgram.MetareeIdling).First(),
                          EnemyDefinitionId.Metaree, "Metaree"),
-                     (SkreeMetareeAnimationsConstants.Spritemaps(SkreeMetareeProgram.SkreeIdling).First(),
+                     new EnemySpritemapArtworkVerifyInstalledEnemySpritemapsCase3(SkreeMetareeAnimationsConstants.Spritemaps(SkreeMetareeProgram.SkreeIdling).First(),
                          EnemyDefinitionId.Skree, "Skree"),
                  })
         {
@@ -1567,10 +1567,10 @@ internal static class EnemySpritemapArtworkVerification
         }
         foreach ((EnemyDefinitionId definition, PipeBugProgram program, string name) in new[]
                  {
-                     (EnemyDefinitionId.Zeb, PipeBugProgram.ZebRisingLeft, "Brinstar Pipe Bug"),
-                     (EnemyDefinitionId.Zebbo, PipeBugProgram.ZebboRisingLeft, "strong Brinstar Pipe Bug"),
-                     (EnemyDefinitionId.Gamet, PipeBugProgram.GametRisingLeft, "Norfair Pipe Bug"),
-                     (EnemyDefinitionId.Geega, PipeBugProgram.GeegaFlyingLeft, "yellow Pipe Bug"),
+                     new VerifyInstalledEnemySpritemapsCase(EnemyDefinitionId.Zeb, PipeBugProgram.ZebRisingLeft, "Brinstar Pipe Bug"),
+                     new VerifyInstalledEnemySpritemapsCase(EnemyDefinitionId.Zebbo, PipeBugProgram.ZebboRisingLeft, "strong Brinstar Pipe Bug"),
+                     new VerifyInstalledEnemySpritemapsCase(EnemyDefinitionId.Gamet, PipeBugProgram.GametRisingLeft, "Norfair Pipe Bug"),
+                     new VerifyInstalledEnemySpritemapsCase(EnemyDefinitionId.Geega, PipeBugProgram.GeegaFlyingLeft, "yellow Pipe Bug"),
                  })
         {
             ushort pointer = PipeBugAnimationsConstants.Spritemaps(program).First();
@@ -1587,8 +1587,8 @@ internal static class EnemySpritemapArtworkVerification
         // Fake Kraid's and the fingernail's frames come from their typed programs (#641).
         foreach ((EnemyDefinitionId definition, ushort pointer, string name) in new[]
                  {
-                     (EnemyDefinitionId.MiniKraid, FakeKraidAnimationsConstants.Spritemaps(FakeKraidProgram.StepForwardsFacingLeft).First(), "Fake Kraid"),
-                     (EnemyDefinitionId.KraidNail, KraidPartFrameDefinitions.Spritemap(new KraidPartFrame(KraidPartFrameKind.Nail, 0)),
+                     new EnemySpritemapArtworkVerifyInstalledEnemySpritemapsCase2(EnemyDefinitionId.MiniKraid, FakeKraidAnimationsConstants.Spritemaps(FakeKraidProgram.StepForwardsFacingLeft).First(), "Fake Kraid"),
+                     new EnemySpritemapArtworkVerifyInstalledEnemySpritemapsCase2(EnemyDefinitionId.KraidNail, KraidPartFrameDefinitions.Spritemap(new KraidPartFrame(KraidPartFrameKind.Nail, 0)),
                          "Kraid fingernail"),
                  })
         {
@@ -1604,8 +1604,8 @@ internal static class EnemySpritemapArtworkVerification
         }
         foreach ((EnemyDefinitionId definition, ushort pointer, string name) in new[]
                  {
-                     (EnemyDefinitionId.Owtch, OwtchAnimationsConstants.Spritemaps(OwtchProgram.MovingLeftLoop).First(), "Owtch"),
-                     (EnemyDefinitionId.Stoke, StokeAnimationsConstants.Spritemaps(StokeProgram.MovingLeftLoop).First(), "Stoke"),
+                     new EnemySpritemapArtworkVerifyInstalledEnemySpritemapsCase2(EnemyDefinitionId.Owtch, OwtchAnimationsConstants.Spritemaps(OwtchProgram.MovingLeftLoop).First(), "Owtch"),
+                     new EnemySpritemapArtworkVerifyInstalledEnemySpritemapsCase2(EnemyDefinitionId.Stoke, StokeAnimationsConstants.Spritemaps(StokeProgram.MovingLeftLoop).First(), "Stoke"),
                  })
         {
             OamBuffer nativeFrame = DrawEnemy(stock, NewFrameReadGuard(rom),
@@ -1620,9 +1620,9 @@ internal static class EnemySpritemapArtworkVerification
         }
         foreach ((EnemyDefinitionId definition, RipperProgram program, string name) in new[]
                  {
-                     (EnemyDefinitionId.GRipper, RipperProgram.GRipperMovingLeft, "GRipper"),
-                     (EnemyDefinitionId.Ripper2, RipperProgram.Ripper2MovingRight, "Ripper II"),
-                     (EnemyDefinitionId.Ripper, RipperProgram.RipperMovingRight, "Ripper"),
+                     new EnemySpritemapArtworkVerifyInstalledEnemySpritemapsCase(EnemyDefinitionId.GRipper, RipperProgram.GRipperMovingLeft, "GRipper"),
+                     new EnemySpritemapArtworkVerifyInstalledEnemySpritemapsCase(EnemyDefinitionId.Ripper2, RipperProgram.Ripper2MovingRight, "Ripper II"),
+                     new EnemySpritemapArtworkVerifyInstalledEnemySpritemapsCase(EnemyDefinitionId.Ripper, RipperProgram.RipperMovingRight, "Ripper"),
                  })
         {
             ushort pointer = RipperAnimationsConstants.Spritemaps(program).First();

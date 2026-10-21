@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Stoke;
 
 namespace SuperMetroid.Verification.Enemies.Stoke;
@@ -13,21 +14,21 @@ internal static class StokeNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (StokeProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<StokeProgram>[] Entries =
     [
-        (StokeProgram.MovingLeft, 0x8932),
-        (StokeProgram.MovingLeftLoop, 0x8934),
-        (StokeProgram.AttackingLeft, 0x8948),
-        (StokeProgram.MovingRight, 0x8958),
-        (StokeProgram.MovingRightLoop, 0x895a),
-        (StokeProgram.AttackingRight, 0x896e),
+        new NativeProgramEntry<StokeProgram>(StokeProgram.MovingLeft, 0x8932),
+        new NativeProgramEntry<StokeProgram>(StokeProgram.MovingLeftLoop, 0x8934),
+        new NativeProgramEntry<StokeProgram>(StokeProgram.AttackingLeft, 0x8948),
+        new NativeProgramEntry<StokeProgram>(StokeProgram.MovingRight, 0x8958),
+        new NativeProgramEntry<StokeProgram>(StokeProgram.MovingRightLoop, 0x895a),
+        new NativeProgramEntry<StokeProgram>(StokeProgram.AttackingRight, 0x896e),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (StokeCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, StokeNativeListAddressesInstruction> Instructions = new()
     {
-        [0x897e] = (StokeCueKind.SpawnFireball, "V"),
-        [0x8990] = (StokeCueKind.SetMovingLeft, ""),
-        [0x899d] = (StokeCueKind.SetMovingRight, ""),
+        [0x897e] = new StokeNativeListAddressesInstruction(StokeCueKind.SpawnFireball, "V"),
+        [0x8990] = new StokeNativeListAddressesInstruction(StokeCueKind.SetMovingLeft, ""),
+        [0x899d] = new StokeNativeListAddressesInstruction(StokeCueKind.SetMovingRight, ""),
     };
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Gunship;
 
 namespace SuperMetroid.Verification.Enemies.Gunship;
@@ -12,14 +13,14 @@ internal static class GunshipNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (GunshipProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<GunshipProgram>[] Entries =
     [
-        (GunshipProgram.EntrancePadOpening, 0xa5be),
-        (GunshipProgram.EntrancePadOpen, 0xa5e6),
-        (GunshipProgram.EntrancePadClosing, 0xa5ee),
-        (GunshipProgram.BottomEntrancePad, 0xa60e),
-        (GunshipProgram.TopHull, 0xa616),
-        (GunshipProgram.BottomHull, 0xa61c),
+        new NativeProgramEntry<GunshipProgram>(GunshipProgram.EntrancePadOpening, 0xa5be),
+        new NativeProgramEntry<GunshipProgram>(GunshipProgram.EntrancePadOpen, 0xa5e6),
+        new NativeProgramEntry<GunshipProgram>(GunshipProgram.EntrancePadClosing, 0xa5ee),
+        new NativeProgramEntry<GunshipProgram>(GunshipProgram.BottomEntrancePad, 0xa60e),
+        new NativeProgramEntry<GunshipProgram>(GunshipProgram.TopHull, 0xa616),
+        new NativeProgramEntry<GunshipProgram>(GunshipProgram.BottomHull, 0xa61c),
     ];
 
 }

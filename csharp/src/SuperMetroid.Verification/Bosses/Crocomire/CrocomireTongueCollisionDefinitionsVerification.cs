@@ -107,10 +107,10 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
                 CrocomireTongueCollisionDefinitions.ComponentAt(frame);
             seenLists.Add((ushort)component.HitboxPointer);
             nativeSlot.SpritemapPointer = compiledSlot.SpritemapPointer = frame;
-            foreach ((ushort x, ushort y) in new (ushort, ushort)[]
+            foreach ((ushort x, ushort y) in new VerifyCrocomireTongueCollisionDefinitionsCase[]
                      {
-                         (0x0100, 0x0100), (0x0004, 0x0006),
-                         (0xfffc, 0xfffa),
+                         new VerifyCrocomireTongueCollisionDefinitionsCase(0x0100, 0x0100), new VerifyCrocomireTongueCollisionDefinitionsCase(0x0004, 0x0006),
+                         new VerifyCrocomireTongueCollisionDefinitionsCase(0xfffc, 0xfffa),
                      })
             for (int shot = 0; shot <= 1; shot++)
             {

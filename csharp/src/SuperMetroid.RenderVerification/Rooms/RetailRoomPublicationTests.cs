@@ -19,16 +19,16 @@ internal static class RetailRoomPublicationTests
     /// <summary>Compares serialized frame packets with legacy pixels, including water and heat FX publication.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
-        (RoomHeaderDefinition Room, PublishedFx Fx)[] rooms =
+        PublishedRoom[] rooms =
         [
-            (RoomHeaderDefinitions.LandingSite, PublishedFx.Unchecked),
-            (RoomHeaderDefinitions.Parlor, PublishedFx.Unchecked),
-            (RoomHeaderDefinitions.ElevToBlueBrinstar, PublishedFx.Unchecked),
-            (RoomHeaderDefinitions.GreenBrinstarMainShaft, PublishedFx.Unchecked),
-            (RoomHeaderDefinitions.MorphBall, PublishedFx.Unchecked),
-            (RoomHeaderDefinitions.DeadScientist, PublishedFx.Unchecked),
-            (RoomPublicationFixtureDefinitions.BrinstarWater, PublishedFx.Water),
-            (RoomPublicationFixtureDefinitions.NorfairBusinessCenter, PublishedFx.Heat),
+            new PublishedRoom(RoomHeaderDefinitions.LandingSite, PublishedFx.Unchecked),
+            new PublishedRoom(RoomHeaderDefinitions.Parlor, PublishedFx.Unchecked),
+            new PublishedRoom(RoomHeaderDefinitions.ElevToBlueBrinstar, PublishedFx.Unchecked),
+            new PublishedRoom(RoomHeaderDefinitions.GreenBrinstarMainShaft, PublishedFx.Unchecked),
+            new PublishedRoom(RoomHeaderDefinitions.MorphBall, PublishedFx.Unchecked),
+            new PublishedRoom(RoomHeaderDefinitions.DeadScientist, PublishedFx.Unchecked),
+            new PublishedRoom(RoomPublicationFixtureDefinitions.BrinstarWater, PublishedFx.Water),
+            new PublishedRoom(RoomPublicationFixtureDefinitions.NorfairBusinessCenter, PublishedFx.Heat),
         ];
         long sequence = 0;
         foreach ((RoomHeaderDefinition room, PublishedFx fx) in rooms)
@@ -77,7 +77,7 @@ internal static class RetailRoomPublicationTests
     }
 
     /// <summary>The layer-3 FX publication a room-local fixture additionally asserts.</summary>
-    private enum PublishedFx
+    internal enum PublishedFx
     {
         /// <summary>Only the frame publication itself is compared.</summary>
         Unchecked,

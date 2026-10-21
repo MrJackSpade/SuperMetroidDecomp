@@ -40,7 +40,7 @@ internal static class PauseSelectorsVerification
         {
             var native = Create(bus, catalog, anchor.Category, anchor.Item);
             var pause = Create(guard, catalog, anchor.Category, anchor.Item);
-            AssertEqual((anchor.Category, anchor.Item), (pause.SelectedCategory, pause.SelectedItem), "real menu fixture reaches the reported semantic selector");
+            AssertEqual(new CursorBeforeRestore(anchor.Category, anchor.Item), new CursorBeforeRestore(pause.SelectedCategory, pause.SelectedItem), "real menu fixture reaches the reported semantic selector");
             // Every tick compares the complete render inputs; pixels are rasterized once per
             // displayed selector frame, since identical inputs cannot render differently.
             int renderedFrame = -1;
@@ -81,13 +81,13 @@ internal static class PauseSelectorsVerification
         var customMenu = new PauseMenuState(new PauseMenuEntry { Samus = customSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = edited });
         customMenu.Step(SnesButton.R, SnesButton.R);
         while (customMenu.ScreenMode == PauseScreenMode.Map) customMenu.Step(0, 0);
-        AssertEqual((0, 4), customMenu.ItemSelectorAnimationState, "custom initial duration applies exactly at page setup");
+        AssertEqual(new SelectorAnimation(0, 4), customMenu.ItemSelectorAnimationState, "custom initial duration applies exactly at page setup");
         int expectedFrame = 0, expectedTimer = 4;
         for (int tick = 0; tick < 80; tick++)
         {
             if (--expectedTimer <= 0) { expectedFrame = (expectedFrame + 1) % 2; expectedTimer = expectedFrame == 0 ? 2 : 3; }
             customMenu.Step(0, 0);
-            AssertEqual((expectedFrame, expectedTimer), customMenu.ItemSelectorAnimationState, "authored animation obeys exact initial and loop timing");
+            AssertEqual(new SelectorAnimation(expectedFrame, expectedTimer), customMenu.ItemSelectorAnimationState, "authored animation obeys exact initial and loop timing");
             var snapshot = customMenu.CaptureRenderSnapshot();
             var oam = new ScreenSprites(edited.Sprites.Page, ObjectSelectionCodec.Sizes(PauseMenuLayout.ObjectSelection)); oam.BeginFrame(); edited.PauseSelectors.Draw(oam, PauseEquipmentCategory.Beams, 0, expectedFrame); oam.FinishFrame();
             AssertEqual(expectedFrame == 0, snapshot.Memory.SpriteParts().Length == 0, "explicit hidden and visible phases reach the frame");
@@ -126,7 +126,7 @@ internal static class PauseSelectorsVerification
         AssertEqual(oldTiming, shortened.ItemSelectorAnimationState, "shorter content does not rewrite saved timer/phase at bind");
         AssertEqual(0, shortened.CaptureRenderSnapshot().Memory.SpriteParts().Length, "short cycle safely projects saved phase modulo its new length");
         for (int tick = 0; tick < oldTiming.Timer; tick++) shortened.Step(0, 0);
-        AssertEqual((1, 3), shortened.ItemSelectorAnimationState, "next expiry advances into the authored short cycle");
+        AssertEqual(new SelectorAnimation(1, 3), shortened.ItemSelectorAnimationState, "next expiry advances into the authored short cycle");
         var empty = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = edited });
         EnterPauseEquipment(empty);
         var emptyTiming = empty.ItemSelectorAnimationState;

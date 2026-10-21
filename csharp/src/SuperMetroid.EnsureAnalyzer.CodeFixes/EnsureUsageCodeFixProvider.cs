@@ -38,7 +38,7 @@ public sealed class EnsureUsageCodeFixProvider : CodeFixProvider
         foreach (Diagnostic diagnostic in context.Diagnostics)
         {
             SyntaxNode node = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
-            (SyntaxNode Old, SyntaxNode New)? replacement = diagnostic.Id == EnsureUsageAnalyzer.RedundantArgumentId
+            NodeReplacement? replacement = diagnostic.Id == EnsureUsageAnalyzer.RedundantArgumentId
                 ? RemoveManualName(node)
                 : GuardReplacement(node, model, context.CancellationToken);
             if (replacement is not { } change)
@@ -54,35 +54,35 @@ public sealed class EnsureUsageCodeFixProvider : CodeFixProvider
     }
 
     /// <summary>Removes a supplied name argument so Ensure captures the checked expression itself.</summary>
-    private static (SyntaxNode, SyntaxNode)? RemoveManualName(SyntaxNode node)
+    private static NodeReplacement? RemoveManualName(SyntaxNode node)
     {
         if (node.FirstAncestorOrSelf<ArgumentSyntax>() is not { Parent: ArgumentListSyntax list } argument)
             return null;
-        return (list, list.WithArguments(list.Arguments.Remove(argument)));
+        return new NodeReplacement(list, list.WithArguments(list.Arguments.Remove(argument)));
     }
 
     /// <summary>Recognizes supported throw helpers, coalescing throws, and if guards with exact operand types.</summary>
-    private static (SyntaxNode, SyntaxNode)? GuardReplacement(SyntaxNode node, SemanticModel model, CancellationToken token)
+    private static NodeReplacement? GuardReplacement(SyntaxNode node, SemanticModel model, CancellationToken token)
     {
         // ArgumentNullException.ThrowIfNull(value) and ArgumentOutOfRangeException.ThrowIfNegative(value).
         if (node.FirstAncestorOrSelf<InvocationExpressionSyntax>() is { ArgumentList.Arguments.Count: 1 } helper &&
             model.GetSymbolInfo(helper, token).Symbol is IMethodSymbol method)
         {
             ExpressionSyntax value = helper.ArgumentList.Arguments[0].Expression;
-            string? operation = (method.ContainingType.ToDisplayString(), method.Name) switch
+            string? operation = new EnsureCallKey(method.ContainingType.ToDisplayString(), method.Name) switch
             {
                 ("System.ArgumentNullException", "ThrowIfNull") when IsReference(model, value, token) => "NotNull",
                 ("System.ArgumentOutOfRangeException", "ThrowIfNegative") when IsInt32(model, value, token) => "AtLeastZero",
                 _ => null,
             };
-            return operation is null ? null : (helper, EnsureCall(model, helper, operation, value));
+            return operation is null ? null : new NodeReplacement(helper, EnsureCall(model, helper, operation, value));
         }
 
         // value ?? throw new ArgumentNullException(nameof(value)).
         if (node.FirstAncestorOrSelf<BinaryExpressionSyntax>(binary => binary.IsKind(SyntaxKind.CoalesceExpression)) is { } coalesce &&
             IsReference(model, coalesce.Left, token))
         {
-            return (coalesce, EnsureCall(model, coalesce, "NotNull", coalesce.Left));
+            return new NodeReplacement(coalesce, EnsureCall(model, coalesce, "NotNull", coalesce.Left));
         }
 
         // if (guard) throw new Argument...Exception(..., nameof(value));
@@ -116,7 +116,7 @@ public sealed class EnsureUsageCodeFixProvider : CodeFixProvider
         };
         if (call is null)
             return null;
-        return (statement, SyntaxFactory.ExpressionStatement(call));
+        return new NodeReplacement(statement, SyntaxFactory.ExpressionStatement(call));
     }
 
     /// <summary>Creates the chosen Ensure call, qualifying its type when the short name is out of scope.</summary>

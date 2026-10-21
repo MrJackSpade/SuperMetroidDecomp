@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Polyp;
 
 namespace SuperMetroid.Verification.Enemies.Polyp;
@@ -12,9 +13,9 @@ internal static class PolypNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (PolypProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<PolypProgram>[] Entries =
     [
-        (PolypProgram.Stationary, 0xb51a),
+        new NativeProgramEntry<PolypProgram>(PolypProgram.Stationary, 0xb51a),
     ];
 
 }

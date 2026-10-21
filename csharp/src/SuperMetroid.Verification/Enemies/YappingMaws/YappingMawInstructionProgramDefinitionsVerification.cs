@@ -39,14 +39,14 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
                 $"Yapping Maw attack direction {direction} publishes its sound");
         }
 
-        (YappingMawProgram Entry, YappingMawProgram Loop, int Calls, short X, short Y, string Name)[] cooldowns =
+        Cooldown[] cooldowns =
         [
-            (YappingMawProgram.CooldownUpRight, YappingMawProgram.CooldownUpLoop, 6, 8, -8, "up-right"),
-            (YappingMawProgram.CooldownUp, YappingMawProgram.CooldownUpLoop, 5, 0, -16, "up"),
-            (YappingMawProgram.CooldownUpLeft, YappingMawProgram.CooldownUpLeftLoop, 6, -8, -8, "up-left"),
-            (YappingMawProgram.CooldownDownRight, YappingMawProgram.CooldownDownLoop, 6, 8, 8, "down-right"),
-            (YappingMawProgram.CooldownDown, YappingMawProgram.CooldownDownLoop, 5, 0, 16, "down"),
-            (YappingMawProgram.CooldownDownLeft, YappingMawProgram.CooldownDownLeftLoop, 6, -8, 8, "down-left"),
+            new Cooldown(YappingMawProgram.CooldownUpRight, YappingMawProgram.CooldownUpLoop, 6, 8, -8, "up-right"),
+            new Cooldown(YappingMawProgram.CooldownUp, YappingMawProgram.CooldownUpLoop, 5, 0, -16, "up"),
+            new Cooldown(YappingMawProgram.CooldownUpLeft, YappingMawProgram.CooldownUpLeftLoop, 6, -8, -8, "up-left"),
+            new Cooldown(YappingMawProgram.CooldownDownRight, YappingMawProgram.CooldownDownLoop, 6, 8, 8, "down-right"),
+            new Cooldown(YappingMawProgram.CooldownDown, YappingMawProgram.CooldownDownLoop, 5, 0, 16, "down"),
+            new Cooldown(YappingMawProgram.CooldownDownLeft, YappingMawProgram.CooldownDownLeftLoop, 6, -8, 8, "down-left"),
         ];
         foreach ((YappingMawProgram entry, YappingMawProgram loop, int calls, short x, short y, string name) in cooldowns)
         {
@@ -83,8 +83,8 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
     {
         foreach ((ushort parameter2, YappingMawProgram expected, string name) in new[]
         {
-            ((ushort)0, YappingMawProgram.AttackingDown, "alternate/down"),
-            ((ushort)1, YappingMawProgram.AttackingUp, "ordinary/up"),
+            new VerifyYappingMawInitializerSelectionsCase(0, YappingMawProgram.AttackingDown, "alternate/down"),
+            new VerifyYappingMawInitializerSelectionsCase(1, YappingMawProgram.AttackingUp, "ordinary/up"),
         })
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -118,7 +118,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
     /// </summary>
     private static void VerifyYappingMawTargeting()
     {
-        foreach ((int activationDistance, bool attacks) in new[] { (301, true), (300, false), (40000, false) })
+        foreach ((int activationDistance, bool attacks) in new[] { new VerifyYappingMawTargetingCase(301, true), new VerifyYappingMawTargetingCase(300, false), new VerifyYappingMawTargetingCase(40000, false) })
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, YappingMawEnemyState state) = NewInitializedYappingMaw(activationDistance);
             var samus = new SamusState();
@@ -137,7 +137,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             AssertEqual(SnesAngle.QuarterTurn, state.CurlAngle, $"{context} curl is a quarter turn minus the aim");
         }
 
-        foreach ((int aim, int curl, bool mirrored, int direction) in new[] { (240, 80, false, 0), (200, 120, false, 6), (150, 170, true, 5) })
+        foreach ((int aim, int curl, bool mirrored, int direction) in new[] { new YappingMawInstructionProgramDefinitionsVerifyYappingMawTargetingCase(240, 80, false, 0), new YappingMawInstructionProgramDefinitionsVerifyYappingMawTargetingCase(200, 120, false, 6), new YappingMawInstructionProgramDefinitionsVerifyYappingMawTargetingCase(150, 170, true, 5) })
         {
             (_, RoomEnemySlot slot, YappingMawEnemyState state) = NewInitializedYappingMaw(301);
             state.DistanceToSamus = YappingMawRomData.MaximumTargetDistance;
@@ -154,7 +154,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
     }
 
     /// <summary>A Yapping Maw rooted at (128, 128) through the production initializer, with the given activation distance.</summary>
-    internal static (RoomEnemySystem Enemies, RoomEnemySlot Slot, YappingMawEnemyState State) NewInitializedYappingMaw(int activationDistance)
+    internal static NewInitializedYappingMawResult NewInitializedYappingMaw(int activationDistance)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -165,14 +165,11 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         slot.SetSpawnParameter2(1);
         enemies.YappingMawBehavior.InitializeYappingMaw(slot);
         YappingMawEnemyState state = enemies.YappingMawStates[0] ?? throw new InvalidOperationException("Yapping Maw has no state.");
-        return (enemies, slot, state);
+        return new NewInitializedYappingMawResult(enemies, slot, state);
     }
 
     /// <summary>Creates a Yapping Maw slot running a selected program with typed state.</summary>
-    private static (
-        RoomEnemySystem Enemies,
-        RoomEnemySlot Slot,
-        YappingMawEnemyState State) NewYappingMawInstructionSystem(
+    private static NewInitializedYappingMawResult NewYappingMawInstructionSystem(
             YappingMawProgram entry)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -182,7 +179,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         slot.InstructionTimer = NativeCountdown.Start(1);
         var state = new YappingMawEnemyState(slot) { Program = AnimationProgramCursor<YappingMawProgram>.Start(entry) };
         slot.SetSpeciesState(state);
-        return (enemies, slot, state);
+        return new NewInitializedYappingMawResult(enemies, slot, state);
     }
 
     /// <summary>Forces each requested instruction call through the production enemy interpreter.</summary>

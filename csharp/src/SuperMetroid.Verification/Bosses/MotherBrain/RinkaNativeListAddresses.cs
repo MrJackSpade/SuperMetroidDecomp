@@ -13,19 +13,19 @@ internal static class RinkaNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (RinkaProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<RinkaProgram>[] Entries =
     [
-        (RinkaProgram.Ordinary, 0xb9e0),
-        (RinkaProgram.OrdinaryLoop, 0xb9e8),
-        (RinkaProgram.Special, 0xba0c),
-        (RinkaProgram.SpecialLoop, 0xba14),
+        new NativeProgramEntry<RinkaProgram>(RinkaProgram.Ordinary, 0xb9e0),
+        new NativeProgramEntry<RinkaProgram>(RinkaProgram.OrdinaryLoop, 0xb9e8),
+        new NativeProgramEntry<RinkaProgram>(RinkaProgram.Special, 0xba0c),
+        new NativeProgramEntry<RinkaProgram>(RinkaProgram.SpecialLoop, 0xba14),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (RinkaCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, RinkaNativeListAddressesInstruction> Instructions = new()
     {
-        [0xb9b3] = (RinkaCueKind.Hide, ""),
-        [0xb9bd] = (RinkaCueKind.HideAndProcessOffScreen, ""),
-        [0xb9c7] = (RinkaCueKind.Fire, ""),
+        [0xb9b3] = new RinkaNativeListAddressesInstruction(RinkaCueKind.Hide, ""),
+        [0xb9bd] = new RinkaNativeListAddressesInstruction(RinkaCueKind.HideAndProcessOffScreen, ""),
+        [0xb9c7] = new RinkaNativeListAddressesInstruction(RinkaCueKind.Fire, ""),
     };
 }

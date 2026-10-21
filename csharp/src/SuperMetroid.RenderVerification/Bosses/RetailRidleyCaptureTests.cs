@@ -27,7 +27,7 @@ internal static class RetailRidleyCaptureTests
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var ridley = runtime.Enemies.RidleyEncounter.CeresRidley;
-        var retained = new List<(RenderFrameSnapshot Packet, Rgba32[] Expected)>();
+        var retained = new List<RetainedFrame>();
         foreach (ushort scale in new ushort[] { 128, 240, 256 })
         foreach (short tilt in new short[] { -33, 0, 33 })
         foreach (short scroll in new short[] { -19, 0, 19 })
@@ -48,7 +48,7 @@ internal static class RetailRidleyCaptureTests
             var packet = new RenderFrameSnapshot(new(retained.Count + 1, 1, 0), scene);
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                 $"{device.Kind}: retail Ridley scale={scale}, tilt={tilt}, scroll={scroll}");
-            retained.Add((packet, expected));
+            retained.Add(new RetainedFrame(packet, expected));
         }
         (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Mode7Active = false;
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);

@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Crocomire;
@@ -16,7 +17,7 @@ internal static class BossDisplayBindingsOracleVerification
 {
     /// <summary>Independent bounded decode of the already inventoried native visual and collision records.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for native boss extended OAM and BG2 display records")]
-    internal static (EnemyExtendedDrawComponent[] Oam, EnemyBg2TilemapWrite[] Bg2) ReadBossDisplayOracle(
+    internal static ReadBossDisplayOracleResult ReadBossDisplayOracle(
         CartridgeImportAddressSpace source, EnemySpritemapDefinition frame, HashSet<int> checkedLists)
     {
         int Address(ushort pointer) => ((int)new SnesAddress(frame.Bank, pointer));
@@ -33,7 +34,7 @@ internal static class BossDisplayBindingsOracleVerification
             int record = root + 2 + component * 8;
             short x = unchecked((short)source.ReadCartridgeWord(record)), y = unchecked((short)source.ReadCartridgeWord((record + 2)));
             ushort visual = source.ReadCartridgeWord((record + 4)), hitbox = source.ReadCartridgeWord((record + 6));
-            if (!emptyPhysics) AssertEqual((physical[component].X, physical[component].Y), (x, y), frame.Name + " immutable physical component");
+            if (!emptyPhysics) AssertEqual(new OctantVector(physical[component].X, physical[component].Y), new OctantVector(x, y), frame.Name + " immutable physical component");
             else AssertEqual(0, (int)source.ReadCartridgeWord(Address(hitbox)), "omitted Draygon component has no native collision records");
             // The ROM names the component's hitbox list by address; the compiled component must hold that list's
             // rectangles and callbacks. Each component is compared, so a component holding another list fails.
@@ -79,21 +80,21 @@ internal static class BossDisplayBindingsOracleVerification
             }
             oam.Add(new EnemyExtendedDrawComponent(new(x, y), EnemySpritemapParts.FromOwnedArray(parts)));
         }
-        return (oam.ToArray(), bg2.ToArray());
+        return new ReadBossDisplayOracleResult(oam.ToArray(), bg2.ToArray());
     }
 
     /// <summary>Selects compiled component offsets and each component's hitbox records for the frame's boss family.</summary>
-    private static (short X, short Y, ushort[][] Boxes)[] BossPhysicalComponents(EnemySpritemapDefinition frame) => frame.Bank switch
+    private static BossPhysicalComponentsResult[] BossPhysicalComponents(EnemySpritemapDefinition frame) => frame.Bank switch
     {
         CrocomireBg2FrameDefinitions.Bank => CrocomireBodyCollisionDefinitions.ComponentsAt(frame.Pointer)
-            .SelectToArray(part => (part.Offset.X, part.Offset.Y,
+            .SelectToArray(part => new BossPhysicalComponentsResult(part.Offset.X, part.Offset.Y,
                 part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom, CrocomireHitboxCallbackCodec.ToCallbackWord(box.Touch), CrocomireHitboxCallbackCodec.ToCallbackWord(box.Shot))).ToArray())),
         PhantoonBg2FrameDefinitions.Bank => PhantoonCollisionDefinitions.ComponentsAt(frame.Pointer)
-            .Select(part => (part.Offset.X, part.Offset.Y,
+            .Select(part => new BossPhysicalComponentsResult(part.Offset.X, part.Offset.Y,
                 part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom,
                     PhantoonHitboxCallbackCodec.ToCallbackWord(box.Touch), PhantoonHitboxCallbackCodec.ToCallbackWord(box.Shot))).ToArray())).ToArray(),
         DraygonBg2FrameDefinitions.Bank => DraygonCollisionDefinitions.ComponentsAt(frame.Pointer)
-            .Select(part => (part.Offset.X, part.Offset.Y,
+            .Select(part => new BossPhysicalComponentsResult(part.Offset.X, part.Offset.Y,
                 part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom,
                     DraygonHitboxCallbackCodec.ToCallbackWord(box.Touch), DraygonHitboxCallbackCodec.ToCallbackWord(box.Shot))).ToArray())).ToArray(),
         _ => throw new InvalidDataException("Unknown native oracle family."),

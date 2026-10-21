@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Rios;
 
 namespace SuperMetroid.Verification.Enemies.Rios;
@@ -13,18 +14,18 @@ internal static class RioNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (RioProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<RioProgram>[] Entries =
     [
-        (RioProgram.Idle, 0xbb4b),
-        (RioProgram.PostSwoopIdle, 0xbb53),
-        (RioProgram.SwoopingPart1, 0xbb7f),
-        (RioProgram.SwoopingPart2, 0xbb97),
-        (RioProgram.SwoopCooldown, 0xbba3),
+        new NativeProgramEntry<RioProgram>(RioProgram.Idle, 0xbb4b),
+        new NativeProgramEntry<RioProgram>(RioProgram.PostSwoopIdle, 0xbb53),
+        new NativeProgramEntry<RioProgram>(RioProgram.SwoopingPart1, 0xbb7f),
+        new NativeProgramEntry<RioProgram>(RioProgram.SwoopingPart2, 0xbb97),
+        new NativeProgramEntry<RioProgram>(RioProgram.SwoopCooldown, 0xbba3),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (RioCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, RioNativeListAddressesInstruction> Instructions = new()
     {
-        [0xbbc3] = (RioCueKind.AnimationFinished, ""),
+        [0xbbc3] = new RioNativeListAddressesInstruction(RioCueKind.AnimationFinished, ""),
     };
 }

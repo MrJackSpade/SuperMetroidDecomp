@@ -27,11 +27,11 @@ internal sealed class InstalledSamusIsolationTests
     /// <summary>Stock and edited Samus body art used by paired production actors.</summary>
     private readonly InstalledSamusArtworkFixture artwork;
     /// <summary>Stock and edited suit colors selected by the actors' presentation owners.</summary>
-    private readonly (SamusSuitColorCatalog Stock, SamusSuitColorCatalog Edited) suits;
+    private readonly StockEditedPair<SamusSuitColorCatalog> suits;
     /// <summary>Stock and edited Speed Booster, Screw Attack, and shinespark cycle colors.</summary>
-    private readonly (SamusFullBodyCycleColorCatalog Stock, SamusFullBodyCycleColorCatalog Edited) cycles;
+    private readonly StockEditedPair<SamusFullBodyCycleColorCatalog> cycles;
     /// <summary>Stock and edited Crystal Flash palette phases.</summary>
-    private readonly (CrystalFlashColorCatalog Stock, CrystalFlashColorCatalog Edited) crystal;
+    private readonly StockEditedPair<CrystalFlashColorCatalog> crystal;
     /// <summary>Installed beam palette data shared by both actor fixtures.</summary>
     private readonly BeamPaletteCatalog beams;
     /// <summary>Number of stock and edited mechanics comparisons.</summary>

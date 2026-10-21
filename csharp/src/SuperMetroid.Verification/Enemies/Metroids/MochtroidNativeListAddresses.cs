@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Metroids;
 
 namespace SuperMetroid.Verification.Enemies.Metroids;
@@ -12,10 +13,10 @@ internal static class MochtroidNativeListAddresses
     internal const byte Bank = 0xa3;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (MochtroidProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<MochtroidProgram>[] Entries =
     [
-        (MochtroidProgram.FreeFlight, 0xa745),
-        (MochtroidProgram.Attached, 0xa759),
+        new NativeProgramEntry<MochtroidProgram>(MochtroidProgram.FreeFlight, 0xa745),
+        new NativeProgramEntry<MochtroidProgram>(MochtroidProgram.Attached, 0xa759),
     ];
 
 }

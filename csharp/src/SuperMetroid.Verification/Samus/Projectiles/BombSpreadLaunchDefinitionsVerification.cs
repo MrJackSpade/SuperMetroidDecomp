@@ -81,7 +81,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
 
                 var start = FixedPosition<RoomPixels>.FromWhole(new(whole, 0)).WithFractionX(fraction);
                 var moved = start.AdvanceX(velocity.Displacement);
-                AssertEqual((expectedWhole, expectedFraction), (moved.X.Whole, moved.X.Fraction),
+                AssertEqual(new VerifyBombSpreadMotionWrapsCase(expectedWhole, expectedFraction), new VerifyBombSpreadMotionWrapsCase(moved.X.Whole, moved.X.Fraction),
                     $"spread step {velocity} from {whole:X4}.{fraction:X4} matches the split-word carry and wrap");
             }
         }
@@ -94,7 +94,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
             ushort expectedWhole = unchecked((ushort)(velocityWhole + (fractionalSum > ushort.MaxValue ? 1 : 0)));
             var accelerated = SnesSignedSixteenSixteen.FromParts(unchecked((short)velocityWhole), velocityFraction) +
                 SnesSignedSixteenSixteen.FromParts(0, gravityFraction);
-            AssertEqual((expectedWhole, unchecked((ushort)fractionalSum)), (accelerated.WholeWord, accelerated.Fraction),
+            AssertEqual(new VerifyBombSpreadMotionWrapsCase(expectedWhole, unchecked((ushort)fractionalSum)), new VerifyBombSpreadMotionWrapsCase(accelerated.WholeWord, accelerated.Fraction),
                 $"spread gravity from {velocityWhole:X4}.{velocityFraction:X4} carries and wraps like the split words");
         }
     }

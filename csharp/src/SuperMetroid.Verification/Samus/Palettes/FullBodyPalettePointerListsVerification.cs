@@ -33,12 +33,12 @@ internal static class FullBodyPalettePointerListsVerification
             SamusEquipmentFlags.GravitySuit,
             (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit),
         ];
-        (string Name, int Top, ushort FirstList, ushort FirstPalette, int Phases, bool PingPong)[] families =
+        FullBodyPalettePointerListsFamily[] families =
         [
-            ("Screw Attack", SamusPaletteRomData.FullBodyCycles.ScrewAttackLists, 0xda50, 0x9ca0, 6, true),
-            ("Speed Booster", SamusPaletteRomData.FullBodyCycles.SpeedBoosterLists, 0xdaaf, 0x9b20, 4, false),
-            ("stored shine", SamusPaletteRomData.FullBodyCycles.StoredShineLists, 0xdb16, 0x9ba0, 6, true),
-            ("active shinespark", SamusPaletteRomData.FullBodyCycles.ActiveShinesparkLists, 0xdb7b, 0x9c20, 4, false),
+            new FullBodyPalettePointerListsFamily("Screw Attack", SamusPaletteRomData.FullBodyCycles.ScrewAttackLists, 0xda50, 0x9ca0, 6, true),
+            new FullBodyPalettePointerListsFamily("Speed Booster", SamusPaletteRomData.FullBodyCycles.SpeedBoosterLists, 0xdaaf, 0x9b20, 4, false),
+            new FullBodyPalettePointerListsFamily("stored shine", SamusPaletteRomData.FullBodyCycles.StoredShineLists, 0xdb16, 0x9ba0, 6, true),
+            new FullBodyPalettePointerListsFamily("active shinespark", SamusPaletteRomData.FullBodyCycles.ActiveShinesparkLists, 0xdb7b, 0x9c20, 4, false),
         ];
 
         foreach (var family in families)

@@ -40,7 +40,7 @@ internal static class CpuBusBoundaryVerification
     private static void VerifyCpuBusCatalogIdentities(IReadOnlyList<CpuBusCatalogEntry> entries)
     {
         AssertTrue(entries.Count > 0, "production catalogs declare CPU-bus cells");
-        AssertTrue(entries.GroupBy(entry => (entry.Owner.FullName, entry.Cell.Name)).All(group => group.Count() == 1),
+        AssertTrue(entries.GroupBy(entry => new VerifyCpuBusCatalogIdentitiesCase(entry.Owner.FullName, entry.Cell.Name)).All(group => group.Count() == 1),
             "every (owner, name) cell identity is unique");
         IReadOnlyList<string> violations = CpuBusCatalogInventory.Violations(entries);
         AssertTrue(violations.Count == 0, "catalog rules hold:" + Environment.NewLine + string.Join(Environment.NewLine, violations));
@@ -149,10 +149,10 @@ internal static class CpuBusBoundaryVerification
         var bus = new WriteOrderRecordingBus();
         new WramWord(bus, CpuBusCellConstants.WramWord("Order", 0x7e1000)).Write(0xabcd);
         new WramWords(bus, CpuBusCellConstants.WramWords("OrderTable", 0x7e2000, 2))[1].Write(0x1234);
-        AssertTrue(bus.Writes.SequenceEqual(new (int, byte)[]
+        AssertTrue(bus.Writes.SequenceEqual(new CpuBusBoundaryWrite[]
             {
-                (0x7e1000, 0xcd), (0x7e1001, 0xab),
-                (0x7e2002, 0x34), (0x7e2003, 0x12),
+                new CpuBusBoundaryWrite(0x7e1000, 0xcd), new CpuBusBoundaryWrite(0x7e1001, 0xab),
+                new CpuBusBoundaryWrite(0x7e2002, 0x34), new CpuBusBoundaryWrite(0x7e2003, 0x12),
             }), "word writes are low byte then high byte, in call order");
     }
 
@@ -174,12 +174,12 @@ internal static class CpuBusBoundaryVerification
         private readonly SuperMetroidAddressSpace inner = SuperMetroidAddressSpace.CreateWithoutCartridge();
 
         /// <summary>CPU addresses and bytes in the order they reached the bus.</summary>
-        public List<(int Address, byte Value)> Writes { get; } = [];
+        public List<CpuBusBoundaryWrite> Writes { get; } = [];
 
         /// <summary>Records the requested write before forwarding it to the backing address space.</summary>
         public void WriteByte(int address, byte value)
         {
-            Writes.Add((address, value));
+            Writes.Add(new CpuBusBoundaryWrite(address, value));
             inner.WriteByte(address, value);
         }
 

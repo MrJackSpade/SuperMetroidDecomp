@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.KiHunters;
 
 namespace SuperMetroid.Verification.Enemies.KiHunters;
@@ -13,30 +14,30 @@ internal static class KiHunterNativeListAddresses
     internal const byte Bank = 0xa8;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (KiHunterProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<KiHunterProgram>[] Entries =
     [
-        (KiHunterProgram.FlyingLeft, 0xe9fa),
-        (KiHunterProgram.SwoopLeft, 0xea08),
-        (KiHunterProgram.FlyingRight, 0xea24),
-        (KiHunterProgram.SwoopRight, 0xea32),
-        (KiHunterProgram.WingsLeft, 0xea4e),
-        (KiHunterProgram.WingsRight, 0xea5e),
-        (KiHunterProgram.DetachedWings, 0xea7e),
-        (KiHunterProgram.JumpLeft, 0xea8a),
-        (KiHunterProgram.JumpRight, 0xeaa6),
-        (KiHunterProgram.LandLeft, 0xeac2),
-        (KiHunterProgram.LandRight, 0xeada),
-        (KiHunterProgram.SpitLeft, 0xeaf2),
-        (KiHunterProgram.SpitRight, 0xeb10),
+        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.FlyingLeft, 0xe9fa),
+        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.SwoopLeft, 0xea08),
+        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.FlyingRight, 0xea24),
+        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.SwoopRight, 0xea32),
+        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.WingsLeft, 0xea4e),
+        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.WingsRight, 0xea5e),
+        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.DetachedWings, 0xea7e),
+        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.JumpLeft, 0xea8a),
+        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.JumpRight, 0xeaa6),
+        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.LandLeft, 0xeac2),
+        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.LandRight, 0xeada),
+        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.SpitLeft, 0xeaf2),
+        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.SpitRight, 0xeb10),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (KiHunterCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, KiHunterNativeListAddressesInstruction> Instructions = new()
     {
-        [0xf526] = (KiHunterCueKind.ReturnToFlying, ""),
-        [0xf5e4] = (KiHunterCueKind.StartHop, ""),
-        [0xf67f] = (KiHunterCueKind.StartWinglessThinking, ""),
-        [0xf6d2] = (KiHunterCueKind.SpitLeft, ""),
-        [0xf6d8] = (KiHunterCueKind.SpitRight, ""),
+        [0xf526] = new KiHunterNativeListAddressesInstruction(KiHunterCueKind.ReturnToFlying, ""),
+        [0xf5e4] = new KiHunterNativeListAddressesInstruction(KiHunterCueKind.StartHop, ""),
+        [0xf67f] = new KiHunterNativeListAddressesInstruction(KiHunterCueKind.StartWinglessThinking, ""),
+        [0xf6d2] = new KiHunterNativeListAddressesInstruction(KiHunterCueKind.SpitLeft, ""),
+        [0xf6d8] = new KiHunterNativeListAddressesInstruction(KiHunterCueKind.SpitRight, ""),
     };
 }

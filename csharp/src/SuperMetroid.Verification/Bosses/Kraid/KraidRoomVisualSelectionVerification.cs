@@ -11,13 +11,13 @@ internal static class KraidRoomVisualSelectionVerification
     internal static void VerifyKraidRoomVisualSelection()
     {
         // Independent published pointer/ID/shape contract, not production enumeration.
-        (ushort Pointer, string Id, int Count)[] definitions =
+        KraidRoomVisualSelectionDefinition[] definitions =
         [
-            (0x9367, "crumble-first", 1), (0x936d, "crumble-second", 1),
-            (0x9373, "crumble-third", 1), (0x9379, "ceiling-background-one", 1),
-            (0x937f, "ceiling-background-two", 1), (0x9385, "ceiling-background-three", 1),
-            (0x9391, "spike-first", 1), (0x9397, "spike-second", 1),
-            (0x939d, "clear-ceiling", 15), (0x93bf, "clear-spikes", 22),
+            new KraidRoomVisualSelectionDefinition(0x9367, "crumble-first", 1), new KraidRoomVisualSelectionDefinition(0x936d, "crumble-second", 1),
+            new KraidRoomVisualSelectionDefinition(0x9373, "crumble-third", 1), new KraidRoomVisualSelectionDefinition(0x9379, "ceiling-background-one", 1),
+            new KraidRoomVisualSelectionDefinition(0x937f, "ceiling-background-two", 1), new KraidRoomVisualSelectionDefinition(0x9385, "ceiling-background-three", 1),
+            new KraidRoomVisualSelectionDefinition(0x9391, "spike-first", 1), new KraidRoomVisualSelectionDefinition(0x9397, "spike-second", 1),
+            new KraidRoomVisualSelectionDefinition(0x939d, "clear-ceiling", 15), new KraidRoomVisualSelectionDefinition(0x93bf, "clear-spikes", 22),
         ];
         var expected = new Dictionary<ushort, ushort[]>();
         var entries = new List<RoomPlmVisualEntry>();

@@ -33,7 +33,7 @@ internal static class PauseMapArrowsVerification
         int nativePaletteTimer = 1, nativePaletteFrame = 0;
         int allArrowParts = 0;
         var arrowAttributes = new HashSet<ushort>();
-        foreach (var (x, y) in new (int, int)[] { (100, 70), (-24, 70), (-23, 70), (280, 70), (281, 70), (100, -56), (100, -55), (100, 79), (100, 80) })
+        foreach (var (x, y) in new VerifyPauseMapArrowsCase[] { new VerifyPauseMapArrowsCase(100, 70), new VerifyPauseMapArrowsCase(-24, 70), new VerifyPauseMapArrowsCase(-23, 70), new VerifyPauseMapArrowsCase(280, 70), new VerifyPauseMapArrowsCase(281, 70), new VerifyPauseMapArrowsCase(100, -56), new VerifyPauseMapArrowsCase(100, -55), new VerifyPauseMapArrowsCase(100, 79), new VerifyPauseMapArrowsCase(100, 80) })
         {
             pause.MapScrollPosition = new Position16<MapPixels>(unchecked((ushort)x), unchecked((ushort)y));
             pause.Step(0, 0);

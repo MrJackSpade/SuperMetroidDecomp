@@ -29,9 +29,9 @@ internal sealed class PipeBugNativeInstructionPointers
         var entry = PipeBugNativeListAddresses.Entries.Where(item => item.Entry == address).ToList();
         if (entry.Count == 1)
             return AnimationProgramCursor<PipeBugProgram>.Start(entry[0].Program);
-        var matches = steps.SelectMany(program => program.Value.Select((step, position) => (program.Key, step, position)))
-            .Where(item => item.step == address)
-            .Select(item => new AnimationProgramCursor<PipeBugProgram>(item.Key, item.position))
+        var matches = steps.SelectMany(program => program.Value.Select((step, position) => new PipeBugNativeInstructionPointersMatch(program.Key, step, position)))
+            .Where(item => item.Step == address)
+            .Select(item => new AnimationProgramCursor<PipeBugProgram>(item.Key, item.Position))
             .ToList();
         return matches.Count == 1
             ? matches[0]

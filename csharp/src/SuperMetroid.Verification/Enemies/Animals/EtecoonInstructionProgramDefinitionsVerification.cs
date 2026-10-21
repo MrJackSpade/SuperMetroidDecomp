@@ -61,14 +61,14 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
     }
 
     /// <summary>An initialized Etecoon in the first enemy slot.</summary>
-    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, EtecoonEnemyState State) NewEtecoon()
+    private static NewEtecoonResult NewEtecoon()
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Etecoon, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa7 });
         EtecoonBehavior.InitializeEtecoon(slot);
-        return (enemies, slot, enemies.EtecoonStates[0] ?? throw new InvalidOperationException("The Etecoon has no state."));
+        return new NewEtecoonResult(enemies, slot, enemies.EtecoonStates[0] ?? throw new InvalidOperationException("The Etecoon has no state."));
     }
 
     /// <summary>Runs the Etecoon animation verification.</summary>

@@ -359,9 +359,9 @@ internal static class SpcSoundEffectTables
     {
         (int baseAddress, int channelCount) = libraryIndex switch
         {
-            0 => (0x03a6, 4),
-            1 => (0x0446, 2),
-            2 => (0x047e, 2),
+            0 => new SoundLibraryAllocation(0x03a6, 4),
+            1 => new SoundLibraryAllocation(0x0446, 2),
+            2 => new SoundLibraryAllocation(0x047e, 2),
             _ => throw new ArgumentOutOfRangeException(nameof(libraryIndex)),
         };
         int offset = field switch

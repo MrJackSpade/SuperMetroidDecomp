@@ -21,7 +21,7 @@ internal static class HeroShotsVerification
     {
         var native = nativeTrace is null ? null : File.ReadLines(nativeTrace).Skip(1)
             .Select(line => line.Split(','))
-            .ToDictionary(row => (int.Parse(row[0]), int.Parse(row[1]), int.Parse(row[2])), row => row.Skip(3)
+            .ToDictionary(row => new HeroShotsNative(int.Parse(row[0]), int.Parse(row[1]), int.Parse(row[2])), row => row.Skip(3)
                 .Select(value => Convert.ToUInt16(value, 16)).ToArray());
         int comparedFrames = 0;
         foreach (bool vertical in new[] { false, true })
@@ -69,7 +69,7 @@ internal static class HeroShotsVerification
                     ushort[] actual = [cameraX, cameraY, shot.Position.X.Whole, shot.Position.X.Fraction,
                         shot.Position.Y.Whole, shot.Position.Y.Fraction, unchecked((ushort)shot.Velocity.X.SignedRawValue),
                         unchecked((ushort)shot.Velocity.Y.SignedRawValue), shot.PackedType.Raw, checked((ushort)shot.InstructionPointer)];
-                    AssertTrue(actual.SequenceEqual(native[(vertical ? 1 : 0, cameraMode, frame)]),
+                    AssertTrue(actual.SequenceEqual(native[new HeroShotsNative(vertical ? 1 : 0, cameraMode, frame)]),
                         $"Native Hero trace vertical={vertical}, camera={cameraMode}, frame={frame}: actual {string.Join(',', actual.Select(x => x.ToString("X4")))}");
                     comparedFrames++;
                 }

@@ -121,14 +121,14 @@ internal static class MetroidBombPlacementVerification
 
         // Exact native rows 61..66, case right/travel2/single. The complete 40-case
         // trace is enforced by DebugRunner; these boundaries run in the core suite.
-        (ushort X, ushort Y, MetroidAiFunction State, ushort Timer, ushort Health)[] expected =
+        MetroidBombPlacementExpected[] expected =
         [
-            (149, 145, MetroidAiFunction.AttachedToSamus, 0, 952),
-            (151, 145, MetroidAiFunction.PowerBombEscape, 3, 952),
-            (151, 147, MetroidAiFunction.PowerBombEscape, 2, 952),
-            (149, 147, MetroidAiFunction.PowerBombEscape, 1, 952),
-            (149, 145, MetroidAiFunction.Homing, 0, 952),
-            (149, 145, MetroidAiFunction.AttachedToSamus, 0, 951),
+            new MetroidBombPlacementExpected(149, 145, MetroidAiFunction.AttachedToSamus, 0, 952),
+            new MetroidBombPlacementExpected(151, 145, MetroidAiFunction.PowerBombEscape, 3, 952),
+            new MetroidBombPlacementExpected(151, 147, MetroidAiFunction.PowerBombEscape, 2, 952),
+            new MetroidBombPlacementExpected(149, 147, MetroidAiFunction.PowerBombEscape, 1, 952),
+            new MetroidBombPlacementExpected(149, 145, MetroidAiFunction.Homing, 0, 952),
+            new MetroidBombPlacementExpected(149, 145, MetroidAiFunction.AttachedToSamus, 0, 951),
         ];
         for (int frame = 0; frame <= 66; frame++)
         {
@@ -137,7 +137,7 @@ internal static class MetroidBombPlacementVerification
             runtime.StepFrame(input);
             if (frame < 61) continue;
             AssertEqual(expected[frame - 61],
-                (target.Position.X.Whole, target.Position.Y.Whole, (state ?? throw new InvalidOperationException("Verification requires state.")).Function, state.EscapeTimer.RawValue, samus.Health),
+                new MetroidBombPlacementExpected(target.Position.X.Whole, target.Position.Y.Whole, (state ?? throw new InvalidOperationException("Verification requires state.")).Function, state.EscapeTimer.RawValue, checked((ushort)samus.Health)),
                 $"native bomb/EnemyMain detach trajectory at frame {frame}");
             AssertEqual(0x00950000u, samus.Kinematics.Position.X.RawValue, "Samus remains at native release X");
             AssertEqual(0x0099ffffu, samus.Kinematics.Position.Y.RawValue, "Samus stays on the floor during detach");

@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Skree;
 
 namespace SuperMetroid.Verification.Enemies.Skree;
@@ -9,14 +10,14 @@ namespace SuperMetroid.Verification.Enemies.Skree;
 internal static class SkreeMetareeParticleNativeListAddresses
 {
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (SkreeMetareeParticleProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<SkreeMetareeParticleProgram>[] Entries =
     [
-        (SkreeMetareeParticleProgram.Skree, 0x8abd),
-        (SkreeMetareeParticleProgram.Metaree, 0x8ac5),
+        new NativeProgramEntry<SkreeMetareeParticleProgram>(SkreeMetareeParticleProgram.Skree, 0x8abd),
+        new NativeProgramEntry<SkreeMetareeParticleProgram>(SkreeMetareeParticleProgram.Metaree, 0x8ac5),
     ];
 
     /// <summary>The bank-$86 bytes the lists occupy, $86:8ABD-8ACC, which production must never read.</summary>
-    internal static readonly (ushort First, ushort End) Extent = (0x8abd, 0x8acd);
+    internal static readonly MotherBrainEffectNativeListAddressesExtent Extent = new MotherBrainEffectNativeListAddressesExtent(0x8abd, 0x8acd);
 
     /// <summary>The native entry of <paramref name="program"/>.</summary>
     internal static ushort Entry(SkreeMetareeParticleProgram program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);

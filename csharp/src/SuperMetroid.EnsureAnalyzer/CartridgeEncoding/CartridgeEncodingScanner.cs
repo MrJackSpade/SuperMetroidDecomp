@@ -568,7 +568,7 @@ internal static class CartridgeEncodingScanner
     }
 
     /// <summary>Proposes a domain class for a hex token from its numeric range and syntax context.</summary>
-    private static (CartridgeEncodingClass Class, string Basis) ClassifyHex(SyntaxToken token)
+    private static HexClassification ClassifyHex(SyntaxToken token)
     {
         ulong value = HexValue(token.Text);
         SyntaxNode context = Climb(token.Parent ??
@@ -578,38 +578,38 @@ internal static class CartridgeEncodingScanner
         if (parent is InitializerExpressionSyntax { RawKind: (int)SyntaxKind.ArrayInitializerExpression } or
             ExpressionElementSyntax)
         {
-            return (CartridgeEncodingClass.StructuredInstruction, "array element");
+            return new HexClassification(CartridgeEncodingClass.StructuredInstruction, "array element");
         }
         if (value is >= 0x808000 and <= 0xffffff)
-            return (CartridgeEncodingClass.CartridgeAddress, "long cartridge address range");
+            return new HexClassification(CartridgeEncodingClass.CartridgeAddress, "long cartridge address range");
         if (parent is EqualsValueClauseSyntax { Parent: EnumMemberDeclarationSyntax member })
         {
             bool flags = member.Parent is EnumDeclarationSyntax enumDeclaration &&
                 enumDeclaration.AttributeLists.SelectMany(list => list.Attributes)
                     .Any(attribute => attribute.Name.ToString() is "Flags" or "FlagsAttribute" or "System.Flags");
             if (flags)
-                return (CartridgeEncodingClass.ComposableBits, "[Flags] enum member");
+                return new HexClassification(CartridgeEncodingClass.ComposableBits, "[Flags] enum member");
             return value is >= 0x8000 and <= 0xffff
-                ? (CartridgeEncodingClass.CartridgeAddress, "address-valued enum member")
-                : (CartridgeEncodingClass.DomainIdentity, "enum member");
+                ? new HexClassification(CartridgeEncodingClass.CartridgeAddress, "address-valued enum member")
+                : new HexClassification(CartridgeEncodingClass.DomainIdentity, "enum member");
         }
         if (parent is CaseSwitchLabelSyntax or ConstantPatternSyntax or SwitchExpressionArmSyntax)
-            return (CartridgeEncodingClass.DomainIdentity, "switch arm or pattern constant");
+            return new HexClassification(CartridgeEncodingClass.DomainIdentity, "switch arm or pattern constant");
         if (IsBitwise(parent))
-            return (CartridgeEncodingClass.ComposableBits, "bitwise operand");
+            return new HexClassification(CartridgeEncodingClass.ComposableBits, "bitwise operand");
         if (value is >= 0x8000 and <= 0xffff && NamesPointer(context))
-            return (CartridgeEncodingClass.CartridgeAddress, "pointer-named context");
+            return new HexClassification(CartridgeEncodingClass.CartridgeAddress, "pointer-named context");
         if (parent is BinaryExpressionSyntax binary &&
             binary.Kind() is SyntaxKind.EqualsExpression or SyntaxKind.NotEqualsExpression)
         {
-            return (CartridgeEncodingClass.DomainIdentity, "equality constant");
+            return new HexClassification(CartridgeEncodingClass.DomainIdentity, "equality constant");
         }
         if (parent is BinaryExpressionSyntax or AssignmentExpressionSyntax or ArgumentSyntax or EqualsValueClauseSyntax or
             ReturnStatementSyntax or ArrowExpressionClauseSyntax)
         {
-            return (CartridgeEncodingClass.NumericQuantity, "arithmetic, comparison or assigned value");
+            return new HexClassification(CartridgeEncodingClass.NumericQuantity, "arithmetic, comparison or assigned value");
         }
-        return (CartridgeEncodingClass.Unknown, "no classifying context");
+        return new HexClassification(CartridgeEncodingClass.Unknown, "no classifying context");
     }
 
     /// <summary>Moves past wrappers and unary signs to the expression whose parent determines a literal's use.</summary>

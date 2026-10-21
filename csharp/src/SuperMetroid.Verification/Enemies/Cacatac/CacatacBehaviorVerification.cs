@@ -102,7 +102,7 @@ internal static class CacatacBehaviorVerification
     }
 
     /// <summary>A Cacatac initialized upright or inverted.</summary>
-    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, CacatacEnemyState State) Create(bool upsideUp)
+    private static CacatacBehaviorCreateResult Create(bool upsideUp)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -110,7 +110,7 @@ internal static class CacatacBehaviorVerification
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = CacatacFrameToolingDefinitions.Bank });
         slot.SetSpawnParameter1(upsideUp ? CacatacNativeValues.UpsideUpParameter : (ushort)0);
         CacatacBehavior.InitializeCacatac(slot);
-        return (enemies, slot, enemies.CacatacStates[0] ?? throw new InvalidOperationException("Cacatac has no state."));
+        return new CacatacBehaviorCreateResult(enemies, slot, enemies.CacatacStates[0] ?? throw new InvalidOperationException("Cacatac has no state."));
     }
 
     /// <summary>Runs the Cacatac behavior check and its program oracle against the local retail cartridge.</summary>

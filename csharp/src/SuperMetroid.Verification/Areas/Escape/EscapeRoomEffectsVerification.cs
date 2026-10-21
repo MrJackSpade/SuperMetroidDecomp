@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rendering;
@@ -29,13 +30,13 @@ internal static class EscapeRoomEffectsVerification
             runtime.Player.IntroducedSamus.Control.LockHandlers();
             int explosionFrames = 0;
             bool visibleExplosion = false, visibleShake = false;
-            var offsets = new HashSet<(short, short)>();
+            var offsets = new HashSet<OctantVector>();
             for (int frame = 0; frame < 80; frame++)
             {
                 runtime.StepFrame(0);
                 if (runtime.Enemies.RoomSpriteObjects.Any(s => s.IsActive)) explosionFrames++;
                 var shake = runtime.Enemies.Earthquake.LastRoomShake;
-                offsets.Add((shake.Bg1.X, shake.Bg1.Y));
+                offsets.Add(new OctantVector(shake.Bg1.X, shake.Bg1.Y));
                 if (frame % 10 == 9)
                 {
                     var capture = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());

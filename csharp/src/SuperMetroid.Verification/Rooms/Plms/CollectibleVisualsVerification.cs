@@ -48,7 +48,7 @@ internal static class CollectibleVisualsVerification
             edited.GetWord(RoomPlmCollectibleDrawDefinitions.TankFirst),
             "collectible catalog copies the edited visual word");
 
-        (ushort physical, ushort immediate, ushort streamed) Render(
+        CollectibleVisualsRenderResult Render(
             RoomPlmCollectibleVisualCatalog visuals)
         {
             var bus = new TestAddressSpace();
@@ -58,7 +58,7 @@ internal static class CollectibleVisualsVerification
             fixture.Level.SetBlockDefinitionWord(0x04a * 4, 0x0123);
             fixture.Level.SetBlockDefinitionWord(0x053 * 4, 0x0456);
             fixture.Plms.Step(fixture.Level);
-            var result = (fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).PackedWord.Raw,
+            var result = new CollectibleVisualsRenderResult(fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).PackedWord.Raw,
                 fixture.Level.DisplayedBlockTiles(fixture.BlockIndex).TopLeft.Raw,
                 fixture.Level.DisplayedBlockTiles(fixture.BlockIndex).TopLeft.Raw);
             AssertTrue(fixture.Plms.CollectiblePlms.TryNotifyCollectibleTouch(fixture.BlockIndex),
@@ -73,15 +73,15 @@ internal static class CollectibleVisualsVerification
 
         var original = Render(stock);
         var changed = Render(edited);
-        AssertEqual((ushort)0xb04a, original.physical,
+        AssertEqual((ushort)0xb04a, original.Physical,
             "stock energy tank retains the cartridge physical level word");
-        AssertEqual(original.physical, changed.physical,
+        AssertEqual(original.Physical, changed.Physical,
             "collectible art does not change physical collision or pickup state");
-        AssertEqual((ushort)0x0123, original.immediate,
+        AssertEqual((ushort)0x0123, original.Immediate,
             "stock collectible tile reaches the immediate redraw");
-        AssertEqual((ushort)0x0456, changed.immediate,
+        AssertEqual((ushort)0x0456, changed.Immediate,
             "edited collectible tile reaches the immediate redraw");
-        AssertEqual((ushort)0x0456, changed.streamed,
+        AssertEqual((ushort)0x0456, changed.Streamed,
             "edited collectible tile survives later camera streaming");
 
         for (int kind = 0; kind < 21; kind++)

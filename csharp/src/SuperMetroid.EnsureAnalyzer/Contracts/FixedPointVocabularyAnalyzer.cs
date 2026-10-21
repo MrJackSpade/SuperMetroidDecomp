@@ -85,7 +85,7 @@ public sealed class FixedPointVocabularyAnalyzer : DiagnosticAnalyzer
         ISymbol[] members = type.GetMembers()
             .Where(member => !member.IsImplicitlyDeclared && member is IFieldSymbol or IPropertySymbol && IsPrimitiveWord(TypeOf(member)))
             .ToArray();
-        ReportPairs(context, members.Select(member => (member.Name, member.Locations[0])).ToArray());
+        ReportPairs(context, members.Select(member => new NamedLocation(member.Name, member.Locations[0])).ToArray());
     }
 
     /// <summary>Reports a raw angle field or property, a tuple-typed member pair, and a carry/overflow member.</summary>
@@ -127,7 +127,7 @@ public sealed class FixedPointVocabularyAnalyzer : DiagnosticAnalyzer
         {
             ReportPairs(context, method.Parameters
                 .Where(parameter => IsPrimitiveWord(parameter.Type))
-                .Select(parameter => (parameter.Name, parameter.Locations.FirstOrDefault() ?? location)).ToArray());
+                .Select(parameter => new NamedLocation(parameter.Name, parameter.Locations.FirstOrDefault() ?? location)).ToArray());
         }
     }
 
@@ -154,9 +154,9 @@ public sealed class FixedPointVocabularyAnalyzer : DiagnosticAnalyzer
     {
         if (type is not INamedTypeSymbol { IsTupleType: true } tuple)
             return;
-        (string, Location)[] elements = tuple.TupleElements
+        NamedLocation[] elements = tuple.TupleElements
             .Where(element => IsPrimitiveWord(element.Type) && !element.Name.StartsWith("Item", StringComparison.Ordinal))
-            .Select(element => (element.Name, location)).ToArray();
+            .Select(element => new NamedLocation(element.Name, location)).ToArray();
         ReportPairs(context, elements);
         foreach (IFieldSymbol element in tuple.TupleElements)
         {
@@ -166,7 +166,7 @@ public sealed class FixedPointVocabularyAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>Reports each whole/fraction pair among the named primitives.</summary>
-    private static void ReportPairs(SymbolAnalysisContext context, (string Name, Location Location)[] items)
+    private static void ReportPairs(SymbolAnalysisContext context, NamedLocation[] items)
     {
         foreach ((string whole, _) in items)
         {

@@ -31,8 +31,8 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
 
         foreach ((ushort parameter2, int samusX, BlueBrinstarFaceBlockProgram program) in new[]
                  {
-                     ((ushort)0, -32, BlueBrinstarFaceBlockProgram.SamusLeft),
-                     ((ushort)1, 32, BlueBrinstarFaceBlockProgram.SamusRight),
+                     new VerifyBlueBrinstarFaceBlockBehaviorCase(0, -32, BlueBrinstarFaceBlockProgram.SamusLeft),
+                     new VerifyBlueBrinstarFaceBlockBehaviorCase(1, 32, BlueBrinstarFaceBlockProgram.SamusRight),
                  })
         {
             (enemies, slot, state) = Create(parameter2);
@@ -57,7 +57,7 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
     }
 
     /// <summary>A face block initialized at (256, 256) with a 64-pixel trigger range.</summary>
-    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, BlueBrinstarFaceBlockEnemyState State) Create(ushort parameter2)
+    private static BlueBrinstarFaceBlockBehaviorCreateResult Create(ushort parameter2)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -67,7 +67,7 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
         slot.SetSpawnParameter2(parameter2);
         slot.Position = slot.Position.WithWhole(new(256, 256));
         enemies.BlueBrinstarFaceBlockBehavior.InitializeBlueBrinstarFaceBlock(slot, null);
-        return (enemies, slot, enemies.BlueBrinstarFaceBlockStates[0] ?? throw new InvalidOperationException("The face block has no state."));
+        return new BlueBrinstarFaceBlockBehaviorCreateResult(enemies, slot, enemies.BlueBrinstarFaceBlockStates[0] ?? throw new InvalidOperationException("The face block has no state."));
     }
 
     /// <summary>Runs the face-block behavior check, its program oracle and the compiled selector check.</summary>

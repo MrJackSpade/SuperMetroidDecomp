@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json.Nodes;
@@ -104,8 +105,8 @@ internal static class SporeSpawnCeilingVisualsVerification
     private static void VerifySporeSpawnCeilingStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmSporeSpawnCeilingVisualCatalog installed)
     {
-        (ushort Pointer, string Id)[] frames = [(0x9413,"clear-ceiling"), (0x9423,"crumble-frame-0"),
-            (0x9433,"crumble-frame-1"), (0x9443,"crumble-frame-2")];
+        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9413,"clear-ceiling"), new LookupEscapeGateStockFrame(0x9423,"crumble-frame-0"),
+            new LookupEscapeGateStockFrame(0x9433,"crumble-frame-1"), new LookupEscapeGateStockFrame(0x9443,"crumble-frame-2")];
         var native = new Dictionary<ushort, ushort[]>();
         foreach (var frame in frames)
         {

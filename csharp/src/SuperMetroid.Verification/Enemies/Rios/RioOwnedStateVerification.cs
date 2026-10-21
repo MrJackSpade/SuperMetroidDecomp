@@ -42,7 +42,7 @@ internal static class RioOwnedStateVerification
         rioState.SavedHorizontalVelocity = new SnesSignedEightEight(0xfe80);
         rioState.AnimationFinished = true;
         rio.Clear();
-        AssertEqual((default(SnesSignedEightEight), false), (rioState.SavedHorizontalVelocity, rioState.AnimationFinished),
+        AssertEqual(new VerifyRioOwnedStateCase(default(SnesSignedEightEight), false), new VerifyRioOwnedStateCase(rioState.SavedHorizontalVelocity, rioState.AnimationFinished),
             "a kill empties the Rio's saved velocity and handshake");
         AssertEqual(null, rioState.Function, "a kill empties the Rio's function");
         Console.WriteLine("Rio owned state: the follower selection and both families' cleared records match.");

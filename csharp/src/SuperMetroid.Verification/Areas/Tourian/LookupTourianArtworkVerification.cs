@@ -10,17 +10,17 @@ namespace SuperMetroid.Verification.Areas.Tourian;
 internal static class LookupTourianArtworkVerification
 {
     /// <summary>Enumerates native timed statue frames and their bank-$87 artwork source addresses.</summary>
-    internal static IEnumerable<(ushort Operand, int Source)> OriginalTourianFrames(
+    internal static IEnumerable<OriginalTourianFramesResult> OriginalTourianFrames(
         ISnesAddressSpace rom, ushort header)
     {
         foreach (var instruction in OriginalTourianInstructions(rom, header))
             if (instruction.Code < 0x8000)
-                yield return ((ushort)(instruction.Cursor + 2),
+                yield return new OriginalTourianFramesResult((ushort)(instruction.Cursor + 2),
                     0x870000 | ReadVerificationWord(rom, 0x870000 | (instruction.Cursor + 2)));
     }
 
     /// <summary>Decodes native statue instruction widths through both delete commands, rejecting unknown opcodes.</summary>
-    internal static IEnumerable<(ushort Cursor, ushort Code, int Width)> OriginalTourianInstructions(
+    internal static IEnumerable<LookupTourianArtworkInstruction> OriginalTourianInstructions(
         ISnesAddressSpace rom, ushort header)
     {
         int cursor = ReadVerificationWord(rom, 0x870000 | header);
@@ -31,7 +31,7 @@ internal static class LookupTourianArtworkVerification
             ushort code = ReadVerificationWord(rom, 0x870000 | cursor);
             if (code < 0x8000)
             {
-                yield return ((ushort)cursor, code, 4);
+                yield return new LookupTourianArtworkInstruction((ushort)cursor, code, 4);
                 cursor += 4;
                 continue;
             }
@@ -44,7 +44,7 @@ internal static class LookupTourianArtworkVerification
                     0x8349 or 0x8352 or 0x835b or 0x8372 or 0x837f => 4,
                 _ => throw new InvalidDataException($"Unexpected native statue instruction {code:X4}."),
             };
-            yield return ((ushort)cursor, code, width);
+            yield return new LookupTourianArtworkInstruction((ushort)cursor, code, width);
             cursor += width;
         }
     }

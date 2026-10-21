@@ -42,7 +42,7 @@ internal static class CeresLargeAsteroidPartsVerification
                         "independent CeresLargeAsteroid field edit stays supplied");
                 }
             }
-            foreach (var group in new[] { (Start: 0, End: 6, Anchor: 5), (Start: 6, End: 13, Anchor: 12), (Start: 13, End: 19, Anchor: 18) })
+            foreach (var group in new[] { new VerifyCeresLargeAsteroidPartsCase(Start:0, End:6, Anchor:5), new VerifyCeresLargeAsteroidPartsCase(Start:6, End:13, Anchor:12), new VerifyCeresLargeAsteroidPartsCase(Start:13, End:19, Anchor:18) })
             {
                 var translated = (SpriteVisualPart[])visual.Clone();
                 for (int index = group.Start; index < group.End; index++)

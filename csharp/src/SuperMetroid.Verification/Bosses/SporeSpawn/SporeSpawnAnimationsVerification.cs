@@ -33,7 +33,7 @@ internal static class SporeSpawnAnimationsVerification
         AssertEqual(Enum.GetValues<SporeSpawnBodyProgram>().Length, BodyEntries.Length, "every typed Spore Spawn body program has a native entry");
         for (int index = 0; index < BodyEntries.Length; index++)
             AssertEqual((SporeSpawnBodyProgram)index, BodyEntries[index].Program, "the Spore Spawn body programs are declared in authored order");
-        AssertTrue(BodyEntries.Zip(BodyEntries.Skip(1)).All(pair => pair.First.Entry < pair.Second.Entry), "native Spore Spawn body entries ascend");
+        AssertTrue(BodyEntries.Zip(BodyEntries.Skip(1), (first, second) => first.Entry < second.Entry).All(ascends => ascends), "native Spore Spawn body entries ascend");
         var body = BodyStepAddresses(cartridge);
         int updates = VerifyProjectilePrograms(rom);
         AssertEqual(SporeSpawnProjectileVisualDefinitions.ProjectileFrameCount, SporeSpawnProjectileVisualDefinitions.ProjectileFrames.Count,
@@ -207,7 +207,7 @@ internal static class SporeSpawnAnimationsVerification
     }
 
     /// <summary>Runs <paramref name="program"/> on an initialized Spore Spawn fixture for a fixed number of enemy frames.</summary>
-    internal static (RoomEnemySystem System, RoomEnemySlot Body) RunSporeSpawnProgram(
+    internal static RunSporeSpawnProgramResult RunSporeSpawnProgram(
         SporeSpawnBodyProgram program,
         int frames,
         InstalledEnemyArtwork? artwork = null,
@@ -243,7 +243,7 @@ internal static class SporeSpawnAnimationsVerification
             EnemyInstructionInterpreter.ProcessInstructions(body, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
             afterFrame?.Invoke(enemies, body);
         }
-        return (enemies, body);
+        return new RunSporeSpawnProgramResult(enemies, body);
     }
 
     /// <summary>Reads one native bank-$A5 word for the independent reference trace.</summary>

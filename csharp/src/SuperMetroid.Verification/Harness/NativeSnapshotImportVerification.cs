@@ -47,7 +47,7 @@ internal static class NativeSnapshotImportVerification
     /// <param name="saveRam">The movie's starting 8 KiB cartridge SRAM.</param>
     /// <param name="hostServices">The hardware-timing policies, or <see langword="null"/> for the lag-free defaults.</param>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    internal static (CartridgeImportAddressSpace Bus, SuperMetroidRuntime Runtime, SamusState Samus, SuperMetroidGame Game)
+    internal static ImportNativeSnapshotResult
         ImportNativeSnapshot(byte[] memory, byte[] saveRam, SuperMetroidGameHostServices? hostServices = null)
     {
         ushort W(int address) => BinaryPrimitives.ReadUInt16LittleEndian(memory.AsSpan(address));
@@ -319,7 +319,7 @@ internal static class NativeSnapshotImportVerification
         game.GameState = (SuperMetroidGameState)W(NativeSnapshotMemory.GameState);
         if (game.GameState == SuperMetroidGameState.PausedB)
             ImportNativePauseMenu(game, runtime, W, memory);
-        return (bus, runtime, samus, game);
+        return new ImportNativeSnapshotResult(bus, runtime, samus, game);
     }
 
     /// <summary>

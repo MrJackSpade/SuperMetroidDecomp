@@ -148,15 +148,15 @@ internal static class IntroProjectileArtworkVerification
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(saved);
         var restoredIntro = restored.Session.ScreenAs<IntroCinematicState>();
         BindRestoredIntroDrawFixture((restoredIntro ?? throw new InvalidOperationException("Verification requires restoredIntro.")));
-        foreach (var pair in new[] { (game, intro), (restored, restoredIntro) })
+        foreach (var pair in new[] { new VerifyIntroTrailPngCase(game, intro), new VerifyIntroTrailPngCase(restored, restoredIntro) })
         {
-            pair.Item1.BindArtwork(pair.Item1.Artwork with
+            pair.First.BindArtwork(pair.First.Artwork with
             {
                 TrailArtwork = edited,
             });
-            AssertTrue(native.SequenceEqual(pair.Item2.Image()), "Intro PNG rebind does not change the shown image before preparation");
-            SpriteArtwork page = DrawnProjectilePage(pair.Item2);
-            AssertTrue(native.SequenceEqual(pair.Item2.Image()), "Intro trail PNG is a page binding, not a shown-image write");
+            AssertTrue(native.SequenceEqual(pair.Second.Image()), "Intro PNG rebind does not change the shown image before preparation");
+            SpriteArtwork page = DrawnProjectilePage(pair.Second);
+            AssertTrue(native.SequenceEqual(pair.Second.Image()), "Intro trail PNG is a page binding, not a shown-image write");
             AssertTrue(page.Characters.Slice(ProjectileObjectPageDefinitions.IceWaveTrailFirstCharacter * SpriteArtwork.CharacterByteCount,
                     editedTiles.IceAndWave.Length).SequenceEqual(editedTiles.IceAndWave.Span) &&
                 page.Characters.Slice(ProjectileObjectPageDefinitions.MissileTrailFirstCharacter * SpriteArtwork.CharacterByteCount,
@@ -164,11 +164,11 @@ internal static class IntroProjectileArtworkVerification
                 "Intro and restored intro bind the edited trail characters");
             // Binding no replacement retains native/debug behavior without inventing
             // a ROM-backed restore on every draw. Explicitly restore stock for callers.
-            pair.Item1.BindArtwork(pair.Item1.Artwork with
+            pair.First.BindArtwork(pair.First.Artwork with
             {
                 TrailArtwork = stock,
             });
-            draw(pair.Item2);
+            draw(pair.Second);
         }
         game.BindArtwork(game.Artwork with
         {

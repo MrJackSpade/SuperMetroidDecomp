@@ -46,17 +46,17 @@ internal static class DownwardGatePlmsVerification
         Suite(nameof(VerifyDownwardGateVisuals), () => VerifyDownwardGateVisuals());
         Suite(nameof(VerifyDownwardGateSetupAndProjectile), () => VerifyDownwardGateSetupAndProjectile());
 
-        var cases = new (DownwardGateTriggerBehavior Trigger, ushort Projectile, bool Accepted)[]
+        var cases = new DownwardGatePlmsCase[]
         {
-            (DownwardGateTriggerBehavior.BlueLeft, 0x0004, true),
-            (DownwardGateTriggerBehavior.BlueRight, 0x0300, false),
-            (DownwardGateTriggerBehavior.GreenLeft, 0x0200, true),
-            (DownwardGateTriggerBehavior.GreenRight, 0x0000, false),
-            (DownwardGateTriggerBehavior.RedLeft, 0x0100, true),
-            (DownwardGateTriggerBehavior.RedRight, 0x0200, true),
-            (DownwardGateTriggerBehavior.YellowLeft, 0x0300, true),
+            new DownwardGatePlmsCase(DownwardGateTriggerBehavior.BlueLeft, 0x0004, true),
+            new DownwardGatePlmsCase(DownwardGateTriggerBehavior.BlueRight, 0x0300, false),
+            new DownwardGatePlmsCase(DownwardGateTriggerBehavior.GreenLeft, 0x0200, true),
+            new DownwardGatePlmsCase(DownwardGateTriggerBehavior.GreenRight, 0x0000, false),
+            new DownwardGatePlmsCase(DownwardGateTriggerBehavior.RedLeft, 0x0100, true),
+            new DownwardGatePlmsCase(DownwardGateTriggerBehavior.RedRight, 0x0200, true),
+            new DownwardGatePlmsCase(DownwardGateTriggerBehavior.YellowLeft, 0x0300, true),
             // This counterintuitive inequality is present in the retail right-hand routine.
-            (DownwardGateTriggerBehavior.YellowRight, 0x0000, true),
+            new DownwardGatePlmsCase(DownwardGateTriggerBehavior.YellowRight, 0x0000, true),
         };
         foreach ((DownwardGateTriggerBehavior trigger, ushort projectile, bool accepted) in cases)
             VerifyDownwardGateTrigger(trigger, projectile, accepted);
@@ -71,7 +71,7 @@ internal static class DownwardGatePlmsVerification
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Gate header oracle revision");
-        foreach ((PlmHeaderId header, int source) in new[] { (PlmHeaderId.DownwardGate, 0x84c82c), (PlmHeaderId.DownwardGateShotBlock, 0x84c838) })
+        foreach ((PlmHeaderId header, int source) in new[] { new VerifyDownwardGateHeaderDefinitionsCase(PlmHeaderId.DownwardGate, 0x84c82c), new VerifyDownwardGateHeaderDefinitionsCase(PlmHeaderId.DownwardGateShotBlock, 0x84c838) })
             AssertEqual(ReadSamusEaterPlmWord(rom, source), RoomPlmHeaderDefinitions.Get(header).InitialInstruction,
                 "Gate compiled-population first instruction");
     }
@@ -246,8 +246,7 @@ internal static class DownwardGatePlmsVerification
     }
 
     /// <summary>Loads a gate and adjacent shot block at room cell (6,2) with compiled headers and synthetic actor instructions.</summary>
-    internal static (TestAddressSpace Bus, RoomLevelData Level,
-        RoomPlmSystem Plms, int GateBlockIndex)
+    internal static CreateDownwardGateFixtureResult
         CreateDownwardGateFixture(DownwardGateTriggerBehavior trigger,
             RoomPlmDownwardGateVisualCatalog? visuals = null)
     {
@@ -281,7 +280,7 @@ internal static class DownwardGatePlmsVerification
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmDownwardGateVisuals = visuals });
         int parsed = PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), AreaId.Brinstar), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(2, parsed, $"{trigger} synthetic population parses both records");
-        return (bus, level, plms, gateY * roomWidth + gateX);
+        return new CreateDownwardGateFixtureResult(bus, level, plms, gateY * roomWidth + gateX);
     }
 
 

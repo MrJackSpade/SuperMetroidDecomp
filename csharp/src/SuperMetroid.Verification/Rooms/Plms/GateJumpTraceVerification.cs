@@ -20,8 +20,8 @@ internal static class GateJumpTraceVerification
     internal static void VerifyGateJumpTraces()
     {
         foreach ((int shootFrame, int aimFrame, bool releaseLeft) in new[]
-            { (7, 0, false), (8, 0, false), (9, 0, false), (16, 0, false), (8, 7, false),
-              (4, 4, true), (5, 4, true), (6, 4, true) })
+            { new VerifyGateJumpTracesCase(7, 0, false), new VerifyGateJumpTracesCase(8, 0, false), new VerifyGateJumpTracesCase(9, 0, false), new VerifyGateJumpTracesCase(16, 0, false), new VerifyGateJumpTracesCase(8, 7, false),
+              new VerifyGateJumpTracesCase(4, 4, true), new VerifyGateJumpTracesCase(5, 4, true), new VerifyGateJumpTracesCase(6, 4, true) })
         {
             string suffix = releaseLeft ? $"spin-release-{shootFrame}" :
                 aimFrame == 0 ? shootFrame.ToString() : $"spin-{shootFrame}-{aimFrame}";

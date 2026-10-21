@@ -22,8 +22,8 @@ internal static class MorphBallEyeBehaviorVerification
     {
         foreach ((ushort parameter1, MorphBallEyeProgram closed) in new[]
                  {
-                     ((ushort)0, MorphBallEyeProgram.FacingRightClosed),
-                     ((ushort)1, MorphBallEyeProgram.FacingLeftClosed),
+                     new VerifyMorphBallEyeBehaviorCase(0, MorphBallEyeProgram.FacingRightClosed),
+                     new VerifyMorphBallEyeBehaviorCase(1, MorphBallEyeProgram.FacingLeftClosed),
                  })
         {
             (_, _, MorphBallEyeEnemyState body) = Create(parameter1, parameter2: 0);
@@ -104,7 +104,7 @@ internal static class MorphBallEyeBehaviorVerification
     }
 
     /// <summary>An eye body or mount after its real initializer.</summary>
-    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, MorphBallEyeEnemyState State) Create(ushort parameter1, ushort parameter2)
+    private static MorphBallEyeBehaviorCreateResult Create(ushort parameter1, ushort parameter2)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -113,7 +113,7 @@ internal static class MorphBallEyeBehaviorVerification
         slot.SetSpawnParameter1(parameter1);
         slot.SetSpawnParameter2(parameter2);
         enemies.MorphBallEyeBehavior.InitializeMorphBallEye(slot);
-        return (enemies, slot, enemies.MorphBallEyeBehavior.MorphBallEyeStates[0] ?? throw new InvalidOperationException("The eye has no state."));
+        return new MorphBallEyeBehaviorCreateResult(enemies, slot, enemies.MorphBallEyeBehavior.MorphBallEyeStates[0] ?? throw new InvalidOperationException("The eye has no state."));
     }
 
     /// <summary>Runs the Morph Ball eye behavior check and its program oracle against the local retail cartridge.</summary>

@@ -139,7 +139,7 @@ internal static class EndingRewardGestureVerification
     {
 
         // Original LDY operands independently identify all ten records.
-        (ushort Pointer, int Load)[] spawns = [.. RewardActorPointers.Zip(RewardActorSpawnLoads)];
+        RewardActorSpawn[] spawns = [.. RewardActorPointers.Zip(RewardActorSpawnLoads, (pointer, load) => new RewardActorSpawn(pointer, load))];
         var initializers = new HashSet<ushort>();
         foreach (var spawn in spawns)
         {

@@ -251,16 +251,16 @@ internal static class MapInstallationVerification
         sprites.Required("frames").Required("Marker.Boss").Required(0)["offsetX"] = 12;
         File.WriteAllText(spriteOverride, sprites.ToJsonString());
         var artworkOverrides = new List<string> { escapeTimerTileOverride };
-        foreach (var atlas in new[] { (WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.ForegroundHeight, 16, WorldMapArtworkFormat.Width),
-            (WorldMapArtworkFormat.BackgroundFile, WorldMapArtworkFormat.BackgroundHeight, 4, WorldMapArtworkFormat.Width),
-            (MapSpriteFormat.PngFile, MapSpriteFormat.Height, 16, MapSpriteFormat.Width),
-            (PauseTileAtlasFormat.FileName, MapTileAtlasFormat.Height, 16, MapTileAtlasFormat.Width) })
+        foreach (var atlas in new[] { new VerifyMapInstallationCase(WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.ForegroundHeight, 16, WorldMapArtworkFormat.Width),
+            new VerifyMapInstallationCase(WorldMapArtworkFormat.BackgroundFile, WorldMapArtworkFormat.BackgroundHeight, 4, WorldMapArtworkFormat.Width),
+            new VerifyMapInstallationCase(MapSpriteFormat.PngFile, MapSpriteFormat.Height, 16, MapSpriteFormat.Width),
+            new VerifyMapInstallationCase(PauseTileAtlasFormat.FileName, MapTileAtlasFormat.Height, 16, MapTileAtlasFormat.Width) })
         {
             IndexedPngImage image;
-            using (var input = File.OpenRead(Path.Combine(installation.MapDirectory, atlas.Item1)))
-                image = IndexedPng.Read(input, new(checked((ushort)atlas.Item4), checked((ushort)atlas.Item2)));
-            image.Pixels[0] = (byte)((image.Pixels[0] + 1) % atlas.Item3);
-            string path = Path.Combine(installation.MapOverrideDirectory, atlas.Item1);
+            using (var input = File.OpenRead(Path.Combine(installation.MapDirectory, atlas.First)))
+                image = IndexedPng.Read(input, new(checked((ushort)atlas.Width), checked((ushort)atlas.Second)));
+            image.Pixels[0] = (byte)((image.Pixels[0] + 1) % atlas.Third);
+            string path = Path.Combine(installation.MapOverrideDirectory, atlas.First);
             using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             artworkOverrides.Add(path);
         }

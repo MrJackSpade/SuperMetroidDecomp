@@ -12,10 +12,10 @@ internal static class RoomPlmBreakAnimationDefinitions
     {
         (ushort first, int stride) = shape switch
         {
-            0 => (RoomPlmShotBlockDrawDefinitions.SingleFrame0, 6),
-            1 => (RoomPlmShotBlockDrawDefinitions.HorizontalFrame0, 8),
-            2 => (RoomPlmShotBlockDrawDefinitions.VerticalFrame0, 8),
-            3 => (RoomPlmShotBlockDrawDefinitions.SquareFrame0, 16),
+            0 => new BreakAnimationShape(RoomPlmShotBlockDrawDefinitions.SingleFrame0, 6),
+            1 => new BreakAnimationShape(RoomPlmShotBlockDrawDefinitions.HorizontalFrame0, 8),
+            2 => new BreakAnimationShape(RoomPlmShotBlockDrawDefinitions.VerticalFrame0, 8),
+            3 => new BreakAnimationShape(RoomPlmShotBlockDrawDefinitions.SquareFrame0, 16),
             _ => throw new ArgumentOutOfRangeException(nameof(shape)),
         };
         if ((uint)frame >= 7) throw new ArgumentOutOfRangeException(nameof(frame));

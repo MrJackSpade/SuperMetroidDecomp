@@ -50,7 +50,11 @@ internal sealed class ShutterBombArcScenario
     /// <param name="duration">Updates spent rolling away, followed by the same number rolling back toward the shutter.</param>
     private ShutterBombArcScenario(SuperMetroidRuntime runtime, int slotIndex, bool approach, int interval, int rollAt, int duration)
     {
-        (SlotIndex, Approach, Interval, RollAt, Duration) = (slotIndex, approach, interval, rollAt, duration);
+        SlotIndex = slotIndex;
+        Approach = approach;
+        Interval = interval;
+        RollAt = rollAt;
+        Duration = duration;
         Runtime = runtime;
         Runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         Runtime.RoomLoader.InitializeStartingCeresRoom();

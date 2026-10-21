@@ -17,6 +17,10 @@ internal static class SpeciesReachAnalyzerTests
             public sealed class KraidBehavior { public int Kraid => 0; }
             public sealed class RidleyEncounter { public int CeresStatus => 0; }
             public interface IElevatorJourney { int ElevatorStatus { get; } }
+        }
+        namespace SuperMetroid.Core.World
+        {
+            using SuperMetroid.Core.Enemies;
             public sealed class RoomEnemySystem
             {
                 public KraidBehavior KraidBehavior { get; } = new();

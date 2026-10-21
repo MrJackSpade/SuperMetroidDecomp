@@ -122,7 +122,7 @@ internal static class DynamicCollectibleArtVerification
 
     /// <summary>Loads the retail Bombs PLM with selected art and captures its VRAM tile bytes, block word, and pickup state.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static (byte[] Vram, ushort TileWord, CollectiblePlmSnapshot Item)
+    private static LoadRetailBombsWithArtResult
         LoadRetailBombsWithArt(RoomPlmDynamicCollectibleArtCatalog art)
     {
         const int width = 64;
@@ -134,6 +134,6 @@ internal static class DynamicCollectibleArtVerification
         byte[] tiles = BgArtworkFixtures.Composed(vram).AsSpan(0x3e00 * 2, 0x100).ToArray();
         ushort firstWord = BinaryPrimitives.ReadUInt16LittleEndian(
             level.BlockDefinitions.Span.Slice(0x0470));
-        return (tiles, firstWord, item);
+        return new LoadRetailBombsWithArtResult(tiles, firstWord, item);
     }
 }

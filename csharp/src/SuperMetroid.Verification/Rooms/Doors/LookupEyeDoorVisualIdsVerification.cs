@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Plms;
 
@@ -12,17 +13,17 @@ internal static class LookupEyeDoorVisualIdsVerification
     internal static void VerifyEyeDoorVisualIds()
     {
         // Original 23-entry public override identity contract, before the naming conversion.
-        (ushort Pointer, string Id)[] expected =
+        LookupEscapeGateStockFrame[] expected =
         [
-            (0x9c03,"left-eye-frame-0"),(0x9c0b,"left-eye-frame-1"),(0x9c13,"left-eye-frame-2"),
-            (0x9c1b,"left-eye-frame-3"),(0x9c23,"left-eye-frame-4"),
-            (0x9c2b,"left-middle-frame-0"),(0x9c31,"left-middle-frame-1"),(0x9c37,"left-middle-frame-2"),
-            (0x9c3d,"left-bottom-frame-0"),(0x9c43,"left-bottom-frame-1"),(0x9c49,"left-bottom-frame-2"),
-            (0x9c4f,"left-eye-clear"),
-            (0x9c5b,"right-eye-frame-0"),(0x9c63,"right-eye-frame-1"),(0x9c6b,"right-eye-frame-2"),
-            (0x9c73,"right-eye-frame-3"),(0x9c7b,"right-eye-frame-4"),
-            (0x9c83,"right-middle-frame-0"),(0x9c89,"right-middle-frame-1"),(0x9c8f,"right-middle-frame-2"),
-            (0x9c95,"right-bottom-frame-0"),(0x9c9b,"right-bottom-frame-1"),(0x9ca1,"right-bottom-frame-2"),
+            new LookupEscapeGateStockFrame(0x9c03,"left-eye-frame-0"),new LookupEscapeGateStockFrame(0x9c0b,"left-eye-frame-1"),new LookupEscapeGateStockFrame(0x9c13,"left-eye-frame-2"),
+            new LookupEscapeGateStockFrame(0x9c1b,"left-eye-frame-3"),new LookupEscapeGateStockFrame(0x9c23,"left-eye-frame-4"),
+            new LookupEscapeGateStockFrame(0x9c2b,"left-middle-frame-0"),new LookupEscapeGateStockFrame(0x9c31,"left-middle-frame-1"),new LookupEscapeGateStockFrame(0x9c37,"left-middle-frame-2"),
+            new LookupEscapeGateStockFrame(0x9c3d,"left-bottom-frame-0"),new LookupEscapeGateStockFrame(0x9c43,"left-bottom-frame-1"),new LookupEscapeGateStockFrame(0x9c49,"left-bottom-frame-2"),
+            new LookupEscapeGateStockFrame(0x9c4f,"left-eye-clear"),
+            new LookupEscapeGateStockFrame(0x9c5b,"right-eye-frame-0"),new LookupEscapeGateStockFrame(0x9c63,"right-eye-frame-1"),new LookupEscapeGateStockFrame(0x9c6b,"right-eye-frame-2"),
+            new LookupEscapeGateStockFrame(0x9c73,"right-eye-frame-3"),new LookupEscapeGateStockFrame(0x9c7b,"right-eye-frame-4"),
+            new LookupEscapeGateStockFrame(0x9c83,"right-middle-frame-0"),new LookupEscapeGateStockFrame(0x9c89,"right-middle-frame-1"),new LookupEscapeGateStockFrame(0x9c8f,"right-middle-frame-2"),
+            new LookupEscapeGateStockFrame(0x9c95,"right-bottom-frame-0"),new LookupEscapeGateStockFrame(0x9c9b,"right-bottom-frame-1"),new LookupEscapeGateStockFrame(0x9ca1,"right-bottom-frame-2"),
         ];
         var exported = EyeDoorPlmDrawDefinitions.Editable.ToArray();
         AssertEqual(expected.Length, exported.Length, "Eye door original editable identity count");

@@ -20,7 +20,7 @@ internal static class EnemyExtendedLegacyOverridesVerification
         stockDocument.Frames[inherited.Name][0] = stockDocument.Frames[inherited.Name][0] with { OffsetX = 19 };
         EnemyExtendedFrameCatalog stock = Load(stockDocument);
         string stockIdentity = stock.ContentIdentity;
-        (int Version, int Count)[] schemas = ExtendedEnemySchemaFixtures();
+        ExtendedEnemySchemaFixturesResult[] schemas = ExtendedEnemySchemaFixtures();
         AssertEqual((int)EnemyExtendedFrameSchema.Current, schemas.Length, "every extended enemy schema has a fixture");
         int bindingSchemas = 0;
         for (int index = 0; index < schemas.Length; index++)
@@ -109,12 +109,12 @@ internal static class EnemyExtendedLegacyOverridesVerification
     }
 
     /// <summary>Pairs each historical schema version with the frame count authored at that revision.</summary>
-    private static (int Version, int Count)[] ExtendedEnemySchemaFixtures()
+    private static ExtendedEnemySchemaFixturesResult[] ExtendedEnemySchemaFixtures()
     {
         Type catalog = typeof(EnemyExtendedFrameDefinitions);
         const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
         return Enum.GetValues<EnemyExtendedFrameSchema>()
-            .Select(schema => (Version: (int)schema, Count: HistoricalCount(schema)))
+            .Select(schema => new ExtendedEnemySchemaFixturesResult(Version:(int)schema, Count:HistoricalCount(schema)))
             .OrderBy(schema => schema.Version).ToArray();
 
         int HistoricalCount(EnemyExtendedFrameSchema schema)

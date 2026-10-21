@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Nuclear;
 
 namespace SuperMetroid.Verification.Enemies.Nuclear;
@@ -12,9 +13,9 @@ internal static class NuclearWaffleNativeListAddresses
     internal const byte Bank = 0xa6;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (NuclearWaffleProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<NuclearWaffleProgram>[] Entries =
     [
-        (NuclearWaffleProgram.BodyLoop, 0x9490),
+        new NativeProgramEntry<NuclearWaffleProgram>(NuclearWaffleProgram.BodyLoop, 0x9490),
     ];
 
 }

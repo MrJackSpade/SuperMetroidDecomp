@@ -65,11 +65,11 @@ internal static class ProjectileTrailArtworkVerification
                     authoredSystem.DrawTrails(sprites, Position16<RoomPixels>.Zero, catalog, InstalledFixtures.ProjectileArtwork());
                 });
                 AssertTrue(nativeOam.LowTable.SequenceEqual(authoredOam.LowTable), "Trail catalog preserves live command/termination/freeze frame output");
-                foreach (var sides in new[] { (nativeSystem.TrailSlots[0].Left, authoredSystem.TrailSlots[0].Left), (nativeSystem.TrailSlots[0].Right, authoredSystem.TrailSlots[0].Right) })
+                foreach (var sides in new[] { new VerifyProjectileTrailArtworkCase(nativeSystem.TrailSlots[0].Left, authoredSystem.TrailSlots[0].Left), new VerifyProjectileTrailArtworkCase(nativeSystem.TrailSlots[0].Right, authoredSystem.TrailSlots[0].Right) })
                 {
-                    AssertEqual(sides.Item1.InstructionPointer, sides.Item2.InstructionPointer, "Trail artwork cannot change instruction cursor");
-                    AssertEqual(sides.Item1.InstructionTimer.RawValue, sides.Item2.InstructionTimer.RawValue, "Trail artwork cannot change live timing");
-                    AssertEqual(sides.Item1.Position.Y, sides.Item2.Position.Y, "Trail artwork cannot change sibling-targeted movement");
+                    AssertEqual(sides.First.InstructionPointer, sides.Second.InstructionPointer, "Trail artwork cannot change instruction cursor");
+                    AssertEqual(sides.First.InstructionTimer.RawValue, sides.Second.InstructionTimer.RawValue, "Trail artwork cannot change live timing");
+                    AssertEqual(sides.First.Position.Y, sides.Second.Position.Y, "Trail artwork cannot change sibling-targeted movement");
                 }
             }
         }

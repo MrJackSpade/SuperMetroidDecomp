@@ -48,7 +48,7 @@ internal static class SpcCommandPortsVerification
         using var pcm = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         var samples = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         CartridgeAudioAcknowledgements modeledAcknowledgements = default;
-        var starts = new List<(int Frame, AudioEvent.StartSoundEffect Start)>();
+        var starts = new List<StartValue>();
         int uploadFrame = -1, trackFrame = -1, downtimeRequestFrame = -1;
         for (int frame = 0; frame < ScenarioFrames; frame++)
         {
@@ -85,7 +85,7 @@ internal static class SpcCommandPortsVerification
                     $"frame {frame} {port} acknowledgement");
             }
             starts.AddRange(events.OfType<AudioEvent.StartSoundEffect>()
-                .Select(audioEvent => (frame, audioEvent)));
+                .Select(audioEvent => new StartValue(frame, audioEvent)));
         }
 
         // The scripted sequence reaches the cases it names.
@@ -99,11 +99,11 @@ internal static class SpcCommandPortsVerification
         // nothing until the dispatcher sends it once the eight downtime calls end.
         AssertSequenceEqual(new[]
             {
-                (3, SoundEffectLibrary1Sounds.MenuCursor),
-                (5, SoundEffectLibrary2Sounds.CancelAll),
-                (27, SoundEffectLibrary3Sounds.SpeedBoosterEcho),
-                (39, SoundEffectLibrary3Sounds.HardLanding),
-            }, starts.Select(start => (start.Frame, start.Start.SoundEffect)),
+                new VerifySpcCommandPortsMatchEmulatedDriverCase(3, SoundEffectLibrary1Sounds.MenuCursor),
+                new VerifySpcCommandPortsMatchEmulatedDriverCase(5, SoundEffectLibrary2Sounds.CancelAll),
+                new VerifySpcCommandPortsMatchEmulatedDriverCase(27, SoundEffectLibrary3Sounds.SpeedBoosterEcho),
+                new VerifySpcCommandPortsMatchEmulatedDriverCase(39, SoundEffectLibrary3Sounds.HardLanding),
+            }, starts.Select(start => new VerifySpcCommandPortsMatchEmulatedDriverCase(start.Frame, start.Start.SoundEffect)),
             "sound effects start only at the poll after the latch, and none during the music downtime");
         AssertTrue(!starts.Any(start => start.Frame > trackFrame && start.Frame <= trackFrame + AudioRomData.Queues.MusicAndSfxDowntimeFrames),
             "a request queued during the music downtime starts nothing until the downtime ends");

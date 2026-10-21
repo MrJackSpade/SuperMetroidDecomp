@@ -142,7 +142,12 @@ internal static class EndingExplosionSpriteArtworkVerification
                     "independent edited field keeps supplied composition");
             }
             visual[0] = first;
-            (visual[0], visual[1]) = (visual[1], visual[0]);
+            {
+                var held0 = visual[1];
+                var held1 = visual[0];
+                visual[0] = held0;
+                visual[1] = held1;
+            }
             SpriteComposition reordered = IntroCinematicSpriteCompiler.Compile(visual, "reordered grid");
             AssertTrue(pose >= 13 ? Identity(reordered) == Identity(Calculate(pointer, reordered)) : ReferenceEquals(reordered, Calculate(pointer, reordered)), "edited part order is preserved");
             SpriteComposition shortened = IntroCinematicSpriteCompiler.Compile(visual[..^1], "shortened grid");

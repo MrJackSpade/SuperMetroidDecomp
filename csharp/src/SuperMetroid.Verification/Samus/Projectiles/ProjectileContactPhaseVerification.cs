@@ -48,17 +48,17 @@ internal static class ProjectileContactPhaseVerification
 
         // Original CPU trace: beta first, inert projectile contact afterward, timers last.
         // Include subpositions: a standing floor collision snaps the fraction to FFFF.
-        (uint X, uint Y, SamusPoseId Pose, ushort Timer, ushort Direction)[] expected =
+        ProjectileContactPhaseExpected[] expected =
         [
-            (0x00800000, 0x00ebffff, SamusPoseId.FacingRightNormalPose, 4, 0),
-            (0x00800000, 0x00ebffff, SamusPoseId.KnockbackRightPose, 3, 2),
-            (0x00818000, 0x00e6ffff, SamusPoseId.KnockbackRightPose, 2, 2),
+            new ProjectileContactPhaseExpected(0x00800000, 0x00ebffff, SamusPoseId.FacingRightNormalPose, 4, 0),
+            new ProjectileContactPhaseExpected(0x00800000, 0x00ebffff, SamusPoseId.KnockbackRightPose, 3, 2),
+            new ProjectileContactPhaseExpected(0x00818000, 0x00e6ffff, SamusPoseId.KnockbackRightPose, 2, 2),
         ];
         var failures = new List<string>();
         for (int frame = 0; frame < expected.Length; frame++)
         {
             runtime.StepFrame(0);
-            var actual = (samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue, samus.Pose,
+            var actual = new ProjectileContactPhaseExpected(samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue, samus.Pose,
                 samus.KnockbackTimer.RawValue, (ushort)samus.KnockbackDirection);
             Console.WriteLine($"CONTACT_FRAME {frame} x={samus.Kinematics.Position.X.RawValue:X8} y={samus.Kinematics.Position.Y.RawValue:X8} pose={(int)samus.Pose:X2} health={samus.Health} timer={samus.KnockbackTimer.RawValue} direction={samus.KnockbackDirection}");
             if (actual != expected[frame] || samus.Health != 79)

@@ -109,7 +109,7 @@ internal static class FullMovieReplayVerification
     /// its native checkpoint and failing at the first divergence.
     /// </summary>
     /// <returns>The game and the native WRAM after <paramref name="lastUpdate"/>, which must have a checkpoint.</returns>
-    internal static (SuperMetroidGame Game, NativeCheckpointMemory Memory, int UncheckpointedUpdates) ReplayConvertedMovie(
+    internal static ReplayConvertedMovieResult ReplayConvertedMovie(
         ReplayMovie movie, NativeMovieCheckpoints checkpoints, int? traceFromUpdate, int lastUpdate,
         MovieUpdateChecks? movieChecks = null, MovieReplayVideo? video = null)
     {
@@ -286,7 +286,7 @@ internal static class FullMovieReplayVerification
         }
         if (lastUpdate != 0 && updates[lastUpdate - 1].ExpectedRecord is null)
             throw new InvalidOperationException($"Update {lastUpdate} has no native checkpoint to stop at.");
-        return (game, memory, uncheckpointedUpdates);
+        return new ReplayConvertedMovieResult(game, memory, uncheckpointedUpdates);
     }
 
     /// <summary>Prints port and native state at a converted update to diagnose the first replay divergence.</summary>
@@ -328,22 +328,22 @@ internal static class FullMovieReplayVerification
         Console.WriteLine("  music port   " + game.AudioForVerification.MusicQueueForVerification());
         Console.WriteLine($"  music native {Word(memory, 0x063b) / 2:X}/{Word(memory, 0x0639) / 2:X} t={Word(memory, 0x063f):X} d=" +
             string.Join(",", Enumerable.Range(0, 8).Select(slot => Word(memory, 0x0629 + 2 * slot).ToString("X"))));
-        string Queues(Func<int, (byte, byte, byte)> read) => string.Join(" ",
-            Enumerable.Range(0, 3).Select(queue => read(queue)).Select(q => $"{q.Item1:X}/{q.Item2:X}/{q.Item3}"));
+        string Queues(Func<int, SoundQueueState> read) => string.Join(" ",
+            Enumerable.Range(0, 3).Select(queue => read(queue)).Select(q => $"{q.Start:X}/{q.Next:X}/{q.State}"));
         Console.WriteLine("  sfx port   " + Queues(queue =>
         {
             var q = game.AudioForVerification.SoundQueueForVerification(queue);
-            return (q.Start, q.Next, q.State);
+            return new SoundQueueState(q.Start, q.Next, q.State);
         }));
         Console.WriteLine("  sfx native " + Queues(queue =>
-            (memory[0x0643 + queue], memory[0x0646 + queue], memory[0x0649 + queue])));
+            new SoundQueueState(memory[0x0643 + queue], memory[0x0646 + queue], memory[0x0649 + queue])));
         if (game.RuntimeForVerification?.Enemies is { } traceEnemies)
         {
             // $1997 IDs, $1A4B X, $1A93 Y: one word per slot.
-            var portProjectiles = traceEnemies.Projectiles.EnemyProjectiles.Select((projectile, slot) => (projectile, slot))
-                .Where(entry => entry.projectile.IsActive)
-                .Select(entry => $"{entry.slot}:{(ushort)entry.projectile.Kind:X4}@{entry.projectile.Position.X.Whole:X}/{entry.projectile.Position.Y.Whole:X}" +
-                    $"#{entry.projectile.Animation?.GetType().Name}/{entry.projectile.InstructionTimer.RawValue:X}");
+            var portProjectiles = traceEnemies.Projectiles.EnemyProjectiles.Select((projectile, slot) => new PortProjectile(projectile, slot))
+                .Where(entry => entry.Projectile.IsActive)
+                .Select(entry => $"{entry.Slot}:{(ushort)entry.Projectile.Kind:X4}@{entry.Projectile.Position.X.Whole:X}/{entry.Projectile.Position.Y.Whole:X}" +
+                    $"#{entry.Projectile.Animation?.GetType().Name}/{entry.Projectile.InstructionTimer.RawValue:X}");
             var nativeProjectiles = Enumerable.Range(0, 18).Where(slot => Word(memory, 0x1997 + 2 * slot) != 0)
                 .Select(slot => $"{slot}:{Native(0x1997 + 2 * slot)}@{Word(memory, 0x1a4b + 2 * slot):X}/{Word(memory, 0x1a93 + 2 * slot):X}" +
                     $"#{Word(memory, 0x1b47 + 2 * slot):X4}/{Word(memory, 0x1b8f + 2 * slot):X}");

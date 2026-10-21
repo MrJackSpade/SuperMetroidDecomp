@@ -19,7 +19,7 @@ public static class CeresDoorVisualFiles
     /// <param name="bus">Supported-cartridge address space containing the Ceres door tile, palette, and Mode 7 frame sources.</param>
     /// <param name="directory">Destination directory receiving the tile PNG and color JSON; existing files are replaced.</param>
     /// <returns>Uppercase SHA-256 digests of the exact tile and color files written.</returns>
-    public static (string TileHash, string ColorHash) Extract(ISnesAddressSpace bus,
+    public static CeresDoorVisualHashes Extract(ISnesAddressSpace bus,
         string directory)
     {
         Ensure.NotNull(bus);
@@ -62,7 +62,7 @@ public static class CeresDoorVisualFiles
         Directory.CreateDirectory(directory);
         File.WriteAllBytes(Path.Combine(directory, CeresDoorVisualFormat.TilesFileName), tilePng);
         File.WriteAllBytes(Path.Combine(directory, CeresDoorVisualFormat.ColorsFileName), paletteJson);
-        return (Convert.ToHexString(SHA256.HashData(tilePng)),
+        return new CeresDoorVisualHashes(Convert.ToHexString(SHA256.HashData(tilePng)),
             Convert.ToHexString(SHA256.HashData(paletteJson)));
     }
 

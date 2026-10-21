@@ -135,21 +135,21 @@ internal static class PostCreditsCharacterArtworkVerification
         }
         foreach ((string fileName, ushort hours, EndingCreditsPhase target) in new[]
         {
-            (EndingObjectArtworkFormat.WaitingSamusFileName, (ushort)3,
+            new VerifyPostCreditsCharacterArtworkCase(EndingObjectArtworkFormat.WaitingSamusFileName, 3,
                 EndingCreditsPhase.PostCreditsWaitingBackdrop),
-            (EndingObjectArtworkFormat.ShootingScreenFileName, (ushort)3,
+            new VerifyPostCreditsCharacterArtworkCase(EndingObjectArtworkFormat.ShootingScreenFileName, 3,
                 EndingCreditsPhase.PostCreditsShot),
-            (EndingObjectArtworkFormat.SuitlessSamusFileName, (ushort)2,
+            new VerifyPostCreditsCharacterArtworkCase(EndingObjectArtworkFormat.SuitlessSamusFileName, 2,
                 EndingCreditsPhase.PostCreditsReward),
-            (EndingObjectArtworkFormat.WaitingTilemapFileName, (ushort)3,
+            new VerifyPostCreditsCharacterArtworkCase(EndingObjectArtworkFormat.WaitingTilemapFileName, 3,
                 EndingCreditsPhase.PostCreditsWaitingBackdrop),
-            (EndingObjectArtworkFormat.PostCreditsFragmentAFileName, (ushort)3,
+            new VerifyPostCreditsCharacterArtworkCase(EndingObjectArtworkFormat.PostCreditsFragmentAFileName, 3,
                 EndingCreditsPhase.PostCreditsReward),
-            (EndingObjectArtworkFormat.PostCreditsFragmentBFileName, (ushort)3,
+            new VerifyPostCreditsCharacterArtworkCase(EndingObjectArtworkFormat.PostCreditsFragmentBFileName, 3,
                 EndingCreditsPhase.PostCreditsReward),
-            (EndingObjectArtworkFormat.PostShotLogoTileFileName, (ushort)3,
+            new VerifyPostCreditsCharacterArtworkCase(EndingObjectArtworkFormat.PostShotLogoTileFileName, 3,
                 EndingCreditsPhase.PostCreditsShot),
-            (EndingObjectArtworkFormat.PostShotLogoMapFileName, (ushort)3,
+            new VerifyPostCreditsCharacterArtworkCase(EndingObjectArtworkFormat.PostShotLogoMapFileName, 3,
                 EndingCreditsPhase.PostCreditsShot),
         })
         {

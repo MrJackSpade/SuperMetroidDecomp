@@ -161,7 +161,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
 
         // Seeds the independent native initial CGRAM image and Ridley reveal state using
         // raw $A6:A478 palette words and the terminated $A6:A4D6 pointer table.
-        (SnesCgram, RidleyEnemyState) CreateReference()
+        CreateReferenceResult CreateReference()
         {
             var cgram = new SnesCgram();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
@@ -173,7 +173,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
                 cgram.SetColor(113 + color, new Bgr555(0, 0, 0));
                 cgram.SetColor(241 + color, new Bgr555(0, 0, 0));
             }
-            return (cgram, new RidleyEnemyState { Function = RidleyAiFunction.WaitBeforeLiftoff });
+            return new CreateReferenceResult(cgram, new RidleyEnemyState { Function = RidleyAiFunction.WaitBeforeLiftoff });
         }
 
         // Applies one native reveal update, including the three-call timer and terminating pointer.
@@ -200,7 +200,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1));
 
         // Initializes the production Norfair Ridley actor with selected artwork and seeded CGRAM.
-        static (RoomEnemySystem, SnesCgram, RoomEnemySlot, RidleyEnemyState) Create(
+        static EnemyTileArtworkNorfairRidleyColorsCreateResult Create(
             ISnesAddressSpace source, InstalledEnemyArtwork artwork)
         {
             var enemy = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
@@ -216,7 +216,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
                 throw new InvalidOperationException("Norfair Ridley initialization did not publish its state.");
             state.Function = RidleyAiFunction.WaitBeforeLiftoff;
             state.FunctionTimer = NativeCountdown.Start(0);
-            return (enemy, cgram, slot, state);
+            return new EnemyTileArtworkNorfairRidleyColorsCreateResult(enemy, cgram, slot, state);
         }
 
         // Executes one production arena-reveal callback.

@@ -867,9 +867,9 @@ internal static class CollectiblesVerification
             AssertTrue(line[i].Left.X == line[i - 1].Left.X + 8 && line[i].Right.X == line[i - 1].Right.X - 8,
                 "stage five narrows eight pixels per side every update");
         ushort[] center = SuitPickupBeamWindowBuilder.Build(line[0]);
-        AssertTrue(center.Select((word, y) => (word, y)).All(row => row.y == 128
-            ? row.word == SnesLittleEndian.Word(7, 240)
-            : row.word == SamusSpecialSequenceRomData.SuitPickup.EmptyWindowEndpoints),
+        AssertTrue(center.Select((word, y) => new CollectiblesVerifySuitPickupBeamSequenceCase(word, y)).All(row => row.Y == 128
+            ? row.Word == SnesLittleEndian.Word(7, 240)
+            : row.Word == SamusSpecialSequenceRomData.SuitPickup.EmptyWindowEndpoints),
             "stage five lights only the center scanline");
 
         // Color: unchanged until the curved stage, white by the reveal, then toward Varia orange.
@@ -878,11 +878,11 @@ internal static class CollectiblesVerification
         AssertTrue(flashes.Take(firstCurved).All(flash => flash with { Beam = default } == flashes[0] with { Beam = default }),
             "fixed color holds until the curved stage");
         SamusSuitPickupFlash white = flashes[firstClosing - 1];
-        AssertEqual((SamusPaletteRomData.SuitPickup.WhiteRed, SamusPaletteRomData.SuitPickup.WhiteGreen, SamusPaletteRomData.SuitPickup.WhiteBlue),
-            (white.Color.Red, white.Color.Green, white.Color.Blue), "the curved stage brightens the fixed color to white");
+        AssertEqual(new VerifySuitPickupBeamSequenceCase(SamusPaletteRomData.SuitPickup.WhiteRed, SamusPaletteRomData.SuitPickup.WhiteGreen, SamusPaletteRomData.SuitPickup.WhiteBlue),
+            new VerifySuitPickupBeamSequenceCase(white.Color.Red, white.Color.Green, white.Color.Blue), "the curved stage brightens the fixed color to white");
         SamusSuitPickupFlash last = flashes[^1];
-        AssertEqual((SamusPaletteRomData.SuitPickup.WhiteRed, SamusPaletteRomData.SuitPickup.VariaOrangeGreen, SamusPaletteRomData.SuitPickup.VariaOrangeBlue),
-            (last.Color.Red, last.Color.Green, last.Color.Blue), "the shrinking Varia beam settles on orange");
+        AssertEqual(new VerifySuitPickupBeamSequenceCase(SamusPaletteRomData.SuitPickup.WhiteRed, SamusPaletteRomData.SuitPickup.VariaOrangeGreen, SamusPaletteRomData.SuitPickup.VariaOrangeBlue),
+            new VerifySuitPickupBeamSequenceCase(last.Color.Red, last.Color.Green, last.Color.Blue), "the shrinking Varia beam settles on orange");
         for (int i = firstClosing; i < flashes.Count; i++)
             AssertTrue(flashes[i].Color.Green <= flashes[i - 1].Color.Green && flashes[i].Color.Blue <= flashes[i - 1].Color.Blue,
                 "the shrinking beam's color only steps down");

@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Rooms.Plms;
@@ -14,7 +15,7 @@ internal static class LookupMotherBrainGlassStockVerification
     internal static void VerifyMotherBrainGlassStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmMotherBrainGlassVisualCatalog installed)
     {
-        (ushort Pointer, string Id)[] frames = [(0x9717,"initial"),(0x971d,"pane-damage-1"),(0x9731,"pane-damage-2"),(0x9745,"pane-transition"),(0x974f,"shifted-pane-1"),(0x9769,"shifted-pane-2"),(0x9781,"shifted-pane-3"),(0x978f,"shatter-1"),(0x97b7,"shatter-2"),(0x97e7,"shatter-3"),(0x9817,"cleared")];
+        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9717,"initial"),new LookupEscapeGateStockFrame(0x971d,"pane-damage-1"),new LookupEscapeGateStockFrame(0x9731,"pane-damage-2"),new LookupEscapeGateStockFrame(0x9745,"pane-transition"),new LookupEscapeGateStockFrame(0x974f,"shifted-pane-1"),new LookupEscapeGateStockFrame(0x9769,"shifted-pane-2"),new LookupEscapeGateStockFrame(0x9781,"shifted-pane-3"),new LookupEscapeGateStockFrame(0x978f,"shatter-1"),new LookupEscapeGateStockFrame(0x97b7,"shatter-2"),new LookupEscapeGateStockFrame(0x97e7,"shatter-3"),new LookupEscapeGateStockFrame(0x9817,"cleared")];
         var native = new Dictionary<ushort, ushort[][]>();
         foreach (var frame in frames)
         {

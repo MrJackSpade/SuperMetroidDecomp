@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Sparks;
 
 namespace SuperMetroid.Verification.Enemies.Sparks;
@@ -13,18 +14,18 @@ internal static class SparkNativeListAddresses
     internal const byte Bank = 0xa8;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (SparkProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<SparkProgram>[] Entries =
     [
-        (SparkProgram.FlickerOn, 0xe5a7),
-        (SparkProgram.Active, 0xe5d1),
-        (SparkProgram.FlickerOut, 0xe5e5),
-        (SparkProgram.Emitter, 0xe609),
+        new NativeProgramEntry<SparkProgram>(SparkProgram.FlickerOn, 0xe5a7),
+        new NativeProgramEntry<SparkProgram>(SparkProgram.Active, 0xe5d1),
+        new NativeProgramEntry<SparkProgram>(SparkProgram.FlickerOut, 0xe5e5),
+        new NativeProgramEntry<SparkProgram>(SparkProgram.Emitter, 0xe609),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (SparkCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, SparkNativeListAddressesInstruction> Instructions = new()
     {
-        [0xe61d] = (SparkCueKind.BecomeIntangible, ""),
-        [0xe62a] = (SparkCueKind.BecomeTangible, ""),
+        [0xe61d] = new SparkNativeListAddressesInstruction(SparkCueKind.BecomeIntangible, ""),
+        [0xe62a] = new SparkNativeListAddressesInstruction(SparkCueKind.BecomeTangible, ""),
     };
 }

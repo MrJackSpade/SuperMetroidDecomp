@@ -59,8 +59,8 @@ internal static class LookupFxPairColorsVerification
             for (int color = 0; color < 2; color++)
             {
                 var owner = new RoomFxPairColor((RoomFxPaletteBlend)id, Bgr555.FromWord(checked(ReadVerificationWord(rom, 0x89aa02 + id + color * 2))), (color == 0) ? RoomFxPairMember.Primary : RoomFxPairMember.Secondary);
-                foreach (var field in new (Func<RoomFxPairColor, int?> Read, int Shift)[]
-                         { (pair => pair.redOverride, 0), (pair => pair.greenOverride, 5), (pair => pair.blueOverride, 10) })
+                foreach (var field in new VerifyFxPairStorageAndEditsCase[]
+                         { new VerifyFxPairStorageAndEditsCase(pair => pair.redOverride, 0), new VerifyFxPairStorageAndEditsCase(pair => pair.greenOverride, 5), new VerifyFxPairStorageAndEditsCase(pair => pair.blueOverride, 10) })
                 {
                     bool stored = (OriginalFxPairCalculatedMask(id, color) & (31 << field.Shift)) == 0;
                     AssertEqual(stored, field.Read(owner) is not null, "Stock derived component is not stored");

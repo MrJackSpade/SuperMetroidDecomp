@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -127,7 +128,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
             [segment, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
         for (int step = 0; step < steps; step++)
         {
-            (ushort X, ushort Y) before = (segment.Position.X.Whole, segment.Position.Y.Whole);
+            MotherBrainRinkaDoorSpawnExpected before = new MotherBrainRinkaDoorSpawnExpected(segment.Position.X.Whole, segment.Position.Y.Whole);
             segment.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(arguments);
             moved |= segment.Position.X.Whole != before.X || segment.Position.Y.Whole != before.Y;

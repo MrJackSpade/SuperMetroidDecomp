@@ -265,7 +265,7 @@ public static class SpcAudioAssetExtractor
     {
         List<short> samples = [];
         HashSet<ushort> blockAddresses = [];
-        Dictionary<(int Old, int Older), int> loopHistories = [];
+        Dictionary<BrrHistory, int> loopHistories = [];
         int address = start;
         int old = 0;
         int older = 0;
@@ -292,7 +292,7 @@ public static class SpcAudioAssetExtractor
                 // A loop is repeatable only when it returns to the same predictor
                 // history, not merely the same BRR address. Filter zero discards both
                 // history words, so its entry state can be normalized immediately.
-                var history = filter == 0 ? (0, 0) : (old, older);
+                var history = filter == 0 ? new BrrHistory(0, 0) : new BrrHistory(old, older);
                 if (followingLoop && loopHistories.TryGetValue(history, out int repeatAt))
                 {
                     pcm = [.. samples];

@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Corpses;
 
 namespace SuperMetroid.Verification.Enemies.Corpses;
@@ -13,25 +14,25 @@ internal static class DeadTourianNativeListAddresses
     internal const byte Bank = 0xa9;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (DeadTourianProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<DeadTourianProgram>[] Entries =
     [
-        (DeadTourianProgram.SidehopperHopping, 0xecac),
-        (DeadTourianProgram.SidehopperIdle, 0xece3),
-        (DeadTourianProgram.SidehopperCorpse, 0xece9),
-        (DeadTourianProgram.SidehopperInitiallyDead, 0xecef),
-        (DeadTourianProgram.ZoomerCorpse0, 0xecf5),
-        (DeadTourianProgram.ZoomerCorpse1, 0xecfb),
-        (DeadTourianProgram.ZoomerCorpse2, 0xed01),
-        (DeadTourianProgram.RipperCorpse0, 0xed07),
-        (DeadTourianProgram.RipperCorpse1, 0xed0d),
-        (DeadTourianProgram.SkreeCorpse0, 0xed13),
-        (DeadTourianProgram.SkreeCorpse1, 0xed19),
-        (DeadTourianProgram.SkreeCorpse2, 0xed1f),
+        new NativeProgramEntry<DeadTourianProgram>(DeadTourianProgram.SidehopperHopping, 0xecac),
+        new NativeProgramEntry<DeadTourianProgram>(DeadTourianProgram.SidehopperIdle, 0xece3),
+        new NativeProgramEntry<DeadTourianProgram>(DeadTourianProgram.SidehopperCorpse, 0xece9),
+        new NativeProgramEntry<DeadTourianProgram>(DeadTourianProgram.SidehopperInitiallyDead, 0xecef),
+        new NativeProgramEntry<DeadTourianProgram>(DeadTourianProgram.ZoomerCorpse0, 0xecf5),
+        new NativeProgramEntry<DeadTourianProgram>(DeadTourianProgram.ZoomerCorpse1, 0xecfb),
+        new NativeProgramEntry<DeadTourianProgram>(DeadTourianProgram.ZoomerCorpse2, 0xed01),
+        new NativeProgramEntry<DeadTourianProgram>(DeadTourianProgram.RipperCorpse0, 0xed07),
+        new NativeProgramEntry<DeadTourianProgram>(DeadTourianProgram.RipperCorpse1, 0xed0d),
+        new NativeProgramEntry<DeadTourianProgram>(DeadTourianProgram.SkreeCorpse0, 0xed13),
+        new NativeProgramEntry<DeadTourianProgram>(DeadTourianProgram.SkreeCorpse1, 0xed19),
+        new NativeProgramEntry<DeadTourianProgram>(DeadTourianProgram.SkreeCorpse2, 0xed1f),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (DeadTourianCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, DeadTourianNativeListAddressesInstruction> Instructions = new()
     {
-        [0xecd0] = (DeadTourianCueKind.EndHop, ""),
+        [0xecd0] = new DeadTourianNativeListAddressesInstruction(DeadTourianCueKind.EndHop, ""),
     };
 }

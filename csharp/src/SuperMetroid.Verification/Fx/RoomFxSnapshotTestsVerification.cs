@@ -23,13 +23,13 @@ internal static class RoomFxSnapshotTestsVerification
         int samples = 0;
         var configurations = new[]
         {
-            (RoomFxType.Water, LayerBlendingConfiguration.WaterSubtractive),
-            (RoomFxType.Water, LayerBlendingConfiguration.WaterfallSubtractive),
-            (RoomFxType.Water, LayerBlendingConfiguration.LiquidOrFogAdditive),
-            (RoomFxType.Lava, LayerBlendingConfiguration.LavaAcidAdditive),
-            (RoomFxType.Acid, LayerBlendingConfiguration.LavaAcidAdditive),
-            (RoomFxType.Rain, LayerBlendingConfiguration.Rain),
-            (RoomFxType.Fog, LayerBlendingConfiguration.FogAdditive),
+            new Configuration(RoomFxType.Water, LayerBlendingConfiguration.WaterSubtractive),
+            new Configuration(RoomFxType.Water, LayerBlendingConfiguration.WaterfallSubtractive),
+            new Configuration(RoomFxType.Water, LayerBlendingConfiguration.LiquidOrFogAdditive),
+            new Configuration(RoomFxType.Lava, LayerBlendingConfiguration.LavaAcidAdditive),
+            new Configuration(RoomFxType.Acid, LayerBlendingConfiguration.LavaAcidAdditive),
+            new Configuration(RoomFxType.Rain, LayerBlendingConfiguration.Rain),
+            new Configuration(RoomFxType.Fog, LayerBlendingConfiguration.FogAdditive),
         };
         // The BG3 plane is the one the oracle reads from VRAM (#1348).
         Layer3Plane plane = Layer3PlaneFixtures.FromVram(vram);

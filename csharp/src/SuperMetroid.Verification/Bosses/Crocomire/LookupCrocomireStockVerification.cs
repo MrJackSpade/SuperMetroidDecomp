@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Rooms.Plms;
@@ -14,8 +15,8 @@ internal static class LookupCrocomireStockVerification
     internal static void VerifyCrocomireStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmCrocomireVisualCatalog installed)
     {
-        (ushort Pointer, string Id)[] frames = [(0x9b5b,"clear-bridge"), (0x9b73,"crumble-bridge-block"),
-            (0x9b79,"clear-bridge-block"), (0x9b7f,"clear-invisible-wall"), (0x9bbb,"create-invisible-wall")];
+        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9b5b,"clear-bridge"), new LookupEscapeGateStockFrame(0x9b73,"crumble-bridge-block"),
+            new LookupEscapeGateStockFrame(0x9b79,"clear-bridge-block"), new LookupEscapeGateStockFrame(0x9b7f,"clear-invisible-wall"), new LookupEscapeGateStockFrame(0x9bbb,"create-invisible-wall")];
         var native = new Dictionary<ushort, ushort[]>();
         var widths = new Dictionary<ushort, int>();
         foreach (var frame in frames)

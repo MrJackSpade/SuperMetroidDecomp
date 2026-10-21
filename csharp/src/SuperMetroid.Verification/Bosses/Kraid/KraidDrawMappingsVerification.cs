@@ -13,12 +13,12 @@ internal static class KraidDrawMappingsVerification
     {
         // Independent native header/list identities from bank_84.asm B7A3..B7C1.
         // B79F is the unused background-one setter, outside the managed owner set.
-        (ushort Header, ushort Program)[] owners =
+        KraidDrawMappingsOwner[] owners =
         [
-            (0xb7a3, 0xab6d), (0xb7a7, 0xab8b),
-            (0xb7ab, 0xab7f), (0xb7af, 0xab9d),
-            (0xb7b3, 0xab91), (0xb7b7, 0xaba3),
-            (0xb7bb, 0xabdd), (0xb7bf, 0xaba9),
+            new KraidDrawMappingsOwner(0xb7a3, 0xab6d), new KraidDrawMappingsOwner(0xb7a7, 0xab8b),
+            new KraidDrawMappingsOwner(0xb7ab, 0xab7f), new KraidDrawMappingsOwner(0xb7af, 0xab9d),
+            new KraidDrawMappingsOwner(0xb7b3, 0xab91), new KraidDrawMappingsOwner(0xb7b7, 0xaba3),
+            new KraidDrawMappingsOwner(0xb7bb, 0xabdd), new KraidDrawMappingsOwner(0xb7bf, 0xaba9),
         ];
         foreach (var owner in owners)
             AssertEqual(owner.Program, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | (owner.Header + 2)),
@@ -31,13 +31,13 @@ internal static class KraidDrawMappingsVerification
     }
 
     /// <summary>Independent native record positions, run lengths, and visual names for Kraid's ten draw lists.</summary>
-    private static (ushort Pointer, int Count, string Id)[] KraidDrawOracle() =>
+    private static Definition[] KraidDrawOracle() =>
     [
-        (0x9367, 1, "crumble-first"), (0x936d, 1, "crumble-second"),
-        (0x9373, 1, "crumble-third"), (0x9379, 1, "ceiling-background-one"),
-        (0x937f, 1, "ceiling-background-two"), (0x9385, 1, "ceiling-background-three"),
-        (0x9391, 1, "spike-first"), (0x9397, 1, "spike-second"),
-        (0x939d, 15, "clear-ceiling"), (0x93bf, 22, "clear-spikes"),
+        new Definition(0x9367, 1, "crumble-first"), new Definition(0x936d, 1, "crumble-second"),
+        new Definition(0x9373, 1, "crumble-third"), new Definition(0x9379, 1, "ceiling-background-one"),
+        new Definition(0x937f, 1, "ceiling-background-two"), new Definition(0x9385, 1, "ceiling-background-three"),
+        new Definition(0x9391, 1, "spike-first"), new Definition(0x9397, 1, "spike-second"),
+        new Definition(0x939d, 15, "clear-ceiling"), new Definition(0x93bf, 22, "clear-spikes"),
     ];
 
     /// <summary>Checks ordered draw addresses, exact pointer membership, and ordinal bounds.</summary>
@@ -107,7 +107,7 @@ internal static class KraidDrawMappingsVerification
 
     /// <summary>Compares physical and visual level words in the compiled and exported forms of selected records.</summary>
     private static void VerifyKraidDrawWordSet(SuperMetroidAddressSpace rom,
-        IEnumerable<(ushort Pointer, int Count, string Id)> definitions)
+        IEnumerable<Definition> definitions)
     {
         var exported = KraidRoomPlmDrawDefinitions.All.ToDictionary(draw => draw.Pointer);
         foreach (var expected in definitions)

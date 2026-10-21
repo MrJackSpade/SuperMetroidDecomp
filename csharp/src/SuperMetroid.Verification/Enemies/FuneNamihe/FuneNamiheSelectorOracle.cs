@@ -22,12 +22,12 @@ internal static class FuneNamiheSelectorOracle
 
     /// <summary>Decodes a selector cursor into its species, activity and facing, rejecting any cursor outside the table.</summary>
     /// <param name="cursor">The selector cursor.</param>
-    internal static (bool Namihe, bool Active, bool Right) Decode(ushort cursor)
+    internal static DecodeResult Decode(ushort cursor)
     {
         int offset = cursor - (FuneIdleLeftCursor - ActiveCursorDelta);
         if ((uint)offset >= 16 || (offset & 1) != 0)
             throw new InvalidDataException($"Fune/Namihe instruction selector $A8:{cursor:X4} is not authored.");
-        return (offset >= 8, (offset & ActiveCursorDelta) == 0, (offset & FacingRightCursorDelta) != 0);
+        return new DecodeResult(offset >= 8, (offset & ActiveCursorDelta) == 0, (offset & FacingRightCursorDelta) != 0);
     }
 
     /// <summary>The animation the selector at <paramref name="cursor"/> names.</summary>

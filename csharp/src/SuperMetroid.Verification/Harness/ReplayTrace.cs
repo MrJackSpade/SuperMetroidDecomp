@@ -114,7 +114,7 @@ internal sealed class ReplayTrace : IDisposable
         }
         file.Position = 0;
         return new ReplayTrace(root, manifest.SourceCheckpointsSha256,
-            new CompactCheckpointRecords(file, layout, (manifest.RecordCount, manifest.InitialRecord), initial));
+            new CompactCheckpointRecords(file, layout, new Count(manifest.RecordCount, manifest.InitialRecord), initial));
     }
 
     /// <summary>Reads and deserializes a compact trace's identity manifest.</summary>

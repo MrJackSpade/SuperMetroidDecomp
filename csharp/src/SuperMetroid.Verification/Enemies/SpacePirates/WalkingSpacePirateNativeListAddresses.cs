@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.SpacePirates;
 
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
@@ -13,18 +14,18 @@ internal static class WalkingSpacePirateNativeListAddresses
     internal const byte Bank = 0xb2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (WalkingSpacePirateProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<WalkingSpacePirateProgram>[] Entries =
     [
-        (WalkingSpacePirateProgram.FlinchFacingLeft, 0xfb4c),
-        (WalkingSpacePirateProgram.FlinchFacingRight, 0xfb58),
-        (WalkingSpacePirateProgram.WalkingLeft, 0xfb64),
-        (WalkingSpacePirateProgram.WalkingLeftLoop, 0xfb68),
-        (WalkingSpacePirateProgram.FireLasersLeft, 0xfb8c),
-        (WalkingSpacePirateProgram.LookingFacingLeft, 0xfbc6),
-        (WalkingSpacePirateProgram.WalkingRight, 0xfbe6),
-        (WalkingSpacePirateProgram.WalkingRightLoop, 0xfbea),
-        (WalkingSpacePirateProgram.FireLasersRight, 0xfc0e),
-        (WalkingSpacePirateProgram.LookingFacingRight, 0xfc48),
+        new NativeProgramEntry<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.FlinchFacingLeft, 0xfb4c),
+        new NativeProgramEntry<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.FlinchFacingRight, 0xfb58),
+        new NativeProgramEntry<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.WalkingLeft, 0xfb64),
+        new NativeProgramEntry<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.WalkingLeftLoop, 0xfb68),
+        new NativeProgramEntry<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.FireLasersLeft, 0xfb8c),
+        new NativeProgramEntry<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.LookingFacingLeft, 0xfbc6),
+        new NativeProgramEntry<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.WalkingRight, 0xfbe6),
+        new NativeProgramEntry<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.WalkingRightLoop, 0xfbea),
+        new NativeProgramEntry<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.FireLasersRight, 0xfc0e),
+        new NativeProgramEntry<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.LookingFacingRight, 0xfc48),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

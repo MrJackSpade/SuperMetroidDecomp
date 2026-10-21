@@ -180,22 +180,22 @@ internal static class GameSaveJsonVerification
         AreaMapPresentationCatalog presentation = RetailPresentationFixture();
         const ushort AllBits = ushort.MaxValue;
         const ushort SignBit = 1 << 15;
-        (ushort Slot, ushort Complement, int Expected)[] cases =
+        GameSaveJsonCase[] cases =
         [
-            (0, AllBits, 0), // canonical slot A
-            (1, AllBits ^ 1, 1), // canonical slot B
-            (2, AllBits ^ 2, 2), // canonical slot C
-            (1, 0, 1), // issue #1340: a zero complement is accepted
-            (2, 0, 2),
-            (1, 2, 1), // no bits shared with the slot
-            (2, SignBit | 1, 2),
-            (0, 0, 0),
-            (1, 1, 0), // a shared bit rejects
-            (2, AllBits, 0),
-            (3, 0, 0), // CMP #$0003 / BPL rejects
-            (SignBit - 1, 0, 0),
-            (SignBit | 1, 0, 0), // CMP #$0000 / BMI rejects negative words
-            (AllBits, 0, 0),
+            new GameSaveJsonCase(0, AllBits, 0), // canonical slot A
+            new GameSaveJsonCase(1, AllBits ^ 1, 1), // canonical slot B
+            new GameSaveJsonCase(2, AllBits ^ 2, 2), // canonical slot C
+            new GameSaveJsonCase(1, 0, 1), // issue #1340: a zero complement is accepted
+            new GameSaveJsonCase(2, 0, 2),
+            new GameSaveJsonCase(1, 2, 1), // no bits shared with the slot
+            new GameSaveJsonCase(2, SignBit | 1, 2),
+            new GameSaveJsonCase(0, 0, 0),
+            new GameSaveJsonCase(1, 1, 0), // a shared bit rejects
+            new GameSaveJsonCase(2, AllBits, 0),
+            new GameSaveJsonCase(3, 0, 0), // CMP #$0003 / BPL rejects
+            new GameSaveJsonCase(SignBit - 1, 0, 0),
+            new GameSaveJsonCase(SignBit | 1, 0, 0), // CMP #$0000 / BMI rejects negative words
+            new GameSaveJsonCase(AllBits, 0, 0),
         ];
         // Every consumer only reads the selected-slot pair, so one imported image is
         // rewritten per case.

@@ -20,8 +20,8 @@ internal static class NorfairGlowVerification
         ushort[] orange = [0x09fd, 0x0e3d, 0x165e, 0x1a9e, 0x1ebe, 0x22fe, 0x2b1f, 0x2f5f];
         ushort[] red = [0x09da, 0x0dda, 0x0dfa, 0x11fa, 0x161a, 0x1a1a, 0x1a3a, 0x225a];
         // Definition / CGRAM byte destination: $F08E, $F1D1, $F2D9, $F3E1.
-        (ushort Definition, int Destination)[] streams =
-            [(0xf785, 0x6a), (0xf789, 0x82), (0xf78d, 0xa2), (0xf791, 0xc2)];
+        Stream[] streams =
+            [new Stream(0xf785, 0x6a), new Stream(0xf789, 0x82), new Stream(0xf78d, 0xa2), new Stream(0xf791, 0xc2)];
         foreach (var stream in streams)
         {
             var fxSession = new PaletteFxSessionState();

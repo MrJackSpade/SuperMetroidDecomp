@@ -18,15 +18,15 @@ internal static class GameOptionsCursorPhasesVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "Options cursor oracle revision");
-        (GameOptionsPhase Phase, int Native)[] phases =
+        GameOptionsCursorPhasesPhase[] phases =
         [
-            (GameOptionsPhase.FadeIn, 2), (GameOptionsPhase.Main, 3),
-            (GameOptionsPhase.DissolveOut, 5), (GameOptionsPhase.DissolveIn, 6),
-            (GameOptionsPhase.ControllerSettings, 7), (GameOptionsPhase.SpecialSettings, 8),
-            (GameOptionsPhase.ScrollControllerDown, 9), (GameOptionsPhase.ScrollControllerUp, 10),
-            (GameOptionsPhase.FadeOutToFileSelect, 11), (GameOptionsPhase.FadeOutToIntro, 12),
-            (GameOptionsPhase.StartGame, 4),
-            (GameOptionsPhase.FinishFadingOut, 0), (GameOptionsPhase.LoadingMenu, 1),
+            new GameOptionsCursorPhasesPhase(GameOptionsPhase.FadeIn, 2), new GameOptionsCursorPhasesPhase(GameOptionsPhase.Main, 3),
+            new GameOptionsCursorPhasesPhase(GameOptionsPhase.DissolveOut, 5), new GameOptionsCursorPhasesPhase(GameOptionsPhase.DissolveIn, 6),
+            new GameOptionsCursorPhasesPhase(GameOptionsPhase.ControllerSettings, 7), new GameOptionsCursorPhasesPhase(GameOptionsPhase.SpecialSettings, 8),
+            new GameOptionsCursorPhasesPhase(GameOptionsPhase.ScrollControllerDown, 9), new GameOptionsCursorPhasesPhase(GameOptionsPhase.ScrollControllerUp, 10),
+            new GameOptionsCursorPhasesPhase(GameOptionsPhase.FadeOutToFileSelect, 11), new GameOptionsCursorPhasesPhase(GameOptionsPhase.FadeOutToIntro, 12),
+            new GameOptionsCursorPhasesPhase(GameOptionsPhase.StartGame, 4),
+            new GameOptionsCursorPhasesPhase(GameOptionsPhase.FinishFadingOut, 0), new GameOptionsCursorPhasesPhase(GameOptionsPhase.LoadingMenu, 1),
         ];
         foreach (var phase in phases)
         {

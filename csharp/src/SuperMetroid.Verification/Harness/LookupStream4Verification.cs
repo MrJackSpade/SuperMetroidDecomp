@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Fx.Artwork;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
@@ -91,7 +92,7 @@ internal static class LookupStream4Verification
         ushort nativeProgram = rom.ReadCartridgeWord(0x8de1ca);
         AssertEqual(nativeProgram, ZebesExplosionForegroundPaletteFxColorDefinitions.ProgramStart, "Native foreground entry");
         int destination = rom.ReadCartridgeWord((0x8d0000 | nativeProgram + 2)) / 2;
-        var rows = new List<(ushort Duration, ushort[] Colors)>();
+        var rows = new List<LookupStream4Row>();
         int cursor = nativeProgram + 4;
         while (rom.ReadCartridgeWord((0x8d0000 | cursor)) < 0x8000)
         {
@@ -106,7 +107,7 @@ internal static class LookupStream4Verification
             }
             AssertEqual((ushort)PaletteFxInstruction.Wait, rom.ReadCartridgeWord((0x8d0000 | cursor)), "Native foreground wait");
             cursor += 2;
-            rows.Add((duration, colors.ToArray()));
+            rows.Add(new LookupStream4Row(duration, colors.ToArray()));
         }
         AssertEqual((ushort)PaletteFxInstruction.Delete, rom.ReadCartridgeWord((0x8d0000 | cursor)), "Native foreground delete");
         AssertEqual(cursor, (int)ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.DeleteInstructionPointer, "Derived foreground terminal address");
@@ -205,7 +206,7 @@ internal static class LookupStream4Verification
             ushort nativeProgram = rom.ReadCartridgeWord((0x8d0000 | definition.DefinitionPointer + 2));
             AssertEqual(nativeProgram, definition.ProgramStart, "Native ambient definition selects calculated program");
             int destination = rom.ReadCartridgeWord((0x8d0000 | nativeProgram + 2)) / 2;
-            var nativeRows = new List<(ushort Duration, ushort[] Colors)>();
+            var nativeRows = new List<LookupStream4Row>();
             int cursor = nativeProgram + 4;
             while (rom.ReadCartridgeWord((0x8d0000 | cursor)) < 0x8000)
             {
@@ -219,7 +220,7 @@ internal static class LookupStream4Verification
                 }
                 AssertEqual((ushort)PaletteFxInstruction.Wait, rom.ReadCartridgeWord((0x8d0000 | cursor)), "Native ambient record wait");
                 cursor += 2;
-                nativeRows.Add((duration, colors.ToArray()));
+                nativeRows.Add(new LookupStream4Row(duration, colors.ToArray()));
             }
             AssertEqual((ushort)PaletteFxInstruction.Goto, rom.ReadCartridgeWord((0x8d0000 | cursor)), "Native ambient terminal loop");
             AssertEqual((ushort)(nativeProgram + 4), rom.ReadCartridgeWord((0x8d0000 | cursor + 2)), "Native ambient loop target");
@@ -359,13 +360,13 @@ internal static class LookupStream4Verification
         AssertTrue(native.SequenceEqual(EndingFontAtlas.FromPlanarBytes(native).Transfer.Span), "legacy native import uses same calculated representation");
         AssertEqual((ushort)0x4F, EndingTextDefinitions.CompileGlyph(' ', EndingTextStyle.ResultSmall), "native small text space selects blank tile4F");
         AssertEqual((ushort)0x7F, EndingTextDefinitions.CompileGlyph(' ', EndingTextStyle.CopyrightLarge), "native large text space selects blank tile7F");
-        var largeDeviations = new HashSet<(int Tile, int X, int Y)>
+        var largeDeviations = new HashSet<LargeDeviation>
         {
-            (0x21,5,2),(0x21,6,3),(0x21,7,4),(0x21,7,7),(0x21,7,8),(0x21,7,13),(0x21,6,14),
-            (0x23,6,3),(0x23,7,5),(0x23,7,11),(0x23,6,13),(0x23,5,14),
-            (0x26,4,6),(0x26,4,10),(0x29,0,13),(0x29,7,13),(0x29,1,14),(0x29,6,14),
-            (0x2A,5,2),(0x2A,4,3),(0x2A,5,8),(0x2A,6,9),(0x2A,7,10),
-            (0x40,7,3),(0x41,7,10),(0x41,7,11),(0x42,7,13),(0x42,1,14),(0x42,6,14),(0x45,6,11),(0x45,2,14),
+            new LargeDeviation(0x21,5,2),new LargeDeviation(0x21,6,3),new LargeDeviation(0x21,7,4),new LargeDeviation(0x21,7,7),new LargeDeviation(0x21,7,8),new LargeDeviation(0x21,7,13),new LargeDeviation(0x21,6,14),
+            new LargeDeviation(0x23,6,3),new LargeDeviation(0x23,7,5),new LargeDeviation(0x23,7,11),new LargeDeviation(0x23,6,13),new LargeDeviation(0x23,5,14),
+            new LargeDeviation(0x26,4,6),new LargeDeviation(0x26,4,10),new LargeDeviation(0x29,0,13),new LargeDeviation(0x29,7,13),new LargeDeviation(0x29,1,14),new LargeDeviation(0x29,6,14),
+            new LargeDeviation(0x2A,5,2),new LargeDeviation(0x2A,4,3),new LargeDeviation(0x2A,5,8),new LargeDeviation(0x2A,6,9),new LargeDeviation(0x2A,7,10),
+            new LargeDeviation(0x40,7,3),new LargeDeviation(0x41,7,10),new LargeDeviation(0x41,7,11),new LargeDeviation(0x42,7,13),new LargeDeviation(0x42,1,14),new LargeDeviation(0x42,6,14),new LargeDeviation(0x45,6,11),new LargeDeviation(0x45,2,14),
         };
         AssertEqual(31, largeDeviations.Count, "precise native large-glyph deviation domain");
         var edits = new List<int> { image.Pixels.Length - 1 };
@@ -378,9 +379,9 @@ internal static class LookupStream4Verification
             bool large = tile is >= 0x20 and <= 0x3F or >= 0x40 and <= 0x49 or >= 0x50 and <= 0x59
                 or >= 0x60 and <= 0x69 or >= 0x70 and <= 0x79;
             int top = tile & ~0x10, glyphY = y + ((tile & 0x10) != 0 ? 8 : 0);
-            bool largeDeviation = large && largeDeviations.Contains((top, x, glyphY));
+            bool largeDeviation = large && largeDeviations.Contains(new LargeDeviation(top, x, glyphY));
             bool outlined = small || large;
-            bool cutout = (tile, x, y) is (0x0A, 3, 0) or (0x0A, 7, 4) or (0x0C, 4, 1) or (0x19, 7, 3);
+            bool cutout = new Cutout(tile, x, y) is (0x0A, 3, 0) or (0x0A, 7, 4) or (0x0C, 4, 1) or (0x19, 7, 3);
             AssertEqual(space, EndingFontAtlasFormat.IsSpacePixel(pixel), "only the two native semantic blank cells");
             AssertEqual(small, EndingFontAtlasFormat.IsSmallAlphabetPixel(pixel), "only the native small alphabet cells");
             AssertEqual(cutout, EndingFontAtlasFormat.IsRequiredSmallGlyphCutout(pixel), "exact four unresolved native cutouts");
@@ -419,7 +420,7 @@ internal static class LookupStream4Verification
         byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
         var stock = RoomPaletteFxPresentation.Load(new MemoryStream(json));
         var stored = stock.colors;
-        var sites = new List<(int Owner, int Frame, int Color, ushort Pointer)>();
+        var sites = new List<LookupStream4Site>();
         for (int owner = 0; owner < 3; owner++)
         {
             int frames = owner == 2 ? 8 : 4, colors = owner == 1 ? 4 : 8;
@@ -428,7 +429,7 @@ internal static class LookupStream4Verification
             for (int color = 0; color < colors; color++)
             {
                 ushort pointer = (ushort)(first + frame * (colors + 2) * 2 + color * 2);
-                sites.Add((owner, frame, color, pointer));
+                sites.Add(new LookupStream4Site(owner, frame, color, pointer));
                 AssertTrue(MaridiaEnvironmentalColorDefinitions.TrySourcePointer(pointer, out ushort source), "native rotation domain");
                 AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), rom.ReadCartridgeWordFixedBank(0x8D0000 | source), "direct native color rotation relationship");
                 AssertEqual(owner != 1 && frame == 0, stored.ContainsKey(pointer), "exact16 required first-row source keys and zero stock fallbacks");
@@ -968,7 +969,7 @@ internal static class LookupStream4Verification
             }
         }
         Verify(stock, -1, -1);
-        foreach (var selected in new[] { (Frame: 6, Color: 3), (Frame: 2, Color: 3), (Frame: 1, Color: 0), (Frame: 3, Color: 7), (Frame: 4, Color: 11), (Frame: 5, Color: 15) })
+        foreach (var selected in new[] { new Coordinate(Frame:6, Color:3), new Coordinate(Frame:2, Color:3), new Coordinate(Frame:1, Color:0), new Coordinate(Frame:3, Color:7), new Coordinate(Frame:4, Color:11), new Coordinate(Frame:5, Color:15) })
         {
             var document = RequiredJson.Deserialize<SporeSpawnColorDocument>(source,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
@@ -1035,7 +1036,7 @@ internal static class LookupStream4Verification
                     "Direct background calculation matches every original word independently of catalog loading");
             }
         Verify(stock, -1, -1);
-        foreach (var selected in new[] { (Frame: 6, Color: 1), (Frame: 6, Color: 12), (Frame: 0, Color: 1), (Frame: 3, Color: 13) })
+        foreach (var selected in new[] { new Coordinate(Frame:6, Color:1), new Coordinate(Frame:6, Color:12), new Coordinate(Frame:0, Color:1), new Coordinate(Frame:3, Color:13) })
         {
             var document = RequiredJson.Deserialize<SporeSpawnColorDocument>(source,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
@@ -1102,7 +1103,7 @@ internal static class LookupStream4Verification
         var criticalEdit = SporeSpawnColorCatalog.Load(new MemoryStream(SporeSpawnColorCatalog.Write(criticalDocument)));
         Verify(criticalEdit, -1, -1, criticalEdit: true);
         Verify(stock, -1, -1);
-        foreach (var selected in new[] { (Frame: 0, Color: 1), (Frame: 7, Color: 15), (Frame: 3, Color: 6) })
+        foreach (var selected in new[] { new Coordinate(Frame:0, Color:1), new Coordinate(Frame:7, Color:15), new Coordinate(Frame:3, Color:6) })
         {
             var document = RequiredJson.Deserialize<SporeSpawnColorDocument>(source,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
@@ -1911,10 +1912,10 @@ internal static class LookupStream4Verification
         foreach (var id in GameplayMessageNoticeDefinitions.MessageIds)
         {
             var notice = document.Notices[id.ToString()];
-            (int Row, int Column, int Width)[] expectedRegions = GameplayMessageNoticeDefinitions.IsSaveConfirmation(id)
-                ? [(0, 8, 14), (1, 8, 8), (3, 10, 3), (3, 19, 2)]
-                : [(0, 8, id == GameplayMessageId.MissileRechargeCompleted ? 14 : 15), (2, 10, 10)];
-            AssertTrue(expectedRegions.SequenceEqual(notice.Text.Select(region => (region.Row, region.Column, region.Width))),
+            ExpectedRegion[] expectedRegions = GameplayMessageNoticeDefinitions.IsSaveConfirmation(id)
+                ? [new ExpectedRegion(0, 8, 14), new ExpectedRegion(1, 8, 8), new ExpectedRegion(3, 10, 3), new ExpectedRegion(3, 19, 2)]
+                : [new ExpectedRegion(0, 8, id == GameplayMessageId.MissileRechargeCompleted ? 14 : 15), new ExpectedRegion(2, 10, 10)];
+            AssertTrue(expectedRegions.SequenceEqual(notice.Text.Select(region => new ExpectedRegion(region.Row, region.Column, region.Width))),
                 "Calculated notice rectangles preserve every original row/column/width");
             AssertTrue(notice.Text.All(region => region.Alignment == GameplayMessageTextAlignment.Left),
                 "Calculated notice regions retain left alignment");
@@ -2115,7 +2116,7 @@ internal static class LookupStream4Verification
             AssertEqual(frame == 0, stored.ContainsKey(pointer), "dark lightning stores only unresolved base row");
             AssertEqual(1, original.ColorPointers.Count(p => p == pointer), "dark lightning audit identity enumerates once");
         }
-        foreach ((int frame, int index) in new[] { (0, 0), (4, 6), (9, 2), (13, 5) })
+        foreach ((int frame, int index) in new[] { new VerifyLookupStream4DarkLightningColorsCase(0, 0), new VerifyLookupStream4DarkLightningColorsCase(4, 6), new VerifyLookupStream4DarkLightningColorsCase(9, 2), new VerifyLookupStream4DarkLightningColorsCase(13, 5) })
         {
             var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(originalJson, ArtworkJson.Options);
             var source = document.CrateriaUnusedDarkLightning[frame][index];
@@ -2157,7 +2158,7 @@ internal static class LookupStream4Verification
             AssertTrue(!stored.ContainsKey(pointer), "surface lightning stock words are not stored");
             AssertEqual(1, original.ColorPointers.Count(p => p == pointer), "surface lightning audit identity enumerates once");
         }
-        foreach ((int frame, int index) in new[] { (0, 0), (4, 7), (8, 2), (12, 6) })
+        foreach ((int frame, int index) in new[] { new VerifyLookupStream4DarkLightningColorsCase(0, 0), new VerifyLookupStream4DarkLightningColorsCase(4, 7), new VerifyLookupStream4DarkLightningColorsCase(8, 2), new VerifyLookupStream4DarkLightningColorsCase(12, 6) })
         {
             var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(originalJson, ArtworkJson.Options);
             var source = document.CrateriaSurfaceLightning[frame][index];
@@ -2254,11 +2255,11 @@ internal static class LookupStream4Verification
         ushort[] keys = original.ColorPointers.Where(native.ContainsKey).ToArray();
         AssertEqual(64, keys.Length, "stream4 all statue pointers enumerable");
         AssertEqual(64, keys.Distinct().Count(), "stream4 statue pointer enumeration has no duplicates");
-        foreach (var edit in new[] { (0, 0), (7, 0), (0, 2), (7, 3), (3, 4), (4, 0) })
+        foreach (var edit in new[] { new VerifyLookupStream4DarkLightningColorsCase(0, 0), new VerifyLookupStream4DarkLightningColorsCase(7, 0), new VerifyLookupStream4DarkLightningColorsCase(0, 2), new VerifyLookupStream4DarkLightningColorsCase(7, 3), new VerifyLookupStream4DarkLightningColorsCase(3, 4), new VerifyLookupStream4DarkLightningColorsCase(4, 0) })
         {
             var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(originalJson, ArtworkJson.Options);
-            var source = document.TourianStatueGrey[edit.Item1][edit.Item2];
-            document.TourianStatueGrey[edit.Item1][edit.Item2] = source with { Red = (source.Red + 9) & 31, Blue = (source.Blue + 5) & 31 };
+            var source = document.TourianStatueGrey[edit.Frame][edit.Index];
+            document.TourianStatueGrey[edit.Frame][edit.Index] = source with { Red = (source.Red + 9) & 31, Blue = (source.Blue + 5) & 31 };
             using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
             var edited = RoomPaletteFxPresentation.Load(json);
             for (int frame = 0; frame < 8; frame++)
@@ -2332,13 +2333,13 @@ internal static class LookupStream4Verification
                 AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(sequence, invalid), "Power Bomb color index domain");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve((PowerBombFixedColorSequence)2, 0), "Power Bomb sequence domain");
-        foreach (var edit in new[] { (PowerBombFixedColorSequence.PreExplosion, 0), (PowerBombFixedColorSequence.PreExplosion, 12),
-            (PowerBombFixedColorSequence.Explosion, 0), (PowerBombFixedColorSequence.Explosion, 18), (PowerBombFixedColorSequence.Explosion, 31) })
+        foreach (var edit in new[] { new VerifyLookupStream4PowerBombColorsCase(PowerBombFixedColorSequence.PreExplosion, 0), new VerifyLookupStream4PowerBombColorsCase(PowerBombFixedColorSequence.PreExplosion, 12),
+            new VerifyLookupStream4PowerBombColorsCase(PowerBombFixedColorSequence.Explosion, 0), new VerifyLookupStream4PowerBombColorsCase(PowerBombFixedColorSequence.Explosion, 18), new VerifyLookupStream4PowerBombColorsCase(PowerBombFixedColorSequence.Explosion, 31) })
         {
             var document = RequiredJson.Deserialize<PowerBombFixedColorDocument>(original, ArtworkJson.Options);
-            var rows = edit.Item1 == PowerBombFixedColorSequence.PreExplosion ? document.PreExplosion : document.Explosion;
-            var before = rows[edit.Item2];
-            rows[edit.Item2] = before with { Red = (before.Red + 3) & 31, Green = (before.Green + 7) & 31, Blue = (before.Blue + 11) & 31 };
+            var rows = edit.First == PowerBombFixedColorSequence.PreExplosion ? document.PreExplosion : document.Explosion;
+            var before = rows[edit.Second];
+            rows[edit.Second] = before with { Red = (before.Red + 3) & 31, Green = (before.Green + 7) & 31, Blue = (before.Blue + 11) & 31 };
             var installed = PowerBombFixedColorCatalog.Load(new MemoryStream(PowerBombFixedColorCatalog.Write(document)));
             foreach (var sequence in Enum.GetValues<PowerBombFixedColorSequence>())
             for (int index = 0; index < PowerBombFixedColorFormat.Count(sequence); index++)
@@ -2347,8 +2348,8 @@ internal static class LookupStream4Verification
                 AssertEqual(new Bgr555(source.Red, source.Green, source.Blue), installed.Resolve(sequence, index),
                     "Power Bomb supplied JSON color edits remain independent");
             }
-            AssertEqual(edit.Item1 == PowerBombFixedColorSequence.PreExplosion ? 1 : 0, installed.preExplosion.Count, "only changed pre-explosion content stays stored");
-            AssertEqual(edit.Item1 == PowerBombFixedColorSequence.Explosion && edit.Item2 <= 20 ? 12 : 11, installed.explosion.Count, "only changed calculated explosion content joins unresolved tail");
+            AssertEqual(edit.First == PowerBombFixedColorSequence.PreExplosion ? 1 : 0, installed.preExplosion.Count, "only changed pre-explosion content stays stored");
+            AssertEqual(edit.First == PowerBombFixedColorSequence.Explosion && edit.Second <= 20 ? 12 : 11, installed.explosion.Count, "only changed calculated explosion content joins unresolved tail");
         }
     }
 
@@ -3287,7 +3288,7 @@ internal static class LookupStream4Verification
             int address = 0xa6e464 + color * 2;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), Native(0, color + 4), "Exact native membrane/organ source identities");
         }
-        foreach (var source in new[] { (Address: 0xa994e6, Color: 9), (Address: 0xa994ea, Color: 11) })
+        foreach (var source in new[] { new VerifyLookupStream4CeresBabyCase(Address:0xa994e6, Color:9), new VerifyLookupStream4CeresBabyCase(Address:0xa994ea, Color:11) })
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(source.Address), Native(0, source.Color), "Exact native shared fang source identities");
         byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(document with { Version = (int)CeresRidleyColorVersion.PreBaby, Baby = null }, ArtworkJson.Options);
         var legacy = CeresRidleyColorCatalog.Load(new MemoryStream(legacyJson), stock);
@@ -3598,10 +3599,18 @@ internal static class LookupStream4Verification
         for (int cell = 0; cell < 6; cell++)
             AssertEqual(stock.Blank, tiles[GameplayHudDefinitions.AutoReserveCellIndex(cell)], "native AUTO clear destination");
 
-        (document.EnergyTanks.Anchors[0], document.EnergyTanks.Anchors[1]) =
-            (document.EnergyTanks.Anchors[1], document.EnergyTanks.Anchors[0]);
-        (document.AutoReserve.Anchors[0], document.AutoReserve.Anchors[1]) =
-            (document.AutoReserve.Anchors[1], document.AutoReserve.Anchors[0]);
+        {
+            var held0 = document.EnergyTanks.Anchors[1];
+            var held1 = document.EnergyTanks.Anchors[0];
+            document.EnergyTanks.Anchors[0] = held0;
+            document.EnergyTanks.Anchors[1] = held1;
+        }
+        {
+            var held0 = document.AutoReserve.Anchors[1];
+            var held1 = document.AutoReserve.Anchors[0];
+            document.AutoReserve.Anchors[0] = held0;
+            document.AutoReserve.Anchors[1] = held1;
+        }
         using var editedJson = new MemoryStream();
         GameplayHudPresentation.Write(editedJson, document);
         editedJson.Position = 0;

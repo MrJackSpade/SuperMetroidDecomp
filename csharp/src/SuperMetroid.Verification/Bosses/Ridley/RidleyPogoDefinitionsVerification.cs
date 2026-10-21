@@ -18,18 +18,18 @@ internal static class RidleyPogoDefinitionsVerification
     internal static void VerifyCompiledRidleyPogo(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyRidleyAttackTimerRandomReads), () => VerifyRidleyAttackTimerRandomReads());
-        var reference = new (ushort X, ushort Y, ushort Up, ushort Down)[4, 6];
+        var reference = new RidleyPogoDefinitionsReference[4, 6];
         for (int pattern = 0; pattern < 4; pattern++)
         for (int stage = 0; stage < 6; stage++)
         {
             int xTable = 0xa60000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.Ridley.PogoHorizontalPathPointers + pattern * 2));
             int yTable = 0xa60000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.Ridley.PogoVerticalPathPointers + pattern * 2));
-            var native = (CartridgeImportSource.Require(rom).ReadCartridgeWord((xTable + stage * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((yTable + stage * 2)),
+            var native = new RidleyPogoDefinitionsReference(CartridgeImportSource.Require(rom).ReadCartridgeWord((xTable + stage * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((yTable + stage * 2)),
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.Ridley.PogoUpwardAccelerationWords + stage * 2)),
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.Ridley.PogoDownwardAccelerationWords + stage * 2)));
             reference[pattern, stage] = native;
             RidleyPogoDefinition compiled = RidleyPogoDefinitions.Read(pattern, stage);
-            AssertTrue(native == (compiled.Velocity.X.RawValue, compiled.Velocity.Y.RawValue, compiled.UpwardAcceleration, compiled.DownwardAcceleration),
+            AssertTrue(native == new RidleyPogoDefinitionsReference(compiled.Velocity.X.RawValue, compiled.Velocity.Y.RawValue, compiled.UpwardAcceleration, compiled.DownwardAcceleration),
                 "All indirect native pogo records and accelerations");
         }
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));

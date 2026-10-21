@@ -14,7 +14,7 @@ internal static class LookupPaletteFxDispatchVerification
     private static IEnumerable<ushort> OriginalPaletteFxObjects()
     {
         // Independent physical regions from pinned bank8D object declarations.
-        foreach ((int first, int last) in new[] { (0xe194, 0xe200), (0xf745, 0xf7a5), (0xffc9, 0xffed) })
+        foreach ((int first, int last) in new[] { new OriginalPaletteFxObjectsCase(0xe194, 0xe200), new OriginalPaletteFxObjectsCase(0xf745, 0xf7a5), new OriginalPaletteFxObjectsCase(0xffc9, 0xffed) })
             for (int pointer = first; pointer <= last; pointer += 4)
                 yield return (ushort)pointer;
     }

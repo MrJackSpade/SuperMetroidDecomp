@@ -56,7 +56,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         RunBeetomLoop(processArguments, slot, state, BeetomProgram.CrawlingRightLoop, callsThroughGoto: 5);
         AssertTrue(!slot.Properties.HasAny(EnemyProperties.ProcessOffScreen), "right crawl stops off-screen processing");
 
-        foreach ((bool left, BeetomProgram hop) in new[] { (true, BeetomProgram.HopLeft), (false, BeetomProgram.HopRight) })
+        foreach ((bool left, BeetomProgram hop) in new[] { new BeetomInstructionProgramDefinitionsVerifyBeetomInstructionProgramDefinitionsCase(true, BeetomProgram.HopLeft), new BeetomInstructionProgramDefinitionsVerifyBeetomInstructionProgramDefinitionsCase(false, BeetomProgram.HopRight) })
         {
             BeetomBehavior.StartBeetomHop(slot, state, 0, left ? HorizontalDirection.Left : HorizontalDirection.Right, BeetomHopLength.Short);
             AssertEqual(AnimationProgramCursor<BeetomProgram>.Start(hop), state.Program, $"{hop} is installed");
@@ -69,7 +69,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         }
 
         foreach ((bool left, BeetomProgram drain, BeetomProgram loop) in new[]
-                 { (true, BeetomProgram.DrainingLeft, BeetomProgram.DrainingLeftLoop), (false, BeetomProgram.DrainingRight, BeetomProgram.DrainingRightLoop) })
+                 { new VerifyBeetomInstructionProgramDefinitionsCase(true, BeetomProgram.DrainingLeft, BeetomProgram.DrainingLeftLoop), new VerifyBeetomInstructionProgramDefinitionsCase(false, BeetomProgram.DrainingRight, BeetomProgram.DrainingRightLoop) })
         {
             BeetomBehavior.StartBeetomDrain(slot, state, left ? HorizontalDirection.Left : HorizontalDirection.Right);
             AssertEqual(AnimationProgramCursor<BeetomProgram>.Start(drain), state.Program, $"{drain} is installed");
@@ -88,7 +88,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
     }
 
     /// <summary>Initializes a Beetom with an injected RNG so distant-action selection can be checked for each seed.</summary>
-    private static (RoomEnemySystem Enemies, BeetomEnemyState State, Action<BeetomEnemyState> Choose)
+    private static CreateBeetomDistantSelectionFixtureResult
         CreateBeetomDistantSelectionFixture(Func<ushort> nextRandom)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), services: new VerificationRoomEnemyServices(null));
@@ -99,7 +99,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         slot.Bind(EnemyDefinitionId.Beetom, slot.Definition);
         initialize(slot, new SamusState(), 0);
         Action<BeetomEnemyState> choose = enemies.BeetomBehavior.ChooseDistantBeetomAction;
-        return (enemies, (enemies.BeetomStates[0] ?? throw new InvalidOperationException("Verification requires the initialized Beetom state.")), choose);
+        return new CreateBeetomDistantSelectionFixtureResult(enemies, (enemies.BeetomStates[0] ?? throw new InvalidOperationException("Verification requires the initialized Beetom state.")), choose);
     }
 
     /// <summary>Checks every RNG word against the native eight-pointer action table and verifies one random consumption per choice.</summary>

@@ -19,7 +19,7 @@ namespace SuperMetroid.Verification.Bosses.Torizo;
 internal static class TorizoProjectileAnimationsVerification
 {
     /// <summary>What a native Torizo projectile command becomes.</summary>
-    private enum ProjectileWord
+    internal enum ProjectileWord
     {
         /// <summary>The sleep: a hold.</summary>
         Sleep,
@@ -38,42 +38,42 @@ internal static class TorizoProjectileAnimationsVerification
     }
 
     /// <summary>Each native command Torizo's lists use: what it becomes and, for a cue, which cue.</summary>
-    private static readonly Dictionary<NativeEnemyProjectileInstruction, (ProjectileWord Word, NativeCueShape<TorizoProjectileCue>? Cue)> Words = new()
+    private static readonly Dictionary<NativeEnemyProjectileInstruction, TorizoProjectileAnimationsWord> Words = new()
     {
-        [NativeEnemyProjectileInstruction.Sleep] = (ProjectileWord.Sleep, null),
-        [NativeEnemyProjectileInstruction.GotoY] = (ProjectileWord.GoTo, null),
-        [NativeEnemyProjectileInstruction.Delete] = (ProjectileWord.Delete, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.Delete))),
-        [NativeEnemyProjectileInstruction.GoldenTorizoEgg_GoToHatched] = (ProjectileWord.Hatch, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.Hatch))),
-        [NativeEnemyProjectileInstruction.TimerInY] = (ProjectileWord.SetCounter, null),
-        [NativeEnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero] = (ProjectileWord.RepeatWhileCounting, null),
-        [NativeEnemyProjectileInstruction.ClearPreInstruction] = (ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.ClearPreInstruction))),
-        [NativeEnemyProjectileInstruction.PreInstructionInY] = (ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.SetPreInstruction>("")),
-        [NativeEnemyProjectileInstruction.Properties_OrY] = (ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.SetProperties>("")),
-        [NativeEnemyProjectileInstruction.Properties_AndY] = (ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.ClearProperties>("")),
-        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max6] = (ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.PlaySound>("")),
-        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib3_Max6] = (ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.PlaySound>("")),
-        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max1] = (ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.PlaySound>("")),
-        [NativeEnemyProjectileInstruction.GotoYIfEyeBeamExplosionsDisabled] = (ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.GoToIfEyeBeamExplosionsDisabled>("")),
-        [NativeEnemyProjectileInstruction.GotoY_Probability_1_4] = (ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.GoToSometimes>("")),
-        [NativeEnemyProjectileInstruction.AimSuperMissile_Rightwards] = (ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.AimSuperMissileTowardSamus))),
-        [NativeEnemyProjectileInstruction.AimSuperMissile_Leftwards] = (ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.AimSuperMissileAwayFromSamus))),
-        [NativeEnemyProjectileInstruction.XYRadiusInY] = (ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.SetRadius>("")),
-        [NativeEnemyProjectileInstruction.SpawnEnemyDropsWIthYDropChances] = (ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.SpawnOrbDrops))),
-        [NativeEnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius] = (ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.Scatter>("")),
-        [NativeEnemyProjectileInstruction.Torizo_ResetPosition] = (ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.ReturnToOrigin))),
-        [NativeEnemyProjectileInstruction.TorizoLandingDustClouds] = (ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.RaiseDust))),
-        [NativeEnemyProjectileInstruction.DisableCollisionWIthSamusProj] = (ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.StopBlockingShots))),
-        [NativeEnemyProjectileInstruction.DisableCollisionWithSamus] = (ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.StopHarmingSamus))),
-        [NativeEnemyProjectileInstruction.SetHighPriority] = (ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.DrawInFront))),
-        [NativeEnemyProjectileInstruction.RTS_8681DE] = (ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.NoOperation))),
+        [NativeEnemyProjectileInstruction.Sleep] = new TorizoProjectileAnimationsWord(ProjectileWord.Sleep, null),
+        [NativeEnemyProjectileInstruction.GotoY] = new TorizoProjectileAnimationsWord(ProjectileWord.GoTo, null),
+        [NativeEnemyProjectileInstruction.Delete] = new TorizoProjectileAnimationsWord(ProjectileWord.Delete, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.Delete))),
+        [NativeEnemyProjectileInstruction.GoldenTorizoEgg_GoToHatched] = new TorizoProjectileAnimationsWord(ProjectileWord.Hatch, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.Hatch))),
+        [NativeEnemyProjectileInstruction.TimerInY] = new TorizoProjectileAnimationsWord(ProjectileWord.SetCounter, null),
+        [NativeEnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero] = new TorizoProjectileAnimationsWord(ProjectileWord.RepeatWhileCounting, null),
+        [NativeEnemyProjectileInstruction.ClearPreInstruction] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.ClearPreInstruction))),
+        [NativeEnemyProjectileInstruction.PreInstructionInY] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.SetPreInstruction>("")),
+        [NativeEnemyProjectileInstruction.Properties_OrY] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.SetProperties>("")),
+        [NativeEnemyProjectileInstruction.Properties_AndY] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.ClearProperties>("")),
+        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max6] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.PlaySound>("")),
+        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib3_Max6] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.PlaySound>("")),
+        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max1] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.PlaySound>("")),
+        [NativeEnemyProjectileInstruction.GotoYIfEyeBeamExplosionsDisabled] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.GoToIfEyeBeamExplosionsDisabled>("")),
+        [NativeEnemyProjectileInstruction.GotoY_Probability_1_4] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.GoToSometimes>("")),
+        [NativeEnemyProjectileInstruction.AimSuperMissile_Rightwards] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.AimSuperMissileTowardSamus))),
+        [NativeEnemyProjectileInstruction.AimSuperMissile_Leftwards] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.AimSuperMissileAwayFromSamus))),
+        [NativeEnemyProjectileInstruction.XYRadiusInY] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.SetRadius>("")),
+        [NativeEnemyProjectileInstruction.SpawnEnemyDropsWIthYDropChances] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.SpawnOrbDrops))),
+        [NativeEnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.Scatter>("")),
+        [NativeEnemyProjectileInstruction.Torizo_ResetPosition] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.ReturnToOrigin))),
+        [NativeEnemyProjectileInstruction.TorizoLandingDustClouds] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.RaiseDust))),
+        [NativeEnemyProjectileInstruction.DisableCollisionWIthSamusProj] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.StopBlockingShots))),
+        [NativeEnemyProjectileInstruction.DisableCollisionWithSamus] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.StopHarmingSamus))),
+        [NativeEnemyProjectileInstruction.SetHighPriority] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.DrawInFront))),
+        [NativeEnemyProjectileInstruction.RTS_8681DE] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.NoOperation))),
     };
 
     /// <summary>The library and queue limit of each sound command Torizo's lists use; its one operand byte is the sound.</summary>
-    private static readonly Dictionary<NativeEnemyProjectileInstruction, (SoundEffectLibrary Library, byte MaximumQueued)> SoundCommands = new()
+    private static readonly Dictionary<NativeEnemyProjectileInstruction, SoundCommand> SoundCommands = new()
     {
-        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max6] = (SoundEffectLibrary.Library2, 6),
-        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib3_Max6] = (SoundEffectLibrary.Library3, 6),
-        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max1] = (SoundEffectLibrary.Library2, 1),
+        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max6] = new SoundCommand(SoundEffectLibrary.Library2, 6),
+        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib3_Max6] = new SoundCommand(SoundEffectLibrary.Library3, 6),
+        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max1] = new SoundCommand(SoundEffectLibrary.Library2, 1),
     };
 
     /// <summary>Every projectile program matches its native list.</summary>
@@ -98,7 +98,7 @@ internal static class TorizoProjectileAnimationsVerification
                 .Select(step => step.Frame).ToHashSet();
             AssertTrue(shown.SetEquals(installed), $"the {family} programs show exactly the installed frames");
             ushort[] keys = [.. installed.Select((frame => EnemyProjectileFrames.ProgramFrameKey(TorizoProjectileVisualDefinitions.ShownProjectileFrames[frame])))];
-            AssertTrue(keys.Zip(keys.Skip(1)).All(pair => pair.First < pair.Second), $"the {family} frames install in native operand order");
+            AssertTrue(keys.Zip(keys.Skip(1), (first, second) => first < second).All(ascends => ascends), $"the {family} frames install in native operand order");
             frames += installed.Count;
         }
 

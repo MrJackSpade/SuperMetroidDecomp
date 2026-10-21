@@ -15,27 +15,27 @@ internal static class PhantoonNativeListAddresses
     internal const ushort CallFunctionInY = 0x808a;
 
     /// <summary>Each typed part program's native entry point in bank $A7, in authored order.</summary>
-    internal static readonly (PhantoonPartProgram Program, ushort Entry)[] PartEntries =
+    internal static readonly PartEntryValue2[] PartEntries =
     [
-        (PhantoonPartProgram.InvulnerableBody, 0xcc41),
-        (PhantoonPartProgram.FullHitboxBody, 0xcc47),
-        (PhantoonPartProgram.EyeHitboxBody, 0xcc4d),
-        (PhantoonPartProgram.EyeOpen, 0xcc53),
-        (PhantoonPartProgram.EyeClosed, 0xcc7b),
-        (PhantoonPartProgram.EyeCloseAndPickNewPattern, 0xcc81),
-        (PhantoonPartProgram.EyeClose, 0xcc91),
-        (PhantoonPartProgram.EyeballCentered, 0xcc9d),
-        (PhantoonPartProgram.EyeLookingUp, 0xcca7),
-        (PhantoonPartProgram.EyeLookingUpRight, 0xccad),
-        (PhantoonPartProgram.EyeLookingRight, 0xccb3),
-        (PhantoonPartProgram.EyeLookingDownRight, 0xccb9),
-        (PhantoonPartProgram.EyeLookingDown, 0xccbf),
-        (PhantoonPartProgram.EyeLookingDownLeft, 0xccc5),
-        (PhantoonPartProgram.EyeLookingLeft, 0xcccb),
-        (PhantoonPartProgram.EyeLookingUpLeft, 0xccd1),
-        (PhantoonPartProgram.Tentacles, 0xccd7),
-        (PhantoonPartProgram.MouthSpawnFlame, 0xcceb),
-        (PhantoonPartProgram.MouthInitial, 0xccf7),
+        new PartEntryValue2(PhantoonPartProgram.InvulnerableBody, 0xcc41),
+        new PartEntryValue2(PhantoonPartProgram.FullHitboxBody, 0xcc47),
+        new PartEntryValue2(PhantoonPartProgram.EyeHitboxBody, 0xcc4d),
+        new PartEntryValue2(PhantoonPartProgram.EyeOpen, 0xcc53),
+        new PartEntryValue2(PhantoonPartProgram.EyeClosed, 0xcc7b),
+        new PartEntryValue2(PhantoonPartProgram.EyeCloseAndPickNewPattern, 0xcc81),
+        new PartEntryValue2(PhantoonPartProgram.EyeClose, 0xcc91),
+        new PartEntryValue2(PhantoonPartProgram.EyeballCentered, 0xcc9d),
+        new PartEntryValue2(PhantoonPartProgram.EyeLookingUp, 0xcca7),
+        new PartEntryValue2(PhantoonPartProgram.EyeLookingUpRight, 0xccad),
+        new PartEntryValue2(PhantoonPartProgram.EyeLookingRight, 0xccb3),
+        new PartEntryValue2(PhantoonPartProgram.EyeLookingDownRight, 0xccb9),
+        new PartEntryValue2(PhantoonPartProgram.EyeLookingDown, 0xccbf),
+        new PartEntryValue2(PhantoonPartProgram.EyeLookingDownLeft, 0xccc5),
+        new PartEntryValue2(PhantoonPartProgram.EyeLookingLeft, 0xcccb),
+        new PartEntryValue2(PhantoonPartProgram.EyeLookingUpLeft, 0xccd1),
+        new PartEntryValue2(PhantoonPartProgram.Tentacles, 0xccd7),
+        new PartEntryValue2(PhantoonPartProgram.MouthSpawnFlame, 0xcceb),
+        new PartEntryValue2(PhantoonPartProgram.MouthInitial, 0xccf7),
     ];
 
     /// <summary>The bank-$A7 routines Phantoon's part lists call and the cue each must become.</summary>
@@ -55,21 +55,21 @@ internal static class PhantoonNativeListAddresses
     internal static ushort PartEntry(PhantoonPartProgram program) => PartEntries.Single(item => item.Program == program).Entry;
 
     /// <summary>Whether the native part entries ascend, so the typed declaration order is the authored order.</summary>
-    internal static bool PartEntriesAscend => PartEntries.Zip(PartEntries.Skip(1)).All(pair => pair.First.Entry < pair.Second.Entry);
+    internal static bool PartEntriesAscend => PartEntries.Zip(PartEntries.Skip(1), (first, second) => first.Entry < second.Entry).All(ascends => ascends);
 
     /// <summary>Each typed flame program's native entry point in bank $86.</summary>
-    internal static readonly (PhantoonFlameProgram Program, ushort Entry)[] FlameEntries =
+    internal static readonly FlameEntry[] FlameEntries =
     [
-        (PhantoonFlameProgram.DestroyableIdle, 0x975c),
-        (PhantoonFlameProgram.CasualHitGround, 0x976c),
-        (PhantoonFlameProgram.CasualBouncing, 0x9772),
-        (PhantoonFlameProgram.CasualResting, 0x9782),
-        (PhantoonFlameProgram.Dying, 0x979a),
-        (PhantoonFlameProgram.RainImpact, 0x97ac),
-        (PhantoonFlameProgram.CasualFalling0, 0x97b4),
-        (PhantoonFlameProgram.StartingFlame, 0x97e8),
-        (PhantoonFlameProgram.Delete, 0x97f8),
-        (PhantoonFlameProgram.DestroyableShot, 0x97fa),
+        new FlameEntry(PhantoonFlameProgram.DestroyableIdle, 0x975c),
+        new FlameEntry(PhantoonFlameProgram.CasualHitGround, 0x976c),
+        new FlameEntry(PhantoonFlameProgram.CasualBouncing, 0x9772),
+        new FlameEntry(PhantoonFlameProgram.CasualResting, 0x9782),
+        new FlameEntry(PhantoonFlameProgram.Dying, 0x979a),
+        new FlameEntry(PhantoonFlameProgram.RainImpact, 0x97ac),
+        new FlameEntry(PhantoonFlameProgram.CasualFalling0, 0x97b4),
+        new FlameEntry(PhantoonFlameProgram.StartingFlame, 0x97e8),
+        new FlameEntry(PhantoonFlameProgram.Delete, 0x97f8),
+        new FlameEntry(PhantoonFlameProgram.DestroyableShot, 0x97fa),
     ];
 
     /// <summary><c>InstList_EnemyProjectile_PrePhantoonRoom</c> at $86:A3AA.</summary>

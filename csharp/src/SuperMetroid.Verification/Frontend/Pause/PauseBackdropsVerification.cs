@@ -78,13 +78,13 @@ internal static class PauseBackdropsVerification
                 AssertTrue(native.CaptureRenderSnapshot().Memory.Vram.SequenceEqual(snapshot.Memory.Vram), "every stock transition frame retains exact native VRAM");
                 var pixels = pause.Render();
                 AssertTrue(native.Render().SequenceEqual(pixels), "seven-area stock pixels match native path with frame, buttons and label ROM reads blocked");
-                var selection = (pause.ScreenMode, pause.SelectedCategory, pause.SelectedItem, pause.MapScroll);
+                var selection = new PauseBackdropsSelection(pause.ScreenMode, pause.SelectedCategory, pause.SelectedItem, pause.MapScroll);
                 pause.BindMapPresentation(edited);
                 var changed = pause.CaptureRenderSnapshot();
                 AssertTrue(changed.Memory.Vram.SequenceEqual(persistentEdit.CaptureRenderSnapshot().Memory.Vram),
                     "fresh edited session and live rebind retain the same artwork through equipment return and Start");
                 AssertTrue(snapshot.Memory.Vram.Slice(0x6000, 0x1000).SequenceEqual(changed.Memory.Vram.Slice(0x6000, 0x1000)), "backdrop rebind leaves shared map/equipment BG1 untouched");
-                AssertEqual(selection, (pause.ScreenMode, pause.SelectedCategory, pause.SelectedItem, pause.MapScroll), "backdrop rebind leaves navigation and scroll untouched");
+                AssertEqual(selection, new PauseBackdropsSelection(pause.ScreenMode, pause.SelectedCategory, pause.SelectedItem, pause.MapScroll), "backdrop rebind leaves navigation and scroll untouched");
                 foreach (var span in PauseMenuLayout.ButtonLabelSpans)
                 for (int word = 0; word < span.Count; word++)
                 {

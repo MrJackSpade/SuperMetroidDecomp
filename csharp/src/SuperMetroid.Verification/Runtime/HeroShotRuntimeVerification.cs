@@ -23,7 +23,7 @@ internal static class HeroShotRuntimeVerification
         Suite(nameof(VerifyPoseCollisionCameraCheckpoint), () => VerifyPoseCollisionCameraCheckpoint());
         var native = nativeTrace is null ? null : File.ReadLines(nativeTrace).Skip(1)
             .Select(line => line.Split(','))
-            .ToDictionary(row => (int.Parse(row[0]), int.Parse(row[1])), row => row.Skip(2)
+            .ToDictionary(row => new HeroShotRuntimeNative(int.Parse(row[0]), int.Parse(row[1])), row => row.Skip(2)
                 .Select(value => Convert.ToUInt16(value, 16)).ToArray());
         int compared = 0;
         int mismatches = 0;
@@ -71,7 +71,7 @@ internal static class HeroShotRuntimeVerification
                         runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y,
                         shot.Position.X.Whole, shot.Position.X.Fraction, shot.Position.Y.Whole, shot.Position.Y.Fraction,
                         unchecked((ushort)shot.Velocity.X.SignedRawValue), unchecked((ushort)shot.Velocity.Y.SignedRawValue), shot.PackedType.Raw, checked((ushort)shot.InstructionPointer)];
-                    var expected = native[(walkAfterShot ? 1 : 0, frame)];
+                    var expected = native[new HeroShotRuntimeNative(walkAfterShot ? 1 : 0, frame)];
                     if (!actual.SequenceEqual(expected))
                     {
                         mismatches++;

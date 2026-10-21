@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Rooms.Plms;
@@ -13,7 +14,7 @@ internal static class LookupNoobTubeStockVerification
     internal static void VerifyNoobTubeStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmNoobTubeVisualCatalog installed)
     {
-        (ushort Pointer, string Id)[] frames = [(0x98d1,"intact"),(0x98d7,"damaged"),(0x98dd,"opened"),(0x98e3,"cleared"),(0x9953,"broken-late"),(0x9991,"opened-rows"),(0x99e5,"broken-full")];
+        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x98d1,"intact"),new LookupEscapeGateStockFrame(0x98d7,"damaged"),new LookupEscapeGateStockFrame(0x98dd,"opened"),new LookupEscapeGateStockFrame(0x98e3,"cleared"),new LookupEscapeGateStockFrame(0x9953,"broken-late"),new LookupEscapeGateStockFrame(0x9991,"opened-rows"),new LookupEscapeGateStockFrame(0x99e5,"broken-full")];
         var native = new Dictionary<ushort, ushort[][]>();
         foreach (var frame in frames)
         {

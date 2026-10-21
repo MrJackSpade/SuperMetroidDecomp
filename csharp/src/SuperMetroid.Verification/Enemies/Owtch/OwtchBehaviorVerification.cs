@@ -20,8 +20,8 @@ internal static class OwtchBehaviorVerification
     {
         foreach ((OwtchBehaviorState initial, OwtchProgram program, OwtchProgram loop, OwtchBehaviorState walking) in new[]
                  {
-                     (OwtchBehaviorState.MovingRight, OwtchProgram.MovingLeft, OwtchProgram.MovingLeftLoop, OwtchBehaviorState.MovingLeft),
-                     (OwtchBehaviorState.MovingLeft, OwtchProgram.MovingRight, OwtchProgram.MovingRightLoop, OwtchBehaviorState.MovingRight),
+                     new VerifyOwtchBehaviorCase(OwtchBehaviorState.MovingRight, OwtchProgram.MovingLeft, OwtchProgram.MovingLeftLoop, OwtchBehaviorState.MovingLeft),
+                     new VerifyOwtchBehaviorCase(OwtchBehaviorState.MovingLeft, OwtchProgram.MovingRight, OwtchProgram.MovingRightLoop, OwtchBehaviorState.MovingRight),
                  })
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);

@@ -18,10 +18,10 @@ internal static class YardSurfaceLossVerification
     {
         var air = new RoomLevelData(new Extent16<RoomBlocks>(64, 64), new RoomLevelPlanes(new ushort[4096], new byte[4096], new ushort[4096]), new byte[8]);
         foreach ((int counted, int expected, YardBehavior expectedBehavior, YardMovementFunction expectedMovement) in
-                 new (int, int, YardBehavior, YardMovementFunction)[]
+                 new VerifyYardSurfaceLossCase[]
                  {
-                     (2, 3, YardBehavior.NormalCrawling, YardMovementFunction.CrawlingUpsideUpMovingRight),
-                     (3, 4, YardBehavior.Dropped, YardMovementFunction.Airborne),
+                     new VerifyYardSurfaceLossCase(2, 3, YardBehavior.NormalCrawling, YardMovementFunction.CrawlingUpsideUpMovingRight),
+                     new VerifyYardSurfaceLossCase(3, 4, YardBehavior.Dropped, YardMovementFunction.Airborne),
                  })
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);

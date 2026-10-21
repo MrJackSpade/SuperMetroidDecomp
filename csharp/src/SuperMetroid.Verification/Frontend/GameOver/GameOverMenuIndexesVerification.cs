@@ -18,12 +18,12 @@ internal static class GameOverMenuIndexesVerification
     {
         var audio = new CartridgeAudioState();
         var menu = new GameOverMenuState(audio, presentation);
-        (GameOverMenuPhase Phase, bool Resumes)[] expected =
+        GameOverMenuIndexesExpected[] expected =
         [
-            (GameOverMenuPhase.ConfigureGraphics, true),
-            (GameOverMenuPhase.Initialize, false),
-            (GameOverMenuPhase.Initialize, true),
-            (GameOverMenuPhase.WaitForInitialMusic, false),
+            new GameOverMenuIndexesExpected(GameOverMenuPhase.ConfigureGraphics, true),
+            new GameOverMenuIndexesExpected(GameOverMenuPhase.Initialize, false),
+            new GameOverMenuIndexesExpected(GameOverMenuPhase.Initialize, true),
+            new GameOverMenuIndexesExpected(GameOverMenuPhase.WaitForInitialMusic, false),
         ];
         AssertEqual(GameOverMenuPhase.ConfigureGraphics, menu.Phase, "game-over menu starts at index zero");
         for (int update = 0; update < expected.Length; update++)

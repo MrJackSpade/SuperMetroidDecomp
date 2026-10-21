@@ -41,7 +41,7 @@ internal static class GrappleConnectionDefinitionsVerification
             if (authored)
             {
                 var connection = GrappleConnectionDefinitions.ResolveConnection(address);
-                AssertEqual((Word(address), Word(address + 2)), ((ushort)connection.Function, (ushort)connection.Handler),
+                AssertEqual(new VerifyGrappleConnectionDefinitionsCase(Word(address), Word(address + 2)), new VerifyGrappleConnectionDefinitionsCase((ushort)connection.Function, (ushort)connection.Handler),
                     "Both native connection words");
                 compiled++;
             }

@@ -1,3 +1,4 @@
+using SuperMetroid.EnsureVerification.CartridgeEncoding;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -68,24 +69,24 @@ internal static class ModuleMapAnalyzerTests
         Layout("csharp/elsewhere/X.cs", "class X { }", withMap: false);
 
         // SME6404: a Core module depends only on its own or a lower layer.
-        Layers([("Samus/SamusState.cs", "namespace SuperMetroid.Core.Samus; public sealed class SamusState { }"),
-                ("Hardware/Ppu.cs", "namespace SuperMetroid.Core.Hardware; using SuperMetroid.Core.Samus; class Ppu { SamusState? s; }")],
+        Layers([new AnalyzerTestSource("Samus/SamusState.cs", "namespace SuperMetroid.Core.Samus; public sealed class SamusState { }"),
+                new AnalyzerTestSource("Hardware/Ppu.cs", "namespace SuperMetroid.Core.Hardware; using SuperMetroid.Core.Samus; class Ppu { SamusState? s; }")],
             "'SamusState' (Simulation module Samus) is referenced from Foundation module Hardware");
-        Layers([("Samus/SamusState.cs", "namespace SuperMetroid.Core.Samus; using SuperMetroid.Core.Hardware; public sealed class SamusState { Ppu? p; }"),
-                ("Hardware/Ppu.cs", "namespace SuperMetroid.Core.Hardware; public sealed class Ppu { }"),
-                ("Runtime/Frame.cs", "namespace SuperMetroid.Core.Runtime; using SuperMetroid.Core.Samus; class Frame { SamusState? s = new(); }")]);
-        Layers([("Runtime/Clock.cs", "namespace SuperMetroid.Core.Runtime; public static class Clock { public static int Tick(this int x) => x; }"),
-                ("Samus/SamusState.cs", "namespace SuperMetroid.Core.Samus; using SuperMetroid.Core.Runtime; class SamusState { int M() => 1.Tick(); }")],
+        Layers([new AnalyzerTestSource("Samus/SamusState.cs", "namespace SuperMetroid.Core.Samus; using SuperMetroid.Core.Hardware; public sealed class SamusState { Ppu? p; }"),
+                new AnalyzerTestSource("Hardware/Ppu.cs", "namespace SuperMetroid.Core.Hardware; public sealed class Ppu { }"),
+                new AnalyzerTestSource("Runtime/Frame.cs", "namespace SuperMetroid.Core.Runtime; using SuperMetroid.Core.Samus; class Frame { SamusState? s = new(); }")]);
+        Layers([new AnalyzerTestSource("Runtime/Clock.cs", "namespace SuperMetroid.Core.Runtime; public static class Clock { public static int Tick(this int x) => x; }"),
+                new AnalyzerTestSource("Samus/SamusState.cs", "namespace SuperMetroid.Core.Samus; using SuperMetroid.Core.Runtime; class SamusState { int M() => 1.Tick(); }")],
             "'Clock' (Session module Runtime) is referenced from Simulation module Samus");
-        Layers([("Runtime/Frame.cs", "namespace SuperMetroid.Core.Runtime; public sealed class Frame { }"),
-                ("Samus/SamusState.cs", "namespace SuperMetroid.Core.Samus; /// <summary>Stepped by <see cref=\"SuperMetroid.Core.Runtime.Frame\"/>.</summary> public sealed class SamusState { }")]);
-        Layers([("Samus/SamusState.cs", "namespace SuperMetroid.Core.Samus; public sealed class SamusState { }"),
-                ("Ensure.cs", "namespace SuperMetroid.Core; using SuperMetroid.Core.Samus; static class Ensure { static SamusState? s; }")],
+        Layers([new AnalyzerTestSource("Runtime/Frame.cs", "namespace SuperMetroid.Core.Runtime; public sealed class Frame { }"),
+                new AnalyzerTestSource("Samus/SamusState.cs", "namespace SuperMetroid.Core.Samus; /// <summary>Stepped by <see cref=\"SuperMetroid.Core.Runtime.Frame\"/>.</summary> public sealed class SamusState { }")]);
+        Layers([new AnalyzerTestSource("Samus/SamusState.cs", "namespace SuperMetroid.Core.Samus; public sealed class SamusState { }"),
+                new AnalyzerTestSource("Ensure.cs", "namespace SuperMetroid.Core; using SuperMetroid.Core.Samus; static class Ensure { static SamusState? s; }")],
             "referenced from Foundation module (Core root)");
-        Layers([("Samus/SamusState.cs", "namespace SuperMetroid.Core.Samus; public sealed class SamusState { }"),
-                ("Hardware/Ppu.cs", "namespace SuperMetroid.Core.Hardware; using SuperMetroid.Core.Samus; class Ppu { SamusState? s; }")],
+        Layers([new AnalyzerTestSource("Samus/SamusState.cs", "namespace SuperMetroid.Core.Samus; public sealed class SamusState { }"),
+                new AnalyzerTestSource("Hardware/Ppu.cs", "namespace SuperMetroid.Core.Hardware; using SuperMetroid.Core.Samus; class Ppu { SamusState? s; }")],
             null, assembly: "SuperMetroid.Verification");
-        Layers([("Mystery/Thing.cs", "namespace SuperMetroid.Core.Mystery; public sealed class Thing { }")],
+        Layers([new AnalyzerTestSource("Mystery/Thing.cs", "namespace SuperMetroid.Core.Mystery; public sealed class Thing { }")],
             "Core module 'Mystery' is not assigned a layer", id: CoreLayerAnalyzer.UnlayeredId);
         Console.WriteLine("#626 module map: SME6402 namespaces, SME6403 registered modules, SME6404/SME6406 Core layers and SME6405 verification domains enforce the map.");
     }
@@ -102,7 +103,7 @@ internal static class ModuleMapAnalyzerTests
     }
 
     /// <summary>Checks the layer analyzer on a set of Core files compiled as <paramref name="assembly"/>.</summary>
-    private static void Layers((string Path, string Source)[] files, string? message = null, string assembly = CoreLayerAnalyzer.CoreAssembly,
+    private static void Layers(AnalyzerTestSource[] files, string? message = null, string assembly = CoreLayerAnalyzer.CoreAssembly,
         string id = CoreLayerAnalyzer.Id)
     {
         var trees = files.Select(file => CSharpSyntaxTree.ParseText(file.Source, new CSharpParseOptions(LanguageVersion.Preview),

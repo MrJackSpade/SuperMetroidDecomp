@@ -30,7 +30,7 @@ internal static class RidleyAnimationsVerification
         AssertEqual(Enum.GetValues<RidleyBodyProgram>().Length, BodyEntries.Length, "every typed Ridley body program has a native entry");
         for (int index = 0; index < BodyEntries.Length; index++)
             AssertEqual((RidleyBodyProgram)index, BodyEntries[index].Program, "the Ridley body programs are declared in authored order");
-        AssertTrue(BodyEntries.Zip(BodyEntries.Skip(1)).All(pair => pair.First.Entry < pair.Second.Entry), "native Ridley body entries ascend");
+        AssertTrue(BodyEntries.Zip(BodyEntries.Skip(1), (first, second) => first.Entry < second.Entry).All(ascends => ascends), "native Ridley body entries ascend");
         AssertEqual(Enum.GetValues<RidleyFireballProgram>().Length, FireballEntries.Length, "every typed fireball program has a native entry");
 
         var body = BodyStepAddresses(cartridge);
@@ -299,14 +299,14 @@ internal static class RidleyAnimationsVerification
     }
 
     /// <summary>Creates Ridley in slot zero of a fresh enemy system, facing <paramref name="facing"/>.</summary>
-    private static (RoomEnemySystem Enemies, RidleyEnemyState State, RoomEnemySlot Body) NewRidley(EnemyDefinitionId definition, RidleyFacing facing)
+    private static NewRidleyResult NewRidley(EnemyDefinitionId definition, RidleyFacing facing)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var state = new RidleyEnemyState { FacingDirection = facing };
         enemies.RidleyEncounter.Ridley = state;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(definition, body.Definition);
-        return (enemies, state, body);
+        return new NewRidleyResult(enemies, state, body);
     }
 
     /// <summary>Runs one body update, expiring the current frame first.</summary>

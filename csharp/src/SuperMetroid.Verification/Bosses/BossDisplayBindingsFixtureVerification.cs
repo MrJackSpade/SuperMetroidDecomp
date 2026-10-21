@@ -78,10 +78,10 @@ internal static class BossDisplayBindingsFixtureVerification
         internal void Step() => instructions(Actor, null, null, Position16<RoomPixels>.Zero, 0);
         /// <summary>Probes the actor's extended hitbox at a two-pixel radius.</summary>
         [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-        internal (bool Hit, ushort Callback) Hitbox(Position16<RoomPixels> probe, bool shot)
+        internal HitboxResult Hitbox(Position16<RoomPixels> probe, bool shot)
         {
             bool hit = hitbox(Actor, probe, new(2, 2), shot ? HitboxCallbackKind.Shot : HitboxCallbackKind.Touch, out EnemyInteractionCallback? callback);
-            return (hit, callback is { } selected ? EnemyInteractionCallbackAccess.Word(selected) : (ushort)0);
+            return new HitboxResult(hit, callback is { } selected ? EnemyInteractionCallbackAccess.Word(selected) : (ushort)0);
         }
         /// <summary>Clears the boss BG2 tilemap before a presentation check.</summary>
         [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]

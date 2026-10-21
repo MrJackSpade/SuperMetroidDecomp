@@ -59,8 +59,8 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
 
         foreach ((MaridiaLargeSnailProgram roll, int windowPose) in new[]
                  {
-                     (MaridiaLargeSnailProgram.FacingLeftRollingForwards, 1), (MaridiaLargeSnailProgram.FacingRightRollingForwards, 1),
-                     (MaridiaLargeSnailProgram.FacingLeftRollingBackwards, 7), (MaridiaLargeSnailProgram.FacingRightRollingBackwards, 7),
+                     new VerifyMaridiaLargeSnailInstructionDefinitionsCase(MaridiaLargeSnailProgram.FacingLeftRollingForwards, 1), new VerifyMaridiaLargeSnailInstructionDefinitionsCase(MaridiaLargeSnailProgram.FacingRightRollingForwards, 1),
+                     new VerifyMaridiaLargeSnailInstructionDefinitionsCase(MaridiaLargeSnailProgram.FacingLeftRollingBackwards, 7), new VerifyMaridiaLargeSnailInstructionDefinitionsCase(MaridiaLargeSnailProgram.FacingRightRollingBackwards, 7),
                  })
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, MaridiaLargeSnailEnemyState state) = Create();
@@ -77,14 +77,14 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
     }
 
     /// <summary>An Oum after its real initializer.</summary>
-    private static (RoomEnemySystem, RoomEnemySlot, MaridiaLargeSnailEnemyState) Create()
+    private static MaridiaLargeSnailInstructionDefinitionsCreateResult Create()
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Oum, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = MaridiaLargeSnailFrameToolingDefinitions.Bank });
         MaridiaLargeSnailBehavior.InitializeMaridiaLargeSnail(slot);
-        return (enemies, slot, enemies.MaridiaLargeSnailStates[0] ?? throw new InvalidOperationException("Oum has no state."));
+        return new MaridiaLargeSnailInstructionDefinitionsCreateResult(enemies, slot, enemies.MaridiaLargeSnailStates[0] ?? throw new InvalidOperationException("Oum has no state."));
     }
 
     /// <summary>Starts <paramref name="program"/> with its first step due on the next update.</summary>

@@ -85,7 +85,7 @@ public sealed class CpuBusAccessCodeFixProvider : CodeFixProvider
             return null;
         SeparatedSyntaxList<ArgumentSyntax> arguments = invocation.ArgumentList.Arguments;
         ExpressionSyntax? receiver = (invocation.Expression as MemberAccessExpressionSyntax)?.Expression;
-        switch (method.ContainingType.Name, method.Name, arguments.Count)
+        switch (new BusCallShape(method.ContainingType.Name, method.Name, arguments.Count))
         {
             case (_, "ReadWorkRamWordFixedBank", 1) when receiver is not null:
                 return Constant(receiver, arguments[0].Expression, 2, "WorkRam");
@@ -206,7 +206,7 @@ public sealed class CpuBusAccessCodeFixProvider : CodeFixProvider
     }
 
     /// <summary>The address, width and region a catalog cell field's factory initializer declares.</summary>
-    private static async Task<(int Address, int Width, string Region)?> CellShapeAsync(Solution solution, IFieldSymbol field,
+    private static async Task<CellShape?> CellShapeAsync(Solution solution, IFieldSymbol field,
         CancellationToken token)
     {
         if (field.DeclaringSyntaxReferences is not { Length: 1 } references ||
@@ -223,12 +223,12 @@ public sealed class CpuBusAccessCodeFixProvider : CodeFixProvider
             await document.GetSemanticModelAsync(token).ConfigureAwait(false) is not { } model ||
             model.GetConstantValue(arguments[1].Expression, token) is not { HasValue: true, Value: int address })
             return null;
-        (int width, string region)? shape = factory switch
+        CellFactoryShape? shape = factory switch
         {
-            "WramWord" => (2, "WorkRam"),
-            "WramByte" => (1, "WorkRam"),
+            "WramWord" => new CellFactoryShape(2, "WorkRam"),
+            "WramByte" => new CellFactoryShape(1, "WorkRam"),
             _ => null,
         };
-        return shape is { } known ? (address, known.width, known.region) : null;
+        return shape is { } known ? new CellShape(address, known.Width, known.Region) : null;
     }
 }

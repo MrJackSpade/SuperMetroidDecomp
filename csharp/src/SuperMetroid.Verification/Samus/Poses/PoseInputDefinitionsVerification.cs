@@ -23,11 +23,11 @@ internal static class PoseInputDefinitionsVerification
         {
             SamusPoseId pose = (SamusPoseId)poseIndex;
             ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((SamusMovementRomData.Poses.TransitionListPointers + (int)pose * 2));
-            var native = new List<(ushort New, ushort Held, ushort Target)>();
+            var native = new List<PoseInputDefinitionsNative>();
             for (int address = 0x910000 | pointer; CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address) != ushort.MaxValue; address += 6)
             {
                 if (native.Count >= 1000) throw new InvalidDataException("Native pose-input fixture does not terminate.");
-                native.Add((CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((address + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((address + 4))));
+                native.Add(new PoseInputDefinitionsNative(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((address + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((address + 4))));
             }
             AssertTrue(SamusPoseInputDefinitions.TryGetPointer(pose, out SamusPoseInputList actualPointer), "Authored graph exists");
             AssertEqual(pointer, (ushort)actualPointer, "Native transition-list diagnostic identity");

@@ -33,18 +33,18 @@ internal static class GameplayContentIdentityVerification
             AssertEqual(digest, reordered[component], component + " canonical record order");
         foreach ((string edit, string component) in new[]
         {
-            ("initial", GameInstallationLayout.GameplayBasePaletteDirectoryName),
-            ("common", GameInstallationLayout.GameplayBasePaletteDirectoryName),
-            ("sprite-pixel", GameInstallationLayout.StandardObjectDirectoryName),
-            ("xray-top-left", GameInstallationLayout.XrayRevealVisualDirectoryName),
-            ("xray-top-right", GameInstallationLayout.XrayRevealVisualDirectoryName),
-            ("xray-bottom-left", GameInstallationLayout.XrayRevealVisualDirectoryName),
-            ("xray-bottom-right", GameInstallationLayout.XrayRevealVisualDirectoryName),
-            ("xray-item", GameInstallationLayout.XrayRevealVisualDirectoryName),
-            ("overlay-x", GameInstallationLayout.XrayRevealVisualDirectoryName),
-            ("overlay-y", GameInstallationLayout.XrayRevealVisualDirectoryName),
-            ("overlay-word", GameInstallationLayout.XrayRevealVisualDirectoryName),
-            ("overlay-order", GameInstallationLayout.XrayRevealVisualDirectoryName),
+            new VerifyGameplayContentIdentityCase("initial", GameInstallationLayout.GameplayBasePaletteDirectoryName),
+            new VerifyGameplayContentIdentityCase("common", GameInstallationLayout.GameplayBasePaletteDirectoryName),
+            new VerifyGameplayContentIdentityCase("sprite-pixel", GameInstallationLayout.StandardObjectDirectoryName),
+            new VerifyGameplayContentIdentityCase("xray-top-left", GameInstallationLayout.XrayRevealVisualDirectoryName),
+            new VerifyGameplayContentIdentityCase("xray-top-right", GameInstallationLayout.XrayRevealVisualDirectoryName),
+            new VerifyGameplayContentIdentityCase("xray-bottom-left", GameInstallationLayout.XrayRevealVisualDirectoryName),
+            new VerifyGameplayContentIdentityCase("xray-bottom-right", GameInstallationLayout.XrayRevealVisualDirectoryName),
+            new VerifyGameplayContentIdentityCase("xray-item", GameInstallationLayout.XrayRevealVisualDirectoryName),
+            new VerifyGameplayContentIdentityCase("overlay-x", GameInstallationLayout.XrayRevealVisualDirectoryName),
+            new VerifyGameplayContentIdentityCase("overlay-y", GameInstallationLayout.XrayRevealVisualDirectoryName),
+            new VerifyGameplayContentIdentityCase("overlay-word", GameInstallationLayout.XrayRevealVisualDirectoryName),
+            new VerifyGameplayContentIdentityCase("overlay-order", GameInstallationLayout.XrayRevealVisualDirectoryName),
         })
         {
             IReadOnlyDictionary<string, string> changed = CreateGameplayIdentityFixture(edit);

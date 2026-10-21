@@ -50,7 +50,7 @@ internal sealed class ShallowWaterJumpScenario
         $"{Samus.Position.X.Whole:X4} {Samus.Kinematics.Position.X.Fraction:X4} {Samus.Position.Y.Whole:X4} {Samus.Kinematics.Position.Y.Fraction:X4} {(int)Samus.Pose:X4} {Samus.AnimationFrame:X4} {Samus.AnimationFrameTimer.RawValue:X4} {Samus.AnimationFrameBuffer:X4} {Samus.LiquidPhysics.FxYPosition:X4} {Samus.LiquidPhysics.LiquidOptions:X4} {(int)Samus.LiquidPhysics.LiquidPhysicsType:X4}\n";
 
     /// <summary>Holds jump for <see cref="JumpFrameCount"/> frames; returns the header and one row per frame, and the apex.</summary>
-    internal (List<string> Rows, uint Apex) Jump()
+    internal JumpTrace Jump()
     {
         var rows = new List<string> { TraceHeader };
         uint apex = Samus.Kinematics.Position.Y.RawValue;
@@ -60,6 +60,6 @@ internal sealed class ShallowWaterJumpScenario
             apex = Math.Min(apex, Samus.Kinematics.Position.Y.RawValue);
             rows.Add($"{frame},{(int)Samus.Pose:X2},{Samus.Kinematics.Position.Y.RawValue:X8},{Samus.Kinematics.VerticalSpeedFixed:X8},{(int)Samus.Kinematics.YDirection},{Samus.Kinematics.Radius.Y},{(int)Samus.LiquidPhysics.LiquidPhysicsType}");
         }
-        return (rows, apex);
+        return new JumpTrace(rows, apex);
     }
 }

@@ -12,8 +12,7 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// #1375: a concept defined twice can disagree with itself. In SuperMetroid.Core this reports an enum whose members are
 /// assigned from another type's constants, and a static class of integral constants mirroring one enum's names and values
 /// (SME6428); a switch over an enum whose every arm maps a member to the member declared after it, restating the
-/// declaration order (SME6429); and a member signature that carries a tuple with three or more named elements, or a tuple
-/// whose names and types match a type Core already declares (SME6430).
+/// declaration order (SME6429). Tuples are reported by <see cref="TupleAnalyzer"/>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class DuplicateConceptAnalyzer : DiagnosticAnalyzer
@@ -23,9 +22,6 @@ public sealed class DuplicateConceptAnalyzer : DiagnosticAnalyzer
 
     /// <summary>A switch restates an enum's declaration order.</summary>
     public const string SuccessorSwitchId = "SME6429";
-
-    /// <summary>A tuple stands in for a domain type.</summary>
-    public const string TupleDomainTypeId = "SME6430";
 
     /// <summary>The assembly whose declarations are checked.</summary>
     public const string CheckedAssembly = "SuperMetroid.Core";
@@ -53,20 +49,9 @@ public sealed class DuplicateConceptAnalyzer : DiagnosticAnalyzer
         description: "A switch whose every arm maps an enum member to the next member in declaration order is a second copy of " +
             "that order (#1375).");
 
-    /// <summary>Reports a tuple standing in for a declared or missing domain type.</summary>
-    private static readonly DiagnosticDescriptor TupleDomainTypeRule = new(
-        TupleDomainTypeId,
-        "Tuple stands in for a domain type",
-        "'{0}' carries the tuple {1}; {2}",
-        "Design",
-        DiagnosticSeverity.Error,
-        isEnabledByDefault: true,
-        description: "A tuple in a member signature with three or more named elements, or with the element names and types of a " +
-            "type Core declares, is a domain value without its type (#1375).");
-
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        [MirroredConstantsRule, SuccessorSwitchRule, TupleDomainTypeRule];
+        [MirroredConstantsRule, SuccessorSwitchRule];
 
     /// <inheritdoc />
     public override void Initialize(AnalysisContext context)
@@ -80,7 +65,6 @@ public sealed class DuplicateConceptAnalyzer : DiagnosticAnalyzer
             var enums = new ConcurrentBag<INamedTypeSymbol>();
             var constantClasses = new ConcurrentBag<INamedTypeSymbol>();
             var mirrors = new ConcurrentDictionary<INamedTypeSymbol, INamedTypeSymbol>(SymbolEqualityComparer.Default);
-            var coreTypes = new Lazy<INamedTypeSymbol[]>(() => Collect(start.Compilation));
             start.RegisterSyntaxNodeAction(node =>
             {
                 var declaration = (EnumDeclarationSyntax)node.Node;
@@ -95,7 +79,6 @@ public sealed class DuplicateConceptAnalyzer : DiagnosticAnalyzer
                 else if (type.IsStatic && IntegralConstants(type).Length >= 2)
                     constantClasses.Add(type);
             }, SymbolKind.NamedType);
-            start.RegisterSymbolAction(symbol => AnalyzeMember(symbol, coreTypes.Value), SymbolKind.Field, SymbolKind.Property, SymbolKind.Method);
             start.RegisterOperationAction(AnalyzeSwitchExpression, OperationKind.SwitchExpression);
             start.RegisterOperationAction(AnalyzeSwitchStatement, OperationKind.Switch);
             start.RegisterCompilationEndAction(end => ReportMirrors(end, mirrors, [.. enums], [.. constantClasses]));
@@ -160,14 +143,14 @@ public sealed class DuplicateConceptAnalyzer : DiagnosticAnalyzer
     private static void AnalyzeSwitchExpression(OperationAnalysisContext context)
     {
         var switchExpression = (ISwitchExpressionOperation)context.Operation;
-        var pairs = new List<(IFieldSymbol From, IOperation To)>();
+        var pairs = new List<FieldInitialization>();
         foreach (ISwitchExpressionArmOperation arm in switchExpression.Arms)
         {
             if (arm.Pattern is IDiscardPatternOperation || arm.Value is IThrowOperation || Stripped(arm.Value) is IThrowOperation)
                 continue;
             if (arm.Guard is not null || Member(arm.Pattern) is not { } from)
                 return;
-            pairs.Add((from, arm.Value));
+            pairs.Add(new FieldInitialization(from, arm.Value));
         }
         Report(context, switchExpression.Syntax, pairs);
     }
@@ -176,7 +159,7 @@ public sealed class DuplicateConceptAnalyzer : DiagnosticAnalyzer
     private static void AnalyzeSwitchStatement(OperationAnalysisContext context)
     {
         var switchStatement = (ISwitchOperation)context.Operation;
-        var pairs = new List<(IFieldSymbol From, IOperation To)>();
+        var pairs = new List<FieldInitialization>();
         foreach (ISwitchCaseOperation section in switchStatement.Cases)
         {
             if (section.Body.Length == 1 && section.Body[0] is IThrowOperation or IExpressionStatementOperation { Operation: IThrowOperation })
@@ -187,13 +170,13 @@ public sealed class DuplicateConceptAnalyzer : DiagnosticAnalyzer
             {
                 return;
             }
-            pairs.Add((from, returned));
+            pairs.Add(new FieldInitialization(from, returned));
         }
         Report(context, switchStatement.Syntax, pairs);
     }
 
     /// <summary>Reports when two or more arms all map an enum member to the next declared member.</summary>
-    private static void Report(OperationAnalysisContext context, SyntaxNode syntax, List<(IFieldSymbol From, IOperation To)> pairs)
+    private static void Report(OperationAnalysisContext context, SyntaxNode syntax, List<FieldInitialization> pairs)
     {
         if (pairs.Count < 2)
             return;
@@ -225,104 +208,4 @@ public sealed class DuplicateConceptAnalyzer : DiagnosticAnalyzer
             operation = conversion.Operand;
         return operation;
     }
-
-    /// <summary>Reports a member signature that carries a tuple domain value.</summary>
-    private static void AnalyzeMember(SymbolAnalysisContext context, INamedTypeSymbol[] coreTypes)
-    {
-        ISymbol member = context.Symbol;
-        if (member.IsImplicitlyDeclared || member.IsOverride || !member.Locations.Any(location => location.IsInSource) ||
-            member.ContainingType is { IsTupleType: true })
-        {
-            return;
-        }
-        IEnumerable<ITypeSymbol> types = member switch
-        {
-            IFieldSymbol field => [field.Type],
-            IPropertySymbol { ExplicitInterfaceImplementations.Length: 0 } property => [property.Type],
-            IMethodSymbol { MethodKind: MethodKind.Ordinary or MethodKind.Constructor, ExplicitInterfaceImplementations.Length: 0 } method =>
-                [method.ReturnType, .. method.Parameters.Select(parameter => parameter.Type)],
-            _ => [],
-        };
-        if (Implements(member))
-            return;
-        var reported = new HashSet<string>(StringComparer.Ordinal);
-        foreach (INamedTypeSymbol tuple in types.SelectMany(Tuples))
-        {
-            string[] names = [.. tuple.TupleElements.Where(element => !element.IsImplicitlyDeclared && element.Name != element.CorrespondingTupleField?.Name)
-                .Select(element => element.Name)];
-            if (names.Length != tuple.TupleElements.Length)
-                continue;
-            string shape = "(" + string.Join(", ", tuple.TupleElements.Select(element => $"{element.Type.ToDisplayString()} {element.Name}")) + ")";
-            if (!reported.Add(shape))
-                continue;
-            if (Matching(tuple, coreTypes) is { } declared)
-            {
-                context.ReportDiagnostic(Diagnostic.Create(TupleDomainTypeRule, member.Locations[0], member.Name, shape,
-                    $"use the declared type '{declared.Name}'"));
-            }
-            else if (names.Length >= 3)
-            {
-                context.ReportDiagnostic(Diagnostic.Create(TupleDomainTypeRule, member.Locations[0], member.Name, shape,
-                    "declare a named type for it"));
-            }
-        }
-    }
-
-    /// <summary>Every tuple type within a type: itself, its array elements and its generic arguments.</summary>
-    private static IEnumerable<INamedTypeSymbol> Tuples(ITypeSymbol type)
-    {
-        IEnumerable<ITypeSymbol> inner = type switch
-        {
-            IArrayTypeSymbol array => [array.ElementType],
-            INamedTypeSymbol { IsTupleType: true } tuple => tuple.TupleElements.Select(element => element.Type),
-            INamedTypeSymbol named => named.TypeArguments,
-            _ => [],
-        };
-        if (type is INamedTypeSymbol { IsTupleType: true } self)
-            yield return self;
-        foreach (INamedTypeSymbol nested in inner.SelectMany(Tuples))
-            yield return nested;
-    }
-
-    /// <summary>A Core type whose public instance properties are exactly the tuple's names with the same types, or null.</summary>
-    private static INamedTypeSymbol? Matching(INamedTypeSymbol tuple, INamedTypeSymbol[] coreTypes)
-    {
-        var elements = tuple.TupleElements.ToDictionary(element => element.Name, element => element.Type, StringComparer.OrdinalIgnoreCase);
-        return coreTypes.FirstOrDefault(candidate =>
-        {
-            IPropertySymbol[] properties = [.. candidate.GetMembers().OfType<IPropertySymbol>()
-                .Where(property => !property.IsStatic && !property.IsImplicitlyDeclared && property.DeclaredAccessibility != Accessibility.Private &&
-                    property.Name != "EqualityContract")];
-            return properties.Length == elements.Count && properties.All(property =>
-                elements.TryGetValue(property.Name, out ITypeSymbol? type) &&
-                SymbolEqualityComparer.Default.Equals(type, property.Type));
-        });
-    }
-
-    /// <summary>Collects the source types of a compilation.</summary>
-    private static INamedTypeSymbol[] Collect(Compilation compilation)
-    {
-        var found = new List<INamedTypeSymbol>();
-        var pending = new Stack<INamespaceOrTypeSymbol>();
-        pending.Push(compilation.Assembly.GlobalNamespace);
-        while (pending.Count > 0)
-        {
-            INamespaceOrTypeSymbol next = pending.Pop();
-            foreach (INamespaceOrTypeSymbol member in next.GetMembers().OfType<INamespaceOrTypeSymbol>())
-            {
-                pending.Push(member);
-                if (member is INamedTypeSymbol { TypeKind: TypeKind.Struct or TypeKind.Class, IsStatic: false } type &&
-                    type.Locations.Any(location => location.IsInSource) && !type.IsGenericType)
-                {
-                    found.Add(type);
-                }
-            }
-        }
-        return [.. found];
-    }
-
-    /// <summary>Whether a member implicitly implements an interface member, whose shape belongs to the interface.</summary>
-    private static bool Implements(ISymbol member) =>
-        member.ContainingType is { } type && type.AllInterfaces.SelectMany(face => face.GetMembers())
-            .Any(required => SymbolEqualityComparer.Default.Equals(type.FindImplementationForInterfaceMember(required), member));
 }

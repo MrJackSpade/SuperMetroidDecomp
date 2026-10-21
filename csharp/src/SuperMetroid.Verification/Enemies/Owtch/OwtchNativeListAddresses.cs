@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Owtch;
 
 namespace SuperMetroid.Verification.Enemies.Owtch;
@@ -13,18 +14,18 @@ internal static class OwtchNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (OwtchProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<OwtchProgram>[] Entries =
     [
-        (OwtchProgram.MovingLeft, 0xa3ab),
-        (OwtchProgram.MovingLeftLoop, 0xa3ad),
-        (OwtchProgram.MovingRight, 0xa3bd),
-        (OwtchProgram.MovingRightLoop, 0xa3bf),
+        new NativeProgramEntry<OwtchProgram>(OwtchProgram.MovingLeft, 0xa3ab),
+        new NativeProgramEntry<OwtchProgram>(OwtchProgram.MovingLeftLoop, 0xa3ad),
+        new NativeProgramEntry<OwtchProgram>(OwtchProgram.MovingRight, 0xa3bd),
+        new NativeProgramEntry<OwtchProgram>(OwtchProgram.MovingRightLoop, 0xa3bf),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (OwtchCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, OwtchNativeListAddressesInstruction> Instructions = new()
     {
-        [0xa56d] = (OwtchCueKind.SetMovingLeft, ""),
-        [0xa571] = (OwtchCueKind.SetMovingRight, ""),
+        [0xa56d] = new OwtchNativeListAddressesInstruction(OwtchCueKind.SetMovingLeft, ""),
+        [0xa571] = new OwtchNativeListAddressesInstruction(OwtchCueKind.SetMovingRight, ""),
     };
 }

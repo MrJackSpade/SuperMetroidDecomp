@@ -25,15 +25,15 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
     /// </summary>
     internal static void VerifyLowerNorfairRioInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
-        (LowerNorfairRioProgram Entry, int Calls, bool Visible, bool Signal, string Name)[] programs =
+        LowerNorfairRioInstructionProgramDefinitionsProgram[] programs =
         [
-            (LowerNorfairRioProgram.Idle, 5, false, false, "idle"),
-            (LowerNorfairRioProgram.PrepareToSwoop, 10, false, true, "prepare to swoop"),
-            (LowerNorfairRioProgram.Descending, 2, false, false, "descending"),
-            (LowerNorfairRioProgram.AscendingPart1, 4, false, true, "ascending part one"),
-            (LowerNorfairRioProgram.AscendingPart2, 4, true, false, "ascending part two"),
-            (LowerNorfairRioProgram.Cooldown, 10, true, true, "cooldown"),
-            (LowerNorfairRioProgram.Flames, 4, false, false, "flames"),
+            new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioProgram.Idle, 5, false, false, "idle"),
+            new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioProgram.PrepareToSwoop, 10, false, true, "prepare to swoop"),
+            new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioProgram.Descending, 2, false, false, "descending"),
+            new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioProgram.AscendingPart1, 4, false, true, "ascending part one"),
+            new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioProgram.AscendingPart2, 4, true, false, "ascending part two"),
+            new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioProgram.Cooldown, 10, true, true, "cooldown"),
+            new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioProgram.Flames, 4, false, false, "flames"),
         ];
         foreach ((LowerNorfairRioProgram entry, int calls, bool visible, bool signal, string name) in programs)
         {
@@ -77,7 +77,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
     }
 
     /// <summary>Creates a Lower Norfair Rio running <paramref name="entry"/> in the first enemy slot.</summary>
-    internal static (RoomEnemySystem Enemies, RoomEnemySlot Slot, LowerNorfairRioEnemyState State) NewLowerNorfairRioInstructionSystem(
+    internal static NewLowerNorfairRioInstructionSystemResult NewLowerNorfairRioInstructionSystem(
         LowerNorfairRioProgram entry)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -87,7 +87,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         slot.InstructionTimer = NativeCountdown.Start(1);
         var state = new LowerNorfairRioEnemyState { Program = AnimationProgramCursor<LowerNorfairRioProgram>.Start(entry) };
         slot.SetSpeciesState(state, state.ClearWithRecord);
-        return (enemies, slot, state);
+        return new NewLowerNorfairRioInstructionSystemResult(enemies, slot, state);
     }
 
     /// <summary>

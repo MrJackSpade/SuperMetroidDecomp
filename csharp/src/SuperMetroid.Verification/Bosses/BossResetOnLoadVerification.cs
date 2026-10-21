@@ -76,9 +76,9 @@ internal static class BossResetOnLoadVerification
             AssertEqual(slot.EquippedItems, runtime.Player.IntroducedSamus.EquippedItems, "equipment selection preserved");
             AssertEqual(slot.Health, runtime.Player.IntroducedSamus.Health, "health preserved");
             AssertEqual(slot.Missiles, runtime.Player.IntroducedSamus.Missiles, "ammo preserved");
-            foreach (var (room, alive, defeated) in new (ushort, ushort, ushort)[]
-                { (0x9804, 0x981b, 0x9835), (0x9dc7, 0x9dd9, 0x9df3),
-                  (0xb283, 0xb295, 0xb2af), (0xd8c5, 0xd8d7, 0xd8f1) })
+            foreach (var (room, alive, defeated) in new VerifyBossResetOnLoadCase[]
+                { new VerifyBossResetOnLoadCase(0x9804, 0x981b, 0x9835), new VerifyBossResetOnLoadCase(0x9dc7, 0x9dd9, 0x9df3),
+                  new VerifyBossResetOnLoadCase(0xb283, 0xb295, 0xb2af), new VerifyBossResetOnLoadCase(0xd8c5, 0xd8d7, 0xd8f1) })
             {
                 var header = runtime.RoomLoader.LoadCartridgeRoomHeader(RoomHeaderDefinitions.Get(room));
                 AssertEqual(enabled ? alive : defeated, header.State.Pointer,

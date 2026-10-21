@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Core.World.Artwork;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyExtendedLegacyOverridesVerification;
 using static SuperMetroid.Verification.Enemies.Projectiles.EnemyProjectileLegacyOverridesVerification;
@@ -29,7 +30,7 @@ internal static class EnemyLegacyOverridesVerification
             [stockDocument.Frames[inherited.Name][0] with { OffsetX = 19, OffsetY = -7, TileColumn = 3 }];
         EnemySpritemapCatalog stock = Load(stockDocument);
         string stockIdentity = stock.ContentIdentity;
-        (int Version, int Count)[] schemas = EnemyOamSchemaFixtures();
+        ExtendedEnemySchemaFixturesResult[] schemas = EnemyOamSchemaFixtures();
         AssertEqual((int)EnemySpritemapSchema.Current - (int)EnemySpritemapSchema.Legacy + 1,
             schemas.Length, "every accepted enemy OAM schema has a compatibility fixture");
         int bindingSchemas = 0;
@@ -126,10 +127,10 @@ internal static class EnemyLegacyOverridesVerification
     /// Pairs every declared schema revision with its declared frame count, not the loader's
     /// branch results. New revisions automatically join the coverage; version gaps fail.
     /// </summary>
-    private static (int Version, int Count)[] EnemyOamSchemaFixtures() =>
+    private static ExtendedEnemySchemaFixturesResult[] EnemyOamSchemaFixtures() =>
         [.. Enum.GetValues<EnemySpritemapSchema>()
-            .Select(schema => ((int)schema, EnemySpritemapFrameCounts.FrameCount(schema)))
-            .OrderBy(schema => schema.Item1)];
+            .Select(schema => new ExtendedEnemySchemaFixturesResult((int)schema, EnemySpritemapFrameCounts.FrameCount(schema)))
+            .OrderBy(schema => schema.Version)];
 
     /// <summary>Runs ordinary, extended, and projectile legacy override checks.</summary>
     [VerificationCommand("--enemy-legacy-overrides")]

@@ -30,7 +30,7 @@ internal static class RetailRidleyEscapeTests
             var ridley = runtime.Enemies.RidleyEncounter.CeresRidley;
             bool triggered = false, finished = false;
             int samples = 0, mixedFrames = 0;
-            var matrices = new HashSet<(SnesSignedEightEight, SnesSignedEightEight, SnesSignedEightEight, SnesSignedEightEight)>();
+            var matrices = new HashSet<Mode7Matrix>();
             var phases = new HashSet<RidleyAiFunction>();
             for (int tick = 0; tick < 6000; tick++)
             {
@@ -45,7 +45,7 @@ internal static class RetailRidleyEscapeTests
                 if (ridley.Mode7Active)
                 {
                     mixedFrames++;
-                    matrices.Add((ridley.Mode7MatrixA, ridley.Mode7MatrixB, ridley.Mode7MatrixC, ridley.Mode7MatrixD));
+                    matrices.Add(new Mode7Matrix(ridley.Mode7MatrixA, ridley.Mode7MatrixB, ridley.Mode7MatrixC, ridley.Mode7MatrixD));
                 }
                 finished = triggered && runtime.Enemies.RidleyEncounter.CeresStatus == SuperMetroid.Core.Enemies.CeresEscapeStatus.SelfDestructStarted && ridley.Mode7Finished &&
                     !ridley.Mode7Active && !samus.CeresRidleyEjection.IsActive;

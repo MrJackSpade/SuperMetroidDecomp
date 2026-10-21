@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
@@ -38,7 +39,7 @@ internal static class GoldNinjaDeathDropsVerification
         pirate.InstructionTimer = NativeCountdown.Start(0x7fff);
         pirate.Health = 1;
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(pirate.Position.Whole);
-        (ushort X, ushort Y) target = (pirate.Position.X.Whole, (ushort)(pirate.Position.Y.Whole + 15));
+        MotherBrainRinkaDoorSpawnExpected target = new MotherBrainRinkaDoorSpawnExpected(pirate.Position.X.Whole, (ushort)(pirate.Position.Y.Whole + 15));
 
         var shot = runtime.Projectiles.Slots[0];
         shot.Type = 0x0200; shot.Damage = 300; shot.Direction = 2;

@@ -198,7 +198,7 @@ internal static class GrappleBlockProgramsVerification
         var edited = new RoomPlmGrappleBlockVisualCatalog(entries);
 
         // Run the first PLM draw and capture collision, immediate tile upload, and later camera-streamed tile output.
-        (ushort physical, ushort immediate, ushort streamed) Render(
+        GrappleBlockProgramsRenderResult Render(
             RoomPlmGrappleBlockVisualCatalog visuals)
         {
             const int width = 8;
@@ -217,22 +217,22 @@ internal static class GrappleBlockProgramsVerification
             AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, blockIndex, 1),
                 "visual test starts the real respawning Grapple PLM");
             plms.Step(level);
-            return (level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
+            return new GrappleBlockProgramsRenderResult(level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
                 level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
                 level.DisplayedBlockTiles(blockIndex).TopLeft.Raw);
         }
 
         var stock = Render(RoomPlmGrappleBlockVisualCatalog.Stock());
         var changed = Render(edited);
-        AssertEqual((ushort)0xe0b7, stock.physical,
+        AssertEqual((ushort)0xe0b7, stock.Physical,
             "native first Grapple frame installs Grapple collision");
-        AssertEqual(stock.physical, changed.physical,
+        AssertEqual(stock.Physical, changed.Physical,
             "art edit does not change the physical Grapple collision word");
-        AssertEqual((ushort)0x0017, stock.immediate,
+        AssertEqual((ushort)0x0017, stock.Immediate,
             "stock visual block reaches immediate tile upload");
-        AssertEqual((ushort)0x0018, changed.immediate,
+        AssertEqual((ushort)0x0018, changed.Immediate,
             "edited visual block reaches immediate tile upload");
-        AssertEqual((ushort)0x0018, changed.streamed,
+        AssertEqual((ushort)0x0018, changed.Streamed,
             "edited visual block persists through later camera streaming");
         AssertThrows<InvalidDataException>(
             () => new RoomPlmGrappleBlockVisualCatalog(entries.Skip(1)),

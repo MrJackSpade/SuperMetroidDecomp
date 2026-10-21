@@ -82,16 +82,16 @@ internal static class PauseWireframesVerification
                 AssertPage(pause, edited, kind);
                 var editedPixels = pause.Render();
                 AssertTrue(editedPixels.SequenceEqual(RenderForComparison(pause.CaptureRenderSnapshot())), "edited wireframe agrees between direct and captured rendering");
-                var inventory = (samus.EquippedItems, samus.CollectedItems, samus.EquippedBeams, samus.CollectedBeams);
-                var cursor = (pause.SelectedCategory, pause.SelectedItem);
+                var inventory = new Inventory(samus.EquippedItems, samus.CollectedItems, samus.EquippedBeams, samus.CollectedBeams);
+                var cursor = new CursorBeforeRestore(pause.SelectedCategory, pause.SelectedItem);
                 using var captured = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(captured, new object[] { pause, samus }); captured.Position = 0;
                 var restored = DebuggerObjectGraphSerializer.Deserialize<object[]>(captured);
                 pause = (PauseMenuState)restored[0]; samus = (SamusState)restored[1];
                 pause.BindMapPresentation(original);
                 AssertPage(pause, original, kind);
                 AssertTrue(!editedPixels.SequenceEqual(pause.Render()), "restored current wireframe changes visible equipment pixels");
-                AssertEqual(cursor, (pause.SelectedCategory, pause.SelectedItem), "wireframe replacement preserves cursor");
-                AssertEqual(inventory, (samus.EquippedItems, samus.CollectedItems, samus.EquippedBeams, samus.CollectedBeams), "wireframe replacement cannot equip or collect upgrades");
+                AssertEqual(cursor, new CursorBeforeRestore(pause.SelectedCategory, pause.SelectedItem), "wireframe replacement preserves cursor");
+                AssertEqual(inventory, new Inventory(samus.EquippedItems, samus.CollectedItems, samus.EquippedBeams, samus.CollectedBeams), "wireframe replacement cannot equip or collect upgrades");
                 pause.BindMapPresentation(edited);
                 AssertTrue(editedPixels.SequenceEqual(pause.Render()), "repeated restored-content rebind preserves exact animation phase");
             }
@@ -103,10 +103,10 @@ internal static class PauseWireframesVerification
         EnterEquipment(toggles); AssertPage(toggles, original, PauseWireframeKind.VariaSuitHiJump);
         toggles.Step(0, SnesButton.A); AssertPage(toggles, original, PauseWireframeKind.PowerSuitHiJump);
         toggles.Step(0, SnesButton.Down);
-        AssertEqual((PauseEquipmentCategory.Boots, 0), (toggles.SelectedCategory, toggles.SelectedItem), "actual navigation reaches Hi-Jump");
+        AssertEqual(new CursorBeforeRestore(PauseEquipmentCategory.Boots, 0), new CursorBeforeRestore(toggles.SelectedCategory, toggles.SelectedItem), "actual navigation reaches Hi-Jump");
         toggles.Step(0, SnesButton.A); AssertPage(toggles, original, PauseWireframeKind.PowerSuit);
         toggles.Step(0, SnesButton.Up);
-        AssertEqual((PauseEquipmentCategory.Suits, 0), (toggles.SelectedCategory, toggles.SelectedItem), "actual navigation returns to Varia");
+        AssertEqual(new CursorBeforeRestore(PauseEquipmentCategory.Suits, 0), new CursorBeforeRestore(toggles.SelectedCategory, toggles.SelectedItem), "actual navigation returns to Varia");
         toggles.Step(0, SnesButton.A); AssertPage(toggles, original, PauseWireframeKind.VariaSuit);
 
         void Reject(PauseWireframeDocument invalid) => AssertThrows<InvalidDataException>(() =>

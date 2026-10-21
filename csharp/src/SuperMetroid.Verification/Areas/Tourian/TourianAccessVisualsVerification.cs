@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json.Nodes;
@@ -103,8 +104,8 @@ internal static class TourianAccessVisualsVerification
     private static void VerifyTourianAccessStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmTourianAccessVisualCatalog installed)
     {
-        (ushort Pointer, string Id)[] frames = [(0x9297,"crumble-empty-row"), (0x92a3,"crumble-frame-0"),
-            (0x92af,"crumble-frame-1"), (0x92bb,"crumble-frame-2"), (0x92c7,"clear-six-rows")];
+        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9297,"crumble-empty-row"), new LookupEscapeGateStockFrame(0x92a3,"crumble-frame-0"),
+            new LookupEscapeGateStockFrame(0x92af,"crumble-frame-1"), new LookupEscapeGateStockFrame(0x92bb,"crumble-frame-2"), new LookupEscapeGateStockFrame(0x92c7,"clear-six-rows")];
         var native = new Dictionary<ushort, ushort[]>();
         foreach (var frame in frames)
         {

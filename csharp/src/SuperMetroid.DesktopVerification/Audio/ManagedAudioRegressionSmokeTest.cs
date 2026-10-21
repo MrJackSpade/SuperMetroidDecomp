@@ -65,22 +65,22 @@ public static class ManagedAudioRegressionSmokeTest
 
         RunSoundScenario(
             "library-1-power-beam",
-            [(ApuPort.SoundLibrary1, checked((byte)SoundEffectLibrary1Sounds.PowerBeam.Value))],
+            [new ApuPortCommand(ApuPort.SoundLibrary1, checked((byte)SoundEffectLibrary1Sounds.PowerBeam.Value))],
             tally);
         RunSoundScenario(
             "library-2-door",
-            [(ApuPort.SoundLibrary2, checked((byte)SoundEffectLibrary2Sounds.DoorOpening.Value))],
+            [new ApuPortCommand(ApuPort.SoundLibrary2, checked((byte)SoundEffectLibrary2Sounds.DoorOpening.Value))],
             tally);
         RunSoundScenario(
             "library-3-cinematic",
-            [(ApuPort.SoundLibrary3, 0x23)],
+            [new ApuPortCommand(ApuPort.SoundLibrary3, 0x23)],
             tally);
         RunSoundScenario(
             "three-library-overlap-and-cancel",
             [
-                (ApuPort.SoundLibrary1, checked((byte)SoundEffectLibrary1Sounds.PowerBeam.Value)),
-                (ApuPort.SoundLibrary2, checked((byte)SoundEffectLibrary2Sounds.DoorOpening.Value)),
-                (ApuPort.SoundLibrary3, 0x23),
+                new ApuPortCommand(ApuPort.SoundLibrary1, checked((byte)SoundEffectLibrary1Sounds.PowerBeam.Value)),
+                new ApuPortCommand(ApuPort.SoundLibrary2, checked((byte)SoundEffectLibrary2Sounds.DoorOpening.Value)),
+                new ApuPortCommand(ApuPort.SoundLibrary3, 0x23),
             ],
             tally,
             cancelHalfway: true);
@@ -134,7 +134,7 @@ public static class ManagedAudioRegressionSmokeTest
     /// <summary>Hashes a common-bank sound sequence, optionally issuing cancel commands to all three libraries halfway through.</summary>
     private static void RunSoundScenario(
         string name,
-        IReadOnlyList<(ApuPort Port, byte Command)> startCommands,
+        IReadOnlyList<ApuPortCommand> startCommands,
         AudioCorpusTally tally,
         bool cancelHalfway = false)
     {

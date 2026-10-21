@@ -7,10 +7,10 @@ namespace SuperMetroid.Verification.Areas.Ceres;
 internal static class CeresFallingDebrisNativeListAddresses
 {
     /// <summary>Each program's projectile kind and native list: <c>InstList_EnemyProjectile_CeresFallingTile_Light/Dark</c>.</summary>
-    internal static readonly (CeresFallingDebrisProgram Program, RoomEnemyProjectileKind Kind, ushort Entry)[] Entries =
+    internal static readonly CeresFallingDebrisNativeListAddressesEntry[] Entries =
     [
-        (CeresFallingDebrisProgram.Light, RoomEnemyProjectileKind.CeresFallingDebrisLight, 0x9750),
-        (CeresFallingDebrisProgram.Dark, RoomEnemyProjectileKind.CeresFallingDebrisDark, 0x9756),
+        new CeresFallingDebrisNativeListAddressesEntry(CeresFallingDebrisProgram.Light, RoomEnemyProjectileKind.CeresFallingDebrisLight, 0x9750),
+        new CeresFallingDebrisNativeListAddressesEntry(CeresFallingDebrisProgram.Dark, RoomEnemyProjectileKind.CeresFallingDebrisDark, 0x9756),
     ];
 
     /// <summary>The tile lists' span, $86:9750..975C, which production must never read.</summary>

@@ -54,8 +54,8 @@ internal static class LookupScrollProgramsVerification
         int totalPairs = 0, totalBytes = 0;
         foreach (ushort pointer in pointers)
         {
-            var actual = new List<(int Index, RoomScrollState State)>();
-            RoomPlmScrollProgramDefinitions.Apply(pointer,(index,state) => actual.Add((index,state)));
+            var actual = new List<LookupScrollProgramsActual>();
+            RoomPlmScrollProgramDefinitions.Apply(pointer,(index,state) => actual.Add(new LookupScrollProgramsActual(index,state)));
             var dto = RoomPlmScrollProgramDefinitions.Get(pointer);
             int cursor = 0, pair = 0;
             while (true)

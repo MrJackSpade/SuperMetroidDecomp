@@ -12,12 +12,12 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 internal static class MotherBrainTopTubeAnimationsVerification
 {
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (MotherBrainTopTubeProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<MotherBrainTopTubeProgram>[] Entries =
     [
-        (MotherBrainTopTubeProgram.TopRight, MotherBrainTopTubeInstructionProgramDefinitions.TopRight),
-        (MotherBrainTopTubeProgram.TopLeft, MotherBrainTopTubeInstructionProgramDefinitions.TopLeft),
-        (MotherBrainTopTubeProgram.TopMiddleLeft, MotherBrainTopTubeInstructionProgramDefinitions.TopMiddleLeft),
-        (MotherBrainTopTubeProgram.TopMiddleRight, MotherBrainTopTubeInstructionProgramDefinitions.TopMiddleRight),
+        new NativeProgramEntry<MotherBrainTopTubeProgram>(MotherBrainTopTubeProgram.TopRight, MotherBrainTopTubeInstructionProgramDefinitions.TopRight),
+        new NativeProgramEntry<MotherBrainTopTubeProgram>(MotherBrainTopTubeProgram.TopLeft, MotherBrainTopTubeInstructionProgramDefinitions.TopLeft),
+        new NativeProgramEntry<MotherBrainTopTubeProgram>(MotherBrainTopTubeProgram.TopMiddleLeft, MotherBrainTopTubeInstructionProgramDefinitions.TopMiddleLeft),
+        new NativeProgramEntry<MotherBrainTopTubeProgram>(MotherBrainTopTubeProgram.TopMiddleRight, MotherBrainTopTubeInstructionProgramDefinitions.TopMiddleRight),
     ];
 
     /// <summary>The ceiling-tube lists use no family commands.</summary>

@@ -653,8 +653,8 @@ internal static class MapPresentationVerification
             AssertTrue(stockFade.Colors[MotherBrainFakeDeathPaletteRomData.BrainColor] !=
                 editedFade.Colors[MotherBrainFakeDeathPaletteRomData.BrainColor],
                 "fake-death edited color reaches the production fade path");
-            AssertEqual(1, stockFade.Colors.Zip(editedFade.Colors).Count(pair =>
-                pair.First != pair.Second),
+            AssertEqual(1, stockFade.Colors.Zip(editedFade.Colors, (first, second) =>
+                first != second).Count(differs => differs),
                 "fake-death edit changes only one CGRAM word");
             AssertEqual(stockFade.FunctionTimer, editedFade.FunctionTimer,
                 "fake-death edit preserves native frame timer");
@@ -754,8 +754,8 @@ internal static class MapPresentationVerification
             MotherBrainHealthPalettePresentation.Load(new MemoryStream(
                 SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainHealthPaletteExtractor.Extract(bus),
                 writable: false));
-        foreach (var (health, state) in new (ushort, int)[]
-            { (36000, 0), (9000, 0), (8999, 1), (5400, 1), (5399, 2), (1800, 2), (1799, 3), (0, 3) })
+        foreach (var (health, state) in new VerifyMotherBrainHealthPaletteOverrideCase[]
+            { new VerifyMotherBrainHealthPaletteOverrideCase(36000, 0), new VerifyMotherBrainHealthPaletteOverrideCase(9000, 0), new VerifyMotherBrainHealthPaletteOverrideCase(8999, 1), new VerifyMotherBrainHealthPaletteOverrideCase(5400, 1), new VerifyMotherBrainHealthPaletteOverrideCase(5399, 2), new VerifyMotherBrainHealthPaletteOverrideCase(1800, 2), new VerifyMotherBrainHealthPaletteOverrideCase(1799, 3), new VerifyMotherBrainHealthPaletteOverrideCase(0, 3) })
         {
             var native = new SnesCgram();
             var installed = new SnesCgram();
@@ -1072,10 +1072,10 @@ internal static class MapPresentationVerification
         foreach ((string owner, ushort definitionPointer,
                      ushort colorByteIndex) in new[]
                  {
-                     ("BootLogo",
+                     new VerifyRoomPaletteFxOverrideCase("BootLogo",
                          NintendoLogoFadePaletteFxColorDefinitions.BootLogoDefinitionPointer,
                          NintendoLogoFadePaletteFxColorDefinitionsConstants.BootLogoColorByteIndex),
-                     ("Copyright",
+                     new VerifyRoomPaletteFxOverrideCase("Copyright",
                          NintendoLogoFadePaletteFxColorDefinitions.CopyrightDefinitionPointer,
                          NintendoLogoFadePaletteFxColorDefinitionsConstants.CopyrightColorByteIndex),
                  })
@@ -1093,12 +1093,12 @@ internal static class MapPresentationVerification
         foreach ((string owner, ushort definitionPointer,
                      ushort colorByteIndex) in new[]
                  {
-                     ("WideExplosionBackground",
+                     new VerifyRoomPaletteFxOverrideCase("WideExplosionBackground",
                          ZebesExplosionWhiteoutPaletteFxColorDefinitions
                              .WideExplosionBackgroundDefinitionPointer,
                          ZebesExplosionWhiteoutPaletteFxColorDefinitionsConstants
                              .WideExplosionBackgroundColorByteIndex),
-                     ("SpaceWhiteout",
+                     new VerifyRoomPaletteFxOverrideCase("SpaceWhiteout",
                          ZebesExplosionWhiteoutPaletteFxColorDefinitions
                              .SpaceWhiteoutDefinitionPointer,
                          ZebesExplosionWhiteoutPaletteFxColorDefinitionsConstants

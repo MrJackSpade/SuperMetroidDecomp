@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
@@ -97,9 +98,9 @@ internal static class SamusEaterVisualsVerification
     private static void VerifySamusEaterStockVisualMapping(SuperMetroidAddressSpace rom,
         RoomPlmSamusEaterVisualCatalog installed)
     {
-        (ushort Pointer, string Id)[] frames = [(0x9e0d,"floor-idle"), (0x9e45,"floor-chew-1"),
-            (0x9e61,"floor-chew-2"), (0x9e7d,"floor-chew-3"), (0x9e99,"ceiling-idle"),
-            (0x9ed1,"ceiling-chew-1"), (0x9eed,"ceiling-chew-2"), (0x9f09,"ceiling-chew-3")];
+        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9e0d,"floor-idle"), new LookupEscapeGateStockFrame(0x9e45,"floor-chew-1"),
+            new LookupEscapeGateStockFrame(0x9e61,"floor-chew-2"), new LookupEscapeGateStockFrame(0x9e7d,"floor-chew-3"), new LookupEscapeGateStockFrame(0x9e99,"ceiling-idle"),
+            new LookupEscapeGateStockFrame(0x9ed1,"ceiling-chew-1"), new LookupEscapeGateStockFrame(0x9eed,"ceiling-chew-2"), new LookupEscapeGateStockFrame(0x9f09,"ceiling-chew-3")];
         var native = new Dictionary<ushort, ushort[]>();
         var counts = new Dictionary<ushort, int[]>();
         foreach (var frame in frames)

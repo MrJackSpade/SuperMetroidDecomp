@@ -125,12 +125,12 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
     {
         foreach (RoomFxAnimatedTileObjectDefinition definition in RoomFxAnimatedTileMechanicsDefinitions.All)
         {
-            var expected = new List<(int Update, int Source)>();
+            var expected = new List<RoomFxAnimatedTileMechanicsDefinitionsExpected>();
             int update = 0;
             for (int index = 0; index <= definition.Frames.Count; index++)
             {
                 RoomFxAnimatedTileFrameDefinition frame = definition.Frames[index % definition.Frames.Count];
-                expected.Add((update, RoomFxAnimatedTileArtworkDefinitions.SourceAddress(definition, frame.InstructionPointer)));
+                expected.Add(new RoomFxAnimatedTileMechanicsDefinitionsExpected(update, RoomFxAnimatedTileArtworkDefinitions.SourceAddress(definition, frame.InstructionPointer)));
                 update += frame.Duration;
             }
 
@@ -138,12 +138,12 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
             var vram = new SnesVram();
             var writes = new VramWriteQueue();
             state.LoadDefinition(definition.ObjectPointer);
-            var observed = new List<(int Update, int Source)>();
+            var observed = new List<RoomFxAnimatedTileMechanicsDefinitionsExpected>();
             for (int step = 0; step <= expected[^1].Update; step++)
             {
                 state.Step(BgArtworkFixtures.For(vram), writes);
                 if (state.LastSourceAddress is int source)
-                    observed.Add((step, source));
+                    observed.Add(new RoomFxAnimatedTileMechanicsDefinitionsExpected(step, source));
             }
             AssertTrue(expected.SequenceEqual(observed),
                 $"{definition.ObjectPointer} shows each frame on its update and returns to the first after the last");

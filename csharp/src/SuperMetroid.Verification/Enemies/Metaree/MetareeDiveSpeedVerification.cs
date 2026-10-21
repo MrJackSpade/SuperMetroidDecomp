@@ -14,7 +14,7 @@ internal static class MetareeDiveSpeedVerification
     /// </summary>
     internal static void VerifyMetareeDiveSpeed()
     {
-        foreach ((int samusOffset, int expected) in new[] { (96, 8), (-1, 2734) })
+        foreach ((int samusOffset, int expected) in new[] { new VerifyMetareeDiveSpeedCase(96, 8), new VerifyMetareeDiveSpeedCase(-1, 2734) })
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -30,7 +30,7 @@ internal static class MetareeDiveSpeedVerification
             AssertEqual(expected, state.YVelocity, $"Samus {samusOffset} pixels below gives a dive of {expected}");
             AssertEqual(MetareeEnemyFunction.PreparingAttack, state.Function, "the Metaree prepares its attack");
             slot.Clear();
-            AssertEqual((0, null), (state.YVelocity, state.Function), "a kill empties the dive speed and function");
+            AssertEqual(new MetareeDiveSpeedVerifyMetareeDiveSpeedCase(0, null), new MetareeDiveSpeedVerifyMetareeDiveSpeedCase(state.YVelocity, state.Function), "a kill empties the dive speed and function");
         }
         Console.WriteLine("Metaree dive speed: the ordinary and wrapped dives and the cleared record match.");
     }

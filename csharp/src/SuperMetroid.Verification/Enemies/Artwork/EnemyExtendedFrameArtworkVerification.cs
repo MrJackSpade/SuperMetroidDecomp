@@ -120,11 +120,11 @@ internal static class EnemyExtendedFrameArtworkVerification
             "all ninja-Pirate visual frame identities are installed");
         foreach (EnemySpritemapDefinition frame in EnemyExtendedFrameDefinitions.Frames)
         {
-            foreach ((ushort x, ushort y) in new (ushort, ushort)[]
+            foreach ((ushort x, ushort y) in new VerifyInstalledEnemyExtendedFramesCase[]
                      {
-                         (0x0040, 0x0080),
-                         (0x01f8, 0x00fc),
-                         (0x0000, 0x0000),
+                         new VerifyInstalledEnemyExtendedFramesCase(0x0040, 0x0080),
+                         new VerifyInstalledEnemyExtendedFramesCase(0x01f8, 0x00fc),
+                         new VerifyInstalledEnemyExtendedFramesCase(0x0000, 0x0000),
                      })
             {
                 OamBuffer native = DrawReferenceExtendedFrame(rom,

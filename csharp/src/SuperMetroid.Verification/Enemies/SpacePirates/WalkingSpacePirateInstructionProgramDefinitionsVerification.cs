@@ -98,8 +98,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
                 $"walking Pirate program {program} function");
         }
 
-        (RoomEnemySystem Enemies, RoomEnemySlot Slot,
-            WalkingSpacePirateEnemyState State, SamusState Samus) CreateSystem()
+        WalkingSpacePirateInstructionProgramDefinitionsCreateSystemResult CreateSystem()
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -111,7 +110,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)),
             };
-            return (enemies, slot, (enemies.WalkingSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized WalkingSpacePirate state.")), samus);
+            return new WalkingSpacePirateInstructionProgramDefinitionsCreateSystemResult(enemies, slot, (enemies.WalkingSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized WalkingSpacePirate state.")), samus);
         }
 
         static void RunFrames(

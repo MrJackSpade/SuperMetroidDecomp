@@ -24,9 +24,9 @@ internal static class SpeedBoosterWordRangeVerification
         // which is not a stage advance. Zero wraps to the largest counter.
         foreach ((int before, int expected) in new[]
         {
-            (Counter(2, 0), Counter(1, 255)),
-            (0, ushort.MaxValue),
-            (Counter(4, 0), Counter(3, 255)),
+            new VerifySpeedBoosterWordRangeCase(Counter(2, 0), Counter(1, 255)),
+            new VerifySpeedBoosterWordRangeCase(0, ushort.MaxValue),
+            new VerifySpeedBoosterWordRangeCase(Counter(4, 0), Counter(3, 255)),
         })
         {
             var speed = new SamusHorizontalSpeedState { HasRunningMomentum = true, SpeedBoostCounter = new SamusSpeedBoostCounter(before) };

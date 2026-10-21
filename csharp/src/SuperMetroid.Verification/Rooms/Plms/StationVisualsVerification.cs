@@ -41,7 +41,7 @@ internal static class StationVisualsVerification
             StationAnimationList.MapIdle, 0).DrawPointer;
         AssertEqual((ushort)0x0053, edited.GetWord(pointer, 0, 0),
             "station visual catalog copies author data");
-        (ushort physical, ushort immediate, ushort streamed) Render(
+        StationVisualsRenderResult Render(
             RoomPlmStationVisualCatalog visuals)
         {
             var bus = new TestAddressSpace();
@@ -61,22 +61,22 @@ internal static class StationVisualsVerification
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmStationVisuals = visuals });
             PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
             plms.Step(level);
-            return (level.GetCollisionBlockByIndex(block).PackedWord.Raw,
+            return new StationVisualsRenderResult(level.GetCollisionBlockByIndex(block).PackedWord.Raw,
                 level.DisplayedBlockTiles(block).TopLeft.Raw,
                 level.DisplayedBlockTiles(block).TopLeft.Raw);
         }
 
         var native = Render(stock);
         var changed = Render(edited);
-        AssertEqual((ushort)0x810c, native.physical,
+        AssertEqual((ushort)0x810c, native.Physical,
             "stock map-station frame keeps its native physical level word");
-        AssertEqual(native.physical, changed.physical,
+        AssertEqual(native.Physical, changed.Physical,
             "station art cannot change collision or physical level data");
-        AssertEqual((ushort)0x000c, native.immediate,
+        AssertEqual((ushort)0x000c, native.Immediate,
             "stock station visual reaches the immediate redraw");
-        AssertEqual((ushort)0x0053, changed.immediate,
+        AssertEqual((ushort)0x0053, changed.Immediate,
             "edited station visual reaches the immediate redraw");
-        AssertEqual((ushort)0x0053, changed.streamed,
+        AssertEqual((ushort)0x0053, changed.Streamed,
             "edited station visual survives later camera streaming");
 
         var gameplayBus = new TestAddressSpace();

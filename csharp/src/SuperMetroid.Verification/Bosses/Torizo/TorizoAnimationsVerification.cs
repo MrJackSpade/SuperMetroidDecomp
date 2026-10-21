@@ -31,7 +31,7 @@ internal static class TorizoAnimationsVerification
         AssertEqual(Enum.GetValues<TorizoBodyProgram>().Length, BodyEntries.Length, "every typed Torizo body program has a native entry");
         for (int index = 0; index < BodyEntries.Length; index++)
             AssertEqual((TorizoBodyProgram)index, BodyEntries[index].Program, "the Torizo body programs are declared in authored order");
-        AssertTrue(BodyEntries.Zip(BodyEntries.Skip(1)).All(pair => pair.First.Entry < pair.Second.Entry), "native Torizo body entries ascend");
+        AssertTrue(BodyEntries.Zip(BodyEntries.Skip(1), (first, second) => first.Entry < second.Entry).All(ascends => ascends), "native Torizo body entries ascend");
         int steps = 0;
         foreach ((TorizoBodyProgram program, ushort entry) in BodyEntries)
             steps += CompareBodyProgram(cartridge, program, entry);

@@ -45,8 +45,8 @@ internal static class MapScrollControlsVerification
             {
                 SnesButton input = tick < 267 ? held : SnesButton.None;
                 AssertEqual(native.Step(input), compiled.Step(input), "compiled map scroll sound timing");
-                AssertEqual((native.Scroll, native.Direction),
-                    (compiled.Scroll, compiled.Direction), "compiled map scroll trajectory and direction");
+                AssertEqual(new VerifyCompiledMapScrollControlsCase(native.Scroll, native.Direction),
+                    new VerifyCompiledMapScrollControlsCase(compiled.Scroll, compiled.Direction), "compiled map scroll trajectory and direction");
             }
         }
         for (int bit = 0; bit < 16; bit++)

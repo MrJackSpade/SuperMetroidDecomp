@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 namespace SuperMetroid.Verification.Hardware;
@@ -12,7 +13,7 @@ internal static class SignedSineFixtureVerification
     /// little-endian word at its angle's slot; unseeded angles stay zero.
     /// </summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the $A0:B443 signed sine table")]
-    internal static void SeedSignedSineTable(TestAddressSpace bus, ReadOnlySpan<(byte Angle, short Value)> samples)
+    internal static void SeedSignedSineTable(TestAddressSpace bus, ReadOnlySpan<SineSample> samples)
     {
         foreach ((byte angle, short value) in samples)
             WriteTestWord(bus, 0xa0b443 + angle * 2, unchecked((ushort)value));

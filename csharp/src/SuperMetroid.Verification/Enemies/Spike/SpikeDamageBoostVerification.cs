@@ -46,20 +46,20 @@ internal static class SpikeDamageBoostVerification
         // Original CPU contact=2, right-facing ball, lower inside point, delay zero.
         // Frame three releases direction with subpixel base speed still present. Type
         // four's command six selects the stationary pose and clears momentum that frame.
-        (uint X, uint Y, SamusPoseId Pose, uint Base)[] expected =
+        SpikeDamageBoostExpected[] expected =
         [
-            (0x00800000, 0x00a10000, SamusPoseId.MorphBallGroundRightPose, 0),
-            (0x007f4000, 0x009c0000, SamusPoseId.MorphBallMovingLeftPose, 0xc000),
-            (0x007f0000, 0x00971c00, SamusPoseId.MorphBallMovingLeftPose, 0x4000),
-            (0x007f0000, 0x00925400, SamusPoseId.MorphBallGroundLeftPose, 0),
-            (0x007e4000, 0x008da800, SamusPoseId.MorphBallGroundLeftPose, 0),
-            (0x007d8000, 0x00891800, SamusPoseId.MorphBallGroundLeftPose, 0),
-            (0x007cc000, 0x0084a400, SamusPoseId.MorphBallGroundLeftPose, 0),
+            new SpikeDamageBoostExpected(0x00800000, 0x00a10000, SamusPoseId.MorphBallGroundRightPose, 0),
+            new SpikeDamageBoostExpected(0x007f4000, 0x009c0000, SamusPoseId.MorphBallMovingLeftPose, 0xc000),
+            new SpikeDamageBoostExpected(0x007f0000, 0x00971c00, SamusPoseId.MorphBallMovingLeftPose, 0x4000),
+            new SpikeDamageBoostExpected(0x007f0000, 0x00925400, SamusPoseId.MorphBallGroundLeftPose, 0),
+            new SpikeDamageBoostExpected(0x007e4000, 0x008da800, SamusPoseId.MorphBallGroundLeftPose, 0),
+            new SpikeDamageBoostExpected(0x007d8000, 0x00891800, SamusPoseId.MorphBallGroundLeftPose, 0),
+            new SpikeDamageBoostExpected(0x007cc000, 0x0084a400, SamusPoseId.MorphBallGroundLeftPose, 0),
         ];
         for (int frame = 0; frame < expected.Length; frame++)
         {
             runtime.StepFrame(frame < 3 ? SnesButton.Left | SnesButton.A : SnesButton.A);
-            AssertEqual(expected[frame], (samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue,
+            AssertEqual(expected[frame], new SpikeDamageBoostExpected(samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue,
                 samus.Pose, samus.HorizontalSpeed.BaseFixed), $"morphed spike release frame {frame}");
             AssertEqual(83, samus.Health, "spike contact damage");
             AssertEqual(9 - frame, samus.KnockbackTimer.RawValue, "spike hurt timer");
@@ -112,17 +112,17 @@ internal static class SpikeDamageBoostVerification
         samus.HorizontalSpeed.HasRunningMomentum = true;
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
         runtime.Controller1.Latch(0);
-        (ushort Input, uint X, uint Y, uint Base, ushort Extra)[] carriedFrames =
+        CarriedFrame[] carriedFrames =
         [
-            (0, 0x00808000, 0x009b0000, 0x0000e000, 2),
-            (0x0280, 0x007c2000, 0x00961c00, 0x00026000, 2),
-            (0x0280, 0x00790000, 0x00915400, 0x00032000, 0),
+            new CarriedFrame(0, 0x00808000, 0x009b0000, 0x0000e000, 2),
+            new CarriedFrame(0x0280, 0x007c2000, 0x00961c00, 0x00026000, 2),
+            new CarriedFrame(0x0280, 0x00790000, 0x00915400, 0x00032000, 0),
         ];
         foreach (var expectedFrame in carriedFrames)
         {
             runtime.StepFrame(SnesButtons.FromRaw(expectedFrame.Input, "spike fixture frame"));
-            AssertEqual((expectedFrame.X, expectedFrame.Y, expectedFrame.Base, expectedFrame.Extra),
-                (samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue,
+            AssertEqual(new VerifyMorphedSpikeReleaseCase(expectedFrame.X, expectedFrame.Y, expectedFrame.Base, expectedFrame.Extra),
+                new VerifyMorphedSpikeReleaseCase(samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue,
                     samus.HorizontalSpeed.BaseFixed, samus.HorizontalSpeed.ExtraRunSpeed.Whole),
                 "native carried-speed hurt fallback trajectory");
             AssertEqual(false, samus.HorizontalSpeed.HasRunningMomentum, "hurt fallback cancels momentum flag");
@@ -179,15 +179,15 @@ internal static class SpikeDamageBoostVerification
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
         runtime.Controller1.Latch((SnesButton.Left | SnesButton.A));
         runtime.StepFrame((SnesButton.Left | SnesButton.A));
-        AssertEqual((0x0063c000u, 0x00edffffu, 0x0000a000u),
-            (samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue, samus.Kinematics.VerticalSpeedFixed),
+        AssertEqual(new SpikeDamageBoostVerifyMorphedSpikeReleaseCase(0x0063c000u, 0x00edffffu, 0x0000a000u),
+            new SpikeDamageBoostVerifyMorphedSpikeReleaseCase(samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue, samus.Kinematics.VerticalSpeedFixed),
             "underwater turn floor contact preserves native accumulated speed");
         AssertEqual(SamusPoseId.FallingLeftPose, samus.Pose, "turn animation completes at floor");
         AssertEqual(false, (runtime.Player.LastAerialSamusMovement ?? throw new InvalidOperationException("Verification requires runtime.Player.LastAerialSamusMovement.")).Landed,
             "turn suppresses collision-owned landing presentation");
         runtime.StepFrame((SnesButton.Left | SnesButton.A));
-        AssertEqual((0x0062c000u, 0x00ebffffu, 0u),
-            (samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue, samus.Kinematics.VerticalSpeedFixed),
+        AssertEqual(new SpikeDamageBoostVerifyMorphedSpikeReleaseCase(0x0062c000u, 0x00ebffffu, 0u),
+            new SpikeDamageBoostVerifyMorphedSpikeReleaseCase(samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue, samus.Kinematics.VerticalSpeedFixed),
             "following normal fall performs actual landing");
         AssertEqual(SamusPoseId.NormalLandingLeftPose, samus.Pose, "next frame selects normal landing");
     }

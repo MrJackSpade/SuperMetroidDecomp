@@ -22,11 +22,11 @@ internal static class WreckedShipGhostBobbingVerification
             new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState() },
             new FrameCounters(0));
         foreach ((string context, ushort y, ushort originY, short whole, ushort expectedY, int expectedVelocity) in
-                 new (string, ushort, ushort, short, ushort, int)[]
+                 new VerifyWreckedShipGhostBobbingCase[]
                  {
-                     ("moving below its origin", 100, 100, 1, 101, 65536 - 6144),
-                     ("moving above its origin", 100, 100, -1, 99, -65536 + 6144),
-                     ("below an origin wrapped past the top edge", 0, 65535, 1, 1, 65536 - 6144),
+                     new VerifyWreckedShipGhostBobbingCase("moving below its origin", 100, 100, 1, 101, 65536 - 6144),
+                     new VerifyWreckedShipGhostBobbingCase("moving above its origin", 100, 100, -1, 99, -65536 + 6144),
+                     new VerifyWreckedShipGhostBobbingCase("below an origin wrapped past the top edge", 0, 65535, 1, 1, 65536 - 6144),
                  })
         {
             var enemies = new RoomEnemySystem(new EnemySession());

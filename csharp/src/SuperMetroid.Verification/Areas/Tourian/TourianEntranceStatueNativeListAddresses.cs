@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Areas.Tourian;
 
 namespace SuperMetroid.Verification.Areas.Tourian;
@@ -12,11 +13,11 @@ internal static class TourianEntranceStatueNativeListAddresses
     internal const byte Bank = 0xaa;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (TourianEntranceStatueProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<TourianEntranceStatueProgram>[] Entries =
     [
-        (TourianEntranceStatueProgram.Ridley, 0xd7a5),
-        (TourianEntranceStatueProgram.Phantoon, 0xd7af),
-        (TourianEntranceStatueProgram.BaseDecoration, 0xd7b9),
+        new NativeProgramEntry<TourianEntranceStatueProgram>(TourianEntranceStatueProgram.Ridley, 0xd7a5),
+        new NativeProgramEntry<TourianEntranceStatueProgram>(TourianEntranceStatueProgram.Phantoon, 0xd7af),
+        new NativeProgramEntry<TourianEntranceStatueProgram>(TourianEntranceStatueProgram.BaseDecoration, 0xd7b9),
     ];
 
 }

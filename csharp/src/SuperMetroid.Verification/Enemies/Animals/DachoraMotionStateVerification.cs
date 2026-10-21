@@ -41,11 +41,11 @@ internal static class DachoraMotionStateVerification
         var frame = new ClockedEnemyAiFrame(
             new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus, Level = level },
             new FrameCounters(0));
-        foreach ((short whole, ushort fraction, ushort expectedWhole, ushort expectedFraction) in new (short, ushort, ushort, ushort)[]
+        foreach ((short whole, ushort fraction, ushort expectedWhole, ushort expectedFraction) in new VerifyDachoraMotionStateCase[]
                  {
-                     (9, 61440, 10, 0),
-                     (-1, 61440, 0, 3072),
-                     (3, 0, 3, AirGravityFraction),
+                     new VerifyDachoraMotionStateCase(9, 61440, 10, 0),
+                     new VerifyDachoraMotionStateCase(-1, 61440, 0, 3072),
+                     new VerifyDachoraMotionStateCase(3, 0, 3, AirGravityFraction),
                  })
         {
             (RoomEnemySystem fallEnemies, RoomEnemySlot fallSlot, DachoraEnemyState fall) = NewDachora(parameter: 1);
@@ -73,7 +73,7 @@ internal static class DachoraMotionStateVerification
         var frame = new ClockedEnemyAiFrame(
             new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
             new FrameCounters(0));
-        foreach ((int lifetime, ushort expected, bool invisible) in new (int, ushort, bool)[] { (8, 7, false), (1, 0, false), (0, 0, true) })
+        foreach ((int lifetime, ushort expected, bool invisible) in new VerifyDachoraEchoLifetimeCase[] { new VerifyDachoraEchoLifetimeCase(8, 7, false), new VerifyDachoraEchoLifetimeCase(1, 0, false), new VerifyDachoraEchoLifetimeCase(0, 0, true) })
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, DachoraEnemyState state) = NewDachora(parameter: ushort.MaxValue);
             AssertEqual(DachoraAiFunction.Echo, state.Function, "a negative parameter makes an echo");
@@ -88,7 +88,7 @@ internal static class DachoraMotionStateVerification
     }
 
     /// <summary>An initialized Dachora with spawn parameter <paramref name="parameter"/> in the first slot of a fresh room.</summary>
-    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, DachoraEnemyState State) NewDachora(ushort parameter)
+    private static NewDachoraResult NewDachora(ushort parameter)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -96,7 +96,7 @@ internal static class DachoraMotionStateVerification
         slot.SetSpawnParameter1(parameter);
         slot.Radius = new(8, 8);
         DachoraBehavior.InitializeDachora(slot);
-        return (enemies, slot, slot.RequireSpeciesState<DachoraEnemyState>());
+        return new NewDachoraResult(enemies, slot, slot.RequireSpeciesState<DachoraEnemyState>());
     }
 
     /// <summary>Runs Dachora's motion-state and echo-lifetime checks.</summary>

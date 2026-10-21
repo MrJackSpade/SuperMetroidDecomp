@@ -25,14 +25,14 @@ internal static class WindowSceneSmokeTests
         // Each scene render uploads its memory, sprite-draw and BG-layer buffers once. The two draw buffers upload their
         // grown capacity, so a frame's bytes are fixed per window shape rather than computable from the scene alone.
         var bytesByChildren = new Dictionary<int, long>();
-        foreach (var edges in new[] { (0,0,256,224), (0,0,0,224), (1,1,255,223),
-            (17,32,219,200), (255,223,256,224), (0,0,1,1), (0,224,256,224) })
+        foreach (var edges in new[] { new WindowEdges(0,0,256,224), new WindowEdges(0,0,0,224), new WindowEdges(1,1,255,223),
+            new WindowEdges(17,32,219,200), new WindowEdges(255,223,256,224), new WindowEdges(0,0,1,1), new WindowEdges(0,224,256,224) })
         for (byte brightness = 0; brightness <= 15; brightness++)
         {
             var child = new LayeredRenderSnapshot(childMemory, new RenderLayer[] {
                 new Mode7RenderLayer(new(255, 71, -71, 255, new(128, 112), new(13, -11), true)),
                 new ObjRenderLayer() }, 7, brightness);
-            var window = new WindowedSceneRenderLayer(child, edges.Item1, edges.Item2, edges.Item3, edges.Item4);
+            var window = new WindowedSceneRenderLayer(child, edges.Left, edges.Top, edges.Right, edges.Bottom);
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(parentMemory,
                 new RenderLayer[] { new ObjPriorityRenderLayer(0), window,
                     new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), true),
@@ -41,7 +41,7 @@ internal static class WindowSceneSmokeTests
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: scene window {count}, edges {edges}, brightness {brightness}");
             var after = renderer.UploadStatistics;
-            int children = edges.Item1 == edges.Item3 || edges.Item2 == edges.Item4 ? 0 : 2;
+            int children = edges.Left == edges.Right || edges.Top == edges.Bottom ? 0 : 2;
             long memoryAndConstantBytes = (1 + children) * D3D11ShaderLayout.PpuMemoryWords * sizeof(uint)
                 + (8 + children * 5) * D3D11ShaderLayout.SolidConstantWords * sizeof(uint);
             long expectedCalls = (1 + children) * 3 + 8 + children * 5;

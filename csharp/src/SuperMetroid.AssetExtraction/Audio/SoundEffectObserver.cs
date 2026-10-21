@@ -18,11 +18,11 @@ internal sealed class SoundEffectObserver(int libraryIndex, int command) : ISpcD
     /// <summary>Reusable snapshot buffer.</summary>
     private readonly List<byte> state = [];
     /// <summary>Key-ons of the sound's voices.</summary>
-    private readonly List<(long Sample, byte Voices)> keyOns = [];
+    private readonly List<KeyOnSample> keyOns = [];
     /// <summary>First arrival of each channel's own poll states, by state key.</summary>
     private readonly Dictionary<string, long>[] channelStates = [[], [], [], []];
     /// <summary>Each channel's first repeated state and voice, once found.</summary>
-    private readonly (long First, long Second, int Voice)?[] channelLoops = new (long, long, int)?[MaximumChannels];
+    private readonly ChannelLoop?[] channelLoops = new ChannelLoop?[MaximumChannels];
     /// <summary>The renderer whose frame count positions each tick.</summary>
     private SpcAudioClipRenderer? renderer;
     /// <summary>Native sample position of the tick being serviced.</summary>
@@ -41,15 +41,15 @@ internal sealed class SoundEffectObserver(int libraryIndex, int command) : ISpcD
     internal long? EndSample { get; private set; }
 
     /// <summary>Key-ons of the sound's voices, relative to the start.</summary>
-    internal IReadOnlyList<(long Sample, byte Voices)> KeyOns => keyOns;
+    internal IReadOnlyList<KeyOnSample> KeyOns => keyOns;
 
     /// <summary>Each allocated channel's first repeated state (E1, E2) and its voice.</summary>
-    internal IReadOnlyList<(long First, long Second, int Voice)> ChannelLoops => [.. FoundChannelLoops()];
+    internal IReadOnlyList<ChannelLoop> ChannelLoops => [.. FoundChannelLoops()];
 
     /// <summary>The channels' loops found so far, in channel order.</summary>
-    private IEnumerable<(long First, long Second, int Voice)> FoundChannelLoops()
+    private IEnumerable<ChannelLoop> FoundChannelLoops()
     {
-        foreach ((long First, long Second, int Voice)? loop in channelLoops)
+        foreach (ChannelLoop? loop in channelLoops)
         {
             if (loop is { } found)
                 yield return found;
@@ -95,7 +95,7 @@ internal sealed class SoundEffectObserver(int libraryIndex, int command) : ISpcD
         long relative = tickSample - StartSample.Value;
         byte voices = unchecked((byte)(keyOn & library.EnabledVoices));
         if (voices != 0)
-            keyOns.Add((relative, voices));
+            keyOns.Add(new KeyOnSample(relative, voices));
         if (EndSample is null && library.CurrentSound == 0)
             EndSample = tickSample;
         if (!polled || EndSample is not null)
@@ -120,7 +120,7 @@ internal sealed class SoundEffectObserver(int libraryIndex, int command) : ISpcD
             channels[index].WriteState(state);
             string key = Convert.ToBase64String([.. state]);
             if (channelStates[index].TryGetValue(key, out long first))
-                channelLoops[index] = (first, relative, channels[index].VoiceBitset);
+                channelLoops[index] = new ChannelLoop(first, relative, channels[index].VoiceBitset);
             else
                 channelStates[index][key] = relative;
         }

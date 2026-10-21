@@ -55,7 +55,7 @@ internal static class KraidContourCaseMappingsVerification
 
     /// <summary>Decodes native tilemap comparisons and offsets to find Kraid's head-resume pointer and timer.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid growth head-resume immediates")]
-    internal static (ushort Pointer, ushort Timer) NativeKraidGrowthResume(SuperMetroidAddressSpace rom, ushort tilemap)
+    internal static NativeKraidGrowthResumeResult NativeKraidGrowthResume(SuperMetroidAddressSpace rom, ushort tilemap)
     {
         // Decode the native LDY/CMP immediates rather than using compiled selector constants.
         ushort offset = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa7c042);
@@ -66,7 +66,7 @@ internal static class KraidContourCaseMappingsVerification
             offset = CartridgeImportSource.Require(rom).ReadCartridgeWord((instruction + 1));
             break;
         }
-        return ((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa7c047) + offset), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa70000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa7c04d) + offset))));
+        return new NativeKraidGrowthResumeResult((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa7c047) + offset), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa70000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa7c04d) + offset))));
     }
 
     /// <summary>

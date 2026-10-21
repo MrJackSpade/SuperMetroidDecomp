@@ -49,7 +49,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
     }
 
     /// <summary>Runs one native-length Rinka loop and observes visibility, off-screen behavior, and aim-delay selection.</summary>
-    private static (RoomEnemySystem System, RoomEnemySlot Rinka) RunRinkaProgram(
+    private static RunRinkaProgramResult RunRinkaProgram(
         RinkaProgram program,
         bool special)
     {
@@ -74,7 +74,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         for (int frame = 0; frame < 180; frame++)
             EnemyInstructionRunner.Process(arguments);
 
-        return (enemies, rinka);
+        return new RunRinkaProgramResult(enemies, rinka);
     }
 
     /// <summary>Runs the focused Rinka instruction check against the retail ROM when available.</summary>

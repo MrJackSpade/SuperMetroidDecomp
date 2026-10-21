@@ -28,7 +28,7 @@ internal static class MetroidBehaviorVerification
         MetroidEnemyState state = enemies.MetroidStates[0] ?? throw new InvalidOperationException("The Metroid has no state.");
         AssertEqual(AnimationProgramCursor<MetroidProgram>.Start(MetroidProgram.ChasingSamus), state.Program, "the Metroid starts chasing");
 
-        foreach ((MetroidProgram loop, int cries) in new[] { (MetroidProgram.ChasingSamus, 1), (MetroidProgram.DrainingSamus, 0) })
+        foreach ((MetroidProgram loop, int cries) in new[] { new VerifyMetroidBehaviorCase(MetroidProgram.ChasingSamus, 1), new VerifyMetroidBehaviorCase(MetroidProgram.DrainingSamus, 0) })
         {
             int randomCalls = 0;
             enemies.VerificationServices().NextRandom = () => { randomCalls++; return 0; };

@@ -151,13 +151,13 @@ internal static class EnemyGameplayAcceptanceVerification
         Console.WriteLine($"Enemy population binding: {population.Records.Length} linked slots at {population.Name} " +
             "initialize with RAM-only memory; PNG edits change VRAM, not any slot field or quota.");
 
-        (RoomEnemySystem, SnesVram, SnesCgram) Load(InstalledEnemyArtwork artwork)
+        LoadResult Load(InstalledEnemyArtwork artwork)
         {
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 1)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             var vram = new SnesVram(); var colors = new SnesCgram();
             enemies.Load(new RoomEnemyLoadRequest(state.EnemyPopulation, state.EnemyGraphicsSet, BgArtworkFixtures.For(vram), colors));
-            return (enemies, vram, colors);
+            return new LoadResult(enemies, vram, colors);
         }
 
         static bool IsKiHunterPairList(ushort pointer)

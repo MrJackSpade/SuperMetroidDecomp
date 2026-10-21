@@ -43,13 +43,13 @@ internal static class DraygonTurretCadenceVerification
 
         // #1269: both goop instructions pass A=2 to $86:8027, which stores it as the speed
         // parameter. A prior turret spawn (speed 3) must not change the goop's velocity.
-        (ushort X, ushort XSub, ushort Y, ushort YSub, ushort Angle) SpawnGoop()
+        SpawnGoopResult SpawnGoop()
         {
             runtime.System.SetRandomNumber(0x1234);
             runtime.Enemies.DraygonBehavior.Parts.SpawnDraygonGoop(boss, false);
             RoomEnemyProjectileSlot goop = runtime.Enemies.Projectiles.EnemyProjectiles.Last(p =>
                 p.Kind == RoomEnemyProjectileKind.DraygonGoop);
-            var velocity = (goop.Velocity.X.RawValue, checked((ushort)goop.Variable0), goop.Velocity.Y.RawValue, checked((ushort)goop.Variable1), checked((ushort)goop.DirectionParameter));
+            var velocity = new SpawnGoopResult(goop.Velocity.X.RawValue, checked((ushort)goop.Variable0), goop.Velocity.Y.RawValue, checked((ushort)goop.Variable1), checked((ushort)goop.DirectionParameter));
             goop.Clear();
             return velocity;
         }

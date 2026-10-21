@@ -60,13 +60,13 @@ internal static class RuntimeOverlayTests
         }
         Console.WriteLine($"{device.Kind}: {sequence} runtime frames and 90 retained overlay replays match exactly.");
 
-        (RenderFrameSnapshot Packet, Rgba32[] Pixels) Check(string context)
+        RenderedFrame Check(string context)
         {
             Rgba32[] expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()).ToArray();
             var packet = new RenderFrameSnapshot(new(++sequence, 1, 0), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
             PixelComparison.Verify(packet, expected, SoftwareFrameSnapshotRenderer.Render(packet), $"software: {context}");
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: {context}");
-            return (packet, expected);
+            return new RenderedFrame(packet, expected);
         }
     }
 }

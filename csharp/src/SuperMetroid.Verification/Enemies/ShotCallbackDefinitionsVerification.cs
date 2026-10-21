@@ -160,7 +160,7 @@ internal static class ShotCallbackDefinitionsVerification
                 $"literal shot no-op ${callback:X6} requires no executable read");
         }
 
-        static (RoomEnemySystem System, RoomEnemySlot Enemy) CreateLiteralNoOpCombatSystem()
+        static CreateLiteralNoOpCombatSystemResult CreateLiteralNoOpCombatSystem()
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             var interactive = (List<int>)enemies.ProcessingWindow.InteractiveEnemyIndexes;
@@ -171,7 +171,7 @@ internal static class ShotCallbackDefinitionsVerification
             enemy.Position = enemy.Position.WithWhole(new(0x0100, 0x0100));
             enemy.Radius = new(8, 8);
             enemy.Health = 100;
-            return (enemies, enemy);
+            return new CreateLiteralNoOpCombatSystemResult(enemies, enemy);
         }
     }
 

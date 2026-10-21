@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Boyon;
 
 namespace SuperMetroid.Verification.Enemies.Boyon;
@@ -13,20 +14,20 @@ internal static class BoyonNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (BoyonProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<BoyonProgram>[] Entries =
     [
-        (BoyonProgram.Idle, 0x86a7),
-        (BoyonProgram.IdleLoop, 0x86ab),
-        (BoyonProgram.Bouncing, 0x86bf),
-        (BoyonProgram.BouncingLoop, 0x86c3),
+        new NativeProgramEntry<BoyonProgram>(BoyonProgram.Idle, 0x86a7),
+        new NativeProgramEntry<BoyonProgram>(BoyonProgram.IdleLoop, 0x86ab),
+        new NativeProgramEntry<BoyonProgram>(BoyonProgram.Bouncing, 0x86bf),
+        new NativeProgramEntry<BoyonProgram>(BoyonProgram.BouncingLoop, 0x86c3),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (BoyonCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, BoyonNativeListAddressesInstruction> Instructions = new()
     {
-        [0x8173] = (BoyonCueKind.ProcessOffScreen, ""),
-        [0x817d] = (BoyonCueKind.StopProcessingOffScreen, ""),
-        [0x88c5] = (BoyonCueKind.Return, ""),
-        [0x88c6] = (BoyonCueKind.StartBounce, ""),
+        [0x8173] = new BoyonNativeListAddressesInstruction(BoyonCueKind.ProcessOffScreen, ""),
+        [0x817d] = new BoyonNativeListAddressesInstruction(BoyonCueKind.StopProcessingOffScreen, ""),
+        [0x88c5] = new BoyonNativeListAddressesInstruction(BoyonCueKind.Return, ""),
+        [0x88c6] = new BoyonNativeListAddressesInstruction(BoyonCueKind.StartBounce, ""),
     };
 }

@@ -19,42 +19,42 @@ namespace SuperMetroid.Verification.Frontend.Map;
 internal static class MapLoadAnchorsVerification
 {
     /// <summary>Verification-only coordinates preserved from 5b23a2aa, independent of the replacement projection formula.</summary>
-    private static readonly (AreaId Area, int Station, ushort X, ushort Y)[] originalMapLoadAnchors =
+    private static readonly OriginalMapLoadAnchor[] originalMapLoadAnchors =
     [
-        (AreaId.Crateria, 0, 216, 40),
-        (AreaId.Crateria, 1, 144, 56),
-        (AreaId.Crateria, 8, 416, 88),
-        (AreaId.Crateria, 9, 272, 64),
-        (AreaId.Crateria, 10, 184, 144),
-        (AreaId.Crateria, 11, 48, 72),
-        (AreaId.Crateria, 12, 136, 80),
-        (AreaId.Brinstar, 0, 120, 40),
-        (AreaId.Brinstar, 1, 64, 48),
-        (AreaId.Brinstar, 2, 40, 96),
-        (AreaId.Brinstar, 3, 392, 152),
-        (AreaId.Brinstar, 4, 304, 72),
-        (AreaId.Brinstar, 8, 72, 24),
-        (AreaId.Brinstar, 9, 208, 88),
-        (AreaId.Brinstar, 10, 296, 56),
-        (AreaId.Brinstar, 11, 328, 152),
-        (AreaId.Norfair, 0, 96, 96),
-        (AreaId.Norfair, 1, 168, 32),
-        (AreaId.Norfair, 2, 88, 48),
-        (AreaId.Norfair, 3, 128, 72),
-        (AreaId.Norfair, 4, 160, 88),
-        (AreaId.Norfair, 5, 288, 104),
-        (AreaId.Norfair, 8, 80, 24),
-        (AreaId.Norfair, 9, 168, 88),
-        (AreaId.Norfair, 10, 168, 112),
-        (AreaId.WreckedShip, 0, 136, 120),
-        (AreaId.Maridia, 0, 96, 160),
-        (AreaId.Maridia, 1, 280, 40),
-        (AreaId.Maridia, 2, 152, 96),
-        (AreaId.Maridia, 3, 328, 56),
-        (AreaId.Maridia, 8, 272, 24),
-        (AreaId.Tourian, 0, 128, 144),
-        (AreaId.Tourian, 1, 168, 104),
-        (AreaId.Tourian, 8, 160, 96),
+        new OriginalMapLoadAnchor(AreaId.Crateria, 0, 216, 40),
+        new OriginalMapLoadAnchor(AreaId.Crateria, 1, 144, 56),
+        new OriginalMapLoadAnchor(AreaId.Crateria, 8, 416, 88),
+        new OriginalMapLoadAnchor(AreaId.Crateria, 9, 272, 64),
+        new OriginalMapLoadAnchor(AreaId.Crateria, 10, 184, 144),
+        new OriginalMapLoadAnchor(AreaId.Crateria, 11, 48, 72),
+        new OriginalMapLoadAnchor(AreaId.Crateria, 12, 136, 80),
+        new OriginalMapLoadAnchor(AreaId.Brinstar, 0, 120, 40),
+        new OriginalMapLoadAnchor(AreaId.Brinstar, 1, 64, 48),
+        new OriginalMapLoadAnchor(AreaId.Brinstar, 2, 40, 96),
+        new OriginalMapLoadAnchor(AreaId.Brinstar, 3, 392, 152),
+        new OriginalMapLoadAnchor(AreaId.Brinstar, 4, 304, 72),
+        new OriginalMapLoadAnchor(AreaId.Brinstar, 8, 72, 24),
+        new OriginalMapLoadAnchor(AreaId.Brinstar, 9, 208, 88),
+        new OriginalMapLoadAnchor(AreaId.Brinstar, 10, 296, 56),
+        new OriginalMapLoadAnchor(AreaId.Brinstar, 11, 328, 152),
+        new OriginalMapLoadAnchor(AreaId.Norfair, 0, 96, 96),
+        new OriginalMapLoadAnchor(AreaId.Norfair, 1, 168, 32),
+        new OriginalMapLoadAnchor(AreaId.Norfair, 2, 88, 48),
+        new OriginalMapLoadAnchor(AreaId.Norfair, 3, 128, 72),
+        new OriginalMapLoadAnchor(AreaId.Norfair, 4, 160, 88),
+        new OriginalMapLoadAnchor(AreaId.Norfair, 5, 288, 104),
+        new OriginalMapLoadAnchor(AreaId.Norfair, 8, 80, 24),
+        new OriginalMapLoadAnchor(AreaId.Norfair, 9, 168, 88),
+        new OriginalMapLoadAnchor(AreaId.Norfair, 10, 168, 112),
+        new OriginalMapLoadAnchor(AreaId.WreckedShip, 0, 136, 120),
+        new OriginalMapLoadAnchor(AreaId.Maridia, 0, 96, 160),
+        new OriginalMapLoadAnchor(AreaId.Maridia, 1, 280, 40),
+        new OriginalMapLoadAnchor(AreaId.Maridia, 2, 152, 96),
+        new OriginalMapLoadAnchor(AreaId.Maridia, 3, 328, 56),
+        new OriginalMapLoadAnchor(AreaId.Maridia, 8, 272, 24),
+        new OriginalMapLoadAnchor(AreaId.Tourian, 0, 128, 144),
+        new OriginalMapLoadAnchor(AreaId.Tourian, 1, 168, 104),
+        new OriginalMapLoadAnchor(AreaId.Tourian, 8, 160, 96),
     ];
 
     /// <summary>Compares six file-select display areas with the native area-order words and rejects unsupported menu indexes.</summary>
@@ -207,8 +207,8 @@ internal static class MapLoadAnchorsVerification
         }
         byte[] ReadSram() => SuperMetroid.Core.Saves.SaveRamCodec.Encode(stationSaves, RetailPresentationFixture());
         static FileSelectMapScroll Scroll(FileSelectMapMenuState menu) => menu.Scroll;
-        static (Position16<MapPixels>, Position16<MapPixels>, Position16<MapPixels>, MapScrollDirection) ScrollState(FileSelectMapScroll value) =>
-            (value.Scroll, value.Minimum, value.Maximum, value.Direction);
+        static ScrollStateResult ScrollState(FileSelectMapScroll value) =>
+            new ScrollStateResult(value.Scroll, value.Minimum, value.Maximum, value.Direction);
     }
 
     /// <summary>Derives a saved station's map pixel anchor directly from its native load record and room header.</summary>

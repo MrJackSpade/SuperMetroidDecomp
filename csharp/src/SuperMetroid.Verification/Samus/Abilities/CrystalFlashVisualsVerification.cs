@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Samus.Abilities;
 internal static class CrystalFlashVisualsVerification
 {
     /// <summary>Checks authored body and bubble palette rows, then isolates visible body and color-window pixels.</summary>
-    internal static (bool Body, bool Window) VerifyCrystalFlashVisualFrame(SuperMetroidRuntime runtime, SuperMetroid.Core.Hardware.ISnesAddressSpace bus, int elapsed)
+    internal static VerifyCrystalFlashVisualFrameResult VerifyCrystalFlashVisualFrame(SuperMetroidRuntime runtime, SuperMetroid.Core.Hardware.ISnesAddressSpace bus, int elapsed)
     {
         var samus = runtime.Player.IntroducedSamus;
         var packet = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
@@ -58,7 +58,7 @@ internal static class CrystalFlashVisualsVerification
                 "Crystal Flash window preserves HUD pixels");
             windowVisible = !pixels.SequenceEqual(withoutWindow);
         }
-        return (bodyVisible, windowVisible);
+        return new VerifyCrystalFlashVisualFrameResult(bodyVisible, windowVisible);
 
         ushort Word(int address) => CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
     }

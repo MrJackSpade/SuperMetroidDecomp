@@ -72,11 +72,11 @@ public sealed class SpatialClumpAnalyzer : DiagnosticAnalyzer
             "Spatial value types and exact storage/hardware adapters declare [SpatialComponents].");
 
     /// <summary>The axis-name pairs recognized at identifier word boundaries.</summary>
-    private static readonly (string First, string Second, string Axis)[] AxisPairs =
+    private static readonly AxisPair[] AxisPairs =
     [
-        ("X", "Y", "X/Y"),
-        ("Width", "Height", "width/height"),
-        ("Horizontal", "Vertical", "horizontal/vertical"),
+        new AxisPair("X", "Y", "X/Y"),
+        new AxisPair("Width", "Height", "width/height"),
+        new AxisPair("Horizontal", "Vertical", "horizontal/vertical"),
     ];
 
     /// <inheritdoc />
@@ -152,13 +152,13 @@ public sealed class SpatialClumpAnalyzer : DiagnosticAnalyzer
             return;
         var members = type.GetMembers()
             .Where(member => !member.IsImplicitlyDeclared && member.Locations.Any(location => location.IsInSource))
-            .Select(member => (Member: member, Type: ScalarType(member)))
+            .Select(member => new ScalarMember(Member:member, Type:ScalarType(member)))
             .Where(entry => entry.Type is not null)
             .ToArray();
         ReportPairs(context, type, members, MemberClumpRule);
         var collections = type.GetMembers()
             .Where(member => !member.IsImplicitlyDeclared && member.Locations.Any(location => location.IsInSource))
-            .Select(member => (Member: member, Type: CollectionType(member)))
+            .Select(member => new ScalarMember(Member:member, Type:CollectionType(member)))
             .Where(entry => entry.Type is not null)
             .ToArray();
         ReportPairs(context, type, collections, CollectionClumpRule);
@@ -166,7 +166,7 @@ public sealed class SpatialClumpAnalyzer : DiagnosticAnalyzer
 
     /// <summary>Reports each matching pair once when axis names, types, and static ownership agree.</summary>
     private static void ReportPairs(SymbolAnalysisContext context, INamedTypeSymbol type,
-        (ISymbol Member, ITypeSymbol? Type)[] members, DiagnosticDescriptor rule)
+        ScalarMember[] members, DiagnosticDescriptor rule)
     {
         var reported = new HashSet<ISymbol>(SymbolEqualityComparer.Default);
         foreach ((ISymbol first, ITypeSymbol? firstType) in members)
@@ -225,7 +225,7 @@ public sealed class SpatialClumpAnalyzer : DiagnosticAnalyzer
     private static string? Partner(string name, string first, string second)
     {
         foreach ((string from, string to, bool lower) in new[]
-            { (first, second, false), (first.ToLowerInvariant(), second.ToLowerInvariant(), true) })
+            { new PartnerNames(first, second, false), new PartnerNames(first.ToLowerInvariant(), second.ToLowerInvariant(), true) })
         {
             int at = 0;
             while ((at = name.IndexOf(from, at, StringComparison.Ordinal)) >= 0)

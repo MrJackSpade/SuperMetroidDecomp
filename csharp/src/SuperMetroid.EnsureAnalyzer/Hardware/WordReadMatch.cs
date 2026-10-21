@@ -31,7 +31,7 @@ public sealed record WordReadMatch(
     /// ambiguous or no caller has needed that operation yet (the SRAM word). The linear cartridge long lives in
     /// test support, since only verification oracles read longs on the linear bus.
     /// </summary>
-    public string? CanonicalMethod => (ByteMethod, Progression, Long) switch
+    public string? CanonicalMethod => new WordReadShape(ByteMethod, Progression, Long) switch
     {
         ("ReadCartridgeByte", WordReadProgression.Linear, false) => "ReadCartridgeWord",
         ("ReadCartridgeByte", WordReadProgression.FixedBank, false) => "ReadCartridgeWordFixedBank",

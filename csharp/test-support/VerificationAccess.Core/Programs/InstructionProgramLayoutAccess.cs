@@ -12,7 +12,7 @@ internal static class InstructionProgramLayoutAccess
         /// Counts the timed frames that run from <paramref name="entry"/> and returns the opcode of
         /// the first control instruction after them.
         /// </summary>
-        internal (int Frames, ushort Terminator) FramesFrom(ushort entry)
+        internal ProgramFrameSpan FramesFrom(ushort entry)
         {
             int index = Array.FindIndex(self.items, item => item.Kind == InstructionItemKind.Entry && item.Value == entry);
             if (index < 0) throw new ArgumentOutOfRangeException(nameof(entry), entry, "Entry is not part of this layout.");
@@ -22,7 +22,7 @@ internal static class InstructionProgramLayoutAccess
                 InstructionItem item = self.items[index];
                 if (item.Kind != InstructionItemKind.Words) continue;
                 if (item.Words is [{ IsPresentation: false }, { IsPresentation: true }]) { frames++; continue; }
-                return (frames, item.Words[0].Value);
+                return new ProgramFrameSpan(frames, item.Words[0].Value);
             }
             throw new InvalidDataException($"Instruction entry ${self.Bank:X2}:{entry:X4} has no terminating instruction.");
         }

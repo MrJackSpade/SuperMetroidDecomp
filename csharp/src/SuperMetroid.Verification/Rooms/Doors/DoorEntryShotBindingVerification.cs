@@ -29,7 +29,7 @@ internal static class DoorEntryShotBindingVerification
             Shoot = SnesButton.Y, ItemSelect = SnesButton.X, ItemCancel = SnesButton.Select,
             AimUp = SnesButton.L, AimDown = SnesButton.R,
         };
-        foreach ((SnesButton held, bool cancels) in new[] { (SnesButton.X, true), (SnesButton.Y, false) })
+        foreach ((SnesButton held, bool cancels) in new[] { new VerifyDoorEntryShotBindingCase(SnesButton.X, true), new VerifyDoorEntryShotBindingCase(SnesButton.Y, false) })
         {
             var random = new CartridgeRandom();
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);

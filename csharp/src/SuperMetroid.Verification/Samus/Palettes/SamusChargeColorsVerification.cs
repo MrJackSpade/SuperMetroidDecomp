@@ -235,7 +235,7 @@ internal static class SamusChargeColorsVerification
         var death = new SamusDeathPaletteArtworkCatalog(ToColors(deathSuited), ToColors(deathSuitless), ToColors(whiteout), selectors);
         foreach (var inputs in new[] { death.suitedFadeInputs, death.suitlessFadeInputs })
             AssertEqual(0, inputs.Count, "Original death shades need no correction inputs");
-        foreach (var (stored, count) in new[] { (death.suited.Count, 25), (death.suitless.Count, 3), (death.explosionPaletteIndices.Count, 0) })
+        foreach (var (stored, count) in new[] { new VerifySamusChargeColorPhasesCase(death.suited.Count, 25), new VerifySamusChargeColorPhasesCase(death.suitless.Count, 3), new VerifySamusChargeColorPhasesCase(death.explosionPaletteIndices.Count, 0) })
             AssertEqual(count, stored, "Only independent death rows remain stored");
         var deathTintInputs = death.tintShadeInputs;
         AssertEqual(3, deathTintInputs.Count, "Two interior intensities and dark-endpoint red/blue remain supplied");

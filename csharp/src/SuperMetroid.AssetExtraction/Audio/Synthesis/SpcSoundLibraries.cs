@@ -113,31 +113,31 @@ internal sealed class SpcSoundLibraries
     {
         if (libraryIndex == 0)
         {
-            (byte voices, byte priority) = (SpcLibrary1Policy)configuration switch
+            (int voices, int priority) = (SpcLibrary1Policy)configuration switch
             {
-                SpcLibrary1Policy.OneVoiceLowPriority => ((byte)1, (byte)0),
-                SpcLibrary1Policy.OneVoiceHighPriority => ((byte)1, (byte)1),
-                SpcLibrary1Policy.TwoVoicesLowPriority => ((byte)2, (byte)0),
-                SpcLibrary1Policy.ThreeVoicesHighPriority => ((byte)3, (byte)1),
-                SpcLibrary1Policy.FourVoicesLowPriority or SpcLibrary1Policy.PowerBombFourVoices => ((byte)4, (byte)0),
+                SpcLibrary1Policy.OneVoiceLowPriority => new SoundLibrarySetup(1, 0),
+                SpcLibrary1Policy.OneVoiceHighPriority => new SoundLibrarySetup(1, 1),
+                SpcLibrary1Policy.TwoVoicesLowPriority => new SoundLibrarySetup(2, 0),
+                SpcLibrary1Policy.ThreeVoicesHighPriority => new SoundLibrarySetup(3, 1),
+                SpcLibrary1Policy.FourVoicesLowPriority or SpcLibrary1Policy.PowerBombFourVoices => new SoundLibrarySetup(4, 0),
                 _ => throw new InvalidDataException($"Unknown SPC SFX1 configuration {configuration}."),
             };
-            library.VoicesToSetup = voices;
-            library.Priority = priority;
+            library.VoicesToSetup = checked((byte)voices);
+            library.Priority = checked((byte)priority);
             return;
         }
         if (libraryIndex == 1)
         {
-            (byte voices, byte priority) = (SpcLibrary2Policy)configuration switch
+            (int voices, int priority) = (SpcLibrary2Policy)configuration switch
             {
-                SpcLibrary2Policy.OneVoiceLowPriority => ((byte)1, (byte)0),
-                SpcLibrary2Policy.OneVoiceHighPriority => ((byte)1, (byte)1),
-                SpcLibrary2Policy.TwoVoicesLowPriority => ((byte)2, (byte)0),
-                SpcLibrary2Policy.TwoVoicesHighPriority => ((byte)2, (byte)1),
+                SpcLibrary2Policy.OneVoiceLowPriority => new SoundLibrarySetup(1, 0),
+                SpcLibrary2Policy.OneVoiceHighPriority => new SoundLibrarySetup(1, 1),
+                SpcLibrary2Policy.TwoVoicesLowPriority => new SoundLibrarySetup(2, 0),
+                SpcLibrary2Policy.TwoVoicesHighPriority => new SoundLibrarySetup(2, 1),
                 _ => throw new InvalidDataException($"Unknown SPC SFX2 configuration {configuration}."),
             };
-            library.VoicesToSetup = voices;
-            library.Priority = priority;
+            library.VoicesToSetup = checked((byte)voices);
+            library.Priority = checked((byte)priority);
             return;
         }
 

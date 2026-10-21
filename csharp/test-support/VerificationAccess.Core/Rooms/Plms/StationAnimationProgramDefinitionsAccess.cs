@@ -10,14 +10,14 @@ internal static class StationAnimationProgramDefinitionsAccess
         internal static IEnumerable<StationAnimationList> Lists() => Enum.GetValues<StationAnimationList>();
 
         /// <summary>Visits each station frame's duration and draw pointer in list order.</summary>
-        internal static IEnumerable<(ushort Address, ushort Value)> NativeWords()
+        internal static IEnumerable<NativeWord> NativeWords()
         {
             foreach (StationAnimationList list in StationAnimationProgramDefinitions.Lists())
             for (int index = 0; index < StationAnimationProgramDefinitions.FrameCount(list); index++)
             {
                 StationAnimationProgramDefinitions.Frame frame = StationAnimationProgramDefinitions.Resolve(list, index);
-                yield return (checked((ushort)((ushort)list + 4 * index)), frame.Duration);
-                yield return (checked((ushort)((ushort)list + 4 * index + 2)), frame.DrawPointer);
+                yield return new NativeWord(checked((ushort)((ushort)list + 4 * index)), frame.Duration);
+                yield return new NativeWord(checked((ushort)((ushort)list + 4 * index + 2)), frame.DrawPointer);
             }
         }
     }

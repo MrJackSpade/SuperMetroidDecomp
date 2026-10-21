@@ -52,7 +52,7 @@ internal static class CeresSmallAsteroidPartsVerification
             CheckCeresStationLoader(definition.Pointer, visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]]);
             var extra = IntroCinematicSpriteCompiler.Compile(visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]], "custom CeresStation");
             AssertTrue(ReferenceEquals(extra, CeresSmallAsteroidParts.CalculateIfMatching(definition.Pointer, extra)), "custom part count preserved");
-            foreach (var group in new[] { (Start: 0, Count: 2), (Start: 2, Count: 2), (Start: 4, Count: 2), (Start: 6, Count: 3), (Start: 9, Count: 2), (Start: 11, Count: 2), (Start: 13, Count: 3) })
+            foreach (var group in new[] { new VerifyCeresSmallAsteroidPartsCase(Start:0, Count:2), new VerifyCeresSmallAsteroidPartsCase(Start:2, Count:2), new VerifyCeresSmallAsteroidPartsCase(Start:4, Count:2), new VerifyCeresSmallAsteroidPartsCase(Start:6, Count:3), new VerifyCeresSmallAsteroidPartsCase(Start:9, Count:2), new VerifyCeresSmallAsteroidPartsCase(Start:11, Count:2), new VerifyCeresSmallAsteroidPartsCase(Start:13, Count:3) })
             {
                 var translated = (SpriteVisualPart[])visual.Clone();
                 for (int index = group.Start; index < group.Start + group.Count; index++)

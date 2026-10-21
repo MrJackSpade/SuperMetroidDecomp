@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Chozo;
 
 namespace SuperMetroid.Verification.Enemies.Chozo;
@@ -14,15 +15,15 @@ internal static class ChozoStatueNativeListAddresses
     internal const byte Bank = 0xaa;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (ChozoStatueProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<ChozoStatueProgram>[] Entries =
     [
-        (ChozoStatueProgram.LowerNorfairInitial, 0xe39d),
-        (ChozoStatueProgram.LowerNorfairActivated, 0xe3a7),
-        (ChozoStatueProgram.LowerNorfairActivatedLoop, 0xe3e5),
-        (ChozoStatueProgram.WreckedShipInitial, 0xe457),
-        (ChozoStatueProgram.WreckedShipActivated, 0xe461),
-        (ChozoStatueProgram.WreckedShipActivatedLoop, 0xe49d),
-        (ChozoStatueProgram.WreckedShipActivatedLoop2, 0xe4c1),
+        new NativeProgramEntry<ChozoStatueProgram>(ChozoStatueProgram.LowerNorfairInitial, 0xe39d),
+        new NativeProgramEntry<ChozoStatueProgram>(ChozoStatueProgram.LowerNorfairActivated, 0xe3a7),
+        new NativeProgramEntry<ChozoStatueProgram>(ChozoStatueProgram.LowerNorfairActivatedLoop, 0xe3e5),
+        new NativeProgramEntry<ChozoStatueProgram>(ChozoStatueProgram.WreckedShipInitial, 0xe457),
+        new NativeProgramEntry<ChozoStatueProgram>(ChozoStatueProgram.WreckedShipActivated, 0xe461),
+        new NativeProgramEntry<ChozoStatueProgram>(ChozoStatueProgram.WreckedShipActivatedLoop, 0xe49d),
+        new NativeProgramEntry<ChozoStatueProgram>(ChozoStatueProgram.WreckedShipActivatedLoop2, 0xe4c1),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

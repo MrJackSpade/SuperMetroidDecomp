@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Atomic;
 
 namespace SuperMetroid.Verification.Enemies.Atomic;
@@ -12,12 +13,12 @@ internal static class AtomicNativeListAddresses
     internal const byte Bank = 0xa8;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (AtomicProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<AtomicProgram>[] Entries =
     [
-        (AtomicProgram.UpRight, 0xe310),
-        (AtomicProgram.UpLeft, 0xe32c),
-        (AtomicProgram.DownLeft, 0xe348),
-        (AtomicProgram.DownRight, 0xe364),
+        new NativeProgramEntry<AtomicProgram>(AtomicProgram.UpRight, 0xe310),
+        new NativeProgramEntry<AtomicProgram>(AtomicProgram.UpLeft, 0xe32c),
+        new NativeProgramEntry<AtomicProgram>(AtomicProgram.DownLeft, 0xe348),
+        new NativeProgramEntry<AtomicProgram>(AtomicProgram.DownRight, 0xe364),
     ];
 
 }

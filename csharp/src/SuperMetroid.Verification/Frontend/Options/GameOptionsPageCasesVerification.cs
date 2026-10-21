@@ -21,13 +21,13 @@ internal static class GameOptionsPageCasesVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Options page oracle revision");
         GameOptionsPresentation presentation = GameOptionsPresentation.Load(
             new MemoryStream(GameOptionsPresentationExtractor.Extract(rom)));
-        (GameOptionsTilemap Page, string Description)[] originalOrder =
+        OriginalOrder[] originalOrder =
         [
-            (GameOptionsTilemap.Primary, "primary"),
-            (GameOptionsTilemap.ControllerEnglish, "English controller"),
-            (GameOptionsTilemap.ControllerJapanese, "Japanese controller"),
-            (GameOptionsTilemap.SpecialEnglish, "English special-settings"),
-            (GameOptionsTilemap.SpecialJapanese, "Japanese special-settings"),
+            new OriginalOrder(GameOptionsTilemap.Primary, "primary"),
+            new OriginalOrder(GameOptionsTilemap.ControllerEnglish, "English controller"),
+            new OriginalOrder(GameOptionsTilemap.ControllerJapanese, "Japanese controller"),
+            new OriginalOrder(GameOptionsTilemap.SpecialEnglish, "English special-settings"),
+            new OriginalOrder(GameOptionsTilemap.SpecialJapanese, "Japanese special-settings"),
         ];
         for (int index = 0; index < originalOrder.Length; index++)
         {

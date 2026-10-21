@@ -9,10 +9,10 @@ internal static class CeresBabyNativeListAddresses
     internal const byte Bank = 0xa6;
 
     /// <summary>Each program's native entry: <c>InstList_BabyMetroidCutscene_0</c> and <c>_1</c>.</summary>
-    internal static readonly (CeresBabyProgram Program, ushort Entry)[] Entries =
+    internal static readonly CeresBabyNativeListAddressesEntry[] Entries =
     [
-        (CeresBabyProgram.Initial, 0xbf31),
-        (CeresBabyProgram.ExpressiveLoop, 0xbf59),
+        new CeresBabyNativeListAddressesEntry(CeresBabyProgram.Initial, 0xbf31),
+        new CeresBabyNativeListAddressesEntry(CeresBabyProgram.ExpressiveLoop, 0xbf59),
     ];
 
     /// <summary>The draw list's instructions: the cue variant each becomes, or null for its goto.</summary>
@@ -25,5 +25,5 @@ internal static class CeresBabyNativeListAddresses
     };
 
     /// <summary>Each palette operand the lists use, by the row it loads.</summary>
-    internal static readonly (int Row, ushort Operand)[] PaletteRows = [(0, 0xe1f1), (1, 0xe20f), (2, 0xe22d), (3, 0xe24b)];
+    internal static readonly CeresBabyNativeListAddressesPaletteRow[] PaletteRows = [new CeresBabyNativeListAddressesPaletteRow(0, 0xe1f1), new CeresBabyNativeListAddressesPaletteRow(1, 0xe20f), new CeresBabyNativeListAddressesPaletteRow(2, 0xe22d), new CeresBabyNativeListAddressesPaletteRow(3, 0xe24b)];
 }

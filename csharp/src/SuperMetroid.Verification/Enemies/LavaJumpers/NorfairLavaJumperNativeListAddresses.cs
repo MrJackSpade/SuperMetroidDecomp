@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.LavaJumpers;
 
 namespace SuperMetroid.Verification.Enemies.LavaJumpers;
@@ -13,17 +14,17 @@ internal static class NorfairLavaJumperNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (NorfairLavaJumperProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<NorfairLavaJumperProgram>[] Entries =
     [
-        (NorfairLavaJumperProgram.Hidden, 0xbe3c),
-        (NorfairLavaJumperProgram.Jump, 0xbe42),
-        (NorfairLavaJumperProgram.Follower, 0xbe62),
-        (NorfairLavaJumperProgram.FollowerLoop, 0xbe6e),
+        new NativeProgramEntry<NorfairLavaJumperProgram>(NorfairLavaJumperProgram.Hidden, 0xbe3c),
+        new NativeProgramEntry<NorfairLavaJumperProgram>(NorfairLavaJumperProgram.Jump, 0xbe42),
+        new NativeProgramEntry<NorfairLavaJumperProgram>(NorfairLavaJumperProgram.Follower, 0xbe62),
+        new NativeProgramEntry<NorfairLavaJumperProgram>(NorfairLavaJumperProgram.FollowerLoop, 0xbe6e),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (NorfairLavaJumperCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, NorfairLavaJumperNativeListAddressesInstruction> Instructions = new()
     {
-        [0xbe8e] = (NorfairLavaJumperCueKind.FinishAnimation, ""),
+        [0xbe8e] = new NorfairLavaJumperNativeListAddressesInstruction(NorfairLavaJumperCueKind.FinishAnimation, ""),
     };
 }

@@ -48,8 +48,12 @@ internal static class EnemyInstructionRunner
     {
         int update = 0;
         var shown = new List<string>();
-        foreach ((ushort spritemap, int duration) in spritemaps.Zip(durations))
+        ushort[] maps = [.. spritemaps];
+        int[] times = [.. durations];
+        for (int step = 0; step < Math.Min(maps.Length, times.Length); step++)
         {
+            ushort spritemap = maps[step];
+            int duration = times[step];
             shown.Add($"{update}:{spritemap:X4}");
             update += duration;
         }

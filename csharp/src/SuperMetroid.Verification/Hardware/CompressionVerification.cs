@@ -51,16 +51,16 @@ internal static class CompressionVerification
         AssertThrows<InvalidOperationException>(() => _ = terminator.Command, "terminator has no command");
 
         // Payload size and copy behavior of every command, explicitly per member.
-        foreach (var (command, payload, copy, relative, inverted) in new (SmCompressionCommand, int, bool, bool, bool)[]
+        foreach (var (command, payload, copy, relative, inverted) in new VerifySmCompressionFormatCase[]
         {
-            (SmCompressionCommand.Literal, 33, false, false, false),
-            (SmCompressionCommand.RepeatByte, 1, false, false, false),
-            (SmCompressionCommand.AlternatePair, 2, false, false, false),
-            (SmCompressionCommand.IncrementingSequence, 1, false, false, false),
-            (SmCompressionCommand.AbsoluteCopy, 2, true, false, false),
-            (SmCompressionCommand.AbsoluteCopyInverted, 2, true, false, true),
-            (SmCompressionCommand.RelativeCopy, 1, true, true, false),
-            (SmCompressionCommand.RelativeCopyInverted, 1, true, true, true),
+            new VerifySmCompressionFormatCase(SmCompressionCommand.Literal, 33, false, false, false),
+            new VerifySmCompressionFormatCase(SmCompressionCommand.RepeatByte, 1, false, false, false),
+            new VerifySmCompressionFormatCase(SmCompressionCommand.AlternatePair, 2, false, false, false),
+            new VerifySmCompressionFormatCase(SmCompressionCommand.IncrementingSequence, 1, false, false, false),
+            new VerifySmCompressionFormatCase(SmCompressionCommand.AbsoluteCopy, 2, true, false, false),
+            new VerifySmCompressionFormatCase(SmCompressionCommand.AbsoluteCopyInverted, 2, true, false, true),
+            new VerifySmCompressionFormatCase(SmCompressionCommand.RelativeCopy, 1, true, true, false),
+            new VerifySmCompressionFormatCase(SmCompressionCommand.RelativeCopyInverted, 1, true, true, true),
         })
         {
             SmCompressionHeader header = SmCompressionHeader.Decode(

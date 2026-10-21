@@ -372,7 +372,7 @@ internal static partial class SwapchainTests
                 paused |= actual.Frame.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB;
                 if (tick % 40 == 39) CompareRuntimeGraphs($"room slice tick {tick}");
             }
-            var positions = new HashSet<(ushort?, ushort?)>();
+            var positions = new HashSet<OptionalScreenPosition>();
             var poses = new HashSet<SamusPoseId?>();
             var roomBeforeMovement = legacy.GameplayActiveRoomIdentity;
             // Bounded room-local inputs: held movement, single-tick direction taps,
@@ -390,7 +390,7 @@ internal static partial class SwapchainTests
                 };
                 var actual = Step(input);
                 worker.Publish(actual.Snapshot);
-                positions.Add((legacy.GameplaySamusX, legacy.GameplaySamusY));
+                positions.Add(new OptionalScreenPosition(legacy.GameplaySamusX, legacy.GameplaySamusY));
                 poses.Add(legacy.GameplaySamusPose);
                 if (legacy.GameplayActiveRoomIdentity != roomBeforeMovement)
                     throw new InvalidOperationException("Movement scheduling fixture crossed a room boundary.");

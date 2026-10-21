@@ -66,7 +66,7 @@ internal static class SparkMovementDefinitionsVerification
     }
 
     /// <summary>A Spark running <paramref name="program"/> from its first step.</summary>
-    private static (RoomEnemySystem, RoomEnemySlot, SparkEnemyState) Start(SparkProgram program, bool intangible)
+    private static SparkMovementDefinitionsStartResult Start(SparkProgram program, bool intangible)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().IsAreaBossDefeated = () => true;
@@ -78,7 +78,7 @@ internal static class SparkMovementDefinitionsVerification
         state.Program = AnimationProgramCursor<SparkProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Properties = EnemyPropertyWord.FromNativeWord(intangible ? (ushort)EnemyProperties.IgnoreSamusCollision : (ushort)0);
-        return (enemies, slot, state);
+        return new SparkMovementDefinitionsStartResult(enemies, slot, state);
     }
 
     /// <summary>Runs the Spark checks and its program oracle against the local retail cartridge.</summary>

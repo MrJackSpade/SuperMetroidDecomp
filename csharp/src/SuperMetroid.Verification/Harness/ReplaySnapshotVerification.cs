@@ -17,17 +17,17 @@ internal static class ReplaySnapshotVerification
             byte[] saveRam = new byte[length];
             for (int index = 0; index < length; index++)
                 saveRam[index] = (byte)(index * 7 + 3);
-            ReplaySnapshot snapshot = ReplaySnapshot.Parse(Snapshot(("NAM", new byte[4]), ("SRA", saveRam), ("JXQ", new byte[8])));
+            ReplaySnapshot snapshot = ReplaySnapshot.Parse(Snapshot(new SnapshotValue("NAM", new byte[4]), new SnapshotValue("SRA", saveRam), new SnapshotValue("JXQ", new byte[8])));
             AssertSequenceEqual(saveRam, snapshot.SaveRam, $"{length}-byte SRA block");
         }
-        AssertThrows<InvalidDataException>(() => ReplaySnapshot.Parse(Snapshot(("SRA", new byte[64 * 1024]))),
+        AssertThrows<InvalidDataException>(() => ReplaySnapshot.Parse(Snapshot(new SnapshotValue("SRA", new byte[64 * 1024]))),
             "an SRA block of an unwritten size is refused");
-        AssertThrows<InvalidDataException>(() => ReplaySnapshot.Parse(Snapshot(("NAM", new byte[4]))),
+        AssertThrows<InvalidDataException>(() => ReplaySnapshot.Parse(Snapshot(new SnapshotValue("NAM", new byte[4]))),
             "a snapshot without an SRA block is refused");
     }
 
     /// <summary>Builds a decompressed version-11 snapshot from named blocks.</summary>
-    private static byte[] Snapshot(params (string Name, byte[] Data)[] blocks)
+    private static byte[] Snapshot(params SnapshotValue[] blocks)
     {
         using var image = new MemoryStream();
         image.Write("#!s9xsnp:0011\n"u8);

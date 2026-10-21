@@ -36,7 +36,7 @@ internal static class SyntheticSamusCartridge
     internal static void WritePoseTransitionList(
         TestAddressSpace bus,
         ushort list,
-        params ReadOnlySpan<(ushort NewInput, ushort HeldInput, ushort TargetPose)> records)
+        params ReadOnlySpan<SyntheticSamusCartridgeRecord> records)
     {
         int address = 0x910000 | list;
         foreach ((ushort newInput, ushort heldInput, ushort targetPose) in records)

@@ -24,163 +24,163 @@ internal static class MotherBrainNativeListAddresses
     internal const int ZebetiteBank = 0xa60000;
 
     /// <summary>Each body program's native entry point in bank $A9.</summary>
-    internal static readonly (MotherBrainBodyProgram Program, ushort Entry)[] BodyEntries =
+    internal static readonly NativeProgramEntry<MotherBrainBodyProgram>[] BodyEntries =
     [
-        (MotherBrainBodyProgram.WalkForwardReallyFast, 0x9730),
-        (MotherBrainBodyProgram.WalkForwardFast, 0x976a),
-        (MotherBrainBodyProgram.WalkForwardMedium, 0x97a4),
-        (MotherBrainBodyProgram.WalkForwardSlow, 0x97de),
-        (MotherBrainBodyProgram.WalkForwardReallySlow, 0x9818),
-        (MotherBrainBodyProgram.WalkBackwardSlow, 0x9852),
-        (MotherBrainBodyProgram.WalkBackwardReallyFast, 0x988c),
-        (MotherBrainBodyProgram.WalkBackwardFast, 0x98c6),
-        (MotherBrainBodyProgram.WalkBackwardMedium, 0x9900),
-        (MotherBrainBodyProgram.WalkBackwardReallySlow, 0x993a),
-        (MotherBrainBodyProgram.CrouchAndThenStandUp, 0x9974),
-        (MotherBrainBodyProgram.StandAfterCrouchSlow, 0x99aa),
-        (MotherBrainBodyProgram.StandAfterCrouchFast, 0x99c6),
-        (MotherBrainBodyProgram.StandAfterLeaning, 0x99e2),
-        (MotherBrainBodyProgram.LeanDown, 0x99f2),
-        (MotherBrainBodyProgram.Crouched, 0x9a02),
-        (MotherBrainBodyProgram.CrouchSlow, 0x9a0a),
-        (MotherBrainBodyProgram.CrouchFast, 0x9a26),
-        (MotherBrainBodyProgram.HandBeam, 0x9a42),
-        (MotherBrainBodyProgram.InitialDummy, 0x9c13),
+        new NativeProgramEntry<MotherBrainBodyProgram>(MotherBrainBodyProgram.WalkForwardReallyFast, 0x9730),
+        new NativeProgramEntry<MotherBrainBodyProgram>(MotherBrainBodyProgram.WalkForwardFast, 0x976a),
+        new NativeProgramEntry<MotherBrainBodyProgram>(MotherBrainBodyProgram.WalkForwardMedium, 0x97a4),
+        new NativeProgramEntry<MotherBrainBodyProgram>(MotherBrainBodyProgram.WalkForwardSlow, 0x97de),
+        new NativeProgramEntry<MotherBrainBodyProgram>(MotherBrainBodyProgram.WalkForwardReallySlow, 0x9818),
+        new NativeProgramEntry<MotherBrainBodyProgram>(MotherBrainBodyProgram.WalkBackwardSlow, 0x9852),
+        new NativeProgramEntry<MotherBrainBodyProgram>(MotherBrainBodyProgram.WalkBackwardReallyFast, 0x988c),
+        new NativeProgramEntry<MotherBrainBodyProgram>(MotherBrainBodyProgram.WalkBackwardFast, 0x98c6),
+        new NativeProgramEntry<MotherBrainBodyProgram>(MotherBrainBodyProgram.WalkBackwardMedium, 0x9900),
+        new NativeProgramEntry<MotherBrainBodyProgram>(MotherBrainBodyProgram.WalkBackwardReallySlow, 0x993a),
+        new NativeProgramEntry<MotherBrainBodyProgram>(MotherBrainBodyProgram.CrouchAndThenStandUp, 0x9974),
+        new NativeProgramEntry<MotherBrainBodyProgram>(MotherBrainBodyProgram.StandAfterCrouchSlow, 0x99aa),
+        new NativeProgramEntry<MotherBrainBodyProgram>(MotherBrainBodyProgram.StandAfterCrouchFast, 0x99c6),
+        new NativeProgramEntry<MotherBrainBodyProgram>(MotherBrainBodyProgram.StandAfterLeaning, 0x99e2),
+        new NativeProgramEntry<MotherBrainBodyProgram>(MotherBrainBodyProgram.LeanDown, 0x99f2),
+        new NativeProgramEntry<MotherBrainBodyProgram>(MotherBrainBodyProgram.Crouched, 0x9a02),
+        new NativeProgramEntry<MotherBrainBodyProgram>(MotherBrainBodyProgram.CrouchSlow, 0x9a0a),
+        new NativeProgramEntry<MotherBrainBodyProgram>(MotherBrainBodyProgram.CrouchFast, 0x9a26),
+        new NativeProgramEntry<MotherBrainBodyProgram>(MotherBrainBodyProgram.HandBeam, 0x9a42),
+        new NativeProgramEntry<MotherBrainBodyProgram>(MotherBrainBodyProgram.InitialDummy, 0x9c13),
     ];
 
     /// <summary>Each brain program's native entry point in bank $A9.</summary>
-    internal static readonly (MotherBrainHeadProgram Program, ushort Entry)[] HeadEntries =
+    internal static readonly NativeProgramEntry<MotherBrainHeadProgram>[] HeadEntries =
     [
-        (MotherBrainHeadProgram.StretchingPhase2, 0x9b7f),
-        (MotherBrainHeadProgram.StretchingPhase2Loop, 0x9bab),
-        (MotherBrainHeadProgram.StretchingPhase3, 0x9bb3),
-        (MotherBrainHeadProgram.StretchingPhase3Loop, 0x9bdf),
-        (MotherBrainHeadProgram.HyperBeamRecoil, 0x9be7),
-        (MotherBrainHeadProgram.HyperBeamRecoilLoop, 0x9c0b),
-        (MotherBrainHeadProgram.Initial, 0x9c21),
-        (MotherBrainHeadProgram.Decapitated, 0x9c29),
-        (MotherBrainHeadProgram.DecapitatedLoop, 0x9c31),
-        (MotherBrainHeadProgram.DyingDrool, 0x9c39),
-        (MotherBrainHeadProgram.DyingDroolBurst, 0x9c47),
-        (MotherBrainHeadProgram.DyingDroolLoop, 0x9c5f),
-        (MotherBrainHeadProgram.FiringRainbowBeam, 0x9c77),
-        (MotherBrainHeadProgram.NeutralPhase2, 0x9c87),
-        (MotherBrainHeadProgram.NeutralPhase2Hold, 0x9c9f),
-        (MotherBrainHeadProgram.NeutralPhase3, 0x9cb9),
-        (MotherBrainHeadProgram.NeutralPhase3Hold, 0x9cd1),
-        (MotherBrainHeadProgram.Corpse, 0x9d25),
-        (MotherBrainHeadProgram.CorpseLoop, 0x9d35),
-        (MotherBrainHeadProgram.FourOnionRingsPhase2, 0x9d3d),
-        (MotherBrainHeadProgram.TwoOnionRingsPhase2, 0x9d7f),
-        (MotherBrainHeadProgram.AttackingBabyMetroid, 0x9db1),
-        (MotherBrainHeadProgram.AttackingSamusFourOnionRingsPhase3, 0x9dbb),
-        (MotherBrainHeadProgram.FourOnionRingsPhase3, 0x9dc1),
-        (MotherBrainHeadProgram.BombPhase2, 0x9ecc),
-        (MotherBrainHeadProgram.BombPhase3, 0x9f00),
-        (MotherBrainHeadProgram.Laser, 0x9f34),
-        (MotherBrainHeadProgram.ChargingRainbowBeam, 0x9f6c),
-        (MotherBrainHeadProgram.ChargingRainbowBeamLoop, 0x9f7a),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.StretchingPhase2, 0x9b7f),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.StretchingPhase2Loop, 0x9bab),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.StretchingPhase3, 0x9bb3),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.StretchingPhase3Loop, 0x9bdf),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.HyperBeamRecoil, 0x9be7),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.HyperBeamRecoilLoop, 0x9c0b),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.Initial, 0x9c21),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.Decapitated, 0x9c29),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.DecapitatedLoop, 0x9c31),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.DyingDrool, 0x9c39),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.DyingDroolBurst, 0x9c47),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.DyingDroolLoop, 0x9c5f),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.FiringRainbowBeam, 0x9c77),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.NeutralPhase2, 0x9c87),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.NeutralPhase2Hold, 0x9c9f),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.NeutralPhase3, 0x9cb9),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.NeutralPhase3Hold, 0x9cd1),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.Corpse, 0x9d25),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.CorpseLoop, 0x9d35),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.FourOnionRingsPhase2, 0x9d3d),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.TwoOnionRingsPhase2, 0x9d7f),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.AttackingBabyMetroid, 0x9db1),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.AttackingSamusFourOnionRingsPhase3, 0x9dbb),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.FourOnionRingsPhase3, 0x9dc1),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.BombPhase2, 0x9ecc),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.BombPhase3, 0x9f00),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.Laser, 0x9f34),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.ChargingRainbowBeam, 0x9f6c),
+        new NativeProgramEntry<MotherBrainHeadProgram>(MotherBrainHeadProgram.ChargingRainbowBeamLoop, 0x9f7a),
     ];
 
     /// <summary>Each cutscene Baby program's native entry point in bank $A9.</summary>
-    internal static readonly (MotherBrainBabyProgram Program, ushort Entry)[] BabyEntries =
+    internal static readonly NativeProgramEntry<MotherBrainBabyProgram>[] BabyEntries =
     [
-        (MotherBrainBabyProgram.Initial, 0xcfa2),
-        (MotherBrainBabyProgram.DrainingMotherBrain, 0xcfb8),
-        (MotherBrainBabyProgram.TakingFatalBlow, 0xcfce),
+        new NativeProgramEntry<MotherBrainBabyProgram>(MotherBrainBabyProgram.Initial, 0xcfa2),
+        new NativeProgramEntry<MotherBrainBabyProgram>(MotherBrainBabyProgram.DrainingMotherBrain, 0xcfb8),
+        new NativeProgramEntry<MotherBrainBabyProgram>(MotherBrainBabyProgram.TakingFatalBlow, 0xcfce),
     ];
 
     /// <summary>Each Shitroid program's native entry point in bank $A9.</summary>
-    internal static readonly (ShitroidProgram Program, ushort Entry)[] ShitroidEntries =
+    internal static readonly NativeProgramEntry<ShitroidProgram>[] ShitroidEntries =
     [
-        (ShitroidProgram.FinishDraining, 0xf906),
-        (ShitroidProgram.Normal, 0xf90e),
-        (ShitroidProgram.LatchedOn, 0xf924),
-        (ShitroidProgram.Remorse, 0xf93a),
+        new NativeProgramEntry<ShitroidProgram>(ShitroidProgram.FinishDraining, 0xf906),
+        new NativeProgramEntry<ShitroidProgram>(ShitroidProgram.Normal, 0xf90e),
+        new NativeProgramEntry<ShitroidProgram>(ShitroidProgram.LatchedOn, 0xf924),
+        new NativeProgramEntry<ShitroidProgram>(ShitroidProgram.Remorse, 0xf93a),
     ];
 
     /// <summary>The bank-$A9 opcodes of body programs and the body steps each becomes, with its operand words.</summary>
-    private static readonly Dictionary<ushort, (int Operands, Func<ushort[], B> Cue)> BodyOps = new()
+    private static readonly Dictionary<ushort, BodyOp> BodyOps = new()
     {
-        [0x95fc] = (0, _ => new B.Move(new(1, -2))),
-        [0x95b6] = (0, _ => new B.MoveWithScrollBias(-10, 4)),
-        [0x95c0] = (0, _ => new B.MoveWithScrollBias(-16, 4)),
-        [0x95ca] = (0, _ => new B.MoveWithScrollBias(-12, -2)),
-        [0x95de] = (0, _ => new B.MoveWithScrollBias(12, 4)),
-        [0x95e8] = (0, _ => new B.MoveWithScrollBias(16, -2)),
-        [0x95f2] = (0, _ => new B.MoveWithScrollBias(10, -2)),
-        [0x960c] = (0, _ => new B.Move(new(2, 0))),
-        [0x961c] = (0, _ => new B.Move(new(0, 1))),
-        [0x9622] = (0, _ => new B.StepAndMove(new(3, 1))),
-        [0x9638] = (0, _ => new B.Move(new(15, -2))),
-        [0x9648] = (0, _ => new B.Move(new(6, -4))),
-        [0x9658] = (0, _ => new B.Move(new(-2, 4))),
-        [0x9668] = (0, _ => new B.StepAndMove(new(-1, 2))),
-        [0x967e] = (0, _ => new B.StepAndMove(new(-1, 2))),
-        [0x9694] = (0, _ => new B.Move(new(-2, 0))),
-        [0x96a4] = (0, _ => new B.Move(new(0, -1))),
-        [0x96aa] = (0, _ => new B.Move(new(-3, -1))),
-        [0x96ba] = (0, _ => new B.StepAndMove(new(-15, 2))),
-        [0x96d0] = (0, _ => new B.Move(new(-6, 4))),
-        [0x96e0] = (0, _ => new B.Move(new(2, -4))),
-        [0x96f0] = (0, _ => new B.Move(new(1, -2))),
-        [0x9700] = (0, _ => new B.SetPose(MotherBrainBodyPose.Standing)),
-        [0x9708] = (0, _ => new B.SetPose(MotherBrainBodyPose.Walking)),
-        [0x9710] = (0, _ => new B.SetPose(MotherBrainBodyPose.Crouched)),
-        [0x9718] = (0, _ => new B.SetPose(MotherBrainBodyPose.CrouchingTransition)),
-        [0x9720] = (0, _ => new B.SetPose(MotherBrainBodyPose.DeathBeam)),
-        [0x9728] = (0, _ => new B.SetPose(MotherBrainBodyPose.LeaningDown)),
-        [0x9ac8] = (3, operands => new B.SpawnHandDust(new(unchecked((short)operands[0]), unchecked((short)operands[1])), (MiscDustAnimation)operands[2])),
-        [0x9aef] = (0, _ => B.FireHandBeam),
-        [0x9b05] = (0, _ => B.AdvanceHandBeamPhase),
+        [0x95fc] = new BodyOp(0, _ => new B.Move(new(1, -2))),
+        [0x95b6] = new BodyOp(0, _ => new B.MoveWithScrollBias(-10, 4)),
+        [0x95c0] = new BodyOp(0, _ => new B.MoveWithScrollBias(-16, 4)),
+        [0x95ca] = new BodyOp(0, _ => new B.MoveWithScrollBias(-12, -2)),
+        [0x95de] = new BodyOp(0, _ => new B.MoveWithScrollBias(12, 4)),
+        [0x95e8] = new BodyOp(0, _ => new B.MoveWithScrollBias(16, -2)),
+        [0x95f2] = new BodyOp(0, _ => new B.MoveWithScrollBias(10, -2)),
+        [0x960c] = new BodyOp(0, _ => new B.Move(new(2, 0))),
+        [0x961c] = new BodyOp(0, _ => new B.Move(new(0, 1))),
+        [0x9622] = new BodyOp(0, _ => new B.StepAndMove(new(3, 1))),
+        [0x9638] = new BodyOp(0, _ => new B.Move(new(15, -2))),
+        [0x9648] = new BodyOp(0, _ => new B.Move(new(6, -4))),
+        [0x9658] = new BodyOp(0, _ => new B.Move(new(-2, 4))),
+        [0x9668] = new BodyOp(0, _ => new B.StepAndMove(new(-1, 2))),
+        [0x967e] = new BodyOp(0, _ => new B.StepAndMove(new(-1, 2))),
+        [0x9694] = new BodyOp(0, _ => new B.Move(new(-2, 0))),
+        [0x96a4] = new BodyOp(0, _ => new B.Move(new(0, -1))),
+        [0x96aa] = new BodyOp(0, _ => new B.Move(new(-3, -1))),
+        [0x96ba] = new BodyOp(0, _ => new B.StepAndMove(new(-15, 2))),
+        [0x96d0] = new BodyOp(0, _ => new B.Move(new(-6, 4))),
+        [0x96e0] = new BodyOp(0, _ => new B.Move(new(2, -4))),
+        [0x96f0] = new BodyOp(0, _ => new B.Move(new(1, -2))),
+        [0x9700] = new BodyOp(0, _ => new B.SetPose(MotherBrainBodyPose.Standing)),
+        [0x9708] = new BodyOp(0, _ => new B.SetPose(MotherBrainBodyPose.Walking)),
+        [0x9710] = new BodyOp(0, _ => new B.SetPose(MotherBrainBodyPose.Crouched)),
+        [0x9718] = new BodyOp(0, _ => new B.SetPose(MotherBrainBodyPose.CrouchingTransition)),
+        [0x9720] = new BodyOp(0, _ => new B.SetPose(MotherBrainBodyPose.DeathBeam)),
+        [0x9728] = new BodyOp(0, _ => new B.SetPose(MotherBrainBodyPose.LeaningDown)),
+        [0x9ac8] = new BodyOp(3, operands => new B.SpawnHandDust(new(unchecked((short)operands[0]), unchecked((short)operands[1])), (MiscDustAnimation)operands[2])),
+        [0x9aef] = new BodyOp(0, _ => B.FireHandBeam),
+        [0x9b05] = new BodyOp(0, _ => B.AdvanceHandBeamPhase),
     };
 
     /// <summary>The bank-$A9 brain opcodes that become a single cue, with their operand words.</summary>
-    private static readonly Dictionary<ushort, (int Operands, Func<ushort[], H> Cue)> HeadCueOps = new()
+    private static readonly Dictionary<ushort, HeadCueOp> HeadCueOps = new()
     {
-        [0x9ea3] = (0, _ => H.Of(K.CountBabyMetroidAttack)),
-        [0x9eb5] = (0, _ => H.Of(K.ResetBabyMetroidAttacks)),
-        [0x9b20] = (0, _ => H.Of(K.DisableNeckMovement)),
-        [0x9e37] = (0, _ => H.Of(K.AimOnionRingsAtBabyMetroid)),
-        [0x9e5b] = (0, _ => H.Of(K.AimOnionRingsAtSamus)),
-        [0x9df7] = (0, _ => H.Of(K.QueueBabyMetroidAttackSound)),
-        [0x9e29] = (0, _ => H.Of(K.SpawnOnionRing)),
-        [0x9b32] = (1, operands => H.Sound3(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, operands[0]))),
-        [0x9b28] = (1, operands => H.Sound2(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, operands[0]))),
-        [0x9ebd] = (1, operands => H.Bomb(operands[0])),
-        [0x9b6d] = (0, _ => H.Of(K.SpawnBigPurpleBreath)),
-        [0x9d0d] = (0, _ => H.Of(K.MaybeHoldNeutralPhase3)),
-        [0x9b3c] = (0, _ => H.Of(K.SpawnDrool)),
-        [0x9b77] = (0, _ => H.Of(K.ShakeBrain)),
-        [0x9cad] = (0, _ => H.Of(K.MaybeHoldNeutralPhase2)),
-        [0x9f46] = (0, _ => H.Of(K.SpawnLaser)),
-        [0x9f84] = (0, _ => H.Of(K.SpawnRainbowBeamChargeParticle)),
-        [0x9f8e] = (0, _ => H.Of(K.PrepareRainbowBeamCharge)),
+        [0x9ea3] = new HeadCueOp(0, _ => H.Of(K.CountBabyMetroidAttack)),
+        [0x9eb5] = new HeadCueOp(0, _ => H.Of(K.ResetBabyMetroidAttacks)),
+        [0x9b20] = new HeadCueOp(0, _ => H.Of(K.DisableNeckMovement)),
+        [0x9e37] = new HeadCueOp(0, _ => H.Of(K.AimOnionRingsAtBabyMetroid)),
+        [0x9e5b] = new HeadCueOp(0, _ => H.Of(K.AimOnionRingsAtSamus)),
+        [0x9df7] = new HeadCueOp(0, _ => H.Of(K.QueueBabyMetroidAttackSound)),
+        [0x9e29] = new HeadCueOp(0, _ => H.Of(K.SpawnOnionRing)),
+        [0x9b32] = new HeadCueOp(1, operands => H.Sound3(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, operands[0]))),
+        [0x9b28] = new HeadCueOp(1, operands => H.Sound2(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, operands[0]))),
+        [0x9ebd] = new HeadCueOp(1, operands => H.Bomb(operands[0])),
+        [0x9b6d] = new HeadCueOp(0, _ => H.Of(K.SpawnBigPurpleBreath)),
+        [0x9d0d] = new HeadCueOp(0, _ => H.Of(K.MaybeHoldNeutralPhase3)),
+        [0x9b3c] = new HeadCueOp(0, _ => H.Of(K.SpawnDrool)),
+        [0x9b77] = new HeadCueOp(0, _ => H.Of(K.ShakeBrain)),
+        [0x9cad] = new HeadCueOp(0, _ => H.Of(K.MaybeHoldNeutralPhase2)),
+        [0x9f46] = new HeadCueOp(0, _ => H.Of(K.SpawnLaser)),
+        [0x9f84] = new HeadCueOp(0, _ => H.Of(K.SpawnRainbowBeamChargeParticle)),
+        [0x9f8e] = new HeadCueOp(0, _ => H.Of(K.PrepareRainbowBeamCharge)),
     };
 
     /// <summary>Each Zebetite health program's native entry point in bank $A6, six bytes apart.</summary>
-    internal static readonly (ZebetiteProgram Program, ushort Entry)[] ZebetiteEntries =
+    internal static readonly NativeProgramEntry<ZebetiteProgram>[] ZebetiteEntries =
     [
-        (ZebetiteProgram.LargeAtLeast800, 0xfdcc),
-        (ZebetiteProgram.LargeAtLeast600, 0xfdd2),
-        (ZebetiteProgram.LargeAtLeast400, 0xfdd8),
-        (ZebetiteProgram.LargeAtLeast200, 0xfdde),
-        (ZebetiteProgram.LargeBelow200, 0xfde4),
-        (ZebetiteProgram.SplitAtLeast800, 0xfdea),
-        (ZebetiteProgram.SplitAtLeast600, 0xfdf0),
-        (ZebetiteProgram.SplitAtLeast400, 0xfdf6),
-        (ZebetiteProgram.SplitAtLeast200, 0xfdfc),
-        (ZebetiteProgram.SplitBelow200, 0xfe02),
+        new NativeProgramEntry<ZebetiteProgram>(ZebetiteProgram.LargeAtLeast800, 0xfdcc),
+        new NativeProgramEntry<ZebetiteProgram>(ZebetiteProgram.LargeAtLeast600, 0xfdd2),
+        new NativeProgramEntry<ZebetiteProgram>(ZebetiteProgram.LargeAtLeast400, 0xfdd8),
+        new NativeProgramEntry<ZebetiteProgram>(ZebetiteProgram.LargeAtLeast200, 0xfdde),
+        new NativeProgramEntry<ZebetiteProgram>(ZebetiteProgram.LargeBelow200, 0xfde4),
+        new NativeProgramEntry<ZebetiteProgram>(ZebetiteProgram.SplitAtLeast800, 0xfdea),
+        new NativeProgramEntry<ZebetiteProgram>(ZebetiteProgram.SplitAtLeast600, 0xfdf0),
+        new NativeProgramEntry<ZebetiteProgram>(ZebetiteProgram.SplitAtLeast400, 0xfdf6),
+        new NativeProgramEntry<ZebetiteProgram>(ZebetiteProgram.SplitAtLeast200, 0xfdfc),
+        new NativeProgramEntry<ZebetiteProgram>(ZebetiteProgram.SplitBelow200, 0xfe02),
     ];
 
     /// <summary>Each falling tube's pose list in bank $A9, six bytes apart.</summary>
-    internal static readonly (MotherBrainTubePiece Program, ushort Entry)[] TubeEntries =
+    internal static readonly NativeProgramEntry<MotherBrainTubePiece>[] TubeEntries =
     [
-        (MotherBrainTubePiece.BottomLeft, 0x8c69),
-        (MotherBrainTubePiece.BottomRight, 0x8c6f),
-        (MotherBrainTubePiece.BottomMiddleLeft, 0x8c75),
-        (MotherBrainTubePiece.BottomMiddleRight, 0x8c7b),
-        (MotherBrainTubePiece.Main, 0x8c81),
+        new NativeProgramEntry<MotherBrainTubePiece>(MotherBrainTubePiece.BottomLeft, 0x8c69),
+        new NativeProgramEntry<MotherBrainTubePiece>(MotherBrainTubePiece.BottomRight, 0x8c6f),
+        new NativeProgramEntry<MotherBrainTubePiece>(MotherBrainTubePiece.BottomMiddleLeft, 0x8c75),
+        new NativeProgramEntry<MotherBrainTubePiece>(MotherBrainTubePiece.BottomMiddleRight, 0x8c7b),
+        new NativeProgramEntry<MotherBrainTubePiece>(MotherBrainTubePiece.Main, 0x8c81),
     ];
 
     /// <summary>Each falling tube's sixteen-byte population record, as a long address.</summary>
@@ -298,16 +298,16 @@ internal static class MotherBrainNativeListAddresses
     /// Each direction's turret pose list and bullet pose list in bank $86, and the long address of its entry in the
     /// bullet direction selector's table, which follows the selector's opcode at $86:C131.
     /// </summary>
-    internal static readonly (MotherBrainTurretDirection Direction, ushort TurretPose, ushort BulletPose, int SelectorEntry)[] TurretEntries =
+    internal static readonly TurretEntry[] TurretEntries =
     [
-        (MotherBrainTurretDirection.Left, 0xc101, 0xc143, 0x86c133),
-        (MotherBrainTurretDirection.DownLeft, 0xc107, 0xc149, 0x86c135),
-        (MotherBrainTurretDirection.Down, 0xc10d, 0xc14f, 0x86c137),
-        (MotherBrainTurretDirection.DownRight, 0xc113, 0xc155, 0x86c139),
-        (MotherBrainTurretDirection.Right, 0xc119, 0xc15b, 0x86c13b),
-        (MotherBrainTurretDirection.UpRight, 0xc11f, 0xc161, 0x86c13d),
-        (MotherBrainTurretDirection.Up, 0xc125, 0xc167, 0x86c13f),
-        (MotherBrainTurretDirection.UpLeft, 0xc12b, 0xc16d, 0x86c141),
+        new TurretEntry(MotherBrainTurretDirection.Left, 0xc101, 0xc143, 0x86c133),
+        new TurretEntry(MotherBrainTurretDirection.DownLeft, 0xc107, 0xc149, 0x86c135),
+        new TurretEntry(MotherBrainTurretDirection.Down, 0xc10d, 0xc14f, 0x86c137),
+        new TurretEntry(MotherBrainTurretDirection.DownRight, 0xc113, 0xc155, 0x86c139),
+        new TurretEntry(MotherBrainTurretDirection.Right, 0xc119, 0xc15b, 0x86c13b),
+        new TurretEntry(MotherBrainTurretDirection.UpRight, 0xc11f, 0xc161, 0x86c13d),
+        new TurretEntry(MotherBrainTurretDirection.Up, 0xc125, 0xc167, 0x86c13f),
+        new TurretEntry(MotherBrainTurretDirection.UpLeft, 0xc12b, 0xc16d, 0x86c141),
     ];
     /// <summary>The bullet impact smoke list at $86:C19A.</summary>
     internal const ushort BulletImpact = 0xc19a;
@@ -321,15 +321,15 @@ internal static class MotherBrainNativeListAddresses
     };
 
     /// <summary>The fake-death room flash's fourteen timed records at $A9:D046, as long addresses.</summary>
-    internal static readonly (int Frame, int Record)[] RoomFlashRecords =
+    internal static readonly RoomFlashRecord[] RoomFlashRecords =
     [
-        (0, 0xa9d046), (1, 0xa9d04a), (2, 0xa9d04e), (3, 0xa9d052), (4, 0xa9d056), (5, 0xa9d05a), (6, 0xa9d05e),
-        (7, 0xa9d062), (8, 0xa9d066), (9, 0xa9d06a), (10, 0xa9d06e), (11, 0xa9d072), (12, 0xa9d076), (13, 0xa9d07a),
+        new RoomFlashRecord(0, 0xa9d046), new RoomFlashRecord(1, 0xa9d04a), new RoomFlashRecord(2, 0xa9d04e), new RoomFlashRecord(3, 0xa9d052), new RoomFlashRecord(4, 0xa9d056), new RoomFlashRecord(5, 0xa9d05a), new RoomFlashRecord(6, 0xa9d05e),
+        new RoomFlashRecord(7, 0xa9d062), new RoomFlashRecord(8, 0xa9d066), new RoomFlashRecord(9, 0xa9d06a), new RoomFlashRecord(10, 0xa9d06e), new RoomFlashRecord(11, 0xa9d072), new RoomFlashRecord(12, 0xa9d076), new RoomFlashRecord(13, 0xa9d07a),
     ];
     /// <summary>The room flash's closing goto at $A9:D07E, as a long address.</summary>
     internal const int RoomFlashLoop = 0xa9d07e;
     /// <summary>The room flash's goto opcode and its target, the flash's first record.</summary>
-    internal static readonly (ushort Opcode, ushort Target) RoomFlashGoto = (0x9b0f, 0xd046);
+    internal static readonly RoomFlashGotoValue RoomFlashGoto = new RoomFlashGotoValue(0x9b0f, 0xd046);
 
     /// <summary>Each native <see cref="MotherBrainTubeCollapseFunction"/> routine pointer and the function it decodes to.</summary>
     internal static readonly Dictionary<ushort, MotherBrainTubeCollapseFunction> NativeTubeCollapseFunctions = new()
@@ -368,7 +368,7 @@ internal static class MotherBrainNativeListAddresses
     /// </summary>
     internal static Dictionary<ushort, AnimationProgramCursor<TProgram>> Walk<TProgram, TFrame, TCue>(
         IImportCartridgeSource cartridge, int bank, AnimationProgramSet<TProgram, TFrame, TCue> programs,
-        (TProgram Program, ushort Entry)[] entries, Func<TFrame, ushort> spritemap,
+        NativeProgramEntry<TProgram>[] entries, Func<TFrame, ushort> spritemap,
         IReadOnlyDictionary<ushort, NativeOp<TProgram, TFrame, TCue>> ops)
         where TProgram : struct, Enum
         where TFrame : struct

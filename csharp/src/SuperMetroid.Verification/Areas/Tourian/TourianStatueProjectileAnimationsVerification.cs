@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -11,18 +12,18 @@ namespace SuperMetroid.Verification.Areas.Tourian;
 internal static class TourianStatueProjectileAnimationsVerification
 {
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (TourianStatueProjectileProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<TourianStatueProjectileProgram>[] Entries =
     [
-        (TourianStatueProjectileProgram.Delete, TourianStatueProjectileInstructionProgramToolingDefinitions.Delete),
-        (TourianStatueProjectileProgram.Splash, TourianStatueProjectileInstructionProgramDefinitionsConstants.Splash),
-        (TourianStatueProjectileProgram.EyeGlow, TourianStatueProjectileInstructionProgramDefinitionsConstants.EyeGlow),
-        (TourianStatueProjectileProgram.Particle, TourianStatueProjectileInstructionProgramDefinitions.Particle),
-        (TourianStatueProjectileProgram.Tail, TourianStatueProjectileInstructionProgramDefinitions.Tail),
-        (TourianStatueProjectileProgram.Soul, TourianStatueProjectileInstructionProgramDefinitions.Soul),
-        (TourianStatueProjectileProgram.BaseDecoration, TourianStatueProjectileInstructionProgramDefinitionsConstants.BaseDecoration),
-        (TourianStatueProjectileProgram.BaseDecorationLoop, BaseDecorationLoop),
-        (TourianStatueProjectileProgram.Ridley, TourianStatueProjectileInstructionProgramDefinitionsConstants.Ridley),
-        (TourianStatueProjectileProgram.Phantoon, TourianStatueProjectileInstructionProgramDefinitionsConstants.Phantoon),
+        new NativeProgramEntry<TourianStatueProjectileProgram>(TourianStatueProjectileProgram.Delete, TourianStatueProjectileInstructionProgramToolingDefinitions.Delete),
+        new NativeProgramEntry<TourianStatueProjectileProgram>(TourianStatueProjectileProgram.Splash, TourianStatueProjectileInstructionProgramDefinitionsConstants.Splash),
+        new NativeProgramEntry<TourianStatueProjectileProgram>(TourianStatueProjectileProgram.EyeGlow, TourianStatueProjectileInstructionProgramDefinitionsConstants.EyeGlow),
+        new NativeProgramEntry<TourianStatueProjectileProgram>(TourianStatueProjectileProgram.Particle, TourianStatueProjectileInstructionProgramDefinitions.Particle),
+        new NativeProgramEntry<TourianStatueProjectileProgram>(TourianStatueProjectileProgram.Tail, TourianStatueProjectileInstructionProgramDefinitions.Tail),
+        new NativeProgramEntry<TourianStatueProjectileProgram>(TourianStatueProjectileProgram.Soul, TourianStatueProjectileInstructionProgramDefinitions.Soul),
+        new NativeProgramEntry<TourianStatueProjectileProgram>(TourianStatueProjectileProgram.BaseDecoration, TourianStatueProjectileInstructionProgramDefinitionsConstants.BaseDecoration),
+        new NativeProgramEntry<TourianStatueProjectileProgram>(TourianStatueProjectileProgram.BaseDecorationLoop, BaseDecorationLoop),
+        new NativeProgramEntry<TourianStatueProjectileProgram>(TourianStatueProjectileProgram.Ridley, TourianStatueProjectileInstructionProgramDefinitionsConstants.Ridley),
+        new NativeProgramEntry<TourianStatueProjectileProgram>(TourianStatueProjectileProgram.Phantoon, TourianStatueProjectileInstructionProgramDefinitionsConstants.Phantoon),
     ];
 
     /// <summary>$86:B862, where the base decoration's list rests after installing its movement.</summary>
@@ -32,15 +33,15 @@ internal static class TourianStatueProjectileAnimationsVerification
     private const ushort ParticleListEnd = 0xb818;
 
     /// <summary>Each command the lists use, the cue it becomes and its operand bytes.</summary>
-    private static readonly Dictionary<ushort, (NativeCueShape<TourianStatueProjectileCue> Cue, int OperandBytes)> Commands = new()
+    private static readonly Dictionary<ushort, TourianStatueProjectileAnimationsCommand> Commands = new()
     {
-        [(ushort)NativeEnemyProjectileInstruction.Delete] = (NativeCueShape<TourianStatueProjectileCue>.Exactly(new TourianStatueProjectileCue.Command(TourianStatueProjectileCueKind.Delete)), 0),
-        [(ushort)NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max6] = (NativeCueShape<TourianStatueProjectileCue>.Exactly(new TourianStatueProjectileCue.Command(TourianStatueProjectileCueKind.PlayReleaseSound)), 1),
-        [(ushort)TourianStatueInstruction.Earthquake] = (NativeCueShape<TourianStatueProjectileCue>.Exactly(new TourianStatueProjectileCue.Command(TourianStatueProjectileCueKind.Earthquake)), 0),
-        [(ushort)TourianStatueInstruction.SpawnParticle] = (NativeCueShape<TourianStatueProjectileCue>.Exactly(new TourianStatueProjectileCue.Command(TourianStatueProjectileCueKind.SpawnParticle)), 0),
-        [(ushort)TourianStatueInstruction.SpawnTail] = (NativeCueShape<TourianStatueProjectileCue>.Exactly(new TourianStatueProjectileCue.Command(TourianStatueProjectileCueKind.SpawnTail)), 0),
-        [(ushort)TourianStatueInstruction.AddY] = (NativeCueShape<TourianStatueProjectileCue>.Of<TourianStatueProjectileCue.MoveDown>(""), 2),
-        [(ushort)NativeEnemyProjectileInstruction.PreInstructionInY] = (NativeCueShape<TourianStatueProjectileCue>.Of<TourianStatueProjectileCue.StartMoving>(""), 2),
+        [(ushort)NativeEnemyProjectileInstruction.Delete] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Exactly(new TourianStatueProjectileCue.Command(TourianStatueProjectileCueKind.Delete)), 0),
+        [(ushort)NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max6] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Exactly(new TourianStatueProjectileCue.Command(TourianStatueProjectileCueKind.PlayReleaseSound)), 1),
+        [(ushort)TourianStatueInstruction.Earthquake] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Exactly(new TourianStatueProjectileCue.Command(TourianStatueProjectileCueKind.Earthquake)), 0),
+        [(ushort)TourianStatueInstruction.SpawnParticle] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Exactly(new TourianStatueProjectileCue.Command(TourianStatueProjectileCueKind.SpawnParticle)), 0),
+        [(ushort)TourianStatueInstruction.SpawnTail] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Exactly(new TourianStatueProjectileCue.Command(TourianStatueProjectileCueKind.SpawnTail)), 0),
+        [(ushort)TourianStatueInstruction.AddY] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Of<TourianStatueProjectileCue.MoveDown>(""), 2),
+        [(ushort)NativeEnemyProjectileInstruction.PreInstructionInY] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Of<TourianStatueProjectileCue.StartMoving>(""), 2),
     };
 
     /// <summary>The oracle rules for the statue projectile programs.</summary>

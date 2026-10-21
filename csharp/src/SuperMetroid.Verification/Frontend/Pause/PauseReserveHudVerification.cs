@@ -74,7 +74,7 @@ internal static class PauseReserveHudVerification
             beforeRefill[y * 256 + x] != afterRefill[y * 256 + x])), "actual rendered health digits change during refill");
         Step(SnesButton.A); Step();
         AssertTrue(!samus.HealthWarning.IsActive, "paused input does not invoke ordinary low-health beta check");
-        foreach ((int index, int offset) in new[] { (8, 0), (9, 2), (40, 4), (41, 6), (72, 8), (73, 10) })
+        foreach ((int index, int offset) in new[] { new VerifyPauseReserveHudCase(8, 0), new VerifyPauseReserveHudCase(9, 2), new VerifyPauseReserveHudCase(40, 4), new VerifyPauseReserveHudCase(41, 6), new VerifyPauseReserveHudCase(72, 8), new VerifyPauseReserveHudCase(73, 10) })
             AssertEqual(bus.ReadCartridgeWord((0x809997 + offset)), Displayed().ReadWord(HudState.VramDestination + index), "empty AUTO uses native table");
         foreach (int index in Enumerable.Range(0, HudState.MutableTileCount).Except(ReserveDisplayCells))
             AssertEqual(SnesLittleEndian.Word(initialHud[index * 2], initialHud[index * 2 + 1]),

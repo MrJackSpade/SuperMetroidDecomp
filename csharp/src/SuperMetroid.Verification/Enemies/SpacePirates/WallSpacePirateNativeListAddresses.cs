@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.SpacePirates;
 
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
@@ -13,20 +14,20 @@ internal static class WallSpacePirateNativeListAddresses
     internal const byte Bank = 0xb2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (WallSpacePirateProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<WallSpacePirateProgram>[] Entries =
     [
-        (WallSpacePirateProgram.FireAndJumpLeft, 0xecc0),
-        (WallSpacePirateProgram.LandedOnLeftWall, 0xece4),
-        (WallSpacePirateProgram.MovingUpLeftWall, 0xecec),
-        (WallSpacePirateProgram.MovingUpLeftWallLoop, 0xecf4),
-        (WallSpacePirateProgram.MovingDownLeftWall, 0xed36),
-        (WallSpacePirateProgram.MovingDownLeftWallLoop, 0xed3e),
-        (WallSpacePirateProgram.FireAndJumpRight, 0xed80),
-        (WallSpacePirateProgram.LandedOnRightWall, 0xeda4),
-        (WallSpacePirateProgram.MovingDownRightWall, 0xedac),
-        (WallSpacePirateProgram.MovingDownRightWallLoop, 0xedb4),
-        (WallSpacePirateProgram.MovingUpRightWall, 0xedf6),
-        (WallSpacePirateProgram.MovingUpRightWallLoop, 0xedfe),
+        new NativeProgramEntry<WallSpacePirateProgram>(WallSpacePirateProgram.FireAndJumpLeft, 0xecc0),
+        new NativeProgramEntry<WallSpacePirateProgram>(WallSpacePirateProgram.LandedOnLeftWall, 0xece4),
+        new NativeProgramEntry<WallSpacePirateProgram>(WallSpacePirateProgram.MovingUpLeftWall, 0xecec),
+        new NativeProgramEntry<WallSpacePirateProgram>(WallSpacePirateProgram.MovingUpLeftWallLoop, 0xecf4),
+        new NativeProgramEntry<WallSpacePirateProgram>(WallSpacePirateProgram.MovingDownLeftWall, 0xed36),
+        new NativeProgramEntry<WallSpacePirateProgram>(WallSpacePirateProgram.MovingDownLeftWallLoop, 0xed3e),
+        new NativeProgramEntry<WallSpacePirateProgram>(WallSpacePirateProgram.FireAndJumpRight, 0xed80),
+        new NativeProgramEntry<WallSpacePirateProgram>(WallSpacePirateProgram.LandedOnRightWall, 0xeda4),
+        new NativeProgramEntry<WallSpacePirateProgram>(WallSpacePirateProgram.MovingDownRightWall, 0xedac),
+        new NativeProgramEntry<WallSpacePirateProgram>(WallSpacePirateProgram.MovingDownRightWallLoop, 0xedb4),
+        new NativeProgramEntry<WallSpacePirateProgram>(WallSpacePirateProgram.MovingUpRightWall, 0xedf6),
+        new NativeProgramEntry<WallSpacePirateProgram>(WallSpacePirateProgram.MovingUpRightWallLoop, 0xedfe),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

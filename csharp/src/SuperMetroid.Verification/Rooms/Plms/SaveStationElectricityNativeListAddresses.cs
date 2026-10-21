@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Verification.Enemies;
 
@@ -10,14 +11,14 @@ namespace SuperMetroid.Verification.Rooms.Plms;
 internal static class SaveStationElectricityNativeListAddresses
 {
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (SaveStationElectricityProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<SaveStationElectricityProgram>[] Entries =
     [
-        (SaveStationElectricityProgram.Start, 0xe683),
-        (SaveStationElectricityProgram.Cycle, 0xe687),
+        new NativeProgramEntry<SaveStationElectricityProgram>(SaveStationElectricityProgram.Start, 0xe683),
+        new NativeProgramEntry<SaveStationElectricityProgram>(SaveStationElectricityProgram.Cycle, 0xe687),
     ];
 
     /// <summary>The bank-$86 bytes the lists occupy, which production must never read.</summary>
-    internal static readonly (ushort First, ushort End) Extent = (0xe683, 0xe6ad);
+    internal static readonly MotherBrainEffectNativeListAddressesExtent Extent = new MotherBrainEffectNativeListAddressesExtent(0xe683, 0xe6ad);
 
     /// <summary>The native entry of <paramref name="program"/>.</summary>
     internal static ushort Entry(SaveStationElectricityProgram program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);

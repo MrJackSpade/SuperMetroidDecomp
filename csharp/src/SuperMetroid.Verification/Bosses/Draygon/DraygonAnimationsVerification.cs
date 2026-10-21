@@ -123,7 +123,7 @@ internal static class DraygonAnimationsVerification
     }
 
     /// <summary>Creates Draygon's four linked parts in a fresh enemy system.</summary>
-    private static (RoomEnemySystem Enemies, DraygonEnemyState State) NewDraygon()
+    private static NewDraygonResult NewDraygon()
     {
         var enemies = new RoomEnemySystem(new EnemySession(), services: new VerificationRoomEnemyServices(null));
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
@@ -145,7 +145,7 @@ internal static class DraygonAnimationsVerification
         enemies.DraygonBehavior.Parts.Draygon = state;
         enemies.VerificationServices().NextRandom = () => 4660;
         enemies.VerificationServices().ReadRandom = () => 4660;
-        return (enemies, state);
+        return new NewDraygonResult(enemies, state);
     }
 
     /// <summary>Runs one update of <paramref name="part"/> through the production interpreter.</summary>

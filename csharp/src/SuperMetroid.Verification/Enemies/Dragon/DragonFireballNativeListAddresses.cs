@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Dragon;
 
 namespace SuperMetroid.Verification.Enemies.Dragon;
@@ -9,14 +10,14 @@ namespace SuperMetroid.Verification.Enemies.Dragon;
 internal static class DragonFireballNativeListAddresses
 {
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (DragonFireballProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<DragonFireballProgram>[] Entries =
     [
-        (DragonFireballProgram.RisingLeft, 0xb4bf),
-        (DragonFireballProgram.RisingRight, 0xb4cb),
-        (DragonFireballProgram.FallingLeft, 0xb4d7),
-        (DragonFireballProgram.FallingRight, 0xb4e3),
+        new NativeProgramEntry<DragonFireballProgram>(DragonFireballProgram.RisingLeft, 0xb4bf),
+        new NativeProgramEntry<DragonFireballProgram>(DragonFireballProgram.RisingRight, 0xb4cb),
+        new NativeProgramEntry<DragonFireballProgram>(DragonFireballProgram.FallingLeft, 0xb4d7),
+        new NativeProgramEntry<DragonFireballProgram>(DragonFireballProgram.FallingRight, 0xb4e3),
     ];
 
     /// <summary>The bank-$86 bytes the lists occupy, $86:B4BF-B4EE, which production must never read.</summary>
-    internal static readonly (ushort First, ushort End) Extent = (0xb4bf, 0xb4ef);
+    internal static readonly MotherBrainEffectNativeListAddressesExtent Extent = new MotherBrainEffectNativeListAddressesExtent(0xb4bf, 0xb4ef);
 }

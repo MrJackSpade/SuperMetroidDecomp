@@ -69,7 +69,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
             .OrderBy(slot => slot.SlotIndex)
             .ToArray();
         AssertEqual(3, rinkas.Length, "Mother Brain's room has three special Rinkas");
-        (ushort X, ushort Y)[] expected = [(0x03e7, 0x0026), (0x03e7, 0x00a6), (0x0337, 0x0036)];
+        MotherBrainRinkaDoorSpawnExpected[] expected = [new MotherBrainRinkaDoorSpawnExpected(0x03e7, 0x0026), new MotherBrainRinkaDoorSpawnExpected(0x03e7, 0x00a6), new MotherBrainRinkaDoorSpawnExpected(0x0337, 0x0036)];
         for (int index = 0; index < rinkas.Length; index++)
         {
             AssertEqual(expected[index].X, rinkas[index].Position.X.Whole, $"Rinka {index} X follows the loader's camera");

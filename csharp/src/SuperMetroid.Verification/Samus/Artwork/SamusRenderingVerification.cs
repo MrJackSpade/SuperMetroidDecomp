@@ -151,7 +151,7 @@ internal static void VerifySamusRenderingSlice()
     SpriteDraw[] body = [.. oamFrame.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.Samus)];
     AssertEqual(2, body.Length, "Samus pose 1 publishes its top and bottom body frames");
     foreach ((SpriteDraw draw, int index, int instance) in new[] {
-        (body[0], samus.Presentation.TopSpritemapIndex, 0), (body[1], samus.Presentation.BottomSpritemapIndex, 1) })
+        new VerifySamusRenderingSliceCase(body[0], samus.Presentation.TopSpritemapIndex, 0), new VerifySamusRenderingSliceCase(body[1], samus.Presentation.BottomSpritemapIndex, 1) })
     {
         AssertTrue(spritemaps.TryGet(index, out SamusSpritemapDefinition? definition), "body spritemap is installed");
         AssertEqual($"Samus.{definition?.Pointer:X4}", draw.Frame.Name, $"body draw {instance} names its spritemap record");
@@ -325,24 +325,24 @@ internal static void VerifySamusRenderingSlice()
     SeedBodyHalfRoutingTileAnimation(bus);
     foreach ((SamusPoseId pose, byte movementType, ushort frame, int expectedSprites, string name) in new[]
     {
-        (SamusPoseId.DeathSequenceRightPose, (byte)0x0a, (ushort)0, 1, "$D7 frame zero top-only"),
-        (SamusPoseId.DeathSequenceLeftPose, (byte)0x0a, (ushort)2, 1, "$D8 frame two top-only"),
-        (SamusPoseId.DeathSequenceRightPose, (byte)0x0a, (ushort)3, 2, "$D7 frame three split"),
-        (SamusPoseId.CrouchingTransitionRightPose, (byte)0x0f, (ushort)0, 2, "$35 basic crouch transition split"),
-        (SamusPoseId.MorphingTransitionRightPose, (byte)0x0f, (ushort)0, 1, "$37 morph transition top-only"),
-        (SamusPoseId.UnmorphingTransitionRightPose, (byte)0x0f, (ushort)1, 1, "$3D unmorph transition top-only"),
-        (SamusPoseId.UnusedPoseDb, (byte)0x0f, (ushort)0, 2, "$DB frame-zero split"),
-        (SamusPoseId.UnusedPoseDc, (byte)0x0f, (ushort)1, 1, "$DC nonzero frame top-only"),
-        (SamusPoseId.UnusedPoseDd, (byte)0x0f, (ushort)1, 1, "$DD pre-frame-two top-only"),
-        (SamusPoseId.UnusedPoseDd, (byte)0x0f, (ushort)2, 2, "$DD frame-two transition split"),
-        (SamusPoseId.DraygonGrabbedMovingRightPose, (byte)0x1a, (ushort)2, 2, "$F0 held body split"),
-        (SamusPoseId.CrouchingTransitionAimUpRightPose, (byte)0x0f, (ushort)0, 2, "$F1 aimed transition always split"),
-        (SamusPoseId.UnusedPose20, (byte)0x07, (ushort)0, 1, "unused type-seven top-only"),
-        (SamusPoseId.UnusedKnockbackRightPose, (byte)0x09, (ushort)0, 1, "unused type-nine top-only"),
-        (SamusPoseId.UnusedPose5D, (byte)0x0b, (ushort)0, 2, "unused type-B split"),
-        (SamusPoseId.UnusedPose65, (byte)0x0d, (ushort)0, 2, "unused type-D pose $65 frame-zero split"),
-        (SamusPoseId.UnusedPose66, (byte)0x0d, (ushort)1, 1, "unused type-D pose $66 later top-only"),
-        (SamusPoseId.UnusedPose63, (byte)0x0d, (ushort)1, 2, "other unused type-D pose remains split"),
+        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.DeathSequenceRightPose, 0x0a, 0, 1, "$D7 frame zero top-only"),
+        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.DeathSequenceLeftPose, 0x0a, 2, 1, "$D8 frame two top-only"),
+        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.DeathSequenceRightPose, 0x0a, 3, 2, "$D7 frame three split"),
+        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.CrouchingTransitionRightPose, 0x0f, 0, 2, "$35 basic crouch transition split"),
+        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.MorphingTransitionRightPose, 0x0f, 0, 1, "$37 morph transition top-only"),
+        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnmorphingTransitionRightPose, 0x0f, 1, 1, "$3D unmorph transition top-only"),
+        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnusedPoseDb, 0x0f, 0, 2, "$DB frame-zero split"),
+        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnusedPoseDc, 0x0f, 1, 1, "$DC nonzero frame top-only"),
+        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnusedPoseDd, 0x0f, 1, 1, "$DD pre-frame-two top-only"),
+        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnusedPoseDd, 0x0f, 2, 2, "$DD frame-two transition split"),
+        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.DraygonGrabbedMovingRightPose, 0x1a, 2, 2, "$F0 held body split"),
+        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.CrouchingTransitionAimUpRightPose, 0x0f, 0, 2, "$F1 aimed transition always split"),
+        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnusedPose20, 0x07, 0, 1, "unused type-seven top-only"),
+        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnusedKnockbackRightPose, 0x09, 0, 1, "unused type-nine top-only"),
+        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnusedPose5D, 0x0b, 0, 2, "unused type-B split"),
+        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnusedPose65, 0x0d, 0, 2, "unused type-D pose $65 frame-zero split"),
+        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnusedPose66, 0x0d, 1, 1, "unused type-D pose $66 later top-only"),
+        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnusedPose63, 0x0d, 1, 2, "other unused type-D pose remains split"),
     })
     {
         WritePoseDefinition(bus, (int)pose, [8, movementType, 0xff, 0xff, 0, 0, 16, 0]);
@@ -652,7 +652,7 @@ internal static void VerifySamusVisorPalette()
     state.Update(
         cgram, specialSamusPaletteType: 0,
         layerBlendingDefaultConfig: LayerBlendingConfiguration.NormalGameplay);
-    AssertEqual((1, 6), (state.Timer, state.PaletteByteOffset),
+    AssertEqual(new VerifySamusVisorPaletteCase(1, 6), new VerifySamusVisorPaletteCase(state.Timer, state.PaletteByteOffset),
         "ordinary room resets visor animation, priming timer one and table offset six");
     AssertEqual(0x7777, cgram.Colors[196],
         "ordinary room reset does not overwrite current visor color");
@@ -664,7 +664,7 @@ internal static void VerifySamusVisorPalette()
         "backdrop room writes first visor color immediately");
     AssertEqual(colors[6 / 2], cgram.Colors[196], "first visor source is table offset six");
     AssertEqual(0x2000, cgram.Colors[196], "first backdrop visor color");
-    AssertEqual((5, 8), (state.Timer, state.PaletteByteOffset),
+    AssertEqual(new VerifySamusVisorPaletteCase(5, 8), new VerifySamusVisorPaletteCase(state.Timer, state.PaletteByteOffset),
         "first write reloads five and advances the offset to eight");
 
     // Four calls retain timers 4/3/2/1. The fifth reaches zero, writes, and reloads five.
@@ -686,22 +686,22 @@ internal static void VerifySamusVisorPalette()
         cgram, 0, LayerBlendingConfiguration.VisorBackdrop2A);
     AssertEqual(colors[8 / 2], cgram.Colors[196], "second visor source is table offset eight");
     AssertEqual(0x2001, cgram.Colors[196], "second backdrop visor color");
-    AssertEqual((5, 10), (state.Timer, state.PaletteByteOffset),
+    AssertEqual(new VerifySamusVisorPaletteCase(5, 10), new VerifySamusVisorPaletteCase(state.Timer, state.PaletteByteOffset),
         "second write advances the offset to ten");
 
     for (int call = 0; call < 5; call++)
         state.Update(cgram, SamusSpecialPaletteType.None, LayerBlendingConfiguration.VisorBackdrop28);
     AssertEqual(0x2002, cgram.Colors[196], "third backdrop visor color");
-    AssertEqual((5, 6), (state.Timer, state.PaletteByteOffset),
+    AssertEqual(new VerifySamusVisorPaletteCase(5, 6), new VerifySamusVisorPaletteCase(state.Timer, state.PaletteByteOffset),
         "third write wraps only to room-cycle offset six");
 
-    (int Timer, int Offset) beforeXray = (state.Timer, state.PaletteByteOffset);
+    VerifySamusVisorPaletteCase beforeXray = new VerifySamusVisorPaletteCase(state.Timer, state.PaletteByteOffset);
     cgram.SetColor(196, Bgr555.FromWord(0x3456));
     state.Update(
         cgram, SamusSpecialPaletteType.Xray, LayerBlendingConfiguration.VisorBackdrop28);
-    AssertTrue((state.Timer, state.PaletteByteOffset) == beforeXray && cgram.Colors[196].ToWord() == 0x3456,
+    AssertTrue(new VerifySamusVisorPaletteCase(state.Timer, state.PaletteByteOffset) == beforeXray && cgram.Colors[196].ToWord() == 0x3456,
         "X-ray special handler suppresses ordinary visor cycle");
-    AssertEqual(beforeXray, (state.Timer, state.PaletteByteOffset),
+    AssertEqual(beforeXray, new VerifySamusVisorPaletteCase(state.Timer, state.PaletteByteOffset),
         "X-ray suppression freezes the countdown and the offset");
     AssertEqual(0x3456, cgram.Colors[196],
         "X-ray suppression preserves its independently owned color");
@@ -716,7 +716,7 @@ internal static void VerifySamusVisorPalette()
         layerBlendingDefaultConfig: LayerBlendingConfiguration.VisorBackdrop28);
     AssertEqual(SamusBeamChargePaletteAction.Inactive, charge.Action,
         "inactive charging retains beam-palette result");
-    AssertEqual((5, 8), (integratedSamus.VisorPalette.Timer, integratedSamus.VisorPalette.PaletteByteOffset),
+    AssertEqual(new VerifySamusVisorPaletteCase(5, 8), new VerifySamusVisorPaletteCase(integratedSamus.VisorPalette.Timer, integratedSamus.VisorPalette.PaletteByteOffset),
         "inactive charging falls through to visor handler, which writes and advances");
     AssertEqual(0x2000, cgram.Colors[196],
         "integrated visor call reads bank-$9B room-cycle color");

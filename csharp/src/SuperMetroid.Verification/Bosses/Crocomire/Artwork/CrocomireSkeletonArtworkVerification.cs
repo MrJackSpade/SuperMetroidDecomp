@@ -122,8 +122,7 @@ internal static class CrocomireSkeletonArtworkVerification
         Console.WriteLine("Crocomire skeleton art: six native transfers, OBJ character parity, " +
             "guarded installed upload, isolated visible PNG edit, reload and strict files pass.");
 
-        static (byte[] Characters, CrocomireDeathState State,
-            CartridgeReadGuard Guard) RunInstalled(InstalledEnemyArtwork art)
+        static RunInstalledResult RunInstalled(InstalledEnemyArtwork art)
         {
             var system = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
             var vram = new SnesVram();
@@ -133,7 +132,7 @@ internal static class CrocomireSkeletonArtworkVerification
             for (int index = 0;
                  index <= CrocomireSkeletonTransferDefinitions.Frames.Length; index++)
                 Upload(system, state);
-            return (new ObjCharacterTablePage().Page(system.Room.Session.ObjCharacters, new EnemyTileTransfers(art)).Characters[..ObjCharacterUploads.TableByteCount].ToArray(),
+            return new RunInstalledResult(new ObjCharacterTablePage().Page(system.Room.Session.ObjCharacters, new EnemyTileTransfers(art)).Characters[..ObjCharacterUploads.TableByteCount].ToArray(),
                 state, guard);
         }
 

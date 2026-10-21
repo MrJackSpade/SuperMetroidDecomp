@@ -34,7 +34,7 @@ internal static class ChargeFlareDefinitionsVerification
             {
                 Reference(component, ref expectedFrame, ref expectedTimer);
                 advance(component);
-                AssertEqual((expectedFrame, expectedTimer), (frames[component], timers[component].RawValue), "Flare production cadence matches native repeated rewind/restart trajectory");
+                AssertEqual(new VerifyChargeFlareDefinitionsCase(expectedFrame, expectedTimer), new VerifyChargeFlareDefinitionsCase(frames[component], timers[component].RawValue), "Flare production cadence matches native repeated rewind/restart trajectory");
             }
             int maximumLiveFrame = component == 0 ? 29 : 5;
             foreach (ushort timer in new ushort[] { 0, 1, 2, 0x8000, 0xffff })
@@ -45,7 +45,7 @@ internal static class ChargeFlareDefinitionsVerification
                 expectedTimer = timer;
                 Reference(component, ref expectedFrame, ref expectedTimer);
                 advance(component);
-                AssertEqual((expectedFrame, expectedTimer), (frames[component], timers[component].RawValue), "Flare timer sign and authored frame boundaries match native");
+                AssertEqual(new VerifyChargeFlareDefinitionsCase(expectedFrame, expectedTimer), new VerifyChargeFlareDefinitionsCase(frames[component], timers[component].RawValue), "Flare timer sign and authored frame boundaries match native");
             }
         }
         Console.WriteLine("Charge flare: 52 compiled bytes, loud non-catalog rejection, 3072 loop ticks and 210 authored boundary-state advances preserve native cadence with timing ROM reads forbidden.");

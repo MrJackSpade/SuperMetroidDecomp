@@ -129,7 +129,12 @@ internal static class EndingLogoVerification
         if (frame == 4)
         {
             SpriteVisualPart[] reordered = (SpriteVisualPart[])visual.Clone();
-            (reordered[0], reordered[1]) = (reordered[1], reordered[0]);
+            {
+                var held0 = reordered[1];
+                var held1 = reordered[0];
+                reordered[0] = held0;
+                reordered[1] = held1;
+            }
             foreach (SpriteVisualPart[] editedParts in new[] { reordered, visual[..^1] })
             {
                 SpriteComposition edited = IntroCinematicSpriteCompiler.Compile(editedParts, "edited wrap selection");

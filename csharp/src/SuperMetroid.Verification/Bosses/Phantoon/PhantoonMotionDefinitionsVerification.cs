@@ -48,7 +48,7 @@ internal static class PhantoonMotionDefinitionsVerification
 
         // Use the ROM records, wide arithmetic and explicit word extraction independently
         // of the production add/sub helpers. Signed comparisons intentionally wrap at 16 bits.
-        (ushort Low, ushort High, ushort Phase) Expected(ushort low, ushort high, ushort phase, bool backwards)
+        ExpectedResult Expected(ushort low, ushort high, ushort phase, bool backwards)
         {
             int basis = backwards ? 7 : 0;
             bool slow = phase == 0;
@@ -68,7 +68,7 @@ internal static class PhantoonMotionDefinitionsVerification
                 high = unchecked((ushort)(cap + (backwards ? slow ? 2 : accelerating ? 1 : 0 : slow ? -1 : accelerating ? 0 : 1)));
                 phase = slow ? (ushort)1 : accelerating ? unchecked((ushort)(phase + 1)) : (ushort)0;
             }
-            return (low, high, phase);
+            return new ExpectedResult(low, high, phase);
         }
     }
 }

@@ -123,12 +123,12 @@ internal static class SpeedBoosterCollisionBlocksVerification
     /// <summary>Confirms Brinstar BTS $82-$85 choose their distinct respawn, permanent, and Dachora PLM headers through real collision contact.</summary>
     private static void VerifyBrinstarAreaTableVariants()
     {
-        var cases = new (byte Bts, SpeedBoosterBlockPlmDefinition Definition)[]
+        var cases = new SpeedBoosterCollisionBlocksCase[]
         {
-            (0x82, SpeedBoosterBlockPlmDefinitions.BrinstarSlowRespawning),
-            (0x83, SpeedBoosterBlockPlmDefinitions.BrinstarSlowPermanent),
-            (0x84, SpeedBoosterBlockPlmDefinitions.DachoraRespawning),
-            (0x85, SpeedBoosterBlockPlmDefinitions.Permanent),
+            new SpeedBoosterCollisionBlocksCase(0x82, SpeedBoosterBlockPlmDefinitions.BrinstarSlowRespawning),
+            new SpeedBoosterCollisionBlocksCase(0x83, SpeedBoosterBlockPlmDefinitions.BrinstarSlowPermanent),
+            new SpeedBoosterCollisionBlocksCase(0x84, SpeedBoosterBlockPlmDefinitions.DachoraRespawning),
+            new SpeedBoosterCollisionBlocksCase(0x85, SpeedBoosterBlockPlmDefinitions.Permanent),
         };
 
         foreach ((byte bts, SpeedBoosterBlockPlmDefinition expected) in cases)
@@ -152,7 +152,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
     }
 
     /// <summary>Places one type-$B speed block at room cell (2,4) with an empty PLM population and bank-$84 instruction fixtures.</summary>
-    internal static (TestAddressSpace Bus, RoomLevelData Level, RoomPlmSystem Plms, int BlockIndex)
+    internal static CreateSpeedBoosterBlockFixtureResult
         CreateSpeedBoosterBlockFixture(RoomBlockBehavior bts, AreaId area)
     {
         const int width = 8;
@@ -175,7 +175,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         var plms = PlmFixtures.Unbound();
         int parsed = PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), area), RoomPlmPopulationImporter.Read(bus, emptyPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(0, parsed, "speed-block fixture begins with an empty room PLM population");
-        return (bus, level, plms, blockIndex);
+        return new CreateSpeedBoosterBlockFixtureResult(bus, level, plms, blockIndex);
     }
 
     /// <summary>Positions Samus for the fixture contact and selects either stage-four boost or the inactive counter.</summary>

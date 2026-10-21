@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Ripper;
 
 namespace SuperMetroid.Verification.Enemies.Ripper;
@@ -12,14 +13,14 @@ internal static class RipperNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (RipperProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<RipperProgram>[] Entries =
     [
-        (RipperProgram.GRipperMovingLeft, 0xe19b),
-        (RipperProgram.GRipperMovingRight, 0xe1af),
-        (RipperProgram.Ripper2MovingRight, 0xe2e0),
-        (RipperProgram.Ripper2MovingLeft, 0xe2f4),
-        (RipperProgram.RipperMovingRight, 0xe477),
-        (RipperProgram.RipperMovingLeft, 0xe48b),
+        new NativeProgramEntry<RipperProgram>(RipperProgram.GRipperMovingLeft, 0xe19b),
+        new NativeProgramEntry<RipperProgram>(RipperProgram.GRipperMovingRight, 0xe1af),
+        new NativeProgramEntry<RipperProgram>(RipperProgram.Ripper2MovingRight, 0xe2e0),
+        new NativeProgramEntry<RipperProgram>(RipperProgram.Ripper2MovingLeft, 0xe2f4),
+        new NativeProgramEntry<RipperProgram>(RipperProgram.RipperMovingRight, 0xe477),
+        new NativeProgramEntry<RipperProgram>(RipperProgram.RipperMovingLeft, 0xe48b),
     ];
 
 }

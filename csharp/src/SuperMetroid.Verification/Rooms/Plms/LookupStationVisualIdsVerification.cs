@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Verification.Rooms.Plms;
@@ -9,16 +10,16 @@ internal static class LookupStationVisualIdsVerification
     internal static void VerifyStationVisualIds()
     {
         // Original exported identity contract, independent of the replacement naming code.
-        (ushort Pointer, string Id)[] expected =
+        LookupEscapeGateStockFrame[] expected =
         [
-            (0x9f25,"map-frame-0"),(0x9f6d,"energy-frame-0"),(0x9f91,"missile-frame-0"),
-            (0x9f31,"map-frame-1"),(0x9f79,"energy-frame-1"),(0x9f9d,"missile-frame-1"),
-            (0x9f3d,"map-frame-2"),(0x9f85,"energy-frame-2"),(0x9fa9,"missile-frame-2"),
-            (0x9a3f,"save-idle"),(0x9a9f,"save-active-a"),(0x9a6f,"save-active-b"),
-            (0x9f49,"map-right-retracted"),(0x9f55,"map-right-extended"),
-            (0x9f5b,"map-left-retracted"),(0x9f67,"map-left-extended"),
-            (0x9fb5,"resource-right-retracted"),(0x9fbb,"resource-right-extended"),
-            (0x9fc1,"resource-left-retracted"),(0x9fc7,"resource-left-extended"),
+            new LookupEscapeGateStockFrame(0x9f25,"map-frame-0"),new LookupEscapeGateStockFrame(0x9f6d,"energy-frame-0"),new LookupEscapeGateStockFrame(0x9f91,"missile-frame-0"),
+            new LookupEscapeGateStockFrame(0x9f31,"map-frame-1"),new LookupEscapeGateStockFrame(0x9f79,"energy-frame-1"),new LookupEscapeGateStockFrame(0x9f9d,"missile-frame-1"),
+            new LookupEscapeGateStockFrame(0x9f3d,"map-frame-2"),new LookupEscapeGateStockFrame(0x9f85,"energy-frame-2"),new LookupEscapeGateStockFrame(0x9fa9,"missile-frame-2"),
+            new LookupEscapeGateStockFrame(0x9a3f,"save-idle"),new LookupEscapeGateStockFrame(0x9a9f,"save-active-a"),new LookupEscapeGateStockFrame(0x9a6f,"save-active-b"),
+            new LookupEscapeGateStockFrame(0x9f49,"map-right-retracted"),new LookupEscapeGateStockFrame(0x9f55,"map-right-extended"),
+            new LookupEscapeGateStockFrame(0x9f5b,"map-left-retracted"),new LookupEscapeGateStockFrame(0x9f67,"map-left-extended"),
+            new LookupEscapeGateStockFrame(0x9fb5,"resource-right-retracted"),new LookupEscapeGateStockFrame(0x9fbb,"resource-right-extended"),
+            new LookupEscapeGateStockFrame(0x9fc1,"resource-left-retracted"),new LookupEscapeGateStockFrame(0x9fc7,"resource-left-extended"),
         ];
         var exported = RoomPlmStationDrawDefinitions.All.ToArray();
         AssertEqual(20, exported.Length, "Station original artwork identity count");

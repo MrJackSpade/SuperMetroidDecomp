@@ -742,11 +742,11 @@ internal static class LookupStream5Verification
                 for (int hitbox = 0; hitbox < hitboxes.Count; hitbox++)
                 {
                     int native = address + 2 + hitbox * 12;
-                    (short, short, short, short, ushort, ushort) expected = (unchecked((short)ReadVerificationWord(rom, native)),
+                    LookupStream5Expected expected = new LookupStream5Expected(unchecked((short)ReadVerificationWord(rom, native)),
                         unchecked((short)ReadVerificationWord(rom, native + 2)), unchecked((short)ReadVerificationWord(rom, native + 4)),
                         unchecked((short)ReadVerificationWord(rom, native + 6)), ReadVerificationWord(rom, native + 8), ReadVerificationWord(rom, native + 10));
                     PhantoonCollisionHitbox actual = hitboxes[hitbox];
-                    (short, short, short, short, ushort, ushort) compiled = (actual.Left, actual.Top, actual.Right, actual.Bottom,
+                    LookupStream5Expected compiled = new LookupStream5Expected(actual.Left, actual.Top, actual.Right, actual.Bottom,
                         PhantoonHitboxCallbackCodec.ToCallbackWord(actual.Touch), PhantoonHitboxCallbackCodec.ToCallbackWord(actual.Shot));
                     AssertEqual(expected, compiled, "Native shape and callback pair");
                 }
@@ -1247,11 +1247,11 @@ internal static class LookupStream5Verification
     {
         for (int direction = 0; direction < 4; direction++)
         {
-            var expected = (unchecked((short)ReadVerificationWord(rom, 0xa890ca + direction * 2)),
+            var expected = new LookupStream5Expected2(unchecked((short)ReadVerificationWord(rom, 0xa890ca + direction * 2)),
                 unchecked((short)ReadVerificationWord(rom, 0xa890d2 + direction * 2)),
                 ReadVerificationWord(rom, 0xa890da + direction * 2));
             var mount = MorphBallEyeGeometryDefinitions.Mount(direction);
-            AssertEqual(expected, (mount.Offset.X, mount.Offset.Y, NativeEnemyProgramOracle.EntryOf(MorphBallEyeNativeListAddresses.Entries, mount.Program)),
+            AssertEqual(expected, new LookupStream5Expected2(mount.Offset.X, mount.Offset.Y, NativeEnemyProgramOracle.EntryOf(MorphBallEyeNativeListAddresses.Entries, mount.Program)),
                 "Native directional mount tuple");
             foreach (ushort origin in new ushort[] { 0, 65535 })
             {
@@ -1261,8 +1261,8 @@ internal static class LookupStream5Verification
                 slot.SetSpawnParameter2((ushort)(0x8000 | direction));
                 slot.Position = slot.Position.WithWhole(new(origin, origin));
                 new Action<RoomEnemySlot>(enemies.MorphBallEyeBehavior.InitializeMorphBallEye)(slot);
-                AssertEqual(unchecked((ushort)(origin + expected.Item1)), slot.Position.X.Whole, "Actual mount X with native wrap");
-                AssertEqual(unchecked((ushort)(origin + expected.Item2)), slot.Position.Y.Whole, "Actual mount Y with native wrap");
+                AssertEqual(unchecked((ushort)(origin + expected.First)), slot.Position.X.Whole, "Actual mount X with native wrap");
+                AssertEqual(unchecked((ushort)(origin + expected.Second)), slot.Position.Y.Whole, "Actual mount Y with native wrap");
                 MorphBallEyeEnemyState eye = enemies.MorphBallEyeBehavior.MorphBallEyeStates[0] ?? throw new InvalidOperationException("The mount has no state.");
                 AssertEqual(AnimationProgramCursor<MorphBallEyeProgram>.Start(mount.Program),
                     eye.Program,
@@ -1507,10 +1507,10 @@ internal static class LookupStream5Verification
             }
         }
 
-        (short X, short Y, ushort Direction)[] eyeTargets =
+        EyeTarget[] eyeTargets =
         [
-            (0, -100, 0), (100, -100, 1), (100, 0, 2), (100, 100, 3),
-            (0, 100, 4), (-100, 100, 6), (-100, 0, 7), (-100, -100, 8),
+            new EyeTarget(0, -100, 0), new EyeTarget(100, -100, 1), new EyeTarget(100, 0, 2), new EyeTarget(100, 100, 3),
+            new EyeTarget(0, 100, 4), new EyeTarget(-100, 100, 6), new EyeTarget(-100, 0, 7), new EyeTarget(-100, -100, 8),
         ];
         for (ushort direction = 0; direction < 9; direction++)
         {
@@ -1671,8 +1671,8 @@ internal static class LookupStream5Verification
             CeresFlightActorLayout.Write(encoded, new() { Version = 1, Actors = values });
             encoded.Position = 0;
             var layout = CeresFlightActorLayout.Load(encoded);
-            return (layout, layout.placements, index => layout[index], layout.ContentIdentity);
-        }, value => (value.Id, value.X, value.Y),
+            return new LookupStream5Load<CeresFlightActorPlacement>(layout, layout.placements, index => layout[index], layout.ContentIdentity);
+        }, value => new LookupStream5Field(value.Id, value.X, value.Y),
             (value, x) => x ? value with { X = unchecked((ushort)(value.X + 1)) } : value with { Y = unchecked((ushort)(value.Y + 1)) });
         var reveal = Enumerable.Range(0, 6).Select(index =>
         {
@@ -1687,8 +1687,8 @@ internal static class LookupStream5Verification
             CeresRevealActorLayout.Write(encoded, new() { Version = 1, Actors = values });
             encoded.Position = 0;
             var layout = CeresRevealActorLayout.Load(encoded);
-            return (layout, layout.placements, index => layout[index], layout.ContentIdentity);
-        }, value => (value.Id, value.X, value.Y),
+            return new LookupStream5Load<CeresRevealActorPlacement>(layout, layout.placements, index => layout[index], layout.ContentIdentity);
+        }, value => new LookupStream5Field(value.Id, value.X, value.Y),
             (value, x) => x ? value with { X = unchecked((ushort)(value.X + 1)) } : value with { Y = unchecked((ushort)(value.Y + 1)) });
         var destruction = Enumerable.Range(0, 3).Select(index =>
         {
@@ -1702,14 +1702,14 @@ internal static class LookupStream5Verification
             CeresDestructionActorLayout.Write(encoded, new() { Version = 1, Actors = values });
             encoded.Position = 0;
             var layout = CeresDestructionActorLayout.Load(encoded);
-            return (layout, layout.placements, index => layout[index], layout.ContentIdentity);
-        }, value => (value.Id, value.X, value.Y),
+            return new LookupStream5Load<CeresDestructionActorPlacement>(layout, layout.placements, index => layout[index], layout.ContentIdentity);
+        }, value => new LookupStream5Field(value.Id, value.X, value.Y),
             (value, x) => x ? value with { X = unchecked((ushort)(value.X + 1)) } : value with { Y = unchecked((ushort)(value.Y + 1)) });
         Console.WriteLine("Ceres layouts: all14 original actor placements/28 coordinate operands, no stored stock rows, all28 independent coordinate edits, complete identity preservation and bounds pass.");
 
         static void Check<T>(T[] original,
-            Func<T[], (object Layout, object? Placements, Func<int, T> Read, string Identity)> load,
-            Func<T, (string Id, int X, int Y)> fields, Func<T, bool, T> edit)
+            Func<T[], LookupStream5Load<T>> load,
+            Func<T, LookupStream5Field> fields, Func<T, bool, T> edit)
         {
             var stock = load(original);
             AssertTrue(stock.Placements is null, "Ceres stock placements select semantic actor dispatch");
@@ -1726,7 +1726,7 @@ internal static class LookupStream5Verification
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Read(-1), "Ceres layout lower bound");
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Read(original.Length), "Ceres layout upper bound");
 
-            void Verify((object Layout, object? Placements, Func<int, T> Read, string Identity) actual, T[] expected)
+            void Verify(LookupStream5Load<T> actual, T[] expected)
             {
                 for (int index = 0; index < expected.Length; index++)
                     AssertEqual(fields(expected[index]), fields(actual.Read(index)), "Ceres complete selected placement");
@@ -1784,11 +1784,11 @@ internal static class LookupStream5Verification
         CheckEntryCount(CeresCinematicLightPaletteFxColorDefinitionsTooling.All, 3);
         foreach ((ushort definition, ushort program) in new[]
         {
-            (CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineDefinitionPointer,
+            new VerifyLookupStream5PaletteEntriesCase(CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineDefinitionPointer,
                 CeresCinematicLightPaletteFxColorDefinitionsConstants.GunshipEngineProgramStart),
-            (CeresCinematicLightPaletteFxColorDefinitions.SpriteNavigationLightsDefinitionPointer,
+            new VerifyLookupStream5PaletteEntriesCase(CeresCinematicLightPaletteFxColorDefinitions.SpriteNavigationLightsDefinitionPointer,
                 CeresCinematicLightPaletteFxColorDefinitionsConstants.SpriteNavigationLightsProgramStart),
-            (CeresCinematicLightPaletteFxColorDefinitions.BackgroundNavigationLightsDefinitionPointer,
+            new VerifyLookupStream5PaletteEntriesCase(CeresCinematicLightPaletteFxColorDefinitions.BackgroundNavigationLightsDefinitionPointer,
                 CeresCinematicLightPaletteFxColorDefinitionsConstants.BackgroundNavigationLightsProgramStart),
         })
         {
@@ -1796,14 +1796,14 @@ internal static class LookupStream5Verification
                 "Original palette definition list pointer");
         }
         CheckEntries(CinematicGlowPaletteFxColorDefinitions.All,
-            entry => (entry.DefinitionPointer, entry.ProgramStart), 2);
+            entry => new Project(entry.DefinitionPointer, entry.ProgramStart), 2);
         CheckEntries(TourianEscapeSharedRedFlashPaletteFxColorToolingDefinitions.All,
-            entry => (entry.DefinitionPointer, entry.ProgramStart), 2);
+            entry => new Project(entry.DefinitionPointer, entry.ProgramStart), 2);
         CheckEntries(TourianStatueGreyPaletteFxColorToolingDefinitions.All,
-            entry => (entry.DefinitionPointer, entry.ProgramStart), 4);
+            entry => new Project(entry.DefinitionPointer, entry.ProgramStart), 4);
         Console.WriteLine("Stream 5 palette entries: all eleven entry identities, original controls and collection bounds pass.");
 
-        void CheckEntries<T>(IReadOnlyList<T> entries, Func<T, (ushort Definition, ushort Program)> project, int expectedCount)
+        void CheckEntries<T>(IReadOnlyList<T> entries, Func<T, Project> project, int expectedCount)
         {
             AssertEqual(expectedCount, entries.Count, "Palette entry count");
             int index = 0;

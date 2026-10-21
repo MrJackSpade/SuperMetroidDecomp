@@ -19,8 +19,8 @@ internal static class GameOptionsStartGameVerification
     {
         foreach ((SaveLoadingGameState route, GameOptionsPhase afterPress) in new[]
         {
-            (SaveLoadingGameState.MainGame, GameOptionsPhase.StartGame),
-            (SaveLoadingGameState.OpeningCinematic, GameOptionsPhase.FadeOutToIntro),
+            new VerifyGameOptionsStartGameCase(SaveLoadingGameState.MainGame, GameOptionsPhase.StartGame),
+            new VerifyGameOptionsStartGameCase(SaveLoadingGameState.OpeningCinematic, GameOptionsPhase.FadeOutToIntro),
         })
         {
             var options = new GameOptionsMenuState(mapPresentation: RetailPresentationFixture()) { LoadingGameState = route };

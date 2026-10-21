@@ -32,7 +32,7 @@ namespace SuperMetroid.ResourceAudit.ClosedContracts;
 internal static class ClosedPresentationIndexDefinitions
 {
     /// <summary>Returns a source-reviewed finite domain for a provider parameter, or null when no closed numeric proof exists.</summary>
-    internal static ProviderIndexDomain? Get(string type, string method, string parameter) => (type, method, parameter) switch
+    internal static ProviderIndexDomain? Get(string type, string method, string parameter) => new ClosedPresentationIndexGetCase(type, method, parameter) switch
     {
         ("GameplayHudPresentation", "TryApplyIcon", "itemIndex") => new(0, 5),
         ("GameplayHudPresentation", "ApplyAmmo", "itemIndex") => new(0, 3),

@@ -69,7 +69,7 @@ internal static class RidleySamusDrawReferenceVerification
     /// Validated against visible native records before covering opposite NMI phases.
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the $90:85E2/$864E/$8C1F Samus body draw record")]
-    internal static (ushort Top, ushort Bottom, ushort X, ushort Y) RidleyNativeBodyRecord(
+    internal static RidleyNativeBodyRecordResult RidleyNativeBodyRecord(
         ISnesAddressSpace rom, NativeCheckpointMemory checkpoint)
     {
         ushort W(int address) => checkpoint.Word(address);
@@ -140,7 +140,7 @@ internal static class RidleySamusDrawReferenceVerification
                 SamusMovementType.DraygonHeld => throw new InvalidDataException($"Unknown native body movement type {movement}"),
             _ => throw new InvalidDataException($"Unknown native body movement type {movement}"),
         };
-        return (unchecked((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((NativeSnapshotMemory.TopSpritemapBases + pose * 2)) + frame)),
+        return new RidleyNativeBodyRecordResult(unchecked((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((NativeSnapshotMemory.TopSpritemapBases + pose * 2)) + frame)),
             bottom ? unchecked((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((NativeSnapshotMemory.BottomSpritemapBases + pose * 2)) + frame)) : (ushort)0,
             unchecked((ushort)(W(NativeSnapshotMemory.X) - W(NativeSnapshotMemory.CameraX))),
             unchecked((ushort)(W(NativeSnapshotMemory.Y) + yOffset - W(NativeSnapshotMemory.CameraY))));

@@ -234,11 +234,11 @@ internal static class CeresRidleyColorsVerification
             var stockCgram = new SnesCgram();
             var editedCgram = new SnesCgram();
             foreach ((RoomEnemySystem owner, ISnesAddressSpace addressSpace, SnesCgram palette)
-                in new (RoomEnemySystem, ISnesAddressSpace, SnesCgram)[]
+                in new VerifyCeresAlarmPaletteCase[]
                 {
-                    (nativeEnemy, rom, nativeCgram),
-                    (stockEnemy, guarded, stockCgram),
-                    (editedEnemy, guarded, editedCgram),
+                    new VerifyCeresAlarmPaletteCase(nativeEnemy, rom, nativeCgram),
+                    new VerifyCeresAlarmPaletteCase(stockEnemy, guarded, stockCgram),
+                    new VerifyCeresAlarmPaletteCase(editedEnemy, guarded, editedCgram),
                 })
             {
                 owner.Presentation.BindCgram(palette);
@@ -291,11 +291,11 @@ internal static class CeresRidleyColorsVerification
             var stockCgram = new SnesCgram();
             var editedCgram = new SnesCgram();
             foreach ((RoomEnemySystem owner, ISnesAddressSpace addressSpace, SnesCgram palette)
-                in new (RoomEnemySystem, ISnesAddressSpace, SnesCgram)[]
+                in new VerifyCeresAlarmPaletteCase[]
                 {
-                    (nativeEnemy, rom, nativeCgram),
-                    (stockEnemy, guarded, stockCgram),
-                    (editedEnemy, guarded, editedCgram),
+                    new VerifyCeresAlarmPaletteCase(nativeEnemy, rom, nativeCgram),
+                    new VerifyCeresAlarmPaletteCase(stockEnemy, guarded, stockCgram),
+                    new VerifyCeresAlarmPaletteCase(editedEnemy, guarded, editedCgram),
                 })
             {
                 owner.Presentation.BindCgram(palette);

@@ -71,7 +71,7 @@ internal static class BoyonBehaviorVerification
     /// </summary>
     internal static void VerifyBoyonJumpHeightComparesByWordSign()
     {
-        foreach ((int heightSelector, int expected) in new (int, int)[] { (5, 144), (6, 1) })
+        foreach ((int heightSelector, int expected) in new VerifyBoyonJumpHeightComparesByWordSignCase[] { new VerifyBoyonJumpHeightComparesByWordSignCase(5, 144), new VerifyBoyonJumpHeightComparesByWordSignCase(6, 1) })
         {
             var enemies = new RoomEnemySystem(new EnemySession());
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -91,7 +91,7 @@ internal static class BoyonBehaviorVerification
     }
 
     /// <summary>A Boyon with a 64-pixel trigger range after its real initializer.</summary>
-    private static (RoomEnemySystem, RoomEnemySlot, BoyonEnemyState) Create()
+    private static BoyonBehaviorCreateResult Create()
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -101,7 +101,7 @@ internal static class BoyonBehaviorVerification
         slot.SetSpawnParameter2(64);
         slot.Position = slot.Position.WithWhole(new(256, 512));
         BoyonBehavior.InitializeBoyon(slot);
-        return (enemies, slot, enemies.BoyonStates[0] ?? throw new InvalidOperationException("Boyon has no state."));
+        return new BoyonBehaviorCreateResult(enemies, slot, enemies.BoyonStates[0] ?? throw new InvalidOperationException("Boyon has no state."));
     }
 
     /// <summary>Runs the Boyon behavior check, its program oracle and the compiled selector check.</summary>

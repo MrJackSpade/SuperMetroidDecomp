@@ -95,7 +95,7 @@ internal static class PauseEquipmentRulesVerification
                 var samus = Inventory(masks[item]);
                 var pause = Create(samus);
                 EnterPauseEquipment(pause);
-                AssertEqual((category, item), (pause.SelectedCategory, pause.SelectedItem), "single owned upgrade selects its actual native menu entry");
+                AssertEqual(new CursorBeforeRestore(category, item), new CursorBeforeRestore(pause.SelectedCategory, pause.SelectedItem), "single owned upgrade selects its actual native menu entry");
                 pause.Step(0, SnesButton.A);
                 AssertEqual(default(PauseEquipmentBit), new PauseEquipmentBit(samus.EquippedBeams, samus.EquippedItems), "A toggles exactly the compiled upgrade bit off");
                 pause.Step(0, 0); pause.Step(0, SnesButton.A);
@@ -109,7 +109,7 @@ internal static class PauseEquipmentRulesVerification
                     if ((subset & (1 << item)) != 0) owned = new(owned.Beam | masks[item].Beam, owned.Item | masks[item].Item);
                 var pause = Create(Inventory(owned));
                 int expected = Array.FindIndex(masks, mask => mask.IsSetIn(owned.Beam, owned.Item));
-                AssertEqual(expected < 0 ? (PauseEquipmentCategory.Reserves, 0) : (category, expected), (pause.SelectedCategory, pause.SelectedItem), "all category subsets retain first-owned selection");
+                AssertEqual(expected < 0 ? new CursorBeforeRestore(PauseEquipmentCategory.Reserves, 0) : new CursorBeforeRestore(category, expected), new CursorBeforeRestore(pause.SelectedCategory, pause.SelectedItem), "all category subsets retain first-owned selection");
             }
         }
         // `$82:9142` runs EquipmentScreenMain before the Start handler, so an A press in the
@@ -119,7 +119,7 @@ internal static class PauseEquipmentRulesVerification
         var unpausing = Inventory(speedBooster);
         var startAndA = Create(unpausing);
         EnterPauseEquipment(startAndA);
-        AssertEqual((PauseEquipmentCategory.Boots, 2), (startAndA.SelectedCategory, startAndA.SelectedItem), "the Speed Booster is selected");
+        AssertEqual(new CursorBeforeRestore(PauseEquipmentCategory.Boots, 2), new CursorBeforeRestore(startAndA.SelectedCategory, startAndA.SelectedItem), "the Speed Booster is selected");
         AssertTrue(startAndA.Step(SnesButton.Start, SnesButton.A), "Start unpauses");
         AssertEqual(SamusEquipmentFlags.None, unpausing.EquippedItems, "the same frame's A still unequips the Speed Booster");
         ushort[] wireframeMasks = Enumerable.Range(0, 4).Select(index => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
@@ -139,13 +139,13 @@ internal static class PauseEquipmentRulesVerification
         }
         ushort nativeAmount = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseReserveTransferRomData.TransferAmount);
         AssertEqual(nativeAmount, PauseEquipmentRules.ReserveEnergyPerFrame, "manual reserve rate matches native word");
-        foreach (var scenario in new[] { (Health: 20, Reserve: 10), (Health: 98, Reserve: 10), (Health: 99, Reserve: 1) })
+        foreach (var scenario in new[] { new VerifyCompiledPauseEquipmentRulesCase(Health:20, Reserve:10), new VerifyCompiledPauseEquipmentRulesCase(Health:98, Reserve:10), new VerifyCompiledPauseEquipmentRulesCase(Health:99, Reserve:1) })
         {
             var samus = new SamusState { Health = (ushort)scenario.Health, MaxHealth = 99, ReserveEnergy = (ushort)scenario.Reserve,
                 MaxReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Manual, CollectedBeams = SamusBeamFlags.Charge };
             var pause = Create(samus); EnterPauseEquipment(pause);
             pause.Step(0, SnesButton.Up); pause.Step(0, SnesButton.Down);
-            AssertEqual((PauseEquipmentCategory.Reserves, 1), (pause.SelectedCategory, pause.SelectedItem), "manual transfer fixture reaches reserve dispatcher");
+            AssertEqual(new CursorBeforeRestore(PauseEquipmentCategory.Reserves, 1), new CursorBeforeRestore(pause.SelectedCategory, pause.SelectedItem), "manual transfer fixture reaches reserve dispatcher");
             int health = scenario.Health, reserve = scenario.Reserve;
             for (int tick = 0; tick < scenario.Reserve && reserve != 0; tick++)
             {
@@ -153,7 +153,7 @@ internal static class PauseEquipmentRulesVerification
                 if (health >= 99) { health = 99; reserve = 0; }
                 else reserve -= nativeAmount;
                 pause.Step(0, tick == 0 ? SnesButton.A : 0);
-                AssertEqual((health, reserve), (samus.Health, samus.ReserveEnergy), "real manual-transfer frames retain native rate and full-health reserve discard");
+                AssertEqual(new PauseEquipmentRulesVerifyCompiledPauseEquipmentRulesCase(health, reserve), new PauseEquipmentRulesVerifyCompiledPauseEquipmentRulesCase(samus.Health, samus.ReserveEnergy), "real manual-transfer frames retain native rate and full-health reserve discard");
             }
         }
         Console.WriteLine("Compiled pause rules: 14 native masks, 104 subsets, actual toggles, 65,536 wireframe selectors/rendered patches and manual transfer frames pass with rule ROM reads blocked.");

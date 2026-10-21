@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Kago;
 
 namespace SuperMetroid.Verification.Enemies.Kago;
@@ -12,10 +13,10 @@ internal static class KagoNativeListAddresses
     internal const byte Bank = 0xa8;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (KagoProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<KagoProgram>[] Entries =
     [
-        (KagoProgram.Slow, 0xab1e),
-        (KagoProgram.Fast, 0xab32),
+        new NativeProgramEntry<KagoProgram>(KagoProgram.Slow, 0xab1e),
+        new NativeProgramEntry<KagoProgram>(KagoProgram.Fast, 0xab32),
     ];
 
 }

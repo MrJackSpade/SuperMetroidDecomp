@@ -115,18 +115,18 @@ internal static class SamusProjectileProgramsVerification
     }
 
     /// <summary>The header and list field <paramref name="address"/> lies in, or null outside the headers' list fields.</summary>
-    private static (ushort Header, int Index)? HeaderListField(int address)
+    private static HeaderListFieldResult? HeaderListField(int address)
     {
         if (address is < SamusProjectileDamageDefinitions.BeamHeaderStart or >= (int)SamusProjectileHeader.Projectile27 + 2 * sizeof(ushort))
             return null;
         (int start, int stride) = address < (int)SamusProjectileHeader.SuperMissileLink
-            ? (SamusProjectileDamageDefinitions.BeamHeaderStart, SamusProjectileDamageDefinitions.BeamHeaderStride)
-            : address < (int)SamusProjectileHeader.Projectile25 ? ((int)SamusProjectileHeader.SuperMissileLink, 2 * sizeof(ushort))
-            : address < (int)SamusProjectileHeader.Projectile27 ? ((int)SamusProjectileHeader.Projectile25, SamusProjectileDamageDefinitions.BeamHeaderStride)
-            : ((int)SamusProjectileHeader.Projectile27, 2 * sizeof(ushort));
+            ? new HeaderListFieldCase(SamusProjectileDamageDefinitions.BeamHeaderStart, SamusProjectileDamageDefinitions.BeamHeaderStride)
+            : address < (int)SamusProjectileHeader.Projectile25 ? new HeaderListFieldCase((int)SamusProjectileHeader.SuperMissileLink, 2 * sizeof(ushort))
+            : address < (int)SamusProjectileHeader.Projectile27 ? new HeaderListFieldCase((int)SamusProjectileHeader.Projectile25, SamusProjectileDamageDefinitions.BeamHeaderStride)
+            : new HeaderListFieldCase((int)SamusProjectileHeader.Projectile27, 2 * sizeof(ushort));
         int header = start + (address - start) / stride * stride;
         int offset = address - header;
-        return offset == 0 ? null : ((ushort)header, offset / sizeof(ushort) - 1);
+        return offset == 0 ? null : new HeaderListFieldResult((ushort)header, offset / sizeof(ushort) - 1);
     }
 
     /// <summary>The typed record at bank-$93 record address <paramref name="address"/>.</summary>

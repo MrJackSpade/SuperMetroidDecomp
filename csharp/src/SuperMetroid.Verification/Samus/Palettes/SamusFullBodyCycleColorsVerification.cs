@@ -41,7 +41,7 @@ internal static class SamusFullBodyCycleColorsVerification
         int endpointComponents = endpoints.Sum(channels =>
             (channels.red is null ? 0 : 1) + (channels.green is null ? 0 : 1) + (channels.blue is null ? 0 : 1));
         AssertEqual(15, endpointComponents, "Full-body shade endpoints store fifteen independent channels");
-        foreach (var (header, phases) in new[] { (0x91daa9, 4), (0x91da4a, 6), (0x91db10, 6), (0x91db75, 4) })
+        foreach (var (header, phases) in new[] { new SamusFullBodyCycleColorsVerifyFullBodyPaletteColorDataCase(0x91daa9, 4), new SamusFullBodyCycleColorsVerifyFullBodyPaletteColorDataCase(0x91da4a, 6), new SamusFullBodyCycleColorsVerifyFullBodyPaletteColorDataCase(0x91db10, 6), new SamusFullBodyCycleColorsVerifyFullBodyPaletteColorDataCase(0x91db75, 4) })
         for (int suit = 0; suit < 3; suit++)
         {
             ushort list = ReadVerificationWord(rom, header + 2 * suit);
@@ -254,7 +254,7 @@ internal static class SamusFullBodyCycleColorsVerification
                 }
                 AssertTrue(SamusFullBodyCycleColorFormat.TryActiveGoldRamp(8 + shade, 1, Bgr555.FromWord(checked((ushort)basis)), out Bgr555 quarter), "Quarter gold-ramp selected");
                 AssertEqual((ushort)((expected & 1023) | (basis & 31744)), quarter, "Gold quarter ramp preserves blue over RGB5 domain");
-                foreach (var (palette, slot, step) in new[] { (8 + shade, 10, 3), (24 + shade, 1, 5), (24 + shade, 10, 5), (8 + shade, 2, 5), (24 + shade, 2, 5) })
+                foreach (var (palette, slot, step) in new[] { new VerifyFullBodyPaletteColorDataCase(8 + shade, 10, 3), new VerifyFullBodyPaletteColorDataCase(24 + shade, 1, 5), new VerifyFullBodyPaletteColorDataCase(24 + shade, 10, 5), new VerifyFullBodyPaletteColorDataCase(8 + shade, 2, 5), new VerifyFullBodyPaletteColorDataCase(24 + shade, 2, 5) })
                 {
                     int linear = Math.Clamp((basis & 31) + (palette >= 24 && slot == 10 ? 0 : step * shade), 0, 31) +
                         32 * Math.Clamp((basis >> 5 & 31) + step * shade, 0, 31) + (basis & 31744);
@@ -356,7 +356,7 @@ internal static class SamusFullBodyCycleColorsVerification
         foreach (ushort pointer in originalPointers)
         for (int color = 0; color < 16; color++)
         {
-            ushort expected = (pointer, color) switch
+            ushort expected = new SamusFullBodyCycleColorsExpected(pointer, color) switch
             {
                 (0x9b80, 9) => 1 | 2 << 5 | 3 << 10,
                 (0x9d80, 10) => 4 | 5 << 5 | 6 << 10,

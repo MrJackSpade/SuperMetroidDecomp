@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Rooms.Plms;
@@ -14,7 +15,7 @@ internal static class LookupElevatorPlatformStockVerification
     internal static void VerifyElevatorPlatformStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmElevatorPlatformVisualCatalog installed)
     {
-        (ushort Pointer, string Id)[] frames = [(0xaa97,"first-frame"),(0xaaaf,"second-frame"),(0xaac7,"third-frame")];
+        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0xaa97,"first-frame"),new LookupEscapeGateStockFrame(0xaaaf,"second-frame"),new LookupEscapeGateStockFrame(0xaac7,"third-frame")];
         var native = new Dictionary<ushort, ushort[][]>();
         foreach (var frame in frames)
         {

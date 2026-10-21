@@ -76,7 +76,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
     }
 
     /// <summary>Seeds one variant and direction into an enemy slot, then advances enough updates to observe projectile and AI handoff behavior.</summary>
-    private static (RoomEnemySystem System, RoomEnemySlot Slot) RunFuneNamiheProgram(
+    private static RunFuneNamiheProgramResult RunFuneNamiheProgram(
         FuneNamiheProgramCase program)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -105,7 +105,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
         for (int frame = 0; frame < frames; frame++)
             EnemyInstructionRunner.Process(arguments);
 
-        return (enemies, slot);
+        return new RunFuneNamiheProgramResult(enemies, slot);
     }
 
     /// <summary>Program, selector cursor, variant, facing, and active state for one of the eight production programs.</summary>

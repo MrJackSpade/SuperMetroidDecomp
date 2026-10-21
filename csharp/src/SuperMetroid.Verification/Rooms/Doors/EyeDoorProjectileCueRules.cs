@@ -10,12 +10,12 @@ namespace SuperMetroid.Verification.Rooms.Doors;
 internal static class EyeDoorProjectileCueRules
 {
     /// <summary>Each command the shot's lists use, the cue it becomes and its operand byte count.</summary>
-    private static readonly Dictionary<NativeEnemyProjectileInstruction, (EyeDoorProjectileCueKind Kind, int OperandBytes)> Commands = new()
+    private static readonly Dictionary<NativeEnemyProjectileInstruction, EyeDoorProjectileCueRulesCommand> Commands = new()
     {
-        [NativeEnemyProjectileInstruction.Delete] = (EyeDoorProjectileCueKind.Delete, 0),
-        [NativeEnemyProjectileInstruction.ClearPreInstruction] = (EyeDoorProjectileCueKind.ClearPreInstruction, 0),
-        [NativeEnemyProjectileInstruction.PreInstructionInY] = (EyeDoorProjectileCueKind.SetPreInstruction, 2),
-        [NativeEnemyProjectileInstruction.CalculateDirectionTowardsSamus] = (EyeDoorProjectileCueKind.AimAtSamus, 0),
+        [NativeEnemyProjectileInstruction.Delete] = new EyeDoorProjectileCueRulesCommand(EyeDoorProjectileCueKind.Delete, 0),
+        [NativeEnemyProjectileInstruction.ClearPreInstruction] = new EyeDoorProjectileCueRulesCommand(EyeDoorProjectileCueKind.ClearPreInstruction, 0),
+        [NativeEnemyProjectileInstruction.PreInstructionInY] = new EyeDoorProjectileCueRulesCommand(EyeDoorProjectileCueKind.SetPreInstruction, 2),
+        [NativeEnemyProjectileInstruction.CalculateDirectionTowardsSamus] = new EyeDoorProjectileCueRulesCommand(EyeDoorProjectileCueKind.AimAtSamus, 0),
     };
 
     /// <summary>The oracle rules for the shot's programs.</summary>

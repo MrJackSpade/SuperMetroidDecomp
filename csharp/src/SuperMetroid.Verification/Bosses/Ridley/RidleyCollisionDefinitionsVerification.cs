@@ -74,9 +74,9 @@ internal static class RidleyCollisionDefinitionsVerification
 
             compiledSlot.SpritemapPointer = frame;
             foreach ((ushort originX, ushort originY) in
-                     new (ushort, ushort)[]
+                     new VerifyRidleyCollisionDefinitionsCase[]
                      {
-                         (0x0100, 0x0100), (0x0004, 0x0006), (0xfffc, 0xfffa),
+                         new VerifyRidleyCollisionDefinitionsCase(0x0100, 0x0100), new VerifyRidleyCollisionDefinitionsCase(0x0004, 0x0006), new VerifyRidleyCollisionDefinitionsCase(0xfffc, 0xfffa),
                      })
             {
                 compiledSlot.Position = compiledSlot.Position.WithWhole(new(originX, originY));

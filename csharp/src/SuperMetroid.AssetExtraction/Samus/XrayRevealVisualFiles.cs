@@ -55,7 +55,7 @@ public static class XrayRevealVisualFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);
 
-        var groups = new Dictionary<(RoomCollisionType Type, XrayRevealDefinition Definition),
+        var groups = new Dictionary<XrayRevealGroupKey,
             List<int>>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         for (int bts = 0; bts <= byte.MaxValue; bts++)
@@ -66,7 +66,7 @@ public static class XrayRevealVisualFiles
                     $"Compiled X-ray rule {type}/BTS ${bts:X2} differs from the cartridge.");
             if (native is not { } definition || !XrayRevealVisualCatalog.IsDrawable(definition.Command))
                 continue;
-            var key = (type, definition);
+            var key = new XrayRevealGroupKey(type, definition);
             if (!groups.TryGetValue(key, out List<int>? values))
                 groups.Add(key, values = []);
             values.Add(bts);

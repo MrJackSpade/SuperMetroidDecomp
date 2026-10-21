@@ -261,12 +261,12 @@ internal static void VerifySamusCrystalFlash()
     samus.InvincibilityTimer = NativeCountdown.Start(77);
     samus.KnockbackTimer = NativeCountdown.Start(5);
     var resourcesBeforeSkipped =
-        (samus.Health, samus.Missiles, samus.SuperMissiles, samus.PowerBombs);
+        new ResourcesBeforeSkipped(samus.Health, samus.Missiles, samus.SuperMissiles, samus.PowerBombs);
     samus.CrystalFlash.Step(samus, 15);
     AssertEqual(0, samus.InvincibilityTimer.RawValue, "non-draining main frame still clears hit immunity");
     AssertEqual(0, samus.KnockbackTimer.RawValue, "non-draining main frame still clears knockback timer");
     AssertEqual(resourcesBeforeSkipped,
-        (samus.Health, samus.Missiles, samus.SuperMissiles, samus.PowerBombs),
+        new ResourcesBeforeSkipped(samus.Health, samus.Missiles, samus.SuperMissiles, samus.PowerBombs),
         "non-mod-eight frame leaves Crystal Flash resources untouched");
     for (ushort drain = 1; drain <= 30; drain++)
     {
@@ -346,19 +346,19 @@ static void SeedXrayCartridge(TestAddressSpace bus)
     // Complete literal pose records from `$91:B631/B751/B851/BCD1-BCF9`. X-ray does not
     // invent a new movement type: standing bodies are zero, crouched bodies five, and its
     // intermediate turn bodies use `$0E`, which makes the installed movement handler RTS.
-    (SamusPoseId Pose, byte[] Definition)[] poses = [
-        (SamusPoseId.FacingRightNormalPose, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]),
-        (SamusPoseId.FacingLeftNormalPose, [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]),
-        (SamusPoseId.TurningRightToLeftPose, [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]),
-        (SamusPoseId.TurningLeftToRightPose, [0x08, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]),
-        (SamusPoseId.CrouchingRightPose, [0x08, 0x05, 0x27, 0x02, 0x00, 0x00, 0x10, 0x00]),
-        (SamusPoseId.CrouchingLeftPose, [0x04, 0x05, 0x28, 0x07, 0x00, 0x00, 0x10, 0x00]),
-        (SamusPoseId.TurningRightToLeftCrouchingPose, [0x04, 0x0e, 0xff, 0xfb, 0x00, 0x00, 0x10, 0x00]),
-        (SamusPoseId.TurningLeftToRightCrouchingPose, [0x08, 0x0e, 0xff, 0xfb, 0x00, 0x00, 0x10, 0x00]),
-        (SamusPoseId.XrayingStandingRightPose, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]),
-        (SamusPoseId.XrayingStandingLeftPose, [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]),
-        (SamusPoseId.XrayingCrouchingRightPose, [0x08, 0x05, 0xff, 0x02, 0x00, 0x00, 0x10, 0x00]),
-        (SamusPoseId.XrayingCrouchingLeftPose, [0x04, 0x05, 0xff, 0x07, 0x00, 0x00, 0x10, 0x00]),
+    SamusSpecialStatesPose[] poses = [
+        new SamusSpecialStatesPose(SamusPoseId.FacingRightNormalPose, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.FacingLeftNormalPose, [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.TurningRightToLeftPose, [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.TurningLeftToRightPose, [0x08, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.CrouchingRightPose, [0x08, 0x05, 0x27, 0x02, 0x00, 0x00, 0x10, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.CrouchingLeftPose, [0x04, 0x05, 0x28, 0x07, 0x00, 0x00, 0x10, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.TurningRightToLeftCrouchingPose, [0x04, 0x0e, 0xff, 0xfb, 0x00, 0x00, 0x10, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.TurningLeftToRightCrouchingPose, [0x08, 0x0e, 0xff, 0xfb, 0x00, 0x00, 0x10, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.XrayingStandingRightPose, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.XrayingStandingLeftPose, [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.XrayingCrouchingRightPose, [0x08, 0x05, 0xff, 0x02, 0x00, 0x00, 0x10, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.XrayingCrouchingLeftPose, [0x04, 0x05, 0xff, 0x07, 0x00, 0x00, 0x10, 0x00]),
     ];
     foreach ((SamusPoseId pose, byte[] definition) in poses)
         WritePoseDefinition(bus, (int)pose, definition);

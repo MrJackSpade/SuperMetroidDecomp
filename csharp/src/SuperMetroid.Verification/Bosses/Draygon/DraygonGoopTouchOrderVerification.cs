@@ -26,7 +26,7 @@ internal static class DraygonGoopTouchOrderVerification
     /// </summary>
     internal static void VerifyDraygonGoopTouchOrder()
     {
-        foreach ((bool powerBombed, ushort goopX, ushort samusX) in new[] { (true, (ushort)170, (ushort)178), (false, (ushort)514, (ushort)504) })
+        foreach ((bool powerBombed, ushort goopX, ushort samusX) in new[] { new VerifyDraygonGoopTouchOrderCase(true, 170, 178), new VerifyDraygonGoopTouchOrderCase(false, 514, 504) })
         {
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

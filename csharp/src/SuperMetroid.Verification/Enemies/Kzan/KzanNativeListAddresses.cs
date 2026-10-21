@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Kzan;
 
 namespace SuperMetroid.Verification.Enemies.Kzan;
@@ -12,9 +13,9 @@ internal static class KzanNativeListAddresses
     internal const byte Bank = 0xa6;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (KzanProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<KzanProgram>[] Entries =
     [
-        (KzanProgram.Idle, 0x8b29),
+        new NativeProgramEntry<KzanProgram>(KzanProgram.Idle, 0x8b29),
     ];
 
 }

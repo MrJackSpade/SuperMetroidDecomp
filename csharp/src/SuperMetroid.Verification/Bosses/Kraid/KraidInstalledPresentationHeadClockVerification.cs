@@ -52,7 +52,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
             ushort outer = 0, inner = 0, physical = 0;
             ushort[] expectedStock = baseline.Shown();
             ushort[] expectedEdited = changed.Shown();
-            (KraidBodyPage Top, KraidBodyPage Bottom) workingBody = (baseline.State.WorkingTop, baseline.State.WorkingBottom);
+            WorkingBody workingBody = new WorkingBody(baseline.State.WorkingTop, baseline.State.WorkingBottom);
             for (int tick = 0; ; tick++)
             {
                 ushort stockResult = baseline.Step(), editedResult = changed.Step();
@@ -62,8 +62,8 @@ internal static class KraidInstalledPresentationHeadClockVerification
                 AssertAnimationValues(baseline.State, changed.State, "Kraid head tick " + tick);
                 AssertEqual(baseline.State.DisplayedHeadFrame, changed.State.DisplayedHeadFrame,
                     "Kraid head tick " + tick + " displayed head frame is not editable");
-                AssertTrue(workingBody == (baseline.State.WorkingTop, baseline.State.WorkingBottom) &&
-                    workingBody == (changed.State.WorkingTop, changed.State.WorkingBottom),
+                AssertTrue(workingBody == new WorkingBody(baseline.State.WorkingTop, baseline.State.WorkingBottom) &&
+                    workingBody == new WorkingBody(changed.State.WorkingTop, changed.State.WorkingBottom),
                     "head DMA must not overwrite the WRAM body-map source");
                 AssertEqual(baseline.Enemies.KraidBehavior.Access.LastKraidSoundEffect, changed.Enemies.KraidBehavior.Access.LastKraidSoundEffect,
                     "head art does not alter sound publication");

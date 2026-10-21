@@ -1,3 +1,4 @@
+using SuperMetroid.EnsureVerification.CartridgeEncoding;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -31,19 +32,19 @@ internal static class CpuBusDeclarationAnalyzerTests
 
         // SME6292: parameters, fields, properties, record and primary-constructor parameters typed as a bus interface.
         Expect(Api + "class Game { void M(IBus? bus) { } }",
-            (CpuBusDeclarationAnalyzer.DeclarationId, "parameter 'bus' is typed as CPU-bus interface 'IBus'"));
+            new ExpectedDiagnostic(CpuBusDeclarationAnalyzer.DeclarationId, "parameter 'bus' is typed as CPU-bus interface 'IBus'"));
         Expect(Api + "class Game { private readonly IBus bus = null!; byte M() => 0; }",
-            (CpuBusDeclarationAnalyzer.DeclarationId, "field 'bus' is typed as CPU-bus interface 'IBus'"));
+            new ExpectedDiagnostic(CpuBusDeclarationAnalyzer.DeclarationId, "field 'bus' is typed as CPU-bus interface 'IBus'"));
         Expect(Api + "class Game { public IBus Bus { get; } = null!; }",
-            (CpuBusDeclarationAnalyzer.DeclarationId, "property 'Bus' is typed as CPU-bus interface 'IBus'"));
+            new ExpectedDiagnostic(CpuBusDeclarationAnalyzer.DeclarationId, "property 'Bus' is typed as CPU-bus interface 'IBus'"));
         Expect(Api + "record Room(IBus Bus, int Area);",
-            (CpuBusDeclarationAnalyzer.DeclarationId, "parameter 'Bus' is typed as CPU-bus interface 'IBus'"));
+            new ExpectedDiagnostic(CpuBusDeclarationAnalyzer.DeclarationId, "parameter 'Bus' is typed as CPU-bus interface 'IBus'"));
         Expect(Api + "class View(IBus bus) { }",
-            (CpuBusDeclarationAnalyzer.DeclarationId, "parameter 'bus' is typed as CPU-bus interface 'IBus'"));
+            new ExpectedDiagnostic(CpuBusDeclarationAnalyzer.DeclarationId, "parameter 'bus' is typed as CPU-bus interface 'IBus'"));
         // Every declaration is reported where it is.
         Expect(Api + "class Game { void M(IBus bus) { } void N(IBus bus) { } }",
-            (CpuBusDeclarationAnalyzer.DeclarationId, "parameter 'bus'"),
-            (CpuBusDeclarationAnalyzer.DeclarationId, "parameter 'bus'"));
+            new ExpectedDiagnostic(CpuBusDeclarationAnalyzer.DeclarationId, "parameter 'bus'"),
+            new ExpectedDiagnostic(CpuBusDeclarationAnalyzer.DeclarationId, "parameter 'bus'"));
 
         // Boundary types and members, a raw API type's own implementation, owned state and concrete raw buffers pass.
         Expect(Api + "[CpuBusBoundary(\"domain view\")] sealed class SamusMemory(IBus bus) { public byte Health => bus.ReadByte(0); }");
@@ -54,14 +55,14 @@ internal static class CpuBusDeclarationAnalyzerTests
     }
 
     /// <summary>Runs the analyzer over <paramref name="source"/> compiled as Core; see the assembly overload.</summary>
-    private static void Expect(string source, params (string Id, string Message)[] expected) =>
+    private static void Expect(string source, params ExpectedDiagnostic[] expected) =>
         Expect("SuperMetroid.Core", source, expected);
 
     /// <summary>
     /// Runs <see cref="CpuBusDeclarationAnalyzer"/> over <paramref name="source"/> at <see cref="Game"/>, compiled as
     /// <paramref name="assemblyName"/>, and requires exactly the expected diagnostics, in order.
     /// </summary>
-    private static void Expect(string assemblyName, string source, params (string Id, string Message)[] expected)
+    private static void Expect(string assemblyName, string source, params ExpectedDiagnostic[] expected)
     {
         SyntaxTree tree = CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.Preview),
             Path.Combine(Root, Game.Replace('/', Path.DirectorySeparatorChar)));

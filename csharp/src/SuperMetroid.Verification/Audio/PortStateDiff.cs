@@ -18,7 +18,7 @@ internal sealed class PortStateDiff
         BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
 
     /// <summary>Reference-paired graph nodes already compared, preventing cycles and repeated diagnostics.</summary>
-    private readonly HashSet<(object, object)> visited = new(PairComparer.Instance);
+    private readonly HashSet<PortStateDiffX> visited = new(PairComparer.Instance);
     /// <summary>Leaf differences accumulated with their object-graph paths.</summary>
     private readonly List<string> differences = [];
     /// <summary>Caller-selected subtrees omitted from the snapshot-import audit.</summary>
@@ -73,7 +73,7 @@ internal sealed class PortStateDiff
         // Shared immutable catalogs are the same instance in both graphs.
         if (!type.IsValueType && ReferenceEquals(expected, actual))
             return;
-        if (!type.IsValueType && !visited.Add((expected, actual)))
+        if (!type.IsValueType && !visited.Add(new PortStateDiffX(expected, actual)))
             return;
         if (expected is Array expectedArray)
         {
@@ -140,17 +140,17 @@ internal sealed class PortStateDiff
     };
 
     /// <summary>Uses reference identity for both nodes of each visited graph pair.</summary>
-    private sealed class PairComparer : IEqualityComparer<(object, object)>
+    private sealed class PairComparer : IEqualityComparer<PortStateDiffX>
     {
         /// <summary>Shared comparer for detecting graph cycles by object identity.</summary>
         public static readonly PairComparer Instance = new();
 
         /// <summary>Matches two graph pairs only when both object references are the same.</summary>
-        public bool Equals((object, object) x, (object, object) y) =>
-            ReferenceEquals(x.Item1, y.Item1) && ReferenceEquals(x.Item2, y.Item2);
+        public bool Equals(PortStateDiffX x, PortStateDiffX y) =>
+            ReferenceEquals(x.First, y.First) && ReferenceEquals(x.Second, y.Second);
 
         /// <summary>Combines identity hashes without invoking value equality on graph nodes.</summary>
-        public int GetHashCode((object, object) pair) =>
-            HashCode.Combine(RuntimeHelpers.GetHashCode(pair.Item1), RuntimeHelpers.GetHashCode(pair.Item2));
+        public int GetHashCode(PortStateDiffX pair) =>
+            HashCode.Combine(RuntimeHelpers.GetHashCode(pair.First), RuntimeHelpers.GetHashCode(pair.Second));
     }
 }

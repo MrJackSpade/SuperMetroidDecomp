@@ -14,12 +14,12 @@ internal static class HealthWarningVerification
         var audio = new CartridgeAudioState();
         byte[] positions = audio.SoundWritePositions;
         byte[,] queues = audio.SoundQueues;
-        foreach (var sample in new[] { (99, 0), (30, 2), (0, 0), (30, 0), (31, 1), (32, 0), (30, 2), (31, 1) })
+        foreach (var sample in new[] { new VerifyHealthWarningCase(99, 0), new VerifyHealthWarningCase(30, 2), new VerifyHealthWarningCase(0, 0), new VerifyHealthWarningCase(30, 0), new VerifyHealthWarningCase(31, 1), new VerifyHealthWarningCase(32, 0), new VerifyHealthWarningCase(30, 2), new VerifyHealthWarningCase(31, 1) })
         {
             audio.Reset();
-            warning.Update((ushort)sample.Item1, audio);
-            AssertEqual(sample.Item2 == 0 ? 0 : 1, positions[2], "warning queues only threshold transitions");
-            if (sample.Item2 != 0) AssertEqual(sample.Item2, queues[2, 0], "warning native start/stop ID");
+            warning.Update((ushort)sample.First, audio);
+            AssertEqual(sample.Second == 0 ? 0 : 1, positions[2], "warning queues only threshold transitions");
+            if (sample.Second != 0) AssertEqual(sample.Second, queues[2, 0], "warning native start/stop ID");
         }
         foreach (bool suppressed in new[] { false, true })
         {

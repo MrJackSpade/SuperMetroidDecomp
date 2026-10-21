@@ -23,8 +23,8 @@ internal static void VerifySamusAerialTurnsAndWallJump()
 {
     var bus = new TestAddressSpace();
 
-    foreach (var (timer, accepts) in new (ushort, bool)[]
-        { (0, false), (1, true), (8, true), (9, false), (32767, false), (32768, false), (65535, true) })
+    foreach (var (timer, accepts) in new VerifySamusAerialTurnsAndWallJumpCase[]
+        { new VerifySamusAerialTurnsAndWallJumpCase(0, false), new VerifySamusAerialTurnsAndWallJumpCase(1, true), new VerifySamusAerialTurnsAndWallJumpCase(8, true), new VerifySamusAerialTurnsAndWallJumpCase(9, false), new VerifySamusAerialTurnsAndWallJumpCase(32767, false), new VerifySamusAerialTurnsAndWallJumpCase(32768, false), new VerifySamusAerialTurnsAndWallJumpCase(65535, true) })
     {
         var autoJump = new SamusState { InputSnapshot = { AutoJumpTimer = timer, AutoJumpInputPending = true } };
         SnesButton physical = SnesButton.X;
@@ -80,8 +80,8 @@ internal static void VerifySamusAerialTurnsAndWallJump()
 
     // Native $94:967F observes integer position but its solid-block dispatcher
     // still writes the live fractional X word. Verify both directions and air.
-    foreach (var (x, distance, hit, fraction) in new (ushort, int, bool, ushort)[]
-        { (58, 8, true, 0xffff), (86, -8, true, 0), (32, 8, false, 0x4321) })
+    foreach (var (x, distance, hit, fraction) in new SamusTurnsAndKnockbackVerifySamusAerialTurnsAndWallJumpCase[]
+        { new SamusTurnsAndKnockbackVerifySamusAerialTurnsAndWallJumpCase(58, 8, true, 0xffff), new SamusTurnsAndKnockbackVerifySamusAerialTurnsAndWallJumpCase(86, -8, true, 0), new SamusTurnsAndKnockbackVerifySamusAerialTurnsAndWallJumpCase(32, 8, false, 0x4321) })
     {
         var probeState = new SamusKinematicsState
         {
@@ -740,11 +740,11 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
     // direction, while `$90:8EDF` still uses the enemy-produced X side for horizontal travel.
     foreach ((SamusPoseId pose, ushort hitSide, ushort expectedDirection) in new[]
     {
-        (SamusPoseId.MorphBallGroundRightPose, (ushort)0, (ushort)2),
-        (SamusPoseId.MorphBallFallingLeftPose, (ushort)1, (ushort)1),
-        (SamusPoseId.SpringBallGroundRightPose, (ushort)0, (ushort)2),
-        (SamusPoseId.SpringBallJumpLeftPose, (ushort)1, (ushort)1),
-        (SamusPoseId.SpringBallFallingRightPose, (ushort)0, (ushort)2),
+        new VerifySamusKnockbackAndDamageBoostCase(SamusPoseId.MorphBallGroundRightPose, 0, 2),
+        new VerifySamusKnockbackAndDamageBoostCase(SamusPoseId.MorphBallFallingLeftPose, 1, 1),
+        new VerifySamusKnockbackAndDamageBoostCase(SamusPoseId.SpringBallGroundRightPose, 0, 2),
+        new VerifySamusKnockbackAndDamageBoostCase(SamusPoseId.SpringBallJumpLeftPose, 1, 1),
+        new VerifySamusKnockbackAndDamageBoostCase(SamusPoseId.SpringBallFallingRightPose, 0, 2),
     })
     {
         var ball = new SamusState

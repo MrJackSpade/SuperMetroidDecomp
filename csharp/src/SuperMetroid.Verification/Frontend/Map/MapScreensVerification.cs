@@ -96,14 +96,14 @@ internal static class MapScreensVerification
         File.WriteAllBytes(jsonPath, File.ReadAllBytes(Path.Combine(stock, MapScreenDefinitions.FileName)));
         foreach (var atlas in new[]
         {
-            (WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.ForegroundHeight, 16),
-            (WorldMapArtworkFormat.BackgroundFile, WorldMapArtworkFormat.BackgroundHeight, 4)
+            new VerifyMapScreensCase(WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.ForegroundHeight, 16),
+            new VerifyMapScreensCase(WorldMapArtworkFormat.BackgroundFile, WorldMapArtworkFormat.BackgroundHeight, 4)
         })
         {
-            string path = Path.Combine(overrides, atlas.Item1);
+            string path = Path.Combine(overrides, atlas.First);
             IndexedPngImage image;
-            using (var input = File.OpenRead(Path.Combine(stock, atlas.Item1))) image = IndexedPng.Read(input, new(WorldMapArtworkFormat.Width, checked((ushort)atlas.Item2)));
-            for (int pixel = 0; pixel < image.Pixels.Length; pixel++) image.Pixels[pixel] = (byte)((image.Pixels[pixel] + 1) % atlas.Item3);
+            using (var input = File.OpenRead(Path.Combine(stock, atlas.First))) image = IndexedPng.Read(input, new(WorldMapArtworkFormat.Width, checked((ushort)atlas.Second)));
+            for (int pixel = 0; pixel < image.Pixels.Length; pixel++) image.Pixels[pixel] = (byte)((image.Pixels[pixel] + 1) % atlas.Third);
             using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             var artEdit = AreaMapPresentationCatalog.Load(stock, overrides);
             AssertTrue(artEdit.ContentIdentity != original.ContentIdentity, "each world PNG affects identity independently");
@@ -115,10 +115,10 @@ internal static class MapScreensVerification
             AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "corrupt world PNG override cannot silently select stock");
             using (var output = File.Create(path)) IndexedPng.Write(output, new(1, 1), [0], image.Palette);
             AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "wrong world PNG dimensions rejected");
-            image.Pixels[0] = (byte)atlas.Item3;
-            using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, SnesGraphics.DiagnosticPalette(atlas.Item3 + 1));
+            image.Pixels[0] = (byte)atlas.Third;
+            using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, SnesGraphics.DiagnosticPalette(atlas.Third + 1));
             AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "world PNG index outside native depth rejected");
-            File.WriteAllBytes(path, File.ReadAllBytes(Path.Combine(stock, atlas.Item1)));
+            File.WriteAllBytes(path, File.ReadAllBytes(Path.Combine(stock, atlas.First)));
         }
         // Preserve the original bytes around invalid-resource tests; all paths are
         // this fixture's isolated generated stock, never an installed player's files.

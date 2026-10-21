@@ -64,7 +64,7 @@ public sealed class MirroredMethodPairAnalyzer : DiagnosticAnalyzer
         var type = (INamedTypeSymbol)context.Symbol;
         if (type.TypeKind is not (TypeKind.Class or TypeKind.Struct))
             return;
-        var groups = new Dictionary<string, List<(IMethodSymbol Method, string Sides, SyntaxNode Body)>>();
+        var groups = new Dictionary<string, List<MirroredMethod>>();
         foreach (IMethodSymbol method in type.GetMembers().OfType<IMethodSymbol>())
         {
             if (method.MethodKind != MethodKind.Ordinary || method.IsImplicitlyDeclared ||
@@ -75,11 +75,11 @@ public sealed class MirroredMethodPairAnalyzer : DiagnosticAnalyzer
             (string canonical, string sides) = Canonical(method.Name);
             if (sides.Length == 0 || IsForwardingWrapper(body))
                 continue;
-            if (!groups.TryGetValue(canonical, out List<(IMethodSymbol Method, string Sides, SyntaxNode Body)>? group))
+            if (!groups.TryGetValue(canonical, out List<MirroredMethod>? group))
                 groups[canonical] = group = [];
-            group.Add((method, sides, body));
+            group.Add(new MirroredMethod(method, sides, body));
         }
-        foreach (List<(IMethodSymbol Method, string Sides, SyntaxNode Body)> group in groups.Values)
+        foreach (List<MirroredMethod> group in groups.Values)
         {
             for (int first = 0; first < group.Count; first++)
             for (int second = first + 1; second < group.Count; second++)
@@ -98,7 +98,7 @@ public sealed class MirroredMethodPairAnalyzer : DiagnosticAnalyzer
     /// The name with each direction token replaced by its axis placeholder, and the side each token names, in order: a
     /// mirrored name has the same placeholders with every side flipped.
     /// </summary>
-    private static (string Canonical, string Sides) Canonical(string name)
+    private static CanonicalMethodName Canonical(string name)
     {
         var sides = new StringBuilder();
         string canonical = DirectionToken.Replace(name, match =>
@@ -107,22 +107,22 @@ public sealed class MirroredMethodPairAnalyzer : DiagnosticAnalyzer
             sides.Append(side);
             return "\u0001" + axis + "\u0001";
         });
-        return (canonical, sides.ToString());
+        return new CanonicalMethodName(canonical, sides.ToString());
     }
 
     /// <summary>The axis a direction token names and which of its two sides.</summary>
-    private static (char Axis, char Side) Classify(string token) => token.ToUpperInvariant() switch
+    private static MirrorClassification Classify(string token) => token.ToUpperInvariant() switch
     {
-        "LEFT" => ('h', '0'),
-        "RIGHT" => ('h', '1'),
-        "UP" => ('v', '0'),
-        "DOWN" => ('v', '1'),
-        "ADD" => ('s', '0'),
-        "SUBTRACT" => ('s', '1'),
-        "FIRST" => ('o', '0'),
-        "SECOND" => ('o', '1'),
-        "CLOCKWISE" => ('r', '0'),
-        "COUNTERCLOCKWISE" or "ANTICLOCKWISE" => ('r', '1'),
+        "LEFT" => new MirrorClassification('h', '0'),
+        "RIGHT" => new MirrorClassification('h', '1'),
+        "UP" => new MirrorClassification('v', '0'),
+        "DOWN" => new MirrorClassification('v', '1'),
+        "ADD" => new MirrorClassification('s', '0'),
+        "SUBTRACT" => new MirrorClassification('s', '1'),
+        "FIRST" => new MirrorClassification('o', '0'),
+        "SECOND" => new MirrorClassification('o', '1'),
+        "CLOCKWISE" => new MirrorClassification('r', '0'),
+        "COUNTERCLOCKWISE" or "ANTICLOCKWISE" => new MirrorClassification('r', '1'),
         _ => throw new ArgumentOutOfRangeException(nameof(token), token, "Not a direction token."),
     };
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Rooms.Plms;
@@ -14,7 +15,7 @@ internal static class LookupBombTorizoHandStockVerification
     internal static void VerifyBombTorizoHandStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmBombTorizoHandVisualCatalog installed)
     {
-        (ushort Pointer, string Id)[] frames = [(0x9877,"intact"),(0x989d,"cleared")];
+        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9877,"intact"),new LookupEscapeGateStockFrame(0x989d,"cleared")];
         var native = new Dictionary<ushort, ushort[][]>();
         foreach (var frame in frames)
         {

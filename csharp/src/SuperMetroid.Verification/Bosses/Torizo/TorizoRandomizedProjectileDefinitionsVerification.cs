@@ -15,16 +15,16 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
     internal static void VerifyTorizoRandomizedProjectileDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        (int Address, TorizoRandomizedProjectileDefinition Definition, string Name)[] definitions =
+        TorizoRandomizedProjectileDefinitionsDefinition[] definitions =
         [
-            (0x86ac08, TorizoRandomizedProjectileDefinitions.BombChozoOrb(true), "Bomb orb right"),
-            (0x86ac12, TorizoRandomizedProjectileDefinitions.BombChozoOrb(false), "Bomb orb left"),
-            (0x86ac99, TorizoRandomizedProjectileDefinitions.GoldenChozoOrb(true), "Golden orb right"),
-            (0x86aca3, TorizoRandomizedProjectileDefinitions.GoldenChozoOrb(false), "Golden orb left"),
-            (0x86b02f, TorizoRandomizedProjectileDefinitions.GoldenEgg(true), "Golden egg right"),
-            (0x86b039, TorizoRandomizedProjectileDefinitions.GoldenEgg(false), "Golden egg left"),
-            (0x86b376, TorizoRandomizedProjectileDefinitions.GoldenEyeBeam(true), "Golden eye beam right"),
-            (0x86b380, TorizoRandomizedProjectileDefinitions.GoldenEyeBeam(false), "Golden eye beam left"),
+            new TorizoRandomizedProjectileDefinitionsDefinition(0x86ac08, TorizoRandomizedProjectileDefinitions.BombChozoOrb(true), "Bomb orb right"),
+            new TorizoRandomizedProjectileDefinitionsDefinition(0x86ac12, TorizoRandomizedProjectileDefinitions.BombChozoOrb(false), "Bomb orb left"),
+            new TorizoRandomizedProjectileDefinitionsDefinition(0x86ac99, TorizoRandomizedProjectileDefinitions.GoldenChozoOrb(true), "Golden orb right"),
+            new TorizoRandomizedProjectileDefinitionsDefinition(0x86aca3, TorizoRandomizedProjectileDefinitions.GoldenChozoOrb(false), "Golden orb left"),
+            new TorizoRandomizedProjectileDefinitionsDefinition(0x86b02f, TorizoRandomizedProjectileDefinitions.GoldenEgg(true), "Golden egg right"),
+            new TorizoRandomizedProjectileDefinitionsDefinition(0x86b039, TorizoRandomizedProjectileDefinitions.GoldenEgg(false), "Golden egg left"),
+            new TorizoRandomizedProjectileDefinitionsDefinition(0x86b376, TorizoRandomizedProjectileDefinitions.GoldenEyeBeam(true), "Golden eye beam right"),
+            new TorizoRandomizedProjectileDefinitionsDefinition(0x86b380, TorizoRandomizedProjectileDefinitions.GoldenEyeBeam(false), "Golden eye beam left"),
         ];
 
         var guarded = NewTorizoRandomizedProjectileReadGuard(rom);

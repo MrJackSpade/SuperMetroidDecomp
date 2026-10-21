@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Rooms.Plms;
@@ -12,11 +13,11 @@ internal static class LookupBlueDoorStockVerification
     internal static void VerifyBlueDoorStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmBlueDoorVisualCatalog installed)
     {
-        (ushort Pointer, string Id)[] frames = [
-            (0xa9b3,"left-frame-0"),(0xa9bf,"left-frame-1"),(0xa9cb,"left-frame-2"),(0xa9d7,"left-frame-3"),
-            (0xa9ef,"right-frame-0"),(0xa9fb,"right-frame-1"),(0xaa07,"right-frame-2"),(0xaa13,"right-frame-3"),
-            (0xaa2b,"up-frame-0"),(0xaa37,"up-frame-1"),(0xaa43,"up-frame-2"),(0xaa4f,"up-frame-3"),
-            (0xaa67,"down-frame-0"),(0xaa73,"down-frame-1"),(0xaa7f,"down-frame-2"),(0xaa8b,"down-frame-3")];
+        LookupEscapeGateStockFrame[] frames = [
+            new LookupEscapeGateStockFrame(0xa9b3,"left-frame-0"),new LookupEscapeGateStockFrame(0xa9bf,"left-frame-1"),new LookupEscapeGateStockFrame(0xa9cb,"left-frame-2"),new LookupEscapeGateStockFrame(0xa9d7,"left-frame-3"),
+            new LookupEscapeGateStockFrame(0xa9ef,"right-frame-0"),new LookupEscapeGateStockFrame(0xa9fb,"right-frame-1"),new LookupEscapeGateStockFrame(0xaa07,"right-frame-2"),new LookupEscapeGateStockFrame(0xaa13,"right-frame-3"),
+            new LookupEscapeGateStockFrame(0xaa2b,"up-frame-0"),new LookupEscapeGateStockFrame(0xaa37,"up-frame-1"),new LookupEscapeGateStockFrame(0xaa43,"up-frame-2"),new LookupEscapeGateStockFrame(0xaa4f,"up-frame-3"),
+            new LookupEscapeGateStockFrame(0xaa67,"down-frame-0"),new LookupEscapeGateStockFrame(0xaa73,"down-frame-1"),new LookupEscapeGateStockFrame(0xaa7f,"down-frame-2"),new LookupEscapeGateStockFrame(0xaa8b,"down-frame-3")];
         ushort[] aliases = [0xa9a7,0xa9e3,0xaa1f,0xaa5b];
         var native = new Dictionary<ushort, ushort[]>();
         foreach (var frame in frames)

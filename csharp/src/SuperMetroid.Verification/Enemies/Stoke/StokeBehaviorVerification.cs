@@ -21,8 +21,8 @@ internal static class StokeBehaviorVerification
     {
         foreach ((StokeDirection direction, StokeProgram walk, StokeProgram loop, StokeProgram attack, StokeAiFunction function, ushort fireball) in new[]
                  {
-                     (StokeDirection.Left, StokeProgram.MovingLeft, StokeProgram.MovingLeftLoop, StokeProgram.AttackingLeft, StokeAiFunction.Moving, (ushort)0),
-                     (StokeDirection.Right, StokeProgram.MovingRight, StokeProgram.MovingRightLoop, StokeProgram.AttackingRight, StokeAiFunction.Moving, (ushort)1),
+                     new VerifyStokeBehaviorCase(StokeDirection.Left, StokeProgram.MovingLeft, StokeProgram.MovingLeftLoop, StokeProgram.AttackingLeft, StokeAiFunction.Moving, 0),
+                     new VerifyStokeBehaviorCase(StokeDirection.Right, StokeProgram.MovingRight, StokeProgram.MovingRightLoop, StokeProgram.AttackingRight, StokeAiFunction.Moving, 1),
                  })
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, StokeEnemyState state) = Create(direction == StokeDirection.Left ? StokeDirection.Right : StokeDirection.Left);
@@ -48,7 +48,7 @@ internal static class StokeBehaviorVerification
     }
 
     /// <summary>A Stoke initialized facing <paramref name="direction"/>.</summary>
-    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, StokeEnemyState State) Create(StokeDirection direction)
+    private static StokeBehaviorCreateResult Create(StokeDirection direction)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -57,7 +57,7 @@ internal static class StokeBehaviorVerification
         slot.SetSpawnParameter1((ushort)direction);
         slot.Position = slot.Position.WithWhole(new(128, 128));
         StokeBehavior.InitializeStoke(slot);
-        return (enemies, slot, enemies.StokeStates[0] ?? throw new InvalidOperationException("Stoke has no state."));
+        return new StokeBehaviorCreateResult(enemies, slot, enemies.StokeStates[0] ?? throw new InvalidOperationException("Stoke has no state."));
     }
 
     /// <summary>Runs the Stoke behavior check and its program oracle against the local retail cartridge.</summary>

@@ -22,13 +22,13 @@ internal static class CrawlerBehaviorVerification
     /// </summary>
     internal static void VerifyCrawlerBehavior(InstalledEnemyArtwork? artwork = null)
     {
-        (CrawlerAnimationFamily Family, EnemyDefinitionId Definition, ushort? SpeciesOffset)[] families =
+        CrawlerBehaviorFamily[] families =
         [
-            (CrawlerAnimationFamily.Shared, EnemyDefinitionId.Zoomer, null),
-            (CrawlerAnimationFamily.Viola, EnemyDefinitionId.Viola, 6),
-            (CrawlerAnimationFamily.Sciser, EnemyDefinitionId.Sciser, 8),
-            (CrawlerAnimationFamily.Zero, EnemyDefinitionId.Zero, 10),
-            (CrawlerAnimationFamily.HZoomer, EnemyDefinitionId.HZoomer, null),
+            new CrawlerBehaviorFamily(CrawlerAnimationFamily.Shared, EnemyDefinitionId.Zoomer, null),
+            new CrawlerBehaviorFamily(CrawlerAnimationFamily.Viola, EnemyDefinitionId.Viola, 6),
+            new CrawlerBehaviorFamily(CrawlerAnimationFamily.Sciser, EnemyDefinitionId.Sciser, 8),
+            new CrawlerBehaviorFamily(CrawlerAnimationFamily.Zero, EnemyDefinitionId.Zero, 10),
+            new CrawlerBehaviorFamily(CrawlerAnimationFamily.HZoomer, EnemyDefinitionId.HZoomer, null),
         ];
         foreach ((CrawlerAnimationFamily family, EnemyDefinitionId definition, ushort? speciesOffset) in families)
         foreach (CrawlerSurfaceOrientation orientation in Enum.GetValues<CrawlerSurfaceOrientation>())

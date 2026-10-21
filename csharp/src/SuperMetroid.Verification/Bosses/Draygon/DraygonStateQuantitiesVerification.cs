@@ -171,7 +171,7 @@ internal static class DraygonStateQuantitiesVerification
     }
 
     /// <summary>A Draygon encounter over a fresh enemy system with all four parts bound and asleep.</summary>
-    private static (RoomEnemySystem Enemies, DraygonEnemyState State) NewDraygon()
+    private static NewDraygonResult NewDraygon()
     {
         var enemies = new RoomEnemySystem(new EnemySession(), services: new VerificationRoomEnemyServices(null));
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
@@ -194,7 +194,7 @@ internal static class DraygonStateQuantitiesVerification
         // A nonzero low byte keeps the spiral from inserting a tail whip.
         enemies.VerificationServices().NextRandom = () => 4660;
         enemies.VerificationServices().ReadRandom = () => 4660;
-        return (enemies, state);
+        return new NewDraygonResult(enemies, state);
     }
 
     /// <summary>Runs the Draygon state-quantity checks from the verification command line.</summary>

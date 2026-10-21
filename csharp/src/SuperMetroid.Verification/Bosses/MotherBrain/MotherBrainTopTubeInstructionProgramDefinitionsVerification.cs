@@ -45,21 +45,21 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         Func<EnemyProjectileAnimation, ushort?> nativePointers =
             MotherBrainTopTubeAnimationsVerification.Family.NativePointers(CartridgeImportSource.Require(rom));
 
-        foreach ((RoomEnemyProjectileKind Kind, ushort Program, ushort X, ushort Y) item in
-                 new[]
+        foreach (TopTubeLaunchCase item in
+                 new TopTubeLaunchCase[]
                  {
-                     (RoomEnemyProjectileKind.MotherBrainTopRightTube,
+                     new(RoomEnemyProjectileKind.MotherBrainTopRightTube,
                          MotherBrainTopTubeInstructionProgramDefinitions.TopRight,
-                         (ushort)152, (ushort)47),
-                     (RoomEnemyProjectileKind.MotherBrainTopLeftTube,
+                         152, 47),
+                     new(RoomEnemyProjectileKind.MotherBrainTopLeftTube,
                          MotherBrainTopTubeInstructionProgramDefinitions.TopLeft,
-                         (ushort)104, (ushort)47),
-                     (RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube,
+                         104, 47),
+                     new(RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube,
                          MotherBrainTopTubeInstructionProgramDefinitions.TopMiddleLeft,
-                         (ushort)120, (ushort)59),
-                     (RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube,
+                         120, 59),
+                     new(RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube,
                          MotherBrainTopTubeInstructionProgramDefinitions.TopMiddleRight,
-                         (ushort)136, (ushort)59),
+                         136, 59),
                  })
         {
             RoomEnemySystem enemies = NewSystem();

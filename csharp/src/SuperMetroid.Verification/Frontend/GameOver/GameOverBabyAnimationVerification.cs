@@ -13,8 +13,7 @@ internal static class GameOverBabyAnimationVerification
     {
         // Walk the original serialized stream; neither record count nor group lengths
         // nor generated successor pointers determine this oracle's traversal.
-        var original = new List<(ushort Pointer, ushort Duration, ushort Sprite, ushort Palette,
-            ushort Sound, ushort Next, bool Restart)>();
+        var original = new List<Original>();
         int pointer = 0xbc27;
         while (true)
         {
@@ -30,7 +29,7 @@ internal static class GameOverBabyAnimationVerification
                 sound = command;
                 next += 2;
             }
-            original.Add(((ushort)pointer, duration, sprite, palette, sound,
+            original.Add(new Original((ushort)pointer, duration, sprite, palette, sound,
                 (ushort)(restart ? 0xbc27 : next), restart));
             if (restart) break;
             pointer = next;

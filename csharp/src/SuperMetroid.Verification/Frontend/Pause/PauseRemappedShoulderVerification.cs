@@ -22,7 +22,7 @@ internal static class PauseRemappedShoulderVerification
     /// </summary>
     internal static void VerifyPauseRemappedShoulder()
     {
-        foreach ((SnesButton held, bool opensEquipment) in new[] { (SnesButton.R, true), (SnesButton.L, false) })
+        foreach ((SnesButton held, bool opensEquipment) in new[] { new VerifyPauseRemappedShoulderCase(SnesButton.R, true), new VerifyPauseRemappedShoulderCase(SnesButton.L, false) })
         {
             var random = new CartridgeRandom();
             var runtime = CreateRetailRuntimeFixture(random: random);

@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Progression;
@@ -11,12 +12,12 @@ internal static class PowerBombBoundaryVerification
     internal static void VerifyPowerBombBoundary()
     {
         var level = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(new ushort[25], new byte[25], new ushort[25]), new byte[8]);
-        Check(32, 32, 0x1000, [(1,1), (2,1), (3,1), (1,1), (1,2),
-            (1,2), (2,2), (3,2), (3,1), (3,2)]);
-        Check(0, 0, 0x1000, [(0,0), (1,0), (0,0), (0,0), (1,0), (1,0)]);
-        Check(32, 32, 0, [(2,2), (2,2), (2,2), (2,2)]);
+        Check(32, 32, 0x1000, [new BotwoonRadiusOpcode(1,1), new BotwoonRadiusOpcode(2,1), new BotwoonRadiusOpcode(3,1), new BotwoonRadiusOpcode(1,1), new BotwoonRadiusOpcode(1,2),
+            new BotwoonRadiusOpcode(1,2), new BotwoonRadiusOpcode(2,2), new BotwoonRadiusOpcode(3,2), new BotwoonRadiusOpcode(3,1), new BotwoonRadiusOpcode(3,2)]);
+        Check(0, 0, 0x1000, [new BotwoonRadiusOpcode(0,0), new BotwoonRadiusOpcode(1,0), new BotwoonRadiusOpcode(0,0), new BotwoonRadiusOpcode(0,0), new BotwoonRadiusOpcode(1,0), new BotwoonRadiusOpcode(1,0)]);
+        Check(32, 32, 0, [new BotwoonRadiusOpcode(2,2), new BotwoonRadiusOpcode(2,2), new BotwoonRadiusOpcode(2,2), new BotwoonRadiusOpcode(2,2)]);
 
-        void Check(ushort x, ushort y, ushort radius, (int X, int Y)[] expected)
+        void Check(ushort x, ushort y, ushort radius, BotwoonRadiusOpcode[] expected)
         {
             // Both a normal Power Bomb and the Chainsaw word pass through the same
             // boundary walker. This checks traversal only, not their PLM damage class.

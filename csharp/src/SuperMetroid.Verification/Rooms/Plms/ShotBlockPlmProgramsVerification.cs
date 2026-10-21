@@ -228,10 +228,10 @@ internal static class ShotBlockPlmProgramsVerification
     }
 
     /// <summary>Lists the thirteen native timed-list layouts used to derive control and draw operand addresses.</summary>
-    private static (ushort Start, int Frames, bool RestoreWord)[] ShotBlockNativeProgramLayouts() =>
-        [(0xcadf,7,true),(0xcb02,8,false),(0xcb27,8,false),(0xcb4c,8,false),
-         (0xcbb7,4,false),(0xcbcc,4,false),(0xcbe1,4,false),(0xcbf6,4,false),
-         (0xcb71,7,true),(0xcb94,7,true),(0xcc0b,4,false),(0xcc20,4,false),(0xcd53,4,false)];
+    private static ShotBlockNativeProgramLayoutsResult[] ShotBlockNativeProgramLayouts() =>
+        [new ShotBlockNativeProgramLayoutsResult(0xcadf,7,true),new ShotBlockNativeProgramLayoutsResult(0xcb02,8,false),new ShotBlockNativeProgramLayoutsResult(0xcb27,8,false),new ShotBlockNativeProgramLayoutsResult(0xcb4c,8,false),
+         new ShotBlockNativeProgramLayoutsResult(0xcbb7,4,false),new ShotBlockNativeProgramLayoutsResult(0xcbcc,4,false),new ShotBlockNativeProgramLayoutsResult(0xcbe1,4,false),new ShotBlockNativeProgramLayoutsResult(0xcbf6,4,false),
+         new ShotBlockNativeProgramLayoutsResult(0xcb71,7,true),new ShotBlockNativeProgramLayoutsResult(0xcb94,7,true),new ShotBlockNativeProgramLayoutsResult(0xcc0b,4,false),new ShotBlockNativeProgramLayoutsResult(0xcc20,4,false),new ShotBlockNativeProgramLayoutsResult(0xcd53,4,false)];
 
     /// <summary>Checks the full address domain of compiled timers and control words against bank $84.</summary>
     private static void VerifyShotBlockProgramControlMapping(SuperMetroidAddressSpace rom)
@@ -380,7 +380,7 @@ internal static class ShotBlockPlmProgramsVerification
         for (int tile = 0; tile < 4; tile++)
             definitions[visualIndex * 8 + tile * 2] = unchecked((byte)visualIndex);
 
-        (ushort physical, ushort immediate, ushort streamed) Render(
+        ShotBlockPlmProgramsRenderResult Render(
             RoomPlmShotBlockVisualCatalog visuals)
         {
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), definitions);
@@ -388,22 +388,22 @@ internal static class ShotBlockPlmProgramsVerification
             AssertTrue(plms.TrySpawnProjectileShotBlock(level, block, 0, 0, true),
                 "visual-only test allocates the production shot-block PLM");
             plms.Step(level);
-            return (level.GetCollisionBlockByIndex(block).PackedWord.Raw,
+            return new ShotBlockPlmProgramsRenderResult(level.GetCollisionBlockByIndex(block).PackedWord.Raw,
                 level.DisplayedBlockTiles(block).TopLeft.Raw,
                 level.DisplayedBlockTiles(block).TopLeft.Raw);
         }
 
         var native = Render(stock);
         var changed = Render(edited);
-        AssertEqual((ushort)0x0053, native.physical,
+        AssertEqual((ushort)0x0053, native.Physical,
             "stock first break frame has its native physical level word");
-        AssertEqual(native.physical, changed.physical,
+        AssertEqual(native.Physical, changed.Physical,
             "visual edit cannot change first-frame collision or level data");
-        AssertEqual((ushort)0x0053, native.immediate,
+        AssertEqual((ushort)0x0053, native.Immediate,
             "stock draw reaches the immediate tilemap upload");
-        AssertEqual((ushort)0x0054, changed.immediate,
+        AssertEqual((ushort)0x0054, changed.Immediate,
             "edited draw reaches the immediate tilemap upload");
-        AssertEqual((ushort)0x0054, changed.streamed,
+        AssertEqual((ushort)0x0054, changed.Streamed,
             "edited draw persists in later camera streaming");
 
         AssertThrows<InvalidDataException>(

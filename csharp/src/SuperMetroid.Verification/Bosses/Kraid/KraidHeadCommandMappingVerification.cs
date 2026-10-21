@@ -55,8 +55,8 @@ internal static class KraidHeadCommandMappingVerification
                     var cueStep = AssertIs<AnimationProgramStep<KraidHeadProgram, KraidHeadFrame, KraidHeadCue>.CueStep>(step, $"{at} cries");
                     (KraidHeadCue cue, SoundEffectId sound) = record.Opcode switch
                     {
-                        KraidHeadNativeCursors.RoarCryCall => (KraidHeadCue.Roar, KraidSoundDefinitions.HeadRoar),
-                        KraidHeadNativeCursors.DyingCryCall => (KraidHeadCue.DyingCry, KraidSoundDefinitions.HeadDyingCry),
+                        KraidHeadNativeCursors.RoarCryCall => new VerifyKraidHeadCommandMappingCase(KraidHeadCue.Roar, KraidSoundDefinitions.HeadRoar),
+                        KraidHeadNativeCursors.DyingCryCall => new VerifyKraidHeadCommandMappingCase(KraidHeadCue.DyingCry, KraidSoundDefinitions.HeadDyingCry),
                         _ => throw new InvalidDataException($"{at}: unknown native head command ${record.Opcode:X4}."),
                     };
                     AssertEqual(cue, cueStep.Cue, $"{at} cry");

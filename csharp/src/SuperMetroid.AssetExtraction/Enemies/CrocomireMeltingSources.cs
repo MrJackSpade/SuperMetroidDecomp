@@ -26,12 +26,12 @@ internal static class CrocomireMeltingSources
 
     /// <summary>The bank and the offset of the first graphics chunk of <paramref name="pass"/>.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="pass"/> is not a defined melt pass.</exception>
-    private static (int Bank, int FirstChunk) Graphics(CrocomireMeltingHeader pass) => pass switch
+    private static MeltingGraphicsSource Graphics(CrocomireMeltingHeader pass) => pass switch
     {
         CrocomireMeltingHeader.First =>
-            (CrocomireMeltingSourceDefinitions.GraphicsBank, CrocomireMeltingSourceDefinitions.FirstPassFirstChunk),
+            new MeltingGraphicsSource(CrocomireMeltingSourceDefinitions.GraphicsBank, CrocomireMeltingSourceDefinitions.FirstPassFirstChunk),
         CrocomireMeltingHeader.Second =>
-            (CrocomireMeltingSourceDefinitions.GraphicsBank, CrocomireMeltingSourceDefinitions.SecondPassFirstChunk),
+            new MeltingGraphicsSource(CrocomireMeltingSourceDefinitions.GraphicsBank, CrocomireMeltingSourceDefinitions.SecondPassFirstChunk),
         _ => throw new InvalidOperationException($"Undefined {nameof(CrocomireMeltingHeader)} {pass}."),
     };
 }

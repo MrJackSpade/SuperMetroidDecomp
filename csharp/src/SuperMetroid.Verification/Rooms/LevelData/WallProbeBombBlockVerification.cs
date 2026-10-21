@@ -17,8 +17,8 @@ internal static class WallProbeBombBlockVerification
         const int height = 8;
         const ushort fraction = 0x2fff;
 
-        foreach (var (pose, breaks) in new (SamusPoseId, bool)[]
-            { (SamusPoseId.ScrewAttackRightPose, true), (SamusPoseId.FacingRightNormalPose, false) })
+        foreach (var (pose, breaks) in new VerifyWallProbeBombBlockCase[]
+            { new VerifyWallProbeBombBlockCase(SamusPoseId.ScrewAttackRightPose, true), new VerifyWallProbeBombBlockCase(SamusPoseId.FacingRightNormalPose, false) })
         {
             var foreground = new ushort[width * height];
             for (int y = 1; y < 6; y++)

@@ -13,13 +13,13 @@ internal static class CrawlerAnimationDefinitionsVerification
     /// <summary>Compares crawler orientation tables with cartridge words and production initial/surface instruction selection.</summary>
     internal static void VerifyCrawlerAnimationDefinitions(SuperMetroidAddressSpace rom)
     {
-        (CrawlerAnimationFamily Family, int Address, ushort? Offset)[] initialTables =
+        InitialTable[] initialTables =
         [
-            (CrawlerAnimationFamily.Shared, 0xa3e2cc, null),
-            (CrawlerAnimationFamily.Viola, 0xa3b667, 6),
-            (CrawlerAnimationFamily.Sciser, 0xa396db, 8),
-            (CrawlerAnimationFamily.Zero, 0xa3992b, 10),
-            (CrawlerAnimationFamily.HZoomer, 0xa3e03b, null),
+            new InitialTable(CrawlerAnimationFamily.Shared, 0xa3e2cc, null),
+            new InitialTable(CrawlerAnimationFamily.Viola, 0xa3b667, 6),
+            new InitialTable(CrawlerAnimationFamily.Sciser, 0xa396db, 8),
+            new InitialTable(CrawlerAnimationFamily.Zero, 0xa3992b, 10),
+            new InitialTable(CrawlerAnimationFamily.HZoomer, 0xa3e03b, null),
         ];
         CrawlerSurfaceOrientation[] orientations =
         [

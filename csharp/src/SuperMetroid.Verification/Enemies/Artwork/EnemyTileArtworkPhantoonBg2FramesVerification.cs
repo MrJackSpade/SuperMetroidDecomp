@@ -39,7 +39,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
             AssertTrue((stock.Bosses.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires stock.PhantoonBg2Frames.")).TryGet(frame.Pointer,
                     out ReadOnlyMemory<EnemyBg2TilemapWrite> installed),
                 $"installed Phantoon BG2 frame {frame.Name} exists");
-            var native = new List<(ushort Destination, ushort[] Tiles)>();
+            var native = new List<EnemyTileArtworkDraygonBg2FramesNative>();
             int root = ((int)new SnesAddress(PhantoonBg2FrameDefinitions.Bank, frame.Pointer));
             int componentCount = rom.ReadCartridgeByte(root);
             for (int component = 0; component < componentCount; component++)
@@ -55,7 +55,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
                     var tiles = new ushort[count];
                     for (int tile = 0; tile < count; tile++)
                         tiles[tile] = CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 4 + tile * 2));
-                    native.Add((destination, tiles));
+                    native.Add(new EnemyTileArtworkDraygonBg2FramesNative(destination, tiles));
                     cursor += 4 + count * 2;
                 }
             }

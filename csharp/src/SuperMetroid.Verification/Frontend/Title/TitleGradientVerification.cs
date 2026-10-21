@@ -483,7 +483,7 @@ internal static class TitleGradientVerification
     }
 
     /// <summary>Steps the installed title through Start's skip fade and captures the first visible gradient and Mode 7 zoom.</summary>
-    internal static (TitleGradientLine[] Lines, ushort Zoom) CaptureInstalledTitleGradient(
+    internal static CaptureInstalledTitleGradientResult CaptureInstalledTitleGradient(
         TitleGradientPresentation presentation,
         TitlePalettePresentation palette,
         TitleGraphicsPresentation graphics)
@@ -496,7 +496,7 @@ internal static class TitleGradientVerification
             title.Step(0);
             Mode7ObjRenderSnapshot snapshot = title.CaptureRenderSnapshot();
             if (!snapshot.Gradient.IsEmpty)
-                return (snapshot.Gradient.ToArray(), title.Mode7MatrixScale);
+                return new CaptureInstalledTitleGradientResult(snapshot.Gradient.ToArray(), title.Mode7MatrixScale);
         }
         throw new InvalidDataException("Production title rendering never reached a gradient frame.");
     }

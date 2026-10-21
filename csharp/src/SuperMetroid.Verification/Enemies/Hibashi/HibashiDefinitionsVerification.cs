@@ -130,7 +130,8 @@ internal static class HibashiDefinitionsVerification
             "Hibashi finished program disables collision actor");
         HibashiEnemyState graphicsState = programSystem.HibashiStates[0] ?? throw new InvalidOperationException("The Hibashi graphics part has no state.");
         HibashiEnemyState hitboxState = programSystem.HibashiStates[1] ?? throw new InvalidOperationException("The Hibashi hitbox part has no state.");
-        (AnimationProgramCursor<HibashiProgram> graphicsAsleep, AnimationProgramCursor<HibashiProgram> hitboxAsleep) = (graphicsState.Program, hitboxState.Program);
+        AnimationProgramCursor<HibashiProgram> graphicsAsleep = graphicsState.Program;
+        AnimationProgramCursor<HibashiProgram> hitboxAsleep = hitboxState.Program;
         EnemyInstructionRunner.Process(graphicsArguments);
         EnemyInstructionRunner.Process(hitboxArguments);
         AssertEqual(graphicsAsleep, graphicsState.Program, "Hibashi graphics program sleeps after finishing");

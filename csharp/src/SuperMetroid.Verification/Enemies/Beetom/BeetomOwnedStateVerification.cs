@@ -17,11 +17,11 @@ internal static class BeetomOwnedStateVerification
     {
         var arc = new BeetomEnemyState(new BeetomExtensionWords()) { YSpeedTableIndex = 8 };
         arc.StepRisingSpeed(4);
-        AssertEqual((4, false), (arc.YSpeedTableIndex, arc.Falling), "a rising step above the apex keeps rising");
+        AssertEqual(new VerifyBeetomOwnedStateCase(4, false), new VerifyBeetomOwnedStateCase(arc.YSpeedTableIndex, arc.Falling), "a rising step above the apex keeps rising");
         arc.StepRisingSpeed(4);
-        AssertEqual((0, false), (arc.YSpeedTableIndex, arc.Falling), "a rising step landing on zero keeps rising");
+        AssertEqual(new VerifyBeetomOwnedStateCase(0, false), new VerifyBeetomOwnedStateCase(arc.YSpeedTableIndex, arc.Falling), "a rising step landing on zero keeps rising");
         arc.StepRisingSpeed(5);
-        AssertEqual((0, true), (arc.YSpeedTableIndex, arc.Falling), "a rising step below zero restarts at zero and falls");
+        AssertEqual(new VerifyBeetomOwnedStateCase(0, true), new VerifyBeetomOwnedStateCase(arc.YSpeedTableIndex, arc.Falling), "a rising step below zero restarts at zero and falls");
         arc.YSpeedTableIndex = 61;
         arc.StepFallingSpeed(3);
         AssertEqual(64, arc.YSpeedTableIndex, "falling reaches the maximum");

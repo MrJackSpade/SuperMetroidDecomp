@@ -57,6 +57,7 @@ internal static class ParameterContractsTests
             using SuperMetroid.Core.Rooms.Doors;
             using SuperMetroid.Core.Rooms.Plms;
             using SuperMetroid.Core.Runtime;
+            using SuperMetroid.Core.World;
             class ContractCaller
             {
                 void Run(IRoomEnemyServices enemies, IChozoStatueRoomServices chozo, IMotherBrainRoomServices motherBrain,

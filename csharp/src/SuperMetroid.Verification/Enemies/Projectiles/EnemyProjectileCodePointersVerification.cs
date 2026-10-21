@@ -15,12 +15,12 @@ internal static class EnemyProjectileCodePointersVerification
     [CpuBusBoundary("exact bus test: proves every bank-$86 enemy-projectile pointer maps to readable retail cartridge ROM")]
     internal static void VerifyEnemyProjectileCodePointerCatalog()
     {
-        (string Name, ushort Pointer)[] callbacks =
+        VerifyEnemyProjectileCodePointerCatalogCase[] callbacks =
         [
             .. Enum.GetValues<EnemyProjectilePreInstruction>()
                 .Where(code => code != EnemyProjectilePreInstruction.None)
-                .Select(code => ($"pre-instruction {code}", EnemyProjectilePreInstructionAccess.Word(code))),
-            .. Enum.GetValues<NativeEnemyProjectileInstruction>().Select(code => ($"instruction {code}", (ushort)code)),
+                .Select(code => new VerifyEnemyProjectileCodePointerCatalogCase($"pre-instruction {code}", EnemyProjectilePreInstructionAccess.Word(code))),
+            .. Enum.GetValues<NativeEnemyProjectileInstruction>().Select(code => new VerifyEnemyProjectileCodePointerCatalogCase($"instruction {code}", (ushort)code)),
         ];
         AssertTrue(callbacks.Length != 0, "enemy projectile callback catalog is populated");
 

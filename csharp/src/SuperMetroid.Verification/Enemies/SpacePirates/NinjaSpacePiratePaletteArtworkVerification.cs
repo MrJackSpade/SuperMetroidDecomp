@@ -82,7 +82,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
             "Reload after stock repair retains ninja placement");
         Console.WriteLine("Ninja Pirate palette: shared gold-Pirate sheet matches native CGRAM; live edit, ROM guard, placement isolation and override persistence pass.");
 
-        static (RoomEnemySlot Slot, SnesCgram Colors, AnimationProgramCursor<NinjaSpacePirateProgram> Program) Initialize(
+        static InitializeResult Initialize(
             InstalledEnemyArtwork artwork)
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
@@ -96,7 +96,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
             slot.SetSpawnParameter2(0x0080);
             enemies.NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(slot);
-            return (slot, colors, (enemies.NinjaSpacePirateStates[0]
+            return new InitializeResult(slot, colors, (enemies.NinjaSpacePirateStates[0]
                 ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Program);
         }
     }

@@ -77,20 +77,20 @@ public sealed class StructuralCloneAnalyzer : DiagnosticAnalyzer
         {
             if (start.Compilation.AssemblyName != ComparedAssembly)
                 return;
-            var methods = new ConcurrentBag<(string Key, IMethodSymbol Method)>();
-            var records = new ConcurrentBag<(string Key, INamedTypeSymbol Record)>();
+            var methods = new ConcurrentBag<KeyedMethod>();
+            var records = new ConcurrentBag<KeyedRecord>();
             start.RegisterSyntaxNodeAction(node => CollectMethod(node, methods), SyntaxKind.MethodDeclaration);
             start.RegisterSyntaxNodeAction(node => CollectRecord(node, records), SyntaxKind.RecordDeclaration, SyntaxKind.RecordStructDeclaration);
             start.RegisterCompilationEndAction(end =>
             {
-                foreach (IGrouping<string, (string Key, IMethodSymbol Method)> group in methods.GroupBy(entry => entry.Key))
+                foreach (IGrouping<string, KeyedMethod> group in methods.GroupBy(entry => entry.Key))
                 {
                     var members = group.Select(entry => entry.Method).OrderBy(Order, StringComparer.Ordinal).ToList();
                     if (members.Select(member => member.ContainingType).Distinct(SymbolEqualityComparer.Default).Count() < 2)
                         continue;
                     Report(end, StructuralCloneRule, members.Cast<ISymbol>().ToList(), member => $"{member.ContainingType.Name}.{member.Name}");
                 }
-                foreach (IGrouping<string, (string Key, INamedTypeSymbol Record)> group in records.GroupBy(entry => entry.Key))
+                foreach (IGrouping<string, KeyedRecord> group in records.GroupBy(entry => entry.Key))
                 {
                     var members = group.Select(entry => entry.Record).OrderBy(Order, StringComparer.Ordinal).ToList();
                     if (members.Count >= 2)
@@ -101,7 +101,7 @@ public sealed class StructuralCloneAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>Records a method's normalised body when it is large enough to compare and not justified.</summary>
-    private static void CollectMethod(SyntaxNodeAnalysisContext context, ConcurrentBag<(string Key, IMethodSymbol Method)> methods)
+    private static void CollectMethod(SyntaxNodeAnalysisContext context, ConcurrentBag<KeyedMethod> methods)
     {
         var declaration = (MethodDeclarationSyntax)context.Node;
         SyntaxNode? body = (SyntaxNode?)declaration.Body ?? declaration.ExpressionBody?.Expression;
@@ -109,11 +109,11 @@ public sealed class StructuralCloneAnalyzer : DiagnosticAnalyzer
             return;
         if (context.SemanticModel.GetDeclaredSymbol(declaration, context.CancellationToken) is not { } method || IsJustified(method))
             return;
-        methods.Add((Normalised(body, method.ContainingType, context.SemanticModel, context.CancellationToken), method));
+        methods.Add(new KeyedMethod(Normalised(body, method.ContainingType, context.SemanticModel, context.CancellationToken), method));
     }
 
     /// <summary>Records a member-free positional record by its parameter names and types.</summary>
-    private static void CollectRecord(SyntaxNodeAnalysisContext context, ConcurrentBag<(string Key, INamedTypeSymbol Record)> records)
+    private static void CollectRecord(SyntaxNodeAnalysisContext context, ConcurrentBag<KeyedRecord> records)
     {
         var declaration = (RecordDeclarationSyntax)context.Node;
         if (declaration.ParameterList is not { Parameters.Count: >= MinimumRecordParameters } parameters || declaration.Members.Count != 0 ||
@@ -128,7 +128,7 @@ public sealed class StructuralCloneAnalyzer : DiagnosticAnalyzer
             key.Append(parameter.AttributeLists.ToString()).Append(type?.ToDisplayString() ?? "?").Append(' ')
                 .Append(parameter.Identifier.ValueText).Append(',');
         }
-        records.Add((key.ToString(), record));
+        records.Add(new KeyedRecord(key.ToString(), record));
     }
 
     /// <summary>

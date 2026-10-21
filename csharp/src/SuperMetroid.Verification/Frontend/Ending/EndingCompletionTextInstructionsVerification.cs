@@ -36,7 +36,7 @@ internal static class EndingCompletionTextInstructionsVerification
         int catalogIndex = 0;
         // Original OAM headers independently establish two sprites per revealed
         // letter, so packed maps grow by two header bytes plus five per sprite.
-        foreach (var line in new[] { (Start: 0xeb91, Letters: 15), (Start: 0xebd7, Letters: 21), (Start: 0xec35, Letters: 9) })
+        foreach (var line in new[] { new VerifyEndingCompletionTextInstructionsCase(Start:0xeb91, Letters:15), new VerifyEndingCompletionTextInstructionsCase(Start:0xebd7, Letters:21), new VerifyEndingCompletionTextInstructionsCase(Start:0xec35, Letters:9) })
         for (int letter = 0; letter < line.Letters; letter++)
         {
             int operand = 0x8b0000 | (line.Start + letter * 4 + 2);

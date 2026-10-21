@@ -100,9 +100,9 @@ internal static class LookupSmallGameTablesVerification
         int? tileSheetBase = null;
         foreach ((DeadTourianBehavior.DeadTourianCorpseProfile profile, DeadTourianCorpseSpecies species) in new[]
         {
-            (DeadTourianCorpseProfileDefinitions.DeadZoomerProfile, DeadTourianCorpseSpecies.Zoomer),
-            (DeadTourianCorpseProfileDefinitions.DeadRipperProfile, DeadTourianCorpseSpecies.Ripper),
-            (DeadTourianCorpseProfileDefinitions.DeadSkreeProfile, DeadTourianCorpseSpecies.Skree),
+            new VerifyDeadTourianCorpseLayoutsCase(DeadTourianCorpseProfileDefinitions.DeadZoomerProfile, DeadTourianCorpseSpecies.Zoomer),
+            new VerifyDeadTourianCorpseLayoutsCase(DeadTourianCorpseProfileDefinitions.DeadRipperProfile, DeadTourianCorpseSpecies.Ripper),
+            new VerifyDeadTourianCorpseLayoutsCase(DeadTourianCorpseProfileDefinitions.DeadSkreeProfile, DeadTourianCorpseSpecies.Skree),
         })
         {
             for (int variant = 0; variant < profile.Variants.Length; variant++)

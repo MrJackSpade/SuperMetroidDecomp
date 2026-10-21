@@ -72,7 +72,7 @@ internal static class OperationContractsVerification
             MetadataShape.ParameterTypes(typeof(RoomPaletteFxSystem), "RunPreInstruction", instance)[2],
             "palette pre-instructions take only their conditions; the power bomb stays with the step");
         AssertEqual(typeof(VerticalTerrainProbe),
-            MetadataShape.ParameterTypes(typeof(SamusBlockCollision), "ScanVerticalTerrain", shared)[2],
+            MetadataShape.ParameterTypes(typeof(SamusBlockCollision), "ScanVerticalTerrain", shared)[3],
             "the vertical terrain scan takes its probe, not the whole vertical move");
         AssertEqual(typeof(IAreaBossFlagReader),
             MetadataShape.ParameterTypes(typeof(PlmPopulationLoader), "TryRunRoomPopulationSetup", instance)[1],

@@ -348,9 +348,9 @@ solidLevel, solidCollisionSamus, SnesButton.X);
     // and queues one whole periodic-damage unit before returning carry+overflow to connect.
     foreach ((byte behavior, bool expectedConnection, bool expectedCancellation, ushort expectedDamage) in new[]
     {
-        ((byte)0x00, false, true, (ushort)0),
-        ((byte)0x03, true, false, (ushort)1),
-        ((byte)0x83, false, false, (ushort)0),
+        new VerifySamusGrappleSwingAndReleaseCase(0x00, false, true, 0),
+        new VerifySamusGrappleSwingAndReleaseCase(0x03, true, false, 1),
+        new VerifySamusGrappleSwingAndReleaseCase(0x83, false, false, 0),
     })
     {
         var spikeBlocks = new ushort[8 * 8];
@@ -384,10 +384,10 @@ spikeLevel, spikeSamus, SnesButton.X);
         // `$94:A85B` runs all four fractional probes unless a carry+overflow connection
         // is accepted. Both air type four and solid type C therefore allocate four
         // one-handler native no-op slots; only the fourth reaction decides cancellation.
-        ((ushort)0x4000, false, 4),
-        ((ushort)0x7000, false, 0),
-        ((ushort)0xc000, true, 4),
-        ((ushort)0xf000, true, 0),
+        new SamusGrappleVerifySamusGrappleSwingAndReleaseCase2(0x4000, false, 4),
+        new SamusGrappleVerifySamusGrappleSwingAndReleaseCase2(0x7000, false, 0),
+        new SamusGrappleVerifySamusGrappleSwingAndReleaseCase2(0xc000, true, 4),
+        new SamusGrappleVerifySamusGrappleSwingAndReleaseCase2(0xf000, true, 0),
     })
     {
         var endpointBlocks = new ushort[8 * 8];
@@ -823,10 +823,10 @@ firingLevel, cancelledSamus, controllerInput: 0);
     // `$18A8` does not mask the next fixture's first contact.
     foreach ((byte behavior, ushort expectedDamage) in new[]
     {
-        ((byte)0x00, (ushort)0x003c),
-        ((byte)0x01, (ushort)0x0010),
-        ((byte)0x02, (ushort)0x0000),
-        ((byte)0x80, (ushort)0x0000),
+        new SamusGrappleVerifySamusGrappleSwingAndReleaseCase(0x00, 0x003c),
+        new SamusGrappleVerifySamusGrappleSwingAndReleaseCase(0x01, 0x0010),
+        new SamusGrappleVerifySamusGrappleSwingAndReleaseCase(0x02, 0x0000),
+        new SamusGrappleVerifySamusGrappleSwingAndReleaseCase(0x80, 0x0000),
     })
     {
         var spikeBlockWords = new ushort[16 * 16];
@@ -863,9 +863,9 @@ firingLevel, cancelledSamus, controllerInput: 0);
     // proves the first sample's invincibility timer suppresses later samples in this frame.
     foreach ((byte behavior, ushort expectedDamage) in new[]
     {
-        ((byte)0x00, (ushort)0x0000),
-        ((byte)0x02, (ushort)0x0010),
-        ((byte)0x82, (ushort)0x0000),
+        new SamusGrappleVerifySamusGrappleSwingAndReleaseCase(0x00, 0x0000),
+        new SamusGrappleVerifySamusGrappleSwingAndReleaseCase(0x02, 0x0010),
+        new SamusGrappleVerifySamusGrappleSwingAndReleaseCase(0x82, 0x0000),
     })
     {
         var spikeAirWords = new ushort[16 * 16];

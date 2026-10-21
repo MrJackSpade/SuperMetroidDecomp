@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileDrawEntriesVerification;
 using SuperMetroid.Core.Assets;
@@ -442,8 +443,8 @@ tunnel, SamusPoseId.UnmorphingTransitionRightPose, nmiFrameCounter: 1),
     // detects an accidental call to a fresh-jump or grounded initializer.
     foreach ((SamusPoseId sourcePose, SamusPoseId targetPose) in new[]
     {
-        (SamusPoseId.UnmorphingTransitionRightPose, SamusPoseId.FallingAimUpRightPose),
-        (SamusPoseId.UnmorphingTransitionLeftPose, SamusPoseId.FallingAimUpLeftPose),
+        new SamusMorphBallVerifySamusMorphBallMovementCase(SamusPoseId.UnmorphingTransitionRightPose, SamusPoseId.FallingAimUpRightPose),
+        new SamusMorphBallVerifySamusMorphBallMovementCase(SamusPoseId.UnmorphingTransitionLeftPose, SamusPoseId.FallingAimUpLeftPose),
     })
     {
         var fallingUnmorph = new SamusState
@@ -541,19 +542,19 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     AssertTrue(!SamusPosturePoseTransitions.ApplySpringBallLanding(spring, controllerInput: 0),
         "Spring Ball hard impact rebounds");
     AssertEqual(SamusBallBounceState.SpringBallFirstRebound, spring.MorphBallBounceState, "Spring Ball first bounce state");
-    var springLandingAnimation = (spring.AnimationFrame, spring.AnimationFrameTimer.RawValue);
+    var springLandingAnimation = new AnimationResult(spring.AnimationFrame, spring.AnimationFrameTimer.RawValue);
     AssertTrue(!SamusPosturePoseTransitions.ApplySpringBallLanding(spring, SnesButton.A),
         "held Jump immediately relaunches Spring Ball");
     AssertEqual(SamusBallBounceState.None, spring.MorphBallBounceState, "held-Jump relaunch clears bounce state");
     AssertEqual(SamusPoseId.SpringBallFallingRightPose, spring.Pose, "held-Jump landing retains its existing airborne pose");
-    AssertEqual(springLandingAnimation, (spring.AnimationFrame, spring.AnimationFrameTimer.RawValue),
+    AssertEqual(springLandingAnimation, new AnimationResult(spring.AnimationFrame, spring.AnimationFrameTimer.RawValue),
         "held-Jump landing does not restart the rolling animation");
 
     // F1FC/F25E branch on the sign of the wrapping word subtraction speed-3.
     // Include negative Moonfall speed and the subtraction's signed-wrap boundary,
     // not just an ordinary positive landing where unsigned comparison looks equivalent.
-    foreach ((ushort impactSpeed, bool rebounds) in new (ushort, bool)[]
-        { (2, false), (3, true), (0xffff, false), (0x8002, true), (0x8003, false) })
+    foreach ((ushort impactSpeed, bool rebounds) in new SamusMorphBallVerifySamusMorphBallMovementCase2[]
+        { new SamusMorphBallVerifySamusMorphBallMovementCase2(2, false), new SamusMorphBallVerifySamusMorphBallMovementCase2(3, true), new SamusMorphBallVerifySamusMorphBallMovementCase2(0xffff, false), new SamusMorphBallVerifySamusMorphBallMovementCase2(0x8002, true), new SamusMorphBallVerifySamusMorphBallMovementCase2(0x8003, false) })
     foreach (bool springEquipped in new[] { false, true })
     {
         var impact = new SamusState
@@ -634,7 +635,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
 
     // Run to timer nine, then prove bank-$A0's three X comparisons at timer eight using
     // three independent slots/lifecycles. Distances remain inside the strict radius sum.
-    static (SamusBombProjectileSystem System, SamusState Samus) MakeDirectionFixture(
+    static MakeDirectionFixtureResult MakeDirectionFixture(
         TestAddressSpace fixtureBus,
         RoomLevelData fixtureFloor)
     {
@@ -649,14 +650,14 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         fixtureSystem.StepFrame(new SamusTerrain { Level = fixtureFloor }, fixtureSamus, SnesButton.X, SnesButton.X);
         while (fixtureSystem.Slots[0].BombTimer.RawValue > 9)
             fixtureSystem.StepFrame(new SamusTerrain { Level = fixtureFloor }, fixtureSamus, 0, 0);
-        return (fixtureSystem, fixtureSamus);
+        return new MakeDirectionFixtureResult(fixtureSystem, fixtureSamus);
     }
 
-    foreach ((ushort samusX, SamusBombJumpDirection expectedDirection, byte expectedWord) in new (ushort, SamusBombJumpDirection, byte)[]
+    foreach ((ushort samusX, SamusBombJumpDirection expectedDirection, byte expectedWord) in new SamusMorphBallVerifySamusMorphBallMovementCase3[]
     {
-        (47, SamusBombJumpDirection.Left, 1),
-        (48, SamusBombJumpDirection.Straight, 2),
-        (49, SamusBombJumpDirection.Right, 3),
+        new SamusMorphBallVerifySamusMorphBallMovementCase3(47, SamusBombJumpDirection.Left, 1),
+        new SamusMorphBallVerifySamusMorphBallMovementCase3(48, SamusBombJumpDirection.Straight, 2),
+        new SamusMorphBallVerifySamusMorphBallMovementCase3(49, SamusBombJumpDirection.Right, 3),
     })
     {
         (SamusBombProjectileSystem directionSystem, SamusState directionSamus) =
@@ -1351,8 +1352,8 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     // publish blank `$00FF`, and delete without executing DrawPLMBlock.
     foreach ((byte behavior, ushort projectileType, string familyName) in new[]
     {
-        ((byte)9, (ushort)0x0300, "power-bomb"),
-        ((byte)11, (ushort)0x0200, "Super-Missile"),
+        new VerifySamusMorphBallMovementCase(9, 0x0300, "power-bomb"),
+        new VerifySamusMorphBallMovementCase(11, 0x0200, "Super-Missile"),
     })
     {
         RoomLevelData permanentWeaponLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new byte[shotWords.Length], new ushort[shotWords.Length]), reactionDefinitions);

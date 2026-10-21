@@ -17,14 +17,14 @@ internal static class DrainedPoseHistoryVerification
             history.PreviousDirectionAndMovement = SnesLittleEndian.Word(SamusPoseMetadata.ReadPoseXDirection(samus), (byte)SamusPoseMetadata.ReadMovementType(samus));
             history.LastDifferentPose = SamusPoseId.SpinJumpRightPose;
             history.LastDifferentDirectionAndMovement = 0x0308;
-            (string Name, Action Apply)[] commands =
+            DrainedPoseHistoryCommand[] commands =
             [
-                ("fall", () => samus.Drained.LetFall(samus)),
-                ("stand", () => samus.Drained.PutStanding(samus)),
-                ("release standing", () => samus.Drained.Release(samus)),
-                ("crouch", () => samus.Drained.PutCrouchingOrFalling(samus)),
-                ("release crouching", () => samus.Drained.Release(samus)),
-                ("rainbow lock", () => samus.Drained.SetupForRainbowBeamAbleToStand(samus)),
+                new DrainedPoseHistoryCommand("fall", () => samus.Drained.LetFall(samus)),
+                new DrainedPoseHistoryCommand("stand", () => samus.Drained.PutStanding(samus)),
+                new DrainedPoseHistoryCommand("release standing", () => samus.Drained.Release(samus)),
+                new DrainedPoseHistoryCommand("crouch", () => samus.Drained.PutCrouchingOrFalling(samus)),
+                new DrainedPoseHistoryCommand("release crouching", () => samus.Drained.Release(samus)),
+                new DrainedPoseHistoryCommand("rainbow lock", () => samus.Drained.SetupForRainbowBeamAbleToStand(samus)),
             ];
             foreach (var command in commands)
             {

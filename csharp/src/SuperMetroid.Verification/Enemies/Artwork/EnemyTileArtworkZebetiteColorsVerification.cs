@@ -119,7 +119,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         File.WriteAllBytes(stockPath, stockBytes);
         Console.WriteLine("  Zebetite colors: 16 native RGB5 words, sixteen live pulse calls, full CGRAM, ROM guard, isolated edit, gates, persistence and strict failures pass.");
 
-        static (RoomEnemySystem Enemies, SnesCgram Cgram) Create(
+        static CreateResult Create(
             ISnesAddressSpace source, InstalledEnemyArtwork artwork)
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
@@ -128,7 +128,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             RoomEnemySlot primarySlot = enemies.SlotTable.Slots[0];
             var primary = new ZebetiteEnemyState(primarySlot.Spawn.Population);
             primarySlot.SetSpeciesState(primary, primary.ClearWithRecord);
-            return (enemies, cgram);
+            return new CreateResult(enemies, cgram);
         }
 
         static int Counter(RoomEnemySystem enemies) => enemies.ZebetiteBehavior.SharedPaletteCycle;

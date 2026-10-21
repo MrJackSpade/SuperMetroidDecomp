@@ -136,8 +136,8 @@ internal static class PauseMenuVerification
         EnterPauseEquipment(pause);
         AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "pause R transition reaches equipment page");
         // $82:ABAD-$ABB5 selects the reserve mode control whenever reserve capacity exists (#1266).
-        AssertEqual((PauseEquipmentCategory.Reserves, PauseReserveTransferRomData.ModeItem),
-            (pause.SelectedCategory, pause.SelectedItem), "pause entry selects the reserve mode control");
+        AssertEqual(new CursorBeforeRestore(PauseEquipmentCategory.Reserves, PauseReserveTransferRomData.ModeItem),
+            new CursorBeforeRestore(pause.SelectedCategory, pause.SelectedItem), "pause entry selects the reserve mode control");
         pause.Step(0, SnesButton.Right);
         AssertEqual(PauseEquipmentCategory.Suits, pause.SelectedCategory, "pause Right moves to suits/misc category");
         AssertEqual(2, pause.SelectedItem, "pause Right selects first collected Morph Ball item");

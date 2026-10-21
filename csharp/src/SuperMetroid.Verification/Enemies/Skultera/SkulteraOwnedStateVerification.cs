@@ -29,7 +29,7 @@ internal static class SkulteraOwnedStateVerification
         SnesSignedSixteenSixteen left = EnemyLinearSpeedDefinitions.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize + 4);
         AssertEqual(right, state.RightVelocity, "rightward speed");
         AssertEqual(left, state.LeftVelocity, "leftward speed");
-        AssertEqual((20, 10), (state.Radius, state.AngleDelta), "radius and angle step come from parameter two");
+        AssertEqual(new VerifySkulteraOwnedStateCase(20, 10), new VerifySkulteraOwnedStateCase(state.Radius, state.AngleDelta), "radius and angle step come from parameter two");
 
         state.Angle = SnesAngle.FromTableIndex(250);
         state.AdvanceAngle();

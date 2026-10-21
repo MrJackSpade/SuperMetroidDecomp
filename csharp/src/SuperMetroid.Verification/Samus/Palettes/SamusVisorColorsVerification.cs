@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Samus.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
 using System.Text;
 using System.Text.Json;
@@ -104,7 +105,7 @@ internal static class SamusVisorColorsVerification
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusVisorColorFormat.SourceAddress + sourceOffset), installedCgram.Colors[196],
                     $"room visor frame {frame} matches native color word");
             AssertEqual(expectedWrite, actualWrite, $"room visor frame {frame} action");
-            AssertEqual((native.Timer, native.PaletteByteOffset), (installed.Timer, installed.PaletteByteOffset),
+            AssertEqual(new VerifySamusVisorPaletteCase(native.Timer, native.PaletteByteOffset), new VerifySamusVisorPaletteCase(installed.Timer, installed.PaletteByteOffset),
                 $"room visor frame {frame} timer and index");
             AssertEqual(nativeCgram.Colors[196], installedCgram.Colors[196],
                 $"room visor frame {frame} CGRAM");

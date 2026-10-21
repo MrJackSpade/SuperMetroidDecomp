@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Corpses;
 
 namespace SuperMetroid.Verification.Enemies.Corpses;
@@ -12,9 +13,9 @@ internal static class DeadTorizoNativeListAddresses
     internal const byte Bank = 0xa9;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (DeadTorizoProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<DeadTorizoProgram>[] Entries =
     [
-        (DeadTorizoProgram.Stationary, 0xd6dc),
+        new NativeProgramEntry<DeadTorizoProgram>(DeadTorizoProgram.Stationary, 0xd6dc),
     ];
 
 }

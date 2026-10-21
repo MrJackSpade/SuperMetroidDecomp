@@ -22,11 +22,11 @@ internal static class IntroMotherBrainDefinitionsVerification
 
         // Native six-byte definition records `$8B:CE55`, `$8B:CF15`, and `$8B:CF1B`; the
         // initial instruction list is the record's third word.
-        (ushort Pointer, IntroMotherBrainActorDefinition Definition)[] actors =
+        IntroMotherBrainDefinitionsActor[] actors =
         [
-            (0xce55, IntroMotherBrainDefinitions.MotherBrain),
-            (0xcf15, IntroMotherBrainDefinitions.BigExplosionActor),
-            (0xcf1b, IntroMotherBrainDefinitions.SmallExplosionActor),
+            new IntroMotherBrainDefinitionsActor(0xce55, IntroMotherBrainDefinitions.MotherBrain),
+            new IntroMotherBrainDefinitionsActor(0xcf15, IntroMotherBrainDefinitions.BigExplosionActor),
+            new IntroMotherBrainDefinitionsActor(0xcf1b, IntroMotherBrainDefinitions.SmallExplosionActor),
         ];
         for (int index = 0; index < actors.Length; index++)
         {

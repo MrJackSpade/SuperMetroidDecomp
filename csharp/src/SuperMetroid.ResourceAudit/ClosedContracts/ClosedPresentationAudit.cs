@@ -23,7 +23,7 @@ namespace SuperMetroid.ResourceAudit.ClosedContracts;
 internal sealed class ClosedPresentationAudit
 {
     /// <summary>Reviewed provider methods and whether their source and loader invariants still hold.</summary>
-    private readonly Dictionary<(string Type, string Method), (ClosedPresentationContract Contract, bool Valid)> contracts = [];
+    private readonly Dictionary<PresentationMethod, ContractValidity> contracts = [];
     /// <summary>Consumer calls classified against a valid closed presentation contract.</summary>
     private int references;
     /// <summary>Contracts whose reviewed proof no longer holds, named in failure diagnostics.</summary>
@@ -114,7 +114,7 @@ internal sealed class ClosedPresentationAudit
                             IMethodSymbol { Name: "FromPlacement" } factory &&
                                 factory.ContainingType.ToDisplayString() == typeof(SamusArmCannonArtworkCatalog).FullName));
             foreach (string method in contract.Methods)
-                contracts.Add((contract.Type, method), (contract, valid));
+                contracts.Add(new PresentationMethod(contract.Type, method), new ContractValidity(contract, valid));
             if (!valid)
                 invalidContracts.Add(contract.Type);
             if (valid)
@@ -130,8 +130,8 @@ internal sealed class ClosedPresentationAudit
         // A call through a reviewed narrow interface (for example IGameplayPresentationContent) is classified by
         // that receiver's contract, even when the invoked member is inherited from a broader base interface.
         INamedTypeSymbol provider = Receiver(call, semantic) is { } receiver &&
-            contracts.ContainsKey((receiver.ToDisplayString(), method.Name)) ? receiver : method.ContainingType;
-        if (!contracts.TryGetValue((provider.ToDisplayString(), method.Name), out var reviewed)) return false;
+            contracts.ContainsKey(new PresentationMethod(receiver.ToDisplayString(), method.Name)) ? receiver : method.ContainingType;
+        if (!contracts.TryGetValue(new PresentationMethod(provider.ToDisplayString(), method.Name), out var reviewed)) return false;
         ClosedPresentationContract contract = reviewed.Contract;
         string owner = provider.Name + "." + method.Name;
         // Record why a recognized provider call cannot be classified under its closed contract.
@@ -178,18 +178,18 @@ internal sealed class ClosedPresentationAudit
     /// Literal selections in an invocation: each constant argument under its parameter name, and each constant
     /// constructor argument of a constructed value (a coordinate) as <c>parameter.Component</c>.
     /// </summary>
-    private static IEnumerable<(string Parameter, object Value)> ConstantSelections(IInvocationOperation operation)
+    private static IEnumerable<ConstantSelection> ConstantSelections(IInvocationOperation operation)
     {
         foreach (IArgumentOperation argument in operation.Arguments)
         {
             string parameter = (argument.Parameter ?? throw new InvalidOperationException("Verification requires argument.Parameter.")).Name;
             IOperation value = argument.Value is IConversionOperation conversion ? conversion.Operand : argument.Value;
             if (argument.Value.ConstantValue is { HasValue: true, Value: not null } constant)
-                yield return (parameter, constant.Value);
+                yield return new ConstantSelection(parameter, constant.Value);
             else if (value is IObjectCreationOperation creation)
                 foreach (IArgumentOperation component in creation.Arguments)
                     if (component.Value.ConstantValue is { HasValue: true, Value: not null } part)
-                        yield return (parameter + "." + (component.Parameter ?? throw new InvalidOperationException(
+                        yield return new ConstantSelection(parameter + "." + (component.Parameter ?? throw new InvalidOperationException(
                             "Verification requires component.Parameter.")).Name, part.Value);
         }
     }
@@ -199,7 +199,7 @@ internal sealed class ClosedPresentationAudit
     {
         foreach ((string parameter, object constantValue) in ConstantSelections(operation))
         {
-            var owner = (Type: provider, Method: operation.TargetMethod.Name, Parameter: parameter);
+            var owner = new PresentationParameter(Type:provider, Method:operation.TargetMethod.Name, Parameter:parameter);
             int[]? identities = ClosedPresentationIdentityDefinitions.Get(owner.Type, owner.Method, owner.Parameter);
             ProviderIndexDomain? range = ClosedPresentationIndexDefinitions.Get(owner.Type, owner.Method, owner.Parameter);
             if (identities is null && range is null) continue;

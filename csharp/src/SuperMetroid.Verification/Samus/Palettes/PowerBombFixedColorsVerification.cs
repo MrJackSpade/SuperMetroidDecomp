@@ -38,7 +38,9 @@ internal static class PowerBombFixedColorsVerification
                 int address = PowerBombFixedColorFormat.SourceAddress(sequence) +
                     index * SamusPaletteRomData.PowerBomb.BytesPerColor;
                 Bgr555 color = catalog.Resolve(sequence, index);
-                (byte red, byte green, byte blue) = ((byte)color.Red, (byte)color.Green, (byte)color.Blue);
+                byte red = (byte)color.Red;
+                byte green = (byte)color.Green;
+                byte blue = (byte)color.Blue;
                 AssertEqual((byte)(rom.ReadCartridgeByte(address) & SamusPaletteRomData.PowerBomb.ComponentMask),
                     red, $"{sequence} native red {index}");
                 AssertEqual((byte)(rom.ReadCartridgeByte(address + 1) & SamusPaletteRomData.PowerBomb.ComponentMask),

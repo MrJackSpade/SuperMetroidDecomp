@@ -134,17 +134,17 @@ internal static class PlatformInstructionProgramDefinitionsVerification
     private static void VerifyPlatformExportIdentities(SuperMetroidAddressSpace rom)
     {
         // Independent published export order and names; addresses are the native map labels.
-        (ushort Pointer, string Name)[] expected =
+        PlatformInstructionProgramDefinitionsExpected[] expected =
         [
-            (0x9f29, "tripper_moving_left_0"), (0x9f3a, "tripper_moving_left_1"),
-            (0x9f4b, "tripper_moving_left_2"), (0x9f5c, "tripper_moving_right_0"),
-            (0x9f6d, "tripper_moving_right_1"), (0x9f7e, "tripper_moving_right_2"),
-            (0x9f8f, "tripper_still_moving_left_0"), (0x9fa5, "tripper_still_moving_left_1"),
-            (0x9fb6, "tripper_still_moving_left_2"), (0x9fcc, "tripper_still_moving_right_0"),
-            (0x9fe2, "tripper_still_moving_right_1"), (0x9ff3, "tripper_still_moving_right_2"),
-            (0xa009, "tripper_frozen_moving_left"), (0xa015, "tripper_frozen_moving_right"),
-            (0xa021, "tripper_kamer_platform_0"), (0xa02d, "tripper_kamer_platform_1"),
-            (0xa039, "tripper_kamer_platform_2"), (0xa045, "tripper_kamer_platform_3"),
+            new PlatformInstructionProgramDefinitionsExpected(0x9f29, "tripper_moving_left_0"), new PlatformInstructionProgramDefinitionsExpected(0x9f3a, "tripper_moving_left_1"),
+            new PlatformInstructionProgramDefinitionsExpected(0x9f4b, "tripper_moving_left_2"), new PlatformInstructionProgramDefinitionsExpected(0x9f5c, "tripper_moving_right_0"),
+            new PlatformInstructionProgramDefinitionsExpected(0x9f6d, "tripper_moving_right_1"), new PlatformInstructionProgramDefinitionsExpected(0x9f7e, "tripper_moving_right_2"),
+            new PlatformInstructionProgramDefinitionsExpected(0x9f8f, "tripper_still_moving_left_0"), new PlatformInstructionProgramDefinitionsExpected(0x9fa5, "tripper_still_moving_left_1"),
+            new PlatformInstructionProgramDefinitionsExpected(0x9fb6, "tripper_still_moving_left_2"), new PlatformInstructionProgramDefinitionsExpected(0x9fcc, "tripper_still_moving_right_0"),
+            new PlatformInstructionProgramDefinitionsExpected(0x9fe2, "tripper_still_moving_right_1"), new PlatformInstructionProgramDefinitionsExpected(0x9ff3, "tripper_still_moving_right_2"),
+            new PlatformInstructionProgramDefinitionsExpected(0xa009, "tripper_frozen_moving_left"), new PlatformInstructionProgramDefinitionsExpected(0xa015, "tripper_frozen_moving_right"),
+            new PlatformInstructionProgramDefinitionsExpected(0xa021, "tripper_kamer_platform_0"), new PlatformInstructionProgramDefinitionsExpected(0xa02d, "tripper_kamer_platform_1"),
+            new PlatformInstructionProgramDefinitionsExpected(0xa039, "tripper_kamer_platform_2"), new PlatformInstructionProgramDefinitionsExpected(0xa045, "tripper_kamer_platform_3"),
         ];
         EnemySpritemapDefinition[] actual = TripperKamerVisualDefinitions.Frames();
         AssertEqual(expected.Length, actual.Length, "platform export frame count");

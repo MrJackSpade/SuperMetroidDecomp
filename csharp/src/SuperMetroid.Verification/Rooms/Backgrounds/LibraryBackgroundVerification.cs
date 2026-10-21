@@ -63,7 +63,7 @@ internal static void VerifyLibraryBackgroundSourceInventory()
         $"{romTransfers.Length} direct ROM transfers, " +
         $"{workRamTransfers.Length} work-RAM transfers.");
     foreach (LibraryBackgroundSource transfer in romTransfers
-        .DistinctBy(source => (source.SourceAddress, source.TransferByteCount, source.VramDestination)))
+        .DistinctBy(source => new VerifyLibraryBackgroundSourceInventoryCase(source.SourceAddress, source.TransferByteCount, source.VramDestination)))
         Console.WriteLine($"    ROM ${transfer.SourceAddress:X6}: {transfer.TransferByteCount} bytes to " +
             $"VRAM ${transfer.VramDestination:X4} via {transfer.Command}");
 }

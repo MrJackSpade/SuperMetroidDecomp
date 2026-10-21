@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Kraid;
 
 namespace SuperMetroid.Verification.Bosses.Kraid;
@@ -13,27 +14,27 @@ internal static class FakeKraidNativeListAddresses
     internal const byte Bank = 0xa6;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (FakeKraidProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<FakeKraidProgram>[] Entries =
     [
-        (FakeKraidProgram.ChooseActionFacingLeft, 0x99ac),
-        (FakeKraidProgram.StepForwardsFacingLeft, 0x99ae),
-        (FakeKraidProgram.ChooseAlternateActionFacingLeft, 0x99c4),
-        (FakeKraidProgram.StepBackwardsFacingLeft, 0x99c6),
-        (FakeKraidProgram.FireSpitFacingLeft, 0x99dc),
-        (FakeKraidProgram.ChooseActionFacingRight, 0x99fa),
-        (FakeKraidProgram.StepForwardsFacingRight, 0x99fc),
-        (FakeKraidProgram.ChooseAlternateActionFacingRight, 0x9a12),
-        (FakeKraidProgram.StepBackwardsFacingRight, 0x9a14),
-        (FakeKraidProgram.FireSpitFacingRight, 0x9a2a),
+        new NativeProgramEntry<FakeKraidProgram>(FakeKraidProgram.ChooseActionFacingLeft, 0x99ac),
+        new NativeProgramEntry<FakeKraidProgram>(FakeKraidProgram.StepForwardsFacingLeft, 0x99ae),
+        new NativeProgramEntry<FakeKraidProgram>(FakeKraidProgram.ChooseAlternateActionFacingLeft, 0x99c4),
+        new NativeProgramEntry<FakeKraidProgram>(FakeKraidProgram.StepBackwardsFacingLeft, 0x99c6),
+        new NativeProgramEntry<FakeKraidProgram>(FakeKraidProgram.FireSpitFacingLeft, 0x99dc),
+        new NativeProgramEntry<FakeKraidProgram>(FakeKraidProgram.ChooseActionFacingRight, 0x99fa),
+        new NativeProgramEntry<FakeKraidProgram>(FakeKraidProgram.StepForwardsFacingRight, 0x99fc),
+        new NativeProgramEntry<FakeKraidProgram>(FakeKraidProgram.ChooseAlternateActionFacingRight, 0x9a12),
+        new NativeProgramEntry<FakeKraidProgram>(FakeKraidProgram.StepBackwardsFacingRight, 0x9a14),
+        new NativeProgramEntry<FakeKraidProgram>(FakeKraidProgram.FireSpitFacingRight, 0x9a2a),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (FakeKraidCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, FakeKraidNativeListAddressesInstruction> Instructions = new()
     {
-        [0x9b26] = (FakeKraidCueKind.Move, ""),
-        [0x9b74] = (FakeKraidCueKind.ChooseAction, ""),
-        [0x9bb2] = (FakeKraidCueKind.PlayCrySound, ""),
-        [0x9bc4] = (FakeKraidCueKind.SpitLeft, ""),
-        [0x9c02] = (FakeKraidCueKind.SpitRight, ""),
+        [0x9b26] = new FakeKraidNativeListAddressesInstruction(FakeKraidCueKind.Move, ""),
+        [0x9b74] = new FakeKraidNativeListAddressesInstruction(FakeKraidCueKind.ChooseAction, ""),
+        [0x9bb2] = new FakeKraidNativeListAddressesInstruction(FakeKraidCueKind.PlayCrySound, ""),
+        [0x9bc4] = new FakeKraidNativeListAddressesInstruction(FakeKraidCueKind.SpitLeft, ""),
+        [0x9c02] = new FakeKraidNativeListAddressesInstruction(FakeKraidCueKind.SpitRight, ""),
     };
 }

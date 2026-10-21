@@ -31,8 +31,10 @@ internal static class RoomPlmInstructionListCatalogVerification
         AssertTrue(fields.Length > 0, "PLM instruction-list catalog is populated");
         AssertEqual(fields.Length, pointers.Distinct().Count(),
             "PLM instruction-list catalog has no duplicate native pointers");
-        foreach ((FieldInfo field, ushort pointer) in fields.Zip(pointers))
+        for (int entry = 0; entry < fields.Length; entry++)
         {
+            FieldInfo field = fields[entry];
+            ushort pointer = pointers[entry];
             AssertTrue(pointer >= 0x8000,
                 $"PLM instruction list {field.Name} uses readable bank-$84 space");
         }
@@ -46,8 +48,10 @@ internal static class RoomPlmInstructionListCatalogVerification
         }
 
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        foreach ((FieldInfo field, ushort pointer) in fields.Zip(pointers))
+        for (int entry = 0; entry < fields.Length; entry++)
         {
+            FieldInfo field = fields[entry];
+            ushort pointer = pointers[entry];
             // Read a complete first word. We intentionally do not interpret it here: an
             // instruction-list entry can begin with either a positive timer or any native
             // opcode, including routines outside the currently translated execution slice.

@@ -13,7 +13,7 @@ internal static class LookupEscapeGateStockVerification
     internal static void VerifyEscapeGateStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmEscapeGateVisualCatalog installed)
     {
-        (ushort Pointer, string Id)[] frames = [(0x9473,"open"),(0x947f,"half-closed"),(0x948b,"closed")];
+        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9473,"open"),new LookupEscapeGateStockFrame(0x947f,"half-closed"),new LookupEscapeGateStockFrame(0x948b,"closed")];
         var native = new Dictionary<ushort, ushort[]>();
         foreach (var frame in frames)
         {

@@ -62,11 +62,11 @@ internal static class BossDisplayBindingsDocumentsVerification
         /// <summary>Locates authored BG2 writes by bank and native frame pointer.</summary>
         internal EnemyBg2WriteDocument[] Writes(byte bank, ushort pointer)
         {
-            (EnemyBg2FrameDocument Document, SpritemapFrameDefinition[] Definitions) family = bank switch
+            WritesCase family = bank switch
             {
-                CrocomireBg2FrameDefinitions.Bank => (Crocomire, CrocomireBg2FrameDefinitions.Frames.ToArray()),
-                PhantoonBg2FrameDefinitions.Bank => (Phantoon, PhantoonBg2FrameDefinitions.Frames.ToArray()),
-                DraygonBg2FrameDefinitions.Bank => (Draygon, DraygonBg2FrameDefinitions.Frames.ToArray()),
+                CrocomireBg2FrameDefinitions.Bank => new WritesCase(Crocomire, CrocomireBg2FrameDefinitions.Frames.ToArray()),
+                PhantoonBg2FrameDefinitions.Bank => new WritesCase(Phantoon, PhantoonBg2FrameDefinitions.Frames.ToArray()),
+                DraygonBg2FrameDefinitions.Bank => new WritesCase(Draygon, DraygonBg2FrameDefinitions.Frames.ToArray()),
                 _ => throw new InvalidDataException("Unknown fixture family."),
             };
             foreach (SpritemapFrameDefinition frame in family.Definitions)
@@ -75,14 +75,14 @@ internal static class BossDisplayBindingsDocumentsVerification
         }
 
         /// <summary>Groups Crocomire, Phantoon, and Draygon frames by their native enemy family.</summary>
-        internal static IEnumerable<(EnemyDefinitionId Definition, EnemySpritemapDefinition[] Frames)> Families()
+        internal static IEnumerable<FamiliesResult> Families()
         {
             EnemySpritemapDefinition[] all = EnemyExtendedFrameDefinitions.Frames.ToArray();
-            yield return (EnemyDefinitionId.Crocomire, all.Where(frame =>
+            yield return new FamiliesResult(EnemyDefinitionId.Crocomire, all.Where(frame =>
                 frame.Bank == CrocomireBodyVisualDefinitions.Bank && frame.Name.StartsWith("crocomire_body_oam_", StringComparison.Ordinal)).ToArray());
-            yield return (EnemyDefinitionId.PhantoonBody, all.Where(frame =>
+            yield return new FamiliesResult(EnemyDefinitionId.PhantoonBody, all.Where(frame =>
                 frame.Bank == PhantoonBg2FrameDefinitions.Bank && PhantoonBg2FrameDefinitions.IsFrame(frame.Pointer)).ToArray());
-            yield return (EnemyDefinitionId.DraygonBody, all.Where(frame => frame.Bank == DraygonBg2FrameDefinitions.Bank &&
+            yield return new FamiliesResult(EnemyDefinitionId.DraygonBody, all.Where(frame => frame.Bank == DraygonBg2FrameDefinitions.Bank &&
                 (frame.Name.StartsWith("draygon_oam_", StringComparison.Ordinal) || frame.Name.StartsWith("draygon_bg2_", StringComparison.Ordinal))).ToArray());
         }
 

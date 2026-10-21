@@ -8,7 +8,7 @@ namespace SuperMetroid.Verification.Fx;
 internal static class LookupAnimatedFramesVerification
 {
     /// <summary>Enumerates each retail timed-frame span up to its terminal control instruction.</summary>
-    internal static IEnumerable<(ushort Object, ushort First, ushort End)> OriginalSimpleAnimationLoops(SuperMetroidAddressSpace rom)
+    internal static IEnumerable<OriginalSimpleAnimationLoopsResult> OriginalSimpleAnimationLoops(SuperMetroidAddressSpace rom)
     {
         foreach (ushort header in new ushort[] { 0x8257, 0x8287, 0x828d, 0x82ab, 0x82c9, 0x82e7, 0x82fd })
         {
@@ -20,7 +20,7 @@ internal static class LookupAnimatedFramesVerification
                 AssertTrue(++count <= 256, "Original animation has bounded timed sequence");
                 cursor = unchecked((ushort)(cursor + 4));
             }
-            yield return (header, first, cursor);
+            yield return new OriginalSimpleAnimationLoopsResult(header, first, cursor);
         }
     }
 

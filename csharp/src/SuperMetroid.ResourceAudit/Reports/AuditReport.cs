@@ -15,7 +15,7 @@ internal sealed class AuditReport
     public int MissingCount => Findings.Count(item => item.Code == Missing);
     /// <summary>Number of distinct missing resources by domain and identity.</summary>
     public int MissingResourceCount => Findings.Where(item => item.Code == Missing)
-        .Select(item => (item.Domain, item.Resource)).Distinct().Count();
+        .Select(item => new DomainResource(item.Domain, item.Resource)).Distinct().Count();
     /// <summary>Number of findings left unresolved by the static audit.</summary>
     public int UnresolvedCount => Findings.Count(item => item.Code != Missing);
     /// <summary>Per-domain reference and export totals.</summary>

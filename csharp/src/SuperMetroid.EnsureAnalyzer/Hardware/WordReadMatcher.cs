@@ -223,11 +223,11 @@ public static class WordReadMatcher
     private static BankOffset? BankRelative(ExpressionSyntax address, SemanticModel model)
     {
         address = StripParentheses(address);
-        (ExpressionSyntax Bank, ExpressionSyntax Offset)? parts = address switch
+        BankOffsetParts? parts = address switch
         {
-            BinaryExpressionSyntax { RawKind: (int)SyntaxKind.BitwiseOrExpression } or => (StripParentheses(or.Left), StripParentheses(or.Right)),
+            BinaryExpressionSyntax { RawKind: (int)SyntaxKind.BitwiseOrExpression } or => new BankOffsetParts(StripParentheses(or.Left), StripParentheses(or.Right)),
             InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax { Name.Identifier.ValueText: "At" }, ArgumentList.Arguments.Count: 2 } at =>
-                (at.ArgumentList.Arguments[0].Expression, StripParentheses(at.ArgumentList.Arguments[1].Expression)),
+                new BankOffsetParts(at.ArgumentList.Arguments[0].Expression, StripParentheses(at.ArgumentList.Arguments[1].Expression)),
             _ => null,
         };
         if (parts is not { } found)
@@ -240,7 +240,7 @@ public static class WordReadMatcher
         Normalize(from, model) is { } a && Normalize(to, model) is { } b && a.Terms == b.Terms ? b.Constant - a.Constant : null;
 
     /// <summary>Sorts symbolic terms and folds integral constants so equivalent address sums compare equal.</summary>
-    private static (string Terms, long Constant)? Normalize(ExpressionSyntax expression, SemanticModel model)
+    private static NormalizedAddress? Normalize(ExpressionSyntax expression, SemanticModel model)
     {
         var terms = new List<string>();
         long constant = 0;
@@ -268,7 +268,7 @@ public static class WordReadMatcher
         }
         Add(expression, 1);
         terms.Sort(StringComparer.Ordinal);
-        return (string.Join(" ", terms), constant);
+        return new NormalizedAddress(string.Join(" ", terms), constant);
     }
 
     /// <summary>Limits constant folding to integer address components.</summary>

@@ -52,11 +52,11 @@ public sealed class ManagedPcmSampleBank
     /// source can still be selected while a different voice sample reaches END/LOOP;
     /// its native loop address can point to the start of another canonical sample.
     /// </summary>
-    public (ManagedPcmSample Sample, int Cursor) ResolveLoopEntry(int sourceNumber)
+    public PcmLoopEntry ResolveLoopEntry(int sourceNumber)
     {
         if (loopEntrySources.TryGetValue(sourceNumber, out int target))
-            return (Resolve(target), 0);
+            return new PcmLoopEntry(Resolve(target), 0);
         ManagedPcmSample sample = Resolve(sourceNumber);
-        return (sample, sample.LoopSampleIndex ?? 0);
+        return new PcmLoopEntry(sample, sample.LoopSampleIndex ?? 0);
     }
 }

@@ -52,7 +52,7 @@ internal static class CinematicSpriteAnimationsVerification
         AssertEqual(Enum.GetValues<CinematicSpriteProgram>().Length, Entries.Length, "every cinematic sprite program has a native entry");
         for (int index = 0; index < Entries.Length; index++)
             AssertEqual(Enum.GetValues<CinematicSpriteProgram>()[index], Entries[index].Program, "the cinematic sprite programs are declared in authored order");
-        AssertTrue(Entries.Zip(Entries.Skip(1)).All(pair => pair.First.Entry < pair.Second.Entry), "native cinematic sprite entries ascend");
+        AssertTrue(Entries.Zip(Entries.Skip(1), (first, second) => first.Entry < second.Entry).All(ascends => ascends), "native cinematic sprite entries ascend");
 
         int steps = 0, updates = 0;
         foreach ((CinematicSpriteProgram program, ushort entry) in Entries)

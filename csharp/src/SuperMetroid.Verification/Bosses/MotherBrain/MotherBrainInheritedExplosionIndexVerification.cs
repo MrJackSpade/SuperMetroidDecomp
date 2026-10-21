@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -33,9 +34,9 @@ internal static class MotherBrainInheritedExplosionIndexVerification
         sequence.ThirdPhaseDeath.GenerateDeathExplosions(MotherBrainDeathExplosionStyle.Smoky, () => 0, requests);
         AssertEqual(2, requests.Count, "a smoky burst spawns two explosions");
         AssertEqual((ushort)1, sequence.ThirdPhaseDeath.DeathAndEscapeExplosionIndex.RawValue, "the first burst decrements to row 1");
-        AssertEqual(((short)0x0011, unchecked((short)0xffc9)), (requests[0].Offset.X, requests[0].Offset.Y),
+        AssertEqual(new OctantVector(0x0011, unchecked((short)0xffc9)), new OctantVector(requests[0].Offset.X, requests[0].Offset.Y),
             "row 1's first offset pair");
-        AssertEqual(((short)0x001e, unchecked((short)0xffea)), (requests[1].Offset.X, requests[1].Offset.Y),
+        AssertEqual(new OctantVector(0x001e, unchecked((short)0xffea)), new OctantVector(requests[1].Offset.X, requests[1].Offset.Y),
             "row 1's second offset pair");
         Console.WriteLine("Mother Brain inherited explosion index: the death explosions continue word $0FF2.");
     }

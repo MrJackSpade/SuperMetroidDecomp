@@ -137,7 +137,7 @@ internal static class HyperBeamFxColorArtworkVerification
         }
         foreach (int invalidInk in new[] { int.MinValue, -1, 0, 1, 2, 3, 8, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => HyperBeamFxColorFormat.RedHighlight(new Bgr555(0, 0, 0), new Bgr555(0, 0, 0), invalidInk), "Highlight ink bounds");
-        foreach (var shade in new[] { (Frame: 0, Ink: 2), (Frame: 4, Ink: 5), (Frame: 8, Ink: 2), (Frame: 8, Ink: 5) })
+        foreach (var shade in new[] { new VerifyHyperBeamFxColorArtworkCase(Frame:0, Ink:2), new VerifyHyperBeamFxColorArtworkCase(Frame:4, Ink:5), new VerifyHyperBeamFxColorArtworkCase(Frame:8, Ink:2), new VerifyHyperBeamFxColorArtworkCase(Frame:8, Ink:5) })
             AssertEqual(ReadVerificationWord(bus, 0x8dd906 + 20 * shade.Frame + 2 * shade.Ink),
                 SamusHyperBeamColorFormat.HueMidpoint(
                     Bgr555.FromWord(checked(ReadVerificationWord(bus, 0x8dd906 + 20 * shade.Frame + 2 * (shade.Ink - 1)))),

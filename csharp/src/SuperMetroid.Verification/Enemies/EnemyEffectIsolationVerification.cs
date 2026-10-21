@@ -126,8 +126,10 @@ internal static class EnemyEffectIsolationVerification
                         (!expected.StillRotting && index == MotherBrainCorpseRottingState.EntryCount - 1)))
                 .ToArray();
             AssertEqual(finishedRows.Length, expected.DustRequests.Count, "one dust request per completed corpse row");
-            foreach ((MotherBrainCorpseDustRequest dust, int index) in expected.DustRequests.Zip(finishedRows))
+            for (int request = 0; request < finishedRows.Length; request++)
             {
+                MotherBrainCorpseDustRequest dust = expected.DustRequests[request];
+                int index = finishedRows[request];
                 AssertEqual(2 * index + Math.Max(1, (index + 1) / 2), call, "exact per-row completion call");
                 AssertEqual(unchecked((ushort)(100 + (seed & 31) - 16)), dust.Position.X, "native dust X and sampled RNG");
                 AssertEqual((ushort)136, dust.Position.Y, "native dust Y");

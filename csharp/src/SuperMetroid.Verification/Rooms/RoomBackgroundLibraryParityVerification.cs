@@ -138,8 +138,8 @@ internal static class RoomBackgroundLibraryParityVerification
 
         foreach ((int sourceAddress, ushort byteCount) in new[]
         {
-            (RoomSkyTilemapFormat.FirstSourceAddress, (ushort)2),
-            (0x8a8000, (ushort)2),
+            new VerifyInstalledBackgroundTransferFailuresCase(RoomSkyTilemapFormat.FirstSourceAddress, 2),
+            new VerifyInstalledBackgroundTransferFailuresCase(0x8a8000, 2),
         })
         {
             TestAddressSpace bus = CreateSingleTransferBackgroundCartridge(listPointer, sourceAddress, byteCount);

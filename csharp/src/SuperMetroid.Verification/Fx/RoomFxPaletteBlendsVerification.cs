@@ -195,7 +195,7 @@ internal static class RoomFxPaletteBlendsVerification
 
     /// <summary>Loads a selected compiled FX record into CGRAM through a bus that forbids bank-$89 reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static (RoomLayer3FxState State, CartridgeReadGuard Bus, SnesCgram Cgram)
+    private static ConstructBlendLoadResult
         ConstructBlendLoad(RoomFxPaletteBlendCatalog catalog,
             RoomFxLayer3TilemapCatalog tilemaps, byte selection)
     {
@@ -211,7 +211,7 @@ internal static class RoomFxPaletteBlendsVerification
             Layer3Tilemaps = tilemaps,
         };
         var state = RoomLayer3FxState.ForDefinition(stateSession, cgram, record, randomNumber: 0);
-        return (state, bus, cgram);
+        return new ConstructBlendLoadResult(state, bus, cgram);
     }
 
     /// <summary>Finds the compiled default FX record whose palette selector matches the requested blend.</summary>

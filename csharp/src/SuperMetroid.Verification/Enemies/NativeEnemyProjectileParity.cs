@@ -16,7 +16,7 @@ internal static class NativeEnemyProjectileParity
     /// Compares <paramref name="projectile"/> with the native list at <paramref name="entry"/> for up to
     /// <paramref name="updates"/> updates or until the list deletes it; returns whether it did and the updates compared.
     /// </summary>
-    internal static (bool Deleted, int Updates) Compare(IImportCartridgeSource cartridge, RoomEnemySystem enemies,
+    internal static CompareResult Compare(IImportCartridgeSource cartridge, RoomEnemySystem enemies,
         RoomEnemyProjectileSlot projectile, ushort entry, int updates, string label)
     {
         var native = new NativeEnemyProjectileListDefinitions.Reader(entry, projectile.InstructionTimer.RawValue);
@@ -28,7 +28,7 @@ internal static class NativeEnemyProjectileParity
             string at = $"{label} update {update}";
             AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");
             if (native.Deleted)
-                return (true, update + 1);
+                return new CompareResult(true, update + 1);
             AssertEqual(native.Timer, projectile.InstructionTimer.RawValue, $"{at}: timer");
             AssertEqual(native.Operand, projectile.PresentationOperandAddress, $"{at}: frame");
             if (native.PreInstructionCleared)
@@ -36,6 +36,6 @@ internal static class NativeEnemyProjectileParity
             else if (native.PreInstruction is { } installed)
                 AssertEqual(installed, projectile.PreInstructionWord, $"{at}: installed pre-instruction");
         }
-        return (false, update);
+        return new CompareResult(false, update);
     }
 }

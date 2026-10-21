@@ -50,16 +50,16 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
         foreach ((bool movingRight, ushort program, ushort loop,
                   EnemyProjectilePreInstruction movement, ushort expectedX) in new[]
                  {
-                     (false,
+                     new VerifySpacePirateProjectileInstructionProgramDefinitionsCase(false,
                          SpacePirateProjectileInstructionProgramDefinitions.LaserLeft,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.LaserLeftLoop,
                          EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Left,
-                         (ushort)124),
-                     (true,
+                         124),
+                     new VerifySpacePirateProjectileInstructionProgramDefinitionsCase(true,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.LaserRight,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.LaserRightLoop,
                          EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Right,
-                         (ushort)132),
+                         132),
                  })
         {
             RoomEnemySystem enemies = NewSystem();
@@ -86,11 +86,11 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
 
         foreach ((ushort direction, ushort program, ushort loop, EnemyProjectilePreInstruction movement) in new[]
                  {
-                     ((ushort)0,
+                     new SpacePirateProjectileInstructionProgramDefinitionsVerifySpacePirateProjectileInstructionProgramDefinitionsCase(0,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.ClawLeft,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.ClawLeftLoop,
                          EnemyProjectilePreInstruction.PirateClaw_Left),
-                     ((ushort)1,
+                     new SpacePirateProjectileInstructionProgramDefinitionsVerifySpacePirateProjectileInstructionProgramDefinitionsCase(1,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.ClawRight,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.ClawRightLoop,
                          EnemyProjectilePreInstruction.PirateClaw_Right),

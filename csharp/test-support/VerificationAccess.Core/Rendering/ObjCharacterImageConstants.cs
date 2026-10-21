@@ -27,7 +27,10 @@ internal static class ObjCharacterImageConstants
             return null;
         SpriteArtwork page = ObjCharacterImage.Page(vram.Bytes, obsel);
         ScreenObjectSizes sizes = ObjectSelectionCodec.Sizes(obsel);
-        (int smallWidth, int smallHeight, int largeWidth, int largeHeight) = (sizes.Small.X, sizes.Small.Y, sizes.Large.X, sizes.Large.Y);
+        int smallWidth = sizes.Small.X;
+        int smallHeight = sizes.Small.Y;
+        int largeWidth = sizes.Large.X;
+        int largeHeight = sizes.Large.Y;
         var parts = ImmutableArray.CreateBuilder<SpriteFramePart>();
         for (int index = 0; index < oam.LastFinalizedSpriteCount; index++)
         {

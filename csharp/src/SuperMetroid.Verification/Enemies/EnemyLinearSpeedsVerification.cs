@@ -45,27 +45,27 @@ internal static class EnemyLinearSpeedsVerification
         {
             ushort right = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08187 + index * 8)), rightFraction = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08189 + index * 8));
             ushort left = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa0818b + index * 8)), leftFraction = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa0818d + index * 8));
-            var expected = (right, rightFraction, left, leftFraction);
+            var expected = new VerifyCompiledLinearEnemySpeedsCase(right, rightFraction, left, leftFraction);
             slot.SetSpawnParameter1(0);
             slot.SetSpawnParameter2(SnesLittleEndian.Word(0, unchecked((byte)index)));
             slot.Bind(EnemyDefinitionId.Cacatac, slot.Definition);
             cacatac(slot);
             var c = enemies.CacatacStates[0];
-            AssertEqual(expected, ((c ?? throw new InvalidOperationException("Verification requires c.")).RightVelocity.WholeWord, c.RightVelocity.Fraction, c.LeftVelocity.WholeWord, c.LeftVelocity.Fraction), "Cacatac native speed setup");
+            AssertEqual(expected, new VerifyCompiledLinearEnemySpeedsCase((c ?? throw new InvalidOperationException("Verification requires c.")).RightVelocity.WholeWord, c.RightVelocity.Fraction, c.LeftVelocity.WholeWord, c.LeftVelocity.Fraction), "Cacatac native speed setup");
             slot.SetSpawnParameter2((ushort)index);
             slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);
             owtch(slot);
             var o = enemies.OwtchStates[0];
-            AssertEqual(expected, ((o ?? throw new InvalidOperationException("Verification requires o.")).RightVelocity.WholeWord, o.RightVelocity.Fraction, o.LeftVelocity.WholeWord, o.LeftVelocity.Fraction), "Owtch native speed setup");
+            AssertEqual(expected, new VerifyCompiledLinearEnemySpeedsCase((o ?? throw new InvalidOperationException("Verification requires o.")).RightVelocity.WholeWord, o.RightVelocity.Fraction, o.LeftVelocity.WholeWord, o.LeftVelocity.Fraction), "Owtch native speed setup");
             slot.Bind(EnemyDefinitionId.Stoke, slot.Definition);
             stoke(slot);
             var s = enemies.StokeStates[0];
-            AssertEqual(expected, ((s ?? throw new InvalidOperationException("Verification requires s.")).RightVelocity.WholeWord, s.RightVelocity.Fraction, s.LeftVelocity.WholeWord, s.LeftVelocity.Fraction), "Stoke native speed setup");
+            AssertEqual(expected, new VerifyCompiledLinearEnemySpeedsCase((s ?? throw new InvalidOperationException("Verification requires s.")).RightVelocity.WholeWord, s.RightVelocity.Fraction, s.LeftVelocity.WholeWord, s.LeftVelocity.Fraction), "Stoke native speed setup");
             var ripperState = new RipperEnemyState(new RipperExtensionWords()) { SpeedTableByteOffset = index * 8 };
             ripper(ripperState, true);
-            AssertEqual((right, rightFraction), (ripperState.XVelocity.WholeWord, ripperState.XVelocity.Fraction), "Ripper right speed");
+            AssertEqual(new EnemyLinearSpeedsVerifyCompiledLinearEnemySpeedsCase(right, rightFraction), new EnemyLinearSpeedsVerifyCompiledLinearEnemySpeedsCase(ripperState.XVelocity.WholeWord, ripperState.XVelocity.Fraction), "Ripper right speed");
             ripper(ripperState, false);
-            AssertEqual((left, leftFraction), (ripperState.XVelocity.WholeWord, ripperState.XVelocity.Fraction), "Ripper reversal speed");
+            AssertEqual(new EnemyLinearSpeedsVerifyCompiledLinearEnemySpeedsCase(left, leftFraction), new EnemyLinearSpeedsVerifyCompiledLinearEnemySpeedsCase(ripperState.XVelocity.WholeWord, ripperState.XVelocity.Fraction), "Ripper reversal speed");
         }
         Console.WriteLine("Compiled linear speeds: 517 byte windows, bank mirror and all 65 speeds in four direct family callers match the cartridge without speed-table ROM reads.");
     }

@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Crawlers;
 
 namespace SuperMetroid.Verification.Enemies.Crawlers;
@@ -12,9 +13,9 @@ internal static class MultiviolaNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (MultiviolaProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<MultiviolaProgram>[] Entries =
     [
-        (MultiviolaProgram.Flying, 0xb2dc),
+        new NativeProgramEntry<MultiviolaProgram>(MultiviolaProgram.Flying, 0xb2dc),
     ];
 
 }

@@ -320,7 +320,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             var binary = (IBinaryOperation)operationContext.Operation;
             if (binary.OperatorKind is not (BinaryOperatorKind.Equals or BinaryOperatorKind.NotEquals))
                 return;
-            foreach ((IOperation subject, IOperation other) in new[] { (binary.LeftOperand, binary.RightOperand), (binary.RightOperand, binary.LeftOperand) })
+            foreach ((IOperation subject, IOperation other) in new[] { new OperandPair(binary.LeftOperand, binary.RightOperand), new OperandPair(binary.RightOperand, binary.LeftOperand) })
             {
                 // Only whole-value equality selects a member; bit tests of a masked position or
                 // phase (parity, sub-tile bits) are arithmetic on a number.
@@ -410,10 +410,10 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         /// <summary>Serializes evidence collected by concurrent operation callbacks.</summary>
         private readonly object _gate = new();
         /// <summary>Groups named-constant comparisons by storage symbol and declaring catalog.</summary>
-        private readonly Dictionary<(ISymbol Subject, INamedTypeSymbol Catalog), (HashSet<string> Names, Location First)> _comparisons =
+        private readonly Dictionary<CatalogComparisonKey, CatalogComparison> _comparisons =
             new(new SubjectCatalogComparer());
         /// <summary>Records every storage write, including its narrowed enum, site, stepping, and constant value.</summary>
-        private readonly Dictionary<ISymbol, List<(ITypeSymbol? Domain, Location Site, bool Stepped, object? Constant)>> _writes = new(SymbolEqualityComparer.Default);
+        private readonly Dictionary<ISymbol, List<DomainWrite>> _writes = new(SymbolEqualityComparer.Default);
         /// <summary>Collects literal equality values used to recognize small closed storage domains.</summary>
         private readonly Dictionary<ISymbol, HashSet<object>> _comparedConstants = new(SymbolEqualityComparer.Default);
         /// <summary>Tracks storage used as a switch selector.</summary>
@@ -497,9 +497,9 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
                 return;
             lock (_gate)
             {
-                var key = (symbol, field.ContainingType);
+                var key = new CatalogComparisonKey(symbol, field.ContainingType);
                 if (!_comparisons.TryGetValue(key, out var entry))
-                    _comparisons[key] = entry = (new HashSet<string>(StringComparer.Ordinal), subject.Syntax.GetLocation());
+                    _comparisons[key] = entry = new CatalogComparison(new HashSet<string>(StringComparer.Ordinal), subject.Syntax.GetLocation());
                 entry.Names.Add(field.Name);
             }
         }
@@ -523,11 +523,11 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         {
             (ISymbol? target, IOperation? value) = context.Operation switch
             {
-                IVariableDeclaratorOperation declarator => (declarator.Symbol, declarator.Initializer?.Value),
-                ISimpleAssignmentOperation assignment => (Subject(assignment.Target), assignment.Value),
-                ICompoundAssignmentOperation compound => (Subject(compound.Target), null),
-                IIncrementOrDecrementOperation step => (Subject(step.Target), null),
-                _ => (null, null),
+                IVariableDeclaratorOperation declarator => new NarrowingWrite(declarator.Symbol, declarator.Initializer?.Value),
+                ISimpleAssignmentOperation assignment => new NarrowingWrite(Subject(assignment.Target), assignment.Value),
+                ICompoundAssignmentOperation compound => new NarrowingWrite(Subject(compound.Target), null),
+                IIncrementOrDecrementOperation step => new NarrowingWrite(Subject(step.Target), null),
+                _ => new NarrowingWrite(null, null),
             };
             if (target is null || !IsIntegral(TypeOf(target)))
                 return;
@@ -542,14 +542,14 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
                     _writes[target] = writes = [];
                 object? constantValue = value is not null && Unwrap(value).ConstantValue is { HasValue: true, Value: { } written }
                     ? NumericValue(written) : null;
-                writes.Add((domain, site, context.Operation is ICompoundAssignmentOperation or IIncrementOrDecrementOperation,
+                writes.Add(new DomainWrite(domain, site, context.Operation is ICompoundAssignmentOperation or IIncrementOrDecrementOperation,
                     constantValue));
             }
         }
 
         /// <summary>Reports nonlocal storage written only with a small literal set and used for identity selection.</summary>
         private void ReportLiteralDomain(CompilationAnalysisContext context, ISymbol symbol,
-            List<(ITypeSymbol? Domain, Location Site, bool Stepped, object? Constant)> writes)
+            List<DomainWrite> writes)
         {
             if (symbol is ILocalSymbol || !RepositoryOwnership.Owns(symbol) ||
                 _ordered.Contains(symbol) || writes.Any(write => write.Stepped || write.Constant is null))
@@ -604,8 +604,8 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
                         continue;
                     var narrowed = entry.Value
                         .SelectMany(write => write.Domain is { } domain
-                            ? new[] { (Domain: domain, write.Site) }
-                            : Array.Empty<(ITypeSymbol Domain, Location Site)>())
+                            ? new[] { new DomainSite(Domain:domain, write.Site) }
+                            : Array.Empty<DomainSite>())
                         .OrderBy(write => write.Site.SourceTree?.FilePath, StringComparer.Ordinal)
                         .ThenBy(write => write.Site.SourceSpan.Start).ToArray();
                     if (narrowed.Length == 0)
@@ -646,15 +646,15 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         };
 
         /// <summary>Uses Roslyn symbol identity for both parts of a subject/catalog evidence key.</summary>
-        private sealed class SubjectCatalogComparer : IEqualityComparer<(ISymbol Subject, INamedTypeSymbol Catalog)>
+        private sealed class SubjectCatalogComparer : IEqualityComparer<CatalogComparisonKey>
         {
             /// <summary>Matches storage and catalog by semantic symbol identity.</summary>
-            public bool Equals((ISymbol Subject, INamedTypeSymbol Catalog) x, (ISymbol Subject, INamedTypeSymbol Catalog) y) =>
+            public bool Equals(CatalogComparisonKey x, CatalogComparisonKey y) =>
                 SymbolEqualityComparer.Default.Equals(x.Subject, y.Subject) &&
                 SymbolEqualityComparer.Default.Equals(x.Catalog, y.Catalog);
 
             /// <summary>Combines Roslyn symbol hashes for the storage/catalog pair.</summary>
-            public int GetHashCode((ISymbol Subject, INamedTypeSymbol Catalog) value) =>
+            public int GetHashCode(CatalogComparisonKey value) =>
                 (SymbolEqualityComparer.Default.GetHashCode(value.Subject) * 397) ^
                 SymbolEqualityComparer.Default.GetHashCode(value.Catalog);
         }

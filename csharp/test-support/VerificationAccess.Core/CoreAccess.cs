@@ -274,11 +274,11 @@ internal static class CoreAccess
             {
                 bool lockedOut = plms.Stations.SaveStationLockedOut;
                 return PlmSlots(plms)
-                    .Select((slot, index) => (slot, index))
-                    .Where(entry => entry.slot.Active)
-                    .OrderByDescending(entry => entry.index)
-                    .SelectMany(entry => entry.slot.Family is StationPlms.StationPlmState station
-                        ? [new StationPlmSnapshot(entry.index, entry.slot.BlockIndex, checked((ushort)entry.slot.RoomArgument),
+                    .Select((slot, index) => new IndexedPlmSlot(slot, index))
+                    .Where(entry => entry.Slot.Active)
+                    .OrderByDescending(entry => entry.Index)
+                    .SelectMany(entry => entry.Slot.Family is StationPlms.StationPlmState station
+                        ? [new StationPlmSnapshot(entry.Index, entry.Slot.BlockIndex, checked((ushort)entry.Slot.RoomArgument),
                             station.Kind, station.Triggered, station.SavePhase, lockedOut)]
                         : Array.Empty<StationPlmSnapshot>())
                     .ToArray();
@@ -404,10 +404,10 @@ internal static class CoreAccess
         /// The two timer-duration bytes that follow each <c>SetTimer</c> instruction: duration
         /// two after the second-timer instruction and duration one after the first-timer one.
         /// </summary>
-        internal IReadOnlyList<(ushort Pointer, byte Value)> TimerMechanicsBytes =>
+        internal IReadOnlyList<TimerByte> TimerMechanicsBytes =>
         [
-            (unchecked((ushort)(self.TimerTwoPointer + 2)), 2),
-            (unchecked((ushort)(self.TimerOnePointer + 2)), 1),
+            new TimerByte(unchecked((ushort)(self.TimerTwoPointer + 2)), 2),
+            new TimerByte(unchecked((ushort)(self.TimerOnePointer + 2)), 1),
         ];
     }
 

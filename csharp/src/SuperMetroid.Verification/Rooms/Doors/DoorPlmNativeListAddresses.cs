@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Plms;
 
@@ -10,273 +11,273 @@ namespace SuperMetroid.Verification.Rooms.Doors;
 internal static class DoorPlmNativeListAddresses
 {
     /// <summary>The blue caps' lists (<c>InstList_PLM_BlueDoorFacing*</c>, $84:C489..C54C).</summary>
-    internal static IReadOnlyList<(BlueDoorProgram Program, ushort Entry)> BlueEntries { get; } =
+    internal static IReadOnlyList<NativeProgramEntry<BlueDoorProgram>> BlueEntries { get; } =
     [
-        (BlueDoorProgram.LeftOpening, 0xc489),
-        (BlueDoorProgram.LeftClosing, 0xc49e),
-        (BlueDoorProgram.LeftClosed, 0xc4b1),
-        (BlueDoorProgram.RightOpening, 0xc4ba),
-        (BlueDoorProgram.RightClosing, 0xc4cf),
-        (BlueDoorProgram.RightClosed, 0xc4e2),
-        (BlueDoorProgram.UpOpening, 0xc4eb),
-        (BlueDoorProgram.UpClosing, 0xc500),
-        (BlueDoorProgram.UpClosed, 0xc513),
-        (BlueDoorProgram.DownOpening, 0xc51c),
-        (BlueDoorProgram.DownClosing, 0xc531),
-        (BlueDoorProgram.DownClosed, 0xc544),
+        new NativeProgramEntry<BlueDoorProgram>(BlueDoorProgram.LeftOpening, 0xc489),
+        new NativeProgramEntry<BlueDoorProgram>(BlueDoorProgram.LeftClosing, 0xc49e),
+        new NativeProgramEntry<BlueDoorProgram>(BlueDoorProgram.LeftClosed, 0xc4b1),
+        new NativeProgramEntry<BlueDoorProgram>(BlueDoorProgram.RightOpening, 0xc4ba),
+        new NativeProgramEntry<BlueDoorProgram>(BlueDoorProgram.RightClosing, 0xc4cf),
+        new NativeProgramEntry<BlueDoorProgram>(BlueDoorProgram.RightClosed, 0xc4e2),
+        new NativeProgramEntry<BlueDoorProgram>(BlueDoorProgram.UpOpening, 0xc4eb),
+        new NativeProgramEntry<BlueDoorProgram>(BlueDoorProgram.UpClosing, 0xc500),
+        new NativeProgramEntry<BlueDoorProgram>(BlueDoorProgram.UpClosed, 0xc513),
+        new NativeProgramEntry<BlueDoorProgram>(BlueDoorProgram.DownOpening, 0xc51c),
+        new NativeProgramEntry<BlueDoorProgram>(BlueDoorProgram.DownClosing, 0xc531),
+        new NativeProgramEntry<BlueDoorProgram>(BlueDoorProgram.DownClosed, 0xc544),
     ];
 
     /// <summary>The yellow cap facing left's lists (<c>InstList_PLM_YellowDoorFacingLeft_*</c>).</summary>
-    private static readonly IReadOnlyList<(ColoredDoorProgram Program, ushort Entry)> YellowLeftEntries =
+    private static readonly IReadOnlyList<NativeProgramEntry<ColoredDoorProgram>> YellowLeftEntries =
     [
-        (ColoredDoorProgram.Closing, 0xbffd),
-        (ColoredDoorProgram.Waiting, 0xc014),
-        (ColoredDoorProgram.Sleep, 0xc024),
-        (ColoredDoorProgram.Hit, 0xc02a),
-        (ColoredDoorProgram.Open, 0xc04b),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Closing, 0xbffd),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Waiting, 0xc014),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Sleep, 0xc024),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Hit, 0xc02a),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Open, 0xc04b),
     ];
 
     /// <summary>The yellow cap facing right's lists (<c>InstList_PLM_YellowDoorFacingRight_*</c>).</summary>
-    private static readonly IReadOnlyList<(ColoredDoorProgram Program, ushort Entry)> YellowRightEntries =
+    private static readonly IReadOnlyList<NativeProgramEntry<ColoredDoorProgram>> YellowRightEntries =
     [
-        (ColoredDoorProgram.Closing, 0xc060),
-        (ColoredDoorProgram.Waiting, 0xc077),
-        (ColoredDoorProgram.Sleep, 0xc087),
-        (ColoredDoorProgram.Hit, 0xc08d),
-        (ColoredDoorProgram.Open, 0xc0ae),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Closing, 0xc060),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Waiting, 0xc077),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Sleep, 0xc087),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Hit, 0xc08d),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Open, 0xc0ae),
     ];
 
     /// <summary>The yellow cap facing up's lists (<c>InstList_PLM_YellowDoorFacingUp_*</c>).</summary>
-    private static readonly IReadOnlyList<(ColoredDoorProgram Program, ushort Entry)> YellowUpEntries =
+    private static readonly IReadOnlyList<NativeProgramEntry<ColoredDoorProgram>> YellowUpEntries =
     [
-        (ColoredDoorProgram.Closing, 0xc0c3),
-        (ColoredDoorProgram.Waiting, 0xc0da),
-        (ColoredDoorProgram.Sleep, 0xc0ea),
-        (ColoredDoorProgram.Hit, 0xc0ec),
-        (ColoredDoorProgram.Open, 0xc10d),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Closing, 0xc0c3),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Waiting, 0xc0da),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Sleep, 0xc0ea),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Hit, 0xc0ec),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Open, 0xc10d),
     ];
 
     /// <summary>The yellow cap facing down's lists (<c>InstList_PLM_YellowDoorFacingDown_*</c>).</summary>
-    private static readonly IReadOnlyList<(ColoredDoorProgram Program, ushort Entry)> YellowDownEntries =
+    private static readonly IReadOnlyList<NativeProgramEntry<ColoredDoorProgram>> YellowDownEntries =
     [
-        (ColoredDoorProgram.Closing, 0xc122),
-        (ColoredDoorProgram.Waiting, 0xc139),
-        (ColoredDoorProgram.Sleep, 0xc14d),
-        (ColoredDoorProgram.Hit, 0xc14f),
-        (ColoredDoorProgram.Open, 0xc170),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Closing, 0xc122),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Waiting, 0xc139),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Sleep, 0xc14d),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Hit, 0xc14f),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Open, 0xc170),
     ];
 
     /// <summary>The green cap facing left's lists (<c>InstList_PLM_GreenDoorFacingLeft_*</c>).</summary>
-    private static readonly IReadOnlyList<(ColoredDoorProgram Program, ushort Entry)> GreenLeftEntries =
+    private static readonly IReadOnlyList<NativeProgramEntry<ColoredDoorProgram>> GreenLeftEntries =
     [
-        (ColoredDoorProgram.Closing, 0xc185),
-        (ColoredDoorProgram.Waiting, 0xc19c),
-        (ColoredDoorProgram.Sleep, 0xc1ac),
-        (ColoredDoorProgram.Hit, 0xc1ae),
-        (ColoredDoorProgram.Open, 0xc1cf),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Closing, 0xc185),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Waiting, 0xc19c),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Sleep, 0xc1ac),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Hit, 0xc1ae),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Open, 0xc1cf),
     ];
 
     /// <summary>The green cap facing right's lists (<c>InstList_PLM_GreenDoorFacingRight_*</c>).</summary>
-    private static readonly IReadOnlyList<(ColoredDoorProgram Program, ushort Entry)> GreenRightEntries =
+    private static readonly IReadOnlyList<NativeProgramEntry<ColoredDoorProgram>> GreenRightEntries =
     [
-        (ColoredDoorProgram.Closing, 0xc1e4),
-        (ColoredDoorProgram.Waiting, 0xc1fb),
-        (ColoredDoorProgram.Sleep, 0xc20b),
-        (ColoredDoorProgram.Hit, 0xc20d),
-        (ColoredDoorProgram.Open, 0xc22e),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Closing, 0xc1e4),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Waiting, 0xc1fb),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Sleep, 0xc20b),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Hit, 0xc20d),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Open, 0xc22e),
     ];
 
     /// <summary>The green cap facing up's lists (<c>InstList_PLM_GreenDoorFacingUp_*</c>).</summary>
-    private static readonly IReadOnlyList<(ColoredDoorProgram Program, ushort Entry)> GreenUpEntries =
+    private static readonly IReadOnlyList<NativeProgramEntry<ColoredDoorProgram>> GreenUpEntries =
     [
-        (ColoredDoorProgram.Closing, 0xc243),
-        (ColoredDoorProgram.Waiting, 0xc25a),
-        (ColoredDoorProgram.Sleep, 0xc26a),
-        (ColoredDoorProgram.Hit, 0xc26c),
-        (ColoredDoorProgram.Open, 0xc28d),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Closing, 0xc243),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Waiting, 0xc25a),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Sleep, 0xc26a),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Hit, 0xc26c),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Open, 0xc28d),
     ];
 
     /// <summary>The green cap facing down's lists (<c>InstList_PLM_GreenDoorFacingDown_*</c>).</summary>
-    private static readonly IReadOnlyList<(ColoredDoorProgram Program, ushort Entry)> GreenDownEntries =
+    private static readonly IReadOnlyList<NativeProgramEntry<ColoredDoorProgram>> GreenDownEntries =
     [
-        (ColoredDoorProgram.Closing, 0xc2a2),
-        (ColoredDoorProgram.Waiting, 0xc2b9),
-        (ColoredDoorProgram.Sleep, 0xc2c9),
-        (ColoredDoorProgram.Hit, 0xc2cb),
-        (ColoredDoorProgram.Open, 0xc2ec),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Closing, 0xc2a2),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Waiting, 0xc2b9),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Sleep, 0xc2c9),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Hit, 0xc2cb),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Open, 0xc2ec),
     ];
 
     /// <summary>The red cap facing left's lists (<c>InstList_PLM_RedDoorFacingLeft_*</c>).</summary>
-    private static readonly IReadOnlyList<(ColoredDoorProgram Program, ushort Entry)> RedLeftEntries =
+    private static readonly IReadOnlyList<NativeProgramEntry<ColoredDoorProgram>> RedLeftEntries =
     [
-        (ColoredDoorProgram.Closing, 0xc301),
-        (ColoredDoorProgram.Waiting, 0xc318),
-        (ColoredDoorProgram.Sleep, 0xc328),
-        (ColoredDoorProgram.Hit, 0xc32a),
-        (ColoredDoorProgram.Open, 0xc34e),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Closing, 0xc301),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Waiting, 0xc318),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Sleep, 0xc328),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Hit, 0xc32a),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Open, 0xc34e),
     ];
 
     /// <summary>The red cap facing right's lists (<c>InstList_PLM_RedDoorFacingRight_*</c>).</summary>
-    private static readonly IReadOnlyList<(ColoredDoorProgram Program, ushort Entry)> RedRightEntries =
+    private static readonly IReadOnlyList<NativeProgramEntry<ColoredDoorProgram>> RedRightEntries =
     [
-        (ColoredDoorProgram.Closing, 0xc363),
-        (ColoredDoorProgram.Waiting, 0xc37a),
-        (ColoredDoorProgram.Sleep, 0xc38a),
-        (ColoredDoorProgram.Hit, 0xc38c),
-        (ColoredDoorProgram.Open, 0xc3b0),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Closing, 0xc363),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Waiting, 0xc37a),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Sleep, 0xc38a),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Hit, 0xc38c),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Open, 0xc3b0),
     ];
 
     /// <summary>The red cap facing up's lists (<c>InstList_PLM_RedDoorFacingUp_*</c>).</summary>
-    private static readonly IReadOnlyList<(ColoredDoorProgram Program, ushort Entry)> RedUpEntries =
+    private static readonly IReadOnlyList<NativeProgramEntry<ColoredDoorProgram>> RedUpEntries =
     [
-        (ColoredDoorProgram.Closing, 0xc3c5),
-        (ColoredDoorProgram.Waiting, 0xc3dc),
-        (ColoredDoorProgram.Sleep, 0xc3ec),
-        (ColoredDoorProgram.Hit, 0xc3ee),
-        (ColoredDoorProgram.Open, 0xc412),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Closing, 0xc3c5),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Waiting, 0xc3dc),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Sleep, 0xc3ec),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Hit, 0xc3ee),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Open, 0xc412),
     ];
 
     /// <summary>The red cap facing down's lists (<c>InstList_PLM_RedDoorFacingDown_*</c>).</summary>
-    private static readonly IReadOnlyList<(ColoredDoorProgram Program, ushort Entry)> RedDownEntries =
+    private static readonly IReadOnlyList<NativeProgramEntry<ColoredDoorProgram>> RedDownEntries =
     [
-        (ColoredDoorProgram.Closing, 0xc427),
-        (ColoredDoorProgram.Waiting, 0xc43e),
-        (ColoredDoorProgram.Sleep, 0xc44e),
-        (ColoredDoorProgram.Hit, 0xc450),
-        (ColoredDoorProgram.Open, 0xc474),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Closing, 0xc427),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Waiting, 0xc43e),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Sleep, 0xc44e),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Hit, 0xc450),
+        new NativeProgramEntry<ColoredDoorProgram>(ColoredDoorProgram.Open, 0xc474),
     ];
 
     /// <summary>The grey cap facing left's lists (<c>InstList_PLM_GreyDoorFacingLeft_*</c>).</summary>
-    private static readonly IReadOnlyList<(GreyDoorProgram Program, ushort Entry)> GreyLeftEntries =
+    private static readonly IReadOnlyList<NativeProgramEntry<GreyDoorProgram>> GreyLeftEntries =
     [
-        (GreyDoorProgram.Closing, 0xbe59),
-        (GreyDoorProgram.Waiting, 0xbe70),
-        (GreyDoorProgram.Sleep, 0xbe7e),
-        (GreyDoorProgram.Activate, 0xbe84),
-        (GreyDoorProgram.Flash, 0xbe8c),
-        (GreyDoorProgram.Hit, 0xbea8),
-        (GreyDoorProgram.Open, 0xbead),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Closing, 0xbe59),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Waiting, 0xbe70),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Sleep, 0xbe7e),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Activate, 0xbe84),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Flash, 0xbe8c),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Hit, 0xbea8),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Open, 0xbead),
     ];
 
     /// <summary>The grey cap facing right's lists (<c>InstList_PLM_GreyDoorFacingRight_*</c>).</summary>
-    private static readonly IReadOnlyList<(GreyDoorProgram Program, ushort Entry)> GreyRightEntries =
+    private static readonly IReadOnlyList<NativeProgramEntry<GreyDoorProgram>> GreyRightEntries =
     [
-        (GreyDoorProgram.Closing, 0xbec2),
-        (GreyDoorProgram.Waiting, 0xbed9),
-        (GreyDoorProgram.Sleep, 0xbee7),
-        (GreyDoorProgram.Activate, 0xbeed),
-        (GreyDoorProgram.Flash, 0xbef5),
-        (GreyDoorProgram.Hit, 0xbf11),
-        (GreyDoorProgram.Open, 0xbf16),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Closing, 0xbec2),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Waiting, 0xbed9),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Sleep, 0xbee7),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Activate, 0xbeed),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Flash, 0xbef5),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Hit, 0xbf11),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Open, 0xbf16),
     ];
 
     /// <summary>The grey cap facing up's lists (<c>InstList_PLM_GreyDoorFacingUp_*</c>).</summary>
-    private static readonly IReadOnlyList<(GreyDoorProgram Program, ushort Entry)> GreyUpEntries =
+    private static readonly IReadOnlyList<NativeProgramEntry<GreyDoorProgram>> GreyUpEntries =
     [
-        (GreyDoorProgram.Closing, 0xbf2b),
-        (GreyDoorProgram.Waiting, 0xbf42),
-        (GreyDoorProgram.Sleep, 0xbf50),
-        (GreyDoorProgram.Activate, 0xbf56),
-        (GreyDoorProgram.Flash, 0xbf5e),
-        (GreyDoorProgram.Hit, 0xbf7a),
-        (GreyDoorProgram.Open, 0xbf7f),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Closing, 0xbf2b),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Waiting, 0xbf42),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Sleep, 0xbf50),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Activate, 0xbf56),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Flash, 0xbf5e),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Hit, 0xbf7a),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Open, 0xbf7f),
     ];
 
     /// <summary>The grey cap facing down's lists (<c>InstList_PLM_GreyDoorFacingDown_*</c>).</summary>
-    private static readonly IReadOnlyList<(GreyDoorProgram Program, ushort Entry)> GreyDownEntries =
+    private static readonly IReadOnlyList<NativeProgramEntry<GreyDoorProgram>> GreyDownEntries =
     [
-        (GreyDoorProgram.Closing, 0xbf94),
-        (GreyDoorProgram.Waiting, 0xbfab),
-        (GreyDoorProgram.Sleep, 0xbfb9),
-        (GreyDoorProgram.Activate, 0xbfbf),
-        (GreyDoorProgram.Flash, 0xbfc7),
-        (GreyDoorProgram.Hit, 0xbfe3),
-        (GreyDoorProgram.Open, 0xbfe8),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Closing, 0xbf94),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Waiting, 0xbfab),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Sleep, 0xbfb9),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Activate, 0xbfbf),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Flash, 0xbfc7),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Hit, 0xbfe3),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Open, 0xbfe8),
     ];
 
     /// <summary>Bomb Torizo's grey door's lists (<c>InstList_PLM_BombTorizoGreyDoor*</c>).</summary>
-    private static readonly IReadOnlyList<(GreyDoorProgram Program, ushort Entry)> BombTorizoEntries =
+    private static readonly IReadOnlyList<NativeProgramEntry<GreyDoorProgram>> BombTorizoEntries =
     [
-        (GreyDoorProgram.Closing, 0xba4c),
-        (GreyDoorProgram.Waiting, 0xba7f),
-        (GreyDoorProgram.Sleep, 0xba8d),
-        (GreyDoorProgram.Activate, 0xba93),
-        (GreyDoorProgram.Flash, 0xba9b),
-        (GreyDoorProgram.Hit, 0xbab7),
-        (GreyDoorProgram.Open, 0xbabc),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Closing, 0xba4c),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Waiting, 0xba7f),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Sleep, 0xba8d),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Activate, 0xba93),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Flash, 0xba9b),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Hit, 0xbab7),
+        new NativeProgramEntry<GreyDoorProgram>(GreyDoorProgram.Open, 0xbabc),
     ];
 
     /// <summary>The left-facing eye door eye's lists (<c>InstList_PLM_EyeDoorEyeFacingLeft_*</c>).</summary>
-    private static readonly IReadOnlyList<(EyeDoorPlmProgram Program, ushort Entry)> EyeLeftEyeEntries =
+    private static readonly IReadOnlyList<NativeProgramEntry<EyeDoorPlmProgram>> EyeLeftEyeEntries =
     [
-        (EyeDoorPlmProgram.EyeStart, 0xd81e),
-        (EyeDoorPlmProgram.EyeIdle, 0xd822),
-        (EyeDoorPlmProgram.EyeActivate, 0xd830),
-        (EyeDoorPlmProgram.EyeWatch, 0xd83c),
-        (EyeDoorPlmProgram.EyeClose, 0xd878),
-        (EyeDoorPlmProgram.EyeHit, 0xd880),
-        (EyeDoorPlmProgram.EyeDestroyed, 0xd8c4),
-        (EyeDoorPlmProgram.EyeOpening, 0xd8d3),
-        (EyeDoorPlmProgram.EyeOpened, 0xd8e3),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.EyeStart, 0xd81e),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.EyeIdle, 0xd822),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.EyeActivate, 0xd830),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.EyeWatch, 0xd83c),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.EyeClose, 0xd878),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.EyeHit, 0xd880),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.EyeDestroyed, 0xd8c4),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.EyeOpening, 0xd8d3),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.EyeOpened, 0xd8e3),
     ];
 
     /// <summary>The left-facing eye door door's lists (<c>InstList_PLM_EyeDoorFacingLeft_*</c>).</summary>
-    private static readonly IReadOnlyList<(EyeDoorPlmProgram Program, ushort Entry)> EyeLeftDoorEntries =
+    private static readonly IReadOnlyList<NativeProgramEntry<EyeDoorPlmProgram>> EyeLeftDoorEntries =
     [
-        (EyeDoorPlmProgram.ComponentStart, 0xd8e9),
-        (EyeDoorPlmProgram.ComponentIdle, 0xd8ed),
-        (EyeDoorPlmProgram.ComponentActivate, 0xd8fb),
-        (EyeDoorPlmProgram.ComponentCycle, 0xd903),
-        (EyeDoorPlmProgram.ComponentDelete, 0xd91d),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.ComponentStart, 0xd8e9),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.ComponentIdle, 0xd8ed),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.ComponentActivate, 0xd8fb),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.ComponentCycle, 0xd903),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.ComponentDelete, 0xd91d),
     ];
 
     /// <summary>The left-facing eye door bottom's lists (<c>InstList_PLM_EyeDoorBottomFacingLeft_*</c>).</summary>
-    private static readonly IReadOnlyList<(EyeDoorPlmProgram Program, ushort Entry)> EyeLeftBottomEntries =
+    private static readonly IReadOnlyList<NativeProgramEntry<EyeDoorPlmProgram>> EyeLeftBottomEntries =
     [
-        (EyeDoorPlmProgram.ComponentStart, 0xd91f),
-        (EyeDoorPlmProgram.ComponentIdle, 0xd923),
-        (EyeDoorPlmProgram.ComponentActivate, 0xd931),
-        (EyeDoorPlmProgram.ComponentCycle, 0xd939),
-        (EyeDoorPlmProgram.ComponentDelete, 0xd953),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.ComponentStart, 0xd91f),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.ComponentIdle, 0xd923),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.ComponentActivate, 0xd931),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.ComponentCycle, 0xd939),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.ComponentDelete, 0xd953),
     ];
 
     /// <summary>The right-facing eye door eye's lists (<c>InstList_PLM_EyeDoorEyeFacingRight_*</c>).</summary>
-    private static readonly IReadOnlyList<(EyeDoorPlmProgram Program, ushort Entry)> EyeRightEyeEntries =
+    private static readonly IReadOnlyList<NativeProgramEntry<EyeDoorPlmProgram>> EyeRightEyeEntries =
     [
-        (EyeDoorPlmProgram.EyeStart, 0xd955),
-        (EyeDoorPlmProgram.EyeIdle, 0xd959),
-        (EyeDoorPlmProgram.EyeActivate, 0xd967),
-        (EyeDoorPlmProgram.EyeWatch, 0xd973),
-        (EyeDoorPlmProgram.EyeClose, 0xd9af),
-        (EyeDoorPlmProgram.EyeHit, 0xd9b7),
-        (EyeDoorPlmProgram.EyeDestroyed, 0xd9fb),
-        (EyeDoorPlmProgram.EyeOpening, 0xda0a),
-        (EyeDoorPlmProgram.EyeOpened, 0xda1a),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.EyeStart, 0xd955),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.EyeIdle, 0xd959),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.EyeActivate, 0xd967),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.EyeWatch, 0xd973),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.EyeClose, 0xd9af),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.EyeHit, 0xd9b7),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.EyeDestroyed, 0xd9fb),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.EyeOpening, 0xda0a),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.EyeOpened, 0xda1a),
     ];
 
     /// <summary>The right-facing eye door door's lists (<c>InstList_PLM_EyeDoorFacingRight_*</c>).</summary>
-    private static readonly IReadOnlyList<(EyeDoorPlmProgram Program, ushort Entry)> EyeRightDoorEntries =
+    private static readonly IReadOnlyList<NativeProgramEntry<EyeDoorPlmProgram>> EyeRightDoorEntries =
     [
-        (EyeDoorPlmProgram.ComponentStart, 0xda20),
-        (EyeDoorPlmProgram.ComponentIdle, 0xda24),
-        (EyeDoorPlmProgram.ComponentActivate, 0xda32),
-        (EyeDoorPlmProgram.ComponentCycle, 0xda3a),
-        (EyeDoorPlmProgram.ComponentDelete, 0xda54),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.ComponentStart, 0xda20),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.ComponentIdle, 0xda24),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.ComponentActivate, 0xda32),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.ComponentCycle, 0xda3a),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.ComponentDelete, 0xda54),
     ];
 
     /// <summary>The right-facing eye door bottom's lists (<c>InstList_PLM_EyeDoorBottomFacingRight_*</c>).</summary>
-    private static readonly IReadOnlyList<(EyeDoorPlmProgram Program, ushort Entry)> EyeRightBottomEntries =
+    private static readonly IReadOnlyList<NativeProgramEntry<EyeDoorPlmProgram>> EyeRightBottomEntries =
     [
-        (EyeDoorPlmProgram.ComponentStart, 0xda56),
-        (EyeDoorPlmProgram.ComponentIdle, 0xda5a),
-        (EyeDoorPlmProgram.ComponentActivate, 0xda68),
-        (EyeDoorPlmProgram.ComponentCycle, 0xda70),
-        (EyeDoorPlmProgram.ComponentDelete, 0xda8a),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.ComponentStart, 0xda56),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.ComponentIdle, 0xda5a),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.ComponentActivate, 0xda68),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.ComponentCycle, 0xda70),
+        new NativeProgramEntry<EyeDoorPlmProgram>(EyeDoorPlmProgram.ComponentDelete, 0xda8a),
     ];
 
     /// <summary>The <paramref name="color"/> cap facing <paramref name="orientation"/>'s lists.</summary>
-    internal static IReadOnlyList<(ColoredDoorProgram Program, ushort Entry)> ColoredEntries(ColoredDoorColor color, ColoredDoorOrientation orientation) =>
-        (color, orientation) switch
+    internal static IReadOnlyList<NativeProgramEntry<ColoredDoorProgram>> ColoredEntries(ColoredDoorColor color, ColoredDoorOrientation orientation) =>
+        new ColoredEntriesCase(color, orientation) switch
         {
             (ColoredDoorColor.Yellow, ColoredDoorOrientation.Left) => YellowLeftEntries,
             (ColoredDoorColor.Yellow, ColoredDoorOrientation.Right) => YellowRightEntries,
@@ -294,7 +295,7 @@ internal static class DoorPlmNativeListAddresses
         };
 
     /// <summary>Grey cap <paramref name="variant"/>'s lists.</summary>
-    internal static IReadOnlyList<(GreyDoorProgram Program, ushort Entry)> GreyEntries(GreyDoorVariant variant) =>
+    internal static IReadOnlyList<NativeProgramEntry<GreyDoorProgram>> GreyEntries(GreyDoorVariant variant) =>
         variant.BombTorizo ? BombTorizoEntries : variant.Orientation switch
         {
             ColoredDoorOrientation.Left => GreyLeftEntries,
@@ -312,8 +313,8 @@ internal static class DoorPlmNativeListAddresses
     ];
 
     /// <summary>The lists of eye-door <paramref name="component"/> facing <paramref name="orientation"/>.</summary>
-    internal static IReadOnlyList<(EyeDoorPlmProgram Program, ushort Entry)> EyeDoorEntries(EyeDoorOrientation orientation, EyeDoorComponent component) =>
-        (orientation, component) switch
+    internal static IReadOnlyList<NativeProgramEntry<EyeDoorPlmProgram>> EyeDoorEntries(EyeDoorOrientation orientation, EyeDoorComponent component) =>
+        new EyeDoorEntriesCase(orientation, component) switch
         {
             (EyeDoorOrientation.Left, EyeDoorComponent.Eye) => EyeLeftEyeEntries,
             (EyeDoorOrientation.Left, EyeDoorComponent.Door) => EyeLeftDoorEntries,

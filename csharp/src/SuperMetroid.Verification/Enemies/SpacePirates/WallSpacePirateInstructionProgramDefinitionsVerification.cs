@@ -162,8 +162,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
                 $"wall Pirate {(jumpingRight ? "right" : "left")} jump ends at its endpoint angle");
         }
 
-        (RoomEnemySystem Enemies, RoomEnemySlot Slot,
-            WallSpacePirateEnemyState State, SamusState Samus) CreateSystem()
+        WallSpacePirateInstructionProgramDefinitionsCreateSystemResult CreateSystem()
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().NextRandom = () => 0;
@@ -182,7 +181,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)),
             };
-            return (enemies, slot, (enemies.WallSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized WallSpacePirate state.")), samus);
+            return new WallSpacePirateInstructionProgramDefinitionsCreateSystemResult(enemies, slot, (enemies.WallSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized WallSpacePirate state.")), samus);
         }
 
         static void RunFrames(

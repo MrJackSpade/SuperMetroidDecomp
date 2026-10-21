@@ -46,7 +46,7 @@ internal static class PauseCategoryCasesVerification
     private static void VerifyPauseCategoryItemCounts(ISnesAddressSpace rom)
     {
         // Independent original CPX instruction sites in the initial inventory scan.
-        foreach (var (category, address) in new[] { (PauseEquipmentCategory.Beams, 0x82abcc), (PauseEquipmentCategory.Suits, 0x82abeb), (PauseEquipmentCategory.Boots, 0x82ac05) })
+        foreach (var (category, address) in new[] { new VerifyPauseCategoryItemCountsCase(PauseEquipmentCategory.Beams, 0x82abcc), new VerifyPauseCategoryItemCountsCase(PauseEquipmentCategory.Suits, 0x82abeb), new VerifyPauseCategoryItemCountsCase(PauseEquipmentCategory.Boots, 0x82ac05) })
         {
             AssertEqual((byte)0xe0, rom.ReadCartridgeByte(address), "original inventory scan CPX");
             AssertEqual(ReadVerificationWord(rom, address + 1) / 2,
@@ -59,7 +59,7 @@ internal static class PauseCategoryCasesVerification
     private static void VerifyPauseCategoryCopyLengths(ISnesAddressSpace rom)
     {
         // The dispatched category owns this byte count even if movement changes the selection.
-        foreach (var (category, address) in new[] { (PauseEquipmentCategory.Beams, 0x82afce), (PauseEquipmentCategory.Suits, 0x82b0c8), (PauseEquipmentCategory.Boots, 0x82b156) })
+        foreach (var (category, address) in new[] { new VerifyPauseCategoryItemCountsCase(PauseEquipmentCategory.Beams, 0x82afce), new VerifyPauseCategoryItemCountsCase(PauseEquipmentCategory.Suits, 0x82b0c8), new VerifyPauseCategoryItemCountsCase(PauseEquipmentCategory.Boots, 0x82b156) })
         {
             AssertEqual((byte)0xa9, rom.ReadCartridgeByte(address), "original equipment copy-length LDA");
             AssertEqual(ReadVerificationWord(rom, address + 1) / 2,

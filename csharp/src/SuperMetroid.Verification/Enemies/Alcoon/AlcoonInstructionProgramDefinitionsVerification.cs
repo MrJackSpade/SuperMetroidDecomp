@@ -60,7 +60,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
 
         bool sawLeftFireball = false;
         bool sawRightFireball = false;
-        var reachedPoses = new HashSet<(AlcoonProgram Program, int Step)>();
+        var reachedPoses = new HashSet<ReachedPose>();
         for (int frame = 0; frame < 4_096 &&
              (installedArt is not null || reachedPoses.Count < 42 ||
               !sawLeftFireball || !sawRightFireball); frame++)
@@ -74,7 +74,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
                 if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Alcoon &&
                     enemies.AlcoonStates[slot.SlotIndex] is { Program: { Position: > 0 } cursor } &&
                     AlcoonAnimations.Programs.Steps(cursor.Program)[cursor.Position - 1] is AnimationProgramStep<AlcoonProgram, AlcoonFrame, AlcoonCue>.ShowStep)
-                    reachedPoses.Add((cursor.Program, cursor.Position - 1));
+                    reachedPoses.Add(new ReachedPose(cursor.Program, cursor.Position - 1));
             }
 
             samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(actor.Position.X.Whole +
@@ -92,9 +92,9 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
             "real Alcoon programs execute fire callbacks in both facings");
         var poses = Enum.GetValues<AlcoonProgram>()
             .SelectMany(program => AlcoonAnimations.Programs.Steps(program)
-                .Select((step, index) => (Program: program, Step: index, Shows: step is AnimationProgramStep<AlcoonProgram, AlcoonFrame, AlcoonCue>.ShowStep)))
+                .Select((step, index) => new AlcoonInstructionProgramDefinitionsPose(Program:program, Step:index, Shows:step is AnimationProgramStep<AlcoonProgram, AlcoonFrame, AlcoonCue>.ShowStep)))
             .Where(step => step.Shows)
-            .Select(step => (step.Program, step.Step))
+            .Select(step => new ReachedPose(step.Program, step.Step))
             .ToHashSet();
         string missed = string.Join(", ", poses.Where(pose => !reachedPoses.Contains(pose)).Select(pose => $"{pose.Program}[{pose.Step}]"));
         AssertEqual(44, poses.Count, "the Alcoon's programs author 44 poses");

@@ -25,7 +25,6 @@ SME6426 | Design | Error | ForwardingContractAnalyzer
 SME6427 | Design | Error | ForwardingContractAnalyzer
 SME6428 | Design | Error | DuplicateConceptAnalyzer
 SME6429 | Design | Error | DuplicateConceptAnalyzer
-SME6430 | Design | Error | DuplicateConceptAnalyzer
 SME6431 | Design | Error | KindTaggedRecordAnalyzer
 SME6432 | Design | Error | KindTaggedRecordAnalyzer
 SME6433 | Design | Error | StringIdentityAnalyzer
@@ -41,3 +40,4 @@ SME6347 | Design | Warning | CartridgeEncodingAnalyzer
 SME6348 | Design | Warning | CartridgeEncodingAnalyzer
 SME6349 | Design | Warning | CartridgeEncodingAnalyzer
 SME6392 | Design | Warning | SpeciesIdentityAnalyzer
+SME6437 | Design | Error | TupleAnalyzer

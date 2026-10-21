@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Zoa;
 
 namespace SuperMetroid.Verification.Enemies.Zoa;
@@ -13,19 +14,19 @@ internal static class ZoaNativeListAddresses
     internal const byte Bank = 0xa3;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (ZoaProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<ZoaProgram>[] Entries =
     [
-        (ZoaProgram.FacingLeftShooting, 0xb3c1),
-        (ZoaProgram.FacingLeftRising, 0xb3d7),
-        (ZoaProgram.FacingRightShooting, 0xb3e7),
-        (ZoaProgram.FacingRightRising, 0xb3fd),
+        new NativeProgramEntry<ZoaProgram>(ZoaProgram.FacingLeftShooting, 0xb3c1),
+        new NativeProgramEntry<ZoaProgram>(ZoaProgram.FacingLeftRising, 0xb3d7),
+        new NativeProgramEntry<ZoaProgram>(ZoaProgram.FacingRightShooting, 0xb3e7),
+        new NativeProgramEntry<ZoaProgram>(ZoaProgram.FacingRightRising, 0xb3fd),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (ZoaCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, ZoaNativeListAddressesInstruction> Instructions = new()
     {
-        [0xb429] = (ZoaCueKind.SetSpeedIndex4, ""),
-        [0xb434] = (ZoaCueKind.SetSpeedIndex8, ""),
-        [0xb43f] = (ZoaCueKind.SetSpeedIndex12, ""),
+        [0xb429] = new ZoaNativeListAddressesInstruction(ZoaCueKind.SetSpeedIndex4, ""),
+        [0xb434] = new ZoaNativeListAddressesInstruction(ZoaCueKind.SetSpeedIndex8, ""),
+        [0xb43f] = new ZoaNativeListAddressesInstruction(ZoaCueKind.SetSpeedIndex12, ""),
     };
 }

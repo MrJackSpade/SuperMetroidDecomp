@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Cacatac;
 
 namespace SuperMetroid.Verification.Enemies.Cacatac;
@@ -13,20 +14,20 @@ internal static class CacatacNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (CacatacProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<CacatacProgram>[] Entries =
     [
-        (CacatacProgram.UpsideUpIdle, 0x9e8a),
-        (CacatacProgram.UpsideUpAttack, 0x9eb0),
-        (CacatacProgram.UpsideDownIdle, 0x9eda),
-        (CacatacProgram.UpsideDownIdleLoop, 0x9edc),
-        (CacatacProgram.UpsideDownAttack, 0x9f00),
+        new NativeProgramEntry<CacatacProgram>(CacatacProgram.UpsideUpIdle, 0x9e8a),
+        new NativeProgramEntry<CacatacProgram>(CacatacProgram.UpsideUpAttack, 0x9eb0),
+        new NativeProgramEntry<CacatacProgram>(CacatacProgram.UpsideDownIdle, 0x9eda),
+        new NativeProgramEntry<CacatacProgram>(CacatacProgram.UpsideDownIdleLoop, 0x9edc),
+        new NativeProgramEntry<CacatacProgram>(CacatacProgram.UpsideDownAttack, 0x9f00),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (CacatacCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, CacatacNativeListAddressesInstruction> Instructions = new()
     {
-        [0x9f2a] = (CacatacCueKind.PlaySpikeSound, ""),
-        [0xa095] = (CacatacCueKind.RestorePatrol, ""),
-        [0xa0a7] = (CacatacCueKind.SpawnSpike, "V"),
+        [0x9f2a] = new CacatacNativeListAddressesInstruction(CacatacCueKind.PlaySpikeSound, ""),
+        [0xa095] = new CacatacNativeListAddressesInstruction(CacatacCueKind.RestorePatrol, ""),
+        [0xa0a7] = new CacatacNativeListAddressesInstruction(CacatacCueKind.SpawnSpike, "V"),
     };
 }

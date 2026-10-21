@@ -89,7 +89,7 @@ internal static class FileSelectCaptureComparison
     }
 
     /// <summary>Finds the captured window with strongest normalized correlation using coarse then exact offsets.</summary>
-    private static (int Offset, double Score) Find(double[] capture, double[] target)
+    private static CaptureAlignment Find(double[] capture, double[] target)
     {
         if (capture.Length < target.Length) throw new InvalidDataException("Capture is shorter than comparison window.");
         int best = 0;
@@ -98,16 +98,18 @@ internal static class FileSelectCaptureComparison
         for (int offset = 0; offset <= capture.Length - target.Length; offset += 8)
         {
             double candidate = Correlation(capture, target, offset, 16);
-            if (candidate > score) (best, score) = (offset, candidate);
-        }
+            if (candidate > score) {best = offset;
+score = candidate;
+}        }
         int center = best;
         score = double.NegativeInfinity;
         for (int offset = Math.Max(0, center - 8); offset <= Math.Min(capture.Length - target.Length, center + 8); offset++)
         {
             double candidate = Correlation(capture, target, offset, 1);
-            if (candidate > score) (best, score) = (offset, candidate);
-        }
-        return (best, score);
+            if (candidate > score) {best = offset;
+score = candidate;
+}        }
+        return new CaptureAlignment(best, score);
     }
 
     /// <summary>Measures gain-independent similarity of one captured window and a target waveform.</summary>

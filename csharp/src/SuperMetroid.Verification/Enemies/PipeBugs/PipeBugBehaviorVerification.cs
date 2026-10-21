@@ -28,10 +28,10 @@ internal static class PipeBugBehaviorVerification
         {
             (EnemyDefinitionId definition, ushort parameter) = program.ToString() switch
             {
-                var name when name.StartsWith("Zebbo", StringComparison.Ordinal) => (EnemyDefinitionId.Zebbo, (ushort)1),
-                var name when name.StartsWith("Zeb", StringComparison.Ordinal) => (EnemyDefinitionId.Zeb, (ushort)0),
-                var name when name.StartsWith("Gamet", StringComparison.Ordinal) => (EnemyDefinitionId.Gamet, (ushort)0),
-                _ => (EnemyDefinitionId.Geega, (ushort)0),
+                var name when name.StartsWith("Zebbo", StringComparison.Ordinal) => new VerifyPipeBugBehaviorCase(EnemyDefinitionId.Zebbo, 1),
+                var name when name.StartsWith("Zeb", StringComparison.Ordinal) => new VerifyPipeBugBehaviorCase(EnemyDefinitionId.Zeb, 0),
+                var name when name.StartsWith("Gamet", StringComparison.Ordinal) => new VerifyPipeBugBehaviorCase(EnemyDefinitionId.Gamet, 0),
+                _ => new VerifyPipeBugBehaviorCase(EnemyDefinitionId.Geega, 0),
             };
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -54,7 +54,7 @@ internal static class PipeBugBehaviorVerification
     /// </summary>
     internal static void VerifyPipeBugStateQuantities()
     {
-        foreach ((int before, int after, bool departs) in new[] { (70, 71, false), (71, 0, true), (65535, 0, false), (32839, 32840, false) })
+        foreach ((int before, int after, bool departs) in new[] { new VerifyPipeBugStateQuantitiesCase(70, 71, false), new VerifyPipeBugStateQuantitiesCase(71, 0, true), new VerifyPipeBugStateQuantitiesCase(65535, 0, false), new VerifyPipeBugStateQuantitiesCase(32839, 32840, false) })
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -95,15 +95,15 @@ internal static class PipeBugBehaviorVerification
             state.Function = PipeBugEnemyFunction.YellowArcRight;
             state.ArcRising = true;
             state.ArcCounter = 1;
-            (int counter, bool rising)[] expected = [(0, true), (0, false), (1, false)];
+            PipeBugBehaviorExpected[] expected = [new PipeBugBehaviorExpected(0, true), new PipeBugBehaviorExpected(0, false), new PipeBugBehaviorExpected(1, false)];
             for (int update = 0; update < expected.Length; update++)
             {
                 enemies.PipeBugsBehavior.RunPipeBugsMainAi(slot, Frame(new(200, 128)));
                 AssertEqual(SnesFixedPosition.FromRaw(checked((uint)(128 * onePixel + (update + 1) * (onePixel + onePixel / 2)))), slot.Position.X,
                     $"yellow Pipe Bug arc update {update} carries its 16.16 speed");
-                AssertEqual(expected[update].counter, state.ArcCounter, $"yellow Pipe Bug arc record after update {update}");
+                AssertEqual(expected[update].Counter, state.ArcCounter, $"yellow Pipe Bug arc record after update {update}");
                 if (update < 2)
-                    AssertEqual(expected[update].rising, state.ArcRising, $"yellow Pipe Bug arc phase after update {update}");
+                    AssertEqual(expected[update].Rising, state.ArcRising, $"yellow Pipe Bug arc phase after update {update}");
             }
         }
         Console.WriteLine("  Pipe Bug state: the formation count wraps and compares by sign, the direction bit stands alone, and the arc record never goes below zero.");

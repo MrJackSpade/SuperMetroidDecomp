@@ -25,9 +25,9 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     // possible eight-bit index because the curve visits non-cardinal angles. The first
     // flight assertion below is a literal retail-ROM coordinate/velocity witness, so a
     // future accidental rounding change cannot make production and fixture drift together.
-    var sineSamples = new (byte Angle, short Value)[256];
+    var sineSamples = new SineSample[256];
     for (int angle = 0; angle < 256; angle++)
-        sineSamples[angle] = ((byte)angle, unchecked((short)(Math.Sin(angle * Math.PI / 128.0) * 256.0)));
+        sineSamples[angle] = new SineSample((byte)angle, unchecked((short)(Math.Sin(angle * Math.PI / 128.0) * 256.0)));
     SeedSignedSineTable(bus, sineSamples);
 
     // The drain producer alternates four retail walk speeds in both directions, then runs

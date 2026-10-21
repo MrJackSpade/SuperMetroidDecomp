@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Enemies.Drawing;
@@ -115,8 +116,8 @@ internal static void VerifyRoomEnemyLoading()
     var stockColors = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>();
     foreach ((EnemyDefinitionId pointer, byte[] planar, byte[] paletteBytes) in new[]
              {
-                 (primaryDefinitionPointer, primaryTileBytes, primaryPaletteBytes),
-                 (specialDefinitionPointer, specialTileBytes, specialPaletteBytes),
+                 new VerifyRoomEnemyLoadingCase(primaryDefinitionPointer, primaryTileBytes, primaryPaletteBytes),
+                 new VerifyRoomEnemyLoadingCase(specialDefinitionPointer, specialTileBytes, specialPaletteBytes),
              })
     {
         int byteCount = planar.Length;
@@ -983,7 +984,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     // composite animation, all seven inactive segments share the tail-root position
     // and stay there through the body fade until liftoff.
     AssertEqual(1, state.TailSegments
-            .Select(segment => (segment.Position.X, segment.Position.Y))
+            .Select(segment => new MotherBrainRinkaDoorSpawnExpected(segment.Position.X, segment.Position.Y))
             .Distinct()
             .Count(),
         "Ceres Ridley resting tail segments share the tail root before liftoff");
@@ -1490,14 +1491,14 @@ static void SeedCeresDoorQuakeOverlay(TestAddressSpace bus)
 
 /// <summary>Reads back the seeded Ceres Ridley palette words ($A6:E14F) and one planar tile ($A6:9000) as installed fixture artwork.</summary>
 [CpuBusBoundary("exact bus test: reads back the synthetic cartridge's seeded Ceres Ridley palette and tile bytes")]
-static (ushort[] PaletteWords, byte[] Planar) ReadCeresRidleyFixtureArtwork(TestAddressSpace bus)
+static ReadCeresRidleyFixtureArtworkResult ReadCeresRidleyFixtureArtwork(TestAddressSpace bus)
 {
     ushort[] paletteWords = Enumerable.Range(0, EnemyPaletteSheet.ColorCount)
         .Select(color => SnesLittleEndian.Word(bus.ReadByte(0xa6e14f + color * 2), bus.ReadByte(0xa6e150 + color * 2)))
         .ToArray();
     byte[] planar = Enumerable.Range(0, 0x20)
         .Select(offset => bus.ReadByte(0xa69000 + offset)).ToArray();
-    return (paletteWords, planar);
+    return new ReadCeresRidleyFixtureArtworkResult(paletteWords, planar);
 }
 
 /// <summary>Writes one complete fixture header while keeping pointer-bearing fields valid.</summary>
@@ -1663,12 +1664,12 @@ static void SeedCeresRidleyRoomEntryCartridge(
     // Populate the sixteen cardinal/intercardinal samples touched by the initialized
     // $4000,$4010... tail angles; an all-zero synthetic bus would otherwise make correct
     // polar-to-Cartesian code appear to leave every tail piece at the same coordinate.
-    (byte Angle, short Value)[] sineSamples =
+    SineSample[] sineSamples =
     [
-        (0x00, 0), (0x10, 98), (0x20, 181), (0x30, 237),
-        (0x40, 256), (0x50, 237), (0x60, 181), (0x70, 98),
-        (0x80, 0), (0x90, -98), (0xa0, -181), (0xb0, -237),
-        (0xc0, -256), (0xd0, -237), (0xe0, -181), (0xf0, -98),
+        new SineSample(0x00, 0), new SineSample(0x10, 98), new SineSample(0x20, 181), new SineSample(0x30, 237),
+        new SineSample(0x40, 256), new SineSample(0x50, 237), new SineSample(0x60, 181), new SineSample(0x70, 98),
+        new SineSample(0x80, 0), new SineSample(0x90, -98), new SineSample(0xa0, -181), new SineSample(0xb0, -237),
+        new SineSample(0xc0, -256), new SineSample(0xd0, -237), new SineSample(0xe0, -181), new SineSample(0xf0, -98),
     ];
     SeedSignedSineTable(bus, sineSamples);
 

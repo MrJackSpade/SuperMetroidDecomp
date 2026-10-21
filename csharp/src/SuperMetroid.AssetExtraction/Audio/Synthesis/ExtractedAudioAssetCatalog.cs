@@ -398,9 +398,7 @@ public sealed class ExtractedAudioAssetCatalog
     }
 
     /// <summary>Validates bounded SFX programs and each library's fixed command routing and voice allocation.</summary>
-    private static (
-        IReadOnlyList<AudioSoundProgramMetadata> Programs,
-        IReadOnlyList<AudioSoundLibraryMetadata> Libraries) ValidateSoundDefinitions(
+    private static SoundDefinitionMetadata ValidateSoundDefinitions(
         AudioAssetManifest manifest)
     {
         if (manifest.SoundPrograms is null)
@@ -480,7 +478,7 @@ public sealed class ExtractedAudioAssetCatalog
                 }
             }
         }
-        return (Array.AsReadOnly(manifest.SoundPrograms.ToArray()),
+        return new SoundDefinitionMetadata(Array.AsReadOnly(manifest.SoundPrograms.ToArray()),
             Array.AsReadOnly(manifest.SoundLibraries.ToArray()));
     }
 

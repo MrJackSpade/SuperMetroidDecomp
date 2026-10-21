@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Fx;
 internal static class LookupTreadmillMechanicsVerification
 {
     /// <summary>Walks each native header, wait, four timed frames, and terminating goto address.</summary>
-    internal static IEnumerable<(ushort Header, ushort Wait, ushort[] Frames, ushort End)> OriginalTreadmillPrograms(ISnesAddressSpace rom)
+    internal static IEnumerable<OriginalTreadmillProgramsResult> OriginalTreadmillPrograms(ISnesAddressSpace rom)
     {
         foreach (ushort header in new ushort[] { 0x8275, 0x827b })
         {
@@ -24,7 +24,7 @@ internal static class LookupTreadmillMechanicsVerification
                 cursor += 4;
             }
             AssertEqual(4, frames.Count, "Native treadmill timed-entry count");
-            yield return (header, wait, frames.ToArray(), (ushort)cursor);
+            yield return new OriginalTreadmillProgramsResult(header, wait, frames.ToArray(), (ushort)cursor);
         }
     }
 

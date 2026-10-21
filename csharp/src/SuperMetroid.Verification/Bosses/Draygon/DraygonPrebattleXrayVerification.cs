@@ -55,8 +55,8 @@ internal static class DraygonPrebattleXrayVerification
         var pixels = SoftwareLayeredSnapshotRenderer.Render(scene);
         var hidden = RenderWithRegisters(r with { MainScreenLayers = r.MainScreenLayers & ~SnesMainScreenLayers.Bg2 });
         var unmasked = RenderWithRegisters(r with { Bg2FirstScanline = 32, Bg2EndScanline = 224 });
-        int exposed = pixels.Zip(hidden).Count(pair => pair.First != pair.Second);
-        int wrapped = unmasked.Zip(hidden).Count(pair => pair.First != pair.Second);
+        int exposed = pixels.Zip(hidden, (first, second) => first != second).Count(differs => differs);
+        int wrapped = unmasked.Zip(hidden, (first, second) => first != second).Count(differs => differs);
         Console.WriteLine($"Pre-battle Draygon: body={boss.Body.Position.X.Whole:X4}/{boss.Body.Position.Y.Whole:X4}, Samus={samus.Position.X.Whole}/{samus.Position.Y.Whole}, camera={r.Bg1Scroll.X}/{r.Bg1Scroll.Y}; exposed={exposed}, unmasked={wrapped} pixels.");
 
         AssertTrue(wrapped > 0, "the reported corner visibly exposes repeated body art without native clipping");
@@ -78,7 +78,7 @@ internal static class DraygonPrebattleXrayVerification
             new RenderLayer[] { new OrdinaryGameplayRenderLayer(ordinary.Registers with
                 { MainScreenLayers = ordinary.Registers.MainScreenLayers & ~SnesMainScreenLayers.Bg2 }, ordinary.Rooms, ordinary.Bg2LineScrolls) },
             combat.ObjectSelection, combat.Brightness);
-        int visible = SoftwareLayeredSnapshotRenderer.Render(combat).Zip(SoftwareLayeredSnapshotRenderer.Render(combatWithoutBg2)).Count(pair => pair.First != pair.Second);
+        int visible = SoftwareLayeredSnapshotRenderer.Render(combat).Zip(SoftwareLayeredSnapshotRenderer.Render(combatWithoutBg2), (first, second) => first != second).Count(differs => differs);
         Console.WriteLine($"Battle-start Draygon body: {visible} visible pixels.");
         AssertTrue(visible > 0, "battle start still displays Draygon's body");
 

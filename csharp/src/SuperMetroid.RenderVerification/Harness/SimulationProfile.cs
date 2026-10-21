@@ -52,7 +52,7 @@ internal static class SimulationProfile
         using var publicationProfile = new RenderPublicationProfile();
         long sequence = 0;
         long nonzeroPcmSamples = 0;
-        (double Capture, double Audio, double Total, long Allocation, double Publication, long PublicationAllocation) Step(SnesButton input)
+        SimulationStepCost Step(SnesButton input)
         {
             publicationProfile.Reset();
             long allocationStart = GC.GetAllocatedBytesForCurrentThread();
@@ -62,7 +62,7 @@ internal static class SimulationProfile
             game.CopyAudioFrame(pcm);
             long end = Stopwatch.GetTimestamp();
             foreach (short value in pcm) if (value != 0) nonzeroPcmSamples++;
-            return ((captured - start) * 1000.0 / Stopwatch.Frequency,
+            return new SimulationStepCost((captured - start) * 1000.0 / Stopwatch.Frequency,
                 (end - captured) * 1000.0 / Stopwatch.Frequency,
                 (end - start) * 1000.0 / Stopwatch.Frequency,
                 GC.GetAllocatedBytesForCurrentThread() - allocationStart,

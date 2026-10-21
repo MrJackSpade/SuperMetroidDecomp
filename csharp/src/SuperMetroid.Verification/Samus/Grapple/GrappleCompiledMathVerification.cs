@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
@@ -25,7 +26,7 @@ internal static class GrappleCompiledMathVerification
         var point = new Func<SamusGrappleState, byte, int, GrappleCollisionPoint>((grapple, angle, distance) => SamusGrappleSwing.CalculateCollisionPoint(grapple, new SnesByteAngle(angle), distance));
         var release = new Action<SamusState, SamusGrappleState>(SamusGrappleSwing.PropelSamusFromSwing);
         var state = new SamusState();
-        (ushort X, ushort Y)[] anchors = [(0, 0), (7, 8), (128, 255), (4095, 4096), (65520, 65535), (65535, 0)];
+        MotherBrainRinkaDoorSpawnExpected[] anchors = [new MotherBrainRinkaDoorSpawnExpected(0, 0), new MotherBrainRinkaDoorSpawnExpected(7, 8), new MotherBrainRinkaDoorSpawnExpected(128, 255), new MotherBrainRinkaDoorSpawnExpected(4095, 4096), new MotherBrainRinkaDoorSpawnExpected(65520, 65535), new MotherBrainRinkaDoorSpawnExpected(65535, 0)];
         int pointCount = 0;
         foreach (var anchor in anchors)
         for (int angle = 0; angle < 256; angle++)

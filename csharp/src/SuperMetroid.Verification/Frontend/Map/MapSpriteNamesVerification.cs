@@ -7,34 +7,34 @@ using SuperMetroid.Verification.Harness;
 internal static class MapSpriteNamesVerification
 {
     /// <summary>Lists original arrows, stations, markers, elevators, and world labels in document order.</summary>
-    internal static (ushort NativeId, string Name)[] MapSpriteRoleOracle() =>
+    internal static MapSpriteRoleOracleResult[] MapSpriteRoleOracle() =>
         [
-            (0x4, "Arrow.Right"),
-            (0x5, "Arrow.Left"),
-            (0x6, "Arrow.Up"),
-            (0x7, "Arrow.Down"),
-            (0x9, "Marker.Boss"),
-            (0xa, "Station.Energy"),
-            (0xb, "Station.Missile"),
-            (0x4e, "Station.Map"),
-            (0x62, "Marker.DefeatedBoss"),
-            (0x63, "Marker.Gunship"),
-            (0x12, "Indicator.Backing"),
-            (0x5f, "Indicator.Frame0"),
-            (0x60, "Indicator.Frame1"),
-            (0x61, "Indicator.Frame2"),
-            (0x59, "Elevator.Crateria"),
-            (0x5a, "Elevator.Brinstar"),
-            (0x5b, "Elevator.Norfair"),
-            (0x5c, "Elevator.WreckedShip"),
-            (0x5d, "Elevator.Maridia"),
-            (0x38, "World.Title"),
-            (0x39, "World.Crateria"),
-            (0x3a, "World.Brinstar"),
-            (0x3b, "World.Norfair"),
-            (0x3c, "World.WreckedShip"),
-            (0x3d, "World.Maridia"),
-            (0x3e, "World.Tourian")
+            new MapSpriteRoleOracleResult(0x4, "Arrow.Right"),
+            new MapSpriteRoleOracleResult(0x5, "Arrow.Left"),
+            new MapSpriteRoleOracleResult(0x6, "Arrow.Up"),
+            new MapSpriteRoleOracleResult(0x7, "Arrow.Down"),
+            new MapSpriteRoleOracleResult(0x9, "Marker.Boss"),
+            new MapSpriteRoleOracleResult(0xa, "Station.Energy"),
+            new MapSpriteRoleOracleResult(0xb, "Station.Missile"),
+            new MapSpriteRoleOracleResult(0x4e, "Station.Map"),
+            new MapSpriteRoleOracleResult(0x62, "Marker.DefeatedBoss"),
+            new MapSpriteRoleOracleResult(0x63, "Marker.Gunship"),
+            new MapSpriteRoleOracleResult(0x12, "Indicator.Backing"),
+            new MapSpriteRoleOracleResult(0x5f, "Indicator.Frame0"),
+            new MapSpriteRoleOracleResult(0x60, "Indicator.Frame1"),
+            new MapSpriteRoleOracleResult(0x61, "Indicator.Frame2"),
+            new MapSpriteRoleOracleResult(0x59, "Elevator.Crateria"),
+            new MapSpriteRoleOracleResult(0x5a, "Elevator.Brinstar"),
+            new MapSpriteRoleOracleResult(0x5b, "Elevator.Norfair"),
+            new MapSpriteRoleOracleResult(0x5c, "Elevator.WreckedShip"),
+            new MapSpriteRoleOracleResult(0x5d, "Elevator.Maridia"),
+            new MapSpriteRoleOracleResult(0x38, "World.Title"),
+            new MapSpriteRoleOracleResult(0x39, "World.Crateria"),
+            new MapSpriteRoleOracleResult(0x3a, "World.Brinstar"),
+            new MapSpriteRoleOracleResult(0x3b, "World.Norfair"),
+            new MapSpriteRoleOracleResult(0x3c, "World.WreckedShip"),
+            new MapSpriteRoleOracleResult(0x3d, "World.Maridia"),
+            new MapSpriteRoleOracleResult(0x3e, "World.Tourian")
         ];
 
     /// <summary>Checks document order, the complete ushort membership domain, and invalid names.</summary>
@@ -43,7 +43,7 @@ internal static class MapSpriteNamesVerification
         // Independent original table from9b54e512, retained only for verification.
         var original = MapSpriteRoleOracle();
         AssertEqual(original.Length, MapSpriteDefinitions.Count, "map sprite complete role count");
-        AssertTrue(original.SequenceEqual(MapSpriteDefinitions.Frames.Select(frame => ((ushort)frame.Id, frame.Name))), "original map sprite document order");
+        AssertTrue(original.SequenceEqual(MapSpriteDefinitions.Frames.Select(frame => new MapSpriteRoleOracleResult((ushort)frame.Id, frame.Name))), "original map sprite document order");
         foreach (var entry in original)
             AssertEqual(entry.Name, MapSpriteDefinitions.Name((MapSpriteId)entry.NativeId), "original native identity name");
         var supported = original.Select(entry => entry.NativeId).ToHashSet();

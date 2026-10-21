@@ -58,12 +58,12 @@ internal static class PauseTileAtlasVerification
             EnterPauseEquipment(pause);
             AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "artwork edit fixture reaches equipment page");
             var before = pause.Render();
-            var selected = (pause.SelectedCategory, pause.SelectedItem, samus.EquippedBeams, samus.CollectedBeams);
+            var selected = new Selected(pause.SelectedCategory, pause.SelectedItem, samus.EquippedBeams, samus.CollectedBeams);
             pause.BindMapPresentation(edited);
             var after = pause.Render();
             AssertTrue(!before.SequenceEqual(after), "pause UI PNG edit reaches actual equipment pixels immediately");
             AssertTrue(after.SequenceEqual(RenderForComparison(pause.CaptureRenderSnapshot())), "edited pause artwork reaches captured rendering");
-            AssertEqual(selected, (pause.SelectedCategory, pause.SelectedItem, samus.EquippedBeams, samus.CollectedBeams), "artwork rebind preserves selection and equipment");
+            AssertEqual(selected, new Selected(pause.SelectedCategory, pause.SelectedItem, samus.EquippedBeams, samus.CollectedBeams), "artwork rebind preserves selection and equipment");
             using var captured = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(captured, pause); captured.Position = 0;
             pause = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(captured);
             pause.BindMapPresentation(original);

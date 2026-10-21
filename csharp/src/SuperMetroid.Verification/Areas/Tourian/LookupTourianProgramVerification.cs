@@ -161,7 +161,7 @@ internal static class LookupTourianProgramVerification
     /// the grey-event, boss-bit and unconditional branches enter the already-grey, release and idle programs.
     /// </summary>
     private static Dictionary<ushort, TourianStatueTileProgram> ProgramLabels(
-        ISnesAddressSpace rom, List<(ushort Cursor, ushort Code, int Width)> instructions)
+        ISnesAddressSpace rom, List<LookupTourianArtworkInstruction> instructions)
     {
         var labels = new Dictionary<ushort, TourianStatueTileProgram> { [instructions[0].Cursor] = TourianStatueTileProgram.Entry };
         foreach (var instruction in instructions)

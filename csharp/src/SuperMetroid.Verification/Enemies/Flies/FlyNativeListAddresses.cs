@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Flies;
 
 namespace SuperMetroid.Verification.Enemies.Flies;
@@ -12,9 +13,9 @@ internal static class FlyNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (FlyProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<FlyProgram>[] Entries =
     [
-        (FlyProgram.Flight, 0xb013),
+        new NativeProgramEntry<FlyProgram>(FlyProgram.Flight, 0xb013),
     ];
 
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -12,7 +13,7 @@ internal abstract class NativeEnemyProjectileFamily
 {
     /// <summary>The family of <paramref name="programs"/>, whose native lists start at <paramref name="entries"/>.</summary>
     internal static NativeEnemyProjectileProgramFamily<TProgram, TFrame, TCue> Of<TProgram, TFrame, TCue>(
-        (TProgram Program, ushort Entry)[] entries,
+        NativeProgramEntry<TProgram>[] entries,
         AnimationProgramSet<TProgram, TFrame, TCue> programs,
         Func<TFrame, ushort> presentationKey,
         NativeEnemyProjectileCueRules<TCue> rules,

@@ -112,14 +112,14 @@ internal static class BombTorizoAttackDefinitionsVerification
     }
 
     /// <summary>Creates a Torizo at a fixed room position with the requested facing bit.</summary>
-    private static (RoomEnemySystem Enemies, RoomEnemySlot Torizo)
+    private static CreateBombTorizoAttackFixtureResult
         CreateBombTorizoAttackFixture(bool facingRight)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
         torizo.Position = torizo.Position.WithWhole(new(1000, 500));
         enemies.BombTorizoBehavior.BindFixtureState(torizo, facingRight ? 0x8000 : 0);
-        return (enemies, torizo);
+        return new CreateBombTorizoAttackFixtureResult(enemies, torizo);
     }
 
     /// <summary>Rejects runtime reads from the migrated swipe and explosion offset tables.</summary>

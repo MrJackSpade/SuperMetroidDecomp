@@ -196,14 +196,14 @@ internal static class DeadTorizoArtworkVerification
     {
         StagingByteView tiles = staging.CorpseTiles;
         tiles.Fill(0);
-        (int Source, int Destination, int Length)[] copies =
+        DeadTorizoArtworkCopy[] copies =
         [
-            (288, 0x060, 0xc0), (800, 0x1a0, 0xc0),
-            (1280, 0x2c0, 0x100), (1792, 0x400, 0x100),
-            (2304, 0x540, 0x100), (2816, 0x680, 0x100),
-            (3328, 0x7c0, 0x100), (3840, 0x900, 0x100),
-            (4352, 0xa40, 0x100), (4832, 0xb60, 0x120),
-            (5312, 0xc80, 0x140), (5824, 0xdc0, 0x140),
+            new DeadTorizoArtworkCopy(288, 0x060, 0xc0), new DeadTorizoArtworkCopy(800, 0x1a0, 0xc0),
+            new DeadTorizoArtworkCopy(1280, 0x2c0, 0x100), new DeadTorizoArtworkCopy(1792, 0x400, 0x100),
+            new DeadTorizoArtworkCopy(2304, 0x540, 0x100), new DeadTorizoArtworkCopy(2816, 0x680, 0x100),
+            new DeadTorizoArtworkCopy(3328, 0x7c0, 0x100), new DeadTorizoArtworkCopy(3840, 0x900, 0x100),
+            new DeadTorizoArtworkCopy(4352, 0xa40, 0x100), new DeadTorizoArtworkCopy(4832, 0xb60, 0x120),
+            new DeadTorizoArtworkCopy(5312, 0xc80, 0x140), new DeadTorizoArtworkCopy(5824, 0xdc0, 0x140),
         ];
         foreach (var copy in copies)
             for (int offset = 0; offset < copy.Length; offset++)
@@ -227,9 +227,9 @@ internal static class DeadTorizoArtworkVerification
 
     /// <summary>Obtains a sand line's WRAM destination and sheet source from separate retail tables.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Dead Torizo sand-line destination and source offset tables")]
-    private static (int Destination, int Source) ReadNativeDeadTorizoSandLineOffsets(ISnesAddressSpace rom, ushort line)
+    private static ReadNativeDeadTorizoSandLineOffsetsResult ReadNativeDeadTorizoSandLineOffsets(ISnesAddressSpace rom, ushort line)
     {
-        return (CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9d67c + line * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9d69c + line * 2)));
+        return new ReadNativeDeadTorizoSandLineOffsetsResult(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9d67c + line * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9d69c + line * 2)));
     }
 
     /// <summary>Initializes the corpse actor with installed artwork while forbidding reads from its ROM sheet.</summary>

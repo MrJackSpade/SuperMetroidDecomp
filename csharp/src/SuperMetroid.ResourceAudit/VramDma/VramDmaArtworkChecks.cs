@@ -23,14 +23,14 @@ internal static class VramDmaArtworkChecks
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: GameplayBasePaletteCatalog.Load(paletteStream));
         runtime.Artwork.MapPresentation = maps;
         runtime.Artwork.GrappleArtwork = Grapple(1);
-        var pairs = new List<(int Source, int Count, VramAssetId Asset)>
+        var pairs = new List<ArtworkTransfer>
         {
-            (HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.TransferByteCount, VramAssetId.StandardHudTiles),
-            (EscapeTimerTileRomData.FirstSourceAddress, EscapeTimerTileAtlasFormat.FirstByteCount, VramAssetId.EscapeTimerFirstTiles),
-            (EscapeTimerTileRomData.SecondSourceAddress, EscapeTimerTileAtlasFormat.SecondByteCount, VramAssetId.EscapeTimerSecondTiles),
+            new ArtworkTransfer(HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.TransferByteCount, VramAssetId.StandardHudTiles),
+            new ArtworkTransfer(EscapeTimerTileRomData.FirstSourceAddress, EscapeTimerTileAtlasFormat.FirstByteCount, VramAssetId.EscapeTimerFirstTiles),
+            new ArtworkTransfer(EscapeTimerTileRomData.SecondSourceAddress, EscapeTimerTileAtlasFormat.SecondByteCount, VramAssetId.EscapeTimerSecondTiles),
         };
         pairs.AddRange(GrappleTileDefinitions.Transfers.Select(transfer =>
-            (transfer.SourceAddress, (int)transfer.ByteCount, transfer.Asset)));
+            new ArtworkTransfer(transfer.SourceAddress, transfer.ByteCount, transfer.Asset)));
         foreach (var pair in pairs)
         {
             var queue = new VramWriteQueue();

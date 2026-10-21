@@ -99,15 +99,15 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         ReferenceEntrance(nativeEntryCgram);
         Initialize(editedEntry, 0);
         CheckOnlyDifferences(nativeEntryCgram, editedEntryCgram,
-            [(TourianStatuePaletteRomData.BaseCgramIndex + 1, 1),
-             (TourianStatuePaletteRomData.StatueCgramIndex + 1, 1 << 5)],
+            [new Difference(TourianStatuePaletteRomData.BaseCgramIndex + 1, 1),
+             new Difference(TourianStatuePaletteRomData.StatueCgramIndex + 1, 1 << 5)],
             "Tourian entrance edit");
         SnesCgram nativeEyeCgram = SeedColors();
         (RoomEnemySystem editedEye, SnesCgram editedEyeCgram) = CreateEnemy(guard, edited);
         ReferenceEye(nativeEyeCgram, 4);
         editedEye.TourianUnlockBehavior.SpawnTourianEyeGlow(4);
         CheckOnlyDifferences(nativeEyeCgram, editedEyeCgram,
-            [(TourianStatuePaletteRomData.EyeCgramIndex + 1, 1 << 10)],
+            [new Difference(TourianStatuePaletteRomData.EyeCgramIndex + 1, 1 << 10)],
             "Tourian eye edit");
 
         // The $87:837F grey instruction is reached on re-entry after each
@@ -145,7 +145,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         AssertTrue(new CgramPalettes(nativeGreyCgram).ImageEquals(new CgramPalettes(installedRoom.Cgram)),
             "Tourian grey room instruction preserves full native CGRAM");
         var differences = greyDestinations
-            .Select(destination => (Index: destination + 1, Mask: 1 << 10)).ToArray();
+            .Select(destination => new Difference(Index:destination + 1, Mask:1 << 10)).ToArray();
         CheckOnlyDifferences(nativeGreyCgram, editedRoom.Cgram, differences,
             "Tourian grey room instruction edit");
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -212,13 +212,13 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             return cgram;
         }
 
-        static (RoomEnemySystem, SnesCgram) CreateEnemy(
+        static CreateEnemyResult CreateEnemy(
             ISnesAddressSpace source, InstalledEnemyArtwork artwork)
         {
             var enemy = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             SnesCgram cgram = SeedColors();
             enemy.Presentation.BindCgram(cgram);
-            return (enemy, cgram);
+            return new CreateEnemyResult(enemy, cgram);
         }
 
         static void Initialize(RoomEnemySystem enemy, ushort parameter)
@@ -263,7 +263,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
     /// <summary>Requires an edited CGRAM image to differ only at the specified RGB5 channel bits.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void CheckOnlyDifferences(SnesCgram reference, SnesCgram edited,
-        IReadOnlyList<(int Index, int Mask)> differences, string context)
+        IReadOnlyList<Difference> differences, string context)
     {
         for (int color = 0; color < SnesCgram.ColorCount; color++)
         {

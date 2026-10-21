@@ -64,46 +64,46 @@ internal static class RoomPlmSystemAccess
         /// <summary>Every resident colored-door actor in the shared native PLM pool.</summary>
         internal IReadOnlyList<ColoredDoorPlmSnapshot> ColoredDoors =>
         [
-            .. ActiveSlots(self).Select(slot => (slot, door: slot.Family as ColoredDoorPlmState))
-                .Where(entry => entry.door is not null)
+            .. ActiveSlots(self).Select(slot => new ColoredDoorSlot(slot, Door:slot.Family as ColoredDoorPlmState))
+                .Where(entry => entry.Door is not null)
                 .Select(entry => new ColoredDoorPlmSnapshot(
-                    entry.slot.HeaderPointer,
-                    entry.slot.BlockIndex,
-                    checked((ushort)entry.slot.RoomArgument),
-                    (entry.door ?? throw new InvalidOperationException("Verification requires entry.door.")).Color,
-                    entry.slot.Animation is ColoredDoorPlmAnimation colored ? colored.Orientation
-                        : throw new InvalidOperationException($"Coloured cap at block {entry.slot.BlockIndex} runs {entry.slot.Animation}."),
-                    ColoredPhase(entry.slot), checked((byte)entry.door.HitCounter))),
+                    entry.Slot.HeaderPointer,
+                    entry.Slot.BlockIndex,
+                    checked((ushort)entry.Slot.RoomArgument),
+                    (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).Color,
+                    entry.Slot.Animation is ColoredDoorPlmAnimation colored ? colored.Orientation
+                        : throw new InvalidOperationException($"Coloured cap at block {entry.Slot.BlockIndex} runs {entry.Slot.Animation}."),
+                    ColoredPhase(entry.Slot), checked((byte)entry.Door.HitCounter))),
         ];
 
         /// <summary>Debugger-stable views of every resident grey-door PLM.</summary>
         internal IReadOnlyList<GreyDoorPlmSnapshot> GreyDoorSnapshots =>
         [
-            .. ActiveSlots(self).Select(slot => (slot, door: slot.Family as GreyDoorPlmState))
-                .Where(entry => entry.door is not null)
+            .. ActiveSlots(self).Select(slot => new GreyDoorSlot(slot, Door:slot.Family as GreyDoorPlmState))
+                .Where(entry => entry.Door is not null)
                 .Select(entry => new GreyDoorPlmSnapshot(
-                    entry.slot.HeaderPointer,
-                    entry.slot.BlockIndex,
-                    checked((ushort)entry.slot.RoomArgument),
-                    entry.slot.Animation is GreyDoorPlmAnimation grey ? grey.Variant.Orientation
-                        : throw new InvalidOperationException($"Grey cap at block {entry.slot.BlockIndex} runs {entry.slot.Animation}."),
-                    (entry.door ?? throw new InvalidOperationException("Verification requires entry.door.")).Condition,
-                    GreyPhase(entry.slot), checked((byte)entry.door.HitCounter), entry.slot.Animation)),
+                    entry.Slot.HeaderPointer,
+                    entry.Slot.BlockIndex,
+                    checked((ushort)entry.Slot.RoomArgument),
+                    entry.Slot.Animation is GreyDoorPlmAnimation grey ? grey.Variant.Orientation
+                        : throw new InvalidOperationException($"Grey cap at block {entry.Slot.BlockIndex} runs {entry.Slot.Animation}."),
+                    (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).Condition,
+                    GreyPhase(entry.Slot), checked((byte)entry.Door.HitCounter), entry.Slot.Animation)),
         ];
 
         /// <summary>Debugger-visible projections of every live eye-door component.</summary>
         internal IReadOnlyList<EyeDoorPlmSnapshot> EyeDoorSnapshots =>
         [
-            .. ActiveSlots(self).Select(slot => (slot, door: slot.Family as EyeDoorPlms.EyeDoorPlmState))
-                .Where(entry => entry.door is not null)
+            .. ActiveSlots(self).Select(slot => new EyeDoorSlot(slot, Door:slot.Family as EyeDoorPlms.EyeDoorPlmState))
+                .Where(entry => entry.Door is not null)
                 .Select(entry => new EyeDoorPlmSnapshot(
-                    entry.slot.HeaderPointer,
-                    entry.slot.BlockIndex,
-                    checked((ushort)entry.slot.RoomArgument),
-                    ((entry.door ?? throw new InvalidOperationException("Verification requires entry.door."))).Component,
-                    checked((byte)(entry.door).HitCounter),
-                    entry.slot.Animation,
-                    PlmPreInstructionNativeRoutines.Of(entry.slot.PreInstruction))),
+                    entry.Slot.HeaderPointer,
+                    entry.Slot.BlockIndex,
+                    checked((ushort)entry.Slot.RoomArgument),
+                    ((entry.Door ?? throw new InvalidOperationException("Verification requires entry.door."))).Component,
+                    checked((byte)(entry.Door).HitCounter),
+                    entry.Slot.Animation,
+                    PlmPreInstructionNativeRoutines.Of(entry.Slot.PreInstruction))),
         ];
 
         /// <summary>

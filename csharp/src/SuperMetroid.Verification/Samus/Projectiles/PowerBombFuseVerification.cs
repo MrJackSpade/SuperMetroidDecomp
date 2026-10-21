@@ -46,7 +46,7 @@ internal static class PowerBombFuseVerification
         }
         AssertEqual(1, spawns, "one expiration across complete fuse");
         // The fast lists lie $1C bytes on: each slow Power Bomb position lands on its fast counterpart.
-        foreach (var (slow, fast) in new[] { (SamusProjectileProgram.PowerBomb, SamusProjectileProgram.FastPowerBomb) })
+        foreach (var (slow, fast) in new[] { new VerifyPowerBombFuseCase(SamusProjectileProgram.PowerBomb, SamusProjectileProgram.FastPowerBomb) })
             for (int position = 0; position < SamusProjectileAnimations.Programs.Steps(slow).Count; position++)
                 AssertEqual(new AnimationProgramCursor<SamusProjectileProgram>(fast, position),
                     SamusPowerBombFuse.FastAnimation(new AnimationProgramCursor<SamusProjectileProgram>(slow, position)),

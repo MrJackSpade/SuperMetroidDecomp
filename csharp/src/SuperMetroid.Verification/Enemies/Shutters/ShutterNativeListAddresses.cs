@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Shutters;
 
 namespace SuperMetroid.Verification.Enemies.Shutters;
@@ -12,14 +13,14 @@ internal static class ShutterNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (ShutterProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<ShutterProgram>[] Entries =
     [
-        (ShutterProgram.GrowingTenPixels, 0xe998),
-        (ShutterProgram.GrowingTwentyPixels, 0xe99e),
-        (ShutterProgram.GrowingThirtyPixels, 0xe9a4),
-        (ShutterProgram.FortyPixels, 0xe9aa),
-        (ShutterProgram.Horizontal, 0xe9d4),
-        (ShutterProgram.KamerPlatform, 0xede7),
+        new NativeProgramEntry<ShutterProgram>(ShutterProgram.GrowingTenPixels, 0xe998),
+        new NativeProgramEntry<ShutterProgram>(ShutterProgram.GrowingTwentyPixels, 0xe99e),
+        new NativeProgramEntry<ShutterProgram>(ShutterProgram.GrowingThirtyPixels, 0xe9a4),
+        new NativeProgramEntry<ShutterProgram>(ShutterProgram.FortyPixels, 0xe9aa),
+        new NativeProgramEntry<ShutterProgram>(ShutterProgram.Horizontal, 0xe9d4),
+        new NativeProgramEntry<ShutterProgram>(ShutterProgram.KamerPlatform, 0xede7),
     ];
 
 }

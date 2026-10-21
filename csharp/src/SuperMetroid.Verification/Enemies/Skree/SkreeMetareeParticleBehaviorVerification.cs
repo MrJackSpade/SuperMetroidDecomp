@@ -28,10 +28,10 @@ internal static class SkreeMetareeParticleBehaviorVerification
             VramTilesIndex = 512,
             PaletteIndex = 3072,
         };
-        foreach ((Action<RoomEnemySlot> spawn, SkreeMetareeParticleProgram program) in new (Action<RoomEnemySlot>, SkreeMetareeParticleProgram)[]
+        foreach ((Action<RoomEnemySlot> spawn, SkreeMetareeParticleProgram program) in new VerifySkreeMetareeParticleBehaviorCase[]
                  {
-                     (enemies.Projectiles.SpawnSkreeParticleBurst, SkreeMetareeParticleProgram.Skree),
-                     (enemies.Projectiles.SpawnMetareeParticleBurst, SkreeMetareeParticleProgram.Metaree),
+                     new VerifySkreeMetareeParticleBehaviorCase(enemies.Projectiles.SpawnSkreeParticleBurst, SkreeMetareeParticleProgram.Skree),
+                     new VerifySkreeMetareeParticleBehaviorCase(enemies.Projectiles.SpawnMetareeParticleBurst, SkreeMetareeParticleProgram.Metaree),
                  })
         {
             foreach (RoomEnemyProjectileSlot stale in enemies.Projectiles.EnemyProjectiles)

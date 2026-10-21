@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Boulder;
 
 namespace SuperMetroid.Verification.Enemies.Boulder;
@@ -12,10 +13,10 @@ internal static class BoulderNativeListAddresses
     internal const byte Bank = 0xa6;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (BoulderProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<BoulderProgram>[] Entries =
     [
-        (BoulderProgram.Left, 0x86a7),
-        (BoulderProgram.Right, 0x86cb),
+        new NativeProgramEntry<BoulderProgram>(BoulderProgram.Left, 0x86a7),
+        new NativeProgramEntry<BoulderProgram>(BoulderProgram.Right, 0x86cb),
     ];
 
 }

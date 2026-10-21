@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Rooms.Plms;
@@ -11,16 +12,16 @@ internal static class LookupEyeDoorStockVerification
     /// <summary>Compares 23 bank $84 frame identities and every stock tile word with the native map.</summary>
     internal static void VerifyEyeDoorStockMapping(SuperMetroidAddressSpace rom, RoomPlmEyeDoorVisualCatalog installed)
     {
-        (ushort Pointer, string Id)[] frames = [
-            (0x9c03,"left-eye-frame-0"),(0x9c0b,"left-eye-frame-1"),(0x9c13,"left-eye-frame-2"),
-            (0x9c1b,"left-eye-frame-3"),(0x9c23,"left-eye-frame-4"),
-            (0x9c2b,"left-middle-frame-0"),(0x9c31,"left-middle-frame-1"),(0x9c37,"left-middle-frame-2"),
-            (0x9c3d,"left-bottom-frame-0"),(0x9c43,"left-bottom-frame-1"),(0x9c49,"left-bottom-frame-2"),
-            (0x9c4f,"left-eye-clear"),
-            (0x9c5b,"right-eye-frame-0"),(0x9c63,"right-eye-frame-1"),(0x9c6b,"right-eye-frame-2"),
-            (0x9c73,"right-eye-frame-3"),(0x9c7b,"right-eye-frame-4"),
-            (0x9c83,"right-middle-frame-0"),(0x9c89,"right-middle-frame-1"),(0x9c8f,"right-middle-frame-2"),
-            (0x9c95,"right-bottom-frame-0"),(0x9c9b,"right-bottom-frame-1"),(0x9ca1,"right-bottom-frame-2"),
+        LookupEscapeGateStockFrame[] frames = [
+            new LookupEscapeGateStockFrame(0x9c03,"left-eye-frame-0"),new LookupEscapeGateStockFrame(0x9c0b,"left-eye-frame-1"),new LookupEscapeGateStockFrame(0x9c13,"left-eye-frame-2"),
+            new LookupEscapeGateStockFrame(0x9c1b,"left-eye-frame-3"),new LookupEscapeGateStockFrame(0x9c23,"left-eye-frame-4"),
+            new LookupEscapeGateStockFrame(0x9c2b,"left-middle-frame-0"),new LookupEscapeGateStockFrame(0x9c31,"left-middle-frame-1"),new LookupEscapeGateStockFrame(0x9c37,"left-middle-frame-2"),
+            new LookupEscapeGateStockFrame(0x9c3d,"left-bottom-frame-0"),new LookupEscapeGateStockFrame(0x9c43,"left-bottom-frame-1"),new LookupEscapeGateStockFrame(0x9c49,"left-bottom-frame-2"),
+            new LookupEscapeGateStockFrame(0x9c4f,"left-eye-clear"),
+            new LookupEscapeGateStockFrame(0x9c5b,"right-eye-frame-0"),new LookupEscapeGateStockFrame(0x9c63,"right-eye-frame-1"),new LookupEscapeGateStockFrame(0x9c6b,"right-eye-frame-2"),
+            new LookupEscapeGateStockFrame(0x9c73,"right-eye-frame-3"),new LookupEscapeGateStockFrame(0x9c7b,"right-eye-frame-4"),
+            new LookupEscapeGateStockFrame(0x9c83,"right-middle-frame-0"),new LookupEscapeGateStockFrame(0x9c89,"right-middle-frame-1"),new LookupEscapeGateStockFrame(0x9c8f,"right-middle-frame-2"),
+            new LookupEscapeGateStockFrame(0x9c95,"right-bottom-frame-0"),new LookupEscapeGateStockFrame(0x9c9b,"right-bottom-frame-1"),new LookupEscapeGateStockFrame(0x9ca1,"right-bottom-frame-2"),
         ];
         var native = new Dictionary<ushort, ushort[]>();
         foreach (var frame in frames)
@@ -59,7 +60,7 @@ internal static class LookupEyeDoorStockVerification
                 AssertThrows<InvalidDataException>(() => stock.GetWord((ushort)raw,0),"Eye door stock full pointer rejection");
         entries[11].Blocks[2] = 0xc58;
         var mixed = new RoomPlmEyeDoorVisualCatalog(entries);
-        var expected = frames.Select((frame,index) => (frame.Pointer,Words:entries[index].Blocks.ToArray()))
+        var expected = frames.Select((frame,index) => new LookupEyeDoorStockExpected(frame.Pointer,Words:entries[index].Blocks.ToArray()))
             .ToDictionary(pair => pair.Pointer,pair => pair.Words);
         entries[11].Blocks[2] = 0x5a;
         entries[12].Blocks[0] = 0x5b;

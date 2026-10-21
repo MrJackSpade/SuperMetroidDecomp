@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
@@ -67,7 +68,7 @@ internal static class PillarFirstEntryVerification
             "both Puromi actors survive normal destination initialization");
 
         var visibleFrames = new int[2];
-        var visiblePositions = new HashSet<(ushort X, ushort Y)>[] { new(), new() };
+        var visiblePositions = new HashSet<MotherBrainRinkaDoorSpawnExpected>[] { new(), new() };
         for (int frame = 0; frame < 600; frame++)
         {
             SnesButton input = SnesButton.Right;
@@ -103,7 +104,7 @@ internal static class PillarFirstEntryVerification
                 }
                 if (changed < 8) continue;
                 visibleFrames[actor]++;
-                visiblePositions[actor].Add((heads[actor].Position.X.Whole, heads[actor].Position.Y.Whole));
+                visiblePositions[actor].Add(new MotherBrainRinkaDoorSpawnExpected(heads[actor].Position.X.Whole, heads[actor].Position.Y.Whole));
             }
 
         }

@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Evir;
 
 namespace SuperMetroid.Verification.Enemies.Evir;
@@ -13,23 +14,23 @@ internal static class EvirNativeListAddresses
     internal const byte Bank = 0xa8;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (EvirProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<EvirProgram>[] Entries =
     [
-        (EvirProgram.BodyFacingLeft, 0x86a7),
-        (EvirProgram.ArmsFacingLeft, 0x86c3),
-        (EvirProgram.BodyFacingRight, 0x870b),
-        (EvirProgram.ArmsFacingRight, 0x8727),
-        (EvirProgram.ProjectileNormal, 0x876f),
-        (EvirProgram.ProjectileRegenerating, 0x8775),
-        (EvirProgram.ProjectileRegenerationLoop, 0x877d),
+        new NativeProgramEntry<EvirProgram>(EvirProgram.BodyFacingLeft, 0x86a7),
+        new NativeProgramEntry<EvirProgram>(EvirProgram.ArmsFacingLeft, 0x86c3),
+        new NativeProgramEntry<EvirProgram>(EvirProgram.BodyFacingRight, 0x870b),
+        new NativeProgramEntry<EvirProgram>(EvirProgram.ArmsFacingRight, 0x8727),
+        new NativeProgramEntry<EvirProgram>(EvirProgram.ProjectileNormal, 0x876f),
+        new NativeProgramEntry<EvirProgram>(EvirProgram.ProjectileRegenerating, 0x8775),
+        new NativeProgramEntry<EvirProgram>(EvirProgram.ProjectileRegenerationLoop, 0x877d),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (EvirCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, EvirNativeListAddressesInstruction> Instructions = new()
     {
-        [0x878f] = (EvirCueKind.PlaySpitSound, ""),
-        [0x879b] = (EvirCueKind.SetInitialRegenerationOffset, ""),
-        [0x87b6] = (EvirCueKind.AdvanceRegenerationOffset, ""),
-        [0x87cb] = (EvirCueKind.FinishRegeneration, ""),
+        [0x878f] = new EvirNativeListAddressesInstruction(EvirCueKind.PlaySpitSound, ""),
+        [0x879b] = new EvirNativeListAddressesInstruction(EvirCueKind.SetInitialRegenerationOffset, ""),
+        [0x87b6] = new EvirNativeListAddressesInstruction(EvirCueKind.AdvanceRegenerationOffset, ""),
+        [0x87cb] = new EvirNativeListAddressesInstruction(EvirCueKind.FinishRegeneration, ""),
     };
 }

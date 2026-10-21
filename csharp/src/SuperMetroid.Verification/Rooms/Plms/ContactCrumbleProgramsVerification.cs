@@ -15,9 +15,9 @@ using SuperMetroid.Core.World;
 internal static class ContactCrumbleProgramsVerification
 {
     /// <summary>Native bank-$84 list bounds and timed-record counts from the pinned disassembly.</summary>
-    private static (ushort Start, int Frames, ushort End)[] ContactCrumbleNativeLayouts() =>
-        [(0xc9f9,7,0xca1c),(0xca1c,8,0xca41),(0xca41,8,0xca66),(0xca66,8,0xca8b),
-         (0xca8b,4,0xcaa0),(0xcaa0,4,0xcab5),(0xcab5,4,0xcaca),(0xcaca,4,0xcadf)];
+    private static ContactCrumbleNativeLayoutsResult[] ContactCrumbleNativeLayouts() =>
+        [new ContactCrumbleNativeLayoutsResult(0xc9f9,7,0xca1c),new ContactCrumbleNativeLayoutsResult(0xca1c,8,0xca41),new ContactCrumbleNativeLayoutsResult(0xca41,8,0xca66),new ContactCrumbleNativeLayoutsResult(0xca66,8,0xca8b),
+         new ContactCrumbleNativeLayoutsResult(0xca8b,4,0xcaa0),new ContactCrumbleNativeLayoutsResult(0xcaa0,4,0xcab5),new ContactCrumbleNativeLayoutsResult(0xcab5,4,0xcaca),new ContactCrumbleNativeLayoutsResult(0xcaca,4,0xcadf)];
 
     /// <summary>Compares compiled timing, restoration and deletion words over the full native address domain.</summary>
     private static void VerifyContactCrumbleControlMapping(SuperMetroidAddressSpace rom)
@@ -224,7 +224,7 @@ internal static class ContactCrumbleProgramsVerification
         first.Runs[0][0] = 0x0054;
         var edited = new RoomPlmShotBlockVisualCatalog(entries);
 
-        (ushort physical, ushort immediate, ushort streamed) RenderBreak(
+        RenderBreakResult RenderBreak(
             RoomPlmShotBlockVisualCatalog visuals)
         {
             const int width = 8;
@@ -248,25 +248,25 @@ internal static class ContactCrumbleProgramsVerification
                 plms.Step(level);
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "contact-break draw avoids compiled source bytes");
-            return (level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
+            return new RenderBreakResult(level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
                 level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
                 level.DisplayedBlockTiles(blockIndex).TopLeft.Raw);
         }
 
         var stock = RenderBreak(RoomPlmShotBlockVisualCatalog.Stock());
         var changed = RenderBreak(edited);
-        AssertEqual((ushort)0x0053, stock.physical,
+        AssertEqual((ushort)0x0053, stock.Physical,
             "contact-crumble first frame installs native air collision");
-        AssertEqual(stock.physical, changed.physical,
+        AssertEqual(stock.Physical, changed.Physical,
             "shared breakup-art edit leaves contact-crumble collision unchanged");
-        AssertEqual((ushort)0x0017, stock.immediate,
+        AssertEqual((ushort)0x0017, stock.Immediate,
             "stock contact breakup reaches the immediate tile upload");
-        AssertEqual((ushort)0x0018, changed.immediate,
+        AssertEqual((ushort)0x0018, changed.Immediate,
             "edited contact breakup reaches the immediate tile upload");
-        AssertEqual((ushort)0x0018, changed.streamed,
+        AssertEqual((ushort)0x0018, changed.Streamed,
             "edited contact breakup persists through camera streaming");
 
-        (ushort physical, ushort streamed) RenderRestoredParent(byte tileIndex)
+        ContactCrumbleProgramsRenderRestoredParentResult RenderRestoredParent(byte tileIndex)
         {
             const int width = 8;
             const int blockIndex = 27;
@@ -285,19 +285,19 @@ internal static class ContactCrumbleProgramsVerification
                 plms.Step(level);
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "linked contact restoration uses no compiled source bytes");
-            return (level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
+            return new ContactCrumbleProgramsRenderRestoredParentResult(level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
                 level.DisplayedBlockTiles(blockIndex).TopLeft.Raw);
         }
 
         var stockParent = RenderRestoredParent(0x17);
         var editedParent = RenderRestoredParent(0x18);
-        AssertEqual((ushort)0xb0bc, stockParent.physical,
+        AssertEqual((ushort)0xb0bc, stockParent.Physical,
             "linked contact block restores its native special parent word");
-        AssertEqual(stockParent.physical, editedParent.physical,
+        AssertEqual(stockParent.Physical, editedParent.Physical,
             "editing block $0BC composition leaves special collision intact");
-        AssertEqual((ushort)0x0017, stockParent.streamed,
+        AssertEqual((ushort)0x0017, stockParent.Streamed,
             "stock restored contact parent uses room-block composition");
-        AssertEqual((ushort)0x0018, editedParent.streamed,
+        AssertEqual((ushort)0x0018, editedParent.Streamed,
             "edited block $0BC composition reaches later streaming");
     }
 

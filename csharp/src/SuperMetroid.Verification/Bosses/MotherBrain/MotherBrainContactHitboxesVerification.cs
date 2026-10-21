@@ -93,7 +93,7 @@ internal static class MotherBrainContactHitboxesVerification
     }
 
     /// <summary>Computes expected contact and minimum horizontal shove from the compiled part rectangles.</summary>
-    private static (bool Collides, ushort XDisplacement) ExpectedMotherBrainContact(
+    private static ExpectedMotherBrainContactResult ExpectedMotherBrainContact(
         MotherBrainContactPart part,
         Offset16<RoomPixels> delta,
         Extent16<RoomPixels> radius)
@@ -107,10 +107,10 @@ internal static class MotherBrainContactHitboxesVerification
             int xExtent = delta.X >= 0 ? hitbox.Right : hitbox.Left;
             int overlap = radius.X + Math.Abs(xExtent) - Math.Abs((int)delta.X);
             if (overlap >= 0)
-                return (true, unchecked((ushort)Math.Max(overlap, 4)));
+                return new ExpectedMotherBrainContactResult(true, unchecked((ushort)Math.Max(overlap, 4)));
         }
 
-        return (false, 0);
+        return new ExpectedMotherBrainContactResult(false, 0);
     }
 
     /// <summary>Runs the catalog comparison and production collision probes for Mother Brain's body, brain, and neck.</summary>

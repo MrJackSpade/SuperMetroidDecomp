@@ -33,7 +33,7 @@ internal static class DesktopCheckProcesses
     }
 
     /// <summary>Launches this verifier with <c>--check NAME</c> and begins reading both of its streams.</summary>
-    private static (string Name, Process Process, Task<string> Output, Task<string> Error) Start(string name)
+    private static DesktopCheckProcess Start(string name)
     {
         string host = Environment.ProcessPath ?? throw new InvalidOperationException("The desktop verifier's host executable path is unknown.");
         var start = new ProcessStartInfo(host)
@@ -50,6 +50,6 @@ internal static class DesktopCheckProcesses
         start.ArgumentList.Add(name);
         Process process = Process.Start(start)
             ?? throw new InvalidOperationException($"Could not start desktop check {name}.");
-        return (name, process, process.StandardOutput.ReadToEndAsync(), process.StandardError.ReadToEndAsync());
+        return new DesktopCheckProcess(name, process, process.StandardOutput.ReadToEndAsync(), process.StandardError.ReadToEndAsync());
     }
 }

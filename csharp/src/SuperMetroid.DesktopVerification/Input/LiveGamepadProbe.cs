@@ -29,12 +29,12 @@ internal static class LiveGamepadProbe
         if (seconds is < 1 or > 30) throw new ArgumentOutOfRangeException(nameof(seconds));
         var pad = new WindowsGamepadInput();
         var clock = Stopwatch.StartNew();
-        (string? Device, GenericGamepadSnapshot Snapshot, SnesButton Mapped)? previous = null;
+        GamepadReading? previous = null;
         Console.WriteLine("Live gamepad probe: milliseconds, device, normalized axes, POV, raw buttons, mapped SNES.");
         while (clock.Elapsed.TotalSeconds < seconds)
         {
             SnesButton mapped = pad.Poll();
-            var current = (pad.DeviceName, pad.LastSnapshot, mapped);
+            var current = new GamepadReading(pad.DeviceName, pad.LastSnapshot, mapped);
             if (previous != current)
             {
                 var sample = pad.LastSnapshot;

@@ -49,8 +49,8 @@ internal static class RoomPlmPopulationDefinitionsVerification
         // Typed programs are separate objects per load; compare what they run.
         AssertTrue(nativeSlots.Select(slot => slot with { Animation = null })
                 .SequenceEqual(compiledSlots.Select(slot => slot with { Animation = null })) &&
-            nativeSlots.Select(slot => (slot.Animation?.GetType(), slot.Animation?.RunningProgram))
-                .SequenceEqual(compiledSlots.Select(slot => (slot.Animation?.GetType(), slot.Animation?.RunningProgram))),
+            nativeSlots.Select(slot => new VerifyCompiledRoomPlmHeaderLoadCase(slot.Animation?.GetType(), slot.Animation?.RunningProgram))
+                .SequenceEqual(compiledSlots.Select(slot => new VerifyCompiledRoomPlmHeaderLoadCase(slot.Animation?.GetType(), slot.Animation?.RunningProgram))),
             "compiled retail PLM load preserves native slots and setup results");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "compiled retail PLM loader never reads bank-$8F population bytes");
@@ -65,7 +65,7 @@ internal static class RoomPlmPopulationDefinitionsVerification
     }
 
     /// <summary>Loads one PLM population into a fresh room and returns its spawn count and resulting slots.</summary>
-    private static (int Count, RoomPlmSlotSnapshot[] Slots) Load(
+    private static RoomPlmPopulationDefinitionsLoadResult Load(
         ISnesAddressSpace bus, ushort pointer, bool useCompiled)
     {
         const int width = 64;
@@ -73,7 +73,7 @@ internal static class RoomPlmPopulationDefinitionsVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), new byte[0x400 * 8]);
         var plms = PlmFixtures.Unbound();
         int count = PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), AreaId.Crateria), (useCompiled ? RoomPlmPopulationDefinitions.Get(pointer) : RoomPlmPopulationImporter.Read(bus, pointer)), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false, IsBossDefeated = () => false, IsMiniBossDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } } });
-        return (count, plms.PopulationSlots.ToArray());
+        return new RoomPlmPopulationDefinitionsLoadResult(count, plms.PopulationSlots.ToArray());
     }
 
     /// <summary>Rejects reads of the compiled bank-$8F population and, when observed, bank-$84 header metadata.</summary>

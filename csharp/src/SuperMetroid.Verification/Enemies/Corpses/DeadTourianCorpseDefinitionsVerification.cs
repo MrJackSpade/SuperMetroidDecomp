@@ -14,14 +14,13 @@ using SuperMetroid.Core.World;
 internal static class DeadTourianCorpseDefinitionsVerification
 {
     /// <summary>Each species' corpse, variant count and native instruction and configuration selector tables.</summary>
-    private static readonly (DeadTourianCorpseSpecies Species, EnemyDefinitionId EnemyDefinition, int VariantCount,
-        int InstructionTable, int ConfigurationTable)[] Families =
+    private static readonly DeadTourianCorpseDefinitionsFamily[] Families =
         [
-            (DeadTourianCorpseSpecies.Zoomer, EnemyDefinitionId.CorpseZoomer,
+            new DeadTourianCorpseDefinitionsFamily(DeadTourianCorpseSpecies.Zoomer, EnemyDefinitionId.CorpseZoomer,
                 3, 0xa9d86a, 0xa9d870),
-            (DeadTourianCorpseSpecies.Ripper, EnemyDefinitionId.CorpseRipper,
+            new DeadTourianCorpseDefinitionsFamily(DeadTourianCorpseSpecies.Ripper, EnemyDefinitionId.CorpseRipper,
                 2, 0xa9d897, 0xa9d89b),
-            (DeadTourianCorpseSpecies.Skree, EnemyDefinitionId.CorpseSkree,
+            new DeadTourianCorpseDefinitionsFamily(DeadTourianCorpseSpecies.Skree, EnemyDefinitionId.CorpseSkree,
                 3, 0xa9d8c0, 0xa9d8c6),
         ];
 

@@ -103,7 +103,7 @@ internal static class SoundEffectRendering
         while (frames > 0 && pcm[frames * 2 - 1] == 0 && pcm[frames * 2 - 2] == 0)
             frames--;
         int voices = 0;
-        foreach ((long _, byte keyed) in observer.KeyOns)
+        foreach ((long _, int keyed) in observer.KeyOns)
             voices |= keyed;
         return new OneShot([.. pcm.GetRange(0, frames * 2)], end - start, voices, [.. observer.KeyOns.Select(keyOn => keyOn.Sample)]);
     }
@@ -129,7 +129,7 @@ internal static class SoundEffectRendering
                 throw new InvalidDataException($"Never-ending {library} ${command:X2} reached its logical end.");
             sequencer.AdvanceSequencerFrame();
         }
-        IReadOnlyList<(long First, long Second, int Voice)> loops = finder.ChannelLoops;
+        IReadOnlyList<ChannelLoop> loops = finder.ChannelLoops;
         if (loops.Count != allocatedChannels)
         {
             throw new InvalidDataException(

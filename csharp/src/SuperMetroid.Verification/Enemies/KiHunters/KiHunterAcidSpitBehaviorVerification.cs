@@ -33,7 +33,7 @@ internal static class KiHunterAcidSpitBehaviorVerification
         enemies.KiHunterBehavior.SpawnKiHunterAcidSpit(body, true);
         RoomEnemyProjectileSlot left = Find(RoomEnemyProjectileKind.KiHunterAcidSpitLeft);
         RoomEnemyProjectileSlot right = Find(RoomEnemyProjectileKind.KiHunterAcidSpitRight);
-        foreach ((RoomEnemyProjectileSlot spit, KiHunterAcidSpitProgram program) in new[] { (left, KiHunterAcidSpitProgram.Left), (right, KiHunterAcidSpitProgram.Right) })
+        foreach ((RoomEnemyProjectileSlot spit, KiHunterAcidSpitProgram program) in new[] { new VerifyKiHunterAcidSpitBehaviorCase(left, KiHunterAcidSpitProgram.Left), new VerifyKiHunterAcidSpitBehaviorCase(right, KiHunterAcidSpitProgram.Right) })
         {
             AssertEqual(program, ProgramOf(spit), $"the {spit.Kind} spit starts its launch program");
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spit, Entry(program), 60, $"{spit.Kind} launch");

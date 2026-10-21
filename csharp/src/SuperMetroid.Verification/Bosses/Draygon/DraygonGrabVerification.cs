@@ -46,7 +46,7 @@ internal static class DraygonGrabVerification
     }
 
     /// <summary>Loads Draygon's room and has Draygon grab a gooped Samus whose pose requests and spiral fraction are given.</summary>
-    private static (SuperMetroidRuntime Runtime, SamusState Samus, DraygonEnemyState Draygon) GrabSamus(
+    private static GrabSamusResult GrabSamus(
         ushort spiralYFraction, SamusPoseId? pendingPose)
     {
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
@@ -68,7 +68,7 @@ internal static class DraygonGrabVerification
             new(checked((ushort)(samus.Position.X.Whole - clawOffset)), samus.Position.Y.Whole));
 
         runtime.Enemies.DraygonBehavior.Grab.ChaseAndTryToGrabSamus(draygon, samus, frameCounterLow: 1);
-        return (runtime, samus, draygon);
+        return new GrabSamusResult(runtime, samus, draygon);
     }
 
     /// <summary>Runs the Draygon grab pose-request check from the verification command line.</summary>

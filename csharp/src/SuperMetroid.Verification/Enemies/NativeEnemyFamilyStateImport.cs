@@ -716,7 +716,7 @@ internal static class NativeEnemyFamilyStateImport
     /// <param name="species">The corpse's species, whose wait, pre-rot and rotting routines are its own.</param>
     /// <param name="word">The recorded function word; zero is an emptied record.</param>
     private static DeadTourianCorpseFunction? DeadTourianCorpseFunctionOf(DeadTourianCorpseSpecies species, ushort word) =>
-        (species, word) switch
+        new DeadTourianCorpseFunctionOfCase(species, word) switch
         {
             (_, 0) => null,
             (_, 0xda63) => DeadTourianCorpseFunction.Finished,

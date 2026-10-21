@@ -21,9 +21,9 @@ internal static class RipperBehaviorVerification
     {
         foreach ((int record, EnemyDefinitionId definition) in new[]
                  {
-                     (EnemyRomTablePointersRipper.GRipperPopulationRecord, EnemyDefinitionId.GRipper),
-                     (EnemyRomTablePointersRipper.Ripper2PopulationRecord, EnemyDefinitionId.Ripper2),
-                     (EnemyRomTablePointersRipper.RipperPopulationRecord, EnemyDefinitionId.Ripper),
+                     new VerifyRipperBehaviorCase(EnemyRomTablePointersRipper.GRipperPopulationRecord, EnemyDefinitionId.GRipper),
+                     new VerifyRipperBehaviorCase(EnemyRomTablePointersRipper.Ripper2PopulationRecord, EnemyDefinitionId.Ripper2),
+                     new VerifyRipperBehaviorCase(EnemyRomTablePointersRipper.RipperPopulationRecord, EnemyDefinitionId.Ripper),
                  })
         {
             AssertEqual(definition, EnemyDefinitionIds.FromHeaderPointer(CartridgeImportSource.Require(rom).ReadCartridgeWord(record)),
@@ -103,13 +103,13 @@ internal static class RipperBehaviorVerification
             slot.InstructionTimer = NativeCountdown.Start(1);
             slot.Timer = NativeCountdown.Start(0);
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
-            List<(int Update, ushort Spritemap)> shown = [];
+            List<VerifyInstalledLoopCase> shown = [];
             for (int update = 0; update < 31; update++)
             {
                 EnemyInstructionRunner.Process(arguments);
                 if (slot.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame))
                 {
-                    shown.Add((update, slot.SpritemapPointer));
+                    shown.Add(new VerifyInstalledLoopCase(update, slot.SpritemapPointer));
                     observedFrames.Add(slot.SpritemapPointer);
                 }
             }

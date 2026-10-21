@@ -47,19 +47,19 @@ internal static class YappingMawExtensionVerification
         AssertEqual(SnesSignedSixteenSixteen.FromParts(checked((short)(extendWhole + 1)), 0), carried.Extension,
             "the fraction's carry reaches the whole part");
         AssertEqual(YappingMawAiFunction.ExtendingOrRetracting, carried.Function, "a positive curl keeps extending");
-        AssertEqual((record + 1, false), (carried.QuadraticSpeedRecord, carried.QuadraticSpeedNegative),
+        AssertEqual(new VerifyYappingMawExtensionCase(record + 1, false), new VerifyYappingMawExtensionCase(carried.QuadraticSpeedRecord, carried.QuadraticSpeedNegative),
             "below the clamp the record advances once and the speed stays extending");
 
         YappingMawEnemyState clamped = Advance(maximum - SnesSignedSixteenSixteen.FromRaw(extend), record, negative: false);
         AssertEqual(maximum, clamped.Extension, "reaching +128 clamps the curl there with a cleared fraction");
-        AssertEqual((record + 1, true), (clamped.QuadraticSpeedRecord, clamped.QuadraticSpeedNegative),
+        AssertEqual(new VerifyYappingMawExtensionCase(record + 1, true), new VerifyYappingMawExtensionCase(clamped.QuadraticSpeedRecord, clamped.QuadraticSpeedNegative),
             "the clamp turns the speed around to the same record's retracting half");
 
         YappingMawEnemyState belowClamp = Advance(
             maximum - SnesSignedSixteenSixteen.FromRaw(extend) - SnesSignedSixteenSixteen.FromRaw(1), record, negative: false);
         AssertEqual(SnesSignedSixteenSixteen.FromParts(127, ushort.MaxValue), belowClamp.Extension,
             "one fraction unit short of +128 is not clamped");
-        AssertEqual((record + 1, false), (belowClamp.QuadraticSpeedRecord, belowClamp.QuadraticSpeedNegative),
+        AssertEqual(new VerifyYappingMawExtensionCase(record + 1, false), new VerifyYappingMawExtensionCase(belowClamp.QuadraticSpeedRecord, belowClamp.QuadraticSpeedNegative),
             "one fraction unit short of +128 keeps extending");
 
         YappingMawEnemyState atZero = Advance(SnesSignedSixteenSixteen.FromRaw(-retract), record, negative: true);

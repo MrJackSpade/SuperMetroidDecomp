@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Alcoon;
 
 namespace SuperMetroid.Verification.Enemies.Alcoon;
@@ -9,11 +10,11 @@ namespace SuperMetroid.Verification.Enemies.Alcoon;
 internal static class AlcoonFireballNativeListAddresses
 {
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (AlcoonFireballProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<AlcoonFireballProgram>[] Entries =
     [
-        (AlcoonFireballProgram.Initial, 0x9e9e),
+        new NativeProgramEntry<AlcoonFireballProgram>(AlcoonFireballProgram.Initial, 0x9e9e),
     ];
 
     /// <summary>The bank-$86 bytes the lists occupy, $86:9E9E-9EB1, which production must never read.</summary>
-    internal static readonly (ushort First, ushort End) Extent = (0x9e9e, 0x9eb2);
+    internal static readonly MotherBrainEffectNativeListAddressesExtent Extent = new MotherBrainEffectNativeListAddressesExtent(0x9e9e, 0x9eb2);
 }

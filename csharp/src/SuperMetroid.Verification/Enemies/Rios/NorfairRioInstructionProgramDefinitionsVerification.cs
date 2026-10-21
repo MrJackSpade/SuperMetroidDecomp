@@ -25,15 +25,15 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
     {
         // Each update shows the next pose; the cues before it place the flames, and a one-shot swoop start ends by
         // telling main AI it has finished.
-        (NorfairRioProgram Entry, int Calls, short Offset, bool Signal, string Name)[] programs =
+        NorfairRioInstructionProgramDefinitionsProgram[] programs =
         [
-            (NorfairRioProgram.Idle, 5, 8, false, "idle"),
-            (NorfairRioProgram.StartDescending, 7, -16, true, "start descending"),
-            (NorfairRioProgram.Descending, 5, -12, false, "descending"),
-            (NorfairRioProgram.StartAscending, 9, 12, true, "start ascending"),
-            (NorfairRioProgram.Ascending, 5, 12, false, "ascending"),
-            (NorfairRioProgram.FlamesAscending, 5, 0, false, "ascending flames"),
-            (NorfairRioProgram.FlamesDescending, 5, 0, false, "descending flames"),
+            new NorfairRioInstructionProgramDefinitionsProgram(NorfairRioProgram.Idle, 5, 8, false, "idle"),
+            new NorfairRioInstructionProgramDefinitionsProgram(NorfairRioProgram.StartDescending, 7, -16, true, "start descending"),
+            new NorfairRioInstructionProgramDefinitionsProgram(NorfairRioProgram.Descending, 5, -12, false, "descending"),
+            new NorfairRioInstructionProgramDefinitionsProgram(NorfairRioProgram.StartAscending, 9, 12, true, "start ascending"),
+            new NorfairRioInstructionProgramDefinitionsProgram(NorfairRioProgram.Ascending, 5, 12, false, "ascending"),
+            new NorfairRioInstructionProgramDefinitionsProgram(NorfairRioProgram.FlamesAscending, 5, 0, false, "ascending flames"),
+            new NorfairRioInstructionProgramDefinitionsProgram(NorfairRioProgram.FlamesDescending, 5, 0, false, "descending flames"),
         ];
         foreach ((NorfairRioProgram entry, int calls, short offset, bool signal, string name) in programs)
         {
@@ -83,10 +83,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
     }
 
     /// <summary>Seeds a Geruta-backed Norfair Rio actor with an instruction entry and optional installed artwork.</summary>
-    internal static (
-        RoomEnemySystem Enemies,
-        RoomEnemySlot Slot,
-        NorfairRioEnemyState State) NewNorfairRioInstructionSystem(
+    internal static NewNorfairRioInstructionSystemResult NewNorfairRioInstructionSystem(
             NorfairRioProgram entry,
             InstalledEnemyArtwork? art = null)
     {
@@ -97,7 +94,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         slot.InstructionTimer = NativeCountdown.Start(1);
         var state = new NorfairRioEnemyState { Program = AnimationProgramCursor<NorfairRioProgram>.Start(entry) };
         slot.SetSpeciesState(state);
-        return (enemies, slot, state);
+        return new NewNorfairRioInstructionSystemResult(enemies, slot, state);
     }
 
     /// <summary>Processes the selected instruction entry on each requested actor update.</summary>

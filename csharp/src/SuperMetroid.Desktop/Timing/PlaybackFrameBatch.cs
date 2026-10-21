@@ -13,7 +13,7 @@ internal static class PlaybackFrameBatch
 {
     /// <summary>Advances up to the requested count, polling input anew for each frame and retaining only the last completed result.</summary>
     /// <remarks>Stops before polling when the host gate closes, or after an advance returns no frame; zero requested frames do not poll.</remarks>
-    internal static (int CompletedFrames, FrontendFrame? LastFrame) Run(
+    internal static PlaybackBatchResult Run(
         int requestedFrames,
         Func<SnesButton> readInput,
         Func<SnesButton, FrontendFrame?> advanceFrame,
@@ -22,7 +22,7 @@ internal static class PlaybackFrameBatch
         Ensure.AtLeastZero(requestedFrames);
         Ensure.NotNull(readInput);
         Ensure.NotNull(advanceFrame);
-        if (requestedFrames == 0) return (0, null);
+        if (requestedFrames == 0) return new PlaybackBatchResult(0, null);
         FrontendFrame? lastFrame = null;
         int completed = 0;
         for (int index = 0; index < requestedFrames; index++)
@@ -34,6 +34,6 @@ internal static class PlaybackFrameBatch
             lastFrame = next;
             completed++;
         }
-        return (completed, lastFrame);
+        return new PlaybackBatchResult(completed, lastFrame);
     }
 }

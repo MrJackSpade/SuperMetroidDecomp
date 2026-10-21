@@ -30,7 +30,7 @@ internal static class MagdolliteLavaBehaviorVerification
         source.PaletteIndex = 3072;
         enemies.MagdolliteBehavior.SpawnMagdolliteLava(source, throwsRight: false);
         enemies.MagdolliteBehavior.SpawnMagdolliteLava(source, throwsRight: true);
-        foreach ((ushort direction, MagdolliteLavaProgram program) in new (ushort, MagdolliteLavaProgram)[] { (0, MagdolliteLavaProgram.Left), (1, MagdolliteLavaProgram.Right) })
+        foreach ((ushort direction, MagdolliteLavaProgram program) in new VerifyMagdolliteLavaBehaviorCase[] { new VerifyMagdolliteLavaBehaviorCase(0, MagdolliteLavaProgram.Left), new VerifyMagdolliteLavaBehaviorCase(1, MagdolliteLavaProgram.Right) })
         {
             RoomEnemyProjectileSlot lava = Find(direction);
             AssertTrue(lava.Animation is MagdolliteLavaAnimation animation && animation.Cursor.Program == program, $"direction {direction} starts {program}");

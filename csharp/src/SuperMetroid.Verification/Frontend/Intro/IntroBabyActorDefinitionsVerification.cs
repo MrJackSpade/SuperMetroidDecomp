@@ -37,12 +37,12 @@ internal static class IntroBabyActorDefinitionsVerification
                 $"SR388 initial demo loop object at frame {frame}");
         }
         // Native cinematic-object definitions $8B:CE5B/CE61/CE67/CE79, in compiled order.
-        (IntroBabyActorDefinition Actor, ushort DefinitionPointer)[] actors =
+        IntroBabyActorDefinitionsActor[] actors =
         [
-            (IntroBabyActorDefinitions.Egg, 0xce5b),
-            (IntroBabyActorDefinitions.DeliveredBaby, 0xce61),
-            (IntroBabyActorDefinitions.ExaminedBaby, 0xce67),
-            (IntroBabyActorDefinitions.ConfusedBaby, 0xce79),
+            new IntroBabyActorDefinitionsActor(IntroBabyActorDefinitions.Egg, 0xce5b),
+            new IntroBabyActorDefinitionsActor(IntroBabyActorDefinitions.DeliveredBaby, 0xce61),
+            new IntroBabyActorDefinitionsActor(IntroBabyActorDefinitions.ExaminedBaby, 0xce67),
+            new IntroBabyActorDefinitionsActor(IntroBabyActorDefinitions.ConfusedBaby, 0xce79),
         ];
         for (int index = 0; index < actors.Length; index++)
         {

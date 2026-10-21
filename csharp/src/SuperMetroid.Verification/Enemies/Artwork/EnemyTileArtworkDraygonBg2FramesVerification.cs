@@ -52,7 +52,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, stream)))),
                 $"Draygon {frame.Name} selects a BG2 command stream");
             int cursor = ((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, unchecked((ushort)(stream + 2))));
-            var native = new List<(ushort Destination, ushort[] Tiles)>();
+            var native = new List<EnemyTileArtworkDraygonBg2FramesNative>();
             for (int command = 0;
                  command < EnemyBg2FrameLayout.MaximumCommandsPerStream; command++)
             {
@@ -63,7 +63,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
                 var tiles = new ushort[count];
                 for (int tile = 0; tile < count; tile++)
                     tiles[tile] = CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 4 + tile * 2));
-                native.Add((destination, tiles));
+                native.Add(new EnemyTileArtworkDraygonBg2FramesNative(destination, tiles));
                 cursor += 4 + count * 2;
             }
             AssertEqual(native.Count, installed.Length,

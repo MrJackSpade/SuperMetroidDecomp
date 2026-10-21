@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Shaktool;
 
 namespace SuperMetroid.Verification.Enemies.Shaktool;
@@ -13,39 +14,39 @@ internal static class ShaktoolNativeListAddresses
     internal const byte Bank = 0xaa;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (ShaktoolProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<ShaktoolProgram>[] Entries =
     [
-        (ShaktoolProgram.SawHandAttackPrimaryPiece, 0xd9ea),
-        (ShaktoolProgram.SawHandAttackFinalPiece, 0xd9f2),
-        (ShaktoolProgram.SawHandHeadBobPrimaryPiece, 0xd9fc),
-        (ShaktoolProgram.SawHandHeadBobFinalPiece, 0xda04),
-        (ShaktoolProgram.SawHandPrimaryPiece, 0xda0e),
-        (ShaktoolProgram.SawHandFinalPiece, 0xda1e),
-        (ShaktoolProgram.ArmPieceAttackBack, 0xda2e),
-        (ShaktoolProgram.ArmPieceAttackFront, 0xda42),
-        (ShaktoolProgram.ArmPieceHeadBobBack, 0xda56),
-        (ShaktoolProgram.ArmPieceHeadBobFront, 0xda62),
-        (ShaktoolProgram.ArmPieceNormal, 0xda72),
-        (ShaktoolProgram.HeadAttack, 0xda7a),
-        (ShaktoolProgram.HeadHeadBob, 0xda90),
-        (ShaktoolProgram.HeadAimingLeft, 0xdaa4),
-        (ShaktoolProgram.HeadAimingUpLeft, 0xdaac),
-        (ShaktoolProgram.HeadAimingUp, 0xdab4),
-        (ShaktoolProgram.HeadAimingUpRight, 0xdabc),
-        (ShaktoolProgram.HeadAimingRight, 0xdac4),
-        (ShaktoolProgram.HeadAimingDownRight, 0xdacc),
-        (ShaktoolProgram.HeadAimingDown, 0xdad4),
-        (ShaktoolProgram.HeadAimingDownLeft, 0xdadc),
+        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.SawHandAttackPrimaryPiece, 0xd9ea),
+        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.SawHandAttackFinalPiece, 0xd9f2),
+        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.SawHandHeadBobPrimaryPiece, 0xd9fc),
+        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.SawHandHeadBobFinalPiece, 0xda04),
+        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.SawHandPrimaryPiece, 0xda0e),
+        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.SawHandFinalPiece, 0xda1e),
+        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.ArmPieceAttackBack, 0xda2e),
+        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.ArmPieceAttackFront, 0xda42),
+        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.ArmPieceHeadBobBack, 0xda56),
+        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.ArmPieceHeadBobFront, 0xda62),
+        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.ArmPieceNormal, 0xda72),
+        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.HeadAttack, 0xda7a),
+        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.HeadHeadBob, 0xda90),
+        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.HeadAimingLeft, 0xdaa4),
+        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.HeadAimingUpLeft, 0xdaac),
+        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.HeadAimingUp, 0xdab4),
+        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.HeadAimingUpRight, 0xdabc),
+        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.HeadAimingRight, 0xdac4),
+        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.HeadAimingDownRight, 0xdacc),
+        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.HeadAimingDown, 0xdad4),
+        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.HeadAimingDownLeft, 0xdadc),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (ShaktoolCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, ShaktoolNativeListAddressesInstruction> Instructions = new()
     {
-        [0xd931] = (ShaktoolCueKind.LowerAwayFromCenter, ""),
-        [0xd93f] = (ShaktoolCueKind.RaiseTowardCenter, ""),
-        [0xd94a] = (ShaktoolCueKind.Lower, ""),
-        [0xd953] = (ShaktoolCueKind.Raise, ""),
-        [0xd99f] = (ShaktoolCueKind.Nothing, ""),
-        [0xd9ba] = (ShaktoolCueKind.ResetFunctions, ""),
+        [0xd931] = new ShaktoolNativeListAddressesInstruction(ShaktoolCueKind.LowerAwayFromCenter, ""),
+        [0xd93f] = new ShaktoolNativeListAddressesInstruction(ShaktoolCueKind.RaiseTowardCenter, ""),
+        [0xd94a] = new ShaktoolNativeListAddressesInstruction(ShaktoolCueKind.Lower, ""),
+        [0xd953] = new ShaktoolNativeListAddressesInstruction(ShaktoolCueKind.Raise, ""),
+        [0xd99f] = new ShaktoolNativeListAddressesInstruction(ShaktoolCueKind.Nothing, ""),
+        [0xd9ba] = new ShaktoolNativeListAddressesInstruction(ShaktoolCueKind.ResetFunctions, ""),
     };
 }

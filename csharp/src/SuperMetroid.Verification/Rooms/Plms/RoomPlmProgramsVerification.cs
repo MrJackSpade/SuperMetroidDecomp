@@ -1,3 +1,5 @@
+using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Areas.Tourian;
@@ -42,7 +44,8 @@ internal static class RoomPlmProgramsVerification
             SpeedBoosterEscapeEntries, draw => throw new InvalidOperationException($"The lavaquake program never draws; got {draw}."),
             (IImportCartridgeSource cartridge, ushort cursor, out SpeedBoosterEscapePreInstruction cue, out int length) =>
             {
-                (cue, length) = ((SpeedBoosterEscapePreInstruction)cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), 4);
+                cue = (SpeedBoosterEscapePreInstruction)cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2));
+                length = 4;
                 return InstructionAt<RoomPlmInstruction>(cartridge, cursor) == RoomPlmInstruction.InstallPreInstruction;
             }, "Speed Booster lavaquake");
         // A wake steps over the sleep that closes each phase, onto the next phase's list.
@@ -76,14 +79,17 @@ internal static class RoomPlmProgramsVerification
     /// <summary>The scripted rooms' instructions, with their operands.</summary>
     private static bool ScriptedRoomCueAt(IImportCartridgeSource cartridge, ushort cursor, [MaybeNullWhen(false)] out ScriptedRoomPlmCue cue, out int length)
     {
-        (cue, length) = (default, 2);
+        cue = default;
+        length = 2;
         switch (InstructionAt<RoomPlmInstruction>(cartridge, cursor))
         {
             case RoomPlmInstruction.QueueSoundLibrary2Maximum3:
-                (cue, length) = (new ScriptedRoomPlmCue.QueueSoundLibrary2Maximum3(SoundId: ReadOperandByte(cartridge, cursor + 2)), 3);
+                cue = new ScriptedRoomPlmCue.QueueSoundLibrary2Maximum3(SoundId: ReadOperandByte(cartridge, cursor + 2));
+                length = 3;
                 return true;
             case RoomPlmInstruction.QueueSoundLibrary2Maximum6:
-                (cue, length) = (new ScriptedRoomPlmCue.QueueSoundLibrary2Maximum6(SoundId: ReadOperandByte(cartridge, cursor + 2)), 3);
+                cue = new ScriptedRoomPlmCue.QueueSoundLibrary2Maximum6(SoundId: ReadOperandByte(cartridge, cursor + 2));
+                length = 3;
                 return true;
             case RoomPlmInstruction.InstallPreInstruction:
                 ushort routine = cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2));
@@ -92,7 +98,8 @@ internal static class RoomPlmProgramsVerification
                     : routine == PlmPreInstructionNativeRoutines.Of(SuperMetroid.Core.Areas.Tourian.TourianPreInstructions.OldTourianEscapeShaftWallWaitForSamus) ? ScriptedRoomPlmPreInstruction.OldTourianWallWaitForSamus
                     : routine == PlmPreInstructionNativeRoutines.Of(SuperMetroid.Core.Enemies.Chozo.ChozoStatuePreInstructions.WaitForLowerNorfairHand) ? ScriptedRoomPlmPreInstruction.LowerNorfairChozoHandWait
                     : throw new InvalidDataException($"Scripted room list installs untranslated pre-instruction ${routine:X4}.");
-                (cue, length) = (new ScriptedRoomPlmCue.InstallPreInstruction(PreInstruction: installed), 4);
+                cue = new ScriptedRoomPlmCue.InstallPreInstruction(PreInstruction: installed);
+                length = 4;
                 return true;
             case RoomPlmInstruction.ClearPreInstruction:
                 cue = new ScriptedRoomPlmCue.Command(ScriptedRoomPlmCueKind.ClearPreInstruction);
@@ -107,7 +114,8 @@ internal static class RoomPlmProgramsVerification
                 AssertEqual((ushort)SuperMetroid.Core.Progression.EventNumber.LowerNorfairChozoLoweredAcid, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "Chozo hand event");
                 AssertEqual(ScriptedRoomEntries.Single(entry => entry.Program == ScriptedRoomPlmProgram.LowerNorfairChozoHandLowered).Entry,
                     cartridge.ReadCartridgeWord(ProgramBank | (cursor + 4)), "Chozo hand lowered-acid target");
-                (cue, length) = (new ScriptedRoomPlmCue.Command(ScriptedRoomPlmCueKind.ContinueIfLowerNorfairAcidLowered), 6);
+                cue = new ScriptedRoomPlmCue.Command(ScriptedRoomPlmCueKind.ContinueIfLowerNorfairAcidLowered);
+                length = 6;
                 return true;
             case RoomPlmInstruction.SetLoweredAcidHeight:
                 cue = new ScriptedRoomPlmCue.Command(ScriptedRoomPlmCueKind.SetLoweredAcidHeight);
@@ -172,20 +180,25 @@ internal static class RoomPlmProgramsVerification
     /// <summary>The block reactions' sound queues and grapple BTS write.</summary>
     private static bool BlockReactionCueAt(IImportCartridgeSource cartridge, ushort cursor, out BlockReactionPlmCue cue, out int length)
     {
-        (cue, length) = (default, 0);
+        cue = default;
+        length = 0;
         switch (InstructionAt<RoomPlmInstruction>(cartridge, cursor))
         {
             case RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct:
-                (cue, length) = (new(BlockReactionPlmCueKind.QueueSoundLibrary2Maximum1, ReadOperandByte(cartridge, cursor + 2)), 3);
+                cue = new(BlockReactionPlmCueKind.QueueSoundLibrary2Maximum1, ReadOperandByte(cartridge, cursor + 2));
+                length = 3;
                 return true;
             case RoomPlmInstruction.QueueSoundLibrary2Maximum3:
-                (cue, length) = (new(BlockReactionPlmCueKind.QueueSoundLibrary2Maximum3, ReadOperandByte(cartridge, cursor + 2)), 3);
+                cue = new(BlockReactionPlmCueKind.QueueSoundLibrary2Maximum3, ReadOperandByte(cartridge, cursor + 2));
+                length = 3;
                 return true;
             case RoomPlmInstruction.QueueSoundLibrary2Maximum6:
-                (cue, length) = (new(BlockReactionPlmCueKind.QueueSoundLibrary2Maximum6, ReadOperandByte(cartridge, cursor + 2)), 3);
+                cue = new(BlockReactionPlmCueKind.QueueSoundLibrary2Maximum6, ReadOperandByte(cartridge, cursor + 2));
+                length = 3;
                 return true;
             case RoomPlmInstruction.SetPlmBtsToOne:
-                (cue, length) = (new(BlockReactionPlmCueKind.SetBtsToOne, 0), 2);
+                cue = new(BlockReactionPlmCueKind.SetBtsToOne, 0);
+                length = 2;
                 return true;
             case RoomPlmInstruction.SetGreyDoorPreInstruction:
             case RoomPlmInstruction.Sleep:
@@ -247,7 +260,9 @@ internal static class RoomPlmProgramsVerification
     /// <summary>The restore instruction, which draws the saved block for one update.</summary>
     private static bool BlockReactionRestoreAt(IImportCartridgeSource cartridge, ushort cursor, out BlockReactionPlmFrame frame, out int duration, out int length)
     {
-        (frame, duration, length) = (BlockReactionPlmFrame.RestoredBlock, 1, 2);
+        frame = BlockReactionPlmFrame.RestoredBlock;
+        duration = 1;
+        length = 2;
         return InstructionAt<RoomPlmInstruction>(cartridge, cursor) == RoomPlmInstruction.DrawPlmBlock;
     }
 
@@ -262,7 +277,8 @@ internal static class RoomPlmProgramsVerification
     /// <summary>The blocks' break-sound instruction.</summary>
     private static bool SpeedBoosterBlockCueAt(IImportCartridgeSource cartridge, ushort cursor, out SpeedBoosterBlockCue cue, out int length)
     {
-        (cue, length) = (SpeedBoosterBlockCue.QueueBreakSound, 3);
+        cue = SpeedBoosterBlockCue.QueueBreakSound;
+        length = 3;
         if (InstructionAt<RoomPlmInstruction>(cartridge, cursor) != RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct)
             return false;
         AssertEqual(SpeedBoosterBlockPlmProgramDefinitions.BreakSoundId, ReadOperandByte(cartridge, cursor + 2), "speed block break sound");
@@ -273,7 +289,9 @@ internal static class RoomPlmProgramsVerification
     /// <summary>The two restore instructions, which draw the saved block for one update.</summary>
     private static bool SpeedBoosterBlockRestoreAt(IImportCartridgeSource cartridge, ushort cursor, out SpeedBoosterBlockFrame frame, out int duration, out int length)
     {
-        (frame, duration, length) = (SpeedBoosterBlockFrame.RestoredBlock, 1, 2);
+        frame = SpeedBoosterBlockFrame.RestoredBlock;
+        duration = 1;
+        length = 2;
         return InstructionAt<RoomPlmInstruction>(cartridge, cursor) is RoomPlmInstruction.DrawPlmBlock or RoomPlmInstruction.DrawPlmBlockClone;
     }
 
@@ -316,11 +334,11 @@ internal static class RoomPlmProgramsVerification
     {
         downwardGateAddresses ??= StepAddresses(CartridgeImportSource.Require(rom), DownwardGatePlmProgramDefinitions.Programs,
             DownwardGateEntries, draw => (ushort)draw, DownwardGateCueAt, "downward gate");
-        return downwardGateAddresses[(gate.Cursor.Program, gate.Cursor.Position)];
+        return downwardGateAddresses[new ProgramStep<DownwardGateProgram>(gate.Cursor.Program, gate.Cursor.Position)];
     }
 
     /// <summary>The downward gate's step addresses, walked once.</summary>
-    private static IReadOnlyDictionary<(DownwardGateProgram Program, int Position), ushort>? downwardGateAddresses;
+    private static IReadOnlyDictionary<ProgramStep<DownwardGateProgram>, ushort>? downwardGateAddresses;
 
     /// <summary>The gate's trigger, pre-instruction, projectile and sound instructions with their operands.</summary>
     private static bool DownwardGateCueAt(IImportCartridgeSource cartridge, ushort cursor, out DownwardGateCue cue, out int length)
@@ -328,12 +346,12 @@ internal static class RoomPlmProgramsVerification
         ushort operand = cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2));
         (bool known, cue, length) = InstructionAt<RoomPlmInstruction>(cartridge, cursor) switch
         {
-            RoomPlmInstruction.ClearDownwardGateTrigger => (true, DownwardGateCue.ClearTrigger, 2),
-            RoomPlmInstruction.InstallPreInstruction => (true, (DownwardGatePreInstruction)operand == DownwardGatePreInstruction.WakeIfTriggered
+            RoomPlmInstruction.ClearDownwardGateTrigger => new DownwardGateCueAtCase(true, DownwardGateCue.ClearTrigger, 2),
+            RoomPlmInstruction.InstallPreInstruction => new DownwardGateCueAtCase(true, (DownwardGatePreInstruction)operand == DownwardGatePreInstruction.WakeIfTriggered
                 ? DownwardGateCue.ArmWakeIfTriggered : DownwardGateCue.ArmWakeIfTriggeredOrSamusBelow, 4),
-            RoomPlmInstruction.SpawnDownwardGateProjectile => (true, DownwardGateCue.SpawnMovingGate, 4),
-            RoomPlmInstruction.WakeDownwardGateProjectile => (true, DownwardGateCue.WakeGateProjectile, 4),
-            RoomPlmInstruction.QueueSoundLibrary3Maximum6 => (true, DownwardGateCue.QueueMovementSound, 3),
+            RoomPlmInstruction.SpawnDownwardGateProjectile => new DownwardGateCueAtCase(true, DownwardGateCue.SpawnMovingGate, 4),
+            RoomPlmInstruction.WakeDownwardGateProjectile => new DownwardGateCueAtCase(true, DownwardGateCue.WakeGateProjectile, 4),
+            RoomPlmInstruction.QueueSoundLibrary3Maximum6 => new DownwardGateCueAtCase(true, DownwardGateCue.QueueMovementSound, 3),
             RoomPlmInstruction.SetGreyDoorPreInstruction or
                 RoomPlmInstruction.Sleep or
                 RoomPlmInstruction.Delete or
@@ -384,8 +402,8 @@ internal static class RoomPlmProgramsVerification
                 RoomPlmInstruction.MoveTourianAccessDown or
                 RoomPlmInstruction.TransformSpikesToSlopes or
                 RoomPlmInstruction.RevertSlopesToSpikes or
-                RoomPlmInstruction.SetLoweredAcidHeight => (false, default, 0),
-            _ => (false, default, 0),
+                RoomPlmInstruction.SetLoweredAcidHeight => new DownwardGateCueAtCase(false, default, 0),
+            _ => new DownwardGateCueAtCase(false, default, 0),
         };
         if (!known)
             return false;
@@ -408,7 +426,8 @@ internal static class RoomPlmProgramsVerification
             draw => (ushort)draw,
             (IImportCartridgeSource cartridge, ushort cursor, out TourianAccessCue cue, out int length) =>
             {
-                (cue, length) = (TourianAccessCue.MoveDown, 2);
+                cue = TourianAccessCue.MoveDown;
+                length = 2;
                 return InstructionAt<RoomPlmInstruction>(cartridge, cursor) == RoomPlmInstruction.MoveTourianAccessDown;
             }, "Tourian access");
         Console.WriteLine($"  Tourian access programs: {steps} typed steps match bank $84.");
@@ -421,7 +440,8 @@ internal static class RoomPlmProgramsVerification
             draw => throw new InvalidOperationException($"The attic program never draws; got {draw}."),
             (IImportCartridgeSource cartridge, ushort cursor, out WreckedShipAtticCue cue, out int length) =>
             {
-                (cue, length) = (WreckedShipAtticCue.InstallInertPreInstruction, 4);
+                cue = WreckedShipAtticCue.InstallInertPreInstruction;
+                length = 4;
                 if (InstructionAt<RoomPlmInstruction>(cartridge, cursor) != RoomPlmInstruction.InstallPreInstruction)
                     return false;
                 AssertEqual(WreckedShipAtticPlmRomData.NoOpCallback, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "attic pre-instruction");
@@ -458,8 +478,8 @@ internal static class RoomPlmProgramsVerification
     {
         (bool known, cue, length) = InstructionAt<RoomPlmInstruction>(cartridge, cursor) switch
         {
-            RoomPlmInstruction.QueueSoundLibrary3Maximum6 => (true, DoorSoundCue(Library3Sound(cartridge, cursor), BlueDoorCue.QueueOpenSound, BlueDoorCue.QueueCloseSound), 3),
-            RoomPlmInstruction.SetPlmBtsFromByte => (true, BlueDoorCue.RestoreBlueBts, 3),
+            RoomPlmInstruction.QueueSoundLibrary3Maximum6 => new BlueDoorCueAtCase(true, DoorSoundCue(Library3Sound(cartridge, cursor), BlueDoorCue.QueueOpenSound, BlueDoorCue.QueueCloseSound), 3),
+            RoomPlmInstruction.SetPlmBtsFromByte => new BlueDoorCueAtCase(true, BlueDoorCue.RestoreBlueBts, 3),
             RoomPlmInstruction.SetGreyDoorPreInstruction or
                 RoomPlmInstruction.Sleep or
                 RoomPlmInstruction.Delete or
@@ -513,8 +533,8 @@ internal static class RoomPlmProgramsVerification
                 RoomPlmInstruction.MoveTourianAccessDown or
                 RoomPlmInstruction.TransformSpikesToSlopes or
                 RoomPlmInstruction.RevertSlopesToSpikes or
-                RoomPlmInstruction.SetLoweredAcidHeight => (false, default, 0),
-            _ => (false, default, 0),
+                RoomPlmInstruction.SetLoweredAcidHeight => new BlueDoorCueAtCase(false, default, 0),
+            _ => new BlueDoorCueAtCase(false, default, 0),
         };
         return known;
     }
@@ -561,7 +581,7 @@ internal static class RoomPlmProgramsVerification
 
     /// <summary>A coloured cap's branch, link, wake, hit-count and sound instructions with their operands.</summary>
     private static bool ColoredDoorCueAt(IImportCartridgeSource cartridge, ushort cursor, ColoredDoorColor color, ColoredDoorOrientation orientation,
-        IReadOnlyList<(ColoredDoorProgram Program, ushort Entry)> entries, out ColoredDoorCue cue, out int length)
+        IReadOnlyList<NativeProgramEntry<ColoredDoorProgram>> entries, out ColoredDoorCue cue, out int length)
     {
         ushort Word(int offset) => cartridge.ReadCartridgeWord(ProgramBank | (cursor + offset));
         ushort EntryOf(ColoredDoorProgram program) => entries.Single(entry => entry.Program == program).Entry;
@@ -570,26 +590,31 @@ internal static class RoomPlmProgramsVerification
             case RoomPlmInstruction.GotoIfDoorBitSet:
                 AssertEqual(DoorPlmNativeListAddresses.BlueEntries.Single(e => e.Program == BlueDoorPlmProgramDefinitions.Closed(orientation)).Entry,
                     Word(2), $"{color} {orientation} door becomes its blue cap");
-                (cue, length) = (ColoredDoorCue.BranchIfOpened, 4);
+                cue = ColoredDoorCue.BranchIfOpened;
+                length = 4;
                 return true;
             case RoomPlmInstruction.LinkInstruction:
                 AssertEqual(EntryOf(ColoredDoorProgram.Hit), Word(2), $"{color} {orientation} door links its hit");
-                (cue, length) = (ColoredDoorCue.LinkHit, 4);
+                cue = ColoredDoorCue.LinkHit;
+                length = 4;
                 return true;
             case RoomPlmInstruction.InstallPreInstruction:
                 AssertEqual((ushort)ColoredDoorPlmProgramDefinitions.WakeOf(color), Word(2), $"{color} {orientation} door shot wake");
-                (cue, length) = (ColoredDoorCue.ArmWake, 4);
+                cue = ColoredDoorCue.ArmWake;
+                length = 4;
                 return true;
             case RoomPlmInstruction.IncrementDoorHitCounterAndGoto:
                 AssertEqual(ColoredDoorPlmProgramDefinitions.HitThresholdOf(color), ReadOperandByte(cartridge, cursor + 2), $"{color} door hit threshold");
                 AssertEqual(EntryOf(ColoredDoorProgram.Open), Word(3), $"{color} {orientation} door opens at its threshold");
-                (cue, length) = (ColoredDoorCue.CountHit, 5);
+                cue = ColoredDoorCue.CountHit;
+                length = 5;
                 return true;
             case RoomPlmInstruction.QueueSoundLibrary3Maximum6:
                 SoundEffectId sound = Library3Sound(cartridge, cursor);
-                (cue, length) = (sound == ColoredDoorPlmProgramDefinitions.RedHitSound
+                cue = sound == ColoredDoorPlmProgramDefinitions.RedHitSound
                     ? ColoredDoorCue.QueueHitSound
-                    : DoorSoundCue(sound, ColoredDoorCue.QueueOpenSound, ColoredDoorCue.QueueCloseSound), 3);
+                    : DoorSoundCue(sound, ColoredDoorCue.QueueOpenSound, ColoredDoorCue.QueueCloseSound);
+                length = 3;
                 return true;
             case RoomPlmInstruction.SetGreyDoorPreInstruction:
             case RoomPlmInstruction.Sleep:
@@ -643,7 +668,8 @@ internal static class RoomPlmProgramsVerification
             case RoomPlmInstruction.RevertSlopesToSpikes:
             case RoomPlmInstruction.SetLoweredAcidHeight:
             default:
-                (cue, length) = (default, 0);
+                cue = default;
+                length = 0;
                 return false;
         }
     }
@@ -685,31 +711,38 @@ internal static class RoomPlmProgramsVerification
             case RoomPlmInstruction.GotoIfDoorBitSet:
                 AssertEqual(DoorPlmNativeListAddresses.BlueEntries.Single(e => e.Program == BlueDoorPlmProgramDefinitions.Closed(variant.Orientation)).Entry,
                     Word(2), $"grey {variant} becomes its blue cap");
-                (cue, length) = (GreyDoorCue.BranchIfOpened, 4);
+                cue = GreyDoorCue.BranchIfOpened;
+                length = 4;
                 return true;
             case RoomPlmInstruction.LinkInstruction:
                 ushort target = Word(2);
                 AssertTrue(target == EntryOf(GreyDoorProgram.Activate) || target == EntryOf(GreyDoorProgram.Hit), $"grey {variant} link target");
-                (cue, length) = (target == EntryOf(GreyDoorProgram.Activate) ? GreyDoorCue.LinkActivate : GreyDoorCue.LinkHit, 4);
+                cue = target == EntryOf(GreyDoorProgram.Activate) ? GreyDoorCue.LinkActivate : GreyDoorCue.LinkHit;
+                length = 4;
                 return true;
             case RoomPlmInstruction.SetGreyDoorPreInstruction:
-                (cue, length) = (GreyDoorCue.ArmCondition, 2);
+                cue = GreyDoorCue.ArmCondition;
+                length = 2;
                 return true;
             case RoomPlmInstruction.InstallPreInstruction:
                 AssertEqual((ushort)GreyDoorPreInstruction.WakeWhenShot, Word(2), $"grey {variant} shot wake");
-                (cue, length) = (GreyDoorCue.ArmShotWake, 4);
+                cue = GreyDoorCue.ArmShotWake;
+                length = 4;
                 return true;
             case RoomPlmInstruction.IncrementDoorHitCounterAndGoto:
                 AssertEqual(GreyDoorPlmProgramDefinitions.HitThreshold, ReadOperandByte(cartridge, cursor + 2), "grey door hit threshold");
                 AssertEqual(EntryOf(GreyDoorProgram.Open), Word(3), $"grey {variant} opens at its threshold");
-                (cue, length) = (GreyDoorCue.CountHit, 5);
+                cue = GreyDoorCue.CountHit;
+                length = 5;
                 return true;
             case RoomPlmInstruction.QueueSoundLibrary3Maximum6:
-                (cue, length) = (DoorSoundCue(Library3Sound(cartridge, cursor), GreyDoorCue.QueueOpenSound, GreyDoorCue.QueueCloseSound), 3);
+                cue = DoorSoundCue(Library3Sound(cartridge, cursor), GreyDoorCue.QueueOpenSound, GreyDoorCue.QueueCloseSound);
+                length = 3;
                 return true;
             case RoomPlmInstruction.GotoIfSamusHasNoBombs:
                 AssertEqual(EntryOf(GreyDoorProgram.Closing), Word(2), "Bomb Torizo door repeats its closing");
-                (cue, length) = (GreyDoorCue.RepeatUntilSamusHasBombs, 4);
+                cue = GreyDoorCue.RepeatUntilSamusHasBombs;
+                length = 4;
                 return true;
             case RoomPlmInstruction.Sleep:
             case RoomPlmInstruction.Delete:
@@ -761,7 +794,8 @@ internal static class RoomPlmProgramsVerification
             case RoomPlmInstruction.RevertSlopesToSpikes:
             case RoomPlmInstruction.SetLoweredAcidHeight:
             default:
-                (cue, length) = (default, 0);
+                cue = default;
+                length = 0;
                 return false;
         }
     }
@@ -789,7 +823,7 @@ internal static class RoomPlmProgramsVerification
 
     /// <summary>The eye door's branch, proximity, link, wake, projectile, smoke, hit, conversion and handoff instructions.</summary>
     private static bool EyeDoorCueAt(IImportCartridgeSource cartridge, ushort cursor, EyeDoorOrientation orientation,
-        IReadOnlyList<(EyeDoorPlmProgram Program, ushort Entry)> entries, out EyeDoorPlmCue cue, out int length)
+        IReadOnlyList<NativeProgramEntry<EyeDoorPlmProgram>> entries, out EyeDoorPlmCue cue, out int length)
     {
         ushort Word(int offset) => cartridge.ReadCartridgeWord(ProgramBank | (cursor + offset));
         EyeDoorPlmProgram ProgramAt(ushort entry) => entries.Single(e => e.Entry == entry).Program;
@@ -797,7 +831,7 @@ internal static class RoomPlmProgramsVerification
         switch (InstructionAt<RoomPlmInstruction>(cartridge, cursor))
         {
             case RoomPlmInstruction.GotoIfDoorBitSet:
-                (cue, length) = (ProgramAt(Word(2)) switch
+                cue = ProgramAt(Word(2)) switch
                 {
                     EyeDoorPlmProgram.EyeOpened => EyeDoorPlmCue.ConvertIfOpened,
                     EyeDoorPlmProgram.ComponentDelete => EyeDoorPlmCue.DeleteIfOpened,
@@ -814,16 +848,18 @@ internal static class RoomPlmProgramsVerification
                         EyeDoorPlmProgram.ComponentActivate or
                         EyeDoorPlmProgram.ComponentCycle => throw new InvalidDataException($"{at}: door-bit branch to {ProgramAt(Word(2))}."),
                     var target => throw new InvalidDataException($"{at}: door-bit branch to {target}."),
-                }, 4);
+                };
+                length = 4;
                 return true;
             case RoomPlmInstruction.GotoIfSamusNear:
                 var near = new EyeDoorProximity(new(ReadOperandByte(cartridge, cursor + 2), ReadOperandByte(cartridge, cursor + 3)), ProgramAt(Word(4)));
-                (cue, length) = (Enum.GetValues<EyeDoorPlmCue>().Single(candidate => candidate is EyeDoorPlmCue.ActivateIfSamusNear
+                cue = Enum.GetValues<EyeDoorPlmCue>().Single(candidate => candidate is EyeDoorPlmCue.ActivateIfSamusNear
                     or EyeDoorPlmCue.CloseIfSamusInFront or EyeDoorPlmCue.WatchIfSamusNear or EyeDoorPlmCue.PulseIfSamusNear
-                    or EyeDoorPlmCue.KeepPulsingIfSamusNear && EyeDoorPlmProgramDefinitions.ProximityOf(candidate) == near), 6);
+                    or EyeDoorPlmCue.KeepPulsingIfSamusNear && EyeDoorPlmProgramDefinitions.ProximityOf(candidate) == near);
+                length = 6;
                 return true;
             case RoomPlmInstruction.LinkInstruction:
-                (cue, length) = (ProgramAt(Word(2)) switch
+                cue = ProgramAt(Word(2)) switch
                 {
                     EyeDoorPlmProgram.EyeHit => EyeDoorPlmCue.LinkHit,
                     EyeDoorPlmProgram.ComponentDelete => EyeDoorPlmCue.LinkDelete,
@@ -840,55 +876,67 @@ internal static class RoomPlmProgramsVerification
                         EyeDoorPlmProgram.ComponentActivate or
                         EyeDoorPlmProgram.ComponentCycle => throw new InvalidDataException($"{at}: link to {ProgramAt(Word(2))}."),
                     var target => throw new InvalidDataException($"{at}: link to {target}."),
-                }, 4);
+                };
+                length = 4;
                 return true;
             case RoomPlmInstruction.InstallPreInstruction:
-                (cue, length) = ((EyeDoorPreInstruction)Word(2) switch
+                cue = (EyeDoorPreInstruction)Word(2) switch
                 {
                     EyeDoorPreInstruction.MissileHit => EyeDoorPlmCue.ArmMissileWake,
                     EyeDoorPreInstruction.WakeWhenDoorBitSet => EyeDoorPlmCue.ArmDoorBitWake,
                     var wake => throw new InvalidDataException($"{at}: wake ${(ushort)wake:X4}."),
-                }, 4);
+                };
+                length = 4;
                 return true;
             case RoomPlmInstruction.ShootEyeDoorProjectile:
                 AssertEqual(EyeDoorPlmProgramDefinitions.ShotParameterOf(orientation), Word(2), $"{at}: shot operand");
-                (cue, length) = (EyeDoorPlmCue.Shoot, 4);
+                cue = EyeDoorPlmCue.Shoot;
+                length = 4;
                 return true;
             case RoomPlmInstruction.SpawnEyeDoorSweat:
                 AssertEqual(EyeDoorPlmProgramDefinitions.SweatParameterOf(orientation), Word(2), $"{at}: sweat operand");
-                (cue, length) = (EyeDoorPlmCue.SpawnSweat, 4);
+                cue = EyeDoorPlmCue.SpawnSweat;
+                length = 4;
                 return true;
             case RoomPlmInstruction.QueueSoundLibrary2Maximum6:
                 AssertEqual(EyeDoorPlmProgramDefinitions.HitSound, ReadOperandByte(cartridge, cursor + 2), $"{at}: hit sound");
-                (cue, length) = (EyeDoorPlmCue.QueueHitSound, 3);
+                cue = EyeDoorPlmCue.QueueHitSound;
+                length = 3;
                 return true;
             case RoomPlmInstruction.SpawnTwoEyeDoorSmoke:
-                (cue, length) = (EyeDoorPlmCue.SpawnTwoSmoke, 2);
+                cue = EyeDoorPlmCue.SpawnTwoSmoke;
+                length = 2;
                 return true;
             case RoomPlmInstruction.SpawnEyeDoorSmoke:
-                (cue, length) = (EyeDoorPlmCue.SpawnSmoke, 2);
+                cue = EyeDoorPlmCue.SpawnSmoke;
+                length = 2;
                 return true;
             case RoomPlmInstruction.ClearPreInstruction:
-                (cue, length) = (EyeDoorPlmCue.ClearPreInstruction, 2);
+                cue = EyeDoorPlmCue.ClearPreInstruction;
+                length = 2;
                 return true;
             case RoomPlmInstruction.IncrementDoorHitCounterAndGoto:
                 AssertEqual(EyeDoorPlmProgramDefinitions.HitThreshold, ReadOperandByte(cartridge, cursor + 2), $"{at}: hit threshold");
                 AssertEqual(EyeDoorPlmProgram.EyeDestroyed, ProgramAt(Word(3)), $"{at}: the third hit destroys the eye");
-                (cue, length) = (EyeDoorPlmCue.CountHit, 5);
+                cue = EyeDoorPlmCue.CountHit;
+                length = 5;
                 return true;
             case RoomPlmInstruction.MoveUpAndMakeBlueDoorFacingRight:
                 AssertEqual(EyeDoorOrientation.Right, orientation, $"{at}: blue conversion facing");
-                (cue, length) = (EyeDoorPlmCue.MakeBlue, 2);
+                cue = EyeDoorPlmCue.MakeBlue;
+                length = 2;
                 return true;
             case RoomPlmInstruction.MoveUpAndMakeBlueDoorFacingLeft:
                 AssertEqual(EyeDoorOrientation.Left, orientation, $"{at}: blue conversion facing");
-                (cue, length) = (EyeDoorPlmCue.MakeBlue, 2);
+                cue = EyeDoorPlmCue.MakeBlue;
+                length = 2;
                 return true;
             case RoomPlmInstruction.Goto:
                 ColoredDoorOrientation facing = orientation == EyeDoorOrientation.Right ? ColoredDoorOrientation.Right : ColoredDoorOrientation.Left;
                 AssertEqual(DoorPlmNativeListAddresses.BlueEntries.Single(e => e.Program == BlueDoorPlmProgramDefinitions.Closed(facing)).Entry,
                     Word(2), $"{at}: the eye becomes its blue cap");
-                (cue, length) = (EyeDoorPlmCue.BecomeBlueDoor, 4);
+                cue = EyeDoorPlmCue.BecomeBlueDoor;
+                length = 4;
                 return true;
             case RoomPlmInstruction.SetGreyDoorPreInstruction:
             case RoomPlmInstruction.Sleep:
@@ -933,27 +981,28 @@ internal static class RoomPlmProgramsVerification
             case RoomPlmInstruction.RevertSlopesToSpikes:
             case RoomPlmInstruction.SetLoweredAcidHeight:
             default:
-                (cue, length) = (default, 0);
+                cue = default;
+                length = 0;
                 return false;
         }
     }
 
     /// <summary>Each grey cap's step addresses, walked once.</summary>
-    private static readonly Dictionary<GreyDoorVariant, IReadOnlyDictionary<(GreyDoorProgram Program, int Position), ushort>> greyDoorAddresses = [];
+    private static readonly Dictionary<GreyDoorVariant, IReadOnlyDictionary<ProgramStep<GreyDoorProgram>, ushort>> greyDoorAddresses = [];
 
     /// <summary>
     /// The native instruction pointer a grey cap's typed program stands for: the native instruction its cursor rests on,
     /// for comparisons with native movie snapshots.
     /// </summary>
     internal static ushort GreyDoorNativeInstruction(ISnesAddressSpace rom, GreyDoorPlmAnimation door) =>
-        GreyDoorAddresses(rom, door.Variant)[(door.Cursor.Program, door.Cursor.Position)];
+        GreyDoorAddresses(rom, door.Variant)[new ProgramStep<GreyDoorProgram>(door.Cursor.Program, door.Cursor.Position)];
 
     /// <summary>The native list a grey cap's typed program begins at.</summary>
     internal static ushort GreyDoorNativeEntry(GreyDoorVariant variant, GreyDoorProgram program) =>
         DoorPlmNativeListAddresses.GreyEntries(variant).Single(entry => entry.Program == program).Entry;
 
     /// <summary>Grey cap <paramref name="variant"/>'s step addresses.</summary>
-    private static IReadOnlyDictionary<(GreyDoorProgram Program, int Position), ushort> GreyDoorAddresses(ISnesAddressSpace rom, GreyDoorVariant variant)
+    private static IReadOnlyDictionary<ProgramStep<GreyDoorProgram>, ushort> GreyDoorAddresses(ISnesAddressSpace rom, GreyDoorVariant variant)
     {
         if (!greyDoorAddresses.TryGetValue(variant, out var addresses))
         {
@@ -979,11 +1028,11 @@ internal static class RoomPlmProgramsVerification
     {
         (bool known, cue, length) = InstructionAt<RoomPlmInstruction>(cartridge, cursor) switch
         {
-            RoomPlmInstruction.InstallPreInstruction => (true, SamusEaterCue.HoldSamus, 4),
-            RoomPlmInstruction.QueueSoundLibrary2Maximum6 => (true, SamusEaterCue.QueueChewSound, 3),
-            RoomPlmInstruction.SamusEaterDamage => (true, SamusEaterCue.DamageSamus, 2),
-            RoomPlmInstruction.SamusEaterReleaseImmunity => (true, SamusEaterCue.ReleaseSamus, 2),
-            RoomPlmInstruction.ClearPreInstruction => (true, SamusEaterCue.ClearPreInstruction, 2),
+            RoomPlmInstruction.InstallPreInstruction => new SamusEaterCueAtCase(true, SamusEaterCue.HoldSamus, 4),
+            RoomPlmInstruction.QueueSoundLibrary2Maximum6 => new SamusEaterCueAtCase(true, SamusEaterCue.QueueChewSound, 3),
+            RoomPlmInstruction.SamusEaterDamage => new SamusEaterCueAtCase(true, SamusEaterCue.DamageSamus, 2),
+            RoomPlmInstruction.SamusEaterReleaseImmunity => new SamusEaterCueAtCase(true, SamusEaterCue.ReleaseSamus, 2),
+            RoomPlmInstruction.ClearPreInstruction => new SamusEaterCueAtCase(true, SamusEaterCue.ClearPreInstruction, 2),
             RoomPlmInstruction.SetGreyDoorPreInstruction or
                 RoomPlmInstruction.Sleep or
                 RoomPlmInstruction.Delete or
@@ -1034,8 +1083,8 @@ internal static class RoomPlmProgramsVerification
                 RoomPlmInstruction.MoveTourianAccessDown or
                 RoomPlmInstruction.TransformSpikesToSlopes or
                 RoomPlmInstruction.RevertSlopesToSpikes or
-                RoomPlmInstruction.SetLoweredAcidHeight => (false, default, 0),
-            _ => (false, default, 0),
+                RoomPlmInstruction.SetLoweredAcidHeight => new SamusEaterCueAtCase(false, default, 0),
+            _ => new SamusEaterCueAtCase(false, default, 0),
         };
         if (!known)
             return false;
@@ -1057,19 +1106,19 @@ internal static class RoomPlmProgramsVerification
         RoomPlmInstruction instruction = InstructionAt<RoomPlmInstruction>(cartridge, cursor);
         (bool known, cue, length) = instruction switch
         {
-            RoomPlmInstruction.GotoIfEventSet => (true, NoobTubeCue.SkipIfBroken, 6),
-            RoomPlmInstruction.LinkInstruction => (true, Entry(Operand(2)) == NoobTubeProgram.WaitForInput ? NoobTubeCue.LinkInputWait : NoobTubeCue.LinkBreak, 4),
+            RoomPlmInstruction.GotoIfEventSet => new NoobTubeCueAtCase(true, NoobTubeCue.SkipIfBroken, 6),
+            RoomPlmInstruction.LinkInstruction => new NoobTubeCueAtCase(true, Entry(Operand(2)) == NoobTubeProgram.WaitForInput ? NoobTubeCue.LinkInputWait : NoobTubeCue.LinkBreak, 4),
             RoomPlmInstruction.InstallPreInstruction =>
-                (true, (NoobTubePlmPreInstruction)Operand(2) == NoobTubePlmPreInstruction.WakeOnPowerBomb ? NoobTubeCue.ArmPowerBombWake : NoobTubeCue.ArmInputWake, 4),
-            RoomPlmInstruction.ClearPreInstruction => (true, NoobTubeCue.ClearPreInstruction, 2),
-            RoomPlmInstruction.LockSamus => (true, NoobTubeCue.LockSamus, 2),
-            RoomPlmInstruction.SpawnNoobTubeCrack => (true, NoobTubeCue.SpawnCrack, 2),
-            RoomPlmInstruction.QueueSoundLibrary2Maximum6 => (true, NoobTubeCue.QueueBreakSound, 3),
-            RoomPlmInstruction.SpawnNoobTubeShardsAndBubbles => (true, NoobTubeCue.SpawnShardsAndBubbles, 2),
-            RoomPlmInstruction.TriggerNoobTubeEarthquake => (true, NoobTubeCue.TriggerEarthquake, 2),
-            RoomPlmInstruction.SetEvent => (true, NoobTubeCue.SetBrokenEvent, 4),
-            RoomPlmInstruction.EnableNoobTubeWaterPhysics => (true, NoobTubeCue.EnableWaterPhysics, 2),
-            RoomPlmInstruction.UnlockSamus => (true, NoobTubeCue.UnlockSamus, 2),
+                new NoobTubeCueAtCase(true, (NoobTubePlmPreInstruction)Operand(2) == NoobTubePlmPreInstruction.WakeOnPowerBomb ? NoobTubeCue.ArmPowerBombWake : NoobTubeCue.ArmInputWake, 4),
+            RoomPlmInstruction.ClearPreInstruction => new NoobTubeCueAtCase(true, NoobTubeCue.ClearPreInstruction, 2),
+            RoomPlmInstruction.LockSamus => new NoobTubeCueAtCase(true, NoobTubeCue.LockSamus, 2),
+            RoomPlmInstruction.SpawnNoobTubeCrack => new NoobTubeCueAtCase(true, NoobTubeCue.SpawnCrack, 2),
+            RoomPlmInstruction.QueueSoundLibrary2Maximum6 => new NoobTubeCueAtCase(true, NoobTubeCue.QueueBreakSound, 3),
+            RoomPlmInstruction.SpawnNoobTubeShardsAndBubbles => new NoobTubeCueAtCase(true, NoobTubeCue.SpawnShardsAndBubbles, 2),
+            RoomPlmInstruction.TriggerNoobTubeEarthquake => new NoobTubeCueAtCase(true, NoobTubeCue.TriggerEarthquake, 2),
+            RoomPlmInstruction.SetEvent => new NoobTubeCueAtCase(true, NoobTubeCue.SetBrokenEvent, 4),
+            RoomPlmInstruction.EnableNoobTubeWaterPhysics => new NoobTubeCueAtCase(true, NoobTubeCue.EnableWaterPhysics, 2),
+            RoomPlmInstruction.UnlockSamus => new NoobTubeCueAtCase(true, NoobTubeCue.UnlockSamus, 2),
             RoomPlmInstruction.SetGreyDoorPreInstruction or
                 RoomPlmInstruction.Sleep or
                 RoomPlmInstruction.Delete or
@@ -1113,8 +1162,8 @@ internal static class RoomPlmProgramsVerification
                 RoomPlmInstruction.MoveTourianAccessDown or
                 RoomPlmInstruction.TransformSpikesToSlopes or
                 RoomPlmInstruction.RevertSlopesToSpikes or
-                RoomPlmInstruction.SetLoweredAcidHeight => (false, default, 0),
-            _ => (false, default, 0),
+                RoomPlmInstruction.SetLoweredAcidHeight => new NoobTubeCueAtCase(false, default, 0),
+            _ => new NoobTubeCueAtCase(false, default, 0),
         };
         if (!known)
             return false;

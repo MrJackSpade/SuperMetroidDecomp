@@ -133,7 +133,7 @@ internal static class GrappleFlarePresentationVerification
             OamBuffer b = bFrame.FinalizeAsOam();
             AssertEqual(visible, SamusGrappleBeamDrawing.DrawFlareBeforeSamus(changed, cFrame, Position16<RoomPixels>.Zero, edited, standardObjects: SpriteFrameTestArtwork.StandardObjects), "Grapple art edit retains origin visibility gate");
             OamBuffer c = cFrame.FinalizeAsOam();
-            AssertEqual((expectedFrame, expectedTimer), (actual.Grapple.FlareAnimationFrame, actual.Grapple.FlareAnimationTimer.RawValue), "Grapple shared compiled cadence matches independent native reads");
+            AssertEqual(new CheckCase(expectedFrame, expectedTimer), new CheckCase(actual.Grapple.FlareAnimationFrame, actual.Grapple.FlareAnimationTimer.RawValue), "Grapple shared compiled cadence matches independent native reads");
             AssertTrue(a.ImageEquals(b) && (a.LastFinalizedSpriteCount * 4) == (b.LastFinalizedSpriteCount * 4), "Grapple stock parts preserve native complete OAM");
             AssertEqual((a.LastFinalizedSpriteCount * 4), (c.LastFinalizedSpriteCount * 4), "Grapple art edit preserves sprite count");
             for (int i = 0; i < (a.LastFinalizedSpriteCount * 4) / 4; i++)

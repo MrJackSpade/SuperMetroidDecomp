@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Rooms.Plms;
@@ -12,12 +13,12 @@ internal static class LookupColoredDoorStockVerification
     internal static void VerifyColoredDoorStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmColoredDoorVisualCatalog installed)
     {
-        (ushort First, string Name)[] families = [
-            (0xa767,"yellow-left"),(0xa797,"yellow-right"),(0xa7c7,"yellow-up"),(0xa7f7,"yellow-down"),
-            (0xa827,"green-left"),(0xa857,"green-right"),(0xa887,"green-up"),(0xa8b7,"green-down"),
-            (0xa8e7,"red-left"),(0xa917,"red-right"),(0xa947,"red-up"),(0xa977,"red-down")];
+        LookupColoredCapFamily[] families = [
+            new LookupColoredCapFamily(0xa767,"yellow-left"),new LookupColoredCapFamily(0xa797,"yellow-right"),new LookupColoredCapFamily(0xa7c7,"yellow-up"),new LookupColoredCapFamily(0xa7f7,"yellow-down"),
+            new LookupColoredCapFamily(0xa827,"green-left"),new LookupColoredCapFamily(0xa857,"green-right"),new LookupColoredCapFamily(0xa887,"green-up"),new LookupColoredCapFamily(0xa8b7,"green-down"),
+            new LookupColoredCapFamily(0xa8e7,"red-left"),new LookupColoredCapFamily(0xa917,"red-right"),new LookupColoredCapFamily(0xa947,"red-up"),new LookupColoredCapFamily(0xa977,"red-down")];
         var frames = families.SelectMany(family => Enumerable.Range(0,4).Select(frame =>
-            (Pointer: (ushort)(family.First + 12 * frame), Id: $"{family.Name}-frame-{frame}"))).ToArray();
+            new LookupEscapeGateStockFrame(Pointer:(ushort)(family.First + 12 * frame), Id:$"{family.Name}-frame-{frame}"))).ToArray();
         var native = new Dictionary<ushort, ushort[]>();
         foreach (var frame in frames)
         {

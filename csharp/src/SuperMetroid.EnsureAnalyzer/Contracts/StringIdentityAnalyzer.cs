@@ -228,11 +228,11 @@ public sealed class StringIdentityAnalyzer : DiagnosticAnalyzer
     {
         (IEnumerable<ISymbol> targets, IOperation? value) = context.Operation switch
         {
-            ISimpleAssignmentOperation { Target: IFieldReferenceOperation field } assignment => ([field.Field], assignment.Value),
-            ISimpleAssignmentOperation { Target: IPropertyReferenceOperation property } assignment => ([property.Property], assignment.Value),
-            IFieldInitializerOperation initializer => (initializer.InitializedFields.Cast<ISymbol>(), initializer.Value),
-            IPropertyInitializerOperation initializer => (initializer.InitializedProperties.Cast<ISymbol>(), initializer.Value),
-            _ => (Enumerable.Empty<ISymbol>(), null),
+            ISimpleAssignmentOperation { Target: IFieldReferenceOperation field } assignment => new IdentityAssignment([field.Field], assignment.Value),
+            ISimpleAssignmentOperation { Target: IPropertyReferenceOperation property } assignment => new IdentityAssignment([property.Property], assignment.Value),
+            IFieldInitializerOperation initializer => new IdentityAssignment(initializer.InitializedFields.Cast<ISymbol>(), initializer.Value),
+            IPropertyInitializerOperation initializer => new IdentityAssignment(initializer.InitializedProperties.Cast<ISymbol>(), initializer.Value),
+            _ => new IdentityAssignment(Enumerable.Empty<ISymbol>(), null),
         };
         foreach (ISymbol target in targets)
         {

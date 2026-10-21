@@ -32,11 +32,11 @@ internal static class BotwoonAnimationsVerification
     private const ushort BotwoonSpitList = 0xebae;
 
     /// <summary>Botwoon's private head opcodes ($B3:94C7-$9572) and what each does.</summary>
-    private static readonly Dictionary<ushort, (int X, int Y)> BotwoonRadiusOpcodes = new()
+    private static readonly Dictionary<ushort, BotwoonRadiusOpcode> BotwoonRadiusOpcodes = new()
     {
-        [0x94c7] = (8, 16), [0x9507] = (8, 16), [0x9517] = (8, 16), [0x9557] = (8, 16),
-        [0x94d7] = (12, 12), [0x94f7] = (12, 12), [0x9527] = (12, 12), [0x9547] = (12, 12),
-        [0x94e7] = (16, 8), [0x9537] = (16, 8),
+        [0x94c7] = new BotwoonRadiusOpcode(8, 16), [0x9507] = new BotwoonRadiusOpcode(8, 16), [0x9517] = new BotwoonRadiusOpcode(8, 16), [0x9557] = new BotwoonRadiusOpcode(8, 16),
+        [0x94d7] = new BotwoonRadiusOpcode(12, 12), [0x94f7] = new BotwoonRadiusOpcode(12, 12), [0x9527] = new BotwoonRadiusOpcode(12, 12), [0x9547] = new BotwoonRadiusOpcode(12, 12),
+        [0x94e7] = new BotwoonRadiusOpcode(16, 8), [0x9537] = new BotwoonRadiusOpcode(16, 8),
     };
     /// <summary>Native head-list command that marks the current frame as Botwoon's spit frame.</summary>
     private const ushort BotwoonSetSpittingFlagOpcode = 0x9567;
@@ -74,8 +74,8 @@ internal static class BotwoonAnimationsVerification
     {
         Action<RoomEnemySlot, BotwoonEnemyState> animateHead = BotwoonBehavior.AnimateBotwoonHeadFromMovement;
         Action<RoomEnemySystem, RoomEnemySlot, BotwoonEnemyState, SamusState> aimHead = (owner, a0, a1, a2) => owner.BotwoonBehavior.AimBotwoonAtSamus(a0, a1, a2);
-        (short X, short Y)[] octantVectors =
-            [(0, -100), (100, -100), (100, 0), (100, 100), (0, 100), (-100, 100), (-100, 0), (-100, -100)];
+        OctantVector[] octantVectors =
+            [new OctantVector(0, -100), new OctantVector(100, -100), new OctantVector(100, 0), new OctantVector(100, 100), new OctantVector(0, 100), new OctantVector(-100, 100), new OctantVector(-100, 0), new OctantVector(-100, -100)];
         for (int octant = 0; octant < octantVectors.Length; octant++)
         {
             (short dx, short dy) = octantVectors[octant];
@@ -203,14 +203,14 @@ internal static class BotwoonAnimationsVerification
     }
 
     /// <summary>Creates a head slot with Botwoon's state attached to its owning enemy system.</summary>
-    private static (RoomEnemySystem Enemies, RoomEnemySlot Head, BotwoonEnemyState State) NewBotwoonHead()
+    private static NewBotwoonHeadResult NewBotwoonHead()
     {
         var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         head.Bind(EnemyDefinitionId.Botwoon, head.Definition);
         var state = new BotwoonEnemyState();
         enemies.BotwoonBehavior.BotwoonState = state;
-        return (enemies, head, state);
+        return new NewBotwoonHeadResult(enemies, head, state);
     }
 
     /// <summary>Starts a typed head program from its first instruction and compares it with the selected cartridge list.</summary>

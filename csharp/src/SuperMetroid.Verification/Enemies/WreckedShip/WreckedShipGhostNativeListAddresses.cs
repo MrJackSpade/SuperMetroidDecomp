@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.WreckedShip;
 
 namespace SuperMetroid.Verification.Enemies.WreckedShip;
@@ -12,9 +13,9 @@ internal static class WreckedShipGhostNativeListAddresses
     internal const byte Bank = 0xa8;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (WreckedShipGhostProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<WreckedShipGhostProgram>[] Entries =
     [
-        (WreckedShipGhostProgram.Floating, 0x9a8c),
+        new NativeProgramEntry<WreckedShipGhostProgram>(WreckedShipGhostProgram.Floating, 0x9a8c),
     ];
 
 }

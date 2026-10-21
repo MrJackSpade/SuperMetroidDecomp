@@ -74,10 +74,10 @@ internal static class PlmContentIdentityVerification
     {
         // Native definitions determine only the required shape/IDs. Copy visible words before editing;
         // the physical collision words, run geometry and native programs must remain untouched.
-        IEnumerable<(ushort Pointer, ushort[][] Runs)> Runs(string domain,
+        IEnumerable<PlmContentIdentityFrame> Runs(string domain,
             IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions)
         {
-            var frames = definitions.Select(draw => (draw.Pointer, Runs: draw.Runs.Span
+            var frames = definitions.Select(draw => new PlmContentIdentityFrame(draw.Pointer, Runs:draw.Runs.Span
                 .SelectToArray(run => run.LevelWords.Span
                     .SelectToArray(word => new RoomLevelWord(word).VisualWord)))).ToArray();
             if (domain == edited)
@@ -86,11 +86,11 @@ internal static class PlmContentIdentityVerification
             return reverse ? frames.Reverse() : frames;
         }
 
-        IEnumerable<(ushort Pointer, ushort Word)> Words(string domain,
-            IEnumerable<(ushort Pointer, ushort Word)> definitions)
+        IEnumerable<PlmContentIdentityDefinition> Words(string domain,
+            IEnumerable<PlmContentIdentityDefinition> definitions)
         {
             var frames = definitions.Select(draw =>
-                (draw.Pointer, Word: (ushort)(new RoomLevelWord(draw.Word).VisualWord ^
+                new PlmContentIdentityDefinition(draw.Pointer, Word:(ushort)(new RoomLevelWord(draw.Word).VisualWord ^
                     (domain == edited ? 1 : 0)))).ToArray();
             return reverse ? frames.Reverse() : frames;
         }
@@ -105,7 +105,7 @@ internal static class PlmContentIdentityVerification
 
         return RoomPlmPresentationIdentity.Create(new RoomPlmVisualCatalogSet { ShotBlock = new RoomPlmShotBlockVisualCatalog(Runs(GameInstallationLayout.RoomPlmShotBlockVisualDirectoryName, RoomPlmShotBlockDrawDefinitions.All)
                 .Select(draw => new RoomPlmShotBlockVisualEntry(draw.Pointer, draw.Runs))), GrappleBlock = new RoomPlmGrappleBlockVisualCatalog(Words(GameInstallationLayout.RoomPlmGrappleBlockVisualDirectoryName,
-                RoomPlmGrappleBlockDrawDefinitions.All.Select(draw => (draw.Pointer, draw.LevelWord)))
+                RoomPlmGrappleBlockDrawDefinitions.All.Select(draw => new PlmContentIdentityDefinition(draw.Pointer, draw.LevelWord)))
                 .Select(draw => new RoomPlmGrappleBlockVisualEntry(draw.Pointer, draw.Word))), Station = new RoomPlmStationVisualCatalog(Runs(GameInstallationLayout.RoomPlmStationVisualDirectoryName, RoomPlmStationDrawDefinitions.All)
                 .Select(draw => new RoomPlmVisualRunEntry(RoomPlmStationDrawDefinitions.VisualId(draw.Pointer), draw.Runs))), BlueDoor = new RoomPlmBlueDoorVisualCatalog(Runs(GameInstallationLayout.RoomPlmBlueDoorVisualDirectoryName, BlueDoorPlmDrawDefinitions.Editable)
                 .Select(draw => new RoomPlmVisualEntry(BlueDoorPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), ColoredDoor = new RoomPlmColoredDoorVisualCatalog(Runs(GameInstallationLayout.RoomPlmColoredDoorVisualDirectoryName, ColoredDoorPlmDrawDefinitions.All)
@@ -130,7 +130,7 @@ internal static class PlmContentIdentityVerification
                 .Select(draw => new RoomPlmVisualEntry(KraidRoomPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), Crocomire = new RoomPlmCrocomireVisualCatalog(Runs(GameInstallationLayout.RoomPlmCrocomireVisualDirectoryName, CrocomireArenaPlmDrawDefinitions.All)
                 .Select(draw => new RoomPlmVisualEntry(CrocomireArenaPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), MotherBrainFakeDeath = new RoomPlmMotherBrainFakeDeathVisualCatalog(Runs(GameInstallationLayout.RoomPlmMotherBrainFakeDeathVisualDirectoryName, MotherBrainFakeDeathPlmDrawDefinitions.All)
                 .Select(draw => new RoomPlmVisualEntry(MotherBrainFakeDeathPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), Collectible = new RoomPlmCollectibleVisualCatalog(Words(GameInstallationLayout.RoomPlmCollectibleVisualDirectoryName,
-                RoomPlmCollectibleDrawDefinitions.All.Select(draw => (checked((ushort)draw.Pointer), draw.LevelWord.Raw)))
+                RoomPlmCollectibleDrawDefinitions.All.Select(draw => new PlmContentIdentityDefinition(checked((ushort)draw.Pointer), draw.LevelWord.Raw)))
                 .Select(draw => new RoomPlmCollectibleVisualEntry(RoomPlmCollectibleDrawDefinitions.All.Single(frame => frame.Pointer == draw.Pointer).Id, draw.Word))), DynamicCollectibleArt = new RoomPlmDynamicCollectibleArtCatalog(reverse ? dynamicEntries.Reverse() : dynamicEntries) });
     }
 

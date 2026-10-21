@@ -457,12 +457,12 @@ internal static class IntroCinematicArtworkVerification
                     $"removing {name} override restores stock BG VRAM");
             }
             foreach ((string name, int destination, Func<IntroCinematicArtworkCatalog, ReadOnlyMemory<byte>> transfer)
-                in new (string, int, Func<IntroCinematicArtworkCatalog, ReadOnlyMemory<byte>>)[]
+                in new VerifyIntroCinematicArtworkCase[]
                 {
-                    (IntroCinematicArtworkFormat.PortraitTilemapFileName,
+                    new VerifyIntroCinematicArtworkCase(IntroCinematicArtworkFormat.PortraitTilemapFileName,
                         (IntroVramLayout.PortraitTilemap.Offset * 2),
                         artwork => artwork.PortraitTilemap),
-                    (IntroCinematicArtworkFormat.InitialNarrationTilemapFileName,
+                    new VerifyIntroCinematicArtworkCase(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName,
                         (IntroVramLayout.NarrationTilemap.Offset * 2),
                         artwork => artwork.InitialNarrationTilemap),
                 })

@@ -69,8 +69,8 @@ internal static class ScrollPlmsVerification
         // $94:9956 reacts only to the center sample, including extension resolution.
         // Foot/head visits must not substitute for a center skipped by native row deduplication.
         foreach ((ushort centerY, ushort radius, bool shouldWake) in new[]
-            { ((ushort)40, (ushort)21, false), ((ushort)72, (ushort)21, false),
-              ((ushort)56, (ushort)7, false), ((ushort)56, (ushort)21, true) })
+            { new VerifyRoomScrollPlmsCase(40, 21, false), new VerifyRoomScrollPlmsCase(72, 21, false),
+              new VerifyRoomScrollPlmsCase(56, 7, false), new VerifyRoomScrollPlmsCase(56, 21, true) })
         {
             var insideSamus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(72, centerY)) };
             insideSamus.Kinematics.Radius = insideSamus.Kinematics.Radius.WithY(radius);

@@ -35,7 +35,7 @@ internal static class SamusSuitColorsVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(cartridge.Rom)), "Normal suit sharing oracle revision");
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(cartridge);
         SamusSuitColorCatalog colors = SamusSuitColorCatalog.Load(new MemoryStream(extracted));
-        foreach (var (differences, source) in new[] { (colors.varia, 0x9b9520), (colors.gravity, 0x9b9800) })
+        foreach (var (differences, source) in new[] { new VerifyNormalSuitCatalogBoundaryCase(colors.varia, 0x9b9520), new VerifyNormalSuitCatalogBoundaryCase(colors.gravity, 0x9b9800) })
         {
             AssertEqual(4, differences.Count, "Only four differing native colors per secondary suit remain stored");
             for (int color = 0; color < 16; color++)

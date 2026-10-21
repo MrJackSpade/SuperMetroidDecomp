@@ -59,8 +59,8 @@ internal static class ShitroidGradualAccelerationVerification
         var samus = runtime.Player.IntroducedSamus;
         ShitroidEnemyState state = shitroid.SpeciesState<ShitroidEnemyState>()
             ?? throw new InvalidOperationException("The Big Boy room's Shitroid has no state.");
-        foreach ((ushort ySpeed, ushort expectedX, ushort expectedSpeed) in new (ushort, ushort, ushort)[]
-            { (5, 0x01c4, 2), (1, 0x01c3, 1) })
+        foreach ((ushort ySpeed, ushort expectedX, ushort expectedSpeed) in new VerifyShitroidDrainCarryCase[]
+            { new VerifyShitroidDrainCarryCase(5, 0x01c4, 2), new VerifyShitroidDrainCarryCase(1, 0x01c3, 1) })
         {
             state.Function = ShitroidAiFunction.DrainSamus;
             state.Velocity = default;

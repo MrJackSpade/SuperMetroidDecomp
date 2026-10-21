@@ -33,7 +33,7 @@ internal static class EyeWindowSnapshotTestsVerification
         foreach (ushort width in new ushort[] { 0, 1, 24 })
         for (int angle = 0; angle < SnesAngle.TableUnitsPerTurn; angle++)
             Check(128, 120, angle, width);
-        foreach ((int x, int y) in new[] { (-40, 120), (300, 120), (128, -30), (128, 270), (-32768, 32767) })
+        foreach ((int x, int y) in new[] { new VerifyEyeWindowSnapshotsCase(-40, 120), new VerifyEyeWindowSnapshotsCase(300, 120), new VerifyEyeWindowSnapshotsCase(128, -30), new VerifyEyeWindowSnapshotsCase(128, 270), new VerifyEyeWindowSnapshotsCase(-32768, 32767) })
         foreach (int angle in new[] { 0, 1, 63, 64, 65, 127, 128, 191, 192, 193, 255 })
         foreach (ushort width in new ushort[] { 0, 1, 24 })
             Check(x, y, angle, width);
@@ -62,15 +62,15 @@ internal static class EyeWindowSnapshotTestsVerification
         // These endpoints were emitted by executing ROM $88:E987, not by the
         // production builder. Keep this small oracle in the ordinary suite while
         // the native audit independently sweeps all angles and off-screen cases.
-        (byte Angle, ushort Width, int Y, int Left, int Right)[] expected =
+        EyeWindowSnapshotTestsExpected[] expected =
         [
-            (160, 0, 32, 255, 0), (160, 0, 103, 168, 168),
-            (160, 0, 104, 167, 167), (160, 0, 223, 48, 48),
-            (160, 4, 104, 166, 167), (160, 4, 140, 123, 137),
-            (160, 4, 223, 22, 69), (208, 0, 80, 112, 112),
-            (208, 0, 104, 255, 0), (208, 4, 32, 0, 35),
-            (208, 4, 102, 164, 166), (224, 4, 80, 140, 149),
-            (224, 4, 102, 166, 167), (224, 4, 104, 255, 0),
+            new EyeWindowSnapshotTestsExpected(160, 0, 32, 255, 0), new EyeWindowSnapshotTestsExpected(160, 0, 103, 168, 168),
+            new EyeWindowSnapshotTestsExpected(160, 0, 104, 167, 167), new EyeWindowSnapshotTestsExpected(160, 0, 223, 48, 48),
+            new EyeWindowSnapshotTestsExpected(160, 4, 104, 166, 167), new EyeWindowSnapshotTestsExpected(160, 4, 140, 123, 137),
+            new EyeWindowSnapshotTestsExpected(160, 4, 223, 22, 69), new EyeWindowSnapshotTestsExpected(208, 0, 80, 112, 112),
+            new EyeWindowSnapshotTestsExpected(208, 0, 104, 255, 0), new EyeWindowSnapshotTestsExpected(208, 4, 32, 0, 35),
+            new EyeWindowSnapshotTestsExpected(208, 4, 102, 164, 166), new EyeWindowSnapshotTestsExpected(224, 4, 80, 140, 149),
+            new EyeWindowSnapshotTestsExpected(224, 4, 102, 166, 167), new EyeWindowSnapshotTestsExpected(224, 4, 104, 255, 0),
         ];
         foreach (var sample in expected)
         {

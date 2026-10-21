@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.FaceBlocks;
 
 namespace SuperMetroid.Verification.Enemies.FaceBlocks;
@@ -12,11 +13,11 @@ internal static class BlueBrinstarFaceBlockNativeListAddresses
     internal const byte Bank = 0xa8;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (BlueBrinstarFaceBlockProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<BlueBrinstarFaceBlockProgram>[] Entries =
     [
-        (BlueBrinstarFaceBlockProgram.SamusLeft, 0xe80c),
-        (BlueBrinstarFaceBlockProgram.SamusRight, 0xe81a),
-        (BlueBrinstarFaceBlockProgram.Initial, 0xe828),
+        new NativeProgramEntry<BlueBrinstarFaceBlockProgram>(BlueBrinstarFaceBlockProgram.SamusLeft, 0xe80c),
+        new NativeProgramEntry<BlueBrinstarFaceBlockProgram>(BlueBrinstarFaceBlockProgram.SamusRight, 0xe81a),
+        new NativeProgramEntry<BlueBrinstarFaceBlockProgram>(BlueBrinstarFaceBlockProgram.Initial, 0xe828),
     ];
 
 }

@@ -96,9 +96,9 @@ internal static class CeresSteamCollisionDefinitionsVerification
 
             compiledSlot.SpritemapPointer = frame;
             foreach ((ushort originX, ushort originY) in
-                     new (ushort, ushort)[]
+                     new VerifyCeresSteamCollisionDefinitionsCase[]
                      {
-                         (0x0100, 0x0100), (0x0004, 0x0006), (0xfffc, 0xfffa),
+                         new VerifyCeresSteamCollisionDefinitionsCase(0x0100, 0x0100), new VerifyCeresSteamCollisionDefinitionsCase(0x0004, 0x0006), new VerifyCeresSteamCollisionDefinitionsCase(0xfffc, 0xfffa),
                      })
             {
                 compiledSlot.Position = compiledSlot.Position.WithWhole(new(originX, originY));

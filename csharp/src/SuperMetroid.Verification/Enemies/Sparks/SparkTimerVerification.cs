@@ -28,7 +28,7 @@ internal static class SparkTimerVerification
         state.BaseFunctionTime = 0x8000;
         slot.SetSpeciesState(state, state.ClearWithRecord);
         slot.Clear();
-        AssertEqual((0, (ushort)0), (state.BaseFunctionTime, state.FunctionTimer.RawValue), "a kill empties the base time and countdown");
+        AssertEqual(new VerifySparkTimerCase(0, 0), new VerifySparkTimerCase(state.BaseFunctionTime, state.FunctionTimer.RawValue), "a kill empties the base time and countdown");
         AssertEqual(null, state.Function, "a kill empties the function");
         Console.WriteLine("Spark timer: the expiry, the zero wrap and the cleared record match.");
     }

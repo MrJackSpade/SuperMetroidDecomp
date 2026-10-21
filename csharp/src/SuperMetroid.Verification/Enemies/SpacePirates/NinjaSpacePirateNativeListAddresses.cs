@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.SpacePirates;
 
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
@@ -13,40 +14,40 @@ internal static class NinjaSpacePirateNativeListAddresses
     internal const byte Bank = 0xb2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (NinjaSpacePirateProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<NinjaSpacePirateProgram>[] Entries =
     [
-        (NinjaSpacePirateProgram.ClawAttackLeft, 0xf15c),
-        (NinjaSpacePirateProgram.SpinJumpLeft, 0xf1c4),
-        (NinjaSpacePirateProgram.SpinJumpLeftLoop, 0xf206),
-        (NinjaSpacePirateProgram.ActiveFacingLeft, 0xf22e),
-        (NinjaSpacePirateProgram.ActiveFacingLeftLoop, 0xf232),
-        (NinjaSpacePirateProgram.FlinchFacingLeft, 0xf270),
-        (NinjaSpacePirateProgram.DivekickLeftJump, 0xf27c),
-        (NinjaSpacePirateProgram.DivekickLeftJumpLoop, 0xf28a),
-        (NinjaSpacePirateProgram.DivekickLeftDive, 0xf2a0),
-        (NinjaSpacePirateProgram.WalkToLeftPost, 0xf2b2),
-        (NinjaSpacePirateProgram.WalkToLeftPostLoop, 0xf2b6),
-        (NinjaSpacePirateProgram.InitialFacingLeft, 0xf2da),
-        (NinjaSpacePirateProgram.InitialFacingLeftLoop, 0xf2de),
-        (NinjaSpacePirateProgram.LandFacingLeft, 0xf2f8),
-        (NinjaSpacePirateProgram.LandFacingLeftLoop, 0xf314),
-        (NinjaSpacePirateProgram.KickFacingLeft, 0xf32e),
-        (NinjaSpacePirateProgram.ClawAttackRight, 0xf34a),
-        (NinjaSpacePirateProgram.SpinJumpRight, 0xf3b2),
-        (NinjaSpacePirateProgram.SpinJumpRightLoop, 0xf3f4),
-        (NinjaSpacePirateProgram.ActiveFacingRight, 0xf420),
-        (NinjaSpacePirateProgram.ActiveFacingRightLoop, 0xf424),
-        (NinjaSpacePirateProgram.FlinchFacingRight, 0xf462),
-        (NinjaSpacePirateProgram.DivekickRightJump, 0xf46e),
-        (NinjaSpacePirateProgram.DivekickRightJumpLoop, 0xf47c),
-        (NinjaSpacePirateProgram.DivekickRightDive, 0xf492),
-        (NinjaSpacePirateProgram.WalkToRightPost, 0xf4a4),
-        (NinjaSpacePirateProgram.WalkToRightPostLoop, 0xf4a8),
-        (NinjaSpacePirateProgram.InitialFacingRight, 0xf4cc),
-        (NinjaSpacePirateProgram.InitialFacingRightLoop, 0xf4d0),
-        (NinjaSpacePirateProgram.LandFacingRight, 0xf4ea),
-        (NinjaSpacePirateProgram.LandFacingRightLoop, 0xf506),
-        (NinjaSpacePirateProgram.KickFacingRight, 0xf51a),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.ClawAttackLeft, 0xf15c),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.SpinJumpLeft, 0xf1c4),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.SpinJumpLeftLoop, 0xf206),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.ActiveFacingLeft, 0xf22e),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.ActiveFacingLeftLoop, 0xf232),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.FlinchFacingLeft, 0xf270),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.DivekickLeftJump, 0xf27c),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.DivekickLeftJumpLoop, 0xf28a),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.DivekickLeftDive, 0xf2a0),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.WalkToLeftPost, 0xf2b2),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.WalkToLeftPostLoop, 0xf2b6),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.InitialFacingLeft, 0xf2da),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.InitialFacingLeftLoop, 0xf2de),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.LandFacingLeft, 0xf2f8),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.LandFacingLeftLoop, 0xf314),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.KickFacingLeft, 0xf32e),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.ClawAttackRight, 0xf34a),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.SpinJumpRight, 0xf3b2),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.SpinJumpRightLoop, 0xf3f4),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.ActiveFacingRight, 0xf420),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.ActiveFacingRightLoop, 0xf424),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.FlinchFacingRight, 0xf462),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.DivekickRightJump, 0xf46e),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.DivekickRightJumpLoop, 0xf47c),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.DivekickRightDive, 0xf492),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.WalkToRightPost, 0xf4a4),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.WalkToRightPostLoop, 0xf4a8),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.InitialFacingRight, 0xf4cc),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.InitialFacingRightLoop, 0xf4d0),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.LandFacingRight, 0xf4ea),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.LandFacingRightLoop, 0xf506),
+        new NativeProgramEntry<NinjaSpacePirateProgram>(NinjaSpacePirateProgram.KickFacingRight, 0xf51a),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

@@ -87,12 +87,12 @@ internal static class EnemyTileArtworkKraidColorsVerification
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrides);
         foreach ((KraidPaletteConsumer consumer, int cgramIndex) in new[]
         {
-            (KraidPaletteConsumer.BackdropLoad, 96),
-            (KraidPaletteConsumer.InitialTargetLoad, 176),
-            (KraidPaletteConsumer.BackdropFade, 96),
-            (KraidPaletteConsumer.HealthNormal, 112),
-            (KraidPaletteConsumer.HealthNormal, 240),
-            (KraidPaletteConsumer.DeathArm, 112),
+            new VerifyInstalledKraidColorsCase(KraidPaletteConsumer.BackdropLoad, 96),
+            new VerifyInstalledKraidColorsCase(KraidPaletteConsumer.InitialTargetLoad, 176),
+            new VerifyInstalledKraidColorsCase(KraidPaletteConsumer.BackdropFade, 96),
+            new VerifyInstalledKraidColorsCase(KraidPaletteConsumer.HealthNormal, 112),
+            new VerifyInstalledKraidColorsCase(KraidPaletteConsumer.HealthNormal, 240),
+            new VerifyInstalledKraidColorsCase(KraidPaletteConsumer.DeathArm, 112),
         })
         {
             ushort[] baseline = ReferenceKraidPaletteConsumer(rom, consumer);

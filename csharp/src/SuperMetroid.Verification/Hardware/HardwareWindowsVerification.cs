@@ -14,7 +14,7 @@ internal static class HardwareWindowsVerification
         // Independent truth-table oracle for pinned ppu_getWindowState (ppu.c).
         // Bit index is first*2+second; do not call production's Boolean branches.
         int[] operations = [0b1110, 0b1000, 0b0110, 0b1001];
-        (byte Left, byte Right)[] intervals = [(0,255), (32,96), (64,128), (80,80), (128,32), (255,255)];
+        Interval[] intervals = [new Interval(0,255), new Interval(32,96), new Interval(64,128), new Interval(80,80), new Interval(128,32), new Interval(255,255)];
         int cases = 0;
         foreach (var first in intervals)
         foreach (var second in intervals)

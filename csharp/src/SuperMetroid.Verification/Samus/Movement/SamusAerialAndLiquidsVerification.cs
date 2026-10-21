@@ -181,19 +181,19 @@ level, samus, 0, unchecked((ushort)(frame + 3))),
     // `$F8`. They keep using `$91:8142`, so Jump may interrupt every one of the six records
     // with the same spin/neutral pair as `$25/$26`. Exercise both outputs for both facings;
     // `$8D -> $1A` is the live Climb route which first exposed this omitted family.
-    (SamusPoseId Source, SamusPoseId SpinTarget, SamusPoseId NeutralTarget)[] aimedTurnJumps =
+    AimedTurnJump[] aimedTurnJumps =
     [
-        (SamusPoseId.TurningRightToLeftAimUpPose,
+        new AimedTurnJump(SamusPoseId.TurningRightToLeftAimUpPose,
             SamusPoseId.SpinJumpLeftPose, SamusPoseId.NeutralJumpTransitionLeftPose),
-        (SamusPoseId.TurningLeftToRightAimUpPose,
+        new AimedTurnJump(SamusPoseId.TurningLeftToRightAimUpPose,
             SamusPoseId.SpinJumpRightPose, SamusPoseId.NeutralJumpTransitionRightPose),
-        (SamusPoseId.TurningRightToLeftAimDiagonalDownPose,
+        new AimedTurnJump(SamusPoseId.TurningRightToLeftAimDiagonalDownPose,
             SamusPoseId.SpinJumpLeftPose, SamusPoseId.NeutralJumpTransitionLeftPose),
-        (SamusPoseId.TurningLeftToRightAimDiagonalDownPose,
+        new AimedTurnJump(SamusPoseId.TurningLeftToRightAimDiagonalDownPose,
             SamusPoseId.SpinJumpRightPose, SamusPoseId.NeutralJumpTransitionRightPose),
-        (SamusPoseId.TurningRightToLeftAimDiagonalUpPose,
+        new AimedTurnJump(SamusPoseId.TurningRightToLeftAimDiagonalUpPose,
             SamusPoseId.SpinJumpLeftPose, SamusPoseId.NeutralJumpTransitionLeftPose),
-        (SamusPoseId.TurningLeftToRightAimDiagonalUpPose,
+        new AimedTurnJump(SamusPoseId.TurningLeftToRightAimDiagonalUpPose,
             SamusPoseId.SpinJumpRightPose, SamusPoseId.NeutralJumpTransitionRightPose),
     ];
     foreach ((SamusPoseId source, SamusPoseId spinTarget, SamusPoseId neutralTarget) in aimedTurnJumps)
@@ -1413,14 +1413,14 @@ static TestAddressSpace CreateSpaceJumpAndScrewAttackCartridge()
     // All six stable spin records share movement type three and radius twelve. The generic
     // `$19/$1A` records are transition-table outputs; the four equipment records are the
     // actual bodies selected by `$91:F624` after that table lookup.
-    foreach ((SamusPoseId pose, byte direction) in new (SamusPoseId, byte)[]
+    foreach ((SamusPoseId pose, byte direction) in new CreateSpaceJumpAndScrewAttackCartridgeCase[]
     {
-        (SamusPoseId.SpinJumpRightPose, 8),
-        (SamusPoseId.SpinJumpLeftPose, 4),
-        (SamusPoseId.SpaceJumpRightPose, 8),
-        (SamusPoseId.SpaceJumpLeftPose, 4),
-        (SamusPoseId.ScrewAttackRightPose, 8),
-        (SamusPoseId.ScrewAttackLeftPose, 4),
+        new CreateSpaceJumpAndScrewAttackCartridgeCase(SamusPoseId.SpinJumpRightPose, 8),
+        new CreateSpaceJumpAndScrewAttackCartridgeCase(SamusPoseId.SpinJumpLeftPose, 4),
+        new CreateSpaceJumpAndScrewAttackCartridgeCase(SamusPoseId.SpaceJumpRightPose, 8),
+        new CreateSpaceJumpAndScrewAttackCartridgeCase(SamusPoseId.SpaceJumpLeftPose, 4),
+        new CreateSpaceJumpAndScrewAttackCartridgeCase(SamusPoseId.ScrewAttackRightPose, 8),
+        new CreateSpaceJumpAndScrewAttackCartridgeCase(SamusPoseId.ScrewAttackLeftPose, 4),
     })
     {
         WritePoseDefinition(bus, (int)pose, [direction, 3, 0xff, 0xff, 0, 0, 12, 0]);

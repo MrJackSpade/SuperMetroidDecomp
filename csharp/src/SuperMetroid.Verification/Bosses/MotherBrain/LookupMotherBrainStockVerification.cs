@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Rooms.Plms;
@@ -14,15 +15,15 @@ internal static class LookupMotherBrainStockVerification
     internal static void VerifyMotherBrainStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmMotherBrainFakeDeathVisualCatalog installed)
     {
-        (ushort Pointer, string Id)[] frames = [(0x94a3,"fill-wall"),(0x94b1,"escape-door"),
-            (0x9505,"background-row-2"),(0x9523,"background-row-3"),(0x9541,"background-row-4"),
-            (0x955f,"background-row-5"),(0x957d,"background-row-6"),(0x959b,"background-row-7"),
-            (0x95b9,"background-row-8"),(0x95d7,"background-row-9"),(0x95f5,"background-row-a"),
-            (0x9613,"background-row-b"),(0x9631,"background-row-c"),(0x964f,"background-row-d"),
-            (0x966d,"background-row-e-unused"),(0x968b,"background-row-f-unused"),
-            (0x96a9,"clear-ceiling-block"),(0x96b1,"clear-ceiling-tube"),
-            (0x96bf,"clear-bottom-middle-side-tube"),(0x96cb,"clear-bottom-middle-tubes"),
-            (0x96ef,"clear-bottom-left-tube"),(0x9703,"clear-bottom-right-tube")];
+        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x94a3,"fill-wall"),new LookupEscapeGateStockFrame(0x94b1,"escape-door"),
+            new LookupEscapeGateStockFrame(0x9505,"background-row-2"),new LookupEscapeGateStockFrame(0x9523,"background-row-3"),new LookupEscapeGateStockFrame(0x9541,"background-row-4"),
+            new LookupEscapeGateStockFrame(0x955f,"background-row-5"),new LookupEscapeGateStockFrame(0x957d,"background-row-6"),new LookupEscapeGateStockFrame(0x959b,"background-row-7"),
+            new LookupEscapeGateStockFrame(0x95b9,"background-row-8"),new LookupEscapeGateStockFrame(0x95d7,"background-row-9"),new LookupEscapeGateStockFrame(0x95f5,"background-row-a"),
+            new LookupEscapeGateStockFrame(0x9613,"background-row-b"),new LookupEscapeGateStockFrame(0x9631,"background-row-c"),new LookupEscapeGateStockFrame(0x964f,"background-row-d"),
+            new LookupEscapeGateStockFrame(0x966d,"background-row-e-unused"),new LookupEscapeGateStockFrame(0x968b,"background-row-f-unused"),
+            new LookupEscapeGateStockFrame(0x96a9,"clear-ceiling-block"),new LookupEscapeGateStockFrame(0x96b1,"clear-ceiling-tube"),
+            new LookupEscapeGateStockFrame(0x96bf,"clear-bottom-middle-side-tube"),new LookupEscapeGateStockFrame(0x96cb,"clear-bottom-middle-tubes"),
+            new LookupEscapeGateStockFrame(0x96ef,"clear-bottom-left-tube"),new LookupEscapeGateStockFrame(0x9703,"clear-bottom-right-tube")];
         var native = new Dictionary<ushort, ushort[]>();
         var widths = new Dictionary<ushort, int[]>();
         foreach (var frame in frames)

@@ -16,8 +16,8 @@ internal static class MotherBrainHealthPaletteVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         var colors = new HashSet<string>();
-        foreach (var (health, index) in new (ushort, int)[]
-            { (36000, 0), (9000, 0), (8999, 1), (5400, 1), (5399, 2), (1800, 2), (1799, 3), (0, 3) })
+        foreach (var (health, index) in new VerifyMotherBrainHealthPaletteCase[]
+            { new VerifyMotherBrainHealthPaletteCase(36000, 0), new VerifyMotherBrainHealthPaletteCase(9000, 0), new VerifyMotherBrainHealthPaletteCase(8999, 1), new VerifyMotherBrainHealthPaletteCase(5400, 1), new VerifyMotherBrainHealthPaletteCase(5399, 2), new VerifyMotherBrainHealthPaletteCase(1800, 2), new VerifyMotherBrainHealthPaletteCase(1799, 3), new VerifyMotherBrainHealthPaletteCase(0, 3) })
         {
             var cgram = new SnesCgram();
             MotherBrainHealthPalette.Apply(cgram, health, InstalledFixtures.Maps.MotherBrainHealthPalette);

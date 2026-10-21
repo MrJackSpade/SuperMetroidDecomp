@@ -109,7 +109,7 @@ public sealed class SpeciesIdentityAnalyzer : DiagnosticAnalyzer
             return;
         directory = Normalize(directory);
 
-        var found = new List<(Location Location, string What)>();
+        var found = new List<SpeciesFinding>();
         foreach (SyntaxNode node in tree.GetRoot(context.CancellationToken).DescendantNodes())
         {
             switch (node)
@@ -117,11 +117,11 @@ public sealed class SpeciesIdentityAnalyzer : DiagnosticAnalyzer
                 case MemberAccessExpressionSyntax member when member.Expression.ToString() == DefinitionTypeName &&
                     IsIdentityTest(member) && !OccupancyMembers.Contains(member.Name.Identifier.Text) &&
                     !Owns(owners, member.Name.Identifier.Text, directory):
-                    found.Add((member.GetLocation(), $"'{member}' tested outside its species' folder"));
+                    found.Add(new SpeciesFinding(member.GetLocation(), $"'{member}' tested outside its species' folder"));
                     break;
                 case InvocationExpressionSyntax invocation when IsForeignDefinitionPredicate(invocation, context.SemanticModel,
                     directory, context.CancellationToken):
-                    found.Add((invocation.GetLocation(), $"'{invocation.Expression}' is another species' definition predicate"));
+                    found.Add(new SpeciesFinding(invocation.GetLocation(), $"'{invocation.Expression}' is another species' definition predicate"));
                     break;
                 default:
                     break;

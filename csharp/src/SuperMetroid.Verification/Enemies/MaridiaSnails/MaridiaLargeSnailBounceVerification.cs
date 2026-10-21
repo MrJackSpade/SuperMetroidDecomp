@@ -24,12 +24,12 @@ internal static class MaridiaLargeSnailBounceVerification
         var floor = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(floorBlocks, new byte[64], new ushort[64]), new byte[8]);
 
         foreach ((string context, RoomLevelData level, MaridiaLargeSnailBounceFunction phase, int start, int expected, MaridiaLargeSnailBounceFunction expectedPhase, bool expectedSettled) in
-                 new (string, RoomLevelData, MaridiaLargeSnailBounceFunction, int, int, MaridiaLargeSnailBounceFunction, bool)[]
+                 new VerifyMaridiaLargeSnailBounceRecordCase[]
                  {
-                     ("falling in the air past the cap", air, MaridiaLargeSnailBounceFunction.Falling, 16200, 16384, MaridiaLargeSnailBounceFunction.Falling, false),
-                     ("falling in the air below the cap", air, MaridiaLargeSnailBounceFunction.Falling, 1000, 1384, MaridiaLargeSnailBounceFunction.Falling, false),
-                     ("landing with a low record", floor, MaridiaLargeSnailBounceFunction.Falling, 1000, -2712, MaridiaLargeSnailBounceFunction.Rising, true),
-                     ("rising past zero", air, MaridiaLargeSnailBounceFunction.Rising, 200, 0, MaridiaLargeSnailBounceFunction.Falling, false),
+                     new VerifyMaridiaLargeSnailBounceRecordCase("falling in the air past the cap", air, MaridiaLargeSnailBounceFunction.Falling, 16200, 16384, MaridiaLargeSnailBounceFunction.Falling, false),
+                     new VerifyMaridiaLargeSnailBounceRecordCase("falling in the air below the cap", air, MaridiaLargeSnailBounceFunction.Falling, 1000, 1384, MaridiaLargeSnailBounceFunction.Falling, false),
+                     new VerifyMaridiaLargeSnailBounceRecordCase("landing with a low record", floor, MaridiaLargeSnailBounceFunction.Falling, 1000, -2712, MaridiaLargeSnailBounceFunction.Rising, true),
+                     new VerifyMaridiaLargeSnailBounceRecordCase("rising past zero", air, MaridiaLargeSnailBounceFunction.Rising, 200, 0, MaridiaLargeSnailBounceFunction.Falling, false),
                  })
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);

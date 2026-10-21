@@ -258,12 +258,12 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     // The initial firing pass changes timer four to three. Three more wave passes cause the
     // first trail allocation and expose the only cadence distinction in `$B0C3/$B0E4`.
-    foreach ((ushort beamType, ushort expectedReload) in new (ushort, ushort)[]
+    foreach ((ushort beamType, ushort expectedReload) in new SamusProjectilesVerifySamusPowerBeamProjectilesCase[]
     {
-        (1, 3), // Uncharged power+wave uses `$90:B0E4`.
-        (3, 3), // Uncharged ice+wave uses the same low-family routine.
-        (5, 4), // Spazer+wave uses the common `$90:B0C3` routine.
-        (9, 4), // Plasma+wave also uses the common routine.
+        new SamusProjectilesVerifySamusPowerBeamProjectilesCase(1, 3), // Uncharged power+wave uses `$90:B0E4`.
+        new SamusProjectilesVerifySamusPowerBeamProjectilesCase(3, 3), // Uncharged ice+wave uses the same low-family routine.
+        new SamusProjectilesVerifySamusPowerBeamProjectilesCase(5, 4), // Spazer+wave uses the common `$90:B0C3` routine.
+        new SamusProjectilesVerifySamusPowerBeamProjectilesCase(9, 4), // Plasma+wave also uses the common routine.
     })
     {
         var cadenceSamus = new SamusState
@@ -810,8 +810,8 @@ internal static void VerifySamusPowerBeamProjectiles()
     foreach (bool executeOnLeft in new[] { false, true })
     foreach ((ProjectileTrailInstruction command, ushort list) in new[]
              {
-                 (ProjectileTrailInstruction.MoveLeftDown, ProjectileTrailDefinitions.LeftIce),
-                 (ProjectileTrailInstruction.MoveRightDown, ProjectileTrailDefinitions.RightIce),
+                 new VerifySamusPowerBeamProjectilesCase(ProjectileTrailInstruction.MoveLeftDown, ProjectileTrailDefinitions.LeftIce),
+                 new VerifySamusPowerBeamProjectilesCase(ProjectileTrailInstruction.MoveRightDown, ProjectileTrailDefinitions.RightIce),
              })
     {
         var commandProjectiles = CreateSyntheticProjectiles();
@@ -1231,7 +1231,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     const ushort coloredDoorPopulation = 0x9000;
     var coloredDoorWords = new ushort[16 * 16];
     var coloredDoorBehaviors = new byte[coloredDoorWords.Length];
-    var coloredDoorRecords = new (ushort Header, byte X, byte Y, ushort Argument)[coloredDoorHeaders.Length];
+    var coloredDoorRecords = new ColoredDoorRecord[coloredDoorHeaders.Length];
     for (int index = 0; index < coloredDoorHeaders.Length; index++)
     {
         int blockX = index + 1;
@@ -1240,7 +1240,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         coloredDoorWords[blockIndex] = unchecked((ushort)(0x8000 | 0x0120 + index));
         coloredDoorBehaviors[blockIndex] = unchecked((byte)(0x40 + (index & 3)));
 
-        coloredDoorRecords[index] = (coloredDoorHeaders[index],
+        coloredDoorRecords[index] = new ColoredDoorRecord(coloredDoorHeaders[index],
             unchecked((byte)blockX), unchecked((byte)blockY), unchecked((ushort)index));
     }
     WriteRoomPlmPopulationFixture(bus, coloredDoorPopulation, coloredDoorRecords);
@@ -1269,7 +1269,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     const ushort residentDoorArgument = 37;
     const int residentDoorBlock = 3 * 16 + 5;
     InstallResidentDoorPlmGraphFixture(bus);
-    WriteRoomPlmPopulationFixture(bus, residentDoorPopulation, [(0xc88a, 5, 3, residentDoorArgument)]);
+    WriteRoomPlmPopulationFixture(bus, residentDoorPopulation, [new ColoredDoorRecord(0xc88a, 5, 3, residentDoorArgument)]);
 
     var residentWords = new ushort[16 * 16];
     residentWords[residentDoorBlock] = 0x8120;
@@ -1333,7 +1333,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     const int greyDoorBlock = 6 * 16 + 2;
 
     InstallGreyDoorPlmGraphFixture(bus);
-    WriteRoomPlmPopulationFixture(bus, greyDoorPopulation, [(0xc842, 2, 6, greyDoorRawArgument)]);
+    WriteRoomPlmPopulationFixture(bus, greyDoorPopulation, [new ColoredDoorRecord(0xc842, 2, 6, greyDoorRawArgument)]);
 
     var greyDoorWords = new ushort[16 * 16];
     greyDoorWords[greyDoorBlock] = 0x8220;
@@ -2009,7 +2009,7 @@ static void InstallLandingSiteBlueDoorPlmFixture(TestAddressSpace bus)
 static void WriteRoomPlmPopulationFixture(
     TestAddressSpace bus,
     ushort population,
-    params ReadOnlySpan<(ushort Header, byte X, byte Y, ushort Argument)> records)
+    params ReadOnlySpan<ColoredDoorRecord> records)
 {
     for (int index = 0; index < records.Length; index++)
     {

@@ -37,9 +37,9 @@ internal static class IntroContentIdentityVerification
         };
         foreach ((string family, int count) in new[]
         {
-            ("flight", CeresFlightActorDefinitions.RearViewActorCount),
-            ("reveal", CeresDestructionActorDefinitions.ZebesActorCount),
-            ("destruction", CeresDestructionActorDefinitions.InitialActorCount),
+            new VerifyIntroContentIdentityCase("flight", CeresFlightActorDefinitions.RearViewActorCount),
+            new VerifyIntroContentIdentityCase("reveal", CeresDestructionActorDefinitions.ZebesActorCount),
+            new VerifyIntroContentIdentityCase("destruction", CeresDestructionActorDefinitions.InitialActorCount),
         })
         for (int index = 0; index < count; index++)
         {

@@ -18,9 +18,9 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 internal static class PauseReserveFramesVerification
 {
     /// <summary>Lists preconversion sparse frame identities independently of the production selector.</summary>
-    private static (string Name, ushort Id)[] ReserveFrameOracle() =>
-        [("Full", 0x1b), ("EndCap", 0x1f), ("Empty", 0x20), ("Fill1", 0x21), ("Fill2", 0x22),
-         ("Fill3", 0x23), ("Fill4", 0x24), ("Fill5", 0x25), ("Fill6", 0x26), ("Fill7", 0x27)];
+    private static ReserveFrameOracleResult[] ReserveFrameOracle() =>
+        [new ReserveFrameOracleResult("Full", 0x1b), new ReserveFrameOracleResult("EndCap", 0x1f), new ReserveFrameOracleResult("Empty", 0x20), new ReserveFrameOracleResult("Fill1", 0x21), new ReserveFrameOracleResult("Fill2", 0x22),
+         new ReserveFrameOracleResult("Fill3", 0x23), new ReserveFrameOracleResult("Fill4", 0x24), new ReserveFrameOracleResult("Fill5", 0x25), new ReserveFrameOracleResult("Fill6", 0x26), new ReserveFrameOracleResult("Fill7", 0x27)];
 
     /// <summary>Checks exact frame admission and that each edited reserve role changes only its selected OAM composition.</summary>
     internal static void VerifyPauseReserveFrameCases(ISnesAddressSpace rom)
@@ -103,7 +103,7 @@ internal static class PauseReserveFramesVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause reserve native frames")]
     internal static void VerifyPauseReserveNativeFrames(ISnesAddressSpace rom, PauseReserveTankPresentation presentation)
     {
-        foreach (var (site, identity) in new[] { (0x82b305, 0x1b), (0x82b37d, 0x20), (0x82b396, 0x1f) })
+        foreach (var (site, identity) in new[] { new VerifyPauseReserveNativeFramesCase(0x82b305, 0x1b), new VerifyPauseReserveNativeFramesCase(0x82b37d, 0x20), new VerifyPauseReserveNativeFramesCase(0x82b396, 0x1f) })
         {
             AssertEqual((byte)0xa9, rom.ReadCartridgeByte(site), "native reserve role LDA");
             AssertEqual(identity, (int)ReadVerificationWord(rom, site + 1), "native reserve role identity");

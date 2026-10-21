@@ -23,9 +23,9 @@ internal static class WrapShotRoomsVerification
     internal static void VerifyRetailWrapShotDoors()
     {
         foreach (var setup in new[] {
-            (Room: RoomHeaderDefinitions.LandingSite, X: 2260, Y: 546, Target: 0x1561, Beams: 9, Hit: 9),
-            (Room: RoomHeaderDefinitions.Crocomire, X: 2004, Y: 34, Target: 0x0301, Beams: 9, Hit: 9),
-            (Room: RoomHeaderDefinitions.GreenBrinstarMainShaft, X: 38, Y: 1606, Target: 0x2981, Beams: 5, Hit: 5),
+            new VerifyRetailWrapShotDoorsCase(Room:RoomHeaderDefinitions.LandingSite, X:2260, Y:546, Target:0x1561, Beams:9, Hit:9),
+            new VerifyRetailWrapShotDoorsCase(Room:RoomHeaderDefinitions.Crocomire, X:2004, Y:34, Target:0x0301, Beams:9, Hit:9),
+            new VerifyRetailWrapShotDoorsCase(Room:RoomHeaderDefinitions.GreenBrinstarMainShaft, X:38, Y:1606, Target:0x2981, Beams:5, Hit:5),
         })
         foreach (int beams in new[] { setup.Beams, 1, 0 })
         {

@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Rooms.Plms;
@@ -12,11 +13,11 @@ internal static class LookupGreyDoorStockVerification
     internal static void VerifyGreyDoorStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmGreyDoorVisualCatalog installed)
     {
-        (ushort Pointer, string Id)[] frames = [(0xa677,"clear-left"),(0xa683,"clear-right"),(0xa68f,"clear-up"),(0xa69b,"clear-down"),
-            (0xa6a7,"grey-left-frame-0"),(0xa6b3,"grey-left-frame-1"),(0xa6bf,"grey-left-frame-2"),(0xa6cb,"grey-left-frame-3"),
-            (0xa6d7,"grey-right-frame-0"),(0xa6e3,"grey-right-frame-1"),(0xa6ef,"grey-right-frame-2"),(0xa6fb,"grey-right-frame-3"),
-            (0xa707,"grey-up-frame-0"),(0xa713,"grey-up-frame-1"),(0xa71f,"grey-up-frame-2"),(0xa72b,"grey-up-frame-3"),
-            (0xa737,"grey-down-frame-0"),(0xa743,"grey-down-frame-1"),(0xa74f,"grey-down-frame-2"),(0xa75b,"grey-down-frame-3")];
+        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0xa677,"clear-left"),new LookupEscapeGateStockFrame(0xa683,"clear-right"),new LookupEscapeGateStockFrame(0xa68f,"clear-up"),new LookupEscapeGateStockFrame(0xa69b,"clear-down"),
+            new LookupEscapeGateStockFrame(0xa6a7,"grey-left-frame-0"),new LookupEscapeGateStockFrame(0xa6b3,"grey-left-frame-1"),new LookupEscapeGateStockFrame(0xa6bf,"grey-left-frame-2"),new LookupEscapeGateStockFrame(0xa6cb,"grey-left-frame-3"),
+            new LookupEscapeGateStockFrame(0xa6d7,"grey-right-frame-0"),new LookupEscapeGateStockFrame(0xa6e3,"grey-right-frame-1"),new LookupEscapeGateStockFrame(0xa6ef,"grey-right-frame-2"),new LookupEscapeGateStockFrame(0xa6fb,"grey-right-frame-3"),
+            new LookupEscapeGateStockFrame(0xa707,"grey-up-frame-0"),new LookupEscapeGateStockFrame(0xa713,"grey-up-frame-1"),new LookupEscapeGateStockFrame(0xa71f,"grey-up-frame-2"),new LookupEscapeGateStockFrame(0xa72b,"grey-up-frame-3"),
+            new LookupEscapeGateStockFrame(0xa737,"grey-down-frame-0"),new LookupEscapeGateStockFrame(0xa743,"grey-down-frame-1"),new LookupEscapeGateStockFrame(0xa74f,"grey-down-frame-2"),new LookupEscapeGateStockFrame(0xa75b,"grey-down-frame-3")];
         var native = new Dictionary<ushort, ushort[]>();
         foreach (var frame in frames)
         {

@@ -72,12 +72,12 @@ internal static class PauseReserveUiAssetsVerification
         AssertTrue(!stockPause.Render().SequenceEqual(editedPause.Render()),
             "edited reserve label/digit/arrow presentation changes visible menu pixels");
 
-        var cursorBeforeRestore = (editedPause.SelectedCategory, editedPause.SelectedItem);
+        var cursorBeforeRestore = new CursorBeforeRestore(editedPause.SelectedCategory, editedPause.SelectedItem);
         using var captured = new MemoryStream();
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(captured, editedPause); captured.Position = 0;
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(captured);
         restored.BindMapPresentation(original);
-        AssertEqual(cursorBeforeRestore, (restored.SelectedCategory, restored.SelectedItem),
+        AssertEqual(cursorBeforeRestore, new CursorBeforeRestore(restored.SelectedCategory, restored.SelectedItem),
             "reserve UI content rebind preserves the live equipment cursor");
         AssertTrue(!editedPause.Render().SequenceEqual(restored.Render()),
             "restored reserve UI adopts current content without changing reserve mechanics");

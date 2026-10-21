@@ -22,19 +22,19 @@ internal static class Program
     /// The default run's checks. Each uses its own scratch installation and hidden window, so the
     /// no-argument run gives each its own child process and runs them at the same time.
     /// </summary>
-    private static readonly (string Name, Func<Task> Run)[] defaultChecks =
+    private static readonly DesktopCheck[] defaultChecks =
     [
-        ("software-capture", () => Verify(RendererSelection.Software)),
-        ("direct3d11-capture", () => Verify(RendererSelection.Direct3D11)),
-        ("auto-capture", () => Verify(RendererSelection.Auto)),
-        ("software-form-close", () => VerifyFormClose(RendererSelection.Software, duringStartup: false)),
-        ("direct3d11-form-close", () => VerifyFormClose(RendererSelection.Direct3D11, duringStartup: false)),
-        ("direct3d11-startup-form-close", () => VerifyFormClose(RendererSelection.Direct3D11, duringStartup: true)),
-        ("close-during-load", () => VerifyCloseDuringLoad(restart: false)),
-        ("close-during-load-restart", () => VerifyCloseDuringLoad(restart: true)),
-        ("auto-startup-failure", () => VerifyRendererStartupFailure(RendererSelection.Auto)),
-        ("direct3d11-startup-failure", () => VerifyRendererStartupFailure(RendererSelection.Direct3D11)),
-        ("host-audio-acknowledgements", () => HostAudioAcknowledgementTests.Verify()),
+        new DesktopCheck("software-capture", () => Verify(RendererSelection.Software)),
+        new DesktopCheck("direct3d11-capture", () => Verify(RendererSelection.Direct3D11)),
+        new DesktopCheck("auto-capture", () => Verify(RendererSelection.Auto)),
+        new DesktopCheck("software-form-close", () => VerifyFormClose(RendererSelection.Software, duringStartup: false)),
+        new DesktopCheck("direct3d11-form-close", () => VerifyFormClose(RendererSelection.Direct3D11, duringStartup: false)),
+        new DesktopCheck("direct3d11-startup-form-close", () => VerifyFormClose(RendererSelection.Direct3D11, duringStartup: true)),
+        new DesktopCheck("close-during-load", () => VerifyCloseDuringLoad(restart: false)),
+        new DesktopCheck("close-during-load-restart", () => VerifyCloseDuringLoad(restart: true)),
+        new DesktopCheck("auto-startup-failure", () => VerifyRendererStartupFailure(RendererSelection.Auto)),
+        new DesktopCheck("direct3d11-startup-failure", () => VerifyRendererStartupFailure(RendererSelection.Direct3D11)),
+        new DesktopCheck("host-audio-acknowledgements", () => HostAudioAcknowledgementTests.Verify()),
     ];
 
     /// <summary>Captures initialization and message-loop failures at the console process boundary.</summary>

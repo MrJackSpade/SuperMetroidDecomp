@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -103,26 +104,26 @@ internal static class RoomShakeDefinitionsVerification
     /// <summary>Compares BG1 displacement pairs with their native table entries.</summary>
     private static void VerifyRoomShakeBg1Algorithm(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, RoomShakeDefinitions.Bg1ReferenceAddress, 8,
-            definition => (definition.Bg1.X, definition.Bg1.Y), "BG1"));
+            definition => new OctantVector(definition.Bg1.X, definition.Bg1.Y), "BG1"));
 
     /// <summary>Compares BG2 displacement pairs with their native table entries.</summary>
     private static void VerifyRoomShakeBg2Algorithm(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, RoomShakeDefinitions.Bg2ReferenceAddress, 8,
-            definition => (definition.Bg2.X, definition.Bg2.Y), "BG2"));
+            definition => new OctantVector(definition.Bg2.X, definition.Bg2.Y), "BG2"));
 
     /// <summary>Compares enemy-projectile displacement pairs with their native table entries.</summary>
     private static void VerifyRoomShakeProjectileAlgorithm(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, RoomShakeDefinitions.ProjectileReferenceAddress, 4,
-            definition => (definition.Projectile.X, definition.Projectile.Y), "projectile"));
+            definition => new OctantVector(definition.Projectile.X, definition.Projectile.Y), "projectile"));
 
     /// <summary>Checks one compiled vector field against all 36 native rows and rejects invalid type indices.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for room shake vector")]
     private static void VerifyRoomShakeVector(SuperMetroidAddressSpace rom, int source, int stride,
-        Func<RoomShakeDefinition, (short X, short Y)> select, string label)
+        Func<RoomShakeDefinition, OctantVector> select, string label)
     {
         short Word(int address) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         for (ushort type = 0; type < 36; type++)
-            AssertEqual((Word(source + type * stride), Word(source + type * stride + 2)),
+            AssertEqual(new OctantVector(Word(source + type * stride), Word(source + type * stride + 2)),
                 select(RoomShakeDefinitions.ForType(type)), $"Original shake {label} vector {type}");
         AssertThrows<InvalidDataException>(() => select(RoomShakeDefinitions.ForType(36)), $"Shake {label} upper bound");
         AssertThrows<InvalidDataException>(() => select(RoomShakeDefinitions.ForType(ushort.MaxValue)), $"Shake {label} invalid maximum");

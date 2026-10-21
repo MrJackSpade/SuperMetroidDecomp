@@ -44,7 +44,7 @@ internal static class DownwardGateVisualsVerification
         AssertEqual((ushort)0x00ff, stock.GetWord(0xa55d, 0, 1),
             "stock gate visual retains the physical column art");
 
-        (ushort physical, ushort streamed, ushort triggerPhysical, ushort triggerStreamed)
+        DownwardGateVisualsRenderResult
             Render(RoomPlmDownwardGateVisualCatalog visuals)
         {
             (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms, int gateBlockIndex) = CreateDownwardGateFixture(
@@ -59,7 +59,7 @@ internal static class DownwardGateVisualsVerification
             int triggerIndex = gateBlockIndex - 1;
             ushort streamed = level.DisplayedBlockTiles(columnIndex).TopLeft.Raw;
             ushort triggerStreamed = level.DisplayedBlockTiles(triggerIndex).TopLeft.Raw;
-            return (level.GetCollisionBlockByIndex(columnIndex).PackedWord.Raw,
+            return new DownwardGateVisualsRenderResult(level.GetCollisionBlockByIndex(columnIndex).PackedWord.Raw,
                 streamed,
                 level.GetCollisionBlockByIndex(triggerIndex).PackedWord.Raw,
                 triggerStreamed);
@@ -67,17 +67,17 @@ internal static class DownwardGateVisualsVerification
 
         var native = Render(stock);
         var changed = Render(edited);
-        AssertEqual((ushort)0xc0ff, native.physical,
+        AssertEqual((ushort)0xc0ff, native.Physical,
             "stock gate draw retains its physical second-column word");
-        AssertEqual(native.physical, changed.physical,
+        AssertEqual(native.Physical, changed.Physical,
             "gate block art cannot change column collision");
-        AssertEqual(native.triggerPhysical, changed.triggerPhysical,
+        AssertEqual(native.TriggerPhysical, changed.TriggerPhysical,
             "gate trigger art cannot change shot-block collision");
-        AssertEqual((ushort)0x000f, native.streamed,
+        AssertEqual((ushort)0x000f, native.Streamed,
             "stock gate block streams its native visual tile");
-        AssertEqual((ushort)0x0053, changed.streamed,
+        AssertEqual((ushort)0x0053, changed.Streamed,
             "edited gate block art survives camera streaming");
-        AssertEqual((ushort)0x0053, changed.triggerStreamed,
+        AssertEqual((ushort)0x0053, changed.TriggerStreamed,
             "edited trigger art survives camera streaming");
 
         AssertThrows<InvalidDataException>(

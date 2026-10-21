@@ -45,8 +45,8 @@ internal static class MotherBrainGlassSuperMissileVerification
         var bombs = new SamusBombProjectileSystem();
         // A fired Super Missile occupies two slots at one position, as on the movie's frame:
         // the missile and its zero-radius link, with the instruction lists the port fires.
-        (ushort List, ushort Radius, SamusProjectilePreInstruction Pre)[] pair =
-            [(0x9f6b, 8, SamusProjectilePreInstruction.SuperMissile), (0x9f7b, 0, SamusProjectilePreInstruction.SuperMissileLink)];
+        MotherBrainGlassSuperMissilePair[] pair =
+            [new MotherBrainGlassSuperMissilePair(0x9f6b, 8, SamusProjectilePreInstruction.SuperMissile), new MotherBrainGlassSuperMissilePair(0x9f7b, 0, SamusProjectilePreInstruction.SuperMissileLink)];
         for (int slot = 0; slot < pair.Length; slot++)
         {
             var shot = shots.Slots[slot];

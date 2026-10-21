@@ -158,7 +158,7 @@ internal static class Program
     }
 
     /// <summary>Advances one captured Android frame and hashes its rendered pixels and PCM samples for exact save-state continuation comparisons.</summary>
-    private static (uint Pixels, uint Pcm, int Frame) Advance(AndroidSessionData data, long sequence)
+    private static SessionAdvance Advance(AndroidSessionData data, long sequence)
     {
         data.Record(0);
         var frame = data.Game.StepCaptured(0, sequence, data.Generation);
@@ -174,6 +174,6 @@ internal static class Program
             pixelHash = unchecked((pixelHash ^ pixel.A) * 16777619);
         }
         foreach (short sample in samples) pcmHash = unchecked((pcmHash ^ (ushort)sample) * 16777619);
-        return (pixelHash, pcmHash, frame.Frame.FrameNumber);
+        return new SessionAdvance(pixelHash, pcmHash, frame.Frame.FrameNumber);
     }
 }

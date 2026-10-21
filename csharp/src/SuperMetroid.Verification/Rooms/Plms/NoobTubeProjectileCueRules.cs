@@ -10,14 +10,14 @@ namespace SuperMetroid.Verification.Rooms.Plms;
 internal static class NoobTubeProjectileCueRules
 {
     /// <summary>Each command the lists use, the cue it becomes and its operand byte count.</summary>
-    private static readonly Dictionary<NativeEnemyProjectileInstruction, (NoobTubeProjectileCueKind Kind, int OperandBytes)> Commands = new()
+    private static readonly Dictionary<NativeEnemyProjectileInstruction, NoobTubeProjectileCueRulesCommand> Commands = new()
     {
-        [NativeEnemyProjectileInstruction.Delete] = (NoobTubeProjectileCueKind.Delete, 0),
-        [NativeEnemyProjectileInstruction.PreInstructionInY] = (NoobTubeProjectileCueKind.SetPreInstruction, 2),
-        [NativeEnemyProjectileInstruction.NoobTubeShardAssignFallingAngle] = (NoobTubeProjectileCueKind.AssignShardFallingAngle, 0),
-        [NativeEnemyProjectileInstruction.NoobTubeBubbleAssignFallingAngle] = (NoobTubeProjectileCueKind.AssignBubbleFallingAngle, 0),
-        [NativeEnemyProjectileInstruction.NoobTubeShardReflectFlicker] = (NoobTubeProjectileCueKind.FlickerReflected, 4),
-        [NativeEnemyProjectileInstruction.NoobTubeShardFlicker] = (NoobTubeProjectileCueKind.FlickerHidden, 2),
+        [NativeEnemyProjectileInstruction.Delete] = new NoobTubeProjectileCueRulesCommand(NoobTubeProjectileCueKind.Delete, 0),
+        [NativeEnemyProjectileInstruction.PreInstructionInY] = new NoobTubeProjectileCueRulesCommand(NoobTubeProjectileCueKind.SetPreInstruction, 2),
+        [NativeEnemyProjectileInstruction.NoobTubeShardAssignFallingAngle] = new NoobTubeProjectileCueRulesCommand(NoobTubeProjectileCueKind.AssignShardFallingAngle, 0),
+        [NativeEnemyProjectileInstruction.NoobTubeBubbleAssignFallingAngle] = new NoobTubeProjectileCueRulesCommand(NoobTubeProjectileCueKind.AssignBubbleFallingAngle, 0),
+        [NativeEnemyProjectileInstruction.NoobTubeShardReflectFlicker] = new NoobTubeProjectileCueRulesCommand(NoobTubeProjectileCueKind.FlickerReflected, 4),
+        [NativeEnemyProjectileInstruction.NoobTubeShardFlicker] = new NoobTubeProjectileCueRulesCommand(NoobTubeProjectileCueKind.FlickerHidden, 2),
     };
 
     /// <summary>The oracle rules for the n00b tube's programs; both flickers show their own frame.</summary>

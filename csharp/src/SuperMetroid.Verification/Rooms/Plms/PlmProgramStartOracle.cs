@@ -11,13 +11,13 @@ internal static class PlmProgramStartOracle
         RoomPlmNativeListAddresses.SharedEntries.Single(entry => entry.Program == RoomPlmSharedProgram.Delete).Entry;
 
     /// <summary>Every typed start a native list can stand for, with that list.</summary>
-    private static IReadOnlyList<(PlmProgramStart Start, ushort Entry)> TypedStarts { get; } =
+    private static IReadOnlyList<PlmProgramStartOracleTypedStart> TypedStarts { get; } =
     [
-        (PlmProgramStart.Delete, SharedDeleteEntry),
-        .. RoomPlmNativeListAddresses.SpeedBoosterBlockEntries.Select(entry => (PlmProgramStart.Typed(entry.Program), entry.Entry)),
-        .. RoomPlmNativeListAddresses.BlockReactionEntries.Select(entry => (PlmProgramStart.Typed(entry.Program), entry.Entry)),
-        .. RoomPlmNativeListAddresses.ScriptedRoomEntries.Select(entry => (PlmProgramStart.Typed(entry.Program), entry.Entry)),
-        .. DoorPlmNativeListAddresses.BlueEntries.Select(entry => (PlmProgramStart.Typed(entry.Program), entry.Entry)),
+        new PlmProgramStartOracleTypedStart(PlmProgramStart.Delete, SharedDeleteEntry),
+        .. RoomPlmNativeListAddresses.SpeedBoosterBlockEntries.Select(entry => new PlmProgramStartOracleTypedStart(PlmProgramStart.Typed(entry.Program), entry.Entry)),
+        .. RoomPlmNativeListAddresses.BlockReactionEntries.Select(entry => new PlmProgramStartOracleTypedStart(PlmProgramStart.Typed(entry.Program), entry.Entry)),
+        .. RoomPlmNativeListAddresses.ScriptedRoomEntries.Select(entry => new PlmProgramStartOracleTypedStart(PlmProgramStart.Typed(entry.Program), entry.Entry)),
+        .. DoorPlmNativeListAddresses.BlueEntries.Select(entry => new PlmProgramStartOracleTypedStart(PlmProgramStart.Typed(entry.Program), entry.Entry)),
     ];
 
     /// <summary>The start production must hold where the cartridge names native list <paramref name="list"/>.</summary>

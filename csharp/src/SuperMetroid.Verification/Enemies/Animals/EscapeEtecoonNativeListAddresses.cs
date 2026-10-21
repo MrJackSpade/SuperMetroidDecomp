@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Animals;
 
 namespace SuperMetroid.Verification.Enemies.Animals;
@@ -13,19 +14,19 @@ internal static class EscapeEtecoonNativeListAddresses
     internal const byte Bank = 0xb3;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (EscapeEtecoonProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<EscapeEtecoonProgram>[] Entries =
     [
-        (EscapeEtecoonProgram.RunningLeftLowTide, 0xe556),
-        (EscapeEtecoonProgram.RunningLeftLowTideLoop, 0xe55a),
-        (EscapeEtecoonProgram.RunningLeftHighTide, 0xe56e),
-        (EscapeEtecoonProgram.RunningRightLowTide, 0xe582),
-        (EscapeEtecoonProgram.RunningRightLowTideLoop, 0xe586),
-        (EscapeEtecoonProgram.RunningRightHighTide, 0xe59a),
-        (EscapeEtecoonProgram.RunningForEscape, 0xe5ae),
-        (EscapeEtecoonProgram.RunningForEscapeLoop, 0xe5b2),
-        (EscapeEtecoonProgram.Stationary, 0xe5c6),
-        (EscapeEtecoonProgram.ExpressGratitudeThenEscape, 0xe5da),
-        (EscapeEtecoonProgram.ExpressGratitudeThenEscapeLoop, 0xe5e0),
+        new NativeProgramEntry<EscapeEtecoonProgram>(EscapeEtecoonProgram.RunningLeftLowTide, 0xe556),
+        new NativeProgramEntry<EscapeEtecoonProgram>(EscapeEtecoonProgram.RunningLeftLowTideLoop, 0xe55a),
+        new NativeProgramEntry<EscapeEtecoonProgram>(EscapeEtecoonProgram.RunningLeftHighTide, 0xe56e),
+        new NativeProgramEntry<EscapeEtecoonProgram>(EscapeEtecoonProgram.RunningRightLowTide, 0xe582),
+        new NativeProgramEntry<EscapeEtecoonProgram>(EscapeEtecoonProgram.RunningRightLowTideLoop, 0xe586),
+        new NativeProgramEntry<EscapeEtecoonProgram>(EscapeEtecoonProgram.RunningRightHighTide, 0xe59a),
+        new NativeProgramEntry<EscapeEtecoonProgram>(EscapeEtecoonProgram.RunningForEscape, 0xe5ae),
+        new NativeProgramEntry<EscapeEtecoonProgram>(EscapeEtecoonProgram.RunningForEscapeLoop, 0xe5b2),
+        new NativeProgramEntry<EscapeEtecoonProgram>(EscapeEtecoonProgram.Stationary, 0xe5c6),
+        new NativeProgramEntry<EscapeEtecoonProgram>(EscapeEtecoonProgram.ExpressGratitudeThenEscape, 0xe5da),
+        new NativeProgramEntry<EscapeEtecoonProgram>(EscapeEtecoonProgram.ExpressGratitudeThenEscapeLoop, 0xe5e0),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

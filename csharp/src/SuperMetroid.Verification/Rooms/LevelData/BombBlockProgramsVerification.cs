@@ -73,11 +73,11 @@ internal static class BombBlockProgramsVerification
     }
 
     /// <summary>Native collision and reaction entry points, timed tails and end bounds for all eight bomb-block shapes.</summary>
-    private static (ushort Collision, ushort Reaction, ushort Tail, int Frames, ushort End)[] BombBlockNativeLayouts() =>
-        [(0xcc35,0xcc3c,0xcc3f,7,0xcc5f), (0xcc5f,0xcc66,0xcc69,8,0xcc8b),
-         (0xcc8b,0xcc92,0xcc95,8,0xccb7), (0xccb7,0xccbe,0xccc1,8,0xcce3),
-         (0xcce3,0xccea,0xcced,4,0xccff), (0xccff,0xcd06,0xcd09,4,0xcd1b),
-         (0xcd1b,0xcd22,0xcd25,4,0xcd37), (0xcd37,0xcd3e,0xcd41,4,0xcd53)];
+    private static BombBlockNativeLayoutsResult[] BombBlockNativeLayouts() =>
+        [new BombBlockNativeLayoutsResult(0xcc35,0xcc3c,0xcc3f,7,0xcc5f), new BombBlockNativeLayoutsResult(0xcc5f,0xcc66,0xcc69,8,0xcc8b),
+         new BombBlockNativeLayoutsResult(0xcc8b,0xcc92,0xcc95,8,0xccb7), new BombBlockNativeLayoutsResult(0xccb7,0xccbe,0xccc1,8,0xcce3),
+         new BombBlockNativeLayoutsResult(0xcce3,0xccea,0xcced,4,0xccff), new BombBlockNativeLayoutsResult(0xccff,0xcd06,0xcd09,4,0xcd1b),
+         new BombBlockNativeLayoutsResult(0xcd1b,0xcd22,0xcd25,4,0xcd37), new BombBlockNativeLayoutsResult(0xcd37,0xcd3e,0xcd41,4,0xcd53)];
 
     /// <summary>Checks every queue, branch, timer, restoration and deletion word over the complete native address domain.</summary>
     private static void VerifyBombBlockControlMapping(SuperMetroidAddressSpace rom)
@@ -230,7 +230,7 @@ internal static class BombBlockProgramsVerification
         first.Runs[0][0] = 0x0054;
         var edited = new RoomPlmShotBlockVisualCatalog(entries);
 
-        (ushort physical, ushort immediate, ushort streamed) Render(
+        BombBlockProgramsRenderResult Render(
             RoomPlmShotBlockVisualCatalog visuals)
         {
             const int width = 8;
@@ -249,25 +249,25 @@ internal static class BombBlockProgramsVerification
             AssertTrue(plms.TrySpawnCollisionBombBlock(level, blockIndex, 0),
                 "bomb visual test installs the real collision-triggered PLM");
             plms.Step(level);
-            return (level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
+            return new BombBlockProgramsRenderResult(level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
                 level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
                 level.DisplayedBlockTiles(blockIndex).TopLeft.Raw);
         }
 
         var stock = Render(RoomPlmShotBlockVisualCatalog.Stock());
         var changed = Render(edited);
-        AssertEqual((ushort)0x0053, stock.physical,
+        AssertEqual((ushort)0x0053, stock.Physical,
             "native bomb-break frame installs its original air collision word");
-        AssertEqual(stock.physical, changed.physical,
+        AssertEqual(stock.Physical, changed.Physical,
             "shared breakup-art edit cannot change bomb-block physical collision");
-        AssertEqual((ushort)0x0017, stock.immediate,
+        AssertEqual((ushort)0x0017, stock.Immediate,
             "stock breakup frame reaches immediate tile upload");
-        AssertEqual((ushort)0x0018, changed.immediate,
+        AssertEqual((ushort)0x0018, changed.Immediate,
             "edited breakup frame reaches immediate bomb-block tile upload");
-        AssertEqual((ushort)0x0018, changed.streamed,
+        AssertEqual((ushort)0x0018, changed.Streamed,
             "edited bomb-block breakup frame survives later camera streaming");
 
-        (ushort physical, ushort streamed) RenderRestoredParent(byte tileIndex)
+        RenderRestoredParentResult RenderRestoredParent(byte tileIndex)
         {
             const int width = 8;
             const int blockIndex = 27;
@@ -285,19 +285,19 @@ internal static class BombBlockProgramsVerification
                 plms.Step(level);
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "linked restoration uses no compiled source draw bytes");
-            return (level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
+            return new RenderRestoredParentResult(level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
                 level.DisplayedBlockTiles(blockIndex).TopLeft.Raw);
         }
 
         var stockParent = RenderRestoredParent(0x17);
         var editedParent = RenderRestoredParent(0x18);
-        AssertEqual((ushort)0xf058, stockParent.physical,
+        AssertEqual((ushort)0xf058, stockParent.Physical,
             "linked bomb block restores its native solid parent word");
-        AssertEqual(stockParent.physical, editedParent.physical,
+        AssertEqual(stockParent.Physical, editedParent.Physical,
             "editing block $058 composition leaves restored collision intact");
-        AssertEqual((ushort)0x0017, stockParent.streamed,
+        AssertEqual((ushort)0x0017, stockParent.Streamed,
             "stock restored parent uses its room-block composition");
-        AssertEqual((ushort)0x0018, editedParent.streamed,
+        AssertEqual((ushort)0x0018, editedParent.Streamed,
             "edited block $058 composition reaches later streaming");
     }
 

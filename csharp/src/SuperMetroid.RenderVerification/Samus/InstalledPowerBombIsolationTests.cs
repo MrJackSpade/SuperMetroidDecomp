@@ -38,7 +38,7 @@ internal static class InstalledPowerBombIsolationTests
         AreaMapPresentationCatalog stock = AreaMapPresentationCatalog.Load(stockDirectory, null);
         CheckCompiledLifetimeOperands(stock.PowerBombFixedColors);
         CheckStateRestoration(stock.PowerBombFixedColors);
-        var framesToRender = new List<(RenderFrameSnapshot Frame, string Context)>();
+        var framesToRender = new List<ContextFrame>();
         using var overridesScratch = new TestScratchDirectory("installed-power-bomb-isolation");
         string overrides = overridesScratch.Root;
         int comparisons = 0, changedColors = 0;
@@ -87,7 +87,7 @@ internal static class InstalledPowerBombIsolationTests
                                 new Bgr555[SnesPpuLayout.CgramColorCount], []);
                             var packet = new RenderFrameSnapshot(new(framesToRender.Count + 1, 1, 0),
                                 new LayeredRenderSnapshot(memoryImage, new RenderLayer[] { second }, 0, 15));
-                            framesToRender.Add((packet, context));
+                            framesToRender.Add(new ContextFrame(packet, context));
                             // With a black backdrop this center pixel must be exactly the
                             // selected expanded RGB, not merely different from stock.
                             ColorAddWindow center = second.Windows[112];
@@ -103,11 +103,11 @@ internal static class InstalledPowerBombIsolationTests
                     {
                         Require(!replacement.IsActive && !replacement.IsArmed,
                             edit + ": Crystal Flash retained a lock after cleanup");
-                        Require(Colors(replacement) == (0, 0, 0), edit + ": inactive Crystal Flash retained display colors");
+                        Require(Colors(replacement) == new ExplosionColors(0, 0, 0), edit + ": inactive Crystal Flash retained display colors");
                     }
                     baseline.Reset(); replacement.Reset();
                     RequireSameMechanics(baseline, replacement, edit + ": reset retains simulation state");
-                    Require(Colors(replacement) == (0, 0, 0), edit + ": reset retains display colors");
+                    Require(Colors(replacement) == new ExplosionColors(0, 0, 0), edit + ": reset retains display colors");
                     Console.WriteLine($"{edit}: {(crystalFlash ? "Crystal Flash" : "Power Bomb")} cleanup at frame {frames}.");
                 }
             }
@@ -178,8 +178,8 @@ internal static class InstalledPowerBombIsolationTests
     }
 
     /// <summary>Captures the three live fixed-color outputs without including simulation state.</summary>
-    internal static (int Red, int Green, int Blue) Colors(SamusPowerBombExplosionState state) =>
-        (state.FixedColorRed, state.FixedColorGreen, state.FixedColorBlue);
+    internal static ExplosionColors Colors(SamusPowerBombExplosionState state) =>
+        new ExplosionColors(state.FixedColorRed, state.FixedColorGreen, state.FixedColorBlue);
 
     /// <summary>Fails the focused isolation check with its current edit/frame context.</summary>
     internal static void Require(bool condition, string context)

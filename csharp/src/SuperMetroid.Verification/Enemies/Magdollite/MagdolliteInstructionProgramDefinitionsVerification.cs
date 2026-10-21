@@ -123,7 +123,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             AssertTrue(MagdolliteAnimations.Programs.Steps(program)[state.Program.Position] is AnimationProgramStep<MagdolliteProgram, MagdolliteFrame, MagdolliteCue>.HoldStep, $"Magdollite {name} reaches terminal sleep");
         }
 
-        (RoomEnemySystem Enemies, RoomEnemySlot Slot, MagdolliteEnemyState State) CreateSystem(
+        CreateSystemResult CreateSystem(
             MagdollitePart selectedPart)
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -140,7 +140,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             }
 
             RoomEnemySlot selected = enemies.SlotTable.Slots[(int)selectedPart];
-            return (enemies, selected, (enemies.MagdolliteStates[(int)selectedPart] ?? throw new InvalidOperationException("Verification requires the initialized Magdollite state.")));
+            return new CreateSystemResult(enemies, selected, (enemies.MagdolliteStates[(int)selectedPart] ?? throw new InvalidOperationException("Verification requires the initialized Magdollite state.")));
         }
 
         static void Install(RoomEnemySlot slot, MagdolliteEnemyState state, MagdolliteProgram program)

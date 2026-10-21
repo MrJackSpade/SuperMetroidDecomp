@@ -63,7 +63,7 @@ public sealed class KindTaggedRecordAnalyzer : DiagnosticAnalyzer
             if (start.Compilation.AssemblyName != CheckedAssembly)
                 return;
             var tagged = new ConcurrentDictionary<INamedTypeSymbol, byte>(SymbolEqualityComparer.Default);
-            var switches = new ConcurrentBag<(INamedTypeSymbol Type, Diagnostic Diagnostic)>();
+            var switches = new ConcurrentBag<KindSwitch>();
             start.RegisterOperationAction(operation => AnalyzeCreation(operation, tagged), OperationKind.ObjectCreation);
             start.RegisterOperationAction(operation => AnalyzeSwitchExpression(operation, switches), OperationKind.SwitchExpression);
             start.RegisterOperationAction(operation => AnalyzeSwitchStatement(operation, switches), OperationKind.Switch);
@@ -108,7 +108,7 @@ public sealed class KindTaggedRecordAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>Reports a switch expression on a kind whose arms read different members.</summary>
-    private static void AnalyzeSwitchExpression(OperationAnalysisContext context, ConcurrentBag<(INamedTypeSymbol, Diagnostic)> switches)
+    private static void AnalyzeSwitchExpression(OperationAnalysisContext context, ConcurrentBag<KindSwitch> switches)
     {
         var switchExpression = (ISwitchExpressionOperation)context.Operation;
         if (SwitchedKind(switchExpression.Value) is not { } kind)
@@ -118,7 +118,7 @@ public sealed class KindTaggedRecordAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>Reports a switch statement on a kind whose sections read different members.</summary>
-    private static void AnalyzeSwitchStatement(OperationAnalysisContext context, ConcurrentBag<(INamedTypeSymbol, Diagnostic)> switches)
+    private static void AnalyzeSwitchStatement(OperationAnalysisContext context, ConcurrentBag<KindSwitch> switches)
     {
         var switchStatement = (ISwitchOperation)context.Operation;
         if (SwitchedKind(switchStatement.Value) is not { } kind)
@@ -127,7 +127,7 @@ public sealed class KindTaggedRecordAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>Reports when the arms that read members of the kind's type do not all read the same ones.</summary>
-    private static void Report(ConcurrentBag<(INamedTypeSymbol, Diagnostic)> switches, SyntaxNode syntax, ISymbol kind, IEnumerable<IEnumerable<IOperation>> arms)
+    private static void Report(ConcurrentBag<KindSwitch> switches, SyntaxNode syntax, ISymbol kind, IEnumerable<IEnumerable<IOperation>> arms)
     {
         INamedTypeSymbol type = kind.ContainingType;
         var subsets = new HashSet<string>(StringComparer.Ordinal);
@@ -148,7 +148,7 @@ public sealed class KindTaggedRecordAnalyzer : DiagnosticAnalyzer
                 subsets.Add(string.Join(",", read));
         }
         if (subsets.Count > 1)
-            switches.Add((type.OriginalDefinition, Diagnostic.Create(KindSwitchRule, syntax.GetLocation(), type.Name, kind.Name)));
+            switches.Add(new KindSwitch(type.OriginalDefinition, Diagnostic.Create(KindSwitchRule, syntax.GetLocation(), type.Name, kind.Name)));
     }
 
     /// <summary>The kind member a switch's governing value reads, when it is one.</summary>

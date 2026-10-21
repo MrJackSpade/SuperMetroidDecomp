@@ -122,7 +122,7 @@ internal static class CrocomireBodyVisualsVerification
             AssertTrue((stock.Bosses.CrocomireBg2Frames ?? throw new InvalidOperationException("Verification requires stock.CrocomireBg2Frames.")).TryGet(frame.Pointer,
                     out ReadOnlyMemory<EnemyBg2TilemapWrite> installed),
                 $"Crocomire BG2 half $A4:{frame.Pointer:X4} is installed");
-            var native = new List<(ushort DestinationWord, ushort[] Tiles)>();
+            var native = new List<CrocomireBodyVisualsNative>();
             int componentCount = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa40000 | frame.Pointer));
             for (int component = 0; component < componentCount; component++)
             {
@@ -149,7 +149,7 @@ internal static class CrocomireBodyVisualsVerification
                     for (int tile = 0; tile < tiles.Length; tile++)
                         tiles[tile] = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa40000 |
                             unchecked((ushort)(cursor + 4 + tile * 2))));
-                    native.Add((unchecked((ushort)((destination -
+                    native.Add(new CrocomireBodyVisualsNative(unchecked((ushort)((destination -
                         EnemyBg2FrameLayout.WorkingRamBase) >> 1)), tiles));
                     cursor = unchecked((ushort)(cursor + 4 + count * 2));
                 }
@@ -201,11 +201,11 @@ internal static class CrocomireBodyVisualsVerification
             "  Crocomire body: 236 selectors, 50 mixed/pure OAM roots and 42 BG2 roots match native OAM and VRAM with visual ROM reads denied; BG2 edits obey the new-frame gate.");
 
         // Build cartridge-based OAM and BG2 VRAM references for one selected body frame.
-        (OamBuffer Oam, byte[] Vram) DrawNative(ushort pointer, bool newFrame) =>
-            (DrawReferenceExtendedFrame(rom, 0xa4, pointer, new(0x0080, 0x0080)),
+        DrawNativeResult DrawNative(ushort pointer, bool newFrame) =>
+            new DrawNativeResult(DrawReferenceExtendedFrame(rom, 0xa4, pointer, new(0x0080, 0x0080)),
                 ReadReferenceExtendedBg2Vram(rom, 0xa4, pointer, newFrame));
         // Draw one compiled Crocomire frame through production enemy presentation into fresh OAM and VRAM buffers.
-        static (OamBuffer Oam, byte[] Vram) Draw(InstalledEnemyArtwork art,
+        static DrawNativeResult Draw(InstalledEnemyArtwork art,
             ISnesAddressSpace bus, ushort pointer, bool newFrame)
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
@@ -225,7 +225,7 @@ internal static class CrocomireBodyVisualsVerification
             slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
             var oam = new OamBuffer();
             enemies.Drawing.DrawLayersAsOam(oam, new(0, 0), 0, 0);
-            return (oam, vram.Bytes.ToArray());
+            return new DrawNativeResult(oam, vram.Bytes.ToArray());
         }
     }
 }

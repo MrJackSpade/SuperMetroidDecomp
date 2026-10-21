@@ -152,7 +152,12 @@ internal static class ReplayTraceCompactor
                 delta[offset] = (byte)(payload[offset] ^ previous[offset]);
             expected.Write(record, 0, NativeCheckpointRecords.HeaderBytes);
             expected.Write(delta);
-            (previous, payload) = (payload, previous);
+            {
+                var held0 = payload;
+                var held1 = previous;
+                previous = held0;
+                payload = held1;
+            }
             if (count == initialRecord)
             {
                 using var initial = new GZipStream(File.Create(Path.Combine(destinationDirectory, ReplayTrace.CompactInitialFile)), CompressionLevel.SmallestSize);

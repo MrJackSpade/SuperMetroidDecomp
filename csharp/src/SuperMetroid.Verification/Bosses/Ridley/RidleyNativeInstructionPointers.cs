@@ -80,9 +80,9 @@ internal sealed class RidleyNativeInstructionPointers
     {
         if (RidleyNativeListAddresses.BodyProgramAt(address) is { } entry)
             return AnimationProgramCursor<RidleyBodyProgram>.Start(entry);
-        var matches = body.SelectMany(program => program.Value.Select((step, position) => (program.Key, step, position)))
-            .Where(item => item.step == address)
-            .Select(item => new AnimationProgramCursor<RidleyBodyProgram>(item.Key, item.position))
+        var matches = body.SelectMany(program => program.Value.Select((step, position) => new RidleyNativeInstructionPointersMatch(program.Key, step, position)))
+            .Where(item => item.Step == address)
+            .Select(item => new AnimationProgramCursor<RidleyBodyProgram>(item.Key, item.Position))
             .ToList();
         return matches.Count == 1
             ? matches[0]

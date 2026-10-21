@@ -16,17 +16,17 @@ internal static class PuyoOwnedStateVerification
     {
         var hop = new PuyoEnemyState { YSpeedTableIndex = 0x0200 };
         hop.StepAirborneIndex(0x0200);
-        AssertEqual((0, false), (hop.YSpeedTableIndex, hop.Falling), "a rising step landing on zero keeps rising");
+        AssertEqual(new VerifyPuyoOwnedStateCase(0, false), new VerifyPuyoOwnedStateCase(hop.YSpeedTableIndex, hop.Falling), "a rising step landing on zero keeps rising");
         hop.StepAirborneIndex(0x0200);
-        AssertEqual((0, true), (hop.YSpeedTableIndex, hop.Falling), "a rising step below zero is the apex");
+        AssertEqual(new VerifyPuyoOwnedStateCase(0, true), new VerifyPuyoOwnedStateCase(hop.YSpeedTableIndex, hop.Falling), "a rising step below zero is the apex");
         hop.StepAirborneIndex(0x01c0);
-        AssertEqual((0x01c0, true), (hop.YSpeedTableIndex, hop.Falling), "a falling step accumulates");
+        AssertEqual(new VerifyPuyoOwnedStateCase(0x01c0, true), new VerifyPuyoOwnedStateCase(hop.YSpeedTableIndex, hop.Falling), "a falling step accumulates");
         hop.YSpeedTableIndex = 0x7f00;
         hop.StepAirborneIndex(0x0100);
-        AssertEqual((0, true), (hop.YSpeedTableIndex, hop.Falling), "a falling step reaching the sign bit restarts the fall");
+        AssertEqual(new VerifyPuyoOwnedStateCase(0, true), new VerifyPuyoOwnedStateCase(hop.YSpeedTableIndex, hop.Falling), "a falling step reaching the sign bit restarts the fall");
         hop.YSpeedTableIndex = 0x7e00;
         hop.StepAirborneIndex(0x0100);
-        AssertEqual((0x7f00, true), (hop.YSpeedTableIndex, hop.Falling), "a falling step below the sign bit keeps falling");
+        AssertEqual(new VerifyPuyoOwnedStateCase(0x7f00, true), new VerifyPuyoOwnedStateCase(hop.YSpeedTableIndex, hop.Falling), "a falling step below the sign bit keeps falling");
 
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -39,7 +39,7 @@ internal static class PuyoOwnedStateVerification
         state.HopRecord = 3;
         state.YSpeedTableIndex = 0x1234;
         slot.Clear();
-        AssertEqual((0, 0, (ushort)0), (state.HopRecord, state.YSpeedTableIndex, state.HopCooldownTimer.RawValue),
+        AssertEqual(new PuyoOwnedStateVerifyPuyoOwnedStateCase(0, 0, 0), new PuyoOwnedStateVerifyPuyoOwnedStateCase(state.HopRecord, state.YSpeedTableIndex, state.HopCooldownTimer.RawValue),
             "a kill empties the hop record, speed index and cooldown");
         AssertEqual(null, state.Function, "a kill empties the function");
         Console.WriteLine("Puyo owned state: the apex, the overlong-fall restart and the cleared record match.");

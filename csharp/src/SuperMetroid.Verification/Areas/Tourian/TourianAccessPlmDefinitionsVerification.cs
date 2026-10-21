@@ -58,7 +58,7 @@ internal static class TourianAccessPlmDefinitionsVerification
     private static void VerifyTourianAccessSpawnField(SuperMetroidAddressSpace rom, bool instruction)
     {
         // Native spawn operands: completed descent crumbles; already-unlocked room clears.
-        (bool Clear, int SpawnOperand)[] cases = [(false,0x88dc9f), (true,0x88db99)];
+        TourianAccessPlmDefinitionsCase[] cases = [new TourianAccessPlmDefinitionsCase(false,0x88dc9f), new TourianAccessPlmDefinitionsCase(true,0x88db99)];
         foreach (var item in cases)
         {
             ushort header = CartridgeImportSource.Require(rom).ReadCartridgeWord(item.SpawnOperand);

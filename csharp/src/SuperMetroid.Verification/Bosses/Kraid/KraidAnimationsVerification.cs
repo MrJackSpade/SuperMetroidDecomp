@@ -103,7 +103,7 @@ internal static class KraidAnimationsVerification
     }
 
     /// <summary>Creates Kraid's body and arm in a fresh enemy system.</summary>
-    private static (RoomEnemySystem Enemies, KraidEnemyState State, RoomEnemySlot Body, RoomEnemySlot Arm) NewKraid()
+    private static NewKraidResult NewKraid()
     {
         var enemies = new RoomEnemySystem(new EnemySession(), services: new VerificationRoomEnemyServices(null));
         var state = new KraidEnemyState { InitialHealth = 104 };
@@ -112,7 +112,7 @@ internal static class KraidAnimationsVerification
         body.Bind(EnemyDefinitionId.Kraid, body.Definition);
         RoomEnemySlot arm = enemies.SlotTable.Slots[1];
         arm.Bind(EnemyDefinitionId.KraidArm, arm.Definition);
-        return (enemies, state, body, arm);
+        return new NewKraidResult(enemies, state, body, arm);
     }
 
     /// <summary>
@@ -218,11 +218,11 @@ internal static class KraidAnimationsVerification
         AssertTrue(enemies.KagoBehavior.SpawnKagoBug(source), "the real Kago producer allocates its bug");
         foreach ((RoomEnemyProjectileKind kind, KraidRockProgram program) in new[]
                  {
-                     (RoomEnemyProjectileKind.KraidSpitRock, KraidRockProgram.SharedPose),
-                     (RoomEnemyProjectileKind.KraidCeilingRock, KraidRockProgram.SharedPose),
-                     (RoomEnemyProjectileKind.KraidRisingRockLeft, KraidRockProgram.SharedPose),
-                     (RoomEnemyProjectileKind.KraidRisingRockRight, KraidRockProgram.RisingRightPose),
-                     (RoomEnemyProjectileKind.KagoBug, KraidRockProgram.SharedPose),
+                     new VerifyRockProducersCase(RoomEnemyProjectileKind.KraidSpitRock, KraidRockProgram.SharedPose),
+                     new VerifyRockProducersCase(RoomEnemyProjectileKind.KraidCeilingRock, KraidRockProgram.SharedPose),
+                     new VerifyRockProducersCase(RoomEnemyProjectileKind.KraidRisingRockLeft, KraidRockProgram.SharedPose),
+                     new VerifyRockProducersCase(RoomEnemyProjectileKind.KraidRisingRockRight, KraidRockProgram.RisingRightPose),
+                     new VerifyRockProducersCase(RoomEnemyProjectileKind.KagoBug, KraidRockProgram.SharedPose),
                  })
         {
             RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == kind);

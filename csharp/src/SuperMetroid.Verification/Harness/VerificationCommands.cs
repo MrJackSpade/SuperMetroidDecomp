@@ -37,8 +37,8 @@ internal static class VerificationCommands
 
         /// <summary>The handler's arguments: the whole array, or the values at the placeholder positions.</summary>
         public object?[] Bind(string[] args) => TakesArgumentArray ? [args]
-            : Arguments.Select((argument, index) => (argument, value: args[index + 1])).Where(pair => !IsLiteral(pair.argument))
-                .Select(pair => (object?)pair.value).ToArray();
+            : Arguments.Select((argument, index) => new BindCase(argument, Value:args[index + 1])).Where(pair => !IsLiteral(pair.Argument))
+                .Select(pair => (object?)pair.Value).ToArray();
 
         /// <summary>Distinguishes a required command keyword from a handler-bound placeholder.</summary>
         private static bool IsLiteral(string argument) => argument.StartsWith("--", StringComparison.Ordinal);
@@ -116,7 +116,7 @@ internal static class VerificationCommands
                     commands.Add(Validate(new Command(attribute.Name, attribute.Arguments, attribute.Description, type, method)));
             }
         }
-        var duplicate = commands.GroupBy(command => (command.Name, command.Shape)).FirstOrDefault(group => group.Count() > 1);
+        var duplicate = commands.GroupBy(command => new Duplicate(command.Name, command.Shape)).FirstOrDefault(group => group.Count() > 1);
         if (duplicate is not null)
         {
             throw new InvalidOperationException(

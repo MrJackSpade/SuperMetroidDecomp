@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using static SuperMetroid.Verification.Areas.Ceres.PostCeresLandingHandOffVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -49,11 +50,11 @@ internal static class RoomDefinitionIntegrationVerification
         AssertTrue(expected.Room.LoadedCamera.Scrolls.StorageBytes.ToArray().SequenceEqual(
                 actual.Room.LoadedCamera.Scrolls.StorageBytes.ToArray()),
             "guarded post-Ceres room entry retains compiled scroll constraints");
-        AssertEqual((expected.Room.LoadedCamera.PixelPosition.X, expected.Room.LoadedCamera.PixelPosition.Y),
-            (actual.Room.LoadedCamera.PixelPosition.X, actual.Room.LoadedCamera.PixelPosition.Y),
+        AssertEqual(new MotherBrainRinkaDoorSpawnExpected(expected.Room.LoadedCamera.PixelPosition.X, expected.Room.LoadedCamera.PixelPosition.Y),
+            new MotherBrainRinkaDoorSpawnExpected(actual.Room.LoadedCamera.PixelPosition.X, actual.Room.LoadedCamera.PixelPosition.Y),
             "guarded post-Ceres room entry retains camera placement");
-        AssertEqual((expected.Player.IntroducedSamus.Kinematics.Position.X.RawValue, expected.Player.IntroducedSamus.Kinematics.Position.Y.RawValue),
-            (actual.Player.IntroducedSamus.Kinematics.Position.X.RawValue, actual.Player.IntroducedSamus.Kinematics.Position.Y.RawValue),
+        AssertEqual(new VerifyCompiledRoomDefinitionIntegrationCase(expected.Player.IntroducedSamus.Kinematics.Position.X.RawValue, expected.Player.IntroducedSamus.Kinematics.Position.Y.RawValue),
+            new VerifyCompiledRoomDefinitionIntegrationCase(actual.Player.IntroducedSamus.Kinematics.Position.X.RawValue, actual.Player.IntroducedSamus.Kinematics.Position.Y.RawValue),
             "guarded post-Ceres room entry retains Samus placement");
 
         ushort initialCameraY = actual.Room.LoadedCamera.PixelPosition.Y;
@@ -67,16 +68,16 @@ internal static class RoomDefinitionIntegrationVerification
             AssertEqual(expectedFrame, actualFrame,
                 $"guarded post-Ceres frame result {frames}");
             AssertEqual(
-                (expected.Room.LoadedCamera.PixelPosition.X, expected.Room.LoadedCamera.Position.X.Fraction,
+                new RoomDefinitionIntegrationVerifyCompiledRoomDefinitionIntegrationCase(expected.Room.LoadedCamera.PixelPosition.X, expected.Room.LoadedCamera.Position.X.Fraction,
                     expected.Room.LoadedCamera.PixelPosition.Y, expected.Room.LoadedCamera.Position.Y.Fraction,
                     expected.Room.LoadedCamera.IdealPosition.X, expected.Room.LoadedCamera.IdealPosition.Y),
-                (actual.Room.LoadedCamera.PixelPosition.X, actual.Room.LoadedCamera.Position.X.Fraction,
+                new RoomDefinitionIntegrationVerifyCompiledRoomDefinitionIntegrationCase(actual.Room.LoadedCamera.PixelPosition.X, actual.Room.LoadedCamera.Position.X.Fraction,
                     actual.Room.LoadedCamera.PixelPosition.Y, actual.Room.LoadedCamera.Position.Y.Fraction,
                     actual.Room.LoadedCamera.IdealPosition.X, actual.Room.LoadedCamera.IdealPosition.Y),
                 $"guarded post-Ceres camera trajectory frame {frames}");
             AssertEqual(
-                (expected.Player.IntroducedSamus.Kinematics.Position.X.RawValue, expected.Player.IntroducedSamus.Kinematics.Position.Y.RawValue),
-                (actual.Player.IntroducedSamus.Kinematics.Position.X.RawValue, actual.Player.IntroducedSamus.Kinematics.Position.Y.RawValue),
+                new VerifyCompiledRoomDefinitionIntegrationCase(expected.Player.IntroducedSamus.Kinematics.Position.X.RawValue, expected.Player.IntroducedSamus.Kinematics.Position.Y.RawValue),
+                new VerifyCompiledRoomDefinitionIntegrationCase(actual.Player.IntroducedSamus.Kinematics.Position.X.RawValue, actual.Player.IntroducedSamus.Kinematics.Position.Y.RawValue),
                 $"guarded post-Ceres carried-Samus trajectory frame {frames}");
             AssertEqual(expected.Enemies.LastEnemyFrame.Gunship,
                 actual.Enemies.LastEnemyFrame.Gunship,

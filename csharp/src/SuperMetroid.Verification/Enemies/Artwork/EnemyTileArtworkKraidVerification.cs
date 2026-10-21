@@ -360,12 +360,12 @@ internal static class EnemyTileArtworkKraidVerification
     }
 
     /// <summary>The BG2 tilemap a selected installed head frame shows over blank pages.</summary>
-    private static (KraidEnemyState State, ushort[] Shown) RunKraidHeadFrame(InstalledEnemyArtwork artwork, ushort pointer)
+    private static RunKraidHeadFrameResult RunKraidHeadFrame(InstalledEnemyArtwork artwork, ushort pointer)
     {
         KraidHeadFrame frame = KraidHeadFrame.ByMouthStage.Single(candidate => KraidHeadFrameDefinitions.PresentationKey(candidate) == pointer);
         var state = new KraidEnemyState();
         KraidHead.TransferKraidHeadTilemap(state, frame);
-        return (state, KraidBodyFixtures.Shown(artwork.Bosses, state));
+        return new RunKraidHeadFrameResult(state, KraidBodyFixtures.Shown(artwork.Bosses, state));
     }
 
     /// <summary>Kraid's working map as his installed art composes it, without cartridge reads.</summary>

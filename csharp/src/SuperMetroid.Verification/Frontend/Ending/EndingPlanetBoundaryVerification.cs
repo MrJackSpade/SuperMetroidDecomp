@@ -37,7 +37,7 @@ internal static class EndingPlanetBoundaryVerification
             var native = new Rgba32[256 * 224];
             for (int i = 0; i < native.Length; i++) native[i] = new(bgra[i * 4 + 2], bgra[i * 4 + 1], bgra[i * 4]);
             var actual = SoftwareLayeredSnapshotRenderer.Render(capture.Snapshots[frame]);
-            int differences = actual.Zip(native).Count(pair => pair.First != pair.Second);
+            int differences = actual.Zip(native, (first, second) => first != second).Count(differs => differs);
             Console.WriteLine($"Native PPU finale frame {frame}: {differences} pixels differ.");
             AssertEqual(0, differences, $"finale frame {frame} matches pinned native PPU with cartridge register setup");
         }
@@ -125,7 +125,7 @@ internal static class EndingPlanetBoundaryVerification
         for (int index = 0; index < fragments.Length; index++)
             RomDataReader.Decompress(bus, fragments[index], 0x8000).AsSpan(0, 0x800).CopyTo(nativeVram.AsSpan(0xe000 + index * 0x800));
         RomDataReader.Decompress(bus, 0x97e7de, 0x8000).AsSpan(0, 0x1000).CopyTo(nativeVram.AsSpan(0xa000));
-        int memoryDifferences = nativeVram.Zip(EndingCreditsPresentation.CaptureRenderSnapshot(ending).Memory.Vram.ToArray()).Count(pair => pair.First != pair.Second);
+        int memoryDifferences = nativeVram.Zip(EndingCreditsPresentation.CaptureRenderSnapshot(ending).Memory.Vram.ToArray(), (first, second) => first != second).Count(differs => differs);
         Console.WriteLine($"Explosion setup: {memoryDifferences} VRAM bytes differ from literal DMA reconstruction.");
         int differences = 0, checkedFrames = 0;
         while (ending.Stage.Phase is EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionPaletteCrossfade)
@@ -140,7 +140,7 @@ internal static class EndingPlanetBoundaryVerification
             var expected = SoftwareLayeredSnapshotRenderer.Render(new(nativeMemory, nativeLayers,
                 snapshot.ObjectSelection, snapshot.Brightness));
             var actual = ending.Render();
-            int changed = actual.Zip(expected).Count(pair => pair.First != pair.Second);
+            int changed = actual.Zip(expected, (first, second) => first != second).Count(differs => differs);
             differences += changed;
             checkedFrames++;
             ending.Step();
@@ -154,7 +154,7 @@ internal static class EndingPlanetBoundaryVerification
             nativeVram.AsSpan(0x8000).CopyTo(reconstructed.AsSpan(0x8000));
             var nativeMemory = new PpuMemorySnapshot(reconstructed, live.Memory.Cgram, live.Memory.SpriteDraws);
             var nativePixels = SoftwareLayeredSnapshotRenderer.Render(new(nativeMemory, live.Layers, live.ObjectSelection, live.Brightness));
-            differences += ending.Render().Zip(nativePixels).Count(pair => pair.First != pair.Second);
+            differences += ending.Render().Zip(nativePixels, (first, second) => first != second).Count(differs => differs);
             if (capture is not null && capture.Frames.Contains(frame))
             {
                 // The native comparison replays exactly this sample's graphics and OAM under the retail registers.

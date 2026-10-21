@@ -43,8 +43,8 @@ internal static class DragonFireballBehaviorVerification
             projectile => projectile.Kind == RoomEnemyProjectileKind.DragonFireball && projectile.Velocity.X.SignedRawValue >= 0);
         foreach ((RoomEnemyProjectileSlot fireball, DragonFireballProgram rising, DragonFireballProgram falling) in new[]
                  {
-                     (left, DragonFireballProgram.RisingLeft, DragonFireballProgram.FallingLeft),
-                     (right, DragonFireballProgram.RisingRight, DragonFireballProgram.FallingRight),
+                     new VerifyDragonFireballBehaviorCase(left, DragonFireballProgram.RisingLeft, DragonFireballProgram.FallingLeft),
+                     new VerifyDragonFireballBehaviorCase(right, DragonFireballProgram.RisingRight, DragonFireballProgram.FallingRight),
                  })
         {
             AssertEqual(rising, ProgramOf(fireball), $"the fireball starts {rising}");

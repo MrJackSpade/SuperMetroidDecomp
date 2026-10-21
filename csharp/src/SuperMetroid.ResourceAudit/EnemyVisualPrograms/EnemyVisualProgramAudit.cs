@@ -81,7 +81,7 @@ internal static class EnemyVisualProgramAudit
         Directory.CreateDirectory((Path.GetDirectoryName(destination) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(destination).")));
         File.WriteAllText(destination, JsonSerializer.Serialize(new { programs = rows, audit = report }, AuditReport.JsonOptions));
         Console.WriteLine($"Enemy visual static audit: {rows.Count} program owners, {rows.Sum(row => row.Operands)} visual references; {report.MissingResourceCount} missing resources, {report.UnresolvedCount} unresolved. No ROM or gameplay.");
-        foreach (AuditFinding finding in report.Findings.DistinctBy(item => (item.Owner, item.Resource, item.Message)))
+        foreach (AuditFinding finding in report.Findings.DistinctBy(item => new FindingKey(item.Owner, item.Resource, item.Message)))
             Console.WriteLine($"{finding.Code} {finding.Owner} {finding.Resource}: {finding.Message}");
         return report.Findings.Count == 0 ? 0 : 1;
     }

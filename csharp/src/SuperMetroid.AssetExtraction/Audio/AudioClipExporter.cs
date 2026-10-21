@@ -115,7 +115,7 @@ internal static class AudioClipExporter
         long start = track.StartSample;
         long clipFrames = pcm.Length / 2;
         var segments = new List<MusicTempoSegment>();
-        foreach ((long sample, byte tempo) in track.TempoChanges)
+        foreach ((long sample, int tempo) in track.TempoChanges)
         {
             if (sample - start < clipFrames)
                 segments.Add(new MusicTempoSegment(sample - start, tempo));
@@ -182,14 +182,14 @@ internal static class AudioClipExporter
 
         ManagedSpcSoundLibrary fromLow = Configure(0, 0);
         ManagedSpcSoundLibrary fromHigh = Configure(1, SpcDriverDefinitions.SoundEffects.LowHealthMode);
-        SoundEffectPriorityEffect priority = (fromLow.Priority, fromHigh.Priority) switch
+        SoundEffectPriorityEffect priority = new LowHealthPriorityPair(fromLow.Priority, fromHigh.Priority) switch
         {
             (0, 0) => SoundEffectPriorityEffect.Low,
             (1, 1) => SoundEffectPriorityEffect.High,
             (0, 1) => SoundEffectPriorityEffect.Unchanged,
             _ => throw new InvalidDataException($"Configuration {configuration} sets priority {fromLow.Priority}/{fromHigh.Priority}."),
         };
-        LowHealthModeEffect mode = (fromLow.Mode, fromHigh.Mode) switch
+        LowHealthModeEffect mode = new LowHealthPriorityPair(fromLow.Mode, fromHigh.Mode) switch
         {
             (0, SpcDriverDefinitions.SoundEffects.LowHealthMode) => LowHealthModeEffect.Unchanged,
             (0, 0) => LowHealthModeEffect.Clear,

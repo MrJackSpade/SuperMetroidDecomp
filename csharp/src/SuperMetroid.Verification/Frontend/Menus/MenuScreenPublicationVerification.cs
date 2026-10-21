@@ -22,14 +22,14 @@ internal static class MenuScreenPublicationVerification
     /// </summary>
     internal static void VerifyScreenSpritePlacement()
     {
-        (int X, int Y, int OffsetX, int OffsetY, bool Large)[] parts =
+        MenuScreenPublicationPart[] parts =
         [
-            (100, 100, 4, 8, false),
-            (100, 220, 0, 8, false),
-            (100, 4, 0, -8, false),
-            (250, 40, 10, 0, true),
-            (10, 40, -20, 0, false),
-            (128, 0, 0, -16, true),
+            new MenuScreenPublicationPart(100, 100, 4, 8, false),
+            new MenuScreenPublicationPart(100, 220, 0, 8, false),
+            new MenuScreenPublicationPart(100, 4, 0, -8, false),
+            new MenuScreenPublicationPart(250, 40, 10, 0, true),
+            new MenuScreenPublicationPart(10, 40, -20, 0, false),
+            new MenuScreenPublicationPart(128, 0, 0, -16, true),
         ];
         var sprites = ScreenSpritesFixtures.Blank();
         var oam = new OamBuffer();

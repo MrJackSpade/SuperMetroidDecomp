@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Animals;
 
 namespace SuperMetroid.Verification.Enemies.Animals;
@@ -12,23 +13,23 @@ internal static class DachoraNativeListAddresses
     internal const byte Bank = 0xa7;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (DachoraProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<DachoraProgram>[] Entries =
     [
-        (DachoraProgram.RunningLeft, 0xf345),
-        (DachoraProgram.RunningLeftFast, 0xf361),
-        (DachoraProgram.RunningLeftVeryFast, 0xf37d),
-        (DachoraProgram.IdleLeft, 0xf399),
-        (DachoraProgram.BlinkLeft, 0xf3c9),
-        (DachoraProgram.EchoLeft, 0xf3f7),
-        (DachoraProgram.FallingLeft, 0xf3ff),
-        (DachoraProgram.RunningRight, 0xf407),
-        (DachoraProgram.RunningRightFast, 0xf423),
-        (DachoraProgram.RunningRightVeryFast, 0xf43f),
-        (DachoraProgram.IdleRight, 0xf45b),
-        (DachoraProgram.BlinkRight, 0xf48b),
-        (DachoraProgram.ChargeRight, 0xf4b3),
-        (DachoraProgram.EchoRight, 0xf4b9),
-        (DachoraProgram.FallingRight, 0xf4c1),
+        new NativeProgramEntry<DachoraProgram>(DachoraProgram.RunningLeft, 0xf345),
+        new NativeProgramEntry<DachoraProgram>(DachoraProgram.RunningLeftFast, 0xf361),
+        new NativeProgramEntry<DachoraProgram>(DachoraProgram.RunningLeftVeryFast, 0xf37d),
+        new NativeProgramEntry<DachoraProgram>(DachoraProgram.IdleLeft, 0xf399),
+        new NativeProgramEntry<DachoraProgram>(DachoraProgram.BlinkLeft, 0xf3c9),
+        new NativeProgramEntry<DachoraProgram>(DachoraProgram.EchoLeft, 0xf3f7),
+        new NativeProgramEntry<DachoraProgram>(DachoraProgram.FallingLeft, 0xf3ff),
+        new NativeProgramEntry<DachoraProgram>(DachoraProgram.RunningRight, 0xf407),
+        new NativeProgramEntry<DachoraProgram>(DachoraProgram.RunningRightFast, 0xf423),
+        new NativeProgramEntry<DachoraProgram>(DachoraProgram.RunningRightVeryFast, 0xf43f),
+        new NativeProgramEntry<DachoraProgram>(DachoraProgram.IdleRight, 0xf45b),
+        new NativeProgramEntry<DachoraProgram>(DachoraProgram.BlinkRight, 0xf48b),
+        new NativeProgramEntry<DachoraProgram>(DachoraProgram.ChargeRight, 0xf4b3),
+        new NativeProgramEntry<DachoraProgram>(DachoraProgram.EchoRight, 0xf4b9),
+        new NativeProgramEntry<DachoraProgram>(DachoraProgram.FallingRight, 0xf4c1),
     ];
 
 }

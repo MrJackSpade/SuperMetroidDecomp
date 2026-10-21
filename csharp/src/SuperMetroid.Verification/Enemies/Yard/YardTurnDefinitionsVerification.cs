@@ -16,20 +16,20 @@ internal static class YardTurnDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Yard turn definitions")]
     internal static void VerifyYardTurnDefinitions(SuperMetroidAddressSpace rom)
     {
-        (YardMovementFunction Movement, bool Disabled, int Address)[] records =
+        YardTurnDefinitionsRecord[] records =
         [
-            (YardMovementFunction.CrawlingUpsideUpMovingLeft, false, 0xa3cce2),
-            (YardMovementFunction.CrawlingUpsideLeftMovingDown, false, 0xa3ccea),
-            (YardMovementFunction.CrawlingUpsideDownMovingRight, false, 0xa3ccf2),
-            (YardMovementFunction.CrawlingUpsideRightMovingUp, false, 0xa3ccfa),
-            (YardMovementFunction.CrawlingUpsideUpMovingRight, false, 0xa3cd02),
-            (YardMovementFunction.CrawlingUpsideRightMovingDown, false, 0xa3cd0a),
-            (YardMovementFunction.CrawlingUpsideDownMovingLeft, false, 0xa3cd12),
-            (YardMovementFunction.CrawlingUpsideLeftMovingUp, false, 0xa3cd1a),
-            (YardMovementFunction.CrawlingUpsideUpMovingLeft, true, 0xa3cd22),
-            (YardMovementFunction.CrawlingUpsideDownMovingRight, true, 0xa3cd2a),
-            (YardMovementFunction.CrawlingUpsideUpMovingRight, true, 0xa3cd32),
-            (YardMovementFunction.CrawlingUpsideDownMovingLeft, true, 0xa3cd3a),
+            new YardTurnDefinitionsRecord(YardMovementFunction.CrawlingUpsideUpMovingLeft, false, 0xa3cce2),
+            new YardTurnDefinitionsRecord(YardMovementFunction.CrawlingUpsideLeftMovingDown, false, 0xa3ccea),
+            new YardTurnDefinitionsRecord(YardMovementFunction.CrawlingUpsideDownMovingRight, false, 0xa3ccf2),
+            new YardTurnDefinitionsRecord(YardMovementFunction.CrawlingUpsideRightMovingUp, false, 0xa3ccfa),
+            new YardTurnDefinitionsRecord(YardMovementFunction.CrawlingUpsideUpMovingRight, false, 0xa3cd02),
+            new YardTurnDefinitionsRecord(YardMovementFunction.CrawlingUpsideRightMovingDown, false, 0xa3cd0a),
+            new YardTurnDefinitionsRecord(YardMovementFunction.CrawlingUpsideDownMovingLeft, false, 0xa3cd12),
+            new YardTurnDefinitionsRecord(YardMovementFunction.CrawlingUpsideLeftMovingUp, false, 0xa3cd1a),
+            new YardTurnDefinitionsRecord(YardMovementFunction.CrawlingUpsideUpMovingLeft, true, 0xa3cd22),
+            new YardTurnDefinitionsRecord(YardMovementFunction.CrawlingUpsideDownMovingRight, true, 0xa3cd2a),
+            new YardTurnDefinitionsRecord(YardMovementFunction.CrawlingUpsideUpMovingRight, true, 0xa3cd32),
+            new YardTurnDefinitionsRecord(YardMovementFunction.CrawlingUpsideDownMovingLeft, true, 0xa3cd3a),
         ];
 
         foreach ((YardMovementFunction movement, bool disabled, int address) in records)
@@ -72,7 +72,7 @@ internal static class YardTurnDefinitionsVerification
 
     /// <summary>Runs Yard crawling movement against empty and solid level data for each turn record.</summary>
     private static void VerifyYardTurnProductionBranches(
-        IReadOnlyList<(YardMovementFunction Movement, bool Disabled, int Address)> records)
+        IReadOnlyList<YardTurnDefinitionsRecord> records)
     {
         var emptyWords = new ushort[64 * 64];
         var solidWords = Enumerable.Repeat((ushort)0x8000, emptyWords.Length).ToArray();

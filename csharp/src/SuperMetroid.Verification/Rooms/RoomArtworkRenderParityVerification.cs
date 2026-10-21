@@ -32,8 +32,8 @@ internal static class RoomArtworkRenderParityVerification
     {
         foreach ((string name, RoomHeaderDefinition expectedRoom, bool useRealLandingDoor) in new[]
         {
-            ("Ceres elevator overlap", RoomHeaderDefinitions.CeresElev, false),
-            ("Landing Site sky", RoomHeaderDefinitions.LandingSite, true),
+            new VerifyRoomArtworkRenderParityCase("Ceres elevator overlap", RoomHeaderDefinitions.CeresElev, false),
+            new VerifyRoomArtworkRenderParityCase("Landing Site sky", RoomHeaderDefinitions.LandingSite, true),
         })
         {
             SuperMetroidRuntime native = LoadRoom(installedArt: false);

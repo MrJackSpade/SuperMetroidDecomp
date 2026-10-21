@@ -186,7 +186,7 @@ internal static class SuiteSchedulingVerification
     {
         Directory.CreateDirectory((Path.GetDirectoryName(Path.GetFullPath(SuiteDurationsPath)) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(Path.GetFullPath(SuiteDurationsPath)).")));
         File.WriteAllText(SuiteDurationsPath, JsonSerializer.Serialize(
-            keys.Zip(durations).ToDictionary(pair => pair.First, pair => pair.Second),
+            keys.Zip(durations, KeyValuePair.Create).ToDictionary(),
             IndentedJson));
     }
 

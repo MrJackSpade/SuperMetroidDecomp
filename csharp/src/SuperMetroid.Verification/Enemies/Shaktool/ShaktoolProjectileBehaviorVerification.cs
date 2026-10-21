@@ -18,11 +18,11 @@ internal static class ShaktoolProjectileBehaviorVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, ShaktoolProjectileNativeListAddresses.Extent, "Shaktool attack circle");
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        foreach ((RoomEnemyProjectileKind kind, ShaktoolProjectileProgram program) in new (RoomEnemyProjectileKind, ShaktoolProjectileProgram)[]
+        foreach ((RoomEnemyProjectileKind kind, ShaktoolProjectileProgram program) in new VerifyShaktoolProjectileBehaviorCase[]
                  {
-                     (RoomEnemyProjectileKind.ShaktoolAttackFrontCircle, ShaktoolProjectileProgram.Front),
-                     (RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle, ShaktoolProjectileProgram.Middle),
-                     (RoomEnemyProjectileKind.ShaktoolAttackBackCircle, ShaktoolProjectileProgram.Back),
+                     new VerifyShaktoolProjectileBehaviorCase(RoomEnemyProjectileKind.ShaktoolAttackFrontCircle, ShaktoolProjectileProgram.Front),
+                     new VerifyShaktoolProjectileBehaviorCase(RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle, ShaktoolProjectileProgram.Middle),
+                     new VerifyShaktoolProjectileBehaviorCase(RoomEnemyProjectileKind.ShaktoolAttackBackCircle, ShaktoolProjectileProgram.Back),
                  })
         {
             RoomEnemyProjectileSlot circle = enemies.Projectiles.EnemyProjectiles[0];

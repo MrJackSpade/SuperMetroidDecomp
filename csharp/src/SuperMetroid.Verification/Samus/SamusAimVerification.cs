@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
@@ -191,30 +192,30 @@ internal static void VerifySamusAimedAerialMovement()
     // Synthetic delay streams expose both command-three seams independently. `$6D` uses
     // the retail `$02,$F0,$10,$FE,$01` sequence verbatim so the active animation-command
     // no-op is checked in the movement family that actually consumes it.
-    (SamusPoseId Pose, ushort Stream, byte[] Bytes)[] animations = [
-        (SamusPoseId.FacingRightNormalPose, 0xc100, [0x0a, 0xf6]),
-        (SamusPoseId.StandingAimUpRightPose, 0xc110, [0x0a, 0xf6]),
-        (SamusPoseId.StandingAimDiagonalUpRightPose, 0xc120, [0x0a, 0xf6]),
-        (SamusPoseId.StandingAimDiagonalDownRightPose, 0xc130, [0x0a, 0xf6]),
-        (SamusPoseId.NormalJumpAimUpRightPose, 0xc140, [0x02, 0xff]),
-        (SamusPoseId.NormalJumpAimDownRightPose, 0xc148, [0x02, 0xff]),
-        (SamusPoseId.NormalJumpAimDownLeftPose, 0xc14c, [0x02, 0xff]),
-        (SamusPoseId.CrouchingRightPose, 0xc14e, [0x10, 0xff]),
-        (SamusPoseId.FallingRightPose, 0xc150, [0x02, 0xff]),
-        (SamusPoseId.FallingAimUpRightPose, 0xc160, [0x02, 0xff]),
-        (SamusPoseId.FallingAimDownRightPose, 0xc168, [0x02, 0xff]),
-        (SamusPoseId.FallingAimDownLeftPose, 0xc16c, [0x02, 0xff]),
-        (SamusPoseId.NormalJumpForwardRightPose, 0xc170, [0x02, 0xff]),
-        (SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose, 0xc180, [0x01, 0xfd, 0x69]),
-        (SamusPoseId.NormalJumpAimDiagonalUpRightPose, 0xc190, [0x02, 0xff]),
-        (SamusPoseId.NormalJumpAimDiagonalDownRightPose, 0xc1a0, [0x02, 0xff]),
-        (SamusPoseId.NormalJumpAimDiagonalDownLeftPose, 0xc1a8, [0x02, 0xff]),
-        (SamusPoseId.FallingAimDiagonalUpRightPose, 0xc1b0, [0x02, 0xf0, 0x10, 0xfe, 0x01]),
-        (SamusPoseId.FallingAimDiagonalDownRightPose, 0xc1c0, [0x02, 0xff]),
-        (SamusPoseId.LandingAimDiagonalUpRightPose, 0xc1d0, [0x01, 0xf8, 0x05]),
-        (SamusPoseId.LandingAimDiagonalDownRightPose, 0xc1e0, [0x01, 0xf8, 0x07]),
-        (SamusPoseId.NormalLandingRightPose, 0xc1f0, [0x02, 0xf8, 0x01]),
-        (SamusPoseId.NormalLandingLeftPose, 0xc1f8, [0x02, 0xf8, 0x02]),
+    Animation[] animations = [
+        new Animation(SamusPoseId.FacingRightNormalPose, 0xc100, [0x0a, 0xf6]),
+        new Animation(SamusPoseId.StandingAimUpRightPose, 0xc110, [0x0a, 0xf6]),
+        new Animation(SamusPoseId.StandingAimDiagonalUpRightPose, 0xc120, [0x0a, 0xf6]),
+        new Animation(SamusPoseId.StandingAimDiagonalDownRightPose, 0xc130, [0x0a, 0xf6]),
+        new Animation(SamusPoseId.NormalJumpAimUpRightPose, 0xc140, [0x02, 0xff]),
+        new Animation(SamusPoseId.NormalJumpAimDownRightPose, 0xc148, [0x02, 0xff]),
+        new Animation(SamusPoseId.NormalJumpAimDownLeftPose, 0xc14c, [0x02, 0xff]),
+        new Animation(SamusPoseId.CrouchingRightPose, 0xc14e, [0x10, 0xff]),
+        new Animation(SamusPoseId.FallingRightPose, 0xc150, [0x02, 0xff]),
+        new Animation(SamusPoseId.FallingAimUpRightPose, 0xc160, [0x02, 0xff]),
+        new Animation(SamusPoseId.FallingAimDownRightPose, 0xc168, [0x02, 0xff]),
+        new Animation(SamusPoseId.FallingAimDownLeftPose, 0xc16c, [0x02, 0xff]),
+        new Animation(SamusPoseId.NormalJumpForwardRightPose, 0xc170, [0x02, 0xff]),
+        new Animation(SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose, 0xc180, [0x01, 0xfd, 0x69]),
+        new Animation(SamusPoseId.NormalJumpAimDiagonalUpRightPose, 0xc190, [0x02, 0xff]),
+        new Animation(SamusPoseId.NormalJumpAimDiagonalDownRightPose, 0xc1a0, [0x02, 0xff]),
+        new Animation(SamusPoseId.NormalJumpAimDiagonalDownLeftPose, 0xc1a8, [0x02, 0xff]),
+        new Animation(SamusPoseId.FallingAimDiagonalUpRightPose, 0xc1b0, [0x02, 0xf0, 0x10, 0xfe, 0x01]),
+        new Animation(SamusPoseId.FallingAimDiagonalDownRightPose, 0xc1c0, [0x02, 0xff]),
+        new Animation(SamusPoseId.LandingAimDiagonalUpRightPose, 0xc1d0, [0x01, 0xf8, 0x05]),
+        new Animation(SamusPoseId.LandingAimDiagonalDownRightPose, 0xc1e0, [0x01, 0xf8, 0x07]),
+        new Animation(SamusPoseId.NormalLandingRightPose, 0xc1f0, [0x02, 0xf8, 0x01]),
+        new Animation(SamusPoseId.NormalLandingLeftPose, 0xc1f8, [0x02, 0xf8, 0x02]),
     ];
     foreach ((SamusPoseId pose, ushort stream, byte[] bytes) in animations)
         WritePoseAnimationDelays(bus, pose, stream, bytes);
@@ -514,29 +515,29 @@ internal static void VerifySamusGunExtendedMovement()
     // X direction, movement type, no-input fallback, shot direction, collision command,
     // unused byte, Y radius, unused byte. These are direct retail bytes, not host fixtures
     // inferred from nearby poses.
-    (SamusPoseId Pose, byte[] Definition)[] definitions = [
-        (SamusPoseId.FacingRightNormalPose, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]),
-        (SamusPoseId.FacingLeftNormalPose, [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]),
-        (SamusPoseId.MovingRightNormalPose, [0x08, 0x01, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00]),
-        (SamusPoseId.MovingLeftNormalPose, [0x04, 0x01, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00]),
-        (SamusPoseId.MovingRightGunExtendedPose, [0x08, 0x01, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00]),
-        (SamusPoseId.MovingLeftGunExtendedPose, [0x04, 0x01, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00]),
-        (SamusPoseId.NormalJumpGunExtendedRightPose, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]),
-        (SamusPoseId.NormalJumpGunExtendedLeftPose, [0x04, 0x02, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]),
-        (SamusPoseId.NeutralJumpTransitionRightPose, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]),
-        (SamusPoseId.NeutralJumpTransitionLeftPose, [0x04, 0x02, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]),
-        (SamusPoseId.NeutralJumpRightPose, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]),
-        (SamusPoseId.NeutralJumpLeftPose, [0x04, 0x02, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]),
-        (SamusPoseId.NormalJumpForwardRightPose, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]),
-        (SamusPoseId.NormalJumpForwardLeftPose, [0x04, 0x02, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]),
-        (SamusPoseId.FallingRightPose, [0x08, 0x06, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]),
-        (SamusPoseId.FallingLeftPose, [0x04, 0x06, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]),
-        (SamusPoseId.FallingGunExtendedRightPose, [0x08, 0x06, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]),
-        (SamusPoseId.FallingGunExtendedLeftPose, [0x04, 0x06, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]),
-        (SamusPoseId.NormalLandingRightPose, [0x08, 0x00, 0xff, 0x02, 0x03, 0x00, 0x15, 0x00]),
-        (SamusPoseId.NormalLandingLeftPose, [0x04, 0x00, 0xff, 0x07, 0x03, 0x00, 0x15, 0x00]),
-        (SamusPoseId.FiringLandingRightPose, [0x08, 0x00, 0xff, 0x02, 0x03, 0x00, 0x15, 0x00]),
-        (SamusPoseId.FiringLandingLeftPose, [0x04, 0x00, 0xff, 0x07, 0x03, 0x00, 0x15, 0x00]),
+    SamusSpecialStatesPose[] definitions = [
+        new SamusSpecialStatesPose(SamusPoseId.FacingRightNormalPose, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.FacingLeftNormalPose, [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.MovingRightNormalPose, [0x08, 0x01, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.MovingLeftNormalPose, [0x04, 0x01, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.MovingRightGunExtendedPose, [0x08, 0x01, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.MovingLeftGunExtendedPose, [0x04, 0x01, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.NormalJumpGunExtendedRightPose, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.NormalJumpGunExtendedLeftPose, [0x04, 0x02, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.NeutralJumpTransitionRightPose, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.NeutralJumpTransitionLeftPose, [0x04, 0x02, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.NeutralJumpRightPose, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.NeutralJumpLeftPose, [0x04, 0x02, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.NormalJumpForwardRightPose, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.NormalJumpForwardLeftPose, [0x04, 0x02, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.FallingRightPose, [0x08, 0x06, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.FallingLeftPose, [0x04, 0x06, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.FallingGunExtendedRightPose, [0x08, 0x06, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.FallingGunExtendedLeftPose, [0x04, 0x06, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.NormalLandingRightPose, [0x08, 0x00, 0xff, 0x02, 0x03, 0x00, 0x15, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.NormalLandingLeftPose, [0x04, 0x00, 0xff, 0x07, 0x03, 0x00, 0x15, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.FiringLandingRightPose, [0x08, 0x00, 0xff, 0x02, 0x03, 0x00, 0x15, 0x00]),
+        new SamusSpecialStatesPose(SamusPoseId.FiringLandingLeftPose, [0x04, 0x00, 0xff, 0x07, 0x03, 0x00, 0x15, 0x00]),
     ];
     foreach ((SamusPoseId pose, byte[] definition) in definitions)
         WritePoseDefinition(bus, (int)pose, definition);
@@ -544,29 +545,29 @@ internal static void VerifySamusGunExtendedMovement()
     // Synthetic storage keeps the tests compact, but each stream's bytes reproduce the
     // relevant retail control flow: running loops ten frames; jump/fall loop; firing
     // landings reach literal command `$F8,$01/$02`.
-    (SamusPoseId Pose, ushort Stream, byte[] Bytes)[] animations = [
-        (SamusPoseId.FacingRightNormalPose, 0xd000, [0x0a, 0xff]),
-        (SamusPoseId.FacingLeftNormalPose, 0xd010, [0x0a, 0xff]),
-        (SamusPoseId.MovingRightNormalPose, 0xd020, [0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0xff]),
-        (SamusPoseId.MovingLeftNormalPose, 0xd020, [0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0xff]),
-        (SamusPoseId.MovingRightGunExtendedPose, 0xd020, [0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0xff]),
-        (SamusPoseId.MovingLeftGunExtendedPose, 0xd020, [0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0xff]),
-        (SamusPoseId.NormalJumpGunExtendedRightPose, 0xd040, [0x02, 0x10, 0xfe, 0x01]),
-        (SamusPoseId.NormalJumpGunExtendedLeftPose, 0xd040, [0x02, 0x10, 0xfe, 0x01]),
-        (SamusPoseId.NeutralJumpTransitionRightPose, 0xd048, [0x02, 0xfd, 0x4d]),
-        (SamusPoseId.NeutralJumpTransitionLeftPose, 0xd04c, [0x02, 0xfd, 0x4e]),
-        (SamusPoseId.NeutralJumpRightPose, 0xd050, [0x02, 0x03, 0xfe, 0x01]),
-        (SamusPoseId.NeutralJumpLeftPose, 0xd050, [0x02, 0x03, 0xfe, 0x01]),
-        (SamusPoseId.NormalJumpForwardRightPose, 0xd058, [0x02, 0x03, 0xfe, 0x01]),
-        (SamusPoseId.NormalJumpForwardLeftPose, 0xd058, [0x02, 0x03, 0xfe, 0x01]),
-        (SamusPoseId.FallingRightPose, 0xd060, [0x08, 0x06, 0x06, 0xfe, 0x01, 0x08, 0x10, 0xfe, 0x01]),
-        (SamusPoseId.FallingLeftPose, 0xd060, [0x08, 0x06, 0x06, 0xfe, 0x01, 0x08, 0x10, 0xfe, 0x01]),
-        (SamusPoseId.FallingGunExtendedRightPose, 0xd080, [0x08, 0x06, 0x06, 0xfe, 0x01, 0x08, 0x10, 0xfe, 0x01]),
-        (SamusPoseId.FallingGunExtendedLeftPose, 0xd080, [0x08, 0x06, 0x06, 0xfe, 0x01, 0x08, 0x10, 0xfe, 0x01]),
-        (SamusPoseId.NormalLandingRightPose, 0xd0a0, [0x05, 0x02, 0xf8, 0x01]),
-        (SamusPoseId.NormalLandingLeftPose, 0xd0b0, [0x05, 0x02, 0xf8, 0x02]),
-        (SamusPoseId.FiringLandingRightPose, 0xd0c0, [0x01, 0xf8, 0x01]),
-        (SamusPoseId.FiringLandingLeftPose, 0xd0d0, [0x01, 0xf8, 0x02]),
+    Animation[] animations = [
+        new Animation(SamusPoseId.FacingRightNormalPose, 0xd000, [0x0a, 0xff]),
+        new Animation(SamusPoseId.FacingLeftNormalPose, 0xd010, [0x0a, 0xff]),
+        new Animation(SamusPoseId.MovingRightNormalPose, 0xd020, [0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0xff]),
+        new Animation(SamusPoseId.MovingLeftNormalPose, 0xd020, [0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0xff]),
+        new Animation(SamusPoseId.MovingRightGunExtendedPose, 0xd020, [0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0xff]),
+        new Animation(SamusPoseId.MovingLeftGunExtendedPose, 0xd020, [0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0xff]),
+        new Animation(SamusPoseId.NormalJumpGunExtendedRightPose, 0xd040, [0x02, 0x10, 0xfe, 0x01]),
+        new Animation(SamusPoseId.NormalJumpGunExtendedLeftPose, 0xd040, [0x02, 0x10, 0xfe, 0x01]),
+        new Animation(SamusPoseId.NeutralJumpTransitionRightPose, 0xd048, [0x02, 0xfd, 0x4d]),
+        new Animation(SamusPoseId.NeutralJumpTransitionLeftPose, 0xd04c, [0x02, 0xfd, 0x4e]),
+        new Animation(SamusPoseId.NeutralJumpRightPose, 0xd050, [0x02, 0x03, 0xfe, 0x01]),
+        new Animation(SamusPoseId.NeutralJumpLeftPose, 0xd050, [0x02, 0x03, 0xfe, 0x01]),
+        new Animation(SamusPoseId.NormalJumpForwardRightPose, 0xd058, [0x02, 0x03, 0xfe, 0x01]),
+        new Animation(SamusPoseId.NormalJumpForwardLeftPose, 0xd058, [0x02, 0x03, 0xfe, 0x01]),
+        new Animation(SamusPoseId.FallingRightPose, 0xd060, [0x08, 0x06, 0x06, 0xfe, 0x01, 0x08, 0x10, 0xfe, 0x01]),
+        new Animation(SamusPoseId.FallingLeftPose, 0xd060, [0x08, 0x06, 0x06, 0xfe, 0x01, 0x08, 0x10, 0xfe, 0x01]),
+        new Animation(SamusPoseId.FallingGunExtendedRightPose, 0xd080, [0x08, 0x06, 0x06, 0xfe, 0x01, 0x08, 0x10, 0xfe, 0x01]),
+        new Animation(SamusPoseId.FallingGunExtendedLeftPose, 0xd080, [0x08, 0x06, 0x06, 0xfe, 0x01, 0x08, 0x10, 0xfe, 0x01]),
+        new Animation(SamusPoseId.NormalLandingRightPose, 0xd0a0, [0x05, 0x02, 0xf8, 0x01]),
+        new Animation(SamusPoseId.NormalLandingLeftPose, 0xd0b0, [0x05, 0x02, 0xf8, 0x02]),
+        new Animation(SamusPoseId.FiringLandingRightPose, 0xd0c0, [0x01, 0xf8, 0x01]),
+        new Animation(SamusPoseId.FiringLandingLeftPose, 0xd0d0, [0x01, 0xf8, 0x02]),
     ];
     foreach ((SamusPoseId pose, ushort stream, byte[] bytes) in animations)
         WritePoseAnimationDelays(bus, pose, stream, bytes);
@@ -575,19 +576,19 @@ internal static void VerifySamusGunExtendedMovement()
     // `$91:A2F6`, and `$91:A70C`. They prove that Shot+forward, Shot in neutral jump,
     // and Shot while falling select the three distinct extended-gun movement families.
     SyntheticSamusCartridge.WritePoseTransitionPointer(bus, SamusPoseId.MovingRightNormalPose, 0xd100);
-    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd100, [(0x0000, 0x0140, 0x000b)]);
+    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd100, [new SyntheticSamusCartridgeRecord(0x0000, 0x0140, 0x000b)]);
     SyntheticSamusCartridge.WritePoseTransitionPointer(bus, SamusPoseId.NeutralJumpRightPose, 0xd110);
-    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd110, [(0x0000, 0x0040, 0x0013)]);
+    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd110, [new SyntheticSamusCartridgeRecord(0x0000, 0x0040, 0x0013)]);
     SyntheticSamusCartridge.WritePoseTransitionPointer(bus, SamusPoseId.FallingRightPose, 0xd120);
-    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd120, [(0x0000, 0x0040, 0x0067)]);
+    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd120, [new SyntheticSamusCartridgeRecord(0x0000, 0x0040, 0x0067)]);
 
     // `$51/$52` share the complete `$91:A2F6/$A376` tables with their neutral-jump
     // mirrors. These minimal copies retain the exact held-Jump record that caused the
     // playable runtime failure: required-new is zero, held `$0080`, targets `$4D/$4E`.
     SyntheticSamusCartridge.WritePoseTransitionPointer(bus, SamusPoseId.NormalJumpForwardRightPose, 0xd130);
-    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd130, [(0x0000, 0x0080, 0x004d)]);
+    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd130, [new SyntheticSamusCartridgeRecord(0x0000, 0x0080, 0x004d)]);
     SyntheticSamusCartridge.WritePoseTransitionPointer(bus, SamusPoseId.NormalJumpForwardLeftPose, 0xd140);
-    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd140, [(0x0000, 0x0080, 0x004e)]);
+    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd140, [new SyntheticSamusCartridgeRecord(0x0000, 0x0080, 0x004e)]);
 
     // Preserve the decisive tail of retail pose `$0B`'s table at `$91:AE94`. Right+Shot
     // and Right both select `$0B` itself and therefore return directly; Shot without Right
@@ -596,8 +597,8 @@ internal static void VerifySamusGunExtendedMovement()
     // latched for as long as Shoot stayed down in the playable frontend.
     SyntheticSamusCartridge.WritePoseTransitionPointer(bus, SamusPoseId.MovingRightGunExtendedPose, 0xd150);
     SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd150, [
-        (0x0000, 0x0140, 0x000b),
-        (0x0000, 0x0100, 0x000b),
+        new SyntheticSamusCartridgeRecord(0x0000, 0x0140, 0x000b),
+        new SyntheticSamusCartridgeRecord(0x0000, 0x0100, 0x000b),
     ]);
 
     AssertEqual(0x0b,
@@ -638,8 +639,8 @@ internal static void VerifySamusGunExtendedMovement()
     // entries, so a one-sided admission fix could make keyboard direction appear random.
     foreach ((SamusPoseId source, SamusPoseId target, string facing) in new[]
     {
-        (SamusPoseId.NormalJumpForwardRightPose, forwardRightRelease.ProspectivePose, "right"),
-        (SamusPoseId.NormalJumpForwardLeftPose, forwardLeftRelease.ProspectivePose, "left"),
+        new VerifySamusGunExtendedMovementCase(SamusPoseId.NormalJumpForwardRightPose, forwardRightRelease.ProspectivePose, "right"),
+        new VerifySamusGunExtendedMovementCase(SamusPoseId.NormalJumpForwardLeftPose, forwardLeftRelease.ProspectivePose, "left"),
     })
     {
         var releasedForwardJump = new SamusState { Pose = source };

@@ -27,42 +27,42 @@ internal static class CrocomireNativeListAddresses
     };
 
     /// <summary>Each typed body program's native entry point in bank $A4, in authored order.</summary>
-    internal static readonly (CrocomireBodyProgram Program, ushort Entry)[] BodyEntries =
+    internal static readonly BodyEntryValue[] BodyEntries =
     [
-        (CrocomireBodyProgram.Initial, 0xbade),
-        (CrocomireBodyProgram.UnusedChargeForwardOneStep, 0xbaea),
-        (CrocomireBodyProgram.ProjectileAttack, 0xbb36),
-        (CrocomireBodyProgram.ProjectileAttackLoop, 0xbb94),
-        (CrocomireBodyProgram.StepForwardAfterDelay, 0xbbca),
-        (CrocomireBodyProgram.StepForward, 0xbbce),
-        (CrocomireBodyProgram.StepBack, 0xbc30),
-        (CrocomireBodyProgram.SteppingBack, 0xbc34),
-        (CrocomireBodyProgram.WaitForFirstSecondDamage, 0xbc56),
-        (CrocomireBodyProgram.MovingClaws, 0xbcd8),
-        (CrocomireBodyProgram.Roar, 0xbd2a),
-        (CrocomireBodyProgram.RoarCloseMouth, 0xbd8e),
-        (CrocomireBodyProgram.RoarCloseMouthLoop, 0xbda2),
-        (CrocomireBodyProgram.PowerBombReactionMouthFullyOpen, 0xbdae),
-        (CrocomireBodyProgram.PowerBombReactionMouthPartiallyOpen, 0xbdb2),
-        (CrocomireBodyProgram.PowerBombReactionMouthNotOpen, 0xbdb6),
-        (CrocomireBodyProgram.PowerBombReactionMouthNotOpenLoop, 0xbe06),
-        (CrocomireBodyProgram.NearSpikeWallCharge, 0xbe7e),
-        (CrocomireBodyProgram.NearSpikeWallChargeLoop, 0xbeec),
-        (CrocomireBodyProgram.BackOffFromSpikeWall, 0xbf3c),
-        (CrocomireBodyProgram.MeltingOneTopRow, 0xbf64),
-        (CrocomireBodyProgram.MeltingOneTopTwoRows, 0xbf6c),
-        (CrocomireBodyProgram.MeltingOneTopThreeRows, 0xbf72),
-        (CrocomireBodyProgram.MeltingOneTopFourRows, 0xbf78),
-        (CrocomireBodyProgram.MeltingTwoTopRow, 0xbf7e),
-        (CrocomireBodyProgram.MeltingTwoTopTwoRows, 0xbf86),
-        (CrocomireBodyProgram.MeltingTwoTopThreeRows, 0xbf8c),
-        (CrocomireBodyProgram.MeltingTwoTopFourRows, 0xbf92),
-        (CrocomireBodyProgram.BridgeCollapsed, 0xbfb0),
-        (CrocomireBodyProgram.SkeletonFalling, 0xe14a),
-        (CrocomireBodyProgram.SkeletonFallsApart, 0xe158),
-        (CrocomireBodyProgram.SkeletonStable, 0xe1c6),
-        (CrocomireBodyProgram.Dead, 0xe1cc),
-        (CrocomireBodyProgram.SkeletonFlowingDownRiver, 0xe1d2),
+        new BodyEntryValue(CrocomireBodyProgram.Initial, 0xbade),
+        new BodyEntryValue(CrocomireBodyProgram.UnusedChargeForwardOneStep, 0xbaea),
+        new BodyEntryValue(CrocomireBodyProgram.ProjectileAttack, 0xbb36),
+        new BodyEntryValue(CrocomireBodyProgram.ProjectileAttackLoop, 0xbb94),
+        new BodyEntryValue(CrocomireBodyProgram.StepForwardAfterDelay, 0xbbca),
+        new BodyEntryValue(CrocomireBodyProgram.StepForward, 0xbbce),
+        new BodyEntryValue(CrocomireBodyProgram.StepBack, 0xbc30),
+        new BodyEntryValue(CrocomireBodyProgram.SteppingBack, 0xbc34),
+        new BodyEntryValue(CrocomireBodyProgram.WaitForFirstSecondDamage, 0xbc56),
+        new BodyEntryValue(CrocomireBodyProgram.MovingClaws, 0xbcd8),
+        new BodyEntryValue(CrocomireBodyProgram.Roar, 0xbd2a),
+        new BodyEntryValue(CrocomireBodyProgram.RoarCloseMouth, 0xbd8e),
+        new BodyEntryValue(CrocomireBodyProgram.RoarCloseMouthLoop, 0xbda2),
+        new BodyEntryValue(CrocomireBodyProgram.PowerBombReactionMouthFullyOpen, 0xbdae),
+        new BodyEntryValue(CrocomireBodyProgram.PowerBombReactionMouthPartiallyOpen, 0xbdb2),
+        new BodyEntryValue(CrocomireBodyProgram.PowerBombReactionMouthNotOpen, 0xbdb6),
+        new BodyEntryValue(CrocomireBodyProgram.PowerBombReactionMouthNotOpenLoop, 0xbe06),
+        new BodyEntryValue(CrocomireBodyProgram.NearSpikeWallCharge, 0xbe7e),
+        new BodyEntryValue(CrocomireBodyProgram.NearSpikeWallChargeLoop, 0xbeec),
+        new BodyEntryValue(CrocomireBodyProgram.BackOffFromSpikeWall, 0xbf3c),
+        new BodyEntryValue(CrocomireBodyProgram.MeltingOneTopRow, 0xbf64),
+        new BodyEntryValue(CrocomireBodyProgram.MeltingOneTopTwoRows, 0xbf6c),
+        new BodyEntryValue(CrocomireBodyProgram.MeltingOneTopThreeRows, 0xbf72),
+        new BodyEntryValue(CrocomireBodyProgram.MeltingOneTopFourRows, 0xbf78),
+        new BodyEntryValue(CrocomireBodyProgram.MeltingTwoTopRow, 0xbf7e),
+        new BodyEntryValue(CrocomireBodyProgram.MeltingTwoTopTwoRows, 0xbf86),
+        new BodyEntryValue(CrocomireBodyProgram.MeltingTwoTopThreeRows, 0xbf8c),
+        new BodyEntryValue(CrocomireBodyProgram.MeltingTwoTopFourRows, 0xbf92),
+        new BodyEntryValue(CrocomireBodyProgram.BridgeCollapsed, 0xbfb0),
+        new BodyEntryValue(CrocomireBodyProgram.SkeletonFalling, 0xe14a),
+        new BodyEntryValue(CrocomireBodyProgram.SkeletonFallsApart, 0xe158),
+        new BodyEntryValue(CrocomireBodyProgram.SkeletonStable, 0xe1c6),
+        new BodyEntryValue(CrocomireBodyProgram.Dead, 0xe1cc),
+        new BodyEntryValue(CrocomireBodyProgram.SkeletonFlowingDownRiver, 0xe1d2),
     ];
 
     /// <summary>The cue each native bank-$A4 Crocomire callback must become.</summary>
@@ -106,11 +106,11 @@ internal static class CrocomireNativeListAddresses
     };
 
     /// <summary>The tongue programs' native entry points in bank $A4.</summary>
-    internal static readonly (CrocomireTongueProgram Program, ushort Entry)[] TongueEntries =
+    internal static readonly TongueEntry[] TongueEntries =
     [
-        (CrocomireTongueProgram.Fight, 0xbe56),
-        (CrocomireTongueProgram.Sleep, 0xbf62),
-        (CrocomireTongueProgram.Melting, 0xbf98),
+        new TongueEntry(CrocomireTongueProgram.Fight, 0xbe56),
+        new TongueEntry(CrocomireTongueProgram.Sleep, 0xbf62),
+        new TongueEntry(CrocomireTongueProgram.Melting, 0xbf98),
     ];
     /// <summary>The native entry point of <paramref name="program"/>.</summary>
     internal static ushort BodyEntry(CrocomireBodyProgram program) => BodyEntries.Single(item => item.Program == program).Entry;
@@ -120,7 +120,7 @@ internal static class CrocomireNativeListAddresses
         BodyEntries.Where(item => item.Entry == address).Select(item => (CrocomireBodyProgram?)item.Program).SingleOrDefault();
 
     /// <summary>Whether the native entries ascend, so the typed declaration order is the authored order.</summary>
-    internal static bool BodyEntriesAscend => BodyEntries.Zip(BodyEntries.Skip(1)).All(pair => pair.First.Entry < pair.Second.Entry);
+    internal static bool BodyEntriesAscend => BodyEntries.Zip(BodyEntries.Skip(1), (first, second) => first.Entry < second.Entry).All(ascends => ascends);
 
     /// <summary>Whether a native reader's cursor has reached <paramref name="program"/>'s list or a later one.</summary>
     internal static bool HasReached(NativeEnemyListDefinitions.Reader reader, CrocomireBodyProgram program) => reader.Cursor >= BodyEntry(program);

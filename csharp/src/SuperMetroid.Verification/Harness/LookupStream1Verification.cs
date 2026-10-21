@@ -933,8 +933,8 @@ internal static class LookupStream1Verification
                 content.Append("top set", frame.TopSet); content.Append("top position", frame.TopPosition);
                 content.Append("bottom set", frame.BottomSet); content.Append("bottom position", frame.BottomPosition);
             }
-            var definitions = upper.SelectMany((pointer, set) => upperGroups[set].Select((definition, position) => (Address: 0x920000 | (pointer + position * 7), Definition: definition)))
-                .Concat(lower.SelectMany((pointer, set) => lowerGroups[set].Select((definition, position) => (Address: 0x920000 | (pointer + position * 7), Definition: definition))));
+            var definitions = upper.SelectMany((pointer, set) => upperGroups[set].Select((definition, position) => new LookupStream1Definition(Address:0x920000 | (pointer + position * 7), Definition:definition)))
+                .Concat(lower.SelectMany((pointer, set) => lowerGroups[set].Select((definition, position) => new LookupStream1Definition(Address:0x920000 | (pointer + position * 7), Definition:definition))));
             foreach (var item in definitions.OrderBy(item => item.Address))
             {
                 content.Append("definition address", item.Address); content.Append("source address", item.Definition.SourceAddress);
@@ -954,8 +954,8 @@ internal static class LookupStream1Verification
         ushort Word(int address) => SnesLittleEndian.Word(LookupStream1BodySetPointersRomByte(rom, address), LookupStream1BodySetPointersRomByte(rom, address + 1));
         ushort[] top = Enumerable.Range(0, 13).Select(set => Word(0x92d91e + set * 2)).ToArray();
         ushort[] bottom = Enumerable.Range(0, 11).Select(set => Word(0x92d938 + set * 2)).ToArray();
-        var physical = top.Select((pointer, set) => (Upper: true, Set: set, Pointer: pointer))
-            .Concat(bottom.Select((pointer, set) => (Upper: false, Set: set, Pointer: pointer))).OrderBy(value => value.Pointer).ToArray();
+        var physical = top.Select((pointer, set) => new Physical(Upper:true, Set:set, Pointer:pointer))
+            .Concat(bottom.Select((pointer, set) => new Physical(Upper:false, Set:set, Pointer:pointer))).OrderBy(value => value.Pointer).ToArray();
         SamusBodyArtworkCatalog template = CreateSamusIdentityFixture();
         SamusBodyTileDefinition sample = template.TopSet(0)[0];
         var topGroups = new SamusBodyTileDefinition[13][]; var bottomGroups = new SamusBodyTileDefinition[11][];
@@ -2132,7 +2132,7 @@ internal static class LookupStream1Verification
             AssertThrows<InvalidDataException>(() => SamusAtmosphericEffectDefinitions.IsRunningFootContact(invalid), "foot-contact exact frame domain");
         foreach (byte invalid in new byte[] { 16, byte.MaxValue })
             AssertThrows<InvalidDataException>(() => SamusAtmosphericEffectDefinitions.ForCrateriaRoom(invalid), "atmospheric room exact domain");
-        foreach (var (header, room) in new[] { (0x91f8, 0), (0x93fe, 5), (0x948c, 7), (0x94fd, 9), (0x9552, 10), (0x957d, 11), (0x95a8, 12), (0x95ff, 14) })
+        foreach (var (header, room) in new[] { new VerifyLookupStream1SamusPolicyDomainsCase(0x91f8, 0), new VerifyLookupStream1SamusPolicyDomainsCase(0x93fe, 5), new VerifyLookupStream1SamusPolicyDomainsCase(0x948c, 7), new VerifyLookupStream1SamusPolicyDomainsCase(0x94fd, 9), new VerifyLookupStream1SamusPolicyDomainsCase(0x9552, 10), new VerifyLookupStream1SamusPolicyDomainsCase(0x957d, 11), new VerifyLookupStream1SamusPolicyDomainsCase(0x95a8, 12), new VerifyLookupStream1SamusPolicyDomainsCase(0x95ff, 14) })
             AssertEqual((byte)room, LookupStream1SamusPolicyDomainsRomByte(rom, 0x8f0000 | header), "native atmospheric room header identity");
     }
 
@@ -2324,13 +2324,13 @@ internal static class LookupStream1Verification
                 }
             }
         }
-        foreach ((int earlierPose, int laterPose) in new (int, int)[]
+        foreach ((int earlierPose, int laterPose) in new VerifyLookupStream1SamusPolicyDomainsCase[]
         {
-            (0x01,0x02), (0x07,0x08), (0x0F,0x10), (0x11,0x12),
-            (0x13,0x14), (0x17,0x18), (0x51,0x52), (0x69,0x6A),
-            (0x6B,0x6C), (0x67,0x68), (0x2D,0x2E), (0x6D,0x6E),
-            (0x6F,0x70), (0x27,0x28), (0x73,0x74), (0x49,0x4A),
-            (0x75,0x76), (0x77,0x78), (0x55,0x56),
+            new VerifyLookupStream1SamusPolicyDomainsCase(0x01,0x02), new VerifyLookupStream1SamusPolicyDomainsCase(0x07,0x08), new VerifyLookupStream1SamusPolicyDomainsCase(0x0F,0x10), new VerifyLookupStream1SamusPolicyDomainsCase(0x11,0x12),
+            new VerifyLookupStream1SamusPolicyDomainsCase(0x13,0x14), new VerifyLookupStream1SamusPolicyDomainsCase(0x17,0x18), new VerifyLookupStream1SamusPolicyDomainsCase(0x51,0x52), new VerifyLookupStream1SamusPolicyDomainsCase(0x69,0x6A),
+            new VerifyLookupStream1SamusPolicyDomainsCase(0x6B,0x6C), new VerifyLookupStream1SamusPolicyDomainsCase(0x67,0x68), new VerifyLookupStream1SamusPolicyDomainsCase(0x2D,0x2E), new VerifyLookupStream1SamusPolicyDomainsCase(0x6D,0x6E),
+            new VerifyLookupStream1SamusPolicyDomainsCase(0x6F,0x70), new VerifyLookupStream1SamusPolicyDomainsCase(0x27,0x28), new VerifyLookupStream1SamusPolicyDomainsCase(0x73,0x74), new VerifyLookupStream1SamusPolicyDomainsCase(0x49,0x4A),
+            new VerifyLookupStream1SamusPolicyDomainsCase(0x75,0x76), new VerifyLookupStream1SamusPolicyDomainsCase(0x77,0x78), new VerifyLookupStream1SamusPolicyDomainsCase(0x55,0x56),
         })
         {
             int earlier = Word(0x90C7DF + earlierPose * 2), later = Word(0x90C7DF + laterPose * 2);
@@ -2342,7 +2342,7 @@ internal static class LookupStream1Verification
                 if (!aliases.ContainsKey(later + offset)) aliases.Add(later + offset, earlier + offset);
             }
         }
-        foreach ((int earlierPose, int laterPose) in new (int, int)[] { (0x03,0x04), (0x15,0x16), (0x85,0x86) })
+        foreach ((int earlierPose, int laterPose) in new VerifyLookupStream1SamusPolicyDomainsCase[] { new VerifyLookupStream1SamusPolicyDomainsCase(0x03,0x04), new VerifyLookupStream1SamusPolicyDomainsCase(0x15,0x16), new VerifyLookupStream1SamusPolicyDomainsCase(0x85,0x86) })
         {
             int earlierY = Word(0x90C7DF + earlierPose * 2) + 7, laterY = Word(0x90C7DF + laterPose * 2) + 7;
             AssertEqual(LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | earlierY), LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | laterY), "native fully upward secondary pose shares Y");
@@ -2351,14 +2351,14 @@ internal static class LookupStream1Verification
         var reflections = new Dictionary<int, int>();
         // Native pose identities independently select the paired descriptors; no
         // production reflection selector participates in this expected mapping.
-        foreach ((int earlierPose, int laterPose) in new (int, int)[]
+        foreach ((int earlierPose, int laterPose) in new VerifyLookupStream1SamusPolicyDomainsCase[]
         {
-            (0x01,0x02), (0x03,0x04), (0x05,0x06), (0x07,0x08),
-            (0x0B,0x0C), (0x0F,0x10), (0x11,0x12), (0x13,0x14),
-            (0x15,0x16), (0x51,0x52), (0x69,0x6A), (0x6B,0x6C),
-            (0x67,0x68), (0x2B,0x2C), (0x6D,0x6E), (0x6F,0x70),
-            (0x27,0x28), (0x71,0x72), (0x73,0x74), (0x85,0x86),
-            (0x49,0x4A), (0x75,0x76), (0x77,0x78), (0x55,0x56),
+            new VerifyLookupStream1SamusPolicyDomainsCase(0x01,0x02), new VerifyLookupStream1SamusPolicyDomainsCase(0x03,0x04), new VerifyLookupStream1SamusPolicyDomainsCase(0x05,0x06), new VerifyLookupStream1SamusPolicyDomainsCase(0x07,0x08),
+            new VerifyLookupStream1SamusPolicyDomainsCase(0x0B,0x0C), new VerifyLookupStream1SamusPolicyDomainsCase(0x0F,0x10), new VerifyLookupStream1SamusPolicyDomainsCase(0x11,0x12), new VerifyLookupStream1SamusPolicyDomainsCase(0x13,0x14),
+            new VerifyLookupStream1SamusPolicyDomainsCase(0x15,0x16), new VerifyLookupStream1SamusPolicyDomainsCase(0x51,0x52), new VerifyLookupStream1SamusPolicyDomainsCase(0x69,0x6A), new VerifyLookupStream1SamusPolicyDomainsCase(0x6B,0x6C),
+            new VerifyLookupStream1SamusPolicyDomainsCase(0x67,0x68), new VerifyLookupStream1SamusPolicyDomainsCase(0x2B,0x2C), new VerifyLookupStream1SamusPolicyDomainsCase(0x6D,0x6E), new VerifyLookupStream1SamusPolicyDomainsCase(0x6F,0x70),
+            new VerifyLookupStream1SamusPolicyDomainsCase(0x27,0x28), new VerifyLookupStream1SamusPolicyDomainsCase(0x71,0x72), new VerifyLookupStream1SamusPolicyDomainsCase(0x73,0x74), new VerifyLookupStream1SamusPolicyDomainsCase(0x85,0x86),
+            new VerifyLookupStream1SamusPolicyDomainsCase(0x49,0x4A), new VerifyLookupStream1SamusPolicyDomainsCase(0x75,0x76), new VerifyLookupStream1SamusPolicyDomainsCase(0x77,0x78), new VerifyLookupStream1SamusPolicyDomainsCase(0x55,0x56),
         })
         {
             int earlier = Word(0x90C7DF + earlierPose * 2), later = Word(0x90C7DF + laterPose * 2);
@@ -2786,7 +2786,7 @@ internal static class LookupStream1Verification
     internal static void VerifyLookupStream1ProjectilePrograms(ISnesAddressSpace rom)
     {
         ushort Word(int address) => SnesLittleEndian.Word(LookupStream1ProjectileProgramsRomByte(rom, address), LookupStream1ProjectileProgramsRomByte(rom, address + 1));
-        var programs = new List<(ushort Start, int Ticks)>();
+        var programs = new List<LookupStream1Program>();
         var records = new List<ushort>();
         var mechanics = new HashSet<int>();
         int programStart = 0x9386db, ticks = 1;
@@ -2807,7 +2807,7 @@ internal static class LookupStream1Verification
             {
                 if (word == 0x8239) { mechanics.Add(address + 2); address += 4; }
                 else { AssertEqual((ushort)0x822f, word, "Native terminal deletion opcode"); address += 2; }
-                programs.Add((unchecked((ushort)programStart), ticks));
+                programs.Add(new LookupStream1Program(unchecked((ushort)programStart), ticks));
                 programStart = address; ticks = 1;
             }
         }
@@ -2863,11 +2863,11 @@ internal static class LookupStream1Verification
                     AssertEqual(0, bomb.Type, "Bomb deletion clears occupancy");
                     deletions++; finished = true; break;
                 }
-                AssertEqual((timer, pointer, sprite, x, y, trail),
-                    (slot.InstructionTimer.RawValue, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y, slot.AnimationFrame),
+                AssertEqual(new VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y, trail),
+                    new VerifyLookupStream1ProjectileProgramsCase(slot.InstructionTimer.RawValue, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y, slot.AnimationFrame),
                     "Every scheduled projectile exposure/physical envelope/trail phase matches native");
-                AssertEqual((timer, pointer, sprite, x, y),
-                    (bomb.InstructionTimer.RawValue, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.Radius.X, bomb.Radius.Y),
+                AssertEqual(new LookupStream1VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y),
+                    new LookupStream1VerifyLookupStream1ProjectileProgramsCase(bomb.InstructionTimer.RawValue, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.Radius.X, bomb.Radius.Y),
                     "Every scheduled bomb exposure/physical envelope matches native");
                 slot.AnimationFrame = 0xbeef;
                 AssertEqual(trail, ProjectileTrails.GetTrailAnimationFrame(slot), "Actual trail consumer reads prior record, not next phase or cached frame");
@@ -3122,7 +3122,7 @@ internal static class LookupStream1Verification
         File.WriteAllLines("csharp/test-temp/samus-body-pixel-basis.csv", basisRows);
         SamusBodyArtworkCatalog Create(SamusBodyTileDefinition[][] upper, SamusBodyTileDefinition[][]? lower = null) => new(new SamusBodyArtworkParts { TopPointers = body.TopSetPointers.ToArray(), BottomPointers = body.BottomSetPointers.ToArray(), PosePointers = body.PosePointers.ToArray(), GraphicsYOffsets = body.GraphicsYOffsets.ToArray(), Frames = body.Frames.ToArray(), Top = upper, Bottom = lower ?? bottom, Spritemaps = body.Spritemaps, Atmosphere = body.Atmosphere, DeathPalettes = body.DeathPalettes, DeathTiles = body.DeathTiles, ArmCannon = body.ArmCannon, LandingYOffsets = body.LandingYOffsets.ToArray(), PostureYOffsets = body.PostureYOffsets.ToArray(), DrainedYOffsets = body.DrainedYOffsets.ToArray() });
         AssertEqual(CanonicalBodyHash(body, body.TopSetPointers.ToArray(), body.BottomSetPointers.ToArray(), body.PosePointers.ToArray(), body.Frames.ToArray(), top, bottom), body.ContentIdentity, "Original native body hash");
-        foreach (var change in new (int Set, int Position, int Byte)[] { (0, 2, 128), (4, 2, 0), (4, 3, 0), (6, 13, 32), (6, 14, 32), (3, 4, 64), (10, 0, 0), (10, 4, 128), (1, 4, 0) })
+        foreach (var change in new VerifyLookupStream1BodyPixelsCase[] { new VerifyLookupStream1BodyPixelsCase(0, 2, 128), new VerifyLookupStream1BodyPixelsCase(4, 2, 0), new VerifyLookupStream1BodyPixelsCase(4, 3, 0), new VerifyLookupStream1BodyPixelsCase(6, 13, 32), new VerifyLookupStream1BodyPixelsCase(6, 14, 32), new VerifyLookupStream1BodyPixelsCase(3, 4, 64), new VerifyLookupStream1BodyPixelsCase(10, 0, 0), new VerifyLookupStream1BodyPixelsCase(10, 4, 128), new VerifyLookupStream1BodyPixelsCase(1, 4, 0) })
         {
             var supplied = top.Select(group => group.ToArray()).ToArray();
             var original = supplied[change.Set][change.Position];
@@ -3234,7 +3234,7 @@ internal static class LookupStream1Verification
         // These exact native selectors include the known physical cross-group windows.
         var guard = NewFrontendCartridgeReadGuard(rom);
         int transfers = 0;
-        foreach (var selected in new (SamusPoseId Pose, ushort Phase)[] { (SamusPoseId.FacingRightNormalPose, 0), (SamusPoseId.UnusedPose65, 6), (SamusPoseId.UnusedPose65, 7), (SamusPoseId.UnusedPose66, 8), (SamusPoseId.DeathSequenceLeftPose, 0) })
+        foreach (var selected in new VerifyLookupStream1BodyTransfersCase[] { new VerifyLookupStream1BodyTransfersCase(SamusPoseId.FacingRightNormalPose, 0), new VerifyLookupStream1BodyTransfersCase(SamusPoseId.UnusedPose65, 6), new VerifyLookupStream1BodyTransfersCase(SamusPoseId.UnusedPose65, 7), new VerifyLookupStream1BodyTransfersCase(SamusPoseId.UnusedPose66, 8), new VerifyLookupStream1BodyTransfersCase(SamusPoseId.DeathSequenceLeftPose, 0) })
         {
             var state = new SamusTileTransferState(); state.BindArtwork(body);
             state.SelectForPoseFrame(selected.Pose, selected.Phase);

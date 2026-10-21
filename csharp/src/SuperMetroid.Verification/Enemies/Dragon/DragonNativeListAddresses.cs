@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Dragon;
 
 namespace SuperMetroid.Verification.Enemies.Dragon;
@@ -13,19 +14,19 @@ internal static class DragonNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (DragonProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<DragonProgram>[] Entries =
     [
-        (DragonProgram.IdleFacingLeft, 0xe59b),
-        (DragonProgram.WingsFacingLeft, 0xe5a1),
-        (DragonProgram.IdleFacingRight, 0xe5ad),
-        (DragonProgram.WingsFacingRight, 0xe5b3),
-        (DragonProgram.AttackingFacingLeft, 0xe5bf),
-        (DragonProgram.AttackingFacingRight, 0xe5d7),
+        new NativeProgramEntry<DragonProgram>(DragonProgram.IdleFacingLeft, 0xe59b),
+        new NativeProgramEntry<DragonProgram>(DragonProgram.WingsFacingLeft, 0xe5a1),
+        new NativeProgramEntry<DragonProgram>(DragonProgram.IdleFacingRight, 0xe5ad),
+        new NativeProgramEntry<DragonProgram>(DragonProgram.WingsFacingRight, 0xe5b3),
+        new NativeProgramEntry<DragonProgram>(DragonProgram.AttackingFacingLeft, 0xe5bf),
+        new NativeProgramEntry<DragonProgram>(DragonProgram.AttackingFacingRight, 0xe5d7),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (DragonCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, DragonNativeListAddressesInstruction> Instructions = new()
     {
-        [0xe5fb] = (DragonCueKind.FinishAttack, ""),
+        [0xe5fb] = new DragonNativeListAddressesInstruction(DragonCueKind.FinishAttack, ""),
     };
 }

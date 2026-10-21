@@ -133,11 +133,11 @@ internal static class PaletteFxInstructionCodesVerification
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
 
-        (string Owner, ushort DefinitionPointer)[] nintendoLogoEntries =
+        NintendoLogoEntry[] nintendoLogoEntries =
         [
-            ("BootLogo",
+            new NintendoLogoEntry("BootLogo",
                 NintendoLogoFadePaletteFxColorDefinitions.BootLogoDefinitionPointer),
-            ("Copyright",
+            new NintendoLogoEntry("Copyright",
                 NintendoLogoFadePaletteFxColorDefinitions.CopyrightDefinitionPointer),
         ];
         AssertEqual(nintendoLogoEntries.Length, NintendoLogoFadePaletteFxColorDefinitionsTooling.All.Count,
@@ -353,11 +353,11 @@ internal static class PaletteFxInstructionCodesVerification
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
 
-        (string Owner, ushort DefinitionPointer)[] whiteoutEntries =
+        NintendoLogoEntry[] whiteoutEntries =
         [
-            ("WideExplosionBackground",
+            new NintendoLogoEntry("WideExplosionBackground",
                 ZebesExplosionWhiteoutPaletteFxColorDefinitions.WideExplosionBackgroundDefinitionPointer),
-            ("SpaceWhiteout",
+            new NintendoLogoEntry("SpaceWhiteout",
                 ZebesExplosionWhiteoutPaletteFxColorDefinitions.SpaceWhiteoutDefinitionPointer),
         ];
         AssertEqual(whiteoutEntries.Length, ZebesExplosionWhiteoutPaletteFxColorDefinitionsTooling.All.Count,
@@ -488,13 +488,13 @@ internal static class PaletteFxInstructionCodesVerification
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
 
-        (CeresCinematicLightPaletteFxProgramOwner Owner, ushort DefinitionPointer)[] ceresLightEntries =
+        CeresLightEntry[] ceresLightEntries =
         [
-            (CeresCinematicLightPaletteFxProgramOwner.GunshipEngine,
+            new CeresLightEntry(CeresCinematicLightPaletteFxProgramOwner.GunshipEngine,
                 CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineDefinitionPointer),
-            (CeresCinematicLightPaletteFxProgramOwner.SpriteNavigationLights,
+            new CeresLightEntry(CeresCinematicLightPaletteFxProgramOwner.SpriteNavigationLights,
                 CeresCinematicLightPaletteFxColorDefinitions.SpriteNavigationLightsDefinitionPointer),
-            (CeresCinematicLightPaletteFxProgramOwner.BackgroundNavigationLights,
+            new CeresLightEntry(CeresCinematicLightPaletteFxProgramOwner.BackgroundNavigationLights,
                 CeresCinematicLightPaletteFxColorDefinitions.BackgroundNavigationLightsDefinitionPointer),
         ];
         AssertEqual(ceresLightEntries.Length, CeresCinematicLightPaletteFxColorDefinitionsTooling.All.Count,
@@ -843,11 +843,11 @@ internal static class PaletteFxInstructionCodesVerification
     {
         // Native LDA operands select each original table, independently of production
         // source-address helpers and the replacement program-stride calculation.
-        var sources = new (PaletteFxHeatSuit Suit, int Operand)[]
+        var sources = new PaletteFxInstructionCodesSource[]
         {
-            (PaletteFxHeatSuit.Power, 0x8de3d6),
-            (PaletteFxHeatSuit.Varia, 0x8de3d1),
-            (PaletteFxHeatSuit.Gravity, 0x8de3c7),
+            new PaletteFxInstructionCodesSource(PaletteFxHeatSuit.Power, 0x8de3d6),
+            new PaletteFxInstructionCodesSource(PaletteFxHeatSuit.Varia, 0x8de3d1),
+            new PaletteFxInstructionCodesSource(PaletteFxHeatSuit.Gravity, 0x8de3c7),
         };
         foreach (var (suit, operand) in sources)
         {
@@ -948,7 +948,7 @@ internal static class PaletteFxInstructionCodesVerification
     /// Classifies one palette-FX bus read: the failure message for a compiled mechanic or an
     /// unclassified bank-$8D byte, and how many live presentation color tables the byte belongs to.
     /// </summary>
-    private static (string? Forbidden, int PresentationReads) ClassifyPaletteFxRead(int address)
+    private static ClassifyPaletteFxReadResult ClassifyPaletteFxRead(int address)
     {
         int presentationReads = 0;
         int presentationReadsBefore = presentationReads;
@@ -1551,11 +1551,11 @@ internal static class PaletteFxInstructionCodesVerification
             bool livePayloadRead = presentationReads != presentationReadsBefore;
             if (!livePayloadRead)
             {
-                return ($"Production read unclassified palette-FX byte ${address:X6}.", presentationReads);
+                return new ClassifyPaletteFxReadResult($"Production read unclassified palette-FX byte ${address:X6}.", presentationReads);
             }
         }
 
-        return (null, presentationReads);
+        return new ClassifyPaletteFxReadResult(null, presentationReads);
     }
 
     /// <summary>

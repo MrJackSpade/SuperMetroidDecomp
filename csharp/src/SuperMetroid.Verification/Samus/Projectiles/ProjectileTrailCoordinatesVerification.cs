@@ -68,7 +68,7 @@ internal static class ProjectileTrailCoordinatesVerification
             ushort y = unchecked((ushort)(offsets + frame * 4));
             byte Read(ushort operand, ushort index) => SnesLittleEndian.HighByte(ReadNativeTrailOperandWord(bus, operand, index));
             ushort Position(byte offset) => unchecked((ushort)(origin + (sbyte)offset - 4));
-            var expected = (Position(Read(0, unchecked((ushort)(y - 1)))), Position(Read(0, y)), Position(Read(1, y)), Position(Read(2, y)));
+            var expected = new ProjectileTrailCoordinatesExpected(Position(Read(0, unchecked((ushort)(y - 1)))), Position(Read(0, y)), Position(Read(1, y)), Position(Read(2, y)));
             system.Reset();
             var shot = new SamusProjectileSlot(0)
             {
@@ -85,7 +85,7 @@ internal static class ProjectileTrailCoordinatesVerification
                 cases++;
                 continue;
             }
-            AssertEqual(expected, (actual.Left.Position.X, actual.Left.Position.Y, actual.Right.Position.X, actual.Right.Position.Y), "Real trail spawn matches four native signed positions at coordinate wrap boundaries");
+            AssertEqual(expected, new ProjectileTrailCoordinatesExpected(actual.Left.Position.X, actual.Left.Position.Y, actual.Right.Position.X, actual.Right.Position.Y), "Real trail spawn matches four native signed positions at coordinate wrap boundaries");
             AssertEqual(1, actual.Left.InstructionTimer.RawValue, "Compiled coordinates retain spawn timing");
             cases++;
         }
@@ -111,8 +111,8 @@ internal static class ProjectileTrailCoordinatesVerification
             {
                 Type = type, Direction = direction, Cursor = SamusProjectileProgramAddresses.CursorAt(listStart), Position = new(new(0x0100, 0), new(0x0100, 0)),
             };
-            (ushort, ushort, ushort, ushort) expected;
-            try { expected = (Position(Read(0, unchecked((ushort)(y - 1)))), Position(Read(0, y)), Position(Read(1, y)), Position(Read(2, y))); }
+            ProjectileTrailCoordinatesExpected expected;
+            try { expected = new ProjectileTrailCoordinatesExpected(Position(Read(0, unchecked((ushort)(y - 1)))), Position(Read(0, y)), Position(Read(1, y)), Position(Read(2, y))); }
             catch (InvalidOperationException)
             {
                 // Hardware the native reference does not model must fail in production too.
@@ -130,7 +130,7 @@ internal static class ProjectileTrailCoordinatesVerification
                 cases++;
                 continue;
             }
-            AssertEqual(expected, (actual.Left.Position.X, actual.Left.Position.Y, actual.Right.Position.X, actual.Right.Position.Y),
+            AssertEqual(expected, new ProjectileTrailCoordinatesExpected(actual.Left.Position.X, actual.Left.Position.Y, actual.Right.Position.X, actual.Right.Position.Y),
                 $"reflected type ${type:X4} direction {direction} trail reads the word before its list start");
             cases++;
         }
@@ -160,16 +160,16 @@ internal static class ProjectileTrailCoordinatesVerification
     }
 
     /// <summary>Every projectile type $90:BE17 can reflect, with its bank-$93 data table and index.</summary>
-    private static IEnumerable<(ushort Type, int DataTable, int Index)> ReflectableTrailTypes()
+    private static IEnumerable<ReflectableTrailTypesResult> ReflectableTrailTypes()
     {
         for (ushort combination = 0; combination < 12; combination++)
         {
-            yield return (combination, 0x9383c1, combination);
-            yield return ((ushort)(combination | 0x10), 0x9383d9, combination);
-            yield return ((ushort)(combination | 0x30), 0x9383d9, combination);
+            yield return new ReflectableTrailTypesResult(combination, 0x9383c1, combination);
+            yield return new ReflectableTrailTypesResult((ushort)(combination | 0x10), 0x9383d9, combination);
+            yield return new ReflectableTrailTypesResult((ushort)(combination | 0x30), 0x9383d9, combination);
         }
-        yield return (0x0100, 0x9383f1, 1);
-        yield return (0x0200, 0x9383f1, 2);
+        yield return new ReflectableTrailTypesResult(0x0100, 0x9383f1, 1);
+        yield return new ReflectableTrailTypesResult(0x0200, 0x9383f1, 2);
     }
 
     /// <summary>Reads a native trail pointer or coordinate word for the cartridge-side oracle.</summary>

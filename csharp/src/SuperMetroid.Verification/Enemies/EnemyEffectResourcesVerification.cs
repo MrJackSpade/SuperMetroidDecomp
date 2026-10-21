@@ -47,8 +47,8 @@ internal static class EnemyEffectResourcesVerification
     /// <summary>Checks every dead Tourian corpse variant with absent artwork and unchanged enemy state.</summary>
     private static void VerifyDeadTourianMissingArtwork()
     {
-        foreach ((EnemyDefinitionId definition, int variants) in new[] { (EnemyDefinitionId.CorpseZoomer, 3),
-            (EnemyDefinitionId.CorpseRipper, 2), (EnemyDefinitionId.CorpseSkree, 3) })
+        foreach ((EnemyDefinitionId definition, int variants) in new[] { new VerifyDeadTourianMissingArtworkCase(EnemyDefinitionId.CorpseZoomer, 3),
+            new VerifyDeadTourianMissingArtworkCase(EnemyDefinitionId.CorpseRipper, 2), new VerifyDeadTourianMissingArtworkCase(EnemyDefinitionId.CorpseSkree, 3) })
         for (int variant = 0; variant < variants; variant++)
         foreach (bool emptyCatalog in new[] { false, true })
         {
@@ -94,12 +94,12 @@ internal static class EnemyEffectResourcesVerification
         _ = MeltEffectArtwork(firstJson: valid.Replace("\"version\"", "\"Version\"", StringComparison.Ordinal));
         foreach ((string name, string malformed) in new[]
         {
-            ("unknown root field", valid.Replace("\"version\":1", "\"version\":1,\"unknown\":0", StringComparison.Ordinal)),
-            ("duplicate root field", valid.Replace("\"version\":1", "\"version\":1,\"version\":1", StringComparison.Ordinal)),
-            ("case-aliased root field", valid.Replace("\"version\":1", "\"version\":1,\"VERSION\":1", StringComparison.Ordinal)),
-            ("unknown cell field", valid.Replace("\"tileIndex\":0", "\"tileIndex\":0,\"unknown\":0", StringComparison.Ordinal)),
-            ("duplicate cell field", valid.Replace("\"tileIndex\":0", "\"tileIndex\":0,\"tileIndex\":0", StringComparison.Ordinal)),
-            ("case-aliased cell field", valid.Replace("\"tileIndex\":0", "\"tileIndex\":0,\"TILEINDEX\":0", StringComparison.Ordinal)),
+            new VerifyCrocomireMeltJsonCase("unknown root field", valid.Replace("\"version\":1", "\"version\":1,\"unknown\":0", StringComparison.Ordinal)),
+            new VerifyCrocomireMeltJsonCase("duplicate root field", valid.Replace("\"version\":1", "\"version\":1,\"version\":1", StringComparison.Ordinal)),
+            new VerifyCrocomireMeltJsonCase("case-aliased root field", valid.Replace("\"version\":1", "\"version\":1,\"VERSION\":1", StringComparison.Ordinal)),
+            new VerifyCrocomireMeltJsonCase("unknown cell field", valid.Replace("\"tileIndex\":0", "\"tileIndex\":0,\"unknown\":0", StringComparison.Ordinal)),
+            new VerifyCrocomireMeltJsonCase("duplicate cell field", valid.Replace("\"tileIndex\":0", "\"tileIndex\":0,\"tileIndex\":0", StringComparison.Ordinal)),
+            new VerifyCrocomireMeltJsonCase("case-aliased cell field", valid.Replace("\"tileIndex\":0", "\"tileIndex\":0,\"TILEINDEX\":0", StringComparison.Ordinal)),
         })
             AssertThrows<InvalidDataException>(() => MeltEffectArtwork(firstJson: malformed), name + " cannot be silently discarded");
         Console.WriteLine("  Crocomire melt JSON: valid schema/casing preserved; unknown, duplicate and case-aliased root/cell fields rejected.");

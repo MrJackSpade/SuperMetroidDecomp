@@ -43,7 +43,7 @@ internal static class ElevatorPlatformVisualsVerification
         AssertEqual((ushort)0x0053,
             edited.GetWord((ushort)ElevatorPlatformDraw.First, 0, 0),
             "elevator visual catalog copies author data");
-        (ushort physical, ushort rendered) Render(RoomPlmElevatorPlatformVisualCatalog visuals)
+        RenderResult Render(RoomPlmElevatorPlatformVisualCatalog visuals)
         {
             const ushort population = 0x9400;
             var bus = new TestAddressSpace();
@@ -62,19 +62,19 @@ internal static class ElevatorPlatformVisualsVerification
             plms.Step(level);
             int index = Enumerable.Range(0, 32 * 16).Single(block =>
                 level.GetCollisionBlockByIndex(block).PackedWord.Raw == 0x8085);
-            return (level.GetCollisionBlockByIndex(index).PackedWord.Raw,
+            return new RenderResult(level.GetCollisionBlockByIndex(index).PackedWord.Raw,
                 level.DisplayedBlockTiles(index).TopLeft.Raw);
         }
 
         var native = Render(stock);
         var changed = Render(edited);
-        AssertEqual((ushort)0x8085, native.physical,
+        AssertEqual((ushort)0x8085, native.Physical,
             "stock elevator keeps cartridge physical block");
-        AssertEqual(native.physical, changed.physical,
+        AssertEqual(native.Physical, changed.Physical,
             "edited elevator art cannot change platform collision");
-        AssertEqual((ushort)0x0015, native.rendered,
+        AssertEqual((ushort)0x0015, native.Rendered,
             "stock elevator streams its native tile");
-        AssertEqual((ushort)0x0053, changed.rendered,
+        AssertEqual((ushort)0x0053, changed.Rendered,
             "edited elevator art survives camera streaming");
 
         Suite(nameof(VerifyElevatorPlatformVisualInstallation), () => VerifyElevatorPlatformVisualInstallation());

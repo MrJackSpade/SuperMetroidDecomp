@@ -26,7 +26,7 @@ internal sealed record MusicTrackAnalysis(
     long? EndSample,
     IReadOnlyList<long> Arrivals,
     long StartSample,
-    IReadOnlyList<(long Sample, byte Tempo)> TempoChanges)
+    IReadOnlyList<TempoChange> TempoChanges)
 {
     /// <summary>
     /// Passes over one top-level record without any repeated phrase state after which a track is
@@ -107,7 +107,7 @@ internal sealed record MusicTrackAnalysis(
         /// <summary>The tick that started the track, once it has.</summary>
         internal long? StartSample { get; private set; }
         /// <summary>The tempo after the start tick and after each tick that changed it.</summary>
-        internal List<(long Sample, byte Tempo)> TempoChanges { get; } = [];
+        internal List<TempoChange> TempoChanges { get; } = [];
 
         /// <summary>Binds the renderer once it exists.</summary>
         internal void Attach(SpcAudioClipRenderer value) => renderer = value;
@@ -148,7 +148,7 @@ internal sealed record MusicTrackAnalysis(
                 byte tempo = player.ReadTempo();
                 StartSample ??= tickSample;
                 if (TempoChanges.Count == 0 || TempoChanges[^1].Tempo != tempo)
-                    TempoChanges.Add((tickSample, tempo));
+                    TempoChanges.Add(new TempoChange(tickSample, tempo));
             }
             else if (StartSample is not null && Outcome is null)
             {

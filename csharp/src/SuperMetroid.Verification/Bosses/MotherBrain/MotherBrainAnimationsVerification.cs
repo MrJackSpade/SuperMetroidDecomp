@@ -58,7 +58,7 @@ internal static class MotherBrainAnimationsVerification
     }
 
     /// <summary>Creates Mother Brain's body and head in a fresh enemy system.</summary>
-    private static (RoomEnemySystem Enemies, MotherBrainEnemyState State) NewMotherBrain()
+    private static NewMotherBrainResult NewMotherBrain()
     {
         var enemies = new RoomEnemySystem(new EnemySession(), services: new VerificationRoomEnemyServices(null));
         RoomEnemySlot bodySlot = enemies.SlotTable.Slots[0];
@@ -67,7 +67,7 @@ internal static class MotherBrainAnimationsVerification
         headSlot.Bind(EnemyDefinitionId.MotherBrainHead, headSlot.Definition);
         var state = new MotherBrainEnemyState(bodySlot) { Head = headSlot };
         enemies.MotherBrainEncounter.MotherBrain = state;
-        return (enemies, state);
+        return new NewMotherBrainResult(enemies, state);
     }
 
     /// <summary>
@@ -99,7 +99,7 @@ internal static class MotherBrainAnimationsVerification
     /// </summary>
     private static void VerifyBrainRandomHolds()
     {
-        foreach ((ushort random, bool holds) in new[] { ((ushort)61439, true), ((ushort)61440, false) })
+        foreach ((ushort random, bool holds) in new[] { new VerifyBrainRandomHoldsCase(61439, true), new VerifyBrainRandomHoldsCase(61440, false) })
         {
             (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
             enemies.VerificationServices().ReadRandom = () => random;
@@ -110,7 +110,7 @@ internal static class MotherBrainAnimationsVerification
                     : new AnimationProgramCursor<MotherBrainHeadProgram>(MotherBrainHeadProgram.NeutralPhase2Hold, 2),
                 state.BrainCursor, $"random {random} {(holds ? "holds" : "leaves")} the phase-two neutral pose");
         }
-        foreach ((ushort random, bool bursts) in new[] { ((ushort)4063, false), ((ushort)4064, true) })
+        foreach ((ushort random, bool bursts) in new[] { new VerifyBrainRandomHoldsCase(4063, false), new VerifyBrainRandomHoldsCase(4064, true) })
         {
             (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
             enemies.VerificationServices().ReadRandom = () => random;

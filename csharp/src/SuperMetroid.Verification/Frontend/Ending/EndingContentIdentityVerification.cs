@@ -34,16 +34,16 @@ internal static class EndingContentIdentityVerification
         }
         foreach (var native in new[]
         {
-            (EndingMode7SceneId.EscapeA, 0x8bd4b4, 0x8bd4d6, "escape-a"),
-            (EndingMode7SceneId.EscapeB, 0x8bd775, 0x8bd604, "escape-b"),
-            (EndingMode7SceneId.PlanetExplosion, 0x8bd87b, 0x8bd615, "planet-explosion"),
+            new VerifyEndingMode7RoleSelectionCase(EndingMode7SceneId.EscapeA, 0x8bd4b4, 0x8bd4d6, "escape-a"),
+            new VerifyEndingMode7RoleSelectionCase(EndingMode7SceneId.EscapeB, 0x8bd775, 0x8bd604, "escape-b"),
+            new VerifyEndingMode7RoleSelectionCase(EndingMode7SceneId.PlanetExplosion, 0x8bd87b, 0x8bd615, "planet-explosion"),
         })
         {
-            var sources = SuperMetroid.Core.Frontend.Ending.EndingCreditsRomData.Assets.Mode7Sources(native.Item1);
-            AssertEqual(Source(native.Item2), sources.Characters, "original high-lane character source");
-            AssertEqual(Source(native.Item3), sources.PackedMap, "original packed-map source");
-            AssertEqual($"ending-{native.Item4}-mode7-characters.png", EndingMode7ArtworkFormat.CharacterFileName(native.Item1), "published character filename");
-            AssertEqual($"ending-{native.Item4}-mode7-map.json", EndingMode7ArtworkFormat.MapFileName(native.Item1), "published map filename");
+            var sources = SuperMetroid.Core.Frontend.Ending.EndingCreditsRomData.Assets.Mode7Sources(native.First);
+            AssertEqual(Source(native.Second), sources.Characters, "original high-lane character source");
+            AssertEqual(Source(native.Third), sources.PackedMap, "original packed-map source");
+            AssertEqual($"ending-{native.Fourth}-mode7-characters.png", EndingMode7ArtworkFormat.CharacterFileName(native.First), "published character filename");
+            AssertEqual($"ending-{native.Fourth}-mode7-map.json", EndingMode7ArtworkFormat.MapFileName(native.First), "published map filename");
         }
         static MemoryStream Map(int height, int seed) => new(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
             new EndingMode7MapDocument { Version = 1, Width = 128, Height = height,
@@ -99,7 +99,7 @@ internal static class EndingContentIdentityVerification
         foreach ((string component, string digest) in baseline)
             AssertEqual(digest, reordered[component], component + " canonical frame lookup order");
 
-        var edits = new List<(string Edit, string Component)>();
+        var edits = new List<EndingContentIdentityEdit>();
         foreach (string edit in new[]
         {
             "clouds", "explosion", "waiting", "shooting", "suitless", "fragment-0", "fragment-1",
@@ -109,15 +109,15 @@ internal static class EndingContentIdentityVerification
             "part-size", "part-priority", "part-palette", "part-flip-x", "part-flip-y",
             "part-order", "part-count", "map-column", "map-row", "map-palette", "map-priority",
             "map-flip-x", "map-flip-y",
-        }) edits.Add((edit, GameInstallationLayout.EndingObjectDirectoryName));
+        }) edits.Add(new EndingContentIdentityEdit(edit, GameInstallationLayout.EndingObjectDirectoryName));
         foreach (string edit in new[]
         {
             "EscapeA-map", "EscapeA-pixels", "EscapeB-map", "EscapeB-pixels",
             "PlanetExplosion-map", "PlanetExplosion-pixels", "scene-order", "reward-map", "reward-pixels",
-        }) edits.Add((edit, GameInstallationLayout.EndingMode7DirectoryName));
+        }) edits.Add(new EndingContentIdentityEdit(edit, GameInstallationLayout.EndingMode7DirectoryName));
         foreach (EndingPaletteId id in Enum.GetValues<EndingPaletteId>())
-            edits.Add(("palette-" + id, GameInstallationLayout.EndingPaletteDirectoryName));
-        edits.Add(("palette-order", GameInstallationLayout.EndingPaletteDirectoryName));
+            edits.Add(new EndingContentIdentityEdit("palette-" + id, GameInstallationLayout.EndingPaletteDirectoryName));
+        edits.Add(new EndingContentIdentityEdit("palette-order", GameInstallationLayout.EndingPaletteDirectoryName));
 
         foreach ((string edit, string component) in edits)
         {
@@ -284,7 +284,12 @@ internal static class EndingContentIdentityVerification
                 Blue = 0,
             }).ToArray(),
         }), id)).ToArray();
-        if (edit == "palette-order") (colors[0], colors[1]) = (colors[1], colors[0]);
+        if (edit == "palette-order") {
+    var held0 = colors[1];
+    var held1 = colors[0];
+    colors[0] = held0;
+    colors[1] = held1;
+}
         var palettes = new EndingPaletteCatalog(colors[0], colors[1], colors[2], colors[3], colors[4], colors[5], colors[6]);
         return EndingPresentationIdentity.Create(mode7, objects, palettes);
     }

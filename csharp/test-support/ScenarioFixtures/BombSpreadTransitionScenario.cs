@@ -43,7 +43,10 @@ internal sealed class BombSpreadTransitionScenario
     /// <summary>Clears a bounded Landing Site fixture and equips Samus for an input-earned charged spread.</summary>
     internal BombSpreadTransitionScenario(SuperMetroidRuntime runtime, bool left, int timingCase, bool wallRoute)
     {
-        (Runtime, Left, TimingCase, WallRoute) = (runtime, left, timingCase, wallRoute);
+        Runtime = runtime;
+        Left = left;
+        TimingCase = timingCase;
+        WallRoute = wallRoute;
         Delay = timingCase < 10 ? timingCase : timingCase + 30;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

@@ -35,15 +35,15 @@ internal static class RoomFxRomDataVerification
         AssertEqual(23, RoomFxRomData.ScrollingSky.SectionCount,
             "scrolling-sky section count");
 
-        (RoomFxType Type, ushort NativeValue)[] representativeTypes =
+        RepresentativeType[] representativeTypes =
         [
-            (RoomFxType.Water, 0x0006),
-            (RoomFxType.Lava, 0x0002),
-            (RoomFxType.Acid, 0x0004),
-            (RoomFxType.ScrollingSky, 0x0020),
-            (RoomFxType.CeresHaze, 0x002c),
-            (RoomFxType.CeresRidley, 0x0028),
-            (RoomFxType.CeresElevator, 0x002a),
+            new RepresentativeType(RoomFxType.Water, 0x0006),
+            new RepresentativeType(RoomFxType.Lava, 0x0002),
+            new RepresentativeType(RoomFxType.Acid, 0x0004),
+            new RepresentativeType(RoomFxType.ScrollingSky, 0x0020),
+            new RepresentativeType(RoomFxType.CeresHaze, 0x002c),
+            new RepresentativeType(RoomFxType.CeresRidley, 0x0028),
+            new RepresentativeType(RoomFxType.CeresElevator, 0x002a),
         ];
         foreach ((RoomFxType type, ushort nativeValue) in representativeTypes)
             AssertEqual(nativeValue, (ushort)type, $"{type} native room-FX value");

@@ -44,12 +44,12 @@ internal static class BoulderBehaviorVerification
     {
         var blocks = new ushort[64];
         var level = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(blocks, new byte[64], new ushort[64]), new byte[8]);
-        foreach ((int start, int expected, BoulderAiFunction function) in new (int, int, BoulderAiFunction)[]
+        foreach ((int start, int expected, BoulderAiFunction function) in new VerifyBoulderReboundClockCase[]
                  {
-                     (200, 0, BoulderAiFunction.Falling),
-                     (255, 0, BoulderAiFunction.Falling),
-                     (256, 0, BoulderAiFunction.Rebound),
-                     (8192, 7936, BoulderAiFunction.Rebound),
+                     new VerifyBoulderReboundClockCase(200, 0, BoulderAiFunction.Falling),
+                     new VerifyBoulderReboundClockCase(255, 0, BoulderAiFunction.Falling),
+                     new VerifyBoulderReboundClockCase(256, 0, BoulderAiFunction.Rebound),
+                     new VerifyBoulderReboundClockCase(8192, 7936, BoulderAiFunction.Rebound),
                  })
         {
             var enemies = new RoomEnemySystem(new EnemySession());

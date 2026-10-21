@@ -205,7 +205,7 @@ public static class EndingMode7ArtworkFiles
             }
         }
 
-        (string Path, byte[] Bytes) ReadSelected(string name)
+        SelectedArtworkFile ReadSelected(string name)
         {
             string stockPath = Path.Combine(stockDirectory, name);
             byte[] stock = File.ReadAllBytes(stockPath);
@@ -215,7 +215,7 @@ public static class EndingMode7ArtworkFiles
             string? overridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory, name);
             string selectedPath = overridePath is not null && File.Exists(overridePath)
                 ? overridePath : stockPath;
-            return (selectedPath, selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath));
+            return new SelectedArtworkFile(selectedPath, selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath));
         }
     }
 

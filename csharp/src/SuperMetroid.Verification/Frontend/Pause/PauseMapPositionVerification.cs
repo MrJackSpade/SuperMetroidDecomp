@@ -29,8 +29,8 @@ internal static class PauseMapPositionVerification
         for (int i = 0; i < 256; i++) colors.SetColor(i, Bgr555.FromWord(checked(Read(0xb6f000 + i * 2))));
         foreach (var (area, roomX, roomY, samusX, samusY) in new[]
         {
-            (AreaId.Crateria, 28, 1, 0x200, 0x300),
-            (AreaId.Brinstar, 7, 10, 0x80, 0x180),
+            new VerifyPauseMapPositionCase(AreaId.Crateria, 28, 1, 0x200, 0x300),
+            new VerifyPauseMapPositionCase(AreaId.Brinstar, 7, 10, 0x80, 0x180),
         })
         {
             var system = new Bank80SystemState();

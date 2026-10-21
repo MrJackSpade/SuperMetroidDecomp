@@ -55,10 +55,10 @@ internal static class PhantoonPatternsVerification
             }
         }
 
-        (short X, short Y, ushort Direction)[] eyeTargets =
+        EyeTarget[] eyeTargets =
         [
-            (0, -100, 0), (100, -100, 1), (100, 0, 2), (100, 100, 3),
-            (0, 100, 4), (-100, 100, 6), (-100, 0, 7), (-100, -100, 8),
+            new EyeTarget(0, -100, 0), new EyeTarget(100, -100, 1), new EyeTarget(100, 0, 2), new EyeTarget(100, 100, 3),
+            new EyeTarget(0, 100, 4), new EyeTarget(-100, 100, 6), new EyeTarget(-100, 0, 7), new EyeTarget(-100, -100, 8),
         ];
         for (ushort direction = 0; direction < 9; direction++)
         {

@@ -22,7 +22,7 @@ internal static class PauseDoorShinesparkVerification
     /// <summary>Confirms normal and terminal fade frames publish the door transition in native order without extra source-room movement.</summary>
     internal static void VerifyPauseDoorShinespark()
     {
-        foreach (var scenario in new[] { (Brightening: false, Terminal: false), (Brightening: false, Terminal: true), (Brightening: true, Terminal: false), (Brightening: true, Terminal: true) })
+        foreach (var scenario in new[] { new VerifyPauseDoorShinesparkCase(Brightening:false, Terminal:false), new VerifyPauseDoorShinesparkCase(Brightening:false, Terminal:true), new VerifyPauseDoorShinesparkCase(Brightening:true, Terminal:false), new VerifyPauseDoorShinesparkCase(Brightening:true, Terminal:true) })
         {
             var installation=RepositoryInstallation.Installation;
             var bus=installation.OpenRuntimeAddressSpace();

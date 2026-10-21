@@ -58,7 +58,7 @@ internal static class GrappleFlarePlacementVerification
                 Direction = CpuBusRegionRead.Read(rom, SamusMovementRomData.Poses.Definitions + pose * 8 + 3),
             })
             .Where(row => row.Direction < 10)
-            .GroupBy(row => (Running: row.Movement == (byte)SamusMovementType.Running, row.Direction))
+            .GroupBy(row => new AuthoredPose(Running:row.Movement == (byte)SamusMovementType.Running, row.Direction))
             .Select(group => group.First())
             .OrderBy(row => row.Movement == (byte)SamusMovementType.Running)
             .ThenBy(row => row.Direction)
@@ -111,7 +111,7 @@ internal static class GrappleFlarePlacementVerification
                     AssertEqual(unchecked((ushort)(a.BeamStart.X + 7)), b.BeamStart.X, "Edited Grapple flare X is visible");
                     AssertEqual(unchecked((ushort)(a.BeamStart.Y - 9)), b.BeamStart.Y, "Edited Grapple flare Y is visible");
                 }
-                var saved = (b.FlareOffset, b.BeamStart);
+                var saved = new Saved(b.FlareOffset, b.BeamStart);
                 b.FlareOffset = a.FlareOffset;
                 b.BeamStart = a.BeamStart;
                 AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(changed)), "Edited flare changes only four presentation words, not full-body/anchor/trajectory state");

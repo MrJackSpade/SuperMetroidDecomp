@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
@@ -26,11 +27,11 @@ internal static class SpikeShinesparkSuitVerification
         // frame early installs the real Shinespark mover; Jump one frame late misses
         // completely. The middle case keeps C7 art and palette six after command one
         // has restored the ordinary movement handler: that mismatch is the technique.
-        foreach ((int LaunchFrame, ShinesparkPhase Phase, SamusPoseId Pose, SamusSpecialPaletteType Palette) expected in new[]
+        foreach (SpikeSuitLaunchCase expected in new SpikeSuitLaunchCase[]
         {
-            (8, ShinesparkPhase.Windup, SamusPoseId.ShinesparkWindupRightPose, SamusSpecialPaletteType.Shinesparking),
-            (9, ShinesparkPhase.Inactive, SamusPoseId.ShinesparkWindupRightPose, SamusSpecialPaletteType.Shinesparking),
-            (10, ShinesparkPhase.Stored, SamusPoseId.FallingRightPose, SamusSpecialPaletteType.SpeedBoosterShine),
+            new(8, ShinesparkPhase.Windup, SamusPoseId.ShinesparkWindupRightPose, SamusSpecialPaletteType.Shinesparking),
+            new(9, ShinesparkPhase.Inactive, SamusPoseId.ShinesparkWindupRightPose, SamusSpecialPaletteType.Shinesparking),
+            new(10, ShinesparkPhase.Stored, SamusPoseId.FallingRightPose, SamusSpecialPaletteType.SpeedBoosterShine),
         })
         {
             SuperMetroidRuntime runtime = CreateSpikeSuitRuntime(underwater: false);
@@ -73,14 +74,14 @@ internal static class SpikeShinesparkSuitVerification
         ushort frozenKnockbackTimer = frozenSamus.KnockbackTimer.RawValue;
         frozenRuntime.StepFrame(0, new RuntimeFrameRequest { AfterAcceptedNmi = () =>
             shortRecovery.StepAfterNmi(frozenSamus, frozenRuntime.Clock.Counter) });
-        AssertEqual((frozenX, frozenY),
-            (frozenSamus.Kinematics.Position.X.RawValue, frozenSamus.Kinematics.Position.Y.RawValue),
+        AssertEqual(new SpikeShinesparkSuitVerifySpikeShinesparkSuitCase(frozenX, frozenY),
+            new SpikeShinesparkSuitVerifySpikeShinesparkSuitCase(frozenSamus.Kinematics.Position.X.RawValue, frozenSamus.Kinematics.Position.Y.RawValue),
             "Reserve command zero freezes spike-knockback position");
-        AssertEqual((frozenAnimationFrame, frozenAnimationTimer),
-            (frozenSamus.AnimationFrame, frozenSamus.AnimationFrameTimer.RawValue),
+        AssertEqual(new AnimationResult(frozenAnimationFrame, frozenAnimationTimer),
+            new AnimationResult(frozenSamus.AnimationFrame, frozenSamus.AnimationFrameTimer.RawValue),
             "Reserve command zero freezes the unmorph animation cursor");
-        AssertEqual((frozenShineTimer, frozenPalette),
-            (SamusInputSnapshot.SharedShineTimer(frozenSamus), frozenSamus.Shinespark.PaletteType),
+        AssertEqual(new VerifySpikeShinesparkSuitCase(frozenShineTimer, frozenPalette),
+            new VerifySpikeShinesparkSuitCase(SamusInputSnapshot.SharedShineTimer(frozenSamus), frozenSamus.Shinespark.PaletteType),
             "Reserve command zero freezes stored-shine palette progression");
         AssertEqual(frozenKnockbackTimer - 1, frozenSamus.KnockbackTimer.RawValue,
             "global hurt timer continues while Reserve owns Samus");
@@ -90,15 +91,15 @@ internal static class SpikeShinesparkSuitVerification
         // With no Gravity Suit, a 60-point automatic refill creates the wider native
         // underwater timing window. Freeze frames eight through ten plus post-recovery
         // Jump frame six retain the suit; adjacent setup/input frames do not.
-        foreach ((int FreezeAfter, int LaunchAfter, bool RetainsSuit) expected in new[]
+        foreach (SpikeSuitReserveCase expected in new SpikeSuitReserveCase[]
         {
-            (7, 6, false),
-            (8, 5, false),
-            (8, 6, true),
-            (8, 7, false),
-            (9, 6, true),
-            (10, 6, true),
-            (11, 6, false),
+            new(7, 6, false),
+            new(8, 5, false),
+            new(8, 6, true),
+            new(8, 7, false),
+            new(9, 6, true),
+            new(10, 6, true),
+            new(11, 6, false),
         })
         {
             SamusState samus = RunReserveSpikeSuitCase(expected.FreezeAfter, expected.LaunchAfter);

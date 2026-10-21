@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Skree;
 
 namespace SuperMetroid.Verification.Enemies.Skree;
@@ -13,26 +14,26 @@ internal static class SkreeMetareeNativeListAddresses
     internal const byte Bank = 0xa3;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (SkreeMetareeProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<SkreeMetareeProgram>[] Entries =
     [
-        (SkreeMetareeProgram.MetareeIdling, 0x8910),
-        (SkreeMetareeProgram.MetareePreparingAttack, 0x8924),
-        (SkreeMetareeProgram.MetareeDiving, 0x8930),
-        (SkreeMetareeProgram.MetareeDivingLoop, 0x8932),
-        (SkreeMetareeProgram.MetareeStopAnimating, 0x8946),
-        (SkreeMetareeProgram.SkreeIdling, 0xc65e),
-        (SkreeMetareeProgram.SkreePreparingAttack, 0xc672),
-        (SkreeMetareeProgram.SkreeDiving, 0xc67e),
-        (SkreeMetareeProgram.SkreeDivingLoop, 0xc680),
-        (SkreeMetareeProgram.SkreeStopAnimating, 0xc694),
+        new NativeProgramEntry<SkreeMetareeProgram>(SkreeMetareeProgram.MetareeIdling, 0x8910),
+        new NativeProgramEntry<SkreeMetareeProgram>(SkreeMetareeProgram.MetareePreparingAttack, 0x8924),
+        new NativeProgramEntry<SkreeMetareeProgram>(SkreeMetareeProgram.MetareeDiving, 0x8930),
+        new NativeProgramEntry<SkreeMetareeProgram>(SkreeMetareeProgram.MetareeDivingLoop, 0x8932),
+        new NativeProgramEntry<SkreeMetareeProgram>(SkreeMetareeProgram.MetareeStopAnimating, 0x8946),
+        new NativeProgramEntry<SkreeMetareeProgram>(SkreeMetareeProgram.SkreeIdling, 0xc65e),
+        new NativeProgramEntry<SkreeMetareeProgram>(SkreeMetareeProgram.SkreePreparingAttack, 0xc672),
+        new NativeProgramEntry<SkreeMetareeProgram>(SkreeMetareeProgram.SkreeDiving, 0xc67e),
+        new NativeProgramEntry<SkreeMetareeProgram>(SkreeMetareeProgram.SkreeDivingLoop, 0xc680),
+        new NativeProgramEntry<SkreeMetareeProgram>(SkreeMetareeProgram.SkreeStopAnimating, 0xc694),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (SkreeMetareeCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, SkreeMetareeNativeListAddressesInstruction> Instructions = new()
     {
-        [0x8173] = (SkreeMetareeCueKind.ProcessOffScreen, ""),
-        [0x817d] = (SkreeMetareeCueKind.StopProcessingOffScreen, ""),
-        [0x8956] = (SkreeMetareeCueKind.SetAttackReady, ""),
-        [0xc6a4] = (SkreeMetareeCueKind.SetAttackReady, ""),
+        [0x8173] = new SkreeMetareeNativeListAddressesInstruction(SkreeMetareeCueKind.ProcessOffScreen, ""),
+        [0x817d] = new SkreeMetareeNativeListAddressesInstruction(SkreeMetareeCueKind.StopProcessingOffScreen, ""),
+        [0x8956] = new SkreeMetareeNativeListAddressesInstruction(SkreeMetareeCueKind.SetAttackReady, ""),
+        [0xc6a4] = new SkreeMetareeNativeListAddressesInstruction(SkreeMetareeCueKind.SetAttackReady, ""),
     };
 }

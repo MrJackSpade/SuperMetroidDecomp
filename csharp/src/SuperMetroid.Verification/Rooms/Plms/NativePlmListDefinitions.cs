@@ -1,3 +1,5 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
+using SuperMetroid.Verification.Enemies;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Plms;
@@ -54,7 +56,7 @@ internal static class NativePlmListDefinitions
     internal static int CompareProgramSet<TProgram, TFrame, TCue>(
         IImportCartridgeSource cartridge,
         AnimationProgramSet<TProgram, TFrame, TCue> programs,
-        IReadOnlyList<(TProgram Program, ushort Entry)> entries,
+        IReadOnlyList<NativeProgramEntry<TProgram>> entries,
         Func<TFrame, ushort> drawList,
         CueReader<TCue> cueAt,
         string family,
@@ -65,13 +67,13 @@ internal static class NativePlmListDefinitions
         CompareProgramSet(cartridge, programs, entries, (TProgram _, TFrame frame) => drawList(frame), cueAt, family, showAt);
 
     /// <summary>
-    /// <see cref="CompareProgramSet{TProgram, TFrame, TCue}(IImportCartridgeSource, AnimationProgramSet{TProgram, TFrame, TCue}, IReadOnlyList{ValueTuple{TProgram, ushort}}, Func{TFrame, ushort}, CueReader{TCue}, string, ShowReader{TFrame})"/>
+    /// <see cref="CompareProgramSet{TProgram, TFrame, TCue}(IImportCartridgeSource, AnimationProgramSet{TProgram, TFrame, TCue}, IReadOnlyList{NativeProgramEntry{TProgram}}, Func{TFrame, ushort}, CueReader{TCue}, string, ShowReader{TFrame})"/>
     /// for a family whose draw lists depend on the program a frame is shown in.
     /// </summary>
     internal static int CompareProgramSet<TProgram, TFrame, TCue>(
         IImportCartridgeSource cartridge,
         AnimationProgramSet<TProgram, TFrame, TCue> programs,
-        IReadOnlyList<(TProgram Program, ushort Entry)> entries,
+        IReadOnlyList<NativeProgramEntry<TProgram>> entries,
         Func<TProgram, TFrame, ushort> drawList,
         CueReader<TCue> cueAt,
         string family,
@@ -91,7 +93,7 @@ internal static class NativePlmListDefinitions
     internal static int CompareProgramSubset<TProgram, TFrame, TCue>(
         IImportCartridgeSource cartridge,
         AnimationProgramSet<TProgram, TFrame, TCue> programs,
-        IReadOnlyList<(TProgram Program, ushort Entry)> entries,
+        IReadOnlyList<NativeProgramEntry<TProgram>> entries,
         Func<TProgram, TFrame, ushort> drawList,
         CueReader<TCue> cueAt,
         string family,
@@ -106,13 +108,13 @@ internal static class NativePlmListDefinitions
     }
 
     /// <summary>
-    /// The native instruction address of every typed step, from the same walk <see cref="CompareProgramSet{TProgram, TFrame, TCue}(IImportCartridgeSource, AnimationProgramSet{TProgram, TFrame, TCue}, IReadOnlyList{ValueTuple{TProgram, ushort}}, Func{TFrame, ushort}, CueReader{TCue}, string, ShowReader{TFrame})"/> makes: a
+    /// The native instruction address of every typed step, from the same walk <see cref="CompareProgramSet{TProgram, TFrame, TCue}(IImportCartridgeSource, AnimationProgramSet{TProgram, TFrame, TCue}, IReadOnlyList{NativeProgramEntry{TProgram}}, Func{TFrame, ushort}, CueReader{TCue}, string, ShowReader{TFrame})"/> makes: a
     /// typed cursor's step stands where the native instruction pointer would, for comparisons with native traces.
     /// </summary>
-    internal static IReadOnlyDictionary<(TProgram Program, int Position), ushort> StepAddresses<TProgram, TFrame, TCue>(
+    internal static IReadOnlyDictionary<ProgramStep<TProgram>, ushort> StepAddresses<TProgram, TFrame, TCue>(
         IImportCartridgeSource cartridge,
         AnimationProgramSet<TProgram, TFrame, TCue> programs,
-        IReadOnlyList<(TProgram Program, ushort Entry)> entries,
+        IReadOnlyList<NativeProgramEntry<TProgram>> entries,
         Func<TFrame, ushort> drawList,
         CueReader<TCue> cueAt,
         string family,
@@ -142,7 +144,7 @@ internal static class NativePlmListDefinitions
         where TCue : notnull
     {
         /// <summary>The native address of each typed step the walks have reached.</summary>
-        internal Dictionary<(TProgram Program, int Position), ushort> Addresses { get; } = [];
+        internal Dictionary<ProgramStep<TProgram>, ushort> Addresses { get; } = [];
 
         /// <summary>Compares one typed program with its native list and returns its typed step count.</summary>
         internal int Compare(TProgram program, ushort entry)
@@ -152,7 +154,7 @@ internal static class NativePlmListDefinitions
             int index = 0;
             for (int command = 0; command < 512; command++)
             {
-                Addresses[(program, index)] = cursor;
+                Addresses[new ProgramStep<TProgram>(program, index)] = cursor;
                 string at = $"{family} {program} step {index} at $84:{cursor:X4}";
                 AssertTrue(index < steps.Count, $"{at}: the typed program ends before the native list");
                 AnimationProgramStep<TProgram, TFrame, TCue> step = steps[index];
@@ -189,7 +191,7 @@ internal static class NativePlmListDefinitions
                         AssertEqual(handoff, handoffStep.Cue, $"{at}: handoff cue");
                         AssertTrue(index + 1 < steps.Count && steps[index + 1] is AnimationProgramStep<TProgram, TFrame, TCue>.HoldStep,
                             $"{at}: the handoff closes with a hold");
-                        Addresses[(program, index + 1)] = cursor;
+                        Addresses[new ProgramStep<TProgram>(program, index + 1)] = cursor;
                         return Ends(index + 1);
                     case RoomPlmInstruction.Goto:
                         var goTo = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.GoToStep>(step, $"{at}: goto");

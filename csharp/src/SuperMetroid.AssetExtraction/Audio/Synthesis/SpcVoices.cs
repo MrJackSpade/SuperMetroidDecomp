@@ -118,7 +118,7 @@ internal sealed class SpcVoices
 
     /// <summary>The pan-volume table pair (this entry and the next) at <paramref name="address"/>.</summary>
     [SpcMemoryBoundary("driver-memory view: pan volume table")]
-    internal (byte Base, byte Next) ReadPanVolumePair(int address) => (ram[address], ram[address + 1]);
+    internal PanVolumePair ReadPanVolumePair(int address) => new PanVolumePair(ram[address], ram[address + 1]);
 
     /// <summary>The instrument record at <paramref name="address"/> (pitch base big-endian).</summary>
     [SpcMemoryBoundary("driver-memory view: instrument records")]

@@ -90,15 +90,15 @@ internal static class SpcSoundEffectProgramCodec
                     $"SPC sound program '{program.Id}' contains a null instruction at {index}.");
             (int opcode, int argumentCount, bool terminal) = instruction.Operation switch
             {
-                AudioSoundInstructionOperations.SetAdsr => ((int)SpcSoundEffectOpcode.SetAdsr, 4, false),
-                AudioSoundInstructionOperations.PitchSlideLegato => ((int)SpcSoundEffectOpcode.PitchSlideLegato, 2, false),
-                AudioSoundInstructionOperations.PitchSlide => ((int)SpcSoundEffectOpcode.PitchSlide, 2, false),
-                AudioSoundInstructionOperations.End => ((int)SpcSoundEffectOpcode.End, 0, true),
-                AudioSoundInstructionOperations.BeginRepeat => ((int)SpcSoundEffectOpcode.BeginRepeat, 1, false),
-                AudioSoundInstructionOperations.RepeatForever => ((int)SpcSoundEffectOpcode.RepeatForever, 0, true),
-                AudioSoundInstructionOperations.EndRepeat => ((int)SpcSoundEffectOpcode.EndRepeat, 0, false),
-                AudioSoundInstructionOperations.EnableNoise => ((int)SpcSoundEffectOpcode.EnableNoise, 0, false),
-                AudioSoundInstructionOperations.PlayNote => (0, 5, false),
+                AudioSoundInstructionOperations.SetAdsr => new SoundEffectOpcodeShape((int)SpcSoundEffectOpcode.SetAdsr, 4, false),
+                AudioSoundInstructionOperations.PitchSlideLegato => new SoundEffectOpcodeShape((int)SpcSoundEffectOpcode.PitchSlideLegato, 2, false),
+                AudioSoundInstructionOperations.PitchSlide => new SoundEffectOpcodeShape((int)SpcSoundEffectOpcode.PitchSlide, 2, false),
+                AudioSoundInstructionOperations.End => new SoundEffectOpcodeShape((int)SpcSoundEffectOpcode.End, 0, true),
+                AudioSoundInstructionOperations.BeginRepeat => new SoundEffectOpcodeShape((int)SpcSoundEffectOpcode.BeginRepeat, 1, false),
+                AudioSoundInstructionOperations.RepeatForever => new SoundEffectOpcodeShape((int)SpcSoundEffectOpcode.RepeatForever, 0, true),
+                AudioSoundInstructionOperations.EndRepeat => new SoundEffectOpcodeShape((int)SpcSoundEffectOpcode.EndRepeat, 0, false),
+                AudioSoundInstructionOperations.EnableNoise => new SoundEffectOpcodeShape((int)SpcSoundEffectOpcode.EnableNoise, 0, false),
+                AudioSoundInstructionOperations.PlayNote => new SoundEffectOpcodeShape(0, 5, false),
                 _ => throw new InvalidDataException(
                     $"SPC sound program '{program.Id}' uses unknown operation '{instruction.Operation}'."),
             };

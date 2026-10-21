@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Rooms.Plms;
@@ -14,7 +15,7 @@ internal static class LookupDraygonCannonStockVerification
     internal static void VerifyDraygonCannonStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmDraygonCannonVisualCatalog installed)
     {
-        (ushort Pointer, string Id)[] frames = [(0x9fcd,"right-shield-a"),(0x9fdd,"right-shield-b"),(0xa02d,"right-damaged-a"),(0xa03d,"right-damaged-b"),(0xa04d,"right-damaged-c"),(0xa05d,"right-damaged-d"),(0xa0ed,"left-shield-a"),(0xa101,"left-shield-b"),(0xa165,"left-damaged-a"),(0xa179,"left-damaged-b"),(0xa18d,"left-damaged-c"),(0xa1a1,"left-damaged-d")];
+        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9fcd,"right-shield-a"),new LookupEscapeGateStockFrame(0x9fdd,"right-shield-b"),new LookupEscapeGateStockFrame(0xa02d,"right-damaged-a"),new LookupEscapeGateStockFrame(0xa03d,"right-damaged-b"),new LookupEscapeGateStockFrame(0xa04d,"right-damaged-c"),new LookupEscapeGateStockFrame(0xa05d,"right-damaged-d"),new LookupEscapeGateStockFrame(0xa0ed,"left-shield-a"),new LookupEscapeGateStockFrame(0xa101,"left-shield-b"),new LookupEscapeGateStockFrame(0xa165,"left-damaged-a"),new LookupEscapeGateStockFrame(0xa179,"left-damaged-b"),new LookupEscapeGateStockFrame(0xa18d,"left-damaged-c"),new LookupEscapeGateStockFrame(0xa1a1,"left-damaged-d")];
         var native = new Dictionary<ushort, ushort[][]>();
         foreach (var frame in frames)
         {

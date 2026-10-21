@@ -20,10 +20,10 @@ internal static class WorkRobotFallVerification
         var frame = new ClockedEnemyAiFrame(
             new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Level = air },
             new FrameCounters(0));
-        foreach ((short whole, ushort fraction, ushort expectedWhole, ushort expectedFraction) in new (short, ushort, ushort, ushort)[]
+        foreach ((short whole, ushort fraction, ushort expectedWhole, ushort expectedFraction) in new VerifyWorkRobotFallCase[]
                  {
-                     (1, 32768, 2, 0),
-                     (-1, 32768, 0, 0),
+                     new VerifyWorkRobotFallCase(1, 32768, 2, 0),
+                     new VerifyWorkRobotFallCase(-1, 32768, 0, 0),
                  })
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);

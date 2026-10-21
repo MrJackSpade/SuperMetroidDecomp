@@ -84,7 +84,7 @@ internal static class DragonBehaviorVerification
     }
 
     /// <summary>A Dragon body, or a wing for the wing selectors, with <paramref name="selector"/> freshly installed.</summary>
-    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, DragonEnemyState State) Install(DragonAnimationSelector selector)
+    private static InstallResult Install(DragonAnimationSelector selector)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -97,7 +97,7 @@ internal static class DragonBehaviorVerification
         state.RequestedInstructionListIndex = selector;
         state.AnimationFinished = false;
         DragonBehavior.InstallDragonInstructionList(slot, state);
-        return (enemies, slot, state);
+        return new InstallResult(enemies, slot, state);
     }
 
     /// <summary>Runs the Dragon behavior check and its program oracle against the local retail cartridge.</summary>

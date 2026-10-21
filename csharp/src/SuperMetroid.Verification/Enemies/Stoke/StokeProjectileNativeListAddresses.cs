@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Stoke;
 
 namespace SuperMetroid.Verification.Enemies.Stoke;
@@ -9,13 +10,13 @@ namespace SuperMetroid.Verification.Enemies.Stoke;
 internal static class StokeProjectileNativeListAddresses
 {
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (StokeProjectileProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<StokeProjectileProgram>[] Entries =
     [
-        (StokeProjectileProgram.Initial, 0xdb0c),
+        new NativeProgramEntry<StokeProjectileProgram>(StokeProjectileProgram.Initial, 0xdb0c),
     ];
 
     /// <summary>The bank-$86 bytes from the first list to the end of the last, $86:DB0C-DB17, which production must never read.</summary>
-    internal static readonly (ushort First, ushort End) Extent = (0xdb0c, 0xdb18);
+    internal static readonly MotherBrainEffectNativeListAddressesExtent Extent = new MotherBrainEffectNativeListAddressesExtent(0xdb0c, 0xdb18);
 
     /// <summary>The native entry of <paramref name="program"/>.</summary>
     internal static ushort Entry(StokeProjectileProgram program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);

@@ -72,41 +72,41 @@ internal static class EndingGlyphMappingVerification
             0x3d,0x3e,0x3f,0x50,0x51,0x52,0x53,0x54,0x55,0x56,0x57,0x58,0x59];
         ushort[] digitsTop = [0x60,0x61,0x62,0x63,0x64,0x65,0x66,0x67,0x68,0x69];
         ushort[] digitsBottom = [0x70,0x71,0x72,0x73,0x74,0x75,0x76,0x77,0x78,0x79];
-        (char Glyph, int Address)[] largeRecords = [
-            (' ', 0x8ce135),
-            ('S', 0x8ce13d),
-            ('E', 0x8ce145),
-            ('Y', 0x8ce14d),
-            ('O', 0x8ce155),
-            ('U', 0x8ce15d),
-            ('N', 0x8ce165),
-            ('X', 0x8ce16d),
-            ('T', 0x8ce175),
-            ('M', 0x8ce17d),
-            ('I', 0x8ce185),
+        LargeRecord[] largeRecords = [
+            new LargeRecord(' ', 0x8ce135),
+            new LargeRecord('S', 0x8ce13d),
+            new LargeRecord('E', 0x8ce145),
+            new LargeRecord('Y', 0x8ce14d),
+            new LargeRecord('O', 0x8ce155),
+            new LargeRecord('U', 0x8ce15d),
+            new LargeRecord('N', 0x8ce165),
+            new LargeRecord('X', 0x8ce16d),
+            new LargeRecord('T', 0x8ce175),
+            new LargeRecord('M', 0x8ce17d),
+            new LargeRecord('I', 0x8ce185),
         ];
         foreach (var record in largeRecords)
         {
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(record.Address), EndingTextDefinitions.CompileGlyph(record.Glyph, EndingTextStyle.FinalLarge), "native named glyph record");
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((record.Address + 2)), EndingTextDefinitions.CompileGlyph(record.Glyph, EndingTextStyle.FinalLarge, bottom: true), "native named lower glyph record");
         }
-        (char Glyph, int Address)[] smallRecords = [
-            ('A', 0x8ce18d),
-            ('C', 0x8ce193),
-            ('E', 0x8ce199),
-            ('F', 0x8ce19f),
-            ('G', 0x8ce1a5),
-            ('I', 0x8ce1ab),
-            ('L', 0x8ce1b1),
-            ('M', 0x8ce1b7),
-            ('N', 0x8ce1bd),
-            ('O', 0x8ce1c3),
-            ('R', 0x8ce1c9),
-            ('S', 0x8ce1cf),
-            ('T', 0x8ce1d5),
-            ('U', 0x8ce1db),
-            ('Y', 0x8ce1e1),
-            (' ', 0x8ce1e7),
+        LargeRecord[] smallRecords = [
+            new LargeRecord('A', 0x8ce18d),
+            new LargeRecord('C', 0x8ce193),
+            new LargeRecord('E', 0x8ce199),
+            new LargeRecord('F', 0x8ce19f),
+            new LargeRecord('G', 0x8ce1a5),
+            new LargeRecord('I', 0x8ce1ab),
+            new LargeRecord('L', 0x8ce1b1),
+            new LargeRecord('M', 0x8ce1b7),
+            new LargeRecord('N', 0x8ce1bd),
+            new LargeRecord('O', 0x8ce1c3),
+            new LargeRecord('R', 0x8ce1c9),
+            new LargeRecord('S', 0x8ce1cf),
+            new LargeRecord('T', 0x8ce1d5),
+            new LargeRecord('U', 0x8ce1db),
+            new LargeRecord('Y', 0x8ce1e1),
+            new LargeRecord(' ', 0x8ce1e7),
         ];
         foreach (var record in smallRecords)
         {

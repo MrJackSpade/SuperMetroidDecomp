@@ -141,7 +141,7 @@ internal static class EndingCloudPlacementVerification
                 new RenderLayer[] { new Mode7RenderLayer(registers) }, snapshot.ObjectSelection, 15));
             var wrapped = SnesLayerCompositor.CreateBackdrop(memory.Cgram, 256 * 224);
             SnesLayerCompositor.Composite(wrapped, wrappedBackground);
-            int differences = projected.Zip(wrapped).Count(pair => pair.First != pair.Second);
+            int differences = projected.Zip(wrapped, (first, second) => first != second).Count(differs => differs);
             Console.WriteLine($"Takeoff native wrapping: {differences} background pixels differ in the captured frame.");
             AssertTrue(projected.SequenceEqual(wrapped), "takeoff M7SEL=0 wraps rotated background instead of exposing square map edges");
             return;

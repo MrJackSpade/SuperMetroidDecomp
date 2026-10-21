@@ -62,7 +62,7 @@ internal static class BotwoonAttackCooldownVerification
     /// A head in slot zero bound as Botwoon, away from every hole, with its thirteen body segments spawned by the
     /// production spawner and its health palette complete so the update reads no artwork.
     /// </summary>
-    private static (RoomEnemySystem Enemies, RoomEnemySlot Head, BotwoonEnemyState State) NewBotwoon()
+    private static NewBotwoonHeadResult NewBotwoon()
     {
         var enemies = new RoomEnemySystem(new EnemySession(), services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
@@ -78,7 +78,7 @@ internal static class BotwoonAttackCooldownVerification
         enemies.BotwoonBehavior.BotwoonState = state;
         for (int argument = 24; argument >= 0; argument -= 2)
             enemies.BotwoonBehavior.SpawnBotwoonBodySegment(head, state, (ushort)argument);
-        return (enemies, head, state);
+        return new NewBotwoonHeadResult(enemies, head, state);
     }
 
     /// <summary>Runs the Botwoon attack-cooldown check.</summary>

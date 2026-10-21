@@ -62,7 +62,8 @@ internal static class BossRoomPlmProgramsVerification
             draw => (ushort)draw,
             (IImportCartridgeSource cartridge, ushort cursor, out SporeSpawnCeilingCue cue, out int length) =>
             {
-                (cue, length) = (SporeSpawnCeilingCue.QueueCrumbleSound, 3);
+                cue = SporeSpawnCeilingCue.QueueCrumbleSound;
+                length = 3;
                 if (InstructionAt<RoomPlmInstruction>(cartridge, cursor) != RoomPlmInstruction.QueueSoundLibrary2Maximum6)
                     return false;
                 AssertEqual(SporeSpawnCeilingPlmProgramDefinitions.CrumbleSoundId, ReadOperandByte(cartridge, cursor + 2), "Spore Spawn ceiling sound");
@@ -89,10 +90,10 @@ internal static class BossRoomPlmProgramsVerification
         RoomPlmInstruction instruction = InstructionAt<RoomPlmInstruction>(cartridge, cursor);
         (bool known, cue, length) = instruction switch
         {
-            RoomPlmInstruction.LinkInstruction => (true, DraygonCannonCue.LinkHit, 4),
-            RoomPlmInstruction.InstallPreInstruction => (true, DraygonCannonCue.ArmMissileWake, 4),
-            RoomPlmInstruction.IncrementArgumentAndGotoIfGreaterOrEqual => (true, DraygonCannonCue.CountHit, 5),
-            RoomPlmInstruction.DamageDraygonCannonFacingRight or RoomPlmInstruction.DamageDraygonCannonFacingLeft => (true, DraygonCannonCue.Damage, 2),
+            RoomPlmInstruction.LinkInstruction => new DraygonCannonCueAtCase(true, DraygonCannonCue.LinkHit, 4),
+            RoomPlmInstruction.InstallPreInstruction => new DraygonCannonCueAtCase(true, DraygonCannonCue.ArmMissileWake, 4),
+            RoomPlmInstruction.IncrementArgumentAndGotoIfGreaterOrEqual => new DraygonCannonCueAtCase(true, DraygonCannonCue.CountHit, 5),
+            RoomPlmInstruction.DamageDraygonCannonFacingRight or RoomPlmInstruction.DamageDraygonCannonFacingLeft => new DraygonCannonCueAtCase(true, DraygonCannonCue.Damage, 2),
             RoomPlmInstruction.SetGreyDoorPreInstruction or
                 RoomPlmInstruction.Sleep or
                 RoomPlmInstruction.Delete or
@@ -143,8 +144,8 @@ internal static class BossRoomPlmProgramsVerification
                 RoomPlmInstruction.MoveTourianAccessDown or
                 RoomPlmInstruction.TransformSpikesToSlopes or
                 RoomPlmInstruction.RevertSlopesToSpikes or
-                RoomPlmInstruction.SetLoweredAcidHeight => (false, default, 0),
-            _ => (false, default, 0),
+                RoomPlmInstruction.SetLoweredAcidHeight => new DraygonCannonCueAtCase(false, default, 0),
+            _ => new DraygonCannonCueAtCase(false, default, 0),
         };
         if (!known)
             return false;
@@ -191,29 +192,35 @@ internal static class BossRoomPlmProgramsVerification
             case RoomPlmInstruction.GotoIfAreaBossBitSet:
                 AssertEqual((byte)BossBits.AreaBoss, ReadOperandByte(cartridge, cursor + 2), "glass area-boss bit");
                 AssertEqual(MotherBrainGlassPlmProgram.BossDead, Entry(Word(3)), "glass boss-dead target");
-                (cue, length) = (MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.SkipIfBossDead), 5);
+                cue = MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.SkipIfBossDead);
+                length = 5;
                 return true;
             case RoomPlmInstruction.GotoIfEventSet:
                 AssertEqual((ushort)EventNumber.MotherBrainGlassDestroyed, Word(2), "glass destroyed event");
                 AssertEqual(MotherBrainGlassPlmProgram.NoGlass, Entry(Word(4)), "glass no-glass target");
-                (cue, length) = (MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.SkipIfGlassDestroyed), 6);
+                cue = MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.SkipIfGlassDestroyed);
+                length = 6;
                 return true;
             case RoomPlmInstruction.InstallPreInstruction:
                 AssertEqual(MotherBrainGlassPlmProgramDefinitionsConstants.HitPreInstruction, Word(2), "glass hit wake");
-                (cue, length) = (MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.ArmHitWake), 4);
+                cue = MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.ArmHitWake);
+                length = 4;
                 return true;
             case RoomPlmInstruction.GotoIfRoomArgumentLess:
                 ushort stage = MotherBrainGlassEntries.Where(entry => entry.Entry <= cursor).Max(entry => entry.Entry);
                 AssertEqual(stage, Word(4), $"glass stage at $84:{cursor:X4} repeats itself");
-                (cue, length) = (MotherBrainGlassPlmCue.RepeatUntil(Word(2)), 6);
+                cue = MotherBrainGlassPlmCue.RepeatUntil(Word(2));
+                length = 6;
                 return true;
             case RoomPlmInstruction.SpawnFourMotherBrainGlassShards:
-                (cue, length) = (MotherBrainGlassPlmCue.Burst((MotherBrainGlassShard)Word(2), (MotherBrainGlassShard)Word(4),
-                    (MotherBrainGlassShard)Word(6), (MotherBrainGlassShard)Word(8)), 10);
+                cue = MotherBrainGlassPlmCue.Burst((MotherBrainGlassShard)Word(2), (MotherBrainGlassShard)Word(4),
+                    (MotherBrainGlassShard)Word(6), (MotherBrainGlassShard)Word(8));
+                length = 10;
                 return true;
             case RoomPlmInstruction.SetEvent:
                 AssertEqual((ushort)EventNumber.MotherBrainGlassDestroyed, Word(2), "glass sets its destroyed event");
-                (cue, length) = (MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.SetGlassDestroyed), 4);
+                cue = MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.SetGlassDestroyed);
+                length = 4;
                 return true;
             case RoomPlmInstruction.SetGreyDoorPreInstruction:
             case RoomPlmInstruction.Sleep:
@@ -266,7 +273,8 @@ internal static class BossRoomPlmProgramsVerification
             case RoomPlmInstruction.RevertSlopesToSpikes:
             case RoomPlmInstruction.SetLoweredAcidHeight:
             default:
-                (cue, length) = (default, 0);
+                cue = default;
+                length = 0;
                 return false;
         }
     }
@@ -291,21 +299,25 @@ internal static class BossRoomPlmProgramsVerification
         {
             case RoomPlmInstruction.InstallPreInstruction:
                 AssertEqual(BombTorizoHandPlmProgramDefinitionsConstants.WakeIfSamusHasBombsPreInstruction, Word(2), "hand bomb wake");
-                (cue, length) = (new BombTorizoHandCue(BombTorizoHandCueKind.ArmBombWake), 4);
+                cue = new BombTorizoHandCue(BombTorizoHandCueKind.ArmBombWake);
+                length = 4;
                 return true;
             case RoomPlmInstruction.CopyFromRamToVram:
                 AssertEqual(TorizoInstructionTileRomData.ChozoDebrisByteCount, (int)Word(2), "hand debris size");
                 AssertEqual(TorizoInstructionTileRomData.ChozoDebrisSource,
                     (int)new SnesAddress(ReadOperandByte(cartridge, cursor + 6), Word(4)), "hand debris source");
                 AssertEqual(GameplayVram.ObjectCharactersDma(BombTorizoHandPlmProgramDefinitions.DebrisObjectCharacterWordOffset).Encoded, Word(7), "hand debris destination");
-                (cue, length) = (new BombTorizoHandCue(BombTorizoHandCueKind.CopyDebrisTiles), 9);
+                cue = new BombTorizoHandCue(BombTorizoHandCueKind.CopyDebrisTiles);
+                length = 9;
                 return true;
             case RoomPlmInstruction.SpawnTorizoStatueBreaking:
                 AssertEqual(0, Word(2) % sizeof(ushort), "hand fragment operand is a two-byte table offset");
-                (cue, length) = (new BombTorizoHandCue(BombTorizoHandCueKind.SpawnFragment, Word(2) / sizeof(ushort)), 4);
+                cue = new BombTorizoHandCue(BombTorizoHandCueKind.SpawnFragment, Word(2) / sizeof(ushort));
+                length = 4;
                 return true;
             case RoomPlmInstruction.QueueSongOneMusicTrack:
-                (cue, length) = (new BombTorizoHandCue(BombTorizoHandCueKind.QueueMusic), 2);
+                cue = new BombTorizoHandCue(BombTorizoHandCueKind.QueueMusic);
+                length = 2;
                 return true;
             case RoomPlmInstruction.SetGreyDoorPreInstruction:
             case RoomPlmInstruction.Sleep:
@@ -360,7 +372,8 @@ internal static class BossRoomPlmProgramsVerification
             case RoomPlmInstruction.RevertSlopesToSpikes:
             case RoomPlmInstruction.SetLoweredAcidHeight:
             default:
-                (cue, length) = (default, 0);
+                cue = default;
+                length = 0;
                 return false;
         }
     }
@@ -374,18 +387,21 @@ internal static class BossRoomPlmProgramsVerification
                 SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)),
                 "Botwoon wall crumble sound");
             AssertEqual((byte)6, BotwoonWallPlmProgramDefinitions.CrumbleSoundMaximumQueued, "Botwoon wall crumble sound queue cap");
-            (cue, length) = (BotwoonWallCue.QueueCrumbleSound, 3);
+            cue = BotwoonWallCue.QueueCrumbleSound;
+            length = 3;
             return true;
         }
         BossRoomPlmNativeRoutine routine = InstructionAt<BossRoomPlmNativeRoutine>(cartridge, cursor);
-        (cue, length) = (routine == BossRoomPlmNativeRoutine.BotwoonWallMoveDown ? BotwoonWallCue.MoveDownOneBlock : BotwoonWallCue.SetScrollsBlue, 2);
+        cue = routine == BossRoomPlmNativeRoutine.BotwoonWallMoveDown ? BotwoonWallCue.MoveDownOneBlock : BotwoonWallCue.SetScrollsBlue;
+        length = 2;
         return routine is BossRoomPlmNativeRoutine.BotwoonWallScrollsBlue or BossRoomPlmNativeRoutine.BotwoonWallMoveDown;
     }
 
     /// <summary>The Kraid room's move-right instruction.</summary>
     private static bool KraidRoomCueAt(IImportCartridgeSource cartridge, ushort cursor, out KraidRoomCue cue, out int length)
     {
-        (cue, length) = (KraidRoomCue.MoveRightOneBlock, 2);
+        cue = KraidRoomCue.MoveRightOneBlock;
+        length = 2;
         return InstructionAt<BossRoomPlmNativeRoutine>(cartridge, cursor) == BossRoomPlmNativeRoutine.KraidRoomMoveRight;
     }
 }

@@ -17,7 +17,7 @@ internal static class MissileEdgeVerification
     internal static void VerifyMissileImpactCameraEdge(string nativeTrace)
     {
         var native = File.ReadLines(nativeTrace).Skip(1).Select(line => line.Split(','))
-            .ToDictionary(row => (int.Parse(row[0]), int.Parse(row[1])), row => row.Skip(2)
+            .ToDictionary(row => new MissileEdgeNative(int.Parse(row[0]), int.Parse(row[1])), row => row.Skip(2)
                 .Select(value => Convert.ToUInt16(value, 16)).ToArray());
         int compared = 0;
         for (int edge = 0; edge < 2; edge++)
@@ -40,7 +40,7 @@ internal static class MissileEdgeVerification
                 var shot = projectiles.Slots[0];
                 ushort[] actual = [shot.Position.X.Whole, shot.Position.X.Fraction, shot.Position.Y.Whole, shot.Position.Y.Fraction,
                     unchecked((ushort)shot.Velocity.X.SignedRawValue), unchecked((ushort)shot.Velocity.Y.SignedRawValue), shot.PackedType.Raw, checked((ushort)shot.InstructionPointer)];
-                AssertTrue(actual.SequenceEqual(native[(edge, frame)]),
+                AssertTrue(actual.SequenceEqual(native[new MissileEdgeNative(edge, frame)]),
                     $"Missile edge={edge} frame={frame} native comparison: {string.Join(',', actual.Select(v => v.ToString("X4")))}");
                 compared++;
                 if (!shot.IsActive || shot.PackedType.Family == SamusProjectileFamily.MissileExplosion)

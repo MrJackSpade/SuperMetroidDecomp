@@ -45,11 +45,11 @@ internal static class PaletteFxProgramsVerification
         if (PaletteFxNativeListAddresses.Entries.Where(entry => entry.Entry == nativePointer).Select(entry => (PaletteFxProgram?)entry.Program).SingleOrDefault() is { } program)
             return AnimationProgramCursor<PaletteFxProgram>.Start(program);
         var matches = StepAddresses(cartridge)
-            .SelectMany(item => item.Value.Select((address, position) => (item.Key, address, position)))
-            .Where(item => item.address == nativePointer)
+            .SelectMany(item => item.Value.Select((address, position) => new PaletteFxProgramsMatch(item.Key, address, position)))
+            .Where(item => item.Address == nativePointer)
             .ToList();
         return matches.Count == 1
-            ? new AnimationProgramCursor<PaletteFxProgram>(matches[0].Key, matches[0].position)
+            ? new AnimationProgramCursor<PaletteFxProgram>(matches[0].Key, matches[0].Position)
             : throw new InvalidDataException($"Native palette-FX pointer $8D:{nativePointer:X4} matches {matches.Count} typed steps.");
     }
 

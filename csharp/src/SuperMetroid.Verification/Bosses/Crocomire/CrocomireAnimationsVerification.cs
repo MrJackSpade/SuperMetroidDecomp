@@ -108,7 +108,7 @@ internal static class CrocomireAnimationsVerification
     }
 
     /// <summary>Creates a Crocomire body with its encounter state in a fresh enemy system.</summary>
-    private static (RoomEnemySystem Enemies, CrocomireEnemyState State) NewCrocomire()
+    private static NewCrocomireResult NewCrocomire()
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
@@ -119,7 +119,7 @@ internal static class CrocomireAnimationsVerification
         enemies.CrocomireBehavior.Access.CrocomireDeath = new CrocomireDeathState();
         enemies.VerificationServices().ReadRandom = () => ushort.MaxValue;
         enemies.VerificationServices().NextRandom = () => ushort.MaxValue;
-        return (enemies, state);
+        return new NewCrocomireResult(enemies, state);
     }
 
     /// <summary>Starts <paramref name="program"/> on the body as a native list install does.</summary>
@@ -196,7 +196,7 @@ internal static class CrocomireAnimationsVerification
         (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
         state.FightFunction = CrocomireFightFunction.WaitingForFirstDamage;
         Start(state, CrocomireBodyProgram.RoarCloseMouth);
-        (int Frame, int Duration)[] expected = [(26, 32), (25, 5), (25, 8), (24, 2), (24, 1), (24, 48)];
+        CrocomireAnimationsExpected[] expected = [new CrocomireAnimationsExpected(26, 32), new CrocomireAnimationsExpected(25, 5), new CrocomireAnimationsExpected(25, 8), new CrocomireAnimationsExpected(24, 2), new CrocomireAnimationsExpected(24, 1), new CrocomireAnimationsExpected(24, 48)];
         for (int index = 0; index < expected.Length; index++)
         {
             state.Body.InstructionTimer = NativeCountdown.Start(1);

@@ -31,12 +31,12 @@ internal static class SaveRamCodecVerification
         // Damage slot 1's payload under both directories, then mark the image with a non-signature marker.
         image[SaveRamLayout.SlotOffset(1) + SaveRamLayout.HealthOffset] ^= 16;
 
-        foreach ((byte[] marker, bool expectedCarry) in new (byte[], bool)[]
+        foreach ((byte[] marker, bool expectedCarry) in new VerifyInvalidSlotAndNoncanonicalMarkerCase[]
                  {
                      // Last word "ie" ($6569) is above "id" ($6469): the first mismatch leaves carry set.
-                     ("supermetroie"u8.ToArray(), true),
+                     new VerifyInvalidSlotAndNoncanonicalMarkerCase("supermetroie"u8.ToArray(), true),
                      // Last word "ic" ($6369) is below "id": carry clear.
-                     ("supermetroic"u8.ToArray(), false),
+                     new VerifyInvalidSlotAndNoncanonicalMarkerCase("supermetroic"u8.ToArray(), false),
                  })
         {
             marker.CopyTo(image, SaveRamLayout.CompletionMarkerOffset);
@@ -144,12 +144,12 @@ internal static class SaveRamCodecVerification
         AssertEqual(SaveFieldValue.MaximumValue, SaveRamCodec.ReadSlotWord(image, 0, SaveRamLayout.LoadedItemCountOffset),
             "the item-load counter's SRAM field holds the counter's largest value");
 
-        foreach ((string field, SuperMetroidSaveSnapshot outOfRange) in new (string, SuperMetroidSaveSnapshot)[]
+        foreach ((string field, SuperMetroidSaveSnapshot outOfRange) in new VerifyWidenedSlotFieldsRoundTripCase[]
                  {
-                     ("item-load counter", extremes with { LoadedItemCount = SaveFieldValue.MaximumValue + 1 }),
-                     ("dispatcher route", extremes with { LoadingGameState = -1 }),
-                     ("load station", extremes with { SaveStation = SaveFieldValue.MaximumValue + 1 }),
-                     ("clock minutes", extremes with { GameTimeMinutes = -1 }),
+                     new VerifyWidenedSlotFieldsRoundTripCase("item-load counter", extremes with { LoadedItemCount = SaveFieldValue.MaximumValue + 1 }),
+                     new VerifyWidenedSlotFieldsRoundTripCase("dispatcher route", extremes with { LoadingGameState = -1 }),
+                     new VerifyWidenedSlotFieldsRoundTripCase("load station", extremes with { SaveStation = SaveFieldValue.MaximumValue + 1 }),
+                     new VerifyWidenedSlotFieldsRoundTripCase("clock minutes", extremes with { GameTimeMinutes = -1 }),
                  })
         {
             AssertThrows<InvalidOperationException>(() => written.SaveSlot(1, outOfRange),

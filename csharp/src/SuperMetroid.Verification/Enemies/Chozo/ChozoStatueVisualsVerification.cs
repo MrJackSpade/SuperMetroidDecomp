@@ -71,8 +71,8 @@ internal static class ChozoStatueVisualsVerification
             var guarded = NewChozoProgramAndDrawReadGuard(rom);
             foreach ((PlmHeaderId header, ushort physical, ushort visual) in new[]
             {
-                (PlmHeaderId.ClearSlopeAccessForWreckedShipChozo, (ushort)0x012b, (ushort)0x0053),
-                (PlmHeaderId.BlockSlopeAccessForWreckedShipChozo, (ushort)0xa12b, (ushort)0x0054),
+                new VerifyChozoStatueVisualInstallationCase(PlmHeaderId.ClearSlopeAccessForWreckedShipChozo, 0x012b, 0x0053),
+                new VerifyChozoStatueVisualInstallationCase(PlmHeaderId.BlockSlopeAccessForWreckedShipChozo, 0xa12b, 0x0054),
             })
             {
                 var level = CreateRoom(new(width, 16),

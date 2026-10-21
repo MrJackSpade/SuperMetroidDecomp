@@ -42,7 +42,7 @@ internal static class MotherBrainEncodingDomainsVerification
     /// <summary>Earning adds without saturation and compares unsigned, so a wrapped credit is below one step again.</summary>
     private static void VerifyWalkCreditEarningWraps()
     {
-        foreach ((int start, int earned) in new[] { (65530, 32), (65535, 6), (250, 6), (224, 32), (40000, 6) })
+        foreach ((int start, int earned) in new[] { new VerifyWalkCreditEarningWrapsCase(65530, 32), new VerifyWalkCreditEarningWrapsCase(65535, 6), new VerifyWalkCreditEarningWrapsCase(250, 6), new VerifyWalkCreditEarningWrapsCase(224, 32), new VerifyWalkCreditEarningWrapsCase(40000, 6) })
         {
             MotherBrainWalkCredit credit = MotherBrainWalkCreditConstants.FromNativeWord(checked((ushort)start)).AddCredit(earned);
             int expected = NativeAdd(start, earned);

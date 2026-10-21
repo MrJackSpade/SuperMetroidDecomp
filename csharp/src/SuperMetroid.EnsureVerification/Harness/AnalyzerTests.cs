@@ -407,6 +407,30 @@ internal static class AnalyzerTests
         VerifySnippet("class Shutter { static int Run(int slot, int level, int samus) => slot; }", null, null, analyzer, assemblyName: "Other");
     }
 
+    /// <summary>Reports tuple types and literals in every position, passes declared types and deconstruction, and honours a justified external API (#1399).</summary>
+    internal static void VerifyTupleAnalyzer()
+    {
+        var analyzer = new TupleAnalyzer();
+        void Expect(string source, string? message = null) =>
+            VerifySnippet(source, message is null ? null : TupleAnalyzer.TupleId, message, analyzer);
+
+        // A tuple type in a field, a signature, a generic argument and a local, and a tuple literal in a LINQ projection.
+        Expect("class P { (int X, int Y) point; }", "'(int X, int Y)'");
+        Expect("class P { static (int, int) Range() => default; }", "'(int, int)'");
+        Expect("class P { System.Collections.Generic.List<(int Slot, int Tile)> points = []; }", "'(int Slot, int Tile)'");
+        Expect("class P { static int Sum(int[] values) { var pair = (values[0], values[1]); return pair.Item1; } }", "'(values[0], values[1])'");
+        Expect("using System.Linq; class P { static int Count(int[] values) => values.Select(value => (value, value * 2)).Count(); }",
+            "'(value, value * 2)'");
+        // System.ValueTuple named outright, and an external method that returns a tuple.
+        Expect("class P { static System.ValueTuple<int, int> Pair; }", "'System.ValueTuple<int, int>'");
+        Expect("class P { static int Quotient(int value) { var result = System.Math.DivRem(value, 3); return 0; } }", "'DivRem' returns");
+        // Declared types, and deconstructing one, pass.
+        Expect("readonly record struct Span(int First, int Last); class P { static int Width(Span span) { var (first, last) = span; return last - first; } }");
+        Expect("readonly record struct Span(int First, int Last); class P { static int Width(Span span) { int first, last; (first, last) = span; return last - first; } }");
+        // An external API that requires a tuple, justified at its site, passes.
+        Expect("class P { [System.Diagnostics.CodeAnalysis.SuppressMessage(\"Design\", \"SME6437\", Justification = \"Math.DivRem returns its quotient and remainder as a tuple.\")] static int Quotient(int value) { var result = System.Math.DivRem(value, 3); return 0; } }");
+    }
+
     /// <summary>Checks mirrored constants, successor switches and tuple domain types, with their near misses passing (#1375).</summary>
     internal static void VerifyDuplicateConceptAnalyzer()
     {
@@ -432,17 +456,7 @@ internal static class AnalyzerTests
         // A switch that skips, repeats or maps to other data is not the declaration order.
         Expect("enum Stage { A, B, C } static class S { static Stage Next(Stage s) => s switch { Stage.A => Stage.C, Stage.B => Stage.C, _ => Stage.A }; }");
         Expect("enum Stage { A, B, C } static class S { static int Cost(Stage s) => s switch { Stage.A => 1, Stage.B => 2, _ => 3 }; }");
-        // SME6430: a tuple matching a declared type, and a three-element tuple in a signature.
-        Expect("readonly record struct Rgb(byte Red, byte Green, byte Blue); static class P { static (byte Red, byte Green, byte Blue) Mix() => default; }",
-            DuplicateConceptAnalyzer.TupleDomainTypeId, "use the declared type 'Rgb'");
-        Expect("static class P { static System.Collections.Generic.IReadOnlyList<(int X, byte Y, int Tile)>? Points; }",
-            DuplicateConceptAnalyzer.TupleDomainTypeId, "declare a named type");
-        // Two named elements with no matching type, an unnamed tuple and a tuple local pass.
-        Expect("static class P { static (int First, int Last) Range() => (0, 1); }");
-        Expect("static class P { static (int, int, int) Triple() => (0, 1, 2); }");
-        Expect("static class P { static int Sum() { (int A, int B, int C) t = (1, 2, 3); return t.A + t.B + t.C; } }");
-        // Other assemblies are not checked.
-        VerifySnippet("static class P { static (byte R, byte G, byte B) Mix() => default; }", null, null, analyzer, assemblyName: "Other");
+
     }
 
     /// <summary>Checks string dispatch, string identities, composed keys and exposed fields, with their near misses passing (#1377).</summary>

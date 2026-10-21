@@ -89,15 +89,15 @@ internal static class RoomPlmShotBlockProgramDefinitions
         (ushort first, int stride, ushort restore) = role switch
         {
             Role.RespawningShot2x1 or Role.PermanentShot2x1 =>
-                (RoomPlmShotBlockDrawDefinitions.HorizontalFrame0, 8, (ushort)ShotBlockRestoreDraw.Horizontal),
+                new ShotBlockDrawShape(RoomPlmShotBlockDrawDefinitions.HorizontalFrame0, 8, (ushort)ShotBlockRestoreDraw.Horizontal),
             Role.RespawningShot1x2 or Role.PermanentShot1x2 =>
-                (RoomPlmShotBlockDrawDefinitions.VerticalFrame0, 8, (ushort)ShotBlockRestoreDraw.Vertical),
+                new ShotBlockDrawShape(RoomPlmShotBlockDrawDefinitions.VerticalFrame0, 8, (ushort)ShotBlockRestoreDraw.Vertical),
             Role.RespawningShot2x2 or Role.PermanentShot2x2 =>
-                (RoomPlmShotBlockDrawDefinitions.SquareFrame0, 16, (ushort)ShotBlockRestoreDraw.Square),
+                new ShotBlockDrawShape(RoomPlmShotBlockDrawDefinitions.SquareFrame0, 16, (ushort)ShotBlockRestoreDraw.Square),
             Role.RespawningShot1x1 or Role.PermanentShot1x1 or Role.RespawningSuperMissile or
                 Role.RespawningPowerBomb or Role.PermanentSuperMissile or Role.PermanentPowerBomb or
                 Role.EnemyBreakableTerrain =>
-                (RoomPlmShotBlockDrawDefinitions.SingleFrame0, 6, (ushort)0),
+                new ShotBlockDrawShape(RoomPlmShotBlockDrawDefinitions.SingleFrame0, 6, 0),
             _ => throw new InvalidOperationException($"Undefined shot-block role {role}."),
         };
         RoomPlmInstruction sound = role switch

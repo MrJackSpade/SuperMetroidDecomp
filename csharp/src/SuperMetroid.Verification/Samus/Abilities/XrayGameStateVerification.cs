@@ -25,7 +25,7 @@ internal static class XrayGameStateVerification
     /// </summary>
     internal static void VerifyXrayGameState()
     {
-        (SuperMetroidGame Game, SuperMetroidRuntime Runtime, SamusState Samus) CreateWithXraySelected()
+        CreateWithXraySelectedResult CreateWithXraySelected()
         {
             var random = new CartridgeRandom();
             SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(random: random);
@@ -51,7 +51,7 @@ internal static class XrayGameStateVerification
             AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "selecting X-ray stays in state eight");
             AssertEqual(HudItem.XRay, samus.SelectedHudItem, "Select reaches the equipped X-ray");
             AssertTrue(!samus.Xray.IsActive, "selection alone does not activate X-ray");
-            return (game, runtime, samus);
+            return new CreateWithXraySelectedResult(game, runtime, samus);
         }
 
         var (game, runtime, samus) = CreateWithXraySelected();

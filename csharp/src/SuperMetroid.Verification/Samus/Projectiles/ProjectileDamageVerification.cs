@@ -236,10 +236,10 @@ internal static class ProjectileDamageVerification
     /// </summary>
     private static void VerifyComboAngleStepWrapsAtTheByteBoundary()
     {
-        foreach ((SamusPoseId pose, int step, ushort from, ushort to) in new (SamusPoseId, int, ushort, ushort)[]
+        foreach ((SamusPoseId pose, int step, ushort from, ushort to) in new VerifyComboAngleStepWrapsAtTheByteBoundaryCase[]
         {
-            (SamusPoseId.FacingRightNormalPose, 4, 254, 2),
-            (SamusPoseId.FacingLeftNormalPose, -4, 2, 254),
+            new VerifyComboAngleStepWrapsAtTheByteBoundaryCase(SamusPoseId.FacingRightNormalPose, 4, 254, 2),
+            new VerifyComboAngleStepWrapsAtTheByteBoundaryCase(SamusPoseId.FacingLeftNormalPose, -4, 2, 254),
         })
         {
             var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);

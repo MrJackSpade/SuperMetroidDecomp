@@ -24,11 +24,11 @@ internal static class ChozoTourianDustBehaviorVerification
         // The scatter draws again while a candidate falls below its center, so the fixture's random sequence advances.
         ushort random = 0;
         enemies.VerificationServices().NextRandom = () => random = unchecked((ushort)(random + 4951));
-        foreach ((RoomEnemyProjectileKind kind, ChozoTourianDustProgram program) in new (RoomEnemyProjectileKind, ChozoTourianDustProgram)[]
+        foreach ((RoomEnemyProjectileKind kind, ChozoTourianDustProgram program) in new VerifyChozoTourianDustBehaviorCase[]
                  {
-                     (RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep, ChozoTourianDustProgram.Footsteps),
-                     (RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstepAlternate, ChozoTourianDustProgram.SpikeClearingExplosions),
-                     (RoomEnemyProjectileKind.TourianStatueDescentDust, ChozoTourianDustProgram.TourianDescentDust),
+                     new VerifyChozoTourianDustBehaviorCase(RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep, ChozoTourianDustProgram.Footsteps),
+                     new VerifyChozoTourianDustBehaviorCase(RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstepAlternate, ChozoTourianDustProgram.SpikeClearingExplosions),
+                     new VerifyChozoTourianDustBehaviorCase(RoomEnemyProjectileKind.TourianStatueDescentDust, ChozoTourianDustProgram.TourianDescentDust),
                  })
         {
             RoomEnemyProjectileSlot dust = enemies.Projectiles.EnemyProjectiles[0];

@@ -25,9 +25,9 @@ internal static class DisplayPassTests
         var native = SoftwareFrameSnapshotRenderer.Render(packet);
         int count = 0;
         using var timer = new D3D11GpuTimer(device);
-        foreach (var size in new[] { (256,224), (512,448), (800,600), (1920,1080), (319,601), (1,1), (1,224), (256,1) })
+        foreach (var size in new[] { new DisplaySize(256,224), new DisplaySize(512,448), new DisplaySize(800,600), new DisplaySize(1920,1080), new DisplaySize(319,601), new DisplaySize(1,1), new DisplaySize(1,224), new DisplaySize(256,1) })
         {
-            int width = size.Item1, height = size.Item2;
+            int width = size.Width, height = size.Height;
             using var target = device.Device.CreateTexture2D(new Texture2DDescription(Format.B8G8R8A8_UNorm,
                 (uint)width, (uint)height, 1, 1, BindFlags.RenderTarget));
             using var view = device.Device.CreateRenderTargetView(target);

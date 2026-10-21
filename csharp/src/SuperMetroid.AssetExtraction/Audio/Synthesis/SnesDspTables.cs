@@ -32,7 +32,7 @@ internal static class SnesDspTables
     /// <remarks>The native order is indices 255-phase, 511-phase, 256+phase, phase.
     /// Share the four raw values and their normalization across the sample. Rebuilding
     /// them separately with decimal Taylor series dominated real-time frame processing.</remarks>
-    internal static (ushort Tap0, ushort Tap1, ushort Tap2, ushort Tap3) GaussianCoefficients(int phase)
+    internal static GaussianTaps GaussianCoefficients(int phase)
     {
         if ((uint)phase >= 256) throw new ArgumentOutOfRangeException(nameof(phase));
         double tap0 = GaussianRaw(255 - phase);
@@ -40,8 +40,12 @@ internal static class SnesDspTables
         double tap2 = GaussianRaw(256 + phase);
         double tap3 = GaussianRaw(phase);
         double scale = 2048 / (tap0 + tap1 + tap2 + tap3);
-        return ((ushort)(tap0 * scale + .5), (ushort)(tap1 * scale + .5),
-            (ushort)(tap2 * scale + .5), (ushort)(tap3 * scale + .5));
+        var taps = new GaussianTaps();
+        taps[0] = (int)(tap0 * scale + .5);
+        taps[1] = (int)(tap1 * scale + .5);
+        taps[2] = (int)(tap2 * scale + .5);
+        taps[3] = (int)(tap3 * scale + .5);
+        return taps;
     }
 
     /// <summary>Evaluates the windowed sinc sample used before four-tap phase normalization.</summary>

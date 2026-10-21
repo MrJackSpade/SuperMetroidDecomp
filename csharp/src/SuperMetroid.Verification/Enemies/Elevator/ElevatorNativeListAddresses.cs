@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Elevator;
 
 namespace SuperMetroid.Verification.Enemies.Elevator;
@@ -12,9 +13,9 @@ internal static class ElevatorNativeListAddresses
     internal const byte Bank = 0xa3;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (ElevatorProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<ElevatorProgram>[] Entries =
     [
-        (ElevatorProgram.Loop, 0x94d6),
+        new NativeProgramEntry<ElevatorProgram>(ElevatorProgram.Loop, 0x94d6),
     ];
 
 }

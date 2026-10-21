@@ -25,10 +25,10 @@ internal static class WorkRobotLaserBehaviorVerification
             PaletteIndex = 3072,
         };
         var state = new WorkRobotEnemyState();
-        foreach ((WorkRobotLaser definition, short xVelocity) in new (WorkRobotLaser, short)[]
+        foreach ((WorkRobotLaser definition, short xVelocity) in new VerifyWorkRobotLaserBehaviorCase[]
                  {
-                     (WorkRobotLaser.UpLeft, -512), (WorkRobotLaser.Horizontal, -512), (WorkRobotLaser.DownLeft, -512),
-                     (WorkRobotLaser.UpRight, 512), (WorkRobotLaser.DownRight, 512),
+                     new VerifyWorkRobotLaserBehaviorCase(WorkRobotLaser.UpLeft, -512), new VerifyWorkRobotLaserBehaviorCase(WorkRobotLaser.Horizontal, -512), new VerifyWorkRobotLaserBehaviorCase(WorkRobotLaser.DownLeft, -512),
+                     new VerifyWorkRobotLaserBehaviorCase(WorkRobotLaser.UpRight, 512), new VerifyWorkRobotLaserBehaviorCase(WorkRobotLaser.DownRight, 512),
                  })
         {
             state.LaserVelocity = new(xVelocity, 0);

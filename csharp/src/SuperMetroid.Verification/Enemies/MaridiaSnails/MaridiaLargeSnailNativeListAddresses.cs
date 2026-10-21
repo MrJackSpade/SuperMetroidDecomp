@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.MaridiaSnails;
 
 namespace SuperMetroid.Verification.Enemies.MaridiaSnails;
@@ -13,24 +14,24 @@ internal static class MaridiaLargeSnailNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly (MaridiaLargeSnailProgram Program, ushort Entry)[] Entries =
+    internal static readonly NativeProgramEntry<MaridiaLargeSnailProgram>[] Entries =
     [
-        (MaridiaLargeSnailProgram.FacingLeftIdle, 0xca4b),
-        (MaridiaLargeSnailProgram.FacingLeftAttacking, 0xca51),
-        (MaridiaLargeSnailProgram.FacingLeftRollingForwards, 0xca8b),
-        (MaridiaLargeSnailProgram.FacingLeftRollingBackwards, 0xcab3),
-        (MaridiaLargeSnailProgram.FacingRightIdle, 0xcadb),
-        (MaridiaLargeSnailProgram.FacingRightAttacking, 0xcae1),
-        (MaridiaLargeSnailProgram.FacingRightRollingForwards, 0xcb1b),
-        (MaridiaLargeSnailProgram.FacingRightRollingBackwards, 0xcb43),
+        new NativeProgramEntry<MaridiaLargeSnailProgram>(MaridiaLargeSnailProgram.FacingLeftIdle, 0xca4b),
+        new NativeProgramEntry<MaridiaLargeSnailProgram>(MaridiaLargeSnailProgram.FacingLeftAttacking, 0xca51),
+        new NativeProgramEntry<MaridiaLargeSnailProgram>(MaridiaLargeSnailProgram.FacingLeftRollingForwards, 0xca8b),
+        new NativeProgramEntry<MaridiaLargeSnailProgram>(MaridiaLargeSnailProgram.FacingLeftRollingBackwards, 0xcab3),
+        new NativeProgramEntry<MaridiaLargeSnailProgram>(MaridiaLargeSnailProgram.FacingRightIdle, 0xcadb),
+        new NativeProgramEntry<MaridiaLargeSnailProgram>(MaridiaLargeSnailProgram.FacingRightAttacking, 0xcae1),
+        new NativeProgramEntry<MaridiaLargeSnailProgram>(MaridiaLargeSnailProgram.FacingRightRollingForwards, 0xcb1b),
+        new NativeProgramEntry<MaridiaLargeSnailProgram>(MaridiaLargeSnailProgram.FacingRightRollingBackwards, 0xcb43),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (MaridiaLargeSnailCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, MaridiaLargeSnailNativeListAddressesInstruction> Instructions = new()
     {
-        [0xcb6b] = (MaridiaLargeSnailCueKind.PlaySplash, ""),
-        [0xccb3] = (MaridiaLargeSnailCueKind.FinishAttack, ""),
-        [0xccbe] = (MaridiaLargeSnailCueKind.AllowAttackRotation, ""),
-        [0xccc9] = (MaridiaLargeSnailCueKind.DisallowAttackRotation, ""),
+        [0xcb6b] = new MaridiaLargeSnailNativeListAddressesInstruction(MaridiaLargeSnailCueKind.PlaySplash, ""),
+        [0xccb3] = new MaridiaLargeSnailNativeListAddressesInstruction(MaridiaLargeSnailCueKind.FinishAttack, ""),
+        [0xccbe] = new MaridiaLargeSnailNativeListAddressesInstruction(MaridiaLargeSnailCueKind.AllowAttackRotation, ""),
+        [0xccc9] = new MaridiaLargeSnailNativeListAddressesInstruction(MaridiaLargeSnailCueKind.DisallowAttackRotation, ""),
     };
 }

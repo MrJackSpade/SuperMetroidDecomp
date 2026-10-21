@@ -12,29 +12,29 @@ namespace SuperMetroid.RenderVerification.Rooms;
 internal static class RetailSceneTests
 {
     /// <summary>Command-to-scene mapping in the order used by aggregate GPU qualification.</summary>
-    private static readonly (string Command, Action<D3D11RenderDevice, D3D11FrameRenderer> Run)[] scenes =
+    private static readonly RetailScene[] scenes =
     [
-        ("--retail-frontend", RetailFrontendTests.Run),
-        ("--retail-intro", RetailCinematicTests.Run),
-        ("--retail-transitions", RetailTransitionTests.Run),
-        ("--retail-file-map", RetailFileMapTests.Run),
-        ("--retail-attract", RetailAttractTests.Run),
-        ("--retail-rooms", RetailRoomPublicationTests.Run),
-        ("--runtime-overlays", RuntimeOverlayTests.Run),
-        ("--retail-ridley", RetailRidleyCaptureTests.Run),
-        ("--retail-doors", RetailDoorCaptureTests.Run),
-        ("--retail-kraid", RetailKraidCaptureTests.Run),
-        ("--retail-crocomire", RetailCrocomireCaptureTests.Run),
-        ("--norfair-glow", NorfairGlowCaptureTests.Run),
-        ("--retail-eye", RetailEyeCaptureTests.Run),
-        ("--retail-elevator", RetailElevatorCaptureTests.Run),
-        ("--retail-elevator-return", RetailElevatorReturnTests.Run),
-        ("--retail-ceres-quakes", RetailCeresQuakeTests.Run),
-        ("--retail-save", RetailSaveCaptureTests.Run),
-        ("--retail-death", RetailDeathCaptureTests.Run),
-        ("--retail-reserves", RetailDeathCaptureTests.RunReserveRecovery),
-        ("--retail-ending", RetailEndingTests.Run),
-        ("--retail-ending-handoff", RetailEndingHandoffTests.Run),
+        new RetailScene("--retail-frontend", RetailFrontendTests.Run),
+        new RetailScene("--retail-intro", RetailCinematicTests.Run),
+        new RetailScene("--retail-transitions", RetailTransitionTests.Run),
+        new RetailScene("--retail-file-map", RetailFileMapTests.Run),
+        new RetailScene("--retail-attract", RetailAttractTests.Run),
+        new RetailScene("--retail-rooms", RetailRoomPublicationTests.Run),
+        new RetailScene("--runtime-overlays", RuntimeOverlayTests.Run),
+        new RetailScene("--retail-ridley", RetailRidleyCaptureTests.Run),
+        new RetailScene("--retail-doors", RetailDoorCaptureTests.Run),
+        new RetailScene("--retail-kraid", RetailKraidCaptureTests.Run),
+        new RetailScene("--retail-crocomire", RetailCrocomireCaptureTests.Run),
+        new RetailScene("--norfair-glow", NorfairGlowCaptureTests.Run),
+        new RetailScene("--retail-eye", RetailEyeCaptureTests.Run),
+        new RetailScene("--retail-elevator", RetailElevatorCaptureTests.Run),
+        new RetailScene("--retail-elevator-return", RetailElevatorReturnTests.Run),
+        new RetailScene("--retail-ceres-quakes", RetailCeresQuakeTests.Run),
+        new RetailScene("--retail-save", RetailSaveCaptureTests.Run),
+        new RetailScene("--retail-death", RetailDeathCaptureTests.Run),
+        new RetailScene("--retail-reserves", RetailDeathCaptureTests.RunReserveRecovery),
+        new RetailScene("--retail-ending", RetailEndingTests.Run),
+        new RetailScene("--retail-ending-handoff", RetailEndingHandoffTests.Run),
     ];
 
     /// <summary>Runs the selected retail scenes on each GPU device kind with one renderer reused per device.</summary>

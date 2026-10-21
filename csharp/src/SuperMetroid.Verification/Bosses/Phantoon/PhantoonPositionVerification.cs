@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
@@ -57,7 +58,7 @@ internal static class PhantoonPositionVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(40, 184));
         samus.Control.LockHandlers();
-        var positions = new HashSet<(ushort X, ushort Y)>();
+        var positions = new HashSet<MotherBrainRinkaDoorSpawnExpected>();
         for (int frame = 0; frame < 1400; frame++)
         {
             var phantoon = runtime.Enemies.PhantoonBehavior.Combat.Phantoon ?? throw new InvalidOperationException("Verification requires the loaded Phantoon.");
@@ -81,7 +82,7 @@ internal static class PhantoonPositionVerification
                 AssertEqual(displayedBodyY, unchecked((ushort)(40 - layer.Registers.Bg2Scroll.Y)),
                     "Phantoon displayed BG2 anchor shares the collision body's vertical position");
             }
-            positions.Add((phantoon.Body.Position.X.Whole, phantoon.Body.Position.Y.Whole));
+            positions.Add(new MotherBrainRinkaDoorSpawnExpected(phantoon.Body.Position.X.Whole, phantoon.Body.Position.Y.Whole));
         }
         AssertTrue(positions.Count > 20, "Phantoon test includes moving body positions, not only stationary introduction");
         Console.WriteLine($"  Phantoon: 1400 live/NMI/capture frames follow {positions.Count} distinct body positions.");

@@ -42,6 +42,6 @@ internal abstract class NativeCheckpointRecords : IDisposable
 
     /// <summary>Reads a record header's source frame and boundary PC.</summary>
     /// <param name="header">At least <see cref="HeaderBytes"/> bytes.</param>
-    protected static (int Frame, int Pc) ReadHeader(ReadOnlySpan<byte> header) =>
-        (BinaryPrimitives.ReadInt32LittleEndian(header), BinaryPrimitives.ReadInt32LittleEndian(header[sizeof(int)..]));
+    protected static ReadHeaderResult ReadHeader(ReadOnlySpan<byte> header) =>
+        new ReadHeaderResult(BinaryPrimitives.ReadInt32LittleEndian(header), BinaryPrimitives.ReadInt32LittleEndian(header[sizeof(int)..]));
 }

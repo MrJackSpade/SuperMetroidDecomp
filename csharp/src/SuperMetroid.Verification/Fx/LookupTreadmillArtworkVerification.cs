@@ -25,7 +25,7 @@ internal static class LookupTreadmillArtworkVerification
             AssertEqual("frameIndex", AssertThrows<ArgumentOutOfRangeException>(
                 () => WreckedShipTreadmillRomData.FrameSource(invalid), "Treadmill frame domain").ParamName,
                 "Preserved rejection parameter");
-        foreach (var pair in new[] { (Definition: right, First: 0x81e3), (Definition: left, First: 0x81f9) })
+        foreach (var pair in new[] { new VerifyTreadmillArtworkSourcesCase(Definition:right, First:0x81e3), new VerifyTreadmillArtworkSourcesCase(Definition:left, First:0x81f9) })
         {
             for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             {

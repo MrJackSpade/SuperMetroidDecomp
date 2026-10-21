@@ -1,3 +1,4 @@
+using SuperMetroid.EnsureVerification.CartridgeEncoding;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -38,10 +39,10 @@ internal static class RoomLifetimeAnalyzerTests
     private static void ExpectNone(string source) => Check(source, null);
 
     /// <summary>Compiles one file with the markers and checks that it reports exactly one diagnostic with <paramref name="id"/> containing <paramref name="message"/>.</summary>
-    private static void Expect(string source, string id, string message) => Check(source, (id, message));
+    private static void Expect(string source, string id, string message) => Check(source, new ExpectedDiagnostic(id, message));
 
     /// <summary>Compiles one file with the markers and checks its analyzer diagnostics against <paramref name="expected"/>.</summary>
-    private static void Check(string source, (string Id, string Message)? expected)
+    private static void Check(string source, ExpectedDiagnostic? expected)
     {
         var compilation = CSharpCompilation.Create("RoomLifetimeFixture",
             [CSharpSyntaxTree.ParseText(Markers), CSharpSyntaxTree.ParseText(source)], AnalyzerTests.References,

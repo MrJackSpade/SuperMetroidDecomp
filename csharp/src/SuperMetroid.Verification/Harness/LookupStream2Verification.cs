@@ -1418,11 +1418,11 @@ internal static class LookupStream2Verification
                     authoredSystem.DrawTrails(frame, Position16<RoomPixels>.Zero, catalog, InstalledFixtures.ProjectileArtwork());
                 });
                 AssertTrue(nativeOam.LowTable.SequenceEqual(authoredOam.LowTable), "Trail catalog preserves live command/termination/freeze frame output");
-                foreach (var sides in new[] { (nativeSystem.TrailSlots[0].Left, authoredSystem.TrailSlots[0].Left), (nativeSystem.TrailSlots[0].Right, authoredSystem.TrailSlots[0].Right) })
+                foreach (var sides in new[] { new VerifyLookupStream2TrailProgramsCase(nativeSystem.TrailSlots[0].Left, authoredSystem.TrailSlots[0].Left), new VerifyLookupStream2TrailProgramsCase(nativeSystem.TrailSlots[0].Right, authoredSystem.TrailSlots[0].Right) })
                 {
-                    AssertEqual(sides.Item1.InstructionPointer, sides.Item2.InstructionPointer, "Trail artwork cannot change instruction cursor");
-                    AssertEqual(sides.Item1.InstructionTimer.RawValue, sides.Item2.InstructionTimer.RawValue, "Trail artwork cannot change live timing");
-                    AssertEqual(sides.Item1.Position.Y, sides.Item2.Position.Y, "Trail artwork cannot change sibling-targeted movement");
+                    AssertEqual(sides.First.InstructionPointer, sides.Second.InstructionPointer, "Trail artwork cannot change instruction cursor");
+                    AssertEqual(sides.First.InstructionTimer.RawValue, sides.Second.InstructionTimer.RawValue, "Trail artwork cannot change live timing");
+                    AssertEqual(sides.First.Position.Y, sides.Second.Position.Y, "Trail artwork cannot change sibling-targeted movement");
                 }
             }
         }
@@ -1526,7 +1526,7 @@ internal static class LookupStream2Verification
         Check(stock, original);
         AssertEqual(8, stock.tubeColorSeeds.Length,
             "tube stores only its eight authored seed colors");
-        foreach (var (statue, edits) in new[] { ("wreckedShipEdits", stock.wreckedShipEdits), ("lowerNorfairEdits", stock.lowerNorfairEdits) })
+        foreach (var (statue, edits) in new[] { new VerifyLookupStream2TubeRampCase("wreckedShipEdits", stock.wreckedShipEdits), new VerifyLookupStream2TubeRampCase("lowerNorfairEdits", stock.lowerNorfairEdits) })
             AssertEqual(0, edits.Count, $"stock {statue} store no colors beyond the calculated statue paint");
         AssertEqual(0, stock.tubeColorEdits.Count,
             "stock tube ramp and repeated half need no residuals");
@@ -1979,8 +1979,8 @@ internal static class LookupStream2Verification
         object health = stock.health;
         object secondary = stock.secondary;
         AssertTrue(ReferenceEquals(health, secondary), "Identical Kraid secondary colors share calculated primary source");
-        foreach (var (name, band) in new (string, IReadOnlyList<Bgr555>)[]
-                 { ("health", stock.health), ("roomBackdrop", stock.roomBackdrop), ("initialTarget", stock.initialTarget), ("deathArm", stock.deathArm) })
+        foreach (var (name, band) in new VerifyLookupStream2KraidRampsCase[]
+                 { new VerifyLookupStream2KraidRampsCase("health", stock.health), new VerifyLookupStream2KraidRampsCase("roomBackdrop", stock.roomBackdrop), new VerifyLookupStream2KraidRampsCase("initialTarget", stock.initialTarget), new VerifyLookupStream2KraidRampsCase("deathArm", stock.deathArm) })
         {
             int deviations = band switch
             {

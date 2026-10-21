@@ -30,7 +30,7 @@ internal static class PhantoonWaveVerification
         AssertEqual(65534, wave.Phase, "native setup-only phase");
         AssertTrue(wave.ScrollCycle.All(word => word == 0), "setup does not run the scroll pre-instruction");
         // Original CPU lifecycle capture: zero base, amplitude $C00, phase delta 8.
-        foreach (var (phase, first) in new[] { (14, 2), (30, 4), (46, 6), (62, 8) })
+        foreach (var (phase, first) in new[] { new VerifyPhantoonWaveLifecycleCase(14, 2), new VerifyPhantoonWaveLifecycleCase(30, 4), new VerifyPhantoonWaveLifecycleCase(46, 6), new VerifyPhantoonWaveLifecycleCase(62, 8) })
         {
             wave.Step(boss);
             AssertEqual(phase, wave.Phase, "original-CPU phase progression");
@@ -83,7 +83,7 @@ internal static class PhantoonWaveVerification
         // Original $A7:D464/$D486 captures: health one, denominator twelve,
         // second even-frame update. These fixed colors distinguish signed rounding
         // and the old extra-step denominator without requiring the local CPU trace.
-        foreach (var (current, target, expected) in new[] { (14, 0, 12), (9692, 0, 8601), (0, 14, 1), (0, 9692, 34) })
+        foreach (var (current, target, expected) in new[] { new VerifyPhantoonFadeColorsCase(14, 0, 12), new VerifyPhantoonFadeColorsCase(9692, 0, 8601), new VerifyPhantoonFadeColorsCase(0, 14, 1), new VerifyPhantoonFadeColorsCase(0, 9692, 34) })
         {
             Bgr555 actual = PhantoonPresentation.CalculatePhantoonTransitionColor(1, 12, Bgr555.FromWord((ushort)current), Bgr555.FromWord((ushort)target));
             AssertEqual(expected, actual, "original-CPU Phantoon fixed-point palette component rounding");

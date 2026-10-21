@@ -34,7 +34,7 @@ internal static class RoomStateSelectionDefinitionsVerification
         {
             // Independently decode original executable selectors. Do not use the
             // room importer: it delegates selection to the production implementation.
-            var native = new List<(ushort Code, byte Operand, ushort Target)>();
+            var native = new List<RoomStateSelectionDefinitionsNative>();
             int address = 0x8f0000 | (room + 11);
             while (rom.ReadCartridgeWord(address) != 0xe5e6)
             {
@@ -48,7 +48,7 @@ internal static class RoomStateSelectionDefinitionsVerification
                     0xe652 or 0xe669 => 0,
                     _ => throw new InvalidDataException($"Unexpected native selector {code:X4}"),
                 };
-                native.Add((code, operand, rom.ReadCartridgeWord(address)));
+                native.Add(new RoomStateSelectionDefinitionsNative(code, operand, rom.ReadCartridgeWord(address)));
                 address += 2;
             }
             ushort fallback = (ushort)(address + 2);

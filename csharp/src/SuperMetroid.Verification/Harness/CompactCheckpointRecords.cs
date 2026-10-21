@@ -34,7 +34,7 @@ internal sealed class CompactCheckpointRecords : NativeCheckpointRecords
     /// <param name="layout">The layout the payloads were packed with.</param>
     /// <param name="counts">The manifest's record count and initial record index.</param>
     /// <param name="initial">The complete initial record.</param>
-    public CompactCheckpointRecords(FileStream file, ReplayTraceLayout layout, (int Records, int Initial) counts, NativeCheckpoint initial)
+    public CompactCheckpointRecords(FileStream file, ReplayTraceLayout layout, Count counts, NativeCheckpoint initial)
     {
         this.file = file;
         this.layout = layout;

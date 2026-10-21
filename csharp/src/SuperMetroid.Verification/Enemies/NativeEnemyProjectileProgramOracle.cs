@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Hardware;
@@ -24,7 +25,7 @@ internal static class NativeEnemyProjectileProgramOracle
     /// </param>
     internal static int CompareAll<TProgram, TFrame, TCue>(
         IImportCartridgeSource cartridge,
-        (TProgram Program, ushort Entry)[] entries,
+        NativeProgramEntry<TProgram>[] entries,
         AnimationProgramSet<TProgram, TFrame, TCue> programs,
         Func<TFrame, ushort> presentationKey,
         NativeEnemyProjectileCueRules<TCue> rules,
@@ -36,7 +37,7 @@ internal static class NativeEnemyProjectileProgramOracle
         AssertEqual(Enum.GetValues<TProgram>().Length, entries.Length, $"every typed {typeof(TProgram).Name} has a native entry");
         for (int index = 0; index < entries.Length; index++)
             AssertEqual(Enum.GetValues<TProgram>()[index], entries[index].Program, $"the {typeof(TProgram).Name} values are declared in authored order");
-        AssertTrue(entries.Zip(entries.Skip(1)).All(pair => pair.First.Entry < pair.Second.Entry), $"native {typeof(TProgram).Name} entries ascend");
+        AssertTrue(entries.Zip(entries.Skip(1), (first, second) => first.Entry < second.Entry).All(ascends => ascends), $"native {typeof(TProgram).Name} entries ascend");
         var family = new Family<TProgram, TFrame, TCue>(cartridge, entries, programs, presentationKey, rules, reflectedPresentationKey);
         return entries.Sum(item => Compare(family, item.Program, item.Entry, addresses: null));
     }
@@ -47,7 +48,7 @@ internal static class NativeEnemyProjectileProgramOracle
     /// </summary>
     internal static Dictionary<TProgram, ushort[]> StepAddresses<TProgram, TFrame, TCue>(
         IImportCartridgeSource cartridge,
-        (TProgram Program, ushort Entry)[] entries,
+        NativeProgramEntry<TProgram>[] entries,
         AnimationProgramSet<TProgram, TFrame, TCue> programs,
         Func<TFrame, ushort> presentationKey,
         NativeEnemyProjectileCueRules<TCue> rules,
@@ -68,7 +69,7 @@ internal static class NativeEnemyProjectileProgramOracle
     /// <summary>One family's programs and how its native lists are read and compared.</summary>
     private sealed record Family<TProgram, TFrame, TCue>(
         IImportCartridgeSource Cartridge,
-        (TProgram Program, ushort Entry)[] Entries,
+        NativeProgramEntry<TProgram>[] Entries,
         AnimationProgramSet<TProgram, TFrame, TCue> Programs,
         Func<TFrame, ushort> PresentationKey,
         NativeEnemyProjectileCueRules<TCue> Rules,
@@ -78,7 +79,7 @@ internal static class NativeEnemyProjectileProgramOracle
         where TCue : notnull;
 
     /// <summary>The program whose native list starts at <paramref name="address"/>, if one does.</summary>
-    private static TProgram? ProgramAt<TProgram>((TProgram Program, ushort Entry)[] entries, ushort address)
+    private static TProgram? ProgramAt<TProgram>(NativeProgramEntry<TProgram>[] entries, ushort address)
         where TProgram : struct, Enum =>
         entries.Any(item => item.Entry == address) ? entries.Single(item => item.Entry == address).Program : null;
 
@@ -88,7 +89,7 @@ internal static class NativeEnemyProjectileProgramOracle
         where TFrame : struct
         where TCue : notnull
     {
-        (IImportCartridgeSource cartridge, (TProgram Program, ushort Entry)[] entries, AnimationProgramSet<TProgram, TFrame, TCue> programs,
+        (IImportCartridgeSource cartridge, NativeProgramEntry<TProgram>[] entries, AnimationProgramSet<TProgram, TFrame, TCue> programs,
             Func<TFrame, ushort> presentationKey, NativeEnemyProjectileCueRules<TCue> rules, Func<TFrame, ushort?>? reflectedPresentationKey) = family;
         var steps = programs.Steps(program);
         ushort cursor = entry;
@@ -177,7 +178,7 @@ internal static class NativeEnemyProjectileProgramOracle
     }
 
     /// <summary>The native entry of <paramref name="program"/>.</summary>
-    internal static ushort EntryOf<TProgram>((TProgram Program, ushort Entry)[] entries, TProgram program)
+    internal static ushort EntryOf<TProgram>(NativeProgramEntry<TProgram>[] entries, TProgram program)
         where TProgram : struct, Enum =>
         entries.Single(item => EqualityComparer<TProgram>.Default.Equals(item.Program, program)).Entry;
 }

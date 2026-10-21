@@ -42,3 +42,4 @@ SME6349 | Design | Warning | CartridgeEncodingAnalyzer
 SME6392 | Design | Warning | SpeciesIdentityAnalyzer
 SME6437 | Design | Error | TupleAnalyzer
 SME6438 | Design | Error | CoreVocabularyAnalyzer
+SME6439 | Design | Error | CompatibilityServiceAnalyzer

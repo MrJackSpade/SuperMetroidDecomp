@@ -75,13 +75,18 @@ internal static class XrayGameplayTests
             if (!reveal && !sub && !half && !subtract)
             {
                 // Native Phantoon configuration adds BG2 to main BG1/eligible OBJ,
-                // without putting the body in the main-screen priority contest.
-                var additive = new GameplayColorMathRenderLayer(new(registers with
-                {
-                    MainScreenLayers = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj,
-                }, bg1), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new ColorMathRegisters { ColorMath = SnesColorMathControl.Bg1 | SnesColorMathControl.Bg3 | SnesColorMathControl.Obj | SnesColorMathControl.Backdrop, AddSubscreen = true, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, subscreenUsesBg2: true);
+                // without putting the body in the main-screen priority contest. His body is the boss's own BG2
+                // image (#1353); the VRAM tilemap holds the same words, so both sources show the same body (#1426).
+                foreach (bool bossImage in new[] { false, true })
                 foreach (bool blackBody in new[] { false, true })
                 {
+                    var bodyRooms = bossImage
+                        ? bg1 with { BossBg2 = new BossBg2Tilemap([.. Enumerable.Repeat((ushort)2, 64 * 32)], new(64, 32)) }
+                        : bg1;
+                    var additive = new GameplayColorMathRenderLayer(new(registers with
+                    {
+                        MainScreenLayers = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj,
+                    }, bodyRooms), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new ColorMathRegisters { ColorMath = SnesColorMathControl.Bg1 | SnesColorMathControl.Bg3 | SnesColorMathControl.Obj | SnesColorMathControl.Backdrop, AddSubscreen = true, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, subscreenUsesBg2: true);
                     var bodyColors = cgram.Colors.ToArray();
                     if (blackBody) bodyColors[2] = Bgr555.Black;
                     var addScene = new LayeredRenderSnapshot(PpuMemorySnapshot.FromOam(vram.Bytes, bodyColors, oam, 1, 0), [additive], 0, 15);
@@ -119,8 +124,10 @@ internal static class XrayGameplayTests
             var colors = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
             // The OBSEL is drawn after the layer below, keeping the seeded stream; the OAM converts under it then.
             ushort Word() => (ushort)random.Next(65536);
+            // Tilemap and character bases are VRAM word addresses, which are fifteen bits.
+            int VramWord() => random.Next(SnesPpuLayout.VramWordCount);
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(Word(), Word()), new Position16<Bg2Pixels>(Word(), Word()),
-                frame % 2 == 0 ? new Extent16<TilemapCells>(64, 32) : new Extent16<TilemapCells>(32, 64), Word(), Word(), Word(), Word(),
+                frame % 2 == 0 ? new Extent16<TilemapCells>(64, 32) : new Extent16<TilemapCells>(32, 64), VramWord(), VramWord(), VramWord(), VramWord(),
                 (SnesMainScreenLayers)(random.Next(32) & 0x13));
             var gameplay = new OrdinaryGameplayRenderLayer(registers, RoomBackgroundsFixtures.Seeded(random, registers.Bg1Scroll.AsBgPlaneScroll(),
                     frame % 2 == 0 ? registers.Bg2Scroll.AsBgPlaneScroll() : null, door: frame % 3 == 0, overlay: frame % 4 == 0),
@@ -129,7 +136,7 @@ internal static class XrayGameplayTests
                 Enumerable.Range(0, 192).Select(_ => Word()).ToArray()));
             var lines = Enumerable.Range(0, 224).Select(_ => new XrayWindowLine((byte)random.Next(256), (byte)random.Next(256))).ToArray();
             int bg3Rows = frame % 2 == 0 ? 32 : 64;
-            var bg3 = new Bg2BppColorMathRenderLayer(gameplay.Rooms.Bg3, random.Next(Layer3Plane.Rows - bg3Rows + 1), Word(), bg3Rows, 32,
+            var bg3 = new Bg2BppColorMathRenderLayer(gameplay.Rooms.Bg3, random.Next(Layer3Plane.Rows - bg3Rows + 1), VramWord(), bg3Rows, 32,
                 ExpandedColorMathOperation.Add, Enumerable.Range(0, 224).Select(_ => new Position16<BgPlanePixels>(Word(), Word())).ToArray());
             bool bg2Subscreen = frame % 4 == 0;
             var layer = new GameplayColorMathRenderLayer(gameplay, lines, frame % 2 == 0, new ColorMathRegisters { ColorMath = (SnesColorMathControl)random.Next(256), AddSubscreen = bg2Subscreen || frame % 3 != 0, FixedRed = (byte)random.Next(32), FixedGreen = (byte)random.Next(32), FixedBlue = (byte)random.Next(32) }, bg2Subscreen ? null : bg3, bg2Subscreen);

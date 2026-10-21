@@ -122,6 +122,16 @@ bool Bg2OverlayWord(uint2 scrolled, uint2 size, out uint entry)
     entry = index < 2048 ? RoomLevels[RoomLevels[RoomBg2OverlayWord] + index] : 4294967295u;
     return entry != 4294967295u;
 }
+// A boss body's tilemap (BossBg2Tilemap) in the hardware's screen order, at the pass's map size. Every BG2 sampler
+// reads the boss through this, so a color-math pass shows the same body as an ordinary one (#1426).
+uint BossBg2Word(uint2 scrolled, uint2 size, out uint2 within)
+{
+    uint2 position = scrolled & 65535 & (size * 8 - 1);
+    uint2 tile = position >> 3;
+    uint page = ((tile.y >> 5) * (size.x >> 5) + (tile.x >> 5)) * 1024;
+    within = position & 7;
+    return RoomLevels[RoomLevels[RoomBossBg2Word] + page + (tile.y & 31) * 32 + (tile.x & 31)];
+}
 // BG2 from the room's layer-2 plane or the sky's rows, or BG1 as RoomBackgrounds resolves it: a door's source
 // screen, then words written over BG1, then the level plane.
 bool RoomTile(uint source, uint2 scrolled, out uint entry, out uint2 within)
@@ -349,15 +359,7 @@ void Main(uint3 id : SV_DispatchThreadID)
     else if (source == RoomSourceBg3)
         entry = Bg3Word(TilemapWord, MapHeight, scrolled, within);
     else if (source == RoomSourceBossBg2)
-    {
-        // A boss body's tilemap (BossBg2Tilemap) in the hardware's screen order, at the pass's map size.
-        uint x = scrolled.x & (MapWidth * 8 - 1);
-        uint y = scrolled.y & (MapHeight * 8 - 1);
-        uint tileX = x >> 3, tileY = y >> 3;
-        uint page = ((tileY >> 5) * (MapWidth >> 5) + (tileX >> 5)) * 1024;
-        entry = RoomLevels[RoomLevels[RoomBossBg2Word] + page + (tileY & 31) * 32 + (tileX & 31)];
-        within = uint2(x & 7, y & 7);
-    }
+        entry = BossBg2Word(scrolled, uint2(MapWidth, MapHeight), within);
     else if (source != 0)
     {
         if (!RoomTile(source, scrolled, entry, within)) return;

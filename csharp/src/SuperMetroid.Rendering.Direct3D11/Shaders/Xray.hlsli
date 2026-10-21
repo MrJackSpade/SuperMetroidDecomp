@@ -20,6 +20,8 @@ uint2 XrayBackground(uint roomSource, uint map, uint chars, uint2 size, uint2 po
     }
     else if (source == RoomSourceBg3)
         entry = Bg3Word(map, size.y, position & 65535, within);
+    else if (source == RoomSourceBossBg2)
+        entry = BossBg2Word(position, size, within);
     else if (source != 0)
         shown = RoomTile(source, position, entry, within);
     else

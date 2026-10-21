@@ -4,7 +4,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Enemies.Elevator;
-using SuperMetroid.Core.Enemies.Spike;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;

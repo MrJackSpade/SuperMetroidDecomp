@@ -23,7 +23,7 @@ internal static class RemainingEnemyColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresDoorEscapePaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresDoorEscapeSurfacePaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresDoorWarmTargetPaintDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresBabyPaintDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresBabyPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresRidleyBodyPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/GoldenTorizoHealthPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/BabyMetroidInitialPaintDefinitions.cs"),

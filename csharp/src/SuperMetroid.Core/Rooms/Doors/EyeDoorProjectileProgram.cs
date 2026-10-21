@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.EyeDoor;
+
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>

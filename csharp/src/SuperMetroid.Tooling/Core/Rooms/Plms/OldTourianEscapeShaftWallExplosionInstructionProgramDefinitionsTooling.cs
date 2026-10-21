@@ -2,6 +2,7 @@
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.OldTourianWall;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 

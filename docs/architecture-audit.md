@@ -78,10 +78,26 @@ A Core module cycle is broken by moving each dependency to the side it belongs o
 recording the cycle (#1395). Code that assembles a room from every domain (the enemy system that constructs each
 species, room loading, door transitions, the room scope and the per-frame phases that step enemies, PLMs and effects
 together) lives in the `World` module, above the domains it composes. A domain below it never names the composition:
-it states what it needs as a capability interface in its own module (`IEnemyPlmSpawns`, `IEnemyPlmRequests`,
-`IEnemyDisplaySources`), and `World` implements it over the species. Shared facts a lower domain needs move to the
-lowest type that owns them: the enemy slot limits are `EnemySlotTable`'s, and a solid enemy body carries its slot and
-whether it blocks Samus instead of the raw enemy words Samus would have to decode.
+it states what it needs as a capability interface in its own module (`IEnemyPlmRequests`, `IRoomPlmFx`,
+`IRoomWaterPhysics`), and `World` implements it over the species and owners. A contract only the composition
+consumes, such as the display sources the frame boundary reads, belongs to `World` itself. Shared facts a lower domain
+needs move to the lowest type that owns them: the enemy slot limits are `EnemySlotTable`'s, and a solid enemy body
+carries its slot and whether it blocks Samus instead of the raw enemy words Samus would have to decode.
+
+The seams that broke the cycle follow a few shapes, and a new dependency should reuse them:
+
+- A lower domain sees a higher owner through a view of what it uses: room objects reach Samus through `IRoomSamus`,
+  which `SamusRoomView` presents, and rooms and FX read whether a power bomb is active through `IActivePowerBomb`. The
+  owner holds the view instead of implementing the interface itself, so its own callers keep the concrete type.
+- A pass's results are written by each producer to its own builder: enemies write the elevator and gunship events,
+  bosses write their room effects through `BossFrameResultBuilder`, and `World` composes the frame result.
+- A family that owns a behaviour starts it itself: the Tourian statue and Mother Brain spawners start their typed
+  projectile programs, and a PLM a shot triggers records it through `IShotTriggeredPlm`, rather than a lower table or
+  caller naming every family.
+- A schema that enumerates every family (the enemy-bank frame definitions, the room-state catalogs) is composition
+  and lives in `World`; a lower domain reads it through a lookup the binding carries (`IEnemyFrameWords`).
+- A small vocabulary type (a projectile type word, a message identity, a definition record) lives in the lowest
+  module that uses it, or in `Hardware` when it is shared math.
 
 Installed artwork follows the same rule. The enemy directory is read once, but it is published as three catalogs, one
 per owning domain: `EnemyTileArtworkCatalog` (ordinary enemies), `BossArtworkCatalog` (bosses) and

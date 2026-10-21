@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Projectiles;
+
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>

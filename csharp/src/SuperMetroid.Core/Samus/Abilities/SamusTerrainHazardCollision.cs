@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Enemies.Spike;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Progression;

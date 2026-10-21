@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// #641: Botwoon's typed animations against the retail cartridge. A minimal reader walks the

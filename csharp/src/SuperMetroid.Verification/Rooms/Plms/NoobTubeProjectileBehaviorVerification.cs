@@ -4,7 +4,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Rooms.Plms.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
@@ -13,6 +12,7 @@ using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies.NoobTube;
+using SuperMetroid.Core.Enemies.NoobTube.Artwork;
 
 namespace SuperMetroid.Verification.Rooms.Plms;
 

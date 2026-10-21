@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.Projectiles;
 

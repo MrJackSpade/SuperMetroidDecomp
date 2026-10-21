@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.NoobTube;
+
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>

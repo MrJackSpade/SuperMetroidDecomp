@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Programs;
 using CK = SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileCommonCueKind;
-using P = SuperMetroid.Core.Enemies.Projectiles.MiscDustProjectileProgram;
+using P = SuperMetroid.Core.Samus.Projectiles.MiscDustProjectileProgram;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 

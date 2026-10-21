@@ -4,12 +4,12 @@ using SuperMetroid.Core.Enemies.Metroids;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.SpriteObjects;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Metroids;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Enemies.SpriteObjects;
 
 /// <summary>Checks that freezing during an empty Metroid shell frame immediately selects visible frozen artwork.</summary>
 internal static class FrozenMetroidShellVerification

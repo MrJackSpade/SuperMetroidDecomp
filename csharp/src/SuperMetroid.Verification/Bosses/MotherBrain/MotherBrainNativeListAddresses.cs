@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// The native lists Mother Brain's ROM oracle (#1285) walks: every typed program's entry point, the bank-$A9 opcodes

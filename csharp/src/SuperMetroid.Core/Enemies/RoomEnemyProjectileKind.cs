@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Bosses.MotherBrain;
-
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
@@ -84,11 +82,11 @@ public enum RoomEnemyProjectileKind : ushort
     /// <summary><c>$86:CBAD EnemyProjectile_MotherBrainRainbowBeam_Explosion</c>: a rainbow-beam explosion actor.</summary>
     MotherBrainRainbowBeamExplosion = 0xcbad,
     /// <summary>$86:CB13 body-relative death explosions; C914 follows the moving body.</summary>
-    MotherBrainDeathExplosion = MotherBrainDeathRomData.ExplosionDefinition,
+    MotherBrainDeathExplosion = 0xcb13,
     /// <summary><c>$86:CB21 EnemyProjectile_MotherBrainExplodedEscapeDoorParticles</c>: a fragment of the opened escape door.</summary>
-    MotherBrainEscapeDoorFragment = MotherBrainDeathRomData.DoorFragmentDefinition,
+    MotherBrainEscapeDoorFragment = 0xcb21,
     /// <summary><c>$86:CBBB EnemyProjectile_TimeBombSetSubtitle</c>: the optional Japanese timebomb subtitle.</summary>
-    MotherBrainEscapeSubtitle = MotherBrainDeathRomData.SubtitleDefinition,
+    MotherBrainEscapeSubtitle = 0xcbbb,
     /// <summary><c>$86:CC5B EnemyProjectile_MotherBrainTubeFalling_TopRight</c>: Mother Brain's falling top-right tube.</summary>
     MotherBrainTopRightTube = 0xcc5b,
     /// <summary><c>$86:CC69 EnemyProjectile_MotherBrainTubeFalling_TopLeft</c>: Mother Brain's falling top-left tube.</summary>

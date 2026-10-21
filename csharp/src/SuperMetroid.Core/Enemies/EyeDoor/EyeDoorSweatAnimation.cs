@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Rooms.Doors.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Enemies.EyeDoor.Artwork;
 
 namespace SuperMetroid.Core.Enemies.EyeDoor;
 

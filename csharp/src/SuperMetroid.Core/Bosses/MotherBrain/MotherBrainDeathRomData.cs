@@ -29,8 +29,6 @@ public static class MotherBrainDeathRomData
     public const ushort Bg2LastByte = 710;
     /// <summary>$A9:AFEC empty enemy BG2 tile written after the body fade terminates.</summary>
     public const ushort EmptyBodyTile = 0x0338;
-    /// <summary>$86:CB13, body-relative smoky/mixed death explosions.</summary>
-    public const ushort ExplosionDefinition = 0xcb13;
     /// <summary>The fake-death descent loads music data index $21 through the delayed queue.</summary>
     public const byte FakeDeathMusicData = 0x21;
     /// <summary>$A9:B203 loads music data index $24 through the delayed queue.</summary>
@@ -51,8 +49,6 @@ public static class MotherBrainDeathRomData
         (uint)frame < CorpseFadeFrameCount
             ? FirstCorpseFadeSource + frame * CorpseColorCount * sizeof(ushort)
             : throw new ArgumentOutOfRangeException(nameof(frame));
-    /// <summary>$86:CB21, eight fragments emitted when the escape door opens.</summary>
-    public const ushort DoorFragmentDefinition = 0xcb21;
     /// <summary>$86:C98B seed for the signed-underflow fragment lifetime.</summary>
     public const ushort DoorFragmentLifetime = 32;
     /// <summary>$86:C9D7 drag magnitude subtracted from the 8.8 horizontal speed.</summary>
@@ -65,8 +61,6 @@ public static class MotherBrainDeathRomData
     public const int DoorDustYOffset = 4;
     /// <summary>$86:CA1B dust-cloud spawn parameter on fragment expiry.</summary>
     public const MiscDustAnimation DoorDustParameter = MiscDustAnimation.SmallDustCloud;
-    /// <summary>$86:CBBB optional Japanese time-bomb subtitle.</summary>
-    public const ushort SubtitleDefinition = 0xcbbb;
     /// <summary>$86:CB03/$CB09 subtitle screen anchor.</summary>
     public const int SubtitleX = 128, SubtitleY = 192;
     /// <summary>$84:B5FB: door collision type with door-list index one.</summary>

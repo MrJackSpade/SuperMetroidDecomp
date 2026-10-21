@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.Enemies.EyeDoor;
 
 namespace SuperMetroid.Verification.Rooms.Doors;
 

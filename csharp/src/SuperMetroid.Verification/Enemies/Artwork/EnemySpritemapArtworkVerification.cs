@@ -70,7 +70,6 @@ using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;
@@ -78,6 +77,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 

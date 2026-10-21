@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Rooms.Plms.Artwork;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Enemies.Projectiles.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 

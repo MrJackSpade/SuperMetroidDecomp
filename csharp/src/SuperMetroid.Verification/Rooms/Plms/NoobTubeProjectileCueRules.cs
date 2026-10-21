@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.Enemies.NoobTube;
 
 namespace SuperMetroid.Verification.Rooms.Plms;
 

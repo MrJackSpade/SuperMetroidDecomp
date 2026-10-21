@@ -17,7 +17,6 @@ using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;

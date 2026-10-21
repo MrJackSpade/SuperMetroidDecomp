@@ -20,6 +20,7 @@ using SuperMetroid.Core.Enemies.Dragon;
 using SuperMetroid.Core.Enemies.EyeDoor;
 using SuperMetroid.Core.Enemies.NoobTube;
 using SuperMetroid.Core.Enemies.SaveStation;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 

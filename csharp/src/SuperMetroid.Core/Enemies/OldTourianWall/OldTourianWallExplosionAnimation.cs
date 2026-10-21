@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
-using D = SuperMetroid.Core.Rooms.Plms.OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions;
+using D = SuperMetroid.Core.Enemies.OldTourianWall.OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions;
 using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Rooms.Plms.OldTourianWallExplosionProgram, int, SuperMetroid.Core.Rooms.Plms.OldTourianWallExplosionCue>;
 using SuperMetroid.Core.Rooms.Plms;
 

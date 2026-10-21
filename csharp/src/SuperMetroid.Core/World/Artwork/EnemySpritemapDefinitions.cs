@@ -2,8 +2,8 @@
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.World.Artwork;
 

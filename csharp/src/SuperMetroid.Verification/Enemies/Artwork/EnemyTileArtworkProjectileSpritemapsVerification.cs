@@ -1,7 +1,5 @@
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies.Drawing;
-using SuperMetroid.Core.Rooms.Plms.Artwork;
-using SuperMetroid.Core.Rooms.Doors.Artwork;
 using SuperMetroid.Core.Enemies.Deaths.Artwork;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Verification.Enemies.Skree;
@@ -41,6 +39,8 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies.NoobTube;
+using SuperMetroid.Core.Enemies.EyeDoor.Artwork;
+using SuperMetroid.Core.Enemies.SaveStation.Artwork;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Compares installed enemy-projectile drawing compositions with native OAM and guards their runtime visual reads.</summary>

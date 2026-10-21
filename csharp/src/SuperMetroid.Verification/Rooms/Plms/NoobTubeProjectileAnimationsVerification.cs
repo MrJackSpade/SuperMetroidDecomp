@@ -1,10 +1,10 @@
 using static SuperMetroid.Verification.Rooms.Plms.NoobTubeProjectileNativeListAddresses;
-using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Rooms.Plms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.NoobTube.Artwork;
+using SuperMetroid.Core.Enemies.NoobTube;
 
 namespace SuperMetroid.Verification.Rooms.Plms;
 

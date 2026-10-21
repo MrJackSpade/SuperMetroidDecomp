@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Rooms.Plms.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Enemies.NoobTube.Artwork;
 
 namespace SuperMetroid.Core.Enemies.NoobTube;
 

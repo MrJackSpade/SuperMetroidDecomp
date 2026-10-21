@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms.Plms.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -41,6 +40,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Enemies.SaveStation.Artwork;
 
 /// <summary>Checks native PLM population order, resident doors, stations and escape-room controllers.</summary>
 internal static class RoomPlmPopulationVerification

@@ -276,7 +276,7 @@ internal sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
         source.ReadEnemyDefinition(pointer);
 
     /// <summary>Uses the compiled falling-tube placement; this fixture constructs none.</summary>
-    public RoomEnemyPopulationRecord ReadFallingTubePopulation(SuperMetroid.Core.Bosses.MotherBrain.MotherBrainTubePiece piece) =>
+    public RoomEnemyPopulationRecord ReadFallingTubePopulation(SuperMetroid.Core.Enemies.MotherBrainTubePiece piece) =>
         CompiledRoomEnemyDefinitions.Instance.ReadFallingTubePopulation(piece);
 
     /// <summary>Rejects tile-source reads before forwarding other memory bytes.</summary>

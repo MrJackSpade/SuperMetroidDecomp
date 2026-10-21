@@ -37,7 +37,7 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Pos
     }
 
     /// <summary>Uses the compiled falling-tube placement; this fixture constructs none.</summary>
-    public RoomEnemyPopulationRecord ReadFallingTubePopulation(SuperMetroid.Core.Bosses.MotherBrain.MotherBrainTubePiece piece) =>
+    public RoomEnemyPopulationRecord ReadFallingTubePopulation(SuperMetroid.Core.Enemies.MotherBrainTubePiece piece) =>
         CompiledRoomEnemyDefinitions.Instance.ReadFallingTubePopulation(piece);
 
     /// <summary>Overlays synthetic population and tileset records while delegating other addresses to the retail bus.</summary>

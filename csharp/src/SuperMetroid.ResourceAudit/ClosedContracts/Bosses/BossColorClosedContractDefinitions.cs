@@ -16,7 +16,7 @@ internal static class BossColorClosedContractDefinitions
             ["ApplyStart", "ApplyEyeFade", "ApplyBodyFade", "ApplyHealth", "ApplyAlarm", "ApplyRetreat", "ApplyBaby"],
             [new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresRidleyColorCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresRidleyStartColorDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresBabyPaintDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresBabyPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/BabyMetroidInitialPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresDoorNormalPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresDoorWarmTargetPaintDefinitions.cs"),

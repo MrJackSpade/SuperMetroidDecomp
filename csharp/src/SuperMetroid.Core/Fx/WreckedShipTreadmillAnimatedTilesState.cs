@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies.WreckedShip;
 
 namespace SuperMetroid.Core.Fx;
 

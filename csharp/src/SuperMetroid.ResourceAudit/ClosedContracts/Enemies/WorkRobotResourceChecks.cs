@@ -15,8 +15,8 @@ internal static class WorkRobotResourceChecks
     {
         // Production catalogs, but constructed art: no cartridge, enemy AI, room,
         // frame clock or player input is needed to expose a missing installed binding.
-        var frames = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(
-            frame => frame.Name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal);
+        var frames = EnemyProjectileSpritemapDefinitions.FrameNames.ToDictionary(
+            name => name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal);
         var programs = EnemyProjectilePresentationFrameSets.All.ToDictionary(
             frame => frame.Name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal);
         for (int index = 0; index < WorkRobotLaserFrameDefinitions.PoseCount; index++)

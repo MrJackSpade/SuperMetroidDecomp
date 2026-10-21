@@ -2246,4 +2246,10 @@ public enum EnemyProjectileFrameId
     FallingSparkFrame12,
     /// <summary><c>falling_spark_frame_13</c>, an installed program frame.</summary>
     FallingSparkFrame13,
+    /// <summary><c>ceres_elevator_pad_0</c>, a bank-$8D composition.</summary>
+    CeresElevatorPad0,
+    /// <summary><c>ceres_elevator_pad_1</c>, a bank-$8D composition.</summary>
+    CeresElevatorPad1,
+    /// <summary><c>ceres_elevator_platform</c>, a bank-$8D composition.</summary>
+    CeresElevatorPlatform,
 }

@@ -185,7 +185,7 @@ public sealed class CeresElevatorArrivalState
             "Ceres elevator projectiles require installed sprite artwork.");
         ushort paletteBits = new SnesObjAttributeWord(checked((ushort)projectile.GraphicsIndex)).PaletteBits;
         EnemyPresentation.PublishParts(sprites, objects, new SpriteSource(SpriteSourceKind.CeresElevatorArrival, instance),
-            EnemySpriteFrames.Frame(installed.Get(CeresElevatorArrivalDefinitions.Spritemap(pose)), unchecked((byte)projectile.GraphicsIndex), paletteBits),
+            EnemySpriteFrames.Frame(installed.Get(CeresElevatorArrivalDefinitions.Frame(pose)), unchecked((byte)projectile.GraphicsIndex), paletteBits),
             screen, paletteBits);
     }
 

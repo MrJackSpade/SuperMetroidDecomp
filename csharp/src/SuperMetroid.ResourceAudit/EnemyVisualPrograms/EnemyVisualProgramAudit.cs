@@ -151,7 +151,7 @@ internal static class EnemyVisualProgramAudit
         string owner = type.Name;
         if (bank == ResourceBanks.EnemyProjectilePrograms)
         {
-            ushort? direct = SkreeMetareeParticleVisualDefinitions.TryResolve(operand, out ushort particle)
+            ushort? direct = SkreeMetareeParticleVisualDefinitionsTooling.TryResolve(operand, out ushort particle)
                 ? particle
                 : CompiledEnemyVisualSelectors.TryGet(bank, operand, out ushort target) ? target : null;
             RequireResolvedOperand(bank, operand, direct, owner, source, exports, report);

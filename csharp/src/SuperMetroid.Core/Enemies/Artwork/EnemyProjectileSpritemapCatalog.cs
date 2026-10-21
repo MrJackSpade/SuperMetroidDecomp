@@ -10,11 +10,11 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 public sealed class EnemyProjectileSpritemapCatalog
 {
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("enemy-projectile-oam-v1", content =>
+    public string ContentIdentity => SelectedPresentationHash.Create("enemy-projectile-oam-v2", content =>
         {
-            foreach ((ushort frame, SpritemapPart[] parts) in frames.OrderBy(pair => pair.Key))
+            foreach ((EnemyProjectileFrameId frame, SpritemapPart[] parts) in frames.OrderBy(pair => pair.Key.ToString(), StringComparer.Ordinal))
             {
-                content.Append("frame", frame);
+                content.AppendName("frame", frame.ToString());
                 content.AppendEnemyParts(parts);
             }
             foreach ((ushort operand, SpritemapPart[] parts) in programFrames.OrderBy(pair => pair.Key))
@@ -24,13 +24,13 @@ public sealed class EnemyProjectileSpritemapCatalog
             }
         });
 
-    /// <summary>Installed ordered OAM parts keyed by bank-$8D spritemap pointer.</summary>
-    private readonly Dictionary<ushort, SpritemapPart[]> frames;
+    /// <summary>Installed ordered OAM parts of each composition frame.</summary>
+    private readonly Dictionary<EnemyProjectileFrameId, SpritemapPart[]> frames;
     /// <summary>Installed timed-frame OAM parts keyed by bank-$86 visual operand address.</summary>
     private readonly Dictionary<ushort, SpritemapPart[]> programFrames;
 
     /// <summary>Retains independently validated compositions and timed-program visual bindings.</summary>
-    private EnemyProjectileSpritemapCatalog(Dictionary<ushort, SpritemapPart[]> frames,
+    private EnemyProjectileSpritemapCatalog(Dictionary<EnemyProjectileFrameId, SpritemapPart[]> frames,
         Dictionary<ushort, SpritemapPart[]> programFrames)
     {
         this.frames = frames;
@@ -38,13 +38,13 @@ public sealed class EnemyProjectileSpritemapCatalog
     }
 
     /// <summary>Gets ordered compiled OAM parts by bank-$8D spritemap identity; the native $8000 zero-entry map returns no parts, while an uninstalled nonblank identity is rejected.</summary>
-    public ReadOnlyMemory<SpritemapPart> Get(ushort pointer) =>
-        pointer == EnemyProjectileSpritemapDefinitions.BlankSpritemap
+    public ReadOnlyMemory<SpritemapPart> Get(EnemyProjectileFrameId frame) =>
+        frame == EnemyProjectileFrameId.Blank
             ? ReadOnlyMemory<SpritemapPart>.Empty
-            : frames.TryGetValue(pointer, out SpritemapPart[]? parts)
+            : frames.TryGetValue(frame, out SpritemapPart[]? parts)
             ? parts
             : throw new InvalidDataException(
-                $"Installed enemy projectile has no composition at $8D:{pointer:X4}.");
+                $"Installed enemy projectile has no composition {frame}.");
 
     /// <summary>Draws a timed program frame without reading its bank-$86/$8D visual operands.</summary>
     public ReadOnlyMemory<SpritemapPart> GetProgramFrame(ushort operandAddress) =>
@@ -70,7 +70,7 @@ public sealed class EnemyProjectileSpritemapCatalog
         bool legacyOverride = version < EnemyProjectileSpritemapVersion.Current && stock is not null;
         int expectedFrames = version == EnemyProjectileSpritemapVersion.CeresOnly && legacyOverride
             ? EnemyProjectileSpritemapDefinitions.LegacyFrameCount
-            : EnemyProjectileSpritemapDefinitions.Frames.Length;
+            : EnemyProjectileSpritemapDefinitions.FrameNames.Length;
         if ((!legacyOverride && version != EnemyProjectileSpritemapVersion.Current) ||
             document.Frames is null || document.Frames.Count != expectedFrames)
             throw new InvalidDataException(
@@ -78,19 +78,18 @@ public sealed class EnemyProjectileSpritemapCatalog
         // Older overrides retain their edited Ceres/debris frames. Newly introduced
         // shared-program frames come only from the hash-checked stock installation.
         var compiled = stock is not null && legacyOverride
-            ? new Dictionary<ushort, SpritemapPart[]>(stock.frames)
-            : new Dictionary<ushort, SpritemapPart[]>();
+            ? new Dictionary<EnemyProjectileFrameId, SpritemapPart[]>(stock.frames)
+            : new Dictionary<EnemyProjectileFrameId, SpritemapPart[]>();
         var compiledPrograms = stock is not null && legacyOverride
             ? new Dictionary<ushort, SpritemapPart[]>(stock.programFrames)
             : new Dictionary<ushort, SpritemapPart[]>();
-        foreach ((ushort pointer, string name) in
-                 EnemyProjectileSpritemapDefinitions.Frames.Take(expectedFrames))
+        foreach (string name in EnemyProjectileSpritemapDefinitions.FrameNames.Take(expectedFrames))
         {
             if (!document.Frames.TryGetValue(name, out SpriteVisualPart[]? visual) ||
                 visual is null)
                 throw new InvalidDataException(
                     $"Enemy-projectile composition {name} is missing.");
-            compiled[pointer] = CompileParts(name, visual);
+            compiled[EnemyProjectileFrames.Identity(name)] = CompileParts(name, visual);
         }
         if (version >= EnemyProjectileSpritemapVersion.FirstProgramFrame)
         {

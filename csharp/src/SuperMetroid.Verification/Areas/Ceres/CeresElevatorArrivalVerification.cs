@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Verification.Enemies;
@@ -126,7 +127,7 @@ internal static class CeresElevatorArrivalVerification
                 }
                 var show = VerificationAssert.AssertIs<AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.ShowStep>(step, $"{at}: frame");
                 VerificationAssert.AssertEqual(word, show.Duration, $"{at}: duration");
-                VerificationAssert.AssertEqual(operand, CeresElevatorArrivalDefinitions.Spritemap(show.Frame), $"{at}: spritemap");
+                VerificationAssert.AssertEqual(operand, EnemyProjectileCompositionSources.Spritemap(CeresElevatorArrivalDefinitions.Frame(show.Frame)), $"{at}: spritemap");
                 cursor = unchecked((ushort)(cursor + 4));
             }
             VerificationAssert.AssertEqual(steps.Count, index, $"Ceres elevator {program} ends where its native list does");

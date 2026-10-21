@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Projectiles;
+
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
@@ -33,15 +35,15 @@ internal static class CeresElevatorArrivalDefinitions
     /// <summary>$86:A345 compares the incremented Samus Y against 73 before clamping.</summary>
     internal const ushort LandingThresholdY = 73;
 
-    /// <summary>The bank-$8D spritemap each arrival pose shows.</summary>
-    internal static ushort Spritemap(CeresElevatorArrivalPose pose) => pose switch
+    /// <summary>The composition each arrival pose shows.</summary>
+    internal static EnemyProjectileFrameId Frame(CeresElevatorArrivalPose pose) => pose switch
     {
         // Spritemap_CeresElevatorPad_0, shown by $86:A28D.
-        CeresElevatorArrivalPose.PadFirst => 0xb1ba,
+        CeresElevatorArrivalPose.PadFirst => EnemyProjectileFrameId.CeresElevatorPad0,
         // Spritemap_CeresElevatorPad_1, shown by $86:A291.
-        CeresElevatorArrivalPose.PadSecond => 0xb1d0,
+        CeresElevatorArrivalPose.PadSecond => EnemyProjectileFrameId.CeresElevatorPad1,
         // Spritemap_CeresElevatorPlatform, shown by $86:A299.
-        CeresElevatorArrivalPose.Platform => 0x846d,
+        CeresElevatorArrivalPose.Platform => EnemyProjectileFrameId.CeresElevatorPlatform,
         _ => throw new ArgumentOutOfRangeException(nameof(pose), pose, "Undefined Ceres elevator arrival pose."),
     };
 }

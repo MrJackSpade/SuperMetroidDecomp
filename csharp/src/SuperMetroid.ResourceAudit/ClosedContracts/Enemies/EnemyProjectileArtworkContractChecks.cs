@@ -19,7 +19,7 @@ internal static class EnemyProjectileArtworkContractChecks
     /// <summary>Checks complete authored frame admission and static provider coverage without projectile simulation.</summary>
     internal static void Run()
     {
-        var direct = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>());
+        var direct = EnemyProjectileSpritemapDefinitions.FrameNames.ToDictionary(name => name, _ => Array.Empty<SpriteVisualPart>());
         var programs = EnemyProjectilePresentationFrameSets.All.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>());
         var document = new EnemyProjectileSpritemapDocument {
             Version = (int)EnemyProjectileSpritemapVersion.Current, Frames = direct, ProgramFrames = programs };
@@ -27,11 +27,11 @@ internal static class EnemyProjectileArtworkContractChecks
             EnemyProjectileSpritemapCatalog.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(value,
                 new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })), stock);
         EnemyProjectileSpritemapCatalog catalog = Load(document);
-        ushort directId = EnemyProjectileSpritemapDefinitions.Frames[0].Pointer;
+        EnemyProjectileFrameId directId = EnemyProjectileFrames.Identity(EnemyProjectileSpritemapDefinitions.FrameNames[0]);
         EnemyProjectilePresentationFrameDefinition program = EnemyProjectilePresentationFrameSets.All[0];
         Require(catalog.Get(directId).IsEmpty && catalog.GetProgramFrame(program.OperandAddress).IsEmpty &&
-            catalog.Get(EnemyProjectileSpritemapDefinitions.BlankSpritemap).IsEmpty, "complete authored empty compositions and native blank");
-        string directName = EnemyProjectileSpritemapDefinitions.Frames[0].Name;
+            catalog.Get(EnemyProjectileFrameId.Blank).IsEmpty, "complete authored empty compositions and native blank");
+        string directName = EnemyProjectileSpritemapDefinitions.FrameNames[0];
         var camelCase = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         JsonNode withNullFrame = RequiredJson.Parse(JsonSerializer.SerializeToUtf8Bytes(document, camelCase));
         withNullFrame.Required("frames")[directName] = null;
@@ -43,30 +43,31 @@ internal static class EnemyProjectileArtworkContractChecks
         programs.Remove(program.Name); programs.Add("unowned-program", []);
         Reject(() => Load(document), "same-count substituted program composition");
         var legacy = document with { Version = (int)EnemyProjectileSpritemapVersion.CeresOnly,
-            Frames = EnemyProjectileSpritemapDefinitions.Frames.Take(EnemyProjectileSpritemapDefinitions.LegacyFrameCount)
-                .ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>()), ProgramFrames = null };
+            Frames = EnemyProjectileSpritemapDefinitions.FrameNames.Take(EnemyProjectileSpritemapDefinitions.LegacyFrameCount)
+                .ToDictionary(name => name, _ => Array.Empty<SpriteVisualPart>()), ProgramFrames = null };
         Reject(() => Load(legacy), "legacy stock without complete inheritance");
         EnemyProjectileSpritemapCatalog merged = Load(legacy, catalog);
         Require(merged.GetProgramFrame(program.OperandAddress).IsEmpty &&
-            merged.Get(EnemyProjectileSpritemapDefinitions.Frames[^1].Pointer).IsEmpty,
+            merged.Get(EnemyProjectileFrames.Identity(EnemyProjectileSpritemapDefinitions.FrameNames[^1])).IsEmpty,
             "legacy override inherits program and later direct frames from validated private stock");
         ConfirmStaticCalls(directId, program.OperandAddress);
     }
 
     /// <summary>Compiles direct and program-frame callers to verify valid IDs and stale-definition rejection.</summary>
-    private static void ConfirmStaticCalls(ushort directId, ushort programId)
+    private static void ConfirmStaticCalls(EnemyProjectileFrameId directId, ushort programId)
     {
         var trees = EnemyProjectileArtworkClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
             .Select(source => CSharpSyntaxTree.ParseText(File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText($$"""
             using SuperMetroid.Core.Enemies.Artwork;
+            using SuperMetroid.Core.Enemies.Projectiles;
             class ProjectileArtworkConsumer {
-                void Inspect(EnemyProjectileSpritemapCatalog art, ushort pointer) {
-                    art.Get({{directId}});
-                    art.Get(EnemyProjectileSpritemapDefinitions.BlankSpritemap);
+                void Inspect(EnemyProjectileSpritemapCatalog art, EnemyProjectileFrameId frame, ushort pointer) {
+                    art.Get(EnemyProjectileFrameId.{{directId}});
+                    art.Get(EnemyProjectileFrameId.Blank);
                     art.Get(0);
-                    art.Get(pointer);
+                    art.Get(frame);
                     art.GetProgramFrame({{programId}});
                     art.GetProgramFrame(0);
                     art.GetProgramFrame(pointer);
@@ -96,7 +97,7 @@ internal static class EnemyProjectileArtworkContractChecks
         SyntaxTree external = CSharpSyntaxTree.ParseText("""
             namespace SuperMetroid.Core.Enemies.Artwork;
             class ExternalProjectileDefinitions {
-                object Escape() => EnemyProjectileSpritemapDefinitions.Frames;
+                object Escape() => EnemyProjectileSpritemapDefinitions.FrameNames;
             }
             """, path: "fixture-external-projectile-array.cs");
         AuditReport revoked = Inspect(Compile(trees.Append(external)), true);

@@ -77,8 +77,8 @@ internal static class ClosedPresentationIdentityDefinitions
             .Select(sheet => sheet.SourceAddress).ToArray(),
         ("EnemyTileArtworkCatalog", "LoadTo" or "LoadPaletteTo", "definitionId") => EnemyTileSourceDefinitions.All
             .Select(definition => (int)definition.DefinitionId).ToArray(),
-        ("EnemyProjectileSpritemapCatalog", "Get", "pointer") => EnemyProjectileSpritemapDefinitions.Frames
-            .Select(frame => (int)frame.Pointer).Append(EnemyProjectileSpritemapDefinitions.BlankSpritemap).ToArray(),
+        ("EnemyProjectileSpritemapCatalog", "Get", "frame") => EnemyProjectileSpritemapDefinitions.FrameNames
+            .Select(name => (int)EnemyProjectileFrames.Identity(name)).Append((int)EnemyProjectileFrameId.Blank).ToArray(),
         ("EnemyProjectileSpritemapCatalog", "GetProgramFrame", "operandAddress") => EnemyProjectilePresentationFrameSets.All
             .SelectToArray(frame => (int)frame.OperandAddress),
         // Contains is deliberately absent: querying an unowned ID is valid and

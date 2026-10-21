@@ -11,13 +11,9 @@ internal static class EnemyProjectileFrames
     /// <summary>Each installed program frame's artwork key.</summary>
     private static readonly Lazy<Dictionary<EnemyProjectileFrameId, ushort>> ProgramFrameKeys = new(Bind);
 
-    /// <summary>The bank-$8D composition each composition frame draws.</summary>
-    internal static IReadOnlyDictionary<EnemyProjectileFrameId, ushort> Compositions { get; } = new Dictionary<EnemyProjectileFrameId, ushort>
-    {
-        [EnemyProjectileFrameId.Blank] = EnemyProjectileSpritemapDefinitions.BlankSpritemap,
-        [EnemyProjectileFrameId.SkreeDebris] = SkreeMetareeParticleVisualDefinitions.SkreeComposition,
-        [EnemyProjectileFrameId.MetareeDebris] = SkreeMetareeParticleVisualDefinitions.MetareeComposition,
-    };
+    /// <summary>The frames that draw an installed bank-$8D composition, including the blank one, rather than a program frame.</summary>
+    internal static IReadOnlySet<EnemyProjectileFrameId> Compositions { get; } =
+        EnemyProjectileSpritemapDefinitions.FrameNames.Select(Identity).Append(EnemyProjectileFrameId.Blank).ToHashSet();
 
     /// <summary>Binds every installed program frame to the identity its name gives.</summary>
     private static Dictionary<EnemyProjectileFrameId, ushort> Bind()
@@ -39,5 +35,5 @@ internal static class EnemyProjectileFrames
 
     /// <summary>The parts <paramref name="frame"/> draws from installed projectile <paramref name="artwork"/>.</summary>
     internal static ReadOnlyMemory<SpritemapPart> Parts(EnemyProjectileSpritemapCatalog artwork, EnemyProjectileFrameId frame) =>
-        Compositions.TryGetValue(frame, out ushort spritemap) ? artwork.Get(spritemap) : artwork.GetProgramFrame(ProgramFrameKey(frame));
+        Compositions.Contains(frame) ? artwork.Get(frame) : artwork.GetProgramFrame(ProgramFrameKey(frame));
 }

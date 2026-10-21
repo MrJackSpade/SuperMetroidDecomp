@@ -22,8 +22,9 @@ public static class EnemyProjectileSpritemapFiles
     {
         Ensure.NotNull(bus);
         var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-        foreach ((ushort pointer, string name) in EnemyProjectileSpritemapDefinitions.Frames)
-            frames.Add(name, EnemySpritemapFiles.ExtractParts(bus, CartridgeFormatDefinitions.EnemyProjectileSpritemapBank, pointer));
+        foreach (string name in EnemyProjectileSpritemapDefinitions.FrameNames)
+            frames.Add(name, EnemySpritemapFiles.ExtractParts(bus, CartridgeFormatDefinitions.EnemyProjectileSpritemapBank,
+                EnemyProjectileCompositionSources.Spritemap(EnemyProjectileFrames.Identity(name))));
         var programFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
         foreach (EnemyProjectilePresentationFrameDefinition frame in
                  EnemyProjectilePresentationFrameSets.All)

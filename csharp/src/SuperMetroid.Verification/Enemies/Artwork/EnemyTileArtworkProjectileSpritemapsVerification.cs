@@ -123,13 +123,13 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         foreach ((ushort operand, ushort pointer) in new[]
                  {
                      new EnemyTileArtworkProjectileSpritemapsVerifyInstalledEnemyProjectileSpritemapsCase3((ushort)SkreeMetareeParticleOperand.Skree,
-                         SkreeMetareeParticleVisualDefinitions.SkreeComposition),
+                         EnemyProjectileCompositionSources.Spritemap(EnemyProjectileFrameId.SkreeDebris)),
                      new EnemyTileArtworkProjectileSpritemapsVerifyInstalledEnemyProjectileSpritemapsCase3((ushort)SkreeMetareeParticleOperand.Metaree,
-                         SkreeMetareeParticleVisualDefinitions.MetareeComposition),
+                         EnemyProjectileCompositionSources.Spritemap(EnemyProjectileFrameId.MetareeDebris)),
                  })
         {
             ushort nativePointer = ReadNativeEnemyProjectileProgramWord(bus, operand);
-            AssertEqual(nativePointer, SkreeMetareeParticleVisualDefinitions.Resolve(operand),
+            AssertEqual(nativePointer, SkreeMetareeParticleVisualDefinitionsAccess.Resolve(operand),
                 $"particle visual operand $86:{operand:X4} matches the pinned cartridge");
             AssertEqual(nativePointer, pointer,
                 $"particle visual operand $86:{operand:X4} selects its editable composition");

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -42,11 +43,12 @@ internal static class DefinitionAudit
         CompiledEnemyDisplayAudit.Install(root, exports, report);
         foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameSets.All)
             exports.Add(ResourceDomains.EnemyProjectileProgram, ResourceIndex.Address(ResourceBanks.EnemyProjectilePrograms, frame.OperandAddress));
-        foreach ((ushort pointer, _) in EnemyProjectileSpritemapDefinitions.Frames)
-            exports.Add(ResourceDomains.EnemyProjectileSprite, ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, pointer));
+        foreach (string name in EnemyProjectileSpritemapDefinitions.FrameNames)
+            exports.Add(ResourceDomains.EnemyProjectileSprite, ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx,
+                EnemyProjectileCompositionSources.Spritemap(EnemyProjectileFrames.Identity(name))));
         // This is an explicit zero-part definition, not a missing art fallback.
         exports.Add(ResourceDomains.EnemyProjectileSprite,
-            ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, EnemyProjectileSpritemapDefinitions.BlankSpritemap));
+            ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, EnemyProjectileCompositionSources.BlankSpritemap));
         foreach (ProjectileSpriteId sprite in ProjectileSpriteDefinitions.All)
             exports.Add(ResourceDomains.SamusProjectile, sprite.Name);
 

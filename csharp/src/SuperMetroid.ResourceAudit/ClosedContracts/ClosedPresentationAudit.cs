@@ -71,7 +71,7 @@ internal sealed class ClosedPresentationAudit
             {
                 valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
                     .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
-                        .Where(name => name.Identifier.ValueText == "Frames")
+                        .Where(name => name.Identifier.ValueText == nameof(EnemyProjectileSpritemapDefinitions.FrameNames))
                         .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IFieldSymbol field &&
                             field.ContainingType.ToDisplayString() == typeof(EnemyProjectileSpritemapDefinitions).FullName));
                 if (valid)

@@ -37,7 +37,7 @@ public sealed class RoomPlmPopulationDefinition
     /// <param name="records">Each record's PLM header, block coordinates and room argument, in native order.</param>
     internal static RoomPlmPopulationDefinition FromRecords(string name, RoomPlmPlacementDefinition[] records) =>
         new(name, Ensure.NotNull(records).Select(record => new RoomPlmPlacement(
-            RoomPlmHeaderDefinitions.Get(record.Header), record.Block, record.Argument)
+            RoomPlmHeaderDefinitions.Get(record.Header), record.Block, record.Argument, CannonControl: record.CannonControl)
             { CompiledScrollSource = record.Header == PlmHeaderId.ScrollTrigger ? record.Argument : null }));
 
     /// <summary>Copies one placement's payloads and rejects malformed scroll programs or collectible graphics.</summary>

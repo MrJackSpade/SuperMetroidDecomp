@@ -2209,10 +2209,10 @@ internal static class RoomPlmPopulationDefinitions
     [
         new(PlmHeaderId.GreyDoorFacingLeft, new(30, 6), 0x009E),
         new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), 0x009F),
-        new(PlmHeaderId.DraygonCannonFacingRightDestroyed, new(2, 11), 0x8802),
-        new(PlmHeaderId.DraygonCannonFacingRight, new(2, 18), 0x8804),
-        new(PlmHeaderId.DraygonCannonFacingLeft, new(29, 15), 0x8806),
-        new(PlmHeaderId.DraygonCannonFacingLeft, new(29, 21), 0x8808),
+        new(PlmHeaderId.DraygonCannonFacingRightDestroyed, new(2, 11), 0, DraygonCannonControlWord.UpperLeft),
+        new(PlmHeaderId.DraygonCannonFacingRight, new(2, 18), 0, DraygonCannonControlWord.LowerLeft),
+        new(PlmHeaderId.DraygonCannonFacingLeft, new(29, 15), 0, DraygonCannonControlWord.UpperRight),
+        new(PlmHeaderId.DraygonCannonFacingLeft, new(29, 21), 0, DraygonCannonControlWord.LowerRight),
     ]);
 
     /// <summary>The TourianFirst room PLM population.</summary>

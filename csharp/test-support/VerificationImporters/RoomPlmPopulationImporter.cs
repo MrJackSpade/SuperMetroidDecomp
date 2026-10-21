@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Plms;
@@ -47,7 +48,8 @@ internal static class RoomPlmPopulationImporter
                 graphic = new RoomPlmDynamicCollectibleGraphic(kind, graphicsPointer, palettes, tiles);
             }
             records.Add(new RoomPlmPlacement(metadata,
-                new(Byte(0x8f, unchecked((ushort)(cursor + 2))), Byte(0x8f, unchecked((ushort)(cursor + 3)))), argument, scroll, graphic));
+                new(Byte(0x8f, unchecked((ushort)(cursor + 2))), Byte(0x8f, unchecked((ushort)(cursor + 3)))), argument, scroll, graphic,
+                DraygonCannonPlms.IsDraygonCannonHeader(header) ? DraygonCannonControlWordAddresses.Decode(argument) : null));
             cursor = unchecked((ushort)(cursor + RoomPlmPopulationFormatConstants.RecordByteCount));
         }
         // Preserve the loader's bounded parser: a terminator beyond record 256

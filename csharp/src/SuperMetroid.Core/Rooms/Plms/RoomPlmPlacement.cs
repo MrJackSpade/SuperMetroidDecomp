@@ -9,12 +9,14 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// <param name="RoomArgument">Native per-placement word interpreted by the selected setup, such as an item/door index or scroll-program identity.</param>
 /// <param name="ScrollProgram">Constructed scroll index/state byte pairs followed by a high-bit terminator; population construction copies and validates the payload.</param>
 /// <param name="DynamicGraphic">Optional decoded permanent-collectible tiles and palette offsets; population construction validates and copies their payloads.</param>
+/// <param name="CannonControl">The cannon-control word a Draygon wall cannon reads and writes, decoded at import; null for every other PLM.</param>
 public sealed record RoomPlmPlacement(
     RoomPlmHeaderDefinition Header,
     Position16<RoomBlocks> Block,
     int RoomArgument,
     ReadOnlyMemory<byte> ScrollProgram = default,
-    RoomPlmDynamicCollectibleGraphic? DynamicGraphic = null)
+    RoomPlmDynamicCollectibleGraphic? DynamicGraphic = null,
+    DraygonCannonControlWord? CannonControl = null)
 {
     /// <summary>Internal retail identity; constructed placements must still supply validated decoded pairs.</summary>
     internal int? CompiledScrollSource { get; init; }

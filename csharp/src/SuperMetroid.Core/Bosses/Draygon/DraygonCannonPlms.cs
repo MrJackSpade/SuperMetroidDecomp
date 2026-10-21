@@ -32,7 +32,7 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
         PlmHeaderId.DraygonCannonFacingLeft;
 
     /// <summary>Captures cannon orientation and its enemy control word, installing shootable terrain unless the cannon starts destroyed.</summary>
-    internal static void SetupDraygonCannonSlot(RoomLevelData level, PlmSlot slot)
+    internal static void SetupDraygonCannonSlot(RoomLevelData level, PlmSlot slot, DraygonCannonControlWord controlWord)
     {
         DraygonCannonOrientation orientation = slot.Header switch
         {
@@ -321,14 +321,6 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
             _ => throw new ArgumentOutOfRangeException(
                 nameof(slot), slot.Header, "Not a retail Draygon cannon header."),
         };
-
-        ushort variablePointer = checked((ushort)slot.RoomArgument);
-        if (!DraygonCannonWorkRamAddresses.TryDecode(variablePointer, out DraygonCannonControlWord controlWord))
-        {
-            throw new InvalidDataException(
-                $"Draygon cannon header $84:{(int)slot.Header:X4} has invalid control " +
-                $"word ${variablePointer:X4}.");
-        }
 
         slot.Family = new DraygonCannonPlmState(controlWord);
         if (slot.Header == PlmHeaderId.DraygonCannonFacingRightDestroyed)

@@ -27,7 +27,7 @@ internal static class OwtchBehaviorVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);
-            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = OwtchFrameToolingDefinitions.Bank });
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             slot.SetSpawnParameter1((ushort)initial);
             OwtchBehavior.InitializeOwtch(slot);
             OwtchEnemyState state = enemies.OwtchStates[0] ?? throw new InvalidOperationException("Owtch has no state.");

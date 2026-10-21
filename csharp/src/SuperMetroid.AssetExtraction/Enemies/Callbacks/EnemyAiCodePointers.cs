@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Named cartridge enemy interaction callbacks, grouped by their native bank.</summary>
 internal static class EnemyAiCodePointers

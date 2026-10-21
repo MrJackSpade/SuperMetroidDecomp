@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
@@ -72,6 +73,9 @@ internal static class EnemyDefinitionsVerification
             "all runtime-created enemy headers outside retail room lists are catalogued");
         AssertTrue(auxiliaryPointers.All(pointer => !referencedPointers.Contains(pointer)),
             "auxiliary headers do not duplicate a room-selected definition");
+        foreach (EnemyDefinitionId pointer in referencedPointers.Concat(auxiliaryPointers))
+            AssertEqual(ReadNativeHeaderWords(bus, pointer), RoomEnemyDefinitionNative.Of(pointer),
+                $"verification's native words for $A0:{(int)pointer:X4} match the cartridge header");
         foreach (EnemyDefinitionId pointer in auxiliaryPointers)
         {
             AssertTrue(RoomEnemyAuxiliaryDefinitionCatalog.TryGet(pointer,
@@ -152,7 +156,7 @@ internal static class EnemyDefinitionsVerification
             "spawns and one independent constructed placement pass.");
     }
 
-    /// <summary>Decodes all 33 native enemy header fields directly from bank $A0 for comparison with compiled catalogs.</summary>
+    /// <summary>Decodes every native enemy header field directly from bank $A0 for comparison with compiled catalogs.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for native enemy definition records")]
     internal static RoomEnemyDefinition ReadNativeEnemyDefinition(
         ISnesAddressSpace bus, EnemyDefinitionId pointer)
@@ -160,7 +164,30 @@ internal static class EnemyDefinitionsVerification
         int address = RoomEnemyRomLayout.DefinitionBank | (ushort)pointer;
         ushort Word(int offset) => ReadVerificationWord(bus, address + offset);
         byte Byte(int offset) => bus.ReadCartridgeByte(address + offset);
-        return new RoomEnemyDefinition(Word(0), Word(2), Word(4), Word(6), new(Word(8), Word(10)), Byte(12), Byte(13), Word(14), Word(16), Word(18), Word(20), Word(22), Word(24), ClosedNativeWords.Decode<GrappleAiRoutine>(Word(26), "grapple AI routine"), Word(28), Word(30), Word(32), Word(34), Word(36), Word(38), Word(40), Word(42), Word(44), Word(46), Word(48), Word(50), Word(52), Word(54) | Byte(56) << 16, Byte(57), Word(58), Word(60), Word(62));
+        byte bank = Byte(12);
+        return new RoomEnemyDefinition(Word(0), Word(4), Word(6), new(Word(8), Word(10)), Byte(13), Word(14), Word(16),
+            EnemyInteractionCallbacks.AiRoutine(bank, Word(18)), Word(20), Word(22), EnemyInteractionCallbacks.AiRoutine(bank, Word(24)),
+            ClosedNativeWords.Decode<GrappleAiRoutine>(Word(26), "grapple AI routine"), EnemyInteractionCallbacks.HurtRoutine(Word(28)),
+            Word(34), Word(36), Word(38),
+            EnemyInteractionCallbacks.TryDecode(bank, Word(40)),
+            EnemyInteractionCallbacks.Body(Word(40), EnemyPowerBombCallbackDefinitions.IsLiteralNoOp(bank, Word(40))),
+            Word(42), Word(44), Word(46),
+            EnemyInteractionCallbacks.TryDecode(bank, Word(48)),
+            EnemyInteractionCallbacks.Body(Word(48), EnemyTouchCallbackDefinitions.IsLiteralNoOp(bank, Word(48))),
+            EnemyInteractionCallbacks.TryDecode(bank, Word(50)),
+            EnemyInteractionCallbacks.Body(Word(50), EnemyShotCallbackDefinitions.IsLiteralNoOp(bank, Word(50))),
+            EnemyInteractionCallbacks.NoOpCallbackBody(bank),
+            Word(54) | Byte(56) << 16, Byte(57), Word(58), Word(60));
+    }
+
+    /// <summary>Reads the bank-qualified words of a native enemy header that the decoded definition replaces.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for native enemy header words")]
+    internal static RoomEnemyNativeWords ReadNativeHeaderWords(ISnesAddressSpace bus, EnemyDefinitionId pointer)
+    {
+        int address = RoomEnemyRomLayout.DefinitionBank | (ushort)pointer;
+        ushort Word(int offset) => ReadVerificationWord(bus, address + offset);
+        return new RoomEnemyNativeWords(bus.ReadCartridgeByte(address + 12), Word(2), Word(18), Word(24), Word(28), Word(30),
+            Word(32), Word(40), Word(48), Word(50), Word(52), Word(62));
     }
 
     /// <summary>Runs enemy header coverage and tube placement checks from the command dispatcher.</summary>

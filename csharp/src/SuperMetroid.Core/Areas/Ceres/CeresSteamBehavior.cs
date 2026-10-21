@@ -169,7 +169,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
                 if (!context.UsesExtendedHitboxes || context.HitboxTouchAi != EnemyInteractionCallback.CeresSteamTouch)
                 {
                     throw new InvalidDataException(
-                        $"Ceres steam requires extended touch AI $A6:{EnemyAiCodePointers.BankA6.CeresSteamTouch:X4}; " +
+                        $"Ceres steam requires extended touch AI {EnemyInteractionCallback.CeresSteamTouch}; " +
                         $"extended={context.UsesExtendedHitboxes}, selected={context.HitboxTouchAi?.ToString() ?? "(unnamed)"}, " +
                         $"map=$A6:{context.Slot.Frame}.");
                 }
@@ -193,9 +193,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     internal static bool? FindHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
         callback = null;
-        if (!(enemy.Definition.Bank == CeresSteamCollisionDefinitions.Bank &&
-            (CeresSteamCollisionDefinitions.Frames.Contains(enemy.Frame) ||
-             probe.ArtworkInstalled)))
+        if (!(CeresSteamCollisionDefinitions.Frames.Contains(enemy.Frame) || probe.ArtworkInstalled))
             return null;
 
         // The high byte of each steam frame's $1001 header is drawing

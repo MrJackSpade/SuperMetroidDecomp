@@ -90,7 +90,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.YappingMaw, slot.Definition);
-            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa8 });
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             slot.Position = slot.Position.WithWhole(new(128, 128));
             slot.SetSpawnParameter1(128);
             slot.SetSpawnParameter2(parameter2);
@@ -159,7 +159,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.YappingMaw, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = YappingMawFrameToolingDefinitions.Bank });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.Position = slot.Position.WithWhole(new(128, 128));
         slot.SetSpawnParameter1(checked((ushort)activationDistance));
         slot.SetSpawnParameter2(1);
@@ -175,7 +175,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.YappingMaw, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa8 });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.InstructionTimer = WrappingCountdown.Start(1);
         var state = new YappingMawEnemyState(slot) { Program = AnimationProgramCursor<YappingMawProgram>.Start(entry) };
         slot.SetSpeciesState(state);

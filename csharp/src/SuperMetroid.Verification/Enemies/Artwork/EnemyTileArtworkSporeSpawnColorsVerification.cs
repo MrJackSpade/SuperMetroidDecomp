@@ -98,7 +98,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
-        body.Bind(body.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa5 });
+        body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
         enemies.SporeSpawnBehavior.InitializeSporeSpawn(body);

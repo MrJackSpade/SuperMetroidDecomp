@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Verification.Samus.Projectiles;
 using System.Text.RegularExpressions;
 using SuperMetroid.Core.Hardware;
@@ -75,7 +76,9 @@ internal static class ShotCallbackDefinitionsVerification
         AssertEqual(12, expectedShotNoOps.Count, "native literal shot no-op count");
         AssertEqual(15, expectedTouchNoOps.Count, "native literal touch no-op count");
         var classifyShot = new Func<byte, ushort, bool>((bank, pointer) =>
-            EnemyCollision.IsLiteralNoOpShotAi(bank, EnemyInteractionCallbacks.TryDecode(bank, pointer)));
+            EnemyCollision.IsLiteralNoOpShotAi(
+                default(RoomEnemyDefinition) with { NoOpCallbackBody = EnemyInteractionCallbacks.NoOpCallbackBody(bank) },
+                EnemyInteractionCallbacks.TryDecode(bank, pointer)));
         foreach (int address in shotCallbacks)
             AssertEqual(expectedShotNoOps.Contains(address), classifyShot(SnesLittleEndian.BankByte(address), (ushort)address), "real shot classifier native parity");
         for (int bank = 0; bank <= 255; bank++)
@@ -112,10 +115,12 @@ internal static class ShotCallbackDefinitionsVerification
             var guard = NewEnemyCallbackOpcodeReadGuard(rom, forbidden);
             (RoomEnemySystem enemies, RoomEnemySlot enemy) =
                 CreateLiteralNoOpCombatSystem();
+            byte touchBank = SnesLittleEndian.BankByte(callback);
+            ushort touchWord = unchecked((ushort)callback);
             enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
             {
-                Bank = (byte)(callback >> 16),
-                TouchAiPointer = unchecked((ushort)callback),
+                Touch = EnemyInteractionCallbacks.TryDecode(touchBank, touchWord),
+                TouchBody = EnemyInteractionCallbacks.Body(touchWord, EnemyTouchCallbackDefinitions.IsLiteralNoOp(touchBank, touchWord)),
             });
             var samus = new SamusState
             {
@@ -137,10 +142,13 @@ internal static class ShotCallbackDefinitionsVerification
             var guard = NewEnemyCallbackOpcodeReadGuard(rom, forbidden);
             (RoomEnemySystem enemies, RoomEnemySlot enemy) =
                 CreateLiteralNoOpCombatSystem();
+            byte shotBank = SnesLittleEndian.BankByte(callback);
+            ushort shotWord = unchecked((ushort)callback);
             enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
             {
-                Bank = (byte)(callback >> 16),
-                ShotAiPointer = unchecked((ushort)callback),
+                Shot = EnemyInteractionCallbacks.TryDecode(shotBank, shotWord),
+                ShotBody = EnemyInteractionCallbacks.Body(shotWord, EnemyShotCallbackDefinitions.IsLiteralNoOp(shotBank, shotWord)),
+                NoOpCallbackBody = EnemyInteractionCallbacks.NoOpCallbackBody(shotBank),
             });
             var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
             SamusProjectileSlot projectile = projectiles.Slots[0];

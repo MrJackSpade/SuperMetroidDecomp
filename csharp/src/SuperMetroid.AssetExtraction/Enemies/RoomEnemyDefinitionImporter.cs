@@ -20,44 +20,65 @@ public static class RoomEnemyDefinitionImporter
     {
         Ensure.NotNull(bus);
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
-        ushort Word(int offset) => RomDataReader.ReadWordFixedBank(cartridge,
-            RoomEnemyRomLayout.DefinitionBank | unchecked((ushort)((ushort)pointer + offset)));
-        byte Byte(int offset) => cartridge.ReadCartridgeByte(
-            RoomEnemyRomLayout.DefinitionBank | unchecked((ushort)((ushort)pointer + offset)));
-        int Long(int offset) => RomDataReader.ReadLongFixedBank(cartridge,
-            RoomEnemyRomLayout.DefinitionBank | unchecked((ushort)((ushort)pointer + offset)));
+        ushort Word(int offset) => ReadWord(cartridge, pointer, offset);
+        byte Byte(int offset) => ReadByte(cartridge, pointer, offset);
+        byte bank = Byte(BankOffset);
         return new RoomEnemyDefinition(
             TileDataSize: Word(0),
-            PalettePointer: Word(2),
             Health: Word(4),
             Damage: Word(6),
             Radius: new Extent16<RoomPixels>(Word(8), Word(10)),
-            Bank: Byte(12),
             HurtAiTime: Byte(13),
             HurtSoundEffect: Word(14),
             BossId: Word(16),
-            InitializationAiPointer: Word(18),
+            InitializationAi: EnemyInteractionCallbacks.AiRoutine(bank, Word(18)),
             PartCount: Word(20),
             Unused16: Word(22),
-            MainAiPointer: Word(24),
+            MainAi: EnemyInteractionCallbacks.AiRoutine(bank, Word(24)),
             GrappleAi: ClosedNativeWords.Decode<GrappleAiRoutine>(Word(26), "grapple AI routine"),
-            HurtAiPointer: Word(28),
-            FrozenAiPointer: Word(30),
-            TimeFrozenAiPointer: Word(32),
+            HurtAi: EnemyInteractionCallbacks.HurtRoutine(Word(28)),
             DeathAnimation: Word(34),
             Unused24: Word(36),
             Unused26: Word(38),
-            PowerBombReactionPointer: Word(40),
+            PowerBombReaction: EnemyInteractionCallbacks.TryDecode(bank, Word(40)),
+            PowerBombReactionBody: EnemyInteractionCallbacks.Body(Word(40),
+                EnemyPowerBombCallbackDefinitions.IsLiteralNoOp(bank, Word(40))),
             VariantIndex: Word(42),
             Unused2C: Word(44),
             Unused2E: Word(46),
-            TouchAiPointer: Word(48),
-            ShotAiPointer: Word(50),
-            InitialSpritemapPointer: Word(52),
-            TileDataAddress: Long(54),
+            Touch: EnemyInteractionCallbacks.TryDecode(bank, Word(48)),
+            TouchBody: EnemyInteractionCallbacks.Body(Word(48), EnemyTouchCallbackDefinitions.IsLiteralNoOp(bank, Word(48))),
+            Shot: EnemyInteractionCallbacks.TryDecode(bank, Word(50)),
+            ShotBody: EnemyInteractionCallbacks.Body(Word(50), EnemyShotCallbackDefinitions.IsLiteralNoOp(bank, Word(50))),
+            NoOpCallbackBody: EnemyInteractionCallbacks.NoOpCallbackBody(bank),
+            TileDataAddress: RomDataReader.ReadLongFixedBank(cartridge, HeaderAddress(pointer, 54)),
             Layer: Byte(57),
             ItemDropChancesPointer: Word(58),
-            VulnerabilityPointer: Word(60),
-            NamePointer: Word(62));
+            VulnerabilityPointer: Word(60));
     }
+
+    /// <summary>The long address of the sixteen-color palette a header names in its enemy's bank.</summary>
+    /// <param name="bus">Address space that exposes the import-only cartridge source.</param>
+    /// <param name="pointer">Bank-$A0 pointer to the native enemy definition.</param>
+    internal static int PaletteAddress(ISnesAddressSpace bus, EnemyDefinitionId pointer)
+    {
+        Ensure.NotNull(bus);
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        return (int)new SnesAddress(ReadByte(cartridge, pointer, BankOffset), ReadWord(cartridge, pointer, PaletteOffset));
+    }
+
+    /// <summary>Header offset of the bank byte that qualifies the header's code and palette words.</summary>
+    private const int BankOffset = 12;
+
+    /// <summary>Header offset of the palette word.</summary>
+    private const int PaletteOffset = 2;
+
+    private static int HeaderAddress(EnemyDefinitionId pointer, int offset) =>
+        RoomEnemyRomLayout.DefinitionBank | unchecked((ushort)((ushort)pointer + offset));
+
+    private static ushort ReadWord(IImportCartridgeSource cartridge, EnemyDefinitionId pointer, int offset) =>
+        RomDataReader.ReadWordFixedBank(cartridge, HeaderAddress(pointer, offset));
+
+    private static byte ReadByte(IImportCartridgeSource cartridge, EnemyDefinitionId pointer, int offset) =>
+        cartridge.ReadCartridgeByte(HeaderAddress(pointer, offset));
 }

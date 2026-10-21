@@ -24,7 +24,7 @@ internal static class NorfairLavaJumperBehaviorVerification
         enemies.VerificationServices().NextRandom = () => 0;
         RoomEnemySlot parent = enemies.SlotTable.Slots[0];
         parent.Bind(EnemyDefinitionId.Squeept, parent.Definition);
-        parent.Bind(parent.DefinitionId, default(RoomEnemyDefinition) with { Bank = NorfairLavaJumperFrameToolingDefinitions.Bank });
+        parent.Bind(parent.DefinitionId, default(RoomEnemyDefinition));
         parent.Position = parent.Position.WithWhole(new(256, 480));
         enemies.NorfairLavaJumpingEnemyBehavior.InitializeNorfairLavaJumpingEnemy(parent);
         NorfairLavaJumpingEnemyState parentState = enemies.NorfairLavaJumpingEnemyStates[0]
@@ -50,7 +50,7 @@ internal static class NorfairLavaJumperBehaviorVerification
 
         RoomEnemySlot follower = enemies.SlotTable.Slots[1];
         follower.Bind(EnemyDefinitionId.Squeept, follower.Definition);
-        follower.Bind(follower.DefinitionId, default(RoomEnemyDefinition) with { Bank = NorfairLavaJumperFrameToolingDefinitions.Bank });
+        follower.Bind(follower.DefinitionId, default(RoomEnemyDefinition));
         follower.SetSpawnParameter1(32768);
         enemies.NorfairLavaJumpingEnemyBehavior.InitializeNorfairLavaJumpingEnemy(follower);
         NorfairLavaJumpingEnemyState followerState = enemies.NorfairLavaJumpingEnemyStates[1]

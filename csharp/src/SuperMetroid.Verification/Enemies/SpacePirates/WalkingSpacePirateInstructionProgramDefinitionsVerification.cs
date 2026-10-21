@@ -103,7 +103,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.PirateGreyWalking, slot.Definition);
-            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xb2 });
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
             WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(slot);
             var samus = new SamusState

@@ -32,8 +32,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
             enemies.VerificationServices().NextRandom = () => 0;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Steam, slot.Definition);
-            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with
-            { Bank = CeresSteamCollisionDefinitions.Bank });
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             slot.SetSpawnParameter1((ushort)variant);
             enemies.CeresSteamBehavior.InitializeCeresSteam(slot);
             object?[] arguments =
@@ -68,7 +67,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
         var compiled = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var nativeSlot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
         RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
-        compiledSlot.Bind(compiledSlot.DefinitionId, default(RoomEnemyDefinition) with { Bank = CeresSteamCollisionDefinitions.Bank });
+        compiledSlot.Bind(compiledSlot.DefinitionId, default(RoomEnemyDefinition));
 
         compiledSlot.Bind(EnemyDefinitionId.Steam, compiledSlot.Definition);
         AssertEqual(28, CeresSteamCollisionDefinitionsConstants.FramePointers.Length,

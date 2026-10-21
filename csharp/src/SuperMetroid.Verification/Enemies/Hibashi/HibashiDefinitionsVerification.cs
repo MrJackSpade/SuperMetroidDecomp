@@ -66,14 +66,14 @@ internal static class HibashiDefinitionsVerification
 
         RoomEnemySlot programGraphics = programSystem.SlotTable.Slots[0];
         programGraphics.Bind(EnemyDefinitionId.Hibashi, programGraphics.Definition);
-        programGraphics.Bind(programGraphics.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa6 });
+        programGraphics.Bind(programGraphics.DefinitionId, default(RoomEnemyDefinition));
         programGraphics.SetSpawnParameter2(0);
         programGraphics.Position = programGraphics.Position.WithWhole(new(0x0180, 0x0200));
         initializeProgram(programGraphics);
 
         RoomEnemySlot programHitbox = programSystem.SlotTable.Slots[1];
         programHitbox.Bind(EnemyDefinitionId.Hibashi, programHitbox.Definition);
-        programHitbox.Bind(programHitbox.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa6 });
+        programHitbox.Bind(programHitbox.DefinitionId, default(RoomEnemyDefinition));
         programHitbox.SetSpawnParameter2(1);
         programHitbox.Position = programHitbox.Position.WithWhole(programGraphics.Position.Whole);
         initializeProgram(programHitbox);

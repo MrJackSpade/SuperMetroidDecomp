@@ -96,7 +96,7 @@ internal static class BoyonBehaviorVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Boyon, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = BoyonFrameToolingDefinitions.Bank });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         // Parameter two is the horizontal trigger range Samus must be within to start a bounce.
         slot.SetSpawnParameter2(64);
         slot.Position = slot.Position.WithWhole(new(256, 512));

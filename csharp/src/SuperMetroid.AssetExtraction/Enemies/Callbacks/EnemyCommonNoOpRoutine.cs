@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
 /// The shared long-return routines at $804C that enemy headers name for "no AI". An initialization or main-AI pointer

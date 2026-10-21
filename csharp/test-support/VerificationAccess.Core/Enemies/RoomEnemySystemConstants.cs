@@ -11,8 +11,6 @@ internal static class RoomEnemySystemConstants
     public const ushort BombTorizoInitialInstruction = 0xb879;
     /// <summary>Pre-instruction selected for the Cacatac spike enemy projectile.</summary>
     public const EnemyProjectilePreInstruction CacatacSpikePreInstruction = EnemyProjectilePreInstruction.CacatacSpike;
-    /// <summary>Bank-$A0 no-op AI pointer installed by the growing shutter.</summary>
-    public const ushort GrowingShutterNoOpAi = EnemyAiCodePointers.BankA0.NoOp;
     /// <summary>Initial leftward Ki Hunter acid pre-instruction pointer.</summary>
     public const EnemyProjectilePreInstruction KiHunterAcidInitialLeftPreInstruction = EnemyProjectilePreInstruction.KiHunterAcid_Left;
     /// <summary>Initial rightward Ki Hunter acid pre-instruction pointer.</summary>
@@ -33,8 +31,6 @@ internal static class RoomEnemySystemConstants
         internal static ushort BombTorizoInitialInstruction => RoomEnemySystemConstants.BombTorizoInitialInstruction;
         /// <inheritdoc cref="RoomEnemySystemConstants.CacatacSpikePreInstruction"/>
         internal static EnemyProjectilePreInstruction CacatacSpikePreInstruction => RoomEnemySystemConstants.CacatacSpikePreInstruction;
-        /// <inheritdoc cref="RoomEnemySystemConstants.GrowingShutterNoOpAi"/>
-        internal static ushort GrowingShutterNoOpAi => RoomEnemySystemConstants.GrowingShutterNoOpAi;
         /// <inheritdoc cref="RoomEnemySystemConstants.KiHunterAcidInitialLeftPreInstruction"/>
         internal static EnemyProjectilePreInstruction KiHunterAcidInitialLeftPreInstruction => RoomEnemySystemConstants.KiHunterAcidInitialLeftPreInstruction;
         /// <inheritdoc cref="RoomEnemySystemConstants.KiHunterAcidInitialRightPreInstruction"/>

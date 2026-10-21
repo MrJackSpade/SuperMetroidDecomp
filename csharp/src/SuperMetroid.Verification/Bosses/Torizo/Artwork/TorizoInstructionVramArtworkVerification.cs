@@ -30,10 +30,7 @@ internal static class TorizoInstructionVramArtworkVerification
         var installedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas };
         RoomEnemySlot installedSlot = installedEnemies.SlotTable.Slots[0];
         installedSlot.Bind(EnemyDefinitionId.GoldenTorizo, installedSlot.Definition);
-        installedSlot.Bind(installedSlot.DefinitionId, default(RoomEnemyDefinition) with
-        {
-            Bank = TorizoInstructionVramTransferDefinitions.Bank,
-        });
+        installedSlot.Bind(installedSlot.DefinitionId, default(RoomEnemyDefinition));
 
         ushort previousInstruction = 0;
         var authoredOpcodes = new HashSet<ushort>();

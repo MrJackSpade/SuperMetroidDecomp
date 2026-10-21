@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Enemies;
@@ -6,5 +7,6 @@ namespace SuperMetroid.Core.Enemies;
 internal static class EnemyInteractionCallbackAccess
 {
     /// <summary>The bank-local word of <paramref name="callback"/>'s entry point.</summary>
-    internal static ushort Word(EnemyInteractionCallback callback) => SnesLittleEndian.LowWord((int)callback);
+    internal static ushort Word(EnemyInteractionCallback callback) =>
+        SnesLittleEndian.LowWord(EnemyInteractionCallbacks.Addresses[callback]);
 }

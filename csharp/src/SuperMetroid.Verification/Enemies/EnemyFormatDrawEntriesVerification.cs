@@ -61,8 +61,8 @@ internal static class EnemyFormatDrawEntriesVerification
         EnemySpritemapDefinition ordinaryFrame = EnemySpritemapDefinitions.Frames.First(frame =>
             spritemaps.TryGetDisplay(frame.Bank, frame.Pointer, out EnemySpritemapParts parts) && parts.Count > 0);
         RoomEnemySlot ordinary = enemies.SlotTable.Slots[0];
-        ordinary.Bind(EnemyDefinitionId.Boyon, default(RoomEnemyDefinition) with { Bank = ordinaryFrame.Bank });
-        ordinary.SpritemapPointer = ordinaryFrame.Pointer;
+        ordinary.Bind(EnemyDefinitionId.Boyon, default(RoomEnemyDefinition));
+        ordinary.Frame = RoomEnemySlotFrameAccess.FrameAt(ordinaryFrame.Bank, ordinaryFrame.Pointer);
         ordinary.VramTilesIndex = OrdinaryTileBase;
         ordinary.PaletteIndex = OrdinaryPaletteBits;
         ordinary.Position = ordinary.Position.WithWhole(new(100, 80));
@@ -74,9 +74,9 @@ internal static class EnemyFormatDrawEntriesVerification
             extendedFrames.TryGetDisplay(frame.Bank, frame.Pointer, out ReadOnlyMemory<EnemyExtendedDrawComponent> components) &&
             components.Length > 1);
         RoomEnemySlot extended = enemies.SlotTable.Slots[1];
-        extended.Bind(EnemyDefinitionId.Boyon, default(RoomEnemyDefinition) with { Bank = extendedFrame.Bank });
+        extended.Bind(EnemyDefinitionId.Boyon, default(RoomEnemyDefinition));
         extended.ExtraProperties = extended.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
-        extended.SpritemapPointer = extendedFrame.Pointer;
+        extended.Frame = RoomEnemySlotFrameAccess.FrameAt(extendedFrame.Bank, extendedFrame.Pointer);
         extended.InstructionTimer = WrappingCountdown.Start(7);
         extended.Position = extended.Position.WithWhole(new(120, 110));
         enemies.Drawing.Enqueue(1, EnemySlotTable.NativeSlotSize);

@@ -99,7 +99,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa7 });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.SetSpawnParameter1(parameter);
         return new DachoraInstructionProgramDefinitionsNewDachoraResult(enemies, slot);
     }

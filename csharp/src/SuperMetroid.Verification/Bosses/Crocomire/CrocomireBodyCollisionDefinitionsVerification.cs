@@ -28,8 +28,7 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
         var compiled = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var nativeSlot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
         RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
-        var boundDefinition = default(RoomEnemyDefinition) with
-            { Bank = CrocomireBodyCollisionDefinitions.Bank };
+        var boundDefinition = default(RoomEnemyDefinition);
         nativeSlot.Bind(nativeSlot.DefinitionId, boundDefinition);
         compiledSlot.Bind(compiledSlot.DefinitionId, boundDefinition);
         // The native side uses the independent test-side ROM walker. The
@@ -74,7 +73,7 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
                     seenLists.Add(list, component.Hitboxes);
             }
 
-            nativeSlot.SpritemapPointer = compiledSlot.SpritemapPointer = frame;
+            nativeSlot.Frame = compiledSlot.Frame = RoomEnemySlotFrameAccess.FrameAt(CrocomireBodyCollisionDefinitions.Bank, frame);
             foreach (short dx in new short[] { -112, -96, -64, -40, -16, 0, 16, 40, 64 })
             foreach (short dy in new short[] { -96, -64, -40, -16, 0, 16, 40, 64 })
             foreach (bool shot in new[] { false, true })
@@ -85,7 +84,7 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
                     [nativeSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(8, 8), shot, (ushort)0];
                 object?[] compiledArguments =
                     [compiledSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(8, 8), shot, (ushort)0];
-                bool nativeHit = ReferenceExtendedCollision(rom, nativeArguments);
+                bool nativeHit = ReferenceExtendedCollision(rom, CrocomireBodyCollisionDefinitions.Bank, nativeArguments);
                 bool compiledHit = ExtendedHitboxWalker.Find(compiled, compiledArguments);
                 AssertEqual(nativeHit, compiledHit,
                     $"Crocomire $A4:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");

@@ -266,7 +266,7 @@ internal static class LookupStream1Verification
         enemies.VerificationServices().HasEvent = _ => false;
         RoomEnemySlot dachora = enemies.SlotTable.Slots[0];
         dachora.Bind(EnemyDefinitionId.DachoraEscape, dachora.Definition);
-        dachora.Bind(dachora.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xb3 });
+        dachora.Bind(dachora.DefinitionId, default(RoomEnemyDefinition));
         dachora.Position = dachora.Position.WithWhole(new(256, 200));
         enemies.EscapeAnimalsBehavior.InitializeEscapeDachora(dachora);
         return enemies;
@@ -286,12 +286,12 @@ internal static class LookupStream1Verification
             Action<RoomEnemySlot> initialize = enemies.PowampBehavior.InitializePowamp;
             var balloon = enemies.SlotTable.Slots[0];
             balloon.Bind(EnemyDefinitionId.Powamp, balloon.Definition);
-            balloon.Bind(balloon.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa8 });
+            balloon.Bind(balloon.DefinitionId, default(RoomEnemyDefinition));
             balloon.SetSpawnParameter1(1);
             initialize(balloon);
             var body = enemies.SlotTable.Slots[1];
             body.Bind(EnemyDefinitionId.Powamp, body.Definition);
-            body.Bind(body.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa8 });
+            body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
             initialize(body);
             body.Position = body.Position.WithWholeY(100);
             var slot = isBody ? body : balloon;
@@ -359,7 +359,7 @@ internal static class LookupStream1Verification
             enemies.VerificationServices().NextRandom = () => { randomCalls++; return 5; };
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
-            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa3 });
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             slot.InstructionTimer = WrappingCountdown.Start(1);
             enemies.SlotTable.Slots[0].SetSpeciesState(new MetroidEnemyState(new RoomSpriteObjectSlot(0), new RoomSpriteObjectSlot(1))
             {

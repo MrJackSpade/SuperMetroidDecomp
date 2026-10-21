@@ -62,14 +62,14 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
 
         RoomEnemySlot parent = enemies.SlotTable.Slots[0];
         parent.Bind(EnemyDefinitionId.Holtz, parent.Definition);
-        parent.Bind(parent.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa2 });
+        parent.Bind(parent.DefinitionId, default(RoomEnemyDefinition));
         enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(parent);
         AssertEqual(AnimationProgramCursor<LowerNorfairRioProgram>.Start(LowerNorfairRioProgram.Idle), enemies.SlotTable.Slots[0].EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>()?.Program,
             "Lower Norfair Rio parent initializer selects idle");
 
         RoomEnemySlot follower = enemies.SlotTable.Slots[1];
         follower.Bind(EnemyDefinitionId.Holtz, follower.Definition);
-        follower.Bind(follower.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa2 });
+        follower.Bind(follower.DefinitionId, default(RoomEnemyDefinition));
         follower.SetSpawnParameter1(0x8000);
         enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(follower);
         AssertEqual(AnimationProgramCursor<LowerNorfairRioProgram>.Start(LowerNorfairRioProgram.Flames), enemies.SlotTable.Slots[1].EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>()?.Program,
@@ -83,7 +83,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Holtz, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa2 });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.InstructionTimer = WrappingCountdown.Start(1);
         var state = new LowerNorfairRioEnemyState { Program = AnimationProgramCursor<LowerNorfairRioProgram>.Start(entry) };
         slot.SetSpeciesState(state, state.ClearWithRecord);

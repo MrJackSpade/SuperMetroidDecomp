@@ -199,10 +199,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.DraygonBody, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with
-        {
-            Bank = DraygonBg2FrameToolingDefinitions.Bank,
-        });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.Position = slot.Position.WithWhole(new(0x100, 0x100));
         foreach (ushort pointer in new ushort[] { 0xa31b, 0xa643, 0xa36b })
         {
@@ -235,10 +232,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         enemies.Drawing.Enqueue(0, 0);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.DraygonBody, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with
-        {
-            Bank = DraygonBg2FrameToolingDefinitions.Bank,
-        });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.ExtraProperties = slot.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
         if (newInstructionFrame)

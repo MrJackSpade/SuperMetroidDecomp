@@ -13,8 +13,6 @@ internal static class CommonEnemyEmptyExtendedFrameDefinitionsConstants
         /// <inheritdoc cref="CommonEnemyEmptyExtendedFrameDefinitionsConstants.PointHitboxList"/>
         internal static ushort PointHitboxList => CommonEnemyEmptyExtendedFrameDefinitionsConstants.PointHitboxList;
     }
-    /// <summary>Selects the shared bank-$A0 shot or touch callback used by the empty frame.</summary>
-    internal static ushort Callback(bool selectShot) => selectShot
-        ? EnemyAiCodePointers.BankA0.NormalEnemyShot
-        : EnemyAiCodePointers.BankA0.NormalEnemyTouch;
+    /// <summary>Selects the shared bank-$A0 shot (<c>NormalEnemyShotAI</c>) or touch (<c>NormalEnemyTouchAI</c>) callback used by the empty frame.</summary>
+    internal static ushort Callback(bool selectShot) => selectShot ? (ushort)0x802d : (ushort)0x8023;
 }

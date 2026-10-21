@@ -22,10 +22,8 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
     internal static void VerifyInstalledNinjaSpacePiratePalette(ISnesAddressSpace bus,
         string stockDirectory, InstalledEnemyArtwork stock)
     {
-        RoomEnemyDefinition shared = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.Load(bus,
-            EnemyDefinitionId.PirateGoldWall);
         AssertEqual(NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource,
-            ((int)new SnesAddress(            shared.Bank, shared.PalettePointer)),
+            SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.PaletteAddress(bus, EnemyDefinitionId.PirateGoldWall),
             "Installed gold-Pirate sheet owns the native ninja target-palette source");
 
         // $B2:F5DE copies sixteen raw gold-Pirate colors into target palette seven.
@@ -92,7 +90,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
             enemies.Presentation.BindCgram(colors);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.PirateGreyNinja, slot.Definition);
-            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xb2 });
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
             slot.SetSpawnParameter2(0x0080);
             enemies.NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(slot);

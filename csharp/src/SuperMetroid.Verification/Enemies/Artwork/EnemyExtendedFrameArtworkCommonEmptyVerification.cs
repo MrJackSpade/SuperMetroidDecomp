@@ -90,7 +90,7 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = bank });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameToolingDefinitionsConstants.Frame;
         slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         object?[] arguments =

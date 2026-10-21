@@ -232,7 +232,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             enemies.VerificationServices().NextRandom = () => 1;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.PirateGreyNinja, slot.Definition);
-            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xb2 });
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
             slot.Radius = new(8, 16);
             slot.SetSpawnParameter2(0x0080);

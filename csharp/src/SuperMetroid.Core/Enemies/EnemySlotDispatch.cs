@@ -77,8 +77,7 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
 
     /// <summary>The failure for a slot whose definition names an initialization AI this build does not translate.</summary>
     private static InvalidDataException Untranslated(RoomEnemySlot slot) =>
-        new($"Enemy ${(int)slot.DefinitionId:X4} initialization AI " +
-            $"${(int)new SnesAddress(slot.Definition.Bank, slot.Definition.InitializationAiPointer):X6} is not translated.");
+        new($"Enemy {slot.DefinitionId} initialization AI is not translated.");
 
     /// <summary>Exposes physical-slot population setup to the enemy loader.</summary>
     void IEnemyDispatch.InitializeSlotFromDefinition(
@@ -118,8 +117,7 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
     internal static void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         EnemyMainAiHandler handler = (slot.Entity as IEnemyMainAi)?.FindMain() ?? throw new InvalidDataException(
-            $"Enemy ${(int)slot.DefinitionId:X4} main AI " +
-            $"${(int)new SnesAddress(slot.Definition.Bank, slot.Definition.MainAiPointer):X6} is not translated.");
+            $"Enemy {slot.DefinitionId} main AI is not translated.");
         handler(slot, frame);
     }
 }

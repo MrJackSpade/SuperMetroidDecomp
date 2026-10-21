@@ -72,7 +72,7 @@ internal static class SparkMovementDefinitionsVerification
         enemies.VerificationServices().IsAreaBossDefeated = () => true;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Spark, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = SparkFrameToolingDefinitions.Bank });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         enemies.SparkBehavior.InitializeSpark(slot);
         SparkEnemyState state = enemies.SparkStates[0] ?? throw new InvalidOperationException("Spark has no state.");
         state.Program = AnimationProgramCursor<SparkProgram>.Start(program);

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>The two shared bank-$A0 no-op routines an enemy header can name for its AI.</summary>
 internal enum EnemyNoOpRoutine : ushort

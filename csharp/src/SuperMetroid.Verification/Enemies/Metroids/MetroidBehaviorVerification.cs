@@ -21,7 +21,7 @@ internal static class MetroidBehaviorVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = MetroidFrameToolingDefinitions.Bank });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         // The room spawn primes the instruction timer before the species initializer runs.
         slot.InstructionTimer = WrappingCountdown.Start(1);
         enemies.MetroidBehavior.InitializeMetroid(slot);

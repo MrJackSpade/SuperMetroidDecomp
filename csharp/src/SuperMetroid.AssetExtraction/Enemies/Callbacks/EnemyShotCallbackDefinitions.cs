@@ -1,7 +1,9 @@
-namespace SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Shot/bomb callback identities, not interchangeable with multibox header shortcuts.</summary>
-public static class EnemyShotCallbackDefinitions
+internal static class EnemyShotCallbackDefinitions
 {
     /// <summary>$A2:804C, bank-local RTL used by headers and common hitboxes.</summary>
     public const int BankA2NoOp = 0xa2804c;

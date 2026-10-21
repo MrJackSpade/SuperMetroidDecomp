@@ -18,7 +18,7 @@ internal static class FirefleaBehaviorVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Fireflea, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = FirefleaFrameToolingDefinitions.Bank });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.SetSpawnParameter1(0);
         slot.SetSpawnParameter2(0);
         enemies.FirefleaBehavior.InitializeFireflea(slot);

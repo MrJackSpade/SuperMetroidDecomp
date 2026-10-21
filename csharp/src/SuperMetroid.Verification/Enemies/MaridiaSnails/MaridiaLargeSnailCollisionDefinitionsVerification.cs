@@ -37,8 +37,7 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
         var compiled = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var nativeSlot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
         RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
-        var boundDefinition = default(RoomEnemyDefinition) with
-            { Bank = MaridiaLargeSnailCollisionDefinitions.Bank };
+        var boundDefinition = default(RoomEnemyDefinition);
         nativeSlot.Bind(nativeSlot.DefinitionId, boundDefinition);
         compiledSlot.Bind(compiledSlot.DefinitionId, boundDefinition);
         nativeSlot.Bind((EnemyDefinitionId)0xffff, nativeSlot.Definition);
@@ -80,7 +79,7 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
                 boxesChecked++;
             }
 
-            nativeSlot.SpritemapPointer = compiledSlot.SpritemapPointer = frame;
+            nativeSlot.Frame = compiledSlot.Frame = RoomEnemySlotFrameAccess.FrameAt(MaridiaLargeSnailCollisionDefinitions.Bank, frame);
             foreach ((ushort originX, ushort originY) in
                      new VerifyMaridiaLargeSnailCollisionDefinitionsCase[]
                      {
@@ -103,7 +102,7 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
                             [nativeSlot, new Position16<RoomPixels>(x, y), Extent16<RoomPixels>.Zero, shot != 0, (ushort)0];
                         object?[] compiledArguments =
                             [compiledSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(0, 0), shot != 0, (ushort)0];
-                        bool nativeHit = ReferenceExtendedCollision(rom, nativeArguments);
+                        bool nativeHit = ReferenceExtendedCollision(rom, MaridiaLargeSnailCollisionDefinitions.Bank, nativeArguments);
                         bool compiledHit = ExtendedHitboxWalker.Find(compiled, compiledArguments);
                         AssertEqual(nativeHit, compiledHit,
                             $"Oum $A2:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");

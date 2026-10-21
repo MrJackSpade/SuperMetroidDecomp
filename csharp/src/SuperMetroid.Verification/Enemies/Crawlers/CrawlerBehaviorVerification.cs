@@ -36,7 +36,7 @@ internal static class CrawlerBehaviorVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork?.Enemies, BossArtwork = artwork?.Bosses, AreaArtwork = artwork?.Areas };
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(definition, slot.Definition);
-            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = CrawlerFrameToolingDefinitions.Bank });
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             // The population parameter, read before initialization, selects the surface; InitAI_Viola reads the property bits.
             slot.CurrentInstruction = (ushort)orientation;
             if (family == CrawlerAnimationFamily.Viola)

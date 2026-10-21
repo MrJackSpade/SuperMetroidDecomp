@@ -185,7 +185,8 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(0x0789, slot.Position.Y.Whole, "population Y position");
     AssertEqual(0x0600, slot.PaletteIndex, "graphics-set OBJ palette index");
     AssertEqual(0, slot.VramTilesIndex, "first graphics-set tile index");
-    AssertEqual(0xa2, slot.Definition.Bank, "definition AI bank bound to native slot");
+    AssertEqual(EnemyCallbackBody.ImmediateReturn, slot.Definition.NoOpCallbackBody,
+        "definition bank $A2 runs the shared no-op callback as an immediate return");
     AssertEqual(0x5a, slot.HurtAiTime, "definition hurt-AI time copied into native slot");
     AssertEqual(EnemyAiStates.None, slot.AiStates, "room load clears AI handler bits");
     AssertEqual(0, slot.FlashTimer.RawValue, "room load clears flash timer");
@@ -198,16 +199,13 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(0x110e, definition.HurtSoundEffect, "definition hurt SFX offset $0E");
     AssertEqual(0x1114, definition.PartCount, "definition part count offset $14");
     AssertEqual(GrappleAiRoutine.Cancel, definition.GrappleAi, "definition grapple AI offset $1A");
-    AssertEqual(0x1128, definition.PowerBombReactionPointer,
+    AssertEqual(EnemyCallbackBody.Routine, definition.PowerBombReactionBody,
         "definition power-bomb reaction offset $28");
-    AssertEqual(0x1134, definition.InitialSpritemapPointer,
-        "definition initial spritemap offset $34");
     AssertEqual(0xa29100, definition.TileDataAddress, "definition 24-bit tile-data pointer");
     AssertEqual(0x113a, definition.ItemDropChancesPointer,
         "definition item-drop pointer offset $3A");
     AssertEqual(0x113c, definition.VulnerabilityPointer,
         "definition vulnerability pointer offset $3C");
-    AssertEqual(0x9200, definition.NamePointer, "definition name pointer offset $3E");
 
     // Repeating the installed-art load must preserve the same VRAM geometry while the
     // cartridge tile sources are forbidden. The second definition exercises the native

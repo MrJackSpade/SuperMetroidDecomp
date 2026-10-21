@@ -102,7 +102,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
         EvirProgram program)
     {
         slot.Bind(definition, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = EvirFrameToolingDefinitions.Bank });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.InstructionTimer = WrappingCountdown.Start(1);
         var state = new EvirEnemyState
         {

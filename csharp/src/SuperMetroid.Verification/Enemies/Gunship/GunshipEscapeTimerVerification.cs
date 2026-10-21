@@ -4,6 +4,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
@@ -38,7 +39,7 @@ internal static class GunshipEscapeTimerVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0x0400, 0x0400));
         var samus = runtime.Player.IntroducedSamus;
-        var top = runtime.Enemies.SlotTable.Slots.First(slot => slot.Definition.InitializationAiPointer == 0xa644);
+        var top = runtime.Enemies.SlotTable.Slots.First(slot => slot.NativeHeader.InitializationAiPointer == 0xa644);
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(top.Position.X.Whole, (ushort)(top.Position.Y.Whole - 30)));

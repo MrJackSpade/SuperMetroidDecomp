@@ -50,7 +50,7 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
 
     /// <summary>The Crocomire body takes normal bombs on its extended frames although its header names no shot callback.</summary>
     public bool AdmitsNormalBombs(bool usesExtendedHitboxes) =>
-        Slot.DefinitionId == EnemyDefinitionId.Crocomire && Slot.Definition.ShotAiPointer == 0 && usesExtendedHitboxes;
+        Slot.DefinitionId == EnemyDefinitionId.Crocomire && Slot.Definition.ShotBody == EnemyCallbackBody.None && usesExtendedHitboxes;
 
     /// <inheritdoc/>
     public EnemyBg2FrameLookup? FindBg2Frame(EnemyFrameId selected, EnemyRoomBinding room)

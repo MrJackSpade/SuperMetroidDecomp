@@ -1232,8 +1232,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         // intentionally does nothing; the shutter callbacks only run their trigger state machines. All still
         // receive the native process-off-screen bit after a qualifying ellipse overlap. Literal no-ops are
         // classified by their compiled bank-qualified identities without fetching executable ROM bytes.
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => EnemyPowerBombCallbackDefinitions.IsLiteralNoOp(
-            enemy.Definition.Bank, enemy.Definition.PowerBombReactionPointer))
+        table.AddPowerBomb(new EnemyPowerBombReaction(enemy =>
+            enemy.Definition.PowerBombReactionBody == EnemyCallbackBody.ImmediateReturn)
         {
             ReplacesCommon = static (_, _) => { },
         });
@@ -1402,7 +1402,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         MochtroidBehavior.RegisterMochtroidShotReactions(table);
         // Several retail helper/projectile definitions point their shot callback at a literal RTL in their own enemy
         // bank. Radius collision still dispatches those callbacks after its projectile prelude.
-        table.AddShot(new EnemyShotReaction(enemy => EnemyCollision.IsLiteralNoOpShotAi(enemy.Definition.Bank, EnemyCollision.ShotAi(enemy))));
+        table.AddShot(new EnemyShotReaction(enemy => EnemyCollision.IsLiteralNoOpShotAi(enemy.Definition, EnemyCollision.ShotAi(enemy))));
         table.AddShot(new EnemyShotReaction(enemy => EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.NormalEnemyShot));
 }
 
@@ -1435,7 +1435,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         // Fifteen inventoried header/hitbox callbacks are literal RTL routines. Classify their bank-qualified
         // identities rather than probing executable ROM bytes at runtime. The collision is still reported, but the
         // callback performs no damage, knockback, or actor reaction.
-        table.AddTouch(slot => EnemyTouchCallbackDefinitions.IsLiteralNoOp(slot.Definition.Bank, slot.Definition.TouchAiPointer),
+        table.AddTouch(slot => slot.Definition.TouchBody == EnemyCallbackBody.ImmediateReturn,
             static _ => { });
         ShuttersBehavior.RegisterShuttersTouch(table);
         MochtroidBehavior.RegisterMochtroidTouch(table);
@@ -1483,7 +1483,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         RidleyBehavior.RegisterRidleyHurtAi(table);
         PhantoonBehavior.RegisterPhantoonHurtAi(table);
         DraygonBehavior.RegisterDraygonHurtAi(table);
-        table.AddHurt(slot => slot.Definition.HurtAiPointer == EnemyAiCodePointers.BankA0.NoOp, (_, _) => { });
+        table.AddHurt(slot => slot.Definition.HurtAi == EnemyAiRoutine.CommonNoOp, (_, _) => { });
     }
 
     /// <summary>Maps frozen-state AI pointers used while ice suspends normal behavior.</summary>

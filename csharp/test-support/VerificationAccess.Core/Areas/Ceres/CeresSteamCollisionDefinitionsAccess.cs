@@ -16,6 +16,9 @@ internal static class CeresSteamCollisionDefinitionsAccess
     /// <summary>Native views of the catalog.</summary>
     extension(CeresSteamCollisionDefinitions)
     {
+        /// <summary>Bank $A6, which holds the steam's code and frames.</summary>
+        internal static byte Bank => 0xa6;
+
         /// <summary>Native roots of the compiled Ceres steam hitbox lists.</summary>
         internal static IEnumerable<ushort> HitboxPointers => NativeLists.Pointers;
 

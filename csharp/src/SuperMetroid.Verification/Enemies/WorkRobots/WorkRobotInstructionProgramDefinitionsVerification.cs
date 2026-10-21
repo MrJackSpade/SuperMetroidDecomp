@@ -53,7 +53,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
 
         robot = enemies.SlotTable.Slots[0];
         robot.Bind(EnemyDefinitionId.Robot, robot.Definition);
-        robot.Bind(robot.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa8 });
+        robot.Bind(robot.DefinitionId, default(RoomEnemyDefinition));
         robot.Radius = new(8, 16);
         var state = new WorkRobotEnemyState() { Powered = true, Program = AnimationProgramCursor<WorkRobotProgram>.Start(WorkRobotProgram.Initial) };
         robot.SetSpeciesState(state);

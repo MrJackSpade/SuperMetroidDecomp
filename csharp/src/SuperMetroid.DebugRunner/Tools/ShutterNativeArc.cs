@@ -99,6 +99,7 @@ internal static class ShutterNativeArc
     private static void ExportShutterBombArcSeed(SuperMetroidRuntime runtime, string path)
     {
         var ram = new byte[0x20000];
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = runtime.Player.IntroducedSamus;
         var k = samus.Kinematics;
         var speed = samus.HorizontalSpeed;
@@ -133,7 +134,7 @@ internal static class ShutterNativeArc
             var slot = runtime.Room.LoadedScope.Enemies.SlotTable.Slots[i];
             Word(0xF78 + offset, (ushort)slot.DefinitionId);
             Word(0xF8E + offset, EnemyFrameCartridgeLookupTooling.Word(slot.Frame));
-            ram[0xFA6 + offset] = slot.Definition.Bank;
+            ram[0xFA6 + offset] = RoomEnemyDefinitionImporterTooling.Bank(rom, slot.DefinitionId);
             Word(0xF7A + offset, slot.Position.X.Whole); Word(0xF7E + offset, slot.Position.Y.Whole);
             Word(0xF80 + offset, slot.Position.Y.Fraction); Word(0xF82 + offset, slot.Radius.X);
             Word(0xF84 + offset, slot.Radius.Y); Word(0xF86 + offset, 0x8000);

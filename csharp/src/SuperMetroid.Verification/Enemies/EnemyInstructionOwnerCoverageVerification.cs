@@ -148,7 +148,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
         var unknownEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot unknown = unknownEnemies.SlotTable.Slots[0];
         unknown.Bind((EnemyDefinitionId)0x9000, unknown.Definition);
-        unknown.Bind(unknown.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa2 });
+        unknown.Bind(unknown.DefinitionId, default(RoomEnemyDefinition));
         InvalidDataException unknownException = AssertThrows<InvalidDataException>(
             () => EnemyInstructionRunner.Process([unknown, null, null, Position16<RoomPixels>.Zero, SnesButton.None]),
             "an instruction-processing enemy without a typed animation fails instead of reading cartridge lists");

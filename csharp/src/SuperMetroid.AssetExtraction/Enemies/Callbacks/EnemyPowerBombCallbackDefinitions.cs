@@ -1,7 +1,9 @@
-namespace SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Native Power Bomb callback classifications, distinct from zero/common and private handlers.</summary>
-public static class EnemyPowerBombCallbackDefinitions
+internal static class EnemyPowerBombCallbackDefinitions
 {
     /// <summary>$A2:804C, RTL_A2804C: ship pieces and growing shutter.</summary>
     public const int ShipAndShutterNoOp = 0xa2804c;

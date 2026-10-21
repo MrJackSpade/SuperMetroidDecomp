@@ -16,6 +16,9 @@ internal static class MaridiaLargeSnailCollisionDefinitionsAccess
     /// <summary>Native views of the catalog.</summary>
     extension(MaridiaLargeSnailCollisionDefinitions)
     {
+        /// <summary>Bank $A2, which holds Oum's code and frames.</summary>
+        internal static byte Bank => 0xa2;
+
         /// <summary>Native roots for the Oum collision hitbox lists.</summary>
         internal static IEnumerable<ushort> HitboxPointers => NativeLists.Pointers;
 

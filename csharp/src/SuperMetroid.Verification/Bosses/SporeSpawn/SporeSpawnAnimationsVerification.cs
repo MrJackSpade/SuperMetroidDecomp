@@ -220,7 +220,7 @@ internal static class SporeSpawnAnimationsVerification
         enemies.AreaArtwork = bound.Areas;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
-        body.Bind(body.DefinitionId, default(RoomEnemyDefinition) with { Bank = BodyBankNumber });
+        body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
         body.InstructionTimer = WrappingCountdown.Start(1);

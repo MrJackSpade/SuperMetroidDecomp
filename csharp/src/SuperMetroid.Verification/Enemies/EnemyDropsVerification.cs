@@ -64,8 +64,8 @@ internal static class EnemyDropsVerification
         enemy.Bind((EnemyDefinitionId)0x9000, enemy.Definition);
         enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
         {
-            Bank = 0xa3,
-            TouchAiPointer = EnemyAiCodePointers.BankA0.NormalEnemyTouch,
+            Touch = EnemyInteractionCallback.NormalEnemyTouch,
+            TouchBody = EnemyCallbackBody.Routine,
             VulnerabilityPointer = EnemyVulnerabilityDefinitions.DefaultPointer,
         });
         SeedContactDeathVulnerability(fixture.Bus);
@@ -79,8 +79,7 @@ internal static class EnemyDropsVerification
         AssertEqual(EnemyDefinitionId.Respawn, enemy.DefinitionId, "contact death retains respawn placeholder");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled, "contact death counted once");
         AssertEqual(1, enemy.FrameCounter, "death frame dispatches inert placeholder then advances native frame counter");
-        AssertEqual((int)EnemyCommonNoOpRoutine.BankA3,
-            ((int)new SnesAddress(enemy.Definition.Bank, enemy.Definition.MainAiPointer)),
+        AssertEqual(EnemyAiRoutine.CommonNoOp, enemy.Definition.MainAi,
             "cached header follows replacement identity into native no-op AI");
         fixture.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, SamusProjectiles = projectiles, ResolveSamusContactBeforeAi = true });
         AssertEqual(0, fixture.System.ActiveEnemyIndexes.Count, "placeholder remains excluded next frame");
@@ -357,7 +356,7 @@ internal static class EnemyDropsVerification
         fixture.System.DeathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: 9);
         AssertEqual(EnemyDefinitionId.Respawn, enemy.DefinitionId,
             "respawning death leaves native DAFF placeholder in physical enemy slot");
-        AssertEqual((byte)0xa3, enemy.Definition.Bank,
+        AssertEqual((byte)0xa3, enemy.NativeHeader.Bank,
             "respawning death leaves native placeholder AI bank");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled,
             "generic enemy death increments room kill counter");

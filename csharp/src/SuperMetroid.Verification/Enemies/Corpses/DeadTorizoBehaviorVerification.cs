@@ -21,7 +21,7 @@ internal static class DeadTorizoBehaviorVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
         RoomEnemySlot corpse = enemies.SlotTable.Slots[0];
         corpse.Bind(EnemyDefinitionId.CorpseTorizo, corpse.Definition);
-        corpse.Bind(corpse.DefinitionId, default(RoomEnemyDefinition) with { Bank = SuperMetroid.Core.Enemies.Corpses.Artwork.DeadTorizoFrameToolingDefinitions.Bank });
+        corpse.Bind(corpse.DefinitionId, default(RoomEnemyDefinition));
         enemies.DeadTorizoBehavior.InitializeDeadTorizo(corpse);
         ushort frame = DeadTorizoAnimationsConstants.Spritemaps(DeadTorizoProgram.Stationary).Single();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]),

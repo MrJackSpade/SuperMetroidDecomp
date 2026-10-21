@@ -18,7 +18,7 @@ internal static class CrawlerOwnedStateVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Zoomer, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = CrawlerFrameToolingDefinitions.Bank });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.SetSpawnParameter1(2);
         slot.Properties = EnemyPropertyWord.FromNativeWord(0);
         CrawlersBehavior.InitializeCrawler(slot, CrawlerAnimationFamily.Shared, null);

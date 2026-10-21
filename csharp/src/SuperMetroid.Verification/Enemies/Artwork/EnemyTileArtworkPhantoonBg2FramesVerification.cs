@@ -217,10 +217,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art?.Enemies, BossArtwork = art?.Bosses, AreaArtwork = art?.Areas };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.PhantoonBody, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with
-        {
-            Bank = PhantoonBg2FrameDefinitionsConstants.Bank,
-        });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.SpritemapPointer = pointer;
         slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         object?[] arguments =
@@ -240,10 +237,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         enemies.Drawing.Enqueue(0, 0);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.PhantoonBody, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with
-        {
-            Bank = PhantoonBg2FrameDefinitionsConstants.Bank,
-        });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.ExtraProperties = slot.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
         if (newInstructionFrame)

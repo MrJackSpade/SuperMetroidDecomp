@@ -61,8 +61,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 GrappleAiRoutine.AttachAndParalyze => GrappleEnemyReaction.AttachAndParalyze,
                 GrappleAiRoutine.HurtSamus => GrappleEnemyReaction.HurtSamus,
                 GrappleAiRoutine.None or GrappleAiRoutine.ElevatorMainAi or _ => throw new InvalidDataException(
-                    $"Enemy ${(int)enemy.DefinitionId:X4} grapple AI " +
-                    $"${enemy.Definition.Bank:X2}:{(int)enemy.Definition.GrappleAi:X4} " +
+                    $"Enemy {enemy.DefinitionId} grapple AI {enemy.Definition.GrappleAi} " +
                     "is not one of the translated common reactions."),
             };
             return new GrappleEnemyCollision(
@@ -142,8 +141,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
             case GrappleAiRoutine.ElevatorMainAi:
             default:
                 throw new InvalidDataException(
-                    $"Enemy ${(int)enemy.DefinitionId:X4} grapple AI " +
-                    $"${enemy.Definition.Bank:X2}:{(int)enemy.Definition.GrappleAi:X4} is not translated.");
+                    $"Enemy {enemy.DefinitionId} grapple AI {enemy.Definition.GrappleAi} is not translated.");
         }
     }
 

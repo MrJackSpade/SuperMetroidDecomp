@@ -39,7 +39,7 @@ internal static class ImportedSpritemapsVerification
     {
         if (slot.InstructionTimer.IsZero) return;
         ushort operand = unchecked((ushort)(slot.CurrentInstruction - 2));
-        int bank = (int)new SnesAddress(slot.Definition.Bank, 0);
+        int bank = (int)new SnesAddress(slot.NativeHeader.Bank, 0);
         ushort native = SnesLittleEndian.Word(ExecutedEnemySelectorRomByte(rom, bank | operand), ExecutedEnemySelectorRomByte(rom, bank | unchecked((ushort)(operand + 1))));
         AssertEqual(native, slot.SpritemapPointer,
             $"executed enemy visual ${bank | operand:X6} matches cartridge selector");

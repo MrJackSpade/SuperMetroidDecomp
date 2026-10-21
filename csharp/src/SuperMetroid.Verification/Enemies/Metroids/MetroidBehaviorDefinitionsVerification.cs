@@ -92,7 +92,7 @@ internal static class MetroidBehaviorDefinitionsVerification
             enemies.VerificationServices().NextRandom = () => selectedRandom;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
-            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa3 });
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             slot.InstructionTimer = WrappingCountdown.Start(1);
             // Start at the chasing loop's random-cry cue, after its twenty pulse poses.
             enemies.SlotTable.Slots[0].SetSpeciesState(new MetroidEnemyState(new RoomSpriteObjectSlot(0), new RoomSpriteObjectSlot(1))

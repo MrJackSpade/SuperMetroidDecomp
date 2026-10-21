@@ -62,7 +62,7 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.FaceBlock, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = BlueBrinstarFaceBlockFrameToolingDefinitions.Bank });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.SetSpawnParameter1(64);
         slot.SetSpawnParameter2(parameter2);
         slot.Position = slot.Position.WithWhole(new(256, 256));

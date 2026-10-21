@@ -24,7 +24,7 @@ internal static class RidleyCollisionDefinitionsVerification
         var compiled = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var nativeSlot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
         RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
-        compiledSlot.Bind(compiledSlot.DefinitionId, default(RoomEnemyDefinition) with { Bank = RidleyCollisionDefinitions.Bank });
+        compiledSlot.Bind(compiledSlot.DefinitionId, default(RoomEnemyDefinition));
         // The reference slot is read by the independent test-side cartridge
         // walker. The installed definition selects the new compiled Ridley branch.
         nativeSlot.Bind((EnemyDefinitionId)0xffff, nativeSlot.Definition);

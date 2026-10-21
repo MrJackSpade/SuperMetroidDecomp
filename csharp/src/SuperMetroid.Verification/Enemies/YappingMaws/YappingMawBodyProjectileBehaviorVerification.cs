@@ -23,7 +23,7 @@ internal static class YappingMawBodyProjectileBehaviorVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot owner = enemies.SlotTable.Slots[0];
             owner.Bind(EnemyDefinitionId.YappingMaw, owner.Definition);
-            owner.Bind(owner.DefinitionId, default(RoomEnemyDefinition) with { Bank = YappingMawFrameToolingDefinitions.Bank });
+            owner.Bind(owner.DefinitionId, default(RoomEnemyDefinition));
             owner.SetSpawnParameter1(128);
             owner.SetSpawnParameter2(facing);
             enemies.YappingMawBehavior.InitializeYappingMaw(owner);

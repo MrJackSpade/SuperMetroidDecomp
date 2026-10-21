@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal static class CeresSteamCollisionDefinitions
 {
     /// <summary>Native bank of the extended maps at $A6:F142-$F250.</summary>
-    internal const byte Bank = 0xa6;
     /// <summary>
     /// The 21 hitbox lists: the shared empty list selected by both hidden poses, then five plume rectangles per
     /// direction. Each direction's rectangles are fitted to its drawing and are not exact rotations of another direction.

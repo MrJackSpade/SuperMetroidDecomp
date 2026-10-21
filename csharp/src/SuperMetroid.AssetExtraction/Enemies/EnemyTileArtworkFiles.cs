@@ -94,7 +94,7 @@ public static class EnemyTileArtworkFiles
 
                 File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.FileName(definitionPointer)), encoded);
                 byte[] nativeColors = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                    ((int)new SnesAddress(definition.Bank, definition.PalettePointer)),
+                    SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.PaletteAddress(bus, definitionPointer),
                     EnemyPaletteSheet.ColorCount * sizeof(ushort));
                 var colors = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
                 for (int color = 0; color < colors.Length; color++)

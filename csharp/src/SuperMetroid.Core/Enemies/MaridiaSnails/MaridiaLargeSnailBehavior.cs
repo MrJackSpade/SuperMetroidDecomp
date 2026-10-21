@@ -614,9 +614,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     internal static bool? FindHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
         callback = null;
-        if (!(enemy.Definition.Bank == MaridiaLargeSnailCollisionDefinitions.Bank &&
-            (MaridiaLargeSnailCollisionDefinitions.Frames.Contains(enemy.Frame) ||
-             probe.ArtworkInstalled)))
+        if (!(MaridiaLargeSnailCollisionDefinitions.Frames.Contains(enemy.Frame) || probe.ArtworkInstalled))
             return null;
 
         // Oum's 30 native frames each have one (0,0) component, but the

@@ -51,16 +51,13 @@ internal sealed class EnemyCollision
         _slotTable = dependencies.SlotTable;
     }
     /// <summary>The named header touch callback (+$30) of <paramref name="slot"/>'s definition, or null.</summary>
-    internal static EnemyInteractionCallback? TouchAi(RoomEnemySlot slot) =>
-        EnemyInteractionCallbacks.TryDecode(slot.Definition.Bank, slot.Definition.TouchAiPointer);
+    internal static EnemyInteractionCallback? TouchAi(RoomEnemySlot slot) => slot.Definition.Touch;
 
     /// <summary>The named header shot callback (+$32) of <paramref name="slot"/>'s definition, or null.</summary>
-    internal static EnemyInteractionCallback? ShotAi(RoomEnemySlot slot) =>
-        EnemyInteractionCallbacks.TryDecode(slot.Definition.Bank, slot.Definition.ShotAiPointer);
+    internal static EnemyInteractionCallback? ShotAi(RoomEnemySlot slot) => slot.Definition.Shot;
 
     /// <summary>The named header Power Bomb reaction (+$28) of <paramref name="slot"/>'s definition, or null.</summary>
-    internal static EnemyInteractionCallback? PowerBombReaction(RoomEnemySlot slot) =>
-        EnemyInteractionCallbacks.TryDecode(slot.Definition.Bank, slot.Definition.PowerBombReactionPointer);
+    internal static EnemyInteractionCallback? PowerBombReaction(RoomEnemySlot slot) => slot.Definition.PowerBombReaction;
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass for translated actors.</summary>
     /// <param name="samus">Live player state receiving the native touch callback.</param>
@@ -267,7 +264,7 @@ internal sealed class EnemyCollision
                 if (!overlapsProjectile)
                     continue;
 
-                bool selectedLiteralNoOpShotAi = IsLiteralNoOpShotAi(enemy.Definition.Bank, hitboxShotAi);
+                bool selectedLiteralNoOpShotAi = IsLiteralNoOpShotAi(enemy.Definition, hitboxShotAi);
                 var shot = new EnemyShotContext(
                     enemy,
                     projectile,
@@ -451,7 +448,7 @@ internal sealed class EnemyCollision
             int nativeIndex = onlyNativeEnemyIndex ?? _dispatch.InteractiveEnemyIndexes[ordinal];
             RoomEnemySlot enemy = _slotTable.SlotFromNativeIndex(nativeIndex);
             bool usesCommonShotAi = ShotAi(enemy) == EnemyInteractionCallback.NormalEnemyShot;
-            bool usesLiteralNoOpShotAi = IsLiteralNoOpShotAi(enemy.Definition.Bank, ShotAi(enemy));
+            bool usesLiteralNoOpShotAi = IsLiteralNoOpShotAi(enemy.Definition, ShotAi(enemy));
             bool usesTranslatedPrivateShotAi = IsTranslatedPrivateNormalBombShotAi(enemy, ShotAi(enemy));
             bool usesExtendedHitboxes =
                 enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
@@ -511,7 +508,7 @@ internal sealed class EnemyCollision
                 // Multibox actors dispatch the callback stored in the selected hitbox,
                 // not necessarily the definition header. Do not turn a protected/private
                 // component into common damage merely because the header uses `$802D`.
-                bool selectedLiteralNoOp = IsLiteralNoOpShotAi(enemy.Definition.Bank, selectedShotAi);
+                bool selectedLiteralNoOp = IsLiteralNoOpShotAi(enemy.Definition, selectedShotAi);
                 bool selectedTranslatedPrivate = IsTranslatedPrivateNormalBombShotAi(enemy, selectedShotAi);
                 if (selectedShotAi != EnemyInteractionCallback.NormalEnemyShot &&
                     !selectedLiteralNoOp &&
@@ -563,10 +560,10 @@ internal sealed class EnemyCollision
         return hitCount;
     }
 
-    /// <summary>Checks whether a bank-local enemy callback is a compiled literal no-op.</summary>
-    internal static bool IsLiteralNoOpShotAi(byte bank, EnemyInteractionCallback? callback) =>
+    /// <summary>Checks whether an enemy callback, run in <paramref name="definition"/>'s code, returns at once.</summary>
+    internal static bool IsLiteralNoOpShotAi(RoomEnemyDefinition definition, EnemyInteractionCallback? callback) =>
         callback is EnemyInteractionCallback.CeresDoorNoOpShot or EnemyInteractionCallback.KraidNoOpShot or EnemyInteractionCallback.ChozoNoOpShot ||
-        callback == EnemyInteractionCallback.NoOp && EnemyShotCallbackDefinitions.IsLiteralNoOp(bank, EnemyAiCodePointers.BankA0.NoOp);
+        callback == EnemyInteractionCallback.NoOp && definition.NoOpCallbackBody == EnemyCallbackBody.ImmediateReturn;
 
     /// <summary>
     /// Tests the two engine-owned no-op callback addresses checked directly by
@@ -679,15 +676,14 @@ internal sealed class EnemyCollision
             if (xDistance >= horizontalRadius || yDistance >= verticalRadius)
                 continue;
 
-            ushort reactionPointerWord = enemy.Definition.PowerBombReactionPointer;
             EnemyPowerBombReaction? reaction = (enemy.Entity as IEnemyPowerBombReaction)?.FindPowerBomb();
             if (reaction?.SkipsEnemy?.Invoke(enemy) == true)
                 continue;
-            if (reactionPointerWord != 0 && reaction is null)
+            if (enemy.Definition.PowerBombReactionBody != EnemyCallbackBody.None && reaction is null)
             {
                 throw new InvalidDataException(
-                    $"Enemy ${(int)enemy.DefinitionId:X4} power-bomb reaction " +
-                    $"${enemy.Definition.Bank:X2}:{reactionPointerWord:X4} is not translated.");
+                    $"Enemy {enemy.DefinitionId} power-bomb reaction " +
+                    $"{enemy.Definition.PowerBombReaction?.ToString() ?? "(unnamed)"} is not translated.");
             }
 
             // Private callbacks replace common power-bomb damage, but still receive the native
@@ -899,8 +895,8 @@ internal sealed class EnemyCollision
             return owned;
 
         throw new InvalidDataException(
-            $"Enemy ${(int)enemy.DefinitionId:X4} extended collision frame " +
-            $"${enemy.Definition.Bank:X2}:{enemy.Frame} has no compiled geometry.");
+            $"Enemy {enemy.DefinitionId} extended collision frame " +
+            $"{enemy.Frame} has no compiled geometry.");
     }
 
     /// <summary>

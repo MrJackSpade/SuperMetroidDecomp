@@ -52,7 +52,7 @@ internal static class HopperAnimationDefinitionsVerification
 
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(definitions[variant], slot.Definition);
-            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = HopperFrameDefinitionsBank, VariantIndex = variant });
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { VariantIndex = variant });
             slot.SetSpawnParameter1(upsideDown ? (ushort)1 : (ushort)0);
             enemies.HoppersBehavior.InitializeHopper(slot);
             HopperEnemyState state = enemies.HopperStates[0] ?? throw new InvalidOperationException("Verification requires enemies.HopperStates[0].");
@@ -110,7 +110,7 @@ internal static class HopperAnimationDefinitionsVerification
 
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.SidehopperTourian, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = HopperFrameDefinitionsBank, VariantIndex = 1 });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { VariantIndex = 1 });
         enemies.HoppersBehavior.InitializeHopper(slot);
         EnemyInstructionRunner.ShownFrames(slot, 1);
         AssertEqual((SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x005e), enemies.HoppersBehavior.LastHopperSoundEffect,

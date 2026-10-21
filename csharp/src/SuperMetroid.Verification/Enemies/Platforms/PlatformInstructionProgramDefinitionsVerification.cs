@@ -59,7 +59,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             slot.Bind(testCase.IsKamer
                 ? EnemyDefinitionId.Kamer2
                 : EnemyDefinitionId.Tripper, slot.Definition);
-            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa3 });
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             slot.SetSpawnParameter1((ushort)testCase.Direction);
             slot.SetSpawnParameter2(0x0101);
             slot.Position = slot.Position.WithWholeY(0x0100);

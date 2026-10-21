@@ -70,7 +70,7 @@ internal static class ShutterBehaviorVerification
     {
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(definition, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = ShutterFrameToolingDefinitions.Bank });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.CurrentInstruction = 0;
         slot.SetSpawnParameter1(2);
         return slot;

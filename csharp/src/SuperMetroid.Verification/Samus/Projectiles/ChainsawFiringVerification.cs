@@ -153,8 +153,8 @@ internal static class ChainsawFiringVerification
         target.Bind((EnemyDefinitionId)0x9000, target.Definition);
         target.Bind(target.DefinitionId, default(RoomEnemyDefinition) with
         {
-            Bank = 0xa3,
-            ShotAiPointer = EnemyAiCodePointers.BankA0.NormalEnemyShot,
+            Shot = EnemyInteractionCallback.NormalEnemyShot,
+            ShotBody = EnemyCallbackBody.Routine,
             VulnerabilityPointer = EnemyVulnerabilityDefinitions.DefaultPointer,
         });
         target.Position = target.Position.WithWhole(new(139, 123));

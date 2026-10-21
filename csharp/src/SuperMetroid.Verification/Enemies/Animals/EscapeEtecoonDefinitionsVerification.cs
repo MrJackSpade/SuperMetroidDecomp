@@ -149,7 +149,7 @@ internal static class EscapeEtecoonDefinitionsVerification
         enemies.VerificationServices().HasEvent = _ => false;
         RoomEnemySlot etecoon = enemies.SlotTable.Slots[0];
         etecoon.Bind(EnemyDefinitionId.EtecoonEscape, etecoon.Definition);
-        etecoon.Bind(etecoon.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xb3 });
+        etecoon.Bind(etecoon.DefinitionId, default(RoomEnemyDefinition));
         etecoon.SetSpawnParameter1(0);
         enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(etecoon);
         return enemies;

@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 internal static class MaridiaLargeSnailCollisionDefinitions
 {
     /// <summary>Native bank containing Oum's extended frames and hitbox lists.</summary>
-    internal const byte Bank = 0xa2;
     /// <summary>Bank-$A2 callback used by Oum's extended hitboxes that hurt Samus on contact.</summary>
     private const EnemyInteractionCallback DamageTouch = EnemyInteractionCallback.MaridiaLargeSnailDamagingTouch;
     /// <summary>Bank-$A2 callback for Oum surfaces that permit harmless contact.</summary>

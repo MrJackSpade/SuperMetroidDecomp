@@ -64,10 +64,11 @@ internal static class EnemyTileArtworkVerification
 
     /// <summary>Loads a definition's native palette into OBJ CGRAM slots starting at index 128.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for an enemy's native palette DMA")]
-    private static SnesCgram LoadNativeEnemyPalette(ISnesAddressSpace bus, RoomEnemyDefinition definition)
+    private static SnesCgram LoadNativeEnemyPalette(ISnesAddressSpace bus, EnemyDefinitionId definition)
     {
         var cgram = new SnesCgram();
-        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(cgram, bus, ((int)new SnesAddress(definition.Bank, definition.PalettePointer)),
+        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(cgram, bus,
+            SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.PaletteAddress(bus, definition),
             EnemyPaletteSheet.ColorCount, destinationIndex: 8 * 16);
         return cgram;
     }
@@ -230,7 +231,7 @@ internal static class EnemyTileArtworkVerification
                 stock.Enemies.LoadTo(pointer, byteCount, new VramStore(vram).All, 0);
                 AssertTrue(vram.Bytes[..byteCount].SequenceEqual(native),
                     $"enemy ${(int)pointer:X4} PNG preserves every native tile byte");
-                SnesCgram nativeCgram = LoadNativeEnemyPalette(bus, definition);
+                SnesCgram nativeCgram = LoadNativeEnemyPalette(bus, pointer);
                 var installedCgram = new SnesCgram();
                 stock.Enemies.LoadPaletteTo(pointer, new CgramPalettes(installedCgram).All.Slice(8 * 16, 16));
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),

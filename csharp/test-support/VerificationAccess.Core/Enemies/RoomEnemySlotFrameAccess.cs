@@ -33,12 +33,12 @@ internal static class RoomEnemySlotFrameAccess
             {
                 try
                 {
-                    self.Frame = FrameAt(self.Definition.Bank, value);
+                    self.Frame = FrameAt(self.NativeHeader.Bank, value);
                 }
                 catch (ArgumentOutOfRangeException exception)
                 {
                     throw new InvalidOperationException(
-                        $"Enemy slot {self.SlotIndex} ({self.DefinitionId}, properties {self.Properties}) cannot show ${self.Definition.Bank:X2}:{value:X4}.",
+                        $"Enemy slot {self.SlotIndex} ({self.DefinitionId}, properties {self.Properties}) cannot show ${self.NativeHeader.Bank:X2}:{value:X4}.",
                         exception);
                 }
             }

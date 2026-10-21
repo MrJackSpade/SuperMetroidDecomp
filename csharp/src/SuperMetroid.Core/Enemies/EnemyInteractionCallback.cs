@@ -1,257 +1,255 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Bank-qualified enemy interaction callbacks (touch, shot, Power Bomb and extended-hitbox
-/// reactions) that the port names, valued by native long address. The shared prologue
-/// entries every enemy bank repeats at the same offset are valued at their bank-$A0 copy;
-/// <see cref="EnemyInteractionCallbacks.TryDecode"/> admits them from any enemy bank.
+/// Enemy interaction callbacks (touch, shot, Power Bomb and extended-hitbox reactions) that the port names. Extraction
+/// decodes each header's and hitbox's bank-qualified callback words to these identities.
 /// </summary>
-internal enum EnemyInteractionCallback
+public enum EnemyInteractionCallback
 {
     /// <summary><c>NormalEnemyTouchAI</c> at $A0:8023.</summary>
-    NormalEnemyTouch = 0xa00000 | EnemyAiCodePointers.BankA0.NormalEnemyTouch,
+    NormalEnemyTouch,
     /// <summary><c>NormalEnemyShotAI</c> at $A0:802D.</summary>
-    NormalEnemyShot = 0xa00000 | EnemyAiCodePointers.BankA0.NormalEnemyShot,
+    NormalEnemyShot,
     /// <summary>Shared dud-shot callback at $A0:8046.</summary>
-    DudShot = 0xa00000 | EnemyAiCodePointers.BankA0.DudShot,
+    DudShot,
     /// <summary>Shared no-op interaction callback at $A0:804C.</summary>
-    NoOp = 0xa00000 | EnemyAiCodePointers.BankA0.NoOp,
+    NoOp,
     /// <summary>RTS_A0804B at $A0:804B, the shared short-return no-op identity rejected by collision dispatch.</summary>
-    NoOpShortReturn = 0xa00000 | EnemyAiCodePointers.BankA0.NoOpShortReturn,
+    NoOpShortReturn,
     /// <summary>Owtch shot callback at $A2:A579.</summary>
-    OwtchShot = 0xa20000 | EnemyAiCodePointers.BankA2.OwtchShot,
+    OwtchShot,
     /// <summary>Dragon touch callback at $A2:E7C8.</summary>
-    DragonTouch = 0xa20000 | EnemyAiCodePointers.BankA2.DragonTouch,
+    DragonTouch,
     /// <summary>Dragon shot callback at $A2:E7CE.</summary>
-    DragonShot = 0xa20000 | EnemyAiCodePointers.BankA2.DragonShot,
+    DragonShot,
     /// <summary>Dragon Power Bomb callback at $A2:E7D4.</summary>
-    DragonPowerBomb = 0xa20000 | EnemyAiCodePointers.BankA2.DragonPowerBomb,
+    DragonPowerBomb,
     /// <summary>Shared G/Ripper 2 shot callback at $A2:E3A9.</summary>
-    GRipperRipper2Shot = 0xa20000 | EnemyAiCodePointers.BankA2.GRipperRipper2Shot,
+    GRipperRipper2Shot,
     /// <summary>Mama Turtle touch callback at $A2:9281.</summary>
-    MamaTurtleTouch = 0xa20000 | EnemyAiCodePointers.BankA2.MamaTurtleTouch,
+    MamaTurtleTouch,
     /// <summary>Baby Turtle touch callback at $A2:929F.</summary>
-    BabyTurtleTouch = 0xa20000 | EnemyAiCodePointers.BankA2.BabyTurtleTouch,
+    BabyTurtleTouch,
     /// <summary>Baby Turtle shot callback at $A2:930F.</summary>
-    BabyTurtleShot = 0xa20000 | EnemyAiCodePointers.BankA2.BabyTurtleShot,
+    BabyTurtleShot,
     /// <summary><c>MaridiaLargeSnailDamagingTouchAI</c> at $A2:D388.</summary>
-    MaridiaLargeSnailDamagingTouch = 0xa20000 | EnemyAiCodePointers.BankA2.MaridiaLargeSnailDamagingTouch,
+    MaridiaLargeSnailDamagingTouch,
     /// <summary><c>MaridiaLargeSnailNonDamagingTouchAI</c> at $A2:D38C.</summary>
-    MaridiaLargeSnailNonDamagingTouch = 0xa20000 | EnemyAiCodePointers.BankA2.MaridiaLargeSnailNonDamagingTouch,
+    MaridiaLargeSnailNonDamagingTouch,
     /// <summary><c>MaridiaLargeSnailShotAI</c> at $A2:D3B4.</summary>
-    MaridiaLargeSnailShot = 0xa20000 | EnemyAiCodePointers.BankA2.MaridiaLargeSnailShot,
+    MaridiaLargeSnailShot,
     /// <summary>Rinka touch callback at $A2:B947.</summary>
-    RinkaTouch = 0xa20000 | EnemyAiCodePointers.BankA2.RinkaTouch,
+    RinkaTouch,
     /// <summary>Rinka shot callback at $A2:B94D.</summary>
-    RinkaShot = 0xa20000 | EnemyAiCodePointers.BankA2.RinkaShot,
+    RinkaShot,
     /// <summary>Rinka Power Bomb callback at $A2:B953.</summary>
-    RinkaPowerBomb = 0xa20000 | EnemyAiCodePointers.BankA2.RinkaPowerBomb,
+    RinkaPowerBomb,
     /// <summary>Vertical shutter touch callback at $A2:F09D.</summary>
-    VerticalShutterTouch = 0xa20000 | EnemyAiCodePointers.BankA2.VerticalShutterTouch,
+    VerticalShutterTouch,
     /// <summary>Shootable vertical shutter shot callback at $A2:F0A2.</summary>
-    ShootableVerticalShutterShot = 0xa20000 | EnemyAiCodePointers.BankA2.ShootableVerticalShutterShot,
+    ShootableVerticalShutterShot,
     /// <summary>Destroyable vertical shutter shot callback at $A2:F0AA.</summary>
-    DestroyableVerticalShutterShot = 0xa20000 | EnemyAiCodePointers.BankA2.DestroyableVerticalShutterShot,
+    DestroyableVerticalShutterShot,
     /// <summary>Vertical shutter Power Bomb callback at $A2:F0B6.</summary>
-    VerticalShutterPowerBomb = 0xa20000 | EnemyAiCodePointers.BankA2.VerticalShutterPowerBomb,
+    VerticalShutterPowerBomb,
     /// <summary>Horizontal shutter touch callback at $A2:F3D8.</summary>
-    HorizontalShutterTouch = 0xa20000 | EnemyAiCodePointers.BankA2.HorizontalShutterTouch,
+    HorizontalShutterTouch,
     /// <summary>Horizontal shutter shot callback at $A2:F40E.</summary>
-    HorizontalShutterShot = 0xa20000 | EnemyAiCodePointers.BankA2.HorizontalShutterShot,
+    HorizontalShutterShot,
     /// <summary>Horizontal shutter Power Bomb callback at $A2:F41A.</summary>
-    HorizontalShutterPowerBomb = 0xa20000 | EnemyAiCodePointers.BankA2.HorizontalShutterPowerBomb,
+    HorizontalShutterPowerBomb,
     /// <summary>Skree shot callback at $A3:C7F5.</summary>
-    SkreeShot = 0xa30000 | EnemyAiCodePointers.BankA3.SkreeShot,
+    SkreeShot,
     /// <summary>Metaree shot callback at $A3:8B0F.</summary>
-    MetareeShot = 0xa30000 | EnemyAiCodePointers.BankA3.MetareeShot,
+    MetareeShot,
     /// <summary>Fireflea touch callback at $A3:8E6B.</summary>
-    FirefleaTouch = 0xa30000 | EnemyAiCodePointers.BankA3.FirefleaTouch,
+    FirefleaTouch,
     /// <summary>Fireflea Power Bomb callback at $A3:8E83.</summary>
-    FirefleaPowerBomb = 0xa30000 | EnemyAiCodePointers.BankA3.FirefleaPowerBomb,
+    FirefleaPowerBomb,
     /// <summary>Fireflea shot callback at $A3:8E89.</summary>
-    FirefleaShot = 0xa30000 | EnemyAiCodePointers.BankA3.FirefleaShot,
+    FirefleaShot,
     /// <summary>Mochtroid touch callback at $A3:A953.</summary>
-    MochtroidTouch = 0xa30000 | EnemyAiCodePointers.BankA3.MochtroidTouch,
+    MochtroidTouch,
     /// <summary>Mochtroid shot callback at $A3:A9A8.</summary>
-    MochtroidShot = 0xa30000 | EnemyAiCodePointers.BankA3.MochtroidShot,
+    MochtroidShot,
     /// <summary>Metroid touch callback at $A3:EDEB.</summary>
-    MetroidTouch = 0xa30000 | EnemyAiCodePointers.BankA3.MetroidTouch,
+    MetroidTouch,
     /// <summary>Metroid shot callback at $A3:EF07.</summary>
-    MetroidShot = 0xa30000 | EnemyAiCodePointers.BankA3.MetroidShot,
+    MetroidShot,
     /// <summary>Metroid Power Bomb callback at $A3:F042.</summary>
-    MetroidPowerBomb = 0xa30000 | EnemyAiCodePointers.BankA3.MetroidPowerBomb,
+    MetroidPowerBomb,
     /// <summary>Yard touch callback at $A3:D3B0.</summary>
-    YardTouch = 0xa30000 | EnemyAiCodePointers.BankA3.YardTouch,
+    YardTouch,
     /// <summary>Yard shot callback at $A3:D469.</summary>
-    YardShot = 0xa30000 | EnemyAiCodePointers.BankA3.YardShot,
+    YardShot,
     /// <summary>Platform no-op touch callback at $A3:9F07.</summary>
-    PlatformNoOpTouch = 0xa30000 | EnemyAiCodePointers.BankA3.PlatformNoOpTouch,
+    PlatformNoOpTouch,
     /// <summary>Tripper shot callback at $A3:9F08.</summary>
-    TripperShot = 0xa30000 | EnemyAiCodePointers.BankA3.TripperShot,
+    TripperShot,
     /// <summary>Crocomire header touch callback at $A4:B950.</summary>
-    CrocomireHeaderTouch = 0xa40000 | EnemyAiCodePointers.BankA4.HeaderTouch,
+    CrocomireHeaderTouch,
     /// <summary>Crocomire claw touch callback at $A4:B93D.</summary>
-    CrocomireClawTouch = 0xa40000 | EnemyAiCodePointers.BankA4.ClawTouch,
+    CrocomireClawTouch,
     /// <summary>Crocomire no-op hitbox shot callback at $A4:B951.</summary>
-    CrocomireNoOpHitboxShot = 0xa40000 | EnemyAiCodePointers.BankA4.NoOpHitboxShot,
+    CrocomireNoOpHitboxShot,
     /// <summary>Crocomire dust hitbox shot callback at $A4:B968.</summary>
-    CrocomireDustHitboxShot = 0xa40000 | EnemyAiCodePointers.BankA4.DustHitboxShot,
+    CrocomireDustHitboxShot,
     /// <summary>Crocomire mouth shot callback at $A4:BA05.</summary>
-    CrocomireMouthShot = 0xa40000 | EnemyAiCodePointers.BankA4.MouthShot,
+    CrocomireMouthShot,
     /// <summary>Alternate Crocomire dust hitbox shot callback at $A4:BAB4.</summary>
-    CrocomireAlternateDustHitboxShot = 0xa40000 | EnemyAiCodePointers.BankA4.AlternateDustHitboxShot,
+    CrocomireAlternateDustHitboxShot,
     /// <summary>Crocomire Power Bomb callback at $A4:B992.</summary>
-    CrocomirePowerBomb = 0xa40000 | EnemyAiCodePointers.BankA4.PowerBomb,
+    CrocomirePowerBomb,
     /// <summary>Spore Spawn touch callback at $A5:EDEC.</summary>
-    SporeSpawnTouch = 0xa50000 | EnemyAiCodePointers.BankA5.SporeSpawnTouch,
+    SporeSpawnTouch,
     /// <summary>Spore Spawn shot callback at $A5:ED5A.</summary>
-    SporeSpawnShot = 0xa50000 | EnemyAiCodePointers.BankA5.SporeSpawnShot,
+    SporeSpawnShot,
     /// <summary>Draygon touch callback at $A5:95EA.</summary>
-    DraygonTouch = 0xa50000 | EnemyAiCodePointers.BankA5.DraygonTouch,
+    DraygonTouch,
     /// <summary>Draygon shot callback at $A5:95F0.</summary>
-    DraygonShot = 0xa50000 | EnemyAiCodePointers.BankA5.DraygonShot,
+    DraygonShot,
     /// <summary>Draygon Power Bomb callback at $A5:9607.</summary>
-    DraygonPowerBomb = 0xa50000 | EnemyAiCodePointers.BankA5.DraygonPowerBomb,
+    DraygonPowerBomb,
     /// <summary>Fake Kraid touch callback at $A6:9C22.</summary>
-    FakeKraidTouch = 0xa60000 | EnemyAiCodePointers.BankA6.FakeKraidTouch,
+    FakeKraidTouch,
     /// <summary>Fake Kraid shot callback at $A6:9C39.</summary>
-    FakeKraidShot = 0xa60000 | EnemyAiCodePointers.BankA6.FakeKraidShot,
+    FakeKraidShot,
     /// <summary>Ceres steam touch callback at $A6:F03F.</summary>
-    CeresSteamTouch = 0xa60000 | EnemyAiCodePointers.BankA6.CeresSteamTouch,
+    CeresSteamTouch,
     /// <summary>Ridley extended-spritemap touch callback at $A6:DF59.</summary>
-    RidleyExtendedTouch = 0xa60000 | EnemyAiCodePointers.BankA6.RidleyExtendedTouch,
+    RidleyExtendedTouch,
     /// <summary>Ridley shot callback at $A6:DF8A.</summary>
-    RidleyShot = 0xa60000 | EnemyAiCodePointers.BankA6.RidleyShot,
+    RidleyShot,
     /// <summary>Ridley Power Bomb callback at $A6:DFB2.</summary>
-    RidleyPowerBomb = 0xa60000 | EnemyAiCodePointers.BankA6.RidleyPowerBomb,
+    RidleyPowerBomb,
     /// <summary>Zebetite touch callback at $A6:FDA7.</summary>
-    ZebetiteTouch = 0xa60000 | EnemyAiCodePointers.BankA6.ZebetiteTouch,
+    ZebetiteTouch,
     /// <summary>Zebetite shot callback at $A6:FDAC.</summary>
-    ZebetiteShot = 0xa60000 | EnemyAiCodePointers.BankA6.ZebetiteShot,
+    ZebetiteShot,
     /// <summary>Kraid background/foot touch callback at $A7:948B.</summary>
-    KraidBackgroundTouch = 0xa70000 | EnemyAiCodePointers.BankA7.KraidBackgroundTouch,
+    KraidBackgroundTouch,
     /// <summary>Kraid arm touch callback at $A7:9490.</summary>
-    KraidArmTouch = 0xa70000 | EnemyAiCodePointers.BankA7.KraidArmTouch,
+    KraidArmTouch,
     /// <summary>Kraid no-op shot callback at $A7:94B5.</summary>
-    KraidNoOpShot = 0xa70000 | EnemyAiCodePointers.BankA7.KraidNoOpShot,
+    KraidNoOpShot,
     /// <summary>Kraid arm shot callback at $A7:94B6.</summary>
-    KraidArmShot = 0xa70000 | EnemyAiCodePointers.BankA7.KraidArmShot,
+    KraidArmShot,
     /// <summary>EnemyTouch_KraidNail at $A7:BCCF: normal touch followed by enemy death.</summary>
-    KraidNailTouch = 0xa70000 | EnemyAiCodePointers.BankA7.KraidNailTouch,
+    KraidNailTouch,
     /// <summary>EnemyTouch_KraidNailBad at $A7:BCDE: normal touch followed by enemy death.</summary>
-    KraidBadNailTouch = 0xa70000 | EnemyAiCodePointers.BankA7.KraidBadNailTouch,
+    KraidBadNailTouch,
     /// <summary>Evir touch callback at $A8:8B06.</summary>
-    EvirTouch = 0xa80000 | EnemyAiCodePointers.BankA8.EvirTouch,
+    EvirTouch,
     /// <summary>Evir Power Bomb callback at $A8:8B0C.</summary>
-    EvirPowerBomb = 0xa80000 | EnemyAiCodePointers.BankA8.EvirPowerBomb,
+    EvirPowerBomb,
     /// <summary>Evir shot callback at $A8:8B12.</summary>
-    EvirShot = 0xa80000 | EnemyAiCodePointers.BankA8.EvirShot,
+    EvirShot,
     /// <summary>Magdollite Power Bomb callback at $A8:B400.</summary>
-    MagdollitePowerBomb = 0xa80000 | EnemyAiCodePointers.BankA8.MagdollitePowerBomb,
+    MagdollitePowerBomb,
     /// <summary>Magdollite touch callback at $A8:B406.</summary>
-    MagdolliteTouch = 0xa80000 | EnemyAiCodePointers.BankA8.MagdolliteTouch,
+    MagdolliteTouch,
     /// <summary>Magdollite shot callback at $A8:B40C.</summary>
-    MagdolliteShot = 0xa80000 | EnemyAiCodePointers.BankA8.MagdolliteShot,
+    MagdolliteShot,
     /// <summary>Beetom touch callback at $A8:BE2E.</summary>
-    BeetomTouch = 0xa80000 | EnemyAiCodePointers.BankA8.BeetomTouch,
+    BeetomTouch,
     /// <summary>Beetom shot callback at $A8:BEAC.</summary>
-    BeetomShot = 0xa80000 | EnemyAiCodePointers.BankA8.BeetomShot,
+    BeetomShot,
     /// <summary>Powamp touch callback at $A8:C5BE.</summary>
-    PowampTouch = 0xa80000 | EnemyAiCodePointers.BankA8.PowampTouch,
+    PowampTouch,
     /// <summary>Powamp shot callback at $A8:C5EF.</summary>
-    PowampShot = 0xa80000 | EnemyAiCodePointers.BankA8.PowampShot,
+    PowampShot,
     /// <summary>Powamp Power Bomb callback at $A8:C63F.</summary>
-    PowampPowerBomb = 0xa80000 | EnemyAiCodePointers.BankA8.PowampPowerBomb,
+    PowampPowerBomb,
     /// <summary>Work robot touch callback at $A8:D174.</summary>
-    WorkRobotTouch = 0xa80000 | EnemyAiCodePointers.BankA8.WorkRobotTouch,
+    WorkRobotTouch,
     /// <summary>Work robot no-power shot callback at $A8:D18D.</summary>
-    WorkRobotNoPowerShot = 0xa80000 | EnemyAiCodePointers.BankA8.WorkRobotNoPowerShot,
+    WorkRobotNoPowerShot,
     /// <summary>Work robot powered shot callback at $A8:D192.</summary>
-    WorkRobotShot = 0xa80000 | EnemyAiCodePointers.BankA8.WorkRobotShot,
+    WorkRobotShot,
     /// <summary>Bull shot callback at $A8:DB14.</summary>
-    BullShot = 0xa80000 | EnemyAiCodePointers.BankA8.BullShot,
+    BullShot,
     /// <summary>Kago shot callback at $A8:AB83.</summary>
-    KagoShot = 0xa80000 | EnemyAiCodePointers.BankA8.KagoShot,
+    KagoShot,
     /// <summary>KiHunter shot callback at $A8:F701.</summary>
-    KiHunterShot = 0xa80000 | EnemyAiCodePointers.BankA8.KiHunterShot,
+    KiHunterShot,
     /// <summary>Spark shot callback at $A8:E70E.</summary>
-    SparkShot = 0xa80000 | EnemyAiCodePointers.BankA8.SparkShot,
+    SparkShot,
     /// <summary><c>BlueBrinstarFaceBlockShotAI</c> at $A8:E91D.</summary>
-    BlueBrinstarFaceBlockShot = 0xa80000 | EnemyAiCodePointers.BankA8.BlueBrinstarFaceBlockShot,
+    BlueBrinstarFaceBlockShot,
     /// <summary>Yapping Maw touch callback at $A8:A799.</summary>
-    YappingMawTouch = 0xa80000 | EnemyAiCodePointers.BankA8.YappingMawTouch,
+    YappingMawTouch,
     /// <summary>Yapping Maw shot callback at $A8:A7BD.</summary>
-    YappingMawShot = 0xa80000 | EnemyAiCodePointers.BankA8.YappingMawShot,
+    YappingMawShot,
     /// <summary>Mother Brain body shot callback at $A9:B503.</summary>
-    MotherBrainBodyShot = 0xa90000 | EnemyAiCodePointers.BankA9.MotherBrainBodyShot,
+    MotherBrainBodyShot,
     /// <summary>Mother Brain head shot callback at $A9:B507.</summary>
-    MotherBrainHeadShot = 0xa90000 | EnemyAiCodePointers.BankA9.MotherBrainHeadShot,
+    MotherBrainHeadShot,
     /// <summary>Mother Brain body touch callback at $A9:B5C5, a bare RTL.</summary>
-    MotherBrainBodyTouch = 0xa90000 | EnemyAiCodePointers.BankA9.MotherBrainBodyTouch,
+    MotherBrainBodyTouch,
     /// <summary>Mother Brain head touch callback at $A9:B5C6.</summary>
-    MotherBrainHeadTouch = 0xa90000 | EnemyAiCodePointers.BankA9.MotherBrainHeadTouch,
+    MotherBrainHeadTouch,
     /// <summary>Dead Torizo touch/shot callback at $A9:D433.</summary>
-    DeadTorizoTouchAndShot = 0xa90000 | EnemyAiCodePointers.BankA9.DeadTorizoTouchAndShot,
+    DeadTorizoTouchAndShot,
     /// <summary>Dead Torizo Power Bomb callback at $A9:D42A.</summary>
-    DeadTorizoPowerBomb = 0xa90000 | EnemyAiCodePointers.BankA9.DeadTorizoPowerBomb,
+    DeadTorizoPowerBomb,
     /// <summary>Dead Sidehopper touch callback at $A9:DD44.</summary>
-    DeadSidehopperTouch = 0xa90000 | EnemyAiCodePointers.BankA9.DeadSidehopperTouch,
+    DeadSidehopperTouch,
     /// <summary>Dead Sidehopper shot callback at $A9:DD1D.</summary>
-    DeadSidehopperShot = 0xa90000 | EnemyAiCodePointers.BankA9.DeadSidehopperShot,
+    DeadSidehopperShot,
     /// <summary>Dead Sidehopper Power Bomb callback at $A9:D8CC.</summary>
-    DeadSidehopperPowerBomb = 0xa90000 | EnemyAiCodePointers.BankA9.DeadSidehopperPowerBomb,
+    DeadSidehopperPowerBomb,
     /// <summary>Shitroid touch callback at $A9:F789.</summary>
-    ShitroidTouch = 0xa90000 | EnemyAiCodePointers.BankA9.ShitroidTouch,
+    ShitroidTouch,
     /// <summary>Shitroid shot callback at $A9:F842.</summary>
-    ShitroidShot = 0xa90000 | EnemyAiCodePointers.BankA9.ShitroidShot,
+    ShitroidShot,
     /// <summary>Shitroid Power Bomb callback at $A9:EFBA.</summary>
-    ShitroidPowerBomb = 0xa90000 | EnemyAiCodePointers.BankA9.ShitroidPowerBomb,
+    ShitroidPowerBomb,
     /// <summary>Bomb Torizo touch callback at $AA:C977.</summary>
-    BombTorizoTouch = 0xaa0000 | EnemyAiCodePointers.BankAA.BombTorizoTouch,
+    BombTorizoTouch,
     /// <summary>Bomb Torizo shot callback at $AA:C97C.</summary>
-    BombTorizoShot = 0xaa0000 | EnemyAiCodePointers.BankAA.BombTorizoShot,
+    BombTorizoShot,
     /// <summary>Torizo stand-up/sit-down shot callback at $AA:C9C2.</summary>
-    TorizoStandUpSitDownShot = 0xaa0000 | EnemyAiCodePointers.BankAA.TorizoStandUpSitDownShot,
+    TorizoStandUpSitDownShot,
     /// <summary>Golden Torizo shot callback at $AA:D667.</summary>
-    GoldenTorizoShot = 0xaa0000 | EnemyAiCodePointers.BankAA.GoldenTorizoShot,
+    GoldenTorizoShot,
     /// <summary>Shaktool touch callback at $AA:DF2F.</summary>
-    ShaktoolTouch = 0xaa0000 | EnemyAiCodePointers.BankAA.ShaktoolTouch,
+    ShaktoolTouch,
     /// <summary>Shaktool shot callback at $AA:DF34.</summary>
-    ShaktoolShot = 0xaa0000 | EnemyAiCodePointers.BankAA.ShaktoolShot,
+    ShaktoolShot,
     /// <summary>Space Pirate Power Bomb callback at $B2:8767.</summary>
-    SpacePiratePowerBomb = 0xb20000 | EnemyAiCodePointers.BankB2.PowerBomb,
+    SpacePiratePowerBomb,
     /// <summary>Space Pirate touch callback at $B2:876C.</summary>
-    SpacePirateTouch = 0xb20000 | EnemyAiCodePointers.BankB2.Touch,
+    SpacePirateTouch,
     /// <summary>Space Pirate shot callback at $B2:8779.</summary>
-    SpacePirateShot = 0xb20000 | EnemyAiCodePointers.BankB2.Shot,
+    SpacePirateShot,
     /// <summary>Gold ninja Space Pirate vulnerable-hitbox shot callback at $B2:87C8.</summary>
-    GoldNinjaVulnerableHitboxShot = 0xb20000 | EnemyAiCodePointers.BankB2.GoldNinjaVulnerableHitboxShot,
+    GoldNinjaVulnerableHitboxShot,
     /// <summary>Gold ninja Space Pirate invincible-hitbox shot callback at $B2:883E.</summary>
-    GoldNinjaInvincibleHitboxShot = 0xb20000 | EnemyAiCodePointers.BankB2.GoldNinjaInvincibleHitboxShot,
+    GoldNinjaInvincibleHitboxShot,
     /// <summary>Botwoon touch callback at $B3:9FFF.</summary>
-    BotwoonTouch = 0xb30000 | EnemyAiCodePointers.BankB3.BotwoonTouch,
+    BotwoonTouch,
     /// <summary>Botwoon shot callback at $B3:A016.</summary>
-    BotwoonShot = 0xb30000 | EnemyAiCodePointers.BankB3.BotwoonShot,
+    BotwoonShot,
     /// <summary>Botwoon Power Bomb callback at $B3:A041.</summary>
-    BotwoonPowerBomb = 0xb30000 | EnemyAiCodePointers.BankB3.BotwoonPowerBomb,
+    BotwoonPowerBomb,
     /// <summary>Phantoon body touch callback at $A7:DD95.</summary>
-    PhantoonTouch = 0xa70000 | EnemyAiCodePointers.BankA7.PhantoonTouch,
+    PhantoonTouch,
     /// <summary>Phantoon body shot callback at $A7:DD9B.</summary>
-    PhantoonShot = 0xa70000 | EnemyAiCodePointers.BankA7.PhantoonShot,
+    PhantoonShot,
     /// <summary>Dead Zoomer's touch and shot rot trigger at $A9:DCF8.</summary>
-    DeadZoomerTouchAndShot = 0xa90000 | EnemyAiCodePointers.BankA9.DeadZoomerTouchAndShot,
+    DeadZoomerTouchAndShot,
     /// <summary>Dead Zoomer's Power Bomb rot trigger at $A9:DCED.</summary>
-    DeadZoomerPowerBomb = 0xa90000 | EnemyAiCodePointers.BankA9.DeadZoomerPowerBomb,
+    DeadZoomerPowerBomb,
     /// <summary>Dead Ripper's touch and shot rot trigger at $A9:DD08.</summary>
-    DeadRipperTouchAndShot = 0xa90000 | EnemyAiCodePointers.BankA9.DeadRipperTouchAndShot,
+    DeadRipperTouchAndShot,
     /// <summary>Dead Ripper's Power Bomb rot trigger at $A9:DCFD.</summary>
-    DeadRipperPowerBomb = 0xa90000 | EnemyAiCodePointers.BankA9.DeadRipperPowerBomb,
+    DeadRipperPowerBomb,
     /// <summary>Dead Skree's touch and shot rot trigger at $A9:DD18.</summary>
-    DeadSkreeTouchAndShot = 0xa90000 | EnemyAiCodePointers.BankA9.DeadSkreeTouchAndShot,
+    DeadSkreeTouchAndShot,
     /// <summary>Dead Skree's Power Bomb rot trigger at $A9:DD0D.</summary>
-    DeadSkreePowerBomb = 0xa90000 | EnemyAiCodePointers.BankA9.DeadSkreePowerBomb,
+    DeadSkreePowerBomb,
     /// <summary><c>RTL_A6F920</c>, the Ceres door shot callback at $A6:F920.</summary>
-    CeresDoorNoOpShot = EnemyShotCallbackDefinitions.CeresDoorNoOp,
+    CeresDoorNoOpShot,
     /// <summary><c>RTL_AAE7DC</c>, the Chozo statue shot callback at $AA:E7DC.</summary>
-    ChozoNoOpShot = EnemyShotCallbackDefinitions.ChozoNoOp,
+    ChozoNoOpShot,
 }

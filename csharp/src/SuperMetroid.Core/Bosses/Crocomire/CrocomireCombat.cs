@@ -61,7 +61,7 @@ internal sealed class CrocomireCombat
         // Crocomire has no header shot callback; every live component supplies its own bank-$A4 routine. Bomb
         // family $0500 therefore reaches the same no-op counter, dust, or mouth reaction selected by the map.
         table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.Crocomire &&
-                                  c.Enemy.Definition.ShotAiPointer == 0 && c.UsesExtendedHitboxes &&
+                                  c.Enemy.Definition.ShotBody == EnemyCallbackBody.None && c.UsesExtendedHitboxes &&
                                   c.SelectedShotAi != EnemyInteractionCallback.NormalEnemyShot,
             c => ResolveCrocomireHitboxShot(c.Bomb.PackedType.Raw, c.Bomb.Position.Whole, c.SelectedShotAi));
     }
@@ -104,7 +104,7 @@ internal sealed class CrocomireCombat
     internal void RegisterCrocomireShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Crocomire &&
-                                                     enemy.Definition.ShotAiPointer == 0 ||
+                                                     enemy.Definition.ShotBody == EnemyCallbackBody.None ||
                                                      enemy.DefinitionId == EnemyDefinitionId.CrocomireTongue &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.NormalEnemyShot)
         {

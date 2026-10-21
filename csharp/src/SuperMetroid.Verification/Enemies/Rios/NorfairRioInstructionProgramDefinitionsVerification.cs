@@ -66,7 +66,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
 
         RoomEnemySlot parent = enemies.SlotTable.Slots[0];
         parent.Bind(EnemyDefinitionId.Geruta, parent.Definition);
-        parent.Bind(parent.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa2 });
+        parent.Bind(parent.DefinitionId, default(RoomEnemyDefinition));
         enemies.NorfairRioBehavior.InitializeNorfairRio(parent);
         AssertEqual(AnimationProgramCursor<NorfairRioProgram>.Start(NorfairRioProgram.Idle),
             enemies.SlotTable.Slots[0].EntityState<NorfairRioEntity, NorfairRioEnemyState>()?.Program,
@@ -74,7 +74,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
 
         RoomEnemySlot follower = enemies.SlotTable.Slots[1];
         follower.Bind(EnemyDefinitionId.Geruta, follower.Definition);
-        follower.Bind(follower.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa2 });
+        follower.Bind(follower.DefinitionId, default(RoomEnemyDefinition));
         follower.SetSpawnParameter1(0x8000);
         enemies.NorfairRioBehavior.InitializeNorfairRio(follower);
         AssertEqual(AnimationProgramCursor<NorfairRioProgram>.Start(NorfairRioProgram.FlamesAscending),
@@ -90,7 +90,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art?.Enemies, BossArtwork = art?.Bosses, AreaArtwork = art?.Areas };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Geruta, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa2 });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.InstructionTimer = WrappingCountdown.Start(1);
         var state = new NorfairRioEnemyState { Program = AnimationProgramCursor<NorfairRioProgram>.Start(entry) };
         slot.SetSpeciesState(state);

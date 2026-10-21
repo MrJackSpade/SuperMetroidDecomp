@@ -12,22 +12,15 @@ internal sealed class EnemyCommonParticipation(Func<EnemySharedReactions> reacti
 
     /// <summary>The common no-op initialization when <paramref name="slot"/>'s header names it; otherwise null.</summary>
     internal static EnemyInitializationAiHandler? FindInitialization(RoomEnemySlot slot) =>
-        NoOpRoutine(slot.Definition.Bank, slot.Definition.InitializationAiPointer) is not EnemyCommonNoOpRoutine.None
+        slot.Definition.InitializationAi == EnemyAiRoutine.CommonNoOp
             ? EnemyNoOpAi.Initialization
             : null;
 
     /// <summary>The common no-op main AI when <paramref name="slot"/>'s header names one; otherwise null.</summary>
     internal static EnemyMainAiHandler? FindMain(RoomEnemySlot slot) =>
-        NoOpRoutine(slot.Definition.Bank, slot.Definition.MainAiPointer) is not EnemyCommonNoOpRoutine.None
+        slot.Definition.MainAi == EnemyAiRoutine.CommonNoOp
             ? EnemyNoOpAi.Main
             : null;
-
-    /// <summary>Decodes a banked header routine pointer as a shared no-op, or None.</summary>
-    private static EnemyCommonNoOpRoutine NoOpRoutine(byte bank, ushort pointer)
-    {
-        var routine = (EnemyCommonNoOpRoutine)(int)new SnesAddress(bank, pointer);
-        return Enum.IsDefined(routine) ? routine : EnemyCommonNoOpRoutine.None;
-    }
 
     /// <summary>The first hurt handler matching <paramref name="slot"/>, or null.</summary>
     internal EnemyHurtAiHandler? FindHurt(RoomEnemySlot slot) => Reactions.FindHurt(slot);

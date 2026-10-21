@@ -122,8 +122,7 @@ internal static class EnemySpritemapArtworkVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas };
         RoomEnemySlot bull = enemies.SlotTable.Slots[0];
         bull.Bind(EnemyDefinitionId.Bull, bull.Definition);
-        bull.Bind(bull.DefinitionId, default(RoomEnemyDefinition) with
-            { Bank = EnemySpritemapDefinitions.BullBank });
+        bull.Bind(bull.DefinitionId, default(RoomEnemyDefinition));
         new Action<RoomEnemySlot>(enemies.BullBehavior.InitializeBull)(bull);
         object?[] arguments =
             [bull, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
@@ -2925,8 +2924,10 @@ internal static class EnemySpritemapArtworkVerification
             enemies.Drawing.Enqueue(0, 0);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(definition, slot.Definition);
-            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with
-                { Bank = definition == EnemyDefinitionId.YappingMaw
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+            // The catalog-wide composition check includes families newer than the
+            // fixture's actor-name mapping. Its frame identity owns the actual bank.
+            byte frameBank = spritemapBank ?? (definition == EnemyDefinitionId.YappingMaw
                     ? YappingMawVisualDefinitions.Bank
                     : definition is EnemyDefinitionId.KihunterGreen or
                         EnemyDefinitionId.KihunterGreenWings or
@@ -3027,12 +3028,8 @@ internal static class EnemySpritemapArtworkVerification
                           EnemyDefinitionId.Metaree or
                           EnemyDefinitionId.Skree
                             ? EnemySpritemapDefinitions.SkulteraBank
-                        : EnemySpritemapDefinitions.BoyonBank });
-            // The catalog-wide composition check includes families newer than the
-            // fixture's actor-name mapping. Its frame identity owns the actual bank.
-            if (spritemapBank is byte bank)
-                slot.Bind(slot.DefinitionId, slot.Definition with { Bank = bank });
-            slot.SpritemapPointer = pointer;
+                        : EnemySpritemapDefinitions.BoyonBank);
+            slot.Frame = RoomEnemySlotFrameAccess.FrameAt(frameBank, pointer);
             slot.InstructionTimer = WrappingCountdown.Start(7);
             slot.Timer = WrappingCountdown.Start(9);
             slot.Position = slot.Position.WithWhole(new(0x0040, 0x0080));

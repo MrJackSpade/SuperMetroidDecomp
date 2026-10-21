@@ -43,7 +43,7 @@ internal static class PowerBombDeathDrawingVerification
             actor.Radius = new(actor.Definition.Radius.X, actor.Definition.Radius.Y);
             actor.Properties = EnemyPropertyWord.FromNativeWord(respawns ? (ushort)EnemyProperties.RespawnIfKilled : (ushort)0);
             actor.SpritemapPointer = EnemySpritemapDefinitions.Frames
-                .First(frame => frame.Bank == actor.Definition.Bank &&
+                .First(frame => frame.Bank == actor.NativeHeader.Bank &&
                     spritemaps.TryGetDisplay(frame.Bank, frame.Pointer, out var parts) && parts.Length != 0).Pointer;
 
             // Freeze only the AI while producing the real draw queue. The following

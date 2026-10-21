@@ -90,7 +90,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             AssertTrue((stock.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGet(frame.Bank, frame.Pointer, out _),
                 $"installed extended frame {frame.Name} exists");
         }
-        ushort emptyPointer = EnemyAiCodePointers.BankB2.EmptyExtendedSpritemap;
+        ushort emptyPointer = EnemyB2ExtendedSpritemaps.EmptyExtendedSpritemap;
         guardBlockFrame(EnemyExtendedFrameDefinitions.Bank, emptyPointer);
         AssertTrue((stock.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGet(EnemyExtendedFrameDefinitions.Bank,
                 emptyPointer, out ReadOnlyMemory<EnemyExtendedDrawComponent> empty) &&
@@ -1342,10 +1342,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         // extended body from Ridley's separately drawn tail and wings.
         slot.Bind(bank == EnemyExtendedFrameDefinitions.Bank
             ? PirateDefinitionForFrame(pointer) : EnemyDefinitionId.Boyon, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with
-        {
-            Bank = bank,
-        });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.ExtraProperties = slot.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
         slot.SpritemapPointer = pointer;
@@ -1364,10 +1361,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(PirateDefinitionForFrame(pointer), slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with
-        {
-            Bank = EnemyExtendedFrameDefinitions.Bank,
-        });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.SpritemapPointer = pointer;
         slot.Position = slot.Position.WithWhole(new(0x0040, 0x0080));
         SpacePirateCollisionComponent component =
@@ -1397,7 +1391,7 @@ internal static class EnemyExtendedFrameArtworkVerification
                 return EnemyDefinitionId.PirateGreyWall;
             return EnemyDefinitionId.PirateGreyWalking;
         }
-        if (pointer == EnemyAiCodePointers.BankB2.EmptyExtendedSpritemap)
+        if (pointer == EnemyB2ExtendedSpritemaps.EmptyExtendedSpritemap)
             return EnemyDefinitionId.PirateGreyWalking;
         throw new InvalidDataException(
             $"Extended Space Pirate frame $B2:{pointer:X4} is not installed.");

@@ -22,8 +22,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.CrocomireTongue, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with
-        { Bank = CrocomireTongueCollisionDefinitionsConstants.Bank });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         var seen = new HashSet<ushort>();
         foreach (CrocomireTongueFrame frame in Enum.GetValues<CrocomireTongueFrame>())
         {
@@ -90,8 +89,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         var compiled = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var nativeSlot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
         RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
-        var boundDefinition = default(RoomEnemyDefinition) with
-            { Bank = CrocomireTongueCollisionDefinitionsConstants.Bank };
+        var boundDefinition = default(RoomEnemyDefinition);
         nativeSlot.Bind(nativeSlot.DefinitionId, boundDefinition);
         compiledSlot.Bind(compiledSlot.DefinitionId, boundDefinition);
         nativeSlot.Bind((EnemyDefinitionId)0xffff, nativeSlot.Definition);
@@ -107,7 +105,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
             CrocomireTongueCollisionComponent component =
                 CrocomireTongueCollisionDefinitions.ComponentAt(frame);
             seenLists.Add((ushort)component.HitboxList);
-            nativeSlot.SpritemapPointer = compiledSlot.SpritemapPointer = frame;
+            nativeSlot.Frame = compiledSlot.Frame = RoomEnemySlotFrameAccess.FrameAt(CrocomireTongueCollisionDefinitionsConstants.Bank, frame);
             foreach ((ushort x, ushort y) in new VerifyCrocomireTongueCollisionDefinitionsCase[]
                      {
                          new VerifyCrocomireTongueCollisionDefinitionsCase(0x0100, 0x0100), new VerifyCrocomireTongueCollisionDefinitionsCase(0x0004, 0x0006),
@@ -123,7 +121,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
                     [nativeSlot, new Position16<RoomPixels>(x, y), Extent16<RoomPixels>.Zero, shot != 0, (ushort)0];
                 object?[] compiledArguments =
                     [compiledSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(0, 0), shot != 0, (ushort)0];
-                bool nativeHit = ReferenceExtendedCollision(rom, nativeArguments);
+                bool nativeHit = ReferenceExtendedCollision(rom, CrocomireTongueCollisionDefinitionsConstants.Bank, nativeArguments);
                 bool compiledHit = ExtendedHitboxWalker.Find(compiled, compiledArguments);
                 AssertEqual(nativeHit, compiledHit,
                     $"Crocomire tongue $A4:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");

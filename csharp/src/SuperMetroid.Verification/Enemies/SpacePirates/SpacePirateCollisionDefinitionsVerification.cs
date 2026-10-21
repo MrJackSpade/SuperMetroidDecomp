@@ -19,6 +19,9 @@ using SuperMetroid.Core.World.Artwork;
 /// <summary>Retail oracle and guarded runtime comparison for bank-$B2 Space Pirate extended collision frames and hitbox lists.</summary>
 internal static class SpacePirateCollisionDefinitionsVerification
 {
+    /// <summary>Bank $B2, which holds the Space Pirates' code and frames.</summary>
+    private const byte SpacePirateFrameBank = 0xb2;
+
     /// <summary>Checks all compiled Pirate frame and list bytes against the cartridge, then compares collision callbacks and hits through the production walker.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Space Pirate collision definitions")]
     internal static void VerifySpacePirateCollisionDefinitions()
@@ -90,7 +93,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
         AssertEqual(76, ninjaFramePointers.Count,
             "distinct ninja-Pirate collision-frame identities");
         AssertTrue(SpacePirateCollisionDefinitions.ComponentsAt(
-                EnemyAiCodePointers.BankB2.EmptyExtendedSpritemap).Length > 0,
+                EnemyB2ExtendedSpritemaps.EmptyExtendedSpritemap).Length > 0,
             "Space Pirate initializer's common empty frame has fixed collision");
         int rectangleCount = 0;
         for (int index = 0; index < SpacePirateCollisionDefinitions.ListCount;
@@ -226,7 +229,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            bool wallFrame = pointer != EnemyAiCodePointers.BankB2.EmptyExtendedSpritemap &&
+            bool wallFrame = pointer != EnemyB2ExtendedSpritemaps.EmptyExtendedSpritemap &&
                 !ninjaFramePointers.Contains(pointer) &&
                 !walkingFramePointers.Contains(pointer);
             slot.Bind(compiledPirate switch
@@ -237,8 +240,8 @@ internal static class SpacePirateCollisionDefinitionsVerification
                 true when wallFrame => EnemyDefinitionId.PirateGreyWall,
                 _ => EnemyDefinitionId.PirateGreyWalking,
             }, slot.Definition);
-            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xb2 });
-            slot.SpritemapPointer = pointer;
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+            slot.Frame = RoomEnemySlotFrameAccess.FrameAt(SpacePirateFrameBank, pointer);
             slot.Position = slot.Position.WithWhole(new(x, y));
             return new DachoraInstructionProgramDefinitionsNewDachoraResult(enemies, slot);
         }
@@ -250,7 +253,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
             object?[] arguments =
                 [slot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(radiusX, radiusY), shot, SnesButton.None];
             bool hit = slot.DefinitionId == (EnemyDefinitionId)0xffff
-                ? ReferenceExtendedCollision(rom, arguments)
+                ? ReferenceExtendedCollision(rom, SpacePirateFrameBank, arguments)
                 : ExtendedHitboxWalker.Find(enemies, arguments);
             return new HitboxResult(hit, (ushort)(arguments[4] ?? throw new InvalidOperationException("Verification requires arguments[4].")));
         }

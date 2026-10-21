@@ -13,7 +13,7 @@ internal static class ExtendedCollisionReferenceVerification
     /// <remarks>The argument array mirrors the reflected production helper, including
     /// its output slot; this oracle remains independent of compiled geometry.</remarks>
     [CpuBusBoundary("exact bus test: retail ROM reference model of extended spritemap collision")]
-    internal static bool ReferenceExtendedCollision(CartridgeImportAddressSpace source, object?[] arguments)
+    internal static bool ReferenceExtendedCollision(CartridgeImportAddressSpace source, byte frameBank, object?[] arguments)
     {
         var enemy = (RoomEnemySlot)(arguments[0] ?? throw new InvalidOperationException("Verification requires arguments[0]."));
         var target = (Position16<RoomPixels>)(arguments[1] ?? throw new InvalidOperationException("Verification requires arguments[1]."));
@@ -22,7 +22,7 @@ internal static class ExtendedCollisionReferenceVerification
         ushort radiusX = radius.X, radiusY = radius.Y;
         bool shot = (bool)(arguments[3] ?? throw new InvalidOperationException("Verification requires arguments[3]."));
         arguments[4] = (ushort)0;
-        int bank = (int)new SnesAddress(enemy.Definition.Bank, 0);
+        int bank = (int)new SnesAddress(frameBank, 0);
         byte Byte(int offset) => source.ReadCartridgeByte(bank | (ushort)offset);
         ushort Word(int offset) => SnesLittleEndian.Word(Byte(offset), Byte(offset + 1));
         static bool Negative(int value) => unchecked((short)value) < 0;

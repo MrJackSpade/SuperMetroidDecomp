@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Enemies.ShotCallbackDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.RegularExpressions;

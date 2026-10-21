@@ -170,7 +170,6 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             slot.Bind(EnemyDefinitionId.PirateGreyWall, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with
             {
-                Bank = 0xb2,
                 Damage = 20,
             });
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));

@@ -1,10 +1,12 @@
-namespace SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
 /// Literal no-op touch callback identities found in the complete retail enemy-header and
 /// extended-hitbox inventory. These are callback identities, not generic opcode probes.
 /// </summary>
-public static class EnemyTouchCallbackDefinitions
+internal static class EnemyTouchCallbackDefinitions
 {
     /// <summary>$A2:804C, bank-A2's common RTL callback.</summary>
     public const int BankA2NoOp = 0xa2804c;

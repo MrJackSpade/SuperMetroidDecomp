@@ -66,7 +66,7 @@ internal sealed class KraidCombat
         // Kraid's arm and foot are admitted by their literal no-op header callback, but their authored hitboxes
         // select the arm's private callback.
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot &&
-                                                     EnemyCollision.IsLiteralNoOpShotAi(enemy.Definition.Bank, EnemyCollision.ShotAi(enemy)))
+                                                     EnemyCollision.IsLiteralNoOpShotAi(enemy.Definition, EnemyCollision.ShotAi(enemy)))
         {
             AfterSuperMissileQuake = (in EnemyShotContext c) =>
             {

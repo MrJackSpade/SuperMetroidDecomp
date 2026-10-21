@@ -110,13 +110,13 @@ internal sealed class BeamCombos
     internal static void InitializeComboData(SamusProjectileSlot slot, BeamComboData comboData)
     {
         bool echo = comboData == BeamComboData.Echo;
-        int table = comboData == BeamComboData.Charged ? SamusProjectileRomData.Beams.ChargedDataPointers :
-            echo ? SamusComboRomData.EchoDataPointers : SamusComboRomData.DataPointers;
+        SamusProjectileSelectorTable table = comboData == BeamComboData.Charged ? SamusProjectileSelectorTable.ChargedBeam :
+            echo ? SamusProjectileSelectorTable.EchoAndTrail : SamusProjectileSelectorTable.SpecialAttack;
         int index = echo ? (byte)slot.Type - 34 : slot.Type & 15;
-        int data = SamusProjectileRomData.Banks.Projectile | SamusProjectileSelectionDefinitions.ReadWord(table + index * 2);
-        slot.Damage = SamusProjectileDamageDefinitions.Read(data);
+        SamusProjectileHeader header = SamusProjectileSelectionDefinitions.Select(table, index);
+        slot.Damage = SamusProjectileDamageDefinitions.Read(header);
         if (unchecked((short)slot.Damage) < 0) throw new InvalidDataException("Negative native combo projectile damage.");
-        SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program((ushort)data, comboData != BeamComboData.Combo ? slot.Direction & 15 : 0);
+        SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program(header, comboData != BeamComboData.Combo ? slot.Direction & 15 : 0);
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.InstructionTimer = WrappingCountdown.Start(1);
         if (comboData == BeamComboData.Charged)

@@ -286,12 +286,10 @@ internal sealed class BeamFiring
 
         // `$93:8000` indexes a data-table pointer by beam type, stores damage, chooses the
         // direction-specific list, samples its initial radii, and arms a one-frame timer.
-        ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            (charged
-                ? SamusProjectileRomData.Beams.ChargedDataPointers
-                : SamusProjectileRomData.Beams.UnchargedDataPointers) + beamType.TableIndex * 2);
-        slot.Damage = SamusProjectileDamageDefinitions.Read(SamusProjectileRomData.Banks.Projectile | dataPointer);
-        SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program(dataPointer, direction);
+        SamusProjectileHeader header = SamusProjectileSelectionDefinitions.Select(
+            charged ? SamusProjectileSelectorTable.ChargedBeam : SamusProjectileSelectorTable.UnchargedBeam, beamType.TableIndex);
+        slot.Damage = SamusProjectileDamageDefinitions.Read(header);
+        SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program(header, direction);
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.InstructionTimer = WrappingCountdown.Start(1);
@@ -378,10 +376,10 @@ internal sealed class BeamFiring
         // with 1000 before the first instruction record executes.
         slot.Type = SamusProjectileTypeWord.CreateBeam((SamusBeamFlags.Charge | SamusBeamFlags.Plasma), charged: true);
         const SamusBeamCombination hyperBeamType = SamusBeamCombination.Plasma;
-        ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            SamusProjectileRomData.Beams.ChargedDataPointers + hyperBeamType.TableIndex * 2);
-        slot.Damage = SamusProjectileDamageDefinitions.Read(SamusProjectileRomData.Banks.Projectile | dataPointer);
-        SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program(dataPointer, slot.PackedDirection.DirectionIndex);
+        SamusProjectileHeader header = SamusProjectileSelectionDefinitions.Select(
+            SamusProjectileSelectorTable.ChargedBeam, hyperBeamType.TableIndex);
+        slot.Damage = SamusProjectileDamageDefinitions.Read(header);
+        SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program(header, slot.PackedDirection.DirectionIndex);
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.InstructionTimer = WrappingCountdown.Start(1);
@@ -470,10 +468,10 @@ internal sealed class BeamFiring
         // keeping both calls makes the one-frame ignition transition directly inspectable.
         InitializeDirectionalVelocity(samus.ProjectileInheritance, slot, baseSpeed: 0);
 
-        ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            SamusProjectileRomData.NonBeam.DataPointers + samus.SelectedHudItem.ToNativeWord() * 2);
-        slot.Damage = SamusProjectileDamageDefinitions.Read(SamusProjectileRomData.Banks.Projectile | dataPointer);
-        SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program(dataPointer, slot.PackedDirection.DirectionIndex);
+        SamusProjectileHeader header = SamusProjectileSelectionDefinitions.Select(
+            SamusProjectileSelectorTable.NonBeam, samus.SelectedHudItem.ToNativeWord());
+        slot.Damage = SamusProjectileDamageDefinitions.Read(header);
+        SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program(header, slot.PackedDirection.DirectionIndex);
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.InstructionTimer = WrappingCountdown.Start(1);

@@ -19,8 +19,6 @@ public static class SamusProjectileRomData
     {
         /// <summary>Bank containing projectile producers, motion tables, and trails.</summary>
         public const int Movement = 0x900000;
-        /// <summary>Eight-bit form of <see cref="Movement"/> for <c>SnesAddress</c>.</summary>
-        public const byte MovementNumber = 0x90;
         /// <summary>Bank containing pose and projectile-driven suit-palette lists.</summary>
         public const int Pose = 0x910000;
         /// <summary>Bank containing projectile definitions and animation instructions.</summary>
@@ -97,15 +95,8 @@ public static class SamusProjectileRomData
         /// Investigation: #625 / #900.
         /// </remarks>
         public const int PalettePointers = 0x90c3c9;
-        /// <summary>Bank-$93 projectile-data pointers for uncharged combinations.</summary>
-        public const int UnchargedDataPointers = 0x9383c1;
-        /// <summary>Bank-$93 projectile-data pointers for charged combinations.</summary>
-        public const int ChargedDataPointers = 0x9383d9;
-        /// <summary>Pointers to the three charge-flare component delay lists.</summary>
-        public const int ChargeFlareDelayListPointers = 0x90c481;
         /// <summary>Number of beam combinations present in each complete pointer table.</summary>
-        public const int CombinationCount =
-            (ChargedDataPointers - UnchargedDataPointers) / sizeof(ushort);
+        public const int CombinationCount = 12;
     }
 
     /// <summary>Projectile-driven Samus and beam palette pointer tables.</summary>
@@ -120,10 +111,6 @@ public static class SamusProjectileRomData
     {
         /// <summary>$90:AC86, Samus_CanFireSuperMissile: reject at four live projectiles, reserving the fifth slot for the collision link.</summary>
         public const int SuperMissileAdmissionLimit = 4;
-        /// <summary>Bank-$93 data pointers for missiles, bombs, and special projectiles.</summary>
-        public const int DataPointers = 0x9383f1;
-        /// <summary>Bank-$93 definitions for Super Missile link projectiles.</summary>
-        public const int SuperMissileLinkDataPointers = 0x93842b;
         /// <summary>Direction-indexed missile acceleration records.</summary>
         public const int MissileAccelerations = 0x90c303;
         /// <summary>Direction-indexed Super Missile acceleration records.</summary>

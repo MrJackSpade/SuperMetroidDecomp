@@ -3,6 +3,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>NTSC cartridge charge-flare cadence and loop commands, independent of sprite composition.</summary>
 internal static class ChargeFlareAnimationDefinitions
 {
+    /// <summary>$90:C481: the three words naming the main-flare, slow-spark and fast-spark programs; a wrapped frame index reads them as delays.</summary>
+    private const int ProgramTable = 0x90c481;
     /// <summary>$90:C487 FlareAnimationDelays_MainFlare: thirty delays followed by rewind fourteen.</summary>
     private const ushort MainFlare = 0xc487;
     /// <summary>$90:C4A7 FlareAnimationDelays_FlareSlowSparks: six delays followed by restart.</summary>
@@ -13,15 +15,32 @@ internal static class ChargeFlareAnimationDefinitions
     internal const ushort GrappleInitialFrame = 16;
     /// <summary>$9B:C04F, HandleGrappleBeamFlare: counter one seeds three before the ordinary decrement.</summary>
     internal const ushort GrappleInitialDelay = 3;
-    /// <summary>Compiles the three delay-list pointers and their main, slow-spark, and fast-spark cadence bytes.</summary>
+    /// <summary>
+    /// The delay or command byte at <paramref name="frame"/> of charge-flare <paramref name="component"/>'s program: zero
+    /// the main flare, one the slow sparks, two the fast sparks. The index wraps within a 16-bit window, so a frame past a
+    /// program's end reads the following programs.
+    /// </summary>
+    internal static byte ReadDelay(int component, int frame) =>
+        ReadByte(SamusProjectileRomData.Banks.Movement | unchecked((ushort)(Start(component) + frame)));
+
+    /// <summary>The main flare's delay or command byte at <paramref name="frame"/>, read without wrapping, as the grapple flare reads it.</summary>
+    internal static byte ReadMainFlareDelay(int frame) => ReadByte((SamusProjectileRomData.Banks.Movement | MainFlare) + frame);
+
+    /// <summary>Where charge-flare <paramref name="component"/>'s program starts in its 16-bit window.</summary>
+    private static ushort Start(int component) => component switch
+    {
+        0 => MainFlare,
+        1 => SlowSparks,
+        2 => FastSparks,
+        _ => throw new ArgumentOutOfRangeException(nameof(component), component, "A charge flare has three components."),
+    };
+
+    /// <summary>Compiles the three program words and their main, slow-spark, and fast-spark cadence bytes.</summary>
     internal static byte ReadByte(int address)
     {
-        int pointerByte = address - SamusProjectileRomData.Beams.ChargeFlareDelayListPointers;
-        if ((uint)pointerByte < 6)
-        {
-            ushort pointer = (pointerByte / 2) switch { 0 => MainFlare, 1 => SlowSparks, _ => FastSparks };
-            return (byte)(pointer >> (pointerByte % 2 * 8));
-        }
+        int tableByte = address - ProgramTable;
+        if ((uint)tableByte < 6)
+            return (byte)(Start(tableByte / 2) >> (tableByte % 2 * 8));
         int delay = address - (SamusProjectileRomData.Banks.Movement | MainFlare);
         if ((uint)delay >= 46)
             throw new InvalidDataException($"Charge-flare cadence byte ${address:X6} is outside the compiled definitions.");
@@ -48,7 +67,4 @@ internal static class ChargeFlareAnimationDefinitions
         return true;
     }
 
-    /// <summary>Reads two compiled cadence bytes as a word, wrapping the second byte within bank $90.</summary>
-    internal static ushort ReadWord(int address) =>
-        SnesLittleEndian.Word(ReadByte(address), ReadByte(SnesAddressMath.AddWithinBank(address, 1)));
 }

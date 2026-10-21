@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Hardware.SnesAddressMath;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Programs;
@@ -557,15 +556,13 @@ public sealed class SamusBombProjectileSystem
         // $93:80A6 reads the HIGH byte of type, masks its low nibble, and indexes the
         // non-beam pointer table. Type $0500 therefore selects word five -> $8675.
         int projectileTypeIndex = SamusProjectileFamilies.IndexOf(slot.PackedType.Raw);
-        ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            AddWithinBank(SamusProjectileRomData.NonBeam.DataPointers, projectileTypeIndex * 2));
-        int dataAddress = SamusProjectileRomData.Banks.Projectile | dataPointer;
+        SamusProjectileHeader header = SamusProjectileSelectionDefinitions.Select(SamusProjectileSelectorTable.NonBeam, projectileTypeIndex);
 
-        slot.Damage = SamusProjectileDamageDefinitions.Read(dataAddress);
+        slot.Damage = SamusProjectileDamageDefinitions.Read(header);
         if (unchecked((short)slot.Damage) < 0)
-            throw new InvalidDataException($"Bomb data at $93:{dataPointer:X4} has crash-marker damage ${slot.Damage:X4}.");
+            throw new InvalidDataException($"Bomb header {header} has crash-marker damage ${slot.Damage:X4}.");
 
-        slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileHeaderDefinitions.Program(dataPointer, 0));
+        slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileHeaderDefinitions.Program(header, 0));
         slot.InstructionTimer = WrappingCountdown.Start(1);
     }
 

@@ -66,8 +66,6 @@ public static class SamusGrappleRomData
         public const int RunningFlareX = 0x9bc19a;
         /// <summary>Running flare Y origins.</summary>
         public const int RunningFlareY = 0x9bc1ae;
-        /// <summary>Main flare animation delays in bank $90.</summary>
-        public const int MainFlareAnimationDelays = 0x90c487;
         /// <summary>Number of direction records represented by every firing table.</summary>
         public const int DirectionCount = 10;
     }

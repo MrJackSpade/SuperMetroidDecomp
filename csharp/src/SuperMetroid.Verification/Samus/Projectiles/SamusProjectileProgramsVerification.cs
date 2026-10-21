@@ -96,12 +96,7 @@ internal static class SamusProjectileProgramsVerification
 
     /// <summary>Every projectile header: the 24 beam headers, then the named ones.</summary>
     internal static IEnumerable<ushort> Headers() =>
-        Enumerable.Range(0, SamusProjectileDamageHeaderCount)
-            .Select(row => (ushort)(SamusProjectileDamageDefinitions.BeamHeaderStart + row * SamusProjectileDamageDefinitions.BeamHeaderStride))
-            .Concat(Enum.GetValues<SamusProjectileHeader>().Select(header => (ushort)(int)header));
-
-    /// <summary>The beam headers: twelve uncharged and twelve charged rows.</summary>
-    private const int SamusProjectileDamageHeaderCount = 24;
+        Enum.GetValues<SamusProjectileHeader>().Select(SamusProjectileHeaderNative.Address);
 
     /// <summary>
     /// The word the selection tables hold at <paramref name="address"/>: a header's list field is the entry of the typed
@@ -118,13 +113,16 @@ internal static class SamusProjectileProgramsVerification
     /// <summary>The header and list field <paramref name="address"/> lies in, or null outside the headers' list fields.</summary>
     private static HeaderListFieldResult? HeaderListField(int address)
     {
-        if (address is < SamusProjectileDamageDefinitions.BeamHeaderStart or >= (int)SamusProjectileHeader.Projectile27 + 2 * sizeof(ushort))
+        int link = 0x930000 | SamusProjectileHeaderNative.Address(SamusProjectileHeader.SuperMissileLink);
+        int projectile25 = 0x930000 | SamusProjectileHeaderNative.Address(SamusProjectileHeader.Projectile25);
+        int projectile27 = 0x930000 | SamusProjectileHeaderNative.Address(SamusProjectileHeader.Projectile27);
+        if (address < SamusProjectileDamageDefinitions.BeamHeaderStart || address >= projectile27 + 2 * sizeof(ushort))
             return null;
-        (int start, int stride) = address < (int)SamusProjectileHeader.SuperMissileLink
+        (int start, int stride) = address < link
             ? new HeaderListFieldCase(SamusProjectileDamageDefinitions.BeamHeaderStart, SamusProjectileDamageDefinitions.BeamHeaderStride)
-            : address < (int)SamusProjectileHeader.Projectile25 ? new HeaderListFieldCase((int)SamusProjectileHeader.SuperMissileLink, 2 * sizeof(ushort))
-            : address < (int)SamusProjectileHeader.Projectile27 ? new HeaderListFieldCase((int)SamusProjectileHeader.Projectile25, SamusProjectileDamageDefinitions.BeamHeaderStride)
-            : new HeaderListFieldCase((int)SamusProjectileHeader.Projectile27, 2 * sizeof(ushort));
+            : address < projectile25 ? new HeaderListFieldCase(link, 2 * sizeof(ushort))
+            : address < projectile27 ? new HeaderListFieldCase(projectile25, SamusProjectileDamageDefinitions.BeamHeaderStride)
+            : new HeaderListFieldCase(projectile27, 2 * sizeof(ushort));
         int header = start + (address - start) / stride * stride;
         int offset = address - header;
         return offset == 0 ? null : new HeaderListFieldResult((ushort)header, offset / sizeof(ushort) - 1);

@@ -87,32 +87,19 @@ internal sealed class ProjectileAnimation
             return;
 
         ushort frame = unchecked((ushort)(_charge.FlareFrame(component) + 1));
-        ushort delayList = ChargeFlareAnimationDefinitions.ReadWord(
-            SamusProjectileRomData.Beams.ChargeFlareDelayListPointers + component * 2);
-        byte delay = ChargeFlareAnimationDefinitions.ReadByte(
-            (int)new SnesAddress(
-                SamusProjectileRomData.Banks.MovementNumber,
-                unchecked((ushort)(delayList + frame))));
+        byte delay = ChargeFlareAnimationDefinitions.ReadDelay(component, frame);
         if (ChargeFlareAnimationDefinitions.TryDecodeCommand(delay, out ChargeFlareDelayCommand command))
         {
             switch (command)
             {
                 case ChargeFlareDelayCommand.Restart:
                     frame = 0;
-                    delay = ChargeFlareAnimationDefinitions.ReadByte((int)new SnesAddress(
-                        SamusProjectileRomData.Banks.MovementNumber,
-                        delayList));
+                    delay = ChargeFlareAnimationDefinitions.ReadDelay(component, 0);
                     break;
                 case ChargeFlareDelayCommand.Rewind:
-                    byte rewind = ChargeFlareAnimationDefinitions.ReadByte(
-                        (int)new SnesAddress(
-                            SamusProjectileRomData.Banks.MovementNumber,
-                            unchecked((ushort)(delayList + frame + 1))));
+                    byte rewind = ChargeFlareAnimationDefinitions.ReadDelay(component, frame + 1);
                     frame = unchecked((ushort)(frame - rewind));
-                    delay = ChargeFlareAnimationDefinitions.ReadByte(
-                        (int)new SnesAddress(
-                            SamusProjectileRomData.Banks.MovementNumber,
-                            unchecked((ushort)(delayList + frame))));
+                    delay = ChargeFlareAnimationDefinitions.ReadDelay(component, frame);
                     break;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(ChargeFlareDelayCommand)} {(int)command}.");

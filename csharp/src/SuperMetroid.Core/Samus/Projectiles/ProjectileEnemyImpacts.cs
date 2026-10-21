@@ -92,19 +92,19 @@ internal sealed class ProjectileEnemyImpacts
             BeamFiring.InitializePowerBeamVelocity(samus.ProjectileInheritance, slot);
         }
 
-        int dataPointerTable;
-        int dataPointerIndex;
+        SamusProjectileSelectorTable selectorTable;
+        int selectorIndex;
         if (family == SamusProjectileFamily.Beam)
         {
-            dataPointerTable = slot.PackedType.IsChargedBeam
-                ? SamusProjectileRomData.Beams.ChargedDataPointers
-                : SamusProjectileRomData.Beams.UnchargedDataPointers;
-            dataPointerIndex = slot.PackedType.BeamCombination.TableIndex;
+            selectorTable = slot.PackedType.IsChargedBeam
+                ? SamusProjectileSelectorTable.ChargedBeam
+                : SamusProjectileSelectorTable.UnchargedBeam;
+            selectorIndex = slot.PackedType.BeamCombination.TableIndex;
         }
         else if (family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
         {
-            dataPointerTable = SamusProjectileRomData.NonBeam.DataPointers;
-            dataPointerIndex = SamusProjectileFamilies.IndexOf(slot.PackedType.Raw);
+            selectorTable = SamusProjectileSelectorTable.NonBeam;
+            selectorIndex = SamusProjectileFamilies.IndexOf(slot.PackedType.Raw);
         }
         else
         {
@@ -115,10 +115,9 @@ internal sealed class ProjectileEnemyImpacts
                 $"Projectile family ${slot.PackedType.FamilyValue:X3} is not reflectable.");
         }
 
-        ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(dataPointerTable + dataPointerIndex * 2);
-        int data = SamusProjectileRomData.Banks.Projectile | dataPointer;
-        slot.Damage = SamusProjectileDamageDefinitions.Read(data);
-        SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program(dataPointer, slot.PackedDirection.DirectionIndex);
+        SamusProjectileHeader header = SamusProjectileSelectionDefinitions.Select(selectorTable, selectorIndex);
+        slot.Damage = SamusProjectileDamageDefinitions.Read(header);
+        SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program(header, slot.PackedDirection.DirectionIndex);
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.InstructionTimer = WrappingCountdown.Start(1);

@@ -6,6 +6,8 @@ internal static class SamusGrappleRomDataFiringConstants
 {
     /// <summary>Initial angles for ten shot directions.</summary>
     public const int Angles = 0x9bc104;
+    /// <summary>Main flare animation delays in bank $90.</summary>
+    public const int MainFlareAnimationDelays = 0x90c487;
     /// <summary>Non-running grapple-point X origins.</summary>
     public const int DefaultOriginX = 0x9bc122;
     /// <summary>Non-running grapple-point Y origins.</summary>
@@ -26,6 +28,8 @@ internal static class SamusGrappleRomDataFiringConstants
     /// <summary>Provides grapple firing angles, origins, flare offsets, and velocities for shot comparisons.</summary>
     extension(SamusGrappleRomData.Firing)
     {
+        /// <inheritdoc cref="SamusGrappleRomDataFiringConstants.MainFlareAnimationDelays"/>
+        internal static int MainFlareAnimationDelays => SamusGrappleRomDataFiringConstants.MainFlareAnimationDelays;
         /// <inheritdoc cref="SamusGrappleRomDataFiringConstants.Angles"/>
         internal static int Angles => SamusGrappleRomDataFiringConstants.Angles;
         /// <inheritdoc cref="SamusGrappleRomDataFiringConstants.DefaultOriginX"/>

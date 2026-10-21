@@ -364,10 +364,9 @@ internal sealed class ProjectileMotion
         // the owner's coordinates. At ignition both positions are equivalent; retaining the
         // call matters for moving/transition poses whose cartridge origin tables can change.
         BeamFiring.InitializePosition(samus, link);
-        ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            SamusProjectileRomData.NonBeam.SuperMissileLinkDataPointers + 4);
-        link.Damage = SamusProjectileDamageDefinitions.Read(SamusProjectileRomData.Banks.Projectile | dataPointer);
-        link.Cursor = SamusProjectilePrograms.Start(SamusProjectileHeaderDefinitions.Program(dataPointer, 0));
+        SamusProjectileHeader header = SamusProjectileSelectionDefinitions.Select(SamusProjectileSelectorTable.SuperMissileLink, 2);
+        link.Damage = SamusProjectileDamageDefinitions.Read(header);
+        link.Cursor = SamusProjectilePrograms.Start(SamusProjectileHeaderDefinitions.Program(header, 0));
         link.InstructionTimer = WrappingCountdown.Start(1);
         link.PreInstruction = SamusProjectilePreInstruction.SuperMissileLink;
 

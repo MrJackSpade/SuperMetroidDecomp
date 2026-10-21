@@ -19,10 +19,6 @@ public static class SamusComboRomData
     public const ushort WavePulseSound = 0x28;
     /// <summary>CostOfSBAsInPowerBombs at $90:CC21, twelve word costs by beam index.</summary>
     public const int Costs = 0x90cc21;
-    /// <summary>Special projectile data pointer table at $93:8413.</summary>
-    public const int DataPointers = 0x938413;
-    /// <summary>Shinespark echo / Spazer trail data pointer table at $93:8403.</summary>
-    public const int EchoDataPointers = 0x938403;
     /// <summary>FireSBA's charged, non-interacting projectile type tag.</summary>
     public const ushort ProjectileTag = 0x8010;
     /// <summary>FireSpazerSBA's auxiliary trail projectile type.</summary>

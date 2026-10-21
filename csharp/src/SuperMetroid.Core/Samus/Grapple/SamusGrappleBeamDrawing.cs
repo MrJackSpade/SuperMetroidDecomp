@@ -73,22 +73,16 @@ public static class SamusGrappleBeamDrawing
         if (grapple.FlareAnimationTimer.IsNegative)
         {
             grapple.FlareAnimationFrame = StepFlareFrame(grapple.FlareAnimationFrame, 1);
-            byte delay = ChargeFlareAnimationDefinitions.ReadByte(
-                SamusGrappleRomData.Firing.MainFlareAnimationDelays +
-                    grapple.FlareAnimationFrame);
+            byte delay = ChargeFlareAnimationDefinitions.ReadMainFlareDelay(grapple.FlareAnimationFrame);
             if (ChargeFlareAnimationDefinitions.TryDecodeCommand(delay, out ChargeFlareDelayCommand command) &&
                 command == ChargeFlareDelayCommand.Rewind)
             {
                 // `$FE,n` is the compact loop command in the shared delay bytecode. The
                 // subtraction applies to the already-incremented frame word and wraps like
                 // 16-bit ADC/SBC; malformed ROM data remains visible instead of clamped.
-                byte rewind = ChargeFlareAnimationDefinitions.ReadByte(
-                    SamusGrappleRomData.Firing.MainFlareAnimationDelays +
-                    StepFlareFrame(grapple.FlareAnimationFrame, 1));
+                byte rewind = ChargeFlareAnimationDefinitions.ReadMainFlareDelay(StepFlareFrame(grapple.FlareAnimationFrame, 1));
                 grapple.FlareAnimationFrame = StepFlareFrame(grapple.FlareAnimationFrame, -rewind);
-                delay = ChargeFlareAnimationDefinitions.ReadByte(
-                    SamusGrappleRomData.Firing.MainFlareAnimationDelays +
-                        grapple.FlareAnimationFrame);
+                delay = ChargeFlareAnimationDefinitions.ReadMainFlareDelay(grapple.FlareAnimationFrame);
             }
 
             grapple.FlareAnimationTimer = WrappingCountdown.FromRaw(delay);

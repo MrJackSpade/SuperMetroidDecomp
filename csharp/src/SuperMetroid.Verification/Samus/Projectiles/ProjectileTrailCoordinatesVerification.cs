@@ -153,10 +153,8 @@ internal static class ProjectileTrailCoordinatesVerification
     {
         int family = SnesLittleEndian.HighByte(type);
         int index = family == 0 ? type & 63 : family + 31;
-        ushort left = ProjectileTrailDefinitions.ReadSelector(SamusProjectileRomData.Trails.LeftInstructionPointers + index * 2, InstalledFixtures.SamusOverreads);
-        ushort right = ProjectileTrailDefinitions.ReadSelector(SamusProjectileRomData.Trails.RightInstructionPointers + index * 2, InstalledFixtures.SamusOverreads);
-        return ProjectileTrailProgramDefinitions.TryRead(SamusProjectileRomData.Banks.Movement | left, out _) &&
-            ProjectileTrailProgramDefinitions.TryRead(SamusProjectileRomData.Banks.Movement | right, out _);
+        return ProjectileTrailDefinitions.Select(index, HorizontalDirection.Left) is not null &&
+            ProjectileTrailDefinitions.Select(index, HorizontalDirection.Right) is not null;
     }
 
     /// <summary>Every projectile type $90:BE17 can reflect, with its bank-$93 data table and index.</summary>

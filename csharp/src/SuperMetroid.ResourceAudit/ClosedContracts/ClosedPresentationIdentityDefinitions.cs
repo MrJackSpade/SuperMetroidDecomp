@@ -55,11 +55,7 @@ internal static class ClosedPresentationIdentityDefinitions
         ("IntroCaretSpritePresentation", "Draw", "pose.Index") => IntroCaretSpriteDefinitions.Frames.Select(frame => frame.Pose.Index).ToArray(),
         ("IntroMotherBrainSpritePresentation", "Draw", "pose.Index") => IntroMotherBrainSpriteDefinitions.Frames.Select(frame => frame.Pose.Index).ToArray(),
         ("IntroMotherBrainExplosionSpritePresentation", "Draw", "pose.Index") => IntroMotherBrainExplosionSpriteDefinitions.Frames.Select(frame => frame.Pose.Index).ToArray(),
-        ("ProjectileTrailCatalog", "Resolve", "frame") => ProjectileTrailVisualDefinitions.Frames.Select(frame => (int)frame).ToArray(),
-        ("ProjectileTrailCatalog", "ResolveCurrent", "nextInstruction") => ProjectileTrailVisualDefinitions.Frames
-            .Select(frame => (int)unchecked((ushort)(frame + 4))).Concat(new[] { (int)ProjectileTrailDefinitions.Empty,
-                ProjectileTrailDefinitions.LeftIce, ProjectileTrailDefinitions.RightIce, ProjectileTrailDefinitions.Wave,
-                ProjectileTrailDefinitions.Missile }).Distinct().ToArray(),
+        ("ProjectileTrailCatalog", "Resolve", "frame") => [.. ProjectileTrailVisualDefinitions.Frames.Select(frame => (int)frame)],
         ("RoomFxLayer3TilemapCatalog", "Resolve", "type") => RoomFxLayer3TilemapFormat.Types.Select(type => (int)type).ToArray(),
         ("RoomFxPaletteBlendCatalog", "Apply", "selection") => RoomFxPaletteBlendDefinitions.Ids.Select(id => (int)id).Append(0).ToArray(),
         ("RoomCharacterAtlasCatalog", "Get", "sourceAddress") => TilesetSources(definition => definition.CharacterAddress),

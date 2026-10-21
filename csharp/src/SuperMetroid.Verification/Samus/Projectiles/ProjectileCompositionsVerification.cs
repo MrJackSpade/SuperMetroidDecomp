@@ -386,7 +386,7 @@ internal static class ProjectileCompositionsVerification
         string trailStock = Path.Combine(installation.ProjectileDirectory, ProjectileTrailVisualDefinitions.FileName);
         string trailOverride = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailVisualDefinitions.FileName);
         var trailDocument = RequiredJson.Parse(File.ReadAllText(trailStock));
-        trailDocument.Required("frames").Required(ProjectileTrailVisualDefinitions.Name(ProjectileTrailVisualDefinitions.Frames[0]))["flipX"] = true;
+        trailDocument.Required("frames").Required(ProjectileTrailVisualDefinitions.FrameNames[0])["flipX"] = true;
         File.WriteAllText(trailOverride, trailDocument.ToJsonString());
         var trailEdited = installation.LoadProjectiles();
         AssertTrue(trailEdited.SelectedSha256 != paletteEdited.SelectedSha256, "Trail-only edit changes content identity");

@@ -17,8 +17,6 @@ public sealed class SamusOverreadCatalog
     private readonly byte[] _hudPrecedingPostureBytes;
     /// <summary>The bytes after the HUD's posture-transition flags.</summary>
     private readonly byte[] _hudFollowingPostureBytes;
-    /// <summary>The code words the right trail selector reads past its entries, as little-endian words.</summary>
-    private readonly byte[] _trailSelectorAdjacentCode;
     /// <summary>The bytes past the trail coordinate data that a trail can reach.</summary>
     private readonly byte[] _trailCoordinateAdjacentCode;
 
@@ -33,8 +31,6 @@ public sealed class SamusOverreadCatalog
             nameof(document.HudPrecedingPostureBytes));
         _hudFollowingPostureBytes = Decode(document.HudFollowingPostureBytes, SamusOverreadDefinitions.HudFollowingPostureByteCount,
             nameof(document.HudFollowingPostureBytes));
-        _trailSelectorAdjacentCode = Decode(document.TrailSelectorAdjacentCode,
-            SamusOverreadDefinitions.TrailSelectorAdjacentWordCount * sizeof(ushort), nameof(document.TrailSelectorAdjacentCode));
         _trailCoordinateAdjacentCode = Decode(document.TrailCoordinateAdjacentCode,
             SamusOverreadDefinitions.TrailCoordinateAdjacentByteCount, nameof(document.TrailCoordinateAdjacentCode));
     }
@@ -50,9 +46,6 @@ public sealed class SamusOverreadCatalog
 
     /// <summary>The byte the HUD's posture-transition admission reads for a pose <paramref name="index"/> poses after the real flags end.</summary>
     internal byte HudFollowingPostureByte(int index) => Read(_hudFollowingPostureBytes, index, "HUD following posture byte");
-
-    /// <summary>Code word <paramref name="index"/> the right trail selector reads past its entries.</summary>
-    internal ushort TrailSelectorAdjacentWord(int index) => ReadWord(_trailSelectorAdjacentCode, index, "trail selector adjacent word");
 
     /// <summary>The byte <paramref name="offset"/> bytes past the trail coordinate data.</summary>
     internal byte TrailCoordinateAdjacentByte(int offset) => Read(_trailCoordinateAdjacentCode, offset, "trail coordinate adjacent byte");

@@ -16,10 +16,11 @@ public static class ProjectileTrailExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         var frames = new Dictionary<string, ProjectileTrailAppearance>();
-        foreach (ushort frame in ProjectileTrailVisualDefinitions.Frames)
+        for (int index = 0; index < ProjectileTrailVisualDefinitions.FrameCount; index++)
         {
-            var a = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Banks.Movement | (frame + 2)));
-            frames.Add(ProjectileTrailVisualDefinitions.Name(frame), new()
+            var a = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                SamusProjectileRomData.Banks.Movement | (ProjectileTrailSources.FrameAddress(ProjectileTrailVisualDefinitions.Frames[index]) + 2)));
+            frames.Add(ProjectileTrailVisualDefinitions.FrameNames[index], new()
             {
                 TileColumn = a.TileNumber % ProjectileSpriteDefinitions.TileColumns,
                 TileRow = a.TileNumber / ProjectileSpriteDefinitions.TileColumns,

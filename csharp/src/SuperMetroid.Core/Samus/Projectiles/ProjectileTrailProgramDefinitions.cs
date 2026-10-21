@@ -1,67 +1,111 @@
-using SuperMetroid.Core.Samus.Artwork;
-
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Fixed trail timing/commands in bank $90; appearance words remain external presentation.</summary>
-public static class ProjectileTrailProgramDefinitions
+/// <summary>The five bank-$90 trail programs as their steps: timed poses, one-pixel moves and the end.</summary>
+internal static class ProjectileTrailProgramDefinitions
 {
-    /// <summary>Bit 15 of a trail list word: set for an instruction, clear for a frame duration.</summary>
-    private const ushort InstructionBit = 1 << 15;
-
-    /// <summary>Whether a trail list word is an instruction rather than a frame duration, as the interpreter's <c>BPL</c> decides.</summary>
-    public static bool IsInstruction(ushort instructionOrTimer) => (instructionOrTimer & InstructionBit) != 0;
-
-    /// <summary>Each ice list contains seventeen poses and ten downward steps before its terminator.</summary>
-    public const int IceTerminatorOffset = 17 * 4 + 10 * 2;
-    /// <summary>Wave and missile each contain four four-byte timed records.</summary>
-    public const int ShortTerminatorOffset = 4 * 4;
-
-    /// <summary>Reads one compiled bank-$90 projectile-trail mechanics word without exposing presentation operands or mutable low-half aliases.</summary>
-    /// <param name="address">Full 24-bit bus identity of a terminator, ice movement command, or timed-frame delay word.</param>
-    /// <param name="word">Zero for terminators, a compiled movement command for ice fall entries, or the one-/four-tick delay for a visual frame; zero on failure.</param>
-    /// <returns>True only for a compiled mechanics address in the native movement bank.</returns>
-    public static bool TryRead(int address, out ushort word)
-    {
-        word = 0;
-        if ((address & ~0xffff) != SamusProjectileRomData.Banks.Movement) return false;
-        ushort pointer = (ushort)address;
-        if (pointer is ProjectileTrailDefinitions.Empty or
-            (ProjectileTrailDefinitions.LeftIce + IceTerminatorOffset) or
-            (ProjectileTrailDefinitions.RightIce + IceTerminatorOffset) or
-            (ProjectileTrailDefinitions.Wave + ShortTerminatorOffset) or
-            (ProjectileTrailDefinitions.Missile + ShortTerminatorOffset)) return true;
-        if (IsIceFallCommand(pointer - ProjectileTrailDefinitions.LeftIce))
-        { word = (ushort)ProjectileTrailInstruction.MoveLeftDown; return true; }
-        if (IsIceFallCommand(pointer - ProjectileTrailDefinitions.RightIce))
-        { word = (ushort)ProjectileTrailInstruction.MoveRightDown; return true; }
-        foreach (ushort frame in ProjectileTrailVisualDefinitions.Frames)
-        {
-            if (pointer != frame) continue;
-            bool longHold = pointer is (ProjectileTrailDefinitions.LeftIce + IceTerminatorOffset - 4) or
-                (ProjectileTrailDefinitions.RightIce + IceTerminatorOffset - 4) or
-                >= ProjectileTrailDefinitions.Wave;
-            word = (ushort)(longHold ? 4 : 1);
-            return true;
-        }
-        return false;
-    }
+    /// <summary>$90:B4C9 ends a trail without drawing another frame.</summary>
+    private static readonly ProjectileTrailStep[] Empty =
+    [
+        new ProjectileTrailStep.End(),
+    ];
 
     /// <summary>
-    /// $90:B4CB/B52D: the ice sprite first falls after six poses, then after two more,
-    /// then after every remaining one-tick pose. A command occupies two bytes and a pose four.
+    /// $90:B4CB: the left ice sparkle's seventeen poses. It first falls a pixel after six poses, then after two more, then
+    /// after every remaining pose; the last pose holds for four updates.
     /// </summary>
-    private static bool IsIceFallCommand(int offset) => offset == 6 * 4 ||
-        (offset >= 8 * 4 + 2 && offset < IceTerminatorOffset - 4 && (offset - (8 * 4 + 2)) % 6 == 0);
-    /// <summary>
-    /// Reads compiled high-bank mechanics. Presentation words, unrelated cartridge bytes and the bank's low half are
-    /// not valid program entries.
-    /// </summary>
-    public static ushort Read(int address)
-    {
-        if (TryRead(address, out ushort word))
-            return word;
+    private static readonly ProjectileTrailStep[] LeftIce =
+    [
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.LeftIce0),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.LeftIce1),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.LeftIce2),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.LeftIce3),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.LeftIce4),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.LeftIce5),
+        new ProjectileTrailStep.Move(ProjectileTrailInstruction.MoveLeftDown),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.LeftIce6),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.LeftIce7),
+        new ProjectileTrailStep.Move(ProjectileTrailInstruction.MoveLeftDown),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.LeftIce8),
+        new ProjectileTrailStep.Move(ProjectileTrailInstruction.MoveLeftDown),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.LeftIce9),
+        new ProjectileTrailStep.Move(ProjectileTrailInstruction.MoveLeftDown),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.LeftIce10),
+        new ProjectileTrailStep.Move(ProjectileTrailInstruction.MoveLeftDown),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.LeftIce11),
+        new ProjectileTrailStep.Move(ProjectileTrailInstruction.MoveLeftDown),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.LeftIce12),
+        new ProjectileTrailStep.Move(ProjectileTrailInstruction.MoveLeftDown),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.LeftIce13),
+        new ProjectileTrailStep.Move(ProjectileTrailInstruction.MoveLeftDown),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.LeftIce14),
+        new ProjectileTrailStep.Move(ProjectileTrailInstruction.MoveLeftDown),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.LeftIce15),
+        new ProjectileTrailStep.Move(ProjectileTrailInstruction.MoveLeftDown),
+        new ProjectileTrailStep.Pose(4, ProjectileTrailFrame.LeftIce16),
+        new ProjectileTrailStep.End(),
+    ];
 
-        throw new InvalidDataException(
-            $"Projectile trail program word {SnesAddress.FromBusAddress(address)} is outside compiled mechanics data.");
-    }
+    /// <summary>$90:B52D: the right ice sparkle, the left sparkle's poses falling on the right stream.</summary>
+    private static readonly ProjectileTrailStep[] RightIce =
+    [
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.RightIce0),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.RightIce1),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.RightIce2),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.RightIce3),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.RightIce4),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.RightIce5),
+        new ProjectileTrailStep.Move(ProjectileTrailInstruction.MoveRightDown),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.RightIce6),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.RightIce7),
+        new ProjectileTrailStep.Move(ProjectileTrailInstruction.MoveRightDown),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.RightIce8),
+        new ProjectileTrailStep.Move(ProjectileTrailInstruction.MoveRightDown),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.RightIce9),
+        new ProjectileTrailStep.Move(ProjectileTrailInstruction.MoveRightDown),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.RightIce10),
+        new ProjectileTrailStep.Move(ProjectileTrailInstruction.MoveRightDown),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.RightIce11),
+        new ProjectileTrailStep.Move(ProjectileTrailInstruction.MoveRightDown),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.RightIce12),
+        new ProjectileTrailStep.Move(ProjectileTrailInstruction.MoveRightDown),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.RightIce13),
+        new ProjectileTrailStep.Move(ProjectileTrailInstruction.MoveRightDown),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.RightIce14),
+        new ProjectileTrailStep.Move(ProjectileTrailInstruction.MoveRightDown),
+        new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.RightIce15),
+        new ProjectileTrailStep.Move(ProjectileTrailInstruction.MoveRightDown),
+        new ProjectileTrailStep.Pose(4, ProjectileTrailFrame.RightIce16),
+        new ProjectileTrailStep.End(),
+    ];
+
+    /// <summary>$90:B58F: the wave trail's four poses, shared by both sides.</summary>
+    private static readonly ProjectileTrailStep[] Wave =
+    [
+        new ProjectileTrailStep.Pose(4, ProjectileTrailFrame.Wave0),
+        new ProjectileTrailStep.Pose(4, ProjectileTrailFrame.Wave1),
+        new ProjectileTrailStep.Pose(4, ProjectileTrailFrame.Wave2),
+        new ProjectileTrailStep.Pose(4, ProjectileTrailFrame.Wave3),
+        new ProjectileTrailStep.End(),
+    ];
+
+    /// <summary>$90:B5A1: the missile trail's four poses, also drawn by Super Missiles.</summary>
+    private static readonly ProjectileTrailStep[] Missile =
+    [
+        new ProjectileTrailStep.Pose(4, ProjectileTrailFrame.Missile0),
+        new ProjectileTrailStep.Pose(4, ProjectileTrailFrame.Missile1),
+        new ProjectileTrailStep.Pose(4, ProjectileTrailFrame.Missile2),
+        new ProjectileTrailStep.Pose(4, ProjectileTrailFrame.Missile3),
+        new ProjectileTrailStep.End(),
+    ];
+
+    /// <summary>Each program's steps.</summary>
+    internal static readonly IReadOnlyDictionary<ProjectileTrailProgram, ProjectileTrailStep[]> Programs =
+        new Dictionary<ProjectileTrailProgram, ProjectileTrailStep[]>
+    {
+        [ProjectileTrailProgram.Empty] = Empty,
+        [ProjectileTrailProgram.LeftIce] = LeftIce,
+        [ProjectileTrailProgram.RightIce] = RightIce,
+        [ProjectileTrailProgram.Wave] = Wave,
+        [ProjectileTrailProgram.Missile] = Missile,
+    };
 }

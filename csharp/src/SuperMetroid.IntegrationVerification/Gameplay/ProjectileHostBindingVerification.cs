@@ -66,7 +66,7 @@ internal static class ProjectileHostBindingVerification
         colors.Required("palettes").Required(BeamPaletteDefinitions.Key(0)).Required(0)["red"] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, BeamPaletteDefinitions.FileName), colors.ToJsonString());
         var trails = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ProjectileTrailVisualDefinitions.FileName)));
-        trails.Required("frames").Required(ProjectileTrailVisualDefinitions.Name(ProjectileTrailVisualDefinitions.Frames[0]))["flipX"] = true;
+        trails.Required("frames").Required(ProjectileTrailVisualDefinitions.FrameNames[0])["flipX"] = true;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailVisualDefinitions.FileName), trails.ToJsonString());
         using (var input = File.OpenRead(Path.Combine(installation.ProjectileDirectory, ProjectileTrailAtlasDefinitions.FileName)))
             image = IndexedPng.Read(input, new(ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height));
@@ -149,7 +149,7 @@ internal static class ProjectileHostBindingVerification
             !actual.Tiles.IceAndWave.Span.SequenceEqual(expected.Tiles.IceAndWave.Span) ||
             !actual.Tiles.Missile.Span.SequenceEqual(expected.Tiles.Missile.Span))
             throw new InvalidDataException("Host bound stale or missing trail PNGs.");
-        foreach (ushort frame in ProjectileTrailVisualDefinitions.Frames)
+        foreach (var frame in ProjectileTrailVisualDefinitions.Frames)
             if (actual.Resolve(frame) != expected.Resolve(frame))
                 throw new InvalidDataException("Host bound stale trail appearance.");
     }

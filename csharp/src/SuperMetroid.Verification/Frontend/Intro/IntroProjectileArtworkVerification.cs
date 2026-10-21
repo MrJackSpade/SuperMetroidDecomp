@@ -60,11 +60,11 @@ internal static class IntroProjectileArtworkVerification
             ?? throw new InvalidOperationException("The installation has no trail characters.");
         var trails = ProjectileTrailCatalog.Load(new MemoryStream(json), installedTrailTiles);
         var document = RequiredJson.Parse(json);
-        ushort frame = ProjectileTrailVisualDefinitions.Frames[0];
-        document.Required("frames").Required(ProjectileTrailVisualDefinitions.Name(frame))["flipX"] = true;
+        ProjectileTrailFrame frame = ProjectileTrailVisualDefinitions.Frames[0];
+        document.Required("frames").Required(ProjectileTrailNative.Name(frame))["flipX"] = true;
         var editedTrails = ProjectileTrailCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())), installedTrailTiles);
         var side = projectiles.TrailSlots[0].Left;
-        side.InstructionPointer = (ushort)(frame + 4); side.InstructionTimer = WrappingCountdown.Start(100);
+        side.InstructionPointer = (ushort)(ProjectileTrailNative.Address(frame) + 4); side.InstructionTimer = WrappingCountdown.Start(100);
         side.Position = side.Position.WithX(100).WithY(100); side.TileNumberAttributes = trails.Resolve(frame);
         byte[] nativeTrail = Draw(intro);
         game.BindArtwork(game.Artwork with

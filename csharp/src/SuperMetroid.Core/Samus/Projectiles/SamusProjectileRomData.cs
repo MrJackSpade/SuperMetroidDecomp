@@ -130,10 +130,6 @@ public static class SamusProjectileRomData
     /// <summary>Beam-trail instructions and direction/frame offset families.</summary>
     public static class Trails
     {
-        /// <summary>Left trail instruction-list pointers for every supported projectile.</summary>
-        public const int LeftInstructionPointers = 0x90b5bb;
-        /// <summary>Right trail instruction-list pointers for every supported projectile.</summary>
-        public const int RightInstructionPointers = 0x90b609;
         /// <summary>Uncharged beam-combination offset-family pointers.</summary>
         public const int UnchargedOffsetFamilies = 0x9ba4b3;
         /// <summary>Charged beam-combination offset-family pointers.</summary>

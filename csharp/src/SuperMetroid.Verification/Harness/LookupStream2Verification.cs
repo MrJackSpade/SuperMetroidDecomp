@@ -1353,10 +1353,10 @@ internal static class LookupStream2Verification
         var stock = ProjectileTrailCatalog.Load(new MemoryStream(json));
         var edits = stock.suppliedAttributes;
         AssertEqual(0, edits.Count, "Stock trail appearance stores no repeated frame attributes");
-        foreach (ushort frame in ProjectileTrailVisualDefinitions.Frames)
+        foreach (ProjectileTrailFrame frame in ProjectileTrailVisualDefinitions.Frames)
         {
-            AssertEqual(ReadVerificationWord(rom, 0x900000 | (frame + 2)), stock.Resolve(frame), "Native trail appearance");
-            string name = ProjectileTrailVisualDefinitions.Name(frame);
+            AssertEqual(ReadVerificationWord(rom, 0x900000 | (ProjectileTrailNative.Address(frame) + 2)), stock.Resolve(frame), "Native trail appearance");
+            string name = ProjectileTrailNative.Name(frame);
             var original = document.Frames[name];
             for (int field = 0; field < 6; field++)
             {
@@ -1371,9 +1371,9 @@ internal static class LookupStream2Verification
                 };
                 var frames = new Dictionary<string, ProjectileTrailAppearance>(document.Frames) { [name] = changed };
                 var catalog = ProjectileTrailCatalog.Load(new MemoryStream(ProjectileTrailCatalog.Write(document with { Frames = frames })));
-                foreach (ushort other in ProjectileTrailVisualDefinitions.Frames)
+                foreach (ProjectileTrailFrame other in ProjectileTrailVisualDefinitions.Frames)
                 {
-                    var appearance = frames[ProjectileTrailVisualDefinitions.Name(other)];
+                    var appearance = frames[ProjectileTrailNative.Name(other)];
                     ushort expected = SnesObjAttributeWord.Create(appearance.TileRow * 16 + appearance.TileColumn,
                         appearance.Palette, appearance.Priority,
                         (appearance.FlipX ? SnesTileFlipFlags.Horizontal : 0) | (appearance.FlipY ? SnesTileFlipFlags.Vertical : 0)).Raw;
@@ -1381,7 +1381,7 @@ internal static class LookupStream2Verification
                 }
             }
         }
-        AssertThrows<InvalidDataException>(() => stock.Resolve(0), "Unknown trail frame rejected");
+        AssertThrows<InvalidDataException>(() => stock.Resolve((ProjectileTrailFrame)ProjectileTrailVisualDefinitions.FrameCount), "Unknown trail frame rejected");
         Suite(nameof(VerifyLookupStream2TrailPrograms), () => VerifyLookupStream2TrailPrograms(rom));
         Console.WriteLine("Trail appearance:42 native words,252 independent field edits and existing real OAM/lifetime/freeze proof pass; ice phase boundaries remain pending.");
     }
@@ -1431,7 +1431,7 @@ internal static class LookupStream2Verification
                 }
             }
         }
-        AssertTrue(encountered.SetEquals(ProjectileTrailVisualDefinitions.Frames.ToArray()), "Independent native stream walk finds exactly the catalog's appearance records");
+        AssertTrue(encountered.SetEquals(ProjectileTrailVisualDefinitions.Frames.Select(ProjectileTrailNative.Address)), "Independent native stream walk finds exactly the catalog's appearance records");
         int programWords = 0;
         for (int address = 0x90b4c8; address <= 0x90b5b3; address++)
         {
@@ -1448,8 +1448,6 @@ internal static class LookupStream2Verification
         }
         AssertEqual(67, programWords, "All 42 durations, 20 movement commands and five terminators are compiled");
         AssertThrows<InvalidDataException>(() => ProjectileTrailProgramDefinitions.Read(0x91b4c9), "Trail program rejects a wrong-bank alias");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = ProjectileTrailVisualDefinitions.Frames[-1], "Calculated trail frame lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = ProjectileTrailVisualDefinitions.Frames[42], "Calculated trail frame upper bound");
         Console.WriteLine("Stream 2 trail programs: 67 native mechanics words,42 visual record addresses, all four actual paired trail lifetimes/freeze states and mutable alias pass.");
         void StepNative(SamusProjectileTrailSlot pair, SamusProjectileTrailSide side, OamBuffer oam, bool frozen)
         {
@@ -1469,8 +1467,8 @@ internal static class LookupStream2Verification
                         break;
                     }
                     cursor += 2;
-                    if (word == (ushort)ProjectileTrailInstruction.MoveLeftDown) pair.Left.Position += new Offset16<RoomPixels>(0, 1);
-                    else if (word == (ushort)ProjectileTrailInstruction.MoveRightDown) pair.Right.Position += new Offset16<RoomPixels>(0, 1);
+                    if (word == ProjectileTrailNative.InstructionAddress(ProjectileTrailInstruction.MoveLeftDown)) pair.Left.Position += new Offset16<RoomPixels>(0, 1);
+                    else if (word == ProjectileTrailNative.InstructionAddress(ProjectileTrailInstruction.MoveRightDown)) pair.Right.Position += new Offset16<RoomPixels>(0, 1);
                     else throw new InvalidDataException($"Unexpected native trail command {word:X4}.");
                 }
             }
@@ -1486,10 +1484,17 @@ internal static class LookupStream2Verification
         int start = SamusProjectileRomData.Trails.LeftInstructionPointers;
         int end = SamusProjectileRomData.Trails.RightInstructionPointers + 64 * sizeof(ushort);
         for (int address = start; address < end; address += sizeof(ushort))
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailDefinitions.ReadSelector(address, InstalledFixtures.SamusOverreads), "Trail selectors retain every reachable aligned native word");
-        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start - 2, InstalledFixtures.SamusOverreads), "Trail selector rejects the preceding word");
-        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start + 1, InstalledFixtures.SamusOverreads), "Trail selector rejects unaligned reads");
-        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(end, InstalledFixtures.SamusOverreads), "Trail selector rejects the following word");
+        {
+            ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+            if (ProjectileTrailDefinitions.ReadSelector(address) is { } selected)
+                AssertEqual(native, selected, "Trail selectors retain every reachable aligned native word");
+            else
+                AssertTrue(!ProjectileTrailProgramDefinitions.TryRead(SamusProjectileRomData.Banks.Movement | native, out _),
+                    "A selector word past the right table names no trail step");
+        }
+        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start - 2), "Trail selector rejects the preceding word");
+        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start + 1), "Trail selector rejects unaligned reads");
+        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(end), "Trail selector rejects the following word");
         for (int selection = 0; selection < 64; selection++)
         {
             var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Overreads = InstalledFixtures.SamusOverreads };

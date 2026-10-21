@@ -767,7 +767,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertProjectileEntry(
         DrawnEntries(frame => chargeProjectiles.DrawTrails(frame, Position16<RoomPixels>.Zero, fixtureTrails, trailArtwork)),
         new SpriteSource(SpriteSourceKind.SamusProjectileTrail, chargedTrailSlot * 2),
-        ObjPartFrames.SmallObject(fixtureTrails.ResolveCurrent(checked((ushort)chargedTrail.Left.InstructionPointer), chargedTrail.Left.TileNumberAttributes), 0),
+        ObjPartFrames.SmallObject(fixtureTrails.ResolveCurrent(chargedTrail.Left.Cursor, chargedTrail.Left.TileNumberAttributes), 0),
         trailArtwork, new Position16<ScreenPixels>(chargedTrail.Left.DisplayedPosition.X, chargedTrail.Left.DisplayedPosition.Y), "Charged trail");
     AssertEqual(6, firstTrailObj.Palette, "charged trail retains packed OBJ palette six");
     AssertTrue(!firstTrailObj.IsLarge, "projectile trail is an explicit small OBJ");
@@ -820,7 +820,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         pair.Right.Position = pair.Right.Position.WithY(120);
         var executingSide = executeOnLeft ? pair.Left : pair.Right;
         ushort commandAddress = unchecked((ushort)(list + 6 * 4));
-        AssertEqual((ushort)command, ProjectileTrailProgramDefinitions.Read(SamusProjectileRomData.Banks.Movement | commandAddress),
+        AssertEqual(ProjectileTrailNative.InstructionAddress(command), ProjectileTrailProgramDefinitions.Read(SamusProjectileRomData.Banks.Movement | commandAddress),
             "the compiled ice list holds its fall command after six poses");
         executingSide.InstructionTimer = WrappingCountdown.Start(1);
         executingSide.InstructionPointer = commandAddress;

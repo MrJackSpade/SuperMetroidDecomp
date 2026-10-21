@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Samus;
 /// <param name="SpeedBoosterGrappleCode">The grapple-handler code the Speed Booster palette overrun reads as colours.</param>
 /// <param name="HudPrecedingPostureBytes">The bytes before the HUD's posture-transition flags.</param>
 /// <param name="HudFollowingPostureBytes">The bytes after the HUD's posture-transition flags.</param>
-/// <param name="TrailSelectorAdjacentCode">The code words the right trail selector reads past its entries.</param>
 /// <param name="TrailCoordinateAdjacentCode">The bytes past the trail coordinate data that a trail can reach.</param>
 public sealed record SamusOverreadDocument(
     int Version,
@@ -14,5 +13,4 @@ public sealed record SamusOverreadDocument(
     string SpeedBoosterGrappleCode,
     string HudPrecedingPostureBytes,
     string HudFollowingPostureBytes,
-    string TrailSelectorAdjacentCode,
     string TrailCoordinateAdjacentCode);

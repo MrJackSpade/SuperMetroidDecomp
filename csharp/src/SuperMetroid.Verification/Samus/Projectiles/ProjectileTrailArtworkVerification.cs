@@ -73,7 +73,7 @@ internal static class ProjectileTrailArtworkVerification
                 }
             }
         }
-        AssertTrue(encountered.SetEquals(ProjectileTrailVisualDefinitions.Frames.ToArray()), "Independent native stream walk finds exactly the catalog's appearance records");
+        AssertTrue(encountered.SetEquals(ProjectileTrailVisualDefinitions.Frames.Select(ProjectileTrailNative.Address)), "Independent native stream walk finds exactly the catalog's appearance records");
         int programWords = 0;
         for (int address = 0x90b4c8; address <= 0x90b5b3; address++)
         {
@@ -91,7 +91,7 @@ internal static class ProjectileTrailArtworkVerification
         AssertEqual(67, programWords, "All 42 durations, 20 movement commands and five terminators are compiled");
         AssertThrows<InvalidDataException>(() => ProjectileTrailProgramDefinitions.Read(0x91b4c9), "Trail program rejects a wrong-bank alias");
         int draws = 0;
-        foreach (ushort frame in ProjectileTrailVisualDefinitions.Frames)
+        foreach (ushort frame in ProjectileTrailVisualDefinitions.Frames.Select(ProjectileTrailNative.Address))
         foreach (ushort coordinate in new ushort[] { 0, 1, 255, 256, 65535 })
         {
             ushort attributes = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Banks.Movement | (frame + 2));
@@ -117,15 +117,15 @@ internal static class ProjectileTrailArtworkVerification
             draws++;
         }
         var document = RequiredJson.Parse(json);
-        ushort first = ProjectileTrailVisualDefinitions.Frames[0];
-        var part = document.Required("frames").Required(ProjectileTrailVisualDefinitions.Name(first));
+        ProjectileTrailFrame first = ProjectileTrailVisualDefinitions.Frames[0];
+        var part = document.Required("frames").Required(ProjectileTrailNative.Name(first));
         part["flipX"] = !part.Required("flipX").GetValue<bool>();
         var edited = Load(document);
         Suite(nameof(VerifyRuntimeTrailBinding), () => VerifyRuntimeTrailBinding(catalog, edited));
         AssertEqual((ushort)(catalog.Resolve(first) ^ 0x4000), edited.Resolve(first), "Trail flip edit changes only horizontal-flip bit");
         var animation = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
         var trail = animation.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
-        trail.InstructionPointer = first; trail.InstructionTimer = WrappingCountdown.Start(1); trail.Position = trail.Position.WithX(100).WithY(100);
+        trail.InstructionPointer = ProjectileTrailNative.Address(first); trail.InstructionTimer = WrappingCountdown.Start(1); trail.Position = trail.Position.WithX(100).WithY(100);
         OamBuffer frozen = SpriteFrameBuffer.DrawnOam(sprites =>
         {
             animation.AdvanceTrails(true, edited);
@@ -145,13 +145,13 @@ internal static class ProjectileTrailArtworkVerification
         });
         AssertTrue(original.GetEntry(0).FlipX != changed.GetEntry(0).FlipX, "Edited trail flip reaches production draw");
         AssertEqual(1, trail.InstructionTimer.RawValue, "Rebound art retains current timer");
-        document.Required("frames").Required(ProjectileTrailVisualDefinitions.Name(first))["duration"] = 0;
+        document.Required("frames").Required(ProjectileTrailNative.Name(first))["duration"] = 0;
         AssertThrows<InvalidDataException>(() => Load(document), "Trail art cannot change duration");
         document = JsonNode.Parse(json);
-        (document ?? throw new InvalidOperationException("Verification requires document.")).Required("frames").AsObject().Remove(ProjectileTrailVisualDefinitions.Name(first));
+        (document ?? throw new InvalidOperationException("Verification requires document.")).Required("frames").AsObject().Remove(ProjectileTrailNative.Name(first));
         AssertThrows<InvalidDataException>(() => Load(document), "Missing trail art rejected");
         document = JsonNode.Parse(json);
-        (document ?? throw new InvalidOperationException("Verification requires document.")).Required("frames").Required(ProjectileTrailVisualDefinitions.Name(first))["palette"] = 8;
+        (document ?? throw new InvalidOperationException("Verification requires document.")).Required("frames").Required(ProjectileTrailNative.Name(first))["palette"] = 8;
         AssertThrows<InvalidDataException>(() => Load(document), "Invalid trail palette rejected");
         Console.WriteLine($"Trail artwork: {draws} native OAM comparisons, frozen-start preservation, live edit isolation and strict metadata rejection pass.");
         // Round-trip an edited frame node through the same JSON catalog validation as installed assets.
@@ -209,7 +209,7 @@ internal static class ProjectileTrailArtworkVerification
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.Freeze.GameplayTimeFrozen = true;
         var side = runtime.Projectiles.TrailSlots[0].Left;
-        side.InstructionPointer = (ushort)(ProjectileTrailVisualDefinitions.Frames[0] + 4);
+        side.InstructionPointer = (ushort)(ProjectileTrailNative.Address(ProjectileTrailVisualDefinitions.Frames[0]) + 4);
         side.InstructionTimer = WrappingCountdown.Start(3); side.TileNumberAttributes = stock.Resolve(ProjectileTrailVisualDefinitions.Frames[0]);
         side.Position = side.Position.WithX((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100)).WithY((ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100));
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), random: random);

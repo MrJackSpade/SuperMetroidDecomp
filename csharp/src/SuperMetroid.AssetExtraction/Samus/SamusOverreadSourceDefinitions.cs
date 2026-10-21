@@ -15,9 +15,6 @@ internal static class SamusOverreadSourceDefinitions
     /// <summary>$90:DDB6, the spin, held and X-ray HUD handler code after the HUD's posture-transition flags.</summary>
     internal const int HudFollowingPostureBytes = 0x90ddb6;
 
-    /// <summary>$90:B657, the trail spawner's code past the right trail selector's thirty-nine entries.</summary>
-    internal const int TrailSelectorAdjacentCode = 0x90b657;
-
     /// <summary>$9B:B3A7, the first byte past the trail coordinate data that a trail can reach.</summary>
     internal const int TrailCoordinateAdjacentCode = 0x9bb3a7;
 }

@@ -2,58 +2,13 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Compiled $90:B5BB/B609 trail-list selection, including every reachable adjacent-code observation.</summary>
+/// <summary>The trail programs $90:B5BB/B609 select for each side, including the native selector overlap.</summary>
 public static class ProjectileTrailDefinitions
 {
-    /// <summary>$90:B4C9, InstList_BeamTrail_Empty: immediate trail termination.</summary>
-    public const ushort Empty = 0xb4c9;
-    /// <summary>$90:B4CB, InstList_LeftBeamTrail_IceBeams_ChargedPowerBeam.</summary>
-    public const ushort LeftIce = 0xb4cb;
-    /// <summary>$90:B52D, InstList_RightBeamTrail_SomeIceBeams.</summary>
-    public const ushort RightIce = 0xb52d;
-    /// <summary>$90:B58F, InstList_BeamTrail_WaveBeam, shared by both sides.</summary>
-    public const ushort Wave = 0xb58f;
-    /// <summary>$90:B5A1, InstList_BeamTrail_SuperMissile, also used by ordinary missiles.</summary>
-    public const ushort Missile = 0xb5a1;
+    /// <summary>The thirty-nine selections each side's table holds.</summary>
+    private const int TableSelections = 39;
 
-    /// <summary>The five trail instruction lists, in address order.</summary>
-    private enum TrailList
-    {
-        /// <summary>$90:B4C9 ends a trail without drawing another frame.</summary>
-        Empty,
-        /// <summary>$90:B4CB draws the left ice or charged-power beam trail.</summary>
-        LeftIce,
-        /// <summary>$90:B52D draws the right-side ice sparkle trail.</summary>
-        RightIce,
-        /// <summary>$90:B58F supplies the wave-beam trail for either side.</summary>
-        Wave,
-        /// <summary>$90:B5A1 is shared by ordinary and super-missile trail selection.</summary>
-        Missile,
-    }
-
-    /// <summary>All five defined trail lists used to recognize a first-record cursor.</summary>
-    private static readonly TrailList[] TrailLists = Enum.GetValues<TrailList>();
-
-    /// <summary>Returns the native entry pointer for one defined trail list.</summary>
-    private static ushort StartOf(TrailList list) => list switch
-    {
-        TrailList.Empty => Empty,
-        TrailList.LeftIce => LeftIce,
-        TrailList.RightIce => RightIce,
-        TrailList.Wave => Wave,
-        TrailList.Missile => Missile,
-        _ => throw new InvalidOperationException($"Undefined {nameof(TrailList)} {(int)list}."),
-    };
-
-    /// <summary>True when a trail cursor still sits on a list's first record, before any record is consumed.</summary>
-    public static bool IsListStart(ushort cursor)
-    {
-        foreach (TrailList list in TrailLists)
-            if (StartOf(list) == cursor) return true;
-        return false;
-    }
-
-    /// <summary>The non-beam trail selections with a trail list; every other one draws none.</summary>
+    /// <summary>The non-beam trail selections with a trail program; every other one draws none.</summary>
     private enum SpecialSelection
     {
         /// <summary>$90:B5FB/B5FD: native missile trail selection index.</summary>
@@ -69,36 +24,33 @@ public static class ProjectileTrailDefinitions
     }
 
     /// <summary>
-    /// Returns the complete bounded native selector window, including left-table overlap and adjacent observations.
-    /// The right selector's low-six-bit index can reach past its thirty-nine entries into the trail spawner's code at
-    /// $90:B657-$B688; those words are cartridge observations, which <paramref name="overreads"/> holds.
+    /// The program <paramref name="side"/> runs for low-six-bit selection <paramref name="selection"/>. Native indexes each
+    /// side's thirty-nine-entry table with all six bits: a left selection past its table reads the right table's entries,
+    /// and a right selection past its table reads the trail spawner's own code, which names no trail program, so that
+    /// trail is not drawn (null).
     /// </summary>
-    public static ushort ReadSelector(int address, SamusOverreadCatalog? overreads)
+    internal static ProjectileTrailProgram? Select(int selection, HorizontalDirection side)
     {
-        int offset = address - SamusProjectileRomData.Trails.LeftInstructionPointers;
-        if ((uint)offset >= 103 * sizeof(ushort) || (offset & 1) != 0)
-            throw new InvalidDataException($"Projectile trail selector ${address:X6} is outside the bounded low-six-bit observation window.");
-        int index = offset / sizeof(ushort);
-        if (index >= 78)
-            return (overreads ?? throw new InvalidOperationException(
-                "A trail selector reading past its entries needs the installed Samus overread catalog."))
-                .TrailSelectorAdjacentWord(index - 78);
-        return Select(index % 39, right: index >= 39);
+        if ((uint)selection >= 64)
+            throw new ArgumentOutOfRangeException(nameof(selection), selection, "A trail selection is six bits.");
+        if (selection < TableSelections)
+            return Select(selection, right: side == HorizontalDirection.Right);
+        return side == HorizontalDirection.Left ? Select(selection - TableSelections, right: true) : null;
     }
 
-    /// <summary>Chooses a left or right trail list from beam effects and special projectile selectors.</summary>
-    private static ushort Select(int selection, bool right)
+    /// <summary>Chooses a left or right trail program from beam effects and special projectile selectors.</summary>
+    private static ProjectileTrailProgram Select(int selection, bool right)
     {
         if (selection >= (int)SpecialSelection.Missile)
         {
             var special = (SpecialSelection)selection;
             if (!Enum.IsDefined(special))
-                return Empty;
+                return ProjectileTrailProgram.Empty;
             return special switch
             {
-                SpecialSelection.Missile or SpecialSelection.SuperMissile => right ? Empty : Missile,
-                SpecialSelection.SpazerSbaFirst or SpecialSelection.SpazerSbaLast => LeftIce,
-                SpecialSelection.SpazerSbaMiddle => right ? RightIce : LeftIce,
+                SpecialSelection.Missile or SpecialSelection.SuperMissile => right ? ProjectileTrailProgram.Empty : ProjectileTrailProgram.Missile,
+                SpecialSelection.SpazerSbaFirst or SpecialSelection.SpazerSbaLast => ProjectileTrailProgram.LeftIce,
+                SpecialSelection.SpazerSbaMiddle => right ? ProjectileTrailProgram.RightIce : ProjectileTrailProgram.LeftIce,
                 _ => throw new InvalidOperationException($"Undefined SpecialSelection {special}."),
             };
         }
@@ -108,28 +60,28 @@ public static class ProjectileTrailDefinitions
         return right
             ? type.BeamCombination switch
             {
-                SamusBeamCombination.Wave => charged ? Wave : Empty,
-                SamusBeamCombination.IceWave => charged ? RightIce : Empty,
+                SamusBeamCombination.Wave => charged ? ProjectileTrailProgram.Wave : ProjectileTrailProgram.Empty,
+                SamusBeamCombination.IceWave => charged ? ProjectileTrailProgram.RightIce : ProjectileTrailProgram.Empty,
                 SamusBeamCombination.SpazerIce or SamusBeamCombination.SpazerIceWave or
-                    SamusBeamCombination.PlasmaIceWave => RightIce,
+                    SamusBeamCombination.PlasmaIceWave => ProjectileTrailProgram.RightIce,
                 SamusBeamCombination.Power or SamusBeamCombination.Ice or SamusBeamCombination.Spazer or
                     SamusBeamCombination.SpazerWave or SamusBeamCombination.Plasma or
                     SamusBeamCombination.PlasmaWave or SamusBeamCombination.PlasmaIce or
                     SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaWave or
-                    SamusBeamCombination.SpazerPlasmaIce or SamusBeamCombination.SpazerPlasmaIceWave => Empty,
+                    SamusBeamCombination.SpazerPlasmaIce or SamusBeamCombination.SpazerPlasmaIceWave => ProjectileTrailProgram.Empty,
                 _ => throw new ArgumentOutOfRangeException(nameof(selection), selection, "Undefined beam combination."),
             }
             : type.BeamCombination switch
             {
-                SamusBeamCombination.Wave => Wave,
-                SamusBeamCombination.Power => charged ? LeftIce : Empty,
+                SamusBeamCombination.Wave => ProjectileTrailProgram.Wave,
+                SamusBeamCombination.Power => charged ? ProjectileTrailProgram.LeftIce : ProjectileTrailProgram.Empty,
                 SamusBeamCombination.Ice or SamusBeamCombination.IceWave or SamusBeamCombination.SpazerIce or
                     SamusBeamCombination.SpazerIceWave or SamusBeamCombination.PlasmaIce or
-                    SamusBeamCombination.PlasmaIceWave => LeftIce,
+                    SamusBeamCombination.PlasmaIceWave => ProjectileTrailProgram.LeftIce,
                 SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave or SamusBeamCombination.Plasma or
                     SamusBeamCombination.PlasmaWave or SamusBeamCombination.SpazerPlasma or
                     SamusBeamCombination.SpazerPlasmaWave or SamusBeamCombination.SpazerPlasmaIce or
-                    SamusBeamCombination.SpazerPlasmaIceWave => Empty,
+                    SamusBeamCombination.SpazerPlasmaIceWave => ProjectileTrailProgram.Empty,
                 _ => throw new ArgumentOutOfRangeException(nameof(selection), selection, "Undefined beam combination."),
             };
     }

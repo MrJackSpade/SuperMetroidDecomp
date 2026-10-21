@@ -7,16 +7,16 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public sealed class ProjectileTrailCatalog
 {
     /// <summary>Only authored OBJ attribute words differing from the shared native tile progressions.</summary>
-    internal readonly Dictionary<ushort, ushort> suppliedAttributes = [];
+    internal readonly Dictionary<SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame, ushort> suppliedAttributes = [];
     /// <summary>Optional installed twelve-tile trail artwork provider retained from loading; resolving appearances neither uploads nor replaces its pixels.</summary>
     public ProjectileTrailAtlas? Tiles { get; }
     /// <summary>Copies changed frame appearances while retaining an optional installed tile provider.</summary>
-    private ProjectileTrailCatalog(Dictionary<ushort, ushort> attributes, ProjectileTrailAtlas? tiles)
+    private ProjectileTrailCatalog(Dictionary<SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame, ushort> attributes, ProjectileTrailAtlas? tiles)
     {
         Tiles = tiles;
-        for (int index = 0; index < ProjectileTrailVisualDefinitions.Frames.Count; index++)
+        for (int index = 0; index < ProjectileTrailVisualDefinitions.FrameCount; index++)
         {
-            ushort frame = ProjectileTrailVisualDefinitions.Frames[index];
+            var frame = ProjectileTrailVisualDefinitions.Frames[index];
             if (attributes[frame] != DefaultAttributes(index)) suppliedAttributes.Add(frame, attributes[frame]);
         }
     }
@@ -47,30 +47,32 @@ public sealed class ProjectileTrailCatalog
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         WriteIndented = true,
     };
-    /// <summary>Resolves one native timed trail record to its selected small-OBJ tile and attribute word without advancing its instruction stream.</summary>
-    /// <param name="frame">Bank-$90 address of the timed record's duration word, among the 42 appearance-bearing records in the left/right ice, wave and missile lists.</param>
+    /// <summary>Resolves one trail frame to its selected small-OBJ tile and attribute word.</summary>
+    /// <param name="frame">The trail frame, among the 42 left/right ice, wave and missile poses.</param>
     /// <returns>The complete nine-bit character number, palette, priority and reflection flags packed in native OBJ attribute form.</returns>
-    /// <exception cref="InvalidDataException"><paramref name="frame"/> is not an authored timed-record identity.</exception>
-    public ushort Resolve(ushort frame)
+    /// <exception cref="InvalidDataException"><paramref name="frame"/> is not a trail frame.</exception>
+    public ushort Resolve(SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame frame)
     {
         if (suppliedAttributes.TryGetValue(frame, out ushort value)) return value;
-        for (int index = 0; index < ProjectileTrailVisualDefinitions.Frames.Count; index++)
+        for (int index = 0; index < ProjectileTrailVisualDefinitions.FrameCount; index++)
             if (ProjectileTrailVisualDefinitions.Frames[index] == frame) return DefaultAttributes(index);
-        throw new InvalidDataException($"Missing trail frame {frame:X4}.");
+        throw new InvalidDataException($"Missing trail frame {frame}.");
     }
 
-    /// <summary>Resolves the last consumed trail appearance from the retained instruction cursor, preserving attributes when a newly allocated stream has not consumed a record.</summary>
-    /// <param name="nextInstruction">Bank-$90 next-record cursor; after a timed record it points four bytes beyond that record.</param>
-    /// <param name="nativeAttributes">Retained tile/attribute word returned unchanged for Empty or a left-ice, right-ice, wave or missile list-start cursor, including while time is frozen.</param>
-    /// <returns>The selected appearance for the previous timed record, or the unchanged retained word before the first record is consumed.</returns>
-    /// <exception cref="InvalidDataException">A noninitial cursor minus four does not identify an authored timed record.</exception>
-    public ushort ResolveCurrent(ushort nextInstruction, ushort nativeAttributes)
+    /// <summary>Resolves the last shown trail appearance from the side's program cursor, preserving attributes when a newly allocated side has not shown a pose.</summary>
+    /// <param name="cursor">The side's cursor; after a pose it sits on the step that follows it.</param>
+    /// <param name="nativeAttributes">Retained tile/attribute word returned unchanged before the side's first pose, including while time is frozen.</param>
+    /// <returns>The selected appearance of the pose the side showed last, or the unchanged retained word before its first pose.</returns>
+    /// <exception cref="InvalidDataException">The step before the cursor is not a pose.</exception>
+    public ushort ResolveCurrent(SuperMetroid.Core.Samus.Projectiles.ProjectileTrailCursor cursor, ushort nativeAttributes)
     {
-        // A frozen, newly allocated stream has not consumed its first record. Preserve
+        // A frozen, newly allocated side has not shown its first pose. Preserve
         // the native retained attributes rather than displaying an animation frame early.
-        if (SuperMetroid.Core.Samus.Projectiles.ProjectileTrailDefinitions.IsListStart(nextInstruction))
+        if (cursor.PreviousPose is not { } shown)
             return nativeAttributes;
-        return Resolve(unchecked((ushort)(nextInstruction - 4)));
+        return shown is SuperMetroid.Core.Samus.Projectiles.ProjectileTrailStep.Pose pose
+            ? Resolve(pose.Frame)
+            : throw new InvalidDataException($"Trail cursor {cursor} does not follow a pose.");
     }
 
     /// <summary>Validates every native trail-frame appearance and compiles independent OBJ attributes, retaining only differences from the default appearances.</summary>
@@ -91,15 +93,17 @@ public sealed class ProjectileTrailCatalog
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid trail JSON.", error); }
         if (document.Version != ProjectileTrailVisualDefinitions.Version || document.Frames is null ||
-            document.Frames.Count != ProjectileTrailVisualDefinitions.Frames.Length)
+            document.Frames.Count != ProjectileTrailVisualDefinitions.FrameCount)
             throw new InvalidDataException("Trail document requires every native frame and version 1.");
-        var attributes = new Dictionary<ushort, ushort>();
-        foreach (ushort frame in ProjectileTrailVisualDefinitions.Frames)
+        var attributes = new Dictionary<SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame, ushort>();
+        for (int index = 0; index < ProjectileTrailVisualDefinitions.FrameCount; index++)
         {
-            if (!document.Frames.TryGetValue(ProjectileTrailVisualDefinitions.Name(frame), out var p) || p is null ||
+            var frame = ProjectileTrailVisualDefinitions.Frames[index];
+            string name = ProjectileTrailVisualDefinitions.FrameNames[index];
+            if (!document.Frames.TryGetValue(name, out var p) || p is null ||
                 (uint)p.TileColumn >= ProjectileSpriteDefinitions.TileColumns || (uint)p.TileRow >= ProjectileSpriteDefinitions.TileRows ||
                 (uint)p.Palette > 7 || (uint)p.Priority > 3)
-                throw new InvalidDataException($"Missing or invalid trail appearance {frame:X4}.");
+                throw new InvalidDataException($"Missing or invalid trail appearance {name}.");
             attributes.Add(frame, SnesObjAttributeWord.Create(p.TileRow * ProjectileSpriteDefinitions.TileColumns + p.TileColumn,
                 p.Palette, p.Priority, (p.FlipX ? SnesTileFlipFlags.Horizontal : 0) | (p.FlipY ? SnesTileFlipFlags.Vertical : 0)).Raw);
         }

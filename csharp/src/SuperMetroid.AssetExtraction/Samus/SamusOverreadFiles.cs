@@ -29,8 +29,6 @@ public static class SamusOverreadFiles
                 SamusOverreadDefinitions.SpeedBoosterGrappleCodeColorCount * sizeof(ushort)),
             Range(cartridge, SamusOverreadSourceDefinitions.HudPrecedingPostureBytes, SamusOverreadDefinitions.HudPrecedingPostureByteCount),
             Range(cartridge, SamusOverreadSourceDefinitions.HudFollowingPostureBytes, SamusOverreadDefinitions.HudFollowingPostureByteCount),
-            Range(cartridge, SamusOverreadSourceDefinitions.TrailSelectorAdjacentCode,
-                SamusOverreadDefinitions.TrailSelectorAdjacentWordCount * sizeof(ushort)),
             Range(cartridge, SamusOverreadSourceDefinitions.TrailCoordinateAdjacentCode,
                 SamusOverreadDefinitions.TrailCoordinateAdjacentByteCount));
         byte[] bytes = SamusOverreadCatalog.Write(document);

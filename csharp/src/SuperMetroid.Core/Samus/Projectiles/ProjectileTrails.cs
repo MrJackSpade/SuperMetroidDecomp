@@ -38,10 +38,8 @@ internal sealed class ProjectileTrails
             pointerIndex = family + 31;
         }
 
-        ushort leftProgram = ProjectileTrailDefinitions.ReadSelector(
-            SamusProjectileRomData.Trails.LeftInstructionPointers + pointerIndex * 2, Overreads);
-        ushort rightProgram = ProjectileTrailDefinitions.ReadSelector(
-            SamusProjectileRomData.Trails.RightInstructionPointers + pointerIndex * 2, Overreads);
+        ProjectileTrailProgram? leftProgram = ProjectileTrailDefinitions.Select(pointerIndex, HorizontalDirection.Left);
+        ProjectileTrailProgram? rightProgram = ProjectileTrailDefinitions.Select(pointerIndex, HorizontalDirection.Right);
 
         // Retail reads the previously installed record, even when the animation timer
         // will expire later this frame. Reading ahead advances Spazer's trail spread early.
@@ -55,12 +53,11 @@ internal sealed class ProjectileTrails
         ushort directionTable = ProjectileTrailCoordinateDefinitions.ReadFamilyPointer(
             familyTable + projectile.PackedType.BeamCombination.TableIndex * 2, Overreads);
 
-        // An empty trail family (a glitch beam) points its programs, direction list or coordinate operands into the
-        // low halves of banks $90/$9B, which hold direct-page scratch. Its exact appearance would need direct-page
-        // emulation the port does not model, so it is exempt (owner decision on #1318) and draws no trail.
-        // Native performs WORD reads and consumes their high bytes after XBA.
-        if (!ProjectileTrailProgramDefinitions.TryRead(SamusProjectileRomData.Banks.Movement | leftProgram, out _) ||
-            !ProjectileTrailProgramDefinitions.TryRead(SamusProjectileRomData.Banks.Movement | rightProgram, out _) ||
+        // A selection that names no program draws no trail. An empty trail family (a glitch beam) points its direction
+        // list or coordinate operands into the low half of bank $9B, which holds direct-page scratch. Its exact appearance
+        // would need direct-page emulation the port does not model, so it is exempt (owner decision on #1318) and draws no
+        // trail. Native performs WORD reads and consumes their high bytes after XBA.
+        if (leftProgram is not { } left || rightProgram is not { } right ||
             !ProjectileTrailCoordinateDefinitions.TryReadDirectionPointer(
                 SamusProjectileRomData.Banks.PaletteAndTrailData | unchecked((ushort)(directionTable + direction * 2)),
                 Overreads, out ushort offsetList))
@@ -93,8 +90,8 @@ internal sealed class ProjectileTrails
 
         trail.Left.InstructionTimer = WrappingCountdown.Start(1);
         trail.Right.InstructionTimer = WrappingCountdown.Start(1);
-        trail.Left.InstructionPointer = leftProgram;
-        trail.Right.InstructionPointer = rightProgram;
+        trail.Left.Cursor = new ProjectileTrailCursor(left, 0);
+        trail.Right.Cursor = new ProjectileTrailCursor(right, 0);
         trail.Left.Position = trail.Left.Position.WithX(AddSignedOffset(projectile.Position.X.Whole, leftX, -4)).WithY(AddSignedOffset(projectile.Position.Y.Whole, leftY, -4));
         trail.Right.Position = trail.Right.Position.WithX(AddSignedOffset(projectile.Position.X.Whole, rightX, -4)).WithY(AddSignedOffset(projectile.Position.Y.Whole, rightY, -4));
     }
@@ -128,34 +125,29 @@ internal sealed class ProjectileTrails
             side.InstructionTimer = side.InstructionTimer.Decrement().Remaining;
             if (side.InstructionTimer.IsZero)
             {
-                ushort pointer = checked((ushort)side.InstructionPointer);
+                ProjectileTrailCursor cursor = side.Cursor;
                 while (true)
                 {
-                    ushort instructionOrTimer = ProjectileTrailProgramDefinitions.Read(
-                        SamusProjectileRomData.Banks.Movement | pointer);
-                    if (!ProjectileTrailProgramDefinitions.IsInstruction(instructionOrTimer))
+                    ProjectileTrailStep step = cursor.Current;
+                    if (step is ProjectileTrailStep.End)
                     {
-                        side.InstructionTimer = WrappingCountdown.FromRaw(instructionOrTimer);
-                        if (instructionOrTimer == 0)
-                            return;
-
-                        side.TileNumberAttributes = artwork is not null ? artwork.Resolve(pointer) :
-                            ProjectileTrailProgramDefinitions.Read(SamusProjectileRomData.Banks.Movement |
-                                unchecked((ushort)(pointer + 2)));
-                        side.InstructionPointer = unchecked((ushort)(pointer + 4));
+                        // The end leaves the timer zero and the cursor on itself.
+                        side.InstructionTimer = WrappingCountdown.FromRaw(0);
+                        return;
+                    }
+                    if (step is ProjectileTrailStep.Pose pose)
+                    {
+                        side.InstructionTimer = WrappingCountdown.FromRaw(pose.Duration);
+                        side.TileNumberAttributes = (artwork ?? throw new InvalidOperationException(
+                            "A trail pose needs the installed trail artwork.")).Resolve(pose.Frame);
+                        side.Cursor = cursor.Next();
                         break;
                     }
 
-                    // Bank $90 stores executable instruction addresses inline. Each handler
-                    // returns to the parser with X already advanced past its one-word opcode.
-                    pointer = unchecked((ushort)(pointer + 2));
-                    if (!Enum.IsDefined((ProjectileTrailInstruction)instructionOrTimer))
-                    {
-                        throw new InvalidOperationException(
-                            $"Unsupported {(direction == HorizontalDirection.Left ? "left" : "right")} projectile-trail " +
-                            $"instruction ${instructionOrTimer:X4} at $90:{unchecked((ushort)(pointer - 2)):X4}.");
-                    }
-                    switch ((ProjectileTrailInstruction)instructionOrTimer)
+                    // A move continues with the next step in the same update.
+                    cursor = cursor.Next();
+                    ProjectileTrailInstruction movement = ((ProjectileTrailStep.Move)step).Movement;
+                    switch (movement)
                     {
                         // The opcode names its destination array. Both streams dispatch
                         // the same handlers, including writes to their sibling's position.
@@ -169,7 +161,7 @@ internal sealed class ProjectileTrails
                             pair.Left.Position = pair.Left.Position.WithY(unchecked((ushort)(pair.Left.Position.Y - 1)));
                             break;
                         default:
-                            throw new InvalidOperationException($"Undefined {nameof(ProjectileTrailInstruction)} {instructionOrTimer:X4}.");
+                            throw new InvalidOperationException($"Undefined {nameof(ProjectileTrailInstruction)} {movement}.");
                     }
                 }
             }
@@ -202,7 +194,7 @@ internal sealed class ProjectileTrails
             return;
 
         SnesObjAttributeWord attributes = artwork is null
-            ? side.TileNumberAttributes : artwork.ResolveCurrent(checked((ushort)side.InstructionPointer), side.TileNumberAttributes);
+            ? side.TileNumberAttributes : artwork.ResolveCurrent(side.Cursor, side.TileNumberAttributes);
         sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectileTrail, slotIndex * 2 + (direction == HorizontalDirection.Left ? 0 : 1)),
             ObjPartFrames.SmallObject(attributes, 0), objects.Page,
             new Position16<ScreenPixels>(screenX, screenY), default, 0, 0));

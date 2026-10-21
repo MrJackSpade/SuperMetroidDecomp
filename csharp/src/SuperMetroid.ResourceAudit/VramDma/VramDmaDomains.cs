@@ -60,7 +60,7 @@ internal static class VramDmaDomains
                 return Native(RoomFxAnimatedTileMechanicsDefinitions.All.SelectMany(definition => definition.Frames.Select(frame =>
                     new NativeTransfer(RoomFxAnimatedTileArtworkDefinitions.SourceAddress(definition, frame.InstructionPointer), definition.TransferByteCount))));
             case "arm":
-                return Native(SamusArmCannonArtworkFormat.TileSourcePointers.Select(pointer =>
+                return Native(SamusArmCannonArtworkFormat.CoverTileDmaSources.Select(pointer =>
                     new NativeTransfer(SamusRenderingRomData.Banks.CharacterData | pointer, SamusRenderingRomData.ArmCannon.TileUploadByteCount)));
             case "death":
                 return Native(SamusSpecialSequenceRomData.Death.TileSegments.Select(segment =>

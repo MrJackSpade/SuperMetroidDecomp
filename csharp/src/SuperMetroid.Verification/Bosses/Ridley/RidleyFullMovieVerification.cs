@@ -1054,7 +1054,7 @@ internal static class RidleyFullMovieVerification
                         .Where(draw => draw.Source.Kind == SpriteSourceKind.SamusArmCannon)];
                     AssertEqual(cannon.SpriteWritten ? 1 : 0, covers.Length, $"update {frame}: cannon draw count");
                     if (cannon.SpriteWritten && cannon.TileUploadQueued)
-                        AssertEqual(SamusArmCannonArtworkFormat.TileSourcePointers.IndexOf(cannon.TileSource), covers[0].Artwork.Id.Variant,
+                        AssertEqual(SamusArmCannonArtworkFormat.CoverTileDmaSources.IndexOf(cannon.TileSource), covers[0].Artwork.Id.Variant,
                             $"update {frame}: cannon draw binds the reference cover tile");
                 }
                 Check("Cannon flags", SnesLittleEndian.Word(checked((byte)samus.ArmCannon.OpenFlag), checked((byte)samus.ArmCannon.CloseFlag)), NativeSnapshotMemory.CannonFlags);

@@ -93,8 +93,8 @@ public sealed class SamusArmCannonState
         if (CloseFlag != 0 || TryStartTransition(samus.SelectedHudItem))
             AdvanceFrame();
 
-        ushort drawingData = PoseDrawingData((int)samus.Pose);
-        DrawingMode = ReadDrawingByte(unchecked((ushort)(drawingData + 1)));
+        int descriptor = PoseDescriptor((int)samus.Pose);
+        DrawingMode = ReadDrawingByte(descriptor + 1);
         return new SamusArmCannonUpdateResult();
     }
 
@@ -116,20 +116,19 @@ public sealed class SamusArmCannonState
         if (Frame == 0 || (!samus.InvincibilityTimer.IsZero && (nmiFrameCounter & 1) != 0))
             return new SamusArmCannonDrawResult();
 
-        ushort drawingData = PoseDrawingData((int)samus.Pose);
-        byte firstSelector = ReadDrawingByte(drawingData);
+        int descriptor = PoseDescriptor((int)samus.Pose);
+        byte firstSelector = ReadDrawingByte(descriptor);
         bool frameDependentSelector = unchecked((sbyte)firstSelector) < 0;
         byte selector = frameDependentSelector && samus.AnimationFrame != 0
-            ? unchecked((byte)(ReadDrawingByte(unchecked((ushort)(drawingData + 2))) & sbyte.MaxValue))
+            ? unchecked((byte)(ReadDrawingByte(descriptor + 2) & sbyte.MaxValue))
             : unchecked((byte)(firstSelector & sbyte.MaxValue));
         if (selector >= SamusRenderingRomData.ArmCannon.DirectionCount)
             throw new InvalidDataException($"Arm-cannon direction selector {selector} is outside 0..9.");
 
-        ushort offsetsBase = unchecked((ushort)(drawingData +
-            (frameDependentSelector ? 4 : 2)));
-        ushort offsetAddress = unchecked((ushort)(offsetsBase + samus.AnimationFrame * 2));
-        sbyte xOffset = unchecked((sbyte)ReadDrawingByte(offsetAddress));
-        sbyte yOffset = unchecked((sbyte)ReadDrawingByte(unchecked((ushort)(offsetAddress + 1))));
+        int offsetsBase = descriptor + (frameDependentSelector ? 4 : 2);
+        int offsetsAt = offsetsBase + samus.AnimationFrame * 2;
+        sbyte xOffset = unchecked((sbyte)ReadDrawingByte(offsetsAt));
+        sbyte yOffset = unchecked((sbyte)ReadDrawingByte(offsetsAt + 1));
         sbyte graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
 
         short screenX = unchecked((short)(samus.Position.X.Whole + xOffset - layer1.X));
@@ -173,15 +172,15 @@ public sealed class SamusArmCannonState
         return true;
     }
 
-    /// <summary>Resolves the installed pose record that selects cannon direction and offsets.</summary>
-    private ushort PoseDrawingData(int pose) =>
+    /// <summary>Resolves where the installed pose descriptor that selects cannon direction and offsets begins.</summary>
+    private int PoseDescriptor(int pose) =>
         (Artwork ?? throw new InvalidOperationException(
-            "Arm cannon requires installed drawing definitions.")).PoseDrawingData(pose);
+            "Arm cannon requires installed drawing definitions.")).PoseDescriptor(pose);
 
     /// <summary>Reads a byte from installed arm-cannon drawing definitions.</summary>
-    private byte ReadDrawingByte(ushort address) =>
+    private byte ReadDrawingByte(int offset) =>
         (Artwork ?? throw new InvalidOperationException(
-            "Arm cannon requires installed drawing definitions.")).ReadDrawingByte(address);
+            "Arm cannon requires installed drawing definitions.")).ReadDrawingByte(offset);
 
     /// <summary>Moves the cover one native frame toward open three or closed zero, then clears the transition flag.</summary>
     private void AdvanceFrame()

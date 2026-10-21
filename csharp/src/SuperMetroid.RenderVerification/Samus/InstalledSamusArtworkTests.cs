@@ -150,7 +150,7 @@ internal static class InstalledSamusArtworkTests
     private static int CheckQueuedTransfers(InstalledSamusArtworkFixture fixture, ArtworkPixelCheck check)
     {
         int count = 0;
-        foreach (ushort source in SamusArmCannonArtworkFormat.TileSourcePointers)
+        foreach (ushort source in SamusArmCannonArtworkFormat.CoverTileDmaSources)
         {
             Check(SamusRenderingRomData.Banks.CharacterData | source,
                 SamusRenderingRomData.ArmCannon.TileUploadByteCount,

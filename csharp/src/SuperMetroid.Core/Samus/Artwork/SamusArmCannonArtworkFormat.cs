@@ -126,7 +126,7 @@ public static class SamusArmCannonArtworkFormat
     }
 
     /// <summary>Supported placement JSON schema revision, checked with the fixed pose, descriptor, direction, and frame table dimensions.</summary>
-    public const int Version = 1;
+    public const int Version = 2;
     /// <summary>Installed editable placement, OBJ-attribute, and tile-selector JSON filename, separate from cover pixels and animation mechanics.</summary>
     public const string JsonFileName = "samus-arm-cannon.json";
     /// <summary>Installed indexed PNG filename holding the twelve 8-by-8 cover characters in native source-identity order.</summary>
@@ -139,6 +139,10 @@ public static class SamusArmCannonArtworkFormat
     public const int DrawingDataByteCount = DrawingDataEndExclusive - DrawingDataStart;
     /// <summary>Four tile-selector slots per native aim direction: closed sentinel 0 and three successive nonclosed cover-art frames.</summary>
     public const int FramesPerDirection = 4;
+    /// <summary>Installed cover tiles: three opening frames for each of the four artwork orientations.</summary>
+    public const int CoverTileCount = 12;
+    /// <summary>Where pose 0–252's stock drawing descriptor begins within the drawing data.</summary>
+    internal static int StockPoseDescriptor(int pose) => StockPoseDrawingData(pose) - DrawingDataStart;
     /// <summary>$90:C7DF-$C9D8, ArmCannonDrawingData: named descriptor selection for the existing 253-pose installed domain.</summary>
     internal static ushort StockPoseDrawingData(int pose)
     {
@@ -788,10 +792,13 @@ public static class SamusArmCannonArtworkFormat
     /// <summary>$90:C791..C7A4 uses bit15 to reflect the vertical source for downward aim.</summary>
     private const ushort VerticalReflection = 1 << 15;
 
-    /// <summary>$90:C7A5..C7D8 chooses a physical artwork orientation and three successive opening frames; frame0 is the closed no-transfer sentinel.</summary>
-    internal static ushort StockTileSource(SamusProjectileDirection direction, int frame)
+    /// <summary>
+    /// $90:C7A5..C7D8 chooses a physical artwork orientation and three successive opening frames: the installed cover
+    /// tile opening <paramref name="frame"/> (1 through 3) shows.
+    /// </summary>
+    internal static int StockCoverTile(SamusProjectileDirection direction, int frame)
     {
-        if (frame == 0) return 0;
+        if (frame is < 1 or >= FramesPerDirection) throw new ArgumentOutOfRangeException(nameof(frame));
         TileOrientation orientation = direction switch
         {
             SamusProjectileDirection.UpRight or SamusProjectileDirection.UpLeft => TileOrientation.UpwardDiagonal,
@@ -801,7 +808,7 @@ public static class SamusArmCannonArtworkFormat
                 SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft => TileOrientation.Vertical,
             _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined projectile direction."),
         };
-        return TileSourcePointers[(int)orientation * (FramesPerDirection - 1) + frame - 1];
+        return (int)orientation * (FramesPerDirection - 1) + frame - 1;
     }
 
     /// <summary>$90:C791..C7A4 reflects the selected vertical/horizontal/diagonal artwork according to native aiming direction.</summary>
@@ -816,16 +823,14 @@ public static class SamusArmCannonArtworkFormat
     private const int FirstTileSource = 0x9a00; // cartridge-encoding: allow(CartridgeAddress) - the installed tile sheet keys its tiles by their bank-$9A source
     /// <summary>The twelve native cover sources from $9A:9A00 through $9A:B000 occupy successive $200-byte character blocks.</summary>
     private const int TileSourceStride = 512;
-    /// <summary>Twelve source identities selected by the four three-frame lists at $90:C7B9..C7D8.</summary>
-    public static TileSourceSequence TileSourcePointers => new();
+    /// <summary>The bank-$9A DMA source of each installed cover tile, as a queued VRAM DMA names it.</summary>
+    public static TileSourceSequence CoverTileDmaSources => new();
 
     /// <summary>Calculated source identities in the original exported tile order; no tile pixels are inferred.</summary>
     public readonly record struct TileSourceSequence : IReadOnlyList<ushort>
     {
         /// <summary>Twelve source identities: three cover frames for each vertical, horizontal, downward-diagonal, and upward-diagonal artwork orientation.</summary>
         public int Count => 12;
-        /// <summary>Array-style length of the twelve-entry native source sequence.</summary>
-        public int Length => Count;
         /// <summary>Gets bank-$9A source identity $9A00 plus index times $200 for zero-based index 0–11; each identity resolves to an installed 32-byte character.</summary>
         public ushort this[int index] => (uint)index < Count
             ? (ushort)(FirstTileSource + index * TileSourceStride)
@@ -836,8 +841,6 @@ public static class SamusArmCannonArtworkFormat
             int index = (source - FirstTileSource) / TileSourceStride;
             return (uint)index < Count && this[index] == source ? index : -1;
         }
-        /// <summary>Whether a bank-relative source address exactly matches one of the twelve installed cover characters; the closed zero sentinel is not a character.</summary>
-        public bool Contains(ushort source) => IndexOf(source) >= 0;
         /// <summary>Enumerates source identities in exported PNG character order, with the three frames of each native artwork orientation kept together.</summary>
         public IEnumerator<ushort> GetEnumerator()
         {

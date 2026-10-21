@@ -50,7 +50,7 @@ internal sealed class InstalledSamusArtworkFixture : IDisposable
                         (top ? Stock.TopSet(set) : Stock.BottomSet(set)).Count * 16);
             }
             Edit(SamusArmCannonArtworkFormat.TileFileName,
-                SamusArmCannonArtworkFormat.TileSourcePointers.Length * 8, 8);
+                SamusArmCannonArtworkFormat.CoverTileCount * 8, 8);
             Edit(SamusDeathTileAtlasFormat.ArtworkFileName,
                 SamusDeathTileAtlasFormat.Width, SamusDeathTileAtlasFormat.Height);
             EditedPngCount = SamusBodyArtworkCatalog.TopSetCount +

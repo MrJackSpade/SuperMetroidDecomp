@@ -42,41 +42,47 @@ public static class SamusArmCannonArtworkFiles
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         Directory.CreateDirectory(directory);
-        int[] pointers = Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount)
-            .Select(pose => (int)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                SamusCartridgeTables.PoseDrawingDataPointers + pose * 2)).ToArray();
+        int[] descriptors = Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount)
+            .Select(pose => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                SamusCartridgeTables.PoseDrawingDataPointers + pose * 2) - SamusArmCannonArtworkFormat.DrawingDataStart).ToArray();
         int[] drawingData = Enumerable.Range(0, SamusArmCannonArtworkFormat.DrawingDataByteCount)
             .Select(index => (int)bus.ReadCartridgeByte(SamusRenderingRomData.Banks.Movement |
                 (SamusArmCannonArtworkFormat.DrawingDataStart + index))).ToArray();
         int[] attributes = Enumerable.Range(0, SamusRenderingRomData.ArmCannon.DirectionCount)
             .Select(direction => (int)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 SamusRenderingRomData.ArmCannon.SpriteAttributes + direction * 2)).ToArray();
-        int[][] sources = Enumerable.Range(0, SamusRenderingRomData.ArmCannon.DirectionCount)
+        int[][] coverTiles = Enumerable.Range(0, SamusRenderingRomData.ArmCannon.DirectionCount)
             .Select(direction =>
             {
                 ushort list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     SamusCartridgeTables.TileListPointers + direction * 2);
-                return Enumerable.Range(0, SamusArmCannonArtworkFormat.FramesPerDirection)
-                    .Select(frame => (int)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                        SamusRenderingRomData.Banks.Movement | (list + frame * 2))).ToArray();
+                ushort[] sources = [.. Enumerable.Range(0, SamusArmCannonArtworkFormat.FramesPerDirection)
+                    .Select(frame => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                        SamusRenderingRomData.Banks.Movement | (list + frame * 2)))];
+                // The closed frame uploads nothing; each opening frame names one installed cover tile.
+                if (sources[0] != 0)
+                    throw new InvalidDataException($"Arm-cannon direction {direction} uploads a closed-cover tile.");
+                return sources[1..].Select(source => SamusArmCannonArtworkFormat.CoverTileDmaSources.IndexOf(source) is int tile and >= 0
+                    ? tile
+                    : throw new InvalidDataException($"Arm-cannon direction {direction} names cover source ${source:X4}, which is no installed tile.")).ToArray();
             }).ToArray();
         var document = new SamusArmCannonArtworkDocument
         {
             Version = SamusArmCannonArtworkFormat.Version,
-            PosePointers = pointers,
+            PoseDescriptors = descriptors,
             DrawingData = drawingData,
             SpriteAttributes = attributes,
-            TileSources = sources,
+            CoverTiles = coverTiles,
         };
-        byte[] planar = new byte[SamusArmCannonArtworkFormat.TileSourcePointers.Length *
+        byte[] planar = new byte[SamusArmCannonArtworkFormat.CoverTileCount *
             SamusRenderingRomData.ArmCannon.TileUploadByteCount];
-        for (int tile = 0; tile < SamusArmCannonArtworkFormat.TileSourcePointers.Length; tile++)
+        for (int tile = 0; tile < SamusArmCannonArtworkFormat.CoverTileCount; tile++)
             for (int offset = 0; offset < SamusRenderingRomData.ArmCannon.TileUploadByteCount; offset++)
                 planar[tile * SamusRenderingRomData.ArmCannon.TileUploadByteCount + offset] =
                     bus.ReadCartridgeByte(SamusRenderingRomData.Banks.CharacterData |
-                        (SamusArmCannonArtworkFormat.TileSourcePointers[tile] + offset));
+                        (SamusArmCannonArtworkFormat.CoverTileDmaSources[tile] + offset));
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
-            SamusArmCannonArtworkFormat.TileSourcePointers.Length,
+            SamusArmCannonArtworkFormat.CoverTileCount,
             out Extent16<ImagePixels> size);
         using var pngStream = new MemoryStream();
         IndexedPng.Write(pngStream, size, pixels, SnesGraphics.DiagnosticPalette(16));
@@ -90,10 +96,10 @@ public static class SamusArmCannonArtworkFiles
                 Convert.ToHexString(SHA256.HashData(json)),
                 Convert.ToHexString(SHA256.HashData(png))), JsonOptions));
         SamusArmCannonArtworkCatalog roundTrip = Load(directory, null);
-        for (int tile = 0; tile < SamusArmCannonArtworkFormat.TileSourcePointers.Length; tile++)
+        for (int tile = 0; tile < SamusArmCannonArtworkFormat.CoverTileCount; tile++)
         {
             if (!roundTrip.TryResolveTile(SamusRenderingRomData.Banks.CharacterData |
-                    SamusArmCannonArtworkFormat.TileSourcePointers[tile],
+                    SamusArmCannonArtworkFormat.CoverTileDmaSources[tile],
                     SamusRenderingRomData.ArmCannon.TileUploadByteCount, out var decoded) ||
                 !decoded.Span.SequenceEqual(planar.AsSpan(
                     tile * SamusRenderingRomData.ArmCannon.TileUploadByteCount,
@@ -133,7 +139,7 @@ public static class SamusArmCannonArtworkFiles
         {
             var placement = json.Compile(SamusArmCannonArtworkCatalog.LoadPlacement);
             var tiles = png.Compile(stream => RoomCharacterAtlas.Load(stream,
-                SamusArmCannonArtworkFormat.TileSourcePointers.Length *
+                SamusArmCannonArtworkFormat.CoverTileCount *
                     SamusRenderingRomData.ArmCannon.TileUploadByteCount));
             return SamusArmCannonArtworkCatalog.FromPlacement(placement, tiles);
         }

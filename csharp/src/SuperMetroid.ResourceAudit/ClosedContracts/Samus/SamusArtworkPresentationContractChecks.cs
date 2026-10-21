@@ -36,15 +36,15 @@ internal static class SamusArtworkPresentationContractChecks
                     sprites.TryGet(SamusSpritemapArtworkCatalog.PointerCount - 1, out _);
                     sprites.TryGet(SamusSpritemapArtworkCatalog.PointerCount, out _);
                     atmosphere.TryResolve(byte.MaxValue, byte.MaxValue, out _);
-                    arm.PoseDrawingData(252);
-                    arm.PoseDrawingData(253);
-                    arm.ReadDrawingByte(SamusArmCannonArtworkFormat.DrawingDataEndExclusive - 1);
-                    arm.ReadDrawingByte(SamusArmCannonArtworkFormat.DrawingDataEndExclusive);
+                    arm.PoseDescriptor(252);
+                    arm.PoseDescriptor(253);
+                    arm.ReadDrawingByte(SamusArmCannonArtworkFormat.DrawingDataByteCount - 1);
+                    arm.ReadDrawingByte(SamusArmCannonArtworkFormat.DrawingDataByteCount);
                     arm.SpriteAttributes(9);
                     arm.SpriteAttributes(10);
-                    arm.TileSource(9, 3);
-                    arm.TileSource(9, 4);
-                    arm.TileSource(10, 0);
+                    arm.CoverTileIndex(9, 3);
+                    arm.CoverTileIndex(9, 4);
+                    arm.CoverTileIndex(10, 0);
                     arm.TryResolveTile(0, 0, out _);
                 }
             }

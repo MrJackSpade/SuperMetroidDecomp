@@ -13,7 +13,7 @@ internal static class SamusArmCannonArtworkCatalogTooling
         Ensure.NotNull(tilePng);
         SamusArmCannonArtworkCatalog.Placement placement = SamusArmCannonArtworkCatalog.LoadPlacement(json);
         RoomCharacterAtlas tiles = RoomCharacterAtlas.Load(tilePng,
-            SamusArmCannonArtworkFormat.TileSourcePointers.Length *
+            SamusArmCannonArtworkFormat.CoverTileCount *
                 SamusRenderingRomData.ArmCannon.TileUploadByteCount);
         return SamusArmCannonArtworkCatalog.FromPlacement(placement, tiles);
     }

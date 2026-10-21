@@ -403,7 +403,7 @@ internal static class SamusBodyArtworkVerification
         JsonNode armDocument = RequiredJson.Parse(File.ReadAllText(Path.Combine(
             installation.SamusBodyDirectory, SamusArmCannonArtworkFormat.JsonFileName)));
         ushort armPosePointer = stock.ArmCannon.PoseDrawingData((int)SamusPoseId.FacingRightNormalPose);
-        byte armSelector = stock.ArmCannon.ReadDrawingByte(armPosePointer);
+        byte armSelector = stock.ArmCannon.ReadDrawingByteAt(armPosePointer);
         ushort armXAddress = unchecked((ushort)(armPosePointer +
             ((armSelector & 0x80) != 0 ? 4 : 2)));
         int armXIndex = armXAddress - SamusArmCannonArtworkFormat.DrawingDataStart;
@@ -415,7 +415,7 @@ internal static class SamusBodyArtworkVerification
         IndexedPngImage armImage = IndexedPng.Read(new MemoryStream(File.ReadAllBytes(
             Path.Combine(installation.SamusBodyDirectory,
                 SamusArmCannonArtworkFormat.TileFileName)), writable: false),
-            new(checked((ushort)(SamusArmCannonArtworkFormat.TileSourcePointers.Length * 8)), 8));
+            new(checked((ushort)(SamusArmCannonArtworkFormat.TileSourcePointers.Count * 8)), 8));
         ushort selectedArmTileSource = stock.ArmCannon.TileSource(armSelector & 0x7f, 3);
         int selectedArmTileIndex = SamusArmCannonArtworkFormat.TileSourcePointers.IndexOf(selectedArmTileSource);
         AssertTrue(selectedArmTileIndex >= 0,
@@ -427,8 +427,8 @@ internal static class SamusBodyArtworkVerification
             IndexedPng.Write(output, new(armImage.Size.X, armImage.Size.Y), armPixels,
                 armImage.Palette);
         SamusBodyArtworkCatalog replacement = installation.LoadSamusBodyArt();
-        AssertTrue(stock.ArmCannon.ReadDrawingByte(armXAddress) !=
-                replacement.ArmCannon.ReadDrawingByte(armXAddress),
+        AssertTrue(stock.ArmCannon.ReadDrawingByteAt(armXAddress) !=
+                replacement.ArmCannon.ReadDrawingByteAt(armXAddress),
             "edited arm-cannon JSON changes a pose OAM X offset");
         ReadOnlyMemory<byte> editedArmTile = default;
         AssertTrue(stock.ArmCannon.TryResolveTile(
@@ -618,7 +618,7 @@ internal static class SamusBodyArtworkVerification
         AssertTrue(File.ReadAllBytes(stockArmPath).SequenceEqual(originalArmStock),
             "repair restores the hash-checked stock arm-cannon PNG");
         SamusArmCannonArtworkCatalog reboundArm = repaired.LoadSamusBodyArt().ArmCannon;
-        AssertTrue(reboundArm.ReadDrawingByte(armXAddress) != stock.ArmCannon.ReadDrawingByte(armXAddress),
+        AssertTrue(reboundArm.ReadDrawingByteAt(armXAddress) != stock.ArmCannon.ReadDrawingByteAt(armXAddress),
             "repair preserves edited arm-cannon placement JSON");
         AssertTrue(reboundArm.TryResolveTile(SamusRenderingRomData.Banks.CharacterData |
                 selectedArmTileSource, 32, out var reboundArmTile) &&
@@ -644,7 +644,7 @@ internal static class SamusBodyArtworkVerification
         for (int offset = 0; offset < SamusArmCannonArtworkFormat.DrawingDataByteCount; offset++)
             AssertEqual(bus.ReadCartridgeByte(SamusRenderingRomData.Banks.Movement |
                     (SamusArmCannonArtworkFormat.DrawingDataStart + offset)),
-                armCannon.ReadDrawingByte((ushort)(SamusArmCannonArtworkFormat.DrawingDataStart + offset)),
+                armCannon.ReadDrawingByteAt((ushort)(SamusArmCannonArtworkFormat.DrawingDataStart + offset)),
                 $"arm-cannon drawing byte {offset:X3}");
         for (int direction = 0; direction < SamusRenderingRomData.ArmCannon.DirectionCount; direction++)
         {

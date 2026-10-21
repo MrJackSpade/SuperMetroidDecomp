@@ -110,20 +110,17 @@ internal static class SamusContentIdentityVerification
         var cannonDocument = new SamusArmCannonArtworkDocument
         {
             Version = SamusArmCannonArtworkFormat.Version,
-            PosePointers = Enumerable.Repeat((int)SamusArmCannonArtworkFormat.DrawingDataStart,
-                SamusBodyArtworkCatalog.PoseCount).ToArray(),
+            PoseDescriptors = new int[SamusBodyArtworkCatalog.PoseCount],
             DrawingData = new int[SamusArmCannonArtworkFormat.DrawingDataByteCount],
             SpriteAttributes = new int[SamusRenderingRomData.ArmCannon.DirectionCount],
-            TileSources = Enumerable.Range(0, SamusRenderingRomData.ArmCannon.DirectionCount)
-                .Select(_ => new[] { 0, SamusArmCannonArtworkFormat.TileSourcePointers[0],
-                    SamusArmCannonArtworkFormat.TileSourcePointers[0],
-                    SamusArmCannonArtworkFormat.TileSourcePointers[0] }).ToArray(),
+            CoverTiles = Enumerable.Range(0, SamusRenderingRomData.ArmCannon.DirectionCount)
+                .Select(_ => new int[SamusArmCannonArtworkFormat.FramesPerDirection - 1]).ToArray(),
         };
-        if (edit == "cannon-pose") cannonDocument.PosePointers[0]++;
+        if (edit == "cannon-pose") cannonDocument.PoseDescriptors[0]++;
         if (edit == "cannon-drawing") cannonDocument.DrawingData[0] = 1;
         if (edit == "cannon-attributes") cannonDocument.SpriteAttributes[0] = 1;
-        if (edit == "cannon-sources") cannonDocument.TileSources[0][1] = SamusArmCannonArtworkFormat.TileSourcePointers[1];
-        int cannonWidth = SamusArmCannonArtworkFormat.TileSourcePointers.Length * 8;
+        if (edit == "cannon-sources") cannonDocument.CoverTiles[0][0] = 1;
+        int cannonWidth = SamusArmCannonArtworkFormat.CoverTileCount * 8;
         SamusArmCannonArtworkCatalog cannon = SamusArmCannonArtworkCatalogTooling.Load(
             new MemoryStream(SamusArmCannonArtworkCatalog.Write(cannonDocument)),
             Png(cannonWidth, 8, edit == "cannon-tiles"));

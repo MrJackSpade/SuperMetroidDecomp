@@ -67,14 +67,13 @@ internal static class SamusBodyTransferContractChecks
         SamusDeathTileAtlas deathTiles = SamusDeathTileAtlas.Load(deathPng);
         var cannonDocument = new SamusArmCannonArtworkDocument {
             Version = SamusArmCannonArtworkFormat.Version,
-            PosePointers = Enumerable.Repeat((int)SamusArmCannonArtworkFormat.DrawingDataStart, SamusBodyArtworkCatalog.PoseCount).ToArray(),
+            PoseDescriptors = new int[SamusBodyArtworkCatalog.PoseCount],
             DrawingData = new int[SamusArmCannonArtworkFormat.DrawingDataByteCount],
             SpriteAttributes = new int[SamusRenderingRomData.ArmCannon.DirectionCount],
-            TileSources = Enumerable.Range(0, SamusRenderingRomData.ArmCannon.DirectionCount).Select(_ =>
-                new[] { 0, SamusArmCannonArtworkFormat.TileSourcePointers[0],
-                    SamusArmCannonArtworkFormat.TileSourcePointers[0], SamusArmCannonArtworkFormat.TileSourcePointers[0] }).ToArray() };
+            CoverTiles = Enumerable.Range(0, SamusRenderingRomData.ArmCannon.DirectionCount).Select(_ =>
+                new int[SamusArmCannonArtworkFormat.FramesPerDirection - 1]).ToArray() };
         using var cannonJson = new MemoryStream(SamusArmCannonArtworkCatalog.Write(cannonDocument));
-        using var cannonPng = Png(new(checked((ushort)(SamusArmCannonArtworkFormat.TileSourcePointers.Length * 8)), 8));
+        using var cannonPng = Png(new(SamusArmCannonArtworkFormat.CoverTileCount * 8, 8));
         SamusArmCannonArtworkCatalog cannon = SamusArmCannonArtworkCatalogTooling.Load(cannonJson, cannonPng);
         var frames = new SamusBodyFrameSelection[SamusBodyArtworkCatalog.FrameCount];
         if (invalidAdjacentFrame) frames[1] = new(byte.MaxValue, 0, byte.MaxValue, 0);

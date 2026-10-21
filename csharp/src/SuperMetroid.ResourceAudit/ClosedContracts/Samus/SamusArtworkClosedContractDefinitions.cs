@@ -63,7 +63,7 @@ internal static class SamusArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Hardware/SnesPpuLayout.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Movement/SamusMovementRomData.cs")]),
         new("SuperMetroid.Core.Samus.Artwork.SamusArmCannonArtworkCatalog", "samus-complete-cannon-placement-and-tile-membership",
-            ["PoseDrawingData", "ReadDrawingByte", "SpriteAttributes", "TileSource", "TryResolveTile", "CoverTile"],
+            ["PoseDescriptor", "ReadDrawingByte", "SpriteAttributes", "CoverTileIndex", "TryResolveTile", "CoverTile"],
             [new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusArmCannonArtworkCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusArmCannonArtworkFormat.cs"),
              new("csharp/src/SuperMetroid.Tooling/Core/Samus/Artwork/SamusArmCannonArtworkCatalogTooling.cs"),

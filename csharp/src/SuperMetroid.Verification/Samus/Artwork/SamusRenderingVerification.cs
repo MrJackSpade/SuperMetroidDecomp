@@ -512,12 +512,12 @@ internal static void VerifySamusArmCannon()
     string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
     var document = RequiredJson.Parse(File.ReadAllText(
         Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName)));
-    document.Required("posePointers")[1] = SamusArmCannonArtworkFormat.DrawingDataStart;
+    document.Required("poseDescriptors")[1] = 0;
     int[] drawing = [2, 2, 7, 0xfd, 9, 0xfb];
     for (int index = 0; index < drawing.Length; index++)
         document.Required("drawingData")[index] = drawing[index];
     document.Required("spriteAttributes")[2] = 0x281f;
-    document.Required("tileSources")[2] = new System.Text.Json.Nodes.JsonArray(0, 0x9a00, 0x9c00, 0x9e00);
+    document.Required("coverTiles")[2] = new System.Text.Json.Nodes.JsonArray(0, 1, 2);
     using var placement = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString()));
     using var tiles = File.OpenRead(Path.Combine(directory, SamusArmCannonArtworkFormat.TileFileName));
     var artwork = SamusArmCannonArtworkCatalogTooling.Load(placement, tiles);

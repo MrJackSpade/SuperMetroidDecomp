@@ -1405,18 +1405,19 @@ internal static class LookupStream1Verification
         byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
         var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        var tiles = RoomCharacterAtlas.Load(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Length * 32);
+        var tiles = RoomCharacterAtlas.Load(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Count * 32);
         SamusArmCannonArtworkCatalog Load(SamusArmCannonArtworkDocument value) => SamusArmCannonArtworkCatalog.FromPlacement(
             SamusArmCannonArtworkCatalog.LoadPlacement(new MemoryStream(SamusArmCannonArtworkCatalog.Write(value))), tiles);
         var stock = Load(document);
-        Dictionary<int, ushort> Stored(SamusArmCannonArtworkCatalog value) => value.posePointers;
+        Dictionary<int, int> Stored(SamusArmCannonArtworkCatalog value) => value.poseDescriptors;
         ushort Native(int pose) => SnesLittleEndian.Word(LookupStream1CannonPosesRomByte(rom, 0x90C7DF + pose * 2), LookupStream1CannonPosesRomByte(rom, 0x90C7E0 + pose * 2));
-        string Identity(SamusArmCannonArtworkDocument value) => SelectedPresentationHash.Create(nameof(SamusArmCannonArtworkCatalog), hash =>
+        string Identity(SamusArmCannonArtworkDocument value) => SelectedPresentationHash.Create("samus-arm-cannon-v2", hash =>
         {
-            hash.AppendWords("pose pointers", value.PosePointers.Select(pointer => (ushort)pointer).ToArray());
+            foreach (int descriptor in value.PoseDescriptors) hash.Append("pose descriptor", descriptor);
             hash.Append("drawing data", value.DrawingData.Select(item => (byte)item).ToArray());
             hash.AppendWords("attributes", value.SpriteAttributes.Select(item => (ushort)item).ToArray());
-            foreach (int[] direction in value.TileSources) hash.AppendWords("tile sources", direction.Select(item => (ushort)item).ToArray());
+            foreach (int[] direction in value.CoverTiles)
+                foreach (int tile in direction) hash.Append("cover tile", tile);
             hash.Append("characters", tiles.Transfer.Span);
         });
         AssertEqual(253, SamusBodyArtworkCatalog.PoseCount, "cannon original 506-byte pointer extent");
@@ -1426,17 +1427,17 @@ internal static class LookupStream1Verification
         {
             AssertEqual(Native(pose), SamusArmCannonArtworkFormat.StockPoseDrawingData(pose), "cannon direct native pose dispatch");
             AssertEqual(Native(pose), stock.PoseDrawingData(pose), "cannon installed native pose dispatch");
-            int[] pointers = document.PosePointers.ToArray();
-            // Preserve an arbitrary admitted byte address, including descriptor interiors.
-            int replacement = SamusArmCannonArtworkFormat.DrawingDataStart + pose;
-            if (replacement == pointers[pose]) replacement++;
-            pointers[pose] = replacement;
-            var editedDocument = document with { PosePointers = pointers };
+            int[] descriptors = document.PoseDescriptors.ToArray();
+            // Preserve an arbitrary admitted byte offset, including descriptor interiors.
+            int replacement = pose;
+            if (replacement == descriptors[pose]) replacement++;
+            descriptors[pose] = replacement;
+            var editedDocument = document with { PoseDescriptors = descriptors };
             var edited = Load(editedDocument);
-            AssertEqual(1, Stored(edited).Count, "cannon exactly one independent pointer override");
-            AssertEqual((ushort)replacement, Stored(edited)[pose], "cannon stores arbitrary admitted pointer identity");
+            AssertEqual(1, Stored(edited).Count, "cannon exactly one independent descriptor override");
+            AssertEqual(replacement, Stored(edited)[pose], "cannon stores arbitrary admitted descriptor offset");
             for (int other = 0; other < 253; other++)
-                AssertEqual(other == pose ? (ushort)replacement : Native(other), edited.PoseDrawingData(other), "cannon isolated pointer edit");
+                AssertEqual(other == pose ? (ushort)(SamusArmCannonArtworkFormat.DrawingDataStart + replacement) : Native(other), edited.PoseDrawingData(other), "cannon isolated descriptor edit");
             AssertEqual(Identity(editedDocument), edited.ContentIdentity, "cannon edited pointer hash preserves canonical representation");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 253, 254, 255, 256, int.MaxValue })
@@ -2151,7 +2152,7 @@ internal static class LookupStream1Verification
         }
         ushort[] expected = nativeSources.ToArray();
         var sources = SamusArmCannonArtworkFormat.TileSourcePointers;
-        AssertEqual(expected.Length, sources.Length, "Calculated cannon source count matches distinct native list operands");
+        AssertEqual(expected.Length, sources.Count, "Calculated cannon source count matches distinct native list operands");
         AssertTrue(expected.SequenceEqual(sources), "Calculated cannon source enumeration retains original ascending tile order");
         for (int index = 0; index < expected.Length; index++)
             AssertEqual(expected[index], sources[index], "Calculated cannon source indexing retains native identity");
@@ -2168,8 +2169,7 @@ internal static class LookupStream1Verification
         byte[] json = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.JsonFileName));
         byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
         var stock = SamusArmCannonArtworkCatalogTooling.Load(new MemoryStream(json), new MemoryStream(png));
-        foreach (Dictionary<int, ushort> overrides in new[] { stock.attributes, stock.tileSources })
-            AssertEqual(0, overrides.Count, "Stock cannon selectors require no stored fallback overrides");
+        AssertEqual(0, stock.attributes.Count + stock.openingTiles.Count, "Stock cannon selectors require no stored fallback overrides");
         for (int direction = 0; direction < 10; direction++)
         {
             var aim = (SamusProjectileDirection)direction;
@@ -2187,7 +2187,7 @@ internal static class LookupStream1Verification
         {
             var document = RequiredJson.Parse(json);
             ushort replacement = expected[(sources.IndexOf(stock.TileSource(direction, 2)) + 1) % expected.Length];
-            document.Required("tileSources").Required(direction)[2] = replacement;
+            document.Required("coverTiles").Required(direction)[1] = sources.IndexOf(replacement);
             document.Required("spriteAttributes")[direction] = stock.SpriteAttributes(direction) ^ 0x4000;
             byte[] changedJson = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString());
             var changed = SamusArmCannonArtworkCatalogTooling.Load(new MemoryStream(changedJson), new MemoryStream(png));
@@ -2203,7 +2203,7 @@ internal static class LookupStream1Verification
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.TileSource(0, invalid), "Cannon cover frame bounds remain exact");
         Verify(stock, false);
-        var image = IndexedPng.Read(new MemoryStream(png), new(checked((ushort)(sources.Length * 8)), 8));
+        var image = IndexedPng.Read(new MemoryStream(png), new(checked((ushort)(sources.Count * 8)), 8));
         byte[] pixels = (byte[])image.Pixels.Clone();
         pixels[5 * 8] ^= 1;
         using var editedPng = new MemoryStream();
@@ -2236,13 +2236,13 @@ internal static class LookupStream1Verification
         {
             using var document = System.Text.Json.JsonDocument.Parse(jsonBytes);
             var root = document.RootElement;
-            return SelectedPresentationHash.Create(nameof(SamusArmCannonArtworkCatalog), content =>
+            return SelectedPresentationHash.Create("samus-arm-cannon-v2", content =>
             {
-                content.AppendWords("pose pointers", root.GetProperty("posePointers").EnumerateArray().Select(value => (ushort)value.GetInt32()).ToArray());
+                foreach (var descriptor in root.GetProperty("poseDescriptors").EnumerateArray()) content.Append("pose descriptor", descriptor.GetInt32());
                 content.Append("drawing data", root.GetProperty("drawingData").EnumerateArray().Select(value => (byte)value.GetInt32()).ToArray());
                 content.AppendWords("attributes", root.GetProperty("spriteAttributes").EnumerateArray().Select(value => (ushort)value.GetInt32()).ToArray());
-                foreach (var direction in root.GetProperty("tileSources").EnumerateArray())
-                    content.AppendWords("tile sources", direction.EnumerateArray().Select(value => (ushort)value.GetInt32()).ToArray());
+                foreach (var direction in root.GetProperty("coverTiles").EnumerateArray())
+                    foreach (var tile in direction.EnumerateArray()) content.Append("cover tile", tile.GetInt32());
                 content.Append("characters", planar);
             });
         }
@@ -2274,7 +2274,7 @@ internal static class LookupStream1Verification
         byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
         var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        var tiles = RoomCharacterAtlas.Load(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Length * 32);
+        var tiles = RoomCharacterAtlas.Load(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Count * 32);
         SamusArmCannonArtworkCatalog Load(SamusArmCannonArtworkDocument value) => SamusArmCannonArtworkCatalog.FromPlacement(
             SamusArmCannonArtworkCatalog.LoadPlacement(new MemoryStream(SamusArmCannonArtworkCatalog.Write(value))), tiles);
         var stock = Load(document);
@@ -2400,7 +2400,7 @@ internal static class LookupStream1Verification
                 AssertEqual(expected, SamusArmCannonArtworkFormat.ReflectCoverX(LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | reflectedSource)), "cannon reflected native default");
             }
             AssertEqual(!calculated && !alias && !reflection, Stored(stock).ContainsKey(index), "cannon exact coordinate storage membership");
-            AssertEqual(expected, stock.ReadDrawingByte(address), "cannon complete installed byte window");
+            AssertEqual(expected, stock.ReadDrawingByteAt(address), "cannon complete installed byte window");
             int[] drawing = document.DrawingData.ToArray(); drawing[index] ^= 0xFF;
             var edited = Load(document with { DrawingData = drawing });
             int expectedStored = 0;
@@ -2420,11 +2420,11 @@ internal static class LookupStream1Verification
             AssertEqual(expectedStored, Stored(edited).Count, "cannon stores only basis and independently supplied differences");
             for (int other = 0; other < count; other++)
                 AssertEqual((byte)(other == index ? drawing[index] : document.DrawingData[other]),
-                    edited.ReadDrawingByte((ushort)(start + other)), "cannon independent control/coordinate/cost edit");
+                    edited.ReadDrawingByteAt((ushort)(start + other)), "cannon independent control/coordinate/cost edit");
             AssertTrue(stock.ContentIdentity != edited.ContentIdentity, "cannon every supplied byte changes selected identity");
         }
         foreach (ushort address in new ushort[] { 0, start - 1, start + count, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(() => stock.ReadDrawingByte(address), "cannon drawing bounds remain exact");
+            AssertThrows<InvalidDataException>(() => stock.ReadDrawingByteAt(address), "cannon drawing bounds remain exact");
         Console.WriteLine("Cannon drawing:130 native controls,24 cost aliases,290 shared coordinates,29 reflected origins,135 exact basis bytes and608 independent edits pass.");
     }
 
@@ -2893,7 +2893,7 @@ internal static class LookupStream1Verification
         byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
         var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        var tiles = RoomCharacterAtlas.Load(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Length * 32);
+        var tiles = RoomCharacterAtlas.Load(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Count * 32);
         SamusArmCannonArtworkCatalog Load(SamusArmCannonArtworkDocument value) => SamusArmCannonArtworkCatalog.FromPlacement(
             SamusArmCannonArtworkCatalog.LoadPlacement(new MemoryStream(SamusArmCannonArtworkCatalog.Write(value))), tiles);
         Dictionary<int, byte> Stored(SamusArmCannonArtworkCatalog value) => value.drawingData;
@@ -2914,11 +2914,11 @@ internal static class LookupStream1Verification
                 AssertEqual(expected, direct, $"Direct native cannon attachment {address:X4}");
                 basis++;
             }
-            AssertEqual(expected, stock.ReadDrawingByte(address), "Every installed native cannon byte");
+            AssertEqual(expected, stock.ReadDrawingByteAt(address), "Every installed native cannon byte");
             int[] drawing = document.DrawingData.ToArray(); drawing[index] ^= 0xff;
             var edited = Load(document with { DrawingData = drawing }).WithBodyGeometry(body);
             for (int other = 0; other < drawing.Length; other++)
-                AssertEqual((byte)drawing[other], edited.ReadDrawingByte((ushort)(0xc9d9 + other)), "Independent cover-byte edit preserves all supplied outputs");
+                AssertEqual((byte)drawing[other], edited.ReadDrawingByteAt((ushort)(0xc9d9 + other)), "Independent cover-byte edit preserves all supplied outputs");
             AssertEqual(Load(document with { DrawingData = drawing }).ContentIdentity, edited.ContentIdentity, "Bound edited cover retains exact canonical hash");
         }
         AssertEqual(135, basis, "All formerly independent coordinate basis bytes now have reviewed defaults");
@@ -2934,7 +2934,7 @@ internal static class LookupStream1Verification
         {
             var editedBody = WithMaps(maps);
             for (int index = 0; index < document.DrawingData.Length; index++)
-                AssertEqual((byte)document.DrawingData[index], editedBody.ArmCannon.ReadDrawingByte((ushort)(0xc9d9 + index)), "Independent body geometry cannot rewrite supplied cover placement");
+                AssertEqual((byte)document.DrawingData[index], editedBody.ArmCannon.ReadDrawingByteAt((ushort)(0xc9d9 + index)), "Independent body geometry cannot rewrite supplied cover placement");
             AssertEqual(stock.ContentIdentity, editedBody.ArmCannon.ContentIdentity, "Body-only edits preserve complete cover identity");
             AssertTrue(Stored(editedBody.ArmCannon).Count > 0, "Different source art retains explicit independent cover offsets");
         }

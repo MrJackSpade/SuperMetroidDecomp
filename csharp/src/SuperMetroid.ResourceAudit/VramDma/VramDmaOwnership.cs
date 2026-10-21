@@ -33,7 +33,7 @@ internal static class VramDmaOwnership
         if (SamusSpecialSequenceRomData.Death.TileSegments.Any(segment => segment.SourceAddress == source &&
                 count == SamusSpecialSequenceRomData.Death.TileSegmentByteCount)) return true;
         if ((SnesAddressMath.BankBase(source)) == SamusRenderingRomData.Banks.CharacterData &&
-            SamusArmCannonArtworkFormat.TileSourcePointers.Contains((ushort)source) &&
+            SamusArmCannonArtworkFormat.CoverTileDmaSources.IndexOf((ushort)source) >= 0 &&
             count == SamusRenderingRomData.ArmCannon.TileUploadByteCount) return true;
         if (GunshipLiftoffTransferDefinitions.Frames.Any(frame => frame.SourceAddress == source &&
                 count == GunshipLiftoffTransferDefinitions.ByteCount)) return true;

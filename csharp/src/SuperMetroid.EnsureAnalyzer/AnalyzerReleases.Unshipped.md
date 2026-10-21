@@ -43,3 +43,5 @@ SME6392 | Design | Warning | SpeciesIdentityAnalyzer
 SME6437 | Design | Error | TupleAnalyzer
 SME6438 | Design | Error | CoreVocabularyAnalyzer
 SME6439 | Design | Error | CompatibilityServiceAnalyzer
+SME6440 | Design | Error | AddressIdentityAnalyzer
+SME6441 | Design | Error | AddressIdentityAnalyzer

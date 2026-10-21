@@ -477,18 +477,18 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
         }
 
         SamusFacingDirection previousDirection = SamusPoseMetadata.ReadFacingDirection(samus);
-        int previousDelayList = samus.AnimationDelayListAddress;
+        SamusAnimationDelayList previousDelayList = samus.AnimationDelayList;
         samus.Pose = targetPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
 
         // All ordinary ball poses point at `$91:B378`. Native writes $8000 to the new-frame
         // selector, causing `$91:FB5C` to return without changing frame OR timer. Assert the
         // table identity instead of depending on that retail-data fact silently.
-        int targetDelayList = SamusPresentation.ResolveAnimationDelayList(samus);
+        SamusAnimationDelayList targetDelayList = SamusPresentation.ResolveAnimationDelayList(samus);
         if (previousDelayList != targetDelayList)
         {
             throw new InvalidDataException(
-                $"Morph-Ball transition selected mismatched animation lists ${previousDelayList:X6}/${targetDelayList:X6}.");
+                $"Morph-Ball transition selected mismatched animation lists {previousDelayList}/{targetDelayList}.");
         }
 
         SamusFacingDirection currentDirection = SamusPoseMetadata.ReadFacingDirection(samus);

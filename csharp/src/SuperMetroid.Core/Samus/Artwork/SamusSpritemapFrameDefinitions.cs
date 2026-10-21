@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Death;
 
@@ -9,7 +8,8 @@ namespace SuperMetroid.Core.Samus.Artwork;
 internal static class SamusSpritemapFrameDefinitions
 {
     /// <summary>$92:8091/8151/81D1/8291: appearance lists contain96 indexed phases, including the initial body and mutable-memory slot.</summary>
-    private static int AppearancePhases => (SamusAnimationDelayDefinitions.DelayStreamsEndExclusive & ushort.MaxValue) - SamusAnimationDelayDefinitions.PointerForPose(SamusPoseId.ForwardFacingPowerSuitPose) - 2;
+    private static int AppearancePhases =>
+        SamusAnimationDelayDefinitions.BytesToStreamEnd(SamusAnimationDelayDefinitions.ListForPose(SamusPoseId.ForwardFacingPowerSuitPose)) - 2;
     /// <summary>$92:8095..812F: the initial electricity sequence alternates three distinct discharges with its shared empty composition.</summary>
     private const int AppearanceDischargeEnd = 80;
     /// <summary>$92:86F3/8777: upper grapple composition repeats after one32-position turn; the two final entries select its center orientation.</summary>
@@ -94,12 +94,12 @@ internal static class SamusSpritemapFrameDefinitions
         {
             int phase = Phase(upper, pose);
             if ((uint)phase >= extent || phase < firstPhase) return false;
-            int pointer = SamusAnimationDelayDefinitions.PointerForPose(pose);
+            SamusAnimationDelayList list = SamusAnimationDelayDefinitions.ListForPose(pose);
+            int remaining = SamusAnimationDelayDefinitions.BytesToStreamEnd(list);
             for (int cursor = 0; cursor <= phase;)
             {
-                int address = SamusMovementRomData.Banks.Pose | (pointer + cursor);
-                if (address >= SamusAnimationDelayDefinitions.DelayStreamsEndExclusive) return false;
-                byte value = SamusAnimationDelayDefinitions.ReadCompiledByte(address);
+                if (cursor >= remaining) return false;
+                byte value = SamusAnimationDelayDefinitions.ReadAnimationByte(null, list, cursor);
                 int size = value switch { 0xf8 or 0xfd or 0xfe => 2, 0xf9 => 7, 0xfa => 3, 0xfc => 5, _ => 1 };
                 if (phase < cursor + size) return value is 0xf6 or 0xfb or 0xfd or 0xfe or 0xff;
                 cursor += size;

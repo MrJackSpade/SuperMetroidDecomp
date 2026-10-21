@@ -273,10 +273,10 @@ internal static class SamusAnimationDelayPrograms
         (offset, earlier) =>
             new(offset, delays, SamusAnimationCommand.ItemAirborneTransition, new SamusAnimationTransition { Item = item, UnequippedGrounded = unequippedGrounded, UnequippedAirborne = unequippedAirborne, EquippedGrounded = equippedGrounded, EquippedAirborne = equippedAirborne });
 
-    /// <summary>Encodes the native byte at a bank-$91 address inside the programs.</summary>
-    internal static byte ByteAt(int bankAddress)
+    /// <summary>Encodes the byte at a window position inside the programs.</summary>
+    internal static byte ByteAt(int position)
     {
-        int streamOffset = bankAddress - SnesAddressMath.OffsetInBank(SamusAnimationDelayDefinitions.DelayStreamsAddress);
+        int streamOffset = position - SamusAnimationDelayDefinitions.StreamStart;
         int low = 0;
         int high = segments.Length - 1;
         while (low < high)

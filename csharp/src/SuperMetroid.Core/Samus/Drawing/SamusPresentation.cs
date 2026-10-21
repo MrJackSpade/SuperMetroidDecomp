@@ -88,7 +88,7 @@ internal sealed class SamusPresentation
         // recomputes water/lava delay from the NEW pose radius at Y + radius - 1, while
         // Gravity Suit takes the ordinary speed-divisor path.
         samus.AnimationFrameBuffer = samus.LiquidPhysics.DeterminePoseChangeAnimationBuffer(samus);
-        samus.AnimationDelayListAddress = ResolveAnimationDelayList(samus);
+        samus.AnimationDelayList = ResolveAnimationDelayList(samus);
         byte initialDelay = ReadAnimationByte(samus, samus.AnimationFrame);
         if (SamusAnimationDelayDefinitions.IsCommand(initialDelay))
         {
@@ -135,7 +135,7 @@ internal sealed class SamusPresentation
     {
         // Both drained controllers store only $0A1C; $0A1E/$0A1F keep the prior movement and collision radii.
         samus.WritePoseWithoutInitialization(pose);
-        samus.AnimationDelayListAddress = ResolveAnimationDelayList(samus);
+        samus.AnimationDelayList = ResolveAnimationDelayList(samus);
         samus.AnimationFrame = frame;
         samus.AnimationFrameTimer = WrappingCountdown.FromRaw(timer);
         samus.PendingTransitionalPose = null;
@@ -430,25 +430,20 @@ internal sealed class SamusPresentation
     /// <summary>Rejects animation updates after a pose change that did not refresh its delay list.</summary>
     private static void EnsureAnimationInitialized(SamusState samus)
     {
-        int expectedList = ResolveAnimationDelayList(samus);
-        if (samus.AnimationDelayListAddress != expectedList)
+        if (samus.AnimationDelayList != ResolveAnimationDelayList(samus))
         {
             throw new InvalidOperationException(
                 "Samus animation was not initialized for the current pose. Call InitializeAnimation after changing Pose.");
         }
     }
 
-    /// <summary>Resolves the current pose's bank-$91 animation-delay list address.</summary>
-    internal static int ResolveAnimationDelayList(SamusState samus)
-    {
-        ushort pointer = SamusAnimationDelayDefinitions.PointerForPose(samus.Pose);
-        return SamusMovementRomData.Banks.Pose | pointer;
-    }
+    /// <summary>Resolves the current pose's animation-delay program.</summary>
+    internal static SamusAnimationDelayList ResolveAnimationDelayList(SamusState samus) =>
+        SamusAnimationDelayDefinitions.ListForPose(samus.Pose);
 
     /// <summary>Reads one compiled delay byte from the animation list selected for this pose.</summary>
     private static byte ReadAnimationByte(SamusState samus, int byteIndex) =>
-        SamusAnimationDelayDefinitions.ReadAnimationByte(samus.Mode7QueueResidue,
-            unchecked((ushort)samus.AnimationDelayListAddress), byteIndex);
+        SamusAnimationDelayDefinitions.ReadAnimationByte(samus.Mode7QueueResidue, samus.AnimationDelayList, byteIndex);
 
     /// <summary>
     /// Reads the shared ordinary-Dash delay list selected indirectly through `$91:B5D1`.
@@ -458,7 +453,7 @@ internal sealed class SamusPresentation
     {
         return SamusRunningCadenceDefinitions.ReadAnimationByte(
             mode7Residue,
-            SamusRunningCadenceDefinitions.DefaultRunningDelayListPointer,
+            SamusRunningCadence.Ordinary,
             byteIndex);
     }
 

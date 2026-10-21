@@ -486,8 +486,8 @@ public sealed class SamusState
     /// </summary>
     public bool KnockbackActive { get; set; }
 
-    /// <summary>Bank-$91 address of the active pose's byte-oriented delay program.</summary>
-    public int AnimationDelayListAddress { get; internal set; }
+    /// <summary>The active pose's byte-oriented delay program.</summary>
+    public SamusAnimationDelayList AnimationDelayList { get; internal set; }
 
     /// <summary>
     /// Operand published by animation command $F8 through the native “super-special

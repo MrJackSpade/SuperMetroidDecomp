@@ -18,8 +18,8 @@ internal static class SamusRunningCadenceDefinitions
 {
     /// <summary>$91:B5D3 AnimationDelayTable_Running_NoSpeedBooster, eleven cadence/command bytes.</summary>
     private const int OrdinaryDelays = 0x91b5d3;
-    /// <summary>$91:B5DE AnimationDelayTable_Running_SpeedBooster_pointers, five native bank-$91 pointers.</summary>
-    private const int BoostPointers = 0x91b5de;
+    /// <summary>$91:B5DE AnimationDelayTable_Running_SpeedBooster_pointers: the five words naming each stage's stream.</summary>
+    private const int StageStreamTable = 0x91b5de;
     /// <summary>$91:B5E8..B61E AnimationDelayTable_Running_SpeedBooster_0..4, five eleven-byte cadence streams.</summary>
     private const int BoostDelays = 0x91b5e8;
     /// <summary>$91:B61F SpeedBoostTimerResetValues: stages zero through three reset to one, stage four to two.</summary>
@@ -32,20 +32,28 @@ internal static class SamusRunningCadenceDefinitions
     /// </summary>
     internal const byte MaximumSoundQueueSelection = 5;
 
-    /// <summary>Compiled pointer to the ordinary ten-frame/two-tick running cadence.</summary>
-    internal static ushort DefaultRunningDelayListPointer => unchecked((ushort)OrdinaryDelays);
-
     /// <summary>
-    /// Resolves the speed-stage pointer selected by `$90:853E`. Selection five is the
+    /// Resolves the speed-stage cadence selected by `$90:853E`. Selection five is the
     /// native sound-queue clobber: bytes three/three at the first cadence frames become
-    /// mutable low-bank pointer `$0303`.
+    /// a stream starting in the Mode 7 transfer queue residue.
     /// </summary>
-    internal static ushort ReadSpeedBoostDelayListPointer(byte selection) => selection switch
+    internal static SamusRunningCadence SpeedBoostCadence(byte selection) => selection switch
     {
-        <= 4 => unchecked((ushort)(BoostDelays + selection * StreamLength)),
-        MaximumSoundQueueSelection => 0x0303,
+        <= 4 => SamusRunningCadence.BoostStage0 + selection,
+        MaximumSoundQueueSelection => SamusRunningCadence.SoundQueueClobber,
         _ => throw new InvalidDataException(
             $"Speed Booster sound-queue selection {selection} exceeds the native Max6 result domain."),
+    };
+
+    /// <summary>Where a cadence's stream starts in the 16-bit window a wrapped frame index reads.</summary>
+    private static ushort StreamStart(SamusRunningCadence cadence) => cadence switch
+    {
+        SamusRunningCadence.Ordinary => unchecked((ushort)OrdinaryDelays),
+        SamusRunningCadence.BoostStage0 or SamusRunningCadence.BoostStage1 or SamusRunningCadence.BoostStage2 or
+            SamusRunningCadence.BoostStage3 or SamusRunningCadence.BoostStage4 =>
+            unchecked((ushort)(BoostDelays + (cadence - SamusRunningCadence.BoostStage0) * StreamLength)),
+        SamusRunningCadence.SoundQueueClobber => 0x0303,
+        _ => throw new ArgumentOutOfRangeException(nameof(cadence), cadence, "Undefined running cadence."),
     };
 
     /// <summary>Resolves the native low-byte reset word selected after a stage advance.</summary>
@@ -58,13 +66,13 @@ internal static class SamusRunningCadenceDefinitions
             $"Speed Booster reset selection {selection} exceeds the native Max6 result domain."),
     };
 
-    /// <summary>Reads a cadence byte from a typed list pointer plus its native wrapped index.</summary>
+    /// <summary>Reads a cadence byte at its wrapped frame index.</summary>
     internal static byte ReadAnimationByte(
         SuperMetroid.Core.Hardware.Mode7TransferQueueResidue? mode7Residue,
-        ushort listPointer,
+        SamusRunningCadence cadence,
         int byteIndex)
     {
-        int address = 0x910000 | unchecked((ushort)(listPointer + byteIndex));
+        int address = 0x910000 | unchecked((ushort)(StreamStart(cadence) + byteIndex));
         if (TryReadCompiledByte(address, out byte value))
             return value;
 
@@ -83,16 +91,16 @@ internal static class SamusRunningCadenceDefinitions
     /// <summary>The two compiled 16-bit words outside the cadence streams and reset table, valued by address.</summary>
     private enum StandaloneWord
     {
-        /// <summary>$91:B5D1, AnimationDelayTable_Running_NoSpeedBooster_pointer: selects ten two-tick frames and a loop command.</summary>
-        OrdinaryPointer = 0x91b5d1,
+        /// <summary>$91:B5D1, AnimationDelayTable_Running_NoSpeedBooster_pointer: the word naming the ordinary stream.</summary>
+        OrdinaryStreamWord = 0x91b5d1,
         /// <summary>$91:B629-$B62A, the two zero bytes read when the native echo-sound call returns admitted queue occupancy five and the reset lookup crosses into pose zero.</summary>
         SoundQueueStageFiveReset = 0x91b629,
     }
 
-    /// <summary>Decodes the ordinary-list pointer or stage-five zero reset word outside the cadence streams.</summary>
+    /// <summary>Decodes the ordinary-stream word or stage-five zero reset word outside the cadence streams.</summary>
     private static ushort StandaloneWordValue(StandaloneWord word) => word switch
     {
-        StandaloneWord.OrdinaryPointer => unchecked((ushort)OrdinaryDelays),
+        StandaloneWord.OrdinaryStreamWord => unchecked((ushort)OrdinaryDelays),
         StandaloneWord.SoundQueueStageFiveReset => 0,
         _ => throw new InvalidOperationException($"Undefined {nameof(StandaloneWord)} {(int)word}."),
     };
@@ -109,16 +117,15 @@ internal static class SamusRunningCadenceDefinitions
                 return true;
             }
         }
-        if (address is >= OrdinaryDelays and < BoostPointers)
+        if (address is >= OrdinaryDelays and < StageStreamTable)
         {
-            value = address == BoostPointers - 1 ? (byte)0xff : (byte)2;
+            value = address == StageStreamTable - 1 ? (byte)0xff : (byte)2;
             return true;
         }
-        if (address is >= BoostPointers and < BoostDelays)
+        if (address is >= StageStreamTable and < BoostDelays)
         {
-            int index = address - BoostPointers;
-            ushort pointer = unchecked((ushort)(BoostDelays + (index / 2) * StreamLength));
-            value = unchecked((byte)(pointer >> ((index & 1) * 8)));
+            int index = address - StageStreamTable;
+            value = unchecked((byte)(StreamStart(SamusRunningCadence.BoostStage0 + index / 2) >> ((index & 1) * 8)));
             return true;
         }
         if (address is >= BoostDelays and < ResetWords)

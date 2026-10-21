@@ -671,12 +671,12 @@ internal static void VerifySamusGunExtendedMovement()
     SamusPresentation.InitializeAnimation(running, initialFrame: 4);
     int runningFrame = running.AnimationFrame;
     ushort runningTimer = running.AnimationFrameTimer.RawValue;
-    int runningDelayList = running.AnimationDelayListAddress;
+    SamusAnimationDelayList runningDelayList = running.AnimationDelayList;
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(running, SamusPoseId.MovingRightGunExtendedPose);
     AssertEqual(SamusPoseId.MovingRightGunExtendedPose, running.Pose, "running gun extension installs pose $0B");
     AssertEqual(runningFrame, running.AnimationFrame, "running gun extension preserves frame");
     AssertEqual(runningTimer, running.AnimationFrameTimer.RawValue, "running gun extension preserves timer");
-    AssertEqual(runningDelayList, running.AnimationDelayListAddress, "running gun extension retains shared delay list");
+    AssertEqual(runningDelayList, running.AnimationDelayList, "running gun extension retains shared delay list");
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(running, SamusPoseMetadata.ReadNoInputFallbackPose(running));
     AssertEqual(SamusPoseId.FacingRightNormalPose, running.Pose,
         "releasing Right while holding Shot leaves running-gun pose");

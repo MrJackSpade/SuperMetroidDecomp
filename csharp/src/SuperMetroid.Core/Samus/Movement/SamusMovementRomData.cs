@@ -29,9 +29,6 @@ public static class SamusMovementRomData
     {
         /// <summary>Bank containing physics constants, speed tables, and effects metadata.</summary>
         public const int Movement = 0x900000;
-
-        /// <summary>Bank containing pose, animation, and transition tables.</summary>
-        public const int Pose = 0x910000;
     }
 
     /// <summary>Pose definitions, animation lists, and controller-transition streams.</summary>

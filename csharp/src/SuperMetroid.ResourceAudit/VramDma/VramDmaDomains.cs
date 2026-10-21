@@ -58,7 +58,7 @@ internal static class VramDmaDomains
                      RoomEnemyDefinitionCatalog.Get(entry.DefinitionId).TileDataSize & VramDmaDomainGeometry.EnemyTileByteCountMask)).Distinct());
             case "fx":
                 return Native(RoomFxAnimatedTileMechanicsDefinitions.All.SelectMany(definition => definition.Frames.Select(frame =>
-                    new NativeTransfer(RoomFxAnimatedTileArtworkDefinitions.SourceAddress(definition, frame.InstructionPointer), definition.TransferByteCount))));
+                    new NativeTransfer(RoomFxAnimatedTileArtworkDefinitions.SourceAddress(definition, frame), definition.TransferByteCount))));
             case "arm":
                 return Native(SamusArmCannonArtworkFormat.CoverTileDmaSources.Select(pointer =>
                     new NativeTransfer(SamusRenderingRomData.Banks.CharacterData | pointer, SamusRenderingRomData.ArmCannon.TileUploadByteCount)));

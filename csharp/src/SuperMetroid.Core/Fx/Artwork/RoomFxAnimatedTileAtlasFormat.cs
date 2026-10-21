@@ -88,8 +88,8 @@ public static class RoomFxAnimatedTileAtlasFormat
             {
                 // The last spike step reuses image 1, already present in the strip.
                 if (definition.AnimatedObject == AnimatedTileObject.HorizontalSpikes &&
-                    frame.InstructionPointer == definition.Frames[3].InstructionPointer) continue;
-                yield return new(RoomFxAnimatedTileArtworkDefinitions.SourceAddress(definition, frame.InstructionPointer),
+                    frame.Index == 3) continue;
+                yield return new(RoomFxAnimatedTileArtworkDefinitions.SourceAddress(definition, frame),
                     definition.TransferByteCount, true);
             }
         }

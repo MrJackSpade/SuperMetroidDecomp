@@ -24,7 +24,7 @@ public static class RoomFxAnimatedTileArtworkDefinitions
     /// <summary>$87:A7E4, three spores frames selected by $87:82ED.</summary>
     public const int SporesFirstSource = 0x87a7e4;
 
-    /// <summary>Returns the native source identity for one compiled frame cursor.</summary>
+    /// <summary>Returns the native source identity for one frame of an object's loop.</summary>
     /// <remarks>Each supported object selects its named first source; subsequent frames
     /// advance by the object's native transfer byte count. Accept only its timed frame
     /// cursors, rejecting source operands, odd addresses, goto words and other identities.
@@ -34,9 +34,12 @@ public static class RoomFxAnimatedTileArtworkDefinitions
     /// mapping requires no stored pointer table or generated cache. Pixel artwork is
     /// owned separately by installed assets.</remarks>
     public static int SourceAddress(RoomFxAnimatedTileObjectDefinition definition,
-        ushort instructionPointer)
+        RoomFxAnimatedTileFrameDefinition frame)
     {
         Ensure.NotNull(definition);
+        if (frame.Object != definition.AnimatedObject || (uint)frame.Index >= (uint)definition.Frames.Count)
+            throw new InvalidDataException(
+                $"Room-FX object {definition.AnimatedObject} has no artwork frame {frame.Index} of {frame.Object}.");
         int first = definition.AnimatedObject switch
         {
             AnimatedTileObject.HorizontalSpikes => HorizontalSpikesFirstSource,
@@ -63,11 +66,7 @@ public static class RoomFxAnimatedTileArtworkDefinitions
             _ => throw new InvalidDataException(
                 $"No compiled artwork source for room-FX object $87:{(int)definition.AnimatedObject:X4}."),
         };
-        for (int index = 0; index < definition.Frames.Count; index++)
-            if (definition.Frames[index].InstructionPointer == instructionPointer)
-                return first + (definition.AnimatedObject == AnimatedTileObject.HorizontalSpikes && index == 3
-                    ? 1 : index) * definition.TransferByteCount;
-        throw new InvalidDataException(
-            $"Room-FX object $87:{(int)definition.AnimatedObject:X4} has no artwork frame at $87:{instructionPointer:X4}.");
+        return first + (definition.AnimatedObject == AnimatedTileObject.HorizontalSpikes && frame.Index == 3
+            ? 1 : frame.Index) * definition.TransferByteCount;
     }
 }

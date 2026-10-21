@@ -55,20 +55,11 @@ public static class RoomFxRomData
         /// <summary>Common lava/acid frame size from objects $82AB/$82C9.</summary>
         public const ushort LiquidFrameByteCount = 0x0040;
 
-        /// <summary>First lava instruction-list entry at $87:8293.</summary>
-        public const ushort LavaFirstInstruction = 0x8293;
-
-        /// <summary>First acid instruction-list entry at $87:82B1.</summary>
-        public const ushort AcidFirstInstruction = 0x82b1;
-
         /// <summary>Rain transfer destination from object $87:82E7.</summary>
         public const ushort RainDestinationWord = 0x4280;
 
         /// <summary>Rain frame size from object $87:82E7.</summary>
         public const ushort RainFrameByteCount = 0x0050;
-
-        /// <summary>First rain instruction-list entry at $87:82CF.</summary>
-        public const ushort RainFirstInstruction = 0x82cf;
     }
 
     /// <summary>Landing Site rain tile animation and fixed-point velocities.</summary>

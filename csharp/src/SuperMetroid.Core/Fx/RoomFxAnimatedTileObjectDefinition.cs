@@ -9,7 +9,6 @@ public sealed class RoomFxAnimatedTileObjectDefinition
     /// <summary>Binds a bank-$87 object header to its transfer geometry and frame schedule.</summary>
     internal RoomFxAnimatedTileObjectDefinition(
         AnimatedTileObject animatedObject,
-        ushort instructionPointer,
         ushort transferByteCount,
         ushort encodedVramDestination,
         int frameCount,
@@ -18,10 +17,9 @@ public sealed class RoomFxAnimatedTileObjectDefinition
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(frameCount);
 
         AnimatedObject = animatedObject;
-        InstructionPointer = instructionPointer;
         TransferByteCount = transferByteCount;
         EncodedVramDestination = encodedVramDestination;
-        frames = new CalculatedFrames(instructionPointer, frameCount, frameDuration);
+        frames = new CalculatedFrames(animatedObject, frameCount, frameDuration);
     }
 
     /// <summary>Bounded four-byte frame cursors with one native duration per object.</summary>
@@ -32,18 +30,18 @@ public sealed class RoomFxAnimatedTileObjectDefinition
     /// verified against NTSC J/U v1.0 and pinned bank_87.asm
     /// (362be646929cf8e483f692b73a6561cfc2dc1d0d). This view stores parameters only,
     /// never a generated frame table. Index bounds match the former read-only list.</remarks>
-    internal sealed class CalculatedFrames(ushort first, int count, ushort duration)
+    internal sealed class CalculatedFrames(AnimatedTileObject animatedObject, int count, ushort duration)
         : IReadOnlyList<RoomFxAnimatedTileFrameDefinition>
     {
         /// <summary>Number of timed entries before the terminal goto command.</summary>
         public int Count => count;
-        /// <summary>Computes a four-byte record cursor and shared duration for a bounded frame.</summary>
+        /// <summary>The bounded frame at <paramref name="index"/> with the object's shared duration.</summary>
         public RoomFxAnimatedTileFrameDefinition this[int index]
         {
             get
             {
                 if ((uint)index >= (uint)count) throw new ArgumentOutOfRangeException(nameof(index));
-                return new(unchecked((ushort)(first + index * 4)), duration);
+                return new(animatedObject, index, duration);
             }
         }
         /// <summary>Yields frame cursors in native instruction order.</summary>
@@ -57,8 +55,6 @@ public sealed class RoomFxAnimatedTileObjectDefinition
     /// <summary>The object-header address within bank $87.</summary>
     public AnimatedTileObject AnimatedObject { get; }
 
-    /// <summary>The first timed instruction in the object's bank-$87 loop.</summary>
-    public ushort InstructionPointer { get; }
 
     /// <summary>The number of presentation bytes copied for every displayed frame.</summary>
     public ushort TransferByteCount { get; }

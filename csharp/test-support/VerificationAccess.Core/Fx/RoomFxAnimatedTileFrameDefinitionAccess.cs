@@ -7,6 +7,8 @@ internal static class RoomFxAnimatedTileFrameDefinitionAccess
     /// <summary>Locates the art source operand immediately after a room-FX animated-tile control word.</summary>
     extension(RoomFxAnimatedTileFrameDefinition self)
     {
+        /// <summary>The bank-$87 cursor of this frame's timed control word.</summary>
+        internal ushort InstructionPointer => unchecked((ushort)(RoomFxAnimatedTileObjectDefinitionAccess.FirstCursor(self.Object) + self.Index * 4));
         /// <summary>Native artwork-operand identity immediately after this compiled control word.</summary>
         internal ushort SourceOperandPointer => unchecked((ushort)(self.InstructionPointer + 2));
     }

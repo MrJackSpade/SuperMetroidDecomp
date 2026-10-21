@@ -8,9 +8,15 @@ internal static class WreckedShipTreadmillObjectDefinitionAccess
     /// <summary>Reads the four timed frame-control pointers for one Wrecked Ship treadmill direction.</summary>
     extension(WreckedShipTreadmillObjectDefinition self)
     {
+        /// <summary>The boss-wait command installed by the object header.</summary>
+        public ushort WaitInstructionPointer => self.Direction == WreckedShipTreadmillDirection.Rightwards
+            ? AnimatedTileInstructionListPointers.WreckedShipTreadmillRightwardsWait
+            : AnimatedTileInstructionListPointers.WreckedShipTreadmillLeftwardsWait;
+        /// <summary>The first timed frame reached after Phantoon is defeated.</summary>
+        public ushort LoopInstructionPointer => unchecked((ushort)(self.WaitInstructionPointer + 2));
         /// <summary>The four timed frame-control addresses in execution order.</summary>
         internal IReadOnlyList<ushort> FrameInstructionPointers =>
-            self.frameInstructionPointers;
+            [.. Enumerable.Range(0, 4).Select(index => unchecked((ushort)(self.LoopInstructionPointer + 4 * index)))];
         /// <summary>Maps a four-byte-aligned timed instruction cursor to its frame ordinal, returning -1 outside the loop.</summary>
         internal int FrameIndex(ushort pointer)
         {

@@ -10,6 +10,12 @@ internal static class RoomFxRomDataLayer3AnimatedTilesConstants
     public const ushort LavaFirstFrame = 0xa564;
     /// <summary>First rain character frame at $87:A874.</summary>
     public const ushort RainFirstFrame = 0xa874;
+    /// <summary>First lava instruction-list entry at $87:8293.</summary>
+    public const ushort LavaFirstInstruction = 0x8293;
+    /// <summary>First acid instruction-list entry at $87:82B1.</summary>
+    public const ushort AcidFirstInstruction = 0x82b1;
+    /// <summary>First rain instruction-list entry at $87:82CF.</summary>
+    public const ushort RainFirstInstruction = 0x82cf;
 
     /// <summary>Provides the first acid, lava, and rain Layer 3 frame pointers for animated room effects.</summary>
     extension(RoomFxRomData.Layer3AnimatedTiles)
@@ -20,5 +26,11 @@ internal static class RoomFxRomDataLayer3AnimatedTilesConstants
         internal static ushort LavaFirstFrame => RoomFxRomDataLayer3AnimatedTilesConstants.LavaFirstFrame;
         /// <inheritdoc cref="RoomFxRomDataLayer3AnimatedTilesConstants.RainFirstFrame"/>
         internal static ushort RainFirstFrame => RoomFxRomDataLayer3AnimatedTilesConstants.RainFirstFrame;
+        /// <inheritdoc cref="RoomFxRomDataLayer3AnimatedTilesConstants.LavaFirstInstruction"/>
+        internal static ushort LavaFirstInstruction => RoomFxRomDataLayer3AnimatedTilesConstants.LavaFirstInstruction;
+        /// <inheritdoc cref="RoomFxRomDataLayer3AnimatedTilesConstants.AcidFirstInstruction"/>
+        internal static ushort AcidFirstInstruction => RoomFxRomDataLayer3AnimatedTilesConstants.AcidFirstInstruction;
+        /// <inheritdoc cref="RoomFxRomDataLayer3AnimatedTilesConstants.RainFirstInstruction"/>
+        internal static ushort RainFirstInstruction => RoomFxRomDataLayer3AnimatedTilesConstants.RainFirstInstruction;
     }
 }

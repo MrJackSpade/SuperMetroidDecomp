@@ -104,7 +104,7 @@ internal sealed class RoomFxAnimatedTilesState
         if (frame.Duration == 0)
             throw new InvalidDataException($"Room-FX animated-tile object {animatedObject} has a zero-duration frame {shown}.");
 
-        int sourceAddress = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(mechanics, frame.InstructionPointer);
+        int sourceAddress = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(mechanics, frame);
         instructionTimer = WrappingCountdown.Start(frame.Duration);
         // The list's goto after the last frame returns to the first frame.
         nextFrame = shown + 1 < mechanics.Frames.Count ? shown + 1 : 0;

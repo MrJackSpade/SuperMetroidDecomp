@@ -21,11 +21,9 @@ public static class WreckedShipTreadmillMechanicsDefinitions
         WreckedShipTreadmillDirection direction) => direction switch
     {
         WreckedShipTreadmillDirection.Rightwards => new(direction,
-            AnimatedTileObject.WreckedShipTreadmillRightwards,
-            AnimatedTileInstructionListPointers.WreckedShipTreadmillRightwardsWait),
+            AnimatedTileObject.WreckedShipTreadmillRightwards),
         WreckedShipTreadmillDirection.Leftwards => new(direction,
-            AnimatedTileObject.WreckedShipTreadmillLeftwards,
-            AnimatedTileInstructionListPointers.WreckedShipTreadmillLeftwardsWait),
+            AnimatedTileObject.WreckedShipTreadmillLeftwards),
         _ => throw new InvalidDataException($"Unknown Wrecked Ship treadmill direction {direction}."),
     };
 

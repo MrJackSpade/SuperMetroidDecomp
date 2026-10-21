@@ -202,10 +202,10 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(EnemyCallbackBody.Routine, definition.PowerBombReactionBody,
         "definition power-bomb reaction offset $28");
     AssertEqual(0xa29100, definition.TileDataAddress, "definition 24-bit tile-data pointer");
-    AssertEqual(0x113a, definition.ItemDropChancesPointer,
-        "definition item-drop pointer offset $3A");
-    AssertEqual(0x113c, definition.VulnerabilityPointer,
-        "definition vulnerability pointer offset $3C");
+    AssertEqual((EnemyDropTable?)new EnemyDropTable(3), definition.DropChances,
+        "definition item-drop table offset $3A");
+    AssertEqual(new EnemyVulnerabilityTable(2), definition.Vulnerability,
+        "definition vulnerability table offset $3C");
 
     // Repeating the installed-art load must preserve the same VRAM geometry while the
     // cartridge tile sources are forbidden. The second definition exercises the native
@@ -1518,6 +1518,8 @@ internal static void WriteEnemyDefinition(TestAddressSpace bus, EnemyDefinitionI
     WriteTestWord(bus, address + 26, (ushort)GrappleAiRoutine.Cancel); // Grapple AI must be a real routine.
     WriteTestLong(bus, address + 54, fields.TileDataAddress);
     WriteTestByte(bus, address + 57, 5);
+    WriteTestWord(bus, address + 58, 0xf206); // Item-drop table 3, six bytes each from $F1F4.
+    WriteTestWord(bus, address + 60, 0xec48); // Vulnerability table 2, 22 bytes each from $EC1C.
     WriteTestWord(bus, address + 62, fields.NamePointer);
 }
 

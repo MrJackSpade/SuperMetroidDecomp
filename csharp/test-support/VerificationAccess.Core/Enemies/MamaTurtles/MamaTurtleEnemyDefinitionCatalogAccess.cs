@@ -34,8 +34,8 @@ internal static class MamaTurtleEnemyDefinitionCatalogAccess
         NoOpCallbackBody: EnemyCallbackBody.ImmediateReturn,
         TileDataAddress: 0xacd400,
         Layer: 0x05,
-        ItemDropChancesPointer: 0xf3bc,
-        VulnerabilityPointer: 0xeec6);
+        DropChances: new(76),
+        Vulnerability: new(31));
 
     /// <summary>Compiled baby turtle enemy definition.</summary>
     private static readonly RoomEnemyDefinition Baby = new(
@@ -67,8 +67,8 @@ internal static class MamaTurtleEnemyDefinitionCatalogAccess
         NoOpCallbackBody: EnemyCallbackBody.ImmediateReturn,
         TileDataAddress: 0xacd400,
         Layer: 0x05,
-        ItemDropChancesPointer: 0xf3bc,
-        VulnerabilityPointer: 0xeec6);
+        DropChances: new(76),
+        Vulnerability: new(31));
 
     /// <summary>Resolves a compiled family header by its native bank-$A0 pointer.</summary>
     internal static bool TryGet(EnemyDefinitionId pointer, out RoomEnemyDefinition definition)

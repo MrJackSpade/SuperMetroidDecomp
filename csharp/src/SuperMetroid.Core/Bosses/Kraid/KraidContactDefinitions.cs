@@ -3,6 +3,12 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>Native contact geometry and response definitions for Kraid's private AI.</summary>
 internal static class KraidContactDefinitions
 {
+    /// <summary>
+    /// The word the common shot callback leaves in DP $14, the mouth's upper bound, when a shot hits Kraid's mouth: the
+    /// native location of Kraid's vulnerability table. The next shot's signed compare reads it as a coordinate.
+    /// </summary>
+    internal const ushort ShotVulnerabilityResidue = 0xf15a;
+
     /// <summary>$A7:B97C-B983: Hitbox_KraidLint.left ($92B7, -24) minus two.</summary>
     internal const short LintLeadingEdge = -26;
     /// <summary>$A7:B99F-B9A6: Hitbox_KraidLint.top ($92B9, -4) plus two.</summary>

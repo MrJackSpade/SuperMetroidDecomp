@@ -34,8 +34,8 @@ namespace SuperMetroid.Core.Enemies;
 /// </param>
 /// <param name="TileDataAddress">Header +$36 full 24-bit source address of the enemy's planar character data.</param>
 /// <param name="Layer">Header +$39 native drawing-layer byte, copied into the slot's word-sized layer field.</param>
-/// <param name="ItemDropChancesPointer">Header +$3A bank-$B4 pointer to enemy pickup-drop probabilities.</param>
-/// <param name="VulnerabilityPointer">Header +$3C bank-$B4 pointer to weapon-vulnerability data.</param>
+/// <param name="DropChances">Header +$3A item-drop probability table, or null when the enemy drops nothing.</param>
+/// <param name="Vulnerability">Header +$3C weapon-vulnerability table; a zero header word selects the default table.</param>
 public readonly record struct RoomEnemyDefinition(
     ushort TileDataSize,
     int Health,
@@ -65,5 +65,5 @@ public readonly record struct RoomEnemyDefinition(
     EnemyCallbackBody NoOpCallbackBody,
     int TileDataAddress,
     byte Layer,
-    ushort ItemDropChancesPointer,
-    ushort VulnerabilityPointer);
+    EnemyDropTable? DropChances,
+    EnemyVulnerabilityTable Vulnerability);

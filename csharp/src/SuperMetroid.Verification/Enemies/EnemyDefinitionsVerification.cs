@@ -76,6 +76,9 @@ internal static class EnemyDefinitionsVerification
         foreach (EnemyDefinitionId pointer in referencedPointers.Concat(auxiliaryPointers))
             AssertEqual(ReadNativeHeaderWords(bus, pointer), RoomEnemyDefinitionNative.Of(pointer),
                 $"verification's native words for $A0:{(int)pointer:X4} match the cartridge header");
+        AssertEqual(RoomEnemyDefinitionNative.Of(EnemyDefinitionId.Kraid).VulnerabilityPointer,
+            SuperMetroid.Core.Bosses.Kraid.KraidContactDefinitions.ShotVulnerabilityResidue,
+            "Kraid's shot residue is the native location of its vulnerability table");
         foreach (EnemyDefinitionId pointer in auxiliaryPointers)
         {
             AssertTrue(RoomEnemyAuxiliaryDefinitionCatalog.TryGet(pointer,
@@ -177,7 +180,7 @@ internal static class EnemyDefinitionsVerification
             EnemyInteractionCallbacks.TryDecode(bank, Word(50)),
             EnemyInteractionCallbacks.Body(Word(50), EnemyShotCallbackDefinitions.IsLiteralNoOp(bank, Word(50))),
             EnemyInteractionCallbacks.NoOpCallbackBody(bank),
-            Word(54) | Byte(56) << 16, Byte(57), Word(58), Word(60));
+            Word(54) | Byte(56) << 16, Byte(57), EnemyHeaderTables.DropChances(Word(58)), EnemyHeaderTables.Vulnerability(Word(60)));
     }
 
     /// <summary>Reads the bank-qualified words of a native enemy header that the decoded definition replaces.</summary>
@@ -187,7 +190,7 @@ internal static class EnemyDefinitionsVerification
         int address = RoomEnemyRomLayout.DefinitionBank | (ushort)pointer;
         ushort Word(int offset) => ReadVerificationWord(bus, address + offset);
         return new RoomEnemyNativeWords(bus.ReadCartridgeByte(address + 12), Word(2), Word(18), Word(24), Word(28), Word(30),
-            Word(32), Word(40), Word(48), Word(50), Word(52), Word(62));
+            Word(32), Word(40), Word(48), Word(50), Word(52), Word(62), Word(58), Word(60));
     }
 
     /// <summary>Runs enemy header coverage and tube placement checks from the command dispatcher.</summary>

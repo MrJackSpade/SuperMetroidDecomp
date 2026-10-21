@@ -760,7 +760,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 unchecked((ushort)((SnesLittleEndian.HighByte(random) & 63) + 128)));
             _deathsAndDrops.SpawnEnemyDropFromChanceTable(
                 position,
-                head.Definition.ItemDropChancesPointer);
+                head.Definition.DropChances);
         }
         state.DropRequested = true;
         state.WallExplosionFrame = 0;

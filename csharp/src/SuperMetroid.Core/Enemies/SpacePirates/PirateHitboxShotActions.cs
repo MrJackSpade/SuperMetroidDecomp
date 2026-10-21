@@ -42,9 +42,7 @@ internal static class PirateHitboxShotActions
         if ((ushort)family >= (ushort)SamusProjectileFamily.PowerBomb)
             return PirateHitboxShotAction.Ignore;
 
-        ushort vulnerabilityPointer = enemy.Definition.VulnerabilityPointer != 0
-            ? enemy.Definition.VulnerabilityPointer
-            : EnemyVulnerabilityDefinitions.DefaultPointer;
+        EnemyVulnerabilityTable table = enemy.Definition.Vulnerability;
         int vulnerabilityOffset = family switch
         {
             SamusProjectileFamily.Beam => projectile.PackedType.BeamCombination.TableIndex,
@@ -60,7 +58,7 @@ internal static class PirateHitboxShotActions
                 $"Gold Ninja projectile family ${(ushort)family:X3} has no vulnerability field."),
         };
         int multiplier = EnemyVulnerabilityDefinitions.LowNibbleMultiplier(EnemyVulnerabilityDefinitions.Read(
-            vulnerabilityPointer, vulnerabilityOffset));
+            table, vulnerabilityOffset));
         return multiplier is not (0 or 15)
             ? PirateHitboxShotAction.Normal
             : PirateHitboxShotAction.Reflect;

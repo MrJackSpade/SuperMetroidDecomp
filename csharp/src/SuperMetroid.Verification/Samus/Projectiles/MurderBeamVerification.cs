@@ -101,7 +101,6 @@ internal static class MurderBeamVerification
         {
             Shot = EnemyInteractionCallback.NormalEnemyShot,
             ShotBody = EnemyCallbackBody.Routine,
-            VulnerabilityPointer = EnemyVulnerabilityDefinitions.DefaultPointer,
         });
         target.Position = target.Position.WithWhole(shot.Position.Whole);
         target.Radius = new(16, 16);

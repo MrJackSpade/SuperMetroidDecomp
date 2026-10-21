@@ -6,18 +6,6 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 internal static class EnemyDropChanceDefinitions
 {
-    /// <summary>
-    /// The drop-chance pointer a death explosion from a cleared enemy slot inherits: <c>EnemyHeaders_dropChances</c>
-    /// (<c>$86:F120</c>) indexed by header pointer zero reads <c>$A0:003A</c>, which LoROM mirrors to the unnamed
-    /// direct-page word <c>$003A</c>. The boot clears it (<c>$80:844E</c>) and the pinned revision never writes it; only the
-    /// 16-bit <c>STA.B DP_BlocksToUpdate+2</c> at <c>$80:AA0E</c>/<c>$80:ABA8</c> touches the neighbouring <c>$39</c>, with
-    /// zero. Zero means no drop.
-    /// </summary>
-    internal const ushort ClearedHeaderPointer = 0x0000;
-
-    /// <summary>Pointer of the first six-byte item-drop probability record.</summary>
-    internal const ushort FirstPointer = 0xf1f4;
-
     /// <summary>Number of probability bytes in one native item-drop record.</summary>
     internal const int RecordSize = 6;
 
@@ -46,11 +34,10 @@ internal static class EnemyDropChanceDefinitions
     private static readonly byte[] PackedChances = Convert.FromHexString(PackedChanceHex);
 
     /// <summary>
-    /// Copies one aligned native probability record into <paramref name="destination"/>.
-    /// Pointers outside the complete 118-record retail catalog fail explicitly rather
-    /// than interpreting adjacent bank-$B4 executable or presentation bytes as weights.
+    /// Copies one probability table into <paramref name="destination"/>. Tables outside the complete 118-table retail
+    /// catalog fail explicitly rather than reading adjacent bytes as weights.
     /// </summary>
-    internal static void Copy(ushort pointer, Span<byte> destination)
+    internal static void Copy(EnemyDropTable table, Span<byte> destination)
     {
         if (destination.Length < RecordSize)
         {
@@ -59,24 +46,19 @@ internal static class EnemyDropChanceDefinitions
                 nameof(destination));
         }
 
-        int byteOffset = pointer - FirstPointer;
-        if (byteOffset < 0 ||
-            byteOffset % RecordSize != 0 ||
-            byteOffset >= RecordCount * RecordSize)
+        if ((uint)table.Record >= RecordCount)
         {
             throw new InvalidDataException(
-                $"Enemy drop chance pointer $B4:{pointer:X4} is outside the compiled " +
-                $"{RecordCount}-record catalog.");
+                $"Enemy drop table {table.Record} is outside the compiled {RecordCount}-table catalog.");
         }
-
-        PackedChances.AsSpan(byteOffset, RecordSize).CopyTo(destination);
+        PackedChances.AsSpan(table.Record * RecordSize, RecordSize).CopyTo(destination);
     }
 
-    /// <summary>The chance table at <paramref name="pointer"/>; the pointer is validated as <see cref="Copy"/> does.</summary>
-    internal static EnemyDropChances At(ushort pointer)
+    /// <summary>The chances of <paramref name="table"/>, validated as <see cref="Copy"/> does.</summary>
+    internal static EnemyDropChances At(EnemyDropTable table)
     {
         Span<byte> columns = stackalloc byte[RecordSize];
-        Copy(pointer, columns);
+        Copy(table, columns);
         return new EnemyDropChances(columns);
     }
 }

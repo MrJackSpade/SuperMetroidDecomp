@@ -155,7 +155,6 @@ internal static class ChainsawFiringVerification
         {
             Shot = EnemyInteractionCallback.NormalEnemyShot,
             ShotBody = EnemyCallbackBody.Routine,
-            VulnerabilityPointer = EnemyVulnerabilityDefinitions.DefaultPointer,
         });
         target.Position = target.Position.WithWhole(new(139, 123));
         target.Radius = new(16, 16);

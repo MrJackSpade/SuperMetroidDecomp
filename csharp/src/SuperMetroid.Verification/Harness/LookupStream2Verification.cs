@@ -1273,7 +1273,7 @@ internal static class LookupStream2Verification
             samus.MaxMissiles = samus.MaxSuperMissiles = samus.MaxPowerBombs = 5;
             var fixture = CreateEnemyDropFixture(samus, [randomValues[column]]);
             var projectile = fixture.System.Projectiles.EnemyProjectiles[0];
-            projectile.DropChancesOverride = EnemyDropChanceDefinitions.At(NativeDropChancePointer);
+            projectile.DropChancesOverride = EnemyDropChanceDefinitions.At(NativeDropChances);
             AssertEqual(expected, fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(projectile),
                 "Actual cumulative selection preserves each semantic column");
         }

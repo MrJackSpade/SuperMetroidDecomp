@@ -785,7 +785,7 @@ internal sealed class TorizoAttacks
         TorizoOrbDropRequests.Add(new TorizoOrbDropRequest());
         _deathsAndDrops.SpawnEnemyDropFromChanceTable(
             projectile.Position.Whole,
-            definition.ItemDropChancesPointer);
+            definition.DropChances);
     }
 
     /// <summary>

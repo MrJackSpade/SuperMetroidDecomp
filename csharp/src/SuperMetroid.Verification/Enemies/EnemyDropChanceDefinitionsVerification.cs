@@ -18,10 +18,9 @@ internal static class EnemyDropChanceDefinitionsVerification
         Span<byte> actual = stackalloc byte[EnemyDropChanceDefinitions.RecordSize];
         for (int record = 0; record < EnemyDropChanceDefinitions.RecordCount; record++)
         {
-            ushort pointer = checked((ushort)(
-                EnemyDropChanceDefinitions.FirstPointer +
-                record * EnemyDropChanceDefinitions.RecordSize));
-            EnemyDropChanceDefinitions.Copy(pointer, actual);
+            var table = new EnemyDropTable(record);
+            ushort pointer = EnemyDropChanceDefinitionsConstants.Pointer(table);
+            EnemyDropChanceDefinitions.Copy(table, actual);
             for (int field = 0; field < actual.Length; field++)
             {
                 int address = EnemyDropChanceDefinitions.NativeBank |
@@ -31,22 +30,17 @@ internal static class EnemyDropChanceDefinitionsVerification
             }
         }
 
+        AssertEqual(EnemyDropChanceDefinitions.LastPointer,
+            EnemyDropChanceDefinitionsConstants.Pointer(new EnemyDropTable(EnemyDropChanceDefinitions.RecordCount - 1)),
+            "the last compiled drop table is the last native record");
         AssertThrows<InvalidDataException>(
-            () => EnemyDropChanceDefinitions.Copy(
-                unchecked(EnemyDropChanceDefinitions.FirstPointer - 1), new byte[6]),
-            "enemy drop pointer below table is rejected");
+            () => EnemyDropChanceDefinitions.Copy(new EnemyDropTable(-1), new byte[6]),
+            "enemy drop table below the catalog is rejected");
         AssertThrows<InvalidDataException>(
-            () => EnemyDropChanceDefinitions.Copy(
-                unchecked(EnemyDropChanceDefinitions.FirstPointer + 1), new byte[6]),
-            "unaligned enemy drop pointer is rejected");
-        AssertThrows<InvalidDataException>(
-            () => EnemyDropChanceDefinitions.Copy(
-                unchecked((ushort)(EnemyDropChanceDefinitions.LastPointer +
-                    EnemyDropChanceDefinitions.RecordSize)), new byte[6]),
-            "enemy drop pointer above table is rejected");
+            () => EnemyDropChanceDefinitions.Copy(new EnemyDropTable(EnemyDropChanceDefinitions.RecordCount), new byte[6]),
+            "enemy drop table above the catalog is rejected");
         AssertThrows<ArgumentException>(
-            () => EnemyDropChanceDefinitions.Copy(
-                EnemyDropChanceDefinitions.FirstPointer, new byte[5]),
+            () => EnemyDropChanceDefinitions.Copy(new EnemyDropTable(0), new byte[5]),
             "short enemy drop destination");
 
         var samus = new SamusState
@@ -60,24 +54,19 @@ internal static class EnemyDropChanceDefinitionsVerification
 
         for (int record = 0; record < EnemyDropChanceDefinitions.RecordCount; record++)
         {
-            ushort pointer = checked((ushort)(
-                EnemyDropChanceDefinitions.FirstPointer +
-                record * EnemyDropChanceDefinitions.RecordSize));
-            projectile.DropChancesOverride = EnemyDropChanceDefinitions.At(pointer);
+            var table = new EnemyDropTable(record);
+            projectile.DropChancesOverride = EnemyDropChanceDefinitions.At(table);
             EnemyPickupKind selected = fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(projectile);
             AssertTrue(Enum.IsDefined(selected),
-                $"production enemy drop record ${pointer:X4} returns a defined kind");
+                $"production enemy drop table {record} returns a defined kind");
         }
 
         AssertThrows<InvalidDataException>(
-            () => EnemyDropChanceDefinitions.At(unchecked(EnemyDropChanceDefinitions.FirstPointer + 1)),
-            "production enemy drop rejects an unaligned probability pointer");
-        AssertThrows<InvalidDataException>(
-            () => EnemyDropChanceDefinitions.At(0x8000),
-            "production enemy drop rejects an external probability pointer");
+            () => EnemyDropChanceDefinitions.At(new EnemyDropTable(EnemyDropChanceDefinitions.RecordCount)),
+            "production enemy drop rejects a table outside the catalog");
         Console.WriteLine(
             "Enemy drop chance definitions: all 118 native records match ROM and execute " +
-            "through production selection with RAM-only memory; invalid pointers reject without a ROM fallback.");
+            "through production selection with RAM-only memory; tables outside the catalog reject without a ROM fallback.");
     }
 
     /// <summary>Runs the drop table comparison using the retail ROM as the source oracle.</summary>

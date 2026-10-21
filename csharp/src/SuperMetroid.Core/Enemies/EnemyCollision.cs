@@ -596,11 +596,9 @@ internal sealed class EnemyCollision
         SamusBombProjectileSlot bomb,
         bool runGenericDeath = true)
     {
-        ushort vulnerabilityPointer = enemy.Definition.VulnerabilityPointer != 0
-            ? enemy.Definition.VulnerabilityPointer
-            : EnemyVulnerabilityDefinitions.DefaultPointer;
+        EnemyVulnerabilityTable table = enemy.Definition.Vulnerability;
         byte vulnerability = EnemyVulnerabilityDefinitions.Read(
-            vulnerabilityPointer, EnemyVulnerabilityDefinitions.BombOffset);
+            table, EnemyVulnerabilityDefinitions.BombOffset);
         int damage = (bomb.Damage >> 1) * EnemyVulnerabilityDefinitions.Multiplier(vulnerability);
 
         // A zero multiplier still consumes the collision and leaves direction bit $10 on
@@ -740,9 +738,7 @@ internal sealed class EnemyCollision
         RoomEnemySlot enemy,
         SamusProjectileTypeWord projectileType)
     {
-        ushort pointer = enemy.Definition.VulnerabilityPointer != 0
-            ? enemy.Definition.VulnerabilityPointer
-            : EnemyVulnerabilityDefinitions.DefaultPointer;
+        EnemyVulnerabilityTable table = enemy.Definition.Vulnerability;
         SamusProjectileFamily family = projectileType.Family;
         if (family != SamusProjectileFamily.Beam)
         {
@@ -759,7 +755,7 @@ internal sealed class EnemyCollision
                 _ => throw new InvalidDataException(
                     $"Projectile family ${(ushort)family:X3} has no translated vulnerability field."),
             };
-            byte familyEntry = EnemyVulnerabilityDefinitions.Read(pointer, byteOffset);
+            byte familyEntry = EnemyVulnerabilityDefinitions.Read(table, byteOffset);
             return new NormalShotVulnerability(
                 Multiplier: EnemyVulnerabilityDefinitions.Multiplier(familyEntry),
                 FreezeImmediately: false,
@@ -767,7 +763,7 @@ internal sealed class EnemyCollision
         }
 
         byte beamEntry = EnemyVulnerabilityDefinitions.Read(
-            pointer, projectileType.BeamCombination.TableIndex);
+            table, projectileType.BeamCombination.TableIndex);
         if (EnemyVulnerabilityDefinitions.IsSentinel(beamEntry))
         {
             return new NormalShotVulnerability(
@@ -783,7 +779,7 @@ internal sealed class EnemyCollision
             // row. `$FF` and low-nibble zero both take the dud-shot branch; high bits other
             // than that sentinel do not contribute to the damage multiplier.
             byte chargedEntry = EnemyVulnerabilityDefinitions.Read(
-                pointer, EnemyVulnerabilityDefinitions.ChargedBeamOffset);
+                table, EnemyVulnerabilityDefinitions.ChargedBeamOffset);
             multiplier = EnemyVulnerabilityDefinitions.IsSentinel(chargedEntry) ? 0 : EnemyVulnerabilityDefinitions.LowNibbleMultiplier(chargedEntry);
         }
 
@@ -812,14 +808,12 @@ internal sealed class EnemyCollision
         enemy.InvincibilityTimer = WrappingCountdown.Start(10);
     }
 
-    /// <summary>Selects the enemy's beam-combination or weapon-family vulnerability byte, using the default table when no private pointer exists.</summary>
+    /// <summary>Selects the enemy's beam-combination or weapon-family vulnerability byte.</summary>
     internal static byte ReadProjectileVulnerability(
         RoomEnemySlot enemy,
         SamusProjectileTypeWord projectileType)
     {
-        ushort pointer = enemy.Definition.VulnerabilityPointer != 0
-            ? enemy.Definition.VulnerabilityPointer
-            : EnemyVulnerabilityDefinitions.DefaultPointer;
+        EnemyVulnerabilityTable table = enemy.Definition.Vulnerability;
         SamusProjectileFamily family = projectileType.Family;
         int byteOffset = family switch
         {
@@ -834,7 +828,7 @@ internal sealed class EnemyCollision
             _ => throw new InvalidDataException(
                 $"Projectile family ${(ushort)family:X3} has no translated vulnerability field."),
         };
-        return EnemyVulnerabilityDefinitions.Read(pointer, byteOffset);
+        return EnemyVulnerabilityDefinitions.Read(table, byteOffset);
     }
 
     /// <summary>
@@ -971,11 +965,9 @@ internal sealed class EnemyCollision
             default:
                 throw new InvalidOperationException($"Undefined {nameof(SamusContactDamageIndex)} {(int)contactDamageIndex}.");
         }
-        ushort vulnerabilityPointer = enemy.Definition.VulnerabilityPointer != 0
-            ? enemy.Definition.VulnerabilityPointer
-            : EnemyVulnerabilityDefinitions.DefaultPointer;
+        EnemyVulnerabilityTable table = enemy.Definition.Vulnerability;
         byte vulnerability = EnemyVulnerabilityDefinitions.Read(
-            vulnerabilityPointer, vulnerabilityOffset);
+            table, vulnerabilityOffset);
         int damage = (baseDamage >> 1) * EnemyVulnerabilityDefinitions.Multiplier(vulnerability);
         if (damage == 0)
             return;

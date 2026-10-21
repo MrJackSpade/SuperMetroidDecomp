@@ -601,7 +601,7 @@ internal sealed class PhantoonCombat
         PhantoonFlameDropRequests.Add(new PhantoonFlameDropRequest());
         _deathsAndDrops.SpawnEnemyDropFromChanceTable(
             flame.Position.Whole,
-            eye.ItemDropChancesPointer);
+            eye.DropChances);
     }
 
     /// <summary>Active four-slot encounter state when retail Phantoon occupies slot zero.</summary>

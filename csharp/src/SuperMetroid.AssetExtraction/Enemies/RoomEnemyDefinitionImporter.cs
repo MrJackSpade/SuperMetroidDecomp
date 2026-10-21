@@ -53,8 +53,8 @@ public static class RoomEnemyDefinitionImporter
             NoOpCallbackBody: EnemyInteractionCallbacks.NoOpCallbackBody(bank),
             TileDataAddress: RomDataReader.ReadLongFixedBank(cartridge, HeaderAddress(pointer, 54)),
             Layer: Byte(57),
-            ItemDropChancesPointer: Word(58),
-            VulnerabilityPointer: Word(60));
+            DropChances: EnemyHeaderTables.DropChances(Word(58)),
+            Vulnerability: EnemyHeaderTables.Vulnerability(Word(60)));
     }
 
     /// <summary>The long address of the sixteen-color palette a header names in its enemy's bank.</summary>

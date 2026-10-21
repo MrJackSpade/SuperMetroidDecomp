@@ -240,7 +240,7 @@ internal sealed class EnemyDeathsAndDrops
     /// </summary>
     internal RoomEnemyProjectileSlot? SpawnEnemyDropFromChanceTable(
         Position16<RoomPixels> position,
-        ushort itemDropChancesPointer)
+        EnemyDropTable? dropChances)
     {
         _room.EnsureLoaded();
         RoomEnemyProjectileSlot? pickup = _projectiles.AllocateEnemyProjectile();
@@ -252,7 +252,7 @@ internal sealed class EnemyDeathsAndDrops
             RoomEnemyProjectileKind.EnemyDeathPickup,
             graphicsIndex: 0);
         pickup.Position = pickup.Position.WithWhole(position);
-        pickup.DropChancesOverride = itemDropChancesPointer == 0 ? null : EnemyDropChanceDefinitions.At(itemDropChancesPointer);
+        pickup.DropChancesOverride = dropChances is { } table ? EnemyDropChanceDefinitions.At(table) : null;
         pickup.KilledEnemyNativeIndex = KilledEnemyIndexMasks.None;
         InitializeDirectEnemyPickup(pickup);
         return pickup;
@@ -428,17 +428,20 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>
-    /// Uses an explicit boss chance table, a saved enemy header's, or none: the cleared-header overread pointer and a
-    /// zero header pointer both mean no drop.
+    /// Uses an explicit boss chance table, a saved enemy header's, or none. A death explosion from a cleared enemy slot
+    /// drops nothing: <c>EnemyHeaders_dropChances</c> (<c>$86:F120</c>) indexed by header zero reads <c>$A0:003A</c>,
+    /// which LoROM mirrors to the unnamed direct-page word <c>$003A</c>. The boot clears it (<c>$80:844E</c>) and the
+    /// pinned revision never writes it; only the 16-bit <c>STA.B DP_BlocksToUpdate+2</c> at <c>$80:AA0E</c>/<c>$80:ABA8</c>
+    /// touches the neighbouring <c>$39</c>, with zero.
     /// </summary>
     private EnemyDropChances? ResolveEnemyDropChances(RoomEnemyProjectileSlot projectile)
     {
-        if (projectile.DropChancesOverride is { } table)
-            return table;
-        ushort pointer = projectile.DropDefinitionId == 0
-            ? EnemyDropChanceDefinitions.ClearedHeaderPointer
-            : _room.LoadedDefinitions.ReadEnemyDefinition(projectile.DropDefinitionId).ItemDropChancesPointer;
-        return pointer == 0 ? null : EnemyDropChanceDefinitions.At(pointer);
+        if (projectile.DropChancesOverride is { } chances)
+            return chances;
+        EnemyDropTable? table = projectile.DropDefinitionId == 0
+            ? null
+            : _room.LoadedDefinitions.ReadEnemyDefinition(projectile.DropDefinitionId).DropChances;
+        return table is { } selected ? EnemyDropChanceDefinitions.At(selected) : null;
     }
 
     /// <summary>Decrements pickup lifetime, then tests Grapple endpoint and strict Samus body overlap.</summary>

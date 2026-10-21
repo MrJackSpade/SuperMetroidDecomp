@@ -55,12 +55,10 @@ internal static class EnemyGameplayAcceptanceVerification
         {
             RoomEnemyDefinition definition = RoomEnemyAuxiliaryDefinitionCatalog.TryGet(pointer, out var auxiliary)
                 ? auxiliary : RoomEnemyDefinitionCatalog.Get(pointer);
-            ushort vulnerability = definition.VulnerabilityPointer == 0
-                ? EnemyVulnerabilityDefinitions.DefaultPointer : definition.VulnerabilityPointer;
             for (int field = 0; field < EnemyVulnerabilityDefinitions.RecordSize; field++)
-                _ = EnemyVulnerabilityDefinitions.Read(vulnerability, field);
-            if (definition.ItemDropChancesPointer != 0)
-                EnemyDropChanceDefinitions.Copy(definition.ItemDropChancesPointer, drop);
+                _ = EnemyVulnerabilityDefinitions.Read(definition.Vulnerability, field);
+            if (definition.DropChances is { } table)
+                EnemyDropChanceDefinitions.Copy(table, drop);
         }
         Console.WriteLine("Enemy reference closure: all 153 headers resolve compiled vulnerabilities and drops.");
     }

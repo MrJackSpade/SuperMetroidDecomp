@@ -507,11 +507,9 @@ internal sealed class MotherBrainBody
         turret.DirectionParameter = parameter;
         turret.Position = turret.Position.WithWhole(definition.Position);
 
-        // The turret is stationary, so the initializer intentionally repurposes both
-        // subposition words. X-subposition is a bank-$86 pointer to this turret's allowed
-        // direction bytes. Y-subposition packs direction in the low byte and signed
-        // rotation delta (+1 initially) in the high byte.
-        turret.Position = turret.Position.WithFractionX(definition.AllowedRotationPointer).WithFractionY(SnesLittleEndian.Word((byte)direction, 1));
+        // The turret is stationary, so the initializer repurposes its Y-subposition word: direction in the low byte
+        // and signed rotation delta (+1 initially) in the high byte.
+        turret.Position = turret.Position.WithFractionY(SnesLittleEndian.Word((byte)direction, 1));
         turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretProgram.TurretPose, direction));
 
         // X/Y velocity are likewise timers for a stationary turret. Each initializer makes

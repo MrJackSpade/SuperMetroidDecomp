@@ -23,12 +23,14 @@ internal static class MotherBrainTurretDefinitionsVerification
             MotherBrainTurretDefinition definition =
                 MotherBrainTurretDefinitions.ForTurret(parameter);
             int wordOffset = parameter * 2;
+            // $86:BEF9: each turret's eight allowed-direction bytes follow the previous turret's.
+            ushort policyRow = (ushort)(0xbef9 + parameter * 8);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86be89 + wordOffset)), definition.Position.X,
                 $"Mother Brain turret X {parameter}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bea1 + wordOffset)), definition.Position.Y,
                 $"Mother Brain turret Y {parameter}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bec9 + wordOffset)),
-                definition.AllowedRotationPointer,
+                policyRow,
                 $"Mother Brain turret rotation pointer {parameter}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bee1 + wordOffset)),
                 (ushort)definition.InitialDirection,
@@ -37,9 +39,9 @@ internal static class MotherBrainTurretDefinitionsVerification
             for (byte direction = 0; direction < 8; direction++)
             {
                 bool nativeAllowed = rom.ReadCartridgeByte(
-                    0x860000 | (definition.AllowedRotationPointer + direction)) != 0;
+                    0x860000 | (policyRow + direction)) != 0;
                 AssertEqual(nativeAllowed, MotherBrainTurretDefinitions.IsRotationAllowed(
-                    definition.AllowedRotationPointer,
+                    parameter,
                     (MotherBrainTurretDirection)direction),
                     $"Mother Brain turret allowed direction {parameter}/{direction}");
             }
@@ -56,8 +58,8 @@ internal static class MotherBrainTurretDefinitionsVerification
                 $"production Mother Brain turret kind {parameter}");
             AssertEqual(definition.Position, turret.Position.Whole,
                 $"production Mother Brain turret position {parameter}");
-            AssertEqual(definition.AllowedRotationPointer, turret.Position.X.Fraction,
-                $"production Mother Brain turret rotation pointer {parameter}");
+            AssertEqual(parameter, turret.DirectionParameter,
+                $"production Mother Brain turret identity {parameter}");
             AssertEqual(unchecked((ushort)(0x0100 | (byte)definition.InitialDirection)),
                 turret.Position.Y.Fraction,
                 $"production Mother Brain turret packed direction {parameter}");
@@ -73,11 +75,12 @@ internal static class MotherBrainTurretDefinitionsVerification
             {
                 var rotation = new RoomEnemyProjectileSlot(0)
                 {
-                    Position = new(new(0, definition.AllowedRotationPointer), new(0, unchecked(SnesLittleEndian.Word(current, unchecked((byte)delta))))),
+                    Position = new(new(0, 0), new(0, unchecked(SnesLittleEndian.Word(current, unchecked((byte)delta))))),
+                    DirectionParameter = parameter,
                 };
                 byte candidate = unchecked((byte)((current + delta) & 7));
                 bool allowed = rom.ReadCartridgeByte(
-                    0x860000 | (definition.AllowedRotationPointer + candidate)) != 0;
+                    0x860000 | (policyRow + candidate)) != 0;
                 sbyte expectedDelta = allowed ? delta : unchecked((sbyte)-delta);
                 byte expectedDirection = allowed
                     ? candidate
@@ -144,10 +147,10 @@ internal static class MotherBrainTurretDefinitionsVerification
         AssertThrows<ArgumentOutOfRangeException>(
             () => MotherBrainTurretDefinitions.ForDirection((MotherBrainTurretDirection)8),
             "Mother Brain turret direction past table");
-        AssertThrows<InvalidDataException>(
+        AssertThrows<ArgumentOutOfRangeException>(
             () => MotherBrainTurretDefinitions.IsRotationAllowed(
-                0xbefa, MotherBrainTurretDirection.Left),
-            "Mother Brain turret unaligned rotation pointer");
+                12, MotherBrainTurretDirection.Left),
+            "Mother Brain turret rotation policy past table");
 
         Console.WriteLine(
             "Mother Brain turret definitions: 12 placements, 96 rotation bytes, 16 instruction selectors, 32 bullet words, 384 rotations and all 20 real spawns pass with source tables forbidden.");

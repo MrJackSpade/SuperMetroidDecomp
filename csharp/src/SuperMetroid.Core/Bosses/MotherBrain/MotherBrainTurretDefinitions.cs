@@ -16,8 +16,6 @@ internal static class MotherBrainTurretDefinitions
     internal const int TurretCount = 12;
     /// <summary>$86:BEB9/$C040 select eight turret poses in left-to-up-left octant order.</summary>
     internal const int DirectionCount = 8;
-    /// <summary>$86:BEF9 begins twelve eight-byte allowed-direction rows.</summary>
-    internal const ushort RotationPolicyStart = 0xbef9;
     /// <summary>$86:BE89 starts the first bay at X=$398; each later bay is 192 pixels left.</summary>
     private const int FirstBayX = 0x398;
     /// <summary>The native placement rows repeat three mounting positions every twelve tiles.</summary>
@@ -55,8 +53,7 @@ internal static class MotherBrainTurretDefinitions
             _ => Sector(MotherBrainTurretDirection.Left,
                 wideSector ? MotherBrainTurretDirection.DownRight : MotherBrainTurretDirection.Down),
         };
-        return new(new((ushort)(FirstBayX - bay * BaySpacing - xInset), (ushort)(column == 0 ? 48 : 64)),
-            (ushort)(RotationPolicyStart + parameter * DirectionCount), initial, allowed);
+        return new(new((ushort)(FirstBayX - bay * BaySpacing - xInset), (ushort)(column == 0 ? 48 : 64)), initial, allowed);
     }
 
     /// <summary>Returns the bullet launch for one of the eight directions.</summary>
@@ -84,21 +81,9 @@ internal static class MotherBrainTurretDefinitions
             new((short)Math.Round(-BulletSpeed * Math.Cos(angle)), (short)Math.Round(BulletSpeed * Math.Sin(angle))));
     }
 
-    /// <summary>
-    /// Resolves a native allowed-rotation pointer and tests the requested direction exactly
-    /// as the byte table at <c>$86:BEF9-$86:BF58</c> did.
-    /// </summary>
-    internal static bool IsRotationAllowed(
-        ushort allowedRotationPointer,
-        MotherBrainTurretDirection direction)
+    /// <summary>Whether turret <paramref name="turret"/> may rotate to <paramref name="direction"/>.</summary>
+    internal static bool IsRotationAllowed(ushort turret, MotherBrainTurretDirection direction)
     {
-        int pointerOffset = allowedRotationPointer - RotationPolicyStart;
-        if (pointerOffset < 0 || pointerOffset >= TurretCount * DirectionCount || (pointerOffset & 7) != 0)
-        {
-            throw new InvalidDataException(
-                $"Mother Brain turret rotation pointer $86:{allowedRotationPointer:X4} is not an authored policy row.");
-        }
-
         int directionIndex = (byte)direction;
         if ((uint)directionIndex >= DirectionCount)
         {
@@ -106,7 +91,7 @@ internal static class MotherBrainTurretDefinitions
                 nameof(direction), direction, "Mother Brain turret direction must be zero through seven.");
         }
 
-        return (ForTurret((ushort)(pointerOffset / DirectionCount)).AllowedDirectionMask & (1 << directionIndex)) != 0;
+        return (ForTurret(turret).AllowedDirectionMask & (1 << directionIndex)) != 0;
     }
 
     /// <summary>Builds the contiguous allowed-direction bit mask between two octants.</summary>

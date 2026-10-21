@@ -776,7 +776,7 @@ internal sealed class MotherBrainProjectiles
         sbyte rotationDelta = unchecked((sbyte)SnesLittleEndian.HighByte(turret.Position.Y.Fraction));
         byte candidate = unchecked((byte)((currentDirection + rotationDelta) & 7));
         bool allowed = MotherBrainTurretDefinitions.IsRotationAllowed(
-            turret.Position.X.Fraction,
+            checked((ushort)turret.DirectionParameter),
             (MotherBrainTurretDirection)candidate);
 
         if (allowed)

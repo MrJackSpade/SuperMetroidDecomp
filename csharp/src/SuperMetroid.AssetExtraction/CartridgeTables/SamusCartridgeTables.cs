@@ -22,4 +22,13 @@ internal static class SamusCartridgeTables
 
     /// <summary>$92:90ED: the first Samus spritemap; spritemap pointers below it are invalid.</summary>
     internal const int FirstSpritemap = 0x90ed;
+
+    /// <summary>$92:808D: the spritemap pointer of each pose-half table entry.</summary>
+    internal const int SpritemapPointers = 0x92808d;
+
+    /// <summary>$92:9263: each pose's first upper-half table entry.</summary>
+    internal const int SpritemapTopBases = 0x929263;
+
+    /// <summary>$92:945D: each pose's first lower-half table entry.</summary>
+    internal const int SpritemapBottomBases = 0x92945d;
 }

@@ -4,49 +4,42 @@ using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
-/// <summary>Editable visual composition behind the bank-$92 Samus OAM pointer table.</summary>
+/// <summary>Editable visual compositions behind Samus's pose-half table.</summary>
 /// <remarks>
-/// The 253 pose selectors and 2,096 indexed pointers preserve native identity;
-/// the selected compositions and their five-byte sprite parts describe appearance; timing and collisions
-/// remain in the simulation. A zero pointer is a native mutable-memory reference,
-/// not an empty picture, and must still be resolved through the CPU address space.
+/// The 253 pose selectors and 2,096 indexed entries preserve native selection; the selected compositions and their
+/// five-byte sprite parts describe appearance; timing and collisions remain in the simulation. An entry with no
+/// composition is a native control slot or an omitted half, and draws nothing.
 /// </remarks>
 public sealed class SamusSpritemapArtworkCatalog
 {
-    /// <summary>Native <c>$92:808D</c> word-pointer table, indexed by pose half/frame.</summary>
-    public const int PointerTableAddress = 0x92808D;
-    /// <summary>Number of word-pointer entries in $92:808D's indexed allocation, including repeated records and zero pointers; not the number of unique compositions or poses.</summary>
+    /// <summary>Number of entries in the pose-half table, including repeated compositions and entries with none; not the number of unique compositions or poses.</summary>
     public const int PointerCount = 2096;
-    /// <summary>Native <c>$92:9263</c> upper-half base-index table.</summary>
-    public const int TopBaseAddress = 0x929263;
-    /// <summary>Native <c>$92:945D</c> lower-half base-index table.</summary>
-    public const int BottomBaseAddress = 0x92945D;
 
     /// <summary>Upper-half pose base indices whose selected values differ from calculated stock values.</summary>
     internal readonly Dictionary<int, ushort> topBases;
     /// <summary>Lower-half pose base indices whose selected values differ from calculated stock values.</summary>
     internal readonly Dictionary<int, ushort> bottomBases;
-    /// <summary>Indexed pointer entries whose selected identity differs from the calculated allocation.</summary>
-    internal readonly Dictionary<int, ushort> pointers;
-    /// <summary>Validated selected compositions keyed by their bank $92 record pointer.</summary>
-    internal readonly Dictionary<ushort, SamusSpritemapDefinition> definitions;
+    /// <summary>Table entries whose selected composition differs from the calculated allocation.</summary>
+    internal readonly Dictionary<int, SamusSpritemapId?> entries;
+    /// <summary>Validated selected compositions, each at its identity's ordinal.</summary>
+    internal readonly SamusSpritemapDefinition[] definitions;
 
-    /// <summary>Validates pose selectors, indexed pointers, and compositions, copying sprite parts and retaining independently edited selections without replacing animation or collision mechanics.</summary>
-    /// <param name="topBases">253 upper-half pointer-table element indices in native pose order, each below <see cref="PointerCount"/>.</param>
-    /// <param name="bottomBases">253 lower-half pointer-table element indices in native pose order, each below <see cref="PointerCount"/>.</param>
-    /// <param name="pointers">2,096 bank-$92 word pointers; every nonzero pointer must have a supplied composition, while zero retains native CPU-memory lookup behavior.</param>
-    /// <param name="definitions">Unique non-null records with pointers at least $90ED and at most 128 non-null-array sprite parts per composition.</param>
-    /// <exception cref="InvalidDataException">Selector dimensions or indices, composition records, or nonzero pointer coverage are invalid.</exception>
+    /// <summary>Validates pose selectors, table entries, and compositions, copying sprite parts and retaining independently edited selections without replacing animation or collision mechanics.</summary>
+    /// <param name="topBases">253 upper-half table element indices in native pose order, each below <see cref="PointerCount"/>.</param>
+    /// <param name="bottomBases">253 lower-half table element indices in native pose order, each below <see cref="PointerCount"/>.</param>
+    /// <param name="entries">2,096 table entries; each names a supplied composition, or none for a slot that draws nothing.</param>
+    /// <param name="definitions">Non-null compositions, each identified by its position, with at most 128 non-null-array sprite parts.</param>
+    /// <exception cref="InvalidDataException">Selector dimensions or indices, compositions, or entry coverage are invalid.</exception>
     public SamusSpritemapArtworkCatalog(ushort[] topBases, ushort[] bottomBases,
-        ushort[] pointers, SamusSpritemapDefinition[] definitions)
+        SamusSpritemapId?[] entries, SamusSpritemapDefinition[] definitions)
     {
         Ensure.NotNull(topBases);
         Ensure.NotNull(bottomBases);
-        Ensure.NotNull(pointers);
+        Ensure.NotNull(entries);
         Ensure.NotNull(definitions);
         if (topBases.Length != SamusBodyArtworkCatalog.PoseCount ||
             bottomBases.Length != SamusBodyArtworkCatalog.PoseCount ||
-            pointers.Length != PointerCount)
+            entries.Length != PointerCount)
             throw new InvalidDataException("Samus spritemap selector tables have an invalid length.");
         this.topBases = Enumerable.Range(0, topBases.Length)
             .Where(pose => topBases[pose] != SamusSpritemapPoseDefinitions.TopBase((SamusPoseId)pose))
@@ -54,38 +47,32 @@ public sealed class SamusSpritemapArtworkCatalog
         this.bottomBases = Enumerable.Range(0, bottomBases.Length)
             .Where(pose => bottomBases[pose] != SamusSpritemapPoseDefinitions.BottomBase((SamusPoseId)pose))
             .ToDictionary(pose => pose, pose => bottomBases[pose]);
-        this.definitions = new Dictionary<ushort, SamusSpritemapDefinition>();
-        foreach (SamusSpritemapDefinition definition in definitions)
-        {
-            if (definition is null || definition.Pointer < 0x90ED ||
-                definition.Parts is null || definition.Parts.Length > 128 ||
-                !this.definitions.TryAdd(definition.Pointer,
-                    new SamusSpritemapDefinition(definition.Pointer,
-                        (SamusSpritePart[])definition.Parts.Clone())))
-                throw new InvalidDataException("Samus spritemap has an invalid or duplicate record.");
-        }
-        foreach (ushort pointer in pointers)
-            if (pointer != 0 && !this.definitions.ContainsKey(pointer))
-                throw new InvalidDataException($"Samus spritemap ${pointer:X4} is absent from installed art.");
-        this.pointers = Enumerable.Range(0, pointers.Length)
+        this.definitions = [.. definitions.Select(definition =>
+            definition is not { Parts: { Length: <= 128 } parts }
+                ? throw new InvalidDataException("Samus spritemap has an invalid composition.")
+                : new SamusSpritemapDefinition((SamusSpritePart[])parts.Clone()))];
+        foreach (SamusSpritemapId? entry in entries)
+            if (entry is { } composition && (uint)composition.Ordinal >= (uint)this.definitions.Length)
+                throw new InvalidDataException($"Samus spritemap {composition.Ordinal} is absent from installed art.");
+        this.entries = Enumerable.Range(0, entries.Length)
             .Where(index => SamusSpritemapFrameDefinitions.SourceIndex(index) != index
-                ? pointers[index] != pointers[SamusSpritemapFrameDefinitions.SourceIndex(index)]
-                : !SamusSpritemapFrameDefinitions.TryPointer(index, this.definitions, out ushort calculated) || pointers[index] != calculated)
-            .ToDictionary(index => index, index => pointers[index]);
+                ? entries[index] != entries[SamusSpritemapFrameDefinitions.SourceIndex(index)]
+                : !SamusSpritemapFrameDefinitions.TryComposition(index, this.definitions.Length, out SamusSpritemapId? calculated) || entries[index] != calculated)
+            .ToDictionary(index => index, index => entries[index]);
         foreach (ushort index in topBases.Concat(bottomBases))
             if (index >= PointerCount)
                 throw new InvalidDataException($"Samus spritemap base index {index} is outside the table.");
     }
 
-    /// <summary>SHA-256 of selected pose bases, frame pointers and ordered OBJ composition parts.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(SamusSpritemapArtworkCatalog), content =>
+    /// <summary>SHA-256 of selected pose bases, table entries and ordered OBJ composition parts.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("samus-spritemaps-v2", content =>
     {
         content.AppendWords("top bases", TopBases);
         content.AppendWords("bottom bases", BottomBases);
-        content.AppendWords("pointers", Pointers);
-        foreach ((ushort pointer, SamusSpritemapDefinition definition) in this.definitions.OrderBy(pair => pair.Key))
+        foreach (SamusSpritemapId? entry in Entries)
+            content.Append("entry", entry?.Ordinal ?? -1);
+        foreach (SamusSpritemapDefinition definition in definitions)
         {
-            content.Append("pointer", pointer);
             content.Append("part count", definition.Parts.Length);
             foreach (SamusSpritePart part in definition.Parts)
             {
@@ -100,14 +87,14 @@ public sealed class SamusSpritemapArtworkCatalog
     public ReadOnlySpan<ushort> TopBases => Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount).Select(pose => TopBase((SamusPoseId)pose)).ToArray();
     /// <summary>Materializes all 253 lower-half element-index bases in pose order, including poses sharing the upper/lower composition.</summary>
     public ReadOnlySpan<ushort> BottomBases => Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount).Select(pose => BottomBase((SamusPoseId)pose)).ToArray();
-    /// <summary>Materializes the complete indexed bank-$92 pointer allocation in native table order, preserving repeated identities and mutable-memory zero pointers.</summary>
-    public ReadOnlySpan<ushort> Pointers => Enumerable.Range(0, PointerCount).Select(Pointer).ToArray();
-    /// <summary>Resolves an indexed pointer through an override, shared source entry, or calculated stock identity.</summary>
-    private ushort Pointer(int index) => pointers.TryGetValue(index, out ushort value)
+    /// <summary>Materializes the complete table in native order, preserving repeated compositions and entries with none.</summary>
+    public ReadOnlySpan<SamusSpritemapId?> Entries => Enumerable.Range(0, PointerCount).Select(Entry).ToArray();
+    /// <summary>Resolves a table entry through an override, shared source entry, or calculated stock composition.</summary>
+    private SamusSpritemapId? Entry(int index) => entries.TryGetValue(index, out SamusSpritemapId? value)
         ? value : SamusSpritemapFrameDefinitions.SourceIndex(index) != index
-            ? Pointer(SamusSpritemapFrameDefinitions.SourceIndex(index))
-            : SamusSpritemapFrameDefinitions.TryPointer(index, definitions, out ushort calculated)
-                ? calculated : throw new InvalidDataException("Installed OAM allocation no longer supplies its selected identity.");
+            ? Entry(SamusSpritemapFrameDefinitions.SourceIndex(index))
+            : SamusSpritemapFrameDefinitions.TryComposition(index, definitions.Length, out SamusSpritemapId? calculated)
+                ? calculated : throw new InvalidDataException("Installed OAM allocation no longer supplies its selected composition.");
     /// <summary>Resolves the installed upper-half base corresponding to native $92:9263, using calculated stock selection unless independently edited.</summary>
     /// <param name="pose">Native Samus pose identity, $00..$FC.</param>
     /// <returns>A pointer-table element index, not a bank address or byte offset; add the current animation frame before composition lookup.</returns>
@@ -127,33 +114,35 @@ public sealed class SamusSpritemapArtworkCatalog
         return bottomBases.TryGetValue((int)pose, out ushort value) ? value : SamusSpritemapPoseDefinitions.BottomBase(pose);
     }
 
-    /// <summary>Whole frames already built, by native spritemap record.</summary>
-    private readonly System.Collections.Concurrent.ConcurrentDictionary<ushort, SpriteFrame> frames = new();
+    /// <summary>Whole frames already built, by composition.</summary>
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<SamusSpritemapId, SpriteFrame> frames = new();
 
     /// <summary>
-    /// The spritemap at <paramref name="index"/> as a whole frame named by its record, whose parts' characters are
-    /// their OBJ tile numbers. Returns false only for a native zero pointer, which requires a WRAM read.
+    /// The spritemap at <paramref name="index"/> as a whole frame named by its composition, whose parts' characters
+    /// are their OBJ tile numbers. Returns false only for an entry with no composition, which draws nothing.
     /// </summary>
     public bool TryGetFrame(int index, [NotNullWhen(true)] out SpriteFrame? frame)
     {
-        if (!TryGet(index, out SamusSpritemapDefinition? definition))
+        if (Entry(Checked(index)) is not { } composition)
         {
             frame = null;
             return false;
         }
-        frame = frames.GetOrAdd(definition.Pointer, pointer => new SpriteFrame($"Samus.{pointer:X4}",
-            [.. definition.Parts.Select(part => ObjPartFrames.Part(part.X, part.Y,
+        frame = frames.GetOrAdd(composition, selected => new SpriteFrame($"Samus.{selected.Ordinal}",
+            [.. definitions[selected.Ordinal].Parts.Select(part => ObjPartFrames.Part(part.X, part.Y,
                 part.Attributes, 0))]));
         return true;
     }
 
-    /// <summary>Returns false only for a native zero pointer, which requires a bus read.</summary>
+    /// <summary>Returns false only for an entry with no composition, which draws nothing.</summary>
     public bool TryGet(int index, [NotNullWhen(true)] out SamusSpritemapDefinition? definition)
     {
-        if (index is < 0 or >= PointerCount)
-            throw new InvalidDataException($"Samus spritemap index {index} is outside extracted art.");
-        ushort pointer = Pointer(index);
-        definition = pointer == 0 ? null : definitions[pointer];
+        definition = Entry(Checked(index)) is { } composition ? definitions[composition.Ordinal] : null;
         return definition is not null;
     }
+
+    /// <summary>Requires <paramref name="index"/> to be a table entry.</summary>
+    private static int Checked(int index) => index is < 0 or >= PointerCount
+        ? throw new InvalidDataException($"Samus spritemap index {index} is outside extracted art.")
+        : index;
 }

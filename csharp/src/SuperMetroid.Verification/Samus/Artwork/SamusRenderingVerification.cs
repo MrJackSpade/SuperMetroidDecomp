@@ -154,7 +154,7 @@ internal static void VerifySamusRenderingSlice()
         new VerifySamusRenderingSliceCase(body[0], samus.Presentation.TopSpritemapIndex, 0), new VerifySamusRenderingSliceCase(body[1], samus.Presentation.BottomSpritemapIndex, 1) })
     {
         AssertTrue(spritemaps.TryGet(index, out SamusSpritemapDefinition? definition), "body spritemap is installed");
-        AssertEqual($"Samus.{definition?.Pointer:X4}", draw.Frame.Name, $"body draw {instance} names its spritemap record");
+        AssertEqual($"Samus.{spritemaps.Entries[index]?.Ordinal}", draw.Frame.Name, $"body draw {instance} names its spritemap composition");
         AssertEqual(new SpriteSource(SpriteSourceKind.Samus, instance), draw.Source, $"body draw {instance} source");
         AssertEqual(samus.Presentation.SpritemapPosition, draw.Origin, $"body draw {instance} sits at the spritemap origin");
         AssertTrue(ReferenceEquals(samus.Presentation.TileTransfers.BodyArtwork, draw.Artwork),

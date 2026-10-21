@@ -19,26 +19,26 @@ internal static class SamusSpritemapFrameDefinitions
     /// <summary>$92:8EC1 begins the mirrored left morph sequence used to derive its phase span.</summary>
     private const int FirstLeftMorph = 0x71a;
 
-    /// <summary>$92:D7D3 begins consecutive bubble spritemap allocations.</summary>
-    private const ushort BubbleAllocation = 0xd7d3;
-    /// <summary>$92:D858 begins consecutive diving-splash spritemap allocations.</summary>
-    private const ushort DivingAllocation = 0xd858;
-    /// <summary>$92:C8B7 begins the right-facing suit-explosion OAM sequence.</summary>
-    private const ushort DeathRightAllocation = 0xc8b7;
-    /// <summary>$92:C580 begins the left-facing suit-explosion OAM sequence.</summary>
-    private const ushort DeathLeftAllocation = 0xc580;
-    /// <summary>$92:A8D4 starts right-facing grapple angles zero through eight in reverse record order.</summary>
-    private const ushort GrappleRightFirstQuadrant = 0xa8d4;
-    /// <summary>$92:A46C starts the middle right-facing grapple arc, selected in reverse order.</summary>
-    private const ushort GrappleRightHalfTurn = 0xa46c;
-    /// <summary>$92:A981 starts the final right-facing grapple quadrant.</summary>
-    private const ushort GrappleRightLastQuadrant = 0xa981;
-    /// <summary>$92:AB8B starts left-facing grapple angles in forward record order.</summary>
-    private const ushort GrappleLeftFirstQuadrant = 0xab8b;
-    /// <summary>$92:A5B0 starts the middle left-facing grapple arc.</summary>
-    private const ushort GrappleLeftHalfTurn = 0xa5b0;
-    /// <summary>$92:AA18 starts the final left-facing grapple quadrant.</summary>
-    private const ushort GrappleLeftLastQuadrant = 0xaa18;
+    /// <summary>The first of the consecutive bubble compositions.</summary>
+    private static readonly SamusSpritemapId FirstBubble = new(449);
+    /// <summary>The first of the consecutive diving-splash compositions.</summary>
+    private static readonly SamusSpritemapId FirstDiving = new(458);
+    /// <summary>The first of the right-facing suit-explosion compositions.</summary>
+    private static readonly SamusSpritemapId FirstDeathRight = new(440);
+    /// <summary>The first of the left-facing suit-explosion compositions.</summary>
+    private static readonly SamusSpritemapId FirstDeathLeft = new(431);
+    /// <summary>Starts right-facing grapple angles zero through eight, selected in reverse record order.</summary>
+    private static readonly SamusSpritemapId GrappleRightFirstQuadrant = new(168);
+    /// <summary>Starts the middle right-facing grapple arc, selected in reverse order.</summary>
+    private static readonly SamusSpritemapId GrappleRightHalfTurn = new(136);
+    /// <summary>Starts the final right-facing grapple quadrant.</summary>
+    private static readonly SamusSpritemapId GrappleRightLastQuadrant = new(177);
+    /// <summary>Starts left-facing grapple angles in forward record order.</summary>
+    private static readonly SamusSpritemapId GrappleLeftFirstQuadrant = new(192);
+    /// <summary>Starts the middle left-facing grapple arc.</summary>
+    private static readonly SamusSpritemapId GrappleLeftHalfTurn = new(152);
+    /// <summary>Starts the final left-facing grapple quadrant.</summary>
+    private static readonly SamusSpritemapId GrappleLeftLastQuadrant = new(184);
     /// <summary>Top-half pointer index $186 begins the bubble OAM sequence.</summary>
     private const int Bubbles = 0x186;
     /// <summary>Top-half pointer index $18F begins the diving OAM sequence.</summary>
@@ -48,29 +48,35 @@ internal static class SamusSpritemapFrameDefinitions
     /// <summary>Pointer index $825 begins left-facing suit-explosion maps.</summary>
     private const int DeathLeft = 0x825;
 
-    /// <summary>Calculates pointers for contiguous native sprite runs and recognizes non-drawing control slots.</summary>
-    internal static bool TryPointer(int index, IReadOnlyDictionary<ushort, SamusSpritemapDefinition> definitions, out ushort pointer)
+    /// <summary>
+    /// Calculates the composition of entries in consecutive composition runs and recognizes non-drawing control
+    /// slots, which select no composition.
+    /// </summary>
+    /// <param name="index">The pose-half table entry.</param>
+    /// <param name="compositionCount">How many compositions are installed.</param>
+    /// <param name="composition">The calculated composition, or null for a slot that draws nothing.</param>
+    internal static bool TryComposition(int index, int compositionCount, out SamusSpritemapId? composition)
     {
-        if (IsControlOrOmittedHalf(index)) { pointer = 0; return true; }
+        if (IsControlOrOmittedHalf(index)) { composition = null; return true; }
         int phase = index - Bubbles;
-        if ((uint)phase < Diving - Bubbles) return Advance(BubbleAllocation, phase, definitions, out pointer);
+        if ((uint)phase < Diving - Bubbles) return Advance(FirstBubble, phase, compositionCount, out composition);
         phase = index - Diving;
-        if ((uint)phase < 9) return Advance(DivingAllocation, phase, definitions, out pointer);
+        if ((uint)phase < 9) return Advance(FirstDiving, phase, compositionCount, out composition);
         phase = index - DeathRight;
-        if ((uint)phase < DeathLeft - DeathRight) return Advance(DeathRightAllocation, phase, definitions, out pointer);
+        if ((uint)phase < DeathLeft - DeathRight) return Advance(FirstDeathRight, phase, compositionCount, out composition);
         phase = index - DeathLeft;
-        if ((uint)phase < SamusDeathExplosionTimingDefinitions.RecordCount) return Advance(DeathLeftAllocation, phase, definitions, out pointer);
+        if ((uint)phase < SamusDeathExplosionTimingDefinitions.RecordCount) return Advance(FirstDeathLeft, phase, compositionCount, out composition);
         phase = index - SamusSpritemapPoseDefinitions.TopBase(SamusPoseId.GrappleSwingRightPose);
         if ((uint)phase < GrappleTurnPhases)
-            return phase <= 8 ? Advance(GrappleRightFirstQuadrant, 8 - phase, definitions, out pointer)
-                : phase <= 24 ? Advance(GrappleRightHalfTurn, 24 - phase, definitions, out pointer)
-                : Advance(GrappleRightLastQuadrant, 31 - phase, definitions, out pointer);
+            return phase <= 8 ? Advance(GrappleRightFirstQuadrant, 8 - phase, compositionCount, out composition)
+                : phase <= 24 ? Advance(GrappleRightHalfTurn, 24 - phase, compositionCount, out composition)
+                : Advance(GrappleRightLastQuadrant, 31 - phase, compositionCount, out composition);
         phase = index - SamusSpritemapPoseDefinitions.TopBase(SamusPoseId.GrappleSwingLeftPose);
         if ((uint)phase < GrappleTurnPhases)
-            return phase < 8 ? Advance(GrappleLeftFirstQuadrant, phase, definitions, out pointer)
-                : phase < 24 ? Advance(GrappleLeftHalfTurn, phase - 8, definitions, out pointer)
-                : Advance(GrappleLeftLastQuadrant, phase - 24, definitions, out pointer);
-        pointer = 0;
+            return phase < 8 ? Advance(GrappleLeftFirstQuadrant, phase, compositionCount, out composition)
+                : phase < 24 ? Advance(GrappleLeftHalfTurn, phase - 8, compositionCount, out composition)
+                : Advance(GrappleLeftLastQuadrant, phase - 24, compositionCount, out composition);
+        composition = null;
         return false;
     }
 
@@ -143,16 +149,15 @@ internal static class SamusSpritemapFrameDefinitions
         int leaving = Phase(false, SamusPoseId.UnusedPoseDd);
         return leaving is 0 or 1 || Phase(false, SamusPoseId.UnusedPoseDe) is 0 or 1;
     }
-    /// <summary>Walks variable-length OAM records from a native allocation's first pointer.</summary>
-    private static bool Advance(ushort start, int ordinal, IReadOnlyDictionary<ushort, SamusSpritemapDefinition> definitions, out ushort pointer)
+    /// <summary>
+    /// The composition <paramref name="ordinal"/> places after <paramref name="start"/> in a run; a run's trailing
+    /// entries past its last step (a negative ordinal) repeat its first composition.
+    /// </summary>
+    private static bool Advance(SamusSpritemapId start, int ordinal, int compositionCount, out SamusSpritemapId? composition)
     {
-        pointer = start;
-        for (int part = 0; part < ordinal; part++)
-        {
-            if (!definitions.TryGetValue(pointer, out var definition)) return false;
-            pointer = unchecked((ushort)(pointer + sizeof(ushort) + definition.Parts.Length * 5));
-        }
-        return true;
+        SamusSpritemapId selected = start.After(Math.Max(ordinal, 0));
+        composition = selected.Ordinal < compositionCount ? selected : null;
+        return composition is not null;
     }
     /// <summary>Resolves authored pose-half image sharing to an earlier physical composition slot.</summary>
     internal static int SourceIndex(int index)

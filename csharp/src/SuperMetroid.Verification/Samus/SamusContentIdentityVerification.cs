@@ -19,13 +19,11 @@ internal static class SamusContentIdentityVerification
     internal static void VerifySamusContentIdentity()
     {
         SamusBodyArtworkCatalog baseline = CreateSamusIdentityFixture();
-        AssertEqual(baseline.ContentIdentity, CreateSamusIdentityFixture(reverseMaps: true).ContentIdentity,
-            "Samus identity ignores spritemap record insertion order");
         string[] edits =
         [
             "top-characters", "bottom-characters", "pose-pointer", "graphics-offset", "landing-offset",
             "posture-offset", "drained-offset", "frame-selector", "transfer-split", "body-source",
-            "spritemap-top", "spritemap-bottom", "spritemap-pointer", "spritemap-part",
+            "spritemap-top", "spritemap-bottom", "spritemap-entry", "spritemap-part",
             "atmosphere-one", "atmosphere-shared", "death-suit", "death-suitless", "death-whiteout",
             "death-selector", "death-tiles", "cannon-pose", "cannon-drawing", "cannon-attributes",
             "cannon-sources", "cannon-tiles",
@@ -50,7 +48,7 @@ internal static class SamusContentIdentityVerification
     }
 
     /// <summary>Builds a minimal Samus art catalog, optionally changing one visual family or spritemap order.</summary>
-    internal static SamusBodyArtworkCatalog CreateSamusIdentityFixture(string? edit = null, bool reverseMaps = false)
+    internal static SamusBodyArtworkCatalog CreateSamusIdentityFixture(string? edit = null)
     {
         int firstPointer = SamusBodyDefinitionLayout.EndOffset -
             (SamusBodyArtworkCatalog.TopSetCount + SamusBodyArtworkCatalog.BottomSetCount) *
@@ -86,15 +84,14 @@ internal static class SamusContentIdentityVerification
         var bottomBases = new ushort[SamusBodyArtworkCatalog.PoseCount];
         if (edit == "spritemap-top") topBases[0] = 1;
         if (edit == "spritemap-bottom") bottomBases[0] = 1;
-        ushort[] pointers = Enumerable.Repeat((ushort)0x90ed, SamusSpritemapArtworkCatalog.PointerCount).ToArray();
-        if (edit == "spritemap-pointer") pointers[0] = 0x90f4;
+        SamusSpritemapId?[] entries = [.. Enumerable.Repeat<SamusSpritemapId?>(new SamusSpritemapId(0), SamusSpritemapArtworkCatalog.PointerCount)];
+        if (edit == "spritemap-entry") entries[0] = new SamusSpritemapId(1);
         SamusSpritemapDefinition[] definitions =
         [
-            new(0x90ed, [new SamusSpritePart(new SnesSpritemapXWord(0), new SnesSpritemapYByte(edit == "spritemap-part" ? (byte)1 : (byte)0), new SnesObjAttributeWord(0))]),
-            new(0x90f4, [new SamusSpritePart(new SnesSpritemapXWord(1), new SnesSpritemapYByte(0), new SnesObjAttributeWord(1))]),
+            new([new SamusSpritePart(new SnesSpritemapXWord(0), new SnesSpritemapYByte(edit == "spritemap-part" ? (byte)1 : (byte)0), new SnesObjAttributeWord(0))]),
+            new([new SamusSpritePart(new SnesSpritemapXWord(1), new SnesSpritemapYByte(0), new SnesObjAttributeWord(1))]),
         ];
-        if (reverseMaps) Array.Reverse(definitions);
-        var spritemaps = new SamusSpritemapArtworkCatalog(topBases, bottomBases, pointers, definitions);
+        var spritemaps = new SamusSpritemapArtworkCatalog(topBases, bottomBases, entries, definitions);
         var one = new ushort[SamusMovementRomData.Environment.DirectAtmosphericFrameCount];
         var shared = new ushort[one.Length];
         if (edit == "atmosphere-one") one[0] = 1;

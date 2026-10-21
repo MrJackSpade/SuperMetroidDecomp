@@ -60,7 +60,7 @@ internal static class LookupStream1Verification
 {
     /// <summary>Header row of the required Samus OAM pointer report.</summary>
     private static readonly string[] OamPointerCsvHeader =
-        ["Index, NativeAddress, CompositionPointer"];
+        ["Index, NativeAddress, Composition"];
     /// <summary>The four escape-timer pixels whose native values still deviate from the calculated shapes.</summary>
     private static readonly int[] RetainedTimerDeviations =
         [1161, 1163, 189, 999];
@@ -1084,21 +1084,21 @@ internal static class LookupStream1Verification
         AssertEqual(22, draws, "Every nonempty source phase drawn");
         AssertTrue(!stock.TryDrainedYOffset(-1, out _) && !stock.TryDrainedYOffset(32, out _), "Exact drained bounds");
         var emptyMaps = new SamusSpritemapArtworkCatalog(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
-            stock.Spritemaps.Pointers.ToArray(), stock.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition(map.Pointer, [])).ToArray());
+            stock.Spritemaps.Entries.ToArray(), stock.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition([])).ToArray());
         var empty = Create(native, emptyMaps);
         AssertTrue(empty.DrainedYOffsets.SequenceEqual(native), "Supplied empty art preserves all independent offsets");
         var zeroPointers = new SamusSpritemapArtworkCatalog(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
-            new ushort[SamusSpritemapArtworkCatalog.PointerCount], []);
+            new SamusSpritemapId?[SamusSpritemapArtworkCatalog.PointerCount], []);
         AssertTrue(Create(native, zeroPointers).DrainedYOffsets.SequenceEqual(native), "Mutable-zero-pointer art preserves offset schema");
         SamusBodyTileDefinition[][] Blank(bool top) => Enumerable.Range(0, top ? SamusBodyArtworkCatalog.TopSetCount : SamusBodyArtworkCatalog.BottomSetCount)
             .Select(set => (top ? stock.TopSet(set) : stock.BottomSet(set)).Select(definition =>
                 new SamusBodyTileDefinition(definition.SourceAddress, definition.FirstSize, definition.SecondSize, new byte[definition.Planar.Length])).ToArray()).ToArray();
         var blankPixels = Create(native, upper: Blank(true), lower: Blank(false));
         AssertTrue(blankPixels.DrainedYOffsets.SequenceEqual(native), "Independently blank PNG pixels preserve original offsets");
-        ushort changedPointer = stock.Spritemaps.Pointers[stock.Spritemaps.TopBase(SamusPoseId.DrainedCrouchingLeftPose)];
+        SamusSpritemapId? changedPointer = stock.Spritemaps.Entries[stock.Spritemaps.TopBase(SamusPoseId.DrainedCrouchingLeftPose)];
         var shiftedMaps = new SamusSpritemapArtworkCatalog(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
-            stock.Spritemaps.Pointers.ToArray(), stock.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition(map.Pointer,
-                map.Pointer == changedPointer ? map.Parts.Select(part => part with { Y = new SnesSpritemapYByte(unchecked((byte)(part.Y.Raw + 1))) }).ToArray() : map.Parts)).ToArray());
+            stock.Spritemaps.Entries.ToArray(), stock.Spritemaps.Definitions.Select((map, ordinal) => new SamusSpritemapDefinition(
+                ordinal == changedPointer?.Ordinal ? map.Parts.Select(part => part with { Y = new SnesSpritemapYByte(unchecked((byte)(part.Y.Raw + 1))) }).ToArray() : map.Parts)).ToArray());
         var shifted = Create(native, shiftedMaps);
         AssertTrue(shifted.DrainedYOffsets.SequenceEqual(native), "Changed source support does not couple independent offset edits");
         AssertTrue(Stored(shifted) > 0, "Edited source geometry stores explicit independent differences");
@@ -1153,21 +1153,21 @@ internal static class LookupStream1Verification
             }
         }
         var emptyMaps = new SamusSpritemapArtworkCatalog(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
-            stock.Spritemaps.Pointers.ToArray(), stock.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition(map.Pointer, [])).ToArray());
+            stock.Spritemaps.Entries.ToArray(), stock.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition([])).ToArray());
         var empty = Create(native, emptyMaps);
         AssertTrue(empty.PostureYOffsets.SequenceEqual(native), "Supplied empty art preserves all independent offsets");
         var zeroPointers = new SamusSpritemapArtworkCatalog(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
-            new ushort[SamusSpritemapArtworkCatalog.PointerCount], []);
+            new SamusSpritemapId?[SamusSpritemapArtworkCatalog.PointerCount], []);
         AssertTrue(Create(native, zeroPointers).PostureYOffsets.SequenceEqual(native), "Mutable-zero-pointer art preserves offset schema");
         SamusBodyTileDefinition[][] Blank(bool top) => Enumerable.Range(0, top ? SamusBodyArtworkCatalog.TopSetCount : SamusBodyArtworkCatalog.BottomSetCount)
             .Select(set => (top ? stock.TopSet(set) : stock.BottomSet(set)).Select(definition =>
                 new SamusBodyTileDefinition(definition.SourceAddress, definition.FirstSize, definition.SecondSize, new byte[definition.Planar.Length])).ToArray()).ToArray();
         var blankPixels = Create(native, upper: Blank(true), lower: Blank(false));
         AssertTrue(blankPixels.PostureYOffsets.SequenceEqual(native), "Independently blank PNG pixels preserve original offsets");
-        ushort changedPointer = stock.Spritemaps.Pointers[stock.Spritemaps.TopBase(SamusPoseId.MorphingTransitionRightPose)];
+        SamusSpritemapId? changedPointer = stock.Spritemaps.Entries[stock.Spritemaps.TopBase(SamusPoseId.MorphingTransitionRightPose)];
         var shiftedMaps = new SamusSpritemapArtworkCatalog(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
-            stock.Spritemaps.Pointers.ToArray(), stock.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition(map.Pointer,
-                map.Pointer == changedPointer ? map.Parts.Select(part => part with { Y = new SnesSpritemapYByte(unchecked((byte)(part.Y.Raw + 1))) }).ToArray() : map.Parts)).ToArray());
+            stock.Spritemaps.Entries.ToArray(), stock.Spritemaps.Definitions.Select((map, ordinal) => new SamusSpritemapDefinition(
+                ordinal == changedPointer?.Ordinal ? map.Parts.Select(part => part with { Y = new SnesSpritemapYByte(unchecked((byte)(part.Y.Raw + 1))) }).ToArray() : map.Parts)).ToArray());
         var shifted = Create(native, shiftedMaps);
         AssertTrue(shifted.PostureYOffsets.SequenceEqual(native), "Changed source support does not couple independent offset edits");
         AssertTrue(Stored(shifted) > 0, "Edited source geometry stores explicit independent differences");
@@ -1261,20 +1261,21 @@ internal static class LookupStream1Verification
         ushort[] ReadWords(int address, int count) => Enumerable.Range(0, count)
             .Select(index => SnesLittleEndian.Word(LookupStream1BodyOamBasesRomByte(rom, address + index * 2), LookupStream1BodyOamBasesRomByte(rom, address + index * 2 + 1))).ToArray();
         ushort[] top = ReadWords(0x929263, 253), bottom = ReadWords(0x92945d, 253), pointers = ReadWords(0x92808d, 2096);
+        SamusSpritemapId?[] entries = SamusSpritemapNative.Entries(pointers);
         // Marker parts confirm selected supplied payload identity, not native artwork.
-        SamusSpritemapDefinition[] definitions = pointers.Where(pointer => pointer != 0).Distinct()
-            .Select(pointer => new SamusSpritemapDefinition(pointer,
-                [new SamusSpritePart(new SnesSpritemapXWord(pointer), new SnesSpritemapYByte((byte)pointer), (ushort)(pointer ^ 0x5555))])).ToArray();
-        SamusSpritemapArtworkCatalog Create(ushort[] upper, ushort[] lower) => new(upper, lower, pointers, definitions);
+        static SamusSpritePart Marker(ushort pointer) =>
+            new(new SnesSpritemapXWord(pointer), new SnesSpritemapYByte((byte)pointer), (ushort)(pointer ^ 0x5555));
+        SamusSpritemapDefinition[] definitions = [.. SamusSpritemapNative.Compositions(pointers)
+            .Select(pointer => new SamusSpritemapDefinition([Marker(pointer)]))];
+        SamusSpritemapArtworkCatalog Create(ushort[] upper, ushort[] lower) => new(upper, lower, entries, definitions);
         var stock = Create(top, bottom);
-        string Canonical(ushort[] upper, ushort[] lower) => SelectedPresentationHash.Create(nameof(SamusSpritemapArtworkCatalog), content =>
+        string Canonical(ushort[] upper, ushort[] lower) => SelectedPresentationHash.Create("samus-spritemaps-v2", content =>
         {
             content.AppendWords("top bases", upper);
             content.AppendWords("bottom bases", lower);
-            content.AppendWords("pointers", pointers);
-            foreach (SamusSpritemapDefinition definition in definitions.OrderBy(item => item.Pointer))
+            foreach (SamusSpritemapId? entry in entries) content.Append("entry", entry?.Ordinal ?? -1);
+            foreach (SamusSpritemapDefinition definition in definitions)
             {
-                content.Append("pointer", definition.Pointer);
                 content.Append("part count", definition.Parts.Length);
                 foreach (SamusSpritePart part in definition.Parts)
                 {
@@ -1287,13 +1288,11 @@ internal static class LookupStream1Verification
         void CheckSelection(SamusSpritemapArtworkCatalog catalog, ushort selected)
         {
             bool found = catalog.TryGet(selected, out SamusSpritemapDefinition? definition);
-            AssertEqual(pointers[selected] != 0, found, "Native zero pointer retains mutable-memory routing");
+            AssertEqual(pointers[selected] != 0, found, "Native zero pointer draws nothing");
             if (found)
-            {
-                AssertEqual(pointers[selected], (definition ?? throw new InvalidOperationException("Verification requires definition.")).Pointer, "Actual selector resolves supplied pointer");
-                AssertEqual(new SamusSpritePart(new SnesSpritemapXWord(pointers[selected]), new SnesSpritemapYByte((byte)pointers[selected]), (ushort)(pointers[selected] ^ 0x5555)),
-                    definition.Parts.Single(), "Actual selector resolves independent marker payload");
-            }
+                AssertEqual(Marker(pointers[selected]),
+                    (definition ?? throw new InvalidOperationException("Verification requires definition.")).Parts.Single(),
+                    "Actual selector resolves independent marker payload");
         }
         AssertEqual(0, stock.topBases.Count + stock.bottomBases.Count, "Zero stock OAM-base overrides");
         AssertEqual(Canonical(top, bottom), stock.ContentIdentity, "Exact original canonical stock OAM hash");
@@ -1311,7 +1310,7 @@ internal static class LookupStream1Verification
             var changed = Create(upper, lower);
             AssertEqual(1, changed.topBases.Count + changed.bottomBases.Count, "Exactly one independent OAM-base override");
             AssertTrue(changed.TopBases.SequenceEqual(upper) && changed.BottomBases.SequenceEqual(lower), "All supplied independent bases preserved");
-            AssertTrue(changed.Pointers.SequenceEqual(pointers), "OAM pointer payload unchanged");
+            AssertTrue(changed.Entries.SequenceEqual(entries), "OAM composition entries unchanged");
             ushort selected = half == 0 ? changed.TopBase((SamusPoseId)pose) : changed.BottomBase((SamusPoseId)pose);
             AssertEqual(edited, selected, "Runtime honors independently edited base");
             CheckSelection(changed, selected);
@@ -2924,11 +2923,11 @@ internal static class LookupStream1Verification
         AssertEqual(135, basis, "All formerly independent coordinate basis bytes now have reviewed defaults");
         SamusBodyArtworkCatalog WithMaps(SamusSpritemapArtworkCatalog maps) => new(new SamusBodyArtworkParts { TopPointers = body.TopSetPointers.ToArray(), BottomPointers = body.BottomSetPointers.ToArray(), PosePointers = body.PosePointers.ToArray(), GraphicsYOffsets = body.GraphicsYOffsets.ToArray(), Frames = body.Frames.ToArray(), Top = Enumerable.Range(0, SamusBodyArtworkCatalog.TopSetCount).Select(index => body.TopSet(index).ToArray()).ToArray(), Bottom = Enumerable.Range(0, SamusBodyArtworkCatalog.BottomSetCount).Select(index => body.BottomSet(index).ToArray()).ToArray(), Spritemaps = maps, Atmosphere = body.Atmosphere, DeathPalettes = body.DeathPalettes, DeathTiles = body.DeathTiles, ArmCannon = stock, LandingYOffsets = body.LandingYOffsets.ToArray(), PostureYOffsets = body.PostureYOffsets.ToArray(), DrainedYOffsets = body.DrainedYOffsets.ToArray() });
         var empty = new SamusSpritemapArtworkCatalog(body.Spritemaps.TopBases.ToArray(), body.Spritemaps.BottomBases.ToArray(),
-            body.Spritemaps.Pointers.ToArray(), body.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition(map.Pointer, [])).ToArray());
+            body.Spritemaps.Entries.ToArray(), body.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition([])).ToArray());
         var zero = new SamusSpritemapArtworkCatalog(body.Spritemaps.TopBases.ToArray(), body.Spritemaps.BottomBases.ToArray(),
-            new ushort[SamusSpritemapArtworkCatalog.PointerCount], []);
+            new SamusSpritemapId?[SamusSpritemapArtworkCatalog.PointerCount], []);
         var shifted = new SamusSpritemapArtworkCatalog(body.Spritemaps.TopBases.ToArray(), body.Spritemaps.BottomBases.ToArray(),
-            body.Spritemaps.Pointers.ToArray(), body.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition(map.Pointer,
+            body.Spritemaps.Entries.ToArray(), body.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition(
                 map.Parts.Select(part => part with { X = new SnesSpritemapXWord((ushort)((part.X.Raw & ~511) | ((part.X.Raw + 1) & 511))), Y = new SnesSpritemapYByte(unchecked((byte)(part.Y.Raw + 1))) }).ToArray())).ToArray());
         foreach (var maps in new[] { empty, zero, shifted })
         {
@@ -2991,33 +2990,35 @@ internal static class LookupStream1Verification
         SamusBodyArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
         var body = SamusBodyArtworkFiles.Load(directory.Root, null);
         var stock = body.Spritemaps;
-        ushort[] native = Enumerable.Range(0, 2096).Select(index =>
+        ushort[] nativePointers = Enumerable.Range(0, 2096).Select(index =>
             SnesLittleEndian.Word(LookupStream1OamPointersRomByte(rom, 0x92808d + index * 2), LookupStream1OamPointersRomByte(rom, 0x92808e + index * 2))).ToArray();
+        SamusSpritemapId?[] native = SamusSpritemapNative.Entries(nativePointers);
         int aliases = 0, directPointers = 0;
-        var nativeDefinitions = stock.Definitions.ToDictionary(map => map.Pointer);
+        int compositionCount = stock.Definitions.Count;
+        AssertEqual(SamusSpritemapNative.Compositions(nativePointers).Length, compositionCount, "One installed composition per referenced native record");
         for (int index = 0; index < native.Length; index++)
         {
             int source = SamusSpritemapFrameDefinitions.SourceIndex(index);
-            AssertEqual(native[index], native[source], $"Source-identified native OAM sharing {index:X4}->{source:X4}");
+            AssertEqual(nativePointers[index], nativePointers[source], $"Source-identified native OAM sharing {index:X4}->{source:X4}");
             if (source != index) aliases++;
-            else if (SamusSpritemapFrameDefinitions.TryPointer(index, nativeDefinitions, out ushort calculated))
+            else if (SamusSpritemapFrameDefinitions.TryComposition(index, compositionCount, out SamusSpritemapId? calculated))
             {
                 AssertEqual(native[index], calculated, $"Direct native composition identity {index:X4}");
                 directPointers++;
             }
         }
-        AssertTrue(stock.Pointers.SequenceEqual(native), "All native pointer observations preserved");
-        var stored = stock.pointers;
+        AssertTrue(stock.Entries.SequenceEqual(native), "All native pointer observations preserved");
+        var stored = stock.entries;
         AssertEqual(native.Length - aliases - directPointers, stored.Count, "Exact independent pointer basis, no stock alias/allocation fallbacks");
         ushort[] top = stock.TopBases.ToArray(), bottom = stock.BottomBases.ToArray();
         SamusSpritemapDefinition[] definitions = stock.Definitions.ToArray();
-        string Canonical(ushort[] pointers) => SelectedPresentationHash.Create(nameof(SamusSpritemapArtworkCatalog), content =>
+        string Canonical(SamusSpritemapId?[] entries) => SelectedPresentationHash.Create("samus-spritemaps-v2", content =>
         {
             content.AppendWords("top bases", top); content.AppendWords("bottom bases", bottom);
-            content.AppendWords("pointers", pointers);
-            foreach (var map in definitions.OrderBy(map => map.Pointer))
+            foreach (SamusSpritemapId? entry in entries) content.Append("entry", entry?.Ordinal ?? -1);
+            foreach (var map in definitions)
             {
-                content.Append("pointer", map.Pointer); content.Append("part count", map.Parts.Length);
+                content.Append("part count", map.Parts.Length);
                 foreach (var part in map.Parts)
                 {
                     content.Append("x", part.X.Raw); content.Append("y", part.Y.Raw); content.Append("attributes", part.Attributes);
@@ -3025,23 +3026,25 @@ internal static class LookupStream1Verification
             }
         });
         AssertEqual(Canonical(native), stock.ContentIdentity, "Original native OAM canonical hash");
-        SamusSpritemapArtworkCatalog Create(ushort[] pointers) => new(top, bottom, pointers, definitions);
+        SamusSpritemapArtworkCatalog Create(SamusSpritemapId?[] entries) => new(top, bottom, entries, definitions);
         var emptyCompositions = new SamusSpritemapArtworkCatalog(top, bottom, native,
-            definitions.Select(map => new SamusSpritemapDefinition(map.Pointer, [])).ToArray());
-        AssertTrue(emptyCompositions.Pointers.SequenceEqual(native), "Independent OAM part-count edits preserve every supplied pointer identity");
+            definitions.Select(map => new SamusSpritemapDefinition([])).ToArray());
+        AssertTrue(emptyCompositions.Entries.SequenceEqual(native), "Independent OAM part-count edits preserve every supplied composition identity");
         for (int index = 0; index < native.Length; index++)
         {
-            var supplied = native.ToArray(); supplied[index] = supplied[index] == 0 ? native[0] : (ushort)0;
+            var supplied = native.ToArray(); supplied[index] = supplied[index] is null ? native[0] : null;
             var edited = Create(supplied);
-            AssertTrue(edited.Pointers.SequenceEqual(supplied), "Independent basis/alias edit preserves every supplied pointer");
+            AssertTrue(edited.Entries.SequenceEqual(supplied), "Independent basis/alias edit preserves every supplied composition");
             bool exists = edited.TryGet((ushort)index, out var map);
-            AssertEqual(supplied[index] != 0, exists, "Actual edited selector retains mutable-memory versus installed record distinction");
-            if (exists) AssertEqual(supplied[index], (map ?? throw new InvalidOperationException("Verification requires map.")).Pointer, "Actual edited native record identity");
+            AssertEqual(supplied[index] is not null, exists, "Actual edited selector retains drawing versus non-drawing distinction");
+            if (exists)
+                AssertTrue(ReferenceEquals(map, edited.definitions[(supplied[index] ?? throw new InvalidOperationException("Verification requires a composition.")).Ordinal]),
+                    "Actual edited composition identity");
             if (index == native.Length - 1) AssertEqual(Canonical(supplied), edited.ContentIdentity, "Original independently edited OAM canonical hash");
         }
         Directory.CreateDirectory("csharp/test-temp");
         File.WriteAllLines("csharp/test-temp/samus-oam-pointer-required.csv", OamPointerCsvHeader
-            .Concat(stored.OrderBy(pair => pair.Key).Select(pair => $"{pair.Key:X4},{0x92808d + pair.Key * 2:X6},{pair.Value:X4}")));
+            .Concat(stored.OrderBy(pair => pair.Key).Select(pair => $"{pair.Key:X4},{0x92808d + pair.Key * 2:X6},{pair.Value?.Ordinal ?? -1}")));
         AssertThrows<InvalidDataException>(() => stock.TryGet(2096, out _), "Original upper index rejection");
         AssertThrows<InvalidDataException>(() => stock.TryGet(ushort.MaxValue, out _), "Original full ushort rejection");
         VerifySamusZeroOamSelectorDrawsNothing(stock);
@@ -3206,7 +3209,7 @@ internal static class LookupStream1Verification
         AssertEqual(CanonicalBodyHash(body, body.TopSetPointers.ToArray(), body.BottomSetPointers.ToArray(), body.PosePointers.ToArray(), body.Frames.ToArray(), changedTop, changedBottom),
             changed.ContentIdentity, "Exact canonical hash preserves every supplied metadata edit");
         var emptyMaps = new SamusSpritemapArtworkCatalog(body.Spritemaps.TopBases.ToArray(), body.Spritemaps.BottomBases.ToArray(),
-            body.Spritemaps.Pointers.ToArray(), body.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition(map.Pointer, [])).ToArray());
+            body.Spritemaps.Entries.ToArray(), body.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition([])).ToArray());
         var empty = Create(top, bottom, emptyMaps);
         for (int half = 0; half < 2; half++)
         for (int set = 0; set < (half == 0 ? 13 : 11); set++)

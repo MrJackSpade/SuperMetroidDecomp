@@ -15,7 +15,6 @@ using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.Core.Progression;
@@ -93,18 +92,19 @@ internal static class SamusBodyArtworkVerification
         }
         var spritemapGuard = NewFrontendCartridgeReadGuard(bus);
         int nonzeroSpritemaps = 0;
+        ushort[] nativePointers = [.. Enumerable.Range(0, SamusSpritemapArtworkCatalog.PointerCount).Select(index =>
+            CartridgeImportSource.Require(bus).ReadCartridgeWord(SamusSpritemapArtworkCatalog.PointerTableAddress + index * 2))];
+        SamusSpritemapId?[] nativeEntries = SamusSpritemapNative.Entries(nativePointers);
         for (int index = 0; index < SamusSpritemapArtworkCatalog.PointerCount; index++)
         {
-            int tableAddress = SamusSpritemapArtworkCatalog.PointerTableAddress + index * 2;
-            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(tableAddress);
-            AssertEqual(pointer, sprites.Pointers[index], $"Samus OAM pointer index {index}");
+            ushort pointer = nativePointers[index];
+            AssertEqual(nativeEntries[index], sprites.Entries[index], $"Samus OAM pointer index {index}");
             if (!sprites.TryGet((ushort)index, out SamusSpritemapDefinition? record))
             {
                 AssertEqual((ushort)0, pointer, $"Samus OAM index {index} mutable-memory pointer");
                 continue;
             }
             nonzeroSpritemaps++;
-            AssertEqual(pointer, record.Pointer, $"Samus OAM index {index} record identity");
             int address = 0x920000 | pointer;
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(address),
                 (ushort)record.Parts.Length, $"Samus OAM record ${pointer:X4} part count");
@@ -129,7 +129,7 @@ internal static class SamusBodyArtworkVerification
                 $"Samus OAM index {index} installed/native staging parity");
         }
         AssertEqual(1913, nonzeroSpritemaps, "all nonzero Samus OAM pointer entries");
-        int zeroIndex = Array.FindIndex(sprites.Pointers.ToArray(), pointer => pointer == 0);
+        int zeroIndex = Array.FindIndex(sprites.Entries.ToArray(), entry => entry is null);
         AssertTrue(zeroIndex >= 0, "retail Samus pointer table contains a zero entry");
         // Owner decision on #1318 row 11: a zero entry draws nothing instead of reading direct-page scratch.
         OamBuffer zeroOam = SpriteFrameBuffer.DrawnOam(frame => frame.AddSamusSpritemap((ushort)zeroIndex,
@@ -355,19 +355,17 @@ internal static class SamusBodyArtworkVerification
         document.Required("frames").Required(0)["topPosition"] = originalPosition == 0 ? 1 : 0;
         sbyte originalYOffset = (sbyte)document.Required("graphicsYOffsets").Required(1).GetValue<int>();
         document.Required("graphicsYOffsets")[1] = originalYOffset + 1;
-        ushort poseOnePointer = stock.Spritemaps.Pointers[stock.Spritemaps.TopBase(SamusPoseId.FacingRightNormalPose)];
-        JsonNode poseOneRecord = document.Required("spritemaps").AsArray().RequiredElements().First(entry =>
-            entry.Required("pointer").GetValue<int>() == poseOnePointer);
+        JsonNode poseOneRecord = document.Required("spritemaps").Required(
+            SamusSpritemapNative.Ordinal(stock.Spritemaps.Entries[stock.Spritemaps.TopBase(SamusPoseId.FacingRightNormalPose)]));
         int originalPartX = poseOneRecord.Required("parts").Required(0).Required("x").GetValue<int>();
         poseOneRecord.Required("parts").Required(0)["x"] = originalPartX + 1;
-        foreach (ushort ownerPointer in new ushort[]
+        foreach (int owner in new[]
         {
-            stock.Spritemaps.Pointers[0x018F],
-            stock.Spritemaps.Pointers[(deathSamus.DeathSequence.ExplosionSpritemapIndex ?? throw new InvalidOperationException("Verification requires deathSamus.DeathSequence.ExplosionSpritemapIndex."))],
+            SamusSpritemapNative.Ordinal(stock.Spritemaps.Entries[0x018F]),
+            SamusSpritemapNative.Ordinal(stock.Spritemaps.Entries[(deathSamus.DeathSequence.ExplosionSpritemapIndex ?? throw new InvalidOperationException("Verification requires deathSamus.DeathSequence.ExplosionSpritemapIndex."))]),
         })
         {
-            JsonNode ownerRecord = document.Required("spritemaps").AsArray().RequiredElements().First(entry =>
-                entry.Required("pointer").GetValue<int>() == ownerPointer);
+            JsonNode ownerRecord = document.Required("spritemaps").Required(owner);
             ownerRecord.Required("parts").Required(0)["x"] =
                 ownerRecord.Required("parts").Required(0).Required("x").GetValue<int>() + 1;
         }

@@ -25,7 +25,7 @@ public static class SamusBodyArtworkFiles
     /// <summary>Body-art JSON filename containing split-DMA definitions, pose/frame selectors, spritemaps, vertical offsets, and stock PNG provenance hashes.</summary>
     public const string ManifestFileName = "samus-body.json";
     /// <summary>Manifest revision containing source hashes, selectors, spritemaps, and vertical offsets.</summary>
-    private const int FormatVersion = 4;
+    private const int FormatVersion = 5;
     /// <summary>Each split-DMA definition occupies eight 8x8 tiles across its PNG row.</summary>
     private const int TileWidth = 64;
     /// <summary>Two tile rows reserve sixteen graphics tiles for one DMA definition.</summary>
@@ -79,14 +79,16 @@ public static class SamusBodyArtworkFiles
         DefinitionEntry[][] top = ExtractHalf(bus, directory, topPointers, allPointers, true, hashes);
         DefinitionEntry[][] bottom = ExtractHalf(bus, directory, bottomPointers, allPointers, false, hashes);
         ushort[] spritemapTopBases = ReadPointers(bus,
-            SamusSpritemapArtworkCatalog.TopBaseAddress, SamusBodyArtworkCatalog.PoseCount);
+            SamusCartridgeTables.SpritemapTopBases, SamusBodyArtworkCatalog.PoseCount);
         ushort[] spritemapBottomBases = ReadPointers(bus,
-            SamusSpritemapArtworkCatalog.BottomBaseAddress, SamusBodyArtworkCatalog.PoseCount);
+            SamusCartridgeTables.SpritemapBottomBases, SamusBodyArtworkCatalog.PoseCount);
         ushort[] spritemapPointers = ReadPointers(bus,
-            SamusSpritemapArtworkCatalog.PointerTableAddress, SamusSpritemapArtworkCatalog.PointerCount);
-        SamusSpritemapDefinition[] spritemaps = spritemapPointers.Distinct()
-            .Where(pointer => pointer != 0).OrderBy(pointer => pointer)
-            .Select(pointer => ReadSpritemap(bus, pointer)).ToArray();
+            SamusCartridgeTables.SpritemapPointers, SamusSpritemapArtworkCatalog.PointerCount);
+        // Compositions install in record order, so a composition's identity is its place among the referenced records.
+        ushort[] compositions = [.. spritemapPointers.Distinct().Where(pointer => pointer != 0).Order()];
+        SamusSpritemapDefinition[] spritemaps = [.. compositions.Select(pointer => ReadSpritemap(bus, pointer))];
+        int?[] spritemapEntries = [.. spritemapPointers.Select(pointer =>
+            pointer == 0 ? (int?)null : Array.BinarySearch(compositions, pointer))];
         ushort[] landingYOffsets = Enumerable.Range(0,
             SamusRenderingRomData.Body.LandingVerticalOffsetByteCount)
             .Select(index => (ushort)bus.ReadCartridgeByte(
@@ -102,7 +104,7 @@ public static class SamusBodyArtworkFiles
         var manifest = new Manifest(FormatVersion, sourceCartridgeSha256,
             topPointers, bottomPointers, posePointers, graphicsYOffsets,
             frames, top, bottom, spritemapTopBases, spritemapBottomBases,
-            spritemapPointers, spritemaps, landingYOffsets, postureYOffsets,
+            spritemapEntries, spritemaps, landingYOffsets, postureYOffsets,
             drainedYOffsets, hashes);
         SamusAtmosphericArtworkFiles.Extract(bus, directory, sourceCartridgeSha256);
         SamusDeathPaletteArtworkFiles.Extract(bus, directory, sourceCartridgeSha256);
@@ -154,9 +156,8 @@ public static class SamusBodyArtworkFiles
                 for (int position = 0; position < stock.Bottom[set].Length; position++)
                     if (selected.Bottom[set][position].SourceAddress != stock.Bottom[set][position].SourceAddress)
                         throw new InvalidDataException("Samus body override changes a native bottom source identity.");
-            if (!selected.SpritemapPointers.SequenceEqual(stock.SpritemapPointers) ||
-                selected.Spritemaps.Length != stock.Spritemaps.Length ||
-                selected.Spritemaps.Where((entry, i) => entry.Pointer != stock.Spritemaps[i].Pointer).Any())
+            if (!selected.SpritemapEntries.SequenceEqual(stock.SpritemapEntries) ||
+                selected.Spritemaps.Length != stock.Spritemaps.Length)
                 throw new InvalidDataException("Samus body override changes native spritemap identities.");
             return BuildCatalog(stockDirectory, selected, overrideDirectory);
         }
@@ -223,7 +224,9 @@ public static class SamusBodyArtworkFiles
         SamusBodyTileDefinition[][] bottom = LoadHalf(stockDirectory, overrideDirectory,
             manifest, false);
         var spritemaps = new SamusSpritemapArtworkCatalog(manifest.SpritemapTopBases,
-            manifest.SpritemapBottomBases, manifest.SpritemapPointers, manifest.Spritemaps);
+            manifest.SpritemapBottomBases,
+            [.. manifest.SpritemapEntries.Select(entry => entry is { } ordinal ? new SamusSpritemapId(ordinal) : (SamusSpritemapId?)null)],
+            manifest.Spritemaps);
         SamusAtmosphericArtworkCatalog atmosphere = SamusAtmosphericArtworkFiles.Load(
             stockDirectory, overrideDirectory);
         SamusDeathPaletteArtworkCatalog deathPalettes = SamusDeathPaletteArtworkFiles.Load(
@@ -292,7 +295,7 @@ public static class SamusBodyArtworkFiles
             manifest.GraphicsYOffsets is null ||
             manifest.Frames is null || manifest.Top is null || manifest.Bottom is null ||
             manifest.SpritemapTopBases is null || manifest.SpritemapBottomBases is null ||
-            manifest.SpritemapPointers is null || manifest.Spritemaps is null ||
+            manifest.SpritemapEntries is null || manifest.Spritemaps is null ||
             manifest.LandingYOffsets is null || manifest.PostureYOffsets is null ||
             manifest.DrainedYOffsets is null ||
             manifest.Hashes is null || manifest.Top.Length != SamusBodyArtworkCatalog.TopSetCount ||
@@ -322,7 +325,7 @@ public static class SamusBodyArtworkFiles
             parts[i] = new SamusSpritePart(new SnesSpritemapXWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(part)), new SnesSpritemapYByte(bus.ReadCartridgeByte(part + 2)),
                 CartridgeImportSource.Require(bus).ReadCartridgeWord((part + 3)));
         }
-        return new SamusSpritemapDefinition(pointer, parts);
+        return new SamusSpritemapDefinition(parts);
     }
 
     /// <summary>Names the editable upper or lower body PNG by native set index.</summary>
@@ -335,7 +338,7 @@ public static class SamusBodyArtworkFiles
         sbyte[] GraphicsYOffsets,
         SamusBodyFrameSelection[] Frames, DefinitionEntry[][] Top,
         DefinitionEntry[][] Bottom, ushort[] SpritemapTopBases,
-        ushort[] SpritemapBottomBases, ushort[] SpritemapPointers,
+        ushort[] SpritemapBottomBases, int?[] SpritemapEntries,
         SamusSpritemapDefinition[] Spritemaps, ushort[] LandingYOffsets,
         sbyte[] PostureYOffsets, sbyte[] DrainedYOffsets,
         Dictionary<string, string> Hashes);

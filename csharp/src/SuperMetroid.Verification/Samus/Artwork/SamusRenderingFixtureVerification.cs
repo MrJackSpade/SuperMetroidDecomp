@@ -100,7 +100,7 @@ internal static class SamusRenderingFixtureVerification
             return groups;
         }
         ushort[] spritePointers = Words(SamusSpritemapArtworkCatalog.PointerTableAddress, SamusSpritemapArtworkCatalog.PointerCount);
-        SamusSpritemapDefinition[] maps = spritePointers.Where(pointer => pointer != 0).Distinct().Select(pointer =>
+        SamusSpritemapDefinition[] maps = SamusSpritemapNative.Compositions(spritePointers).Select(pointer =>
         {
             int address = 0x920000 | pointer;
             var parts = new SamusSpritePart[Word(address)];
@@ -109,11 +109,11 @@ internal static class SamusRenderingFixtureVerification
                 int part = address + 2 + index * 5;
                 parts[index] = new(new SnesSpritemapXWord(Word(part)), new SnesSpritemapYByte(bus.ReadByte(part + 2)), Word(part + 3));
             }
-            return new SamusSpritemapDefinition(pointer, parts);
+            return new SamusSpritemapDefinition(parts);
         }).ToArray();
         var sprites = new SamusSpritemapArtworkCatalog(
             Words(SamusSpritemapArtworkCatalog.TopBaseAddress, SamusBodyArtworkCatalog.PoseCount),
-            Words(SamusSpritemapArtworkCatalog.BottomBaseAddress, SamusBodyArtworkCatalog.PoseCount), spritePointers, maps);
+            Words(SamusSpritemapArtworkCatalog.BottomBaseAddress, SamusBodyArtworkCatalog.PoseCount), SamusSpritemapNative.Entries(spritePointers), maps);
         ushort[] landing = stock.LandingYOffsets.ToArray();
         for (int index = 0; index < landing.Length; index++)
             if (bus.HasSeededByte(SamusRenderingRomData.Body.LandingVerticalOffsets + index))

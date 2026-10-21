@@ -106,7 +106,7 @@ internal static class InstalledSamusFileContractTests
                     "required OAM field");
             foreach (string property in new[] { "sourceAddress", "firstSize", "secondSize" })
                 BodyMutation(root => root.Required("top").Required(0).Required(0).AsObject().Remove(property), "required DMA field");
-            foreach (string property in new[] { "pointer", "parts" })
+            foreach (string property in new[] { "parts" })
                 BodyMutation(root => root.Required("spritemaps").Required(0).AsObject().Remove(property), "required map field");
             foreach (string name in names.Where(name => name.EndsWith(".png", StringComparison.Ordinal)))
             {

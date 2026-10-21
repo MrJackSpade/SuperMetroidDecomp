@@ -476,6 +476,13 @@ internal sealed class RoomLoader
         PublishDoorCameraPosition(DoorOpeningScrollState.GetSetupCamera(door));
     }
 
+    /// <summary>
+    /// <c>$82:E37F</c>: the door's room-setup step runs <c>$88:82C1</c>, whose BG34NBA=$04 returns the HUD's characters
+    /// to word $4000 before the destination's tiles upload. Kraid's room moves them to $2000, which those tiles
+    /// overwrite; selecting the base only with the destination drew one frame of room tiles as the HUD (#1428).
+    /// </summary>
+    internal void SelectDoorDestinationHudCharacterBase() => _hudSetup.SelectGameplayHudCharacterBase();
+
     /// <summary>Rebases Samus and publishes the first moving IRQ during tile loading.</summary>
     internal void PlaceSamusForDoorTileLoading()
     {

@@ -127,7 +127,7 @@ internal static class RetailKraidCaptureTests
             throw new InvalidOperationException("Kraid death missed sinking, background fade or four BG3 restores.");
         RequireBlankBg2(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()), $"{device.Kind}: defeated Kraid");
         Console.WriteLine($"{device.Kind}: Kraid death: {deathSamples} exact samples across {deathPhases.Count} AI states; sinking, fade, BG3 restore and blank BG2 verified.");
-        RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, new RetailDoorCase { Door = KraidAuditDefinitions.LeftExitDoor, Destination = KraidAuditDefinitions.LeftExitDestination }, "defeated Kraid left");
+        RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, new RetailDoorCase { Door = KraidAuditDefinitions.LeftExitDoor, Destination = KraidAuditDefinitions.LeftExitDestination }, "defeated Kraid left", RequireSteadyHud(runtime, $"{device.Kind}: defeated Kraid left"));
         // The second route starts from the saved defeat bit, as in the existing
         // regression. Run the defeated-room restoration before opening the other door.
         runtime.LoadCartridgeRoomThroughDoorForVerification(SuperMetroid.AssetExtraction.Rooms.CartridgeDoorHeaderImporter.Load(bus, KraidCaptureDefinitions.IncomingDoor), new Position16<RoomPixels>(0, 256));
@@ -136,7 +136,7 @@ internal static class RetailKraidCaptureTests
             runtime.StepFrame(0);
         if (runtime.Enemies.KraidBehavior.Access.Kraid is not { DeathSequenceComplete: true })
             throw new InvalidOperationException("Defeated Kraid reload did not restore its background.");
-        RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, new RetailDoorCase { Door = KraidAuditDefinitions.RightExitDoor, Destination = KraidAuditDefinitions.RightExitDestination }, "defeated Kraid right");
+        RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, new RetailDoorCase { Door = KraidAuditDefinitions.RightExitDoor, Destination = KraidAuditDefinitions.RightExitDestination }, "defeated Kraid right", RequireSteadyHud(runtime, $"{device.Kind}: defeated Kraid right"));
     }
 
     /// <summary>
@@ -163,6 +163,23 @@ internal static class RetailKraidCaptureTests
         }
         if (shown.Any(word => word != KraidBackgroundRomData.BlankTile))
             throw new InvalidOperationException($"{context}: BG2 shows {string.Join(", ", shown.Select(word => $"${word:X4}"))}; only the blank tile ${KraidBackgroundRomData.BlankTile:X4} remains on the cartridge.");
+    }
+
+    /// <summary>
+    /// Requires every door frame's HUD rows to match the frame before the door: leaving Kraid's room must never draw the
+    /// destination's tiles through his HUD character base (#1428).
+    /// </summary>
+    private static Action<RenderFrameSnapshot> RequireSteadyHud(SuperMetroidRuntime runtime, string context)
+    {
+        const int hudPixels = SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.GameplayHudHeightPixels;
+        Rgba32[] before = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()).AsSpan(0, hudPixels).ToArray();
+        int frame = 0;
+        return packet =>
+        {
+            frame++;
+            if (!SoftwareFrameSnapshotRenderer.Render(packet).AsSpan(0, hudPixels).SequenceEqual(before))
+                throw new InvalidOperationException($"{context}: door frame {frame} changed the HUD.");
+        };
     }
 
     /// <summary>Stages an audit missile at Kraid's active mouth hitbox and uses production collision.</summary>

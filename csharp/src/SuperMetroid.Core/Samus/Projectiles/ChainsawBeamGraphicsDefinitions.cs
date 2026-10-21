@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Progression;
+
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Bounded adjacent-table and instruction data consumed by Chainsaw beam selection.</summary>

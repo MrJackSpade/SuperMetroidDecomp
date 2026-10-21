@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 

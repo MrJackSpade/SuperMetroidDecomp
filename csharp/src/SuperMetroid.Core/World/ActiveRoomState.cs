@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.Core.World;
 

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>One debugger-readable ordinary slot corresponding to a native even byte index.</summary>

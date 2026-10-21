@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 

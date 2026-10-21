@@ -2,10 +2,11 @@ using SuperMetroid.Core.Input;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Runtime;
 

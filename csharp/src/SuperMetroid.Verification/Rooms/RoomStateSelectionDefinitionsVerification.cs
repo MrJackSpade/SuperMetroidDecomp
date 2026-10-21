@@ -6,6 +6,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World.RoomStates;
 
 /// <summary>Checks compiled room-state selectors against native ordered predicates and fallback states.</summary>
 internal static class RoomStateSelectionDefinitionsVerification

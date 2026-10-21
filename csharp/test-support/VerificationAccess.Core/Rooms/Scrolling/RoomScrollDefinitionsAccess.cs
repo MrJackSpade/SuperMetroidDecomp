@@ -1,3 +1,5 @@
+using SuperMetroid.Core.World.RoomStates;
+
 namespace SuperMetroid.Core.Rooms.Scrolling;
 
 /// <summary>

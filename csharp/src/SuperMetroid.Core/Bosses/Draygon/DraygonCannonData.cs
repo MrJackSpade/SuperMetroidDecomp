@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.Plms;
+
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>

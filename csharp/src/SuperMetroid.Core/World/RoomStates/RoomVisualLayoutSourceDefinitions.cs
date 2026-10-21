@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms;
+namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>Derives the complete visual-source identity domain from compiled retail room states.</summary>
 public static class RoomVisualLayoutSourceDefinitions

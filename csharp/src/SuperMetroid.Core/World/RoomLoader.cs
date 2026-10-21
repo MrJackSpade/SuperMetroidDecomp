@@ -27,6 +27,7 @@ using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.Core.World;
 

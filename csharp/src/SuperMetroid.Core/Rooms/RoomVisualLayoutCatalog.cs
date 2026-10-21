@@ -8,16 +8,11 @@ public sealed class RoomVisualLayoutCatalog
     /// <summary>Validated source-address selection for all installed room-level visual planes.</summary>
     private readonly Dictionary<int, RoomVisualLayout> layouts;
 
-    /// <summary>Copies a source-keyed installation and requires every supported room-level source to have a matching non-null layout.</summary>
+    /// <summary>Copies a source-keyed installation and requires each of <paramref name="requiredSources"/> to have a matching non-null layout.</summary>
     /// <param name="layouts">Initial visual layouts keyed by their own full 24-bit <see cref="RoomVisualLayout.SourceAddress"/>.</param>
+    /// <param name="requiredSources">Every room-level source the installation must cover.</param>
     /// <exception cref="InvalidDataException">A value is null, its source differs from its key, or a required source is absent.</exception>
-    public RoomVisualLayoutCatalog(IReadOnlyDictionary<int, RoomVisualLayout> layouts)
-        : this(layouts, requiredSources: RoomVisualLayoutSourceDefinitions.All)
-    {
-    }
-
-    /// <summary>Copies layouts and requires each of <paramref name="requiredSources"/> to be present.</summary>
-    internal RoomVisualLayoutCatalog(IReadOnlyDictionary<int, RoomVisualLayout> layouts,
+    public RoomVisualLayoutCatalog(IReadOnlyDictionary<int, RoomVisualLayout> layouts,
         IEnumerable<int> requiredSources)
     {
         Ensure.NotNull(layouts);

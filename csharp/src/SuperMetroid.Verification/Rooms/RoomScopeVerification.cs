@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.Verification.Rooms;
 

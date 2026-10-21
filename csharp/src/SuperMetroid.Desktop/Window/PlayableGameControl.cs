@@ -24,6 +24,7 @@ using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 using SuperMetroid.Rendering.Direct3D11.Telemetry;
+using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.Desktop.Window;
 

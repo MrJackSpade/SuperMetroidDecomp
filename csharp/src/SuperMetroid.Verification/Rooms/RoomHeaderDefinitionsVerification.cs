@@ -6,6 +6,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.World.RoomStates;
 
 /// <summary>Checks the compiled room roster and header fields against the pinned retail cartridge.</summary>
 internal static class RoomHeaderDefinitionsVerification

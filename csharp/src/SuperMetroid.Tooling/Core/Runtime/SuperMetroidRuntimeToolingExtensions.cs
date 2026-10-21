@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.Core.Runtime;
 

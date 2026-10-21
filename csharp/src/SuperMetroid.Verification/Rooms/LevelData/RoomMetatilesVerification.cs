@@ -10,6 +10,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Verification.Rooms.LevelData;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World.RoomStates;
 
 /// <summary>Checks extracted room block artwork against compressed cartridge sources and installed room loading.</summary>
 internal static class RoomMetatilesVerification

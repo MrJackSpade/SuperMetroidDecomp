@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.Core.Frontend;
 

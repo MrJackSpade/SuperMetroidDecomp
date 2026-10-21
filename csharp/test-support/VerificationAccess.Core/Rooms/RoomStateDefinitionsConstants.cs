@@ -1,3 +1,5 @@
+using SuperMetroid.Core.World.RoomStates;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Cartridge values of <see cref="RoomStateDefinitions"/> that only verification reads.</summary>

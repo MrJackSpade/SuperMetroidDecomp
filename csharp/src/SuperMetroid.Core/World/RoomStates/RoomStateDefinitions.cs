@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms;
+namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>
 /// The initialization settings of each of the 323 retail room states, named by the disassembly's RoomState_ labels.

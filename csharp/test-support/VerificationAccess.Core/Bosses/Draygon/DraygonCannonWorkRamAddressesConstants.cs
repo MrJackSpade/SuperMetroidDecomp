@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Bosses.Draygon;
+﻿using SuperMetroid.Core.Rooms.Plms;
+
+namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Cartridge values and helpers of <see cref="DraygonCannonWorkRamAddresses"/> that only verification reads.</summary>
 internal static class DraygonCannonWorkRamAddressesConstants

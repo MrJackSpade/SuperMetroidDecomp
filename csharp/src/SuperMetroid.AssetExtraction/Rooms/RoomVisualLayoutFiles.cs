@@ -10,6 +10,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -140,7 +141,7 @@ public static class RoomVisualLayoutFiles
             if (!selected.TryAdd(entry.SourceAddress, layout))
                 throw new InvalidDataException($"Room-layout manifest {manifestPath} repeats a source.");
         }
-        return new RoomVisualLayoutCatalog(selected);
+        return new RoomVisualLayoutCatalog(selected, RoomVisualLayoutSourceDefinitions.All);
     }
 
     /// <summary>Loads and validates every stock source through <see cref="Load"/> with no overrides, cartridge reads, or file writes.</summary>

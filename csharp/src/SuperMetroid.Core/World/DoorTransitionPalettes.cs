@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Samus.Palettes;
 
-namespace SuperMetroid.Core.Rooms.Doors;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// Typed view of the live CGRAM colours GameState_A_LoadingNextRoom writes directly during a door

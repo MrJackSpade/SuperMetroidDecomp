@@ -18,13 +18,14 @@ public sealed class RoomLevelStreamCatalog
     /// <summary>Copies a validated installation and requires exactly every retail level source.</summary>
     /// <param name="streams">Complete decompressed native streams keyed by their 24-bit source address.</param>
     /// <param name="contentIdentity">SHA-256 of the installed stream manifest.</param>
+    /// <param name="requiredSources">Every retail room-level source, each of which the installation must hold.</param>
     /// <exception cref="InvalidDataException">A stream is null or shorter than its size word, or a source is missing or unknown.</exception>
-    internal RoomLevelStreamCatalog(IReadOnlyDictionary<int, byte[]> streams, string contentIdentity)
+    internal RoomLevelStreamCatalog(IReadOnlyDictionary<int, byte[]> streams, string contentIdentity, IEnumerable<int> requiredSources)
     {
         Ensure.NotNull(streams);
         ArgumentException.ThrowIfNullOrWhiteSpace(contentIdentity);
         ContentIdentity = contentIdentity;
-        var required = RoomVisualLayoutSourceDefinitions.All.ToHashSet();
+        var required = Ensure.NotNull(requiredSources).ToHashSet();
         this.streams = new Dictionary<int, ReadOnlyMemory<byte>>(streams.Count);
         foreach ((int source, byte[] stream) in streams)
         {

@@ -12,6 +12,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World.RoomStates;
 
 /// <summary>Retail checks for compiled room tileset definitions, character streams and installed editable character atlases.</summary>
 internal static class RoomAssetRomDataVerification

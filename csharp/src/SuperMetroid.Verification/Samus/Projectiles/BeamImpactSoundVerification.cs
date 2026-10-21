@@ -8,11 +8,11 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks the sound queued when a beam reaches a wall and becomes an explosion.</summary>
 internal static class BeamImpactSoundVerification

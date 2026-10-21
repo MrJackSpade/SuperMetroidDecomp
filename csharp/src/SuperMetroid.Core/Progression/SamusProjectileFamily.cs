@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Projectiles;
+namespace SuperMetroid.Core.Progression;
 
 /// <summary>Verified projectile-family values stored in bits 8–11 of WRAM <c>$0C18</c>.</summary>
 /// <remarks>

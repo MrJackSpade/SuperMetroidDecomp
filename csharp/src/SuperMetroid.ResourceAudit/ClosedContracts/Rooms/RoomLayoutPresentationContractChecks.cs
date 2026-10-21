@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
+using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Rooms;
 
@@ -20,16 +21,16 @@ internal static class RoomLayoutPresentationContractChecks
         var incomplete = new Dictionary<int, RoomVisualLayout>(owned);
         incomplete.Remove(first);
         bool rejected = false;
-        try { _ = new RoomVisualLayoutCatalog(incomplete); }
+        try { _ = new RoomVisualLayoutCatalog(incomplete, RoomVisualLayoutSourceDefinitions.All); }
         catch (InvalidDataException) { rejected = true; }
         Require(rejected, "production construction must reject a missing required source");
-        var catalog = new RoomVisualLayoutCatalog(owned);
+        var catalog = new RoomVisualLayoutCatalog(owned, RoomVisualLayoutSourceDefinitions.All);
         owned.Remove(first);
         Require(catalog.Get(first).SourceAddress == first, "catalog keys must be independent of the input dictionary");
         var mismatched = RoomVisualLayoutSourceDefinitions.All.ToDictionary(source => source, Layout);
         mismatched[first] = Layout(0);
         rejected = false;
-        try { _ = new RoomVisualLayoutCatalog(mismatched); }
+        try { _ = new RoomVisualLayoutCatalog(mismatched, RoomVisualLayoutSourceDefinitions.All); }
         catch (InvalidDataException) { rejected = true; }
         Require(rejected, "installed keys must match their layout identities");
 

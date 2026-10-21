@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 

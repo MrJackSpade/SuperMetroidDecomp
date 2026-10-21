@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Verification.Rooms.Scrolling;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World.RoomStates;
 
 /// <summary>Reproduces retained implicit-scroll bytes when a smaller room
 /// follows a larger one and the camera reads below the new bottom row.</summary>

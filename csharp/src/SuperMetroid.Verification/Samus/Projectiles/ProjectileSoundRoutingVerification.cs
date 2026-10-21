@@ -2,6 +2,7 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Projectiles.SamusProjectileRomDataVerification;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Verification.Samus.Projectiles;
 

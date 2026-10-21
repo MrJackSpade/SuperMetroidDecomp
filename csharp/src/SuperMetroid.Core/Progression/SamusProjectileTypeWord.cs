@@ -1,6 +1,4 @@
-using SuperMetroid.Core.Progression;
-
-namespace SuperMetroid.Core.Samus.Projectiles;
+namespace SuperMetroid.Core.Progression;
 
 /// <summary>A lossless view over one native projectile type/family word.</summary>
 [SnesEncodingOwner]

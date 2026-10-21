@@ -1,6 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Samus.Projectiles;
+﻿using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
@@ -67,7 +66,7 @@ internal sealed class GatePlms : IPlmFamilySource
 
         _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
             DownwardGateProjectileOperation.Spawn,
-            RoomEnemyProjectileKind.DownwardGateClosed,
+            DownwardGateProjectileKind.Closed,
             slot.BlockIndex));
     }
 
@@ -161,7 +160,7 @@ internal sealed class GatePlms : IPlmFamilySource
     /// <summary><c>$84:BBE1</c>: requests the moving gate projectile that slides the gate down from the slot's block.</summary>
     internal void SpawnMovingGateProjectile(PlmSlot slot) =>
         _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
-            DownwardGateProjectileOperation.Spawn, RoomEnemyProjectileKind.DownwardGateMoving, slot.BlockIndex));
+            DownwardGateProjectileOperation.Spawn, DownwardGateProjectileKind.Moving, slot.BlockIndex));
 
     /// <summary>
     /// <c>$84:BBF0</c>: wakes the gate projectile whose variable E holds this PLM's block, so it slides back up.

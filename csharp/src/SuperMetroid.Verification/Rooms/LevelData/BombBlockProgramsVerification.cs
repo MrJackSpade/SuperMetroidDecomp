@@ -6,11 +6,11 @@ using static SuperMetroid.Verification.Rooms.Plms.ShotBlockPlmProgramsVerificati
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Rooms.LevelData;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Retail and guarded playback checks for bomb-block control lists, shared breakup frames and restoration art.</summary>
 internal static class BombBlockProgramsVerification

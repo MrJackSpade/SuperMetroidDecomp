@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.RoomMainCodeCatalogVerification;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World.RoomStates;
 
 /// <summary>Checks typed room setup and main callbacks against every compiled retail room state.</summary>
 internal static class RoomCallbackDefinitionsVerification

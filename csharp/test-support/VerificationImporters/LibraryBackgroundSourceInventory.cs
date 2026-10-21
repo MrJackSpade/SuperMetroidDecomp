@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.TestSupport.VerificationImporters;
 

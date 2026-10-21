@@ -12,6 +12,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Samus.Movement;
 
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks that beam collision samples solid quarter cells of square slopes.</summary>
 internal static class SquareSlopeBeamCollisionVerification

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 

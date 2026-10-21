@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Plms;
 

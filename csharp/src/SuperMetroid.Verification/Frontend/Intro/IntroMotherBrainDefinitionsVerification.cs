@@ -9,6 +9,7 @@ namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks intro Mother Brain actor and explosion definitions against retail timing and placements.</summary>
 internal static class IntroMotherBrainDefinitionsVerification

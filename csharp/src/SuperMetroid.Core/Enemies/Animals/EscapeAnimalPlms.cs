@@ -1,14 +1,13 @@
 ﻿using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>The critters-escape PLMs: the shootable rescue wall, its reaction list, and the Crateria passage that opens only when the animals escaped.</summary>
 [RoomLifetime]
-internal sealed class EscapeAnimalPlms
+internal sealed class EscapeAnimalPlms : ICrittersEscapeReaction
 {
     /// <summary>The game's event flags.</summary>
     private readonly IGlobalEventFlags? _events;
@@ -62,7 +61,7 @@ internal sealed class EscapeAnimalPlms
     }
 
     /// <summary>Runs $84:B978 and schedules its ROM animation/event list in native slot order.</summary>
-    internal bool TrySpawnCrittersEscapeReaction(RoomLevelData level, int blockIndex,
+    public bool TrySpawnCrittersEscapeReaction(RoomLevelData level, int blockIndex,
         SamusProjectileTypeWord projectileType)
     {
         // The native branch tests the complete projectile word, not its family. A zero

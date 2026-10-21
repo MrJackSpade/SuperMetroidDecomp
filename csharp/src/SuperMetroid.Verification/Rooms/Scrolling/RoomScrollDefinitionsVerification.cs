@@ -10,6 +10,7 @@ namespace SuperMetroid.Verification.Rooms.Scrolling;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.World.RoomStates;
 
 /// <summary>Checks compiled explicit and implicit room scroll grids across every retail room state.</summary>
 internal static class RoomScrollDefinitionsVerification

@@ -11,6 +11,7 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.Core.Frontend;
 

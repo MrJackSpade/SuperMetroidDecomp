@@ -16,6 +16,7 @@ namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.World.RoomStates;
 
 /// <summary>Audits retail room-FX selection, visible liquid layers, animation, and transition behavior across named states and doors.</summary>
 internal static class RoomFxRetailInventoryVerification

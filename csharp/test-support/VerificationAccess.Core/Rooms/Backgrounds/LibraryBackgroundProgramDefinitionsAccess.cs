@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 

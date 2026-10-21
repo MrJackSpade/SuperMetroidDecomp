@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
 
-namespace SuperMetroid.Core.Rooms;
+namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>Direct ordered state-selection branches for every retail room.</summary>
 /// <remarks>Native bank-$8F inline programs test named events, boss flags and

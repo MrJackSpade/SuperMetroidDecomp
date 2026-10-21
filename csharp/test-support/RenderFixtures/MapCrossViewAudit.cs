@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Map;
 namespace SuperMetroid.TestSupport.RenderFixtures;
 using SuperMetroid.Core;
+using SuperMetroid.Core.World.RoomStates;
 
 /// <summary>
 /// Retail-ROM regression for issue #252. The audit gives the HUD and pause screen the

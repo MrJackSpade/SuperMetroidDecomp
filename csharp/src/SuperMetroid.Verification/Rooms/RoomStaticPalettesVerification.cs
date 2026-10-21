@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World.RoomStates;
 
 /// <summary>Checks extracted room graphics-set palettes and their installation into room CGRAM.</summary>
 internal static class RoomStaticPalettesVerification

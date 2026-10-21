@@ -1,9 +1,9 @@
-namespace SuperMetroid.Core.Bosses.Draygon;
+namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
 /// The five bank-$7E cannon-control words, in WRAM order from <c>$7E:8802</c>. Bank $84 writes one when a wall
 /// cannon is destroyed; bank $A5 reads it before firing. The port keeps them in <c>DisabledCannonWords</c>.
-/// <see cref="DraygonCannonWorkRamAddresses"/> decodes the
+/// <c>DraygonCannonWorkRamAddresses</c> decodes the
 /// addresses room PLM data names them by.
 /// </summary>
 public enum DraygonCannonControlWord : ushort

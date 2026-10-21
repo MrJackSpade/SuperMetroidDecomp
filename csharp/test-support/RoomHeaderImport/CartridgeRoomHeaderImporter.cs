@@ -5,6 +5,7 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.TestSupport.RoomHeaderImport;
 

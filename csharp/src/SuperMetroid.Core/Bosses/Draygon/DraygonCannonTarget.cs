@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.Plms;
+
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>One bank-$A5 cannon-control word paired with its wall projectile origin.</summary>

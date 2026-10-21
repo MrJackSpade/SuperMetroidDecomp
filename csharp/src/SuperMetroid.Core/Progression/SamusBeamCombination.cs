@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Projectiles;
+namespace SuperMetroid.Core.Progression;
 
 /// <summary>
 /// The beam-combination table index: bits 0-3 of a beam projectile's type word

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.Doors;
+namespace SuperMetroid.Core.World;
 
 /// <summary>Named color-copy operations of GameState_A_LoadingNextRoom, $82:E1F1-$E264.</summary>
 public static class DoorTransitionPaletteDefinitions

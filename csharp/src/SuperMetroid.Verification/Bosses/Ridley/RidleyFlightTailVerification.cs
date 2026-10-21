@@ -11,6 +11,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks Ridley's swoop components and tail state changes through pogo, stab, and target selection.</summary>
 internal static class RidleyFlightTailVerification

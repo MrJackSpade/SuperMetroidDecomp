@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.FileSelect;
@@ -16,6 +15,7 @@ using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.Core.Frontend;
 

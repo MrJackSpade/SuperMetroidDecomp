@@ -1,7 +1,6 @@
-﻿using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Projectiles;
+﻿using SuperMetroid.Core.Rooms.Plms;
 
-namespace SuperMetroid.Core.Rooms.Plms;
+namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>The downward gate species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class DownwardGateBehavior
@@ -46,12 +45,13 @@ internal sealed class DownwardGateBehavior
         DownwardGateProjectileRequest request,
         int roomWidthInBlocks)
     {
-        if (request.Kind is not { } kind ||
-            kind is not RoomEnemyProjectileKind.DownwardGateMoving and not RoomEnemyProjectileKind.DownwardGateClosed)
+        RoomEnemyProjectileKind kind = request.Kind switch
         {
-            throw new InvalidDataException(
-                $"Downward gate requested unsupported projectile {request.Kind?.ToString() ?? "(none)"}.");
-        }
+            DownwardGateProjectileKind.Closed => RoomEnemyProjectileKind.DownwardGateClosed,
+            DownwardGateProjectileKind.Moving => RoomEnemyProjectileKind.DownwardGateMoving,
+            null => throw new InvalidDataException("Downward gate spawn requested no projectile."),
+            _ => throw new InvalidDataException($"Downward gate requested undefined projectile {request.Kind}."),
+        };
 
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)

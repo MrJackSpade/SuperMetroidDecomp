@@ -1,4 +1,5 @@
 using System.Collections.Frozen;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 

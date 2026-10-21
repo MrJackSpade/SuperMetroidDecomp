@@ -13,6 +13,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Rooms.Plms;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.World;
@@ -125,7 +126,7 @@ internal static class DownwardGatePlmsVerification
         DownwardGateProjectileRequest request = plms.Gates.TakeDownwardGateProjectileRequests().Single();
         AssertEqual(DownwardGateProjectileOperation.Spawn, request.Operation,
             "closed gate setup publishes one spawn");
-        AssertEqual((RoomEnemyProjectileKind?)RoomEnemyProjectileKind.DownwardGateClosed,
+        AssertEqual((DownwardGateProjectileKind?)DownwardGateProjectileKind.Closed,
             request.Kind, "closed gate setup spawns the initially closed gate projectile");
 
         // The production room loader consumes this request after Enemies.Load has cleared
@@ -201,7 +202,7 @@ internal static class DownwardGatePlmsVerification
         DownwardGateProjectileRequest close = plms.Gates.TakeDownwardGateProjectileRequests().Single();
         AssertEqual(DownwardGateProjectileOperation.Spawn, close.Operation,
             "open gate publishes a moving close actor");
-        AssertEqual((RoomEnemyProjectileKind?)RoomEnemyProjectileKind.DownwardGateMoving,
+        AssertEqual((DownwardGateProjectileKind?)DownwardGateProjectileKind.Moving,
             close.Kind, "close request spawns the moving gate projectile");
         enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(close, level.Size.X);
         for (int frame = 0; frame < 80; frame++)

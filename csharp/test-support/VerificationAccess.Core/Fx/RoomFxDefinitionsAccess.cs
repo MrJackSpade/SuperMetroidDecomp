@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction.Fx;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.Core.Fx;
 

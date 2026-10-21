@@ -8,6 +8,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.Verification.Samus.Projectiles;
 

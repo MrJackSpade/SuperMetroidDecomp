@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
@@ -8,5 +7,5 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// <param name="PlmBlockIndex">Nonnegative row-major level-block ordinal for the gate's top cell, not a pixel coordinate or native byte offset; each block is sixteen pixels and the native association stores twice this index.</param>
 public readonly record struct DownwardGateProjectileRequest(
     DownwardGateProjectileOperation Operation,
-    RoomEnemyProjectileKind? Kind,
+    DownwardGateProjectileKind? Kind,
     int PlmBlockIndex);

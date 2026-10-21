@@ -9,6 +9,7 @@ using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.Core.World;
 

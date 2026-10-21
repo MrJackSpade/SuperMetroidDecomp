@@ -9,10 +9,10 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Runtime;
 
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks a fired beam's lifetime against Samus movement, camera tracking, and a native trace.</summary>
 internal static class HeroShotRuntimeVerification

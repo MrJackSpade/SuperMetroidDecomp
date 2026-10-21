@@ -1,6 +1,7 @@
 ﻿using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 

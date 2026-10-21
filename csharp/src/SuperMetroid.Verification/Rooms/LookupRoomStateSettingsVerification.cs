@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Xray;
+using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.Verification.Rooms;
 

@@ -68,7 +68,7 @@ internal static class ClosedPresentationContractChecks
                     reserve.ApplyArrowColors(cgram, true, dynamicIndex, 6, 11);
                     reserve.ApplyDigit(bytes, 0, 10);
                     beam.LoadTo(cgram, 0);
-                    beam.LoadTo(cgram, (SuperMetroid.Core.Samus.Projectiles.SamusBeamCombination)12);
+                    beam.LoadTo(cgram, (SuperMetroid.Core.Progression.SamusBeamCombination)12);
                     ridley.ApplyHealth(cgram, 0);
                     ridley.ApplyHealth(cgram, 3);
                     crocomire.ApplyFightBody(cgram);

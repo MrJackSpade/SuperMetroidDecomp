@@ -387,7 +387,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     {
         if (pendingBeamPalette is not { } beamArtwork || _player.Samus is not { } samus) return;
         // Do not reinterpret invalid combination overreads as a legal replacement.
-        if (new SuperMetroid.Core.Samus.Projectiles.SamusBeamLoadoutWord(samus.EquippedBeams).Combination is SuperMetroid.Core.Samus.Projectiles.SamusBeamCombination selection &&
+        if (new SuperMetroid.Core.Samus.Projectiles.SamusBeamLoadoutWord(samus.EquippedBeams).Combination is SuperMetroid.Core.Progression.SamusBeamCombination selection &&
             selection.IsRetail &&
             // An in-flight effect owns these colors across frames. Its own completion
             // restores the selected normal palette; host rebind must not erase its phase.

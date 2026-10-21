@@ -2,8 +2,9 @@
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
 
-namespace SuperMetroid.Core.Rooms;
+namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>
 /// A retail room's fixed header and its selected twenty-six-byte room-state record.

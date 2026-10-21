@@ -6,6 +6,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -123,7 +124,8 @@ public static class RoomLevelStreamFiles
             if (!streams.ContainsKey(source))
                 throw new InvalidDataException(
                     $"Room-level stream manifest {manifestPath} lacks {Path.Combine(directory, SourceFileName(source))}.");
-        return new RoomLevelStreamCatalog(streams, Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(manifestPath))));
+        return new RoomLevelStreamCatalog(streams, Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(manifestPath))),
+            RoomVisualLayoutSourceDefinitions.All);
     }
 
     /// <summary>Loads and validates every stock stream through <see cref="Load"/> with no cartridge reads or file writes.</summary>

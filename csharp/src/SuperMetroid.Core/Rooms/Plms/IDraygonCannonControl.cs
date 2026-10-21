@@ -1,5 +1,4 @@
-
-namespace SuperMetroid.Core.Bosses.Draygon;
+namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Draygon cannon control (#633).</summary>
 public interface IDraygonCannonControl

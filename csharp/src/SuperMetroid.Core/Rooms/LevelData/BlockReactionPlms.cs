@@ -1,6 +1,5 @@
 ﻿using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Rooms.LevelData;
@@ -12,12 +11,12 @@ internal sealed class BlockReactionPlms
     /// <summary>The room's area.</summary>
     private readonly AreaId _area;
     /// <summary>Handles the animal-escape reaction reserved by the shot-block BTS table.</summary>
-    private readonly EscapeAnimalPlms _escapeAnimals;
+    private readonly ICrittersEscapeReaction _escapeAnimals;
     /// <summary>Allocates reaction PLMs in descending native slot order.</summary>
     private readonly PlmSlotTable _slotTable;
 
     /// <summary>Connects block reactions to the active room, escape-animal branch, and shared PLM pool.</summary>
-    internal BlockReactionPlms(AreaId area, EscapeAnimalPlms escapeAnimals, PlmSlotTable slotTable)
+    internal BlockReactionPlms(AreaId area, ICrittersEscapeReaction escapeAnimals, PlmSlotTable slotTable)
     {
         _area = area;
         _escapeAnimals = escapeAnimals;

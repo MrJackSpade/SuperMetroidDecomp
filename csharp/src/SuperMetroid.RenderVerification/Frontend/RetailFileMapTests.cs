@@ -2,7 +2,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.RenderVerification.Rooms;

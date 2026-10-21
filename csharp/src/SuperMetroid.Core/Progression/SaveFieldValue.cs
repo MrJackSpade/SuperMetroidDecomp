@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Saves;
+namespace SuperMetroid.Core.Progression;
 
 /// <summary>
 /// The range of a save field that saves only copy, never count, compare or wrap: the item-load counter, the checkpoint

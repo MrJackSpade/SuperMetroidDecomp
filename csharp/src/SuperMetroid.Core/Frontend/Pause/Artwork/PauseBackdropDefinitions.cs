@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 

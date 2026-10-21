@@ -1,9 +1,9 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.TestSupport.VerificationImporters;
 

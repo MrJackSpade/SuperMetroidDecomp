@@ -3,11 +3,11 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Frontend.FileSelect;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 

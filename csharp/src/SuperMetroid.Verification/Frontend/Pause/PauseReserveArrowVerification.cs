@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveArrowRebindVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Buffers.Binary;

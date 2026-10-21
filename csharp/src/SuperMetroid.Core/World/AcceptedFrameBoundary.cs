@@ -16,9 +16,9 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.World;
+using SuperMetroid.Core.Gameplay;
 
-namespace SuperMetroid.Core.Gameplay;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// The NMI: controller latching, frame-counter advance, accepted and forced-blank transfers, hardware-wait NMIs,

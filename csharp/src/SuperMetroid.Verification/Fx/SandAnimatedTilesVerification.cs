@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Fx.RoomFxAnimatedTileArtworkVerification;
@@ -8,6 +7,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks Maridia sand animation selection, timing, NMI transfers, and room departure.</summary>
 internal static class SandAnimatedTilesVerification

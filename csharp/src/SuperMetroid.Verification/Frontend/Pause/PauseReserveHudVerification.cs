@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;

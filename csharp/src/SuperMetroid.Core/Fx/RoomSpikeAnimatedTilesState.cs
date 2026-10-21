@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Fx;
 

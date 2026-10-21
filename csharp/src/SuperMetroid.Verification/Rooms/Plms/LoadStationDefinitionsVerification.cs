@@ -8,6 +8,7 @@ using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks the compiled seven-area load-station table against all retail records.</summary>
 internal static class LoadStationDefinitionsVerification

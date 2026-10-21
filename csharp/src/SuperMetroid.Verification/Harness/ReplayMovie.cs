@@ -94,9 +94,9 @@ internal sealed class ReplayMovie
     /// <summary>Copies the cartridge's first 8 KiB of SRAM from an embedded start-state image.</summary>
     private static byte[] CartridgeSaveRam(byte[] image, string source)
     {
-        if (image.Length < SuperMetroid.Core.Saves.SaveRamLayout.ImageByteCount)
+        if (image.Length < SuperMetroid.Core.Map.SaveRamLayout.ImageByteCount)
             throw new InvalidDataException($"{source} is shorter than the cartridge's 8 KiB.");
-        return image.AsSpan(0, SuperMetroid.Core.Saves.SaveRamLayout.ImageByteCount).ToArray();
+        return image.AsSpan(0, SuperMetroid.Core.Map.SaveRamLayout.ImageByteCount).ToArray();
     }
 
     /// <summary>
@@ -145,7 +145,7 @@ internal sealed class ReplayMovie
         // it is the trailing word, like an SMV's: lines are source frames plus one.
         if (inputs.Count < 2)
             throw new InvalidDataException("lsnes movie has no source frames.");
-        byte[] saveRam = new byte[SuperMetroid.Core.Saves.SaveRamLayout.ImageByteCount];
+        byte[] saveRam = new byte[SuperMetroid.Core.Map.SaveRamLayout.ImageByteCount];
         Array.Fill(saveRam, (byte)0xff);
         return new ReplayMovie(name, movie, saveRam, inputs.ToArray(), snapshot: null);
     }

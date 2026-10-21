@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Fx.PaletteFx;
 namespace SuperMetroid.Core.Areas.Tourian;
 

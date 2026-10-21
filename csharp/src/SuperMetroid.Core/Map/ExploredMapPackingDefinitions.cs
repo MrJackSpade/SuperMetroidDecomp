@@ -1,7 +1,5 @@
 using System.Collections;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Saves;
 
 namespace SuperMetroid.Core.Map;
 

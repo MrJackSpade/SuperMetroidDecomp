@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks Maridia quicksand movement and special-air dispatch against compiled cartridge definitions.</summary>
 internal static class QuicksandVerification

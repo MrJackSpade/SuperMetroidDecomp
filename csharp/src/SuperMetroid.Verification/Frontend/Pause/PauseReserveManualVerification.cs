@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.Pause.PauseEquipmentRulesVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;

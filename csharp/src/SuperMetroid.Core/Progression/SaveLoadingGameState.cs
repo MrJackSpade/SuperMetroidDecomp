@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Saves;
+
+namespace SuperMetroid.Core.Progression;
 
 /// <summary>
 /// The startup routes $82:EEB4 selects from a saved dispatcher word; <see cref="SaveLoadingGameStateCodec"/> converts

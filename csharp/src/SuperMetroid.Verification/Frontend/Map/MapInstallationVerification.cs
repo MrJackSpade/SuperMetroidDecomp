@@ -18,6 +18,7 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Map.Artwork;
 namespace SuperMetroid.Verification.Frontend.Map;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Escape.Artwork;
 
@@ -265,7 +266,7 @@ internal static class MapInstallationVerification
         }
         var edited = installation.LoadMaps();
         AssertEqual(24, edited.Arrows.Get(SuperMetroid.Core.Frontend.Map.MapScrollDirection.Left).Position.X, "full installation consumes arrow override");
-        AssertEqual(104, edited.SaveMarkers.Get(SuperMetroid.Core.Rooms.AreaId.Maridia, 0).X, "full installation consumes save-marker override");
+        AssertEqual(104, edited.SaveMarkers.Get(SuperMetroid.Core.Progression.AreaId.Maridia, 0).X, "full installation consumes save-marker override");
         AssertEqual(160, edited.Landmarks.Get("Boss.Phantoon").X, "full installation consumes landmark override");
         AssertEqual(80, edited.Stations.Get("Brinstar.Missile.0").X, "full installation consumes station position override");
         AssertTrue(stock.GameOptions.ContentIdentity != edited.GameOptions.ContentIdentity,

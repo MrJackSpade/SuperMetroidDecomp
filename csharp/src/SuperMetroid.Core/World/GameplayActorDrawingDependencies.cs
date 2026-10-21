@@ -2,9 +2,9 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.World;
+using SuperMetroid.Core.Gameplay;
 
-namespace SuperMetroid.Core.Gameplay;
+namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="GameplayActorDrawing"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record GameplayActorDrawingDependencies

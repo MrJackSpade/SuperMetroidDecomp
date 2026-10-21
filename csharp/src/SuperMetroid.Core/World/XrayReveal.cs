@@ -2,9 +2,9 @@
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Xray;
-using SuperMetroid.Core.World;
+using SuperMetroid.Core.Samus.Abilities;
 
-namespace SuperMetroid.Core.Samus.Abilities;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// X-ray reveal presentation: the revealed tilemap, built once from the room's level data and BG1 plane.

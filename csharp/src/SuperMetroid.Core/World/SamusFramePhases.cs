@@ -11,9 +11,9 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Gameplay;
-using SuperMetroid.Core.World;
+using SuperMetroid.Core.Samus;
 
-namespace SuperMetroid.Core.Samus;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// Samus's phases of a gameplay frame: grounded movement, animation transitions, uninitialized-pose movement,

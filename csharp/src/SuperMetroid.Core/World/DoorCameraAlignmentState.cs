@@ -1,6 +1,6 @@
-using SuperMetroid.Core.World;
+using SuperMetroid.Core.Rooms.Doors;
 
-namespace SuperMetroid.Core.Rooms.Doors;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// One invocation of the cartridge's source-camera alignment coroutine at

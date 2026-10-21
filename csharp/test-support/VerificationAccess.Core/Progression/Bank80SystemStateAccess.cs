@@ -1,6 +1,4 @@
 namespace SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms;
-
 /// <summary>Verification access to <see cref="Bank80SystemState"/> members production does not use.</summary>
 internal static class Bank80SystemStateAccess
 {

@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Saves;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
 namespace SuperMetroid.Verification.Frontend.Options;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks how the options menu's START GAME begins each kind of save.</summary>
 internal static class GameOptionsStartGameVerification

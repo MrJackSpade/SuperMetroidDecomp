@@ -1,5 +1,5 @@
 using System.Collections.Immutable;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.Map;
 

@@ -1,6 +1,7 @@
 
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Rooms;
 

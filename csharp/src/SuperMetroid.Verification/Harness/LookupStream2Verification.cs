@@ -48,6 +48,7 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Cartridge-oracle checks for the second set of gameplay, artwork, and pause-screen catalogs.</summary>

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;

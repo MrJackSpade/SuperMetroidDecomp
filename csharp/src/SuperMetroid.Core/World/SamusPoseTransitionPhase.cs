@@ -4,9 +4,9 @@ using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Gameplay;
-using SuperMetroid.Core.World;
+using SuperMetroid.Core.Samus;
 
-namespace SuperMetroid.Core.Samus;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// UpdateSamusPose after normal beta's animation: animation command three, the interruptions, the collision
@@ -51,7 +51,7 @@ internal sealed class SamusPoseTransitionPhase
         // Hit interruption observes the old movement type before UpdateSamusPose.
         // Its carry-clear bomb rejection still occurs when an animation transition
         // wins pose selection; otherwise a stale request survives unmorph/morph.
-        if (samus.KnockbackTimer.IsZero && samus.KnockbackDirection == Movement.SamusKnockbackDirection.None)
+        if (samus.KnockbackTimer.IsZero && samus.KnockbackDirection == SuperMetroid.Core.Samus.Movement.SamusKnockbackDirection.None)
             SamusPoseMetadata.RejectUnsupportedPublishedBombJump(samus, _freeze.TimeIsFrozen);
 
         // Command $F8's command-three “super-special” transition wins at this seam.
@@ -210,7 +210,7 @@ internal sealed class SamusPoseTransitionPhase
         // a later bomb launch to retain the damaged pose, with input locked by
         // special command three rather than an early speculative pose change.
         if (!animationTransitionApplied && samus.KnockbackTimer.IsZero &&
-            samus.KnockbackDirection == Movement.SamusKnockbackDirection.None &&
+            samus.KnockbackDirection == SuperMetroid.Core.Samus.Movement.SamusKnockbackDirection.None &&
             SamusPoseMetadata.TrySetupPublishedBombJump(samus, 
 
                 _room.LevelData ?? throw new InvalidOperationException(

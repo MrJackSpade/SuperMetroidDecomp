@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -12,6 +11,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks Speed Booster echo start, wall cancellation, and SPC silence.</summary>
 internal static class SpeedBoosterEchoStopVerification

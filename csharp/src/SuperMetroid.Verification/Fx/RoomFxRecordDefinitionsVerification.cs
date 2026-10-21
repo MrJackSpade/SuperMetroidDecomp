@@ -14,6 +14,7 @@ using SuperMetroid.TestSupport.CatalogInventories;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks compiled room FX records and Ceres consumers against the pinned cartridge.</summary>
 internal static class RoomFxRecordDefinitionsVerification

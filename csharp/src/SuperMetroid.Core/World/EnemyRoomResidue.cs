@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.World;
+using SuperMetroid.Core.Enemies;
 
-namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// The enemy words the enemy load leaves in place when a room is replaced (#1329): each bank-$86 enemy projectile

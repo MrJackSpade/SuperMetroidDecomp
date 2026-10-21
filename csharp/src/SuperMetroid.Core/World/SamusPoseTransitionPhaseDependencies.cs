@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Gameplay;
-using SuperMetroid.Core.World;
+using SuperMetroid.Core.Samus;
 
-namespace SuperMetroid.Core.Samus;
+namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="SamusPoseTransitionPhase"/> is constructed with, built by its <see cref="SamusFramePhases"/> owner.</summary>
 internal sealed record SamusPoseTransitionPhaseDependencies

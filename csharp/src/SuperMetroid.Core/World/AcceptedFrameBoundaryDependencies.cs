@@ -5,9 +5,9 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.World;
+using SuperMetroid.Core.Gameplay;
 
-namespace SuperMetroid.Core.Gameplay;
+namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="AcceptedFrameBoundary"/> is constructed with, built once by the owner that creates it (#621).</summary>
 [ArchitectureReview("wide-dependencies", "The display snapshot boundary: each member is an owner whose state becomes " +

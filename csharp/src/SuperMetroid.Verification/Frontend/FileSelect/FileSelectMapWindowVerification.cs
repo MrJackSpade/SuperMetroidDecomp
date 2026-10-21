@@ -10,6 +10,7 @@ using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Frontend.Menus;
 
@@ -19,7 +20,7 @@ internal static class FileSelectMapWindowVerification
     /// <summary>Creates identical editable label anchors for all six selectable areas.</summary>
     private static WorldMapLabelLayout CreateWindowLabelFixture(Position16<OamPixels> label)
     {
-        var points = Enumerable.Range(0, 6).ToDictionary(area => ((SuperMetroid.Core.Rooms.AreaId)area).ToString(),
+        var points = Enumerable.Range(0, 6).ToDictionary(area => ((SuperMetroid.Core.Progression.AreaId)area).ToString(),
             _ => label);
         using var stream = new MemoryStream();
         WorldMapLabelLayout.Write(stream, new() { Version = 1, Areas = points });
@@ -116,7 +117,7 @@ internal static class FileSelectMapWindowVerification
         AssertTrue(FileSelectMapWindowCompositor.Composite(area, frame, returning).All(pixel => pixel == areaColor),
             "completed return disables room frame and restores entire area scene");
         var graphics = new FileSelectRoomMapGraphics(new SuperMetroid.Core.Progression.Bank80SystemState(),
-            SuperMetroid.Core.Rooms.AreaId.Maridia, mapPresentation: RetailPresentationFixture());
+            SuperMetroid.Core.Progression.AreaId.Maridia, mapPresentation: RetailPresentationFixture());
         Rgba32[] frameOnly = graphics.RenderFrameOnly().ToArray();
         graphics.screen.Tilemaps.AreaMap[0] = 0x1234;
         AssertTrue(frameOnly.SequenceEqual(graphics.RenderFrameOnly()), "transition frame never samples room-map BG1 tiles");

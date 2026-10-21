@@ -3,7 +3,6 @@ using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;

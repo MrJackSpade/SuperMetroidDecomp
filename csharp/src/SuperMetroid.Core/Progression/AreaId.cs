@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms;
+namespace SuperMetroid.Core.Progression;
 
 /// <summary>The seven mutually exclusive retail world-area indices.</summary>
 /// <remarks>

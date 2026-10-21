@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
@@ -7,9 +6,9 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Gameplay;
-using SuperMetroid.Core.World;
+using SuperMetroid.Core.Hud;
 
-namespace SuperMetroid.Core.Hud;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// Message box outcomes: selection sounds, save-station persistence, suit pickups and the gunship exit sound that

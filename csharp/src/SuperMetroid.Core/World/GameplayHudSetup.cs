@@ -2,9 +2,9 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Gameplay;
-using SuperMetroid.Core.World;
+using SuperMetroid.Core.Hud;
 
-namespace SuperMetroid.Core.Hud;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// Gameplay HUD initialization and the gameplay HUD character-base selection.

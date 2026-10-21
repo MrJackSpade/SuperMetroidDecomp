@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Verification.Harness;

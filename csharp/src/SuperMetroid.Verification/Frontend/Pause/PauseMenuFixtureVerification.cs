@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 

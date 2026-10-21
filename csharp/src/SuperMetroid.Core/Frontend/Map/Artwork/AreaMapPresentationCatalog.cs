@@ -3,7 +3,6 @@ using System.Security.Cryptography;
 using System.Buffers.Binary;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
@@ -20,6 +19,7 @@ using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 

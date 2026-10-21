@@ -2,7 +2,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Plms.LookupNoobTubeStockVerification;
 using static SuperMetroid.Verification.Rooms.Plms.LookupTubeDrawsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

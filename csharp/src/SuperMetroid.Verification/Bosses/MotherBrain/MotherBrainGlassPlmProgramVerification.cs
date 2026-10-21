@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;

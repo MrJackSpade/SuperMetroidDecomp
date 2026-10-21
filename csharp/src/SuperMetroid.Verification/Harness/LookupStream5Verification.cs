@@ -7,7 +7,6 @@ using SuperMetroid.Verification.Enemies.Magdollite;
 using SuperMetroid.Verification.Enemies.MorphBallEye;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;

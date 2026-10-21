@@ -1,9 +1,7 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Runtime.Attract;

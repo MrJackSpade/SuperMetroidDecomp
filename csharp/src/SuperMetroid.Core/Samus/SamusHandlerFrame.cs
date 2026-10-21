@@ -1,6 +1,7 @@
 ﻿using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Samus;
 

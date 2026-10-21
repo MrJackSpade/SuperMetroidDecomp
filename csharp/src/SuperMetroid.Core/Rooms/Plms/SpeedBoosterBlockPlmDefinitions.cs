@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 

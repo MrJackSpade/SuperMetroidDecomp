@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Fx;
 

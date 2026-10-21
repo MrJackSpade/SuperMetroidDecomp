@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Botwoon;
@@ -25,6 +24,7 @@ using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 

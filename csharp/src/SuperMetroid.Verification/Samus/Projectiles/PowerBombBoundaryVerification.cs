@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Verification.Samus.Projectiles;
 

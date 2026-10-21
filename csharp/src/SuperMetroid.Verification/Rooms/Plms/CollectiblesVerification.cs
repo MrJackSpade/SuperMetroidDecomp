@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleDoorsVerification;
 using static SuperMetroid.Verification.Hud.PermanentMessageFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;

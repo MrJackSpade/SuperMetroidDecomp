@@ -12,6 +12,7 @@ using SuperMetroid.Core.Map;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Exercises semantic native-word views while checking that unnamed cartridge bits survive typed operations.</summary>
 internal static class TypedWordsVerification

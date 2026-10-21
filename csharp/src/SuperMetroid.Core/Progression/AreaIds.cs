@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms;
+namespace SuperMetroid.Core.Progression;
 
 /// <summary>Checked conversions at raw cartridge and array-index boundaries.</summary>
 public static class AreaIds

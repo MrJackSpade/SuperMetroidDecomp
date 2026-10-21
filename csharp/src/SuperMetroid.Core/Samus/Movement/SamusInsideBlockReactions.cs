@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Movement;
 

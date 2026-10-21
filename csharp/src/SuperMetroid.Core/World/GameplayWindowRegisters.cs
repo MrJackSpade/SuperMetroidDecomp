@@ -1,8 +1,7 @@
 ﻿using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.World;
 
-namespace SuperMetroid.Core.Gameplay;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// The gameplay window registers: their binding and per-frame preparation.

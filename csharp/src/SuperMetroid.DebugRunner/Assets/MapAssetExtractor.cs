@@ -1,7 +1,7 @@
 ﻿using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.DebugRunner.Assets;
 

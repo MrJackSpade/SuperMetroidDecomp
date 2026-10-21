@@ -2,7 +2,6 @@ using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Input;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.Map.Artwork;

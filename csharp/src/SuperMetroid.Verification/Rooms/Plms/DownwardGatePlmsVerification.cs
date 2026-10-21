@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Plms.DownwardGateVisualsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.LookupDownwardGateDrawsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.LookupDownwardGateSelectionVerification;

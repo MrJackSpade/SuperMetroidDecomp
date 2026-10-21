@@ -4,6 +4,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Rooms;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Compares compiled room-state payloads and cartridge-free production selection with the pinned retail ROM.</summary>
@@ -18,7 +19,7 @@ internal static class RoomStateDefinitionsVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "Room-state oracle revision");
         Suite(nameof(VerifyRoomStateSettings), () => VerifyRoomStateSettings(bus));
 
-        RoomHeaderDefinition ceres = LoadStationDefinitions.Get(SuperMetroid.Core.Rooms.AreaId.Ceres, 0).Room
+        RoomHeaderDefinition ceres = LoadStationDefinitions.Get(SuperMetroid.Core.Progression.AreaId.Ceres, 0).Room
             ?? throw new InvalidDataException("Ceres station has no room.");
         ushort ceresStatePointer = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, ceres.Pointer).State.Pointer;
         CartridgeRoomHeader compiledRoom = CartridgeRoomHeader.LoadUsingCompiledSelection(ceres);

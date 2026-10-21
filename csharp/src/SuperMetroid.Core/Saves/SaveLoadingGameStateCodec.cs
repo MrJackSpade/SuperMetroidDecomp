@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Saves;
 

@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Saves;
+
+namespace SuperMetroid.Core.Map;
 
 /// <summary>Native SRAM directory and per-slot payload layout used by bank <c>$81</c>.</summary>
 /// <remarks>

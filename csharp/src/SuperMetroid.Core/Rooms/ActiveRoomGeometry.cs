@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Rooms;
+﻿using SuperMetroid.Core.Progression;
+
+namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Room-header fields shared by camera tracking and minimap publication.</summary>
 /// <param name="AreaIndex">The room's area.</param>

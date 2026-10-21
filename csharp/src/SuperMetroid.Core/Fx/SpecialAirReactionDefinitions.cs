@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Fx;
 

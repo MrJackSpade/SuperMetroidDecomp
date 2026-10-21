@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Progression;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>The fixed configuration of the 262 non-debug retail rooms.</summary>

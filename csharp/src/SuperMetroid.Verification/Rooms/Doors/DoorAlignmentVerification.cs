@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 namespace SuperMetroid.Verification.Rooms.Doors;
 
 /// <summary>Checks native door-camera alignment steps and the complete retail transition handoff.</summary>

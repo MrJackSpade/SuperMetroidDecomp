@@ -1,6 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Map.Artwork;
 

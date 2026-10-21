@@ -9,9 +9,9 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.Core.World;
+using SuperMetroid.Core.Gameplay;
 
-namespace SuperMetroid.Core.Gameplay;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// Draws the gameplay actors each frame (Samus, arm cannon, projectiles, grapple, enemies) and publishes what

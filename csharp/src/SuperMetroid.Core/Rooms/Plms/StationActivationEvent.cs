@@ -1,4 +1,5 @@
 ﻿using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 

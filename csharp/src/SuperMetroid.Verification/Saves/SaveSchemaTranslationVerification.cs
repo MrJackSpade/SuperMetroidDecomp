@@ -2,7 +2,6 @@ using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Plms.CollectiblesVerification;
 using static SuperMetroid.Verification.Saves.GameSaveJsonVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;

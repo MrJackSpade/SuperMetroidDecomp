@@ -1,7 +1,6 @@
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoHandArtworkVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoHandVisualsVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.LookupBombTorizoHandDrawVerification;

@@ -1,9 +1,8 @@
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.World;
 
-namespace SuperMetroid.Core.Rooms;
+namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="RoomMainRoutines"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record RoomMainRoutinesDependencies

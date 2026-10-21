@@ -4,7 +4,6 @@ using System.Text.Json.Serialization;
 using SuperMetroid.Core.Input;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Map;

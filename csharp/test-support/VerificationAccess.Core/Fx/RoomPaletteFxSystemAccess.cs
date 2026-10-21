@@ -1,6 +1,7 @@
 namespace SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Rooms;
+
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Verification access to <see cref="RoomPaletteFxSystem"/> members production does not use.</summary>
 internal static class RoomPaletteFxSystemAccess

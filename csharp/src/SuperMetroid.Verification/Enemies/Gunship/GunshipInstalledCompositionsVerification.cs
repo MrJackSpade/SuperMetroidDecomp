@@ -1,5 +1,4 @@
 using SuperMetroid.Tooling;
-using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using System.Text.Json;
 using SuperMetroid.Core.Frontend;

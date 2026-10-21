@@ -2,10 +2,10 @@ using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Menus;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 

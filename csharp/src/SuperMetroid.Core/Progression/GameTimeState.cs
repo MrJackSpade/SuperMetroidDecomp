@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Saves;
-
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>

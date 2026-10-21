@@ -5,7 +5,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Assets.PaletteJsonContractsVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -16,6 +15,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Verification.Assets;
 

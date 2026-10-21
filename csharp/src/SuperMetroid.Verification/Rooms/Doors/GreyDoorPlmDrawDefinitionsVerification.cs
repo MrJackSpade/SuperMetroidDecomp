@@ -2,7 +2,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Doors.LookupGreyCapVerification;
 using static SuperMetroid.Verification.Rooms.Doors.LookupGreyDoorStockVerification;
 using SuperMetroid.Verification.Rooms.Plms;

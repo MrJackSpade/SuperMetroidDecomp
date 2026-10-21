@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Map;
 
 namespace SuperMetroid.Verification.Saves;
 

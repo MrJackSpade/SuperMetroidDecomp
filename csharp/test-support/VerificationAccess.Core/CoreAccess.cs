@@ -28,6 +28,7 @@ using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core;
 

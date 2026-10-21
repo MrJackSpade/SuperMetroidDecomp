@@ -1,12 +1,12 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.DebugRunner.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Map;
 namespace SuperMetroid.Verification.Frontend.Map;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks area map exports and station reveal masks against cartridge content.</summary>
 internal static class AreaMapAssetsVerification

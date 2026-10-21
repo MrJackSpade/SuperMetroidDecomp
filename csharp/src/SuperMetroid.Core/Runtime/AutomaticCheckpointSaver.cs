@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Enemies.Gunship;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Runtime;
 

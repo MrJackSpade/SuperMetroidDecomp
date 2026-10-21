@@ -2,7 +2,6 @@ using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonCannonVisualsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.LookupCannonLayoutsVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Map;
+namespace SuperMetroid.Core.Progression;
 
 /// <summary>
 /// Native coordinate addressing for one 64-by-32 area map. Both the tilemap and one-bit

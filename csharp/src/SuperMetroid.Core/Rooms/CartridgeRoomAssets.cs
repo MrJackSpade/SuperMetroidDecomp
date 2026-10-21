@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Rooms;
 

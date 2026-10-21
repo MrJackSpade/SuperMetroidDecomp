@@ -2,7 +2,6 @@ using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Areas.Escape.EscapeRoomEffectsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleDoorsVerification;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;

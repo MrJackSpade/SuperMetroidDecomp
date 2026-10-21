@@ -5,7 +5,6 @@ using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerifica
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;

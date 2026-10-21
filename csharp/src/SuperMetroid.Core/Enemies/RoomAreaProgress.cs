@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies;
 

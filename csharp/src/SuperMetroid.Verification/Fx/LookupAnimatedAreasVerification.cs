@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Verification.Fx;
 

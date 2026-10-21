@@ -15,6 +15,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 

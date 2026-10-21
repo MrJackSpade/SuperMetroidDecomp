@@ -4,9 +4,10 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.World;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Plms;
 
-namespace SuperMetroid.Core.Rooms.Plms;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// The runtime's Samus, Tourian statue, room shake and enemy pool as the services resident room

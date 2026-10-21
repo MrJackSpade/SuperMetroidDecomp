@@ -1,10 +1,9 @@
-using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Gameplay;
-using SuperMetroid.Core.World;
+using SuperMetroid.Core.Samus;
 
-namespace SuperMetroid.Core.Samus;
+namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="SamusFramePhases"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record SamusFramePhasesDependencies

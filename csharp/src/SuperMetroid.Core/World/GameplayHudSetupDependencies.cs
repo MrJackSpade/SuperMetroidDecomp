@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
-using SuperMetroid.Core.World;
+using SuperMetroid.Core.Hud;
 
-namespace SuperMetroid.Core.Hud;
+namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="GameplayHudSetup"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record GameplayHudSetupDependencies

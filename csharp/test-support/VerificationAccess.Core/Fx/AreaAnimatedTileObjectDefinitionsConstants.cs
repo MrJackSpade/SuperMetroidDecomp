@@ -1,5 +1,6 @@
 namespace SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Rooms;
+
+using SuperMetroid.Core.Progression;
 
 /// <summary>Cartridge values of <see cref="AreaAnimatedTileObjectDefinitions"/> that only verification reads.</summary>
 internal static class AreaAnimatedTileObjectDefinitionsConstants

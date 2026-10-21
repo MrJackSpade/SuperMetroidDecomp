@@ -77,9 +77,16 @@ internal static class EnemySpriteArtworkBoundaryVerification
             roomSlot.Frame = EnemyProjectileSlotFrameAccess.ProgramFrameAt(frame.OperandAddress);
             roomSlot.Position = roomSlot.Position.WithWhole(new(x, y)); roomSlot.GraphicsIndex = 0x0a04;
             var expected = new OamBuffer(); var actual = new OamBuffer();
-            DrawImportedEnemyProjectileSpritemap(source, expected, pointer, new(x, y), 0x0a04, (SnesLittleEndian.HighByteInPlace(y)) == 0);
+            // The sprite list places every part at its signed position and leaves clipping at the screen edges to the
+            // backend; native OAM instead parks a part that crosses the top or bottom edge at Y=$F0. The oracle therefore
+            // places the native parts without that clip.
+            ImportedSpritemapOracle.DrawEnemy(CartridgeImportSource.Require(source), expected, new NativeEnemySpritemapDraw
+            {
+                Bank = 0x8d, Pointer = pointer, Origin = new(x, y),
+                PaletteBits = new SnesObjAttributeWord(0x0a04).PaletteBits, BaseTileIndex = 0x04, ClipVerticalWrap = false,
+            });
             enemies.Projectiles.DrawEnemyProjectilePassAsOam(actual, Position16<RoomPixels>.Zero, EnemyProjectileDrawPriority.High, false);
-            Equal(expected, actual, $"room projectile {frame.Name}");
+            Equal(expected, actual, $"room projectile {frame.Name} at {x},{y}");
 
             projectileCases++;
         }
@@ -123,6 +130,8 @@ internal static class EnemySpriteArtworkBoundaryVerification
         static void Equal(OamBuffer expected, OamBuffer actual, string context)
         {
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, context + " count");
+            for (int sprite = 0; sprite < expected.NextByteOffset / OamBuffer.LowRecordByteCount; sprite++)
+                AssertEqual(expected.GetEntry(sprite), actual.GetEntry(sprite), $"{context} OAM sprite {sprite}");
             AssertTrue(expected.ImageEquals(actual), context + " packed OAM");
         }
     }

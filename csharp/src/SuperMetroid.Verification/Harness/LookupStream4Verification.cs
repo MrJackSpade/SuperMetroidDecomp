@@ -552,7 +552,7 @@ internal static class LookupStream4Verification
             AssertTrue(!installed.IsDefinitionActive(definition.DefinitionPointer), "installed text fade deletes at original time");
         }
         foreach (int invalid in new[] { -1, 2, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = all[invalid], "text owner bounds");
+            AssertThrows<IndexOutOfRangeException>(() => _ = all[invalid], "text owner bounds");
         foreach (ushort pointer in new ushort[] { 0xC90E, 0xC912, 0xC91A, 0xC962, 0xC964, 0xC968, 0xC9B8 })
             AssertTrue(!PlanetZebesTextColorDefinitions.TryCoordinates(pointer, out _, out _, out _), "text color view excludes native mechanics");
         Console.WriteLine("PLANET ZEBES:38 native mechanics words,48 exact colors,three required endpoints,all48 independent edits and both actual installed one-shot fades pass.");
@@ -761,7 +761,7 @@ internal static class LookupStream4Verification
         }
         AssertEqual(112, colors, "native presentation words remain independently owned");
         foreach (int index in new[] { -1, 3, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = all[index], "owner selector bounds");
+            AssertThrows<IndexOutOfRangeException>(() => _ = all[index], "owner selector bounds");
         Console.WriteLine("Maridia palette definitions: three native programs,44 mechanics words,112 color identities and actual complete loops pass; timing/destination/group inputs remain required.");
     }
 
@@ -1315,7 +1315,13 @@ internal static class LookupStream4Verification
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => CeresMode7TransferDefinitions.BabyFrameForPhase(invalid), "Baby transfer phase preserves bounded selection");
         var colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { CeresRidleyMode7Colors = colors } };
+        // The getaway patches the room's Mode 7 map, which each NMI publishes; it no longer writes VRAM (#1349).
+        byte[] untouchedCells = new byte[Mode7Map.Cells];
+        Array.Fill(untouchedCells, (byte)0x5a);
+        var map = new Mode7Map(untouchedCells, default);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance,
+            services: new StandaloneRoomEnemyServices(() => 0) { Mode7Map = map })
+            { BossArtworkBinding = { CeresRidleyMode7Colors = colors } };
         var vram = new SnesVram();
         enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
         enemies.Presentation.BindCgram(new SnesCgram());
@@ -1328,9 +1334,11 @@ internal static class LookupStream4Verification
         for (ushort nmi = 0; nmi < 16; nmi++)
         {
             vram.LoadBytes(0, untouched);
+            map.Write(0, untouchedCells);
             bool advances = (nmi & 3) == 0;
             if (advances) expectedPhase = (expectedPhase + 1) & 3;
             tick(state, null, nmi);
+            AssertTrue(vram.Bytes.SequenceEqual(untouched), "The getaway leaves VRAM to the published Mode 7 map");
             AssertEqual((ushort)expectedPhase, state.Mode7BabyFrame, "Actual getaway advances Baby before selection only on every fourth NMI");
             int pointer = 0xa60000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6acda + expectedPhase * 2));
             for (int row = 0; row < 2; row++, pointer += 9)
@@ -1340,12 +1348,11 @@ internal static class LookupStream4Verification
                 for (int column = 0; column < 2; column++)
                 {
                     AssertEqual(advances ? rom.ReadCartridgeByte(source + column) : (byte)0x5a,
-                        vram.Bytes[(destination + column) * 2], "Actual getaway selects native capsule rows and preserves non-update NMIs");
-                    AssertEqual((byte)0x5a, vram.Bytes[(destination + column) * 2 + 1], "Baby transfer preserves Mode7 character high bytes");
+                        map.Publish().Cells[destination + column], "Actual getaway selects native capsule rows and preserves non-update NMIs");
                 }
             }
         }
-        Console.WriteLine("Baby reflected phase: four original pointers and one actual16-NMI cycle preserve advance-before-select, transfer bytes and high-byte isolation.");
+        Console.WriteLine("Baby reflected phase: four original pointers and one actual16-NMI cycle preserve advance-before-select and the transferred map tiles.");
     }
 
     /// <summary>Checks Fly animation frame identities against the cartridge instruction data.</summary>

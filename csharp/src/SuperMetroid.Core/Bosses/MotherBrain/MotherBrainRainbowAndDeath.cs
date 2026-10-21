@@ -125,7 +125,7 @@ internal sealed class MotherBrainRainbowAndDeath
         if (step.EscapeTypewriterSetupRequested)
         {
             state.EnableUnpauseHook = sequence.ThirdPhaseDeath.MotherBrainUnpauseHookEnabled;
-            state.EscapeTypewriter = _presentation.EscapeTypewriterPresentation is { } presentation
+            state.EscapeTypewriter = _bossArtwork.EscapeTypewriterPresentation is { } presentation
                 ? new(presentation.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase)
                 : new(EscapeTypewriterRomData.ZebesText, EscapeTypewriterRomData.ZebesTileBase);
             _presentation.BossPalettes.EscapeTypewriterText.CopyFrom(_presentation.BossPalettes.EscapeTypewriterSource.Colors);
@@ -357,7 +357,7 @@ internal sealed class MotherBrainRainbowAndDeath
         // $A9:D1E4 runs after body AI. Its health handler is enabled during revival,
         // but $AD:E3D5 waits until the corpse-state word reaches final-combat state 2.
         if (sequence.State.HealthBasedPaletteHandlingEnabled && sequence.State.Phase2CorpseState == MotherBrainPhase2CorpseState.Revived)
-            MotherBrainHealthPalette.Apply(_presentation.Cgram, state.Head.Health, _presentation.MotherBrainHealthColors);
+            MotherBrainHealthPalette.Apply(_presentation.Cgram, state.Head.Health, _bossArtwork.MotherBrainHealthColors);
         ApplyLiveMotherBrainDeath(state, sequence, current);
         if (current.SoundQueued)
             // A request is not invariably a start: the painful-walk stage-six handoff
@@ -453,7 +453,7 @@ internal sealed class MotherBrainRainbowAndDeath
             // The sequence increments before publishing this request. Keep the distinct
             // native copy lengths: revival intentionally preserves two brain/body colors.
             int index = MotherBrainEncounterAccess.RequireLiveMotherBrainRainbowSequence(state).State.GreyTransitionCounter - 1;
-            var installed = _presentation.MotherBrainRainbowColors ?? throw new InvalidDataException(
+            var installed = _bossArtwork.MotherBrainRainbowColors ?? throw new InvalidDataException(
                 "Mother Brain's grey transition requires installed palette artwork.");
             if (draining) installed.ApplyToGrey(_presentation.Cgram, index);
             else installed.ApplyFromGrey(_presentation.Cgram, index);
@@ -462,7 +462,7 @@ internal sealed class MotherBrainRainbowAndDeath
         if (step.PhaseBefore == MotherBrainBodyFunction.SecondPhaseRainbowFinishFiring &&
             step.PhaseAfter == MotherBrainBodyFunction.SecondPhaseRainbowLetSamusFall)
         {
-            var installed = _presentation.MotherBrainRainbowColors ?? throw new InvalidDataException(
+            var installed = _bossArtwork.MotherBrainRainbowColors ?? throw new InvalidDataException(
                 "Mother Brain's normal palette requires installed artwork.");
             installed.ApplyNormal(_presentation.Cgram);
             return;
@@ -470,7 +470,7 @@ internal sealed class MotherBrainRainbowAndDeath
         if (step.PhaseBefore == MotherBrainBodyFunction.SecondPhaseDrainedByBabyFiringRainbowBeam &&
             step.PhaseAfter == MotherBrainBodyFunction.SecondPhaseDrainedByBabyRainbowBeamRunOut)
         {
-            var installed = _presentation.MotherBrainRainbowColors ?? throw new InvalidDataException(
+            var installed = _bossArtwork.MotherBrainRainbowColors ?? throw new InvalidDataException(
                 "Mother Brain's drained palette requires installed artwork.");
             installed.ApplyRainbow(_presentation.Cgram, MotherBrainRainbowPaletteRomData.DrainedPointerOffset / sizeof(ushort));
             return;
@@ -486,7 +486,7 @@ internal sealed class MotherBrainRainbowAndDeath
         if (!rainbowPhase || !step.PaletteRequested || (state.Body.FrameCounter & 2) == 0)
             return;
 
-        var rainbow = _presentation.MotherBrainRainbowColors ?? throw new InvalidDataException(
+        var rainbow = _bossArtwork.MotherBrainRainbowColors ?? throw new InvalidDataException(
             "Mother Brain's rainbow phase requires installed palette artwork.");
         if ((state.RainbowPaletteCursor & 1) != 0 ||
             state.RainbowPaletteCursor > MotherBrainRainbowPaletteFormat.RainbowFrameCount * sizeof(ushort))

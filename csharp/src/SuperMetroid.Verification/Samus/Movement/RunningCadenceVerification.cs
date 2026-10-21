@@ -16,9 +16,9 @@ internal static class RunningCadenceVerification
     {
         var bus = new RunningCadenceReadGuard(rom);
         // Stage five's delay list aliases the Mode 7 queue residue; it mirrors the guard's mutable delay byte.
-        var residue = new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue();
+        var residue = new SuperMetroid.Core.Hardware.Mode7TransferQueueResidue();
         int stageFiveOffset = SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer(
-            SamusRunningCadenceDefinitions.MaximumSoundQueueSelection) - SnesAddressMath.OffsetInBank(SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueLayout.QueueStart);
+            SamusRunningCadenceDefinitions.MaximumSoundQueueSelection) - SnesAddressMath.OffsetInBank(SuperMetroid.Core.Hardware.Mode7TransferQueueLayout.QueueStart);
         residue.Write(stageFiveOffset, bus.MutableDelay);
         Suite(nameof(VerifyOrdinaryRunningPointer), () => VerifyOrdinaryRunningPointer(rom));
         Suite(nameof(VerifyOrdinaryRunningStream), () => VerifyOrdinaryRunningStream(rom));
@@ -29,7 +29,7 @@ internal static class RunningCadenceVerification
         Suite(nameof(VerifyBoostRunningStream3), () => VerifyBoostRunningStream3(rom));
         Suite(nameof(VerifyBoostRunningStream4), () => VerifyBoostRunningStream4(rom));
         Suite(nameof(VerifyBoostRunningResets), () => VerifyBoostRunningResets(rom));
-        var ordinary = new Func<SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue?, int, byte>(SamusPresentation.ReadDefaultRunningAnimationByte);
+        var ordinary = new Func<SuperMetroid.Core.Hardware.Mode7TransferQueueResidue?, int, byte>(SamusPresentation.ReadDefaultRunningAnimationByte);
         var speed = new SamusHorizontalSpeedState();
 
         // Every authored frame and loop command remains byte-exact. Reads may cross into

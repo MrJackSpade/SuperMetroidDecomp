@@ -89,7 +89,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     public required CartridgeRandom Random { get; init; }
 
     /// <summary>The session's Mode 7 transfer queue residue, bound into the flashback Samus.</summary>
-    public SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? Mode7QueueResidue { get; init; }
+    public SuperMetroid.Core.Hardware.Mode7TransferQueueResidue? Mode7QueueResidue { get; init; }
 
     /// <summary>Current timed-projectile composition selected by the host.</summary>
     [field: NonSerialized]

@@ -628,28 +628,28 @@ internal static class MapPresentationVerification
         var stockOutput = new SnesCgram();
         var editedOutput = new SnesCgram();
         original.MotherBrainRainbowPalette.ApplyRainbow(stockOutput, 0);
-        (runtime.EnemySession.MotherBrainRainbowColors ?? throw new InvalidOperationException("Verification requires runtime.EnemySession.MotherBrainRainbowColors.")).ApplyRainbow(editedOutput, 0);
+        (runtime.BossArtwork.MotherBrainRainbowColors ?? throw new InvalidOperationException("Verification requires runtime.BossArtwork.MotherBrainRainbowColors.")).ApplyRainbow(editedOutput, 0);
         AssertTrue(stockOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor] !=
             editedOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor],
             "installed rainbow override reaches the room-enemy binding");
         stockOutput.Clear();
         editedOutput.Clear();
         original.MotherBrainRainbowPalette.ApplyToGrey(stockOutput, 0);
-        runtime.EnemySession.MotherBrainRainbowColors.ApplyToGrey(editedOutput, 0);
+        runtime.BossArtwork.MotherBrainRainbowColors.ApplyToGrey(editedOutput, 0);
         AssertTrue(stockOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor] !=
             editedOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor],
             "drain override reaches the native body destination");
         stockOutput.Clear();
         editedOutput.Clear();
         original.MotherBrainRainbowPalette.ApplyFromGrey(stockOutput, 0);
-        runtime.EnemySession.MotherBrainRainbowColors.ApplyFromGrey(editedOutput, 0);
+        runtime.BossArtwork.MotherBrainRainbowColors.ApplyFromGrey(editedOutput, 0);
         AssertTrue(stockOutput.Colors[MotherBrainDrainedPaletteRomData.BackLegColor] !=
             editedOutput.Colors[MotherBrainDrainedPaletteRomData.BackLegColor],
             "revival override reaches the native rear-leg destination");
         foreach (bool toGrey in new[] { true, false })
         {
             var stockFade = CaptureFakeDeathPaletteFrame(original.MotherBrainRainbowPalette, toGrey);
-            var editedFade = CaptureFakeDeathPaletteFrame(runtime.EnemySession.MotherBrainRainbowColors, toGrey);
+            var editedFade = CaptureFakeDeathPaletteFrame(runtime.BossArtwork.MotherBrainRainbowColors, toGrey);
             AssertTrue(stockFade.Colors[MotherBrainFakeDeathPaletteRomData.BrainColor] !=
                 editedFade.Colors[MotherBrainFakeDeathPaletteRomData.BrainColor],
                 "fake-death edited color reaches the production fade path");
@@ -664,7 +664,7 @@ internal static class MapPresentationVerification
         stockOutput.Clear();
         editedOutput.Clear();
         original.MotherBrainRainbowPalette.ApplyNormal(stockOutput);
-        runtime.EnemySession.MotherBrainRainbowColors.ApplyNormal(editedOutput);
+        runtime.BossArtwork.MotherBrainRainbowColors.ApplyNormal(editedOutput);
         AssertTrue(stockOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor] !=
             editedOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor],
             "normal-restoration override reaches the native body destination");
@@ -674,7 +674,7 @@ internal static class MapPresentationVerification
         };
         var editedBeam = new MotherBrainRainbowBeamHdmaState
         {
-            PresentationColors = runtime.EnemySession.MotherBrainRainbowColors,
+            PresentationColors = runtime.BossArtwork.MotherBrainRainbowColors,
         };
         stockBeam.Step(true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
         editedBeam.Step(true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
@@ -792,7 +792,7 @@ internal static class MapPresentationVerification
         MotherBrainHealthPalette.Apply(stockOutput, 5399,
             original.MotherBrainHealthPalette);
         MotherBrainHealthPalette.Apply(output, 5399,
-            runtime.EnemySession.MotherBrainHealthColors);
+            runtime.BossArtwork.MotherBrainHealthColors);
         AssertTrue(output.Colors[MotherBrainRainbowPaletteRomData.BodyColor] !=
             stockOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor],
             "installed Mother Brain body edit reaches the live enemy binding");

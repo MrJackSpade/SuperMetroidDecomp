@@ -100,7 +100,7 @@ internal static class MotherBrainRoomColorsVerification
             "Mother Brain room-color override changes selected-content identity");
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
         runtime.Artwork.MapPresentation = edited;
-        AssertTrue(ReferenceEquals(runtime.EnemySession.MotherBrainRoomColors,
+        AssertTrue(ReferenceEquals(runtime.BossArtwork.MotherBrainRoomColors,
             edited.MotherBrainRoomColors),
             "installed Mother Brain room colors reach the production enemy binding");
         AssertEdited(nameof(MotherBrainBehavior.RunMotherBrainRoomPalette), behavior => behavior.RunMotherBrainRoomPalette, original, edited,
@@ -314,7 +314,7 @@ internal static class MotherBrainRoomColorsVerification
     private static RoomEnemySystem CreateEnemy(SnesCgram cgram,
         MotherBrainRoomColorPresentation? colors)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { Presentation = { MotherBrainRoomColors = colors } };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { MotherBrainRoomColors = colors } };
         enemies.Presentation.BindCgram(cgram);
         enemies.Presentation.BindVram(BgArtworkFixtures.For(new SnesVram()));
         return enemies;

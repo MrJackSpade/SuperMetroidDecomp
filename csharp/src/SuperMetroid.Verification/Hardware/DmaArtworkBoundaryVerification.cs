@@ -36,7 +36,7 @@ internal static class DmaArtworkBoundaryVerification
         AreaMapPresentationCatalog maps = installation.LoadMaps();
         InstalledEnemyArtwork art = installation.LoadEnemyTiles();
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas, Presentation = { HudTileArtwork = maps.HudTiles } };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas, BossArtworkBinding = { HudTileArtwork = maps.HudTiles } };
         var background = new SnesVram();
         enemies.Presentation.BindVram(BgArtworkFixtures.For(background));
         Action upload = new Action(enemies.KraidBehavior.Rise.UploadKraidRoomBackgroundTiles);
@@ -46,14 +46,12 @@ internal static class DmaArtworkBoundaryVerification
             KraidBackgroundRomData.RoomBackgroundTileAddress,
             KraidBackgroundRomData.RoomBackgroundTileBytes,
             KraidBackgroundRomData.RoomBackgroundTileVramWord);
-        AssertTrue(background.ImageEquals(expected),
+        AssertTrue(BgArtworkFixtures.ComposedVram(background).ImageEquals(expected),
             "Kraid background characters use installed art with exact native VRAM placement");
-        enemies.TileArtwork = null;
+        enemies.BossArtwork = null;
         AssertThrows<InvalidDataException>(upload,
             "missing Kraid background artwork is not a cartridge fallback");
-        enemies.TileArtwork = art.Enemies;
         enemies.BossArtwork = art.Bosses;
-        enemies.AreaArtwork = art.Areas;
 
         Action<RoomEnemySlot, KraidEnemyState, int, KraidAiFunction, VramWriteQueue?> transfer = enemies.KraidBehavior.Death.AdvanceKraidDeathBg3Transfer;
         foreach (bool queued in new[] { false, true })
@@ -77,14 +75,14 @@ internal static class DmaArtworkBoundaryVerification
                     KraidBackgroundRomData.StandardBg3TilesAddress + quarter * KraidBackgroundRomData.StandardBg3TransferBytes,
                     KraidBackgroundRomData.StandardBg3TransferBytes,
                     (ushort)(KraidBackgroundRomData.StandardBg3VramWord + quarter * KraidBackgroundRomData.StandardBg3TransferBytes / 2));
-                AssertTrue(actual.ImageEquals(expected),
+                AssertTrue(BgArtworkFixtures.ComposedVram(actual).ImageEquals(expected),
                     $"Kraid BG3 quarter {quarter} matches the native reference, queued={queued}");
                 AssertEqual(quarter + 1, state.DeathBg3TransferCount, "Kraid retains the four-frame restoration cadence");
                 AssertEqual(KraidAiFunction.DeathFadeInBackground, state.Parts[0].Function,
                     "artwork transfer preserves the death coroutine successor");
             }
         }
-        enemies.Presentation.HudTileArtwork = null;
+        enemies.BossArtworkBinding.HudTileArtwork = null;
         AssertThrows<InvalidDataException>(() => transfer(enemies.SlotTable.Slots[0], new KraidEnemyState(),
             0, KraidAiFunction.DeathFadeInBackground, new VramWriteQueue()),
             "Kraid death restoration requires installed HUD art even when queued");

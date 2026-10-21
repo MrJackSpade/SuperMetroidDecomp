@@ -453,7 +453,7 @@ internal sealed class SamusPresentation
     /// Reads the shared ordinary-Dash delay list selected indirectly through `$91:B5D1`.
     /// Cadence and command position are compiled mechanics; displayed artwork is separate.
     /// </summary>
-    internal static byte ReadDefaultRunningAnimationByte(SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? mode7Residue, int byteIndex)
+    internal static byte ReadDefaultRunningAnimationByte(SuperMetroid.Core.Hardware.Mode7TransferQueueResidue? mode7Residue, int byteIndex)
     {
         return SamusRunningCadenceDefinitions.ReadAnimationByte(
             mode7Residue,

@@ -50,8 +50,8 @@ internal static class SamusAnimationDelayDefinitionsVerification
 
         // Poses $FD-$FF intentionally overread the first delay bytes as $0302.
         // The resulting low-bank source is the Mode 7 queue residue, not immutable ROM data.
-        var residue = new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue();
-        residue.Write(0x7E0302 - SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueLayout.QueueStart, 0x5A);
+        var residue = new SuperMetroid.Core.Hardware.Mode7TransferQueueResidue();
+        residue.Write(0x7E0302 - SuperMetroid.Core.Hardware.Mode7TransferQueueLayout.QueueStart, 0x5A);
         AssertEqual((byte)0x5A,
             SamusAnimationDelayDefinitions.ReadAnimationByte(residue,
                 SamusAnimationDelayDefinitions.PointerForPose((SamusPoseId)0xFD), 0),

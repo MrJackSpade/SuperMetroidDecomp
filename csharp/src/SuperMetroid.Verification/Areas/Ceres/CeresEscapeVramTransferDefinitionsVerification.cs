@@ -66,7 +66,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             services: japaneseOverlay.Services())
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresEscapeTiles = new CeresEscapeTileArtwork(escapePages), CeresEscapeOverlayTilemaps = overlay },
-            Presentation = { EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng) },
+            BossArtworkBinding = { EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng) },
         };
         // Each typed list must queue exactly the ROM-checked records from its native list start to its terminator.
         foreach ((ushort start, CeresEscapeTransferCursor cursor) in new[]
@@ -126,7 +126,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         for (int word = 0; word < written.Length; word++)
             AssertEqual(written[word], japaneseOverlay.Overlay.Words[word] != RoomTilemapOverlay.Unwritten,
                 $"Ceres Japanese overlay writes BG1 word {word} only inside its compiled records");
-        system.Presentation.EscapeTimerArtwork = null;
+        system.BossArtworkBinding.EscapeTimerArtwork = null;
         try
         {
             system.CeresRidleyBehavior.Getaway.QueueNextCeresEscapeTransfer(new RidleyEnemyState

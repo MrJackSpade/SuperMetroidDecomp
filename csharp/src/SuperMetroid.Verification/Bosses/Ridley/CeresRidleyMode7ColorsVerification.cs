@@ -65,15 +65,15 @@ internal static class CeresRidleyMode7ColorsVerification
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
         runtime.Artwork.MapPresentation = edited;
         AssertTrue(ReferenceEquals(edited.CeresRidleyMode7Colors,
-            runtime.EnemySession.CeresRidleyMode7Colors),
+            runtime.BossArtwork.CeresRidleyMode7Colors),
             "installed runtime binds Ceres Mode-7 colors to enemy owner");
         runtime.Artwork.MapPresentation = original;
         AssertTrue(ReferenceEquals(original.CeresRidleyMode7Colors,
-            runtime.EnemySession.CeresRidleyMode7Colors),
+            runtime.BossArtwork.CeresRidleyMode7Colors),
             "runtime rebind drops old Ceres Mode-7 colors");
 
         var guard = NewCeresRidleyMode7ColorReadGuard(rom, forbidden);
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { Presentation = { CeresRidleyMode7Colors = edited.CeresRidleyMode7Colors } };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { CeresRidleyMode7Colors = edited.CeresRidleyMode7Colors } };
         var cgram = new SnesCgram();
         enemies.Presentation.BindCgram(cgram);
         Action<ushort> select = enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyMode7Palette;

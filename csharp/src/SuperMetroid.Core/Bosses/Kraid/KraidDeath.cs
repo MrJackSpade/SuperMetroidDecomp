@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Bosses.MotherBrain;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
@@ -32,10 +33,14 @@ internal sealed class KraidDeath
     private readonly KraidBackground _background;
     /// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health palettes.</summary>
     private readonly KraidHead _head;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal KraidDeath(KraidDeathDependencies dependencies)
     {
+        _bossArtwork = dependencies.BossArtwork;
         _frameResults = dependencies.FrameResults;
         _room = dependencies.Room;
         _earthquake = dependencies.Earthquake;
@@ -342,7 +347,7 @@ internal sealed class KraidDeath
         // executing that one frame's transfer directly preserves the identical bytes and
         // keeps their per-frame sequencing observable without fabricating a host queue.
         // The restored characters are background artwork bound at the NMI (#1352).
-        HudTileAtlas hud = _presentation.HudTileArtwork ?? throw new InvalidDataException(
+        HudTileAtlas hud = _bossArtwork.HudTileArtwork ?? throw new InvalidDataException(
             "Installed Kraid death restoration has no standard BG3 artwork.");
         if (vramWriteQueue is not null)
             vramWriteQueue.EnqueueBackgroundAsset(

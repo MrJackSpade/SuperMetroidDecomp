@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Areas.Ceres;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
@@ -27,10 +28,14 @@ internal sealed class CeresRidleyBabyScene
     private readonly EnemyPresentation _presentation;
     /// <summary>Owns the shared Ridley encounter and its battle state.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CeresRidleyBabyScene(EnemyRoomBinding room, RoomEarthquake earthquake, EnemyAudioQueue audio, EnemySlotTable slotTable, EnemyPresentation presentation, RidleyEncounter ridleyEncounter)
+    internal CeresRidleyBabyScene(EnemyRoomBinding room, RoomEarthquake earthquake, EnemyAudioQueue audio, EnemySlotTable slotTable, EnemyPresentation presentation, RidleyEncounter ridleyEncounter, BossArtworkBinding bossArtwork)
     {
+        _bossArtwork = bossArtwork;
         _room = room;
         _earthquake = earthquake;
         _audio = audio;
@@ -266,7 +271,7 @@ internal sealed class CeresRidleyBabyScene
                 _audio.QueueEnemySound(SoundEffectLibrary3Sounds.CeresBabyCry, maximumQueued: 6);
                 return null;
             case CeresBabyCue.UpdateColors updateColors:
-                if (_presentation.CeresRidleyColors is { } babyColors)
+                if (_bossArtwork.CeresRidleyColors is { } babyColors)
                     babyColors.ApplyBaby(_presentation.Cgram, updateColors.PaletteRow);
                 else throw new InvalidOperationException(
                     "Ceres Ridley requires installed Baby Metroid colors.");

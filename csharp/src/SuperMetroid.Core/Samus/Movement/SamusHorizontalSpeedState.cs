@@ -282,7 +282,7 @@ public sealed class SamusHorizontalSpeedState
     /// standalone callers can omit it when no cartridge audio queue is attached.
     /// </param>
     public bool TryAdvanceSpeedBoosterAnimationStage(
-        SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? mode7Residue,
+        SuperMetroid.Core.Hardware.Mode7TransferQueueResidue? mode7Residue,
         SamusMovementType movementType,
         SnesButton controllerInput,
         int animationFrameBuffer,
@@ -342,7 +342,7 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>Reads one byte from the delay list selected by the counter's stage byte.</summary>
-    public byte ReadSpeedBoosterAnimationByte(SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? mode7Residue, int byteIndex)
+    public byte ReadSpeedBoosterAnimationByte(SuperMetroid.Core.Hardware.Mode7TransferQueueResidue? mode7Residue, int byteIndex)
     {
         byte stage = checked((byte)SpeedBoostCounter.Stage);
         ushort delayList = SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer(stage);

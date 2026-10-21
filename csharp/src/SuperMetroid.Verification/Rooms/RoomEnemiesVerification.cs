@@ -898,7 +898,7 @@ internal static void VerifyCeresRidleyRoomEntry()
                 [definitionPointer] = EnemyPaletteSheet.Load(new MemoryStream(
                     EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = fixturePalette }))),
             }, Spritemaps = EnemySpritemapCatalog.Load(fixtureSpriteJson) }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = CreateCeresDoorFixtureVisuals(bus), CeresEscapeTiles = InstalledFixtures.AreaArtwork.CeresEscapeTiles, CeresEscapeOverlayTilemaps = InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps },
-        Presentation =
+        BossArtworkBinding =
         {
             CeresRidleyColors = CeresRidleyColorCatalog.Load(new MemoryStream(
                 SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyColorExtractor.Extract(bus))),
@@ -908,7 +908,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     };
     using (var escapeText = new MemoryStream(
         SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterExtractor.Extract(bus), writable: false))
-        enemies.Room.Session.EscapeTypewriterPresentation = EscapeTypewriterPresentation.Load(escapeText);
+        enemies.BossArtworkBinding.EscapeTypewriterPresentation = EscapeTypewriterPresentation.Load(escapeText);
     ClearCeresEscapeTypewriterSource(bus);
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram));
 
@@ -938,7 +938,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     overlayDoor.SetSpeciesState(overlayDoorState, overlayDoorState.ClearWithRecord);
     overlayDoor.Position = overlayDoor.Position.WithWhole(new(100, 80));
     enemies.RidleyEncounter.CeresStatus = CeresEscapeStatus.RidleyEscaped; // Skip the unrelated private Baby list in this draw fixture.
-    enemies.Room.Session.Mode7QueueResidue = new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue();
+    enemies.Room.Session.Mode7QueueResidue = new SuperMetroid.Core.Hardware.Mode7TransferQueueResidue();
     short[] expectedDoorOffsets = [0, 0, -4, -1];
     for (ushort timer = 0; timer < expectedDoorOffsets.Length; timer++)
     {
@@ -1207,7 +1207,7 @@ internal static void VerifyCeresRidleyRoomEntry()
             new byte[EscapeTimerTileAtlasFormat.Width * EscapeTimerTileAtlasFormat.Height],
             SnesGraphics.DiagnosticPalette(EscapeTimerTileAtlasFormat.ColorCount));
         timerPng.Position = 0;
-        enemies.Presentation.EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng);
+        enemies.BossArtworkBinding.EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng);
     }
     AssertTrue(enemies.Audio.SoundRequests.Contains(
             new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x4e), MaximumQueued: 6)),

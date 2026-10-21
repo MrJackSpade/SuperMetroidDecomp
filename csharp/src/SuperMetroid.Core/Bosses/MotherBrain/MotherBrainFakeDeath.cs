@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
@@ -32,10 +33,14 @@ internal sealed class MotherBrainFakeDeath
     private readonly MotherBrainExtensionWords[] _extensions;
     /// <summary>Mother Brain's state lookups, body and brain program setters, timers and PLM requests.</summary>
     private readonly MotherBrainEncounterAccess _access;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal MotherBrainFakeDeath(MotherBrainFakeDeathDependencies dependencies)
     {
+        _bossArtwork = dependencies.BossArtwork;
         _frameResults = dependencies.FrameResults;
         _dispatch = dependencies.Dispatch;
         _room = dependencies.Room;
@@ -78,7 +83,7 @@ internal sealed class MotherBrainFakeDeath
                 // Fake-death fade replaces colors 145..147 only. Copying a convenient
                 // whole palette would visibly alter unrelated room art and is not what
                 // `$AD:ED5A` does.
-                if (_presentation.MotherBrainRainbowColors is { } colors)
+                if (_bossArtwork.MotherBrainRainbowColors is { } colors)
                     colors.ApplyFakeDeathToGrey(_presentation.Cgram, step);
                 else throw new InvalidOperationException(
                     "Mother Brain fake-death fade requires installed colors.");
@@ -96,7 +101,7 @@ internal sealed class MotherBrainFakeDeath
     {
         state.RoomFlashFrame = null;
         state.RoomFlashTimer = 0;
-        (_presentation.MotherBrainRoomColors ?? throw new InvalidOperationException(
+        (_bossArtwork.MotherBrainRoomColors ?? throw new InvalidOperationException(
             "Mother Brain room finale requires installed colors."))
             .ApplyFinal(_presentation.Cgram);
     }
@@ -558,7 +563,7 @@ internal sealed class MotherBrainFakeDeath
         if (paletteStep < MotherBrainFakeDeathPaletteRomData.FrameCount)
         {
             // Fake-death restoration changes only brain sprite colors one through three.
-            if (_presentation.MotherBrainRainbowColors is { } colors)
+            if (_bossArtwork.MotherBrainRainbowColors is { } colors)
                 colors.ApplyFakeDeathFromGrey(_presentation.Cgram, paletteStep);
             else throw new InvalidOperationException(
                 "Mother Brain revival requires installed colors.");

@@ -1,11 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
-using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -15,13 +11,6 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 internal sealed class EnemyPresentation
 {
-    /// <summary>Current host-owned escape-warning text, rebound after debugger restoration.</summary>
-    internal EscapeTypewriterPresentation? EscapeTypewriterPresentation
-    {
-        get => _room.Session.EscapeTypewriterPresentation;
-        set => _room.Session.EscapeTypewriterPresentation = value;
-    }
-
     /// <summary>Room artwork binding used to resolve enemy display compositions.</summary>
     private readonly EnemyRoomBinding _room;
 
@@ -31,26 +20,6 @@ internal sealed class EnemyPresentation
         _room = room;
     }
 
-    /// <summary>Host-owned authored damage colors, rebound after debugger-state restoration.</summary>
-    public MotherBrainHealthPalettePresentation? MotherBrainHealthColors
-    {
-        get => _room.Session.MotherBrainHealthColors;
-        set => _room.Session.MotherBrainHealthColors = value;
-    }
-
-    /// <summary>Host-owned rainbow, drain and revival colors, rebound after debugger-state restoration.</summary>
-    public MotherBrainRainbowPalettePresentation? MotherBrainRainbowColors
-    {
-        get => _room.Session.MotherBrainRainbowColors;
-        set => _room.Session.MotherBrainRainbowColors = value;
-    }
-
-    /// <summary>Host-owned fake-death room flash and phase-two setup colors.</summary>
-    public MotherBrainRoomColorPresentation? MotherBrainRoomColors
-    {
-        get => _room.Session.MotherBrainRoomColors;
-        set => _room.Session.MotherBrainRoomColors = value;
-    }
     /// <summary>The bound CGRAM's enemy and boss ranges.</summary>
     internal EnemyPalettes BossPalettes => new(Cgram);
 
@@ -110,34 +79,6 @@ internal sealed class EnemyPresentation
     /// fades advance this one counter, as the cartridge's fades all advance one WRAM word.
     /// </summary>
     public GradualColorChangeCounter GradualColorChange => _room.Session.GradualColorChange;
-
-    /// <summary>Current host-owned timer artwork; rebound after debugger-state restoration.</summary>
-    public EscapeTimerTileAtlas? EscapeTimerArtwork
-    {
-        get => _room.Session.EscapeTimerArtwork;
-        set => _room.Session.EscapeTimerArtwork = value;
-    }
-
-    /// <summary>Host-bound Ceres Ridley fade and retreat colors; rebound after state restore.</summary>
-    public CeresRidleyColorCatalog? CeresRidleyColors
-    {
-        get => _room.Session.CeresRidleyColors;
-        set => _room.Session.CeresRidleyColors = value;
-    }
-
-    /// <summary>Host-bound Ceres Mode-7 zoom colors; rebound after state restore.</summary>
-    public CeresRidleyMode7ColorCatalog? CeresRidleyMode7Colors
-    {
-        get => _room.Session.CeresRidleyMode7Colors;
-        set => _room.Session.CeresRidleyMode7Colors = value;
-    }
-
-    /// <summary>Installed standard BG3 characters shared with Kraid's death restoration.</summary>
-    public HudTileAtlas? HudTileArtwork
-    {
-        get => _room.Session.HudTileArtwork;
-        set => _room.Session.HudTileArtwork = value;
-    }
 
     /// <summary>Publishes an installed enemy composition over the OBJ page, or accepts the compiled common empty frame.</summary>
     /// <remarks>A nonempty frame without installed display art is an asset error rather than a cartridge fallback.</remarks>

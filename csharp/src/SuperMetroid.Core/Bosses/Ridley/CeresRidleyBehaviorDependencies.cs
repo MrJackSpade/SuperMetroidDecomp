@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
@@ -44,4 +45,7 @@ internal sealed record CeresRidleyBehaviorDependencies
 
     /// <summary>The session's installed area artwork.</summary>
     public required AreaArtworkBinding AreaArtwork { get; init; }
+
+    /// <summary>The session's installed boss artwork.</summary>
+    public required BossArtworkBinding BossArtwork { get; init; }
 }

@@ -21,7 +21,7 @@ internal static class BabyMetroidDeathCryVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem(new EnemySession());
         var installation = RepositoryInstallation.Installation;
-        enemies.Presentation.MotherBrainRoomColors = InstalledFixtures.Maps.MotherBrainRoomColors;
+        enemies.BossArtworkBinding.MotherBrainRoomColors = InstalledFixtures.Maps.MotherBrainRoomColors;
         var cgram = new SnesCgram();
         for (int index = 0; index < 256; index++) cgram.SetColor(index, Bgr555.FromWord((ushort)(index + 1)));
         enemies.Presentation.BindCgram(cgram);

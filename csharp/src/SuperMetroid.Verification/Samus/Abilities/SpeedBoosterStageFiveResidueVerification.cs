@@ -33,7 +33,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
         ushort stageFive = SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer(
             SamusRunningCadenceDefinitions.MaximumSoundQueueSelection);
         int stageFiveQueueOffset = stageFive - SnesAddressMath.OffsetInBank(Mode7TransferQueueLayout.QueueStart);
-        var residue = new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue();
+        var residue = new SuperMetroid.Core.Hardware.Mode7TransferQueueResidue();
         for (int index = 0; index < CadenceBytes; index++)
         {
             AssertEqual((byte)0, SamusRunningCadenceDefinitions.ReadAnimationByte(residue, stageFive, (ushort)index),
@@ -47,7 +47,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
                 Mode7Map = new Mode7Map(new byte[Mode7Map.Cells], default),
             })
         {
-            Presentation = { CeresRidleyMode7Colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(bus))) },
+            BossArtworkBinding = { CeresRidleyMode7Colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(bus))) },
         };
         enemies.Presentation.BindVram(BgArtworkFixtures.For(new SnesVram()));
         enemies.Presentation.BindCgram(new SnesCgram());
@@ -100,7 +100,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
     }
 
     /// <summary>Requires the stage-five cadence bytes to equal the native queue residue.</summary>
-    private static void AssertStageFive(SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue residue, ushort stageFive, int queueOffset, byte[] expected, string context)
+    private static void AssertStageFive(SuperMetroid.Core.Hardware.Mode7TransferQueueResidue residue, ushort stageFive, int queueOffset, byte[] expected, string context)
     {
         for (int index = 0; index < CadenceBytes; index++)
         {

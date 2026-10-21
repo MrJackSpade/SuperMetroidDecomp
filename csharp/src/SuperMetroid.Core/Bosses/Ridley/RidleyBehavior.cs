@@ -54,7 +54,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         _room = dependencies.Room;
         _ridleyEncounter = dependencies.RidleyEncounter;
         Animation = new RidleyBodyAnimation(dependencies.Audio, _ridleyEncounter, dependencies.RidleyProjectiles);
-        Interactions = new RidleyInteractions(dependencies.Presentation);
+        Interactions = new RidleyInteractions(dependencies.Presentation, _bossArtwork);
         Combat = new NorfairRidleyCombat(new NorfairRidleyCombatDependencies { Room = _room, Earthquake = dependencies.Earthquake, Audio = dependencies.Audio, Presentation = dependencies.Presentation, RidleyEncounter = _ridleyEncounter, RidleyTail = _ridleyTail, RidleyProjectiles = dependencies.RidleyProjectiles, RoomFx = dependencies.RoomFx , BossArtwork = _bossArtwork });
         Movement = new NorfairRidleyMovement();
         Death = new NorfairRidleyDeath(dependencies.Dispatch, _room, dependencies.DeathsAndDrops, _ridleyEncounter, dependencies.RidleyProjectiles, dependencies.RoomFx);

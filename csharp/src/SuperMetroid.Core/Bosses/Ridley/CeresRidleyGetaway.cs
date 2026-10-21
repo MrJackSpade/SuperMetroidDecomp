@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Areas;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
@@ -30,11 +31,15 @@ internal sealed class CeresRidleyGetaway
     private readonly EnemyRoomStatus _roomStatus;
     /// <summary>The session's installed area artwork.</summary>
     private readonly AreaArtworkBinding _areaArtwork;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal CeresRidleyGetaway(CeresRidleyGetawayDependencies dependencies)
     {
+        _bossArtwork = dependencies.BossArtwork;
         _frameResults = dependencies.FrameResults;
         _room = dependencies.Room;
         _audio = dependencies.Audio;
@@ -192,7 +197,7 @@ internal sealed class CeresRidleyGetaway
         // SetCeresRidleyPaletteAccordingToZoomLevel uses this wrapped bank-$A6 expression.
         // There are fifteen colors; palette entry zero remains the shared transparent color.
         int zoomHighByte = SnesLittleEndian.HighByte(zoom);
-        if (_presentation.CeresRidleyMode7Colors is { } installed &&
+        if (_bossArtwork.CeresRidleyMode7Colors is { } installed &&
             zoomHighByte < CeresRidleyPaletteRomData.Mode7ZoomRowCount)
         {
             installed.Apply(_presentation.Cgram, zoomHighByte);
@@ -273,7 +278,7 @@ internal sealed class CeresRidleyGetaway
                 if (!delay.IsZero)
                     return;
 
-                state.CeresEscapeTypewriter = _presentation.EscapeTypewriterPresentation is { } presentation
+                state.CeresEscapeTypewriter = _bossArtwork.EscapeTypewriterPresentation is { } presentation
                     ? new(presentation.Get(EscapeTypewriterProgramId.Ceres), EscapeTypewriterDefinitions.CeresTileBase)
                     : null;
 
@@ -375,7 +380,7 @@ internal sealed class CeresRidleyGetaway
             throw new InvalidOperationException(
                 "Ceres escape graphics require the runtime's native VRAM write queue.");
         }
-        if (_room.Artwork is not null && _presentation.EscapeTimerArtwork is null &&
+        if (_room.Artwork is not null && _bossArtwork.EscapeTimerArtwork is null &&
             EscapeTimerTilePages.IsSource(sourceAddress))
             throw new InvalidDataException(
                 "Installed Ceres escape timer has no editable sprite tile artwork.");
@@ -385,7 +390,7 @@ internal sealed class CeresRidleyGetaway
             throw new InvalidDataException(
                 $"Installed Ceres escape has no editable character page for ${sourceAddress:X6}.");
 
-        if (_presentation.EscapeTimerArtwork?.TryQueueNativeTransfer(
+        if (_bossArtwork.EscapeTimerArtwork?.TryQueueNativeTransfer(
             vramWriteQueue, sourceAddress, byteCount, destination) != true)
         {
             // Character pages upload as named installed artwork; the overlay tilemaps are background words.
@@ -439,7 +444,7 @@ internal sealed class CeresRidleyGetaway
             return;
 
         state.CeresEscapePaletteFrame = (state.CeresEscapePaletteFrame + 1) % 16;
-        if (_presentation.CeresRidleyColors is { } colors)
+        if (_bossArtwork.CeresRidleyColors is { } colors)
             colors.ApplyAlarm(_presentation.Cgram, state.CeresEscapePaletteFrame);
         else throw new InvalidOperationException(
             "Ceres alarm requires installed Ridley color rows.");

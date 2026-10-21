@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Bosses.Ridley;
+
+namespace SuperMetroid.Core.Hardware;
 
 /// <summary>
 /// The bytes of the native Mode 7 transfer queue (cartridge WRAM <c>$02D0-$032F</c>), owned for the session. Ceres

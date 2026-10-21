@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -22,10 +23,14 @@ internal sealed class MotherBrainAscent
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Holds the shared body/head state for the current Mother Brain room.</summary>
     private readonly MotherBrainEncounter _motherBrainEncounter;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal MotherBrainAscent(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyPresentation presentation, EnemyFrameContext frameContext, MotherBrainEncounter motherBrainEncounter)
+    internal MotherBrainAscent(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyPresentation presentation, EnemyFrameContext frameContext, MotherBrainEncounter motherBrainEncounter, BossArtworkBinding bossArtwork)
     {
+        _bossArtwork = bossArtwork;
         _room = room;
         _projectiles = projectiles;
         _earthquake = earthquake;
@@ -39,7 +44,7 @@ internal sealed class MotherBrainAscent
     {
         // `$A9:8D11` installs colors 1..15 of the attack and back-leg palettes. Color zero
         // belongs to the room backdrop and must remain untouched.
-        (_presentation.MotherBrainRoomColors ?? throw new InvalidOperationException(
+        (_bossArtwork.MotherBrainRoomColors ?? throw new InvalidOperationException(
             "Mother Brain phase two requires installed room colors."))
             .ApplyPhaseTwoInitial(_presentation.Cgram);
         state.EnableUnpauseHook = true;

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.Ridley;
+namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Native layout of the Mode 7 transfer queue that <c>QueueMode7Transfers</c> ($80:8B4F) fills.</summary>
 internal static class Mode7TransferQueueLayout

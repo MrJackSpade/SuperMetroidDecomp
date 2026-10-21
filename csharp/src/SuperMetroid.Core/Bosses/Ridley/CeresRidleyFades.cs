@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
@@ -9,10 +10,14 @@ internal sealed class CeresRidleyFades
 {
     /// <summary>Writes Ceres target colors and supplemental composite drawing.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CeresRidleyFades(EnemyPresentation presentation)
+    internal CeresRidleyFades(EnemyPresentation presentation, BossArtworkBinding bossArtwork)
     {
+        _bossArtwork = bossArtwork;
         _presentation = presentation;
     }
 
@@ -36,7 +41,7 @@ internal sealed class CeresRidleyFades
             return;
         }
 
-        (_presentation.CeresRidleyColors ?? throw new InvalidOperationException(
+        (_bossArtwork.CeresRidleyColors ?? throw new InvalidOperationException(
             "Ceres Ridley eye fade requires installed colors."))
             .ApplyEyeFade(_presentation.Cgram, fadeStep.PaletteRow);
         state.FadePaletteOffset++;
@@ -52,7 +57,7 @@ internal sealed class CeresRidleyFades
 
         // The cartridge steps a colour offset one row of colours at a time; the row it reaches is the fade's progress.
         int row = state.FadePaletteOffset;
-        if (_presentation.CeresRidleyColors is { } bodyColors &&
+        if (_bossArtwork.CeresRidleyColors is { } bodyColors &&
             row < CeresRidleyPaletteRomData.BodyFadeRowCount)
             bodyColors.ApplyBodyFade(_presentation.Cgram, row);
         else throw new InvalidOperationException(

@@ -49,7 +49,7 @@ internal static class CeresEscapeTileArtworkVerification
         {
             TileArtwork = stock.Enemies,
             AreaArtwork = stock.Areas,
-            Presentation = { EscapeTimerArtwork = timer },
+            BossArtworkBinding = { EscapeTimerArtwork = timer },
         };
         var installedQueue = new VramWriteQueue();
         foreach (CeresEscapeTransferCursor start in new[]
@@ -125,7 +125,7 @@ internal static class CeresEscapeTileArtworkVerification
         {
             TileArtwork = edited.Enemies,
             AreaArtwork = edited.Areas,
-            Presentation = { EscapeTimerArtwork = timer },
+            BossArtworkBinding = { EscapeTimerArtwork = timer },
         };
         // The cursor starts at the first warning-text record, part-way through the timer-sprite list.
         var editedState = new RidleyEnemyState
@@ -162,7 +162,7 @@ internal static class CeresEscapeTileArtworkVerification
         var missing = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }),
-            Presentation = { EscapeTimerArtwork = timer },
+            BossArtworkBinding = { EscapeTimerArtwork = timer },
         };
         try
         {

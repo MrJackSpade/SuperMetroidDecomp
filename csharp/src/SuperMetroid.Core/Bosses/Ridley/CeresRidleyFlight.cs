@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Areas.Ceres;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
@@ -26,17 +27,21 @@ internal sealed class CeresRidleyFlight
     private readonly EnemyPresentation _presentation;
     /// <summary>Owns the shared Ridley encounter and its battle state.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CeresRidleyFlight(IEnemyDispatch dispatch, EnemyRoomBinding room, RoomEarthquake earthquake, EnemyAudioQueue audio, EnemySlotTable slotTable, EnemyPresentation presentation, RidleyEncounter ridleyEncounter)
+    internal CeresRidleyFlight(CeresRidleyFlightDependencies dependencies)
     {
-        _dispatch = dispatch;
-        _room = room;
-        _earthquake = earthquake;
-        _audio = audio;
-        _slotTable = slotTable;
-        _presentation = presentation;
-        _ridleyEncounter = ridleyEncounter;
+        _dispatch = dependencies.Dispatch;
+        _room = dependencies.Room;
+        _earthquake = dependencies.Earthquake;
+        _audio = dependencies.Audio;
+        _slotTable = dependencies.SlotTable;
+        _presentation = dependencies.Presentation;
+        _ridleyEncounter = dependencies.RidleyEncounter;
+        _bossArtwork = dependencies.BossArtwork;
     }
 
     /// <summary>
@@ -106,7 +111,7 @@ internal sealed class CeresRidleyFlight
         // WriteColorsToTargetPalette($140, $A6:E16F, $20) installs the Ceres door and Baby
         // Metroid container palettes. This runtime exposes the final target directly in
         // CGRAM, matching the established Ceres-door palette seam.
-        (_presentation.CeresRidleyColors ?? throw new InvalidOperationException(
+        (_bossArtwork.CeresRidleyColors ?? throw new InvalidOperationException(
             "Ceres Ridley requires installed start colors.")).ApplyStart(_presentation.Cgram);
 
         // The native loop clears target-palette byte offsets $1E2..$1FE: OBJ palette seven,
@@ -394,7 +399,7 @@ internal sealed class CeresRidleyFlight
 
         // $A6:A9E3 replaces colors 1..15 of BG palette five. $A6:AA01 is
         // copied to colors 1..8 of BG palette two and OBJ palette seven.
-        (_presentation.CeresRidleyColors ?? throw new InvalidOperationException(
+        (_bossArtwork.CeresRidleyColors ?? throw new InvalidOperationException(
             "Ceres Ridley retreat requires installed colors.")).ApplyRetreat(_presentation.Cgram);
     }
 

@@ -200,7 +200,7 @@ internal static class EnemyTileArtworkKraidVerification
         runtime.EnemySession.TileArtwork = enemyArtwork.Enemies;
         runtime.BossArtwork.Artwork = enemyArtwork.Bosses;
         runtime.AreaArtwork.Artwork = enemyArtwork.Areas;
-        AssertTrue(ReferenceEquals(stock.HudTiles, runtime.EnemySession.HudTileArtwork),
+        AssertTrue(ReferenceEquals(stock.HudTiles, runtime.BossArtwork.HudTileArtwork),
             "runtime presentation binding supplies shared HUD art to Kraid");
         for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3TransferCount;
              quarter++)
@@ -267,7 +267,7 @@ internal static class EnemyTileArtworkKraidVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = enemyArtwork.Enemies, BossArtwork = enemyArtwork.Bosses, AreaArtwork = enemyArtwork.Areas,
-            Presentation = { HudTileArtwork = hud },
+            BossArtworkBinding = { HudTileArtwork = hud },
         };
         var vram = new SnesVram();
         enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));

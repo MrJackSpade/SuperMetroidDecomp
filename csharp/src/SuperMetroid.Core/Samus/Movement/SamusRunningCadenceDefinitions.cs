@@ -60,7 +60,7 @@ internal static class SamusRunningCadenceDefinitions
 
     /// <summary>Reads a cadence byte from a typed list pointer plus its native wrapped index.</summary>
     internal static byte ReadAnimationByte(
-        SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? mode7Residue,
+        SuperMetroid.Core.Hardware.Mode7TransferQueueResidue? mode7Residue,
         ushort listPointer,
         int byteIndex)
     {

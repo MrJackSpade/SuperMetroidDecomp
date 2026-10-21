@@ -111,7 +111,7 @@ internal sealed class MotherBrainEncounter
             _presentation.ObjCharacters.RecordUpload(destination, transfer.Size, new MotherBrainCorpseCharacters(page));
             return;
         }
-        if (_presentation.EscapeTimerArtwork?.TryRecordNativeTransfer(
+        if (_bossArtwork.EscapeTimerArtwork?.TryRecordNativeTransfer(
             _presentation.ObjCharacters, unchecked((int)transfer.SourceAddress), checked((ushort)transfer.Size), checked((ushort)transfer.VramDestination)) == true)
             return;
         if (SnesAddressMath.BankNumber(unchecked((int)transfer.SourceAddress)) is not (126 or 127)) // Banks $7E/$7F: WRAM.

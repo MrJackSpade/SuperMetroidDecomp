@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
 
@@ -10,10 +11,14 @@ internal sealed class RidleyInteractions
 {
     /// <summary>Publishes Ridley's health and transition palettes.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal RidleyInteractions(EnemyPresentation presentation)
+    internal RidleyInteractions(EnemyPresentation presentation, BossArtworkBinding bossArtwork)
     {
+        _bossArtwork = bossArtwork;
         _presentation = presentation;
     }
 
@@ -38,7 +43,7 @@ internal sealed class RidleyInteractions
         // Norfair's health thresholds here, but use the installed palette so
         // editing that one asset updates both encounters consistently.
         int row = state.HealthStage - 1;
-        (_presentation.CeresRidleyColors ?? throw new InvalidOperationException(
+        (_bossArtwork.CeresRidleyColors ?? throw new InvalidOperationException(
             "Ridley damage requires installed health colors."))
             .ApplyHealth(_presentation.Cgram, row);
     }

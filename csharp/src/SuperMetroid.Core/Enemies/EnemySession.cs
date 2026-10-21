@@ -1,12 +1,6 @@
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Bosses.Ridley;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Hud.Artwork;
-using SuperMetroid.Core.Gameplay;
-using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -72,49 +66,4 @@ public sealed class EnemySession
     [field: NonSerialized]
     internal EnemyTileArtworkCatalog? TileArtwork { get; set; }
 
-    /// <summary>Current host-owned escape-warning text, rebound after debugger restoration.</summary>
-    [field: NonSerialized]
-    internal EscapeTypewriterPresentation? EscapeTypewriterPresentation { get; set; }
-
-    /// <summary>Host-owned authored damage colors, rebound after debugger-state restoration.</summary>
-    [field: NonSerialized]
-    internal MotherBrainHealthPalettePresentation? MotherBrainHealthColors { get; set; }
-
-    /// <summary>Host-owned rainbow, drain and revival colors, rebound after debugger-state restoration.</summary>
-    [field: NonSerialized]
-    internal MotherBrainRainbowPalettePresentation? MotherBrainRainbowColors { get; set; }
-
-    /// <summary>Host-owned fake-death room flash and phase-two setup colors.</summary>
-    [field: NonSerialized]
-    internal MotherBrainRoomColorPresentation? MotherBrainRoomColors { get; set; }
-
-    /// <summary>Current host-owned timer artwork; rebound after debugger-state restoration.</summary>
-    [field: NonSerialized]
-    internal EscapeTimerTileAtlas? EscapeTimerArtwork { get; set; }
-
-    /// <summary>Host-bound Ceres Ridley fade and retreat colors; rebound after state restore.</summary>
-    [field: NonSerialized]
-    internal CeresRidleyColorCatalog? CeresRidleyColors { get; set; }
-
-    /// <summary>Host-bound Ceres Mode-7 zoom colors; rebound after state restore.</summary>
-    [field: NonSerialized]
-    internal CeresRidleyMode7ColorCatalog? CeresRidleyMode7Colors { get; set; }
-
-    /// <summary>Binds every enemy-owned color, HUD and escape asset from one host map catalog.</summary>
-    /// <param name="maps">The host's installed map presentation, or null when none is installed.</param>
-    public void BindMapPresentation(IGameplayPresentationContent? maps)
-    {
-        MotherBrainHealthColors = maps?.MotherBrainHealthPalette;
-        MotherBrainRainbowColors = maps?.MotherBrainRainbowPalette;
-        MotherBrainRoomColors = maps?.MotherBrainRoomColors;
-        CeresRidleyColors = maps?.CeresRidleyColors;
-        CeresRidleyMode7Colors = maps?.CeresRidleyMode7Colors;
-        EscapeTimerArtwork = maps?.EscapeTimerTiles;
-        EscapeTypewriterPresentation = maps?.EscapeTypewriter;
-        HudTileArtwork = maps?.HudTiles;
-    }
-
-    /// <summary>Installed standard BG3 characters shared with Kraid's death restoration.</summary>
-    [field: NonSerialized]
-    internal HudTileAtlas? HudTileArtwork { get; set; }
 }

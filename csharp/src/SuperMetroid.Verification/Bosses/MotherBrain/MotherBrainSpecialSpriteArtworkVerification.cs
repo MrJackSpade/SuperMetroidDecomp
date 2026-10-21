@@ -218,7 +218,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas,
-            Presentation = { EscapeTimerArtwork = timer },
+            BossArtworkBinding = { EscapeTimerArtwork = timer },
         };
         SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.ObjCharacters, new EnemyTileTransfers(stock, timer: timer));
 
@@ -240,7 +240,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
                 "installed Mother Brain timer page matches cartridge without visual ROM reads");
         }
 
-        enemies.Presentation.EscapeTimerArtwork = null;
+        enemies.BossArtworkBinding.EscapeTimerArtwork = null;
         AssertMotherBrainInstalledTransferRejected(enemies, timerRequests[0],
             "missing installed timer art does not fall back to ROM");
         AssertMotherBrainInstalledTransferRejected(enemies,

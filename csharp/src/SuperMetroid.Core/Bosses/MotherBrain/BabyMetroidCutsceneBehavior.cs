@@ -268,7 +268,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             throw new InvalidDataException(
                 $"Mother Brain recovery-light request {request.PaletteIndex} has a non-native transfer layout.");
 
-        (_presentation.MotherBrainRoomColors ?? throw new InvalidOperationException(
+        (_bossArtwork.MotherBrainRoomColors ?? throw new InvalidOperationException(
             "Mother Brain recovery requires installed room colors."))
             .ApplyRecoveryLights(_presentation.Cgram, request.PaletteIndex);
     }

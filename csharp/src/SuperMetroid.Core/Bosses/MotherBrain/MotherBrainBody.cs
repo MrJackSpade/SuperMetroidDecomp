@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Input;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
@@ -38,10 +39,14 @@ internal sealed class MotherBrainBody
     private readonly MotherBrainProjectiles _projectileAttacks;
     /// <summary>Mother Brain's state lookups, body and brain program setters, timers and PLM requests.</summary>
     private readonly MotherBrainEncounterAccess _access;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal MotherBrainBody(MotherBrainBodyDependencies dependencies)
     {
+        _bossArtwork = dependencies.BossArtwork;
         _frameResults = dependencies.FrameResults;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
@@ -136,7 +141,7 @@ internal sealed class MotherBrainBody
     /// <summary>Applies the installed room-entry palette for glass and tube artwork.</summary>
     internal void LoadMotherBrainRoomEntryColors()
     {
-        (_presentation.MotherBrainRoomColors ?? throw new InvalidOperationException(
+        (_bossArtwork.MotherBrainRoomColors ?? throw new InvalidOperationException(
             "Mother Brain room requires installed color artwork."))
             .ApplyRoomEntry(_presentation.Cgram);
     }

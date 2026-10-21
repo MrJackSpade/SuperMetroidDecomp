@@ -159,7 +159,14 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
             _roomFx.Layer3Tilemaps = value?.RoomFxLayer3Tilemaps;
             _roomFx.PaletteBlendColors = value?.RoomFxPaletteBlends;
             BindSamusPalettePresentation();
-            _enemySession.BindMapPresentation(value);
+            _bossArtwork.EscapeTimerArtwork = value?.EscapeTimerTiles;
+            _bossArtwork.EscapeTypewriterPresentation = value?.EscapeTypewriter;
+            _bossArtwork.HudTileArtwork = value?.HudTiles;
+            _bossArtwork.MotherBrainHealthColors = value?.MotherBrainHealthPalette;
+            _bossArtwork.MotherBrainRainbowColors = value?.MotherBrainRainbowPalette;
+            _bossArtwork.MotherBrainRoomColors = value?.MotherBrainRoomColors;
+            _bossArtwork.CeresRidleyColors = value?.CeresRidleyColors;
+            _bossArtwork.CeresRidleyMode7Colors = value?.CeresRidleyMode7Colors;
             _room.Scope?.Enemies.RebindEscapeTypewriters(value?.EscapeTypewriter);
             pendingHudTiles = value is not null && _hud.IsInitialized ? value.HudTiles : null;
             if (value is not null)

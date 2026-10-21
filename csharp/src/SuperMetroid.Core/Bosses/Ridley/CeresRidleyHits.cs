@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -20,10 +21,14 @@ internal sealed class CeresRidleyHits
     private readonly EnemyCollision _collision;
     /// <summary>Owns the shared Ridley encounter and its battle state.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CeresRidleyHits(EnemyRoomBinding room, EnemySlotTable slotTable, EnemyPresentation presentation, EnemyCollision collision, RidleyEncounter ridleyEncounter)
+    internal CeresRidleyHits(EnemyRoomBinding room, EnemySlotTable slotTable, EnemyPresentation presentation, EnemyCollision collision, RidleyEncounter ridleyEncounter, BossArtworkBinding bossArtwork)
     {
+        _bossArtwork = bossArtwork;
         _room = room;
         _slotTable = slotTable;
         _presentation = presentation;
@@ -146,7 +151,7 @@ internal sealed class CeresRidleyHits
         int paletteIndex = state.HitCounter < 70
             ? CeresRidleyPaletteRomData.HealthMidRow
             : CeresRidleyPaletteRomData.HealthLateRow;
-        (_presentation.CeresRidleyColors ?? throw new InvalidOperationException(
+        (_bossArtwork.CeresRidleyColors ?? throw new InvalidOperationException(
             "Ceres Ridley damage requires installed health colors."))
             .ApplyHealth(_presentation.Cgram, paletteIndex);
     }

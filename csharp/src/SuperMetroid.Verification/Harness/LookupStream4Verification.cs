@@ -664,7 +664,7 @@ internal static class LookupStream4Verification
             }
             if (edit is -1 or 0 or 143)
             {
-                var enemies = new RoomEnemySystem(new EnemySession()) { Presentation = { CeresRidleyColors = selected } };
+                var enemies = new RoomEnemySystem(new EnemySession()) { BossArtworkBinding = { CeresRidleyColors = selected } };
                 var cgram = new SnesCgram();
                 for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
                 enemies.Presentation.BindCgram(cgram);
@@ -1313,11 +1313,11 @@ internal static class LookupStream4Verification
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => CeresMode7TransferDefinitions.BabyFrameForPhase(invalid), "Baby transfer phase preserves bounded selection");
         var colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { Presentation = { CeresRidleyMode7Colors = colors } };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { CeresRidleyMode7Colors = colors } };
         var vram = new SnesVram();
         enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
         enemies.Presentation.BindCgram(new SnesCgram());
-        enemies.Room.Session.Mode7QueueResidue = new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue();
+        enemies.Room.Session.Mode7QueueResidue = new SuperMetroid.Core.Hardware.Mode7TransferQueueResidue();
         Action<RidleyEnemyState, SamusState?, int> tick = enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyMode7Getaway;
         var state = new RidleyEnemyState { Mode7TableIndex = 1 };
         byte[] untouched = new byte[SnesVram.ByteCount];
@@ -3335,7 +3335,7 @@ internal static class LookupStream4Verification
             if (variation == 1) bodyRows[15][9] = bodyRows[15][9] with { Green = bodyRows[15][9].Green ^ 1 };
             var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Baby = babyRows, BodyFade = bodyRows })));
             var cgram = new SnesCgram();
-            var enemies = new RoomEnemySystem(new EnemySession()) { Presentation = { CeresRidleyColors = selected } };
+            var enemies = new RoomEnemySystem(new EnemySession()) { BossArtworkBinding = { CeresRidleyColors = selected } };
             enemies.Presentation.BindCgram(cgram);
             Func<RidleyEnemyState, ushort> advance = baby => EnemyFrames.Spritemap(enemies.CeresRidleyBehavior.BabyScene.AdvanceCeresBabyDrawInstruction(baby));
             for (int phase = 0; phase < 12; phase++)
@@ -3425,7 +3425,7 @@ internal static class LookupStream4Verification
             if (edit >= 0) rows[edit / 15][edit % 15] = Change(rows[edit / 15][edit % 15], channel);
             var selected = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(CeresRidleyMode7ColorCatalog.Write(zoomDocument with { ZoomRows = rows })));
             var cgram = new SnesCgram();
-            var enemies = new RoomEnemySystem(new EnemySession()) { Presentation = { CeresRidleyMode7Colors = selected } };
+            var enemies = new RoomEnemySystem(new EnemySession()) { BossArtworkBinding = { CeresRidleyMode7Colors = selected } };
             enemies.Presentation.BindCgram(cgram);
             Action<ushort> apply = enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyMode7Palette;
             for (int row = 0; row < 9; row++)
@@ -3527,7 +3527,7 @@ internal static class LookupStream4Verification
             if (variation == 0) rows[1][5] = Change(rows[1][5], 2);
             if (variation == 1) body[15][9] = Change(body[15][9], 1);
             var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Health = rows, BodyFade = body })));
-            var enemies = new RoomEnemySystem(new EnemySession()) { Presentation = { CeresRidleyColors = selected } };
+            var enemies = new RoomEnemySystem(new EnemySession()) { BossArtworkBinding = { CeresRidleyColors = selected } };
             var cgram = new SnesCgram();
             enemies.Presentation.BindCgram(cgram);
             Action<RoomEnemySlot, RidleyEnemyState> norfair = enemies.RidleyBehavior.Interactions.UpdateNorfairRidleyHealthPalette;

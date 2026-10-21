@@ -25,7 +25,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
             SuperMetroid.Core.Assets.GameplayBasePaletteCatalog? initialPaletteArt = null,
             SuperMetroid.Core.Progression.CartridgeRandom? random = null) =>
             new(overrides, new SuperMetroid.Core.Frontend.GameArtwork { GameplayBasePalettes = initialPaletteArt },
-                new SuperMetroid.Core.Gameplay.FrameClock(), new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue(),
+                new SuperMetroid.Core.Gameplay.FrameClock(), new SuperMetroid.Core.Hardware.Mode7TransferQueueResidue(),
                 random ?? new SuperMetroid.Core.Progression.CartridgeRandom());
     }
 

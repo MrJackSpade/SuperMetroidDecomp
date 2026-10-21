@@ -43,8 +43,12 @@ internal static class KraidSuperMissileDamageVerification
         state.HeadProgram=RoarPastOpenPose;state.Parts[0].HeadTimer=64;
         state.DisplayedHeadFrame = FullyOpenRoarFrame();
         var words=new ushort[32*64];for(int i=32*32;i<33*32;i++)words[i]=0x8000;
-        var level=new RoomLevelData(new Extent16<RoomBlocks>(32, 64), new RoomLevelPlanes(words, new byte[2048], new ushort[2048]), new byte[8]);
-        runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { LevelData = level });
+        var scope = runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.");
+        // The synthetic floor keeps Kraid's own block definitions: the room's PLMs write its blocks into the level on the
+        // first frame, and the published plane must resolve them.
+        var level=new RoomLevelData(new Extent16<RoomBlocks>(32, 64), new RoomLevelPlanes(words, new byte[2048], new ushort[2048]),
+            scope.LevelData.BlockDefinitions.ToArray());
+        runtime.Room.Adopt(scope with { LevelData = level });
         var samus=runtime.Player.IntroducedSamus;samus.Pose=SamusPoseId.FacingRightNormalPose;
         samus.Health=samus.MaxHealth=999;samus.SuperMissiles=samus.MaxSuperMissiles=10;samus.SelectedHudItem=HudItem.SuperMissile;
         SamusPoseMetadata.RefreshCollisionRadii(samus);SamusPresentation.InitializeAnimation(samus);samus.CommitPoseHistory();

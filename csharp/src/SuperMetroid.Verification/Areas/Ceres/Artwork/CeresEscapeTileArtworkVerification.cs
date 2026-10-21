@@ -71,7 +71,7 @@ internal static class CeresEscapeTileArtworkVerification
         installedQueue.DrainTo(installedVram, new EnemyTileTransfers(stock, timer: timer), null, BgArtworkFixtures.For(installedVram));
 
         var nativeQueue = new VramWriteQueue();
-        foreach (CeresEscapeVramTransferDefinition transfer in
+        foreach (TileTransferDefinition transfer in
                  CeresEscapeVramTransferDefinitionsTooling.All)
         {
             if (transfer.Pointer < CeresEscapeVramTransferDefinitions.TimerSprites)
@@ -142,7 +142,7 @@ internal static class CeresEscapeTileArtworkVerification
         editedQueue.DrainTo(editedVram, new EnemyTileTransfers(edited, timer: timer), null, BgArtworkFixtures.For(editedVram));
         AssertTrue(CeresEscapeVramTransferDefinitions.TryGet(
                 CeresEscapeVramTransferDefinitions.WarningTextFirstTransfer,
-                out CeresEscapeVramTransferDefinition warningTransfer),
+                out TileTransferDefinition warningTransfer),
             "first warning transfer is compiled");
         AssertEqual(editedChunk.Span[0],
             editedVram.ReadByte(warningTransfer.DestinationWord * 2),

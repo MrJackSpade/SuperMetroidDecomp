@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
@@ -7,18 +9,8 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// </summary>
 internal static class CeresEscapeVramTransferDefinitions
 {
-
-    /// <summary>Escape timer sprite transfers beginning at $A6:C4CB.</summary>
-    internal const ushort TimerSprites = 0xc4cb;
-
-    /// <summary>Ceres escape timer BG1/BG2 and door transfers beginning at $A6:C4FE.</summary>
-    internal const ushort TimerBackgrounds = 0xc4fe;
-
-    /// <summary>Japanese-language warning overlay transfers beginning at $A6:C3B8.</summary>
-    internal const ushort JapaneseOverlay = 0xc3b8;
-
-    /// <summary>First warning-text character transfer at $A6:C4D9.</summary>
-    internal const ushort WarningTextFirstTransfer = 0xc4d9;
+    /// <summary>The Japanese-language warning overlay's transfers lead the records.</summary>
+    internal const int JapaneseOverlayRecords = 4;
 
     /// <summary>$A6:C3F4: four packed Japanese overlay tilemap rows.</summary>
     private const int OverlaySource = 0xa6c3f4;
@@ -40,44 +32,40 @@ internal static class CeresEscapeVramTransferDefinitions
     private const ushort DoorDestination = 0x0d00;
 
     /// <summary>Calculates nineteen fixed transfer records in their native list order.</summary>
-    private sealed class TransferRecords : IReadOnlyList<CeresEscapeVramTransferDefinition>
+    private sealed class TransferRecords : IReadOnlyList<TileTransferDefinition>
     {
         /// <summary>Four overlay, two timer, ten warning-text, and three door graphics transfers.</summary>
         public int Count => 19;
         /// <summary>Derives native byte count, source, and VRAM destination for an indexed transfer.</summary>
-        public CeresEscapeVramTransferDefinition this[int index]
+        public TileTransferDefinition this[int index]
         {
             get
             {
                 if ((uint)index >= Count)
                     throw new ArgumentOutOfRangeException(nameof(index));
                 if (index < 4)
-                    return new((ushort)(JapaneseOverlay + 7 * index),
-                        (ushort)(index < 2 ? 24 : 22),
+                    return new((ushort)(index < 2 ? 24 : 22),
                         OverlaySource + 24 * Math.Min(index, 2) + 22 * Math.Max(index - 2, 0),
                         (ushort)(OverlayDestination + 32 * index));
                 if (index < 6)
                 {
                     int block = index - 4;
-                    return new((ushort)(TimerSprites + 7 * block),
-                        (ushort)(block == 0 ? 0x200 : 0x120),
+                    return new((ushort)(block == 0 ? 0x200 : 0x120),
                         TimerSource + 0x200 * block, (ushort)(TimerDestination + 0x100 * block));
                 }
                 if (index < 16)
                 {
                     bool background = index >= 11;
                     int block = index - (background ? 11 : 6);
-                    return new((ushort)((background ? TimerBackgrounds : WarningTextFirstTransfer) + 7 * block),
-                        (ushort)(block == 4 ? 0x100 : 0x200), WarningSource + 0x200 * block,
+                    return new((ushort)(block == 4 ? 0x100 : 0x200), WarningSource + 0x200 * block,
                         (ushort)((background ? WarningBackgroundDestination : WarningObjectDestination) + 0x100 * block));
                 }
                 int doorBlock = index - 16;
-                return new((ushort)(TimerBackgrounds + 7 * (5 + doorBlock)), 0x200,
-                    DoorSource + 0x200 * doorBlock, (ushort)(DoorDestination + 0x100 * doorBlock));
+                return new(0x200, DoorSource + 0x200 * doorBlock, (ushort)(DoorDestination + 0x100 * doorBlock));
             }
         }
         /// <summary>Visits the overlay, timer, warning, and door transfers in dispatcher order.</summary>
-        public IEnumerator<CeresEscapeVramTransferDefinition> GetEnumerator()
+        public IEnumerator<TileTransferDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
                 yield return this[index];
@@ -87,24 +75,6 @@ internal static class CeresEscapeVramTransferDefinitions
     }
 
     /// <summary>All fixed Ceres escape transfer records used by the graphics dispatcher.</summary>
-    internal static readonly IReadOnlyList<CeresEscapeVramTransferDefinition> Records = new TransferRecords();
-    /// <summary>Recognizes the three native list endings without treating them as transfer records.</summary>
-    internal static bool IsTerminator(ushort pointer) =>
-        pointer is 0xc3d4 or 0xc4fc or 0xc536;
+    internal static readonly IReadOnlyList<TileTransferDefinition> Records = new TransferRecords();
 
-    /// <summary>Resolves a bank-$A6 record pointer to its fixed DMA metadata.</summary>
-    internal static bool TryGet(ushort pointer,
-        out CeresEscapeVramTransferDefinition transfer)
-    {
-        foreach (CeresEscapeVramTransferDefinition candidate in Records)
-        {
-            if (candidate.Pointer == pointer)
-            {
-                transfer = candidate;
-                return true;
-            }
-        }
-        transfer = default;
-        return false;
-    }
 }

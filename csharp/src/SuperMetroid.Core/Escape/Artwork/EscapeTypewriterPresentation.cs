@@ -100,7 +100,7 @@ public sealed class EscapeTypewriterPresentation
                 if (index >= EscapeTypewriterDefinitions.LineCount(id) || supplied != EscapeTypewriterDefinitions.Line(id, index))
                     differences.Add(index, supplied);
             }
-            programs.Add(id, new(id, EscapeTypewriterDefinitions.SourceAddress(id), new LineSequence(id, program.Lines.Length, differences)));
+            programs.Add(id, new(id, new LineSequence(id, program.Lines.Length, differences)));
         }
 
         return new(programs, Convert.ToHexString(SHA256.HashData(source)));

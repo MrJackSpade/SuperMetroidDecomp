@@ -82,7 +82,7 @@ internal static class Layer3PlaneVerification
     /// <summary>After N steps the typewriter has typed exactly the glyphs it reports, each at its program's next destination.</summary>
     internal static void VerifyTypewriterGlyphs()
     {
-        var program = new EscapeTypewriterProgram(EscapeTypewriterProgramId.Ceres, 0xa68000,
+        var program = new EscapeTypewriterProgram(EscapeTypewriterProgramId.Ceres,
             [new EscapeTypewriterLine(0x5105, "AB C!")]);
         var text = new EscapeTypewriterState(program, EscapeTypewriterRomData.ZebesTileBase);
         var typed = new List<EscapeTypewriterGlyph>();

@@ -12,13 +12,13 @@ public sealed class EscapeTypewriterState
     /// <summary>Rebound host text excluded from serialized interpreter state.</summary>
     [NonSerialized] private EscapeTypewriterProgram? installedProgram;
 
-    /// <summary>Creates an unbound warning-text state retaining the native source identity; attach host text with <see cref="BindProgram"/> before interpreting it.</summary>
-    /// <param name="textAddress">Native 24-bit source address retained in <see cref="Pointer"/>; this constructor does not read cartridge memory.</param>
+    /// <summary>Creates an unbound warning-text state for <paramref name="programId"/>; attach host text with <see cref="BindProgram"/> before interpreting it.</summary>
+    /// <param name="programId">The warning program the state will show.</param>
     /// <param name="tileBase">Complete tilemap word for the letter A, including tile index and presentation attributes.</param>
-    public EscapeTypewriterState(int textAddress, ushort tileBase)
+    public EscapeTypewriterState(EscapeTypewriterProgramId programId, ushort tileBase)
     {
-        Pointer = textAddress;
         this.tileBase = new SnesBgTilemapWord(tileBase);
+        ProgramId = programId;
     }
 
     /// <summary>Creates a warning-text state with its host program bound and its saved identity initialized from that program.</summary>
@@ -26,14 +26,13 @@ public sealed class EscapeTypewriterState
     /// <param name="tileBase">Complete tilemap word for the letter A, including tile index and presentation attributes.</param>
     /// <exception cref="ArgumentNullException"><paramref name="program"/> is null.</exception>
     public EscapeTypewriterState(EscapeTypewriterProgram program, ushort tileBase)
-        : this(Ensure.NotNull(program).SourceAddress, tileBase)
     {
+        Ensure.NotNull(program);
+        this.tileBase = new SnesBgTilemapWord(tileBase);
         ProgramId = program.Id;
         BindProgram(program);
     }
 
-    /// <summary>Retained native text source address for compatibility watches; installed text advances the line and character cursors rather than this address.</summary>
-    public int Pointer { get; private set; }
     /// <summary>
     /// VRAM word address of the next tilemap cell, 0 through 65535: reset at each line's first character and advanced
     /// for both written glyphs and spaces, returning to zero after 65535 as the cartridge's word does.

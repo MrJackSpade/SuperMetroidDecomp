@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Areas.Ceres.Artwork.CeresEscapeTileArtworkVerification;
@@ -47,7 +48,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         var installed = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: installedOverlay.Services()) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas };
         installed.CeresRidleyBehavior.Getaway.DrawCeresEmergencyText();
-        installed.CeresRidleyBehavior.Getaway.DrawCeresJapaneseOverlay(CeresEscapeVramTransferDefinitions.JapaneseOverlay);
+        installed.CeresRidleyBehavior.Getaway.DrawCeresJapaneseOverlay();
 
         // The cartridge's own transfers, read from its descriptors and source bytes, written over BG1.
         RoomTilemapOverlay native = RoomTilemapOverlay.Empty;
@@ -56,7 +57,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         native = WithNativeWords(native, title.SourceAddress, title.WordCount * sizeof(ushort),
             CeresEscapeOverlayTilemapDefinitions.EmergencyDestination);
         int nativeTransfers = 1;
-        foreach (CeresEscapeVramTransferDefinition transfer in
+        foreach (TileTransferDefinition transfer in
                  CeresEscapeVramTransferDefinitionsTooling.All)
         {
             if (transfer.Pointer >= CeresEscapeVramTransferDefinitions.TimerSprites)
@@ -127,7 +128,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         };
         ExpectMissing(() => missing.CeresRidleyBehavior.Getaway.DrawCeresEmergencyText(),
             "missing installed English title");
-        ExpectMissing(() => missing.CeresRidleyBehavior.Getaway.DrawCeresJapaneseOverlay(CeresEscapeVramTransferDefinitions.JapaneseOverlay),
+        ExpectMissing(() => missing.CeresRidleyBehavior.Getaway.DrawCeresJapaneseOverlay(),
             "missing installed Japanese subtitle rows");
         Console.WriteLine(
             "Ceres escape overlays: five editable tilemaps match native bytes and guarded " +

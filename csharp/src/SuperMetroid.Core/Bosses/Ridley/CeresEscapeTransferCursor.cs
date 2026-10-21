@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Ceres;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
@@ -26,7 +27,7 @@ internal readonly record struct CeresEscapeTransferCursor(int Next, int End)
     internal bool IsFinished => IsStarted && Next >= End;
 
     /// <summary>The record queued next.</summary>
-    internal CeresEscapeVramTransferDefinition Current => IsStarted && Next < End
+    internal TileTransferDefinition Current => IsStarted && Next < End
         ? CeresEscapeVramTransferDefinitions.Records[Next]
         : throw new InvalidOperationException($"Ceres escape transfer cursor {this} has no current record.");
 

@@ -12,17 +12,6 @@ public static class EscapeTimerPresentationDefinitions
     /// <summary>Maximum ordered OAM parts permitted in each label or digit composition; this is a per-frame schema limit, not reserved capacity for the whole timer.</summary>
     public const int MaximumParts = 128;
 
-    /// <summary>$80:9FE8: first decimal digit's two-object, twelve-byte spritemap.</summary>
-    private const ushort FirstDigitSpritemap = 0x9fe8;
-    /// <summary>Resolves the $80:9FD4 decimal digit selection from consecutive two-object records.</summary>
-    public static ushort DigitSpritemapPointer(int digit) => (uint)digit < 10
-        ? (ushort)(FirstDigitSpritemap + digit * 12)
-        : throw new ArgumentOutOfRangeException(nameof(digit));
-    /// <summary>The five-part <c>TIME</c> label spritemap at <c>$80:A060</c>.</summary>
-    public const int LabelSpritemap = 0x80a060;
-
-    /// <summary>The timer renderer inherits its spritemap pointers from bank $80.</summary>
-    public const int SpritemapBank = 0x800000;
 
     /// <summary>Canonical composition key for the TIME label and both separators, corresponding to the five-part Spritemap_Timer_TIME at $80:A060.</summary>
     public const string LabelFrame = "Label";

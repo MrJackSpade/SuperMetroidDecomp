@@ -1,6 +1,7 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
@@ -21,13 +22,12 @@ public static class EscapeTimerPresentationExtractor
         var frames = new Dictionary<string, EscapeTimerVisualPart[]>(StringComparer.Ordinal)
         {
             [EscapeTimerPresentationDefinitions.LabelFrame] =
-                ReadSpritemap(bus, EscapeTimerPresentationDefinitions.LabelSpritemap),
+                ReadSpritemap(bus, EscapeCartridgeTables.TimerLabelSpritemap),
         };
         for (int digit = 0; digit < 10; digit++)
         {
-            ushort pointer = EscapeTimerPresentationDefinitions.DigitSpritemapPointer(digit);
-            frames.Add(EscapeTimerPresentationDefinitions.DigitFrame(digit),
-                ReadSpritemap(bus, EscapeTimerPresentationDefinitions.SpritemapBank | pointer));
+            frames.Add(EscapeTimerPresentationDefinitions.DigitFrame(digit), ReadSpritemap(bus, EscapeCartridgeTables.TimerSpritemapBank |
+                (EscapeCartridgeTables.FirstTimerDigitSpritemap + digit * EscapeCartridgeTables.TimerDigitSpritemapStride)));
         }
 
         using var output = new MemoryStream();

@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Escape;
 /// <summary>Shared $A6:C2A7 byte-stream commands and the Zebes text setup.</summary>
 public static class EscapeTypewriterRomData
 {
-    /// <summary>$A6:C49C Zebes self-destruct message, installed by C23F.</summary>
-    public const int ZebesText = 0xa6c49c;
     /// <summary>$A9:B2E3 glyph base passed to the shared typewriter.</summary>
     public const ushort ZebesTileBase = 0x2610;
     /// <summary>$A6:C2B7 zero word ends the text stream.</summary>

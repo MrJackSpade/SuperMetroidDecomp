@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
@@ -26,10 +27,10 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres escape VRAM transfer definitions")]
     internal static void VerifyCeresEscapeVramTransferDefinitions(ISnesAddressSpace rom)
     {
-        IReadOnlyList<CeresEscapeVramTransferDefinition> records =
+        IReadOnlyList<TileTransferDefinition> records =
             CeresEscapeVramTransferDefinitionsTooling.All;
         AssertEqual(19, records.Count, "Ceres transfer metadata record count");
-        foreach (CeresEscapeVramTransferDefinition record in records)
+        foreach (TileTransferDefinition record in records)
         {
             int address = 0xa60000 | record.Pointer;
             AssertEqual(record.ByteCount, CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
@@ -77,7 +78,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         {
             var state = new RidleyEnemyState { CeresEscapeTransfers = cursor };
             var queue = new VramWriteQueue();
-            CeresEscapeVramTransferDefinition[] list = records
+            TileTransferDefinition[] list = records
                 .SkipWhile(record => record.Pointer != start)
                 .TakeWhile(record => start == CeresEscapeVramTransferDefinitions.TimerSprites
                     ? record.Pointer < 0xc4fc : record.Pointer < 0xc536)
@@ -86,7 +87,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             for (int index = 0; index < list.Length; index++)
             {
                 bool finished = system.CeresRidleyBehavior.Getaway.QueueNextCeresEscapeTransfer(state, queue);
-                CeresEscapeVramTransferDefinition expected = list[index];
+                TileTransferDefinition expected = list[index];
                 AssertEqual(index == list.Length - 1, finished,
                     $"Ceres transfer ${expected.Pointer:X4} list completion");
                 AssertEqual(index + 1, queue.Entries.Count,
@@ -114,11 +115,11 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         }
 
         // The Japanese subtitle rows are written over BG1 at exactly the four compiled records' destinations.
-        system.CeresRidleyBehavior.Getaway.DrawCeresJapaneseOverlay(CeresEscapeVramTransferDefinitions.JapaneseOverlay);
+        system.CeresRidleyBehavior.Getaway.DrawCeresJapaneseOverlay();
         var written = new bool[RoomTilemapOverlay.WordCount];
         for (int index = 0; index < 4; index++)
         {
-            CeresEscapeVramTransferDefinition expected = records[index];
+            TileTransferDefinition expected = records[index];
             int first = expected.DestinationWord - GameplayVramLayout.Bg1TilemapWord;
             for (int word = 0; word < expected.ByteCount / sizeof(ushort); word++)
                 written[first + word] = true;

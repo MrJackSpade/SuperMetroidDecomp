@@ -1,6 +1,7 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
 
@@ -39,7 +40,13 @@ public static class EscapeTypewriterExtractor
         ISnesAddressSpace bus,
         EscapeTypewriterProgramId id)
     {
-        int cursor = EscapeTypewriterDefinitions.SourceAddress(id);
+        int cursor = id switch
+        {
+            EscapeTypewriterProgramId.Ceres => EscapeCartridgeTables.CeresWarningText,
+            EscapeTypewriterProgramId.Zebes => EscapeCartridgeTables.ZebesWarningText,
+            EscapeTypewriterProgramId.None => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
+            _ => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
+        };
         if (CartridgeImportSource.Require(bus).ReadCartridgeWord(cursor) != EscapeTypewriterRomData.Delay ||
             CartridgeImportSource.Require(bus).ReadCartridgeWord((cursor + 2)) != EscapeTypewriterDefinitions.CharacterDelayFrames)
         {

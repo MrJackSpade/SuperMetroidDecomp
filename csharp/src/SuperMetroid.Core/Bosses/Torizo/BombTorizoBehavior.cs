@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -249,7 +250,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     [PpuLayoutBoundary("codec: Torizo instruction-list VRAM transfer records ($AA, bank-$A0 $814B)")]
     private void ApplyTorizoTileTransfer(int transfer)
     {
-        TorizoInstructionVramTransferDefinition definition = TorizoInstructionVramTransferDefinitions.Entries[transfer];
+        TileTransferDefinition definition = TorizoInstructionVramTransferDefinitions.Entries[transfer];
         var installed = _bossArtwork.Artwork?.TorizoInstructionVram ?? throw new InvalidDataException(
             "Torizo instruction-time tile transfers require installed artwork.");
         if (!installed.TryResolve(definition.SourceAddress, definition.ByteCount, out _))

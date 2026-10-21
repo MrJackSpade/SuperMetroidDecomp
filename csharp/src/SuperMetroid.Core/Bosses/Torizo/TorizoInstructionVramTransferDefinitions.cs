@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
@@ -8,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class TorizoInstructionVramTransferDefinitions
 {
     /// <summary>Sorted $814B transfer sites with immutable lengths, source identities, and OBJ destinations.</summary>
-    internal static readonly TorizoInstructionVramTransferDefinition[] Entries =
+    internal static readonly TileTransferDefinition[] Entries =
     [
         new(0x0040, 0xaab479, 0x7300),
         new(0x0040, 0xaab679, 0x7400),

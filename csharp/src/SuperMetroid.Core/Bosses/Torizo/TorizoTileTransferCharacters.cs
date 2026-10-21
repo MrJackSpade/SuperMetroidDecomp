@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
@@ -10,7 +11,7 @@ internal sealed record TorizoTileTransferCharacters(int Entry) : ObjCharacterSou
     /// <exception cref="InvalidDataException">The installed Torizo artwork holds no characters for the transfer.</exception>
     public override ReadOnlyMemory<byte> Resolve(IObjCharacterSourceResolver resolver)
     {
-        TorizoInstructionVramTransferDefinition definition = TorizoInstructionVramTransferDefinitions.Entries[Entry];
+        TileTransferDefinition definition = TorizoInstructionVramTransferDefinitions.Entries[Entry];
         return (InstalledBossObjCharacterArtwork.Of(resolver).BossTiles.TorizoInstructionVram ?? throw new InvalidDataException(
                 "Torizo instruction-time tile transfers require installed artwork."))
             .TryResolve(definition.SourceAddress, definition.ByteCount, out ReadOnlyMemory<byte> characters)

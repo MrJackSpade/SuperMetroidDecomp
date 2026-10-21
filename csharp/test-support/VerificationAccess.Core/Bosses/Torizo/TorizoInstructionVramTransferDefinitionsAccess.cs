@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
@@ -8,6 +10,6 @@ internal static class TorizoInstructionVramTransferDefinitionsAccess
     extension(TorizoInstructionVramTransferDefinitions)
     {
         /// <summary>Compiled native VRAM transfer records in source order.</summary>
-        internal static ReadOnlySpan<TorizoInstructionVramTransferDefinition> All => TorizoInstructionVramTransferDefinitions.Entries;
+        internal static ReadOnlySpan<TileTransferDefinition> All => TorizoInstructionVramTransferDefinitions.Entries;
     }
 }

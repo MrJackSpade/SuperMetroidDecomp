@@ -39,7 +39,7 @@ internal static class TorizoInstructionVramArtworkVerification
         var authoredOpcodes = new HashSet<ushort>();
         for (int transferIndex = 0; transferIndex < TorizoInstructionVramTransferDefinitions.All.Length; transferIndex++)
         {
-            TorizoInstructionVramTransferDefinition transfer = TorizoInstructionVramTransferDefinitions.All[transferIndex];
+            TileTransferDefinition transfer = TorizoInstructionVramTransferDefinitions.All[transferIndex];
             ushort instruction = TorizoInstructionVramTransferDefinitions.Sites[transferIndex].Instruction;
             AssertTrue(instruction > previousInstruction,
                 "Torizo transfer opcodes are distinct and sorted");

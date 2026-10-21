@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
+﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
@@ -298,7 +299,7 @@ internal sealed class CeresRidleyGetaway
                 if (japaneseDelay.IsZero)
                 {
                     state.FunctionTimer = WrappingCountdown.Start(10);
-                    DrawCeresJapaneseOverlay(CeresEscapeVramTransferDefinitions.JapaneseOverlay);
+                    DrawCeresJapaneseOverlay();
                 }
                 if (StepCeresEscapeTypewriter(state))
                     state.FunctionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(state.FunctionTimer.RawValue + 2)));
@@ -371,7 +372,7 @@ internal sealed class CeresRidleyGetaway
             throw new InvalidDataException("The Ceres escape graphics dispatcher was never given a transfer list.");
         if (cursor.IsFinished)
             return true;
-        CeresEscapeVramTransferDefinition transfer = cursor.Current;
+        TileTransferDefinition transfer = cursor.Current;
         byteCount = transfer.ByteCount;
         sourceAddress = transfer.SourceAddress;
         destination = transfer.DestinationWord;
@@ -406,19 +407,13 @@ internal sealed class CeresRidleyGetaway
 
     /// <summary>Writes every record of the one-shot Japanese overlay list at $A6:C3B8 over the room's BG1.</summary>
     [PpuLayoutBoundary("codec: Ceres Japanese overlay transfer records' native destinations ($A6:C3B8)")]
-    internal void DrawCeresJapaneseOverlay(ushort pointer)
+    internal void DrawCeresJapaneseOverlay()
     {
-        for (int record = 0; record < 32; record++, pointer = unchecked((ushort)(pointer + 7)))
+        for (int record = 0; record < CeresEscapeVramTransferDefinitions.JapaneseOverlayRecords; record++)
         {
-            if (CeresEscapeVramTransferDefinitions.IsTerminator(pointer))
-                return;
-            if (!CeresEscapeVramTransferDefinitions.TryGet(pointer, out var transfer))
-                throw new InvalidDataException(
-                    $"Ceres Japanese transfer ${pointer:X4} has no compiled record.");
-            DrawCeresOverlay(transfer.SourceAddress, transfer.ByteCount, transfer.DestinationWord, $"Japanese overlay ${pointer:X4}");
+            TileTransferDefinition transfer = CeresEscapeVramTransferDefinitions.Records[record];
+            DrawCeresOverlay(transfer.SourceAddress, transfer.ByteCount, transfer.DestinationWord, $"Japanese overlay record {record}");
         }
-
-        throw new InvalidDataException("Ceres Japanese transfer list exceeded 32 records.");
     }
 
     /// <summary>Ports the byte-oriented command stream consumed by $A6:C2A7.</summary>

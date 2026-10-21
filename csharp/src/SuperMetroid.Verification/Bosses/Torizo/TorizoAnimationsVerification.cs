@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Torizo.TorizoNativeListAddresses;
@@ -71,7 +72,7 @@ internal static class TorizoAnimationsVerification
             {
                 var copyStep = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.CueStep>(Next("tile transfer"), $"{at}: tile transfer");
                 var copy = AssertIs<TorizoCue.CopyTiles>(copyStep.Cue, $"{at}: tile transfer cue");
-                TorizoInstructionVramTransferDefinition transfer = TorizoInstructionVramTransferDefinitions.Entries[copy.Transfer];
+                TileTransferDefinition transfer = TorizoInstructionVramTransferDefinitions.Entries[copy.Transfer];
                 AssertEqual(cursor, TorizoInstructionVramTransferDefinitions.Sites[copy.Transfer].Instruction, $"{at}: tile transfer descriptor");
                 AssertEqual(transfer.ByteCount, cartridge.ReadCartridgeWord(address + 2), $"{at}: tile transfer size");
                 AssertEqual(transfer.SourceAddress, cartridge.ReadCartridgeLongFixedBank(address + 4), $"{at}: tile transfer source");

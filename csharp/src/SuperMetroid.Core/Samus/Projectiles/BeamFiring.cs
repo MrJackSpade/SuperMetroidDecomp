@@ -327,7 +327,7 @@ internal sealed class BeamFiring
             SamusBeamCallbackDefinition callback =
                 SamusBeamCallbackDefinitions.Resolve(charged, beamType);
             slot.PreInstruction = callback.Translated ?? throw new NotSupportedException(
-                $"Beam callback $90:{callback.NativePointer:X4} is not translated.");
+                $"Beam callback {callback.Callback} is not translated.");
             InitializePowerBeamVelocity(samus.ProjectileInheritance, slot);
         }
         return new BeamShot(slotIndex, sound);

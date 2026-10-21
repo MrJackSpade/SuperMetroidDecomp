@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>One native callback word and its translated semantic identity, when supported.</summary>
+/// <summary>One beam callback and its translated projectile pre-instruction, when supported.</summary>
 internal readonly record struct SamusBeamCallbackDefinition(
-    ushort NativePointer,
+    SamusBeamCallback Callback,
     SamusProjectilePreInstruction? Translated);

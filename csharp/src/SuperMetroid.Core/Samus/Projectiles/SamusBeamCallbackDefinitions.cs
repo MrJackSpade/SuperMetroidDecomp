@@ -14,41 +14,41 @@ internal static class SamusBeamCallbackDefinitions
     {
         SamusBeamCombination.Power or SamusBeamCombination.Ice or SamusBeamCombination.Spazer or
             SamusBeamCombination.SpazerIce or SamusBeamCombination.Plasma or SamusBeamCombination.PlasmaIce =>
-            Translated(SamusBeamPreInstructionCodes.NoWave, SamusProjectilePreInstruction.NoWaveBeam),
+            Translated(SamusBeamCallback.NoWave, SamusProjectilePreInstruction.NoWaveBeam),
         SamusBeamCombination.Wave or SamusBeamCombination.IceWave => charged
-            ? Translated(SamusBeamPreInstructionCodes.WaveFourFrameTrail, SamusProjectilePreInstruction.WaveBeamFourFrameTrail)
-            : Translated(SamusBeamPreInstructionCodes.WaveThreeFrameTrail, SamusProjectilePreInstruction.WaveBeamThreeFrameTrail),
+            ? Translated(SamusBeamCallback.WaveFourFrameTrail, SamusProjectilePreInstruction.WaveBeamFourFrameTrail)
+            : Translated(SamusBeamCallback.WaveThreeFrameTrail, SamusProjectilePreInstruction.WaveBeamThreeFrameTrail),
         SamusBeamCombination.SpazerWave or SamusBeamCombination.SpazerIceWave or SamusBeamCombination.PlasmaWave or
             SamusBeamCombination.PlasmaIceWave =>
-            Translated(SamusBeamPreInstructionCodes.WaveFourFrameTrail, SamusProjectilePreInstruction.WaveBeamFourFrameTrail),
+            Translated(SamusBeamCallback.WaveFourFrameTrail, SamusProjectilePreInstruction.WaveBeamFourFrameTrail),
         // The four glitched combinations read past the twelve authored callbacks.
         SamusBeamCombination.SpazerPlasma => charged
-            ? Untranslated(SamusBeamPreInstructionCodes.ChargedCombinationTwelveAdjacentWord)
-            : Untranslated(SamusBeamPreInstructionCodes.UnchargedCombinationTwelveAdjacentWord),
+            ? Untranslated(SamusBeamCallback.ChargedCombinationTwelveAdjacentWord)
+            : Untranslated(SamusBeamCallback.UnchargedCombinationTwelveAdjacentWord),
         SamusBeamCombination.SpazerPlasmaWave => charged
-            ? Translated(SamusBeamPreInstructionCodes.ChargedChainsawLowWramExecution,
+            ? Translated(SamusBeamCallback.ChargedChainsawLowWramExecution,
                 SamusProjectilePreInstruction.ChargedChainsawLowWramExecution)
-            : Translated(SamusBeamPreInstructionCodes.ChainsawWindowStoreThenPowerBomb,
+            : Translated(SamusBeamCallback.ChainsawWindowStoreThenPowerBomb,
                 SamusProjectilePreInstruction.ChainsawWindowStoreThenPowerBomb),
         SamusBeamCombination.SpazerPlasmaIce => charged
-            ? Translated(SamusBeamPreInstructionCodes.ChargedChainsawLowWramExecution,
+            ? Translated(SamusBeamCallback.ChargedChainsawLowWramExecution,
                 SamusProjectilePreInstruction.ChargedChainsawLowWramExecution)
-            : Translated(SamusBeamPreInstructionCodes.SpacetimePaletteCopyTail,
+            : Translated(SamusBeamCallback.SpacetimePaletteCopyTail,
                 SamusProjectilePreInstruction.SpacetimePaletteCopyTail),
         SamusBeamCombination.SpazerPlasmaIceWave => charged
-            ? Translated(SamusBeamPreInstructionCodes.MurderBeamMisalignedExecution,
+            ? Translated(SamusBeamCallback.MurderBeamMisalignedExecution,
                 SamusProjectilePreInstruction.MurderBeamMisalignedExecution)
-            : Untranslated(SamusBeamPreInstructionCodes.UnchargedCombinationFifteenAdjacentWord),
+            : Untranslated(SamusBeamCallback.UnchargedCombinationFifteenAdjacentWord),
         _ => throw new ArgumentOutOfRangeException(nameof(combination), combination, "Undefined beam combination."),
     };
 
-    /// <summary>Pairs a native callback word with an implemented projectile pre-instruction.</summary>
+    /// <summary>Pairs a callback with an implemented projectile pre-instruction.</summary>
     private static SamusBeamCallbackDefinition Translated(
-        ushort nativePointer,
+        SamusBeamCallback callback,
         SamusProjectilePreInstruction translated) =>
-        new(nativePointer, translated);
+        new(callback, translated);
 
     /// <summary>Keeps an adjacent-code callback visible without assigning unsupported behavior.</summary>
-    private static SamusBeamCallbackDefinition Untranslated(ushort nativePointer) =>
-        new(nativePointer, null);
+    private static SamusBeamCallbackDefinition Untranslated(SamusBeamCallback callback) =>
+        new(callback, null);
 }

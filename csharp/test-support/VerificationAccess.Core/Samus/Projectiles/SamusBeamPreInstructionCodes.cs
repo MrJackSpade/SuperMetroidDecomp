@@ -1,0 +1,83 @@
+namespace SuperMetroid.Core.Samus.Projectiles;
+
+/// <summary>Verification's native view of the beam callbacks: the bank-$90 word each fire handler table holds.</summary>
+internal static class SamusBeamPreInstructionCodes
+{
+    /// <summary>$90:BA3E, FireChargedBeam's low-nibble-indexed callback words.</summary>
+    public const int ChargedTable = 0x90ba3e;
+    /// <summary>$90:B96E, FireUnchargedBeam's low-nibble-indexed callback words.</summary>
+    public const int UnchargedTable = 0x90b96e;
+
+    /// <summary>$90:AEF3, ProjPreInstr_Beam_NoWaveBeam: ordinary terrain-stopping beam motion.</summary>
+    public const ushort NoWave = 0xaef3;
+    /// <summary>$90:B0E4, ProjPreInstr_BeamOrIceWave: Wave movement with a three-frame trail reload.</summary>
+    public const ushort WaveThreeFrameTrail = 0xb0e4;
+    /// <summary>$90:B0C3, ProjPreInstr_WavePlasmaEtc: Wave movement with a four-frame trail reload.</summary>
+    public const ushort WaveFourFrameTrail = 0xb0c3;
+    /// <summary>
+    /// <c>$3920</c>, the non-routine word observed when uncharged combination twelve
+    /// indexes beyond the retail callback table. It remains untranslated and fails loudly.
+    /// </summary>
+    public const ushort UnchargedCombinationTwelveAdjacentWord = 0x3920;
+    /// <summary>
+    /// $90:AD16, the invalid beam-combination fourteen entry read two words beyond
+    /// FireUnchargedBeam's callback table. JSR enters the operand of LoadBeamPalette's
+    /// sprite-palette store, then falls into its increment/loop tail with projectile-owned
+    /// X and Y. Later animation frames can therefore copy a large ROM range through WRAM.
+    /// </summary>
+    public const ushort SpacetimePaletteCopyTail = 0xad16;
+    /// <summary>
+    /// $90:B0AC, the invalid beam-combination thirteen entry produced by indexing two
+    /// words beyond the uncharged callback table. Execution begins on the bank byte of
+    /// the preceding JSL, so it stores Y to the cached PPU register pair at $60+X and
+    /// falls through to the Power Bomb pre-instruction at $90:B0AE.
+    /// </summary>
+    public const ushort ChainsawWindowStoreThenPowerBomb = 0xb0ac;
+    /// <summary>
+    /// Charged combination thirteen overruns the callback table at <c>$90:BA3E..BA55</c> and
+    /// reads callback <c>$0A0A</c> at <c>$90:BA58</c>. JSR therefore enters the bank-$90 low-WRAM mirror at
+    /// $7E:0A0A, whose word is Samus's cached previous Super-Missile count. Native
+    /// execution is data-dependent and may crash; it is not a stable bank-$90 routine.
+    /// </summary>
+    public const ushort ChargedChainsawLowWramExecution = 0x0a0a;
+    /// <summary>
+    /// <c>$0DC2</c>, the non-routine word observed when uncharged combination fifteen
+    /// indexes beyond the retail callback table. It remains untranslated and fails loudly.
+    /// </summary>
+    public const ushort UnchargedCombinationFifteenAdjacentWord = 0x0dc2;
+    /// <summary>
+    /// <c>$1CAD</c>, the non-routine word observed when charged combination twelve
+    /// indexes beyond the retail callback table. It remains untranslated and fails loudly.
+    /// </summary>
+    public const ushort ChargedCombinationTwelveAdjacentWord = 0x1cad;
+    /// <summary>
+    /// $90:A4AA, the callback obtained when charged all-beams combination fifteen reads
+    /// beyond the charged callback table at <c>$90:BA3E..BA55</c>. The safe left-facing Murder Beam has a zero
+    /// instruction pointer, so bank $90 never dispatches this callback; unsafe directions
+    /// retain nonzero lists and enter unrelated native code.
+    /// </summary>
+    public const ushort MurderBeamMisalignedExecution = 0xa4aa;
+
+    /// <summary>The bank-$90 word that selects <paramref name="callback"/>.</summary>
+    internal static ushort Of(SamusBeamCallback callback) => callback switch
+    {
+        SamusBeamCallback.NoWave => NoWave,
+        SamusBeamCallback.WaveThreeFrameTrail => WaveThreeFrameTrail,
+        SamusBeamCallback.WaveFourFrameTrail => WaveFourFrameTrail,
+        SamusBeamCallback.UnchargedCombinationTwelveAdjacentWord => UnchargedCombinationTwelveAdjacentWord,
+        SamusBeamCallback.SpacetimePaletteCopyTail => SpacetimePaletteCopyTail,
+        SamusBeamCallback.ChainsawWindowStoreThenPowerBomb => ChainsawWindowStoreThenPowerBomb,
+        SamusBeamCallback.ChargedChainsawLowWramExecution => ChargedChainsawLowWramExecution,
+        SamusBeamCallback.UnchargedCombinationFifteenAdjacentWord => UnchargedCombinationFifteenAdjacentWord,
+        SamusBeamCallback.ChargedCombinationTwelveAdjacentWord => ChargedCombinationTwelveAdjacentWord,
+        SamusBeamCallback.MurderBeamMisalignedExecution => MurderBeamMisalignedExecution,
+        _ => throw new ArgumentOutOfRangeException(nameof(callback), callback, "Undefined beam callback."),
+    };
+
+    /// <summary>A callback definition by its bank-$90 word.</summary>
+    extension(SamusBeamCallbackDefinition definition)
+    {
+        /// <summary>The bank-$90 word the fire handler table holds for the definition.</summary>
+        internal ushort NativePointer => Of(definition.Callback);
+    }
+}

@@ -150,7 +150,11 @@ internal sealed class FrontendSession
     internal ulong? lastAudioRuntimeGameplayPublication;
     /// <summary>Room state associated with the last copied audio publication.</summary>
     internal CartridgeRoomState? lastAudioRoomState;
-    /// <summary>The handlers of the game's save-RAM-changed event.</summary>
+    /// <summary>
+    /// The handlers of the game's save-RAM-changed event. They belong to the host, not the simulation: a debugger state
+    /// leaves them out, and the host subscribes again to a restored game.
+    /// </summary>
+    [NonSerialized]
     internal Action? saveRamChanged;
     /// <summary>Raises the game's save-RAM-changed event after translated code changed save RAM.</summary>
     internal void RaiseSaveRamChanged() => saveRamChanged?.Invoke();

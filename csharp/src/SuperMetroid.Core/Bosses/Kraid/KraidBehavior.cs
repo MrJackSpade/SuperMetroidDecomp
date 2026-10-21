@@ -684,19 +684,27 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Restores the ordinary-room BG2 base after the body has sunk: the room's BG2 shows again (#1352). Native clears
-    /// the two visible 32x32 pages of the ordinary map on consecutive frames; they hold the blank tile the library
-    /// background filled, and the one-frame strip of body between the two clears is not reproduced.
+    /// <c>$A7:C715</c>: once the body has sunk, BG2 becomes Kraid's map filled with the blank tile, cleared over this
+    /// frame and the next. BG2 never returns to the room's own tilemap: on the cartridge Kraid's uploads overwrote it,
+    /// so showing it again draws stale room words across the top of the screen (#1427). A defeated room's reload takes
+    /// BG2 here too. The one frame in which the cartridge's half-cleared map still shows a strip of body is not
+    /// reproduced.
     /// </summary>
     private static void ClearKraidTopTilemapForDeath(KraidEnemyState state)
     {
         state.WorkingTop = KraidBodyPage.Blank;
-        state.OwnsBg2Tilemap = false;
+        state.DisplayedBody = state.DisplayedBody with { Top = KraidBodyPage.Blank, Head = null };
+        state.OwnsBg2Tilemap = true;
         state.TopTilemapUploadCount++;
     }
 
-    /// <summary>Clears the second half of the restored ordinary 32x32 BG2 map.</summary>
-    private static void ClearKraidBottomTilemapForDeath(KraidEnemyState state) => state.BottomTilemapUploadCount++;
+    /// <summary><c>$A7:C751</c>: blanks the rest of Kraid's BG2 map, so it shows nothing for the rest of the visit.</summary>
+    private static void ClearKraidBottomTilemapForDeath(KraidEnemyState state)
+    {
+        state.WorkingBottom = KraidBodyPage.Blank;
+        state.DisplayedBody = state.DisplayedBody with { Bottom = KraidBodyPage.Blank };
+        state.BottomTilemapUploadCount++;
+    }
 
     /// <summary>
     /// Ports Kraid arm helper <c>SpawnExplosionProjectile</c> at `$A7:B0CB`, called by the

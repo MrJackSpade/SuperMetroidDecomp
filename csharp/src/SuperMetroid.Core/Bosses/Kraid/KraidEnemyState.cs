@@ -106,8 +106,8 @@ public sealed class KraidEnemyState
     public bool BackgroundTilemapsPrepared { get; internal set; }
 
     /// <summary>
-    /// True while native BG2SC=$43 makes Kraid's private 64x64 map the renderer's BG2.
-    /// Death restores the ordinary room map at $4800 and relinquishes this ownership.
+    /// True while Kraid's map is the renderer's BG2: his 64x64 body map from his room's load (native BG2SC=$43), and
+    /// after his death the blank map at $4800 for the rest of the visit (#1427).
     /// </summary>
     public bool OwnsBg2Tilemap { get; internal set; }
 

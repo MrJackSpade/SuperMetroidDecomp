@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Poses;
@@ -33,6 +34,8 @@ internal static class RetailKraidCaptureTests
         samus.Position = samus.Position.WithWhole(new(128, 456));
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.PoseMetadata.RefreshCollisionRadii(); samus.Presentation.InitializeAnimation();
+        // The first sample is captured before any update: latch the loaded room for display first.
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         var boss = runtime.Enemies.KraidBehavior.Kraid ?? throw new InvalidOperationException("Kraid did not initialize.");
         var body = runtime.Enemies.SlotTable.Slots[0];
         KraidAiFunction BodyFunction() =>
@@ -120,7 +123,8 @@ internal static class RetailKraidCaptureTests
             !deathPhases.Contains(KraidAiFunction.DeathSink) ||
             !deathPhases.Contains(KraidAiFunction.DeathFadeInBackground))
             throw new InvalidOperationException("Kraid death missed sinking, background fade or four BG3 restores.");
-        Console.WriteLine($"{device.Kind}: Kraid death: {deathSamples} exact samples across {deathPhases.Count} AI states; sinking, fade and BG3 restore verified.");
+        RequireBlankBg2(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()), $"{device.Kind}: defeated Kraid");
+        Console.WriteLine($"{device.Kind}: Kraid death: {deathSamples} exact samples across {deathPhases.Count} AI states; sinking, fade, BG3 restore and blank BG2 verified.");
         RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, new RetailDoorCase { Door = KraidAuditDefinitions.LeftExitDoor, Destination = KraidAuditDefinitions.LeftExitDestination }, "defeated Kraid left");
         // The second route starts from the saved defeat bit, as in the existing
         // regression. Run the defeated-room restoration before opening the other door.
@@ -131,6 +135,32 @@ internal static class RetailKraidCaptureTests
         if (runtime.Enemies.KraidBehavior.Kraid is not { DeathSequenceComplete: true })
             throw new InvalidOperationException("Defeated Kraid reload did not restore its background.");
         RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, new RetailDoorCase { Door = KraidAuditDefinitions.RightExitDoor, Destination = KraidAuditDefinitions.RightExitDestination }, "defeated Kraid right");
+    }
+
+    /// <summary>
+    /// Requires every BG2 tile the screen shows to be Kraid's blank tile. Once he has sunk, <c>$A7:C715</c> and
+    /// <c>$A7:C751</c> fill BG2's 32x32 map with <c>$0338</c>, so nothing of his body or the room's BG2 remains (#1427).
+    /// </summary>
+    private static void RequireBlankBg2(LayeredRenderSnapshot scene, string context)
+    {
+        var gameplay = (OrdinaryGameplayRenderLayer)scene.Layers[0];
+        var vram = new SnesVram();
+        vram.LoadBytes(0, scene.Memory.Vram);
+        OrdinaryGameplayRegisters r = gameplay.Registers;
+        IBgTileSource bg2 = gameplay.Rooms.Bg2Shown(new VramBgTilemap(vram, r.Bg2TilemapWord, r.Bg2MapSize), r.Bg2MapSize);
+        var shown = new SortedSet<ushort>();
+        for (int line = 0; line < SnesPpuLayout.ScreenHeightPixels - SnesPpuLayout.GameplayHudHeightPixels; line += 4)
+        {
+            Position16<Bg2Pixels> scroll = gameplay.Bg2ScrollAt(line);
+            for (int x = 0; x < SnesPpuLayout.ScreenWidthPixels; x += 4)
+            {
+                if (bg2.TrySample(new Position16<BgPlanePixels>(unchecked((ushort)(scroll.X + x)),
+                        unchecked((ushort)(scroll.Y + SnesPpuLayout.GameplayHudHeightPixels + line))), out BgTileSample sample))
+                    shown.Add(sample.Tile.Raw);
+            }
+        }
+        if (shown.Any(word => word != KraidBackgroundRomData.BlankTile))
+            throw new InvalidOperationException($"{context}: BG2 shows {string.Join(", ", shown.Select(word => $"${word:X4}"))}; only the blank tile ${KraidBackgroundRomData.BlankTile:X4} remains on the cartridge.");
     }
 
     /// <summary>Stages an audit missile at Kraid's active mouth hitbox and uses production collision.</summary>

@@ -61,13 +61,15 @@ internal static class KraidBodyPublicationVerification
             "the open mouth publishes its head over the upper page");
         AssertEqual(state.Bg2Scroll, roaring.Scroll, "the roaring body publishes at its moved scroll");
 
-        // Dying: the death clear releases BG2 to the room.
-        state.OwnsBg2Tilemap = false;
-        runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertTrue(runtime.Display.Latched.Bosses.KraidBody is null, "a released body publishes nothing");
-        var released = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertTrue(released.Rooms.BossBg2 is null, "BG2 shows the room once Kraid releases it");
-        Console.WriteLine("  Kraid body: risen, roaring and released frames publish at Kraid's BG2 scroll.");
+        // Dead: the death clear keeps BG2 as Kraid's map, every word blank; the room's own BG2 never returns (#1427).
+        state.DisplayedBody = KraidBodyFrame.Blank;
+        BossBg2Layer cleared = Published(runtime);
+        AssertTrue(cleared.Tilemap.Words.All(word => word == KraidBackgroundRomData.BlankTile),
+            "the cleared body publishes only the blank tile");
+        var dead = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
+        AssertTrue(dead.Rooms.BossBg2 is { } shown && shown.Words.All(word => word == KraidBackgroundRomData.BlankTile),
+            "BG2 shows the cleared map, not the room's");
+        Console.WriteLine("  Kraid body: risen, roaring and cleared frames publish at Kraid's BG2 scroll.");
     }
 
     /// <summary>Kraid's body as the next accepted NMI latches it.</summary>

@@ -95,9 +95,11 @@ internal static class InstalledSporesTests
                 "The cartridge's spores FX has no display capture.");
             Require(baseline.LayerBlendConfiguration == LayerBlendingConfiguration.Spores,
                 "A compiled spores record selects incompatible blending.");
-            Require(baselineVram.Bytes.Slice(RoomFxRomDataLayer3Constants.TilemapDestinationWord * 2,
-                RoomFxLayer3TilemapFormat.PageByteCount).SequenceEqual(stock.RoomFxLayer3Tilemaps.Resolve(RoomFxType.Spores).Span),
-                "Spore tilemap was not loaded at the native destination.");
+            // Since #1348 the room's BG3 plane shows the effect's page directly instead of a copy written into VRAM.
+            Require(baseline.EffectPageType == RoomFxType.Spores && baseline.EffectPageWords()
+                    .SelectMany(word => new[] { (byte)word, (byte)(word >> 8) })
+                    .SequenceEqual(stock.RoomFxLayer3Tilemaps.Resolve(RoomFxType.Spores).ToArray()),
+                "The spores room does not show the installed spores BG3 page.");
             int tick = 0;
             for (int frame = 0; frame < 1050; frame++)
             {
@@ -117,8 +119,11 @@ internal static class InstalledSporesTests
                         mechanics.Frames[tick / 10 % 3].InstructionPointer);
                     Require(stock.RoomFxAnimatedTiles.TryResolve(source, 48, out var expected), "Missing stock spores frame.");
                     Require(edited.RoomFxAnimatedTiles.TryResolve(source, 48, out var altered), "Missing edited spores frame.");
-                    Require(baselineVram.Bytes.Slice(0x4280 * 2, 48).SequenceEqual(expected.Span), "Stock spore cadence/DMA differs.");
-                    Require(editedVram.Bytes.Slice(0x4280 * 2, 48).SequenceEqual(altered.Span), "Edited spore cadence/DMA differs.");
+                    // Animated frames are bound over the background image rather than copied into VRAM.
+                    Require(BgArtworkFixtures.Composed(baselineVram).AsSpan(0x4280 * 2, 48).SequenceEqual(expected.Span),
+                        "Stock spore cadence/DMA differs.");
+                    Require(BgArtworkFixtures.Composed(editedVram).AsSpan(0x4280 * 2, 48).SequenceEqual(altered.Span),
+                        "Edited spore cadence/DMA differs.");
                     if (!expected.Span.SequenceEqual(altered.Span)) alteredTransfers++;
                     tick++;
                 }
@@ -136,13 +141,16 @@ internal static class InstalledSporesTests
                 if (frame is 0 or 10 or 20 or 30 or 44 or 511 or 1024)
                 {
                     var gameplay = new OrdinaryGameplayRenderLayer(new(default, default, new Extent16<TilemapCells>(64, 32),
-                        GameplayVramLayout.Bg2TilemapWord, 0, 0, 0x4000, SnesMainScreenLayers.Bg2), RoomBackgroundsFixtures.Blank());
+                        GameplayVramLayout.Bg2TilemapWord, 0, 0, 0x4000, SnesMainScreenLayers.Bg2), RoomBackgroundsFixtures.Blank() with
+                        {
+                            Bg3 = Layer3Plane.Compose(new ushort[Layer3Plane.HudRows * Layer3Plane.Columns], replacement.EffectPageWords()),
+                        });
                     var layer = SnesGameplayFrameRenderer.CaptureSpores(gameplay, (replacement.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires replacement.CaptureForDisplay().")));
                     Require(!layer.RevealBlocks && layer.ColorMath == (SnesColorMathControl)0x32 &&
                         layer.Lines.All(line => line.Left > line.Right) && layer.Subscreen is not null,
                         "Spore capture does not use native source-aware $32 blending.");
                     packets.Add(new(new(packets.Count + 1, 1, 0), new LayeredRenderSnapshot(
-                        new(editedVram.Bytes, editedColors.Colors, []), [layer], 0, 15)));
+                        new(BgArtworkFixtures.Composed(editedVram), editedColors.Colors, []), [layer], 0, 15)));
                 }
                 comparisons++;
             }
@@ -357,7 +365,10 @@ internal static class InstalledSporesTests
                 GameplayVramLayout.Bg2TilemapWord, 0, 0, GameplayVramLayout.HudCharacterWord,
                 SnesMainScreenLayers.Obj | ((enabled & 1) != 0 ? SnesMainScreenLayers.Bg1 : 0) |
                     ((enabled & 2) != 0 ? SnesMainScreenLayers.Bg2 : 0));
-            var layer = SnesGameplayFrameRenderer.CaptureSpores(new(registers, RoomBackgroundsFixtures.Uniform(new((ushort)(1 | (bg1High ? 0x2000 : 0))))),
+            var layer = SnesGameplayFrameRenderer.CaptureSpores(new(registers, RoomBackgroundsFixtures.Uniform(new((ushort)(1 | (bg1High ? 0x2000 : 0)))) with
+                {
+                    Bg3 = Layer3PlaneFixtures.FromVram(vram),
+                }),
                 new(RoomFxType.Spores, LayerBlendingConfiguration.Spores, Position16<Bg3Pixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue)));
             var scene = new LayeredRenderSnapshot(PpuMemorySnapshot.FromOam(vram.Bytes, colors.Colors, oam, 1, 0), [layer], 0, 15);
             Rgba32[] pixels = SoftwareLayeredSnapshotRenderer.Render(scene);

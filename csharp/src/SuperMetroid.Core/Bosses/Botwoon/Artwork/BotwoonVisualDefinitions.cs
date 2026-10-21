@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.Botwoon.Artwork;

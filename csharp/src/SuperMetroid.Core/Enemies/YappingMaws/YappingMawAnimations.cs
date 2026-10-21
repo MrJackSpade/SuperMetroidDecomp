@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.YappingMaws.YappingMawCueKind;
 using P = SuperMetroid.Core.Enemies.YappingMaws.YappingMawProgram;
-using SuperMetroid.Core.Enemies.YappingMaws.Artwork;
 
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 

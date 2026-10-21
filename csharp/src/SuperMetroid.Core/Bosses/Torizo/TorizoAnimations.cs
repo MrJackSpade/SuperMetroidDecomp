@@ -1,6 +1,5 @@
 ﻿using SuperMetroid.Core.Programs;
 using P = SuperMetroid.Core.Bosses.Torizo.TorizoBodyProgram;
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 

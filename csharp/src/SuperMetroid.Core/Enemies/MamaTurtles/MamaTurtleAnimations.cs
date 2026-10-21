@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.MamaTurtles.MamaTurtleCueKind;
 using P = SuperMetroid.Core.Enemies.MamaTurtles.MamaTurtleProgram;
-using SuperMetroid.Core.Enemies.MamaTurtles.Artwork;
 
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 

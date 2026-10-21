@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.World.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Draygon.Artwork;

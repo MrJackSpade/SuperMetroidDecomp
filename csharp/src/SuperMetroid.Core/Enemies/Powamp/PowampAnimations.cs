@@ -1,5 +1,4 @@
 using P = SuperMetroid.Core.Enemies.Powamp.PowampProgram;
-using SuperMetroid.Core.Enemies.Powamp.Artwork;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.Powamp;

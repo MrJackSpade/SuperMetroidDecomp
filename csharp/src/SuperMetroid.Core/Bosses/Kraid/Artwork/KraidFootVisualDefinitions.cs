@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Artwork;
-
 namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 /// <summary>Kraid's independently animated extended foot compositions, not his BG2 body.</summary>

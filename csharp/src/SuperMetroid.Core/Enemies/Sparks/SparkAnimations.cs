@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Sparks.SparkCueKind;
 using P = SuperMetroid.Core.Enemies.Sparks.SparkProgram;
-using SuperMetroid.Core.Enemies.Sparks.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Sparks;
 

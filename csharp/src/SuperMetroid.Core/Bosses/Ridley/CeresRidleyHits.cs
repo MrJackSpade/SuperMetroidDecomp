@@ -2,7 +2,6 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Areas.Ceres;
 

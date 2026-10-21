@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 

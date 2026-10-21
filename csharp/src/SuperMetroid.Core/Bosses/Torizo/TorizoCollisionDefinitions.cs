@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies.Artwork;
-using System.Diagnostics.CodeAnalysis;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>

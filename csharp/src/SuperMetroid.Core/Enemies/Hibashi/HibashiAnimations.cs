@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Hibashi.HibashiCueKind;
 using P = SuperMetroid.Core.Enemies.Hibashi.HibashiProgram;
-using SuperMetroid.Core.Enemies.Hibashi.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Hibashi;
 

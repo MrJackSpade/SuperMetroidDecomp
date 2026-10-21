@@ -1,5 +1,4 @@
 using P = SuperMetroid.Core.Enemies.Nuclear.NuclearWaffleProgram;
-using SuperMetroid.Core.Enemies.Nuclear.Artwork;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.Nuclear;

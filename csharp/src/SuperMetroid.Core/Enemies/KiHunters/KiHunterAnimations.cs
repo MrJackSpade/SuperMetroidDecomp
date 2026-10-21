@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.KiHunters.KiHunterCueKind;
 using P = SuperMetroid.Core.Enemies.KiHunters.KiHunterProgram;
-using SuperMetroid.Core.Enemies.KiHunters.Artwork;
 
 namespace SuperMetroid.Core.Enemies.KiHunters;
 

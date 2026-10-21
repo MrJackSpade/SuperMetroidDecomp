@@ -1,5 +1,4 @@
 using P = SuperMetroid.Core.Enemies.Animals.EtecoonProgram;
-using SuperMetroid.Core.Enemies.Animals.Artwork;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.Animals;

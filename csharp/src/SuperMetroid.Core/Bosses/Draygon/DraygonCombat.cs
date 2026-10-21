@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms;

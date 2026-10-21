@@ -1,10 +1,3 @@
-using SuperMetroid.Core.Areas.Ceres;
-using SuperMetroid.Core.Bosses.Crocomire;
-using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Bosses.Torizo;
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
-using SuperMetroid.Core.Enemies.MaridiaSnails;
-using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;

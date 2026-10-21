@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.AssetExtraction.Hud;
 

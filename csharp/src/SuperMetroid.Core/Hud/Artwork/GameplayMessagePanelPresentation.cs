@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Hud.Artwork;
 

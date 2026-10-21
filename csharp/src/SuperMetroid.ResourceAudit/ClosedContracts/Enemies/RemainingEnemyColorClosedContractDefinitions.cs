@@ -63,7 +63,7 @@ internal static class RemainingEnemyColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresRidleyFadeColorDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresRidleyBodyPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/GoldenTorizoHealthPaintDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyPaletteRomData.cs")]),
+             new("csharp/src/SuperMetroid.Core/Areas/Ceres/CeresRidleyPaletteRomData.cs")]),
         new("SuperMetroid.Core.Enemies.Artwork.DachoraColorCatalog", "dachora-complete-phase-colors", ["Resolve"],
             [new("csharp/src/SuperMetroid.Core/Enemies/Artwork/DachoraColorCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Animals/DachoraColorRomData.cs")]),

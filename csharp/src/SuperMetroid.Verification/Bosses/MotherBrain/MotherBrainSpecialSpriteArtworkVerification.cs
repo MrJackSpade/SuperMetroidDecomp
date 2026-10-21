@@ -14,6 +14,7 @@ using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.Core.Escape;
 
 /// <summary>Checks installed Mother Brain sprite transfers, native leg records and the mutable corpse WRAM source.</summary>
 internal static class MotherBrainSpecialSpriteArtworkVerification

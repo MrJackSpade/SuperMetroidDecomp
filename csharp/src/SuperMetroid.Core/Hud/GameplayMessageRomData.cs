@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Hud;
 

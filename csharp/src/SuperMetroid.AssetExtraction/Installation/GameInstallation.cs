@@ -12,7 +12,6 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
-using SuperMetroid.Core.Rooms.Xray;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
@@ -26,6 +25,7 @@ using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.Samus.Abilities;
 
 namespace SuperMetroid.AssetExtraction.Installation;
 

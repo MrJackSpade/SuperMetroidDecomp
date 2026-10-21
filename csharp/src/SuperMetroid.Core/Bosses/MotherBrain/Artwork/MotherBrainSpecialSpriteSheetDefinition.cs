@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Escape;
+
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 

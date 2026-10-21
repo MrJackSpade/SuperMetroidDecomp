@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Elevator;
-
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>

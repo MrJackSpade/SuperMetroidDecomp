@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.WreckedShip;
-
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>One ordered strip of native 2-bpp room-FX, treadmill, and statue characters.</summary>

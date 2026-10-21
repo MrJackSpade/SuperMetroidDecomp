@@ -10,6 +10,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks extracted message-title text against native tilemaps and live presentation rebinding.</summary>
 internal static class GameplayMessageTitlesVerification

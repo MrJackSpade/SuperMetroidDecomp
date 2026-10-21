@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Samus.Abilities;
 

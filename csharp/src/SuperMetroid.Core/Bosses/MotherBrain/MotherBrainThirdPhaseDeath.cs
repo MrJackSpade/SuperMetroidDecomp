@@ -6,6 +6,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.Core.Escape;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 

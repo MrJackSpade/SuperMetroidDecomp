@@ -7,7 +7,6 @@ using static SuperMetroid.Verification.Samus.Abilities.DrainedPoseHistoryVerific
 using static SuperMetroid.Verification.Fx.PaletteFx.HyperBeamPaletteFxColorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SyntheticSamusCartridgeVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
-using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;

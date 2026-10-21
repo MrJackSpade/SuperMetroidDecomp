@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms;
+
 
 namespace SuperMetroid.Core.Hud;
 

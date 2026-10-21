@@ -1,8 +1,8 @@
-﻿using SuperMetroid.Core.Enemies.Animals;
-using SuperMetroid.Core.Rooms.LevelData;
+﻿using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 

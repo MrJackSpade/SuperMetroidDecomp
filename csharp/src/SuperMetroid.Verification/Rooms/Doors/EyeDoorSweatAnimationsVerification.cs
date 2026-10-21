@@ -1,10 +1,10 @@
 using static SuperMetroid.Verification.Rooms.Doors.EyeDoorSweatNativeListAddresses;
-using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Doors.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.EyeDoor;
 
 namespace SuperMetroid.Verification.Rooms.Doors;
 

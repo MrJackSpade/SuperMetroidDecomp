@@ -4,6 +4,7 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Verification.Hud;
 

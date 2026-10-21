@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.AssetExtraction.Rooms;

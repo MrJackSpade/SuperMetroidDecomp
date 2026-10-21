@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerifica
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks the extra wait between save-confirmation cursor moves and the next controller read.</summary>
 internal static class SaveConfirmationCadenceVerification

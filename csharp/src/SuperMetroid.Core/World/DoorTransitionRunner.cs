@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.World;
 

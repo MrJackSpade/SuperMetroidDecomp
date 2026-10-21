@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Fireflea;
-
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>

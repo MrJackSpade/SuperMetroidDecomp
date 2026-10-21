@@ -5,7 +5,6 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefini
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonWallPlmsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
-using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;

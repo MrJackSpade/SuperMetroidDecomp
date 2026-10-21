@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.Plms;
+
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Cartridge values of <see cref="KraidRoomPlmDrawDefinitions"/> that only verification reads.</summary>

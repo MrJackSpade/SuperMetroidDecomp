@@ -6,6 +6,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the imported enemy drop table against the cartridge and the ROM-free selection path.</summary>
 internal static class EnemyDropChanceDefinitionsVerification

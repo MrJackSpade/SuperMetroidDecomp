@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Rendering;
 

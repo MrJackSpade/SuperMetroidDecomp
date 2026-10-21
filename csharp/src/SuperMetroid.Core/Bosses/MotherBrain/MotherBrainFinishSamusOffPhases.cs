@@ -1,5 +1,6 @@
 ﻿using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Escape;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 

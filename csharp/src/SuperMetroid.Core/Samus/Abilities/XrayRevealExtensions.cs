@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Xray;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 

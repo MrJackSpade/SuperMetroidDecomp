@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.World;
 

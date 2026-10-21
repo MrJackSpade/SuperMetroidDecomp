@@ -10,6 +10,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Areas.Ceres;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
 

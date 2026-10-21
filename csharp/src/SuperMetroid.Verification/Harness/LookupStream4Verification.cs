@@ -46,7 +46,6 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
@@ -70,10 +69,10 @@ using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.World.Artwork;
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Compares stream-four imported definitions and runtime consumers with pinned cartridge data.</summary>

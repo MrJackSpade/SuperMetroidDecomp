@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using SuperMetroid.Core.Bosses.Ridley;
 
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 

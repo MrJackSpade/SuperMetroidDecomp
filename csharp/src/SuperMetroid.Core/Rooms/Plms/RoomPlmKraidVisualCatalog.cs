@@ -1,7 +1,6 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.LevelData;
 

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Fx.Artwork;

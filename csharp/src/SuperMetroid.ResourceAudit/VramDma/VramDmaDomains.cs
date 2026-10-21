@@ -4,7 +4,6 @@ using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus.Abilities;

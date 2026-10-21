@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Verification.Hud;
 
 /// <summary>Checks gameplay message snapshots, reveal geometry and frame ownership.</summary>

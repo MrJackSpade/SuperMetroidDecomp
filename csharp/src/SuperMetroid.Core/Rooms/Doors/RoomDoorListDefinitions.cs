@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Elevator;
-
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Each retail room's door list: the entries its type-$9 blocks select by index.</summary>

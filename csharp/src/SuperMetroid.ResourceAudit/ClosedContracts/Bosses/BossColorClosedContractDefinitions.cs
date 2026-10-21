@@ -26,7 +26,7 @@ internal static class BossColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresRidleyBodyPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/GoldenTorizoHealthPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresRidleyAlarmColorDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyPaletteRomData.cs")]),
+             new("csharp/src/SuperMetroid.Core/Areas/Ceres/CeresRidleyPaletteRomData.cs")]),
         new("SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireColorCatalog", "crocomire-v1-complete-fixed-palettes",
             ["ApplyInitial", "ApplyFightBody", "ApplySkeletonArm", "ApplyWallSpikes"],
             [new("csharp/src/SuperMetroid.Core/Bosses/Crocomire/Artwork/CrocomireColorCatalog.cs"),

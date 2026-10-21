@@ -8,7 +8,6 @@ using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Rooms.Xray;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 

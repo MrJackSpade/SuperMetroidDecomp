@@ -60,6 +60,7 @@ using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Escape;
 
 /// <summary>Checks stream-three compiled enemy, projectile, and room lookup contracts against native sources.</summary>
 internal static class LookupStream3Verification

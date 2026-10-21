@@ -3,12 +3,12 @@ using SuperMetroid.Core.Assets;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 

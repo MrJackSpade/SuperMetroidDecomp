@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 

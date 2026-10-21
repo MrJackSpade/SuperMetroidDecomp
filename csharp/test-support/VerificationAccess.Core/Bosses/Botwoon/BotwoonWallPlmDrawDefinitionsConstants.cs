@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.Plms;
+
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>Cartridge values of <see cref="BotwoonWallPlmDrawDefinitions"/> that only verification reads.</summary>

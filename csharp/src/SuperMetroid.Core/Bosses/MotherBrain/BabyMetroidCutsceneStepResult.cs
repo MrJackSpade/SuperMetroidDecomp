@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Escape;
+
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>One-call debugger witness for the Baby entrance and latch chain.</summary>

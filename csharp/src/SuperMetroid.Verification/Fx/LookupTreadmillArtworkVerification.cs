@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Enemies.WreckedShip;
+using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Verification.Fx;
 

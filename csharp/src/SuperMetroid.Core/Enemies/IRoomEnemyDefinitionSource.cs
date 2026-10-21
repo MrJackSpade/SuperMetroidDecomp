@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Enemies;
 

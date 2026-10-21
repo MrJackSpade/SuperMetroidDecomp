@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Fx;
+
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>Cartridge values of <see cref="WreckedShipTreadmillRomData"/> that only verification reads.</summary>

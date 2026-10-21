@@ -29,6 +29,7 @@ namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Constructed cartridge checks for permanent item PLMs, messages, saves, and suit acquisition.</summary>
 internal static class CollectiblesVerification

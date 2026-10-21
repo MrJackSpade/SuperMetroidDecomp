@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Bosses.MotherBrain;
-
-
 namespace SuperMetroid.Core.Escape.Artwork;
 
 /// <summary>Editable OBJ characters copied into VRAM for the Zebes escape typewriter.</summary>

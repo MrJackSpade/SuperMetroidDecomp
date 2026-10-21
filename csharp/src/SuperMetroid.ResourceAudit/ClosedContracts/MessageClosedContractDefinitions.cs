@@ -11,7 +11,7 @@ internal static class MessageClosedContractDefinitions
         new("csharp/src/SuperMetroid.Core/Hud/Artwork/GameplayMessageTitlePresentation.cs"),
         new("csharp/src/SuperMetroid.Core/Hud/Artwork/GameplayMessageTitleDefinitions.cs"),
         new("csharp/src/SuperMetroid.Core/Hud/GameplayMessageRomData.cs"),
-        new("csharp/src/SuperMetroid.Core/Hud/GameplayMessageIds.cs"),
+        new("csharp/src/SuperMetroid.Core/Rooms/GameplayMessageIds.cs"),
     ];
 
     /// <summary>Closed title, panel, and notice source sets, each checked only for the message IDs it owns.</summary>

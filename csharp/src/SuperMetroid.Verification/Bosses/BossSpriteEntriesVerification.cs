@@ -14,13 +14,14 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
 namespace SuperMetroid.Verification.Bosses;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Escape;
 
 /// <summary>
 /// Checks #1344: boss and scripted-actor sprite parts publish whole-frame entries over the gameplay OBJ page, and their

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Hud;
 

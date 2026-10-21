@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Programs;
-using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Bosses.Kraid.KraidRoomProgram, SuperMetroid.Core.Bosses.Kraid.KraidRoomDraw, SuperMetroid.Core.Bosses.Kraid.KraidRoomCue>;
+using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Bosses.Kraid.KraidRoomProgram, SuperMetroid.Core.Rooms.Plms.KraidRoomDraw, SuperMetroid.Core.Bosses.Kraid.KraidRoomCue>;
+using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 

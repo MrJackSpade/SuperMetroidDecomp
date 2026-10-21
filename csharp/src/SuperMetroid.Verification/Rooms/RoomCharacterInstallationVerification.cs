@@ -23,6 +23,7 @@ using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks stock and overridden room characters, palettes, blocks, backgrounds, and sky artwork.</summary>
 internal static class RoomCharacterInstallationVerification

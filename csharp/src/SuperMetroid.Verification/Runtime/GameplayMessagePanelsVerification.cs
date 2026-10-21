@@ -10,6 +10,7 @@ using SuperMetroid.Core.Hud.Artwork;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks editable gameplay message panels and live title/diagram binding.</summary>
 internal static class GameplayMessagePanelsVerification

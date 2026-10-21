@@ -9,7 +9,6 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Rooms.Xray;
 namespace SuperMetroid.Verification.Samus.Abilities;
 
 using SuperMetroid.Verification.Harness;

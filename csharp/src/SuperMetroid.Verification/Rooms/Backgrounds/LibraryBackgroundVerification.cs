@@ -17,6 +17,7 @@ using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.Core.Map.Artwork;
 namespace SuperMetroid.Verification.Rooms.Backgrounds;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks library-background command sources, native transfer behavior, and installed artwork boundaries.</summary>
 internal static class LibraryBackgroundVerification

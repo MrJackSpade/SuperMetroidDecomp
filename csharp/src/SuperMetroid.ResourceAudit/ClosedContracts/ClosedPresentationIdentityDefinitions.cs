@@ -5,7 +5,6 @@ using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Frontend.Map;
-using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -19,6 +18,7 @@ using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 

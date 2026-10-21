@@ -41,7 +41,7 @@ internal static class RuntimeCartridgeBoundaryVerification
         AssertTrue(!MetadataShape.ParameterTypes(typeof(VramWriteQueue), nameof(VramWriteQueue.DrainTo))
                 .Any(type => typeof(ISnesMemoryBus).IsAssignableFrom(type) || typeof(ISnesMutableMemory).IsAssignableFrom(type)),
             "NMI queue drainage takes no memory source");
-        AssertTrue(!MetadataShape.DeclaresMethod(typeof(SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundLoader), "ExecuteNativeForVerification", BindingFlags.Static | BindingFlags.NonPublic),
+        AssertTrue(!MetadataShape.DeclaresMethod(typeof(SuperMetroid.Core.World.LibraryBackgroundLoader), "ExecuteNativeForVerification", BindingFlags.Static | BindingFlags.NonPublic),
             "Core must not contain a native background byte decoder, even behind a diagnostic-only entry point");
         AssertEqual(typeof(SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinition),
             MetadataShape.ParameterTypes(typeof(SuperMetroid.Core.World.PlmPopulationLoader), "LoadRoomPopulation")[1],

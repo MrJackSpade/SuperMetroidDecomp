@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Verification.Rooms.Doors;

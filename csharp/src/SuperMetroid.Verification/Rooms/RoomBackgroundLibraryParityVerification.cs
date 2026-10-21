@@ -12,6 +12,7 @@ using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.World;
 
 /// <summary>Retail and synthetic checks for installed library-background command execution.</summary>
 internal static class RoomBackgroundLibraryParityVerification

@@ -10,7 +10,7 @@ internal static class PlmProgressionClosedContractDefinitions
         "csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmShotBlockDrawDefinitions.cs");
     /// <summary>Elevatube definition also reviewed for Kraid-room visual membership.</summary>
     private static readonly ReviewedSource ElevatubeDefinition = new(
-        "csharp/src/SuperMetroid.Core/Areas/Maridia/MaridiaElevatubePlmDefinitions.cs");
+        "csharp/src/SuperMetroid.Core/Rooms/Plms/MaridiaElevatubePlmDefinitions.cs");
 
     /// <summary>Closed visual domains for progression blocks and boss-room PLM draws.</summary>
     internal static readonly ClosedPresentationContract[] All =
@@ -37,11 +37,11 @@ internal static class PlmProgressionClosedContractDefinitions
         new("SuperMetroid.Core.Rooms.Plms.RoomPlmBotwoonWallVisualCatalog", "plm-botwoon-wall-complete-clear", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmBotwoonWallVisualCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/Botwoon/BotwoonWallPlmDrawDefinitions.cs")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/Plms/BotwoonWallPlmDrawDefinitions.cs")]),
         new("SuperMetroid.Core.Rooms.Plms.RoomPlmKraidVisualCatalog", "plm-kraid-room-complete-draws", ["GetWord", "Frame", "Append"],
             [SharedDrawShape, ElevatubeDefinition,
              new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmKraidVisualCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidRoomPlmDrawDefinitions.cs")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/Plms/KraidRoomPlmDrawDefinitions.cs")]),
         new("SuperMetroid.Core.Bosses.Crocomire.Artwork.RoomPlmCrocomireVisualCatalog", "plm-crocomire-arena-complete-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Bosses/Crocomire/Artwork/RoomPlmCrocomireVisualCatalog.cs"),

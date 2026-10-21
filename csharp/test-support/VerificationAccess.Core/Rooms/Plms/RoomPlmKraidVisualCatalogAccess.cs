@@ -1,6 +1,4 @@
 namespace SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Bosses.Kraid;
-
 /// <summary>Verification access to <see cref="RoomPlmKraidVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmKraidVisualCatalogAccess
 {

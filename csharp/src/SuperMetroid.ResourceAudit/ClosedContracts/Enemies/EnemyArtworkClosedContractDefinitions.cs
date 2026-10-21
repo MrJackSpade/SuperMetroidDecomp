@@ -26,6 +26,6 @@ internal static class EnemyArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Bosses/Torizo/Artwork/TorizoInstructionVramArtwork.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Torizo/Artwork/TorizoInstructionTileRomData.cs"),
              new("csharp/src/SuperMetroid.Core/Areas/Ceres/CeresEscapeVramTransferDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyPaletteRomData.cs")]),
+             new("csharp/src/SuperMetroid.Core/Areas/Ceres/CeresRidleyPaletteRomData.cs")]),
     ];
 }

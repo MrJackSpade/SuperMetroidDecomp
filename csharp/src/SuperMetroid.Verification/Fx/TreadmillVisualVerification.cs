@@ -5,7 +5,6 @@ using SuperMetroid.Core.Runtime;
 using System.Text.Json;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
-using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;

@@ -6,7 +6,6 @@ using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.WreckedShip;

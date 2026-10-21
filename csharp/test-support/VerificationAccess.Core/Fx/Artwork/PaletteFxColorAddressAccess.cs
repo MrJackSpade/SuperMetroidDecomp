@@ -1,8 +1,6 @@
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.Core.Fx.Artwork;
 

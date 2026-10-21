@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Areas.Ceres;
-using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies.Corpses;

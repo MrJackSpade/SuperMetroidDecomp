@@ -1,7 +1,5 @@
-using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Samus.Abilities;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 

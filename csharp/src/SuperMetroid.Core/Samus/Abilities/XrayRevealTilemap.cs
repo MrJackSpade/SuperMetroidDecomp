@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Xray;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Abilities;

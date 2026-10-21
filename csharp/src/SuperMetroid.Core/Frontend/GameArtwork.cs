@@ -11,7 +11,6 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
-using SuperMetroid.Core.Rooms.Xray;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
@@ -22,6 +21,7 @@ using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.Samus.Abilities;
 
 namespace SuperMetroid.Core.Frontend;
 

@@ -7,18 +7,18 @@ internal static class RoomRevealClosedContractDefinitions
 {
     /// <summary>Reviewed source for X-ray visual ownership shared by reveal and overlay contracts.</summary>
     private static readonly ReviewedSource XrayCatalog = new(
-        "csharp/src/SuperMetroid.Core/Rooms/Xray/XrayRevealVisualCatalog.cs");
+        "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealVisualCatalog.cs");
     /// <summary>Names the three closed audits for reveal commands, room overlays, and collectible uploads.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
-        new("SuperMetroid.Core.Rooms.Xray.XrayRevealVisualCatalog", "xray-command-and-visual-share-one-identity", ["Apply"],
+        new("SuperMetroid.Core.Samus.Abilities.XrayRevealVisualCatalog", "xray-command-and-visual-share-one-identity", ["Apply"],
             [XrayCatalog,
              new("csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealTable.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealTableWords.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomLevelWord.cs")]),
-        new("SuperMetroid.Core.Rooms.Xray.XrayOverlayVisualCatalog", "xray-complete-items-and-required-room-overlays", ["ItemMetatile", "RoomTiles"],
-            [XrayCatalog, new("csharp/src/SuperMetroid.Core/Rooms/Xray/XrayOverlayVisualCatalog.cs"),
+        new("SuperMetroid.Core.Samus.Abilities.XrayOverlayVisualCatalog", "xray-complete-items-and-required-room-overlays", ["ItemMetatile", "RoomTiles"],
+            [XrayCatalog, new("csharp/src/SuperMetroid.Core/Samus/Abilities/XrayOverlayVisualCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRoomOverlayVisual.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Abilities/XrayOverlayRomData.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/Xray/XrayRoomOverlayDefinition.cs"),

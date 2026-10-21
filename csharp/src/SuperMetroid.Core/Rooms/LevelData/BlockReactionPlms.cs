@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Animals;
-using SuperMetroid.Core.Rooms.Plms;
+﻿using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Rooms.LevelData;

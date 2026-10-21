@@ -10,6 +10,7 @@ using SuperMetroid.Core.Hud.Artwork;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks cartridge-extracted message text in the installed box renderer and editable presentation catalog.</summary>
 internal static class GameplayMessageNoticesVerification

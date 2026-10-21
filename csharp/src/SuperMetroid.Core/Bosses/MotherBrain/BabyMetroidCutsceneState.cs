@@ -5,6 +5,7 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Escape;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 

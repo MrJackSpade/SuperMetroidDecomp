@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -10,6 +9,7 @@ using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.Core.Escape;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 

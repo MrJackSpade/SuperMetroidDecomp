@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Hud;

@@ -10,6 +10,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms.Backgrounds;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks extracted compressed room backgrounds and installed Ceres tilemap edits.</summary>
 internal static class RoomBackgroundTilemapsVerification

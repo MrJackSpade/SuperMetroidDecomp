@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Saves;
 
 namespace SuperMetroid.Core.Progression;
 

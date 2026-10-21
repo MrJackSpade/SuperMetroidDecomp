@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
 
-namespace SuperMetroid.Core.Rooms.Plms;
+namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>
 /// Presentation-only selection for the three escape-gate frames. The compiled

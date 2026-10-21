@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 

@@ -15,6 +15,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.SporeSpawn;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
+using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 
 /// <summary>Checks editable Spore Spawn ceiling artwork while retaining compiled PLM physics and timing.</summary>
 internal static class SporeSpawnCeilingVisualsVerification

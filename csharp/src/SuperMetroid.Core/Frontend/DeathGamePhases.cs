@@ -3,7 +3,7 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend;
 

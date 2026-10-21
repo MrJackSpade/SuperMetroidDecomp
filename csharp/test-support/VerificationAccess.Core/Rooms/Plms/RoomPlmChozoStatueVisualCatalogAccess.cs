@@ -1,4 +1,5 @@
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.Core.Enemies.Chozo;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 

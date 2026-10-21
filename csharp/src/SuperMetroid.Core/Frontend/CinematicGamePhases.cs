@@ -4,7 +4,6 @@ using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.CeresCinematics;
-using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.Frontend;
 

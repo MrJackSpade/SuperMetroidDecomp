@@ -15,7 +15,6 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 
 using SuperMetroid.Verification.Harness;

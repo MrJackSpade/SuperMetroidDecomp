@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Runtime.Attract;
 

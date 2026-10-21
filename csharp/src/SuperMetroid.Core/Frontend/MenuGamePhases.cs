@@ -6,7 +6,6 @@ using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.CeresCinematics;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend;

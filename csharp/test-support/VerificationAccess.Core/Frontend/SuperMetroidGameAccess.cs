@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend;
 

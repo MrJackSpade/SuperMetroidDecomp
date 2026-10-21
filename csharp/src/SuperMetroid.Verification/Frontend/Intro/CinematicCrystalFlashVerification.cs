@@ -11,10 +11,10 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Frontend.Intro;
 
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks Crystal Flash movement, palette and input ownership across Mother Brain, Super Metroid and Ceres interruptions.</summary>
 internal static class CinematicCrystalFlashVerification

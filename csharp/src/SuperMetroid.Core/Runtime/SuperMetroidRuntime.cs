@@ -17,7 +17,6 @@ using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
@@ -363,7 +362,7 @@ internal sealed class SuperMetroidRuntime
     /// $90:F4A2 test it from inside the outer frame; runtime-only hosts run state eight.
     /// </summary>
     [field: NonSerialized]
-    public SuperMetroid.Core.Gameplay.SuperMetroidGameState DispatchGameState { get; set; } = SuperMetroid.Core.Gameplay.SuperMetroidGameState.MainGameplay;
+    public SuperMetroid.Core.Progression.SuperMetroidGameState DispatchGameState { get; set; } = SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay;
 
     /// <summary>
     /// Native power-bomb explosion status at WRAM <c>$0CE2</c>, 0 through 65535. X-ray setup rejects every

@@ -6,10 +6,10 @@ using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerifica
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.TestSupport.RepositoryInstallation;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks the file-select swoosh request and audible PCM through isolated and full frontend paths.</summary>
 internal static class FileSelectSoundVerification

@@ -1,4 +1,5 @@
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.Core.Bosses.Torizo.Artwork;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 

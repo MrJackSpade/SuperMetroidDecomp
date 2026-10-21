@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public sealed record XrayBeginConditions
 {
     /// <summary>Live game state at <c>$0998</c>; setup rejects every state but main gameplay.</summary>
-    public required SuperMetroid.Core.Gameplay.SuperMetroidGameState GameState { get; init; }
+    public required SuperMetroid.Core.Progression.SuperMetroidGameState GameState { get; init; }
 
     /// <summary>Whether a power bomb explosion's status is set; any set status rejects X-ray activation.</summary>
     public bool PowerBombExplosionActive { get; init; } = false;

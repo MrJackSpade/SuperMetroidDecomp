@@ -13,7 +13,6 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Saves;
 using SuperMetroid.Verification.Harness;
 

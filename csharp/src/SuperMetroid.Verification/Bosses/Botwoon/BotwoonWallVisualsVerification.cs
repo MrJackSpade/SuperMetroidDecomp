@@ -14,6 +14,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks editable Botwoon wall-clear tiles remain separate from PLM collision and timing.</summary>
 internal static class BotwoonWallVisualsVerification

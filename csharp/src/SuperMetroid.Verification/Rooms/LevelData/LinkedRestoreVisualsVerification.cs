@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.World;
 namespace SuperMetroid.Verification.Rooms.LevelData;
 
 /// <summary>Checks bomb and crumble block restore artwork against native draw lists and production PLM behavior.</summary>

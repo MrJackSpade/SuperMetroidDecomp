@@ -7,7 +7,6 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
 
 using static SuperMetroid.DesktopVerification.Harness.DesktopVerificationSupport;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Desktop.Audio;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
@@ -15,6 +14,7 @@ namespace SuperMetroid.DesktopVerification.Soak;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Measures paced hidden-window gameplay and pause rendering with real audio output.</summary>
 internal static class HiddenSoakTests

@@ -5,9 +5,9 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Compares captured X-ray scanline intervals with the per-pixel reference raster.</summary>
 internal static class XrayWindowGeometryVerification

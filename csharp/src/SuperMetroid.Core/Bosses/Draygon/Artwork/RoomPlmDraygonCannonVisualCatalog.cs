@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
 
-namespace SuperMetroid.Core.Rooms.Plms;
+namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 /// <summary>
 /// Editable appearance for the cannon PLM. The compiled draw geometry, full

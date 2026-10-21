@@ -2,7 +2,6 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Saves;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.Rooms;
@@ -10,6 +9,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.SaveMapFixtures;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Compares legacy and captured rendering through saved-file map, Samus appearance, and control release.</summary>
 internal static class RetailLoadAppearanceTests

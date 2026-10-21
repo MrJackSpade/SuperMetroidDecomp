@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>A frontend screen: the one menu or cinematic the session shows at a time.</summary>

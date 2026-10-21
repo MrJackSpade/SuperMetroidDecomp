@@ -10,11 +10,11 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Rooms.Xray;
-using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Samus.Abilities;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks X-ray setup's staged BG1 capture and frozen reveal-map lifetime.</summary>
 internal static class XraySetupVerification

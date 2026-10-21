@@ -1,10 +1,10 @@
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Areas.Escape;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks the gunship takeoff fade while state $26 continues normal gameplay updates.</summary>
 internal static class ZebesEscapeFadeVerification

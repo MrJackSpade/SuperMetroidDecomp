@@ -2,10 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Runtime.Attract;
 using SuperMetroid.Verification.Input;
 using static SuperMetroid.Verification.Frontend.FrontendVerification;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Verification.Runtime.Attract;
 

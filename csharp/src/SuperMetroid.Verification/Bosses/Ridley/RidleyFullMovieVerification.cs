@@ -35,7 +35,6 @@ using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 

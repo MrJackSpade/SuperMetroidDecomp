@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Enemies.Fireflea;
+using SuperMetroid.Core.Enemies.Fireflea;
+
+namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// FX $24's state: the flash clock that <c>$88:B07C</c> initializes and its pre-instruction <c>$88:B0BC</c> steps, and

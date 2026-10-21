@@ -15,7 +15,7 @@ internal static class PlmProgressionClosedContractDefinitions
     /// <summary>Closed visual domains for progression blocks and boss-room PLM draws.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
-        new("SuperMetroid.Core.Rooms.Plms.RoomPlmTourianAccessVisualCatalog", "plm-tourian-access-complete-draws", ["GetWord"],
+        new("SuperMetroid.Core.Areas.Tourian.Artwork.RoomPlmTourianAccessVisualCatalog", "plm-tourian-access-complete-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmTourianAccessVisualCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Areas/Tourian/TourianAccessPlmDrawDefinitions.cs")]),
@@ -26,7 +26,7 @@ internal static class PlmProgressionClosedContractDefinitions
         new("SuperMetroid.Core.Rooms.Plms.RoomPlmMaridiaElevatubeVisualCatalog", "plm-maridia-elevatube-complete-draw", ["GetWord"],
             [SharedDrawShape, ElevatubeDefinition,
              new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmMaridiaElevatubeVisualCatalog.cs")]),
-        new("SuperMetroid.Core.Rooms.Plms.RoomPlmSporeSpawnCeilingVisualCatalog", "plm-spore-ceiling-complete-draws", ["GetWord"],
+        new("SuperMetroid.Core.Bosses.SporeSpawn.Artwork.RoomPlmSporeSpawnCeilingVisualCatalog", "plm-spore-ceiling-complete-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmSporeSpawnCeilingVisualCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnCeilingPlmDrawDefinitions.cs")]),
@@ -42,11 +42,11 @@ internal static class PlmProgressionClosedContractDefinitions
             [SharedDrawShape, ElevatubeDefinition,
              new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmKraidVisualCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidRoomPlmDrawDefinitions.cs")]),
-        new("SuperMetroid.Core.Rooms.Plms.RoomPlmCrocomireVisualCatalog", "plm-crocomire-arena-complete-draws", ["GetWord"],
+        new("SuperMetroid.Core.Bosses.Crocomire.Artwork.RoomPlmCrocomireVisualCatalog", "plm-crocomire-arena-complete-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmCrocomireVisualCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireArenaPlmDrawDefinitions.cs")]),
-        new("SuperMetroid.Core.Rooms.Plms.RoomPlmMotherBrainFakeDeathVisualCatalog", "plm-mother-brain-fake-death-complete-draws", ["GetWord"],
+        new("SuperMetroid.Core.Bosses.MotherBrain.Artwork.RoomPlmMotherBrainFakeDeathVisualCatalog", "plm-mother-brain-fake-death-complete-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmMotherBrainFakeDeathVisualCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainFakeDeathPlmDrawDefinitions.cs")]),

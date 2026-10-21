@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Progression;
+
 namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>Domain-owned transitions over <see cref="SuperMetroidGameState"/>.</summary>

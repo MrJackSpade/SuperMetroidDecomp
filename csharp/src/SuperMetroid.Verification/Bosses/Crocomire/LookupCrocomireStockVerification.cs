@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerifi
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 

@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
 
-namespace SuperMetroid.Core.Rooms.Plms;
+namespace SuperMetroid.Core.Bosses.Torizo.Artwork;
 
 /// <summary>
 /// Editable appearance for the hand PLM. The compiled draw geometry, full

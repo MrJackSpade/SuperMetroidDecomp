@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 

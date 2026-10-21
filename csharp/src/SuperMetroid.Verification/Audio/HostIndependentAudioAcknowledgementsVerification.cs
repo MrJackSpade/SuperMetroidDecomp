@@ -10,7 +10,6 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation;
-using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Audio;
 
 using SuperMetroid.Verification.Harness;

@@ -4,10 +4,10 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.DebugRunner.Tools;
 using SuperMetroid.Diagnostics.Android;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Representative retail-room fixtures for Android performance issues #361-363.</summary>
 internal static class RoomPerformanceStateFixture

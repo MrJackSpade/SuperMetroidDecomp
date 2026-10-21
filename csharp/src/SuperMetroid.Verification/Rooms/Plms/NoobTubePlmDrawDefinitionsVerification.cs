@@ -18,6 +18,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Noob Tube draw geometry and editable visual tiles through production PLM drawing.</summary>
 internal static class NoobTubePlmDrawDefinitionsVerification

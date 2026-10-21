@@ -15,7 +15,6 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Frontend.CeresCinematics;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Runtime;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 using SuperMetroid.Verification.Harness;

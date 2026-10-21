@@ -7,7 +7,6 @@ using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation;
-using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;

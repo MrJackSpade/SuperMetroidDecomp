@@ -13,6 +13,8 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 /// <summary>Checks editable Crocomire bridge and invisible-wall draw art through stock extraction and production PLMs.</summary>
 internal static class CrocomireArenaVisualsVerification

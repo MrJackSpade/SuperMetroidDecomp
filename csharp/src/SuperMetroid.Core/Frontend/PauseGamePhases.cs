@@ -2,7 +2,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend;
 

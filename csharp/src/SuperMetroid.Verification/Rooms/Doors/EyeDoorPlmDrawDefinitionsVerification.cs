@@ -23,6 +23,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks eye-door PLM programs, mirrored physical draws, and installed visual edits.</summary>
 internal static class EyeDoorPlmDrawDefinitionsVerification

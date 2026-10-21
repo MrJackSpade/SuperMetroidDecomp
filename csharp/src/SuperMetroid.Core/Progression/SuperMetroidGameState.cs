@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Gameplay;
+namespace SuperMetroid.Core.Progression;
 
 /// <summary>
 /// The retail dispatcher word at WRAM <c>$0998</c>, named from bank <c>$82</c>'s

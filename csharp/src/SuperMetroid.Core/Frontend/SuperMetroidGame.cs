@@ -10,7 +10,6 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.CeresCinematics;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Frontend.Pause;
 
 namespace SuperMetroid.Core.Frontend;

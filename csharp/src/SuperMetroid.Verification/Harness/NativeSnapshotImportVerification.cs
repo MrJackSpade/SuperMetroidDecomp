@@ -25,7 +25,6 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Harness;
 
 using SuperMetroid.Verification.Samus.Projectiles;

@@ -5,8 +5,8 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Recording;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.DesktopVerification.Audio;
 

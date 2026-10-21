@@ -4,9 +4,9 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Saves;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.Diagnostics.SaveStates;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Diagnostics.Android;
 

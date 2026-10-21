@@ -20,6 +20,8 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>Checks Mother Brain escape gate visual overrides against PLM collision and install contracts.</summary>
 internal static class EscapeGateVisualsVerification

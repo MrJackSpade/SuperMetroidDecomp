@@ -1,7 +1,4 @@
-using SuperMetroid.Core.Gameplay;
-using SuperMetroid.Core.Progression;
-
-namespace SuperMetroid.Core.Saves;
+namespace SuperMetroid.Core.Progression;
 
 /// <summary>
 /// Converts between a save's loading-game-state word (<c>SRAMMirror_LoadingGameState</c>, $7E:D914) and the startup route

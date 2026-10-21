@@ -3,13 +3,13 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Title;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.RenderVerification.Harness;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.Frontend;
 
 using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Compares captured title and frontend frames with their retail software renderings and state transitions.</summary>
 internal static class RetailFrontendTests

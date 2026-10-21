@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Frontend.Title;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Runtime.Attract;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend;
 

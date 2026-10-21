@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Saves;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
@@ -9,6 +8,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks the update timing of loading a save continued from the file-select map.</summary>
 internal static class FileSelectMapLoadTimingVerification

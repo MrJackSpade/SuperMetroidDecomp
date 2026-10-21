@@ -6,8 +6,8 @@ using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerifica
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Verification.Runtime.Attract;
 

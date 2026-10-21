@@ -9,7 +9,6 @@ using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerifica
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Saves;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Runtime.Attract;
 namespace SuperMetroid.Verification.Runtime.Attract;
 using SuperMetroid.Verification.Harness;
@@ -17,6 +16,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks attract-scene setup records and compiled input scripts against native data and playback.</summary>
 internal static class AttractDemoSceneVerification

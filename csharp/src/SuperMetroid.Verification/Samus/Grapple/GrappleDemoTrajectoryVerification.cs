@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Samus.Grapple;
 
 /// <summary>Checks the retail grapple attract demo's scripted shots, ceiling

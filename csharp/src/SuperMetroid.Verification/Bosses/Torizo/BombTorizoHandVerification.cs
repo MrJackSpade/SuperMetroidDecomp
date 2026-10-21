@@ -20,6 +20,7 @@ namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Bosses.Torizo.Artwork;
 
 /// <summary>Checks Bomb Torizo's hand PLM from inventory gating through debris, VRAM transfer, and deletion.</summary>
 internal static class BombTorizoHandVerification

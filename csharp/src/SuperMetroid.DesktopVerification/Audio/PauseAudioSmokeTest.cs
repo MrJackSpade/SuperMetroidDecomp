@@ -10,7 +10,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.SaveMapFixtures;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.TestSupport.AudioFixtures;
 
 namespace SuperMetroid.DesktopVerification.Audio;

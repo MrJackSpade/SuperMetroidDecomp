@@ -4,8 +4,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Verification.Bosses.Torizo;
 

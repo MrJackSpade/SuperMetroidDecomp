@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime.Attract;
 using SuperMetroid.Rendering.Direct3D11.Device;
@@ -9,6 +8,7 @@ namespace SuperMetroid.RenderVerification.Frontend;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks D3D11 capture of the stock attract-demo sequence and its return to the title.</summary>
 internal static class RetailAttractTests

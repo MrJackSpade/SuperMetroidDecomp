@@ -14,6 +14,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks extracted collectible art, installed VRAM edits, stock integrity, and override failures.</summary>
 internal static class DynamicCollectibleArtVerification

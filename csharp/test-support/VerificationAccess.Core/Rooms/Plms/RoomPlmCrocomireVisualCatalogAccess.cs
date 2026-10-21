@@ -1,4 +1,5 @@
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 

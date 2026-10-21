@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Input;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Rendering;

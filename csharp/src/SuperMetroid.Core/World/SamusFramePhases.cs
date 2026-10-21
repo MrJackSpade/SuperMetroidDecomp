@@ -175,7 +175,7 @@ internal sealed class SamusFramePhases
     /// movement types, vertical velocity, landing-pose gate, and speed divisor to native
     /// setup logic. The DebugRunner uses it without substituting a host pose or art frame.
     /// </remarks>
-    public bool TryBeginXrayFromSelectedHudItem(SuperMetroid.Core.Gameplay.SuperMetroidGameState gameState, SamusBombProjectileSystem bombProjectiles)
+    public bool TryBeginXrayFromSelectedHudItem(SuperMetroid.Core.Progression.SuperMetroidGameState gameState, SamusBombProjectileSystem bombProjectiles)
     {
         if (_player.Samus is null || !_player.GroundedSamusMovementEnabled || _room.LevelData is null)
         {
@@ -263,7 +263,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     /// Runs the frame handler's alpha (SamusCurrentStateHandler, $0A42): the head, then, when Samus movement is enabled,
     /// the tail. The enable flag is captured once here for every later gate of the frame.
     /// </summary>
-    internal void RunAlpha(SamusHandlerFrame frame, SuperMetroid.Core.Gameplay.SuperMetroidGameState gameState, SamusState samus,
+    internal void RunAlpha(SamusHandlerFrame frame, SuperMetroid.Core.Progression.SuperMetroidGameState gameState, SamusState samus,
         ScrollBoundaryCamera camera, FixedPosition<RoomPixels>? cameraPointAtFrameStart, RoomScope room)
     {
         RunAlphaHead(frame, samus, camera, cameraPointAtFrameStart, room.Plms, room);
@@ -287,7 +287,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     /// Runs alpha's tail once movement is enabled: environment gravity, terrain hazards, inside-block reactions, HUD
     /// selection, X-ray admission, bombs, grapple and projectiles, then the end-of-alpha movement snapshot ($90:EB30).
     /// </summary>
-    private void RunAlphaTail(SamusHandlerFrame frame, SuperMetroid.Core.Gameplay.SuperMetroidGameState gameState, SamusState samus,
+    private void RunAlphaTail(SamusHandlerFrame frame, SuperMetroid.Core.Progression.SuperMetroidGameState gameState, SamusState samus,
         ScrollBoundaryCamera camera, RoomScope room)
     {
         if (_room.LevelData is null)

@@ -13,6 +13,8 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>Checks fake-death artwork replacement while retaining Mother Brain's native collision and draw state.</summary>
 internal static class MotherBrainFakeDeathVisualsVerification

@@ -17,6 +17,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Enemies.Elevator;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks editable elevator PLM art while retaining platform collision and stock installation rules.</summary>
 internal static class ElevatorPlatformVisualsVerification

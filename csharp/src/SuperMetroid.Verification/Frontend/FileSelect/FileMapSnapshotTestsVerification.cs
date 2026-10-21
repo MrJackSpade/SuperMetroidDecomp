@@ -11,7 +11,7 @@ using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 
 /// <summary>Checks file-select map render packets against the legacy raster path.</summary>

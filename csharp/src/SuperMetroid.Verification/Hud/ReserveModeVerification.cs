@@ -6,9 +6,9 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Hud;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks the reported Reserve Mode X-Ray freeze branch and subsequent palette ownership handoffs.</summary>
 internal static class ReserveModeVerification

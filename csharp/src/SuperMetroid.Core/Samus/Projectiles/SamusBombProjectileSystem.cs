@@ -93,7 +93,7 @@ public sealed class SamusBombProjectileSystem
     public void AdvancePowerBombHdma(
         SamusState samus,
         SnesButton controllerInput,
-        SuperMetroid.Core.Gameplay.SuperMetroidGameState gameState = SuperMetroid.Core.Gameplay.SuperMetroidGameState.MainGameplay)
+        SuperMetroid.Core.Progression.SuperMetroidGameState gameState = SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay)
     {
         Ensure.NotNull(samus);
         // RunOneFrameOfGame invokes HdmaObjectHandler before GameState_8 reaches Samus's
@@ -317,9 +317,9 @@ public sealed class SamusBombProjectileSystem
     /// </summary>
     private static void ResumeSoundsAfterPowerBombExplosion(
         SamusState samus,
-        SuperMetroid.Core.Gameplay.SuperMetroidGameState gameState)
+        SuperMetroid.Core.Progression.SuperMetroidGameState gameState)
     {
-        if (gameState != SuperMetroid.Core.Gameplay.SuperMetroidGameState.MainGameplay)
+        if (gameState != SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay)
             return;
         if (SamusPoseMetadata.ReadMovementType(samus) is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {

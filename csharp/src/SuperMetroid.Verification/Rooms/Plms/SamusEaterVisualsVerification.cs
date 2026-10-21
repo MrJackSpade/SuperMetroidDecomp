@@ -14,6 +14,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Samus Eater PLM draw geometry, editable visual blocks and physical collision isolation against retail data.</summary>
 internal static class SamusEaterVisualsVerification

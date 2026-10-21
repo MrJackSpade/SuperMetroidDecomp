@@ -15,6 +15,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Kraid ceiling and spike PLM visuals, edited block streaming, and isolation from the Maridia elevatube catalog.</summary>
 internal static class KraidRoomVisualsVerification

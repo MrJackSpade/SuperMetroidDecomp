@@ -15,6 +15,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
 
 /// <summary>Checks Tourian entrance crumble and clear art independently of its physical PLM blocks.</summary>
 internal static class TourianAccessVisualsVerification

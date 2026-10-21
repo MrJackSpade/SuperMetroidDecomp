@@ -8,7 +8,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using System.Diagnostics;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.RenderVerification.Harness;
 using SuperMetroid.RenderVerification.Rooms;
@@ -19,6 +18,7 @@ namespace SuperMetroid.RenderVerification.Device;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Hidden-window checks for D3D11 swapchain presentation, worker recovery and bounded frame publication.</summary>
 internal static partial class SwapchainTests

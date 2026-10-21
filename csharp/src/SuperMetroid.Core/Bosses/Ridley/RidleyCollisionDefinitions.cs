@@ -1,5 +1,7 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
@@ -10,9 +12,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 internal static class RidleyCollisionDefinitions
 {
-    /// <summary>$A6, shared native bank for both Ceres and Lower Norfair Ridley body maps.</summary>
-    internal const byte Bank = 0xa6;
-
     /// <summary>The 32-pixel margin $A6:DE7A adds on each axis before the camera-relative test.</summary>
     private static readonly Offset16<RoomPixels> InteractionWindowMargin = new(32, 32);
 
@@ -30,33 +29,31 @@ internal static class RidleyCollisionDefinitions
     }
 
     /// <summary>Native extended body maps for both Ridley encounters, selected by facing, mouth, and leg pose.</summary>
-    internal enum BodyFrame : ushort
+    internal enum BodyFrame
     {
-        /// <summary>$A6:E983, ExtendedSpritemap_Ridley_FacingLeft.</summary>
-        Left = 0xe983,
-        /// <summary>$A6:E9A5, ExtendedSpritemap_Ridley_FacingRight.</summary>
-        Right = 0xe9a5,
-        /// <summary>$A6:E9C7, ExtendedSpritemap_Ridley_FacingLeft_MouthHalfOpen.</summary>
-        LeftMouthHalfOpen = 0xe9c7,
-        /// <summary>$A6:E9E9, ExtendedSpritemap_Ridley_FacingLeft_MouthOpen.</summary>
-        LeftMouthOpen = 0xe9e9,
-        /// <summary>$A6:EA0B, ExtendedSpritemap_Ridley_FacingRight_MouthHalfOpen.</summary>
-        RightMouthHalfOpen = 0xea0b,
-        /// <summary>$A6:EA2D, ExtendedSpritemap_Ridley_FacingRight_MouthOpen.</summary>
-        RightMouthOpen = 0xea2d,
-        /// <summary>$A6:EA4F, ExtendedSpritemap_Ridley_FacingLeft_LegsHalfExtended.</summary>
-        LeftLegsHalfExtended = 0xea4f,
-        /// <summary>$A6:EA71, ExtendedSpritemap_Ridley_FacingLeft_LegsExtended.</summary>
-        LeftLegsExtended = 0xea71,
-        /// <summary>$A6:EA93, ExtendedSpritemap_Ridley_FacingRight_LegsHalfExtended.</summary>
-        RightLegsHalfExtended = 0xea93,
-        /// <summary>$A6:EAB5, ExtendedSpritemap_Ridley_FacingRight_LegsExtended.</summary>
-        RightLegsExtended = 0xeab5,
-        /// <summary>$A6:EAD7, ExtendedSpritemap_Ridley_FacingForward.</summary>
-        Forward = 0xead7,
+        /// <summary>ExtendedSpritemap_Ridley_FacingLeft.</summary>
+        Left,
+        /// <summary>ExtendedSpritemap_Ridley_FacingRight.</summary>
+        Right,
+        /// <summary>ExtendedSpritemap_Ridley_FacingLeft_MouthHalfOpen.</summary>
+        LeftMouthHalfOpen,
+        /// <summary>ExtendedSpritemap_Ridley_FacingLeft_MouthOpen.</summary>
+        LeftMouthOpen,
+        /// <summary>ExtendedSpritemap_Ridley_FacingRight_MouthHalfOpen.</summary>
+        RightMouthHalfOpen,
+        /// <summary>ExtendedSpritemap_Ridley_FacingRight_MouthOpen.</summary>
+        RightMouthOpen,
+        /// <summary>ExtendedSpritemap_Ridley_FacingLeft_LegsHalfExtended.</summary>
+        LeftLegsHalfExtended,
+        /// <summary>ExtendedSpritemap_Ridley_FacingLeft_LegsExtended.</summary>
+        LeftLegsExtended,
+        /// <summary>ExtendedSpritemap_Ridley_FacingRight_LegsHalfExtended.</summary>
+        RightLegsHalfExtended,
+        /// <summary>ExtendedSpritemap_Ridley_FacingRight_LegsExtended.</summary>
+        RightLegsExtended,
+        /// <summary>ExtendedSpritemap_Ridley_FacingForward.</summary>
+        Forward,
     }
-    /// <summary>$A6:E983..EAD6: each side-facing frame has a two-byte count and four eight-byte component records.</summary>
-    internal const int SideFrameBytes = 2 + 4 * 8;
     /// <summary>$A6:EADB, the forward frame's single component Y offset, authored for its drawing.</summary>
     private const short ForwardYOffset = -6;
 
@@ -148,12 +145,14 @@ internal static class RidleyCollisionDefinitions
         return new(right ? origin.MirroredX() : origin, hitboxes);
     }
 
-    /// <summary>Accepts the eleven contiguous native extended body frame addresses at the side-frame stride.</summary>
-    internal static bool HasFrame(ushort frame) => frame >= (ushort)BodyFrame.Left
-        && frame <= (ushort)BodyFrame.Forward && (frame - (ushort)BodyFrame.Left) % SideFrameBytes == 0;
+    /// <summary>Whether <paramref name="frame"/> shows one of Ridley's eleven body frames.</summary>
+    internal static bool HasFrame(EnemyFrameId? frame) =>
+        frame is { } shown && RidleyBodyFrameDefinitions.ShownFrames.TryFind(shown, out _);
 
-    /// <summary>Gets a validated body's computed collision components for the native collision walker.</summary>
-    internal static ImmutableArray<RidleyCollisionComponent> ComponentsAt(ushort frame) => HasFrame(frame)
-        ? FrameComponents[(BodyFrame)frame]
-        : throw new InvalidDataException($"Ridley frame $A6:{frame:X4} has no compiled collision.");
+    /// <summary>The computed collision components of the body frame <paramref name="frame"/> shows.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="frame"/> shows no Ridley body frame.</exception>
+    internal static ImmutableArray<RidleyCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
+        frame is { } shown && RidleyBodyFrameDefinitions.ShownFrames.TryFind(shown, out BodyFrame body)
+            ? FrameComponents[body]
+            : throw new InvalidDataException($"Ridley frame {frame} has no compiled collision.");
 }

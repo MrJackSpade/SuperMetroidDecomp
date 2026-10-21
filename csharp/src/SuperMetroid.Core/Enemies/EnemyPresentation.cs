@@ -14,9 +14,6 @@ internal sealed class EnemyPresentation
     /// <summary>Room artwork binding used to resolve enemy display compositions.</summary>
     private readonly EnemyRoomBinding _room;
 
-    /// <summary>The installed word each enemy frame identity shows.</summary>
-    internal IEnemyFrameWords Frames => _room.Frames;
-
     /// <summary>Binds enemy presentation to its room's installed artwork catalog.</summary>
     internal EnemyPresentation(EnemyRoomBinding room)
     {

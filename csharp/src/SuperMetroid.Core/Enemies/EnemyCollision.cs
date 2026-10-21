@@ -187,7 +187,7 @@ internal sealed class EnemyCollision
             // these meanings separate mirrors the bank-$A0 list/collision machinery. An actor
             // with no translated shot reaction is skipped.
             if (enemy.Entity is IEnemyShotAdmission admission && !admission.AdmitsShots() ||
-                CommonEnemyEmptyExtendedFrameDefinitions.DrawsNothing(_room.Frames.Spritemap(enemy.Frame)) ||
+                CommonEnemyEmptyExtendedFrameDefinitions.DrawsNothing(enemy.Frame) ||
                 !enemy.InvincibilityTimer.IsZero ||
                 enemy.Properties.HasAny(
                     EnemyProperties.Deleted |
@@ -232,7 +232,7 @@ internal sealed class EnemyCollision
                 // the empty extended frame. Its point hitbox remains live for Samus and
                 // bombs, whose extended passes have no such check.
                 if (usesExtendedHitboxes &&
-                    CommonEnemyEmptyExtendedFrameDefinitions.IsFrame(_room.Frames.Spritemap(enemy.Frame)))
+                    CommonEnemyEmptyExtendedFrameDefinitions.IsFrame(enemy.Frame))
                     continue;
                 if (usesExtendedHitboxes &&
                     IsCanonicalMultiboxNoOpAi(ShotAi(enemy)))
@@ -867,10 +867,10 @@ internal sealed class EnemyCollision
     {
         callback = null;
 
-        // Native multibox collision only accepts negative 16-bit spritemap pointers.
-        // The common visually empty map `$804F` still owns a point hitbox, so it
-        // must enter the same collision walker as other extended frames.
-        if (!EnemyExtendedSpritemapPointers.IsExtended(_room.Frames.Spritemap(enemy.Frame)))
+        // Native multibox collision walks every frame an actor shows, and only an actor that has
+        // shown none is skipped. The common visually empty extended frame still owns a point
+        // hitbox, so it enters the same collision walker as other extended frames.
+        if (enemy.Frame is null)
             return false;
 
         var target = new EnemyHitboxProbe(
@@ -881,11 +881,9 @@ internal sealed class EnemyCollision
                 unchecked((ushort)(targetPosition.X + targetRadius.X)),
                 unchecked((ushort)(targetPosition.Y + targetRadius.Y))),
             SelectShotCallback: callbackKind == HitboxCallbackKind.Shot,
-            ArtworkInstalled: _room.Artwork is not null,
-            Frames: _room.Frames);
+            ArtworkInstalled: _room.Artwork is not null);
 
-        if (CommonEnemyEmptyExtendedFrameDefinitions.HasFrame(
-                enemy.Definition.Bank, _room.Frames.Spritemap(enemy.Frame)))
+        if (CommonEnemyEmptyExtendedFrameDefinitions.IsFrame(enemy.Frame))
         {
             // The shared empty frame has a single zero-radius point at the
             // enemy origin. Run the same asymmetric native overlap test before

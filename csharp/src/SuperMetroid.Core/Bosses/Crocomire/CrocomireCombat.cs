@@ -563,15 +563,14 @@ internal sealed class CrocomireCombat
     {
         callback = null;
         if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
-            enemy.Definition.Bank == CrocomireBodyCollisionDefinitions.Bank &&
-            CrocomireBodyCollisionDefinitions.HasFrame(probe.Frames, enemy.Frame)))
+            CrocomireBodyCollisionDefinitions.HasFrame(enemy.Frame)))
             return null;
 
         // Physical body components and their callback lists are compiled
         // independently of Crocomire's replaceable OAM/BG2 presentation.
         // Preserve native component/hitbox order: the first overlap wins.
         foreach (CrocomireBodyCollisionComponent component in
-                 CrocomireBodyCollisionDefinitions.ComponentsAt(probe.Frames, enemy.Frame))
+                 CrocomireBodyCollisionDefinitions.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (CrocomireBodyCollisionHitbox hitbox in component.Hitboxes)
@@ -595,8 +594,7 @@ internal sealed class CrocomireCombat
     {
         callback = null;
         if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue &&
-            enemy.Definition.Bank == CrocomireTongueCollisionDefinitions.Bank &&
-            (CrocomireTongueCollisionDefinitions.HasFrame(probe.Frames.Spritemap(enemy.Frame)) ||
+            (CrocomireTongueCollisionDefinitions.HasFrame(enemy.Frame) ||
             probe.ArtworkInstalled)))
             return null;
 
@@ -604,7 +602,7 @@ internal sealed class CrocomireCombat
         // referenced native hitbox lists are empty. Validate the exact
         // engine-owned frame identity and return no touch/shot callback.
         CrocomireTongueCollisionComponent component =
-            CrocomireTongueCollisionDefinitions.ComponentAt(probe.Frames.Spritemap(enemy.Frame));
+            CrocomireTongueCollisionDefinitions.ComponentAt(enemy.Frame);
         _ = CrocomireTongueCollisionDefinitions.HitboxCountAt(
             component.HitboxPointer);
         return false;

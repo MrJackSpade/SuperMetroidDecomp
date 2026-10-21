@@ -42,6 +42,15 @@ internal static class RoomEnemySlotFrameAccess
             : throw new ArgumentOutOfRangeException(nameof(word), word, $"No installed enemy frame at ${bank:X2}:{word:X4}."),
     };
 
+    /// <summary>The frame shown by native word <paramref name="word"/> in bank <paramref name="bank"/>, or null when none is.</summary>
+    internal static EnemyFrameId? TryFrameAt(byte bank, ushort word) => word switch
+    {
+        0 => null,
+        CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap => EnemyFrameId.Empty,
+        CommonEnemyEmptyExtendedFrameDefinitions.Frame => EnemyFrameId.EmptyExtended,
+        _ => Identities.Value.TryGetValue(new FrameAddressKey(bank, word), out EnemyFrameId frame) ? frame : null,
+    };
+
     /// <summary>Native views of a slot.</summary>
     extension(RoomEnemySlot self)
     {

@@ -12741,19 +12741,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireBg2ScrollDefinitions.CorrectedFrame",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireBg2ScrollDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireBg2ScrollDefinitionsAccess",
       "kind": "static class",
       "scope": "test",
@@ -13726,6 +13713,38 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireTongueCollisionDefinitionsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Crocomire/CrocomireTongueCollisionDefinitionsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireTongueCollisionDefinitionsAccess.extension(SuperMetroid.Core.Bosses.Crocomire.CrocomireTongueCollisionDefinitions)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Crocomire/CrocomireTongueCollisionDefinitionsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireTongueFrame",
@@ -15867,19 +15886,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Kraid.KraidArmCollisionDefinitions.SingleComponentFrame",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidArmCollisionDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidArmCollisionDefinitionsAccess",
       "kind": "static class",
       "scope": "test",
@@ -15942,6 +15948,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Kraid.KraidArmHitboxList",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidArmHitboxList.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidBackdropFade",
@@ -19557,6 +19576,38 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainCollisionDefinitionsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/MotherBrain/MotherBrainCollisionDefinitionsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainCollisionDefinitionsAccess.extension(SuperMetroid.Core.Bosses.MotherBrain.MotherBrainCollisionDefinitions)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/MotherBrain/MotherBrainCollisionDefinitionsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainCollisionHitbox",
@@ -23181,6 +23232,38 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonCollisionDefinitionsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Phantoon/PhantoonCollisionDefinitionsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonCollisionDefinitionsAccess.extension(SuperMetroid.Core.Bosses.Phantoon.PhantoonCollisionDefinitions)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Phantoon/PhantoonCollisionDefinitionsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonCollisionFrame",
       "kind": "enum",
       "scope": "product",
@@ -26216,19 +26299,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnCollisionDefinitions.HeadRootFrame",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnCollisionDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnCollisionDefinitionsAccess",
       "kind": "static class",
       "scope": "test",
@@ -27407,19 +27477,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Torizo.TorizoCollisionDefinitions.EmptyFrame",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Torizo/TorizoCollisionDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Torizo.TorizoCollisionDefinitionsAccess",
@@ -36013,19 +36070,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Drawing.EnemyExtendedSpritemapPointers",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyExtendedSpritemapPointers.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Drawing.EnemyFormatDrawAccess",
@@ -112082,6 +112126,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.ResourceAudit/Reports/ReviewedSource.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.ResourceAudit.Resources.AuditContractCheck",
+      "kind": "record",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.ResourceAudit"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.ResourceAudit/Resources/AuditContractCheck.cs"
       ],
       "partial": "none",
       "disposition": "record"

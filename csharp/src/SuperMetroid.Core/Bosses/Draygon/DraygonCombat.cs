@@ -237,15 +237,13 @@ internal sealed class DraygonCombat
     internal static bool? FindDraygonHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
         callback = null;
-        if (!(DraygonCombat.IsDraygonDefinition(enemy.EnemyDefinitionPointer) &&
-            enemy.Definition.Bank == DraygonBg2FrameDefinitions.Bank))
+        if (!DraygonCombat.IsDraygonDefinition(enemy.EnemyDefinitionPointer))
             return null;
 
         // Both OAM and BG2 art are replaceable presentation. Their native
         // component offsets and hitbox pointers remain fixed gameplay data.
         foreach (DraygonCollisionComponent component in
-                 DraygonCollisionDefinitions.ComponentsAt(
-                     probe.Frames.Spritemap(enemy.Frame)))
+                 DraygonCollisionDefinitions.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (DraygonCollisionHitbox hitbox in component.Hitboxes)

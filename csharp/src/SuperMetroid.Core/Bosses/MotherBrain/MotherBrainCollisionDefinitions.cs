@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
@@ -8,8 +10,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class MotherBrainCollisionDefinitions
 {
-    /// <summary>Mother Brain extended-frame and hitbox bank $A9.</summary>
-    internal const byte Bank = 0xa9;
 
     /// <summary>$A9:A4AC, <c>Hitbox_MotherBrainBody_0</c>.</summary>
     private static readonly MotherBrainCollisionHitbox[] ListA4AC =
@@ -310,27 +310,33 @@ internal static class MotherBrainCollisionDefinitions
         new(new(2, 29), ListA4D8),
     ];
 
-    /// <summary>Returns the components of a native body frame root.</summary>
-    internal static ReadOnlySpan<MotherBrainCollisionComponent> ComponentsAt(ushort frame) => frame switch
+    /// <summary>Each Mother Brain body frame's components.</summary>
+    private static readonly Dictionary<EnemyFrameId, MotherBrainCollisionComponent[]> FrameComponents = new()
     {
-        0x9fa0 => Frame9FA0,
-        0x9fea => Frame9FEA,
-        0xa03c => FrameA03C,
-        0xa08e => FrameA08E,
-        0xa0e0 => FrameA0E0,
-        0xa12a => FrameA12A,
-        0xa174 => FrameA174,
-        0xa1be => FrameA1BE,
-        0xa208 => FrameA208,
-        0xa252 => FrameA252,
-        0xa28c => FrameA28C,
-        0xa2d6 => FrameA2D6,
-        0xa320 => FrameA320,
-        0xa384 => FrameA384,
-        0xa3ce => FrameA3CE,
-        0xa418 => FrameA418,
-        0xa462 => FrameA462,
-        _ => throw new InvalidDataException($"Mother Brain has no extended frame root at $A9:{frame:X4}."),
+        [EnemyFrameId.MotherBrainBodyOamStanding] = Frame9FA0,
+        [EnemyFrameId.MotherBrainBodyOamWalking0] = Frame9FEA,
+        [EnemyFrameId.MotherBrainBodyOamWalking1] = FrameA03C,
+        [EnemyFrameId.MotherBrainBodyOamWalking2] = FrameA08E,
+        [EnemyFrameId.MotherBrainBodyOamWalking3] = FrameA0E0,
+        [EnemyFrameId.MotherBrainBodyOamWalking4] = FrameA12A,
+        [EnemyFrameId.MotherBrainBodyOamWalking5] = FrameA174,
+        [EnemyFrameId.MotherBrainBodyOamWalking6] = FrameA1BE,
+        [EnemyFrameId.MotherBrainBodyOamWalking7] = FrameA208,
+        [EnemyFrameId.MotherBrainBodyOamCrouched] = FrameA252,
+        [EnemyFrameId.MotherBrainBodyOamUncrouching] = FrameA28C,
+        [EnemyFrameId.MotherBrainBodyOamLeaningDown] = FrameA2D6,
+        [EnemyFrameId.MotherBrainBodyOamInitialDummy] = FrameA320,
+        [EnemyFrameId.MotherBrainBodyOamDeathBeam0] = FrameA384,
+        [EnemyFrameId.MotherBrainBodyOamDeathBeam1] = FrameA3CE,
+        [EnemyFrameId.MotherBrainBodyOamDeathBeam2] = FrameA418,
+        [EnemyFrameId.MotherBrainBodyOamDeathBeam3] = FrameA462,
     };
+
+    /// <summary>The collision components of Mother Brain body frame <paramref name="frame"/>.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of Mother Brain's body frames.</exception>
+    internal static ReadOnlySpan<MotherBrainCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
+        frame is { } shown && FrameComponents.TryGetValue(shown, out MotherBrainCollisionComponent[]? components)
+            ? components
+            : throw new InvalidDataException($"Mother Brain has no extended frame {frame}.");
 
 }

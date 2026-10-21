@@ -24,7 +24,7 @@ internal static class KraidArmComponentHitboxesVerification
             foreach (var value in actual)
             {
                 ushort expected = ReadKraidArmInstructionWord(rom, (ushort)(pointer + 8 + 8 * component));
-                AssertEqual(expected, KraidArmCollisionDefinitions.ComponentHitbox(pose, component), "Native component selector");
+                AssertEqual(expected, KraidArmCollisionDefinitionsAccess.AddressOf(KraidArmCollisionDefinitions.ComponentHitbox(pose, component)), "Native component selector");
                 AssertEqual(KraidArmCollisionDefinitions.HitboxesAt(expected), value.Hitboxes,
                     "Rectangles the native selector names, through production enumeration");
                 AssertEqual(value, actual[component], "Component enumeration preserves order");

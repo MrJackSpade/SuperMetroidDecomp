@@ -1,4 +1,5 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
@@ -26,14 +27,17 @@ internal static class CrocomireTongueCollisionDefinitions
             : (int)CrocomireTongueFrame.MeltingPose0 + 10 * (index - 4));
     }
 
-    /// <summary>Accepts only the nine bank-$A4 extended-frame identities owned by the tongue actor.</summary>
-    internal static bool HasFrame(ushort frame) => Enum.IsDefined((CrocomireTongueFrame)frame);
+    /// <summary>Whether <paramref name="frame"/> shows one of the tongue actor's nine frames.</summary>
+    internal static bool HasFrame(EnemyFrameId? frame) =>
+        frame is { } shown && CrocomireTongueFrameDefinitions.ShownFrames.TryFind(shown, out _);
 
     /// <summary>Fight frames share a single physical component. Melting frame
     /// identities select their pose-specific offsets and common empty hitbox list.
     /// OAM/artwork identity remains separate from this physical geometry.</summary>
-    internal static CrocomireTongueCollisionComponent ComponentAt(ushort frame) =>
-        ComponentAt(ClosedNativeWords.Decode<CrocomireTongueFrame>(frame, "Crocomire tongue frame with compiled collision"));
+    internal static CrocomireTongueCollisionComponent ComponentAt(EnemyFrameId? frame) =>
+        frame is { } shown && CrocomireTongueFrameDefinitions.ShownFrames.TryFind(shown, out CrocomireTongueFrame tongue)
+            ? ComponentAt(tongue)
+            : throw new InvalidDataException($"Crocomire tongue frame {frame} has no compiled collision.");
 
     /// <summary>Maps fight and melting frame families to their respective empty hitbox lists.</summary>
     internal static CrocomireTongueCollisionComponent ComponentAt(CrocomireTongueFrame frame) => frame switch

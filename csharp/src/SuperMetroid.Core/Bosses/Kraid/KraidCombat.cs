@@ -317,9 +317,7 @@ internal sealed class KraidCombat
     {
         callback = null;
         if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.KraidFoot &&
-            enemy.Definition.Bank == KraidFootCollisionDefinitions.Bank &&
-            KraidFootCollisionDefinitions.TryGetComponents(
-            probe.Frames.Spritemap(enemy.Frame), out var footComponents)))
+            KraidFootCollisionDefinitions.TryGetComponents(enemy.Frame, out var footComponents)))
             return null;
 
         // Kraid's foot art is replaceable, but each native extended frame
@@ -350,9 +348,7 @@ internal sealed class KraidCombat
     {
         callback = null;
         if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.KraidArm &&
-            enemy.Definition.Bank == KraidArmCollisionDefinitions.Bank &&
-            KraidArmCollisionDefinitions.TryGetComponents(
-            probe.Frames.Spritemap(enemy.Frame), out var kraidComponents)))
+            KraidArmCollisionDefinitions.TryGetComponents(enemy.Frame, out var kraidComponents)))
             return null;
 
         // Kraid's arm art is editable, but the native extended spritemap

@@ -310,12 +310,11 @@ internal sealed class TorizoCombat
     internal static bool? FindTorizoHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
         callback = null;
-        if (!(enemy.EnemyDefinitionPointer is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo &&
-            enemy.Definition.Bank == TorizoCollisionDefinitions.Bank))
+        if (enemy.EnemyDefinitionPointer is not (EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo))
             return null;
 
         foreach (GoldenTorizoCollisionComponent component in
-                 TorizoCollisionDefinitions.ComponentsAt(probe.Frames.Spritemap(enemy.Frame)))
+                 TorizoCollisionDefinitions.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             ushort componentX = componentOrigin.X;

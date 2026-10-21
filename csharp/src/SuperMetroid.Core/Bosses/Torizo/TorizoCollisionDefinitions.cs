@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using System.Diagnostics.CodeAnalysis;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
@@ -20,23 +21,6 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </remarks>
 internal static class TorizoCollisionDefinitions
 {
-    /// <summary>Bank $AA owns the ordered frame components.</summary>
-    internal const byte Bank = Artwork.TorizoFrameDefinitions.Bank;
-
-    /// <summary>The two frames whose collision is a single empty component.</summary>
-    internal enum EmptyFrame : ushort
-    {
-        /// <summary>$AA:87D0, the native blank frame.</summary>
-        Blank = 0x87d0,
-        /// <summary>$AA:A4F0, the shared facing-screen turning frame.</summary>
-        Turning = 0xa4f0,
-    }
-    /// <summary>$AA:A4FA, first left-facing frame after the turning frame.</summary>
-    internal const ushort LeftStart = 0xa4fa;
-    /// <summary>$AA:AA12, first awakening frame.</summary>
-    internal const ushort AwakeningStart = 0xaa12;
-    /// <summary>$AA:AA98, first right-facing frame.</summary>
-    internal const ushort RightStart = 0xaa98;
     /// <summary>The list of every component without collision; it is its own right-facing counterpart.</summary>
     internal static readonly TorizoHitboxList Empty = new([]);
 
@@ -168,49 +152,129 @@ internal static class TorizoCollisionDefinitions
         [.. Enumerable.Range(0, MirroredCount).Select(index => LeftFacing(index)
             .Select(part => part with { Offset = part.Offset.MirroredX(), Hitboxes = part.Hitboxes.RightFacing }).ToArray())];
 
-    /// <summary>Components of <paramref name="frame"/>; right-facing frames are the precomputed mirror images.</summary>
-    internal static ReadOnlySpan<GoldenTorizoCollisionComponent> ComponentsAt(ushort frame)
+    /// <summary>
+    /// Each Torizo frame's components: the blank and turning frames carry one empty component; left-facing, awakening
+    /// and jump-back frames their own components; right-facing frames the precomputed mirror images.
+    /// </summary>
+    private static readonly Dictionary<EnemyFrameId, GoldenTorizoCollisionComponent[]> FrameComponents = new()
     {
-        if (Enum.IsDefined((EmptyFrame)frame)) return SingleEmpty;
-        if (TryFind(LeftFrames, LeftStart, frame, out GoldenTorizoCollisionComponent[]? left) ||
-            TryFind(AwakeningFrames, AwakeningStart, frame, out left))
-            return left;
-        ushort cursor = RightStart;
-        foreach (GoldenTorizoCollisionComponent[] mirrored in MirroredFrames)
-        {
-            if (cursor == frame) return mirrored;
-            cursor = Next(cursor, mirrored.Length);
-        }
-        foreach (GoldenTorizoCollisionComponent[] jump in JumpBackFrames)
-        {
-            if (cursor == frame) return jump;
-            cursor = Next(cursor, jump.Length);
-        }
-        throw new InvalidDataException($"Torizo frame $AA:{frame:X4} is not compiled.");
-    }
+        [EnemyFrameId.BombTorizoDormant] = SingleEmpty,
+        [EnemyFrameId.GoldenTorizoRightwardA4F0] = SingleEmpty,
+        [EnemyFrameId.GoldenTorizoWalkLeftA4FA] = LeftFrames[0],
+        [EnemyFrameId.GoldenTorizoWalkLeftA51C] = LeftFrames[1],
+        [EnemyFrameId.GoldenTorizoWalkLeftA53E] = LeftFrames[2],
+        [EnemyFrameId.GoldenTorizoWalkLeftA560] = LeftFrames[3],
+        [EnemyFrameId.GoldenTorizoWalkLeftA582] = LeftFrames[4],
+        [EnemyFrameId.GoldenTorizoWalkLeftA5A4] = LeftFrames[5],
+        [EnemyFrameId.GoldenTorizoWalkLeftA5C6] = LeftFrames[6],
+        [EnemyFrameId.GoldenTorizoWalkLeftA5E8] = LeftFrames[7],
+        [EnemyFrameId.GoldenTorizoWalkLeftA60A] = LeftFrames[8],
+        [EnemyFrameId.GoldenTorizoWalkLeftA62C] = LeftFrames[9],
+        [EnemyFrameId.GoldenTorizoLeftOrbA64E] = LeftFrames[10],
+        [EnemyFrameId.GoldenTorizoLeftOrbA668] = LeftFrames[11],
+        [EnemyFrameId.GoldenTorizoLeftOrbA682] = LeftFrames[12],
+        [EnemyFrameId.GoldenTorizoLeftOrbA69C] = LeftFrames[13],
+        [EnemyFrameId.GoldenTorizoLeftOrbA6B6] = LeftFrames[14],
+        [EnemyFrameId.GoldenTorizoLeftOrbA6D0] = LeftFrames[15],
+        [EnemyFrameId.GoldenTorizoLeftOrbA6EA] = LeftFrames[16],
+        [EnemyFrameId.GoldenTorizoLeftOrbA704] = LeftFrames[17],
+        [EnemyFrameId.GoldenTorizoLeftOrbA71E] = LeftFrames[18],
+        [EnemyFrameId.GoldenTorizoLeftOrbA738] = LeftFrames[19],
+        [EnemyFrameId.GoldenTorizoLeftOrbA752] = LeftFrames[20],
+        [EnemyFrameId.GoldenTorizoLeftOrbA76C] = LeftFrames[21],
+        [EnemyFrameId.TorizoCombatA786] = LeftFrames[22],
+        [EnemyFrameId.TorizoCombatA7A0] = LeftFrames[23],
+        [EnemyFrameId.TorizoCombatA7C2] = LeftFrames[24],
+        [EnemyFrameId.TorizoCombatA7E4] = LeftFrames[25],
+        [EnemyFrameId.TorizoCombatA806] = LeftFrames[26],
+        [EnemyFrameId.TorizoCombatA828] = LeftFrames[27],
+        [EnemyFrameId.TorizoCombatA84A] = LeftFrames[28],
+        [EnemyFrameId.TorizoCombatA86C] = LeftFrames[29],
+        [EnemyFrameId.TorizoCombatA88E] = LeftFrames[30],
+        [EnemyFrameId.TorizoCombatA8B0] = LeftFrames[31],
+        [EnemyFrameId.TorizoCombatA8D2] = LeftFrames[32],
+        [EnemyFrameId.TorizoCombatA8EC] = LeftFrames[33],
+        [EnemyFrameId.TorizoCombatA906] = LeftFrames[34],
+        [EnemyFrameId.TorizoCombatA920] = LeftFrames[35],
+        [EnemyFrameId.TorizoCombatA93A] = LeftFrames[36],
+        [EnemyFrameId.TorizoCombatA954] = LeftFrames[37],
+        [EnemyFrameId.TorizoCombatA976] = LeftFrames[38],
+        [EnemyFrameId.TorizoCombatA998] = LeftFrames[39],
+        [EnemyFrameId.TorizoCombatA9BA] = LeftFrames[40],
+        [EnemyFrameId.TorizoCombatA9DC] = LeftFrames[41],
+        [EnemyFrameId.GoldenTorizoAwakeAA12] = AwakeningFrames[0],
+        [EnemyFrameId.GoldenTorizoAwakeAA1C] = AwakeningFrames[1],
+        [EnemyFrameId.GoldenTorizoAwakeAA26] = AwakeningFrames[2],
+        [EnemyFrameId.GoldenTorizoInitial] = AwakeningFrames[3],
+        [EnemyFrameId.GoldenTorizoAwakeAA3A] = AwakeningFrames[4],
+        [EnemyFrameId.GoldenTorizoAwakeAA4C] = AwakeningFrames[5],
+        [EnemyFrameId.GoldenTorizoAwakeAA5E] = AwakeningFrames[6],
+        [EnemyFrameId.GoldenTorizoRightwardAA98] = MirroredFrames[0],
+        [EnemyFrameId.GoldenTorizoRightwardAABA] = MirroredFrames[1],
+        [EnemyFrameId.GoldenTorizoRightwardAADC] = MirroredFrames[2],
+        [EnemyFrameId.GoldenTorizoRightwardAAFE] = MirroredFrames[3],
+        [EnemyFrameId.GoldenTorizoRightwardAB20] = MirroredFrames[4],
+        [EnemyFrameId.GoldenTorizoRightwardAB42] = MirroredFrames[5],
+        [EnemyFrameId.GoldenTorizoRightwardAB64] = MirroredFrames[6],
+        [EnemyFrameId.GoldenTorizoRightwardAB86] = MirroredFrames[7],
+        [EnemyFrameId.GoldenTorizoRightwardABA8] = MirroredFrames[8],
+        [EnemyFrameId.GoldenTorizoRightwardABCA] = MirroredFrames[9],
+        [EnemyFrameId.GoldenTorizoRightSonicABEC] = MirroredFrames[10],
+        [EnemyFrameId.GoldenTorizoLeftFootOrbAC06] = MirroredFrames[11],
+        [EnemyFrameId.GoldenTorizoLeftFootOrbAC20] = MirroredFrames[12],
+        [EnemyFrameId.GoldenTorizoLeftFootOrbAC3A] = MirroredFrames[13],
+        [EnemyFrameId.GoldenTorizoLeftFootOrbAC54] = MirroredFrames[14],
+        [EnemyFrameId.GoldenTorizoLeftFootOrbAC6E] = MirroredFrames[15],
+        [EnemyFrameId.GoldenTorizoRightOrbAC88] = MirroredFrames[16],
+        [EnemyFrameId.GoldenTorizoRightOrbACA2] = MirroredFrames[17],
+        [EnemyFrameId.GoldenTorizoRightOrbACBC] = MirroredFrames[18],
+        [EnemyFrameId.GoldenTorizoRightOrbACD6] = MirroredFrames[19],
+        [EnemyFrameId.GoldenTorizoRightOrbACF0] = MirroredFrames[20],
+        [EnemyFrameId.GoldenTorizoRightOrbAD0A] = MirroredFrames[21],
+        [EnemyFrameId.GoldenTorizoRightSonicAD24] = MirroredFrames[22],
+        [EnemyFrameId.GoldenTorizoRightSonicAD3E] = MirroredFrames[23],
+        [EnemyFrameId.GoldenTorizoRightSonicAD60] = MirroredFrames[24],
+        [EnemyFrameId.GoldenTorizoRightSonicAD82] = MirroredFrames[25],
+        [EnemyFrameId.GoldenTorizoRightSonicADA4] = MirroredFrames[26],
+        [EnemyFrameId.GoldenTorizoRightSonicADC6] = MirroredFrames[27],
+        [EnemyFrameId.GoldenTorizoRightSonicADE8] = MirroredFrames[28],
+        [EnemyFrameId.GoldenTorizoRightSonicAE0A] = MirroredFrames[29],
+        [EnemyFrameId.GoldenTorizoRightSonicAE2C] = MirroredFrames[30],
+        [EnemyFrameId.GoldenTorizoRightSonicAE4E] = MirroredFrames[31],
+        [EnemyFrameId.GoldenTorizoRightSonicAE70] = MirroredFrames[32],
+        [EnemyFrameId.GoldenTorizoRightSonicAE8A] = MirroredFrames[33],
+        [EnemyFrameId.GoldenTorizoRightSonicAEA4] = MirroredFrames[34],
+        [EnemyFrameId.GoldenTorizoRightSonicAEBE] = MirroredFrames[35],
+        [EnemyFrameId.GoldenTorizoRightSonicAED8] = MirroredFrames[36],
+        [EnemyFrameId.GoldenTorizoRightSonicAEF2] = MirroredFrames[37],
+        [EnemyFrameId.GoldenTorizoRightSonicAF14] = MirroredFrames[38],
+        [EnemyFrameId.GoldenTorizoRightSonicAF36] = MirroredFrames[39],
+        [EnemyFrameId.GoldenTorizoRightSonicAF58] = MirroredFrames[40],
+        [EnemyFrameId.GoldenTorizoRightSonicAF7A] = MirroredFrames[41],
+        [EnemyFrameId.TorizoCombatAF9C] = MirroredFrames[42],
+        [EnemyFrameId.TorizoCombatAFA6] = MirroredFrames[43],
+        [EnemyFrameId.TorizoCombatAFB0] = MirroredFrames[44],
+        [EnemyFrameId.TorizoCombatAFBA] = MirroredFrames[45],
+        [EnemyFrameId.TorizoCombatAFC4] = MirroredFrames[46],
+        [EnemyFrameId.TorizoCombatAFD6] = MirroredFrames[47],
+        [EnemyFrameId.TorizoCombatAFE8] = MirroredFrames[48],
+        [EnemyFrameId.TorizoJumpBackLeftAFFA] = JumpBackFrames[0],
+        [EnemyFrameId.TorizoFallingLeftB014] = JumpBackFrames[1],
+        [EnemyFrameId.TorizoJumpBackLeftB02E] = JumpBackFrames[2],
+        [EnemyFrameId.TorizoJumpBackB048] = JumpBackFrames[3],
+        [EnemyFrameId.TorizoJumpBackB062] = JumpBackFrames[4],
+        [EnemyFrameId.TorizoJumpBackB07C] = JumpBackFrames[5],
+    };
+
+    /// <summary>The collision components of Torizo frame <paramref name="frame"/>.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of Torizo's frames.</exception>
+    internal static ReadOnlySpan<GoldenTorizoCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
+        frame is { } shown && FrameComponents.TryGetValue(shown, out GoldenTorizoCollisionComponent[]? components)
+            ? components
+            : throw new InvalidDataException($"Torizo frame {frame} is not compiled.");
 
     /// <summary>The <paramref name="index"/>th left-facing frame in mirror order.</summary>
     internal static GoldenTorizoCollisionComponent[] LeftFacing(int index) =>
         index < LeftFrames.Length ? LeftFrames[index] : AwakeningFrames[index - LeftFrames.Length];
 
-    /// <summary>Walks variable-size native frame records from a run start and selects the exact pointer if present.</summary>
-    private static bool TryFind(GoldenTorizoCollisionComponent[][] run, ushort start, ushort frame,
-        [NotNullWhen(true)] out GoldenTorizoCollisionComponent[]? components)
-    {
-        ushort cursor = start;
-        foreach (GoldenTorizoCollisionComponent[] candidate in run)
-        {
-            if (cursor == frame)
-            {
-                components = candidate;
-                return true;
-            }
-            cursor = Next(cursor, candidate.Length);
-        }
-        components = null;
-        return false;
-    }
-
-    /// <summary>Advances past the native count word and all eight-byte component records.</summary>
-    internal static ushort Next(ushort frame, int components) => (ushort)(frame + 2 + 8 * components);
 }

@@ -113,8 +113,7 @@ internal sealed class RidleyInteractions
     {
         callback = null;
         if (!(RidleyInteractions.IsRidleyDefinition(enemy.EnemyDefinitionPointer) &&
-            enemy.Definition.Bank == RidleyCollisionDefinitions.Bank &&
-            (RidleyCollisionDefinitions.HasFrame(probe.Frames.Spritemap(enemy.Frame)) ||
+            (RidleyCollisionDefinitions.HasFrame(enemy.Frame) ||
             probe.ArtworkInstalled)))
             return null;
 
@@ -122,7 +121,7 @@ internal sealed class RidleyInteractions
         // Contact and shot collision instead use the eleven fixed cartridge
         // body frames and their engine-owned hitbox lists.
         foreach (RidleyCollisionComponent component in
-                 RidleyCollisionDefinitions.ComponentsAt(probe.Frames.Spritemap(enemy.Frame)))
+                 RidleyCollisionDefinitions.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             ushort componentX = componentOrigin.X;

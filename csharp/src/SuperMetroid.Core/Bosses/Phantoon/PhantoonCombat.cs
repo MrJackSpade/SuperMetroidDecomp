@@ -150,7 +150,7 @@ internal sealed class PhantoonCombat
 
         RoomEnemySlot body = state.Body;
         if (body.EnemyDefinitionPointer != EnemyDefinitionId.PhantoonBody ||
-            CommonEnemyEmptyExtendedFrameDefinitions.DrawsNothing(_room.Frames.Spritemap(body.Frame)) ||
+            CommonEnemyEmptyExtendedFrameDefinitions.DrawsNothing(body.Frame) ||
             !body.InvincibilityTimer.IsZero ||
             body.Properties.HasAny(
                 EnemyProperties.Deleted |
@@ -656,7 +656,7 @@ internal sealed class PhantoonCombat
         // data. Preserve the native component and rectangle order from
         // the compiled bank-$A7 definitions, including point no-ops.
         foreach (PhantoonCollisionComponent component in
-                 PhantoonCollisionDefinitions.ComponentsAt(probe.Frames.Spritemap(enemy.Frame)))
+                 PhantoonCollisionDefinitions.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (PhantoonCollisionHitbox hitbox in component.Hitboxes)

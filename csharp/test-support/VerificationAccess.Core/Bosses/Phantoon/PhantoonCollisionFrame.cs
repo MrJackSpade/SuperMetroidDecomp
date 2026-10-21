@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>The Phantoon BG2 frames whose collision differs from the single inert point.</summary>
+/// <summary>The bank-$A7 addresses of the Phantoon BG2 frames whose collision differs from the single inert point, for cartridge oracles.</summary>
 internal enum PhantoonCollisionFrame : ushort
 {
     /// <summary>Body with its complete five-rectangle hitbox, $A7:DEE7.</summary>

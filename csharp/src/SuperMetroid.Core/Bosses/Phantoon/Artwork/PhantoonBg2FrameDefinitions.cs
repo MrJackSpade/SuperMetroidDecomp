@@ -23,6 +23,8 @@ internal static class PhantoonBg2FrameDefinitions
 
     /// <summary>$A7:DEDD, first one-component body/eye frame; sixteen selected roots.</summary>
     private const ushort BodyEyeStart = 0xdedd;
+    /// <summary>$A7:DFB3, first two-component tentacle frame; three selected roots.</summary>
+    private const ushort TentaclesStart = 0xdfb3;
     /// <summary>$A7:DFE9, first one-component mouth frame; three selected roots.</summary>
     private const ushort MouthStart = 0xdfe9;
     /// <summary>Number of body, eye, tentacle, and mouth frames addressed by the instruction programs.</summary>
@@ -38,7 +40,7 @@ internal static class PhantoonBg2FrameDefinitions
     {
         if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         ushort pointer = (ushort)(index < 16 ? BodyEyeStart + 10 * index
-            : index < 19 ? (ushort)PhantoonCollisionFrame.Tentacles0 + 18 * (index - 16)
+            : index < 19 ? TentaclesStart + 18 * (index - 16)
             : MouthStart + 10 * (index - 19));
         string name = index switch
         {
@@ -70,7 +72,7 @@ internal static class PhantoonBg2FrameDefinitions
     }
     /// <summary>Checks whether a pointer names one of the body, tentacle, or mouth frames in this catalog.</summary>
     internal static bool IsFrame(ushort pointer) => InRun(pointer, BodyEyeStart, 16, 10) ||
-        InRun(pointer, (ushort)PhantoonCollisionFrame.Tentacles0, 3, 18) || InRun(pointer, MouthStart, 3, 10);
+        InRun(pointer, TentaclesStart, 3, 18) || InRun(pointer, MouthStart, 3, 10);
 
     /// <summary>Checks that a pointer falls exactly on a fixed-size native frame boundary.</summary>
     private static bool InRun(ushort pointer, ushort start, int count, int stride)

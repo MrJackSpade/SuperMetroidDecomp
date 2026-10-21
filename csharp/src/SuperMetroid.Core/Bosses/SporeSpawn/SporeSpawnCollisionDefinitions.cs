@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>
@@ -21,18 +23,6 @@ internal static class SporeSpawnCollisionDefinitions
     /// <summary>The dud shot reaction of shell rectangles and the inactive trailing point.</summary>
     private const SporeSpawnHitboxShot Dud = SporeSpawnHitboxShot.Dud;
 
-    /// <summary>The two single-head root frames that precede the opening sequence.</summary>
-    private enum HeadRootFrame : ushort
-    {
-        /// <summary>$A5:EE65, ExtendedSpritemap_SporeSpawn_Dead: one inactive head component.</summary>
-        Dead = 0xee65,
-        /// <summary>$A5:EE6F, ExtendedSpritemap_SporeSpawn_Closed_Closing_Opening_0: one closed head.</summary>
-        Closed = 0xee6f,
-    }
-    /// <summary>$A5:EE79, ExtendedSpritemap_SporeSpawn_Closed_Closing_Opening_1: first of seven opening roots.</summary>
-    private const ushort FirstOpeningFrame = 0xee79;
-    /// <summary>$A5:EF3D, ExtendedSpritemap_SporeSpawn_FullyOpen_0: first of three open oscillation roots.</summary>
-    private const ushort FirstFullyOpenFrame = 0xef3d;
 
     /// <summary>Builds the trailing vulnerable rectangle with active or dud shot response.</summary>
     private static SporeSpawnCollisionHitbox InnerPoint(SporeSpawnHitboxShot shot) => new(-15, -24, 14, 23, Touch, shot);
@@ -67,20 +57,6 @@ internal static class SporeSpawnCollisionDefinitions
     /// <summary>Single trailing point that rejects shots through the dud callback.</summary>
     private static readonly SporeSpawnCollisionHitbox[] DudPointList = [InnerPoint(Dud)];
 
-    /// <summary>Checks seven fixed-stride opening frame roots in bank $A5.</summary>
-    private static bool IsOpeningFrame(ushort pointer) =>
-        pointer >= FirstOpeningFrame && pointer <= FirstOpeningFrame + 6 * 18 &&
-        (pointer - FirstOpeningFrame) % 18 == 0;
-
-    /// <summary>Checks the three fixed-stride fully open oscillation frame roots.</summary>
-    private static bool IsFullyOpenFrame(ushort pointer) =>
-        pointer >= FirstFullyOpenFrame && pointer <= FirstFullyOpenFrame + 2 * 18 &&
-        (pointer - FirstFullyOpenFrame) % 18 == 0;
-
-    /// <summary>Checks whether a pointer belongs to an installed Spore Spawn collision frame.</summary>
-    internal static bool IsFrame(ushort pointer) =>
-        Enum.IsDefined((HeadRootFrame)pointer) || IsOpeningFrame(pointer) || IsFullyOpenFrame(pointer);
-
     /// <summary>The opening poses' head lists, in pose order; the moving heads follow the wider first pose.</summary>
     private static readonly SporeSpawnCollisionHitbox[][] OpeningHeadLists = [ExtendedHeadList, .. MovingHeadLists];
 
@@ -100,30 +76,35 @@ internal static class SporeSpawnCollisionDefinitions
         [new(Offset16<RoomPixels>.Zero, head), new(Offset16<RoomPixels>.Zero, InnerPointForPhase(phase))];
 
     /// <summary>
-    /// $A5:EE65..EEE5 and EF3D..EF61: dead/closed roots contain one head;
-    /// opening roots advance the head geometry while the inner point oscillates B,C,D,C.
-    /// Fully-open roots hold the final head and select B,C,D. All component offsets are zero.
-    /// The intervening unused single-component roots are outside the installed frame domain.
+    /// Each Spore Spawn frame's components: the dead and closed frames contain one head; opening frames advance the head
+    /// geometry while the inner point oscillates B, C, D, C; fully open frames hold the final head and select B, C, D.
+    /// All component offsets are zero.
     /// </summary>
-    internal static ReadOnlySpan<SporeSpawnCollisionComponent> ComponentsAt(ushort pointer)
+    private static readonly Dictionary<EnemyFrameId, SporeSpawnCollisionComponent[]> FrameComponents = new()
     {
-        if (Enum.IsDefined((HeadRootFrame)pointer))
-        {
-            var root = (HeadRootFrame)pointer;
-            return root switch
-            {
-                HeadRootFrame.Dead => DeadComponents,
-                HeadRootFrame.Closed => ClosedComponents,
-                _ => throw new InvalidOperationException($"Undefined {nameof(HeadRootFrame)} {(int)root}."),
-            };
-        }
-        if (IsFullyOpenFrame(pointer))
-            return FullyOpenComponents[(pointer - FirstFullyOpenFrame) / 18];
-        if (IsOpeningFrame(pointer))
-            return OpeningComponents[(pointer - FirstOpeningFrame) / 18];
-        throw new InvalidDataException(
-            $"Spore Spawn frame $A5:{pointer:X4} has no compiled collision identity.");
-    }
+        [EnemyFrameId.SporeSpawnOamEE65] = DeadComponents,
+        [EnemyFrameId.SporeSpawnOamEE6F] = ClosedComponents,
+        [EnemyFrameId.SporeSpawnOamEE79] = OpeningComponents[0],
+        [EnemyFrameId.SporeSpawnOamEE8B] = OpeningComponents[1],
+        [EnemyFrameId.SporeSpawnOamEE9D] = OpeningComponents[2],
+        [EnemyFrameId.SporeSpawnOamEEAF] = OpeningComponents[3],
+        [EnemyFrameId.SporeSpawnOamEEC1] = OpeningComponents[4],
+        [EnemyFrameId.SporeSpawnOamEED3] = OpeningComponents[5],
+        [EnemyFrameId.SporeSpawnOamEEE5] = OpeningComponents[6],
+        [EnemyFrameId.SporeSpawnOamEF3D] = FullyOpenComponents[0],
+        [EnemyFrameId.SporeSpawnOamEF4F] = FullyOpenComponents[1],
+        [EnemyFrameId.SporeSpawnOamEF61] = FullyOpenComponents[2],
+    };
+
+    /// <summary>Whether <paramref name="frame"/> is one of Spore Spawn's collision frames.</summary>
+    internal static bool IsFrame(EnemyFrameId? frame) => frame is { } shown && FrameComponents.ContainsKey(shown);
+
+    /// <summary>The collision components of Spore Spawn frame <paramref name="frame"/>.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of Spore Spawn's collision frames.</exception>
+    internal static ReadOnlySpan<SporeSpawnCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
+        frame is { } shown && FrameComponents.TryGetValue(shown, out SporeSpawnCollisionComponent[]? components)
+            ? components
+            : throw new InvalidDataException($"Spore Spawn frame {frame} has no compiled collision identity.");
 
     /// <summary>Selects the active or dud trailing-point hitboxes by opening phase; the mirrored point shares the active list.</summary>
     private static SporeSpawnCollisionHitbox[] InnerPointForPhase(int phase) => phase switch

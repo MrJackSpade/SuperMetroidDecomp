@@ -1,5 +1,5 @@
 using System.Collections.Immutable;
-using SuperMetroid.Core.Bosses.Phantoon.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
@@ -69,23 +69,41 @@ internal static class PhantoonCollisionDefinitions
 
         static PhantoonHorizontalExtent Centered(short halfWidth) => new PhantoonHorizontalExtent((short)-halfWidth, (short)(halfWidth - 1));
     }
-    /// <summary>Maps a BG2 frame to its active body/eye hitbox or inert point components.</summary>
-    internal static ImmutableArray<PhantoonCollisionComponent> ComponentsAt(ushort pointer)
+    /// <summary>
+    /// Each Phantoon BG2 frame's components: the full body and the eye alone each have one component, the three
+    /// tentacle frames two inert points, and every other frame one inert point.
+    /// </summary>
+    private static readonly Dictionary<EnemyFrameId, ImmutableArray<PhantoonCollisionComponent>> FrameComponents = new()
     {
-        if (!PhantoonBg2FrameDefinitions.IsFrame(pointer))
-            throw new InvalidDataException($"Phantoon frame $A7:{pointer:X4} has no compiled hitbox identity.");
-        // Every other frame carries one inert point component.
-        if (!Enum.IsDefined((PhantoonCollisionFrame)pointer))
-            return PointComponents;
-        return (PhantoonCollisionFrame)pointer switch
-        {
-            PhantoonCollisionFrame.BodyFullHitbox => FullBodyComponents,
-            PhantoonCollisionFrame.BodyEyeHitboxOnly => EyeOnlyComponents,
-            PhantoonCollisionFrame.Tentacles0 or
-                PhantoonCollisionFrame.Tentacles1 or
-                PhantoonCollisionFrame.Tentacles2 => TentacleComponents,
-            _ => throw new InvalidOperationException($"Undefined Phantoon collision frame $A7:{pointer:X4}."),
-        };
-    }
+        [EnemyFrameId.PhantoonBg2DEDD] = PointComponents,
+        [EnemyFrameId.PhantoonBg2DEE7] = FullBodyComponents,
+        [EnemyFrameId.PhantoonBg2DEF1] = EyeOnlyComponents,
+        [EnemyFrameId.PhantoonBg2DEFB] = PointComponents,
+        [EnemyFrameId.PhantoonBg2DF05] = PointComponents,
+        [EnemyFrameId.PhantoonBg2DF0F] = PointComponents,
+        [EnemyFrameId.PhantoonBg2DF19] = PointComponents,
+        [EnemyFrameId.PhantoonBg2DF23] = PointComponents,
+        [EnemyFrameId.PhantoonBg2DF2D] = PointComponents,
+        [EnemyFrameId.PhantoonBg2DF37] = PointComponents,
+        [EnemyFrameId.PhantoonBg2DF41] = PointComponents,
+        [EnemyFrameId.PhantoonBg2DF4B] = PointComponents,
+        [EnemyFrameId.PhantoonBg2DF55] = PointComponents,
+        [EnemyFrameId.PhantoonBg2DF5F] = PointComponents,
+        [EnemyFrameId.PhantoonBg2DF69] = PointComponents,
+        [EnemyFrameId.PhantoonBg2DF73] = PointComponents,
+        [EnemyFrameId.PhantoonBg2DFB3] = TentacleComponents,
+        [EnemyFrameId.PhantoonBg2DFC5] = TentacleComponents,
+        [EnemyFrameId.PhantoonBg2DFD7] = TentacleComponents,
+        [EnemyFrameId.PhantoonBg2DFE9] = PointComponents,
+        [EnemyFrameId.PhantoonBg2DFF3] = PointComponents,
+        [EnemyFrameId.PhantoonBg2DFFD] = PointComponents,
+    };
+
+    /// <summary>The collision components of Phantoon frame <paramref name="frame"/>.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of Phantoon's BG2 frames.</exception>
+    internal static ImmutableArray<PhantoonCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
+        frame is { } shown && FrameComponents.TryGetValue(shown, out ImmutableArray<PhantoonCollisionComponent> components)
+            ? components
+            : throw new InvalidDataException($"Phantoon frame {frame} has no compiled hitbox identity.");
 
 }

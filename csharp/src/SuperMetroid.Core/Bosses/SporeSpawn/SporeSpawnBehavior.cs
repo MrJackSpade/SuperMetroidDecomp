@@ -837,16 +837,14 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         callback = null;
         if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn &&
-            enemy.Definition.Bank == DraygonBg2FrameDefinitions.Bank &&
-            SporeSpawnCollisionDefinitions.IsFrame(probe.Frames.Spritemap(enemy.Frame))))
+            SporeSpawnCollisionDefinitions.IsFrame(enemy.Frame)))
             return null;
 
         // These twelve OAM frames are selected by Spore Spawn. Old visual
         // overrides may carry Draygon-prefixed keys, but every rectangle
         // and callback comes from the compiled gameplay catalog.
         foreach (SporeSpawnCollisionComponent component in
-                 SporeSpawnCollisionDefinitions.ComponentsAt(
-                     probe.Frames.Spritemap(enemy.Frame)))
+                 SporeSpawnCollisionDefinitions.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             ushort componentX = componentOrigin.X;

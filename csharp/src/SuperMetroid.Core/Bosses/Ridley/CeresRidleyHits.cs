@@ -66,7 +66,6 @@ internal sealed class CeresRidleyHits
         {
             if (!projectile.HasEnemyCollisionPayload ||
                 !ExtendedSpritemapOverlapsRectangle(
-                    _room.Frames,
                     slot,
                     projectile.Position.Whole,
                     projectile.Radius))
@@ -231,7 +230,6 @@ internal sealed class CeresRidleyHits
     /// body and must never be substituted for this data.
     /// </summary>
     internal static bool ExtendedSpritemapOverlapsRectangle(
-        IEnemyFrameWords frames,
         RoomEnemySlot slot,
         Position16<RoomPixels> subject,
         Extent16<RoomPixels> subjectRadius)
@@ -241,7 +239,7 @@ internal sealed class CeresRidleyHits
         int subjectTop = unchecked((ushort)(subject.Y - subjectRadius.Y));
         int subjectBottom = unchecked((ushort)(subject.Y + subjectRadius.Y));
         var components =
-            RidleyCollisionDefinitions.ComponentsAt(frames.Spritemap(slot.Frame));
+            RidleyCollisionDefinitions.ComponentsAt(slot.Frame);
         foreach (RidleyCollisionComponent component in components)
         {
             Position16<RoomPixels> componentOrigin = slot.Position.Whole + component.Offset;

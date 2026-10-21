@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>
@@ -17,13 +19,16 @@ internal static class CommonEnemyEmptyExtendedFrameDefinitions
 
     /// <summary>Limits the shared empty records to the enemy banks that carry native copies.</summary>
     private static bool IsSupportedBank(byte bank) => bank is 0xa0 or >= 0xa2 and <= 0xaa or 0xb2 or 0xb3;
-    /// <summary>Whether a spritemap pointer shows nothing: zero or the shared empty spritemap.</summary>
-    internal static bool DrawsNothing(ushort pointer) => pointer is 0 or EmptySpritemap;
-
-    /// <summary>Whether a spritemap pointer is the shared point-hitbox extended frame.</summary>
-    internal static bool IsFrame(ushort pointer) => pointer == Frame;
-
-    /// <summary>Recognizes the point-hitbox extended frame only in banks with the shared record.</summary>
+    /// <summary>
+    /// The frames that show the shared empty spritemap: the common empty frame, and the Norfair lava jumper frame
+    /// catalogued at the same record.
+    /// </summary>
+    private static readonly HashSet<EnemyFrameId> EmptySpritemapFrames = [EnemyFrameId.Empty, EnemyFrameId.NorfairLavaJumper804d];
+    /// <summary>Whether an actor showing <paramref name="frame"/> draws nothing: no frame yet, or the shared empty spritemap.</summary>
+    internal static bool DrawsNothing(EnemyFrameId? frame) => frame is not { } shown || EmptySpritemapFrames.Contains(shown);
+    /// <summary>Whether <paramref name="frame"/> is the shared point-hitbox extended frame.</summary>
+    internal static bool IsFrame(EnemyFrameId? frame) => frame == EnemyFrameId.EmptyExtended;
+    /// <summary>Recognizes the point-hitbox extended frame record only in banks with the shared record.</summary>
     internal static bool HasFrame(byte bank, ushort pointer) =>
         pointer == Frame && IsSupportedBank(bank);
 

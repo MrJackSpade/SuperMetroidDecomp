@@ -13,5 +13,9 @@ internal static class KraidArmCollisionDefinitionsConstants
         internal static int FrameCount => KraidArmCollisionDefinitionsConstants.FrameCount;
     }
     /// <summary>$A7:92A1, ExtendedSpritemap_KraidArm_Dying_PreparingToLungeForward_0.</summary>
-    internal const ushort FirstSingleComponentFrame = (ushort)KraidArmCollisionDefinitions.SingleComponentFrame.First;
+    internal const ushort FirstSingleComponentFrame = 0x92a1;
+    /// <summary>$A7:8F59, ExtendedSpritemap_KraidArm_General_0; twenty five-component frames follow.</summary>
+    internal const ushort FirstGeneralFrame = 0x8f59;
+    /// <summary>Native byte stride of a five-component extended frame, including its count word.</summary>
+    internal const int GeneralFrameBytes = 2 + 5 * 8;
 }

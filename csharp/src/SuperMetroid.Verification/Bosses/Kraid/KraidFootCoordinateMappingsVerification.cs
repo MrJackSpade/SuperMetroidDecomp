@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Bosses.Kraid;
@@ -21,6 +22,9 @@ internal static class KraidFootCoordinateMappingsVerification
     internal static void VerifyKraidFootSecondY(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 1, true, KraidFootCollisionDefinitions.SecondY));
 
+    /// <summary>$A7:8F35, ExtendedSpritemap_KraidFoot_21, which no instruction list shows.</summary>
+    private const ushort UnshownFrame = 0x8f35;
+
     /// <summary>Compares 35 animation frames and the shared frame with native foot-component offsets.</summary>
     private static void VerifyKraidFootCoordinate(SuperMetroidAddressSpace rom, int component, bool vertical, Func<int, short> calculate)
     {
@@ -30,6 +34,12 @@ internal static class KraidFootCoordinateMappingsVerification
             ushort pointer = ordinal == 35 ? (ushort)0xa565 : (ushort)(0x8ce3 + 18 * ordinal);
             short expected = unchecked((short)Word(pointer + 2 + component * 8 + (vertical ? 2 : 0)));
             AssertEqual(expected, calculate(ordinal == 35 ? 0 : ordinal), "Original foot coordinate");
+            // No instruction list shows ExtendedSpritemap_KraidFoot_21, so it is no frame Kraid's foot can show.
+            if (pointer == UnshownFrame)
+            {
+                AssertTrue(RoomEnemySlotFrameAccess.TryFrameAt(KraidFootCollisionDefinitions.Bank, pointer) is null, "Unshown foot frame has no identity");
+                continue;
+            }
             AssertTrue(KraidFootCollisionDefinitions.TryGetComponents(pointer, out var components), "Native foot components exist");
             AssertEqual(2, components.Length, "Foot has two components");
             var actual = components[component];
@@ -66,7 +76,7 @@ internal static class KraidFootCoordinateMappingsVerification
         AssertThrows<InvalidDataException>(() => KraidFootCollisionDefinitionsConstants.HitboxesAt(0x9454), "Unaligned hitbox rejects");
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            bool expectedMember = raw == 0xa565 || (raw >= 0x8ce3 && raw <= 0x8f47 && (raw - 0x8ce3) % 18 == 0);
+            bool expectedMember = raw == 0xa565 || (raw >= 0x8ce3 && raw <= 0x8f47 && (raw - 0x8ce3) % 18 == 0 && raw != UnshownFrame);
             AssertEqual(expectedMember, KraidFootCollisionDefinitions.TryGetComponents((ushort)raw, out var components),
                 "Complete native foot frame membership");
             if (!expectedMember) { AssertEqual(0, components.Length, "Rejected frame has no components"); continue; }

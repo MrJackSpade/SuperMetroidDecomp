@@ -1,24 +1,13 @@
 using System.Collections.Immutable;
+using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Kraid's physical foot components for the initial frame at $A7:A565 and
-/// the 35 selected extended frames at $A7:8CE3-$A7:8F47. The OAM records are presentation;
-/// these offsets and the shared $A7:9453 hitbox list govern collision.
+/// Kraid's physical foot components for its walk frames and the small-Kraid initial frame. The OAM records are
+/// presentation; these offsets and the one shared hitbox govern collision.
 /// </summary>
 internal static class KraidFootCollisionDefinitions
 {
-    /// <summary>Bank containing the Kraid foot's extended frame and shared hitbox records.</summary>
-    internal const byte Bank = 0xa7;
-
-    /// <summary>First authored Kraid-foot extended frame at $A7:8CE3.</summary>
-    internal const ushort FirstFrame = 0x8ce3;
-
-    /// <summary>Small-Kraid initial foot frame at $A7:A565; physically the first walk frame.</summary>
-    internal const ushort InitialFrame = 0xa565;
-
-    /// <summary>Each two-component frame occupies 18 bytes in bank $A7.</summary>
-    internal const int FrameByteCount = 18;
 
     /// <summary>Number of authored extended foot frames in the walk sequence.</summary>
     internal const int FrameCount = 35;
@@ -80,26 +69,56 @@ internal static class KraidFootCollisionDefinitions
         if ((uint)frame >= FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
     }
 
-    /// <summary>Maps an initial or 18-byte extended frame pointer to its two collision components.</summary>
-    internal static bool TryGetComponents(ushort pointer,
-        out ImmutableArray<KraidCollisionComponent> components)
+    /// <summary>The walk frame each Kraid-foot frame shows; the small-Kraid initial frame is physically the first.</summary>
+    private static readonly Dictionary<EnemyFrameId, int> WalkFrames = new()
     {
-        if (pointer == InitialFrame)
+        [EnemyFrameId.KraidFootOam8CE3] = 0,
+        [EnemyFrameId.KraidFootOam8CF5] = 1,
+        [EnemyFrameId.KraidFootOam8D07] = 2,
+        [EnemyFrameId.KraidFootOam8D19] = 3,
+        [EnemyFrameId.KraidFootOam8D2B] = 4,
+        [EnemyFrameId.KraidFootOam8D3D] = 5,
+        [EnemyFrameId.KraidFootOam8D4F] = 6,
+        [EnemyFrameId.KraidFootOam8D61] = 7,
+        [EnemyFrameId.KraidFootOam8D73] = 8,
+        [EnemyFrameId.KraidFootOam8D85] = 9,
+        [EnemyFrameId.KraidFootOam8D97] = 10,
+        [EnemyFrameId.KraidFootOam8DA9] = 11,
+        [EnemyFrameId.KraidFootOam8DBB] = 12,
+        [EnemyFrameId.KraidFootOam8DCD] = 13,
+        [EnemyFrameId.KraidFootOam8DDF] = 14,
+        [EnemyFrameId.KraidFootOam8DF1] = 15,
+        [EnemyFrameId.KraidFootOam8E03] = 16,
+        [EnemyFrameId.KraidFootOam8E15] = 17,
+        [EnemyFrameId.KraidFootOam8E27] = 18,
+        [EnemyFrameId.KraidFootOam8E39] = 19,
+        [EnemyFrameId.KraidFootOam8E4B] = 20,
+        [EnemyFrameId.KraidFootOam8E5D] = 21,
+        [EnemyFrameId.KraidFootOam8E6F] = 22,
+        [EnemyFrameId.KraidFootOam8E81] = 23,
+        [EnemyFrameId.KraidFootOam8E93] = 24,
+        [EnemyFrameId.KraidFootOam8EA5] = 25,
+        [EnemyFrameId.KraidFootOam8EB7] = 26,
+        [EnemyFrameId.KraidFootOam8EC9] = 27,
+        [EnemyFrameId.KraidFootOam8EDB] = 28,
+        [EnemyFrameId.KraidFootOam8EED] = 29,
+        [EnemyFrameId.KraidFootOam8EFF] = 30,
+        [EnemyFrameId.KraidFootOam8F11] = 31,
+        [EnemyFrameId.KraidFootOam8F23] = 32,
+        [EnemyFrameId.KraidFootOam8F47] = 34,
+        [EnemyFrameId.KraidFootOamA565] = 0,
+    };
+
+    /// <summary>The two collision components of Kraid-foot frame <paramref name="frame"/>, when it is one.</summary>
+    internal static bool TryGetComponents(EnemyFrameId? frame, out ImmutableArray<KraidCollisionComponent> components)
+    {
+        if (frame is { } shown && WalkFrames.TryGetValue(shown, out int walk))
         {
-            components = FrameComponents[0];
+            components = FrameComponents[walk];
             return true;
         }
-
-        int distance = pointer - FirstFrame;
-        if (distance < 0 || distance % FrameByteCount != 0 ||
-            distance / FrameByteCount >= FrameCount)
-        {
-            components = [];
-            return false;
-        }
-
-        components = FrameComponents[distance / FrameByteCount];
-        return true;
+        components = [];
+        return false;
     }
 
     /// <summary>The single shared rectangle every foot component collides with.</summary>

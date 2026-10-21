@@ -294,13 +294,12 @@ internal sealed class MotherBrainCombat
     internal static bool? FindMotherBrainHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
         callback = null;
-        if (!(enemy.EnemyDefinitionPointer is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead &&
-            enemy.Definition.Bank == MotherBrainCollisionDefinitions.Bank))
+        if (enemy.EnemyDefinitionPointer is not (EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead))
             return null;
 
         // Body and head walk the same bank-$A9 roots; the head's dummy list keeps $A320.
         foreach (MotherBrainCollisionComponent component in
-                 MotherBrainCollisionDefinitions.ComponentsAt(probe.Frames.Spritemap(enemy.Frame)))
+                 MotherBrainCollisionDefinitions.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             ushort componentX = componentOrigin.X;

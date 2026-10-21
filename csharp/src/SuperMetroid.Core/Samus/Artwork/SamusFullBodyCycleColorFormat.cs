@@ -282,47 +282,22 @@ public static class SamusFullBodyCycleColorFormat
         return source * ColorsPerPalette + color;
     }
 
-    /// <summary>Maps an original full-body palette identity to its contiguous artwork row.</summary>
-    /// <remarks>Native bank91 lists select all48 aligned32-byte records in
-    /// $9B:9B20..A11F: speed boost, stored shine, active shine and Screw Attack
-    /// occupy consecutive128-byte families, repeated every512 bytes per suit.
-    /// Index=(pointer-$9B20)/32, requiring exact alignment and index0..47.
-    /// This replaces generated pointer dictionary entries, not color artwork.</remarks>
-    internal static int PaletteIndex(ushort pointer)
+    /// <summary>The contiguous artwork row of a cycle palette.</summary>
+    /// <remarks>Each suit owns sixteen consecutive rows, Power then Varia then Gravity: four Speed Booster shades, then
+    /// stored shine, active shinespark and Screw Attack, the order the color formulas index.</remarks>
+    internal static int PaletteIndex(SamusFullBodyCyclePalette palette)
     {
-        int offset = pointer - SamusPaletteRomData.FullBodyCycles.SpeedBoosterFirstPalette;
-        if ((uint)offset >= PaletteCount * ColorsPerPalette * Bgr555.ByteCount ||
-            offset % (ColorsPerPalette * Bgr555.ByteCount) != 0)
-            throw new ArgumentOutOfRangeException(nameof(pointer), $"Uncatalogued full-body palette pointer ${pointer:X4}.");
-        return offset / (ColorsPerPalette * Bgr555.ByteCount);
+        if ((uint)palette.Suit >= SuitCount || (uint)palette.Shade >= ShadesPerSuit)
+            throw new ArgumentOutOfRangeException(nameof(palette), $"Uncatalogued full-body palette {palette}.");
+        int family = palette.Family switch
+        {
+            SamusFullBodyCycleFamily.SpeedBooster => 0,
+            SamusFullBodyCycleFamily.StoredShine => 1,
+            SamusFullBodyCycleFamily.ActiveShinespark => 2,
+            SamusFullBodyCycleFamily.ScrewAttack => 3,
+            _ => throw new ArgumentOutOfRangeException(nameof(palette), $"Uncatalogued full-body palette family {palette.Family}."),
+        };
+        return palette.Suit * (PaletteCount / SuitCount) + family * ShadesPerSuit + palette.Shade;
     }
 
-    /// <summary>Uses the cartridge-verified, bounded selector for each distinct shade.</summary>
-    public static ushort Pointer(SamusFullBodyCycleFamily family, int suit, int shade)
-    {
-        if ((uint)suit >= SuitCount || (uint)shade >= ShadesPerSuit)
-            throw new ArgumentOutOfRangeException(nameof(suit), "Suit and shade must be catalogued.");
-        ushort suitOffset = (ushort)(suit * 2);
-        ushort shadeOffset = (ushort)(shade * 2);
-        ushort pointer;
-        bool found = family switch
-        {
-            SamusFullBodyCycleFamily.SpeedBooster =>
-                SamusPaletteRomData.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(
-                    suitOffset, shadeOffset, out pointer),
-            SamusFullBodyCycleFamily.ScrewAttack =>
-                SamusPaletteRomData.FullBodyCycles.TryScrewAttackPalettePointer(
-                    suitOffset, shadeOffset, out pointer),
-            SamusFullBodyCycleFamily.StoredShine =>
-                SamusPaletteRomData.FullBodyCycles.TryStoredShinePalettePointer(
-                    suitOffset, shadeOffset, out pointer),
-            SamusFullBodyCycleFamily.ActiveShinespark =>
-                SamusPaletteRomData.FullBodyCycles.TryActiveShinesparkPalettePointer(
-                    suitOffset, shadeOffset, out pointer),
-            _ => throw new ArgumentOutOfRangeException(nameof(family)),
-        };
-        if (!found)
-            throw new InvalidDataException($"Uncatalogued {family} suit {suit}, shade {shade}.");
-        return pointer;
-    }
 }

@@ -36,7 +36,8 @@ internal static class ClosedPresentationIdentityDefinitions
             GameplayMessageNoticeDefinitions.MessageIds.SelectToArray(id => (int)id),
         ("GameplayMessageNoticePresentation", "ApplySelection", "messageId") =>
             [(int)GameplayMessageId.SaveConfirmation, (int)GameplayMessageId.GunshipSaveConfirmation],
-        ("SamusFullBodyCycleColorCatalog", "Apply" or "Resolve", "pointer") => FullBodyPointers(),
+        ("SamusFullBodyCycleColorCatalog", "Apply" or "Resolve", "palette.Family") =>
+            Enum.GetValues<SamusFullBodyCycleFamily>().Select(family => (int)family).ToArray(),
         ("SamusSuitColorCatalog", "Apply" or "Resolve", "suitTableOffset") => [0, 2, 4],
         ("EnemyAuxiliaryColorCatalog", "Resolve", "palette") => EnemyAuxiliaryColorDefinitions.All
             .Select(definition => (int)definition.Id).ToArray(),
@@ -84,15 +85,6 @@ internal static class ClosedPresentationIdentityDefinitions
         // returns false rather than looking up missing artwork.
         _ => null,
     };
-
-    /// <summary>Enumerates every suit and shade pointer across the four full-body palette animation families.</summary>
-    private static int[] FullBodyPointers() =>
-        new[] { SamusFullBodyCycleFamily.SpeedBooster, SamusFullBodyCycleFamily.ScrewAttack,
-            SamusFullBodyCycleFamily.StoredShine, SamusFullBodyCycleFamily.ActiveShinespark }
-        .SelectMany(family => Enumerable.Range(0, SamusFullBodyCycleColorFormat.SuitCount)
-            .SelectMany(suit => Enumerable.Range(0, SamusFullBodyCycleColorFormat.ShadesPerSuit)
-                .Select(shade => (int)SamusFullBodyCycleColorFormat.Pointer(family, suit, shade))))
-        .Distinct().ToArray();
 
     /// <summary>Collects distinct cartridge source addresses from the closed room tileset definitions.</summary>
     private static int[] TilesetSources(Func<TilesetDefinition, int> select) => Enumerable.Range(0, RoomTilesetDefinitions.Count)

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -37,7 +38,14 @@ public static class SamusFullBodyCycleColorExtractor
                 suits[suit] = new PaletteRgb5[SamusFullBodyCycleColorFormat.ShadesPerSuit][];
                 for (int shade = 0; shade < suits[suit].Length; shade++)
                 {
-                    ushort pointer = SamusFullBodyCycleColorFormat.Pointer(family, suit, shade);
+                    ushort pointer = checked((ushort)(family switch
+                    {
+                        SamusFullBodyCycleFamily.SpeedBooster => SamusCartridgeTables.SpeedBoosterCyclePalettes,
+                        SamusFullBodyCycleFamily.StoredShine => SamusCartridgeTables.StoredShineCyclePalettes,
+                        SamusFullBodyCycleFamily.ActiveShinespark => SamusCartridgeTables.ActiveShinesparkCyclePalettes,
+                        SamusFullBodyCycleFamily.ScrewAttack => SamusCartridgeTables.ScrewAttackCyclePalettes,
+                        _ => throw new ArgumentOutOfRangeException(nameof(family)),
+                    } + suit * SamusCartridgeTables.CyclePaletteSuitStride + shade * SamusCartridgeTables.CyclePaletteShadeStride));
                     byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                         SamusPaletteRomData.Banks.Palette | pointer,
                         SamusFullBodyCycleColorFormat.ColorsPerPalette * sizeof(ushort));

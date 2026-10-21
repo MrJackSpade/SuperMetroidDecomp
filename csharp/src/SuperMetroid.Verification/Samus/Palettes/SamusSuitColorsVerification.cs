@@ -86,9 +86,7 @@ internal static class SamusSuitColorsVerification
         for (int suit = 0; suit < equipment.Length; suit++)
         {
             var cgram = new SnesCgram();
-            ushort pointer = SamusNormalSuitPalette.Load(cgram, (SamusEquipmentFlags)equipment[suit], colors);
-            AssertEqual(SamusPaletteRomData.Common.NormalSuitPalettePointer((ushort)(suit * 2)),
-                pointer, $"suit {suit} retains its native diagnostic pointer");
+            SamusNormalSuitPalette.Load(cgram, (SamusEquipmentFlags)equipment[suit], colors);
             for (int color = 0; color < SamusSuitColorFormat.ColorsPerSuit; color++)
                 AssertEqual(
                     (ushort)(ReadNativeSuitColor(cartridge, sourceAddresses[suit], color) & 0x7fff),

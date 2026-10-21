@@ -177,9 +177,20 @@ internal static class FullBodyPalettePointerListsVerification
                 int listStart = firstList + suitOffset / 2 * phases * sizeof(ushort);
                 for (int phaseOffset = 0; listStart + phaseOffset + 1 < firstList + totalBytes;
                      phaseOffset++)
-                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((SamusPaletteRomData.Banks.Movement | (listStart + phaseOffset))),
-                        readCompiled(suitOffset, (ushort)phaseOffset),
-                        $"{family} suit offset {suitOffset}, byte offset {phaseOffset}");
+                {
+                    ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(
+                        SamusPaletteRomData.Banks.Movement | (listStart + phaseOffset));
+                    if ((phaseOffset & 1) == 0)
+                    {
+                        AssertEqual(native, readCompiled(suitOffset, (ushort)phaseOffset),
+                            $"{family} suit offset {suitOffset}, byte offset {phaseOffset}");
+                        continue;
+                    }
+                    AssertTrue(!SamusPaletteNative.IsCyclePalette(native),
+                        $"{family} suit offset {suitOffset}, odd byte offset {phaseOffset} reads no cycle palette natively");
+                    AssertThrows<InvalidDataException>(() => readCompiled(suitOffset, (ushort)phaseOffset),
+                        $"{family} suit offset {suitOffset}, odd byte offset {phaseOffset} selects no cycle palette");
+                }
             }
         }
     }

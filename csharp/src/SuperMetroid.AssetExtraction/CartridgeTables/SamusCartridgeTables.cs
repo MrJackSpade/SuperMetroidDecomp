@@ -20,6 +20,23 @@ internal static class SamusCartridgeTables
     internal static readonly CpuBusCell ProjectileBank = CpuBusCell.CartridgeBytes(nameof(ProjectileBank), 0x938000, 0x8000,
         "projectile spritemaps (u16 count + 5-byte parts)");
 
+    /// <summary>$9B:9B20: the Power Suit's first Speed Booster cycle shade.</summary>
+    internal const ushort SpeedBoosterCyclePalettes = 0x9b20;
+    /// <summary>$9B:9BA0: the Power Suit's first stored-shine cycle shade.</summary>
+    internal const ushort StoredShineCyclePalettes = 0x9ba0;
+    /// <summary>$9B:9C20: the Power Suit's first active-shinespark cycle shade.</summary>
+    internal const ushort ActiveShinesparkCyclePalettes = 0x9c20;
+    /// <summary>$9B:9CA0: the Power Suit's first Screw Attack cycle shade.</summary>
+    internal const ushort ScrewAttackCyclePalettes = 0x9ca0;
+    /// <summary>Byte distance between one suit's cycle palettes and the next suit's.</summary>
+    internal const int CyclePaletteSuitStride = 0x200;
+    /// <summary>Byte distance between adjacent sixteen-color shades.</summary>
+    internal const int CyclePaletteShadeStride = 0x20;
+    /// <summary>$9B:A360: the first sixteen-color Hyper Beam frame; later frames descend.</summary>
+    internal const int HyperBeamPalettes = 0x9ba360;
+    /// <summary>Byte distance between descending Hyper Beam frames.</summary>
+    internal const int HyperBeamPaletteStride = 0x20;
+
     /// <summary>$92:90ED: the first Samus spritemap; spritemap pointers below it are invalid.</summary>
     internal const int FirstSpritemap = 0x90ed;
 

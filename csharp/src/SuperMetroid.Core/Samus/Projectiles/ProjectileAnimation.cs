@@ -182,15 +182,11 @@ internal sealed class ProjectileAnimation
         _charge.ClearFlare();
     }
 
-    /// <summary>Restores sixteen suit colors from installed artwork and retains the native selection pointer for diagnostics.</summary>
-    internal static ushort LoadNormalSuitPalette(
+    /// <summary>Restores sixteen suit colors from installed artwork.</summary>
+    internal static void LoadNormalSuitPalette(
         IPaletteColors cgram,
-        SamusState samus)
-    {
-        // Preserve the native pointer as the diagnostic result while the installed
-        // color source replaces only the sixteen displayed BGR555 words.
-        return SamusNormalSuitPalette.Load(cgram, samus.EquippedItems, samus.Presentation.SuitColors);
-    }
+        SamusState samus) =>
+        SamusNormalSuitPalette.Load(cgram, samus.EquippedItems, samus.Presentation.SuitColors);
 
     /// <summary>Maps equipped suit bits to the native normal-suit palette table offset.</summary>
     internal static ushort GetSuitPaletteOffset(SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems) =>

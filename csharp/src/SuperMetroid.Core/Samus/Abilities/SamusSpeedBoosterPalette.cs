@@ -7,16 +7,15 @@ namespace SuperMetroid.Core.Samus.Abilities;
 internal static class SamusSpeedBoosterPalette
 {
     /// <summary>
-    /// Copies the selected installed cycle into CGRAM. Native expansion and grapple-code
-    /// overrun pointers instead copy their operand-driven bus words through the 15-bit
-    /// CGRAM port, preserving the unrolled cartridge read behavior.
+    /// Copies the selected installed cycle into CGRAM. The native expansion and grapple-code
+    /// overruns instead copy their operand-driven bus words through the 15-bit CGRAM port,
+    /// preserving the unrolled cartridge read behavior.
     /// </summary>
-    internal static void Apply(IPaletteColors cgram, ushort pointer,
+    internal static void Apply(IPaletteColors cgram, SpeedBoosterPaletteSource source,
         SamusFullBodyCycleColorCatalog? colors, SamusOverreadCatalog? overreads)
     {
-        if (Enum.IsDefined((SpeedBoosterPaletteOverrun)pointer))
+        if (source.Overrun is { } overrun)
         {
-            var overrun = (SpeedBoosterPaletteOverrun)pointer;
             for (int index = 0; index < SamusPaletteRomData.Common.ColorsPerObjPalette; index++)
             {
                 // The native unrolled copy uses LDA $0000..001E,X; the expansion window's open
@@ -35,6 +34,7 @@ internal static class SamusSpeedBoosterPalette
             return;
         }
         (colors ?? throw new InvalidOperationException(
-            "Speed Booster palette requires installed Samus full-body cycle colors.")).Apply(cgram, pointer);
+            "Speed Booster palette requires installed Samus full-body cycle colors.")).Apply(cgram, source.Palette ??
+                throw new InvalidOperationException("A Speed Booster palette source names either a cycle palette or an overrun."));
     }
 }

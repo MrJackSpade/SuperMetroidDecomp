@@ -225,14 +225,10 @@ public sealed class SamusProjectileSystem
                 bool pseudoScrew = samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.PseudoScrew;
                 ushort suitOffset = ProjectileAnimation.GetSuitPaletteOffset(samus.EquippedItems);
 
-                // The installed path compiles the two pointer levels for bounded native
-                // offsets. Restored non-catalog offsets still execute both indirect reads.
+                // The installed path compiles the two list levels for bounded native offsets.
                 bool catalogued = samus.Presentation.ChargeColors is not null &&
-                    (pseudoScrew
-                        ? SamusChargePaletteDefinitions.TryPseudoScrew(
-                            suitOffset, checked((ushort)Charge.SamusChargePaletteIndex), out _)
-                        : SamusChargePaletteDefinitions.TryChargedBeam(
-                            suitOffset, checked((ushort)Charge.SamusChargePaletteIndex), out _));
+                    SamusChargePaletteDefinitions.IsCompiledChargePhase(
+                        suitOffset, checked((ushort)Charge.SamusChargePaletteIndex));
                 if (!catalogued)
                     throw new InvalidDataException(
                         $"Charge palette offset {Charge.SamusChargePaletteIndex} is not compiled.");
@@ -313,7 +309,7 @@ public sealed class SamusProjectileSystem
         }
 
         bool cataloguedHyper = samus.Presentation.ChargeColors is not null &&
-            SamusChargePaletteDefinitions.TryHyperShot(tableOffset, out _);
+            SamusChargePaletteDefinitions.IsCompiledHyperShot(tableOffset);
         if (!cataloguedHyper)
             throw new InvalidDataException($"Hyper Beam palette offset {tableOffset} is not compiled.");
         int hyperPaletteIndex = (20 - tableOffset) / 2;

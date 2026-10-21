@@ -22,17 +22,22 @@ internal static class SamusColorPresentationContractChecks
             using SuperMetroid.Core.Hardware;
             using SuperMetroid.Core.Samus.Artwork;
             using SuperMetroid.Core.Samus.Palettes;
-            static class FixtureBodyPalette { internal const ushort LastShine = @LAST_SHINE@; }
             class ColorConsumer {
                 void Inspect(SamusFullBodyCycleColorCatalog body, SamusSuitColorCatalog suit,
                     SamusChargeColorCatalog charge, SamusHurtColorCatalog hurt,
                     SamusHyperBeamColorCatalog hyper, SamusVisorColorCatalog visor,
                     CrystalFlashColorCatalog flash, PowerBombFixedColorCatalog bomb,
                     HyperBeamFxColorCatalog fx, SnesCgram cgram, int destination) {
-                    body.Apply(cgram, FixtureBodyPalette.LastShine);
-                    body.Apply(cgram, 0);
-                    body.Resolve(FixtureBodyPalette.LastShine, SamusFullBodyCycleColorFormat.ColorsPerPalette - 1);
-                    body.Resolve(FixtureBodyPalette.LastShine, SamusFullBodyCycleColorFormat.ColorsPerPalette);
+                    body.Apply(cgram, new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
+                        SamusFullBodyCycleColorFormat.SuitCount - 1, SamusFullBodyCycleColorFormat.ShadesPerSuit - 1));
+                    body.Apply(cgram, new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
+                        SamusFullBodyCycleColorFormat.SuitCount, 0));
+                    body.Resolve(new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
+                        SamusFullBodyCycleColorFormat.SuitCount - 1, SamusFullBodyCycleColorFormat.ShadesPerSuit - 1),
+                        SamusFullBodyCycleColorFormat.ColorsPerPalette - 1);
+                    body.Resolve(new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
+                        SamusFullBodyCycleColorFormat.SuitCount - 1, SamusFullBodyCycleColorFormat.ShadesPerSuit - 1),
+                        SamusFullBodyCycleColorFormat.ColorsPerPalette);
                     suit.Apply(cgram, 4);
                     suit.Apply(cgram, 1);
                     charge.ApplyCharge(cgram, false, SamusChargeColorFormat.SuitCount - 1, SamusChargeColorFormat.PhasesPerSuit - 1);
@@ -59,10 +64,7 @@ internal static class SamusColorPresentationContractChecks
                 }
             }
             """;
-        ushort lastShine = SamusFullBodyCycleColorFormat.Pointer(SamusFullBodyCycleFamily.ActiveShinespark,
-            SamusFullBodyCycleColorFormat.SuitCount - 1, SamusFullBodyCycleColorFormat.ShadesPerSuit - 1);
-        SyntaxTree calls = CSharpSyntaxTree.ParseText(consumer.Replace("@LAST_SHINE@", $"0x{lastShine:X4}",
-            StringComparison.Ordinal), path: "fixture-samus-color-consumer.cs");
+        SyntaxTree calls = CSharpSyntaxTree.ParseText(consumer, path: "fixture-samus-color-consumer.cs");
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         var compilation = CSharpCompilation.Create("SamusColorProviderFixture", trees,

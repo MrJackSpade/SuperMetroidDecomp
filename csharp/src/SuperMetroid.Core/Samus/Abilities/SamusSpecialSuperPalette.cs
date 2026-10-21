@@ -29,16 +29,13 @@ public static class SamusSpecialSuperPalette
         if (phase is 0 or >= FirstDrainedBranchPhase)
             return false;
 
-        ushort suitOffset = samus.EquippedItems.GetSuitPaletteTableOffset();
-        ushort palettePointer = (phase & 1) != 0
-            ? SamusPaletteRomData.FullBodyCycles.SpeedBoostPalettePointer(suitOffset)
-            : SamusPaletteRomData.Common.NormalSuitPalettePointer(suitOffset);
         if ((phase & 1) == 0)
             SamusNormalSuitPalette.Load(cgram, samus.EquippedItems, samus.Presentation.SuitColors);
         else
             (samus.Presentation.FullBodyCycleColors ?? throw new InvalidOperationException(
                 "Metroid-attachment palette requires installed Samus full-body cycle colors."))
-                .Apply(cgram, palettePointer);
+                .Apply(cgram, SamusPaletteRomData.FullBodyCycles.SpeedBoostPalette(
+                    samus.EquippedItems.GetSuitPaletteTableOffset()));
         // The phase is below the drained branch here, so advancing it never wraps.
         samus.SpecialSuperPaletteFlags = phase + 1;
         return true;

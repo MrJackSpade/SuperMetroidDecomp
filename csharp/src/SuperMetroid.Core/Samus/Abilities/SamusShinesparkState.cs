@@ -767,15 +767,15 @@ false);
         ushort suitOffset = equippedItems.GetSuitPaletteTableOffset();
         ushort phaseOffset = checked((ushort)PaletteFrameOffset);
         bool catalogued = PaletteType == SamusSpecialPaletteType.SpeedBoosterShine
-            ? SamusPaletteRomData.FullBodyCycles.TryStoredShinePalettePointer(
-                suitOffset, phaseOffset, out ushort palettePointer)
-            : SamusPaletteRomData.FullBodyCycles.TryActiveShinesparkPalettePointer(
-                suitOffset, phaseOffset, out palettePointer);
+            ? SamusPaletteRomData.FullBodyCycles.TryStoredShinePalette(
+                suitOffset, phaseOffset, out SamusFullBodyCyclePalette palette)
+            : SamusPaletteRomData.FullBodyCycles.TryActiveShinesparkPalette(
+                suitOffset, phaseOffset, out palette);
         if (!catalogued)
             throw new InvalidDataException(
                 $"Shinespark palette type {(int)PaletteType} offset {PaletteFrameOffset} is not compiled.");
         (cycleColors ?? throw new InvalidOperationException(
-            "Shinespark palette requires installed color assets.")).Apply(cgram, palettePointer);
+            "Shinespark palette requires installed color assets.")).Apply(cgram, palette);
 
         int exclusiveLimit = PaletteType == SamusSpecialPaletteType.SpeedBoosterShine ? 12 : 8;
         // The offset is always below its limit before this advance, so it never approaches a wrap.

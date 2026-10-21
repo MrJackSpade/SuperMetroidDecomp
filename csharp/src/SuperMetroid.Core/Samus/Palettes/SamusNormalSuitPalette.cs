@@ -10,20 +10,16 @@ public static class SamusNormalSuitPalette
     /// <param name="cgram">CGRAM receiving Samus's OBJ palette-four slots, colors 192..207, including the transparent-slot payload.</param>
     /// <param name="equippedItems">Native equipped-item bitfield; only the Gravity/Varia suit bits select the normal palette.</param>
     /// <param name="colors">Required installed suit-color catalog; displayed words may differ from stock cartridge colors.</param>
-    /// <returns>The stock bank-$9B palette pointer identity ($9400, $9520, or $9800) for diagnostics, not an address read to obtain the displayed colors.</returns>
     /// <exception cref="ArgumentNullException">CGRAM is null.</exception>
     /// <exception cref="InvalidOperationException">Installed suit colors are absent.</exception>
-    public static ushort Load(IPaletteColors cgram, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
+    public static void Load(IPaletteColors cgram, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         SamusSuitColorCatalog? colors)
     {
         Ensure.NotNull(cgram);
         if (colors is null)
             throw new InvalidOperationException(
                 "Normal suit palette requires installed Samus suit colors.");
-        ushort offset = equippedItems.GetSuitPaletteTableOffset();
-        ushort pointer = SamusPaletteRomData.Common.NormalSuitPalettePointer(offset);
-        colors.Apply(cgram, offset);
-        return pointer;
+        colors.Apply(cgram, equippedItems.GetSuitPaletteTableOffset());
     }
 
     /// <summary>Restores the installed normal Power-suit colors to Samus's sixteen OBJ palette slots regardless of equipped suit flags, without changing gameplay state.</summary>

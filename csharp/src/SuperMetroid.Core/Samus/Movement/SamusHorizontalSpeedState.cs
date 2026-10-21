@@ -434,9 +434,9 @@ public sealed class SamusHorizontalSpeedState
 
         SpecialPaletteTimer = WrappingCountdown.Start(4);
 
-        ushort palettePointer = SamusPaletteRomData.FullBodyCycles.ReadActiveSpeedBoosterPalettePointer(
+        SpeedBoosterPaletteSource source = SamusPaletteRomData.FullBodyCycles.ReadActiveSpeedBoosterPalette(
             suitTableOffset, checked((ushort)SpecialPaletteFrame));
-        SamusSpeedBoosterPalette.Apply(cgram, palettePointer, cycleColors, overreads);
+        SamusSpeedBoosterPalette.Apply(cgram, source, cycleColors, overreads);
 
         // The native clamp is AFTER the copy. Screw Attack can leave phase eight or ten
         // in this shared word; retain that one bounded overrun before pinning phase six.
@@ -476,11 +476,11 @@ public sealed class SamusHorizontalSpeedState
         ushort suitTableOffset,
         SamusFullBodyCycleColorCatalog? cycleColors)
     {
-        ushort palettePointer = SamusPaletteRomData.FullBodyCycles.ReadScrewAttackPalettePointer(
+        SamusFullBodyCyclePalette palette = SamusPaletteRomData.FullBodyCycles.ReadScrewAttackPalette(
             suitTableOffset, checked((ushort)SpecialPaletteFrame));
         (cycleColors ?? throw new InvalidOperationException(
             "Screw Attack palette requires installed Samus full-body cycle colors."))
-            .Apply(cgram, palettePointer);
+            .Apply(cgram, palette);
 
         // Offsets 0,2,4,6,8,10 form the six-frame cycle. The native CMP uses the current
         // offset, so ten wraps to zero only after its palette has been copied.

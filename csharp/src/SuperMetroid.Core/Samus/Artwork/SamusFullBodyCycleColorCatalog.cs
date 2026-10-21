@@ -137,13 +137,13 @@ public sealed class SamusFullBodyCycleColorCatalog
         }
     }
 
-    /// <summary>Returns one BGR555 color at a compiled bank-$9B palette pointer.</summary>
-    public Bgr555 Resolve(ushort pointer, int colorIndex)
+    /// <summary>Returns one BGR555 color of a cycle palette.</summary>
+    public Bgr555 Resolve(SamusFullBodyCyclePalette palette, int colorIndex)
     {
-        int palette = SamusFullBodyCycleColorFormat.PaletteIndex(pointer);
+        int row = SamusFullBodyCycleColorFormat.PaletteIndex(palette);
         if ((uint)colorIndex >= SamusFullBodyCycleColorFormat.ColorsPerPalette)
             throw new ArgumentOutOfRangeException(nameof(colorIndex));
-        int index = palette * SamusFullBodyCycleColorFormat.ColorsPerPalette + colorIndex;
+        int index = row * SamusFullBodyCycleColorFormat.ColorsPerPalette + colorIndex;
         return ResolveIndex(index);
     }
 
@@ -214,12 +214,12 @@ public sealed class SamusFullBodyCycleColorCatalog
     }
 
     /// <summary>Copies sixteen display colors to Samus OBJ palette four.</summary>
-    public void Apply(IPaletteColors cgram, ushort pointer)
+    public void Apply(IPaletteColors cgram, SamusFullBodyCyclePalette palette)
     {
         Ensure.NotNull(cgram);
         for (int index = 0; index < SamusFullBodyCycleColorFormat.ColorsPerPalette; index++)
             new SamusPalettes(cgram).Suit.Write(index,
-                Resolve(pointer, index));
+                Resolve(palette, index));
     }
 
     /// <summary>Loads and validates all 48 full-body cycle palettes for three suits and four families.</summary>
@@ -243,7 +243,7 @@ public sealed class SamusFullBodyCycleColorCatalog
     public static byte[] Write(SamusFullBodyCycleColorDocument document) =>
         JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
-    /// <summary>Validates a family's three suits and four shades, then places RGB5 colors at compiled native pointers.</summary>
+    /// <summary>Validates a family's three suits and four shades, then places RGB5 colors in their artwork rows.</summary>
     private static void AddFamily(Bgr555[][] destination,
         SamusFullBodyCycleFamily family, PaletteRgb5[][][]? source)
     {
@@ -269,10 +269,9 @@ public sealed class SamusFullBodyCycleColorCatalog
                             $"{family} suit {suit}, shade {shade}, color {index} requires RGB5 channels 0..31.");
                     words[index] = rgb.ToBgr555();
                 }
-                ushort pointer = SamusFullBodyCycleColorFormat.Pointer(family, suit, shade);
-                int paletteIndex = SamusFullBodyCycleColorFormat.PaletteIndex(pointer);
+                int paletteIndex = SamusFullBodyCycleColorFormat.PaletteIndex(new(family, suit, shade));
                 if (destination[paletteIndex] is not null)
-                    throw new InvalidDataException($"Duplicate full-body palette pointer ${pointer:X4}.");
+                    throw new InvalidDataException($"Duplicate full-body palette {family} suit {suit}, shade {shade}.");
                 destination[paletteIndex] = words;
             }
         }

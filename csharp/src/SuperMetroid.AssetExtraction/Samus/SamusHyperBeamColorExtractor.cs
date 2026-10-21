@@ -1,7 +1,7 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -23,7 +23,7 @@ public static class SamusHyperBeamColorExtractor
         var frames = new PaletteRgb5[SamusHyperBeamColorFormat.FrameCount][];
         for (int frame = 0; frame < frames.Length; frame++)
         {
-            int address = SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteSource(frame);
+            int address = SamusCartridgeTables.HyperBeamPalettes - frame * SamusCartridgeTables.HyperBeamPaletteStride;
             byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), address,
                 SamusHyperBeamColorFormat.ColorsPerFrame * sizeof(ushort));
             frames[frame] = new PaletteRgb5[SamusHyperBeamColorFormat.ColorsPerFrame];

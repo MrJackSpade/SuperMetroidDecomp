@@ -86,6 +86,8 @@ internal static class ClosedPresentationIndexDefinitions
         ("SamusDeathPaletteArtworkCatalog", "WhiteoutColor", "index") => new(0, SamusPaletteRomData.Death.WhiteoutShadeCount),
         ("SamusDeathPaletteArtworkCatalog", "ExplosionPaletteIndex", "frame") => new(0, SamusDeathExplosionTimingDefinitions.RecordCount),
         ("SamusFullBodyCycleColorCatalog", "Resolve", "colorIndex") => new(0, SamusFullBodyCycleColorFormat.ColorsPerPalette),
+        ("SamusFullBodyCycleColorCatalog", "Apply" or "Resolve", "palette.Suit") => new(0, SamusFullBodyCycleColorFormat.SuitCount),
+        ("SamusFullBodyCycleColorCatalog", "Apply" or "Resolve", "palette.Shade") => new(0, SamusFullBodyCycleColorFormat.ShadesPerSuit),
         ("SamusSuitColorCatalog", "Resolve", "colorIndex") => new(0, SamusSuitColorFormat.ColorsPerSuit),
         ("SamusChargeColorCatalog", "ApplyCharge" or "ResolveCharge", "suit") => new(0, SamusChargeColorFormat.SuitCount),
         ("SamusChargeColorCatalog", "ApplyCharge" or "ResolveCharge", "phase") => new(0, SamusChargeColorFormat.PhasesPerSuit),

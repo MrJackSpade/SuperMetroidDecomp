@@ -1,3 +1,4 @@
+﻿using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Samus.Abilities;
 namespace SuperMetroid.Core.Samus.Palettes;
@@ -20,20 +21,6 @@ public static class SamusPaletteRomData
     /// <summary>Shared full-body OBJ palette layout and suit selection table.</summary>
     public static class Common
     {
-        /// <summary>Native $91:D727 Power/Varia/Gravity pointer selected by a byte offset.</summary>
-        /// <remarks>
-        /// The three pinned cartridge words are $9400, $9520, and $9800. Every
-        /// ordinary suit selector produces byte offset 0, 2, or 4, with Gravity
-        /// taking priority when both suit bits are equipped. Named suit cases
-        /// resolve their native palette identities directly.
-        /// </remarks>
-        public static ushort NormalSuitPalettePointer(ushort byteOffset) => byteOffset switch
-        {
-            0 => 0x9400,
-            2 => 0x9520,
-            4 => 0x9800,
-            _ => throw new ArgumentOutOfRangeException(nameof(byteOffset)),
-        };
         /// <summary>First CGRAM color of Samus OBJ palette four.</summary>
         public const int SamusObjPaletteStart = 192;
         /// <summary>First CGRAM color of suitless Samus OBJ palette seven.</summary>
@@ -103,163 +90,115 @@ public static class SamusPaletteRomData
         public const byte CycleEndByteOffset = 12;
     }
 
-    /// <summary>Pointer tables used by special full-body palette handlers.</summary>
+    /// <summary>The suit-and-phase lists the special full-body palette handlers select their cycle palettes from.</summary>
     public static class FullBodyCycles
     {
-        /// <summary>Native $91:D998 Power/Varia/Gravity Speed Booster palette pointer.</summary>
-        public static ushort SpeedBoostPalettePointer(ushort byteOffset) => byteOffset switch
-        {
-            0 => 0x9b80,
-            2 => 0x9d80,
-            4 => 0x9f80,
-            _ => throw new ArgumentOutOfRangeException(nameof(byteOffset)),
-        };
-        /// <summary>First contiguous Screw Attack suit list at $91:DA50.</summary>
-        public const ushort ScrewAttackFirstList = 0xda50;
-        /// <summary>First Power Suit Screw Attack shade at $9B:9CA0.</summary>
-        public const ushort ScrewAttackFirstPalette = 0x9ca0;
-        /// <summary>
-        /// Resolves the bounded $91:DA4A/$91:DA50 Screw Attack suit and phase lists
-        /// to a bank-$9B palette pointer. Returns false for non-catalog indexes so
-        /// corrupted-state callers may retain native adjacent-data reads.
-        /// </summary>
-        public static bool TryScrewAttackPalettePointer(
-            ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
-            TryPalettePointer(suitByteOffset, phaseByteOffset, 10, ScrewAttackFirstPalette,
-                shape: PaletteCycleShape.PingPong, out pointer);
+        /// <summary>$91:D998: the cycle palette the special Super-palette flash alternates with normal suit colors, the Speed Booster family's last shade.</summary>
+        /// <param name="suitByteOffset">Even byte offset 0 (Power), 2 (Varia) or 4 (Gravity) into the native suit table.</param>
+        internal static SamusFullBodyCyclePalette SpeedBoostPalette(ushort suitByteOffset) =>
+            new(SamusFullBodyCycleFamily.SpeedBooster, Suit(suitByteOffset), 3);
 
         /// <summary>
-        /// Reads a word from the complete compiled three-suit Screw Attack pointer
-        /// allocation, including odd-byte and next-suit reads caused by a restored phase.
-        /// Addresses outside the proven list allocation are not treated as ROM data.
+        /// Reads the Screw Attack palette anywhere in the compiled three-suit list allocation, including a restored phase
+        /// that runs on into the next suit's list.
         /// </summary>
-        public static ushort ReadScrewAttackPalettePointer(
+        internal static SamusFullBodyCyclePalette ReadScrewAttackPalette(
             ushort suitByteOffset, ushort phaseByteOffset) =>
-            ReadCompiledListWord(suitByteOffset, phaseByteOffset,
-                firstListAddress: ScrewAttackFirstList, phaseCount: 6,
-                firstPalette: ScrewAttackFirstPalette,
-                shape: PaletteCycleShape.PingPong);
-        /// <summary>First contiguous active Speed Booster suit list at $91:DAAF.</summary>
-        public const ushort SpeedBoosterFirstList = 0xdaaf;
-        /// <summary>First Power Suit active Speed Booster shade at $9B:9B20.</summary>
-        public const ushort SpeedBoosterFirstPalette = 0x9b20;
-        /// <summary>
-        /// Resolves the bounded $91:DAA9/$91:DAAF active Speed Booster suit
-        /// and phase lists to a bank-$9B palette pointer.
-        /// </summary>
-        public static bool TryActiveSpeedBoosterPalettePointer(
-            ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
-            TryPalettePointer(suitByteOffset, phaseByteOffset, 6, SpeedBoosterFirstPalette,
-                shape: PaletteCycleShape.Linear, out pointer);
+            ReadCompiledList(suitByteOffset, phaseByteOffset, phaseCount: 6,
+                SamusFullBodyCycleFamily.ScrewAttack, PaletteCycleShape.PingPong);
 
         /// <summary>
-        /// Reads a word from the complete compiled three-suit active Speed Booster
-        /// pointer allocation, including bounded adjacent-list and odd-byte reads.
-        /// Gravity phases eight and ten additionally retain the instruction-data
-        /// overruns inherited from the shared Screw Attack phase word.
+        /// Reads the active Speed Booster palette anywhere in the compiled three-suit list allocation. Gravity phases
+        /// eight and ten, inherited from the shared Screw Attack phase word, instead read the instruction bytes after
+        /// the lists.
         /// </summary>
-        public static ushort ReadActiveSpeedBoosterPalettePointer(
+        internal static SpeedBoosterPaletteSource ReadActiveSpeedBoosterPalette(
             ushort suitByteOffset, ushort phaseByteOffset) =>
             new SpeedBoosterPaletteOffsets(suitByteOffset, phaseByteOffset) switch
             {
-                (4, 8) => (ushort)SpeedBoosterPaletteOverrun.Expansion,
-                (4, 10) => (ushort)SpeedBoosterPaletteOverrun.GrappleCode,
-                _ => ReadCompiledListWord(suitByteOffset, phaseByteOffset,
-                    firstListAddress: SpeedBoosterFirstList, phaseCount: 4,
-                    firstPalette: SpeedBoosterFirstPalette, shape: PaletteCycleShape.Linear),
+                (4, 8) => SpeedBoosterPaletteSource.Of(SpeedBoosterPaletteOverrun.Expansion),
+                (4, 10) => SpeedBoosterPaletteSource.Of(SpeedBoosterPaletteOverrun.GrappleCode),
+                _ => SpeedBoosterPaletteSource.Of(ReadCompiledList(suitByteOffset, phaseByteOffset, phaseCount: 4,
+                    SamusFullBodyCycleFamily.SpeedBooster, PaletteCycleShape.Linear)),
             };
-        /// <summary>
-        /// Resolves the bounded $91:DB10/$91:DB16 stored-shine suit and
-        /// phase lists to a bank-$9B palette pointer.
-        /// </summary>
-        public static bool TryStoredShinePalettePointer(
-            ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
-            TryPalettePointer(suitByteOffset, phaseByteOffset, 10, 0x9ba0,
-                shape: PaletteCycleShape.PingPong, out pointer);
-        /// <summary>
-        /// Resolves the bounded $91:DB75/$91:DB7B active-shinespark suit
-        /// and phase lists to a bank-$9B palette pointer.
-        /// </summary>
-        public static bool TryActiveShinesparkPalettePointer(
-            ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
-            TryPalettePointer(suitByteOffset, phaseByteOffset, 6, 0x9c20,
-                shape: PaletteCycleShape.Linear, out pointer);
 
         /// <summary>
-        /// Resolves a valid suit/phase pair to a bank-$9B palette, mirroring later phases
-        /// back toward the first shade for stored shine.
+        /// Resolves the bounded $91:DB10/$91:DB16 stored-shine suit and phase lists to a cycle palette.
         /// </summary>
-        private static bool TryPalettePointer(
+        public static bool TryStoredShinePalette(
+            ushort suitByteOffset, ushort phaseByteOffset, out SamusFullBodyCyclePalette palette) =>
+            TryPalette(suitByteOffset, phaseByteOffset, 10, SamusFullBodyCycleFamily.StoredShine,
+                PaletteCycleShape.PingPong, out palette);
+
+        /// <summary>
+        /// Resolves the bounded $91:DB75/$91:DB7B active-shinespark suit and phase lists to a cycle palette.
+        /// </summary>
+        public static bool TryActiveShinesparkPalette(
+            ushort suitByteOffset, ushort phaseByteOffset, out SamusFullBodyCyclePalette palette) =>
+            TryPalette(suitByteOffset, phaseByteOffset, 6, SamusFullBodyCycleFamily.ActiveShinespark,
+                PaletteCycleShape.Linear, out palette);
+
+        /// <summary>
+        /// Resolves a valid suit/phase pair to a family's palette, mirroring later phases back toward the first shade
+        /// for ping-pong cycles.
+        /// </summary>
+        private static bool TryPalette(
             ushort suitByteOffset,
             ushort phaseByteOffset,
             ushort lastPhaseByteOffset,
-            int firstPalette,
+            SamusFullBodyCycleFamily family,
             PaletteCycleShape shape,
-            out ushort pointer)
+            out SamusFullBodyCyclePalette palette)
         {
             if (suitByteOffset > 4 || (suitByteOffset & 1) != 0 ||
                 phaseByteOffset > lastPhaseByteOffset || (phaseByteOffset & 1) != 0)
             {
-                pointer = 0;
+                palette = default;
                 return false;
             }
 
-            int phase = phaseByteOffset / 2;
-            int shade = shape == PaletteCycleShape.PingPong ? Math.Min(phase, 6 - phase) : phase;
-            pointer = checked((ushort)(firstPalette + suitByteOffset * 0x100 + shade * 0x20));
+            palette = new(family, suitByteOffset / 2, Shade(phaseByteOffset / 2, shape));
             return true;
         }
 
         /// <summary>
-        /// Reads the selected full-body palette-list word after native 16-bit phase-offset wrap;
-        /// rejects reads outside the contiguous three-suit compiled allocation.
+        /// Reads the selected entry of a family's contiguous three-suit list allocation. The native two-level lookup
+        /// adds the full 16-bit phase word to the selected suit's list, so a phase can run on into the next suit's
+        /// list; a read that leaves the allocation, or straddles two entries, selects no cycle palette.
         /// </summary>
-        private static ushort ReadCompiledListWord(
+        private static SamusFullBodyCyclePalette ReadCompiledList(
             ushort suitByteOffset,
             ushort phaseByteOffset,
-            ushort firstListAddress,
             int phaseCount,
-            int firstPalette,
+            SamusFullBodyCycleFamily family,
             PaletteCycleShape shape)
         {
             if (suitByteOffset > 4 || (suitByteOffset & 1) != 0)
                 throw new ArgumentOutOfRangeException(nameof(suitByteOffset));
 
-            // The native two-level lookup adds the full 16-bit phase word to the
-            // selected list pointer. Apply that wrap before testing whether both
-            // bytes remain inside the compiled contiguous three-suit allocation.
-            ushort selectedList = checked((ushort)(firstListAddress +
-                suitByteOffset / 2 * phaseCount * sizeof(ushort)));
-            ushort readAddress = unchecked((ushort)(selectedList + phaseByteOffset));
-            int byteOffset = readAddress - firstListAddress;
-            int byteCount = 3 * phaseCount * sizeof(ushort);
-            if (byteOffset < 0 || byteOffset + 1 >= byteCount)
+            int byteOffset = suitByteOffset / 2 * phaseCount * sizeof(ushort) + phaseByteOffset;
+            if (byteOffset + 1 >= 3 * phaseCount * sizeof(ushort))
                 throw new InvalidDataException(
-                    $"Full-body palette pointer read ${readAddress:X4} is outside the compiled list allocation.");
+                    $"{family} palette list read at byte {byteOffset} is outside the compiled list allocation.");
+            if ((byteOffset & 1) != 0)
+                throw new InvalidDataException(
+                    $"{family} palette list read at odd byte {byteOffset} straddles two entries and selects no cycle palette.");
 
-            return SnesLittleEndian.Word(ReadByte(byteOffset), ReadByte(byteOffset + 1));
-
-            byte ReadByte(int index)
-            {
-                int wordIndex = index / sizeof(ushort);
-                int suit = wordIndex / phaseCount;
-                int phase = wordIndex % phaseCount;
-                int shade = shape == PaletteCycleShape.PingPong ? Math.Min(phase, 6 - phase) : phase;
-                ushort pointer = checked((ushort)(firstPalette + suit * 0x200 + shade * 0x20));
-                return (index & 1) == 0 ? (byte)pointer : SnesLittleEndian.HighByte(pointer);
-            }
+            int entry = byteOffset / sizeof(ushort);
+            return new(family, entry / phaseCount, Shade(entry % phaseCount, shape));
         }
+
+        /// <summary>The shade a cycle phase shows: linear cycles step through their shades, ping-pong cycles return.</summary>
+        private static int Shade(int phase, PaletteCycleShape shape) =>
+            shape == PaletteCycleShape.PingPong ? Math.Min(phase, 6 - phase) : phase;
+
+        /// <summary>The suit an even native suit-table byte offset selects.</summary>
+        private static int Suit(ushort suitByteOffset) => suitByteOffset is 0 or 2 or 4
+            ? suitByteOffset / 2
+            : throw new ArgumentOutOfRangeException(nameof(suitByteOffset));
+
         /// <summary>Number of full-body Hyper Beam palettes.</summary>
         public const int HyperBeamPaletteCount = 10;
-        /// <summary>Bank-$9B source of the first sixteen-color Hyper Beam frame, $9B:A360.</summary>
-        public const int HyperBeamFirstPalette = 0x9ba360;
-        /// <summary>Byte distance between descending Hyper Beam frames in the authored table.</summary>
-        public const int HyperBeamPaletteStride = 0x20;
-
-        /// <summary>Resolves the ten bounded authored palette sources selected by $91:D99E.</summary>
-        public static int HyperBeamPaletteSource(int frame) => (uint)frame < HyperBeamPaletteCount
-            ? HyperBeamFirstPalette - frame * HyperBeamPaletteStride
-            : throw new ArgumentOutOfRangeException(nameof(frame));
     }
 
     /// <summary>Bank-$8D palette object spawned with the Hyper Beam.</summary>

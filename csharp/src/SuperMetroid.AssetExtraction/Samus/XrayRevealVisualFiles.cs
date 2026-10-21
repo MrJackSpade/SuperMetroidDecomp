@@ -251,16 +251,16 @@ public static class XrayRevealVisualFiles
         RoomCollisionType type, byte bts)
     {
         int typeWord = (int)type << 12;
-        for (int entry = XrayRevealTableWords.BlockTypeTable; ; entry += 4)
+        for (int entry = SamusCartridgeTables.XrayRevealBlockTypeTable; ; entry += 4)
         {
             ushort key = ReadWord(bus, entry);
-            if (XrayRevealTableWords.IsEnd(key)) return null;
+            if (key == TableEnd) return null;
             if (key != typeWord) continue;
             for (int match = ReadWord(bus, entry + 2); ; match += 4)
             {
                 ushort value = ReadWord(bus, match);
-                if (XrayRevealTableWords.IsEnd(value)) return null;
-                if (!XrayRevealTableWords.MatchesBts(value, bts)) continue;
+                if (value == TableEnd) return null;
+                if (value != AnyBts && value != bts) continue;
                 int pointer = ReadWord(bus, match + 2);
                 XrayRevealCommand command = ClosedNativeWords.Decode<XrayRevealCommand>(
                     ReadWord(bus, pointer), "native X-ray reveal command");
@@ -288,8 +288,14 @@ public static class XrayRevealVisualFiles
     {
         if (pointer is < SnesBusLayout.RomWindowStart or >= ushort.MaxValue)
             throw new InvalidDataException($"X-ray reveal table crossed bank $91 at ${pointer:X}.");
-        return CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(XrayRevealTableWords.Bank | pointer);
+        return CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(SamusCartridgeTables.XrayRevealTableBank | pointer);
     }
+
+    /// <summary>The reveal tables' end marker, closing both the block-type and BTS tables.</summary>
+    private const ushort TableEnd = 0xffff;
+
+    /// <summary>The BTS wildcard: matches any BTS in the selected block family.</summary>
+    private const ushort AnyBts = 0xff00;
 
     /// <summary>Reads ordered block-coordinate/metatile pairs from bank $8F until the required zero terminator.</summary>
     private static XrayRoomOverlayEntry ReadRoomOverlay(ISnesAddressSpace bus, ushort pointer)

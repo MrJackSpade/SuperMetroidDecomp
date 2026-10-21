@@ -37,6 +37,11 @@ internal static class SamusCartridgeTables
     /// <summary>Byte distance between descending Hyper Beam frames.</summary>
     internal const int HyperBeamPaletteStride = 0x20;
 
+    /// <summary>$91:0000: the bank of the X-ray revealed-block tables and their commands.</summary>
+    internal const int XrayRevealTableBank = 0x910000;
+    /// <summary>$91:D2D6 RevealedBlockTable_0: the X-ray reveal table keyed by the level word's block-type nibble.</summary>
+    internal const ushort XrayRevealBlockTypeTable = 0xd2d6;
+
     /// <summary>$92:90ED: the first Samus spritemap; spritemap pointers below it are invalid.</summary>
     internal const int FirstSpritemap = 0x90ed;
 

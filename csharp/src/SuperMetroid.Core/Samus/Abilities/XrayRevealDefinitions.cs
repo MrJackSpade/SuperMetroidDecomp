@@ -9,6 +9,9 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </summary>
 internal static class XrayRevealDefinitions
 {
+    /// <summary>Blank metatile selected by negative-coordinate extension exits at $91:CE95/$91:CED7.</summary>
+    internal const ushort BlankMetatile = 0x00ff;
+
     /// <summary>BTS $46 is the only special-air value admitted by the native table.</summary>
     /// <remarks>
     /// Issue #1028: pinned NTSC J/U v1.0 ROM $91:D306..D30F contains

@@ -30,7 +30,7 @@ public static class XrayRevealExtensions
             if (!visited.Add(new(new Position16<RoomBlocks>(x, y), vertical, step)))
                 throw new InvalidDataException($"Cyclic X-ray extension chain from block {blockIndex}.");
             ushort coordinate = unchecked((ushort)((vertical ? y : x) + step));
-            if (unchecked((short)coordinate) < 0) return XrayRevealTableWords.BlankMetatile;
+            if (unchecked((short)coordinate) < 0) return XrayRevealDefinitions.BlankMetatile;
             if (vertical) y = coordinate; else x = coordinate;
             // GetBlockTypeAndBTS uses the hardware's byte-wide Y multiplication;
             // X is then added as a word, so it may legitimately spill into the next row.

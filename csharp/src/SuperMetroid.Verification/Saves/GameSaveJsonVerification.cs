@@ -208,7 +208,7 @@ internal static class GameSaveJsonVerification
             SaveSlotStore decoded = SaveRamCodec.Decode(image, presentation);
 
             AssertEqual(expected, decoded.ReadSelectedSlot(), $"{label}: SRAM decode matches the cartridge");
-            AssertEqual(FileSelectItemRows.ForSaveSlot(expected), new FileSelectMenuState(decoded, mapPresentation: presentation).SelectedItem,
+            AssertEqual(FileSelectItemRows.ForSaveSlot(expected), new FileSelectMenuState(decoded, mapPresentation: presentation, spriteSheets: MenuSheetFixtures.For(presentation)).SelectedItem,
                 $"{label}: file-select initial cursor matches $81:9ED8");
             AssertEqual(expected, GameSaveJsonCodec.Capture(decoded).SelectedSlot,
                 $"{label}: JSON capture keeps the cartridge-selected slot");
@@ -259,7 +259,8 @@ internal static class GameSaveJsonVerification
             : throw new InvalidOperationException($"The fixture JSON lacks {from}.");
         AssertInvalidJsonSave(Replaced("\"loadedItemCount\": 65535", "\"loadedItemCount\": 65536"), "loadedItemCount");
         AssertInvalidJsonSave(Replaced("\"newFileMarker\": 0", "\"newFileMarker\": -1"), "newFileMarker");
-        AssertInvalidJsonSave(Replaced("\"reserveMissiles\": 7", "\"reserveMissiles\": -1"), "reserveMissiles");
+        // Counts are signed words, which the cartridge drains below zero; only values outside the word are invalid.
+        AssertInvalidJsonSave(Replaced("\"reserveMissiles\": 7", "\"reserveMissiles\": -32769"), "reserveMissiles");
         AssertInvalidJsonSave(Replaced("\"reserveMissiles\": 7", "\"reserveMissiles\": 32768"), "reserveMissiles");
         Console.WriteLine("  JSON save numbers: full-range slot fields round-trip exactly; out-of-range numbers are rejected at parse.");
     }

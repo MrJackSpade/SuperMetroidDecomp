@@ -1,0 +1,43 @@
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Rendering.Direct3D11.Device;
+using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+
+namespace SuperMetroid.RenderVerification.Frontend;
+
+/// <summary>Compares the pause screen's GPU frames with the software renderer's (#1392).</summary>
+internal static class RetailPauseTests
+{
+    /// <summary>The pause map and equipment pages, drawn from their screen tiles, match the software renderer exactly.</summary>
+    internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
+    {
+        var system = new Bank80SystemState();
+        system.LoadExploredMapBytes(Enumerable.Repeat(byte.MaxValue, 7 * 256).ToArray());
+        var pause = new PauseMenuState(new PauseMenuEntry
+        {
+            Samus = new SamusState(), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0),
+            MapPresentation = InstalledFixtures.Maps, SpriteSheets = InstalledFixtures.SpriteSheets,
+        });
+        int samples = 0;
+        void Compare(string page)
+        {
+            var packet = new RenderFrameSnapshot(new(++samples, 1, 0), pause.CaptureRenderSnapshot());
+            PixelComparison.Verify(packet, SoftwareFrameSnapshotRenderer.Render(packet), renderer.RenderForReadback(packet), $"{device.Kind}: pause {page}");
+        }
+        Compare("map");
+        pause.Step(SnesButton.R, SnesButton.R);
+        do
+            pause.Step(0, 0);
+        while (pause.IsPageTransitionActive);
+        if (pause.ScreenMode != PauseScreenMode.Equipment)
+            throw new InvalidOperationException($"Pressing R left pause on its {pause.ScreenMode} page, not the equipment page.");
+        Compare("equipment");
+        Console.WriteLine($"{device.Kind}: the pause map and equipment pages match the software renderer.");
+    }
+}

@@ -122,4 +122,10 @@ public enum SpriteSheetId
     AreaMapBackgroundTilesMaridia,
     /// <summary>The menu's world background characters under Tourian's world-map palette (#1392).</summary>
     AreaMapBackgroundTilesTourian,
+    /// <summary>The map characters under the pause palette (#1392).</summary>
+    PauseMapTiles,
+    /// <summary>The pause interface characters under the pause palette (#1392).</summary>
+    PauseInterfaceTiles,
+    /// <summary>The HUD characters pause loads for BG3, under the pause palette (#1392).</summary>
+    PauseHudTiles,
 }

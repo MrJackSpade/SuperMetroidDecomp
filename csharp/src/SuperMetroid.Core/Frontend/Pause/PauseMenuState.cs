@@ -29,8 +29,11 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 {
     /// <inheritdoc/>
     [MemberNotNull(nameof(spriteSheets))]
-    public void BindSpriteSheets(InstalledSpriteSheets? sheets) =>
+    public void BindSpriteSheets(InstalledSpriteSheets? sheets)
+    {
         spriteSheets = sheets ?? throw new InvalidOperationException("Pause menu requires the installed sprite sheets.");
+        screen.BindScreenTiles(sheets);
+    }
 
     /// <summary>The installed sprite sheets the map's sprites draw from; artwork, never saved.</summary>
     [NonSerialized] private InstalledSpriteSheets spriteSheets;
@@ -113,7 +116,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
         this.mapPresentation = entry.MapPresentation ?? throw new InvalidOperationException(
             "Pause menu requires installed map and equipment presentation assets.");
-        BindSpriteSheets(entry.SpriteSheets);
+
         this.samus = Ensure.NotNull(entry.Samus);
         this.system = Ensure.NotNull(entry.System);
         this.audio = entry.Audio;
@@ -129,7 +132,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
         // GameState_13 uploads the map, pause interface, menu OBJ and HUD characters; the
         // screen binds that artwork and its capture places the characters.
-        screen = new PauseScreen(entry.MapPresentation);
+        screen = new PauseScreen(entry.MapPresentation, entry.SpriteSheets);
+        BindSpriteSheets(entry.SpriteSheets);
         LoadPauseBackdrop();
         if (entry.GameplayLayer3 is not null)
         {
@@ -283,11 +287,13 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // BG fetches start on physical scanline one; OBJ coordinates already use
         // output-space Y. Keep the cartridge scroll and sprite origins unchanged.
         ushort mapY = unchecked((ushort)((ScreenMode == PauseScreenMode.Map ? MapScrollPosition.Y : 0) + SnesPpuLayout.FirstVisibleBackgroundScanline));
-        var bg1 = new Bg4BppRenderLayer(PauseMenuLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(mapX, mapY), new Extent16<TilemapCells>(64, 32), false);
-        var bg2 = new Bg4BppRenderLayer(PauseMenuLayout.Bg2TilemapWord, 0, new Position16<BgPlanePixels>(0, SnesPpuLayout.FirstVisibleBackgroundScanline), new Extent16<TilemapCells>(32, 32), false);
+        // Every plane draws from the pause screen's pre-coloured tiles (#1392).
+        ScreenLayerPictures planes = screen.Tiles.Pictures(0, BgBitDepth.FourBpp);
+        var bg1 = new Bg4BppRenderLayer(PauseMenuLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(mapX, mapY), new Extent16<TilemapCells>(64, 32), false, planes);
+        var bg2 = new Bg4BppRenderLayer(PauseMenuLayout.Bg2TilemapWord, 0, new Position16<BgPlanePixels>(0, SnesPpuLayout.FirstVisibleBackgroundScanline), new Extent16<TilemapCells>(32, 32), false, planes);
         var bg3 = new Bg2BppViewportRenderLayer(GameplayVramLayout.HudTilemapWord,
             GameplayVramLayout.HudCharacterWord,
-            SnesPpuLayout.FirstVisibleBackgroundScanline, true, false);
+            SnesPpuLayout.FirstVisibleBackgroundScanline, true, false, screen.Tiles.Pictures(GameplayVramLayout.HudCharacterWord, BgBitDepth.TwoBpp));
         RenderLayer[] layers =
         [
             new ObjPriorityRenderLayer(0), bg3,

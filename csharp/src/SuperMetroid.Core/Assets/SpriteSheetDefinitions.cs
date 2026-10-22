@@ -64,6 +64,9 @@ public static class SpriteSheetDefinitions
         SpriteSheetId.AreaMapBackgroundTilesWreckedShip => "area-map-background-tiles-wrecked-ship",
         SpriteSheetId.AreaMapBackgroundTilesMaridia => "area-map-background-tiles-maridia",
         SpriteSheetId.AreaMapBackgroundTilesTourian => "area-map-background-tiles-tourian",
+        SpriteSheetId.PauseMapTiles => "pause-map-tiles",
+        SpriteSheetId.PauseInterfaceTiles => "pause-interface-tiles",
+        SpriteSheetId.PauseHudTiles => "pause-hud-tiles",
         _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
     };
 }

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -27,6 +28,10 @@ internal static class ScreenTileSheetComposer
         {
             SpriteSheetId.MenuForegroundTiles => Compose(maps.WorldArtwork.ForegroundCharacters(), BgBitDepth.FourBpp, maps.Palettes.FileSelect),
             SpriteSheetId.MenuMapTiles => Compose(maps.Tiles.Characters, BgBitDepth.FourBpp, maps.Palettes.FileSelect),
+            SpriteSheetId.PauseMapTiles => Compose(maps.Tiles.Characters, BgBitDepth.FourBpp, maps.Palettes.Pause),
+            SpriteSheetId.PauseInterfaceTiles => Compose(maps.PauseTiles.Characters, BgBitDepth.FourBpp, maps.Palettes.Pause),
+            SpriteSheetId.PauseHudTiles => Compose(maps.HudTiles.Transfer.Span[..HudTileAtlasFormat.CharacterByteCount], BgBitDepth.TwoBpp,
+                maps.Palettes.Pause),
             _ when AreaOf(ScreenTileSheetDefinitions.AreaMapForegrounds, sheet) is { } area =>
                 Compose(maps.WorldArtwork.ForegroundCharacters(), BgBitDepth.FourBpp, maps.Palettes.World(area)),
             _ when AreaOf(ScreenTileSheetDefinitions.AreaMapBackgrounds, sheet) is { } area =>

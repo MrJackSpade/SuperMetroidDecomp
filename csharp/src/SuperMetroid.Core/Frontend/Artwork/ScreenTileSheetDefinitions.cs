@@ -27,6 +27,9 @@ public static class ScreenTileSheetDefinitions
         [SpriteSheetId.AreaMapBackgroundTilesWreckedShip] = BgBitDepth.TwoBpp,
         [SpriteSheetId.AreaMapBackgroundTilesMaridia] = BgBitDepth.TwoBpp,
         [SpriteSheetId.AreaMapBackgroundTilesTourian] = BgBitDepth.TwoBpp,
+        [SpriteSheetId.PauseMapTiles] = BgBitDepth.FourBpp,
+        [SpriteSheetId.PauseInterfaceTiles] = BgBitDepth.FourBpp,
+        [SpriteSheetId.PauseHudTiles] = BgBitDepth.TwoBpp,
     };
 
     /// <summary>The menu's world foreground characters under each Zebes area's world-map palette, which its area map shows.</summary>

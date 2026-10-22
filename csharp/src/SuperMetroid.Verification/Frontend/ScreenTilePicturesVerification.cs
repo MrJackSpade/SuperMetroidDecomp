@@ -4,11 +4,14 @@ using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Options;
+using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationAssert;
@@ -52,6 +55,23 @@ internal static class ScreenTilePicturesVerification
             Check(room.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly), $"{(AreaId)area} room map frame");
         }
         Console.WriteLine($"Screen tile pictures: {screens} menu screens draw all {layers} of their background layers from their tiles, as their characters do.");
+    }
+
+    /// <summary>The pause screen's map and equipment pages each draw every background from their tiles, exactly as their characters draw them.</summary>
+    internal static void VerifyPauseScreenTilePictures()
+    {
+        AreaMapPresentationCatalog maps = InstalledFixtures.Maps;
+        var system = new Bank80SystemState();
+        system.LoadExploredMapBytes(Enumerable.Repeat(byte.MaxValue, 7 * 256).ToArray());
+        var pause = new PauseMenuState(new PauseMenuEntry
+        {
+            Samus = new SamusState(), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = maps,
+            SpriteSheets = InstalledFixtures.SpriteSheets,
+        });
+        int layers = AssertDrawnFromTiles(pause.CaptureRenderSnapshot(), "pause map");
+        PauseEquipmentRulesVerification.EnterPauseEquipment(pause);
+        layers += AssertDrawnFromTiles(pause.CaptureRenderSnapshot(), "pause equipment");
+        Console.WriteLine($"Screen tile pictures: the pause map and equipment pages draw all {layers} of their background layers from their tiles, as their characters do.");
     }
 
     /// <summary>
@@ -102,6 +122,7 @@ internal static class ScreenTilePicturesVerification
     internal static int ScreenTilePicturesCommand()
     {
         Suite(nameof(VerifyMenuScreenTilePictures), VerifyMenuScreenTilePictures);
+        Suite(nameof(VerifyPauseScreenTilePictures), VerifyPauseScreenTilePictures);
         return 0;
     }
 }

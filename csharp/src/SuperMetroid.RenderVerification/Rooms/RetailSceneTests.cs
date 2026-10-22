@@ -18,6 +18,7 @@ internal static class RetailSceneTests
         new RetailScene("--retail-intro", RetailCinematicTests.Run),
         new RetailScene("--retail-transitions", RetailTransitionTests.Run),
         new RetailScene("--retail-file-map", RetailFileMapTests.Run),
+        new RetailScene("--retail-pause", RetailPauseTests.Run),
         new RetailScene("--retail-attract", RetailAttractTests.Run),
         new RetailScene("--retail-rooms", RetailRoomPublicationTests.Run),
         new RetailScene("--runtime-overlays", RuntimeOverlayTests.Run),

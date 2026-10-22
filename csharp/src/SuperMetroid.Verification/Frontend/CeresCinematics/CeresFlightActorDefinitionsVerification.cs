@@ -19,7 +19,7 @@ internal static class CeresFlightActorDefinitionsVerification
 
 
         var guard = NewCeresFlightActorDefinitionReadGuard(retail);
-        var state = new IntroCeresFlightState(new CartridgeAudioState(), InstalledFixtures.IntroArtwork.CeresFlight, spriteSheet: CinematicSheetFixtures.CeresFlight(InstalledFixtures.IntroArtwork.CeresFlight));
+        var state = new IntroCeresFlightState(new CartridgeAudioState(), InstalledFixtures.IntroArtwork.CeresFlight, sheets: CinematicSheetFixtures.WithFlight(InstalledFixtures.IntroArtwork.CeresFlight));
         for (int frame = 0; frame < 5000 && !state.Finished; frame++)
             state.StepFrame();
         AssertTrue(state.Finished, "Ceres approach completes through production actor paths");

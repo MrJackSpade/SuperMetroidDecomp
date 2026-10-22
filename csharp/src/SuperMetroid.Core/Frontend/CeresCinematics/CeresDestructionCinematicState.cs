@@ -46,8 +46,28 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
     /// <summary>Binds the installed sprite sheets the scene's actors draw from.</summary>
     [MemberNotNull(nameof(spriteSheets))]
-    internal void BindSpriteSheets(InstalledSpriteSheets? sheets) =>
+    internal void BindSpriteSheets(InstalledSpriteSheets? sheets)
+    {
         spriteSheets = sheets ?? throw new InvalidOperationException("Ceres destruction requires the installed sprite sheets.");
+        uploadedTiles = null;
+    }
+
+    /// <summary>What the uploads' characters show (#1392), read at <see cref="uploadedTilesCount"/> uploads; artwork, never saved.</summary>
+    [NonSerialized] private ScreenCharacters? uploadedTiles;
+
+    /// <summary>The uploads <see cref="uploadedTiles"/> was read at.</summary>
+    [NonSerialized] private int uploadedTilesCount;
+
+    /// <summary>What the characters the uploads leave show, read again only once another upload is made, so the frame's tiles keep their packing.</summary>
+    private ScreenCharacters UploadedTiles()
+    {
+        if (uploadedTiles is null || uploadedTilesCount != uploads.Count)
+        {
+            uploadedTiles = CeresScreenTiles.Destruction(spriteSheets, uploads);
+            uploadedTilesCount = uploads.Count;
+        }
+        return uploadedTiles;
+    }
 
     /// <summary>Shared queue for Ceres music and the final station blast sound.</summary>
     private readonly CartridgeAudioState? audio;
@@ -888,8 +908,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         {
             // Preserve the existing non-mosaicked Mode 1 path. Mosaic implementation
             // is a cartridge-correctness change, not an implicit part of this extraction.
+            // The Zebes reveal draws from the pre-coloured tiles of the characters the uploads leave (#1392).
             layers = [new Bg4BppRenderLayer(CeresDestructionRomData.Rendering.Mode1TilemapWord,
-                CeresDestructionRomData.Rendering.Mode1CharacterWord, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null)];
+                CeresDestructionRomData.Rendering.Mode1CharacterWord, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null,
+                UploadedTiles().Pictures(CeresDestructionRomData.Rendering.Mode1CharacterWord, BgBitDepth.FourBpp))];
         }
         if (CaptureStationExplosion() is { } blast)
             layers = [.. layers, blast];

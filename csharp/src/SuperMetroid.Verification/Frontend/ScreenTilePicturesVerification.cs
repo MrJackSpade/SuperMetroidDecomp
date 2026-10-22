@@ -1,11 +1,14 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.GameOver;
+using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus;
@@ -13,6 +16,7 @@ using SuperMetroid.Core.Saves;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
+using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationAssert;
 
@@ -55,6 +59,40 @@ internal static class ScreenTilePicturesVerification
             Check(room.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly), $"{(AreaId)area} room map frame");
         }
         Console.WriteLine($"Screen tile pictures: {screens} menu screens draw all {layers} of their background layers from their tiles, as their characters do.");
+    }
+
+    /// <summary>
+    /// Each phase of the opening cinematic that shows a background (its text card, illustrated pages and flashbacks, and the
+    /// Ceres flight's caption) and the destruction's Zebes reveal draw every background from their tiles, exactly as their
+    /// characters draw them.
+    /// </summary>
+    internal static void VerifyCinematicScreenTilePictures()
+    {
+        var sampled = new HashSet<string>();
+        int layers = 0;
+        void Check(LayeredRenderSnapshot scene, string name)
+        {
+            if (scene.Layers.ToArray().Any(layer => layer is Bg4BppRenderLayer or Bg2BppViewportRenderLayer or BgSubscreenAddRenderLayer) && sampled.Add(name))
+                layers += AssertDrawnFromTiles(scene, name);
+        }
+        var audio = new CartridgeAudioState();
+        IntroCinematicState intro = CreateRetailIntroFixture(audio);
+        for (int tick = 0; !intro.CeresFlightFinished; tick++)
+        {
+            Check(intro.CaptureTranslatedRenderSnapshot(), intro.CurrentCeresFlight is { } flight && intro.Phase == IntroCinematicPhase.CeresFlight
+                ? $"Ceres flight {flight.Phase}" : $"intro {intro.Phase}");
+            intro.Step(tick % 47 == 0 ? SnesButton.A : 0);
+            audio.AdvanceFrame(default);
+        }
+        CeresDestructionCinematicState destruction = CreateRetailDestructionFixture();
+        while (!destruction.Finished)
+        {
+            Check(destruction.CaptureRenderSnapshot(), $"Ceres destruction {destruction.Phase}");
+            destruction.Step();
+        }
+        AssertTrue(sampled.Contains($"Ceres flight {IntroCeresFlightPhase.SpaceColonyTitle}"), "the Ceres flight's caption is checked");
+        AssertTrue(sampled.Any(name => name.StartsWith("Ceres destruction", StringComparison.Ordinal)), "the Zebes reveal is checked");
+        Console.WriteLine($"Screen tile pictures: {sampled.Count} cinematic phases draw all {layers} of their background layers from their tiles, as their characters do.");
     }
 
     /// <summary>The pause screen's map and equipment pages each draw every background from their tiles, exactly as their characters draw them.</summary>
@@ -123,6 +161,7 @@ internal static class ScreenTilePicturesVerification
     {
         Suite(nameof(VerifyMenuScreenTilePictures), VerifyMenuScreenTilePictures);
         Suite(nameof(VerifyPauseScreenTilePictures), VerifyPauseScreenTilePictures);
+        Suite(nameof(VerifyCinematicScreenTilePictures), VerifyCinematicScreenTilePictures);
         return 0;
     }
 }

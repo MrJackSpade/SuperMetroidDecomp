@@ -128,4 +128,14 @@ public enum SpriteSheetId
     PauseInterfaceTiles,
     /// <summary>The HUD characters pause loads for BG3, under the pause palette (#1392).</summary>
     PauseHudTiles,
+    /// <summary>The opening cinematic's scene characters under its palette (#1392).</summary>
+    IntroSceneTiles,
+    /// <summary>The opening cinematic's narration font under its palette (#1392).</summary>
+    IntroFontTiles,
+    /// <summary>The Ceres flight's object characters under its palette, which its caption and the Ceres scene show (#1392).</summary>
+    CeresFlightObjectTiles,
+    /// <summary>The shared cinematic object characters under the Ceres flight palette, which the Ceres scene loads (#1392).</summary>
+    CeresIntroObjectTiles,
+    /// <summary>The Zebes reveal's characters under the Ceres flight palette (#1392).</summary>
+    ZebesRevealTiles,
 }

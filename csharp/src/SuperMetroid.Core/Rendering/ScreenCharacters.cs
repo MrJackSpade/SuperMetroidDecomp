@@ -19,7 +19,19 @@ public sealed class ScreenCharacters
         Ensure.NotNull(sheet);
         Ensure.BetweenInclusive(0, sheet.Characters - 1, firstCharacter);
         Ensure.BetweenInclusive(1, sheet.Characters - firstCharacter, characters);
-        loads.Add(new Load(sheet, VramWordRange.Require(firstWord), firstCharacter, characters));
+        loads.Add(new Load(sheet, VramWordRange.Require(firstWord), firstCharacter, characters, 1));
+        layers.Clear();
+        return this;
+    }
+
+    /// <summary>Records <paramref name="copies"/> copies of <paramref name="sheet"/>'s <paramref name="character"/>, loaded one after another from VRAM word <paramref name="firstWord"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The sheet holds no such character.</exception>
+    public ScreenCharacters ShowRepeated(ScreenTileSheet sheet, int firstWord, int character, int copies)
+    {
+        Ensure.NotNull(sheet);
+        Ensure.BetweenInclusive(0, sheet.Characters - 1, character);
+        Ensure.BetweenInclusive(1, int.MaxValue, copies);
+        loads.Add(new Load(sheet, VramWordRange.Require(firstWord), character, copies, 0));
         layers.Clear();
         return this;
     }
@@ -54,7 +66,7 @@ public sealed class ScreenCharacters
                 continue;
             // A character read at another depth, or from part way into one, shows bytes the artwork's sheet does not picture.
             return load.Sheet.Depth == depth && offset % words == 0
-                ? new ScreenTilePicture(load.Sheet, load.FirstCharacter + offset / words) : null;
+                ? new ScreenTilePicture(load.Sheet, load.FirstCharacter + offset / words * load.Step) : null;
         }
         return null;
     }
@@ -69,5 +81,6 @@ public sealed class ScreenCharacters
     /// <param name="FirstWord">The VRAM word its first character loads at.</param>
     /// <param name="FirstCharacter">The first character loaded.</param>
     /// <param name="Characters">The characters loaded.</param>
-    private sealed record Load(ScreenTileSheet Sheet, int FirstWord, int FirstCharacter, int Characters);
+    /// <param name="Step">How far each loaded character moves through the artwork: one for consecutive characters, zero for copies of one.</param>
+    private sealed record Load(ScreenTileSheet Sheet, int FirstWord, int FirstCharacter, int Characters, int Step);
 }

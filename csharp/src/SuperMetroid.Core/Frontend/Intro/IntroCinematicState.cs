@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
@@ -58,7 +59,18 @@ public sealed class IntroCinematicState : IFrontendScreen
         spriteSheets = sheets;
         projectileSheets = sheets is null ? null : ProjectileSheets.IntroFlashbacks(sheets);
         CurrentFlashbackSamus?.Presentation.TileTransfers.BindSheets(spriteSheets);
-        CurrentCeresFlight?.BindSpriteSheet(sheets?.Get(SpriteSheetId.CeresFlightSprites));
+        CurrentCeresFlight?.BindSheets(sheets);
+        Tiles = null;
+    }
+
+    /// <summary>What the intro's background characters show (#1392), until its characters change.</summary>
+    [field: NonSerialized]
+    [AllowNull]
+    private ScreenCharacters Tiles
+    {
+        get => field ??= IntroScreenTiles.Of(spriteSheets ?? throw new InvalidOperationException("Opening cinematic rendering requires the installed sprite sheets."),
+            japaneseGlyphsBlanked);
+        set;
     }
 
     /// <summary>The installed sheets the flashbacks' Samus draws from.</summary>
@@ -557,8 +569,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                     CurrentCeresFlight = new IntroCeresFlightState(audio
                         ?? throw new InvalidOperationException("The Ceres flight waits on the cartridge music queue."),
                         characterArtwork?.CeresFlight, subtitles.Enabled,
-                        (spriteSheets ?? throw new InvalidOperationException("The Ceres flight requires the installed sprite sheets."))
-                            .Get(SpriteSheetId.CeresFlightSprites));
+                        spriteSheets ?? throw new InvalidOperationException("The Ceres flight requires the installed sprite sheets."));
                     Phase = IntroCinematicPhase.CeresFlight;
                 }
                 break;
@@ -1296,6 +1307,7 @@ level, samus, NmiFrameWord(elapsedUpdates));
         // otherwise empty lower margin.
         japaneseGlyphsBlanked = true;
         characters = null;
+        Tiles = null;
 
         // ClearCinematicBgObjects($2F) fills the complete $7E:3000 staging tilemap. The
         // native border then replaces four 32-tile rows at the top and bottom.
@@ -1427,7 +1439,7 @@ level, samus, NmiFrameWord(elapsedUpdates));
             return new(new PpuMemorySnapshot(Image(), palette.Colors, oam.Draws),
                 new RenderLayer[] { new Bg2BppViewportRenderLayer(
                     IntroCinematicRomData.Layers.NarrationTilemapWord,
-                    IntroCinematicRomData.Layers.FontCharacterBaseWord, 0, false, null) },
+                    IntroCinematicRomData.Layers.FontCharacterBaseWord, 0, false, null, FontPictures()) },
                 MenuRenderDefinitions.ObjectSelection, ScreenFade.Displayed(Inidisp));
         }
         else
@@ -1437,7 +1449,7 @@ level, samus, NmiFrameWord(elapsedUpdates));
         }
 
         var text = new Bg2BppViewportRenderLayer(IntroCinematicRomData.Layers.NarrationTilemapWord,
-            IntroCinematicRomData.Layers.FontCharacterBaseWord, GameplayFlashbackBg1VerticalScroll, true, false);
+            IntroCinematicRomData.Layers.FontCharacterBaseWord, GameplayFlashbackBg1VerticalScroll, true, false, FontPictures());
         // Mode 1 with high-priority BG3: preserve both the OBJ winner and the
         // insertion points of text/room priority planes during palette crossfades.
         return new(new PpuMemorySnapshot(Image(), palette.Colors, oam.Draws), new RenderLayer[]
@@ -1465,7 +1477,11 @@ level, samus, NmiFrameWord(elapsedUpdates));
     /// </summary>
     internal static ushort NmiFrameWord(int elapsedUpdates) => unchecked((ushort)elapsedUpdates);
 
-    /// <summary>Defines a four-bit background plane at the selected tilemap and source scroll.</summary>
-    private static Bg4BppRenderLayer Plane(ushort tilemap, Position16<BgPlanePixels> scroll) =>
-        new(tilemap, 0, scroll, new Extent16<TilemapCells>(32, 32), false);
+    /// <summary>Defines a four-bit background plane at the selected tilemap and source scroll, drawn from the scene's tiles (#1392).</summary>
+    private Bg4BppRenderLayer Plane(ushort tilemap, Position16<BgPlanePixels> scroll) =>
+        new(tilemap, 0, scroll, new Extent16<TilemapCells>(32, 32), false, Tiles.Pictures(0, BgBitDepth.FourBpp));
+
+    /// <summary>What the narration's font characters show (#1392).</summary>
+    [PpuLayoutBoundary("codec: the narration font's character base")]
+    private ScreenLayerPictures FontPictures() => Tiles.Pictures(IntroCinematicRomData.Layers.FontCharacterBaseWord, BgBitDepth.TwoBpp);
 }

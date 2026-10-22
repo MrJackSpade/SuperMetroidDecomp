@@ -49,7 +49,7 @@ internal sealed class SpriteSheetSourceCatalog
 
     /// <summary>Composes sheet <paramref name="sheet"/>.</summary>
     internal ComposedSpriteSheet Compose(SpriteSheetId sheet) => ScreenTileSheetDefinitions.Depths.ContainsKey(sheet)
-        ? ScreenTileSheetComposer.Compose(sheet, maps.Value)
+        ? ScreenTileSheetComposer.Compose(sheet, new ScreenTileSources(() => maps.Value, () => intro.Value))
         : SpriteSheetComposer.Compose(For(sheet), DefaultPalette, DefaultPriority);
 
     /// <summary>What sheet <paramref name="sheet"/> composes.</summary>

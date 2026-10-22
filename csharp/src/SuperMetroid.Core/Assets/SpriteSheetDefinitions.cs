@@ -67,6 +67,11 @@ public static class SpriteSheetDefinitions
         SpriteSheetId.PauseMapTiles => "pause-map-tiles",
         SpriteSheetId.PauseInterfaceTiles => "pause-interface-tiles",
         SpriteSheetId.PauseHudTiles => "pause-hud-tiles",
+        SpriteSheetId.IntroSceneTiles => "intro-scene-tiles",
+        SpriteSheetId.IntroFontTiles => "intro-font-tiles",
+        SpriteSheetId.CeresFlightObjectTiles => "ceres-flight-object-tiles",
+        SpriteSheetId.CeresIntroObjectTiles => "ceres-intro-object-tiles",
+        SpriteSheetId.ZebesRevealTiles => "zebes-reveal-tiles",
         _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
     };
 }

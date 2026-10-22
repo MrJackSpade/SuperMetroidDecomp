@@ -71,13 +71,13 @@ internal sealed class IntroCeresFlightState
     /// <param name="audio">The shared music queue that $8B:BDE4 waits on.</param>
     /// <param name="artwork">Installed cinematic artwork; the approach cannot start without it.</param>
     /// <param name="japaneseText">Native <c>AltText</c>, which adds the katakana SPACE COLONY caption.</param>
-    /// <param name="spriteSheet">The Ceres flight sheet the stars and rear-view actors draw from; required.</param>
+    /// <param name="sheets">The installed sheets: the Ceres flight sheet the stars and rear-view actors draw from, and the caption's tiles; required.</param>
     public IntroCeresFlightState(CartridgeAudioState audio,
-        CeresFlightArtworkCatalog? artwork = null, bool japaneseText = false, SpriteSheet? spriteSheet = null)
+        CeresFlightArtworkCatalog? artwork = null, bool japaneseText = false, InstalledSpriteSheets? sheets = null)
     {
         this.japaneseText = japaneseText;
         this.audio = Ensure.NotNull(audio);
-        BindSpriteSheet(spriteSheet ?? throw new InvalidOperationException("Ceres approach requires the installed Ceres flight sheet."));
+        BindSheets(sheets ?? throw new InvalidOperationException("Ceres approach requires the installed sprite sheets."));
         actorLayout = artwork?.Actors;
 
         CeresFlightArtworkCatalog content = artwork ?? throw new InvalidOperationException(
@@ -99,9 +99,15 @@ internal sealed class IntroCeresFlightState
         Phase = IntroCeresFlightPhase.Initial;
     }
 
-    /// <summary>Rebinds the Ceres flight sheet the stars and rear-view actors draw from.</summary>
-    public void BindSpriteSheet(SpriteSheet? sheet) =>
-        spriteArtwork = sheet is null ? null : new CinematicSpriteSheet(sheet, CinematicSpriteFamily.CeresFlight);
+    /// <summary>Rebinds the installed sheets: the Ceres flight sheet the stars and rear-view actors draw from, and the caption's tiles.</summary>
+    public void BindSheets(InstalledSpriteSheets? sheets)
+    {
+        spriteArtwork = sheets is null ? null : new CinematicSpriteSheet(sheets.Get(SpriteSheetId.CeresFlightSprites), CinematicSpriteFamily.CeresFlight);
+        captionTiles = sheets is null ? null : CeresScreenTiles.Flight(sheets);
+    }
+
+    /// <summary>What the caption's characters show (#1392); artwork, never saved.</summary>
+    [NonSerialized] private ScreenCharacters? captionTiles;
 
     /// <summary>Reapplies current external art and palette without resetting the live flight phase.</summary>
     public void BindArtwork(CeresFlightArtworkCatalog? artwork)
@@ -198,8 +204,11 @@ internal sealed class IntroCeresFlightState
         if (Phase is IntroCeresFlightPhase.SpaceColonyTitle or IntroCeresFlightPhase.FadeOut or
             IntroCeresFlightPhase.StartGameAtCeres or IntroCeresFlightPhase.Finished)
         {
+            // The caption draws from the flight's object characters' pre-coloured tiles (#1392).
             var caption = new Bg4BppRenderLayer(CeresFlightRomData.Layers.SpaceColonyTilemapWord,
-                CeresFlightRomData.Layers.SpaceColonyCharacterWord, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), false);
+                CeresFlightRomData.Layers.SpaceColonyCharacterWord, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), false,
+                (captionTiles ?? throw new InvalidOperationException("The Ceres flight's caption requires the installed sprite sheets."))
+                    .Pictures(CeresFlightRomData.Layers.SpaceColonyCharacterWord, BgBitDepth.FourBpp));
             layers.Add(caption);
             layers.Add(new ObjPriorityRenderLayer(1));
             layers.Add(caption with { Priority = true });

@@ -3,6 +3,10 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Artwork;
+using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud.Artwork;
@@ -19,13 +23,22 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// </summary>
 internal static class ScreenTileSheetComposer
 {
-    /// <summary>Composes screen tile sheet <paramref name="sheet"/> from the menus' presentation.</summary>
+    /// <summary>Composes screen tile sheet <paramref name="sheet"/> from the stock artwork <paramref name="sources"/> read.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The sheet holds no screen tiles.</exception>
-    internal static ComposedSpriteSheet Compose(SpriteSheetId sheet, AreaMapPresentationCatalog maps)
+    internal static ComposedSpriteSheet Compose(SpriteSheetId sheet, ScreenTileSources sources)
     {
-        Ensure.NotNull(maps);
+        Ensure.NotNull(sources);
+        AreaMapPresentationCatalog maps = sources.Maps;
         return sheet switch
         {
+            SpriteSheetId.IntroSceneTiles => Compose(sources.Intro.BackgroundCharacters.Transfer.Span[..IntroCinematicRomData.Vram.BackgroundCharacterBytes],
+                BgBitDepth.FourBpp, IntroColours(sources.Intro)),
+            SpriteSheetId.IntroFontTiles => Compose(maps.IntroFont.Transfer.Span, BgBitDepth.TwoBpp, IntroColours(sources.Intro)),
+            SpriteSheetId.CeresFlightObjectTiles => ComposeFlightObjects(sources.Intro.CeresFlight),
+            SpriteSheetId.CeresIntroObjectTiles => Compose(sources.Intro.IntroObjectCharacters.Transfer.Span[..CeresDestructionRomData.Vram.SharedObjectCharacterBytes],
+                BgBitDepth.FourBpp, FlightColours(sources.Intro.CeresFlight)),
+            SpriteSheetId.ZebesRevealTiles => Compose(sources.Intro.CeresDestruction.ZebesCharacters.Transfer.Span[..CeresDestructionRomData.Vram.Mode7CharacterBytes],
+                BgBitDepth.FourBpp, FlightColours(sources.Intro.CeresFlight)),
             SpriteSheetId.MenuForegroundTiles => Compose(maps.WorldArtwork.ForegroundCharacters(), BgBitDepth.FourBpp, maps.Palettes.FileSelect),
             SpriteSheetId.MenuMapTiles => Compose(maps.Tiles.Characters, BgBitDepth.FourBpp, maps.Palettes.FileSelect),
             SpriteSheetId.PauseMapTiles => Compose(maps.Tiles.Characters, BgBitDepth.FourBpp, maps.Palettes.Pause),
@@ -74,6 +87,26 @@ internal static class ScreenTileSheetComposer
                 depth == BgBitDepth.FourBpp ? TileWordLayer.Bg12 : TileWordLayer.Bg3),
         };
         return canvas.ToSheet(colours, frames, ScreenTileSheet.ColoursOf(depth));
+    }
+
+    /// <summary>The Ceres flight's object characters under its palette, which its caption shows.</summary>
+    internal static ComposedSpriteSheet ComposeFlightObjects(CeresFlightArtworkCatalog flight) =>
+        Compose(Ensure.NotNull(flight).ObjectCharacters.Span[..CeresFlightRomData.Vram.ObjectCharacterByteCount], BgBitDepth.FourBpp, FlightColours(flight));
+
+    /// <summary>The opening cinematic's palette.</summary>
+    private static ReadOnlySpan<Bgr555> IntroColours(IntroCinematicArtworkCatalog intro)
+    {
+        var colours = new ScreenPalette();
+        intro.Palette.LoadTo(colours);
+        return colours.Colors;
+    }
+
+    /// <summary>The Ceres flight's palette.</summary>
+    private static ReadOnlySpan<Bgr555> FlightColours(CeresFlightArtworkCatalog flight)
+    {
+        var colours = new ScreenPalette();
+        flight.Palette.LoadTo(colours);
+        return colours.Colors;
     }
 
     /// <summary>The area whose sheet <paramref name="sheet"/> is among <paramref name="sheets"/>, or null.</summary>

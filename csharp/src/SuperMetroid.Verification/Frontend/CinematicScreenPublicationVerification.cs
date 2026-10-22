@@ -57,7 +57,7 @@ internal static class CinematicScreenPublicationVerification
     /// </summary>
     internal static void VerifyCinematicRoundTrips()
     {
-        var flight = new IntroCeresFlightState(new CartridgeAudioState(), InstalledFixtures.IntroArtwork.CeresFlight, spriteSheet: CinematicSheetFixtures.CeresFlight(InstalledFixtures.IntroArtwork.CeresFlight));
+        var flight = new IntroCeresFlightState(new CartridgeAudioState(), InstalledFixtures.IntroArtwork.CeresFlight, sheets: CinematicSheetFixtures.WithFlight(InstalledFixtures.IntroArtwork.CeresFlight));
         for (int frame = 0; frame < 5000 && flight.Phase != IntroCeresFlightPhase.FlyingTowardCeres; frame++)
             flight.StepFrame();
         AssertEqual(IntroCeresFlightPhase.FlyingTowardCeres, flight.Phase, "the flight reaches its rear view");

@@ -9,12 +9,14 @@ internal static class D3D11RoomSources
     internal const uint Bg2OverlayFlag = 256;
 
     /// <summary>
-    /// A boss body that owns BG2 (#1352), else the room's layer-2 plane, else the sky's rows, else the tilemap BG2's
-    /// owner loaded (#1346, #1347), with <see cref="Bg2OverlayFlag"/> when words are written over BG2 (#1348).
+    /// A boss body that owns BG2 (#1352), else the room's layer-2 plane, else the X-ray reveal (#1392), else the sky's
+    /// rows, else the tilemap BG2's owner loaded (#1346, #1347), with <see cref="Bg2OverlayFlag"/> when words are written
+    /// over BG2 (#1348).
     /// </summary>
     internal static uint Bg2Of(RoomBackgrounds rooms) =>
         (uint)(rooms.BossBg2 is not null ? D3D11RoomSource.BossBg2
             : rooms.Bg2 is not null ? D3D11RoomSource.Bg2
+            : rooms.XrayReveal is not null ? D3D11RoomSource.XrayReveal
             : rooms.Sky is not null ? D3D11RoomSource.Sky
             : D3D11RoomSource.VramTilemap) | (rooms.Bg2Overlay is null ? 0 : Bg2OverlayFlag);
 }

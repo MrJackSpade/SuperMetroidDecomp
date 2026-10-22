@@ -7,7 +7,9 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -123,6 +125,38 @@ internal static class RoomBlockPicturesVerification
                 uploaded++;
         }
         return (pictures, uploaded);
+    }
+
+    /// <summary>
+    /// Asserts the X-ray reveal the frame displays paints, pixel for pixel, the palette index, priority and standard colour
+    /// the reveal buffer's tile words paint over the characters the bindings compose into VRAM (#1392).
+    /// </summary>
+    internal static void AssertRevealPaintsWords(SuperMetroidRuntime runtime, ReadOnlySpan<ushort> words, string where)
+    {
+        XrayRevealPlane reveal = runtime.Display.Latched.XrayReveal ?? throw new InvalidOperationException($"{where}: no X-ray reveal is displayed.");
+        PpuMemorySnapshot memory = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites, runtime.BgArtwork);
+        ReadOnlySpan<byte> vram = memory.Vram;
+        for (int row = 0; row < XrayTilemapLayout.MetatileRows; row++)
+        for (int column = 0; column < XrayTilemapLayout.MetatileColumns; column++)
+        for (int y = 0; y < RoomBlockSheet.BlockPixels; y++)
+        for (int x = 0; x < RoomBlockSheet.BlockPixels; x++)
+        {
+            var word = new SnesBgTilemapWord(words[XrayRevealTilemap.Destination(column, row) + y / CharacterPixels * 32 + x / CharacterPixels]);
+            int pixelRow = word.FlipVertically ? CharacterPixels - 1 - y % CharacterPixels : y % CharacterPixels;
+            int bit = 7 - (word.FlipHorizontally ? CharacterPixels - 1 - x % CharacterPixels : x % CharacterPixels);
+            int address = word.CharacterIndex * RoomBlockPictureNames.CharacterWords * sizeof(ushort) + pixelRow * 2;
+            int colour = (vram[address] >> bit & 1) | (vram[address + 1] >> bit & 1) << 1
+                | (vram[address + 16] >> bit & 1) << 2 | (vram[address + 17] >> bit & 1) << 3;
+            int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
+            AssertTrue(reveal.TrySample(new Position16<BgPlanePixels>((ushort)(column * 16 + x), (ushort)(row * 16 + y)), out BgSample sample),
+                $"{where}: the reveal shows block ({column}, {row})");
+            SpriteSheetFrame picture = sample.Picture ?? throw new InvalidOperationException($"{where}: the reveal shows a tile, not a picture.");
+            SpriteImage sheet = picture.Sheet;
+            int pixel = (picture.Corner.Y + sample.PicturePixel.Y) * sheet.Size.X + picture.Corner.X + sample.PicturePixel.X;
+            AssertTrue(sheet.PaletteIndices[pixel] == expected && (colour == 0 || (sheet.Priorities[pixel] != 0) == word.HasPriority)
+                && (colour == 0 || sheet.Pixels[pixel] == sheet.StandardColours[expected].ToRgba32()),
+                $"{where}: reveal block ({column}, {row}) pixel ({x}, {y}) paints index {sheet.PaletteIndices[pixel]} where its tile ${word.Raw:X4} paints {expected}");
+        }
     }
 
     /// <summary>Bytes per block definition.</summary>

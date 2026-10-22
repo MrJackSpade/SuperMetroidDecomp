@@ -17,4 +17,6 @@ internal enum D3D11RoomSource : uint
     Mode7Map = 5,
     /// <summary>A boss body's BG2 tilemap (#1352).</summary>
     BossBg2 = 6,
+    /// <summary>The X-ray reveal's blocks, drawn from block pictures (#1392).</summary>
+    XrayReveal = 7,
 }

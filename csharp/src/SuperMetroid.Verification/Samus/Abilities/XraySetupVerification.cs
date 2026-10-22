@@ -101,6 +101,9 @@ internal static class XraySetupVerification
         ShowEverywhere(3);
         for (int frame = 0; frame < 90; frame++) runtime.StepFrame(held);
         AssertTrue(expected.SequenceEqual(XraySetupMemory.ReadReveal(runtime.Xray)), "widening/full beam never rebuilds the frozen reveal map");
+        // The displayed reveal, latched from the frozen map, draws each block from the room's block pictures as its words
+        // lay it out (#1392).
+        Rooms.Artwork.RoomBlockPicturesVerification.AssertRevealPaintsWords(runtime, expected, "X-ray setup's reveal");
         for (int frame = 0; frame < 8; frame++) runtime.StepFrame(0);
         AssertTrue(!samus.Xray.IsActive, "setup fixture tears down normally");
         Console.WriteLine("  X-ray setup: the stage-four reveal resolves from level data, then stays frozen through the full beam.");

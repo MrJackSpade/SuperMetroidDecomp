@@ -1,7 +1,7 @@
+using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Drawing;
-using System.Collections.Immutable;
 using SuperMetroid.Core.Bosses.Phantoon;
 
 namespace SuperMetroid.Core.Gameplay;
@@ -21,7 +21,9 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="Scene">Room-level BG mode, character-base, blend-selector, and sky shadows.</param>
 /// <param name="Bosses">Boss-owned BG register shadows.</param>
 /// <param name="FixedColors">COLDATA shadows.</param>
-/// <param name="XrayRevealTilemap">X-ray reveal tilemap uploaded to VRAM by the NMI queue, while X-ray is active.</param>
+/// <param name="XrayReveal">
+/// The X-ray reveal the NMI queue uploads for BG2 while X-ray is active, drawn from the room's block pictures (#1392).
+/// </param>
 /// <param name="Rooms">The room backgrounds this NMI displays, resolved from level data; null before the first room.</param>
 public sealed record GameplayNmiDisplayLatch(
     GameplayPpuRenderSnapshot Ppu,
@@ -34,5 +36,5 @@ public sealed record GameplayNmiDisplayLatch(
     GameplayLatchedSceneRegisters Scene,
     GameplayLatchedBossBackgrounds Bosses,
     GameplayLatchedFixedColors FixedColors,
-    ImmutableArray<ushort>? XrayRevealTilemap,
+    XrayRevealPlane? XrayReveal,
     RoomBackgrounds? Rooms);

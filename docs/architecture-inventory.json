@@ -84303,6 +84303,32 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.Backgrounds.RevealedBlock",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/RevealedBlock.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Backgrounds.RevealedBlockArrangement",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/RevealedBlockArrangement.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.Backgrounds.RoomBackgroundCharacters",
       "kind": "enum",
       "scope": "product",
@@ -95001,6 +95027,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Abilities.RevealedBlockIndex",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Abilities/RevealedBlockIndex.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Abilities.SamusCrystalFlashState",
       "kind": "class",
       "scope": "product",
@@ -95954,6 +95993,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Abilities.XrayRevealPlane",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealPlane.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Samus.Abilities.XrayRevealTable",

@@ -23,6 +23,9 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
     /// <summary>The layer-2 plane whose used definitions <see cref="used"/> holds, or null.</summary>
     private RoomLevelPlane? bg2Plane;
 
+    /// <summary>The further definitions <see cref="used"/> holds, ascending.</summary>
+    private int[] further = [];
+
     /// <summary>The definitions the planes use, ascending.</summary>
     private int[] used = [];
 
@@ -45,23 +48,27 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
     /// <param name="bg1">The room's BG1 plane.</param>
     /// <param name="bg2">The room's layer-2 plane, which shares BG1's definitions, or null when BG2 shows none.</param>
     /// <param name="bindings">The background character bindings.</param>
+    /// <param name="alsoShown">Further definitions the frame shows, as the X-ray reveal's blocks; none when empty.</param>
     /// <exception cref="InvalidDataException">
     /// A character a block reads shows bytes no binding names, or the sheet holds no picture of a block over what its
     /// characters show.
     /// </exception>
     [PpuLayoutBoundary("codec: the BG characters a block's tile words name, from the room tileset's character base")]
-    public RoomBlockPictureTable Resolve(RoomLevelPlane bg1, RoomLevelPlane? bg2, BgArtworkBindings bindings)
+    public RoomBlockPictureTable Resolve(RoomLevelPlane bg1, RoomLevelPlane? bg2, BgArtworkBindings bindings, IEnumerable<int> alsoShown)
     {
         Ensure.NotNull(bg1);
         Ensure.NotNull(bindings);
+        int[] also = [.. Ensure.NotNull(alsoShown).Distinct().Order()];
         RoomBlockPictureTable? previous = table;
-        bool fresh = previous is null || definitions != bg1.Definitions || !ReferenceEquals(bg1Plane, bg1) || !ReferenceEquals(bg2Plane, bg2);
+        bool fresh = previous is null || definitions != bg1.Definitions || !ReferenceEquals(bg1Plane, bg1) || !ReferenceEquals(bg2Plane, bg2)
+            || !also.SequenceEqual(further);
         if (fresh)
         {
             definitions = bg1.Definitions;
             bg1Plane = bg1;
             bg2Plane = bg2;
-            used = [.. Uses(bg1).Concat(bg2 is null ? [] : Uses(bg2)).Distinct().Order()];
+            further = also;
+            used = [.. Uses(bg1).Concat(bg2 is null ? [] : Uses(bg2)).Concat(also).Distinct().Order()];
             shown = new BgArtworkShown[used.Length * RoomBlockPictureNames.Tiles];
         }
         SpriteSheetFrame?[]? pictures = fresh ? new SpriteSheetFrame?[definitions.Length / RoomLevelPlane.DefinitionBytes] : null;

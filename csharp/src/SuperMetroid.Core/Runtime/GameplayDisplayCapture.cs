@@ -326,15 +326,6 @@ public static class GameplayDisplayCapture
         var registers = ordinary.Registers;
         if (reveal)
         {
-            // Before the first accepted NMI of an X-ray use, VRAM still holds the room's BG2 map.
-            if (latched.XrayRevealTilemap is { } map)
-            {
-                for (int i = 0; i < map.Length; i++)
-                {
-                    int offset = (GameplayVramLayout.Bg2TilemapWord + i) * 2;
-                    bytes[offset] = (byte)map[i]; bytes[offset + 1] = SnesLittleEndian.HighByte(map[i]);
-                }
-            }
             registers = registers with
             {
                 // The reveal map is drawn on BG2 at BG1's fine scroll within one 16-pixel block.
@@ -350,8 +341,9 @@ public static class GameplayDisplayCapture
         };
         // Reveal BG2 must not inherit the room's parallax or liquid HDMA. Excluded
         // rooms retain their original map and per-line register values.
-        // The reveal map is BG2's tilemap, so the room's layer-2 plane is not shown under it.
-        var gameplay = reveal ? new OrdinaryGameplayRenderLayer(registers, ordinary.Rooms with { Bg2 = null, Sky = null })
+        // The reveal is BG2, drawn from block pictures (#1392), so the room's layer-2 plane is not shown under it. Before
+        // the first accepted NMI of an X-ray use there is no reveal and BG2 still shows the room's BG2 map in VRAM.
+        var gameplay = reveal ? new OrdinaryGameplayRenderLayer(registers, ordinary.Rooms with { Bg2 = null, Sky = null, XrayReveal = latched.XrayReveal })
             : new OrdinaryGameplayRenderLayer(registers, ordinary.Rooms, ordinary.Bg2LineScrolls);
         var sub = mode != XrayRoomBlendMode.Fireflea && latched.RoomLayer3Fx is { } fx
             ? SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(fx, ordinary.Rooms.Bg3) : null;

@@ -567,7 +567,8 @@ sheet. Each 16x16 picture is one block as its definition gives it, before the le
 tileset's background palette; its name lists the block's four tile words and, for each, the artwork its character
 shows. A block whose characters a room rebinds after loading (animated spikes, sand and treadmills, the Tourian statues,
 collectibles' graphics, library background transfers and Kraid's backdrop) has a picture for each artwork that can
-show there, and the room draws the one its bindings show now. Edited copies go in `overrides/room-block-sheets`. The
+show there, and the room draws the one its bindings show now. X-ray's reveal draws its blocks from the same pictures.
+Edited copies go in `overrides/room-block-sheets`. The
 Ceres Ridley arena, whose planes read the object characters, still draws its blocks from characters.
 
 Sound effects are decoded into the manifest's `soundPrograms` catalog. Each effect in

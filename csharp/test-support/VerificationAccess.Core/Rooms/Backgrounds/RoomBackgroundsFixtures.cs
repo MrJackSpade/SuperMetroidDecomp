@@ -59,6 +59,21 @@ internal static class RoomBackgroundsFixtures
             blocks, [.. definitions]), default, null), null, BlankBg3());
     }
 
+    /// <summary>
+    /// A seeded X-ray reveal over seeded block pictures coloured as <paramref name="scene"/>'s planes would be (#1392):
+    /// random definitions in every arrangement.
+    /// </summary>
+    internal static SuperMetroid.Core.Samus.Abilities.XrayRevealPlane SeededReveal(Random random, Bgr555[] scene)
+    {
+        RoomBlockPictureTable pictures = SeededPictures(random, scene);
+        RevealedBlockArrangement[] arrangements = Enum.GetValues<RevealedBlockArrangement>();
+        var blocks = new RevealedBlock[SuperMetroid.Core.Samus.Abilities.XrayTilemapLayout.MetatileColumns
+            * SuperMetroid.Core.Samus.Abilities.XrayTilemapLayout.MetatileRows];
+        for (int block = 0; block < blocks.Length; block++)
+            blocks[block] = new RevealedBlock(random.Next(Definitions), arrangements[random.Next(arrangements.Length)]);
+        return new SuperMetroid.Core.Samus.Abilities.XrayRevealPlane(blocks, pictures);
+    }
+
     /// <summary>Block pictures on one seeded sheet.</summary>
     private const int SeededPictureCount = 16;
 

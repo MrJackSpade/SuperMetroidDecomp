@@ -30,10 +30,13 @@ StructuredBuffer<uint> RoomLevels : register(t3);
 // RoomSource: 0 samples the VRAM tilemap; otherwise the room's BG1 or BG2 as level data shows it, the sky's rows,
 // the BG3 plane, or a boss body's BG2 tilemap. RoomSourceBg2Overlay added to it lays words written over BG2 on top.
 static const uint RoomSourceBg1 = 1, RoomSourceBg2 = 2, RoomSourceSky = 3, RoomSourceBg3 = 4, RoomSourceMode7Map = 5;
-static const uint RoomSourceBossBg2 = 6;
+static const uint RoomSourceBossBg2 = 6, RoomSourceXrayReveal = 7;
 static const uint RoomSourceBg2Overlay = 256;
 static const uint RoomRecordWords = 7, RoomDoorSlot = 2, RoomDoorWindowWord = 21, RoomOverlayWord = 22, RoomSkyWord = 23;
-static const uint RoomBg3Word = 24, RoomBg2OverlayWord = 25, RoomMode7MapWord = 26, RoomBossBg2Word = 27;
+static const uint RoomBg3Word = 24, RoomBg2OverlayWord = 25, RoomMode7MapWord = 26, RoomBossBg2Word = 27, RoomXrayRevealWord = 28;
+// The X-ray reveal (XrayRevealPlane): 17 block columns by 16 rows, each its picture's offset with its arrangement in the
+// top four bits: as defined, mirrored horizontally, vertically or both, or its tile rows swapped.
+static const uint RevealColumns = 17, RevealRows = 16;
 // A block picture: its sheet's standard colours' offset, then its 16x16 colours, then each pixel's palette index and,
 // above it, its tile priority.
 static const uint PictureColoursWord = 0, PicturePixelsWord = 1, PictureIndicesWord = 257;
@@ -147,6 +150,23 @@ uint BossBg2Word(uint2 scrolled, uint2 size, out uint2 within)
     uint page = ((tile.y >> 5) * (size.x >> 5) + (tile.x >> 5)) * 1024;
     within = position & 7;
     return RoomLevels[RoomLevels[RoomBossBg2Word] + page + (tile.y & 31) * 32 + (tile.x & 31)];
+}
+// The X-ray reveal's block picture and pixel at a scrolled BG2 position (#1392); false past the blocks it builds, which
+// BG2's scroll never shows.
+bool RevealPicture(uint2 scrolled, out uint picture, out uint2 within)
+{
+    uint2 position = uint2(scrolled.x & 511, scrolled.y & 255);
+    uint2 block = position >> 4;
+    picture = 0;
+    within = position & 15;
+    if (block.x >= RevealColumns || block.y >= RevealRows) return false;
+    uint entry = RoomLevels[RoomLevels[RoomXrayRevealWord] + block.y * RevealColumns + block.x];
+    uint arrangement = entry >> 28;
+    picture = entry & 0x0FFFFFFF;
+    if (arrangement == 1 || arrangement == 3) within.x = 15 - within.x;
+    if (arrangement == 2 || arrangement == 3) within.y = 15 - within.y;
+    if (arrangement == 4) within.y = (within.y + 8) & 15;
+    return true;
 }
 // BG2 from the room's layer-2 plane or the sky's rows, or BG1 as RoomBackgrounds resolves it: a door's source
 // screen, then words written over BG1, then the level plane.
@@ -394,6 +414,10 @@ void Main(uint3 id : SV_DispatchThreadID)
         entry = Bg3Word(TilemapWord, MapHeight, scrolled, within);
     else if (source == RoomSourceBossBg2)
         entry = BossBg2Word(scrolled, uint2(MapWidth, MapHeight), within);
+    else if (source == RoomSourceXrayReveal)
+    {
+        if (!RevealPicture(scrolled, picture, within)) return;
+    }
     else if (source != 0)
     {
         if (!RoomTile(source, scrolled, entry, within, picture)) return;

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Samus.Abilities;
 using System.Collections.Immutable;
 using Vortice.Direct3D11;
 using SuperMetroid.Core.Rooms.Scrolling;
@@ -34,7 +35,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int PlaneSlots = 3;
     /// <summary>Header words: the plane records, the door window origin, and the offsets of the BG1 overlay, the sky rows,
     /// the BG3 plane and the BG2 overlay.</summary>
-    private const int HeaderWords = PlaneSlots * RecordWords + 7;
+    private const int HeaderWords = PlaneSlots * RecordWords + 8;
     /// <summary>Header word of the door window's scrolled origin.</summary>
     private const int DoorWindowWord = PlaneSlots * RecordWords;
     /// <summary>Header word of the overlay's first word, or zero without an overlay.</summary>
@@ -49,6 +50,13 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int Mode7MapWord = Bg2OverlayWord + 1;
     /// <summary>Header word of a boss body's BG2 tilemap's first word, or zero without one (#1352).</summary>
     private const int BossBg2Word = Mode7MapWord + 1;
+    /// <summary>
+    /// Header word of the X-ray reveal's first block, or zero without one (#1392): each block its picture's offset, with its
+    /// arrangement in the top four bits.
+    /// </summary>
+    private const int XrayRevealWord = BossBg2Word + 1;
+    /// <summary>The bit an X-ray reveal block's arrangement starts at.</summary>
+    private const int ArrangementShift = 28;
     /// <summary>A sky row word that selects no page: the row shows nothing.</summary>
     private const uint SkyRowHidden = uint.MaxValue;
     /// <summary>Initial buffer size; it grows to fit larger rooms.</summary>
@@ -74,21 +82,19 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     internal ID3D11ShaderResourceView View { get; private set; }
 
     /// <summary>Packs the frame's room planes; false when they match the last packing and need no upload.</summary>
-    /// <param name="bg1">The room's BG1, or null when the scene shows none.</param>
-    /// <param name="bg2">The room's layer-2 plane on BG2, or null.</param>
-    /// <param name="door">A door's source room screen, or null.</param>
-    /// <param name="overlay">Words written over BG1, or null.</param>
-    /// <param name="sky">The scrolling sky's rows on BG2, or null.</param>
-    /// <param name="bg3">The HUD and room effect plane on BG3, or null.</param>
-    /// <param name="bg2Overlay">Words written over BG2, or null.</param>
-    /// <param name="mode7">A Ceres room's Mode 7 map, or null.</param>
-    /// <param name="bossBg2">A boss body's BG2 tilemap, or null.</param>
-    internal bool Pack(RoomBackgroundLayer? bg1, RoomBackgroundLayer? bg2, RoomDoorBackground? door, RoomTilemapOverlay? overlay,
-        SkyTilemap? sky, Layer3Plane? bg3, RoomTilemapOverlay? bg2Overlay, Mode7MapSnapshot? mode7, BossBg2Tilemap? bossBg2)
+    /// <param name="frame">The planes, overlays, BG3, Mode 7 map, boss tilemap and X-ray reveal the frame shows.</param>
+    internal bool Pack(RoomLevelLayers frame)
     {
-        var frame = new RoomLevelLayers(bg1, bg2, door, overlay, sky, bg3, bg2Overlay, mode7, bossBg2);
+        RoomBackgroundLayer? bg1 = frame.Bg1, bg2 = frame.Bg2;
+        RoomDoorBackground? door = frame.Door;
+        RoomTilemapOverlay? overlay = frame.Overlay, bg2Overlay = frame.Bg2Overlay;
+        SkyTilemap? sky = frame.Sky;
+        Layer3Plane? bg3 = frame.Bg3;
+        Mode7MapSnapshot? mode7 = frame.Mode7;
+        BossBg2Tilemap? bossBg2 = frame.BossBg2;
+        XrayRevealPlane? reveal = frame.XrayReveal;
         // No dispatch samples t3 without one of these, so such a scene keeps the last packed room unread.
-        if (packed == frame || (bg1 is null && bg2 is null && sky is null && bg3 is null && mode7 is null))
+        if (packed == frame || (bg1 is null && bg2 is null && sky is null && bg3 is null && mode7 is null && reveal is null))
             return false;
         RoomBackgroundLayer?[] planes = [bg1, bg2, door?.SourceRoom];
         var definitionWords = new Dictionary<ImmutableArray<byte>, int>();
@@ -115,9 +121,12 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         }
         var pictureWords = new Dictionary<SpriteSheetFrame, int>();
         var colourWords = new Dictionary<SpriteImage, int>();
-        foreach (RoomBackgroundLayer? layer in planes)
+        int revealOffset = reveal is null ? 0 : words;
+        if (reveal is not null)
+            words += reveal.Blocks.Length;
+        foreach (RoomBlockPictureTable? table in planes.Select(layer => layer?.Pictures).Append(reveal?.Pictures))
         {
-            if (layer?.Pictures is not { } table)
+            if (table is null)
                 continue;
             for (int definition = 0; definition < table.Definitions; definition++)
             {
@@ -208,6 +217,17 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         if (bg2Overlay is not null)
             for (int word = 0; word < RoomTilemapOverlay.WordCount; word++)
                 upload[bg2OverlayOffset + word] = unchecked((uint)bg2Overlay.Words[word]);
+        upload[XrayRevealWord] = (uint)revealOffset;
+        if (reveal is not null)
+        {
+            ReadOnlySpan<RevealedBlock> blocks = reveal.Blocks;
+            for (int block = 0; block < blocks.Length; block++)
+            {
+                SpriteSheetFrame picture = reveal.Pictures.Picture(blocks[block].Definition)
+                    ?? throw new InvalidOperationException($"The X-ray reveal's block definition {blocks[block].Definition} has no picture.");
+                upload[revealOffset + block] = (uint)pictureWords[picture] | ShaderArrangement(blocks[block].Arrangement) << ArrangementShift;
+            }
+        }
         upload[BossBg2Word] = (uint)bossBg2Offset;
         if (bossBg2 is not null)
             for (int word = 0; word < bossBg2.Words.Length; word++)
@@ -237,6 +257,17 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             }
         }
     }
+
+    /// <summary>The code Tiles.hlsl's RevealPicture reads for a revealed block's arrangement.</summary>
+    private static uint ShaderArrangement(RevealedBlockArrangement arrangement) => arrangement switch
+    {
+        RevealedBlockArrangement.AsDefined => 0,
+        RevealedBlockArrangement.MirroredHorizontally => 1,
+        RevealedBlockArrangement.MirroredVertically => 2,
+        RevealedBlockArrangement.MirroredBoth => 3,
+        RevealedBlockArrangement.RowsSwapped => 4,
+        _ => throw new InvalidDataException($"Unknown revealed block arrangement {arrangement}."),
+    };
 
     /// <summary>Creates the buffer and its view at <paramref name="words"/> words.</summary>
     [System.Diagnostics.CodeAnalysis.MemberNotNull(nameof(Buffer), nameof(View), nameof(Upload))]

@@ -139,6 +139,7 @@ internal sealed class AcceptedFrameBoundary
         if (Displays?.Phantoon is { } phantoonDisplay)
             phantoonDisplay.Blending.LatchDisplay(phantoonDisplay.MosaicBlockSize);
         _room.TourianStatues?.LatchDisplay();
+        ImmutableArray<ushort>? reveal = CaptureXrayRevealTilemap();
         _display.Latched = new GameplayNmiDisplayLatch(
             ppu,
             _gameplayWindows.DisplayedGameplayWindowRegisters,
@@ -151,13 +152,14 @@ internal sealed class AcceptedFrameBoundary
             CaptureSceneRegisters(),
             CaptureBossBackgrounds(),
             CaptureFixedColors(),
-            CaptureXrayRevealTilemap(),
+            // The reveal and the room's planes are drawn once this NMI's uploads have bound (WithBlockPictures).
+            null,
             CaptureRoomBackgrounds());
         _artwork.PublishReboundHudArtwork();
         _drainQueuedVramWrites();
         // The planes' blocks show what this NMI's uploads bound, as the characters they read did (#1392).
         if (_display.Latched.Rooms is { } rooms)
-            _display.Latched = _display.Latched with { Rooms = WithBlockPictures(rooms) };
+            _display.Latched = WithBlockPictures(_display.Latched, rooms, reveal);
         // The displayed enemy-format draws show the OBJ characters this frame's uploads bound, as the OAM it latched
         // reads the VRAM those uploads wrote.
         if (_displayedSprites.Shows(SpriteArtworkKind.GameplayObjects))
@@ -236,17 +238,37 @@ internal sealed class AcceptedFrameBoundary
     }
 
     /// <summary>
-    /// <paramref name="rooms"/> with its BG1 and BG2 planes showing the pictures their blocks show over what the bindings
-    /// show now (#1392); unchanged while its planes draw from the object character page.
+    /// <paramref name="latched"/> with <paramref name="rooms"/>' BG1 and BG2 planes, and the X-ray reveal built from
+    /// <paramref name="reveal"/>'s words, showing the pictures their blocks show over what the bindings show now (#1392);
+    /// unchanged while the planes draw from the object character page, where X-ray is never used.
     /// </summary>
-    private RoomBackgrounds WithBlockPictures(RoomBackgrounds rooms)
+    /// <exception cref="InvalidOperationException">X-ray reveals a room whose planes draw from the object character page.</exception>
+    private GameplayNmiDisplayLatch WithBlockPictures(GameplayNmiDisplayLatch latched, RoomBackgrounds rooms, ImmutableArray<ushort>? reveal)
     {
         if (rooms.Characters != RoomBackgroundCharacters.Tileset)
-            return rooms;
+        {
+            return reveal is null ? latched
+                : throw new InvalidOperationException("X-ray reveals a room whose planes draw from the object character page.");
+        }
         RoomScope scope = _room.Scope ?? throw new InvalidOperationException("Room backgrounds were captured with no room loaded.");
-        RoomBlockPictureTable pictures = scope.BlockPictures.Resolve(rooms.Bg1.Plane, rooms.Bg2?.Plane, _backgrounds);
-        return rooms with { Bg1 = rooms.Bg1 with { Pictures = pictures }, Bg2 = rooms.Bg2 is { } bg2 ? bg2 with { Pictures = pictures } : null };
+        RevealedBlock[]? revealed = null;
+        if (reveal is { } words)
+        {
+            if (_revealIndex is null || _revealIndex.Definitions != rooms.Bg1.Plane.Definitions)
+                _revealIndex = new RevealedBlockIndex(rooms.Bg1.Plane.Definitions);
+            revealed = XrayRevealPlane.BlocksOf(words.AsSpan(), _revealIndex);
+        }
+        RoomBlockPictureTable pictures = scope.BlockPictures.Resolve(rooms.Bg1.Plane, rooms.Bg2?.Plane, _backgrounds,
+            revealed?.Select(block => block.Definition) ?? []);
+        return latched with
+        {
+            Rooms = rooms with { Bg1 = rooms.Bg1 with { Pictures = pictures }, Bg2 = rooms.Bg2 is { } bg2 ? bg2 with { Pictures = pictures } : null },
+            XrayReveal = revealed is null ? null : new XrayRevealPlane(revealed, pictures),
+        };
     }
+
+    /// <summary>The ways the X-ray reveal lays out the room's definitions, kept while they stand (#1392).</summary>
+    private RevealedBlockIndex? _revealIndex;
 
     /// <summary>
     /// The BG3 plane this NMI displays (#1348): the HUD's static top row and its three rows as this NMI uploads them,

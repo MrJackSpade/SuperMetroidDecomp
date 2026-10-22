@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Samus.Abilities;
 
 namespace SuperMetroid.Core.Gameplay;
 
@@ -21,19 +22,21 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="Mode7">The Mode 7 map a Ceres room shows, or null outside Ceres (#1349).</param>
 /// <param name="BossBg2">A boss body's tilemap on BG2 while the boss owns BG2, or null (#1352).</param>
 /// <param name="Characters">Which character page BG1 and BG2 draw from (#1357).</param>
+/// <param name="XrayReveal">The X-ray reveal BG2 shows in place of the room's own BG2, or null (#1392).</param>
 public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLayer? Bg2, Layer3Plane Bg3,
     RoomDoorBackground? DoorSource = null, RoomTilemapOverlay? Bg1Overlay = null, SkyTilemap? Sky = null,
     RoomTilemapOverlay? Bg2Overlay = null, Mode7MapSnapshot? Mode7 = null, BossBg2Tilemap? BossBg2 = null,
-    RoomBackgroundCharacters Characters = RoomBackgroundCharacters.Tileset)
+    RoomBackgroundCharacters Characters = RoomBackgroundCharacters.Tileset, XrayRevealPlane? XrayReveal = null)
 {
     /// <summary>The BG1 this frame shows, as a renderer samples it: door source, then overlay, then level data.</summary>
     public IBgSource Bg1Source => new Bg1Composite(this);
 
     /// <summary>
-    /// BG2 from a boss body that owns it, the room's layer-2 plane or the sky's rows, or null when BG2 shows its own
-    /// loaded tilemap.
+    /// BG2 from a boss body that owns it, the room's layer-2 plane, the X-ray reveal or the sky's rows, or null when BG2
+    /// shows its own loaded tilemap.
     /// </summary>
-    public IBgSource? Bg2Source => BossBg2 is { } boss ? new BgTileLayer(boss) : Bg2 is { } plane ? plane : Sky is { } sky ? new BgTileLayer(sky) : null;
+    public IBgSource? Bg2Source => BossBg2 is { } boss ? new BgTileLayer(boss) : Bg2 is { } plane ? plane
+        : XrayReveal is { } reveal ? reveal : Sky is { } sky ? new BgTileLayer(sky) : null;
 
     /// <summary>
     /// BG2 as the frame shows it: <see cref="Bg2Source"/>, or <paramref name="loadedTilemap"/> when BG2 shows its own

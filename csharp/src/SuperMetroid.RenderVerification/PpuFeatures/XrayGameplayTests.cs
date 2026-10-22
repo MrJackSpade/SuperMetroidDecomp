@@ -149,6 +149,27 @@ internal static class XrayGameplayTests
             var expected = SoftwareLayeredSnapshotRenderer.Render(scene);
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: patterned X-ray {frame}");
         }
+        // The reveal on BG2 drawn from block pictures in every arrangement (#1392), at the fine scrolls X-ray gives BG2.
+        for (int frame = 0; frame < 8; frame++)
+        {
+            var bytes = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(bytes);
+            var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount]; random.NextBytes(oam);
+            var colors = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
+            ushort Fine() => (ushort)random.Next(16);
+            var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>((ushort)random.Next(65536), (ushort)random.Next(65536)),
+                new Position16<Bg2Pixels>(Fine(), Fine()), new Extent16<TilemapCells>(64, 32), 0x4800, 0, 0x6000, 0x4000,
+                SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
+            SuperMetroid.Core.Gameplay.RoomBackgrounds seeded = RoomBackgroundsFixtures.Seeded(random, registers.Bg1Scroll.AsBgPlaneScroll(), pictureColours: colors);
+            var gameplay = new OrdinaryGameplayRenderLayer(registers, seeded with { XrayReveal = RoomBackgroundsFixtures.SeededReveal(random, colors) });
+            var lines = Enumerable.Range(0, 224).Select(_ => new XrayWindowLine((byte)random.Next(256), (byte)random.Next(256))).ToArray();
+            var layer = new GameplayColorMathRenderLayer(gameplay, lines, true, new ColorMathRegisters { ColorMath = (SnesColorMathControl)random.Next(256), AddSubscreen = false,
+                FixedRed = (byte)random.Next(32), FixedGreen = (byte)random.Next(32), FixedBlue = (byte)random.Next(32) }, null);
+            var memory = PpuMemorySnapshot.FromOam(bytes, colors, oam, 128, 3);
+            var scene = new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15);
+            var packet = new RenderFrameSnapshot(new(++count, 1, 0), scene);
+            PixelComparison.Verify(packet, SoftwareLayeredSnapshotRenderer.Render(scene), renderer.RenderForReadback(packet),
+                $"{device.Kind}: X-ray reveal pictures {frame}");
+        }
         Console.WriteLine($"{device.Kind}: {count} source-aware X-ray cases pass BG masking, OBJ palette exemptions, subscreen fallback, arithmetic, and priority/scroll/flip patterns.");
 
         static void Check(Rgba32 actual, Rgba32 expected, string context)

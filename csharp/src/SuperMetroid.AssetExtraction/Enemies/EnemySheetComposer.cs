@@ -3,6 +3,7 @@ using SuperMetroid.Core.World.Artwork;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -138,7 +139,8 @@ internal static class EnemySheetComposer
             int paletteBits = SnesObjAttributeWord.FromPaletteBits(checked((ushort)indexes.PaletteIndex)).PaletteIndex;
             var pictures = new Dictionary<string, CharacterRegion[][]>(StringComparer.Ordinal);
             var frames = new List<SheetFrameSource>();
-            foreach (FramePictures framePictures in Frames(inputs.Enemies, shown, checked((ushort)indexes.TileIndex), loaded.Characters))
+            foreach (FramePictures framePictures in Frames(inputs.Enemies, shown, checked((ushort)indexes.TileIndex), loaded.Characters,
+                CorpseRotSimulation.Rots(enemy)))
             {
                 frames.AddRange(framePictures.Sources);
                 if (framePictures.Layers.Length > 0)
@@ -166,8 +168,9 @@ internal static class EnemySheetComposer
         IEnumerable<EnemyDefinitionId> placed = RoomStateDefinitions.All.Where(state => state.EnemyGraphicsSet.Name == set.Name)
             .SelectMany(state => state.EnemyPopulation.Records.ToArray().Select(record => record.DefinitionId))
             .Except(members).Distinct().Order();
-        return new LoadedGraphicsSet(graphics, new SetCharacters(Table(inputs, graphics), RuntimeCharacterUploadDefinitions.Catalog.Of(set), inputs),
-            cgram.Colors[SpriteColours..].ToArray(), [.. members, .. placed]);
+        EnemyDefinitionId[] drawn = [.. members, .. placed];
+        var regions = new SetRegions(RuntimeCharacterUploadDefinitions.Catalog.Of(set), CorpseRotSimulation.Of(inputs.Enemies, drawn));
+        return new LoadedGraphicsSet(graphics, new SetCharacters(Table(inputs, graphics), regions, inputs), cgram.Colors[SpriteColours..].ToArray(), drawn);
     }
 
     /// <summary>A room graphics set as a room load leaves it.</summary>
@@ -204,9 +207,9 @@ internal static class EnemySheetComposer
     /// component.
     /// </summary>
     private static IEnumerable<FramePictures> Frames(EnemyTileArtworkCatalog enemies, IReadOnlyList<EnemyFrameId> shown,
-        ushort tileBase, SetCharacters characters) =>
+        ushort tileBase, SetCharacters characters, bool showsRot) =>
         // The palette bits are the sheet's, ORed in at composition, so each pixel keeps its part's own row.
-        Composed(enemies, shown).Select(frame => characters.Pictures(frame.Name, EnemySpriteFrames.Frame(frame.Parts, tileBase, 0)));
+        Composed(enemies, shown).Select(frame => characters.Pictures(frame.Name, EnemySpriteFrames.Frame(frame.Parts, tileBase, 0), showsRot));
 
     /// <summary>
     /// Each shown frame's composition by sheet frame name: an ordinary frame whole, an extended frame component by

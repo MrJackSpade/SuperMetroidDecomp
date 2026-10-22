@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Nuclear.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.SpriteObjects;
@@ -7,6 +8,7 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>The nuclear waffle species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Cacatac.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -6,6 +7,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>The Cacatac species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

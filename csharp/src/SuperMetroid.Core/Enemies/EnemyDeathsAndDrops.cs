@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
@@ -12,6 +13,7 @@ namespace SuperMetroid.Core.Enemies;
 /// Enemy deaths and item drops: generic death explosions, respawn placeholders, drop selection and scatter,
 /// and pickup collection with its resource restoration.
 /// </summary>
+[RoomLifetime]
 internal sealed class EnemyDeathsAndDrops
 {
     /// <summary>Tracks the room's cumulative enemy-kill count.</summary>

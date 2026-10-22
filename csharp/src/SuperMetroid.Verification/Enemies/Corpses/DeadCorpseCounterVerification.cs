@@ -53,7 +53,7 @@ internal static class DeadCorpseCounterVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         DeadTourianBehavior.DeadTourianCorpseProfile profile = DeadTourianCorpseProfileDefinitions.DeadZoomerProfile;
         var state = new DeadTourianCorpseEnemyState(slot, profile.Species, 0,
-            new CorpseRottingProgram { YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 }, profile, profile.Variants[0]);
+            new CorpseRottingProgram { YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 }, profile);
 
         state.PreRotDelayCounter = 15;
         state.CountPreRotDelayCall();

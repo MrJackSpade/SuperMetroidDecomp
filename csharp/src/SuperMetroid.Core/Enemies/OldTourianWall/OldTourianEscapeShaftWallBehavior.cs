@@ -1,9 +1,11 @@
-﻿using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Enemies.OldTourianWall;
 
 /// <summary>The old Tourian escape-shaft wall species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class OldTourianEscapeShaftWallBehavior
 {
     /// <summary>Loaded-room dependency required before the wall controller can spawn its explosion.</summary>

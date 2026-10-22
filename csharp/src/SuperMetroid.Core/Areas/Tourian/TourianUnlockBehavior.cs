@@ -1,10 +1,12 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>The Tourian unlock species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class TourianUnlockBehavior
 {
     /// <summary>Live room randomness and installed statue eye artwork.</summary>

@@ -1,9 +1,11 @@
-﻿using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Enemies.NoobTube;
 
 /// <summary>The Noob tube species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class NoobTubeBehavior
 {
     /// <summary>The program each native even shard spawn parameter ($00-$12) selects, by parameter / 2.</summary>

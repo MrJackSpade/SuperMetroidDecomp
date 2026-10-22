@@ -1,5 +1,6 @@
 using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
@@ -23,6 +24,13 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 internal static class SpawnedObjectSheetComposer
 {
     /// <summary>Whether a set drawing <paramref name="drawn"/> draws its spawned objects from sheets.</summary>
+    /// <summary>The frames rotting corpses' encounters draw themselves, which show the rot: the dead Torizo's hook.</summary>
+    private static readonly HashSet<EnemyFrameId> RotEncounterFrames =
+        [.. EncounterFrameDefinitions.ByEnemy.Where(encounter => CorpseRotSimulation.Rots(encounter.Key)).SelectMany(encounter => encounter.Value)];
+
+    /// <summary>Whether spawned-object sheet frame <paramref name="name"/> is a rotting corpse's own, which shows its rot.</summary>
+    internal static bool ShowsRot(string name) => RotEncounterFrames.Any(frame => EnemySheetDefinitions.EncounterFrameName(frame) == name);
+
     internal static bool Covers(IEnumerable<EnemyDefinitionId> drawn) =>
         !Ensure.NotNull(drawn).Any(EnemySheetDefinitions.DrawnFromCharacters.Contains);
 
@@ -82,7 +90,8 @@ internal static class SpawnedObjectSheetComposer
             .Concat(EncounterFrames(plan.Spawners, plan.Anywhere).Select(frame => characters.Pictures(
                 EnemySheetDefinitions.EncounterFrameName(frame),
                 EnemySpriteFrames.Frame(spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts) ? parts
-                    : throw new InvalidDataException($"Encounter frame {frame} has no installed composition."), tileBase, 0))))];
+                    : throw new InvalidDataException($"Encounter frame {frame} has no installed composition."), tileBase, 0),
+                RotEncounterFrames.Contains(frame))))];
         return new SpawnedObjectSheetSource(plan,
             new SpriteSheetSources([.. frames.SelectMany(pictures => pictures.Sources)], colours,
                 ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection), plan.Palette),

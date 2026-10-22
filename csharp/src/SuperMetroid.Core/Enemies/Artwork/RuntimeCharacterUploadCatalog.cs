@@ -78,7 +78,15 @@ public sealed class RuntimeCharacterUploadCatalog
         ArgumentException.ThrowIfNullOrEmpty(frame);
         Ensure.AtLeastZero(layer);
         return $"{frame}#{layer}" + string.Concat(Ensure.NotNull(shown).Select(content =>
-            $"|{content.Region.FirstByte:X4}={(content.Upload is { } upload ? $"u{all.IndexOf(upload)}" : "set")}"));
+            $"|{content.Region.FirstByte:X4}={Token(content)}"));
+    }
+
+    /// <summary>How a picture's name spells what <paramref name="content"/> shows over its region.</summary>
+    private string Token(CharacterRegionContent content)
+    {
+        if (content.RotStep is int step)
+            return $"rot{step}";
+        return content.Upload is { } upload ? $"u{all.IndexOf(upload)}" : "set";
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Enemies.SpriteObjects;
@@ -6,6 +7,7 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 namespace SuperMetroid.Core.Enemies.FallingSparks;
 
 /// <summary>The falling sparks species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class FallingSparksBehavior
 {
     /// <summary>Room RNG used to choose the spark's horizontal launch delta.</summary>

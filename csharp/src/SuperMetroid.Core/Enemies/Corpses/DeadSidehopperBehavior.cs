@@ -153,12 +153,12 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             new CorpseRottingProgram { YLimit = yLimit, LateMoveEntryIndex = yLimit - 1, WrapOffset = definition.WrapOffset })
         {
             RotTable = _room.Staging.RotTable(definition.RotTableOffset, definition.EntryCount),
-            VramTransfers = DeadMonsterRottingDefinitions.ForTransferTable(definition.VramTransfers),
+            Flesh = definition.VramTransfers,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         CorpseRottingTableProcessor.Initialize(state.RotTable);
-        InitializeDeadSidehopperGraphics(graphicsVariant);
+        _deadMonsters.BeginRot(state.Flesh);
         return state;
     }
 
@@ -425,7 +425,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Starts decay and keeps the corpse updating offscreen without further Samus collision.</summary>
-    private static void TriggerDeadSidehopperRotting(
+    internal static void TriggerDeadSidehopperRotting(
         RoomEnemySlot slot,
         DeadSidehopperEnemyState state)
     {
@@ -444,67 +444,13 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             state.RotTable,
             state.YLimit,
             state.LateMoveEntryIndex,
-            (yOffset, operation) => CopyOrMoveDeadSidehopperPixelRow(state, yOffset, operation),
             entryIndex => FinishDeadSidehopperCorpseRow(slot, state));
         if (!stillRotting)
             state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
-        BuildDeadSidehopperVramTransfers(state);
+        _deadMonsters.ShowRotStep(state.Flesh);
     }
 
-    /// <summary>Copies five rows of the selected installed corpse art into the room's mutable tile buffer.</summary>
-    internal void InitializeDeadSidehopperGraphics(ushort graphicsVariant)
-    {
-        ReadOnlySpan<byte> installedTiles = _deadMonsters.InstalledCorpseTiles();
-        if (installedTiles.IsEmpty)
-            throw new InvalidDataException("Dead sidehopper requires installed corpse artwork.");
 
-        StagingByteView tiles = _room.Staging.CorpseTiles;
-        for (int row = 0; row < 5; row++)
-        {
-            var copy = DeadMonsterRottingDefinitions.SidehopperInitialCopy(graphicsVariant, row);
-            for (int byteIndex = 0; byteIndex < copy.Length; byteIndex++)
-            {
-                int sourceOffset = copy.SourceOffset + byteIndex;
-                tiles[copy.DestinationOffset + byteIndex] = installedTiles[sourceOffset];
-            }
-        }
-    }
-
-    /// <summary>Copies eligible corpse tile columns into the next row and optionally erases their source words.</summary>
-    internal void CopyOrMoveDeadSidehopperPixelRow(
-        DeadSidehopperEnemyState state,
-        ushort yOffset,
-        CorpseRowOperation operation)
-    {
-        ushort sourceOffset = unchecked((ushort)(
-            DeadMonsterRottingDefinitions.RotationOffset(CorpseRotationTable.Sidehopper, yOffset) + (yOffset & 7) * 2));
-        ushort destinationOffset = (yOffset & 7) >= 6
-            ? unchecked((ushort)(state.WrapOffset + sourceOffset))
-            : sourceOffset;
-
-        for (int columnIndex = 0; columnIndex < 5; columnIndex++)
-        {
-            if (yOffset < DeadMonsterRottingDefinitions.SidehopperColumnMinimumY(state.GraphicsVariant, columnIndex))
-                continue;
-
-            int columnOffset = DeadMonsterRottingDefinitions.SidehopperColumnWordOffset(state.GraphicsVariant, columnIndex);
-            int sourceWord = sourceOffset / 2 + columnOffset;
-            int destinationWord = destinationOffset / 2 + columnOffset + 1;
-            if (yOffset < 38)
-            {
-                _deadMonsters.WriteWorkWord(destinationWord, _deadMonsters.ReadWorkWord(sourceWord));
-                _deadMonsters.WriteWorkWord(
-                    destinationWord + 8,
-                    _deadMonsters.ReadWorkWord(sourceWord + 8));
-            }
-
-            if (operation == CorpseRowOperation.Move)
-            {
-                _deadMonsters.WriteWorkWord(sourceWord, 0);
-                _deadMonsters.WriteWorkWord(sourceWord + 8, 0);
-            }
-        }
-    }
 
     /// <summary>Records a completed row, spawns dust at its randomized X offset, and conditionally requests sound.</summary>
     private void FinishDeadSidehopperCorpseRow(
@@ -516,21 +462,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         state.DustSpawnCount++;
     }
 
-    /// <summary>Appends the variant's corpse tile uploads after a rotting step.</summary>
-    private void BuildDeadSidehopperVramTransfers(DeadSidehopperEnemyState state) =>
-        _deadMonsters.AppendVramTransfers(state.VramTransfers);
 
-    /// <summary>Queues this frame's staged corpse tile uploads at their encoded VRAM destinations.</summary>
-    [PpuLayoutBoundary("codec: staged dead-monster corpse DMA records' native destinations")]
-    internal void QueueDeadSidehopperFrameVramTransfers(VramWriteQueue? queue)
-    {
-        if (queue is null)
-            return;
-        foreach (VramWriteEntry transfer in _deadMonsters.VramTransfers)
-        {
-            _room.Staging.EnqueueNativeTransfer(queue, transfer);
-        }
-    }
 
     /// <summary>Starts a new dead Sidehopper animation, resetting both instruction clocks before its first step runs.</summary>
     internal void SetDeadSidehopperProgram(RoomEnemySlot slot, DeadTourianProgram program) =>

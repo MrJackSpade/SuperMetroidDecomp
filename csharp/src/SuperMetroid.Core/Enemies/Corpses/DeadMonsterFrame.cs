@@ -1,31 +1,51 @@
-using System.Collections.Immutable;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
-/// State shared by the dead-monster family (dead sidehoppers and Tourian corpses): the bank-$A9
-/// corpse work words staged in WRAM, the installed corpse tile sheet, and the rot VRAM transfers
-/// and dust sound the family publishes each frame.
+/// State shared by the dead-monster family (dead sidehoppers and Tourian corpses): the rot steps each corpse's staged
+/// characters have taken, which corpses of one kind take together, and the dust sound the family publishes each frame.
 /// </summary>
+[RoomLifetime]
 internal sealed class DeadMonsterFrame
 {
-    /// <summary>Room scratch memory and installed artwork shared by corpse-family actors.</summary>
-    private readonly EnemyRoomBinding _room;
+    /// <summary>Records the rows the corpses upload.</summary>
+    private readonly EnemyPresentation _presentation;
 
-    /// <summary>Connects dead-monster work words and rot transfers to the active room.</summary>
-    internal DeadMonsterFrame(EnemyRoomBinding room)
+    /// <summary>The rot steps each kind of corpse's staged characters have taken since a corpse of that kind copied them in.</summary>
+    private readonly Dictionary<CorpseTransferTable, int> rotSteps = [];
+
+    /// <summary>Connects the dead monsters' rot uploads to the room's presentation.</summary>
+    internal DeadMonsterFrame(EnemyPresentation presentation)
     {
-        _room = room;
+        _presentation = presentation;
     }
-
-    /// <summary>Rot transfers queued by this frame's dead-monster rows.</summary>
-    internal List<VramWriteEntry> VramTransfers { get; } = [];
 
     /// <summary>The dust sound requested by a completed sidehopper or corpse row this frame, or null.</summary>
     public SoundEffectId? LastSoundEffect { get; internal set; }
+
+    /// <summary>
+    /// Starts the rot of <paramref name="flesh"/>'s staged characters over, as a corpse of that kind copies them in afresh;
+    /// every corpse of the kind rots the one copy.
+    /// </summary>
+    internal void BeginRot(CorpseTransferTable flesh) => rotSteps[flesh] = 0;
+
+    /// <summary>
+    /// Counts one rot step of <paramref name="flesh"/>'s staged characters and uploads its rows (#1392): the corpse's sheet
+    /// pictures each step, so the room records only the step its rows show.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">No corpse of the kind has copied its characters in.</exception>
+    internal void ShowRotStep(CorpseTransferTable flesh)
+    {
+        if (!rotSteps.TryGetValue(flesh, out int taken))
+            throw new InvalidOperationException($"{flesh} rots before a corpse copies its characters in.");
+        int step = taken + 1;
+        rotSteps[flesh] = step;
+        foreach (DeadMonsterVramTransferDefinition transfer in DeadMonsterRottingDefinitions.ForTransferTable(flesh))
+            _presentation.RotUploads.Show(transfer.Destination, transfer.SizeInBytes, step);
+    }
 
     /// <summary>
     /// Spawns the dust cloud a finished corpse row raises, spread by <paramref name="random"/> across the corpse, and
@@ -40,44 +60,8 @@ internal sealed class DeadMonsterFrame
             LastSoundEffect = SoundEffectLibrary2Sounds.DeadMonsterDust;
     }
 
-    /// <summary>Drops this frame's transfers and sound request.</summary>
-    internal void Clear()
-    {
-        VramTransfers.Clear();
-        LastSoundEffect = null;
-    }
-
-    /// <summary>Reads a word from the bank-$A9 corpse work area using a word index.</summary>
-    internal ushort ReadWorkWord(int wordOffset) =>
-        _room.Staging.CorpseTiles.ReadWord(wordOffset * 2);
-
-    /// <summary>Writes a word into the corpse work area using the same word indexing as native rot tables.</summary>
-    internal void WriteWorkWord(int wordOffset, ushort value) =>
-        _room.Staging.CorpseTiles.WriteWord(wordOffset * 2, value);
-
-    /// <summary>Appends the source, size, and destination of each rot DMA record of a corpse's upload list.</summary>
-    internal void AppendVramTransfers(ImmutableArray<DeadMonsterVramTransferDefinition> transfers)
-    {
-        foreach (DeadMonsterVramTransferDefinition record in transfers)
-            VramTransfers.Add(new VramWriteEntry(
-                record.SizeInBytes, record.SourceAddress, record.Destination));
-    }
-
-    /// <summary>
-    /// Zoomer, Ripper and Skree copy from the shared installed bank-$B7 source sheet.
-    /// Resolving their editable ED7F PNG is mandatory before publishing an owner or
-    /// initializing its mutable rot table. There is no cartridge fallback.
-    /// </summary>
-    internal ReadOnlySpan<byte> InstalledCorpseTiles()
-    {
-        if (_room.Artwork is null)
-            throw new InvalidDataException("Dead Tourian corpses require installed artwork.");
-        if (!_room.Artwork.TryResolve(DeadTourianCorpseArtworkDefinitions.SourceAddress,
-                DeadTourianCorpseArtworkDefinitions.ByteCount, out ReadOnlyMemory<byte> tiles))
-            throw new InvalidDataException(
-                "Installed Tourian corpse sheet enemy-ed7f-tiles.png is missing or has the wrong size.");
-        return tiles.Span;
-    }
+    /// <summary>Drops this frame's sound request.</summary>
+    internal void Clear() => LastSoundEffect = null;
 
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)

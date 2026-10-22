@@ -1,8 +1,10 @@
-﻿using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>The downward gate species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class DownwardGateBehavior
 {
     /// <summary>Enforces that a room is loaded before gate requests are applied.</summary>

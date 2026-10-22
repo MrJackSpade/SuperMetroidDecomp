@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Enemies.SpriteObjects;
@@ -6,6 +7,7 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 namespace SuperMetroid.Core.Areas.Escape;
 
 /// <summary>The escape explosions species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class EscapeExplosionsBehavior
 {
     /// <summary>Shared queue that applies native enemy sound limits to each explosion sound.</summary>

@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
@@ -8,8 +7,8 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// </summary>
 public sealed class DeadTourianCorpseEnemyState
 {
-    /// <summary>Captures the selected corpse variant's rot schedule, callback profile and artwork for one slot.</summary>
-    internal DeadTourianCorpseEnemyState(RoomEnemySlot slot, DeadTourianCorpseSpecies species, int variantIndex, CorpseRottingProgram rotting, DeadTourianBehavior.DeadTourianCorpseProfile profile, DeadTourianBehavior.DeadTourianCorpseVariant variant)
+    /// <summary>Captures the selected corpse variant's rot schedule and callback profile for one slot.</summary>
+    internal DeadTourianCorpseEnemyState(RoomEnemySlot slot, DeadTourianCorpseSpecies species, int variantIndex, CorpseRottingProgram rotting, DeadTourianBehavior.DeadTourianCorpseProfile profile)
     {
         Slot = slot;
         Species = species;
@@ -18,7 +17,6 @@ public sealed class DeadTourianCorpseEnemyState
         LateMoveEntryIndex = rotting.LateMoveEntryIndex;
         WrapOffset = rotting.WrapOffset;
         Profile = profile;
-        Variant = variant;
     }
 
     /// <summary>Owning room slot; state is registered for this slot until room reset.</summary>
@@ -32,7 +30,7 @@ public sealed class DeadTourianCorpseEnemyState
     /// <summary>The corpse's (signed pixel Y, delay) entries in the shared rotting heap, one per corpse pixel row: 16 for Zoomer and Ripper, 32 for Skree.</summary>
     internal CorpseRotTable RotTable { get; init; }
     /// <summary>The corpse tile uploads queued after every rotting call, including the call that finishes the corpse.</summary>
-    internal ImmutableArray<DeadMonsterVramTransferDefinition> VramTransfers { get; init; } = [];
+    internal CorpseTransferTable Flesh { get; init; }
     /// <summary>Exclusive pixel-row Y limit and final entry index, equal to sprite height minus one; reaching it completes an entry.</summary>
     public int YLimit { get; }
     /// <summary>First entry index that uses destructive moves even during the last delay updates, equal to sprite height minus two.</summary>
@@ -55,8 +53,6 @@ public sealed class DeadTourianCorpseEnemyState
 
     /// <summary>Assembly-internal callback profile and tile-row layout of this corpse's species.</summary>
     internal DeadTourianBehavior.DeadTourianCorpseProfile Profile { get; }
-    /// <summary>Assembly-internal variant artwork and behavior paired with this corpse's configuration.</summary>
-    internal DeadTourianBehavior.DeadTourianCorpseVariant Variant { get; }
 
     /// <summary>Counts one pre-rot AI call, wrapping from <see cref="LargestPreRotDelayCount"/> to zero.</summary>
     internal void CountPreRotDelayCall() =>

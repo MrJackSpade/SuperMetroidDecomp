@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Enemies.Drawing;
@@ -9,6 +10,7 @@ namespace SuperMetroid.Core.Enemies;
 /// Enemy presentation state: the bound VRAM and CGRAM, boss and gradual palette effects, the
 /// host-installed color and artwork catalogs, and installed-spritemap drawing.
 /// </summary>
+[RoomLifetime]
 internal sealed class EnemyPresentation
 {
     /// <summary>Room artwork binding used to resolve enemy display compositions.</summary>
@@ -77,6 +79,9 @@ internal sealed class EnemyPresentation
     /// the NMI queue (Draygon's Evir sheet, Crocomire's skeleton chunks) record themselves here.
     /// </summary>
     internal ObjCharacterUploads ObjCharacters => _room.Session.ObjCharacters;
+
+    /// <summary>The rot step each region the room's rotting corpses upload shows (#1392).</summary>
+    internal CorpseRotUploads RotUploads { get; } = new();
 
     /// <summary>
     /// The session's shared <c>PaletteChangeNumerator</c>. Enemies and the runtime's door and death
@@ -171,7 +176,8 @@ internal sealed class EnemyPresentation
         RuntimeCharacterUploadCatalog catalog = Sheets.Uploads;
         IReadOnlyList<RuntimeCharacterUpload> uploads = catalog.Of(LoadedSet);
         return layers.Select((regions, layer) => catalog.PictureName(frame, layer,
-            [.. regions.Select(region => catalog.Showing(ObjCharacters, uploads, region))]));
+            [.. regions.Select(region => RotUploads.TryShowing(region, out int step)
+                ? new CharacterRegionContent(region, null, step) : catalog.Showing(ObjCharacters, uploads, region))]));
     }
 
     /// <summary>

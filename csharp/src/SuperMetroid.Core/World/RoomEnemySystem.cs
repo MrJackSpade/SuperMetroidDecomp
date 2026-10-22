@@ -606,7 +606,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         Projectiles.AddHandlerSource(this);
         GunshipBehavior = new GunshipBehavior(Audio, Projectiles, Room, SlotTable, FrameResults);
         Terrain = new EnemyTerrain();
-        DeadMonsters = new DeadMonsterFrame(Room);
+        DeadMonsters = new DeadMonsterFrame(Presentation);
         MotherBrainEncounter = new MotherBrainEncounter(Presentation, Room, BossArtworkBinding);
         RidleyTail = new RidleyTail(FrameContext, Projectiles, RidleyEncounter, Room, SlotTable);
         DeathsAndDrops = new EnemyDeathsAndDrops(RoomStatus, Projectiles, Room, SlotTable, Dispatch);
@@ -1039,8 +1039,6 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                 !slot.FrozenTimer.IsZero || slot.Properties.HasAny(EnemyProperties.SolidToSamus)));
         }
         FrameContext.AdvanceRandomEnemyCounter();
-        DeadTorizoBehavior.QueueDeadTorizoFrameVramTransfers(frame.VramWriteQueue);
-        DeadSidehopperBehavior.QueueDeadSidehopperFrameVramTransfers(frame.VramWriteQueue);
         frame.Samus?.Kinematics.ClearSolidEnemyCollisionIndexes();
         WorkRobotBehavior.StepWorkRobotPaletteAnimation();
         MagdolliteBehavior.StepMagdollitePaletteAnimation();

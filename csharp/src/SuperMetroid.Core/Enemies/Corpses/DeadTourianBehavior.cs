@@ -48,7 +48,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         definitionId is EnemyDefinitionId.CorpseZoomer or EnemyDefinitionId.CorpseRipper or EnemyDefinitionId.CorpseSkree;
 
     /// <summary>Selects the species-specific native callbacks and art layout for a corpse header.</summary>
-    private static DeadTourianCorpseProfile ProfileForDeadTourianCorpse(EnemyDefinitionId definitionId) =>
+    internal static DeadTourianCorpseProfile ProfileForDeadTourianCorpse(EnemyDefinitionId definitionId) =>
         DeadTourianPartDefinitions.Parts[definitionId] switch
         {
             DeadTourianPart.CorpseZoomer => DeadTourianCorpseProfileDefinitions.DeadZoomerProfile,
@@ -93,24 +93,19 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         int variantIndex = slot.Spawn.Population.Parameter1 / 2;
-        DeadTourianCorpseVariant variant = profile.Variants[variantIndex];
         DeadTourianCorpseDefinition definition =
             DeadTourianCorpseDefinitions.For(profile.Species, variantIndex);
         // Two rows is the smallest corpse whose late-move entry (height less two) is a real entry index.
         if (definition.EntryCount < 2)
             throw new InvalidDataException($"Dead {profile.Species} has fewer than two corpse rows.");
 
-        // Missing resources must not leave a registered corpse, changed slot or partially
-        // initialized WRAM behind when the host reports a recoverable error.
-        ReadOnlySpan<byte> installedTiles = _deadMonsters.InstalledCorpseTiles();
-
         int yLimit = definition.EntryCount - 1;
         var state = new DeadTourianCorpseEnemyState(slot, profile.Species, variantIndex,
             new CorpseRottingProgram { YLimit = yLimit, LateMoveEntryIndex = yLimit - 1, WrapOffset = definition.WrapOffset },
-            profile: profile, variant: variant)
+            profile: profile)
         {
             RotTable = _room.Staging.RotTable(definition.RotTableOffset, definition.EntryCount),
-            VramTransfers = DeadMonsterRottingDefinitions.ForTransferTable(definition.VramTransfers),
+            Flesh = definition.VramTransfers,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
@@ -118,7 +113,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = DeadTourianCorpseFunction.Waiting;
         Extensions[slot.SlotIndex].Program = DeadSidehopperBehavior.StartDeadTourianProgram(slot, definition.InitialProgram);
         CorpseRottingTableProcessor.Initialize(state.RotTable);
-        InitializeDeadTourianCorpseGraphics(variant, installedTiles);
+        _deadMonsters.BeginRot(state.Flesh);
     }
 
     /// <summary>Runs shared dispatcher <c>$A9:D8DB</c>: collision starts a 16-frame delay, then the corpse rots until its table is exhausted.</summary>
@@ -151,7 +146,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Touch and shot callbacks for these three corpse-only actors are identical.</summary>
-    private static void TriggerDeadTourianCorpseRotting(RoomEnemySlot slot)
+    internal static void TriggerDeadTourianCorpseRotting(RoomEnemySlot slot)
     {
         DeadTourianCorpseEnemyState state = RequireDeadTourianCorpseState(slot);
         state.Function = DeadTourianCorpseFunction.Rotting;
@@ -177,58 +172,13 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             state.RotTable,
             state.YLimit,
             state.LateMoveEntryIndex,
-            (yOffset, operation) => CopyOrMoveDeadTourianCorpsePixelRow(state, yOffset, operation),
             entryIndex => FinishDeadTourianCorpseRow(slot, state));
         if (!stillRotting)
             state.Function = DeadTourianCorpseFunction.Finished;
-        _deadMonsters.AppendVramTransfers(state.VramTransfers);
+        _deadMonsters.ShowRotStep(state.Flesh);
     }
 
-    /// <summary>Copies the selected corpse variant from installed art into the room's tile work buffer.</summary>
-    private void InitializeDeadTourianCorpseGraphics(DeadTourianCorpseVariant variant,
-        ReadOnlySpan<byte> installedTiles)
-    {
-        StagingByteView tiles = _room.Staging.CorpseTiles;
-        foreach (CorpseGraphicsCopy copy in variant.InitialGraphicsCopies)
-        {
-            for (int byteIndex = 0; byteIndex < copy.Length; byteIndex++)
-            {
-                int sourceOffset = copy.SourceOffset + byteIndex;
-                tiles[copy.DestinationOffset + byteIndex] = installedTiles[sourceOffset];
-            }
-        }
-    }
 
-    /// <summary>Copies a decomposing pixel row across each tile column, clearing its source during move steps.</summary>
-    private void CopyOrMoveDeadTourianCorpsePixelRow(
-        DeadTourianCorpseEnemyState state,
-        ushort yOffset,
-        CorpseRowOperation operation)
-    {
-        ushort sourceOffset = unchecked((ushort)(
-            DeadMonsterRottingDefinitions.RotationOffset(state.Profile.RowLayout, yOffset) + (yOffset & 7) * 2));
-        ushort destinationOffset = (yOffset & 7) >= 6
-            ? unchecked((ushort)(state.WrapOffset + sourceOffset))
-            : sourceOffset;
-
-        foreach (ushort columnWordOffset in state.Variant.ColumnWordOffsets)
-        {
-            int sourceWord = sourceOffset / 2 + columnWordOffset;
-            int destinationWord = destinationOffset / 2 + columnWordOffset + 1;
-            if (yOffset < state.Variant.MaximumY)
-            {
-                _deadMonsters.WriteWorkWord(destinationWord, _deadMonsters.ReadWorkWord(sourceWord));
-                _deadMonsters.WriteWorkWord(
-                    destinationWord + 8,
-                    _deadMonsters.ReadWorkWord(sourceWord + 8));
-            }
-            if (operation == CorpseRowOperation.Move)
-            {
-                _deadMonsters.WriteWorkWord(sourceWord, 0);
-                _deadMonsters.WriteWorkWord(sourceWord + 8, 0);
-            }
-        }
-    }
 
     /// <summary>Spawns randomized dust for a completed rot row and gates its sound on the enemy counter.</summary>
     private void FinishDeadTourianCorpseRow(

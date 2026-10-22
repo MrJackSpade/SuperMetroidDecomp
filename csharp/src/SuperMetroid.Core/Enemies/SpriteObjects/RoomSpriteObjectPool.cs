@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
@@ -10,6 +11,7 @@ namespace SuperMetroid.Core.Enemies.SpriteObjects;
 /// The bank-$B4 room sprite-object pool: 32 instruction-driven decorative actors (dust, splashes, shells)
 /// that enemies and projectiles spawn, step and draw independently of enemy and projectile slots.
 /// </summary>
+[RoomLifetime]
 internal sealed class RoomSpriteObjectPool
 {
     /// <summary>Supplies installed spritemap artwork when visible room objects are drawn.</summary>

@@ -10,15 +10,16 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <summary>
 /// A graphics set's OBJ characters as its room load leaves them, and as each upload its encounters make after the load
 /// leaves them (#1392). A frame drawn over characters an upload covers gets a picture for each upload each region it is
-/// drawn over can show, and one for the set's own characters there.
+/// drawn over can show, and one for the set's own characters there; a frame drawn over the rows a rotting corpse uploads gets
+/// a picture for each rot step those rows can show together.
 /// </summary>
 internal sealed class SetCharacters
 {
     /// <summary>The OBJ character table as the room load leaves it.</summary>
     private readonly byte[] table;
 
-    /// <summary>The uploads the set's encounters make.</summary>
-    private readonly IReadOnlyList<RuntimeCharacterUpload> uploads;
+    /// <summary>The regions that change after the room loads, and what each can show.</summary>
+    private readonly SetRegions regions;
 
     /// <summary>Resolves the artwork the uploads show.</summary>
     private readonly IObjCharacterSourceResolver resolver;
@@ -26,29 +27,33 @@ internal sealed class SetCharacters
     /// <summary>Each picture's characters, by its name suffix.</summary>
     private readonly Dictionary<string, SpriteArtwork> pages = new(StringComparer.Ordinal);
 
-    /// <summary>The table as the room load leaves it, the uploads the set's encounters make and the artwork they show.</summary>
-    internal SetCharacters(byte[] table, IReadOnlyList<RuntimeCharacterUpload> uploads, IObjCharacterSourceResolver resolver)
+    /// <summary>The table as the room load leaves it, the regions that change after, and the artwork the uploads show.</summary>
+    internal SetCharacters(byte[] table, SetRegions regions, IObjCharacterSourceResolver resolver)
     {
         this.table = Ensure.NotNull(table);
-        this.uploads = Ensure.NotNull(uploads);
+        this.regions = Ensure.NotNull(regions);
         this.resolver = Ensure.NotNull(resolver);
-        Regions = RuntimeCharacterUploadCatalog.Regions(uploads);
         Loaded = ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.GameplayObjects), table);
     }
 
     /// <summary>The characters as the room load leaves them.</summary>
     internal SpriteArtwork Loaded { get; }
 
-    /// <summary>The regions the uploads divide the characters into.</summary>
-    internal IReadOnlyList<CharacterRegion> Regions { get; }
+    /// <summary>The regions the uploads and the corpses' rows divide the characters into.</summary>
+    internal IReadOnlyList<CharacterRegion> Regions => regions.Regions;
 
     /// <summary>
     /// The pictures of <paramref name="frame"/>, named for <paramref name="name"/>: the frame whole when it is drawn over no
     /// uploaded region, else its layers, each run of its parts in draw order reading the same uploaded regions, with a
     /// picture of each layer for each upload or the set's own characters in each region it reads. A layer reads few
-    /// regions, so its pictures stay few where the whole frame's combinations would not.
+    /// regions, so its pictures stay few where the whole frame's combinations would not. Only a corpse's own frames show its
+    /// rot: another frame drawn over a corpse's rows has a picture of them as the set or an encounter leaves them only, so a
+    /// draw over rotted rows finds no picture and fails rather than showing what no frame of the room draws.
     /// </summary>
-    internal FramePictures Pictures(string name, SpriteFrame frame)
+    /// <param name="name">The frame's name, which names its pictures.</param>
+    /// <param name="frame">The frame.</param>
+    /// <param name="showsRot">Whether the frame is a corpse's own, which shows the rot of the corpses' rows it reads.</param>
+    internal FramePictures Pictures(string name, SpriteFrame frame, bool showsRot = false)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
         Ensure.NotNull(frame);
@@ -64,11 +69,11 @@ internal sealed class SetCharacters
             while (end < read.Length && read[end].SequenceEqual(read[first]))
                 end++;
             int layer = layers.Count;
-            CharacterRegion[] regions = read[first];
+            CharacterRegion[] layerRegions = read[first];
             var parts = new SpriteFrame($"{frame.Name}#{layer}", frame.Parts[first..end]);
-            sources.AddRange(RuntimeCharacterUploadCatalog.Contents(regions, uploads).Select(contents => new SheetFrameSource(
+            sources.AddRange(regions.Contents(layerRegions, showsRot).Select(contents => new SheetFrameSource(
                 RuntimeCharacterUploadDefinitions.Catalog.PictureName(name, layer, contents), parts, Page(contents))));
-            layers.Add(regions);
+            layers.Add(layerRegions);
             first = end;
         }
         return new FramePictures(name, sources, [.. layers]);
@@ -100,6 +105,11 @@ internal sealed class SetCharacters
         byte[] shown = [.. table];
         foreach (CharacterRegionContent content in contents)
         {
+            if (content.RotStep is not null)
+            {
+                regions.RotBytes(content).CopyTo(shown.AsSpan(content.Region.FirstByte));
+                continue;
+            }
             if (content.Upload is not { } upload)
                 continue;
             ReadOnlySpan<byte> bytes = upload.Source.Resolve(resolver).Span;

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
@@ -12,6 +13,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>The Ceres door species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

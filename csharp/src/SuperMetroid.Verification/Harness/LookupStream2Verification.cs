@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Enemies.PipeBugs.Artwork;
@@ -1024,20 +1025,18 @@ internal static class LookupStream2Verification
                         Colors = Enumerable.Range(0,16).Select(_ => new PaletteRgb5 { Red=0, Green=0, Blue=0 }).ToArray(),
                     }))),
             }, Spritemaps = display, DmaSources = new Dictionary<EnemyDefinitionId, int> { [EnemyDefinitionId.CorpseTorizo] = DeadTorizoArtworkDefinitions.SourceAddress } });
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
-        StagingByteView corpseTiles = enemies.Room.Staging.CorpseTiles;
-        corpseTiles.Fill(0);
-        new Action(enemies.DeadTorizoBehavior.InitializeDeadTorizoGraphics)();
+        AssertTrue(artwork.TryResolve(DeadTorizoArtworkDefinitions.SourceAddress, DeadTorizoArtworkDefinitions.ByteCount,
+            out ReadOnlyMemory<byte> atlas), "Dead Torizo installed art resolves its corpse sheet");
+        // The extraction stages the corpse as the cartridge does and rots it to picture each step (#1392).
+        CorpseStaging corpseTiles = CorpseStaging.Torizo(atlas.Span);
         Compare(expected, "Actual Dead Torizo installed-art crop");
 
-        var state = new DeadTorizoEnemyState(enemies.SlotTable.Slots[0], new CorpseRottingProgram { YLimit = 95, LateMoveEntryIndex = 94, WrapOffset = 0x134 });
-        Action<DeadTorizoEnemyState, ushort, CorpseRowOperation> moveRow = enemies.DeadTorizoBehavior.CopyOrMoveDeadTorizoPixelRow;
         foreach (bool move in new[] { false, true })
         for (ushort y = 0; y < 96; y++)
         {
             for (int index = 0; index < expected.Length; index++)
                 expected[index] = (byte)(index * 73 ^ index >> 3);
-            corpseTiles.CopyFrom(expected);
+            corpseTiles.Copy(expected, new CorpseGraphicsCopy(0, 0, expected.Length));
             int source = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9e226 + y / 8 * 2) + (y & 7) * 2;
             int destination = source + ((y & 7) >= 6 ? 0x134 : 0) + 2;
             for (int column = 0; column < 10; column++)
@@ -1054,7 +1053,7 @@ internal static class LookupStream2Verification
                     }
                 }
             }
-            moveRow(state, y, move ? CorpseRowOperation.Move : CorpseRowOperation.Copy);
+            corpseTiles.MoveRow(CorpseRowGeometry.Torizo, y, move ? CorpseRowOperation.Move : CorpseRowOperation.Copy);
             Compare(expected, "Actual Dead Torizo column row copy/move");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => DeadTorizoGeometryDefinitions.InitialCopy(-1), "Crop negative row rejected");
@@ -1065,8 +1064,9 @@ internal static class LookupStream2Verification
 
         void Compare(byte[] bytes, string context)
         {
+            byte[] staged = corpseTiles.Upload(new CorpseRotRow(0, EnemyStagingDefinitions.Bg2NativeAddress, bytes.Length, 0));
             for (int index = 0; index < bytes.Length; index++)
-                AssertEqual(bytes[index], corpseTiles[index], context);
+                AssertEqual(bytes[index], staged[index], context);
         }
     }
 
@@ -1648,17 +1648,18 @@ internal static class LookupStream2Verification
             state.UploadsOddTransferHalf = phase == 0;
             build(state);
             AssertEqual(phase == 1, state.UploadsOddTransferHalf, "Dead Torizo phase advancement, including across the phase word's wrap");
+            // The corpse records the rot step each uploaded row shows, where its native descriptor uploads it (#1392).
             for (int index = 0; index < rows.Length; index++)
             {
-                var actual = enemies.LastDeadTorizoVramTransfers[phase * 7 + index];
-                AssertEqual(rows[index].SizeInBytes, actual.SizeInBytes, "Dead Torizo queued size");
-                AssertEqual(rows[index].SourceAddress, actual.SourceAddress, "Dead Torizo queued live WRAM source");
-                AssertEqual(rows[index].EncodedVramDestination, actual.Destination.Encoded, "Dead Torizo queued VRAM destination");
+                var region = new CharacterRegion(ObjCharacterUploads.TableByte(VramDmaDestination.FromNative(rows[index].EncodedVramDestination)),
+                    rows[index].SizeInBytes);
+                AssertTrue(enemies.Presentation.RotUploads.TryShowing(region, out int step) && step == 0,
+                    "Dead Torizo uploads each native row before its rot begins");
             }
             AssertThrows<ArgumentOutOfRangeException>(() => { _ = rows[-1]; }, "Dead Torizo negative row");
             AssertThrows<ArgumentOutOfRangeException>(() => { _ = rows[7]; }, "Dead Torizo past last row");
         }
-        Console.WriteLine("Dead Torizo: all56 native descriptor fields, two terminators, actual fourteen queued live-WRAM transfers, phase parity, enumeration and bounds pass.");
+        Console.WriteLine("Dead Torizo: all56 native descriptor fields, two terminators, fourteen uploaded native rows, phase parity, enumeration and bounds pass.");
     }
     /// <summary>Checks five gunship liftoff graphics transfers and their live queue behavior.</summary>
     internal static void VerifyLookupStream2GunshipTransfers(ISnesAddressSpace rom)

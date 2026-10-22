@@ -1,10 +1,12 @@
-﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.WreckedShip.Artwork;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>The Wrecked Ship ghost species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

@@ -103,7 +103,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
             $"dead {species} variant {variantIndex} started animation");
         CorpseRotTableChecks.AssertConfiguredRotTable(enemies, expected.RotTableOffset, expected.EntryCount,
             state.RotTable, $"dead {species} variant {variantIndex}");
-        AssertTrue(DeadMonsterRottingDefinitions.ForTransferTable(expected.VramTransfers).SequenceEqual(state.VramTransfers),
+        AssertEqual(expected.VramTransfers, state.Flesh,
             $"dead {species} variant {variantIndex} uploads the configured VRAM transfer list");
         AssertEqual((ushort)state.Profile.RowLayout,
             CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa90000 | (ConfigurationPointer(rom, species, variantIndex) + 12)),

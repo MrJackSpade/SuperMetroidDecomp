@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.Polyp.Artwork;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies.Polyp.Artwork;
 using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
@@ -7,6 +8,7 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Polyp;
 
 /// <summary>The Polyp species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Sparks.Artwork;
 using SuperMetroid.Core.Enemies.FallingSparks;
 using SuperMetroid.Core.Progression;
@@ -6,6 +7,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Enemies.Sparks;
 
 /// <summary>The Spark species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>The pass-through shot reaction for this species' private shot callback.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Kago.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -7,6 +8,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>The Kago species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

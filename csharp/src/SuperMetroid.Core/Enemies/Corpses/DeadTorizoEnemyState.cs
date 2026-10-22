@@ -35,26 +35,12 @@ public sealed class DeadTorizoEnemyState
     public bool UploadsOddTransferHalf { get; internal set; }
     /// <summary>Contact-delay calls counted before rotting, 0..16: the sixteenth enters rotting and the corpse never returns to the delay. Direct shot or touch triggering bypasses it.</summary>
     public int PreRotDelayCounter { get; internal set; }
-    /// <summary>Next sand-heap pixel row to copy, starting at 15 and copied in descending order through 1; zero means no more heap rows remain.</summary>
-    public int SandLineCounter { get; internal set; }
-    /// <summary>Rotting calls since the last sand row, 0..14; reaching fifteen resets it to zero and copies the next nonzero sand row.</summary>
-    public int SandFrameCounter { get; internal set; }
     /// <summary>Host diagnostic count of shared corpse-rotting scheduler calls since initialization, including the call that completes its final entry.</summary>
     public uint ProcessCallCount { get; internal set; }
     /// <summary>Host diagnostic count of completed row entries, incremented before their dust callback, including the final entry.</summary>
     public uint FinishedEntryCount { get; internal set; }
     /// <summary>Host diagnostic count of dust effects requested by completed entries, one request per completed-entry hook invocation.</summary>
     public uint DustSpawnCount { get; internal set; }
-    /// <summary>Host diagnostic count of sand rows copied into the live heap surface, incremented once for each descending nonzero row selector.</summary>
-    public uint SandLineCopyCount { get; internal set; }
-
-    /// <summary>Moves past the sand row just copied to the row above it; a corpse with no sand row left has nothing to consume.</summary>
-    internal void ConsumeSandLine()
-    {
-        if (SandLineCounter <= 0)
-            throw new InvalidOperationException("Dead Torizo has no sand row left to copy.");
-        SandLineCounter--;
-    }
 
     /// <summary>The bank-$A9 corpse function; none once a kill has emptied the record.</summary>
     internal DeadTorizoFunction? Function { get; set; }

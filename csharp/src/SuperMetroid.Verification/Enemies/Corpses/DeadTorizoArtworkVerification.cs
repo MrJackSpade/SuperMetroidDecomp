@@ -11,6 +11,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -29,38 +30,35 @@ internal static class DeadTorizoArtworkVerification
     {
         Suite(nameof(VerifyDeadTorizoVramTransferDefinitions), () => VerifyDeadTorizoVramTransferDefinitions(stock));
         Suite(nameof(VerifyDeadTorizoStationaryVisual), () => VerifyDeadTorizoStationaryVisual(stock.Enemies));
-        // The corpse initializer copies discontinuous portions of the ordinary ED3F
-        // enemy sheet to WRAM. Later rotting frames draw sand words from that same
-        // sheet. Guard the entire source interval so neither path can accidentally
-        // work by reading the cartridge despite a bound installed catalog.
+        // The extraction stages the corpse as its initializer does, from discontinuous portions of the ordinary ED3F sheet,
+        // and drops sand words from that same sheet, to picture each step of its rot (#1392); the runtime stages nothing.
         var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        var installedBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var nativeStaging = new EnemyStagingSurfaces();
         ReferenceDeadTorizoCorpseGraphics(nativeBus, nativeStaging);
-        RoomEnemySystem installed = InitializeDeadTorizoArtwork(installedBus, stock);
-        AssertDeadTorizoBufferParity(nativeStaging.CorpseTiles,
-            installed.Room.Staging.CorpseTiles, 0x1000,
+        CorpseStaging installed = StageDeadTorizoArtwork(stock);
+        AssertDeadTorizoBufferParity(nativeStaging.CorpseTiles, Staged(installed, 0, 0x1000), 0x1000,
             "installed dead-Torizo initial corpse sheet matches the cartridge");
 
         ReferenceDeadTorizoSandLine(nativeBus, nativeStaging, 0);
-        CopyDeadTorizoSandLine(installed, 0);
-        AssertDeadTorizoBufferParity(nativeStaging.DeadTorizoSand,
-            installed.Room.Staging.DeadTorizoSand, 0x200,
+        installed.CopySandLine(Atlas(stock), 0);
+        AssertDeadTorizoBufferParity(nativeStaging.DeadTorizoSand, Sand(installed, 0x200), 0x200,
             "installed dead-Torizo sand line matches the cartridge");
 
         var nativeCorpse = new OamBuffer();
         // $A9:D39A draws the fixed corpse map at world (296, 187).
         DrawImportedEnemySpritemap(nativeBus, nativeCorpse, new NativeEnemySpritemapDraw { Bank = 0xa9, Pointer = 0xd761, Origin = new(296, 187), PaletteBits = 0, BaseTileIndex = 0 });
-        OamBuffer installedCorpse = DrawDeadTorizoCorpseFrame(stock, installedBus, Position16<RoomPixels>.Zero);
+        AssertTrue((stock.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires stock spritemaps."))
+            .TryGetDisplay(DeadTorizoArtworkDefinitions.HookFrame, out EnemySpritemapParts hook), "Dead Torizo hook has an installed composition");
+        var installedCorpse = new OamBuffer();
+        installedCorpse.AddEnemySpritemap(hook, new Position16<OamPixels>(296, 187), 0, 0);
         AssertTrue(nativeCorpse.ImageEquals(installedCorpse) &&
                    nativeCorpse.NextByteOffset == installedCorpse.NextByteOffset,
-            "Dead Torizo private corpse hook draws installed native-parity OAM without ROM reads");
-        AssertEqual(0, DrawDeadTorizoCorpseFrame(stock, installedBus, new(0, 188)).NextByteOffset,
+            "Dead Torizo private corpse hook's installed composition is the native OAM");
+        AssertEqual(0, DrawDeadTorizoCorpseFrame(stock, new(0, 188)).NextByteOffset,
             "Dead Torizo private hook retains its above-screen cull");
 
         var missing = new InstalledEnemyArtwork(EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), new BossArtworkCatalog(), new AreaArtworkCatalog());
-        AssertThrows<InvalidDataException>(() => InitializeDeadTorizoArtwork(
-                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"), missing),
+        AssertThrows<InvalidDataException>(() => StageDeadTorizoArtwork(missing),
             "bound installation missing the dead-Torizo sheet fails instead of reading ROM");
 
         string fileName = EnemyTileArtworkFormat.FileName(EnemyDefinitionId.CorpseTorizo);
@@ -76,14 +74,11 @@ internal static class DeadTorizoArtworkVerification
         Directory.CreateDirectory(overrideDirectory);
         using (var output = File.Create(Path.Combine(overrideDirectory, fileName)))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
-        var editedBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        RoomEnemySystem editedEnemies = InitializeDeadTorizoArtwork(editedBus, edited);
-        StagingByteView installedTiles = installed.Room.Staging.CorpseTiles;
-        StagingByteView editedTiles = editedEnemies.Room.Staging.CorpseTiles;
+        byte[] installedTiles = Staged(installed, 0, 0x1000);
+        byte[] editedTiles = Staged(StageDeadTorizoArtwork(EnemyTileArtworkFiles.Load(directory, overrideDirectory)), 0, 0x1000);
         AssertEqual((byte)(installedTiles[0x60] ^ 0x80),
             editedTiles[0x60],
-            "dead-Torizo PNG pixel edit reaches the live corpse staging buffer");
+            "dead-Torizo PNG pixel edit reaches the staged corpse");
         for (int offset = 0; offset < 0x1000; offset++)
         {
             if (offset == 0x60)
@@ -92,10 +87,7 @@ internal static class DeadTorizoArtworkVerification
                 editedTiles[offset],
                 "dead-Torizo PNG edit leaves neighboring corpse staging bytes unchanged");
         }
-        var reloadedBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        RoomEnemySystem reloadedEnemies = InitializeDeadTorizoArtwork(reloadedBus,
-            EnemyTileArtworkFiles.Load(directory, overrideDirectory));
-        AssertEqual(editedTiles[0x60], reloadedEnemies.Room.Staging.CorpseTiles[0x60],
+        AssertEqual(editedTiles[0x60], Staged(StageDeadTorizoArtwork(EnemyTileArtworkFiles.Load(directory, overrideDirectory)), 0x60, 1)[0],
             "dead-Torizo PNG edit survives catalog reload");
 
         Console.WriteLine("  Dead Torizo artwork: guarded initial corpse and sand-line ROM parity, visible PNG edit and reload pass.");
@@ -163,8 +155,7 @@ internal static class DeadTorizoArtworkVerification
                 $"Dead Torizo phase {phase} native zero terminator");
         }
 
-        var installedBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        RoomEnemySystem installed = InitializeDeadTorizoArtwork(installedBus, stock);
+        RoomEnemySystem installed = InitializeDeadTorizo(stock);
         var nativeTransfers = new List<VramWriteEntry>();
 
         Action<DeadTorizoEnemyState> buildInstalled =
@@ -179,13 +170,13 @@ internal static class DeadTorizoArtworkVerification
                     VramDmaDestination.FromNative(rom.ReadCartridgeWord((address + 6)))));
             AssertEqual((ushort)0, rom.ReadCartridgeWord(address), "native corpse queue terminates after seven entries");
             buildInstalled((installed.DeadTorizo ?? throw new InvalidOperationException("Verification requires installed.DeadTorizo.")));
-            AssertTrue(nativeTransfers.SequenceEqual(
-                    installed.LastDeadTorizoVramTransfers),
-                $"Dead Torizo phase {phase} installed queue matches live native descriptors");
-            AssertEqual((phase + 1) * 7, installed.LastDeadTorizoVramTransfers.Count,
-                $"Dead Torizo phase {phase} emits every authored transfer in order");
+            // The corpse records the rot step each uploaded row shows, where its native descriptor uploads it (#1392).
+            foreach (VramWriteEntry transfer in nativeTransfers.Skip(phase * 7))
+                AssertTrue(installed.Presentation.RotUploads.TryShowing(
+                        new CharacterRegion(ObjCharacterUploads.TableByte(transfer.Destination), transfer.SizeInBytes), out int step) && step == 0,
+                    $"Dead Torizo phase {phase} uploads each native descriptor's row");
         }
-        Console.WriteLine("  Dead Torizo VRAM queues: fourteen native descriptors and both real frame builders match with installed ROM reads forbidden.");
+        Console.WriteLine("  Dead Torizo VRAM uploads: fourteen native descriptors and both real frame builders match.");
     }
 
     /// <summary>
@@ -232,28 +223,34 @@ internal static class DeadTorizoArtworkVerification
         return new ReadNativeDeadTorizoSandLineOffsetsResult(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9d67c + line * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9d69c + line * 2)));
     }
 
-    /// <summary>Initializes the corpse actor with installed artwork while forbidding reads from its ROM sheet.</summary>
-    private static RoomEnemySystem InitializeDeadTorizoArtwork(
-        SuperMetroidAddressSpace bus, InstalledEnemyArtwork artwork)
+    /// <summary>Initializes the corpse actor with installed artwork.</summary>
+    private static RoomEnemySystem InitializeDeadTorizo(InstalledEnemyArtwork artwork)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
-        ISnesAddressSpace source = NewDeadTorizoArtworkReadGuard(bus);
         new Action<RoomEnemySlot>(enemies.DeadTorizoBehavior.InitializeDeadTorizo)(enemies.SlotTable.Slots[0]);
         return enemies;
     }
 
-    /// <summary>Invokes the live corpse behavior's sand-line copy for comparison with the independent oracle.</summary>
-    private static void CopyDeadTorizoSandLine(RoomEnemySystem enemies, ushort line)
-    {
-        new Action<int>(enemies.DeadTorizoBehavior.CopyDeadTorizoSandLine)(line);
-    }
+    /// <summary>The corpse as the extraction stages it from installed art.</summary>
+    private static CorpseStaging StageDeadTorizoArtwork(InstalledEnemyArtwork artwork) => CorpseStaging.Torizo(Atlas(artwork));
 
-    /// <summary>Renders the corpse hook's published frame as the OAM image it stands for, with its native map reads guarded.</summary>
-    internal static OamBuffer DrawDeadTorizoCorpseFrame(
-        InstalledEnemyArtwork artwork, SuperMetroidAddressSpace bus,
-        Position16<RoomPixels> camera)
+    /// <summary>The installed dead-Torizo sheet.</summary>
+    private static ReadOnlySpan<byte> Atlas(InstalledEnemyArtwork artwork) =>
+        artwork.Enemies.TryResolve(DeadTorizoArtworkDefinitions.SourceAddress, DeadTorizoArtworkDefinitions.ByteCount, out ReadOnlyMemory<byte> tiles)
+            ? tiles.Span : throw new InvalidDataException("Installed dead-Torizo sheet enemy-ed3f-tiles.png is missing or has the wrong size.");
+
+    /// <summary>The <paramref name="length"/> staged corpse bytes from <paramref name="offset"/>.</summary>
+    private static byte[] Staged(CorpseStaging staging, int offset, int length) =>
+        staging.Upload(new CorpseRotRow(0, EnemyStagingDefinitions.Bg2NativeAddress + offset, length, 0));
+
+    /// <summary>The first <paramref name="length"/> bytes of the staged sand strips.</summary>
+    private static byte[] Sand(CorpseStaging staging, int length) =>
+        staging.Upload(new CorpseRotRow(0, EnemyStagingDefinitions.RottingHeapNativeAddress + EnemyStagingDefinitions.DeadTorizoSandOffset, length, 0));
+
+    /// <summary>Renders the corpse hook's published frame as the OAM image it stands for.</summary>
+    internal static OamBuffer DrawDeadTorizoCorpseFrame(InstalledEnemyArtwork artwork, Position16<RoomPixels> camera)
     {
-        RoomEnemySystem enemies = InitializeDeadTorizoArtwork(bus, artwork);
+        RoomEnemySystem enemies = InitializeDeadTorizo(artwork);
         var oam = new OamBuffer();
         oam.AppendDrawn(frame => enemies.DeadTorizoBehavior.DrawDeadTorizoHook(frame, EnemyFormatDrawAccess.BlankObjectPage, camera));
         return oam;
@@ -261,20 +258,21 @@ internal static class DeadTorizoArtworkVerification
 
     /// <summary>Compares each initialized corpse or sand staging byte with the independent retail copy.</summary>
     private static void AssertDeadTorizoBufferParity(
-        StagingByteView expected, StagingByteView actual, int length,
+        StagingByteView expected, byte[] actual, int length,
         string description)
     {
         for (int offset = 0; offset < length; offset++)
             AssertEqual(expected[offset], actual[offset], description);
     }
 
-    /// <summary>Blocks sheet reads from $B7:A800 through $B7:BFFF after artwork installation.</summary>
-    private static MutableCartridgeReadGuard NewDeadTorizoArtworkReadGuard(ISnesAddressSpace source)
+    /// <summary>The corpse hook's installed composition as OAM, where the hook draws it with the camera at the room's origin.</summary>
+    internal static OamBuffer DrawDeadTorizoHookComposition(InstalledEnemyArtwork artwork)
     {
-        var guard = new MutableCartridgeReadGuard(source);
-        guard.Forbid(address => address is >= 0xb7a800 and < 0xb7c000,
-            address => $"Dead Torizo read installed artwork from ROM at ${address:X6}.");
-        return guard;
+        if (artwork.Enemies.Spritemaps?.TryGetDisplay(DeadTorizoArtworkDefinitions.HookFrame, out EnemySpritemapParts hook) != true)
+            throw new InvalidDataException("The dead Torizo hook has no installed composition.");
+        var oam = new OamBuffer();
+        oam.AddEnemySpritemap(hook, new Position16<OamPixels>(296, 187), 0, 0);
+        return oam;
     }
 
 }

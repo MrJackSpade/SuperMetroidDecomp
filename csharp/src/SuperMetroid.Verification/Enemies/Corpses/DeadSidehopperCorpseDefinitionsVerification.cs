@@ -79,7 +79,7 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
             $"dead sidehopper parameter {parameter1} graphics variant");
         CorpseRotTableChecks.AssertConfiguredRotTable(enemies, expected.RotTableOffset, expected.EntryCount,
             state.RotTable, $"dead sidehopper parameter {parameter1}");
-        AssertTrue(DeadMonsterRottingDefinitions.ForTransferTable(expected.VramTransfers).SequenceEqual(state.VramTransfers),
+        AssertEqual(expected.VramTransfers, state.Flesh,
             $"dead sidehopper parameter {parameter1} uploads the configured VRAM transfer list");
         AssertEqual(expected.EntryCount - 1, state.YLimit,
             $"dead sidehopper parameter {parameter1} Y limit");

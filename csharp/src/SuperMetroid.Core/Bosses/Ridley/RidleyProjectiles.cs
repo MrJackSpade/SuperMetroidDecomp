@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Drawing;
@@ -11,6 +12,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Ridley's fireballs and the afterburn chain they spawn, shared by the Ceres and Lower Norfair fights
 /// and reused by Mother Brain's afterburn.
 /// </summary>
+[RoomLifetime]
 internal sealed class RidleyProjectiles
 {
     /// <summary>Provides Samus's current area when selecting Ridley projectile damage.</summary>

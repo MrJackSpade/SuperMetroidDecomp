@@ -1,3 +1,5 @@
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -29,11 +31,13 @@ internal static class SpriteSheetComposer
     {
         Ensure.NotNull(sources);
         IReadOnlyList<SheetFrameSource> frames = sources.Frames;
-        ReadOnlySpan<Bgr555> spriteColours = sources.SpriteColours;
+        Bgr555[] spriteColours = sources.SpriteColours.ToArray();
         Ensure.LengthEqual(spriteColours, 8 * RowColours);
-        // Each distinct part, alone at its frame's origin, coloured as its frame colours it.
+        // Each distinct part, alone at its frame's origin, coloured as its frame colours it; parts that look alike share
+        // one image.
         var partNames = new Dictionary<PartKey, string>();
-        var parts = new List<SheetFrameSource>();
+        var partsByContent = new Dictionary<string, string>(StringComparer.Ordinal);
+        var parts = new List<PaintedImage>();
         var frameParts = new SpriteSheetPartDocument[frames.Count][];
         for (int index = 0; index < frames.Count; index++)
         {
@@ -48,9 +52,16 @@ internal static class SpriteSheetComposer
                 var key = new PartKey(frame.Characters, alone, framePalette);
                 if (!partNames.TryGetValue(key, out string? name))
                 {
-                    name = PartImageName(parts.Count);
+                    string candidate = PartImageName(parts.Count);
+                    PaintedImage painted = Paint(new SheetFrameSource(candidate, new SpriteFrame(candidate, [alone]), frame.Characters, framePalette),
+                        sources, palette, priority, spriteColours);
+                    if (!partsByContent.TryGetValue(painted.Content, out name))
+                    {
+                        name = candidate;
+                        partsByContent.Add(painted.Content, name);
+                        parts.Add(painted);
+                    }
                     partNames.Add(key, name);
-                    parts.Add(new SheetFrameSource(name, new SpriteFrame(name, [alone]), frame.Characters, framePalette));
                 }
                 return new SpriteSheetPartDocument
                 {
@@ -59,49 +70,69 @@ internal static class SpriteSheetComposer
                 };
             })];
         }
-        SheetFrameSource[] laid = [.. frames, .. parts];
-        var bounds = new FrameBounds[laid.Length];
+        PaintedImage[] laid = [.. frames.Select(frame => Paint(frame, sources, palette, priority, spriteColours)), .. parts];
+        // Images that look alike share one rectangle, as a rotting corpse's steps often do.
+        var placed = new Dictionary<string, Position16<ImagePixels>>(StringComparer.Ordinal);
         var corners = new Position16<ImagePixels>[laid.Length];
+        var painted = new List<int>();
         int width = 1, x = 0, y = 0, rowHeight = 0;
         for (int index = 0; index < laid.Length; index++)
         {
-            FrameBounds bound = bounds[index] = Bounds(laid[index].Frame);
-            if (bound.Width == 0)
+            PaintedImage image = laid[index];
+            if (image.Bound.Width == 0)
                 continue;
-            if (x > 0 && x + bound.Width > MaximumWidth)
+            if (placed.TryGetValue(image.Content, out Position16<ImagePixels> shared))
+            {
+                corners[index] = shared;
+                continue;
+            }
+            if (x > 0 && x + image.Bound.Width > MaximumWidth)
             {
                 y += rowHeight;
                 x = 0;
                 rowHeight = 0;
             }
             corners[index] = new(checked((ushort)x), checked((ushort)y));
-            x += bound.Width;
-            rowHeight = Math.Max(rowHeight, bound.Height);
+            placed.Add(image.Content, corners[index]);
+            painted.Add(index);
+            x += image.Bound.Width;
+            rowHeight = Math.Max(rowHeight, image.Bound.Height);
             width = Math.Max(width, x);
         }
         int height = Math.Max(1, y + rowHeight);
-        var canvas = new Canvas(width, height, spriteColours.ToArray());
+        var canvas = new Canvas(width, height, spriteColours);
+        foreach (int index in painted)
+            canvas.Blit(laid[index].Canvas, corners[index]);
         var manifest = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         var partManifest = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         for (int index = 0; index < laid.Length; index++)
         {
-            SpritePaletteRows rows = canvas.Paint(laid[index], bounds[index], corners[index], sources, palette, priority);
+            PaintedImage image = laid[index];
             bool isPart = index >= frames.Count;
             var document = new SpriteSheetFrameDocument
             {
                 Corner = corners[index],
-                Size = new(checked((ushort)bounds[index].Width), checked((ushort)bounds[index].Height)),
-                Origin = new(checked((short)-bounds[index].Left), checked((short)-bounds[index].Top)),
-                Rows = rows,
+                Size = new(checked((ushort)image.Bound.Width), checked((ushort)image.Bound.Height)),
+                Origin = new(checked((short)-image.Bound.Left), checked((short)-image.Bound.Top)),
+                Rows = image.Rows,
                 Parts = isPart ? [] : frameParts[index],
             };
-            (isPart ? partManifest : manifest).Add(laid[index].Name, document);
+            (isPart ? partManifest : manifest).Add(image.Name, document);
         }
         ushort[] colours = new ushort[spriteColours.Length];
         for (int colour = 0; colour < colours.Length; colour++)
             colours[colour] = spriteColours[colour].ToWord();
         return new ComposedSpriteSheet(new((ushort)width, (ushort)height), canvas.Pixels, canvas.PaletteIndices, canvas.Priorities,
             canvas.PartRows, new SpriteSheetDocument { Version = SpriteSheet.Version, Palette = SpriteImageColours.Sprite, Colours = colours, Frames = manifest, PartImages = partManifest });
+    }
+
+    /// <summary>Paints <paramref name="source"/> alone, cropped to its parts.</summary>
+    private static PaintedImage Paint(SheetFrameSource source, SpriteSheetSources sources, int palette, int priority, Bgr555[] spriteColours)
+    {
+        FrameBounds bound = Bounds(source.Frame);
+        var canvas = new Canvas(bound.Width, bound.Height, spriteColours);
+        SpritePaletteRows rows = canvas.Paint(source, bound, default, sources, palette, priority);
+        return new PaintedImage(source.Name, bound, rows, canvas, canvas.Content());
     }
 
     /// <summary>The name of the part image composed <paramref name="ordinal"/>th.</summary>
@@ -129,6 +160,14 @@ internal static class SpriteSheetComposer
     /// <param name="FramePalette">The row its frame colours palette-inheriting parts in.</param>
     private readonly record struct PartKey(SpriteArtwork Characters, SpriteFramePart Part, int FramePalette);
 
+    /// <summary>A frame or part image painted alone.</summary>
+    /// <param name="Name">Its name.</param>
+    /// <param name="Bound">The rectangle its parts cover, relative to its origin.</param>
+    /// <param name="Rows">The palette rows it is coloured from.</param>
+    /// <param name="Canvas">Its pixel planes.</param>
+    /// <param name="Content">A digest of its pixel planes, alike for images that look alike.</param>
+    private sealed record PaintedImage(string Name, FrameBounds Bound, SpritePaletteRows Rows, Canvas Canvas, string Content);
+
     /// <summary>A frame's cover relative to its origin.</summary>
     /// <param name="Left">The leftmost column, from the origin.</param>
     /// <param name="Top">The topmost row, from the origin.</param>
@@ -153,6 +192,38 @@ internal static class SpriteSheetComposer
 
         /// <summary>Each pixel's part row, with the fixed-row flag where its part keeps its own.</summary>
         internal byte[] PartRows { get; } = new byte[width * height];
+
+        /// <summary>The canvas's width.</summary>
+        private int Width => width;
+
+        /// <summary>The canvas's height.</summary>
+        private int Height => height;
+
+        /// <summary>A digest of the canvas's size and pixel planes.</summary>
+        internal string Content()
+        {
+            using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+            hash.AppendData(BitConverter.GetBytes(width));
+            hash.AppendData(BitConverter.GetBytes(height));
+            hash.AppendData(MemoryMarshal.AsBytes(Pixels.AsSpan()));
+            hash.AppendData(PaletteIndices);
+            hash.AppendData(Priorities);
+            hash.AppendData(PartRows);
+            return Convert.ToHexString(hash.GetHashAndReset());
+        }
+
+        /// <summary>Copies <paramref name="image"/>'s planes onto this canvas with their top-left at <paramref name="corner"/>.</summary>
+        internal void Blit(Canvas image, Position16<ImagePixels> corner)
+        {
+            for (int row = 0; row < image.Height; row++)
+            {
+                int from = row * image.Width, to = (corner.Y + row) * width + corner.X;
+                image.Pixels.AsSpan(from, image.Width).CopyTo(Pixels.AsSpan(to));
+                image.PaletteIndices.AsSpan(from, image.Width).CopyTo(PaletteIndices.AsSpan(to));
+                image.Priorities.AsSpan(from, image.Width).CopyTo(Priorities.AsSpan(to));
+                image.PartRows.AsSpan(from, image.Width).CopyTo(PartRows.AsSpan(to));
+            }
+        }
 
         /// <summary>Paints <paramref name="source"/> at <paramref name="corner"/> and returns the rows it was coloured from.</summary>
         internal SpritePaletteRows Paint(SheetFrameSource source, FrameBounds bound, Position16<ImagePixels> corner, SpriteSheetSources sources,

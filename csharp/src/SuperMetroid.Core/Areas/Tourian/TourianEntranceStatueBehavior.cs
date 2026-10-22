@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Areas.Tourian.Artwork;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
@@ -6,6 +7,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>The Tourian entrance statue species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

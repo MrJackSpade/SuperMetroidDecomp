@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Enemies.Corpses.Artwork;
-using System.Buffers.Binary;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
@@ -41,7 +40,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Native corpse and sand DMA records produced during the current enemy update.</summary>
-    internal readonly List<VramWriteEntry> DeadTorizoFrameVramTransfers = [];
     /// <summary>Single corpse state owned by enemy slot zero in the loaded room.</summary>
     internal DeadTorizoEnemyState? DeadTorizo { get; private set; }
     /// <summary>Slot zero's typed corpse pose (#641), started before the corpse state exists.</summary>
@@ -59,8 +57,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Dead Torizo requires native slot zero, not slot {slot.SlotIndex}.");
         }
 
-        _room.Staging.CorpseTiles.Fill(0);
-
         slot.Properties = slot.Properties.With(
             EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions);
         program = AnimationProgramCursor<DeadTorizoProgram>.Start(Corpses.DeadTorizoProgram.Stationary);
@@ -74,14 +70,12 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             new CorpseRottingProgram { YLimit = yLimit, LateMoveEntryIndex = yLimit - 1, WrapOffset = definition.WrapOffset })
         {
             RotTable = _room.Staging.RotTable(definition.RotTableOffset, definition.EntryCount),
-            SandLineCounter = 15,
             Function = DeadTorizoFunction.Wait,
             Velocity = new(default, new SnesSignedEightEight(8)),
         };
         slot.SetSpeciesState(DeadTorizo, DeadTorizo.ClearWithRecord);
 
         CorpseRottingTableProcessor.Initialize(DeadTorizo.RotTable);
-        InitializeDeadTorizoGraphics();
     }
 
     /// <summary>Ports <c>DeadTorizo_Main</c> at <c>$A9:D368</c>.</summary>
@@ -133,18 +127,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances sand rows, corpse motion, and one step of the native rotting table.</summary>
     private void RunDeadTorizoRotting(RoomEnemySlot slot, DeadTorizoEnemyState state)
     {
-        state.SandFrameCounter++;
-        if (state.SandFrameCounter >= 15)
-        {
-            state.SandFrameCounter = 0;
-            if (state.SandLineCounter != 0)
-            {
-                CopyDeadTorizoSandLine(state.SandLineCounter);
-                state.ConsumeSandLine();
-                state.SandLineCopyCount++;
-            }
-        }
-
         state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue + 1))));
         MoveBankA9EnemyWithVelocity(slot, state.Velocity);
         state.ProcessCallCount++;
@@ -152,7 +134,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             state.RotTable,
             state.YLimit,
             state.LateMoveEntryIndex,
-            (yOffset, operation) => CopyOrMoveDeadTorizoPixelRow(state, yOffset, operation),
             _ => FinishDeadTorizoCorpseRow(state));
         if (!stillRotting)
             state.Function = DeadTorizoFunction.NoOperation;
@@ -227,73 +208,8 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         return false;
     }
 
-    /// <summary>Copies discontinuous regions of the installed corpse sheet into scratch WRAM.</summary>
-    internal void InitializeDeadTorizoGraphics()
-    {
-        ReadOnlySpan<byte> installedTiles = DeadTorizoInstalledTiles();
-        if (installedTiles.IsEmpty)
-            throw new InvalidDataException("Dead Torizo requires installed corpse artwork.");
-        StagingByteView tiles = _room.Staging.CorpseTiles;
-        for (int row = 0; row < DeadTorizoGeometryDefinitions.Rows; row++)
-        {
-            CorpseGraphicsCopy copy = DeadTorizoGeometryDefinitions.InitialCopy(row);
-            for (int byteIndex = 0; byteIndex < copy.Length; byteIndex++)
-            {
-                int sourceOffset = copy.SourceOffset + byteIndex;
-                tiles[copy.DestinationOffset + byteIndex] = installedTiles[sourceOffset];
-            }
-        }
-    }
 
-    /// <summary>
-    /// The enemy's ordinary extracted PNG already covers the complete bank-$B7 source
-    /// sheet. Reuse that same edited planar image for both the initial corpse copy and
-    /// later sand rows; neither path may bypass a bound installation to read the ROM.
-    /// Constructed cartridge-only fixtures retain the native source path.
-    /// </summary>
-    private ReadOnlySpan<byte> DeadTorizoInstalledTiles()
-    {
-        if (_room.Artwork is null)
-            return [];
-        if (!_room.Artwork.TryResolve(DeadTorizoArtworkDefinitions.SourceAddress,
-                DeadTorizoArtworkDefinitions.ByteCount, out ReadOnlyMemory<byte> tiles))
-            throw new InvalidDataException(
-                "Installed dead-Torizo sheet enemy-ed3f-tiles.png is missing or has the wrong size.");
-        return tiles.Span;
-    }
 
-    /// <summary>Shifts selected corpse tile words through rotation-table offsets, clearing sources on move.</summary>
-    internal void CopyOrMoveDeadTorizoPixelRow(
-        DeadTorizoEnemyState state,
-        ushort yOffset,
-        CorpseRowOperation operation)
-    {
-        ushort sourceOffset = unchecked((ushort)(
-            DeadMonsterRottingDefinitions.RotationOffset(CorpseRotationTable.Torizo, yOffset) + (yOffset & 7) * 2));
-        ushort destinationOffset = (yOffset & 7) >= 6
-            ? unchecked((ushort)(state.WrapOffset + sourceOffset))
-            : sourceOffset;
-
-        for (int columnIndex = 0; columnIndex < DeadTorizoGeometryDefinitions.Columns; columnIndex++)
-        {
-            if (yOffset < DeadTorizoGeometryDefinitions.ColumnMinimumY(columnIndex))
-                continue;
-
-            int sourceWord = sourceOffset / 2 + DeadTorizoGeometryDefinitions.ColumnWordOffset(columnIndex);
-            int destinationWord = destinationOffset / 2 + DeadTorizoGeometryDefinitions.ColumnWordOffset(columnIndex) + 1;
-            if (yOffset < 94)
-            {
-                WriteWorkWord(destinationWord, ReadWorkWord(sourceWord));
-                WriteWorkWord(destinationWord + 8, ReadWorkWord(sourceWord + 8));
-            }
-
-            if (operation == CorpseRowOperation.Move)
-            {
-                WriteWorkWord(sourceWord, 0);
-                WriteWorkWord(sourceWord + 8, 0);
-            }
-        }
-    }
 
     /// <summary>Records a finished rot row, spawns dust from shared RNG, and optionally publishes sound.</summary>
     private void FinishDeadTorizoCorpseRow(DeadTorizoEnemyState state)
@@ -308,23 +224,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             LastDeadTorizoSoundEffect = SoundEffectLibrary2Sounds.DeadMonsterDust;
     }
 
-    /// <summary>Copies the first bitplane word of eighteen spaced source rows into sand scratch WRAM.</summary>
-    internal void CopyDeadTorizoSandLine(int lineIndex)
-    {
-        ReadOnlySpan<byte> installedTiles = DeadTorizoInstalledTiles();
-        ushort destinationOffset = DeadMonsterRottingDefinitions.SandDestination(lineIndex);
-        ushort sourceOffset = DeadMonsterRottingDefinitions.SandSource(lineIndex);
-
-        // Eighteen tile rows are sixteen bytes apart in both the source sheet and the WRAM
-        // heap surface. Only the first 16-bit bitplane word of each row is replaced.
-        StagingByteView sand = _room.Staging.DeadTorizoSand;
-        for (int row = 0; row < 18; row++)
-        {
-            int tileOffset = sourceOffset + row * 16;
-            ushort value = BinaryPrimitives.ReadUInt16LittleEndian(installedTiles.Slice(tileOffset, 2));
-            sand.WriteWord(destinationOffset + row * 16, value);
-        }
-    }
 
     /// <summary>
     /// Applies bank-$A9's shared signed 8.8 enemy velocity pair. Dead Torizo and Shitroid
@@ -342,30 +241,21 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithFractionY(y.Fraction).WithWholeY(y.Whole);
     }
 
-    /// <summary>Switches to the other corpse transfer half and appends its authored WRAM-to-VRAM descriptors.</summary>
+    /// <summary>
+    /// Switches to the other half of the corpse's rows and uploads them as its rot has left them (#1392): its sheet pictures
+    /// each rot step, so the room records only the step they show.
+    /// </summary>
     internal void BuildDeadTorizoVramTransfers(DeadTorizoEnemyState state)
     {
         state.UploadsOddTransferHalf = !state.UploadsOddTransferHalf;
-        // Immutable descriptors point at live WRAM corpse/sand staging surfaces.
+        int step = checked((int)state.ProcessCallCount);
         foreach (DeadTorizoVramTransferDefinition record in
                  DeadTorizoVramTransferDefinitions.ForHalf(state.UploadsOddTransferHalf))
-            DeadTorizoFrameVramTransfers.Add(new VramWriteEntry(
-                record.SizeInBytes, record.SourceAddress, record.Destination));
+            _presentation.RotUploads.Show(record.Destination, record.SizeInBytes, step);
     }
 
-    /// <summary>Queues this frame's corpse DMA descriptors at their native VRAM destinations.</summary>
-    [PpuLayoutBoundary("codec: staged Dead Torizo corpse DMA records' native destinations")]
-    internal void QueueDeadTorizoFrameVramTransfers(VramWriteQueue? queue)
-    {
-        if (queue is null)
-            return;
-        foreach (VramWriteEntry transfer in DeadTorizoFrameVramTransfers)
-        {
-            _room.Staging.EnqueueNativeTransfer(queue, transfer);
-        }
-    }
 
-    /// <summary>Runs the post-enemy ordinary-spritemap hook at <c>$A9:D39A</c>, publishing its frame over the OBJ page.</summary>
+    /// <summary>Runs the post-enemy ordinary-spritemap hook at <c>$A9:D39A</c>, publishing its frame as the encounter's own (#1392).</summary>
     internal void DrawDeadTorizoHook(SpriteFrameBuffer sprites, SpriteArtwork objects, Position16<RoomPixels> camera)
     {
         if (DeadTorizo is null)
@@ -374,7 +264,8 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         ushort screenY = unchecked((ushort)(187 - camera.Y));
         if (unchecked((short)screenY) < 0)
             return;
-        _presentation.PublishEnemySpritemap(sprites, objects, new SpriteSource(SpriteSourceKind.DeadTorizoHook), new EnemySpritemapDraw { Frame = DeadTorizoArtworkDefinitions.HookFrame, Origin = new(unchecked((ushort)(296 - camera.X)), screenY), PaletteBits = 0, BaseTileIndex = 0 });
+        _presentation.PublishEncounterFrame(sprites, objects, new SpriteSource(SpriteSourceKind.DeadTorizoHook), DeadTorizoArtworkDefinitions.HookFrame,
+            new Position16<ScreenPixels>(unchecked((ushort)(296 - camera.X)), screenY), paletteBits: 0);
     }
 
     /// <summary>Requires the initialized slot-zero corpse state and rejects unrelated enemy slots.</summary>
@@ -387,19 +278,12 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         return state;
     }
 
-    /// <summary>Reads a little-endian corpse scratch word at a table-relative word offset.</summary>
-    private ushort ReadWorkWord(int wordOffset) =>
-        _room.Staging.CorpseTiles.ReadWord(wordOffset * 2);
 
-    /// <summary>Writes one corpse scratch word at a table-relative word offset.</summary>
-    private void WriteWorkWord(int wordOffset, ushort value) =>
-        _room.Staging.CorpseTiles.WriteWord(wordOffset * 2, value);
 
     /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
         LastDeadTorizoSoundEffect = null;
-        DeadTorizoFrameVramTransfers.Clear();
     }
 
     /// <summary>Routes corpse bomb contact to rotting after the common no-op gate.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -11,6 +12,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// HDMA deletion the elevator observes, and the sprite tile transfers that both Mother Brain and
 /// the cutscene Baby request.
 /// </summary>
+[RoomLifetime]
 internal sealed class MotherBrainEncounter
 {
     /// <summary>Sprite presentation owner whose OBJ character table shows encounter tile transfers.</summary>

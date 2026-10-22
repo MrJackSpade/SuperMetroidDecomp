@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Gunship;
@@ -19,6 +20,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// passes and the Samus collision passes. Species behavior arrives through registered handlers; the engine names
 /// no species.
 /// </summary>
+[RoomLifetime]
 internal sealed class EnemyProjectileEngine
 {
     /// <summary>Serialized handler owners; their delegate table is rebuilt after restore to avoid compiler-generated identities.</summary>

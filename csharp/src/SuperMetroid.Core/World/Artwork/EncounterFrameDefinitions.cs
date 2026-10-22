@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.World.Artwork;
 
 /// <summary>
 /// The frames each enemy's encounter draws itself, outside the enemy list, at character index zero (#1392): Ridley's tail
-/// and wings, and in Ceres the Baby he carries and the door overlay his scene draws. Each graphics set's character-zero
+/// and wings, in Ceres the Baby he carries and the door overlay his scene draws, and the dead Torizo's hook of sand. Each graphics set's character-zero
 /// spawned-object sheet holds those of the enemies it draws.
 /// </summary>
 internal static class EncounterFrameDefinitions
@@ -25,6 +25,7 @@ internal static class EncounterFrameDefinitions
         new Dictionary<EnemyDefinitionId, IReadOnlyList<EnemyFrameId>>
         {
             [EnemyDefinitionId.Ridley] = RidleySupplements,
+            [EnemyDefinitionId.CorpseTorizo] = [DeadTorizoArtworkDefinitions.HookFrame],
             [EnemyDefinitionId.RidleyCeres] =
             [
                 .. RidleySupplements,

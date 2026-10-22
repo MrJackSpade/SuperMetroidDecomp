@@ -24,6 +24,18 @@ public static class CorpseRottingTableProcessor
         }
     }
 
+    /// <summary>
+    /// Runs one complete call of the shared cartridge table processor for a corpse whose sheet pictures each step's pixel
+    /// rows (#1392), so only the table and its finished entries advance.
+    /// </summary>
+    /// <param name="table">The live rot table; its entries are processed in ascending index order.</param>
+    /// <param name="yLimit">Exclusive pixel-row limit for the two-pixel advance; also the native entry-index threshold that returns final completion.</param>
+    /// <param name="lateMoveEntryIndex">First entry index that moves rather than copies its pixel row during the last four delay states.</param>
+    /// <param name="entryFinished">Receives each entry index immediately after its final row has moved, the final entry's too.</param>
+    /// <returns>True while another rotting call is required; false on final completion.</returns>
+    public static bool Step(CorpseRotTable table, int yLimit, int lateMoveEntryIndex, Action<ushort> entryFinished) =>
+        Step(table, yLimit, lateMoveEntryIndex, static (_, _) => { }, entryFinished);
+
     /// <summary>Runs one complete call of the shared cartridge table processor.</summary>
     /// <param name="table">The live rot table; its entries are processed in ascending index order.</param>
     /// <param name="yLimit">Exclusive pixel-row limit for the two-pixel advance; also the native entry-index threshold that returns final completion.</param>

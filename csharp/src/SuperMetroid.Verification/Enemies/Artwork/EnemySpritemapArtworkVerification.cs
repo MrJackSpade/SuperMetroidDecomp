@@ -1270,8 +1270,9 @@ internal static class EnemySpritemapArtworkVerification
             "Mother Brain head artwork edit changes live OAM X without ROM reads");
         AssertEqual(stockBrain.LowTable[1], editedBrain.LowTable[1],
             "Mother Brain head artwork edit leaves physical Y placement unchanged");
-        OamBuffer stockDeadTorizo = DrawDeadTorizoCorpseFrame(stock, rom, Position16<RoomPixels>.Zero);
-        OamBuffer editedDeadTorizo = DrawDeadTorizoCorpseFrame(edited, rom, Position16<RoomPixels>.Zero);
+        // The hook draws its composition from the sheet the extraction pictures it in (#1392); the edit reaches that composition.
+        OamBuffer stockDeadTorizo = DrawDeadTorizoHookComposition(stock);
+        OamBuffer editedDeadTorizo = DrawDeadTorizoHookComposition(edited);
         AssertEqual(unchecked((byte)(stockDeadTorizo.LowTable[0] + 1)),
             editedDeadTorizo.LowTable[0],
             "Dead Torizo corpse composition edit changes live OAM X without ROM reads");

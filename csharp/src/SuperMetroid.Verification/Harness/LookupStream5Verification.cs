@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
@@ -1365,10 +1366,8 @@ internal static class LookupStream5Verification
         foreach (ushort variant in new ushort[] { 0, 2, ushort.MaxValue })
         {
             bool alternate = variant != 0;
-            var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = LookupStream5CorpseFixtureArtwork(rom) };
-            StagingByteView corpseTiles = enemies.Room.Staging.CorpseTiles;
-            Action<ushort> initialize = enemies.DeadSidehopperBehavior.InitializeDeadSidehopperGraphics;
+            AssertTrue(LookupStream5CorpseFixtureArtwork(rom).TryResolve(DeadTourianCorpseArtworkDefinitions.SourceAddress,
+                DeadTourianCorpseArtworkDefinitions.ByteCount, out ReadOnlyMemory<byte> atlas), "Sidehopper corpse fixture art resolves its sheet");
             byte[] expected = new byte[0x800];
             for (int row = 0; row < 5; row++)
             {
@@ -1380,9 +1379,15 @@ internal static class LookupStream5Verification
                     DeadMonsterRottingDefinitions.SidehopperInitialCopy(variant, row), "Native Sidehopper MVN geometry");
                 ReadSidehopperCorpseRomBytes(rom, 0xb7c000 + source, length).CopyTo(expected, destination);
             }
-            initialize(variant);
-            for (int i = 0; i < expected.Length; i++)
-                AssertEqual(expected[i], corpseTiles[i], "Actual installed Sidehopper graphics copy");
+            // The extraction stages the corpse as the cartridge does and rots it to picture each step (#1392).
+            CorpseStaging corpseTiles = CorpseStaging.Sidehopper(atlas.Span, variant);
+            for (int row = 0; row < 5; row++)
+            {
+                CorpseGraphicsCopy copied = DeadMonsterRottingDefinitions.SidehopperInitialCopy(variant, row);
+                byte[] staged = Staged(corpseTiles, copied.DestinationOffset, copied.Length);
+                for (int i = 0; i < copied.Length; i++)
+                    AssertEqual(expected[copied.DestinationOffset + i], staged[i], "Actual installed Sidehopper graphics copy");
+            }
 
             // Native LDA abs,X operands and optional CMP #8 operands, independently read from each unrolled column.
             int[] sourceOperands = alternate
@@ -1397,16 +1402,13 @@ internal static class LookupStream5Verification
                 AssertEqual(minimumOperands[column] == 0 ? 0 : Word(minimumOperands[column]),
                     DeadMonsterRottingDefinitions.SidehopperColumnMinimumY(variant, column), "Native missing top-row clipping");
             }
-            var state = new DeadSidehopperEnemyState(enemies.SlotTable.Slots[0], variant, new CorpseRottingProgram { YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 148 });
-            Action<DeadSidehopperEnemyState, ushort, CorpseRowOperation> copy = enemies.DeadSidehopperBehavior.CopyOrMoveDeadSidehopperPixelRow;
+            CorpseRowGeometry geometry = CorpseRowGeometry.Sidehopper(variant, wrap: 148);
             foreach (ushort y in new ushort[] { 0, 7, 8, 37, 38 })
             foreach (bool move in new[] { false, true })
             {
                 for (int i = 0; i < expected.Length; i++)
-                {
                     expected[i] = (byte)(i * 37 + i / 256);
-                    corpseTiles[i] = expected[i];
-                }
+                corpseTiles.Copy(expected, new CorpseGraphicsCopy(0, 0, expected.Length));
                 int sourceRow = Word(0xa9e240 + (y >> 3) * 2) + (y & 7) * 2;
                 int destinationRow = sourceRow + ((y & 7) >= 6 ? 148 : 0);
                 for (int column = 0; column < 5; column++)
@@ -1426,9 +1428,10 @@ internal static class LookupStream5Verification
                         if (move) { expected[source] = 0; expected[source + 1] = 0; }
                     }
                 }
-                copy(state, y, move ? CorpseRowOperation.Move : CorpseRowOperation.Copy);
+                corpseTiles.MoveRow(geometry, y, move ? CorpseRowOperation.Move : CorpseRowOperation.Copy);
+                byte[] moved = Staged(corpseTiles, 0, expected.Length);
                 for (int i = 0; i < expected.Length; i++)
-                    AssertEqual(expected[i], corpseTiles[i], "Actual Sidehopper pixel copy/move including clipping, wrap and terminal row");
+                    AssertEqual(expected[i], moved[i], "Actual Sidehopper pixel copy/move including clipping, wrap and terminal row");
             }
         }
         AssertThrows<ArgumentOutOfRangeException>(() => DeadMonsterRottingDefinitions.SidehopperInitialCopy(0, -1), "Copy row lower bound");
@@ -1436,6 +1439,9 @@ internal static class LookupStream5Verification
         AssertThrows<ArgumentOutOfRangeException>(() => DeadMonsterRottingDefinitions.SidehopperColumnWordOffset(0, 5), "Column upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => DeadMonsterRottingDefinitions.SidehopperColumnMinimumY(0, -1), "Column lower bound");
         Console.WriteLine("Sidehopper geometry: ten native MVN rows, ten column offsets/clips, installed artwork and actual copy/move boundary rows pass; nonzero variant semantics preserved.");
+
+        static byte[] Staged(CorpseStaging staging, int offset, int length) =>
+            staging.Upload(new CorpseRotRow(0, EnemyStagingDefinitions.Bg2NativeAddress + offset, length, 0));
     }
 
     /// <summary>Reads the retail Sidehopper corpse character rows for an independent artwork fixture.</summary>

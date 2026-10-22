@@ -79,7 +79,7 @@ internal static class BossMapMarkersVerification
                 var savedMenu = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0,
                     RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
                 var savedGraphics = savedMenu.roomGraphics;
-                var liveGraphics = new FileSelectRoomMapGraphics(system, (AreaId)area, mapPresentation: RetailPresentationFixture(), mapSheet: MenuSheetFixtures.MapSprites(RetailPresentationFixture().Sprites));
+                var liveGraphics = new FileSelectRoomMapGraphics(system, (AreaId)area, mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));
                 var marker = new FileSelectStationMarker((AreaId)area, 0, RetailPresentationFixture().SaveMarkers);
                 ushort scrollX = unchecked((ushort)(x - 128)), scrollY = unchecked((ushort)(y - 112));
                 AssertTrue(liveGraphics.Render(new(scrollX, scrollY), marker).SequenceEqual(

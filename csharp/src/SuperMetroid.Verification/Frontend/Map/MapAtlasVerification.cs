@@ -29,7 +29,7 @@ internal static class MapAtlasVerification
         var guard = NewMapDataGuard(bus, rules);
         var system = new Bank80SystemState();
         system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
-        var menu = new FileSelectRoomMapGraphics(system, AreaId.Crateria, mapPresentation: original, mapSheet: MenuSheetFixtures.MapSprites(original.Sprites));
+        var menu = new FileSelectRoomMapGraphics(system, AreaId.Crateria, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
         var samus = new SamusState();
         var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         var nativePause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });

@@ -29,9 +29,9 @@ public sealed class FileSelectRoomMapGraphics
     /// <param name="area">One of the six Zebes map areas, excluding Ceres.</param>
     /// <param name="revealMode">Optional presentation reveal override when projecting installed map cells; ordinary selection uses persistence-driven visibility.</param>
     /// <param name="mapPresentation">Required installed map tiles, palettes, screens, and sprite/layout resources, despite the optional parameter syntax.</param>
-    /// <param name="mapSheet">Required installed map sprite sheet, despite the optional parameter syntax.</param>
+    /// <param name="sheets">Required installed sprite sheets, despite the optional parameter syntax: the map sprites and the background tiles.</param>
     public FileSelectRoomMapGraphics(Bank80SystemState system, AreaId area,
-        MapRevealMode revealMode = MapRevealMode.None, AreaMapPresentationCatalog? mapPresentation = null, SpriteSheet? mapSheet = null)
+        MapRevealMode revealMode = MapRevealMode.None, AreaMapPresentationCatalog? mapPresentation = null, InstalledSpriteSheets? sheets = null)
     {
         Ensure.NotNull(system);
         if (mapPresentation is null)
@@ -41,12 +41,14 @@ public sealed class FileSelectRoomMapGraphics
         icons.BindStations(mapPresentation.Stations);
         icons.BindLandmarks(mapPresentation.Landmarks);
         sprites = mapPresentation.Sprites;
-        BindMapSheet(mapSheet ?? throw new InvalidOperationException("Room-map graphics require the installed map sprite sheet."));
+        InstalledSpriteSheets installed = sheets ?? throw new InvalidOperationException("Room-map graphics require the installed sprite sheets.");
+        mapSheet = installed.Get(SpriteSheetId.MapSprites);
+        icons.BindSprites(mapSheet);
         int index = AreaIds.ToIndex(area);
         if (index >= FileSelectMapRomData.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
         screen = new MenuScreen(mapPresentation.Tiles, mapPresentation.Palettes,
-            mapPresentation.WorldArtwork, sprites);
+            mapPresentation.WorldArtwork, sprites, installed);
         MapTileWord hidden = system.HasAreaMap(area)
             ? MapTileWords.PauseBlank : MapTileWords.FileSelectUndownloadedBlank;
         MenuTilemaps.Load(screen.Tilemaps.AreaMap,
@@ -63,11 +65,13 @@ public sealed class FileSelectRoomMapGraphics
             .LoadTo(screen.Tilemaps.Bg2, MapScreenDefinitions.RoomFrame(area));
     }
 
-    /// <summary>Rebinds the map sprite sheet the icons, marker and arrows draw from.</summary>
-    internal void BindMapSheet(SpriteSheet? sheet)
+    /// <summary>Rebinds the installed sheets: the map sprites the icons, marker and arrows draw from, and the background tiles.</summary>
+    internal void BindSheets(InstalledSpriteSheets? sheets)
     {
-        mapSheet = sheet;
-        icons.BindSprites(sheet);
+        InstalledSpriteSheets installed = sheets ?? throw new InvalidOperationException("Room-map graphics require the installed sprite sheets.");
+        mapSheet = installed.Get(SpriteSheetId.MapSprites);
+        icons.BindSprites(mapSheet);
+        screen.BindScreenTiles(installed);
     }
 
     /// <summary>Reprojects current host artwork without resetting menu animation or scroll state.</summary>
@@ -110,14 +114,16 @@ public sealed class FileSelectRoomMapGraphics
         FileSelectStationMarker? marker = null, FileSelectMapAnimations? animations = null, RoomMapContent content = RoomMapContent.Scene)
     {
         var layers = new List<RenderLayer>();
+        // Both planes draw from the map characters' pre-coloured tiles (#1392).
+        ScreenLayerPictures tiles = screen.FileSelectTiles.Pictures(FileSelectMapRomData.RoomCharacters, BgBitDepth.FourBpp);
         if (content == RoomMapContent.FrameOnly)
-            layers.Add(new Bg4BppRenderLayer(MenuVramLayout.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters, new Position16<BgPlanePixels>(0, FileSelectMapRomData.RoomFrameVerticalScroll), new Extent16<TilemapCells>(32, 32), null));
+            layers.Add(new Bg4BppRenderLayer(MenuVramLayout.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters, new Position16<BgPlanePixels>(0, FileSelectMapRomData.RoomFrameVerticalScroll), new Extent16<TilemapCells>(32, 32), null, tiles));
         else
             foreach (bool priority in new[] { false, true })
             {
-                layers.Add(new Bg4BppRenderLayer(MenuVramLayout.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters, new Position16<BgPlanePixels>(0, FileSelectMapRomData.RoomFrameVerticalScroll), new Extent16<TilemapCells>(32, 32), priority));
+                layers.Add(new Bg4BppRenderLayer(MenuVramLayout.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters, new Position16<BgPlanePixels>(0, FileSelectMapRomData.RoomFrameVerticalScroll), new Extent16<TilemapCells>(32, 32), priority, tiles));
                 layers.Add(new Bg4BppRenderLayer(MenuVramLayout.Bg1TilemapWord, FileSelectMapRomData.RoomCharacters,
-                    scroll.AsBgPlaneScroll(), new Extent16<TilemapCells>(64, 32), priority));
+                    scroll.AsBgPlaneScroll(), new Extent16<TilemapCells>(64, 32), priority, tiles));
             }
         if (marker is not null && content != RoomMapContent.FrameOnly)
         {

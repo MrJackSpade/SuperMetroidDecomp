@@ -44,8 +44,8 @@ internal static class MapScreensVerification
             AssertTrue(native.RenderBackgrounds().SequenceEqual(installed.RenderBackgrounds()), "reselection reloads authored world background without ROM reads");
             var area = (AreaId)index;
             var nativeRoom = new FileSelectRoomMapGraphics(system, area,
-                mapPresentation: original, mapSheet: MenuSheetFixtures.MapSprites(original.Sprites));
-            var installedRoom = new FileSelectRoomMapGraphics(system, area, mapPresentation: original, mapSheet: MenuSheetFixtures.MapSprites(original.Sprites));
+                mapPresentation: original, sheets: MenuSheetFixtures.For(original));
+            var installedRoom = new FileSelectRoomMapGraphics(system, area, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
             AssertTrue(MenuScreenFixtures.Vram(nativeRoom.screen).ImageEquals(MenuScreenFixtures.Vram(installedRoom.screen)), "stock resolved frame/footer/area label matches full native VRAM");
             AssertTrue(nativeRoom.RenderFrameOnly().SequenceEqual(installedRoom.RenderFrameOnly()), "native frame-only transition pixels match");
             foreach (ushort scroll in new ushort[] { 0, 8, 127, 255 })
@@ -71,9 +71,9 @@ internal static class MapScreensVerification
                 MapScreenPageId.RoomFrame frame => frame.Area,
                 _ => throw new InvalidOperationException($"Undefined map-screen page {name}."),
             };
-            Rgba32[] before = room ? new FileSelectRoomMapGraphics(system, area, mapPresentation: original, mapSheet: MenuSheetFixtures.MapSprites(original.Sprites)).RenderFrameOnly()
+            Rgba32[] before = room ? new FileSelectRoomMapGraphics(system, area, mapPresentation: original, sheets: MenuSheetFixtures.For(original)).RenderFrameOnly()
                 : World(guard, original, (int)area).RenderBackgrounds();
-            Rgba32[] after = room ? new FileSelectRoomMapGraphics(system, area, mapPresentation: oneEdit, mapSheet: MenuSheetFixtures.MapSprites(oneEdit.Sprites)).RenderFrameOnly()
+            Rgba32[] after = room ? new FileSelectRoomMapGraphics(system, area, mapPresentation: oneEdit, sheets: MenuSheetFixtures.For(oneEdit)).RenderFrameOnly()
                 : World(guard, oneEdit, (int)area).RenderBackgrounds();
             AssertTrue(!before.SequenceEqual(after), $"independent {name} JSON edit reaches its composed pixels");
         }
@@ -85,8 +85,8 @@ internal static class MapScreensVerification
         var worldBefore = World(guard, original, (int)AreaId.Maridia);
         var worldAfter = World(guard, edited, (int)AreaId.Maridia);
         AssertTrue(!worldBefore.RenderBackgrounds().SequenceEqual(worldAfter.RenderBackgrounds()), "JSON world layer edits change composed pixels");
-        var roomBefore = new FileSelectRoomMapGraphics(system, AreaId.Maridia, mapPresentation: original, mapSheet: MenuSheetFixtures.MapSprites(original.Sprites));
-        var roomAfter = new FileSelectRoomMapGraphics(system, AreaId.Maridia, mapPresentation: edited, mapSheet: MenuSheetFixtures.MapSprites(edited.Sprites));
+        var roomBefore = new FileSelectRoomMapGraphics(system, AreaId.Maridia, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
+        var roomAfter = new FileSelectRoomMapGraphics(system, AreaId.Maridia, mapPresentation: edited, sheets: MenuSheetFixtures.For(edited));
         AssertTrue(!roomBefore.RenderFrameOnly().SequenceEqual(roomAfter.RenderFrameOnly()), "JSON room frame edits change transition pixels");
         using var captured = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(captured, worldAfter); captured.Position = 0;
         worldAfter = DebuggerObjectGraphSerializer.Deserialize<FileSelectAreaMapGraphics>(captured);
@@ -152,7 +152,7 @@ internal static class MapScreensVerification
 
         static FileSelectAreaMapGraphics World(ISnesAddressSpace addressSpace, AreaMapPresentationCatalog catalog, int area) =>
             new(area, catalog.Tiles, catalog.Palettes, catalog.Screens,
-                catalog.WorldArtwork, catalog.Sprites, MenuSheetFixtures.MapSprites(catalog.Sprites));
+                catalog.WorldArtwork, catalog.Sprites, MenuSheetFixtures.For(catalog));
     }
 
     /// <summary>Runs file-select transition and load phases with edited screens, then restores and rebinds the menu to stock art.</summary>

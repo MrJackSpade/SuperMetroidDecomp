@@ -22,4 +22,7 @@ public sealed class MapTileAtlas
     /// <summary>Copies compiled characters to the screen's own VRAM; source storage cannot be mutated by callers.</summary>
     /// <param name="destination">The screen's character region receiving the full 8192-byte atlas.</param>
     public void LoadTo(VramRegion destination) => destination.Load(planar);
+
+    /// <summary>The planar 4-bpp characters (#1392).</summary>
+    public ReadOnlySpan<byte> Characters => planar;
 }

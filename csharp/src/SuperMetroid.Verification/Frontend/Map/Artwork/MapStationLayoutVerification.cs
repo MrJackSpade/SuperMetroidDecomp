@@ -71,8 +71,8 @@ internal static class MapStationLayoutVerification
         var marker = new FileSelectStationMarker(AreaId.Brinstar, 0,
             original.SaveMarkers);
         var nativeGraphics = new FileSelectRoomMapGraphics(state, AreaId.Brinstar,
-            mapPresentation: original, mapSheet: MenuSheetFixtures.MapSprites(original.Sprites));
-        var graphics = new FileSelectRoomMapGraphics(state, AreaId.Brinstar, mapPresentation: original, mapSheet: MenuSheetFixtures.MapSprites(original.Sprites));
+            mapPresentation: original, sheets: MenuSheetFixtures.For(original));
+        var graphics = new FileSelectRoomMapGraphics(state, AreaId.Brinstar, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
         var nativePixels = nativeGraphics.Render(new(0, 0), marker);
         AssertTrue(nativePixels.SequenceEqual(graphics.Render(new(0, 0), marker)), "stock station full-menu pixels with ROM layout blocked");
         byte[] before = Enumerable.Range(0, Bank80SystemState.ExploredMapBytesPerArea)

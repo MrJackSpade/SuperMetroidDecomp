@@ -3,7 +3,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
-/// What a background shows at a pixel (#1392): a tile drawn from characters, or a pixel of a pre-coloured block picture.
+/// What a background shows at a pixel (#1392): a tile drawn from characters, a pixel of a pre-coloured block picture, or a
+/// pixel of a tile word's pre-coloured tile, which takes its priority from the word.
 /// </summary>
 public readonly record struct BgSample
 {
@@ -15,8 +16,11 @@ public readonly record struct BgSample
         PicturePixel = picturePixel;
     }
 
-    /// <summary>The tile shown, when <see cref="Picture"/> is null.</summary>
+    /// <summary>The tile shown, when <see cref="Picture"/> is null or <see cref="TilePriority"/> is set.</summary>
     public BgTileSample Tile { get; }
+
+    /// <summary>Whether <see cref="Picture"/> pictures <see cref="Tile"/>'s word, whose priority the pixel takes.</summary>
+    public bool TilePriority { get; private init; }
 
     /// <summary>The block picture shown, or null where a tile drawn from characters shows.</summary>
     public SpriteSheetFrame? Picture { get; }
@@ -29,4 +33,8 @@ public readonly record struct BgSample
 
     /// <summary>Pixel <paramref name="pixel"/> of block picture <paramref name="picture"/>.</summary>
     public static BgSample OfPicture(SpriteSheetFrame picture, Position16<ImagePixels> pixel) => new(default, Ensure.NotNull(picture), pixel);
+
+    /// <summary>Pixel <paramref name="pixel"/> of <paramref name="picture"/>, the pre-coloured tile of <paramref name="tile"/>'s word, with the word's priority.</summary>
+    public static BgSample OfTilePicture(BgTileSample tile, SpriteSheetFrame picture, Position16<ImagePixels> pixel) =>
+        new(tile, Ensure.NotNull(picture), pixel) { TilePriority = true };
 }

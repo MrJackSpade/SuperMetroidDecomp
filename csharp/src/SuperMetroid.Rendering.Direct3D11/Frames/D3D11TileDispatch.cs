@@ -40,6 +40,9 @@ internal sealed record D3D11TileDispatch
     /// <summary>Where a BG pass reads its tiles: the VRAM tilemap at <see cref="Map"/>, or the room's BG1 or BG2.</summary>
     public D3D11RoomSource RoomSource { get; init; } = D3D11RoomSource.VramTilemap;
 
+    /// <summary>The room level buffer word of a <see cref="D3D11RoomSource.ScreenTiles"/> layer's character tile table (#1392).</summary>
+    public uint ScreenTable { get; init; } = 0;
+
     /// <summary>First scanline.</summary>
     public uint FirstScanline { get; init; } = 0;
 

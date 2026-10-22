@@ -115,6 +115,37 @@ public static class SnesBgTilemapRenderer
     }
 
     /// <summary>
+    /// Composites a pixel-scrolled viewport of <paramref name="source"/> over an existing raster (#1392): positions it
+    /// shows nothing at, transparent pixels and, with <paramref name="priority"/>, pixels of the other priority leave the
+    /// destination untouched.
+    /// </summary>
+    internal static void CompositeViewport(Span<Rgba32> output, IPaletteColors cgram, ScreenTilemapSource source,
+        BgViewport viewport, bool? priority, ColorZero colorZero = ColorZero.Transparent)
+    {
+        Ensure.NotNull(cgram);
+        Ensure.NotNull(source);
+        int width = viewport.Size.X;
+        int height = viewport.Size.Y;
+        if (width == 0 || height == 0)
+            throw new ArgumentOutOfRangeException(nameof(viewport.Size));
+        Ensure.LengthEqual(output, width * height);
+        var colors = new Rgba32[SnesCgram.ColorCount];
+        SnesGameplayFrameRenderer.ExpandCgram(cgram, colors);
+        var sampler = new SnesBackgroundPixelSampler(source.Vram, colors, cgram, source, 0, source.Depth);
+        for (int screenY = 0; screenY < height; screenY++)
+        {
+            ushort scrolledY = unchecked((ushort)(viewport.Scroll.Y + screenY));
+            ushort lineHorizontalScroll = viewport.HorizontalScrollByLine is null ? viewport.Scroll.X : viewport.HorizontalScrollByLine[screenY];
+            for (int screenX = 0; screenX < width; screenX++)
+            {
+                BackgroundPixelSample sample = sampler.Sample(new Position16<BgPlanePixels>(unchecked((ushort)(lineHorizontalScroll + screenX)), scrolledY), colorZero);
+                if (sample.Color.A != 0 && (!priority.HasValue || sample.High == priority.Value))
+                    output[screenY * width + screenX] = sample.Color;
+            }
+        }
+    }
+
+    /// <summary>
     /// Renders BG3 directly into caller-owned storage. Gameplay uses the first 32 scanlines
     /// of its final frame, avoiding a temporary 32 KiB HUD raster and subsequent copy.
     /// </summary>

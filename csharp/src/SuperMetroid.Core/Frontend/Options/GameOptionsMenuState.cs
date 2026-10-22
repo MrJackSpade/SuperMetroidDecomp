@@ -14,8 +14,11 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
 {
     /// <inheritdoc/>
     [MemberNotNull(nameof(spriteSheets))]
-    public void BindSpriteSheets(InstalledSpriteSheets? sheets) =>
+    public void BindSpriteSheets(InstalledSpriteSheets? sheets)
+    {
         spriteSheets = sheets ?? throw new InvalidOperationException("Options menu requires the installed sprite sheets.");
+        screen.BindScreenTiles(sheets);
+    }
 
     /// <summary>The installed sprite sheets the headings and cursor draw from; artwork, never saved.</summary>
     [NonSerialized] private InstalledSpriteSheets spriteSheets;
@@ -73,9 +76,9 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         this.audio = audio;
         this.mapPresentation = mapPresentation ?? throw new InvalidOperationException(
             "Options menu requires installed presentation assets.");
-        BindSpriteSheets(spriteSheets);
         screen = new MenuScreen(mapPresentation.Tiles, mapPresentation.Palettes,
-            mapPresentation.WorldArtwork, mapPresentation.Sprites);
+            mapPresentation.WorldArtwork, mapPresentation.Sprites, spriteSheets);
+        BindSpriteSheets(spriteSheets);
         mapPresentation.GameOptions.LoadBackground(screen.Tilemaps);
 
         // Separate installed page copies prevent a language toggle from mutating

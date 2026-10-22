@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
@@ -47,7 +48,9 @@ internal sealed class SpriteSheetSourceCatalog
     private const int DefaultPalette = 0, DefaultPriority = 0;
 
     /// <summary>Composes sheet <paramref name="sheet"/>.</summary>
-    internal ComposedSpriteSheet Compose(SpriteSheetId sheet) => SpriteSheetComposer.Compose(For(sheet), DefaultPalette, DefaultPriority);
+    internal ComposedSpriteSheet Compose(SpriteSheetId sheet) => ScreenTileSheetDefinitions.Depths.ContainsKey(sheet)
+        ? ScreenTileSheetComposer.Compose(sheet, maps.Value)
+        : SpriteSheetComposer.Compose(For(sheet), DefaultPalette, DefaultPriority);
 
     /// <summary>What sheet <paramref name="sheet"/> composes.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The sheet is the escape timer, which composes from the cartridge.</exception>

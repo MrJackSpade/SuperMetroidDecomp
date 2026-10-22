@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Options.Artwork;
@@ -128,6 +129,14 @@ internal static class MenuSheetFixtures
                      (SpriteSheetId.Title, TitleSheetComposer.Sources(maps)),
                  })
             sheets[id] = Load(id, sources, $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
+        // The menus' background tiles are pre-coloured from the maps' characters and palettes (#1392).
+        foreach (SpriteSheetId id in ScreenTileSheetDefinitions.Depths.Keys)
+        {
+            ComposedSpriteSheet tiles = ScreenTileSheetComposer.Compose(id, maps);
+            sheets[id] = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(tiles.Manifest), writable: false),
+                $"{SpriteSheetDefinitions.FileName(id)}-fixture-maps-{RuntimeHelpers.GetHashCode(maps):X8}", tiles.Size, tiles.Pixels,
+                tiles.PaletteIndices, tiles.Priorities, tiles.PartRows);
+        }
         return new InstalledSpriteSheets(sheets);
     }
 

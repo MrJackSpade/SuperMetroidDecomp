@@ -6,8 +6,9 @@ namespace SuperMetroid.Core.Rendering;
 /// <param name="Scroll">The BGnHOFS/BGnVOFS register pair, before tilemap wrapping.</param>
 /// <param name="MapSize">Tilemap size in eight-pixel cells, 32 or 64 on each axis.</param>
 /// <param name="Priority">Selects only tiles of one priority, or null for both.</param>
+/// <param name="Pictures">The pre-coloured tiles its characters show, which it draws from (#1392); null while it draws from VRAM.</param>
 public sealed record Bg4BppRenderLayer(int TilemapWord, int CharacterWord,
-    Position16<BgPlanePixels> Scroll, Extent16<TilemapCells> MapSize, bool? Priority) : RenderLayer
+    Position16<BgPlanePixels> Scroll, Extent16<TilemapCells> MapSize, bool? Priority, ScreenLayerPictures? Pictures = null) : RenderLayer
 {
     /// <summary>Tilemap base VRAM word address, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
     public int TilemapWord

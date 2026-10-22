@@ -51,7 +51,7 @@ internal static class FileSelectRoomMapVerification
             for (int x = 0; x < 64; x++)
                 if ((x + y) % 7 == 0) system.MarkExploredMapTile(area, new(checked((ushort)x), checked((ushort)y)));
             if (downloaded) system.SetAreaMapAcquired(area);
-            var graphics = new FileSelectRoomMapGraphics(system, area, mapPresentation: RetailPresentationFixture(), mapSheet: MenuSheetFixtures.MapSprites(RetailPresentationFixture().Sprites));
+            var graphics = new FileSelectRoomMapGraphics(system, area, mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));
             byte[] pause = AreaMapTilemapBuilder.Build(map, system, MapTileWords.PauseBlank);
             for (int y = 0; y < 32; y++)
             for (int x = 0; x < 64; x++)
@@ -127,9 +127,9 @@ internal static class FileSelectRoomMapVerification
             "room cancel must retain the map/icons drawn before input until next coroutine call");
         var system = new Bank80SystemState();
         system.LoadMapStationBytes(slot.MapStationBytes);
-        Rgba32[] roomFrame = new FileSelectRoomMapGraphics(system, AreaId.Maridia, mapPresentation: RetailPresentationFixture(), mapSheet: MenuSheetFixtures.MapSprites(RetailPresentationFixture().Sprites)).RenderFrameOnly();
+        Rgba32[] roomFrame = new FileSelectRoomMapGraphics(system, AreaId.Maridia, mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture())).RenderFrameOnly();
         var maps = RetailPresentationFixture();
-        var areaGraphics = new FileSelectAreaMapGraphics(4, maps.Tiles, maps.Palettes, maps.Screens, maps.WorldArtwork, maps.Sprites, MenuSheetFixtures.MapSprites(maps.Sprites));
+        var areaGraphics = new FileSelectAreaMapGraphics(4, maps.Tiles, maps.Palettes, maps.Screens, maps.WorldArtwork, maps.Sprites, MenuSheetFixtures.For(maps));
         areaGraphics.BindLabels(maps.Labels);
         Rgba32[] area = areaGraphics.Render(new ushort[] { 0, 0, 0, 0, 1, 0 });
         for (int tick = 1; tick <= 4; tick++)

@@ -33,9 +33,9 @@ internal static class MapStaticPalettesVerification
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(palette, bus, FileSelectMapRomData.EntryPalette);
         AssertTrue(palette.Colors.SequenceEqual(original.Palettes.FileSelect), "all static file-select colors match cartridge");
         var nativeWorld = new FileSelectAreaMapGraphics(0, original.Tiles,
-            original.Palettes, original.Screens, original.WorldArtwork, original.Sprites, MenuSheetFixtures.MapSprites(original.Sprites));
+            original.Palettes, original.Screens, original.WorldArtwork, original.Sprites, MenuSheetFixtures.For(original));
         var world = new FileSelectAreaMapGraphics(0, original.Tiles,
-            original.Palettes, original.Screens, original.WorldArtwork, original.Sprites, MenuSheetFixtures.MapSprites(original.Sprites));
+            original.Palettes, original.Screens, original.WorldArtwork, original.Sprites, MenuSheetFixtures.For(original));
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
             nativeWorld.SelectArea(area); world.SelectArea(area);
@@ -59,7 +59,7 @@ internal static class MapStaticPalettesVerification
 
         var system = new Bank80SystemState();
         system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
-        var room = new FileSelectRoomMapGraphics(system, AreaId.Crateria, mapPresentation: original, mapSheet: MenuSheetFixtures.MapSprites(original.Sprites));
+        var room = new FileSelectRoomMapGraphics(system, AreaId.Crateria, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
         var pause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         var roomBefore = room.RenderBackgrounds(new(0, 0)).ToArray(); var pauseBefore = pause.Render();
         room.BindFixtureArtwork(edited); pause.BindFixtureArtwork(edited);

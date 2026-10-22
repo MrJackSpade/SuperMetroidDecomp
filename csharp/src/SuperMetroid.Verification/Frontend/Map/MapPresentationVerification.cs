@@ -1490,9 +1490,9 @@ internal static class MapPresentationVerification
         var system = new Bank80SystemState();
         system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
         var stock = new SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics(system,
-            AreaId.Crateria, mapPresentation: original, mapSheet: MenuSheetFixtures.MapSprites(original.Sprites));
+            AreaId.Crateria, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
         var installed = new SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics(system, AreaId.Crateria,
-            mapPresentation: original, mapSheet: MenuSheetFixtures.MapSprites(original.Sprites));
+            mapPresentation: original, sheets: MenuSheetFixtures.For(original));
         AssertTrue(stock.RenderBackgrounds(new(0, 0)).SequenceEqual(installed.RenderBackgrounds(new(0, 0))),
             "file-select installed stock renders identical pixels without map ROM reads");
         installed.BindFixtureArtwork(edited);

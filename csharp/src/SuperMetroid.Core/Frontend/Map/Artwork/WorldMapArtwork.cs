@@ -76,18 +76,29 @@ public sealed class WorldMapArtwork
     /// <param name="vram">Destination VRAM receiving both character transfers; this method does not install palette colors or world-map layout words.</param>
     public void LoadTo(SnesVram vram)
     {
+        new WorldMapVram(vram).Foreground.Load(ForegroundCharacters());
+        new WorldMapVram(vram).Background.Load(BackgroundCharacters());
+    }
+
+    /// <summary>The planar 4-bpp world foreground characters.</summary>
+    public byte[] ForegroundCharacters()
+    {
         var front = new byte[WorldMapArtworkFormat.Width * WorldMapArtworkFormat.ForegroundHeight];
         for (int index = 0; index < front.Length; index++)
             front[index] = ForegroundPixel(index);
-        new WorldMapVram(vram).Foreground.Load(
-            SnesPlanarTileEncoder.Encode(front, new(WorldMapArtworkFormat.Width, WorldMapArtworkFormat.ForegroundHeight), 4));
+        return SnesPlanarTileEncoder.Encode(front, new(WorldMapArtworkFormat.Width, WorldMapArtworkFormat.ForegroundHeight), 4);
+    }
+
+    /// <summary>The planar 2-bpp world background characters.</summary>
+    /// <exception cref="InvalidDataException">A background pixel is unavailable.</exception>
+    public byte[] BackgroundCharacters()
+    {
         var pixels = new byte[WorldMapArtworkFormat.Width * WorldMapArtworkFormat.BackgroundHeight];
         for (int index = 0; index < pixels.Length; index++)
             pixels[index] = background.TryGetValue(index, out byte value) ? value
                 : TryBackgroundDefault(index, out byte calculated) ? calculated
                 : throw new InvalidDataException("World background source pixel is unavailable.");
-        new WorldMapVram(vram).Background.Load(
-            SnesPlanarTileEncoder.Encode(pixels, new(WorldMapArtworkFormat.Width, WorldMapArtworkFormat.BackgroundHeight), 2));
+        return SnesPlanarTileEncoder.Encode(pixels, new(WorldMapArtworkFormat.Width, WorldMapArtworkFormat.BackgroundHeight), 2);
     }
 
     /// <summary>Converts a tile-local pixel to a row-major atlas pixel index.</summary>

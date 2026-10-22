@@ -112,9 +112,9 @@ internal static class MapSpritesVerification
             system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
             var marker = new FileSelectStationMarker(AreaId.WreckedShip, 0,
                 original.SaveMarkers);
-            var room = new FileSelectRoomMapGraphics(system, AreaId.WreckedShip, mapPresentation: original, mapSheet: MenuSheetFixtures.MapSprites(original.Sprites));
+            var room = new FileSelectRoomMapGraphics(system, AreaId.WreckedShip, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
             var nativeRoom = new FileSelectRoomMapGraphics(system,
-                AreaId.WreckedShip, mapPresentation: original, mapSheet: MenuSheetFixtures.MapSprites(original.Sprites));
+                AreaId.WreckedShip, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
             var before = nativeRoom.Render(new(0, 0), marker);
             AssertTrue(before.SequenceEqual(room.Render(new(0, 0), marker)), "stock map sprite pixels match with source reads blocked");
             room.BindFixtureArtwork(replacement);

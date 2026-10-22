@@ -19,10 +19,8 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     /// <inheritdoc/>
     public void BindSpriteSheets(InstalledSpriteSheets? sheets)
     {
-        SpriteSheet map = (sheets ?? throw new InvalidOperationException("File-select map requires the installed sprite sheets."))
-            .Get(SpriteSheetId.MapSprites);
-        areaGraphics.BindMapSheet(map);
-        roomGraphics.BindMapSheet(map);
+        areaGraphics.BindSheets(sheets);
+        roomGraphics.BindSheets(sheets);
     }
 
     /// <summary>Receives confirmation, scrolling and transition sound requests during updates.</summary>
@@ -87,10 +85,9 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         var typedArea = (AreaId)area;
         if (mapPresentation is null)
             throw new InvalidOperationException("File-select map requires installed map presentation assets.");
-        SpriteSheet mapSheet = (spriteSheets ?? throw new InvalidOperationException("File-select map requires the installed sprite sheets."))
-            .Get(SpriteSheetId.MapSprites);
-        areaGraphics = FileSelectAreaMapGraphics.FromPresentation(area, mapPresentation, mapSheet);
-        roomGraphics = new FileSelectRoomMapGraphics(system, typedArea, mapPresentation: mapPresentation, mapSheet: mapSheet);
+        InstalledSpriteSheets sheets = spriteSheets ?? throw new InvalidOperationException("File-select map requires the installed sprite sheets.");
+        areaGraphics = FileSelectAreaMapGraphics.FromPresentation(area, mapPresentation, sheets);
+        roomGraphics = new FileSelectRoomMapGraphics(system, typedArea, mapPresentation: mapPresentation, sheets: sheets);
         this.mapPresentation = mapPresentation;
         Scroll = CreateScrollForCurrentContent();
         marker = new FileSelectStationMarker(typedArea, slot.SaveStation, mapPresentation.SaveMarkers);

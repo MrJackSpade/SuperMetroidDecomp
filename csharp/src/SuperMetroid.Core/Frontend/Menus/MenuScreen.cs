@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
 using System.Diagnostics.CodeAnalysis;
 
@@ -13,14 +14,46 @@ namespace SuperMetroid.Core.Frontend.Menus;
 /// </summary>
 internal sealed class MenuScreen
 {
-    /// <summary>Installs the shared world, map, sprite and palette artwork.</summary>
-    public MenuScreen(MapTileAtlas? mapTiles, MapStaticPalettes? mapPalettes, WorldMapArtwork? worldArtwork, MapSpriteCatalog? sprites)
+    /// <summary>Installs the shared world, map, sprite and palette artwork, and the sheets its backgrounds draw from.</summary>
+    public MenuScreen(MapTileAtlas? mapTiles, MapStaticPalettes? mapPalettes, WorldMapArtwork? worldArtwork, MapSpriteCatalog? sprites,
+        InstalledSpriteSheets? sheets)
     {
         WorldArtwork = RequireWorldArtwork(worldArtwork);
         MapTiles = RequireMapTiles(mapTiles);
         Sprites = RequireSprites(sprites);
         Objects = new ScreenSprites();
         BindMapPalettes(mapPalettes);
+        BindScreenTiles(sheets);
+    }
+
+    /// <summary>The installed sheets the screen's background tiles come from (#1392).</summary>
+    [field: NonSerialized]
+    [AllowNull]
+    private InstalledSpriteSheets Sheets { get => field ?? throw new InvalidOperationException("The menu's screen tiles are rebound after debugger restoration."); set; }
+
+    /// <summary>Each area map's background tiles, once read.</summary>
+    [NonSerialized] private Dictionary<AreaId, ScreenCharacters>? areaMapTiles;
+
+    /// <summary>Rebinds the sheets the screen's background tiles come from (#1392).</summary>
+    public void BindScreenTiles(InstalledSpriteSheets? sheets)
+    {
+        Sheets = sheets ?? throw new InvalidOperationException("Menus require the installed sprite sheets.");
+        FileSelectTiles = null;
+        areaMapTiles = null;
+    }
+
+    /// <summary>What the menus' background characters show under the file-select palette (#1392).</summary>
+    [field: NonSerialized]
+    [AllowNull]
+    internal ScreenCharacters FileSelectTiles { get => field ??= MenuScreenTiles.FileSelect(Sheets); private set; }
+
+    /// <summary>What the area map's background characters show under <paramref name="area"/>'s world-map palette (#1392).</summary>
+    internal ScreenCharacters AreaMapTiles(AreaId area)
+    {
+        areaMapTiles ??= [];
+        if (!areaMapTiles.TryGetValue(area, out ScreenCharacters? tiles))
+            areaMapTiles.Add(area, tiles = MenuScreenTiles.AreaMap(Sheets, area));
+        return tiles;
     }
 
     /// <summary>The installed world-map characters.</summary>

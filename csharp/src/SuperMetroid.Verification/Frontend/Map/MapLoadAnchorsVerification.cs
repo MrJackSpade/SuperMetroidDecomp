@@ -169,9 +169,9 @@ internal static class MapLoadAnchorsVerification
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
             var native = new FileSelectAreaMapGraphics(area, catalog.Tiles, catalog.Palettes,
-                catalog.Screens, catalog.WorldArtwork, catalog.Sprites, MenuSheetFixtures.MapSprites(catalog.Sprites));
+                catalog.Screens, catalog.WorldArtwork, catalog.Sprites, MenuSheetFixtures.For(catalog));
             native.BindLabels(catalog.Labels);
-            var compiled = new FileSelectAreaMapGraphics(area, catalog.Tiles, catalog.Palettes, catalog.Screens, catalog.WorldArtwork, catalog.Sprites, MenuSheetFixtures.MapSprites(catalog.Sprites));
+            var compiled = new FileSelectAreaMapGraphics(area, catalog.Tiles, catalog.Palettes, catalog.Screens, catalog.WorldArtwork, catalog.Sprites, MenuSheetFixtures.For(catalog));
             compiled.BindLabels(catalog.Labels);
             for (int mask = 0; mask < 64; mask++)
             {

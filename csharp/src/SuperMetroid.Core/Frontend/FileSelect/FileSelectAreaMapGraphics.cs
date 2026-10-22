@@ -32,11 +32,11 @@ public sealed class FileSelectAreaMapGraphics
 
     /// <summary>Area-map graphics bound to every installed resource the file-select map draws.</summary>
     public static FileSelectAreaMapGraphics FromPresentation(int selectedArea,
-        AreaMapPresentationCatalog presentation, SpriteSheet mapSheet)
+        AreaMapPresentationCatalog presentation, InstalledSpriteSheets sheets)
     {
         Ensure.NotNull(presentation);
         var graphics = new FileSelectAreaMapGraphics(selectedArea, presentation.Tiles, presentation.Palettes,
-            presentation.Screens, presentation.WorldArtwork, presentation.Sprites, mapSheet);
+            presentation.Screens, presentation.WorldArtwork, presentation.Sprites, sheets);
         graphics.BindLabels(presentation.Labels);
         return graphics;
     }
@@ -48,20 +48,20 @@ public sealed class FileSelectAreaMapGraphics
     /// <param name="mapScreens">Required foreground and per-area background tilemap resources.</param>
     /// <param name="worldArtwork">Required world-map character artwork.</param>
     /// <param name="mapSprites">Required map-label OBJ artwork.</param>
-    /// <param name="mapSheet">Required map sprite sheet the title and labels draw from.</param>
+    /// <param name="sheets">Required installed sprite sheets: the map sprites the title and labels draw from, and the background tiles.</param>
     /// <exception cref="InvalidOperationException">Any required presentation resource is absent despite its optional parameter default.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The selected area is outside the six Zebes identities.</exception>
     public FileSelectAreaMapGraphics(int selectedArea, MapTileAtlas? mapTiles = null, MapStaticPalettes? mapPalettes = null,
         MapScreenPresentation? mapScreens = null, WorldMapArtwork? worldArtwork = null, MapSpriteCatalog? mapSprites = null,
-        SpriteSheet? mapSheet = null)
+        InstalledSpriteSheets? sheets = null)
     {
         if (mapTiles is null || mapPalettes is null || mapScreens is null ||
-            worldArtwork is null || mapSprites is null || mapSheet is null)
+            worldArtwork is null || mapSprites is null || sheets is null)
             throw new InvalidOperationException("Area-map graphics require installed presentation assets.");
         Palettes = mapPalettes;
         screens = mapScreens;
-        this.mapSheet = mapSheet;
-        screen = new MenuScreen(mapTiles, mapPalettes, worldArtwork, mapSprites);
+        mapSheet = sheets.Get(SpriteSheetId.MapSprites);
+        screen = new MenuScreen(mapTiles, mapPalettes, worldArtwork, mapSprites, sheets);
         LoadForeground();
         // State one completes its first-two-palette fade with these entries black.
         new FrontendPalettes(screen.Palette).FileSelectEntryBlackFirst.Write(0, Bgr555.Black);
@@ -130,8 +130,13 @@ public sealed class FileSelectAreaMapGraphics
     /// <summary>Rebinds the menu screen's label OBJ art.</summary>
     private void BindSprites(MapSpriteCatalog? content) => screen.BindMapSprites(content);
 
-    /// <summary>Rebinds the map sprite sheet the title and labels draw from.</summary>
-    internal void BindMapSheet(SpriteSheet? sheet) => mapSheet = sheet;
+    /// <summary>Rebinds the installed sheets: the map sprites the title and labels draw from, and the background tiles.</summary>
+    internal void BindSheets(InstalledSpriteSheets? sheets)
+    {
+        InstalledSpriteSheets installed = sheets ?? throw new InvalidOperationException("Area-map graphics require the installed sprite sheets.");
+        mapSheet = installed.Get(SpriteSheetId.MapSprites);
+        screen.BindScreenTiles(installed);
+    }
 
     /// <summary>Loads the selected area's installed world colors into menu CGRAM.</summary>
     private void LoadInstalledPalette(AreaId selectedArea)
@@ -177,11 +182,15 @@ public sealed class FileSelectAreaMapGraphics
     public LayeredRenderSnapshot CaptureRenderSnapshot(ReadOnlySpan<ushort> usedStationMasks, AreaMapColorMath colorMath = AreaMapColorMath.WithBackdrop)
     {
         PrepareLabels(usedStationMasks);
-        var foreground = new Bg4BppRenderLayer(MenuVramLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null);
+        // The foreground and the area's background draw from the area's pre-coloured tiles (#1392).
+        ScreenCharacters tiles = screen.AreaMapTiles((AreaId)SelectedArea);
+        var foreground = new Bg4BppRenderLayer(MenuVramLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null,
+            tiles.Pictures(0, BgBitDepth.FourBpp));
         return new(MenuScreenImage.Capture(screen), new RenderLayer[] {
             foreground,
             new BgSubscreenAddRenderLayer(FileSelectMapRomData.AreaBackgroundVram,
-                FileSelectMapRomData.AreaBackgroundCharacters, colorMath == AreaMapColorMath.WithBackdrop ? null : foreground),
+                FileSelectMapRomData.AreaBackgroundCharacters, colorMath == AreaMapColorMath.WithBackdrop ? null : foreground,
+                Pictures: tiles.Pictures(FileSelectMapRomData.AreaBackgroundCharacters, BgBitDepth.TwoBpp)),
             new ObjRenderLayer() }, FileSelectMapRomData.ObjectSelection, SnesPpuLayout.MaximumMasterBrightness);
     }
 }

@@ -440,6 +440,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[4] = (uint)layer.VerticalScroll;
         data[5] = 32; data[6] = 32; data[8] = 1; data[26] = 224;
         data[27] = layer.FourBpp ? 1u : 0u;
+        data[14] = (uint)ScreenSource(layer.Pictures) | ScreenTable(layer.Pictures) << 16;
+        data[D3D11ShaderLayout.CoverageTableWord] = ScreenTable(layer.MainCoverage?.Pictures);
         data[10] = layer.IncludeObjects ? 1u : 0u;
         data[11] = layer.MainObjects ? 1u : 0u;
         if (layer.MainCoverage is { } coverage)
@@ -465,6 +467,22 @@ public sealed class D3D11FrameRenderer : IDisposable
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
+
+    /// <summary>The character tiles a frontend layer draws from (#1392): its own and, for a subscreen, its main coverage's.</summary>
+    private static IEnumerable<ScreenLayerPictures?> ScreenPictures(RenderLayer layer) => layer switch
+    {
+        Bg4BppRenderLayer bg => [bg.Pictures],
+        Bg2BppViewportRenderLayer bg => [bg.Pictures],
+        BgSubscreenAddRenderLayer sub => [sub.Pictures, sub.MainCoverage?.Pictures],
+        _ => [],
+    };
+
+    /// <summary>Where a frontend layer reads its tiles: its characters' pre-coloured tiles once it carries them (#1392), otherwise VRAM.</summary>
+    private static D3D11RoomSource ScreenSource(ScreenLayerPictures? pictures) =>
+        pictures is null ? D3D11RoomSource.VramTilemap : D3D11RoomSource.ScreenTiles;
+
+    /// <summary>The room level buffer word of a frontend layer's character tile table, or zero while it draws from VRAM.</summary>
+    private uint ScreenTable(ScreenLayerPictures? pictures) => pictures is null ? 0 : roomLevels.ScreenTable(pictures);
 
     /// <summary>Rejects unsupported layers, uploads PPU memory once, then dispatches passes in scene order.</summary>
     private unsafe void DrawLayers(RenderFrameSnapshot packet, LayeredRenderSnapshot scene,
@@ -497,8 +515,15 @@ public sealed class D3D11FrameRenderer : IDisposable
         RoomBackgroundLayer? floor = null;
         Layer3Plane? bg3 = rooms?.Bg3;
         Mode7MapSnapshot? mode7Map = null;
+        var screens = new List<ScreenLayerPictures>();
         foreach (RenderLayer layer in scene.Layers)
         {
+            // The frontend layers that draw from their characters' pre-coloured tiles (#1392), each once.
+            foreach (ScreenLayerPictures? pictures in ScreenPictures(layer))
+            {
+                if (pictures is not null && !screens.Contains(pictures))
+                    screens.Add(pictures);
+            }
             if (layer is Mode7GameplayRenderLayer mode7)
             {
                 floor = mode7.Floor?.Room ?? floor;
@@ -512,7 +537,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         }
         if (roomLevels.Pack(new RoomLevelLayers(rooms?.Bg1, rooms?.Bg2 ?? floor, rooms?.DoorSource, rooms?.Bg1Overlay, rooms?.Sky, bg3,
                 rooms?.Bg2Overlay, mode7Map, rooms?.BossBg2, rooms?.XrayReveal, rooms?.Bg2Image, rooms?.Sky is null ? null : rooms.SkyImage,
-                messagePicture)))
+                messagePicture, screens.Count == 0 ? null : new ScreenPictureTables([.. screens]))))
             fixed (uint* source = roomLevels.Upload) UploadBuffer(roomLevels.Buffer, (nint)source, roomLevels.Upload.Length * sizeof(uint));
         owner.Context.CSSetShader(tileShader);
         owner.Context.CSSetConstantBuffer(0, constants);
@@ -563,13 +588,13 @@ public sealed class D3D11FrameRenderer : IDisposable
                     DispatchTile(D3D11TileOperation.InsertObj, new D3D11TileDispatch { Priority = (uint)obj.Priority + 1, Green = obj.FixedColor is not null ? 1u : 0u, Blue = obj.FixedColor is { } priorityColor ? (uint)(priorityColor.Red | priorityColor.Green << 5 | priorityColor.Blue << 10) : 0 });
                     break;
                 case Bg4BppRenderLayer bg:
-                    DispatchTile(D3D11TileOperation.Bg4, new D3D11TileDispatch { Map = (uint)bg.TilemapWord, Characters = (uint)bg.CharacterWord, Scroll = bg.Scroll, MapSize = bg.MapSize, Priority = Priority(bg.Priority) });
+                    DispatchTile(D3D11TileOperation.Bg4, new D3D11TileDispatch { Map = (uint)bg.TilemapWord, Characters = (uint)bg.CharacterWord, Scroll = bg.Scroll, MapSize = bg.MapSize, Priority = Priority(bg.Priority), RoomSource = ScreenSource(bg.Pictures), ScreenTable = ScreenTable(bg.Pictures) });
                     break;
                 case Bg2BppRenderLayer bg:
                     DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { Map = (uint)bg.TilemapWord, Characters = (uint)bg.CharacterWord, Priority = Priority(bg.Priority) });
                     break;
                 case Bg2BppViewportRenderLayer bg:
-                    DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { Map = (uint)bg.TilemapWord, Characters = (uint)bg.CharacterWord, Scroll = new Position16<BgPlanePixels>(0, checked((ushort)bg.VerticalScroll)), Priority = Priority(bg.Priority), TransparentZero = bg.TransparentColorZero ? 1u : 0u });
+                    DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { Map = (uint)bg.TilemapWord, Characters = (uint)bg.CharacterWord, Scroll = new Position16<BgPlanePixels>(0, checked((ushort)bg.VerticalScroll)), Priority = Priority(bg.Priority), TransparentZero = bg.TransparentColorZero ? 1u : 0u, RoomSource = ScreenSource(bg.Pictures), ScreenTable = ScreenTable(bg.Pictures) });
                     break;
                 case FixedColorAddRenderLayer add:
                     DispatchTile(D3D11TileOperation.FixedAdd, new D3D11TileDispatch { Red = (uint)add.Red, Green = (uint)add.Green, Blue = (uint)add.Blue });
@@ -595,7 +620,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[0] = (uint)operation; data[1] = tile.Map; data[2] = tile.Characters; data[3] = tile.Scroll.X;
         data[4] = tile.Scroll.Y; data[5] = size.X; data[6] = size.Y; data[7] = tile.Priority;
         data[8] = tile.TransparentZero; data[9] = tile.Level; data[10] = tile.Red; data[11] = tile.Green; data[12] = tile.Blue;
-        data[14] = (uint)tile.RoomSource;
+        data[14] = (uint)tile.RoomSource | tile.ScreenTable << 16;
         data[25] = tile.FirstScanline; data[26] = tile.EndScanline;
         SetWindowConstants(data, tile.Windows, tile.WindowMask, tile.WindowTarget);
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));

@@ -13,8 +13,11 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
 {
     /// <inheritdoc/>
     [MemberNotNull(nameof(spriteSheets))]
-    public void BindSpriteSheets(InstalledSpriteSheets? sheets) =>
+    public void BindSpriteSheets(InstalledSpriteSheets? sheets)
+    {
         spriteSheets = sheets ?? throw new InvalidOperationException("Game-over screen requires the installed sprite sheets.");
+        screen.BindScreenTiles(sheets);
+    }
 
     /// <summary>The installed sprite sheets the Baby, egg and cursor draw from; artwork, never saved.</summary>
     [NonSerialized] private InstalledSpriteSheets spriteSheets;
@@ -59,12 +62,12 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         bool continueLoadsCeresArrival = false)
     {
         this.continueLoadsCeresArrival = continueLoadsCeresArrival;
-        BindSpriteSheets(spriteSheets);
         this.audio = Ensure.NotNull(audio);
         this.mapPresentation = mapPresentation ?? throw new InvalidOperationException(
             "Game-over screen requires installed presentation assets.");
         screen = new MenuScreen(mapPresentation.Tiles, mapPresentation.Palettes,
-            mapPresentation.WorldArtwork, mapPresentation.Sprites);
+            mapPresentation.WorldArtwork, mapPresentation.Sprites, spriteSheets);
+        BindSpriteSheets(spriteSheets);
         LoadGameOverTilemap(mapPresentation.GameOver);
         Phase = GameOverMenuPhase.ConfigureGraphics;
     }
@@ -240,7 +243,8 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     {
         PrepareRenderSprites();
         RenderLayer[] layers = [new Bg4BppRenderLayer(MenuVramLayout.Bg1TilemapWord, 0,
-            new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(GameOverRomData.TilemapWidth, GameOverRomData.TilemapHeight), null), new ObjRenderLayer()];
+            new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(GameOverRomData.TilemapWidth, GameOverRomData.TilemapHeight), null,
+            screen.FileSelectTiles.Pictures(0, BgBitDepth.FourBpp)), new ObjRenderLayer()];
         return new(MenuScreenImage.Capture(screen), layers, MenuRenderDefinitions.ObjectSelection, checked((byte)brightness));
     }
 

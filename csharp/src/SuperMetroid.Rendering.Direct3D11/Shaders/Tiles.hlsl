@@ -20,6 +20,8 @@ cbuffer TileParameters : register(b0)
     uint Reserved27;
     uint WindowSelection, WindowLogic, WindowEdges, WindowEnabled;
     uint4 ScanlineParameters[224];
+    // A subscreen add's main coverage layer's character tile table (#1392), or zero while it reads VRAM's characters.
+    uint CoverageTable;
 };
 StructuredBuffer<uint> Memory : register(t0);
 // Room level planes (D3D11RoomLevelBuffer): BG1, BG2 and door-source plane records, the door window, the BG1 overlay,
@@ -29,6 +31,10 @@ StructuredBuffer<uint> RoomLevels : register(t3);
 // the BG3 plane, or a boss body's BG2 tilemap. RoomSourceBg2Overlay added to it lays words written over BG2 on top.
 static const uint RoomSourceBg1 = 1, RoomSourceBg2 = 2, RoomSourceSky = 3, RoomSourceBg3 = 4, RoomSourceMode7Map = 5;
 static const uint RoomSourceBossBg2 = 6, RoomSourceXrayReveal = 7, RoomSourceBg2Image = 8;
+// A frontend layer's VRAM tilemap drawn from its characters' pre-coloured tiles (#1392), its table's word in RoomSource's
+// high half: three words a character index, the tile's picture (zero where no artwork shows the character), the corner
+// of its palette row zero tile, x below y, and the pixels from one palette row's block to the next.
+static const uint RoomSourceScreenTiles = 9;
 static const uint RoomSourceBg2Overlay = 256;
 static const uint RoomRecordWords = 7, RoomDoorSlot = 2, RoomDoorWindowWord = 21, RoomOverlayWord = 22, RoomSkyWord = 23;
 static const uint RoomBg3Word = 24, RoomBg2OverlayWord = 25, RoomMode7MapWord = 26, RoomBossBg2Word = 27, RoomXrayRevealWord = 28;
@@ -291,6 +297,24 @@ uint PicturePixel(uint picture, uint2 pixel, out uint index, out bool high)
 #include "Objects.hlsli"
 #include "Xray.hlsli"
 
+// A frontend layer's VRAM tilemap word at the scrolled position (#1392), drawn from the pre-coloured tile of its
+// character in `table`: `picture` is the tile's sheet picture, and `within` the pixel in it under the word's palette row,
+// flipped as the word flips it.
+uint ScreenTile(uint2 sampleScreen, uint2 scroll, uint table, out uint2 within, out uint picture)
+{
+    uint x = (sampleScreen.x + scroll.x) & (MapWidth * 8 - 1);
+    uint y = (sampleScreen.y + scroll.y) & (MapHeight * 8 - 1);
+    uint tileX = x >> 3, tileY = y >> 3;
+    uint page = ((tileY >> 5) * (MapWidth >> 5) + (tileX >> 5)) * 1024;
+    uint entry = ReadWord(TilemapWord + page + (tileY & 31) * 32 + (tileX & 31));
+    uint at = table + (entry & 1023) * 3;
+    picture = RoomLevels[at];
+    uint corner = RoomLevels[at + 1];
+    uint2 pixel = uint2((entry & 16384) != 0 ? 7 - (x & 7) : x & 7, (entry & 32768) != 0 ? 7 - (y & 7) : y & 7);
+    within = pixel + uint2(corner & 65535, (corner >> 16) + ((entry >> 10) & 7) * RoomLevels[at + 2]);
+    return entry;
+}
+
 bool MainCoverage(uint2 screen)
 {
     uint4 geometry = uint4(CenterX, CenterY, OffsetX, OffsetY);
@@ -303,8 +327,22 @@ bool MainCoverage(uint2 screen)
     if (geometry.z != 0 && ((entry >> 13) & 1) != geometry.z - 1) return false;
     uint px = (entry & 16384) != 0 ? 7 - (position.x & 7) : position.x & 7;
     uint py = (entry & 32768) != 0 ? 7 - (position.y & 7) : position.y & 7;
-    uint row = ((map.y + (entry & 1023) * 16) & 32767) * 2 + py * 2;
-    bool covered = (((ReadByte(row) | ReadByte(row + 1) | ReadByte(row + 16) | ReadByte(row + 17)) >> (7 - px)) & 1) != 0;
+    bool covered;
+    if (CoverageTable != 0)
+    {
+        // The coverage layer draws from its characters' pre-coloured tiles (#1392): an opaque pixel of its tile covers.
+        uint at = CoverageTable + (entry & 1023) * 3;
+        uint corner = RoomLevels[at + 1];
+        uint index;
+        bool ignored;
+        covered = RoomLevels[at] != 0 && PicturePixel(RoomLevels[at], uint2(px + (corner & 65535),
+            py + (corner >> 16) + ((entry >> 10) & 7) * RoomLevels[at + 2]), index, ignored) != 0 && index != 0;
+    }
+    else
+    {
+        uint row = ((map.y + (entry & 1023) * 16) & 32767) * 2 + py * 2;
+        covered = (((ReadByte(row) | ReadByte(row + 1) | ReadByte(row + 16) | ReadByte(row + 17)) >> (7 - px)) & 1) != 0;
+    }
     if (AddG != 0)
     {
         uint palette;
@@ -506,6 +544,12 @@ void Main(uint3 id : SV_DispatchThreadID)
     {
         if (!Bg2ImagePicture(scrolled, uint2(MapWidth, MapHeight), picture, within)) return;
     }
+    else if (source == RoomSourceScreenTiles)
+    {
+        entry = ScreenTile(sampleScreen, scroll, RoomSource >> 16, within, picture);
+        // A word naming a character no artwork the screen loads shows draws nothing.
+        if (picture == 0) return;
+    }
     else if (source != 0)
     {
         if (!RoomTile(source, scrolled, entry, within, picture)) return;
@@ -527,6 +571,8 @@ void Main(uint3 id : SV_DispatchThreadID)
     {
         // A block picture keeps no row for its transparent pixels; room planes show colour zero as transparent.
         sampled = PicturePixel(picture, within, color, high);
+        // A frontend layer's tile takes its word's priority (#1392).
+        if (source == RoomSourceScreenTiles) high = (entry & 8192) != 0;
         if (PriorityFilter != 0 && (high ? 1u : 0u) != PriorityFilter - 1) return;
     }
     else

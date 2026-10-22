@@ -1,6 +1,8 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus.Abilities;
@@ -92,6 +94,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int ArrangementShift = 28;
     /// <summary>A sky row word that selects no page: the row shows nothing.</summary>
     private const uint SkyRowHidden = uint.MaxValue;
+    /// <summary>Words of a frontend layer's character tile table: three for each character index (#1392).</summary>
+    private const int ScreenTableWords = 3 * ScreenLayerPictures.CharacterIndices;
     /// <summary>Initial buffer size; it grows to fit larger rooms.</summary>
     private const int InitialWords = 4096;
 
@@ -99,6 +103,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private readonly ID3D11Device device;
     /// <summary>What the last <see cref="Pack"/> packed, so an unchanged frame skips the upload.</summary>
     private RoomLevelLayers? packed;
+    /// <summary>Where the last <see cref="Pack"/> put each frontend layer's character tile table.</summary>
+    private readonly Dictionary<ScreenLayerPictures, int> screenTables = [];
 
     /// <summary>Creates an empty buffer.</summary>
     internal D3D11RoomLevelBuffer(ID3D11Device device)
@@ -128,13 +134,23 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         XrayRevealPlane? reveal = frame.XrayReveal;
         RoomBackgroundImagePlane? image = frame.Bg2Image, skyImage = frame.SkyImage;
         SpriteSheetFrame? message = frame.MessagePicture;
+        ImmutableArray<ScreenLayerPictures> screens = frame.Screens?.Layers ?? [];
         // No dispatch samples t3 without one of these, so such a scene keeps the last packed room unread.
         if (packed == frame || (bg1 is null && bg2 is null && sky is null && bg3 is null && mode7 is null && reveal is null && image is null
-            && skyImage is null && message is null))
+            && skyImage is null && message is null && screens.IsEmpty))
             return false;
         RoomBackgroundLayer?[] planes = [bg1, bg2, door?.SourceRoom];
         var definitionWords = new Dictionary<ImmutableArray<byte>, int>();
         int words = HeaderWords;
+        // Each frontend layer's character tile table comes first, so its word fits the half a dispatch names it in (#1392).
+        screenTables.Clear();
+        foreach (ScreenLayerPictures screen in screens)
+        {
+            if (screenTables.TryAdd(screen, words))
+                words += ScreenTableWords;
+        }
+        if (words > ushort.MaxValue)
+            throw new InvalidOperationException($"A frame's {screenTables.Count} frontend layer tile tables do not fit the half word a dispatch names them in.");
         var blockOffsets = new int[PlaneSlots];
         for (int slot = 0; slot < PlaneSlots; slot++)
         {
@@ -196,6 +212,11 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         }
         if (message is not null)
             AddPicture(message);
+        foreach (ScreenLayerPictures screen in screenTables.Keys)
+        {
+            foreach (ScreenTileSheet sheet in screen.Sheets)
+                AddPicture(sheet.Picture);
+        }
         if (mode7?.Tiles is { } mode7Tiles)
             AddPicture(mode7Tiles.Picture);
         ImmutableArray<BgTilePicture?> bodyPictures = bossBg2?.Pictures ?? default;
@@ -274,6 +295,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
                 upload[offset + colour] = sheet.StandardColours[colour].ToWord();
         foreach ((SpriteSheetFrame picture, int offset) in pictureWords)
             PackPicture(upload.Slice(offset, PictureHeaderWords + 2 * picture.Size.X * picture.Size.Y), picture, colourWords[picture.Sheet]);
+        foreach ((ScreenLayerPictures screen, int offset) in screenTables)
+            PackScreenTable(upload.Slice(offset, ScreenTableWords), screen, pictureWords);
         upload[Bg2ImageWord] = (uint)imageOffset;
         upload[SkyImageWord] = (uint)skyImageOffset;
         foreach ((RoomBackgroundImagePlane? plane, int offset) in new[] { (image, imageOffset), (skyImage, skyImageOffset) })
@@ -353,6 +376,29 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
                 continue;
             upload[offset + 2 * word] = (uint)pictureWords[tile.Picture];
             upload[offset + 2 * word + 1] = D3D11ConstantPacking.Halves(tile.Corner.X, tile.Corner.Y);
+        }
+    }
+
+    /// <summary>The room level buffer word of <paramref name="pictures"/>' character tile table in the last packing (#1392).</summary>
+    /// <exception cref="InvalidOperationException">The last packing held no such layer.</exception>
+    internal uint ScreenTable(ScreenLayerPictures pictures) => screenTables.TryGetValue(pictures, out int offset) ? (uint)offset
+        : throw new InvalidOperationException("A frontend layer's character tiles were not packed with its frame.");
+
+    /// <summary>
+    /// Packs a frontend layer's character tile table (#1392): for each character index, its tile's picture, zero where no
+    /// artwork shows the character, the corner of its palette row zero tile, x below y, and the pixels from one palette
+    /// row's block to the next.
+    /// </summary>
+    private static void PackScreenTable(Span<uint> table, ScreenLayerPictures screen, Dictionary<SpriteSheetFrame, int> pictureWords)
+    {
+        for (int index = 0; index < ScreenLayerPictures.CharacterIndices; index++)
+        {
+            if (screen.Tiles[index] is not { } tile)
+                continue;
+            Position16<ImagePixels> corner = tile.Sheet.Corner(tile.Character, 0);
+            table[3 * index] = (uint)pictureWords[tile.Sheet.Picture];
+            table[3 * index + 1] = D3D11ConstantPacking.Halves(corner.X, corner.Y);
+            table[3 * index + 2] = (uint)tile.Sheet.RowStride;
         }
     }
 

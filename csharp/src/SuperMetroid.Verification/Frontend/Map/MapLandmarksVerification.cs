@@ -72,8 +72,8 @@ internal static class MapLandmarksVerification
             system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
             var marker = new FileSelectStationMarker(area, 0, original.SaveMarkers);
             var native = new FileSelectRoomMapGraphics(system, area,
-                mapPresentation: original, mapSheet: MenuSheetFixtures.MapSprites(original.Sprites));
-            var room = new FileSelectRoomMapGraphics(system, area, mapPresentation: original, mapSheet: MenuSheetFixtures.MapSprites(original.Sprites));
+                mapPresentation: original, sheets: MenuSheetFixtures.For(original));
+            var room = new FileSelectRoomMapGraphics(system, area, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
             var before = native.Render(new(0, 0), marker);
             AssertTrue(before.SequenceEqual(room.Render(new(0, 0), marker)), "full file-select landmark stock pixel parity");
             room.BindFixtureArtwork(edited);

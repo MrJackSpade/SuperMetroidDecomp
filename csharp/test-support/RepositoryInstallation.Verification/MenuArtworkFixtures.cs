@@ -36,21 +36,21 @@ internal static class MenuArtworkFixtures
 
     extension(FileSelectRoomMapGraphics self)
     {
-        /// <summary>Binds <paramref name="maps"/> and the map sprite sheet its sprites compose.</summary>
+        /// <summary>Binds <paramref name="maps"/> and the sheets its sprites and background tiles compose.</summary>
         internal void BindFixtureArtwork(AreaMapPresentationCatalog maps)
         {
             self.BindMapPresentation(maps);
-            self.BindMapSheet(MenuSheetFixtures.MapSprites(maps.Sprites));
+            self.BindSheets(MenuSheetFixtures.For(maps));
         }
     }
 
     extension(FileSelectAreaMapGraphics self)
     {
-        /// <summary>Binds <paramref name="maps"/> and the map sprite sheet its sprites compose.</summary>
+        /// <summary>Binds <paramref name="maps"/> and the sheets its sprites and background tiles compose.</summary>
         internal void BindFixtureArtwork(AreaMapPresentationCatalog maps)
         {
             self.BindMapPresentation(maps);
-            self.BindMapSheet(MenuSheetFixtures.MapSprites(maps.Sprites));
+            self.BindSheets(MenuSheetFixtures.For(maps));
         }
     }
 }

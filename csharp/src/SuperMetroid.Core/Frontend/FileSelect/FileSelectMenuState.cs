@@ -24,8 +24,11 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 {
     /// <inheritdoc/>
     [MemberNotNull(nameof(spriteSheets))]
-    public void BindSpriteSheets(InstalledSpriteSheets? sheets) =>
+    public void BindSpriteSheets(InstalledSpriteSheets? sheets)
+    {
         spriteSheets = sheets ?? throw new InvalidOperationException("File select requires the installed sprite sheets.");
+        screen.BindScreenTiles(sheets);
+    }
 
     /// <summary>The installed sprite sheets the borders, cursor, helmets and copy arrows draw from; artwork, never saved.</summary>
     [NonSerialized] private InstalledSpriteSheets spriteSheets;
@@ -62,12 +65,12 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         AreaMapPresentationCatalog? mapPresentation = null, InstalledSpriteSheets? spriteSheets = null)
     {
         this.audio = audio;
-        BindSpriteSheets(spriteSheets);
         this.mapPresentation = mapPresentation;
         if (mapPresentation is null)
             throw new InvalidOperationException("File select requires installed menu presentation assets.");
         screen = new MenuScreen(mapPresentation.Tiles, mapPresentation.Palettes,
-            mapPresentation.WorldArtwork, mapPresentation.Sprites);
+            mapPresentation.WorldArtwork, mapPresentation.Sprites, spriteSheets);
+        BindSpriteSheets(spriteSheets);
         mapPresentation.FileSelect.LoadBackground(screen.Tilemaps);
 
         this.saves = Ensure.NotNull(saves);

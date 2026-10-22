@@ -23,6 +23,8 @@ internal static class D3D11ShaderLayout
     internal const int WindowEdgesWord = 30;
     /// <summary>Shader header slot indicating that window clipping applies to this dispatch.</summary>
     internal const int WindowEnabledWord = 31;
+    /// <summary>The word after the scanline parameters: a subscreen's main coverage layer's character tile table (#1392).</summary>
+    internal const int CoverageTableWord = ScanlineParametersWordOffset + 224 * 4;
     /// <summary>Embedded compute shader for solid color and brightness passes.</summary>
     internal const string SolidResourceName = "SuperMetroid.Shaders.Solid.cso";
     /// <summary>Embedded compute shader for tile, object, and color-composition dispatches.</summary>

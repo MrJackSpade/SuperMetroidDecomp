@@ -34,7 +34,7 @@ internal static class RetailFileMapTests
                 ushort[] masks = Enumerable.Repeat(used, 6).ToArray();
                 Compare(graphics.Render(masks, backdrop), graphics.CaptureRenderSnapshot(masks, backdrop ? AreaMapColorMath.WithBackdrop : AreaMapColorMath.ForegroundOnly), $"area={area}, labels/backdrop");
             }
-            var room = new FileSelectRoomMapGraphics(new Bank80SystemState(), (AreaId)area, mapPresentation: InstalledFixtures.Maps, mapSheet: MenuSheetFixtures.MapSprites(InstalledFixtures.Maps.Sprites));
+            var room = new FileSelectRoomMapGraphics(new Bank80SystemState(), (AreaId)area, mapPresentation: InstalledFixtures.Maps, sheets: MenuSheetFixtures.For(InstalledFixtures.Maps));
             Compare(room.RenderFrameOnly(), room.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly), "frame-only");
             foreach (ushort scroll in new ushort[] { 0, 255, 511, ushort.MaxValue })
                 Compare(room.RenderBackgrounds(new(scroll, scroll)), room.CaptureRenderSnapshot(new(scroll, scroll)), $"room={area}, scroll={scroll}");

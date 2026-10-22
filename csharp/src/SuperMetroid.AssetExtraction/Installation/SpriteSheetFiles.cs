@@ -19,6 +19,8 @@ using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Artwork;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Installation;
@@ -76,7 +78,11 @@ public static class SpriteSheetFiles
                 throw new InvalidDataException($"Sprite sheet {FrameFile(sheet)} does not hold exactly the frames its family draws.");
             sheets.Add(sheet, loaded);
         }
-        return new InstalledSpriteSheets(sheets);
+        var installed = new InstalledSpriteSheets(sheets);
+        // Every screen tile sheet is whole blocks of tiles coloured for its characters' depth (#1392).
+        foreach (SpriteSheetId sheet in ScreenTileSheetDefinitions.Depths.Keys)
+            _ = ScreenTileSheets.Of(installed, sheet);
+        return installed;
     }
 
     /// <summary>Used by installer completeness checks; overrides do not affect stock provenance.</summary>
@@ -98,6 +104,7 @@ public static class SpriteSheetFiles
     internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, Lazy<SamusBodyArtworkCatalog> body,
         Lazy<AreaMapPresentationCatalog> maps, Lazy<IntroCinematicArtworkCatalog> intro, Lazy<EndingObjectArtworkCatalog> ending) => sheet switch
     {
+        _ when ScreenTileSheetDefinitions.Depths.ContainsKey(sheet) => [ScreenTileSheet.FrameName],
         SpriteSheetId.EscapeTimer => EscapeTimerPresentationDefinitions.Glyphs.Select(EscapeTimerPresentationDefinitions.FrameName),
         SpriteSheetId.Grapple => GrappleSheetDefinitions.Frames,
         SpriteSheetId.SamusBodyTop or SpriteSheetId.SamusBodyBottom => SamusBodySheetComposer.FrameNames(body.Value, sheet),

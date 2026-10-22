@@ -21,4 +21,7 @@ internal enum D3D11RoomSource : uint
     XrayReveal = 7,
     /// <summary>A room's library background, drawn from its image and its rebound cells' pictures (#1392).</summary>
     Bg2Image = 8,
+
+    /// <summary>A frontend layer's VRAM tilemap, drawn from its characters' pre-coloured tiles in its table (#1392).</summary>
+    ScreenTiles = 9,
 }

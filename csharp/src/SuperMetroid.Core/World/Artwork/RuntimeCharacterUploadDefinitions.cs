@@ -11,9 +11,13 @@ namespace SuperMetroid.Core.World.Artwork;
 /// </summary>
 internal static class RuntimeCharacterUploadDefinitions
 {
-    /// <summary>Each enemy's encounter's uploads: Draygon's opening uploads the Evirs she releases.</summary>
+    /// <summary>
+    /// Each enemy's encounter's uploads: Draygon's opening uploads the Evirs she releases, and the gunship's takeoff
+    /// uploads its five liftoff pictures.
+    /// </summary>
     internal static RuntimeCharacterUploadCatalog Catalog { get; } = new(new Dictionary<EnemyDefinitionId, IReadOnlyList<RuntimeCharacterUpload>>
     {
         [EnemyDefinitionId.DraygonBody] = [DraygonIntroPresentationDefinitions.EvirUpload],
+        [EnemyDefinitionId.ShipTop] = GunshipLiftoffTransferDefinitions.Uploads,
     });
 }

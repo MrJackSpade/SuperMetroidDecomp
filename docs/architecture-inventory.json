@@ -125318,6 +125318,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Enemies.Artwork.CopiedCharacterIndexesVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Artwork/CopiedCharacterIndexesVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Enemies.Artwork.CreateEnemyResult",
       "kind": "record struct",
       "scope": "test",
@@ -126057,6 +126070,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Artwork.UploadedPictureChecks",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Artwork/UploadedPictureChecks.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Artwork.VerifyInstalledEnemyExtendedFramesCase",
@@ -129161,6 +129187,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/Gunship/GunshipLandingVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Gunship.GunshipLiftoffPicturesVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Gunship/GunshipLiftoffPicturesVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

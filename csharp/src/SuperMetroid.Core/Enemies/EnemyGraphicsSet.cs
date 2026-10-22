@@ -115,12 +115,16 @@ internal sealed class EnemyGraphicsSet
 
     /// <summary>
     /// The character index and OBJ palette bits <paramref name="enemy"/> draws with in this set: its record's, or the
-    /// standard fallback for an enemy the set does not load, with the character index its initialization fixes in place
-    /// of the set's where it fixes one.
+    /// standard fallback for an enemy the set does not load, with the character index and palette its initialization
+    /// copies from the enemy it follows, or fixes, in place of the set's where it does.
     /// </summary>
     internal EnemyGraphicsIndexes DrawIndexes(EnemyDefinitionId enemy)
     {
         EnemyGraphicsIndexes indexes = FindGraphicsIndexes(enemy);
+        if (EnemyTileBaseDefinitions.DrawsAtTilesOf.TryGetValue(enemy, out EnemyDefinitionId tileOwner))
+            indexes = indexes with { TileIndex = FindGraphicsIndexes(tileOwner).TileIndex };
+        if (EnemyTileBaseDefinitions.DrawsInPaletteOf.TryGetValue(enemy, out EnemyDefinitionId paletteOwner))
+            indexes = indexes with { PaletteIndex = FindGraphicsIndexes(paletteOwner).PaletteIndex };
         return indexes with { TileIndex = EnemyTileBaseDefinitions.Fixed.GetValueOrDefault(enemy, indexes.TileIndex) };
     }
 

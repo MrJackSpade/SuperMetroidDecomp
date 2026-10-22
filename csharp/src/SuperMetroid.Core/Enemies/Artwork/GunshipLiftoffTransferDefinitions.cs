@@ -22,6 +22,11 @@ internal static class GunshipLiftoffTransferDefinitions
     /// <summary>Calculated five-frame transfer sequence without a stored record table.</summary>
     internal static TransferSequence Frames => default;
 
+    /// <summary>The five takeoff uploads over the OBJ characters, in takeoff order (#1392).</summary>
+    [PpuLayoutBoundary("codec: gunship liftoff transfer records' native VRAM destinations ($A2:AC11)")]
+    internal static IReadOnlyList<RuntimeCharacterUpload> Uploads { get; } = [.. Frames.Select(frame =>
+        RuntimeCharacterUpload.To(VramDmaDestination.FromNative(frame.DestinationWord), ByteCount, new AssetObjCharacters(frame.Asset)))];
+
     /// <summary>Calculated view over the five contiguous character transfers; no records are cached.</summary>
     internal readonly struct TransferSequence : IReadOnlyList<GunshipLiftoffTransferDefinition>
     {

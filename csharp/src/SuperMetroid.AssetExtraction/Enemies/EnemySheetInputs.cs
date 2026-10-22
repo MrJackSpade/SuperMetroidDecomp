@@ -49,9 +49,10 @@ internal sealed record EnemySheetInputs(EnemyTileArtworkCatalog Enemies, BossArt
     AreaArtworkCatalog IInstalledAreaObjCharacterArtwork.AreaTiles => Areas;
 
     /// <inheritdoc/>
-    /// <exception cref="InvalidOperationException">No catalogued upload names a VRAM asset.</exception>
-    ReadOnlyMemory<byte> IObjCharacterSourceResolver.ResolveAsset(VramAssetId asset) => throw new InvalidOperationException(
-        $"No catalogued encounter upload names VRAM asset {asset}.");
+    /// <exception cref="InvalidDataException">The enemy artwork holds no gunship takeoff pictures.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">No catalogued upload names the asset.</exception>
+    ReadOnlyMemory<byte> IObjCharacterSourceResolver.ResolveAsset(VramAssetId asset) =>
+        (Enemies.GunshipLiftoff ?? throw new InvalidDataException("Enemy sheets require the installed gunship takeoff pictures.")).Resolve(asset);
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">No catalogued upload names a native transfer.</exception>

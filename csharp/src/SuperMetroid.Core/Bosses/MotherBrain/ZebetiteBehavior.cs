@@ -114,8 +114,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         slot.PaletteIndex = EnemyPaletteBits.Palette2;
-        // Tile 128: the Zebetite artwork follows the room's first 128 enemy tiles.
-        slot.VramTilesIndex = 128;
+        slot.VramTilesIndex = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.Zebetite];
         if (slot.SlotIndex == 0)
             SharedPaletteCycle = 0;
         state.Function = state.IsSecondaryHalf

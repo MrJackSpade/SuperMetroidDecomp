@@ -40,14 +40,20 @@ internal static class SuperMetroidRuntimeToolingExtensions
         /// audits exercise the complete runtime, renderer, enemy scheduler, and Samus handlers
         /// in a late room without duplicating several minutes of controller input.
         /// </summary>
+        /// <param name="definition">The room.</param>
+        /// <param name="camera">The camera the room loads under.</param>
+        /// <param name="state">One of the room's states to load in place of the one the session's progress selects.</param>
         internal InitialViewportResult LoadCartridgeRoomForDebug(
             RoomHeaderDefinition definition,
-            Position16<RoomPixels> camera = default)
+            Position16<RoomPixels> camera = default,
+            CartridgeRoomState? state = null)
         {
             if (self.Player.Samus is null)
                 throw new InvalidOperationException("Direct debug room loading requires initialized Samus state.");
 
-            CartridgeRoomHeader room = self.RoomLoader.LoadCartridgeRoomHeader(definition);
+            CartridgeRoomHeader room = state is null ? self.RoomLoader.LoadCartridgeRoomHeader(definition)
+                : RoomStateSelectionDefinitions.GetStates(definition).Contains(state) ? new CartridgeRoomHeader(definition, state)
+                : throw new ArgumentException($"{state.Name} is not a state of room {definition.Name}.", nameof(state));
             // The debug seam intentionally supplies an inert synthetic door. Any room whose
             // correctness depends on setup code must instead be audited through its real door;
             // Ceres Ridley's ordinary mode-nine room has no incoming setup routine dependency.

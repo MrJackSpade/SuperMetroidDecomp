@@ -12,6 +12,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -92,27 +93,7 @@ internal static class DraygonEvirPicturesVerification
             drawn.Origin, paletteBits);
         parted.FinalizeFrame();
 
-        var cgram = new SnesCgram();
-        for (int colour = 0; colour < 256; colour++)
-            cgram.SetColor(colour, runtime.Cgram.Colors[colour]);
-        int count = SnesPpuLayout.ScreenSize.X * SnesPpuLayout.ScreenSize.Y;
-        var expected = new ObjRasterTargets(new Rgba32[count], new byte[count], new byte[count]);
-        var actual = new ObjRasterTargets(new Rgba32[count], new byte[count], new byte[count]);
-        SnesObjRenderer.RenderResolved(parted.Draws, cgram, expected);
-        SnesObjRenderer.RenderResolved([drawn], cgram, actual);
-        int painted = 0;
-        for (int pixel = 0; pixel < count; pixel++)
-        {
-            if (expected.Pixels[pixel] != actual.Pixels[pixel] || expected.Priorities[pixel] != actual.Priorities[pixel] ||
-                expected.Palettes[pixel] != actual.Palettes[pixel])
-                throw new InvalidOperationException($"The Evir's picture {when} differs from its frame over the live characters at screen pixel " +
-                    $"({pixel % SnesPpuLayout.ScreenSize.X},{pixel / SnesPpuLayout.ScreenSize.X}): colour {actual.Pixels[pixel]} for {expected.Pixels[pixel]}, " +
-                    $"row {actual.Palettes[pixel]} for {expected.Palettes[pixel]}, priority {actual.Priorities[pixel]} for {expected.Priorities[pixel]}; uploads: " +
-                    string.Join("; ", runtime.EnemySession.ObjCharacters.Uploads.Select(upload => $"{upload.Source}@{upload.FirstByte:X4}+{upload.ByteCount:X4}")));
-            if (expected.Palettes[pixel] != 0)
-                painted++;
-        }
-        AssertTrue(painted > 0, $"the Evir paints pixels {when}");
+        UploadedPictureChecks.AssertPaintsLikeParts(runtime, [drawn], parted.Draws, $"the Evir {when}");
         return drawn;
     }
 

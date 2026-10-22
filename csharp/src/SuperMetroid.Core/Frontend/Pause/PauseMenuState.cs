@@ -38,6 +38,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>The map sprite sheet the map's markers, labels, arrows and position indicator draw from.</summary>
     private SpriteSheet MapSheet => spriteSheets.Get(SpriteSheetId.MapSprites);
 
+    /// <summary>The pause sheet the equipment selectors and reserve-tank strip draw from.</summary>
+    private SpriteSheet PauseSheet => spriteSheets.Get(SpriteSheetId.PauseSprites);
+
 
     /// <summary>Queues menu navigation and animation sounds when a live frontend owns audio.</summary>
     private readonly CartridgeAudioState? audio;
@@ -651,7 +654,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // because custom phases may draw different compositions.
         LastSelectorCategory = SelectedCategory;
         LastMapIndicatorSprite = null;
-        selector.Draw(screen.Objects, SelectedCategory, SelectedItem, ItemSelectorAnimationFrame);
+        selector.Draw(screen.Objects, PauseSheet, SelectedCategory, SelectedItem, ItemSelectorAnimationFrame);
     }
 
     /// <summary>Gets the native OBJ palette bits shared by pause map markers.</summary>
@@ -1090,7 +1093,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         {
             (mapPresentation ?? throw new InvalidOperationException(
                 "Reserve tanks require installed presentation assets."))
-                .PauseReserveTanks.Draw(screen.Objects, map, index);
+                .PauseReserveTanks.Draw(screen.Objects, PauseSheet, map, index);
         }
     }
 

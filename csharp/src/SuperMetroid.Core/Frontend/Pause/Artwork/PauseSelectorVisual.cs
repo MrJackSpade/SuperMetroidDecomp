@@ -18,7 +18,10 @@ internal sealed class PauseSelectorVisual
     /// <summary>Caller-supplied composition retained when it differs from every calculated native selector.</summary>
     internal readonly SpriteComposition? authored;
     /// <summary>Stores either a recognized calculated selector group or an independently supplied composition.</summary>
-    private PauseSelectorVisual(int group, SpriteComposition? authored) { this.group = group; this.authored = authored; }
+    private PauseSelectorVisual(int group, SpriteComposition? authored, string name)
+    { this.group = group; this.authored = authored; Name = name; }
+    /// <summary>The frame name the selector presentation gives this visual.</summary>
+    internal string Name { get; }
 
     /// <summary>Original beam highlight paint order expressed as row-major grid cells, not coordinates or tiles.</summary>
     private static ReadOnlySpan<byte> BeamOrder => [10, 4, 6, 7, 8, 9, 11, 5, 3, 2, 1, 0];
@@ -58,20 +61,19 @@ internal sealed class PauseSelectorVisual
                     part.TileColumn == basis.Attributes.TileNumber % 16 && part.TileRow == basis.Attributes.TileNumber / 16 &&
                     part.Size == 8 && part.Priority == 3 && part.Palette is null && !part.FlipX && !part.FlipY;
             }
-            if (match) return new(group, null);
+            if (match) return new(group, null, name);
         }
-        return new(-1, MenuSpriteCompiler.Compile(parts, name));
+        return new(-1, MenuSpriteCompiler.Compile(parts, name), name);
     }
 
-    /// <summary>Draws the recognized selector in native OAM order or delegates an edited composition, applying caller palette bits.</summary>
-    internal void Draw(ScreenSprites entries, Position16<OamPixels> origin, ushort paletteBits)
-    {
-        if (authored is not null) { authored.Draw(entries, origin, paletteBits); return; }
-        _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
-        for (int index = 0; index < Count(group); index++)
+    /// <summary>
+    /// The recognized selector in native OAM order, or the edited composition, as a whole frame (#1392); the calculated
+    /// selector's parts take their draw's palette.
+    /// </summary>
+    internal SpriteFrame ToFrame(string frameName) => authored is not null ? authored.ToFrame(frameName, 0)
+        : new(frameName, [.. Enumerable.Range(0, Count(group)).Select(index =>
         {
-            var part = Part(group, index);
-            entries.AddPart(part.X, part.Y, part.Attributes.WithPaletteBits(paletteBits), origin);
-        }
-    }
+            CompiledSpritePart part = Part(group, index);
+            return ObjPartFrames.Part(part.X, part.Y, part.Attributes, 0, inheritPalette: true);
+        })]);
 }

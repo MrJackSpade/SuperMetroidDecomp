@@ -25,6 +25,8 @@ public enum SpriteSheetId
     GameOptions,
     /// <summary>The file-select and pause maps' markers, elevator and area labels, arrows and position indicator.</summary>
     MapSprites,
+    /// <summary>The pause menu's equipment selectors and reserve-tank strip.</summary>
+    PauseSprites,
     /// <summary>Samus's projectiles, bombs, charge flare and trails as the intro's flashbacks draw them.</summary>
     IntroProjectiles,
     /// <summary>Samus's projectiles, bombs, charge flare and trails with the power beam equipped.</summary>

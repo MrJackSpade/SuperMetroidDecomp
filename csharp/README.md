@@ -541,7 +541,7 @@ colours its palette row holds there, so an enemy shown in another palette has a 
 names each graphics set's sheet for each of its enemies. The game-over screen's Baby, egg and cursor are drawn from
 `game-over`, file select's borders, cursor, helmets and copy arrows from `file-select`, the options menu's headings and
 cursor from `game-options`, and the file-select and pause maps' markers, labels, arrows and position indicator from
-`map-sprites`. The escape countdown's layout, `escape-timer.json` in `overrides/maps`, now holds only the
+`map-sprites`, and the pause menu's equipment selectors and reserve-tank strip from `pause-sprites`. The escape countdown's layout, `escape-timer.json` in `overrides/maps`, now holds only the
 anchors and digit spacing; a layout written for the earlier version, which also held the frames and
 palette, is rejected until it is rewritten.
 

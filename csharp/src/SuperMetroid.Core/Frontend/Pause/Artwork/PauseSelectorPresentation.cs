@@ -39,8 +39,12 @@ public sealed class PauseSelectorPresentation
         return durationOverrides is not null && durationOverrides.TryGetValue(normalized, out int duration)
             ? duration : MenuSelectorTiming.Duration(normalized);
     }
-    /// <summary>Draws the selected category's normalized selector composition at the item's anchor.</summary>
-    public void Draw(ScreenSprites entries, PauseEquipmentCategory category, int item, int phase)
+    /// <summary>Every distinct visual the animation shows, by its frame name.</summary>
+    internal IEnumerable<PauseSelectorVisual> Visuals =>
+        new[] { reserve, beam, equipment }.SelectMany(phases => phases.Visuals).DistinctBy(visual => visual.Name);
+
+    /// <summary>Draws the selected category's normalized selector frame of the pause sheet at the item's anchor.</summary>
+    public void Draw(ScreenSprites entries, SpriteSheet sheet, PauseEquipmentCategory category, int item, int phase)
     {
         var point = Anchor(category, item);
         int normalized = NormalizePhase(phase);
@@ -51,7 +55,7 @@ public sealed class PauseSelectorPresentation
             PauseEquipmentCategory.Suits or PauseEquipmentCategory.Boots => equipment,
             _ => throw new InvalidOperationException($"Undefined PauseEquipmentCategory {category}."),
         }).Get(normalized);
-        composition.Draw(entries, point, ObjectPalette.PaletteBits);
+        Ensure.NotNull(entries).AddImage(Ensure.NotNull(sheet).Frame(PauseSelectorDefinitions.SheetFrameName(composition.Name)), point);
     }
     /// <summary>Loads and validates equipment-selector anchors, frames, animation, palette, and timing.</summary>
     public static PauseSelectorPresentation Load(Stream json)
@@ -118,6 +122,8 @@ public sealed class PauseSelectorPresentation
         {
             if (!ReferenceEquals(basis, value)) (Overrides ??= new()).Add(phase, value);
         }
+        /// <summary>The base composition and each authored phase image.</summary>
+        internal IEnumerable<PauseSelectorVisual> Visuals => Overrides is null ? [basis] : [basis, .. Overrides.Values];
         /// <summary>Resolves an authored phase image or falls back to the native base composition.</summary>
         public PauseSelectorVisual Get(int phase) => Overrides is not null && Overrides.TryGetValue(phase, out var value)
             ? value : basis;

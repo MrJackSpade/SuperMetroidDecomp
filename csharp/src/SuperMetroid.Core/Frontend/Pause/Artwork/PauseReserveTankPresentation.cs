@@ -27,15 +27,35 @@ public sealed class PauseReserveTankPresentation
         var basis = PauseReserveTankDefinitions.StockAnchor(index);
         return anchorOverrides.TryGetValue(index, out var value) ? new(checked((ushort)(value.X ?? basis.X)), checked((ushort)(value.Y ?? basis.Y))) : basis;
     }
-    /// <summary>Draws one full, empty, partially filled, or end-cap reserve visual at a strip position.</summary>
-    /// <param name="entries">The OAM buffer that receives the authored or stock sprite parts.</param>
+    /// <summary>The OBJ palette row the strip draws in.</summary>
+    internal int Palette => objectPalette.PaletteIndex;
+
+    /// <summary>Draws one full, empty, partially filled, or end-cap reserve frame of the pause sheet at a strip position.</summary>
+    /// <param name="entries">The screen's sprite entries.</param>
+    /// <param name="sheet">The pause sheet.</param>
     /// <param name="nativeIdentity">The native bank-$82 spritemap identity selecting one of the ten visual roles.</param>
     /// <param name="index">Zero-based tank or trailing-cap anchor index.</param>
-    /// <exception cref="InvalidDataException">The native visual identity is unknown.</exception>
-    public void Draw(ScreenSprites entries, PauseReserveTankVisual nativeIdentity, int index)
+    /// <exception cref="InvalidOperationException">The native visual identity is unknown.</exception>
+    public void Draw(ScreenSprites entries, SpriteSheet sheet, PauseReserveTankVisual nativeIdentity, int index)
     {
-        var anchor = Anchor(index);
-        var frame = nativeIdentity switch
+        // The strip position is checked before the visual.
+        Position16<OamPixels> anchor = Anchor(index);
+        string name = PauseReserveTankDefinitions.Frames().Where(frame => frame.Id == nativeIdentity).Select(frame => frame.Name)
+            .SingleOrDefault() ?? throw new InvalidOperationException($"Undefined PauseReserveTankVisual {nativeIdentity}.");
+        Ensure.NotNull(entries).AddImage(Ensure.NotNull(sheet).Frame(PauseReserveTankDefinitions.SheetFrameName(name)), anchor);
+    }
+
+    /// <summary>
+    /// One reserve visual as a whole frame (#1392): its authored composition, or the stock single character, which takes
+    /// its draw's palette.
+    /// </summary>
+    internal SpriteFrame ToFrame(PauseReserveTankVisual nativeIdentity, string frameName) =>
+        Composition(nativeIdentity) is { } composition ? composition.ToFrame(frameName, 0)
+            : new(frameName, [ObjPartFrames.Part(SnesSpritemapXWord.Create(0, false), new SnesSpritemapYByte(0),
+                SnesObjAttributeWord.Create(PauseReserveTankDefinitions.StockTile(nativeIdentity), 0, 3), 0, inheritPalette: true)]);
+
+    /// <summary>The authored composition of one reserve visual, or null where the stock character stands.</summary>
+    private SpriteComposition? Composition(PauseReserveTankVisual nativeIdentity) => nativeIdentity switch
         {
             PauseReserveTankVisual.Full => frames.Full,
             PauseReserveTankVisual.EndCap => frames.EndCap,
@@ -49,12 +69,6 @@ public sealed class PauseReserveTankPresentation
             PauseReserveTankVisual.Fill7 => frames.Fills[6],
             _ => throw new InvalidOperationException($"Undefined PauseReserveTankVisual {nativeIdentity}."),
         };
-        Position16<OamPixels> origin = anchor;
-        if (frame is not null) frame.Draw(entries, origin, objectPalette.PaletteBits);
-        else entries.AddPart(SnesSpritemapXWord.Create(0, false), new SnesSpritemapYByte(0),
-            SnesObjAttributeWord.Create(PauseReserveTankDefinitions.StockTile(nativeIdentity), 0, 3).WithPaletteBits(objectPalette.PaletteBits),
-            origin);
-    }
     /// <summary>Loads and validates the reserve-strip palette, six anchors, and ten named sprite frames.</summary>
     /// <param name="json">The caller-owned stream containing the editable presentation document.</param>
     /// <returns>The validated reserve-tank presentation.</returns>

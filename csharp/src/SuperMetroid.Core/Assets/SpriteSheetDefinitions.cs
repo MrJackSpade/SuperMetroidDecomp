@@ -20,6 +20,7 @@ public static class SpriteSheetDefinitions
         SpriteSheetId.FileSelect => "file-select",
         SpriteSheetId.GameOptions => "game-options",
         SpriteSheetId.MapSprites => "map-sprites",
+        SpriteSheetId.PauseSprites => "pause-sprites",
         SpriteSheetId.IntroProjectiles => "intro-projectiles",
         SpriteSheetId.ProjectilesPower => "projectiles-power",
         SpriteSheetId.ProjectilesWave => "projectiles-wave",

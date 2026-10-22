@@ -7,6 +7,8 @@ using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
@@ -49,12 +51,16 @@ public static class SpriteSheetFiles
         SpriteSheetStore store = SpriteSheetStore.Open(stockDirectory, overrideDirectory, ManifestFileName, SpriteSheetDefinitions.Sheets.Count);
         var sheets = new Dictionary<SpriteSheetId, SpriteSheet>();
         // The body sheets are named from the stock body tables installed beside them.
+        string content = Path.GetDirectoryName(Path.GetFullPath(stockDirectory))!;
         var body = new Lazy<SamusBodyArtworkCatalog>(() => SamusBodyArtworkFiles.Load(
-            Path.Combine(Path.GetDirectoryName(Path.GetFullPath(stockDirectory))!, GameInstallationLayout.SamusBodyDirectoryName), null));
+            Path.Combine(content, GameInstallationLayout.SamusBodyDirectoryName), null));
+        // The pause sheet is named from the stock selector presentation installed beside it.
+        var maps = new Lazy<AreaMapPresentationCatalog>(() => AreaMapPresentationCatalog.Load(
+            Path.Combine(content, GameInstallationLayout.MapDirectoryName), null));
         foreach (SpriteSheetId sheet in SpriteSheetDefinitions.Sheets)
         {
             SpriteSheet loaded = store.Read(SpriteSheetDefinitions.FileName(sheet));
-            if (!loaded.HoldsExactly(FrameNames(sheet, body)))
+            if (!loaded.HoldsExactly(FrameNames(sheet, body, maps)))
                 throw new InvalidDataException($"Sprite sheet {FrameFile(sheet)} does not hold exactly the frames its family draws.");
             sheets.Add(sheet, loaded);
         }
@@ -74,7 +80,9 @@ public static class SpriteSheetFiles
     /// <summary>The frames a sheet must hold: the ones its family draws.</summary>
     /// <param name="sheet">The sheet.</param>
     /// <param name="body">Samus's body tables, which name the body sheets' frames.</param>
-    internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, Lazy<SamusBodyArtworkCatalog> body) => sheet switch
+    /// <param name="maps">The menus' presentation, whose selector frames name the pause sheet's.</param>
+    internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, Lazy<SamusBodyArtworkCatalog> body,
+        Lazy<AreaMapPresentationCatalog> maps) => sheet switch
     {
         SpriteSheetId.EscapeTimer => EscapeTimerPresentationDefinitions.Glyphs.Select(EscapeTimerPresentationDefinitions.FrameName),
         SpriteSheetId.Grapple => GrappleSheetDefinitions.Frames,
@@ -86,6 +94,7 @@ public static class SpriteSheetFiles
         SpriteSheetId.FileSelect => FileSelectPresentationDefinitions.SheetFrames,
         SpriteSheetId.GameOptions => GameOptionsPresentationDefinitions.SheetFrames,
         SpriteSheetId.MapSprites => MapSpriteDefinitions.SheetFrames,
+        SpriteSheetId.PauseSprites => PauseSheetComposer.FrameNames(maps.Value),
         _ => ProjectileSheetDefinitions.Frames,
     };
 

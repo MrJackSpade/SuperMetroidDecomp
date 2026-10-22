@@ -28,7 +28,8 @@ internal static class PausePresentationContractChecks
                 void Inspect(PauseEquipmentBasePresentation baseImage, PauseBackdropPresentation backdrop,
                     PauseWireframePresentation wireframe, PauseEquipmentLabelPresentation labels,
                     PauseSelectorPresentation selector, PauseReserveTankPresentation tanks,
-                    Span<byte> page, Span<ushort> tilemap, SuperMetroid.Core.Assets.ScreenSprites oam) {
+                    Span<byte> page, Span<ushort> tilemap, SuperMetroid.Core.Assets.ScreenSprites oam,
+                    SuperMetroid.Core.Assets.SpriteSheet sheet) {
                     baseImage.CreateTilemap();
                     baseImage.RebindBaseInto(page, labels);
                     baseImage.RebindBeforeInventoryRefreshInto(page);
@@ -49,10 +50,10 @@ internal static class PausePresentationContractChecks
                     selector.NormalizePhase(int.MaxValue);
                     selector.NormalizePhase(-1);
                     selector.Duration(1000);
-                    selector.Draw(oam, 0, 1, int.MaxValue);
-                    selector.Draw(oam, 0, 2, 0);
-                    tanks.Draw(oam, (PauseReserveTankVisual)0x1b, PauseReserveTankDefinitions.AnchorCount - 1);
-                    tanks.Draw(oam, 0, 0);
+                    selector.Draw(oam, sheet, 0, 1, int.MaxValue);
+                    selector.Draw(oam, sheet, 0, 2, 0);
+                    tanks.Draw(oam, sheet, (PauseReserveTankVisual)0x1b, PauseReserveTankDefinitions.AnchorCount - 1);
+                    tanks.Draw(oam, sheet, 0, 0);
                     tanks.Anchor(PauseReserveTankDefinitions.AnchorCount);
                     tanks.Anchor(0);
                 }

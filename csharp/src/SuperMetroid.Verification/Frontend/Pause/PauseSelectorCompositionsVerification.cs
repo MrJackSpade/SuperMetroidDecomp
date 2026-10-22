@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -45,7 +46,7 @@ internal static class PauseSelectorCompositionsVerification
                     var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
                     var anchor = edited.Anchor(category, 0);
                     MenuSpriteCompiler.Compile(parts, name).DrawOnScreen(expected, new(anchor.X, anchor.Y), edited.ObjectPalette.PaletteBits);
-                    edited.Draw(actual, category, 0, 0);
+                    edited.Draw(actual, MenuSheetFixtures.PauseSprites(edited), category, 0, 0);
                     expected.FinalizeFrame(); actual.FinalizeFrame();
                     AssertTrue(expected.ImageEquals(actual),
                         "all selector part fields remain independently editable");
@@ -81,14 +82,14 @@ internal static class PauseSelectorCompositionsVerification
                 var anchor = edited.Anchor(category, 0);
                 var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
                 composition.DrawOnScreen(expected, new(anchor.X, anchor.Y), edited.ObjectPalette.PaletteBits);
-                edited.Draw(actual, category, 0, phase);
+                edited.Draw(actual, MenuSheetFixtures.PauseSprites(edited), category, 0, phase);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.ImageEquals(actual),
                     "independent authored group/phase and cyclic OAM");
                 AssertEqual(source.DurationTicks, edited.Duration(phase), "composition edit leaves phase timing unchanged");
             }
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), 0, 0, -1), "negative composition phase");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), 0, 0, -1), "negative composition phase");
     }
 
     /// <summary>Compares each group's 14 phases with native OAM at several preoccupied-buffer sizes.</summary>
@@ -110,7 +111,17 @@ internal static class PauseSelectorCompositionsVerification
                 var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
                 for (int i = 0; i < occupied; i++) { expected.AddOccupyingPart(new Position16<OamPixels>(12, 34), 56); actual.AddOccupyingPart(new Position16<OamPixels>(12, 34), 56); }
                 DrawImportedSpritemap(rom, expected, pointer, new(x, y), 0x600);
-                selector.Draw(actual, anchor.Category, anchor.Item, phase);
+                SpriteSheet sheet = MenuSheetFixtures.PauseSprites(selector);
+                // A pre-coloured frame cannot show part of itself: one the object limit would cut short fails, where
+                // the cartridge drops the parts past the limit.
+                int objects = ScreenSpritesFixtures.Frame(probe => selector.Draw(probe, sheet, anchor.Category, anchor.Item, phase)).LastFinalizedSpriteCount;
+                if (occupied + objects > ScreenSprites.Capacity)
+                {
+                    AssertThrows<InvalidOperationException>(() => selector.Draw(actual, sheet, anchor.Category, anchor.Item, phase),
+                        "a selector past the object limit fails");
+                    continue;
+                }
+                selector.Draw(actual, sheet, anchor.Category, anchor.Item, phase);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.ImageEquals(actual),
                     "native selector composition, attributes, order and OAM capacity");

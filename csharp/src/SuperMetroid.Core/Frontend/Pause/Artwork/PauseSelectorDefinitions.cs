@@ -9,6 +9,8 @@ public static class PauseSelectorDefinitions
     public const string FileName = "pause-selectors.json";
     /// <summary>Presentation limits: sixteen required equipment anchors, at most 255 named visual frames and 255 cyclic phases, and initial/phase dwell times from 1 through 254 accepted update ticks.</summary>
     public const int AnchorCount = 16, MaximumFrames = 255, MaximumPhases = 255, MaximumDuration = 254;
+    /// <summary>The pause sheet's frame for the selector presentation's frame <paramref name="frame"/>.</summary>
+    public static string SheetFrameName(string frame) => $"Selector.{frame}";
     /// <summary>Enumerates every editable selector anchor in native category/item order: two reserve controls, five beams, six suit/miscellaneous items, and three boots; does not alter navigation or eligibility.</summary>
     /// <returns>Sixteen tuples containing the compiled category, item index, and stable asset anchor name.</returns>
     public static IEnumerable<PauseSelectorAnchor> Anchors()

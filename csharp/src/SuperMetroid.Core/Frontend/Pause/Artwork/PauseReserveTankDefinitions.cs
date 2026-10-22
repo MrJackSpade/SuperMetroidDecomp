@@ -10,6 +10,8 @@ public static class PauseReserveTankDefinitions
     public const int Version = 1;
     /// <summary>JSON asset filename for the pause equipment screen's reserve-tank strip presentation.</summary>
     public const string FileName = "pause-reserve-tanks.json";
+    /// <summary>The pause sheet's frame for the reserve-strip frame <paramref name="frame"/>.</summary>
+    public static string SheetFrameName(string frame) => $"ReserveTank.{frame}";
     /// <summary>$82:C1D6 supplies six origins, including the trailing cap position.</summary>
     public const int AnchorCount = 6;
     /// <summary>$82:C1D6..C1E2: six eight-pixel columns starting at24, at Y96 minus the draw bias.</summary>

@@ -27,11 +27,10 @@ internal static class SpriteSheetFilesVerification
         {
             string stock = Path.Combine(scratch.FullName, "stock");
             string overrides = Path.Combine(scratch.FullName, "overrides");
-            // The body sheets are named from the body tables installed beside them.
-            string body = Path.Combine(RepositoryInstallation.Installation.ContentDirectory, GameInstallationLayout.SamusBodyDirectoryName);
-            Directory.CreateDirectory(Path.Combine(scratch.FullName, GameInstallationLayout.SamusBodyDirectoryName));
-            foreach (string file in Directory.GetFiles(body))
-                File.Copy(file, Path.Combine(scratch.FullName, GameInstallationLayout.SamusBodyDirectoryName, Path.GetFileName(file)));
+            // The body sheets are named from the body tables installed beside them, and the pause sheet from the menus'
+            // selector presentation.
+            foreach (string beside in new[] { GameInstallationLayout.SamusBodyDirectoryName, GameInstallationLayout.MapDirectoryName })
+                CopyDirectory(Path.Combine(RepositoryInstallation.Installation.ContentDirectory, beside), Path.Combine(scratch.FullName, beside));
             SpriteSheetFiles.Extract(bus, RepositoryInstallation.Installation.ContentDirectory, stock, SupportedCartridge.Sha256);
             InstalledSpriteSheets installed = SpriteSheetFiles.Load(stock, null);
 
@@ -77,6 +76,16 @@ internal static class SpriteSheetFilesVerification
         {
             scratch.Delete(recursive: true);
         }
+    }
+
+    /// <summary>Copies <paramref name="source"/>'s files and folders into <paramref name="destination"/>.</summary>
+    private static void CopyDirectory(string source, string destination)
+    {
+        Directory.CreateDirectory(destination);
+        foreach (string file in Directory.GetFiles(source))
+            File.Copy(file, Path.Combine(destination, Path.GetFileName(file)));
+        foreach (string folder in Directory.GetDirectories(source))
+            CopyDirectory(folder, Path.Combine(destination, Path.GetFileName(folder)));
     }
 
     /// <summary>Runs the sprite sheet installation checks against the repository cartridge.</summary>

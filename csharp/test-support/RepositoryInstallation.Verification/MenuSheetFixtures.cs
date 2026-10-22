@@ -5,6 +5,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Options.Artwork;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
@@ -64,6 +65,34 @@ internal static class MenuSheetFixtures
                 $"catalog-{RuntimeHelpers.GetHashCode(key):X8}"));
     }
 
+    /// <summary>Pause sheets already composed, by selector presentation.</summary>
+    private static readonly ConditionalWeakTable<PauseSelectorPresentation, SpriteSheet> pauseSprites = new();
+
+    /// <summary>The pause sheet <paramref name="selectors"/> composes beside the installation's reserve strip.</summary>
+    internal static SpriteSheet PauseSprites(PauseSelectorPresentation selectors)
+    {
+        ArgumentNullException.ThrowIfNull(selectors);
+        return ReferenceEquals(selectors, InstalledFixtures.Maps.PauseSelectors)
+            ? InstalledFixtures.SpriteSheets.Get(SpriteSheetId.PauseSprites)
+            : pauseSprites.GetValue(selectors, key => Load(SpriteSheetId.PauseSprites,
+                PauseSheetComposer.Sources(key, InstalledFixtures.Maps.PauseReserveTanks, InstalledFixtures.Maps),
+                $"selectors-{RuntimeHelpers.GetHashCode(key):X8}"));
+    }
+
+    /// <summary>Pause sheets already composed, by reserve-strip presentation.</summary>
+    private static readonly ConditionalWeakTable<PauseReserveTankPresentation, SpriteSheet> pauseTanks = new();
+
+    /// <summary>The pause sheet <paramref name="tanks"/> composes beside the installation's selectors.</summary>
+    internal static SpriteSheet PauseSprites(PauseReserveTankPresentation tanks)
+    {
+        ArgumentNullException.ThrowIfNull(tanks);
+        return ReferenceEquals(tanks, InstalledFixtures.Maps.PauseReserveTanks)
+            ? InstalledFixtures.SpriteSheets.Get(SpriteSheetId.PauseSprites)
+            : pauseTanks.GetValue(tanks, key => Load(SpriteSheetId.PauseSprites,
+                PauseSheetComposer.Sources(InstalledFixtures.Maps.PauseSelectors, key, InstalledFixtures.Maps),
+                $"tanks-{RuntimeHelpers.GetHashCode(key):X8}"));
+    }
+
     /// <summary>Composes and registers a fixture presentation's menu sheets beside the installed others.</summary>
     private static InstalledSpriteSheets Compose(AreaMapPresentationCatalog maps)
     {
@@ -74,6 +103,7 @@ internal static class MenuSheetFixtures
                      (SpriteSheetId.FileSelect, FileSelectSheetComposer.Sources(maps)),
                      (SpriteSheetId.GameOptions, GameOptionsSheetComposer.Sources(maps)),
                      (SpriteSheetId.MapSprites, MapSpriteSheetComposer.Sources(maps)),
+                     (SpriteSheetId.PauseSprites, PauseSheetComposer.Sources(maps)),
                  })
             sheets[id] = Load(id, sources, $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
         return new InstalledSpriteSheets(sheets);

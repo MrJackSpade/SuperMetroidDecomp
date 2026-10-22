@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -45,7 +46,7 @@ internal static class PauseReserveFramesVerification
                     int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.Id * 2);
                     DrawImportedSpritemap(rom, expected, pointer, new(24, 95), 0x600);
                 }
-                edited.Draw(actual, (PauseReserveTankVisual)frame.Id, 0);
+                edited.Draw(actual, MenuSheetFixtures.PauseSprites(edited), (PauseReserveTankVisual)frame.Id, 0);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.ImageEquals(actual),
                     "each authored reserve frame independently selected");
@@ -55,8 +56,8 @@ internal static class PauseReserveFramesVerification
                 "each reserve role remains required");
         }
         foreach (ushort invalid in new ushort[] { 0, 0x1a, 0x1c, 0x1d, 0x1e, 0x28, ushort.MaxValue })
-            AssertThrows<InvalidOperationException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), (PauseReserveTankVisual)invalid, 0), "unsupported reserve identity");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), 0, -1), "anchor error precedes unknown visual");
+            AssertThrows<InvalidOperationException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), (PauseReserveTankVisual)invalid, 0), "unsupported reserve identity");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), 0, -1), "anchor error precedes unknown visual");
     }
 
     /// <summary>Compares each stock reserve part and independently edited OAM attribute against its native map.</summary>
@@ -91,7 +92,7 @@ internal static class PauseReserveFramesVerification
                 AssertEqual(1, edited.StoredFrameCount, "authored part difference remains compiled");
                 var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
                 MenuSpriteCompiler.Compile([part], frame.Name).DrawOnScreen(expected, new(24, 95), 0x600);
-                edited.Draw(actual, (PauseReserveTankVisual)frame.Id, 0);
+                edited.Draw(actual, MenuSheetFixtures.PauseSprites(edited), (PauseReserveTankVisual)frame.Id, 0);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.ImageEquals(actual),
                     "independent authored part field reaches OAM");
@@ -120,7 +121,18 @@ internal static class PauseReserveFramesVerification
             ushort y = (ushort)(ReadVerificationWord(rom, 0x82c1e2) - 1);
             int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.Id * 2);
             DrawImportedSpritemap(rom, expected, pointer, new(x, y), 0x600);
-            presentation.Draw(actual, (PauseReserveTankVisual)frame.Id, index);
+            SpriteSheet sheet = MenuSheetFixtures.PauseSprites(presentation);
+            // A pre-coloured frame cannot show part of itself: one the object limit would cut short fails, where the
+            // cartridge drops the parts past the limit.
+            int objects = ScreenSpritesFixtures.Frame(probe => presentation.Draw(probe, sheet, (PauseReserveTankVisual)frame.Id, index))
+                .LastFinalizedSpriteCount;
+            if (occupied + objects > ScreenSprites.Capacity)
+            {
+                AssertThrows<InvalidOperationException>(() => presentation.Draw(actual, sheet, (PauseReserveTankVisual)frame.Id, index),
+                    "a reserve frame past the object limit fails");
+                continue;
+            }
+            presentation.Draw(actual, sheet, (PauseReserveTankVisual)frame.Id, index);
             expected.FinalizeFrame(); actual.FinalizeFrame();
             AssertTrue(expected.ImageEquals(actual),
                 "native reserve frame selection, OAM attributes, ordering and capacity");

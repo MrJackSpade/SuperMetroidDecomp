@@ -43,35 +43,49 @@ internal sealed class SetCharacters
     internal IReadOnlyList<CharacterRegion> Regions { get; }
 
     /// <summary>
-    /// The pictures of <paramref name="frame"/>, named for <paramref name="name"/>: the frame alone when it is drawn over
-    /// no uploaded region, else one for each upload or the set's own characters in each region it is drawn over.
+    /// The pictures of <paramref name="frame"/>, named for <paramref name="name"/>: the frame whole when it is drawn over no
+    /// uploaded region, else its layers, each run of its parts in draw order reading the same uploaded regions, with a
+    /// picture of each layer for each upload or the set's own characters in each region it reads. A layer reads few
+    /// regions, so its pictures stay few where the whole frame's combinations would not.
     /// </summary>
     internal FramePictures Pictures(string name, SpriteFrame frame)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
         Ensure.NotNull(frame);
-        CharacterRegion[] drawnOver = [.. Regions.Where(region => DrawsOver(frame, region))];
-        if (drawnOver.Length == 0)
+        CharacterRegion[][] read = [.. frame.Parts.Select(part => Regions.Where(region => DrawsOver(part, region)).ToArray())];
+        if (read.All(regions => regions.Length == 0))
             return new FramePictures(name, [new SheetFrameSource(name, frame, Loaded)], []);
-        return new FramePictures(name, [.. RuntimeCharacterUploadCatalog.Contents(drawnOver, uploads).Select(contents => new SheetFrameSource(
-            RuntimeCharacterUploadDefinitions.Catalog.PictureName(name, contents), frame, Page(contents)))], drawnOver);
+        var sources = new List<SheetFrameSource>();
+        var layers = new List<CharacterRegion[]>();
+        int first = 0;
+        while (first < read.Length)
+        {
+            int end = first + 1;
+            while (end < read.Length && read[end].SequenceEqual(read[first]))
+                end++;
+            int layer = layers.Count;
+            CharacterRegion[] regions = read[first];
+            var parts = new SpriteFrame($"{frame.Name}#{layer}", frame.Parts[first..end]);
+            sources.AddRange(RuntimeCharacterUploadCatalog.Contents(regions, uploads).Select(contents => new SheetFrameSource(
+                RuntimeCharacterUploadDefinitions.Catalog.PictureName(name, layer, contents), parts, Page(contents))));
+            layers.Add(regions);
+            first = end;
+        }
+        return new FramePictures(name, sources, [.. layers]);
     }
 
-    /// <summary>Whether a part of <paramref name="frame"/> reads a character in <paramref name="region"/>.</summary>
-    private static bool DrawsOver(SpriteFrame frame, CharacterRegion region)
+    /// <summary>Whether <paramref name="part"/> reads a character in <paramref name="region"/>.</summary>
+    private static bool DrawsOver(SpriteFramePart part, CharacterRegion region)
     {
-        foreach (SpriteFramePart part in frame.Parts)
+        for (int row = 0; row < part.Size.Y / SpriteArtwork.CharacterPixels; row++)
         {
-            for (int row = 0; row < part.Size.Y / SpriteArtwork.CharacterPixels; row++)
+            for (int column = 0; column < part.Size.X / SpriteArtwork.CharacterPixels; column++)
             {
-                for (int column = 0; column < part.Size.X / SpriteArtwork.CharacterPixels; column++)
-                {
-                    // A character past the table reads the page's blank overhang.
-                    int firstByte = (part.Character + row * SpriteArtwork.CharactersPerRow + column) * SpriteArtwork.CharacterByteCount;
-                    if (firstByte < ObjCharacterUploads.TableByteCount && firstByte < region.FirstByte + region.ByteCount
-                        && region.FirstByte < firstByte + SpriteArtwork.CharacterByteCount)
-                        return true;
-                }
+                // A character past the table reads the page's blank overhang.
+                int firstByte = (part.Character + row * SpriteArtwork.CharactersPerRow + column) * SpriteArtwork.CharacterByteCount;
+                if (firstByte < ObjCharacterUploads.TableByteCount && firstByte < region.FirstByte + region.ByteCount
+                    && region.FirstByte < firstByte + SpriteArtwork.CharacterByteCount)
+                    return true;
             }
         }
         return false;
@@ -80,7 +94,7 @@ internal sealed class SetCharacters
     /// <summary>The characters with each upload <paramref name="contents"/> names shown over its region.</summary>
     private SpriteArtwork Page(IReadOnlyList<CharacterRegionContent> contents)
     {
-        string key = RuntimeCharacterUploadDefinitions.Catalog.PictureName("page", contents);
+        string key = RuntimeCharacterUploadDefinitions.Catalog.PictureName("page", 0, contents);
         if (pages.TryGetValue(key, out SpriteArtwork? page))
             return page;
         byte[] shown = [.. table];
@@ -103,5 +117,5 @@ internal sealed class SetCharacters
 /// <summary>The pictures of one frame (#1392).</summary>
 /// <param name="Name">The frame's name, which names its pictures.</param>
 /// <param name="Sources">Each picture's composition.</param>
-/// <param name="Regions">The uploaded regions the frame is drawn over; none when its one picture is the frame alone.</param>
-internal sealed record FramePictures(string Name, IReadOnlyList<SheetFrameSource> Sources, CharacterRegion[] Regions);
+/// <param name="Layers">The frame's layers, front first, each with the uploaded regions it reads; none when it is drawn whole.</param>
+internal sealed record FramePictures(string Name, IReadOnlyList<SheetFrameSource> Sources, CharacterRegion[][] Layers);

@@ -70,13 +70,14 @@ public sealed class RuntimeCharacterUploadCatalog
     }
 
     /// <summary>
-    /// The name of the picture of <paramref name="frame"/> whose regions each show what <paramref name="shown"/> pairs with
-    /// it; a frame drawn over no region is its own name.
+    /// The name of the picture of layer <paramref name="layer"/> of <paramref name="frame"/> whose regions each show what
+    /// <paramref name="shown"/> pairs with it.
     /// </summary>
-    public string PictureName(string frame, IReadOnlyList<CharacterRegionContent> shown)
+    public string PictureName(string frame, int layer, IReadOnlyList<CharacterRegionContent> shown)
     {
         ArgumentException.ThrowIfNullOrEmpty(frame);
-        return frame + string.Concat(Ensure.NotNull(shown).Select(content =>
+        Ensure.AtLeastZero(layer);
+        return $"{frame}#{layer}" + string.Concat(Ensure.NotNull(shown).Select(content =>
             $"|{content.Region.FirstByte:X4}={(content.Upload is { } upload ? $"u{all.IndexOf(upload)}" : "set")}"));
     }
 

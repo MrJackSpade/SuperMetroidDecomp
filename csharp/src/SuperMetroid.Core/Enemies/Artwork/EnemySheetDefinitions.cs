@@ -14,7 +14,7 @@ public static class EnemySheetDefinitions
     public const string ManifestFileName = "enemy-sheets.json";
 
     /// <summary>The manifest revision this build reads.</summary>
-    public const int ManifestVersion = 3;
+    public const int ManifestVersion = 4;
 
     /// <summary>
     /// The enemies whose characters change while they draw in ways not yet pre-coloured, as their bosses and corpses upload
@@ -26,7 +26,6 @@ public static class EnemySheetDefinitions
         EnemyDefinitionId.CorpseSidehopper, EnemyDefinitionId.CorpseTorizo,
         EnemyDefinitionId.MotherBrainBody, EnemyDefinitionId.MotherBrainHead, EnemyDefinitionId.MotherBrainTubes,
         EnemyDefinitionId.Ridley, EnemyDefinitionId.RidleyCeres, EnemyDefinitionId.RidleyExplosion,
-        EnemyDefinitionId.BombTorizo, EnemyDefinitionId.GoldenTorizo,
     };
 
     /// <summary>The sheet frame showing an ordinary enemy frame.</summary>

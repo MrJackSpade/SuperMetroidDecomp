@@ -19,12 +19,13 @@ public sealed record EnemySheetManifestDocument
     public required Dictionary<string, Dictionary<string, SpawnedObjectSheetDocument>> Spawned { get; init; }
 
     /// <summary>
-    /// For each graphics set by name, then each enemy by definition name and each of its frames by name, the regions the
-    /// frame is drawn over whose characters the set's encounters upload after the room loads; the enemy's sheet holds a
-    /// picture of that frame for each upload each region can show. A frame drawn over none is absent.
+    /// For each graphics set by name, then each enemy by definition name and each of its frames by name, the frame's layers
+    /// when it is drawn over characters the set's encounters upload after the room loads: its parts in draw order, in runs
+    /// reading the same uploaded regions, each run with the regions it reads. The enemy's sheet holds a picture of each
+    /// layer for each upload each of its regions can show. A frame drawn over none is absent and drawn whole.
     /// </summary>
-    public required Dictionary<string, Dictionary<string, Dictionary<string, CharacterRegion[]>>> Pictures { get; init; }
+    public required Dictionary<string, Dictionary<string, Dictionary<string, CharacterRegion[][]>>> Pictures { get; init; }
 
     /// <summary>The same for each set's spawned-object sheets, by the tile base in decimal in place of the enemy.</summary>
-    public required Dictionary<string, Dictionary<string, Dictionary<string, CharacterRegion[]>>> SpawnedPictures { get; init; }
+    public required Dictionary<string, Dictionary<string, Dictionary<string, CharacterRegion[][]>>> SpawnedPictures { get; init; }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Draygon;
@@ -54,34 +55,33 @@ internal static class DraygonEvirPicturesVerification
         string frame = EnemySheetDefinitions.SpriteObjectFrameName(RoomSpriteObjectVisualDefinitions.ShownFrames.Of(evir.Frame));
         // The runtime draws from the sheets it loaded with its installation.
         IEnemySheetSource sheets = runtime.EnemySession.Sheets ?? throw new InvalidOperationException("The runtime loads the enemy sheets.");
-        IReadOnlyList<CharacterRegion> regions = sheets.SpawnedRegions(set, tileBase, frame);
-        AssertTrue(regions.Count > 0, $"the Evir's frame {frame} is drawn over characters Draygon's opening uploads");
+        IReadOnlyList<CharacterRegion[]> layers = sheets.SpawnedLayers(set, tileBase, frame);
+        AssertTrue(layers.Count > 0, $"the Evir's frame {frame} is drawn over characters Draygon's opening uploads");
         SpriteSheet sheet = sheets.Spawned(set, tileBase).Sheet;
-        string setPicture = sheets.Uploads.PictureName(frame, [.. regions.Select(region => new CharacterRegionContent(region, null))]);
-        string evirPicture = sheets.Uploads.PictureName(frame,
-            [.. regions.Select(region => new CharacterRegionContent(region, DraygonIntroPresentationDefinitions.EvirUpload))]);
+        IReadOnlyList<string> setPictures = UploadedPictureChecks.ExpectedPictures(sheets, frame, layers, []);
+        IReadOnlyList<string> evirPictures = UploadedPictureChecks.ExpectedPictures(sheets, frame, layers, [DraygonIntroPresentationDefinitions.EvirUpload]);
 
-        AssertTrue(ReferenceEquals(sheet.Frame(setPicture), AssertDrawnLikeParts(runtime, evir, "before the opening upload").Image),
-            "an Evir drawn before the opening upload shows the picture of the set's own characters");
+        UploadedPictureChecks.AssertDrawnPictures(sheet, setPictures, AssertDrawnLikeParts(runtime, evir, "before the opening upload"),
+            "an Evir drawn before the opening upload shows the pictures of the set's own characters");
         runtime.EnemySession.ObjCharacters.Record(DraygonIntroPresentationDefinitions.EvirUpload);
-        AssertTrue(ReferenceEquals(sheet.Frame(evirPicture), AssertDrawnLikeParts(runtime, evir, "after the opening upload").Image),
-            "an Evir drawn after the opening upload shows the picture of the Evirs' tiles");
-        Console.WriteLine($"Draygon Evir pictures: {setPicture} before her opening upload and {evirPicture} after, each painting its frame over the live characters.");
+        UploadedPictureChecks.AssertDrawnPictures(sheet, evirPictures, AssertDrawnLikeParts(runtime, evir, "after the opening upload"),
+            "an Evir drawn after the opening upload shows the pictures of the Evirs' tiles");
+        Console.WriteLine($"Draygon Evir pictures: {string.Join(", ", setPictures)} before her opening upload and {string.Join(", ", evirPictures)} after, each painting its frame over the live characters.");
     }
 
     /// <summary>
     /// Draws <paramref name="evir"/> from the room's sheet and asserts the picture paints exactly what its frame's parts
-    /// paint over the room's live OBJ characters, the path it drew through before sheets; returns the draw.
+    /// paint over the room's live OBJ characters, the path it drew through before sheets; returns its draws.
     /// </summary>
-    private static ImageSpriteDraw AssertDrawnLikeParts(SuperMetroidRuntime runtime, RoomSpriteObjectSlot evir, string when)
+    private static ImmutableArray<SpriteDraw> AssertDrawnLikeParts(SuperMetroidRuntime runtime, RoomSpriteObjectSlot evir, string when)
     {
         SpriteArtwork live = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.ObjCharacters);
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
         runtime.Enemies.SpriteObjects.DrawRoomSpriteObjects(sprites, live, Position16<RoomPixels>.Zero);
         sprites.FinalizeFrame();
-        ImageSpriteDraw drawn = AssertIs<ImageSpriteDraw>(sprites.Draws.Single(draw => draw.Source == new SpriteSource(SpriteSourceKind.RoomSpriteObject, evir.SlotIndex)),
-            $"the Evir draws from a sheet {when}");
+        ImmutableArray<SpriteDraw> drawn = [.. sprites.Draws.Where(draw => draw.Source == new SpriteSource(SpriteSourceKind.RoomSpriteObject, evir.SlotIndex))];
+        AssertTrue(drawn.Length > 0, $"the Evir draws {when}");
 
         EnemyFrameId shown = RoomSpriteObjectVisualDefinitions.ShownFrames.Of(evir.Frame);
         AssertTrue((InstalledFixtures.EnemyTiles.Spritemaps ?? throw new InvalidOperationException("Verification requires the installed compositions."))
@@ -89,11 +89,11 @@ internal static class DraygonEvirPicturesVerification
         ushort paletteBits = evir.Attributes.PaletteBits;
         var parted = new SpriteFrameBuffer();
         parted.BeginFrame();
-        EnemyPresentation.PublishParts(parted, live, drawn.Source, EnemySpriteFrames.Frame(parts, checked((ushort)evir.Attributes.TileNumber), paletteBits),
-            drawn.Origin, paletteBits);
+        EnemyPresentation.PublishParts(parted, live, drawn[0].Source, EnemySpriteFrames.Frame(parts, checked((ushort)evir.Attributes.TileNumber), paletteBits),
+            drawn[0].Origin, paletteBits);
         parted.FinalizeFrame();
 
-        UploadedPictureChecks.AssertPaintsLikeParts(runtime, [drawn], parted.Draws, $"the Evir {when}");
+        UploadedPictureChecks.AssertPaintsLikeParts(runtime, drawn, parted.Draws, $"the Evir {when}");
         return drawn;
     }
 

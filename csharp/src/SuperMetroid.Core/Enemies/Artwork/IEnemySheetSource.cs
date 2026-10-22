@@ -23,12 +23,12 @@ public interface IEnemySheetSource
     RuntimeCharacterUploadCatalog Uploads { get; }
 
     /// <summary>
-    /// The regions frame <paramref name="frame"/> of <paramref name="enemy"/>'s sheet under graphics set
-    /// <paramref name="set"/> is drawn over whose characters the set's encounters upload after the room loads; none for a
-    /// frame the set's own characters alone show.
+    /// The layers frame <paramref name="frame"/> of <paramref name="enemy"/>'s sheet under graphics set
+    /// <paramref name="set"/> draws as, front first, each with the regions it reads whose characters the set's encounters
+    /// upload after the room loads; none for a frame drawn whole, as the set's own characters alone show it.
     /// </summary>
-    IReadOnlyList<CharacterRegion> Regions(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame);
+    IReadOnlyList<CharacterRegion[]> Layers(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame);
 
     /// <summary>The same for frame <paramref name="frame"/> of the set's spawned-object sheet for <paramref name="tileBase"/>.</summary>
-    IReadOnlyList<CharacterRegion> SpawnedRegions(RoomEnemyGraphicsSetDefinition set, int tileBase, string frame);
+    IReadOnlyList<CharacterRegion[]> SpawnedLayers(RoomEnemyGraphicsSetDefinition set, int tileBase, string frame);
 }

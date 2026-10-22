@@ -40,15 +40,15 @@ internal static class EnemySheetComposer
         var perEnemy = new Dictionary<EnemyDefinitionId, int>();
         var sets = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
         var spawned = new Dictionary<string, Dictionary<string, SpawnedObjectSheetDocument>>(StringComparer.Ordinal);
-        var pictures = new Dictionary<string, Dictionary<string, Dictionary<string, CharacterRegion[]>>>(StringComparer.Ordinal);
-        var spawnedPictures = new Dictionary<string, Dictionary<string, Dictionary<string, CharacterRegion[]>>>(StringComparer.Ordinal);
+        var pictures = new Dictionary<string, Dictionary<string, Dictionary<string, CharacterRegion[][]>>>(StringComparer.Ordinal);
+        var spawnedPictures = new Dictionary<string, Dictionary<string, Dictionary<string, CharacterRegion[][]>>>(StringComparer.Ordinal);
         var perBase = new Dictionary<int, int>();
         foreach (RoomEnemyGraphicsSetDefinition set in RoomEnemyGraphicsSetDefinitions.DrawnUnder)
         {
             GraphicsSetSheetSources setSources = Sources(inputs, set);
             var members = new Dictionary<string, string>(StringComparer.Ordinal);
-            var memberPictures = new Dictionary<string, Dictionary<string, CharacterRegion[]>>(StringComparer.Ordinal);
-            foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources, IReadOnlyDictionary<string, CharacterRegion[]> framePictures) in setSources.Enemies)
+            var memberPictures = new Dictionary<string, Dictionary<string, CharacterRegion[][]>>(StringComparer.Ordinal);
+            foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources, IReadOnlyDictionary<string, CharacterRegion[][]> framePictures) in setSources.Enemies)
             {
                 ComposedSpriteSheet composed = SpriteSheetComposer.Compose(sources, 0, 0);
                 string key = Fingerprint(composed);
@@ -65,7 +65,7 @@ internal static class EnemySheetComposer
                     throw new InvalidDataException($"Enemy graphics set {set.Name} colours {enemy} two ways.");
                 members[enemy.ToString()] = name;
                 if (framePictures.Count > 0)
-                    memberPictures[enemy.ToString()] = new Dictionary<string, CharacterRegion[]>(framePictures, StringComparer.Ordinal);
+                    memberPictures[enemy.ToString()] = new Dictionary<string, CharacterRegion[][]>(framePictures, StringComparer.Ordinal);
             }
             sets.Add(set.Name, members);
             if (memberPictures.Count > 0)
@@ -73,8 +73,8 @@ internal static class EnemySheetComposer
             if (!setSources.SpawnsFromSheets)
                 continue;
             var bases = new Dictionary<string, SpawnedObjectSheetDocument>(StringComparer.Ordinal);
-            var basePictures = new Dictionary<string, Dictionary<string, CharacterRegion[]>>(StringComparer.Ordinal);
-            foreach ((SpawnedObjectSheetPlan plan, SpriteSheetSources sources, IReadOnlyDictionary<string, CharacterRegion[]> framePictures) in setSources.Spawned)
+            var basePictures = new Dictionary<string, Dictionary<string, CharacterRegion[][]>>(StringComparer.Ordinal);
+            foreach ((SpawnedObjectSheetPlan plan, SpriteSheetSources sources, IReadOnlyDictionary<string, CharacterRegion[][]> framePictures) in setSources.Spawned)
             {
                 ComposedSpriteSheet composed = SpriteSheetComposer.Compose(sources, 0, 0);
                 string key = Fingerprint(composed);
@@ -95,7 +95,7 @@ internal static class EnemySheetComposer
                 });
                 if (framePictures.Count > 0)
                     basePictures[plan.TileBase.ToString(System.Globalization.CultureInfo.InvariantCulture)] =
-                        new Dictionary<string, CharacterRegion[]>(framePictures, StringComparer.Ordinal);
+                        new Dictionary<string, CharacterRegion[][]>(framePictures, StringComparer.Ordinal);
             }
             spawned.Add(set.Name, bases);
             if (basePictures.Count > 0)
@@ -136,13 +136,13 @@ internal static class EnemySheetComposer
                 continue;
             EnemyGraphicsIndexes indexes = graphics.DrawIndexes(enemy);
             int paletteBits = SnesObjAttributeWord.FromPaletteBits(checked((ushort)indexes.PaletteIndex)).PaletteIndex;
-            var pictures = new Dictionary<string, CharacterRegion[]>(StringComparer.Ordinal);
+            var pictures = new Dictionary<string, CharacterRegion[][]>(StringComparer.Ordinal);
             var frames = new List<SheetFrameSource>();
             foreach (FramePictures framePictures in Frames(inputs.Enemies, shown, checked((ushort)indexes.TileIndex), loaded.Characters))
             {
                 frames.AddRange(framePictures.Sources);
-                if (framePictures.Regions.Length > 0)
-                    pictures.Add(framePictures.Name, framePictures.Regions);
+                if (framePictures.Layers.Length > 0)
+                    pictures.Add(framePictures.Name, framePictures.Layers);
             }
             yield return new EnemySheetSource(enemy, new SpriteSheetSources(frames, colours,
                 ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection), paletteBits), pictures);

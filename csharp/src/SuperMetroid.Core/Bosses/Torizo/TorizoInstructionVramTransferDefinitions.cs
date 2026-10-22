@@ -65,4 +65,10 @@ internal static class TorizoInstructionVramTransferDefinitions
         new(0x0040, 0xaab2f9, 0x7d80),
         new(0x0040, 0xaab339, 0x7d80),
     ];
+
+    /// <summary>Each transfer's upload over the OBJ characters, in entry order (#1392).</summary>
+    [PpuLayoutBoundary("codec: Torizo instruction-list VRAM transfer records' OBJ destinations ($AA, bank-$A0 $814B)")]
+    internal static IReadOnlyList<RuntimeCharacterUpload> Uploads { get; } = [.. Entries.Select((definition, index) => RuntimeCharacterUpload.To(
+        VramDmaDestination.At(GameplayVramLayout.ObjectCharacters, definition.DestinationWord - GameplayVramLayout.ObjectCharacters.Offset),
+        definition.ByteCount, new TorizoTileTransferCharacters(index)))];
 }

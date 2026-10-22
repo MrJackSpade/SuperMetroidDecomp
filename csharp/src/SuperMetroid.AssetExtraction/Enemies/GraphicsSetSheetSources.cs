@@ -14,13 +14,13 @@ internal sealed record GraphicsSetSheetSources(IReadOnlyList<EnemySheetSource> E
 /// <summary>What one enemy's sheet composes under a graphics set.</summary>
 /// <param name="Enemy">The enemy.</param>
 /// <param name="Sources">Its sheet's sources.</param>
-/// <param name="Pictures">The regions each of its frames drawn over uploaded characters is drawn over, by frame name.</param>
+/// <param name="Pictures">The layers each of its frames drawn over uploaded characters draws as, by frame name.</param>
 internal sealed record EnemySheetSource(EnemyDefinitionId Enemy, SpriteSheetSources Sources,
-    IReadOnlyDictionary<string, CharacterRegion[]> Pictures);
+    IReadOnlyDictionary<string, CharacterRegion[][]> Pictures);
 
 /// <summary>What one spawned-object sheet of a graphics set composes.</summary>
 /// <param name="Plan">The tile base, palette and spawners it holds.</param>
 /// <param name="Sources">Its sheet's sources.</param>
-/// <param name="Pictures">The regions each of its frames drawn over uploaded characters is drawn over, by frame name.</param>
+/// <param name="Pictures">The layers each of its frames drawn over uploaded characters draws as, by frame name.</param>
 internal sealed record SpawnedObjectSheetSource(SpawnedObjectSheetPlan Plan, SpriteSheetSources Sources,
-    IReadOnlyDictionary<string, CharacterRegion[]> Pictures);
+    IReadOnlyDictionary<string, CharacterRegion[][]> Pictures);

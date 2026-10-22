@@ -65,21 +65,21 @@ internal static class EnemySheetFixtures
         public RuntimeCharacterUploadCatalog Uploads => SuperMetroid.Core.World.Artwork.RuntimeCharacterUploadDefinitions.Catalog;
 
         /// <inheritdoc/>
-        public IReadOnlyList<CharacterRegion> Regions(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame)
+        public IReadOnlyList<CharacterRegion[]> Layers(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame)
         {
             if (installed is not null && RoomEnemyGraphicsSetDefinitions.DrawnUnder.Contains(set))
-                return installed.Regions(set, enemy, frame);
-            return sets.GetValue(set, Compose).Pictures.TryGetValue(enemy, out IReadOnlyDictionary<string, CharacterRegion[]>? frames)
-                && frames.TryGetValue(frame, out CharacterRegion[]? regions) ? regions : [];
+                return installed.Layers(set, enemy, frame);
+            return sets.GetValue(set, Compose).Pictures.TryGetValue(enemy, out IReadOnlyDictionary<string, CharacterRegion[][]>? frames)
+                && frames.TryGetValue(frame, out CharacterRegion[][]? layers) ? layers : [];
         }
 
         /// <inheritdoc/>
-        public IReadOnlyList<CharacterRegion> SpawnedRegions(RoomEnemyGraphicsSetDefinition set, int tileBase, string frame)
+        public IReadOnlyList<CharacterRegion[]> SpawnedLayers(RoomEnemyGraphicsSetDefinition set, int tileBase, string frame)
         {
             if (installed is not null && RoomEnemyGraphicsSetDefinitions.DrawnUnder.Contains(set))
-                return installed.SpawnedRegions(set, tileBase, frame);
-            return sets.GetValue(set, Compose).SpawnedPictures.TryGetValue(tileBase, out IReadOnlyDictionary<string, CharacterRegion[]>? frames)
-                && frames.TryGetValue(frame, out CharacterRegion[]? regions) ? regions : [];
+                return installed.SpawnedLayers(set, tileBase, frame);
+            return sets.GetValue(set, Compose).SpawnedPictures.TryGetValue(tileBase, out IReadOnlyDictionary<string, CharacterRegion[][]>? frames)
+                && frames.TryGetValue(frame, out CharacterRegion[][]? layers) ? layers : [];
         }
 
         /// <summary>Composes and registers one graphics set's sheets.</summary>
@@ -89,15 +89,15 @@ internal static class EnemySheetFixtures
             // A name of its own keeps its frames apart from the installed sheets' in the frame-source registry.
             string owner = $"fixture-{RuntimeHelpers.GetHashCode(inputs.Enemies):X8}-{set.Name}-{RuntimeHelpers.GetHashCode(set):X8}";
             var enemies = new Dictionary<EnemyDefinitionId, SpriteSheet>();
-            var pictures = new Dictionary<EnemyDefinitionId, IReadOnlyDictionary<string, CharacterRegion[]>>();
-            foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources, IReadOnlyDictionary<string, CharacterRegion[]> framePictures) in setSources.Enemies)
+            var pictures = new Dictionary<EnemyDefinitionId, IReadOnlyDictionary<string, CharacterRegion[][]>>();
+            foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources, IReadOnlyDictionary<string, CharacterRegion[][]> framePictures) in setSources.Enemies)
             {
                 enemies[enemy] = Load(sources, $"{enemy}-{owner}");
                 pictures[enemy] = framePictures;
             }
             var spawned = new Dictionary<int, SpawnedObjectSheet>();
-            var spawnedPictures = new Dictionary<int, IReadOnlyDictionary<string, CharacterRegion[]>>();
-            foreach ((SpawnedObjectSheetPlan plan, SpriteSheetSources sources, IReadOnlyDictionary<string, CharacterRegion[]> framePictures) in setSources.Spawned)
+            var spawnedPictures = new Dictionary<int, IReadOnlyDictionary<string, CharacterRegion[][]>>();
+            foreach ((SpawnedObjectSheetPlan plan, SpriteSheetSources sources, IReadOnlyDictionary<string, CharacterRegion[][]> framePictures) in setSources.Spawned)
             {
                 spawned[plan.TileBase] = new SpawnedObjectSheet(Load(sources, $"Spawned-{plan.TileBase:X3}-{owner}"), plan.Palette);
                 spawnedPictures[plan.TileBase] = framePictures;
@@ -124,6 +124,6 @@ internal static class EnemySheetFixtures
     /// <param name="SpawnedPictures">The same for each spawned-object sheet, by tile base.</param>
     private sealed record ComposedSet(IReadOnlyDictionary<EnemyDefinitionId, SpriteSheet> Enemies, bool SpawnsFromSheets,
         IReadOnlyDictionary<int, SpawnedObjectSheet> Spawned,
-        IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyDictionary<string, CharacterRegion[]>> Pictures,
-        IReadOnlyDictionary<int, IReadOnlyDictionary<string, CharacterRegion[]>> SpawnedPictures);
+        IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyDictionary<string, CharacterRegion[][]>> Pictures,
+        IReadOnlyDictionary<int, IReadOnlyDictionary<string, CharacterRegion[][]>> SpawnedPictures);
 }

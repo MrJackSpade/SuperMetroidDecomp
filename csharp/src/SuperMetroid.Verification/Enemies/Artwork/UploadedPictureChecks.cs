@@ -46,6 +46,26 @@ internal static class UploadedPictureChecks
     }
 
     /// <summary>
+    /// The pictures <paramref name="frame"/> draws as, front first, once <paramref name="made"/> are made: the frame whole,
+    /// or each of its <paramref name="layers"/> showing in each region it reads the upload made last over it, or the
+    /// set's own characters before any is.
+    /// </summary>
+    internal static IReadOnlyList<string> ExpectedPictures(IEnemySheetSource sheets, string frame, IReadOnlyList<CharacterRegion[]> layers,
+        IReadOnlyList<RuntimeCharacterUpload> made) =>
+        layers.Count == 0 ? [frame] : [.. layers.Select((regions, layer) => sheets.Uploads.PictureName(frame, layer,
+            [.. regions.Select(region => new CharacterRegionContent(region,
+                made.LastOrDefault(upload => RuntimeCharacterUploadCatalog.Over([upload], region).Any())))]))];
+
+    /// <summary>Asserts <paramref name="drawn"/> are exactly <paramref name="sheet"/>'s pictures named <paramref name="expected"/>, in order.</summary>
+    internal static void AssertDrawnPictures(SpriteSheet sheet, IReadOnlyList<string> expected, ImmutableArray<SpriteDraw> drawn, string message)
+    {
+        AssertEqual(expected.Count, drawn.Length, $"{message}: draws one image for each layer");
+        for (int layer = 0; layer < expected.Count; layer++)
+            AssertTrue(drawn[layer] is ImageSpriteDraw image && ReferenceEquals(sheet.Frame(expected[layer]), image.Image),
+                $"{message}: layer {layer} shows {expected[layer]}");
+    }
+
+    /// <summary>
     /// Makes <paramref name="uploads"/> over the runtime's characters in order and asserts, before the first and after
     /// each, that the draw selects for every region the loaded set's uploads make the upload made last over it, or the
     /// room load's characters before any is, and that the live characters there are exactly the bytes that picture

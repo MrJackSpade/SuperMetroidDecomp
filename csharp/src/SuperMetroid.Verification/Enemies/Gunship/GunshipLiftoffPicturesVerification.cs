@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
@@ -68,26 +69,23 @@ internal static class GunshipLiftoffPicturesVerification
             {
                 EnemyFrameId frame = part.Frame ?? throw new InvalidOperationException($"The ship's {part.DefinitionId} shows a frame.");
                 string name = EnemySheetDefinitions.FrameName(frame);
-                IReadOnlyList<CharacterRegion> regions = sheets.Regions(set, part.DefinitionId, name);
-                if (regions.Count > 0)
+                IReadOnlyList<CharacterRegion[]> layers = sheets.Layers(set, part.DefinitionId, name);
+                if (layers.Count > 0)
                     pictured++;
-                // Each region shows the upload made last over it, or the set's own characters before any is.
-                string expected = sheets.Uploads.PictureName(name, [.. regions.Select(region => new CharacterRegionContent(region,
-                    made.LastOrDefault(upload => upload.FirstByte <= region.FirstByte && region.FirstByte + region.ByteCount <= upload.FirstByte + upload.ByteCount)))]);
                 var source = new SpriteSource(SpriteSourceKind.Enemy, part.SlotIndex);
-                ImageSpriteDraw drawn = AssertIs<ImageSpriteDraw>(sprites.Draws.Single(draw => draw.Source == source),
-                    $"the ship's {part.DefinitionId} draws from a sheet after {step} liftoff uploads");
-                AssertTrue(ReferenceEquals(sheets.For(set, part.DefinitionId).Frame(expected), drawn.Image),
-                    $"after {step} liftoff uploads the ship's {part.DefinitionId} shows {expected}");
+                ImmutableArray<SpriteDraw> drawn = [.. sprites.Draws.Where(draw => draw.Source == source)];
+                UploadedPictureChecks.AssertDrawnPictures(sheets.For(set, part.DefinitionId),
+                    UploadedPictureChecks.ExpectedPictures(sheets, name, layers, made), drawn,
+                    $"after {step} liftoff uploads the ship's {part.DefinitionId}");
 
                 var parted = new SpriteFrameBuffer();
                 parted.BeginFrame();
                 runtime.Enemies.Presentation.PublishEnemySpritemap(parted, live, source, new EnemySpritemapDraw
                 {
-                    Frame = frame, Origin = new(drawn.Origin.X, drawn.Origin.Y), PaletteBits = part.PaletteIndex, BaseTileIndex = part.VramTilesIndex,
+                    Frame = frame, Origin = new(drawn[0].Origin.X, drawn[0].Origin.Y), PaletteBits = part.PaletteIndex, BaseTileIndex = part.VramTilesIndex,
                 });
                 parted.FinalizeFrame();
-                UploadedPictureChecks.AssertPaintsLikeParts(runtime, [drawn], parted.Draws, $"the ship's {part.DefinitionId} after {step} liftoff uploads");
+                UploadedPictureChecks.AssertPaintsLikeParts(runtime, drawn, parted.Draws, $"the ship's {part.DefinitionId} after {step} liftoff uploads");
             }
         }
         AssertTrue(pictured > 0, "the ship is drawn over characters its takeoff uploads");

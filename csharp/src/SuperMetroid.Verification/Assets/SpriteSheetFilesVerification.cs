@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Verification.Harness;
@@ -26,6 +27,11 @@ internal static class SpriteSheetFilesVerification
         {
             string stock = Path.Combine(scratch.FullName, "stock");
             string overrides = Path.Combine(scratch.FullName, "overrides");
+            // The body sheets are named from the body tables installed beside them.
+            string body = Path.Combine(RepositoryInstallation.Installation.ContentDirectory, GameInstallationLayout.SamusBodyDirectoryName);
+            Directory.CreateDirectory(Path.Combine(scratch.FullName, GameInstallationLayout.SamusBodyDirectoryName));
+            foreach (string file in Directory.GetFiles(body))
+                File.Copy(file, Path.Combine(scratch.FullName, GameInstallationLayout.SamusBodyDirectoryName, Path.GetFileName(file)));
             SpriteSheetFiles.Extract(bus, RepositoryInstallation.Installation.ContentDirectory, stock, SupportedCartridge.Sha256);
             InstalledSpriteSheets installed = SpriteSheetFiles.Load(stock, null);
 
@@ -33,7 +39,7 @@ internal static class SpriteSheetFilesVerification
             SpriteSheet timer = installed.Get(SpriteSheetId.EscapeTimer);
             AssertEqual(composed.Size, timer.Image.Size, "the installed timer image has the composed size");
             AssertTrue(timer.Image.Pixels.SequenceEqual(composed.Pixels), "the installed timer image holds the composed pixels");
-            AssertTrue(timer.HoldsExactly(SpriteSheetFiles.FrameNames(SpriteSheetId.EscapeTimer)),
+            AssertTrue(timer.HoldsExactly(EscapeTimerPresentationDefinitions.Glyphs.Select(EscapeTimerPresentationDefinitions.FrameName)),
                 "the installed timer sheet holds exactly the timer's frames");
 
             string image = SpriteSheetFiles.ImageFile(SpriteSheetId.EscapeTimer);

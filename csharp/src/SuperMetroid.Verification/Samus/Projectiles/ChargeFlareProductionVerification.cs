@@ -42,7 +42,7 @@ internal static class ChargeFlareProductionVerification
         foreach (bool hyper in new[] { false, true })
         {
             var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)), HyperBeamEnabled = hyper };
-            samus.Presentation.TileTransfers.BindArtwork(body);
+            samus.Presentation.TileTransfers.BindBodyFixture(body);
             SamusProjectileSystem native = Create(), compiled = Create();
             for (int tick = 0; tick < 160 && native.Charge.FlareCounter != 0; tick++)
             {
@@ -62,7 +62,7 @@ internal static class ChargeFlareProductionVerification
             var invalidSelector = Create();
             Array.Fill(invalidSelector.Charge.FlareFrames, outOfTableFrame);
             var subject = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
-            subject.Presentation.TileTransfers.BindArtwork(body);
+            subject.Presentation.TileTransfers.BindBodyFixture(body);
             OamBuffer outOfTableOam = invalidSelector.ChargeFlareOam(subject, new(0, 0), placement);
             AssertEqual(0, outOfTableOam.LastFinalizedSpriteCount,
                 $"Out-of-table flare frame ${outOfTableFrame:X4} draws no sprites");
@@ -103,7 +103,7 @@ internal static class ChargeFlareProductionVerification
         roomAssets.Bind(restoredRuntime);
         restoredRuntime.Artwork.MapPresentation = maps;
         restoredRuntime.Artwork.ChargeFlarePlacement = placement;
-        restoredRuntime.Player.IntroducedSamus.Presentation.TileTransfers.BindArtwork(body);
+        restoredRuntime.Player.IntroducedSamus.Presentation.TileTransfers.BindBodyFixture(body);
         restoredRuntime.Player.IntroducedSamus.ArmCannon.Artwork = body.ArmCannon;
         restored.BindArtwork(restored.Artwork with { SpriteSheets = rebound });
         AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Restored actor pass draws the current sheets at the saved animation state");

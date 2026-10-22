@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
@@ -42,9 +43,9 @@ internal static class InstalledSamusArtworkTests
             var stock = new SamusState { Pose = (SamusPoseId)pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), Health = 99 };
             var edited = new SamusState { Pose = stock.Pose, Position = FixedPosition<RoomPixels>.FromWhole(stock.Position.Whole), Health = stock.Health };
             SamusPoseMetadata.RefreshCollisionRadii(stock); SamusPoseMetadata.RefreshCollisionRadii(edited);
-            stock.Presentation.TileTransfers.BindArtwork(fixture.Stock);
+            stock.Presentation.TileTransfers.BindBodyFixture(fixture.Stock);
             stock.Presentation.TileTransfers.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
-            edited.Presentation.TileTransfers.BindArtwork(fixture.Edited);
+            edited.Presentation.TileTransfers.BindBodyFixture(fixture.Edited);
             edited.Presentation.TileTransfers.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
             string before = PhysicalState(stock);
             var a = new SnesVram(); var b = new SnesVram();

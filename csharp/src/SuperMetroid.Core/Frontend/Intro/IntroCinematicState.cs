@@ -49,8 +49,15 @@ public sealed class IntroCinematicState : IFrontendScreen
         if (!ReferenceEquals(previous.TrailArtwork, artwork.TrailArtwork))
             TrailArtwork = artwork.TrailArtwork;
         if (!ReferenceEquals(previous.SpriteSheets, artwork.SpriteSheets))
+        {
+            spriteSheets = artwork.SpriteSheets;
             projectileSheets = artwork.SpriteSheets is { } sheets ? ProjectileSheets.IntroFlashbacks(sheets) : null;
+            CurrentFlashbackSamus?.Presentation.TileTransfers.BindSheets(spriteSheets);
+        }
     }
+
+    /// <summary>The installed sheets the flashbacks' Samus draws from.</summary>
+    [NonSerialized] private InstalledSpriteSheets? spriteSheets;
 
     /// <summary>The intro's projectile sheet, which the flashbacks' projectiles, bombs and trails draw from.</summary>
     [NonSerialized] private ProjectileSheets? projectileSheets;
@@ -662,6 +669,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // intro palette restoration and suppress gameplay-only sound/landing effects.
         CurrentFlashbackSamus.LiquidPhysics.CinematicFunctionActive = true;
         CurrentFlashbackSamus.Presentation.TileTransfers.BindArtwork(samusBodyArtwork);
+        CurrentFlashbackSamus.Presentation.TileTransfers.BindSheets(spriteSheets);
         SamusPoseMetadata.RefreshCollisionRadii(CurrentFlashbackSamus);
         SamusPresentation.InitializeAnimation(CurrentFlashbackSamus);
         CurrentFlashbackSamus.CommitPoseHistory();

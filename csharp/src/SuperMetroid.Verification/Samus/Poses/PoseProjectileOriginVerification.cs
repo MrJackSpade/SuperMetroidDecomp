@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -47,7 +48,7 @@ internal static class PoseProjectileOriginVerification
         {
             guardedPose = samus.Pose = (SamusPoseId)pose;
             int art = SignedByteClasses[artIndex];
-            samus.Presentation.TileTransfers.BindArtwork(artwork[artIndex]);
+            samus.Presentation.TileTransfers.BindBodyFixture(artwork[artIndex]);
             samus.Position = samus.Position.WithWholeX(unchecked((ushort)(pose * 251 + art)));
             samus.Position = samus.Position.WithWholeY(unchecked((ushort)~samus.Position.X.Whole));
             byte physicalY = rom.ReadCartridgeByte(0x91b629 + pose * 8 + 4);

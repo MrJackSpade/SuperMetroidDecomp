@@ -297,7 +297,7 @@ public sealed class SamusBombProjectileSystem
             SpriteSheetFrame image = artwork.Sheet.Frame(ProjectileSheetDefinitions.ProjectileFrame(
                 slot.Sprite ?? throw new InvalidOperationException("A drawn bomb shows a composition.")));
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusBomb, slotIndex), image,
-                new Position16<ScreenPixels>(unchecked((ushort)screenX), screenY), SpriteMirror.None, image.Priority));
+                new Position16<ScreenPixels>(unchecked((ushort)screenX), screenY), SpriteMirror.None));
         }
     }
 

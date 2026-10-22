@@ -46,7 +46,7 @@ public static class SpriteSheetFiles
             RgbaPng.Write(image, composed.Size, composed.Pixels);
             Write(directory, ImageFile(sheet), image.ToArray(), hashes);
             using var palette = new MemoryStream();
-            RgbaPng.Write(palette, composed.Size, PaletteImage(composed.PaletteIndices));
+            RgbaPng.Write(palette, composed.Size, PaletteImage(composed.PaletteIndices, composed.Priorities));
             Write(directory, PaletteFile(sheet), palette.ToArray(), hashes);
             Write(directory, FrameFile(sheet), SpriteSheet.Write(composed.Manifest), hashes);
         }
@@ -68,6 +68,9 @@ public static class SpriteSheetFiles
             manifest.Sha256 is null || manifest.Sha256.Count != SpriteSheetDefinitions.Sheets.Count * 3)
             throw new InvalidDataException($"Sprite sheet manifest {manifestPath} does not describe this installation.");
         var sheets = new Dictionary<SpriteSheetId, SpriteSheet>();
+        // The body sheets are named from the stock body tables installed beside them.
+        var body = new Lazy<SamusBodyArtworkCatalog>(() => SamusBodyArtworkFiles.Load(
+            Path.Combine(Path.GetDirectoryName(Path.GetFullPath(stockDirectory))!, GameInstallationLayout.SamusBodyDirectoryName), null));
         foreach (SpriteSheetId sheet in SpriteSheetDefinitions.Sheets)
         {
             byte[] image = Selected(stockDirectory, overrideDirectory, ImageFile(sheet), manifest);
@@ -87,8 +90,8 @@ public static class SpriteSheetFiles
             if (indexSize != size)
                 throw new InvalidDataException($"Sprite sheet {PaletteFile(sheet)} is not the size of {ImageFile(sheet)}.");
             SpriteSheet loaded = SpriteSheet.Load(new MemoryStream(frames, writable: false), SpriteSheetDefinitions.FileName(sheet),
-                size, pixels, [.. indices.Select(index => index.R)]);
-            if (!loaded.HoldsExactly(FrameNames(sheet)))
+                size, pixels, [.. indices.Select(index => index.R)], [.. indices.Select(index => index.G)]);
+            if (!loaded.HoldsExactly(FrameNames(sheet, body)))
                 throw new InvalidDataException($"Sprite sheet {FrameFile(sheet)} does not hold exactly the frames its family draws.");
             sheets.Add(sheet, loaded);
         }
@@ -103,29 +106,33 @@ public static class SpriteSheetFiles
     {
         SpriteSheetId.EscapeTimer => EscapeTimerSheetComposer.Compose(bus),
         SpriteSheetId.Grapple => GrappleSheetComposer.Compose(samus),
+        SpriteSheetId.SamusBodyTop or SpriteSheetId.SamusBodyBottom => SamusBodySheetComposer.Compose(samus, sheet),
         _ => ProjectileSheetComposer.Compose(samus, sheet),
     };
 
     /// <summary>The frames a sheet must hold: the ones its family draws.</summary>
-    internal static IEnumerable<string> FrameNames(SpriteSheetId sheet) => sheet switch
+    /// <param name="sheet">The sheet.</param>
+    /// <param name="body">Samus's body tables, which name the body sheets' frames.</param>
+    internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, Lazy<SamusBodyArtworkCatalog> body) => sheet switch
     {
         SpriteSheetId.EscapeTimer => EscapeTimerPresentationDefinitions.Glyphs.Select(EscapeTimerPresentationDefinitions.FrameName),
         SpriteSheetId.Grapple => GrappleSheetDefinitions.Frames,
+        SpriteSheetId.SamusBodyTop or SpriteSheetId.SamusBodyBottom => SamusBodySheetComposer.FrameNames(body.Value, sheet),
         _ => ProjectileSheetDefinitions.Frames,
     };
 
     /// <summary>A sheet's image file name.</summary>
     internal static string ImageFile(SpriteSheetId sheet) => SpriteSheetDefinitions.FileName(sheet) + ".png";
 
-    /// <summary>A sheet's palette-index image file name: each pixel's palette row times sixteen plus its colour in red.</summary>
+    /// <summary>A sheet's palette-index image file name: each pixel's palette row times sixteen plus its colour in red, its priority in green.</summary>
     internal static string PaletteFile(SpriteSheetId sheet) => SpriteSheetDefinitions.FileName(sheet) + ".palette.png";
 
-    /// <summary>The palette-index image: each index in red, opaque where a colour is shown.</summary>
-    private static Rgba32[] PaletteImage(ReadOnlySpan<byte> indices)
+    /// <summary>The palette-index image: each index in red and priority in green, opaque where a colour is shown.</summary>
+    private static Rgba32[] PaletteImage(ReadOnlySpan<byte> indices, ReadOnlySpan<byte> priorities)
     {
         var pixels = new Rgba32[indices.Length];
         for (int pixel = 0; pixel < indices.Length; pixel++)
-            pixels[pixel] = new Rgba32(indices[pixel], 0, 0, indices[pixel] == 0 ? (byte)0 : byte.MaxValue);
+            pixels[pixel] = new Rgba32(indices[pixel], priorities[pixel], 0, indices[pixel] == 0 ? (byte)0 : byte.MaxValue);
         return pixels;
     }
 

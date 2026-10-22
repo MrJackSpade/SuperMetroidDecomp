@@ -215,6 +215,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         // All Samus constructors call this rebind before priming the first visual DMA.
         _player.Samus.Presentation.TileTransfers.BindArtwork(SamusBodyArt);
         _player.Samus.Presentation.TileTransfers.BindStandardObjects(StandardObjects);
+        _player.Samus.Presentation.TileTransfers.BindSheets(SpriteSheets);
         _player.Samus.ArmCannon.Artwork = SamusBodyArt?.ArmCannon;
     }
 
@@ -361,6 +362,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         {
             field = value;
             ProjectileSheets = value is null ? null : SuperMetroid.Core.Samus.Artwork.ProjectileSheets.Gameplay(value);
+            _player.Samus?.Presentation.TileTransfers.BindSheets(value);
         }
     }
 

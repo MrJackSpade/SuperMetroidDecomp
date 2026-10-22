@@ -104,7 +104,7 @@ internal static class GrappleFlarePresentationVerification
         {
             foreach (SamusState samus in new[] { native, actual, changed })
             {
-                samus.Presentation.TileTransfers.BindArtwork(body);
+                samus.Presentation.TileTransfers.BindBodyFixture(body);
                 samus.Grapple.FlarePlacement = flarePlacement;
             }
             int expectedFrame = native.Grapple.FlareAnimationFrame;
@@ -189,7 +189,7 @@ internal static class GrappleFlarePresentationVerification
         roomAssets.Bind(restoredRuntime);
         restoredRuntime.Artwork.MapPresentation = maps;
         restoredRuntime.Artwork.GrappleArtwork = grappleArtwork;
-        restoredRuntime.Player.IntroducedSamus.Presentation.TileTransfers.BindArtwork(body);
+        restoredRuntime.Player.IntroducedSamus.Presentation.TileTransfers.BindBodyFixture(body);
         restoredRuntime.Player.IntroducedSamus.ArmCannon.Artwork = body.ArmCannon;
         restored.BindArtwork(restored.Artwork with { SpriteSheets = rebound });
         AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Restored Grapple actor uses current sheets at the saved timing state");

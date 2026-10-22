@@ -26,7 +26,7 @@ internal static class SpriteSheetComposer
     /// family is drawn with them, sixteen colours each.</param>
     /// <param name="palette">The row of parts that do not choose their own.</param>
     /// <param name="priority">The priority of parts that do not choose their own.</param>
-    /// <exception cref="InvalidDataException">A frame mixes blending and non-blending rows, or priorities.</exception>
+    /// <exception cref="InvalidDataException">A frame mixes blending and non-blending rows.</exception>
     internal static ComposedSpriteSheet Compose(SpriteSheetSources sources, int palette, int priority)
     {
         Ensure.NotNull(sources);
@@ -55,6 +55,7 @@ internal static class SpriteSheetComposer
         int height = Math.Max(1, y + rowHeight);
         var pixels = new Rgba32[width * height];
         var paletteIndices = new byte[width * height];
+        var priorities = new byte[width * height];
         var manifest = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         for (int index = 0; index < frames.Count; index++)
         {
@@ -63,7 +64,6 @@ internal static class SpriteSheetComposer
             Position16<ImagePixels> corner = corners[index];
             bool blends = false;
             SpritePaletteRows rows = SpritePaletteRows.None;
-            int framePriority = frame.Parts.IsEmpty ? 0 : frame.Parts[^1].Priority ?? priority;
             // Back to front, so the first part ends in front.
             for (int partIndex = frame.Parts.Length - 1; partIndex >= 0; partIndex--)
             {
@@ -73,8 +73,6 @@ internal static class SpriteSheetComposer
                     blends = paletteRow >= FirstBlendingRow;
                 else if (blends != paletteRow >= FirstBlendingRow)
                     throw new InvalidDataException($"Sprite frame {name} mixes blending and non-blending palette rows.");
-                if ((part.Priority ?? priority) != framePriority)
-                    throw new InvalidDataException($"Sprite frame {name} mixes priorities.");
                 rows |= SpritePaletteRowSet.Rows[paletteRow];
                 var placed = new SpriteScreenPart(default, part.Size, part.Character,
                     (part.Flip & SnesTileFlipFlags.Horizontal) != 0, (part.Flip & SnesTileFlipFlags.Vertical) != 0, paletteRow, 0);
@@ -90,6 +88,8 @@ internal static class SpriteSheetComposer
                         int sheetY = corner.Y + part.Offset.Y - bound.Top + row;
                         pixels[sheetY * width + sheetX] = spriteColours[paletteRow * RowColours + colour].ToRgba32();
                         paletteIndices[sheetY * width + sheetX] = (byte)(paletteRow * RowColours + colour);
+                        // Parts are laid back to front, so each pixel ends with the priority of the part in front.
+                        priorities[sheetY * width + sheetX] = (byte)(part.Priority ?? priority);
                     }
                 }
             }
@@ -99,14 +99,13 @@ internal static class SpriteSheetComposer
                 Size = new(checked((ushort)bound.Width), checked((ushort)bound.Height)),
                 Origin = new(checked((short)-bound.Left), checked((short)-bound.Top)),
                 Blends = blends,
-                Priority = framePriority,
                 Rows = rows,
             });
         }
         ushort[] colours = new ushort[spriteColours.Length];
         for (int colour = 0; colour < colours.Length; colour++)
             colours[colour] = spriteColours[colour].ToWord();
-        return new ComposedSpriteSheet(new((ushort)width, (ushort)height), pixels, paletteIndices,
+        return new ComposedSpriteSheet(new((ushort)width, (ushort)height), pixels, paletteIndices, priorities,
             new SpriteSheetDocument { Version = SpriteSheet.Version, Colours = colours, Frames = manifest });
     }
 

@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// A sprite draw of a finished, pre-coloured image: one frame of a sheet placed at an origin, mirrored about it, on a
-/// layer against the backgrounds. Its colours come from the image (#1392).
+/// A sprite draw of a finished, pre-coloured image: one frame of a sheet placed at an origin and mirrored about it. Its
+/// colours and each pixel's priority against the backgrounds come from the image (#1392).
 /// </summary>
 public sealed record ImageSpriteDraw : SpriteDraw
 {
@@ -11,10 +11,8 @@ public sealed record ImageSpriteDraw : SpriteDraw
     /// <param name="image">The sheet frame shown.</param>
     /// <param name="origin">The screen point the frame's origin lands on; each coordinate is a signed 16-bit value.</param>
     /// <param name="mirror">Mirrors the frame about its origin.</param>
-    /// <param name="priority">Priority against the backgrounds 0..3.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The priority is out of range.</exception>
-    public ImageSpriteDraw(SpriteSource source, SpriteSheetFrame image, Position16<ScreenPixels> origin, SpriteMirror mirror, int priority)
-        : base(source, origin, priority)
+    public ImageSpriteDraw(SpriteSource source, SpriteSheetFrame image, Position16<ScreenPixels> origin, SpriteMirror mirror)
+        : base(source, origin)
     {
         Image = Ensure.NotNull(image);
         Mirror = mirror;
@@ -51,11 +49,17 @@ public sealed record ImageSpriteDraw : SpriteDraw
     }
 
     /// <summary>The palette row times sixteen plus colour of the image pixel shown at <paramref name="cell"/>.</summary>
-    public byte PaletteIndexAt(Position16<ScreenPixels> cell)
+    public byte PaletteIndexAt(Position16<ScreenPixels> cell) => Image.Sheet.PaletteIndices[SheetIndex(cell)];
+
+    /// <summary>The priority against the backgrounds 0..3 of the image pixel shown at <paramref name="cell"/>.</summary>
+    public byte PriorityAt(Position16<ScreenPixels> cell) => Image.Sheet.Priorities[SheetIndex(cell)];
+
+    /// <summary>Where on the sheet the pixel shown at <paramref name="cell"/> lies.</summary>
+    private int SheetIndex(Position16<ScreenPixels> cell)
     {
         int sourceX = (Mirror & SpriteMirror.Horizontal) != 0 ? Image.Size.X - 1 - cell.X : cell.X;
         int sourceY = (Mirror & SpriteMirror.Vertical) != 0 ? Image.Size.Y - 1 - cell.Y : cell.Y;
-        return Image.Sheet.PaletteIndices[(Image.Corner.Y + sourceY) * Image.Sheet.Size.X + Image.Corner.X + sourceX];
+        return (Image.Corner.Y + sourceY) * Image.Sheet.Size.X + Image.Corner.X + sourceX;
     }
 
     /// <summary>Names the draw for debugger watches: source, image and signed origin.</summary>

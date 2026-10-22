@@ -121,7 +121,7 @@ internal sealed class InstalledSamusIsolationTests
             Samus = new() { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 363)),
                 EquippedItems = equipment, Health = 99, MaxHealth = 299,
                 Presentation = { SuitColors = Suits, FullBodyCycleColors = Cycles } };
-            Samus.Presentation.TileTransfers.BindArtwork(Body);
+            Samus.Presentation.TileTransfers.BindBodyFixture(Body);
             Samus.Presentation.TileTransfers.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
             Samus.ArmCannon.Artwork = Body.ArmCannon;
             SamusPoseMetadata.RefreshCollisionRadii(Samus);

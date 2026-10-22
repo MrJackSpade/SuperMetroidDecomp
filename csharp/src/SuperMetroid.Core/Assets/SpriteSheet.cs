@@ -39,6 +39,7 @@ public sealed class SpriteSheet
         content.Append("pixels", System.Runtime.InteropServices.MemoryMarshal.AsBytes(Image.Pixels));
         content.Append("palette indices", Image.PaletteIndices);
         content.Append("standard colours", System.Runtime.InteropServices.MemoryMarshal.AsBytes(Image.StandardColours));
+        content.Append("priorities", Image.Priorities);
         foreach ((string name, SpriteSheetFrame frame) in frames.OrderBy(pair => pair.Key, StringComparer.Ordinal))
         {
             content.AppendName("frame", name);
@@ -49,7 +50,6 @@ public sealed class SpriteSheet
             content.Append("origin x", frame.Origin.X);
             content.Append("origin y", frame.Origin.Y);
             content.Append("blends", frame.Blends ? 1 : 0);
-            content.Append("priority", frame.Priority);
             foreach (SpritePaletteRows row in SpritePaletteRowSet.Rows)
                 content.Append("row", (frame.Rows & row) != 0 ? 1 : 0);
         }
@@ -61,9 +61,10 @@ public sealed class SpriteSheet
     /// <param name="size">The image's width and height.</param>
     /// <param name="pixels">The image's pixels.</param>
     /// <param name="paletteIndices">Each pixel's palette row times sixteen plus its colour.</param>
+    /// <param name="priorities">Each pixel's priority against the backgrounds 0..3.</param>
     /// <exception cref="InvalidDataException">The manifest is malformed, of another revision, or places a frame off the image.</exception>
     public static SpriteSheet Load(Stream manifest, string name, Extent16<ImagePixels> size, ReadOnlySpan<Rgba32> pixels,
-        ReadOnlySpan<byte> paletteIndices)
+        ReadOnlySpan<byte> paletteIndices, ReadOnlySpan<byte> priorities)
     {
         SpriteSheetDocument document = JsonAssetDocument.Read<SpriteSheetDocument>(manifest, Options, $"sprite sheet {name}");
         if (document.Version != Version)
@@ -73,7 +74,7 @@ public sealed class SpriteSheet
         SpriteImage image;
         try
         {
-            image = new SpriteImage(name, size, pixels, paletteIndices, [.. document.Colours.Select(Bgr555.FromWord)]);
+            image = new SpriteImage(name, size, pixels, paletteIndices, [.. document.Colours.Select(Bgr555.FromWord)], priorities);
         }
         catch (ArgumentException error)
         {
@@ -87,7 +88,7 @@ public sealed class SpriteSheet
                 throw new InvalidDataException($"Sprite sheet {name} frame {frameName} is null.");
             try
             {
-                frames.Add(frameName, new SpriteSheetFrame(image, frame.Corner, frame.Size, frame.Origin, frame.Blends, frame.Priority, frame.Rows));
+                frames.Add(frameName, new SpriteSheetFrame(image, frame.Corner, frame.Size, frame.Origin, frame.Blends, frame.Rows));
             }
             catch (ArgumentException error)
             {

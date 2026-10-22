@@ -127,7 +127,7 @@ public static class SnesObjRenderer
                         continue;
                     pixel = cgram.GetRgba(SpriteColours + index);
                 }
-                Plot(screenY * frame.X + screenX, pixel, row, (byte)draw.Priority, selectedPriority, targets);
+                Plot(screenY * frame.X + screenX, pixel, row, draw.PriorityAt(new(x, y)), selectedPriority, targets);
             }
         }
     }

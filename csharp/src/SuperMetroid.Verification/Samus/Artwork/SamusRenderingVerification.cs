@@ -144,21 +144,16 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(128, samus.Presentation.SpritemapPosition.Y, "Samus signed graphics-Y offset calculation");
     AssertEqual(0x019a, samus.Presentation.TopSpritemapIndex, "Samus pose 1 top spritemap index");
     AssertEqual(0x04aa, samus.Presentation.BottomSpritemapIndex, "Samus pose 1 bottom spritemap index");
-    // The published description: body top and bottom as whole frames named by their spritemap records, at the
-    // spritemap origin, bound to the body characters this frame's transfers select.
-    SamusSpritemapArtworkCatalog spritemaps = samus.Presentation.TileTransfers.Artwork?.Spritemaps
-        ?? throw new InvalidOperationException("Verification requires bound Samus spritemaps.");
+    // The published description: body top and bottom as whole pre-coloured frames, each the sheet frame of its
+    // spritemap with the definition records this frame's transfers select, at the spritemap origin.
     SpriteDraw[] body = [.. oamFrame.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.Samus)];
     AssertEqual(2, body.Length, "Samus pose 1 publishes its top and bottom body frames");
     foreach ((SpriteDraw draw, int index, int instance) in new[] {
         new VerifySamusRenderingSliceCase(body[0], samus.Presentation.TopSpritemapIndex, 0), new VerifySamusRenderingSliceCase(body[1], samus.Presentation.BottomSpritemapIndex, 1) })
     {
-        AssertTrue(spritemaps.TryGet(index, out SamusSpritemapDefinition? definition), "body spritemap is installed");
-        AssertEqual($"Samus.{spritemaps.Entries[index]?.Ordinal}", draw.Frame.Name, $"body draw {instance} names its spritemap composition");
+        AssertTrue(ShowsBodyFrame(samus, draw, index), $"body draw {instance} shows its spritemap's sheet frame with the selected records");
         AssertEqual(new SpriteSource(SpriteSourceKind.Samus, instance), draw.Source, $"body draw {instance} source");
         AssertEqual(samus.Presentation.SpritemapPosition, draw.Origin, $"body draw {instance} sits at the spritemap origin");
-        AssertTrue(ReferenceEquals(samus.Presentation.TileTransfers.BodyArtwork, draw.Artwork),
-            $"body draw {instance} binds the body characters the frame's transfers select");
     }
     AssertEqual(7, oam.LastFinalizedSpriteCount, "Samus pose 1 emits four top and three bottom OBJs");
 
@@ -251,19 +246,20 @@ internal static void VerifySamusRenderingSlice()
     samus.EquippedItems = (SamusEquipmentFlags)0x0001;
     SamusPoseMetadata.ApplyForwardFacingPoseSetup(samus);
     AssertEqual(SamusPoseId.ForwardFacingSuitedPose, samus.Pose, "Varia selects suited forward pose");
-    SpriteArtwork bodyBeforeSuited = samus.Presentation.TileTransfers.BodyArtwork;
+    int? bottomBeforeSuited = samus.Presentation.TileTransfers.SelectedRecords.Bottom;
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(samus, oamFrame, layer1: new(0x0400, 0));
     oam = oamFrame.FinalizeAsOam();
-    // The suited forward frame selects bottom set $FF: no bottom transfer. Its body draws keep binding the bottom
-    // characters the previous frame selected (characters 8-15 and 24-31), as retained VRAM did natively.
-    SpriteArtwork suitedBody = oamFrame.Draws.First(draw => draw.Source.Kind == SpriteSourceKind.Samus).Artwork;
-    int halfRow = SpriteArtwork.CharactersPerRow / 2 * SpriteArtwork.CharacterByteCount;
-    foreach (int bottomHalf in new[] { 1, 3 })
-        AssertTrue(suitedBody.Characters.Slice(bottomHalf * halfRow, halfRow).SequenceEqual(
-                bodyBeforeSuited.Characters.Slice(bottomHalf * halfRow, halfRow)),
-            "a frame with no bottom transfer keeps binding the earlier bottom characters");
+    // The suited forward frame selects bottom set $FF: no bottom transfer. Its body draws keep showing the bottom
+    // record the previous frame selected, as retained VRAM did natively.
+    AssertTrue(bottomBeforeSuited is not null, "the frame before the suited pose selected a bottom record");
+    AssertEqual(bottomBeforeSuited, samus.Presentation.TileTransfers.SelectedRecords.Bottom,
+        "a frame with no bottom transfer keeps the earlier bottom record");
+    SpriteDraw[] suitedBody = [.. oamFrame.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.Samus)];
+    AssertTrue(suitedBody.Length > 0 && suitedBody.Zip([samus.Presentation.TopSpritemapIndex, samus.Presentation.BottomSpritemapIndex])
+            .All(pair => ShowsBodyFrame(samus, pair.First, pair.Second)),
+        "a frame with no bottom transfer draws its sheet frames over the earlier bottom record");
     AssertEqual(0x00c2, samus.Presentation.TopSpritemapIndex, "suited forward top spritemap index");
     AssertEqual(0x0122, samus.Presentation.BottomSpritemapIndex, "suited forward bottom spritemap index");
     AssertEqual(2, oam.LastFinalizedSpriteCount, "suited forward emits no power-suit chest patch");
@@ -497,6 +493,24 @@ internal static void VerifySamusRenderingSlice()
 }
 
 /// <summary>
+/// Whether <paramref name="draw"/> is the unmirrored sheet frame of the spritemap at <paramref name="index"/> over the
+/// definition records Samus's transfers select.
+/// </summary>
+private static bool ShowsBodyFrame(SamusState samus, SpriteDraw draw, int index)
+{
+    SamusSpritemapArtworkCatalog spritemaps = samus.Presentation.TileTransfers.Artwork?.Spritemaps
+        ?? throw new InvalidOperationException("Verification requires bound Samus spritemaps.");
+    InstalledSpriteSheets sheets = samus.Presentation.TileTransfers.Sheets
+        ?? throw new InvalidOperationException("Verification requires bound Samus sprite sheets.");
+    if (!spritemaps.TryGetComposition(index, out SamusSpritemapId composition) || !spritemaps.TryGetFrame(index, out SpriteFrame? frame))
+        throw new InvalidOperationException($"Body spritemap {index:X4} is not installed.");
+    SamusBodyRecords records = samus.Presentation.TileTransfers.SelectedRecords;
+    SamusBodyFrameKey key = SamusBodySheetDefinitions.Key(composition, frame, records.Top, records.Bottom);
+    return draw is ImageSpriteDraw { Mirror: SpriteMirror.None } image &&
+        ReferenceEquals(sheets.Get(SamusBodySheetDefinitions.Sheet(key)).Frame(key.Name), image.Image);
+}
+
+/// <summary>
 /// Walks the complete `$90:C519-$C790` arm-cannon cover lifetime. The fixture keeps the
 /// native three-level pose/direction/frame pointer topology intact, so a plausible-looking
 /// host animation cannot pass by substituting invented timing or a fixed bitmap.
@@ -529,7 +543,7 @@ internal static void VerifySamusArmCannon()
         SelectedHudItem = HudItem.Beam,
     };
 
-    samus.Presentation.TileTransfers.BindArtwork(InstalledFixtures.SamusBody);
+    samus.Presentation.TileTransfers.BindBodyFixture(InstalledFixtures.SamusBody);
     samus.Presentation.TileTransfers.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
     samus.ArmCannon.Artwork = artwork;
 

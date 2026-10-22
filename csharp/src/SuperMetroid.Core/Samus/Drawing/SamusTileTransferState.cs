@@ -23,32 +23,23 @@ public sealed class SamusTileTransferState
     /// <summary>Rebind installed visual data without replacing pending native DMA state.</summary>
     public void BindArtwork(SamusBodyArtworkCatalog? value) => Artwork = value;
 
+    /// <summary>The installed pre-coloured sheets the body draws from; never part of save state.</summary>
+    [field: NonSerialized]
+    public InstalledSpriteSheets? Sheets { get; private set; }
+
+    /// <summary>Rebind the installed sheets.</summary>
+    public void BindSheets(InstalledSpriteSheets? value) => Sheets = value;
+
+    /// <summary>The definition records whose characters the body currently shows: each half's, when selected.</summary>
+    public SamusBodyRecords SelectedRecords => new(TopTransferEnabled ? TopDefinitionRecord : null,
+        BottomTransferEnabled ? BottomDefinitionRecord : null);
+
     /// <summary>The installed standard OBJ page; never part of save state.</summary>
     [field: NonSerialized]
     public SpriteArtwork? StandardObjects { get; private set; }
 
     /// <summary>Rebind the installed standard OBJ page.</summary>
     public void BindStandardObjects(SpriteArtwork? value) => StandardObjects = value;
-
-    /// <summary>The body characters the selected transfers make visible; a half never selected is blank.</summary>
-    public SpriteArtwork BodyArtwork => (Artwork ?? throw new InvalidOperationException(
-            "Samus body artwork requires installed body artwork."))
-        .BodyArtwork(TopTransferEnabled ? TopDefinitionRecord : null, BottomTransferEnabled ? BottomDefinitionRecord : null);
-
-    /// <summary>
-    /// The standard OBJ page with the body characters over its first 32, for spritemaps whose parts may name any
-    /// OBJ character (the zero-pointer WRAM spritemap). Composed on each use; only that rare spritemap needs it.
-    /// </summary>
-    public SpriteArtwork BodyOnStandardObjects
-    {
-        get
-        {
-            SpriteArtwork page = StandardObjects ?? throw new InvalidOperationException(
-                "Samus's WRAM spritemap requires the installed standard OBJ page.");
-            SpriteArtwork body = BodyArtwork;
-            return SpriteArtwork.Overlay(new SpriteArtworkId(SpriteArtworkKind.SamusBodyOnStandardObjects, body.Id.Variant), page, body, 0);
-        }
-    }
 
     /// <summary>Record of the selected seven-byte top-half DMA definition.</summary>
     public int TopDefinitionRecord { get; internal set; }

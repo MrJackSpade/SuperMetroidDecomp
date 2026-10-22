@@ -18,18 +18,23 @@ public sealed record CharacterSpriteDraw : SpriteDraw
     /// <exception cref="ArgumentException">The frame reads a character beyond the artwork.</exception>
     public CharacterSpriteDraw(SpriteSource source, SpriteFrame frame, SpriteArtwork artwork, Position16<ScreenPixels> origin,
         SnesTileFlipFlags flip, int palette, int priority)
-        : base(source, origin, priority)
+        : base(source, origin)
     {
         Ensure.NotNull(frame);
         Ensure.NotNull(artwork);
         if (palette is < 0 or > 7) throw new ArgumentOutOfRangeException(nameof(palette), palette, "OBJ palettes are 0..7.");
+        if (priority is < 0 or > 3) throw new ArgumentOutOfRangeException(nameof(priority), priority, "OBJ priorities are 0..3.");
         if (frame.LastCharacter >= artwork.CharacterCount)
             throw new ArgumentException($"Frame {frame.Name} reads character {frame.LastCharacter}; artwork {artwork.Id} has {artwork.CharacterCount}.", nameof(frame));
         Frame = frame;
         Artwork = artwork;
         Flip = flip;
         Palette = palette;
+        Priority = priority;
     }
+
+    /// <summary>Priority against the backgrounds 0..3 for parts that do not choose their own; validated by the constructor.</summary>
+    public int Priority { get; }
 
     /// <summary>The whole frame shown.</summary>
     public SpriteFrame Frame { get; }

@@ -12,13 +12,14 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 
 /// <summary>
-/// Confirms the projectile sheets (#1392): every frame of the power-beam, SpaceTime and intro sheets paints exactly the
-/// pixels, priorities and colour-math participation its composition paints over its OBJ page in the sheet's colours.
+/// Confirms the projectile, grapple and Samus body sheets (#1392): every frame of the power-beam, SpaceTime, intro,
+/// grapple and body sheets paints exactly the pixels, priorities and colour-math participation its composition paints
+/// over its characters, in the sheet's colours and in altered ones.
 /// </summary>
 internal static class ProjectileSheetPixelsVerification
 {
     /// <summary>The square the frames are rendered in; each frame's origin lands at its centre.</summary>
-    private static readonly Extent16<ScreenPixels> Canvas = new(256, 256);
+    private static readonly Extent16<ScreenPixels> Canvas = new(128, 128);
 
     /// <summary>The OBJ palette rows at or past which a sprite takes part in colour math.</summary>
     private const int FirstBlendingRow = 4;
@@ -28,9 +29,15 @@ internal static class ProjectileSheetPixelsVerification
     {
         int frames = 0;
         SamusSheetInputs inputs = SamusSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory);
-        foreach (SpriteSheetId id in new[] { SpriteSheetId.ProjectilesPower, SpriteSheetId.ProjectilesSpazerPlasmaIce, SpriteSheetId.IntroProjectiles, SpriteSheetId.Grapple })
+        foreach (SpriteSheetId id in new[] { SpriteSheetId.ProjectilesPower, SpriteSheetId.ProjectilesSpazerPlasmaIce, SpriteSheetId.IntroProjectiles,
+            SpriteSheetId.Grapple, SpriteSheetId.SamusBodyTop, SpriteSheetId.SamusBodyBottom })
         {
-            SpriteSheetSources sources = id == SpriteSheetId.Grapple ? GrappleSheetComposer.Sources(inputs) : ProjectileSheetComposer.Sources(inputs, id);
+            SpriteSheetSources sources = id switch
+            {
+                SpriteSheetId.Grapple => GrappleSheetComposer.Sources(inputs),
+                SpriteSheetId.SamusBodyTop or SpriteSheetId.SamusBodyBottom => SamusBodySheetComposer.Sources(inputs, id),
+                _ => ProjectileSheetComposer.Sources(inputs, id),
+            };
             SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(id);
             // The standard colours show the image; altered colours, as under a palette effect, show its palette indices.
             foreach (bool altered in new[] { false, true })
@@ -46,7 +53,7 @@ internal static class ProjectileSheetPixelsVerification
                     var composed = new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectile), frame, characters, origin,
                         SnesTileFlipFlags.None, 0, 0);
                     SpriteSheetFrame image = sheet.Frame(name);
-                    var drawn = new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectile), image, origin, SpriteMirror.None, image.Priority);
+                    var drawn = new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectile), image, origin, SpriteMirror.None);
                     Raster expected = Render(composed, cgram), actual = Render(drawn, cgram);
                     for (int pixel = 0; pixel < expected.Pixels.Length; pixel++)
                     {
@@ -62,7 +69,7 @@ internal static class ProjectileSheetPixelsVerification
                 }
             }
         }
-        Console.WriteLine($"Projectile sheet pixels: {frames} power-beam, SpaceTime, intro and grapple frames paint exactly their compositions, in standard and altered colours.");
+        Console.WriteLine($"Sprite sheet pixels: {frames} power-beam, SpaceTime, intro, grapple and Samus body frames paint exactly their compositions, in standard and altered colours.");
 
         static bool Blends(byte row) => row != SnesObjRenderer.TransparentPriority && row >= FirstBlendingRow;
     }

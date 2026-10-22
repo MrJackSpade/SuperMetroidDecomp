@@ -48,8 +48,7 @@ public sealed class EscapeTimerPresentation
         void DrawFrame(EscapeTimerGlyph glyph, Offset16<OamPixels> anchor) =>
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.EscapeTimer),
                 sheet.Frame(EscapeTimerPresentationDefinitions.FrameName(glyph)),
-                timer.PixelPosition + new Offset16<ScreenPixels>(anchor.X, anchor.Y), SpriteMirror.None,
-                EscapeTimerPresentationDefinitions.TimerPriority));
+                timer.PixelPosition + new Offset16<ScreenPixels>(anchor.X, anchor.Y), SpriteMirror.None));
     }
 
     /// <summary>Resolves an edited timer anchor or its calculated stock position.</summary>

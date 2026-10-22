@@ -38,14 +38,15 @@ bool ResolveSpritePart(uint part, uint2 screen, out uint2 hit, out uint palette)
         // changed a row the frame uses, its words are palette indices and the frame shows the live colours.
         uint pixel = SpriteDraws[SpriteDraws[record + 3] + sourceY * (flags >> 16) + sourceX];
         palette = (flags & SpriteBlends) != 0 ? BlendingImageRow : 0;
+        // Each image pixel carries its own priority: above an index, or plus one in a colour's alpha byte.
         if ((flags & SpriteRecolour) != 0)
         {
-            if (pixel == 0) return false;
-            hit = uint2(Palette(128 + pixel), priority);
+            if ((pixel & 255) == 0) return false;
+            hit = uint2(Palette(128 + (pixel & 255)), pixel >> 8);
             return true;
         }
         if ((pixel >> 24) == 0) return false;
-        hit = uint2(pixel | 0xff000000, priority);
+        hit = uint2(pixel | 0xff000000, (pixel >> 24) - 1);
         return true;
     }
     // Characters sit sixteen to a row of the artwork sheet, eight words each.

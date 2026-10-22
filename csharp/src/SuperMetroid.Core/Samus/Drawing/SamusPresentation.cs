@@ -26,6 +26,14 @@ internal sealed class SamusPresentation
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
+    /// <summary>
+    /// The definition records the body showed when its spritemap indices were last set, which the speed-booster echoes
+    /// show with those indices. The cartridge's echoes read whatever characters are in VRAM, so while invincibility
+    /// flicker hides the body they can show an earlier spritemap over later characters; a pre-coloured frame keeps the
+    /// characters it was shown with (#1392).
+    /// </summary>
+    public SamusBodyRecords ShownRecords { get; internal set; }
+
     /// <summary>Last screen-space origin calculated from world position and layer-1 scroll.</summary>
     public Position16<ScreenPixels> SpritemapPosition { get; internal set; }
 
@@ -587,7 +595,8 @@ internal sealed class SamusPresentation
         // `$92:8000` follows these spritemaps natively, but it only chooses the transfers the next NMI shows with
         // them. Selecting first lets the draws bind the characters they are displayed with; nothing between reads it.
         TileTransfers.SelectForPoseFrame(samus.Pose, samus.AnimationFrame);
-        sprites.AddSamusSpritemap(TopSpritemapIndex, drawOrigin, BodySpritemaps(spritemaps), new SpriteSource(SpriteSourceKind.Samus, 0));
+        ShownRecords = TileTransfers.SelectedRecords;
+        sprites.AddSamusBody(TopSpritemapIndex, drawOrigin, spritemaps, BodySheets, ShownRecords, new SpriteSource(SpriteSourceKind.Samus, 0));
 
         // `$90:868D-$90:86C4` writes one small OBJ directly between the top and bottom
         // spritemap calls when unsuited pose `$00` faces the screen. This is not a visor:
@@ -671,7 +680,7 @@ internal sealed class SamusPresentation
         {
             ushort bottomBase = spritemaps.BottomBase(samus.Pose);
             BottomSpritemapIndex = unchecked((ushort)(bottomBase + samus.AnimationFrame));
-            sprites.AddSamusSpritemap(BottomSpritemapIndex, drawOrigin, BodySpritemaps(spritemaps), new SpriteSource(SpriteSourceKind.Samus, 1));
+            sprites.AddSamusBody(BottomSpritemapIndex, drawOrigin, spritemaps, BodySheets, ShownRecords, new SpriteSource(SpriteSourceKind.Samus, 1));
         }
 
         return true;
@@ -794,9 +803,9 @@ internal sealed class SamusPresentation
         }
     }
 
-    /// <summary>Samus's spritemaps bound to the body characters the selected transfers make visible.</summary>
-    private SamusSpritemapArtwork BodySpritemaps(SamusSpritemapArtworkCatalog spritemaps) =>
-        new(spritemaps, TileTransfers.BodyArtwork, () => TileTransfers.BodyOnStandardObjects);
+    /// <summary>The installed sheets the body draws from.</summary>
+    private InstalledSpriteSheets BodySheets => TileTransfers.Sheets ?? throw new InvalidOperationException(
+        "Samus rendering requires the installed sprite sheets.");
 
     /// <summary>Draws a populated echo slot with current Samus spritemaps after native Y clipping.</summary>
     private void DrawActiveSpeedBoosterEcho(SamusState samus, 
@@ -821,8 +830,8 @@ internal sealed class SamusPresentation
             "Samus speed-booster echo requires installed spritemap artwork.");
         ushort screenX = unchecked((ushort)(echo.X - layer1.X));
         var origin = new Position16<ScreenPixels>(screenX, unchecked((ushort)screenY));
-        sprites.AddSamusSpritemap(TopSpritemapIndex, origin, BodySpritemaps(spritemaps), new SpriteSource(SpriteSourceKind.SamusEcho, slot * 2));
+        sprites.AddSamusBody(TopSpritemapIndex, origin, spritemaps, BodySheets, ShownRecords, new SpriteSource(SpriteSourceKind.SamusEcho, slot * 2));
         if (BottomSpritemapIndex != 0)
-            sprites.AddSamusSpritemap(BottomSpritemapIndex, origin, BodySpritemaps(spritemaps), new SpriteSource(SpriteSourceKind.SamusEcho, slot * 2 + 1));
+            sprites.AddSamusBody(BottomSpritemapIndex, origin, spritemaps, BodySheets, ShownRecords, new SpriteSource(SpriteSourceKind.SamusEcho, slot * 2 + 1));
     }
 }

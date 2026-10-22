@@ -121,6 +121,7 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         {
             ReadOnlySpan<Rgba32> pixels = frame.Sheet.Pixels;
             ReadOnlySpan<byte> indices = frame.Sheet.PaletteIndices;
+            ReadOnlySpan<byte> priorities = frame.Sheet.Priorities;
             bool indexed = recoloured.Contains(frame);
             int target = offset;
             for (int row = 0; row < frame.Size.Y; row++)
@@ -129,13 +130,18 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
                 for (int column = 0; column < frame.Size.X; column++, target++)
                 {
                     Rgba32 pixel = pixels[source + column];
-                    upload[target] = indexed ? indices[source + column] : D3D11ConstantPacking.Bytes(pixel.R, pixel.G, pixel.B, pixel.A);
+                    // An index word keeps its priority above the index; a colour word keeps it, plus one, in the alpha
+                    // byte, whose zero stays transparent.
+                    uint priority = priorities[source + column];
+                    upload[target] = indexed
+                        ? indices[source + column] | priority << 8
+                        : D3D11ConstantPacking.Bytes(pixel.R, pixel.G, pixel.B, pixel.A == 0 ? (byte)0 : (byte)(priority + 1));
                 }
             }
         }
     }
 
-    /// <summary>Packs one image draw: its screen rectangle, mirroring, priority, blending, recolouring and its frame's uploaded words.</summary>
+    /// <summary>Packs one image draw: its screen rectangle, mirroring, blending, recolouring and its frame's uploaded words.</summary>
     private static void PackImage(Span<uint> record, ImageSpriteDraw draw, int frameWords, bool recolour)
     {
         Offset16<ScreenPixels> corner = draw.Corner;
@@ -143,7 +149,7 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         record[0] = D3D11ConstantPacking.Halves(unchecked((ushort)corner.X), unchecked((ushort)corner.Y));
         record[1] = D3D11ConstantPacking.Halves(frame.Size.X, frame.Size.Y);
         record[2] = ((draw.Mirror & SpriteMirror.Horizontal) != 0 ? FlipXFlag : 0) | ((draw.Mirror & SpriteMirror.Vertical) != 0 ? FlipYFlag : 0)
-            | (uint)draw.Priority << PriorityShift | ImageFlag | (frame.Blends ? BlendsFlag : 0) | (recolour ? RecolourFlag : 0) | (uint)frame.Size.X << StrideShift;
+            | ImageFlag | (frame.Blends ? BlendsFlag : 0) | (recolour ? RecolourFlag : 0) | (uint)frame.Size.X << StrideShift;
         record[3] = (uint)frameWords;
     }
 

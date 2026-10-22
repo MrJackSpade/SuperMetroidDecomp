@@ -74,8 +74,6 @@ public static class EscapeTimerPresentationDefinitions
     };
     /// <summary>$80:9FEA..A05F: decimal glyphs are eight pixels wide.</summary>
     private const int GlyphWidth = 8;
-    /// <summary>$80:9FEA..A07A: timer OBJs use highest sprite priority.</summary>
-    internal const int TimerPriority = 3;
 
     /// <summary>$80:9F7B/9F84/9F8D: three two-digit groups separated by one cell, centered across eight cells.</summary>
     internal static Offset16<OamPixels> DefaultAnchor(EscapeTimerAnchor anchor) => anchor switch

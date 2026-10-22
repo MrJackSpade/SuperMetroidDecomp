@@ -4,19 +4,23 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
-/// The installed stock artwork Samus's projectile and grapple sheets compose from (#1392), loaded once for all of them.
+/// The installed stock artwork Samus's projectile, grapple and body sheets compose from (#1392), loaded once for all of them.
 /// </summary>
 /// <param name="Projectiles">Compositions, beam, trail and grapple characters, beam palettes and trail and grapple appearances.</param>
 /// <param name="StandardObjects">The standard OBJ sheet as a page.</param>
 /// <param name="Palettes">The starting and common sprite colours a room load copies.</param>
 /// <param name="Intro">The intro's characters and palette.</param>
+/// <param name="SamusBody">Samus's body definitions, frame selections and spritemaps.</param>
+/// <param name="SuitColors">The three suits' colours.</param>
 internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projectiles, SpriteArtwork StandardObjects,
-    GameplayBasePaletteCatalog Palettes, IntroCinematicArtworkCatalog Intro)
+    GameplayBasePaletteCatalog Palettes, IntroCinematicArtworkCatalog Intro, SamusBodyArtworkCatalog SamusBody,
+    SamusSuitColorCatalog SuitColors)
 {
     /// <summary>Loads the stock artwork from installed content.</summary>
     internal static SamusSheetInputs Load(string content)
@@ -27,7 +31,16 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
             ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.StandardObjects),
                 StandardObjectArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.StandardObjectDirectoryName), null).Transfer.Span),
             GameplayBasePaletteFiles.Load(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName), null),
-            IntroCinematicArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName), null));
+            IntroCinematicArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName), null),
+            SamusBodyArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.SamusBodyDirectoryName), null),
+            LoadSuitColors(Path.Combine(content, GameInstallationLayout.MapDirectoryName, SamusSuitColorFormat.FileName)));
+    }
+
+    /// <summary>The stock suit colours, which the validated map installation holds.</summary>
+    private static SamusSuitColorCatalog LoadSuitColors(string path)
+    {
+        using FileStream json = File.OpenRead(path);
+        return SamusSuitColorCatalog.Load(json);
     }
 
     /// <summary>CGRAM as a room load leaves it: the starting image with the common and enemy-projectile sprite rows.</summary>

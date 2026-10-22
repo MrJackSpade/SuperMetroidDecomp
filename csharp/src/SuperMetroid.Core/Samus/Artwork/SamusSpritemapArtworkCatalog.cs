@@ -134,6 +134,14 @@ public sealed class SamusSpritemapArtworkCatalog
         return true;
     }
 
+    /// <summary>The composition the entry at <paramref name="index"/> names; false only for an entry with none, which draws nothing.</summary>
+    public bool TryGetComposition(int index, out SamusSpritemapId composition)
+    {
+        SamusSpritemapId? entry = Entry(Checked(index));
+        composition = entry ?? default;
+        return entry is not null;
+    }
+
     /// <summary>Returns false only for an entry with no composition, which draws nothing.</summary>
     public bool TryGet(int index, [NotNullWhen(true)] out SamusSpritemapDefinition? definition)
     {

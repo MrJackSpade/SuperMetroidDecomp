@@ -198,7 +198,7 @@ internal static class GrappleConnectionDefinitionsVerification
         using var artworkDirectory = new TestScratchDirectory("map-catalog");
         SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkFiles.Extract(rom, artworkDirectory.Root,
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc")))));
-        samus.Presentation.TileTransfers.BindArtwork(SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkFiles.Load(artworkDirectory.Root, null));
+        samus.Presentation.TileTransfers.BindBodyFixture(SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkFiles.Load(artworkDirectory.Root, null));
         samus.Grapple.FlarePlacement = SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacementCatalog.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.GrappleFlarePlacementExtractor.Extract(rom)));
         for (byte movement = 0; movement < 28; movement++)

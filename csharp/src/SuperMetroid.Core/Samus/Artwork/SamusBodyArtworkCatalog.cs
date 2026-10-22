@@ -298,6 +298,26 @@ public sealed class SamusBodyArtworkCatalog
         return DefinitionAt(SetStart(upperHalf, set) + position);
     }
 
+    /// <summary>
+    /// The frame <paramref name="animationFrame"/> places after the pose's first, when it lies in the frame table and both
+    /// of its definitions are installed; false for any other pair, which <see cref="Frame"/> rejects.
+    /// </summary>
+    public bool TryFrame(SamusPoseId pose, int animationFrame, out SamusBodyFrameSelection frame)
+    {
+        frame = default;
+        int index = (int)pose < PoseCount ? PoseFirstFrame(pose) + animationFrame : -1;
+        if ((uint)index >= FrameCount)
+            return false;
+        frame = FrameAt(index);
+        return HasDefinition(SamusBodyHalf.Top, frame.TopSet, frame.TopPosition) &&
+            (frame.BottomSet == SamusRenderingRomData.TileTransfers.NoBottomTransferSet || HasDefinition(SamusBodyHalf.Bottom, frame.BottomSet, frame.BottomPosition));
+    }
+
+    /// <summary>Whether a native set and position resolve to an installed definition.</summary>
+    private bool HasDefinition(SamusBodyHalf half, int set, int position) =>
+        set >= 0 && set < (half == SamusBodyHalf.Top ? TopSetCount : BottomSetCount) && IsSelectorComponent(position) &&
+        definitionsByRecord.ContainsKey(SetStart(half == SamusBodyHalf.Top, set) + position);
+
     /// <summary>Returns the record selected by a native body set and position.</summary>
     public int DefinitionRecord(SamusBodyHalf half, int set, int position)
     {

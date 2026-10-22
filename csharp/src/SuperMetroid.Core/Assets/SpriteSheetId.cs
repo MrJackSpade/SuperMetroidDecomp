@@ -7,6 +7,10 @@ public enum SpriteSheetId
     EscapeTimer,
     /// <summary>The grapple beam's endpoint and rope.</summary>
     Grapple,
+    /// <summary>Samus's body frames that show the top half's characters, or neither half's.</summary>
+    SamusBodyTop,
+    /// <summary>Samus's body frames that show only the bottom half's characters.</summary>
+    SamusBodyBottom,
     /// <summary>Samus's projectiles, bombs, charge flare and trails as the intro's flashbacks draw them.</summary>
     IntroProjectiles,
     /// <summary>Samus's projectiles, bombs, charge flare and trails with the power beam equipped.</summary>

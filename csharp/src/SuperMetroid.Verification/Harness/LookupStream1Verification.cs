@@ -1075,7 +1075,7 @@ internal static class LookupStream1Verification
             AssertEqual(native[frame], offset, "Installed native byte including command slots");
             if (frame is 12 or 13 or 17 or 18 or 24 or 25 or 27 or 28 or 30 or 31) continue;
             var samus = new SamusState { Pose = SamusPoseId.DrainedCrouchingLeftPose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
-            samus.Presentation.TileTransfers.BindArtwork(stock);
+            samus.Presentation.TileTransfers.BindBodyFixture(stock);
             samus.Presentation.Draw(samus, new SpriteFrameBuffer(), new(0, 0));
             AssertEqual(unchecked((ushort)(128 + native[frame])), samus.Presentation.SpritemapPosition.Y,
                 "Actual drained drawing uses exact signed native correction");
@@ -1146,7 +1146,7 @@ internal static class LookupStream1Verification
             for (ushort frame = 0; frame < count; frame++)
             {
                 var samus = new SamusState { Pose = pose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
-                samus.Presentation.TileTransfers.BindArtwork(stock);
+                samus.Presentation.TileTransfers.BindBodyFixture(stock);
                 samus.Presentation.Draw(samus, new SpriteFrameBuffer(), new(0, 0));
                 AssertEqual(unchecked((ushort)(128 + native[((int)pose - 0x35) * 2 + frame])), samus.Presentation.SpritemapPosition.Y,
                     "Actual transition rendering preserves native support correction");
@@ -1227,7 +1227,7 @@ internal static class LookupStream1Verification
                 Pose = (SamusPoseId)(0xa4 + index / 4), AnimationFrame = (ushort)(index % 4),
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             };
-            samus.Presentation.TileTransfers.BindArtwork(stock);
+            samus.Presentation.TileTransfers.BindBodyFixture(stock);
             samus.Presentation.Draw(samus, new SpriteFrameBuffer(), layer1: new(0, 0));
             ushort nativeWord = SnesLittleEndian.Word(unchecked((byte)landing[index]), unchecked((byte)landing[index + 1]));
             AssertEqual(unchecked((ushort)(128 - nativeWord)), samus.Presentation.SpritemapPosition.Y, "Actual rendering preserves every bounded native landing word");
@@ -1639,7 +1639,7 @@ internal static class LookupStream1Verification
         })
         {
             var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
-            samus.Presentation.TileTransfers.BindArtwork(body);
+            samus.Presentation.TileTransfers.BindBodyFixture(body);
             int direction = LookupStream1FlarePlacementRomByte(rom, 0x91b629 + (int)pose * 8 + 3);
             bool running = pose is SamusPoseId.MovingRightNormalPose or SamusPoseId.MovingLeftNormalPose;
             short x = Word((running ? 0x90c1dc : 0x90c1a8) + direction * 2);
@@ -2916,7 +2916,7 @@ internal static class LookupStream1Verification
             for (ushort frame = 0; frame < count; frame++)
             {
                 var samus = new SamusState { Pose = pose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = HudItem.Missile };
-                samus.Presentation.TileTransfers.BindArtwork(body);
+                samus.Presentation.TileTransfers.BindBodyFixture(body);
                 var cannon = new SamusArmCannonState { Artwork = stock };
                 cannon.Update(samus); cannon.Update(samus);
                 int pointer = SnesLittleEndian.Word(LookupStream1CannonPlacementRomByte(rom, 0x90c7df + (int)pose * 2), LookupStream1CannonPlacementRomByte(rom, 0x90c7e0 + (int)pose * 2));

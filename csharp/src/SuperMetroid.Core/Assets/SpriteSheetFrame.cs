@@ -9,15 +9,12 @@ public sealed record SpriteSheetFrame
     /// <param name="size">The rectangle's width and height; both are positive, or both zero for an empty frame.</param>
     /// <param name="origin">The point of the rectangle, from its top-left pixel, that lands on the draw's origin; it may lie outside the rectangle.</param>
     /// <param name="blends">Whether the frame takes part in the screen's colour blending, as sprites coloured from the upper four palette rows do.</param>
-    /// <param name="priority">The frame's authored priority against the backgrounds 0..3, which a draw may use as its own.</param>
     /// <param name="rows">The sprite palette rows the frame's pixels were coloured from.</param>
     /// <exception cref="ArgumentException">The rectangle has one dimension but not the other, or leaves the sheet.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">The priority is out of range.</exception>
     public SpriteSheetFrame(SpriteImage sheet, Position16<ImagePixels> corner, Extent16<ImagePixels> size, Offset16<ImagePixels> origin,
-        bool blends, int priority, SpritePaletteRows rows)
+        bool blends, SpritePaletteRows rows)
     {
         Ensure.NotNull(sheet);
-        if (priority is < 0 or > 3) throw new ArgumentOutOfRangeException(nameof(priority), priority, "Sprite priorities are 0..3.");
         if ((size.X == 0) != (size.Y == 0) || corner.X + size.X > sheet.Size.X || corner.Y + size.Y > sheet.Size.Y)
             throw new ArgumentException($"A {size.X}x{size.Y} frame at ({corner.X}, {corner.Y}) does not lie on {sheet}.", nameof(size));
         Sheet = sheet;
@@ -25,7 +22,6 @@ public sealed record SpriteSheetFrame
         Size = size;
         Origin = origin;
         Blends = blends;
-        Priority = priority;
         Rows = rows;
     }
 
@@ -43,9 +39,6 @@ public sealed record SpriteSheetFrame
 
     /// <summary>Whether the frame takes part in the screen's colour blending.</summary>
     public bool Blends { get; }
-
-    /// <summary>The frame's authored priority against the backgrounds 0..3.</summary>
-    public int Priority { get; }
 
     /// <summary>The sprite palette rows the frame's pixels were coloured from.</summary>
     public SpritePaletteRows Rows { get; }

@@ -76,7 +76,7 @@ internal sealed class ProjectileAnimation
         SpriteSheetFrame image = artwork.Sheet.Frame(ProjectileSheetDefinitions.ProjectileFrame(
             slot.Sprite ?? throw new InvalidOperationException("A drawn projectile shows a composition.")));
         sprites.Add(new ImageSpriteDraw(source, image, new Position16<ScreenPixels>(unchecked((ushort)screenX), screenY),
-            SpriteMirror.None, image.Priority));
+            SpriteMirror.None));
     }
 
     /// <summary>Advances a flare component only after its countdown underflows, honoring restart and rewind delay commands.</summary>
@@ -163,7 +163,7 @@ internal sealed class ProjectileAnimation
         SpriteSheetFrame image = artwork.Objects.Sheet.Frame(ProjectileSheetDefinitions.FlareFrame(
             SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteDefinitions.Selectors[tableIndex]));
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusChargeFlare, component), image,
-            new Position16<ScreenPixels>(screenX, screenY), SpriteMirror.None, image.Priority));
+            new Position16<ScreenPixels>(screenX, screenY), SpriteMirror.None));
     }
 
     /// <summary>Clears all component frames and countdowns when charge-flare animation is retired.</summary>

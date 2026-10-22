@@ -180,6 +180,6 @@ internal sealed class ProjectileTrails
         SpriteSheetFrame image = objects.Sheet.Frame(side.ShownPose is { } pose
             ? ProjectileSheetDefinitions.TrailFrame(pose) : ProjectileSheetDefinitions.UnshownTrailFrame);
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectileTrail, slotIndex * 2 + (direction == HorizontalDirection.Left ? 0 : 1)),
-            image, new Position16<ScreenPixels>(screenX, screenY), SpriteMirror.None, image.Priority));
+            image, new Position16<ScreenPixels>(screenX, screenY), SpriteMirror.None));
     }
 }

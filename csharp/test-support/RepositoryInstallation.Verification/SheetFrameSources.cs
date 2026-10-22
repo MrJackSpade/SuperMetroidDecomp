@@ -8,14 +8,23 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>
-/// Verification access (#1392): the composition each installed projectile and grapple sheet frame was composed from, so a draw of
+/// Verification access (#1392): the composition each installed projectile, grapple and Samus body sheet frame was composed from, so a draw of
 /// that frame can be compared with cartridge OAM oracles as the parts it shows. Frames are found by sheet, rectangle
 /// and origin, since a runtime and the fixtures load the sheets separately.
 /// </summary>
 internal static class SheetFrameSources
 {
     /// <summary>Each projectile sheet frame's composition and the page its characters index.</summary>
-    private static readonly Lazy<Dictionary<FrameKey, FrameSource>> sources = new(Build);
+    private static readonly Lazy<System.Collections.Concurrent.ConcurrentDictionary<FrameKey, FrameSource>> sources = new(Build);
+
+    /// <summary>Pairs a fixture sheet's frames with what they were composed from.</summary>
+    internal static void Register(SpriteSheet sheet, SpriteSheetSources composed)
+    {
+        Ensure.NotNull(sheet);
+        Ensure.NotNull(composed);
+        foreach (SheetFrameSource frame in composed.Frames)
+            sources.Value.TryAdd(Key(sheet.Frame(frame.Name)), new FrameSource(frame.Frame, frame.Characters));
+    }
 
     /// <summary>The character draw an image draw of a projectile sheet frame shows: its composition over its page, placed and mirrored alike.</summary>
     /// <exception cref="InvalidOperationException">The frame is not a projectile sheet frame.</exception>
@@ -30,13 +39,18 @@ internal static class SheetFrameSources
     }
 
     /// <summary>Pairs every installed projectile sheet frame with what it was composed from.</summary>
-    private static Dictionary<FrameKey, FrameSource> Build()
+    private static System.Collections.Concurrent.ConcurrentDictionary<FrameKey, FrameSource> Build()
     {
-        var result = new Dictionary<FrameKey, FrameSource>();
+        var result = new System.Collections.Concurrent.ConcurrentDictionary<FrameKey, FrameSource>();
         SamusSheetInputs inputs = SamusSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory);
         foreach (SpriteSheetId id in SpriteSheetDefinitions.Sheets.Where(id => id != SpriteSheetId.EscapeTimer))
         {
-            SpriteSheetSources composed = id == SpriteSheetId.Grapple ? GrappleSheetComposer.Sources(inputs) : ProjectileSheetComposer.Sources(inputs, id);
+            SpriteSheetSources composed = id switch
+            {
+                SpriteSheetId.Grapple => GrappleSheetComposer.Sources(inputs),
+                SpriteSheetId.SamusBodyTop or SpriteSheetId.SamusBodyBottom => SamusBodySheetComposer.Sources(inputs, id),
+                _ => ProjectileSheetComposer.Sources(inputs, id),
+            };
             SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(id);
             // Every empty frame shows nothing, so the first of those that share a key stands for all of them.
             foreach (SheetFrameSource frame in composed.Frames)

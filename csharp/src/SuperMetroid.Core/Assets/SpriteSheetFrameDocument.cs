@@ -15,9 +15,6 @@ public sealed record SpriteSheetFrameDocument
     /// <summary>Whether the frame takes part in the screen's colour blending.</summary>
     public required bool Blends { get; init; }
 
-    /// <summary>The frame's authored priority against the backgrounds 0..3.</summary>
-    public required int Priority { get; init; }
-
     /// <summary>The sprite palette rows the frame was coloured from.</summary>
     public required SpritePaletteRows Rows { get; init; }
 }

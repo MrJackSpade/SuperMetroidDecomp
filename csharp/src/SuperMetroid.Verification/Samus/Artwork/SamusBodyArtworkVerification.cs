@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -450,8 +451,8 @@ internal static class SamusBodyArtworkVerification
         {
             Pose = originalArmSamus.Pose, Position = FixedPosition<RoomPixels>.FromWhole(originalArmSamus.Position.Whole), SelectedHudItem = originalArmSamus.SelectedHudItem,
         };
-        originalArmSamus.Presentation.TileTransfers.BindArtwork(stock);
-        editedArmSamus.Presentation.TileTransfers.BindArtwork(replacement);
+        originalArmSamus.Presentation.TileTransfers.BindBodyFixture(stock);
+        editedArmSamus.Presentation.TileTransfers.BindBodyFixture(replacement);
         originalArmSamus.ArmCannon.Artwork = stock.ArmCannon;
         editedArmSamus.ArmCannon.Artwork = replacement.ArmCannon;
         for (int frame = 0; frame < 4; frame++)
@@ -558,20 +559,20 @@ internal static class SamusBodyArtworkVerification
         {
             Pose = SamusPoseId.NormalLandingRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         };
-        stockLandingSamus.Presentation.TileTransfers.BindArtwork(stock);
-        editedLandingSamus.Presentation.TileTransfers.BindArtwork(replacement);
+        stockLandingSamus.Presentation.TileTransfers.BindBodyFixture(stock);
+        editedLandingSamus.Presentation.TileTransfers.BindBodyFixture(replacement);
         stockLandingSamus.Presentation.Draw(stockLandingSamus, new SpriteFrameBuffer(), layer1: new(0, 0));
         editedLandingSamus.Presentation.Draw(editedLandingSamus, new SpriteFrameBuffer(), layer1: new(0, 0));
         AssertEqual(unchecked((ushort)(stockLandingSamus.Presentation.SpritemapPosition.Y - 1)),
             editedLandingSamus.Presentation.SpritemapPosition.Y,
             "edited landing visual offset changes production OAM origin without a ROM read");
         var editedSamus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose };
-        editedSamus.Presentation.TileTransfers.BindArtwork(replacement);
+        editedSamus.Presentation.TileTransfers.BindBodyFixture(replacement);
         AssertEqual((sbyte)(originalYOffset + 1),
             SamusPoseMetadata.ReadGraphicsYOffset(editedSamus),
             "edited Samus visual Y offset is used without a cartridge read");
         var stockSamus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
-        stockSamus.Presentation.TileTransfers.BindArtwork(stock);
+        stockSamus.Presentation.TileTransfers.BindBodyFixture(stock);
         editedSamus.Position = editedSamus.Position.WithWhole(stockSamus.Position.Whole);
         stockSamus.Presentation.Draw(stockSamus, new SpriteFrameBuffer(), layer1: new(0, 0));
         editedSamus.Presentation.Draw(editedSamus, new SpriteFrameBuffer(), layer1: new(0, 0));
@@ -687,8 +688,8 @@ internal static class SamusBodyArtworkVerification
         // owners must now receive the installed catalog; no ROM fallback remains.
         nativeSamus.ArmCannon.Artwork = armCannon;
         installedSamus.ArmCannon.Artwork = armCannon;
-        nativeSamus.Presentation.TileTransfers.BindArtwork(body);
-        installedSamus.Presentation.TileTransfers.BindArtwork(body);
+        nativeSamus.Presentation.TileTransfers.BindBodyFixture(body);
+        installedSamus.Presentation.TileTransfers.BindBodyFixture(body);
         for (int frame = 0; frame < 4; frame++)
         {
             SamusArmCannonUpdateResult native = nativeSamus.ArmCannon.Update(nativeSamus);

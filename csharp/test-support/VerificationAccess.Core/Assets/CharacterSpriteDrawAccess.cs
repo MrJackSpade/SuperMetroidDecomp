@@ -20,6 +20,9 @@ internal static class CharacterSpriteDrawAccess
         /// <summary>The OBJ palette row for parts that do not choose their own.</summary>
         internal int Palette => Character(draw).Palette;
 
+        /// <summary>The character draw's priority for parts that do not choose their own.</summary>
+        internal int Priority => Character(draw).Priority;
+
         /// <summary>Mirrors the whole frame about its origin.</summary>
         internal SnesTileFlipFlags Flip => Character(draw).Flip;
 

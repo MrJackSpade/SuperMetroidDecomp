@@ -65,15 +65,16 @@ internal sealed class SamusMechanicsSnapshot
             .OrderBy(field => field.Name, StringComparer.Ordinal))
         {
             // Host-bound catalogs are not simulation state. The only mutable
-            // exceptions are body draw outputs: OAM selectors/origin and pending
-            // split DMA. Animation/frame timers, radii, pose/history and all
+            // exceptions are body draw outputs: OAM selectors/origin, the definition
+            // records shown and pending split DMA. Animation/frame timers, radii, pose/history and all
             // movement/special-sequence children remain compared, including private fields.
             if (field.IsDefined(typeof(NonSerializedAttribute)) ||
                 field.FieldType == typeof(SamusTileTransferState) ||
                 (owner == typeof(SamusPresentation) && field.Name is
                     "<TopSpritemapIndex>k__BackingField" or
                     "<BottomSpritemapIndex>k__BackingField" or
-                    "<SpritemapPosition>k__BackingField")) continue;
+                    "<SpritemapPosition>k__BackingField" or
+                    "<ShownRecords>k__BackingField")) continue;
             result.Add(field);
         }
         return result.ToArray();

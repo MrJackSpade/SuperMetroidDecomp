@@ -19,15 +19,19 @@ public sealed class SpriteImage
     /// <summary>The colours the image was coloured with.</summary>
     private readonly Bgr555[] standardColours;
 
+    /// <summary>Each pixel's priority against the backgrounds 0..3, as the part that shows it had it.</summary>
+    private readonly byte[] priorities;
+
     /// <summary>Copies the pixels, palette indices and standard colours of a named image.</summary>
     /// <param name="name">The image's installed name, which names it in diagnostics.</param>
     /// <param name="size">The image's width and height in pixels; both are positive.</param>
     /// <param name="pixels">Width times height pixels, row by row from the top; a pixel with zero alpha is transparent.</param>
     /// <param name="paletteIndices">Each pixel's palette row times sixteen plus its colour, zero where transparent.</param>
     /// <param name="standardColours">The 128 sprite colours the pixels were coloured with.</param>
-    /// <exception cref="ArgumentException">The name is empty, a dimension is zero or a length does not match.</exception>
+    /// <param name="priorities">Each pixel's priority against the backgrounds 0..3.</param>
+    /// <exception cref="ArgumentException">The name is empty, a dimension is zero, a length does not match or a priority exceeds 3.</exception>
     public SpriteImage(string name, Extent16<ImagePixels> size, ReadOnlySpan<Rgba32> pixels, ReadOnlySpan<byte> paletteIndices,
-        ReadOnlySpan<Bgr555> standardColours)
+        ReadOnlySpan<Bgr555> standardColours, ReadOnlySpan<byte> priorities)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
         if (size.X == 0 || size.Y == 0)
@@ -35,11 +39,18 @@ public sealed class SpriteImage
         Ensure.LengthEqual(pixels, size.X * size.Y);
         Ensure.LengthEqual(paletteIndices, size.X * size.Y);
         Ensure.LengthEqual(standardColours, SpriteColourCount);
+        Ensure.LengthEqual(priorities, size.X * size.Y);
+        foreach (byte priority in priorities)
+        {
+            if (priority > 3)
+                throw new ArgumentException($"Sprite image {name} has a pixel of priority {priority}; priorities are 0..3.", nameof(priorities));
+        }
         Name = name;
         Size = size;
         this.pixels = pixels.ToArray();
         this.paletteIndices = paletteIndices.ToArray();
         this.standardColours = standardColours.ToArray();
+        this.priorities = priorities.ToArray();
     }
 
     /// <summary>The image's installed name.</summary>
@@ -56,6 +67,9 @@ public sealed class SpriteImage
 
     /// <summary>The 128 sprite colours the pixels were coloured with.</summary>
     public ReadOnlySpan<Bgr555> StandardColours => standardColours;
+
+    /// <summary>Each pixel's priority against the backgrounds 0..3, as the part that shows it had it.</summary>
+    public ReadOnlySpan<byte> Priorities => priorities;
 
     /// <summary>Names the image for debugger watches.</summary>
     public override string ToString() => $"{Name} ({Size.X}x{Size.Y})";

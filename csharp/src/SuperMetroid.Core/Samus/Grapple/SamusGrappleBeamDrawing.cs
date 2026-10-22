@@ -105,7 +105,7 @@ public static class SamusGrappleBeamDrawing
         SpriteSheetFrame image = objects.Sheet.Frame(SuperMetroid.Core.Samus.Artwork.ProjectileSheetDefinitions.FlareFrame(
             SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteDefinitions.Selectors[tableIndex]));
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleFlare), image,
-            new Position16<ScreenPixels>(screenX, screenY), SpriteMirror.None, image.Priority));
+            new Position16<ScreenPixels>(screenX, screenY), SpriteMirror.None));
         return true;
     }
 
@@ -251,7 +251,7 @@ public static class SamusGrappleBeamDrawing
             SpriteSheetFrame image = installed.Frame(SuperMetroid.Core.Samus.Artwork.GrappleSheetDefinitions.RopeFrame(
                 orientation, grapple.SegmentAnimationFrames[instructionSlot], mirror));
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleRope, segment), image,
-                new Position16<ScreenPixels>(screenX, screenY), SpriteMirror.None, image.Priority));
+                new Position16<ScreenPixels>(screenX, screenY), SpriteMirror.None));
             screenXFixed = unchecked(screenXFixed + stepX);
             screenYFixed = unchecked(screenYFixed + stepY);
         }
@@ -279,7 +279,7 @@ public static class SamusGrappleBeamDrawing
         int borrowY = swinging && grapple.Anchor.Y < layer1.Y ? 1 : 0;
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleEndpoint), image,
             new Position16<ScreenPixels>(unchecked((ushort)(grapple.Anchor.X - layer1.X - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowX)), unchecked((ushort)(relativeY - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowY))),
-            SpriteMirror.None, image.Priority));
+            SpriteMirror.None));
     }
 
 

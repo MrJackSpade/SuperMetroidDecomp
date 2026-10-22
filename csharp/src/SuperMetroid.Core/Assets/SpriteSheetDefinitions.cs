@@ -11,6 +11,8 @@ public static class SpriteSheetDefinitions
     {
         SpriteSheetId.EscapeTimer => "escape-timer",
         SpriteSheetId.Grapple => "grapple",
+        SpriteSheetId.SamusBodyTop => "samus-body-top",
+        SpriteSheetId.SamusBodyBottom => "samus-body-bottom",
         SpriteSheetId.IntroProjectiles => "intro-projectiles",
         SpriteSheetId.ProjectilesPower => "projectiles-power",
         SpriteSheetId.ProjectilesWave => "projectiles-wave",

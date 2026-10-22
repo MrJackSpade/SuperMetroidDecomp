@@ -42,7 +42,7 @@ internal static class GenericSpriteArtworkVerification
         // Reference decoding is confined to this diagnostic. The production renderer
         // receives mutable memory only and the installed sprite composition catalog.
         var title = new TitleSequenceState(titleGradientPresentation: maps.TitleGradient,
-            titlePalettePresentation: maps.TitlePalette, titleGraphicsPresentation: maps.TitleGraphics);
+            titlePalettePresentation: maps.TitlePalette, titleGraphicsPresentation: maps.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(maps.TitleGraphics));
         var document = RequiredJson.Deserialize<TitleMode7MapDocument>(File.ReadAllBytes(
             Path.Combine(installation.MapDirectory, TitleGraphicsFormat.Mode7MapFile)),
             ArtworkJson.Options);
@@ -88,6 +88,7 @@ internal static class GenericSpriteArtworkVerification
             ProjectileCompositions = projectiles.Catalog,
             ProjectileFrameBindings = projectiles.FrameBindings,
         };
+        intro.BindSpriteSheets(InstalledFixtures.SpriteSheets);
         intro.SetupFirstIllustratedPage();
         var caret = intro.CurrentObjects;
         (caret ?? throw new InvalidOperationException("Verification requires caret.")).Step(0);

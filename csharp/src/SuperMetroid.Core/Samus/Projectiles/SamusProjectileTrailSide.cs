@@ -7,8 +7,11 @@ public sealed class SamusProjectileTrailSide
     public Position16<RoomPixels> Position { get; internal set; }
     /// <summary>Updates remaining before the current trail instruction advances.</summary>
     public WrappingCountdown InstructionTimer { get; internal set; }
-    /// <summary>The side's place in its trail program: the step it runs when its timer next expires.</summary>
-    public ProjectileTrailCursor Cursor { get; internal set; }
+    /// <summary>
+    /// The side's place in its trail program: the step it runs when its timer next expires. Null once cleared, before
+    /// any program starts; a cleared side's timer is zero, so it never runs a step.
+    /// </summary>
+    public ProjectileTrailCursor? Cursor { get; internal set; }
     /// <summary>
     /// The pose this side last showed, which it draws; null once cleared. Allocation does not clear it, so a new trail
     /// shows the slot's previous pose until its own first one, as the cartridge's retained tile word does.
@@ -25,7 +28,7 @@ public sealed class SamusProjectileTrailSide
     {
         Position = Position16<RoomPixels>.Zero;
         InstructionTimer = WrappingCountdown.Start(0);
-        Cursor = default;
+        Cursor = null;
         ShownPose = null;
         DisplayedPosition = Position16<RoomPixels>.Zero;
     }

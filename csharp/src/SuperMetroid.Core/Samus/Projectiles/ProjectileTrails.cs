@@ -110,7 +110,8 @@ internal sealed class ProjectileTrails
             side.InstructionTimer = side.InstructionTimer.Decrement().Remaining;
             if (side.InstructionTimer.IsZero)
             {
-                ProjectileTrailCursor cursor = side.Cursor;
+                ProjectileTrailCursor cursor = side.Cursor ?? throw new InvalidOperationException(
+                    "A trail side with a running timer has started a program.");
                 while (true)
                 {
                     ProjectileTrailStep step = cursor.Current;

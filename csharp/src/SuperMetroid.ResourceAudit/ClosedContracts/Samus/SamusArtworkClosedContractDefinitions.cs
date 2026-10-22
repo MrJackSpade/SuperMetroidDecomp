@@ -33,7 +33,7 @@ internal static class SamusArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Hardware/SnesSpritemapXWord.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseCollisionDefinitions.cs")]),
         new("SuperMetroid.Core.Samus.Artwork.SamusSpritemapArtworkCatalog", "samus-complete-indexed-composition-membership",
-            ["TopBase", "BottomBase", "TryGet", "TryGetFrame"],
+            ["TopBase", "BottomBase", "TryGet", "TryGetComposition", "TryGetFrame"],
             [new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusSpritemapArtworkCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusSpritemapFrameDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/GrappleSwingFrameCatalog.cs"),

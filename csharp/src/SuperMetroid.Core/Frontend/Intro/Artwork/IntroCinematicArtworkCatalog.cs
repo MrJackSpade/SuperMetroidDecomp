@@ -105,11 +105,18 @@ public sealed class IntroCinematicArtworkCatalog
     public CeresDestructionArtworkCatalog CeresDestruction { get; }
 
     /// <summary>The intro OBJ page: the intro sheet with the cinematic sheet uploaded over its tail.</summary>
-    public SpriteArtwork ObjectPage()
+    public SpriteArtwork ObjectPage
     {
-        var id = new SpriteArtworkId(SpriteArtworkKind.IntroObjects);
-        return ObjCharacterPage.With(id, ObjCharacterPage.Create(id, IntroObjectCharacters.Transfer.Span),
-            CinematicObjectCharacters.Transfer.Span, SuperMetroid.Core.Samus.Artwork.ProjectileObjectPageDefinitions.IntroCinematicObjectsFirstCharacter);
+        get
+        {
+            if (field is null)
+            {
+                var id = new SpriteArtworkId(SpriteArtworkKind.IntroObjects);
+                field = ObjCharacterPage.With(id, ObjCharacterPage.Create(id, IntroObjectCharacters.Transfer.Span),
+                    CinematicObjectCharacters.Transfer.Span, SuperMetroid.Core.Samus.Artwork.ProjectileObjectPageDefinitions.IntroCinematicObjectsFirstCharacter);
+            }
+            return field;
+        }
     }
 
     /// <summary>Identity of the entire selected opening bundle, including its owned Ceres flight/reveal art.</summary>

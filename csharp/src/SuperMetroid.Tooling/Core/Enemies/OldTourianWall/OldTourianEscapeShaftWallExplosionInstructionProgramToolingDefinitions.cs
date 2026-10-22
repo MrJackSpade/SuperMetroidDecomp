@@ -1,6 +1,6 @@
 ﻿using SuperMetroid.Core.Enemies.OldTourianWall;
 
-namespace SuperMetroid.Core.Rooms.Plms;
+namespace SuperMetroid.Core.Enemies.OldTourianWall;
 
 /// <summary>Development-tool members of <see cref="OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions"/>; never linked by player hosts.</summary>
 internal static class OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions

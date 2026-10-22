@@ -34,7 +34,7 @@ internal static class IntroSpriteSheetComposer
     {
         Ensure.NotNull(families);
         Ensure.NotNull(intro);
-        SpriteArtwork page = intro.ObjectPage();
+        SpriteArtwork page = intro.ObjectPage;
         List<SheetFrameSource> frames = [.. families.SelectMany(family => family.Frames.OrderBy(pair => pair.Key.Index).Select(pair =>
         {
             string name = CinematicSpriteSheet.FrameName(family.Family, pair.Key);

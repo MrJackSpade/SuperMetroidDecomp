@@ -34,7 +34,7 @@ internal static class ProjectileSheetComposer
         {
             IntroCinematicArtworkCatalog intro = inputs.Intro;
             cgram = new SnesCgram();
-            basePage = intro.ObjectPage();
+            basePage = intro.ObjectPage;
             beams = SamusBeamCombination.Power;
             // `$8B:A3AC` loads the beam palette, then the intro's whole palette over it.
             SamusProjectileSystem.LoadBeamPalette(cgram, beams, projectiles.BeamTiles.Palettes);

@@ -10,6 +10,7 @@ internal static class EnemyProjectileArtworkClosedContractDefinitions
             ["Get", "GetProgramFrame"],
             [new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyProjectileSpritemapCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyProjectileSpritemapDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectileFrames.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectilePresentationFrameDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectilePresentationFrameSets.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainEffectFrameDefinitions.cs"),

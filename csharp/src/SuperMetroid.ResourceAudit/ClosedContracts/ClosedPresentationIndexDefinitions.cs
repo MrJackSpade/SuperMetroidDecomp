@@ -143,7 +143,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("GrappleSpriteCatalog", "Segment", "frame") => new(0, GrappleSpriteDefinitions.SegmentAttributeAddresses.Length),
         ("SamusBodyArtworkCatalog", "GraphicsYOffset", "pose") => new(0, SamusBodyArtworkCatalog.PoseCount),
         ("SamusSpritemapArtworkCatalog", "TopBase" or "BottomBase", "pose") => new(0, SamusBodyArtworkCatalog.PoseCount),
-        ("SamusSpritemapArtworkCatalog", "TryGet", "index") => new(0, SamusSpritemapArtworkCatalog.PointerCount),
+        ("SamusSpritemapArtworkCatalog", "TryGet" or "TryGetComposition", "index") => new(0, SamusSpritemapArtworkCatalog.PointerCount),
         ("SamusArmCannonArtworkCatalog", "PoseDescriptor", "pose") => new(0, SamusBodyArtworkCatalog.PoseCount),
         ("SamusArmCannonArtworkCatalog", "ReadDrawingByte", "offset") => new(0, SamusArmCannonArtworkFormat.DrawingDataByteCount),
         ("SamusArmCannonArtworkCatalog", "SpriteAttributes" or "CoverTileIndex", "direction") => new(0, SamusRenderingRomData.ArmCannon.DirectionCount),

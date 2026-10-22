@@ -18,14 +18,42 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
     /// <summary>The sets whose spawned objects draw from sheets.</summary>
     private readonly HashSet<string> spawningSets;
 
-    /// <summary>The sheets by graphics set name and enemy, and the spawned-object sheets by set name and tile base.</summary>
+    /// <summary>Each set's enemy sheets' frames drawn over characters its encounters upload, and the regions they are drawn over.</summary>
+    private readonly Dictionary<EnemySheetKey, IReadOnlyDictionary<string, CharacterRegion[]>> pictures;
+
+    /// <summary>The same for each set's spawned-object sheets.</summary>
+    private readonly Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, CharacterRegion[]>> spawnedPictures;
+
+    /// <summary>
+    /// The sheets by graphics set name and enemy, and the spawned-object sheets by set name and tile base, with the regions
+    /// each of their frames drawn over uploaded characters is drawn over, and the uploads the pictures show.
+    /// </summary>
     public InstalledEnemySheets(IReadOnlyDictionary<EnemySheetKey, SpriteSheet> sheets,
-        IReadOnlyDictionary<SpawnedObjectSheetKey, SpawnedObjectSheet> spawned)
+        IReadOnlyDictionary<SpawnedObjectSheetKey, SpawnedObjectSheet> spawned,
+        IReadOnlyDictionary<EnemySheetKey, IReadOnlyDictionary<string, CharacterRegion[]>> pictures,
+        IReadOnlyDictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, CharacterRegion[]>> spawnedPictures,
+        RuntimeCharacterUploadCatalog uploads)
     {
+        Uploads = Ensure.NotNull(uploads);
         this.sheets = new Dictionary<EnemySheetKey, SpriteSheet>(Ensure.NotNull(sheets));
         this.spawned = new Dictionary<SpawnedObjectSheetKey, SpawnedObjectSheet>(Ensure.NotNull(spawned));
         spawningSets = [.. this.spawned.Keys.Select(key => key.Set)];
+        this.pictures = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, CharacterRegion[]>>(Ensure.NotNull(pictures));
+        this.spawnedPictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, CharacterRegion[]>>(Ensure.NotNull(spawnedPictures));
     }
+
+    /// <inheritdoc/>
+    public RuntimeCharacterUploadCatalog Uploads { get; }
+
+    /// <inheritdoc/>
+    public IReadOnlyList<CharacterRegion> Regions(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame) =>
+        pictures.TryGetValue(new EnemySheetKey(Ensure.NotNull(set).Name, enemy), out IReadOnlyDictionary<string, CharacterRegion[]>? frames)
+            && frames.TryGetValue(frame, out CharacterRegion[]? regions) ? regions : [];
+
+    /// <inheritdoc/>
+    public IReadOnlyList<CharacterRegion> SpawnedRegions(RoomEnemyGraphicsSetDefinition set, int tileBase, string frame) =>
+        spawnedPictures.TryGetValue(new SpawnedObjectSheetKey(Ensure.NotNull(set).Name, tileBase), out IReadOnlyDictionary<string, CharacterRegion[]>? frames)
+            && frames.TryGetValue(frame, out CharacterRegion[]? regions) ? regions : [];
 
     /// <inheritdoc/>
     public SpriteSheet For(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy) => For(Ensure.NotNull(set).Name, enemy);
@@ -66,5 +94,32 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
             content.Append("palette", sheet.Palette);
             sheet.Sheet.AppendIdentity(content);
         }
+        AppendPictures(content, "pictures", pictures.Select(entry => new PictureOwner(entry.Key.Set, entry.Key.Enemy.ToString(), entry.Value)));
+        AppendPictures(content, "spawned-pictures", spawnedPictures.Select(entry => new PictureOwner(entry.Key.Set,
+            entry.Key.TileBase.ToString(System.Globalization.CultureInfo.InvariantCulture), entry.Value)));
     });
+
+    /// <summary>Appends each sheet's frames drawn over uploaded characters and their regions, in a stable order.</summary>
+    private static void AppendPictures(SelectedPresentationHash content, string label, IEnumerable<PictureOwner> owners)
+    {
+        foreach (PictureOwner owner in owners.OrderBy(owner => owner.Set, StringComparer.Ordinal).ThenBy(owner => owner.Owner, StringComparer.Ordinal))
+        {
+            content.Append(label, System.Text.Encoding.UTF8.GetBytes($"{owner.Set}/{owner.Owner}"));
+            foreach ((string frame, CharacterRegion[] regions) in owner.Frames.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+            {
+                content.Append("frame", System.Text.Encoding.UTF8.GetBytes(frame));
+                foreach (CharacterRegion region in regions)
+                {
+                    content.Append("region-first", region.FirstByte);
+                    content.Append("region-bytes", region.ByteCount);
+                }
+            }
+        }
+    }
+
+    /// <summary>One sheet's frames drawn over uploaded characters.</summary>
+    /// <param name="Set">The graphics set's name.</param>
+    /// <param name="Owner">The enemy's name, or the spawned objects' tile base.</param>
+    /// <param name="Frames">The frames and the regions each is drawn over.</param>
+    private sealed record PictureOwner(string Set, string Owner, IReadOnlyDictionary<string, CharacterRegion[]> Frames);
 }

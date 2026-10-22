@@ -98,6 +98,8 @@ def main():
         '/// sheets hold. Generated from the enemy behaviours by tools/generate-enemy-definition-frames.py; regenerate rather',
         '/// than edit.',
         '/// </summary>',
+        '[ArchitectureReview("large", "Generated data: the two thousand frames the enemy definitions show; it holds no logic, '
+        'and splitting it by family would only scatter one table the sheet composer reads as a whole.")]',
         'internal static class EnemyDefinitionFrameDefinitions',
         '{',
     ]

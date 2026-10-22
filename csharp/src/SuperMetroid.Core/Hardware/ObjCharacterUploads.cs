@@ -36,6 +36,26 @@ public sealed class ObjCharacterUploads
         _uploads.Add(new ObjCharacterUpload(firstByte, byteCount, source, sourceOffset));
     }
 
+    /// <summary>The table byte an upload to <paramref name="destination"/> starts at, which lies outside the table for one that misses it.</summary>
+    public static int TableByte(VramDmaDestination destination) =>
+        (destination.Word - GameplayVramLayout.ObjectCharacters.Offset) * sizeof(ushort);
+
+    /// <summary>Records an encounter's upload over the characters after its room loads (#1392).</summary>
+    public void Record(RuntimeCharacterUpload upload) =>
+        Record(Ensure.NotNull(upload).FirstByte, upload.ByteCount, upload.Source);
+
+    /// <summary>The upload that shows last over any of <paramref name="byteCount"/> bytes from <paramref name="firstByte"/>, if any has.</summary>
+    public ObjCharacterUpload? LastOver(int firstByte, int byteCount)
+    {
+        for (int index = _uploads.Count - 1; index >= 0; index--)
+        {
+            ObjCharacterUpload upload = _uploads[index];
+            if (upload.FirstByte < firstByte + byteCount && firstByte < upload.FirstByte + upload.ByteCount)
+                return upload;
+        }
+        return null;
+    }
+
     /// <summary>
     /// Records the part of one VRAM upload that lands in the OBJ character table. Uploads that miss the table are
     /// ignored, as the table does not show them.
@@ -46,7 +66,7 @@ public sealed class ObjCharacterUploads
     /// <exception cref="InvalidDataException">The upload reaches the table with a non-linear word increment.</exception>
     public void RecordUpload(VramDmaDestination destination, int byteCount, ObjCharacterSource source)
     {
-        int uploadStart = (destination.Word - GameplayVramLayout.ObjectCharacters.Offset) * sizeof(ushort);
+        int uploadStart = TableByte(destination);
         int shownStart = Math.Max(uploadStart, 0);
         int shownEnd = Math.Min(uploadStart + byteCount, TableByteCount);
         if (shownStart >= shownEnd)

@@ -55,8 +55,8 @@ internal static class SpawnedObjectSheetComposer
         return [.. plans.Values];
     }
 
-    /// <summary>What the spawned-object sheet of <paramref name="plan"/> composes over <paramref name="page"/>.</summary>
-    internal static SpriteSheetSources Sources(EnemyTileArtworkCatalog enemies, SpawnedObjectSheetPlan plan, SpriteArtwork page,
+    /// <summary>What the spawned-object sheet of <paramref name="plan"/> composes over <paramref name="characters"/>.</summary>
+    internal static SpawnedObjectSheetSource Sources(EnemyTileArtworkCatalog enemies, SpawnedObjectSheetPlan plan, SetCharacters characters,
         Bgr555[] colours)
     {
         Ensure.NotNull(enemies);
@@ -68,14 +68,17 @@ internal static class SpawnedObjectSheetComposer
         var tileBase = checked((ushort)plan.TileBase);
         SpawnedObjects spawned = Spawned(plan);
         // The palette bits are the sheet's, ORed in at composition, so each pixel keeps its part's own row.
-        IEnumerable<SheetFrameSource> frames = spawned.Projectiles.Select(frame => new SheetFrameSource(
-                EnemySheetDefinitions.ProjectileFrameName(frame), EnemySpriteFrames.Frame(EnemyProjectileFrames.Parts(projectiles, frame), tileBase, 0),
-                page))
-            .Concat(SpriteObjectFrames(spawned.SpriteObjects).Select(frame => new SheetFrameSource(
+        FramePictures[] frames = [.. spawned.Projectiles.Select(frame => characters.Pictures(
+                EnemySheetDefinitions.ProjectileFrameName(frame), EnemySpriteFrames.Frame(EnemyProjectileFrames.Parts(projectiles, frame), tileBase, 0)))
+            .Concat(SpriteObjectFrames(spawned.SpriteObjects).Select(frame => characters.Pictures(
                 EnemySheetDefinitions.SpriteObjectFrameName(frame),
                 EnemySpriteFrames.Frame(spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts) ? parts
-                    : throw new InvalidDataException($"Room sprite-object frame {frame} has no installed composition."), tileBase, 0), page)));
-        return new SpriteSheetSources([.. frames], colours, ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection), plan.Palette);
+                    : throw new InvalidDataException($"Room sprite-object frame {frame} has no installed composition."), tileBase, 0))))];
+        return new SpawnedObjectSheetSource(plan,
+            new SpriteSheetSources([.. frames.SelectMany(pictures => pictures.Sources)], colours,
+                ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection), plan.Palette),
+            frames.Where(pictures => pictures.Regions.Length > 0)
+                .ToDictionary(pictures => pictures.Name, pictures => pictures.Regions, StringComparer.Ordinal));
     }
 
     /// <summary>The frames a spawned-object sheet holding the objects of <paramref name="spawners"/> holds.</summary>

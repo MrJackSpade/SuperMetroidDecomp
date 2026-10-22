@@ -5,6 +5,8 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.World.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Installation;
 
@@ -52,24 +54,33 @@ public static class EnemySheetFiles
         SpriteSheetStore store = SpriteSheetStore.Open(stockDirectory, overrideDirectory, ProvenanceFileName, names.Length);
         var loaded = names.ToDictionary(name => name, store.Read, StringComparer.Ordinal);
         var sheets = new Dictionary<EnemySheetKey, SpriteSheet>();
+        var pictures = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, CharacterRegion[]>>();
+        var spawnedPictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, CharacterRegion[]>>();
         // The sheets' frames are named from the stock enemy compositions installed beside them.
         var enemies = new Lazy<EnemyTileArtworkCatalog>(() => EnemyTileArtworkFiles.Load(
             Path.Combine(Path.GetDirectoryName(Path.GetFullPath(stockDirectory))!, GameInstallationLayout.EnemyTileDirectoryName), null).Enemies);
         foreach ((string set, Dictionary<string, string> members) in manifest.Sets)
         {
+            IReadOnlyList<RuntimeCharacterUpload> uploads = RuntimeCharacterUploadDefinitions.Catalog.Of(RoomEnemyGraphicsSetDefinitions.DrawnUnder
+                .FirstOrDefault(definition => definition.Name == set) ?? throw new InvalidDataException($"Enemy sheet manifest names unknown graphics set {set}."));
             foreach ((string enemyName, string name) in members)
             {
                 if (!Enum.TryParse(enemyName, out EnemyDefinitionId enemy) || !Enum.IsDefined(enemy))
                     throw new InvalidDataException($"Enemy sheet manifest set {set} names unknown enemy {enemyName}.");
                 SpriteSheet sheet = loaded[name];
-                if (!sheet.HoldsExactly(EnemySheetComposer.FrameNames(enemies.Value, enemy)))
-                    throw new InvalidDataException($"Enemy sheet {name} does not hold exactly the frames {enemy} shows.");
+                Dictionary<string, CharacterRegion[]> framePictures = FramePictures(manifest.Pictures, set, enemyName, uploads);
+                if (!sheet.HoldsExactly(PictureNames(EnemySheetComposer.FrameNames(enemies.Value, enemy), framePictures, uploads)))
+                    throw new InvalidDataException($"Enemy sheet {name} does not hold exactly the pictures of the frames {enemy} shows.");
                 sheets.Add(new EnemySheetKey(set, enemy), sheet);
+                if (framePictures.Count > 0)
+                    pictures.Add(new EnemySheetKey(set, enemy), framePictures);
             }
         }
         var spawned = new Dictionary<SpawnedObjectSheetKey, SpawnedObjectSheet>();
         foreach ((string set, Dictionary<string, SpawnedObjectSheetDocument> bases) in manifest.Spawned)
         {
+            IReadOnlyList<RuntimeCharacterUpload> uploads = RuntimeCharacterUploadDefinitions.Catalog.Of(RoomEnemyGraphicsSetDefinitions.DrawnUnder
+                .FirstOrDefault(definition => definition.Name == set) ?? throw new InvalidDataException($"Enemy sheet manifest names unknown graphics set {set}."));
             foreach ((string baseText, SpawnedObjectSheetDocument entry) in bases)
             {
                 if (!int.TryParse(baseText, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out int tileBase))
@@ -77,13 +88,44 @@ public static class EnemySheetFiles
                 EnemyDefinitionId[] spawners = [.. entry.Spawners.Select(name => Enum.TryParse(name, out EnemyDefinitionId enemy) && Enum.IsDefined(enemy)
                     ? enemy : throw new InvalidDataException($"Enemy sheet manifest set {set} names unknown spawner {name}."))];
                 SpriteSheet sheet = loaded[entry.Sheet];
-                if (!sheet.HoldsExactly(SpawnedObjectSheetComposer.FrameNames(spawners, entry.Anywhere)))
-                    throw new InvalidDataException($"Spawned-object sheet {entry.Sheet} does not hold exactly the objects its spawners spawn.");
+                Dictionary<string, CharacterRegion[]> framePictures = FramePictures(manifest.SpawnedPictures, set, baseText, uploads);
+                if (!sheet.HoldsExactly(PictureNames(SpawnedObjectSheetComposer.FrameNames(spawners, entry.Anywhere), framePictures, uploads)))
+                    throw new InvalidDataException($"Spawned-object sheet {entry.Sheet} does not hold exactly the pictures of the objects its spawners spawn.");
                 spawned.Add(new SpawnedObjectSheetKey(set, tileBase), new SpawnedObjectSheet(sheet, entry.Palette));
+                if (framePictures.Count > 0)
+                    spawnedPictures.Add(new SpawnedObjectSheetKey(set, tileBase), framePictures);
             }
         }
-        return new InstalledEnemySheets(sheets, spawned);
+        return new InstalledEnemySheets(sheets, spawned, pictures, spawnedPictures, RuntimeCharacterUploadDefinitions.Catalog);
     }
+
+    /// <summary>
+    /// The regions the manifest says each frame of <paramref name="owner"/>'s sheet under <paramref name="set"/> is drawn
+    /// over, each of which must be one the set's encounters' <paramref name="uploads"/> divide the characters into.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A frame names a region the uploads do not make.</exception>
+    private static Dictionary<string, CharacterRegion[]> FramePictures(
+        Dictionary<string, Dictionary<string, Dictionary<string, CharacterRegion[]>>> manifest, string set, string owner,
+        IReadOnlyList<RuntimeCharacterUpload> uploads)
+    {
+        if (!manifest.TryGetValue(set, out Dictionary<string, Dictionary<string, CharacterRegion[]>>? owners)
+            || !owners.TryGetValue(owner, out Dictionary<string, CharacterRegion[]>? frames))
+            return new Dictionary<string, CharacterRegion[]>(StringComparer.Ordinal);
+        IReadOnlyList<CharacterRegion> regions = RuntimeCharacterUploadCatalog.Regions(uploads);
+        foreach ((string frame, CharacterRegion[] drawnOver) in frames)
+        {
+            if (drawnOver.Length == 0 || drawnOver.Any(region => !regions.Contains(region)))
+                throw new InvalidDataException($"Enemy sheet manifest draws {set} {owner} frame {frame} over regions its encounters do not upload.");
+        }
+        return new Dictionary<string, CharacterRegion[]>(frames, StringComparer.Ordinal);
+    }
+
+    /// <summary>The names of the pictures of <paramref name="frames"/>: a frame drawn over no uploaded region once, the rest once for each picture.</summary>
+    private static IEnumerable<string> PictureNames(IEnumerable<string> frames, IReadOnlyDictionary<string, CharacterRegion[]> pictures,
+        IReadOnlyList<RuntimeCharacterUpload> uploads) =>
+        frames.SelectMany(frame => pictures.TryGetValue(frame, out CharacterRegion[]? regions)
+            ? RuntimeCharacterUploadCatalog.Contents(regions, uploads).Select(contents => RuntimeCharacterUploadDefinitions.Catalog.PictureName(frame, contents))
+            : [frame]);
 
     /// <summary>Used by installer completeness checks; overrides do not affect stock provenance.</summary>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);

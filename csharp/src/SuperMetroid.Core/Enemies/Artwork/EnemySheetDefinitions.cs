@@ -14,18 +14,18 @@ public static class EnemySheetDefinitions
     public const string ManifestFileName = "enemy-sheets.json";
 
     /// <summary>The manifest revision this build reads.</summary>
-    public const int ManifestVersion = 2;
+    public const int ManifestVersion = 3;
 
     /// <summary>
-    /// The enemies whose characters change while they draw, as their bosses and corpses upload tiles at run time; they
-    /// draw from those characters until they draw from pre-coloured parts, and have no sheets.
+    /// The enemies whose characters change while they draw in ways not yet pre-coloured, as their bosses and corpses upload
+    /// tiles at run time; they draw from those characters, and have no sheets. An encounter whose uploads are catalogued
+    /// (<see cref="RuntimeCharacterUploadCatalog"/>) draws from sheets holding a picture for each upload instead.
     /// </summary>
     public static IReadOnlySet<EnemyDefinitionId> DrawnFromCharacters { get; } = new HashSet<EnemyDefinitionId>
     {
         EnemyDefinitionId.CorpseSidehopper, EnemyDefinitionId.CorpseTorizo,
         EnemyDefinitionId.ShipBottomEntrance, EnemyDefinitionId.ShipTop,
         EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue,
-        EnemyDefinitionId.DraygonArms, EnemyDefinitionId.DraygonBody, EnemyDefinitionId.DraygonEye, EnemyDefinitionId.DraygonTail,
         EnemyDefinitionId.MotherBrainBody, EnemyDefinitionId.MotherBrainHead, EnemyDefinitionId.MotherBrainTubes,
         EnemyDefinitionId.Ridley, EnemyDefinitionId.RidleyCeres, EnemyDefinitionId.RidleyExplosion,
         EnemyDefinitionId.BombTorizo, EnemyDefinitionId.GoldenTorizo,

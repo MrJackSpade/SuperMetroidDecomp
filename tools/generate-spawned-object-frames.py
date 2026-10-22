@@ -154,6 +154,8 @@ def main():
         '/// (#1392), which the pre-coloured spawned-object sheets hold. Generated from the source by',
         '/// tools/generate-spawned-object-frames.py; regenerate rather than edit.',
         '/// </summary>',
+        '[ArchitectureReview("large", "Generated data: the projectile frames and sprite-object kinds each enemy definition spawns; '
+        'it holds no logic, and splitting it by family would only scatter one table the sheet composer reads as a whole.")]',
         'internal static class SpawnedObjectFrameDefinitions',
         '{',
     ]

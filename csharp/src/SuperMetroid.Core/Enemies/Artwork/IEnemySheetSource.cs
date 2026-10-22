@@ -18,4 +18,17 @@ public interface IEnemySheetSource
     /// <summary>The sheet graphics set <paramref name="set"/> draws the objects spawned at <paramref name="tileBase"/> from.</summary>
     /// <exception cref="InvalidDataException">No spawner the set loads draws at that base.</exception>
     SpawnedObjectSheet Spawned(RoomEnemyGraphicsSetDefinition set, int tileBase);
+
+    /// <summary>The uploads each encounter makes over the characters, whose pictures the sheets hold.</summary>
+    RuntimeCharacterUploadCatalog Uploads { get; }
+
+    /// <summary>
+    /// The regions frame <paramref name="frame"/> of <paramref name="enemy"/>'s sheet under graphics set
+    /// <paramref name="set"/> is drawn over whose characters the set's encounters upload after the room loads; none for a
+    /// frame the set's own characters alone show.
+    /// </summary>
+    IReadOnlyList<CharacterRegion> Regions(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame);
+
+    /// <summary>The same for frame <paramref name="frame"/> of the set's spawned-object sheet for <paramref name="tileBase"/>.</summary>
+    IReadOnlyList<CharacterRegion> SpawnedRegions(RoomEnemyGraphicsSetDefinition set, int tileBase, string frame);
 }

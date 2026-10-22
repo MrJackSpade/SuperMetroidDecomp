@@ -126,8 +126,8 @@ internal sealed class EnemyPresentation
             throw new InvalidDataException($"{enemy} draws at tile base ${tileBase:X3}; its sheet was composed at ${composed.TileIndex:X3}.");
         int loaded = SnesObjAttributeWord.FromPaletteBits(checked((ushort)composed.PaletteIndex)).PaletteIndex;
         int drawn = SnesObjAttributeWord.FromPaletteBits(checked((ushort)paletteBits)).PaletteIndex;
-        sprites.Add(new ImageSpriteDraw(source, Sheets.For(LoadedSet, enemy).Frame(frame), origin, SpriteMirror.None,
-            drawn == loaded ? null : drawn));
+        sprites.Add(new ImageSpriteDraw(source, Sheets.For(LoadedSet, enemy).Frame(Picture(frame, Sheets.Regions(LoadedSet, enemy, frame))),
+            origin, SpriteMirror.None, drawn == loaded ? null : drawn));
     }
 
     /// <summary>
@@ -154,7 +154,21 @@ internal sealed class EnemyPresentation
     {
         SpawnedObjectSheet sheet = Sheets.Spawned(LoadedSet, tileBase);
         int drawn = SnesObjAttributeWord.FromPaletteBits(paletteBits).PaletteIndex;
-        sprites.Add(new ImageSpriteDraw(source, sheet.Sheet.Frame(frame), origin, SpriteMirror.None, drawn == sheet.Palette ? null : drawn));
+        sprites.Add(new ImageSpriteDraw(source, sheet.Sheet.Frame(Picture(frame, Sheets.SpawnedRegions(LoadedSet, tileBase, frame))),
+            origin, SpriteMirror.None, drawn == sheet.Palette ? null : drawn));
+    }
+
+    /// <summary>
+    /// The picture of <paramref name="frame"/> that shows what each of the <paramref name="regions"/> it is drawn over
+    /// holds now: the upload the room's encounter made last over it, or the graphics set's own characters.
+    /// </summary>
+    private string Picture(string frame, IReadOnlyList<CharacterRegion> regions)
+    {
+        if (regions.Count == 0)
+            return frame;
+        RuntimeCharacterUploadCatalog catalog = Sheets.Uploads;
+        IReadOnlyList<RuntimeCharacterUpload> uploads = catalog.Of(LoadedSet);
+        return catalog.PictureName(frame, [.. regions.Select(region => catalog.Showing(ObjCharacters, uploads, region))]);
     }
 
     /// <summary>The installed enemy sheets.</summary>

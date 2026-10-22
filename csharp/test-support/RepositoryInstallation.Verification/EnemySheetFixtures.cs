@@ -61,6 +61,27 @@ internal static class EnemySheetFixtures
                 : throw new InvalidDataException($"Enemy graphics set {set.Name} composes no spawned-object sheet for tile base ${tileBase:X3}.");
         }
 
+        /// <inheritdoc/>
+        public RuntimeCharacterUploadCatalog Uploads => SuperMetroid.Core.World.Artwork.RuntimeCharacterUploadDefinitions.Catalog;
+
+        /// <inheritdoc/>
+        public IReadOnlyList<CharacterRegion> Regions(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame)
+        {
+            if (installed is not null && RoomEnemyGraphicsSetDefinitions.DrawnUnder.Contains(set))
+                return installed.Regions(set, enemy, frame);
+            return sets.GetValue(set, Compose).Pictures.TryGetValue(enemy, out IReadOnlyDictionary<string, CharacterRegion[]>? frames)
+                && frames.TryGetValue(frame, out CharacterRegion[]? regions) ? regions : [];
+        }
+
+        /// <inheritdoc/>
+        public IReadOnlyList<CharacterRegion> SpawnedRegions(RoomEnemyGraphicsSetDefinition set, int tileBase, string frame)
+        {
+            if (installed is not null && RoomEnemyGraphicsSetDefinitions.DrawnUnder.Contains(set))
+                return installed.SpawnedRegions(set, tileBase, frame);
+            return sets.GetValue(set, Compose).SpawnedPictures.TryGetValue(tileBase, out IReadOnlyDictionary<string, CharacterRegion[]>? frames)
+                && frames.TryGetValue(frame, out CharacterRegion[]? regions) ? regions : [];
+        }
+
         /// <summary>Composes and registers one graphics set's sheets.</summary>
         private ComposedSet Compose(RoomEnemyGraphicsSetDefinition set)
         {
@@ -68,12 +89,20 @@ internal static class EnemySheetFixtures
             // A name of its own keeps its frames apart from the installed sheets' in the frame-source registry.
             string owner = $"fixture-{RuntimeHelpers.GetHashCode(inputs.Enemies):X8}-{set.Name}-{RuntimeHelpers.GetHashCode(set):X8}";
             var enemies = new Dictionary<EnemyDefinitionId, SpriteSheet>();
-            foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources) in setSources.Enemies)
+            var pictures = new Dictionary<EnemyDefinitionId, IReadOnlyDictionary<string, CharacterRegion[]>>();
+            foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources, IReadOnlyDictionary<string, CharacterRegion[]> framePictures) in setSources.Enemies)
+            {
                 enemies[enemy] = Load(sources, $"{enemy}-{owner}");
+                pictures[enemy] = framePictures;
+            }
             var spawned = new Dictionary<int, SpawnedObjectSheet>();
-            foreach ((SpawnedObjectSheetPlan plan, SpriteSheetSources sources) in setSources.Spawned)
+            var spawnedPictures = new Dictionary<int, IReadOnlyDictionary<string, CharacterRegion[]>>();
+            foreach ((SpawnedObjectSheetPlan plan, SpriteSheetSources sources, IReadOnlyDictionary<string, CharacterRegion[]> framePictures) in setSources.Spawned)
+            {
                 spawned[plan.TileBase] = new SpawnedObjectSheet(Load(sources, $"Spawned-{plan.TileBase:X3}-{owner}"), plan.Palette);
-            return new ComposedSet(enemies, setSources.SpawnsFromSheets, spawned);
+                spawnedPictures[plan.TileBase] = framePictures;
+            }
+            return new ComposedSet(enemies, setSources.SpawnsFromSheets, spawned, pictures, spawnedPictures);
         }
 
         /// <summary>Composes, loads and registers one sheet under <paramref name="name"/>.</summary>
@@ -91,6 +120,10 @@ internal static class EnemySheetFixtures
     /// <param name="Enemies">Each enemy's sheet.</param>
     /// <param name="SpawnsFromSheets">Whether its spawned objects draw from sheets.</param>
     /// <param name="Spawned">Each spawned-object sheet by tile base.</param>
+    /// <param name="Pictures">Each enemy sheet's frames drawn over uploaded characters, and the regions they are drawn over.</param>
+    /// <param name="SpawnedPictures">The same for each spawned-object sheet, by tile base.</param>
     private sealed record ComposedSet(IReadOnlyDictionary<EnemyDefinitionId, SpriteSheet> Enemies, bool SpawnsFromSheets,
-        IReadOnlyDictionary<int, SpawnedObjectSheet> Spawned);
+        IReadOnlyDictionary<int, SpawnedObjectSheet> Spawned,
+        IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyDictionary<string, CharacterRegion[]>> Pictures,
+        IReadOnlyDictionary<int, IReadOnlyDictionary<string, CharacterRegion[]>> SpawnedPictures);
 }

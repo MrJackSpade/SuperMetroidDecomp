@@ -1,55 +1,54 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Hud.Artwork;
 
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>The message box's text rows as a background layer over the HUD characters, with its centered reveal window.</summary>
+/// <summary>
+/// The message box's text as BG3 shows it (#1392): the pre-coloured image of the message it shows, centered on the
+/// window, shown only on the reveal window's scanlines.
+/// </summary>
 public sealed record MessageBoxRenderLayer : RenderLayer
 {
-    /// <summary>Checks the message shape and reveal radius.</summary>
-    /// <param name="text">The text rows, shown on the reveal window's scanlines.</param>
+    /// <summary>Checks the image's shape and the reveal radius.</summary>
+    /// <param name="picture">The image of the message's text rows.</param>
     /// <param name="radiusPixels">The centered reveal half-height in pixels, from zero through 24.</param>
-    /// <exception cref="ArgumentException">The layer is not three through six full-width rows.</exception>
+    /// <exception cref="ArgumentException">The image is not three through six full-width rows.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The radius is out of range.</exception>
-    public MessageBoxRenderLayer(BgLayer text, int radiusPixels)
+    public MessageBoxRenderLayer(SpriteSheetFrame picture, int radiusPixels)
     {
-        Ensure.NotNull(text);
-        if (text.Size.X != GameplayMessageRomData.Layout.TilemapWidth || text.Size.Y < GameplayMessageRomData.Layout.MinimumRows
-            || text.Size.Y > GameplayMessageRomData.Layout.MaximumRows)
-            throw new ArgumentException("Message text must be three through six complete rows.", nameof(text));
+        Ensure.NotNull(picture);
+        int rows = picture.Size.Y / GameplayMessageRomData.Layout.TilePixels;
+        if (picture.Size.X != GameplayMessageRomData.Layout.TilemapWidth * GameplayMessageRomData.Layout.TilePixels
+            || picture.Size.Y % GameplayMessageRomData.Layout.TilePixels != 0
+            || rows < GameplayMessageRomData.Layout.MinimumRows || rows > GameplayMessageRomData.Layout.MaximumRows)
+            throw new ArgumentException("A message's image must be three through six complete rows.", nameof(picture));
         if (radiusPixels is < 0 or > GameplayMessageRomData.Timing.MaximumRadiusPixels)
             throw new ArgumentOutOfRangeException(nameof(radiusPixels));
-        Text = text;
+        Picture = picture;
         RadiusPixels = radiusPixels;
     }
 
-    /// <summary>The text rows as a background layer.</summary>
-    public BgLayer Text { get; }
+    /// <summary>The image of the message's text rows.</summary>
+    public SpriteSheetFrame Picture { get; }
+
     /// <summary>The current centered reveal half-height in pixels, from zero through 24.</summary>
     public int RadiusPixels { get; }
 
-    /// <summary>
-    /// The text layer for a message: its tilemap words as cells over the HUD characters, centered on the window and
-    /// shown only on the reveal window's scanlines.
-    /// </summary>
+    /// <summary>The scanline the image's top row is drawn on: the rows centered on the window.</summary>
+    public int Top => GameplayMessageRomData.Layout.WindowCenterY - Picture.Size.Y / 2;
+
+    /// <summary>The first scanline the reveal window shows.</summary>
+    public int FirstScanline => GameplayMessageRomData.Layout.WindowCenterY - RadiusPixels;
+
+    /// <summary>The scanline after the last one the reveal window shows.</summary>
+    public int EndScanline => GameplayMessageRomData.Layout.WindowCenterY + RadiusPixels;
+
+    /// <summary>The layer showing the image <paramref name="sheet"/> pictures <paramref name="tilemap"/> with.</summary>
     /// <param name="tilemap">The message's packed tilemap words, 32 per row.</param>
     /// <param name="radiusPixels">The reveal half-height in pixels.</param>
-    /// <param name="hudCharacters">The installed BG3 characters the words name.</param>
-    public static MessageBoxRenderLayer FromTilemap(ReadOnlySpan<ushort> tilemap, int radiusPixels, BgArtwork hudCharacters)
-    {
-        Ensure.NotNull(hudCharacters);
-        int width = GameplayMessageRomData.Layout.TilemapWidth;
-        if (tilemap.Length % width != 0)
-            throw new ArgumentException("Message tilemap must contain complete rows.", nameof(tilemap));
-        var cells = new BgCell[tilemap.Length];
-        for (int index = 0; index < cells.Length; index++)
-            cells[index] = BgCell.FromTilemapWord(new SnesBgTilemapWord(tilemap[index]));
-        int rows = tilemap.Length / width;
-        int top = GameplayMessageRomData.Layout.WindowCenterY - rows * GameplayMessageRomData.Layout.TilePixels / 2;
-        return new MessageBoxRenderLayer(new BgLayer(new BgLayerSource(BgLayerSourceKind.MessageBox), hudCharacters, width,
-            System.Runtime.InteropServices.ImmutableCollectionsMarshal.AsImmutableArray(cells),
-            new Position16<ScreenPixels>(0, unchecked((ushort)top)),
-            GameplayMessageRomData.Layout.WindowCenterY - radiusPixels,
-            GameplayMessageRomData.Layout.WindowCenterY + radiusPixels), radiusPixels);
-    }
+    /// <param name="sheet">The room's message box images.</param>
+    /// <exception cref="InvalidDataException">The sheet pictures no message of these words.</exception>
+    public static MessageBoxRenderLayer FromTilemap(ReadOnlySpan<ushort> tilemap, int radiusPixels, MessageBoxSheet sheet) =>
+        new(Ensure.NotNull(sheet).Picture(tilemap), radiusPixels);
 }

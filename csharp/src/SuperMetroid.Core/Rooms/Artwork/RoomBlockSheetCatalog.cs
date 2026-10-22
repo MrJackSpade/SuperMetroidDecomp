@@ -1,4 +1,6 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Artwork;
@@ -16,8 +18,14 @@ public sealed class RoomBlockSheetCatalog
     /// <exception cref="ArgumentException">A sheet is filed under another tileset, or an image under another name.</exception>
     public RoomBlockSheetCatalog(IReadOnlyDictionary<TilesetDefinition, RoomBlockSheet> sheets,
         IReadOnlyDictionary<string, RoomBackgroundImage> backgrounds, IReadOnlyDictionary<TilesetDefinition, TileWordSheet> tileWords,
-        IReadOnlyDictionary<TilesetDefinition, TileWordSheet> bg3Words)
+        IReadOnlyDictionary<TilesetDefinition, TileWordSheet> bg3Words, IReadOnlyDictionary<TilesetDefinition, MessageBoxSheet> messageBoxes)
     {
+        MessageBoxes = Ensure.NotNull(messageBoxes);
+        foreach ((TilesetDefinition tileset, MessageBoxSheet messages) in messageBoxes)
+        {
+            if (messages.Tileset != tileset)
+                throw new ArgumentException($"{messages.Name} is filed under {tileset}.", nameof(messageBoxes));
+        }
         Sheets = Ensure.NotNull(sheets);
         Backgrounds = Ensure.NotNull(backgrounds);
         TileWords = Ensure.NotNull(tileWords);
@@ -53,6 +61,15 @@ public sealed class RoomBlockSheetCatalog
     /// <summary>The sheets of the HUD's and room effects' BG3 words, by the tileset whose colours they show in.</summary>
     public IReadOnlyDictionary<TilesetDefinition, TileWordSheet> Bg3Words { get; }
 
+    /// <summary>The message box images of each tileset's rooms.</summary>
+    public IReadOnlyDictionary<TilesetDefinition, MessageBoxSheet> MessageBoxes { get; }
+
+    /// <summary>The message box images of <paramref name="tileset"/>'s rooms.</summary>
+    /// <exception cref="InvalidDataException">No message box images are installed for the tileset.</exception>
+    public MessageBoxSheet MessageBox(TilesetDefinition tileset) =>
+        MessageBoxes.TryGetValue(tileset, out MessageBoxSheet? messages) ? messages
+            : throw new InvalidDataException($"No message box images are installed for {tileset}.");
+
     /// <summary>The BG3 word sheet of <paramref name="tileset"/>.</summary>
     /// <exception cref="InvalidDataException">No sheet is installed for the tileset.</exception>
     public TileWordSheet Bg3(TilesetDefinition tileset) =>
@@ -72,6 +89,16 @@ public sealed class RoomBlockSheetCatalog
             background.Sheet.AppendIdentity(content);
             foreach (ushort word in background.TilemapWords)
                 content.Append("word", word);
+        }
+        foreach (MessageBoxSheet messages in MessageBoxes.Values.OrderBy(messages => messages.Name, StringComparer.Ordinal))
+        {
+            content.AppendName("messages", messages.Name);
+            messages.Sheet.AppendIdentity(content);
+            foreach ((string name, ImmutableArray<ushort> words) in messages.Messages.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+            {
+                content.AppendName("message", name);
+                content.AppendWords("words", words.AsSpan());
+            }
         }
         foreach (TileWordSheet words in TileWords.Values.Concat(Bg3Words.Values).OrderBy(words => words.Name, StringComparer.Ordinal))
         {

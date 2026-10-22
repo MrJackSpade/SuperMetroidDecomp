@@ -169,7 +169,7 @@ internal static class TileWordSheetComposer
         new((ushort)(x * RoomTileCanvas.CharacterPixels), (ushort)(y * RoomTileCanvas.CharacterPixels));
 
     /// <summary>The frame of <paramref name="rows"/> tile rows from row <paramref name="top"/>, across the sheet.</summary>
-    private static SpriteSheetFrameDocument Frame(RoomTileCanvas canvas, int top, int rows, TileWordLayer layer)
+    internal static SpriteSheetFrameDocument Frame(RoomTileCanvas canvas, int top, int rows, TileWordLayer layer)
     {
         int rowColours = layer == TileWordLayer.Bg3 ? 4 : 16;
         var corner = new Position16<ImagePixels>(0, (ushort)(top * RoomTileCanvas.CharacterPixels));

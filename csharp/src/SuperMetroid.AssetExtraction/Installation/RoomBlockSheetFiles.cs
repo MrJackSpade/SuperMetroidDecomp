@@ -1,8 +1,10 @@
+using System.Collections.Immutable;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Spatial;
 
@@ -30,6 +32,12 @@ public static class RoomBlockSheetFiles
     /// <summary>The tile word manifest's schema revision.</summary>
     private const int WordManifestVersion = 1;
 
+    /// <summary>The manifest naming each message box image and the words it pictures.</summary>
+    public const string MessageManifestFileName = "message-boxes.json";
+
+    /// <summary>The message box manifest's schema revision.</summary>
+    private const int MessageManifestVersion = 1;
+
     /// <summary>Composes and writes every tileset's block sheet and background image, then validates the result.</summary>
     /// <param name="content">Installed stock content holding the characters, definitions, palettes, tilemaps and uploads the sheets compose from.</param>
     /// <param name="directory">Destination directory, created if absent.</param>
@@ -45,7 +53,12 @@ public static class RoomBlockSheetFiles
         ComposedTileWordSheet[] wordSheets = [.. composition.TileWords.Values, .. composition.Bg3Words.Values];
         foreach (ComposedTileWordSheet words in wordSheets)
             store.Write(TileWordSheet.NameOf(words.Layer, words.Tileset), words.Sheet);
+        foreach ((TilesetDefinition tileset, ComposedSpriteSheet messages) in composition.MessageBoxes)
+            store.Write(MessageBoxSheet.NameOf(tileset), messages);
         store.Finish(sourceCartridgeSha256);
+        File.WriteAllBytes(Path.Combine(directory, MessageManifestFileName), JsonSerializer.SerializeToUtf8Bytes(
+            new MessageManifest(MessageManifestVersion, composition.Messages.ToDictionary(entry => entry.Key, entry => entry.Value.ToArray(),
+                StringComparer.Ordinal)), JsonOptions));
         var sheets = new WordManifest(WordManifestVersion, [.. wordSheets.Select(words => new WordSheetDocument(words.Layer,
             RoomBlockSheet.NameOf(words.Tileset), [.. words.Tiles.Select(tile => new WordTileDocument(tile.Tile.Word.Raw, tile.Tile.Shown.Artwork.Name,
                 tile.Tile.Shown.WordOffset, tile.Frame, tile.Corner.X, tile.Corner.Y))]))]);
@@ -74,15 +87,23 @@ public static class RoomBlockSheetFiles
             ?? throw new InvalidDataException($"Tile word manifest {wordPath} is empty.");
         if (words.Version != WordManifestVersion || words.Sheets is null)
             throw new InvalidDataException($"Tile word manifest {wordPath} is not revision {WordManifestVersion}.");
+        string messagePath = Path.Combine(stockDirectory, MessageManifestFileName);
+        MessageManifest messages = JsonSerializer.Deserialize<MessageManifest>(File.ReadAllBytes(messagePath), JsonOptions)
+            ?? throw new InvalidDataException($"Message box manifest {messagePath} is empty.");
+        if (messages.Version != MessageManifestVersion || messages.Words is null)
+            throw new InvalidDataException($"Message box manifest {messagePath} is not revision {MessageManifestVersion}.");
+        Dictionary<string, ImmutableArray<ushort>> messageWords = messages.Words.ToDictionary(entry => entry.Key,
+            entry => ImmutableArray.Create(entry.Value), StringComparer.Ordinal);
         IReadOnlyList<TilesetDefinition> tilesets = RoomBlockUploads.Tilesets();
         Dictionary<string, TilesetDefinition> byName = tilesets.ToDictionary(RoomBlockSheet.NameOf, StringComparer.Ordinal);
         SpriteSheetStore store = SpriteSheetStore.Open(stockDirectory, overrideDirectory, ProvenanceFileName,
-            tilesets.Count + manifest.Words.Count + words.Sheets.Length);
+            2 * tilesets.Count + manifest.Words.Count + words.Sheets.Length);
         return new RoomBlockSheetCatalog(
             tilesets.ToDictionary(tileset => tileset, tileset => new RoomBlockSheet(tileset, store.Read(RoomBlockSheet.NameOf(tileset)))),
             manifest.Words.ToDictionary(entry => entry.Key, entry => new RoomBackgroundImage(entry.Key, store.Read(entry.Key), [.. entry.Value]),
                 StringComparer.Ordinal),
-            Sheets(TileWordLayer.Bg12), Sheets(TileWordLayer.Bg3));
+            Sheets(TileWordLayer.Bg12), Sheets(TileWordLayer.Bg3),
+            tilesets.ToDictionary(tileset => tileset, tileset => new MessageBoxSheet(tileset, store.Read(MessageBoxSheet.NameOf(tileset)), messageWords)));
 
         // The installed sheets of one layer's words, each under its tileset.
         Dictionary<TilesetDefinition, TileWordSheet> Sheets(TileWordLayer layer) => words.Sheets.Where(sheet => sheet.Layer == layer)
@@ -104,6 +125,11 @@ public static class RoomBlockSheetFiles
     /// <param name="Version">The schema revision.</param>
     /// <param name="Words">Each image's tilemap words, page by page.</param>
     private sealed record BackgroundManifest(int Version, Dictionary<string, ushort[]> Words);
+
+    /// <summary>The message box manifest: the words each message box image pictures, the same in every tileset's sheet.</summary>
+    /// <param name="Version">The schema revision.</param>
+    /// <param name="Words">Each image's words, by image name.</param>
+    private sealed record MessageManifest(int Version, Dictionary<string, ushort[]> Words);
 
     /// <summary>The tile word manifest: each tile word sheet and where it pictures each tile word.</summary>
     /// <param name="Version">The schema revision.</param>

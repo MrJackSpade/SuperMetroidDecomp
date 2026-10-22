@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hardware;
 
@@ -33,25 +32,6 @@ internal static class GameplayMessageBoxRendererConstants
         CompositeTilemap(frame, tilemap, rowCount, messageBox.RadiusPixels, vram, cgram);
     }
 
-    /// <summary>The 1024 two-bpp characters a message tilemap can name, read from a test VRAM image at the BG3 base.</summary>
-    /// <param name="vram">The VRAM image.</param>
-    [PpuLayoutBoundary("exact hardware test: message characters at the BG3 VRAM base")]
-    public static BgArtwork MessageCharacters(ReadOnlySpan<byte> vram) =>
-        new(new BgArtworkId(BgArtworkKind.HudCharacters), 2, vram.Slice(GameplayVramLayout.HudCharacterWord * 2, 1024 * 16));
-
-    /// <summary>The message layer the state exposes, reading characters from a test VRAM image.</summary>
-    /// <param name="messageBox">The message state.</param>
-    /// <param name="vram">The VRAM image.</param>
-    [PpuLayoutBoundary("exact hardware test: message characters captured from a test VRAM image")]
-    public static MessageBoxRenderLayer? Capture(GameplayMessageBoxState messageBox, SnesVram vram) =>
-        GameplayMessageBoxRenderer.Capture(messageBox, MessageCharacters(vram.CaptureImage()));
-
-    /// <summary>A message layer of the given words over a test VRAM image's characters.</summary>
-    /// <param name="tilemap">The message words.</param>
-    /// <param name="radiusPixels">The reveal radius.</param>
-    /// <param name="vram">The VRAM image.</param>
-    public static MessageBoxRenderLayer Layer(ReadOnlySpan<ushort> tilemap, int radiusPixels, ReadOnlySpan<byte> vram) =>
-        MessageBoxRenderLayer.FromTilemap(tilemap, radiusPixels, MessageCharacters(vram));
 
     /// <summary>Rasterizes a message tilemap from BG3 characters in VRAM, as the renderer did before #1309.</summary>
     [PpuLayoutBoundary("exact hardware test: the pre-#1309 VRAM message rasterizer as an independent oracle")]

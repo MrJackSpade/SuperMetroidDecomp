@@ -134,6 +134,17 @@ internal static class RoomBackgroundsFixtures
         return Ensure.NotNull(plane).WithPictures([.. pictures]);
     }
 
+    /// <summary>
+    /// A seeded two-bit image of a message of <paramref name="rows"/> rows (#1392), its pixels keeping colour zero's row,
+    /// some of them the two colours a message box installs.
+    /// </summary>
+    internal static SpriteSheetFrame SeededMessagePicture(Random random, Bgr555[] scene, int rows)
+    {
+        var size = new Extent16<ImagePixels>(256, (ushort)(rows * 8));
+        return SeededSheet(random, scene, size, new Dictionary<string, Position16<ImagePixels>> { ["message"] = default }, size,
+            "seeded message", SpriteImageColours.TwoBppBackground).Frame("message");
+    }
+
     /// <summary>A seeded image of the scrolling sky's rows, with rebound cells as <see cref="SeededBackground"/> has (#1392).</summary>
     internal static RoomBackgroundImagePlane SeededSky(Random random, Bgr555[] scene) =>
         SeededImage(random, scene, SuperMetroid.Core.Rooms.Scrolling.SkyTilemap.Rows);

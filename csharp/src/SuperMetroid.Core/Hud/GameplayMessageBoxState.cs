@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms;
@@ -159,8 +160,7 @@ public sealed class GameplayMessageBoxState
         string sourceContext = nameof(GameplayMessageBoxState))
     {
         byte rawMessageId = (byte)messageId;
-        if (messageId is (< GameplayMessageId.EnergyTank or > GameplayMessageId.GravitySuit) and
-            not GameplayMessageId.GunshipSaveConfirmation)
+        if (!IsOrdinary(messageId))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(messageId),
@@ -458,6 +458,33 @@ public sealed class GameplayMessageBoxState
             default:
                 throw new InvalidDataException(
                     $"Unknown gameplay-message panel binding for {messageId}.");
+        }
+    }
+
+    /// <summary>Whether the ordinary message coroutine shows <paramref name="messageId"/>.</summary>
+    internal static bool IsOrdinary(GameplayMessageId messageId) =>
+        messageId is (>= GameplayMessageId.EnergyTank and <= GameplayMessageId.GravitySuit) or GameplayMessageId.GunshipSaveConfirmation;
+
+    /// <summary>The messages the ordinary message coroutine shows.</summary>
+    internal static IEnumerable<GameplayMessageId> OrdinaryMessages => Enum.GetValues<GameplayMessageId>().Where(IsOrdinary);
+
+    /// <summary>The words the begun message shows in each form it takes: a save confirmation's for each choice.</summary>
+    /// <exception cref="InvalidOperationException">No message has begun.</exception>
+    internal IEnumerable<ImmutableArray<ushort>> Forms()
+    {
+        if (!IsActive)
+            throw new InvalidOperationException("No message has begun.");
+        if (!IsSaveConfirmation)
+        {
+            yield return [.. TilemapWords];
+            yield break;
+        }
+        foreach (bool yes in new[] { true, false })
+        {
+            ushort[] words = [.. TilemapWords];
+            (noticePresentation ?? throw new InvalidOperationException("A save confirmation has no installed notice."))
+                .ApplySelection(MessageId, words, yes);
+            yield return [.. words];
         }
     }
 

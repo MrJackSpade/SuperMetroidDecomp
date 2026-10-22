@@ -35,7 +35,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int PlaneSlots = 3;
     /// <summary>Header words: the plane records, the door window origin, and the offsets of the BG1 overlay, the sky rows,
     /// the BG3 plane and the BG2 overlay.</summary>
-    private const int HeaderWords = PlaneSlots * RecordWords + 13;
+    private const int HeaderWords = PlaneSlots * RecordWords + 14;
     /// <summary>Header word of the door window's scrolled origin.</summary>
     private const int DoorWindowWord = PlaneSlots * RecordWords;
     /// <summary>Header word of the overlay's first word, or zero without an overlay.</summary>
@@ -77,6 +77,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// words draw from characters.
     /// </summary>
     private const int Bg3PicturesWord = Bg2OverlayPicturesWord + 1;
+    /// <summary>Header word of the image of the message box the frame shows, or zero without one (#1392).</summary>
+    private const int MessagePictureWord = Bg3PicturesWord + 1;
     /// <summary>The width word's bit marking a two-bit picture, whose pixels keep colour zero's row (#1392).</summary>
     private const uint TwoBppPictureBit = 1u << 16;
     /// <summary>The bit an X-ray reveal block's arrangement starts at.</summary>
@@ -118,9 +120,10 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         BossBg2Tilemap? bossBg2 = frame.BossBg2;
         XrayRevealPlane? reveal = frame.XrayReveal;
         RoomBackgroundImagePlane? image = frame.Bg2Image, skyImage = frame.SkyImage;
+        SpriteSheetFrame? message = frame.MessagePicture;
         // No dispatch samples t3 without one of these, so such a scene keeps the last packed room unread.
         if (packed == frame || (bg1 is null && bg2 is null && sky is null && bg3 is null && mode7 is null && reveal is null && image is null
-            && skyImage is null))
+            && skyImage is null && message is null))
             return false;
         RoomBackgroundLayer?[] planes = [bg1, bg2, door?.SourceRoom];
         var definitionWords = new Dictionary<ImmutableArray<byte>, int>();
@@ -184,6 +187,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
                     AddPicture(picture);
             }
         }
+        if (message is not null)
+            AddPicture(message);
         ImmutableArray<BgTilePicture?> bodyPictures = bossBg2?.Pictures ?? default;
         int bodyPicturesOffset = AddTilePictures(bodyPictures, bossBg2?.Words.Length ?? 0);
         ImmutableArray<BgTilePicture?> overlayPictures = bg2Overlay?.Pictures ?? default;
@@ -313,6 +318,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         upload[Bg2OverlayPicturesWord] = (uint)overlayPicturesOffset;
         PackTilePictures(upload, overlayPictures, overlayPicturesOffset, RoomTilemapOverlay.WordCount, pictureWords);
         upload[Bg3PicturesWord] = (uint)bg3PicturesOffset;
+        upload[MessagePictureWord] = message is null ? 0 : (uint)pictureWords[message];
         PackTilePictures(upload, bg3Pictures, bg3PicturesOffset, Layer3Plane.Rows * Layer3Plane.Columns, pictureWords);
         packed = frame;
         return true;

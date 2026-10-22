@@ -22,8 +22,6 @@ cbuffer TileParameters : register(b0)
     uint4 ScanlineParameters[224];
 };
 StructuredBuffer<uint> Memory : register(t0);
-// Published background layers (D3D11BgLayerBuffer): count, 6-word records, cells, then artwork characters.
-StructuredBuffer<uint> BgLayers : register(t2);
 // Room level planes (D3D11RoomLevelBuffer): BG1, BG2 and door-source plane records, the door window, the BG1 overlay,
 // and the pre-coloured block pictures the planes' definitions show (#1392).
 StructuredBuffer<uint> RoomLevels : register(t3);
@@ -45,6 +43,8 @@ static const uint RoomBossBg2PicturesWord = 31;
 static const uint RoomBg2OverlayPicturesWord = 32;
 // The BG3 plane's pictures (#1392), laid out as a boss body's.
 static const uint RoomBg3PicturesWord = 33;
+// The image of the message box the frame shows (#1392).
+static const uint RoomMessagePictureWord = 34;
 // The X-ray reveal (XrayRevealPlane): 17 block columns by 16 rows, each its picture's offset with its arrangement in the
 // top four bits: as defined, mirrored horizontally, vertically or both, or its tile rows swapped.
 static const uint RevealColumns = 17, RevealRows = 16;
@@ -70,32 +70,6 @@ uint ReadWord(uint address)
 {
     address = (address & 32767) * 2;
     return ReadByte(address) | (ReadByte(address + 1) << 8);
-}
-uint BgLayerByte(uint wordOffset, uint byteIndex)
-{
-    uint word = BgLayers[wordOffset + (byteIndex >> 2)];
-    if ((byteIndex & 2) != 0) word >>= 16;
-    if ((byteIndex & 1) != 0) word >>= 8;
-    return word & 255;
-}
-// The palette index (0 transparent) background layer `layer` shows at a screen pixel.
-uint BgLayerColor(uint layer, uint2 screen)
-{
-    uint record = 1 + layer * 6;
-    uint origin = BgLayers[record], size = BgLayers[record + 1], band = BgLayers[record + 2];
-    uint bpp = BgLayers[record + 3], cells = BgLayers[record + 4], artwork = BgLayers[record + 5];
-    if (screen.y < (band & 65535) || screen.y >= (band >> 16)) return 0;
-    int lx = (int)screen.x - ((int)(origin << 16) >> 16), ly = (int)screen.y - ((int)origin >> 16);
-    uint width = size & 65535, height = size >> 16;
-    if (lx < 0 || ly < 0 || lx >= (int)(width * 8) || ly >= (int)(height * 8)) return 0;
-    uint cell = BgLayers[cells + (uint)(ly >> 3) * width + (uint)(lx >> 3)];
-    uint px = (cell & (1u << 20)) != 0 ? 7 - (uint)(lx & 7) : (uint)(lx & 7);
-    uint py = (cell & (1u << 21)) != 0 ? 7 - (uint)(ly & 7) : (uint)(ly & 7);
-    uint row = (cell & 65535) * bpp * 8 + py * 2;
-    uint color = ((BgLayerByte(artwork, row) >> (7 - px)) & 1) | (((BgLayerByte(artwork, row + 1) >> (7 - px)) & 1) << 1);
-    if (bpp == 4)
-        color |= (((BgLayerByte(artwork, row + 16) >> (7 - px)) & 1) << 2) | (((BgLayerByte(artwork, row + 17) >> (7 - px)) & 1) << 3);
-    return color == 0 ? 0 : ((cell >> 16) & 7) * (1u << bpp) + color;
 }
 // What a room plane shows at a scrolled position; false outside the room. A plane with pictures (#1392) shows its
 // block's picture, mirrored by the block's flips, and `within` is the picture pixel; otherwise it shows a tile and the
@@ -354,15 +328,27 @@ void Main(uint3 id : SV_DispatchThreadID)
     if (Operation == OpXrayGameplay) { Output[id.xy] = XrayGameplay(id.xy); return; }
     if (Operation == OpMessage)
     {
-        uint index = BgLayerColor(TilemapWord, id.xy);
-        if (index == 0) return;
-        if (index == AddB || index == MessageDarkIndex)
+        // The message's image (#1392) from its top scanline: colour zero shows nothing; the two colours bank $85
+        // installs show in their place; another colour shows the image's own where its row is standard, else the live one.
+        uint picture = RoomLevels[RoomMessagePictureWord];
+        uint width = RoomLevels[picture + PictureWidthWord] & 65535;
+        uint height = RoomLevels[picture + PictureCountWord] / width;
+        if (picture == 0 || id.y < TilemapWord || id.y >= TilemapWord + height) return;
+        uint2 pixel = uint2(id.x, id.y - TilemapWord);
+        uint full = RoomLevels[picture + PicturePixelsWord + RoomLevels[picture + PictureCountWord] + pixel.y * width + pixel.x] & 255;
+        if ((full & 3) == 0) return;
+        if (full == AddB || full == MessageDarkIndex)
         {
-            uint word = index == AddB ? AddR : AddG;
+            uint word = full == AddB ? AddR : AddG;
             uint3 c = uint3(word & 31, (word >> 5) & 31, (word >> 10) & 31);
             Output[id.xy] = Pack((c << 3) | (c >> 2), 255);
         }
-        else Output[id.xy] = Palette(index);
+        else
+        {
+            uint index;
+            bool high;
+            Output[id.xy] = PicturePixel(picture, pixel, index, high);
+        }
         return;
     }
     if (Operation == OpScanlineAdd)

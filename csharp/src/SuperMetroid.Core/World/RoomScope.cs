@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
@@ -53,6 +54,9 @@ internal sealed record RoomScope
 
     /// <summary>Resolves what the HUD and the room effect's page show on BG3 (#1392).</summary>
     public required TileWordPictureResolver Bg3Pictures { get; init; }
+
+    /// <summary>The images of the message boxes the room shows (#1392).</summary>
+    public required MessageBoxSheet MessageBoxes { get; init; }
 
     /// <summary>
     /// Which character page the planes of <paramref name="room"/> draw from: setup ASM $8F:C97B points the Ceres Ridley

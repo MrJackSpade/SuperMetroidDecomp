@@ -577,7 +577,10 @@ Draygon, Crocomire and Mother Brain, and the Zebes escape warning) are pictured 
 `Words.<tileset>`, with an image of each part each writer writes; `tile-words.json` records where each tile word is
 pictured over each artwork that can show at its character. BG3 has a sheet per tileset too, `Bg3Words.<tileset>`: the
 HUD fully stocked, every other word the HUD writes, the minimap's map tiles and each room effect's page, in BG3's
-four-colour rows with every pixel keeping its palette index, colour zero included.
+four-colour rows with every pixel keeping its palette index, colour zero included. Each tileset's gameplay message boxes
+are `Messages.<tileset>`: one image of each message in each form it takes (each button a panel can name, each save
+choice), in its BG3 colours with the two colours a message box installs; `message-boxes.json` records the words each
+image pictures.
 Edited copies go in `overrides/room-block-sheets`. The
 Ceres Ridley arena, whose planes read the object characters, still draws its blocks from characters.
 

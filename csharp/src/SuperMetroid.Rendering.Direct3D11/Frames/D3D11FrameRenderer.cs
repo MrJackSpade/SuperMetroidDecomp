@@ -56,11 +56,9 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// <summary>The scene's whole-frame sprite draws, bound at register t1.</summary>
     private readonly D3D11SpriteDrawBuffer spriteDraws;
     /// <summary>The scene's published background layers, bound at register t2.</summary>
-    private readonly D3D11BgLayerBuffer bgLayers;
     /// <summary>The scene's room planes at t3, repacked only when they change (#1346).</summary>
     private readonly D3D11RoomLevelBuffer roomLevels;
     /// <summary>Each packed background layer's shader index, for the dispatch that draws it.</summary>
-    private readonly Dictionary<SuperMetroid.Core.Assets.BgLayer, int> bgLayerIndices = new(ReferenceEqualityComparer.Instance);
     /// <summary>Per-pixel resolved OBJ winner shared across priority passes.</summary>
     private readonly ID3D11Texture2D resolvedObjects;
     /// <summary>Compute write view for resolved OBJ winners.</summary>
@@ -114,7 +112,6 @@ public sealed class D3D11FrameRenderer : IDisposable
                 BindFlags.ShaderResource, ResourceUsage.Default, CpuAccessFlags.None, ResourceOptionFlags.BufferStructured, sizeof(uint))));
             memoryView = Own(owner.Device.CreateShaderResourceView(memoryBuffer));
             spriteDraws = Own(new D3D11SpriteDrawBuffer(owner.Device));
-            bgLayers = Own(new D3D11BgLayerBuffer(owner.Device));
             roomLevels = Own(new D3D11RoomLevelBuffer(owner.Device));
             resolvedObjects = Own(owner.Device.CreateTexture2D(new Texture2DDescription(Format.R32G32_UInt,
                 SnesPpuLayout.ScreenWidthPixels, SnesPpuLayout.ScreenHeightPixels, 1, 1, BindFlags.UnorderedAccess)));
@@ -332,13 +329,14 @@ public sealed class D3D11FrameRenderer : IDisposable
     {
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.Message;
-        data[1] = (uint)bgLayerIndices[layer.Text];
+        // The image's top scanline stands in the tilemap word; the room levels hold the image (#1392).
+        data[1] = (uint)layer.Top;
         data[10] = GameplayMessageRomData.Palette.TemporaryLightColor.ToWord();
         data[11] = GameplayMessageRomData.Palette.TemporaryDarkColor.ToWord();
         data[12] = GameplayMessageRomData.Palette.TemporaryLightIndex;
         data[13] = GameplayMessageRomData.Palette.TemporaryDarkIndex;
-        data[25] = 0;
-        data[26] = SnesPpuLayout.ScreenHeightPixels;
+        data[25] = (uint)Math.Clamp(layer.FirstScanline, 0, SnesPpuLayout.ScreenHeightPixels);
+        data[26] = (uint)Math.Clamp(layer.EndScanline, 0, SnesPpuLayout.ScreenHeightPixels);
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
@@ -482,13 +480,13 @@ public sealed class D3D11FrameRenderer : IDisposable
         fixed (uint* source = memory) UploadBuffer(memoryBuffer, (nint)source, memory.Length * sizeof(uint));
         spriteDraws.Pack(scene.Memory.SpriteDraws.AsSpan(), scene.Memory.Cgram);
         fixed (uint* source = spriteDraws.Upload) UploadBuffer(spriteDraws.Buffer, (nint)source, spriteDraws.Upload.Length * sizeof(uint));
-        var sceneBgLayers = new List<SuperMetroid.Core.Assets.BgLayer>();
-        bgLayerIndices.Clear();
+        SuperMetroid.Core.Assets.SpriteSheetFrame? messagePicture = null;
         foreach (RenderLayer layer in scene.Layers)
-            if (layer is MessageBoxRenderLayer message && bgLayerIndices.TryAdd(message.Text, sceneBgLayers.Count))
-                sceneBgLayers.Add(message.Text);
-        bgLayers.Pack(sceneBgLayers);
-        fixed (uint* source = bgLayers.Upload) UploadBuffer(bgLayers.Buffer, (nint)source, bgLayers.Upload.Length * sizeof(uint));
+        {
+            if (layer is MessageBoxRenderLayer message)
+                messagePicture = messagePicture is null || ReferenceEquals(messagePicture, message.Picture) ? message.Picture
+                    : throw new InvalidOperationException("A frame shows two different message boxes.");
+        }
         // The gameplay base layer publishes the room backgrounds; a Mode-7 floor band shows the room's layer-2 plane.
         RoomBackgrounds? rooms = scene.Layers.IsEmpty ? null : scene.Layers[0] switch
         {
@@ -513,13 +511,13 @@ public sealed class D3D11FrameRenderer : IDisposable
                 bg3 = SameBg3(bg3, sub.Plane);
         }
         if (roomLevels.Pack(new RoomLevelLayers(rooms?.Bg1, rooms?.Bg2 ?? floor, rooms?.DoorSource, rooms?.Bg1Overlay, rooms?.Sky, bg3,
-                rooms?.Bg2Overlay, mode7Map, rooms?.BossBg2, rooms?.XrayReveal, rooms?.Bg2Image, rooms?.Sky is null ? null : rooms.SkyImage)))
+                rooms?.Bg2Overlay, mode7Map, rooms?.BossBg2, rooms?.XrayReveal, rooms?.Bg2Image, rooms?.Sky is null ? null : rooms.SkyImage,
+                messagePicture)))
             fixed (uint* source = roomLevels.Upload) UploadBuffer(roomLevels.Buffer, (nint)source, roomLevels.Upload.Length * sizeof(uint));
         owner.Context.CSSetShader(tileShader);
         owner.Context.CSSetConstantBuffer(0, constants);
         owner.Context.CSSetShaderResource(0, memoryView);
         owner.Context.CSSetShaderResource(1, spriteDraws.View);
-        owner.Context.CSSetShaderResource(2, bgLayers.View);
         owner.Context.CSSetShaderResource(3, roomLevels.View);
         owner.Context.CSSetUnorderedAccessView(0, view);
         owner.Context.CSSetUnorderedAccessView(1, objectView);
@@ -694,7 +692,6 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.CSSetConstantBuffer(0, constants);
         owner.Context.CSSetShaderResource(0, memoryView);
         owner.Context.CSSetShaderResource(1, spriteDraws.View);
-        owner.Context.CSSetShaderResource(2, bgLayers.View);
         owner.Context.CSSetShaderResource(3, roomLevels.View);
         owner.Context.CSSetUnorderedAccessView(0, view);
         owner.Context.CSSetUnorderedAccessView(1, objectView);

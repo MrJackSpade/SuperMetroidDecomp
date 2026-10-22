@@ -207,7 +207,7 @@ internal sealed class GameplayActorDrawing
                     mode7Transform: _display.ActiveSamusMode7Transform);
             }
             else if (_player.LastDeathSequenceStep is { DrawExplosion: true })
-                _player.Samus.DeathSequence.DrawExplosion(_sprites, _artwork.SamusBodyArt?.Spritemaps, _artwork.SamusBodyArt?.DeathTiles);
+                _player.Samus.DeathSequence.DrawExplosion(_sprites, _player.Samus.Presentation.TileTransfers.Sheets);
         }
         else
         {

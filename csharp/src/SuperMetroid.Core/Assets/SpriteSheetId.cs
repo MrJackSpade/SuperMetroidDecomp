@@ -15,6 +15,8 @@ public enum SpriteSheetId
     SamusOverlays,
     /// <summary>Samus's footstep splashes, lava spray, dust, diving splash and bubbles.</summary>
     SamusAtmosphere,
+    /// <summary>Samus's suit explosion as she dies.</summary>
+    SamusDeath,
     /// <summary>Samus's projectiles, bombs, charge flare and trails as the intro's flashbacks draw them.</summary>
     IntroProjectiles,
     /// <summary>Samus's projectiles, bombs, charge flare and trails with the power beam equipped.</summary>

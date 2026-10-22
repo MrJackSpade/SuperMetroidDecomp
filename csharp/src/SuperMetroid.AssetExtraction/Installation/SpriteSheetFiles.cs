@@ -118,6 +118,7 @@ public static class SpriteSheetFiles
         SpriteSheetId.SamusBodyTop or SpriteSheetId.SamusBodyBottom => SamusBodySheetComposer.FrameNames(body.Value, sheet),
         SpriteSheetId.SamusOverlays => SamusOverlaySheetDefinitions.Frames,
         SpriteSheetId.SamusAtmosphere => SamusAtmosphereSheetDefinitions.Frames,
+        SpriteSheetId.SamusDeath => SamusDeathSheetDefinitions.Frames,
         _ => ProjectileSheetDefinitions.Frames,
     };
 

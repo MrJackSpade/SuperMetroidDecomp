@@ -614,9 +614,9 @@ internal sealed class InstalledSamusIsolationTests
             {
                 var before = new SamusMechanicsSnapshot(pair.Stock.Samus);
                 OamBuffer a = SpriteFrameBuffer.DrawnOam(frame =>
-                    pair.Stock.Samus.DeathSequence.DrawExplosion(frame, pair.Stock.Body.Spritemaps, pair.Stock.Body.DeathTiles));
+                    pair.Stock.Samus.DeathSequence.DrawExplosion(frame, SamusBodySheetFixtures.For(pair.Stock.Body)));
                 OamBuffer b = SpriteFrameBuffer.DrawnOam(frame =>
-                    pair.Edited.Samus.DeathSequence.DrawExplosion(frame, pair.Edited.Body.Spritemaps, pair.Edited.Body.DeathTiles));
+                    pair.Edited.Samus.DeathSequence.DrawExplosion(frame, SamusBodySheetFixtures.For(pair.Edited.Body)));
                 before.RequireSame(new(pair.Stock.Samus), context + ": death draw mutated state");
                 pair.Check(context + " explosion draw");
                 draws++;

@@ -107,7 +107,7 @@ internal sealed class DeathSequenceRunner
         }
         else if (_player.LastDeathSequenceStep.Value.DrawExplosion)
         {
-            _player.Samus.DeathSequence.DrawExplosion(_sprites, _artwork.SamusBodyArt?.Spritemaps, _artwork.SamusBodyArt?.DeathTiles);
+            _player.Samus.DeathSequence.DrawExplosion(_sprites, _player.Samus.Presentation.TileTransfers.Sheets);
         }
         _sprites.FinalizeFrame();
         return _player.LastDeathSequenceStep.Value;

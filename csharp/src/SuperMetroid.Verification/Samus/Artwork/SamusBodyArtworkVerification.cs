@@ -211,9 +211,9 @@ internal static class SamusBodyArtworkVerification
             deathSamus.DeathSequence.Step(deathSamus, deathCgram, stock.DeathPalettes);
         }
         OamBuffer nativeDeathOam = SpriteFrameBuffer.DrawnOam(frame =>
-            deathSamus.DeathSequence.DrawExplosion(frame, stock.Spritemaps, stock.DeathTiles));
+            deathSamus.DeathSequence.DrawExplosion(frame, SamusBodySheetFixtures.For(stock)));
         OamBuffer installedDeathOam = SpriteFrameBuffer.DrawnOam(frame =>
-            deathSamus.DeathSequence.DrawExplosion(frame, stock.Spritemaps, stock.DeathTiles));
+            deathSamus.DeathSequence.DrawExplosion(frame, SamusBodySheetFixtures.For(stock)));
         AssertTrue(nativeDeathOam.LastFinalizedSpriteCount > 0 &&
             nativeDeathOam.ImageEquals(installedDeathOam),
             "death explosion uses installed Samus OAM art with native parity");
@@ -545,9 +545,9 @@ internal static class SamusBodyArtworkVerification
         AssertTrue(!stockDeathTilesVram.ImageEquals(editedDeathTilesVram),
             "edited death explosion PNG reaches the queued production VRAM transfer");
         OamBuffer stockDeathOam = SpriteFrameBuffer.DrawnOam(frame =>
-            deathSamus.DeathSequence.DrawExplosion(frame, stock.Spritemaps, stock.DeathTiles));
+            deathSamus.DeathSequence.DrawExplosion(frame, SamusBodySheetFixtures.For(stock)));
         OamBuffer editedDeathOam = SpriteFrameBuffer.DrawnOam(frame =>
-            deathSamus.DeathSequence.DrawExplosion(frame, replacement.Spritemaps, replacement.DeathTiles));
+            deathSamus.DeathSequence.DrawExplosion(frame, SamusBodySheetFixtures.For(replacement)));
         AssertEqual(unchecked((byte)(stockDeathOam.LowTable[0] + 1)),
             editedDeathOam.LowTable[0],
             "edited death explosion spritemap reaches the production sequence owner");

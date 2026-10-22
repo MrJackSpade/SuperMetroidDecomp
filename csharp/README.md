@@ -535,7 +535,8 @@ this way, as are Samus's projectiles, bombs, charge flare and trails: one sheet 
 and `intro-projectiles` for the intro's flashbacks, the grapple beam's endpoint and rope (`grapple`), Samus's body (`samus-body-top` and `samus-body-bottom`, in
 the Power Suit's colours; the other suits recolour it through its palette map), the arm cannon's covers and the
 chest cover drawn over it (`samus-overlays`, coloured likewise), and her footstep splashes, lava spray, dust, diving
-splash and bubbles (`samus-atmosphere`). The escape countdown's layout, `escape-timer.json` in `overrides/maps`, now holds only the
+splash and bubbles (`samus-atmosphere`), and her suit explosion as she dies (`samus-death`; the death palette recolours
+it). The escape countdown's layout, `escape-timer.json` in `overrides/maps`, now holds only the
 anchors and digit spacing; a layout written for the earlier version, which also held the frames and
 palette, is rejected until it is rewritten.
 

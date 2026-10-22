@@ -56,14 +56,10 @@ public sealed class SamusDeathSequenceState
         return requested;
     }
 
-    /// <summary>Samus spritemap-table index of the current suit-explosion frame for the captured facing, or null outside the explosion.</summary>
-    public int? ExplosionSpritemapIndex =>
-        Phase == SamusDeathSequencePhase.SuitExplosion &&
-            AnimationIndex < SamusDeathExplosionTimingDefinitions.RecordCount
-            ? (FacingLeft
-                ? SamusSpecialSequenceRomData.Death.LeftExplosionSpritemap
-                : SamusSpecialSequenceRomData.Death.RightExplosionSpritemap) + AnimationIndex
-            : null;
+    /// <summary>The suit-explosion frame shown, or null outside the explosion.</summary>
+    public int? ExplosionFrame =>
+        Phase == SamusDeathSequencePhase.SuitExplosion && AnimationIndex < SamusDeathExplosionTimingDefinitions.RecordCount
+            ? AnimationIndex : null;
 
     /// <summary>The facing bit captured before pose metadata is replaced by `$D7/$D8`.</summary>
     public bool FacingLeft { get; private set; }
@@ -224,18 +220,17 @@ public sealed class SamusDeathSequenceState
             Phase == SamusDeathSequencePhase.Complete);
     }
 
-    /// <summary>Publishes `$92:EDBE`'s one right/left explosion spritemap at captured screen position, bound to the death characters.</summary>
-    public void DrawExplosion(SpriteFrameBuffer sprites,
-        SamusSpritemapArtworkCatalog? artwork = null, SamusDeathTileAtlas? deathTiles = null)
+    /// <summary>Publishes `$92:EDBE`'s one right/left explosion frame at the captured screen position.</summary>
+    public void DrawExplosion(SpriteFrameBuffer sprites, InstalledSpriteSheets? sheets = null)
     {
         Ensure.NotNull(sprites);
-        if (ExplosionSpritemapIndex is not int spritemap)
+        if (ExplosionFrame is not int frame)
             return;
-        SpriteArtwork explosion = (deathTiles ?? throw new InvalidOperationException(
-            "Samus death explosion requires installed death artwork.")).Explosion;
-        sprites.AddSamusSpritemap(spritemap, ScreenPosition, new SamusSpritemapArtwork(artwork ?? throw new InvalidOperationException(
-                "Samus death spritemap requires installed artwork."), explosion, () => explosion),
-            new SpriteSource(SpriteSourceKind.SamusDeathExplosion));
+        SpriteSheet death = (sheets ?? throw new InvalidOperationException(
+            "Samus death explosion requires the installed sprite sheets.")).Get(SpriteSheetId.SamusDeath);
+        sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusDeathExplosion),
+            death.Frame(SamusDeathSheetDefinitions.ExplosionFrame(FacingLeft ? HorizontalDirection.Left : HorizontalDirection.Right, frame)),
+            ScreenPosition, SpriteMirror.None));
     }
 
     /// <summary>Advances the explosion timer, palette and terminal whiteout, returning whether to draw this frame.</summary>

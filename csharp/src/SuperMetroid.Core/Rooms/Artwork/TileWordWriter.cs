@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Rooms.Artwork;
 
-/// <summary>A boss that shows its body on BG2 by writing tile words into the tilemap BG2 shows (#1392).</summary>
-public enum BossBody
+/// <summary>Something that writes tile words over a room's BG1 or BG2 after the room loads (#1392).</summary>
+public enum TileWordWriter
 {
-    /// <summary>Kraid, whose body pages and head frames fill his 64x64 map.</summary>
+    /// <summary>Kraid, whose body pages and head frames fill his 64x64 BG2 map.</summary>
     Kraid,
 
     /// <summary>Phantoon, drawing its body frames into the enemy BG2 image.</summary>
@@ -17,4 +17,7 @@ public enum BossBody
 
     /// <summary>Mother Brain, drawing her body frames into the enemy BG2 image from phase two.</summary>
     MotherBrain,
+
+    /// <summary>The Zebes escape typewriter, typing its warning over Mother Brain's room's BG2.</summary>
+    ZebesEscapeText,
 }

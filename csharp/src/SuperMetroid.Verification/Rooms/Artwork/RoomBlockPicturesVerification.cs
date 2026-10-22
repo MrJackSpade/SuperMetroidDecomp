@@ -9,6 +9,8 @@ using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
@@ -141,10 +143,11 @@ internal static class RoomBlockPicturesVerification
     }
 
     /// <summary>
-    /// Confirms each boss draws its body from its body sheet (#1392): in each boss's room as loaded, every frame the boss
-    /// writes resolves each tile to a picture painting what the tile paints over the room's characters.
+    /// Confirms words written over BG2 draw from the room's tile word sheet (#1392): in each boss's room as loaded, every
+    /// frame the boss writes resolves each tile to a picture painting what the tile paints over the room's characters, and
+    /// so does the whole Zebes escape warning typed over Mother Brain's room.
     /// </summary>
-    internal static void VerifyBossBodyPictures()
+    internal static void VerifyTileWordPictures()
     {
         CheckBody(RoomHeaderDefinitions.Kraid, runtime =>
         {
@@ -170,6 +173,42 @@ internal static class RoomBlockPicturesVerification
         CheckBody(RoomHeaderDefinitions.MotherBrain, runtime => BodyFrames(
             (runtime.BossArtwork.Installed.MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("No Mother Brain frames.")).Writes,
             MotherBrainBg2Definitions.BlankTile));
+        CheckTypedWarning(RoomHeaderDefinitions.MotherBrain);
+    }
+
+    /// <summary>Loads <paramref name="room"/>, types the whole Zebes escape warning over BG2 and checks each glyph's picture.</summary>
+    private static void CheckTypedWarning(RoomHeaderDefinition room)
+    {
+        SuperMetroidRuntime runtime = LoadRoom(room);
+        runtime.StepFrame(0);
+        TileWordSheet sheet = (runtime.Room.Scope?.Bg2OverlayPictures ?? throw new InvalidOperationException($"{room.Name} has no tile words.")).Sheet;
+        ReadOnlySpan<byte> vram = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites, runtime.BgArtwork).Vram;
+        var typewriter = new EscapeTypewriterState((runtime.BossArtwork.EscapeTypewriterPresentation
+            ?? throw new InvalidOperationException("No escape typewriter.")).Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase);
+        RoomTilemapOverlay overlay = RoomTilemapOverlay.Empty;
+        while (!typewriter.Step(out EscapeTypewriterGlyph? glyph))
+        {
+            if (glyph is { } typed)
+                overlay = overlay.With(typed.Destination - GameplayVramLayout.Bg2TilemapWord, [typed.Tile.Raw]);
+        }
+        ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver(sheet).Resolve(overlay, runtime.BgArtwork);
+        int glyphs = 0;
+        for (int index = 0; index < RoomTilemapOverlay.WordCount; index++)
+        {
+            if (overlay.Words[index] == RoomTilemapOverlay.Unwritten)
+                continue;
+            BgTilePicture picture = pictures[index] ?? throw new InvalidOperationException($"{sheet.Name}: typed word {index} draws from its character.");
+            var word = new SnesBgTilemapWord((ushort)overlay.Words[index]);
+            for (int y = 0; y < CharacterPixels; y++)
+            for (int x = 0; x < CharacterPixels; x++)
+            {
+                AssertPaintsTile($"{sheet.Name} typed word {index} pixel ({x}, {y})", vram, word, x, y, picture.Picture,
+                    new Position16<ImagePixels>((ushort)(picture.Corner.X + x), (ushort)(picture.Corner.Y + y)));
+            }
+            glyphs++;
+        }
+        AssertTrue(glyphs > 0, "The Zebes escape warning types glyphs");
+        Console.WriteLine($"Tile word pictures: {sheet.Name} pictured the {glyphs} glyphs of the Zebes escape warning.");
     }
 
     /// <summary>Each frame of <paramref name="catalog"/> written over an image filled with <paramref name="fill"/>.</summary>
@@ -187,12 +226,12 @@ internal static class RoomBlockPicturesVerification
     {
         SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
-        BossBodySheet sheet = (runtime.Room.Scope?.BossBody ?? throw new InvalidOperationException($"{room.Name} has no boss body.")).Body;
+        TileWordSheet sheet = (runtime.Room.Scope?.BodyPictures ?? throw new InvalidOperationException($"{room.Name} has no tile words.")).Sheet;
         ReadOnlySpan<byte> vram = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites, runtime.BgArtwork).Vram;
         int frames = 0;
         foreach ((string name, ImmutableArray<ushort> words) in bodies(runtime))
         {
-            ImmutableArray<BgTilePicture?> pictures = new BossBodyPictureResolver(sheet).Resolve(words, runtime.BgArtwork);
+            ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver(sheet).Resolve(words, runtime.BgArtwork);
             for (int tile = 0; tile < words.Length; tile++)
             {
                 BgTilePicture picture = pictures[tile] ?? throw new InvalidOperationException($"{sheet.Name} {name}: tile {tile} draws from its character.");
@@ -207,7 +246,7 @@ internal static class RoomBlockPicturesVerification
             frames++;
         }
         AssertTrue(frames > 0, $"{room.Name}'s boss writes frames");
-        Console.WriteLine($"Boss body pictures: {sheet.Name} pictured {frames} frames over {room.Name} as it loads.");
+        Console.WriteLine($"Tile word pictures: {sheet.Name} pictured {frames} body frames over {room.Name} as it loads.");
     }
 
     /// <summary>Loads <paramref name="room"/> and checks its background image over <see cref="Frames"/> frames.</summary>
@@ -388,7 +427,7 @@ internal static class RoomBlockPicturesVerification
     {
         Suite(nameof(VerifyRoomBlockPictures), VerifyRoomBlockPictures);
         Suite(nameof(VerifyRoomBackgroundImages), VerifyRoomBackgroundImages);
-        Suite(nameof(VerifyBossBodyPictures), VerifyBossBodyPictures);
+        Suite(nameof(VerifyTileWordPictures), VerifyTileWordPictures);
         return 0;
     }
 }

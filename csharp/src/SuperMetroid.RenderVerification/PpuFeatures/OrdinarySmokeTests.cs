@@ -113,6 +113,18 @@ internal static class OrdinarySmokeTests
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, boss BG2 tilemap, HDMA {hdma}");
         }
+        // Words written over BG2 drawn from their pictures (#1392), some still from their characters, over each BG2 map size.
+        var typed = pictured with { Bg2Overlay = RoomBackgroundsFixtures.SeededPicturedOverlay(random, colors) };
+        foreach (var geometry in new[] { new OrdinarySmokeRunCase(64, 32), new OrdinarySmokeRunCase(32, 64) })
+        {
+            var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
+                new Extent16<TilemapCells>((ushort)geometry.First, (ushort)geometry.Second), 0x4800, 0, 0x6000, 0x4000,
+                SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
+            var layer = new OrdinaryGameplayRenderLayer(registers, typed, default);
+            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
+            PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
+                $"{device.Kind}: ordinary {count}, BG2 overlay pictures, geometry {geometry}");
+        }
         // The boss body drawn from its pictures (#1392), some words still from their characters.
         BossBg2Tilemap bossTilemap = boss.BossBg2 ?? throw new InvalidOperationException("The boss case has no body.");
         var bodyPictured = boss with { BossBg2 = bossTilemap.WithPictures(RoomBackgroundsFixtures.SeededBodyPictures(random, colors, bossTilemap.Words.Length)) };

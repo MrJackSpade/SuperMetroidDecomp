@@ -41,6 +41,8 @@ static const uint RoomSkyImageWord = 30;
 // A boss body's pictures (#1392): two words per tilemap word, its picture's offset (zero where it draws from its
 // character), then its corner in the picture, x below y.
 static const uint RoomBossBg2PicturesWord = 31;
+// The BG2 overlay's pictures (#1392), laid out as a boss body's.
+static const uint RoomBg2OverlayPicturesWord = 32;
 // The X-ray reveal (XrayRevealPlane): 17 block columns by 16 rows, each its picture's offset with its arrangement in the
 // top four bits: as defined, mirrored horizontally, vertically or both, or its tile rows swapped.
 static const uint RevealColumns = 17, RevealRows = 16;
@@ -150,12 +152,24 @@ uint Bg3Word(uint firstRow, uint rows, uint2 scrolled, out uint2 within)
     within = scrolled & 7;
     return RoomLevels[RoomLevels[RoomBg3Word] + (firstRow + (scrolled.y >> 3) % rows) * 32 + ((scrolled.x >> 3) & 31)];
 }
-// A word written over BG2 at the tilemap word a `size` layout places the scrolled position (RoomTilemapOverlay).
-bool Bg2OverlayWord(uint2 scrolled, uint2 size, out uint entry)
+// A word written over BG2 at the tilemap word a `size` layout places the scrolled position (RoomTilemapOverlay), with
+// `within` its pixel; where the overlay's pictures are resolved (#1392), `picture` is its word's picture and `within` the
+// pixel in it.
+bool Bg2OverlayWord(uint2 scrolled, uint2 size, out uint entry, out uint picture, out uint2 within)
 {
     uint2 tile = (scrolled & (size * 8 - 1)) >> 3;
     uint index = ((tile.y >> 5) * (size.x >> 5) + (tile.x >> 5)) * 1024 + (tile.y & 31) * 32 + (tile.x & 31);
     entry = index < 2048 ? RoomLevels[RoomLevels[RoomBg2OverlayWord] + index] : 4294967295u;
+    within = scrolled & 7;
+    picture = 0;
+    uint pictures = RoomLevels[RoomBg2OverlayPicturesWord];
+    if (entry != 4294967295u && pictures != 0)
+    {
+        picture = RoomLevels[pictures + 2 * index];
+        uint corner = RoomLevels[pictures + 2 * index + 1];
+        if (picture != 0)
+            within += uint2(corner & 65535, corner >> 16);
+    }
     return entry != 4294967295u;
 }
 // A boss body's tilemap (BossBg2Tilemap) in the hardware's screen order, at the pass's map size. Every BG2 sampler
@@ -447,11 +461,8 @@ void Main(uint3 id : SV_DispatchThreadID)
     uint2 scrolled = (sampleScreen + scroll) & 65535;
     uint source = RoomSource & 255;
     uint written = 0;
-    if ((RoomSource & RoomSourceBg2Overlay) != 0 && Bg2OverlayWord(scrolled, uint2(MapWidth, MapHeight), written))
-    {
+    if ((RoomSource & RoomSourceBg2Overlay) != 0 && Bg2OverlayWord(scrolled, uint2(MapWidth, MapHeight), written, picture, within))
         entry = written;
-        within = scrolled & 7;
-    }
     else if (source == RoomSourceBg3)
         entry = Bg3Word(TilemapWord, MapHeight, scrolled, within);
     else if (source == RoomSourceBossBg2)

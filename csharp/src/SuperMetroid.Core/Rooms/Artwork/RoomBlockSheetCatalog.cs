@@ -10,20 +10,20 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 public sealed class RoomBlockSheetCatalog
 {
     /// <summary>
-    /// Keeps the sheets, each under its own tileset, the background images, each under its own name, and the boss bodies,
-    /// each under the tileset of its room.
+    /// Keeps the sheets, each under its own tileset, the background images, each under its own name, and the tile word
+    /// sheets, each under its own tileset.
     /// </summary>
-    /// <exception cref="ArgumentException">A sheet or body is filed under another tileset, or an image under another name.</exception>
+    /// <exception cref="ArgumentException">A sheet is filed under another tileset, or an image under another name.</exception>
     public RoomBlockSheetCatalog(IReadOnlyDictionary<TilesetDefinition, RoomBlockSheet> sheets,
-        IReadOnlyDictionary<string, RoomBackgroundImage> backgrounds, IReadOnlyDictionary<TilesetDefinition, BossBodySheet> bossBodies)
+        IReadOnlyDictionary<string, RoomBackgroundImage> backgrounds, IReadOnlyDictionary<TilesetDefinition, TileWordSheet> tileWords)
     {
         Sheets = Ensure.NotNull(sheets);
         Backgrounds = Ensure.NotNull(backgrounds);
-        BossBodies = Ensure.NotNull(bossBodies);
-        foreach ((TilesetDefinition tileset, BossBodySheet body) in bossBodies)
+        TileWords = Ensure.NotNull(tileWords);
+        foreach ((TilesetDefinition tileset, TileWordSheet words) in tileWords)
         {
-            if (body.Tileset != tileset)
-                throw new ArgumentException($"{body.Name} is filed under {tileset}.", nameof(bossBodies));
+            if (words.Tileset != tileset)
+                throw new ArgumentException($"{words.Name} is filed under {tileset}.", nameof(tileWords));
         }
         foreach ((string name, RoomBackgroundImage background) in backgrounds)
         {
@@ -43,8 +43,8 @@ public sealed class RoomBlockSheetCatalog
     /// <summary>The library background images by name.</summary>
     public IReadOnlyDictionary<string, RoomBackgroundImage> Backgrounds { get; }
 
-    /// <summary>The boss bodies by the tileset of the room each boss shows its body in.</summary>
-    public IReadOnlyDictionary<TilesetDefinition, BossBodySheet> BossBodies { get; }
+    /// <summary>The tile word sheets by the tileset whose rooms the words are written in.</summary>
+    public IReadOnlyDictionary<TilesetDefinition, TileWordSheet> TileWords { get; }
 
     /// <summary>A content identity of every sheet, in tileset order.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomBlockSheetCatalog), content =>
@@ -61,11 +61,11 @@ public sealed class RoomBlockSheetCatalog
             foreach (ushort word in background.TilemapWords)
                 content.Append("word", word);
         }
-        foreach (BossBodySheet body in BossBodies.Values.OrderBy(body => body.Name, StringComparer.Ordinal))
+        foreach (TileWordSheet words in TileWords.Values.OrderBy(words => words.Name, StringComparer.Ordinal))
         {
-            content.AppendName("body", body.Name);
-            body.Sheet.AppendIdentity(content);
-            foreach (BossBodyTile tile in body.Tiles)
+            content.AppendName("words", words.Name);
+            words.Sheet.AppendIdentity(content);
+            foreach (TileWordSheetTile tile in words.Tiles)
             {
                 content.Append("word", tile.Tile.Word.Raw);
                 content.AppendName("artwork", tile.Tile.Shown.Artwork.Name);

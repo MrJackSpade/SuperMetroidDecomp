@@ -98,6 +98,19 @@ internal static class RoomBackgroundsFixtures
         return [.. pictures];
     }
 
+    /// <summary>
+    /// A seeded overlay of words written over BG2, drawn from seeded pictures as <see cref="SeededBodyPictures"/> seeds them
+    /// (#1392).
+    /// </summary>
+    internal static RoomTilemapOverlay SeededPicturedOverlay(Random random, Bgr555[] scene)
+    {
+        var words = new ushort[random.Next(64, 256)];
+        for (int index = 0; index < words.Length; index++)
+            words[index] = (ushort)random.Next(ushort.MaxValue + 1);
+        RoomTilemapOverlay overlay = RoomTilemapOverlay.Empty.With(random.Next(RoomTilemapOverlay.WordCount - words.Length), words);
+        return overlay.WithPictures(SeededBodyPictures(random, scene, RoomTilemapOverlay.WordCount));
+    }
+
     /// <summary>A seeded image of the scrolling sky's rows, with rebound cells as <see cref="SeededBackground"/> has (#1392).</summary>
     internal static RoomBackgroundImagePlane SeededSky(Random random, Bgr555[] scene) =>
         SeededImage(random, scene, SuperMetroid.Core.Rooms.Scrolling.SkyTilemap.Rows);

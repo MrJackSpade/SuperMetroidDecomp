@@ -5,11 +5,12 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
-/// One installed pre-coloured boss body (#1392): an image of each part the boss writes into the BG2 tilemap it shows its
-/// body on, coloured with its room tileset's standard palette over the characters its room loads, and where each tile word
-/// is pictured over each artwork that can show at its character.
+/// The installed pre-coloured tile words of one tileset's rooms (#1392): an image of each part something writes over the
+/// rooms' BG1 or BG2 after they load (a boss's body frames, typed text), coloured with the tileset's standard palette
+/// over the characters the rooms load, and where each tile word is pictured over each artwork that can show at its
+/// character.
 /// </summary>
-public sealed class BossBodySheet
+public sealed class TileWordSheet
 {
     /// <summary>The frame picturing tile words over artwork the room binds after loading, which no part shows over.</summary>
     public const string ReboundFrameName = "rebound";
@@ -21,13 +22,12 @@ public sealed class BossBodySheet
     /// <exception cref="InvalidDataException">
     /// The sheet is not background-coloured, a tile lies outside its frame, or a word over one artwork is pictured twice.
     /// </exception>
-    public BossBodySheet(BossBody body, TilesetDefinition tileset, SpriteSheet sheet, IEnumerable<BossBodyTile> tiles)
+    public TileWordSheet(TilesetDefinition tileset, SpriteSheet sheet, IEnumerable<TileWordSheetTile> tiles)
     {
-        Body = body;
         Tileset = tileset;
         Sheet = Ensure.NotNull(sheet);
         Tiles = [.. Ensure.NotNull(tiles)];
-        foreach (BossBodyTile tile in Tiles)
+        foreach (TileWordSheetTile tile in Tiles)
         {
             SpriteSheetFrame frame = sheet.Frame(tile.Frame);
             if (frame.Sheet.Colours != SpriteImageColours.Background)
@@ -39,24 +39,21 @@ public sealed class BossBodySheet
         }
     }
 
-    /// <summary>The boss.</summary>
-    public BossBody Body { get; }
-
-    /// <summary>The tileset of the room the boss shows its body in.</summary>
+    /// <summary>The tileset whose rooms the words are written in.</summary>
     public TilesetDefinition Tileset { get; }
 
     /// <summary>The installed name.</summary>
-    public string Name => NameOf(Body, Tileset);
+    public string Name => NameOf(Tileset);
 
     /// <summary>The part images.</summary>
     public SpriteSheet Sheet { get; }
 
     /// <summary>Every tile pictured.</summary>
-    public IReadOnlyList<BossBodyTile> Tiles { get; }
+    public IReadOnlyList<TileWordSheetTile> Tiles { get; }
 
     /// <summary>Where <paramref name="tile"/> is pictured, if it is.</summary>
     public bool TryPicture(BgTileArtwork tile, out BgTilePicture picture) => pictures.TryGetValue(tile, out picture);
 
-    /// <summary>The installed name of <paramref name="body"/>'s sheet in a room of <paramref name="tileset"/>.</summary>
-    public static string NameOf(BossBody body, TilesetDefinition tileset) => $"{body}Body.{RoomBlockSheet.NameOf(tileset)}";
+    /// <summary>The installed name of the tile word sheet of <paramref name="tileset"/>'s rooms.</summary>
+    public static string NameOf(TilesetDefinition tileset) => $"Words.{RoomBlockSheet.NameOf(tileset)}";
 }

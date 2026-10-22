@@ -1,5 +1,4 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -25,11 +24,11 @@ public static class RoomBlockSheetFiles
     /// <summary>The background manifest's schema revision.</summary>
     private const int BackgroundManifestVersion = 1;
 
-    /// <summary>The manifest naming each boss body sheet and where it pictures each tile word.</summary>
-    public const string BodyManifestFileName = "boss-bodies.json";
+    /// <summary>The manifest naming each tile word sheet and where it pictures each tile word.</summary>
+    public const string WordManifestFileName = "tile-words.json";
 
-    /// <summary>The body manifest's schema revision.</summary>
-    private const int BodyManifestVersion = 1;
+    /// <summary>The tile word manifest's schema revision.</summary>
+    private const int WordManifestVersion = 1;
 
     /// <summary>Composes and writes every tileset's block sheet and background image, then validates the result.</summary>
     /// <param name="content">Installed stock content holding the characters, definitions, palettes, tilemaps and uploads the sheets compose from.</param>
@@ -43,13 +42,13 @@ public static class RoomBlockSheetFiles
             store.Write(RoomBlockSheet.NameOf(tileset), sheet);
         foreach ((string name, ComposedRoomBackground background) in composition.Backgrounds)
             store.Write(name, background.Sheet);
-        foreach (ComposedBossBody body in composition.Bodies.Values)
-            store.Write(BossBodySheet.NameOf(body.Body, body.Tileset), body.Sheet);
+        foreach (ComposedTileWordSheet words in composition.TileWords.Values)
+            store.Write(TileWordSheet.NameOf(words.Tileset), words.Sheet);
         store.Finish(sourceCartridgeSha256);
-        var bodies = new BodyManifest(BodyManifestVersion, [.. composition.Bodies.Values.Select(body => new BodyDocument(body.Body,
-            RoomBlockSheet.NameOf(body.Tileset), [.. body.Tiles.Select(tile => new BodyTileDocument(tile.Tile.Word.Raw, tile.Tile.Shown.Artwork.Name,
+        var sheets = new WordManifest(WordManifestVersion, [.. composition.TileWords.Values.Select(words => new WordSheetDocument(
+            RoomBlockSheet.NameOf(words.Tileset), [.. words.Tiles.Select(tile => new WordTileDocument(tile.Tile.Word.Raw, tile.Tile.Shown.Artwork.Name,
                 tile.Tile.Shown.WordOffset, tile.Frame, tile.Corner.X, tile.Corner.Y))]))]);
-        File.WriteAllBytes(Path.Combine(directory, BodyManifestFileName), JsonSerializer.SerializeToUtf8Bytes(bodies, JsonOptions));
+        File.WriteAllBytes(Path.Combine(directory, WordManifestFileName), JsonSerializer.SerializeToUtf8Bytes(sheets, JsonOptions));
         var manifest = new BackgroundManifest(BackgroundManifestVersion,
             composition.Backgrounds.ToDictionary(entry => entry.Key, entry => entry.Value.Words, StringComparer.Ordinal));
         File.WriteAllBytes(Path.Combine(directory, BackgroundManifestFileName), JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
@@ -69,28 +68,28 @@ public static class RoomBlockSheetFiles
             ?? throw new InvalidDataException($"Room background manifest {manifestPath} is empty.");
         if (manifest.Version != BackgroundManifestVersion || manifest.Words is null)
             throw new InvalidDataException($"Room background manifest {manifestPath} is not revision {BackgroundManifestVersion}.");
-        string bodyPath = Path.Combine(stockDirectory, BodyManifestFileName);
-        BodyManifest bodies = JsonSerializer.Deserialize<BodyManifest>(File.ReadAllBytes(bodyPath), JsonOptions)
-            ?? throw new InvalidDataException($"Boss body manifest {bodyPath} is empty.");
-        if (bodies.Version != BodyManifestVersion || bodies.Bodies is null)
-            throw new InvalidDataException($"Boss body manifest {bodyPath} is not revision {BodyManifestVersion}.");
+        string wordPath = Path.Combine(stockDirectory, WordManifestFileName);
+        WordManifest words = JsonSerializer.Deserialize<WordManifest>(File.ReadAllBytes(wordPath), JsonOptions)
+            ?? throw new InvalidDataException($"Tile word manifest {wordPath} is empty.");
+        if (words.Version != WordManifestVersion || words.Sheets is null)
+            throw new InvalidDataException($"Tile word manifest {wordPath} is not revision {WordManifestVersion}.");
         IReadOnlyList<TilesetDefinition> tilesets = RoomBlockUploads.Tilesets();
         Dictionary<string, TilesetDefinition> byName = tilesets.ToDictionary(RoomBlockSheet.NameOf, StringComparer.Ordinal);
         SpriteSheetStore store = SpriteSheetStore.Open(stockDirectory, overrideDirectory, ProvenanceFileName,
-            tilesets.Count + manifest.Words.Count + bodies.Bodies.Length);
+            tilesets.Count + manifest.Words.Count + words.Sheets.Length);
         return new RoomBlockSheetCatalog(
             tilesets.ToDictionary(tileset => tileset, tileset => new RoomBlockSheet(tileset, store.Read(RoomBlockSheet.NameOf(tileset)))),
             manifest.Words.ToDictionary(entry => entry.Key, entry => new RoomBackgroundImage(entry.Key, store.Read(entry.Key), [.. entry.Value]),
                 StringComparer.Ordinal),
-            bodies.Bodies.Select(body => Body(body, byName.TryGetValue(body.Tileset, out TilesetDefinition tileset) ? tileset
-                : throw new InvalidDataException($"Boss body manifest {bodyPath} names unknown tileset {body.Tileset}."), store))
-                .ToDictionary(body => body.Tileset));
+            words.Sheets.Select(sheet => Words(sheet, byName.TryGetValue(sheet.Tileset, out TilesetDefinition tileset) ? tileset
+                : throw new InvalidDataException($"Tile word manifest {wordPath} names unknown tileset {sheet.Tileset}."), store))
+                .ToDictionary(sheet => sheet.Tileset));
     }
 
-    /// <summary>The body sheet <paramref name="document"/> describes, read from <paramref name="store"/>.</summary>
-    private static BossBodySheet Body(BodyDocument document, TilesetDefinition tileset, SpriteSheetStore store) =>
-        new(document.Body, tileset, store.Read(BossBodySheet.NameOf(document.Body, tileset)),
-            document.Tiles.Select(tile => new BossBodyTile(new BgTileArtwork(new SnesBgTilemapWord(tile.Word),
+    /// <summary>The tile word sheet <paramref name="document"/> describes, read from <paramref name="store"/>.</summary>
+    private static TileWordSheet Words(WordSheetDocument document, TilesetDefinition tileset, SpriteSheetStore store) =>
+        new(tileset, store.Read(TileWordSheet.NameOf(tileset)),
+            document.Tiles.Select(tile => new TileWordSheetTile(new BgTileArtwork(new SnesBgTilemapWord(tile.Word),
                 new BgArtworkShown(new BgArtworkIdentity(tile.Artwork), tile.Offset)), tile.Frame, new Position16<ImagePixels>(tile.X, tile.Y))));
 
     /// <summary>Used by installer completeness checks; overrides do not affect stock provenance.</summary>
@@ -101,25 +100,24 @@ public static class RoomBlockSheetFiles
     /// <param name="Words">Each image's tilemap words, page by page.</param>
     private sealed record BackgroundManifest(int Version, Dictionary<string, ushort[]> Words);
 
-    /// <summary>The body manifest: each boss body sheet and where it pictures each tile word.</summary>
+    /// <summary>The tile word manifest: each tile word sheet and where it pictures each tile word.</summary>
     /// <param name="Version">The schema revision.</param>
-    /// <param name="Bodies">The bodies.</param>
-    private sealed record BodyManifest(int Version, BodyDocument[] Bodies);
+    /// <param name="Sheets">The sheets.</param>
+    private sealed record WordManifest(int Version, WordSheetDocument[] Sheets);
 
-    /// <summary>One boss body sheet.</summary>
-    /// <param name="Body">The boss.</param>
-    /// <param name="Tileset">The installed name of the tileset of the boss's room.</param>
+    /// <summary>One tile word sheet.</summary>
+    /// <param name="Tileset">The installed name of the tileset whose rooms the words are written in.</param>
     /// <param name="Tiles">Where the sheet pictures each tile word over each artwork.</param>
-    private sealed record BodyDocument(BossBody Body, string Tileset, BodyTileDocument[] Tiles);
+    private sealed record WordSheetDocument(string Tileset, WordTileDocument[] Tiles);
 
-    /// <summary>Where a body sheet pictures one tile word over one artwork.</summary>
+    /// <summary>Where a tile word sheet pictures one tile word over one artwork.</summary>
     /// <param name="Word">The tile word.</param>
     /// <param name="Artwork">The artwork shown at the word's character.</param>
     /// <param name="Offset">The character's word offset within the artwork.</param>
     /// <param name="Frame">The frame picturing the word.</param>
     /// <param name="X">The tile's left pixel within the frame.</param>
     /// <param name="Y">The tile's top pixel within the frame.</param>
-    private sealed record BodyTileDocument(ushort Word, string Artwork, int Offset, string Frame, ushort X, ushort Y);
+    private sealed record WordTileDocument(ushort Word, string Artwork, int Offset, string Frame, ushort X, ushort Y);
 
     /// <summary>Stable camel-case manifest fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -127,6 +125,5 @@ public static class RoomBlockSheetFiles
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
         WriteIndented = false,
-        Converters = { new JsonStringEnumConverter() },
     };
 }

@@ -14,11 +14,8 @@ uint2 XrayBackground(uint roomSource, uint map, uint chars, uint2 size, uint2 po
     bool shown = true;
     uint source = roomSource & 255;
     uint written = 0;
-    if ((roomSource & RoomSourceBg2Overlay) != 0 && Bg2OverlayWord(position & 65535, size, written))
-    {
+    if ((roomSource & RoomSourceBg2Overlay) != 0 && Bg2OverlayWord(position & 65535, size, written, picture, within))
         entry = written;
-        within = position & 7;
-    }
     else if (source == RoomSourceBg3)
         entry = Bg3Word(map, size.y, position & 65535, within);
     else if (source == RoomSourceBossBg2)

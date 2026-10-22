@@ -34,14 +34,14 @@ internal static class RoomBlockSheetComposer
             foreach (RoomBlockUploads.RoomBackgroundMap background in uploads.Backgrounds)
                 backgrounds.Add(background.Name, ComposeBackground(inputs, tileset, uploads, background));
         }
-        var bodies = new Dictionary<TilesetDefinition, ComposedBossBody>();
+        var words = new Dictionary<TilesetDefinition, ComposedTileWordSheet>();
         foreach ((TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads) in tilesets)
         {
-            if (uploads.Body is { } body)
-                bodies.Add(tileset, BossBodySheetComposer.Compose(inputs, tileset, uploads, body.Body, body.Content));
+            if (uploads.WordContent is { } content)
+                words.Add(tileset, TileWordSheetComposer.Compose(inputs, tileset, uploads, uploads.Writers, content));
         }
         return new RoomSheetComposition(tilesets.ToDictionary(entry => entry.Key, entry => Compose(inputs, entry.Key, entry.Value)), backgrounds,
-            bodies);
+            words);
     }
 
     /// <summary>

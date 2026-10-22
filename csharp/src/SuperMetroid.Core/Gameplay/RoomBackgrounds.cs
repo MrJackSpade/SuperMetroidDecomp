@@ -61,12 +61,7 @@ public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLaye
         /// <inheritdoc />
         public bool TrySample(Position16<BgPlanePixels> scrolled, out BgSample sample)
         {
-            if (overlay.TryTileAt(scrolled, mapSize, out SnesBgTilemapWord tile))
-            {
-                sample = BgSample.OfTile(BgTileSample.At(tile, scrolled));
-                return true;
-            }
-            return under.TrySample(scrolled, out sample);
+            return overlay.TrySampleAt(scrolled, mapSize, out sample) || under.TrySample(scrolled, out sample);
         }
     }
 

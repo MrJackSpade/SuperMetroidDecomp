@@ -10,6 +10,9 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -20,20 +23,21 @@ using SuperMetroid.Core.World.RoomStates;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
-/// Pre-assembles and pre-colours each boss body (#1392): one image of each part the boss writes into the BG2 tilemap it
-/// shows its body on, coloured with its room tileset's standard palette over the characters the room has loaded, and
-/// each tile word pictured again over each artwork the room binds after loading at its character.
+/// Pre-assembles and pre-colours the tile words written over each tileset's rooms (#1392): one image of each part each
+/// writer writes over BG1 or BG2 (a boss's body frames, typed text), coloured with the tileset's standard palette over
+/// the characters the room has loaded, and each tile word pictured again over each artwork the room binds after loading
+/// at its character.
 /// </summary>
-internal static class BossBodySheetComposer
+internal static class TileWordSheetComposer
 {
-    /// <summary>Tiles across a part: the width of the tilemap a boss writes its body into.</summary>
+    /// <summary>Tiles across a part: the width of the tilemaps the words are written into.</summary>
     private const int PartTiles = 32;
 
-    /// <summary>Composes <paramref name="body"/>'s sheet over <paramref name="content"/>, the room as it has loaded.</summary>
+    /// <summary>Composes the sheet of <paramref name="writers"/>' words over <paramref name="content"/>, the room as it has loaded.</summary>
     /// <exception cref="InvalidDataException">A part reads a character nothing the room loads is bound over.</exception>
-    [PpuLayoutBoundary("codec: the BG characters a boss body's tile words name, from the room tileset's character base")]
-    internal static ComposedBossBody Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads,
-        BossBody body, BgArtworkBindings content)
+    [PpuLayoutBoundary("codec: the BG characters written tile words name, from the room tileset's character base")]
+    internal static ComposedTileWordSheet Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads,
+        IEnumerable<TileWordWriter> writers, BgArtworkBindings content)
     {
         Ensure.NotNull(inputs);
         Ensure.NotNull(uploads);
@@ -43,9 +47,10 @@ internal static class BossBodySheetComposer
         Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = load.Concat(uploads.Uploads).GroupBy(upload => upload.Identity)
             .ToDictionary(group => group.Key, group => group.First().Bytes);
         Bgr555[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).Transfer.Span);
-        List<(string Name, BodyPart Part)> parts = [.. Parts(inputs.Bosses, body)];
+        List<(string Name, BodyPart Part)> parts = [.. Ensure.NotNull(writers).Order()
+            .SelectMany(writer => Parts(inputs, writer).Select(part => ($"{writer}.{part.Name}", part.Part)))];
 
-        var tiles = new List<BossBodyTile>();
+        var tiles = new List<TileWordSheetTile>();
         var pictured = new HashSet<(ushort, BgArtworkShown)>();
         var placed = new List<(int Top, ushort Word, BgArtworkShown Shown, int X, int Y)>();
         int top = 0;
@@ -62,10 +67,10 @@ internal static class BossBodySheetComposer
             {
                 int first = CharacterWord(word);
                 if (!content.TryShowing(first, RoomBlockPictureNames.CharacterWords, out BgArtworkShown shown))
-                    throw new InvalidDataException($"{BossBodySheet.NameOf(body, tileset)} part {name} reads a character at VRAM word ${first:X4} its room loads nothing over.");
+                    throw new InvalidDataException($"{TileWordSheet.NameOf(tileset)} part {name} reads a character at VRAM word ${first:X4} its room loads nothing over.");
                 placed.Add((top, word, shown, x, y));
                 if (pictured.Add((word, shown)))
-                    tiles.Add(new BossBodyTile(new BgTileArtwork(new SnesBgTilemapWord(word), shown), name, Corner(x, y)));
+                    tiles.Add(new TileWordSheetTile(new BgTileArtwork(new SnesBgTilemapWord(word), shown), name, Corner(x, y)));
             }
             top += part.Rows;
         }
@@ -90,7 +95,7 @@ internal static class BossBodySheetComposer
             (ushort word, BgArtworkShown shown) = rebound[index];
             int x = index % PartTiles, y = index / PartTiles;
             Paint(x, top + y, word, shown);
-            tiles.Add(new BossBodyTile(new BgTileArtwork(new SnesBgTilemapWord(word), shown), BossBodySheet.ReboundFrameName, Corner(x, y)));
+            tiles.Add(new TileWordSheetTile(new BgTileArtwork(new SnesBgTilemapWord(word), shown), TileWordSheet.ReboundFrameName, Corner(x, y)));
         }
 
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
@@ -101,8 +106,8 @@ internal static class BossBodySheetComposer
             frameTop += part.Rows;
         }
         if (reboundRows > 0)
-            frames.Add(BossBodySheet.ReboundFrameName, Frame(canvas, top, reboundRows));
-        return new ComposedBossBody(body, tileset, canvas.ToSheet(colours, frames), tiles);
+            frames.Add(TileWordSheet.ReboundFrameName, Frame(canvas, top, reboundRows));
+        return new ComposedTileWordSheet(tileset, canvas.ToSheet(colours, frames), tiles);
 
         void Paint(int x, int y, ushort word, BgArtworkShown shown) =>
             canvas.PaintTile(x * RoomTileCanvas.CharacterPixels, y * RoomTileCanvas.CharacterPixels, new SnesBgTilemapWord(word),
@@ -129,41 +134,45 @@ internal static class BossBodySheetComposer
         return new SpriteSheetFrameDocument { Corner = corner, Size = size, Origin = default, Rows = coloured, Parts = [] };
     }
 
-    /// <summary>The parts <paramref name="body"/> writes into its tilemap, each named, in a stable order.</summary>
-    /// <exception cref="InvalidDataException">The boss's installed artwork is missing.</exception>
-    private static IEnumerable<(string Name, BodyPart Part)> Parts(BossArtworkCatalog bosses, BossBody body)
+    /// <summary>The parts <paramref name="writer"/> writes, each named, in a stable order.</summary>
+    /// <exception cref="InvalidDataException">The writer's installed artwork is missing.</exception>
+    private static IEnumerable<(string Name, BodyPart Part)> Parts(RoomBlockSheetInputs inputs, TileWordWriter writer)
     {
-        switch (body)
+        BossArtworkCatalog bosses = inputs.Bosses;
+        switch (writer)
         {
-            case BossBody.Kraid:
-                foreach ((string, BodyPart) part in KraidParts(bosses.KraidBackground ?? throw Missing(body)))
+            case TileWordWriter.ZebesEscapeText:
+                yield return ("Typed", Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase));
+                break;
+            case TileWordWriter.Kraid:
+                foreach ((string, BodyPart) part in KraidParts(bosses.KraidBackground ?? throw Missing(writer)))
                     yield return part;
                 break;
-            case BossBody.Phantoon:
-                foreach ((string, BodyPart) part in FrameParts((bosses.PhantoonBg2Frames ?? throw Missing(body)).Writes))
+            case TileWordWriter.Phantoon:
+                foreach ((string, BodyPart) part in FrameParts((bosses.PhantoonBg2Frames ?? throw Missing(writer)).Writes))
                     yield return part;
                 yield return Fill(PhantoonBg2FrameDefinitions.BlankTile);
                 break;
-            case BossBody.Draygon:
-                foreach ((string, BodyPart) part in FrameParts((bosses.DraygonBg2Frames ?? throw Missing(body)).Writes))
+            case TileWordWriter.Draygon:
+                foreach ((string, BodyPart) part in FrameParts((bosses.DraygonBg2Frames ?? throw Missing(writer)).Writes))
                     yield return part;
                 yield return Fill(EnemyBg2SurfaceDefinitions.BlankTile.Raw);
                 break;
-            case BossBody.Crocomire:
-                foreach ((string, BodyPart) part in FrameParts((bosses.CrocomireBg2Frames ?? throw Missing(body)).Writes))
+            case TileWordWriter.Crocomire:
+                foreach ((string, BodyPart) part in FrameParts((bosses.CrocomireBg2Frames ?? throw Missing(writer)).Writes))
                     yield return part;
-                CrocomireMeltingArtwork melting = bosses.CrocomireMelting ?? throw Missing(body);
+                CrocomireMeltingArtwork melting = bosses.CrocomireMelting ?? throw Missing(writer);
                 foreach (CrocomireMeltingTilemapAddress image in Enum.GetValues<CrocomireMeltingTilemapAddress>())
                     yield return ($"Melting{image}", Rows(melting.Tilemap(image).ToArray()));
                 yield return Fill(CrocomireBg2.CrocomireBlankBg2Tile);
                 break;
-            case BossBody.MotherBrain:
-                foreach ((string, BodyPart) part in FrameParts((bosses.MotherBrainBodyBg2Frames ?? throw Missing(body)).Writes))
+            case TileWordWriter.MotherBrain:
+                foreach ((string, BodyPart) part in FrameParts((bosses.MotherBrainBodyBg2Frames ?? throw Missing(writer)).Writes))
                     yield return part;
                 yield return Fill(MotherBrainBg2Definitions.BlankTile, MotherBrainDeathRomData.EmptyBodyTile);
                 break;
             default:
-                throw new InvalidDataException($"Undefined boss body {body}.");
+                throw new InvalidDataException($"Undefined tile word writer {writer}.");
         }
     }
 
@@ -180,6 +189,27 @@ internal static class BossBodySheetComposer
         foreach ((int mouthStage, KraidHeadTilemapAtlas head) in art.Heads.OrderBy(entry => entry.Key))
             yield return ($"Head{mouthStage}", Rows(head.Words.ToArray()));
         yield return Fill(KraidBackgroundRomData.BlankTile);
+    }
+
+    /// <summary>
+    /// The text <paramref name="program"/> types from <paramref name="tileBase"/>, each glyph at the BG2 tilemap word the
+    /// typewriter writes it to.
+    /// </summary>
+    [PpuLayoutBoundary("codec: escape typewriter programs' native BG2 tilemap destinations")]
+    private static BodyPart Typed(EscapeTypewriterProgram program, ushort tileBase)
+    {
+        var runs = new List<BodyRun>();
+        foreach (EscapeTypewriterLine line in program.Lines)
+        {
+            int destination = line.Destination;
+            foreach (char character in line.Text)
+            {
+                if (EscapeTypewriterState.GlyphOf((byte)character, new SnesBgTilemapWord(tileBase)) is { } glyph)
+                    runs.AddRange(Runs(destination - GameplayVramLayout.Bg2TilemapWord, [glyph.Raw]));
+                destination = EscapeTypewriterState.NextDestination(destination);
+            }
+        }
+        return new BodyPart([.. runs]);
     }
 
     /// <summary>Each frame of a catalog: its writes, at the tilemap words they write.</summary>
@@ -207,11 +237,11 @@ internal static class BossBodySheetComposer
     /// <summary><paramref name="words"/> with BG2 priority set, as Kraid shows his body once grown.</summary>
     private static ushort[] WithPriority(ushort[] words) => [.. words.Select(word => (ushort)(word | KraidBackgroundRomData.PriorityBit))];
 
-    /// <summary>The failure for a boss whose installed artwork is missing.</summary>
-    private static InvalidDataException Missing(BossBody body) => new($"The installed enemy artwork has no {body} body.");
+    /// <summary>The failure for a writer whose installed artwork is missing.</summary>
+    private static InvalidDataException Missing(TileWordWriter writer) => new($"The installed enemy artwork has no {writer} body.");
 
     /// <summary>The first VRAM word of the character tile word <paramref name="word"/> names.</summary>
-    [PpuLayoutBoundary("codec: the BG characters a boss body's tile words name, from the room tileset's character base")]
+    [PpuLayoutBoundary("codec: the BG characters written tile words name, from the room tileset's character base")]
     private static int CharacterWord(ushort word) =>
         RoomGraphicsLayout.AreaCharacters.Offset + new SnesBgTilemapWord(word).CharacterIndex * RoomBlockPictureNames.CharacterWords;
 
@@ -233,9 +263,8 @@ internal static class BossBodySheetComposer
     private sealed record BodyRun(int X, int Y, ushort[] Words);
 }
 
-/// <summary>A composed boss body: its sheet and where it pictures each tile word over each artwork.</summary>
-/// <param name="Body">The boss.</param>
-/// <param name="Tileset">The tileset of the boss's room.</param>
+/// <summary>A composed tile word sheet: its part images and where it pictures each tile word over each artwork.</summary>
+/// <param name="Tileset">The tileset whose rooms the words are written in.</param>
 /// <param name="Sheet">The part images.</param>
 /// <param name="Tiles">Every tile pictured.</param>
-internal sealed record ComposedBossBody(BossBody Body, TilesetDefinition Tileset, ComposedSpriteSheet Sheet, IReadOnlyList<BossBodyTile> Tiles);
+internal sealed record ComposedTileWordSheet(TilesetDefinition Tileset, ComposedSpriteSheet Sheet, IReadOnlyList<TileWordSheetTile> Tiles);

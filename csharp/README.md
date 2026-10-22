@@ -572,9 +572,10 @@ A room's library background is a full image in the same directory, one for each 
 (`{background}[.{door}].{tileset}`): both BG2 pages it loads, the first above the second, with their tilemap words listed
 in `room-backgrounds.json`. A 16x16 cell whose characters the room rebinds, as the Tourian statues' are, draws that
 cell's block picture while they show something else. The scrolling sky is an image of all its rows the same way, one for each
-sky (`SkyLand`, `SkyOcean`) and tileset. A boss that shows its body on BG2 (Kraid, Phantoon, Draygon, Crocomire, Mother
-Brain) has one sheet, `<Boss>Body.<tileset>`, with an image of each part it writes into its tilemap; `boss-bodies.json`
-records where each tile word is pictured over each artwork that can show at its character.
+sky (`SkyLand`, `SkyOcean`) and tileset. Words written over a room's BG2 after it loads (the bodies of Kraid, Phantoon,
+Draygon, Crocomire and Mother Brain, and the Zebes escape warning) are pictured on one sheet per tileset,
+`Words.<tileset>`, with an image of each part each writer writes; `tile-words.json` records where each tile word is
+pictured over each artwork that can show at its character.
 Edited copies go in `overrides/room-block-sheets`. The
 Ceres Ridley arena, whose planes read the object characters, still draws its blocks from characters.
 

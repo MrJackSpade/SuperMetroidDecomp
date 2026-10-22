@@ -126,15 +126,26 @@ public sealed class EscapeTypewriterState
     private EscapeTypewriterGlyph? TypeCharacter(byte character)
     {
         EscapeTypewriterGlyph? glyph = null;
-        if (character != (byte)' ')
+        if (GlyphOf(character, tileBase) is { } tile)
         {
-            if (character == (byte)'!') character = EscapeTypewriterRomData.ExclamationGlyph;
-            glyph = new(Destination, new SnesBgTilemapWord(unchecked((ushort)(tileBase.Raw + character - EscapeTypewriterRomData.FirstLetter))));
+            glyph = new(Destination, tile);
             GlyphsWritten++;
             ClickRequested = GlyphsWritten % 2 == 0;
         }
-        Destination = (Destination + 1) % DestinationPeriod;
+        Destination = NextDestination(Destination);
         return glyph;
     }
+
+    /// <summary>The tile word <paramref name="character"/> types from <paramref name="tileBase"/>, or null for a space.</summary>
+    internal static SnesBgTilemapWord? GlyphOf(byte character, SnesBgTilemapWord tileBase)
+    {
+        if (character == (byte)' ')
+            return null;
+        if (character == (byte)'!') character = EscapeTypewriterRomData.ExclamationGlyph;
+        return new SnesBgTilemapWord(unchecked((ushort)(tileBase.Raw + character - EscapeTypewriterRomData.FirstLetter)));
+    }
+
+    /// <summary>The tilemap destination typed after <paramref name="destination"/>.</summary>
+    internal static int NextDestination(int destination) => (destination + 1) % DestinationPeriod;
 
 }

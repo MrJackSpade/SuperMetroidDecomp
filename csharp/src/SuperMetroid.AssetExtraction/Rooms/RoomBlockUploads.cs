@@ -65,11 +65,12 @@ internal static class RoomBlockUploads
                     foreach (CartridgeDoorHeader? door in DoorVariants(program))
                         uploads.AddBackground(Replay(inputs, room, tileset, program, door));
                 }
-                foreach (BossBody body in BodiesIn(state))
+                TileWordWriter[] writers = [.. WritersIn(state)];
+                if (writers.Length > 0)
                 {
-                    // A boss's body shows over what the room's load and its library background bind.
-                    uploads.AddBody(body, state.Background is { } bodyProgram
-                        ? Replay(inputs, room, tileset, bodyProgram, DoorVariants(bodyProgram).First()).Content : Loaded(inputs, tileset));
+                    // Words written over the room show over what its load and its library background bind.
+                    uploads.AddWriters(writers, state.Background is { } wordsProgram
+                        ? Replay(inputs, room, tileset, wordsProgram, DoorVariants(wordsProgram).First()).Content : Loaded(inputs, tileset));
                 }
                 if (ScrollingSkyState.IsScrollingSkyRoomMain(state.MainCallback))
                 {
@@ -172,20 +173,20 @@ internal static class RoomBlockUploads
         return new RoomBackgroundMap(RoomBackgroundImage.NameOf(program, door, tileset), words, content);
     }
 
-    /// <summary>The boss whose body each enemy shows on BG2.</summary>
-    private static readonly Dictionary<EnemyDefinitionId, BossBody> BodyEnemies = new()
+    /// <summary>What each enemy writes over its room's BG1 or BG2: a boss's body, and Mother Brain's escape warning.</summary>
+    private static readonly Dictionary<EnemyDefinitionId, TileWordWriter[]> EnemyWriters = new()
     {
-        [EnemyDefinitionId.Kraid] = BossBody.Kraid,
-        [EnemyDefinitionId.PhantoonBody] = BossBody.Phantoon,
-        [EnemyDefinitionId.DraygonBody] = BossBody.Draygon,
-        [EnemyDefinitionId.Crocomire] = BossBody.Crocomire,
-        [EnemyDefinitionId.MotherBrainBody] = BossBody.MotherBrain,
+        [EnemyDefinitionId.Kraid] = [TileWordWriter.Kraid],
+        [EnemyDefinitionId.PhantoonBody] = [TileWordWriter.Phantoon],
+        [EnemyDefinitionId.DraygonBody] = [TileWordWriter.Draygon],
+        [EnemyDefinitionId.Crocomire] = [TileWordWriter.Crocomire],
+        [EnemyDefinitionId.MotherBrainBody] = [TileWordWriter.MotherBrain, TileWordWriter.ZebesEscapeText],
     };
 
-    /// <summary>The bosses that show their bodies on BG2 in <paramref name="state"/>.</summary>
-    private static IEnumerable<BossBody> BodiesIn(CartridgeRoomState state) =>
-        state.EnemyPopulation.Records.ToArray().Select(record => BodyEnemies.TryGetValue(record.DefinitionId, out BossBody body) ? (BossBody?)body : null)
-            .OfType<BossBody>().Distinct();
+    /// <summary>What writes tile words over <paramref name="state"/>'s BG1 or BG2.</summary>
+    private static IEnumerable<TileWordWriter> WritersIn(CartridgeRoomState state) =>
+        state.EnemyPopulation.Records.ToArray().SelectMany(record => EnemyWriters.TryGetValue(record.DefinitionId, out TileWordWriter[]? writers)
+            ? writers : []).Distinct();
 
     /// <summary>Bindings over a fresh VRAM holding what a room of <paramref name="tileset"/> binds as it loads.</summary>
     private static BgArtworkBindings Loaded(RoomBlockSheetInputs inputs, TilesetDefinition tileset)
@@ -263,16 +264,17 @@ internal static class RoomBlockUploads
         /// <summary>Adds a library background unless one of its name is known.</summary>
         internal void AddBackground(RoomBackgroundMap background) => backgrounds.TryAdd(background.Name, background);
 
-        /// <summary>The boss whose body the tileset's rooms show, with what its room shows the body over, or null.</summary>
-        internal (BossBody Body, BgArtworkBindings Content)? Body { get; private set; }
+        /// <summary>What writes tile words over the tileset's rooms.</summary>
+        internal HashSet<TileWordWriter> Writers { get; } = [];
 
-        /// <summary>Records that a room shows <paramref name="body"/>'s body over <paramref name="content"/>.</summary>
-        /// <exception cref="InvalidDataException">Another boss shows its body in the tileset's rooms.</exception>
-        internal void AddBody(BossBody body, BgArtworkBindings content)
+        /// <summary>What the first room with writers shows their words over, or null without writers.</summary>
+        internal BgArtworkBindings? WordContent { get; private set; }
+
+        /// <summary>Records that a room's <paramref name="writers"/> write over <paramref name="content"/>.</summary>
+        internal void AddWriters(IEnumerable<TileWordWriter> writers, BgArtworkBindings content)
         {
-            if (Body is { } shown && shown.Body != body)
-                throw new InvalidDataException($"Both {shown.Body} and {body} show their bodies in one tileset's rooms.");
-            Body ??= (body, content);
+            Writers.UnionWith(writers);
+            WordContent ??= content;
         }
 
         /// <summary>Whether the tileset's rooms are Ceres rooms.</summary>

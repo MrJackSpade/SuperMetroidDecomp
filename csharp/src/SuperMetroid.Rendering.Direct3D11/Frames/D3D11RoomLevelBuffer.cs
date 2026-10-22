@@ -35,7 +35,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int PlaneSlots = 3;
     /// <summary>Header words: the plane records, the door window origin, and the offsets of the BG1 overlay, the sky rows,
     /// the BG3 plane and the BG2 overlay.</summary>
-    private const int HeaderWords = PlaneSlots * RecordWords + 11;
+    private const int HeaderWords = PlaneSlots * RecordWords + 12;
     /// <summary>Header word of the door window's scrolled origin.</summary>
     private const int DoorWindowWord = PlaneSlots * RecordWords;
     /// <summary>Header word of the overlay's first word, or zero without an overlay.</summary>
@@ -67,6 +67,11 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// its picture's offset, zero where it draws from its character, then its corner in the picture, x below y.
     /// </summary>
     private const int BossBg2PicturesWord = SkyImageWord + 1;
+    /// <summary>
+    /// Header word of the BG2 overlay's pictures (#1392), laid out as <see cref="BossBg2PicturesWord"/>'s, or zero while its
+    /// words draw from characters.
+    /// </summary>
+    private const int Bg2OverlayPicturesWord = BossBg2PicturesWord + 1;
     /// <summary>The bit an X-ray reveal block's arrangement starts at.</summary>
     private const int ArrangementShift = 28;
     /// <summary>A sky row word that selects no page: the row shows nothing.</summary>
@@ -173,15 +178,22 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             }
         }
         ImmutableArray<BgTilePicture?> bodyPictures = bossBg2?.Pictures ?? default;
-        int bodyPicturesOffset = bodyPictures.IsDefault ? 0 : words;
-        if (!bodyPictures.IsDefault)
+        int bodyPicturesOffset = AddTilePictures(bodyPictures, bossBg2?.Words.Length ?? 0);
+        ImmutableArray<BgTilePicture?> overlayPictures = bg2Overlay?.Pictures ?? default;
+        int overlayPicturesOffset = AddTilePictures(overlayPictures, RoomTilemapOverlay.WordCount);
+        // Reserves two words for each of `count` tile pictures and adds each picture; zero without pictures.
+        int AddTilePictures(ImmutableArray<BgTilePicture?> pictures, int count)
         {
-            words += 2 * bossBg2!.Words.Length;
-            for (int word = 0; word < bossBg2.Words.Length; word++)
+            if (pictures.IsDefault)
+                return 0;
+            int offset = words;
+            words += 2 * count;
+            for (int word = 0; word < count; word++)
             {
-                if (bodyPictures[word] is { } tile)
+                if (pictures[word] is { } tile)
                     AddPicture(tile.Picture);
             }
+            return offset;
         }
         int overlayOffset = overlay is null ? 0 : words;
         if (overlay is not null)
@@ -288,18 +300,29 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             for (int word = 0; word < bossBg2.Words.Length; word++)
                 upload[bossBg2Offset + word] = bossBg2.Words[word];
         upload[BossBg2PicturesWord] = (uint)bodyPicturesOffset;
-        if (!bodyPictures.IsDefault)
-        {
-            for (int word = 0; word < bossBg2!.Words.Length; word++)
-            {
-                if (bodyPictures[word] is not { } tile)
-                    continue;
-                upload[bodyPicturesOffset + 2 * word] = (uint)pictureWords[tile.Picture];
-                upload[bodyPicturesOffset + 2 * word + 1] = D3D11ConstantPacking.Halves(tile.Corner.X, tile.Corner.Y);
-            }
-        }
+        PackTilePictures(upload, bodyPictures, bodyPicturesOffset, bossBg2?.Words.Length ?? 0, pictureWords);
+        upload[Bg2OverlayPicturesWord] = (uint)overlayPicturesOffset;
+        PackTilePictures(upload, overlayPictures, overlayPicturesOffset, RoomTilemapOverlay.WordCount, pictureWords);
         packed = frame;
         return true;
+    }
+
+    /// <summary>
+    /// Packs <paramref name="count"/> tile pictures from <paramref name="offset"/>: each its picture's offset, zero where the
+    /// word draws from its character, then its corner in the picture, x below y; nothing without pictures.
+    /// </summary>
+    private static void PackTilePictures(Span<uint> upload, ImmutableArray<BgTilePicture?> pictures, int offset, int count,
+        Dictionary<SpriteSheetFrame, int> pictureWords)
+    {
+        if (pictures.IsDefault)
+            return;
+        for (int word = 0; word < count; word++)
+        {
+            if (pictures[word] is not { } tile)
+                continue;
+            upload[offset + 2 * word] = (uint)pictureWords[tile.Picture];
+            upload[offset + 2 * word + 1] = D3D11ConstantPacking.Halves(tile.Corner.X, tile.Corner.Y);
+        }
     }
 
     /// <summary>

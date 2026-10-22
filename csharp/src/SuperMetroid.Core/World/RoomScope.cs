@@ -45,8 +45,11 @@ internal sealed record RoomScope
     /// <summary>Resolves what the room's scrolling sky shows on BG2, or null for a room without one (#1392).</summary>
     public required RoomBackgroundImageResolver? SkyImage { get; init; }
 
-    /// <summary>Resolves what a boss body shows on BG2, or null in a tileset no boss shows a body in (#1392).</summary>
-    public required BossBodyPictureResolver? BossBody { get; init; }
+    /// <summary>Resolves what a boss body shows on BG2, or null in a tileset nothing writes words over (#1392).</summary>
+    public required TileWordPictureResolver? BodyPictures { get; init; }
+
+    /// <summary>Resolves what words written over BG2 show, or null in a tileset nothing writes words over (#1392).</summary>
+    public required TileWordPictureResolver? Bg2OverlayPictures { get; init; }
 
     /// <summary>
     /// Which character page the planes of <paramref name="room"/> draw from: setup ASM $8F:C97B points the Ceres Ridley

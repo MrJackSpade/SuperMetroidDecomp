@@ -280,9 +280,14 @@ internal sealed class AcceptedFrameBoundary
         // A boss body that owns BG2 draws each word from its body sheet's picture over what the word's character shows.
         ImmutableArray<ushort>? body = latched.Bosses.KraidBody?.Tilemap.Words ?? latched.Bosses.EnemyBg2?.Words;
         ImmutableArray<BgTilePicture?> bodyPictures = body is { } bodyWords
-            ? (scope.BossBody ?? throw new InvalidDataException($"{scope.Room.Definition.Name} shows a boss body with no installed body sheet."))
+            ? (scope.BodyPictures ?? throw new InvalidDataException($"{scope.Room.Definition.Name} shows a boss body with no installed tile word sheet."))
                 .Resolve(bodyWords, _backgrounds)
             : default;
+        // Words written over BG2 draw from the sheet's pictures the same way.
+        RoomTilemapOverlay? bg2Overlay = rooms.Bg2Overlay is { } overlay
+            ? overlay.WithPictures((scope.Bg2OverlayPictures ?? throw new InvalidDataException(
+                $"{scope.Room.Definition.Name} writes over BG2 with no installed tile word sheet.")).Resolve(overlay, _backgrounds))
+            : null;
         return latched with
         {
             Bosses = latched.Bosses with { BodyPictures = bodyPictures },
@@ -292,6 +297,7 @@ internal sealed class AcceptedFrameBoundary
                 Bg2 = rooms.Bg2 is { } bg2 ? bg2 with { Pictures = pictures } : null,
                 Bg2Image = image,
                 SkyImage = sky,
+                Bg2Overlay = bg2Overlay,
             },
             XrayReveal = revealed is null ? null : new XrayRevealPlane(revealed, pictures),
         };

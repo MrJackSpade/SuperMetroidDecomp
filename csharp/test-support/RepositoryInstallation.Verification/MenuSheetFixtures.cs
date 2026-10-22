@@ -132,7 +132,8 @@ internal static class MenuSheetFixtures
         // The menus' background tiles are pre-coloured from the maps' characters and palettes (#1392).
         foreach (SpriteSheetId id in ScreenTileSheetDefinitions.Depths.Keys)
         {
-            ComposedSpriteSheet tiles = ScreenTileSheetComposer.Compose(id, new ScreenTileSources(() => maps, () => InstalledFixtures.IntroArtwork));
+            ComposedSpriteSheet tiles = ScreenTileSheetComposer.Compose(id, new ScreenTileSources(() => maps, () => InstalledFixtures.IntroArtwork,
+                RepositoryInstallation.Installation.LoadEndingObjectArt, RepositoryInstallation.Installation.LoadEndingPalettes));
             sheets[id] = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(tiles.Manifest), writable: false),
                 $"{SpriteSheetDefinitions.FileName(id)}-fixture-maps-{RuntimeHelpers.GetHashCode(maps):X8}", tiles.Size, tiles.Pixels,
                 tiles.PaletteIndices, tiles.Priorities, tiles.PartRows);

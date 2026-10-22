@@ -35,6 +35,13 @@ public static class ScreenTileSheetDefinitions
         [SpriteSheetId.CeresFlightObjectTiles] = BgBitDepth.FourBpp,
         [SpriteSheetId.CeresIntroObjectTiles] = BgBitDepth.FourBpp,
         [SpriteSheetId.ZebesRevealTiles] = BgBitDepth.FourBpp,
+        [SpriteSheetId.EndingCreditsFontTiles] = BgBitDepth.FourBpp,
+        [SpriteSheetId.EndingTextFontTiles] = BgBitDepth.FourBpp,
+        [SpriteSheetId.EndingSubtitleTiles] = BgBitDepth.FourBpp,
+        [SpriteSheetId.EndingLogoTiles] = BgBitDepth.FourBpp,
+        [SpriteSheetId.EndingWaitingTiles] = BgBitDepth.FourBpp,
+        [SpriteSheetId.EndingWavySamusTiles] = BgBitDepth.TwoBpp,
+        [SpriteSheetId.EndingExplosionTiles] = BgBitDepth.FourBpp,
     };
 
     /// <summary>The menu's world foreground characters under each Zebes area's world-map palette, which its area map shows.</summary>

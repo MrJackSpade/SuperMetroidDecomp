@@ -1,4 +1,6 @@
 using System.Collections.Concurrent;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending;
@@ -19,6 +21,10 @@ internal static class EndingSheetFixtures
     /// <summary>The installed ending palettes the composed sheets are coloured with.</summary>
     private static readonly Lazy<EndingPaletteCatalog> palettes = new(() => RepositoryInstallation.Installation.LoadEndingPalettes());
 
+    /// <summary>The ending's background tile sheets its object artwork composes (#1392).</summary>
+    private static readonly SpriteSheetId[] EndingTileSheets = [SpriteSheetId.EndingLogoTiles, SpriteSheetId.EndingWaitingTiles,
+        SpriteSheetId.EndingWavySamusTiles, SpriteSheetId.EndingExplosionTiles];
+
     /// <summary>Installed sheets with the ending sheets already composed, by ending artwork identity.</summary>
     private static readonly ConcurrentDictionary<string, InstalledSpriteSheets> composed = new();
 
@@ -33,6 +39,14 @@ internal static class EndingSheetFixtures
             foreach (SpriteSheetId sheet in EndingSpriteSheets.Sheets)
                 sheets[sheet] = CinematicSheetFixtures.Load(EndingSpriteSheetComposer.Sources(sheet, objects, palettes.Value, InstalledFixtures.Maps.EndingFont),
                     $"{SpriteSheetDefinitions.FileName(sheet)}-fixture-{key[..8]}");
+            // The ending's background tiles are pre-coloured from these objects (#1392).
+            var tileSources = new ScreenTileSources(() => InstalledFixtures.Maps, () => InstalledFixtures.IntroArtwork, () => objects, () => palettes.Value);
+            foreach (SpriteSheetId sheet in EndingTileSheets)
+            {
+                ComposedSpriteSheet tiles = ScreenTileSheetComposer.Compose(sheet, tileSources);
+                sheets[sheet] = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(tiles.Manifest), writable: false),
+                    $"{SpriteSheetDefinitions.FileName(sheet)}-fixture-{key[..8]}", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.Priorities, tiles.PartRows);
+            }
             return new InstalledSpriteSheets(sheets);
         });
     }

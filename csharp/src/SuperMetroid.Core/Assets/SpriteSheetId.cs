@@ -138,4 +138,18 @@ public enum SpriteSheetId
     CeresIntroObjectTiles,
     /// <summary>The Zebes reveal's characters under the Ceres flight palette (#1392).</summary>
     ZebesRevealTiles,
+    /// <summary>The ending font under the credits palette, which the credits roll shows (#1392).</summary>
+    EndingCreditsFontTiles,
+    /// <summary>The ending font under the post-credits palette, which the post-credits text shows (#1392).</summary>
+    EndingTextFontTiles,
+    /// <summary>The post-shot subtitle font under the post-credits palette (#1392).</summary>
+    EndingSubtitleTiles,
+    /// <summary>The post-shot logo characters under the post-credits palette (#1392).</summary>
+    EndingLogoTiles,
+    /// <summary>The waiting-for-credits backdrop characters under the post-credits palette (#1392).</summary>
+    EndingWaitingTiles,
+    /// <summary>The wavy Samus backdrop characters under the post-credits palette (#1392).</summary>
+    EndingWavySamusTiles,
+    /// <summary>The Zebes explosion characters under the explosion palette (#1392).</summary>
+    EndingExplosionTiles,
 }

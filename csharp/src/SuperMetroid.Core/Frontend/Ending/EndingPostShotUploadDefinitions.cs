@@ -12,7 +12,7 @@ internal static class EndingPostShotUploadDefinitions
     public const int Count = 6;
 
     /// <summary>Subtitle font transfer length at <c>$8B:E45A</c>.</summary>
-    private const ushort SubtitleLength = 0x0400;
+    internal const ushort SubtitleLength = 0x0400;
 
     /// <summary>Logo-tile chunk length at <c>$8B:E462</c> through <c>$8B:E47A</c>.</summary>
     private const ushort LogoTileChunkLength = 0x0800;

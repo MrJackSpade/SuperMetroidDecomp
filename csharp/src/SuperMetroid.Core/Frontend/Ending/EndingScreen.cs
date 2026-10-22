@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Frontend.Ending;
@@ -24,6 +26,29 @@ internal sealed class EndingScreen
     {
         uploads.Clear();
         image = null;
+        tiles = null;
+    }
+
+    /// <summary>What the uploads' characters show under each palette the ending's scenes load (#1392), until the uploads change.</summary>
+    [NonSerialized]
+    private Dictionary<EndingPaletteId, ScreenCharacters>? tiles;
+
+    /// <summary>The sheets <see cref="tiles"/> were read from.</summary>
+    [NonSerialized]
+    private InstalledSpriteSheets? tileSheets;
+
+    /// <summary>What the uploads' characters show in the scenes <paramref name="palette"/> colours (#1392).</summary>
+    internal ScreenCharacters Tiles(InstalledSpriteSheets sheets, EndingPaletteId palette)
+    {
+        if (!ReferenceEquals(tileSheets, sheets))
+        {
+            tiles = null;
+            tileSheets = sheets;
+        }
+        tiles ??= [];
+        if (!tiles.TryGetValue(palette, out ScreenCharacters? shown))
+            tiles.Add(palette, shown = EndingScreenTiles.Of(sheets, palette, uploads));
+        return shown;
     }
 
     /// <summary>Records a transfer of installed artwork.</summary>
@@ -37,7 +62,11 @@ internal sealed class EndingScreen
         EndingPostShotUploadDefinitions.Get(upload.Key).Source == EndingPostShotUploadSource.LogoTiles);
 
     /// <summary>Forgets the replayed image after the bound artwork changes.</summary>
-    public void Invalidate() => image = null;
+    public void Invalidate()
+    {
+        image = null;
+        tiles = null;
+    }
 
     /// <summary>The memory image the transfers leave over <paramref name="artwork"/>.</summary>
     internal byte[] Image(EndingScreenArtwork artwork) => image ??= EndingScreenImage.Compose(uploads, artwork);
@@ -48,5 +77,6 @@ internal sealed class EndingScreen
         uploads.RemoveAll(earlier => earlier.IsReplacedBy(upload));
         uploads.Add(upload);
         image = null;
+        tiles = null;
     }
 }

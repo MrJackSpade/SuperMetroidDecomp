@@ -5,6 +5,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
@@ -39,6 +41,20 @@ internal static class ScreenTileSheetComposer
                 BgBitDepth.FourBpp, FlightColours(sources.Intro.CeresFlight)),
             SpriteSheetId.ZebesRevealTiles => Compose(sources.Intro.CeresDestruction.ZebesCharacters.Transfer.Span[..CeresDestructionRomData.Vram.Mode7CharacterBytes],
                 BgBitDepth.FourBpp, FlightColours(sources.Intro.CeresFlight)),
+            SpriteSheetId.EndingCreditsFontTiles => Compose(maps.EndingFont.Transfer.Span[..EndingCreditsRomData.Rendering.FontCharacterBytes],
+                BgBitDepth.FourBpp, EndingColours(sources, EndingPaletteId.Credits)),
+            SpriteSheetId.EndingTextFontTiles => Compose(maps.EndingFont.Transfer.Span[..EndingCreditsRomData.Rendering.FontCharacterBytes],
+                BgBitDepth.FourBpp, EndingColours(sources, EndingPaletteId.PostCredits)),
+            SpriteSheetId.EndingSubtitleTiles => Compose(maps.EndingFont.Transfer.Span.Slice(EndingPostShotDefinitions.SubtitleFontOffset,
+                EndingPostShotUploadDefinitions.SubtitleLength), BgBitDepth.FourBpp, EndingColours(sources, EndingPaletteId.PostCredits)),
+            SpriteSheetId.EndingLogoTiles => Compose(sources.EndingObjects.PostShotLogoTiles.Transfer.Span, BgBitDepth.FourBpp,
+                EndingColours(sources, EndingPaletteId.PostCredits)),
+            SpriteSheetId.EndingWaitingTiles => Compose(sources.EndingObjects.WaitingSamus.Transfer.Span[..EndingCreditsRomData.Rendering.WaitingCharacterBytes],
+                BgBitDepth.FourBpp, EndingColours(sources, EndingPaletteId.PostCredits)),
+            SpriteSheetId.EndingWavySamusTiles => Compose(sources.EndingObjects.PostCreditsFragmentA.Transfer.Span[..EndingCreditsRomData.Rendering.PostCreditsFragmentABytes],
+                BgBitDepth.TwoBpp, EndingColours(sources, EndingPaletteId.PostCredits)),
+            SpriteSheetId.EndingExplosionTiles => Compose(sources.EndingObjects.Explosion.Transfer.Span[..EndingCreditsRomData.Rendering.ExplosionObjectBytes],
+                BgBitDepth.FourBpp, EndingColours(sources, EndingPaletteId.Explosion)),
             SpriteSheetId.MenuForegroundTiles => Compose(maps.WorldArtwork.ForegroundCharacters(), BgBitDepth.FourBpp, maps.Palettes.FileSelect),
             SpriteSheetId.MenuMapTiles => Compose(maps.Tiles.Characters, BgBitDepth.FourBpp, maps.Palettes.FileSelect),
             SpriteSheetId.PauseMapTiles => Compose(maps.Tiles.Characters, BgBitDepth.FourBpp, maps.Palettes.Pause),
@@ -98,6 +114,14 @@ internal static class ScreenTileSheetComposer
     {
         var colours = new ScreenPalette();
         intro.Palette.LoadTo(colours);
+        return colours.Colors;
+    }
+
+    /// <summary>The ending's palette <paramref name="palette"/>, whose colours its scenes load where they lie.</summary>
+    private static ReadOnlySpan<Bgr555> EndingColours(ScreenTileSources sources, EndingPaletteId palette)
+    {
+        var colours = new ScreenPalette();
+        sources.EndingPalettes[palette].LoadTo(colours, 0, ScreenPalette.ColorCount, 0);
         return colours.Colors;
     }
 

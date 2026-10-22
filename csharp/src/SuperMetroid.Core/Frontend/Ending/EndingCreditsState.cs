@@ -472,6 +472,13 @@ internal sealed class EndingCreditsState : IFrontendScreen
     internal bool UsesExplosionFinaleDisplay => (EscapeScenes.ExplosionFinaleDisplay || EscapeScenes.ExplosionBurstDisplay) && !EndingCreditsPresentation.ExplosionWhiteout(this)
         && Stage.Phase < EndingCreditsPhase.PlanetEscapeFast;
 
+    /// <summary>
+    /// What a background reading <paramref name="depth"/> characters from <paramref name="characterBase"/> shows in the scenes
+    /// <paramref name="palette"/> colours: its characters' pre-coloured tiles (#1392).
+    /// </summary>
+    internal ScreenLayerPictures BackgroundTiles(EndingPaletteId palette, int characterBase, BgBitDepth depth) =>
+        screen.Tiles(InstalledArtwork.Sheets, palette).Pictures(characterBase, depth);
+
     /// <summary>Captures the finale BG priority planes and one winning subscreen color-add layer.</summary>
     internal LayeredRenderSnapshot CaptureExplosionFinale()
     {
@@ -487,16 +494,20 @@ internal sealed class EndingCreditsState : IFrontendScreen
             Plane(EndingExplosionDisplayDefinitions.FinaleMainMap, BgTilePriority.High),
             new BgSubscreenAddRenderLayer(EndingExplosionDisplayDefinitions.FinaleSubMap,
                 EndingExplosionDisplayDefinitions.Characters, FourBpp: true, IncludeObjects: true,
-                VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
+                VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow, Pictures: ExplosionTiles()),
         ];
         return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers,
             EndingCreditsPresentation.ObjectSelection(EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), checked((byte)Stage.Brightness));
 
-        static Bg4BppRenderLayer Plane(ushort map, BgTilePriority priority) => new(map,
+        Bg4BppRenderLayer Plane(ushort map, BgTilePriority priority) => new(map,
             EndingExplosionDisplayDefinitions.Characters,
             new Position16<BgPlanePixels>(0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
-            new Extent16<TilemapCells>(32, 32), priority == BgTilePriority.High);
+            new Extent16<TilemapCells>(32, 32), priority == BgTilePriority.High, ExplosionTiles());
     }
+
+    /// <summary>What the explosion's backgrounds show: the explosion characters' pre-coloured tiles (#1392).</summary>
+    private ScreenLayerPictures ExplosionTiles() =>
+        BackgroundTiles(EndingPaletteId.Explosion, EndingExplosionDisplayDefinitions.Characters, BgBitDepth.FourBpp);
 
     /// <summary>Captures the burst's BG1/OBJ main screen and BG2 subscreen color math.</summary>
     private LayeredRenderSnapshot CaptureExplosionBurst()
@@ -504,7 +515,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
         // F2B7: BG1 and OBJ on main, BG2 on sub, math only for BG1 and
         // eligible OBJ palettes. Keep the backdrop and OBJ palettes 0–3 unmodified.
         var main = new Bg4BppRenderLayer(EndingExplosionDisplayDefinitions.InitialMap,
-            EndingExplosionDisplayDefinitions.Characters, new Position16<BgPlanePixels>(0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow), new Extent16<TilemapCells>(32, 32), null);
+            EndingExplosionDisplayDefinitions.Characters, new Position16<BgPlanePixels>(0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow), new Extent16<TilemapCells>(32, 32), null,
+            ExplosionTiles());
         RenderLayer[] layers =
         [
             new ObjPriorityRenderLayer(0), new ObjPriorityRenderLayer(1),
@@ -512,7 +524,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
             main with { Priority = true }, new ObjPriorityRenderLayer(3),
             new BgSubscreenAddRenderLayer(EndingExplosionDisplayDefinitions.BurstSubMap,
                 EndingExplosionDisplayDefinitions.Characters, main, FourBpp: true, MainObjects: true,
-                VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
+                VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow, Pictures: ExplosionTiles()),
         ];
         return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers,
             EndingCreditsPresentation.ObjectSelection(EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), checked((byte)Stage.Brightness));

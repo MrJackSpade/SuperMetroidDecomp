@@ -6,6 +6,9 @@ namespace SuperMetroid.Core.Frontend.Artwork;
 /// <summary>Reads the installed screen tile sheets (#1392).</summary>
 public static class ScreenTileSheets
 {
+    /// <summary>Whether installed sheet <paramref name="sheet"/> holds a screen's background characters rather than sprite frames.</summary>
+    public static bool Holds(SpriteSheetId sheet) => ScreenTileSheetDefinitions.Depths.ContainsKey(sheet);
+
     /// <summary>The pre-coloured characters installed sheet <paramref name="sheet"/> holds.</summary>
     /// <exception cref="KeyNotFoundException">The sheet holds no screen tiles.</exception>
     /// <exception cref="InvalidDataException">The sheet is not whole blocks of tiles coloured for its depth.</exception>

@@ -1,6 +1,7 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.Intro;
@@ -95,6 +96,33 @@ internal static class ScreenTilePicturesVerification
         Console.WriteLine($"Screen tile pictures: {sampled.Count} cinematic phases draw all {layers} of their background layers from their tiles, as their characters do.");
     }
 
+    /// <summary>
+    /// Each phase of the ending that shows a Mode 1 background (the explosion, the credits roll, the waiting and wavy
+    /// backdrops, the post-credits text and the logo) draws every background from its tiles, exactly as its characters
+    /// draw them, for the suitless and suited endings.
+    /// </summary>
+    internal static void VerifyEndingScreenTilePictures()
+    {
+        var sampled = new HashSet<string>();
+        int layers = 0;
+        foreach (ushort hours in new ushort[] { 2, 10 })
+        {
+            // The ending waits on its music queue, which the game drains after every dispatch.
+            var audio = new CartridgeAudioState();
+            EndingCreditsState ending = CreateRetailEndingFixture(audio, hours, 59);
+            while (ending.Stage.Phase != EndingCreditsPhase.SeeYouNextMission)
+            {
+                LayeredRenderSnapshot scene = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
+                if (scene.Layers.ToArray().Any(layer => layer is Bg4BppRenderLayer or Bg2BppViewportRenderLayer or BgSubscreenAddRenderLayer)
+                    && sampled.Add($"{hours} hours, {ending.Stage.Phase}"))
+                    layers += AssertDrawnFromTiles(scene, $"ending at {hours} hours, {ending.Stage.Phase}");
+                ending.Step();
+                audio.AdvanceFrame(default);
+            }
+        }
+        Console.WriteLine($"Screen tile pictures: {sampled.Count} ending phases draw all {layers} of their background layers from their tiles, as their characters do.");
+    }
+
     /// <summary>The pause screen's map and equipment pages each draw every background from their tiles, exactly as their characters draw them.</summary>
     internal static void VerifyPauseScreenTilePictures()
     {
@@ -162,6 +190,7 @@ internal static class ScreenTilePicturesVerification
         Suite(nameof(VerifyMenuScreenTilePictures), VerifyMenuScreenTilePictures);
         Suite(nameof(VerifyPauseScreenTilePictures), VerifyPauseScreenTilePictures);
         Suite(nameof(VerifyCinematicScreenTilePictures), VerifyCinematicScreenTilePictures);
+        Suite(nameof(VerifyEndingScreenTilePictures), VerifyEndingScreenTilePictures);
         return 0;
     }
 }

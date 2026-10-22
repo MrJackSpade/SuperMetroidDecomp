@@ -93,7 +93,8 @@ internal static class CinematicSheetFixtures
                 sheets[SpriteSheetId.ZebesRevealSprites] = Load(IntroSpriteSheetComposer.CeresDestructionSources(key,
                     [CeresDestructionUpload.CeresScene, CeresDestructionUpload.ZebesReveal]), $"zebes-reveal-fixture-{RuntimeHelpers.GetHashCode(key):X8}");
                 // The cinematics' background tiles are pre-coloured from the intro's characters and palettes (#1392).
-                var tileSources = new ScreenTileSources(() => InstalledFixtures.Maps, () => key);
+                var tileSources = new ScreenTileSources(() => InstalledFixtures.Maps, () => key,
+                    RepositoryInstallation.Installation.LoadEndingObjectArt, RepositoryInstallation.Installation.LoadEndingPalettes);
                 foreach (SpriteSheetId id in new[] { SpriteSheetId.IntroSceneTiles, SpriteSheetId.IntroFontTiles, SpriteSheetId.CeresFlightObjectTiles,
                              SpriteSheetId.CeresIntroObjectTiles, SpriteSheetId.ZebesRevealTiles })
                     sheets[id] = LoadTiles(id, ScreenTileSheetComposer.Compose(id, tileSources), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");

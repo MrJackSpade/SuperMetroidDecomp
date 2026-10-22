@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -18,7 +19,8 @@ internal static class EndingCreditsPresentation
         {
             if (ending.InstalledArtwork.CurrentEndingLogo.CrossfadeStarted)
                 layers.Add(new Bg4BppRenderLayer(EndingLogoDefinitions.Tilemap, EndingLogoDefinitions.Characters,
-                    new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null));
+                    new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null,
+                    ending.BackgroundTiles(EndingPaletteId.PostCredits, EndingLogoDefinitions.Characters, BgBitDepth.FourBpp)));
             layers.Add(new ObjRenderLayer(ending.InstalledArtwork.CurrentEndingLogo.CrossfadeStarted));
             layers.Add(PostCreditsLayer(ending));
             // The logo assembles over the shooting scene's page.
@@ -40,7 +42,8 @@ internal static class EndingCreditsPresentation
         if (ending.Stage.Phase == EndingCreditsPhase.Credits)
         {
             layers.Add(new Bg4BppRenderLayer(EndingCreditsRomData.Rendering.CreditsTilemapWord,
-                EndingCreditsRomData.Rendering.CreditsCharacterWord, ending.Credits.ScrollPosition, new Extent16<TilemapCells>(32, 32), null));
+                EndingCreditsRomData.Rendering.CreditsCharacterWord, ending.Credits.ScrollPosition, new Extent16<TilemapCells>(32, 32), null,
+                ending.BackgroundTiles(EndingPaletteId.Credits, EndingCreditsRomData.Rendering.CreditsCharacterWord, BgBitDepth.FourBpp)));
             // Credits intentionally do not run the sprite draw routine.
             memory = new PpuMemorySnapshot(ending.Image(), ending.screen.Palette.Colors, []);
         }
@@ -56,7 +59,8 @@ internal static class EndingCreditsPresentation
                 if (ending.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop)
                     layers.Add(new BgSubscreenAddRenderLayer(EndingWavySamusDefinitions.TilemapWord,
                         EndingWavySamusDefinitions.CharacterWord,
-                        PostCreditsLayer(ending))
+                        PostCreditsLayer(ending),
+                        Pictures: ending.BackgroundTiles(EndingPaletteId.PostCredits, EndingWavySamusDefinitions.CharacterWord, BgBitDepth.TwoBpp))
                         .WithScrolls(EndingWavySamusDefinitions.ScrollsAtAge(
                             EndingCreditsRomData.Timing.WaitingBackdropFrames - ending.Stage.PhaseTimer)));
             }
@@ -158,9 +162,11 @@ internal static class EndingCreditsPresentation
         var size = new Extent16<TilemapCells>(32, checked((ushort)ending.CreditsRoll.PostCreditsMapHeight));
         return UsesWaitingBackground(ending)
             ? new(EndingCreditsRomData.Rendering.WaitingTilemapWord, EndingCreditsRomData.Rendering.WaitingCharacterWord,
-                ending.Stage.PostCreditsScroll, size, null)
+                ending.Stage.PostCreditsScroll, size, null,
+                ending.BackgroundTiles(EndingPaletteId.PostCredits, EndingCreditsRomData.Rendering.WaitingCharacterWord, BgBitDepth.FourBpp))
             : new(EndingVram.TextTilemapWord(ending.CreditsRoll.PostCreditsTextTilemap), EndingCreditsRomData.Rendering.PostCreditsCharacterWord,
-                ending.Stage.PostCreditsScroll, size, null);
+                ending.Stage.PostCreditsScroll, size, null,
+                ending.BackgroundTiles(EndingPaletteId.PostCredits, EndingCreditsRomData.Rendering.PostCreditsCharacterWord, BgBitDepth.FourBpp));
     }
 
     /// <summary>The scene's memories with this frame's sprite entries over the OBJ page of <paramref name="objectSheet"/>.</summary>

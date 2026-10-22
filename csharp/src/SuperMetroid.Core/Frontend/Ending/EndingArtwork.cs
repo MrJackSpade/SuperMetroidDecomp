@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 ﻿using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
@@ -30,16 +31,20 @@ internal sealed class EndingArtwork
     /// <summary>Whether the reward landing has started queuing its icon chunks on the actor's native instruction boundary.</summary>
     private bool rewardIconUploading;
 
-    /// <summary>The installed sprite sheets the ending's actors draw from (#1392).</summary>
-    [NonSerialized]
-    private InstalledSpriteSheets? spriteSheets;
-
     /// <summary>Rebinds the installed sprite sheets after a catalog reload or state restoration.</summary>
-    internal void BindSpriteSheets(InstalledSpriteSheets? value) => spriteSheets = value;
+    internal void BindSpriteSheets(InstalledSpriteSheets? value) => Sheets = value;
 
     /// <summary>The installed sheet <paramref name="sheet"/>.</summary>
-    internal SpriteSheet SpriteSheet(SpriteSheetId sheet) => (spriteSheets ?? throw new InvalidOperationException(
-        "Ending sprites require installed sprite sheets.")).Get(sheet);
+    internal SpriteSheet SpriteSheet(SpriteSheetId sheet) => Sheets.Get(sheet);
+
+    /// <summary>The installed sprite sheets the ending's actors and backgrounds draw from (#1392).</summary>
+    [field: NonSerialized]
+    [AllowNull]
+    internal InstalledSpriteSheets Sheets
+    {
+        get => field ?? throw new InvalidOperationException("Ending sprites require installed sprite sheets.");
+        private set;
+    }
 
     /// <summary>Rebinds host-owned ending text after catalog reload or graph restoration.</summary>
     public void BindEndingText(EndingTextPresentation? value)

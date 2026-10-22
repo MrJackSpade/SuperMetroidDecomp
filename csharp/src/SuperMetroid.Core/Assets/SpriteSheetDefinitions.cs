@@ -72,6 +72,13 @@ public static class SpriteSheetDefinitions
         SpriteSheetId.CeresFlightObjectTiles => "ceres-flight-object-tiles",
         SpriteSheetId.CeresIntroObjectTiles => "ceres-intro-object-tiles",
         SpriteSheetId.ZebesRevealTiles => "zebes-reveal-tiles",
+        SpriteSheetId.EndingCreditsFontTiles => "ending-credits-font-tiles",
+        SpriteSheetId.EndingTextFontTiles => "ending-text-font-tiles",
+        SpriteSheetId.EndingSubtitleTiles => "ending-subtitle-tiles",
+        SpriteSheetId.EndingLogoTiles => "ending-logo-tiles",
+        SpriteSheetId.EndingWaitingTiles => "ending-waiting-tiles",
+        SpriteSheetId.EndingWavySamusTiles => "ending-wavy-samus-tiles",
+        SpriteSheetId.EndingExplosionTiles => "ending-explosion-tiles",
         _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
     };
 }

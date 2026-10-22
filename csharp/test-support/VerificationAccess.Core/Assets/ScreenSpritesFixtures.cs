@@ -61,16 +61,22 @@ internal static class ScreenSpritesFixtures
     }
 
     /// <summary>
-    /// Where the spritemap loader places one part of an image drawn at <paramref name="origin"/>: a part it would hide
-    /// below the screen is parked where the loader parks it, so the OAM matches the cartridge's byte for byte.
+    /// Where the spritemap loader places one part of an image drawn at <paramref name="origin"/>: an origin above the
+    /// screen is the off-screen loader's, any other the on-screen loader's, and a part the loader hides is parked where
+    /// it parks it, so the OAM matches the cartridge's byte for byte.
     /// </summary>
     private static (int X, int Y) Loaded(ScreenSprites sprites, Position16<ScreenPixels> origin, SpriteFramePart part, bool large,
         SnesObjAttributeWord attributes)
     {
         ScreenSprites loader = new(sprites.Artwork, sprites.Sizes);
         loader.BeginFrame();
-        loader.AddPart(SnesSpritemapXWord.Create(part.Offset.X, large), SnesSpritemapYByte.Create(part.Offset.Y), attributes,
-            new Position16<OamPixels>(unchecked((ushort)(origin.X & 0x1ff)), unchecked((ushort)(origin.Y & 0xff))));
+        var oamOrigin = new Position16<OamPixels>(unchecked((ushort)(origin.X & 0x1ff)), unchecked((ushort)(origin.Y & 0xff)));
+        SnesSpritemapXWord x = SnesSpritemapXWord.Create(part.Offset.X, large);
+        SnesSpritemapYByte y = SnesSpritemapYByte.Create(part.Offset.Y);
+        if ((short)origin.Y < 0)
+            loader.AddOffScreenPart(x, y, attributes, oamOrigin);
+        else
+            loader.AddPart(x, y, attributes, oamOrigin);
         loader.FinishFrame();
         Position16<ScreenPixels> placed = loader.Draws[0].Origin;
         return (placed.X & 0x1ff, placed.Y & 0xff);

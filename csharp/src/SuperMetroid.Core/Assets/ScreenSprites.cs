@@ -108,15 +108,20 @@ public sealed class ScreenSprites
     /// <param name="frame">The frame placed.</param>
     /// <param name="origin">Where the frame's origin lands.</param>
     /// <param name="paletteOverride">The row the draw places the frame's palette-inheriting parts in, or null for the row they were coloured in.</param>
+    /// <param name="side">
+    /// Which spritemap loader the cartridge draws the frame with: on screen, the origin's low Y byte lies on or below the
+    /// screen; off screen, it lies above it.
+    /// </param>
     /// <exception cref="InvalidOperationException">The frame's parts do not fit in the objects left.</exception>
-    public void AddImage(SpriteSheetFrame frame, Position16<OamPixels> origin, int? paletteOverride = null)
+    public void AddImage(SpriteSheetFrame frame, Position16<OamPixels> origin, int? paletteOverride = null,
+        SpriteOrigin side = SpriteOrigin.OnScreen)
     {
         Ensure.NotNull(frame);
         if (frame.Objects == 0)
             return;
         if (next + frame.Objects > Capacity)
             throw new InvalidOperationException($"A {frame.Objects}-object frame at object {next} exceeds the screen's {Capacity} objects.");
-        placed[next] = new ScreenObject(default, IsLarge: false, origin, frame, frame.Objects, paletteOverride);
+        placed[next] = new ScreenObject(default, IsLarge: false, origin, frame, frame.Objects, paletteOverride, side);
         next += frame.Objects;
     }
 
@@ -169,8 +174,11 @@ public sealed class ScreenSprites
         int screenY = y >= SnesPpuLayout.ScreenHeightPixels ? y - ByteRange : y;
         if (placedObject.Image is { } image)
         {
+            // The loaders read only the origin's low Y byte: the on-screen loader places it on or below the screen, so a
+            // frame just below the bottom still shows the parts that reach up into it, and the off-screen loader above it.
+            int imageY = (byte)y - (placedObject.Side == SpriteOrigin.OffScreen ? ByteRange : 0);
             return new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.FrontendObjects, index), image,
-                new Position16<ScreenPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)), SpriteMirror.None,
+                new Position16<ScreenPixels>(unchecked((ushort)screenX), unchecked((ushort)imageY)), SpriteMirror.None,
                 placedObject.PaletteOverride);
         }
         Extent16<ScreenPixels> size = placedObject.IsLarge ? Sizes.Large : Sizes.Small;
@@ -184,8 +192,8 @@ public sealed class ScreenSprites
     /// <summary>
     /// One placed object: its attributes, size, and position (nine-bit X as stored in sixteen bits, eight-bit Y); or a
     /// whole frame placed at that position, standing for the objects of its parts, with the row its palette-inheriting
-    /// parts take.
+    /// parts take and the loader that reads its origin.
     /// </summary>
     private readonly record struct ScreenObject(SnesObjAttributeWord Attributes, bool IsLarge, Position16<OamPixels> Position,
-        SpriteSheetFrame? Image = null, int Objects = 1, int? PaletteOverride = null);
+        SpriteSheetFrame? Image = null, int Objects = 1, int? PaletteOverride = null, SpriteOrigin Side = SpriteOrigin.OnScreen);
 }

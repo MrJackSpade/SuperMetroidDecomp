@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Where a spritemap's origin lies, which decides how a part wraps vertically.</summary>
-internal enum SpriteOrigin
+public enum SpriteOrigin
 {
     /// <summary>The origin is on screen ($81:8A5F wrap).</summary>
     OnScreen,

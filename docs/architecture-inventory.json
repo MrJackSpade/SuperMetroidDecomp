@@ -120300,6 +120300,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Bosses.Crocomire.CrocomireSkeletonPicturesVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/Crocomire/CrocomireSkeletonPicturesVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Bosses.Crocomire.CrocomireSpikeMotionDefinitionsVerification",
       "kind": "static class",
       "scope": "test",

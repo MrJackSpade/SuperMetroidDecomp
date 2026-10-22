@@ -259,12 +259,12 @@ internal sealed class CrocomireSkeleton
         int entry = death.SkeletonTileChunk;
         var artwork = _bossArtwork.Artwork?.CrocomireSkeleton ?? throw new InvalidDataException(
             "Installed Crocomire artwork is missing its skeleton characters.");
-        if (!CrocomireSkeletonTransferDefinitions.TryGet(entry, out
-                CrocomireSkeletonTransferDefinition frame))
+        if (!CrocomireSkeletonTransferDefinitions.TryGet(entry, out _))
             return;
         // Only character pixels are editable; the transfer order and OBJ position are not.
-        _presentation.ObjCharacters.RecordUpload(BossVram.CrocomireSkeletonTilesDma(frame.DestinationOffset),
-            artwork.Chunk(entry).Length, new CrocomireSkeletonChunkCharacters(entry));
+        if (artwork.Chunk(entry).Length != CrocomireSkeletonTransferDefinitions.ChunkByteCount)
+            throw new InvalidDataException($"Installed Crocomire skeleton chunk {entry} is not one native upload long.");
+        _presentation.ObjCharacters.Record(CrocomireSkeletonTransferDefinitions.Uploads[entry]);
         death.SkeletonTileChunk++;
     }
 

@@ -24,7 +24,6 @@ public static class EnemySheetDefinitions
     public static IReadOnlySet<EnemyDefinitionId> DrawnFromCharacters { get; } = new HashSet<EnemyDefinitionId>
     {
         EnemyDefinitionId.CorpseSidehopper, EnemyDefinitionId.CorpseTorizo,
-        EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue,
         EnemyDefinitionId.MotherBrainBody, EnemyDefinitionId.MotherBrainHead, EnemyDefinitionId.MotherBrainTubes,
         EnemyDefinitionId.Ridley, EnemyDefinitionId.RidleyCeres, EnemyDefinitionId.RidleyExplosion,
         EnemyDefinitionId.BombTorizo, EnemyDefinitionId.GoldenTorizo,

@@ -752,7 +752,7 @@
     {
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
-      "files": 2304,
+      "files": 2305,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -10331,6 +10331,9 @@
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Hardware"
       ]
     },
     {
@@ -79960,6 +79963,7 @@
         "csharp/src/SuperMetroid.Core/World",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/CpuBusTestDoubles",
+        "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
       ]
     },
@@ -80142,6 +80146,23 @@
         "csharp/src/SuperMetroid.Core/Hardware",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/VerificationAccess.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Verification/Bosses/Crocomire/CrocomireSkeletonPicturesVerification.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Bosses.Crocomire",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Bosses",
+        "csharp/src/SuperMetroid.Core/Hud",
+        "csharp/src/SuperMetroid.Core/Rooms",
+        "csharp/src/SuperMetroid.Core/Runtime",
+        "csharp/src/SuperMetroid.Core/World",
+        "csharp/src/SuperMetroid.Tooling"
       ]
     },
     {
@@ -87388,10 +87409,13 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Assets",
+        "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Hardware",
         "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/src/SuperMetroid.Core/Runtime",
-        "csharp/src/SuperMetroid.Core/Spatial"
+        "csharp/src/SuperMetroid.Core/Spatial",
+        "csharp/src/SuperMetroid.Core/World",
+        "csharp/test-support/VerificationAccess.Core"
       ]
     },
     {

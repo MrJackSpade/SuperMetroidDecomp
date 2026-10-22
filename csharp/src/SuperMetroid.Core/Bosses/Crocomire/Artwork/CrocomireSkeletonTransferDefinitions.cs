@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses.Artwork;
+
 namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 /// <summary>
@@ -35,6 +37,11 @@ internal static class CrocomireSkeletonTransferDefinitions
 
     /// <summary>Calculated six-entry source and VRAM placement sequence in native upload order.</summary>
     internal static CrocomireSkeletonTransferSequence Frames => new(FrameCount);
+
+    /// <summary>The six skeleton uploads over the OBJ characters, in upload order (#1392).</summary>
+    internal static IReadOnlyList<RuntimeCharacterUpload> Uploads { get; } = [.. Enumerable.Range(0, FrameCount).Select(index =>
+        RuntimeCharacterUpload.To(BossVram.CrocomireSkeletonTilesDma(Frame(index).DestinationOffset), ChunkByteCount,
+            new CrocomireSkeletonChunkCharacters(index)))];
 
     /// <summary>Computes a contiguous bank-$AD source page and its discontinuous OBJ atlas destination for one upload.</summary>
     internal static CrocomireSkeletonTransferDefinition Frame(int index)

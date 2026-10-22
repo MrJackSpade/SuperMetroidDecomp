@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -12,12 +13,13 @@ namespace SuperMetroid.Core.World.Artwork;
 internal static class RuntimeCharacterUploadDefinitions
 {
     /// <summary>
-    /// Each enemy's encounter's uploads: Draygon's opening uploads the Evirs she releases, and the gunship's takeoff
-    /// uploads its five liftoff pictures.
+    /// Each enemy's encounter's uploads: Draygon's opening uploads the Evirs she releases, the gunship's takeoff its five
+    /// liftoff pictures and Crocomire's death his skeleton.
     /// </summary>
     internal static RuntimeCharacterUploadCatalog Catalog { get; } = new(new Dictionary<EnemyDefinitionId, IReadOnlyList<RuntimeCharacterUpload>>
     {
         [EnemyDefinitionId.DraygonBody] = [DraygonIntroPresentationDefinitions.EvirUpload],
         [EnemyDefinitionId.ShipTop] = GunshipLiftoffTransferDefinitions.Uploads,
+        [EnemyDefinitionId.Crocomire] = CrocomireSkeletonTransferDefinitions.Uploads,
     });
 }

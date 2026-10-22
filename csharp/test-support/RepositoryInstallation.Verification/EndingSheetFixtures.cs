@@ -52,6 +52,17 @@ internal static class EndingSheetFixtures
         });
     }
 
+    /// <summary>The installed sheets with the ending Mode 7 sheets edited <paramref name="mode7"/> art composes (#1392).</summary>
+    internal static InstalledSpriteSheets WithEndingMode7(EndingMode7ArtworkCatalog mode7)
+    {
+        ArgumentNullException.ThrowIfNull(mode7);
+        var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
+        foreach ((SpriteSheetId sheet, ComposedSpriteSheet tiles) in ScreenTileSheetComposer.ComposeEndingMode7(mode7, palettes.Value))
+            sheets[sheet] = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(tiles.Manifest), writable: false),
+                $"{SpriteSheetDefinitions.FileName(sheet)}-fixture", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.Priorities, tiles.PartRows);
+        return new InstalledSpriteSheets(sheets);
+    }
+
     /// <summary>
     /// Draws <paramref name="family"/> from the sheet <paramref name="ending"/> draws <paramref name="objectSheet"/>'s page
     /// from now, as its own frames draw it.

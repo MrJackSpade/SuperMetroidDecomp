@@ -10,6 +10,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 
@@ -181,6 +182,8 @@ internal static class EndingMode7ArtworkVerification
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             EndingMode7ArtworkCatalog editedCharacters = installation.LoadEndingMode7Art();
             state.Stage.BindMode7Artwork(editedCharacters);
+            // The ending draws its Mode 7 characters from the sheets the edited art composes (#1392).
+            state.InstalledArtwork.BindSpriteSheets(EndingSheetFixtures.WithEndingMode7(editedCharacters));
             LayeredRenderSnapshot characterSnapshot = EndingCreditsPresentation.CaptureRenderSnapshot(state);
             byte[] characterVram = characterSnapshot.Memory.Vram.ToArray();
             AssertTrue(!baseline.SequenceEqual(characterVram) &&

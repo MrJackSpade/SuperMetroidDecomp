@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -144,6 +145,8 @@ internal static class EndingRewardIconArtworkVerification
                     $"{name} override fixture remains in the native landing upload");
                 LayeredRenderSnapshot before = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                 scene.Stage.BindMode7Artwork(edited);
+                // The ending draws its Mode 7 characters from the sheets the edited art composes (#1392).
+                scene.InstalledArtwork.BindSpriteSheets(EndingSheetFixtures.WithEndingMode7(edited));
                 LayeredRenderSnapshot rebound = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                 AssertTrue(scene.Stage.Phase == EndingCreditsPhase.PostCreditsJump &&
                         before.Memory.Cgram.SequenceEqual(rebound.Memory.Cgram) &&

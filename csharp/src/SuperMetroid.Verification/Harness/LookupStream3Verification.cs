@@ -343,7 +343,7 @@ internal static class LookupStream3Verification
             string anchorKey = FileSelectPresentationDefinitions.BorderName(border);
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
-            presentation.DrawBorder(actualOam, border);
+            presentation.DrawBorder(actualOam, MenuSheetFixtures.FileSelect(presentation), border);
             var anchor = original.BorderAnchors[anchorKey];
             MenuSpriteCompiler.Compile(original.Sprites[name], name).DrawOnScreen(expectedOam,
                 new(anchor.X, anchor.Y), (ushort)(original.ObjectPalette << 9));
@@ -3158,7 +3158,7 @@ internal static class LookupStream3Verification
                 AssertEqual(expectedParts.Part(part), selected.Part(part), "exact selected helmet part");
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
-            actual.DrawHelmet(actualOam, frame, 0);
+            actual.DrawHelmet(actualOam, MenuSheetFixtures.FileSelect(actual), frame, 0);
             var anchor = expected.HelmetAnchors[0];
             expectedParts.DrawOnScreen(expectedOam, new(anchor.X, anchor.Y), (ushort)(expected.ObjectPalette << 9));
             actualOam.FinishFrame(); expectedOam.FinalizeFrame();

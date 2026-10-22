@@ -38,6 +38,7 @@ internal sealed class SpriteSheetSourceCatalog
     {
         SpriteSheetId.EscapeTimer => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The escape timer composes from the cartridge."),
         SpriteSheetId.GameOver => GameOverSheetComposer.Sources(maps.Value),
+        SpriteSheetId.FileSelect => FileSelectSheetComposer.Sources(maps.Value),
         _ => SamusSheetSources.For(samus.Value, sheet),
     };
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Frontend.FileSelect.FileMapSnapshotTestsVerification;
 using static SuperMetroid.Verification.Frontend.FrontendCompletionVerification;
 using static SuperMetroid.Verification.Hud.MessageSnapshotTestsVerification;
@@ -26,7 +27,7 @@ internal static class FileMenuSnapshotTestsVerification
         // Use private in-memory saves. Copy/clear validation must never edit player saves.
         foreach (bool clear in new[] { false, true })
         {
-            var menu = new FileSelectMenuState(saveRam, mapPresentation: RetailPresentationFixture());
+            var menu = new FileSelectMenuState(saveRam, mapPresentation: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()));
             void Tick(SnesButton input = SnesButton.None) => Check(menu.Render, menu.CaptureRenderSnapshot, () => menu.Step(input));
             void Press(SnesButton input) { Tick(); Tick(input); }
             void Until(FileSelectPhase phase)

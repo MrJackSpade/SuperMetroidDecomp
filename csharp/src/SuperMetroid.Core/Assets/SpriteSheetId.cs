@@ -19,6 +19,8 @@ public enum SpriteSheetId
     SamusDeath,
     /// <summary>The game-over screen's Baby, egg and answer cursor.</summary>
     GameOver,
+    /// <summary>File select's page borders, cursor, helmets and file-copy arrows.</summary>
+    FileSelect,
     /// <summary>Samus's projectiles, bombs, charge flare and trails as the intro's flashbacks draw them.</summary>
     IntroProjectiles,
     /// <summary>Samus's projectiles, bombs, charge flare and trails with the power beam equipped.</summary>

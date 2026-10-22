@@ -30,7 +30,11 @@ public sealed class FileSelectMenuState : IFrontendScreen
         Ensure.NotNull(artwork);
         if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
             BindMapPresentation(artwork.MapPresentation);
+        spriteSheets = artwork.SpriteSheets ?? throw new InvalidOperationException("File select requires the installed sprite sheets.");
     }
+
+    /// <summary>The installed sprite sheets the borders, cursor, helmets and copy arrows draw from; artwork, never saved.</summary>
+    [NonSerialized] private InstalledSpriteSheets spriteSheets;
 
     /// <summary>Receives menu sound requests when audio is available.</summary>
     private readonly CartridgeAudioState? audio;
@@ -61,9 +65,10 @@ public sealed class FileSelectMenuState : IFrontendScreen
 
     /// <summary>Performs menu indices zero through two, including every native ROM transfer.</summary>
     public FileSelectMenuState(SaveSlotStore saves, CartridgeAudioState? audio = null,
-        AreaMapPresentationCatalog? mapPresentation = null)
+        AreaMapPresentationCatalog? mapPresentation = null, InstalledSpriteSheets? spriteSheets = null)
     {
         this.audio = audio;
+        this.spriteSheets = spriteSheets ?? throw new InvalidOperationException("File select requires the installed sprite sheets.");
         this.mapPresentation = mapPresentation;
         if (mapPresentation is null)
             throw new InvalidOperationException("File select requires installed menu presentation assets.");
@@ -226,9 +231,10 @@ public sealed class FileSelectMenuState : IFrontendScreen
             : IsClearPhase
                 ? FileSelectBorder.Clear
                 : FileSelectBorder.Main;
-        presentation.DrawBorder(sprites, borderName);
+        SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.FileSelect);
+        presentation.DrawBorder(sprites, sheet, borderName);
         if (ShouldDrawSelectionMissile)
-            presentation.DrawCursor(sprites, missile.Frame, GetSelectionMissilePosition(presentation));
+            presentation.DrawCursor(sprites, sheet, missile.Frame, GetSelectionMissilePosition(presentation));
         for (int slot = 0; mainScreen && slot < 3; slot++)
         {
             // Menu index 32 fades with the completed (or Start-shortened) helmet turn
@@ -238,13 +244,13 @@ public sealed class FileSelectMenuState : IFrontendScreen
                     FileSelectPhase.TurnSelectedHelmet or FileSelectPhase.FadeOutToOptions
                 ? HelmetAnimationFrame
                 : 0;
-            presentation.DrawHelmet(sprites, Math.Min(frame, FileSelectHelmetAnimation.FrameCount - 1), slot);
+            presentation.DrawHelmet(sprites, sheet, Math.Min(frame, FileSelectHelmetAnimation.FrameCount - 1), slot);
         }
         if (Phase == FileSelectPhase.CopyConfirm)
         {
             (int shape, int y) = FileCopyArrowDefinitions.Select(operationSourceSlot, operationDestinationSlot);
-            foreach (CompiledSpritePart part in FileCopyArrowDefinitions.Parts(shape))
-                sprites.AddPart(part.X, part.Y, part.Attributes, new Position16<OamPixels>(FileCopyArrowDefinitions.OriginX, checked((ushort)y)));
+            sprites.AddImage(sheet.Frame(FileCopyArrowDefinitions.FrameName(shape)),
+                new Position16<OamPixels>(FileCopyArrowDefinitions.OriginX, checked((ushort)y)), FileCopyArrowDefinitions.Parts(shape).Length);
         }
         sprites.FinishFrame();
     }

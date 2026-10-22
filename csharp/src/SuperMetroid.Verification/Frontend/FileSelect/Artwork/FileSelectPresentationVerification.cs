@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -39,8 +40,8 @@ internal static class FileSelectPresentationVerification
 
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
-        var native = new FileSelectMenuState(saveRam, nativeAudio, original);
-        var installed = new FileSelectMenuState(saveRam, installedAudio, original);
+        var native = new FileSelectMenuState(saveRam, nativeAudio, original, MenuSheetFixtures.For(original));
+        var installed = new FileSelectMenuState(saveRam, installedAudio, original, MenuSheetFixtures.For(original));
         int comparedFrames = 0;
         Until(FileSelectPhase.Main);
         for (int row = 0; row < 3; row++) Press(SnesButton.Down);
@@ -98,8 +99,8 @@ internal static class FileSelectPresentationVerification
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "file-select override changes selected catalog identity");
 
-        var stockMenu = new FileSelectMenuState(saveRam, mapPresentation: original);
-        var editedMenu = new FileSelectMenuState(saveRam, mapPresentation: edited);
+        var stockMenu = new FileSelectMenuState(saveRam, mapPresentation: original, spriteSheets: MenuSheetFixtures.For(original));
+        var editedMenu = new FileSelectMenuState(saveRam, mapPresentation: edited, spriteSheets: MenuSheetFixtures.For(edited));
         for (int frame = 0; frame < 16; frame++)
         {
             stockMenu.Step(0);

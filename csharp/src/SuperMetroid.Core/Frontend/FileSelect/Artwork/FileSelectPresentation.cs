@@ -142,29 +142,22 @@ public sealed class FileSelectPresentation
             _ => throw new InvalidOperationException($"Undefined {nameof(FileSelectCursorPage)} {page}."),
         }, selected, "cursor");
 
-    /// <summary>Draws the page's border composition at its authored OAM anchor.</summary>
-    internal void DrawBorder(ScreenSprites screenSprites, FileSelectBorder border)
-    {
-        Position16<OamPixels> anchor = borderAnchors[border];
-        borderSprites[border].Draw(
-            screenSprites, anchor,
-            PaletteBits(document.ObjectPalette));
-    }
+    /// <summary>The OBJ palette the borders, cursor and helmets draw in.</summary>
+    internal int ObjectPalette => document.ObjectPalette;
 
-    /// <summary>Draws one missile-cursor frame with the menu object palette.</summary>
-    internal void DrawCursor(ScreenSprites screenSprites, int frame, Position16<OamPixels> anchor) =>
-        cursorSprites[frame].Draw(
-            screenSprites, anchor,
-            PaletteBits(document.ObjectPalette));
+    /// <summary>Draws the page's border frame of the file-select sheet at its authored OAM anchor.</summary>
+    internal void DrawBorder(ScreenSprites screenSprites, SpriteSheet sheet, FileSelectBorder border) =>
+        screenSprites.AddImage(sheet.Frame(FileSelectPresentationDefinitions.BorderSpriteName(border)), borderAnchors[border],
+            borderSprites[border].PartCount);
 
-    /// <summary>Draws a selected-slot helmet frame at that slot's OAM anchor.</summary>
-    internal void DrawHelmet(ScreenSprites screenSprites, int frame, int slot)
-    {
-        Position16<OamPixels> anchor = Point(document.HelmetAnchors, slot, "helmet");
-        helmetSprites[frame].Draw(
-            screenSprites, anchor,
-            PaletteBits(document.ObjectPalette));
-    }
+    /// <summary>Draws one missile-cursor frame of the file-select sheet.</summary>
+    internal void DrawCursor(ScreenSprites screenSprites, SpriteSheet sheet, int frame, Position16<OamPixels> anchor) =>
+        screenSprites.AddImage(sheet.Frame(FileSelectPresentationDefinitions.CursorSpriteName(frame)), anchor, cursorSprites[frame].PartCount);
+
+    /// <summary>Draws a selected-slot helmet frame of the file-select sheet at that slot's OAM anchor.</summary>
+    internal void DrawHelmet(ScreenSprites screenSprites, SpriteSheet sheet, int frame, int slot) =>
+        screenSprites.AddImage(sheet.Frame(FileSelectPresentationDefinitions.HelmetSpriteName(frame)),
+            Point(document.HelmetAnchors, slot, "helmet"), helmetSprites[frame].PartCount);
 
     /// <summary>Reads and validates a complete file-select JSON document, compiling its tilemaps, patches, glyphs, and sprite compositions.</summary>
     /// <param name="source">Readable JSON stream, consumed from its current position to the end and left open.</param>
@@ -403,10 +396,6 @@ public sealed class FileSelectPresentation
     private static Position16<OamPixels> Point(Position16<OamPixels>[] points, int index, string owner) =>
         (uint)index < points.Length ? points[index] :
             throw new ArgumentOutOfRangeException(owner);
-
-    /// <summary>Encodes the chosen OBJ palette into a sprite attribute word.</summary>
-    private static ushort PaletteBits(int index) =>
-        SnesObjAttributeWord.Create(0, index, 0).PaletteBits;
 
     /// <summary>The compiled foreground menu pages and the common background page.</summary>
     /// <param name="Foreground">Each foreground page's tilemap words.</param>

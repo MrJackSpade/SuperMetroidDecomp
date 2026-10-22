@@ -31,7 +31,7 @@ internal static class FileCopyArrowVerification
         foreach (var pair in new[] { new FileCopyArrowVerifyFileCopyArrowCase(0, 2), new FileCopyArrowVerifyFileCopyArrowCase(0, 1), new FileCopyArrowVerifyFileCopyArrowCase(1, 2), new FileCopyArrowVerifyFileCopyArrowCase(2, 0), new FileCopyArrowVerifyFileCopyArrowCase(1, 0), new FileCopyArrowVerifyFileCopyArrowCase(2, 1) }.Select((slots, row) => new VerifyFileCopyArrowCase(slots, row)))
         {
             saves.SelectSlot(0);
-            var menu = new FileSelectMenuState(saves, mapPresentation: art);
+            var menu = new FileSelectMenuState(saves, mapPresentation: art, spriteSheets: MenuSheetFixtures.For(art));
             void Press(SnesButton button) { menu.Step(0); menu.Step(button); }
             void Until(FileSelectPhase phase)
             {

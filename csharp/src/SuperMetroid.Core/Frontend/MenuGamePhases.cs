@@ -43,7 +43,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         if (session.ActiveTitle.FileSelectRequested)
         {
             // `$8B:9F52` sets game_state=4 only after the slow fade reaches black.
-            session.Show(new FileSelectMenuState(session.saves, session.audio, session.Artwork.MapPresentation));
+            session.Show(new FileSelectMenuState(session.saves, session.audio, session.Artwork.MapPresentation, session.Artwork.SpriteSheets));
             session.GameState = SuperMetroidGameState.FileSelectMenus;
             session.display.PublishMenu(session.ActiveFileSelect);
         }
@@ -100,7 +100,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         session.display.PublishMenu(session.ActiveOptions);
         if (session.ActiveOptions.FileSelectRequested)
         {
-            session.Show(new FileSelectMenuState(session.saves, session.audio, session.Artwork.MapPresentation));
+            session.Show(new FileSelectMenuState(session.saves, session.audio, session.Artwork.MapPresentation, session.Artwork.SpriteSheets));
             session.GameState = SuperMetroidGameState.FileSelectMenus;
             session.display.PublishMenu(session.ActiveFileSelect);
         }

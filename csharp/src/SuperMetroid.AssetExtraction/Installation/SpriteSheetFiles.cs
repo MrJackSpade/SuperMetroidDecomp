@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
@@ -80,6 +81,7 @@ public static class SpriteSheetFiles
         SpriteSheetId.SamusAtmosphere => SamusAtmosphereSheetDefinitions.Frames,
         SpriteSheetId.SamusDeath => SamusDeathSheetDefinitions.Frames,
         SpriteSheetId.GameOver => GameOverPresentationDefinitions.SpriteNames.ToArray(),
+        SpriteSheetId.FileSelect => FileSelectPresentationDefinitions.SheetFrames,
         _ => ProjectileSheetDefinitions.Frames,
     };
 

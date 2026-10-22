@@ -26,6 +26,12 @@ public static class FileCopyArrowDefinitions
         return new FileCopyArrowPlacement(shape, (ushort)(distance == 2 ? 104 : 88 + 32 * Math.Min(source, destination)));
     }
 
+    /// <summary>The file-copy arrow shapes: short and long, downward and upward.</summary>
+    internal const int ShapeCount = 4;
+
+    /// <summary>The sheet frame showing arrow shape <paramref name="shape"/>.</summary>
+    public static string FrameName(int shape) => $"CopyArrow.{shape}";
+
     /// <summary>Exposes the selected native OAM part order for the four file-copy arrow shapes.</summary>
     internal static ReadOnlySpan<CompiledSpritePart> Parts(int shape) => Shapes[shape];
     /// <summary>Builds one 16-pixel OBJ part in palette three, optionally flipping it vertically for an upward arrow.</summary>

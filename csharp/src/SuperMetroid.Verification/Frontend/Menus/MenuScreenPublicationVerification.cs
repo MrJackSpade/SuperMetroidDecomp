@@ -72,7 +72,7 @@ internal static class MenuScreenPublicationVerification
         var saves = new SaveSlotStore(RetailPresentationFixture());
         saves.SaveSlot(0, new SuperMetroidSaveSnapshot { Health = 99, MaxHealth = 99 });
         saves.SelectSlot(0);
-        var fileSelect = new FileSelectMenuState(saves, mapPresentation: maps);
+        var fileSelect = new FileSelectMenuState(saves, mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
         for (int frame = 0; frame < 60 && fileSelect.Phase != FileSelectPhase.Main; frame++)
             fileSelect.Step(0);
         AssertEqual(FileSelectPhase.Main, fileSelect.Phase, "file select reaches its main menu");

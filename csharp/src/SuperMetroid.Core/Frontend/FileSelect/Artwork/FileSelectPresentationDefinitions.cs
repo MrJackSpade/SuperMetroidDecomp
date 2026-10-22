@@ -148,6 +148,10 @@ public static class FileSelectPresentationDefinitions
     public static IEnumerable<string> SpriteNames =>
         [.. Borders.Select(BorderSpriteName), .. cursorSpriteNames, .. helmetSpriteNames];
 
+    /// <summary>Every frame of the file-select sheet: each sprite the document names, then each file-copy arrow.</summary>
+    public static IEnumerable<string> SheetFrames =>
+        SpriteNames.Concat(Enumerable.Range(0, FileCopyArrowDefinitions.ShapeCount).Select(FileCopyArrowDefinitions.FrameName));
+
     /// <summary>The menu heading a bordered heading draws.</summary>
     internal static MenuHeading Heading(FileSelectBorder border) => border switch
     {

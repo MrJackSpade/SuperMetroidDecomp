@@ -70,7 +70,7 @@ internal static class ScreenSpritesFixtures
         internal ReadOnlySpan<byte> HighTable => ToOam(self).HighTable;
 
         /// <summary>The objects the finished frame placed.</summary>
-        internal int LastFinalizedSpriteCount => self.Draws.Length;
+        internal int LastFinalizedSpriteCount => ToOam(self).LastFinalizedSpriteCount;
 
         /// <summary>One object of the finished frame.</summary>
         internal OamEntry GetEntry(int index) => ToOam(self).GetEntry(index);

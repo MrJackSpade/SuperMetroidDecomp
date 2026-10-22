@@ -32,7 +32,9 @@ internal static class EnemyEffectIsolationVerification
             baseline.InitializeMap(source); edited.InitializeMap(source);
             AssertCrocomireEffectMechanics(baseline, edited, "melt map replacement");
             AssertTrue(!baseline.Effect.Bg2WorkingTilemap.SequenceEqual(edited.Effect.Bg2WorkingTilemap), "authored melt map reaches scratch");
-            AssertTrue(!baseline.Vram.ImageEquals(edited.Vram), "authored melt map reaches VRAM");
+            // Crocomire's body draws into the enemy BG2 image (#1353).
+            AssertTrue(!baseline.Enemies.Presentation.RequireBg2Image().Publish().Words.SequenceEqual(
+                edited.Enemies.Presentation.RequireBg2Image().Publish().Words), "authored melt map reaches the BG2 image");
 
             byte[] tail = baseline.Effect.MeltingGraphics[CrocomireMeltingArtwork.UsedByteCount(pass)..].ToArray();
             baseline.Call(c => c.Melting.InitializeCrocomireMeltingGraphics); edited.Call(c => c.Melting.InitializeCrocomireMeltingGraphics);
@@ -51,7 +53,8 @@ internal static class EnemyEffectIsolationVerification
                 {
                     CrocomireMeltingUpload upload = pass.Uploads[record];
                     int offset = upload.SourceWord - 0x4000;
-                    AssertTrue(baseline.Vram.Bytes.Slice(upload.DestinationWord * 2, upload.ByteCount)
+                    // The slices are bound as background artwork, which a capture composes over VRAM (#1392).
+                    AssertTrue(BgArtworkFixtures.Composed(baseline.Vram).AsSpan(upload.DestinationWord * 2, upload.ByteCount)
                         .SequenceEqual(baseline.Effect.MeltingGraphics.Slice(offset, upload.ByteCount)), "exact scheduled VRAM upload");
                 }
             }

@@ -29,7 +29,8 @@ internal static class EnemyEffectsFixtureVerification
         /// <summary>Destination graphics memory checked after melt operations.</summary>
         internal SnesVram Vram { get; } = new();
         /// <summary>Enemy owner hosting the Crocomire body, tongue, and behavior.</summary>
-        internal RoomEnemySystem Enemies { get; } = new(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        internal RoomEnemySystem Enemies { get; } = new(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance,
+            services: new VerificationRoomEnemyServices(null));
         /// <summary>Crocomire body state bound to the first two enemy slots.</summary>
         internal CrocomireEnemyState Actor { get; }
         /// <summary>Seeded melt phase with recognizable graphics and BG2 state.</summary>
@@ -51,6 +52,8 @@ internal static class EnemyEffectsFixtureVerification
             Effect.MutableBg2WorkingTilemap.Fill(0x137);
             Effect.MutableBg2ScrollByScanline.Fill(19);
             Enemies.Presentation.BindVram(BgArtworkFixtures.For(Vram));
+            // The fight's initialization attaches the cleared BG2 image the melting body draws into.
+            Enemies.Presentation.AttachBg2Image(new EnemyBg2Image(CrocomireBg2.CrocomireBlankBg2Tile));
             Enemies.CrocomireBehavior.Access.Crocomire = Actor;
             Enemies.CrocomireBehavior.Access.CrocomireDeath = Effect;
             Enemies.VerificationServices().ReadRandom = () => 0x1234;

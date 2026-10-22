@@ -115,6 +115,19 @@ internal sealed class RoomTileCanvas(int width, int height)
         return rows;
     }
 
+    /// <summary>
+    /// Paints one pixel of colour <paramref name="index"/> at (<paramref name="x"/>, <paramref name="y"/>), as a Mode 7 tile
+    /// names its colours directly from all 256; colour zero is transparent. Such a pixel has no part row, as no draw
+    /// overrides a background's rows.
+    /// </summary>
+    internal void PaintIndex(int x, int y, byte index, Bgr555[] colours)
+    {
+        int pixel = y * Width + x;
+        PaletteIndices[pixel] = index;
+        if (index != 0)
+            Pixels[pixel] = colours[index].ToRgba32();
+    }
+
     /// <summary>Colours in one two-bit palette row.</summary>
     private const int TwoBppRowColours = 4;
 

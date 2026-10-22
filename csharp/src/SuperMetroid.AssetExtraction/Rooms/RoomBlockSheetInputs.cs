@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
@@ -25,10 +26,11 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <param name="Skies">The scrolling skies' tilemaps, which some library backgrounds transfer.</param>
 /// <param name="EscapeTypewriter">The escape typewriter's programs, whose text is typed over a room's background.</param>
 /// <param name="Maps">The map presentation: the HUD, the area maps its minimap shows and the room effects' BG3 pages.</param>
+/// <param name="BasePalettes">The gameplay base palettes, whose sprite rows every room load restores.</param>
 internal sealed record RoomBlockSheetInputs(RoomCharacterAtlasCatalog Characters, RoomMetatileCatalog Metatiles,
     RoomStaticPaletteCatalog Palettes, RoomFxAnimatedTileAtlas AnimatedTiles, RoomPlmDynamicCollectibleArtCatalog Collectibles,
     BossArtworkCatalog Bosses, HudTileAtlas Hud, RoomBackgroundTilemapCatalog BackgroundTilemaps, RoomSkyTilemapCatalog Skies,
-    EscapeTypewriterPresentation EscapeTypewriter, AreaMapPresentationCatalog Maps)
+    EscapeTypewriterPresentation EscapeTypewriter, AreaMapPresentationCatalog Maps, GameplayBasePaletteCatalog BasePalettes)
 {
     /// <summary>Loads the stock artwork from installed content.</summary>
     internal static RoomBlockSheetInputs Load(string content)
@@ -46,6 +48,7 @@ internal sealed record RoomBlockSheetInputs(RoomCharacterAtlasCatalog Characters
             RoomBackgroundTilemapArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomBackgroundTilemapDirectoryName), null),
             RoomSkyTilemapArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomBackgroundTilemapDirectoryName), null),
             maps.EscapeTypewriter,
-            maps);
+            maps,
+            GameplayBasePaletteFiles.Load(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName), null));
     }
 }

@@ -306,6 +306,39 @@ internal static class RoomBlockPicturesVerification
         }
     }
 
+    /// <summary>
+    /// Confirms a Ceres room's Mode 7 map draws from its tileset's tile pictures (#1392): in the Ceres elevator room the
+    /// latched map carries the pictures, every tile it names is pictured, and each pictured tile's pixels are the colours
+    /// its characters' high bytes name.
+    /// </summary>
+    internal static void VerifyMode7TilePictures()
+    {
+        RoomHeaderDefinition room = RoomHeaderDefinitions.CeresElev;
+        SuperMetroidRuntime runtime = LoadRoom(room);
+        runtime.StepFrame(0);
+        Mode7MapSnapshot map = runtime.Display.Latched.Rooms?.Mode7 ?? throw new InvalidOperationException($"{room.Name} shows no Mode 7 map.");
+        Mode7TileSheet tiles = map.Tiles ?? throw new InvalidOperationException($"{room.Name}'s Mode 7 map draws from no tile pictures.");
+        AssertTrue(map.NamedTiles.All(tile => tiles.Shown[tile] is not null), $"{room.Name}'s Mode 7 map names only pictured tiles");
+        ReadOnlySpan<byte> vram = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites, runtime.BgArtwork).Vram;
+        SpriteImage sheet = tiles.Picture.Sheet;
+        int pictured = 0;
+        for (int tile = 0; tile < Mode7TileSheet.Tiles; tile++)
+        {
+            if (tiles.Shown[tile] is null)
+                continue;
+            pictured++;
+            Position16<ImagePixels> corner = Mode7TileSheet.Corner(tile);
+            for (int pixel = 0; pixel < Mode7TileSheet.TileWords; pixel++)
+            {
+                int expected = vram[(tile * Mode7TileSheet.TileWords + pixel) * 2 + 1];
+                int at = (tiles.Picture.Corner.Y + corner.Y + pixel / 8) * sheet.Size.X + tiles.Picture.Corner.X + corner.X + pixel % 8;
+                AssertTrue(sheet.PaletteIndices[at] == expected && (expected == 0 || sheet.Pixels[at] == sheet.StandardColours[expected].ToRgba32()),
+                    $"{tiles.Name}: tile {tile} pixel {pixel} paints index {sheet.PaletteIndices[at]} where its characters name {expected}");
+            }
+        }
+        Console.WriteLine($"Mode 7 tile pictures: {tiles.Name} pictured {pictured} tiles, the {map.NamedTiles.Count} {room.Name}'s map names among them.");
+    }
+
     /// <summary>Loads <paramref name="room"/> and checks its background image over <see cref="Frames"/> frames.</summary>
     private static void CheckBackground(RoomHeaderDefinition room, bool expectRebound)
     {
@@ -486,6 +519,7 @@ internal static class RoomBlockPicturesVerification
         Suite(nameof(VerifyRoomBackgroundImages), VerifyRoomBackgroundImages);
         Suite(nameof(VerifyTileWordPictures), VerifyTileWordPictures);
         Suite(nameof(VerifyBg3Pictures), VerifyBg3Pictures);
+        Suite(nameof(VerifyMode7TilePictures), VerifyMode7TilePictures);
         return 0;
     }
 }

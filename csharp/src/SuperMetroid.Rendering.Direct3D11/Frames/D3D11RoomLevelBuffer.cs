@@ -35,7 +35,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int PlaneSlots = 3;
     /// <summary>Header words: the plane records, the door window origin, and the offsets of the BG1 overlay, the sky rows,
     /// the BG3 plane and the BG2 overlay.</summary>
-    private const int HeaderWords = PlaneSlots * RecordWords + 14;
+    private const int HeaderWords = PlaneSlots * RecordWords + 15;
     /// <summary>Header word of the door window's scrolled origin.</summary>
     private const int DoorWindowWord = PlaneSlots * RecordWords;
     /// <summary>Header word of the overlay's first word, or zero without an overlay.</summary>
@@ -79,6 +79,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int Bg3PicturesWord = Bg2OverlayPicturesWord + 1;
     /// <summary>Header word of the image of the message box the frame shows, or zero without one (#1392).</summary>
     private const int MessagePictureWord = Bg3PicturesWord + 1;
+    /// <summary>Header word of the Mode 7 map's tile picture, or zero while it draws from VRAM's characters (#1392).</summary>
+    private const int Mode7PictureWord = MessagePictureWord + 1;
     /// <summary>The width word's bit marking a two-bit picture, whose pixels keep colour zero's row (#1392).</summary>
     private const uint TwoBppPictureBit = 1u << 16;
     /// <summary>The bit an X-ray reveal block's arrangement starts at.</summary>
@@ -162,7 +164,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         void AddPicture(SpriteSheetFrame picture)
         {
             if (colourWords.TryAdd(picture.Sheet, words))
-                words += SpriteImage.SpriteColourCount;
+                words += picture.Sheet.StandardColours.Length;
             if (pictureWords.TryAdd(picture, words))
                 words += PictureHeaderWords + 2 * picture.Size.X * picture.Size.Y;
         }
@@ -189,6 +191,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         }
         if (message is not null)
             AddPicture(message);
+        if (mode7?.Tiles is { } mode7Tiles)
+            AddPicture(mode7Tiles.Picture);
         ImmutableArray<BgTilePicture?> bodyPictures = bossBg2?.Pictures ?? default;
         int bodyPicturesOffset = AddTilePictures(bodyPictures, bossBg2?.Words.Length ?? 0);
         ImmutableArray<BgTilePicture?> overlayPictures = bg2Overlay?.Pictures ?? default;
@@ -259,7 +263,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             for (int word = 0; word < definitions.Length / sizeof(ushort); word++)
                 upload[offset + word] = SnesLittleEndian.Word(definitions[word * 2], definitions[word * 2 + 1]);
         foreach ((SpriteImage sheet, int offset) in colourWords)
-            for (int colour = 0; colour < SpriteImage.SpriteColourCount; colour++)
+            for (int colour = 0; colour < sheet.StandardColours.Length; colour++)
                 upload[offset + colour] = sheet.StandardColours[colour].ToWord();
         foreach ((SpriteSheetFrame picture, int offset) in pictureWords)
             PackPicture(upload.Slice(offset, PictureHeaderWords + 2 * picture.Size.X * picture.Size.Y), picture, colourWords[picture.Sheet]);
@@ -319,6 +323,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         PackTilePictures(upload, overlayPictures, overlayPicturesOffset, RoomTilemapOverlay.WordCount, pictureWords);
         upload[Bg3PicturesWord] = (uint)bg3PicturesOffset;
         upload[MessagePictureWord] = message is null ? 0 : (uint)pictureWords[message];
+        upload[Mode7PictureWord] = mode7?.Tiles is { } shownTiles ? (uint)pictureWords[shownTiles.Picture] : 0;
         PackTilePictures(upload, bg3Pictures, bg3PicturesOffset, Layer3Plane.Rows * Layer3Plane.Columns, pictureWords);
         packed = frame;
         return true;

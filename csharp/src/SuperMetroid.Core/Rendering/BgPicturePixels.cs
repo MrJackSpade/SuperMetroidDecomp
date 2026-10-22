@@ -81,7 +81,7 @@ internal sealed class BgPicturePixels(IPaletteColors cgram)
         ReadOnlySpan<Bgr555> live = cgram.Colors;
         ReadOnlySpan<Bgr555> standard = sheet.StandardColours;
         int rows = 0;
-        for (int row = 0; row < SpriteImage.MaximumPaletteRow + 1; row++)
+        for (int row = 0; row < standard.Length / RowColours; row++)
         {
             bool same = true;
             for (int colour = 1; colour < RowColours && same; colour++)

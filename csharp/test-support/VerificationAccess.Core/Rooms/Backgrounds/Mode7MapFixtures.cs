@@ -14,4 +14,8 @@ internal static class Mode7MapFixtures
             cells[cell] = vram[cell * 2];
         return new Mode7MapSnapshot(cells, default);
     }
+
+    /// <summary><paramref name="map"/> drawn from seeded tile pictures (#1392).</summary>
+    internal static Mode7MapSnapshot WithSeededTiles(Mode7MapSnapshot map, Random random, Bgr555[] scene) =>
+        new(Ensure.NotNull(map).Cells, map.Tileset, RoomBackgroundsFixtures.SeededMode7Tiles(random, scene));
 }

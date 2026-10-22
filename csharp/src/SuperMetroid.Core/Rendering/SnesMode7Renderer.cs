@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Artwork;
 using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
@@ -51,6 +52,9 @@ public static class SnesMode7Renderer
         // from every visible Mode 7 pixel, which is especially expensive under Debug JIT.
         ReadOnlySpan<byte> vramBytes = vram.Bytes;
         ReadOnlySpan<Bgr555> cgramColors = cgram.Colors;
+        // A Ceres room's map draws its tiles' pre-coloured pictures (#1392).
+        Mode7TileSheet? tiles = map?.Tiles;
+        var pictures = new BgPicturePixels(cgram);
         Span<Rgba32> palette = stackalloc Rgba32[SnesCgram.ColorCount];
         for (int color = 0; color < palette.Length; color++)
             palette[color] = cgramColors[color].ToRgba32();
@@ -96,6 +100,14 @@ public static class SnesMode7Renderer
                 // Each 8-bpp Mode 7 character consumes 64 VRAM words. Its color indexes
                 // occupy only their high bytes; low bytes at the same word addresses are
                 // part of the tile-number map and must never be interpreted as pixels.
+                if (tiles is not null)
+                {
+                    Position16<ImagePixels> corner = Mode7TileSheet.Corner(character);
+                    if (pictures.TryDecode(BgSample.OfPicture(tiles.Picture, new Position16<ImagePixels>((ushort)(corner.X + pixelX), (ushort)(corner.Y + pixelY))),
+                            palette, ColorZero.Transparent, out Rgba32 pictured, out _))
+                        output[screenY * width + screenX] = pictured;
+                    continue;
+                }
                 int characterWord = character * CharacterWidth * CharacterWidth + pixelY * CharacterWidth + pixelX;
                 int colorIndex = vramBytes[characterWord * 2 + 1];
                 if (colorIndex != 0)

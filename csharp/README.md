@@ -580,7 +580,8 @@ HUD fully stocked, every other word the HUD writes, the minimap's map tiles and 
 four-colour rows with every pixel keeping its palette index, colour zero included. Each tileset's gameplay message boxes
 are `Messages.<tileset>`: one image of each message in each form it takes (each button a panel can name, each save
 choice), in its BG3 colours with the two colours a message box installs; `message-boxes.json` records the words each
-image pictures.
+image pictures. Each Ceres tileset's Mode 7 tiles are one picture, `Mode7.<tileset>`, sixteen tiles to a row;
+`mode7-tiles.json` records what each tile was pictured over.
 Edited copies go in `overrides/room-block-sheets`. The
 Ceres Ridley arena, whose planes read the object characters, still draws its blocks from characters.
 

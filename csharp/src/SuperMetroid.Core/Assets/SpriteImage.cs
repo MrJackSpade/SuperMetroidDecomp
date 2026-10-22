@@ -53,7 +53,7 @@ public sealed class SpriteImage
             throw new ArgumentException($"Sprite image {name} has no pixels.", nameof(size));
         Ensure.LengthEqual(pixels, size.X * size.Y);
         Ensure.LengthEqual(paletteIndices, size.X * size.Y);
-        Ensure.LengthEqual(standardColours, SpriteColourCount);
+        Ensure.LengthEqual(standardColours, ColourCountOf(palette.Half));
         Ensure.LengthEqual(priorities, size.X * size.Y);
         foreach (byte priority in priorities)
         {
@@ -75,6 +75,10 @@ public sealed class SpriteImage
         this.priorities = priorities.ToArray();
         this.partRows = partRows.ToArray();
     }
+
+    /// <summary>The standard colours an image coloured as <paramref name="colours"/> keeps: all 256 for a full-palette image.</summary>
+    public static int ColourCountOf(SpriteImageColours colours) =>
+        colours == SpriteImageColours.FullPalette ? 2 * SpriteColourCount : SpriteColourCount;
 
     /// <summary>The highest sprite palette row.</summary>
     public const int MaximumPaletteRow = 7;

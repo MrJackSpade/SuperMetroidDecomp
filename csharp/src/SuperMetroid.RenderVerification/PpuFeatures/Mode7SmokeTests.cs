@@ -52,6 +52,20 @@ internal static class Mode7SmokeTests
             Check(new RenderFrameSnapshot(new(++count, 1, 0),
                 new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 13)));
         }
+        // A Ceres room's map drawn from its tiles' pictures (#1392), some rows recoloured by the scene, and from VRAM, with
+        // outside pixels transparent, as Ceres rooms show them, or character zero.
+        Mode7MapSnapshot pictured = Mode7MapFixtures.WithSeededTiles(map, random, palette);
+        foreach (Mode7MapSnapshot shown in new[] { map, pictured })
+        foreach (int hud in new[] { 0, 32 })
+        foreach (short scale in new short[] { 256, -113, 511 })
+        foreach (bool fill in new[] { false, true })
+        {
+            var layer = new Mode7GameplayRenderLayer(
+                new(scale, 71, -71, scale, new(128, 112), new(-17, 211), fill),
+                bg3, shown, 0x4000, hud, null);
+            Check(new RenderFrameSnapshot(new(++count, 1, 0),
+                new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 13)));
+        }
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact Mode 7 comparisons passed.");
 
         void Check(RenderFrameSnapshot frame) => PixelComparison.Verify(frame,

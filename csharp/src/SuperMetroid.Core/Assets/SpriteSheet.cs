@@ -80,8 +80,8 @@ public sealed class SpriteSheet
         SpriteSheetDocument document = JsonAssetDocument.Read<SpriteSheetDocument>(manifest, Options, $"sprite sheet {name}");
         if (document.Version != Version)
             throw new InvalidDataException($"Sprite sheet {name} has manifest revision {document.Version}, not {Version}.");
-        if (document.Colours is not { Length: SpriteImage.SpriteColourCount })
-            throw new InvalidDataException($"Sprite sheet {name} needs its {SpriteImage.SpriteColourCount} standard colours.");
+        if (document.Colours is null || document.Colours.Length != SpriteImage.ColourCountOf(document.Palette))
+            throw new InvalidDataException($"Sprite sheet {name} needs its {SpriteImage.ColourCountOf(document.Palette)} standard colours.");
         SpriteImage image;
         try
         {

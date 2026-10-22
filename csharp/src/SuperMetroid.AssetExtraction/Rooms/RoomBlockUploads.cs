@@ -251,7 +251,7 @@ internal static class RoomBlockUploads
     }
 
     /// <summary>Bindings over a fresh VRAM holding the HUD's characters and what a room of <paramref name="tileset"/> binds as it loads.</summary>
-    private static BgArtworkBindings Loaded(RoomBlockSheetInputs inputs, TilesetDefinition tileset)
+    internal static BgArtworkBindings Loaded(RoomBlockSheetInputs inputs, TilesetDefinition tileset)
     {
         var content = new BgArtworkBindings(new SnesVram());
         HudCharacters(inputs).BindTo(content);

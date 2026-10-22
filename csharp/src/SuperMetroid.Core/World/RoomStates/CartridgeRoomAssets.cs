@@ -132,7 +132,7 @@ public sealed class CartridgeRoomAssets
         var cells = new byte[Mode7Map.Cells];
         for (int cell = 0; cell < cells.Length; cell++)
             cells[cell] = words[cell * 2];
-        return new Mode7Map(cells, Tileset);
+        return new Mode7Map(cells, Tileset, Pictures.Mode7(Tileset));
 
         void CopyAt(byte[] source, int byteOffset)
         {

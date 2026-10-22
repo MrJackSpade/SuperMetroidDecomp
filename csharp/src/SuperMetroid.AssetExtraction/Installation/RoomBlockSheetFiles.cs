@@ -38,6 +38,12 @@ public static class RoomBlockSheetFiles
     /// <summary>The message box manifest's schema revision.</summary>
     private const int MessageManifestVersion = 1;
 
+    /// <summary>The manifest naming each Ceres tileset's Mode 7 tiles and what each was pictured over.</summary>
+    public const string Mode7ManifestFileName = "mode7-tiles.json";
+
+    /// <summary>The Mode 7 manifest's schema revision.</summary>
+    private const int Mode7ManifestVersion = 1;
+
     /// <summary>Composes and writes every tileset's block sheet and background image, then validates the result.</summary>
     /// <param name="content">Installed stock content holding the characters, definitions, palettes, tilemaps and uploads the sheets compose from.</param>
     /// <param name="directory">Destination directory, created if absent.</param>
@@ -55,7 +61,14 @@ public static class RoomBlockSheetFiles
             store.Write(TileWordSheet.NameOf(words.Layer, words.Tileset), words.Sheet);
         foreach ((TilesetDefinition tileset, ComposedSpriteSheet messages) in composition.MessageBoxes)
             store.Write(MessageBoxSheet.NameOf(tileset), messages);
+        foreach (ComposedMode7Tiles tiles in composition.Mode7Tiles.Values)
+            store.Write(Mode7TileSheet.NameOf(tiles.Tileset), tiles.Sheet);
         store.Finish(sourceCartridgeSha256);
+        File.WriteAllBytes(Path.Combine(directory, Mode7ManifestFileName), JsonSerializer.SerializeToUtf8Bytes(
+            new Mode7Manifest(Mode7ManifestVersion, composition.Mode7Tiles.Values.ToDictionary(tiles => RoomBlockSheet.NameOf(tiles.Tileset),
+                tiles => tiles.Shown.Select(shown => shown is { } bound ? new ShownDocument(bound.Artwork.Name, bound.WordOffset) : null).ToArray(),
+                StringComparer.Ordinal)),
+            JsonOptions));
         File.WriteAllBytes(Path.Combine(directory, MessageManifestFileName), JsonSerializer.SerializeToUtf8Bytes(
             new MessageManifest(MessageManifestVersion, composition.Messages.ToDictionary(entry => entry.Key, entry => entry.Value.ToArray(),
                 StringComparer.Ordinal)), JsonOptions));
@@ -94,16 +107,26 @@ public static class RoomBlockSheetFiles
             throw new InvalidDataException($"Message box manifest {messagePath} is not revision {MessageManifestVersion}.");
         Dictionary<string, ImmutableArray<ushort>> messageWords = messages.Words.ToDictionary(entry => entry.Key,
             entry => ImmutableArray.Create(entry.Value), StringComparer.Ordinal);
+        string mode7Path = Path.Combine(stockDirectory, Mode7ManifestFileName);
+        Mode7Manifest mode7 = JsonSerializer.Deserialize<Mode7Manifest>(File.ReadAllBytes(mode7Path), JsonOptions)
+            ?? throw new InvalidDataException($"Mode 7 manifest {mode7Path} is empty.");
+        if (mode7.Version != Mode7ManifestVersion || mode7.Tiles is null)
+            throw new InvalidDataException($"Mode 7 manifest {mode7Path} is not revision {Mode7ManifestVersion}.");
         IReadOnlyList<TilesetDefinition> tilesets = RoomBlockUploads.Tilesets();
         Dictionary<string, TilesetDefinition> byName = tilesets.ToDictionary(RoomBlockSheet.NameOf, StringComparer.Ordinal);
         SpriteSheetStore store = SpriteSheetStore.Open(stockDirectory, overrideDirectory, ProvenanceFileName,
-            2 * tilesets.Count + manifest.Words.Count + words.Sheets.Length);
+            2 * tilesets.Count + manifest.Words.Count + words.Sheets.Length + mode7.Tiles.Count);
         return new RoomBlockSheetCatalog(
             tilesets.ToDictionary(tileset => tileset, tileset => new RoomBlockSheet(tileset, store.Read(RoomBlockSheet.NameOf(tileset)))),
             manifest.Words.ToDictionary(entry => entry.Key, entry => new RoomBackgroundImage(entry.Key, store.Read(entry.Key), [.. entry.Value]),
                 StringComparer.Ordinal),
             Sheets(TileWordLayer.Bg12), Sheets(TileWordLayer.Bg3),
-            tilesets.ToDictionary(tileset => tileset, tileset => new MessageBoxSheet(tileset, store.Read(MessageBoxSheet.NameOf(tileset)), messageWords)));
+            tilesets.ToDictionary(tileset => tileset, tileset => new MessageBoxSheet(tileset, store.Read(MessageBoxSheet.NameOf(tileset)), messageWords)),
+            mode7.Tiles.Select(entry => byName.TryGetValue(entry.Key, out TilesetDefinition tileset) ? new Mode7TileSheet(tileset,
+                    store.Read(Mode7TileSheet.NameOf(tileset)), [.. entry.Value.Select(shown => shown is null ? (BgArtworkShown?)null
+                        : new BgArtworkShown(new BgArtworkIdentity(shown.Artwork), shown.Offset))])
+                : throw new InvalidDataException($"Mode 7 manifest {mode7Path} names unknown tileset {entry.Key}."))
+                .ToDictionary(tiles => tiles.Tileset));
 
         // The installed sheets of one layer's words, each under its tileset.
         Dictionary<TilesetDefinition, TileWordSheet> Sheets(TileWordLayer layer) => words.Sheets.Where(sheet => sheet.Layer == layer)
@@ -125,6 +148,16 @@ public static class RoomBlockSheetFiles
     /// <param name="Version">The schema revision.</param>
     /// <param name="Words">Each image's tilemap words, page by page.</param>
     private sealed record BackgroundManifest(int Version, Dictionary<string, ushort[]> Words);
+
+    /// <summary>The Mode 7 manifest: what each Ceres tileset's tiles were pictured over, by tileset and tile.</summary>
+    /// <param name="Version">The schema revision.</param>
+    /// <param name="Tiles">Each tile's artwork, by tileset; null for a tile not pictured.</param>
+    private sealed record Mode7Manifest(int Version, Dictionary<string, ShownDocument?[]> Tiles);
+
+    /// <summary>What showed at a tile's characters.</summary>
+    /// <param name="Artwork">The artwork.</param>
+    /// <param name="Offset">The characters' word offset within it.</param>
+    private sealed record ShownDocument(string Artwork, int Offset);
 
     /// <summary>The message box manifest: the words each message box image pictures, the same in every tileset's sheet.</summary>
     /// <param name="Version">The schema revision.</param>

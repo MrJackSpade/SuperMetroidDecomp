@@ -11,7 +11,8 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <param name="Bg3Words">The sheets of BG3 words, by tileset.</param>
 /// <param name="Messages">The words of each form of each message, by image name.</param>
 /// <param name="MessageBoxes">The message box images, by tileset.</param>
+/// <param name="Mode7Tiles">The Mode 7 tiles, by Ceres tileset.</param>
 internal sealed record RoomSheetComposition(IReadOnlyDictionary<TilesetDefinition, ComposedSpriteSheet> BlockSheets,
     IReadOnlyDictionary<string, ComposedRoomBackground> Backgrounds, IReadOnlyDictionary<TilesetDefinition, ComposedTileWordSheet> TileWords,
     IReadOnlyDictionary<TilesetDefinition, ComposedTileWordSheet> Bg3Words, IReadOnlyDictionary<string, ImmutableArray<ushort>> Messages,
-    IReadOnlyDictionary<TilesetDefinition, ComposedSpriteSheet> MessageBoxes);
+    IReadOnlyDictionary<TilesetDefinition, ComposedSpriteSheet> MessageBoxes, IReadOnlyDictionary<TilesetDefinition, ComposedMode7Tiles> Mode7Tiles);

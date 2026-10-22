@@ -18,8 +18,15 @@ public sealed class RoomBlockSheetCatalog
     /// <exception cref="ArgumentException">A sheet is filed under another tileset, or an image under another name.</exception>
     public RoomBlockSheetCatalog(IReadOnlyDictionary<TilesetDefinition, RoomBlockSheet> sheets,
         IReadOnlyDictionary<string, RoomBackgroundImage> backgrounds, IReadOnlyDictionary<TilesetDefinition, TileWordSheet> tileWords,
-        IReadOnlyDictionary<TilesetDefinition, TileWordSheet> bg3Words, IReadOnlyDictionary<TilesetDefinition, MessageBoxSheet> messageBoxes)
+        IReadOnlyDictionary<TilesetDefinition, TileWordSheet> bg3Words, IReadOnlyDictionary<TilesetDefinition, MessageBoxSheet> messageBoxes,
+        IReadOnlyDictionary<TilesetDefinition, Mode7TileSheet> mode7Tiles)
     {
+        Mode7Tiles = Ensure.NotNull(mode7Tiles);
+        foreach ((TilesetDefinition tileset, Mode7TileSheet tiles) in mode7Tiles)
+        {
+            if (tiles.Tileset != tileset)
+                throw new ArgumentException($"{tiles.Name} is filed under {tileset}.", nameof(mode7Tiles));
+        }
         MessageBoxes = Ensure.NotNull(messageBoxes);
         foreach ((TilesetDefinition tileset, MessageBoxSheet messages) in messageBoxes)
         {
@@ -61,6 +68,14 @@ public sealed class RoomBlockSheetCatalog
     /// <summary>The sheets of the HUD's and room effects' BG3 words, by the tileset whose colours they show in.</summary>
     public IReadOnlyDictionary<TilesetDefinition, TileWordSheet> Bg3Words { get; }
 
+    /// <summary>The Mode 7 tiles of each Ceres tileset.</summary>
+    public IReadOnlyDictionary<TilesetDefinition, Mode7TileSheet> Mode7Tiles { get; }
+
+    /// <summary>The Mode 7 tiles of Ceres tileset <paramref name="tileset"/>.</summary>
+    /// <exception cref="InvalidDataException">No Mode 7 tiles are installed for the tileset.</exception>
+    public Mode7TileSheet Mode7(TilesetDefinition tileset) =>
+        Mode7Tiles.TryGetValue(tileset, out Mode7TileSheet? tiles) ? tiles : throw new InvalidDataException($"No Mode 7 tiles are installed for {tileset}.");
+
     /// <summary>The message box images of each tileset's rooms.</summary>
     public IReadOnlyDictionary<TilesetDefinition, MessageBoxSheet> MessageBoxes { get; }
 
@@ -89,6 +104,16 @@ public sealed class RoomBlockSheetCatalog
             background.Sheet.AppendIdentity(content);
             foreach (ushort word in background.TilemapWords)
                 content.Append("word", word);
+        }
+        foreach (Mode7TileSheet tiles in Mode7Tiles.Values.OrderBy(tiles => tiles.Name, StringComparer.Ordinal))
+        {
+            content.AppendName("mode7", tiles.Name);
+            tiles.Sheet.AppendIdentity(content);
+            foreach (BgArtworkShown? shown in tiles.Shown)
+            {
+                content.AppendName("artwork", shown?.Artwork.Name ?? "");
+                content.Append("offset", shown?.WordOffset ?? -1);
+            }
         }
         foreach (MessageBoxSheet messages in MessageBoxes.Values.OrderBy(messages => messages.Name, StringComparer.Ordinal))
         {

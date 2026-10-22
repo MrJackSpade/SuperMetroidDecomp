@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Backgrounds;
@@ -24,12 +25,17 @@ public sealed class Mode7Map
     /// <summary>Takes the room tileset's map.</summary>
     /// <param name="cells">Exactly <see cref="Cells"/> tile numbers, row-major.</param>
     /// <param name="tileset">The room tileset whose Mode 7 characters the map's tile numbers select: its artwork binding.</param>
-    public Mode7Map(ReadOnlySpan<byte> cells, TilesetDefinition tileset)
+    /// <param name="tiles">The tileset's pre-coloured tiles the map draws from, or null where it draws from VRAM's characters (#1392).</param>
+    public Mode7Map(ReadOnlySpan<byte> cells, TilesetDefinition tileset, Mode7TileSheet? tiles = null)
     {
         Ensure.LengthEqual(cells, Cells);
         this.cells = cells.ToArray();
         Tileset = tileset;
+        Tiles = tiles;
     }
+
+    /// <summary>The tileset's pre-coloured tiles the map draws from, or null where it draws from VRAM's characters (#1392).</summary>
+    public Mode7TileSheet? Tiles { get; }
 
     /// <summary>The room tileset whose Mode 7 characters the map's tile numbers select.</summary>
     public TilesetDefinition Tileset { get; }
@@ -45,5 +51,5 @@ public sealed class Mode7Map
     }
 
     /// <summary>The map as the next frame shows it; shared until the next write.</summary>
-    public Mode7MapSnapshot Publish() => published ??= new Mode7MapSnapshot(cells, Tileset);
+    public Mode7MapSnapshot Publish() => published ??= new Mode7MapSnapshot(cells, Tileset, Tiles);
 }

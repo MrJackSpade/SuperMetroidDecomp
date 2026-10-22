@@ -24,7 +24,26 @@ internal static class PixelComparison
             top = Math.Min(top, y); bottom = Math.Max(bottom, y);
         }
         if (count == 0) return;
+        string images = Save(packet, context, expected, actual, difference);
         throw new InvalidOperationException($"{context} ({packet.Identity}): {count} pixels differ; first ({first % packet.Size.X},{first / packet.Size.X}) " +
-            $"expected {expected[first]} actual {actual[first]}; bounds ({left},{top})-({right},{bottom}) inclusive.");
+            $"expected {expected[first]} actual {actual[first]}; bounds ({left},{top})-({right},{bottom}) inclusive; images in {images}.");
+    }
+
+    /// <summary>
+    /// Writes the expected, actual and difference frames at their native size beside the test's binaries, in a folder
+    /// named for the failure, and returns its full path.
+    /// </summary>
+    private static string Save(RenderFrameSnapshot packet, string context, Rgba32[] expected, Rgba32[] actual, Rgba32[] difference)
+    {
+        string name = string.Concat($"{context} {packet.Identity.Sequence}".Select(character => char.IsLetterOrDigit(character) ? character : '-'));
+        string directory = Path.Combine(AppContext.BaseDirectory, "pixel-failures", name);
+        Directory.CreateDirectory(directory);
+        var size = new Extent16<ImagePixels>(packet.Size.X, packet.Size.Y);
+        foreach ((string file, Rgba32[] pixels) in new[] { ("expected.png", expected), ("actual.png", actual), ("difference.png", difference) })
+        {
+            using FileStream output = File.Create(Path.Combine(directory, file));
+            SuperMetroid.AssetExtraction.Artwork.RgbaPng.Write(output, size, pixels);
+        }
+        return directory;
     }
 }

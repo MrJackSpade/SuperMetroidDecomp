@@ -145,6 +145,19 @@ internal static class RoomBackgroundsFixtures
             "seeded message", SpriteImageColours.TwoBppBackground).Frame("message");
     }
 
+    /// <summary>
+    /// Seeded Mode 7 tile pictures (#1392): every tile's pixels seeded as <see cref="SeededPictures"/> seeds its sheets,
+    /// even rows' standard colours <paramref name="scene"/>'s and odd rows' different.
+    /// </summary>
+    internal static Mode7TileSheet SeededMode7Tiles(Random random, Bgr555[] scene)
+    {
+        var size = new Extent16<ImagePixels>(Mode7TileSheet.TilesPerRow * Mode7TileSheet.TilePixels,
+            Mode7TileSheet.Tiles / Mode7TileSheet.TilesPerRow * Mode7TileSheet.TilePixels);
+        SpriteSheet sheet = SeededSheet(random, scene, size, new Dictionary<string, Position16<ImagePixels>> { [Mode7TileSheet.FrameName] = default },
+            size, "seeded Mode 7 tiles", SpriteImageColours.FullPalette);
+        return new Mode7TileSheet(default, sheet, [.. Enumerable.Repeat((BgArtworkShown?)default(BgArtworkShown), Mode7TileSheet.Tiles)]);
+    }
+
     /// <summary>A seeded image of the scrolling sky's rows, with rebound cells as <see cref="SeededBackground"/> has (#1392).</summary>
     internal static RoomBackgroundImagePlane SeededSky(Random random, Bgr555[] scene) =>
         SeededImage(random, scene, SuperMetroid.Core.Rooms.Scrolling.SkyTilemap.Rows);
@@ -196,7 +209,8 @@ internal static class RoomBackgroundsFixtures
         SpriteImageColours kind = SpriteImageColours.Background)
     {
         bool twoBpp = kind == SpriteImageColours.TwoBppBackground;
-        var standard = new ushort[SpriteImage.SpriteColourCount];
+        bool fullPalette = kind == SpriteImageColours.FullPalette;
+        var standard = new ushort[SpriteImage.ColourCountOf(kind)];
         for (int colour = 0; colour < standard.Length; colour++)
             standard[colour] = colour / 16 % 2 == 0 ? scene[colour].ToWord() : (ushort)random.Next(32768);
         int pixels = size.X * size.Y;
@@ -220,10 +234,11 @@ internal static class RoomBackgroundsFixtures
             }
             if (random.Next(3) == 0)
                 continue;
-            int row = random.Next(8);
+            // A full-palette pixel names any of the 256 colours and has no part row.
+            int row = random.Next(fullPalette ? 16 : 8);
             indices[pixel] = (byte)(row * 16 + random.Next(1, 16));
-            priorities[pixel] = (byte)random.Next(2);
-            partRows[pixel] = (byte)(row | SpriteImage.FixedPartRow);
+            priorities[pixel] = fullPalette ? (byte)0 : (byte)random.Next(2);
+            partRows[pixel] = fullPalette ? (byte)0 : (byte)(row | SpriteImage.FixedPartRow);
             image[pixel] = Bgr555.FromWord(standard[indices[pixel]]).ToRgba32();
         }
         var frames = new Dictionary<string, SpriteSheetFrameDocument>();
@@ -234,7 +249,7 @@ internal static class RoomBackgroundsFixtures
             for (int x = 0; x < frameSize.X; x++)
             {
                 byte index = indices[(corner.Y + y) * size.X + corner.X + x];
-                if (index % (twoBpp ? 4 : 16) != 0)
+                if (index % (twoBpp ? 4 : 16) != 0 && index / 16 < 8)
                     rows |= SpritePaletteRowSet.Rows[index / 16];
             }
             frames.Add(frame, new SpriteSheetFrameDocument { Corner = corner, Size = frameSize, Origin = default, Rows = rows, Parts = [] });

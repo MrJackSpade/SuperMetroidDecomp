@@ -14,4 +14,10 @@ public enum SpriteImageColours
     /// times four plus its colour, colour zero included, so a layer that shows colour zero shows its row's (#1392).
     /// </summary>
     TwoBppBackground,
+
+    /// <summary>
+    /// All 256 CGRAM colours, as a Mode 7 tile names its colours directly: the Ceres rooms' Mode 7 tiles, some of whose
+    /// pixels name the sprite rows every room load restores (#1392).
+    /// </summary>
+    FullPalette,
 }

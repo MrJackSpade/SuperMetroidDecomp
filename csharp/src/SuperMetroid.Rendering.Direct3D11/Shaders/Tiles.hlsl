@@ -45,6 +45,8 @@ static const uint RoomBg2OverlayPicturesWord = 32;
 static const uint RoomBg3PicturesWord = 33;
 // The image of the message box the frame shows (#1392).
 static const uint RoomMessagePictureWord = 34;
+// The picture of a Ceres room's Mode 7 tiles (#1392), sixteen 8x8 tiles to a row, or zero while the map draws from VRAM.
+static const uint RoomMode7PictureWord = 35;
 // The X-ray reveal (XrayRevealPlane): 17 block columns by 16 rows, each its picture's offset with its arrangement in the
 // top four bits: as defined, mirrored horizontally, vertically or both, or its tile rows swapped.
 static const uint RevealColumns = 17, RevealRows = 16;
@@ -375,7 +377,6 @@ void Main(uint3 id : SV_DispatchThreadID)
         int y = (startY + MatrixC * (int)id.x) >> 8;
         bool outside = (uint)x >= 1024 || (uint)y >= 1024;
         bool transparentOutside = outside && FillCharacterZero == 0;
-        if (transparentOutside && Reserved27 != 2) return;
         uint wrappedX = (uint)x & 1023, wrappedY = (uint)y & 1023;
         // Policy 0: transparent overflow; 1: character zero; 2: ten-bit map wrap.
         uint cell = (wrappedY >> 3) * 128 + (wrappedX >> 3);
@@ -384,7 +385,21 @@ void Main(uint3 id : SV_DispatchThreadID)
             ? (RoomLevels[RoomLevels[RoomMode7MapWord] + (cell >> 2)] >> ((cell & 3) * 8)) & 255
             : ReadByte(cell * 2);
         uint character = outside && FillCharacterZero == 1 ? 0 : mapped;
-        uint color = ReadByte((character * 64 + (wrappedY & 7) * 8 + (wrappedX & 7)) * 2 + 1);
+        // A Ceres room's map draws its tiles' pre-coloured picture (#1392); `shown` is the colour a nonzero pixel shows.
+        uint tiles = RoomSource == RoomSourceMode7Map ? RoomLevels[RoomMode7PictureWord] : 0;
+        uint color = 0, shown = 0;
+        if (tiles != 0)
+        {
+            uint index;
+            bool high;
+            shown = PicturePixel(tiles, uint2((character & 15) * 8 + (wrappedX & 7), (character >> 4) * 8 + (wrappedY & 7)), index, high);
+            color = index;
+        }
+        else
+        {
+            color = ReadByte((character * 64 + (wrappedY & 7) * 8 + (wrappedX & 7)) * 2 + 1);
+            shown = Palette(color);
+        }
         if (transparentOutside) color = 0;
         if (Reserved27 == 2)
         {
@@ -394,10 +409,10 @@ void Main(uint3 id : SV_DispatchThreadID)
             uint palette;
             uint2 obj = ResolveObjectWithPalette(id.xy, palette);
             bool objWins = obj.y != 255 && (obj.y != 0 || color == 0);
-            uint main = objWins ? obj.x : color != 0 ? Palette(color) : Output[id.xy];
+            uint main = objWins ? obj.x : color != 0 ? shown : Output[id.xy];
             if (color != 0 && (!objWins || palette >= 4))
             {
-                uint3 sum = min(31, (Unpack(main) >> 3) + (Unpack(Palette(color)) >> 3));
+                uint3 sum = min(31, (Unpack(main) >> 3) + (Unpack(shown) >> 3));
                 main = Pack((sum << 3) | (sum >> 2), 255);
             }
             Output[id.xy] = main;
@@ -405,7 +420,7 @@ void Main(uint3 id : SV_DispatchThreadID)
         }
         if (color != 0)
         {
-            uint main = Palette(color);
+            uint main = shown;
             uint2 sub = Objects[id.xy];
             if (Reserved27 != 0 && sub.y != 255)
             {

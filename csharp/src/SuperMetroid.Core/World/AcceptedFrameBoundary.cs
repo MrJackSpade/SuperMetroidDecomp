@@ -245,6 +245,9 @@ internal sealed class AcceptedFrameBoundary
     /// <exception cref="InvalidOperationException">X-ray reveals a room whose planes draw from the object character page.</exception>
     private GameplayNmiDisplayLatch WithBlockPictures(GameplayNmiDisplayLatch latched, RoomBackgrounds rooms, ImmutableArray<ushort>? reveal)
     {
+        // A Ceres room's Mode 7 map draws its tiles' pictures, which its characters must still show (#1392).
+        if (rooms.Mode7 is { Tiles: { } mode7Tiles } mode7)
+            mode7Tiles.AssertShownBy(_backgrounds, mode7.NamedTiles);
         if (rooms.Characters != RoomBackgroundCharacters.Tileset)
         {
             return reveal is null ? latched

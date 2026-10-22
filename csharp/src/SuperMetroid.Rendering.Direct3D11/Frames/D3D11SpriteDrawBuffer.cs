@@ -33,7 +33,7 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     /// <summary>Flags bit marking an image record, whose last word points at pre-coloured pixels.</summary>
     private const uint ImageFlag = 1 << 7;
     /// <summary>Flags bit marking an image that takes part in colour blending.</summary>
-    private const uint BlendsFlag = 1 << 8;
+    private const int BlendingRow = 4;
     /// <summary>Flags bit marking an image whose uploaded words are palette indices, because a palette effect changed a row it uses.</summary>
     private const uint RecolourFlag = 1 << 9;
 
@@ -143,18 +143,21 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
                 {
                     Rgba32 pixel = pixels[source + column];
                     // An index word keeps its priority and part row above the index; a colour word keeps the priority,
-                    // plus one, in the alpha byte, whose zero stays transparent.
+                    // plus one, in the alpha byte, whose zero stays transparent, plus four where the pixel's palette
+                    // row takes part in colour math.
                     uint priority = priorities[source + column];
+                    byte alpha = pixel.A == 0 ? (byte)0
+                        : (byte)(priority + 1 + (indices[source + column] / 16 >= BlendingRow ? BlendingRow : 0));
                     upload[target] = indexed
                         ? indices[source + column] | priority << 8 | (uint)partRows[source + column] << PartRowShift
-                        : D3D11ConstantPacking.Bytes(pixel.R, pixel.G, pixel.B, pixel.A == 0 ? (byte)0 : (byte)(priority + 1));
+                        : D3D11ConstantPacking.Bytes(pixel.R, pixel.G, pixel.B, alpha);
                 }
             }
         }
     }
 
     /// <summary>
-    /// Packs one image draw: its screen rectangle, mirroring, blending, recolouring or palette override and its frame's
+    /// Packs one image draw: its screen rectangle, mirroring, recolouring or palette override and its frame's
     /// uploaded words.
     /// </summary>
     private static void PackImage(Span<uint> record, ImageSpriteDraw draw, int frameWords, bool recolour)
@@ -165,7 +168,7 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         record[0] = D3D11ConstantPacking.Halves(unchecked((ushort)corner.X), unchecked((ushort)corner.Y));
         record[1] = D3D11ConstantPacking.Halves(frame.Size.X, frame.Size.Y);
         record[2] = ((draw.Mirror & SpriteMirror.Horizontal) != 0 ? FlipXFlag : 0) | ((draw.Mirror & SpriteMirror.Vertical) != 0 ? FlipYFlag : 0)
-            | ImageFlag | (frame.Blends ? BlendsFlag : 0) | (recolour ? RecolourFlag : 0) | overriding | (uint)frame.Size.X << StrideShift;
+            | ImageFlag | (recolour ? RecolourFlag : 0) | overriding | (uint)frame.Size.X << StrideShift;
         record[3] = (uint)frameWords;
     }
 

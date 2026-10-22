@@ -12,9 +12,6 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// </summary>
 internal static class SpriteSheetComposer
 {
-    /// <summary>The palette rows at or past which a sprite takes part in colour blending.</summary>
-    private const int FirstBlendingRow = 4;
-
     /// <summary>Colours in one sprite palette row.</summary>
     private const int RowColours = 16;
 
@@ -63,7 +60,6 @@ internal static class SpriteSheetComposer
             (string name, SpriteFrame frame, SpriteArtwork artwork) = (frames[index].Name, frames[index].Frame, frames[index].Characters);
             FrameBounds bound = bounds[index];
             Position16<ImagePixels> corner = corners[index];
-            bool blends = false;
             SpritePaletteRows rows = SpritePaletteRows.None;
             // Back to front, so the first part ends in front.
             for (int partIndex = frame.Parts.Length - 1; partIndex >= 0; partIndex--)
@@ -71,10 +67,6 @@ internal static class SpriteSheetComposer
                 SpriteFramePart part = frame.Parts[partIndex];
                 int partRow = part.Palette ?? palette;
                 int paletteRow = partRow | sources.PaletteBits;
-                if (partIndex == frame.Parts.Length - 1)
-                    blends = paletteRow >= FirstBlendingRow;
-                else if (blends != paletteRow >= FirstBlendingRow)
-                    throw new InvalidDataException($"Sprite frame {name} mixes blending and non-blending palette rows.");
                 rows |= SpritePaletteRowSet.Rows[paletteRow];
                 var placed = new SpriteScreenPart(default, part.Size, part.Character,
                     (part.Flip & SnesTileFlipFlags.Horizontal) != 0, (part.Flip & SnesTileFlipFlags.Vertical) != 0, paletteRow, 0);
@@ -101,7 +93,6 @@ internal static class SpriteSheetComposer
                 Corner = corner,
                 Size = new(checked((ushort)bound.Width), checked((ushort)bound.Height)),
                 Origin = new(checked((short)-bound.Left), checked((short)-bound.Top)),
-                Blends = blends,
                 Rows = rows,
             });
         }

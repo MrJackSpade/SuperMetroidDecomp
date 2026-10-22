@@ -12,9 +12,6 @@ public sealed record SpriteSheetFrameDocument
     /// <summary>The frame's origin, from the rectangle's top-left pixel.</summary>
     public required Offset16<ImagePixels> Origin { get; init; }
 
-    /// <summary>Whether the frame takes part in the screen's colour blending.</summary>
-    public required bool Blends { get; init; }
-
     /// <summary>The sprite palette rows the frame was coloured from.</summary>
     public required SpritePaletteRows Rows { get; init; }
 }

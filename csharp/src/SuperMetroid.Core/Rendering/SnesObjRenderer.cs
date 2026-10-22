@@ -91,8 +91,6 @@ public static class SnesObjRenderer
     private const int SpriteColours = 128;
 
     /// <summary>The palette row a blending image reports, so colour math treats it as the upper rows' sprites.</summary>
-    private const byte BlendingImageRow = 4;
-
     /// <summary>Colours in one sprite palette row.</summary>
     private const int RowColours = 16;
 
@@ -105,7 +103,6 @@ public static class SnesObjRenderer
     {
         Offset16<ScreenPixels> corner = draw.Corner;
         bool standard = draw.PaletteOverride is null && draw.Image.ShowsStandardColours(cgram.Colors);
-        byte row = draw.Image.Blends ? BlendingImageRow : (byte)0;
         for (ushort y = 0; y < draw.Image.Size.Y; y++)
         {
             int screenY = corner.Y + y;
@@ -116,19 +113,16 @@ public static class SnesObjRenderer
                 int screenX = corner.X + x;
                 if ((uint)screenX >= frame.X)
                     continue;
+                // Each pixel's palette row decides its colour math, as the cartridge decides it for each OBJ.
+                int index = draw.PaletteIndexAt(new(x, y));
+                if (index == 0)
+                    continue;
                 Rgba32 pixel;
-                byte pixelRow = row;
+                byte pixelRow = (byte)(index / RowColours);
                 if (standard)
-                {
                     pixel = draw.PixelAt(new(x, y));
-                    if (pixel.A == 0)
-                        continue;
-                }
                 else
                 {
-                    int index = draw.PaletteIndexAt(new(x, y));
-                    if (index == 0)
-                        continue;
                     if (draw.PaletteOverride is int overriding)
                     {
                         // The cartridge ORs the draw's palette bits into each part's own; the override takes the

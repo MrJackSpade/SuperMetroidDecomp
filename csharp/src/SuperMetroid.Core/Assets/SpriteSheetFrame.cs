@@ -8,11 +8,10 @@ public sealed record SpriteSheetFrame
     /// <param name="corner">The rectangle's top-left pixel on the sheet.</param>
     /// <param name="size">The rectangle's width and height; both are positive, or both zero for an empty frame.</param>
     /// <param name="origin">The point of the rectangle, from its top-left pixel, that lands on the draw's origin; it may lie outside the rectangle.</param>
-    /// <param name="blends">Whether the frame takes part in the screen's colour blending, as sprites coloured from the upper four palette rows do.</param>
     /// <param name="rows">The sprite palette rows the frame's pixels were coloured from.</param>
     /// <exception cref="ArgumentException">The rectangle has one dimension but not the other, or leaves the sheet.</exception>
     public SpriteSheetFrame(SpriteImage sheet, Position16<ImagePixels> corner, Extent16<ImagePixels> size, Offset16<ImagePixels> origin,
-        bool blends, SpritePaletteRows rows)
+        SpritePaletteRows rows)
     {
         Ensure.NotNull(sheet);
         if ((size.X == 0) != (size.Y == 0) || corner.X + size.X > sheet.Size.X || corner.Y + size.Y > sheet.Size.Y)
@@ -21,7 +20,6 @@ public sealed record SpriteSheetFrame
         Corner = corner;
         Size = size;
         Origin = origin;
-        Blends = blends;
         Rows = rows;
     }
 
@@ -36,9 +34,6 @@ public sealed record SpriteSheetFrame
 
     /// <summary>The point of the rectangle, from its top-left pixel, that lands on the draw's origin.</summary>
     public Offset16<ImagePixels> Origin { get; }
-
-    /// <summary>Whether the frame takes part in the screen's colour blending.</summary>
-    public bool Blends { get; }
 
     /// <summary>The sprite palette rows the frame's pixels were coloured from.</summary>
     public SpritePaletteRows Rows { get; }

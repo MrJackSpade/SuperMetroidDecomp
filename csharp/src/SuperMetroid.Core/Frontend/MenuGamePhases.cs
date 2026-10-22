@@ -301,6 +301,7 @@ session.audio, session.Artwork.MapPresentation?.IntroFont, session.Artwork.Intro
             NarrationPresentation = session.Artwork.MapPresentation?.IntroNarration,
         };
         cinematic.BindSamusHurtColors(session.Artwork.MapPresentation?.SamusHurtColors);
+        cinematic.BindSpriteSheets(session.Artwork.SpriteSheets);
         return cinematic;
     }
 }

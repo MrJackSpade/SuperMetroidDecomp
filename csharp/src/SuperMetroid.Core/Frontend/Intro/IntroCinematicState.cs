@@ -49,11 +49,15 @@ public sealed class IntroCinematicState : IFrontendScreen
         if (!ReferenceEquals(previous.TrailArtwork, artwork.TrailArtwork))
             TrailArtwork = artwork.TrailArtwork;
         if (!ReferenceEquals(previous.SpriteSheets, artwork.SpriteSheets))
-        {
-            spriteSheets = artwork.SpriteSheets;
-            projectileSheets = artwork.SpriteSheets is { } sheets ? ProjectileSheets.IntroFlashbacks(sheets) : null;
-            CurrentFlashbackSamus?.Presentation.TileTransfers.BindSheets(spriteSheets);
-        }
+            BindSpriteSheets(artwork.SpriteSheets);
+    }
+
+    /// <summary>Binds the installed sprite sheets the flashbacks' Samus and projectiles draw from.</summary>
+    public void BindSpriteSheets(InstalledSpriteSheets? sheets)
+    {
+        spriteSheets = sheets;
+        projectileSheets = sheets is null ? null : ProjectileSheets.IntroFlashbacks(sheets);
+        CurrentFlashbackSamus?.Presentation.TileTransfers.BindSheets(spriteSheets);
     }
 
     /// <summary>The installed sheets the flashbacks' Samus draws from.</summary>

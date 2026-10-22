@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// Installed palette-indexed characters and BG page tile references for the opening
 /// cinematic. VRAM destinations and scene timing remain compiled game logic.
 /// </summary>
-[ArchitectureReview("context-bag", "The opening cinematic's installed characters, pages, sprites and palette; every member is immutable artwork data, not a service.")]
 public sealed class IntroCinematicArtworkCatalog
 {
     /// <summary>Assembles the selected opening-art bundle, validating and concatenating its four background pages and retaining edited portrait and narration tilemaps.</summary>

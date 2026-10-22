@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>A checked, lossless 24-bit SNES CPU-bus address.</summary>
@@ -10,6 +12,9 @@ namespace SuperMetroid.Core.Hardware;
 public readonly record struct SnesAddress
 {
     /// <summary>Creates an address from its exact native bank and offset fields.</summary>
+    [SuppressMessage("Design", "SME6440", Justification =
+        "SnesAddress is the CPU-bus address itself: its bank is the address's own coordinate, not a pointer standing in " +
+        "for a game thing. The Hardware module that holds it is deleted by #1422.")]
     public SnesAddress(byte bank, ushort offset)
     {
         Value = (bank << 16) | offset;
@@ -25,6 +30,9 @@ public readonly record struct SnesAddress
     public int Value { get; }
 
     /// <summary>Native eight-bit data/program bank.</summary>
+    [SuppressMessage("Design", "SME6440", Justification =
+        "SnesAddress is the CPU-bus address itself: its bank is the address's own coordinate, not a pointer standing in " +
+        "for a game thing. The Hardware module that holds it is deleted by #1422.")]
     public byte Bank => (byte)(Value >> 16);
 
     /// <summary>Native sixteen-bit address within <see cref="Bank"/>.</summary>

@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>
@@ -22,9 +24,15 @@ public static class SnesBusLayout
     public const int SystemBankLimit = 0x40;
 
     /// <summary>Whether <paramref name="bank"/> is one of the two WRAM banks.</summary>
+    [SuppressMessage("Design", "SME6440", Justification =
+        "The bus layout classifies the CPU bus's own banks; no game identity stands behind them. The Hardware module " +
+        "that holds it is deleted by #1422.")]
     public static bool IsWorkRamBank(int bank) => bank is 0x7e or 0x7f;
 
     /// <summary>Whether <paramref name="bank"/> is a system bank ($00-$3F or $80-$BF), whose low window mirrors WRAM and the I/O.</summary>
+    [SuppressMessage("Design", "SME6440", Justification =
+        "The bus layout classifies the CPU bus's own banks; no game identity stands behind them. The Hardware module " +
+        "that holds it is deleted by #1422.")]
     public static bool IsSystemBank(int bank) => bank is <= 0x3f or >= 0x80 and <= 0xbf;
 
 }

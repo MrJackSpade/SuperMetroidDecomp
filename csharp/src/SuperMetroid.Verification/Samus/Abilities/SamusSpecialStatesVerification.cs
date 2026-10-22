@@ -76,7 +76,7 @@ static void SeedCrystalFlashCartridge(TestAddressSpace bus)
     WriteTestWord(bus, 0x91dc28, 0x9600);
     WriteTestWord(bus, 0x91dc2a, 0x9620);
     for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
-        WriteTestWord(bus, SamusProjectileRomData.Beams.PalettePointers + selection * 2, 0x9700);
+        WriteTestWord(bus, SamusCartridgeTables.PalettePointers + selection * 2, 0x9700);
     for (ushort color = 0; color < 10; color++)
         WriteTestWord(bus, 0x9b9500 + color * 2, unchecked((ushort)(0x0100 + color)));
     for (ushort color = 0; color < 6; color++)

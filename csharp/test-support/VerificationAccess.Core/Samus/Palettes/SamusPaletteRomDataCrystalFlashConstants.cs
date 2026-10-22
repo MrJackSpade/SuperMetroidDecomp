@@ -6,8 +6,7 @@ internal static class SamusPaletteRomDataCrystalFlashConstants
 {
     /// <summary><c>$90:C3C9</c>, twelve beam-loadout palette pointers.</summary>
     /// <remarks>
-    /// This is the same physical table as
-    /// <see cref="SamusProjectileRomData.Beams.PalettePointers"/>:
+    /// This is the same physical table as the beam palette extraction reads:
     /// Ice, then Plasma, then Wave, then Spazer, then Power priority
     /// exactly selects one of five bank-$90 palettes for indices 0..11.
     /// Crystal Flash restoration uses the masked equipped-beam word to

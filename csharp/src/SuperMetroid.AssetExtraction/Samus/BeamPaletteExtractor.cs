@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -20,7 +21,7 @@ public static class BeamPaletteExtractor
         for (int index = 0; index < BeamTileAtlasDefinitions.SelectionCount; index++)
         {
             SamusBeamCombination selection = SamusBeamCombinations.FromTableIndex(index);
-            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Beams.PalettePointers + selection.TableIndex * 2);
+            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusCartridgeTables.PalettePointers + selection.TableIndex * 2);
             var colors = new PaletteRgb5[BeamPaletteDefinitions.ColorCount];
             for (int i = 0; i < colors.Length; i++)
             {

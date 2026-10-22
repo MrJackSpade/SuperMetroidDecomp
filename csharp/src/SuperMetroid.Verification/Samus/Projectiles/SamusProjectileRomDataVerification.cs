@@ -70,7 +70,7 @@ internal static class SamusProjectileRomDataVerification
         TouchRange(bus, SamusCartridgeTables.TilePointers,
             SamusProjectileRomData.Beams.CombinationCount * sizeof(ushort),
             "beam tile pointers");
-        TouchRange(bus, SamusProjectileRomData.Beams.PalettePointers,
+        TouchRange(bus, SamusCartridgeTables.PalettePointers,
             SamusProjectileRomData.Beams.CombinationCount * sizeof(ushort),
             "beam palette pointers");
 

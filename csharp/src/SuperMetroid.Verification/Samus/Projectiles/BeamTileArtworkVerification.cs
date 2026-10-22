@@ -104,7 +104,7 @@ internal static class BeamTileArtworkVerification
         }
         queue?.Enqueue(BeamTileAtlasDefinitions.ByteCount, tileSource, VramDmaDestination.FromNative(BeamTileAtlasDefinitions.DestinationWord));
         int colors = SamusProjectileRomData.Banks.Movement |
-            CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusProjectileRomData.Beams.PalettePointers + selection * 2));
+            CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusCartridgeTables.PalettePointers + selection * 2));
         for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
             cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex + i, Bgr555.FromWord(checked(CartridgeImportSource.Require(bus).ReadCartridgeWord((colors + i * 2)))));
     }

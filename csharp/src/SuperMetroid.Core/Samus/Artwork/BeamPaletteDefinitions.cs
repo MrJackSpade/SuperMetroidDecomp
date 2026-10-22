@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// sixteen-word little-endian BGR555 rows: Power, Ice, Wave, Plasma, and
 /// Spazer. Row <c>r = 0..4</c>, color <c>c = 0..15</c> is at
 /// <c>$C3E1 + $20*r + 2*c</c>; the twelve beam combinations select rows
-/// through <see cref="SamusProjectileRomData.Beams.PalettePointers"/>.
+/// through the beam palette pointer table at <c>$90:C3C9</c>.
 /// All 80 words match the pinned NTSC J/U v1.0 ROM and native listing.
 /// Every row begins <c>$3800,$7FFF</c>; Power, Wave, Plasma, and Spazer
 /// have six zero words at color indices 9..14, while Ice has none. The

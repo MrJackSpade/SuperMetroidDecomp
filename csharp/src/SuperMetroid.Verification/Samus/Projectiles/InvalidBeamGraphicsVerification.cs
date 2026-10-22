@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -47,7 +48,7 @@ internal static class InvalidBeamGraphicsVerification
         {
             var ordinary = new SnesCgram();
             SamusProjectileSystem.LoadBeamPalette(ordinary, (SamusBeamFlags)beam, artwork.Palettes);
-            int table = SamusProjectileRomData.Beams.PalettePointers + beam * 2;
+            int table = SamusCartridgeTables.PalettePointers + beam * 2;
             int source = (int)new SnesAddress(0x90, SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, table), CpuBusRegionRead.Read(bus, table + 1)));
             for (int color = 0; color < 16; color++)
                 AssertEqual((SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, source + color * 2), CpuBusRegionRead.Read(bus, source + color * 2 + 1))) & 0x7fff,

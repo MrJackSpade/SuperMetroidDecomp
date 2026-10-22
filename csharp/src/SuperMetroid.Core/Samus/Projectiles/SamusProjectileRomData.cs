@@ -77,24 +77,6 @@ public static class SamusProjectileRomData
         public const int XAccelerations = 0x90c353;
         /// <summary>Direction-indexed Y acceleration words.</summary>
         public const int YAccelerations = 0x90c367;
-        /// <summary>Beam-combination-indexed palette pointers at <c>$90:C3C9..C3E0</c>.</summary>
-        /// <remarks>
-        /// The twelve stock little-endian words select one of five bank-$90
-        /// sixteen-color palettes. For combination index <c>i = 0..11</c>,
-        /// Ice (<c>i &amp; 2</c>) selects <c>$C401</c>; otherwise Plasma
-        /// (<c>i &amp; 8</c>) selects <c>$C441</c>; otherwise Wave
-        /// (<c>i &amp; 1</c>) selects <c>$C421</c>; otherwise Spazer
-        /// (<c>i &amp; 4</c>) selects <c>$C461</c>; otherwise Power selects
-        /// <c>$C3E1</c>. All twelve match the pinned NTSC J/U v1.0 ROM and
-        /// native listing. The native caller masks equipped beams with
-        /// <c>$0FFF</c> and doubles the index; indices beyond eleven read
-        /// adjacent physical data, including the Chainsaw path, rather than
-        /// extending this rule. Keep the words available to ROM-backed
-        /// consumers and the intentional adjacent-data overread. Selected ordinary
-        /// beam colors are supplied by <see cref="SuperMetroid.Core.Samus.Artwork.BeamPaletteCatalog"/>.
-        /// Investigation: #625 / #900.
-        /// </remarks>
-        public const int PalettePointers = 0x90c3c9;
         /// <summary>Number of beam combinations present in each complete pointer table.</summary>
         public const int CombinationCount = 12;
     }

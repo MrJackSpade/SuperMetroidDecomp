@@ -65,7 +65,7 @@ public sealed class CartridgeRoomAssets
         RoomVisualLayoutCatalog visualLayouts = catalogs.VisualLayouts;
         TilesetDefinition tileset = RoomTilesetDefinitions.Get(header.State.GraphicsSet);
 
-        byte[] roomBlockDefinitions = metatileArt.Get(tileset.BlockDefinitionsAddress).Transfer.ToArray();
+        byte[] roomBlockDefinitions = metatileArt.Get(tileset.Blocks).Transfer.ToArray();
         byte[] blockDefinitions;
         if (header.AreaIndex == AreaId.Ceres)
         {
@@ -101,8 +101,8 @@ public sealed class CartridgeRoomAssets
             levelData,
             scrolls,
             characterArt.Cre.Transfer.ToArray(),
-            characterArt.Get(tileset.CharacterAddress).Transfer.ToArray(),
-            paletteArt.Get(tileset.PaletteAddress).Transfer.ToArray(),
+            characterArt.Get(tileset.Characters).Transfer.ToArray(),
+            paletteArt.Get(tileset.Palette).Transfer.ToArray(),
             tileset);
     }
 
@@ -142,7 +142,7 @@ public sealed class CartridgeRoomAssets
         // characteristic vertical-stripe corruption seen when CRE replaces Ceres tiles.
         backgrounds.Bind(new BgArtworkIdentity("common room element characters"),
             RoomGraphicsLayout.CommonRoomElementCharacters.Offset, CreCharacters);
-        backgrounds.Bind(new BgArtworkIdentity($"tileset characters ${Tileset.CharacterAddress:X6}"),
+        backgrounds.Bind(new BgArtworkIdentity($"tileset characters {Tileset.Characters}"),
             RoomGraphicsLayout.AreaCharacters.Offset, RoomCharacters);
         if (PaletteBytes.Length < RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount)
         {

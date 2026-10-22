@@ -26,8 +26,9 @@ public static class RoomStaticPaletteExtractor
         var files = new Dictionary<string, byte[]>();
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
-            int address = RoomTilesetDefinitions.Get(graphicsSet).PaletteAddress;
-            string name = RoomStaticPaletteFormat.SourceFileName(address);
+            RoomPaletteSet set = RoomTilesetDefinitions.Get(graphicsSet).Palette;
+            int address = RoomTilesetSources.Palettes[set];
+            string name = RoomStaticPaletteFormat.FileName(set);
             if (files.ContainsKey(name)) continue;
 
             byte[] decompressed = RomDataReader.Decompress(CartridgeImportSource.Require(bus), address);

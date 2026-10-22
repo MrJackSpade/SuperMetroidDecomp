@@ -14,7 +14,7 @@ public static class RoomStaticPaletteArtworkFiles
     /// <summary>Stock room-palette manifest filename recording cartridge provenance and hashes for all distinct palette JSON sources.</summary>
     public const string ManifestFileName = "room-palettes.json";
     /// <summary>The schema version required by the installed palette provenance manifest.</summary>
-    private const int FormatVersion = 1;
+    private const int FormatVersion = 2;
 
     /// <summary>Creates one stock RGB5 JSON palette per distinct room graphics-set color source and writes their provenance manifest.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying compressed native room palettes.</param>
@@ -63,7 +63,7 @@ public static class RoomStaticPaletteArtworkFiles
         {
             throw new InvalidDataException($"Invalid room palette manifest {manifestPath}.", error);
         }
-        Dictionary<string, int> sources = ExpectedSources();
+        Dictionary<string, RoomPaletteSet> sources = ExpectedSources();
         if (manifest.Version != FormatVersion ||
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                 StringComparison.OrdinalIgnoreCase) ||
@@ -71,8 +71,8 @@ public static class RoomStaticPaletteArtworkFiles
             sources.Keys.Any(name => !manifest.Sha256.ContainsKey(name)))
             throw new InvalidDataException($"Room palette manifest {manifestPath} does not describe this installation.");
 
-        var selected = new Dictionary<int, RoomStaticPalette>();
-        foreach ((string name, int address) in sources)
+        var selected = new Dictionary<RoomPaletteSet, RoomStaticPalette>();
+        foreach ((string name, RoomPaletteSet set) in sources)
         {
             string stockPath = Path.Combine(stockDirectory, name);
             byte[] stock = File.ReadAllBytes(stockPath);
@@ -86,7 +86,7 @@ public static class RoomStaticPaletteArtworkFiles
             byte[] bytes = selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath);
             try
             {
-                selected.Add(address, RoomStaticPalette.Load(new MemoryStream(bytes, writable: false)));
+                selected.Add(set, RoomStaticPalette.Load(new MemoryStream(bytes, writable: false)));
             }
             catch (InvalidDataException error)
             {
@@ -101,14 +101,14 @@ public static class RoomStaticPaletteArtworkFiles
     /// <exception cref="InvalidDataException">Stock provenance, source coverage, hashes, or palette content are invalid.</exception>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
-    /// <summary>Maps each distinct room tileset palette file to its native source address.</summary>
-    private static Dictionary<string, int> ExpectedSources()
+    /// <summary>Maps each distinct room palette file to its palette.</summary>
+    private static Dictionary<string, RoomPaletteSet> ExpectedSources()
     {
-        var sources = new Dictionary<string, int>();
+        var sources = new Dictionary<string, RoomPaletteSet>();
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
-            int address = RoomTilesetDefinitions.Get(graphicsSet).PaletteAddress;
-            sources[RoomStaticPaletteFormat.SourceFileName(address)] = address;
+            RoomPaletteSet set = RoomTilesetDefinitions.Get(graphicsSet).Palette;
+            sources[RoomStaticPaletteFormat.FileName(set)] = set;
         }
         return sources;
     }

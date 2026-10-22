@@ -513,6 +513,16 @@ selected by both Windows and Android after restart. Initialization refuses to ov
 existing override directory. Instrument, sample and sequence edits are not overrides: they are
 stock-content diagnostics in `game/audio` and are replaced by repair.
 
+Room tileset artwork is modded the same way: place an edited copy of a stock file in
+`overrides/room-characters`, `overrides/room-blocks` or `overrides/room-palettes` under the same name
+as the stock file. Files are named for the artwork, not its cartridge location: a character sheet
+is `room-characters-{set}.png` (for example `room-characters-upper-crateria.png`), a block table
+`room-blocks-{set}.json` and a palette `room-palette-{set}.json` (for example
+`room-palette-heated-norfair.json`); the common room elements stay `room-characters-cre.png` and
+`room-blocks-cre.json`. Overrides saved under the older names, which carried the cartridge address
+(`room-characters-BAC629.png`), are renamed when the installation is rebuilt; an override present
+under both names stops the rebuild, leaving the previous installation in place, until one of them is removed.
+
 Sound effects are decoded into the manifest's `soundPrograms` catalog. Each effect in
 `soundLibraries` has a stable ID such as `sfx-1-01` and names the channel programs it routes.
 Routing pointers and voice-allocation configurations are compiled engine mechanics and cannot

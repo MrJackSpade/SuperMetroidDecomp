@@ -1,41 +1,35 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Artwork;
 
-/// <summary>Complete immutable set of compiled base room palettes for every graphics set.</summary>
+/// <summary>The installed base room palettes.</summary>
 public sealed class RoomStaticPaletteCatalog
 {
-    /// <summary>Owned lookup from each compiled graphics-set palette address to its immutable decoded colors.</summary>
-    private readonly Dictionary<int, RoomStaticPalette> bySource;
+    /// <summary>Copied lookup by palette; the RoomStaticPalette instances are shared and immutable.</summary>
+    private readonly Dictionary<RoomPaletteSet, RoomStaticPalette> byRoomPaletteSet;
 
-    /// <summary>Copies the palette lookup and requires a nonnull compiled palette for every retail graphics-set source.</summary>
-    /// <param name="bySource">Palettes keyed by native source address; dictionary ownership is copied while immutable palette objects remain shared.</param>
-    /// <exception cref="ArgumentNullException">The source dictionary is null.</exception>
-    /// <exception cref="InvalidDataException">A required graphics-set palette is missing or null.</exception>
-    public RoomStaticPaletteCatalog(IReadOnlyDictionary<int, RoomStaticPalette> bySource)
+    /// <summary>Copies the lookup and requires an entry for every retail graphics set's palette.</summary>
+    /// <exception cref="ArgumentNullException">An argument is null.</exception>
+    /// <exception cref="InvalidDataException">A graphics set's palette is missing or null.</exception>
+    public RoomStaticPaletteCatalog(IReadOnlyDictionary<RoomPaletteSet, RoomStaticPalette> palettes)
     {
-        Ensure.NotNull(bySource);
+        Ensure.NotNull(palettes);
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
-            int source = RoomTilesetDefinitions.Get(graphicsSet).PaletteAddress;
-            if (!bySource.TryGetValue(source, out RoomStaticPalette? palette) || palette is null)
-                throw new InvalidDataException(
-                    $"Room palette catalog lacks graphics set ${graphicsSet:X2} source ${source:X6}.");
+            RoomPaletteSet required = RoomTilesetDefinitions.Get(graphicsSet).Palette;
+            if (!palettes.TryGetValue(required, out RoomStaticPalette? value) || value is null)
+                throw new InvalidDataException($"RoomStaticPaletteCatalog lacks graphics set ${graphicsSet:X2}'s {required}.");
         }
-        this.bySource = new Dictionary<int, RoomStaticPalette>(bySource);
+        byRoomPaletteSet = new Dictionary<RoomPaletteSet, RoomStaticPalette>(palettes);
     }
 
-    /// <summary>SHA-256 of the selected, decoded room colors in stable source order.</summary>
-    public string ContentIdentity => SelectedPresentationHash.FromTransfers(
-        nameof(RoomStaticPaletteCatalog), this.bySource, palette => palette.Transfer);
+    /// <summary>Every installed room palette.</summary>
+    public IReadOnlyDictionary<RoomPaletteSet, RoomStaticPalette> Palettes => byRoomPaletteSet;
 
-    /// <summary>Resolves the selected base room palette by compiled tileset source identity without reading cartridge data.</summary>
-    /// <param name="sourceAddress">Native palette-stream identity from the room's graphics-set definition.</param>
-    /// <returns>The shared compiled palette containing native RGB5 color words for the base room upload.</returns>
-    /// <exception cref="InvalidDataException">No palette is installed for the source identity.</exception>
-    public RoomStaticPalette Get(int sourceAddress) =>
-        bySource.TryGetValue(sourceAddress, out RoomStaticPalette? palette)
-            ? palette
-            : throw new InvalidDataException($"No room palette for source ${sourceAddress:X6}.");
+    /// <summary>The installed RoomStaticPalette for <paramref name="set"/>.</summary>
+    /// <exception cref="InvalidDataException">None is installed for <paramref name="set"/>.</exception>
+    public RoomStaticPalette Get(RoomPaletteSet set) =>
+        byRoomPaletteSet.TryGetValue(set, out RoomStaticPalette? value)
+            ? value
+            : throw new InvalidDataException($"No RoomStaticPalette is installed for {set}.");
 }

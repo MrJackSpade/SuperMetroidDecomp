@@ -192,7 +192,7 @@ internal static class RoomAssetRomDataVerification
             AssertTrue(vram.Bytes[..native.Length].SequenceEqual(native),
                 $"room atlas {name} uploads exactly the native character range");
         }
-        var catalog = new RoomCharacterAtlasCatalog((compiledCre ?? throw new InvalidOperationException("Verification requires compiledCre.")), compiledBySource);
+        var catalog = new RoomCharacterAtlasCatalog((compiledCre ?? throw new InvalidOperationException("Verification requires compiledCre.")), compiledBySource.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.CharacterSetAt(pair.Key), pair => pair.Value));
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
             CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
@@ -228,7 +228,7 @@ internal static class RoomAssetRomDataVerification
             landingImage.Palette);
         compiledBySource[landingSource] = RoomCharacterAtlas.Load(
             new MemoryStream(paintedPng.ToArray()), landingNative.Length);
-        var editedCatalog = new RoomCharacterAtlasCatalog(compiledCre, compiledBySource);
+        var editedCatalog = new RoomCharacterAtlasCatalog(compiledCre, compiledBySource.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.CharacterSetAt(pair.Key), pair => pair.Value));
         CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(landing, editedCatalog);
         AssertTrue(!editedRoom.RoomCharacters.SequenceEqual(landingNative),
             "edited installed room PNG changes real room-loader character bytes");

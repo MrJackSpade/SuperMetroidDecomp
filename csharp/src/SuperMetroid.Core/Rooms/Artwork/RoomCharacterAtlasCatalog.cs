@@ -1,49 +1,40 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Artwork;
 
-/// <summary>
-/// Complete room-character artwork snapshot. Source addresses are stable identities
-/// for shared cartridge streams, not instructions to read the ROM during room load.
-/// </summary>
+/// <summary>The installed room background character sheets.</summary>
 public sealed class RoomCharacterAtlasCatalog
 {
-    /// <summary>Owned mapping from compiled room character-stream addresses to immutable installed atlases.</summary>
-    private readonly Dictionary<int, RoomCharacterAtlas> bySource;
+    /// <summary>Copied lookup by character sheet; the RoomCharacterAtlas instances are shared and immutable.</summary>
+    private readonly Dictionary<RoomCharacterSet, RoomCharacterAtlas> byRoomCharacterSet;
 
-    /// <summary>Creates a complete installed character-art catalog and verifies that every compiled room graphics set can resolve its selected source.</summary>
-    /// <param name="cre">Common room elements sheet uploaded alongside each graphics-set-specific sheet.</param>
-    /// <param name="bySource">Atlases keyed by immutable native source address; the mapping is copied, while atlas instances are shared.</param>
-    /// <exception cref="ArgumentNullException">The CRE atlas or source mapping is null.</exception>
-    /// <exception cref="InvalidDataException">A source selected by a compiled room graphics set is absent or maps to null.</exception>
+    /// <summary>Copies the lookup and requires an entry for every retail graphics set's character sheet.</summary>
+    /// <exception cref="ArgumentNullException">An argument is null.</exception>
+    /// <exception cref="InvalidDataException">A graphics set's character sheet is missing or null.</exception>
     public RoomCharacterAtlasCatalog(RoomCharacterAtlas cre,
-        IReadOnlyDictionary<int, RoomCharacterAtlas> bySource)
+        IReadOnlyDictionary<RoomCharacterSet, RoomCharacterAtlas> sheets)
     {
         Cre = Ensure.NotNull(cre);
-        Ensure.NotNull(bySource);
+        Ensure.NotNull(sheets);
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
-            int source = RoomTilesetDefinitions.Get(graphicsSet).CharacterAddress;
-            if (!bySource.TryGetValue(source, out RoomCharacterAtlas? atlas) || atlas is null)
-                throw new InvalidDataException(
-                    $"Room character catalog lacks graphics set ${graphicsSet:X2} source ${source:X6}.");
+            RoomCharacterSet required = RoomTilesetDefinitions.Get(graphicsSet).Characters;
+            if (!sheets.TryGetValue(required, out RoomCharacterAtlas? value) || value is null)
+                throw new InvalidDataException($"RoomCharacterAtlasCatalog lacks graphics set ${graphicsSet:X2}'s {required}.");
         }
-        this.bySource = new Dictionary<int, RoomCharacterAtlas>(bySource);
+        byRoomCharacterSet = new Dictionary<RoomCharacterSet, RoomCharacterAtlas>(sheets);
     }
 
-    /// <summary>Common room elements character sheet shared by every room graphics set.</summary>
+    /// <summary>The common room elements, shared by every graphics set.</summary>
     public RoomCharacterAtlas Cre { get; }
 
-    /// <summary>SHA-256 of every selected character transfer, including CRE and shared sheets.</summary>
-    public string ContentIdentity => SelectedPresentationHash.FromTransfers(
-        nameof(RoomCharacterAtlasCatalog), this.bySource, atlas => atlas.Transfer, Cre.Transfer);
+    /// <summary>Every installed sheet besides the common room elements.</summary>
+    public IReadOnlyDictionary<RoomCharacterSet, RoomCharacterAtlas> Sheets => byRoomCharacterSet;
 
-    /// <summary>Resolves an already-compiled room sheet by its native source identity.</summary>
-    public RoomCharacterAtlas Get(int sourceAddress)
-    {
-        if (!bySource.TryGetValue(sourceAddress, out RoomCharacterAtlas? atlas))
-            throw new InvalidDataException($"No room character atlas for source ${sourceAddress:X6}.");
-        return atlas;
-    }
+    /// <summary>The installed RoomCharacterAtlas for <paramref name="set"/>.</summary>
+    /// <exception cref="InvalidDataException">None is installed for <paramref name="set"/>.</exception>
+    public RoomCharacterAtlas Get(RoomCharacterSet set) =>
+        byRoomCharacterSet.TryGetValue(set, out RoomCharacterAtlas? value)
+            ? value
+            : throw new InvalidDataException($"No RoomCharacterAtlas is installed for {set}.");
 }

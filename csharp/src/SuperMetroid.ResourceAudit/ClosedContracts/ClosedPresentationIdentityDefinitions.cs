@@ -58,9 +58,6 @@ internal static class ClosedPresentationIdentityDefinitions
         ("ProjectileTrailCatalog", "Resolve", "frame") => [.. ProjectileTrailVisualDefinitions.Frames.Select(frame => (int)frame)],
         ("RoomFxLayer3TilemapCatalog", "Resolve", "type") => RoomFxLayer3TilemapFormat.Types.Select(type => (int)type).ToArray(),
         ("RoomFxPaletteBlendCatalog", "Apply", "selection") => RoomFxPaletteBlendDefinitions.Ids.Select(id => (int)id).Append(0).ToArray(),
-        ("RoomCharacterAtlasCatalog", "Get", "sourceAddress") => TilesetSources(definition => definition.CharacterAddress),
-        ("RoomMetatileCatalog", "Get", "sourceAddress") => TilesetSources(definition => definition.BlockDefinitionsAddress),
-        ("RoomStaticPaletteCatalog", "Get", "sourceAddress") => TilesetSources(definition => definition.PaletteAddress),
         ("AreaMapPresentationCatalog" or "IGameplayPresentationContent", "Resolve", "asset") =>
             [(int)VramAssetId.StandardHudTiles, (int)VramAssetId.KraidBg3RestoreQuarter0,
              (int)VramAssetId.KraidBg3RestoreQuarter1, (int)VramAssetId.KraidBg3RestoreQuarter2,
@@ -81,8 +78,4 @@ internal static class ClosedPresentationIdentityDefinitions
         // returns false rather than looking up missing artwork.
         _ => null,
     };
-
-    /// <summary>Collects distinct cartridge source addresses from the closed room tileset definitions.</summary>
-    private static int[] TilesetSources(Func<TilesetDefinition, int> select) => Enumerable.Range(0, RoomTilesetDefinitions.Count)
-        .Select(index => select(RoomTilesetDefinitions.Get((byte)index))).Distinct().ToArray();
 }

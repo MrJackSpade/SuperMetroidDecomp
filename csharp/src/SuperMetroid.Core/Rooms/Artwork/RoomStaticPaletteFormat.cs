@@ -9,8 +9,7 @@ public static class RoomStaticPaletteFormat
     /// <summary>The number of RGB5 colors in one room graphics-set palette source.</summary>
     public const int ColorCount = RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount / Bgr555.ByteCount;
 
-    /// <summary>Builds the editable file name for a palette's 24-bit native source address.</summary>
-    /// <param name="sourceAddress">The palette's 24-bit native source address.</param>
-    /// <returns>A file name in the form <c>room-palette-XXXXXX.json</c>.</returns>
-    public static string SourceFileName(int sourceAddress) => $"room-palette-{sourceAddress:X6}.json";
+    /// <summary>The editable JSON file name of a room palette.</summary>
+    public static string FileName(SuperMetroid.Core.Rooms.LevelData.RoomPaletteSet set) =>
+        $"room-palette-{SuperMetroid.Core.Assets.InstalledArtworkNames.Hyphenated(set.ToString())}.json";
 }

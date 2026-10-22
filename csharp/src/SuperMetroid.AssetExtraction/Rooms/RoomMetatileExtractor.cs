@@ -26,9 +26,9 @@ public static class RoomMetatileExtractor
             RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress);
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
-            int source = RoomTilesetDefinitions.Get(graphicsSet).BlockDefinitionsAddress;
-            string name = RoomMetatileFormat.SourceFileName(source);
-            if (!files.ContainsKey(name)) Add(name, source);
+            RoomBlockSet set = RoomTilesetDefinitions.Get(graphicsSet).Blocks;
+            string name = RoomMetatileFormat.FileName(set);
+            if (!files.ContainsKey(name)) Add(name, RoomTilesetSources.Blocks[set]);
         }
         return files;
 

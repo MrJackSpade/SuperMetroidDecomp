@@ -27,14 +27,12 @@ public static class RoomCharacterAtlasExtractor
             RoomAssetRomData.Tilesets.CreCharactersAddress);
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
-            int sourceAddress = RoomTilesetDefinitions.Get(graphicsSet).CharacterAddress;
-            string name = RoomCharacterAtlasFormat.SourceFileName(sourceAddress);
-            if (!files.ContainsKey(name)) Add(name, sourceAddress);
+            RoomCharacterSet set = RoomTilesetDefinitions.Get(graphicsSet).Characters;
+            string name = RoomCharacterAtlasFormat.FileName(set);
+            if (!files.ContainsKey(name)) Add(name, RoomTilesetSources.Characters[set]);
         }
-        Add(RoomCharacterAtlasFormat.SourceFileName(
-                RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress),
-            RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress,
-            compressed: false);
+        Add(RoomCharacterAtlasFormat.FileName(RoomCharacterSet.TourianStatueGhost),
+            RoomTilesetSources.Characters[RoomCharacterSet.TourianStatueGhost], compressed: false);
         return files;
 
         void Add(string fileName, int sourceAddress, bool compressed = true)

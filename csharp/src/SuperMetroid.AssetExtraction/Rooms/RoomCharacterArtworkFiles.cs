@@ -19,7 +19,7 @@ public static class RoomCharacterArtworkFiles
     /// <summary>Stock character manifest filename recording cartridge provenance, PNG hashes, and required native planar transfer lengths.</summary>
     public const string ManifestFileName = "room-characters.json";
     /// <summary>Schema revision required by the installed room character manifest.</summary>
-    private const int FormatVersion = 2;
+    private const int FormatVersion = 3;
 
     /// <summary>Creates stock indexed PNGs for CRE, distinct room graphics-set sources, and Tourian-statue ghost characters, plus their manifest.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying compressed room characters and the raw ghost span.</param>
@@ -35,10 +35,11 @@ public static class RoomCharacterArtworkFiles
         Directory.CreateDirectory(directory);
 
         IReadOnlyDictionary<string, byte[]> pngs = RoomCharacterAtlasExtractor.Extract(bus);
-        Dictionary<string, int> sources = ExpectedSources();
+        Dictionary<string, RoomCharacterSource> sources = ExpectedSources();
         var entries = new Dictionary<string, RoomCharacterFileEntry>();
-        foreach ((string name, int sourceAddress) in sources)
+        foreach ((string name, RoomCharacterSource source) in sources)
         {
+            int sourceAddress = source.Address;
             byte[] png = pngs[name];
             int nativeByteCount = sourceAddress ==
                 RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress
@@ -75,7 +76,7 @@ public static class RoomCharacterArtworkFiles
             throw new InvalidDataException($"Invalid room character manifest {manifestPath}.", error);
         }
 
-        Dictionary<string, int> sources = ExpectedSources();
+        Dictionary<string, RoomCharacterSource> sources = ExpectedSources();
         if (manifest.Version != FormatVersion ||
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                 StringComparison.OrdinalIgnoreCase) ||
@@ -84,8 +85,8 @@ public static class RoomCharacterArtworkFiles
             throw new InvalidDataException($"Room character manifest {manifestPath} does not describe this installation.");
 
         RoomCharacterAtlas? cre = null;
-        var sheets = new Dictionary<int, RoomCharacterAtlas>();
-        foreach ((string name, int address) in sources)
+        var sheets = new Dictionary<RoomCharacterSet, RoomCharacterAtlas>();
+        foreach ((string name, RoomCharacterSource source) in sources)
         {
             RoomCharacterFileEntry entry = manifest.Entries[name];
             RoomCharacterAtlasFormat.ValidateTileCount(entry.NativeByteCount);
@@ -109,8 +110,8 @@ public static class RoomCharacterArtworkFiles
             {
                 throw new InvalidDataException($"Invalid room character PNG {selectedPath}: {error.Message}", error);
             }
-            if (name == RoomCharacterAtlasFormat.CreFileName) cre = atlas;
-            else sheets.Add(address, atlas);
+            if (source.Set is { } set) sheets.Add(set, atlas);
+            else cre = atlas;
         }
         return new RoomCharacterAtlasCatalog(
             cre ?? throw new InvalidDataException("Room character manifest has no CRE sheet."), sheets);
@@ -119,22 +120,27 @@ public static class RoomCharacterArtworkFiles
     /// <summary>Used by installer completeness checks; overrides do not affect stock provenance.</summary>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
-    /// <summary>Maps CRE, distinct graphics-set sources, and ghost artwork filenames to cartridge addresses.</summary>
-    private static Dictionary<string, int> ExpectedSources()
+    /// <summary>Maps the CRE, each distinct graphics-set sheet and the ghost sheet by file name to their sheet and source.</summary>
+    private static Dictionary<string, RoomCharacterSource> ExpectedSources()
     {
-        var sources = new Dictionary<string, int>
+        var sources = new Dictionary<string, RoomCharacterSource>
         {
-            [RoomCharacterAtlasFormat.CreFileName] = RoomAssetRomData.Tilesets.CreCharactersAddress,
+            [RoomCharacterAtlasFormat.CreFileName] = new(null, RoomAssetRomData.Tilesets.CreCharactersAddress),
         };
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
-            int address = RoomTilesetDefinitions.Get(graphicsSet).CharacterAddress;
-            sources[RoomCharacterAtlasFormat.SourceFileName(address)] = address;
+            RoomCharacterSet set = RoomTilesetDefinitions.Get(graphicsSet).Characters;
+            sources[RoomCharacterAtlasFormat.FileName(set)] = new(set, RoomTilesetSources.Characters[set]);
         }
-        int ghostAddress = RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress;
-        sources[RoomCharacterAtlasFormat.SourceFileName(ghostAddress)] = ghostAddress;
+        sources[RoomCharacterAtlasFormat.FileName(RoomCharacterSet.TourianStatueGhost)] =
+            new(RoomCharacterSet.TourianStatueGhost, RoomTilesetSources.Characters[RoomCharacterSet.TourianStatueGhost]);
         return sources;
     }
+
+    /// <summary>A character file's sheet (none for the common room elements) and cartridge source.</summary>
+    /// <param name="Set">The sheet, or null for the common room elements.</param>
+    /// <param name="Address">Where the sheet is stored on the cartridge.</param>
+    private readonly record struct RoomCharacterSource(RoomCharacterSet? Set, int Address);
 
     /// <summary>Reads and writes manifest property names in their stable camel-case JSON form.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

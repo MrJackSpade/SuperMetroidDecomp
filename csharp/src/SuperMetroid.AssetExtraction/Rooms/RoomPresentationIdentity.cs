@@ -22,9 +22,9 @@ public static class RoomPresentationIdentity
         RoomSkyTilemapCatalog skies, RoomVisualLayoutCatalog layouts) =>
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
-            [GameInstallationLayout.RoomCharacterDirectoryName] = characters.ContentIdentity,
-            [GameInstallationLayout.RoomPaletteDirectoryName] = palettes.ContentIdentity,
-            [GameInstallationLayout.RoomMetatileDirectoryName] = metatiles.ContentIdentity,
+            [GameInstallationLayout.RoomCharacterDirectoryName] = RoomTilesetSources.CharacterIdentity(characters),
+            [GameInstallationLayout.RoomPaletteDirectoryName] = RoomTilesetSources.PaletteIdentity(palettes),
+            [GameInstallationLayout.RoomMetatileDirectoryName] = RoomTilesetSources.BlockIdentity(metatiles),
             [GameInstallationLayout.RoomBackgroundTilemapDirectoryName] = backgrounds.ContentIdentity,
             [nameof(RoomSkyTilemapCatalog)] = skies.ContentIdentity,
             [GameInstallationLayout.RoomVisualLayoutDirectoryName] = layouts.ContentIdentity,

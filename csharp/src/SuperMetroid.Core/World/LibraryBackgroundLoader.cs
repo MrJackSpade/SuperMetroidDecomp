@@ -97,7 +97,7 @@ public static class LibraryBackgroundLoader
                 throw new InvalidDataException(
                     $"Tourian statue-ghost transfer requested {transfer.ByteCount} bytes, " +
                     $"not {RoomAssetRomData.LibraryBackground.TourianStatueGhost.TransferByteCount}.");
-            BindCharacters(artwork, transfer, characterArt.Get(transfer.SourceAddress).Transfer.Span, destination);
+            BindCharacters(artwork, transfer, characterArt.Get(SuperMetroid.Core.Rooms.LevelData.RoomCharacterSet.TourianStatueGhost).Transfer.Span, destination);
         }
         else if (hudArt is not null && transfer.SourceAddress == HudTileAtlasFormat.SourceAddress &&
             transfer.ByteCount == HudTileAtlasFormat.CharacterByteCount)

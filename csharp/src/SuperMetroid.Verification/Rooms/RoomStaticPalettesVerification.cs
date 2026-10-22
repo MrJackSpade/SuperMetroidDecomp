@@ -49,7 +49,7 @@ internal static class RoomStaticPalettesVerification
         }
         AssertEqual(compiled.Count, files.Count,
             "one extracted room palette per distinct graphics-set color source");
-        var catalog = new RoomStaticPaletteCatalog(compiled);
+        var catalog = new RoomStaticPaletteCatalog(compiled.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.PaletteSetAt(pair.Key), pair => pair.Value));
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
             CartridgeRoomHeader header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
@@ -75,7 +75,7 @@ internal static class RoomStaticPalettesVerification
             new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(edited)));
         var stockCgram = new SnesCgram();
         var editedCgram = new SnesCgram();
-        catalog.Get(selectedSource).LoadTo(stockCgram);
+        catalog.GetAt(selectedSource).LoadTo(stockCgram);
         replacement.LoadTo(editedCgram);
         AssertTrue(stockCgram.Colors[0] != editedCgram.Colors[0] &&
             stockCgram.Colors[1..RoomStaticPaletteFormat.ColorCount]
@@ -83,7 +83,7 @@ internal static class RoomStaticPalettesVerification
             "editing one RGB5 component changes only its selected runtime CGRAM color");
         compiled[selectedSource] = replacement;
         CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(landing,
-            paletteArt: new RoomStaticPaletteCatalog(compiled));
+            paletteArt: new RoomStaticPaletteCatalog(compiled.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.PaletteSetAt(pair.Key), pair => pair.Value)));
         var editedRoomCgram = new SnesCgram();
         editedRoom.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), editedRoomCgram);
         AssertEqual(editedCgram.Colors[0], editedRoomCgram.Colors[0],

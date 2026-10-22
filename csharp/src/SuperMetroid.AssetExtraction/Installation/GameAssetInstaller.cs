@@ -170,6 +170,8 @@ public static class GameAssetInstaller
                     SupportedCartridge.Sha256)));
             progress?.Report("Finishing setup…");
             cancellationToken.ThrowIfCancellationRequested();
+            // Before publishing: a refused rename leaves the old content in place, so the next start retries it.
+            RoomArtworkOverrideNames.Migrate(installation);
             // These are fixed app-owned content directories. Player saves, recordings,
             // configuration and the original chosen ROM are outside this transaction.
             if (Directory.Exists(previous)) Directory.Delete(previous, recursive: true);

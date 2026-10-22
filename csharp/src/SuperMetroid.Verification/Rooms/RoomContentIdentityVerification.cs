@@ -138,9 +138,9 @@ internal static class RoomContentIdentityVerification
         };
         if (reverse) layouts = layouts.Reverse().ToDictionary(pair => pair.Key, pair => pair.Value);
         return new RoomIdentityFixture(
-            new RoomCharacterAtlasCatalog(Characters(edited == "cre-characters"), chars),
-            new RoomStaticPaletteCatalog(colors),
-            new RoomMetatileCatalog(Blocks(edited == "cre-blocks"), metatiles),
+            new RoomCharacterAtlasCatalog(Characters(edited == "cre-characters"), chars.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.CharacterSetAt(pair.Key), pair => pair.Value)),
+            new RoomStaticPaletteCatalog(colors.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.PaletteSetAt(pair.Key), pair => pair.Value)),
+            new RoomMetatileCatalog(Blocks(edited == "cre-blocks"), metatiles.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.BlockSetAt(pair.Key), pair => pair.Value)),
             new RoomBackgroundTilemapCatalog(backgrounds), new RoomSkyTilemapCatalog(skies),
             RoomVisualLayoutCatalog.FromLayoutsForVerification(layouts));
 

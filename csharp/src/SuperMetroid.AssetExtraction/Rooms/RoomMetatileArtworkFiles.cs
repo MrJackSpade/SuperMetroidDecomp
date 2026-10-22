@@ -18,7 +18,7 @@ public static class RoomMetatileArtworkFiles
     /// <summary>Stock visual-block manifest filename recording cartridge provenance, metatile JSON hashes, and native transfer lengths.</summary>
     public const string ManifestFileName = "room-blocks.json";
     /// <summary>Schema revision required by the stock visual-block provenance manifest.</summary>
-    private const int FormatVersion = 1;
+    private const int FormatVersion = 2;
 
     /// <summary>Creates stock visual metatile JSON for CRE and each distinct room block-table source, with a provenance manifest.</summary>
     /// <param name="bus">Non-null cartridge import address space containing the compressed visual block-definition tables.</param>
@@ -34,8 +34,9 @@ public static class RoomMetatileArtworkFiles
         Directory.CreateDirectory(directory);
         IReadOnlyDictionary<string, byte[]> files = RoomMetatileExtractor.Extract(bus);
         var entries = new Dictionary<string, RoomMetatileFileEntry>();
-        foreach ((string name, int address) in ExpectedSources())
+        foreach ((string name, RoomBlockSource source) in ExpectedSources())
         {
+            int address = source.Address;
             byte[] json = files[name];
             int nativeLength = RomDataReader.Decompress(CartridgeImportSource.Require(bus), address).Length;
             RoomMetatileFormat.ValidateBlockCount(nativeLength);
@@ -58,7 +59,7 @@ public static class RoomMetatileArtworkFiles
         using var manifestStream = File.OpenRead(manifestPath);
         RoomMetatileFileManifest manifest = JsonAssetDocument.Read<RoomMetatileFileManifest>(
             manifestStream, JsonOptions, $"room metatile manifest {manifestPath}");
-        Dictionary<string, int> sources = ExpectedSources();
+        Dictionary<string, RoomBlockSource> sources = ExpectedSources();
         if (manifest.Version != FormatVersion ||
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                 StringComparison.OrdinalIgnoreCase) ||
@@ -67,8 +68,8 @@ public static class RoomMetatileArtworkFiles
             throw new InvalidDataException($"Room metatile manifest {manifestPath} does not describe this installation.");
 
         RoomMetatileAtlas? cre = null;
-        var selected = new Dictionary<int, RoomMetatileAtlas>();
-        foreach ((string name, int address) in sources)
+        var selected = new Dictionary<RoomBlockSet, RoomMetatileAtlas>();
+        foreach ((string name, RoomBlockSource source) in sources)
         {
             RoomMetatileFileEntry entry = manifest.Entries[name];
             RoomMetatileFormat.ValidateBlockCount(entry.NativeByteCount);
@@ -92,8 +93,8 @@ public static class RoomMetatileArtworkFiles
             {
                 throw new InvalidDataException($"Invalid room metatile JSON {selectedPath}: {error.Message}", error);
             }
-            if (name == RoomMetatileFormat.CreFileName) cre = atlas;
-            else selected.Add(address, atlas);
+            if (source.Set is { } set) selected.Add(set, atlas);
+            else cre = atlas;
         }
         return new RoomMetatileCatalog(
             cre ?? throw new InvalidDataException("Room metatile manifest has no CRE resource."), selected);
@@ -106,19 +107,24 @@ public static class RoomMetatileArtworkFiles
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
     /// <summary>Collects the CRE source and each distinct room tileset block-definition source by asset filename.</summary>
-    private static Dictionary<string, int> ExpectedSources()
+    private static Dictionary<string, RoomBlockSource> ExpectedSources()
     {
-        var sources = new Dictionary<string, int>
+        var sources = new Dictionary<string, RoomBlockSource>
         {
-            [RoomMetatileFormat.CreFileName] = RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress,
+            [RoomMetatileFormat.CreFileName] = new(null, RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress),
         };
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
-            int address = RoomTilesetDefinitions.Get(graphicsSet).BlockDefinitionsAddress;
-            sources[RoomMetatileFormat.SourceFileName(address)] = address;
+            RoomBlockSet set = RoomTilesetDefinitions.Get(graphicsSet).Blocks;
+            sources[RoomMetatileFormat.FileName(set)] = new(set, RoomTilesetSources.Blocks[set]);
         }
         return sources;
     }
+
+    /// <summary>A block file's table (none for the common room elements) and cartridge source.</summary>
+    /// <param name="Set">The table, or null for the common room elements.</param>
+    /// <param name="Address">Where the table is stored on the cartridge.</param>
+    private readonly record struct RoomBlockSource(RoomBlockSet? Set, int Address);
 
     /// <summary>Strict camel-case serialization settings for the metatile provenance manifest.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

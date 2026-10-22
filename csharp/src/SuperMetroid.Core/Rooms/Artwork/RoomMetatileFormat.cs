@@ -18,9 +18,9 @@ public static class RoomMetatileFormat
     /// <summary>Editable common-room-element block filename, corresponding to native TileTable_CRE at $B9:A09D rather than a tileset-specific table.</summary>
     public const string CreFileName = "room-blocks-cre.json";
 
-    /// <summary>Gets the editable block-table filename keyed by a tileset's native compressed source identity.</summary>
-    /// <param name="sourceAddress">Source identity rendered as uppercase hexadecimal with at least six digits; no cartridge read or address validation occurs here.</param>
-    public static string SourceFileName(int sourceAddress) => $"room-blocks-{sourceAddress:X6}.json";
+    /// <summary>The editable JSON file name of a block table; graphics sets that share a table share one file.</summary>
+    public static string FileName(SuperMetroid.Core.Rooms.LevelData.RoomBlockSet set) =>
+        $"room-blocks-{SuperMetroid.Core.Assets.InstalledArtworkNames.Hyphenated(set.ToString())}.json";
 
     /// <summary>Validates that a native table length contains 1..1024 complete eight-byte definitions and returns its block count.</summary>
     /// <param name="byteCount">Decompressed native table length in bytes.</param>

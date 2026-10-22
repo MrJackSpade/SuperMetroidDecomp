@@ -59,7 +59,7 @@ internal static class RoomMetatilesVerification
             new MemoryStream(files[RoomMetatileFormat.CreFileName], writable: false),
             RomDataReader.Decompress(bus,
                 RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress).Length);
-        var stockCatalog = new RoomMetatileCatalog(stockCre, bySource);
+        var stockCatalog = new RoomMetatileCatalog(stockCre, bySource.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.BlockSetAt(pair.Key), pair => pair.Value));
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
             CartridgeRoomHeader header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
@@ -95,7 +95,7 @@ internal static class RoomMetatilesVerification
         AssertTrue(before.TopLeft != after.TopLeft && before.TopRight == after.TopRight &&
             before.BottomLeft == after.BottomLeft && before.BottomRight == after.BottomRight,
             "edited JSON changes only the intended 8x8 visual child of a solid block");
-        RoomMetatileCatalog editedCatalog = new(modified, bySource);
+        RoomMetatileCatalog editedCatalog = new(modified, bySource.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.BlockSetAt(pair.Key), pair => pair.Value));
         CartridgeRoomHeader landing = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
         CartridgeRoomAssets nativeLanding = LoadFixtureRoomAssets(landing);
         CartridgeRoomAssets editedLanding = LoadFixtureRoomAssets(landing, metatileArt: editedCatalog);

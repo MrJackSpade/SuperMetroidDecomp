@@ -33,6 +33,10 @@ public enum SpriteSheetId
     IntroSprites,
     /// <summary>The Ceres approach's stars and rear-view gunship and station.</summary>
     CeresFlightSprites,
+    /// <summary>The Ceres destruction scene's actors over the Ceres scene's OBJ characters.</summary>
+    CeresDestructionSprites,
+    /// <summary>The Ceres destruction scene's actors over the Zebes reveal's OBJ characters.</summary>
+    ZebesRevealSprites,
     /// <summary>Samus's projectiles, bombs, charge flare and trails as the intro's flashbacks draw them.</summary>
     IntroProjectiles,
     /// <summary>Samus's projectiles, bombs, charge flare and trails with the power beam equipped.</summary>

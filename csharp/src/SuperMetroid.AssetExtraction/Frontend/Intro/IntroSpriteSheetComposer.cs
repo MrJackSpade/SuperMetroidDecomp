@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Hardware;
@@ -44,6 +45,22 @@ internal static class IntroSpriteSheetComposer
         Ensure.NotNull(flight);
         return Compose([flight.Sprites], flight.ObjectPage, flight.Palette.LoadTo);
     }
+
+    /// <summary>
+    /// What the Ceres destruction scene's sheet composes: the scene's destruction and shared Ceres flight families over
+    /// the OBJ characters <paramref name="uploads"/> leave, coloured as the scene loads the flight's palette.
+    /// </summary>
+    internal static SpriteSheetSources CeresDestructionSources(IntroCinematicArtworkCatalog intro, IReadOnlyList<CeresDestructionUpload> uploads)
+    {
+        Ensure.NotNull(intro);
+        // The scene's tilemap uploads leave its OBJ characters alone, so either outcome composes the same page.
+        SpriteArtwork page = CeresDestructionScreenImage.ObjectPage(CeresDestructionScreenImage.Compose(intro, uploads, withSamus: false));
+        return Compose([intro.CeresFlight.Sprites, intro.CeresDestruction.Sprites], page, intro.CeresFlight.Palette.LoadTo);
+    }
+
+    /// <summary>The frames the Ceres destruction scene's sheets hold.</summary>
+    internal static IEnumerable<string> CeresDestructionFrameNames(IntroCinematicArtworkCatalog intro) =>
+        FrameNames([Ensure.NotNull(intro).CeresFlight.Sprites, intro.CeresDestruction.Sprites]);
 
     /// <summary>The frames the intro sheet of <paramref name="intro"/> holds.</summary>
     internal static IEnumerable<string> FrameNames(IntroCinematicArtworkCatalog intro) => FrameNames(Families(Ensure.NotNull(intro)));

@@ -314,8 +314,10 @@ internal static class CeresFlightArtworkVerification
         IntroCinematicArtworkCatalog stockParent = IntroCinematicArtworkFiles.Load(
             installation.IntroCinematicDirectory, null);
         IntroCinematicArtworkCatalog editedParent = installation.LoadIntroCinematicArt();
-        var restoredDestruction = new CeresDestructionCinematicState(artwork: stockParent);
-        var editedDestruction = new CeresDestructionCinematicState(artwork: editedParent);
+        var restoredDestruction = new CeresDestructionCinematicState(artwork: stockParent,
+            spriteSheets: CinematicSheetFixtures.WithIntro(stockParent));
+        var editedDestruction = new CeresDestructionCinematicState(artwork: editedParent,
+            spriteSheets: CinematicSheetFixtures.WithIntro(editedParent));
         // $8B:C11B loads the shared Ceres palette only after its initial NMI waits.
         for (int update = 0; update <= CeresDestructionRomData.InitialNmiWaits; update++)
         {
@@ -325,7 +327,7 @@ internal static class CeresFlightArtworkVerification
         AssertTrue(!restoredDestruction.CaptureRenderSnapshot().Memory.Cgram.SequenceEqual(
                 editedDestruction.CaptureRenderSnapshot().Memory.Cgram),
             "shared Ceres palette edit reaches destruction CGRAM");
-        restoredDestruction.BindArtwork(editedParent);
+        restoredDestruction.BindFixtureDestructionArtwork(editedParent);
         AssertTrue(restoredDestruction.CaptureRenderSnapshot().Memory.Cgram.SequenceEqual(
                 editedDestruction.CaptureRenderSnapshot().Memory.Cgram),
             "restored destruction rebinds its shared palette before engine FX owns CGRAM");

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Menus;
@@ -40,7 +41,13 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         }
         if (!ReferenceEquals(previous.IntroCinematicArt, artwork.IntroCinematicArt))
             BindArtwork(artwork.IntroCinematicArt);
+        BindSpriteSheets(artwork.SpriteSheets);
     }
+
+    /// <summary>Binds the installed sprite sheets the scene's actors draw from.</summary>
+    [MemberNotNull(nameof(spriteSheets))]
+    internal void BindSpriteSheets(InstalledSpriteSheets? sheets) =>
+        spriteSheets = sheets ?? throw new InvalidOperationException("Ceres destruction requires the installed sprite sheets.");
 
     /// <summary>Shared queue for Ceres music and the final station blast sound.</summary>
     private readonly CartridgeAudioState? audio;
@@ -54,8 +61,15 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     [NonSerialized] private byte[]? image;
     /// <summary>Installed art rebound after debugger restoration rather than serialized with scene state.</summary>
     [NonSerialized] private IntroCinematicArtworkCatalog? artwork;
-    /// <summary>Host-owned sprite compositions for Ceres and Zebes actors.</summary>
-    [NonSerialized] private IIntroCinematicSpritePresentation? spriteArtwork;
+    /// <summary>The installed sprite sheets the Ceres and Zebes actors draw from; artwork, never saved.</summary>
+    [NonSerialized] private InstalledSpriteSheets spriteSheets;
+
+    /// <summary>
+    /// The actors' sheet over the OBJ characters the uploads have left: the Ceres scene's until the Zebes reveal loads
+    /// its characters over them, then the reveal's.
+    /// </summary>
+    private CeresSceneSpriteSheet Sprites => new(spriteSheets.Get(uploads.Contains(CeresDestructionUpload.ZebesReveal)
+        ? SpriteSheetId.ZebesRevealSprites : SpriteSheetId.CeresDestructionSprites));
     /// <summary>Live asteroid, blast, planet, star, and title objects in update order.</summary>
     internal readonly List<IntroDiscoverySprite> actors = [];
     /// <summary>
@@ -123,20 +137,21 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// Game state $25 rather than $22: the escape timer expired before Samus left, so the
     /// gunship never appears and the fade-out ends the game instead of flying to Zebes.
     /// </param>
+    /// <param name="spriteSheets">Required installed sprite sheets the scene's actors draw from.</param>
     public CeresDestructionCinematicState(
         CartridgeAudioState? audio = null,
         PowerBombFixedColorCatalog? fixedColors = null,
         IntroCinematicArtworkCatalog? artwork = null,
         IPaletteFxColorSource? paletteFxColors = null,
-        CeresDestructionOutcome outcome = CeresDestructionOutcome.SamusEscaped)
+        CeresDestructionOutcome outcome = CeresDestructionOutcome.SamusEscaped,
+        InstalledSpriteSheets? spriteSheets = null)
     {
+        BindSpriteSheets(spriteSheets);
         this.withSamus = outcome == CeresDestructionOutcome.SamusAboard;
         this.audio = audio;
         this.paletteFxColors = paletteFxColors;
         this.artwork = artwork ?? throw new InvalidOperationException(
             "Ceres destruction requires installed cinematic artwork.");
-        spriteArtwork = new CeresSceneSpritePresentation(
-            artwork.CeresFlight.Sprites, artwork.CeresDestruction.Sprites);
         stationExplosion.PresentationColors = fixedColors;
         objects = new ScreenSprites(CeresDestructionScreenImage.ObjectPage(CeresDestructionScreenImage.Compose(this.artwork, uploads, outcome == CeresDestructionOutcome.SamusAboard)),
             ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection));
@@ -172,8 +187,6 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     internal void BindArtwork(IntroCinematicArtworkCatalog? value)
     {
         artwork = value;
-        spriteArtwork = value is null ? null : new CeresSceneSpritePresentation(
-            value.CeresFlight.Sprites, value.CeresDestruction.Sprites);
         image = null;
         if (value is null) return;
         if (Phase <= CeresDestructionPhase.FlyToZebesInitial)
@@ -911,7 +924,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         IEnumerable<IntroDiscoverySprite> drawActors = Phase <= CeresDestructionPhase.FadeOutCeres
             ? actors.OrderByDescending(actor => ceresActorSlots.First(entry => entry.Actor == actor).Slot) : actors;
         foreach (IntroDiscoverySprite actor in drawActors)
-            actor.Draw(objects, installedArt: spriteArtwork);
+            actor.Draw(objects, installedArt: Sprites);
         objects.FinishFrame();
     }
 

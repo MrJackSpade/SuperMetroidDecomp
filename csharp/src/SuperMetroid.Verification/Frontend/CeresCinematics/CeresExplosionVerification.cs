@@ -27,7 +27,8 @@ internal static class CeresExplosionVerification
             IntroCinematicArtworkCatalog artwork = IntroCinematicArtworkFiles.Load(artDirectory, null);
             PowerBombFixedColorCatalog stockColors = colors ?? PowerBombFixedColorCatalog.Load(
                 new MemoryStream(PowerBombFixedColorExtractor.Extract(bus)));
-            var scene = new CeresDestructionCinematicState(fixedColors: stockColors, artwork: artwork);
+            var scene = new CeresDestructionCinematicState(fixedColors: stockColors, artwork: artwork,
+                spriteSheets: CinematicSheetFixtures.WithIntro(artwork));
             var reference = new SamusPowerBombExplosionState { PresentationColors = stockColors };
             var phases = new HashSet<PowerBombExplosionPhase>();
             bool spawned = false, finished = false;

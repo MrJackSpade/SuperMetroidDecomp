@@ -155,7 +155,8 @@ internal static class InstalledFixtures
 
     /// <summary>Creates Ceres destruction with installed cinematic art, fixed colors, and palette FX.</summary>
     internal static CeresDestructionCinematicState CreateDestruction(CartridgeAudioState? audio = null, IntroCinematicArtworkCatalog? artwork = null) =>
-        new(audio, Maps.PowerBombFixedColors, artwork ?? IntroArtwork, Maps.RoomPaletteFx);
+        new(audio, Maps.PowerBombFixedColors, artwork ?? IntroArtwork, Maps.RoomPaletteFx,
+            spriteSheets: CinematicSheetFixtures.WithIntro(artwork ?? IntroArtwork));
 
     /// <summary>Creates an intro scene with installed character, projectile, narration, and hurt-color art.</summary>
     internal static IntroCinematicState CreateIntro(CartridgeAudioState? audio = null,

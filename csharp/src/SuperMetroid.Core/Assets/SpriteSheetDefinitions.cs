@@ -24,6 +24,8 @@ public static class SpriteSheetDefinitions
         SpriteSheetId.Title => "title",
         SpriteSheetId.IntroSprites => "intro-sprites",
         SpriteSheetId.CeresFlightSprites => "ceres-flight-sprites",
+        SpriteSheetId.CeresDestructionSprites => "ceres-destruction-sprites",
+        SpriteSheetId.ZebesRevealSprites => "zebes-reveal-sprites",
         SpriteSheetId.IntroProjectiles => "intro-projectiles",
         SpriteSheetId.ProjectilesPower => "projectiles-power",
         SpriteSheetId.ProjectilesWave => "projectiles-wave",

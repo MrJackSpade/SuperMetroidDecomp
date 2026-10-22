@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
@@ -50,6 +51,10 @@ internal sealed class SpriteSheetSourceCatalog
         SpriteSheetId.Title => TitleSheetComposer.Sources(maps.Value),
         SpriteSheetId.IntroSprites => IntroSpriteSheetComposer.Sources(intro.Value),
         SpriteSheetId.CeresFlightSprites => IntroSpriteSheetComposer.CeresFlightSources(intro.Value.CeresFlight),
+        SpriteSheetId.CeresDestructionSprites => IntroSpriteSheetComposer.CeresDestructionSources(intro.Value,
+            [CeresDestructionUpload.CeresScene]),
+        SpriteSheetId.ZebesRevealSprites => IntroSpriteSheetComposer.CeresDestructionSources(intro.Value,
+            [CeresDestructionUpload.CeresScene, CeresDestructionUpload.ZebesReveal]),
         _ => SamusSheetSources.For(samus.Value, sheet),
     };
 }

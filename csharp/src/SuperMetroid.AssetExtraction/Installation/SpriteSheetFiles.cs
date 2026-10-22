@@ -105,6 +105,7 @@ public static class SpriteSheetFiles
         SpriteSheetId.Title => TitleSpriteDefinitions.All.Select(TitleSpriteDefinitions.FrameName),
         SpriteSheetId.IntroSprites => IntroSpriteSheetComposer.FrameNames(intro.Value),
         SpriteSheetId.CeresFlightSprites => IntroSpriteSheetComposer.CeresFlightFrameNames(intro.Value.CeresFlight),
+        SpriteSheetId.CeresDestructionSprites or SpriteSheetId.ZebesRevealSprites => IntroSpriteSheetComposer.CeresDestructionFrameNames(intro.Value),
         _ => ProjectileSheetDefinitions.Frames,
     };
 

@@ -19,4 +19,6 @@ public enum CinematicSpriteFamily
     IntroCaret,
     /// <summary>The Ceres approach's stars and rear-view gunship and station.</summary>
     CeresFlight,
+    /// <summary>The Ceres destruction scene's blasts, backdrop and Zebes reveal.</summary>
+    CeresDestruction,
 }

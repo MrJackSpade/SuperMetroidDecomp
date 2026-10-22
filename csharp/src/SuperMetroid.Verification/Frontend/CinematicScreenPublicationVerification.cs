@@ -73,7 +73,7 @@ internal static class CinematicScreenPublicationVerification
             destruction.Step();
         PpuMemorySnapshot shown = destruction.CaptureRenderSnapshot().Memory;
         var restoredDestruction = RoundTrip(destruction);
-        restoredDestruction.BindArtwork(InstalledFixtures.IntroArtwork);
+        restoredDestruction.BindFixtureDestructionArtwork(InstalledFixtures.IntroArtwork);
         AssertSameFrame(shown, restoredDestruction.CaptureRenderSnapshot().Memory, "Ceres destruction");
 
         IntroCinematicState intro = InstalledFixtures.CreateIntro();

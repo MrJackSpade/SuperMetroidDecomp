@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 /// frames shared by the Ceres approach and destruction scenes. Animation timing
 /// and actor motion remain in their compiled owners.
 /// </summary>
-public sealed class CeresFlightSpritePresentation : IIntroCinematicSpritePresentation, ICinematicSpriteFrames
+public sealed class CeresFlightSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Installed Ceres compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
@@ -27,16 +27,6 @@ public sealed class CeresFlightSpritePresentation : IIntroCinematicSpritePresent
     /// <summary>Retains the validated composition map shared by approach and destruction scenes.</summary>
     private CeresFlightSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;
-
-    /// <summary>Appends an installed Ceres flight composition to OAM in authored part order, choosing the caller's native origin-clipping path without advancing actor motion or animation.</summary>
-    /// <param name="pose">The cinematic pose whose composition to draw.</param>
-    /// <param name="objects">Destination OAM buffer for the ordered sprite parts.</param>
-    /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
-    /// <param name="paletteBits">Encoded OBJ palette bits applied only to parts authored to inherit the drawing owner's palette.</param>
-    /// <param name="originIsOnScreen">True for ordinary on-screen origin clipping; false for the native off-screen path with opposite Y-wrap clipping for negative origins.</param>
-    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<OamPixels> origin,
-        ushort paletteBits, bool originIsOnScreen) =>
-        CinematicSpriteArtwork.DrawInstalled(frames, "Ceres flight sprite", pose, objects, origin, paletteBits, originIsOnScreen);
 
     /// <summary>Loads exactly the six named visual compositions, rejecting duplicate properties, unsupported versions, missing frames, and invalid OAM parts; compiles selected artwork without importing actor timing or motion.</summary>
     /// <param name="json">Caller-owned UTF-8 JSON stream containing the versioned Ceres flight sprite document.</param>

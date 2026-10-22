@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -33,6 +34,16 @@ internal static class CinematicSheetFixtures
                 $"ceres-flight-fixture-{RuntimeHelpers.GetHashCode(key):X8}"));
     }
 
+    extension(CeresDestructionCinematicState self)
+    {
+        /// <summary>Binds <paramref name="intro"/> and the sheets it composes, as the game rebinds both.</summary>
+        internal void BindFixtureDestructionArtwork(IntroCinematicArtworkCatalog intro)
+        {
+            self.BindArtwork(intro);
+            self.BindSpriteSheets(WithIntro(intro));
+        }
+    }
+
     extension(IntroCeresFlightState self)
     {
         /// <summary>Binds <paramref name="flight"/> and the Ceres flight sheet it composes, as the game rebinds both.</summary>
@@ -53,6 +64,10 @@ internal static class CinematicSheetFixtures
                 var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
                 sheets[SpriteSheetId.IntroSprites] = Load(IntroSpriteSheetComposer.Sources(key), $"intro-fixture-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.CeresFlightSprites] = CeresFlight(key.CeresFlight);
+                sheets[SpriteSheetId.CeresDestructionSprites] = Load(IntroSpriteSheetComposer.CeresDestructionSources(key,
+                    [CeresDestructionUpload.CeresScene]), $"ceres-destruction-fixture-{RuntimeHelpers.GetHashCode(key):X8}");
+                sheets[SpriteSheetId.ZebesRevealSprites] = Load(IntroSpriteSheetComposer.CeresDestructionSources(key,
+                    [CeresDestructionUpload.CeresScene, CeresDestructionUpload.ZebesReveal]), $"zebes-reveal-fixture-{RuntimeHelpers.GetHashCode(key):X8}");
                 return new InstalledSpriteSheets(sheets);
             });
     }

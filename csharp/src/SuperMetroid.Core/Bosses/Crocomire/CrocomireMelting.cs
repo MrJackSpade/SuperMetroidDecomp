@@ -165,9 +165,18 @@ internal sealed class CrocomireMelting
         int sourceOffset = unchecked((ushort)(source - CrocomireMeltingTransferDefinitions.ScratchStart));
         if (sourceOffset < 0 || sourceOffset + byteCount > death.MeltingGraphics.Length)
             throw new InvalidDataException("Crocomire melting VRAM record exceeds the scratch image.");
-        _presentation.Backgrounds.Bind(new BgArtworkIdentity($"Crocomire melting characters ${destinationWord:X4}"), destinationWord,
-            death.MeltingGraphics.Slice(sourceOffset, byteCount));
+        _presentation.Backgrounds.Bind(MeltingCharacters(destinationWord), destinationWord, death.MeltingGraphics.Slice(sourceOffset, byteCount));
     }
+
+    /// <summary>The name every artwork the melt binds starts with.</summary>
+    private const string MeltingCharactersName = "Crocomire melting characters";
+
+    /// <summary>The artwork the melt binds over the characters from <paramref name="destinationWord"/>.</summary>
+    private static BgArtworkIdentity MeltingCharacters(int destinationWord) => new($"{MeltingCharactersName} ${destinationWord:X4}");
+
+    /// <summary>Whether <paramref name="artwork"/> is characters the melt rewrote.</summary>
+    internal static bool IsMeltingCharacters(BgArtworkIdentity artwork) =>
+        artwork.Name.StartsWith(MeltingCharactersName, StringComparison.Ordinal);
 
     /// <summary>Starts Crocomire's dissolve after installed graphics and tilemap data are ready.</summary>
     internal void BeginCrocomireMelting(CrocomireEnemyState state)

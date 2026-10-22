@@ -157,7 +157,7 @@ public static class GameplayDisplayCapture
             ?? throw new InvalidOperationException("Ordinary gameplay capture has no room backgrounds.")) with
             {
                 Sky = live.ScrollingSky?.Tilemap,
-                BossBg2 = kraidBody?.Tilemap ?? bosses.EnemyBg2?.Tilemap(registers.Bg2MapSize),
+                BossBg2 = (kraidBody?.Tilemap ?? bosses.EnemyBg2?.Tilemap(registers.Bg2MapSize))?.WithPictures(bosses.BodyPictures),
             };
         var layer = new OrdinaryGameplayRenderLayer(registers, rooms, new Bg2HdmaScrollTables(
             VisibleLines(bg2HorizontalScrolls),

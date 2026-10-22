@@ -111,6 +111,7 @@ internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeR
                 Assets.Pictures.Background(RoomBackgroundImage.NameOf(program, RoomBackgroundImage.DoorVariant(program, Door), Assets.Tileset)),
                 Assets.BlockSheet, LoadedArtwork(program))
             : null,
+        BossBody = Assets.Pictures.BossBodies.TryGetValue(Assets.Tileset, out BossBodySheet? body) ? new BossBodyPictureResolver(body) : null,
         SkyImage = ScrollingSky is { } sky
             ? new RoomBackgroundImageResolver(Assets.Pictures.Background(RoomBackgroundImage.SkyNameOf(sky.Variant, Assets.Tileset)),
                 Assets.BlockSheet, Room.State.Background is { } skyProgram ? LoadedArtwork(skyProgram) : RoomLoadArtwork())

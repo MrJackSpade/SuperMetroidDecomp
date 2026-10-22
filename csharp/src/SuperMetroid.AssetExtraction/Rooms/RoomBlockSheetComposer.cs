@@ -34,7 +34,14 @@ internal static class RoomBlockSheetComposer
             foreach (RoomBlockUploads.RoomBackgroundMap background in uploads.Backgrounds)
                 backgrounds.Add(background.Name, ComposeBackground(inputs, tileset, uploads, background));
         }
-        return new RoomSheetComposition(tilesets.ToDictionary(entry => entry.Key, entry => Compose(inputs, entry.Key, entry.Value)), backgrounds);
+        var bodies = new Dictionary<TilesetDefinition, ComposedBossBody>();
+        foreach ((TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads) in tilesets)
+        {
+            if (uploads.Body is { } body)
+                bodies.Add(tileset, BossBodySheetComposer.Compose(inputs, tileset, uploads, body.Body, body.Content));
+        }
+        return new RoomSheetComposition(tilesets.ToDictionary(entry => entry.Key, entry => Compose(inputs, entry.Key, entry.Value)), backgrounds,
+            bodies);
     }
 
     /// <summary>
@@ -206,7 +213,7 @@ internal static class RoomBlockSheetComposer
 
     /// <summary>Whether <paramref name="upload"/> covers the character from <paramref name="first"/>.</summary>
     /// <exception cref="InvalidDataException">The upload covers only part of the character.</exception>
-    private static bool Covers(BgCharacterUpload upload, int first)
+    internal static bool Covers(BgCharacterUpload upload, int first)
     {
         int end = first + RoomBlockPictureNames.CharacterWords, uploadEnd = upload.FirstWord + upload.WordCount;
         if (upload.FirstWord >= end || uploadEnd <= first)

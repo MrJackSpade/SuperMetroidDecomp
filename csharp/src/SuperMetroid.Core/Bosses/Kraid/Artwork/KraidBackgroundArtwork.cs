@@ -50,6 +50,9 @@ public sealed class KraidBackgroundArtwork
     /// <summary>Characters revealed behind Kraid after growth or defeat.</summary>
     public RoomCharacterAtlas RoomBackgroundTiles { get; }
 
+    /// <summary>The head images, by how far the head's mouth is open.</summary>
+    internal IReadOnlyDictionary<int, KraidHeadTilemapAtlas> Heads => heads;
+
     /// <summary>The installed head image <paramref name="frame"/> shows, without changing its timing or hitboxes.</summary>
     internal ReadOnlySpan<ushort> HeadWords(KraidHeadFrame frame) =>
         heads.TryGetValue(frame.MouthStage, out KraidHeadTilemapAtlas? image)

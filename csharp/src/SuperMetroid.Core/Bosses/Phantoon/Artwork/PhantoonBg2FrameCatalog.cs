@@ -9,17 +9,18 @@ namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
 public sealed class PhantoonBg2FrameCatalog
 {
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
-    public string ContentIdentity => frames.ContentIdentity;
+    public string ContentIdentity => Writes.ContentIdentity;
 
-    /// <summary>Compiled visual writes indexed by native extended-frame roots.</summary>
-    private readonly EnemyBg2FrameCatalog frames;
+    /// <summary>The frames' writes, compiled and indexed by native extended-frame roots.</summary>
+    internal EnemyBg2FrameCatalog Writes { get; }
+
 
     /// <summary>Wraps validated BG2 frame writes without changing engine-owned timing or hitboxes.</summary>
-    private PhantoonBg2FrameCatalog(EnemyBg2FrameCatalog frames) => this.frames = frames;
+    private PhantoonBg2FrameCatalog(EnemyBg2FrameCatalog frames) => Writes = frames;
 
     /// <summary>Finds the installed tilemap writes for a native frame root, if that root is defined.</summary>
     internal bool TryGet(EnemyFrameId frame, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes) =>
-        frames.TryGet(frame, out writes);
+        Writes.TryGet(frame, out writes);
 
     /// <summary>Compiles version-one BG2 artwork for all twenty-two bank-$A7 body/eye, tentacle, and mouth roots selected by Phantoon's compiled instruction programs.</summary>
     /// <param name="json">Caller-owned JSON stream, left open, with every named frame containing ordered horizontal runs of unsigned 16-bit tile words in 32-by-64 tilemap-cell coordinates.</param>

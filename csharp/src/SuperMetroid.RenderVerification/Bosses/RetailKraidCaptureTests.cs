@@ -142,6 +142,7 @@ internal static class RetailKraidCaptureTests
     /// <summary>
     /// Requires every BG2 tile the screen shows to be Kraid's blank tile. Once he has sunk, <c>$A7:C715</c> and
     /// <c>$A7:C751</c> fill BG2's 32x32 map with <c>$0338</c>, so nothing of his body or the room's BG2 remains (#1427).
+    /// Where BG2 draws his body from its pictures (#1392), the word a picture shows is his body's word there.
     /// </summary>
     private static void RequireBlankBg2(LayeredRenderSnapshot scene, string context)
     {
@@ -156,10 +157,17 @@ internal static class RetailKraidCaptureTests
             Position16<Bg2Pixels> scroll = gameplay.Bg2ScrollAt(line);
             for (int x = 0; x < SnesPpuLayout.ScreenWidthPixels; x += 4)
             {
-                if (bg2.TrySample(new Position16<BgPlanePixels>(unchecked((ushort)(scroll.X + x)),
-                        unchecked((ushort)(scroll.Y + SnesPpuLayout.GameplayHudHeightPixels + line))), out BgSample sample))
-                    shown.Add(sample.Picture is null ? sample.Tile.Tile.Raw
-                        : throw new InvalidOperationException($"{context}: BG2 shows a room block picture where Kraid's tilemap was expected."));
+                var at = new Position16<BgPlanePixels>(unchecked((ushort)(scroll.X + x)),
+                    unchecked((ushort)(scroll.Y + SnesPpuLayout.GameplayHudHeightPixels + line)));
+                if (bg2.TrySample(at, out BgSample sample))
+                {
+                    if (sample.Picture is null)
+                        shown.Add(sample.Tile.Tile.Raw);
+                    else if (gameplay.Rooms.BossBg2 is { } body && body.TrySample(at, out BgTileSample word))
+                        shown.Add(word.Tile.Raw);
+                    else
+                        throw new InvalidOperationException($"{context}: BG2 shows a picture where Kraid's tilemap was expected.");
+                }
             }
         }
         if (shown.Any(word => word != KraidBackgroundRomData.BlankTile))

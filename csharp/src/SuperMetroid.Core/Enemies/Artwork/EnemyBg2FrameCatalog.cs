@@ -33,6 +33,9 @@ internal sealed class EnemyBg2FrameCatalog
     private EnemyBg2FrameCatalog(Dictionary<EnemyFrameId, EnemyBg2TilemapWrite[]> frames) =>
         this.frames = frames;
 
+    /// <summary>Every frame's ordered tilemap writes.</summary>
+    internal IEnumerable<KeyValuePair<EnemyFrameId, EnemyBg2TilemapWrite[]>> Frames => frames;
+
     /// <summary>Retrieves the ordered tilemap writes <paramref name="frame"/> selects, if present.</summary>
     internal bool TryGet(EnemyFrameId frame, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes)
     {

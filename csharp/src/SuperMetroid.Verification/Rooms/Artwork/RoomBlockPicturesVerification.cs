@@ -1,5 +1,14 @@
 using SuperMetroid.Core;
+using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.Phantoon.Artwork;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
@@ -69,12 +78,7 @@ internal static class RoomBlockPicturesVerification
     /// </summary>
     private static void CheckSky(RoomHeaderDefinition room)
     {
-        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(room);
-        runtime.Player.IntroducedSamus.Control.LockHandlers();
+        SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
         RoomBackgroundImagePlane plane = runtime.Display.Latched.Rooms?.SkyImage
             ?? throw new InvalidOperationException($"{room.Name}: BG2 shows no sky image.");
@@ -93,24 +97,117 @@ internal static class RoomBlockPicturesVerification
             for (int x = 0; x < RoomBackgroundImage.PagePixels; x++)
             {
                 var word = new SnesBgTilemapWord(sky.Words[row * SkyTilemap.Columns + x / CharacterPixels]);
-                int pixelRow = word.FlipVertically ? CharacterPixels - 1 - y % CharacterPixels : y % CharacterPixels;
-                int bit = 7 - (word.FlipHorizontally ? CharacterPixels - 1 - x % CharacterPixels : x % CharacterPixels);
-                int address = word.CharacterIndex * RoomBlockPictureNames.CharacterWords * sizeof(ushort) + pixelRow * 2;
-                int colour = (vram[address] >> bit & 1) | (vram[address + 1] >> bit & 1) << 1
-                    | (vram[address + 16] >> bit & 1) << 2 | (vram[address + 17] >> bit & 1) << 3;
-                int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
                 AssertTrue(shown.TrySample(new Position16<BgPlanePixels>((ushort)x, (ushort)y), out BgSample sample),
                     $"{room.Name}: the sky shows row {row}");
                 SpriteSheetFrame picture = sample.Picture ?? throw new InvalidOperationException($"{room.Name}: the sky shows a tile at ({x}, {y}).");
-                SpriteImage sheet = picture.Sheet;
-                int pixel = (picture.Corner.Y + sample.PicturePixel.Y) * sheet.Size.X + picture.Corner.X + sample.PicturePixel.X;
-                AssertTrue(sheet.PaletteIndices[pixel] == expected && (colour == 0 || ((sheet.Priorities[pixel] != 0) == word.HasPriority
-                        && sheet.Pixels[pixel] == sheet.StandardColours[expected].ToRgba32())),
-                    $"{room.Name}: the sky paints index {sheet.PaletteIndices[pixel]} at ({x}, {y}) where its tile ${word.Raw:X4} paints {expected}");
+                AssertPaintsTile($"{room.Name}'s sky at ({x}, {y})", vram, word, x % CharacterPixels, y % CharacterPixels, picture, sample.PicturePixel);
             }
         }
         AssertTrue(rows > 0, $"{room.Name}'s sky shows rows");
         Console.WriteLine($"Room background images: {room.Name}'s sky painted its {rows} shown rows from their image.");
+    }
+
+    /// <summary>
+    /// Checks the pixel at (<paramref name="x"/>, <paramref name="y"/>) of <paramref name="word"/>'s tile, as <paramref name="vram"/>'s
+    /// characters paint it, is <paramref name="picture"/>'s pixel at <paramref name="pixel"/>: its palette index, its tile
+    /// priority and its standard colour.
+    /// </summary>
+    private static void AssertPaintsTile(string context, ReadOnlySpan<byte> vram, SnesBgTilemapWord word, int x, int y,
+        SpriteSheetFrame picture, Position16<ImagePixels> pixel)
+    {
+        int pixelRow = word.FlipVertically ? CharacterPixels - 1 - y : y;
+        int bit = 7 - (word.FlipHorizontally ? CharacterPixels - 1 - x : x);
+        int address = word.CharacterIndex * RoomBlockPictureNames.CharacterWords * sizeof(ushort) + pixelRow * 2;
+        int colour = (vram[address] >> bit & 1) | (vram[address + 1] >> bit & 1) << 1
+            | (vram[address + 16] >> bit & 1) << 2 | (vram[address + 17] >> bit & 1) << 3;
+        int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
+        SpriteImage sheet = picture.Sheet;
+        int at = (picture.Corner.Y + pixel.Y) * sheet.Size.X + picture.Corner.X + pixel.X;
+        AssertTrue(sheet.PaletteIndices[at] == expected && (colour == 0 || ((sheet.Priorities[at] != 0) == word.HasPriority
+                && sheet.Pixels[at] == sheet.StandardColours[expected].ToRgba32())),
+            $"{context}: the picture paints index {sheet.PaletteIndices[at]} where tile ${word.Raw:X4} paints {expected}");
+    }
+
+    /// <summary>A retail runtime with <paramref name="room"/> loaded and Samus held still.</summary>
+    private static SuperMetroidRuntime LoadRoom(RoomHeaderDefinition room)
+    {
+        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(room);
+        runtime.Player.IntroducedSamus.Control.LockHandlers();
+        return runtime;
+    }
+
+    /// <summary>
+    /// Confirms each boss draws its body from its body sheet (#1392): in each boss's room as loaded, every frame the boss
+    /// writes resolves each tile to a picture painting what the tile paints over the room's characters.
+    /// </summary>
+    internal static void VerifyBossBodyPictures()
+    {
+        CheckBody(RoomHeaderDefinitions.Kraid, runtime =>
+        {
+            KraidBackgroundArtwork art = runtime.BossArtwork.Installed.KraidBackground ?? throw new InvalidOperationException("No Kraid artwork.");
+            ushort[] working = KraidBodyTilemap.ComposeWorkingMap(art);
+            return art.Heads.Keys.Order().SelectMany(stage => new[]
+            {
+                ($"head {stage}", KraidBodyTilemap.Resolve(new KraidBodyFrame(KraidBodyPage.Body, KraidHeadFrame.Closed with { MouthStage = stage },
+                    KraidBodyPage.Body), working, art).Words),
+                ($"grown head {stage}", KraidBodyTilemap.Resolve(new KraidBodyFrame(KraidBodyPage.PriorityBody,
+                    KraidHeadFrame.Closed with { MouthStage = stage }, KraidBodyPage.PriorityBody), working, art).Words),
+            }).Append(("blank", KraidBodyTilemap.Resolve(KraidBodyFrame.Blank, working, art).Words));
+        });
+        CheckBody(RoomHeaderDefinitions.Phantoon, runtime => BodyFrames(
+            (runtime.BossArtwork.Installed.PhantoonBg2Frames ?? throw new InvalidOperationException("No Phantoon frames.")).Writes,
+            PhantoonBg2FrameDefinitions.BlankTile));
+        CheckBody(RoomHeaderDefinitions.Draygon, runtime => BodyFrames(
+            (runtime.BossArtwork.Installed.DraygonBg2Frames ?? throw new InvalidOperationException("No Draygon frames.")).Writes,
+            EnemyBg2SurfaceDefinitions.BlankTile.Raw));
+        CheckBody(RoomHeaderDefinitions.Crocomire, runtime => BodyFrames(
+            (runtime.BossArtwork.Installed.CrocomireBg2Frames ?? throw new InvalidOperationException("No Crocomire frames.")).Writes,
+            CrocomireBg2.CrocomireBlankBg2Tile));
+        CheckBody(RoomHeaderDefinitions.MotherBrain, runtime => BodyFrames(
+            (runtime.BossArtwork.Installed.MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("No Mother Brain frames.")).Writes,
+            MotherBrainBg2Definitions.BlankTile));
+    }
+
+    /// <summary>Each frame of <paramref name="catalog"/> written over an image filled with <paramref name="fill"/>.</summary>
+    private static IEnumerable<(string, ImmutableArray<ushort>)> BodyFrames(EnemyBg2FrameCatalog catalog, ushort fill) =>
+        catalog.Frames.Select(frame =>
+        {
+            var image = new EnemyBg2Image(fill);
+            foreach (EnemyBg2TilemapWrite write in frame.Value)
+                image.Write(write.DestinationWord, write.Tiles.Span);
+            return (frame.Key.ToString(), image.Publish().Words);
+        });
+
+    /// <summary>Loads boss room <paramref name="room"/> and checks each body tilemap <paramref name="bodies"/> gives resolves to its pictures.</summary>
+    private static void CheckBody(RoomHeaderDefinition room, Func<SuperMetroidRuntime, IEnumerable<(string Name, ImmutableArray<ushort> Words)>> bodies)
+    {
+        SuperMetroidRuntime runtime = LoadRoom(room);
+        runtime.StepFrame(0);
+        BossBodySheet sheet = (runtime.Room.Scope?.BossBody ?? throw new InvalidOperationException($"{room.Name} has no boss body.")).Body;
+        ReadOnlySpan<byte> vram = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites, runtime.BgArtwork).Vram;
+        int frames = 0;
+        foreach ((string name, ImmutableArray<ushort> words) in bodies(runtime))
+        {
+            ImmutableArray<BgTilePicture?> pictures = new BossBodyPictureResolver(sheet).Resolve(words, runtime.BgArtwork);
+            for (int tile = 0; tile < words.Length; tile++)
+            {
+                BgTilePicture picture = pictures[tile] ?? throw new InvalidOperationException($"{sheet.Name} {name}: tile {tile} draws from its character.");
+                var word = new SnesBgTilemapWord(words[tile]);
+                for (int y = 0; y < CharacterPixels; y++)
+                for (int x = 0; x < CharacterPixels; x++)
+                {
+                    AssertPaintsTile($"{sheet.Name} {name} tile {tile} pixel ({x}, {y})", vram, word, x, y, picture.Picture,
+                        new Position16<ImagePixels>((ushort)(picture.Corner.X + x), (ushort)(picture.Corner.Y + y)));
+                }
+            }
+            frames++;
+        }
+        AssertTrue(frames > 0, $"{room.Name}'s boss writes frames");
+        Console.WriteLine($"Boss body pictures: {sheet.Name} pictured {frames} frames over {room.Name} as it loads.");
     }
 
     /// <summary>Loads <paramref name="room"/> and checks its background image over <see cref="Frames"/> frames.</summary>
@@ -291,6 +388,7 @@ internal static class RoomBlockPicturesVerification
     {
         Suite(nameof(VerifyRoomBlockPictures), VerifyRoomBlockPictures);
         Suite(nameof(VerifyRoomBackgroundImages), VerifyRoomBackgroundImages);
+        Suite(nameof(VerifyBossBodyPictures), VerifyBossBodyPictures);
         return 0;
     }
 }

@@ -81,6 +81,23 @@ internal static class RoomBackgroundsFixtures
     internal static RoomBackgroundImagePlane SeededBackground(Random random, Bgr555[] scene) =>
         SeededImage(random, scene, RoomBackgroundImage.Words / RoomBackgroundImage.PageTiles);
 
+    /// <summary>
+    /// Seeded pictures for <paramref name="words"/> boss body words (#1392): each a quarter of a seeded block picture, about
+    /// one in eight drawing from its character instead.
+    /// </summary>
+    internal static System.Collections.Immutable.ImmutableArray<BgTilePicture?> SeededBodyPictures(Random random, Bgr555[] scene, int words)
+    {
+        RoomBlockPictureTable blocks = SeededPictures(random, scene);
+        var pictures = new BgTilePicture?[words];
+        for (int word = 0; word < words; word++)
+        {
+            pictures[word] = random.Next(8) == 0 ? null : new BgTilePicture(blocks.Picture(random.Next(Definitions))
+                ?? throw new InvalidOperationException("A seeded block has no picture."),
+                new Position16<ImagePixels>((ushort)(random.Next(2) * 8), (ushort)(random.Next(2) * 8)));
+        }
+        return [.. pictures];
+    }
+
     /// <summary>A seeded image of the scrolling sky's rows, with rebound cells as <see cref="SeededBackground"/> has (#1392).</summary>
     internal static RoomBackgroundImagePlane SeededSky(Random random, Bgr555[] scene) =>
         SeededImage(random, scene, SuperMetroid.Core.Rooms.Scrolling.SkyTilemap.Rows);

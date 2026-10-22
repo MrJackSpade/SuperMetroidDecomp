@@ -35,7 +35,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int PlaneSlots = 3;
     /// <summary>Header words: the plane records, the door window origin, and the offsets of the BG1 overlay, the sky rows,
     /// the BG3 plane and the BG2 overlay.</summary>
-    private const int HeaderWords = PlaneSlots * RecordWords + 10;
+    private const int HeaderWords = PlaneSlots * RecordWords + 11;
     /// <summary>Header word of the door window's scrolled origin.</summary>
     private const int DoorWindowWord = PlaneSlots * RecordWords;
     /// <summary>Header word of the overlay's first word, or zero without an overlay.</summary>
@@ -62,6 +62,11 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int Bg2ImageWord = XrayRevealWord + 1;
     /// <summary>Header word of the scrolling sky's image, laid out as <see cref="Bg2ImageWord"/>'s, or zero without one (#1392).</summary>
     private const int SkyImageWord = Bg2ImageWord + 1;
+    /// <summary>
+    /// Header word of a boss body's pictures (#1392), or zero while it draws from characters: two words per tilemap word,
+    /// its picture's offset, zero where it draws from its character, then its corner in the picture, x below y.
+    /// </summary>
+    private const int BossBg2PicturesWord = SkyImageWord + 1;
     /// <summary>The bit an X-ray reveal block's arrangement starts at.</summary>
     private const int ArrangementShift = 28;
     /// <summary>A sky row word that selects no page: the row shows nothing.</summary>
@@ -165,6 +170,17 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             {
                 if (plane.Cell(cell) is { } picture)
                     AddPicture(picture);
+            }
+        }
+        ImmutableArray<BgTilePicture?> bodyPictures = bossBg2?.Pictures ?? default;
+        int bodyPicturesOffset = bodyPictures.IsDefault ? 0 : words;
+        if (!bodyPictures.IsDefault)
+        {
+            words += 2 * bossBg2!.Words.Length;
+            for (int word = 0; word < bossBg2.Words.Length; word++)
+            {
+                if (bodyPictures[word] is { } tile)
+                    AddPicture(tile.Picture);
             }
         }
         int overlayOffset = overlay is null ? 0 : words;
@@ -271,6 +287,17 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         if (bossBg2 is not null)
             for (int word = 0; word < bossBg2.Words.Length; word++)
                 upload[bossBg2Offset + word] = bossBg2.Words[word];
+        upload[BossBg2PicturesWord] = (uint)bodyPicturesOffset;
+        if (!bodyPictures.IsDefault)
+        {
+            for (int word = 0; word < bossBg2!.Words.Length; word++)
+            {
+                if (bodyPictures[word] is not { } tile)
+                    continue;
+                upload[bodyPicturesOffset + 2 * word] = (uint)pictureWords[tile.Picture];
+                upload[bodyPicturesOffset + 2 * word + 1] = D3D11ConstantPacking.Halves(tile.Corner.X, tile.Corner.Y);
+            }
+        }
         packed = frame;
         return true;
     }

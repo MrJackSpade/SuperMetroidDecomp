@@ -277,8 +277,15 @@ internal sealed class AcceptedFrameBoundary
                 .Tilemap(scrollingSky.Variant).Words);
             sky = skyImage.Resolve(_backgrounds);
         }
+        // A boss body that owns BG2 draws each word from its body sheet's picture over what the word's character shows.
+        ImmutableArray<ushort>? body = latched.Bosses.KraidBody?.Tilemap.Words ?? latched.Bosses.EnemyBg2?.Words;
+        ImmutableArray<BgTilePicture?> bodyPictures = body is { } bodyWords
+            ? (scope.BossBody ?? throw new InvalidDataException($"{scope.Room.Definition.Name} shows a boss body with no installed body sheet."))
+                .Resolve(bodyWords, _backgrounds)
+            : default;
         return latched with
         {
+            Bosses = latched.Bosses with { BodyPictures = bodyPictures },
             Rooms = rooms with
             {
                 Bg1 = rooms.Bg1 with { Pictures = pictures },

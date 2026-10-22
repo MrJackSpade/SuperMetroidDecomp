@@ -38,7 +38,7 @@ public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLaye
     /// BG2 from a boss body that owns it, the room's layer-2 plane, the X-ray reveal or the sky's rows, or null when BG2
     /// shows its own loaded tilemap.
     /// </summary>
-    public IBgSource? Bg2Source => BossBg2 is { } boss ? new BgTileLayer(boss) : Bg2 is { } plane ? plane
+    public IBgSource? Bg2Source => BossBg2 is { } boss ? boss.Shown : Bg2 is { } plane ? plane
         : XrayReveal is { } reveal ? reveal : Sky is { } sky ? SkyImage?.AsSky(sky) ?? new BgTileLayer(sky) : null;
 
     /// <summary>

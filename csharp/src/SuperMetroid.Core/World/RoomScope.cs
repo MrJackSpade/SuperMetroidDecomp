@@ -45,6 +45,9 @@ internal sealed record RoomScope
     /// <summary>Resolves what the room's scrolling sky shows on BG2, or null for a room without one (#1392).</summary>
     public required RoomBackgroundImageResolver? SkyImage { get; init; }
 
+    /// <summary>Resolves what a boss body shows on BG2, or null in a tileset no boss shows a body in (#1392).</summary>
+    public required BossBodyPictureResolver? BossBody { get; init; }
+
     /// <summary>
     /// Which character page the planes of <paramref name="room"/> draw from: setup ASM $8F:C97B points the Ceres Ridley
     /// arena's BG1 and BG2 at the object character page (#1357); every other room, and the frames before a room is

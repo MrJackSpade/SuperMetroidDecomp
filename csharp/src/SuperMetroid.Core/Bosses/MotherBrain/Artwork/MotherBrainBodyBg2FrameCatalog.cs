@@ -10,16 +10,17 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 public sealed class MotherBrainBodyBg2FrameCatalog
 {
     /// <summary>Canonical selected BG2 content identity in native pose-pointer order, retaining each write's destination, command order, and tile-run boundaries independently of JSON formatting.</summary>
-    public string ContentIdentity => frames.ContentIdentity;
-    /// <summary>Validated BG2 write runs keyed by Mother Brain's compiled body-pose pointers.</summary>
-    private readonly EnemyBg2FrameCatalog frames;
+    public string ContentIdentity => Writes.ContentIdentity;
+
+    /// <summary>The frames' writes, compiled and indexed by native extended-frame roots.</summary>
+    internal EnemyBg2FrameCatalog Writes { get; }
 
     /// <summary>Wraps the validated common BG2 catalog after all required Mother Brain poses have been admitted.</summary>
-    private MotherBrainBodyBg2FrameCatalog(EnemyBg2FrameCatalog frames) => this.frames = frames;
+    private MotherBrainBodyBg2FrameCatalog(EnemyBg2FrameCatalog frames) => Writes = frames;
 
     /// <summary>Finds ordered BG2 tilemap writes for a compiled body pose without changing its OAM or gameplay state.</summary>
     internal bool TryGet(EnemyFrameId frame, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes) =>
-        frames.TryGet(frame, out writes);
+        Writes.TryGet(frame, out writes);
 
     /// <summary>Loads version-one BG2 artwork for all sixteen named bank-$A9 body poses, excluding the OAM-only initial dummy; compiles ordered horizontal tile runs without importing body motion, hitboxes, or instruction timing.</summary>
     /// <param name="json">Caller-owned JSON stream, left open, containing every required pose with nonempty bounded writes in 32-by-64 tilemap-cell coordinates and unsigned 16-bit tile words.</param>

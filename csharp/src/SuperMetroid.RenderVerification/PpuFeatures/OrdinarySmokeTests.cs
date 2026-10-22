@@ -113,6 +113,19 @@ internal static class OrdinarySmokeTests
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, boss BG2 tilemap, HDMA {hdma}");
         }
+        // The boss body drawn from its pictures (#1392), some words still from their characters.
+        BossBg2Tilemap bossTilemap = boss.BossBg2 ?? throw new InvalidOperationException("The boss case has no body.");
+        var bodyPictured = boss with { BossBg2 = bossTilemap.WithPictures(RoomBackgroundsFixtures.SeededBodyPictures(random, colors, bossTilemap.Words.Length)) };
+        for (int hdma = 0; hdma < 4; hdma += 3)
+        {
+            var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
+                new Extent16<TilemapCells>(64, 64), 0x4800, 0, 0x6000, 0x4000, SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
+            var layer = new OrdinaryGameplayRenderLayer(registers, bodyPictured, new Bg2HdmaScrollTables(
+                (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
+            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
+            PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
+                $"{device.Kind}: ordinary {count}, boss body pictures, HDMA {hdma}");
+        }
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact ordinary gameplay comparisons passed.");
     }
 }

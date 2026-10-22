@@ -1,0 +1,159 @@
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Diagnostics;
+using SuperMetroid.EnsureAnalyzer.Modules;
+
+namespace SuperMetroid.EnsureAnalyzer.Contracts;
+
+/// <summary>
+/// Reports, in Core, any member reachable from the draw entries the backend receives that composes a frame from
+/// characters or selects a colour from a palette row (SME6442, #1392). A drawn thing is a pre-assembled, pre-coloured
+/// image selected by identity; character pages and palette rows are the hardware's way of building one.
+/// </summary>
+[DiagnosticAnalyzer(LanguageNames.CSharp)]
+public sealed class FrameCompositionAnalyzer : DiagnosticAnalyzer
+{
+    /// <summary>A member reachable from the draw entries holds characters or selects a palette row.</summary>
+    public const string FrameCompositionId = "SME6442";
+
+    /// <summary>The types the backend receives a frame through; everything their members reach is a draw path.</summary>
+    internal static readonly ImmutableHashSet<string> DrawEntryTypes = ["RenderFrameSnapshot", "SpriteDraw"];
+
+    /// <summary>Character pages and sheets: the hardware's tile memory, from which frames are composed.</summary>
+    internal static readonly ImmutableHashSet<string> CharacterPageTypes =
+    [
+        "SpriteArtwork", "ObjCharacterPage", "ObjCharacterTablePage", "ObjCharacterComposition", "ObjCharacterImage",
+        "ObjCharacterUpload", "ObjCharacterUploads", "StagedObjCharacters", "TransferObjCharacters", "AssetObjCharacters",
+        "RoomCharacterAtlas", "BgCharacterGrid", "SnesCharacterGrid",
+    ];
+
+    /// <summary>Palette rows: the hardware's colour memory, from which a part or tile selects its colours.</summary>
+    internal static readonly ImmutableHashSet<string> PaletteRowTypes =
+        ["CgramPalette", "CgramPalettes", "SnesCgram", "SnesObjPalettes", "IPaletteColors"];
+
+    /// <summary>Member names that select a character by number or carry the character memory backgrounds draw from.</summary>
+    internal static readonly ImmutableHashSet<string> CharacterNames =
+        ImmutableHashSet.Create(StringComparer.OrdinalIgnoreCase, "Character", "Characters", "Vram");
+
+    /// <summary>Member names that select a palette row by number or carry the colour memory.</summary>
+    internal static readonly ImmutableHashSet<string> PaletteRowNames =
+        ImmutableHashSet.Create(StringComparer.OrdinalIgnoreCase, "Palette", "PaletteRow", "PaletteRows", "Cgram");
+
+    private static readonly DiagnosticDescriptor Rule = new(
+        FrameCompositionId,
+        "A draw path composes a frame from characters or palette rows",
+        "'{0}' {1} on a draw path; draw a pre-assembled, pre-coloured image selected by identity instead",
+        "Design",
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "Extraction pre-assembles and pre-colours every piece of artwork under its standard palette; the " +
+            "simulation selects a frame, part or tile by identity and places it, and colour effects are shader parameters. " +
+            "A draw path never composes a frame from characters or selects a colour from a palette row (#1392).");
+
+    /// <inheritdoc/>
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule];
+
+    /// <inheritdoc/>
+    public override void Initialize(AnalysisContext context)
+    {
+        context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+        context.EnableConcurrentExecution();
+        context.RegisterCompilationStartAction(start =>
+        {
+            if (start.Compilation.AssemblyName != CoreLayerAnalyzer.CoreAssembly)
+                return;
+            IAssemblySymbol core = start.Compilation.Assembly;
+            var reachable = new Lazy<ImmutableHashSet<INamedTypeSymbol>>(() => Reachable(start.Compilation, core));
+            start.RegisterSymbolAction(symbolContext => AnalyzeMember(symbolContext, reachable.Value),
+                SymbolKind.Field, SymbolKind.Property);
+        });
+    }
+
+    /// <summary>What a member does that the rule forbids, or null when it neither holds characters nor selects a palette row.</summary>
+    internal static string? Composition(string name, ITypeSymbol type)
+    {
+        if (Mentions(type, CharacterPageTypes))
+            return "holds a character page";
+        if (Mentions(type, PaletteRowTypes))
+            return "holds palette rows";
+        string bare = name.TrimStart('_');
+        if (CharacterNames.Contains(bare))
+            return "selects characters";
+        return PaletteRowNames.Contains(bare) || bare.EndsWith("PaletteRow", StringComparison.Ordinal) ||
+            bare.EndsWith("PaletteRows", StringComparison.Ordinal)
+            ? "selects a palette row"
+            : null;
+    }
+
+    /// <summary>Reports a member of a type the draw entries reach.</summary>
+    private static void AnalyzeMember(SymbolAnalysisContext context, ImmutableHashSet<INamedTypeSymbol> reachable)
+    {
+        ISymbol symbol = context.Symbol;
+        if (symbol.IsStatic || symbol.IsImplicitlyDeclared || !reachable.Contains(symbol.ContainingType.OriginalDefinition) ||
+            symbol.Locations.FirstOrDefault(location => location.IsInSource) is not { } location)
+        {
+            return;
+        }
+        ITypeSymbol? type = symbol switch
+        {
+            IFieldSymbol field => field.Type,
+            IPropertySymbol property => property.Type,
+            _ => null,
+        };
+        if (type is not null && Composition(symbol.Name, type) is { } what)
+            context.ReportDiagnostic(Diagnostic.Create(Rule, location, symbol.Name, what));
+    }
+
+    /// <summary>The Core types reachable from the draw entries through instance fields, properties and base types.</summary>
+    private static ImmutableHashSet<INamedTypeSymbol> Reachable(Compilation compilation, IAssemblySymbol core)
+    {
+        var seen = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+        var pending = new Stack<INamedTypeSymbol>();
+        foreach (INamedTypeSymbol root in compilation.GetSymbolsWithName(DrawEntryTypes.Contains, SymbolFilter.Type).OfType<INamedTypeSymbol>())
+            Enqueue(root);
+        while (pending.Count > 0)
+        {
+            INamedTypeSymbol type = pending.Pop();
+            if (type.BaseType is { } baseType)
+                Visit(baseType);
+            foreach (ISymbol member in type.GetMembers())
+            {
+                if (member.IsStatic)
+                    continue;
+                if (member is IFieldSymbol field)
+                    Visit(field.Type);
+                else if (member is IPropertySymbol property)
+                    Visit(property.Type);
+            }
+        }
+        return seen.ToImmutableHashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+
+        void Visit(ITypeSymbol type)
+        {
+            if (type is IArrayTypeSymbol array)
+            {
+                Visit(array.ElementType);
+            }
+            else if (type is INamedTypeSymbol named)
+            {
+                foreach (ITypeSymbol argument in named.TypeArguments)
+                    Visit(argument);
+                Enqueue(named.OriginalDefinition);
+            }
+        }
+
+        void Enqueue(INamedTypeSymbol type)
+        {
+            if (SymbolEqualityComparer.Default.Equals(type.ContainingAssembly, core) && seen.Add(type))
+                pending.Push(type);
+        }
+    }
+
+    /// <summary>Whether <paramref name="type"/>, its elements or its type arguments name one of <paramref name="names"/>.</summary>
+    private static bool Mentions(ITypeSymbol type, ImmutableHashSet<string> names) => type switch
+    {
+        IArrayTypeSymbol array => Mentions(array.ElementType, names),
+        INamedTypeSymbol named => names.Contains(named.Name) || named.TypeArguments.Any(argument => Mentions(argument, names)),
+        _ => false,
+    };
+}

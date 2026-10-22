@@ -82,18 +82,26 @@ public static class SnesObjRenderer
         if (draw is CharacterSpriteDraw character)
             DrawCharacters(frame, character, cgram, selectedPriority, targets);
         else if (draw is ImageSpriteDraw image)
-            DrawImage(frame, image, selectedPriority, targets);
+            DrawImage(frame, image, cgram, selectedPriority, targets);
         else
             throw new InvalidDataException($"The software renderer cannot draw a {draw.GetType().Name}.");
     }
 
+    /// <summary>CGRAM's first sprite colour.</summary>
+    private const int SpriteColours = 128;
+
     /// <summary>The palette row a blending image reports, so colour math treats it as the upper rows' sprites.</summary>
     private const byte BlendingImageRow = 4;
 
-    /// <summary>Rasterizes one image draw from its pre-coloured pixels; a pixel with zero alpha is transparent.</summary>
-    private static void DrawImage(Extent16<ScreenPixels> frame, ImageSpriteDraw draw, int? selectedPriority, ObjRasterTargets targets)
+    /// <summary>
+    /// Rasterizes one image draw from its pre-coloured pixels, a pixel with zero alpha being transparent. While a palette
+    /// effect has changed a row the frame uses, its pixels show that row's live colours instead.
+    /// </summary>
+    private static void DrawImage(Extent16<ScreenPixels> frame, ImageSpriteDraw draw, IPaletteColors cgram, int? selectedPriority,
+        ObjRasterTargets targets)
     {
         Offset16<ScreenPixels> corner = draw.Corner;
+        bool standard = draw.Image.ShowsStandardColours(cgram.Colors);
         byte row = draw.Image.Blends ? BlendingImageRow : (byte)0;
         for (ushort y = 0; y < draw.Image.Size.Y; y++)
         {
@@ -105,9 +113,21 @@ public static class SnesObjRenderer
                 int screenX = corner.X + x;
                 if ((uint)screenX >= frame.X)
                     continue;
-                Rgba32 pixel = draw.PixelAt(new(x, y));
-                if (pixel.A != 0)
-                    Plot(screenY * frame.X + screenX, pixel, row, (byte)draw.Priority, selectedPriority, targets);
+                Rgba32 pixel;
+                if (standard)
+                {
+                    pixel = draw.PixelAt(new(x, y));
+                    if (pixel.A == 0)
+                        continue;
+                }
+                else
+                {
+                    byte index = draw.PaletteIndexAt(new(x, y));
+                    if (index == 0)
+                        continue;
+                    pixel = cgram.GetRgba(SpriteColours + index);
+                }
+                Plot(screenY * frame.X + screenX, pixel, row, (byte)draw.Priority, selectedPriority, targets);
             }
         }
     }

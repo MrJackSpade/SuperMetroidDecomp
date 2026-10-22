@@ -2,27 +2,44 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// A finished, pre-coloured image the installation provides: a sheet of an actor's frames or one part's image, coloured
-/// with its standard palette. Draws place rectangles of it; nothing composes or recolours it.
+/// with its standard palette. Beside the pixels it keeps each pixel's sprite palette row and colour, and the standard
+/// colours of those rows, so a palette effect that changes a row's colours recolours the image as it did the characters.
 /// </summary>
 public sealed class SpriteImage
 {
+    /// <summary>The sprite colours of the eight OBJ palette rows, sixteen each.</summary>
+    public const int SpriteColourCount = 128;
+
     /// <summary>The pixels, row by row from the top.</summary>
     private readonly Rgba32[] pixels;
 
-    /// <summary>Copies the pixels of a named image.</summary>
+    /// <summary>Each pixel's palette row times sixteen plus its colour; zero where the pixel is transparent.</summary>
+    private readonly byte[] paletteIndices;
+
+    /// <summary>The colours the image was coloured with.</summary>
+    private readonly Bgr555[] standardColours;
+
+    /// <summary>Copies the pixels, palette indices and standard colours of a named image.</summary>
     /// <param name="name">The image's installed name, which names it in diagnostics.</param>
     /// <param name="size">The image's width and height in pixels; both are positive.</param>
     /// <param name="pixels">Width times height pixels, row by row from the top; a pixel with zero alpha is transparent.</param>
-    /// <exception cref="ArgumentException">The name is empty, a dimension is zero or the pixel count does not match.</exception>
-    public SpriteImage(string name, Extent16<ImagePixels> size, ReadOnlySpan<Rgba32> pixels)
+    /// <param name="paletteIndices">Each pixel's palette row times sixteen plus its colour, zero where transparent.</param>
+    /// <param name="standardColours">The 128 sprite colours the pixels were coloured with.</param>
+    /// <exception cref="ArgumentException">The name is empty, a dimension is zero or a length does not match.</exception>
+    public SpriteImage(string name, Extent16<ImagePixels> size, ReadOnlySpan<Rgba32> pixels, ReadOnlySpan<byte> paletteIndices,
+        ReadOnlySpan<Bgr555> standardColours)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
         if (size.X == 0 || size.Y == 0)
             throw new ArgumentException($"Sprite image {name} has no pixels.", nameof(size));
         Ensure.LengthEqual(pixels, size.X * size.Y);
+        Ensure.LengthEqual(paletteIndices, size.X * size.Y);
+        Ensure.LengthEqual(standardColours, SpriteColourCount);
         Name = name;
         Size = size;
         this.pixels = pixels.ToArray();
+        this.paletteIndices = paletteIndices.ToArray();
+        this.standardColours = standardColours.ToArray();
     }
 
     /// <summary>The image's installed name.</summary>
@@ -33,6 +50,12 @@ public sealed class SpriteImage
 
     /// <summary>The pixels, row by row from the top; a pixel with zero alpha is transparent.</summary>
     public ReadOnlySpan<Rgba32> Pixels => pixels;
+
+    /// <summary>Each pixel's palette row times sixteen plus its colour, zero where transparent.</summary>
+    public ReadOnlySpan<byte> PaletteIndices => paletteIndices;
+
+    /// <summary>The 128 sprite colours the pixels were coloured with.</summary>
+    public ReadOnlySpan<Bgr555> StandardColours => standardColours;
 
     /// <summary>Names the image for debugger watches.</summary>
     public override string ToString() => $"{Name} ({Size.X}x{Size.Y})";

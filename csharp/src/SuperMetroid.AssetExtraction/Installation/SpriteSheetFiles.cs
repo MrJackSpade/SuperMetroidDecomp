@@ -45,6 +45,9 @@ public static class SpriteSheetFiles
             using var image = new MemoryStream();
             RgbaPng.Write(image, composed.Size, composed.Pixels);
             Write(directory, ImageFile(sheet), image.ToArray(), hashes);
+            using var palette = new MemoryStream();
+            RgbaPng.Write(palette, composed.Size, PaletteImage(composed.PaletteIndices));
+            Write(directory, PaletteFile(sheet), palette.ToArray(), hashes);
             Write(directory, FrameFile(sheet), SpriteSheet.Write(composed.Manifest), hashes);
         }
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
@@ -62,25 +65,29 @@ public static class SpriteSheetFiles
             ?? throw new InvalidDataException($"Sprite sheet manifest {manifestPath} is empty.");
         if (manifest.Version != FormatVersion ||
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256, StringComparison.OrdinalIgnoreCase) ||
-            manifest.Sha256 is null || manifest.Sha256.Count != SpriteSheetDefinitions.Sheets.Count * 2)
+            manifest.Sha256 is null || manifest.Sha256.Count != SpriteSheetDefinitions.Sheets.Count * 3)
             throw new InvalidDataException($"Sprite sheet manifest {manifestPath} does not describe this installation.");
         var sheets = new Dictionary<SpriteSheetId, SpriteSheet>();
         foreach (SpriteSheetId sheet in SpriteSheetDefinitions.Sheets)
         {
             byte[] image = Selected(stockDirectory, overrideDirectory, ImageFile(sheet), manifest);
             byte[] frames = Selected(stockDirectory, overrideDirectory, FrameFile(sheet), manifest);
-            Rgba32[] pixels;
-            Extent16<ImagePixels> size;
+            byte[] palette = Selected(stockDirectory, overrideDirectory, PaletteFile(sheet), manifest);
+            Rgba32[] pixels, indices;
+            Extent16<ImagePixels> size, indexSize;
             try
             {
                 pixels = RgbaPng.Read(new MemoryStream(image, writable: false), out size);
+                indices = RgbaPng.Read(new MemoryStream(palette, writable: false), out indexSize);
             }
             catch (InvalidDataException error)
             {
-                throw new InvalidDataException($"Sprite sheet image {ImageFile(sheet)}: {error.Message}", error);
+                throw new InvalidDataException($"Sprite sheet {SpriteSheetDefinitions.FileName(sheet)}: {error.Message}", error);
             }
-            SpriteSheet loaded = SpriteSheet.Load(new MemoryStream(frames, writable: false),
-                new SpriteImage(SpriteSheetDefinitions.FileName(sheet), size, pixels));
+            if (indexSize != size)
+                throw new InvalidDataException($"Sprite sheet {PaletteFile(sheet)} is not the size of {ImageFile(sheet)}.");
+            SpriteSheet loaded = SpriteSheet.Load(new MemoryStream(frames, writable: false), SpriteSheetDefinitions.FileName(sheet),
+                size, pixels, [.. indices.Select(index => index.R)]);
             if (!loaded.HoldsExactly(FrameNames(sheet)))
                 throw new InvalidDataException($"Sprite sheet {FrameFile(sheet)} does not hold exactly the frames its family draws.");
             sheets.Add(sheet, loaded);
@@ -109,6 +116,18 @@ public static class SpriteSheetFiles
 
     /// <summary>A sheet's image file name.</summary>
     internal static string ImageFile(SpriteSheetId sheet) => SpriteSheetDefinitions.FileName(sheet) + ".png";
+
+    /// <summary>A sheet's palette-index image file name: each pixel's palette row times sixteen plus its colour in red.</summary>
+    internal static string PaletteFile(SpriteSheetId sheet) => SpriteSheetDefinitions.FileName(sheet) + ".palette.png";
+
+    /// <summary>The palette-index image: each index in red, opaque where a colour is shown.</summary>
+    private static Rgba32[] PaletteImage(ReadOnlySpan<byte> indices)
+    {
+        var pixels = new Rgba32[indices.Length];
+        for (int pixel = 0; pixel < indices.Length; pixel++)
+            pixels[pixel] = new Rgba32(indices[pixel], 0, 0, indices[pixel] == 0 ? (byte)0 : byte.MaxValue);
+        return pixels;
+    }
 
     /// <summary>A sheet's frame manifest file name.</summary>
     internal static string FrameFile(SpriteSheetId sheet) => SpriteSheetDefinitions.FileName(sheet) + ".json";

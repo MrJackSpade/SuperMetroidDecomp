@@ -50,6 +50,14 @@ public sealed record ImageSpriteDraw : SpriteDraw
         return Image.Sheet.Pixels[(Image.Corner.Y + sourceY) * Image.Sheet.Size.X + Image.Corner.X + sourceX];
     }
 
+    /// <summary>The palette row times sixteen plus colour of the image pixel shown at <paramref name="cell"/>.</summary>
+    public byte PaletteIndexAt(Position16<ScreenPixels> cell)
+    {
+        int sourceX = (Mirror & SpriteMirror.Horizontal) != 0 ? Image.Size.X - 1 - cell.X : cell.X;
+        int sourceY = (Mirror & SpriteMirror.Vertical) != 0 ? Image.Size.Y - 1 - cell.Y : cell.Y;
+        return Image.Sheet.PaletteIndices[(Image.Corner.Y + sourceY) * Image.Sheet.Size.X + Image.Corner.X + sourceX];
+    }
+
     /// <summary>Names the draw for debugger watches: source, image and signed origin.</summary>
     public override string ToString() =>
         $"{Source.Kind}#{Source.Instance} {Image.Sheet.Name} at ({unchecked((short)Origin.X)}, {unchecked((short)Origin.Y)})";

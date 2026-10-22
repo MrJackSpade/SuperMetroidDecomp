@@ -10,10 +10,11 @@ public sealed record SpriteSheetFrame
     /// <param name="origin">The point of the rectangle, from its top-left pixel, that lands on the draw's origin; it may lie outside the rectangle.</param>
     /// <param name="blends">Whether the frame takes part in the screen's colour blending, as sprites coloured from the upper four palette rows do.</param>
     /// <param name="priority">The frame's authored priority against the backgrounds 0..3, which a draw may use as its own.</param>
+    /// <param name="rows">The sprite palette rows the frame's pixels were coloured from.</param>
     /// <exception cref="ArgumentException">The rectangle has one dimension but not the other, or leaves the sheet.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The priority is out of range.</exception>
     public SpriteSheetFrame(SpriteImage sheet, Position16<ImagePixels> corner, Extent16<ImagePixels> size, Offset16<ImagePixels> origin,
-        bool blends, int priority)
+        bool blends, int priority, SpritePaletteRows rows)
     {
         Ensure.NotNull(sheet);
         if (priority is < 0 or > 3) throw new ArgumentOutOfRangeException(nameof(priority), priority, "Sprite priorities are 0..3.");
@@ -25,6 +26,7 @@ public sealed record SpriteSheetFrame
         Origin = origin;
         Blends = blends;
         Priority = priority;
+        Rows = rows;
     }
 
     /// <summary>The image the frame is cut from.</summary>
@@ -44,4 +46,32 @@ public sealed record SpriteSheetFrame
 
     /// <summary>The frame's authored priority against the backgrounds 0..3.</summary>
     public int Priority { get; }
+
+    /// <summary>The sprite palette rows the frame's pixels were coloured from.</summary>
+    public SpritePaletteRows Rows { get; }
+
+    /// <summary>
+    /// Whether <paramref name="colours"/> hold this frame's standard colours in every row it uses, so its pixels show
+    /// them unchanged; otherwise a palette effect has changed a row and the frame shows that row's live colours.
+    /// </summary>
+    /// <param name="colours">The 256 CGRAM colours the frame is drawn over.</param>
+    public bool ShowsStandardColours(ReadOnlySpan<Bgr555> colours)
+    {
+        ReadOnlySpan<Bgr555> standard = Sheet.StandardColours;
+        for (int row = 0; row < 8; row++)
+        {
+            if ((Rows & SpritePaletteRowSet.Rows[row]) == 0)
+                continue;
+            // Colour zero is transparent and never shown.
+            for (int colour = 1; colour < 16; colour++)
+            {
+                if (colours[SpriteColours + row * 16 + colour] != standard[row * 16 + colour])
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    /// <summary>CGRAM's first sprite colour.</summary>
+    private const int SpriteColours = 128;
 }

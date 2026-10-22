@@ -32,31 +32,37 @@ internal static class ProjectileSheetPixelsVerification
         {
             SpriteSheetSources sources = id == SpriteSheetId.Grapple ? GrappleSheetComposer.Sources(inputs) : ProjectileSheetComposer.Sources(inputs, id);
             SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(id);
-            var cgram = new SnesCgram();
-            for (int colour = 0; colour < sources.SpriteColours.Length; colour++)
-                cgram.SetColor(SpriteColours + colour, sources.SpriteColours[colour]);
-            var origin = new Position16<ScreenPixels>((ushort)(Canvas.X / 2), (ushort)(Canvas.Y / 2));
-            foreach ((string name, SpriteFrame frame, SpriteArtwork characters) in sources.Frames)
+            // The standard colours show the image; altered colours, as under a palette effect, show its palette indices.
+            foreach (bool altered in new[] { false, true })
             {
-                var composed = new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectile), frame, characters, origin,
-                    SnesTileFlipFlags.None, 0, 0);
-                SpriteSheetFrame image = sheet.Frame(name);
-                var drawn = new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectile), image, origin, SpriteMirror.None, image.Priority);
-                Raster expected = Render(composed, cgram), actual = Render(drawn, cgram);
-                for (int pixel = 0; pixel < expected.Pixels.Length; pixel++)
+                var cgram = new SnesCgram();
+                for (int colour = 0; colour < sources.SpriteColours.Length; colour++)
+                    cgram.SetColor(SpriteColours + colour, altered
+                        ? Bgr555.FromWord((ushort)((sources.SpriteColours[colour].ToWord() + 0x0421 * (colour % 7 + 1)) & 0x7fff))
+                        : sources.SpriteColours[colour]);
+                var origin = new Position16<ScreenPixels>((ushort)(Canvas.X / 2), (ushort)(Canvas.Y / 2));
+                foreach ((string name, SpriteFrame frame, SpriteArtwork characters) in sources.Frames)
                 {
-                    if (expected.Pixels[pixel] != actual.Pixels[pixel] || expected.Priorities[pixel] != actual.Priorities[pixel] ||
-                        Blends(expected.Palettes[pixel]) != Blends(actual.Palettes[pixel]))
+                    var composed = new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectile), frame, characters, origin,
+                        SnesTileFlipFlags.None, 0, 0);
+                    SpriteSheetFrame image = sheet.Frame(name);
+                    var drawn = new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectile), image, origin, SpriteMirror.None, image.Priority);
+                    Raster expected = Render(composed, cgram), actual = Render(drawn, cgram);
+                    for (int pixel = 0; pixel < expected.Pixels.Length; pixel++)
                     {
-                        throw new InvalidOperationException($"Verification failed: {id} frame {name} differs from its composition at ({pixel % Canvas.X - Canvas.X / 2}, " +
-                            $"{pixel / Canvas.X - Canvas.Y / 2}): {actual.Pixels[pixel]} priority {actual.Priorities[pixel]} palette " +
-                            $"{actual.Palettes[pixel]}, expected {expected.Pixels[pixel]} priority {expected.Priorities[pixel]} palette {expected.Palettes[pixel]}.");
+                        if (expected.Pixels[pixel] != actual.Pixels[pixel] || expected.Priorities[pixel] != actual.Priorities[pixel] ||
+                            Blends(expected.Palettes[pixel]) != Blends(actual.Palettes[pixel]))
+                        {
+                            throw new InvalidOperationException($"Verification failed: {id} frame {name} ({(altered ? "altered" : "standard")} colours) differs from its composition at ({pixel % Canvas.X - Canvas.X / 2}, " +
+                                $"{pixel / Canvas.X - Canvas.Y / 2}): {actual.Pixels[pixel]} priority {actual.Priorities[pixel]} palette " +
+                                $"{actual.Palettes[pixel]}, expected {expected.Pixels[pixel]} priority {expected.Priorities[pixel]} palette {expected.Palettes[pixel]}.");
+                        }
                     }
+                    frames++;
                 }
-                frames++;
             }
         }
-        Console.WriteLine($"Projectile sheet pixels: {frames} power-beam, SpaceTime and intro frames paint exactly their compositions.");
+        Console.WriteLine($"Projectile sheet pixels: {frames} power-beam, SpaceTime, intro and grapple frames paint exactly their compositions, in standard and altered colours.");
 
         static bool Blends(byte row) => row != SnesObjRenderer.TransparentPriority && row >= FirstBlendingRow;
     }

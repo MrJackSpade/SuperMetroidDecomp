@@ -54,6 +54,7 @@ internal static class SpriteSheetComposer
         }
         int height = Math.Max(1, y + rowHeight);
         var pixels = new Rgba32[width * height];
+        var paletteIndices = new byte[width * height];
         var manifest = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         for (int index = 0; index < frames.Count; index++)
         {
@@ -61,6 +62,7 @@ internal static class SpriteSheetComposer
             FrameBounds bound = bounds[index];
             Position16<ImagePixels> corner = corners[index];
             bool blends = false;
+            SpritePaletteRows rows = SpritePaletteRows.None;
             int framePriority = frame.Parts.IsEmpty ? 0 : frame.Parts[^1].Priority ?? priority;
             // Back to front, so the first part ends in front.
             for (int partIndex = frame.Parts.Length - 1; partIndex >= 0; partIndex--)
@@ -73,6 +75,7 @@ internal static class SpriteSheetComposer
                     throw new InvalidDataException($"Sprite frame {name} mixes blending and non-blending palette rows.");
                 if ((part.Priority ?? priority) != framePriority)
                     throw new InvalidDataException($"Sprite frame {name} mixes priorities.");
+                rows |= SpritePaletteRowSet.Rows[paletteRow];
                 var placed = new SpriteScreenPart(default, part.Size, part.Character,
                     (part.Flip & SnesTileFlipFlags.Horizontal) != 0, (part.Flip & SnesTileFlipFlags.Vertical) != 0, paletteRow, 0);
                 for (ushort row = 0; row < part.Size.Y; row++)
@@ -86,6 +89,7 @@ internal static class SpriteSheetComposer
                         int sheetX = corner.X + part.Offset.X - bound.Left + column;
                         int sheetY = corner.Y + part.Offset.Y - bound.Top + row;
                         pixels[sheetY * width + sheetX] = spriteColours[paletteRow * RowColours + colour].ToRgba32();
+                        paletteIndices[sheetY * width + sheetX] = (byte)(paletteRow * RowColours + colour);
                     }
                 }
             }
@@ -96,10 +100,14 @@ internal static class SpriteSheetComposer
                 Origin = new(checked((short)-bound.Left), checked((short)-bound.Top)),
                 Blends = blends,
                 Priority = framePriority,
+                Rows = rows,
             });
         }
-        return new ComposedSpriteSheet(new((ushort)width, (ushort)height), pixels,
-            new SpriteSheetDocument { Version = SpriteSheet.Version, Frames = manifest });
+        ushort[] colours = new ushort[spriteColours.Length];
+        for (int colour = 0; colour < colours.Length; colour++)
+            colours[colour] = spriteColours[colour].ToWord();
+        return new ComposedSpriteSheet(new((ushort)width, (ushort)height), pixels, paletteIndices,
+            new SpriteSheetDocument { Version = SpriteSheet.Version, Colours = colours, Frames = manifest });
     }
 
     /// <summary>The rectangle a frame's parts cover, relative to its origin; empty for a frame with no parts.</summary>

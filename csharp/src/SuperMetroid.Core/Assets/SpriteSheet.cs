@@ -37,6 +37,8 @@ public sealed class SpriteSheet
         content.Append("width", Image.Size.X);
         content.Append("height", Image.Size.Y);
         content.Append("pixels", System.Runtime.InteropServices.MemoryMarshal.AsBytes(Image.Pixels));
+        content.Append("palette indices", Image.PaletteIndices);
+        content.Append("standard colours", System.Runtime.InteropServices.MemoryMarshal.AsBytes(Image.StandardColours));
         foreach ((string name, SpriteSheetFrame frame) in frames.OrderBy(pair => pair.Key, StringComparer.Ordinal))
         {
             content.AppendName("frame", name);
@@ -48,30 +50,48 @@ public sealed class SpriteSheet
             content.Append("origin y", frame.Origin.Y);
             content.Append("blends", frame.Blends ? 1 : 0);
             content.Append("priority", frame.Priority);
+            foreach (SpritePaletteRows row in SpritePaletteRowSet.Rows)
+                content.Append("row", (frame.Rows & row) != 0 ? 1 : 0);
         }
     }
 
-    /// <summary>Reads a sheet manifest and cuts its frames from <paramref name="image"/>.</summary>
+    /// <summary>Reads a sheet manifest and cuts its frames from the sheet image.</summary>
+    /// <param name="manifest">The frame list and standard colours.</param>
+    /// <param name="name">The sheet's installed name.</param>
+    /// <param name="size">The image's width and height.</param>
+    /// <param name="pixels">The image's pixels.</param>
+    /// <param name="paletteIndices">Each pixel's palette row times sixteen plus its colour.</param>
     /// <exception cref="InvalidDataException">The manifest is malformed, of another revision, or places a frame off the image.</exception>
-    public static SpriteSheet Load(Stream manifest, SpriteImage image)
+    public static SpriteSheet Load(Stream manifest, string name, Extent16<ImagePixels> size, ReadOnlySpan<Rgba32> pixels,
+        ReadOnlySpan<byte> paletteIndices)
     {
-        Ensure.NotNull(image);
-        SpriteSheetDocument document = JsonAssetDocument.Read<SpriteSheetDocument>(manifest, Options, $"sprite sheet {image.Name}");
+        SpriteSheetDocument document = JsonAssetDocument.Read<SpriteSheetDocument>(manifest, Options, $"sprite sheet {name}");
         if (document.Version != Version)
-            throw new InvalidDataException($"Sprite sheet {image.Name} has manifest revision {document.Version}, not {Version}.");
+            throw new InvalidDataException($"Sprite sheet {name} has manifest revision {document.Version}, not {Version}.");
+        if (document.Colours is not { Length: SpriteImage.SpriteColourCount })
+            throw new InvalidDataException($"Sprite sheet {name} needs its {SpriteImage.SpriteColourCount} standard colours.");
+        SpriteImage image;
+        try
+        {
+            image = new SpriteImage(name, size, pixels, paletteIndices, [.. document.Colours.Select(Bgr555.FromWord)]);
+        }
+        catch (ArgumentException error)
+        {
+            throw new InvalidDataException($"Sprite sheet {name}: {error.Message}", error);
+        }
         var frames = new Dictionary<string, SpriteSheetFrame>(StringComparer.Ordinal);
-        foreach ((string name, SpriteSheetFrameDocument? frame) in document.Frames ??
-            throw new InvalidDataException($"Sprite sheet {image.Name} has no frame list."))
+        foreach ((string frameName, SpriteSheetFrameDocument? frame) in document.Frames ??
+            throw new InvalidDataException($"Sprite sheet {name} has no frame list."))
         {
             if (frame is null)
-                throw new InvalidDataException($"Sprite sheet {image.Name} frame {name} is null.");
+                throw new InvalidDataException($"Sprite sheet {name} frame {frameName} is null.");
             try
             {
-                frames.Add(name, new SpriteSheetFrame(image, frame.Corner, frame.Size, frame.Origin, frame.Blends, frame.Priority));
+                frames.Add(frameName, new SpriteSheetFrame(image, frame.Corner, frame.Size, frame.Origin, frame.Blends, frame.Priority, frame.Rows));
             }
             catch (ArgumentException error)
             {
-                throw new InvalidDataException($"Sprite sheet {image.Name} frame {name}: {error.Message}", error);
+                throw new InvalidDataException($"Sprite sheet {name} frame {frameName}: {error.Message}", error);
             }
         }
         return new SpriteSheet(image, frames);

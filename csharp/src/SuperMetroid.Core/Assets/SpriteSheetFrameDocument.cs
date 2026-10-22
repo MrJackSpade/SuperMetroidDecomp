@@ -17,4 +17,7 @@ public sealed record SpriteSheetFrameDocument
 
     /// <summary>The frame's authored priority against the backgrounds 0..3.</summary>
     public required int Priority { get; init; }
+
+    /// <summary>The sprite palette rows the frame was coloured from.</summary>
+    public required SpritePaletteRows Rows { get; init; }
 }

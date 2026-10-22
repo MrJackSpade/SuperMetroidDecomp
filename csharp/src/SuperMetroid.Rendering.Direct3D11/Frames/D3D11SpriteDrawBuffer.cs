@@ -34,6 +34,8 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     private const uint ImageFlag = 1 << 7;
     /// <summary>Flags bit marking an image that takes part in colour blending.</summary>
     private const uint BlendsFlag = 1 << 8;
+    /// <summary>Flags bit marking an image whose uploaded words are palette indices, because a palette effect changed a row it uses.</summary>
+    private const uint RecolourFlag = 1 << 9;
     /// <summary>Flags position of an image record's frame width, the stride between its uploaded pixel rows.</summary>
     private const int StrideShift = 16;
 
@@ -55,7 +57,9 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     internal ID3D11ShaderResourceView View { get; private set; }
 
     /// <summary>Packs a frame's draws in emission order, growing the buffer first when they do not fit.</summary>
-    internal void Pack(ReadOnlySpan<SpriteDraw> draws)
+    /// <param name="draws">The frame's draws.</param>
+    /// <param name="cgram">The frame's 256 colours, against which each image frame's standard colours are checked.</param>
+    internal void Pack(ReadOnlySpan<SpriteDraw> draws, ReadOnlySpan<Bgr555> cgram)
     {
         int records = 0;
         foreach (SpriteDraw draw in draws)
@@ -68,12 +72,17 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         int words = HeaderWords + records * RecordWords;
         var artworkWords = new Dictionary<SpriteArtwork, int>(ReferenceEqualityComparer.Instance);
         var imageWords = new Dictionary<SpriteSheetFrame, int>(ReferenceEqualityComparer.Instance);
+        var recoloured = new HashSet<SpriteSheetFrame>(ReferenceEqualityComparer.Instance);
         foreach (SpriteDraw draw in draws)
         {
             if (draw is CharacterSpriteDraw character && artworkWords.TryAdd(character.Artwork, words))
                 words += character.Artwork.CharacterCount * CharacterWords;
             else if (draw is ImageSpriteDraw image && imageWords.TryAdd(image.Image, words))
+            {
                 words += image.Image.Size.X * image.Image.Size.Y;
+                if (!image.Image.ShowsStandardColours(cgram))
+                    recoloured.Add(image.Image);
+            }
         }
         if (words > Upload.Length)
         {
@@ -88,7 +97,7 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         {
             if (draw is ImageSpriteDraw image)
             {
-                PackImage(upload.Slice(record, RecordWords), image, imageWords[image.Image]);
+                PackImage(upload.Slice(record, RecordWords), image, imageWords[image.Image], recoloured.Contains(image.Image));
                 record += RecordWords;
                 continue;
             }
@@ -111,6 +120,8 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         foreach ((SpriteSheetFrame frame, int offset) in imageWords)
         {
             ReadOnlySpan<Rgba32> pixels = frame.Sheet.Pixels;
+            ReadOnlySpan<byte> indices = frame.Sheet.PaletteIndices;
+            bool indexed = recoloured.Contains(frame);
             int target = offset;
             for (int row = 0; row < frame.Size.Y; row++)
             {
@@ -118,21 +129,21 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
                 for (int column = 0; column < frame.Size.X; column++, target++)
                 {
                     Rgba32 pixel = pixels[source + column];
-                    upload[target] = D3D11ConstantPacking.Bytes(pixel.R, pixel.G, pixel.B, pixel.A);
+                    upload[target] = indexed ? indices[source + column] : D3D11ConstantPacking.Bytes(pixel.R, pixel.G, pixel.B, pixel.A);
                 }
             }
         }
     }
 
-    /// <summary>Packs one image draw: its screen rectangle, mirroring, priority, blending and its frame's uploaded pixels.</summary>
-    private static void PackImage(Span<uint> record, ImageSpriteDraw draw, int frameWords)
+    /// <summary>Packs one image draw: its screen rectangle, mirroring, priority, blending, recolouring and its frame's uploaded words.</summary>
+    private static void PackImage(Span<uint> record, ImageSpriteDraw draw, int frameWords, bool recolour)
     {
         Offset16<ScreenPixels> corner = draw.Corner;
         SpriteSheetFrame frame = draw.Image;
         record[0] = D3D11ConstantPacking.Halves(unchecked((ushort)corner.X), unchecked((ushort)corner.Y));
         record[1] = D3D11ConstantPacking.Halves(frame.Size.X, frame.Size.Y);
         record[2] = ((draw.Mirror & SpriteMirror.Horizontal) != 0 ? FlipXFlag : 0) | ((draw.Mirror & SpriteMirror.Vertical) != 0 ? FlipYFlag : 0)
-            | (uint)draw.Priority << PriorityShift | ImageFlag | (frame.Blends ? BlendsFlag : 0) | (uint)frame.Size.X << StrideShift;
+            | (uint)draw.Priority << PriorityShift | ImageFlag | (frame.Blends ? BlendsFlag : 0) | (recolour ? RecolourFlag : 0) | (uint)frame.Size.X << StrideShift;
         record[3] = (uint)frameWords;
     }
 

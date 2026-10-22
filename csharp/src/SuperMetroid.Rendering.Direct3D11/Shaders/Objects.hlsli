@@ -3,7 +3,7 @@
 // (eight words each) and the drawn images' pre-coloured pixels. No OAM or OBJ VRAM is read.
 StructuredBuffer<uint> SpriteDraws : register(t1);
 static const uint SpriteRecordWords = 4;
-static const uint SpriteFlipX = 1, SpriteFlipY = 2, SpriteImage = 128, SpriteBlends = 256;
+static const uint SpriteFlipX = 1, SpriteFlipY = 2, SpriteImage = 128, SpriteBlends = 256, SpriteRecolour = 512;
 // The palette row a blending image reports, so colour math treats it as the upper rows' sprites.
 static const uint BlendingImageRow = 4;
 
@@ -34,10 +34,17 @@ bool ResolveSpritePart(uint part, uint2 screen, out uint2 hit, out uint palette)
     uint priority = (flags >> 5) & 3;
     if ((flags & SpriteImage) != 0)
     {
-        // A pre-coloured image: its pixel is the colour, and zero alpha is transparent.
+        // A pre-coloured image: its pixel is the colour, and zero alpha is transparent. While a palette effect has
+        // changed a row the frame uses, its words are palette indices and the frame shows the live colours.
         uint pixel = SpriteDraws[SpriteDraws[record + 3] + sourceY * (flags >> 16) + sourceX];
-        if ((pixel >> 24) == 0) return false;
         palette = (flags & SpriteBlends) != 0 ? BlendingImageRow : 0;
+        if ((flags & SpriteRecolour) != 0)
+        {
+            if (pixel == 0) return false;
+            hit = uint2(Palette(128 + pixel), priority);
+            return true;
+        }
+        if ((pixel >> 24) == 0) return false;
         hit = uint2(pixel | 0xff000000, priority);
         return true;
     }

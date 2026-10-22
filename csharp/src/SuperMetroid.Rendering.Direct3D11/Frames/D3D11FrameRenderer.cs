@@ -480,7 +480,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         MemoryMarshal.Cast<byte, uint>(scene.Memory.Vram).CopyTo(memory);
         for (int i = 0; i < scene.Memory.Cgram.Length; i++) memory[D3D11ShaderLayout.VramPackedWords + i] = scene.Memory.Cgram[i].ToWord();
         fixed (uint* source = memory) UploadBuffer(memoryBuffer, (nint)source, memory.Length * sizeof(uint));
-        spriteDraws.Pack(scene.Memory.SpriteDraws.AsSpan());
+        spriteDraws.Pack(scene.Memory.SpriteDraws.AsSpan(), scene.Memory.Cgram);
         fixed (uint* source = spriteDraws.Upload) UploadBuffer(spriteDraws.Buffer, (nint)source, spriteDraws.Upload.Length * sizeof(uint));
         var sceneBgLayers = new List<SuperMetroid.Core.Assets.BgLayer>();
         bgLayerIndices.Clear();

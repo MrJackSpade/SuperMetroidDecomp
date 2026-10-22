@@ -26,8 +26,6 @@ public static class EnemySheetDefinitions
         EnemyDefinitionId.ShipBottomEntrance, EnemyDefinitionId.ShipTop,
         EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue,
         EnemyDefinitionId.DraygonArms, EnemyDefinitionId.DraygonBody, EnemyDefinitionId.DraygonEye, EnemyDefinitionId.DraygonTail,
-        EnemyDefinitionId.Kraid, EnemyDefinitionId.KraidArm, EnemyDefinitionId.KraidFoot, EnemyDefinitionId.KraidLintBottom,
-        EnemyDefinitionId.KraidLintMiddle, EnemyDefinitionId.KraidLintTop, EnemyDefinitionId.KraidNail, EnemyDefinitionId.KraidNailBad,
         EnemyDefinitionId.MotherBrainBody, EnemyDefinitionId.MotherBrainHead, EnemyDefinitionId.MotherBrainTubes,
         EnemyDefinitionId.Ridley, EnemyDefinitionId.RidleyCeres, EnemyDefinitionId.RidleyExplosion,
         EnemyDefinitionId.BombTorizo, EnemyDefinitionId.GoldenTorizo,

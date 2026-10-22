@@ -568,6 +568,10 @@ tileset's background palette; its name lists the block's four tile words and, fo
 shows. A block whose characters a room rebinds after loading (animated spikes, sand and treadmills, the Tourian statues,
 collectibles' graphics, library background transfers and Kraid's backdrop) has a picture for each artwork that can
 show there, and the room draws the one its bindings show now. X-ray's reveal draws its blocks from the same pictures.
+A room's library background is a full image in the same directory, one for each background, door variant and tileset
+(`{background}[.{door}].{tileset}`): both BG2 pages it loads, the first above the second, with their tilemap words listed
+in `room-backgrounds.json`. A 16x16 cell whose characters the room rebinds, as the Tourian statues' are, draws that
+cell's block picture while they show something else.
 Edited copies go in `overrides/room-block-sheets`. The
 Ceres Ridley arena, whose planes read the object characters, still draws its blocks from characters.
 

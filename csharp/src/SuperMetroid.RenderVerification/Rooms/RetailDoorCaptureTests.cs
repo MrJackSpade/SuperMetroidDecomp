@@ -32,6 +32,8 @@ internal static class RetailDoorCaptureTests
                 new Position16<RoomPixels>(left ? DoorTransitionAuditPositions.Origin : DoorTransitionAuditPositions.SecondScreenCameraX, 0));
             runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithX(SnesFixedPosition.FromRaw(left ? DoorTransitionAuditPositions.LeftDoorSamusXFixed : DoorTransitionAuditPositions.SecondScreenRightDoorSamusXFixed));
             runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithY(SnesFixedPosition.FromRaw(DoorTransitionAuditPositions.CeresCorridorDoorSamusYFixed));
+            // The room's first NMI latches it for display, as one does before any room is shown.
+            runtime.FrameBoundary.BeginAcceptedFrame(0);
             SwapchainTests.VerifyBlockedDoor(device, renderer, runtime, door, destination, left ? "left" : "right");
         }
     }

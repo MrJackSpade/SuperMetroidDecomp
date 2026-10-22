@@ -33,7 +33,7 @@ public sealed class CartridgeRoomAssets
         RoomCharacters = tileset.RoomCharacters;
         PaletteBytes = tileset.PaletteBytes;
         Tileset = tileset.Tileset;
-        BlockSheet = tileset.BlockSheet;
+        Pictures = tileset.Pictures;
     }
 
     /// <summary>Selected room header and room-state metadata used to choose level source, graphics set, dimensions, scrolls, and door table; loading these assets does not execute its room ASM.</summary>
@@ -51,8 +51,11 @@ public sealed class CartridgeRoomAssets
     /// <summary>Compiled graphics-set source identities selected by the room-state index and used to resolve installed metatiles, characters, and palette artwork.</summary>
     public TilesetDefinition Tileset { get; }
 
+    /// <summary>The installed pre-coloured room artwork: block sheets and library background images (#1392).</summary>
+    public RoomBlockSheetCatalog Pictures { get; }
+
     /// <summary>The pre-coloured pictures of the tileset's blocks the room's planes draw from (#1392).</summary>
-    public RoomBlockSheet BlockSheet { get; }
+    public RoomBlockSheet BlockSheet => Pictures.Get(Tileset);
 
     /// <summary>
     /// The block definitions a room of <paramref name="tileset"/> loads: the common room elements' and then the tileset's,
@@ -113,7 +116,7 @@ public sealed class CartridgeRoomAssets
             levelData,
             scrolls,
             new RoomTilesetArtwork(tileset, characterArt.Cre.Transfer.ToArray(), characterArt.Get(tileset.Characters).Transfer.ToArray(),
-                paletteArt.Get(tileset.Palette).Transfer.ToArray(), catalogs.BlockSheets.Get(tileset)));
+                paletteArt.Get(tileset.Palette).Transfer.ToArray(), catalogs.BlockSheets));
     }
 
     /// <summary>

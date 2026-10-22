@@ -30,16 +30,18 @@ StructuredBuffer<uint> RoomLevels : register(t3);
 // RoomSource: 0 samples the VRAM tilemap; otherwise the room's BG1 or BG2 as level data shows it, the sky's rows,
 // the BG3 plane, or a boss body's BG2 tilemap. RoomSourceBg2Overlay added to it lays words written over BG2 on top.
 static const uint RoomSourceBg1 = 1, RoomSourceBg2 = 2, RoomSourceSky = 3, RoomSourceBg3 = 4, RoomSourceMode7Map = 5;
-static const uint RoomSourceBossBg2 = 6, RoomSourceXrayReveal = 7;
+static const uint RoomSourceBossBg2 = 6, RoomSourceXrayReveal = 7, RoomSourceBg2Image = 8;
 static const uint RoomSourceBg2Overlay = 256;
 static const uint RoomRecordWords = 7, RoomDoorSlot = 2, RoomDoorWindowWord = 21, RoomOverlayWord = 22, RoomSkyWord = 23;
 static const uint RoomBg3Word = 24, RoomBg2OverlayWord = 25, RoomMode7MapWord = 26, RoomBossBg2Word = 27, RoomXrayRevealWord = 28;
+// A library background (RoomBackgroundImagePlane): its image picture's offset, then each 16x16 cell's picture offset.
+static const uint RoomBg2ImageWord = 29;
 // The X-ray reveal (XrayRevealPlane): 17 block columns by 16 rows, each its picture's offset with its arrangement in the
 // top four bits: as defined, mirrored horizontally, vertically or both, or its tile rows swapped.
 static const uint RevealColumns = 17, RevealRows = 16;
-// A block picture: its sheet's standard colours' offset, then its 16x16 colours, then each pixel's palette index and,
-// above it, its tile priority.
-static const uint PictureColoursWord = 0, PicturePixelsWord = 1, PictureIndicesWord = 257;
+// A picture (a block, or a background image): its sheet's standard colours' offset, its width, its pixel count, then
+// its colours, then each pixel's palette index and, above it, its tile priority.
+static const uint PictureColoursWord = 0, PictureWidthWord = 1, PictureCountWord = 2, PicturePixelsWord = 3;
 RWTexture2D<uint> Output : register(u0);
 RWTexture2D<uint2> Objects : register(u1);
 
@@ -168,6 +170,20 @@ bool RevealPicture(uint2 scrolled, out uint picture, out uint2 within)
     if (arrangement == 4) within.y = (within.y + 8) & 15;
     return true;
 }
+// The picture and pixel a room's library background shows at a scrolled BG2 position through a `size` map (#1392): a
+// rebound cell's picture, or the image of both pages; false on a page past the two the image pictures.
+bool Bg2ImagePicture(uint2 scrolled, uint2 size, out uint picture, out uint2 within)
+{
+    uint2 position = scrolled & (size * 8 - 1);
+    uint2 tile = position >> 3;
+    uint page = (tile.y >> 5) * (size.x >> 5) + (tile.x >> 5);
+    uint2 pagePixel = position & 255;
+    uint image = RoomLevels[RoomBg2ImageWord];
+    uint cell = RoomLevels[image + 1 + page * 256 + (pagePixel.y >> 4) * 16 + (pagePixel.x >> 4)];
+    picture = cell != 0 ? cell : RoomLevels[image];
+    within = cell != 0 ? (pagePixel & 15) : uint2(pagePixel.x, page * 256 + pagePixel.y);
+    return page < 2;
+}
 // BG2 from the room's layer-2 plane or the sky's rows, or BG1 as RoomBackgrounds resolves it: a door's source
 // screen, then words written over BG1, then the level plane.
 bool RoomTile(uint source, uint2 scrolled, out uint entry, out uint2 within, out uint picture)
@@ -213,8 +229,8 @@ uint Palette(uint index)
 // the picture's own while the pixel's palette row still holds its sheet's standard colours, else the row's live colour.
 uint PicturePixel(uint picture, uint2 pixel, out uint index, out bool high)
 {
-    uint at = pixel.y * 16 + pixel.x;
-    uint meta = RoomLevels[picture + PictureIndicesWord + at];
+    uint at = pixel.y * RoomLevels[picture + PictureWidthWord] + pixel.x;
+    uint meta = RoomLevels[picture + PicturePixelsWord + RoomLevels[picture + PictureCountWord] + at];
     index = meta & 255;
     high = (meta >> 8) != 0;
     if (index == 0) return 0;
@@ -417,6 +433,10 @@ void Main(uint3 id : SV_DispatchThreadID)
     else if (source == RoomSourceXrayReveal)
     {
         if (!RevealPicture(scrolled, picture, within)) return;
+    }
+    else if (source == RoomSourceBg2Image)
+    {
+        if (!Bg2ImagePicture(scrolled, uint2(MapWidth, MapHeight), picture, within)) return;
     }
     else if (source != 0)
     {

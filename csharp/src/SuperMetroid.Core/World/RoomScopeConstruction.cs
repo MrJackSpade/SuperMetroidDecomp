@@ -106,6 +106,11 @@ internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeR
         LevelData = LevelData ?? throw Missing(nameof(LevelData)),
         Camera = Camera ?? throw Missing(nameof(Camera)),
         BlockPictures = new RoomBlockPictureResolver(Assets.BlockSheet),
+        BackgroundImage = Room.State.Background is { } program
+            ? new RoomBackgroundImageResolver(
+                Assets.Pictures.Background(RoomBackgroundImage.NameOf(program, RoomBackgroundImage.DoorVariant(program, Door), Assets.Tileset)),
+                Assets.BlockSheet, LoadedArtwork(program))
+            : null,
         ScrollingSky = ScrollingSky,
         Mode7Map = Mode7Map,
         LandingSiteEntry = LandingSiteEntry,
@@ -125,6 +130,18 @@ internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeR
         Plms = Plms ?? throw Missing(nameof(Plms)),
         Services = Services ?? throw Missing(nameof(Services)),
     };
+
+    /// <summary>
+    /// The artwork the room binds as it loads, which its library background's image shows: its common room elements and
+    /// tileset, and the characters <paramref name="program"/> transfers.
+    /// </summary>
+    private HashSet<BgArtworkIdentity> LoadedArtwork(LibraryBackgroundProgram program) =>
+    [
+        .. CartridgeRoomAssets.CharacterUploads(Assets.Tileset, Assets.CreCharacters, Assets.RoomCharacters).Select(upload => upload.Identity),
+        .. program.Instructions.Where(instruction => instruction.Command is LibraryBackgroundCommand.TransferToVram
+            or LibraryBackgroundCommand.TransferToVramForKraid or LibraryBackgroundCommand.TransferForDoor)
+            .Select(instruction => RoomBgArtwork.Library(instruction.SourceAddress)),
+    ];
 
     /// <summary>The failure for a load that completed without building <paramref name="part"/>.</summary>
     private static InvalidOperationException Missing(string part) =>

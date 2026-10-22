@@ -25,6 +25,8 @@ uint2 XrayBackground(uint roomSource, uint map, uint chars, uint2 size, uint2 po
         entry = BossBg2Word(position, size, within);
     else if (source == RoomSourceXrayReveal)
         shown = RevealPicture(position & 65535, picture, within);
+    else if (source == RoomSourceBg2Image)
+        shown = Bg2ImagePicture(position & 65535, size, picture, within);
     else if (source != 0)
         shown = RoomTile(source, position, entry, within, picture);
     else

@@ -23,17 +23,60 @@ internal static class RoomBlockSheetComposer
     /// <summary>Pictures across one row of a sheet.</summary>
     private const int SheetColumns = 32;
 
-    /// <summary>Colours in one palette row.</summary>
-    private const int RowColours = 16;
-
-    /// <summary>Pixels along a character's side.</summary>
-    private const int CharacterPixels = 8;
-
     /// <summary>Composes every tileset's sheet.</summary>
-    internal static IReadOnlyDictionary<TilesetDefinition, ComposedSpriteSheet> Compose(RoomBlockSheetInputs inputs)
+    internal static RoomSheetComposition Compose(RoomBlockSheetInputs inputs)
     {
         Ensure.NotNull(inputs);
-        return RoomBlockUploads.ByTileset(inputs).ToDictionary(entry => entry.Key, entry => Compose(inputs, entry.Key, entry.Value));
+        IReadOnlyDictionary<TilesetDefinition, RoomBlockUploads.TilesetUploads> tilesets = RoomBlockUploads.ByTileset(inputs);
+        var backgrounds = new Dictionary<string, ComposedRoomBackground>(StringComparer.Ordinal);
+        foreach ((TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads) in tilesets)
+        {
+            foreach (RoomBlockUploads.RoomBackgroundMap background in uploads.Backgrounds)
+                backgrounds.Add(background.Name, ComposeBackground(inputs, tileset, uploads, background));
+        }
+        return new RoomSheetComposition(tilesets.ToDictionary(entry => entry.Key, entry => Compose(inputs, entry.Key, entry.Value)), backgrounds);
+    }
+
+    /// <summary>
+    /// Composes a library background's image: both pages its program leaves, the first above the second, each tile over
+    /// what its character shows as the room has loaded.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A tile reads a character nothing the room loads is bound over.</exception>
+    [PpuLayoutBoundary("codec: the BG characters a background's tile words name, from the room tileset's character base")]
+    private static ComposedRoomBackground ComposeBackground(RoomBlockSheetInputs inputs, TilesetDefinition tileset,
+        RoomBlockUploads.TilesetUploads uploads, RoomBlockUploads.RoomBackgroundMap background)
+    {
+        IReadOnlyList<BgCharacterUpload> load = CartridgeRoomAssets.CharacterUploads(tileset, inputs.Characters.Cre.Transfer,
+            inputs.Characters.Get(tileset.Characters).Transfer);
+        Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = load.Concat(uploads.Uploads).GroupBy(upload => upload.Identity)
+            .ToDictionary(group => group.Key, group => group.First().Bytes);
+        Bgr555[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).Transfer.Span);
+        var canvas = new RoomTileCanvas(RoomBackgroundImage.PagePixels, RoomBackgroundImage.Pages * RoomBackgroundImage.PagePixels);
+        SpritePaletteRows rows = SpritePaletteRows.None;
+        for (int index = 0; index < RoomBackgroundImage.Words; index++)
+        {
+            var word = new SnesBgTilemapWord(background.Words[index]);
+            int page = index / (RoomBackgroundImage.PageTiles * RoomBackgroundImage.PageTiles);
+            int within = index % (RoomBackgroundImage.PageTiles * RoomBackgroundImage.PageTiles);
+            int first = CharacterWord(word.Raw);
+            if (!background.Content.TryShowing(first, RoomBlockPictureNames.CharacterWords, out BgArtworkShown shown))
+                throw new InvalidDataException($"Room background {background.Name} reads a character at VRAM word ${first:X4} its room loads nothing over.");
+            rows |= canvas.PaintTile(within % RoomBackgroundImage.PageTiles * RoomTileCanvas.CharacterPixels,
+                page * RoomBackgroundImage.PagePixels + within / RoomBackgroundImage.PageTiles * RoomTileCanvas.CharacterPixels, word,
+                bytes[shown.Artwork].Span.Slice(shown.WordOffset * sizeof(ushort), RoomTileCanvas.CharacterBytes), colours);
+        }
+        var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
+        {
+            [RoomBackgroundImage.FrameName] = new SpriteSheetFrameDocument
+            {
+                Corner = default,
+                Size = new Extent16<ImagePixels>((ushort)canvas.Width, (ushort)canvas.Height),
+                Origin = default,
+                Rows = rows,
+                Parts = [],
+            },
+        };
+        return new ComposedRoomBackground(canvas.ToSheet(colours, frames), background.Words);
     }
 
     /// <summary>Composes one tileset's sheet.</summary>
@@ -49,7 +92,7 @@ internal static class RoomBlockSheetComposer
         var bytes = new Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>>();
         foreach (BgCharacterUpload upload in load.Concat(uploads.Uploads).Concat(uploads.Collectibles.Select(slot => slot.Upload)))
             bytes[upload.Identity] = upload.Bytes;
-        Bgr555[] colours = StandardColours(inputs.Palettes.Get(tileset.Palette).Transfer.Span);
+        Bgr555[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).Transfer.Span);
 
         var pictures = new Dictionary<string, Picture>(StringComparer.Ordinal);
         BgCharacterUpload[] all = [.. uploads.Uploads.Concat(uploads.Collectibles.Select(slot => slot.Upload))];
@@ -67,16 +110,33 @@ internal static class RoomBlockSheetComposer
             for (int block = 0; block < slot.Words.Length / RoomBlockPictureNames.Tiles; block++)
                 AddEach(slot.Words[(block * RoomBlockPictureNames.Tiles)..((block + 1) * RoomBlockPictureNames.Tiles)], [slot.Upload], withLoad: false);
         }
+        // A library background's image shows its room's load; each 16x16 cell whose characters the room rebinds after
+        // loading draws the cell's picture for what they show then.
+        BgCharacterUpload[] rebinding = [.. all.Where(upload => !uploads.LibraryArtwork.Contains(upload.Identity))];
+        foreach (RoomBlockUploads.RoomBackgroundMap background in uploads.Backgrounds)
+        {
+            foreach (ushort[] cell in RoomBackgroundImage.Cells(background.Words))
+            {
+                if (cell.Any(word => rebinding.Any(upload => Covers(upload, CharacterWord(word)))))
+                    AddEach(cell, all, withLoad: true);
+            }
+        }
 
         int rows = (pictures.Count + SheetColumns - 1) / SheetColumns;
-        var canvas = new Canvas(SheetColumns * RoomBlockSheet.BlockPixels, Math.Max(rows, 1) * RoomBlockSheet.BlockPixels);
+        var canvas = new RoomTileCanvas(SheetColumns * RoomBlockSheet.BlockPixels, Math.Max(rows, 1) * RoomBlockSheet.BlockPixels);
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         int index = 0;
         foreach ((string name, Picture picture) in pictures)
         {
             var corner = new Position16<ImagePixels>((ushort)(index % SheetColumns * RoomBlockSheet.BlockPixels),
                 (ushort)(index / SheetColumns * RoomBlockSheet.BlockPixels));
-            SpritePaletteRows coloured = canvas.Paint(corner, picture, bytes, colours);
+            SpritePaletteRows coloured = SpritePaletteRows.None;
+            for (int tile = 0; tile < RoomBlockPictureNames.Tiles; tile++)
+            {
+                coloured |= canvas.PaintTile(corner.X + tile % 2 * RoomTileCanvas.CharacterPixels, corner.Y + tile / 2 * RoomTileCanvas.CharacterPixels,
+                    new SnesBgTilemapWord(picture.Words[tile]), bytes[picture.Shown[tile].Artwork].Span.Slice(
+                        picture.Shown[tile].WordOffset * sizeof(ushort), RoomTileCanvas.CharacterBytes), colours);
+            }
             frames.Add(name, new SpriteSheetFrameDocument
             {
                 Corner = corner,
@@ -87,15 +147,7 @@ internal static class RoomBlockSheetComposer
             });
             index++;
         }
-        return new ComposedSpriteSheet(new((ushort)canvas.Width, (ushort)canvas.Height), canvas.Pixels, canvas.PaletteIndices,
-            canvas.Priorities, canvas.PartRows, new SpriteSheetDocument
-            {
-                Version = SpriteSheet.Version,
-                Palette = SpriteImageColours.Background,
-                Colours = [.. colours.Select(colour => colour.ToWord())],
-                Frames = frames,
-                PartImages = [],
-            });
+        return canvas.ToSheet(colours, frames);
 
         // Adds a picture of the block for each combination of what the upload regions its tiles read can show: the
         // room's load, when given, or each of `candidates` covering the region. Tiles in one region show the same
@@ -164,75 +216,9 @@ internal static class RoomBlockSheetComposer
             ? true : throw new InvalidDataException($"{upload.Identity.Name} covers only part of the character at VRAM word ${first:X4}.");
     }
 
-    /// <summary>The tileset palette's 128 background colours, the first half of CGRAM a room loads.</summary>
-    private static Bgr555[] StandardColours(ReadOnlySpan<byte> palette)
-    {
-        var colours = new Bgr555[SpriteImage.SpriteColourCount];
-        for (int colour = 0; colour < colours.Length; colour++)
-            colours[colour] = Bgr555.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(palette[(colour * 2)..]));
-        return colours;
-    }
-
     /// <summary>One block to picture: its four tile words and what shows at each tile's character.</summary>
     /// <param name="Words">The tile words: top left, top right, bottom left, bottom right.</param>
     /// <param name="Shown">What shows at each tile's character.</param>
     private sealed record Picture(ushort[] Words, BgArtworkShown[] Shown);
 
-    /// <summary>The sheet's pixel planes, painted one picture at a time.</summary>
-    /// <param name="width">The sheet's width.</param>
-    /// <param name="height">The sheet's height.</param>
-    private sealed class Canvas(int width, int height)
-    {
-        /// <summary>The sheet's width.</summary>
-        internal int Width { get; } = width;
-
-        /// <summary>The sheet's height.</summary>
-        internal int Height { get; } = height;
-
-        /// <summary>Each pixel's colour.</summary>
-        internal Rgba32[] Pixels { get; } = new Rgba32[width * height];
-
-        /// <summary>Each pixel's palette row times sixteen plus its colour; zero where transparent.</summary>
-        internal byte[] PaletteIndices { get; } = new byte[width * height];
-
-        /// <summary>Each pixel's tile priority.</summary>
-        internal byte[] Priorities { get; } = new byte[width * height];
-
-        /// <summary>Each pixel's row, which no draw overrides.</summary>
-        internal byte[] PartRows { get; } = new byte[width * height];
-
-        /// <summary>Paints a block at <paramref name="corner"/> and returns the rows it was coloured from.</summary>
-        internal SpritePaletteRows Paint(Position16<ImagePixels> corner, Picture picture,
-            IReadOnlyDictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes, Bgr555[] colours)
-        {
-            SpritePaletteRows rows = SpritePaletteRows.None;
-            for (int tile = 0; tile < RoomBlockPictureNames.Tiles; tile++)
-            {
-                var word = new SnesBgTilemapWord(picture.Words[tile]);
-                ReadOnlySpan<byte> character = bytes[picture.Shown[tile].Artwork].Span.Slice(
-                    picture.Shown[tile].WordOffset * sizeof(ushort), RoomBlockPictureNames.CharacterWords * sizeof(ushort));
-                int left = corner.X + tile % 2 * CharacterPixels, top = corner.Y + tile / 2 * CharacterPixels;
-                for (int y = 0; y < CharacterPixels; y++)
-                {
-                    int row = word.FlipVertically ? CharacterPixels - 1 - y : y;
-                    for (int x = 0; x < CharacterPixels; x++)
-                    {
-                        int bit = 7 - (word.FlipHorizontally ? CharacterPixels - 1 - x : x);
-                        int colour = (character[row * 2] >> bit & 1) | (character[row * 2 + 1] >> bit & 1) << 1
-                            | (character[16 + row * 2] >> bit & 1) << 2 | (character[17 + row * 2] >> bit & 1) << 3;
-                        if (colour == 0)
-                            continue;
-                        int pixel = (top + y) * Width + left + x;
-                        int index = word.PaletteIndex * RowColours + colour;
-                        PaletteIndices[pixel] = (byte)index;
-                        Pixels[pixel] = colours[index].ToRgba32();
-                        Priorities[pixel] = word.HasPriority ? (byte)1 : (byte)0;
-                        PartRows[pixel] = (byte)(word.PaletteIndex | SpriteImage.FixedPartRow);
-                        rows |= SpritePaletteRowSet.Rows[word.PaletteIndex];
-                    }
-                }
-            }
-            return rows;
-        }
-    }
 }

@@ -11,6 +11,8 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.World;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.World.RoomStates;
@@ -54,6 +56,13 @@ internal static class RoomBlockUploads
                     throw new InvalidDataException($"Tileset {tileset} is loaded both inside and outside Ceres.");
                 foreach (BgCharacterUpload upload in Of(inputs, room, state).Where(Overlaps))
                     uploads.Add(upload);
+                foreach (BgCharacterUpload upload in LibraryUploads(inputs, state))
+                    uploads.AddLibrary(upload);
+                if (state.Background is { } program)
+                {
+                    foreach (CartridgeDoorHeader? door in DoorVariants(program))
+                        uploads.AddBackground(Replay(inputs, room, tileset, program, door));
+                }
             }
         }
         foreach ((TilesetDefinition _, TilesetUploads uploads) in tilesets.Where(entry => !entry.Value.Ceres))
@@ -87,6 +96,18 @@ internal static class RoomBlockUploads
                 }
             }
         }
+        if (state.EnemyPopulation.Records.Span.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Kraid))
+        {
+            yield return new BgCharacterUpload(KraidBehavior.KraidRoomBackgroundIdentity, BossVramLayout.KraidRoomBackgroundTiles.Offset,
+                (inputs.Bosses.KraidBackground ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters."))
+                    .RoomBackgroundTiles.Transfer);
+        }
+    }
+
+    /// <summary>The characters one state's library background binds over the block characters as its room loads.</summary>
+    /// <exception cref="InvalidDataException">It transfers artwork that is not installed as characters over them.</exception>
+    private static IEnumerable<BgCharacterUpload> LibraryUploads(RoomBlockSheetInputs inputs, CartridgeRoomState state)
+    {
         foreach (LibraryBackgroundInstruction transfer in state.Background?.Instructions ?? [])
         {
             if (transfer.Command is not (LibraryBackgroundCommand.TransferToVram or LibraryBackgroundCommand.TransferToVramForKraid
@@ -101,12 +122,41 @@ internal static class RoomBlockUploads
                         $"{state.Name}'s library background transfers ${transfer.SourceAddress:X6} over the block characters, which no installed character artwork names.");
             yield return new BgCharacterUpload(RoomBgArtwork.Library(transfer.SourceAddress), transfer.Destination, characters);
         }
-        if (state.EnemyPopulation.Records.Span.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Kraid))
-        {
-            yield return new BgCharacterUpload(KraidBehavior.KraidRoomBackgroundIdentity, BossVramLayout.KraidRoomBackgroundTiles.Offset,
-                (inputs.Bosses.KraidBackground ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters."))
-                    .RoomBackgroundTiles.Transfer);
-        }
+    }
+
+    /// <summary>The doors <paramref name="program"/> transfers for, each a variant of its background, and no door.</summary>
+    private static IEnumerable<CartridgeDoorHeader?> DoorVariants(LibraryBackgroundProgram program) =>
+        [null, .. program.Instructions.Where(instruction => instruction.Command == LibraryBackgroundCommand.TransferForDoor)
+            .Select(instruction => instruction.Door).Distinct()];
+
+    /// <summary>
+    /// Replays <paramref name="program"/> as a room of <paramref name="tileset"/> entered through <paramref name="door"/>
+    /// runs it, over the characters the room loads: the BG2 pages it leaves and what shows at each character then.
+    /// </summary>
+    [PpuLayoutBoundary("codec: the BG2 tilemap pages a library background loads")]
+    private static RoomBackgroundMap Replay(RoomBlockSheetInputs inputs, RoomHeaderDefinition room, TilesetDefinition tileset,
+        LibraryBackgroundProgram program, CartridgeDoorHeader? door)
+    {
+        var vram = new SnesVram();
+        var content = new BgArtworkBindings(vram);
+        IReadOnlyList<BgCharacterUpload> load = CartridgeRoomAssets.CharacterUploads(tileset, inputs.Characters.Cre.Transfer,
+            inputs.Characters.Get(tileset.Characters).Transfer);
+        foreach (BgCharacterUpload upload in load)
+            upload.BindTo(content);
+        // A door no transfer names stands for every door the program does not tell apart.
+        CartridgeDoorHeader entry = door ?? new CartridgeDoorHeader("no library background door", room,
+            new CartridgeDoorOrientation(DoorDirection.Right, DoorClosingBehavior.None), default, default, 0, DoorSetupCode.None);
+        LibraryBackgroundLoader.ExecuteProgram(new LibraryBackgroundStaging(new Bg2TilemapStaging(), new EnemyStagingSurfaces()), vram, program,
+            entry, new LibraryBackgroundArtwork
+            {
+                TilemapArt = inputs.BackgroundTilemaps,
+                SkyArt = inputs.Skies,
+                HudArt = inputs.Hud,
+                CharacterArt = inputs.Characters,
+                Backgrounds = content,
+            });
+        ushort[] words = [.. Enumerable.Range(0, RoomBackgroundImage.Words).Select(word => vram.ReadWord(GameplayVramLayout.Bg2TilemapWord + word))];
+        return new RoomBackgroundMap(RoomBackgroundImage.NameOf(program, door, tileset), words, content);
     }
 
     /// <summary>Each frame an animated-tile object the port runs uploads; none for an object it does not animate.</summary>
@@ -163,6 +213,18 @@ internal static class RoomBlockUploads
         /// <summary>The collectibles' uploads.</summary>
         private readonly List<CollectibleSlotUpload> collectibles = [];
 
+        /// <summary>The library backgrounds the tileset's rooms load, by name.</summary>
+        private readonly Dictionary<string, RoomBackgroundMap> backgrounds = new(StringComparer.Ordinal);
+
+        /// <summary>The library backgrounds the tileset's rooms load.</summary>
+        internal IEnumerable<RoomBackgroundMap> Backgrounds => backgrounds.Values;
+
+        /// <summary>The artwork library backgrounds bind as their rooms load, which their images show.</summary>
+        internal HashSet<BgArtworkIdentity> LibraryArtwork { get; } = [];
+
+        /// <summary>Adds a library background unless one of its name is known.</summary>
+        internal void AddBackground(RoomBackgroundMap background) => backgrounds.TryAdd(background.Name, background);
+
         /// <summary>Whether the tileset's rooms are Ceres rooms.</summary>
         internal bool Ceres { get; } = ceres;
 
@@ -171,6 +233,13 @@ internal static class RoomBlockUploads
 
         /// <summary>The collectibles' uploads.</summary>
         internal IReadOnlyList<CollectibleSlotUpload> Collectibles => collectibles;
+
+        /// <summary>Adds an upload a library background binds as its room loads, which its image shows.</summary>
+        internal void AddLibrary(BgCharacterUpload upload)
+        {
+            LibraryArtwork.Add(upload.Identity);
+            Add(upload);
+        }
 
         /// <summary>Adds an upload unless the same artwork is already bound at the same word.</summary>
         internal void Add(BgCharacterUpload upload)
@@ -182,6 +251,12 @@ internal static class RoomBlockUploads
         /// <summary>Adds the collectibles' uploads.</summary>
         internal void AddCollectibles(IEnumerable<CollectibleSlotUpload> slots) => collectibles.AddRange(slots);
     }
+
+    /// <summary>The BG2 pages a library background leaves, under its installed name, and what then shows at each character.</summary>
+    /// <param name="Name">The background's installed name.</param>
+    /// <param name="Words">The pages' tilemap words.</param>
+    /// <param name="Content">The bindings the room's load and the background leave.</param>
+    internal sealed record RoomBackgroundMap(string Name, ushort[] Words, BgArtworkBindings Content);
 
     /// <summary>A collectible's graphics bound in one slot and the block definitions it writes there.</summary>
     /// <param name="Upload">The graphics bound.</param>

@@ -73,6 +73,24 @@ public sealed class BgArtworkBindings(SnesVram vram)
         return false;
     }
 
+    /// <summary>
+    /// Whether bound artwork shows over VRAM word <paramref name="word"/> (#1392): the newest binding over it was made since
+    /// VRAM last wrote it, so its bytes, not the word VRAM holds, show there.
+    /// </summary>
+    public bool ShowsOver(int word, out BgArtworkIdentity artwork)
+    {
+        for (int index = bindings.Count - 1; index >= 0; index--)
+        {
+            BgArtworkBinding binding = bindings[index];
+            if (word < binding.FirstWord || word >= binding.FirstWord + binding.WordCount)
+                continue;
+            artwork = binding.Identity;
+            return binding.Stamp > Vram.WriteStampAt(word);
+        }
+        artwork = default;
+        return false;
+    }
+
     /// <summary>Starts <paramref name="vram"/> tracking write order, which bindings are ordered against.</summary>
     private static SnesVram Tracked(SnesVram vram)
     {

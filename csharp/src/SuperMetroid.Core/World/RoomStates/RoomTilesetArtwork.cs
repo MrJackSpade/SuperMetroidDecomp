@@ -8,6 +8,6 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// <param name="CreCharacters">The common room elements' planar BG characters, uploaded first.</param>
 /// <param name="RoomCharacters">The tileset's planar BG characters, uploaded over them.</param>
 /// <param name="PaletteBytes">The tileset's little-endian BGR555 palette bytes.</param>
-/// <param name="BlockSheet">The pre-coloured pictures of the tileset's blocks (#1392).</param>
+/// <param name="Pictures">The installed pre-coloured room artwork: block sheets and library background images (#1392).</param>
 public sealed record RoomTilesetArtwork(TilesetDefinition Tileset, byte[] CreCharacters, byte[] RoomCharacters, byte[] PaletteBytes,
-    RoomBlockSheet BlockSheet);
+    RoomBlockSheetCatalog Pictures);

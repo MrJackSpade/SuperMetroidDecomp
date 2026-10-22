@@ -71,6 +71,20 @@ internal static class OrdinarySmokeTests
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, block pictures, layers {flags}, HDMA {hdma}");
         }
+        // A library background drawn from its image and rebound cells' pictures (#1392), through each map size BG2 takes.
+        var background = pictured with { Bg2 = null, Bg2Image = RoomBackgroundsFixtures.SeededBackground(random, colors) };
+        foreach (var geometry in new[] { new OrdinarySmokeRunCase(64, 32), new OrdinarySmokeRunCase(32, 64), new OrdinarySmokeRunCase(32, 32) })
+        for (int hdma = 0; hdma < 4; hdma += 3)
+        {
+            var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
+                new Extent16<TilemapCells>((ushort)geometry.First, (ushort)geometry.Second), 0x4800, 0, 0x6000, 0x4000,
+                SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
+            var layer = new OrdinaryGameplayRenderLayer(registers, background, new Bg2HdmaScrollTables(
+                (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
+            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
+            PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
+                $"{device.Kind}: ordinary {count}, background image, geometry {geometry}, HDMA {hdma}");
+        }
         // A boss body's BG2 tilemap (#1352) at the 64x64 map its registers select, with and without HDMA scrolls.
         var boss = rooms with
         {

@@ -20,9 +20,11 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <param name="Collectibles">The collectibles' graphics.</param>
 /// <param name="Bosses">The bosses' artwork, Kraid's room backdrop among it.</param>
 /// <param name="Hud">The HUD's characters, which Kraid's library background moves under BG1.</param>
+/// <param name="BackgroundTilemaps">The library backgrounds' tilemaps.</param>
+/// <param name="Skies">The scrolling skies' tilemaps, which some library backgrounds transfer.</param>
 internal sealed record RoomBlockSheetInputs(RoomCharacterAtlasCatalog Characters, RoomMetatileCatalog Metatiles,
     RoomStaticPaletteCatalog Palettes, RoomFxAnimatedTileAtlas AnimatedTiles, RoomPlmDynamicCollectibleArtCatalog Collectibles,
-    BossArtworkCatalog Bosses, HudTileAtlas Hud)
+    BossArtworkCatalog Bosses, HudTileAtlas Hud, RoomBackgroundTilemapCatalog BackgroundTilemaps, RoomSkyTilemapCatalog Skies)
 {
     /// <summary>Loads the stock artwork from installed content.</summary>
     internal static RoomBlockSheetInputs Load(string content)
@@ -36,6 +38,8 @@ internal sealed record RoomBlockSheetInputs(RoomCharacterAtlasCatalog Characters
             maps.RoomFxAnimatedTiles,
             RoomPlmDynamicCollectibleArtFiles.Load(Path.Combine(content, GameInstallationLayout.RoomPlmDynamicCollectibleArtDirectoryName), null),
             EnemyTileArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.EnemyTileDirectoryName), null).Bosses,
-            maps.HudTiles);
+            maps.HudTiles,
+            RoomBackgroundTilemapArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomBackgroundTilemapDirectoryName), null),
+            RoomSkyTilemapArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomBackgroundTilemapDirectoryName), null));
     }
 }

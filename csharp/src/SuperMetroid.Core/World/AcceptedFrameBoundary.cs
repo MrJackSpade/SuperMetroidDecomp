@@ -260,9 +260,19 @@ internal sealed class AcceptedFrameBoundary
         }
         RoomBlockPictureTable pictures = scope.BlockPictures.Resolve(rooms.Bg1.Plane, rooms.Bg2?.Plane, _backgrounds,
             revealed?.Select(block => block.Definition) ?? []);
+        // Where BG2 shows the tilemap its library background loaded, it draws the background's image (#1392): not over a
+        // streaming layer-2 plane, a scrolling sky or a boss body that owns BG2.
+        RoomBackgroundImagePlane? image = rooms.Bg2 is null && scope.ScrollingSky is null
+            && latched.Bosses.KraidBody is null && latched.Bosses.EnemyBg2 is null
+            ? scope.BackgroundImage?.Resolve(_backgrounds) : null;
         return latched with
         {
-            Rooms = rooms with { Bg1 = rooms.Bg1 with { Pictures = pictures }, Bg2 = rooms.Bg2 is { } bg2 ? bg2 with { Pictures = pictures } : null },
+            Rooms = rooms with
+            {
+                Bg1 = rooms.Bg1 with { Pictures = pictures },
+                Bg2 = rooms.Bg2 is { } bg2 ? bg2 with { Pictures = pictures } : null,
+                Bg2Image = image,
+            },
             XrayReveal = revealed is null ? null : new XrayRevealPlane(revealed, pictures),
         };
     }

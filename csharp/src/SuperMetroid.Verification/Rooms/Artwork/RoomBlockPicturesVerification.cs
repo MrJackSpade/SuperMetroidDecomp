@@ -51,6 +51,77 @@ internal static class RoomBlockPicturesVerification
     }
 
     /// <summary>
+    /// In the Parlor, whose rock background shows its room's load, and in the Tourian statue room, whose statues' frames
+    /// rebind the characters its background reads, BG2 draws the library background's image, and every pixel of its two
+    /// pages paints what BG2's tilemap tiles paint over the live characters, frame after frame.
+    /// </summary>
+    internal static void VerifyRoomBackgroundImages()
+    {
+        CheckBackground(RoomHeaderDefinitions.Parlor, expectRebound: false);
+        CheckBackground(RoomHeaderDefinitions.Statues, expectRebound: true);
+    }
+
+    /// <summary>Loads <paramref name="room"/> and checks its background image over <see cref="Frames"/> frames.</summary>
+    private static void CheckBackground(RoomHeaderDefinition room, bool expectRebound)
+    {
+        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(room);
+        runtime.Player.IntroducedSamus.Control.LockHandlers();
+        int rebound = 0;
+        for (int frame = 0; frame < Frames; frame++)
+        {
+            runtime.StepFrame(0);
+            rebound += AssertBackgroundPaintsTiles(runtime, $"{room.Name} frame {frame}");
+        }
+        AssertEqual(expectRebound, rebound > 0, $"{room.Name}'s background shows cells over artwork bound after its load");
+        Console.WriteLine($"Room background images: {room.Name} painted its two pages for {Frames} frames, {rebound} cell pictures over rebound artwork.");
+    }
+
+    /// <summary>
+    /// Asserts BG2's library background paints, pixel for pixel over both pages, the palette index, priority and standard
+    /// colour BG2's tilemap tiles paint over the characters the bindings compose into VRAM; returns its rebound cells.
+    /// </summary>
+    private static int AssertBackgroundPaintsTiles(SuperMetroidRuntime runtime, string where)
+    {
+        RoomBackgroundImagePlane plane = runtime.Display.Latched.Rooms?.Bg2Image
+            ?? throw new InvalidOperationException($"{where}: BG2 shows no library background image.");
+        PpuMemorySnapshot memory = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites, runtime.BgArtwork);
+        ReadOnlySpan<byte> vram = memory.Vram;
+        // A 32x64 map lays the two pages out one above the other, as the image does.
+        IBgSource shown = plane.At(new Extent16<TilemapCells>(RoomBackgroundImage.PageTiles, RoomBackgroundImage.Pages * RoomBackgroundImage.PageTiles));
+        for (int y = 0; y < RoomBackgroundImage.Pages * RoomBackgroundImage.PagePixels; y++)
+        for (int x = 0; x < RoomBackgroundImage.PagePixels; x++)
+        {
+            int at = GameplayVramLayout.Bg2TilemapWord * 2 + (y / CharacterPixels * RoomBackgroundImage.PageTiles + x / CharacterPixels) * 2;
+            var word = new SnesBgTilemapWord((ushort)(vram[at] | vram[at + 1] << 8));
+            int pixelRow = word.FlipVertically ? CharacterPixels - 1 - y % CharacterPixels : y % CharacterPixels;
+            int bit = 7 - (word.FlipHorizontally ? CharacterPixels - 1 - x % CharacterPixels : x % CharacterPixels);
+            int address = word.CharacterIndex * RoomBlockPictureNames.CharacterWords * sizeof(ushort) + pixelRow * 2;
+            int colour = (vram[address] >> bit & 1) | (vram[address + 1] >> bit & 1) << 1
+                | (vram[address + 16] >> bit & 1) << 2 | (vram[address + 17] >> bit & 1) << 3;
+            int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
+            AssertTrue(shown.TrySample(new Position16<BgPlanePixels>((ushort)x, (ushort)y), out BgSample sample),
+                $"{where}: the background shows ({x}, {y})");
+            SpriteSheetFrame picture = sample.Picture ?? throw new InvalidOperationException($"{where}: the background shows a tile at ({x}, {y}).");
+            SpriteImage sheet = picture.Sheet;
+            int pixel = (picture.Corner.Y + sample.PicturePixel.Y) * sheet.Size.X + picture.Corner.X + sample.PicturePixel.X;
+            AssertTrue(sheet.PaletteIndices[pixel] == expected && (colour == 0 || ((sheet.Priorities[pixel] != 0) == word.HasPriority
+                    && sheet.Pixels[pixel] == sheet.StandardColours[expected].ToRgba32())),
+                $"{where}: the background paints index {sheet.PaletteIndices[pixel]} at ({x}, {y}) where its tile ${word.Raw:X4} paints {expected}");
+        }
+        int rebound = 0;
+        for (int cell = 0; cell < RoomBackgroundImage.Words / RoomBlockPictureNames.Tiles; cell++)
+        {
+            if (plane.Cell(cell) is not null)
+                rebound++;
+        }
+        return rebound;
+    }
+
+    /// <summary>
     /// Loads <paramref name="room"/>, in <paramref name="state"/> when given and after <paramref name="progress"/> sets the
     /// session's progress, and checks its displayed blocks over <see cref="Frames"/> frames.
     /// </summary>
@@ -162,11 +233,12 @@ internal static class RoomBlockPicturesVerification
     /// <summary>Bytes per block definition.</summary>
     private const int RoomLevelPlaneDefinitionBytes = SuperMetroid.Core.Rooms.Backgrounds.RoomLevelPlane.DefinitionBytes;
 
-    /// <summary>Runs the room block picture check.</summary>
+    /// <summary>Runs the room block picture checks.</summary>
     [VerificationCommand("--room-block-pictures")]
     internal static int RoomBlockPicturesCommand()
     {
         Suite(nameof(VerifyRoomBlockPictures), VerifyRoomBlockPictures);
+        Suite(nameof(VerifyRoomBackgroundImages), VerifyRoomBackgroundImages);
         return 0;
     }
 }

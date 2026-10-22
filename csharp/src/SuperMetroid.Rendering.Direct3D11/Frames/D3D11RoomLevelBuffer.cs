@@ -29,13 +29,13 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// </summary>
     private const int RecordWords = 7;
 
-    /// <summary>Words per packed block picture: its sheet's colours' offset, its colours, then its palette indices and priorities.</summary>
-    private const int PictureWords = 1 + 2 * RoomBlockSheet.BlockPixels * RoomBlockSheet.BlockPixels;
+    /// <summary>Words before a packed picture's pixels: its sheet's colours' offset, its width and its pixel count.</summary>
+    private const int PictureHeaderWords = 3;
     /// <summary>Plane slots: BG1, BG2 and a door's source room.</summary>
     private const int PlaneSlots = 3;
     /// <summary>Header words: the plane records, the door window origin, and the offsets of the BG1 overlay, the sky rows,
     /// the BG3 plane and the BG2 overlay.</summary>
-    private const int HeaderWords = PlaneSlots * RecordWords + 8;
+    private const int HeaderWords = PlaneSlots * RecordWords + 9;
     /// <summary>Header word of the door window's scrolled origin.</summary>
     private const int DoorWindowWord = PlaneSlots * RecordWords;
     /// <summary>Header word of the overlay's first word, or zero without an overlay.</summary>
@@ -55,6 +55,11 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// arrangement in the top four bits.
     /// </summary>
     private const int XrayRevealWord = BossBg2Word + 1;
+    /// <summary>
+    /// Header word of a library background's image (#1392), or zero without one: the image picture's offset, then each
+    /// 16x16 cell's picture offset, zero where the image shows.
+    /// </summary>
+    private const int Bg2ImageWord = XrayRevealWord + 1;
     /// <summary>The bit an X-ray reveal block's arrangement starts at.</summary>
     private const int ArrangementShift = 28;
     /// <summary>A sky row word that selects no page: the row shows nothing.</summary>
@@ -93,8 +98,9 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         Mode7MapSnapshot? mode7 = frame.Mode7;
         BossBg2Tilemap? bossBg2 = frame.BossBg2;
         XrayRevealPlane? reveal = frame.XrayReveal;
+        RoomBackgroundImagePlane? image = frame.Bg2Image;
         // No dispatch samples t3 without one of these, so such a scene keeps the last packed room unread.
-        if (packed == frame || (bg1 is null && bg2 is null && sky is null && bg3 is null && mode7 is null && reveal is null))
+        if (packed == frame || (bg1 is null && bg2 is null && sky is null && bg3 is null && mode7 is null && reveal is null && image is null))
             return false;
         RoomBackgroundLayer?[] planes = [bg1, bg2, door?.SourceRoom];
         var definitionWords = new Dictionary<ImmutableArray<byte>, int>();
@@ -124,18 +130,34 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         int revealOffset = reveal is null ? 0 : words;
         if (reveal is not null)
             words += reveal.Blocks.Length;
+        int imageCells = RoomBackgroundImage.Words / RoomBlockPictureNames.Tiles;
+        int imageOffset = image is null ? 0 : words;
+        if (image is not null)
+            words += 1 + imageCells;
+        void AddPicture(SpriteSheetFrame picture)
+        {
+            if (colourWords.TryAdd(picture.Sheet, words))
+                words += SpriteImage.SpriteColourCount;
+            if (pictureWords.TryAdd(picture, words))
+                words += PictureHeaderWords + 2 * picture.Size.X * picture.Size.Y;
+        }
         foreach (RoomBlockPictureTable? table in planes.Select(layer => layer?.Pictures).Append(reveal?.Pictures))
         {
             if (table is null)
                 continue;
             for (int definition = 0; definition < table.Definitions; definition++)
             {
-                if (table.Picture(definition) is not { } picture)
-                    continue;
-                if (colourWords.TryAdd(picture.Sheet, words))
-                    words += SpriteImage.SpriteColourCount;
-                if (pictureWords.TryAdd(picture, words))
-                    words += PictureWords;
+                if (table.Picture(definition) is { } picture)
+                    AddPicture(picture);
+            }
+        }
+        if (image is not null)
+        {
+            AddPicture(image.Image.Picture);
+            for (int cell = 0; cell < imageCells; cell++)
+            {
+                if (image.Cell(cell) is { } picture)
+                    AddPicture(picture);
             }
         }
         int overlayOffset = overlay is null ? 0 : words;
@@ -191,7 +213,14 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             for (int colour = 0; colour < SpriteImage.SpriteColourCount; colour++)
                 upload[offset + colour] = sheet.StandardColours[colour].ToWord();
         foreach ((SpriteSheetFrame picture, int offset) in pictureWords)
-            PackPicture(upload.Slice(offset, PictureWords), picture, colourWords[picture.Sheet]);
+            PackPicture(upload.Slice(offset, PictureHeaderWords + 2 * picture.Size.X * picture.Size.Y), picture, colourWords[picture.Sheet]);
+        upload[Bg2ImageWord] = (uint)imageOffset;
+        if (image is not null)
+        {
+            upload[imageOffset] = (uint)pictureWords[image.Image.Picture];
+            for (int cell = 0; cell < imageCells; cell++)
+                upload[imageOffset + 1 + cell] = image.Cell(cell) is { } picture ? (uint)pictureWords[picture] : 0;
+        }
         if (door is not null)
             upload[DoorWindowWord] = D3D11ConstantPacking.Halves(door.WindowOrigin.X, door.WindowOrigin.Y);
         upload[OverlayWord] = (uint)overlayOffset;
@@ -237,23 +266,25 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     }
 
     /// <summary>
-    /// Packs one block picture: its sheet's colours' offset, then each pixel's colour as Tiles.hlsl packs one, then each
-    /// pixel's palette index with its tile priority above it.
+    /// Packs one picture, a block or a background image: its sheet's colours' offset, its width and pixel count, then each
+    /// pixel's colour as Tiles.hlsl packs one, then each pixel's palette index with its tile priority above it.
     /// </summary>
     private static void PackPicture(Span<uint> words, SpriteSheetFrame picture, int colours)
     {
         SpriteImage sheet = picture.Sheet;
-        int pixels = RoomBlockSheet.BlockPixels * RoomBlockSheet.BlockPixels;
+        int width = picture.Size.X, pixels = width * picture.Size.Y;
         words[0] = (uint)colours;
-        for (int y = 0; y < RoomBlockSheet.BlockPixels; y++)
+        words[1] = (uint)width;
+        words[2] = (uint)pixels;
+        for (int y = 0; y < picture.Size.Y; y++)
         {
-            for (int x = 0; x < RoomBlockSheet.BlockPixels; x++)
+            for (int x = 0; x < width; x++)
             {
                 int pixel = (picture.Corner.Y + y) * sheet.Size.X + picture.Corner.X + x;
                 Rgba32 colour = sheet.Pixels[pixel];
-                int at = y * RoomBlockSheet.BlockPixels + x;
-                words[1 + at] = colour.R | (uint)colour.G << 8 | (uint)colour.B << 16 | (uint)colour.A << 24;
-                words[1 + pixels + at] = sheet.PaletteIndices[pixel] | (uint)sheet.Priorities[pixel] << 8;
+                int at = y * width + x;
+                words[PictureHeaderWords + at] = colour.R | (uint)colour.G << 8 | (uint)colour.B << 16 | (uint)colour.A << 24;
+                words[PictureHeaderWords + pixels + at] = sheet.PaletteIndices[pixel] | (uint)sheet.Priorities[pixel] << 8;
             }
         }
     }

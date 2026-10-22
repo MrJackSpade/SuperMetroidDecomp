@@ -19,4 +19,6 @@ internal enum D3D11RoomSource : uint
     BossBg2 = 6,
     /// <summary>The X-ray reveal's blocks, drawn from block pictures (#1392).</summary>
     XrayReveal = 7,
+    /// <summary>A room's library background, drawn from its image and its rebound cells' pictures (#1392).</summary>
+    Bg2Image = 8,
 }

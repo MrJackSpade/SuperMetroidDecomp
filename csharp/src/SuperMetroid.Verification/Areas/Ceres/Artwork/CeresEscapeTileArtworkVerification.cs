@@ -84,7 +84,8 @@ internal static class CeresEscapeTileArtworkVerification
         }
         var nativeVram = new SnesVram();
         ImportedVramOracle.Drain(nativeQueue, nativeVram, rom);
-        AssertTrue(nativeVram.ImageEquals(installedVram),
+        // Character pages landing outside the OBJ characters are bound as background artwork, which a capture composes (#1392).
+        AssertTrue(nativeVram.Bytes.SequenceEqual(BgArtworkFixtures.Composed(installedVram)),
             "all Ceres timer and door VRAM bytes match the cartridge without source reads");
 
         TileSheetDefinition warning =

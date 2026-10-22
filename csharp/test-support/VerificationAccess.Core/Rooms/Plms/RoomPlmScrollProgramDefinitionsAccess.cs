@@ -1,26 +1,31 @@
+using SuperMetroid.Core.Rooms.Scrolling;
+
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>Verification access to <see cref="RoomPlmScrollProgramDefinitions"/> members production does not use.</summary>
+/// <summary>Verification's native view of the retail scroll programs: where each is stored in bank $8F and its native encoding.</summary>
 internal static class RoomPlmScrollProgramDefinitionsAccess
 {
-    /// <summary>Finds authored scroll programs and projects their direct writes into legacy byte format.</summary>
+    /// <summary>The retail scroll programs by their bank-$8F addresses.</summary>
     extension(RoomPlmScrollProgramDefinitions)
     {
-        /// <summary>Scans bank-offset values for decoded scroll-state PLM programs.</summary>
-        internal static IEnumerable<ushort> Pointers
-        {
-            get
-            {
-                for (int pointer = 0x8000; pointer <= ushort.MaxValue; pointer++)
-                    if (RoomPlmScrollProgramDefinitions.TryApply((ushort)pointer, null)) yield return (ushort)pointer;
-            }
-        }
+        /// <summary>Every retail scroll program's bank-$8F address, ascending.</summary>
+        internal static IEnumerable<ushort> Pointers => RoomScrollProgramNative.Addresses.Values.Order();
 
-        /// <summary>Temporary native-format projection for verification/compatibility; gameplay executes writes directly.</summary>
+        /// <summary>The program stored at bank-$8F address <paramref name="pointer"/>.</summary>
+        /// <exception cref="InvalidDataException">No retail scroll program is stored there.</exception>
+        internal static RoomScrollProgram ProgramAt(ushort pointer) =>
+            RoomScrollProgramNative.Addresses.Where(entry => entry.Value == pointer).Select(entry => (RoomScrollProgram?)entry.Key).SingleOrDefault()
+                ?? throw new InvalidDataException($"No retail scroll program is stored at $8F:{pointer:X4}.");
+
+        /// <summary>Applies the ordered writes of the program stored at <paramref name="pointer"/>.</summary>
+        internal static void ApplyAt(ushort pointer, Action<int, RoomScrollState> write) =>
+            RoomPlmScrollProgramDefinitions.Apply(RoomPlmScrollProgramDefinitions.ProgramAt(pointer), write);
+
+        /// <summary>The native encoding of the program stored at <paramref name="pointer"/>: index/state pairs, then the terminator.</summary>
         internal static ReadOnlyMemory<byte> Get(ushort pointer)
         {
             var bytes = new List<byte>();
-            RoomPlmScrollProgramDefinitions.Apply(pointer, (index, state) => { bytes.Add((byte)index); bytes.Add((byte)state); });
+            RoomPlmScrollProgramDefinitions.ApplyAt(pointer, (index, state) => { bytes.Add((byte)index); bytes.Add((byte)state); });
             bytes.Add(0x80);
             return bytes.ToArray();
         }

@@ -68,10 +68,11 @@ internal sealed class ScrollPlms : IPlmFamilySource
         if (scrolls is null)
             throw new InvalidOperationException("A triggered scroll PLM requires the active scroll grid.");
 
-        // Retail and historical identity-only states execute ordered writes without a decoded cache.
+        // A retail trigger runs its program's ordered writes; a constructed one its validated pairs.
         if (scroll.Program is null)
         {
-            RoomPlmScrollProgramDefinitions.Apply(scroll.CompiledSource ?? slot.RoomArgument, scrolls.SetStorage);
+            RoomPlmScrollProgramDefinitions.Apply(scroll.CompiledProgram ?? throw new InvalidOperationException(
+                "A scroll trigger has neither a retail program nor constructed pairs."), scrolls.SetStorage);
             FinishScrollMutation(level, slot);
             return true;
         }
@@ -120,7 +121,7 @@ internal sealed class ScrollPlms : IPlmFamilySource
 
     /// <summary>Runs one scroll/extension setup after the shared allocator chose its ID.</summary>
     internal static void SetupScrollSlot(RoomLevelData level, PlmSlot slot,
-        PlmHeaderId header, ReadOnlySpan<byte> program, int? compiledSource)
+        PlmHeaderId header, ReadOnlySpan<byte> program, RoomScrollProgram? compiledProgram)
     {
         if (header != PlmHeaderId.ScrollTrigger)
         {
@@ -424,8 +425,8 @@ internal sealed class ScrollPlms : IPlmFamilySource
 
         slot.Family = new ScrollPlmState
         {
-            Program = compiledSource.HasValue ? null : program.ToArray(),
-            CompiledSource = compiledSource,
+            Program = compiledProgram.HasValue ? null : program.ToArray(),
+            CompiledProgram = compiledProgram,
         };
         ushort triggerWord = level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.Raw;
         level.SetForegroundEntry(
@@ -442,9 +443,9 @@ internal sealed class ScrollPlms : IPlmFamilySource
 
         /// <summary>Latched on first touch until ordered scroll writes finish.</summary>
         public bool Triggered { get; set; }
-        /// <summary>Bound retail program identity; independent of later room-argument edits.</summary>
-        public int? CompiledSource { get; set; }
-        /// <summary>Validated constructed pairs. Null executes the retail identity directly, including historical states.</summary>
+        /// <summary>The retail program the trigger runs; independent of later room-argument edits.</summary>
+        public RoomScrollProgram? CompiledProgram { get; set; }
+        /// <summary>Validated constructed pairs. Null runs the retail program.</summary>
         public byte[]? Program { get; set; }
     }
 }

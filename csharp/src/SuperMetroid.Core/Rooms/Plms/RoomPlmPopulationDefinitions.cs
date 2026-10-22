@@ -12,7 +12,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The LandingSiteState012 room PLM population.</summary>
     public static RoomPlmPopulationDefinition LandingSiteState012 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(LandingSiteState012),
     [
-        new(PlmHeaderId.ScrollTrigger, new(30, 40), 0x92B0),
+        new(PlmHeaderId.ScrollTrigger, new(30, 40), 0x92B0, ScrollProgram: RoomScrollProgram.LandingSiteState012Scroll0),
         new(PlmHeaderId.UpwardsScrollExtension, new(30, 39), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(30, 38), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(30, 37), 0x8000),
@@ -23,7 +23,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The LandingSiteState3 room PLM population.</summary>
     public static RoomPlmPopulationDefinition LandingSiteState3 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(LandingSiteState3),
     [
-        new(PlmHeaderId.ScrollTrigger, new(30, 40), 0x92B0),
+        new(PlmHeaderId.ScrollTrigger, new(30, 40), 0x92B0, ScrollProgram: RoomScrollProgram.LandingSiteState012Scroll0),
         new(PlmHeaderId.UpwardsScrollExtension, new(30, 39), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(30, 38), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(30, 37), 0x8000),
@@ -41,66 +41,66 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The ParlorState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition ParlorState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(ParlorState01),
     [
-        new(PlmHeaderId.ScrollTrigger, new(63, 11), 0x9389),
-        new(PlmHeaderId.ScrollTrigger, new(67, 11), 0x938C),
-        new(PlmHeaderId.ScrollTrigger, new(22, 13), 0x938F),
+        new(PlmHeaderId.ScrollTrigger, new(63, 11), 0x9389, ScrollProgram: RoomScrollProgram.ParlorState01Scroll0),
+        new(PlmHeaderId.ScrollTrigger, new(67, 11), 0x938C, ScrollProgram: RoomScrollProgram.ParlorState01Scroll1),
+        new(PlmHeaderId.ScrollTrigger, new(22, 13), 0x938F, ScrollProgram: RoomScrollProgram.ParlorState01Scroll2),
         new(PlmHeaderId.RightwardsScrollExtension, new(23, 13), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(24, 13), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(25, 13), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(22, 11), 0x9396),
+        new(PlmHeaderId.ScrollTrigger, new(22, 11), 0x9396, ScrollProgram: RoomScrollProgram.ParlorState01Scroll3),
         new(PlmHeaderId.RightwardsScrollExtension, new(23, 11), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(24, 11), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(25, 11), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(14, 9), 0x9399),
+        new(PlmHeaderId.ScrollTrigger, new(14, 9), 0x9399, ScrollProgram: RoomScrollProgram.ParlorState01Scroll4),
         new(PlmHeaderId.UpwardsScrollExtension, new(14, 8), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(14, 7), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(28, 10), 0x939C),
+        new(PlmHeaderId.ScrollTrigger, new(28, 10), 0x939C, ScrollProgram: RoomScrollProgram.ParlorState01Scroll5),
         new(PlmHeaderId.UpwardsScrollExtension, new(28, 9), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(28, 8), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(28, 7), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(28, 6), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(28, 5), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(50, 11), 0x939F),
-        new(PlmHeaderId.ScrollTrigger, new(60, 11), 0x939F),
-        new(PlmHeaderId.ScrollTrigger, new(58, 17), 0x93A2),
+        new(PlmHeaderId.ScrollTrigger, new(50, 11), 0x939F, ScrollProgram: RoomScrollProgram.ParlorState01Scroll6),
+        new(PlmHeaderId.ScrollTrigger, new(60, 11), 0x939F, ScrollProgram: RoomScrollProgram.ParlorState01Scroll6),
+        new(PlmHeaderId.ScrollTrigger, new(58, 17), 0x93A2, ScrollProgram: RoomScrollProgram.ParlorState01Scroll8),
         new(PlmHeaderId.RightwardsScrollExtension, new(59, 17), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(60, 17), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(61, 17), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(62, 17), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(52, 14), 0x93A5),
+        new(PlmHeaderId.ScrollTrigger, new(52, 14), 0x93A5, ScrollProgram: RoomScrollProgram.ParlorState01Scroll9),
         new(PlmHeaderId.RedDoorFacingLeft, new(30, 54), 0x0005),
     ]);
 
     /// <summary>The ParlorState2 room PLM population.</summary>
     public static RoomPlmPopulationDefinition ParlorState2 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(ParlorState2),
     [
-        new(PlmHeaderId.ScrollTrigger, new(63, 11), 0x9389),
-        new(PlmHeaderId.ScrollTrigger, new(67, 11), 0x938C),
-        new(PlmHeaderId.ScrollTrigger, new(22, 13), 0x938F),
+        new(PlmHeaderId.ScrollTrigger, new(63, 11), 0x9389, ScrollProgram: RoomScrollProgram.ParlorState01Scroll0),
+        new(PlmHeaderId.ScrollTrigger, new(67, 11), 0x938C, ScrollProgram: RoomScrollProgram.ParlorState01Scroll1),
+        new(PlmHeaderId.ScrollTrigger, new(22, 13), 0x938F, ScrollProgram: RoomScrollProgram.ParlorState01Scroll2),
         new(PlmHeaderId.RightwardsScrollExtension, new(23, 13), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(24, 13), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(25, 13), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(22, 11), 0x9396),
+        new(PlmHeaderId.ScrollTrigger, new(22, 11), 0x9396, ScrollProgram: RoomScrollProgram.ParlorState01Scroll3),
         new(PlmHeaderId.RightwardsScrollExtension, new(23, 11), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(24, 11), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(25, 11), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(14, 9), 0x9399),
+        new(PlmHeaderId.ScrollTrigger, new(14, 9), 0x9399, ScrollProgram: RoomScrollProgram.ParlorState01Scroll4),
         new(PlmHeaderId.UpwardsScrollExtension, new(14, 8), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(14, 7), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(28, 10), 0x939C),
+        new(PlmHeaderId.ScrollTrigger, new(28, 10), 0x939C, ScrollProgram: RoomScrollProgram.ParlorState01Scroll5),
         new(PlmHeaderId.UpwardsScrollExtension, new(28, 9), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(28, 8), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(28, 7), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(28, 6), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(28, 5), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(50, 11), 0x939F),
-        new(PlmHeaderId.ScrollTrigger, new(60, 11), 0x939F),
-        new(PlmHeaderId.ScrollTrigger, new(58, 17), 0x93A2),
+        new(PlmHeaderId.ScrollTrigger, new(50, 11), 0x939F, ScrollProgram: RoomScrollProgram.ParlorState01Scroll6),
+        new(PlmHeaderId.ScrollTrigger, new(60, 11), 0x939F, ScrollProgram: RoomScrollProgram.ParlorState01Scroll6),
+        new(PlmHeaderId.ScrollTrigger, new(58, 17), 0x93A2, ScrollProgram: RoomScrollProgram.ParlorState01Scroll8),
         new(PlmHeaderId.RightwardsScrollExtension, new(59, 17), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(60, 17), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(61, 17), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(62, 17), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(52, 14), 0x93A5),
+        new(PlmHeaderId.ScrollTrigger, new(52, 14), 0x93A5, ScrollProgram: RoomScrollProgram.ParlorState01Scroll9),
         new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), 0x000A),
         new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), 0x9006),
         new(PlmHeaderId.GreyDoorFacingRight, new(17, 38), 0x9007),
@@ -139,9 +139,9 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The CrateriaKihunter room PLM population.</summary>
     public static RoomPlmPopulationDefinition CrateriaKihunter { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(CrateriaKihunter),
     [
-        new(PlmHeaderId.ScrollTrigger, new(23, 15), 0x94C2),
+        new(PlmHeaderId.ScrollTrigger, new(23, 15), 0x94C2, ScrollProgram: RoomScrollProgram.CrateriaKihunterScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(24, 15), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(22, 12), 0x94C7),
+        new(PlmHeaderId.ScrollTrigger, new(22, 12), 0x94C7, ScrollProgram: RoomScrollProgram.CrateriaKihunterScroll1),
         new(PlmHeaderId.RightwardsScrollExtension, new(23, 12), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(24, 12), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(25, 12), 0x8000),
@@ -152,7 +152,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The ForgottenHighwayElev room PLM population.</summary>
     public static RoomPlmPopulationDefinition ForgottenHighwayElev { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(ForgottenHighwayElev),
     [
-        new(PlmHeaderId.ScrollTrigger, new(8, 13), 0x94FA),
+        new(PlmHeaderId.ScrollTrigger, new(8, 13), 0x94FA, ScrollProgram: RoomScrollProgram.ForgottenHighwayElevScroll0),
     ]);
 
     /// <summary>The EastOcean room PLM population.</summary>
@@ -190,14 +190,14 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The RedBinstarElev room PLM population.</summary>
     public static RoomPlmPopulationDefinition RedBinstarElev { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(RedBinstarElev),
     [
-        new(PlmHeaderId.ScrollTrigger, new(8, 13), 0x9658),
+        new(PlmHeaderId.ScrollTrigger, new(8, 13), 0x9658, ScrollProgram: RoomScrollProgram.RedBinstarElevScroll0),
         new(PlmHeaderId.YellowDoorFacingDown, new(6, 2), 0x0010),
     ]);
 
     /// <summary>The GauntletETank room PLM population.</summary>
     public static RoomPlmPopulationDefinition GauntletETank { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(GauntletETank),
     [
-        new(PlmHeaderId.ScrollTrigger, new(84, 12), 0x968C),
+        new(PlmHeaderId.ScrollTrigger, new(84, 12), 0x968C, ScrollProgram: RoomScrollProgram.GauntletETankScroll0),
         new(PlmHeaderId.ExposedEnergyTank, new(83, 8), 0x0005),
     ]);
 
@@ -209,29 +209,29 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The ClimbState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition ClimbState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(ClimbState01),
     [
-        new(PlmHeaderId.ScrollTrigger, new(29, 5), 0x9747),
-        new(PlmHeaderId.ScrollTrigger, new(32, 5), 0x9744),
-        new(PlmHeaderId.ScrollTrigger, new(29, 118), 0x974D),
-        new(PlmHeaderId.ScrollTrigger, new(32, 118), 0x974A),
+        new(PlmHeaderId.ScrollTrigger, new(29, 5), 0x9747, ScrollProgram: RoomScrollProgram.ClimbState01Scroll0),
+        new(PlmHeaderId.ScrollTrigger, new(32, 5), 0x9744, ScrollProgram: RoomScrollProgram.ClimbState01Scroll1),
+        new(PlmHeaderId.ScrollTrigger, new(29, 118), 0x974D, ScrollProgram: RoomScrollProgram.ClimbState01Scroll2),
+        new(PlmHeaderId.ScrollTrigger, new(32, 118), 0x974A, ScrollProgram: RoomScrollProgram.ClimbState01Scroll3),
         new(PlmHeaderId.LeftwardsScrollExtension, new(18, 133), 0x8000),
         new(PlmHeaderId.LeftwardsScrollExtension, new(19, 133), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(20, 133), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(20, 134), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(20, 135), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(20, 136), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(20, 137), 0x9753),
+        new(PlmHeaderId.ScrollTrigger, new(20, 137), 0x9753, ScrollProgram: RoomScrollProgram.ClimbState01Scroll4),
         new(PlmHeaderId.UpwardsScrollExtension, new(15, 134), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(15, 135), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(15, 136), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(15, 137), 0x9750),
+        new(PlmHeaderId.ScrollTrigger, new(15, 137), 0x9750, ScrollProgram: RoomScrollProgram.ClimbState01Scroll5),
         new(PlmHeaderId.UpwardsScrollExtension, new(13, 134), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(13, 135), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(13, 136), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(13, 137), 0x9756),
+        new(PlmHeaderId.ScrollTrigger, new(13, 137), 0x9756, ScrollProgram: RoomScrollProgram.ClimbState01Scroll6),
         new(PlmHeaderId.UpwardsScrollExtension, new(8, 134), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(8, 135), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(8, 136), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(8, 137), 0x9759),
+        new(PlmHeaderId.ScrollTrigger, new(8, 137), 0x9759, ScrollProgram: RoomScrollProgram.ClimbState01Scroll7),
         new(PlmHeaderId.GreyDoorFacingLeft, new(46, 6), 0x9011),
         new(PlmHeaderId.GreyDoorFacingRight, new(1, 134), 0x9012),
         new(PlmHeaderId.YellowDoorFacingLeft, new(46, 118), 0x0013),
@@ -240,29 +240,29 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The ClimbState2 room PLM population.</summary>
     public static RoomPlmPopulationDefinition ClimbState2 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(ClimbState2),
     [
-        new(PlmHeaderId.ScrollTrigger, new(29, 5), 0x9747),
-        new(PlmHeaderId.ScrollTrigger, new(32, 5), 0x9744),
-        new(PlmHeaderId.ScrollTrigger, new(29, 118), 0x974D),
-        new(PlmHeaderId.ScrollTrigger, new(32, 118), 0x974A),
+        new(PlmHeaderId.ScrollTrigger, new(29, 5), 0x9747, ScrollProgram: RoomScrollProgram.ClimbState01Scroll0),
+        new(PlmHeaderId.ScrollTrigger, new(32, 5), 0x9744, ScrollProgram: RoomScrollProgram.ClimbState01Scroll1),
+        new(PlmHeaderId.ScrollTrigger, new(29, 118), 0x974D, ScrollProgram: RoomScrollProgram.ClimbState01Scroll2),
+        new(PlmHeaderId.ScrollTrigger, new(32, 118), 0x974A, ScrollProgram: RoomScrollProgram.ClimbState01Scroll3),
         new(PlmHeaderId.LeftwardsScrollExtension, new(18, 133), 0x8000),
         new(PlmHeaderId.LeftwardsScrollExtension, new(19, 133), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(20, 133), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(20, 134), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(20, 135), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(20, 136), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(20, 137), 0x9753),
+        new(PlmHeaderId.ScrollTrigger, new(20, 137), 0x9753, ScrollProgram: RoomScrollProgram.ClimbState01Scroll4),
         new(PlmHeaderId.UpwardsScrollExtension, new(15, 134), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(15, 135), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(15, 136), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(15, 137), 0x9750),
+        new(PlmHeaderId.ScrollTrigger, new(15, 137), 0x9750, ScrollProgram: RoomScrollProgram.ClimbState01Scroll5),
         new(PlmHeaderId.UpwardsScrollExtension, new(13, 134), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(13, 135), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(13, 136), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(13, 137), 0x9756),
+        new(PlmHeaderId.ScrollTrigger, new(13, 137), 0x9756, ScrollProgram: RoomScrollProgram.ClimbState01Scroll6),
         new(PlmHeaderId.UpwardsScrollExtension, new(8, 134), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(8, 135), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(8, 136), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(8, 137), 0x9759),
+        new(PlmHeaderId.ScrollTrigger, new(8, 137), 0x9759, ScrollProgram: RoomScrollProgram.ClimbState01Scroll7),
         new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), 0x000C),
         new(PlmHeaderId.GreyDoorFacingLeft, new(46, 6), 0x9014),
         new(PlmHeaderId.GreyDoorFacingLeft, new(46, 118), 0x9015),
@@ -273,18 +273,18 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The Pit0 room PLM population.</summary>
     public static RoomPlmPopulationDefinition Pit0 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Pit0),
     [
-        new(PlmHeaderId.ScrollTrigger, new(4, 15), 0x97AB),
-        new(PlmHeaderId.ScrollTrigger, new(6, 15), 0x97AB),
-        new(PlmHeaderId.ScrollTrigger, new(5, 9), 0x97B0),
+        new(PlmHeaderId.ScrollTrigger, new(4, 15), 0x97AB, ScrollProgram: RoomScrollProgram.Pit0Scroll0),
+        new(PlmHeaderId.ScrollTrigger, new(6, 15), 0x97AB, ScrollProgram: RoomScrollProgram.Pit0Scroll0),
+        new(PlmHeaderId.ScrollTrigger, new(5, 9), 0x97B0, ScrollProgram: RoomScrollProgram.Pit0Scroll2),
         new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), 0x9018),
     ]);
 
     /// <summary>The Pit1 room PLM population.</summary>
     public static RoomPlmPopulationDefinition Pit1 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Pit1),
     [
-        new(PlmHeaderId.ScrollTrigger, new(4, 15), 0x97AB),
-        new(PlmHeaderId.ScrollTrigger, new(6, 15), 0x97AB),
-        new(PlmHeaderId.ScrollTrigger, new(5, 9), 0x97B0),
+        new(PlmHeaderId.ScrollTrigger, new(4, 15), 0x97AB, ScrollProgram: RoomScrollProgram.Pit0Scroll0),
+        new(PlmHeaderId.ScrollTrigger, new(6, 15), 0x97AB, ScrollProgram: RoomScrollProgram.Pit0Scroll0),
+        new(PlmHeaderId.ScrollTrigger, new(5, 9), 0x97B0, ScrollProgram: RoomScrollProgram.Pit0Scroll2),
         new(PlmHeaderId.GreyDoorFacingLeft, new(46, 6), 0x0C19),
         new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), 0x0C1A),
         new(PlmHeaderId.ExposedMissileTank, new(5, 26), 0x0006),
@@ -293,7 +293,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The ElevToBlueBrinstarState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition ElevToBlueBrinstarState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(ElevToBlueBrinstarState01),
     [
-        new(PlmHeaderId.ScrollTrigger, new(7, 13), 0x9801),
+        new(PlmHeaderId.ScrollTrigger, new(7, 13), 0x9801, ScrollProgram: RoomScrollProgram.ElevToBlueBrinstarState01Scroll0),
     ]);
 
     /// <summary>The BombTorizoState01 room PLM population.</summary>
@@ -337,7 +337,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The GreenBrinstarElev room PLM population.</summary>
     public static RoomPlmPopulationDefinition GreenBrinstarElev { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(GreenBrinstarElev),
     [
-        new(PlmHeaderId.ScrollTrigger, new(7, 13), 0x9966),
+        new(PlmHeaderId.ScrollTrigger, new(7, 13), 0x9966, ScrollProgram: RoomScrollProgram.GreenBrinstarElevScroll0),
     ]);
 
     /// <summary>The LowerMushrooms room PLM population.</summary>
@@ -354,9 +354,9 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The GreenPiratesShaft room PLM population.</summary>
     public static RoomPlmPopulationDefinition GreenPiratesShaft { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(GreenPiratesShaft),
     [
-        new(PlmHeaderId.ScrollTrigger, new(7, 67), 0x99F3),
+        new(PlmHeaderId.ScrollTrigger, new(7, 67), 0x99F3, ScrollProgram: RoomScrollProgram.GreenPiratesShaftScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(8, 67), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(9, 70), 0x99F6),
+        new(PlmHeaderId.ScrollTrigger, new(9, 70), 0x99F6, ScrollProgram: RoomScrollProgram.GreenPiratesShaftScroll1),
         new(PlmHeaderId.RightwardsScrollExtension, new(10, 70), 0x8000),
         new(PlmHeaderId.ExposedMissileTank, new(13, 27), 0x0009),
         new(PlmHeaderId.ExposedMissileTank, new(2, 27), 0x000A),
@@ -393,10 +393,10 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The GreenBrinstarMainShaft room PLM population.</summary>
     public static RoomPlmPopulationDefinition GreenBrinstarMainShaft { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(GreenBrinstarMainShaft),
     [
-        new(PlmHeaderId.ScrollTrigger, new(7, 113), 0x9B46),
-        new(PlmHeaderId.ScrollTrigger, new(16, 168), 0x9B4B),
-        new(PlmHeaderId.ScrollTrigger, new(33, 168), 0x9B4B),
-        new(PlmHeaderId.ScrollTrigger, new(13, 172), 0x9B52),
+        new(PlmHeaderId.ScrollTrigger, new(7, 113), 0x9B46, ScrollProgram: RoomScrollProgram.GreenBrinstarMainShaftScroll0),
+        new(PlmHeaderId.ScrollTrigger, new(16, 168), 0x9B4B, ScrollProgram: RoomScrollProgram.GreenBrinstarMainShaftScroll1),
+        new(PlmHeaderId.ScrollTrigger, new(33, 168), 0x9B4B, ScrollProgram: RoomScrollProgram.GreenBrinstarMainShaftScroll1),
+        new(PlmHeaderId.ScrollTrigger, new(13, 172), 0x9B52, ScrollProgram: RoomScrollProgram.GreenBrinstarMainShaftScroll3),
         new(PlmHeaderId.ElevatorPlatform, new(6, 44), 0x8000),
         new(PlmHeaderId.ChozoPowerBombTank, new(60, 122), 0x000D),
         new(PlmHeaderId.RedDoorFacingRight, new(1, 86), 0x001F),
@@ -410,7 +410,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The SporeSpawnSuper room PLM population.</summary>
     public static RoomPlmPopulationDefinition SporeSpawnSuper { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(SporeSpawnSuper),
     [
-        new(PlmHeaderId.ScrollTrigger, new(23, 11), 0x9B98),
+        new(PlmHeaderId.ScrollTrigger, new(23, 11), 0x9B98, ScrollProgram: RoomScrollProgram.SporeSpawnSuperScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(24, 11), 0x8000),
         new(PlmHeaderId.ChozoSuperMissileTank, new(26, 135), 0x000E),
     ]);
@@ -424,11 +424,11 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The EarlySupers room PLM population.</summary>
     public static RoomPlmPopulationDefinition EarlySupers { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(EarlySupers),
     [
-        new(PlmHeaderId.ScrollTrigger, new(41, 14), 0x9BF9),
+        new(PlmHeaderId.ScrollTrigger, new(41, 14), 0x9BF9, ScrollProgram: RoomScrollProgram.EarlySupersScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(42, 14), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(43, 14), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(4, 19), 0x9C00),
-        new(PlmHeaderId.ScrollTrigger, new(4, 15), 0x9BF9),
+        new(PlmHeaderId.ScrollTrigger, new(4, 19), 0x9C00, ScrollProgram: RoomScrollProgram.EarlySupersScroll1),
+        new(PlmHeaderId.ScrollTrigger, new(4, 15), 0x9BF9, ScrollProgram: RoomScrollProgram.EarlySupersScroll0),
         new(PlmHeaderId.RedDoorFacingLeft, new(46, 22), 0x0026),
         new(PlmHeaderId.ExposedMissileTank, new(19, 27), 0x000F),
         new(PlmHeaderId.ExposedSuperMissileTank, new(4, 6), 0x0010),
@@ -437,7 +437,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The BrinstarReserveTank room PLM population.</summary>
     public static RoomPlmPopulationDefinition BrinstarReserveTank { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BrinstarReserveTank),
     [
-        new(PlmHeaderId.ScrollTrigger, new(14, 11), 0x9C32),
+        new(PlmHeaderId.ScrollTrigger, new(14, 11), 0x9C32, ScrollProgram: RoomScrollProgram.BrinstarReserveTankScroll0),
         new(PlmHeaderId.ChozoReserveTank, new(11, 7), 0x0011),
         new(PlmHeaderId.ShotBlockMissileTank, new(30, 7), 0x0012),
         new(PlmHeaderId.ExposedMissileTank, new(25, 7), 0x0013),
@@ -470,11 +470,11 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.LeftwardsScrollExtension, new(71, 13), 0x8000),
         new(PlmHeaderId.LeftwardsScrollExtension, new(72, 13), 0x8000),
         new(PlmHeaderId.LeftwardsScrollExtension, new(73, 13), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(74, 13), 0x9D11),
+        new(PlmHeaderId.ScrollTrigger, new(74, 13), 0x9D11, ScrollProgram: RoomScrollProgram.DachoraScroll0),
         new(PlmHeaderId.UpwardsScrollExtension, new(64, 8), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(64, 9), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(64, 10), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(64, 11), 0x9D14),
+        new(PlmHeaderId.ScrollTrigger, new(64, 11), 0x9D14, ScrollProgram: RoomScrollProgram.DachoraScroll1),
         new(PlmHeaderId.DownwardsScrollExtension, new(75, 11), 0x8000),
         new(PlmHeaderId.DownwardsScrollExtension, new(75, 10), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(75, 9), 0x8000),
@@ -486,18 +486,18 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.RightwardsScrollExtension, new(69, 9), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(68, 9), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(68, 10), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(68, 11), 0x9D14),
+        new(PlmHeaderId.ScrollTrigger, new(68, 11), 0x9D14, ScrollProgram: RoomScrollProgram.DachoraScroll1),
     ]);
 
     /// <summary>The BigPink room PLM population.</summary>
     public static RoomPlmPopulationDefinition BigPink { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BigPink),
     [
-        new(PlmHeaderId.ScrollTrigger, new(46, 107), 0x9D84),
-        new(PlmHeaderId.ScrollTrigger, new(32, 122), 0x9D8B),
-        new(PlmHeaderId.ScrollTrigger, new(61, 87), 0x9D8E),
-        new(PlmHeaderId.ScrollTrigger, new(64, 87), 0x9D91),
-        new(PlmHeaderId.ScrollTrigger, new(31, 8), 0x9D96),
-        new(PlmHeaderId.ScrollTrigger, new(33, 8), 0x9D99),
+        new(PlmHeaderId.ScrollTrigger, new(46, 107), 0x9D84, ScrollProgram: RoomScrollProgram.BigPinkScroll0),
+        new(PlmHeaderId.ScrollTrigger, new(32, 122), 0x9D8B, ScrollProgram: RoomScrollProgram.BigPinkScroll1),
+        new(PlmHeaderId.ScrollTrigger, new(61, 87), 0x9D8E, ScrollProgram: RoomScrollProgram.BigPinkScroll2),
+        new(PlmHeaderId.ScrollTrigger, new(64, 87), 0x9D91, ScrollProgram: RoomScrollProgram.BigPinkScroll3),
+        new(PlmHeaderId.ScrollTrigger, new(31, 8), 0x9D96, ScrollProgram: RoomScrollProgram.BigPinkScroll4),
+        new(PlmHeaderId.ScrollTrigger, new(33, 8), 0x9D99, ScrollProgram: RoomScrollProgram.BigPinkScroll5),
         new(PlmHeaderId.ExposedMissileTank, new(36, 50), 0x0015),
         new(PlmHeaderId.ExposedMissileTank, new(34, 103), 0x0016),
         new(PlmHeaderId.ChozoChargeBeam, new(37, 118), 0x0017),
@@ -523,8 +523,8 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The PinkBrinstarPowerBombs room PLM population.</summary>
     public static RoomPlmPopulationDefinition PinkBrinstarPowerBombs { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(PinkBrinstarPowerBombs),
     [
-        new(PlmHeaderId.ScrollTrigger, new(8, 14), 0x9E40),
-        new(PlmHeaderId.ScrollTrigger, new(8, 11), 0x9E49),
+        new(PlmHeaderId.ScrollTrigger, new(8, 14), 0x9E40, ScrollProgram: RoomScrollProgram.PinkBrinstarPowerBombsScroll0),
+        new(PlmHeaderId.ScrollTrigger, new(8, 11), 0x9E49, ScrollProgram: RoomScrollProgram.PinkBrinstarPowerBombsScroll1),
         new(PlmHeaderId.GreyDoorFacingLeft, new(30, 6), 0x0C2F),
         new(PlmHeaderId.ExposedPowerBombTank, new(6, 23), 0x0018),
     ]);
@@ -541,7 +541,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The MorphBallState0 room PLM population.</summary>
     public static RoomPlmPopulationDefinition MorphBallState0 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(MorphBallState0),
     [
-        new(PlmHeaderId.ScrollTrigger, new(31, 43), 0x9F05),
+        new(PlmHeaderId.ScrollTrigger, new(31, 43), 0x9F05, ScrollProgram: RoomScrollProgram.MorphBallState0Scroll0),
         new(PlmHeaderId.UpwardsScrollExtension, new(8, 35), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(8, 36), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(8, 37), 0x8000),
@@ -550,20 +550,20 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.UpwardsScrollExtension, new(8, 40), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(8, 41), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(8, 42), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(8, 43), 0x9F08),
+        new(PlmHeaderId.ScrollTrigger, new(8, 43), 0x9F08, ScrollProgram: RoomScrollProgram.MorphBallState0Scroll1),
         new(PlmHeaderId.RightwardsScrollExtension, new(88, 33), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(87, 33), 0x9F0B),
+        new(PlmHeaderId.ScrollTrigger, new(87, 33), 0x9F0B, ScrollProgram: RoomScrollProgram.MorphBallState0Scroll2),
         new(PlmHeaderId.RightwardsScrollExtension, new(88, 10), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(87, 10), 0x9F0B),
+        new(PlmHeaderId.ScrollTrigger, new(87, 10), 0x9F0B, ScrollProgram: RoomScrollProgram.MorphBallState0Scroll2),
         new(PlmHeaderId.RightwardsScrollExtension, new(88, 38), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(87, 38), 0x9F0E),
+        new(PlmHeaderId.ScrollTrigger, new(87, 38), 0x9F0E, ScrollProgram: RoomScrollProgram.MorphBallState0Scroll4),
         new(PlmHeaderId.ExposedMorphBall, new(69, 41), 0x001A),
     ]);
 
     /// <summary>The MorphBallState1 room PLM population.</summary>
     public static RoomPlmPopulationDefinition MorphBallState1 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(MorphBallState1),
     [
-        new(PlmHeaderId.ScrollTrigger, new(31, 43), 0x9F05),
+        new(PlmHeaderId.ScrollTrigger, new(31, 43), 0x9F05, ScrollProgram: RoomScrollProgram.MorphBallState0Scroll0),
         new(PlmHeaderId.UpwardsScrollExtension, new(8, 35), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(8, 36), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(8, 37), 0x8000),
@@ -572,13 +572,13 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.UpwardsScrollExtension, new(8, 40), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(8, 41), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(8, 42), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(8, 43), 0x9F08),
+        new(PlmHeaderId.ScrollTrigger, new(8, 43), 0x9F08, ScrollProgram: RoomScrollProgram.MorphBallState0Scroll1),
         new(PlmHeaderId.RightwardsScrollExtension, new(88, 33), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(87, 33), 0x9F0B),
+        new(PlmHeaderId.ScrollTrigger, new(87, 33), 0x9F0B, ScrollProgram: RoomScrollProgram.MorphBallState0Scroll2),
         new(PlmHeaderId.RightwardsScrollExtension, new(88, 10), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(87, 10), 0x9F0B),
+        new(PlmHeaderId.ScrollTrigger, new(87, 10), 0x9F0B, ScrollProgram: RoomScrollProgram.MorphBallState0Scroll2),
         new(PlmHeaderId.RightwardsScrollExtension, new(88, 38), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(87, 38), 0x9F0E),
+        new(PlmHeaderId.ScrollTrigger, new(87, 38), 0x9F0E, ScrollProgram: RoomScrollProgram.MorphBallState0Scroll4),
         new(PlmHeaderId.GreyDoorFacingRight, new(1, 38), 0x0C31),
         new(PlmHeaderId.ExposedPowerBombTank, new(40, 42), 0x001B),
     ]);
@@ -586,7 +586,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The ConstructionZoneState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition ConstructionZoneState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(ConstructionZoneState01),
     [
-        new(PlmHeaderId.ScrollTrigger, new(4, 11), 0x9F5F),
+        new(PlmHeaderId.ScrollTrigger, new(4, 11), 0x9F5F, ScrollProgram: RoomScrollProgram.ConstructionZoneState01Scroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(5, 11), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(6, 11), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(7, 11), 0x8000),
@@ -600,8 +600,8 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The BlueBrinstarETankState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition BlueBrinstarETankState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BlueBrinstarETankState01),
     [
-        new(PlmHeaderId.ScrollTrigger, new(39, 11), 0x9FB7),
-        new(PlmHeaderId.ScrollTrigger, new(39, 38), 0x9FB7),
+        new(PlmHeaderId.ScrollTrigger, new(39, 11), 0x9FB7, ScrollProgram: RoomScrollProgram.BlueBrinstarETankState01Scroll0),
+        new(PlmHeaderId.ScrollTrigger, new(39, 38), 0x9FB7, ScrollProgram: RoomScrollProgram.BlueBrinstarETankState01Scroll0),
         new(PlmHeaderId.ExposedMissileTank, new(46, 41), 0x001C),
         new(PlmHeaderId.ShotBlockEnergyTank, new(28, 34), 0x001D),
     ]);
@@ -620,7 +620,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The EtecoonETank room PLM population.</summary>
     public static RoomPlmPopulationDefinition EtecoonETank { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(EtecoonETank),
     [
-        new(PlmHeaderId.ScrollTrigger, new(7, 11), 0xA04A),
+        new(PlmHeaderId.ScrollTrigger, new(7, 11), 0xA04A, ScrollProgram: RoomScrollProgram.EtecoonETankScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(8, 11), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(9, 11), 0x8000),
         new(PlmHeaderId.ExposedEnergyTank, new(5, 9), 0x001E),
@@ -650,7 +650,7 @@ internal static class RoomPlmPopulationDefinitions
     [
         new(PlmHeaderId.UpwardsScrollExtension, new(15, 9), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(15, 10), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(15, 11), 0xA104),
+        new(PlmHeaderId.ScrollTrigger, new(15, 11), 0xA104, ScrollProgram: RoomScrollProgram.WaterwayETankScroll0),
         new(PlmHeaderId.ExposedEnergyTank, new(4, 9), 0x0021),
     ]);
 
@@ -708,7 +708,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The RedTower room PLM population.</summary>
     public static RoomPlmPopulationDefinition RedTower { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(RedTower),
     [
-        new(PlmHeaderId.ScrollTrigger, new(9, 106), 0xA28E),
+        new(PlmHeaderId.ScrollTrigger, new(9, 106), 0xA28E, ScrollProgram: RoomScrollProgram.RedTowerScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(10, 106), 0x8000),
         new(PlmHeaderId.GreenDoorFacingRight, new(1, 150), 0x0038),
         new(PlmHeaderId.YellowDoorFacingRight, new(1, 102), 0x0039),
@@ -734,10 +734,10 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The Caterpillar room PLM population.</summary>
     public static RoomPlmPopulationDefinition Caterpillar { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Caterpillar),
     [
-        new(PlmHeaderId.ScrollTrigger, new(5, 94), 0xA36F),
+        new(PlmHeaderId.ScrollTrigger, new(5, 94), 0xA36F, ScrollProgram: RoomScrollProgram.CaterpillarScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(6, 94), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(16, 55), 0xA374),
-        new(PlmHeaderId.ScrollTrigger, new(13, 55), 0xA379),
+        new(PlmHeaderId.ScrollTrigger, new(16, 55), 0xA374, ScrollProgram: RoomScrollProgram.CaterpillarScroll1),
+        new(PlmHeaderId.ScrollTrigger, new(13, 55), 0xA379, ScrollProgram: RoomScrollProgram.CaterpillarScroll2),
         new(PlmHeaderId.ElevatorPlatform, new(6, 44), 0x8000),
         new(PlmHeaderId.DownwardGate, new(38, 53), 0x8000),
         new(PlmHeaderId.DownwardGateShotBlock, new(38, 53), 0x000A),
@@ -749,7 +749,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The BetaPowerBomb room PLM population.</summary>
     public static RoomPlmPopulationDefinition BetaPowerBomb { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BetaPowerBomb),
     [
-        new(PlmHeaderId.ScrollTrigger, new(7, 14), 0xA3A9),
+        new(PlmHeaderId.ScrollTrigger, new(7, 14), 0xA3A9, ScrollProgram: RoomScrollProgram.BetaPowerBombScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(8, 14), 0x8000),
         new(PlmHeaderId.ExposedPowerBombTank, new(4, 19), 0x0027),
         new(PlmHeaderId.GreyDoorFacingLeft, new(30, 6), 0x0C3E),
@@ -766,7 +766,7 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.UpwardsScrollExtension, new(15, 9), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(15, 10), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(15, 11), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(15, 12), 0xA3DA),
+        new(PlmHeaderId.ScrollTrigger, new(15, 12), 0xA3DA, ScrollProgram: RoomScrollProgram.AlphaPowerBombScroll0),
         new(PlmHeaderId.ChozoPowerBombTank, new(20, 9), 0x0028),
         new(PlmHeaderId.ExposedMissileTank, new(2, 8), 0x0029),
     ]);
@@ -779,18 +779,18 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The BelowSpazer room PLM population.</summary>
     public static RoomPlmPopulationDefinition BelowSpazer { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BelowSpazer),
     [
-        new(PlmHeaderId.ScrollTrigger, new(16, 17), 0xA439),
+        new(PlmHeaderId.ScrollTrigger, new(16, 17), 0xA439, ScrollProgram: RoomScrollProgram.BelowSpazerScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(17, 17), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(18, 17), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(19, 17), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(16, 20), 0xA43E),
+        new(PlmHeaderId.ScrollTrigger, new(16, 20), 0xA43E, ScrollProgram: RoomScrollProgram.BelowSpazerScroll1),
         new(PlmHeaderId.RightwardsScrollExtension, new(17, 20), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(18, 20), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(19, 20), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(8, 17), 0xA439),
-        new(PlmHeaderId.ScrollTrigger, new(8, 20), 0xA43E),
-        new(PlmHeaderId.ScrollTrigger, new(2, 17), 0xA439),
-        new(PlmHeaderId.ScrollTrigger, new(2, 20), 0xA43E),
+        new(PlmHeaderId.ScrollTrigger, new(8, 17), 0xA439, ScrollProgram: RoomScrollProgram.BelowSpazerScroll0),
+        new(PlmHeaderId.ScrollTrigger, new(8, 20), 0xA43E, ScrollProgram: RoomScrollProgram.BelowSpazerScroll1),
+        new(PlmHeaderId.ScrollTrigger, new(2, 17), 0xA439, ScrollProgram: RoomScrollProgram.BelowSpazerScroll0),
+        new(PlmHeaderId.ScrollTrigger, new(2, 20), 0xA43E, ScrollProgram: RoomScrollProgram.BelowSpazerScroll1),
         new(PlmHeaderId.GreenDoorFacingLeft, new(30, 6), 0x003F),
     ]);
 
@@ -803,10 +803,10 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The WarehouseZeela room PLM population.</summary>
     public static RoomPlmPopulationDefinition WarehouseZeela { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WarehouseZeela),
     [
-        new(PlmHeaderId.ScrollTrigger, new(2, 11), 0xA4A2),
-        new(PlmHeaderId.ScrollTrigger, new(2, 25), 0xA4A9),
-        new(PlmHeaderId.ScrollTrigger, new(7, 25), 0xA4AE),
-        new(PlmHeaderId.ScrollTrigger, new(21, 25), 0xA4A9),
+        new(PlmHeaderId.ScrollTrigger, new(2, 11), 0xA4A2, ScrollProgram: RoomScrollProgram.WarehouseZeelaScroll0),
+        new(PlmHeaderId.ScrollTrigger, new(2, 25), 0xA4A9, ScrollProgram: RoomScrollProgram.WarehouseZeelaScroll1),
+        new(PlmHeaderId.ScrollTrigger, new(7, 25), 0xA4AE, ScrollProgram: RoomScrollProgram.WarehouseZeelaScroll2),
+        new(PlmHeaderId.ScrollTrigger, new(21, 25), 0xA4A9, ScrollProgram: RoomScrollProgram.WarehouseZeelaScroll1),
         new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), 0x0040),
     ]);
 
@@ -820,8 +820,8 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The WarehouseKihunter room PLM population.</summary>
     public static RoomPlmPopulationDefinition WarehouseKihunter { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WarehouseKihunter),
     [
-        new(PlmHeaderId.ScrollTrigger, new(23, 11), 0xA50F),
-        new(PlmHeaderId.ScrollTrigger, new(23, 14), 0xA514),
+        new(PlmHeaderId.ScrollTrigger, new(23, 11), 0xA50F, ScrollProgram: RoomScrollProgram.WarehouseKihunterScroll0),
+        new(PlmHeaderId.ScrollTrigger, new(23, 14), 0xA514, ScrollProgram: RoomScrollProgram.WarehouseKihunterScroll1),
         new(PlmHeaderId.UpwardsScrollExtension, new(11, 4), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(11, 5), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(11, 6), 0x8000),
@@ -829,9 +829,9 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.UpwardsScrollExtension, new(11, 8), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(11, 9), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(11, 10), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(11, 11), 0xA519),
-        new(PlmHeaderId.ScrollTrigger, new(39, 12), 0xA51C),
-        new(PlmHeaderId.ScrollTrigger, new(46, 12), 0xA51C),
+        new(PlmHeaderId.ScrollTrigger, new(11, 11), 0xA519, ScrollProgram: RoomScrollProgram.WarehouseKihunterScroll2),
+        new(PlmHeaderId.ScrollTrigger, new(39, 12), 0xA51C, ScrollProgram: RoomScrollProgram.WarehouseKihunterScroll3),
+        new(PlmHeaderId.ScrollTrigger, new(46, 12), 0xA51C, ScrollProgram: RoomScrollProgram.WarehouseKihunterScroll3),
         new(PlmHeaderId.ShotBlockMissileTank, new(46, 8), 0x002C),
     ]);
 
@@ -845,7 +845,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The KraidEyeDoor room PLM population.</summary>
     public static RoomPlmPopulationDefinition KraidEyeDoor { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(KraidEyeDoor),
     [
-        new(PlmHeaderId.ScrollTrigger, new(3, 18), 0xA59C),
+        new(PlmHeaderId.ScrollTrigger, new(3, 18), 0xA59C, ScrollProgram: RoomScrollProgram.KraidEyeDoorScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(4, 18), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(5, 18), 0x8000),
         new(PlmHeaderId.GreenDoorFacingLeft, new(14, 6), 0x0044),
@@ -888,16 +888,16 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The WarehouseEntrance room PLM population.</summary>
     public static RoomPlmPopulationDefinition WarehouseEntrance { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WarehouseEntrance),
     [
-        new(PlmHeaderId.ScrollTrigger, new(7, 12), 0xA6D6),
+        new(PlmHeaderId.ScrollTrigger, new(7, 12), 0xA6D6, ScrollProgram: RoomScrollProgram.WarehouseEntranceScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(8, 12), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(16, 9), 0xA6D9),
+        new(PlmHeaderId.ScrollTrigger, new(16, 9), 0xA6D9, ScrollProgram: RoomScrollProgram.WarehouseEntranceScroll1),
         new(PlmHeaderId.UpwardsScrollExtension, new(16, 8), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(16, 7), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(18, 9), 0xA6DC),
+        new(PlmHeaderId.ScrollTrigger, new(18, 9), 0xA6DC, ScrollProgram: RoomScrollProgram.WarehouseEntranceScroll2),
         new(PlmHeaderId.UpwardsScrollExtension, new(18, 8), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(18, 7), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(18, 6), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(19, 11), 0xA6DF),
+        new(PlmHeaderId.ScrollTrigger, new(19, 11), 0xA6DF, ScrollProgram: RoomScrollProgram.WarehouseEntranceScroll3),
         new(PlmHeaderId.RightwardsScrollExtension, new(20, 11), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(20, 10), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(20, 9), 0x8000),
@@ -956,7 +956,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The IceBeamGate room PLM population.</summary>
     public static RoomPlmPopulationDefinition IceBeamGate { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(IceBeamGate),
     [
-        new(PlmHeaderId.ScrollTrigger, new(55, 45), 0xA860),
+        new(PlmHeaderId.ScrollTrigger, new(55, 45), 0xA860, ScrollProgram: RoomScrollProgram.IceBeamGateScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(56, 45), 0x8000),
     ]);
 
@@ -974,10 +974,10 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The IceBeamSnake room PLM population.</summary>
     public static RoomPlmPopulationDefinition IceBeamSnake { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(IceBeamSnake),
     [
-        new(PlmHeaderId.ScrollTrigger, new(15, 23), 0xA8EC),
-        new(PlmHeaderId.ScrollTrigger, new(13, 23), 0xA8EF),
-        new(PlmHeaderId.ScrollTrigger, new(17, 23), 0xA8F2),
-        new(PlmHeaderId.ScrollTrigger, new(19, 23), 0xA8F5),
+        new(PlmHeaderId.ScrollTrigger, new(15, 23), 0xA8EC, ScrollProgram: RoomScrollProgram.IceBeamSnakeScroll0),
+        new(PlmHeaderId.ScrollTrigger, new(13, 23), 0xA8EF, ScrollProgram: RoomScrollProgram.IceBeamSnakeScroll1),
+        new(PlmHeaderId.ScrollTrigger, new(17, 23), 0xA8F2, ScrollProgram: RoomScrollProgram.IceBeamSnakeScroll2),
+        new(PlmHeaderId.ScrollTrigger, new(19, 23), 0xA8F5, ScrollProgram: RoomScrollProgram.IceBeamSnakeScroll3),
     ]);
 
     /// <summary>The CrumbleShaft room PLM population.</summary>
@@ -989,15 +989,15 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The CrocomireSpeedway room PLM population.</summary>
     public static RoomPlmPopulationDefinition CrocomireSpeedway { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(CrocomireSpeedway),
     [
-        new(PlmHeaderId.ScrollTrigger, new(158, 40), 0xA980),
+        new(PlmHeaderId.ScrollTrigger, new(158, 40), 0xA980, ScrollProgram: RoomScrollProgram.CrocomireSpeedwayScroll0),
         new(PlmHeaderId.UpwardsScrollExtension, new(158, 39), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(158, 38), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(158, 37), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(158, 36), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(190, 41), 0xA987),
+        new(PlmHeaderId.ScrollTrigger, new(190, 41), 0xA987, ScrollProgram: RoomScrollProgram.CrocomireSpeedwayScroll1),
         new(PlmHeaderId.UpwardsScrollExtension, new(190, 40), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(190, 39), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(194, 41), 0xA98A),
+        new(PlmHeaderId.ScrollTrigger, new(194, 41), 0xA98A, ScrollProgram: RoomScrollProgram.CrocomireSpeedwayScroll2),
         new(PlmHeaderId.UpwardsScrollExtension, new(194, 40), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(194, 39), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(194, 38), 0x8000),
@@ -1028,10 +1028,10 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The HiJumpETank room PLM population.</summary>
     public static RoomPlmPopulationDefinition HiJumpETank { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(HiJumpETank),
     [
-        new(PlmHeaderId.ScrollTrigger, new(16, 12), 0xAA75),
-        new(PlmHeaderId.ScrollTrigger, new(15, 5), 0xAA70),
-        new(PlmHeaderId.ScrollTrigger, new(8, 28), 0xAA7C),
-        new(PlmHeaderId.ScrollTrigger, new(11, 18), 0xAA7F),
+        new(PlmHeaderId.ScrollTrigger, new(16, 12), 0xAA75, ScrollProgram: RoomScrollProgram.HiJumpETankScroll0),
+        new(PlmHeaderId.ScrollTrigger, new(15, 5), 0xAA70, ScrollProgram: RoomScrollProgram.HiJumpETankScroll1),
+        new(PlmHeaderId.ScrollTrigger, new(8, 28), 0xAA7C, ScrollProgram: RoomScrollProgram.HiJumpETankScroll2),
+        new(PlmHeaderId.ScrollTrigger, new(11, 18), 0xAA7F, ScrollProgram: RoomScrollProgram.HiJumpETankScroll3),
         new(PlmHeaderId.GreyDoorFacingLeft, new(30, 6), 0x0C50),
         new(PlmHeaderId.ExposedMissileTank, new(9, 6), 0x0037),
         new(PlmHeaderId.ExposedEnergyTank, new(23, 8), 0x0038),
@@ -1106,7 +1106,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The GreenBubblesMissiles room PLM population.</summary>
     public static RoomPlmPopulationDefinition GreenBubblesMissiles { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(GreenBubblesMissiles),
     [
-        new(PlmHeaderId.ScrollTrigger, new(16, 5), 0xACB0),
+        new(PlmHeaderId.ScrollTrigger, new(16, 5), 0xACB0, ScrollProgram: RoomScrollProgram.GreenBubblesMissilesScroll0),
         new(PlmHeaderId.ExposedMissileTank, new(20, 10), 0x003F),
     ]);
 
@@ -1135,11 +1135,11 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The SingleChamber room PLM population.</summary>
     public static RoomPlmPopulationDefinition SingleChamber { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(SingleChamber),
     [
-        new(PlmHeaderId.ScrollTrigger, new(13, 8), 0xADA7),
-        new(PlmHeaderId.ScrollTrigger, new(16, 8), 0xADAA),
+        new(PlmHeaderId.ScrollTrigger, new(13, 8), 0xADA7, ScrollProgram: RoomScrollProgram.SingleChamberScroll0),
+        new(PlmHeaderId.ScrollTrigger, new(16, 8), 0xADAA, ScrollProgram: RoomScrollProgram.SingleChamberScroll1),
         new(PlmHeaderId.UpwardsScrollExtension, new(77, 10), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(77, 11), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(77, 12), 0xADAA),
+        new(PlmHeaderId.ScrollTrigger, new(77, 12), 0xADAA, ScrollProgram: RoomScrollProgram.SingleChamberScroll1),
         new(PlmHeaderId.RedDoorFacingLeft, new(14, 22), 0x0056),
     ]);
 
@@ -1166,29 +1166,29 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The Volcano room PLM population.</summary>
     public static RoomPlmPopulationDefinition Volcano { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Volcano),
     [
-        new(PlmHeaderId.ScrollTrigger, new(32, 41), 0xAE66),
-        new(PlmHeaderId.ScrollTrigger, new(31, 41), 0xAE6B),
+        new(PlmHeaderId.ScrollTrigger, new(32, 41), 0xAE66, ScrollProgram: RoomScrollProgram.VolcanoScroll0),
+        new(PlmHeaderId.ScrollTrigger, new(31, 41), 0xAE6B, ScrollProgram: RoomScrollProgram.VolcanoScroll1),
         new(PlmHeaderId.UpwardsScrollExtension, new(25, 36), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(25, 37), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(25, 38), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(25, 39), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(25, 40), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(25, 41), 0xAE6E),
+        new(PlmHeaderId.ScrollTrigger, new(25, 41), 0xAE6E, ScrollProgram: RoomScrollProgram.VolcanoScroll2),
         new(PlmHeaderId.UpwardsScrollExtension, new(38, 38), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(38, 39), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(38, 40), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(38, 41), 0xAE71),
+        new(PlmHeaderId.ScrollTrigger, new(38, 41), 0xAE71, ScrollProgram: RoomScrollProgram.VolcanoScroll3),
     ]);
 
     /// <summary>The KronicBoost room PLM population.</summary>
     public static RoomPlmPopulationDefinition KronicBoost { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(KronicBoost),
     [
-        new(PlmHeaderId.ScrollTrigger, new(15, 23), 0xAEA9),
-        new(PlmHeaderId.ScrollTrigger, new(17, 23), 0xAEAC),
+        new(PlmHeaderId.ScrollTrigger, new(15, 23), 0xAEA9, ScrollProgram: RoomScrollProgram.KronicBoostScroll0),
+        new(PlmHeaderId.ScrollTrigger, new(17, 23), 0xAEAC, ScrollProgram: RoomScrollProgram.KronicBoostScroll1),
         new(PlmHeaderId.UpwardsScrollExtension, new(8, 21), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(8, 22), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(8, 23), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(8, 24), 0xAEB1),
+        new(PlmHeaderId.ScrollTrigger, new(8, 24), 0xAEB1, ScrollProgram: RoomScrollProgram.KronicBoostScroll2),
         new(PlmHeaderId.DownwardGate, new(7, 20), 0x8000),
         new(PlmHeaderId.DownwardGateShotBlock, new(7, 20), 0x0000),
         new(PlmHeaderId.YellowDoorFacingRight, new(17, 38), 0x0058),
@@ -1202,10 +1202,10 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The PurpleShaft room PLM population.</summary>
     public static RoomPlmPopulationDefinition PurpleShaft { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(PurpleShaft),
     [
-        new(PlmHeaderId.ScrollTrigger, new(2, 11), 0xAF0F),
+        new(PlmHeaderId.ScrollTrigger, new(2, 11), 0xAF0F, ScrollProgram: RoomScrollProgram.PurpleShaftScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(3, 11), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(4, 11), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(11, 11), 0xAF0F),
+        new(PlmHeaderId.ScrollTrigger, new(11, 11), 0xAF0F, ScrollProgram: RoomScrollProgram.PurpleShaftScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(12, 11), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(13, 11), 0x8000),
     ]);
@@ -1218,7 +1218,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The LowerNorfairElev room PLM population.</summary>
     public static RoomPlmPopulationDefinition LowerNorfairElev { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(LowerNorfairElev),
     [
-        new(PlmHeaderId.ScrollTrigger, new(8, 11), 0xAF6F),
+        new(PlmHeaderId.ScrollTrigger, new(8, 11), 0xAF6F, ScrollProgram: RoomScrollProgram.LowerNorfairElevScroll0),
     ]);
 
     /// <summary>The UpperNorfairFarming room PLM population.</summary>
@@ -1257,11 +1257,11 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The BatCave room PLM population.</summary>
     public static RoomPlmPopulationDefinition BatCave { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BatCave),
     [
-        new(PlmHeaderId.ScrollTrigger, new(9, 12), 0xB0A7),
+        new(PlmHeaderId.ScrollTrigger, new(9, 12), 0xB0A7, ScrollProgram: RoomScrollProgram.BatCaveScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(10, 12), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(9, 16), 0xB0AC),
+        new(PlmHeaderId.ScrollTrigger, new(9, 16), 0xB0AC, ScrollProgram: RoomScrollProgram.BatCaveScroll1),
         new(PlmHeaderId.RightwardsScrollExtension, new(10, 16), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(6, 19), 0xB0B1),
+        new(PlmHeaderId.ScrollTrigger, new(6, 19), 0xB0B1, ScrollProgram: RoomScrollProgram.BatCaveScroll2),
         new(PlmHeaderId.RightwardsScrollExtension, new(7, 19), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(8, 19), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(9, 19), 0x8000),
@@ -1310,18 +1310,18 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The AcidStatue room PLM population.</summary>
     public static RoomPlmPopulationDefinition AcidStatue { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(AcidStatue),
     [
-        new(PlmHeaderId.ScrollTrigger, new(12, 30), 0xB224),
-        new(PlmHeaderId.ScrollTrigger, new(12, 35), 0xB22D),
+        new(PlmHeaderId.ScrollTrigger, new(12, 30), 0xB224, ScrollProgram: RoomScrollProgram.AcidStatueScroll0),
+        new(PlmHeaderId.ScrollTrigger, new(12, 35), 0xB22D, ScrollProgram: RoomScrollProgram.AcidStatueScroll1),
     ]);
 
     /// <summary>The MainHall room PLM population.</summary>
     public static RoomPlmPopulationDefinition MainHall { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(MainHall),
     [
-        new(PlmHeaderId.ScrollTrigger, new(71, 8), 0xB27D),
+        new(PlmHeaderId.ScrollTrigger, new(71, 8), 0xB27D, ScrollProgram: RoomScrollProgram.MainHallScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(72, 8), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(71, 35), 0xB27D),
+        new(PlmHeaderId.ScrollTrigger, new(71, 35), 0xB27D, ScrollProgram: RoomScrollProgram.MainHallScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(72, 35), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(71, 41), 0xB280),
+        new(PlmHeaderId.ScrollTrigger, new(71, 41), 0xB280, ScrollProgram: RoomScrollProgram.MainHallScroll2),
         new(PlmHeaderId.RightwardsScrollExtension, new(72, 41), 0x8000),
         new(PlmHeaderId.ElevatorPlatform, new(70, 42), 0x8000),
     ]);
@@ -1329,7 +1329,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The GoldenTorizoState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition GoldenTorizoState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(GoldenTorizoState01),
     [
-        new(PlmHeaderId.ScrollTrigger, new(4, 12), 0xB2D1),
+        new(PlmHeaderId.ScrollTrigger, new(4, 12), 0xB2D1, ScrollProgram: RoomScrollProgram.GoldenTorizoState01Scroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(5, 12), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(6, 12), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(7, 12), 0x8000),
@@ -1373,9 +1373,9 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The FastPillarsSetup room PLM population.</summary>
     public static RoomPlmPopulationDefinition FastPillarsSetup { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(FastPillarsSetup),
     [
-        new(PlmHeaderId.ScrollTrigger, new(7, 33), 0xB3D9),
+        new(PlmHeaderId.ScrollTrigger, new(7, 33), 0xB3D9, ScrollProgram: RoomScrollProgram.FastPillarsSetupScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(8, 33), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(7, 27), 0xB3DC),
+        new(PlmHeaderId.ScrollTrigger, new(7, 27), 0xB3DC, ScrollProgram: RoomScrollProgram.FastPillarsSetupScroll1),
         new(PlmHeaderId.RightwardsScrollExtension, new(8, 27), 0x8000),
     ]);
 
@@ -1387,20 +1387,20 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The MickeyMouse room PLM population.</summary>
     public static RoomPlmPopulationDefinition MickeyMouse { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(MickeyMouse),
     [
-        new(PlmHeaderId.ScrollTrigger, new(48, 22), 0xB445),
-        new(PlmHeaderId.ScrollTrigger, new(50, 22), 0xB448),
-        new(PlmHeaderId.ScrollTrigger, new(45, 22), 0xB44B),
+        new(PlmHeaderId.ScrollTrigger, new(48, 22), 0xB445, ScrollProgram: RoomScrollProgram.MickeyMouseScroll0),
+        new(PlmHeaderId.ScrollTrigger, new(50, 22), 0xB448, ScrollProgram: RoomScrollProgram.MickeyMouseScroll1),
+        new(PlmHeaderId.ScrollTrigger, new(45, 22), 0xB44B, ScrollProgram: RoomScrollProgram.MickeyMouseScroll2),
         new(PlmHeaderId.UpwardsScrollExtension, new(43, 20), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(43, 21), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(43, 22), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(43, 23), 0xB44E),
+        new(PlmHeaderId.ScrollTrigger, new(43, 23), 0xB44E, ScrollProgram: RoomScrollProgram.MickeyMouseScroll3),
         new(PlmHeaderId.UpwardsScrollExtension, new(56, 54), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(56, 55), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(56, 56), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(56, 57), 0xB451),
+        new(PlmHeaderId.ScrollTrigger, new(56, 57), 0xB451, ScrollProgram: RoomScrollProgram.MickeyMouseScroll4),
         new(PlmHeaderId.RightwardsScrollExtension, new(61, 52), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(60, 52), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(59, 52), 0xB454),
+        new(PlmHeaderId.ScrollTrigger, new(59, 52), 0xB454, ScrollProgram: RoomScrollProgram.MickeyMouseScroll5),
         new(PlmHeaderId.GreyDoorFacingRight, new(1, 54), 0x0C5D),
         new(PlmHeaderId.ExposedMissileTank, new(39, 27), 0x0049),
     ]);
@@ -1418,7 +1418,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The WorstRoomInTheGame room PLM population.</summary>
     public static RoomPlmPopulationDefinition WorstRoomInTheGame { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WorstRoomInTheGame),
     [
-        new(PlmHeaderId.ScrollTrigger, new(3, 16), 0xB4E0),
+        new(PlmHeaderId.ScrollTrigger, new(3, 16), 0xB4E0, ScrollProgram: RoomScrollProgram.WorstRoomInTheGameScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(4, 16), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(5, 16), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(6, 16), 0x8000),
@@ -1438,11 +1438,11 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The LNSpringBallMaze room PLM population.</summary>
     public static RoomPlmPopulationDefinition LNSpringBallMaze { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(LNSpringBallMaze),
     [
-        new(PlmHeaderId.ScrollTrigger, new(12, 9), 0xB547),
+        new(PlmHeaderId.ScrollTrigger, new(12, 9), 0xB547, ScrollProgram: RoomScrollProgram.LNSpringBallMazeScroll0),
         new(PlmHeaderId.UpwardsScrollExtension, new(12, 8), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(12, 7), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(12, 6), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(3, 18), 0xB54E),
+        new(PlmHeaderId.ScrollTrigger, new(3, 18), 0xB54E, ScrollProgram: RoomScrollProgram.LNSpringBallMazeScroll1),
         new(PlmHeaderId.RightwardsScrollExtension, new(4, 18), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(5, 18), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(6, 18), 0x8000),
@@ -1450,7 +1450,7 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.RightwardsScrollExtension, new(8, 18), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(9, 18), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(10, 18), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(47, 3), 0xB555),
+        new(PlmHeaderId.ScrollTrigger, new(47, 3), 0xB555, ScrollProgram: RoomScrollProgram.LNSpringBallMazeScroll2),
         new(PlmHeaderId.ExposedMissileTank, new(43, 7), 0x004A),
     ]);
 
@@ -1463,17 +1463,17 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The RedKihunterShaft room PLM population.</summary>
     public static RoomPlmPopulationDefinition RedKihunterShaft { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(RedKihunterShaft),
     [
-        new(PlmHeaderId.ScrollTrigger, new(17, 72), 0xB5C3),
+        new(PlmHeaderId.ScrollTrigger, new(17, 72), 0xB5C3, ScrollProgram: RoomScrollProgram.RedKihunterShaftScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(9, 70), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(8, 70), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(8, 71), 0xB5C8),
-        new(PlmHeaderId.ScrollTrigger, new(31, 72), 0xB5C3),
-        new(PlmHeaderId.ScrollTrigger, new(36, 72), 0xB5C8),
-        new(PlmHeaderId.ScrollTrigger, new(6, 14), 0xB5CD),
+        new(PlmHeaderId.ScrollTrigger, new(8, 71), 0xB5C8, ScrollProgram: RoomScrollProgram.RedKihunterShaftScroll1),
+        new(PlmHeaderId.ScrollTrigger, new(31, 72), 0xB5C3, ScrollProgram: RoomScrollProgram.RedKihunterShaftScroll0),
+        new(PlmHeaderId.ScrollTrigger, new(36, 72), 0xB5C8, ScrollProgram: RoomScrollProgram.RedKihunterShaftScroll1),
+        new(PlmHeaderId.ScrollTrigger, new(6, 14), 0xB5CD, ScrollProgram: RoomScrollProgram.RedKihunterShaftScroll4),
         new(PlmHeaderId.RightwardsScrollExtension, new(7, 14), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(8, 14), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(9, 14), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(6, 11), 0xB5D2),
+        new(PlmHeaderId.ScrollTrigger, new(6, 11), 0xB5D2, ScrollProgram: RoomScrollProgram.RedKihunterShaftScroll5),
         new(PlmHeaderId.RightwardsScrollExtension, new(7, 11), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(8, 11), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(9, 11), 0x8000),
@@ -1483,24 +1483,24 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The Wasteland room PLM population.</summary>
     public static RoomPlmPopulationDefinition Wasteland { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Wasteland),
     [
-        new(PlmHeaderId.ScrollTrigger, new(23, 13), 0xB612),
+        new(PlmHeaderId.ScrollTrigger, new(23, 13), 0xB612, ScrollProgram: RoomScrollProgram.WastelandScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(24, 13), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(21, 8), 0xB615),
+        new(PlmHeaderId.ScrollTrigger, new(21, 8), 0xB615, ScrollProgram: RoomScrollProgram.WastelandScroll1),
         new(PlmHeaderId.RightwardsScrollExtension, new(22, 8), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(23, 8), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(24, 8), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(25, 8), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(26, 8), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(79, 9), 0xB61A),
-        new(PlmHeaderId.ScrollTrigger, new(81, 9), 0xB622),
-        new(PlmHeaderId.ScrollTrigger, new(15, 11), 0xB61D),
-        new(PlmHeaderId.ScrollTrigger, new(60, 9), 0xB622),
-        new(PlmHeaderId.ScrollTrigger, new(63, 9), 0xB61A),
-        new(PlmHeaderId.ScrollTrigger, new(20, 7), 0xB625),
+        new(PlmHeaderId.ScrollTrigger, new(79, 9), 0xB61A, ScrollProgram: RoomScrollProgram.WastelandScroll2),
+        new(PlmHeaderId.ScrollTrigger, new(81, 9), 0xB622, ScrollProgram: RoomScrollProgram.WastelandScroll3),
+        new(PlmHeaderId.ScrollTrigger, new(15, 11), 0xB61D, ScrollProgram: RoomScrollProgram.WastelandScroll4),
+        new(PlmHeaderId.ScrollTrigger, new(60, 9), 0xB622, ScrollProgram: RoomScrollProgram.WastelandScroll3),
+        new(PlmHeaderId.ScrollTrigger, new(63, 9), 0xB61A, ScrollProgram: RoomScrollProgram.WastelandScroll2),
+        new(PlmHeaderId.ScrollTrigger, new(20, 7), 0xB625, ScrollProgram: RoomScrollProgram.WastelandScroll7),
         new(PlmHeaderId.UpwardsScrollExtension, new(20, 6), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(20, 5), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(20, 4), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(9, 9), 0xB628),
+        new(PlmHeaderId.ScrollTrigger, new(9, 9), 0xB628, ScrollProgram: RoomScrollProgram.WastelandScroll8),
         new(PlmHeaderId.UpwardsScrollExtension, new(9, 8), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(9, 7), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(9, 6), 0x8000),
@@ -1518,14 +1518,14 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The ThreeMusketeers room PLM population.</summary>
     public static RoomPlmPopulationDefinition ThreeMusketeers { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(ThreeMusketeers),
     [
-        new(PlmHeaderId.ScrollTrigger, new(11, 42), 0xB68D),
+        new(PlmHeaderId.ScrollTrigger, new(11, 42), 0xB68D, ScrollProgram: RoomScrollProgram.ThreeMusketeersScroll0),
         new(PlmHeaderId.UpwardsScrollExtension, new(11, 41), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(11, 40), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(11, 39), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(11, 38), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(11, 37), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(15, 42), 0xB690),
-        new(PlmHeaderId.ScrollTrigger, new(20, 42), 0xB695),
+        new(PlmHeaderId.ScrollTrigger, new(15, 42), 0xB690, ScrollProgram: RoomScrollProgram.ThreeMusketeersScroll1),
+        new(PlmHeaderId.ScrollTrigger, new(20, 42), 0xB695, ScrollProgram: RoomScrollProgram.ThreeMusketeersScroll2),
         new(PlmHeaderId.ExposedMissileTank, new(8, 41), 0x004D),
     ]);
 
@@ -1546,14 +1546,14 @@ internal static class RoomPlmPopulationDefinitions
     [
         new(PlmHeaderId.UpwardsScrollExtension, new(31, 54), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(31, 55), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(31, 56), 0xB72D),
+        new(PlmHeaderId.ScrollTrigger, new(31, 56), 0xB72D, ScrollProgram: RoomScrollProgram.LNFirefleaScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(45, 57), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(44, 57), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(43, 57), 0xB730),
+        new(PlmHeaderId.ScrollTrigger, new(43, 57), 0xB730, ScrollProgram: RoomScrollProgram.LNFirefleaScroll1),
         new(PlmHeaderId.UpwardsScrollExtension, new(15, 6), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(15, 7), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(15, 8), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(15, 9), 0xB737),
+        new(PlmHeaderId.ScrollTrigger, new(15, 9), 0xB737, ScrollProgram: RoomScrollProgram.LNFirefleaScroll2),
         new(PlmHeaderId.RightwardsScrollExtension, new(27, 11), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(26, 11), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(25, 11), 0x8000),
@@ -1561,7 +1561,7 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.RightwardsScrollExtension, new(23, 11), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(22, 11), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(21, 11), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(20, 11), 0xB73C),
+        new(PlmHeaderId.ScrollTrigger, new(20, 11), 0xB73C, ScrollProgram: RoomScrollProgram.LNFirefleaScroll3),
         new(PlmHeaderId.ExposedEnergyTank, new(42, 81), 0x0050),
     ]);
 
@@ -1574,10 +1574,10 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The BowlingAlleyState0 room PLM population.</summary>
     public static RoomPlmPopulationDefinition BowlingAlleyState0 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BowlingAlleyState0),
     [
-        new(PlmHeaderId.ScrollTrigger, new(31, 45), 0xC9EC),
+        new(PlmHeaderId.ScrollTrigger, new(31, 45), 0xC9EC, ScrollProgram: RoomScrollProgram.BowlingAlleyState0Scroll0),
         new(PlmHeaderId.UpwardsScrollExtension, new(65, 38), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(65, 39), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(65, 40), 0xC9F1),
+        new(PlmHeaderId.ScrollTrigger, new(65, 40), 0xC9F1, ScrollProgram: RoomScrollProgram.BowlingAlleyState0Scroll1),
     ]);
 
     /// <summary>The WreckedShipEntranceState0 room PLM population.</summary>
@@ -1601,11 +1601,11 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The WreckedShipMainShaft room PLM population.</summary>
     public static RoomPlmPopulationDefinition WreckedShipMainShaft { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WreckedShipMainShaft),
     [
-        new(PlmHeaderId.ScrollTrigger, new(62, 87), 0xCB7A),
-        new(PlmHeaderId.ScrollTrigger, new(81, 105), 0xCB7D),
-        new(PlmHeaderId.ScrollTrigger, new(65, 87), 0xCB80),
-        new(PlmHeaderId.ScrollTrigger, new(78, 105), 0xCB83),
-        new(PlmHeaderId.ScrollTrigger, new(71, 109), 0xCB86),
+        new(PlmHeaderId.ScrollTrigger, new(62, 87), 0xCB7A, ScrollProgram: RoomScrollProgram.WreckedShipMainShaftScroll0),
+        new(PlmHeaderId.ScrollTrigger, new(81, 105), 0xCB7D, ScrollProgram: RoomScrollProgram.WreckedShipMainShaftScroll1),
+        new(PlmHeaderId.ScrollTrigger, new(65, 87), 0xCB80, ScrollProgram: RoomScrollProgram.WreckedShipMainShaftScroll2),
+        new(PlmHeaderId.ScrollTrigger, new(78, 105), 0xCB83, ScrollProgram: RoomScrollProgram.WreckedShipMainShaftScroll3),
+        new(PlmHeaderId.ScrollTrigger, new(71, 109), 0xCB86, ScrollProgram: RoomScrollProgram.WreckedShipMainShaftScroll4),
         new(PlmHeaderId.ExposedMissileTank, new(2, 89), 0x0080),
         new(PlmHeaderId.GreyDoorFacingRight, new(65, 102), 0x0082),
         new(PlmHeaderId.GreyDoorFacingLeft, new(78, 70), 0x0083),
@@ -1620,7 +1620,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The ElectricDeathState0 room PLM population.</summary>
     public static RoomPlmPopulationDefinition ElectricDeathState0 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(ElectricDeathState0),
     [
-        new(PlmHeaderId.ScrollTrigger, new(7, 16), 0xCC24),
+        new(PlmHeaderId.ScrollTrigger, new(7, 16), 0xCC24, ScrollProgram: RoomScrollProgram.ElectricDeathState0Scroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(8, 16), 0x8000),
     ]);
 
@@ -1632,8 +1632,8 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The BasementState0 room PLM population.</summary>
     public static RoomPlmPopulationDefinition BasementState0 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BasementState0),
     [
-        new(PlmHeaderId.ScrollTrigger, new(64, 12), 0xCCC0),
-        new(PlmHeaderId.ScrollTrigger, new(70, 12), 0xCCC5),
+        new(PlmHeaderId.ScrollTrigger, new(64, 12), 0xCCC0, ScrollProgram: RoomScrollProgram.BasementState0Scroll0),
+        new(PlmHeaderId.ScrollTrigger, new(70, 12), 0xCCC5, ScrollProgram: RoomScrollProgram.BasementState0Scroll1),
         new(PlmHeaderId.EyeDoorFacingLeft, new(78, 6), 0x0085),
         new(PlmHeaderId.EyeDoorBottomFacingLeft, new(78, 9), 0x0085),
         new(PlmHeaderId.EyeDoorEyeFacingLeft, new(78, 7), 0x0085),
@@ -1663,7 +1663,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The WSEastSuperState0 room PLM population.</summary>
     public static RoomPlmPopulationDefinition WSEastSuperState0 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WSEastSuperState0),
     [
-        new(PlmHeaderId.ScrollTrigger, new(47, 7), 0xCE3D),
+        new(PlmHeaderId.ScrollTrigger, new(47, 7), 0xCE3D, ScrollProgram: RoomScrollProgram.WSEastSuperState0Scroll0),
     ]);
 
     /// <summary>The GravitySuitState0WreckedShipSaveState0 room PLM population.</summary>
@@ -1680,10 +1680,10 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The BowlingAlleyState1 room PLM population.</summary>
     public static RoomPlmPopulationDefinition BowlingAlleyState1 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BowlingAlleyState1),
     [
-        new(PlmHeaderId.ScrollTrigger, new(31, 45), 0xC9EC),
+        new(PlmHeaderId.ScrollTrigger, new(31, 45), 0xC9EC, ScrollProgram: RoomScrollProgram.BowlingAlleyState0Scroll0),
         new(PlmHeaderId.UpwardsScrollExtension, new(65, 38), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(65, 39), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(65, 40), 0xC9F1),
+        new(PlmHeaderId.ScrollTrigger, new(65, 40), 0xC9F1, ScrollProgram: RoomScrollProgram.BowlingAlleyState0Scroll1),
         new(PlmHeaderId.ChozoReserveTank, new(83, 11), 0x0081),
         new(PlmHeaderId.ExposedMissileTank, new(60, 38), 0x0082),
         new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), 0x9087),
@@ -1717,7 +1717,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The ElectricDeathState1 room PLM population.</summary>
     public static RoomPlmPopulationDefinition ElectricDeathState1 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(ElectricDeathState1),
     [
-        new(PlmHeaderId.ScrollTrigger, new(7, 16), 0xCC24),
+        new(PlmHeaderId.ScrollTrigger, new(7, 16), 0xCC24, ScrollProgram: RoomScrollProgram.ElectricDeathState0Scroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(8, 16), 0x8000),
         new(PlmHeaderId.RedDoorFacingRight, new(1, 6), 0x008B),
     ]);
@@ -1731,8 +1731,8 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The BasementState1 room PLM population.</summary>
     public static RoomPlmPopulationDefinition BasementState1 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BasementState1),
     [
-        new(PlmHeaderId.ScrollTrigger, new(64, 12), 0xCCC0),
-        new(PlmHeaderId.ScrollTrigger, new(70, 12), 0xCCC5),
+        new(PlmHeaderId.ScrollTrigger, new(64, 12), 0xCCC0, ScrollProgram: RoomScrollProgram.BasementState0Scroll0),
+        new(PlmHeaderId.ScrollTrigger, new(70, 12), 0xCCC5, ScrollProgram: RoomScrollProgram.BasementState0Scroll1),
     ]);
 
     /// <summary>The WreckedShipMapState1 room PLM population.</summary>
@@ -1755,7 +1755,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The WSEastSuperState1 room PLM population.</summary>
     public static RoomPlmPopulationDefinition WSEastSuperState1 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WSEastSuperState1),
     [
-        new(PlmHeaderId.ScrollTrigger, new(47, 7), 0xCE3D),
+        new(PlmHeaderId.ScrollTrigger, new(47, 7), 0xCE3D, ScrollProgram: RoomScrollProgram.WSEastSuperState0Scroll0),
         new(PlmHeaderId.ExposedSuperMissileTank, new(56, 9), 0x0086),
     ]);
 
@@ -1774,15 +1774,15 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The GlassTunnelState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition GlassTunnelState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(GlassTunnelState01),
     [
-        new(PlmHeaderId.ScrollTrigger, new(3, 20), 0xCF4C),
+        new(PlmHeaderId.ScrollTrigger, new(3, 20), 0xCF4C, ScrollProgram: RoomScrollProgram.GlassTunnelState01Scroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(4, 20), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(5, 20), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(6, 20), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(9, 20), 0xCF4C),
+        new(PlmHeaderId.ScrollTrigger, new(9, 20), 0xCF4C, ScrollProgram: RoomScrollProgram.GlassTunnelState01Scroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(10, 20), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(11, 20), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(12, 20), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(5, 29), 0xCF4F),
+        new(PlmHeaderId.ScrollTrigger, new(5, 29), 0xCF4F, ScrollProgram: RoomScrollProgram.GlassTunnelState01Scroll2),
         new(PlmHeaderId.RightwardsScrollExtension, new(6, 29), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(7, 29), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(8, 29), 0x8000),
@@ -1800,16 +1800,16 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The EastTunnel room PLM population.</summary>
     public static RoomPlmPopulationDefinition EastTunnel { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(EastTunnel),
     [
-        new(PlmHeaderId.ScrollTrigger, new(5, 9), 0xCFB5),
-        new(PlmHeaderId.ScrollTrigger, new(5, 16), 0xCFBC),
-        new(PlmHeaderId.ScrollTrigger, new(5, 22), 0xCFC1),
+        new(PlmHeaderId.ScrollTrigger, new(5, 9), 0xCFB5, ScrollProgram: RoomScrollProgram.EastTunnelScroll0),
+        new(PlmHeaderId.ScrollTrigger, new(5, 16), 0xCFBC, ScrollProgram: RoomScrollProgram.EastTunnelScroll1),
+        new(PlmHeaderId.ScrollTrigger, new(5, 22), 0xCFC1, ScrollProgram: RoomScrollProgram.EastTunnelScroll2),
         new(PlmHeaderId.UpwardsScrollExtension, new(10, 3), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(10, 4), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(10, 5), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(10, 6), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(10, 7), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(10, 8), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(10, 9), 0xCFC6),
+        new(PlmHeaderId.ScrollTrigger, new(10, 9), 0xCFC6, ScrollProgram: RoomScrollProgram.EastTunnelScroll3),
         new(PlmHeaderId.DownwardGate, new(22, 5), 0x8000),
         new(PlmHeaderId.DownwardGateShotBlock, new(22, 5), 0x000A),
     ]);
@@ -1817,7 +1817,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The MainStreet room PLM population.</summary>
     public static RoomPlmPopulationDefinition MainStreet { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(MainStreet),
     [
-        new(PlmHeaderId.ScrollTrigger, new(37, 41), 0xD012),
+        new(PlmHeaderId.ScrollTrigger, new(37, 41), 0xD012, ScrollProgram: RoomScrollProgram.MainStreetScroll0),
         new(PlmHeaderId.RedDoorFacingLeft, new(30, 118), 0x008D),
         new(PlmHeaderId.ExposedMissileTank, new(14, 53), 0x0088),
         new(PlmHeaderId.ExposedSuperMissileTank, new(22, 40), 0x0089),
@@ -1829,11 +1829,11 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.UpwardsScrollExtension, new(31, 38), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(31, 39), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(31, 40), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(31, 41), 0xD052),
+        new(PlmHeaderId.ScrollTrigger, new(31, 41), 0xD052, ScrollProgram: RoomScrollProgram.FishTankScroll0),
         new(PlmHeaderId.UpwardsScrollExtension, new(48, 38), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(48, 39), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(48, 40), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(48, 41), 0xD052),
+        new(PlmHeaderId.ScrollTrigger, new(48, 41), 0xD052, ScrollProgram: RoomScrollProgram.FishTankScroll0),
         new(PlmHeaderId.RedDoorFacingLeft, new(62, 38), 0x008E),
     ]);
 
@@ -1859,14 +1859,14 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The RedFish room PLM population.</summary>
     public static RoomPlmPopulationDefinition RedFish { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(RedFish),
     [
-        new(PlmHeaderId.ScrollTrigger, new(32, 6), 0xD135),
-        new(PlmHeaderId.ScrollTrigger, new(30, 6), 0xD138),
+        new(PlmHeaderId.ScrollTrigger, new(32, 6), 0xD135, ScrollProgram: RoomScrollProgram.RedFishScroll0),
+        new(PlmHeaderId.ScrollTrigger, new(30, 6), 0xD138, ScrollProgram: RoomScrollProgram.RedFishScroll1),
     ]);
 
     /// <summary>The WateringHole room PLM population.</summary>
     public static RoomPlmPopulationDefinition WateringHole { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WateringHole),
     [
-        new(PlmHeaderId.ScrollTrigger, new(7, 31), 0xD16A),
+        new(PlmHeaderId.ScrollTrigger, new(7, 31), 0xD16A, ScrollProgram: RoomScrollProgram.WateringHoleScroll0),
         new(PlmHeaderId.ExposedSuperMissileTank, new(4, 38), 0x008C),
         new(PlmHeaderId.ExposedMissileTank, new(11, 39), 0x008D),
     ]);
@@ -1877,17 +1877,17 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.UpwardsScrollExtension, new(32, 22), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(32, 23), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(32, 24), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(32, 25), 0xD1A0),
+        new(PlmHeaderId.ScrollTrigger, new(32, 25), 0xD1A0, ScrollProgram: RoomScrollProgram.NWestMaridiaBugScroll0),
         new(PlmHeaderId.UpwardsScrollExtension, new(15, 22), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(15, 23), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(15, 24), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(15, 25), 0xD1A0),
+        new(PlmHeaderId.ScrollTrigger, new(15, 25), 0xD1A0, ScrollProgram: RoomScrollProgram.NWestMaridiaBugScroll0),
     ]);
 
     /// <summary>The CrabShaft room PLM population.</summary>
     public static RoomPlmPopulationDefinition CrabShaft { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(CrabShaft),
     [
-        new(PlmHeaderId.ScrollTrigger, new(7, 45), 0xD1D8),
+        new(PlmHeaderId.ScrollTrigger, new(7, 45), 0xD1D8, ScrollProgram: RoomScrollProgram.CrabShaftScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(8, 45), 0x8000),
         new(PlmHeaderId.GreenDoorFacingLeft, new(30, 54), 0x008F),
     ]);
@@ -1898,19 +1898,19 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.UpwardsScrollExtension, new(31, 38), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(31, 39), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(31, 40), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(31, 41), 0xD216),
+        new(PlmHeaderId.ScrollTrigger, new(31, 41), 0xD216, ScrollProgram: RoomScrollProgram.PseudoPlasmaSparkScroll0),
         new(PlmHeaderId.UpwardsScrollExtension, new(29, 38), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(29, 39), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(29, 40), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(29, 41), 0xD219),
+        new(PlmHeaderId.ScrollTrigger, new(29, 41), 0xD219, ScrollProgram: RoomScrollProgram.PseudoPlasmaSparkScroll1),
         new(PlmHeaderId.ExposedMissileTank, new(44, 40), 0x008E),
     ]);
 
     /// <summary>The CrabHole room PLM population.</summary>
     public static RoomPlmPopulationDefinition CrabHole { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(CrabHole),
     [
-        new(PlmHeaderId.ScrollTrigger, new(8, 14), 0xD24D),
-        new(PlmHeaderId.ScrollTrigger, new(8, 17), 0xD24D),
+        new(PlmHeaderId.ScrollTrigger, new(8, 14), 0xD24D, ScrollProgram: RoomScrollProgram.CrabHoleScroll0),
+        new(PlmHeaderId.ScrollTrigger, new(8, 17), 0xD24D, ScrollProgram: RoomScrollProgram.CrabHoleScroll0),
         new(PlmHeaderId.RedDoorFacingLeft, new(14, 22), 0x0090),
     ]);
 
@@ -1985,7 +1985,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The Oasis room PLM population.</summary>
     public static RoomPlmPopulationDefinition Oasis { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Oasis),
     [
-        new(PlmHeaderId.ScrollTrigger, new(3, 20), 0xD4BD),
+        new(PlmHeaderId.ScrollTrigger, new(3, 20), 0xD4BD, ScrollProgram: RoomScrollProgram.OasisScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(4, 20), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(5, 20), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(6, 20), 0x8000),
@@ -2049,11 +2049,11 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The Pants room PLM population.</summary>
     public static RoomPlmPopulationDefinition Pants { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Pants),
     [
-        new(PlmHeaderId.ScrollTrigger, new(6, 50), 0xD67D),
+        new(PlmHeaderId.ScrollTrigger, new(6, 50), 0xD67D, ScrollProgram: RoomScrollProgram.PantsScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(7, 50), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(8, 50), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(9, 50), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(13, 12), 0xD67D),
+        new(PlmHeaderId.ScrollTrigger, new(13, 12), 0xD67D, ScrollProgram: RoomScrollProgram.PantsScroll0),
         new(PlmHeaderId.UpwardsScrollExtension, new(13, 11), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(13, 10), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(13, 9), 0x8000),
@@ -2062,7 +2062,7 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.UpwardsScrollExtension, new(13, 6), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(13, 5), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(13, 4), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(18, 14), 0xD68A),
+        new(PlmHeaderId.ScrollTrigger, new(18, 14), 0xD68A, ScrollProgram: RoomScrollProgram.PantsScroll2),
         new(PlmHeaderId.UpwardsScrollExtension, new(18, 13), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(18, 12), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(18, 11), 0x8000),
@@ -2070,7 +2070,7 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.UpwardsScrollExtension, new(18, 9), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(18, 8), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(18, 7), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(21, 43), 0xD695),
+        new(PlmHeaderId.ScrollTrigger, new(21, 43), 0xD695, ScrollProgram: RoomScrollProgram.PantsScroll3),
         new(PlmHeaderId.RightwardsScrollExtension, new(22, 43), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(23, 43), 0x8000),
     ]);
@@ -2078,13 +2078,13 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The EastPants room PLM population.</summary>
     public static RoomPlmPopulationDefinition EastPants { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(EastPants),
     [
-        new(PlmHeaderId.ScrollTrigger, new(5, 34), 0xD6C8),
+        new(PlmHeaderId.ScrollTrigger, new(5, 34), 0xD6C8, ScrollProgram: RoomScrollProgram.EastPantsScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(6, 34), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(7, 34), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(8, 34), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(9, 34), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(10, 18), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(5, 27), 0xD6CB),
+        new(PlmHeaderId.ScrollTrigger, new(5, 27), 0xD6CB, ScrollProgram: RoomScrollProgram.EastPantsScroll1),
         new(PlmHeaderId.RightwardsScrollExtension, new(6, 27), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(7, 27), 0x8000),
     ]);
@@ -2117,7 +2117,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The ThePreciousState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition ThePreciousState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(ThePreciousState01),
     [
-        new(PlmHeaderId.ScrollTrigger, new(4, 14), 0xD7DF),
+        new(PlmHeaderId.ScrollTrigger, new(4, 14), 0xD7DF, ScrollProgram: RoomScrollProgram.ThePreciousState01Scroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(5, 14), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(6, 14), 0x8000),
         new(PlmHeaderId.RightwardsScrollExtension, new(7, 14), 0x8000),
@@ -2167,12 +2167,12 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The HalfieClimb room PLM population.</summary>
     public static RoomPlmPopulationDefinition HalfieClimb { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(HalfieClimb),
     [
-        new(PlmHeaderId.ScrollTrigger, new(16, 41), 0xD951),
-        new(PlmHeaderId.ScrollTrigger, new(11, 41), 0xD956),
+        new(PlmHeaderId.ScrollTrigger, new(16, 41), 0xD951, ScrollProgram: RoomScrollProgram.HalfieClimbScroll0),
+        new(PlmHeaderId.ScrollTrigger, new(11, 41), 0xD956, ScrollProgram: RoomScrollProgram.HalfieClimbScroll1),
         new(PlmHeaderId.UpwardsScrollExtension, new(11, 40), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(11, 39), 0x8000),
         new(PlmHeaderId.UpwardsScrollExtension, new(11, 38), 0x8000),
-        new(PlmHeaderId.ScrollTrigger, new(14, 41), 0xD95B),
+        new(PlmHeaderId.ScrollTrigger, new(14, 41), 0xD95B, ScrollProgram: RoomScrollProgram.HalfieClimbScroll2),
         new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), 0x009C),
     ]);
 

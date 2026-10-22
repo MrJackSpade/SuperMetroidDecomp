@@ -161,7 +161,7 @@ internal sealed class PlmPopulationLoader
             PlmHeaderId.DownwardsScrollExtension or
             PlmHeaderId.UpwardsScrollExtension)
         {
-            ScrollPlms.SetupScrollSlot(level, slot, header, placement.ScrollProgram.Span, placement.CompiledScrollSource);
+            ScrollPlms.SetupScrollSlot(level, slot, header, placement.ScrollProgram.Span, placement.CompiledScrollProgram);
             return true;
         }
 

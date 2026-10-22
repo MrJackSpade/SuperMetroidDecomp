@@ -18,6 +18,6 @@ public sealed record RoomPlmPlacement(
     RoomPlmDynamicCollectibleGraphic? DynamicGraphic = null,
     DraygonCannonControlWord? CannonControl = null)
 {
-    /// <summary>Internal retail identity; constructed placements must still supply validated decoded pairs.</summary>
-    internal int? CompiledScrollSource { get; init; }
+    /// <summary>The retail scroll program a retail scroll trigger runs; constructed placements supply validated decoded pairs instead.</summary>
+    internal RoomScrollProgram? CompiledScrollProgram { get; init; }
 }

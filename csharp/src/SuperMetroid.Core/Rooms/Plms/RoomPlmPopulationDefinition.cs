@@ -38,7 +38,7 @@ public sealed class RoomPlmPopulationDefinition
     internal static RoomPlmPopulationDefinition FromRecords(string name, RoomPlmPlacementDefinition[] records) =>
         new(name, Ensure.NotNull(records).Select(record => new RoomPlmPlacement(
             RoomPlmHeaderDefinitions.Get(record.Header), record.Block, record.Argument, CannonControl: record.CannonControl)
-            { CompiledScrollSource = record.Header == PlmHeaderId.ScrollTrigger ? record.Argument : null }));
+            { CompiledScrollProgram = record.ScrollProgram }));
 
     /// <summary>Copies one placement's payloads and rejects malformed scroll programs or collectible graphics.</summary>
     private static RoomPlmPlacement CopyPlacement(RoomPlmPlacement placement)
@@ -47,12 +47,11 @@ public sealed class RoomPlmPopulationDefinition
         if (placement.Header.Header == 0)
             throw new InvalidDataException("A decoded PLM placement cannot contain the native zero terminator.");
         byte[] program = placement.ScrollProgram.ToArray();
-        int? compiledSource = program.Length == 0 ? placement.CompiledScrollSource : null;
-        if (compiledSource is { } sourcePointer)
+        RoomScrollProgram? compiledProgram = program.Length == 0 ? placement.CompiledScrollProgram : null;
+        if (compiledProgram is not null)
         {
-            if (placement.Header.Header != PlmHeaderId.ScrollTrigger || program.Length != 0 ||
-                !RoomPlmScrollProgramDefinitions.TryApply(checked((ushort)sourcePointer), null))
-                throw new InvalidDataException("Retail scroll placement has an invalid program identity.");
+            if (placement.Header.Header != PlmHeaderId.ScrollTrigger)
+                throw new InvalidDataException("Only a scroll trigger may run a retail scroll program.");
         }
         else if (placement.Header.Header == PlmHeaderId.ScrollTrigger)
         {
@@ -79,6 +78,6 @@ public sealed class RoomPlmPopulationDefinition
                 throw new InvalidDataException("Decoded collectible graphics do not match their placement or payload shape.");
             graphic = graphic with { Tiles = graphic.Tiles.ToArray(), PaletteOffsets = graphic.PaletteOffsets.ToArray() };
         }
-        return placement with { ScrollProgram = program, DynamicGraphic = graphic, CompiledScrollSource = compiledSource };
+        return placement with { ScrollProgram = program, DynamicGraphic = graphic, CompiledScrollProgram = compiledProgram };
     }
 }

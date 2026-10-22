@@ -11,8 +11,6 @@ public sealed class SpriteComposition
     internal SpriteComposition(CompiledSpritePart[] parts) => this.parts = (CompiledSpritePart[])parts.Clone();
     /// <summary>Retains an already immutable calculated view without another array copy.</summary>
     private SpriteComposition(IReadOnlyList<CompiledSpritePart> parts) => this.parts = parts;
-    /// <summary>Wraps an immutable calculated part view. The caller must supply an immutable view, never a mutable document/list.</summary>
-    internal static SpriteComposition FromCalculated(IReadOnlyList<CompiledSpritePart> parts) => new(parts);
     /// <summary>Number of OAM parts emitted in composition order.</summary>
     [IntegerQuantity("number of sprite parts in the composition")]
     internal int PartCount => parts.Count;

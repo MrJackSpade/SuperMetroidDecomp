@@ -1499,82 +1499,42 @@ internal static class LookupStream1Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 HUD posture")]
     private static byte LookupStream1HudPostureRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Checks escape timer OAM frames, anchors, edited layout, and actual emitted sprites.</summary>
+    /// <summary>Checks the escape timer's anchors, its sheet draws against the native sprites, and independent anchor and spacing edits.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyLookupStream1TimerLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => SnesLittleEndian.Word(LookupStream1TimerLayoutRomByte(rom, address), LookupStream1TimerLayoutRomByte(rom, address + 1));
-        byte[] json = EscapeTimerPresentationExtractor.Extract(rom);
+        byte[] json = EscapeTimerPresentationExtractor.Extract();
         var stock = EscapeTimerPresentation.Load(new MemoryStream(json));
         var document = RequiredJson.Deserialize<EscapeTimerPresentationDocument>(json, ArtworkJson.Options);
-        AssertEqual(0, stock.frames.Count, "Timer stock stores no calculated frame fallbacks");
         AssertEqual(0, stock.anchors.Count, "Timer stock stores no calculated anchor fallbacks");
-        int parts = 0;
-        foreach (EscapeTimerGlyph glyph in EscapeTimerPresentationDefinitions.Glyphs)
-        {
-            int address = glyph == EscapeTimerGlyph.Label ? 0x80a060 : 0x800000 | Word(0x809fd4 + EscapeTimerPresentationDefinitions.DigitValue(glyph) * 2);
-            var calculated = EscapeTimerPresentationDefinitions.DefaultParts(glyph);
-            AssertEqual(Word(address), calculated.Count, "Timer part count matches native sprite record");
-            for (int index = 0; index < calculated.Count; index++)
-            {
-                int native = address + 2 + index * 5;
-                var part = calculated[index];
-                AssertEqual(Word(native), part.X.Raw, "Timer calculated X/size native word");
-                AssertEqual(LookupStream1TimerLayoutRomByte(rom, native + 2), part.Y.Raw, "Timer calculated native Y");
-                AssertEqual((ushort)(Word(native + 3) & ~0x0e00), part.Attributes.Raw, "Timer calculated native tile/priority/flips with inherited palette removed");
-                AssertTrue(part.InheritPalette, "Timer part inherits independently supplied timer palette");
-                parts++;
-            }
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = calculated[-1], "Timer part negative index rejects");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = calculated[calculated.Count], "Timer part upper index rejects");
-        }
-        AssertEqual(25, parts, "All twenty-five native timer parts are calculated");
         int[] anchorImmediates = [0x809f73, 0x809f7c, 0x809f85, 0x809f8e];
         foreach (EscapeTimerAnchor anchor in EscapeTimerPresentationDefinitions.Anchors)
             AssertEqual(new Offset16<OamPixels>(unchecked((short)Word(anchorImmediates[(int)anchor])), 0), EscapeTimerPresentationDefinitions.DefaultAnchor(anchor), "Timer centered anchor matches native renderer immediate");
+        SpriteSheet sheet = EscapeTimerDrawChecks.Sheet(rom);
+        SpriteArtwork characters = EscapeTimerTileAtlas.Load(new MemoryStream(
+            SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerTileAtlasExtractor.Extract(rom))).Artwork;
+        GameplayBasePaletteCatalog palettes = InstalledFixtures.GameplayBasePalettes;
         var timer = new EscapeTimer(); timer.Clear();
         for (int digit = 0; digit < 10; digit++)
         {
             timer.SetTime(PackedBcd.FromDecimal(digit * 11), PackedBcd.Zero, PackedBcd.FromDecimal(digit * 11));
             var native = new OamBuffer();
             DrawImportedEscapeTimer(rom, timer, native);
-            EscapeTimerDrawChecks.AssertSameSprites(native, EscapeTimerDrawChecks.Draw(timer, stock),
-                "Every calculated decimal glyph draws the native OAM sprites");
-        }
-        foreach (EscapeTimerGlyph glyph in EscapeTimerPresentationDefinitions.Glyphs)
-        {
-            string name = EscapeTimerPresentationDefinitions.FrameName(glyph);
-            var edited = Read();
-            // A 16-pixel part reads four characters; $1E1 keeps all of them inside the timer's own artwork.
-            edited.Frames[name][0] = edited.Frames[name][0] with { OffsetX = edited.Frames[name][0].OffsetX + 3,
-                OffsetY = edited.Frames[name][0].OffsetY + 2, TileNumber = EscapeTimerPresentationDefinitions.FirstCharacter + 1,
-                Size = 16, Priority = 1, Palette = 2, FlipX = true, FlipY = true };
-            var compiled = Load(edited);
-            AssertEqual(1, compiled.frames.Count, "One timer frame edit stores exactly one independent frame");
-            AssertEqual(0, compiled.anchors.Count, "Frame edits do not store unchanged timer anchors");
-            int digit = glyph == EscapeTimerGlyph.Label ? 0 : EscapeTimerPresentationDefinitions.DigitValue(glyph);
-            timer.SetTime(PackedBcd.FromDecimal(digit * 11), PackedBcd.Zero, PackedBcd.FromDecimal(digit * 11));
-            EscapeTimerDrawChecks.AssertSameSprites(DrawDocument(edited), EscapeTimerDrawChecks.Draw(timer, compiled),
-                "Edited timer geometry, size, tile, priority, palette and flips remain exact");
+            EscapeTimerDrawChecks.AssertSamePixels(native, EscapeTimerDrawChecks.Draw(timer, stock, sheet), characters, palettes,
+                $"Decimal glyph {digit} paints the native sprites' pixels");
         }
         foreach (string anchor in document.Anchors.Keys)
         {
             var edited = Read(); edited.Anchors[anchor] = edited.Anchors[anchor] with { X = (short)(edited.Anchors[anchor].X + 2), Y = 3 };
-            edited = edited with { DigitSpacing = 10, Palette = 1 };
+            edited = edited with { DigitSpacing = 10 };
             var compiled = Load(edited);
             AssertEqual(1, compiled.anchors.Count, "One timer anchor edit stores exactly one independent anchor");
-            AssertEqual(0, compiled.frames.Count, "Anchor, spacing and palette edits do not store native frames");
             timer.SetTime(PackedBcd.FromDecimal(12), PackedBcd.FromDecimal(34), PackedBcd.FromDecimal(56));
-            EscapeTimerDrawChecks.AssertSameSprites(DrawDocument(edited), EscapeTimerDrawChecks.Draw(timer, compiled),
-                "Independent anchor, digit spacing and palette edits preserve selected document");
+            EscapeTimerDrawChecks.AssertSamePixels(DrawDocument(edited), EscapeTimerDrawChecks.Draw(timer, compiled, sheet), characters, palettes,
+                "Independent anchor and digit spacing edits move the native sprites");
         }
-        foreach (int tile in new[] { EscapeTimerPresentationDefinitions.FirstCharacter - 1, EscapeTimerPresentationDefinitions.FirstCharacter + EscapeTimerTileAtlasFormat.TileCount })
-        {
-            var outside = Read();
-            outside.Frames[EscapeTimerPresentationDefinitions.LabelFrame][0] = outside.Frames[EscapeTimerPresentationDefinitions.LabelFrame][0] with { TileNumber = tile };
-            AssertThrows<InvalidDataException>(() => Load(outside), $"Timer part reading OBJ character ${tile:X3} outside the timer artwork is rejected");
-        }
-        Console.WriteLine("Escape timer layout:25 native parts,4 native anchors, zero stock dictionaries,10 decimal draw fixtures, independent frame/anchor/spacing/palette edits and out-of-artwork rejection pass.");
+        Console.WriteLine("Escape timer layout: 4 native anchors, zero stock dictionaries, 10 decimal glyphs pixel-exact from the sheet and independent anchor/spacing edits pass.");
 
         EscapeTimerPresentationDocument Read() => RequiredJson.Deserialize<EscapeTimerPresentationDocument>(json, ArtworkJson.Options);
         static EscapeTimerPresentation Load(EscapeTimerPresentationDocument value)
@@ -1585,22 +1545,17 @@ internal static class LookupStream1Verification
         OamBuffer DrawDocument(EscapeTimerPresentationDocument selected)
         {
             var result = new OamBuffer();
-            Draw("Label", selected.Anchors["Label"]);
+            Draw(0x80a060, selected.Anchors["Label"]);
             Pair(timer.Minutes.Raw, "Minutes"); Pair(timer.Seconds.Raw, "Seconds"); Pair(timer.Centiseconds.Raw, "Centiseconds");
             return result;
             void Pair(byte bcd, string anchor)
             {
-                Draw($"Digit.{bcd >> 4}", selected.Anchors[anchor]);
-                Draw($"Digit.{bcd & 15}", selected.Anchors[anchor] with { X = (short)(selected.Anchors[anchor].X + selected.DigitSpacing) });
+                Draw(0x800000 | Word(0x809fd4 + (bcd >> 4) * 2), selected.Anchors[anchor]);
+                Draw(0x800000 | Word(0x809fd4 + (bcd & 15) * 2), selected.Anchors[anchor] with { X = (short)(selected.Anchors[anchor].X + selected.DigitSpacing) });
             }
-            void Draw(string frame, Offset16<OamPixels> anchor)
-            {
-                foreach (var part in selected.Frames[frame])
-                    result.AddOnScreenSpritePart(SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16), new SnesSpritemapYByte(unchecked((byte)part.OffsetY)),
-                        SnesObjAttributeWord.Create(part.TileNumber, part.Palette ?? selected.Palette, part.Priority,
-                            (part.FlipX ? SnesTileFlipFlags.Horizontal : 0) | (part.FlipY ? SnesTileFlipFlags.Vertical : 0)),
-                        timer.PixelPosition.ToOam() + anchor);
-            }
+            void Draw(int spritemap, Offset16<OamPixels> anchor) =>
+                SuperMetroid.Verification.Frontend.Map.MapSpritesVerification.DrawImportedSpritemap(rom, result, spritemap,
+                    timer.PixelPosition.ToOam() + anchor, EnemyPaletteBits.Palette5);
         }
     }
 

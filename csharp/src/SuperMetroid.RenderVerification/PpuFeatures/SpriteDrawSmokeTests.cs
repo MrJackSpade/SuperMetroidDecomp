@@ -9,8 +9,9 @@ using System.Collections.Immutable;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 
 /// <summary>
-/// Whole-frame sprite draws (#1308, #1345): both backends draw sprites only from the published draws and place, flip
-/// and order them identically, and a frontend screen's OAM records reach them only as the draw they convert to.
+/// Whole-frame sprite draws (#1308, #1345, #1392): both backends draw sprites only from the published draws and place,
+/// flip and order character and image draws identically, and a frontend screen's OAM records reach them only as the
+/// draw they convert to.
 /// </summary>
 internal static class SpriteDrawSmokeTests
 {
@@ -116,6 +117,21 @@ internal static class SpriteDrawSmokeTests
                 var origin = new Position16<ScreenPixels>(unchecked((ushort)random.Next(-60, 300)), unchecked((ushort)random.Next(-60, 270)));
                 draws.Add(new CharacterSpriteDraw(new(SpriteSourceKind.EscapeTimer, index), frame, artwork, origin,
                     (SnesTileFlipFlags)(random.Next(4) << 14), (byte)random.Next(8), (byte)random.Next(4)));
+            }
+            // Pre-coloured image draws (#1392) interleave with the character draws: a sheet with transparent pixels,
+            // frames cut anywhere on it, any origin, mirroring, blending and priority.
+            var sheetPixels = new Rgba32[64 * 48];
+            for (int pixel = 0; pixel < sheetPixels.Length; pixel++)
+                sheetPixels[pixel] = random.Next(3) == 0 ? default : Bgr555.FromWord((ushort)random.Next(32768)).ToRgba32();
+            var sheet = new SpriteImage("Seeded", new(64, 48), sheetPixels);
+            for (int index = random.Next(1, 6); index > 0; index--)
+            {
+                var size = new Extent16<ImagePixels>((ushort)random.Next(1, 33), (ushort)random.Next(1, 33));
+                var corner = new Position16<ImagePixels>((ushort)random.Next(0, 64 - size.X + 1), (ushort)random.Next(0, 48 - size.Y + 1));
+                var image = new SpriteSheetFrame(sheet, corner, size, new((short)random.Next(-8, 40), (short)random.Next(-8, 40)), random.Next(2) == 0);
+                var origin = new Position16<ScreenPixels>(unchecked((ushort)random.Next(-60, 300)), unchecked((ushort)random.Next(-60, 270)));
+                draws.Insert(random.Next(draws.Count + 1), new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer, 100 + index), image, origin,
+                    (SpriteMirror)random.Next(4), random.Next(4)));
             }
             var memory = new PpuMemorySnapshot(vram, palette, draws.ToImmutable());
             Check(memory, [new ObjRenderLayer()], $"seeded scene {cases}");

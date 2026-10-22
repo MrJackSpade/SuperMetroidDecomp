@@ -74,6 +74,12 @@ public sealed record GameInstallation(string Root)
     public string SamusOverreadDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SamusOverreadDirectoryName);
     /// <summary>Loads the validated cartridge bytes Samus's glitch paths read.</summary>
     public SamusOverreadCatalog LoadSamusOverreads() => SamusOverreadFiles.Load(SamusOverreadDirectory);
+    /// <summary>Stock pre-coloured sprite sheets and their frame manifests.</summary>
+    public string SpriteSheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SpriteSheetDirectoryName);
+    /// <summary>Player-edited sprite sheet images or frame manifests, which replace the stock files of the same name.</summary>
+    public string SpriteSheetOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.SpriteSheetDirectoryName);
+    /// <summary>Loads every validated sprite sheet, preferring the player's overrides.</summary>
+    public InstalledSpriteSheets LoadSpriteSheets() => SpriteSheetFiles.Load(SpriteSheetDirectory, SpriteSheetOverrideDirectory);
     /// <summary>Stock indexed common gameplay OBJ sheet and its source manifest.</summary>
     public string StandardObjectDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.StandardObjectDirectoryName);
     /// <summary>Editable common gameplay OBJ sheet, preserved across stock rebuilds.</summary>
@@ -465,6 +471,7 @@ public sealed record GameInstallation(string Root)
             ChargeFlareCompositions = projectiles.FlareCompositions,
             GrappleArtwork = projectiles.GrappleTiles,
             SamusOverreads = LoadSamusOverreads(),
+            SpriteSheets = LoadSpriteSheets(),
         };
     }
 }

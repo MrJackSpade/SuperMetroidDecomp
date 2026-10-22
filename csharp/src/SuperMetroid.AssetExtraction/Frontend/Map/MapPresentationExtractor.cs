@@ -179,7 +179,7 @@ public static class MapPresentationExtractor
         using (var file = new FileStream(Path.Combine(directory, PauseEquipmentLabelDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(equipmentLabelBytes);
         hashes.Add(PauseEquipmentLabelDefinitions.FileName, Convert.ToHexString(SHA256.HashData(equipmentLabelBytes)));
-        byte[] escapeTimerBytes = EscapeTimerPresentationExtractor.Extract(bus);
+        byte[] escapeTimerBytes = EscapeTimerPresentationExtractor.Extract();
         using (var file = new FileStream(Path.Combine(directory, EscapeTimerPresentationDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(escapeTimerBytes);
         hashes.Add(EscapeTimerPresentationDefinitions.FileName, Convert.ToHexString(SHA256.HashData(escapeTimerBytes)));

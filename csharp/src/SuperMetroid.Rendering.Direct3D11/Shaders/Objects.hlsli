@@ -1,7 +1,11 @@
-// Whole-frame sprite draws, packed by D3D11SpriteDrawBuffer: word 0 is the part count, then three words per part in
-// front-to-back order, then the bound artwork characters (eight words each). No OAM or OBJ VRAM is read.
+// Whole-frame sprite draws, packed by D3D11SpriteDrawBuffer: word 0 is the record count, then four words per record in
+// front-to-back order (position, extent, flags, first character or pixel word), then the bound artwork characters
+// (eight words each) and the drawn images' pre-coloured pixels. No OAM or OBJ VRAM is read.
 StructuredBuffer<uint> SpriteDraws : register(t1);
-static const uint SpritePartWords = 3;
+static const uint SpriteRecordWords = 4;
+static const uint SpriteFlipX = 1, SpriteFlipY = 2, SpriteImage = 128, SpriteBlends = 256;
+// The palette row a blending image reports, so colour math treats it as the upper rows' sprites.
+static const uint BlendingImageRow = 4;
 
 uint ReadArtworkByte(uint wordOffset, uint byteIndex)
 {
@@ -16,25 +20,36 @@ bool ResolveSpritePart(uint part, uint2 screen, out uint2 hit, out uint palette)
 {
     hit = uint2(0, 255);
     palette = 255;
-    uint record = 1 + part * SpritePartWords;
+    uint record = 1 + part * SpriteRecordWords;
     uint position = SpriteDraws[record];
-    uint shape = SpriteDraws[record + 1];
+    uint extent = SpriteDraws[record + 1];
+    uint flags = SpriteDraws[record + 2];
     int x = ((int)(position << 16)) >> 16;
     int y = ((int)position) >> 16;
-    uint2 size = uint2(shape & 255, (shape >> 8) & 255);
+    uint2 size = uint2(extent & 65535, extent >> 16);
     int2 delta = int2(screen) - int2(x, y);
     if (delta.x < 0 || delta.y < 0 || delta.x >= (int)size.x || delta.y >= (int)size.y) return false;
-    uint sourceX = (shape & 65536) != 0 ? size.x - 1 - (uint)delta.x : (uint)delta.x;
-    uint sourceY = (shape & 131072) != 0 ? size.y - 1 - (uint)delta.y : (uint)delta.y;
+    uint sourceX = (flags & SpriteFlipX) != 0 ? size.x - 1 - (uint)delta.x : (uint)delta.x;
+    uint sourceY = (flags & SpriteFlipY) != 0 ? size.y - 1 - (uint)delta.y : (uint)delta.y;
+    uint priority = (flags >> 5) & 3;
+    if ((flags & SpriteImage) != 0)
+    {
+        // A pre-coloured image: its pixel is the colour, and zero alpha is transparent.
+        uint pixel = SpriteDraws[SpriteDraws[record + 3] + sourceY * (flags >> 16) + sourceX];
+        if ((pixel >> 24) == 0) return false;
+        palette = (flags & SpriteBlends) != 0 ? BlendingImageRow : 0;
+        hit = uint2(pixel | 0xff000000, priority);
+        return true;
+    }
     // Characters sit sixteen to a row of the artwork sheet, eight words each.
-    uint character = SpriteDraws[record + 2] + ((sourceY >> 3) * 16 + (sourceX >> 3)) * 8;
+    uint character = SpriteDraws[record + 3] + ((sourceY >> 3) * 16 + (sourceX >> 3)) * 8;
     uint row = (sourceY & 7) * 2;
     uint shift = 7 - (sourceX & 7);
     uint color = ((ReadArtworkByte(character, row) >> shift) & 1) | (((ReadArtworkByte(character, row + 1) >> shift) & 1) << 1)
         | (((ReadArtworkByte(character, row + 16) >> shift) & 1) << 2) | (((ReadArtworkByte(character, row + 17) >> shift) & 1) << 3);
     if (color == 0) return false;
-    palette = (shape >> 18) & 7;
-    hit = uint2(Palette(128 + palette * 16 + color), (shape >> 21) & 3);
+    palette = (flags >> 2) & 7;
+    hit = uint2(Palette(128 + palette * 16 + color), priority);
     return true;
 }
 

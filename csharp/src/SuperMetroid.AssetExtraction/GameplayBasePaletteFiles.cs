@@ -77,6 +77,22 @@ public static class GameplayBasePaletteFiles
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
     /// <summary>Unpacks consecutive cartridge palette words into RGB5 channels for the exported base palettes.</summary>
+    /// <summary>
+    /// The eight sprite palette rows as a room load leaves them: the initial image's upper half, with the common sprite
+    /// colours in the first row. The enemy-projectile row a room load copies is the initial image's own.
+    /// </summary>
+    internal static Bgr555[] RoomLoadSpriteColours(ISnesAddressSpace bus)
+    {
+        var document = new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
+            ReadColors(bus, GameplayBasePaletteFormat.InitialSourceAddress, CgramPalettes.ColorCount),
+            ReadColors(bus, GameplayBasePaletteFormat.CommonSpriteSourceAddress, GameplayBasePaletteFormat.SpriteColorCount));
+        GameplayBasePaletteCatalog catalog = GameplayBasePaletteCatalog.Load(new MemoryStream(GameplayBasePaletteCatalog.Write(document), writable: false));
+        int first = SuperMetroid.Core.World.RoomLoadingRomData.CommonGameplaySpritePaletteCgramIndex;
+        Bgr555[] colours = catalog.initial.AsSpan(first, CgramPalettes.ColorCount - first).ToArray();
+        catalog.commonSprites.CopyTo(colours, 0);
+        return colours;
+    }
+
     private static PaletteRgb5[] ReadColors(ISnesAddressSpace bus, int address, int count)
     {
         var colors = new PaletteRgb5[count];

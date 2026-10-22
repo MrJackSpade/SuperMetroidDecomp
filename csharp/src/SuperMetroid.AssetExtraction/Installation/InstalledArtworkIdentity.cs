@@ -55,6 +55,7 @@ public static class InstalledArtworkIdentity
             .Concat(EndingPresentationIdentity.Create(Require(artwork.EndingMode7Art), Require(artwork.EndingObjectArt),
                 Require(artwork.EndingPaletteArt)))
             .Append(KeyValuePair.Create(GameInstallationLayout.IntroCinematicDirectoryName, Require(artwork.IntroCinematicArt).ContentIdentity))
+            .Append(KeyValuePair.Create(GameInstallationLayout.SpriteSheetDirectoryName, Require(artwork.SpriteSheets).ContentIdentity))
             .Append(KeyValuePair.Create(GameInstallationLayout.EnemyTileDirectoryName, new InstalledEnemyArtwork(
                 Require(artwork.EnemyTileArtwork), Require(artwork.BossArtwork), Require(artwork.AreaArtwork)).ContentIdentity));
     }

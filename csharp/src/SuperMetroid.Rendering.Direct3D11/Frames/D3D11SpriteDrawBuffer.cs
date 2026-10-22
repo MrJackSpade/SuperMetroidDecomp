@@ -1,32 +1,41 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 using Vortice.Direct3D11;
 
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
 /// <summary>
 /// The shader's <c>SpriteDraws</c> buffer: one frame's whole-frame sprite draws packed as Objects.hlsli reads them.
-/// Word 0 holds the part count, then three words per part in front-to-back order, then each bound artwork's
-/// characters once. The GPU buffer grows to fit the largest frame seen.
+/// Word 0 holds the record count, then four words per record in front-to-back order: a character draw's parts, or one
+/// record per image draw. Then each bound artwork's characters and each drawn image's pixels, once each. The GPU buffer
+/// grows to fit the largest frame seen.
 /// </summary>
 internal sealed class D3D11SpriteDrawBuffer : IDisposable
 {
-    /// <summary>Words of the header holding the part count.</summary>
+    /// <summary>Words of the header holding the record count.</summary>
     private const int HeaderWords = 1;
-    /// <summary>Words per packed part: position, shape and flags, first character word.</summary>
-    private const int PartWords = 3;
+    /// <summary>Words per packed record: position, extent, flags, first character or pixel word.</summary>
+    private const int RecordWords = 4;
     /// <summary>Words per four-bit planar character.</summary>
     private const int CharacterWords = SpriteArtwork.CharacterByteCount / sizeof(uint);
     /// <summary>Allocation for a frame with no or few draws; larger frames grow it.</summary>
     private const int InitialWords = 1024;
-    /// <summary>Flags-byte bit mirroring a part horizontally (shape-word bit 16).</summary>
-    private const byte FlipXFlag = 1;
-    /// <summary>Flags-byte bit mirroring a part vertically (shape-word bit 17).</summary>
-    private const byte FlipYFlag = 2;
-    /// <summary>Flags-byte position of the three-bit OBJ palette (shape-word bits 18..20).</summary>
+    /// <summary>Flags bit mirroring a record horizontally.</summary>
+    private const uint FlipXFlag = 1;
+    /// <summary>Flags bit mirroring a record vertically.</summary>
+    private const uint FlipYFlag = 2;
+    /// <summary>Flags position of a character part's three-bit OBJ palette.</summary>
     private const int PaletteShift = 2;
-    /// <summary>Flags-byte position of the two-bit priority (shape-word bits 21..22).</summary>
+    /// <summary>Flags position of the two-bit priority.</summary>
     private const int PriorityShift = 5;
+    /// <summary>Flags bit marking an image record, whose last word points at pre-coloured pixels.</summary>
+    private const uint ImageFlag = 1 << 7;
+    /// <summary>Flags bit marking an image that takes part in colour blending.</summary>
+    private const uint BlendsFlag = 1 << 8;
+    /// <summary>Flags position of an image record's sheet width, the stride between its pixel rows.</summary>
+    private const int StrideShift = 16;
 
     /// <summary>Device that owns the buffer.</summary>
     private readonly ID3D11Device device;
@@ -48,49 +57,82 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     /// <summary>Packs a frame's draws in emission order, growing the buffer first when they do not fit.</summary>
     internal void Pack(ReadOnlySpan<SpriteDraw> draws)
     {
-        int parts = 0;
+        int records = 0;
+        foreach (SpriteDraw draw in draws)
+            records += draw switch
+            {
+                CharacterSpriteDraw character => character.Frame.Parts.Length,
+                ImageSpriteDraw => 1,
+                _ => throw Unsupported(draw),
+            };
+        int words = HeaderWords + records * RecordWords;
         var artworkWords = new Dictionary<SpriteArtwork, int>(ReferenceEqualityComparer.Instance);
+        var imageWords = new Dictionary<SpriteImage, int>(ReferenceEqualityComparer.Instance);
         foreach (SpriteDraw draw in draws)
-            parts += Character(draw).Frame.Parts.Length;
-        int words = HeaderWords + parts * PartWords;
-        foreach (SpriteDraw draw in draws)
-            if (artworkWords.TryAdd(Character(draw).Artwork, words))
-                words += Character(draw).Artwork.CharacterCount * CharacterWords;
+        {
+            if (draw is CharacterSpriteDraw character && artworkWords.TryAdd(character.Artwork, words))
+                words += character.Artwork.CharacterCount * CharacterWords;
+            else if (draw is ImageSpriteDraw image && imageWords.TryAdd(image.Image.Sheet, words))
+                words += image.Image.Sheet.Pixels.Length;
+        }
         if (words > Upload.Length)
         {
             Dispose();
             Create(Math.Max(words, Upload.Length * 2));
         }
-
         Span<uint> upload = Upload;
         upload.Clear();
-        upload[0] = (uint)parts;
+        upload[0] = (uint)records;
         int record = HeaderWords;
-        foreach (SpriteDraw entry in draws)
+        foreach (SpriteDraw draw in draws)
         {
-            CharacterSpriteDraw draw = Character(entry);
-            int artwork = artworkWords[draw.Artwork];
-            for (int index = 0; index < draw.Frame.Parts.Length; index++)
+            if (draw is ImageSpriteDraw image)
             {
-                SpriteScreenPart part = draw.Place(index);
+                PackImage(upload.Slice(record, RecordWords), image, imageWords[image.Image.Sheet]);
+                record += RecordWords;
+                continue;
+            }
+            var character = (CharacterSpriteDraw)draw;
+            int artwork = artworkWords[character.Artwork];
+            for (int index = 0; index < character.Frame.Parts.Length; index++)
+            {
+                SpriteScreenPart part = character.Place(index);
                 upload[record] = D3D11ConstantPacking.Halves(unchecked((ushort)part.Position.X), unchecked((ushort)part.Position.Y));
-                byte flags = (byte)((part.FlipX ? FlipXFlag : 0) | (part.FlipY ? FlipYFlag : 0)
-                    | part.Palette << PaletteShift | part.Priority << PriorityShift);
-                upload[record + 1] = D3D11ConstantPacking.Bytes(checked((byte)part.Size.X), checked((byte)part.Size.Y), flags, 0);
-                upload[record + 2] = (uint)(artwork + part.Character * CharacterWords);
-                record += PartWords;
+                upload[record + 1] = D3D11ConstantPacking.Halves(part.Size.X, part.Size.Y);
+                upload[record + 2] = (part.FlipX ? FlipXFlag : 0) | (part.FlipY ? FlipYFlag : 0)
+                    | (uint)part.Palette << PaletteShift | (uint)part.Priority << PriorityShift;
+                upload[record + 3] = (uint)(artwork + part.Character * CharacterWords);
+                record += RecordWords;
             }
         }
         foreach ((SpriteArtwork artwork, int offset) in artworkWords)
             System.Runtime.InteropServices.MemoryMarshal.Cast<byte, uint>(artwork.Characters)
                 .CopyTo(upload[offset..]);
+        foreach ((SpriteImage sheet, int offset) in imageWords)
+        {
+            ReadOnlySpan<Rgba32> pixels = sheet.Pixels;
+            for (int index = 0; index < pixels.Length; index++)
+                upload[offset + index] = D3D11ConstantPacking.Bytes(pixels[index].R, pixels[index].G, pixels[index].B, pixels[index].A);
+        }
     }
 
-    /// <summary>Creates the GPU buffer, its view and the CPU words for <paramref name="words"/> words.</summary>
-    /// <summary>The draw as a character draw, the only kind this buffer packs.</summary>
-    private static CharacterSpriteDraw Character(SpriteDraw draw) => draw as CharacterSpriteDraw ??
-        throw new InvalidDataException($"The Direct3D 11 sprite buffer cannot pack a {draw.GetType().Name}.");
+    /// <summary>Packs one image draw: its screen rectangle, mirroring, priority, blending and first pixel of its frame.</summary>
+    private static void PackImage(Span<uint> record, ImageSpriteDraw draw, int sheetWords)
+    {
+        Offset16<ScreenPixels> corner = draw.Corner;
+        SpriteSheetFrame frame = draw.Image;
+        record[0] = D3D11ConstantPacking.Halves(unchecked((ushort)corner.X), unchecked((ushort)corner.Y));
+        record[1] = D3D11ConstantPacking.Halves(frame.Size.X, frame.Size.Y);
+        record[2] = ((draw.Mirror & SpriteMirror.Horizontal) != 0 ? FlipXFlag : 0) | ((draw.Mirror & SpriteMirror.Vertical) != 0 ? FlipYFlag : 0)
+            | (uint)draw.Priority << PriorityShift | ImageFlag | (frame.Blends ? BlendsFlag : 0) | (uint)frame.Sheet.Size.X << StrideShift;
+        record[3] = (uint)(sheetWords + frame.Corner.Y * frame.Sheet.Size.X + frame.Corner.X);
+    }
 
+    /// <summary>The error for a kind of draw this buffer cannot pack.</summary>
+    private static InvalidDataException Unsupported(SpriteDraw draw) =>
+        new($"The Direct3D 11 sprite buffer cannot pack a {draw.GetType().Name}.");
+
+    /// <summary>Allocates the GPU buffer, its view and the CPU upload words.</summary>
     [System.Diagnostics.CodeAnalysis.MemberNotNull(nameof(Buffer), nameof(View), nameof(Upload))]
     private void Create(int words)
     {

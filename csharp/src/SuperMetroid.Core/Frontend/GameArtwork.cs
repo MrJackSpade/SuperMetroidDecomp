@@ -192,6 +192,9 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>The cartridge bytes Samus's glitch paths read, extracted from the player's cartridge.</summary>
     public SamusOverreadCatalog? SamusOverreads { get; init; }
 
+    /// <summary>The pre-coloured sprite sheets drawn families select their frames from.</summary>
+    public InstalledSpriteSheets? SpriteSheets { get; init; }
+
     /// <summary>Charge-flare placement.</summary>
     public ChargeFlarePlacementCatalog? ChargeFlarePlacement { get; init; }
 

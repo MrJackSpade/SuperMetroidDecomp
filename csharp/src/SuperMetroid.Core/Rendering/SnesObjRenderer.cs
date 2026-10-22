@@ -81,8 +81,35 @@ public static class SnesObjRenderer
     {
         if (draw is CharacterSpriteDraw character)
             DrawCharacters(frame, character, cgram, selectedPriority, targets);
+        else if (draw is ImageSpriteDraw image)
+            DrawImage(frame, image, selectedPriority, targets);
         else
             throw new InvalidDataException($"The software renderer cannot draw a {draw.GetType().Name}.");
+    }
+
+    /// <summary>The palette row a blending image reports, so colour math treats it as the upper rows' sprites.</summary>
+    private const byte BlendingImageRow = 4;
+
+    /// <summary>Rasterizes one image draw from its pre-coloured pixels; a pixel with zero alpha is transparent.</summary>
+    private static void DrawImage(Extent16<ScreenPixels> frame, ImageSpriteDraw draw, int? selectedPriority, ObjRasterTargets targets)
+    {
+        Offset16<ScreenPixels> corner = draw.Corner;
+        byte row = draw.Image.Blends ? BlendingImageRow : (byte)0;
+        for (ushort y = 0; y < draw.Image.Size.Y; y++)
+        {
+            int screenY = corner.Y + y;
+            if ((uint)screenY >= frame.Y)
+                continue;
+            for (ushort x = 0; x < draw.Image.Size.X; x++)
+            {
+                int screenX = corner.X + x;
+                if ((uint)screenX >= frame.X)
+                    continue;
+                Rgba32 pixel = draw.PixelAt(new(x, y));
+                if (pixel.A != 0)
+                    Plot(screenY * frame.X + screenX, pixel, row, (byte)draw.Priority, selectedPriority, targets);
+            }
+        }
     }
 
     /// <summary>Rasterizes one character draw from its bound artwork, last part first so the first part ends in front.</summary>
@@ -104,8 +131,11 @@ public static class SnesObjRenderer
                         continue;
                     int character = part.CharacterAt(new(column, row), out Position16<CharacterPixels> pixel);
                     byte colorIndex = draw.Artwork.ColorIndex(character, pixel);
+                    // OBJ palettes live in the upper half of CGRAM. Each OBJ palette number
+                    // selects one 16-color row: 128 + palette*16 + the 4-bpp pixel value.
                     if (colorIndex != 0)
-                        Plot(screenY * frame.X + screenX, colorIndex, (byte)part.Palette, (byte)part.Priority, cgram, selectedPriority, targets);
+                        Plot(screenY * frame.X + screenX, cgram.GetRgba(128 + part.Palette * 16 + colorIndex), (byte)part.Palette,
+                            (byte)part.Priority, selectedPriority, targets);
                 }
             }
         }
@@ -113,7 +143,7 @@ public static class SnesObjRenderer
 
     /// <summary>Writes one opaque OBJ pixel under the caller's priority ownership mode.</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void Plot(int destination, byte colorIndex, byte palette, byte priority, IPaletteColors cgram,
+    private static void Plot(int destination, Rgba32 color, byte palette, byte priority,
         int? selectedPriority, ObjRasterTargets targets)
     {
         Span<Rgba32> output = targets.Pixels;
@@ -124,7 +154,7 @@ public static class SnesObjRenderer
             // Every call reaching this point represents an opaque source pixel.
             // The back-to-front walk guarantees that overwriting both fields here
             // leaves the earliest-emitted object as the final winner.
-            output[destination] = cgram.GetRgba(128 + palette * 16 + colorIndex);
+            output[destination] = color;
             resolvedPriorities[destination] = priority;
             // Color math eligibility depends on the winning OBJ palette, not
             // RGB: different palettes may contain exactly the same color.
@@ -145,9 +175,7 @@ public static class SnesObjRenderer
             return;
         }
 
-        // OBJ palettes live in the upper half of CGRAM. Each OBJ palette number
-        // selects one 16-color row: 128 + palette*16 + the 4-bpp pixel value.
-        output[destination] = cgram.GetRgba(128 + palette * 16 + colorIndex);
+        output[destination] = color;
         if (!resolvedPalettes.IsEmpty)
             resolvedPalettes[destination] = palette;
     }

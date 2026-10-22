@@ -91,10 +91,13 @@ internal static class SpriteFrameBufferAccess
     /// <summary>OBJ tile 31 ($1F), where `$90:C7DF` uploads the arm-cannon cover the cannon's sprite names.</summary>
     private const int ArmCannonCoverCharacter = 31;
 
+    /// <summary>OBJ character $1E0, where Mother Brain's death uploads the escape timer's first character.</summary>
+    private const int EscapeTimerCharacter = 0x1e0;
+
     /// <summary>The OBJ character an artwork's character 0 stands for in the gameplay OBJ table.</summary>
     internal static int FirstObjCharacter(SpriteArtworkKind kind) => kind switch
     {
-        SpriteArtworkKind.EscapeTimerTiles => SuperMetroid.Core.Escape.Artwork.EscapeTimerPresentationDefinitions.FirstCharacter,
+        SpriteArtworkKind.EscapeTimerTiles => EscapeTimerCharacter,
         SpriteArtworkKind.SamusArmCannonCover => ArmCannonCoverCharacter,
         SpriteArtworkKind.GrappleTiles => SuperMetroid.Core.Samus.Artwork.GrappleTileDefinitions.FirstCharacter,
         SpriteArtworkKind.StandardObjects or

@@ -256,6 +256,7 @@ internal sealed class SuperMetroidRuntime
         Bind(a => a.ProjectileFrameBindings, value => Artwork.ProjectileFrameBindings = value);
         Bind(a => a.TrailArtwork, value => Artwork.TrailArtwork = value);
         Bind(a => a.SamusOverreads, value => Artwork.SamusOverreads = value);
+        Bind(a => a.SpriteSheets, value => Artwork.SpriteSheets = value);
         Bind(a => a.ChargeFlarePlacement, value => Artwork.ChargeFlarePlacement = value);
         Bind(a => a.ChargeFlareCompositions, value => Artwork.ChargeFlareCompositions = value);
         Bind(a => a.GrappleArtwork, value => Artwork.GrappleArtwork = value);
@@ -914,7 +915,8 @@ internal sealed class SuperMetroidRuntime
         {
             var presentation = Artwork.MapPresentation ?? throw new InvalidOperationException(
                 "Escape timer requires installed presentation assets.");
-            EscapeTimerRenderer.Draw(EscapeTimer, Sprites, presentation.EscapeTimer, presentation.EscapeTimerTiles.Artwork);
+            EscapeTimerRenderer.Draw(EscapeTimer, Sprites, presentation.EscapeTimer, (Artwork.SpriteSheets ?? throw new InvalidOperationException(
+                "The escape timer requires the installed sprite sheets.")).Get(SpriteSheetId.EscapeTimer));
         }
     }
 

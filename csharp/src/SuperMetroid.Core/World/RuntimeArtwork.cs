@@ -352,6 +352,14 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         set;
     }
 
+    /// <summary>The installed pre-coloured sprite sheets drawn families select their frames from.</summary>
+    [field: NonSerialized]
+    public InstalledSpriteSheets? SpriteSheets
+    {
+        get;
+        set;
+    }
+
     /// <summary>Beam artwork bound since the last accepted NMI, whose palette that NMI publishes.</summary>
     [NonSerialized] private BeamTileCatalog? pendingBeamPalette;
 

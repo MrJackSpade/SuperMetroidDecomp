@@ -45,3 +45,4 @@ SME6438 | Design | Error | CoreVocabularyAnalyzer
 SME6439 | Design | Error | CompatibilityServiceAnalyzer
 SME6440 | Design | Error | AddressIdentityAnalyzer
 SME6441 | Design | Error | AddressIdentityAnalyzer
+SME6442 | Design | Error | FrameCompositionAnalyzer

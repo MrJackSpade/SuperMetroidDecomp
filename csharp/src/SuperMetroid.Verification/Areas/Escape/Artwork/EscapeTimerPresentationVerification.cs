@@ -7,6 +7,8 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.AssetExtraction.Areas.Escape;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -30,7 +32,7 @@ internal static class EscapeTimerPresentationVerification
 
         string stockPath = Path.Combine(stock, EscapeTimerPresentationDefinitions.FileName);
         string stockTilePath = Path.Combine(stock, EscapeTimerTileAtlasFormat.FileName);
-        byte[] extracted = SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerPresentationExtractor.Extract(bus);
+        byte[] extracted = SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerPresentationExtractor.Extract();
         AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
             "installed timer JSON is the deterministic cartridge extraction");
         byte[] extractedTiles = SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerTileAtlasExtractor.Extract(bus);
@@ -99,19 +101,21 @@ internal static class EscapeTimerPresentationVerification
             "content rebind upgrades pending second timer transfer");
 
         var presentation = EscapeTimerPresentation.Load(new MemoryStream(extracted));
+        SpriteSheet sheet = EscapeTimerDrawChecks.Sheet(bus);
         var timer = new EscapeTimer();
         timer.Clear();
         timer.SetTime(PackedBcd.FromDecimal(1), PackedBcd.FromDecimal(23), PackedBcd.FromDecimal(45));
         var native = new OamBuffer();
         native.BeginFrame();
         DrawImportedEscapeTimer(bus, timer, native);
-        IReadOnlyList<SpriteDraw> installed = EscapeTimerDrawChecks.Draw(timer, presentation, tileAtlas.Artwork);
-        EscapeTimerDrawChecks.AssertSameSprites(native, installed, "installed timer label/digits match the native OAM sprites");
+        IReadOnlyList<SpriteDraw> installed = EscapeTimerDrawChecks.Draw(timer, presentation, sheet);
+        EscapeTimerDrawChecks.AssertSamePixels(native, installed, tileAtlas.Artwork, initialPalettes,
+            "installed timer label/digits paint the native OAM sprites' pixels");
         AssertEqual(7, installed.Count, "timer publishes the label and six digits as whole-frame draws");
-        AssertTrue(installed.All(draw => ReferenceEquals(tileAtlas.Artwork, draw.Artwork)),
-            "every timer draw binds the installed timer artwork");
-        AssertEqual("Label|Digit.0|Digit.1|Digit.2|Digit.3|Digit.4|Digit.5",
-            string.Join('|', installed.Select(draw => draw.Frame.Name)), "01:23:45 publishes its label and digit frames in order");
+        string[] frames = ["Label", "Digit.0", "Digit.1", "Digit.2", "Digit.3", "Digit.4", "Digit.5"];
+        for (int index = 0; index < frames.Length; index++)
+            AssertEqual(sheet.Frame(frames[index]), ((ImageSpriteDraw)installed[index]).Image,
+                $"01:23:45 draw {index} shows sheet frame {frames[index]}");
 
         var document = RequiredJson.Deserialize<EscapeTimerPresentationDocument>(extracted,
             ArtworkJson.Options);
@@ -127,7 +131,7 @@ internal static class EscapeTimerPresentationVerification
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "timer override changes catalog identity");
 
-        IReadOnlyList<SpriteDraw> moved = EscapeTimerDrawChecks.Draw(timer, edited.EscapeTimer, tileAtlas.Artwork);
+        IReadOnlyList<SpriteDraw> moved = EscapeTimerDrawChecks.Draw(timer, edited.EscapeTimer, sheet);
         // Draw 0 is the TIME label; draws 1 and 2 are the minute tens and ones.
         AssertEqual(installed[0].Origin, moved[0].Origin, "editing minute anchor leaves TIME label untouched");
         AssertEqual(installed[1].Origin.X + 1, (int)moved[1].Origin.X,
@@ -141,15 +145,6 @@ internal static class EscapeTimerPresentationVerification
         using (var output = File.Create(replacement))
             EscapeTimerPresentation.Write(output, document);
 
-        var missingFrame = document with
-        {
-            Frames = document.Frames.Where(pair => pair.Key != "Digit.9")
-                .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal),
-        };
-        AssertThrows<InvalidDataException>(() => EscapeTimerPresentation.Write(
-            Stream.Null, missingFrame), "timer resource rejects missing named digits");
-        AssertThrows<InvalidDataException>(() => EscapeTimerPresentation.Write(
-            Stream.Null, document with { Palette = 8 }), "timer resource rejects invalid palette");
         AssertThrows<InvalidDataException>(() => EscapeTimerPresentation.Write(
             Stream.Null, document with { DigitSpacing = 256 }), "timer resource rejects invalid spacing");
 
@@ -184,7 +179,7 @@ internal static class EscapeTimerPresentationVerification
         }
     }
 
-    /// <summary>Checks the compiled digit pointer table and confirms timer extraction and drawing no longer read it at runtime.</summary>
+    /// <summary>Checks the compiled digit pointer table and confirms the timer sheet is composed without rereading it.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled escape-timer digit pointers")]
     internal static void VerifyEscapeTimerPointerDefinitions(ISnesAddressSpace bus)
@@ -202,25 +197,16 @@ internal static class EscapeTimerPresentationVerification
             () => EscapeTimerPresentationDefinitions.DigitSpritemapPointer(10),
             "escape-timer digit pointer rejects non-decimal values");
 
-        byte[] nativeExtraction = SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerPresentationExtractor.Extract(bus);
-        byte[] guardedExtraction = SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerPresentationExtractor.Extract(
+        ComposedSpriteSheet nativeSheet = EscapeTimerSheetComposer.Compose(bus);
+        ComposedSpriteSheet guardedSheet = EscapeTimerSheetComposer.Compose(
             new CartridgeReadGuard(bus).Forbid(
                 address => address >= EscapeTimerPresentationDefinitions.DigitPointerTable &&
                     address < EscapeTimerPresentationDefinitions.DigitPointerTable + 10 * sizeof(ushort),
                 address => $"Escape timer reread compiled digit pointer at ${address:X6}."));
-        AssertTrue(nativeExtraction.SequenceEqual(guardedExtraction),
-            "timer extraction selects the same visual records without rereading the pointer table");
-
-        var timer = new EscapeTimer();
-        timer.Clear();
-        timer.SetTime(PackedBcd.FromDecimal(1), PackedBcd.FromDecimal(23), PackedBcd.FromDecimal(45));
-        var native = new OamBuffer();
-        native.BeginFrame();
-        DrawImportedEscapeTimer(bus, timer, native);
-        EscapeTimerDrawChecks.AssertSameSprites(native,
-            EscapeTimerDrawChecks.Draw(timer, EscapeTimerPresentation.Load(new MemoryStream(guardedExtraction))),
-            "native timer draw no longer rereads the immutable digit pointer table");
-        Console.WriteLine("Escape timer digit pointers: ten cartridge words, exact extraction and native-equivalent draws, no runtime pointer-table reads.");
+        AssertTrue(nativeSheet.Pixels.AsSpan().SequenceEqual(guardedSheet.Pixels) &&
+                SpriteSheet.Write(nativeSheet.Manifest).AsSpan().SequenceEqual(SpriteSheet.Write(guardedSheet.Manifest)),
+            "timer sheet composition selects the same spritemaps without rereading the pointer table");
+        Console.WriteLine("Escape timer digit pointers: ten cartridge words and a sheet composed without rereading the pointer table.");
     }
 
     /// <summary>Verifies the installed timer against import-time cartridge parts.</summary>

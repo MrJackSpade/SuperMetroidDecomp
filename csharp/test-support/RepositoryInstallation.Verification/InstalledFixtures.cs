@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -29,6 +30,12 @@ internal static class InstalledFixtures
 
     /// <summary>The installation's cartridge bytes Samus's glitch paths read.</summary>
     internal static SamusOverreadCatalog SamusOverreads => samusOverreads.Value;
+
+    /// <summary>The installation's starting and common sprite colours, loaded once.</summary>
+    private static readonly Lazy<GameplayBasePaletteCatalog> gameplayBasePalettes = new(() => RepositoryInstallation.Installation.LoadGameplayBasePalettes());
+
+    /// <summary>The installation's starting and common sprite colours.</summary>
+    internal static GameplayBasePaletteCatalog GameplayBasePalettes => gameplayBasePalettes.Value;
 
     /// <summary>Lazy stock character, palette, metatile, and visual-layout catalogs.</summary>
     private static readonly Lazy<RoomAssetCatalogs> roomAssets = new(() => new RoomAssetCatalogs(

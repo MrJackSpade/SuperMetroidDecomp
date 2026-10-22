@@ -11,11 +11,11 @@ public static class EscapeTimerRenderer
 {
     /// <summary>Draws "TIME mm:ss:cc" using the timer's current fixed-point position.</summary>
     public static void Draw(EscapeTimer timer, SpriteFrameBuffer sprites,
-        EscapeTimerPresentation presentation, SpriteArtwork artwork)
+        EscapeTimerPresentation presentation, SpriteSheet sheet)
     {
         Ensure.NotNull(timer);
         Ensure.NotNull(sprites);
         Ensure.NotNull(presentation);
-        presentation.Draw(timer, sprites, artwork);
+        presentation.Draw(timer, sprites, sheet);
     }
 }

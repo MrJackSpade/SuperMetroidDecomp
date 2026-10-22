@@ -156,6 +156,9 @@ internal interface IGameplayArtwork
     /// <summary>The cartridge bytes Samus's glitch paths read, extracted from the player's cartridge.</summary>
     SamusOverreadCatalog? SamusOverreads { get; }
 
+    /// <summary>The pre-coloured sprite sheets drawn families select their frames from.</summary>
+    InstalledSpriteSheets? SpriteSheets { get; }
+
     /// <summary>Charge-flare placement.</summary>
     ChargeFlarePlacementCatalog? ChargeFlarePlacement { get; }
 

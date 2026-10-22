@@ -1,12 +1,9 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -21,14 +18,6 @@ internal static class SamusBodySheetComposer
     /// <summary>The animation frames an index can name: the animation frame is a byte.</summary>
     private const int AnimationFrames = 256;
 
-    /// <summary>The Power Suit's place in the suit colour tables.</summary>
-    private const ushort PowerSuit = 0;
-
-    /// <summary>CGRAM's first sprite colour.</summary>
-    private const int SpriteColours = 128;
-
-    /// <summary>Composes one body sheet.</summary>
-    internal static ComposedSpriteSheet Compose(SamusSheetInputs inputs, SpriteSheetId sheet) => SpriteSheetComposer.Compose(Sources(inputs, sheet), 0, 0);
 
     /// <summary>What one body sheet composes.</summary>
     internal static SpriteSheetSources Sources(SamusSheetInputs inputs, SpriteSheetId sheet)
@@ -45,10 +34,7 @@ internal static class SamusBodySheetComposer
                     inputs.StandardObjects, characters, 0);
             frames.Add(new(key.Name, frame, characters));
         }
-        SnesCgram cgram = inputs.RoomLoadColours();
-        inputs.SuitColors.Apply(cgram, PowerSuit);
-        SamusProjectileSystem.LoadBeamPalette(cgram, SamusBeamCombination.Power, inputs.Projectiles.BeamTiles.Palettes);
-        return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray());
+        return new SpriteSheetSources(frames, inputs.SuitedColours());
     }
 
     /// <summary>The names of the frames a body sheet holds.</summary>

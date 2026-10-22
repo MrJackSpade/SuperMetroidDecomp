@@ -45,12 +45,7 @@ internal static class SheetFrameSources
         SamusSheetInputs inputs = SamusSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory);
         foreach (SpriteSheetId id in SpriteSheetDefinitions.Sheets.Where(id => id != SpriteSheetId.EscapeTimer))
         {
-            SpriteSheetSources composed = id switch
-            {
-                SpriteSheetId.Grapple => GrappleSheetComposer.Sources(inputs),
-                SpriteSheetId.SamusBodyTop or SpriteSheetId.SamusBodyBottom => SamusBodySheetComposer.Sources(inputs, id),
-                _ => ProjectileSheetComposer.Sources(inputs, id),
-            };
+            SpriteSheetSources composed = SamusSheetSources.For(inputs, id);
             SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(id);
             // Every empty frame shows nothing, so the first of those that share a key stands for all of them.
             foreach (SheetFrameSource frame in composed.Frames)

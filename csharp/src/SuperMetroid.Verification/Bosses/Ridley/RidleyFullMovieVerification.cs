@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.PipeBugs;
@@ -1043,8 +1044,8 @@ internal static class RidleyFullMovieVerification
                             memory.Slice(NativeSnapshotMemory.OamHigh, 32), nativeCannon),
                             $"update {frame}: native OAM contains reference cannon sprite");
                     // The normalized draw is observed through its outputs: the OAM image of the port's frame must
-                    // hold the reference sprite (position and attributes), and the cover draw must bind the cover
-                    // tile the reference uploads.
+                    // hold the reference sprite (position and attributes), and the cover draw must show the frame
+                    // composed over the cover tile the reference uploads.
                     var cannon = RidleyNativeCannonDraw(bus, memory, invincibleAtDraw, checked((ushort)runtime.Clock.Counter));
                     OamBuffer portImage = runtime.Sprites.FinalizedAsOam();
                     if (cannon.SpriteWritten)
@@ -1054,7 +1055,8 @@ internal static class RidleyFullMovieVerification
                         .Where(draw => draw.Source.Kind == SpriteSourceKind.SamusArmCannon)];
                     AssertEqual(cannon.SpriteWritten ? 1 : 0, covers.Length, $"update {frame}: cannon draw count");
                     if (cannon.SpriteWritten && cannon.TileUploadQueued)
-                        AssertEqual(SamusArmCannonArtworkFormat.CoverTileDmaSources.IndexOf(cannon.TileSource), covers[0].Artwork.Id.Variant,
+                        AssertEqual(SamusArmCannonArtworkFormat.CoverTileDmaSources.IndexOf(cannon.TileSource),
+                            SheetFrameSources.CharacterDraw((ImageSpriteDraw)covers[0]).Artwork.Id.Variant,
                             $"update {frame}: cannon draw binds the reference cover tile");
                 }
                 Check("Cannon flags", SnesLittleEndian.Word(checked((byte)samus.ArmCannon.OpenFlag), checked((byte)samus.ArmCannon.CloseFlag)), NativeSnapshotMemory.CannonFlags);

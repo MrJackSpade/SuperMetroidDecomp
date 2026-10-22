@@ -17,20 +17,8 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 internal static class ProjectileSheetComposer
 {
-    /// <summary>The OBJ palette row of parts that do not choose their own, as the cartridge's projectile draws leave it.</summary>
-    private const int DefaultPalette = 0;
-
-    /// <summary>The priority of parts that do not choose their own, as the cartridge's projectile draws leave it.</summary>
-    private const int DefaultPriority = 0;
-
     /// <summary>CGRAM's first sprite colour.</summary>
     private const int SpriteColours = 128;
-
-    /// <summary>Composes one projectile sheet.</summary>
-    /// <param name="inputs">The installed stock artwork the sheet composes from.</param>
-    /// <param name="sheet">A projectile sheet.</param>
-    internal static ComposedSpriteSheet Compose(SamusSheetInputs inputs, SpriteSheetId sheet) =>
-        SpriteSheetComposer.Compose(Sources(inputs, sheet), DefaultPalette, DefaultPriority);
 
     /// <summary>What one projectile sheet composes: its named frames over the context's OBJ page, and the sprite rows' colours.</summary>
     /// <param name="inputs">The installed stock artwork the sheet composes from.</param>

@@ -545,7 +545,7 @@ internal static void VerifySamusArmCannon()
 
     samus.Presentation.TileTransfers.BindBodyFixture(InstalledFixtures.SamusBody);
     samus.Presentation.TileTransfers.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
-    samus.ArmCannon.Artwork = artwork;
+    samus.BindArmCannonFixture(artwork);
 
     // The HUD producer requires two identical samples. Merely changing selection sets the
     // native toggle word to one; only the following stable frame is allowed to transition.
@@ -606,8 +606,8 @@ internal static void VerifySamusArmCannon()
     AssertEqual(2, cover.Priority, "direction two attributes select cover OAM priority");
     AssertTrue(!cover.FlipX && !cover.FlipY, "direction two attributes leave cover unflipped");
     AssertTrue(!cover.IsLarge, "arm-cannon cover is a small OBJ");
-    // Natively the third cover tile ($9A:9E00) is uploaded to tile $1F; the draw binds that tile directly.
-    SpriteArtwork coverTile = coverFrame.Draws[0].Artwork;
+    // Natively the third cover tile ($9A:9E00) is uploaded to tile $1F; the draw shows the sheet frame composed over it.
+    SpriteArtwork coverTile = SheetFrameSources.CharacterDraw((ImageSpriteDraw)coverFrame.Draws[0]).Artwork;
     AssertEqual(new SpriteArtworkId(SpriteArtworkKind.SamusArmCannonCover,
             SamusArmCannonArtworkFormat.TileSourcePointers.IndexOf(0x9e00)), coverTile.Id,
         "pose record selects direction two, whose frame three binds the third cover tile");

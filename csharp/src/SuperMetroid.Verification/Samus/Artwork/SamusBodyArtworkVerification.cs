@@ -478,9 +478,9 @@ internal static class SamusBodyArtworkVerification
             editedArmOam.GetEntry(0).Position.X,
             "edited arm-cannon pose offset moves the production OAM entry on screen");
         AssertEqual(SamusArmCannonArtworkFormat.TileSourcePointers.IndexOf(unchecked(selectedArmTileSource)),
-            editedArmFrame.Draws[0].Artwork.Id.Variant,
+            SheetFrameSources.CharacterDraw((ImageSpriteDraw)editedArmFrame.Draws[0]).Artwork.Id.Variant,
             "edited cannon PNG belongs to the displayed cover frame");
-        AssertEqual(originalArmFrame.Draws[0].Artwork.Id, editedArmFrame.Draws[0].Artwork.Id,
+        AssertEqual(SheetFrameSources.CharacterDraw((ImageSpriteDraw)originalArmFrame.Draws[0]).Artwork.Id, SheetFrameSources.CharacterDraw((ImageSpriteDraw)editedArmFrame.Draws[0]).Artwork.Id,
             "cosmetic cover edits keep the displayed cover frame's identity");
         AssertTrue(!replacement.TopSet(0)[0].Planar.Span.SequenceEqual(stock.TopSet(0)[0].Planar.Span),
             "Samus body PNG override changes compiled tile bytes");
@@ -686,10 +686,10 @@ internal static class SamusBodyArtworkVerification
         };
         // The imported bytes above are the independent stock oracle. Both runtime
         // owners must now receive the installed catalog; no ROM fallback remains.
-        nativeSamus.ArmCannon.Artwork = armCannon;
-        installedSamus.ArmCannon.Artwork = armCannon;
         nativeSamus.Presentation.TileTransfers.BindBodyFixture(body);
         installedSamus.Presentation.TileTransfers.BindBodyFixture(body);
+        nativeSamus.BindArmCannonFixture(armCannon);
+        installedSamus.BindArmCannonFixture(armCannon);
         for (int frame = 0; frame < 4; frame++)
         {
             SamusArmCannonUpdateResult native = nativeSamus.ArmCannon.Update(nativeSamus);
@@ -706,8 +706,9 @@ internal static class SamusBodyArtworkVerification
             installedFrame, installedSamus, Position16<RoomPixels>.Zero, 0);
         AssertTrue(nativeFrame.FinalizeAsOam().LowTable.SequenceEqual(installedFrame.FinalizeAsOam().LowTable),
             "installed arm-cannon cover draws identical visible OAM");
-        AssertEqual(nativeFrame.Draws[0].Artwork.Id, installedFrame.Draws[0].Artwork.Id,
-            "installed arm-cannon cover binds the native cover character");
+        AssertEqual(SheetFrameSources.CharacterDraw((ImageSpriteDraw)nativeFrame.Draws[0]).Artwork.Id,
+            SheetFrameSources.CharacterDraw((ImageSpriteDraw)installedFrame.Draws[0]).Artwork.Id,
+            "installed arm-cannon cover shows the frame composed over the native cover character");
         Console.WriteLine("Arm-cannon artwork: 253 pose pointers, drawing bytes, ten direction selectors and twelve PNG tiles match retail; guarded cover draw and binding parity pass.");
     }
 

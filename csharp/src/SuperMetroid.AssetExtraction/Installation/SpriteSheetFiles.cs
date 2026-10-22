@@ -105,9 +105,7 @@ public static class SpriteSheetFiles
     private static ComposedSpriteSheet Compose(ISnesAddressSpace bus, SamusSheetInputs samus, SpriteSheetId sheet) => sheet switch
     {
         SpriteSheetId.EscapeTimer => EscapeTimerSheetComposer.Compose(bus),
-        SpriteSheetId.Grapple => GrappleSheetComposer.Compose(samus),
-        SpriteSheetId.SamusBodyTop or SpriteSheetId.SamusBodyBottom => SamusBodySheetComposer.Compose(samus, sheet),
-        _ => ProjectileSheetComposer.Compose(samus, sheet),
+        _ => SamusSheetSources.Compose(samus, sheet),
     };
 
     /// <summary>The frames a sheet must hold: the ones its family draws.</summary>
@@ -118,6 +116,7 @@ public static class SpriteSheetFiles
         SpriteSheetId.EscapeTimer => EscapeTimerPresentationDefinitions.Glyphs.Select(EscapeTimerPresentationDefinitions.FrameName),
         SpriteSheetId.Grapple => GrappleSheetDefinitions.Frames,
         SpriteSheetId.SamusBodyTop or SpriteSheetId.SamusBodyBottom => SamusBodySheetComposer.FrameNames(body.Value, sheet),
+        SpriteSheetId.SamusOverlays => SamusOverlaySheetDefinitions.Frames,
         _ => ProjectileSheetDefinitions.Frames,
     };
 

@@ -13,6 +13,7 @@ public static class SpriteSheetDefinitions
         SpriteSheetId.Grapple => "grapple",
         SpriteSheetId.SamusBodyTop => "samus-body-top",
         SpriteSheetId.SamusBodyBottom => "samus-body-bottom",
+        SpriteSheetId.SamusOverlays => "samus-overlays",
         SpriteSheetId.IntroProjectiles => "intro-projectiles",
         SpriteSheetId.ProjectilesPower => "projectiles-power",
         SpriteSheetId.ProjectilesWave => "projectiles-wave",

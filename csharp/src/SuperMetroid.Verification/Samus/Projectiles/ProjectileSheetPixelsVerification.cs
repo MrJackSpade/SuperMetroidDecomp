@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
@@ -30,14 +29,9 @@ internal static class ProjectileSheetPixelsVerification
         int frames = 0;
         SamusSheetInputs inputs = SamusSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory);
         foreach (SpriteSheetId id in new[] { SpriteSheetId.ProjectilesPower, SpriteSheetId.ProjectilesSpazerPlasmaIce, SpriteSheetId.IntroProjectiles,
-            SpriteSheetId.Grapple, SpriteSheetId.SamusBodyTop, SpriteSheetId.SamusBodyBottom })
+            SpriteSheetId.Grapple, SpriteSheetId.SamusBodyTop, SpriteSheetId.SamusBodyBottom, SpriteSheetId.SamusOverlays })
         {
-            SpriteSheetSources sources = id switch
-            {
-                SpriteSheetId.Grapple => GrappleSheetComposer.Sources(inputs),
-                SpriteSheetId.SamusBodyTop or SpriteSheetId.SamusBodyBottom => SamusBodySheetComposer.Sources(inputs, id),
-                _ => ProjectileSheetComposer.Sources(inputs, id),
-            };
+            SpriteSheetSources sources = SamusSheetSources.For(inputs, id);
             SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(id);
             // The standard colours show the image; altered colours, as under a palette effect, show its palette indices.
             foreach (bool altered in new[] { false, true })

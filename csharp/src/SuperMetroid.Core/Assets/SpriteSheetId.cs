@@ -11,6 +11,8 @@ public enum SpriteSheetId
     SamusBodyTop,
     /// <summary>Samus's body frames that show only the bottom half's characters.</summary>
     SamusBodyBottom,
+    /// <summary>The arm cannon's covers and the chest cover drawn over Samus's body.</summary>
+    SamusOverlays,
     /// <summary>Samus's projectiles, bombs, charge flare and trails as the intro's flashbacks draw them.</summary>
     IntroProjectiles,
     /// <summary>Samus's projectiles, bombs, charge flare and trails with the power beam equipped.</summary>

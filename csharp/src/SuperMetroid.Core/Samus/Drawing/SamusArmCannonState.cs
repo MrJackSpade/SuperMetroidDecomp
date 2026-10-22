@@ -135,19 +135,16 @@ public sealed class SamusArmCannonState
         short screenY = unchecked((short)(
             samus.Position.Y.Whole + yOffset - graphicsYOffset - layer1.Y));
         bool spriteWritten = screenX >= 0 && screenX < 256 && screenY >= 0 && screenY < 256;
-        SamusArmCannonArtworkCatalog artwork = Artwork ?? throw new InvalidOperationException(
-            "Arm cannon requires installed artwork.");
-        ushort attributes = artwork.SpriteAttributes(selector);
         if (spriteWritten)
         {
             // Selector -> one of four orientation lists -> current cover frame. Natively `$90:C7DF` uploads that
-            // character to tile $1F, which the sprite names; the draw binds the selected cover directly. Frame zero,
-            // the null entry, returned above.
-            var cover = new SnesObjAttributeWord(attributes);
-            sprites.Add(new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.SamusArmCannon),
-                ObjPartFrames.SmallObject(cover, cover.TileNumber), artwork.CoverTile(selector, Frame),
-                new Position16<ScreenPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)),
-                SnesTileFlipFlags.None, (byte)cover.PaletteIndex, (byte)cover.Priority));
+            // character to the tile the sprite names; the sheet frame is that cover as the sprite shows it. Frame
+            // zero, the null entry, returned above.
+            InstalledSpriteSheets sheets = samus.Presentation.TileTransfers.Sheets ?? throw new InvalidOperationException(
+                "Arm cannon requires the installed sprite sheets.");
+            sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusArmCannon),
+                sheets.Get(SpriteSheetId.SamusOverlays).Frame(SamusOverlaySheetDefinitions.ArmCannonFrame(selector, Frame)),
+                new Position16<ScreenPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)), SpriteMirror.None));
         }
 
         return new SamusArmCannonDrawResult();

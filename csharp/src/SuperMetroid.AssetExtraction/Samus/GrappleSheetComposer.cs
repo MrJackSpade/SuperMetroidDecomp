@@ -26,9 +26,6 @@ internal static class GrappleSheetComposer
     /// <summary>The attribute-word bits that mirror a sprite horizontally and vertically.</summary>
     private const ushort HorizontalFlip = 0x4000, VerticalFlip = 0x8000;
 
-    /// <summary>Composes the grapple sheet.</summary>
-    internal static ComposedSpriteSheet Compose(SamusSheetInputs inputs) => SpriteSheetComposer.Compose(Sources(inputs), 0, 0);
-
     /// <summary>What the grapple sheet composes.</summary>
     /// <exception cref="InvalidDataException">The endpoint names a rope character, or a rope segment the endpoint's.</exception>
     internal static SpriteSheetSources Sources(SamusSheetInputs inputs)

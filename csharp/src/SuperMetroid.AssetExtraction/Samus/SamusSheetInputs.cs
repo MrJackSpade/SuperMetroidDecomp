@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Assets;
@@ -63,12 +64,5 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
     }
 
     /// <summary>CGRAM as a room load leaves it: the starting image with the common and enemy-projectile sprite rows.</summary>
-    internal SnesCgram RoomLoadColours()
-    {
-        var cgram = new SnesCgram();
-        Palettes.LoadInitial(cgram);
-        Palettes.LoadCommonSprites(cgram, RoomLoadingRomData.CommonGameplaySpritePaletteCgramIndex);
-        Palettes.LoadEnemyProjectileSprites(cgram, RoomLoadingRomData.InitialEnemyProjectilePaletteCgramIndex);
-        return cgram;
-    }
+    internal SnesCgram RoomLoadColours() => RoomLoadPalettes.Cgram(Palettes);
 }

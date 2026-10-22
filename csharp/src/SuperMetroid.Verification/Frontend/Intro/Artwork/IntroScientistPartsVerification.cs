@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Assets;
@@ -84,7 +85,7 @@ internal static class IntroScientistPartsVerification
                 json.Position = 0;
                 var presentation = IntroCaretSpritePresentation.Load(json);
                 var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
-                presentation.Draw(pose, actual, new(120, 72), 0x0c00);
+                CinematicSheetFixtures.Drawer(presentation).Draw(pose, actual, new(120, 72), 0x0c00);
                 actual.FinalizeFrame();
                 AssertTrue(expected.ImageEquals(actual)
                     && expected.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount,

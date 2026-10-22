@@ -4,10 +4,16 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Editable visible OAM composition of the intro caret, independent of its blink script.</summary>
-public sealed class IntroCaretSpritePresentation
+public sealed class IntroCaretSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Compiled visible composition keyed by its native bank-$8C frame pose.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
+
+    /// <inheritdoc/>
+    CinematicSpriteFamily ICinematicSpriteFrames.Family => CinematicSpriteFamily.IntroCaret;
+
+    /// <inheritdoc/>
+    IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> ICinematicSpriteFrames.Frames => frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
     public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(IntroCaretSpritePresentation), frames);
@@ -15,18 +21,6 @@ public sealed class IntroCaretSpritePresentation
     /// <summary>Retains the validated visible-frame lookup from either supported schema.</summary>
     private IntroCaretSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;
-
-    /// <summary>Appends the installed visible caret composition to screen-space OAM; a missing frame is rejected, and blink visibility must be handled by the cinematic script rather than by this draw call.</summary>
-    /// <param name="pose">Bank-$8C spritemap identity; the installed visible caret is <c>$8D68</c>, while zero denotes script-controlled invisibility and is not a drawable frame.</param>
-    /// <param name="objects">Destination OAM buffer, preserving the authored order of sprite parts.</param>
-    /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
-    /// <param name="paletteBits">Encoded OBJ palette bits applied only to parts whose palette is inherited rather than explicitly authored.</param>
-    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<OamPixels> origin, ushort paletteBits)
-    {
-        if (!frames.TryGetValue(pose, out SpriteComposition? frame))
-            throw new InvalidDataException($"Opening caret frame for pose {pose.Index} is not installed.");
-        frame.Draw(objects, origin, paletteBits);
-    }
 
     /// <summary>Loads and validates the visible caret's OAM composition, rejecting duplicate properties, unsupported schemas, missing frame names, and invalid sprite parts; version-one documents retain only their <c>caret-still</c> composition.</summary>
     /// <param name="json">UTF-8 JSON stream containing the current one-frame schema or the supported four-name legacy schema.</param>

@@ -172,7 +172,7 @@ internal static class InstalledFixtures
             NarrationPresentation = Maps.IntroNarration,
         };
         intro.BindSamusHurtColors(Maps.SamusHurtColors);
-        intro.BindSpriteSheets(SpriteSheets);
+        intro.BindSpriteSheets(CinematicSheetFixtures.WithIntro(characterArtwork ?? IntroArtwork));
         return intro;
     }
 

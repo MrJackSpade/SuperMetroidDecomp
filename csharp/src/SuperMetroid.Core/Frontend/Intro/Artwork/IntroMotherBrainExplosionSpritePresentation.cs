@@ -4,10 +4,16 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Editable explosion OAM art, independent of native placement and timing.</summary>
-public sealed class IntroMotherBrainExplosionSpritePresentation
+public sealed class IntroMotherBrainExplosionSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Validated fourth-hit compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
+
+    /// <inheritdoc/>
+    CinematicSpriteFamily ICinematicSpriteFrames.Family => CinematicSpriteFamily.IntroMotherBrainExplosion;
+
+    /// <inheritdoc/>
+    IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> ICinematicSpriteFrames.Frames => frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
     public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(IntroMotherBrainExplosionSpritePresentation), frames);
@@ -15,19 +21,6 @@ public sealed class IntroMotherBrainExplosionSpritePresentation
     /// <summary>Retains the validated twelve-frame selection after JSON compilation.</summary>
     private IntroMotherBrainExplosionSpritePresentation(
         Dictionary<CinematicSpritePose, SpriteComposition> frames) => this.frames = frames;
-
-    /// <summary>Draws one installed small- or large-explosion composition at its script-owned screen anchor.</summary>
-    /// <param name="pose">The cinematic pose whose composition to draw.</param>
-    /// <param name="objects">The OAM buffer receiving the ordered sprite parts.</param>
-    /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
-    /// <param name="paletteBits">OBJ palette attribute bits applied to inherited-palette parts.</param>
-    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<OamPixels> origin, ushort paletteBits)
-    {
-        if (!frames.TryGetValue(pose, out SpriteComposition? frame))
-            throw new InvalidDataException(
-                $"Intro Mother Brain explosion frame for pose {pose.Index} is not installed.");
-        frame.Draw(objects, origin, paletteBits);
-    }
 
     /// <summary>Loads and validates all six small and six large fourth-hit explosion frames.</summary>
     /// <param name="json">The caller-owned stream containing the editable sprite document.</param>

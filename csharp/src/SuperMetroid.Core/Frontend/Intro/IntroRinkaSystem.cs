@@ -79,7 +79,7 @@ internal sealed class IntroRinkaSystem
 
     /// <summary>Adds each visible Rinka in the native descending slot order.</summary>
     public void Draw(ScreenSprites objects,
-        IntroRinkaSpritePresentation? installedArt = null)
+        IIntroCinematicSpritePresentation? installedArt = null)
     {
         for (int slot = SpawnerSlot; slot >= LowestSlot; slot--)
         {

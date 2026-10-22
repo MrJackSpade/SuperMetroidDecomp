@@ -63,6 +63,11 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>The installed sheets the flashbacks' Samus draws from.</summary>
     [NonSerialized] private InstalledSpriteSheets? spriteSheets;
 
+    /// <summary>Draws <paramref name="family"/>'s frames from the intro sheet.</summary>
+    private CinematicSpriteSheet IntroSprites(CinematicSpriteFamily family) =>
+        new((spriteSheets ?? throw new InvalidOperationException("Intro sprites require the installed sprite sheets."))
+            .Get(SpriteSheetId.IntroSprites), family);
+
     /// <summary>The intro's projectile sheet, which the flashbacks' projectiles, bombs and trails draw from.</summary>
     [NonSerialized] private ProjectileSheets? projectileSheets;
 
@@ -1188,18 +1193,15 @@ level, samus, NmiFrameWord(elapsedUpdates));
             flashbackProjectiles.DrawTrails(sprites, Position16<RoomPixels>.Zero, projectileArtwork);
             flashbackProjectiles.DrawExplosions(sprites, Position16<RoomPixels>.Zero, projectileArtwork);
         }
-        FlashbackRinkas?.Draw(objectSprites, characterArtwork?.RinkaSprites);
-        FlashbackMotherBrainExplosions?.Draw(objectSprites,
-            (characterArtwork ?? throw new InvalidOperationException(
-                "Intro Mother Brain explosions require installed character artwork.")).MotherBrainExplosionSprites);
+        FlashbackRinkas?.Draw(objectSprites, IntroSprites(CinematicSpriteFamily.IntroRinka));
+        FlashbackMotherBrainExplosions?.Draw(objectSprites, IntroSprites(CinematicSpriteFamily.IntroMotherBrainExplosion));
         // The blank pose draws nothing.
         if (FlashbackMotherBrain.IsVisible && FlashbackMotherBrain.Pose is { } motherBrainPose &&
             motherBrainPose != CinematicSpritePose.Blank)
         {
             // cinematic_var15=$FFFF makes DrawIntroSprites draw Samus first and cinematic
             // actors afterward. Retaining that OAM insertion order preserves overlap wins.
-            (characterArtwork ?? throw new InvalidOperationException(
-                "Intro Mother Brain sprites require installed character artwork.")).MotherBrainSprites.Draw(
+            IntroSprites(CinematicSpriteFamily.IntroMotherBrain).Draw(
                 motherBrainPose, objectSprites,
                 IntroMotherBrainSpriteState.Position.ToOam(),
                 IntroMotherBrainSpriteState.PaletteBits);
@@ -1222,8 +1224,8 @@ level, samus, NmiFrameWord(elapsedUpdates));
         if (display == IntroSamusDisplay.SamusFirst)
             DrawBabyDiscoverySamus(sprites);
         objectSprites.BeginFrame();
-        BabyDiscovery.DrawActors(objectSprites, characterArtwork?.EggEffectSprites,
-            characterArtwork?.DiscoveryActorSprites);
+        BabyDiscovery.DrawActors(objectSprites, IntroSprites(CinematicSpriteFamily.IntroEggEffect),
+            IntroSprites(CinematicSpriteFamily.IntroDiscoveryActor));
         objectSprites.FinishFrame();
         foreach (SpriteDraw draw in objectSprites.Draws)
             sprites.Add(draw);
@@ -1249,7 +1251,7 @@ level, samus, NmiFrameWord(elapsedUpdates));
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
         objectSprites.BeginFrame();
-        ScientistCutscene.Draw(objectSprites, characterArtwork?.ScientistSprites);
+        ScientistCutscene.Draw(objectSprites, IntroSprites(CinematicSpriteFamily.IntroScientist));
         objectSprites.FinishFrame();
         foreach (SpriteDraw draw in objectSprites.Draws)
             sprites.Add(draw);
@@ -1270,8 +1272,7 @@ level, samus, NmiFrameWord(elapsedUpdates));
             // crossfades, and is restored when the next narration page starts.
             // OBSEL=$03 selects word $6000 as the OBJ character base, matching the
             // initial $9A:D200 -> VMADD $6000 DMA.
-            (characterArtwork ?? throw new InvalidOperationException(
-                "Intro caret sprites require installed character artwork.")).CaretSprites.Draw(
+            IntroSprites(CinematicSpriteFamily.IntroCaret).Draw(
                 caretPose, objectSprites, Objects.Caret.ToOam(),
                 IntroCinematicRomData.Objects.ScientistPalette.Raw);
         }

@@ -22,6 +22,7 @@ public static class SpriteSheetDefinitions
         SpriteSheetId.MapSprites => "map-sprites",
         SpriteSheetId.PauseSprites => "pause-sprites",
         SpriteSheetId.Title => "title",
+        SpriteSheetId.IntroSprites => "intro-sprites",
         SpriteSheetId.IntroProjectiles => "intro-projectiles",
         SpriteSheetId.ProjectilesPower => "projectiles-power",
         SpriteSheetId.ProjectilesWave => "projectiles-wave",

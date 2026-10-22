@@ -4,10 +4,16 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Editable egg-fragment and slime OAM art, without physical motion rules.</summary>
-public sealed class IntroEggEffectSpritePresentation : IIntroCinematicSpritePresentation
+public sealed class IntroEggEffectSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Compiled shell and slime OAM compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
+
+    /// <inheritdoc/>
+    CinematicSpriteFamily ICinematicSpriteFrames.Family => CinematicSpriteFamily.IntroEggEffect;
+
+    /// <inheritdoc/>
+    IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> ICinematicSpriteFrames.Frames => frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
     public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(IntroEggEffectSpritePresentation), frames);
@@ -15,17 +21,6 @@ public sealed class IntroEggEffectSpritePresentation : IIntroCinematicSpritePres
     /// <summary>Retains the validated eleven-frame set after authoring arrays have been copied.</summary>
     private IntroEggEffectSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;
-
-    /// <summary>Appends an installed shell-fragment or slime composition to OAM without advancing the actor's motion or animation.</summary>
-    /// <param name="pose">The cinematic pose whose composition to draw.</param>
-    /// <param name="objects">Destination object-attribute buffer; parts retain their authored draw order.</param>
-    /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
-    /// <param name="paletteBits">Drawing actor's OBJ palette bits, used only by parts whose palette is inherited.</param>
-    /// <param name="originIsOnScreen">Whether to use the ordinary origin clipping path; false preserves the negative-origin Y-wrap clipping used by cinematic sprites.</param>
-    /// <exception cref="InvalidDataException">The requested frame identity is not installed.</exception>
-    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<OamPixels> origin,
-        ushort paletteBits, bool originIsOnScreen) =>
-        CinematicSpriteArtwork.DrawInstalled(frames, "Intro egg effect", pose, objects, origin, paletteBits, originIsOnScreen);
 
     /// <summary>Validates and compiles all eleven named egg-effect frames from editable JSON into independently owned visual compositions.</summary>
     /// <param name="json">Readable JSON stream at its current position; the caller retains ownership and it is left open.</param>

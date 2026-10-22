@@ -27,9 +27,10 @@ internal static class SpriteSheetFilesVerification
         {
             string stock = Path.Combine(scratch.FullName, "stock");
             string overrides = Path.Combine(scratch.FullName, "overrides");
-            // The body sheets are named from the body tables installed beside them, and the pause sheet from the menus'
-            // selector presentation.
-            foreach (string beside in new[] { GameInstallationLayout.SamusBodyDirectoryName, GameInstallationLayout.MapDirectoryName })
+            // The body sheets are named from the body tables installed beside them, the pause sheet from the menus'
+            // selector presentation and the intro sheet from the intro's compositions.
+            foreach (string beside in new[] { GameInstallationLayout.SamusBodyDirectoryName, GameInstallationLayout.MapDirectoryName,
+                         GameInstallationLayout.IntroCinematicDirectoryName })
                 CopyDirectory(Path.Combine(RepositoryInstallation.Installation.ContentDirectory, beside), Path.Combine(scratch.FullName, beside));
             SpriteSheetFiles.Extract(bus, RepositoryInstallation.Installation.ContentDirectory, stock, SupportedCartridge.Sha256);
             InstalledSpriteSheets installed = SpriteSheetFiles.Load(stock, null);

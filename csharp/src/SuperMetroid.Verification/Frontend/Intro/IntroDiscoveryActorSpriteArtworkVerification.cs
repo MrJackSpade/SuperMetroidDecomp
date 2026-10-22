@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Tooling;
 using System.Text.Json;
@@ -42,7 +43,7 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
-                stock.DiscoveryActorSprites.Draw(definition.Pose, installed, new(x, y),
+                CinematicSheetFixtures.Drawer(stock.DiscoveryActorSprites).Draw(definition.Pose, installed, new(x, y),
                     palette, onScreen);
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&
@@ -84,7 +85,7 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
         Rgba32[] editedPixels = editedState.RenderBabyDiscovery();
         AssertTrue(!stockPixels.SequenceEqual(editedPixels),
             "egg visual override changes visible production discovery pixels");
-        stockState.BindCharacterArtwork(edited);
+        stockState.BindFixtureIntroArtwork(edited);
         AssertTrue((stockState.RenderBabyDiscovery()).SequenceEqual(editedPixels),
             "restored discovery scene rebinds selected egg and baby visual compositions");
         AssertEqual(0, guarded.ForbiddenReadAttempts,

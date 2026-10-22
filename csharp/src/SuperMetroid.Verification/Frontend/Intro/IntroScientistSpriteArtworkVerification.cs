@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Tooling;
 using System.Text.Json;
@@ -41,7 +42,7 @@ internal static class IntroScientistSpriteArtworkVerification
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
-                stock.ScientistSprites.Draw(definition.Pose, installed, new(x, y),
+                CinematicSheetFixtures.Drawer(stock.ScientistSprites).Draw(definition.Pose, installed, new(x, y),
                     palette, onScreen);
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&
@@ -84,7 +85,7 @@ internal static class IntroScientistSpriteArtworkVerification
         Rgba32[] editedPixels = editedState.RenderScientistCutscene();
         AssertTrue(!stockPixels.SequenceEqual(editedPixels),
             "scientist sprite override changes visible delivery-scene pixels");
-        stockState.BindCharacterArtwork(edited);
+        stockState.BindFixtureIntroArtwork(edited);
         AssertTrue((stockState.RenderScientistCutscene()).SequenceEqual(editedPixels),
             "restored scientist scene rebinds selected baby artwork");
 
@@ -92,7 +93,7 @@ internal static class IntroScientistSpriteArtworkVerification
         examination.Step(0, introCrossfadeTimer: 0x007f);
         var installedExamination = ScreenSpritesFixtures.Blank();
         installedExamination.BeginFrame();
-        examination.Draw(installedExamination, stock.ScientistSprites);
+        examination.Draw(installedExamination, CinematicSheetFixtures.Drawer(stock.ScientistSprites));
         installedExamination.FinalizeFrame();
         var nativeExamination = new OamBuffer();
         nativeExamination.BeginFrame();

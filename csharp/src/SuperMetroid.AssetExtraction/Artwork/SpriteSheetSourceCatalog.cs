@@ -1,4 +1,6 @@
 using SuperMetroid.AssetExtraction.Frontend;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Assets;
@@ -17,6 +19,8 @@ internal sealed class SpriteSheetSourceCatalog
 
     /// <summary>The menus' presentation.</summary>
     private readonly Lazy<AreaMapPresentationCatalog> maps;
+    /// <summary>The opening cinematic's artwork.</summary>
+    private readonly Lazy<IntroCinematicArtworkCatalog> intro;
 
     /// <summary>Reads inputs from installed stock content.</summary>
     internal SpriteSheetSourceCatalog(string content)
@@ -24,6 +28,7 @@ internal sealed class SpriteSheetSourceCatalog
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
         samus = new(() => SamusSheetInputs.Load(content));
         maps = new(() => AreaMapPresentationCatalog.Load(Path.Combine(content, GameInstallationLayout.MapDirectoryName), null));
+        intro = new(() => IntroCinematicArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName), null));
     }
 
     /// <summary>The OBJ palette row and priority of parts that choose neither, as the families' draws leave them.</summary>
@@ -43,6 +48,7 @@ internal sealed class SpriteSheetSourceCatalog
         SpriteSheetId.MapSprites => MapSpriteSheetComposer.Sources(maps.Value),
         SpriteSheetId.PauseSprites => PauseSheetComposer.Sources(maps.Value),
         SpriteSheetId.Title => TitleSheetComposer.Sources(maps.Value),
+        SpriteSheetId.IntroSprites => IntroSpriteSheetComposer.Sources(intro.Value),
         _ => SamusSheetSources.For(samus.Value, sheet),
     };
 }

@@ -73,7 +73,7 @@ internal static class IntroProjectileArtworkVerification
         // This fixture isolates projectile/trail rebinding. Supply the other draw
         // dependencies through the restore path the game takes.
         intro.BindIntroFont(InstalledFixtures.Maps.IntroFont);
-        intro.BindCharacterArtwork(InstalledFixtures.IntroArtwork);
+        intro.BindFixtureIntroArtwork(InstalledFixtures.IntroArtwork);
         intro.BindSamusBodyArtwork(InstalledFixtures.SamusBody);
         intro.ProjectileFrameBindings = InstalledFixtures.Projectiles.FrameBindings;
     }

@@ -62,7 +62,7 @@ internal sealed class IntroEggParticle
 
     /// <summary>Draws the fragment's current cinematic pose using installed art when supplied.</summary>
     public void Draw(ScreenSprites objects,
-        IntroEggEffectSpritePresentation? installedArt = null) =>
+        IIntroCinematicSpritePresentation? installedArt = null) =>
         sprite.Draw(objects, installedArt: installedArt);
 
     /// <summary>Adds a compiled signed whole/fraction velocity to one axis without changing the other coordinate.</summary>

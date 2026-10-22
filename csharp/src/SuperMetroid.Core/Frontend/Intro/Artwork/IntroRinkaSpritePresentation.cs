@@ -4,10 +4,16 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Editable intro Rinka OAM art, without movement or hit behavior.</summary>
-public sealed class IntroRinkaSpritePresentation : IIntroCinematicSpritePresentation
+public sealed class IntroRinkaSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Three compiled OAM compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
+
+    /// <inheritdoc/>
+    CinematicSpriteFamily ICinematicSpriteFrames.Family => CinematicSpriteFamily.IntroRinka;
+
+    /// <inheritdoc/>
+    IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> ICinematicSpriteFrames.Frames => frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
     public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(IntroRinkaSpritePresentation), frames);
@@ -15,17 +21,6 @@ public sealed class IntroRinkaSpritePresentation : IIntroCinematicSpritePresenta
     /// <summary>Retains the validated frame lookup produced by the JSON compiler.</summary>
     private IntroRinkaSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;
-
-    /// <summary>Appends an installed intro Rinka composition to OAM without changing its actor's movement, hit behavior, or animation timing.</summary>
-    /// <param name="pose">The cinematic pose whose composition to draw.</param>
-    /// <param name="objects">Destination object-attribute buffer receiving the authored parts in their original order.</param>
-    /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
-    /// <param name="paletteBits">Actor's OBJ palette bits, used only for parts configured to inherit a palette.</param>
-    /// <param name="originIsOnScreen">Whether to use ordinary origin clipping; false selects the cinematic negative-origin Y-wrap clipping path.</param>
-    /// <exception cref="InvalidDataException">The requested frame identity is not installed.</exception>
-    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<OamPixels> origin,
-        ushort paletteBits, bool originIsOnScreen) =>
-        CinematicSpriteArtwork.DrawInstalled(frames, "Intro Rinka", pose, objects, origin, paletteBits, originIsOnScreen);
 
     /// <summary>Validates and compiles all three named intro Rinka frames into independently owned visual compositions.</summary>
     /// <param name="json">Readable JSON stream at its current position; it remains open and caller-owned.</param>

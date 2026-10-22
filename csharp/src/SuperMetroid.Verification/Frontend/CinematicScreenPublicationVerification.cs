@@ -82,7 +82,7 @@ internal static class CinematicScreenPublicationVerification
         byte[] image = intro.Image();
         var restoredIntro = RoundTrip(intro);
         restoredIntro.BindIntroFont(InstalledFixtures.Maps.IntroFont);
-        restoredIntro.BindCharacterArtwork(InstalledFixtures.IntroArtwork);
+        restoredIntro.BindFixtureIntroArtwork(InstalledFixtures.IntroArtwork);
         AssertTrue(image.AsSpan().SequenceEqual(restoredIntro.Image()), "a restored intro shows the same characters, blanked glyphs and tilemaps");
         AssertTrue(intro.palette.Colors.SequenceEqual(restoredIntro.palette.Colors), "a restored intro keeps its palette");
         Console.WriteLine("  Cinematic screens: the rear view shows its map, and the flight, destruction and intro survive a debugger round trip.");

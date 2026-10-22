@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -146,7 +147,7 @@ internal static class CeresFlightArtworkVerification
             var parent = CreateRetailIntroFixture(characterArtwork: IntroCinematicArtworkFiles.Load(
                     installation.IntroCinematicDirectory, null));
             parent.CurrentCeresFlight = restored;
-            parent.BindCharacterArtwork(installation.LoadIntroCinematicArt());
+            parent.BindFixtureIntroArtwork(installation.LoadIntroCinematicArt());
             AssertTrue(restored.CaptureRenderSnapshot().Memory.Vram.SequenceEqual(
                     ExpectedCeresFlightVram(edited, rear: true)),
                 $"restored rear view rebinds edited {name} with native map ordering");

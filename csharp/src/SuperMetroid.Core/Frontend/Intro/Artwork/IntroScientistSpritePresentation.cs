@@ -4,10 +4,16 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Editable baby-Metroid OAM art for the two scientist scenes only.</summary>
-public sealed class IntroScientistSpritePresentation : IIntroCinematicSpritePresentation
+public sealed class IntroScientistSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Validated baby-Metroid compositions keyed by bank-$8C spritemap identity.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
+
+    /// <inheritdoc/>
+    CinematicSpriteFamily ICinematicSpriteFrames.Family => CinematicSpriteFamily.IntroScientist;
+
+    /// <inheritdoc/>
+    IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> ICinematicSpriteFrames.Frames => frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
     public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(IntroScientistSpritePresentation), frames);
@@ -15,16 +21,6 @@ public sealed class IntroScientistSpritePresentation : IIntroCinematicSpritePres
     /// <summary>Retains the ten validated frames after JSON compilation.</summary>
     private IntroScientistSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;
-
-    /// <summary>Draws one installed baby-Metroid composition used by the two scientist scenes.</summary>
-    /// <param name="pose">The cinematic pose whose composition to draw.</param>
-    /// <param name="objects">The OAM buffer receiving the ordered sprite parts.</param>
-    /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
-    /// <param name="paletteBits">OBJ palette attribute bits applied to inherited-palette parts.</param>
-    /// <param name="originIsOnScreen">Whether the anchor is already in screen space rather than the off-screen cinematic space.</param>
-    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<OamPixels> origin,
-        ushort paletteBits, bool originIsOnScreen) =>
-        CinematicSpriteArtwork.DrawInstalled(frames, "Intro scientist baby", pose, objects, origin, paletteBits, originIsOnScreen);
 
     /// <summary>Loads and validates all ten baby-Metroid visual frames for the scientist scenes.</summary>
     /// <param name="json">The caller-owned stream containing the editable sprite document.</param>

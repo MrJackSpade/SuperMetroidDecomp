@@ -160,8 +160,8 @@ internal sealed class IntroBabyDiscoveryState
 
     /// <summary>Draws egg, baby, and hatch effects in the cinematic object order used by this scene.</summary>
     public void DrawActors(ScreenSprites objects,
-        IntroEggEffectSpritePresentation? eggEffectArt = null,
-        IntroDiscoveryActorSpritePresentation? actorArt = null)
+        IIntroCinematicSpritePresentation? eggEffectArt = null,
+        IIntroCinematicSpritePresentation? actorArt = null)
     {
         // IntroSamusDisplayFlag=+1 makes cinematic objects enter OAM before Samus. The egg
         // was spawned before the confused-baby object and retains its own list and timer.

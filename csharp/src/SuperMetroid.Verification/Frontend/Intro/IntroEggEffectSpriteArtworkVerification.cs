@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Tooling;
 using System.Text.Json;
@@ -44,7 +45,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
-                stock.EggEffectSprites.Draw(definition.Pose, installed, new(x, y),
+                CinematicSheetFixtures.Drawer(stock.EggEffectSprites).Draw(definition.Pose, installed, new(x, y),
                     palette, onScreen);
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&
@@ -71,7 +72,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
         fragment.Step();
         var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();
-        fragment.Draw(stockOam, stock.EggEffectSprites);
+        fragment.Draw(stockOam, CinematicSheetFixtures.Drawer(stock.EggEffectSprites));
         stockOam.FinalizeFrame();
         var nativeLiveOam = new OamBuffer();
         nativeLiveOam.BeginFrame();
@@ -81,7 +82,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
             "installed egg fragment preserves native live-actor OAM");
         var editedOam = ScreenSpritesFixtures.Blank();
         editedOam.BeginFrame();
-        fragment.Draw(editedOam, edited.EggEffectSprites);
+        fragment.Draw(editedOam, CinematicSheetFixtures.Drawer(edited.EggEffectSprites));
         editedOam.FinalizeFrame();
         AssertTrue(!stockOam.ImageEquals(editedOam) &&
                 stockOam.LowTable.Slice(0, 2).SequenceEqual(editedOam.LowTable.Slice(0, 2)),
@@ -93,7 +94,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
             slime.Step();
             var slimeOam = ScreenSpritesFixtures.Blank();
             slimeOam.BeginFrame();
-            slime.Draw(slimeOam, stock.EggEffectSprites);
+            slime.Draw(slimeOam, CinematicSheetFixtures.Drawer(stock.EggEffectSprites));
             slimeOam.FinalizeFrame();
         }
 
@@ -112,7 +113,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
         Rgba32[] editedPixels = editedState.RenderBabyDiscovery();
         AssertTrue(!stockPixels.SequenceEqual(editedPixels),
             "egg-fragment override changes visible production discovery pixels");
-        stockState.BindCharacterArtwork(edited);
+        stockState.BindFixtureIntroArtwork(edited);
         AssertTrue((stockState.RenderBabyDiscovery()).SequenceEqual(editedPixels),
             "restored egg-discovery scene rebinds the selected visual composition");
         AssertEqual(0, guarded.ForbiddenReadAttempts,

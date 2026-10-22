@@ -9,6 +9,8 @@ using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
@@ -58,10 +60,13 @@ public static class SpriteSheetFiles
         // The pause sheet is named from the stock selector presentation installed beside it.
         var maps = new Lazy<AreaMapPresentationCatalog>(() => AreaMapPresentationCatalog.Load(
             Path.Combine(content, GameInstallationLayout.MapDirectoryName), null));
+        // The intro sheet is named from the stock intro compositions installed beside it.
+        var intro = new Lazy<IntroCinematicArtworkCatalog>(() => IntroCinematicArtworkFiles.Load(
+            Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName), null));
         foreach (SpriteSheetId sheet in SpriteSheetDefinitions.Sheets)
         {
             SpriteSheet loaded = store.Read(SpriteSheetDefinitions.FileName(sheet));
-            if (!loaded.HoldsExactly(FrameNames(sheet, body, maps)))
+            if (!loaded.HoldsExactly(FrameNames(sheet, body, maps, intro)))
                 throw new InvalidDataException($"Sprite sheet {FrameFile(sheet)} does not hold exactly the frames its family draws.");
             sheets.Add(sheet, loaded);
         }
@@ -82,8 +87,9 @@ public static class SpriteSheetFiles
     /// <param name="sheet">The sheet.</param>
     /// <param name="body">Samus's body tables, which name the body sheets' frames.</param>
     /// <param name="maps">The menus' presentation, whose selector frames name the pause sheet's.</param>
+    /// <param name="intro">The opening cinematic's artwork, whose compositions name the intro sheet's frames.</param>
     internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, Lazy<SamusBodyArtworkCatalog> body,
-        Lazy<AreaMapPresentationCatalog> maps) => sheet switch
+        Lazy<AreaMapPresentationCatalog> maps, Lazy<IntroCinematicArtworkCatalog> intro) => sheet switch
     {
         SpriteSheetId.EscapeTimer => EscapeTimerPresentationDefinitions.Glyphs.Select(EscapeTimerPresentationDefinitions.FrameName),
         SpriteSheetId.Grapple => GrappleSheetDefinitions.Frames,
@@ -97,6 +103,7 @@ public static class SpriteSheetFiles
         SpriteSheetId.MapSprites => MapSpriteDefinitions.SheetFrames,
         SpriteSheetId.PauseSprites => PauseSheetComposer.FrameNames(maps.Value),
         SpriteSheetId.Title => TitleSpriteDefinitions.All.Select(TitleSpriteDefinitions.FrameName),
+        SpriteSheetId.IntroSprites => IntroSpriteSheetComposer.FrameNames(intro.Value),
         _ => ProjectileSheetDefinitions.Frames,
     };
 

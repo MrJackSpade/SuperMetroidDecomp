@@ -5,10 +5,16 @@ using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Editable SR388 egg and baby OAM art; animation and motion remain compiled.</summary>
-public sealed class IntroDiscoveryActorSpritePresentation : IIntroCinematicSpritePresentation
+public sealed class IntroDiscoveryActorSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Validated egg, remnant, and baby compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
+
+    /// <inheritdoc/>
+    CinematicSpriteFamily ICinematicSpriteFrames.Family => CinematicSpriteFamily.IntroDiscoveryActor;
+
+    /// <inheritdoc/>
+    IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> ICinematicSpriteFrames.Frames => frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
     public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(IntroDiscoveryActorSpritePresentation), frames);
@@ -16,16 +22,6 @@ public sealed class IntroDiscoveryActorSpritePresentation : IIntroCinematicSprit
     /// <summary>Retains the compiled twenty-frame selection after JSON validation.</summary>
     private IntroDiscoveryActorSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;
-
-    /// <summary>Draws one installed egg, remnant, confused-baby, or hatched-baby composition.</summary>
-    /// <param name="pose">The cinematic pose whose composition to draw.</param>
-    /// <param name="objects">The OAM buffer receiving the ordered sprite parts.</param>
-    /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
-    /// <param name="paletteBits">OBJ palette attribute bits applied to inherited-palette parts.</param>
-    /// <param name="originIsOnScreen">Whether the anchor is already in screen space rather than the off-screen cinematic space.</param>
-    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<OamPixels> origin,
-        ushort paletteBits, bool originIsOnScreen) =>
-        CinematicSpriteArtwork.DrawInstalled(frames, "Intro discovery actor", pose, objects, origin, paletteBits, originIsOnScreen);
 
     /// <summary>Loads and validates all sixteen egg/remnant and four baby visual frames.</summary>
     /// <param name="json">The caller-owned stream containing the editable sprite document.</param>

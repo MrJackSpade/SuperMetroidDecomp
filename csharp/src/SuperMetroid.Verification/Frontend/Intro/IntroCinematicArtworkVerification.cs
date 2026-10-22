@@ -180,7 +180,7 @@ internal static class IntroCinematicArtworkVerification
                 editedCgram.AsSpan(0, 1).SequenceEqual(originalCgram.AsSpan(0, 1)) &&
                 editedCgram.AsSpan(2).SequenceEqual(originalCgram.AsSpan(2)),
                 "edited opening RGB5 color reaches only its production CGRAM destination");
-            stockPaletteState.BindCharacterArtwork(editedPalette);
+            stockPaletteState.BindFixtureIntroArtwork(editedPalette);
             AssertTrue(stockPaletteState.CaptureTranslatedRenderSnapshot().Memory.Cgram.SequenceEqual(editedCgram),
                 "restored initial narration rebinds the current palette without restarting its phase");
             for (int frame = 0; frame < 120; frame++)
@@ -288,7 +288,7 @@ internal static class IntroCinematicArtworkVerification
                     editedDividerState.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(
                         expectedDividerVram),
                 "one edited divider cell changes only its production BG3 tile word");
-            stockDividerState.BindCharacterArtwork(editedDivider);
+            stockDividerState.BindFixtureIntroArtwork(editedDivider);
             AssertTrue(stockDividerState.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(
                     expectedDividerVram),
                 "restored illustrated page rebinds divider without erasing live text elsewhere");
@@ -316,7 +316,7 @@ internal static class IntroCinematicArtworkVerification
                         editedDividerVisual.CaptureTranslatedRenderSnapshot())),
                 "divider palette edits change displayed illustrated-page pixels");
             File.Delete(dividerOverridePath);
-            stockDividerState.BindCharacterArtwork(stock);
+            stockDividerState.BindFixtureIntroArtwork(stock);
             AssertTrue(stockDividerState.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(
                     stockDividerVram),
                 "removing opening divider override restores exact native BG3 words");
@@ -377,11 +377,11 @@ internal static class IntroCinematicArtworkVerification
                 AssertTrue(!expected.SequenceEqual(nativeVram) &&
                         editedState.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(expected),
                     $"edited {name} reaches the exact production VRAM transfer without changing other scene bytes");
-                installed.BindCharacterArtwork(edited);
+                installed.BindFixtureIntroArtwork(edited);
                 AssertTrue(installed.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(expected),
                     $"restored cinematic state rebinds edited {name} with native transfer ordering");
                 File.Delete(overridePath);
-                installed.BindCharacterArtwork(stock);
+                installed.BindFixtureIntroArtwork(stock);
                 AssertTrue(installed.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(nativeVram),
                     $"removing {name} override restores stock cinematic VRAM");
             }
@@ -450,11 +450,11 @@ internal static class IntroCinematicArtworkVerification
                                 editedScene.CaptureTranslatedRenderSnapshot())),
                         "edited opening BG page produces visible flashback pixels");
                 }
-                installed.BindCharacterArtwork(edited);
+                installed.BindFixtureIntroArtwork(edited);
                 AssertTrue(installed.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(expected),
                     $"restored cinematic rebinds edited {name} without changing another page");
                 File.Delete(overridePath);
-                installed.BindCharacterArtwork(stock);
+                installed.BindFixtureIntroArtwork(stock);
                 AssertTrue(installed.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(nativeVram),
                     $"removing {name} override restores stock BG VRAM");
             }
@@ -493,14 +493,14 @@ internal static class IntroCinematicArtworkVerification
                             .CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(expected),
                     $"edited {name} reaches only its initial cinematic VRAM page");
                 var restoredEarly = CreateRetailIntroFixture(characterArtwork: stock);
-                restoredEarly.BindCharacterArtwork(edited);
+                restoredEarly.BindFixtureIntroArtwork(edited);
                 AssertTrue(restoredEarly.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(expected),
                     $"restored first narration/portrait state receives edited {name}");
 
                 var restoredLate = CreateRetailIntroFixture(characterArtwork: stock);
                 restoredLate.SetupFirstIllustratedPage();
                 byte[] lateBefore = restoredLate.CaptureTranslatedRenderSnapshot().Memory.Vram.ToArray();
-                restoredLate.BindCharacterArtwork(edited);
+                restoredLate.BindFixtureIntroArtwork(edited);
                 byte[] lateAfter = restoredLate.CaptureTranslatedRenderSnapshot().Memory.Vram.ToArray();
                 if (name == IntroCinematicArtworkFormat.InitialNarrationTilemapFileName)
                     AssertTrue(lateAfter.SequenceEqual(lateBefore),
@@ -675,7 +675,7 @@ internal static class IntroCinematicArtworkVerification
             native.FinalizeFrame();
             var installed = ScreenSpritesFixtures.Blank();
             installed.BeginFrame();
-            stock.CaretSprites.Draw(definition.Pose, installed,
+            CinematicSheetFixtures.Drawer(stock.CaretSprites).Draw(definition.Pose, installed,
                 new(originX, originY), paletteBits);
             installed.FinalizeFrame();
             AssertTrue(installed.ImageEquals(native) &&
@@ -707,12 +707,12 @@ internal static class IntroCinematicArtworkVerification
             IntroCaretSpritePresentation previous = IntroCaretSpritePresentation.Load(previousJson);
             var previousOam = ScreenSpritesFixtures.Blank();
             previousOam.BeginFrame();
-            previous.Draw(IntroCaretSpriteDefinitions.Visible.Pose, previousOam,
+            CinematicSheetFixtures.Drawer(previous).Draw(IntroCaretSpriteDefinitions.Visible.Pose, previousOam,
                 new(originX, originY), paletteBits);
             previousOam.FinalizeFrame();
             var stockOam = ScreenSpritesFixtures.Blank();
             stockOam.BeginFrame();
-            stock.CaretSprites.Draw(IntroCaretSpriteDefinitions.Visible.Pose, stockOam,
+            CinematicSheetFixtures.Drawer(stock.CaretSprites).Draw(IntroCaretSpriteDefinitions.Visible.Pose, stockOam,
                 new(originX, originY), paletteBits);
             stockOam.FinalizeFrame();
             AssertTrue(previousOam.ImageEquals(stockOam),
@@ -726,11 +726,11 @@ internal static class IntroCinematicArtworkVerification
         IntroCaretSpritePresentation edited = IntroCaretSpritePresentation.Load(editedJson);
         var changed = ScreenSpritesFixtures.Blank();
         changed.BeginFrame();
-        edited.Draw(IntroCaretSpriteDefinitions.Visible.Pose, changed, new(originX, originY), paletteBits);
+        CinematicSheetFixtures.Drawer(edited).Draw(IntroCaretSpriteDefinitions.Visible.Pose, changed, new(originX, originY), paletteBits);
         changed.FinalizeFrame();
         var original = ScreenSpritesFixtures.Blank();
         original.BeginFrame();
-        stock.CaretSprites.Draw(IntroCaretSpriteDefinitions.Visible.Pose, original,
+        CinematicSheetFixtures.Drawer(stock.CaretSprites).Draw(IntroCaretSpriteDefinitions.Visible.Pose, original,
             new(originX, originY), paletteBits);
         original.FinalizeFrame();
         AssertTrue(!changed.LowTable.SequenceEqual(original.LowTable) &&
@@ -814,7 +814,7 @@ internal static class IntroCinematicArtworkVerification
             native.FinalizeFrame();
             var installed = ScreenSpritesFixtures.Blank();
             installed.BeginFrame();
-            stock.MotherBrainSprites.Draw(definition.Pose, installed,
+            CinematicSheetFixtures.Drawer(stock.MotherBrainSprites).Draw(definition.Pose, installed,
                 IntroMotherBrainSpriteState.Position.ToOam(),
                 IntroMotherBrainSpriteState.PaletteBits);
             installed.FinalizeFrame();
@@ -836,13 +836,13 @@ internal static class IntroCinematicArtworkVerification
         IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
         var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();
-        stock.MotherBrainSprites.Draw(IntroMotherBrainSpriteDefinitions.FramePose(0), stockOam,
+        CinematicSheetFixtures.Drawer(stock.MotherBrainSprites).Draw(IntroMotherBrainSpriteDefinitions.FramePose(0), stockOam,
             IntroMotherBrainSpriteState.Position.ToOam(),
             IntroMotherBrainSpriteState.PaletteBits);
         stockOam.FinalizeFrame();
         var editedOam = ScreenSpritesFixtures.Blank();
         editedOam.BeginFrame();
-        edited.MotherBrainSprites.Draw(IntroMotherBrainSpriteDefinitions.FramePose(0), editedOam,
+        CinematicSheetFixtures.Drawer(edited.MotherBrainSprites).Draw(IntroMotherBrainSpriteDefinitions.FramePose(0), editedOam,
             IntroMotherBrainSpriteState.Position.ToOam(),
             IntroMotherBrainSpriteState.PaletteBits);
         editedOam.FinalizeFrame();
@@ -866,7 +866,7 @@ internal static class IntroCinematicArtworkVerification
         Rgba32[] editedPixels = editedState.RenderMotherBrainFlashback();
         AssertTrue(!editedPixels.SequenceEqual(stockPixels),
             "intro Mother Brain palette override changes visible production scene pixels");
-        stockState.BindCharacterArtwork(edited);
+        stockState.BindFixtureIntroArtwork(edited);
         AssertTrue((stockState.RenderMotherBrainFlashback()).SequenceEqual(editedPixels),
             "restored intro Mother Brain scene rebinds the selected visual composition");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -894,7 +894,7 @@ internal static class IntroCinematicArtworkVerification
             native.FinalizeFrame();
             var installed = ScreenSpritesFixtures.Blank();
             installed.BeginFrame();
-            stock.MotherBrainExplosionSprites.Draw(definition.Pose, installed,
+            CinematicSheetFixtures.Drawer(stock.MotherBrainExplosionSprites).Draw(definition.Pose, installed,
                 new(x, y), palette);
             installed.FinalizeFrame();
             AssertTrue(installed.ImageEquals(native) &&
@@ -921,11 +921,11 @@ internal static class IntroCinematicArtworkVerification
         explosions.Step(introCrossfadeTimer: 1);
         var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();
-        explosions.Draw(stockOam, stock.MotherBrainExplosionSprites);
+        explosions.Draw(stockOam, CinematicSheetFixtures.Drawer(stock.MotherBrainExplosionSprites));
         stockOam.FinalizeFrame();
         var editedOam = ScreenSpritesFixtures.Blank();
         editedOam.BeginFrame();
-        explosions.Draw(editedOam, edited.MotherBrainExplosionSprites);
+        explosions.Draw(editedOam, CinematicSheetFixtures.Drawer(edited.MotherBrainExplosionSprites));
         editedOam.FinalizeFrame();
         AssertTrue(!editedOam.ImageEquals(stockOam),
             "intro explosion palette edit changes production OAM attributes, not actor placement");
@@ -948,7 +948,7 @@ internal static class IntroCinematicArtworkVerification
         Rgba32[] editedPixels = editedState.RenderMotherBrainFlashback();
         AssertTrue(!stockPixels.SequenceEqual(editedPixels),
             "intro explosion art override changes visible production flashback pixels");
-        stockState.BindCharacterArtwork(edited);
+        stockState.BindFixtureIntroArtwork(edited);
         AssertTrue((stockState.RenderMotherBrainFlashback()).SequenceEqual(editedPixels),
             "restored intro explosion scene rebinds the selected visual composition");
         AssertEqual(0, guarded.ForbiddenReadAttempts,

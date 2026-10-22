@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Tooling;
 using System.Text.Json;
@@ -53,7 +54,7 @@ internal static class IntroRinkaSpriteArtworkVerification
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
-                stock.RinkaSprites.Draw(definition.Pose, installed, new(x, y), palette,
+                CinematicSheetFixtures.Drawer(stock.RinkaSprites).Draw(definition.Pose, installed, new(x, y), palette,
                     onScreen);
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&
@@ -83,7 +84,7 @@ internal static class IntroRinkaSpriteArtworkVerification
             "intro Rinka first two-wave actors exist for installed artwork test");
         var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();
-        rinkas.Draw(stockOam, stock.RinkaSprites);
+        rinkas.Draw(stockOam, CinematicSheetFixtures.Drawer(stock.RinkaSprites));
         stockOam.FinalizeFrame();
         var nativeLiveOam = new OamBuffer();
         nativeLiveOam.BeginFrame();
@@ -94,7 +95,7 @@ internal static class IntroRinkaSpriteArtworkVerification
             "installed intro Rinkas preserve native live-actor OAM placement and attributes");
         var editedOam = ScreenSpritesFixtures.Blank();
         editedOam.BeginFrame();
-        rinkas.Draw(editedOam, edited.RinkaSprites);
+        rinkas.Draw(editedOam, CinematicSheetFixtures.Drawer(edited.RinkaSprites));
         editedOam.FinalizeFrame();
         AssertTrue(!stockOam.ImageEquals(editedOam),
             "intro Rinka palette edit changes live OAM attributes without moving actors");
@@ -115,7 +116,7 @@ internal static class IntroRinkaSpriteArtworkVerification
         Rgba32[] editedPixels = editedState.RenderMotherBrainFlashback();
         AssertTrue(!stockPixels.SequenceEqual(editedPixels),
             "intro Rinka override changes visible production flashback pixels");
-        stockState.BindCharacterArtwork(edited);
+        stockState.BindFixtureIntroArtwork(edited);
         AssertTrue((stockState.RenderMotherBrainFlashback()).SequenceEqual(editedPixels),
             "restored intro Rinka scene rebinds the selected visual composition");
         AssertEqual(0, guarded.ForbiddenReadAttempts,

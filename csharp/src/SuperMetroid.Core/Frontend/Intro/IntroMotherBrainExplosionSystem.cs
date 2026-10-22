@@ -41,7 +41,7 @@ internal sealed class IntroMotherBrainExplosionSystem
     }
 
     /// <summary>Adds each visible spritemap in native actor order to cinematic OAM.</summary>
-    public void Draw(ScreenSprites objects, IntroMotherBrainExplosionSpritePresentation installedArt)
+    internal void Draw(ScreenSprites objects, CinematicSpriteSheet installedArt)
     {
         Ensure.NotNull(objects);
         Ensure.NotNull(installedArt);

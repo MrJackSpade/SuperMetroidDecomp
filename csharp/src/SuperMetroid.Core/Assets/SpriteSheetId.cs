@@ -29,6 +29,8 @@ public enum SpriteSheetId
     PauseSprites,
     /// <summary>The title's year, Nintendo and Super Metroid logo reveals and copyright.</summary>
     Title,
+    /// <summary>The intro's cinematic actors, Mother Brain and her explosions, and the narration caret.</summary>
+    IntroSprites,
     /// <summary>Samus's projectiles, bombs, charge flare and trails as the intro's flashbacks draw them.</summary>
     IntroProjectiles,
     /// <summary>Samus's projectiles, bombs, charge flare and trails with the power beam equipped.</summary>

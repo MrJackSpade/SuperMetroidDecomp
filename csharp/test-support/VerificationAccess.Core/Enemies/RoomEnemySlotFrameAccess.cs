@@ -31,6 +31,12 @@ internal static class RoomEnemySlotFrameAccess
             get => EnemyFrameCartridgeLookupTooling.Word(self.Frame);
             set
             {
+                // Zero shows no frame in any bank, so a free slot, which names no header, imports it too.
+                if (value == 0)
+                {
+                    self.Frame = null;
+                    return;
+                }
                 try
                 {
                     self.Frame = FrameAt(self.NativeHeader.Bank, value);

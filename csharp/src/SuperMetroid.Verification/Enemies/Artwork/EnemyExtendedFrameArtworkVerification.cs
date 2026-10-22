@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Tooling;
@@ -127,9 +128,12 @@ internal static class EnemyExtendedFrameArtworkVerification
                          new VerifyInstalledEnemyExtendedFramesCase(0x0000, 0x0000),
                      })
             {
+                RoomEnemySlot? drawn = null;
+                OamBuffer installed = DrawExtendedForBank(stock, frame.Bank, frame.Pointer, new(x, y), slot => drawn = slot);
                 OamBuffer native = DrawReferenceExtendedFrame(rom,
-                    frame.Bank, frame.Pointer, new(x, y));
-                OamBuffer installed = DrawExtendedForBank(stock, frame.Bank, frame.Pointer, new(x, y));
+                    frame.Bank, frame.Pointer, new(x, y),
+                    checked((ushort)(drawn ?? throw new InvalidOperationException("Verification requires the drawn slot.")).PaletteIndex),
+                    checked((ushort)drawn.VramTilesIndex));
                 AssertTrue(native.ImageEquals(installed) &&
                            native.NextByteOffset == installed.NextByteOffset,
                     $"installed extended {frame.Name} matches native OAM at {x:X4},{y:X4}");
@@ -1297,7 +1301,7 @@ internal static class EnemyExtendedFrameArtworkVerification
     /// <remarks>BG2 command streams are checked by their dedicated fixture.</remarks>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the reference extended-frame drawer")]
     internal static OamBuffer DrawReferenceExtendedFrame(
-        ISnesAddressSpace bus, byte bank, ushort pointer, Position16<ScreenPixels> origin)
+        ISnesAddressSpace bus, byte bank, ushort pointer, Position16<ScreenPixels> origin, ushort paletteBits = 0, ushort baseTileIndex = 0)
     {
         byte ReadByte(int address) => bus.ReadCartridgeByte(((int)new SnesAddress(bank, checked((ushort)(SnesAddressMath.OffsetInBank(address))))));
         ushort ReadWord(int address) => SnesLittleEndian.Word(ReadByte(address), ReadByte(address + 1));
@@ -1316,7 +1320,7 @@ internal static class EnemyExtendedFrameArtworkVerification
                 continue;
             // The cartridge's extended clip parks wrapped parts at Y=$F0; #1308 drops that presentation quirk, so the
             // reference keeps the parts at their wrapped coordinates as the whole-frame draws do.
-            DrawImportedEnemySpritemap(bus, oam, new NativeEnemySpritemapDraw { Bank = bank, Pointer = sprite, Origin = new(componentX, componentY), PaletteBits = 0, BaseTileIndex = 0 });
+            DrawImportedEnemySpritemap(bus, oam, new NativeEnemySpritemapDraw { Bank = bank, Pointer = sprite, Origin = new(componentX, componentY), PaletteBits = paletteBits, BaseTileIndex = baseTileIndex });
         }
         return oam;
     }
@@ -1338,14 +1342,21 @@ internal static class EnemyExtendedFrameArtworkVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art?.Enemies, BossArtwork = art?.Bosses, AreaArtwork = art?.Areas };
         enemies.Drawing.Enqueue(0, 0);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        // A non-Ridley definition lets the focused OAM comparison isolate the
-        // extended body from Ridley's separately drawn tail and wings.
-        slot.Bind(bank == EnemyExtendedFrameDefinitions.Bank
-            ? PirateDefinitionForFrame(pointer) : EnemyDefinitionId.Boyon, slot.Definition);
+        EnemyFrameId? frame = RoomEnemySlotFrameAccess.TryFrameAt(bank, pointer);
+        slot.Bind(ExtendedFrameShower(frame), slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+        if (art is not null)
+        {
+            // The enemy draws as a room drawing it loads it: at its tile base and in its palette there.
+            enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(slot.DefinitionId),
+                new SnesVram(), new SnesCgram());
+            EnemyGraphicsIndexes indexes = enemies.GraphicsSet.DrawIndexes(slot.DefinitionId);
+            slot.VramTilesIndex = indexes.TileIndex;
+            slot.PaletteIndex = indexes.PaletteIndex;
+        }
         slot.ExtraProperties = slot.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
-        slot.SpritemapPointer = pointer;
+        slot.Frame = frame;
         slot.InstructionTimer = WrappingCountdown.Start(7);
         slot.Position = slot.Position.WithWhole(position);
         var oam = new OamBuffer();
@@ -1362,7 +1373,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(PirateDefinitionForFrame(pointer), slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.SpritemapPointer = pointer;
+        slot.Frame = RoomEnemySlotFrameAccess.FrameAt(EnemyExtendedFrameDefinitions.Bank, pointer);
         slot.Position = slot.Position.WithWhole(new(0x0040, 0x0080));
         SpacePirateCollisionComponent component =
             SpacePirateCollisionDefinitions.ComponentsAt(pointer)[0];
@@ -1377,6 +1388,19 @@ internal static class EnemyExtendedFrameArtworkVerification
             "Space Pirate stock hitbox contains its sampled point");
         return (ushort)(arguments[4] ?? throw new InvalidOperationException("Verification requires arguments[4]."));
     }
+
+    /// <summary>
+    /// The enemy a room shows <paramref name="frame"/> through: one a room draws whose behaviour shows it, those drawing from sheets
+    /// first, other than Ridley, whose scene adds his tail and wings to his body. A frame only he shows, and one no
+    /// enemy shows, as a bank's shared empty frame, draw through a corpse, which draws from characters and adds nothing.
+    /// </summary>
+    private static EnemyDefinitionId ExtendedFrameShower(EnemyFrameId? frame) =>
+        EnemyDefinitionFrameDefinitions.Frames
+            .Where(entry => frame is { } shown && entry.Value.Contains(shown) && SpawnedObjectFixtures.Drawn(entry.Key) &&
+                entry.Key is not (EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.RidleyExplosion))
+            .Select(entry => entry.Key)
+            .OrderBy(EnemySheetDefinitions.DrawnFromCharacters.Contains).ThenBy(enemy => enemy)
+            .Cast<EnemyDefinitionId?>().FirstOrDefault() ?? EnemyDefinitionId.CorpseSidehopper;
 
     /// <summary>Selects walking, ninja, or wall Pirate ownership from a compiled extended-frame identity.</summary>
     private static EnemyDefinitionId PirateDefinitionForFrame(ushort pointer)

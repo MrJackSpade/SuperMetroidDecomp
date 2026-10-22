@@ -47,7 +47,8 @@ public static class EnemySheetFiles
             ?? throw new InvalidDataException($"Enemy sheet manifest {manifestPath} is empty.");
         if (manifest.Version != EnemySheetDefinitions.ManifestVersion)
             throw new InvalidDataException($"Enemy sheet manifest {manifestPath} has revision {manifest.Version}, not {EnemySheetDefinitions.ManifestVersion}.");
-        string[] names = [.. manifest.Sets.Values.SelectMany(members => members.Values).Distinct(StringComparer.Ordinal)];
+        string[] names = [.. manifest.Sets.Values.SelectMany(members => members.Values)
+            .Concat(manifest.Spawned.Values.SelectMany(bases => bases.Values.Select(entry => entry.Sheet))).Distinct(StringComparer.Ordinal)];
         SpriteSheetStore store = SpriteSheetStore.Open(stockDirectory, overrideDirectory, ProvenanceFileName, names.Length);
         var loaded = names.ToDictionary(name => name, store.Read, StringComparer.Ordinal);
         var sheets = new Dictionary<EnemySheetKey, SpriteSheet>();
@@ -66,7 +67,22 @@ public static class EnemySheetFiles
                 sheets.Add(new EnemySheetKey(set, enemy), sheet);
             }
         }
-        return new InstalledEnemySheets(sheets);
+        var spawned = new Dictionary<SpawnedObjectSheetKey, SpawnedObjectSheet>();
+        foreach ((string set, Dictionary<string, SpawnedObjectSheetDocument> bases) in manifest.Spawned)
+        {
+            foreach ((string baseText, SpawnedObjectSheetDocument entry) in bases)
+            {
+                if (!int.TryParse(baseText, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out int tileBase))
+                    throw new InvalidDataException($"Enemy sheet manifest set {set} names spawned tile base {baseText}, not a decimal number.");
+                EnemyDefinitionId[] spawners = [.. entry.Spawners.Select(name => Enum.TryParse(name, out EnemyDefinitionId enemy) && Enum.IsDefined(enemy)
+                    ? enemy : throw new InvalidDataException($"Enemy sheet manifest set {set} names unknown spawner {name}."))];
+                SpriteSheet sheet = loaded[entry.Sheet];
+                if (!sheet.HoldsExactly(SpawnedObjectSheetComposer.FrameNames(spawners, entry.Anywhere)))
+                    throw new InvalidDataException($"Spawned-object sheet {entry.Sheet} does not hold exactly the objects its spawners spawn.");
+                spawned.Add(new SpawnedObjectSheetKey(set, tileBase), new SpawnedObjectSheet(sheet, entry.Palette));
+            }
+        }
+        return new InstalledEnemySheets(sheets, spawned);
     }
 
     /// <summary>Used by installer completeness checks; overrides do not affect stock provenance.</summary>

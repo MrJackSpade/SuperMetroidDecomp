@@ -600,9 +600,9 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         PopulationLoader = new EnemyPopulationLoader(Room, RoomStatus, SlotTable, Dispatch);
         RidleyEncounter = new RidleyEncounter(SlotTable, session);
         Earthquake = new RoomEarthquake();
-        SpriteObjects = new RoomSpriteObjectPool(Room);
+        SpriteObjects = new RoomSpriteObjectPool(Room, Presentation);
         Audio = new EnemyAudioQueue();
-        Projectiles = new EnemyProjectileEngine(Room, SpriteObjects, Earthquake, Audio);
+        Projectiles = new EnemyProjectileEngine(Room, Presentation, SpriteObjects, Earthquake, Audio);
         Projectiles.AddHandlerSource(this);
         GunshipBehavior = new GunshipBehavior(Audio, Projectiles, Room, SlotTable, FrameResults);
         Terrain = new EnemyTerrain();

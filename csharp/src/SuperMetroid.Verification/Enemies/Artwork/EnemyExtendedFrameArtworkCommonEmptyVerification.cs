@@ -71,6 +71,9 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
             AssertTrue(native.ImageEquals(installed) &&
                 native.NextByteOffset == installed.NextByteOffset,
                 $"bank ${bank:X2} shared empty frame draws without ROM art reads");
+            // Bank $A0 holds the shared records but no enemy, so no slot selects its frames.
+            if (!RoomEnemyDefinitionNative.HoldsEnemy(bank))
+                continue;
             AssertEqual(CommonEnemyEmptyExtendedFrameDefinitionsConstants.Callback(false),
                 FindSharedEmptyCallback(bank, selectShot: false),
                 $"bank ${bank:X2} shared point selects compiled touch callback");
@@ -90,7 +93,8 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+        // The frame pointer names a frame of the bank the slot's enemy lives in.
+        slot.Bind(RoomEnemyDefinitionNative.FirstInBank(bank), default(RoomEnemyDefinition));
         slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameToolingDefinitionsConstants.Frame;
         slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         object?[] arguments =

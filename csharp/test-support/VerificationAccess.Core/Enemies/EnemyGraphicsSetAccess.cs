@@ -9,6 +9,6 @@ internal static class EnemyGraphicsSetAccess
         /// <exception cref="InvalidDataException">The room's graphics set does not load that enemy.</exception>
         internal RoomEnemyGraphicsSetEntry Entry(EnemyDefinitionId enemy) =>
             self.Entries.Where(entry => entry.DefinitionId == enemy).Cast<RoomEnemyGraphicsSetEntry?>().FirstOrDefault()
-                ?? throw new InvalidDataException($"Enemy graphics set {self.LoadedSet?.Name ?? "(none loaded)"} does not load {enemy}.");
+                ?? throw new InvalidDataException($"Enemy graphics set {self.LoadedSet.Name} does not load {enemy}.");
     }
 }

@@ -53,7 +53,13 @@ internal static class EnemyAnimationIsolationFixtureVerification
         internal TorizoEnemyState? Torizo => Enemies.BombTorizoBehavior.Attacks.GoldenTorizo;
 
         /// <summary>Creates matching terrain and services, then initializes either Boyon or a fixed Torizo attack phase.</summary>
-        internal EnemyAnimationFixture(InstalledEnemyArtwork artwork, bool golden)
+        /// <param name="artwork">The enemy artwork the fixture draws.</param>
+        /// <param name="golden">Whether the actor is Golden Torizo rather than Boyon.</param>
+        /// <param name="graphicsSet">
+        /// The graphics set the actor's room loads, which gives it its tile base and palette before it initializes; none
+        /// leaves the session's start, for an actor that draws from characters at index zero.
+        /// </param>
+        internal EnemyAnimationFixture(InstalledEnemyArtwork artwork, bool golden, RoomEnemyGraphicsSetDefinition? graphicsSet = null)
         {
             const int roomBlocks = 32;
             var layer = new ushort[roomBlocks * roomBlocks];
@@ -78,6 +84,13 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Actor.Position = Actor.Position.WithWhole(new(128, (ushort)(FloorY - Actor.Radius.Y - 12)));
             Actor.Properties = new EnemyPropertyWord(EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen);
             Actor.InstructionTimer = WrappingCountdown.Start(1);
+            if (graphicsSet is not null)
+            {
+                Enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, graphicsSet, Vram, Colors);
+                EnemyGraphicsIndexes indexes = Enemies.GraphicsSet.DrawIndexes(Actor.DefinitionId);
+                Actor.VramTilesIndex = indexes.TileIndex;
+                Actor.PaletteIndex = indexes.PaletteIndex;
+            }
             if (golden)
             {
                 Actor.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord((ushort)EnemyExtraProperties.UsesExtendedSpritemap);

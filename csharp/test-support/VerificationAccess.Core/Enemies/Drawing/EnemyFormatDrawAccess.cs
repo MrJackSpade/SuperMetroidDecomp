@@ -81,8 +81,11 @@ internal static class EnemyFormatDrawAccess
     /// <summary>Draws the Ceres elevator arrival actors into an OAM image.</summary>
     extension(CeresElevatorArrivalState arrival)
     {
-        /// <summary>Publishes both arrival actors, appending their OAM image to <paramref name="oam"/>.</summary>
-        internal void DrawAsOam(OamBuffer oam, Position16<RoomPixels> camera) =>
-            oam.AppendDrawn(frame => arrival.Draw(frame, BlankObjectPage, camera));
+        /// <summary>
+        /// Publishes both arrival actors through <paramref name="presentation"/>, appending their OAM image to
+        /// <paramref name="oam"/>.
+        /// </summary>
+        internal void DrawAsOam(OamBuffer oam, EnemyPresentation presentation, Position16<RoomPixels> camera) =>
+            oam.AppendDrawn(frame => arrival.Draw(frame, BlankObjectPage, presentation, camera));
     }
 }

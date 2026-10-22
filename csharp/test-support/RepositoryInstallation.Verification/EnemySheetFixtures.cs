@@ -35,33 +35,62 @@ internal static class EnemySheetFixtures
     /// </summary>
     private sealed class ComposedOnDemand(EnemySheetInputs inputs, InstalledEnemySheets? installed) : IEnemySheetSource
     {
-        /// <summary>Each composed set's sheets by enemy.</summary>
-        private readonly ConditionalWeakTable<RoomEnemyGraphicsSetDefinition, IReadOnlyDictionary<EnemyDefinitionId, SpriteSheet>> sets = new();
+        /// <summary>Each composed set's sheets.</summary>
+        private readonly ConditionalWeakTable<RoomEnemyGraphicsSetDefinition, ComposedSet> sets = new();
 
         /// <inheritdoc/>
         public SpriteSheet For(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy)
         {
-            if (installed is not null && RoomEnemyGraphicsSetDefinitions.All.Contains(set))
+            if (installed is not null && RoomEnemyGraphicsSetDefinitions.DrawnUnder.Contains(set))
                 return installed.For(set, enemy);
-            return sets.GetValue(set, Compose).TryGetValue(enemy, out SpriteSheet? sheet) ? sheet
+            return sets.GetValue(set, Compose).Enemies.TryGetValue(enemy, out SpriteSheet? sheet) ? sheet
                 : throw new InvalidDataException($"Enemy graphics set {set.Name} composes no sheet for {enemy}.");
         }
 
-        /// <summary>Composes and registers one graphics set's sheets.</summary>
-        private IReadOnlyDictionary<EnemyDefinitionId, SpriteSheet> Compose(RoomEnemyGraphicsSetDefinition set)
+        /// <inheritdoc/>
+        public bool SpawnsFromSheets(RoomEnemyGraphicsSetDefinition set) =>
+            installed is not null && RoomEnemyGraphicsSetDefinitions.DrawnUnder.Contains(set) ? installed.SpawnsFromSheets(set)
+                : sets.GetValue(set, Compose).SpawnsFromSheets;
+
+        /// <inheritdoc/>
+        public SpawnedObjectSheet Spawned(RoomEnemyGraphicsSetDefinition set, int tileBase)
         {
-            var sheets = new Dictionary<EnemyDefinitionId, SpriteSheet>();
-            foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources) in EnemySheetComposer.Sources(inputs, set))
-            {
-                ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(sources, 0, 0);
-                // A name of its own keeps its frames apart from the installed sheets' in the frame-source registry.
-                SpriteSheet loaded = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(sheet.Manifest), writable: false),
-                    $"{enemy}-fixture-{RuntimeHelpers.GetHashCode(inputs.Enemies):X8}-{set.Name}-{RuntimeHelpers.GetHashCode(set):X8}", sheet.Size, sheet.Pixels,
-                    sheet.PaletteIndices, sheet.Priorities, sheet.PartRows);
-                SheetFrameSources.Register(loaded, sources);
-                sheets[enemy] = loaded;
-            }
-            return sheets;
+            if (installed is not null && RoomEnemyGraphicsSetDefinitions.DrawnUnder.Contains(set))
+                return installed.Spawned(set, tileBase);
+            return sets.GetValue(set, Compose).Spawned.TryGetValue(tileBase, out SpawnedObjectSheet? sheet) ? sheet
+                : throw new InvalidDataException($"Enemy graphics set {set.Name} composes no spawned-object sheet for tile base ${tileBase:X3}.");
+        }
+
+        /// <summary>Composes and registers one graphics set's sheets.</summary>
+        private ComposedSet Compose(RoomEnemyGraphicsSetDefinition set)
+        {
+            GraphicsSetSheetSources setSources = EnemySheetComposer.Sources(inputs, set);
+            // A name of its own keeps its frames apart from the installed sheets' in the frame-source registry.
+            string owner = $"fixture-{RuntimeHelpers.GetHashCode(inputs.Enemies):X8}-{set.Name}-{RuntimeHelpers.GetHashCode(set):X8}";
+            var enemies = new Dictionary<EnemyDefinitionId, SpriteSheet>();
+            foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources) in setSources.Enemies)
+                enemies[enemy] = Load(sources, $"{enemy}-{owner}");
+            var spawned = new Dictionary<int, SpawnedObjectSheet>();
+            foreach ((SpawnedObjectSheetPlan plan, SpriteSheetSources sources) in setSources.Spawned)
+                spawned[plan.TileBase] = new SpawnedObjectSheet(Load(sources, $"Spawned-{plan.TileBase:X3}-{owner}"), plan.Palette);
+            return new ComposedSet(enemies, setSources.SpawnsFromSheets, spawned);
+        }
+
+        /// <summary>Composes, loads and registers one sheet under <paramref name="name"/>.</summary>
+        private static SpriteSheet Load(SpriteSheetSources sources, string name)
+        {
+            ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(sources, 0, 0);
+            SpriteSheet loaded = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(sheet.Manifest), writable: false), name, sheet.Size,
+                sheet.Pixels, sheet.PaletteIndices, sheet.Priorities, sheet.PartRows);
+            SheetFrameSources.Register(loaded, sources);
+            return loaded;
         }
     }
+
+    /// <summary>One composed graphics set's sheets.</summary>
+    /// <param name="Enemies">Each enemy's sheet.</param>
+    /// <param name="SpawnsFromSheets">Whether its spawned objects draw from sheets.</param>
+    /// <param name="Spawned">Each spawned-object sheet by tile base.</param>
+    private sealed record ComposedSet(IReadOnlyDictionary<EnemyDefinitionId, SpriteSheet> Enemies, bool SpawnsFromSheets,
+        IReadOnlyDictionary<int, SpawnedObjectSheet> Spawned);
 }

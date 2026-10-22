@@ -111,13 +111,15 @@ public sealed class CeresElevatorArrivalState
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="objects">The gameplay OBJ character page.</param>
+    /// <param name="presentation">Publishes the platforms from the loaded graphics set's sheets.</param>
     /// <param name="camera">Layer-one camera position in whole room pixels.</param>
-    public void Draw(SpriteFrameBuffer sprites, SpriteArtwork objects, Position16<RoomPixels> camera)
+    internal void Draw(SpriteFrameBuffer sprites, SpriteArtwork objects, EnemyPresentation presentation, Position16<RoomPixels> camera)
     {
         Ensure.NotNull(sprites);
         Ensure.NotNull(objects);
-        DrawProjectile(pad, 0, sprites, objects, camera);
-        DrawProjectile(platform, 1, sprites, objects, camera);
+        Ensure.NotNull(presentation);
+        DrawProjectile(pad, 0, sprites, objects, presentation, camera);
+        DrawProjectile(platform, 1, sprites, objects, presentation, camera);
     }
 
     /// <summary>The moving pad's position: Samus's whole position, <c>MovingPadYOffset</c> lower.</summary>
@@ -169,6 +171,7 @@ public sealed class CeresElevatorArrivalState
         int instance,
         SpriteFrameBuffer sprites,
         SpriteArtwork objects,
+        EnemyPresentation presentation,
         Position16<RoomPixels> camera)
     {
         if (!projectile.Active || projectile.Pose is not { } pose)
@@ -181,9 +184,16 @@ public sealed class CeresElevatorArrivalState
             return;
         }
 
+        ushort paletteBits = new SnesObjAttributeWord(checked((ushort)projectile.GraphicsIndex)).PaletteBits;
+        if (presentation.SpawnsFromSheets)
+        {
+            presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.CeresElevatorArrival, instance),
+                EnemySheetDefinitions.ProjectileFrameName(CeresElevatorArrivalDefinitions.Frame(pose)), screen,
+                unchecked((byte)projectile.GraphicsIndex), paletteBits);
+            return;
+        }
         var installed = projectileSpritemaps ?? throw new InvalidOperationException(
             "Ceres elevator projectiles require installed sprite artwork.");
-        ushort paletteBits = new SnesObjAttributeWord(checked((ushort)projectile.GraphicsIndex)).PaletteBits;
         EnemyPresentation.PublishParts(sprites, objects, new SpriteSource(SpriteSourceKind.CeresElevatorArrival, instance),
             EnemySpriteFrames.Frame(installed.Get(CeresElevatorArrivalDefinitions.Frame(pose)), unchecked((byte)projectile.GraphicsIndex), paletteBits),
             screen, paletteBits);

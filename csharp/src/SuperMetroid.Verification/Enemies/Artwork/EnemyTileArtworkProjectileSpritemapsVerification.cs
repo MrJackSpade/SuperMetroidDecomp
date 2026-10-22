@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Deaths.Artwork;
@@ -362,7 +363,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             ushort platformPointer = ReadNativeEnemyProjectileProgramWord(bus, 0xa29b);
             DrawImportedEnemyProjectileSpritemap(bus, nativeOam, padPointer, new(128, 28), 0, true);
             DrawImportedEnemyProjectileSpritemap(bus, nativeOam, platformPointer, new(128, 97), 0, true);
-            installedArrival.DrawAsOam(installedOam, Position16<RoomPixels>.Zero);
+            installedArrival.DrawAsOam(installedOam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.SpawnedObjectFixtures.Presentation(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElev0), Position16<RoomPixels>.Zero);
             AssertTrue(nativeOam.ImageEquals(installedOam),
                 $"Ceres elevator arrival frame {frame} draws from installed $8D compositions");
         }
@@ -986,6 +987,10 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             ISnesAddressSpace source)
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
+            // A set whose boss or corpse uploads its own characters still draws its spawned objects from their parts,
+            // the composition this oracle compares with the cartridge's.
+            enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.CharacterDrawnSet,
+                new SnesVram(), new SnesCgram());
             Action<RoomEnemySlot> spawn = program == SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree)
                 ? enemies.Projectiles.SpawnSkreeParticleBurst : enemies.Projectiles.SpawnMetareeParticleBurst;
             var enemy = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
@@ -1026,6 +1031,10 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             ushort presentationKey, ISnesAddressSpace source, RoomEnemyProjectileKind kind)
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
+            // A set whose boss or corpse uploads its own characters still draws its spawned objects from their parts,
+            // the composition this oracle compares with the cartridge's.
+            enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.CharacterDrawnSet,
+                new SnesVram(), new SnesCgram());
             RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
             slot.Kind = kind;
             slot.Position = slot.Position.WithWhole(new(128, 96));
@@ -1042,6 +1051,10 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             ISnesAddressSpace source)
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
+            // A set whose boss or corpse uploads its own characters still draws its spawned objects from their parts,
+            // the composition this oracle compares with the cartridge's.
+            enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.CharacterDrawnSet,
+                new SnesVram(), new SnesCgram());
             RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
             slot.Kind = RoomEnemyProjectileKind.NoobTubeShard;
             slot.Variable1 = 128;

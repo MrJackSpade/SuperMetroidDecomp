@@ -15,9 +15,15 @@ internal sealed class EnemyGraphicsSet
     /// <summary>Resolved graphics records in room-set order, used for DMA scheduling and per-enemy tile/palette indexes.</summary>
     internal readonly List<RoomEnemyGraphicsSetEntry> Entries = new();
 
-    /// <summary>The graphics set the room loaded, which selects its enemies' installed sheets.</summary>
-    internal RoomEnemyGraphicsSetDefinition? LoadedSet { get; private set; }
+    /// <summary>
+    /// The graphics set whose tiles and palettes the room draws under, which selects its installed sheets: the one it
+    /// loaded, or, when its population is empty and it loads none, the one it inherited.
+    /// </summary>
+    internal RoomEnemyGraphicsSetDefinition LoadedSet { get; private set; } = RoomEnemyGraphicsSetDefinitions.SessionStart;
 
+    /// <summary>Draws under the set the outgoing room left loaded, until this room loads its own.</summary>
+    /// <param name="graphicsSet">The outgoing room's loaded set.</param>
+    internal void Inherit(RoomEnemyGraphicsSetDefinition graphicsSet) => LoadedSet = Ensure.NotNull(graphicsSet);
 
 
     /// <summary>

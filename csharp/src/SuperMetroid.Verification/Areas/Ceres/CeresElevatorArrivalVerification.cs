@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Programs;
@@ -12,6 +13,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.Verification.Harness;
 
@@ -28,47 +30,30 @@ internal static class CeresElevatorArrivalVerification
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyCompiledDefinitions), () => VerifyCompiledDefinitions(rom));
         var memory = new TestAddressSpace();
-
-        // Give both one-entry spritemaps conspicuous source attributes. With native
-        // graphics index zero, AddEnemyProjectileSpritemap must preserve bytes $34/$A5.
-        // A leaked enemy graphics word would add a base tile and OR another OBJ palette.
-        var part = new SpriteVisualPart
-        {
-            OffsetX = 0, OffsetY = 0, TileColumn = 4, TileRow = 19,
-            Size = 8, Priority = 2, Palette = 2, FlipX = false, FlipY = true,
-        };
-        var document = new EnemyProjectileSpritemapDocument
-        {
-            Version = (int)EnemyProjectileSpritemapVersion.Current,
-            Frames = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(
-                frame => frame.Name,
-                frame => frame.Pointer is 0xb1ba or 0xb1d0 or 0x846d
-                    ? new[] { part } : Array.Empty<SpriteVisualPart>()),
-            ProgramFrames = EnemyProjectilePresentationFrameSets.All.ToDictionary(
-                frame => frame.Name, _ => Array.Empty<SpriteVisualPart>()),
-        };
-        var artwork = EnemyProjectileSpritemapCatalog.Load(new MemoryStream(
-            EnemyProjectileSpritemapCatalog.Write(document)));
+        EnemyProjectileSpritemapCatalog artwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps
+            ?? throw new InvalidOperationException("Verification requires the installed projectile compositions.");
         var bus = NewCeresArrivalDefinitionReadGuard(memory);
 
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0000)) };
         var arrival = new CeresElevatorArrivalState(samus, artwork);
         arrival.Step(samus);
 
+        // With native graphics index zero, each actor shows its composition at tile base zero in the parts' own
+        // palettes; a leaked enemy graphics word would add a base tile and OR another OBJ palette.
+        VerificationAssert.AssertTrue(arrival.pad.GraphicsIndex == 0 && arrival.platform.GraphicsIndex == 0,
+            "Ceres arrival actors draw with graphics index zero");
         var oam = new OamBuffer();
         oam.BeginFrame();
-        arrival.DrawAsOam(oam, camera: Position16<RoomPixels>.Zero);
-
-        VerificationAssert.AssertEqual(8, oam.NextByteOffset,
-            "Ceres pad and level-data concealer each emitted one OBJ");
-        VerificationAssert.AssertEqual(0x34, oam.LowTable[2],
-            "Ceres moving pad retained its room-graphics tile byte");
-        VerificationAssert.AssertEqual(0xa5, oam.LowTable[3],
-            "Ceres moving pad retained its room-graphics attribute byte");
-        VerificationAssert.AssertEqual(0x34, oam.LowTable[6],
-            "Ceres level-data concealer retained its room-graphics tile byte");
-        VerificationAssert.AssertEqual(0xa5, oam.LowTable[7],
-            "Ceres level-data concealer retained its room-graphics attribute byte");
+        arrival.DrawAsOam(oam, SpawnedObjectFixtures.Presentation(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElev0),
+            camera: Position16<RoomPixels>.Zero);
+        var expected = new OamBuffer();
+        expected.BeginFrame();
+        foreach (CeresElevatorArrivalState.CeresElevatorProjectile actor in new[] { arrival.pad, arrival.platform })
+            expected.AddEnemySpritemap(artwork.Get(CeresElevatorArrivalDefinitions.Frame(actor.Pose
+                    ?? throw new InvalidOperationException("Verification requires a shown arrival pose."))).Span,
+                actor.Position.ToScreen(Position16<RoomPixels>.Zero).ToOam(), 0, 0);
+        VerificationAssert.AssertTrue(expected.NextByteOffset > 0 && expected.ImageEquals(oam),
+            "Ceres pad and level-data concealer draw their compositions at tile base zero in their own palettes");
 
         int frames = 1;
         while (!arrival.IsComplete && frames++ < 200)

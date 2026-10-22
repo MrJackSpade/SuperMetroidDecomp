@@ -54,6 +54,47 @@ internal sealed class AnimationProgramSet<TProgram, TFrame, TCue>
     /// <summary>The steps of <paramref name="program"/>.</summary>
     internal IReadOnlyList<AnimationProgramStep<TProgram, TFrame, TCue>> Steps(TProgram program) => programs[program];
 
+    /// <summary>Every frame <paramref name="start"/> can show, through each program it goes, falls or repeats into.</summary>
+    internal IEnumerable<TFrame> FramesFrom(TProgram start)
+    {
+        var visited = new HashSet<TProgram>();
+        var pending = new Stack<TProgram>([start]);
+        var frames = new List<TFrame>();
+        while (pending.TryPop(out TProgram program))
+        {
+            if (!visited.Add(program))
+                continue;
+            foreach (AnimationProgramStep<TProgram, TFrame, TCue> step in programs[program])
+            {
+                switch (step)
+                {
+                    case AnimationProgramStep<TProgram, TFrame, TCue>.ShowStep show:
+                        frames.Add(show.Frame);
+                        break;
+                    case AnimationProgramStep<TProgram, TFrame, TCue>.GoToStep go:
+                        pending.Push(go.Target);
+                        break;
+                    case AnimationProgramStep<TProgram, TFrame, TCue>.FallIntoStep fall:
+                        pending.Push(fall.Target);
+                        break;
+                    case AnimationProgramStep<TProgram, TFrame, TCue>.RepeatWhileCountingStep repeat:
+                        pending.Push(repeat.Target);
+                        break;
+                    // These show nothing and lead nowhere else.
+                    case AnimationProgramStep<TProgram, TFrame, TCue>.CueStep:
+                    case AnimationProgramStep<TProgram, TFrame, TCue>.HoldStep:
+                    case AnimationProgramStep<TProgram, TFrame, TCue>.WaitStep:
+                    case AnimationProgramStep<TProgram, TFrame, TCue>.SetCounterStep:
+                    case AnimationProgramStep<TProgram, TFrame, TCue>.StopStep:
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Program {program} has an unknown step {step}.");
+                }
+            }
+        }
+        return frames.Distinct();
+    }
+
     /// <summary>
     /// The program a cursor belongs to: a cursor resting on a fall-through already belongs to the next
     /// program, as the cartridge's instruction pointer then points at it.

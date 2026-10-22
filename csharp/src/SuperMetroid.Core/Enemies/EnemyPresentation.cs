@@ -124,15 +124,45 @@ internal sealed class EnemyPresentation
         EnemyGraphicsIndexes composed = _graphicsSet.DrawIndexes(enemy);
         if (tileBase != composed.TileIndex)
             throw new InvalidDataException($"{enemy} draws at tile base ${tileBase:X3}; its sheet was composed at ${composed.TileIndex:X3}.");
-        IEnemySheetSource sheets = _room.Session.Sheets ?? throw new InvalidOperationException(
-            "Enemy drawing requires the installed enemy sheets.");
-        RoomEnemyGraphicsSetDefinition set = _graphicsSet.LoadedSet ?? throw new InvalidOperationException(
-            "Enemies draw after their room's graphics set loads.");
         int loaded = SnesObjAttributeWord.FromPaletteBits(checked((ushort)composed.PaletteIndex)).PaletteIndex;
         int drawn = SnesObjAttributeWord.FromPaletteBits(checked((ushort)paletteBits)).PaletteIndex;
-        sprites.Add(new ImageSpriteDraw(source, sheets.For(set, enemy).Frame(frame), origin, SpriteMirror.None,
+        sprites.Add(new ImageSpriteDraw(source, Sheets.For(LoadedSet, enemy).Frame(frame), origin, SpriteMirror.None,
             drawn == loaded ? null : drawn));
     }
+
+    /// <summary>
+    /// Whether the loaded graphics set's spawned objects (enemy projectiles, room sprite objects and the Ceres elevator's
+    /// platforms) draw from pre-coloured sheets (#1392); a set loading an enemy drawn from characters it uploads keeps
+    /// them on characters.
+    /// </summary>
+    internal bool SpawnsFromSheets => Sheets.SpawnsFromSheets(LoadedSet);
+
+    /// <summary>
+    /// Publishes one spawned object's frame from the loaded graphics set's sheet for the tile base it draws at (#1392).
+    /// While the draw's palette bits are not those the sheet was coloured with, the frame shows them ORed into each
+    /// part's own row, as the cartridge ORs them into each part.
+    /// </summary>
+    /// <param name="sprites">The frame's sprite description.</param>
+    /// <param name="source">The object shown.</param>
+    /// <param name="frame">The sheet frame's name.</param>
+    /// <param name="origin">The frame origin on screen.</param>
+    /// <param name="tileBase">The packed tile base the object's parts draw at.</param>
+    /// <param name="paletteBits">The draw's palette selection.</param>
+    /// <exception cref="InvalidDataException">The set has no sheet for that tile base.</exception>
+    internal void PublishSpawnedFrame(SpriteFrameBuffer sprites, SpriteSource source, string frame, Position16<ScreenPixels> origin,
+        int tileBase, ushort paletteBits)
+    {
+        SpawnedObjectSheet sheet = Sheets.Spawned(LoadedSet, tileBase);
+        int drawn = SnesObjAttributeWord.FromPaletteBits(paletteBits).PaletteIndex;
+        sprites.Add(new ImageSpriteDraw(source, sheet.Sheet.Frame(frame), origin, SpriteMirror.None, drawn == sheet.Palette ? null : drawn));
+    }
+
+    /// <summary>The installed enemy sheets.</summary>
+    private IEnemySheetSource Sheets => _room.Session.Sheets ?? throw new InvalidOperationException(
+        "Enemy drawing requires the installed enemy sheets.");
+
+    /// <summary>The graphics set the room draws under.</summary>
+    private RoomEnemyGraphicsSetDefinition LoadedSet => _graphicsSet.LoadedSet;
 
     /// <summary>Publishes one enemy-format frame over the OBJ page.</summary>
     /// <param name="sprites">The frame's sprite description.</param>

@@ -165,6 +165,12 @@ internal static class RoomEnemyDefinitionNative
     /// <summary>The native words of the header for <paramref name="id"/>.</summary>
     internal static RoomEnemyNativeWords Of(EnemyDefinitionId id) => Words[id];
 
+    /// <summary>Whether any enemy's header lives in <paramref name="bank"/>, so a slot can show that bank's frames.</summary>
+    internal static bool HoldsEnemy(byte bank) => Words.Values.Any(words => words.Bank == bank);
+
+    /// <summary>The first enemy whose header lives in <paramref name="bank"/>, whose frames that bank holds.</summary>
+    internal static EnemyDefinitionId FirstInBank(byte bank) => Words.First(entry => entry.Value.Bank == bank).Key;
+
     /// <summary>A slot's native header words.</summary>
     extension(RoomEnemySlot slot)
     {

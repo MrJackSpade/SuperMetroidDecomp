@@ -241,6 +241,10 @@ internal static void VerifyRoomEnemyLoading()
     // Load the next room's enemies, over the same session, with an empty population and a deliberately invalid
     // tileset. Native $A0:8A6D skips graphics processing, and InitializeEnemies' early return leaves
     // first-free/death-quota words untouched even though current enemy counts are cleared.
+    AssertTrue(ReferenceEquals(RoomEnemyGraphicsSetDefinitions.SessionStart,
+            new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0)).GraphicsSet.LoadedSet),
+        "a session's first room draws under no loaded graphics set until it loads one");
+    RoomEnemyGraphicsSetDefinition outgoingSet = enemies.GraphicsSet.LoadedSet;
     enemies = new RoomEnemySystem(enemies.Room.Session, EnemyRoomResidue.Of(enemies), bus, new StandaloneRoomEnemyServices(() => 0));
     const ushort emptyPopulationPointer = 0x9400;
     SeedRoomEnemyPopulation(bus, emptyPopulationPointer, deathQuota: 0x7f);
@@ -256,6 +260,8 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(0, enemies.RoomStatus.BossId, "room load clears boss ID before empty population");
     AssertEqual(0x4567, cgram.Colors[128], "empty population leaves CGRAM untouched");
     AssertEqual(0x5a, vram.ReadByte(0xe000), "empty population leaves enemy VRAM untouched");
+    AssertTrue(ReferenceEquals(outgoingSet, enemies.GraphicsSet.LoadedSet),
+        "empty population draws its spawned objects under the graphics set the outgoing room left loaded");
 
     Console.WriteLine(
         "  Enemies: complete headers, populations, spawn snapshots, palettes, tile staging, " +

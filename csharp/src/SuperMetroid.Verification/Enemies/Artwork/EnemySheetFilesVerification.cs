@@ -39,9 +39,9 @@ internal static class EnemySheetFilesVerification
 
             EnemySheetInputs inputs = EnemySheetInputs.Load(content);
             int members = 0, frames = 0;
-            foreach (RoomEnemyGraphicsSetDefinition set in RoomEnemyGraphicsSetDefinitions.All)
+            foreach (RoomEnemyGraphicsSetDefinition set in RoomEnemyGraphicsSetDefinitions.DrawnUnder)
             {
-                foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources) in EnemySheetComposer.Sources(inputs, set))
+                foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources) in EnemySheetComposer.Sources(inputs, set).Enemies)
                 {
                     members++;
                     SpriteSheet sheet = installed.For(set.Name, enemy);

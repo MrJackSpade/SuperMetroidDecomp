@@ -87,7 +87,7 @@ internal sealed class GameplayActorDrawing
             // $1000 selected by Draw_HighPriority_EnemyProjectile at `$86:8390`.
             // That named pass occurs here, before enemy layers zero through two and
             // Samus; lower OAM indices retain their native same-priority overlap win.
-            _room.CeresElevatorArrival?.Draw(_sprites, ObjectPage, _room.Camera.PixelPosition);
+            _room.CeresElevatorArrival?.Draw(_sprites, ObjectPage, room.Enemies.Presentation, _room.Camera.PixelPosition);
             if (room.Enemies.IsLoaded)
             {
                 room.Enemies.Projectiles.DrawHighPriorityEnemyProjectiles(

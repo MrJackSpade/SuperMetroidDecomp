@@ -20,9 +20,15 @@ internal static class FrozenMetroidShellVerification
     internal static int VerifyFrozenMetroidShell()
     {
         var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
+        // The shell draws as a Metroid room loads it: at the Metroid's tile base and in its palette.
+        enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetLoading(EnemyDefinitionId.Metroid),
+            new SnesVram(), new SnesCgram());
+        EnemyGraphicsIndexes indexes = enemies.GraphicsSet.DrawIndexes(EnemyDefinitionId.Metroid);
         var slot = enemies.SlotTable.Slots[0];
         slot.Position = slot.Position.WithWhole(new(120, 100));
         slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
+        slot.VramTilesIndex = indexes.TileIndex;
+        slot.PaletteIndex = indexes.PaletteIndex;
         enemies.MetroidBehavior.InitializeMetroid(slot);
         var state = enemies.MetroidStates[0];
         (state ?? throw new InvalidOperationException("Verification requires state.")).OuterBodyA.Position = state.OuterBodyA.Position.WithWholeX(500); // Isolate the shell from the electrical overlay.
@@ -45,7 +51,8 @@ internal static class FrozenMetroidShellVerification
             "Installed frozen shell artwork must exist.");
         var expected = new OamBuffer();
         expected.BeginFrame();
-        expected.AddEnemySpritemap(parts, new Position16<OamPixels>(120, 100), 0x0c00, 0);
+        expected.AddEnemySpritemap(parts, new Position16<OamPixels>(120, 100), 0x0c00,
+            checked((ushort)new SnesObjAttributeWord(checked((ushort)(indexes.TileIndex | indexes.PaletteIndex))).TileNumber));
         Require(expected.NextByteOffset > 0, "The frozen shell must contain visible sprite parts.");
         for (int frame = 0; frame < 3; frame++)
         {

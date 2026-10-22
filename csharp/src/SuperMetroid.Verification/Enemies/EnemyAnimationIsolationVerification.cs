@@ -5,6 +5,8 @@ using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerifi
 using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoRightOrbFramesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Audio;
@@ -19,11 +21,15 @@ internal static class EnemyAnimationIsolationVerification
     /// <summary>Compares stock and edited artwork identities, then runs ordinary and boss behavior fixtures.</summary>
     internal static void VerifyEnemyAnimationIsolation()
     {
-        var stock = new EnemyIdentityFixture().Build();
-        var edited = CreateEditedEnemyAnimationArtwork();
+        (InstalledEnemyArtwork stock, InstalledEnemyArtwork edited) = CreateEnemyAnimationArtwork();
         AssertTrue(stock.ContentIdentity != edited.ContentIdentity, "animation replacement changes selected artwork identity");
-        Suite(nameof(VerifyBoyonAnimationIsolation), () => VerifyBoyonAnimationIsolation(new(stock, golden: false), new(edited, golden: false)));
-        Suite(nameof(VerifyTorizoAnimationIsolation), () => VerifyTorizoAnimationIsolation(new(stock, golden: true), new(edited, golden: true)));
+        // Each actor draws as a room drawing it does, under the graphics set that room loads.
+        RoomEnemyGraphicsSetDefinition boyonSet = SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Boyon);
+        RoomEnemyGraphicsSetDefinition torizoSet = SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.GoldenTorizo);
+        Suite(nameof(VerifyBoyonAnimationIsolation), () => VerifyBoyonAnimationIsolation(new(stock, golden: false, boyonSet),
+            new(edited, golden: false, boyonSet)));
+        Suite(nameof(VerifyTorizoAnimationIsolation), () => VerifyTorizoAnimationIsolation(new(stock, golden: true, torizoSet),
+            new(edited, golden: true, torizoSet)));
         Console.WriteLine("Enemy animation isolation: RAM-only ordinary proximity/bounce, " +
             "boss attack/hitbox windows and death progression remain frame-exact with replaced display sequences and projectile art.");
     }

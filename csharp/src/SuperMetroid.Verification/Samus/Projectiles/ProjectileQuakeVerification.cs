@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Enemies.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -55,10 +56,17 @@ internal static class ProjectileQuakeVerification
             ushort x = unchecked((ushort)(position + dx)), y = unchecked((ushort)(position + dy));
             var expected = new OamBuffer();
             expected.BeginFrame();
-            // Independent native $86:83D6 origin culling and spritemap dispatch.
+            // Independent native $86:83D6 origin culling and spritemap dispatch. The sprite list places every part at its
+            // signed position and leaves clipping at the screen edges to the backend; native OAM instead parks a part that
+            // crosses the top or bottom edge at Y=$F0, so the oracle places the native parts without that clip.
             if (((x + 128) & 0xfe00) == 0 && ((y + 128) & 0xfe00) == 0)
-                DrawImportedEnemyProjectileSpritemap(bus, expected, nativeSpritemap, new(x, y),
-                    checked((ushort)actor.GraphicsIndex), originYIsOnScreen: (SnesLittleEndian.HighByte(y)) == 0);
+                ImportedSpritemapOracle.DrawEnemy(CartridgeImportSource.Require(bus), expected, new NativeEnemySpritemapDraw
+                {
+                    Bank = 0x8d, Pointer = nativeSpritemap, Origin = new(x, y),
+                    PaletteBits = new SnesObjAttributeWord(checked((ushort)actor.GraphicsIndex)).PaletteBits,
+                    BaseTileIndex = unchecked((byte)actor.GraphicsIndex), ClipVerticalWrap = false,
+                    OriginYIsOnScreen = (SnesLittleEndian.HighByte(y)) == 0,
+                });
             expected.FinalizeFrame();
             var actual = new OamBuffer();
             actual.BeginFrame();

@@ -15,10 +15,14 @@ internal sealed class RoomSpriteObjectPool
     /// <summary>Supplies installed spritemap artwork when visible room objects are drawn.</summary>
     private readonly EnemyRoomBinding _room;
 
+    /// <summary>Publishes the objects from the loaded graphics set's sheets.</summary>
+    private readonly EnemyPresentation _presentation;
+
     /// <summary>Connects decorative sprite objects to the room's presentation bindings.</summary>
-    internal RoomSpriteObjectPool(EnemyRoomBinding room)
+    internal RoomSpriteObjectPool(EnemyRoomBinding room, EnemyPresentation presentation)
     {
         _room = room;
+        _presentation = presentation;
     }
     /// <summary>The cartridge allocates 32 physical sprite-object slots, searched from highest to lowest.</summary>
     internal const int RoomSpriteObjectSlotCount = 32;
@@ -126,6 +130,7 @@ internal sealed class RoomSpriteObjectPool
     /// <param name="camera">Layer-one camera position in whole room pixels.</param>
     internal void DrawRoomSpriteObjects(SpriteFrameBuffer sprites, SpriteArtwork objects, Position16<RoomPixels> camera)
     {
+        bool fromSheets = _presentation.SpawnsFromSheets;
         for (int index = _roomSpriteObjects.Length - 1; index >= 0; index--)
         {
             RoomSpriteObjectSlot slot = _roomSpriteObjects[index];
@@ -146,9 +151,15 @@ internal sealed class RoomSpriteObjectPool
 
             ushort paletteBits = slot.Attributes.PaletteBits;
             ushort baseTileIndex = checked((ushort)slot.Attributes.TileNumber);
+            EnemyFrameId shown = RoomSpriteObjectVisualDefinitions.ShownFrames.Of(slot.Frame);
+            if (fromSheets)
+            {
+                _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.RoomSpriteObject, index),
+                    EnemySheetDefinitions.SpriteObjectFrameName(shown), screen, baseTileIndex, paletteBits);
+                continue;
+            }
             var spritemaps = _room.Artwork?.Spritemaps ?? throw new InvalidOperationException(
                 "Room sprite objects require installed sprite artwork.");
-            EnemyFrameId shown = RoomSpriteObjectVisualDefinitions.ShownFrames.Of(slot.Frame);
             if (!spritemaps.TryGetDisplay(shown, out EnemySpritemapParts installed))
             {
                 throw new InvalidDataException(

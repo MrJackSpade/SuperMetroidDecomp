@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Verification.Enemies.Puyo;
@@ -457,6 +458,9 @@ internal static class EnemySpritemapArtworkVerification
             "every installed Rinka composition is shown by a Rinka program");
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
+            // A frame at the common empty spritemap's word, which every enemy bank repeats, is that compiled empty frame.
+            if (SuperMetroid.AssetExtraction.Enemies.EnemyFrameCartridgeLookupTooling.TryFrameAt(frame.Bank, frame.Pointer) == EnemyFrameId.Empty)
+                continue;
             AssertTrue((stock.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGet(frame.Bank, frame.Pointer, out var parts),
                 $"installed enemy frame {frame.Name} exists");
             AssertTrue(stock.Enemies.Spritemaps.TryGetDisplay(frame.Bank, frame.Pointer, out _),
@@ -487,139 +491,20 @@ internal static class EnemySpritemapArtworkVerification
                 continue;
             if (frame.Name.StartsWith("ridley_supplement_", StringComparison.Ordinal))
                 continue;
-            var room = DrawEnemy(stock, NewFrameReadGuard(rom, frame.Name), frame.Pointer,
-                frame.Name.StartsWith("boyon_", StringComparison.Ordinal)
-                    ? EnemyDefinitionId.Boyon
-                    : frame.Name.StartsWith("mochtroid_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Mochtroid
-                    : frame.Name.StartsWith("evir_projectile_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.EvirProjectile
-                    : frame.Name.StartsWith("evir_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Evir
-                    : frame.Name.StartsWith("work_robot_unpowered_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.RobotNoPower
-                    : frame.Name.StartsWith("work_robot_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Robot
-                    : frame.Name.StartsWith("yard_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Yard
-                    : frame.Name.StartsWith("botwoon_head_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Botwoon
-                    : frame.Name.StartsWith("sciser_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Sciser
-                    : frame.Name.StartsWith("fly_shared_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Mellow
-                    : frame.Name.StartsWith("kago_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Kago
-                    : frame.Name.StartsWith("face_block_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.FaceBlock
-                    : frame.Name.StartsWith("morph_eye_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Eye
-                    : frame.Name.StartsWith("metroid_body_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Metroid
-                    : frame.Name.StartsWith("shaktool_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Shaktool
-                    : frame.Name.StartsWith("tripper_kamer_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Kamer2
-                    : frame.Name.StartsWith("tripper_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Tripper
-                    : frame.Name.StartsWith("dragon_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Dragon
-                    : frame.Name.StartsWith("multiviola_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Multiviola
-                    : frame.Name.StartsWith("norfair_lava_jumper_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Squeept
-                    : frame.Name.StartsWith("chozo_statue_aa_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Chozo
-                    : frame.Name.StartsWith("viola_spin_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Viola
-                    : frame.Name.StartsWith("rinka_spin_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Rinka
-                    : frame.Name.StartsWith("shutter_growing_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.ShutterGrowing
-                    : frame.Name.StartsWith("shutter_vertical_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.ShutterShootable
-                    : frame.Name.StartsWith("shutter_horizontal", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.ShutterHorizShootable
-                    : frame.Name.StartsWith("norfair_rio_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Geruta
-                    : frame.Name.StartsWith("lower_norfair_rio_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Holtz
-                    : frame.Name.StartsWith("rio_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Rio
-                    : frame.Name.StartsWith("puyo_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Puyo
-                    : frame.Name.StartsWith("bull_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Bull
-                    : frame.Name.StartsWith("alcoon_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Alcoon
-                    : frame.Name.StartsWith("beetom_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Beetom
-                    : frame.Name.StartsWith("large_sidehopper_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.SidehopperLarge
-                    : frame.Name.StartsWith("sidehopper_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Sidehopper
-                    : frame.Name.StartsWith("large_dessgeega_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.DessgeegaLarge
-                    : frame.Name.StartsWith("dessgeega_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Dessgeega
-                    : frame.Name.StartsWith("choot_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Choot
-                    : frame.Name.StartsWith("hzoomer_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.HZoomer
-                    : frame.Name.StartsWith("sbug_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Sbug
-                    : frame.Name.StartsWith("fune_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Fune
-                    : frame.Name.StartsWith("namihe_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Namihe
-                    : frame.Name.StartsWith("kamer_platform_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Kamer
-                    : frame.Name.StartsWith("elevator_platform_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Elevator
-                    : frame.Name.StartsWith("cacatac_", StringComparison.Ordinal)
-                        ? EnemyDefinitionId.Cacatac
-                        : frame.Name.StartsWith("boulder_", StringComparison.Ordinal)
-                            ? EnemyDefinitionId.Boulder
-                            : frame.Name.StartsWith("skultera_", StringComparison.Ordinal)
-                                ? EnemyDefinitionId.Skultera
-                                : frame.Name.StartsWith("waver_", StringComparison.Ordinal)
-                                    ? EnemyDefinitionId.Waver
-                                    : frame.Name.StartsWith("zoa_", StringComparison.Ordinal)
-                                        ? EnemyDefinitionId.Zoa
-                                        : frame.Name.StartsWith("metaree_", StringComparison.Ordinal)
-                                            ? EnemyDefinitionId.Metaree
-                                            : frame.Name.StartsWith("skree_", StringComparison.Ordinal)
-                                                ? EnemyDefinitionId.Skree
-                                                : frame.Name.StartsWith("pipe_brinstar_strong_", StringComparison.Ordinal)
-                                                    ? EnemyDefinitionId.Zebbo
-                                                    : frame.Name.StartsWith("pipe_brinstar_", StringComparison.Ordinal)
-                                                        ? EnemyDefinitionId.Zeb
-                                                        : frame.Name.StartsWith("pipe_norfair_", StringComparison.Ordinal)
-                                                            ? EnemyDefinitionId.Gamet
-                                                            : frame.Name.StartsWith("pipe_yellow_", StringComparison.Ordinal)
-                                                                ? EnemyDefinitionId.Geega
-                                                                : frame.Name.StartsWith("fake_kraid_", StringComparison.Ordinal)
-                                                                    ? EnemyDefinitionId.MiniKraid
-                                                                : frame.Name.StartsWith("kraid_nail_", StringComparison.Ordinal)
-                                                                        ? EnemyDefinitionId.KraidNail
-                                                                        : frame.Name.StartsWith("owtch_", StringComparison.Ordinal)
-                                                                            ? EnemyDefinitionId.Owtch
-                                                                            : frame.Name.StartsWith("stoke_", StringComparison.Ordinal)
-                                                                                ? EnemyDefinitionId.Stoke
-                                                                                : frame.Name.StartsWith("ripper_shared_", StringComparison.Ordinal)
-                                                                                    ? EnemyDefinitionId.GRipper
-                                                                                    : frame.Name.StartsWith("ripper_", StringComparison.Ordinal)
-                                                                                        ? EnemyDefinitionId.Ripper
-                                                                                        : frame.Name.StartsWith("fireflea_", StringComparison.Ordinal)
-                                                                                            ? EnemyDefinitionId.Fireflea
-                                                                : frame.Name.StartsWith("ceres_door_", StringComparison.Ordinal) ||
-                                                                  frame.Name.StartsWith("ceres_baby_", StringComparison.Ordinal)
-                                                                    ? EnemyDefinitionId.CeresDoor
-                                                                : frame.Name.StartsWith("magdollite_", StringComparison.Ordinal)
-                                                                                                ? EnemyDefinitionId.Magdollite
-                                : EnemyDefinitionId.Atomic, spritemapBank: frame.Bank);
+            // A room draws a frame as the enemy whose behaviour shows it; a frame only an enemy drawing from the characters
+            // it uploads shows, as Ridley carrying the Ceres Baby, draws through that enemy's own route instead.
+            if (FrameOwner(RoomEnemySlotFrameAccess.FrameAt(frame.Bank, frame.Pointer)) is not { } owner)
+                continue;
+            RoomEnemySlot? drawn = null;
+            var room = DrawEnemy(stock, NewFrameReadGuard(rom, frame.Name), frame.Pointer, owner, inspect: slot => drawn = slot,
+                spritemapBank: frame.Bank);
             var nativeRoom = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, nativeRoom, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(0x0040, 0x0080), PaletteBits = 0, BaseTileIndex = 0 });
+            DrawImportedEnemySpritemap(rom, nativeRoom, new NativeEnemySpritemapDraw
+            {
+                Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(0x0040, 0x0080),
+                PaletteBits = checked((ushort)(drawn ?? throw new InvalidOperationException("Verification requires the drawn slot.")).PaletteIndex),
+                BaseTileIndex = checked((ushort)drawn.VramTilesIndex),
+            });
             AssertTrue(room.ImageEquals(nativeRoom),
                 $"production room draws installed {frame.Name} without visual ROM reads");
         }
@@ -871,7 +756,9 @@ internal static class EnemySpritemapArtworkVerification
         {
             EnemySpritemapCatalog lavaJumperUpgraded = EnemySpritemapDocuments.Load(
                 preNorfairLavaJumperJson, stock.Enemies.Spritemaps);
-            foreach (NativeEnemySpritemapDefinition frame in NorfairLavaJumperVisualDefinitions.Frames())
+            // The lava jumper's $804D is the common empty spritemap, which is compiled rather than installed.
+            foreach (NativeEnemySpritemapDefinition frame in NorfairLavaJumperVisualDefinitions.Frames().Where(frame =>
+                         SuperMetroid.AssetExtraction.Enemies.EnemyFrameCartridgeLookupTooling.TryFrameAt(frame.Bank, frame.Pointer) != EnemyFrameId.Empty))
                 AssertTrue(lavaJumperUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-forty-nine override inherits lava-jumper frame {frame.Name}");
         }
@@ -1485,12 +1372,8 @@ internal static class EnemySpritemapArtworkVerification
             "authored Ceres door Y offset changes live room OAM");
         AssertEqual(stockCeresDoor.LowTable[0], editedCeresDoor.LowTable[0],
             "Ceres door visual edit leaves physical X unchanged");
-        OamBuffer stockCeresBaby = DrawEnemy(stock, NewFrameReadGuard(rom),
-            CeresBabyFrameDefinitionsConstants.RoundFrame,
-            EnemyDefinitionId.CeresDoor);
-        OamBuffer editedCeresBaby = DrawEnemy(edited, NewFrameReadGuard(rom),
-            CeresBabyFrameDefinitionsConstants.RoundFrame,
-            EnemyDefinitionId.CeresDoor);
+        OamBuffer stockCeresBaby = DrawCeresBaby(stock, CeresBabyPose.Round);
+        OamBuffer editedCeresBaby = DrawCeresBaby(edited, CeresBabyPose.Round);
         AssertEqual(unchecked((byte)(stockCeresBaby.LowTable[1] + 1)),
             editedCeresBaby.LowTable[1],
             "authored Ceres Baby Y offset changes installed OAM");
@@ -1764,8 +1647,8 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(stockHZoomer.LowTable[0], editedHZoomer.LowTable[0],
             "HZoomer visual edit leaves physical X unchanged");
         ushort sbugPointer = SbugAnimationsConstants.Spritemaps(SbugProgram.Right).First();
-        foreach (EnemyDefinitionId definition in new EnemyDefinitionId[]
-                 { EnemyDefinitionId.Sbug, EnemyDefinitionId.Sbug2 })
+        // No retail room places Sbug2, so only Sbug draws.
+        foreach (EnemyDefinitionId definition in new EnemyDefinitionId[] { EnemyDefinitionId.Sbug })
         {
             OamBuffer stockSbug = DrawEnemy(stock, NewFrameReadGuard(rom),
                 sbugPointer, definition);
@@ -2916,15 +2799,26 @@ internal static class EnemySpritemapArtworkVerification
             () => LoadSpritemapOverride(),
             "malformed enemy composition override fails loudly");
 
+        static EnemyDefinitionId? FrameOwner(EnemyFrameId? frame) => frame is not { } shown ? null
+            : EnemyDefinitionFrameDefinitions.Frames.Where(entry => entry.Value.Contains(shown)
+                    && !EnemySheetDefinitions.DrawnFromCharacters.Contains(entry.Key))
+                .Select(entry => (EnemyDefinitionId?)entry.Key).Order().FirstOrDefault();
+
         static OamBuffer DrawEnemy(InstalledEnemyArtwork art,
             ISnesAddressSpace guard, ushort pointer, EnemyDefinitionId definition,
             Action<RoomEnemySlot>? inspect = null, byte? spritemapBank = null)
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
+            // The enemy draws as a room drawing it loads it: at its tile base and in its palette there.
+            enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(definition),
+                new SnesVram(), new SnesCgram());
+            EnemyGraphicsIndexes indexes = enemies.GraphicsSet.DrawIndexes(definition);
             enemies.Drawing.Enqueue(0, 0);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(definition, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+            slot.VramTilesIndex = indexes.TileIndex;
+            slot.PaletteIndex = indexes.PaletteIndex;
             // The catalog-wide composition check includes families newer than the
             // fixture's actor-name mapping. Its frame identity owns the actual bank.
             byte frameBank = spritemapBank ?? (definition == EnemyDefinitionId.YappingMaw
@@ -3077,12 +2971,34 @@ internal static class EnemySpritemapArtworkVerification
         return oam;
     }
 
+    /// <summary>Draws the Baby as Ceres Ridley's scene shows it before Ridley moves, holding <paramref name="pose"/>.</summary>
+    private static OamBuffer DrawCeresBaby(InstalledEnemyArtwork art, CeresBabyPose pose)
+    {
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
+        RoomEnemySlot ridley = enemies.SlotTable.Slots[0];
+        ridley.Bind(EnemyDefinitionId.RidleyCeres, ridley.Definition);
+        // A pose part-way through its duration is held for this draw update.
+        enemies.RidleyEncounter.Ridley = new SuperMetroid.Core.Bosses.Ridley.RidleyEnemyState
+        {
+            BabyCurrentPose = pose, BabyPoseDuration = 2, BabyInstructionTimer = 1,
+            BabyPosition = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0080)),
+        };
+        var oam = new OamBuffer();
+        oam.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(
+            frame, EnemyFormatDrawAccess.BlankObjectPage, Position16<RoomPixels>.Zero));
+        AssertTrue(oam.NextByteOffset > 0, "Ceres Baby drew OAM");
+        return oam;
+    }
+
     /// <summary>Spawns and draws a room sprite object to inspect its installed OAM output.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static OamBuffer DrawRoomSpriteObject(InstalledEnemyArtwork art,
         RoomSpriteObjectKind kind)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
+        // Draygon's evirs show in Draygon's room, whose graphics set loads her.
+        enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.DraygonBody),
+            new SnesVram(), new SnesCgram());
         Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, ushort, RoomSpriteObjectSlot?> spawn =
             (owner, position, kind, graphicsIndex) => owner.SpriteObjects.SpawnRoomSpriteObject(position, kind, graphicsIndex);
         Action<RoomEnemySystem, OamBuffer, Position16<RoomPixels>> draw =

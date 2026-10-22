@@ -41,6 +41,10 @@ internal static class EnemySpriteArtworkBoundaryVerification
         InstalledEnemyArtwork artwork = installation.LoadEnemyTiles();
         EnemyProjectileSpritemapCatalog projectileArtwork = (artwork.Enemies.ProjectileSpritemaps ?? throw new InvalidOperationException("Verification requires artwork.ProjectileSpritemaps."));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
+        // A set whose boss or corpse uploads its own characters still draws its spawned objects from their parts,
+        // the composition this oracle compares with the cartridge's.
+        enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.CharacterDrawnSet,
+            new SnesVram(), new SnesCgram());
         int enemyCases = 0, projectileCases = 0, spriteObjectCases = 0;
 
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
@@ -112,7 +116,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
         var elevator = new CeresElevatorArrivalState(samus, projectileArtwork);
         elevator.Step(samus);
         var elevatorActual = new OamBuffer(); var elevatorExpected = new OamBuffer();
-        elevator.DrawAsOam(elevatorActual, Position16<RoomPixels>.Zero);
+        elevator.DrawAsOam(elevatorActual, SuperMetroid.TestSupport.RepositoryInstallation.Verification.SpawnedObjectFixtures.Presentation(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElev0), Position16<RoomPixels>.Zero);
         foreach (var actor in new[] { elevator.pad, elevator.platform })
         {
             var position = actor.Position;

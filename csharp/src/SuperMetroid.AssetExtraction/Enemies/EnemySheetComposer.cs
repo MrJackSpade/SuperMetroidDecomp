@@ -38,10 +38,13 @@ internal static class EnemySheetComposer
         var sheets = new Dictionary<string, ComposedSpriteSheet>(StringComparer.Ordinal);
         var perEnemy = new Dictionary<EnemyDefinitionId, int>();
         var sets = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
-        foreach (RoomEnemyGraphicsSetDefinition set in RoomEnemyGraphicsSetDefinitions.All)
+        var spawned = new Dictionary<string, Dictionary<string, SpawnedObjectSheetDocument>>(StringComparer.Ordinal);
+        var perBase = new Dictionary<int, int>();
+        foreach (RoomEnemyGraphicsSetDefinition set in RoomEnemyGraphicsSetDefinitions.DrawnUnder)
         {
+            GraphicsSetSheetSources setSources = Sources(inputs, set);
             var members = new Dictionary<string, string>(StringComparer.Ordinal);
-            foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources) in Sources(inputs, set))
+            foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources) in setSources.Enemies)
             {
                 ComposedSpriteSheet composed = SpriteSheetComposer.Compose(sources, 0, 0);
                 string key = Fingerprint(composed);
@@ -59,18 +62,77 @@ internal static class EnemySheetComposer
                 members[enemy.ToString()] = name;
             }
             sets.Add(set.Name, members);
+            if (!setSources.SpawnsFromSheets)
+                continue;
+            var bases = new Dictionary<string, SpawnedObjectSheetDocument>(StringComparer.Ordinal);
+            foreach ((SpawnedObjectSheetPlan plan, SpriteSheetSources sources) in setSources.Spawned)
+            {
+                ComposedSpriteSheet composed = SpriteSheetComposer.Compose(sources, 0, 0);
+                string key = Fingerprint(composed);
+                if (!distinct.TryGetValue(key, out string? name))
+                {
+                    int ordinal = perBase.GetValueOrDefault(plan.TileBase);
+                    perBase[plan.TileBase] = ordinal + 1;
+                    name = $"Spawned-{plan.TileBase:X3}.{ordinal}";
+                    distinct.Add(key, name);
+                    sheets.Add(name, composed);
+                }
+                bases.Add(plan.TileBase.ToString(System.Globalization.CultureInfo.InvariantCulture), new SpawnedObjectSheetDocument
+                {
+                    Sheet = name,
+                    Palette = plan.Palette,
+                    Spawners = [.. plan.Spawners.Select(enemy => enemy.ToString())],
+                    Anywhere = plan.Anywhere,
+                });
+            }
+            spawned.Add(set.Name, bases);
         }
-        return new EnemySheetComposition(sheets, new EnemySheetManifestDocument { Version = EnemySheetDefinitions.ManifestVersion, Sets = sets });
+        return new EnemySheetComposition(sheets, new EnemySheetManifestDocument
+        {
+            Version = EnemySheetDefinitions.ManifestVersion, Sets = sets, Spawned = spawned,
+        });
     }
 
     /// <summary>
-    /// What each enemy drawn under <paramref name="set"/> composes: its members in record order, then each enemy its
-    /// rooms place without the set loading it, which draws from the standard characters in the standard palette as the
-    /// cartridge falls back to them. An enemy whose definition draws no frames, as the unported ones, or draws from
-    /// characters it uploads, has no sheet.
+    /// What graphics set <paramref name="set"/> composes. Each enemy drawn under it: its members in record order, then
+    /// each enemy its rooms place without the set loading it, which draws from the standard characters in the standard
+    /// palette as the cartridge falls back to them; an enemy whose definition draws no frames, as the unported ones, or
+    /// draws from characters it uploads, has no sheet. And each spawned-object sheet, when its spawned objects draw from
+    /// sheets.
     /// </summary>
-    internal static IEnumerable<(EnemyDefinitionId Enemy, SpriteSheetSources Sources)> Sources(EnemySheetInputs inputs,
-        RoomEnemyGraphicsSetDefinition set)
+    internal static GraphicsSetSheetSources Sources(EnemySheetInputs inputs, RoomEnemyGraphicsSetDefinition set)
+    {
+        LoadedGraphicsSet loaded = Load(inputs, set);
+        bool spawnsFromSheets = SpawnedObjectSheetComposer.Covers(loaded.Drawn);
+        return new GraphicsSetSheetSources([.. EnemySources(inputs, loaded)], spawnsFromSheets,
+            spawnsFromSheets ? [.. SpawnedObjectSheetComposer.Plans(loaded.Graphics, loaded.Drawn).Select(plan => new SpawnedObjectSheetSource(
+                plan, SpawnedObjectSheetComposer.Sources(inputs.Enemies, plan, loaded.Page, loaded.Colours)))] : []);
+    }
+
+    /// <summary>What each enemy drawn under <paramref name="loaded"/> composes.</summary>
+    private static IEnumerable<EnemySheetSource> EnemySources(EnemySheetInputs inputs, LoadedGraphicsSet loaded)
+    {
+        EnemyGraphicsSet graphics = loaded.Graphics;
+        SpriteArtwork page = loaded.Page;
+        Bgr555[] colours = loaded.Colours;
+        foreach (EnemyDefinitionId enemy in loaded.Drawn)
+        {
+            if (EnemySheetDefinitions.DrawnFromCharacters.Contains(enemy) ||
+                !EnemyDefinitionFrameDefinitions.Frames.TryGetValue(enemy, out IReadOnlyList<EnemyFrameId>? shown))
+                continue;
+            EnemyGraphicsIndexes indexes = graphics.DrawIndexes(enemy);
+            int paletteBits = SnesObjAttributeWord.FromPaletteBits(checked((ushort)indexes.PaletteIndex)).PaletteIndex;
+            yield return new EnemySheetSource(enemy, new SpriteSheetSources(Frames(inputs.Enemies, shown, checked((ushort)indexes.TileIndex), page).ToList(),
+                colours, ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection), paletteBits));
+        }
+    }
+
+    /// <summary>
+    /// Graphics set <paramref name="set"/> as a room load leaves it: its enemy graphics, its OBJ page, its sprite colours,
+    /// and the enemies drawn under it, its members in record order and then each enemy its rooms place without the set
+    /// loading it.
+    /// </summary>
+    private static LoadedGraphicsSet Load(EnemySheetInputs inputs, RoomEnemyGraphicsSetDefinition set)
     {
         Ensure.NotNull(inputs);
         Ensure.NotNull(set);
@@ -78,23 +140,19 @@ internal static class EnemySheetComposer
             CompiledRoomEnemyDefinitions.Instance, services: null));
         SnesCgram cgram = RoomLoadPalettes.Cgram(inputs.Palettes);
         graphics.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set, new SnesVram(), cgram);
-        SpriteArtwork page = Page(inputs, graphics);
-        Bgr555[] colours = cgram.Colors[SpriteColours..].ToArray();
-        IEnumerable<EnemyDefinitionId> members = graphics.Entries.Select(entry => entry.DefinitionId);
+        List<EnemyDefinitionId> members = [.. graphics.Entries.Select(entry => entry.DefinitionId)];
         IEnumerable<EnemyDefinitionId> placed = RoomStateDefinitions.All.Where(state => state.EnemyGraphicsSet.Name == set.Name)
             .SelectMany(state => state.EnemyPopulation.Records.ToArray().Select(record => record.DefinitionId))
             .Except(members).Distinct().Order();
-        foreach (EnemyDefinitionId enemy in members.Concat(placed))
-        {
-            if (EnemySheetDefinitions.DrawnFromCharacters.Contains(enemy) ||
-                !EnemyDefinitionFrameDefinitions.Frames.TryGetValue(enemy, out IReadOnlyList<EnemyFrameId>? shown))
-                continue;
-            EnemyGraphicsIndexes indexes = graphics.DrawIndexes(enemy);
-            int paletteBits = SnesObjAttributeWord.FromPaletteBits(checked((ushort)indexes.PaletteIndex)).PaletteIndex;
-            yield return (enemy, new SpriteSheetSources(Frames(inputs.Enemies, shown, checked((ushort)indexes.TileIndex), page).ToList(),
-                colours, ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection), paletteBits));
-        }
+        return new LoadedGraphicsSet(graphics, Page(inputs, graphics), cgram.Colors[SpriteColours..].ToArray(), [.. members, .. placed]);
     }
+
+    /// <summary>A room graphics set as a room load leaves it.</summary>
+    /// <param name="Graphics">Its enemy graphics, which give each enemy's tile base and palette.</param>
+    /// <param name="Page">Its OBJ character page.</param>
+    /// <param name="Colours">Its sprite colours.</param>
+    /// <param name="Drawn">The enemies drawn under it: its members in record order, then the enemies its rooms place without it loading them.</param>
+    private sealed record LoadedGraphicsSet(EnemyGraphicsSet Graphics, SpriteArtwork Page, Bgr555[] Colours, IReadOnlyList<EnemyDefinitionId> Drawn);
 
     /// <summary>The OBJ character table as the set leaves it: the standard characters, then each member's tile upload.</summary>
     private static SpriteArtwork Page(EnemySheetInputs inputs, EnemyGraphicsSet graphics)

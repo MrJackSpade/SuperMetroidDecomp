@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -1258,7 +1259,9 @@ internal static class RoomPlmPopulationVerification
             ProgramFrames = EnemyProjectilePresentationFrameSets.All.ToDictionary(
                 frame => frame.Name, frame => electricityOperands.Contains(frame.OperandAddress) ? new[] { visible } : Array.Empty<SpriteVisualPart>()),
         };
-        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ProjectileSpritemaps = EnemyProjectileSpritemapCatalog.Load(new MemoryStream(
+        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
+            // The save room's sprite objects compose with the installed enemy compositions.
+            Spritemaps = InstalledFixtures.EnemyTiles.Spritemaps, ProjectileSpritemaps = EnemyProjectileSpritemapCatalog.Load(new MemoryStream(
                 EnemyProjectileSpritemapCatalog.Write(artworkDocument))) });
 
         RoomEnemyProjectileSlot electricity = enemies.Projectiles.EnemyProjectiles.Single(

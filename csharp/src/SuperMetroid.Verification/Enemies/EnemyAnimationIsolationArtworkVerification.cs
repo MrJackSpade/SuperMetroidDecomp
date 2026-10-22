@@ -1,4 +1,7 @@
+using System.Text.Json;
 using SuperMetroid.Core.World.Artwork;
+using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.Tooling;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -14,11 +17,23 @@ namespace SuperMetroid.Verification.Enemies;
 /// <summary>Builds distinct edited enemy visuals and checks their rendered OAM independently of animation state.</summary>
 internal static class EnemyAnimationIsolationArtworkVerification
 {
-    /// <summary>Changes Boyon, Torizo, projectile, death, and pickup artwork while remapping selected display frames.</summary>
-    internal static InstalledEnemyArtwork CreateEditedEnemyAnimationArtwork()
+    /// <summary>Reads the installed composition documents case-insensitively, as the installation loader does.</summary>
+    private static readonly JsonSerializerOptions InstalledJson = new() { PropertyNameCaseInsensitive = true };
+
+    /// <summary>Writes override documents in the installation's camel-case form.</summary>
+    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
+    /// <summary>
+    /// The installed enemy artwork, and that artwork with Boyon, Torizo, projectile, death and pickup visuals changed
+    /// and selected display frames remapped, authored as override files the installation loader selects (#1392). Both
+    /// keep the installed tiles and colours, so each actor's sheet composes as a room drawing it composes it.
+    /// </summary>
+    internal static (InstalledEnemyArtwork Stock, InstalledEnemyArtwork Edited) CreateEnemyAnimationArtwork()
     {
-        var fixture = new EnemyIdentityFixture();
-        EnemySpritemapDocument ordinary = fixture.OamDocument();
+        string stockDirectory = RepositoryInstallation.Installation.EnemyTileDirectory;
+        T Installed<T>(string fileName) =>
+            RequiredJson.Deserialize<T>(File.ReadAllBytes(Path.Combine(stockDirectory, fileName)), InstalledJson);
+        EnemySpritemapDocument ordinary = Installed<EnemySpritemapDocument>(EnemySpritemapDefinitions.FileName);
         var boyon = EnemySpritemapDefinitions.Frames
             .Where(frame => frame.Name.StartsWith("boyon_", StringComparison.Ordinal)).ToArray();
         for (int index = 0; index < boyon.Length; index++)
@@ -30,7 +45,7 @@ internal static class EnemyAnimationIsolationArtworkVerification
             (ordinary.DisplayFrames ?? throw new InvalidOperationException("Verification requires ordinary.DisplayFrames."))[boyon[index].Name] = boyon[(index + 1) % boyon.Length].Name;
         }
 
-        EnemyExtendedFrameDocument extended = fixture.ExtendedDocument();
+        EnemyExtendedFrameDocument extended = Installed<EnemyExtendedFrameDocument>(EnemyExtendedFrameDefinitions.FileName);
         var torizo = EnemyExtendedFrameDefinitions.Frames
             .Where(frame => frame.Bank == TorizoFrameDefinitionsConstants.Bank).ToArray();
         for (int index = 0; index < torizo.Length; index++)
@@ -46,14 +61,25 @@ internal static class EnemyAnimationIsolationArtworkVerification
 
         // Change every projectile/death/pickup visual too: its instruction clocks,
         // positions, damage and random drop decisions must remain unchanged.
-        EnemyProjectileSpritemapDocument projectile = fixture.ProjectileDocument();
+        EnemyProjectileSpritemapDocument projectile = Installed<EnemyProjectileSpritemapDocument>(EnemyProjectileSpritemapDefinitions.FileName);
         foreach (string name in projectile.Frames.Keys.ToArray())
             projectile.Frames[name] = EditedAnimationParts(5);
         foreach (string name in (projectile.ProgramFrames ?? throw new InvalidOperationException("Verification requires projectile.ProgramFrames.")).Keys.ToArray())
             projectile.ProgramFrames[name] = EditedAnimationParts(7);
-        return fixture.Build(EnemySpritemapDocuments.Load(fixture.Json(ordinary)),
-            EnemyExtendedFrameDocuments.Load(fixture.Json(extended)),
-            EnemyProjectileSpritemapCatalog.Load(fixture.Json(projectile)));
+
+        string overrides = Path.Combine(Path.GetFullPath("csharp/test-temp"), "enemy-animation-isolation-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(overrides);
+        try
+        {
+            File.WriteAllBytes(Path.Combine(overrides, EnemySpritemapDefinitions.FileName), JsonSerializer.SerializeToUtf8Bytes(ordinary, CamelCaseJson));
+            File.WriteAllBytes(Path.Combine(overrides, EnemyExtendedFrameDefinitions.FileName), JsonSerializer.SerializeToUtf8Bytes(extended, CamelCaseJson));
+            File.WriteAllBytes(Path.Combine(overrides, EnemyProjectileSpritemapDefinitions.FileName), JsonSerializer.SerializeToUtf8Bytes(projectile, CamelCaseJson));
+            return (EnemyTileArtworkFiles.Load(stockDirectory, null), EnemyTileArtworkFiles.Load(stockDirectory, overrides));
+        }
+        finally
+        {
+            Directory.Delete(overrides, recursive: true);
+        }
     }
 
     /// <summary>Creates two asymmetric OAM parts so ignored offsets, tile selection, and attributes are visible.</summary>

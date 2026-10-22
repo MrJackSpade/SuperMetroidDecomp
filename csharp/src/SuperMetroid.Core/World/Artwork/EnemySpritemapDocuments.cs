@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using System.Text.Json.Serialization;
 using System.Text.Json;
@@ -9,6 +10,11 @@ namespace SuperMetroid.Core.World.Artwork;
 /// <summary>Reads installed enemy OAM composition documents against the enemy-bank frame schema (#1395).</summary>
 public static class EnemySpritemapDocuments
 {
+    /// <summary>The enemies showing each frame.</summary>
+    private static readonly Lazy<ILookup<EnemyFrameId, EnemyDefinitionId>> Showing = new(() =>
+        EnemyDefinitionFrameDefinitions.Frames.SelectMany(entry => entry.Value, (entry, frame) => KeyValuePair.Create(frame, entry.Key))
+            .ToLookup(shown => shown.Key, shown => shown.Value));
+
     /// <summary>
     /// Validates authored frames and compiles visual-only fields into OAM parts.
     /// A complete stock catalog permits a previous-version override to retain its
@@ -16,7 +22,7 @@ public static class EnemySpritemapDocuments
     /// </summary>
     /// <param name="json">Caller-owned JSON stream, left open; duplicate and unknown properties are rejected.</param>
     /// <param name="stockForLegacyOverride">Optional complete current stock catalog, required to accept supported older schemas and supply their missing newer frame identities/bindings.</param>
-    /// <returns>Compiled visual parts and same-bank display bindings; collision, AI frame identity, and instruction timing are not imported from the artwork document.</returns>
+    /// <returns>Compiled visual parts and display bindings within the enemies showing each frame; collision, AI frame identity, and instruction timing are not imported from the artwork document.</returns>
     /// <exception cref="InvalidDataException">The schema, complete named-frame set, OAM fields/capacity, or display bindings are invalid.</exception>
     public static EnemySpritemapCatalog Load(Stream json,
         EnemySpritemapCatalog? stockForLegacyOverride = null)
@@ -77,6 +83,11 @@ public static class EnemySpritemapDocuments
                     !identities.TryGetValue(selectedName, out EnemyFrameId selected))
                     throw new InvalidDataException(
                         $"Enemy display binding {name} must select a named frame.");
+                // Each enemy's sheet composes the selected frame over that enemy's own characters, which only the
+                // frames it shows were authored against (#1392).
+                if (Showing.Value[identity].Except(Showing.Value[selected]).Any())
+                    throw new InvalidDataException(
+                        $"Enemy display binding {name} must select a frame every enemy showing it shows.");
                 displayFrames.Add(identity, selected);
             }
         }

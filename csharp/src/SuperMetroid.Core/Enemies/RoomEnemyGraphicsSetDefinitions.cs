@@ -33,10 +33,21 @@ public static class RoomEnemyGraphicsSetDefinitions
             throw new InvalidDataException("Compiled enemy graphics-set counts changed.");
         if (Definitions.Select(list => list.Name).Distinct().Count() != ListCount)
             throw new InvalidDataException("Compiled enemy graphics sets repeat a name.");
+        if (Definitions.Any(list => list.Name == SessionStart.Name))
+            throw new InvalidDataException("A compiled enemy graphics set takes the session start's name.");
     }
 
     /// <summary>Every retail graphics set, in the cartridge's list order.</summary>
     public static IReadOnlyList<RoomEnemyGraphicsSetDefinition> All => Definitions;
+
+    /// <summary>
+    /// The enemy graphics a session starts under (#1392): no set's tiles or palettes loaded over the standard ones. A
+    /// room whose population is empty loads no set, so the session's first room draws its spawned objects under this.
+    /// </summary>
+    public static RoomEnemyGraphicsSetDefinition SessionStart { get; } = new(nameof(SessionStart), []);
+
+    /// <summary>Every graphics set rooms draw under: each retail set, then the session start's.</summary>
+    public static IReadOnlyList<RoomEnemyGraphicsSetDefinition> DrawnUnder { get; } = [.. Definitions, SessionStart];
 
     /// <summary>The compiled graphics set named <paramref name="name"/>.</summary>
     private static RoomEnemyGraphicsSetDefinition Find(string name) =>

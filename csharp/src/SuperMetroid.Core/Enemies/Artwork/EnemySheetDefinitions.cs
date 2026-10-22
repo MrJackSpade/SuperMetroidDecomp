@@ -14,7 +14,7 @@ public static class EnemySheetDefinitions
     public const string ManifestFileName = "enemy-sheets.json";
 
     /// <summary>The manifest revision this build reads.</summary>
-    public const int ManifestVersion = 1;
+    public const int ManifestVersion = 2;
 
     /// <summary>
     /// The enemies whose characters change while they draw, as their bosses and corpses upload tiles at run time; they
@@ -38,4 +38,10 @@ public static class EnemySheetDefinitions
 
     /// <summary>The sheet frame showing component <paramref name="component"/> of an extended enemy frame.</summary>
     public static string ComponentFrameName(EnemyFrameId frame, int component) => $"{frame}.{component}";
+
+    /// <summary>The spawned-object sheet frame showing an enemy projectile frame.</summary>
+    internal static string ProjectileFrameName(Projectiles.EnemyProjectileFrameId frame) => $"Projectile.{frame}";
+
+    /// <summary>The spawned-object sheet frame showing a room sprite-object frame by the enemy frame it shows.</summary>
+    internal static string SpriteObjectFrameName(EnemyFrameId frame) => $"SpriteObject.{frame}";
 }

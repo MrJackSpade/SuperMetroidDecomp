@@ -538,7 +538,12 @@ chest cover drawn over it (`samus-overlays`, coloured likewise), and her footste
 splash and bubbles (`samus-atmosphere`), and her suit explosion as she dies (`samus-death`; the death palette recolours
 it). Ordinary enemies are drawn from `enemy-sheets`: one sheet for each enemy as a room's graphics set loads it, in the
 colours its palette row holds there, so an enemy shown in another palette has a sheet of its own; `enemy-sheets.json`
-names each graphics set's sheet for each of its enemies. The game-over screen's Baby, egg and cursor are drawn from
+names each graphics set's sheet for each of its enemies. The `Spawned-` sheets beside them hold what enemies spawn
+(their projectiles and the room's dust, explosions and other sprite objects, and the Ceres elevator's platforms), one
+for each graphics set and tile base the objects draw at; `enemy-sheets.json` names those too. A room with no enemies
+loads no set and draws under the one the previous room left, or, as a session's first room, under `SessionStart`: the
+standard characters alone, with only the objects any room spawns. Graphics sets loading a
+boss or corpse that uploads its own characters still draw their spawned objects from characters. The game-over screen's Baby, egg and cursor are drawn from
 `game-over`, file select's borders, cursor, helmets and copy arrows from `file-select`, the options menu's headings and
 cursor from `game-options`, and the file-select and pause maps' markers, labels, arrows and position indicator from
 `map-sprites`, the pause menu's equipment selectors and reserve-tank strip from `pause-sprites`, and the title's

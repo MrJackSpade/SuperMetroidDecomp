@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -94,6 +95,8 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>Supplies room RNG and artwork for projectile effects.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Publishes projectiles from the loaded graphics set's sheets.</summary>
+    private readonly EnemyPresentation _presentation;
     /// <summary>Owns bank-$B4 dust and explosion sprites separate from projectile slots.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
     /// <summary>Publishes room quake effects requested by projectile instructions.</summary>
@@ -102,9 +105,11 @@ internal sealed class EnemyProjectileEngine
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Connects the physical bank-$86 pool to room sprites, earthquakes and audio.</summary>
-    internal EnemyProjectileEngine(EnemyRoomBinding room, RoomSpriteObjectPool spriteObjects, RoomEarthquake earthquake, EnemyAudioQueue audio)
+    internal EnemyProjectileEngine(EnemyRoomBinding room, EnemyPresentation presentation, RoomSpriteObjectPool spriteObjects,
+        RoomEarthquake earthquake, EnemyAudioQueue audio)
     {
         _room = room;
+        _presentation = presentation;
         _spriteObjects = spriteObjects;
         _earthquake = earthquake;
         _audio = audio;
@@ -381,6 +386,7 @@ internal sealed class EnemyProjectileEngine
         bool timeIsFrozen)
     {
         Offset16<RoomPixels> shake = _earthquake.GetEnemyProjectileShake(timeIsFrozen);
+        bool fromSheets = _presentation.SpawnsFromSheets;
         // Both cartridge routines scan native indexes $22,$20,...,$00. Physical array
         // index seventeen therefore reaches OAM first and wins equal-priority overlap.
         for (int projectileIndex = _enemyProjectiles.Length - 1;
@@ -398,10 +404,18 @@ internal sealed class EnemyProjectileEngine
             if (unchecked((ushort)(screen.X + 128)) >= 512 || unchecked((ushort)(screen.Y + 128)) >= 512)
                 continue;
 
+            ushort paletteBits = new SnesObjAttributeWord(checked((ushort)projectile.GraphicsIndex)).PaletteBits;
+            if (fromSheets)
+            {
+                // The blank frame draws nothing.
+                if (frame != EnemyProjectileFrameId.Blank)
+                    _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile, projectileIndex),
+                        EnemySheetDefinitions.ProjectileFrameName(frame), screen, unchecked((byte)projectile.GraphicsIndex), paletteBits);
+                continue;
+            }
             var artwork = _room.Artwork?.ProjectileSpritemaps ?? throw new InvalidOperationException(
                 "Room enemy projectiles require installed sprite artwork.");
             ReadOnlyMemory<SpritemapPart> parts = EnemyProjectileFrames.Parts(artwork, frame);
-            ushort paletteBits = new SnesObjAttributeWord(checked((ushort)projectile.GraphicsIndex)).PaletteBits;
             EnemyPresentation.PublishParts(sprites, objects, new SpriteSource(SpriteSourceKind.EnemyProjectile, projectileIndex),
                 EnemySpriteFrames.Frame(parts, unchecked((byte)projectile.GraphicsIndex), paletteBits), screen, paletteBits);
         }

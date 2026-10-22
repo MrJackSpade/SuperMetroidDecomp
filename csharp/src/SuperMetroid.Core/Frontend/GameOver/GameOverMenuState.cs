@@ -18,7 +18,11 @@ public sealed class GameOverMenuState : IFrontendScreen
         Ensure.NotNull(artwork);
         if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
             BindMapPresentation(artwork.MapPresentation);
+        spriteSheets = artwork.SpriteSheets;
     }
+
+    /// <summary>The installed sprite sheets the Baby, egg and cursor draw from; artwork, never saved.</summary>
+    [NonSerialized] private InstalledSpriteSheets? spriteSheets;
 
     /// <summary>Shared music and sound queue advanced by the menu scene.</summary>
     private readonly CartridgeAudioState audio;
@@ -45,19 +49,22 @@ public sealed class GameOverMenuState : IFrontendScreen
 
     /// <summary>Creates the game-over scene with installed artwork and its BG1 tilemap, leaving music, animation, and fade initialization for the first update.</summary>
     /// <param name="audio">Shared cartridge-style music and sound queue used by menu updates.</param>
-    /// <param name="mapPresentation">Required installed presentation bundle, despite the compatibility default of null.</param>
+    /// <param name="mapPresentation">Required installed presentation bundle.</param>
+    /// <param name="spriteSheets">Required installed sprite sheets, which the Baby, egg and cursor draw from.</param>
     /// <exception cref="ArgumentNullException"><paramref name="audio"/> is null.</exception>
-    /// <exception cref="InvalidOperationException">No installed presentation bundle is supplied.</exception>
+    /// <exception cref="InvalidOperationException">No installed presentation bundle or sprite sheets are supplied.</exception>
     /// <param name="continueLoadsCeresArrival">
     /// True when <c>SRAMMirror_LoadingGameState</c> is <c>$1F</c>: <c>$81:915D</c> then answers Yes by
     /// publishing the Ceres loader immediately instead of fading into the area map.
     /// </param>
     public GameOverMenuState(
         CartridgeAudioState audio,
-        AreaMapPresentationCatalog? mapPresentation = null,
+        AreaMapPresentationCatalog? mapPresentation,
+        InstalledSpriteSheets? spriteSheets,
         bool continueLoadsCeresArrival = false)
     {
         this.continueLoadsCeresArrival = continueLoadsCeresArrival;
+        this.spriteSheets = spriteSheets ?? throw new InvalidOperationException("Game-over screen requires the installed sprite sheets.");
         this.audio = Ensure.NotNull(audio);
         this.mapPresentation = mapPresentation ?? throw new InvalidOperationException(
             "Game-over screen requires installed presentation assets.");
@@ -249,10 +256,12 @@ public sealed class GameOverMenuState : IFrontendScreen
         sprites.BeginFrame();
         var content = mapPresentation ?? throw new InvalidOperationException(
             "Game-over screen requires installed presentation assets.");
+        SpriteSheet sheet = (spriteSheets ?? throw new InvalidOperationException(
+            "Game-over screen requires the installed sprite sheets.")).Get(SpriteSheetId.GameOver);
         GameOverBabyInstruction instruction = GameOverBabyAnimation.Get(BabyStep ?? 0);
-        content.GameOver.DrawBaby(sprites, instruction.Frame);
-        content.GameOver.DrawEgg(sprites);
-        content.GameOver.DrawCursor(sprites, missile.Frame, SelectedItem != YesNoChoice.Yes);
+        content.GameOver.DrawBaby(sprites, sheet, instruction.Frame);
+        content.GameOver.DrawEgg(sprites, sheet);
+        content.GameOver.DrawCursor(sprites, sheet, missile.Frame, SelectedItem != YesNoChoice.Yes);
         sprites.FinishFrame();
     }
 

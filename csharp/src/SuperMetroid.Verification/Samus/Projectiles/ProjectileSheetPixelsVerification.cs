@@ -27,12 +27,12 @@ internal static class ProjectileSheetPixelsVerification
     internal static void VerifyProjectileSheetPixels()
     {
         int frames = 0;
-        SamusSheetInputs inputs = SamusSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory);
+        var catalog = new SpriteSheetSourceCatalog(RepositoryInstallation.Installation.ContentDirectory);
         foreach (SpriteSheetId id in new[] { SpriteSheetId.ProjectilesPower, SpriteSheetId.ProjectilesSpazerPlasmaIce, SpriteSheetId.IntroProjectiles,
             SpriteSheetId.Grapple, SpriteSheetId.SamusBodyTop, SpriteSheetId.SamusBodyBottom, SpriteSheetId.SamusOverlays,
-            SpriteSheetId.SamusAtmosphere, SpriteSheetId.SamusDeath })
+            SpriteSheetId.SamusAtmosphere, SpriteSheetId.SamusDeath, SpriteSheetId.GameOver })
         {
-            SpriteSheetSources sources = SamusSheetSources.For(inputs, id);
+            SpriteSheetSources sources = catalog.For(id);
             SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(id);
             // The standard colours show the image; altered colours, as under a palette effect, show its palette indices.
             foreach (bool altered in new[] { false, true })
@@ -43,10 +43,11 @@ internal static class ProjectileSheetPixelsVerification
                         ? Bgr555.FromWord((ushort)((sources.SpriteColours[colour].ToWord() + 0x0421 * (colour % 7 + 1)) & 0x7fff))
                         : sources.SpriteColours[colour]);
                 var origin = new Position16<ScreenPixels>((ushort)(Canvas.X / 2), (ushort)(Canvas.Y / 2));
-                foreach ((string name, SpriteFrame frame, SpriteArtwork characters) in sources.Frames)
+                foreach (SheetFrameSource source in sources.Frames)
                 {
-                    var composed = new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectile), frame, characters, origin,
-                        SnesTileFlipFlags.None, 0, 0);
+                    string name = source.Name;
+                    var composed = new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectile), source.Frame, source.Characters, origin,
+                        SnesTileFlipFlags.None, source.Palette ?? 0, 0);
                     SpriteSheetFrame image = sheet.Frame(name);
                     var drawn = new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectile), image, origin, SpriteMirror.None);
                     Raster expected = Render(composed, cgram), actual = Render(drawn, cgram);

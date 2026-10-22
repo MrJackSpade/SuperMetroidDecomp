@@ -18,8 +18,11 @@ internal readonly record struct PlacedSpritePart(SpriteArtworkId Artwork, Sprite
         var parts = new List<PlacedSpritePart>();
         foreach (SpriteDraw draw in draws)
         {
-            for (int index = 0; index < draw.Frame.Parts.Length; index++)
-                parts.Add(new(draw.Artwork.Id, draw.Place(index)));
+            // A whole pre-coloured frame stands for the parts of the composition it was composed from.
+            CharacterSpriteDraw character = draw as CharacterSpriteDraw
+                ?? SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.CharacterDraw((ImageSpriteDraw)draw);
+            for (int index = 0; index < character.Frame.Parts.Length; index++)
+                parts.Add(new(character.Artwork.Id, character.Place(index)));
         }
         return [.. parts];
     }

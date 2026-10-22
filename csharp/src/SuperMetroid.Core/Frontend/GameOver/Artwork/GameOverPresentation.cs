@@ -101,30 +101,29 @@ public sealed class GameOverPresentation
     /// <param name="screenSprites">The screen's sprite entries for the current frame.</param>
     /// <param name="frame">Closed, middle, or open Baby frame selected by the compiled animation sequence.</param>
     /// <exception cref="ArgumentOutOfRangeException">The frame is not a supported Baby frame.</exception>
-    public void DrawBaby(ScreenSprites screenSprites, GameOverBabyFrame frame) =>
-        babySprites[frame].Draw(
-            screenSprites, BabyAnchor,
-            PaletteBits(BabyPaletteIndex));
+    /// <param name="sheet">The installed game-over sheet.</param>
+    public void DrawBaby(ScreenSprites screenSprites, SpriteSheet sheet, GameOverBabyFrame frame) =>
+        Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(GameOverPresentationDefinitions.BabyFrameName(frame)), BabyAnchor,
+            babySprites[frame].PartCount);
 
     /// <summary>Appends the egg composition at the shared Baby anchor using the installed egg palette selector.</summary>
     /// <param name="screenSprites">The screen's sprite entries for the current frame.</param>
-    public void DrawEgg(ScreenSprites screenSprites) =>
-        eggSprite.Draw(
-            screenSprites, BabyAnchor,
-            PaletteBits(EggPaletteIndex));
+    /// <param name="sheet">The installed game-over sheet.</param>
+    public void DrawEgg(ScreenSprites screenSprites, SpriteSheet sheet) =>
+        Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(GameOverPresentationDefinitions.EggFrame), BabyAnchor, eggSprite.PartCount);
 
     /// <summary>Appends one missile-cursor frame at the installed Yes or No answer position.</summary>
     /// <param name="screenSprites">The screen's sprite entries for the current frame.</param>
     /// <param name="frame">Zero-based looping animation frame 0-3.</param>
     /// <param name="selectNo">True draws at the No position; false draws at the Yes position.</param>
     /// <exception cref="ArgumentOutOfRangeException">The frame is outside 0-3.</exception>
-    public void DrawCursor(ScreenSprites screenSprites, int frame, bool selectNo)
+    /// <param name="sheet">The installed game-over sheet.</param>
+    public void DrawCursor(ScreenSprites screenSprites, SpriteSheet sheet, int frame, bool selectNo)
     {
         if ((uint)frame >= GameOverPresentationDefinitions.CursorFrameCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
-        cursorSprites[frame].Draw(
-            screenSprites, new Position16<OamPixels>(checked((ushort)CursorX), checked((ushort)(selectNo ? NoCursorY : YesCursorY))),
-            PaletteBits(CursorPaletteIndex));
+        Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(GameOverPresentationDefinitions.CursorFrameName(frame)),
+            new Position16<OamPixels>(checked((ushort)CursorX), checked((ushort)(selectNo ? NoCursorY : YesCursorY))), cursorSprites[frame].PartCount);
     }
 
     /// <summary>Writes one selected sixteen-color Baby animation palette to the fixed native CGRAM range $C0-$CF.</summary>
@@ -237,10 +236,6 @@ public sealed class GameOverPresentation
         _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }
-
-    /// <summary>Encodes an installed OBJ palette selector into the packed sprite attribute bits.</summary>
-    private static ushort PaletteBits(int index) =>
-        SnesObjAttributeWord.Create(0, index, 0).PaletteBits;
 
     /// <summary>Checks both coordinates of a game-over screen anchor fit the native OAM byte range.</summary>
     private static void ValidatePoint(Position16<OamPixels> point, string name)

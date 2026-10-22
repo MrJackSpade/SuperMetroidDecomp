@@ -36,19 +36,26 @@ internal static class ScreenSpritesFixtures
     {
         var oam = new OamBuffer();
         oam.BeginFrame();
-        for (int index = 0; index < sprites.Draws.Length; index++)
+        int index = 0;
+        foreach (SpriteDraw draw in sprites.Draws)
         {
-            SpriteDraw draw = sprites.Draws[index];
-            SpriteFramePart part = draw.Frame.Parts.Single();
-            int x = draw.Origin.X & 0x1ff;
-            bool large = part.Size != sprites.Sizes.Small;
-            var attributes = SnesObjAttributeWord.Create(part.Character, part.Palette ?? draw.Palette, part.Priority ?? draw.Priority, part.Flip);
-            oam.LowTableBytes[index * 4] = unchecked((byte)x);
-            oam.LowTableBytes[index * 4 + 1] = unchecked((byte)draw.Origin.Y);
-            oam.WriteAttributes(index * 4, attributes);
-            oam.SetHighTablePair(index, SnesOamHighTablePair.FromSprite(unchecked((ushort)x), large));
+            // A whole frame stands for its composition's parts, placed from its origin.
+            CharacterSpriteDraw character = draw as CharacterSpriteDraw
+                ?? SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.CharacterDraw((ImageSpriteDraw)draw);
+            foreach (SpriteFramePart part in character.Frame.Parts)
+            {
+                int x = (character.Origin.X + part.Offset.X) & 0x1ff;
+                int y = (character.Origin.Y + part.Offset.Y) & 0xff;
+                bool large = part.Size != sprites.Sizes.Small;
+                var attributes = SnesObjAttributeWord.Create(part.Character, part.Palette ?? character.Palette, part.Priority ?? character.Priority, part.Flip);
+                oam.LowTableBytes[index * 4] = unchecked((byte)x);
+                oam.LowTableBytes[index * 4 + 1] = unchecked((byte)y);
+                oam.WriteAttributes(index * 4, attributes);
+                oam.SetHighTablePair(index, SnesOamHighTablePair.FromSprite(unchecked((ushort)x), large));
+                index++;
+            }
         }
-        oam.NextByteOffset = sprites.Draws.Length * 4;
+        oam.NextByteOffset = index * 4;
         oam.FinalizeFrame();
         return oam;
     }

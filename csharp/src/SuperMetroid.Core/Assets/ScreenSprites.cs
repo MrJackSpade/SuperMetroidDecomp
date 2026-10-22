@@ -99,6 +99,21 @@ public sealed class ScreenSprites
         next = (next + 1) % Capacity;
     }
 
+    /// <summary>
+    /// Places a whole pre-coloured frame at <paramref name="origin"/> (#1392), standing for the <paramref name="objects"/>
+    /// parts of its composition. The loader's vertical-wrap hiding hides only parts an image clips, so the frame needs
+    /// none; a frame the 128-object limit would cut short cannot show part of itself and fails instead.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The frame's parts do not fit in the objects left.</exception>
+    public void AddImage(SpriteSheetFrame frame, Position16<OamPixels> origin, int objects)
+    {
+        Ensure.NotNull(frame);
+        if (objects < 1 || next + objects > Capacity)
+            throw new InvalidOperationException($"A {objects}-object frame at object {next} exceeds the screen's {Capacity} objects.");
+        placed[next] = new ScreenObject(default, IsLarge: false, origin, frame, objects);
+        next += objects;
+    }
+
     /// <summary>Applies the spritemap loader's vertical-wrap hiding and places the part, until the frame is full.</summary>
     private void AddPart(SnesSpritemapXWord x, SnesSpritemapYByte y, SnesObjAttributeWord attributes, Position16<OamPixels> origin,
         SpriteOrigin originSide)
@@ -129,22 +144,28 @@ public sealed class ScreenSprites
     /// <summary>The finished frame's objects as draws over the bound page.</summary>
     private SpriteDraw[] FinishedDraws()
     {
-        var result = new SpriteDraw[finishedCount];
-        for (int index = 0; index < finishedCount; index++)
-            result[index] = Draw(finished[index], index);
-        return result;
+        var result = new List<SpriteDraw>(finishedCount);
+        // A frame stands for several objects; the next entry follows them.
+        for (int index = 0; index < finishedCount; index += finished[index].Objects)
+            result.Add(Draw(finished[index], index));
+        return [.. result];
     }
 
     /// <summary>
-    /// A one-part draw of <paramref name="placedObject"/>, as signed screen pixels: X's upper half lies left of the screen
+    /// A one-part draw of <paramref name="placedObject"/>, or its whole frame, as signed screen pixels: X's upper half lies left of the screen
     /// and Y wraps above it below the visible field.
     /// </summary>
-    private CharacterSpriteDraw Draw(ScreenObject placedObject, int index)
+    private SpriteDraw Draw(ScreenObject placedObject, int index)
     {
         int nineBitX = placedObject.Position.X & (XRange - 1);
         int y = placedObject.Position.Y;
         int screenX = nineBitX >= XRange / 2 ? nineBitX - XRange : nineBitX;
         int screenY = y >= SnesPpuLayout.ScreenHeightPixels ? y - ByteRange : y;
+        if (placedObject.Image is { } image)
+        {
+            return new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.FrontendObjects, index), image,
+                new Position16<ScreenPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)), SpriteMirror.None);
+        }
         Extent16<ScreenPixels> size = placedObject.IsLarge ? Sizes.Large : Sizes.Small;
         SnesObjAttributeWord attributes = placedObject.Attributes;
         var part = new SpriteFramePart(default, size,
@@ -153,6 +174,10 @@ public sealed class ScreenSprites
             new Position16<ScreenPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)), default, 0, 0);
     }
 
-    /// <summary>One placed object: its attributes, size, and position (nine-bit X as stored in sixteen bits, eight-bit Y).</summary>
-    private readonly record struct ScreenObject(SnesObjAttributeWord Attributes, bool IsLarge, Position16<OamPixels> Position);
+    /// <summary>
+    /// One placed object: its attributes, size, and position (nine-bit X as stored in sixteen bits, eight-bit Y); or a
+    /// whole frame placed at that position, standing for the objects of its parts.
+    /// </summary>
+    private readonly record struct ScreenObject(SnesObjAttributeWord Attributes, bool IsLarge, Position16<OamPixels> Position,
+        SpriteSheetFrame? Image = null, int Objects = 1);
 }

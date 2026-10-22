@@ -83,7 +83,7 @@ internal static class MenuScreenPublicationVerification
             options.Step(0);
         AssertPublished(options.screen, options.CaptureRenderSnapshot(), "options");
 
-        var gameOver = new GameOverMenuState(new CartridgeAudioState(), maps);
+        var gameOver = new GameOverMenuState(new CartridgeAudioState(), maps, MenuSheetFixtures.For(maps));
         for (int frame = 0; frame < 30; frame++)
             gameOver.Step(0);
         AssertPublished(gameOver.screen, gameOver.CaptureRenderSnapshot(), "game over");
@@ -105,8 +105,9 @@ internal static class MenuScreenPublicationVerification
         AssertTrue(memory.Cgram.SequenceEqual(screen.Palette.Colors), $"{menu} draws its own palette");
         AssertTrue(screen.Objects.Draws.Length > 0, $"{menu} places sprite entries");
         AssertTrue(memory.SpriteDraws.SequenceEqual(screen.Objects.Draws), $"{menu} draws its own sprite entries");
+        // A screen's single objects draw from the menu OBJ page; its whole frames from its sheet.
         foreach (SpriteDraw draw in memory.SpriteDraws)
-            AssertTrue(ReferenceEquals(screen.Sprites.Page, draw.Artwork), $"{menu} sprite entries draw from the menu OBJ page");
+            AssertTrue(draw is ImageSpriteDraw || ReferenceEquals(screen.Sprites.Page, draw.Artwork), $"{menu} sprite entries draw from the menu OBJ page");
     }
 
     /// <summary>Runs the screen sprite placement and menu screen publication checks.</summary>

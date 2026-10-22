@@ -23,7 +23,7 @@ internal static class SheetFrameSources
         Ensure.NotNull(sheet);
         Ensure.NotNull(composed);
         foreach (SheetFrameSource frame in composed.Frames)
-            sources.Value.TryAdd(Key(sheet.Frame(frame.Name)), new FrameSource(frame.Frame, frame.Characters, composed.PaletteBits));
+            sources.Value.TryAdd(Key(sheet.Frame(frame.Name)), new FrameSource(frame.Frame, frame.Characters, composed.PaletteBits, frame.Palette));
     }
 
     /// <summary>The character draw an image draw of a projectile sheet frame shows: its composition over its page, placed and mirrored alike.</summary>
@@ -39,7 +39,7 @@ internal static class SheetFrameSources
         int bits = draw.PaletteOverride ?? source.PaletteBits;
         SpriteFrame frame = bits == 0 ? source.Frame
             : new SpriteFrame(source.Frame.Name, [.. source.Frame.Parts.Select(part => part with { Palette = (part.Palette ?? 0) | bits })]);
-        return new CharacterSpriteDraw(draw.Source, frame, source.Page, draw.Origin, flip, 0, 0);
+        return new CharacterSpriteDraw(draw.Source, frame, source.Page, draw.Origin, flip, source.FramePalette ?? 0, 0);
     }
 
     /// <summary>
@@ -72,14 +72,14 @@ internal static class SheetFrameSources
     private static System.Collections.Concurrent.ConcurrentDictionary<FrameKey, FrameSource> Build()
     {
         var result = new System.Collections.Concurrent.ConcurrentDictionary<FrameKey, FrameSource>();
-        SamusSheetInputs inputs = SamusSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory);
+        var catalog = new SpriteSheetSourceCatalog(RepositoryInstallation.Installation.ContentDirectory);
         foreach (SpriteSheetId id in SpriteSheetDefinitions.Sheets.Where(id => id != SpriteSheetId.EscapeTimer))
         {
-            SpriteSheetSources composed = SamusSheetSources.For(inputs, id);
+            SpriteSheetSources composed = catalog.For(id);
             SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(id);
             // Every empty frame shows nothing, so the first of those that share a key stands for all of them.
             foreach (SheetFrameSource frame in composed.Frames)
-                result.TryAdd(Key(sheet.Frame(frame.Name)), new FrameSource(frame.Frame, frame.Characters, composed.PaletteBits));
+                result.TryAdd(Key(sheet.Frame(frame.Name)), new FrameSource(frame.Frame, frame.Characters, composed.PaletteBits, frame.Palette));
         }
         return result;
     }
@@ -98,5 +98,6 @@ internal static class SheetFrameSources
     /// <param name="Frame">The composition.</param>
     /// <param name="Page">The OBJ page its characters index.</param>
     /// <param name="PaletteBits">The palette row its family's draws OR into each part's own.</param>
-    private sealed record FrameSource(SpriteFrame Frame, SpriteArtwork Page, int PaletteBits);
+    /// <param name="FramePalette">The palette row of parts that take their draw's, as the frame's draw selects it.</param>
+    private sealed record FrameSource(SpriteFrame Frame, SpriteArtwork Page, int PaletteBits, int? FramePalette);
 }

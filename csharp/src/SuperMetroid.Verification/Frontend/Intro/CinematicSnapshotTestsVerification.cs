@@ -87,7 +87,7 @@ internal static class CinematicSnapshotTestsVerification
         foreach (bool chooseNo in new[] { false, true })
         {
             var audio = new CartridgeAudioState();
-            var menu = new GameOverMenuState(audio, RetailPresentationFixture());
+            var menu = new GameOverMenuState(audio, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
             bool toggled = false, released = false;
             for (int tick = 0; tick < 300 && !menu.ContinueRequested && !menu.TitleRequested; tick++)
             {

@@ -1,0 +1,41 @@
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.GameOver;
+using SuperMetroid.Core.Frontend.GameOver.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.AssetExtraction.Frontend;
+
+/// <summary>
+/// Composes the game-over sheet (#1392): the Baby's, egg's and cursor's compositions over the menu sprite page, each
+/// in the palette its draw selects, coloured as the screen loads the menu palette with the Baby idle.
+/// </summary>
+internal static class GameOverSheetComposer
+{
+    /// <summary>CGRAM's first sprite colour.</summary>
+    private const int SpriteColours = 128;
+
+    /// <summary>What the game-over sheet composes.</summary>
+    internal static SpriteSheetSources Sources(AreaMapPresentationCatalog maps)
+    {
+        Ensure.NotNull(maps);
+        GameOverPresentation gameOver = maps.GameOver;
+        SpriteArtwork page = maps.Sprites.Page;
+        var frames = new List<SheetFrameSource>();
+        foreach (GameOverBabyFrame frame in Enum.GetValues<GameOverBabyFrame>())
+            frames.Add(Frame(GameOverPresentationDefinitions.BabyFrameName(frame), gameOver.babySprites[frame], page, gameOver.BabyPaletteIndex));
+        frames.Add(Frame(GameOverPresentationDefinitions.EggFrame, gameOver.eggSprite, page, gameOver.EggPaletteIndex));
+        for (int frame = 0; frame < GameOverPresentationDefinitions.CursorFrameCount; frame++)
+            frames.Add(Frame(GameOverPresentationDefinitions.CursorFrameName(frame), gameOver.cursorSprites[frame], page, gameOver.CursorPaletteIndex));
+        var cgram = new SnesCgram();
+        new CgramPalettes(cgram).LoadImage(maps.Palettes.FileSelect);
+        gameOver.ApplyBabyPalette(cgram, GameOverBabyPalette.Idle);
+        return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray());
+    }
+
+    /// <summary>A composition as a sheet frame, its palette-inheriting parts in the palette its draw selects.</summary>
+    private static SheetFrameSource Frame(string name, SpriteComposition composition, SpriteArtwork page, int palette) =>
+        new(name, composition.ToFrame(name, 0), page, palette);
+}

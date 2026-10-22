@@ -534,14 +534,16 @@ internal static class LookupStream3Verification
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         var original = Read();
         var stock = Sprites(Load(original));
+        // The stock presentation draws the installation's sheet, composed from it.
+        SpriteSheet GameOverSheet = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.GameOver);
         var presentation = Load(original);
         List<GameOverSpriteDraw> draws =
         [
             .. Enum.GetValues<GameOverBabyFrame>().Select(frame => new GameOverSpriteDraw(GameOverPresentationDefinitions.BabyFrameName(frame),
-                oam => presentation.DrawBaby(oam, frame), original.BabyAnchor.X, original.BabyAnchor.Y, presentation.BabyPaletteIndex)),
-            new(GameOverPresentationDefinitions.EggFrame, presentation.DrawEgg, original.BabyAnchor.X, original.BabyAnchor.Y, presentation.EggPaletteIndex),
+                oam => presentation.DrawBaby(oam, GameOverSheet, frame), original.BabyAnchor.X, original.BabyAnchor.Y, presentation.BabyPaletteIndex)),
+            new(GameOverPresentationDefinitions.EggFrame, oam => presentation.DrawEgg(oam, GameOverSheet), original.BabyAnchor.X, original.BabyAnchor.Y, presentation.EggPaletteIndex),
             .. Enumerable.Range(0, GameOverPresentationDefinitions.CursorFrameCount).Select(frame => new GameOverSpriteDraw(
-                GameOverPresentationDefinitions.CursorFrameName(frame), oam => presentation.DrawCursor(oam, frame, false),
+                GameOverPresentationDefinitions.CursorFrameName(frame), oam => presentation.DrawCursor(oam, GameOverSheet, frame, false),
                 original.CursorX, original.YesCursorY, presentation.CursorPaletteIndex)),
         ];
         foreach (GameOverSpriteDraw draw in draws)

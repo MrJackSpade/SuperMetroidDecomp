@@ -58,6 +58,7 @@ internal static class SpriteSheetComposer
         for (int index = 0; index < frames.Count; index++)
         {
             (string name, SpriteFrame frame, SpriteArtwork artwork) = (frames[index].Name, frames[index].Frame, frames[index].Characters);
+            int framePalette = frames[index].Palette ?? palette;
             FrameBounds bound = bounds[index];
             Position16<ImagePixels> corner = corners[index];
             SpritePaletteRows rows = SpritePaletteRows.None;
@@ -65,7 +66,7 @@ internal static class SpriteSheetComposer
             for (int partIndex = frame.Parts.Length - 1; partIndex >= 0; partIndex--)
             {
                 SpriteFramePart part = frame.Parts[partIndex];
-                int partRow = part.Palette ?? palette;
+                int partRow = part.Palette ?? framePalette;
                 int paletteRow = partRow | sources.PaletteBits;
                 rows |= SpritePaletteRowSet.Rows[paletteRow];
                 var placed = new SpriteScreenPart(default, part.Size, part.Character,

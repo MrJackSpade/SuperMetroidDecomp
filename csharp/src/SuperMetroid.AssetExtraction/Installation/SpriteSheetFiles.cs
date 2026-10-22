@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Hardware;
@@ -31,9 +32,9 @@ public static class SpriteSheetFiles
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
         SpriteSheetStore store = SpriteSheetStore.Create(directory, ManifestFileName);
-        SamusSheetInputs samus = SamusSheetInputs.Load(content);
+        var sources = new SpriteSheetSourceCatalog(content);
         foreach (SpriteSheetId sheet in SpriteSheetDefinitions.Sheets)
-            store.Write(SpriteSheetDefinitions.FileName(sheet), Compose(bus, samus, sheet));
+            store.Write(SpriteSheetDefinitions.FileName(sheet), Compose(bus, sources, sheet));
         store.Finish(sourceCartridgeSha256);
         _ = Load(directory, null);
     }
@@ -61,10 +62,10 @@ public static class SpriteSheetFiles
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
     /// <summary>Composes one sheet.</summary>
-    private static ComposedSpriteSheet Compose(ISnesAddressSpace bus, SamusSheetInputs samus, SpriteSheetId sheet) => sheet switch
+    private static ComposedSpriteSheet Compose(ISnesAddressSpace bus, SpriteSheetSourceCatalog sources, SpriteSheetId sheet) => sheet switch
     {
         SpriteSheetId.EscapeTimer => EscapeTimerSheetComposer.Compose(bus),
-        _ => SamusSheetSources.Compose(samus, sheet),
+        _ => sources.Compose(sheet),
     };
 
     /// <summary>The frames a sheet must hold: the ones its family draws.</summary>
@@ -78,6 +79,7 @@ public static class SpriteSheetFiles
         SpriteSheetId.SamusOverlays => SamusOverlaySheetDefinitions.Frames,
         SpriteSheetId.SamusAtmosphere => SamusAtmosphereSheetDefinitions.Frames,
         SpriteSheetId.SamusDeath => SamusDeathSheetDefinitions.Frames,
+        SpriteSheetId.GameOver => GameOverPresentationDefinitions.SpriteNames.ToArray(),
         _ => ProjectileSheetDefinitions.Frames,
     };
 

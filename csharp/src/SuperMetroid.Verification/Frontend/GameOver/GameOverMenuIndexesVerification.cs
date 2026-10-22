@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.Map.Artwork;
@@ -17,7 +18,7 @@ internal static class GameOverMenuIndexesVerification
     internal static void VerifyGameOverMenuNativeIndexes(AreaMapPresentationCatalog presentation)
     {
         var audio = new CartridgeAudioState();
-        var menu = new GameOverMenuState(audio, presentation);
+        var menu = new GameOverMenuState(audio, presentation, MenuSheetFixtures.For(presentation));
         GameOverMenuIndexesExpected[] expected =
         [
             new GameOverMenuIndexesExpected(GameOverMenuPhase.ConfigureGraphics, true),
@@ -49,7 +50,7 @@ internal static class GameOverMenuIndexesVerification
 
         foreach (bool ceres in new[] { true, false })
         {
-            var answered = new GameOverMenuState(new CartridgeAudioState(), presentation, continueLoadsCeresArrival: ceres);
+            var answered = new GameOverMenuState(new CartridgeAudioState(), presentation, MenuSheetFixtures.For(presentation), continueLoadsCeresArrival: ceres);
             answered.Phase = GameOverMenuPhase.Main;
             answered.Step(0);
             answered.Step(SnesButton.A);

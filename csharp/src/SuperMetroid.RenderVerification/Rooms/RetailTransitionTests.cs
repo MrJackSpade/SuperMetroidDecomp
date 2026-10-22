@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -42,7 +43,7 @@ internal static class RetailTransitionTests
         foreach (bool chooseNo in new[] { false, true })
         {
             var audio = new CartridgeAudioState();
-            var menu = new GameOverMenuState(audio, RenderRetailFixture.Maps);
+            var menu = new GameOverMenuState(audio, RenderRetailFixture.Maps, MenuSheetFixtures.For(RenderRetailFixture.Maps));
             bool toggled = false, released = false;
             for (int tick = 0; tick < 300 && !menu.ContinueRequested && !menu.TitleRequested; tick++)
             {

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Hardware;
@@ -31,8 +32,8 @@ internal static class GameOverPresentationVerification
 
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
-        var native = new GameOverMenuState(nativeAudio, original);
-        var installed = new GameOverMenuState(installedAudio, original);
+        var native = new GameOverMenuState(nativeAudio, original, MenuSheetFixtures.For(original));
+        var installed = new GameOverMenuState(installedAudio, original, MenuSheetFixtures.For(original));
         bool choseNo = false;
         bool released = false;
         int comparedFrames = 0;
@@ -109,9 +110,9 @@ internal static class GameOverPresentationVerification
         var originalEditAudio = new CartridgeAudioState();
         var editedAudio = new CartridgeAudioState();
         var originalMenu = new GameOverMenuState(
-            originalEditAudio, original);
+            originalEditAudio, original, MenuSheetFixtures.For(original));
         var editedMenu = new GameOverMenuState(
-            editedAudio, edited);
+            editedAudio, edited, MenuSheetFixtures.For(edited));
         for (int frame = 0; frame < 40; frame++)
         {
             originalMenu.Step(0);

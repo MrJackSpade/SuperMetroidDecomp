@@ -72,9 +72,9 @@ internal static class SheetFrameSources
             SuperMetroid.AssetExtraction.Enemies.EnemySheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory);
         foreach (SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinition set in SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinitions.All)
         {
-            foreach ((SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetEntry entry, SpriteSheetSources composed) in
+            foreach ((SuperMetroid.Core.Enemies.EnemyDefinitionId enemy, SpriteSheetSources composed) in
                      SuperMetroid.AssetExtraction.Enemies.EnemySheetComposer.Sources(inputs, set))
-                Register(InstalledFixtures.EnemySheets.For(set.Name, entry.DefinitionId), composed);
+                Register(InstalledFixtures.EnemySheets.For(set.Name, enemy), composed);
         }
         return true;
     });

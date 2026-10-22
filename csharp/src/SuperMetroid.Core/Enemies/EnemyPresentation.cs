@@ -116,20 +116,19 @@ internal sealed class EnemyPresentation
     /// <param name="frame">The sheet frame's name.</param>
     /// <param name="origin">The frame origin on screen.</param>
     /// <param name="paletteBits">The draw's palette selection.</param>
-    /// <param name="tileBase">The draw's packed tile base, which must be the one the set loaded the enemy at.</param>
-    /// <exception cref="InvalidDataException">The set does not load the enemy, or loaded it at another tile base.</exception>
+    /// <param name="tileBase">The draw's packed tile base, which must be the one its sheet was composed at.</param>
+    /// <exception cref="InvalidDataException">The enemy draws at another tile base than its sheet's.</exception>
     internal void PublishSheetFrame(SpriteFrameBuffer sprites, SpriteSource source, EnemyDefinitionId enemy, string frame,
         Position16<ScreenPixels> origin, int paletteBits, int tileBase)
     {
-        RoomEnemyGraphicsSetEntry entry = _graphicsSet.Entry(enemy);
-        if (tileBase != entry.VramTilesIndex)
-            throw new InvalidDataException($"{enemy} draws at tile base ${tileBase:X3}; its graphics set loaded it at ${entry.VramTilesIndex:X3}.");
+        EnemyGraphicsIndexes composed = _graphicsSet.DrawIndexes(enemy);
+        if (tileBase != composed.TileIndex)
+            throw new InvalidDataException($"{enemy} draws at tile base ${tileBase:X3}; its sheet was composed at ${composed.TileIndex:X3}.");
         IEnemySheetSource sheets = _room.Session.Sheets ?? throw new InvalidOperationException(
             "Enemy drawing requires the installed enemy sheets.");
         RoomEnemyGraphicsSetDefinition set = _graphicsSet.LoadedSet ?? throw new InvalidOperationException(
             "Enemies draw after their room's graphics set loads.");
-        int loaded = SnesObjAttributeWord.FromPaletteBits(
-            unchecked((ushort)((entry.PaletteRow & EnemyTileDataMasks.PaletteNibbleBits) << 9))).PaletteIndex;
+        int loaded = SnesObjAttributeWord.FromPaletteBits(checked((ushort)composed.PaletteIndex)).PaletteIndex;
         int drawn = SnesObjAttributeWord.FromPaletteBits(checked((ushort)paletteBits)).PaletteIndex;
         sprites.Add(new ImageSpriteDraw(source, sheets.For(set, enemy).Frame(frame), origin, SpriteMirror.None,
             drawn == loaded ? null : drawn));

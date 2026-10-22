@@ -9,6 +9,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -39,22 +40,22 @@ internal static class EnemySheetComposer
         foreach (RoomEnemyGraphicsSetDefinition set in RoomEnemyGraphicsSetDefinitions.All)
         {
             var members = new Dictionary<string, string>(StringComparer.Ordinal);
-            foreach ((RoomEnemyGraphicsSetEntry entry, SpriteSheetSources sources) in Sources(inputs, set))
+            foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources) in Sources(inputs, set))
             {
                 ComposedSpriteSheet composed = SpriteSheetComposer.Compose(sources, 0, 0);
                 string key = Fingerprint(composed);
                 if (!distinct.TryGetValue(key, out string? name))
                 {
-                    int ordinal = perEnemy.GetValueOrDefault(entry.DefinitionId);
-                    perEnemy[entry.DefinitionId] = ordinal + 1;
-                    name = SheetName(entry.DefinitionId, ordinal);
+                    int ordinal = perEnemy.GetValueOrDefault(enemy);
+                    perEnemy[enemy] = ordinal + 1;
+                    name = SheetName(enemy, ordinal);
                     distinct.Add(key, name);
                     sheets.Add(name, composed);
                 }
                 // A set that lists an enemy twice loads it once into each record's row; both must show alike.
-                if (members.TryGetValue(entry.DefinitionId.ToString(), out string? listed) && listed != name)
-                    throw new InvalidDataException($"Enemy graphics set {set.Name} colours {entry.DefinitionId} two ways.");
-                members[entry.DefinitionId.ToString()] = name;
+                if (members.TryGetValue(enemy.ToString(), out string? listed) && listed != name)
+                    throw new InvalidDataException($"Enemy graphics set {set.Name} colours {enemy} two ways.");
+                members[enemy.ToString()] = name;
             }
             sets.Add(set.Name, members);
         }
@@ -62,10 +63,12 @@ internal static class EnemySheetComposer
     }
 
     /// <summary>
-    /// What each member of <paramref name="set"/> composes, in record order. A member whose definition draws no
-    /// frames, as the unported ones, or draws from characters it uploads, has no sheet.
+    /// What each enemy drawn under <paramref name="set"/> composes: its members in record order, then each enemy its
+    /// rooms place without the set loading it, which draws from the standard characters in the standard palette as the
+    /// cartridge falls back to them. An enemy whose definition draws no frames, as the unported ones, or draws from
+    /// characters it uploads, has no sheet.
     /// </summary>
-    internal static IEnumerable<(RoomEnemyGraphicsSetEntry Entry, SpriteSheetSources Sources)> Sources(EnemySheetInputs inputs,
+    internal static IEnumerable<(EnemyDefinitionId Enemy, SpriteSheetSources Sources)> Sources(EnemySheetInputs inputs,
         RoomEnemyGraphicsSetDefinition set)
     {
         Ensure.NotNull(inputs);
@@ -76,15 +79,19 @@ internal static class EnemySheetComposer
         graphics.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set, new SnesVram(), cgram);
         SpriteArtwork page = Page(inputs, graphics);
         Bgr555[] colours = cgram.Colors[SpriteColours..].ToArray();
-        foreach (RoomEnemyGraphicsSetEntry entry in graphics.Entries)
+        IEnumerable<EnemyDefinitionId> members = graphics.Entries.Select(entry => entry.DefinitionId);
+        IEnumerable<EnemyDefinitionId> placed = RoomStateDefinitions.All.Where(state => state.EnemyGraphicsSet.Name == set.Name)
+            .SelectMany(state => state.EnemyPopulation.Records.ToArray().Select(record => record.DefinitionId))
+            .Except(members).Distinct().Order();
+        foreach (EnemyDefinitionId enemy in members.Concat(placed))
         {
-            if (EnemySheetDefinitions.DrawnFromCharacters.Contains(entry.DefinitionId) ||
-                !EnemyDefinitionFrameDefinitions.Frames.TryGetValue(entry.DefinitionId, out IReadOnlyList<EnemyFrameId>? shown))
+            if (EnemySheetDefinitions.DrawnFromCharacters.Contains(enemy) ||
+                !EnemyDefinitionFrameDefinitions.Frames.TryGetValue(enemy, out IReadOnlyList<EnemyFrameId>? shown))
                 continue;
-            ushort tileBase = checked((ushort)entry.VramTilesIndex);
-            int paletteBits = SnesObjAttributeWord.FromPaletteBits(
-                unchecked((ushort)((entry.PaletteRow & EnemyTileDataMasks.PaletteNibbleBits) << 9))).PaletteIndex;
-            yield return (entry, new SpriteSheetSources(Frames(inputs.Enemies, shown, tileBase, page).ToList(), colours, paletteBits));
+            EnemyGraphicsIndexes indexes = graphics.DrawIndexes(enemy);
+            int paletteBits = SnesObjAttributeWord.FromPaletteBits(checked((ushort)indexes.PaletteIndex)).PaletteIndex;
+            yield return (enemy, new SpriteSheetSources(Frames(inputs.Enemies, shown, checked((ushort)indexes.TileIndex), page).ToList(),
+                colours, paletteBits));
         }
     }
 

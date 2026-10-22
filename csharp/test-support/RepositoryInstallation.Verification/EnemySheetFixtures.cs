@@ -51,15 +51,15 @@ internal static class EnemySheetFixtures
         private IReadOnlyDictionary<EnemyDefinitionId, SpriteSheet> Compose(RoomEnemyGraphicsSetDefinition set)
         {
             var sheets = new Dictionary<EnemyDefinitionId, SpriteSheet>();
-            foreach ((RoomEnemyGraphicsSetEntry entry, SpriteSheetSources sources) in EnemySheetComposer.Sources(inputs, set))
+            foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources) in EnemySheetComposer.Sources(inputs, set))
             {
                 ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(sources, 0, 0);
                 // A name of its own keeps its frames apart from the installed sheets' in the frame-source registry.
                 SpriteSheet loaded = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(sheet.Manifest), writable: false),
-                    $"{entry.DefinitionId}-fixture-{RuntimeHelpers.GetHashCode(inputs.Enemies):X8}-{set.Name}-{RuntimeHelpers.GetHashCode(set):X8}", sheet.Size, sheet.Pixels,
+                    $"{enemy}-fixture-{RuntimeHelpers.GetHashCode(inputs.Enemies):X8}-{set.Name}-{RuntimeHelpers.GetHashCode(set):X8}", sheet.Size, sheet.Pixels,
                     sheet.PaletteIndices, sheet.Priorities, sheet.PartRows);
                 SheetFrameSources.Register(loaded, sources);
-                sheets[entry.DefinitionId] = loaded;
+                sheets[enemy] = loaded;
             }
             return sheets;
         }

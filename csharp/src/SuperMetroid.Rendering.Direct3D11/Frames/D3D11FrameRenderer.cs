@@ -137,7 +137,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         if (packet.Mode7 is { } mode7)
         {
             var operations = new List<RenderLayer>();
-            if (mode7.Background is { } background) operations.Add(new Mode7RenderLayer(background));
+            if (mode7.Background is { } background) operations.Add(new Mode7RenderLayer(background, Tiles: mode7.BackgroundTiles));
             operations.Add(new ObjRenderLayer());
             DrawLayers(packet, new LayeredRenderSnapshot(mode7.Memory,
                 operations.ToArray(), mode7.ObjectSelection, mode7.Brightness), mode7.Gradient);
@@ -516,8 +516,12 @@ public sealed class D3D11FrameRenderer : IDisposable
         Layer3Plane? bg3 = rooms?.Bg3;
         Mode7MapSnapshot? mode7Map = null;
         var screens = new List<ScreenLayerPictures>();
+        var mode7Screens = new List<Mode7TilePictures>();
         foreach (RenderLayer layer in scene.Layers)
         {
+            // A frontend Mode 7 map that draws from its tiles' pictures (#1392), each once.
+            if (layer is Mode7RenderLayer { Tiles: { } mode7Tiles } && !mode7Screens.Contains(mode7Tiles))
+                mode7Screens.Add(mode7Tiles);
             // The frontend layers that draw from their characters' pre-coloured tiles (#1392), each once.
             foreach (ScreenLayerPictures? pictures in ScreenPictures(layer))
             {
@@ -537,7 +541,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         }
         if (roomLevels.Pack(new RoomLevelLayers(rooms?.Bg1, rooms?.Bg2 ?? floor, rooms?.DoorSource, rooms?.Bg1Overlay, rooms?.Sky, bg3,
                 rooms?.Bg2Overlay, mode7Map, rooms?.BossBg2, rooms?.XrayReveal, rooms?.Bg2Image, rooms?.Sky is null ? null : rooms.SkyImage,
-                messagePicture, screens.Count == 0 ? null : new ScreenPictureTables([.. screens]))))
+                messagePicture, screens.Count == 0 && mode7Screens.Count == 0 ? null : new ScreenPictureTables([.. screens], [.. mode7Screens]))))
             fixed (uint* source = roomLevels.Upload) UploadBuffer(roomLevels.Buffer, (nint)source, roomLevels.Upload.Length * sizeof(uint));
         owner.Context.CSSetShader(tileShader);
         owner.Context.CSSetConstantBuffer(0, constants);
@@ -579,7 +583,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                     DispatchMode7Gameplay(gameplay);
                     break;
                 case Mode7RenderLayer mode7:
-                    DispatchMode7(mode7.Registers, subtractObj: mode7.SubtractObjSubscreen, addBg1: mode7.AddBg1Subscreen);
+                    DispatchMode7(mode7.Registers, subtractObj: mode7.SubtractObjSubscreen, addBg1: mode7.AddBg1Subscreen, tiles: mode7.Tiles);
                     break;
                 case ObjRenderLayer objLayer:
                     DispatchTile(D3D11TileOperation.InsertObj, new D3D11TileDispatch { Red = objLayer.AddToScreen ? 1u : 0u, Green = objLayer.FixedColor is not null ? 1u : 0u, Blue = objLayer.FixedColor is { } color ? (uint)(color.Red | color.Green << 5 | color.Blue << 10) : 0 });
@@ -632,7 +636,7 @@ public sealed class D3D11FrameRenderer : IDisposable
 
     /// <summary>Uploads signed Mode 7 matrix, center, scroll, overflow, and optional color math.</summary>
     private unsafe void DispatchMode7(Mode7RenderRegisters registers, int firstScanline = 0, int endScanline = 224,
-        bool subtractObj = false, bool addBg1 = false, bool roomMap = false)
+        bool subtractObj = false, bool addBg1 = false, bool roomMap = false, Mode7TilePictures? tiles = null)
     {
         // Preserve signed register values, including negative products and arithmetic
         // right shifts. No projected coordinates or raster pixels are uploaded.
@@ -640,6 +644,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[0] = (int)D3D11TileOperation.Mode7;
         // A Ceres room's map comes from the room buffer (#1349); frontend scenes keep theirs in VRAM.
         if (roomMap) data[14] = (int)D3D11RoomSource.Mode7Map;
+        // A frontend map draws its tiles' pictures from their table (#1392).
+        else if (tiles is not null) data[14] = (int)((uint)D3D11RoomSource.Mode7Tiles | roomLevels.Mode7Table(tiles) << 16);
         data[16] = registers.MatrixA; data[17] = registers.MatrixB;
         data[18] = registers.MatrixC; data[19] = registers.MatrixD;
         data[20] = registers.Center.X; data[21] = registers.Center.Y;

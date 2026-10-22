@@ -9,9 +9,16 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// <param name="intro">Reads the opening cinematic's artwork.</param>
 /// <param name="endingObjects">Reads the ending's object artwork.</param>
 /// <param name="endingPalettes">Reads the ending's palettes.</param>
+/// <param name="endingMode7">Reads the ending's Mode 7 artwork.</param>
 internal sealed class ScreenTileSources(Func<AreaMapPresentationCatalog> maps, Func<IntroCinematicArtworkCatalog> intro,
-    Func<EndingObjectArtworkCatalog> endingObjects, Func<EndingPaletteCatalog> endingPalettes)
+    Func<EndingObjectArtworkCatalog> endingObjects, Func<EndingPaletteCatalog> endingPalettes, Func<EndingMode7ArtworkCatalog> endingMode7)
 {
+    /// <summary>The ending's Mode 7 artwork, once read.</summary>
+    private readonly Lazy<EndingMode7ArtworkCatalog> endingMode7 = new(endingMode7);
+
+    /// <summary>The ending's Mode 7 artwork.</summary>
+    internal EndingMode7ArtworkCatalog EndingMode7 => endingMode7.Value;
+
     /// <summary>The ending's object artwork, once read.</summary>
     private readonly Lazy<EndingObjectArtworkCatalog> endingObjects = new(endingObjects);
 

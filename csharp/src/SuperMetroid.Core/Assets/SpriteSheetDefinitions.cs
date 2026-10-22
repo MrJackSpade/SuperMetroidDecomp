@@ -79,6 +79,14 @@ public static class SpriteSheetDefinitions
         SpriteSheetId.EndingWaitingTiles => "ending-waiting-tiles",
         SpriteSheetId.EndingWavySamusTiles => "ending-wavy-samus-tiles",
         SpriteSheetId.EndingExplosionTiles => "ending-explosion-tiles",
+        SpriteSheetId.TitleMode7Tiles => "title-mode7-tiles",
+        SpriteSheetId.TitleBabyTiles => "title-baby-tiles",
+        SpriteSheetId.CeresFlightMode7Tiles => "ceres-flight-mode7-tiles",
+        SpriteSheetId.EndingEscapeAMode7Tiles => "ending-escape-a-mode7-tiles",
+        SpriteSheetId.EndingEscapeBMode7Tiles => "ending-escape-b-mode7-tiles",
+        SpriteSheetId.EndingPlanetExplosionMode7Tiles => "ending-planet-explosion-mode7-tiles",
+        SpriteSheetId.EndingFlyawayMode7Tiles => "ending-flyaway-mode7-tiles",
+        SpriteSheetId.EndingRewardIconMode7Tiles => "ending-reward-icon-mode7-tiles",
         _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
     };
 }

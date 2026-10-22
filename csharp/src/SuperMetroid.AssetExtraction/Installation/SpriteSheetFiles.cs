@@ -82,6 +82,8 @@ public static class SpriteSheetFiles
         // Every screen tile sheet is whole blocks of tiles coloured for its characters' depth (#1392).
         foreach (SpriteSheetId sheet in ScreenTileSheetDefinitions.Depths.Keys)
             _ = ScreenTileSheets.Of(installed, sheet);
+        foreach (SpriteSheetId sheet in ScreenTileSheetDefinitions.Mode7Sheets)
+            _ = ScreenTileSheets.Mode7(installed, sheet);
         return installed;
     }
 
@@ -105,6 +107,7 @@ public static class SpriteSheetFiles
         Lazy<AreaMapPresentationCatalog> maps, Lazy<IntroCinematicArtworkCatalog> intro, Lazy<EndingObjectArtworkCatalog> ending) => sheet switch
     {
         _ when ScreenTileSheetDefinitions.Depths.ContainsKey(sheet) => [ScreenTileSheet.FrameName],
+        _ when ScreenTileSheetDefinitions.Mode7Sheets.Contains(sheet) => [Mode7CharacterSheet.FrameName],
         SpriteSheetId.EscapeTimer => EscapeTimerPresentationDefinitions.Glyphs.Select(EscapeTimerPresentationDefinitions.FrameName),
         SpriteSheetId.Grapple => GrappleSheetDefinitions.Frames,
         SpriteSheetId.SamusBodyTop or SpriteSheetId.SamusBodyBottom => SamusBodySheetComposer.FrameNames(body.Value, sheet),

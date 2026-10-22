@@ -111,9 +111,19 @@ internal static class MenuSheetFixtures
                 var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
                 sheets[SpriteSheetId.Title] = Load(SpriteSheetId.Title, TitleSheetComposer.Sources(key, InstalledFixtures.Maps.TitlePalette),
                     $"title-{RuntimeHelpers.GetHashCode(key):X8}");
+                // The title's Mode 7 characters are pre-coloured from these graphics (#1392).
+                sheets[SpriteSheetId.TitleMode7Tiles] = LoadTiles(SpriteSheetId.TitleMode7Tiles,
+                    ScreenTileSheetComposer.ComposeTitleMode7(key, InstalledFixtures.Maps.TitlePalette), $"title-{RuntimeHelpers.GetHashCode(key):X8}");
+                sheets[SpriteSheetId.TitleBabyTiles] = LoadTiles(SpriteSheetId.TitleBabyTiles,
+                    ScreenTileSheetComposer.ComposeTitleBaby(key, InstalledFixtures.Maps.TitlePalette), $"title-{RuntimeHelpers.GetHashCode(key):X8}");
                 return new InstalledSpriteSheets(sheets);
             });
     }
+
+    /// <summary>Loads one composed fixture tile sheet under a name of its own.</summary>
+    private static SpriteSheet LoadTiles(SpriteSheetId id, ComposedSpriteSheet tiles, string fixture) =>
+        SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(tiles.Manifest), writable: false),
+            $"{SpriteSheetDefinitions.FileName(id)}-fixture-{fixture}", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.Priorities, tiles.PartRows);
 
     /// <summary>Composes and registers a fixture presentation's menu sheets beside the installed others.</summary>
     private static InstalledSpriteSheets Compose(AreaMapPresentationCatalog maps)
@@ -133,7 +143,8 @@ internal static class MenuSheetFixtures
         foreach (SpriteSheetId id in ScreenTileSheetDefinitions.Depths.Keys)
         {
             ComposedSpriteSheet tiles = ScreenTileSheetComposer.Compose(id, new ScreenTileSources(() => maps, () => InstalledFixtures.IntroArtwork,
-                RepositoryInstallation.Installation.LoadEndingObjectArt, RepositoryInstallation.Installation.LoadEndingPalettes));
+                RepositoryInstallation.Installation.LoadEndingObjectArt, RepositoryInstallation.Installation.LoadEndingPalettes,
+                RepositoryInstallation.Installation.LoadEndingMode7Art));
             sheets[id] = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(tiles.Manifest), writable: false),
                 $"{SpriteSheetDefinitions.FileName(id)}-fixture-maps-{RuntimeHelpers.GetHashCode(maps):X8}", tiles.Size, tiles.Pixels,
                 tiles.PaletteIndices, tiles.Priorities, tiles.PartRows);

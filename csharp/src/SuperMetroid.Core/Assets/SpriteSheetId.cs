@@ -152,4 +152,20 @@ public enum SpriteSheetId
     EndingWavySamusTiles,
     /// <summary>The Zebes explosion characters under the explosion palette (#1392).</summary>
     EndingExplosionTiles,
+    /// <summary>The title's Mode 7 characters under its palette (#1392).</summary>
+    TitleMode7Tiles,
+    /// <summary>The title's Baby Metroid animation pages under its palette (#1392).</summary>
+    TitleBabyTiles,
+    /// <summary>The Ceres flight's Mode 7 characters under its palette, which the destruction shows too (#1392).</summary>
+    CeresFlightMode7Tiles,
+    /// <summary>The ending's first escape backdrop's Mode 7 characters under the escape palette (#1392).</summary>
+    EndingEscapeAMode7Tiles,
+    /// <summary>The ending's second escape backdrop's Mode 7 characters under the escape palette (#1392).</summary>
+    EndingEscapeBMode7Tiles,
+    /// <summary>The ending's planet explosion's Mode 7 characters under the explosion palette (#1392).</summary>
+    EndingPlanetExplosionMode7Tiles,
+    /// <summary>The flyaway's gunship Mode 7 characters under the escape palette (#1392).</summary>
+    EndingFlyawayMode7Tiles,
+    /// <summary>The reward icon's Mode 7 characters under the post-credits palette (#1392).</summary>
+    EndingRewardIconMode7Tiles,
 }

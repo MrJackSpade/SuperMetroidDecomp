@@ -104,7 +104,11 @@ internal sealed class IntroCeresFlightState
     {
         spriteArtwork = sheets is null ? null : new CinematicSpriteSheet(sheets.Get(SpriteSheetId.CeresFlightSprites), CinematicSpriteFamily.CeresFlight);
         captionTiles = sheets is null ? null : CeresScreenTiles.Flight(sheets);
+        mode7Tiles = sheets is null ? null : CeresScreenTiles.FlightMode7(sheets);
     }
+
+    /// <summary>What the Mode 7 view's tiles show (#1392); artwork, never saved.</summary>
+    [NonSerialized] private Mode7TilePictures? mode7Tiles;
 
     /// <summary>What the caption's characters show (#1392); artwork, never saved.</summary>
     [NonSerialized] private ScreenCharacters? captionTiles;
@@ -218,7 +222,8 @@ internal sealed class IntroCeresFlightState
             var (a, b, c, d) = Mode7RotationMatrix.Calculate(angle, zoom);
             layers.Add(new Mode7RenderLayer(new(a, b, c, d,
                 new Offset16<Mode7Pixels>(CeresFlightRenderDefinitions.CenterX, CeresFlightRenderDefinitions.CenterY),
-                background.Whole.AsSignedRegister())));
+                background.Whole.AsSignedRegister()),
+                Tiles: mode7Tiles ?? throw new InvalidOperationException("The Ceres flight's Mode 7 view requires the installed sprite sheets.")));
             layers.Add(new ObjPriorityRenderLayer(1));
         }
         layers.Add(new ObjPriorityRenderLayer(2));

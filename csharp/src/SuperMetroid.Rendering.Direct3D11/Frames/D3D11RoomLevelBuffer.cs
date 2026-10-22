@@ -81,7 +81,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int Bg3PicturesWord = Bg2OverlayPicturesWord + 1;
     /// <summary>Header word of the image of the message box the frame shows, or zero without one (#1392).</summary>
     private const int MessagePictureWord = Bg3PicturesWord + 1;
-    /// <summary>Header word of the Mode 7 map's tile picture, or zero while it draws from VRAM's characters (#1392).</summary>
+    /// <summary>Header word of the Ceres room Mode 7 map's tile picture table, or zero while it draws from VRAM's characters (#1392).</summary>
     private const int Mode7PictureWord = MessagePictureWord + 1;
     /// <summary>
     /// Header word of the BG1 overlay's pictures (#1392), laid out as <see cref="BossBg2PicturesWord"/>'s, or zero while its
@@ -96,6 +96,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const uint SkyRowHidden = uint.MaxValue;
     /// <summary>Words of a frontend layer's character tile table: three for each character index (#1392).</summary>
     private const int ScreenTableWords = 3 * ScreenLayerPictures.CharacterIndices;
+    /// <summary>Words of a Mode 7 map's tile picture table: two for each tile (#1392).</summary>
+    private const int Mode7TableWords = 2 * Mode7TilePictures.Tiles;
     /// <summary>Initial buffer size; it grows to fit larger rooms.</summary>
     private const int InitialWords = 4096;
 
@@ -105,6 +107,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private RoomLevelLayers? packed;
     /// <summary>Where the last <see cref="Pack"/> put each frontend layer's character tile table.</summary>
     private readonly Dictionary<ScreenLayerPictures, int> screenTables = [];
+    /// <summary>Where the last <see cref="Pack"/> put each Mode 7 map's tile picture table.</summary>
+    private readonly Dictionary<Mode7TilePictures, int> mode7Tables = [];
 
     /// <summary>Creates an empty buffer.</summary>
     internal D3D11RoomLevelBuffer(ID3D11Device device)
@@ -135,9 +139,11 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         RoomBackgroundImagePlane? image = frame.Bg2Image, skyImage = frame.SkyImage;
         SpriteSheetFrame? message = frame.MessagePicture;
         ImmutableArray<ScreenLayerPictures> screens = frame.Screens?.Layers ?? [];
+        Mode7TilePictures? roomMode7 = mode7?.Tiles is { } roomTiles ? Mode7TilePictures.Of(roomTiles) : null;
+        ImmutableArray<Mode7TilePictures> mode7s = [.. (frame.Screens?.Mode7 ?? []).Concat(roomMode7 is null ? [] : [roomMode7])];
         // No dispatch samples t3 without one of these, so such a scene keeps the last packed room unread.
         if (packed == frame || (bg1 is null && bg2 is null && sky is null && bg3 is null && mode7 is null && reveal is null && image is null
-            && skyImage is null && message is null && screens.IsEmpty))
+            && skyImage is null && message is null && screens.IsEmpty && mode7s.IsEmpty))
             return false;
         RoomBackgroundLayer?[] planes = [bg1, bg2, door?.SourceRoom];
         var definitionWords = new Dictionary<ImmutableArray<byte>, int>();
@@ -148,6 +154,12 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         {
             if (screenTables.TryAdd(screen, words))
                 words += ScreenTableWords;
+        }
+        mode7Tables.Clear();
+        foreach (Mode7TilePictures tiles in mode7s)
+        {
+            if (mode7Tables.TryAdd(tiles, words))
+                words += Mode7TableWords;
         }
         if (words > ushort.MaxValue)
             throw new InvalidOperationException($"A frame's {screenTables.Count} frontend layer tile tables do not fit the half word a dispatch names them in.");
@@ -217,8 +229,11 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             foreach (ScreenTileSheet sheet in screen.Sheets)
                 AddPicture(sheet.Picture);
         }
-        if (mode7?.Tiles is { } mode7Tiles)
-            AddPicture(mode7Tiles.Picture);
+        foreach (Mode7TilePictures tiles in mode7Tables.Keys)
+        {
+            foreach (SpriteSheetFrame picture in tiles.Sheets)
+                AddPicture(picture);
+        }
         ImmutableArray<BgTilePicture?> bodyPictures = bossBg2?.Pictures ?? default;
         int bodyPicturesOffset = AddTilePictures(bodyPictures, bossBg2?.Words.Length ?? 0);
         ImmutableArray<BgTilePicture?> overlayPictures = bg2Overlay?.Pictures ?? default;
@@ -297,6 +312,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             PackPicture(upload.Slice(offset, PictureHeaderWords + 2 * picture.Size.X * picture.Size.Y), picture, colourWords[picture.Sheet]);
         foreach ((ScreenLayerPictures screen, int offset) in screenTables)
             PackScreenTable(upload.Slice(offset, ScreenTableWords), screen, pictureWords);
+        foreach ((Mode7TilePictures tiles, int offset) in mode7Tables)
+            PackTilePictures(upload, tiles.Pictures, offset, Mode7TilePictures.Tiles, pictureWords);
         upload[Bg2ImageWord] = (uint)imageOffset;
         upload[SkyImageWord] = (uint)skyImageOffset;
         foreach ((RoomBackgroundImagePlane? plane, int offset) in new[] { (image, imageOffset), (skyImage, skyImageOffset) })
@@ -355,7 +372,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         PackTilePictures(upload, bg1OverlayPictures, bg1OverlayPicturesOffset, RoomTilemapOverlay.WordCount, pictureWords);
         upload[Bg3PicturesWord] = (uint)bg3PicturesOffset;
         upload[MessagePictureWord] = message is null ? 0 : (uint)pictureWords[message];
-        upload[Mode7PictureWord] = mode7?.Tiles is { } shownTiles ? (uint)pictureWords[shownTiles.Picture] : 0;
+        upload[Mode7PictureWord] = roomMode7 is null ? 0 : (uint)mode7Tables[roomMode7];
         PackTilePictures(upload, bg3Pictures, bg3PicturesOffset, Layer3Plane.Rows * Layer3Plane.Columns, pictureWords);
         packed = frame;
         return true;
@@ -378,6 +395,11 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             upload[offset + 2 * word + 1] = D3D11ConstantPacking.Halves(tile.Corner.X, tile.Corner.Y);
         }
     }
+
+    /// <summary>The room level buffer word of <paramref name="tiles"/>' tile picture table in the last packing (#1392).</summary>
+    /// <exception cref="InvalidOperationException">The last packing held no such map.</exception>
+    internal uint Mode7Table(Mode7TilePictures tiles) => mode7Tables.TryGetValue(tiles, out int offset) ? (uint)offset
+        : throw new InvalidOperationException("A Mode 7 map's tiles were not packed with its frame.");
 
     /// <summary>The room level buffer word of <paramref name="pictures"/>' character tile table in the last packing (#1392).</summary>
     /// <exception cref="InvalidOperationException">The last packing held no such layer.</exception>

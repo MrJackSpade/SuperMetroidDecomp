@@ -11,6 +11,9 @@ public sealed record Mode7ObjRenderSnapshot
     public PpuMemorySnapshot Memory { get; }
     /// <summary>Null disables BG1 without sampling its matrix, retaining the backdrop.</summary>
     public Mode7RenderRegisters? Background { get; }
+
+    /// <summary>What each tile of the background's map shows, which it draws from (#1392); null while it draws from VRAM.</summary>
+    public Mode7TilePictures? BackgroundTiles { get; init; }
     /// <summary>OBSEL value, 0 through <see cref="LayeredRenderSnapshot.MaximumObjectSelection"/>, selecting OBJ character bases, name-table offset, and small/large size pair.</summary>
     public int ObjectSelection { get; }
     /// <summary>Master brightness 0..15 applied after BG1, OBJ, and optional gradient color math.</summary>
@@ -32,9 +35,12 @@ public sealed record Mode7ObjRenderSnapshot
     /// <exception cref="ArgumentNullException"><paramref name="memory"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="objectSelection"/> or <paramref name="brightness"/> is out of range.</exception>
     /// <exception cref="ArgumentException"><paramref name="gradient"/> has the wrong nonzero length or an unsupported control.</exception>
+    /// <param name="backgroundTiles">What each tile of the background's map shows, which it draws from (#1392); null while it draws from VRAM.</param>
     public Mode7ObjRenderSnapshot(PpuMemorySnapshot memory, Mode7RenderRegisters? background,
-        int objectSelection, int brightness, ReadOnlySpan<SuperMetroid.Core.Rendering.TitleGradientLine> gradient = default)
+        int objectSelection, int brightness, ReadOnlySpan<SuperMetroid.Core.Rendering.TitleGradientLine> gradient = default,
+        Mode7TilePictures? backgroundTiles = null)
     {
+        BackgroundTiles = backgroundTiles;
         Ensure.NotNull(memory);
         ObjectSelection = Ensure.BetweenInclusive(0, LayeredRenderSnapshot.MaximumObjectSelection, objectSelection);
         Brightness = Ensure.BetweenInclusive(0, Hardware.SnesPpuLayout.MaximumMasterBrightness, brightness);

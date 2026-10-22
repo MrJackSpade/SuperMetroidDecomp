@@ -24,4 +24,7 @@ internal enum D3D11RoomSource : uint
 
     /// <summary>A frontend layer's VRAM tilemap, drawn from its characters' pre-coloured tiles in its table (#1392).</summary>
     ScreenTiles = 9,
+
+    /// <summary>A frontend Mode 7 map in VRAM, drawn from its tiles' pre-coloured pictures in its table (#1392).</summary>
+    Mode7Tiles = 10,
 }

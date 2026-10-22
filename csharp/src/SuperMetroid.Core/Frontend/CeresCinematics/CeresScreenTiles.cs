@@ -38,6 +38,23 @@ internal static class CeresScreenTiles
         return tiles;
     }
 
+    /// <summary>The Ceres flight's Mode 7 view: its Mode 7 characters.</summary>
+    internal static Mode7TilePictures FlightMode7(InstalledSpriteSheets sheets) => new Mode7Characters()
+        .Show(ScreenTileSheets.Mode7(Ensure.NotNull(sheets), SpriteSheetId.CeresFlightMode7Tiles), 0, 0,
+            CeresFlightRomData.Vram.Mode7CharacterByteCount / Mode7CharacterSheet.TileBytes)
+        .Pictures();
+
+    /// <summary>The Mode 7 characters the destruction's <paramref name="uploads"/> leave: the flight's, once the Ceres scene loads them.</summary>
+    internal static Mode7TilePictures DestructionMode7(InstalledSpriteSheets sheets, IEnumerable<CeresDestructionUpload> uploads)
+    {
+        Ensure.NotNull(sheets);
+        var tiles = new Mode7Characters();
+        if (Ensure.NotNull(uploads).Contains(CeresDestructionUpload.CeresScene))
+            tiles.Show(ScreenTileSheets.Mode7(sheets, SpriteSheetId.CeresFlightMode7Tiles), 0, 0,
+                CeresDestructionRomData.Vram.Mode7CharacterBytes / Mode7CharacterSheet.TileBytes);
+        return tiles.Pictures();
+    }
+
     /// <summary>Bytes of one 4-bpp character.</summary>
     private static int CharacterBytes => ScreenTileSheet.CharacterWordsOf(BgBitDepth.FourBpp) * sizeof(ushort);
 }

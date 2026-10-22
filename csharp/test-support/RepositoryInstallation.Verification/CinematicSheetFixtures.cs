@@ -69,6 +69,8 @@ internal static class CinematicSheetFixtures
                 sheets[SpriteSheetId.CeresFlightSprites] = CeresFlight(key);
                 sheets[SpriteSheetId.CeresFlightObjectTiles] = LoadTiles(SpriteSheetId.CeresFlightObjectTiles, ScreenTileSheetComposer.ComposeFlightObjects(key),
                     $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
+                sheets[SpriteSheetId.CeresFlightMode7Tiles] = LoadTiles(SpriteSheetId.CeresFlightMode7Tiles, ScreenTileSheetComposer.ComposeFlightMode7(key),
+                    $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
                 return new InstalledSpriteSheets(sheets);
             });
     }
@@ -94,10 +96,13 @@ internal static class CinematicSheetFixtures
                     [CeresDestructionUpload.CeresScene, CeresDestructionUpload.ZebesReveal]), $"zebes-reveal-fixture-{RuntimeHelpers.GetHashCode(key):X8}");
                 // The cinematics' background tiles are pre-coloured from the intro's characters and palettes (#1392).
                 var tileSources = new ScreenTileSources(() => InstalledFixtures.Maps, () => key,
-                    RepositoryInstallation.Installation.LoadEndingObjectArt, RepositoryInstallation.Installation.LoadEndingPalettes);
+                    RepositoryInstallation.Installation.LoadEndingObjectArt, RepositoryInstallation.Installation.LoadEndingPalettes,
+                    RepositoryInstallation.Installation.LoadEndingMode7Art);
                 foreach (SpriteSheetId id in new[] { SpriteSheetId.IntroSceneTiles, SpriteSheetId.IntroFontTiles, SpriteSheetId.CeresFlightObjectTiles,
                              SpriteSheetId.CeresIntroObjectTiles, SpriteSheetId.ZebesRevealTiles })
                     sheets[id] = LoadTiles(id, ScreenTileSheetComposer.Compose(id, tileSources), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
+                sheets[SpriteSheetId.CeresFlightMode7Tiles] = LoadTiles(SpriteSheetId.CeresFlightMode7Tiles,
+                    ScreenTileSheetComposer.ComposeFlightMode7(key.CeresFlight), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
                 return new InstalledSpriteSheets(sheets);
             });
     }

@@ -35,6 +35,9 @@ static const uint RoomSourceBossBg2 = 6, RoomSourceXrayReveal = 7, RoomSourceBg2
 // high half: three words a character index, the tile's picture (zero where no artwork shows the character), the corner
 // of its palette row zero tile, x below y, and the pixels from one palette row's block to the next.
 static const uint RoomSourceScreenTiles = 9;
+// A frontend Mode 7 map in VRAM drawn from its tiles' pre-coloured pictures (#1392), its table's word in RoomSource's high
+// half, laid out as a Ceres room map's: two words a tile, its picture (zero where nothing pictured shows) and its corner.
+static const uint RoomSourceMode7Tiles = 10;
 static const uint RoomSourceBg2Overlay = 256;
 static const uint RoomRecordWords = 7, RoomDoorSlot = 2, RoomDoorWindowWord = 21, RoomOverlayWord = 22, RoomSkyWord = 23;
 static const uint RoomBg3Word = 24, RoomBg2OverlayWord = 25, RoomMode7MapWord = 26, RoomBossBg2Word = 27, RoomXrayRevealWord = 28;
@@ -435,15 +438,22 @@ void Main(uint3 id : SV_DispatchThreadID)
             ? (RoomLevels[RoomLevels[RoomMode7MapWord] + (cell >> 2)] >> ((cell & 3) * 8)) & 255
             : ReadByte(cell * 2);
         uint character = outside && FillCharacterZero == 1 ? 0 : mapped;
-        // A Ceres room's map draws its tiles' pre-coloured picture (#1392); `shown` is the colour a nonzero pixel shows.
-        uint tiles = RoomSource == RoomSourceMode7Map ? RoomLevels[RoomMode7PictureWord] : 0;
+        // A Ceres room's map and a frontend map draw their tiles' pre-coloured pictures (#1392), each tile's picture and
+        // corner in a table; `shown` is the colour a nonzero pixel shows. A tile nothing pictured shows draws nothing.
+        uint tiles = RoomSource == RoomSourceMode7Map ? RoomLevels[RoomMode7PictureWord]
+            : (RoomSource & 255) == RoomSourceMode7Tiles ? RoomSource >> 16 : 0;
         uint color = 0, shown = 0;
         if (tiles != 0)
         {
-            uint index;
-            bool high;
-            shown = PicturePixel(tiles, uint2((character & 15) * 8 + (wrappedX & 7), (character >> 4) * 8 + (wrappedY & 7)), index, high);
-            color = index;
+            uint picture = RoomLevels[tiles + character * 2];
+            if (picture != 0)
+            {
+                uint corner = RoomLevels[tiles + character * 2 + 1];
+                uint index;
+                bool high;
+                shown = PicturePixel(picture, uint2((corner & 65535) + (wrappedX & 7), (corner >> 16) + (wrappedY & 7)), index, high);
+                color = index;
+            }
         }
         else
         {

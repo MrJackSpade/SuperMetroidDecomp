@@ -38,8 +38,23 @@ public sealed class TitleSequenceState : IFrontendScreen
 
     /// <summary>Binds the installed sprite sheets the title's compositions draw from.</summary>
     [MemberNotNull(nameof(spriteSheets))]
-    internal void BindSpriteSheets(InstalledSpriteSheets? sheets) =>
+    internal void BindSpriteSheets(InstalledSpriteSheets? sheets)
+    {
         spriteSheets = sheets ?? throw new InvalidOperationException("Title sequence requires the installed sprite sheets.");
+        mode7Tiles = null;
+    }
+
+    /// <summary>What the Mode 7 map shows with each Baby Metroid page loaded (#1392), once read; artwork, never saved.</summary>
+    [NonSerialized] private Dictionary<int, Mode7TilePictures>? mode7Tiles;
+
+    /// <summary>What the Mode 7 map shows with Baby Metroid page <paramref name="page"/> loaded.</summary>
+    private Mode7TilePictures Mode7Tiles(int page)
+    {
+        mode7Tiles ??= [];
+        if (!mode7Tiles.TryGetValue(page, out Mode7TilePictures? tiles))
+            mode7Tiles.Add(page, tiles = TitleScreenTiles.Of(spriteSheets, page));
+        return tiles;
+    }
 
     /// <summary>The installed sprite sheets the title's compositions draw from; artwork, never saved.</summary>
     [NonSerialized] private InstalledSpriteSheets spriteSheets;
@@ -374,7 +389,8 @@ public sealed class TitleSequenceState : IFrontendScreen
                     0, scale, new Offset16<Mode7Pixels>(128, 128), mode7.Whole.AsSignedRegister())
                 : null,
             TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector,
-            checked((byte)Brightness), gradientEnabled ? ResolveTitleGradient() : default);
+            checked((byte)Brightness), gradientEnabled ? ResolveTitleGradient() : default,
+            mode7BackgroundEnabled ? Mode7Tiles(TitleSequenceRomData.Vram.BabyAnimationSourcePages[babyFrame]) : null);
     }
 
     /// <summary>Resolves the installed title gradient at the current Mode 7 scale.</summary>

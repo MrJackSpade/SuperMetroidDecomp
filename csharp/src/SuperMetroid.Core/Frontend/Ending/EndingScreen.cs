@@ -27,6 +27,7 @@ internal sealed class EndingScreen
         uploads.Clear();
         image = null;
         tiles = null;
+        mode7Tiles = null;
     }
 
     /// <summary>What the uploads' characters show under each palette the ending's scenes load (#1392), until the uploads change.</summary>
@@ -37,12 +38,29 @@ internal sealed class EndingScreen
     [NonSerialized]
     private InstalledSpriteSheets? tileSheets;
 
+    /// <summary>What the uploads' Mode 7 characters show (#1392), until the uploads change.</summary>
+    [NonSerialized]
+    private Mode7TilePictures? mode7Tiles;
+
+    /// <summary>What the uploads' Mode 7 characters show (#1392).</summary>
+    internal Mode7TilePictures Mode7Tiles(InstalledSpriteSheets sheets)
+    {
+        if (!ReferenceEquals(tileSheets, sheets))
+        {
+            tiles = null;
+            mode7Tiles = null;
+            tileSheets = sheets;
+        }
+        return mode7Tiles ??= EndingScreenTiles.Mode7(sheets, uploads);
+    }
+
     /// <summary>What the uploads' characters show in the scenes <paramref name="palette"/> colours (#1392).</summary>
     internal ScreenCharacters Tiles(InstalledSpriteSheets sheets, EndingPaletteId palette)
     {
         if (!ReferenceEquals(tileSheets, sheets))
         {
             tiles = null;
+            mode7Tiles = null;
             tileSheets = sheets;
         }
         tiles ??= [];
@@ -66,6 +84,7 @@ internal sealed class EndingScreen
     {
         image = null;
         tiles = null;
+        mode7Tiles = null;
     }
 
     /// <summary>The memory image the transfers leave over <paramref name="artwork"/>.</summary>
@@ -78,5 +97,6 @@ internal sealed class EndingScreen
         uploads.Add(upload);
         image = null;
         tiles = null;
+        mode7Tiles = null;
     }
 }

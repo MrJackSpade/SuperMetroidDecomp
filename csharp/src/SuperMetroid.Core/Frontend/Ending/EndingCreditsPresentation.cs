@@ -32,7 +32,7 @@ internal static class EndingCreditsPresentation
             // Mode 7 places OBJ priority zero below BG1; the other three priorities
             // are above it. BG1 subtracts the winning OBJ subscreen, without halving.
             layers.Add(new ObjPriorityRenderLayer(0));
-            layers.Add(new Mode7RenderLayer(PostShotRegisters(ending), true));
+            layers.Add(new Mode7RenderLayer(PostShotRegisters(ending), true, Tiles: ending.Mode7Tiles()));
             layers.Add(new ObjPriorityRenderLayer(1));
             layers.Add(new ObjPriorityRenderLayer(2));
             layers.Add(new ObjPriorityRenderLayer(3));
@@ -74,7 +74,7 @@ internal static class EndingCreditsPresentation
                 layers.Add(new Mode7RenderLayer(new(a, b, unchecked((short)-b), a,
                     CurrentMode7Center(ending),
                     ending.Stage.Mode7.Whole.AsSignedRegister(), WrapOutsideMap: AtmosphericMapWraps(ending)),
-                    AddBg1Subscreen: AtmosphericMapWraps(ending)));
+                    AddBg1Subscreen: AtmosphericMapWraps(ending), Tiles: ending.Mode7Tiles()));
             }
             memory = CaptureMemory(ending, objectSheet);
             if (EndingObjectsEnabled(ending) && !AtmosphericMapWraps(ending))

@@ -479,6 +479,9 @@ internal sealed class EndingCreditsState : IFrontendScreen
     internal ScreenLayerPictures BackgroundTiles(EndingPaletteId palette, int characterBase, BgBitDepth depth) =>
         screen.Tiles(InstalledArtwork.Sheets, palette).Pictures(characterBase, depth);
 
+    /// <summary>What the Mode 7 map shows: the pre-coloured characters the uploads leave (#1392).</summary>
+    internal Mode7TilePictures Mode7Tiles() => screen.Mode7Tiles(InstalledArtwork.Sheets);
+
     /// <summary>Captures the finale BG priority planes and one winning subscreen color-add layer.</summary>
     internal LayeredRenderSnapshot CaptureExplosionFinale()
     {

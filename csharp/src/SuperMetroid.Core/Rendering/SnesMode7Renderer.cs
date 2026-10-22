@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms.Artwork;
 using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
@@ -28,15 +27,16 @@ public static class SnesMode7Renderer
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void CompositeViewport(Span<Rgba32> output, SnesVram vram, IPaletteColors cgram, Mode7RenderRegisters registers, Extent16<ScreenPixels>? size = null) =>
-        CompositeViewport(output, vram, cgram, registers, map: null, size);
+        CompositeViewport(output, vram, cgram, registers, map: null, tiles: null, size);
 
     /// <summary>
     /// Projects Mode 7 over caller-owned storage with tile numbers from <paramref name="map"/> (#1349), or from VRAM's
-    /// map plane when a frontend scene's map lives there.
+    /// map plane when a frontend scene's map lives there, drawing each tile from <paramref name="tiles"/>' pictures once it
+    /// carries them (#1392), otherwise from VRAM's characters.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void CompositeViewport(Span<Rgba32> output, SnesVram vram, IPaletteColors cgram, Mode7RenderRegisters registers,
-        Mode7MapSnapshot? map, Extent16<ScreenPixels>? size = null)
+        Mode7MapSnapshot? map, Mode7TilePictures? tiles, Extent16<ScreenPixels>? size = null)
     {
         Ensure.NotNull(vram);
         Ensure.NotNull(cgram);
@@ -52,8 +52,6 @@ public static class SnesMode7Renderer
         // from every visible Mode 7 pixel, which is especially expensive under Debug JIT.
         ReadOnlySpan<byte> vramBytes = vram.Bytes;
         ReadOnlySpan<Bgr555> cgramColors = cgram.Colors;
-        // A Ceres room's map draws its tiles' pre-coloured pictures (#1392).
-        Mode7TileSheet? tiles = map?.Tiles;
         var pictures = new BgPicturePixels(cgram);
         Span<Rgba32> palette = stackalloc Rgba32[SnesCgram.ColorCount];
         for (int color = 0; color < palette.Length; color++)
@@ -102,9 +100,8 @@ public static class SnesMode7Renderer
                 // part of the tile-number map and must never be interpreted as pixels.
                 if (tiles is not null)
                 {
-                    Position16<ImagePixels> corner = Mode7TileSheet.Corner(character);
-                    if (pictures.TryDecode(BgSample.OfPicture(tiles.Picture, new Position16<ImagePixels>((ushort)(corner.X + pixelX), (ushort)(corner.Y + pixelY))),
-                            palette, ColorZero.Transparent, out Rgba32 pictured, out _))
+                    if (tiles.TrySample(character, new Position16<CharacterPixels>((ushort)pixelX, (ushort)pixelY), out BgSample shown)
+                        && pictures.TryDecode(shown, palette, ColorZero.Transparent, out Rgba32 pictured, out _))
                         output[screenY * width + screenX] = pictured;
                     continue;
                 }

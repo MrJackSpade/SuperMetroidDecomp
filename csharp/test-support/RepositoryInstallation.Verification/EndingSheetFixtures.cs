@@ -40,7 +40,8 @@ internal static class EndingSheetFixtures
                 sheets[sheet] = CinematicSheetFixtures.Load(EndingSpriteSheetComposer.Sources(sheet, objects, palettes.Value, InstalledFixtures.Maps.EndingFont),
                     $"{SpriteSheetDefinitions.FileName(sheet)}-fixture-{key[..8]}");
             // The ending's background tiles are pre-coloured from these objects (#1392).
-            var tileSources = new ScreenTileSources(() => InstalledFixtures.Maps, () => InstalledFixtures.IntroArtwork, () => objects, () => palettes.Value);
+            var tileSources = new ScreenTileSources(() => InstalledFixtures.Maps, () => InstalledFixtures.IntroArtwork, () => objects, () => palettes.Value,
+                RepositoryInstallation.Installation.LoadEndingMode7Art);
             foreach (SpriteSheetId sheet in EndingTileSheets)
             {
                 ComposedSpriteSheet tiles = ScreenTileSheetComposer.Compose(sheet, tileSources);

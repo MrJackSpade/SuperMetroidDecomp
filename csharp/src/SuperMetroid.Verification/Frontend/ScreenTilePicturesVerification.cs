@@ -8,6 +8,7 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
@@ -73,7 +74,8 @@ internal static class ScreenTilePicturesVerification
         int layers = 0;
         void Check(LayeredRenderSnapshot scene, string name)
         {
-            if (scene.Layers.ToArray().Any(layer => layer is Bg4BppRenderLayer or Bg2BppViewportRenderLayer or BgSubscreenAddRenderLayer) && sampled.Add(name))
+            if (scene.Layers.ToArray().Any(layer => layer is Bg4BppRenderLayer or Bg2BppViewportRenderLayer or BgSubscreenAddRenderLayer or Mode7RenderLayer)
+                && sampled.Add(name))
                 layers += AssertDrawnFromTiles(scene, name);
         }
         var audio = new CartridgeAudioState();
@@ -113,7 +115,7 @@ internal static class ScreenTilePicturesVerification
             while (ending.Stage.Phase != EndingCreditsPhase.SeeYouNextMission)
             {
                 LayeredRenderSnapshot scene = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
-                if (scene.Layers.ToArray().Any(layer => layer is Bg4BppRenderLayer or Bg2BppViewportRenderLayer or BgSubscreenAddRenderLayer)
+                if (scene.Layers.ToArray().Any(layer => layer is Bg4BppRenderLayer or Bg2BppViewportRenderLayer or BgSubscreenAddRenderLayer or Mode7RenderLayer)
                     && sampled.Add($"{hours} hours, {ending.Stage.Phase}"))
                     layers += AssertDrawnFromTiles(scene, $"ending at {hours} hours, {ending.Stage.Phase}");
                 ending.Step();
@@ -122,6 +124,35 @@ internal static class ScreenTilePicturesVerification
         }
         Console.WriteLine($"Screen tile pictures: {sampled.Count} ending phases draw all {layers} of their background layers from their tiles, as their characters do.");
     }
+
+    /// <summary>
+    /// Each phase of the title sequence that shows its Mode 7 background draws it from its characters' pictures, exactly as
+    /// its characters draw it, the Baby Metroid's animation pages among them.
+    /// </summary>
+    internal static void VerifyTitleScreenTilePictures()
+    {
+        var audio = new CartridgeAudioState();
+        TitleSequenceState title = InstalledFixtures.CreateTitle(audio);
+        var sampled = new HashSet<string>();
+        for (int tick = 0; tick < TitleTicks && !title.FileSelectRequested; tick++)
+        {
+            Mode7ObjRenderSnapshot scene = title.CaptureRenderSnapshot();
+            if (scene.Background is not null && sampled.Add($"{title.Phase} {scene.BackgroundTiles?.GetHashCode()}"))
+            {
+                AssertTrue(scene.BackgroundTiles is not null, $"title {title.Phase}: its Mode 7 background draws from its characters' pictures");
+                Rgba32[] pictured = SoftwareMode7ObjSnapshotRenderer.Render(scene).ToArray();
+                Rgba32[] characters = SoftwareMode7ObjSnapshotRenderer.Render(scene with { BackgroundTiles = null }).ToArray();
+                AssertTrue(pictured.SequenceEqual(characters), $"title {title.Phase}: drawn from its pictures, the Mode 7 background matches its characters");
+            }
+            title.Step(0);
+            audio.AdvanceFrame(default);
+        }
+        AssertTrue(sampled.Count > 0, "the title shows its Mode 7 background");
+        Console.WriteLine($"Screen tile pictures: {sampled.Count} title frames draw their Mode 7 background from its characters' pictures, as its characters do.");
+    }
+
+    /// <summary>Title updates sampled: the sequence through its zoom, as the GPU's retail frontend check runs it.</summary>
+    private const int TitleTicks = 2500;
 
     /// <summary>The pause screen's map and equipment pages each draw every background from their tiles, exactly as their characters draw them.</summary>
     internal static void VerifyPauseScreenTilePictures()
@@ -154,19 +185,21 @@ internal static class ScreenTilePicturesVerification
             {
                 Bg4BppRenderLayer bg => ((RenderLayer)(bg with { Pictures = null }), bg.Pictures),
                 Bg2BppViewportRenderLayer bg => (bg with { Pictures = null }, bg.Pictures),
+                Mode7RenderLayer mode7 => (mode7 with { Tiles = null }, null),
                 BgSubscreenAddRenderLayer sub => (sub with { Pictures = null, MainCoverage = sub.MainCoverage is { } coverage ? coverage with { Pictures = null } : null },
                     sub.Pictures),
                 _ => (layer, (ScreenLayerPictures?)null),
             };
             if (!ReferenceEquals(stripped, layer))
             {
-                AssertTrue(pictures is not null, $"{name}: its {layer.GetType().Name} draws from its characters' tiles");
+                AssertTrue(pictures is not null || layer is Mode7RenderLayer { Tiles: not null },
+                    $"{name}: its {layer.GetType().Name} draws from its characters' tiles");
                 layers++;
             }
             fromCharacters.Add(stripped);
         }
         AssertTrue(layers > 0, $"{name} draws backgrounds");
-        Rgba32[] pictured = SoftwareLayeredSnapshotRenderer.Render(scene).ToArray();
+        Rgba32[] pictured = RenderNamed(scene, name);
         Rgba32[] characters = SoftwareLayeredSnapshotRenderer.Render(new LayeredRenderSnapshot(scene.Memory, [.. fromCharacters],
             scene.ObjectSelection, scene.Brightness)).ToArray();
         int mismatch = -1;
@@ -183,6 +216,20 @@ internal static class ScreenTilePicturesVerification
         return layers;
     }
 
+    /// <summary>Renders <paramref name="scene"/>, naming the screen in any failure to draw it.</summary>
+    /// <exception cref="InvalidOperationException">The scene cannot be drawn.</exception>
+    private static Rgba32[] RenderNamed(LayeredRenderSnapshot scene, string name)
+    {
+        try
+        {
+            return SoftwareLayeredSnapshotRenderer.Render(scene).ToArray();
+        }
+        catch (InvalidDataException exception)
+        {
+            throw new InvalidOperationException($"{name} cannot be drawn from its tiles: {exception.Message}", exception);
+        }
+    }
+
     /// <summary>Runs the screen tile picture checks.</summary>
     [VerificationCommand("--screen-tile-pictures")]
     internal static int ScreenTilePicturesCommand()
@@ -191,6 +238,7 @@ internal static class ScreenTilePicturesVerification
         Suite(nameof(VerifyPauseScreenTilePictures), VerifyPauseScreenTilePictures);
         Suite(nameof(VerifyCinematicScreenTilePictures), VerifyCinematicScreenTilePictures);
         Suite(nameof(VerifyEndingScreenTilePictures), VerifyEndingScreenTilePictures);
+        Suite(nameof(VerifyTitleScreenTilePictures), VerifyTitleScreenTilePictures);
         return 0;
     }
 }

@@ -50,6 +50,24 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         spriteSheets = sheets ?? throw new InvalidOperationException("Ceres destruction requires the installed sprite sheets.");
         uploadedTiles = null;
+        uploadedMode7Tiles = null;
+    }
+
+    /// <summary>What the uploads' Mode 7 characters show (#1392), read at <see cref="uploadedMode7TilesCount"/> uploads; artwork, never saved.</summary>
+    [NonSerialized] private Mode7TilePictures? uploadedMode7Tiles;
+
+    /// <summary>The uploads <see cref="uploadedMode7Tiles"/> was read at.</summary>
+    [NonSerialized] private int uploadedMode7TilesCount;
+
+    /// <summary>What the Mode 7 characters the uploads leave show, read again only once another upload is made.</summary>
+    private Mode7TilePictures UploadedMode7Tiles()
+    {
+        if (uploadedMode7Tiles is null || uploadedMode7TilesCount != uploads.Count)
+        {
+            uploadedMode7Tiles = CeresScreenTiles.DestructionMode7(spriteSheets, uploads);
+            uploadedMode7TilesCount = uploads.Count;
+        }
+        return uploadedMode7Tiles;
     }
 
     /// <summary>What the uploads' characters show (#1392), read at <see cref="uploadedTilesCount"/> uploads; artwork, never saved.</summary>
@@ -901,7 +919,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                     ? new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.CeresCenterX, CeresDestructionRomData.Rendering.CeresCenterY)
                     : new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.ZebesCenterX, CeresDestructionRomData.Rendering.ZebesCenterY),
                 Background.Whole.AsSignedRegister());
-            layers = [new ObjPriorityRenderLayer(0), new Mode7RenderLayer(mode7),
+            layers = [new ObjPriorityRenderLayer(0), new Mode7RenderLayer(mode7, Tiles: UploadedMode7Tiles()),
                 new ObjPriorityRenderLayer(1), new ObjPriorityRenderLayer(2), new ObjPriorityRenderLayer(3)];
         }
         else

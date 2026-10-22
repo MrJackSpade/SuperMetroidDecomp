@@ -33,6 +33,9 @@ internal sealed class SpriteSheetSourceCatalog
     /// <summary>The ending's palettes.</summary>
     private readonly Lazy<EndingPaletteCatalog> endingPalettes;
 
+    /// <summary>The ending's Mode 7 artwork.</summary>
+    private readonly Lazy<EndingMode7ArtworkCatalog> endingMode7;
+
     /// <summary>Reads inputs from installed stock content.</summary>
     internal SpriteSheetSourceCatalog(string content)
     {
@@ -42,6 +45,7 @@ internal sealed class SpriteSheetSourceCatalog
         intro = new(() => IntroCinematicArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName), null));
         ending = new(() => EndingObjectArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.EndingObjectDirectoryName), null));
         endingPalettes = new(() => EndingPaletteArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.EndingPaletteDirectoryName), null));
+        endingMode7 = new(() => EndingMode7ArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.EndingMode7DirectoryName), null));
     }
 
     /// <summary>The OBJ palette row and priority of parts that choose neither, as the families' draws leave them.</summary>
@@ -49,8 +53,13 @@ internal sealed class SpriteSheetSourceCatalog
 
     /// <summary>Composes sheet <paramref name="sheet"/>.</summary>
     internal ComposedSpriteSheet Compose(SpriteSheetId sheet) => ScreenTileSheetDefinitions.Depths.ContainsKey(sheet)
-        ? ScreenTileSheetComposer.Compose(sheet, new ScreenTileSources(() => maps.Value, () => intro.Value, () => ending.Value, () => endingPalettes.Value))
+        ? ScreenTileSheetComposer.Compose(sheet, ScreenTiles())
+        : ScreenTileSheetDefinitions.Mode7Sheets.Contains(sheet) ? ScreenTileSheetComposer.ComposeMode7(sheet, ScreenTiles())
         : SpriteSheetComposer.Compose(For(sheet), DefaultPalette, DefaultPriority);
+
+    /// <summary>The stock artwork the screen tile sheets compose from.</summary>
+    private ScreenTileSources ScreenTiles() =>
+        new(() => maps.Value, () => intro.Value, () => ending.Value, () => endingPalettes.Value, () => endingMode7.Value);
 
     /// <summary>What sheet <paramref name="sheet"/> composes.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The sheet is the escape timer, which composes from the cartridge.</exception>

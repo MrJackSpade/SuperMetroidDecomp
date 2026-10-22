@@ -25,7 +25,7 @@ internal static class SnesGameplayFrameRendererConstants
     public static Rgba32[] RenderHudMode7AndObjs(SnesVram vram, SnesCgram cgram, SpriteFrameBuffer sprites, Mode7RenderRegisters registers, Rgba32[]? outputBuffer = null)
     {
         Rgba32[] output = SnesGameplayFrameRenderer.CreateBackdrop(cgram, outputBuffer);
-        SnesMode7Renderer.CompositeViewport(output, vram, cgram, new Mode7RenderRegisters { MatrixA = registers.MatrixA, MatrixB = registers.MatrixB, MatrixC = registers.MatrixC, MatrixD = registers.MatrixD, Center = registers.Center, Scroll = registers.Scroll });
+        SnesMode7RendererConstants.CompositeViewport(output, vram, cgram, new Mode7RenderRegisters { MatrixA = registers.MatrixA, MatrixB = registers.MatrixB, MatrixC = registers.MatrixC, MatrixD = registers.MatrixD, Center = registers.Center, Scroll = registers.Scroll });
 
         // IRQ command four gives the upper 32 physical scanlines exclusively to BG3.
         // Mode 7 is projected at physical screen coordinates across the destination first;
@@ -51,7 +51,7 @@ internal static class SnesGameplayFrameRendererConstants
         Rgba32[] output = SnesGameplayFrameRenderer.CreateBackdrop(cgram, outputBuffer);
         using var scratch = new RenderScratch();
         Rgba32[] mode7 = scratch.Colors(SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height);
-        SnesMode7Renderer.CompositeViewport(mode7, vram, cgram, new Mode7RenderRegisters { MatrixA = registers.MatrixA, MatrixB = registers.MatrixB, MatrixC = registers.MatrixC, MatrixD = registers.MatrixD, Center = registers.Center, Scroll = registers.Scroll });
+        SnesMode7RendererConstants.CompositeViewport(mode7, vram, cgram, new Mode7RenderRegisters { MatrixA = registers.MatrixA, MatrixB = registers.MatrixB, MatrixC = registers.MatrixC, MatrixD = registers.MatrixD, Center = registers.Center, Scroll = registers.Scroll });
         ResolvedObjFrame objects = scratch.ResolveObjects(sprites, cgram);
 
         // IndirectHDMATable_CeresRidleyMode_BGTileSize and its matching TM table keep

@@ -37,10 +37,6 @@ public static class MotherBrainCorpseArtworkDefinitions
     /// <summary>Sixteen tiles advance $100 VRAM words between corpse OBJ pages.</summary>
     public const int VramPageWords = SourcePageBytes / 2;
 
-    /// <summary>$A9:E262 has eight row offsets, including two beyond the visible six rows.</summary>
-    public static int TileRowOffset(int row) => (uint)row < 8
-        ? row * RowBytes : throw new ArgumentOutOfRangeException(nameof(row));
-
     /// <summary>$A9:EA40/$EB0B skip absent upper pixels at the outline's outer columns.</summary>
     public static int ColumnMinimumY(int column) => column switch
     {

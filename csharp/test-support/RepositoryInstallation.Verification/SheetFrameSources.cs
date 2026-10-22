@@ -113,7 +113,7 @@ internal static class SheetFrameSources
         var result = new System.Collections.Concurrent.ConcurrentDictionary<FrameKey, FrameSource>();
         var catalog = new SpriteSheetSourceCatalog(RepositoryInstallation.Installation.ContentDirectory);
         // Screen tile sheets hold background characters, not frames composed from sprite parts.
-        foreach (SpriteSheetId id in SpriteSheetDefinitions.Sheets.Where(id => id != SpriteSheetId.EscapeTimer && !ScreenTileSheets.Holds(id)))
+        foreach (SpriteSheetId id in SpriteSheetDefinitions.Sheets.Where(id => id != SpriteSheetId.EscapeTimer && !ScreenTileSheetsConstants.Holds(id)))
         {
             // Every empty frame shows nothing, so the first of those that share a key stands for all of them.
             Add(result, InstalledFixtures.SpriteSheets.Get(id), catalog.For(id));

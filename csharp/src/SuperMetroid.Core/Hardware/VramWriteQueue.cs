@@ -99,20 +99,6 @@ public sealed class VramWriteQueue
     }
 
     /// <summary>
-    /// Queues a transfer from an owned staging buffer that stands for the WRAM at <paramref name="nativeSourceAddress"/>.
-    /// The buffer is read when the queue drains; the native address stays on the record for debugger comparison.
-    /// </summary>
-    public void EnqueueStaging(int sizeInBytes, int nativeSourceAddress, VramStagingBuffer staging, int offset,
-        VramDmaDestination destination)
-    {
-        Ensure.NotNull(staging);
-        if (sizeInBytes is <= 0 or > VramWriteEntry.MaximumSizeInBytes) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
-        if (offset < 0 || offset + sizeInBytes > staging.Length)
-            throw new ArgumentOutOfRangeException(nameof(offset), offset, $"Transfer {offset}+{sizeInBytes} exceeds the {staging.Length}-byte staging buffer.");
-        Append(new VramWriteEntry(sizeInBytes, nativeSourceAddress, destination) { Staging = staging, StagingOffset = offset });
-    }
-
-    /// <summary>
     /// Queues a transfer of the first <paramref name="sizeInBytes"/> bytes of an owned word table that stands for the WRAM
     /// at <paramref name="nativeSourceAddress"/>. The table is read when the queue drains, low byte first.
     /// </summary>
@@ -125,7 +111,7 @@ public sealed class VramWriteQueue
     }
 
     /// <summary>Adds one packed-size record only when the two-byte NMI terminator still fits.</summary>
-    private void Append(VramWriteEntry entry)
+    internal void Append(VramWriteEntry entry)
     {
         int newTail = TailInBytes + EntryByteCount;
         if (newTail + TerminatorByteCount > StorageByteCount)

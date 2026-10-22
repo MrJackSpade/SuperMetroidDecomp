@@ -88,7 +88,7 @@ internal static class UploadedPictureChecks
     {
         IEnemySheetSource sheets = runtime.EnemySession.Sheets ?? throw new InvalidOperationException("The runtime loads the enemy sheets.");
         IReadOnlyList<RuntimeCharacterUpload> setUploads = sheets.Uploads.Of(runtime.Enemies.GraphicsSet.LoadedSet);
-        IReadOnlyList<CharacterRegion> regions = RuntimeCharacterUploadCatalog.Regions(setUploads);
+        IReadOnlyList<CharacterRegion> regions = RuntimeCharacterUploadCatalogConstants.Regions(setUploads);
         AssertTrue(regions.Count > 0, $"{message}: the loaded set's encounter uploads over its characters");
         byte[] loaded = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.ObjCharacters).Characters.ToArray();
         var made = new List<RuntimeCharacterUpload>();

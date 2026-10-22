@@ -21,15 +21,6 @@ public static class SnesMode7Renderer
     private const int Mode7CoordinateMask = 1023;
 
     /// <summary>
-    /// Projects Mode 7 directly over caller-owned storage. Transparent samples leave the
-    /// existing destination intact, allowing the gameplay compositor to begin with its
-    /// backdrop and avoid a second full-frame raster plus copy.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public static void CompositeViewport(Span<Rgba32> output, SnesVram vram, IPaletteColors cgram, Mode7RenderRegisters registers, Extent16<ScreenPixels>? size = null) =>
-        CompositeViewport(output, vram, cgram, registers, map: null, tiles: null, size);
-
-    /// <summary>
     /// Projects Mode 7 over caller-owned storage with tile numbers from <paramref name="map"/> (#1349), or from VRAM's
     /// map plane when a frontend scene's map lives there, drawing each tile from <paramref name="tiles"/>' pictures once it
     /// carries them (#1392), otherwise from VRAM's characters.

@@ -27,23 +27,6 @@ public sealed class RuntimeCharacterUploadCatalog
         [.. Ensure.NotNull(set).Records.Span.SelectToArray(record => record.DefinitionId).Distinct()
             .Where(byEnemy.ContainsKey).SelectMany(enemy => byEnemy[enemy]).Distinct().OrderBy(all.IndexOf)];
 
-    /// <summary>
-    /// The regions <paramref name="uploads"/> divide the characters into: each run of bytes between their bounds that
-    /// one of them covers, which each covers whole or not at all.
-    /// </summary>
-    public static IReadOnlyList<CharacterRegion> Regions(IReadOnlyList<RuntimeCharacterUpload> uploads)
-    {
-        int[] bounds = [.. Ensure.NotNull(uploads).SelectMany(upload => new[] { upload.FirstByte, upload.FirstByte + upload.ByteCount }).Distinct().Order()];
-        var regions = new List<CharacterRegion>();
-        for (int index = 0; index + 1 < bounds.Length; index++)
-        {
-            var region = new CharacterRegion(bounds[index], bounds[index + 1] - bounds[index]);
-            if (Over(uploads, region).Any())
-                regions.Add(region);
-        }
-        return regions;
-    }
-
     /// <summary>The uploads among <paramref name="uploads"/> that show over <paramref name="region"/> when made.</summary>
     public static IEnumerable<RuntimeCharacterUpload> Over(IEnumerable<RuntimeCharacterUpload> uploads, CharacterRegion region)
     {

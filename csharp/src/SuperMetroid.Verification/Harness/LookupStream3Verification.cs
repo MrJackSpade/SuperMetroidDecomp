@@ -1432,7 +1432,7 @@ internal static class LookupStream3Verification
     private static void VerifyStream3CorpseGeometry(ISnesAddressSpace rom)
     {
         for (int row = 0; row < 8; row++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9e262 + row * 2), MotherBrainCorpseArtworkDefinitions.TileRowOffset(row),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9e262 + row * 2), MotherBrainCorpseArtworkDefinitionsConstants.TileRowOffset(row),
                 "stream 3 corpse native tile row offset");
         var transfers = MotherBrainCorpseArtworkDefinitions.RotTransfers;
         AssertEqual(6, transfers.Count, "stream 3 corpse transfer count");

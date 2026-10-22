@@ -142,18 +142,6 @@ internal static class ScreenTileSheetComposer
     internal static ComposedSpriteSheet ComposeFlightMode7(CeresFlightArtworkCatalog flight) =>
         ComposeMode7Pixels(Ensure.NotNull(flight).Mode7Characters.Span[..CeresFlightRomData.Vram.Mode7CharacterByteCount], FlightColours(flight));
 
-    /// <summary>The ending's escape, planet explosion and flyaway Mode 7 characters <paramref name="mode7"/> and the flight compose.</summary>
-    internal static IEnumerable<(SpriteSheetId Sheet, ComposedSpriteSheet Tiles)> ComposeEndingMode7(EndingMode7ArtworkCatalog mode7, EndingPaletteCatalog palettes)
-    {
-        Ensure.NotNull(mode7);
-        Ensure.NotNull(palettes);
-        yield return (SpriteSheetId.EndingEscapeAMode7Tiles, ComposeMode7Pixels(mode7[EndingMode7SceneId.EscapeA].Characters.Span, EndingColours(palettes, EndingPaletteId.Escape)));
-        yield return (SpriteSheetId.EndingEscapeBMode7Tiles, ComposeMode7Pixels(mode7[EndingMode7SceneId.EscapeB].Characters.Span, EndingColours(palettes, EndingPaletteId.Escape)));
-        yield return (SpriteSheetId.EndingPlanetExplosionMode7Tiles, ComposeMode7Pixels(mode7[EndingMode7SceneId.PlanetExplosion].Characters.Span,
-            EndingColours(palettes, EndingPaletteId.Explosion)));
-        yield return (SpriteSheetId.EndingRewardIconMode7Tiles, ComposeRewardIcon(mode7, palettes));
-    }
-
     /// <summary>The ending's reward icon's Mode 7 characters under the post-credits palette.</summary>
     private static ComposedSpriteSheet ComposeRewardIcon(EndingMode7ArtworkCatalog mode7, EndingPaletteCatalog palettes) =>
         ComposeMode7Pixels(HighBytes(mode7.RewardIcon.Transfer.Span), EndingColours(palettes, EndingPaletteId.PostCredits));

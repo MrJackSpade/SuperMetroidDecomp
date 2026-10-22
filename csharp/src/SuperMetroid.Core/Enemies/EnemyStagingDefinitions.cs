@@ -16,9 +16,6 @@ internal static class EnemyStagingDefinitions
     /// <summary>Group B spans <c>$7E:9000-$7E:97FF</c>.</summary>
     internal const int RottingHeapByteCount = 0x800;
 
-    /// <summary>Mother Brain's six-row corpse tiles occupy <c>$7E:9000-$7E:96FF</c>.</summary>
-    internal const int MotherBrainCorpseTileByteCount = 0x700;
-
     /// <summary>Mother Brain's rot table at <c>$7E:9700</c>, as a heap offset.</summary>
     internal const int MotherBrainRotTableOffset = 0x700;
 

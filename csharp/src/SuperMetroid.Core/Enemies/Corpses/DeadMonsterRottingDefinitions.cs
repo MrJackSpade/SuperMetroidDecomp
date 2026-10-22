@@ -53,15 +53,6 @@ internal static class DeadMonsterRottingDefinitions
         return (variant == 0 ? column < 2 : column >= 2) ? 8 : 0;
     }
 
-    /// <summary>Converts an eight-pixel corpse row offset into its species-specific staged tile byte offset.</summary>
-    internal static ushort RotationOffset(CorpseRotationTable table, ushort yOffset)
-    {
-        (int count, int tiles) = RotationExtent(table);
-        int row = yOffset >> 3;
-        if (row >= count) throw new ArgumentOutOfRangeException(nameof(yOffset));
-        return (ushort)(row * tiles * 32);
-    }
-
     /// <summary>The rows of characters a corpse's rotation table reaches and the characters in each.</summary>
     internal static CorpseRotationExtent RotationExtent(CorpseRotationTable table) => table switch
         {

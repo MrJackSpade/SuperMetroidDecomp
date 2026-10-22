@@ -30,7 +30,7 @@ internal static class SnesMode7RendererAccess
             Extent16<ScreenPixels> viewport = size ?? SnesPpuLayout.ScreenSize;
 
             var output = new Rgba32[viewport.X * viewport.Y];
-            SnesMode7Renderer.CompositeViewport(output, vram, cgram, registers, viewport);
+            SnesMode7RendererConstants.CompositeViewport(output, vram, cgram, registers, viewport);
             return output;
         }
     }

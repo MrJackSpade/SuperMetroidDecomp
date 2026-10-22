@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.World.RoomStates;
@@ -59,6 +60,57 @@ internal static class RoomBlockPicturesVerification
     {
         CheckBackground(RoomHeaderDefinitions.Parlor, expectRebound: false);
         CheckBackground(RoomHeaderDefinitions.Statues, expectRebound: true);
+        CheckSky(RoomHeaderDefinitions.LandingSite);
+    }
+
+    /// <summary>
+    /// Loads sky room <paramref name="room"/> and checks BG2 draws the sky's rows from their image: every pixel of every row
+    /// the sky shows paints what the row's tiles paint over the live characters.
+    /// </summary>
+    private static void CheckSky(RoomHeaderDefinition room)
+    {
+        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(room);
+        runtime.Player.IntroducedSamus.Control.LockHandlers();
+        runtime.StepFrame(0);
+        RoomBackgroundImagePlane plane = runtime.Display.Latched.Rooms?.SkyImage
+            ?? throw new InvalidOperationException($"{room.Name}: BG2 shows no sky image.");
+        SkyTilemap sky = (runtime.Artwork.RoomSkyTilemapArt ?? throw new InvalidOperationException("The fixture has no sky rows."))
+            .Tilemap((runtime.Room.Scope?.ScrollingSky ?? throw new InvalidOperationException($"{room.Name} has no sky.")).Variant);
+        PpuMemorySnapshot memory = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites, runtime.BgArtwork);
+        ReadOnlySpan<byte> vram = memory.Vram;
+        IBgSource shown = plane.AsSky(sky);
+        int rows = 0;
+        for (int row = 0; row < SkyTilemap.Rows; row++)
+        {
+            if (!sky.RowShown(row))
+                continue;
+            rows++;
+            for (int y = row * CharacterPixels; y < (row + 1) * CharacterPixels; y++)
+            for (int x = 0; x < RoomBackgroundImage.PagePixels; x++)
+            {
+                var word = new SnesBgTilemapWord(sky.Words[row * SkyTilemap.Columns + x / CharacterPixels]);
+                int pixelRow = word.FlipVertically ? CharacterPixels - 1 - y % CharacterPixels : y % CharacterPixels;
+                int bit = 7 - (word.FlipHorizontally ? CharacterPixels - 1 - x % CharacterPixels : x % CharacterPixels);
+                int address = word.CharacterIndex * RoomBlockPictureNames.CharacterWords * sizeof(ushort) + pixelRow * 2;
+                int colour = (vram[address] >> bit & 1) | (vram[address + 1] >> bit & 1) << 1
+                    | (vram[address + 16] >> bit & 1) << 2 | (vram[address + 17] >> bit & 1) << 3;
+                int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
+                AssertTrue(shown.TrySample(new Position16<BgPlanePixels>((ushort)x, (ushort)y), out BgSample sample),
+                    $"{room.Name}: the sky shows row {row}");
+                SpriteSheetFrame picture = sample.Picture ?? throw new InvalidOperationException($"{room.Name}: the sky shows a tile at ({x}, {y}).");
+                SpriteImage sheet = picture.Sheet;
+                int pixel = (picture.Corner.Y + sample.PicturePixel.Y) * sheet.Size.X + picture.Corner.X + sample.PicturePixel.X;
+                AssertTrue(sheet.PaletteIndices[pixel] == expected && (colour == 0 || ((sheet.Priorities[pixel] != 0) == word.HasPriority
+                        && sheet.Pixels[pixel] == sheet.StandardColours[expected].ToRgba32())),
+                    $"{room.Name}: the sky paints index {sheet.PaletteIndices[pixel]} at ({x}, {y}) where its tile ${word.Raw:X4} paints {expected}");
+            }
+        }
+        AssertTrue(rows > 0, $"{room.Name}'s sky shows rows");
+        Console.WriteLine($"Room background images: {room.Name}'s sky painted its {rows} shown rows from their image.");
     }
 
     /// <summary>Loads <paramref name="room"/> and checks its background image over <see cref="Frames"/> frames.</summary>

@@ -78,15 +78,23 @@ internal static class RoomBackgroundsFixtures
     /// A seeded library background image over seeded colours as <see cref="SeededPictures"/> colours them, with about one
     /// cell in four drawn from a seeded block picture in its place (#1392).
     /// </summary>
-    internal static RoomBackgroundImagePlane SeededBackground(Random random, Bgr555[] scene)
+    internal static RoomBackgroundImagePlane SeededBackground(Random random, Bgr555[] scene) =>
+        SeededImage(random, scene, RoomBackgroundImage.Words / RoomBackgroundImage.PageTiles);
+
+    /// <summary>A seeded image of the scrolling sky's rows, with rebound cells as <see cref="SeededBackground"/> has (#1392).</summary>
+    internal static RoomBackgroundImagePlane SeededSky(Random random, Bgr555[] scene) =>
+        SeededImage(random, scene, SuperMetroid.Core.Rooms.Scrolling.SkyTilemap.Rows);
+
+    /// <summary>A seeded background image <paramref name="tileRows"/> 32-tile rows tall, about one cell in four rebound.</summary>
+    private static RoomBackgroundImagePlane SeededImage(Random random, Bgr555[] scene, int tileRows)
     {
         RoomBlockPictureTable blocks = SeededPictures(random, scene);
-        var size = new Extent16<ImagePixels>(RoomBackgroundImage.PagePixels, RoomBackgroundImage.Pages * RoomBackgroundImage.PagePixels);
+        var size = new Extent16<ImagePixels>(RoomBackgroundImage.PagePixels, (ushort)(tileRows * 8));
         SpriteSheet sheet = SeededSheet(random, scene, size, new Dictionary<string, Position16<ImagePixels>> { [RoomBackgroundImage.FrameName] = default },
             size, "seeded background");
-        ushort[] words = [.. Enumerable.Range(0, RoomBackgroundImage.Words).Select(_ => (ushort)random.Next(65536))];
+        ushort[] words = [.. Enumerable.Range(0, tileRows * RoomBackgroundImage.PageTiles).Select(_ => (ushort)random.Next(65536))];
         var image = new RoomBackgroundImage("seeded background", sheet, [.. words]);
-        var cells = new SpriteSheetFrame?[RoomBackgroundImage.Words / RoomBlockPictureNames.Tiles];
+        var cells = new SpriteSheetFrame?[image.CellCount];
         for (int cell = 0; cell < cells.Length; cell++)
             cells[cell] = random.Next(4) == 0 ? blocks.Picture(random.Next(Definitions)) : null;
         return new RoomBackgroundImagePlane(image, cells);

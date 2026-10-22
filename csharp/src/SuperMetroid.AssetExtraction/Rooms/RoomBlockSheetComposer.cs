@@ -38,8 +38,8 @@ internal static class RoomBlockSheetComposer
     }
 
     /// <summary>
-    /// Composes a library background's image: both pages its program leaves, the first above the second, each tile over
-    /// what its character shows as the room has loaded.
+    /// Composes a background's image: a library background's two pages, the first above the second, or the sky's rows, each
+    /// tile over what its character shows as the room has loaded.
     /// </summary>
     /// <exception cref="InvalidDataException">A tile reads a character nothing the room loads is bound over.</exception>
     [PpuLayoutBoundary("codec: the BG characters a background's tile words name, from the room tileset's character base")]
@@ -51,18 +51,17 @@ internal static class RoomBlockSheetComposer
         Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = load.Concat(uploads.Uploads).GroupBy(upload => upload.Identity)
             .ToDictionary(group => group.Key, group => group.First().Bytes);
         Bgr555[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).Transfer.Span);
-        var canvas = new RoomTileCanvas(RoomBackgroundImage.PagePixels, RoomBackgroundImage.Pages * RoomBackgroundImage.PagePixels);
+        var canvas = new RoomTileCanvas(RoomBackgroundImage.PagePixels,
+            background.Words.Length / RoomBackgroundImage.PageTiles * RoomTileCanvas.CharacterPixels);
         SpritePaletteRows rows = SpritePaletteRows.None;
-        for (int index = 0; index < RoomBackgroundImage.Words; index++)
+        for (int index = 0; index < background.Words.Length; index++)
         {
             var word = new SnesBgTilemapWord(background.Words[index]);
-            int page = index / (RoomBackgroundImage.PageTiles * RoomBackgroundImage.PageTiles);
-            int within = index % (RoomBackgroundImage.PageTiles * RoomBackgroundImage.PageTiles);
             int first = CharacterWord(word.Raw);
             if (!background.Content.TryShowing(first, RoomBlockPictureNames.CharacterWords, out BgArtworkShown shown))
                 throw new InvalidDataException($"Room background {background.Name} reads a character at VRAM word ${first:X4} its room loads nothing over.");
-            rows |= canvas.PaintTile(within % RoomBackgroundImage.PageTiles * RoomTileCanvas.CharacterPixels,
-                page * RoomBackgroundImage.PagePixels + within / RoomBackgroundImage.PageTiles * RoomTileCanvas.CharacterPixels, word,
+            rows |= canvas.PaintTile(index % RoomBackgroundImage.PageTiles * RoomTileCanvas.CharacterPixels,
+                index / RoomBackgroundImage.PageTiles * RoomTileCanvas.CharacterPixels, word,
                 bytes[shown.Artwork].Span.Slice(shown.WordOffset * sizeof(ushort), RoomTileCanvas.CharacterBytes), colours);
         }
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)

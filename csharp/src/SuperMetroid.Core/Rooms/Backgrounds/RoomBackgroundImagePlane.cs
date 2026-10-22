@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
-/// A room's library background as BG2 shows it at one moment (#1392): its image, and the block picture of each 16x16 cell
+/// A room's background image as BG2 shows it at one moment (#1392): the image, and the block picture of each 16x16 cell
 /// whose characters show artwork the room bound after loading.
 /// </summary>
 public sealed class RoomBackgroundImagePlane
@@ -17,7 +18,7 @@ public sealed class RoomBackgroundImagePlane
     {
         Image = Ensure.NotNull(image);
         this.cells = Ensure.NotNull(cells);
-        Ensure.LengthEqual(cells, RoomBackgroundImage.Words / RoomBlockPictureNames.Tiles);
+        Ensure.LengthEqual(cells, image.CellCount);
     }
 
     /// <summary>The background's image.</summary>
@@ -26,8 +27,34 @@ public sealed class RoomBackgroundImagePlane
     /// <summary>The picture cell <paramref name="cell"/> shows in place of the image, or null.</summary>
     public SpriteSheetFrame? Cell(int cell) => cells[cell];
 
-    /// <summary>The background as BG2 shows it through a tilemap of <paramref name="mapSize"/> cells.</summary>
+    /// <summary>A library background as BG2 shows it through a tilemap of <paramref name="mapSize"/> cells.</summary>
     public IBgSource At(Extent16<TilemapCells> mapSize) => new Shown(this, mapSize);
+
+    /// <summary>
+    /// The scrolling sky as BG2 shows it (#1347): the row a vertical position selects, repeating every 2048 pixels down
+    /// and 256 across, and nothing on a row <paramref name="sky"/> shows no page on.
+    /// </summary>
+    public IBgSource AsSky(SkyTilemap sky) => new Sky(this, Ensure.NotNull(sky));
+
+    /// <summary>The image as the sky's rows.</summary>
+    private sealed class Sky(RoomBackgroundImagePlane plane, SkyTilemap sky) : IBgSource
+    {
+        /// <inheritdoc />
+        public bool TrySample(Position16<BgPlanePixels> scrolled, out BgSample sample)
+        {
+            int y = scrolled.Y % (SkyTilemap.Rows * 8), x = scrolled.X % RoomBackgroundImage.PagePixels;
+            if (!sky.RowShown(y / 8))
+            {
+                sample = default;
+                return false;
+            }
+            int cell = y / 16 * (RoomBackgroundImage.PageTiles / 2) + x / 16;
+            sample = plane.cells[cell] is { } picture
+                ? BgSample.OfPicture(picture, new Position16<ImagePixels>((ushort)(x % 16), (ushort)(y % 16)))
+                : BgSample.OfPicture(plane.Image.Picture, new Position16<ImagePixels>((ushort)x, (ushort)y));
+            return true;
+        }
+    }
 
     /// <summary>The background through one map size: the hardware's page order over the image's pages.</summary>
     private sealed class Shown(RoomBackgroundImagePlane plane, Extent16<TilemapCells> mapSize) : IBgSource

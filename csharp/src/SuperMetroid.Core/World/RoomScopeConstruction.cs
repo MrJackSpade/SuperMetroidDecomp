@@ -111,6 +111,10 @@ internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeR
                 Assets.Pictures.Background(RoomBackgroundImage.NameOf(program, RoomBackgroundImage.DoorVariant(program, Door), Assets.Tileset)),
                 Assets.BlockSheet, LoadedArtwork(program))
             : null,
+        SkyImage = ScrollingSky is { } sky
+            ? new RoomBackgroundImageResolver(Assets.Pictures.Background(RoomBackgroundImage.SkyNameOf(sky.Variant, Assets.Tileset)),
+                Assets.BlockSheet, Room.State.Background is { } skyProgram ? LoadedArtwork(skyProgram) : RoomLoadArtwork())
+            : null,
         ScrollingSky = ScrollingSky,
         Mode7Map = Mode7Map,
         LandingSiteEntry = LandingSiteEntry,
@@ -137,11 +141,15 @@ internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeR
     /// </summary>
     private HashSet<BgArtworkIdentity> LoadedArtwork(LibraryBackgroundProgram program) =>
     [
-        .. CartridgeRoomAssets.CharacterUploads(Assets.Tileset, Assets.CreCharacters, Assets.RoomCharacters).Select(upload => upload.Identity),
+        .. RoomLoadArtwork(),
         .. program.Instructions.Where(instruction => instruction.Command is LibraryBackgroundCommand.TransferToVram
             or LibraryBackgroundCommand.TransferToVramForKraid or LibraryBackgroundCommand.TransferForDoor)
             .Select(instruction => RoomBgArtwork.Library(instruction.SourceAddress)),
     ];
+
+    /// <summary>The artwork the room's own load binds: its common room elements and tileset.</summary>
+    private HashSet<BgArtworkIdentity> RoomLoadArtwork() =>
+        [.. CartridgeRoomAssets.CharacterUploads(Assets.Tileset, Assets.CreCharacters, Assets.RoomCharacters).Select(upload => upload.Identity)];
 
     /// <summary>The failure for a load that completed without building <paramref name="part"/>.</summary>
     private static InvalidOperationException Missing(string part) =>

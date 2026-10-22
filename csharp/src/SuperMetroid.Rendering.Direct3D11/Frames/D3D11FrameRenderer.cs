@@ -513,7 +513,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                 bg3 = SameBg3(bg3, sub.Plane);
         }
         if (roomLevels.Pack(new RoomLevelLayers(rooms?.Bg1, rooms?.Bg2 ?? floor, rooms?.DoorSource, rooms?.Bg1Overlay, rooms?.Sky, bg3,
-                rooms?.Bg2Overlay, mode7Map, rooms?.BossBg2, rooms?.XrayReveal, rooms?.Bg2Image)))
+                rooms?.Bg2Overlay, mode7Map, rooms?.BossBg2, rooms?.XrayReveal, rooms?.Bg2Image, rooms?.Sky is null ? null : rooms.SkyImage)))
             fixed (uint* source = roomLevels.Upload) UploadBuffer(roomLevels.Buffer, (nint)source, roomLevels.Upload.Length * sizeof(uint));
         owner.Context.CSSetShader(tileShader);
         owner.Context.CSSetConstantBuffer(0, constants);

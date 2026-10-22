@@ -262,9 +262,21 @@ internal sealed class AcceptedFrameBoundary
             revealed?.Select(block => block.Definition) ?? []);
         // Where BG2 shows the tilemap its library background loaded, it draws the background's image (#1392): not over a
         // streaming layer-2 plane, a scrolling sky or a boss body that owns BG2.
-        RoomBackgroundImagePlane? image = rooms.Bg2 is null && scope.ScrollingSky is null
-            && latched.Bosses.KraidBody is null && latched.Bosses.EnemyBg2 is null
-            ? scope.BackgroundImage?.Resolve(_backgrounds) : null;
+        RoomBackgroundImagePlane? image = null;
+        if (rooms.Bg2 is null && scope.ScrollingSky is null && latched.Bosses.KraidBody is null && latched.Bosses.EnemyBg2 is null
+            && scope.BackgroundImage is { } background)
+        {
+            background.Image.AssertLoadedIntoBg2(_backgrounds);
+            image = background.Resolve(_backgrounds);
+        }
+        // A sky room's BG2 shows the sky's rows, drawn from their image (#1392).
+        RoomBackgroundImagePlane? sky = null;
+        if (scope.SkyImage is { } skyImage && scope.ScrollingSky is { } scrollingSky)
+        {
+            skyImage.Image.AssertPictures((_artwork.RoomSkyTilemapArt ?? throw new InvalidOperationException("A sky room has no installed sky rows."))
+                .Tilemap(scrollingSky.Variant).Words);
+            sky = skyImage.Resolve(_backgrounds);
+        }
         return latched with
         {
             Rooms = rooms with
@@ -272,6 +284,7 @@ internal sealed class AcceptedFrameBoundary
                 Bg1 = rooms.Bg1 with { Pictures = pictures },
                 Bg2 = rooms.Bg2 is { } bg2 ? bg2 with { Pictures = pictures } : null,
                 Bg2Image = image,
+                SkyImage = sky,
             },
             XrayReveal = revealed is null ? null : new XrayRevealPlane(revealed, pictures),
         };

@@ -35,7 +35,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int PlaneSlots = 3;
     /// <summary>Header words: the plane records, the door window origin, and the offsets of the BG1 overlay, the sky rows,
     /// the BG3 plane and the BG2 overlay.</summary>
-    private const int HeaderWords = PlaneSlots * RecordWords + 9;
+    private const int HeaderWords = PlaneSlots * RecordWords + 10;
     /// <summary>Header word of the door window's scrolled origin.</summary>
     private const int DoorWindowWord = PlaneSlots * RecordWords;
     /// <summary>Header word of the overlay's first word, or zero without an overlay.</summary>
@@ -60,6 +60,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// 16x16 cell's picture offset, zero where the image shows.
     /// </summary>
     private const int Bg2ImageWord = XrayRevealWord + 1;
+    /// <summary>Header word of the scrolling sky's image, laid out as <see cref="Bg2ImageWord"/>'s, or zero without one (#1392).</summary>
+    private const int SkyImageWord = Bg2ImageWord + 1;
     /// <summary>The bit an X-ray reveal block's arrangement starts at.</summary>
     private const int ArrangementShift = 28;
     /// <summary>A sky row word that selects no page: the row shows nothing.</summary>
@@ -98,9 +100,10 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         Mode7MapSnapshot? mode7 = frame.Mode7;
         BossBg2Tilemap? bossBg2 = frame.BossBg2;
         XrayRevealPlane? reveal = frame.XrayReveal;
-        RoomBackgroundImagePlane? image = frame.Bg2Image;
+        RoomBackgroundImagePlane? image = frame.Bg2Image, skyImage = frame.SkyImage;
         // No dispatch samples t3 without one of these, so such a scene keeps the last packed room unread.
-        if (packed == frame || (bg1 is null && bg2 is null && sky is null && bg3 is null && mode7 is null && reveal is null && image is null))
+        if (packed == frame || (bg1 is null && bg2 is null && sky is null && bg3 is null && mode7 is null && reveal is null && image is null
+            && skyImage is null))
             return false;
         RoomBackgroundLayer?[] planes = [bg1, bg2, door?.SourceRoom];
         var definitionWords = new Dictionary<ImmutableArray<byte>, int>();
@@ -130,10 +133,12 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         int revealOffset = reveal is null ? 0 : words;
         if (reveal is not null)
             words += reveal.Blocks.Length;
-        int imageCells = RoomBackgroundImage.Words / RoomBlockPictureNames.Tiles;
         int imageOffset = image is null ? 0 : words;
         if (image is not null)
-            words += 1 + imageCells;
+            words += 1 + image.Image.CellCount;
+        int skyImageOffset = skyImage is null ? 0 : words;
+        if (skyImage is not null)
+            words += 1 + skyImage.Image.CellCount;
         void AddPicture(SpriteSheetFrame picture)
         {
             if (colourWords.TryAdd(picture.Sheet, words))
@@ -151,12 +156,14 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
                     AddPicture(picture);
             }
         }
-        if (image is not null)
+        foreach (RoomBackgroundImagePlane? plane in new[] { image, skyImage })
         {
-            AddPicture(image.Image.Picture);
-            for (int cell = 0; cell < imageCells; cell++)
+            if (plane is null)
+                continue;
+            AddPicture(plane.Image.Picture);
+            for (int cell = 0; cell < plane.Image.CellCount; cell++)
             {
-                if (image.Cell(cell) is { } picture)
+                if (plane.Cell(cell) is { } picture)
                     AddPicture(picture);
             }
         }
@@ -215,11 +222,14 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         foreach ((SpriteSheetFrame picture, int offset) in pictureWords)
             PackPicture(upload.Slice(offset, PictureHeaderWords + 2 * picture.Size.X * picture.Size.Y), picture, colourWords[picture.Sheet]);
         upload[Bg2ImageWord] = (uint)imageOffset;
-        if (image is not null)
+        upload[SkyImageWord] = (uint)skyImageOffset;
+        foreach ((RoomBackgroundImagePlane? plane, int offset) in new[] { (image, imageOffset), (skyImage, skyImageOffset) })
         {
-            upload[imageOffset] = (uint)pictureWords[image.Image.Picture];
-            for (int cell = 0; cell < imageCells; cell++)
-                upload[imageOffset + 1 + cell] = image.Cell(cell) is { } picture ? (uint)pictureWords[picture] : 0;
+            if (plane is null)
+                continue;
+            upload[offset] = (uint)pictureWords[plane.Image.Picture];
+            for (int cell = 0; cell < plane.Image.CellCount; cell++)
+                upload[offset + 1 + cell] = plane.Cell(cell) is { } picture ? (uint)pictureWords[picture] : 0;
         }
         if (door is not null)
             upload[DoorWindowWord] = D3D11ConstantPacking.Halves(door.WindowOrigin.X, door.WindowOrigin.Y);

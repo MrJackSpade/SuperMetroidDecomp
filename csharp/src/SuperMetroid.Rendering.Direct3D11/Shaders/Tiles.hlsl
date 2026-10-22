@@ -36,6 +36,8 @@ static const uint RoomRecordWords = 7, RoomDoorSlot = 2, RoomDoorWindowWord = 21
 static const uint RoomBg3Word = 24, RoomBg2OverlayWord = 25, RoomMode7MapWord = 26, RoomBossBg2Word = 27, RoomXrayRevealWord = 28;
 // A library background (RoomBackgroundImagePlane): its image picture's offset, then each 16x16 cell's picture offset.
 static const uint RoomBg2ImageWord = 29;
+// The scrolling sky's image, laid out as a library background's: its image picture's offset, then each cell's.
+static const uint RoomSkyImageWord = 30;
 // The X-ray reveal (XrayRevealPlane): 17 block columns by 16 rows, each its picture's offset with its arrangement in the
 // top four bits: as defined, mirrored horizontally, vertically or both, or its tile rows swapped.
 static const uint RevealColumns = 17, RevealRows = 16;
@@ -120,13 +122,23 @@ bool RoomPlaneTile(uint slot, uint2 scrolled, out uint entry, out uint2 within, 
     return inside;
 }
 // The tile a sky row shows (SkyTilemap): 32-tile rows repeating every 2048 pixels down; a row selecting no page
-// shows nothing.
-bool SkyTile(uint2 scrolled, out uint entry, out uint2 within)
+// shows nothing. Where the sky is drawn from its image (#1392), `picture` is the image or a rebound cell's picture and
+// `within` its pixel.
+bool SkyTile(uint2 scrolled, out uint entry, out uint2 within, out uint picture)
 {
+    picture = 0;
     uint word = RoomLevels[RoomLevels[RoomSkyWord] + ((scrolled.y & 2047) >> 3) * 32 + ((scrolled.x >> 3) & 31)];
     bool shown = word != 4294967295u;
     entry = shown ? word : 0;
     within = scrolled & 7;
+    uint skyImage = RoomLevels[RoomSkyImageWord];
+    if (skyImage != 0)
+    {
+        uint2 position = uint2(scrolled.x & 255, scrolled.y & 2047);
+        uint cell = RoomLevels[skyImage + 1 + (position.y >> 4) * 16 + (position.x >> 4)];
+        picture = cell != 0 ? cell : RoomLevels[skyImage];
+        within = cell != 0 ? (position & 15) : position;
+    }
     return shown;
 }
 // The BG3 plane (Layer3Plane): 32 by 64 words. A window of `rows` rows from `firstRow` repeats every 256 pixels across.
@@ -212,7 +224,7 @@ bool RoomTile(uint source, uint2 scrolled, out uint entry, out uint2 within, out
     }
     bool shown = overlaid;
     if (source == RoomSourceSky)
-        shown = SkyTile(scrolled, entry, within);
+        shown = SkyTile(scrolled, entry, within, picture);
     else if (!overlaid)
         shown = RoomPlaneTile(slot, scrolled, entry, within, picture);
     return shown;

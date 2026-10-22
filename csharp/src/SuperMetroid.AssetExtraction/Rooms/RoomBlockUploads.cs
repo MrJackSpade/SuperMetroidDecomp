@@ -12,6 +12,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
@@ -62,6 +63,15 @@ internal static class RoomBlockUploads
                 {
                     foreach (CartridgeDoorHeader? door in DoorVariants(program))
                         uploads.AddBackground(Replay(inputs, room, tileset, program, door));
+                }
+                if (ScrollingSkyState.IsScrollingSkyRoomMain(state.MainCallback))
+                {
+                    // The sky's rows show over what the room's load and its library background bind.
+                    ScrollingSkyChunkTable variant = ScrollingSkyState.VariantOf(state.MainCallback);
+                    BgArtworkBindings content = state.Background is { } skyProgram
+                        ? Replay(inputs, room, tileset, skyProgram, null).Content : Loaded(inputs, tileset);
+                    uploads.AddBackground(new RoomBackgroundMap(RoomBackgroundImage.SkyNameOf(variant, tileset),
+                        [.. inputs.Skies.Tilemap(variant).Words], content));
                 }
             }
         }
@@ -137,12 +147,8 @@ internal static class RoomBlockUploads
     private static RoomBackgroundMap Replay(RoomBlockSheetInputs inputs, RoomHeaderDefinition room, TilesetDefinition tileset,
         LibraryBackgroundProgram program, CartridgeDoorHeader? door)
     {
-        var vram = new SnesVram();
-        var content = new BgArtworkBindings(vram);
-        IReadOnlyList<BgCharacterUpload> load = CartridgeRoomAssets.CharacterUploads(tileset, inputs.Characters.Cre.Transfer,
-            inputs.Characters.Get(tileset.Characters).Transfer);
-        foreach (BgCharacterUpload upload in load)
-            upload.BindTo(content);
+        BgArtworkBindings content = Loaded(inputs, tileset);
+        SnesVram vram = content.Vram;
         // A door no transfer names stands for every door the program does not tell apart.
         CartridgeDoorHeader entry = door ?? new CartridgeDoorHeader("no library background door", room,
             new CartridgeDoorOrientation(DoorDirection.Right, DoorClosingBehavior.None), default, default, 0, DoorSetupCode.None);
@@ -157,6 +163,16 @@ internal static class RoomBlockUploads
             });
         ushort[] words = [.. Enumerable.Range(0, RoomBackgroundImage.Words).Select(word => vram.ReadWord(GameplayVramLayout.Bg2TilemapWord + word))];
         return new RoomBackgroundMap(RoomBackgroundImage.NameOf(program, door, tileset), words, content);
+    }
+
+    /// <summary>Bindings over a fresh VRAM holding what a room of <paramref name="tileset"/> binds as it loads.</summary>
+    private static BgArtworkBindings Loaded(RoomBlockSheetInputs inputs, TilesetDefinition tileset)
+    {
+        var content = new BgArtworkBindings(new SnesVram());
+        foreach (BgCharacterUpload upload in CartridgeRoomAssets.CharacterUploads(tileset, inputs.Characters.Cre.Transfer,
+            inputs.Characters.Get(tileset.Characters).Transfer))
+            upload.BindTo(content);
+        return content;
     }
 
     /// <summary>Each frame an animated-tile object the port runs uploads; none for an object it does not animate.</summary>

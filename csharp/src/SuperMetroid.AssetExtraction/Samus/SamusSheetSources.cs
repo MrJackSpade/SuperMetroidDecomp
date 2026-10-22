@@ -24,6 +24,7 @@ internal static class SamusSheetSources
         SpriteSheetId.Grapple => GrappleSheetComposer.Sources(inputs),
         SpriteSheetId.SamusBodyTop or SpriteSheetId.SamusBodyBottom => SamusBodySheetComposer.Sources(inputs, sheet),
         SpriteSheetId.SamusOverlays => SamusOverlaySheetComposer.Sources(inputs),
+        SpriteSheetId.SamusAtmosphere => SamusAtmosphereSheetComposer.Sources(inputs),
         _ => ProjectileSheetComposer.Sources(inputs, sheet),
     };
 }

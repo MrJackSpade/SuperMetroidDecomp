@@ -13,6 +13,8 @@ public enum SpriteSheetId
     SamusBodyBottom,
     /// <summary>The arm cannon's covers and the chest cover drawn over Samus's body.</summary>
     SamusOverlays,
+    /// <summary>Samus's footstep splashes, lava spray, dust, diving splash and bubbles.</summary>
+    SamusAtmosphere,
     /// <summary>Samus's projectiles, bombs, charge flare and trails as the intro's flashbacks draw them.</summary>
     IntroProjectiles,
     /// <summary>Samus's projectiles, bombs, charge flare and trails with the power beam equipped.</summary>

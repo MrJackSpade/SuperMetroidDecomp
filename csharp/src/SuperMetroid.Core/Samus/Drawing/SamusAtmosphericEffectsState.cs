@@ -87,19 +87,15 @@ public sealed class SamusAtmosphericEffectsState
     /// <param name="sprites">Frame receiving visible effects as draws, with slot three processed first.</param>
     /// <param name="camera">Room-space camera X and Y origin in whole pixels.</param>
     /// <param name="fxYPosition">Live liquid-surface Y in room pixels, used to anchor the diving splash on each update.</param>
-    /// <param name="artwork">Installed Samus spritemaps required when visible diving splashes or bubbles use the spritemap draw path.</param>
-    /// <param name="directArtwork">Installed small-sprite attributes required for visible direct effects other than type two's WRAM-backed attributes.</param>
-    /// <param name="standardObjects">The installed standard OBJ page every effect's characters come from; required when one is visible.</param>
+    /// <param name="sheets">The installed sheets every visible effect draws from; required when one is visible.</param>
     public void UpdateAndDraw(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> camera,
         ushort fxYPosition,
-        SamusSpritemapArtworkCatalog? artwork = null,
-        SamusAtmosphericArtworkCatalog? directArtwork = null,
-        SpriteArtwork? standardObjects = null)
+        InstalledSpriteSheets? sheets = null)
     {
         Ensure.NotNull(sprites);
-        var drawing = new AtmosphereDrawing(sprites, camera, standardObjects, artwork, directArtwork);
+        var drawing = new AtmosphereDrawing(sprites, camera, sheets);
 
         // Native Y begins at byte offset six and decrements by two. Slot three therefore
         // receives the earlier/lower OAM index whenever multiple effects overlap.
@@ -142,31 +138,31 @@ public sealed class SamusAtmosphericEffectsState
             {
                 case SamusAtmosphericEffectType.FootstepSplash:
                 case SamusAtmosphericEffectType.AlternateFootstepSplash:
-                    DrawDirectSmallSprite(drawing, slot, slotIndex, type);
+                    DrawDirectSmallSprite(drawing, slot, slotIndex, type, SamusAtmosphereSheetDefinitions.FootstepFrame(slot.AnimationFrame));
                     break;
 
                 case SamusAtmosphericEffectType.DivingSplash:
                     // Diving splash graphics remain pinned to the live water surface even
                     // if room FX moves it while the nine-frame animation is running.
                     slot.Position = slot.Position.WithY(fxYPosition);
-                    DrawSamusTableSpritemap(drawing, slot, slotIndex, 399);
+                    DrawSamusTableSpritemap(drawing, slot, slotIndex, SamusAtmosphereSheetDefinitions.DivingSplashFrame(slot.AnimationFrame));
                     break;
 
                 case SamusAtmosphericEffectType.LavaSurfaceDamage:
                     // Slots 0/1 drift apart to the right and slots 2/3 to the left. Native
                     // tests bit two of the byte offset (0,2,4,6), equivalent to index >= 2.
                     slot.Position += new Offset16<RoomPixels>(slotIndex >= 2 ? (short)-1 : (short)1, -1);
-                    DrawDirectSmallSprite(drawing, slot, slotIndex, type);
+                    DrawDirectSmallSprite(drawing, slot, slotIndex, type, SamusAtmosphereSheetDefinitions.LavaAndDustFrame(slot.AnimationFrame));
                     break;
 
                 case SamusAtmosphericEffectType.Bubbles:
-                    DrawSamusTableSpritemap(drawing, slot, slotIndex, 390);
+                    DrawSamusTableSpritemap(drawing, slot, slotIndex, SamusAtmosphereSheetDefinitions.BubblesFrame(slot.AnimationFrame));
                     break;
 
                 case SamusAtmosphericEffectType.Dust:
                 case SamusAtmosphericEffectType.AlternateDust:
                     slot.Position -= new Offset16<RoomPixels>(0, 1);
-                    DrawDirectSmallSprite(drawing, slot, slotIndex, type);
+                    DrawDirectSmallSprite(drawing, slot, slotIndex, type, SamusAtmosphereSheetDefinitions.LavaAndDustFrame(slot.AnimationFrame));
                     break;
 
                 case SamusAtmosphericEffectType.Inactive:
@@ -178,12 +174,13 @@ public sealed class SamusAtmosphericEffectsState
         }
     }
 
-    /// <summary>Clips an eight-pixel effect to the 256-pixel OAM viewport, then uses installed attributes or type two's live WRAM word.</summary>
+    /// <summary>Clips an eight-pixel effect to the 256-pixel OAM viewport, then draws the sheet frame of its installed attributes.</summary>
     private static void DrawDirectSmallSprite(
         AtmosphereDrawing drawing,
         SamusAtmosphericEffectSlot slot,
         int slotIndex,
-        SamusAtmosphericEffectType type)
+        SamusAtmosphericEffectType type,
+        string frame)
     {
         short screenX = unchecked((short)(slot.Position.X - drawing.Camera.X - 4));
         short screenY = unchecked((short)(slot.Position.Y - drawing.Camera.Y - 4));
@@ -195,33 +192,16 @@ public sealed class SamusAtmosphericEffectsState
         // on #1318).
         if (type == SamusAtmosphericEffectDefinitions.ScratchListType)
             return;
-        ushort attributes = ResolveInstalledAttributes(drawing.DirectArtwork, type, slot.AnimationFrame);
-        var part = new SnesObjAttributeWord(attributes);
-        drawing.Sprites.Add(new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.SamusAtmosphere, slotIndex),
-            ObjPartFrames.SmallObject(part, 0), drawing.RequirePage(),
-            new Position16<ScreenPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)),
-            SnesTileFlipFlags.None, (byte)part.PaletteIndex, (byte)part.Priority));
+        drawing.Sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusAtmosphere, slotIndex),
+            drawing.Frame(frame), new Position16<ScreenPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)), SpriteMirror.None));
     }
 
-    /// <summary>Requires an installed direct-sprite entry for the visible type and animation frame.</summary>
-    private static ushort ResolveInstalledAttributes(
-        SamusAtmosphericArtworkCatalog? artwork, SamusAtmosphericEffectType type, int frame)
-    {
-        if (artwork is null)
-            throw new InvalidOperationException(
-                $"Atmospheric type {type} requires installed small-sprite artwork.");
-        if (!artwork.TryResolve((byte)type, frame, out ushort attributes))
-            throw new InvalidDataException(
-                $"Atmospheric type {type} frame {frame} is outside the installed sprite artwork.");
-        return attributes;
-    }
-
-    /// <summary>Draws splash/bubble frames through Samus's spritemap table, clipping Y's high byte while preserving native X wrap.</summary>
+    /// <summary>Draws splash/bubble frames of Samus's spritemap table, clipping Y's high byte while preserving native X wrap.</summary>
     private static void DrawSamusTableSpritemap(
         AtmosphereDrawing drawing,
         SamusAtmosphericEffectSlot slot,
         int slotIndex,
-        ushort firstSpritemap)
+        string frame)
     {
         ushort screenX = unchecked((ushort)(slot.Position.X - drawing.Camera.X));
         ushort screenY = unchecked((ushort)(slot.Position.Y - drawing.Camera.Y));
@@ -230,25 +210,19 @@ public sealed class SamusAtmosphericEffectsState
         if ((SnesLittleEndian.HighByteInPlace(screenY)) != 0)
             return;
 
-        SpriteArtwork page = drawing.RequirePage();
-        drawing.Sprites.AddSamusSpritemap(unchecked((ushort)(firstSpritemap + slot.AnimationFrame)),
-            new Position16<ScreenPixels>(screenX, screenY),
-            new SamusSpritemapArtwork(drawing.Spritemaps ?? throw new InvalidOperationException(
-                "Samus atmospheric spritemap requires installed artwork."), page, () => page),
-            new SpriteSource(SpriteSourceKind.SamusAtmosphere, slotIndex));
+        drawing.Sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusAtmosphere, slotIndex),
+            drawing.Frame(frame), new Position16<ScreenPixels>(screenX, screenY), SpriteMirror.None));
     }
 
-    /// <summary>One pass's drawing inputs: the frame, camera, standard OBJ page and installed effect artwork.</summary>
+    /// <summary>One pass's drawing inputs: the frame, camera and installed sheets.</summary>
     private readonly record struct AtmosphereDrawing(
         SpriteFrameBuffer Sprites,
         Position16<RoomPixels> Camera,
-        SpriteArtwork? Page,
-        SamusSpritemapArtworkCatalog? Spritemaps,
-        SamusAtmosphericArtworkCatalog? DirectArtwork)
+        InstalledSpriteSheets? Sheets)
     {
-        /// <summary>The standard OBJ page, which a visible effect requires.</summary>
-        public SpriteArtwork RequirePage() => Page ?? throw new InvalidOperationException(
-            "Samus's atmospheric effects require the installed standard OBJ page.");
+        /// <summary>A frame of the atmosphere sheet, which a visible effect requires.</summary>
+        public SpriteSheetFrame Frame(string name) => (Sheets ?? throw new InvalidOperationException(
+            "Samus's atmospheric effects require the installed sprite sheets.")).Get(SpriteSheetId.SamusAtmosphere).Frame(name);
     }
 
     /// <summary>Restricts literal slot operations to the four native atmospheric records.</summary>

@@ -29,7 +29,8 @@ internal static class ProjectileSheetPixelsVerification
         int frames = 0;
         SamusSheetInputs inputs = SamusSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory);
         foreach (SpriteSheetId id in new[] { SpriteSheetId.ProjectilesPower, SpriteSheetId.ProjectilesSpazerPlasmaIce, SpriteSheetId.IntroProjectiles,
-            SpriteSheetId.Grapple, SpriteSheetId.SamusBodyTop, SpriteSheetId.SamusBodyBottom, SpriteSheetId.SamusOverlays })
+            SpriteSheetId.Grapple, SpriteSheetId.SamusBodyTop, SpriteSheetId.SamusBodyBottom, SpriteSheetId.SamusOverlays,
+            SpriteSheetId.SamusAtmosphere })
         {
             SpriteSheetSources sources = SamusSheetSources.For(inputs, id);
             SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(id);

@@ -117,6 +117,7 @@ public static class SpriteSheetFiles
         SpriteSheetId.Grapple => GrappleSheetDefinitions.Frames,
         SpriteSheetId.SamusBodyTop or SpriteSheetId.SamusBodyBottom => SamusBodySheetComposer.FrameNames(body.Value, sheet),
         SpriteSheetId.SamusOverlays => SamusOverlaySheetDefinitions.Frames,
+        SpriteSheetId.SamusAtmosphere => SamusAtmosphereSheetDefinitions.Frames,
         _ => ProjectileSheetDefinitions.Frames,
     };
 

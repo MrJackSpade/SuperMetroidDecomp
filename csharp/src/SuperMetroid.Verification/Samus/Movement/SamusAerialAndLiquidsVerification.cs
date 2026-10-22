@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -1122,7 +1123,7 @@ internal static void VerifySamusAtmosphericEffects()
     oamFrame.BeginFrame();
     OamBuffer oam;
     effects.UpdateAndDraw(oamFrame, camera: new(0, 0), fxYPosition: 0,
-        directArtwork: atmosphericArt, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+        SamusBodySheetFixtures.ForAtmosphere(atmosphere: atmosphericArt));
     oam = oamFrame.FinalizeAsOam();
     AssertEqual(1, effects.Slots[0].AnimationTimer.RawValue, "atmospheric positive timer decrements");
     AssertEqual(105, effects.Slots[0].Position.X, "lava slot zero drifts right");
@@ -1132,7 +1133,7 @@ internal static void VerifySamusAtmosphericEffects()
 
     oamFrame.BeginFrame();
     effects.UpdateAndDraw(oamFrame, camera: new(0, 0), fxYPosition: 0,
-        directArtwork: atmosphericArt, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+        SamusBodySheetFixtures.ForAtmosphere(atmosphere: atmosphericArt));
     oam = oamFrame.FinalizeAsOam();
     AssertEqual(1, effects.Slots[0].AnimationFrame,
         "timer zero reloads old frame then advances packed word");
@@ -1145,11 +1146,11 @@ internal static void VerifySamusAtmosphericEffects()
     effects.Clear();
     effects.SetSlot(1, type: 4, animationFrame: 0, animationTimer: 0x8002, anchor: new(100, 100));
     oamFrame.BeginFrame();
-    effects.UpdateAndDraw(oamFrame, new(0, 0), 0, directArtwork: atmosphericArt, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+    effects.UpdateAndDraw(oamFrame, new(0, 0), 0, SamusBodySheetFixtures.ForAtmosphere(atmosphere: atmosphericArt));
     oam = oamFrame.FinalizeAsOam();
     AssertEqual(100, effects.Slots[1].Position.X, "$8001 suppresses atmospheric motion");
     AssertEqual(0, (oam.LastFinalizedSpriteCount * 4), "$8001 suppresses atmospheric drawing");
-    effects.UpdateAndDraw(oamFrame, new(0, 0), 0, directArtwork: atmosphericArt, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+    effects.UpdateAndDraw(oamFrame, new(0, 0), 0, SamusBodySheetFixtures.ForAtmosphere(atmosphere: atmosphericArt));
     oam = oamFrame.FinalizeAsOam();
     AssertEqual(101, effects.Slots[1].Position.X, "$8000 reload call begins motion");
     AssertEqual(4, (oam.LastFinalizedSpriteCount * 4), "$8000 reload call emits one OAM record");

@@ -163,9 +163,9 @@ internal static class SamusBodyArtworkVerification
             nativeEffects.SetSlot(0, type, 0, 2, new(128, 128));
             installedEffects.SetSlot(0, type, 0, 2, new(128, 128));
             OamBuffer nativeEffectOam = SpriteFrameBuffer.DrawnOam(frame => nativeEffects.UpdateAndDraw(frame, new(0, 0), 128,
-                stock.Spritemaps, standardObjects: SpriteFrameTestArtwork.StandardObjects));
+                SamusBodySheetFixtures.ForAtmosphere(stock.Spritemaps)));
             OamBuffer installedEffectOam = SpriteFrameBuffer.DrawnOam(frame => installedEffects.UpdateAndDraw(frame, new(0, 0), 128,
-                stock.Spritemaps, standardObjects: SpriteFrameTestArtwork.StandardObjects));
+                SamusBodySheetFixtures.ForAtmosphere(stock.Spritemaps)));
             AssertTrue(nativeEffectOam.LastFinalizedSpriteCount > 0 &&
                 nativeEffectOam.ImageEquals(installedEffectOam),
                 $"atmospheric type {type} uses installed Samus OAM art with native parity");
@@ -187,9 +187,9 @@ internal static class SamusBodyArtworkVerification
             nativeEffects.SetSlot(0, type, frame, 2, new(128, 128));
             installedEffects.SetSlot(0, type, frame, 2, new(128, 128));
             OamBuffer nativeEffectOam = SpriteFrameBuffer.DrawnOam(frame => nativeEffects.UpdateAndDraw(frame, new(0, 0), 128,
-                directArtwork: stock.Atmosphere, standardObjects: SpriteFrameTestArtwork.StandardObjects));
+                SamusBodySheetFixtures.ForAtmosphere(atmosphere: stock.Atmosphere)));
             OamBuffer installedEffectOam = SpriteFrameBuffer.DrawnOam(frame => installedEffects.UpdateAndDraw(frame,
-                Position16<RoomPixels>.Zero, 128, stock.Spritemaps, stock.Atmosphere, SpriteFrameTestArtwork.StandardObjects));
+                Position16<RoomPixels>.Zero, 128, SamusBodySheetFixtures.ForAtmosphere(stock.Spritemaps, stock.Atmosphere)));
             AssertTrue(nativeEffectOam.LastFinalizedSpriteCount > 0 &&
                 nativeEffectOam.ImageEquals(installedEffectOam) &&
                 nativeEffects.Slots[0].FrameAndType == installedEffects.Slots[0].FrameAndType &&
@@ -499,9 +499,9 @@ internal static class SamusBodyArtworkVerification
         stockSplash.SetSlot(0, 3, 0, 2, new(128, 128));
         editedSplash.SetSlot(0, 3, 0, 2, new(128, 128));
         OamBuffer stockSplashOam = SpriteFrameBuffer.DrawnOam(frame => stockSplash.UpdateAndDraw(frame, new(0, 0), 128,
-            stock.Spritemaps, standardObjects: SpriteFrameTestArtwork.StandardObjects));
+            SamusBodySheetFixtures.ForAtmosphere(stock.Spritemaps)));
         OamBuffer editedSplashOam = SpriteFrameBuffer.DrawnOam(frame => editedSplash.UpdateAndDraw(frame, new(0, 0), 128,
-            replacement.Spritemaps, standardObjects: SpriteFrameTestArtwork.StandardObjects));
+            SamusBodySheetFixtures.ForAtmosphere(replacement.Spritemaps)));
         AssertEqual(unchecked((byte)(stockSplashOam.LowTable[0] + 1)),
             editedSplashOam.LowTable[0],
             "edited water-entry spritemap reaches the production atmospheric owner");
@@ -510,9 +510,9 @@ internal static class SamusBodyArtworkVerification
         stockDirect.SetSlot(0, 1, 0, 2, new(128, 128));
         editedDirect.SetSlot(0, 1, 0, 2, new(128, 128));
         OamBuffer stockDirectOam = SpriteFrameBuffer.DrawnOam(frame => stockDirect.UpdateAndDraw(frame,
-            Position16<RoomPixels>.Zero, 128, stock.Spritemaps, stock.Atmosphere, SpriteFrameTestArtwork.StandardObjects));
+            Position16<RoomPixels>.Zero, 128, SamusBodySheetFixtures.ForAtmosphere(stock.Spritemaps, stock.Atmosphere)));
         OamBuffer editedDirectOam = SpriteFrameBuffer.DrawnOam(frame => editedDirect.UpdateAndDraw(frame,
-            Position16<RoomPixels>.Zero, 128, replacement.Spritemaps, replacement.Atmosphere, SpriteFrameTestArtwork.StandardObjects));
+            Position16<RoomPixels>.Zero, 128, SamusBodySheetFixtures.ForAtmosphere(replacement.Spritemaps, replacement.Atmosphere)));
         AssertEqual(unchecked((byte)(stockDirectOam.LowTable[2] + 1)),
             editedDirectOam.LowTable[2],
             "edited atmospheric small-OBJ attribute reaches the production OAM byte");

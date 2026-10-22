@@ -305,9 +305,7 @@ internal sealed class GameplayActorDrawing
                     _sprites,
                     _room.Camera.PixelPosition,
                     checked((ushort)_player.Samus.LiquidPhysics.FxYPosition),
-                    _artwork.SamusBodyArt?.Spritemaps,
-                    _artwork.SamusBodyArt?.Atmosphere,
-                    _artwork.StandardObjects);
+                    _player.Samus.Presentation.TileTransfers.Sheets);
 
                 // Drawing modes one and two differ only in OAM priority: one appends the
                 // cannon before the body, while two appends it after. Mode zero suppresses

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using SuperMetroid.Core.Hardware;
@@ -97,7 +98,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
                 var oamFrame = new SpriteFrameBuffer();
                 oamFrame.BeginFrame();
                 effects.UpdateAndDraw(oamFrame, Position16<RoomPixels>.Zero, fxYPosition: drawY,
-                    directArtwork: atmosphericArt, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+                    SamusBodySheetFixtures.ForAtmosphere(atmosphere: atmosphericArt));
                 oamFrame.FinalizeAsOam();
                 AssertEqual(expectedTimer, effects.Slots[0].AnimationTimer.RawValue,
                     $"production atmospheric type {type} frame {frame} expiry timer");
@@ -110,7 +111,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
                     anchor: new(100, drawY));
                 oamFrame.BeginFrame();
                 effects.UpdateAndDraw(oamFrame, Position16<RoomPixels>.Zero, fxYPosition: drawY,
-                    directArtwork: atmosphericArt, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+                    SamusBodySheetFixtures.ForAtmosphere(atmosphere: atmosphericArt));
                 oamFrame.FinalizeAsOam();
                 AssertEqual(expectedTimer, effects.Slots[0].AnimationTimer.RawValue,
                     $"production atmospheric type {type} frame {frame} delayed timer");
@@ -131,7 +132,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
             anchor: new(100, 100));
         var oamFrame = new SpriteFrameBuffer();
         oamFrame.BeginFrame();
-        effects.UpdateAndDraw(oamFrame, Position16<RoomPixels>.Zero, fxYPosition: 100, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+        effects.UpdateAndDraw(oamFrame, Position16<RoomPixels>.Zero, fxYPosition: 100);
         OamBuffer oam = oamFrame.FinalizeAsOam();
         AssertEqual(0, oam.AppendedSpriteCount, "the null-pointer footstep splash draws nothing");
     }

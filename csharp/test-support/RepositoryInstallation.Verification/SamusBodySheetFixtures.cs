@@ -16,13 +16,17 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 internal static class SamusBodySheetFixtures
 {
     /// <summary>The sheets a body's tables, tiles and arm cannon name.</summary>
-    private static readonly SpriteSheetId[] BodySheets = [SpriteSheetId.SamusBodyTop, SpriteSheetId.SamusBodyBottom, SpriteSheetId.SamusOverlays];
+    private static readonly SpriteSheetId[] BodySheets =
+        [SpriteSheetId.SamusBodyTop, SpriteSheetId.SamusBodyBottom, SpriteSheetId.SamusOverlays, SpriteSheetId.SamusAtmosphere];
 
     /// <summary>The installation's stock artwork, which a fixture's body replaces.</summary>
     private static readonly Lazy<SamusSheetInputs> inputs = new(() => SamusSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory));
 
     /// <summary>Sheets already composed, by body.</summary>
     private static readonly ConditionalWeakTable<SamusBodyArtworkCatalog, InstalledSpriteSheets> composed = new();
+
+    /// <summary>Atmosphere sheets already composed, by spritemaps and then atmospheric attributes.</summary>
+    private static readonly ConditionalWeakTable<SamusSpritemapArtworkCatalog, ConditionalWeakTable<SamusAtmosphericArtworkCatalog, InstalledSpriteSheets>> atmospheres = new();
 
     /// <summary>Sheets already composed, by arm cannon and then body.</summary>
     private static readonly ConditionalWeakTable<SamusArmCannonArtworkCatalog, ConditionalWeakTable<SamusBodyArtworkCatalog, InstalledSpriteSheets>> cannons = new();
@@ -45,6 +49,27 @@ internal static class SamusBodySheetFixtures
             return For(body);
         return cannons.GetOrCreateValue(cannon).GetValue(body, key => Compose(For(key), inputs.Value with { SamusBody = key },
             [SpriteSheetId.SamusOverlays], cannon, $"fixture-{RuntimeHelpers.GetHashCode(key):X8}-{RuntimeHelpers.GetHashCode(cannon):X8}"));
+    }
+
+    /// <summary>
+    /// The installed sheets with an atmosphere sheet composed from <paramref name="spritemaps"/> and
+    /// <paramref name="atmosphere"/>, each the installed body's when not given.
+    /// </summary>
+    internal static InstalledSpriteSheets ForAtmosphere(SamusSpritemapArtworkCatalog? spritemaps = null,
+        SamusAtmosphericArtworkCatalog? atmosphere = null)
+    {
+        SamusBodyArtworkCatalog installed = inputs.Value.SamusBody;
+        spritemaps ??= installed.Spritemaps;
+        atmosphere ??= installed.Atmosphere;
+        if (spritemaps.ContentIdentity == installed.Spritemaps.ContentIdentity && atmosphere.ContentIdentity == installed.Atmosphere.ContentIdentity)
+            return InstalledFixtures.SpriteSheets;
+        SamusAtmosphericArtworkCatalog attributes = atmosphere;
+        return atmospheres.GetOrCreateValue(spritemaps).GetValue(attributes, key =>
+        {
+            SpriteSheetSources sources = SamusAtmosphereSheetComposer.Sources(inputs.Value, spritemaps, key);
+            return Replace(InstalledFixtures.SpriteSheets, SpriteSheetId.SamusAtmosphere, sources,
+                $"fixture-{RuntimeHelpers.GetHashCode(spritemaps):X8}-{RuntimeHelpers.GetHashCode(key):X8}");
+        });
     }
 
     /// <summary>Binds a fixture's body artwork and the sheets it draws from.</summary>
@@ -80,17 +105,25 @@ internal static class SamusBodySheetFixtures
     private static InstalledSpriteSheets Compose(InstalledSpriteSheets basis, SamusSheetInputs fixture, IEnumerable<SpriteSheetId> ids,
         SamusArmCannonArtworkCatalog cannon, string suffix)
     {
-        var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, basis.Get);
+        InstalledSpriteSheets sheets = basis;
         foreach (SpriteSheetId id in ids)
         {
             SpriteSheetSources sources = id == SpriteSheetId.SamusOverlays ? SamusOverlaySheetComposer.Sources(fixture, cannon)
                 : SamusSheetSources.For(fixture, id);
-            ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(sources, 0, 0);
-            SpriteSheet loaded = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(sheet.Manifest), writable: false),
-                $"{SpriteSheetDefinitions.FileName(id)}-{suffix}", sheet.Size, sheet.Pixels, sheet.PaletteIndices, sheet.Priorities);
-            SheetFrameSources.Register(loaded, sources);
-            sheets[id] = loaded;
+            sheets = Replace(sheets, id, sources, suffix);
         }
+        return sheets;
+    }
+
+    /// <summary>Composes and registers one fixture sheet in place of <paramref name="id"/>'s in <paramref name="basis"/>.</summary>
+    private static InstalledSpriteSheets Replace(InstalledSpriteSheets basis, SpriteSheetId id, SpriteSheetSources sources, string suffix)
+    {
+        var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(sheet => sheet, basis.Get);
+        ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(sources, 0, 0);
+        SpriteSheet loaded = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(sheet.Manifest), writable: false),
+            $"{SpriteSheetDefinitions.FileName(id)}-{suffix}", sheet.Size, sheet.Pixels, sheet.PaletteIndices, sheet.Priorities);
+        SheetFrameSources.Register(loaded, sources);
+        sheets[id] = loaded;
         return new InstalledSpriteSheets(sheets);
     }
 }

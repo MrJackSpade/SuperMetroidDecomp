@@ -147,17 +147,16 @@ public sealed class FileSelectPresentation
 
     /// <summary>Draws the page's border frame of the file-select sheet at its authored OAM anchor.</summary>
     internal void DrawBorder(ScreenSprites screenSprites, SpriteSheet sheet, FileSelectBorder border) =>
-        screenSprites.AddImage(sheet.Frame(FileSelectPresentationDefinitions.BorderSpriteName(border)), borderAnchors[border],
-            borderSprites[border].PartCount);
+        screenSprites.AddImage(sheet.Frame(FileSelectPresentationDefinitions.BorderSpriteName(border)), borderAnchors[border]);
 
     /// <summary>Draws one missile-cursor frame of the file-select sheet.</summary>
-    internal void DrawCursor(ScreenSprites screenSprites, SpriteSheet sheet, int frame, Position16<OamPixels> anchor) =>
-        screenSprites.AddImage(sheet.Frame(FileSelectPresentationDefinitions.CursorSpriteName(frame)), anchor, cursorSprites[frame].PartCount);
+    internal static void DrawCursor(ScreenSprites screenSprites, SpriteSheet sheet, int frame, Position16<OamPixels> anchor) =>
+        screenSprites.AddImage(sheet.Frame(FileSelectPresentationDefinitions.CursorSpriteName(frame)), anchor);
 
     /// <summary>Draws a selected-slot helmet frame of the file-select sheet at that slot's OAM anchor.</summary>
     internal void DrawHelmet(ScreenSprites screenSprites, SpriteSheet sheet, int frame, int slot) =>
         screenSprites.AddImage(sheet.Frame(FileSelectPresentationDefinitions.HelmetSpriteName(frame)),
-            Point(document.HelmetAnchors, slot, "helmet"), helmetSprites[frame].PartCount);
+            Point(document.HelmetAnchors, slot, "helmet"));
 
     /// <summary>Reads and validates a complete file-select JSON document, compiling its tilemaps, patches, glyphs, and sprite compositions.</summary>
     /// <param name="source">Readable JSON stream, consumed from its current position to the end and left open.</param>

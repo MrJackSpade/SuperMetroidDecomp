@@ -228,7 +228,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.FileSelect);
         presentation.DrawBorder(sprites, sheet, borderName);
         if (ShouldDrawSelectionMissile)
-            presentation.DrawCursor(sprites, sheet, missile.Frame, GetSelectionMissilePosition(presentation));
+            FileSelectPresentation.DrawCursor(sprites, sheet, missile.Frame, GetSelectionMissilePosition(presentation));
         for (int slot = 0; mainScreen && slot < 3; slot++)
         {
             // Menu index 32 fades with the completed (or Start-shortened) helmet turn
@@ -244,7 +244,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         {
             (int shape, int y) = FileCopyArrowDefinitions.Select(operationSourceSlot, operationDestinationSlot);
             sprites.AddImage(sheet.Frame(FileCopyArrowDefinitions.FrameName(shape)),
-                new Position16<OamPixels>(FileCopyArrowDefinitions.OriginX, checked((ushort)y)), FileCopyArrowDefinitions.Parts(shape).Length);
+                new Position16<OamPixels>(FileCopyArrowDefinitions.OriginX, checked((ushort)y)));
         }
         sprites.FinishFrame();
     }

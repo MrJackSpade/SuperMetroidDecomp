@@ -127,7 +127,7 @@ public static class SnesObjRenderer
                     {
                         // The cartridge ORs the draw's palette bits into each part's own; the override takes the
                         // place of those the image was coloured with, and its row decides colour math.
-                        pixelRow = (byte)(draw.PartRowAt(new(x, y)) | overriding);
+                        pixelRow = (byte)SpriteImage.OverriddenRow(draw.PartRowAt(new(x, y)), overriding);
                         index = pixelRow * RowColours + index % RowColours;
                     }
                     pixel = cgram.GetRgba(SpriteColours + index);

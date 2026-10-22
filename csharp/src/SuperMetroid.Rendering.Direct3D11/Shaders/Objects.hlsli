@@ -48,8 +48,10 @@ bool ResolveSpritePart(uint part, uint2 screen, out uint2 hit, out uint palette)
             if ((flags & SpritePaletteOverride) != 0)
             {
                 // The cartridge ORs the draw's palette bits into each part's own; the override takes the place of those
-                // the image was coloured with, and its row decides colour math.
-                uint row = ((pixel >> 10) & 7) | ((flags >> 10) & 7);
+                // the image was coloured with, and its row decides colour math. A part flagged as naming its own row
+                // keeps it, as frontend spritemaps place only their palette-inheriting parts in the draw's palette.
+                uint part = (pixel >> 10) & 15;
+                uint row = (part & 8) != 0 ? (part & 7) : (part | ((flags >> 10) & 7));
                 index = row * 16 + (index & 15);
                 palette = row;
             }

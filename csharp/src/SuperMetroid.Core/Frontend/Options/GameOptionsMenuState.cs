@@ -4,6 +4,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.Options;
@@ -274,7 +275,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.GameOptions);
         content.GameOptions.DrawHeading(sprites, sheet, page, bg1VerticalScroll);
         (ushort authoredCursorX, ushort authoredCursorY) = CursorPosition();
-        content.GameOptions.DrawCursor(sprites, sheet, missile.Frame,
+        GameOptionsPresentation.DrawCursor(sprites, sheet, missile.Frame,
             new(authoredCursorX, authoredCursorY));
         sprites.FinishFrame();
     }

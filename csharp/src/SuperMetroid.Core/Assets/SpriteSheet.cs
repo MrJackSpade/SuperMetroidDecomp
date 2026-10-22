@@ -89,7 +89,7 @@ public sealed class SpriteSheet
                 throw new InvalidDataException($"Sprite sheet {name} frame {frameName} is null.");
             try
             {
-                frames.Add(frameName, new SpriteSheetFrame(image, frame.Corner, frame.Size, frame.Origin, frame.Rows));
+                frames.Add(frameName, new SpriteSheetFrame(image, frame.Corner, frame.Size, frame.Origin, frame.Rows, frame.Objects));
             }
             catch (ArgumentException error)
             {

@@ -180,12 +180,12 @@ public sealed class GameOptionsPresentation
             : headingAnchors[page];
         // The authored X is validated on screen; scrolling the heading wraps its Y word.
         Position16<OamPixels> origin = new(checked(point.X), unchecked((ushort)(point.Y - verticalScroll)));
-        sprites.AddImage(sheet.Frame(GameOptionsPresentationDefinitions.HeadingSpriteName(page)), origin, headingSprites[page].PartCount);
+        sprites.AddImage(sheet.Frame(GameOptionsPresentationDefinitions.HeadingSpriteName(page)), origin);
     }
 
     /// <summary>Draws one frame of the missile cursor at the selected position.</summary>
-    internal void DrawCursor(ScreenSprites sprites, SpriteSheet sheet, int frame, Position16<OamPixels> point) =>
-        sprites.AddImage(sheet.Frame(GameOptionsPresentationDefinitions.CursorSpriteName(frame)), point, cursorSprites[frame].PartCount);
+    internal static void DrawCursor(ScreenSprites sprites, SpriteSheet sheet, int frame, Position16<OamPixels> point) =>
+        sprites.AddImage(sheet.Frame(GameOptionsPresentationDefinitions.CursorSpriteName(frame)), point);
 
     /// <summary>Reads a complete options-menu JSON document and compiles validated pages, controller labels, highlights, and sprite layouts.</summary>
     /// <param name="source">Readable stream consumed from its current position to the end and left open.</param>

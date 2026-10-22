@@ -43,7 +43,7 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     /// <summary>Image record flag: the draw shows the image in an overriding palette row.</summary>
     private const uint OverrideFlag = 1 << 13;
 
-    /// <summary>Index word bits 10-12: the pixel's part palette row.</summary>
+    /// <summary>Index word bits 10-13: the pixel's part palette row and its fixed-row flag.</summary>
     private const int PartRowShift = 10;
     /// <summary>Flags position of an image record's frame width, the stride between its uploaded pixel rows.</summary>
     private const int StrideShift = 16;

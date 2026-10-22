@@ -22,8 +22,16 @@ internal static class SheetFrameSources
     {
         Ensure.NotNull(sheet);
         Ensure.NotNull(composed);
+        Add(sources.Value, sheet, composed);
+    }
+
+    /// <summary>Pairs each of <paramref name="sheet"/>'s frames with what it was composed from; frames already paired keep theirs.</summary>
+    private static void Add(System.Collections.Concurrent.ConcurrentDictionary<FrameKey, FrameSource> target, SpriteSheet sheet,
+        SpriteSheetSources composed)
+    {
         foreach (SheetFrameSource frame in composed.Frames)
-            sources.Value.TryAdd(Key(sheet.Frame(frame.Name)), new FrameSource(frame.Frame, frame.Characters, composed.PaletteBits, frame.Palette));
+            target.TryAdd(Key(sheet.Frame(frame.Name)),
+                new FrameSource(frame.Frame, frame.Characters, composed.PaletteBits, frame.Palette, composed.PartsKeepOwnRows));
     }
 
     /// <summary>The character draw an image draw of a projectile sheet frame shows: its composition over its page, placed and mirrored alike.</summary>
@@ -34,6 +42,9 @@ internal static class SheetFrameSources
         FrameSource source = Find(Key(draw.Image)) ?? throw new InvalidOperationException($"{draw} shows a frame no sheet was composed with.");
         SnesTileFlipFlags flip = ((draw.Mirror & SpriteMirror.Horizontal) != 0 ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None) |
             ((draw.Mirror & SpriteMirror.Vertical) != 0 ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.None);
+        // A frontend draw's override places the parts that take their draw's palette in its row and leaves the others.
+        if (source.PartsKeepOwnRows && draw.PaletteOverride is int row)
+            return new CharacterSpriteDraw(draw.Source, source.Frame, source.Page, draw.Origin, flip, row, 0);
         // A family's palette bits, or the draw's override in their place, OR into each part's own row, as the
         // cartridge ORs an enemy's.
         int bits = draw.PaletteOverride ?? source.PaletteBits;
@@ -75,11 +86,8 @@ internal static class SheetFrameSources
         var catalog = new SpriteSheetSourceCatalog(RepositoryInstallation.Installation.ContentDirectory);
         foreach (SpriteSheetId id in SpriteSheetDefinitions.Sheets.Where(id => id != SpriteSheetId.EscapeTimer))
         {
-            SpriteSheetSources composed = catalog.For(id);
-            SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(id);
             // Every empty frame shows nothing, so the first of those that share a key stands for all of them.
-            foreach (SheetFrameSource frame in composed.Frames)
-                result.TryAdd(Key(sheet.Frame(frame.Name)), new FrameSource(frame.Frame, frame.Characters, composed.PaletteBits, frame.Palette));
+            Add(result, InstalledFixtures.SpriteSheets.Get(id), catalog.For(id));
         }
         return result;
     }
@@ -99,5 +107,6 @@ internal static class SheetFrameSources
     /// <param name="Page">The OBJ page its characters index.</param>
     /// <param name="PaletteBits">The palette row its family's draws OR into each part's own.</param>
     /// <param name="FramePalette">The palette row of parts that take their draw's, as the frame's draw selects it.</param>
-    private sealed record FrameSource(SpriteFrame Frame, SpriteArtwork Page, int PaletteBits, int? FramePalette);
+    /// <param name="PartsKeepOwnRows">Whether parts naming their own row keep it under a draw's override.</param>
+    private sealed record FrameSource(SpriteFrame Frame, SpriteArtwork Page, int PaletteBits, int? FramePalette, bool PartsKeepOwnRows);
 }

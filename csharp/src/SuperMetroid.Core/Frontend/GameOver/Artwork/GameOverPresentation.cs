@@ -103,14 +103,13 @@ public sealed class GameOverPresentation
     /// <exception cref="ArgumentOutOfRangeException">The frame is not a supported Baby frame.</exception>
     /// <param name="sheet">The installed game-over sheet.</param>
     public void DrawBaby(ScreenSprites screenSprites, SpriteSheet sheet, GameOverBabyFrame frame) =>
-        Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(GameOverPresentationDefinitions.BabyFrameName(frame)), BabyAnchor,
-            babySprites[frame].PartCount);
+        Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(GameOverPresentationDefinitions.BabyFrameName(frame)), BabyAnchor);
 
     /// <summary>Appends the egg composition at the shared Baby anchor using the installed egg palette selector.</summary>
     /// <param name="screenSprites">The screen's sprite entries for the current frame.</param>
     /// <param name="sheet">The installed game-over sheet.</param>
     public void DrawEgg(ScreenSprites screenSprites, SpriteSheet sheet) =>
-        Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(GameOverPresentationDefinitions.EggFrame), BabyAnchor, eggSprite.PartCount);
+        Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(GameOverPresentationDefinitions.EggFrame), BabyAnchor);
 
     /// <summary>Appends one missile-cursor frame at the installed Yes or No answer position.</summary>
     /// <param name="screenSprites">The screen's sprite entries for the current frame.</param>
@@ -123,7 +122,7 @@ public sealed class GameOverPresentation
         if ((uint)frame >= GameOverPresentationDefinitions.CursorFrameCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
         Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(GameOverPresentationDefinitions.CursorFrameName(frame)),
-            new Position16<OamPixels>(checked((ushort)CursorX), checked((ushort)(selectNo ? NoCursorY : YesCursorY))), cursorSprites[frame].PartCount);
+            new Position16<OamPixels>(checked((ushort)CursorX), checked((ushort)(selectNo ? NoCursorY : YesCursorY))));
     }
 
     /// <summary>Writes one selected sixteen-color Baby animation palette to the fixed native CGRAM range $C0-$CF.</summary>

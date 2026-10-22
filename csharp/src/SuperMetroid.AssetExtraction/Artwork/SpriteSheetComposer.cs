@@ -66,8 +66,11 @@ internal static class SpriteSheetComposer
             for (int partIndex = frame.Parts.Length - 1; partIndex >= 0; partIndex--)
             {
                 SpriteFramePart part = frame.Parts[partIndex];
-                int partRow = part.Palette ?? framePalette;
-                int paletteRow = partRow | sources.PaletteBits;
+                // A part taking its draw's palette is coloured in the frame's and keeps no row of its own, so an
+                // override replaces it; a part naming its own keeps it under an override when the family says so.
+                int paletteRow = (part.Palette ?? framePalette) | sources.PaletteBits;
+                int partRow = part.Palette is not int own ? 0
+                    : sources.PartsKeepOwnRows ? own | SpriteImage.FixedPartRow : own;
                 rows |= SpritePaletteRowSet.Rows[paletteRow];
                 var placed = new SpriteScreenPart(default, part.Size, part.Character,
                     (part.Flip & SnesTileFlipFlags.Horizontal) != 0, (part.Flip & SnesTileFlipFlags.Vertical) != 0, paletteRow, 0);
@@ -95,6 +98,7 @@ internal static class SpriteSheetComposer
                 Size = new(checked((ushort)bound.Width), checked((ushort)bound.Height)),
                 Origin = new(checked((short)-bound.Left), checked((short)-bound.Top)),
                 Rows = rows,
+                Objects = frame.Parts.Length,
             });
         }
         ushort[] colours = new ushort[spriteColours.Length];

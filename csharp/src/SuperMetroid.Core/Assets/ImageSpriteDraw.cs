@@ -66,7 +66,7 @@ public sealed record ImageSpriteDraw : SpriteDraw
     /// <summary>The palette row times sixteen plus colour of the image pixel shown at <paramref name="cell"/>.</summary>
     public byte PaletteIndexAt(Position16<ScreenPixels> cell) => Image.Sheet.PaletteIndices[SheetIndex(cell)];
 
-    /// <summary>The part palette row 0..7 of the image pixel shown at <paramref name="cell"/>.</summary>
+    /// <summary>The part palette row of the image pixel shown at <paramref name="cell"/>, with its fixed-row flag.</summary>
     public byte PartRowAt(Position16<ScreenPixels> cell) => Image.Sheet.PartRows[SheetIndex(cell)];
 
     /// <summary>The priority against the backgrounds 0..3 of the image pixel shown at <paramref name="cell"/>.</summary>

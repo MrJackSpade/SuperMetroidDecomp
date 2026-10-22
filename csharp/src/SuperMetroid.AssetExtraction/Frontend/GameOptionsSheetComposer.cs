@@ -40,6 +40,6 @@ internal static class GameOptionsSheetComposer
         }
         var cgram = new SnesCgram();
         new CgramPalettes(cgram).LoadImage(maps.Palettes.FileSelect);
-        return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray());
+        return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(), PartsKeepOwnRows: true);
     }
 }

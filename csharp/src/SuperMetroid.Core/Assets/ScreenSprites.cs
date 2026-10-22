@@ -100,18 +100,24 @@ public sealed class ScreenSprites
     }
 
     /// <summary>
-    /// Places a whole pre-coloured frame at <paramref name="origin"/> (#1392), standing for the <paramref name="objects"/>
-    /// parts of its composition. The loader's vertical-wrap hiding hides only parts an image clips, so the frame needs
-    /// none; a frame the 128-object limit would cut short cannot show part of itself and fails instead.
+    /// Places a whole pre-coloured frame at <paramref name="origin"/> (#1392), standing for the objects of its
+    /// composition; a frame of no parts places nothing. The loader's vertical-wrap hiding hides only parts an image
+    /// clips, so the frame needs none; a frame the 128-object limit would cut short cannot show part of itself and
+    /// fails instead.
     /// </summary>
+    /// <param name="frame">The frame placed.</param>
+    /// <param name="origin">Where the frame's origin lands.</param>
+    /// <param name="paletteOverride">The row the draw places the frame's palette-inheriting parts in, or null for the row they were coloured in.</param>
     /// <exception cref="InvalidOperationException">The frame's parts do not fit in the objects left.</exception>
-    public void AddImage(SpriteSheetFrame frame, Position16<OamPixels> origin, int objects)
+    public void AddImage(SpriteSheetFrame frame, Position16<OamPixels> origin, int? paletteOverride = null)
     {
         Ensure.NotNull(frame);
-        if (objects < 1 || next + objects > Capacity)
-            throw new InvalidOperationException($"A {objects}-object frame at object {next} exceeds the screen's {Capacity} objects.");
-        placed[next] = new ScreenObject(default, IsLarge: false, origin, frame, objects);
-        next += objects;
+        if (frame.Objects == 0)
+            return;
+        if (next + frame.Objects > Capacity)
+            throw new InvalidOperationException($"A {frame.Objects}-object frame at object {next} exceeds the screen's {Capacity} objects.");
+        placed[next] = new ScreenObject(default, IsLarge: false, origin, frame, frame.Objects, paletteOverride);
+        next += frame.Objects;
     }
 
     /// <summary>Applies the spritemap loader's vertical-wrap hiding and places the part, until the frame is full.</summary>
@@ -164,7 +170,8 @@ public sealed class ScreenSprites
         if (placedObject.Image is { } image)
         {
             return new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.FrontendObjects, index), image,
-                new Position16<ScreenPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)), SpriteMirror.None);
+                new Position16<ScreenPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)), SpriteMirror.None,
+                placedObject.PaletteOverride);
         }
         Extent16<ScreenPixels> size = placedObject.IsLarge ? Sizes.Large : Sizes.Small;
         SnesObjAttributeWord attributes = placedObject.Attributes;
@@ -176,8 +183,9 @@ public sealed class ScreenSprites
 
     /// <summary>
     /// One placed object: its attributes, size, and position (nine-bit X as stored in sixteen bits, eight-bit Y); or a
-    /// whole frame placed at that position, standing for the objects of its parts.
+    /// whole frame placed at that position, standing for the objects of its parts, with the row its palette-inheriting
+    /// parts take.
     /// </summary>
     private readonly record struct ScreenObject(SnesObjAttributeWord Attributes, bool IsLarge, Position16<OamPixels> Position,
-        SpriteSheetFrame? Image = null, int Objects = 1);
+        SpriteSheetFrame? Image = null, int Objects = 1, int? PaletteOverride = null);
 }

@@ -22,7 +22,10 @@ public sealed class SpriteImage
     /// <summary>Each pixel's priority against the backgrounds 0..3, as the part that shows it had it.</summary>
     private readonly byte[] priorities;
 
-    /// <summary>Each pixel's part palette row 0..7, before a draw's palette bits were ORed into it.</summary>
+    /// <summary>
+    /// Each pixel's part palette row 0..7, before a draw's palette bits were ORed into it, with
+    /// <see cref="FixedPartRow"/> where the part keeps its own row under a draw's override.
+    /// </summary>
     private readonly byte[] partRows;
 
     /// <summary>Copies the pixels, palette indices and standard colours of a named image.</summary>
@@ -32,7 +35,10 @@ public sealed class SpriteImage
     /// <param name="paletteIndices">Each pixel's palette row times sixteen plus its colour, zero where transparent.</param>
     /// <param name="standardColours">The 128 sprite colours the pixels were coloured with.</param>
     /// <param name="priorities">Each pixel's priority against the backgrounds 0..3.</param>
-    /// <param name="partRows">Each pixel's part palette row 0..7, before a draw's palette bits were ORed into it.</param>
+    /// <param name="partRows">
+    /// Each pixel's part palette row 0..7, before a draw's palette bits were ORed into it, with <see cref="FixedPartRow"/>
+    /// where the part keeps its own row under a draw's override.
+    /// </param>
     /// <exception cref="ArgumentException">The name is empty, a dimension is zero, a length does not match or a priority exceeds 3.</exception>
     public SpriteImage(string name, Extent16<ImagePixels> size, ReadOnlySpan<Rgba32> pixels, ReadOnlySpan<byte> paletteIndices,
         ReadOnlySpan<Bgr555> standardColours, ReadOnlySpan<byte> priorities, ReadOnlySpan<byte> partRows)
@@ -52,7 +58,7 @@ public sealed class SpriteImage
         Ensure.LengthEqual(partRows, size.X * size.Y);
         foreach (byte row in partRows)
         {
-            if (row > MaximumPaletteRow)
+            if ((row & ~FixedPartRow) > MaximumPaletteRow)
                 throw new ArgumentException($"Sprite image {name} has a pixel of part row {row}; sprite rows are 0..{MaximumPaletteRow}.", nameof(partRows));
         }
         Name = name;
@@ -66,6 +72,16 @@ public sealed class SpriteImage
 
     /// <summary>The highest sprite palette row.</summary>
     public const int MaximumPaletteRow = 7;
+
+    /// <summary>The part-row flag of a pixel whose part names its own row, which a draw's override leaves alone.</summary>
+    public const byte FixedPartRow = 8;
+
+    /// <summary>
+    /// The row a pixel of part row <paramref name="partRow"/> shows under a draw's override: its own row when the part
+    /// names it, otherwise its part row with the override ORed in, as the cartridge ORs a draw's palette bits.
+    /// </summary>
+    public static int OverriddenRow(byte partRow, int overriding) =>
+        (partRow & FixedPartRow) != 0 ? partRow & MaximumPaletteRow : partRow | overriding;
 
     /// <summary>The image's installed name.</summary>
     public string Name { get; }
@@ -85,7 +101,7 @@ public sealed class SpriteImage
     /// <summary>Each pixel's priority against the backgrounds 0..3, as the part that shows it had it.</summary>
     public ReadOnlySpan<byte> Priorities => priorities;
 
-    /// <summary>Each pixel's part palette row 0..7, before a draw's palette bits were ORed into it.</summary>
+    /// <summary>Each pixel's part palette row, with <see cref="FixedPartRow"/> where the part keeps its own row.</summary>
     public ReadOnlySpan<byte> PartRows => partRows;
 
     /// <summary>Names the image for debugger watches.</summary>

@@ -32,7 +32,7 @@ internal static class GameOverSheetComposer
         var cgram = new SnesCgram();
         new CgramPalettes(cgram).LoadImage(maps.Palettes.FileSelect);
         gameOver.ApplyBabyPalette(cgram, GameOverBabyPalette.Idle);
-        return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray());
+        return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(), PartsKeepOwnRows: true);
     }
 
     /// <summary>A composition as a sheet frame, its palette-inheriting parts in the palette its draw selects.</summary>

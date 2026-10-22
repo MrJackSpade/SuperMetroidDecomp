@@ -144,7 +144,7 @@ public sealed class SamusArmCannonState
             // character to tile $1F, which the sprite names; the draw binds the selected cover directly. Frame zero,
             // the null entry, returned above.
             var cover = new SnesObjAttributeWord(attributes);
-            sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.SamusArmCannon),
+            sprites.Add(new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.SamusArmCannon),
                 ObjPartFrames.SmallObject(cover, cover.TileNumber), artwork.CoverTile(selector, Frame),
                 new Position16<ScreenPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)),
                 SnesTileFlipFlags.None, (byte)cover.PaletteIndex, (byte)cover.Priority));

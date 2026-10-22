@@ -28,7 +28,7 @@ public static class SamusSpritemapDraws
             // A spritemap that names a character beyond its own sheet reads the rest of the OBJ table there.
             SpriteArtwork characters = frame.LastCharacter < artwork.Characters.CharacterCount
                 ? artwork.Characters : artwork.PageCharacters();
-            sprites.Add(new SpriteDraw(source, frame, characters, origin, SnesTileFlipFlags.None, 0, 0));
+            sprites.Add(new CharacterSpriteDraw(source, frame, characters, origin, SnesTileFlipFlags.None, 0, 0));
             return;
         }
         // A zero entry in the installed pointer table dereferences $92:0000, direct-page scratch. Its parts would need

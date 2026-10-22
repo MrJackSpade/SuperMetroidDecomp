@@ -110,7 +110,7 @@ internal sealed class EnemyPresentation
     /// <param name="paletteBits">The palette selection the frame was formed with.</param>
     internal static void PublishParts(SpriteFrameBuffer sprites, SpriteArtwork objects, SpriteSource source,
         SpriteFrame frame, Position16<ScreenPixels> origin, ushort paletteBits) =>
-        sprites.Add(new SpriteDraw(source, frame, objects, origin, default,
+        sprites.Add(new CharacterSpriteDraw(source, frame, objects, origin, default,
             (byte)SnesObjAttributeWord.FromPaletteBits(paletteBits).PaletteIndex, 0));
 
 }

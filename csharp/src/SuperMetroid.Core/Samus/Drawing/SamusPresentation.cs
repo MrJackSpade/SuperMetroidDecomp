@@ -600,7 +600,7 @@ internal sealed class SamusPresentation
             ushort chestX = unchecked((ushort)(samus.Position.X.Whole - 7 - layer1.X));
             ushort chestY = unchecked((ushort)(samus.Position.Y.Whole - 17 - layer1.Y));
             var chest = SnesObjAttributeWord.Create(tileNumber: 33, paletteIndex: 4, priority: 3);
-            sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.SamusChest), ObjPartFrames.SmallObject(chest, 0),
+            sprites.Add(new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.SamusChest), ObjPartFrames.SmallObject(chest, 0),
                 TileTransfers.StandardObjects ?? throw new InvalidOperationException(
                     "Samus's chest cover requires the installed standard OBJ page."),
                 new Position16<ScreenPixels>(chestX, chestY), SnesTileFlipFlags.None,

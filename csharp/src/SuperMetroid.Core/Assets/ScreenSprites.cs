@@ -139,7 +139,7 @@ public sealed class ScreenSprites
     /// A one-part draw of <paramref name="placedObject"/>, as signed screen pixels: X's upper half lies left of the screen
     /// and Y wraps above it below the visible field.
     /// </summary>
-    private SpriteDraw Draw(ScreenObject placedObject, int index)
+    private CharacterSpriteDraw Draw(ScreenObject placedObject, int index)
     {
         int nineBitX = placedObject.Position.X & (XRange - 1);
         int y = placedObject.Position.Y;
@@ -149,7 +149,7 @@ public sealed class ScreenSprites
         SnesObjAttributeWord attributes = placedObject.Attributes;
         var part = new SpriteFramePart(default, size,
             attributes.TileNumber, attributes.FlipFlags, attributes.PaletteIndex, attributes.Priority);
-        return new SpriteDraw(new SpriteSource(SpriteSourceKind.FrontendObjects, index), new SpriteFrame("frontend object", [part]), Artwork,
+        return new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.FrontendObjects, index), new SpriteFrame("frontend object", [part]), Artwork,
             new Position16<ScreenPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)), default, 0, 0);
     }
 

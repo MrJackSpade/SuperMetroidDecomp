@@ -23,7 +23,7 @@ internal static class PpuMemorySnapshotTestsVerification
         var frame = new SpriteFrame("Fixture", [new(new(0, 0), new(8, 8), 0, SnesTileFlipFlags.None, null, null)]);
         var artwork = new SpriteArtwork(new(SpriteArtworkKind.EscapeTimerTiles), new byte[SpriteArtwork.CharacterByteCount]);
         sprites.BeginFrame();
-        sprites.Add(new SpriteDraw(new(SpriteSourceKind.EscapeTimer), frame, artwork, new(10, 20), SnesTileFlipFlags.None, 1, 2));
+        sprites.Add(new CharacterSpriteDraw(new(SpriteSourceKind.EscapeTimer), frame, artwork, new(10, 20), SnesTileFlipFlags.None, 1, 2));
         sprites.FinalizeFrame();
         Bgr555[] expectedPalette = cgram.Colors.ToArray();
 

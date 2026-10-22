@@ -72,7 +72,7 @@ internal sealed class ProjectileAnimation
             return;
         }
 
-        sprites.Add(new SpriteDraw(source, artwork.Sprites.Frame(slot.Sprite ?? throw new InvalidOperationException("A drawn projectile shows a composition.")), artwork.Page,
+        sprites.Add(new CharacterSpriteDraw(source, artwork.Sprites.Frame(slot.Sprite ?? throw new InvalidOperationException("A drawn projectile shows a composition.")), artwork.Page,
             new Position16<ScreenPixels>(unchecked((ushort)screenX), screenY), default, 0, 0));
     }
 
@@ -159,7 +159,7 @@ internal sealed class ProjectileAnimation
         // gameplay effect, so the port draws nothing for it (#1275, Mother Brain glitch movie).
         if (!SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteCatalog.Contains(tableIndex))
             return;
-        sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.SamusChargeFlare, component), catalog.Frame(tableIndex),
+        sprites.Add(new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.SamusChargeFlare, component), catalog.Frame(tableIndex),
             artwork.Objects.Page, new Position16<ScreenPixels>(screenX, screenY), default, 0, 0));
     }
 

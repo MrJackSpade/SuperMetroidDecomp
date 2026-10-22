@@ -60,6 +60,6 @@ internal static class ObjCharacterImageConstants
             }
         }
         var frame = new SpriteFrame($"frontend OAM, {oam.LastFinalizedSpriteCount} records", parts.ToImmutable());
-        return new SpriteDraw(new SpriteSource(SpriteSourceKind.FrontendObjects), frame, page, default, 0, 0, 0);
+        return new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.FrontendObjects), frame, page, default, 0, 0, 0);
     }
 }

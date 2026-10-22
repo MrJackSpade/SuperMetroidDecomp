@@ -100,7 +100,7 @@ public static class SamusGrappleBeamDrawing
         ushort tableIndex = unchecked((ushort)(
             grapple.FlareAnimationFrame + SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteDefinitions.MainFlareSelectorOffset));
         // Flare compositions name characters $50-$5D of the standard OBJ sheet.
-        sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleFlare),
+        sprites.Add(new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleFlare),
             (compositions ?? throw new InvalidOperationException(
                 "Grapple flare requires installed sprite compositions.")).Frame(tableIndex),
             standardObjects ?? throw new InvalidOperationException("Grapple flare requires the installed standard OBJ page."),
@@ -250,7 +250,7 @@ public static class SamusGrappleBeamDrawing
             ushort appearance = installed.Sprites?.Segment(grapple.SegmentAnimationFrames[instructionSlot])
                 ?? unchecked((ushort)(SamusGrappleRomData.Rendering.FirstSegmentAttributes + grapple.SegmentAnimationFrames[instructionSlot]));
             var segmentAttributes = new SnesObjAttributeWord(unchecked((ushort)(appearance | flipAttributes)));
-            sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleRope, segment),
+            sprites.Add(new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleRope, segment),
                 ObjPartFrames.SmallObject(segmentAttributes, 0), tiles,
                 new Position16<ScreenPixels>(screenX, screenY), SnesTileFlipFlags.None,
                 (byte)segmentAttributes.PaletteIndex, (byte)segmentAttributes.Priority));
@@ -280,7 +280,7 @@ public static class SamusGrappleBeamDrawing
         int borrowX = swinging && grapple.Anchor.X < layer1.X ? 1 : 0;
         int borrowY = swinging && grapple.Anchor.Y < layer1.Y ? 1 : 0;
         var endpoint = new SnesObjAttributeWord(attributes);
-        sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleEndpoint),
+        sprites.Add(new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleEndpoint),
             ObjPartFrames.SmallObject(endpoint, 0), tiles,
             new Position16<ScreenPixels>(unchecked((ushort)(grapple.Anchor.X - layer1.X - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowX)), unchecked((ushort)(relativeY - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowY))),
             SnesTileFlipFlags.None, (byte)endpoint.PaletteIndex, (byte)endpoint.Priority));

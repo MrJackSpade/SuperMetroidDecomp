@@ -75,8 +75,18 @@ public static class SnesObjRenderer
             DrawEntry(frame, draws[draw], cgram, selectedPriority, targets);
     }
 
-    /// <summary>Rasterizes one whole-frame draw from its bound artwork, last part first so the first part ends in front.</summary>
+    /// <summary>Rasterizes one whole-frame draw by its kind.</summary>
     private static void DrawEntry(Extent16<ScreenPixels> frame, SpriteDraw draw, IPaletteColors cgram,
+        int? selectedPriority, ObjRasterTargets targets)
+    {
+        if (draw is CharacterSpriteDraw character)
+            DrawCharacters(frame, character, cgram, selectedPriority, targets);
+        else
+            throw new InvalidDataException($"The software renderer cannot draw a {draw.GetType().Name}.");
+    }
+
+    /// <summary>Rasterizes one character draw from its bound artwork, last part first so the first part ends in front.</summary>
+    private static void DrawCharacters(Extent16<ScreenPixels> frame, CharacterSpriteDraw draw, IPaletteColors cgram,
         int? selectedPriority, ObjRasterTargets targets)
     {
         for (int index = draw.Frame.Parts.Length - 1; index >= 0; index--)

@@ -20,6 +20,12 @@ internal static class FrameCompositionAnalyzerTests
             class SpriteArtwork { }
             class SpriteDraw { public SpriteArtwork Artwork { get; } = new(); }
             """, "'Artwork' holds a character page on a draw path; draw a pre-assembled, pre-coloured image selected by identity instead");
+        // A kind of draw entry is a draw entry: its members are on the draw path.
+        Check("""
+            class SpriteArtwork { }
+            abstract class SpriteDraw { }
+            sealed class CharacterSpriteDraw : SpriteDraw { public SpriteArtwork Artwork { get; } = new(); }
+            """, "'Artwork' holds a character page on a draw path; draw a pre-assembled, pre-coloured image selected by identity instead");
         // Reached through a collection of parts: a part selects its palette row by number.
         Check("""
             using System.Collections.Immutable;
@@ -45,6 +51,13 @@ internal static class FrameCompositionAnalyzerTests
             record struct SpriteFramePart(int Character);
             class SpriteDraw { public SpriteFramePart Part { get; } }
             """, "'Character' selects characters on a draw path; draw a pre-assembled, pre-coloured image selected by identity instead");
+        // An identity named for what it selects names finished artwork, not raw characters or a palette row.
+        Check("""
+            enum RoomCharacterSet { Upper }
+            enum RoomPaletteSet { Upper }
+            record struct TilesetDefinition(RoomCharacterSet Characters, RoomPaletteSet Palette);
+            class SpriteDraw { public TilesetDefinition Tileset { get; } }
+            """);
         // Names that merely contain the word are not palette-row selectors.
         Check("""
             class SpriteDraw { public string PaletteName { get; } = ""; public int Paletted { get; } }

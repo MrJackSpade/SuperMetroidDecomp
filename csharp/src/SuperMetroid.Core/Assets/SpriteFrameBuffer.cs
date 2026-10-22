@@ -48,14 +48,17 @@ public sealed class SpriteFrameBuffer
     public void RebindArtwork(SpriteArtworkKind kind, SpriteArtwork artwork)
     {
         Ensure.NotNull(artwork);
-        if (!Array.Exists(finalized, draw => draw.Artwork.Id.Kind == kind && !ReferenceEquals(draw.Artwork, artwork)))
+        if (!Array.Exists(finalized, draw => draw is CharacterSpriteDraw character && character.Artwork.Id.Kind == kind &&
+                !ReferenceEquals(character.Artwork, artwork)))
             return;
         // A published draw list is shared with the staging buffer it was latched from, so rebinding copies it.
-        finalized = Array.ConvertAll(finalized, draw => draw.Artwork.Id.Kind != kind ? draw : draw.WithArtwork(artwork));
+        finalized = Array.ConvertAll(finalized, draw => draw is CharacterSpriteDraw character && character.Artwork.Id.Kind == kind
+            ? character.WithArtwork(artwork) : draw);
     }
 
     /// <summary>Whether any finalized draw shows artwork of <paramref name="kind"/>.</summary>
-    public bool Shows(SpriteArtworkKind kind) => Array.Exists(finalized, draw => draw.Artwork.Id.Kind == kind);
+    public bool Shows(SpriteArtworkKind kind) =>
+        Array.Exists(finalized, draw => draw is CharacterSpriteDraw character && character.Artwork.Id.Kind == kind);
 
     /// <summary>Makes a finalized frame the displayed one, as the NMI does.</summary>
     /// <param name="staging">The buffer the main loop built and finalized.</param>

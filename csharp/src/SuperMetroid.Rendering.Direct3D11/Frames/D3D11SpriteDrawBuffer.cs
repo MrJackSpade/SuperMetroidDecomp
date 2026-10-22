@@ -51,11 +51,11 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         int parts = 0;
         var artworkWords = new Dictionary<SpriteArtwork, int>(ReferenceEqualityComparer.Instance);
         foreach (SpriteDraw draw in draws)
-            parts += draw.Frame.Parts.Length;
+            parts += Character(draw).Frame.Parts.Length;
         int words = HeaderWords + parts * PartWords;
         foreach (SpriteDraw draw in draws)
-            if (artworkWords.TryAdd(draw.Artwork, words))
-                words += draw.Artwork.CharacterCount * CharacterWords;
+            if (artworkWords.TryAdd(Character(draw).Artwork, words))
+                words += Character(draw).Artwork.CharacterCount * CharacterWords;
         if (words > Upload.Length)
         {
             Dispose();
@@ -66,8 +66,9 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         upload.Clear();
         upload[0] = (uint)parts;
         int record = HeaderWords;
-        foreach (SpriteDraw draw in draws)
+        foreach (SpriteDraw entry in draws)
         {
+            CharacterSpriteDraw draw = Character(entry);
             int artwork = artworkWords[draw.Artwork];
             for (int index = 0; index < draw.Frame.Parts.Length; index++)
             {
@@ -86,6 +87,10 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     }
 
     /// <summary>Creates the GPU buffer, its view and the CPU words for <paramref name="words"/> words.</summary>
+    /// <summary>The draw as a character draw, the only kind this buffer packs.</summary>
+    private static CharacterSpriteDraw Character(SpriteDraw draw) => draw as CharacterSpriteDraw ??
+        throw new InvalidDataException($"The Direct3D 11 sprite buffer cannot pack a {draw.GetType().Name}.");
+
     [System.Diagnostics.CodeAnalysis.MemberNotNull(nameof(Buffer), nameof(View), nameof(Upload))]
     private void Create(int words)
     {

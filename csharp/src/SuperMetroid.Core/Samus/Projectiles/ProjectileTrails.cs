@@ -180,7 +180,7 @@ internal sealed class ProjectileTrails
 
         SnesObjAttributeWord attributes = artwork is null
             ? side.TileNumberAttributes : artwork.ResolveCurrent(side.Cursor, side.TileNumberAttributes);
-        sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectileTrail, slotIndex * 2 + (direction == HorizontalDirection.Left ? 0 : 1)),
+        sprites.Add(new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectileTrail, slotIndex * 2 + (direction == HorizontalDirection.Left ? 0 : 1)),
             ObjPartFrames.SmallObject(attributes, 0), objects.Page,
             new Position16<ScreenPixels>(screenX, screenY), default, 0, 0));
     }

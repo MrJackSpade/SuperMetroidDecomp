@@ -293,7 +293,7 @@ public sealed class SamusBombProjectileSystem
             if (screenX < -48 || screenX >= 304 || (SnesLittleEndian.HighByteInPlace(screenY)) != 0)
                 continue;
 
-            sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.SamusBomb, slotIndex),
+            sprites.Add(new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.SamusBomb, slotIndex),
                 artwork.Sprites.Frame(slot.Sprite ?? throw new InvalidOperationException("A drawn bomb shows a composition.")), artwork.Page,
                 new Position16<ScreenPixels>(unchecked((ushort)screenX), screenY), default, 0, 0));
         }

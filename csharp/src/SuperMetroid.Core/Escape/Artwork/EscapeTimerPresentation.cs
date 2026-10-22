@@ -59,7 +59,7 @@ public sealed class EscapeTimerPresentation
         }
 
         void DrawFrame(EscapeTimerGlyph glyph, Offset16<OamPixels> anchor) =>
-            sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.EscapeTimer), spriteFrames[glyph], artwork,
+            sprites.Add(new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.EscapeTimer), spriteFrames[glyph], artwork,
                 timer.PixelPosition + new Offset16<ScreenPixels>(anchor.X, anchor.Y), SnesTileFlipFlags.None, Palette,
                 EscapeTimerPresentationDefinitions.TimerPriority));
     }

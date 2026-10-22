@@ -197,7 +197,7 @@ public sealed class SamusAtmosphericEffectsState
             return;
         ushort attributes = ResolveInstalledAttributes(drawing.DirectArtwork, type, slot.AnimationFrame);
         var part = new SnesObjAttributeWord(attributes);
-        drawing.Sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.SamusAtmosphere, slotIndex),
+        drawing.Sprites.Add(new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.SamusAtmosphere, slotIndex),
             ObjPartFrames.SmallObject(part, 0), drawing.RequirePage(),
             new Position16<ScreenPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)),
             SnesTileFlipFlags.None, (byte)part.PaletteIndex, (byte)part.Priority));

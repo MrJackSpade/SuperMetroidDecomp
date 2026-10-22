@@ -55,10 +55,10 @@ internal static class SpriteDrawSmokeTests
             // Red covers x 10..17, blue x 14..21 and green x 12..19, all on row 10, emitted in that order.
             ImmutableArray<SpriteDraw> draws =
             [
-                new(new(SpriteSourceKind.EscapeTimer), solid, artwork, new(10, 10), SnesTileFlipFlags.None, 0, 3),
-                new(new(SpriteSourceKind.EscapeTimer, 1), solid, artwork, new(14, 10), SnesTileFlipFlags.None, 2, 3),
-                new(new(SpriteSourceKind.EscapeTimer, 2), solid, artwork, new(12, 10), SnesTileFlipFlags.None, 1, 3),
-                new(new(SpriteSourceKind.EscapeTimer, 3), edge, artwork, new(40, 30), SnesTileFlipFlags.Horizontal, 3, 3),
+                new CharacterSpriteDraw(new(SpriteSourceKind.EscapeTimer), solid, artwork, new(10, 10), SnesTileFlipFlags.None, 0, 3),
+                new CharacterSpriteDraw(new(SpriteSourceKind.EscapeTimer, 1), solid, artwork, new(14, 10), SnesTileFlipFlags.None, 2, 3),
+                new CharacterSpriteDraw(new(SpriteSourceKind.EscapeTimer, 2), solid, artwork, new(12, 10), SnesTileFlipFlags.None, 1, 3),
+                new CharacterSpriteDraw(new(SpriteSourceKind.EscapeTimer, 3), edge, artwork, new(40, 30), SnesTileFlipFlags.Horizontal, 3, 3),
             ];
             // A frontend screen's OAM record 0 (red, x 60..67) and record 1 (green, x 62..69) on row 50.
             var oam = new OamBuffer();
@@ -114,7 +114,7 @@ internal static class SpriteDrawSmokeTests
                 }
                 var frame = new SpriteFrame($"Seeded.{index}", parts.ToImmutable());
                 var origin = new Position16<ScreenPixels>(unchecked((ushort)random.Next(-60, 300)), unchecked((ushort)random.Next(-60, 270)));
-                draws.Add(new SpriteDraw(new(SpriteSourceKind.EscapeTimer, index), frame, artwork, origin,
+                draws.Add(new CharacterSpriteDraw(new(SpriteSourceKind.EscapeTimer, index), frame, artwork, origin,
                     (SnesTileFlipFlags)(random.Next(4) << 14), (byte)random.Next(8), (byte)random.Next(4)));
             }
             var memory = new PpuMemorySnapshot(vram, palette, draws.ToImmutable());

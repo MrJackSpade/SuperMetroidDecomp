@@ -76,6 +76,10 @@ public sealed class FrameCompositionAnalyzer : DiagnosticAnalyzer
             return "holds a character page";
         if (Mentions(type, PaletteRowTypes))
             return "holds palette rows";
+        // A name selects characters or a palette row only when it holds raw numbers: an identity of the same name names
+        // a finished image or colour set, which is the destination.
+        if (!IsRawData(type))
+            return null;
         string bare = name.TrimStart('_');
         if (CharacterNames.Contains(bare))
             return "selects characters";
@@ -104,29 +108,57 @@ public sealed class FrameCompositionAnalyzer : DiagnosticAnalyzer
             context.ReportDiagnostic(Diagnostic.Create(Rule, location, symbol.Name, what));
     }
 
-    /// <summary>The Core types reachable from the draw entries through instance fields, properties and base types.</summary>
+    /// <summary>
+    /// The Core types reachable from the draw entries through instance fields, properties and base types, and every type
+    /// derived from one: a draw entry's kinds are draw entries too.
+    /// </summary>
     private static ImmutableHashSet<INamedTypeSymbol> Reachable(Compilation compilation, IAssemblySymbol core)
     {
         var seen = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
         var pending = new Stack<INamedTypeSymbol>();
         foreach (INamedTypeSymbol root in compilation.GetSymbolsWithName(DrawEntryTypes.Contains, SymbolFilter.Type).OfType<INamedTypeSymbol>())
             Enqueue(root);
-        while (pending.Count > 0)
+        INamedTypeSymbol[] all = [.. Types(core.GlobalNamespace)];
+        bool grew = true;
+        while (grew)
         {
-            INamedTypeSymbol type = pending.Pop();
-            if (type.BaseType is { } baseType)
-                Visit(baseType);
-            foreach (ISymbol member in type.GetMembers())
+            Drain();
+            grew = false;
+            foreach (INamedTypeSymbol type in all)
             {
-                if (member.IsStatic)
+                if (seen.Contains(type))
                     continue;
-                if (member is IFieldSymbol field)
-                    Visit(field.Type);
-                else if (member is IPropertySymbol property)
-                    Visit(property.Type);
+                for (INamedTypeSymbol? baseType = type.BaseType; baseType is not null; baseType = baseType.BaseType)
+                {
+                    if (seen.Contains(baseType.OriginalDefinition))
+                    {
+                        Enqueue(type);
+                        grew = true;
+                        break;
+                    }
+                }
             }
         }
         return seen.ToImmutableHashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+
+        void Drain()
+        {
+            while (pending.Count > 0)
+            {
+                INamedTypeSymbol type = pending.Pop();
+                if (type.BaseType is { } baseType)
+                    Visit(baseType);
+                foreach (ISymbol member in type.GetMembers())
+                {
+                    if (member.IsStatic)
+                        continue;
+                    if (member is IFieldSymbol field)
+                        Visit(field.Type);
+                    else if (member is IPropertySymbol property)
+                        Visit(property.Type);
+                }
+            }
+        }
 
         void Visit(ITypeSymbol type)
         {
@@ -146,6 +178,43 @@ public sealed class FrameCompositionAnalyzer : DiagnosticAnalyzer
         {
             if (SymbolEqualityComparer.Default.Equals(type.ContainingAssembly, core) && seen.Add(type))
                 pending.Push(type);
+        }
+    }
+
+    /// <summary>Colour words, which hold the hardware's packed colours.</summary>
+    internal static readonly ImmutableHashSet<string> RawColourTypes = ["Bgr555"];
+
+    /// <summary>Whether <paramref name="type"/> holds raw numbers: an integer, a colour word, or a collection of them.</summary>
+    private static bool IsRawData(ITypeSymbol type)
+    {
+        if (type is IArrayTypeSymbol array)
+            return IsRawData(array.ElementType);
+        if (type.SpecialType is SpecialType.System_Byte or SpecialType.System_SByte or SpecialType.System_Int16 or
+            SpecialType.System_UInt16 or SpecialType.System_Int32 or SpecialType.System_UInt32)
+        {
+            return true;
+        }
+        if (type is not INamedTypeSymbol named)
+            return false;
+        if (named.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
+            return IsRawData(named.TypeArguments[0]);
+        if (RawColourTypes.Contains(named.Name))
+            return true;
+        return named.IsGenericType && named.TypeArguments.Length == 1 && IsRawData(named.TypeArguments[0]);
+    }
+
+    /// <summary>Every type declared in <paramref name="space"/> and its nested namespaces and types.</summary>
+    private static IEnumerable<INamedTypeSymbol> Types(INamespaceOrTypeSymbol space)
+    {
+        foreach (ISymbol member in space.GetMembers())
+        {
+            if (member is INamespaceOrTypeSymbol nested)
+            {
+                if (nested is INamedTypeSymbol type)
+                    yield return type;
+                foreach (INamedTypeSymbol inner in Types(nested))
+                    yield return inner;
+            }
         }
     }
 

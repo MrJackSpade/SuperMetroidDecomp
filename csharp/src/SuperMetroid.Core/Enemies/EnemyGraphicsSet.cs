@@ -59,13 +59,37 @@ internal sealed class EnemyGraphicsSet
         IPaletteColors cgram)
     {
         LoadedSet = graphicsSet;
+        foreach (RoomEnemyGraphicsSetEntry entry in LayOut(definitions, graphicsSet, vram))
+        {
+            // ProcessEnemyTilesets copies one complete sixteen-color OBJ palette from the
+            // enemy's selected code/data bank. Its assembly masks the entire low byte before
+            // adding the native eight-row OBJ bias. Retail records use values zero through
+            // seven, but retaining the wider mask makes corrupt data fail visibly.
+            (_room.Artwork ?? throw new InvalidOperationException(
+                "Enemy population requires installed palette artwork."))
+                .LoadPaletteTo(entry.DefinitionId, new CgramPalettes(cgram).ObjectRow(checked((byte)entry.PaletteRow)));
+            Entries.Add(entry);
+        }
+    }
+
+    /// <summary>
+    /// The entries <paramref name="graphicsSet"/> loads, in bank-$B4 record order: each enemy's tiles, where in the enemy
+    /// tile area they upload to and the OBJ character index they start at, with the native size arithmetic retained.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The set has more than four entries, or an entry's tiles leave the enemy tile area.</exception>
+    internal static IReadOnlyList<RoomEnemyGraphicsSetEntry> LayOut(IRoomEnemyDefinitionSource definitions,
+        RoomEnemyGraphicsSetDefinition graphicsSet, SnesVram vram)
+    {
+        Ensure.NotNull(definitions);
+        Ensure.NotNull(graphicsSet);
+        var entries = new List<RoomEnemyGraphicsSetEntry>();
         int nextEnemyTileIndex = 0;
         int nextStagingOffset = RoomEnemyRomLayout.OrdinaryStagingOffset;
 
         foreach (RoomEnemyGraphicsSetHeader source in graphicsSet.Records.Span)
         {
             EnemyDefinitionId definitionPointer = source.DefinitionId;
-            if (Entries.Count == EnemyGraphicsSet.MaximumGraphicsSetCount)
+            if (entries.Count == EnemyGraphicsSet.MaximumGraphicsSetCount)
             {
                 throw new InvalidDataException(
                     $"Enemy graphics set {graphicsSet.Name} exceeds the native four-entry arrays.");
@@ -75,14 +99,6 @@ internal sealed class EnemyGraphicsSet
             // use the selected extracted artwork, but
             // the header itself must not be re-read from the cartridge on room entry.
             RoomEnemyDefinition definition = definitions.ReadEnemyDefinition(definitionPointer);
-
-            // ProcessEnemyTilesets copies one complete sixteen-color OBJ palette from the
-            // enemy's selected code/data bank. Its assembly masks the entire low byte before
-            // adding the native eight-row OBJ bias. Retail records use values zero through
-            // seven, but retaining the wider mask makes corrupt data fail visibly.
-            (_room.Artwork ?? throw new InvalidOperationException(
-                "Enemy population requires installed palette artwork."))
-                .LoadPaletteTo(definitionPointer, new CgramPalettes(cgram).ObjectRow(checked((byte)source.PaletteRow)));
 
             int byteCount = definition.TileDataSize & EnemyTileDataMasks.ByteCountBits;
             int stagingOffset = (definition.TileDataSize & EnemyTileDataMasks.FixedStagingBit) != 0
@@ -97,7 +113,7 @@ internal sealed class EnemyGraphicsSet
             }
 
 
-            Entries.Add(new RoomEnemyGraphicsSetEntry(
+            entries.Add(new RoomEnemyGraphicsSetEntry(
                 definitionPointer,
                 source.PaletteRow,
                 nextEnemyTileIndex,
@@ -111,6 +127,7 @@ internal sealed class EnemyGraphicsSet
             nextEnemyTileIndex = unchecked((ushort)(nextEnemyTileIndex + (definition.TileDataSize >> 5)));
             nextStagingOffset = unchecked((ushort)(nextStagingOffset + definition.TileDataSize));
         }
+        return entries;
     }
 
     /// <summary>

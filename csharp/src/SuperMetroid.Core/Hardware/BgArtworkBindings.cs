@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Hardware;
 /// bindings (the boss tickets #1352-#1357) keep their order with it.
 /// </summary>
 [PpuLayoutBoundary("backend: composes background artwork bindings over the VRAM image in write order")]
-public sealed class BgArtworkBindings(SnesVram vram)
+public sealed class BgArtworkBindings(SnesVram vram) : IBgCharacterArtwork
 {
     /// <summary>The VRAM the bindings compose over, whose write clock orders them against its writes; it tracks write order from now on.</summary>
     internal SnesVram Vram { get; } = Tracked(vram);

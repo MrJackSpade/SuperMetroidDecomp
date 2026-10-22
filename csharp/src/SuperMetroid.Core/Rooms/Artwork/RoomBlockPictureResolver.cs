@@ -43,21 +43,21 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
 
     /// <summary>
     /// The pictures the blocks of <paramref name="bg1"/> and <paramref name="bg2"/> show over what
-    /// <paramref name="bindings"/> show now.
+    /// <paramref name="characters"/> show now.
     /// </summary>
     /// <param name="bg1">The room's BG1 plane.</param>
     /// <param name="bg2">The room's layer-2 plane, which shares BG1's definitions, or null when BG2 shows none.</param>
-    /// <param name="bindings">The background character bindings.</param>
+    /// <param name="characters">Where the blocks read their characters and what shows over them.</param>
     /// <param name="alsoShown">Further definitions the frame shows, as the X-ray reveal's blocks; none when empty.</param>
     /// <exception cref="InvalidDataException">
     /// A character a block reads shows bytes no binding names, or the sheet holds no picture of a block over what its
     /// characters show.
     /// </exception>
-    [PpuLayoutBoundary("codec: the BG characters a block's tile words name, from the room tileset's character base")]
-    public RoomBlockPictureTable Resolve(RoomLevelPlane bg1, RoomLevelPlane? bg2, BgArtworkBindings bindings, IEnumerable<int> alsoShown)
+    [PpuLayoutBoundary("codec: the BG characters a block's tile words name, from the room's character base")]
+    public RoomBlockPictureTable Resolve(RoomLevelPlane bg1, RoomLevelPlane? bg2, RoomCharacterSource characters, IEnumerable<int> alsoShown)
     {
         Ensure.NotNull(bg1);
-        Ensure.NotNull(bindings);
+        Ensure.NotNull(characters.Artwork);
         int[] also = [.. Ensure.NotNull(alsoShown).Distinct().Order()];
         RoomBlockPictureTable? previous = table;
         bool fresh = previous is null || definitions != bg1.Definitions || !ReferenceEquals(bg1Plane, bg1) || !ReferenceEquals(bg2Plane, bg2)
@@ -82,8 +82,8 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
             {
                 tiles[tile] = BinaryPrimitives.ReadUInt16LittleEndian(
                     definitions.AsSpan(definition * RoomLevelPlane.DefinitionBytes + tile * sizeof(ushort), sizeof(ushort)));
-                now[tile] = bindings.Showing(
-                    RoomGraphicsLayout.AreaCharacters.Offset + new SnesBgTilemapWord(tiles[tile]).CharacterIndex * RoomBlockPictureNames.CharacterWords,
+                now[tile] = characters.Artwork.Showing(
+                    characters.CharacterBase + new SnesBgTilemapWord(tiles[tile]).CharacterIndex * RoomBlockPictureNames.CharacterWords,
                     RoomBlockPictureNames.CharacterWords);
                 changed |= now[tile] != shown[index * RoomBlockPictureNames.Tiles + tile];
             }

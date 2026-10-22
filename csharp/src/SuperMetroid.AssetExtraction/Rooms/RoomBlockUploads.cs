@@ -13,6 +13,9 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.World;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -60,6 +63,8 @@ internal static class RoomBlockUploads
                     uploads.Add(upload);
                 foreach (BgCharacterUpload upload in LibraryUploads(inputs, state))
                     uploads.AddLibrary(upload);
+                if (RoomScope.CharactersOf(new CartridgeRoomHeader(room, state)) == RoomBackgroundCharacters.ObjectCharacterPage)
+                    uploads.AddObjectPage(ObjectPageUploads(inputs, state));
                 if (state.Background is { } program)
                 {
                     foreach (CartridgeDoorHeader? door in DoorVariants(program))
@@ -193,6 +198,24 @@ internal static class RoomBlockUploads
     private static IEnumerable<TileWordWriter> WritersIn(CartridgeRoomState state) =>
         state.EnemyPopulation.Records.ToArray().SelectMany(record => EnemyWriters.TryGetValue(record.DefinitionId, out TileWordWriter[]? writers)
             ? writers : []).Distinct();
+
+    /// <summary>
+    /// What <paramref name="state"/>'s room uploads over the OBJ character table as it loads, which the Ceres Ridley arena's
+    /// blocks show: each enemy's tiles its graphics set loads, named as the table records them.
+    /// </summary>
+    /// <exception cref="InvalidDataException">An enemy's tiles are not installed.</exception>
+    [PpuLayoutBoundary("codec: the VRAM words a room's enemy graphics set uploads its tiles to")]
+    private static IEnumerable<BgCharacterUpload> ObjectPageUploads(RoomBlockSheetInputs inputs, CartridgeRoomState state)
+    {
+        foreach (RoomEnemyGraphicsSetEntry entry in EnemyGraphicsSet.LayOut(CompiledRoomEnemyDefinitions.Instance, state.EnemyGraphicsSet, new SnesVram()))
+        {
+            int source = entry.Definition.TileDataAddress;
+            ReadOnlyMemory<byte> tiles = inputs.EnemyTiles.TryResolve(source, entry.TileByteCount, out ReadOnlyMemory<byte> installed) ? installed
+                : throw new InvalidDataException($"{state.Name}'s enemy tiles from ${source:X6} are not installed.");
+            yield return new BgCharacterUpload(new BgArtworkIdentity($"{new TransferObjCharacters(source, entry.TileByteCount)}"),
+                EnemyVram.EnemyTilesDma(entry.StagingOffset / 2).Word, tiles);
+        }
+    }
 
     /// <summary>The HUD's characters as gameplay setup uploads them, before any room loads.</summary>
     internal static BgCharacterUpload HudCharacters(RoomBlockSheetInputs inputs) =>
@@ -330,6 +353,22 @@ internal static class RoomBlockUploads
 
         /// <summary>What writes tile words over the tileset's rooms.</summary>
         internal HashSet<TileWordWriter> Writers { get; } = [];
+
+        /// <summary>
+        /// What a room whose blocks read the OBJ character table uploads there as it loads, or null when none of the
+        /// tileset's rooms read it.
+        /// </summary>
+        internal IReadOnlyList<BgCharacterUpload>? ObjectPage { get; private set; }
+
+        /// <summary>Records what a room whose blocks read the OBJ character table uploads there.</summary>
+        /// <exception cref="InvalidDataException">Another such room of the tileset uploads otherwise.</exception>
+        internal void AddObjectPage(IEnumerable<BgCharacterUpload> uploads)
+        {
+            BgCharacterUpload[] page = [.. uploads];
+            if (ObjectPage is { } known && !known.Select(upload => (upload.Identity, upload.FirstWord)).SequenceEqual(page.Select(upload => (upload.Identity, upload.FirstWord))))
+                throw new InvalidDataException("Two rooms of one tileset read different OBJ character tables.");
+            ObjectPage ??= page;
+        }
 
         /// <summary>What the first room shows BG3's words over, or null before a room is recorded.</summary>
         internal BgArtworkBindings? Bg3Content { get; private set; }

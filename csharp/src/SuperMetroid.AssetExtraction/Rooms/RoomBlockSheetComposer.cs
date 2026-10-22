@@ -105,8 +105,17 @@ internal static class RoomBlockSheetComposer
         foreach (BgCharacterUpload upload in load)
             upload.BindTo(loaded);
         var bytes = new Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>>();
-        foreach (BgCharacterUpload upload in load.Concat(uploads.Uploads).Concat(uploads.Collectibles.Select(slot => slot.Upload)))
+        foreach (BgCharacterUpload upload in load.Concat(uploads.Uploads).Concat(uploads.Collectibles.Select(slot => slot.Upload))
+            .Concat(uploads.ObjectPage ?? []))
             bytes[upload.Identity] = upload.Bytes;
+        // A room whose blocks read the OBJ character table shows them over what its load uploads there (#1392).
+        BgArtworkBindings? objectPage = null;
+        if (uploads.ObjectPage is { } objects)
+        {
+            objectPage = new BgArtworkBindings(new SnesVram());
+            foreach (BgCharacterUpload upload in objects)
+                upload.BindTo(objectPage);
+        }
         Bgr555[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).Transfer.Span);
 
         var pictures = new Dictionary<string, Picture>(StringComparer.Ordinal);
@@ -118,6 +127,8 @@ internal static class RoomBlockSheetComposer
             for (int tile = 0; tile < tiles.Length; tile++)
                 tiles[tile] = BinaryPrimitives.ReadUInt16LittleEndian(definitions.AsSpan(definition * RoomLevelPlane.DefinitionBytes + tile * sizeof(ushort)));
             AddEach(tiles, all, withLoad: true);
+            if (objectPage is not null)
+                AddOverObjectPage(tiles, objectPage);
         }
         foreach (RoomBlockUploads.CollectibleSlotUpload slot in uploads.Collectibles)
         {
@@ -164,6 +175,18 @@ internal static class RoomBlockSheetComposer
         }
         return canvas.ToSheet(colours, frames);
 
+        // Adds a picture of the block over the OBJ character table `objects` binds, when every tile's character is bound.
+        void AddOverObjectPage(ushort[] words, BgArtworkBindings objects)
+        {
+            var shown = new BgArtworkShown[RoomBlockPictureNames.Tiles];
+            for (int tile = 0; tile < shown.Length; tile++)
+            {
+                if (!objects.TryShowing(ObjectPageCharacterWord(words[tile]), RoomBlockPictureNames.CharacterWords, out shown[tile]))
+                    return;
+            }
+            pictures.TryAdd(RoomBlockPictureNames.Of(words, shown), new Picture([.. words], shown));
+        }
+
         // Adds a picture of the block for each combination of what the upload regions its tiles read can show: the
         // room's load, when given, or each of `candidates` covering the region. Tiles in one region show the same
         // artwork, as one binding covers them all. A block one of whose characters shows nothing is not pictured.
@@ -204,6 +227,11 @@ internal static class RoomBlockSheetComposer
             }
         }
     }
+
+    /// <summary>The first VRAM word of the OBJ character table's character tile word <paramref name="word"/> names.</summary>
+    [PpuLayoutBoundary("codec: the BG characters a block's tile words name, from the OBJ character table the Ceres Ridley arena reads")]
+    private static int ObjectPageCharacterWord(ushort word) =>
+        GameplayVramLayout.ObjectCharacters.Offset + new SnesBgTilemapWord(word).CharacterIndex * RoomBlockPictureNames.CharacterWords;
 
     /// <summary>The first VRAM word of the character tile word <paramref name="word"/> names.</summary>
     [PpuLayoutBoundary("codec: the BG characters a block's tile words name, from the room tileset's character base")]

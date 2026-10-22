@@ -1264,14 +1264,13 @@ internal sealed class RoomLoader
 
     /// <summary>
     /// The pictures the outgoing room's BG1 blocks show as a door begins (#1392), which its screen keeps through the
-    /// door's opening scroll; none while its planes draw from the object character page.
+    /// door's opening scroll.
     /// </summary>
-    private RoomBlockPictureTable? SourceScreenPictures()
+    private RoomBlockPictureTable SourceScreenPictures()
     {
         RoomScope scope = _room.Scope ?? throw new InvalidOperationException("A door began with no room loaded.");
-        return RoomScope.CharactersOf(_room.ActiveRoom) == RoomBackgroundCharacters.Tileset
-            ? scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane, null, _backgrounds, [])
-            : null;
+        return scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane, null,
+            RoomCharacterSource.Of(RoomScope.CharactersOf(_room.ActiveRoom), _backgrounds, _enemySession.ObjCharacters), []);
     }
 
     /// <summary>The host-bound room catalogs; room loading never substitutes cartridge artwork.</summary>

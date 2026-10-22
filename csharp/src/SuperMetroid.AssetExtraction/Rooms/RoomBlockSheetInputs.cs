@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
@@ -27,28 +28,32 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <param name="EscapeTypewriter">The escape typewriter's programs, whose text is typed over a room's background.</param>
 /// <param name="Maps">The map presentation: the HUD, the area maps its minimap shows and the room effects' BG3 pages.</param>
 /// <param name="BasePalettes">The gameplay base palettes, whose sprite rows every room load restores.</param>
+/// <param name="EnemyTiles">The enemies' tiles, which the Ceres Ridley arena's blocks show from the OBJ character table.</param>
 internal sealed record RoomBlockSheetInputs(RoomCharacterAtlasCatalog Characters, RoomMetatileCatalog Metatiles,
     RoomStaticPaletteCatalog Palettes, RoomFxAnimatedTileAtlas AnimatedTiles, RoomPlmDynamicCollectibleArtCatalog Collectibles,
     BossArtworkCatalog Bosses, HudTileAtlas Hud, RoomBackgroundTilemapCatalog BackgroundTilemaps, RoomSkyTilemapCatalog Skies,
-    EscapeTypewriterPresentation EscapeTypewriter, AreaMapPresentationCatalog Maps, GameplayBasePaletteCatalog BasePalettes)
+    EscapeTypewriterPresentation EscapeTypewriter, AreaMapPresentationCatalog Maps, GameplayBasePaletteCatalog BasePalettes,
+    EnemyTileArtworkCatalog EnemyTiles)
 {
     /// <summary>Loads the stock artwork from installed content.</summary>
     internal static RoomBlockSheetInputs Load(string content)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
         AreaMapPresentationCatalog maps = AreaMapPresentationCatalog.Load(Path.Combine(content, GameInstallationLayout.MapDirectoryName), null);
+        InstalledEnemyArtwork enemies = EnemyTileArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.EnemyTileDirectoryName), null);
         return new(
             RoomCharacterArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomCharacterDirectoryName), null),
             RoomMetatileArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomMetatileDirectoryName), null),
             RoomStaticPaletteArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomPaletteDirectoryName), null),
             maps.RoomFxAnimatedTiles,
             RoomPlmDynamicCollectibleArtFiles.Load(Path.Combine(content, GameInstallationLayout.RoomPlmDynamicCollectibleArtDirectoryName), null),
-            EnemyTileArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.EnemyTileDirectoryName), null).Bosses,
+            enemies.Bosses,
             maps.HudTiles,
             RoomBackgroundTilemapArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomBackgroundTilemapDirectoryName), null),
             RoomSkyTilemapArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomBackgroundTilemapDirectoryName), null),
             maps.EscapeTypewriter,
             maps,
-            GameplayBasePaletteFiles.Load(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName), null));
+            GameplayBasePaletteFiles.Load(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName), null),
+            enemies.Enemies);
     }
 }

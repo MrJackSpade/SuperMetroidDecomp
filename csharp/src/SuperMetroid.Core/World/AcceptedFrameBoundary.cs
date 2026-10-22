@@ -248,11 +248,8 @@ internal sealed class AcceptedFrameBoundary
         // A Ceres room's Mode 7 map draws its tiles' pictures, which its characters must still show (#1392).
         if (rooms.Mode7 is { Tiles: { } mode7Tiles } mode7)
             mode7Tiles.AssertShownBy(_backgrounds, mode7.NamedTiles);
-        if (rooms.Characters != RoomBackgroundCharacters.Tileset)
-        {
-            return reveal is null ? latched
-                : throw new InvalidOperationException("X-ray reveals a room whose planes draw from the object character page.");
-        }
+        if (rooms.Characters != RoomBackgroundCharacters.Tileset && reveal is not null)
+            throw new InvalidOperationException("X-ray reveals a room whose planes draw from the object character page.");
         RoomScope scope = _room.Scope ?? throw new InvalidOperationException("Room backgrounds were captured with no room loaded.");
         RevealedBlock[]? revealed = null;
         if (reveal is { } words)
@@ -261,7 +258,9 @@ internal sealed class AcceptedFrameBoundary
                 _revealIndex = new RevealedBlockIndex(rooms.Bg1.Plane.Definitions);
             revealed = XrayRevealPlane.BlocksOf(words.AsSpan(), _revealIndex);
         }
-        RoomBlockPictureTable pictures = scope.BlockPictures.Resolve(rooms.Bg1.Plane, rooms.Bg2?.Plane, _backgrounds,
+        // The Ceres Ridley arena's blocks read the OBJ character table's uploads (#1392).
+        RoomBlockPictureTable pictures = scope.BlockPictures.Resolve(rooms.Bg1.Plane, rooms.Bg2?.Plane,
+            RoomCharacterSource.Of(rooms.Characters, _backgrounds, _enemySession.ObjCharacters),
             revealed?.Select(block => block.Definition) ?? []);
         // Where BG2 shows the tilemap its library background loaded, it draws the background's image (#1392): not over a
         // streaming layer-2 plane, a scrolling sky or a boss body that owns BG2.

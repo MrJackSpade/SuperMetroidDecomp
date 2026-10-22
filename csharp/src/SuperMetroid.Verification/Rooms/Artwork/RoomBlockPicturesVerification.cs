@@ -57,6 +57,8 @@ internal static class RoomBlockPicturesVerification
         Check(RoomHeaderDefinitions.Wasteland, expectUploads: true);
         Check(RoomHeaderDefinitions.MorphBall, expectUploads: true);
         Check(RoomHeaderDefinitions.EastSandHall, expectUploads: true);
+        // The Ceres Ridley arena's blocks read the OBJ character table's enemy tiles.
+        Check(RoomHeaderDefinitions.CeresRidley, expectUploads: true);
         // The treadmills run once Phantoon, the Wrecked Ship's boss, is defeated.
         Check(RoomHeaderDefinitions.WreckedShipMainShaft, expectUploads: true,
             RoomStateSelectionDefinitions.GetStates(RoomHeaderDefinitions.WreckedShipMainShaft)
@@ -435,6 +437,7 @@ internal static class RoomBlockPicturesVerification
     {
         RoomBackgrounds rooms = runtime.Display.Latched.Rooms ?? throw new InvalidOperationException($"{where}: no room backgrounds are displayed.");
         RoomBlockPictureTable table = rooms.Bg1.Pictures ?? throw new InvalidOperationException($"{where}: BG1 shows no block pictures.");
+        RoomCharacterSource characters = RoomCharacterSource.Of(rooms.Characters, runtime.BgArtwork, runtime.EnemySession.ObjCharacters);
         PpuMemorySnapshot memory = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites, runtime.BgArtwork);
         ReadOnlySpan<byte> vram = memory.Vram;
         ReadOnlySpan<byte> definitions = rooms.Bg1.Plane.Definitions.AsSpan();
@@ -450,12 +453,13 @@ internal static class RoomBlockPicturesVerification
             {
                 int at = definition * RoomLevelPlaneDefinitionBytes + tile * sizeof(ushort);
                 var word = new SnesBgTilemapWord(SnesLittleEndian.Word(definitions[at], definitions[at + 1]));
-                BgArtworkShown shown = runtime.BgArtwork.Showing(word.CharacterIndex * RoomBlockPictureNames.CharacterWords, RoomBlockPictureNames.CharacterWords);
+                BgArtworkShown shown = characters.Artwork.Showing(characters.CharacterBase + word.CharacterIndex * RoomBlockPictureNames.CharacterWords,
+                    RoomBlockPictureNames.CharacterWords);
                 overUpload |= shown.Artwork != RoomBgArtwork.CommonRoomElements && !shown.Artwork.Name.StartsWith("tileset characters ", StringComparison.Ordinal);
                 for (int y = 0; y < CharacterPixels; y++)
                 {
                     int row = word.FlipVertically ? CharacterPixels - 1 - y : y;
-                    int address = word.CharacterIndex * RoomBlockPictureNames.CharacterWords * sizeof(ushort) + row * 2;
+                    int address = (characters.CharacterBase + word.CharacterIndex * RoomBlockPictureNames.CharacterWords) * sizeof(ushort) + row * 2;
                     for (int x = 0; x < CharacterPixels; x++)
                     {
                         int bit = 7 - (word.FlipHorizontally ? CharacterPixels - 1 - x : x);

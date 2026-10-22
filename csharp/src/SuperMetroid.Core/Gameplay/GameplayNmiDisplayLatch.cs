@@ -37,4 +37,8 @@ public sealed record GameplayNmiDisplayLatch(
     GameplayLatchedBossBackgrounds Bosses,
     GameplayLatchedFixedColors FixedColors,
     XrayRevealPlane? XrayReveal,
-    RoomBackgrounds? Rooms);
+    RoomBackgrounds? Rooms)
+{
+    /// <summary>Whether the latched BGMODE selects the Ceres elevator shaft's or Ridley getaway's Mode 7.</summary>
+    public bool ShowsMode7 => Scene.CeresElevatorMode7 || Bosses.CeresRidleyMode7 is not null;
+}

@@ -106,16 +106,17 @@ internal static class RoomBlockSheetComposer
             upload.BindTo(loaded);
         var bytes = new Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>>();
         foreach (BgCharacterUpload upload in load.Concat(uploads.Uploads).Concat(uploads.Collectibles.Select(slot => slot.Upload))
-            .Concat(uploads.ObjectPage ?? []))
+            .Concat(uploads.ObjectPages.SelectMany(page => page)))
             bytes[upload.Identity] = upload.Bytes;
-        // A room whose blocks read the OBJ character table shows them over what its load uploads there (#1392).
-        BgArtworkBindings? objectPage = null;
-        if (uploads.ObjectPage is { } objects)
+        // A room whose blocks read the OBJ character table shows them over what its load uploads there, and over what its
+        // encounters upload there after (#1392).
+        BgArtworkBindings[] objectPages = [.. uploads.ObjectPages.Select(page =>
         {
-            objectPage = new BgArtworkBindings(new SnesVram());
-            foreach (BgCharacterUpload upload in objects)
-                upload.BindTo(objectPage);
-        }
+            var bound = new BgArtworkBindings(new SnesVram());
+            foreach (BgCharacterUpload upload in page)
+                upload.BindTo(bound);
+            return bound;
+        })];
         Bgr555[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).Transfer.Span);
 
         var pictures = new Dictionary<string, Picture>(StringComparer.Ordinal);
@@ -127,7 +128,7 @@ internal static class RoomBlockSheetComposer
             for (int tile = 0; tile < tiles.Length; tile++)
                 tiles[tile] = BinaryPrimitives.ReadUInt16LittleEndian(definitions.AsSpan(definition * RoomLevelPlane.DefinitionBytes + tile * sizeof(ushort)));
             AddEach(tiles, all, withLoad: true);
-            if (objectPage is not null)
+            foreach (BgArtworkBindings objectPage in objectPages)
                 AddOverObjectPage(tiles, objectPage);
         }
         foreach (RoomBlockUploads.CollectibleSlotUpload slot in uploads.Collectibles)

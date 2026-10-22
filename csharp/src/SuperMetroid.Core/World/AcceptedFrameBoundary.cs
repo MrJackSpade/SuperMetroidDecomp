@@ -245,8 +245,9 @@ internal sealed class AcceptedFrameBoundary
     /// <exception cref="InvalidOperationException">X-ray reveals a room whose planes draw from the object character page.</exception>
     private GameplayNmiDisplayLatch WithBlockPictures(GameplayNmiDisplayLatch latched, RoomBackgrounds rooms, ImmutableArray<ushort>? reveal)
     {
-        // A Ceres room's Mode 7 map draws its tiles' pictures, which its characters must still show (#1392).
-        if (rooms.Mode7 is { Tiles: { } mode7Tiles } mode7)
+        // While a Ceres room shows its Mode 7 map, the map draws its tiles' pictures, which its characters must still show
+        // (#1392); Ceres Ridley's getaway writes its warning's and doors' characters over them once his Mode 7 ends.
+        if (latched.ShowsMode7 && rooms.Mode7 is { Tiles: { } mode7Tiles } mode7)
             mode7Tiles.AssertShownBy(_backgrounds, mode7.NamedTiles);
         if (rooms.Characters != RoomBackgroundCharacters.Tileset && reveal is not null)
             throw new InvalidOperationException("X-ray reveals a room whose planes draw from the object character page.");
@@ -258,9 +259,9 @@ internal sealed class AcceptedFrameBoundary
                 _revealIndex = new RevealedBlockIndex(rooms.Bg1.Plane.Definitions);
             revealed = XrayRevealPlane.BlocksOf(words.AsSpan(), _revealIndex);
         }
-        // The Ceres Ridley arena's blocks read the OBJ character table's uploads (#1392).
-        RoomBlockPictureTable pictures = scope.BlockPictures.Resolve(rooms.Bg1.Plane, rooms.Bg2?.Plane,
-            RoomCharacterSource.Of(rooms.Characters, _backgrounds, _enemySession.ObjCharacters),
+        // The Ceres Ridley arena's backgrounds read the OBJ character table's uploads (#1392).
+        RoomCharacterSource characters = RoomCharacterSource.Of(rooms.Characters, _backgrounds, _enemySession.ObjCharacters);
+        RoomBlockPictureTable pictures = scope.BlockPictures.Resolve(rooms.Bg1.Plane, rooms.Bg2?.Plane, characters,
             revealed?.Select(block => block.Definition) ?? []);
         // Where BG2 shows the tilemap its library background loaded, it draws the background's image (#1392): not over a
         // streaming layer-2 plane, a scrolling sky or a boss body that owns BG2.
@@ -283,12 +284,17 @@ internal sealed class AcceptedFrameBoundary
         ImmutableArray<ushort>? body = latched.Bosses.KraidBody?.Tilemap.Words ?? latched.Bosses.EnemyBg2?.Words;
         ImmutableArray<BgTilePicture?> bodyPictures = body is { } bodyWords
             ? (scope.BodyPictures ?? throw new InvalidDataException($"{scope.Room.Definition.Name} shows a boss body with no installed tile word sheet."))
-                .Resolve(bodyWords, _backgrounds)
+                .Resolve(bodyWords, characters)
             : default;
         // Words written over BG2 draw from the sheet's pictures the same way.
         RoomTilemapOverlay? bg2Overlay = rooms.Bg2Overlay is { } overlay
             ? overlay.WithPictures((scope.Bg2OverlayPictures ?? throw new InvalidDataException(
-                $"{scope.Room.Definition.Name} writes over BG2 with no installed tile word sheet.")).Resolve(overlay, _backgrounds))
+                $"{scope.Room.Definition.Name} writes over BG2 with no installed tile word sheet.")).Resolve(overlay, characters))
+            : null;
+        // Words written over BG1, as the Ceres escape's warning, draw from the sheet's pictures the same way.
+        RoomTilemapOverlay? bg1Overlay = rooms.Bg1Overlay is { } written
+            ? written.WithPictures((scope.Bg1OverlayPictures ?? throw new InvalidDataException(
+                $"{scope.Room.Definition.Name} writes over BG1 with no installed tile word sheet.")).Resolve(written, characters))
             : null;
         return latched with
         {
@@ -300,6 +306,7 @@ internal sealed class AcceptedFrameBoundary
                 Bg2Image = image,
                 SkyImage = sky,
                 Bg2Overlay = bg2Overlay,
+                Bg1Overlay = bg1Overlay,
                 // The HUD and the room effect's page draw from the BG3 sheet's pictures at the HUD character base BG3 shows.
                 Bg3 = rooms.Bg3.WithPictures(scope.Bg3Pictures.Resolve(rooms.Bg3, _backgrounds, latched.Scene.HudCharacterWord)),
             },

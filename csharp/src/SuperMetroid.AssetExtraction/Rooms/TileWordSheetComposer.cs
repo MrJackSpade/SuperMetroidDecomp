@@ -1,5 +1,7 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire;
@@ -40,9 +42,11 @@ internal static class TileWordSheetComposer
     /// <summary>Tiles across a part: the width of the tilemaps the words are written into.</summary>
     private const int PartTiles = 32;
 
-    /// <summary>Composes the sheet of <paramref name="writers"/>' BG1 and BG2 words over <paramref name="content"/>, the room as it has loaded.</summary>
+    /// <summary>
+    /// Composes the sheet of <paramref name="writers"/>' BG1 and BG2 words over <paramref name="content"/>, the room as it
+    /// has loaded and, where its backgrounds read the OBJ character table, as its encounters upload there.
+    /// </summary>
     /// <exception cref="InvalidDataException">A part reads a character nothing the room loads is bound over.</exception>
-    [PpuLayoutBoundary("codec: the BG characters written tile words name, from the room tileset's character base")]
     internal static ComposedTileWordSheet Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads,
         IEnumerable<TileWordWriter> writers, BgArtworkBindings content)
     {
@@ -50,7 +54,7 @@ internal static class TileWordSheetComposer
         Ensure.NotNull(uploads);
         List<(string Name, BodyPart Part)> parts = [.. Ensure.NotNull(writers).Order()
             .SelectMany(writer => Parts(inputs, writer).Select(part => ($"{writer}.{part.Name}", part.Part)))];
-        return Compose(inputs, tileset, TileWordLayer.Bg12, parts, content, uploads.Uploads, [RoomGraphicsLayout.AreaCharacters.Offset]);
+        return Compose(inputs, tileset, TileWordLayer.Bg12, parts, content, uploads.Uploads, [uploads.WordCharacterBase], uploads.WordUploads);
     }
 
     /// <summary>
@@ -72,24 +76,25 @@ internal static class TileWordSheetComposer
         return Compose(inputs, tileset, TileWordLayer.Bg3, parts,
             uploads.Bg3Content ?? throw new InvalidDataException($"No room of {tileset} records what BG3 shows over."),
             [RoomBlockUploads.HudCharacters(inputs), .. bg3Uploads, .. uploads.Uploads],
-            [uploads.Bg3ContentBase, .. uploads.Bg3CharacterBases.Where(characterBase => characterBase != uploads.Bg3ContentBase).Order()]);
+            [uploads.Bg3ContentBase, .. uploads.Bg3CharacterBases.Where(characterBase => characterBase != uploads.Bg3ContentBase).Order()], []);
     }
 
     /// <summary>
-    /// Composes <paramref name="layer"/>'s sheet of <paramref name="parts"/> over <paramref name="content"/>, each word's
-    /// character read at the first of <paramref name="bases"/>, and each word pictured again over each of
-    /// <paramref name="options"/> covering its character at any of them.
+    /// Composes <paramref name="layer"/>'s sheet of <paramref name="parts"/> over <paramref name="content"/>, which binds
+    /// <paramref name="bound"/> beyond the room's load, each word's character read at the first of <paramref name="bases"/>,
+    /// and each word pictured again over each of <paramref name="options"/> covering its character at any of them.
     /// </summary>
     /// <exception cref="InvalidDataException">A part reads a character nothing the room loads is bound over.</exception>
     [PpuLayoutBoundary("codec: the BG characters written tile words name, from their layer's character bases")]
     private static ComposedTileWordSheet Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset, TileWordLayer layer,
-        List<(string Name, BodyPart Part)> parts, BgArtworkBindings content, IReadOnlyList<BgCharacterUpload> options, int[] bases)
+        List<(string Name, BodyPart Part)> parts, BgArtworkBindings content, IReadOnlyList<BgCharacterUpload> options, int[] bases,
+        IReadOnlyList<BgCharacterUpload> bound)
     {
         Ensure.NotNull(content);
         int characterWords = TileWordSheet.CharacterWordsOf(layer);
         IReadOnlyList<BgCharacterUpload> load = CartridgeRoomAssets.CharacterUploads(tileset, inputs.Characters.Cre.Transfer,
             inputs.Characters.Get(tileset.Characters).Transfer);
-        Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = load.Append(RoomBlockUploads.HudCharacters(inputs)).Concat(options)
+        Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = load.Append(RoomBlockUploads.HudCharacters(inputs)).Concat(options).Concat(bound)
             .GroupBy(upload => upload.Identity).ToDictionary(group => group.Key, group => group.First().Bytes);
         Bgr555[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).Transfer.Span);
 
@@ -193,7 +198,12 @@ internal static class TileWordSheetComposer
         switch (writer)
         {
             case TileWordWriter.ZebesEscapeText:
-                yield return ("Typed", Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase));
+                yield return ("Typed", Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase,
+                    GameplayVramLayout.Bg2TilemapWord));
+                break;
+            case TileWordWriter.CeresEscapeText:
+                foreach ((string, BodyPart) part in CeresWarningParts(inputs))
+                    yield return part;
                 break;
             case TileWordWriter.Kraid:
                 foreach ((string, BodyPart) part in KraidParts(bosses.KraidBackground ?? throw Missing(writer)))
@@ -243,11 +253,48 @@ internal static class TileWordSheetComposer
     }
 
     /// <summary>
-    /// The text <paramref name="program"/> types from <paramref name="tileBase"/>, each glyph at the BG2 tilemap word the
-    /// typewriter writes it to.
+    /// The warning Ceres Ridley's getaway writes over BG1: its EMERGENCY title, the Japanese subtitle's rows and its typed
+    /// text, each word at the BG1 tilemap word it is written to.
     /// </summary>
-    [PpuLayoutBoundary("codec: escape typewriter programs' native BG2 tilemap destinations")]
-    private static BodyPart Typed(EscapeTypewriterProgram program, ushort tileBase)
+    /// <exception cref="InvalidDataException">The installed area artwork has no Ceres warning tilemaps.</exception>
+    [PpuLayoutBoundary("codec: Ceres warning tilemaps' native BG1 tilemap destinations")]
+    private static IEnumerable<(string Name, BodyPart Part)> CeresWarningParts(RoomBlockSheetInputs inputs)
+    {
+        CeresEscapeOverlayTilemapCatalog overlays = inputs.Objects.Areas.CeresEscapeOverlayTilemaps
+            ?? throw new InvalidDataException("The installed area artwork has no Ceres warning tilemaps.");
+        CeresEscapeOverlayTilemapDefinition emergency = CeresEscapeOverlayTilemapDefinitions.Emergency;
+        yield return ("Emergency", new BodyPart([.. Runs(CeresEscapeOverlayTilemapDefinitions.EmergencyDestination - GameplayVramLayout.Bg1TilemapWord,
+            OverlayWords(overlays, emergency.SourceAddress, emergency.WordCount * sizeof(ushort)))]));
+        var subtitle = new List<BodyRun>();
+        for (int record = 0; record < CeresEscapeVramTransferDefinitions.JapaneseOverlayRecords; record++)
+        {
+            TileTransferDefinition transfer = CeresEscapeVramTransferDefinitions.Records[record];
+            subtitle.AddRange(Runs(transfer.DestinationWord - GameplayVramLayout.Bg1TilemapWord,
+                OverlayWords(overlays, transfer.SourceAddress, transfer.ByteCount)));
+        }
+        yield return ("Subtitle", new BodyPart([.. subtitle]));
+        yield return ("Typed", Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterProgramId.Ceres), EscapeTypewriterDefinitions.CeresTileBase,
+            GameplayVramLayout.Bg1TilemapWord));
+    }
+
+    /// <summary>The words of the installed Ceres warning tilemap the getaway writes from <paramref name="sourceAddress"/>.</summary>
+    /// <exception cref="InvalidDataException">No installed warning tilemap holds them.</exception>
+    private static ushort[] OverlayWords(CeresEscapeOverlayTilemapCatalog overlays, int sourceAddress, int byteCount)
+    {
+        if (!overlays.TryResolve(sourceAddress, byteCount, out ReadOnlyMemory<byte> data))
+            throw new InvalidDataException($"The installed Ceres warning tilemaps hold no {byteCount} bytes from ${sourceAddress:X6}.");
+        var words = new ushort[byteCount / sizeof(ushort)];
+        for (int index = 0; index < words.Length; index++)
+            words[index] = SnesLittleEndian.Word(data.Span[index * 2], data.Span[index * 2 + 1]);
+        return words;
+    }
+
+    /// <summary>
+    /// The text <paramref name="program"/> types from <paramref name="tileBase"/>, each glyph at the word of the tilemap at
+    /// <paramref name="tilemapWord"/> the typewriter writes it to.
+    /// </summary>
+    [PpuLayoutBoundary("codec: escape typewriter programs' native BG1 and BG2 tilemap destinations")]
+    private static BodyPart Typed(EscapeTypewriterProgram program, ushort tileBase, int tilemapWord)
     {
         var runs = new List<BodyRun>();
         foreach (EscapeTypewriterLine line in program.Lines)
@@ -256,7 +303,7 @@ internal static class TileWordSheetComposer
             foreach (char character in line.Text)
             {
                 if (EscapeTypewriterState.GlyphOf((byte)character, new SnesBgTilemapWord(tileBase)) is { } glyph)
-                    runs.AddRange(Runs(destination - GameplayVramLayout.Bg2TilemapWord, [glyph.Raw]));
+                    runs.AddRange(Runs(destination - tilemapWord, [glyph.Raw]));
                 destination = EscapeTypewriterState.NextDestination(destination);
             }
         }

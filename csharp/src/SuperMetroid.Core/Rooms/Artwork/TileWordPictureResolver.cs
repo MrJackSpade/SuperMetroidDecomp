@@ -3,7 +3,6 @@ using System.Runtime.InteropServices;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Artwork;
 
@@ -29,20 +28,20 @@ public sealed class TileWordPictureResolver(TileWordSheet sheet)
     /// <summary>The sheet.</summary>
     public TileWordSheet Sheet { get; } = Ensure.NotNull(sheet);
 
-    /// <summary>The picture of each of a boss body <paramref name="tilemap"/>'s words over what <paramref name="bindings"/> show now.</summary>
+    /// <summary>The picture of each of a boss body <paramref name="tilemap"/>'s words over what the room's <paramref name="characters"/> show now.</summary>
     /// <exception cref="InvalidDataException">The sheet pictures a word over nothing its character shows.</exception>
-    public ImmutableArray<BgTilePicture?> Resolve(ImmutableArray<ushort> tilemap, BgArtworkBindings bindings)
+    public ImmutableArray<BgTilePicture?> Resolve(ImmutableArray<ushort> tilemap, RoomCharacterSource characters)
     {
         ushort[] words = ImmutableCollectionsMarshal.AsArray(tilemap) ?? throw new ArgumentException("A default tilemap has no words.", nameof(tilemap));
-        return Resolve(words, words.Length, index => words[index], bindings, Bg12CharacterBase(TileWordLayer.Bg12));
+        return Resolve(words, words.Length, index => words[index], characters.Artwork, Bg12CharacterBase(characters));
     }
 
-    /// <summary>The picture of each word written in <paramref name="overlay"/> over what <paramref name="bindings"/> show now.</summary>
+    /// <summary>The picture of each word written in <paramref name="overlay"/> over what the room's <paramref name="characters"/> show now.</summary>
     /// <exception cref="InvalidDataException">The sheet pictures a word over nothing its character shows.</exception>
-    public ImmutableArray<BgTilePicture?> Resolve(RoomTilemapOverlay overlay, BgArtworkBindings bindings)
+    public ImmutableArray<BgTilePicture?> Resolve(RoomTilemapOverlay overlay, RoomCharacterSource characters)
     {
         ImmutableArray<int> words = Ensure.NotNull(overlay).Words;
-        return Resolve(overlay, words.Length, index => words[index], bindings, Bg12CharacterBase(TileWordLayer.Bg12));
+        return Resolve(overlay, words.Length, index => words[index], characters.Artwork, Bg12CharacterBase(characters));
     }
 
     /// <summary>
@@ -58,18 +57,17 @@ public sealed class TileWordPictureResolver(TileWordSheet sheet)
         return Resolve(plane, Layer3Plane.Columns * Layer3Plane.Rows, index => plane.Words[index], bindings, characterBase);
     }
 
-    /// <summary>The character base BG1 and BG2's words name characters from.</summary>
+    /// <summary>The character base BG1 and BG2's words name <paramref name="characters"/> from.</summary>
     /// <exception cref="InvalidOperationException">The sheet pictures another layer's words.</exception>
-    [PpuLayoutBoundary("codec: the room tileset's character base BG1 and BG2 words name characters from")]
-    private int Bg12CharacterBase(TileWordLayer layer) => Sheet.Layer == layer ? RoomGraphicsLayout.AreaCharacters.Offset
-        : throw new InvalidOperationException($"{Sheet.Name} pictures no {layer} words.");
+    private int Bg12CharacterBase(RoomCharacterSource characters) => Sheet.Layer == TileWordLayer.Bg12 ? characters.CharacterBase
+        : throw new InvalidOperationException($"{Sheet.Name} pictures no {TileWordLayer.Bg12} words.");
 
     /// <summary>
     /// The picture of each of <paramref name="count"/> words <paramref name="wordAt"/> gives, <see cref="RoomTilemapOverlay.Unwritten"/>
     /// for none, re-resolving only the words whose characters show something else since <paramref name="words"/> was last resolved.
     /// </summary>
     [PpuLayoutBoundary("codec: the BG characters written tile words name, from their layer's character base")]
-    private ImmutableArray<BgTilePicture?> Resolve(object words, int count, Func<int, int> wordAt, BgArtworkBindings bindings, int characterBase)
+    private ImmutableArray<BgTilePicture?> Resolve(object words, int count, Func<int, int> wordAt, IBgCharacterArtwork bindings, int characterBase)
     {
         int characterWords = TileWordSheet.CharacterWordsOf(Sheet.Layer);
         Ensure.NotNull(bindings);

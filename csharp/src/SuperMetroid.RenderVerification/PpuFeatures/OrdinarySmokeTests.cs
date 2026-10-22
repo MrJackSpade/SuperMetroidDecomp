@@ -137,6 +137,17 @@ internal static class OrdinarySmokeTests
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, BG2 overlay pictures, geometry {geometry}");
         }
+        // Words written over BG1 drawn from their pictures (#1392), as the Ceres escape's warning is, some still from their
+        // characters.
+        var warned = pictured with { Bg1Overlay = RoomBackgroundsFixtures.SeededPicturedOverlay(random, colors) };
+        {
+            var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
+                new Extent16<TilemapCells>(64, 32), 0x4800, 0, 0x6000, 0x4000, SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
+            var layer = new OrdinaryGameplayRenderLayer(registers, warned, default);
+            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
+            PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
+                $"{device.Kind}: ordinary {count}, BG1 overlay pictures");
+        }
         // The boss body drawn from its pictures (#1392), some words still from their characters.
         BossBg2Tilemap bossTilemap = boss.BossBg2 ?? throw new InvalidOperationException("The boss case has no body.");
         var bodyPictured = boss with { BossBg2 = bossTilemap.WithPictures(RoomBackgroundsFixtures.SeededBodyPictures(random, colors, bossTilemap.Words.Length)) };

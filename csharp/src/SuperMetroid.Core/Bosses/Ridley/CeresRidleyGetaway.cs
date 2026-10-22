@@ -394,11 +394,15 @@ internal sealed class CeresRidleyGetaway
         if (_bossArtwork.EscapeTimerArtwork?.TryQueueNativeTransfer(
             vramWriteQueue, sourceAddress, byteCount, destination) != true)
         {
-            // Character pages upload as named installed artwork; the overlay tilemaps are background words.
-            if (CeresEscapeTileCharacters.ForTransfer(sourceAddress, byteCount) is { } characters)
-                vramWriteQueue.EnqueueSource(characters, byteCount, VramDmaDestination.FromNative(destination));
+            // Character pages upload as named installed artwork, bound as background artwork where they land outside the
+            // OBJ characters (#1392); the overlay tilemaps are background words.
+            VramDmaDestination target = VramDmaDestination.FromNative(destination);
+            if (CeresEscapeTileCharacters.ForTransfer(sourceAddress, byteCount) is not { } characters)
+                vramWriteQueue.Enqueue(byteCount, sourceAddress, target);
+            else if (ObjCharacterUploads.Reaches(target))
+                vramWriteQueue.EnqueueSource(characters, byteCount, target);
             else
-                vramWriteQueue.Enqueue(byteCount, sourceAddress, VramDmaDestination.FromNative(destination));
+                vramWriteQueue.EnqueueBackgroundSource(characters, byteCount, target);
         }
 
         state.CeresEscapeTransfers = cursor.Advance();

@@ -30,9 +30,9 @@ internal static class Mode7TileSheetComposer
         // The sprite half as a room load leaves it: gameplay starts from the initial palette, and each room load restores
         // the common sprite and enemy-projectile rows; an actor's own row shows its live colours over these.
         var loaded = new SnesCgram();
-        inputs.BasePalettes.LoadInitial(loaded);
-        inputs.BasePalettes.LoadCommonSprites(loaded, RoomLoadingRomData.CommonGameplaySpritePaletteCgramIndex);
-        inputs.BasePalettes.LoadEnemyProjectileSprites(loaded, RoomLoadingRomData.InitialEnemyProjectilePaletteCgramIndex);
+        inputs.Objects.Palettes.LoadInitial(loaded);
+        inputs.Objects.Palettes.LoadCommonSprites(loaded, RoomLoadingRomData.CommonGameplaySpritePaletteCgramIndex);
+        inputs.Objects.Palettes.LoadEnemyProjectileSprites(loaded, RoomLoadingRomData.InitialEnemyProjectilePaletteCgramIndex);
         var colours = new Bgr555[SpriteImage.ColourCountOf(SpriteImageColours.FullPalette)];
         loaded.Colors.CopyTo(colours);
         background.CopyTo(colours, 0);

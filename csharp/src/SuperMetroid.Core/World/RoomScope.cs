@@ -52,6 +52,9 @@ internal sealed record RoomScope
     /// <summary>Resolves what words written over BG2 show, or null in a tileset nothing writes words over (#1392).</summary>
     public required TileWordPictureResolver? Bg2OverlayPictures { get; init; }
 
+    /// <summary>Resolves what words written over BG1 show, or null in a tileset nothing writes words over (#1392).</summary>
+    public required TileWordPictureResolver? Bg1OverlayPictures { get; init; }
+
     /// <summary>Resolves what the HUD and the room effect's page show on BG3 (#1392).</summary>
     public required TileWordPictureResolver Bg3Pictures { get; init; }
 

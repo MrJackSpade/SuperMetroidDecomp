@@ -40,6 +40,9 @@ public sealed class ObjCharacterUploads
     public static int TableByte(VramDmaDestination destination) =>
         (destination.Word - GameplayVramLayout.ObjectCharacters.Offset) * sizeof(ushort);
 
+    /// <summary>Whether an upload to <paramref name="destination"/> starts inside the table.</summary>
+    public static bool Reaches(VramDmaDestination destination) => TableByte(destination) is >= 0 and < TableByteCount;
+
     /// <summary>Records an encounter's upload over the characters after its room loads (#1392).</summary>
     public void Record(RuntimeCharacterUpload upload) =>
         Record(Ensure.NotNull(upload).FirstByte, upload.ByteCount, upload.Source);

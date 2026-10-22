@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Verification.Enemies.Artwork;
@@ -74,6 +75,67 @@ internal static class CeresRidleyPicturesVerification
         Console.WriteLine($"Ceres Ridley pictures: {scene.Length} scene and {supplements.Length} tail and wing pictures paint their frames over the live characters.");
     }
 
+    /// <summary>
+    /// Checks the warning Ceres Ridley's getaway writes over the arena's BG1 draws from pictures (#1392): run until its text
+    /// is typed, every word written paints, pixel for pixel, the palette index and priority its character on the OBJ
+    /// character table paints.
+    /// </summary>
+    internal static void VerifyCeresWarningPictures()
+    {
+        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
+        var ridley = new RidleyEnemyState { Function = RidleyAiFunction.CeresActivateSelfDestruct };
+        runtime.Enemies.RidleyEncounter.Ridley = ridley;
+        // Each frame's uploads and words reach the display as the next accepted frame begins, which resolves their pictures.
+        while (ridley.Function == RidleyAiFunction.CeresActivateSelfDestruct)
+        {
+            runtime.Enemies.CeresRidleyBehavior.Getaway.TickCeresRidleySelfDestruct(ridley, runtime.VramWrites);
+            runtime.FrameBoundary.BeginAcceptedFrame(0);
+        }
+        RoomTilemapOverlay overlay = runtime.Display.Latched.Rooms?.Bg1Overlay
+            ?? throw new InvalidOperationException("Ceres Ridley's getaway wrote no warning over BG1.");
+        AssertTrue(!overlay.Pictures.IsDefault, "The warning over BG1 draws from pictures");
+        ReadOnlySpan<byte> page = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.ObjCharacters).Characters;
+        int written = 0;
+        for (int index = 0; index < RoomTilemapOverlay.WordCount; index++)
+        {
+            if (overlay.Words[index] == RoomTilemapOverlay.Unwritten)
+                continue;
+            written++;
+            var word = new SnesBgTilemapWord((ushort)overlay.Words[index]);
+            BgTilePicture picture = overlay.Pictures[index]
+                ?? throw new InvalidOperationException($"The warning's word {index}, ${word.Raw:X4}, draws from its character.");
+            SpriteImage sheet = picture.Picture.Sheet;
+            for (int y = 0; y < CharacterPixels; y++)
+            {
+                int address = word.CharacterIndex * CharacterBytes + (word.FlipVertically ? CharacterPixels - 1 - y : y) * 2;
+                for (int x = 0; x < CharacterPixels; x++)
+                {
+                    int bit = 7 - (word.FlipHorizontally ? CharacterPixels - 1 - x : x);
+                    int colour = (page[address] >> bit & 1) | (page[address + 1] >> bit & 1) << 1
+                        | (page[address + 16] >> bit & 1) << 2 | (page[address + 17] >> bit & 1) << 3;
+                    int pixel = (picture.Picture.Corner.Y + picture.Corner.Y + y) * sheet.Size.X + picture.Picture.Corner.X + picture.Corner.X + x;
+                    int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
+                    AssertTrue(sheet.PaletteIndices[pixel] == expected && (colour == 0 || (sheet.Priorities[pixel] != 0) == word.HasPriority),
+                        $"The warning's word {index}, ${word.Raw:X4}, paints index {sheet.PaletteIndices[pixel]} priority {sheet.Priorities[pixel]} " +
+                        $"at pixel ({x}, {y}), where its character paints index {expected}");
+                }
+            }
+        }
+        AssertTrue(written > 0, "Ceres Ridley's getaway writes its warning over BG1");
+        Console.WriteLine($"Ceres warning pictures: all {written} words the getaway writes over BG1 paint their characters on the OBJ character table.");
+    }
+
+    /// <summary>Pixels across and down a character.</summary>
+    private const int CharacterPixels = 8;
+
+    /// <summary>Bytes of one four-bit character.</summary>
+    private const int CharacterBytes = 32;
+
     /// <summary>The sprites <paramref name="draw"/> publishes over the runtime's live characters.</summary>
     private static ImmutableArray<SpriteDraw> Draw(SuperMetroidRuntime runtime, Action<SpriteFrameBuffer, SpriteArtwork> draw)
     {
@@ -89,6 +151,7 @@ internal static class CeresRidleyPicturesVerification
     internal static int CeresRidleyPicturesCommand()
     {
         Suite(nameof(VerifyCeresRidleyPictures), VerifyCeresRidleyPictures);
+        Suite(nameof(VerifyCeresWarningPictures), VerifyCeresWarningPictures);
         return 0;
     }
 }

@@ -198,7 +198,8 @@ internal static class RoomBlockPicturesVerification
             if (glyph is { } typed)
                 overlay = overlay.With(typed.Destination - GameplayVramLayout.Bg2TilemapWord, [typed.Tile.Raw]);
         }
-        ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver(sheet).Resolve(overlay, runtime.BgArtwork);
+        ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver(sheet).Resolve(overlay,
+            RoomCharacterSource.Of(RoomBackgroundCharacters.Tileset, runtime.BgArtwork, runtime.EnemySession.ObjCharacters));
         int glyphs = 0;
         for (int index = 0; index < RoomTilemapOverlay.WordCount; index++)
         {
@@ -238,7 +239,8 @@ internal static class RoomBlockPicturesVerification
         int frames = 0;
         foreach ((string name, ImmutableArray<ushort> words) in bodies(runtime))
         {
-            ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver(sheet).Resolve(words, runtime.BgArtwork);
+            ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver(sheet).Resolve(words,
+                RoomCharacterSource.Of(RoomBackgroundCharacters.Tileset, runtime.BgArtwork, runtime.EnemySession.ObjCharacters));
             for (int tile = 0; tile < words.Length; tile++)
             {
                 BgTilePicture picture = pictures[tile] ?? throw new InvalidOperationException($"{sheet.Name} {name}: tile {tile} draws from its character.");

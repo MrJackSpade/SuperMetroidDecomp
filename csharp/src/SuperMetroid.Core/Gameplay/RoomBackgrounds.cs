@@ -73,11 +73,8 @@ public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLaye
         {
             if (backgrounds.DoorSource is { } door && door.Covers(scrolled))
                 return door.SourceRoom.TrySample(scrolled, out sample);
-            if (backgrounds.Bg1Overlay is { } overlay && overlay.TryTileAt(scrolled, Bg1MapSize, out SnesBgTilemapWord tile))
-            {
-                sample = BgSample.OfTile(BgTileSample.At(tile, scrolled));
+            if (backgrounds.Bg1Overlay is { } overlay && overlay.TrySampleAt(scrolled, Bg1MapSize, out sample))
                 return true;
-            }
             return backgrounds.Bg1.TrySample(scrolled, out sample);
         }
     }

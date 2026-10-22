@@ -29,7 +29,7 @@ public static class GameplayDisplayCapture
         Ensure.NotNull(frame);
         GameplayNmiDisplayLatch latched = frame.Latched;
         GameplayFrameEndDisplayInputs live = frame.FrameEnd;
-        LayeredRenderSnapshot basis = UsesMode7(latched) ? CaptureMode7Base(frame) : CaptureOrdinaryBase(frame);
+        LayeredRenderSnapshot basis = latched.ShowsMode7 ? CaptureMode7Base(frame) : CaptureOrdinaryBase(frame);
         var layers = new List<RenderLayer>(basis.Layers.ToArray());
         GameplayPpuRenderSnapshot ppu = latched.Ppu;
         bool doorOwnsDisplay = live.DoorTransitionMainScreenLayers is not null;
@@ -88,7 +88,7 @@ public static class GameplayDisplayCapture
         Ensure.NotNull(frame);
         GameplayNmiDisplayLatch latched = frame.Latched;
         GameplayFrameEndDisplayInputs live = frame.FrameEnd;
-        if (UsesMode7(latched))
+        if (latched.ShowsMode7)
             throw new InvalidOperationException("Ordinary base capture cannot represent a Mode-7 scene.");
 
         GameplayPpuRenderSnapshot ppu = latched.Ppu;
@@ -171,10 +171,6 @@ public static class GameplayDisplayCapture
     /// <summary>The BG3 plane the accepted NMI displays (#1348).</summary>
     private static Layer3Plane Bg3(GameplayNmiDisplayLatch latched) => (latched.Rooms
         ?? throw new InvalidOperationException("A gameplay frame shows BG3 only once a room is loaded.")).Bg3;
-
-    /// <summary>Whether the latched BGMODE selects the Ceres elevator shaft's or Ridley getaway's Mode 7.</summary>
-    internal static bool UsesMode7(GameplayNmiDisplayLatch latched) =>
-        latched.Scene.CeresElevatorMode7 || latched.Bosses.CeresRidleyMode7 is not null;
 
     /// <summary>The Mode 7 registers Ceres Ridley's latched shadows program, before room shake.</summary>
     internal static Mode7RenderRegisters CeresRidleyRegisters(CeresRidleyMode7Snapshot ridley) => new(

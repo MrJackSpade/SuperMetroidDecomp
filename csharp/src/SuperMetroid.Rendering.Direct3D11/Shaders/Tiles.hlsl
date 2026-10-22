@@ -47,6 +47,8 @@ static const uint RoomBg3PicturesWord = 33;
 static const uint RoomMessagePictureWord = 34;
 // The picture of a Ceres room's Mode 7 tiles (#1392), sixteen 8x8 tiles to a row, or zero while the map draws from VRAM.
 static const uint RoomMode7PictureWord = 35;
+// The BG1 overlay's pictures (#1392), laid out as a boss body's.
+static const uint RoomBg1OverlayPicturesWord = 36;
 // The X-ray reveal (XrayRevealPlane): 17 block columns by 16 rows, each its picture's offset with its arrangement in the
 // top four bits: as defined, mirrored horizontally, vertically or both, or its tile rows swapped.
 static const uint RevealColumns = 17, RevealRows = 16;
@@ -233,10 +235,20 @@ bool RoomTile(uint source, uint2 scrolled, out uint entry, out uint2 within, out
         else if (overlay != 0)
         {
             uint2 cell = uint2((scrolled.x >> 3) & 63, (scrolled.y >> 3) & 31);
-            uint written = RoomLevels[overlay + (cell.x >> 5) * 1024 + cell.y * 32 + (cell.x & 31)];
+            uint index = (cell.x >> 5) * 1024 + cell.y * 32 + (cell.x & 31);
+            uint written = RoomLevels[overlay + index];
             overlaid = written != 4294967295u;
             entry = written;
             within = scrolled & 7;
+            // Where the overlay's pictures are resolved (#1392), its word draws from its picture.
+            uint pictures = RoomLevels[RoomBg1OverlayPicturesWord];
+            if (overlaid && pictures != 0)
+            {
+                picture = RoomLevels[pictures + 2 * index];
+                uint corner = RoomLevels[pictures + 2 * index + 1];
+                if (picture != 0)
+                    within += uint2(corner & 65535, corner >> 16);
+            }
         }
     }
     bool shown = overlaid;

@@ -14,7 +14,7 @@ internal static class CeresEscapeCharacterUploads
     /// <summary>Each transfer of the getaway's list that reaches the OBJ characters, as the upload it makes there.</summary>
     [PpuLayoutBoundary("codec: Ceres escape VRAM transfer records' native destinations ($A6:C26E)")]
     internal static IReadOnlyList<RuntimeCharacterUpload> All { get; } = [.. CeresEscapeVramTransferDefinitions.Records
-        .Where(record => ObjCharacterUploads.TableByte(VramDmaDestination.FromNative(record.DestinationWord)) is >= 0 and < ObjCharacterUploads.TableByteCount)
+        .Where(record => ObjCharacterUploads.Reaches(VramDmaDestination.FromNative(record.DestinationWord)))
         .Select(record => RuntimeCharacterUpload.To(VramDmaDestination.FromNative(record.DestinationWord), record.ByteCount, Source(record)))];
 
     /// <summary>The artwork a getaway transfer to the OBJ characters shows: an escape timer page, or the warning's characters.</summary>

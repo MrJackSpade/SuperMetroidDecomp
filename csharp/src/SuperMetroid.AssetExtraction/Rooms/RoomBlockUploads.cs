@@ -12,14 +12,11 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.Rooms.Scrolling;
-using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.World;
-using SuperMetroid.Core.Rooms.Artwork;
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.World;
+using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
@@ -63,8 +60,14 @@ internal static class RoomBlockUploads
                     uploads.Add(upload);
                 foreach (BgCharacterUpload upload in LibraryUploads(inputs, state))
                     uploads.AddLibrary(upload);
-                if (RoomScope.CharactersOf(new CartridgeRoomHeader(room, state)) == RoomBackgroundCharacters.ObjectCharacterPage)
-                    uploads.AddObjectPage(ObjectPageUploads(inputs, state));
+                RoomBackgroundCharacters characters = RoomScope.CharactersOf(new CartridgeRoomHeader(room, state));
+                BgCharacterUpload[] loadedObjects = [], encounterObjects = [];
+                if (characters == RoomBackgroundCharacters.ObjectCharacterPage)
+                {
+                    loadedObjects = [.. ObjectPageUploads(inputs, state)];
+                    encounterObjects = [.. EncounterObjectUploads(inputs, state)];
+                    uploads.AddObjectPage(loadedObjects, encounterObjects);
+                }
                 if (state.Background is { } program)
                 {
                     foreach (CartridgeDoorHeader? door in DoorVariants(program))
@@ -77,11 +80,22 @@ internal static class RoomBlockUploads
                     replayed?.SelectsKraidHudCharacters == true ? RoomAssetRomData.LibraryBackground.KraidHudCharacterBaseWord : GameplayVramLayout.HudCharacterWord,
                     EffectsIn(state), [.. Bg3LibraryUploads(inputs, state), .. Bg3BossUploads(inputs, state)]);
                 TileWordWriter[] writers = [.. WritersIn(state)];
-                if (writers.Length > 0)
+                if (writers.Length > 0 && characters == RoomBackgroundCharacters.ObjectCharacterPage)
+                {
+                    // Words written over a room whose backgrounds read the OBJ character table show over what its load and
+                    // its encounters upload there.
+                    BgCharacterUpload[] written = [.. loadedObjects, .. encounterObjects];
+                    var content = new BgArtworkBindings(new SnesVram());
+                    foreach (BgCharacterUpload upload in written)
+                        upload.BindTo(content);
+                    uploads.AddWriters(writers, content, RoomCharacterSource.CharacterBaseOf(characters), written);
+                }
+                else if (writers.Length > 0)
                 {
                     // Words written over the room show over what its load and its library background bind.
                     uploads.AddWriters(writers, state.Background is { } wordsProgram
-                        ? Replay(inputs, room, tileset, wordsProgram, DoorVariants(wordsProgram).First()).Content : Loaded(inputs, tileset));
+                        ? Replay(inputs, room, tileset, wordsProgram, DoorVariants(wordsProgram).First()).Content : Loaded(inputs, tileset),
+                        RoomCharacterSource.CharacterBaseOf(characters), []);
                 }
                 if (ScrollingSkyState.IsScrollingSkyRoomMain(state.MainCallback))
                 {
@@ -192,6 +206,7 @@ internal static class RoomBlockUploads
         [EnemyDefinitionId.DraygonBody] = [TileWordWriter.Draygon],
         [EnemyDefinitionId.Crocomire] = [TileWordWriter.Crocomire],
         [EnemyDefinitionId.MotherBrainBody] = [TileWordWriter.MotherBrain, TileWordWriter.ZebesEscapeText],
+        [EnemyDefinitionId.RidleyCeres] = [TileWordWriter.CeresEscapeText],
     };
 
     /// <summary>What writes tile words over <paramref name="state"/>'s BG1 or BG2.</summary>
@@ -210,12 +225,22 @@ internal static class RoomBlockUploads
         foreach (RoomEnemyGraphicsSetEntry entry in EnemyGraphicsSet.LayOut(CompiledRoomEnemyDefinitions.Instance, state.EnemyGraphicsSet, new SnesVram()))
         {
             int source = entry.Definition.TileDataAddress;
-            ReadOnlyMemory<byte> tiles = inputs.EnemyTiles.TryResolve(source, entry.TileByteCount, out ReadOnlyMemory<byte> installed) ? installed
+            ReadOnlyMemory<byte> tiles = inputs.Objects.Enemies.TryResolve(source, entry.TileByteCount, out ReadOnlyMemory<byte> installed) ? installed
                 : throw new InvalidDataException($"{state.Name}'s enemy tiles from ${source:X6} are not installed.");
             yield return new BgCharacterUpload(new BgArtworkIdentity($"{new TransferObjCharacters(source, entry.TileByteCount)}"),
                 EnemyVram.EnemyTilesDma(entry.StagingOffset / 2).Word, tiles);
         }
     }
+
+    /// <summary>
+    /// What <paramref name="state"/>'s encounters upload over the OBJ character table after its room loads, in the order
+    /// they make them, each named as the table records it: Ceres Ridley's getaway its escape timer and its warning.
+    /// </summary>
+    [PpuLayoutBoundary("codec: the VRAM words an encounter's OBJ character table uploads land on")]
+    private static IEnumerable<BgCharacterUpload> EncounterObjectUploads(RoomBlockSheetInputs inputs, CartridgeRoomState state) =>
+        RuntimeCharacterUploadDefinitions.Catalog.Of(state.EnemyGraphicsSet).Select(upload => new BgCharacterUpload(
+            new BgArtworkIdentity($"{upload.Source}"), GameplayVramLayout.ObjectCharacters.Offset + upload.FirstByte / sizeof(ushort),
+            upload.Source.Resolve(inputs.Objects)));
 
     /// <summary>The HUD's characters as gameplay setup uploads them, before any room loads.</summary>
     internal static BgCharacterUpload HudCharacters(RoomBlockSheetInputs inputs) =>
@@ -355,19 +380,24 @@ internal static class RoomBlockUploads
         internal HashSet<TileWordWriter> Writers { get; } = [];
 
         /// <summary>
-        /// What a room whose blocks read the OBJ character table uploads there as it loads, or null when none of the
-        /// tileset's rooms read it.
+        /// What a room whose blocks read the OBJ character table shows there: the uploads its load makes, and those with its
+        /// encounters' uploads after, when it makes any; none when none of the tileset's rooms read it.
         /// </summary>
-        internal IReadOnlyList<BgCharacterUpload>? ObjectPage { get; private set; }
+        internal IReadOnlyList<IReadOnlyList<BgCharacterUpload>> ObjectPages { get; private set; } = [];
 
-        /// <summary>Records what a room whose blocks read the OBJ character table uploads there.</summary>
+        /// <summary>
+        /// Records what a room whose blocks read the OBJ character table uploads there: <paramref name="loaded"/> as it
+        /// loads, then <paramref name="encounters"/>.
+        /// </summary>
         /// <exception cref="InvalidDataException">Another such room of the tileset uploads otherwise.</exception>
-        internal void AddObjectPage(IEnumerable<BgCharacterUpload> uploads)
+        internal void AddObjectPage(IReadOnlyList<BgCharacterUpload> loaded, IReadOnlyList<BgCharacterUpload> encounters)
         {
-            BgCharacterUpload[] page = [.. uploads];
-            if (ObjectPage is { } known && !known.Select(upload => (upload.Identity, upload.FirstWord)).SequenceEqual(page.Select(upload => (upload.Identity, upload.FirstWord))))
+            IReadOnlyList<BgCharacterUpload>[] pages = encounters.Count == 0 ? [loaded] : [loaded, [.. loaded, .. encounters]];
+            if (ObjectPages.Count > 0 && !ObjectPages.SelectMany(page => page).Select(upload => (upload.Identity, upload.FirstWord))
+                .SequenceEqual(pages.SelectMany(page => page).Select(upload => (upload.Identity, upload.FirstWord))))
                 throw new InvalidDataException("Two rooms of one tileset read different OBJ character tables.");
-            ObjectPage ??= page;
+            if (ObjectPages.Count == 0)
+                ObjectPages = pages;
         }
 
         /// <summary>What the first room shows BG3's words over, or null before a room is recorded.</summary>
@@ -416,11 +446,29 @@ internal static class RoomBlockUploads
         /// <summary>What the first room with writers shows their words over, or null without writers.</summary>
         internal BgArtworkBindings? WordContent { get; private set; }
 
-        /// <summary>Records that a room's <paramref name="writers"/> write over <paramref name="content"/>.</summary>
-        internal void AddWriters(IEnumerable<TileWordWriter> writers, BgArtworkBindings content)
+        /// <summary>The VRAM word of character zero the writers' words name characters from.</summary>
+        internal int WordCharacterBase { get; private set; }
+
+        /// <summary>The uploads <see cref="WordContent"/> binds beyond the room's load, whose characters the words show.</summary>
+        internal IReadOnlyList<BgCharacterUpload> WordUploads { get; private set; } = [];
+
+        /// <summary>
+        /// Records that a room's <paramref name="writers"/> write words naming characters from
+        /// <paramref name="characterBase"/> over <paramref name="content"/>, which binds <paramref name="uploads"/> beyond
+        /// the room's load.
+        /// </summary>
+        /// <exception cref="InvalidDataException">Another room of the tileset writes words naming characters from another base.</exception>
+        internal void AddWriters(IEnumerable<TileWordWriter> writers, BgArtworkBindings content, int characterBase, IReadOnlyList<BgCharacterUpload> uploads)
         {
+            if (WordContent is not null && WordCharacterBase != characterBase)
+                throw new InvalidDataException("Two rooms of one tileset write words naming characters from different bases.");
             Writers.UnionWith(writers);
-            WordContent ??= content;
+            if (WordContent is null)
+            {
+                WordContent = content;
+                WordCharacterBase = characterBase;
+                WordUploads = uploads;
+            }
         }
 
         /// <summary>Whether the tileset's rooms are Ceres rooms.</summary>

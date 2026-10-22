@@ -6,7 +6,7 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Editable OAM compositions for the six atmospheric ending clouds.</summary>
-public sealed class EndingCloudSpritePresentation : IIntroCinematicSpritePresentation
+public sealed class EndingCloudSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Compiled cloud compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
@@ -18,15 +18,11 @@ public sealed class EndingCloudSpritePresentation : IIntroCinematicSpritePresent
     /// <summary>Canonical identity of the selected decoded visual frames, not JSON formatting.</summary>
     public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(EndingCloudSpritePresentation), frames);
 
-    /// <summary>Draws the ending-cloud composition identified by its bank-$8C spritemap pose.</summary>
-    /// <param name="pose">The cinematic pose whose composition to draw.</param>
-    /// <param name="objects">Object-attribute buffer that receives the composition.</param>
-    /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
-    /// <param name="paletteBits">SNES OAM attribute bits to combine with each part.</param>
-    /// <param name="originIsOnScreen">Whether the origin is already in the visible coordinate range.</param>
-    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<OamPixels> origin,
-        ushort paletteBits, bool originIsOnScreen) =>
-        CinematicSpriteArtwork.DrawInstalled(frames, "Ending cloud sprite", pose, objects, origin, paletteBits, originIsOnScreen);
+    /// <inheritdoc/>
+    CinematicSpriteFamily ICinematicSpriteFrames.Family => CinematicSpriteFamily.EndingCloud;
+
+    /// <inheritdoc/>
+    IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> ICinematicSpriteFrames.Frames => frames;
 
     /// <summary>Loads and validates the six named atmospheric cloud compositions from JSON.</summary>
     /// <param name="json">Stream containing an ending-cloud sprite document.</param>

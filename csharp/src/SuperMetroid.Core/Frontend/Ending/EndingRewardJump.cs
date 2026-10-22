@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Ending;
@@ -77,7 +77,7 @@ internal sealed class EndingRewardJump
     }
 
     /// <summary>Places the active head and body as the supplied sprite entries.</summary>
-    public void Draw(ScreenSprites destination, EndingRewardSpritePresentation? installedArt)
+    public void Draw(ScreenSprites destination, IIntroCinematicSpritePresentation installedArt)
     {
         Ensure.NotNull(destination);
         head?.Draw(destination, installedArt: installedArt);

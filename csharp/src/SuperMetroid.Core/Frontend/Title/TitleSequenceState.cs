@@ -138,7 +138,7 @@ public sealed class TitleSequenceState : IFrontendScreen
 
         // `$8B:9B87` expands the four artwork streams and uploads them; the title binds that
         // artwork and its capture places the Mode 7 planes, OBJ characters and Baby page.
-        objects = new ScreenSprites(this.titleGraphicsPresentation.ObjectPage, ObjectSelectionCodec.Sizes(TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector));
+        objects = new ScreenSprites();
         titlePalettePresentation.Apply(palette);
         ResetConsolePaletteFx();
 
@@ -186,8 +186,6 @@ public sealed class TitleSequenceState : IFrontendScreen
     {
         titleGraphicsPresentation = presentation;
         image = null;
-        if (presentation is not null)
-            objects.BindArtwork(presentation.ObjectPage);
     }
 
     /// <summary>Rebinds installed title colors after debugger-state restoration.</summary>

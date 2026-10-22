@@ -33,6 +33,17 @@ internal static class EndingShootingStarDefinitions
     /// <summary>The animation frames $8B:E9A7 (Handle_ShootingStars.tilemapValues) gives attributes for.</summary>
     internal const int FrameCount = 20;
 
+    /// <summary>The first animation frame showing the full star; every later frame shows it too.</summary>
+    internal const int FullStarFrame = 4;
+
+    /// <summary>The visible animation frames with a sheet frame of their own: the growing star's steps and the full star.</summary>
+    internal static IEnumerable<int> SheetFrames => Enumerable.Range(1, FullStarFrame);
+
+    /// <summary>The sheet frame showing a visible animation frame (#1392).</summary>
+    internal static string SheetFrameName(int frame) => frame is > 0 and < FrameCount
+        ? $"ShootingStar.{Math.Min(frame, FullStarFrame)}"
+        : throw new ArgumentOutOfRangeException(nameof(frame));
+
     /// <summary>
     /// $8B:E9A7 / Handle_ShootingStars.tilemapValues: frame 0 is the blank word, frames 1 to 3 grow through characters
     /// $1F0 to $1F2, and every later frame holds the full star at $1F3, all in sprite palette 4.

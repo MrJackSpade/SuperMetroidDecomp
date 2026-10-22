@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
@@ -38,7 +39,7 @@ internal static class EndingCompletionTextSpriteArtworkVerification
                 nativeOam.FinalizeFrame();
                 var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
-                stock.CompletionTextSprites.Draw(frame.Pose, installedOam,
+                CinematicSheetFixtures.Drawer(stock.CompletionTextSprites).Draw(frame.Pose, installedOam,
                     new(120, y), 0x0800, onScreen);
                 installedOam.FinalizeFrame();
                 AssertTrue(nativeOam.ImageEquals(installedOam) &&
@@ -69,7 +70,7 @@ internal static class EndingCompletionTextSpriteArtworkVerification
             EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
             var audio = new CartridgeAudioState();
             var scene = CreateRetailEndingFixture(audio, 0, 0);
-            scene.InstalledArtwork.BindObjectArtwork(stock);
+            scene.InstalledArtwork.BindFixtureObjectArtwork(stock);
             for (int frame = 0; frame < 12000 &&
                 scene.Stage.Phase != EndingCreditsPhase.OperationSuccessfulText; frame++)
             {
@@ -82,9 +83,9 @@ internal static class EndingCompletionTextSpriteArtworkVerification
             for (int frame = 0; frame < 1500 &&
                 scene.Stage.Phase == EndingCreditsPhase.OperationSuccessfulText && !visible; frame++)
             {
-                scene.InstalledArtwork.BindObjectArtwork(stock);
+                scene.InstalledArtwork.BindFixtureObjectArtwork(stock);
                 LayeredRenderSnapshot before = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                scene.InstalledArtwork.BindObjectArtwork(edited);
+                scene.InstalledArtwork.BindFixtureObjectArtwork(edited);
                 LayeredRenderSnapshot after = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                 visible = !before.Memory.SpriteParts().SequenceEqual(after.Memory.SpriteParts()) &&
                     !SoftwareLayeredSnapshotRenderer.Render(before).SequenceEqual(

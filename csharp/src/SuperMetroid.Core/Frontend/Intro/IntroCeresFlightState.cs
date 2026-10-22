@@ -92,7 +92,7 @@ internal sealed class IntroCeresFlightState
 
         // $BCCD uploads the Mode 7 characters, the blank-filled front-view map and the OBJ characters;
         // the scene binds that artwork and its capture composes them.
-        objects = new ScreenSprites(content.ObjectPage, ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection));
+        objects = new ScreenSprites();
         content.Palette.LoadTo(palette);
         // The PPU loads above are invisible: the screen stays in forced blank until $8B:BDE4.
         // $8B:BCA0 itself runs as the next dispatch's cinematic function.
@@ -110,7 +110,6 @@ internal sealed class IntroCeresFlightState
         this.artwork = artwork;
         viewImage = null;
         if (artwork is null) return;
-        objects.BindArtwork(artwork.ObjectPage);
         artwork.Palette.LoadTo(palette);
     }
 

@@ -4,7 +4,9 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
@@ -69,21 +71,32 @@ internal static class IntroSpriteSheetComposer
     internal static IEnumerable<string> CeresFlightFrameNames(CeresFlightArtworkCatalog flight) =>
         FrameNames([Ensure.NotNull(flight).Sprites]);
 
-    /// <summary>Each family's composition of every pose over <paramref name="page"/>, coloured as <paramref name="loadColours"/> loads them.</summary>
+    /// <summary>
+    /// Each family's composition of every pose over <paramref name="page"/>, coloured as <paramref name="loadColours"/>
+    /// loads them, at the menus' object sizes the intro and Ceres scenes draw at.
+    /// </summary>
     private static SpriteSheetSources Compose(IEnumerable<ICinematicSpriteFrames> families, SpriteArtwork page, Action<SnesCgram> loadColours)
     {
-        Ensure.NotNull(families);
-        List<SheetFrameSource> frames = [.. families.SelectMany(family => family.Frames.OrderBy(pair => pair.Key.Index).Select(pair =>
-        {
-            string name = CinematicSpriteSheet.FrameName(family.Family, pair.Key);
-            return new SheetFrameSource(name, pair.Value.ToFrame(name, 0), page, FrontendSheetPalette.FramePalette);
-        }))];
         var cgram = new SnesCgram();
         loadColours(cgram);
-        return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(), PartsKeepOwnRows: true);
+        ScreenObjectSizes sizes = ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection);
+        return new SpriteSheetSources([.. Frames(families, page, sizes)], cgram.Colors[SpriteColours..].ToArray(), sizes,
+            PartsKeepOwnRows: true);
     }
 
+    /// <summary>
+    /// Each family's composition of every pose over <paramref name="page"/>, its objects at <paramref name="sizes"/> and its
+    /// palette-inheriting parts in the sheet's frame palette.
+    /// </summary>
+    internal static IEnumerable<SheetFrameSource> Frames(IEnumerable<ICinematicSpriteFrames> families, SpriteArtwork page,
+        ScreenObjectSizes sizes) =>
+        Ensure.NotNull(families).SelectMany(family => family.Frames.OrderBy(pair => pair.Key.Index).Select(pair =>
+        {
+            string name = CinematicSpriteSheet.FrameName(family.Family, pair.Key);
+            return new SheetFrameSource(name, pair.Value.ToFrame(name, 0, sizes), page, FrontendSheetPalette.FramePalette);
+        }));
+
     /// <summary>The frames a sheet of <paramref name="families"/> holds.</summary>
-    private static IEnumerable<string> FrameNames(IEnumerable<ICinematicSpriteFrames> families) =>
+    internal static IEnumerable<string> FrameNames(IEnumerable<ICinematicSpriteFrames> families) =>
         families.SelectMany(family => family.Frames.Keys.Select(pose => CinematicSpriteSheet.FrameName(family.Family, pose)));
 }

@@ -8,13 +8,18 @@ int main(int argc, char **argv) {
   SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
   if (argc != 3 && argc != 4) { fprintf(stderr, "usage: probe input.ppu output.bgra [offset-check]\n"); return 2; }
   FILE *f = fopen(argv[1], "rb");
-  if (!f) return 3;
+  if (!f) { fprintf(stderr, "cannot open %s\n", argv[1]); return 3; }
   Snes snes = {0};
   Ppu *ppu = ppu_init(&snes); ppu_reset(ppu);
   if (fread(ppu->vram, 1, 65536, f) != 65536 || fread(ppu->cgram, 1, 512, f) != 512 ||
-      fread(ppu->oam, 1, 512, f) != 512 || fread(ppu->highOam, 1, 32, f) != 32) return 7;
+      fread(ppu->oam, 1, 512, f) != 512 || fread(ppu->highOam, 1, 32, f) != 32) {
+    fprintf(stderr, "%s is shorter than VRAM, CGRAM and the OAM upload\n", argv[1]); return 7;
+  }
+  /* OBSEL is whatever the scene selects: $02 for the explosion, $03 elsewhere. */
   int obsel = fgetc(f), brightness = fgetc(f);
-  if (obsel != 3 || brightness == EOF || fgetc(f) != EOF) return 6;
+  if (obsel == EOF || brightness == EOF || fgetc(f) != EOF) {
+    fprintf(stderr, "%s does not end with exactly OBSEL and brightness\n", argv[1]); return 6;
+  }
   fclose(f);
   ppu_write(ppu, 0x00, (unsigned char)brightness);
   ppu_write(ppu, 0x01, (unsigned char)obsel);

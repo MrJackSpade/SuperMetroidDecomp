@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Verification.Frontend.Intro;
 using System.Text.Json;
@@ -180,7 +181,7 @@ internal static class EndingObjectArtworkVerification
                 nativeOam.FinalizeFrame();
                 var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
-                stock.CloudSprites.Draw(definition.Pose, installedOam,
+                CinematicSheetFixtures.Drawer(stock.CloudSprites).Draw(definition.Pose, installedOam,
                     new(120, y), 0x0800, onScreen);
                 installedOam.FinalizeFrame();
                 AssertTrue(nativeOam.ImageEquals(installedOam) &&
@@ -201,7 +202,7 @@ internal static class EndingObjectArtworkVerification
         var installedAudio = new CartridgeAudioState();
         var native = CreateRetailEndingFixture(nativeAudio, 0, 0);
         var installed = CreateRetailEndingFixture(installedAudio, 0, 0);
-        installed.InstalledArtwork.BindObjectArtwork(stock);
+        installed.InstalledArtwork.BindFixtureObjectArtwork(stock);
         var phases = new HashSet<EndingCreditsPhase>();
         for (int frame = 0; frame < 12000 &&
             native.Stage.Phase != EndingCreditsPhase.FadeOutToCredits; frame++)
@@ -257,7 +258,7 @@ internal static class EndingObjectArtworkVerification
         EndingObjectArtworkCatalog editedCloudSprites = installation.LoadEndingObjectArt();
         var cloudAudio = new CartridgeAudioState();
         var cloudScene = CreateRetailEndingFixture(cloudAudio, 0, 0);
-        cloudScene.InstalledArtwork.BindObjectArtwork(stock);
+        cloudScene.InstalledArtwork.BindFixtureObjectArtwork(stock);
         for (int frame = 0; frame < 2000 &&
             cloudScene.Stage.Phase != EndingCreditsPhase.EscapeSceneA; frame++)
         {
@@ -271,9 +272,9 @@ internal static class EndingObjectArtworkVerification
             cloudScene.Stage.Phase < EndingCreditsPhase.FadeInEscapeSceneB &&
             !visibleCloudEdit; frame++)
         {
-            cloudScene.InstalledArtwork.BindObjectArtwork(stock);
+            cloudScene.InstalledArtwork.BindFixtureObjectArtwork(stock);
             LayeredRenderSnapshot beforeCloudEdit = EndingCreditsPresentation.CaptureRenderSnapshot(cloudScene);
-            cloudScene.InstalledArtwork.BindObjectArtwork(editedCloudSprites);
+            cloudScene.InstalledArtwork.BindFixtureObjectArtwork(editedCloudSprites);
             LayeredRenderSnapshot afterCloudEdit = EndingCreditsPresentation.CaptureRenderSnapshot(cloudScene);
             visibleCloudEdit = !beforeCloudEdit.Memory.SpriteParts().SequenceEqual(
                     afterCloudEdit.Memory.SpriteParts()) &&
@@ -318,7 +319,7 @@ internal static class EndingObjectArtworkVerification
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
             var audio = new CartridgeAudioState();
             var scene = CreateRetailEndingFixture(audio, 0, 0);
-            scene.InstalledArtwork.BindObjectArtwork(stock);
+            scene.InstalledArtwork.BindFixtureObjectArtwork(stock);
             EndingCreditsPhase target = resource == 0
                 ? EndingCreditsPhase.WaitForEscapeMusic :
                 EndingCreditsPhase.FadeInZebesExplosion;
@@ -349,7 +350,7 @@ internal static class EndingObjectArtworkVerification
             using (var output = File.Create(overridePath))
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
-            scene.InstalledArtwork.BindObjectArtwork(edited);
+            scene.InstalledArtwork.BindFixtureObjectArtwork(edited);
             LayeredRenderSnapshot changed = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
             AssertTrue(!baseline.Memory.Vram.SequenceEqual(changed.Memory.Vram) &&
                     baseline.Memory.Vram[..(EndingVramLayout.ExplosionObjects.Offset * 2)]
@@ -366,9 +367,9 @@ internal static class EndingObjectArtworkVerification
             {
                 if (frame % 6 == 0)
                 {
-                    scene.InstalledArtwork.BindObjectArtwork(stock);
+                    scene.InstalledArtwork.BindFixtureObjectArtwork(stock);
                     LayeredRenderSnapshot nativeArt = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                    scene.InstalledArtwork.BindObjectArtwork(edited);
+                    scene.InstalledArtwork.BindFixtureObjectArtwork(edited);
                     LayeredRenderSnapshot editedArt = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                     visibleEdit = !SoftwareLayeredSnapshotRenderer.Render(nativeArt)
                         .SequenceEqual(
@@ -413,12 +414,12 @@ internal static class EndingObjectArtworkVerification
             "stock OBJ repair restores native pixels and preserves the player's cloud override");
         var preservedCloudOam = ScreenSpritesFixtures.Blank();
         preservedCloudOam.BeginFrame();
-        repaired.LoadEndingObjectArt().CloudSprites.Draw(EndingCloudSpriteDefinitions.Frames[(int)EndingCloudSpriteDefinitions.Role.Right].Pose, preservedCloudOam,
+        CinematicSheetFixtures.Drawer(repaired.LoadEndingObjectArt().CloudSprites).Draw(EndingCloudSpriteDefinitions.Frames[(int)EndingCloudSpriteDefinitions.Role.Right].Pose, preservedCloudOam,
             new(120, 72), 0x0800, originIsOnScreen: true);
         preservedCloudOam.FinalizeFrame();
         var editedCloudOam = ScreenSpritesFixtures.Blank();
         editedCloudOam.BeginFrame();
-        editedCloudSprites.CloudSprites.Draw(EndingCloudSpriteDefinitions.Frames[(int)EndingCloudSpriteDefinitions.Role.Right].Pose, editedCloudOam,
+        CinematicSheetFixtures.Drawer(editedCloudSprites.CloudSprites).Draw(EndingCloudSpriteDefinitions.Frames[(int)EndingCloudSpriteDefinitions.Role.Right].Pose, editedCloudOam,
             new(120, 72), 0x0800, originIsOnScreen: true);
         editedCloudOam.FinalizeFrame();
         AssertTrue(preservedCloudOam.ImageEquals(editedCloudOam),

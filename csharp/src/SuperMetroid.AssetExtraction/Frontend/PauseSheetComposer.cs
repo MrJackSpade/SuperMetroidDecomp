@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -43,7 +45,8 @@ internal static class PauseSheetComposer
         }));
         var cgram = new SnesCgram();
         new CgramPalettes(cgram).LoadImage(maps.Palettes.Pause);
-        return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(), PartsKeepOwnRows: true);
+        return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(PauseMenuLayout.ObjectSelection),
+            PartsKeepOwnRows: true);
     }
 
     /// <summary>The frames the pause sheet of <paramref name="maps"/> holds.</summary>

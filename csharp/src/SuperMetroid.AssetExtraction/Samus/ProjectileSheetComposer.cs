@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -61,7 +62,7 @@ internal static class ProjectileSheetComposer
         foreach (ProjectileTrailFrame pose in Enum.GetValues<ProjectileTrailFrame>())
             frames.Add(new(ProjectileSheetDefinitions.TrailFrame(pose), ObjPartFrames.SmallObject(projectiles.Trails.Resolve(pose), 0), page));
         frames.Add(new(ProjectileSheetDefinitions.UnshownTrailFrame, ObjPartFrames.SmallObject(default, 0), page));
-        return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray());
+        return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection));
     }
 
     /// <summary>The beam combination whose gameplay sheet <paramref name="sheet"/> is.</summary>

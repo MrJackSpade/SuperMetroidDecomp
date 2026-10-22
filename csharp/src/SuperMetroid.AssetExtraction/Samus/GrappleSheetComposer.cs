@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -60,6 +61,6 @@ internal static class GrappleSheetComposer
                 }
             }
         }
-        return new SpriteSheetSources(frames, inputs.RoomLoadColours().Colors[SpriteColours..].ToArray());
+        return new SpriteSheetSources(frames, inputs.RoomLoadColours().Colors[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection));
     }
 }

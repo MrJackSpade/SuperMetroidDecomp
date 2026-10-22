@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -32,6 +34,7 @@ internal static class TitleSheetComposer
         })];
         var cgram = new SnesCgram();
         palette.Apply(cgram);
-        return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(), PartsKeepOwnRows: true);
+        return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(),
+            ObjectSelectionCodec.Sizes(TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector), PartsKeepOwnRows: true);
     }
 }

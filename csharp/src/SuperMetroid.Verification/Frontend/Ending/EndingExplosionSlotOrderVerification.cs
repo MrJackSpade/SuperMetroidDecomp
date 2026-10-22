@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -31,7 +33,7 @@ internal static class EndingExplosionSlotOrderVerification
         afterglow.Step();
         var expected = ScreenSpritesFixtures.Blank();
         expected.BeginFrame();
-        afterglow.Draw(expected, installedArt: RepositoryInstallation.Installation.LoadEndingObjectArt().ExplosionSprites);
+        afterglow.Draw(expected, installedArt: EndingSheetFixtures.Drawer(ending, EndingObjectSheet.Explosion, CinematicSpriteFamily.EndingExplosion));
         expected.FinalizeFrame();
         AssertEqual(37, expected.LastFinalizedSpriteCount, "retail afterglow component count");
         var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(ending);

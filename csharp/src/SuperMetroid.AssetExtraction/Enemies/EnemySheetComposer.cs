@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -91,7 +92,7 @@ internal static class EnemySheetComposer
             EnemyGraphicsIndexes indexes = graphics.DrawIndexes(enemy);
             int paletteBits = SnesObjAttributeWord.FromPaletteBits(checked((ushort)indexes.PaletteIndex)).PaletteIndex;
             yield return (enemy, new SpriteSheetSources(Frames(inputs.Enemies, shown, checked((ushort)indexes.TileIndex), page).ToList(),
-                colours, paletteBits));
+                colours, ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection), paletteBits));
         }
     }
 

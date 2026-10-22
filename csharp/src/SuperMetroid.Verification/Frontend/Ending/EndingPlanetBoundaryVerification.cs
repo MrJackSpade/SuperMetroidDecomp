@@ -23,6 +23,7 @@ internal static class EndingPlanetBoundaryVerification
     internal static void VerifyEndingNativePpu(IEnumerable<int> frames, bool burst)
     {
         using var scratch = new TestScratchDirectory("ending-native-ppu-frames");
+        Directory.CreateDirectory(scratch.Root);
         var capture = new PlanetFrameCapture(scratch.Root, frames.ToHashSet(), []);
         Suite(nameof(VerifyEndingPlanetBoundary), () => VerifyEndingPlanetBoundary(capture));
         string probe = EnsureEndingNativeProbe();
@@ -44,14 +45,16 @@ internal static class EndingPlanetBoundaryVerification
     }
 
     /// <summary>
-    /// Builds the checked-in ending PPU probe once into the ignored <see cref="RepositoryInstallation.CacheRoot"/>.
+    /// Builds the checked-in ending PPU probe into the ignored <see cref="RepositoryInstallation.CacheRoot"/>, again only when its source changes.
     /// This is a build cache of one executable reused by every run, not a per-run artifact.
     /// </summary>
     private static string EnsureEndingNativeProbe()
     {
         string probe = Path.GetFullPath(Path.Combine(RepositoryInstallation.CacheRoot, "ending-native-ppu", "probe.exe"));
-        // build.cmd compiles with cl directly; the C# Directory.Build settings would otherwise apply.
-        if (!File.Exists(probe))
+        // build.cmd compiles with cl directly; the C# Directory.Build settings would otherwise apply. The probe is
+        // rebuilt whenever its source is newer than the cached build.
+        string source = Path.GetFullPath("csharp/test-fixtures/ending-native-ppu/probe.c");
+        if (!File.Exists(probe) || File.GetLastWriteTimeUtc(source) > File.GetLastWriteTimeUtc(probe))
             RunNativeTool(Path.Combine(Environment.SystemDirectory, "cmd.exe"),
                 ["/c", Path.GetFullPath("csharp/test-fixtures/ending-native-ppu/build.cmd")]);
         AssertTrue(File.Exists(probe), "ending native PPU probe was built");
@@ -161,7 +164,7 @@ internal static class EndingPlanetBoundaryVerification
                 LayeredRenderSnapshot sample = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
                 capture.Snapshots[frame] = sample;
                 File.WriteAllBytes(Path.Combine(capture.Directory, $"later-{frame:D4}-{ending.Stage.Phase}.ppu"),
-                    NativeProbeInput(sample, ScreenSpritesFixtures.ToOam(EndingCreditsPresentation.PrepareSprites(ending, checked((byte)sample.ObjectSelection)))));
+                    NativeProbeInput(sample, ScreenSpritesFixtures.ToOam(EndingCreditsPresentation.PrepareSprites(ending, EndingCreditsPresentation.CurrentEscapeObjectSheet(ending)))));
             }
             ending.Step();
             audio.AdvanceFrame(default);

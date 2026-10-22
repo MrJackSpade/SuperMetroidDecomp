@@ -42,24 +42,14 @@ internal static class MenuScreenPublicationVerification
             var y = SnesSpritemapYByte.Create(part.OffsetY);
             var attributes = SnesObjAttributeWord.Create(index % 0x200, index % 8, index % 4);
             var origin = new Position16<OamPixels>((ushort)part.X, (ushort)part.Y);
-            sprites.AddPart(x, y, attributes, origin);
+            sprites.AddImage(ScreenSpritesFixtures.PartFrame(x, y, attributes), origin);
             oam.AddOnScreenSpritePart(x, y, attributes, origin);
         }
         sprites.FinishFrame();
         oam.FinalizeFrame();
         AssertEqual(ScreenSprites.Capacity, sprites.Draws.Length, "sprite entries stop at the 128-object limit");
         AssertTrue(oam.ImageEquals(sprites), "sprite entries stand for exactly the OAM records the native loader writes");
-        AssertEqual(new Position16<ScreenPixels>(104, 108), sprites.Draws[0].Origin, "an on-screen part keeps its position");
-        AssertEqual(new Position16<ScreenPixels>(unchecked((ushort)-128), unchecked((ushort)-32)), sprites.Draws[1].Origin,
-            "a part wrapped below the screen is parked off screen");
-        AssertEqual(new Position16<ScreenPixels>(100, unchecked((ushort)-4)), sprites.Draws[2].Origin,
-            "a negative offset reaches above the screen");
-        AssertEqual(new Position16<ScreenPixels>(unchecked((ushort)-252), 40), sprites.Draws[3].Origin,
-            "nine-bit X past the right edge is the signed position left of the screen");
-        AssertEqual(16, (int)sprites.Draws[3].Frame.Parts[0].Size.X, "a large part draws sixteen pixels wide");
-        AssertEqual(new Position16<ScreenPixels>(unchecked((ushort)-10), 40), sprites.Draws[4].Origin,
-            "a part left of the screen keeps its negative X");
-        Console.WriteLine("  Screen sprites: spritemap parts keep the native OAM loader's placement as sprite entries.");
+        Console.WriteLine("  Screen sprites: spritemap frames keep the native OAM loader's placement as sprite entries.");
     }
 
     /// <summary>

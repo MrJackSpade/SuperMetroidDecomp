@@ -90,7 +90,7 @@ internal static class PauseSelectorsVerification
             customMenu.Step(0, 0);
             AssertEqual(new SelectorAnimation(expectedFrame, expectedTimer), customMenu.ItemSelectorAnimationState, "authored animation obeys exact initial and loop timing");
             var snapshot = customMenu.CaptureRenderSnapshot();
-            var oam = new ScreenSprites(edited.Sprites.Page, ObjectSelectionCodec.Sizes(PauseMenuLayout.ObjectSelection)); oam.BeginFrame(); edited.PauseSelectors.Draw(oam, MenuSheetFixtures.For(edited).Get(SpriteSheetId.PauseSprites), PauseEquipmentCategory.Beams, 0, expectedFrame); oam.FinishFrame();
+            var oam = new ScreenSprites(); oam.BeginFrame(); edited.PauseSelectors.Draw(oam, MenuSheetFixtures.For(edited).Get(SpriteSheetId.PauseSprites), PauseEquipmentCategory.Beams, 0, expectedFrame); oam.FinishFrame();
             AssertEqual(expectedFrame == 0, snapshot.Memory.SpriteParts().Length == 0, "explicit hidden and visible phases reach the frame");
             AssertTrue(PlacedSpritePart.Of(oam.Draws).SequenceEqual(snapshot.Memory.SpriteParts()),
                 "the frame shows exactly the authored selector phase");

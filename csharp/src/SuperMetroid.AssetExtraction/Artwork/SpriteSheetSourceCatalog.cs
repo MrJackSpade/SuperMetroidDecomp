@@ -1,5 +1,8 @@
 using SuperMetroid.AssetExtraction.Frontend;
+using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
@@ -23,6 +26,12 @@ internal sealed class SpriteSheetSourceCatalog
     /// <summary>The opening cinematic's artwork.</summary>
     private readonly Lazy<IntroCinematicArtworkCatalog> intro;
 
+    /// <summary>The ending's sprite artwork.</summary>
+    private readonly Lazy<EndingObjectArtworkCatalog> ending;
+
+    /// <summary>The ending's palettes.</summary>
+    private readonly Lazy<EndingPaletteCatalog> endingPalettes;
+
     /// <summary>Reads inputs from installed stock content.</summary>
     internal SpriteSheetSourceCatalog(string content)
     {
@@ -30,6 +39,8 @@ internal sealed class SpriteSheetSourceCatalog
         samus = new(() => SamusSheetInputs.Load(content));
         maps = new(() => AreaMapPresentationCatalog.Load(Path.Combine(content, GameInstallationLayout.MapDirectoryName), null));
         intro = new(() => IntroCinematicArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName), null));
+        ending = new(() => EndingObjectArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.EndingObjectDirectoryName), null));
+        endingPalettes = new(() => EndingPaletteArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.EndingPaletteDirectoryName), null));
     }
 
     /// <summary>The OBJ palette row and priority of parts that choose neither, as the families' draws leave them.</summary>
@@ -55,6 +66,8 @@ internal sealed class SpriteSheetSourceCatalog
             [CeresDestructionUpload.CeresScene]),
         SpriteSheetId.ZebesRevealSprites => IntroSpriteSheetComposer.CeresDestructionSources(intro.Value,
             [CeresDestructionUpload.CeresScene, CeresDestructionUpload.ZebesReveal]),
+        _ when EndingSpriteSheets.Sheets.Contains(sheet) => EndingSpriteSheetComposer.Sources(sheet, ending.Value, endingPalettes.Value,
+            maps.Value.EndingFont),
         _ => SamusSheetSources.For(samus.Value, sheet),
     };
 }

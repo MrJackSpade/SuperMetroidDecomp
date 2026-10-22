@@ -12,7 +12,7 @@ internal static class EndingCreditsPresentation
     {
         if (ending.UsesExplosionFinaleDisplay) return ending.CaptureExplosionFinale();
         var layers = new List<RenderLayer>();
-        byte objectSelection = ObjectSelection(CurrentEscapeObjectSheet(ending));
+        EndingObjectSheet objectSheet = CurrentEscapeObjectSheet(ending);
         PpuMemorySnapshot memory;
         if (ending.InstalledArtwork.CurrentEndingLogo is not null)
         {
@@ -21,7 +21,9 @@ internal static class EndingCreditsPresentation
                     new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null));
             layers.Add(new ObjRenderLayer(ending.InstalledArtwork.CurrentEndingLogo.CrossfadeStarted));
             layers.Add(PostCreditsLayer(ending));
-            return new(CaptureMemory(ending, 3), layers.ToArray(), 3, checked((byte)ending.Stage.Brightness));
+            // The logo assembles over the shooting scene's page.
+            return new(CaptureMemory(ending, EndingObjectSheet.RewardFalling), layers.ToArray(),
+                ObjectSelection(EndingObjectSheet.RewardFalling), checked((byte)ending.Stage.Brightness));
         }
         if (ending.CreditsRoll.CurrentPostShot is not null)
         {
@@ -32,7 +34,7 @@ internal static class EndingCreditsPresentation
             layers.Add(new ObjPriorityRenderLayer(1));
             layers.Add(new ObjPriorityRenderLayer(2));
             layers.Add(new ObjPriorityRenderLayer(3));
-            return new(CaptureMemory(ending, ObjectSelection(CurrentRewardObjectSheet(ending))), layers.ToArray(),
+            return new(CaptureMemory(ending, CurrentRewardObjectSheet(ending)), layers.ToArray(),
                 ObjectSelection(CurrentRewardObjectSheet(ending)), checked((byte)ending.Stage.Brightness));
         }
         if (ending.Stage.Phase == EndingCreditsPhase.Credits)
@@ -46,7 +48,7 @@ internal static class EndingCreditsPresentation
         {
             if (ending.Stage.Phase >= EndingCreditsPhase.PostCreditsBlank)
             {
-                objectSelection = ObjectSelection(CurrentRewardObjectSheet(ending));
+                objectSheet = CurrentRewardObjectSheet(ending);
                 if (ending.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop)
                     layers.Add(new ObjPriorityRenderLayer(0));
                 if (PostCreditsBackgroundEnabled(ending))
@@ -70,7 +72,7 @@ internal static class EndingCreditsPresentation
                     ending.Stage.Mode7.Whole.AsSignedRegister(), WrapOutsideMap: AtmosphericMapWraps(ending)),
                     AddBg1Subscreen: AtmosphericMapWraps(ending)));
             }
-            memory = CaptureMemory(ending, objectSelection);
+            memory = CaptureMemory(ending, objectSheet);
             if (EndingObjectsEnabled(ending) && !AtmosphericMapWraps(ending))
             {
                 if (UsesFlyawayMode7Priority(ending))
@@ -92,7 +94,7 @@ internal static class EndingCreditsPresentation
             if (ending.Stage.Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
                 layers.Add(EndingFlyaway.WhiteAddition(ending.CreditsRoll.WhiteFlashColor));
         }
-        return new(memory, layers.ToArray(), objectSelection, checked((byte)ending.Stage.Brightness));
+        return new(memory, layers.ToArray(), ObjectSelection(objectSheet), checked((byte)ending.Stage.Brightness));
     }
 
     /// <summary>Mode 7 matrix and center for the post-shot reward scene.</summary>
@@ -161,37 +163,47 @@ internal static class EndingCreditsPresentation
                 ending.Stage.PostCreditsScroll, size, null);
     }
 
-    /// <summary>The scene's memories with this frame's sprite entries over the OBJ page <paramref name="objectSelection"/> selects.</summary>
-    internal static PpuMemorySnapshot CaptureMemory(EndingCreditsState ending, byte objectSelection) =>
-        new(ending.Image(), ending.screen.Palette.Colors, PrepareSprites(ending, objectSelection).Draws);
+    /// <summary>The scene's memories with this frame's sprite entries over the OBJ page of <paramref name="objectSheet"/>.</summary>
+    internal static PpuMemorySnapshot CaptureMemory(EndingCreditsState ending, EndingObjectSheet objectSheet) =>
+        new(ending.Image(), ending.screen.Palette.Colors, PrepareSprites(ending, objectSheet).Draws);
 
-    /// <summary>Places the scene's sprite entries at the simulation display boundary without advancing sprite state.</summary>
-    internal static ScreenSprites PrepareSprites(EndingCreditsState ending, byte objectSelection)
+    /// <summary>
+    /// Places the scene's sprite entries at the simulation display boundary without advancing sprite state, each drawn
+    /// from the sheet of the characters <paramref name="objectSheet"/>'s page holds now (#1392).
+    /// </summary>
+    internal static ScreenSprites PrepareSprites(EndingCreditsState ending, EndingObjectSheet objectSheet)
     {
-        var objects = new ScreenSprites(ObjCharacterImage.Page(ending.Image(), objectSelection), ObjectSelectionCodec.Sizes(objectSelection));
+        var objects = new ScreenSprites();
         objects.BeginFrame();
-        if (ending.InstalledArtwork.CurrentEndingLogo is not null) ending.InstalledArtwork.CurrentEndingLogo.Draw(objects, ending.Stage.ObjectArtwork?.LogoSprites);
-        else if (ending.CurrentRewardGesture is not null) ending.CurrentRewardGesture.Draw(objects, ending.Stage.ObjectArtwork?.RewardSprites);
-        else if (ending.CreditsRoll.CurrentRewardJump is not null) ending.CreditsRoll.CurrentRewardJump.Draw(objects, ending.Stage.ObjectArtwork?.RewardSprites);
+        if (ending.InstalledArtwork.CurrentEndingLogo is not null)
+            ending.InstalledArtwork.CurrentEndingLogo.Draw(objects, new CinematicSpriteSheet(Sheet(), CinematicSpriteFamily.EndingLogo));
+        else if (ending.CurrentRewardGesture is not null)
+            ending.CurrentRewardGesture.Draw(objects, new CinematicSpriteSheet(Sheet(), CinematicSpriteFamily.EndingReward));
+        else if (ending.CreditsRoll.CurrentRewardJump is not null)
+            ending.CreditsRoll.CurrentRewardJump.Draw(objects, new CinematicSpriteSheet(Sheet(), CinematicSpriteFamily.EndingReward));
         else
         {
             foreach (EndingSprite wrapper in ending.sprites.OrderByDescending(actor => actor.NativeSlot))
             {
-                IIntroCinematicSpritePresentation? spriteArt = wrapper.Role.Family() switch
+                CinematicSpriteFamily family = wrapper.Role.Family() switch
                 {
-                    EndingSpriteFamily.Cloud => ending.Stage.ObjectArtwork?.CloudSprites,
-                    EndingSpriteFamily.Explosion => ending.Stage.ObjectArtwork?.ExplosionSprites,
-                    EndingSpriteFamily.CompletionText => ending.Stage.ObjectArtwork?.CompletionTextSprites,
-                    EndingSpriteFamily.Reward => ending.Stage.ObjectArtwork?.RewardSprites,
-                    EndingSpriteFamily.AnimalEscape => EndingAnimalEscapeDefinitions.Presentation,
-                    var family => throw new InvalidOperationException($"Undefined ending sprite family {family}."),
+                    EndingSpriteFamily.Cloud => CinematicSpriteFamily.EndingCloud,
+                    EndingSpriteFamily.Explosion => CinematicSpriteFamily.EndingExplosion,
+                    EndingSpriteFamily.CompletionText => CinematicSpriteFamily.EndingCompletionText,
+                    EndingSpriteFamily.Reward => CinematicSpriteFamily.EndingReward,
+                    EndingSpriteFamily.AnimalEscape => CinematicSpriteFamily.EndingAnimalEscape,
+                    var undefined => throw new InvalidOperationException($"Undefined ending sprite family {undefined}."),
                 };
-                wrapper.Sprite.Draw(objects, installedArt: spriteArt);
+                wrapper.Sprite.Draw(objects, installedArt: new CinematicSpriteSheet(Sheet(), family));
             }
         }
-        if (ending.Stage.Phase >= EndingCreditsPhase.PostCreditsBlank) ending.CreditsRoll.ShootingStars?.Draw(objects);
+        if (ending.Stage.Phase >= EndingCreditsPhase.PostCreditsBlank) ending.CreditsRoll.ShootingStars?.Draw(objects, Sheet());
         objects.FinishFrame();
         return objects;
+
+        // A frame that draws nothing needs no sheet.
+        SpriteSheet Sheet() => ending.InstalledArtwork.SpriteSheet(EndingSpriteSheets.For(objectSheet, ending.Stage.EndingReward,
+            ending.screen.LogoTileTransfers));
     }
 
     /// <summary>Reads a signed sine component from the installed enemy trigonometry table.</summary>

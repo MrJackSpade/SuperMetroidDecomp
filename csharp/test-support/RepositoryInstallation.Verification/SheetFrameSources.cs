@@ -32,13 +32,14 @@ internal static class SheetFrameSources
         foreach (SheetFrameSource frame in composed.Frames)
         {
             SpriteSheetFrame image = sheet.Frame(frame.Name);
-            target.TryAdd(Key(image), new FrameSource(frame.Frame, frame.Characters, composed.PaletteBits, frame.Palette, composed.PartsKeepOwnRows));
+            target.TryAdd(Key(image), new FrameSource(frame.Frame, frame.Characters, composed.PaletteBits, frame.Palette, composed.PartsKeepOwnRows,
+                composed.ObjectSizes));
             // Each part, drawn at the frame's origin, is its part alone at its place in the frame, as a frame the
             // object limit cuts short shows it.
             for (int part = 0; part < image.Parts.Count; part++)
                 target.TryAdd(Key(image.Parts[part].Image), new FrameSource(
                     new SpriteFrame($"{frame.Name}#{part}", [frame.Frame.Parts[part]]),
-                    frame.Characters, composed.PaletteBits, frame.Palette, composed.PartsKeepOwnRows));
+                    frame.Characters, composed.PaletteBits, frame.Palette, composed.PartsKeepOwnRows, composed.ObjectSizes));
         }
     }
 
@@ -59,6 +60,14 @@ internal static class SheetFrameSources
         SpriteFrame frame = bits == 0 ? source.Frame
             : new SpriteFrame(source.Frame.Name, [.. source.Frame.Parts.Select(part => part with { Palette = (part.Palette ?? 0) | bits })]);
         return new CharacterSpriteDraw(draw.Source, frame, source.Page, draw.Origin, flip, source.FramePalette ?? 0, 0);
+    }
+
+    /// <summary>The object sizes of the screen an image draw's sheet frame was composed for.</summary>
+    /// <exception cref="InvalidOperationException">The frame is not a sheet frame.</exception>
+    internal static ScreenObjectSizes ObjectSizes(ImageSpriteDraw draw)
+    {
+        Ensure.NotNull(draw);
+        return (Find(Key(draw.Image)) ?? throw new InvalidOperationException($"{draw} shows a frame no sheet was composed with.")).ObjectSizes;
     }
 
     /// <summary>
@@ -116,5 +125,7 @@ internal static class SheetFrameSources
     /// <param name="PaletteBits">The palette row its family's draws OR into each part's own.</param>
     /// <param name="FramePalette">The palette row of parts that take their draw's, as the frame's draw selects it.</param>
     /// <param name="PartsKeepOwnRows">Whether parts naming their own row keep it under a draw's override.</param>
-    private sealed record FrameSource(SpriteFrame Frame, SpriteArtwork Page, int PaletteBits, int? FramePalette, bool PartsKeepOwnRows);
+    /// <param name="ObjectSizes">The object sizes of the screen the frame was composed for.</param>
+    private sealed record FrameSource(SpriteFrame Frame, SpriteArtwork Page, int PaletteBits, int? FramePalette, bool PartsKeepOwnRows,
+        ScreenObjectSizes ObjectSizes);
 }

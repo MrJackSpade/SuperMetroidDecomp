@@ -6,7 +6,7 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Editable OAM compositions for the eight final assembling-logo frames.</summary>
-public sealed class EndingLogoSpritePresentation : IIntroCinematicSpritePresentation
+public sealed class EndingLogoSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Compiled compositions indexed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
@@ -18,15 +18,11 @@ public sealed class EndingLogoSpritePresentation : IIntroCinematicSpritePresenta
     /// <summary>Canonical identity of the selected decoded visual frames, not JSON formatting.</summary>
     public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(EndingLogoSpritePresentation), frames);
 
-    /// <summary>Draws the ending-logo composition identified by its bank-$8C spritemap pose.</summary>
-    /// <param name="pose">The cinematic pose whose composition to draw.</param>
-    /// <param name="objects">Object-attribute buffer that receives the composition.</param>
-    /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
-    /// <param name="paletteBits">SNES OAM attribute bits to combine with each part.</param>
-    /// <param name="originIsOnScreen">Whether the origin is already in the visible coordinate range.</param>
-    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<OamPixels> origin,
-        ushort paletteBits, bool originIsOnScreen) =>
-        CinematicSpriteArtwork.DrawInstalled(frames, "Ending logo sprite", pose, objects, origin, paletteBits, originIsOnScreen);
+    /// <inheritdoc/>
+    CinematicSpriteFamily ICinematicSpriteFrames.Family => CinematicSpriteFamily.EndingLogo;
+
+    /// <inheritdoc/>
+    IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> ICinematicSpriteFrames.Frames => frames;
 
     /// <summary>Loads and validates the eight named final-logo compositions from JSON.</summary>
     /// <param name="json">Stream containing an ending-logo sprite document.</param>

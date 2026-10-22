@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Ending;
@@ -100,7 +101,7 @@ internal sealed class EndingLogo
     }
 
     /// <summary>Places active logo actors as the supplied sprite entries.</summary>
-    public void Draw(ScreenSprites destination, EndingLogoSpritePresentation? installedArt)
+    public void Draw(ScreenSprites destination, IIntroCinematicSpritePresentation installedArt)
     {
         Ensure.NotNull(destination);
         if (!Completed)

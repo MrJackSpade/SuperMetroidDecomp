@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -249,7 +250,7 @@ internal static class EndingPaletteArtworkVerification
         installedState.Stage.BindEndingFont(maps.EndingFont);
         installedState.Flyaway.BindFlightArtwork(installation.LoadIntroCinematicArt().CeresFlight);
         installedState.Stage.BindMode7Artwork(installation.LoadEndingMode7Art());
-        installedState.InstalledArtwork.BindObjectArtwork(installation.LoadEndingObjectArt());
+        installedState.InstalledArtwork.BindFixtureObjectArtwork(installation.LoadEndingObjectArt());
         CreditsPresentation credits = maps.StaffCredits;
         nativeState.InstalledArtwork.BindStaffCredits(credits);
         installedState.InstalledArtwork.BindStaffCredits(credits);
@@ -378,7 +379,7 @@ internal static class EndingPaletteArtworkVerification
                         "logo override fixture reaches its first palette transfer");
                 }
                 AssertTrue(!new CgramPalettes(stockCgram).ImageEquals(new CgramPalettes(editedCgram)) &&
-                    ScreenSpritesFixtures.Frame(objects => stockLogo.Draw(objects, installation.LoadEndingObjectArt().LogoSprites)).LowTable.SequenceEqual(ScreenSpritesFixtures.Frame(objects => editedLogo.Draw(objects, installation.LoadEndingObjectArt().LogoSprites)).LowTable),
+                    ScreenSpritesFixtures.Frame(objects => stockLogo.Draw(objects, CinematicSheetFixtures.Drawer(installation.LoadEndingObjectArt().LogoSprites))).LowTable.SequenceEqual(ScreenSpritesFixtures.Frame(objects => editedLogo.Draw(objects, CinematicSheetFixtures.Drawer(installation.LoadEndingObjectArt().LogoSprites))).LowTable),
                     $"edited {id} color changes logo CGRAM without changing actors");
             }
             File.Delete(overridePath);

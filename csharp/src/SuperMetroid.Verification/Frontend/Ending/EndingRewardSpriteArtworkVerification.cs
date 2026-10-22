@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
@@ -38,7 +39,7 @@ internal static class EndingRewardSpriteArtworkVerification
                 nativeOam.FinalizeFrame();
                 var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
-                stock.RewardSprites.Draw(frame.Pose, installedOam,
+                CinematicSheetFixtures.Drawer(stock.RewardSprites).Draw(frame.Pose, installedOam,
                     new(120, y), 0x0800, onScreen);
                 installedOam.FinalizeFrame();
                 AssertTrue(nativeOam.ImageEquals(installedOam) &&
@@ -75,7 +76,7 @@ internal static class EndingRewardSpriteArtworkVerification
             scene.InstalledArtwork.BindStaffCredits(CreditsPresentation.Load(new MemoryStream(
                 CreditsPresentationExtractor.Extract(
                     SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")))));
-            scene.InstalledArtwork.BindObjectArtwork(stock);
+            scene.InstalledArtwork.BindFixtureObjectArtwork(stock);
             scene.Stage.BindMode7Artwork(installation.LoadEndingMode7Art());
             AssertTrue(FindVisibleEdit(EndingCreditsPhase.PostCreditsReward, 60000, 150),
                 "edited suitless idle frame changes live OAM and visible reward pixels");
@@ -104,9 +105,9 @@ internal static class EndingRewardSpriteArtworkVerification
                     $"reward sprite edit reaches {target}");
                 for (int frame = 0; frame < visibleLimit && scene.Stage.Phase == target; frame++)
                 {
-                    scene.InstalledArtwork.BindObjectArtwork(stock);
+                    scene.InstalledArtwork.BindFixtureObjectArtwork(stock);
                     LayeredRenderSnapshot before = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                    scene.InstalledArtwork.BindObjectArtwork(edited);
+                    scene.InstalledArtwork.BindFixtureObjectArtwork(edited);
                     LayeredRenderSnapshot after = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                     if (!before.Memory.SpriteParts().SequenceEqual(after.Memory.SpriteParts()) &&
                         !SoftwareLayeredSnapshotRenderer.Render(before).SequenceEqual(

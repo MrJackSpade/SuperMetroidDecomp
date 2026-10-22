@@ -6,7 +6,7 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Editable OAM compositions for the 56 completion-message glyph frames.</summary>
-public sealed class EndingCompletionTextSpritePresentation : IIntroCinematicSpritePresentation
+public sealed class EndingCompletionTextSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Compiled phrase prefixes, digits, and colon keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
@@ -18,15 +18,11 @@ public sealed class EndingCompletionTextSpritePresentation : IIntroCinematicSpri
     /// <summary>Canonical identity of the selected decoded visual frames, not JSON formatting.</summary>
     public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(EndingCompletionTextSpritePresentation), frames);
 
-    /// <summary>Appends the selected completion-text composition's parts in authored OAM order, preserving inherited palettes and the native on-screen/off-screen clipping path.</summary>
-    /// <param name="pose">The cinematic pose whose composition to draw.</param>
-    /// <param name="objects">Destination OAM buffer for this frame's text parts.</param>
-    /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
-    /// <param name="paletteBits">Packed OBJ palette bits used only by parts whose editable palette is null.</param>
-    /// <param name="originIsOnScreen">Selects ordinary origin clipping when true or the native negative-origin Y-wrap path when false.</param>
-    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<OamPixels> origin,
-        ushort paletteBits, bool originIsOnScreen) =>
-        CinematicSpriteArtwork.DrawInstalled(frames, "Ending completion text", pose, objects, origin, paletteBits, originIsOnScreen);
+    /// <inheritdoc/>
+    CinematicSpriteFamily ICinematicSpriteFrames.Family => CinematicSpriteFamily.EndingCompletionText;
+
+    /// <inheritdoc/>
+    IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> ICinematicSpriteFrames.Frames => frames;
 
     /// <summary>Loads version-1 <c>ending-completion-text-sprites.json</c>, requiring all 56 named compositions and validating each ordered part's offsets, tile region, size, palette, and priority.</summary>
     /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>

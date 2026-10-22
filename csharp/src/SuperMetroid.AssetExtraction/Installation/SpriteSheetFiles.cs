@@ -9,7 +9,10 @@ using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend;
+using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
@@ -63,10 +66,13 @@ public static class SpriteSheetFiles
         // The intro sheet is named from the stock intro compositions installed beside it.
         var intro = new Lazy<IntroCinematicArtworkCatalog>(() => IntroCinematicArtworkFiles.Load(
             Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName), null));
+        // The ending sheets are named from the stock ending compositions installed beside them.
+        var ending = new Lazy<EndingObjectArtworkCatalog>(() => EndingObjectArtworkFiles.Load(
+            Path.Combine(content, GameInstallationLayout.EndingObjectDirectoryName), null));
         foreach (SpriteSheetId sheet in SpriteSheetDefinitions.Sheets)
         {
             SpriteSheet loaded = store.Read(SpriteSheetDefinitions.FileName(sheet));
-            if (!loaded.HoldsExactly(FrameNames(sheet, body, maps, intro)))
+            if (!loaded.HoldsExactly(FrameNames(sheet, body, maps, intro, ending)))
                 throw new InvalidDataException($"Sprite sheet {FrameFile(sheet)} does not hold exactly the frames its family draws.");
             sheets.Add(sheet, loaded);
         }
@@ -88,8 +94,9 @@ public static class SpriteSheetFiles
     /// <param name="body">Samus's body tables, which name the body sheets' frames.</param>
     /// <param name="maps">The menus' presentation, whose selector frames name the pause sheet's.</param>
     /// <param name="intro">The opening cinematic's artwork, whose compositions name the intro sheet's frames.</param>
+    /// <param name="ending">The ending's sprite artwork, whose compositions name the ending sheets' frames.</param>
     internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, Lazy<SamusBodyArtworkCatalog> body,
-        Lazy<AreaMapPresentationCatalog> maps, Lazy<IntroCinematicArtworkCatalog> intro) => sheet switch
+        Lazy<AreaMapPresentationCatalog> maps, Lazy<IntroCinematicArtworkCatalog> intro, Lazy<EndingObjectArtworkCatalog> ending) => sheet switch
     {
         SpriteSheetId.EscapeTimer => EscapeTimerPresentationDefinitions.Glyphs.Select(EscapeTimerPresentationDefinitions.FrameName),
         SpriteSheetId.Grapple => GrappleSheetDefinitions.Frames,
@@ -106,6 +113,7 @@ public static class SpriteSheetFiles
         SpriteSheetId.IntroSprites => IntroSpriteSheetComposer.FrameNames(intro.Value),
         SpriteSheetId.CeresFlightSprites => IntroSpriteSheetComposer.CeresFlightFrameNames(intro.Value.CeresFlight),
         SpriteSheetId.CeresDestructionSprites or SpriteSheetId.ZebesRevealSprites => IntroSpriteSheetComposer.CeresDestructionFrameNames(intro.Value),
+        _ when EndingSpriteSheets.Sheets.Contains(sheet) => EndingSpriteSheetComposer.FrameNames(sheet, ending.Value),
         _ => ProjectileSheetDefinitions.Frames,
     };
 

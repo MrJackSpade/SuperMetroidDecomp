@@ -6,7 +6,7 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Editable OAM compositions for the 37 post-credits Samus reward frames.</summary>
-public sealed class EndingRewardSpritePresentation : IIntroCinematicSpritePresentation
+public sealed class EndingRewardSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Validated editable OAM compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
@@ -18,15 +18,11 @@ public sealed class EndingRewardSpritePresentation : IIntroCinematicSpritePresen
     /// <summary>Canonical identity of the selected decoded visual frames, not JSON formatting.</summary>
     public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(EndingRewardSpritePresentation), frames);
 
-    /// <summary>Draws an installed post-credits Samus composition by its bank-$8C identity.</summary>
-    /// <param name="pose">The cinematic pose whose composition to draw.</param>
-    /// <param name="objects">Destination OAM buffer.</param>
-    /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
-    /// <param name="paletteBits">Packed OBJ palette bits inherited by applicable parts.</param>
-    /// <param name="originIsOnScreen">Whether the origin uses on-screen wrapping rules.</param>
-    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<OamPixels> origin,
-        ushort paletteBits, bool originIsOnScreen) =>
-        CinematicSpriteArtwork.DrawInstalled(frames, "Ending reward sprite", pose, objects, origin, paletteBits, originIsOnScreen);
+    /// <inheritdoc/>
+    CinematicSpriteFamily ICinematicSpriteFrames.Family => CinematicSpriteFamily.EndingReward;
+
+    /// <inheritdoc/>
+    IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> ICinematicSpriteFrames.Frames => frames;
 
     /// <summary>Loads and validates all 37 named post-credits Samus visual frames.</summary>
     public static EndingRewardSpritePresentation Load(Stream json)

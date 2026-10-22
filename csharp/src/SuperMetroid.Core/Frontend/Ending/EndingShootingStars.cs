@@ -61,13 +61,13 @@ internal sealed class EndingShootingStars
     }
 
     /// <summary>Draws only active stars with a nonzero animation frame as the supplied sprite entries.</summary>
-    internal void Draw(ScreenSprites objects)
+    internal void Draw(ScreenSprites objects, SpriteSheet sheet)
     {
         foreach (var star in stars)
         {
             if (star.Delayed || star.AnimationFrame == 0) continue;
             Position16<ScreenPixels> origin = star.Position.Whole - EndingShootingStarDefinitions.SpriteCenter;
-            objects.AddSmallObject(origin.ToOam(), EndingShootingStarDefinitions.Attribute(star.AnimationFrame));
+            objects.AddObjectImage(sheet.Frame(EndingShootingStarDefinitions.SheetFrameName(star.AnimationFrame)), origin.ToOam());
         }
     }
 

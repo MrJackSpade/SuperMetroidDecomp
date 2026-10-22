@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Core.Assets;
@@ -31,7 +32,7 @@ internal static class EndingLogoVerification
         var cgram = new SnesCgram();
         int landings = 0;
         EndingPaletteCatalog palettes = RepositoryInstallation.Installation.LoadEndingPalettes();
-        EndingLogoSpritePresentation logoSprites = RepositoryInstallation.Installation.LoadEndingObjectArt().LogoSprites;
+        var logoSprites = CinematicSheetFixtures.Drawer(RepositoryInstallation.Installation.LoadEndingObjectArt().LogoSprites);
         var logo = new EndingLogo(cgram, () => landings++, palettes);
         int frame = 0, fadeStart = 0;
         var poses = new HashSet<string>();

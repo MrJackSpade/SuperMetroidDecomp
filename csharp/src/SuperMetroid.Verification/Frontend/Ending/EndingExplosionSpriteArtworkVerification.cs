@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -184,7 +185,7 @@ internal static class EndingExplosionSpriteArtworkVerification
                 nativeOam.FinalizeFrame();
                 var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
-                stock.ExplosionSprites.Draw(frame.Pose, installedOam,
+                CinematicSheetFixtures.Drawer(stock.ExplosionSprites).Draw(frame.Pose, installedOam,
                     new(120, y), 0x0800, onScreen);
                 installedOam.FinalizeFrame();
                 AssertTrue(nativeOam.ImageEquals(installedOam) &&
@@ -217,7 +218,7 @@ internal static class EndingExplosionSpriteArtworkVerification
             EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
             var audio = new CartridgeAudioState();
             var scene = CreateRetailEndingFixture(audio, 0, 0);
-            scene.InstalledArtwork.BindObjectArtwork(stock);
+            scene.InstalledArtwork.BindFixtureObjectArtwork(stock);
             for (int frame = 0; frame < 10000 &&
                 scene.Stage.Phase != EndingCreditsPhase.FadeInZebesExplosion; frame++)
             {
@@ -230,9 +231,9 @@ internal static class EndingExplosionSpriteArtworkVerification
             for (int frame = 0; frame < 2400 &&
                 scene.Stage.Phase != EndingCreditsPhase.PlanetEscapeFast && !visible; frame++)
             {
-                scene.InstalledArtwork.BindObjectArtwork(stock);
+                scene.InstalledArtwork.BindFixtureObjectArtwork(stock);
                 LayeredRenderSnapshot before = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                scene.InstalledArtwork.BindObjectArtwork(edited);
+                scene.InstalledArtwork.BindFixtureObjectArtwork(edited);
                 LayeredRenderSnapshot after = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                 visible = !before.Memory.SpriteParts().SequenceEqual(after.Memory.SpriteParts()) &&
                     !SoftwareLayeredSnapshotRenderer.Render(before).SequenceEqual(

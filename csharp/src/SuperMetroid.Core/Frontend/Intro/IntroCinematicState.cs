@@ -150,7 +150,6 @@ public sealed class IntroCinematicState : IFrontendScreen
                 value.FinalLine.Words.Span.CopyTo(tilemaps.Narration[IntroCinematicRomData.Text.FinalLineDestinationStart..]);
             }
             characters = null;
-            objectSprites.BindArtwork(value.ObjectPage);
             tilemaps.LoadPortrait(value.PortraitTilemap.Span);
             // The active eye rectangle overlays the base portrait after its VRAM upload.
             CurrentObjects?.BindEyeArtwork(value.EyeFrames);
@@ -305,7 +304,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         // `$8B:A469-$A529` upload the characters, font, background pages and OBJ sheets the intro binds,
         // and the portrait and first narration card it keeps as its own tilemaps.
-        objectSprites = new ScreenSprites(characterArtwork.ObjectPage, ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection));
+        objectSprites = new ScreenSprites();
         tilemaps.LoadPortrait(characterArtwork.PortraitTilemap.Span);
         tilemaps.LoadNarration(characterArtwork.InitialNarrationTilemap.Span);
 

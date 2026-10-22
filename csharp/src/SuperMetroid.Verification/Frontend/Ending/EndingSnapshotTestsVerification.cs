@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -19,7 +21,6 @@ internal static class EndingSnapshotTestsVerification
     internal static void VerifyEndingRenderSnapshots()
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
-        var rewardArt = RepositoryInstallation.Installation.LoadEndingObjectArt().RewardSprites;
         int samples = 0;
         foreach (ushort hours in new ushort[] { 2, 3, 10 })
         {
@@ -141,7 +142,10 @@ internal static class EndingSnapshotTestsVerification
                     else
                         (referenceJump ?? throw new InvalidOperationException("Verification requires referenceJump.")).Step();
                     var jumpFrame = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
-                    var expectedOam = ScreenSpritesFixtures.Frame(jumpFrame.ObjectSelection, objects => referenceJump.Draw(objects, rewardArt));
+                    // The reference jump draws from the sheet the live ending draws the page it selects from.
+                    var rewardArt = EndingSheetFixtures.Drawer(legacy, referenceJump.FallingSheetSelected
+                        ? EndingObjectSheet.RewardFalling : EndingObjectSheet.Reward, CinematicSpriteFamily.EndingReward);
+                    var expectedOam = ScreenSpritesFixtures.Frame(objects => referenceJump.Draw(objects, rewardArt));
                     AssertEqual(referenceJump.FallingSheetSelected
                             ? EndingCreditsRomData.Rendering.FallingRewardObjectSelection
                             : EndingCreditsRomData.Rendering.RewardObjectSelection,
@@ -283,7 +287,8 @@ internal static class EndingSnapshotTestsVerification
                     var stars = legacy.CreditsRoll.ShootingStars;
                     var starOnlyOam = ScreenSpritesFixtures.Blank();
                     starOnlyOam.BeginFrame();
-                    stars?.Draw(starOnlyOam);
+                    // The logo has assembled by the percentage text, so the stars draw from its sheet.
+                    stars?.Draw(starOnlyOam, InstalledFixtures.SpriteSheets.Get(SpriteSheetId.EndingLogoSprites));
                     starOnlyOam.FinalizeFrame();
                     var actual = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
                     AssertTrue(PlacedSpritePart.Of(starOnlyOam.Draws).SequenceEqual(actual.Memory.SpriteParts()),

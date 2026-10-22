@@ -141,27 +141,28 @@ internal static class GenericSpriteArtworkVerification
         EqualSprites(expected, actual, "intro explosion owner preserves native placements and ordering");
         AssertTrue(actual.LastFinalizedSpriteCount > 0, "intro explosion comparison contains visible parts");
 
-        // The opposite origin-wrap rule is also compared exhaustively against an
-        // independent carry/sign oracle, not against a second copy of the renderer.
+        // The loader oracle's opposite origin-wrap rule is also compared exhaustively against an
+        // independent carry/sign oracle, not against a second copy of the loader.
+        var loader = new OamBuffer();
         int wrapCases = 0;
         for (int origin = 0; origin < 256; origin++)
         for (int offset = 0; offset < 256; offset++)
         foreach (bool onScreen in new[] { true, false })
         {
-            actual.BeginFrame();
+            loader.BeginFrame();
             if (onScreen)
-                actual.AddPart(SnesSpritemapXWord.Create(5, true), new SnesSpritemapYByte((byte)offset),
+                loader.AddOnScreenSpritePart(SnesSpritemapXWord.Create(5, true), new SnesSpritemapYByte((byte)offset),
                     SnesObjAttributeWord.Create(3, 2, 1, SnesTileFlipFlags.Horizontal), new Position16<OamPixels>(12, (ushort)origin));
             else
-                actual.AddOffScreenPart(SnesSpritemapXWord.Create(5, true), new SnesSpritemapYByte((byte)offset),
+                loader.AddOffScreenSpritePart(SnesSpritemapXWord.Create(5, true), new SnesSpritemapYByte((byte)offset),
                     SnesObjAttributeWord.Create(3, 2, 1, SnesTileFlipFlags.Horizontal), new Position16<OamPixels>(12, (ushort)origin));
-            actual.FinishFrame();
+            loader.FinalizeFrame();
             int signedY = origin + unchecked((sbyte)offset);
             bool hide = signedY is < -32 or >= 224;
             if (!onScreen) hide = !hide;
-            AssertEqual(hide ? 0x180 : 17, actual.GetEntry(0).Position.X, "generic origin-wrap X parking");
-            AssertEqual((byte)(hide ? 224 : origin + offset), actual.GetEntry(0).Position.Y, "generic origin-wrap Y parking");
-            AssertTrue(actual.GetEntry(0).IsLarge, "generic origin-wrap retains sprite size");
+            AssertEqual(hide ? 0x180 : 17, loader.GetEntry(0).Position.X, "generic origin-wrap X parking");
+            AssertEqual((byte)(hide ? 224 : origin + offset), loader.GetEntry(0).Position.Y, "generic origin-wrap Y parking");
+            AssertTrue(loader.GetEntry(0).IsLarge, "generic origin-wrap retains sprite size");
             wrapCases++;
         }
         Console.WriteLine($"Generic sprite artwork: {titleCases} title cases, copyright/caret/Mother Brain/explosion owners and {wrapCases} origin-wrap cases pass without a runtime cartridge.");

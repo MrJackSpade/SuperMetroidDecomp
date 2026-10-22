@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -36,7 +37,7 @@ internal static class PostCreditsCharacterArtworkVerification
             var installed = CreateRetailEndingFixture(installedAudio, hours, 0);
             native.InstalledArtwork.BindStaffCredits(credits);
             installed.InstalledArtwork.BindStaffCredits(credits);
-            installed.InstalledArtwork.BindObjectArtwork(stock);
+            installed.InstalledArtwork.BindFixtureObjectArtwork(stock);
             installed.Stage.BindMode7Artwork(stockMode7);
             var checkedPhases = new HashSet<EndingCreditsPhase>();
             for (int frame = 0; frame < 60_000 &&
@@ -110,12 +111,12 @@ internal static class PostCreditsCharacterArtworkVerification
                             $"installed logo pixels at frame {frame}");
                         if (native.Stage.Phase == EndingCreditsPhase.PostCreditsLogo)
                         {
-                            installed.InstalledArtwork.BindObjectArtwork(editedLogo);
+                            installed.InstalledArtwork.BindFixtureObjectArtwork(editedLogo);
                             LayeredRenderSnapshot changed = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
                             visibleLogoEdit |= !actual.Memory.SpriteParts().SequenceEqual(changed.Memory.SpriteParts()) &&
                                 !SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
                                     SoftwareLayeredSnapshotRenderer.Render(changed));
-                            installed.InstalledArtwork.BindObjectArtwork(stock);
+                            installed.InstalledArtwork.BindFixtureObjectArtwork(stock);
                         }
                     }
                     native.Step();
@@ -203,8 +204,8 @@ internal static class PostCreditsCharacterArtworkVerification
                 var editedState = CreateRetailEndingFixture(editedAudio, hours, 0);
                 stockState.InstalledArtwork.BindStaffCredits(credits);
                 editedState.InstalledArtwork.BindStaffCredits(credits);
-                stockState.InstalledArtwork.BindObjectArtwork(stock);
-                editedState.InstalledArtwork.BindObjectArtwork(edited);
+                stockState.InstalledArtwork.BindFixtureObjectArtwork(stock);
+                editedState.InstalledArtwork.BindFixtureObjectArtwork(edited);
                 stockState.Stage.BindMode7Artwork(stockMode7);
                 editedState.Stage.BindMode7Artwork(stockMode7);
                 for (int frame = 0; frame < 60_000 && stockState.Stage.Phase != target; frame++)
@@ -267,7 +268,7 @@ internal static class PostCreditsCharacterArtworkVerification
                 if (postShotLogo)
                 {
                     EndingCreditsPhase phaseBeforeRebind = stockState.Stage.Phase;
-                    stockState.InstalledArtwork.BindObjectArtwork(edited);
+                    stockState.InstalledArtwork.BindFixtureObjectArtwork(edited);
                     AssertEqual(phaseBeforeRebind, stockState.Stage.Phase,
                         $"rebind {fileName} preserves the live ending phase");
                     LayeredRenderSnapshot rebound = EndingCreditsPresentation.CaptureRenderSnapshot(stockState);

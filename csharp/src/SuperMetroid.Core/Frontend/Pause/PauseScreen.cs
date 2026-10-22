@@ -15,7 +15,7 @@ internal sealed class PauseScreen
     public PauseScreen(AreaMapPresentationCatalog artwork)
     {
         Artwork = Ensure.NotNull(artwork);
-        Objects = new ScreenSprites(artwork.Sprites.Page, ObjectSelectionCodec.Sizes(PauseMenuLayout.ObjectSelection));
+        Objects = new ScreenSprites();
     }
 
     /// <summary>The installed artwork the screen draws.</summary>
@@ -40,7 +40,6 @@ internal sealed class PauseScreen
     public void BindArtwork(AreaMapPresentationCatalog artwork)
     {
         Artwork = Ensure.NotNull(artwork);
-        Objects.BindArtwork(artwork.Sprites.Page);
         characters = null;
     }
 

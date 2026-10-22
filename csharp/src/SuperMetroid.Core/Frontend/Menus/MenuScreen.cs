@@ -19,7 +19,7 @@ internal sealed class MenuScreen
         WorldArtwork = RequireWorldArtwork(worldArtwork);
         MapTiles = RequireMapTiles(mapTiles);
         Sprites = RequireSprites(sprites);
-        Objects = new ScreenSprites(Sprites.Page, ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection));
+        Objects = new ScreenSprites();
         BindMapPalettes(mapPalettes);
     }
 
@@ -65,7 +65,6 @@ internal sealed class MenuScreen
     public void BindMapSprites(MapSpriteCatalog? sprites)
     {
         Sprites = RequireSprites(sprites);
-        Objects.BindArtwork(Sprites.Page);
         characters = null;
     }
 

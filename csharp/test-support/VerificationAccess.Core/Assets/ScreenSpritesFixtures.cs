@@ -8,79 +8,73 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal static class ScreenSpritesFixtures
 {
-    /// <summary>Sprite entries over a blank 512-character OBJ page, for checks of placement only.</summary>
-    internal static ScreenSprites Blank() =>
-        Blank(SuperMetroid.Core.Frontend.Menus.MenuRenderDefinitions.ObjectSelection);
+    /// <summary>Empty sprite entries to place frames into.</summary>
+    internal static ScreenSprites Blank() => new();
 
-    /// <summary>Sprite entries over a blank 512-character OBJ page whose objects draw at <paramref name="objectSelection"/>'s sizes.</summary>
-    internal static ScreenSprites Blank(int objectSelection) =>
-        new(new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.FrontendObjects), new byte[2 * 256 * SpriteArtwork.CharacterByteCount]),
-            SuperMetroid.Core.Rendering.ObjectSelectionCodec.Sizes(objectSelection));
-
-    /// <summary>One finished frame of the entries <paramref name="draw"/> places, over a blank page.</summary>
-    internal static ScreenSprites Frame(Action<ScreenSprites> draw) =>
-        Frame(SuperMetroid.Core.Frontend.Menus.MenuRenderDefinitions.ObjectSelection, draw);
-
-    /// <summary>One finished frame of the entries <paramref name="draw"/> places, over a blank page sized by <paramref name="objectSelection"/>.</summary>
-    internal static ScreenSprites Frame(int objectSelection, Action<ScreenSprites> draw)
+    /// <summary>One finished frame of the entries <paramref name="draw"/> places.</summary>
+    internal static ScreenSprites Frame(Action<ScreenSprites> draw)
     {
-        ScreenSprites sprites = Blank(objectSelection);
+        ScreenSprites sprites = Blank();
         sprites.BeginFrame();
         draw(sprites);
         sprites.FinishFrame();
         return sprites;
     }
 
-    /// <summary>The OAM records <paramref name="sprites"/>'s finished draws stand for, finalized.</summary>
+    /// <summary>
+    /// The OAM records <paramref name="sprites"/>'s finished draws stand for, finalized: each frame's composition parts,
+    /// placed from its origin by the spritemap loader that origin selects (an origin above the screen is the off-screen
+    /// loader's), so the OAM matches the cartridge's byte for byte.
+    /// </summary>
     internal static OamBuffer ToOam(ScreenSprites sprites)
     {
         var oam = new OamBuffer();
         oam.BeginFrame();
-        int index = 0;
-        foreach (SpriteDraw draw in sprites.Draws)
+        foreach (ImageSpriteDraw draw in sprites.Draws.Cast<ImageSpriteDraw>())
         {
-            // A whole frame stands for its composition's parts, placed from its origin.
-            CharacterSpriteDraw character = draw as CharacterSpriteDraw
-                ?? SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.CharacterDraw((ImageSpriteDraw)draw);
+            CharacterSpriteDraw character = SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.CharacterDraw(draw);
+            ScreenObjectSizes sizes = SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.ObjectSizes(draw);
+            var origin = new Position16<OamPixels>(unchecked((ushort)(character.Origin.X & 0x1ff)), unchecked((ushort)(character.Origin.Y & 0xff)));
             foreach (SpriteFramePart part in character.Frame.Parts)
             {
-                bool large = part.Size != sprites.Sizes.Small;
                 var attributes = SnesObjAttributeWord.Create(part.Character, part.Palette ?? character.Palette, part.Priority ?? character.Priority, part.Flip);
-                (int x, int y) = draw is ImageSpriteDraw ? Loaded(sprites, character.Origin, part, large, attributes)
-                    : ((character.Origin.X + part.Offset.X) & 0x1ff, (character.Origin.Y + part.Offset.Y) & 0xff);
-                oam.LowTableBytes[index * 4] = unchecked((byte)x);
-                oam.LowTableBytes[index * 4 + 1] = unchecked((byte)y);
-                oam.WriteAttributes(index * 4, attributes);
-                oam.SetHighTablePair(index, SnesOamHighTablePair.FromSprite(unchecked((ushort)x), large));
-                index++;
+                SnesSpritemapXWord x = SnesSpritemapXWord.Create(part.Offset.X, part.Size == sizes.Large);
+                SnesSpritemapYByte y = SnesSpritemapYByte.Create(part.Offset.Y);
+                if ((short)character.Origin.Y < 0)
+                    oam.AddOffScreenSpritePart(x, y, attributes, origin);
+                else
+                    oam.AddOnScreenSpritePart(x, y, attributes, origin);
             }
         }
-        oam.NextByteOffset = index * 4;
         oam.FinalizeFrame();
         return oam;
     }
 
+    /// <summary>One-part frames already composed, by spritemap words.</summary>
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<PartKey, SpriteSheetFrame> partFrames = new();
+
     /// <summary>
-    /// Where the spritemap loader places one part of an image drawn at <paramref name="origin"/>: an origin above the
-    /// screen is the off-screen loader's, any other the on-screen loader's, and a part the loader hides is parked where
-    /// it parks it, so the OAM matches the cartridge's byte for byte.
+    /// A sheet frame of one spritemap part, at the menus' object sizes over a blank page, registered so its draws expand
+    /// to the OAM record the loader writes for that part.
     /// </summary>
-    private static (int X, int Y) Loaded(ScreenSprites sprites, Position16<ScreenPixels> origin, SpriteFramePart part, bool large,
-        SnesObjAttributeWord attributes)
-    {
-        ScreenSprites loader = new(sprites.Artwork, sprites.Sizes);
-        loader.BeginFrame();
-        var oamOrigin = new Position16<OamPixels>(unchecked((ushort)(origin.X & 0x1ff)), unchecked((ushort)(origin.Y & 0xff)));
-        SnesSpritemapXWord x = SnesSpritemapXWord.Create(part.Offset.X, large);
-        SnesSpritemapYByte y = SnesSpritemapYByte.Create(part.Offset.Y);
-        if ((short)origin.Y < 0)
-            loader.AddOffScreenPart(x, y, attributes, oamOrigin);
-        else
-            loader.AddPart(x, y, attributes, oamOrigin);
-        loader.FinishFrame();
-        Position16<ScreenPixels> placed = loader.Draws[0].Origin;
-        return (placed.X & 0x1ff, placed.Y & 0xff);
-    }
+    internal static SpriteSheetFrame PartFrame(SnesSpritemapXWord x, SnesSpritemapYByte y, SnesObjAttributeWord attributes) =>
+        partFrames.GetOrAdd(new PartKey(x.Raw, y.Raw, attributes.Raw), key =>
+        {
+            string name = $"Part.{key.X:X4}.{key.Y:X2}.{key.Attributes:X4}";
+            SpriteFrame frame = new SpriteComposition([new CompiledSpritePart(new SnesSpritemapXWord(key.X), new SnesSpritemapYByte(key.Y),
+                new SnesObjAttributeWord(key.Attributes), InheritPalette: false)]).ToFrame(name, 0);
+            var page = new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.FrontendObjects), new byte[2 * 256 * SpriteArtwork.CharacterByteCount]);
+            var sources = new SuperMetroid.AssetExtraction.Artwork.SpriteSheetSources(
+                [new SuperMetroid.AssetExtraction.Artwork.SheetFrameSource(name, frame, page, 0)], new Bgr555[8 * 16], ObjPartFrames.StandardSizes,
+                PartsKeepOwnRows: true);
+            return SuperMetroid.TestSupport.RepositoryInstallation.Verification.CinematicSheetFixtures.Load(sources, name).Frame(name);
+        });
+
+    /// <summary>A one-part frame's spritemap words.</summary>
+    /// <param name="X">The X word: offset and size.</param>
+    /// <param name="Y">The Y offset byte.</param>
+    /// <param name="Attributes">The attribute word.</param>
+    private readonly record struct PartKey(ushort X, byte Y, ushort Attributes);
 
     /// <summary>Reads a finished frame's sprite entries as the OAM tables they stand for.</summary>
     extension(ScreenSprites self)
@@ -110,9 +104,12 @@ internal static class ScreenSpritesFixtures
         /// <summary>Finishes the frame, under OAM's name for it.</summary>
         internal void FinalizeFrame() => self.FinishFrame();
 
-        /// <summary>Occupies one object with a small on-screen spritemap part, as capacity checks fill the frame.</summary>
+        /// <summary>
+        /// Occupies one object with a frame of one small object at its origin, through the spritemap loader, as capacity
+        /// checks fill the frame.
+        /// </summary>
         internal void AddOccupyingPart(Position16<OamPixels> position, SnesObjAttributeWord attributes) =>
-            self.AddPart(SnesSpritemapXWord.Create(0, false), SnesSpritemapYByte.Create(0), attributes, position);
+            self.AddImage(PartFrame(SnesSpritemapXWord.Create(0, false), SnesSpritemapYByte.Create(0), attributes), position);
 
     }
 

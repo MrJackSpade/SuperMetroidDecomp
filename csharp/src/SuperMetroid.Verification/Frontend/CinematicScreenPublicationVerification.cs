@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.Intro;
@@ -22,25 +23,25 @@ internal static class CinematicScreenPublicationVerification
         ScreenObjectSizes clouds = ObjectSelectionCodec.Sizes(0xa3);
         AssertEqual(new ScreenObjectSizes(new Extent16<ScreenPixels>(32, 32), new Extent16<ScreenPixels>(64, 64)), clouds,
             "OBSEL $A3 selects 32- and 64-pixel objects");
-        var sprites = new ScreenSprites(new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.FrontendObjects),
-            new byte[2 * 256 * SpriteArtwork.CharacterByteCount]), clouds);
-        sprites.BeginFrame();
-        sprites.AddPart(SnesSpritemapXWord.Create(0, true), SnesSpritemapYByte.Create(0), SnesObjAttributeWord.Create(0, 0, 0), new(40, 40));
-        sprites.AddPart(SnesSpritemapXWord.Create(0, false), SnesSpritemapYByte.Create(0), SnesObjAttributeWord.Create(0, 0, 0), new(40, 40));
-        sprites.FinishFrame();
-        AssertEqual(clouds.Large, sprites.Draws[0].Frame.Parts[0].Size, "a large part draws at the selection's large size");
-        AssertEqual(clouds.Small, sprites.Draws[1].Frame.Parts[0].Size, "a small part draws at the selection's small size");
+        SpriteFrame sized = new SpriteComposition([
+            new CompiledSpritePart(SnesSpritemapXWord.Create(0, true), SnesSpritemapYByte.Create(0), SnesObjAttributeWord.Create(0, 0, 0), InheritPalette: false),
+            new CompiledSpritePart(SnesSpritemapXWord.Create(0, false), SnesSpritemapYByte.Create(0), SnesObjAttributeWord.Create(0, 0, 0), InheritPalette: false),
+        ]).ToFrame("sized", 0, clouds);
+        AssertEqual(clouds.Large, sized.Parts[0].Size, "a large part is composed at the selection's large size");
+        AssertEqual(clouds.Small, sized.Parts[1].Size, "a small part is composed at the selection's small size");
 
+        // The ending's stars are written straight to OAM, some below the screen so that they wrap above it.
+        SpriteSheetFrame star = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.EndingShootingSprites)
+            .Frame(EndingShootingStarDefinitions.SheetFrameName(EndingShootingStarDefinitions.FullStarFrame));
         var raw = ScreenSpritesFixtures.Blank();
         var oam = new OamBuffer();
         raw.BeginFrame();
         oam.BeginFrame();
         for (int index = 0; index < ScreenSprites.Capacity + 2; index++)
         {
-            var position = new Position16<OamPixels>((ushort)(index % 200), (ushort)(index % 100));
-            var attributes = SnesObjAttributeWord.Create(index, index % 8, index % 4);
-            raw.AddSmallObject(position, attributes);
-            oam.AddRawSmallSprite(position, attributes);
+            var position = new Position16<OamPixels>((ushort)(index * 3 % 512), (ushort)(index * 7 % 256));
+            raw.AddObjectImage(star, position);
+            oam.AddRawSmallSprite(position, EndingShootingStarDefinitions.Attribute(EndingShootingStarDefinitions.FullStarFrame));
         }
         raw.FinishFrame();
         oam.FinalizeFrame();

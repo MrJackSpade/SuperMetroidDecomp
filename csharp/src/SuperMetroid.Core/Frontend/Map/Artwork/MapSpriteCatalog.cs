@@ -34,7 +34,7 @@ public sealed class MapSpriteCatalog
         return new(name, [.. Enumerable.Range(0, MapMarkerGeometry.PartCount(id)).Select(index =>
         {
             CompiledSpritePart part = MapMarkerGeometry.Part(id, index);
-            return ObjPartFrames.Part(part.X, part.Y, part.Attributes, 0, inheritPalette: true);
+            return ObjPartFrames.Part(part.X, part.Y, part.Attributes, 0, ObjPartFrames.StandardSizes, inheritPalette: true);
         })]);
     }
     /// <summary>Selects an installed composition by its named native drawing role.</summary>

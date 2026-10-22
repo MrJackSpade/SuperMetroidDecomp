@@ -35,34 +35,21 @@ public sealed class SpriteComposition
         }
     }
     /// <summary>
-    /// The composition as a whole frame over artwork whose character 0 is OBJ character <paramref name="firstCharacter"/>.
+    /// The composition as a whole frame over artwork whose character 0 is OBJ character <paramref name="firstCharacter"/>,
+    /// on a screen drawing the <see cref="ObjPartFrames.StandardSizes"/>.
     /// </summary>
-    internal SpriteFrame ToFrame(string name, int firstCharacter)
+    internal SpriteFrame ToFrame(string name, int firstCharacter) => ToFrame(name, firstCharacter, ObjPartFrames.StandardSizes);
+
+    /// <summary>
+    /// The composition as a whole frame over artwork whose character 0 is OBJ character <paramref name="firstCharacter"/>,
+    /// on a screen whose objects draw at <paramref name="sizes"/>.
+    /// </summary>
+    internal SpriteFrame ToFrame(string name, int firstCharacter, ScreenObjectSizes sizes)
     {
         var converted = ImmutableArray.CreateBuilder<SpriteFramePart>(parts.Count);
         foreach (CompiledSpritePart part in parts)
-            converted.Add(ObjPartFrames.Part(part.X, part.Y, part.Attributes, firstCharacter, part.InheritPalette));
+            converted.Add(ObjPartFrames.Part(part.X, part.Y, part.Attributes, firstCharacter, sizes, part.InheritPalette));
         return new(name, converted.MoveToImmutable());
     }
 
-    /// <summary>Places every part as a sprite entry relative to <paramref name="origin"/> (#1358).</summary>
-    /// <param name="sprites">The screen's sprite entries.</param>
-    /// <param name="origin">Composition origin in screen-space pixels.</param>
-    /// <param name="paletteBits">OBJ palette bits applied only to parts configured to inherit them.</param>
-    public void Draw(ScreenSprites sprites, Position16<OamPixels> origin, ushort paletteBits)
-    {
-        Ensure.NotNull(sprites);
-        _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
-        foreach (var part in parts)
-            sprites.AddPart(part.X, part.Y, part.InheritPalette ? part.Attributes.WithPaletteBits(paletteBits) : part.Attributes, origin);
-    }
-
-    /// <summary>Places all parts as sprite entries using the native off-screen origin's reversed vertical-wrap clipping (#1358).</summary>
-    public void DrawOffScreen(ScreenSprites sprites, Position16<OamPixels> origin, ushort paletteBits)
-    {
-        Ensure.NotNull(sprites);
-        _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
-        foreach (var part in parts)
-            sprites.AddOffScreenPart(part.X, part.Y, part.InheritPalette ? part.Attributes.WithPaletteBits(paletteBits) : part.Attributes, origin);
-    }
 }

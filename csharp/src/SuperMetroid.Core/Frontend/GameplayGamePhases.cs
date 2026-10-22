@@ -186,6 +186,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             session.ActiveEndingCredits.Stage.BindMode7Artwork(session.Artwork.EndingMode7Art);
             session.ActiveEndingCredits.InstalledArtwork.BindObjectArtwork(session.Artwork.EndingObjectArt);
             session.ActiveEndingCredits.InstalledArtwork.BindPaletteArtwork(session.Artwork.EndingPaletteArt);
+            session.ActiveEndingCredits.InstalledArtwork.BindSpriteSheets(session.Artwork.SpriteSheets);
             session.ActiveEndingCredits.InstalledArtwork.BindPaletteFxColors(session.Artwork.MapPresentation?.RoomPaletteFx);
             session.ActiveEndingCredits.Stage.BindEndingFont(session.Artwork.MapPresentation?.EndingFont);
             session.ActiveEndingCredits.InstalledArtwork.BindStaffCredits(session.Artwork.MapPresentation?.StaffCredits);

@@ -57,8 +57,8 @@ internal static class IntroMotherBrainExplosionPartsVerification
                 var native = new OamBuffer(); native.BeginFrame();
                 DrawImportedSpritemap(rom, native, 0x8c0000 + CinematicSpritemapAddresses.Of(definition.Pose), new(120, y), 0x0a00, originIsOnScreen: y == 72);
                 native.FinalizeFrame();
-                var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
-                if (y == 72) result.Draw(actual, new(120, y), 0x0a00);
+                var actual = new OamBuffer(); actual.BeginFrame();
+                if (y == 72) result.DrawOnScreen(actual, new(120, y), 0x0a00);
                 else result.DrawOffScreen(actual, new(120, y), 0x0a00);
                 actual.FinalizeFrame();
                 AssertTrue(native.ImageEquals(actual)

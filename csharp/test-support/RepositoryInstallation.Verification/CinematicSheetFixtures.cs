@@ -95,7 +95,7 @@ internal static class CinematicSheetFixtures
     }
 
     /// <summary>Composes, loads and registers one fixture sheet under a name of its own.</summary>
-    private static SpriteSheet Load(SpriteSheetSources sources, string name)
+    internal static SpriteSheet Load(SpriteSheetSources sources, string name)
     {
         ComposedSpriteSheet composed = SpriteSheetComposer.Compose(sources, 0, 0);
         SpriteSheet sheet = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(composed.Manifest), writable: false), name,

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
@@ -62,7 +63,7 @@ internal static class EndingRewardGestureVerification
             () => EndingRewardGraphicsUploadDefinitions.DestinationWord(-1),
             "reward icon destination rejects a negative transfer");
         var rewardBus = NewEndingRewardDefinitionReadGuard(bus);
-        EndingRewardSpritePresentation rewardSprites = RepositoryInstallation.Installation.LoadEndingObjectArt().RewardSprites;
+        var rewardSprites = CinematicSheetFixtures.Drawer(RepositoryInstallation.Installation.LoadEndingObjectArt().RewardSprites);
         foreach (EndingReward reward in Enum.GetValues<EndingReward>())
         {
             var gesture = new EndingRewardGesture(reward);

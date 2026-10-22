@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Ending;
@@ -42,7 +42,7 @@ internal sealed class EndingRewardGesture
     }
 
     /// <summary>Places current actors as the supplied sprite entries.</summary>
-    public void Draw(ScreenSprites destination, EndingRewardSpritePresentation? installedArt)
+    public void Draw(ScreenSprites destination, IIntroCinematicSpritePresentation installedArt)
     {
         Ensure.NotNull(destination);
         foreach (IntroDiscoverySprite actor in actors)

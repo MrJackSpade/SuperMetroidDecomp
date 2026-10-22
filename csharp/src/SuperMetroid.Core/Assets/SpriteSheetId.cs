@@ -37,6 +37,33 @@ public enum SpriteSheetId
     CeresDestructionSprites,
     /// <summary>The Ceres destruction scene's actors over the Zebes reveal's OBJ characters.</summary>
     ZebesRevealSprites,
+
+    /// <summary>The ending's escape clouds.</summary>
+    EndingCloudSprites,
+
+    /// <summary>The ending's Zebes explosion, completion message and escape pod.</summary>
+    EndingExplosionSprites,
+
+    /// <summary>The post-credits Samus in her suit, as the helmetless and armoured endings show her.</summary>
+    EndingSuitedRewardSprites,
+
+    /// <summary>The post-credits Samus out of her suit.</summary>
+    EndingSuitlessRewardSprites,
+
+    /// <summary>The falling, landing and shooting Samus and the stars over the shooting scene's characters.</summary>
+    EndingShootingSprites,
+
+    /// <summary>The shooting scene once the first quarter of the logo's characters has replaced its own.</summary>
+    EndingShootingLogoQuarterSprites,
+
+    /// <summary>The shooting scene once half of the logo's characters have replaced its own.</summary>
+    EndingShootingLogoHalfSprites,
+
+    /// <summary>The shooting scene once three quarters of the logo's characters have replaced its own.</summary>
+    EndingShootingLogoThreeQuartersSprites,
+
+    /// <summary>The assembling logo, the stars and the last of the shooting scene once the logo's characters are in.</summary>
+    EndingLogoSprites,
     /// <summary>Samus's projectiles, bombs, charge flare and trails as the intro's flashbacks draw them.</summary>
     IntroProjectiles,
     /// <summary>Samus's projectiles, bombs, charge flare and trails with the power beam equipped.</summary>

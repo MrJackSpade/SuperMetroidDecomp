@@ -9,6 +9,9 @@ internal enum EndingObjectSheet
     Explosion,
     /// <summary>The post-credits reward sheet.</summary>
     Reward,
-    /// <summary>The reward sheet the jumping Samus switches to once she passes above the screen.</summary>
+    /// <summary>
+    /// The shooting scene's sheet, which the jumping Samus switches to once she passes above the screen and over which
+    /// the logo later assembles.
+    /// </summary>
     RewardFalling,
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -47,7 +48,7 @@ internal static class EndingShootingStarsTests
                     "Delay expires on underflow, skips motion, and joins the drawing timer on that call");
             if (frame == 32)
             {
-                var oam = ScreenSpritesFixtures.Blank(); oam.BeginFrame(); stars.Draw(oam); oam.FinishFrame();
+                var oam = ScreenSpritesFixtures.Blank(); oam.BeginFrame(); stars.Draw(oam, InstalledFixtures.SpriteSheets.Get(SpriteSheetId.EndingShootingSprites)); oam.FinishFrame();
                 Require(oam.LastFinalizedSpriteCount > 0, "Stars publish visible OAM after the 32-call lead-in");
                 Require(oam.LowTable[..4].SequenceEqual(new byte[] {148,121,0xf0,0x09}), "First star's exact native position and attributes");
             }
@@ -67,7 +68,7 @@ internal static class EndingShootingStarsTests
         var installed = RepositoryInstallation.Installation;
         var maps = installed.LoadMaps();
         var scene = new EndingCreditsState(new CartridgeAudioState(), new EndingCreditsSetup { GameTimeHours = 2, GameTimeMinutes = 0 });
-        scene.InstalledArtwork.BindObjectArtwork(installed.LoadEndingObjectArt());
+        scene.InstalledArtwork.BindFixtureObjectArtwork(installed.LoadEndingObjectArt());
         scene.InstalledArtwork.BindPaletteArtwork(installed.LoadEndingPalettes());
         scene.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
         scene.Stage.BindEndingFont(maps.EndingFont); scene.InstalledArtwork.BindEndingText(maps.EndingText);

@@ -40,6 +40,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
             InstalledArtwork.BindObjectArtwork(artwork.EndingObjectArt);
         if (!ReferenceEquals(previous.EndingPaletteArt, artwork.EndingPaletteArt))
             InstalledArtwork.BindPaletteArtwork(artwork.EndingPaletteArt);
+        if (!ReferenceEquals(previous.SpriteSheets, artwork.SpriteSheets))
+            InstalledArtwork.BindSpriteSheets(artwork.SpriteSheets);
     }
     /// <summary>Queues the authored ending music transitions.</summary>
     private readonly CartridgeAudioState audio;
@@ -487,7 +489,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 EndingExplosionDisplayDefinitions.Characters, FourBpp: true, IncludeObjects: true,
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];
-        return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.ObjectSelection(EndingCreditsPresentation.CurrentEscapeObjectSheet(this))), layers,
+        return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers,
             EndingCreditsPresentation.ObjectSelection(EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), checked((byte)Stage.Brightness));
 
         static Bg4BppRenderLayer Plane(ushort map, BgTilePriority priority) => new(map,
@@ -512,7 +514,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 EndingExplosionDisplayDefinitions.Characters, main, FourBpp: true, MainObjects: true,
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];
-        return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.ObjectSelection(EndingCreditsPresentation.CurrentEscapeObjectSheet(this))), layers,
+        return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers,
             EndingCreditsPresentation.ObjectSelection(EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), checked((byte)Stage.Brightness));
     }
 

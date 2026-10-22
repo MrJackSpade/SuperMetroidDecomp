@@ -153,8 +153,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         this.artwork = artwork ?? throw new InvalidOperationException(
             "Ceres destruction requires installed cinematic artwork.");
         stationExplosion.PresentationColors = fixedColors;
-        objects = new ScreenSprites(CeresDestructionScreenImage.ObjectPage(CeresDestructionScreenImage.Compose(this.artwork, uploads, outcome == CeresDestructionOutcome.SamusAboard)),
-            ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection));
+        objects = new ScreenSprites();
     }
 
     /// <summary>
@@ -657,16 +656,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         image = null;
     }
 
-    /// <summary>The memory image the scene's transfers leave over the bound artwork, rebinding the OBJ page it shows.</summary>
-    internal byte[] Image()
-    {
-        if (image is not null)
-            return image;
-        image = CeresDestructionScreenImage.Compose(artwork ?? throw new InvalidOperationException(
-            "Ceres destruction rendering requires installed cinematic artwork."), uploads, withSamus);
-        objects.BindArtwork(CeresDestructionScreenImage.ObjectPage(image));
-        return image;
-    }
+    /// <summary>The memory image the scene's transfers leave over the bound artwork.</summary>
+    internal byte[] Image() => image ??= CeresDestructionScreenImage.Compose(artwork ?? throw new InvalidOperationException(
+        "Ceres destruction rendering requires installed cinematic artwork."), uploads, withSamus);
 
     /// <summary>Starts the power-bomb blast, queues sound, adds its sprite, and replaces the station maps.</summary>
     private void SpawnFinalCeresExplosion()

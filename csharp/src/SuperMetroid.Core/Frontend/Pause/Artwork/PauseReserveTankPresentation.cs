@@ -52,7 +52,8 @@ public sealed class PauseReserveTankPresentation
     internal SpriteFrame ToFrame(PauseReserveTankVisual nativeIdentity, string frameName) =>
         Composition(nativeIdentity) is { } composition ? composition.ToFrame(frameName, 0)
             : new(frameName, [ObjPartFrames.Part(SnesSpritemapXWord.Create(0, false), new SnesSpritemapYByte(0),
-                SnesObjAttributeWord.Create(PauseReserveTankDefinitions.StockTile(nativeIdentity), 0, 3), 0, inheritPalette: true)]);
+                SnesObjAttributeWord.Create(PauseReserveTankDefinitions.StockTile(nativeIdentity), 0, 3), 0, ObjPartFrames.StandardSizes,
+                inheritPalette: true)]);
 
     /// <summary>The authored composition of one reserve visual, or null where the stock character stands.</summary>
     private SpriteComposition? Composition(PauseReserveTankVisual nativeIdentity) => nativeIdentity switch

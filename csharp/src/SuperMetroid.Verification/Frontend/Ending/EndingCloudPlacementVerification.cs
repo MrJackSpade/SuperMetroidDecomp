@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -39,7 +40,7 @@ internal static class EndingCloudPlacementVerification
         var actors = definitions.Select((definition, index) => new EndingSprite(
             new IntroDiscoverySprite(new(128, unchecked((ushort)nativeY[index])), definition.Attributes.Raw,
                 definition.Program), roles[index])).ToArray();
-        var cloudSprites = RepositoryInstallation.Installation.LoadEndingObjectArt().CloudSprites;
+        var cloudSprites = CinematicSheetFixtures.Drawer(RepositoryInstallation.Installation.LoadEndingObjectArt().CloudSprites);
         int checkedFrames = 0;
         for (int frame = 0; frame < 200; frame++)
         {
@@ -69,11 +70,13 @@ internal static class EndingCloudPlacementVerification
             var expected = SoftwareLayeredSnapshotRenderer.Render(new(expectedMemory, actual.Layers,
                 actual.ObjectSelection, actual.Brightness));
             var pixels = ending.Render();
-            if (frame == 19 || !pixels.SequenceEqual(expected))
-            {
-
-            }
-            AssertTrue(pixels.SequenceEqual(expected), $"scene B cloud positions/motion frame {frame} ({ending.Stage.Phase})");
+            int differs = pixels.ToArray().Zip(expected, (live, native) => live != native).ToList().IndexOf(true);
+            AssertTrue(differs < 0, $"scene B cloud positions/motion frame {frame} ({ending.Stage.Phase})" + (differs < 0 ? ""
+                : $": pixel ({differs % 256},{differs / 256}) live {pixels[differs]}, native {expected[differs]}; live draws " +
+                    string.Join(", ", actual.Memory.SpriteDraws.OfType<ImageSpriteDraw>().Select(draw =>
+                        $"{draw.Image.Size.X}x{draw.Image.Size.Y} at {draw.Corner.X},{draw.Corner.Y}")) + "; native objects " +
+                    string.Join(", ", Enumerable.Range(0, oam.LastFinalizedSpriteCount).Select(index => oam.GetEntry(index)).Select(entry =>
+                        $"{entry.TileNumber:X3}{(entry.IsLarge ? "L" : "s")} at {entry.Position.X},{entry.Position.Y}"))));
             checkedFrames++;
         }
         AssertEqual(EndingCreditsPhase.FadeInZebesExplosion, ending.Stage.Phase, "complete scene B checked through fade-out");

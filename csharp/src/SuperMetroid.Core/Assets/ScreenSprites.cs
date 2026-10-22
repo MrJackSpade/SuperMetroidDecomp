@@ -1,23 +1,18 @@
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// A frontend screen's sprite entries (#1358): each placed part becomes a one-part whole-frame draw over the screen's
-/// owned OBJ artwork, in emission order, frontmost first. Screens publish these draws instead of writing OAM. Parts are
-/// placed as the cartridge's spritemap loaders place them (<c>$81:879F</c>): nine-bit X, eight-bit Y, the vertical-wrap
-/// hiding that parks a part off screen, and the 128-object limit. The placed objects are the screen's state; the OBJ
-/// page is host-bound artwork, rebound after debugger restoration, and the draws are made from both.
+/// A frontend screen's sprite entries (#1358, #1392): each placed pre-coloured frame becomes a whole-frame draw, in
+/// emission order, frontmost first. Screens publish these draws instead of writing OAM. Frames land as the cartridge
+/// places their objects: nine-bit X, eight-bit Y read by the spritemap loader the origin selects, and the 128-object
+/// limit. The placed frames are the screen's state, and the draws are made from them.
 /// </summary>
 public sealed class ScreenSprites
 {
     /// <summary>The most objects a frame holds.</summary>
     public const int Capacity = 128;
-
-    /// <summary>The X a hidden part is parked at, beyond the visible screen.</summary>
-    private const ushort ParkedX = 384;
 
     /// <summary>The values of an eight-bit coordinate.</summary>
     private const int ByteRange = 256;
@@ -25,10 +20,10 @@ public sealed class ScreenSprites
     /// <summary>The values of the nine-bit X.</summary>
     private const int XRange = 512;
 
-    /// <summary>The objects placed since <see cref="BeginFrame"/>, by object index.</summary>
+    /// <summary>The frames placed since <see cref="BeginFrame"/>, by the index of their first object.</summary>
     private readonly ScreenObject[] placed = new ScreenObject[Capacity];
 
-    /// <summary>The objects of the most recently finished frame, by object index.</summary>
+    /// <summary>The frames of the most recently finished frame, by the index of their first object.</summary>
     private readonly ScreenObject[] finished = new ScreenObject[Capacity];
 
     /// <summary>The index the next object takes.</summary>
@@ -37,38 +32,12 @@ public sealed class ScreenSprites
     /// <summary>The number of objects the most recently finished frame placed.</summary>
     private int finishedCount;
 
-    /// <summary>The draws of the finished frame over the bound page, until the frame or the page changes.</summary>
+    /// <summary>The draws of the finished frame, until the frame changes.</summary>
     [NonSerialized]
     private SpriteDraw[]? draws;
 
-    /// <summary>Starts with an empty frame over <paramref name="artwork"/>, whose objects draw at <paramref name="sizes"/>.</summary>
-    public ScreenSprites(SpriteArtwork artwork, ScreenObjectSizes sizes)
-    {
-        Artwork = Ensure.NotNull(artwork);
-        Sizes = sizes;
-    }
-
-    /// <summary>The sizes a small and a large object draw at, from the screen's OBJ size selection.</summary>
-    public ScreenObjectSizes Sizes { get; }
-
-    /// <summary>The OBJ character page the screen's parts name.</summary>
-    [field: NonSerialized]
-    [AllowNull]
-    public SpriteArtwork Artwork
-    {
-        get => field ?? throw new InvalidOperationException("The screen's OBJ page is rebound after debugger restoration.");
-        private set;
-    }
-
     /// <summary>The draws of the most recently finished frame, frontmost first.</summary>
     public ImmutableArray<SpriteDraw> Draws => ImmutableCollectionsMarshal.AsImmutableArray(draws ??= FinishedDraws());
-
-    /// <summary>Rebinds the screen's OBJ page after its installed artwork changes.</summary>
-    public void BindArtwork(SpriteArtwork page)
-    {
-        Artwork = Ensure.NotNull(page);
-        draws = null;
-    }
 
     /// <summary>Starts a frame: clears the placed objects.</summary>
     public void BeginFrame() => next = 0;
@@ -79,24 +48,6 @@ public sealed class ScreenSprites
         Array.Copy(placed, finished, next);
         finishedCount = next;
         draws = null;
-    }
-
-    /// <summary>Places one compiled spritemap part relative to an on-screen <paramref name="origin"/>.</summary>
-    public void AddPart(SnesSpritemapXWord x, SnesSpritemapYByte y, SnesObjAttributeWord attributes, Position16<OamPixels> origin) =>
-        AddPart(x, y, attributes, origin, originSide: SpriteOrigin.OnScreen);
-
-    /// <summary>Places one compiled spritemap part relative to a negative <paramref name="origin"/> ($81:8853's reversed wrap).</summary>
-    public void AddOffScreenPart(SnesSpritemapXWord x, SnesSpritemapYByte y, SnesObjAttributeWord attributes, Position16<OamPixels> origin) =>
-        AddPart(x, y, attributes, origin, originSide: SpriteOrigin.OffScreen);
-
-    /// <summary>
-    /// Places one small object whose attributes name its character, flips, palette and priority. Like a direct OAM
-    /// store, the object index wraps after the last object instead of stopping.
-    /// </summary>
-    public void AddSmallObject(Position16<OamPixels> position, SnesObjAttributeWord attributes)
-    {
-        placed[next] = new ScreenObject(attributes, IsLarge: false, position);
-        next = (next + 1) % Capacity;
     }
 
     /// <summary>
@@ -120,43 +71,36 @@ public sealed class ScreenSprites
             return;
         if (next + frame.Objects <= Capacity)
         {
-            placed[next] = new ScreenObject(default, IsLarge: false, origin, frame, frame.Objects, paletteOverride, side);
+            placed[next] = new ScreenObject(origin, frame, frame.Objects, paletteOverride, side);
             next += frame.Objects;
             return;
         }
         // Each part keeps the frame's origin and loader, so it lands where the whole frame would show it.
         foreach (SpriteSheetFramePart part in frame.Parts.Take(Capacity - next))
-            placed[next++] = new ScreenObject(default, IsLarge: false, origin, part.Image, 1, paletteOverride, side);
+            placed[next++] = new ScreenObject(origin, part.Image, 1, paletteOverride, side);
     }
 
-    /// <summary>Applies the spritemap loader's vertical-wrap hiding and places the part, until the frame is full.</summary>
-    private void AddPart(SnesSpritemapXWord x, SnesSpritemapYByte y, SnesObjAttributeWord attributes, Position16<OamPixels> origin,
-        SpriteOrigin originSide)
+    /// <summary>
+    /// Places a pre-coloured frame of one object written straight to OAM (#1392), with no spritemap loader: the object
+    /// lands at <paramref name="position"/>, and a Y below the screen wraps above it as the PPU wraps it. Like a direct
+    /// OAM store, the object index wraps after the last object instead of stopping, and the frame then ends at the
+    /// wrapped index.
+    /// </summary>
+    /// <exception cref="ArgumentException">The frame is not one object at its origin.</exception>
+    public void AddObjectImage(SpriteSheetFrame frame, Position16<OamPixels> position)
     {
-        if (next >= Capacity)
-            return;
-        ushort placedX = unchecked((ushort)(origin.X + x.Raw));
-        int placedY = (byte)origin.Y + y.Raw;
-        // The off-screen branch inverts the on-screen test: a part shows exactly when the on-screen loader would hide it.
-        if (Hides(placedY, y.IsNegative) == (originSide == SpriteOrigin.OnScreen))
-        {
-            placedX = ParkedX;
-            placedY = SnesPpuLayout.ScreenHeightPixels;
-        }
-        placed[next++] = new ScreenObject(attributes, x.IsLarge, new Position16<OamPixels>(placedX, (byte)placedY));
+        Ensure.NotNull(frame);
+        if (frame.Parts is not [{ Offset: var offset }] || offset != default)
+            throw new ArgumentException("The frame is not one object at its origin.", nameof(frame));
+        // Every object before a wrapped index is one a store has rewritten, so no earlier frame straddles it.
+        int index = next % Capacity;
+        // An object's Y wraps above the screen exactly where the off-screen loader reads an origin.
+        placed[index] = new ScreenObject(position, frame, 1, null,
+            (byte)position.Y >= SnesPpuLayout.ScreenHeightPixels ? SpriteOrigin.OffScreen : SpriteOrigin.OnScreen);
+        next = index + 1;
     }
 
-    /// <summary>The native carry and sign test hiding a vertically wrapped part.</summary>
-    private static bool Hides(int unsignedYSum, bool offsetIsNegative)
-    {
-        byte wrappedY = (byte)unsignedYSum;
-        if (!offsetIsNegative)
-            return unsignedYSum >= ByteRange || wrappedY >= SnesPpuLayout.ScreenHeightPixels;
-        // $81:8800-$81:881C: negative offsets may wrap into $E0-$FF to appear partly above the screen.
-        return (unsignedYSum & ByteRange) != 0 ? wrappedY >= SnesPpuLayout.ScreenHeightPixels : wrappedY < SnesPpuLayout.ScreenHeightPixels;
-    }
-
-    /// <summary>The finished frame's objects as draws over the bound page.</summary>
+    /// <summary>The finished frame's objects as draws.</summary>
     private SpriteDraw[] FinishedDraws()
     {
         var result = new List<SpriteDraw>(finishedCount);
@@ -166,38 +110,23 @@ public sealed class ScreenSprites
         return [.. result];
     }
 
-    /// <summary>
-    /// A one-part draw of <paramref name="placedObject"/>, or its whole frame, as signed screen pixels: X's upper half lies left of the screen
-    /// and Y wraps above it below the visible field.
-    /// </summary>
-    private SpriteDraw Draw(ScreenObject placedObject, int index)
+    /// <summary>The draw of <paramref name="placedObject"/>'s frame, its X in signed screen pixels: the upper half lies left of the screen.</summary>
+    private static ImageSpriteDraw Draw(ScreenObject placedObject, int index)
     {
         int nineBitX = placedObject.Position.X & (XRange - 1);
-        int y = placedObject.Position.Y;
         int screenX = nineBitX >= XRange / 2 ? nineBitX - XRange : nineBitX;
-        int screenY = y >= SnesPpuLayout.ScreenHeightPixels ? y - ByteRange : y;
-        if (placedObject.Image is { } image)
-        {
-            // The loaders read only the origin's low Y byte: the on-screen loader places it on or below the screen, so a
-            // frame just below the bottom still shows the parts that reach up into it, and the off-screen loader above it.
-            int imageY = (byte)y - (placedObject.Side == SpriteOrigin.OffScreen ? ByteRange : 0);
-            return new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.FrontendObjects, index), image,
-                new Position16<ScreenPixels>(unchecked((ushort)screenX), unchecked((ushort)imageY)), SpriteMirror.None,
-                placedObject.PaletteOverride);
-        }
-        Extent16<ScreenPixels> size = placedObject.IsLarge ? Sizes.Large : Sizes.Small;
-        SnesObjAttributeWord attributes = placedObject.Attributes;
-        var part = new SpriteFramePart(default, size,
-            attributes.TileNumber, attributes.FlipFlags, attributes.PaletteIndex, attributes.Priority);
-        return new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.FrontendObjects, index), new SpriteFrame("frontend object", [part]), Artwork,
-            new Position16<ScreenPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)), default, 0, 0);
+        // The loaders read only the origin's low Y byte: the on-screen loader places it on or below the screen, so a
+        // frame just below the bottom still shows the parts that reach up into it, and the off-screen loader above it.
+        int imageY = (byte)placedObject.Position.Y - (placedObject.Side == SpriteOrigin.OffScreen ? ByteRange : 0);
+        return new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.FrontendObjects, index), placedObject.Image,
+            new Position16<ScreenPixels>(unchecked((ushort)screenX), unchecked((ushort)imageY)), SpriteMirror.None,
+            placedObject.PaletteOverride);
     }
 
     /// <summary>
-    /// One placed object: its attributes, size, and position (nine-bit X as stored in sixteen bits, eight-bit Y); or a
-    /// whole frame placed at that position, standing for the objects of its parts, with the row its palette-inheriting
-    /// parts take and the loader that reads its origin.
+    /// One placed frame at its position (nine-bit X as stored in sixteen bits, eight-bit Y), standing for the objects of
+    /// its parts, with the row its palette-inheriting parts take and the loader that reads its origin.
     /// </summary>
-    private readonly record struct ScreenObject(SnesObjAttributeWord Attributes, bool IsLarge, Position16<OamPixels> Position,
-        SpriteSheetFrame? Image = null, int Objects = 1, int? PaletteOverride = null, SpriteOrigin Side = SpriteOrigin.OnScreen);
+    private readonly record struct ScreenObject(Position16<OamPixels> Position, SpriteSheetFrame Image, int Objects, int? PaletteOverride,
+        SpriteOrigin Side);
 }

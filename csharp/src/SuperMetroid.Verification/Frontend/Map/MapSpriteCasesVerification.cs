@@ -51,8 +51,8 @@ internal static class MapSpriteCasesVerification
                     bool horizontalOnly = (change with { OffsetX = part.OffsetX }) == part;
                     AssertEqual(!(worldLabel && horizontalOnly), edited.StoresComposition((MapSpriteId)role.NativeId),
                         "horizontal label edits remain positions; other authored edits retain their composition");
-                    var expected = ScreenSpritesFixtures.Blank(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
-                    MenuSpriteCompiler.Compile(parts, role.Name).Draw(expected, new(100, 100), 0x600);
+                    var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
+                    MenuSpriteCompiler.Compile(parts, role.Name).DrawOnScreen(expected, new(100, 100), 0x600);
                     MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(edited), (MapSpriteId)role.NativeId, actual, new(100, 100), 0x600);
                     expected.FinalizeFrame(); actual.FinalizeFrame();
                     AssertTrue(expected.ImageEquals(actual),

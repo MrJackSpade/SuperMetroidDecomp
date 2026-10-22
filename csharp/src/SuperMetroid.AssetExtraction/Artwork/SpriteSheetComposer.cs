@@ -41,6 +41,9 @@ internal static class SpriteSheetComposer
             int framePalette = frame.Palette ?? palette;
             frameParts[index] = [.. frame.Frame.Parts.Select(part =>
             {
+                // The PPU draws only its screen's two object sizes, so a part of any other size cannot stand for an object.
+                if (part.Size != sources.ObjectSizes.Small && part.Size != sources.ObjectSizes.Large)
+                    throw new InvalidDataException($"Sheet frame {frame.Name} has a {part.Size.X}x{part.Size.Y} part, not an object size of its screen.");
                 SpriteFramePart alone = part with { Offset = default };
                 var key = new PartKey(frame.Characters, alone, framePalette);
                 if (!partNames.TryGetValue(key, out string? name))

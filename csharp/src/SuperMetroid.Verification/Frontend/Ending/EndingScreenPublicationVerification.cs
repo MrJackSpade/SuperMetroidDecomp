@@ -44,7 +44,7 @@ internal static class EndingScreenPublicationVerification
             EndingCreditsState restored = RoundTrip(ending);
             restored.Flyaway.BindFlightArtwork(InstalledFixtures.IntroArtwork.CeresFlight);
             restored.Stage.BindMode7Artwork(RepositoryInstallation.Installation.LoadEndingMode7Art());
-            restored.InstalledArtwork.BindObjectArtwork(RepositoryInstallation.Installation.LoadEndingObjectArt());
+            restored.InstalledArtwork.BindFixtureObjectArtwork(RepositoryInstallation.Installation.LoadEndingObjectArt());
             restored.InstalledArtwork.BindPaletteArtwork(RepositoryInstallation.Installation.LoadEndingPalettes());
             restored.InstalledArtwork.BindPaletteFxColors(InstalledFixtures.Maps.RoomPaletteFx);
             restored.Stage.BindEndingFont(InstalledFixtures.Maps.EndingFont);

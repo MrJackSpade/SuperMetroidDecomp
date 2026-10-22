@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -34,7 +35,7 @@ internal static class SamusBodySheetComposer
                     inputs.StandardObjects, characters, 0);
             frames.Add(new(key.Name, frame, characters));
         }
-        return new SpriteSheetSources(frames, inputs.SuitedColours());
+        return new SpriteSheetSources(frames, inputs.SuitedColours(), ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection));
     }
 
     /// <summary>The names of the frames a body sheet holds.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -30,7 +31,7 @@ internal static class SamusDeathSheetComposer
                     ? spritemap : new SpriteFrame(name, []), body.DeathTiles.Explosion));
             }
         }
-        return new SpriteSheetSources(frames, inputs.SuitedColours());
+        return new SpriteSheetSources(frames, inputs.SuitedColours(), ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection));
     }
 
     /// <summary>The Samus spritemap the explosion's frame <paramref name="frame"/> shows facing <paramref name="facing"/>.</summary>

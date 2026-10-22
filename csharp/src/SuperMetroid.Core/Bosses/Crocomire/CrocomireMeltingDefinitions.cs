@@ -32,6 +32,9 @@ internal static class CrocomireMeltingDefinitions
     /// <summary>The number of authored physical columns in the melt permutation.</summary>
     public const int ColumnCount = 49;
 
+    /// <summary>The pixels each dissolve step erases down its column, and the height at which a column is erased whole.</summary>
+    public const int ColumnPixels = 48;
+
     /// <summary>Returns the physical X column selected by one chronological cursor.</summary>
     public static byte SelectColumn(int cursor)
     {

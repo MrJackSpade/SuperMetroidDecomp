@@ -1,5 +1,9 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Verification.Rooms.Artwork;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -9,12 +13,16 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 
-/// <summary>Checks that Crocomire's melt publishes through bound characters each frame, not VRAM writes (#1355).</summary>
+/// <summary>
+/// Checks that Crocomire's melt publishes through bound characters each frame, not VRAM writes (#1355), and that his
+/// melting body draws from pictures of each state the melt shows (#1392).
+/// </summary>
 internal static class CrocomireMeltPublicationVerification
 {
     /// <summary>
     /// A constructed Crocomire melting in his room erases one column per frame on the cartridge's cadence, and each
-    /// accepted NMI publishes the masked characters that frame bound, while VRAM itself never receives them.
+    /// accepted NMI publishes the masked characters that frame bound, while VRAM itself never receives them. Every word of
+    /// his melting body resolves to a picture painting what its characters show that frame.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks the melting records' native VRAM words")]
     internal static void VerifyCrocomireMeltPublication()
@@ -34,7 +42,8 @@ internal static class CrocomireMeltPublicationVerification
         crocomire.Melting.InitializeCrocomireMeltingGraphics(state);
         crocomire.Melting.BeginCrocomireMelting(state);
 
-        int frames = 0;
+        TileWordSheet sheet = (runtime.Room.Scope?.BodyPictures ?? throw new InvalidOperationException("Crocomire's room has no tile words.")).Sheet;
+        int frames = 0, painted = 0;
         for (int frame = 0; frame < 12; frame++)
         {
             byte[] heightsBefore = death.MeltingColumnHeights.ToArray();
@@ -52,9 +61,24 @@ internal static class CrocomireMeltPublicationVerification
                 $"melt frame {frame} publishes its masked characters");
             AssertTrue(!runtime.Vram.Bytes.Slice(upload.DestinationWord * 2, upload.ByteCount).SequenceEqual(melted),
                 $"melt frame {frame} writes no characters into VRAM");
+            ImmutableArray<ushort> words = [.. death.Bg2WorkingTilemap];
+            ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver(sheet).Resolve(words,
+                RoomCharacterSource.Of(RoomBackgroundCharacters.Tileset, runtime.BgArtwork, runtime.EnemySession.ObjCharacters));
+            for (int tile = 0; tile < words.Length; tile++)
+            {
+                BgTilePicture picture = pictures[tile] ?? throw new InvalidOperationException($"melt frame {frame}: tile {tile} has no picture.");
+                var word = new SnesBgTilemapWord(words[tile]);
+                for (int y = 0; y < 8; y++)
+                for (int x = 0; x < 8; x++)
+                {
+                    RoomBlockPicturesVerification.AssertPaintsTile($"melt frame {frame} tile {tile} pixel ({x}, {y})", published, word, x, y,
+                        picture.Picture, new Position16<ImagePixels>((ushort)(picture.Corner.X + x), (ushort)(picture.Corner.Y + y)));
+                }
+                painted++;
+            }
             frames++;
         }
-        Console.WriteLine($"  Crocomire melt: {frames} frames each erase a column and publish its masked characters.");
+        Console.WriteLine($"  Crocomire melt: {frames} frames each erase a column and publish its masked characters; {painted} body words draw from pictures of what they show.");
     }
 
     /// <summary>Runs the Crocomire melt publication check.</summary>

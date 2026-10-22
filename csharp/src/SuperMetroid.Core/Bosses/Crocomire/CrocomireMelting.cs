@@ -1,4 +1,5 @@
 ﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
@@ -80,8 +81,8 @@ internal sealed class CrocomireMelting
     private void StartCrocomireMeltingTilemap(CrocomireEnemyState state, CrocomireBodyProgram bodyProgram)
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
-        death.PixelsToErasePerColumn = 48;
-        death.MeltTargetHeight = 48;
+        death.PixelsToErasePerColumn = CrocomireMeltingDefinitions.ColumnPixels;
+        death.MeltTargetHeight = CrocomireMeltingDefinitions.ColumnPixels;
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, bodyProgram);
     }
@@ -165,18 +166,27 @@ internal sealed class CrocomireMelting
         int sourceOffset = unchecked((ushort)(source - CrocomireMeltingTransferDefinitions.ScratchStart));
         if (sourceOffset < 0 || sourceOffset + byteCount > death.MeltingGraphics.Length)
             throw new InvalidDataException("Crocomire melting VRAM record exceeds the scratch image.");
-        _presentation.Backgrounds.Bind(MeltingCharacters(destinationWord), destinationWord, death.MeltingGraphics.Slice(sourceOffset, byteCount));
+        // The slice shows the pass's image after the columns erased so far, each erased whole (#1392).
+        int step = 0;
+        foreach (byte height in death.MeltingColumnHeights)
+        {
+            if (height == death.MeltTargetHeight)
+                step++;
+        }
+        CrocomireMeltingHeader pass = ClosedNativeWords.Decode<CrocomireMeltingHeader>(
+            checked((ushort)CrocomireMeltingTransferDefinitions.Transfers(death.MeltingTableOffset).HeaderOffset), "Crocomire melt header offset");
+        _presentation.Backgrounds.Bind(MeltingCharacters(pass, step, destinationWord), destinationWord, death.MeltingGraphics.Slice(sourceOffset, byteCount));
     }
 
     /// <summary>The name every artwork the melt binds starts with.</summary>
     private const string MeltingCharactersName = "Crocomire melting characters";
 
-    /// <summary>The artwork the melt binds over the characters from <paramref name="destinationWord"/>.</summary>
-    private static BgArtworkIdentity MeltingCharacters(int destinationWord) => new($"{MeltingCharactersName} ${destinationWord:X4}");
-
-    /// <summary>Whether <paramref name="artwork"/> is characters the melt rewrote.</summary>
-    internal static bool IsMeltingCharacters(BgArtworkIdentity artwork) =>
-        artwork.Name.StartsWith(MeltingCharactersName, StringComparison.Ordinal);
+    /// <summary>
+    /// The artwork the melt binds over the characters from <paramref name="destinationWord"/>: <paramref name="pass"/>'s image
+    /// after <paramref name="step"/> columns are erased, which the extraction pictures his tile words over (#1392).
+    /// </summary>
+    internal static BgArtworkIdentity MeltingCharacters(CrocomireMeltingHeader pass, int step, int destinationWord) =>
+        new($"{MeltingCharactersName} {pass} step {step} ${destinationWord:X4}");
 
     /// <summary>Starts Crocomire's dissolve after installed graphics and tilemap data are ready.</summary>
     internal void BeginCrocomireMelting(CrocomireEnemyState state)
@@ -256,10 +266,35 @@ internal sealed class CrocomireMelting
         }
         death.MeltingColumnCursor = cursor;
 
+        EraseColumn(graphics, heights, cursor, death.PixelsToErasePerColumn);
+
+        int recordOffset = death.MeltingTableOffset + death.MeltingTransferOffset;
+        if (!CrocomireMeltingTransferDefinitions.TryUpload(
+            recordOffset, out CrocomireMeltingUpload upload))
+        {
+            death.MeltingTransferOffset = 0;
+            recordOffset = death.MeltingTableOffset;
+            if (!CrocomireMeltingTransferDefinitions.TryUpload(recordOffset, out upload))
+                throw new InvalidDataException("Crocomire melt pass has no first transfer.");
+        }
+        UploadCrocomireMeltingRecord(upload);
+        death.MeltingTransferOffset += 8;
+        return true;
+    }
+
+    /// <summary>
+    /// Erases up to <paramref name="pixels"/> pixels down the column the dissolve selects at <paramref name="cursor"/>, from its
+    /// height in <paramref name="heights"/>, raising that height. The extraction plays the same erasure to picture each state
+    /// the melt shows (#1392).
+    /// </summary>
+    /// <exception cref="InvalidDataException">The column lies outside the graphics image.</exception>
+    internal static void EraseColumn(Span<byte> graphics, Span<byte> heights, int cursor, int pixels)
+    {
+        int xColumn = CrocomireMeltingDefinitions.SelectColumn(cursor);
         // The shipped routine masks by [table index & 7], not [selected X & 7]. This is one
         // of its documented indexing bugs and materially changes the dissolve silhouette.
         byte mask = CrocomireMeltingDefinitions.SelectMask(cursor);
-        int remaining = death.PixelsToErasePerColumn;
+        int remaining = pixels;
         do
         {
             int y = heights[xColumn];
@@ -274,19 +309,6 @@ internal sealed class CrocomireMelting
                 break;
             heights[xColumn]++;
         } while (--remaining != 0);
-
-        int recordOffset = death.MeltingTableOffset + death.MeltingTransferOffset;
-        if (!CrocomireMeltingTransferDefinitions.TryUpload(
-            recordOffset, out CrocomireMeltingUpload upload))
-        {
-            death.MeltingTransferOffset = 0;
-            recordOffset = death.MeltingTableOffset;
-            if (!CrocomireMeltingTransferDefinitions.TryUpload(recordOffset, out upload))
-                throw new InvalidDataException("Crocomire melt pass has no first transfer.");
-        }
-        UploadCrocomireMeltingRecord(upload);
-        death.MeltingTransferOffset += 8;
-        return true;
     }
 
     /// <summary>Builds scanline BG2 offsets that distort Crocomire's body through the melting pass.</summary>

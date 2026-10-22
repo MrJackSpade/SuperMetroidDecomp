@@ -1,6 +1,8 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
@@ -139,11 +141,46 @@ internal static class RoomBlockUploads
                 }
             }
         }
+        if (state.EnemyPopulation.Records.Span.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Crocomire))
+        {
+            foreach (BgCharacterUpload upload in CrocomireMeltingUploads(inputs))
+                yield return upload;
+        }
         if (state.EnemyPopulation.Records.Span.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Kraid))
         {
             yield return new BgCharacterUpload(KraidBehavior.KraidRoomBackgroundIdentity, BossVramLayout.KraidRoomBackgroundTiles.Offset,
                 (inputs.Bosses.KraidBackground ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters."))
                     .RoomBackgroundTiles.Transfer);
+        }
+    }
+
+    /// <summary>
+    /// What Crocomire's melt binds over his characters (#1392): each dissolve pass's image, from the pass's copy, after each
+    /// number of columns erased, each chunk the pass uploads under the identity the runtime binds it with.
+    /// </summary>
+    private static IEnumerable<BgCharacterUpload> CrocomireMeltingUploads(RoomBlockSheetInputs inputs)
+    {
+        CrocomireMeltingArtwork artwork = inputs.Bosses.CrocomireMelting
+            ?? throw new InvalidDataException("Installed boss artwork has no Crocomire melting graphics.");
+        foreach (CrocomireMeltingHeader header in Enum.GetValues<CrocomireMeltingHeader>())
+        {
+            CrocomireMeltingPass pass = CrocomireMeltingTransferDefinitions.Header((int)header);
+            var image = new byte[CrocomireDeathState.MeltingGraphicsByteCount];
+            var heights = new byte[CrocomireDeathState.MeltingColumnCount];
+            artwork.CopyPassTo(pass.HeaderOffset, image);
+            for (int step = 0; ; step++)
+            {
+                for (int chunk = 0; chunk < pass.Uploads.Length; chunk++)
+                {
+                    CrocomireMeltingUpload upload = pass.Uploads[chunk];
+                    int source = upload.SourceWord - CrocomireMeltingTransferDefinitions.ScratchStart;
+                    yield return new BgCharacterUpload(CrocomireMelting.MeltingCharacters(header, step, upload.DestinationWord),
+                        upload.DestinationWord, image.AsSpan(source, upload.ByteCount).ToArray());
+                }
+                if (step == CrocomireMeltingDefinitions.ColumnCount)
+                    break;
+                CrocomireMelting.EraseColumn(image, heights, step, CrocomireMeltingDefinitions.ColumnPixels);
+            }
         }
     }
 

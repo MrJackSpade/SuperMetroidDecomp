@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using System.Runtime.InteropServices;
-using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
@@ -8,8 +7,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
 /// Resolves what tile words written over a room's BG1 or BG2 show (#1392): each word's picture in the room's tile word
-/// sheet over what the word's character shows. Crocomire's melt rewrites the characters it shows over, so those words
-/// draw from their characters until the melt is drawn as an effect over his images.
+/// sheet over what the word's character shows, Crocomire's melt among it, pictured at each of its states.
 /// </summary>
 public sealed class TileWordPictureResolver(TileWordSheet sheet)
 {
@@ -19,7 +17,7 @@ public sealed class TileWordPictureResolver(TileWordSheet sheet)
     /// <summary>What each word's character showed when last resolved.</summary>
     private BgArtworkShown[] shown = [];
 
-    /// <summary>The pictures last resolved, null where a word is unwritten or draws from its character.</summary>
+    /// <summary>The pictures last resolved, null where a word is unwritten.</summary>
     private ImmutableArray<BgTilePicture?> pictures;
 
     /// <summary>What each character shows this resolution, by character.</summary>
@@ -94,13 +92,8 @@ public sealed class TileWordPictureResolver(TileWordSheet sheet)
                 continue;
             shown[index] = now;
             next ??= fresh ? new BgTilePicture?[count] : [.. pictures];
-            if (CrocomireMelting.IsMeltingCharacters(now.Artwork))
-                next[index] = null;
-            else
-            {
-                next[index] = Sheet.TryPicture(new BgTileArtwork(word, now), out BgTilePicture picture) ? picture
-                    : throw new InvalidDataException($"{Sheet.Name} pictures no tile ${word.Raw:X4} over {now.Artwork.Name} at word {now.WordOffset}.");
-            }
+            next[index] = Sheet.TryPicture(new BgTileArtwork(word, now), out BgTilePicture picture) ? picture
+                : throw new InvalidDataException($"{Sheet.Name} pictures no tile ${word.Raw:X4} over {now.Artwork.Name} at word {now.WordOffset}.");
         }
         if (next is not null)
             pictures = [.. next];

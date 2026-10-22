@@ -118,7 +118,7 @@ internal static class RoomBlockPicturesVerification
     /// characters paint it, is <paramref name="picture"/>'s pixel at <paramref name="pixel"/>: its palette index, its tile
     /// priority and its standard colour.
     /// </summary>
-    private static void AssertPaintsTile(string context, ReadOnlySpan<byte> vram, SnesBgTilemapWord word, int x, int y,
+    internal static void AssertPaintsTile(string context, ReadOnlySpan<byte> vram, SnesBgTilemapWord word, int x, int y,
         SpriteSheetFrame picture, Position16<ImagePixels> pixel)
     {
         int pixelRow = word.FlipVertically ? CharacterPixels - 1 - y : y;

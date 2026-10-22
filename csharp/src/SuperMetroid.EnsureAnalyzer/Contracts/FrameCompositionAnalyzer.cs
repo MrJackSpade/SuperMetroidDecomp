@@ -63,7 +63,7 @@ public sealed class FrameCompositionAnalyzer : DiagnosticAnalyzer
             if (start.Compilation.AssemblyName != CoreLayerAnalyzer.CoreAssembly)
                 return;
             IAssemblySymbol core = start.Compilation.Assembly;
-            var reachable = new Lazy<ImmutableHashSet<INamedTypeSymbol>>(() => Reachable(start.Compilation, core));
+            var reachable = new Lazy<ImmutableHashSet<INamedTypeSymbol>>(() => PublishedTypeReachability.Reachable(start.Compilation, core, DrawEntryTypes));
             start.RegisterSymbolAction(symbolContext => AnalyzeMember(symbolContext, reachable.Value),
                 SymbolKind.Field, SymbolKind.Property);
         });
@@ -93,91 +93,10 @@ public sealed class FrameCompositionAnalyzer : DiagnosticAnalyzer
     private static void AnalyzeMember(SymbolAnalysisContext context, ImmutableHashSet<INamedTypeSymbol> reachable)
     {
         ISymbol symbol = context.Symbol;
-        if (symbol.IsStatic || symbol.IsImplicitlyDeclared || !reachable.Contains(symbol.ContainingType.OriginalDefinition) ||
-            symbol.Locations.FirstOrDefault(location => location.IsInSource) is not { } location)
+        if (PublishedTypeReachability.ReachedMemberType(symbol, reachable, out Location? location) is { } type &&
+            Composition(symbol.Name, type) is { } what)
         {
-            return;
-        }
-        ITypeSymbol? type = symbol switch
-        {
-            IFieldSymbol field => field.Type,
-            IPropertySymbol property => property.Type,
-            _ => null,
-        };
-        if (type is not null && Composition(symbol.Name, type) is { } what)
             context.ReportDiagnostic(Diagnostic.Create(Rule, location, symbol.Name, what));
-    }
-
-    /// <summary>
-    /// The Core types reachable from the draw entries through instance fields, properties and base types, and every type
-    /// derived from one: a draw entry's kinds are draw entries too.
-    /// </summary>
-    private static ImmutableHashSet<INamedTypeSymbol> Reachable(Compilation compilation, IAssemblySymbol core)
-    {
-        var seen = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
-        var pending = new Stack<INamedTypeSymbol>();
-        foreach (INamedTypeSymbol root in compilation.GetSymbolsWithName(DrawEntryTypes.Contains, SymbolFilter.Type).OfType<INamedTypeSymbol>())
-            Enqueue(root);
-        INamedTypeSymbol[] all = [.. Types(core.GlobalNamespace)];
-        bool grew = true;
-        while (grew)
-        {
-            Drain();
-            grew = false;
-            foreach (INamedTypeSymbol type in all)
-            {
-                if (seen.Contains(type))
-                    continue;
-                for (INamedTypeSymbol? baseType = type.BaseType; baseType is not null; baseType = baseType.BaseType)
-                {
-                    if (seen.Contains(baseType.OriginalDefinition))
-                    {
-                        Enqueue(type);
-                        grew = true;
-                        break;
-                    }
-                }
-            }
-        }
-        return seen.ToImmutableHashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
-
-        void Drain()
-        {
-            while (pending.Count > 0)
-            {
-                INamedTypeSymbol type = pending.Pop();
-                if (type.BaseType is { } baseType)
-                    Visit(baseType);
-                foreach (ISymbol member in type.GetMembers())
-                {
-                    if (member.IsStatic)
-                        continue;
-                    if (member is IFieldSymbol field)
-                        Visit(field.Type);
-                    else if (member is IPropertySymbol property)
-                        Visit(property.Type);
-                }
-            }
-        }
-
-        void Visit(ITypeSymbol type)
-        {
-            if (type is IArrayTypeSymbol array)
-            {
-                Visit(array.ElementType);
-            }
-            else if (type is INamedTypeSymbol named)
-            {
-                foreach (ITypeSymbol argument in named.TypeArguments)
-                    Visit(argument);
-                Enqueue(named.OriginalDefinition);
-            }
-        }
-
-        void Enqueue(INamedTypeSymbol type)
-        {
-            if (SymbolEqualityComparer.Default.Equals(type.ContainingAssembly, core) && seen.Add(type))
-                pending.Push(type);
         }
     }
 
@@ -201,21 +120,6 @@ public sealed class FrameCompositionAnalyzer : DiagnosticAnalyzer
         if (RawColourTypes.Contains(named.Name))
             return true;
         return named.IsGenericType && named.TypeArguments.Length == 1 && IsRawData(named.TypeArguments[0]);
-    }
-
-    /// <summary>Every type declared in <paramref name="space"/> and its nested namespaces and types.</summary>
-    private static IEnumerable<INamedTypeSymbol> Types(INamespaceOrTypeSymbol space)
-    {
-        foreach (ISymbol member in space.GetMembers())
-        {
-            if (member is INamespaceOrTypeSymbol nested)
-            {
-                if (nested is INamedTypeSymbol type)
-                    yield return type;
-                foreach (INamedTypeSymbol inner in Types(nested))
-                    yield return inner;
-            }
-        }
     }
 
     /// <summary>Whether <paramref name="type"/>, its elements or its type arguments name one of <paramref name="names"/>.</summary>

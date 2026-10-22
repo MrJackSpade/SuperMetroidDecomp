@@ -71,6 +71,7 @@ internal static class Program
                 new AnalyzerSuite(nameof(CompatibilityServiceAnalyzerTests.VerifyCompatibilityServiceAnalyzer), CompatibilityServiceAnalyzerTests.VerifyCompatibilityServiceAnalyzer),
                 new AnalyzerSuite(nameof(AddressIdentityAnalyzerTests.VerifyAddressIdentityAnalyzer), AddressIdentityAnalyzerTests.VerifyAddressIdentityAnalyzer),
                 new AnalyzerSuite(nameof(FrameCompositionAnalyzerTests.VerifyFrameCompositionAnalyzer), FrameCompositionAnalyzerTests.VerifyFrameCompositionAnalyzer),
+                new AnalyzerSuite(nameof(DisplayPacketAnalyzerTests.VerifyDisplayPacketAnalyzer), DisplayPacketAnalyzerTests.VerifyDisplayPacketAnalyzer),
                 new AnalyzerSuite(nameof(VerifyKindTaggedRecordAnalyzer), VerifyKindTaggedRecordAnalyzer),
                 new AnalyzerSuite(nameof(VerifyStringIdentityAnalyzer), VerifyStringIdentityAnalyzer),
                 new AnalyzerSuite(nameof(VerifyDspRegisterAccessAnalyzer), VerifyDspRegisterAccessAnalyzer),

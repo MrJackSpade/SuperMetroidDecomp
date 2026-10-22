@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Options.Artwork;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
@@ -37,6 +38,19 @@ internal static class MenuSheetFixtures
                 $"presentation-{RuntimeHelpers.GetHashCode(key):X8}"));
     }
 
+    /// <summary>Options sheets already composed, by presentation.</summary>
+    private static readonly ConditionalWeakTable<GameOptionsPresentation, SpriteSheet> options = new();
+
+    /// <summary>The options sheet <paramref name="presentation"/> composes over the installation's menus.</summary>
+    internal static SpriteSheet GameOptions(GameOptionsPresentation presentation)
+    {
+        ArgumentNullException.ThrowIfNull(presentation);
+        return presentation.ContentIdentity == InstalledFixtures.Maps.GameOptions.ContentIdentity
+            ? InstalledFixtures.SpriteSheets.Get(SpriteSheetId.GameOptions)
+            : options.GetValue(presentation, key => Load(SpriteSheetId.GameOptions, GameOptionsSheetComposer.Sources(key, InstalledFixtures.Maps),
+                $"presentation-{RuntimeHelpers.GetHashCode(key):X8}"));
+    }
+
     /// <summary>Composes and registers a fixture presentation's menu sheets beside the installed others.</summary>
     private static InstalledSpriteSheets Compose(AreaMapPresentationCatalog maps)
     {
@@ -45,6 +59,7 @@ internal static class MenuSheetFixtures
                  {
                      (SpriteSheetId.GameOver, GameOverSheetComposer.Sources(maps)),
                      (SpriteSheetId.FileSelect, FileSelectSheetComposer.Sources(maps)),
+                     (SpriteSheetId.GameOptions, GameOptionsSheetComposer.Sources(maps)),
                  })
             sheets[id] = Load(id, sources, $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
         return new InstalledSpriteSheets(sheets);

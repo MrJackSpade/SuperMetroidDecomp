@@ -18,6 +18,7 @@ public static class SpriteSheetDefinitions
         SpriteSheetId.SamusDeath => "samus-death",
         SpriteSheetId.GameOver => "game-over",
         SpriteSheetId.FileSelect => "file-select",
+        SpriteSheetId.GameOptions => "game-options",
         SpriteSheetId.IntroProjectiles => "intro-projectiles",
         SpriteSheetId.ProjectilesPower => "projectiles-power",
         SpriteSheetId.ProjectilesWave => "projectiles-wave",

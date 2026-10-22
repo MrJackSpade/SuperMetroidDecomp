@@ -1,28 +1,23 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.GameOver;
 
 /// <summary>Retail game-over prompt at <c>$81:90AE-$81:93F7</c>.</summary>
-public sealed class GameOverMenuState : IFrontendScreen
+public sealed class GameOverMenuState : IMenuFrontendScreen
 {
     /// <inheritdoc/>
-    void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork, SuperMetroidGameState state)
-    {
-        Ensure.NotNull(previous);
-        Ensure.NotNull(artwork);
-        if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
-            BindMapPresentation(artwork.MapPresentation);
-        spriteSheets = artwork.SpriteSheets;
-    }
+    [MemberNotNull(nameof(spriteSheets))]
+    public void BindSpriteSheets(InstalledSpriteSheets? sheets) =>
+        spriteSheets = sheets ?? throw new InvalidOperationException("Game-over screen requires the installed sprite sheets.");
 
     /// <summary>The installed sprite sheets the Baby, egg and cursor draw from; artwork, never saved.</summary>
-    [NonSerialized] private InstalledSpriteSheets? spriteSheets;
+    [NonSerialized] private InstalledSpriteSheets spriteSheets;
 
     /// <summary>Shared music and sound queue advanced by the menu scene.</summary>
     private readonly CartridgeAudioState audio;
@@ -64,7 +59,7 @@ public sealed class GameOverMenuState : IFrontendScreen
         bool continueLoadsCeresArrival = false)
     {
         this.continueLoadsCeresArrival = continueLoadsCeresArrival;
-        this.spriteSheets = spriteSheets ?? throw new InvalidOperationException("Game-over screen requires the installed sprite sheets.");
+        BindSpriteSheets(spriteSheets);
         this.audio = Ensure.NotNull(audio);
         this.mapPresentation = mapPresentation ?? throw new InvalidOperationException(
             "Game-over screen requires installed presentation assets.");
@@ -256,8 +251,7 @@ public sealed class GameOverMenuState : IFrontendScreen
         sprites.BeginFrame();
         var content = mapPresentation ?? throw new InvalidOperationException(
             "Game-over screen requires installed presentation assets.");
-        SpriteSheet sheet = (spriteSheets ?? throw new InvalidOperationException(
-            "Game-over screen requires the installed sprite sheets.")).Get(SpriteSheetId.GameOver);
+        SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.GameOver);
         GameOverBabyInstruction instruction = GameOverBabyAnimation.Get(BabyStep ?? 0);
         content.GameOver.DrawBaby(sprites, sheet, instruction.Frame);
         content.GameOver.DrawEgg(sprites, sheet);

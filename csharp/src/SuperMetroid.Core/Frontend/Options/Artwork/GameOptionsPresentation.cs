@@ -173,24 +173,19 @@ public sealed class GameOptionsPresentation
             : throw new InvalidDataException($"Options cursor {page}[{selectedItem}] is not authored.");
     }
     /// <summary>Draws a page heading at its authored origin after applying menu scroll.</summary>
-    internal void DrawHeading(ScreenSprites sprites, GameOptionsPage page, int verticalScroll)
+    internal void DrawHeading(ScreenSprites sprites, SpriteSheet sheet, GameOptionsPage page, int verticalScroll)
     {
         Position16<OamPixels> point = headingAnchors is null
             ? GameOptionsPresentationDefinitions.HeadingAnchor(page)
             : headingAnchors[page];
         // The authored X is validated on screen; scrolling the heading wraps its Y word.
         Position16<OamPixels> origin = new(checked(point.X), unchecked((ushort)(point.Y - verticalScroll)));
-        headingSprites[page].Draw(
-            sprites, origin,
-            PaletteBits(CursorPalette));
+        sprites.AddImage(sheet.Frame(GameOptionsPresentationDefinitions.HeadingSpriteName(page)), origin, headingSprites[page].PartCount);
     }
 
     /// <summary>Draws one frame of the missile cursor at the selected position.</summary>
-    internal void DrawCursor(ScreenSprites sprites, int frame, Position16<OamPixels> point)
-    {
-        cursorSprites[frame].Draw(
-            sprites, point, PaletteBits(CursorPalette));
-    }
+    internal void DrawCursor(ScreenSprites sprites, SpriteSheet sheet, int frame, Position16<OamPixels> point) =>
+        sprites.AddImage(sheet.Frame(GameOptionsPresentationDefinitions.CursorSpriteName(frame)), point, cursorSprites[frame].PartCount);
 
     /// <summary>Reads a complete options-menu JSON document and compiles validated pages, controller labels, highlights, and sprite layouts.</summary>
     /// <param name="source">Readable stream consumed from its current position to the end and left open.</param>
@@ -417,8 +412,4 @@ public sealed class GameOptionsPresentation
         if ((uint)palette >= MapPresentationFormat.PaletteCount)
             throw new InvalidDataException($"Options {owner} must be 0..7.");
     }
-
-    /// <summary>Extracts OBJ palette attribute bits for a heading or cursor composition.</summary>
-    private static ushort PaletteBits(int index) =>
-        SnesObjAttributeWord.Create(0, index, 0).PaletteBits;
 }

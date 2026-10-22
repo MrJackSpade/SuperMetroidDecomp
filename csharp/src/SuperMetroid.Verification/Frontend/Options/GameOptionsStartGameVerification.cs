@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
@@ -23,7 +24,7 @@ internal static class GameOptionsStartGameVerification
             new VerifyGameOptionsStartGameCase(SaveLoadingGameState.OpeningCinematic, GameOptionsPhase.FadeOutToIntro),
         })
         {
-            var options = new GameOptionsMenuState(mapPresentation: RetailPresentationFixture()) { LoadingGameState = route };
+            var options = new GameOptionsMenuState(mapPresentation: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture())) { LoadingGameState = route };
             for (int frame = 0; frame < 80 && options.Phase != GameOptionsPhase.Main; frame++)
                 options.Step(SnesButton.None);
             AssertEqual(GameOptionsPhase.Main, options.Phase, $"{route} save reaches the primary options page");

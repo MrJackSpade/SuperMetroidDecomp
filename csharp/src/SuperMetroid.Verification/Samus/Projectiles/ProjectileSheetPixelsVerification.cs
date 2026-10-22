@@ -31,7 +31,7 @@ internal static class ProjectileSheetPixelsVerification
         foreach (SpriteSheetId id in new[] { SpriteSheetId.ProjectilesPower, SpriteSheetId.ProjectilesSpazerPlasmaIce, SpriteSheetId.IntroProjectiles,
             SpriteSheetId.Grapple, SpriteSheetId.SamusBodyTop, SpriteSheetId.SamusBodyBottom, SpriteSheetId.SamusOverlays,
             SpriteSheetId.SamusAtmosphere, SpriteSheetId.SamusDeath, SpriteSheetId.GameOver,
-            SpriteSheetId.FileSelect })
+            SpriteSheetId.FileSelect, SpriteSheetId.GameOptions })
         {
             SpriteSheetSources sources = catalog.For(id);
             SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(id);

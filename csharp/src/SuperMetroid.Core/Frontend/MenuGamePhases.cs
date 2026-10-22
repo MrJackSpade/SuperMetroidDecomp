@@ -84,7 +84,8 @@ internal sealed class MenuGamePhases(FrontendSession session)
                 optionSlot?.IconCancelEnabled ?? false,
                 optionSlot?.MoonwalkEnabled ?? false,
                 japaneseText: optionSlot?.JapaneseText ?? false,
-                mapPresentation: session.Artwork.MapPresentation)
+                mapPresentation: session.Artwork.MapPresentation,
+                spriteSheets: session.Artwork.SpriteSheets)
             {
                 LoadingGameState = optionSlot?.StartupRoute ?? SaveLoadingGameState.OpeningCinematic,
             });
@@ -242,7 +243,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
                 session.Show(new GameOptionsMenuState(session.audio, mapSlot.ControllerBindings,
                     mapSlot.IconCancelEnabled, mapSlot.MoonwalkEnabled,
                     japaneseText: mapSlot.JapaneseText,
-                    mapPresentation: session.Artwork.MapPresentation));
+                    mapPresentation: session.Artwork.MapPresentation, spriteSheets: session.Artwork.SpriteSheets));
                 session.GameState = SuperMetroidGameState.GameOptionsMenu;
                 session.display.PublishMenu(session.ActiveOptions);
                 return;

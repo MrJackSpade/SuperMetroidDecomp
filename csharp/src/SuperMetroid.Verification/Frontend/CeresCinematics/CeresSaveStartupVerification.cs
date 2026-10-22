@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -55,7 +56,7 @@ internal static class CeresSaveStartupVerification
             RoomPlmBlueDoorVisuals = installation.LoadRoomPlmBlueDoorVisuals(),
             RoomPlmElevatorPlatformVisuals = installation.LoadRoomPlmElevatorPlatformVisuals(),
         });
-        var options = new GameOptionsMenuState(mapPresentation: maps);
+        var options = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
         options.Phase = GameOptionsPhase.StartGame;
         game.Session.Show(options);
         game.Session.LoadingExistingSave = true;
@@ -118,7 +119,7 @@ internal static class CeresSaveStartupVerification
             RoomPlmBlueDoorVisuals = installation.LoadRoomPlmBlueDoorVisuals(),
             RoomPlmElevatorPlatformVisuals = installation.LoadRoomPlmElevatorPlatformVisuals(),
         });
-        var reloadOptions = new GameOptionsMenuState(mapPresentation: maps);
+        var reloadOptions = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
         reloadOptions.Phase = GameOptionsPhase.StartGame;
         reload.Session.Show(reloadOptions);
         reload.Session.LoadingExistingSave = true;
@@ -147,7 +148,7 @@ internal static class CeresSaveStartupVerification
             RoomPlmBlueDoorVisuals = installation.LoadRoomPlmBlueDoorVisuals(),
             RoomPlmElevatorPlatformVisuals = installation.LoadRoomPlmElevatorPlatformVisuals(),
         });
-        var probeOptions = new GameOptionsMenuState(mapPresentation: maps);
+        var probeOptions = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
         probeOptions.Phase = GameOptionsPhase.StartGame;
         gameOverProbe.Session.Show(probeOptions);
         gameOverProbe.Session.LoadingExistingSave = true;
@@ -214,7 +215,7 @@ internal static class CeresSaveStartupVerification
         {
             MapPresentation = maps,
         });
-        var oldOptions = new GameOptionsMenuState(mapPresentation: maps);
+        var oldOptions = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
         oldOptions.Phase = GameOptionsPhase.StartGame;
         unmodified.Session.Show(oldOptions);
         unmodified.Session.LoadingExistingSave = true;

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -8,16 +9,15 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Options;
 
 /// <summary>Complete game-state-$02 options owner, including both secondary pages.</summary>
-public sealed class GameOptionsMenuState : IFrontendScreen
+public sealed class GameOptionsMenuState : IMenuFrontendScreen
 {
     /// <inheritdoc/>
-    void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork, SuperMetroidGameState state)
-    {
-        Ensure.NotNull(previous);
-        Ensure.NotNull(artwork);
-        if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
-            BindMapPresentation(artwork.MapPresentation);
-    }
+    [MemberNotNull(nameof(spriteSheets))]
+    public void BindSpriteSheets(InstalledSpriteSheets? sheets) =>
+        spriteSheets = sheets ?? throw new InvalidOperationException("Options menu requires the installed sprite sheets.");
+
+    /// <summary>The installed sprite sheets the headings and cursor draw from; artwork, never saved.</summary>
+    [NonSerialized] private InstalledSpriteSheets spriteSheets;
 
     /// <summary>Receives cursor and confirmation sounds when available.</summary>
     private readonly CartridgeAudioState? audio;
@@ -58,6 +58,7 @@ public sealed class GameOptionsMenuState : IFrontendScreen
     /// <param name="moonwalkEnabled">Initial state of the moonwalk option.</param>
     /// <param name="japaneseText">Whether the Japanese-language page variants are initially selected.</param>
     /// <param name="mapPresentation">Required installed menu presentation assets.</param>
+    /// <param name="spriteSheets">Required installed sprite sheets, which the headings and cursor draw from.</param>
     [IndependentFlag("Icon cancel, moonwalk and Japanese text are three independent saved options.")]
     public GameOptionsMenuState(
         CartridgeAudioState? audio = null,
@@ -65,11 +66,13 @@ public sealed class GameOptionsMenuState : IFrontendScreen
         bool iconCancelEnabled = false,
         bool moonwalkEnabled = false,
         bool japaneseText = false,
-        AreaMapPresentationCatalog? mapPresentation = null)
+        AreaMapPresentationCatalog? mapPresentation = null,
+        InstalledSpriteSheets? spriteSheets = null)
     {
         this.audio = audio;
         this.mapPresentation = mapPresentation ?? throw new InvalidOperationException(
             "Options menu requires installed presentation assets.");
+        BindSpriteSheets(spriteSheets);
         screen = new MenuScreen(mapPresentation.Tiles, mapPresentation.Palettes,
             mapPresentation.WorldArtwork, mapPresentation.Sprites);
         mapPresentation.GameOptions.LoadBackground(screen.Tilemaps);
@@ -94,7 +97,7 @@ public sealed class GameOptionsMenuState : IFrontendScreen
     }
 
     /// <summary>Rebinds host-owned visual assets after a debugger-state restore.</summary>
-    internal void BindMapPresentation(AreaMapPresentationCatalog? catalog)
+    public void BindMapPresentation(AreaMapPresentationCatalog? catalog)
     {
         mapPresentation = catalog ?? throw new InvalidOperationException(
             "Options menu requires installed presentation assets.");
@@ -268,9 +271,10 @@ public sealed class GameOptionsMenuState : IFrontendScreen
         sprites.BeginFrame();
         var content = mapPresentation ?? throw new InvalidOperationException(
             "Options cursor requires installed presentation assets.");
-        content.GameOptions.DrawHeading(sprites, page, bg1VerticalScroll);
+        SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.GameOptions);
+        content.GameOptions.DrawHeading(sprites, sheet, page, bg1VerticalScroll);
         (ushort authoredCursorX, ushort authoredCursorY) = CursorPosition();
-        content.GameOptions.DrawCursor(sprites, missile.Frame,
+        content.GameOptions.DrawCursor(sprites, sheet, missile.Frame,
             new(authoredCursorX, authoredCursorY));
         sprites.FinishFrame();
     }

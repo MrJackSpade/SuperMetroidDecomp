@@ -78,7 +78,7 @@ internal static class MenuScreenPublicationVerification
         AssertEqual(FileSelectPhase.Main, fileSelect.Phase, "file select reaches its main menu");
         AssertPublished(fileSelect.screen, fileSelect.CaptureRenderSnapshot(), "file select");
 
-        var options = new GameOptionsMenuState(mapPresentation: maps);
+        var options = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
         for (int frame = 0; frame < 30; frame++)
             options.Step(0);
         AssertPublished(options.screen, options.CaptureRenderSnapshot(), "options");

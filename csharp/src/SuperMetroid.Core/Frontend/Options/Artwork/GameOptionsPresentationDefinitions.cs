@@ -67,6 +67,10 @@ public static class GameOptionsPresentationDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(page)),
     };
 
+    /// <summary>Every frame of the options sheet: each page's heading, then each cursor frame.</summary>
+    public static IEnumerable<string> SheetFrames =>
+        MenuPages.Select(HeadingSpriteName).Concat(Enumerable.Range(0, CursorFrameCount).Select(CursorSpriteName));
+
     /// <summary>The menu heading a menu layout draws.</summary>
     internal static MenuHeading Heading(GameOptionsPage page) => page switch
     {

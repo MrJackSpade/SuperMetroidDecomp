@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorAlignmentVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
@@ -93,7 +94,7 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
         GameOptionsRomData.Pages.Get(GameOptionsTilemap.SpecialJapanese).Address,
         GameOptionsRomData.TilemapByteCount,
         0);
-    var options = new GameOptionsMenuState(mapPresentation: RetailPresentationFixture());
+    var options = new GameOptionsMenuState(mapPresentation: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()));
     StepOptionsUntil(options, GameOptionsPhase.Main);
 
     for (int row = 0; row < 3; row++)

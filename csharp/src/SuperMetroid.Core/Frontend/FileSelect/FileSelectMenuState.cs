@@ -6,7 +6,6 @@ using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
@@ -21,17 +20,12 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// validity and displayed energy/time are decoded from the cartridge's redundant SRAM
 /// checksum layout rather than from host-authored metadata.
 /// </remarks>
-public sealed class FileSelectMenuState : IFrontendScreen
+public sealed class FileSelectMenuState : IMenuFrontendScreen
 {
     /// <inheritdoc/>
-    void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork, SuperMetroidGameState state)
-    {
-        Ensure.NotNull(previous);
-        Ensure.NotNull(artwork);
-        if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
-            BindMapPresentation(artwork.MapPresentation);
-        spriteSheets = artwork.SpriteSheets ?? throw new InvalidOperationException("File select requires the installed sprite sheets.");
-    }
+    [MemberNotNull(nameof(spriteSheets))]
+    public void BindSpriteSheets(InstalledSpriteSheets? sheets) =>
+        spriteSheets = sheets ?? throw new InvalidOperationException("File select requires the installed sprite sheets.");
 
     /// <summary>The installed sprite sheets the borders, cursor, helmets and copy arrows draw from; artwork, never saved.</summary>
     [NonSerialized] private InstalledSpriteSheets spriteSheets;
@@ -68,7 +62,7 @@ public sealed class FileSelectMenuState : IFrontendScreen
         AreaMapPresentationCatalog? mapPresentation = null, InstalledSpriteSheets? spriteSheets = null)
     {
         this.audio = audio;
-        this.spriteSheets = spriteSheets ?? throw new InvalidOperationException("File select requires the installed sprite sheets.");
+        BindSpriteSheets(spriteSheets);
         this.mapPresentation = mapPresentation;
         if (mapPresentation is null)
             throw new InvalidOperationException("File select requires installed menu presentation assets.");
@@ -709,7 +703,7 @@ public sealed class FileSelectMenuState : IFrontendScreen
         audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
 
     /// <summary>Rebinds host-owned file-select visuals after debugger-state restoration.</summary>
-    internal void BindMapPresentation([NotNull] AreaMapPresentationCatalog? catalog)
+    public void BindMapPresentation([NotNull] AreaMapPresentationCatalog? catalog)
     {
         if (catalog is null)
             throw new InvalidOperationException("File-select requires installed map presentation assets.");

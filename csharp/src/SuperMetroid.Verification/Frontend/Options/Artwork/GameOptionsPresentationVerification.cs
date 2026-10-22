@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -30,9 +31,9 @@ internal static class GameOptionsPresentationVerification
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
         var native = new GameOptionsMenuState(nativeAudio,
-            mapPresentation: original);
+            mapPresentation: original, spriteSheets: MenuSheetFixtures.For(original));
         var installed = new GameOptionsMenuState(
-            installedAudio, mapPresentation: original);
+            installedAudio, mapPresentation: original, spriteSheets: MenuSheetFixtures.For(original));
         int comparedFrames = 0;
 
         Until(GameOptionsPhase.Main);
@@ -94,8 +95,8 @@ internal static class GameOptionsPresentationVerification
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "options override changes selected catalog identity");
 
-        var stockMenu = new GameOptionsMenuState(mapPresentation: original);
-        var editedMenu = new GameOptionsMenuState(mapPresentation: edited);
+        var stockMenu = new GameOptionsMenuState(mapPresentation: original, spriteSheets: MenuSheetFixtures.For(original));
+        var editedMenu = new GameOptionsMenuState(mapPresentation: edited, spriteSheets: MenuSheetFixtures.For(edited));
         // Native indexes zero and one, fifteen fade-in levels, then the interactive index.
         for (int frame = 0; frame < 18; frame++)
         {

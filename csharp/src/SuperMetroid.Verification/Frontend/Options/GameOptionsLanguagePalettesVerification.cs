@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Hardware;
@@ -90,7 +91,7 @@ internal static class GameOptionsLanguagePalettesVerification
         for (int language = 0; language < 2; language++)
         {
             bool japanese = language != 0;
-            var menu = new GameOptionsMenuState(japaneseText: japanese, mapPresentation: installed);
+            var menu = new GameOptionsMenuState(japaneseText: japanese, mapPresentation: installed, spriteSheets: MenuSheetFixtures.For(installed));
             ReadOnlySpan<byte> vram = menu.CaptureRenderSnapshot().Memory.Vram;
             byte[] editablePage = presentation.CreatePage(GameOptionsTilemap.Primary);
             presentation.ApplyLanguage(editablePage, japanese);

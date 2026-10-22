@@ -271,7 +271,7 @@ internal static class LookupStream3Verification
             string anchorKey = GameOptionsPresentationDefinitions.MenuName(page);
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
-            presentation.DrawHeading(actualOam, page, 3);
+            presentation.DrawHeading(actualOam, MenuSheetFixtures.GameOptions(presentation), page, 3);
             var point = original.HeadingAnchors[anchorKey];
             MenuSpriteCompiler.Compile(original.Sprites[name], name).DrawOnScreen(expectedOam,
                 new(point.X, unchecked((ushort)(point.Y - 3))), (ushort)(original.CursorPalette << 9));
@@ -865,7 +865,7 @@ internal static class LookupStream3Verification
                 Position16<OamPixels> heading = document.HeadingAnchors[GameOptionsPresentationDefinitions.MenuName(page)];
                 var actual = ScreenSpritesFixtures.Blank();
                 var expected = new OamBuffer();
-                presentation.DrawHeading(actual, page, 3);
+                presentation.DrawHeading(actual, MenuSheetFixtures.GameOptions(presentation), page, 3);
                 MenuSpriteCompiler.Compile(document.Sprites[GameOptionsPresentationDefinitions.HeadingSpriteName(page)], "heading oracle")
                     .DrawOnScreen(expected, new(checked(heading.X), unchecked((ushort)(heading.Y - 3))),
                         SnesObjAttributeWord.Create(0, document.CursorPalette, 0).PaletteBits);

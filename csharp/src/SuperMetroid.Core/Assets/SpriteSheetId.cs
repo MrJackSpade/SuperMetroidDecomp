@@ -21,6 +21,8 @@ public enum SpriteSheetId
     GameOver,
     /// <summary>File select's page borders, cursor, helmets and file-copy arrows.</summary>
     FileSelect,
+    /// <summary>The options menu's page headings and cursor.</summary>
+    GameOptions,
     /// <summary>Samus's projectiles, bombs, charge flare and trails as the intro's flashbacks draw them.</summary>
     IntroProjectiles,
     /// <summary>Samus's projectiles, bombs, charge flare and trails with the power beam equipped.</summary>

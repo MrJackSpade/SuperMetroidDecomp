@@ -14,8 +14,6 @@ public sealed record Mode7ObjRenderSnapshot
 
     /// <summary>What each tile of the background's map shows, which it draws from (#1392); null while it draws from VRAM.</summary>
     public Mode7TilePictures? BackgroundTiles { get; init; }
-    /// <summary>OBSEL value, 0 through <see cref="LayeredRenderSnapshot.MaximumObjectSelection"/>, selecting OBJ character bases, name-table offset, and small/large size pair.</summary>
-    public int ObjectSelection { get; }
     /// <summary>Master brightness 0..15 applied after BG1, OBJ, and optional gradient color math.</summary>
     public int Brightness { get; }
     /// <summary>Owned per-scanline fixed-color controls copied from the caller at snapshot construction.</summary>
@@ -29,20 +27,18 @@ public sealed record Mode7ObjRenderSnapshot
     /// <summary>Captures a 256-by-224-pixel BG1/backdrop-then-OBJ composition, copying only the optional gradient.</summary>
     /// <param name="memory">Complete immutable PPU image; retained rather than recaptured from live hardware.</param>
     /// <param name="background">Mode 7 register values, or null to leave the backdrop below OBJ. Sampling uses screen X starting at zero and physical scanline one for the first visible row.</param>
-    /// <param name="objectSelection">OBSEL value, 0 through <see cref="LayeredRenderSnapshot.MaximumObjectSelection"/>; every value is retained.</param>
     /// <param name="brightness">Final master brightness from 0 through 15 inclusive; zero produces black.</param>
     /// <param name="gradient">Empty, or exactly 224 scanline controls whose CGADSUB control subtracts from BG1 and the backdrop or adds to them and the OBJs; copied into owned storage.</param>
     /// <exception cref="ArgumentNullException"><paramref name="memory"/> is null.</exception>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="objectSelection"/> or <paramref name="brightness"/> is out of range.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is out of range.</exception>
     /// <exception cref="ArgumentException"><paramref name="gradient"/> has the wrong nonzero length or an unsupported control.</exception>
     /// <param name="backgroundTiles">What each tile of the background's map shows, which it draws from (#1392); null while it draws from VRAM.</param>
     public Mode7ObjRenderSnapshot(PpuMemorySnapshot memory, Mode7RenderRegisters? background,
-        int objectSelection, int brightness, ReadOnlySpan<SuperMetroid.Core.Rendering.TitleGradientLine> gradient = default,
+        int brightness, ReadOnlySpan<SuperMetroid.Core.Rendering.TitleGradientLine> gradient = default,
         Mode7TilePictures? backgroundTiles = null)
     {
         BackgroundTiles = backgroundTiles;
         Ensure.NotNull(memory);
-        ObjectSelection = Ensure.BetweenInclusive(0, LayeredRenderSnapshot.MaximumObjectSelection, objectSelection);
         Brightness = Ensure.BetweenInclusive(0, Hardware.SnesPpuLayout.MaximumMasterBrightness, brightness);
         Memory = memory;
         Background = background;

@@ -67,12 +67,11 @@ internal static class PauseSnapshotTestsVerification
         // A caller may reuse the command array immediately after publication.
         var captured = pause.CaptureRenderSnapshot();
         RenderLayer[] layers = captured.Layers.ToArray();
-        var owned = new LayeredRenderSnapshot(captured.Memory, layers,
-            captured.ObjectSelection, captured.Brightness);
+        var owned = new LayeredRenderSnapshot(captured.Memory, layers, captured.Brightness);
         layers[0] = new ObjPriorityRenderLayer(3);
         AssertEqual(captured.Layers[0], owned.Layers[0], "snapshot owns priority sequence");
         AssertThrows<ArgumentException>(() => new LayeredRenderSnapshot(captured.Memory,
-            new RenderLayer[] { new ObjPriorityRenderLayer(4) }, 0, 15), "reject invalid OBJ priority");
+            new RenderLayer[] { new ObjPriorityRenderLayer(4) }, 15), "reject invalid OBJ priority");
         Console.WriteLine("  Pause snapshots: 128 retail map/equipment/fade frames match exactly, including retained HUD and packet lifetime.");
 
         static void Match(Rgba32[] expected, Rgba32[] actual, int frame)

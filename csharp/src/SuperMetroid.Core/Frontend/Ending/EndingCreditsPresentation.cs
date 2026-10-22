@@ -24,8 +24,7 @@ internal static class EndingCreditsPresentation
             layers.Add(new ObjRenderLayer(ending.InstalledArtwork.CurrentEndingLogo.CrossfadeStarted));
             layers.Add(PostCreditsLayer(ending));
             // The logo assembles over the shooting scene's page.
-            return new(CaptureMemory(ending, EndingObjectSheet.RewardFalling), layers.ToArray(),
-                ObjectSelection(EndingObjectSheet.RewardFalling), checked((byte)ending.Stage.Brightness));
+            return new(CaptureMemory(ending, EndingObjectSheet.RewardFalling), layers.ToArray(), checked((byte)ending.Stage.Brightness));
         }
         if (ending.CreditsRoll.CurrentPostShot is not null)
         {
@@ -36,8 +35,7 @@ internal static class EndingCreditsPresentation
             layers.Add(new ObjPriorityRenderLayer(1));
             layers.Add(new ObjPriorityRenderLayer(2));
             layers.Add(new ObjPriorityRenderLayer(3));
-            return new(CaptureMemory(ending, CurrentRewardObjectSheet(ending)), layers.ToArray(),
-                ObjectSelection(CurrentRewardObjectSheet(ending)), checked((byte)ending.Stage.Brightness));
+            return new(CaptureMemory(ending, CurrentRewardObjectSheet(ending)), layers.ToArray(), checked((byte)ending.Stage.Brightness));
         }
         if (ending.Stage.Phase == EndingCreditsPhase.Credits)
         {
@@ -98,7 +96,7 @@ internal static class EndingCreditsPresentation
             if (ending.Stage.Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
                 layers.Add(EndingFlyaway.WhiteAddition(ending.CreditsRoll.WhiteFlashColor));
         }
-        return new(memory, layers.ToArray(), ObjectSelection(objectSheet), checked((byte)ending.Stage.Brightness));
+        return new(memory, layers.ToArray(), checked((byte)ending.Stage.Brightness));
     }
 
     /// <summary>Mode 7 matrix and center for the post-shot reward scene.</summary>

@@ -66,9 +66,8 @@ internal static class EndingCloudPlacementVerification
             var actual = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
             byte[] oamBytes = [.. oam.LowTable.ToArray(), .. oam.HighTable.ToArray()];
             var expectedMemory = PpuMemorySnapshot.FromOam(actual.Memory.Vram, actual.Memory.Cgram,
-                oamBytes, oam.LastFinalizedSpriteCount, actual.ObjectSelection);
-            var expected = SoftwareLayeredSnapshotRenderer.Render(new(expectedMemory, actual.Layers,
-                actual.ObjectSelection, actual.Brightness));
+                oamBytes, oam.LastFinalizedSpriteCount, EndingCreditsPresentation.ObjectSelection(EndingCreditsPresentation.CurrentEscapeObjectSheet(ending)));
+            var expected = SoftwareLayeredSnapshotRenderer.Render(new(expectedMemory, actual.Layers, actual.Brightness));
             var pixels = ending.Render();
             int differs = pixels.ToArray().Zip(expected, (live, native) => live != native).ToList().IndexOf(true);
             AssertTrue(differs < 0, $"scene B cloud positions/motion frame {frame} ({ending.Stage.Phase})" + (differs < 0 ? ""
@@ -141,7 +140,7 @@ internal static class EndingCloudPlacementVerification
         {
             // Isolate overflow from the independently missing main/subscreen math.
             var projected = SoftwareLayeredSnapshotRenderer.Render(new(snapshot.Memory,
-                new RenderLayer[] { new Mode7RenderLayer(registers) }, snapshot.ObjectSelection, 15));
+                new RenderLayer[] { new Mode7RenderLayer(registers) }, 15));
             var wrapped = SnesLayerCompositor.CreateBackdrop(memory.Cgram, 256 * 224);
             SnesLayerCompositor.Composite(wrapped, wrappedBackground);
             int differences = projected.Zip(wrapped, (first, second) => first != second).Count(differs => differs);

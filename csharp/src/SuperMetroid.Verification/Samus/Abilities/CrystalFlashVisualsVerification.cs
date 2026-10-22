@@ -41,7 +41,7 @@ internal static class CrystalFlashVisualsVerification
         Array.Clear(colors, CrystalFlash.BodyCgramStart, Common.ColorsPerObjPalette);
         var mutedMemory = new PpuMemorySnapshot(packet.Memory.Vram, colors, packet.Memory.SpriteDraws);
         var mutedBody = SoftwareLayeredSnapshotRenderer.Render(new LayeredRenderSnapshot(mutedMemory,
-            packet.Layers, packet.ObjectSelection, packet.Brightness));
+            packet.Layers, packet.Brightness));
         int centerX = samus.Position.X.Whole - runtime.Display.DisplayedGameplayPpu.Layer1Position.X;
         int centerY = samus.Position.Y.Whole - runtime.Display.DisplayedGameplayPpu.Layer1Position.Y;
         AssertTrue(centerX is >= 32 and <= 223 && centerY is >= 64 and <= 191,

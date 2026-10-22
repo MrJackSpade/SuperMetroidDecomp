@@ -36,14 +36,14 @@ internal static class Mode7GameplaySnapshotTestsVerification
             Rgba32[] expected = floorEnabled
                 ? SnesGameplayFrameRendererConstants.RenderHudCeresRidleyGetawayAndObjs(live.Vram, live.Cgram, live.Sprites, m, new CeresGetawayFloor { Bg2Scroll = new Position16<Bg2Pixels>(scroll, scroll), Bg2CharacterBaseWord = 0x6000 })
                 : SnesGameplayFrameRendererConstants.RenderHudMode7AndObjs(live.Vram, live.Cgram, live.Sprites, m);
-            var packet = new RenderFrameSnapshot(new(++samples, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
+            var packet = new RenderFrameSnapshot(new(++samples, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 15));
             AssertTrue(expected.SequenceEqual(RenderForComparison(packet)),
                 $"Mode-7 gameplay full pixel parity matrix {matrix}, scroll {scroll}, floor {floorEnabled}");
             AssertEqual(layer, (Mode7GameplayRenderLayer)(packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")).Layers[0], "the Mode-7 band layer keeps all register fields");
             if (samples == 1)
             {
                 AssertThrows<ArgumentException>(() => new LayeredRenderSnapshot(memory,
-                    new RenderLayer[] { new ObjRenderLayer(), layer }, 3, 15), "Mode-7 base cannot erase earlier layers");
+                    new RenderLayer[] { new ObjRenderLayer(), layer }, 15), "Mode-7 base cannot erase earlier layers");
             }
         }
         // Retail room assets with explicitly constructed getaway registers exercise

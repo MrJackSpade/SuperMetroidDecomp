@@ -71,7 +71,7 @@ public static class GameplayDisplayCapture
         AddLayer(SnesGameplayFrameRenderer.CapturePowerBombColorMath(PowerBomb(frame), ppu.Layer1Position));
         AddLayer(live.MessageBox);
         AddLayer(SamusSuitPickupRenderer.Capture(SuitPickup(frame)));
-        return new(basis.Memory, layers.ToArray(), basis.ObjectSelection, basis.Brightness);
+        return new(basis.Memory, layers.ToArray(), basis.Brightness);
 
         // Append active optional effects without introducing empty render layers.
         void AddLayer(RenderLayer? layer) { if (layer is not null) layers.Add(layer); }
@@ -164,7 +164,7 @@ public static class GameplayDisplayCapture
             VisibleLines(crocomireBg2Scroll is not null ? live.CrocomireMeltingScrolls : lavaY)),
             live.DoorTransitionMainScreenLayers is null && live.MotherBrainRisingHdmaActive
                 ? MotherBrainAscentDisplayDefinitions.BuildGameplayLayers() : default);
-        return new(frame.Memory, new RenderLayer[] { layer }, GameplayRenderDefinitions.ObjectSelection,
+        return new(frame.Memory, new RenderLayer[] { layer },
             SnesPpuLayout.MaximumMasterBrightness);
     }
 
@@ -282,7 +282,7 @@ public static class GameplayDisplayCapture
         var layer = new Mode7GameplayRenderLayer(registers, Bg3(latched), (latched.Rooms?.Mode7
                 ?? throw new InvalidOperationException("A Mode 7 gameplay frame shows a Ceres room's Mode 7 map.")),
             GameplayVramLayout.HudCharacterWord, SnesPpuLayout.GameplayHudHeightPixels, floor);
-        return new(frame.Memory, new RenderLayer[] { layer }, GameplayRenderDefinitions.ObjectSelection, SnesPpuLayout.MaximumMasterBrightness);
+        return new(frame.Memory, new RenderLayer[] { layer }, SnesPpuLayout.MaximumMasterBrightness);
     }
 
     /// <summary>Removes BG2 when Phantoon is hidden, or uses it as an additive subscreen when the body is semitransparent.</summary>
@@ -379,6 +379,6 @@ public static class GameplayDisplayCapture
         var lines = closed ? Enumerable.Repeat(new XrayWindowLine(255, 0), SnesPpuLayout.ScreenHeightPixels).ToArray()
             : SnesGameplayFrameRenderer.CaptureXrayWindowLines(xray, ppu.Layer1Position);
         var layer = new GameplayColorMathRenderLayer(gameplay, lines, reveal, new ColorMathRegisters { ColorMath = control, AddSubscreen = mode != XrayRoomBlendMode.Fireflea, FixedRed = red, FixedGreen = green, FixedBlue = blue }, sub);
-        return new(memory, new RenderLayer[] { layer }, basis.ObjectSelection, basis.Brightness);
+        return new(memory, new RenderLayer[] { layer }, basis.Brightness);
     }
 }

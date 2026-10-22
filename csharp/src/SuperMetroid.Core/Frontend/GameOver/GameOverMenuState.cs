@@ -245,7 +245,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         RenderLayer[] layers = [new Bg4BppRenderLayer(MenuVramLayout.Bg1TilemapWord, 0,
             new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(GameOverRomData.TilemapWidth, GameOverRomData.TilemapHeight), null,
             screen.FileSelectTiles.Pictures(0, BgBitDepth.FourBpp)), new ObjRenderLayer()];
-        return new(MenuScreenImage.Capture(screen), layers, MenuRenderDefinitions.ObjectSelection, checked((byte)brightness));
+        return new(MenuScreenImage.Capture(screen), layers, checked((byte)brightness));
     }
 
     /// <summary>Builds the scene's Baby, egg, and selected-answer cursor sprite entries from installed art.</summary>

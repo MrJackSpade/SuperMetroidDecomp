@@ -146,11 +146,6 @@ internal static class EndingSnapshotTestsVerification
                     var rewardArt = EndingSheetFixtures.Drawer(legacy, referenceJump.FallingSheetSelected
                         ? EndingObjectSheet.RewardFalling : EndingObjectSheet.Reward, CinematicSpriteFamily.EndingReward);
                     var expectedOam = ScreenSpritesFixtures.Frame(objects => referenceJump.Draw(objects, rewardArt));
-                    AssertEqual(referenceJump.FallingSheetSelected
-                            ? EndingCreditsRomData.Rendering.FallingRewardObjectSelection
-                            : EndingCreditsRomData.Rendering.RewardObjectSelection,
-                        jumpFrame.ObjectSelection,
-                        "live reward switches OBJ sheet on the same native flight frame");
                     // The live ending also appends the restored shooting stars after the reference jump actors.
                     PlacedSpritePart[] jumpParts = PlacedSpritePart.Of(expectedOam.Draws);
                     PlacedSpritePart[] liveParts = [.. jumpFrame.Memory.SpriteParts().Take(jumpParts.Length)];

@@ -74,11 +74,11 @@ internal static class SpanQueriesVerification
         var red = new FixedColorAddRenderLayer(31, 0, 0);
         var objects = new ObjPriorityRenderLayer(2);
         var blue = new FixedColorAddRenderLayer(0, 0, 31);
-        var snapshot = new LayeredRenderSnapshot(memory, new RenderLayer[] { red, objects, blue }, 3, 15);
+        var snapshot = new LayeredRenderSnapshot(memory, new RenderLayer[] { red, objects, blue }, 15);
         LayeredRenderSnapshot without = snapshot.Without<FixedColorAddRenderLayer>();
         AssertTrue(without.Layers.SequenceEqual(new RenderLayer[] { objects }), "Without removes only the selected kind");
-        AssertTrue(ReferenceEquals(snapshot.Memory, without.Memory) && without.ObjectSelection == 3 && without.Brightness == 15,
-            "Without shares memory, object selection and brightness");
+        AssertTrue(ReferenceEquals(snapshot.Memory, without.Memory) && without.Brightness == 15,
+            "Without shares memory and brightness");
         AssertTrue(snapshot.Layers.SequenceEqual(new RenderLayer[] { red, objects, blue }), "Without leaves the source snapshot unchanged");
         AssertTrue(snapshot.LayersOf<FixedColorAddRenderLayer>().SequenceEqual(new[] { red, blue }), "LayersOf keeps application order");
         AssertEqual(0, without.LayersOf<FixedColorAddRenderLayer>().Length, "LayersOf finds none after Without");

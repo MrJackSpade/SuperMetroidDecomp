@@ -23,7 +23,6 @@ public static class SoftwareLayeredSnapshotRenderer
             SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels, gameplayOutputBuffer);
         // Resolve OAM precedence once. Drawing independently filtered OBJ lists would
         // wrongly allow a higher-numbered record to shine through the winning record.
-        byte obsel = checked((byte)snapshot.ObjectSelection);
         bool usesObjInsertion = false;
         foreach (RenderLayer layer in snapshot.Layers)
             usesObjInsertion |= layer is ObjRenderLayer or ObjPriorityRenderLayer or Mode7RenderLayer { SubtractObjSubscreen: true } or Mode7RenderLayer { AddBg1Subscreen: true }
@@ -96,7 +95,7 @@ public static class SoftwareLayeredSnapshotRenderer
                 case OrdinaryGameplayRenderLayer gameplay:
                     OrdinaryGameplayRegisters r = gameplay.Registers;
                     output = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
-                        memory.Vram, memory.Cgram, memory.Sprites, gameplay, obsel, gameplayOutputBuffer);
+                        memory.Vram, memory.Cgram, memory.Sprites, gameplay, gameplayOutputBuffer);
                     break;
                 case Bg2BppViewportRenderLayer bg:
                     Rgba32[] plane = scratch.Colors(256 * 32 * 8);

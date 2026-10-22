@@ -50,7 +50,7 @@ internal static class GameplaySnapshotTestsVerification
             Array.Fill(x, (ushort)1234);
             Array.Fill(y, (ushort)5678);
             var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)samples),
-                new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
+                new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 15));
             AssertTrue(expected.SequenceEqual(RenderForComparison(packet)),
                 $"gameplay snapshot {mapSize.X}x{mapSize.Y}, mask {mask}, HDMA {hdma}");
             if (samples == 1)
@@ -58,7 +58,7 @@ internal static class GameplaySnapshotTestsVerification
                 AssertThrows<ArgumentException>(() => new Bg2HdmaScrollTables(new ushort[1], default),
                     "reject partial gameplay HDMA");
                 AssertThrows<ArgumentException>(() => new LayeredRenderSnapshot(memory,
-                    new RenderLayer[] { new ObjRenderLayer(), layer }, 3, 15), "base cannot erase prior operations");
+                    new RenderLayer[] { new ObjRenderLayer(), layer }, 15), "base cannot erase prior operations");
             }
         }
 

@@ -3,7 +3,6 @@ using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
@@ -1439,8 +1438,7 @@ level, samus, NmiFrameWord(elapsedUpdates));
             return new(new PpuMemorySnapshot(Image(), palette.Colors, oam.Draws),
                 new RenderLayer[] { new Bg2BppViewportRenderLayer(
                     IntroCinematicRomData.Layers.NarrationTilemapWord,
-                    IntroCinematicRomData.Layers.FontCharacterBaseWord, 0, false, null, FontPictures()) },
-                MenuRenderDefinitions.ObjectSelection, ScreenFade.Displayed(Inidisp));
+                    IntroCinematicRomData.Layers.FontCharacterBaseWord, 0, false, null, FontPictures()) }, ScreenFade.Displayed(Inidisp));
         }
         else
         {
@@ -1457,7 +1455,7 @@ level, samus, NmiFrameWord(elapsedUpdates));
             new ObjPriorityRenderLayer(0), text, new ObjPriorityRenderLayer(1), room,
             new ObjPriorityRenderLayer(2), room with { Priority = true },
             new ObjPriorityRenderLayer(3), text with { Priority = true },
-        }, MenuRenderDefinitions.ObjectSelection, ScreenFade.Displayed(Inidisp));
+        }, ScreenFade.Displayed(Inidisp));
     }
 
     /// <summary>The memory image the intro shows: its bound characters with its portrait and narration tilemaps over them.</summary>

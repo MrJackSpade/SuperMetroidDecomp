@@ -21,7 +21,7 @@ internal static class GameplayRenderAllocationVerification
         var rooms = RoomBackgroundsFixtures.Seeded(new Random(1346), registers.Bg1Scroll.AsBgPlaneScroll(),
             registers.Bg2Scroll.AsBgPlaneScroll(), door: true, overlay: true);
         var snapshot = new LayeredRenderSnapshot(PpuMemorySnapshotConstants.Capture(vram, cgram, sprites),
-            [new OrdinaryGameplayRenderLayer(registers, rooms)], 3, 15);
+            [new OrdinaryGameplayRenderLayer(registers, rooms)], 15);
         var expected = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(vram, cgram, sprites,
             new OrdinaryGameplayRenderLayer(registers, rooms));
         for (int i = 0; i < 10; i++) SoftwareLayeredSnapshotRenderer.Render(snapshot);
@@ -46,7 +46,7 @@ internal static class GameplayRenderAllocationVerification
         Console.WriteLine($"Reusable gameplay packet allocation: {allocated} bytes; identity and dirty-buffer parity passed.");
         var memory = PpuMemorySnapshotConstants.Capture(vram, cgram, sprites);
         var xray = new LayeredRenderSnapshot(memory,
-            [new GameplayColorMathRenderLayer(new OrdinaryGameplayRenderLayer(registers, rooms), Enumerable.Repeat(new XrayWindowLine(40, 160), 224).ToArray(), true, new ColorMathRegisters { ColorMath = SnesColorMathControl.Bg1 | SnesColorMathControl.Backdrop | SnesColorMathControl.Half, AddSubscreen = false, FixedRed = 3, FixedGreen = 7, FixedBlue = 11 })], 3, 15);
+            [new GameplayColorMathRenderLayer(new OrdinaryGameplayRenderLayer(registers, rooms), Enumerable.Repeat(new XrayWindowLine(40, 160), 224).ToArray(), true, new ColorMathRegisters { ColorMath = SnesColorMathControl.Bg1 | SnesColorMathControl.Backdrop | SnesColorMathControl.Half, AddSubscreen = false, FixedRed = 3, FixedGreen = 7, FixedBlue = 11 })], 15);
         var xrayReference = SoftwareLayeredSnapshotRenderer.Render(xray);
         SoftwareLayeredSnapshotRenderer.Render(xray, reusable); // Warm pooled scratch.
         Array.Fill(reusable, new SuperMetroid.Core.Hardware.Rgba32(255, 0, 255));
@@ -59,10 +59,10 @@ internal static class GameplayRenderAllocationVerification
         if (xrayBytes >= 100000) throw new InvalidDataException("X-ray allocates redundant full-screen scratch or duplicate PPU memory.");
         var identity = new RenderFrameIdentity(1, 1, 0);
         RenderFrameSnapshot[] packets = [
-            new(identity, new Mode7ObjRenderSnapshot(memory, new Mode7RenderRegisters(256, 0, 0, 256, new Offset16<Mode7Pixels>(0, 0), new Offset16<Mode7Pixels>(0, 0)), 3, 15)),
-            new(identity, new Mode7ObjRenderSnapshot(memory, null, 3, 9,
+            new(identity, new Mode7ObjRenderSnapshot(memory, new Mode7RenderRegisters(256, 0, 0, 256, new Offset16<Mode7Pixels>(0, 0), new Offset16<Mode7Pixels>(0, 0)), 15)),
+            new(identity, new Mode7ObjRenderSnapshot(memory, null, 9,
                 Enumerable.Repeat(new SuperMetroid.Core.Rendering.TitleGradientLine(1, 2, 3, SuperMetroid.Core.Rendering.ColorMathControlFlags.Subtract | SuperMetroid.Core.Rendering.ColorMathControlFlags.Backdrop | SuperMetroid.Core.Rendering.ColorMathControlFlags.Bg1), 224).ToArray()), [new FadeLevel(11)]),
-            new(identity, new LayeredRenderSnapshot(memory, [], 3, 15)),
+            new(identity, new LayeredRenderSnapshot(memory, [], 15)),
             new(identity, new SuperMetroid.Core.Hardware.Rgba32(90, 130, 210), [new FadeLevel(7)])
         ];
         foreach (var packet in packets)

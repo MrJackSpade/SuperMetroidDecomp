@@ -44,7 +44,7 @@ internal static class WindowPixelsVerification
                 GameplayVramLayout.Bg2TilemapWord, 0, 0, GameplayVramLayout.HudCharacterWord,
                 layers, Windows: windows, MainScreenWindowMask: admission);
             var packet = new RenderFrameSnapshot(new(1, 1, 1),
-                new LayeredRenderSnapshot(capturedMemory, new RenderLayer[] { new OrdinaryGameplayRenderLayer(registers, rooms) }, 3, 15));
+                new LayeredRenderSnapshot(capturedMemory, new RenderLayer[] { new OrdinaryGameplayRenderLayer(registers, rooms) }, 15));
             var restoredRegisters = ((OrdinaryGameplayRenderLayer)(packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")).Layers[0]).Registers;
             AssertEqual(windows, restoredRegisters.Windows, "the frame keeps its window registers");
             AssertEqual(admission, restoredRegisters.MainScreenWindowMask, "the frame keeps its TMW");

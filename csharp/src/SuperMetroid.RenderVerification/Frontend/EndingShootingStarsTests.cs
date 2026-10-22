@@ -82,7 +82,7 @@ internal static class EndingShootingStarsTests
             var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
             Require(snapshot.Memory.SpriteDraws.Length > 0, "Post-credits owner emits star OAM");
             var emptyMemory = new PpuMemorySnapshot(snapshot.Memory.Vram, snapshot.Memory.Cgram, []);
-            var withoutStars = new LayeredRenderSnapshot(emptyMemory, snapshot.Layers.ToArray(), snapshot.ObjectSelection, snapshot.Brightness);
+            var withoutStars = new LayeredRenderSnapshot(emptyMemory, snapshot.Layers.ToArray(), snapshot.Brightness);
             var pixels = scene.Render();
             var noStars = SoftwareLayeredSnapshotRenderer.Render(withoutStars);
             bool hidden = scene.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingSamus;

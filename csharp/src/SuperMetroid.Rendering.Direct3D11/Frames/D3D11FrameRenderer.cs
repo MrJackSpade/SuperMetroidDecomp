@@ -140,7 +140,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             if (mode7.Background is { } background) operations.Add(new Mode7RenderLayer(background, Tiles: mode7.BackgroundTiles));
             operations.Add(new ObjRenderLayer());
             DrawLayers(packet, new LayeredRenderSnapshot(mode7.Memory,
-                operations.ToArray(), mode7.ObjectSelection, mode7.Brightness), mode7.Gradient);
+                operations.ToArray(), mode7.Brightness), mode7.Gradient);
             return;
         }
         Rgba32 color = packet.SolidColor ?? throw new NotSupportedException("This compute path does not yet support the requested composition.");

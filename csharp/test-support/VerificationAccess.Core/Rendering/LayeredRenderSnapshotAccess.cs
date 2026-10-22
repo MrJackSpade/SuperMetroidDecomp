@@ -26,7 +26,7 @@ internal static class LayeredRenderSnapshotAccess
                 if (layer is not TLayer)
                     remaining[next++] = layer;
             }
-            return new LayeredRenderSnapshot(self.Memory, remaining, self.ObjectSelection, self.Brightness);
+            return new LayeredRenderSnapshot(self.Memory, remaining, self.Brightness);
         }
         /// <summary>A new array of this snapshot's <typeparamref name="TLayer"/> operations, in application order.</summary>
         public TLayer[] LayersOf<TLayer>() where TLayer : RenderLayer

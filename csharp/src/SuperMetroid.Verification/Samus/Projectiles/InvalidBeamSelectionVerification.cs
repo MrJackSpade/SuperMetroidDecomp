@@ -76,7 +76,7 @@ internal static class InvalidBeamSelectionVerification
         AssertTrue(expectedVram.AsSpan(0x6508, 18).SequenceEqual(after.Memory.Vram.Slice(0x6508, 18)),
             $"native nine/five/zero-word Plasma footprint, scenario {scenario}");
         var expectedMemory = new PpuMemorySnapshot(expectedVram, after.Memory.Cgram, after.Memory.SpriteDraws);
-        var expectedPixels = SoftwareLayeredSnapshotRenderer.Render(new(expectedMemory, after.Layers, after.ObjectSelection, after.Brightness));
+        var expectedPixels = SoftwareLayeredSnapshotRenderer.Render(new(expectedMemory, after.Layers, after.Brightness));
         var actualPixels = pause.Render();
         if (!expectedPixels.SequenceEqual(actualPixels))
             for (int offset = 0x6000; offset < 0x6800; offset += 2)

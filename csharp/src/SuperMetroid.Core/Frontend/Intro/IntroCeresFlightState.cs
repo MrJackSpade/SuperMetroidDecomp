@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Assets;
@@ -233,8 +232,7 @@ internal sealed class IntroCeresFlightState
             byte flash = checked((byte)flashIntensity);
             layers.Add(new FixedColorAddRenderLayer(flash, flash, flash));
         }
-        return new(new PpuMemorySnapshot(Image(), palette.Colors, objects.Draws), layers.ToArray(),
-            MenuRenderDefinitions.ObjectSelection, checked((byte)brightness));
+        return new(new PpuMemorySnapshot(Image(), palette.Colors, objects.Draws), layers.ToArray(), checked((byte)brightness));
     }
 
     /// <summary>Places the front stars or surviving rear-view actors as this frame's sprite entries.</summary>

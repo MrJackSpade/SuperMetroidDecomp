@@ -35,7 +35,6 @@ public static class SnesGameplayFrameRenderer
         IPaletteColors cgram,
         SpriteFrameBuffer sprites,
         OrdinaryGameplayRenderLayer layer,
-        byte obsel = DefaultObjectSelection,
         Rgba32[]? outputBuffer = null)
     {
         Ensure.NotNull(layer);

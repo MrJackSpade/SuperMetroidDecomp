@@ -39,7 +39,7 @@ internal static class TileSmokeTests
 
         void Check(RenderLayer[] layers, string name, byte brightness = 15)
         {
-            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, layers, 3, brightness), [new FadeLevel(13), new FadeLevel(11)]);
+            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, layers, brightness), [new FadeLevel(13), new FadeLevel(11)]);
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame), $"{device.Kind}: {name} #{count}");
         }
     }
@@ -65,7 +65,7 @@ internal static class TileSmokeTests
         palette[3 * 16 + 2] = new Bgr555(31, 0, 0); palette[3 * 16 + 10] = new Bgr555(0, 0, 31);
         var memory = new PpuMemorySnapshot(vram, palette, []);
         var frame = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory,
-            new RenderLayer[] { new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null) }, 3, 15));
+            new RenderLayer[] { new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null) }, 15));
         var expected = SoftwareFrameSnapshotRenderer.Render(frame);
         if (expected[0] != new SuperMetroid.Core.Hardware.Rgba32(255, 0, 0))
             throw new InvalidOperationException("Fourth-plane fixture no longer selects color two.");

@@ -12,26 +12,19 @@ public sealed class LayeredRenderSnapshot
     public PpuMemorySnapshot Memory { get; }
     /// <summary>Owned operation sequence in back-to-front application order on the 256-by-224-pixel visible viewport.</summary>
     public ReadOnlySpan<RenderLayer> Layers => layers;
-    /// <summary>The largest OBSEL value: every combination of OBJ character base, name-table offset and size pair.</summary>
-    public const int MaximumObjectSelection = byte.MaxValue;
-    /// <summary>OBSEL value, 0 through <see cref="MaximumObjectSelection"/>, selecting OBJ character bases, name-table offset, and small/large size pair.</summary>
-    public int ObjectSelection { get; }
     /// <summary>Master brightness 0..15, applied after all layer operations; zero produces black.</summary>
     public int Brightness { get; }
 
     /// <summary>Retains immutable memory and layer records while copying their ordering into packet-owned storage.</summary>
     /// <param name="memory">Complete captured PPU memory, independent of later simulation writes.</param>
     /// <param name="layers">Supported immutable operations in execution order; an empty sequence displays the backdrop, and a fused gameplay base must be first.</param>
-    /// <param name="objectSelection">OBSEL value, 0 through <see cref="MaximumObjectSelection"/>; every value is retained.</param>
     /// <param name="brightness">Final master brightness, from 0 through 15 inclusive.</param>
     /// <exception cref="ArgumentNullException"><paramref name="memory"/> is null.</exception>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="objectSelection"/> or <paramref name="brightness"/> is out of range.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is out of range.</exception>
     /// <exception cref="ArgumentException">A layer is null or unsupported, has invalid geometry, priorities or color values, selects incompatible color math, or places a fused gameplay base after another operation.</exception>
-    public LayeredRenderSnapshot(PpuMemorySnapshot memory, ReadOnlySpan<RenderLayer> layers,
-        int objectSelection, int brightness)
+    public LayeredRenderSnapshot(PpuMemorySnapshot memory, ReadOnlySpan<RenderLayer> layers, int brightness)
     {
         Ensure.NotNull(memory);
-        ObjectSelection = Ensure.BetweenInclusive(0, MaximumObjectSelection, objectSelection);
         Brightness = Ensure.BetweenInclusive(0, Hardware.SnesPpuLayout.MaximumMasterBrightness, brightness);
         // Each accepted record is sealed and owns any array data. Copy the sequence so a scene
         // cannot rearrange a queued frame's priority ladder after publication.

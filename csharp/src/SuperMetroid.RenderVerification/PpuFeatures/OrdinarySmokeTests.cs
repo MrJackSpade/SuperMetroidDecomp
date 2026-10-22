@@ -41,7 +41,7 @@ internal static class OrdinarySmokeTests
             var layer = new OrdinaryGameplayRenderLayer(registers, hdma % 2 == 0 ? rooms : hdma == 1 ? sky : rooms with { Bg2 = null }, new Bg2HdmaScrollTables(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
-                new RenderLayer[] { layer }, 3, 15));
+                new RenderLayer[] { layer }, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, geometry {geometry}, layers {flags}, HDMA {hdma}");
             if (count == 96)
@@ -67,7 +67,7 @@ internal static class OrdinarySmokeTests
                 new Extent16<TilemapCells>(64, 32), 0x4800, 0, 0x6000, 0x4000, flags);
             var layer = new OrdinaryGameplayRenderLayer(registers, pictured, new Bg2HdmaScrollTables(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
-            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
+            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, block pictures, layers {flags}, HDMA {hdma}");
         }
@@ -81,7 +81,7 @@ internal static class OrdinarySmokeTests
                 SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
             var layer = new OrdinaryGameplayRenderLayer(registers, background, new Bg2HdmaScrollTables(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
-            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
+            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, background image, geometry {geometry}, HDMA {hdma}");
         }
@@ -93,7 +93,7 @@ internal static class OrdinarySmokeTests
                 new Extent16<TilemapCells>(32, 64), 0x4800, 0, 0x6000, 0x4000, SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
             var layer = new OrdinaryGameplayRenderLayer(registers, skyImage, new Bg2HdmaScrollTables(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
-            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
+            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, sky image, HDMA {hdma}");
         }
@@ -109,7 +109,7 @@ internal static class OrdinarySmokeTests
                 new Extent16<TilemapCells>(64, 64), 0x4800, 0, 0x6000, 0x4000, SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
             var layer = new OrdinaryGameplayRenderLayer(registers, boss, new Bg2HdmaScrollTables(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
-            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
+            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, boss BG2 tilemap, HDMA {hdma}");
         }
@@ -121,7 +121,7 @@ internal static class OrdinarySmokeTests
                 new Extent16<TilemapCells>(64, 32), 0x4800, 0, 0x6000, 0x4000, SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
             var layer = new OrdinaryGameplayRenderLayer(registers, hudPictured, new Bg2HdmaScrollTables(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
-            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
+            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, BG3 pictures, HDMA {hdma}");
         }
@@ -133,7 +133,7 @@ internal static class OrdinarySmokeTests
                 new Extent16<TilemapCells>((ushort)geometry.First, (ushort)geometry.Second), 0x4800, 0, 0x6000, 0x4000,
                 SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
             var layer = new OrdinaryGameplayRenderLayer(registers, typed, default);
-            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
+            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, BG2 overlay pictures, geometry {geometry}");
         }
@@ -144,7 +144,7 @@ internal static class OrdinarySmokeTests
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
                 new Extent16<TilemapCells>(64, 32), 0x4800, 0, 0x6000, 0x4000, SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
             var layer = new OrdinaryGameplayRenderLayer(registers, warned, default);
-            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
+            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, BG1 overlay pictures");
         }
@@ -157,7 +157,7 @@ internal static class OrdinarySmokeTests
                 new Extent16<TilemapCells>(64, 64), 0x4800, 0, 0x6000, 0x4000, SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
             var layer = new OrdinaryGameplayRenderLayer(registers, bodyPictured, new Bg2HdmaScrollTables(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
-            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
+            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, boss body pictures, HDMA {hdma}");
         }

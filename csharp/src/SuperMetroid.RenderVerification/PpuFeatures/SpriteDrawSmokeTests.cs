@@ -139,7 +139,7 @@ internal static class SpriteDrawSmokeTests
 
         Rgba32[] Check(PpuMemorySnapshot memory, RenderLayer[] layers, string label)
         {
-            var frame = new RenderFrameSnapshot(new(++cases, 1, 0), new LayeredRenderSnapshot(memory, layers, 0, 15));
+            var frame = new RenderFrameSnapshot(new(++cases, 1, 0), new LayeredRenderSnapshot(memory, layers, 15));
             Rgba32[] expected = SoftwareFrameSnapshotRenderer.Render(frame);
             PixelComparison.Verify(frame, expected, renderer.RenderForReadback(frame), $"{device.Kind}: {label}");
             return expected;

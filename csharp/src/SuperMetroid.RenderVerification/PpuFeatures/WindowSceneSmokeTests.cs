@@ -31,12 +31,12 @@ internal static class WindowSceneSmokeTests
         {
             var child = new LayeredRenderSnapshot(childMemory, new RenderLayer[] {
                 new Mode7RenderLayer(new(255, 71, -71, 255, new(128, 112), new(13, -11), true)),
-                new ObjRenderLayer() }, 7, brightness);
+                new ObjRenderLayer() }, brightness);
             var window = new WindowedSceneRenderLayer(child, edges.Left, edges.Top, edges.Right, edges.Bottom);
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(parentMemory,
                 new RenderLayer[] { new ObjPriorityRenderLayer(0), window,
                     new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), true),
-                    new ObjPriorityRenderLayer(3), window, new FixedColorAddRenderLayer(1,2,3) }, 3, 13), [new FadeLevel(11)]);
+                    new ObjPriorityRenderLayer(3), window, new FixedColorAddRenderLayer(1,2,3) }, 13), [new FadeLevel(11)]);
             var before = renderer.UploadStatistics;
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: scene window {count}, edges {edges}, brightness {brightness}");

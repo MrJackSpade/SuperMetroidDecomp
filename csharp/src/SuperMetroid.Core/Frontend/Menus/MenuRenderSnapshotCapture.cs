@@ -20,6 +20,6 @@ internal static class MenuRenderSnapshotCapture
             new Bg4BppRenderLayer(MenuVramLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, bg1VerticalScroll), new Extent16<TilemapCells>(32, 32), null, tiles),
             new ObjRenderLayer(),
         ];
-        return new(MenuScreenImage.Capture(screen), layers, MenuRenderDefinitions.ObjectSelection, brightness);
+        return new(MenuScreenImage.Capture(screen), layers, brightness);
     }
 }

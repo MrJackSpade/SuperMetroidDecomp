@@ -55,7 +55,7 @@ internal static class MessageSnapshotTestsVerification
                     MessageBoxRenderLayer? layer = GameplayMessageBoxRenderer.Capture(state, messages);
                     RenderLayer[] layers = layer is null ? [] : [layer];
                     var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick),
-                        new LayeredRenderSnapshot(memory, layers, 3, 15));
+                        new LayeredRenderSnapshot(memory, layers, 15));
                     AssertTrue(expected.SequenceEqual(RenderForComparison(packet)),
                         $"message {id}, radius {state.RadiusPixels}");
                     if (layer is not null)
@@ -94,7 +94,7 @@ internal static class MessageSnapshotTestsVerification
                 var layer = MessageBoxRenderLayer.FromTilemap(tiles, radius, messages);
                 Rgba32[] expected = baseline.ToArray();
                 GameplayMessageBoxRendererConstants.CompositeTilemap(expected, tiles, height.Key, radius, vram, cgram);
-                var packet = new RenderFrameSnapshot(new(++samples, 1, 0), new LayeredRenderSnapshot(memory, [layer], 3, 15));
+                var packet = new RenderFrameSnapshot(new(++samples, 1, 0), new LayeredRenderSnapshot(memory, [layer], 15));
                 AssertTrue(expected.SequenceEqual(RenderForComparison(packet)), $"message geometry {height.Key} rows, radius {radius}");
             }
         }

@@ -51,7 +51,7 @@ internal static class ObjectSmokeTests
         void Check(PpuMemorySnapshot memory, byte obsel, RenderLayer[] layers)
         {
             var frame = new RenderFrameSnapshot(new(++cases, 1, 0),
-                new LayeredRenderSnapshot(memory, layers, obsel, 15));
+                new LayeredRenderSnapshot(memory, layers, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame),
                 renderer.RenderForReadback(frame), $"{device.Kind}: OBJ sample {cases}, OBSEL {obsel}, parts {memory.SpriteParts().Length}");
         }

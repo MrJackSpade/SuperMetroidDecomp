@@ -135,7 +135,7 @@ public sealed class FileSelectRoomMapGraphics
             screen.Objects.BeginFrame();
             screen.Objects.FinishFrame();
         }
-        return new(MenuScreenImage.Capture(screen), layers.ToArray(), FileSelectMapRomData.ObjectSelection,
+        return new(MenuScreenImage.Capture(screen), layers.ToArray(),
             SnesPpuLayout.MaximumMasterBrightness);
     }
 }

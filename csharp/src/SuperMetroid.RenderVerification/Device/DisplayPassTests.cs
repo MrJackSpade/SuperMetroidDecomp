@@ -21,7 +21,7 @@ internal static class DisplayPassTests
         Bgr555[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount)
             .Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
         var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(new PpuMemorySnapshot(vram, palette, []),
-            [new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), null)], 3, 15));
+            [new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), null)], 15));
         var native = SoftwareFrameSnapshotRenderer.Render(packet);
         int count = 0;
         using var timer = new D3D11GpuTimer(device);

@@ -76,9 +76,9 @@ internal static class RidleyAcidVerification
             // The room's BG3 plane under a blank HUD: the acid page the room effect chose.
             var plane = Layer3Plane.Compose(new ushort[Layer3Plane.HudRows * Layer3Plane.Columns], fx.EffectPageWords());
             var effect = SnesGameplayFrameRenderer.CaptureRoomLayer3Fx((fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay().")), plane);
-            var baseline = SoftwareLayeredSnapshotRenderer.Render(new(memory, [], 3, 15));
+            var baseline = SoftwareLayeredSnapshotRenderer.Render(new(memory, [], 15));
             var actual = SoftwareLayeredSnapshotRenderer.Render(new(memory,
-                effect is null ? [] : new RenderLayer[] { effect }, 3, 15));
+                effect is null ? [] : new RenderLayer[] { effect }, 15));
             AssertEqual(expectedVisible, !actual.SequenceEqual(baseline), "acid visibility at lower-arena camera");
             AssertTrue(actual.Take(32 * 256).SequenceEqual(baseline.Take(32 * 256)), "acid does not overwrite HUD");
         }

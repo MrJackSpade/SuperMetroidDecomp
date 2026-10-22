@@ -388,7 +388,6 @@ public sealed class TitleSequenceState : IFrontendScreen
                 ? new Mode7RenderRegisters(scale, TitleSequenceRomData.Scenes.Rotation.TableIndex,
                     0, scale, new Offset16<Mode7Pixels>(128, 128), mode7.Whole.AsSignedRegister())
                 : null,
-            TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector,
             checked((byte)Brightness), gradientEnabled ? ResolveTitleGradient() : default,
             mode7BackgroundEnabled ? Mode7Tiles(TitleSequenceRomData.Vram.BabyAnimationSourcePages[babyFrame]) : null);
     }

@@ -35,7 +35,7 @@ internal static class MotherBrainAscentMaskTests
         foreach (bool active in new[] { true, false })
         {
             var layer = new OrdinaryGameplayRenderLayer(registers, RoomBackgroundsFixtures.Uniform(new(1)), mainScreenLayersByLine: active ? masks : []);
-            var scene = new LayeredRenderSnapshot(memory, [layer], 0, 15);
+            var scene = new LayeredRenderSnapshot(memory, [layer], 15);
             var pixels = SoftwareLayeredSnapshotRenderer.Render(scene);
             Check(16, 218, active ? 1 : 129, "leg hidden by floor only during ascent");
             Check(16, 215, 129, "leg remains visible immediately above floor band");
@@ -44,7 +44,7 @@ internal static class MotherBrainAscentMaskTests
             var packet = new RenderFrameSnapshot(new(1, 1, 0), scene);
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "Mother Brain ascent mask");
             var math = new GameplayColorMathRenderLayer(layer, Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new ColorMathRegisters { ColorMath = SnesColorMathControl.None, AddSubscreen = false, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 });
-            var mathScene = new LayeredRenderSnapshot(memory, [math], 0, 15);
+            var mathScene = new LayeredRenderSnapshot(memory, [math], 15);
             var mathPacket = new RenderFrameSnapshot(new(2, 1, 0), mathScene);
             PixelComparison.Verify(mathPacket, pixels, SoftwareLayeredSnapshotRenderer.Render(mathScene), "CPU source-aware ascent mask");
             PixelComparison.Verify(mathPacket, pixels, renderer.RenderForReadback(mathPacket), "GPU source-aware ascent mask");

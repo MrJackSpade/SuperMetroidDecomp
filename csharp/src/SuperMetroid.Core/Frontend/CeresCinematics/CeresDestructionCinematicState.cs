@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -933,8 +932,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         }
         if (CaptureStationExplosion() is { } blast)
             layers = [.. layers, blast];
-        return new(new PpuMemorySnapshot(shown, palette.Colors, objects.Draws), layers,
-            MenuRenderDefinitions.ObjectSelection, checked((byte)brightness));
+        return new(new PpuMemorySnapshot(shown, palette.Colors, objects.Draws), layers, checked((byte)brightness));
     }
 
     /// <summary>One Ceres actor's native OBJ slot.</summary>

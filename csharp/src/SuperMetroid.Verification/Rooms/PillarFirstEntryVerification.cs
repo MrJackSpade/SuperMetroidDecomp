@@ -86,7 +86,7 @@ internal static class PillarFirstEntryVerification
             var memory = snapshot.Memory;
             var withoutObjects = new LayeredRenderSnapshot(
                 new PpuMemorySnapshot(memory.Vram, memory.Cgram, []),
-                snapshot.Layers, snapshot.ObjectSelection, snapshot.Brightness);
+                snapshot.Layers, snapshot.Brightness);
             var background = SoftwareLayeredSnapshotRenderer.Render(withoutObjects);
             for (int actor = 0; actor < 2; actor++)
             {

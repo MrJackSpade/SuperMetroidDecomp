@@ -200,8 +200,7 @@ internal static class ScreenTilePicturesVerification
         }
         AssertTrue(layers > 0, $"{name} draws backgrounds");
         Rgba32[] pictured = RenderNamed(scene, name);
-        Rgba32[] characters = SoftwareLayeredSnapshotRenderer.Render(new LayeredRenderSnapshot(scene.Memory, [.. fromCharacters],
-            scene.ObjectSelection, scene.Brightness)).ToArray();
+        Rgba32[] characters = SoftwareLayeredSnapshotRenderer.Render(new LayeredRenderSnapshot(scene.Memory, [.. fromCharacters], scene.Brightness)).ToArray();
         int mismatch = -1;
         for (int pixel = 0; pixel < pictured.Length; pixel++)
         {

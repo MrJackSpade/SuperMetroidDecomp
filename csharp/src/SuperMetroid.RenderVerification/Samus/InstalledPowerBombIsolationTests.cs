@@ -86,7 +86,7 @@ internal static class InstalledPowerBombIsolationTests
                             var memoryImage = new PpuMemorySnapshot(new byte[SnesPpuLayout.VramByteCount],
                                 new Bgr555[SnesPpuLayout.CgramColorCount], []);
                             var packet = new RenderFrameSnapshot(new(framesToRender.Count + 1, 1, 0),
-                                new LayeredRenderSnapshot(memoryImage, new RenderLayer[] { second }, 0, 15));
+                                new LayeredRenderSnapshot(memoryImage, new RenderLayer[] { second }, 15));
                             framesToRender.Add(new ContextFrame(packet, context));
                             // With a black backdrop this center pixel must be exactly the
                             // selected expanded RGB, not merely different from stock.

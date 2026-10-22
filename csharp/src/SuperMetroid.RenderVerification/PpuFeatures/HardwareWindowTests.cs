@@ -33,7 +33,7 @@ internal static class HardwareWindowTests
                 GameplayVramLayout.Bg2TilemapWord, 0, 0, GameplayVramLayout.HudCharacterWord,
                 layers, Windows: windows, MainScreenWindowMask: admission);
             var frame = new RenderFrameSnapshot(new(++sequence, 1, 0), new LayeredRenderSnapshot(memory,
-                new RenderLayer[] { new OrdinaryGameplayRenderLayer(registers, rooms) }, 3, 15));
+                new RenderLayer[] { new OrdinaryGameplayRenderLayer(registers, rooms) }, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: native windows operation={operation}, TMW={admission}, empty={empty}");
         }

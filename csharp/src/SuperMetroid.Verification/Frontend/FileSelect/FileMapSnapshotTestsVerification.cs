@@ -103,9 +103,9 @@ internal static class FileMapSnapshotTestsVerification
         var red = new PpuMemorySnapshot(new byte[SnesPpuLayout.VramByteCount], ToColors(palette), []);
         palette[0] = 31 << 10;
         var blue = new PpuMemorySnapshot(new byte[SnesPpuLayout.VramByteCount], ToColors(palette), []);
-        var child = new LayeredRenderSnapshot(blue, new RenderLayer[] { new ObjRenderLayer() }, 3, 15);
+        var child = new LayeredRenderSnapshot(blue, new RenderLayer[] { new ObjRenderLayer() }, 15);
         var window = new WindowedSceneRenderLayer(child, 127, 111, 130, 113);
-        var parent = new LayeredRenderSnapshot(red, new RenderLayer[] { window }, 3, 15);
+        var parent = new LayeredRenderSnapshot(red, new RenderLayer[] { window }, 15);
         var packet = new RenderFrameSnapshot(new(1, 1, 0), parent);
         Rgba32[] pixels = SoftwareFrameSnapshotRenderer.Render(packet);
         for (int y = 0; y < 224; y++)

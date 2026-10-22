@@ -46,7 +46,7 @@ internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRend
 
         RenderFrameSnapshot Packet(SnesVram vram) => new(new(++sequence, 1, 0),
             new LayeredRenderSnapshot(PpuMemorySnapshotConstants.CaptureFrontend(vram, colors, oam, 3),
-                [new ObjRenderLayer()], 3, 15));
+                [new ObjRenderLayer()], 15));
     }
 
     /// <summary>Reads a GPU frame and compares its pixels with the software renderer's expected output.</summary>

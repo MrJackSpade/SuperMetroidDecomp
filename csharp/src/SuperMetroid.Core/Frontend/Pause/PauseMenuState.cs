@@ -301,8 +301,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             new ObjPriorityRenderLayer(2), bg2 with { Priority = true }, bg1 with { Priority = true },
             new ObjPriorityRenderLayer(3), bg3 with { Priority = true },
         ];
-        return new(PauseScreenImage.Capture(screen), layers,
-            PauseMenuLayout.ObjectSelection, checked((byte)(Transition == PauseMenuTransition.None ? 15 : TransitionBrightness)));
+        return new(PauseScreenImage.Capture(screen), layers, checked((byte)(Transition == PauseMenuTransition.None ? 15 : TransitionBrightness)));
     }
 
     /// <summary>Assembles map markers or equipment sprites in their native page-specific order.</summary>

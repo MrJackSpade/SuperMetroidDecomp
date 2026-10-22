@@ -191,6 +191,6 @@ public sealed class FileSelectAreaMapGraphics
             new BgSubscreenAddRenderLayer(FileSelectMapRomData.AreaBackgroundVram,
                 FileSelectMapRomData.AreaBackgroundCharacters, colorMath == AreaMapColorMath.WithBackdrop ? null : foreground,
                 Pictures: tiles.Pictures(FileSelectMapRomData.AreaBackgroundCharacters, BgBitDepth.TwoBpp)),
-            new ObjRenderLayer() }, FileSelectMapRomData.ObjectSelection, SnesPpuLayout.MaximumMasterBrightness);
+            new ObjRenderLayer() }, SnesPpuLayout.MaximumMasterBrightness);
     }
 }

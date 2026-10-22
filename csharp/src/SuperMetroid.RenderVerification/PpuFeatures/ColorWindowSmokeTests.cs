@@ -44,7 +44,7 @@ internal static class ColorWindowSmokeTests
                 scrolls[y] = new(unchecked((ushort)(offset + y * 7)), unchecked((ushort)(offset - y * 3)));
             var math = new Bg2BppColorMathRenderLayer(bg3, height == 32 ? 32 : 0, 0x7ff8, height, first, operation, scrolls);
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
-                new RenderLayer[] { new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), null), math }, 3, 15));
+                new RenderLayer[] { new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), null), math }, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: BG color math {count}, {operation}, height {height}, first {first}, offset {offset}");
         }
@@ -56,7 +56,7 @@ internal static class ColorWindowSmokeTests
             var coverage = masked ? new Bg4BppRenderLayer(0x7ffe, 0x6000, new Position16<BgPlanePixels>(65535, 511), new Extent16<TilemapCells>(width, height), priority) : null;
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
                 new RenderLayer[] { new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), null),
-                    new FixedColorAddRenderLayer(1, 2, 3), new BgSubscreenAddRenderLayer(0x5800, 0x4000, coverage) }, 3, 13));
+                    new FixedColorAddRenderLayer(1, 2, 3), new BgSubscreenAddRenderLayer(0x5800, 0x4000, coverage) }, 13));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: subscreen {count}, masked {masked}, geometry {width}x{height}, priority {priority}");
         }
@@ -65,7 +65,7 @@ internal static class ColorWindowSmokeTests
         {
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
                 new RenderLayer[] { new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), null),
-                    new MessageBoxRenderLayer(SuperMetroid.Core.Rooms.Backgrounds.RoomBackgroundsFixtures.SeededMessagePicture(random, palette, rows), radius) }, 3, 13));
+                    new MessageBoxRenderLayer(SuperMetroid.Core.Rooms.Backgrounds.RoomBackgroundsFixtures.SeededMessagePicture(random, palette, rows), radius) }, 13));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: message {count}, rows {rows}, radius {radius}");
         }
@@ -75,7 +75,7 @@ internal static class ColorWindowSmokeTests
         {
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
                 new RenderLayer[] { new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), null),
-                    windows, new FixedColorAddRenderLayer(1, 2, 3), windows }, 3, 13), [new FadeLevel(11)]);
+                    windows, new FixedColorAddRenderLayer(1, 2, 3), windows }, 13), [new FadeLevel(11)]);
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: color-window sample {count}");
         }

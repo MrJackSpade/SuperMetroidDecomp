@@ -45,7 +45,7 @@ internal static class EscapeRoomEffectsVerification
                     var noObjects = new OrdinaryGameplayRenderLayer(layer.Registers with
                     { MainScreenLayers = layer.Registers.MainScreenLayers & ~SnesMainScreenLayers.Obj }, layer.Rooms,
                         layer.Bg2LineScrolls);
-                    var baseline = SoftwareLayeredSnapshotRenderer.Render(new(capture.Memory, [noObjects], capture.ObjectSelection, capture.Brightness));
+                    var baseline = SoftwareLayeredSnapshotRenderer.Render(new(capture.Memory, [noObjects], capture.Brightness));
                     foreach (var sprite in runtime.Enemies.RoomSpriteObjects.Where(s => s.IsActive))
                     {
                         int x = sprite.Position.X.Whole - runtime.Room.LoadedCamera.PixelPosition.X, y = sprite.Position.Y.Whole - runtime.Room.LoadedCamera.PixelPosition.Y;
@@ -61,7 +61,7 @@ internal static class EscapeRoomEffectsVerification
                     {
                         Bg1Scroll = layer.Registers.Bg1Scroll - displayedShake.Bg1
                     }, layer.Rooms, layer.Bg2LineScrolls);
-                    var unshaken = SoftwareLayeredSnapshotRenderer.Render(new(capture.Memory, [stationary], capture.ObjectSelection, capture.Brightness));
+                    var unshaken = SoftwareLayeredSnapshotRenderer.Render(new(capture.Memory, [stationary], capture.Brightness));
                     visibleShake |= baseline.Where((pixel, index) => index >= 32 * 256 && pixel != unshaken[index]).Count() > 500;
                     AssertTrue(baseline.AsSpan(0, 32 * 256).SequenceEqual(unshaken.AsSpan(0, 32 * 256)), "escape shake does not move HUD");
                     if (visibleExplosion && visibleShake)

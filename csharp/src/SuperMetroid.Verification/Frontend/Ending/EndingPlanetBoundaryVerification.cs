@@ -92,7 +92,7 @@ internal static class EndingPlanetBoundaryVerification
     /// screen's 544-byte OAM upload, then OBSEL and brightness.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: dumps native VRAM, CGRAM and OAM tables for the pinned native PPU")]
-    private static byte[] NativeProbeInput(LayeredRenderSnapshot snapshot, OamBuffer oam)
+    private static byte[] NativeProbeInput(LayeredRenderSnapshot snapshot, OamBuffer oam, byte objectSelection)
     {
         var input = new List<byte>(SnesPpuLayout.VramByteCount + SnesPpuLayout.CgramColorCount * 2 + SnesPpuLayoutConstants.OamUploadByteCount + 2);
         input.AddRange(snapshot.Memory.Vram);
@@ -102,7 +102,7 @@ internal static class EndingPlanetBoundaryVerification
             input.Add(SnesLittleEndian.HighByte(color.ToWord()));
         }
         input.AddRange(oam.CreateUploadPayload());
-        input.Add(checked((byte)snapshot.ObjectSelection));
+        input.Add(objectSelection);
         input.Add(checked((byte)snapshot.Brightness));
         return [.. input];
     }
@@ -140,8 +140,7 @@ internal static class EndingPlanetBoundaryVerification
             RenderLayer[] nativeLayers = [new Mode7RenderLayer(projection.Registers with { WrapOutsideMap = true }),
                 new ObjRenderLayer(AddToScreen: true)];
             var nativeMemory = new PpuMemorySnapshot(nativeVram, snapshot.Memory.Cgram, snapshot.Memory.SpriteDraws);
-            var expected = SoftwareLayeredSnapshotRenderer.Render(new(nativeMemory, nativeLayers,
-                snapshot.ObjectSelection, snapshot.Brightness));
+            var expected = SoftwareLayeredSnapshotRenderer.Render(new(nativeMemory, nativeLayers, snapshot.Brightness));
             var actual = ending.Render();
             int changed = actual.Zip(expected, (first, second) => first != second).Count(differs => differs);
             differences += changed;
@@ -156,7 +155,7 @@ internal static class EndingPlanetBoundaryVerification
             byte[] reconstructed = live.Memory.Vram.ToArray();
             nativeVram.AsSpan(0x8000).CopyTo(reconstructed.AsSpan(0x8000));
             var nativeMemory = new PpuMemorySnapshot(reconstructed, live.Memory.Cgram, live.Memory.SpriteDraws);
-            var nativePixels = SoftwareLayeredSnapshotRenderer.Render(new(nativeMemory, live.Layers, live.ObjectSelection, live.Brightness));
+            var nativePixels = SoftwareLayeredSnapshotRenderer.Render(new(nativeMemory, live.Layers, live.Brightness));
             differences += ending.Render().Zip(nativePixels, (first, second) => first != second).Count(differs => differs);
             if (capture is not null && capture.Frames.Contains(frame))
             {
@@ -164,7 +163,8 @@ internal static class EndingPlanetBoundaryVerification
                 LayeredRenderSnapshot sample = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
                 capture.Snapshots[frame] = sample;
                 File.WriteAllBytes(Path.Combine(capture.Directory, $"later-{frame:D4}-{ending.Stage.Phase}.ppu"),
-                    NativeProbeInput(sample, ScreenSpritesFixtures.ToOam(EndingCreditsPresentation.PrepareSprites(ending, EndingCreditsPresentation.CurrentEscapeObjectSheet(ending)))));
+                    NativeProbeInput(sample, ScreenSpritesFixtures.ToOam(EndingCreditsPresentation.PrepareSprites(ending, EndingCreditsPresentation.CurrentEscapeObjectSheet(ending))),
+                        EndingCreditsPresentation.ObjectSelection(EndingCreditsPresentation.CurrentEscapeObjectSheet(ending))));
             }
             ending.Step();
             audio.AdvanceFrame(default);

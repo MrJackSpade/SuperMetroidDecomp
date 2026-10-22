@@ -30,15 +30,15 @@ internal static class Mode7SmokeTests
             var registers = new Mode7RenderRegisters(scale, 113, -113, scale, new Offset16<Mode7Pixels>(128, 112), new Offset16<Mode7Pixels>(offset, offset),
                 overflow == Mode7OverflowMode.CharacterZero, overflow == Mode7OverflowMode.Wrap);
             var frame = new RenderFrameSnapshot(new(++count, 1, 0),
-                new Mode7ObjRenderSnapshot(memory, registers, 3, 13), [new FadeLevel(11)]);
+                new Mode7ObjRenderSnapshot(memory, registers, 13), [new FadeLevel(11)]);
             Check(frame);
             Check(new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
                 new RenderLayer[] { new ObjRenderLayer(), new Mode7RenderLayer(registers),
-                    new FixedColorAddRenderLayer(3, 7, 11) }, 3, 15)));
+                    new FixedColorAddRenderLayer(3, 7, 11) }, 15)));
             Check(new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
-                new RenderLayer[] { new Mode7RenderLayer(registers, AddBg1Subscreen: true) }, 3, 15)));
+                new RenderLayer[] { new Mode7RenderLayer(registers, AddBg1Subscreen: true) }, 15)));
         }
-        Check(new RenderFrameSnapshot(new(++count, 1, 0), new Mode7ObjRenderSnapshot(memory, null, 3, 15)));
+        Check(new RenderFrameSnapshot(new(++count, 1, 0), new Mode7ObjRenderSnapshot(memory, null, 15)));
         foreach (int hud in new[] { 0, 8, 32, 208 })
         foreach (int? floorStart in new int?[] { null, 208, 223 })
         foreach (short scale in new short[] { 256, -113, 511, 0 })
@@ -50,7 +50,7 @@ internal static class Mode7SmokeTests
                 new(scale, 71, -71, scale, new(128, 112), new(-17, 211), true),
                 bg3, map, 0x4000, hud, band);
             Check(new RenderFrameSnapshot(new(++count, 1, 0),
-                new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 13)));
+                new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 13)));
         }
         // A Ceres room's map drawn from its tiles' pictures (#1392), some rows recoloured by the scene, and from VRAM, with
         // outside pixels transparent, as Ceres rooms show them, or character zero.
@@ -64,7 +64,7 @@ internal static class Mode7SmokeTests
                 new(scale, 71, -71, scale, new(128, 112), new(-17, 211), fill),
                 bg3, shown, 0x4000, hud, null);
             Check(new RenderFrameSnapshot(new(++count, 1, 0),
-                new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 13)));
+                new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 13)));
         }
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact Mode 7 comparisons passed.");
 

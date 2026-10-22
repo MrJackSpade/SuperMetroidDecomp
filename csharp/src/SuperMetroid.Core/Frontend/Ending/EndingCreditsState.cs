@@ -499,8 +499,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 EndingExplosionDisplayDefinitions.Characters, FourBpp: true, IncludeObjects: true,
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow, Pictures: ExplosionTiles()),
         ];
-        return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers,
-            EndingCreditsPresentation.ObjectSelection(EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), checked((byte)Stage.Brightness));
+        return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers, checked((byte)Stage.Brightness));
 
         Bg4BppRenderLayer Plane(ushort map, BgTilePriority priority) => new(map,
             EndingExplosionDisplayDefinitions.Characters,
@@ -529,8 +528,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 EndingExplosionDisplayDefinitions.Characters, main, FourBpp: true, MainObjects: true,
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow, Pictures: ExplosionTiles()),
         ];
-        return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers,
-            EndingCreditsPresentation.ObjectSelection(EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), checked((byte)Stage.Brightness));
+        return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers, checked((byte)Stage.Brightness));
     }
 
     /// <summary>The memory image the ending's transfers leave over the bound artwork.</summary>

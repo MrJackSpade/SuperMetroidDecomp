@@ -4,6 +4,10 @@ namespace SuperMetroid.Core.Frontend.Title.Artwork;
 public static class TitleSpriteDefinitions
 {
     /// <summary>Every <see cref="TitleSprite"/>, each exactly once: the four cards' reveals, the logo and the copyright.</summary>
+    /// <summary>The title sheet's frame for <paramref name="sprite"/>.</summary>
+    public static string FrameName(TitleSprite sprite) => $"Title.{sprite}";
+
+    /// <summary>Every title composition.</summary>
     public static readonly IReadOnlyList<TitleSprite> All =
     [
         TitleSprite.YearReveal1, TitleSprite.YearReveal2, TitleSprite.YearReveal3, TitleSprite.YearReveal4,

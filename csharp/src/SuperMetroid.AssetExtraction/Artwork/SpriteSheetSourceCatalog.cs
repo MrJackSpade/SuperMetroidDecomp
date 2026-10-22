@@ -42,6 +42,7 @@ internal sealed class SpriteSheetSourceCatalog
         SpriteSheetId.GameOptions => GameOptionsSheetComposer.Sources(maps.Value),
         SpriteSheetId.MapSprites => MapSpriteSheetComposer.Sources(maps.Value),
         SpriteSheetId.PauseSprites => PauseSheetComposer.Sources(maps.Value),
+        SpriteSheetId.Title => TitleSheetComposer.Sources(maps.Value),
         _ => SamusSheetSources.For(samus.Value, sheet),
     };
 }

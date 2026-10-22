@@ -4,13 +4,10 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>
 /// Draws the map's markers, elevator and area labels, arrows and position indicator from the map sprite sheet (#1392),
-/// whose frames colour the parts that take their draw's palette in <see cref="FramePalette"/>.
+/// whose frames colour the parts that take their draw's palette in <see cref="FrontendSheetPalette.FramePalette"/>.
 /// </summary>
 internal static class MapSpriteSheet
 {
-    /// <summary>The row the sheet colours the palette-inheriting parts of each frame in.</summary>
-    internal const int FramePalette = 0;
-
     /// <summary>
     /// Places <paramref name="id"/>'s frame at <paramref name="origin"/>, its palette-inheriting parts in the row
     /// <paramref name="paletteBits"/> select, as the spritemap draw replaces their palette and keeps the others'.
@@ -25,7 +22,6 @@ internal static class MapSpriteSheet
         Ensure.NotNull(sheet);
         // An undefined sprite fails before its palette is read.
         SpriteSheetFrame frame = sheet.Frame(MapSpriteDefinitions.Name(id));
-        int row = SnesObjAttributeWord.FromPaletteBits(paletteBits).PaletteIndex;
-        Ensure.NotNull(sprites).AddImage(frame, origin, row == FramePalette ? null : row);
+        Ensure.NotNull(sprites).AddImage(frame, origin, FrontendSheetPalette.Override(paletteBits));
     }
 }

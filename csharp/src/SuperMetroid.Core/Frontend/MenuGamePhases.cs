@@ -28,7 +28,8 @@ internal sealed class MenuGamePhases(FrontendSession session)
             session.audio,
             session.Artwork.MapPresentation?.TitleGradient,
             session.Artwork.MapPresentation?.TitlePalette,
-            session.Artwork.MapPresentation?.TitleGraphics));
+            session.Artwork.MapPresentation?.TitleGraphics,
+            session.Artwork.SpriteSheets));
         session.ForgetQueuedAudio();
         session.ForgetSpacetimeRestart();
         session.GameState = SuperMetroidGameState.OpeningCinematic;

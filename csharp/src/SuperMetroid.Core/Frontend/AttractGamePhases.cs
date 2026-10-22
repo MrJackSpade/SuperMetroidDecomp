@@ -93,7 +93,8 @@ internal sealed class AttractGamePhases(FrontendSession session)
                             session.audio,
                             session.Artwork.MapPresentation?.TitleGradient,
                             session.Artwork.MapPresentation?.TitlePalette,
-                            session.Artwork.MapPresentation?.TitleGraphics));
+                            session.Artwork.MapPresentation?.TitleGraphics,
+                            session.Artwork.SpriteSheets));
                     else
                     {
                         session.audio.QueueMusicDelayed8(MusicCommand.Stop);
@@ -101,7 +102,8 @@ internal sealed class AttractGamePhases(FrontendSession session)
                             session.audio,
                             session.Artwork.MapPresentation?.TitleGradient,
                             session.Artwork.MapPresentation?.TitlePalette,
-                            session.Artwork.MapPresentation?.TitleGraphics));
+                            session.Artwork.MapPresentation?.TitleGraphics,
+                            session.Artwork.SpriteSheets));
                     }
                     session.GameState = SuperMetroidGameState.OpeningCinematic;
                     session.display.PublishMenu(session.ActiveTitle);

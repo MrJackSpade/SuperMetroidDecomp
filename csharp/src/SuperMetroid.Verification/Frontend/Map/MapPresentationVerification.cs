@@ -1283,10 +1283,10 @@ internal static class MapPresentationVerification
             "title palette override changes installed-content identity");
         var stockTitle = new TitleSequenceState(titleGradientPresentation: original.TitleGradient,
             titlePalettePresentation: original.TitlePalette,
-            titleGraphicsPresentation: original.TitleGraphics);
+            titleGraphicsPresentation: original.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(original.TitleGraphics));
         var editedTitle = new TitleSequenceState(titleGradientPresentation: edited.TitleGradient,
             titlePalettePresentation: edited.TitlePalette,
-            titleGraphicsPresentation: edited.TitleGraphics);
+            titleGraphicsPresentation: edited.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(edited.TitleGraphics));
         AssertTrue(editedTitle.PaletteColors.SequenceEqual(edited.TitlePalette.Colors),
             "production title consumes selected palette override");
         stockTitle.Step(0);
@@ -1303,10 +1303,10 @@ internal static class MapPresentationVerification
 
         var stockSkip = new TitleSequenceState(titleGradientPresentation: original.TitleGradient,
             titlePalettePresentation: original.TitlePalette,
-            titleGraphicsPresentation: original.TitleGraphics);
+            titleGraphicsPresentation: original.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(original.TitleGraphics));
         var editedSkip = new TitleSequenceState(titleGradientPresentation: edited.TitleGradient,
             titlePalettePresentation: edited.TitlePalette,
-            titleGraphicsPresentation: edited.TitleGraphics);
+            titleGraphicsPresentation: edited.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(edited.TitleGraphics));
         stockSkip.Step(SnesButton.Start);
         editedSkip.Step(SnesButton.Start);
         for (int frame = 0; frame < 18; frame++)
@@ -1363,10 +1363,10 @@ internal static class MapPresentationVerification
             "title graphics override changes installed-content identity");
         var stockTitle = new TitleSequenceState(titleGradientPresentation: original.TitleGradient,
             titlePalettePresentation: original.TitlePalette,
-            titleGraphicsPresentation: original.TitleGraphics);
+            titleGraphicsPresentation: original.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(original.TitleGraphics));
         var editedTitle = new TitleSequenceState(titleGradientPresentation: edited.TitleGradient,
             titlePalettePresentation: edited.TitlePalette,
-            titleGraphicsPresentation: edited.TitleGraphics);
+            titleGraphicsPresentation: edited.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(edited.TitleGraphics));
         stockTitle.Step(SnesButton.Start);
         editedTitle.Step(SnesButton.Start);
         for (int frame = 0; frame < 16; frame++)
@@ -1411,10 +1411,10 @@ internal static class MapPresentationVerification
             "title sprite override changes installed-content identity");
         var stockTitle = new TitleSequenceState(titleGradientPresentation: original.TitleGradient,
             titlePalettePresentation: original.TitlePalette,
-            titleGraphicsPresentation: original.TitleGraphics);
+            titleGraphicsPresentation: original.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(original.TitleGraphics));
         var editedTitle = new TitleSequenceState(titleGradientPresentation: edited.TitleGradient,
             titlePalettePresentation: edited.TitlePalette,
-            titleGraphicsPresentation: edited.TitleGraphics);
+            titleGraphicsPresentation: edited.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(edited.TitleGraphics));
         bool changedOam = false;
         for (int frame = 0; frame < 100; frame++)
         {

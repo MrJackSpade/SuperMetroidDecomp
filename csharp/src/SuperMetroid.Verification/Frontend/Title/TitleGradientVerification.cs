@@ -149,7 +149,7 @@ internal static class TitleGradientVerification
                     new SnesSpritemapYByte(CpuBusRegionRead.Read(bus, record + 2)), new SnesObjAttributeWord(Word(record + 3)).WithPaletteBits(0),
                     new Position16<OamPixels>(128, 112));
             }
-            presentation.DrawSprite(frame.Sprite, installedOam, new(128, 112), 0);
+            TitleGraphicsPresentation.DrawSprite(MenuSheetFixtures.WithTitle(presentation).Get(SpriteSheetId.Title), frame.Sprite, installedOam, new(128, 112), 0);
             nativeOam.FinalizeFrame(); installedOam.FinishFrame();
             AssertTrue(nativeOam.ImageEquals(installedOam), "Title composition matches independent native OBJ records");
         }
@@ -186,10 +186,10 @@ internal static class TitleGradientVerification
         var reboundTitle = CreateTitlePresentationFixture(titleGradientPresentation: gradient, titleGraphicsPresentation: presentation);
         for (int frame = 0; frame < 64; frame++) reboundTitle.Step(0);
         PlacedSpritePart[] beforeRebind = reboundTitle.CaptureRenderSnapshot().Memory.SpriteParts();
-        reboundTitle.BindTitleGraphics(editedPresentation);
+        reboundTitle.BindFixtureTitleGraphics(editedPresentation);
         if (beforeRebind.SequenceEqual(reboundTitle.CaptureRenderSnapshot().Memory.SpriteParts()))
             throw new InvalidDataException("Rebinding a live title failed to apply current sprite composition.");
-        reboundTitle.BindTitleGraphics(presentation);
+        reboundTitle.BindFixtureTitleGraphics(presentation);
         if (!beforeRebind.SequenceEqual(reboundTitle.CaptureRenderSnapshot().Memory.SpriteParts()))
             throw new InvalidDataException("Rebinding stock title composition failed to restore the frame.");
         year.Parts[0] = originalPart with { TileRow = TitleGraphicsFormat.ObjectTileRows };

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
+using SuperMetroid.Core.Frontend.Title.Artwork;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
@@ -93,6 +94,26 @@ internal static class MenuSheetFixtures
                 $"tanks-{RuntimeHelpers.GetHashCode(key):X8}"));
     }
 
+    /// <summary>Installed sheets with a title sheet already composed, by title graphics.</summary>
+    private static readonly ConditionalWeakTable<TitleGraphicsPresentation, InstalledSpriteSheets> titles = new();
+
+    /// <summary>
+    /// The installed sheets with the title sheet <paramref name="graphics"/> composes, coloured with the installation's
+    /// title palette; a fixture's edited colours reach the screen through the live-colour path.
+    /// </summary>
+    internal static InstalledSpriteSheets WithTitle(TitleGraphicsPresentation graphics)
+    {
+        ArgumentNullException.ThrowIfNull(graphics);
+        return ReferenceEquals(graphics, InstalledFixtures.Maps.TitleGraphics) ? InstalledFixtures.SpriteSheets
+            : titles.GetValue(graphics, key =>
+            {
+                var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
+                sheets[SpriteSheetId.Title] = Load(SpriteSheetId.Title, TitleSheetComposer.Sources(key, InstalledFixtures.Maps.TitlePalette),
+                    $"title-{RuntimeHelpers.GetHashCode(key):X8}");
+                return new InstalledSpriteSheets(sheets);
+            });
+    }
+
     /// <summary>Composes and registers a fixture presentation's menu sheets beside the installed others.</summary>
     private static InstalledSpriteSheets Compose(AreaMapPresentationCatalog maps)
     {
@@ -104,6 +125,7 @@ internal static class MenuSheetFixtures
                      (SpriteSheetId.GameOptions, GameOptionsSheetComposer.Sources(maps)),
                      (SpriteSheetId.MapSprites, MapSpriteSheetComposer.Sources(maps)),
                      (SpriteSheetId.PauseSprites, PauseSheetComposer.Sources(maps)),
+                     (SpriteSheetId.Title, TitleSheetComposer.Sources(maps)),
                  })
             sheets[id] = Load(id, sources, $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
         return new InstalledSpriteSheets(sheets);

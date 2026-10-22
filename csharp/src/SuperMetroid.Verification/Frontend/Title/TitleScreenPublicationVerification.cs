@@ -22,7 +22,8 @@ internal static class TitleScreenPublicationVerification
     {
         var maps = InstalledFixtures.Maps;
         var title = new TitleSequenceState(titleGradientPresentation: maps.TitleGradient,
-            titlePalettePresentation: maps.TitlePalette, titleGraphicsPresentation: maps.TitleGraphics);
+            titlePalettePresentation: maps.TitlePalette, titleGraphicsPresentation: maps.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(maps.TitleGraphics));
+        SpriteSheet titleSheet = MenuSheetFixtures.WithTitle(maps.TitleGraphics).Get(SpriteSheetId.Title);
         byte[] baby = maps.TitleGraphics.BabyCharacters.ToArray();
         int pageBytes = TitleSequenceRomData.Vram.BabyCharacterPageByteCount;
         var shownPages = new List<int>();
@@ -39,7 +40,8 @@ internal static class TitleScreenPublicationVerification
             AssertTrue(snapshot.Memory.Cgram.SequenceEqual(title.palette.Colors), $"frame {frame} draws the title's own palette");
             AssertTrue(snapshot.Memory.SpriteDraws.SequenceEqual(title.objects.Draws), $"frame {frame} draws the title's own sprite entries");
             foreach (var draw in snapshot.Memory.SpriteDraws)
-                AssertTrue(ReferenceEquals(maps.TitleGraphics.ObjectPage, draw.Artwork), $"frame {frame} sprite entries draw from the title OBJ page");
+                AssertTrue(draw is ImageSpriteDraw image && ReferenceEquals(titleSheet.Image, image.Image.Sheet),
+                    $"frame {frame} sprite entries draw from the title sheet");
             drewSprites |= snapshot.Memory.SpriteDraws.Length > 0;
             title.Step(0);
         }
@@ -54,7 +56,7 @@ internal static class TitleScreenPublicationVerification
         var restored = DebuggerObjectGraphSerializer.Deserialize<TitleSequenceState>(state);
         restored.BindTitleGradient(maps.TitleGradient);
         restored.BindTitlePalette(maps.TitlePalette);
-        restored.BindTitleGraphics(maps.TitleGraphics);
+        restored.BindFixtureTitleGraphics(maps.TitleGraphics);
         AssertTrue(shown.SequenceEqual(SoftwareMode7ObjSnapshotRenderer.Render(restored.CaptureRenderSnapshot())),
             "a restored title shows the same frame once its artwork is rebound");
         Console.WriteLine("  Title screen: the Baby Metroid page cycle, palette and sprite entries come from the title's published state and survive a debugger round trip.");

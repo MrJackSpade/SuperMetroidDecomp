@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -32,7 +33,16 @@ public sealed class TitleSequenceState : IFrontendScreen
             BindTitleGraphics(artwork.MapPresentation?.TitleGraphics);
             BindTitlePalette(artwork.MapPresentation?.TitlePalette);
         }
+        BindSpriteSheets(artwork.SpriteSheets);
     }
+
+    /// <summary>Binds the installed sprite sheets the title's compositions draw from.</summary>
+    [MemberNotNull(nameof(spriteSheets))]
+    internal void BindSpriteSheets(InstalledSpriteSheets? sheets) =>
+        spriteSheets = sheets ?? throw new InvalidOperationException("Title sequence requires the installed sprite sheets.");
+
+    /// <summary>The installed sprite sheets the title's compositions draw from; artwork, never saved.</summary>
+    [NonSerialized] private InstalledSpriteSheets spriteSheets;
 
     /// <summary>Queues the opening music and title transitions when audio is available.</summary>
     private readonly CartridgeAudioState? audio;
@@ -84,12 +94,19 @@ public sealed class TitleSequenceState : IFrontendScreen
     private bool fadingToDemo;
 
     /// <summary>Creates the native initial title setup performed by <c>$8B:9B68</c>.</summary>
+    /// <param name="audio">Receives the opening music and title transitions when audio is available.</param>
+    /// <param name="titleGradientPresentation">The installed scanline gradient.</param>
+    /// <param name="titlePalettePresentation">Required installed title colours.</param>
+    /// <param name="titleGraphicsPresentation">Required installed title graphics.</param>
+    /// <param name="spriteSheets">Required installed sprite sheets the title's compositions draw from.</param>
     public TitleSequenceState(
         CartridgeAudioState? audio = null,
         TitleGradientPresentation? titleGradientPresentation = null,
         TitlePalettePresentation? titlePalettePresentation = null,
-        TitleGraphicsPresentation? titleGraphicsPresentation = null)
-        : this(audio, openingMusic: TitleOpeningMusic.Queue, titleGradientPresentation, titlePalettePresentation, titleGraphicsPresentation)
+        TitleGraphicsPresentation? titleGraphicsPresentation = null,
+        InstalledSpriteSheets? spriteSheets = null)
+        : this(audio, openingMusic: TitleOpeningMusic.Queue, titleGradientPresentation, titlePalettePresentation, titleGraphicsPresentation,
+            spriteSheets)
     {
     }
 
@@ -99,9 +116,11 @@ public sealed class TitleSequenceState : IFrontendScreen
         TitleOpeningMusic openingMusic,
         TitleGradientPresentation? titleGradientPresentation,
         TitlePalettePresentation? titlePalettePresentation,
-        TitleGraphicsPresentation? titleGraphicsPresentation)
+        TitleGraphicsPresentation? titleGraphicsPresentation,
+        InstalledSpriteSheets? spriteSheets)
     {
         this.audio = audio;
+        BindSpriteSheets(spriteSheets);
         this.titleGradientPresentation = titleGradientPresentation;
         this.titlePalettePresentation = titlePalettePresentation;
         this.titleGraphicsPresentation = titleGraphicsPresentation ?? throw new InvalidOperationException(
@@ -142,14 +161,16 @@ public sealed class TitleSequenceState : IFrontendScreen
         CartridgeAudioState audio,
         TitleGradientPresentation? titleGradientPresentation = null,
         TitlePalettePresentation? titlePalettePresentation = null,
-        TitleGraphicsPresentation? titleGraphicsPresentation = null)
+        TitleGraphicsPresentation? titleGraphicsPresentation = null,
+        InstalledSpriteSheets? spriteSheets = null)
     {
         var title = new TitleSequenceState(
             audio,
             openingMusic: TitleOpeningMusic.Skip,
             titleGradientPresentation,
             titlePalettePresentation,
-            titleGraphicsPresentation);
+            titleGraphicsPresentation,
+            spriteSheets);
         title.EnterImmediateTitleObjects();
         title.Brightness = 0;
         title.Phase = TitleSequencePhase.TitleScreenFadeIn;
@@ -370,21 +391,20 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>Places the active title spritemap and stage-dependent copyright as the frame's sprite entries.</summary>
     internal void PrepareRenderSprites()
     {
-        TitleGraphicsPresentation artwork = titleGraphicsPresentation
-            ?? throw new InvalidOperationException("Title sprites require installed title artwork.");
+        SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.Title);
         objects.BeginFrame();
         if (ActiveSprite is { } sprite)
         {
             // Cinematic drawing calls `$81:879F`, whose `chr_r22` replaces palette bits
             // after masking the ROM attributes with `$F1FF`. It does not add a base tile;
             // confusing it with the enemy loader makes the title art uniformly blue.
-            artwork.DrawSprite(sprite, objects,
+            TitleGraphicsPresentation.DrawSprite(sheet, sprite, objects,
                 ActiveOrigin.ToOam(), ActiveObjectPalette.Raw);
         }
 
         if (Phase is >= TitleSequencePhase.CopyrightFade and <= TitleSequencePhase.TitleScreenFadeOut)
         {
-            artwork.DrawSprite(TitleSprite.NintendoCopyright, objects,
+            TitleGraphicsPresentation.DrawSprite(sheet, TitleSprite.NintendoCopyright, objects,
                 TitleSequenceRomData.Sprites.CopyrightOrigin.ToOam(),
                 TitleSequenceRomData.Sprites.CopyrightPalette.Raw);
         }

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Frontend.Title.Artwork;
@@ -21,6 +22,6 @@ internal static class TitleFixtureVerification
         var palette = TitlePalettePresentation.Load(new MemoryStream(TitlePaletteExtractor.Extract(source)));
         var gradient = titleGradientPresentation ?? TitleGradientPresentation.Load(
             new MemoryStream(TitleGradientExtractor.Extract(source)));
-        return new TitleSequenceState(audio, gradient, palette, graphics);
+        return new TitleSequenceState(audio, gradient, palette, graphics, MenuSheetFixtures.WithTitle(graphics));
     }
 }

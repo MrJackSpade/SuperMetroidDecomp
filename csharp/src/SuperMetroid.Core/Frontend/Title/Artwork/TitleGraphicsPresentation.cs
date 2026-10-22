@@ -42,13 +42,14 @@ public sealed class TitleGraphicsPresentation
     public SpriteArtwork ObjectPage => field ??= new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.TitleObjects),
         objectCharacters.AsSpan(0, Math.Min(TitleSequenceRomData.Vram.ObjectCharacterByteCount, objectCharacters.Length)));
 
-    /// <summary>Places one title composition from installed composition data as sprite entries.</summary>
-    public void DrawSprite(TitleSprite sprite, ScreenSprites sprites, Position16<OamPixels> origin, ushort paletteBits)
-    {
-        if (!this.sprites.TryGetValue(sprite, out SpriteComposition? composition))
-            throw new InvalidDataException($"Title composition {sprite} is missing from installed artwork.");
-        composition.Draw(sprites, origin, paletteBits);
-    }
+    /// <summary>One title composition as a whole frame over <see cref="ObjectPage"/> (#1392); its parts take their draw's palette.</summary>
+    internal SpriteFrame Frame(TitleSprite sprite, string name) => sprites.TryGetValue(sprite, out SpriteComposition? composition)
+        ? composition.ToFrame(name, 0) : throw new InvalidDataException($"Title composition {sprite} is missing from installed artwork.");
+
+    /// <summary>Places one title frame of the title sheet, its parts in the row <paramref name="paletteBits"/> select.</summary>
+    public static void DrawSprite(SpriteSheet sheet, TitleSprite sprite, ScreenSprites sprites, Position16<OamPixels> origin, ushort paletteBits) =>
+        Ensure.NotNull(sprites).AddImage(Ensure.NotNull(sheet).Frame(TitleSpriteDefinitions.FrameName(sprite)), origin,
+            FrontendSheetPalette.Override(paletteBits));
 
     /// <summary>Loads and validates the editable title graphics and map assets.</summary>
     /// <param name="mode7TilesPng">Indexed 256-color PNG containing the title Mode 7 characters.</param>

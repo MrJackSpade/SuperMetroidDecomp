@@ -10,6 +10,7 @@ using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.Core.Frontend.Options.Artwork;
+using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Hardware;
@@ -95,6 +96,7 @@ public static class SpriteSheetFiles
         SpriteSheetId.GameOptions => GameOptionsPresentationDefinitions.SheetFrames,
         SpriteSheetId.MapSprites => MapSpriteDefinitions.SheetFrames,
         SpriteSheetId.PauseSprites => PauseSheetComposer.FrameNames(maps.Value),
+        SpriteSheetId.Title => TitleSpriteDefinitions.All.Select(TitleSpriteDefinitions.FrameName),
         _ => ProjectileSheetDefinitions.Frames,
     };
 

@@ -27,6 +27,8 @@ public enum SpriteSheetId
     MapSprites,
     /// <summary>The pause menu's equipment selectors and reserve-tank strip.</summary>
     PauseSprites,
+    /// <summary>The title's year, Nintendo and Super Metroid logo reveals and copyright.</summary>
+    Title,
     /// <summary>Samus's projectiles, bombs, charge flare and trails as the intro's flashbacks draw them.</summary>
     IntroProjectiles,
     /// <summary>Samus's projectiles, bombs, charge flare and trails with the power beam equipped.</summary>

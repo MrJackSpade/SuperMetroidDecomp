@@ -1392,7 +1392,7 @@ internal static class EnemyExtendedFrameArtworkVerification
     /// <summary>
     /// The enemy a room shows <paramref name="frame"/> through: one a room draws whose behaviour shows it, those drawing from sheets
     /// first, other than Ridley, whose scene adds his tail and wings to his body. A frame only he shows, and one no
-    /// enemy shows, as a bank's shared empty frame, draw through a corpse, which draws from characters and adds nothing.
+    /// enemy shows, as a bank's shared empty frame, draw through an enemy that draws from characters and adds nothing.
     /// </summary>
     private static EnemyDefinitionId ExtendedFrameShower(EnemyFrameId? frame) =>
         EnemyDefinitionFrameDefinitions.Frames
@@ -1400,7 +1400,7 @@ internal static class EnemyExtendedFrameArtworkVerification
                 entry.Key is not (EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.RidleyExplosion))
             .Select(entry => entry.Key)
             .OrderBy(EnemySheetDefinitions.DrawnFromCharacters.Contains).ThenBy(enemy => enemy)
-            .Cast<EnemyDefinitionId?>().FirstOrDefault() ?? EnemyDefinitionId.CorpseSidehopper;
+            .Cast<EnemyDefinitionId?>().FirstOrDefault() ?? EnemyDefinitionId.MotherBrainBody;
 
     /// <summary>Selects walking, ninja, or wall Pirate ownership from a compiled extended-frame identity.</summary>
     private static EnemyDefinitionId PirateDefinitionForFrame(ushort pointer)

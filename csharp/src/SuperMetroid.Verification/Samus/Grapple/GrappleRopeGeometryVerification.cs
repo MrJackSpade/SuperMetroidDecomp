@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleEndpointGeometryVerification;
@@ -58,7 +59,7 @@ internal static class GrappleRopeGeometryVerification
                 }
             }
             var oamFrame = new SpriteFrameBuffer();
-            SamusGrappleBeamDrawing.DrawConnectedBeam(grapple, oamFrame, new(0, 0), SpriteFrameTestArtwork.BlankGrapple, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+            SamusGrappleBeamDrawing.DrawConnectedBeam(grapple, oamFrame, new(0, 0), InstalledFixtures.GrappleSheet);
             OamBuffer oam = oamFrame.FinalizeAsOam();
             string context = $"direction {direction}, origin {origin}, length {length}";
             int endpointCount = (short)length < 0 ? 0 : 1;

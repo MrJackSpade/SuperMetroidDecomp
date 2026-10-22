@@ -13,16 +13,18 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Grapple;
 
-/// <summary>Checks that grapple draws bind the currently installed grapple artwork, including after a debugger-state restore.</summary>
+/// <summary>Checks that grapple draws show the currently bound grapple sheet, including after a debugger-state restore.</summary>
 internal static class GrappleTileBindingVerification
 {
     /// <summary>
-    /// The actual actor pass publishes grapple draws bound to the installed atlas's endpoint/rope tiles; rebinding host
-    /// artwork leaves saved state untouched; a restored state draws with whichever atlas the host binds.
+    /// The actual actor pass publishes grapple draws from the bound grapple sheet; rebinding host sheets leaves saved
+    /// state untouched; a restored state draws from whichever sheets the host binds.
     /// </summary>
-    internal static void VerifyGrappleTileBinding(GrappleTileAtlas stock, GrappleTileAtlas edited)
+    internal static void VerifyGrappleTileBinding()
     {
         var random = new CartridgeRandom();
         var runtime = CreateRetailRuntimeFixture(random: random);
@@ -40,35 +42,34 @@ internal static class GrappleTileBindingVerification
         samus.Grapple.Anchor = new(samus.Position.X.Whole, (ushort)(samus.Position.Y.Whole - 32));
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), random: random);
         game.AdoptRuntime(runtime);
-        game.BindArtwork(game.Artwork with { GrappleArtwork = stock });
-        AssertBoundTo(runtime, stock, "Actual actor pass binds the installed grapple tiles");
+        InstalledSpriteSheets stock = InstalledFixtures.SpriteSheets, rebound = RepositoryInstallation.Installation.LoadSpriteSheets();
+        game.BindArtwork(game.Artwork with { SpriteSheets = stock });
+        AssertBoundTo(runtime, stock, "Actual actor pass draws the installed grapple sheet");
 
         byte[] stockGraph = GraphDigest(game);
-        game.BindArtwork(game.Artwork with { GrappleArtwork = edited });
-        AssertTrue(stockGraph.SequenceEqual(GraphDigest(game)), "Changing Grapple PNG does not change saved state before the next draw");
+        game.BindArtwork(game.Artwork with { SpriteSheets = rebound });
+        AssertTrue(stockGraph.SequenceEqual(GraphDigest(game)), "Rebinding the sheets does not change saved state before the next draw");
 
-        game.BindArtwork(game.Artwork with { GrappleArtwork = stock });
+        game.BindArtwork(game.Artwork with { SpriteSheets = stock });
         using var stream = new MemoryStream(SerializeGraph(game));
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
         var restoredRuntime = restored.Session.GameplayRuntime;
-        AssertTrue(restoredRuntime.Artwork.GrappleArtwork is null, "Restored state requires current host Grapple artwork");
+        AssertTrue(restoredRuntime.Artwork.SpriteSheets is null, "Restored state requires the current host sheets");
         BindRetailRuntimeFixture(restoredRuntime);
-        restored.BindArtwork(restored.Artwork with { GrappleArtwork = edited });
-        AssertBoundTo(restoredRuntime, edited, "Restored state draws with the newly bound Grapple PNG");
-        Console.WriteLine("Grapple tile binding: actor draws bind installed tiles; rebinding leaves state untouched; restored states draw with the bound atlas.");
+        restored.BindArtwork(restored.Artwork with { SpriteSheets = rebound });
+        AssertBoundTo(restoredRuntime, rebound, "Restored state draws the newly bound grapple sheet");
+        Console.WriteLine("Grapple sheet binding: actor draws show the installed sheet; rebinding leaves state untouched; restored states draw the bound sheet.");
 
-        static void AssertBoundTo(SuperMetroidRuntime target, GrappleTileAtlas atlas, string context)
+        static void AssertBoundTo(SuperMetroidRuntime target, InstalledSpriteSheets sheets, string context)
         {
             target.Sprites.BeginFrame();
             target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
             target.Sprites.FinalizeFrame();
-            SamusGrappleState grapple = target.Player.IntroducedSamus.Grapple;
             SpriteDraw[] grappleDraws = [.. target.Sprites.Draws
                 .Where(draw => draw.Source.Kind is SpriteSourceKind.SamusGrappleEndpoint or SpriteSourceKind.SamusGrappleRope)];
             AssertTrue(grappleDraws.Length > 0, context + ": the grapple beam is drawn");
-            SpriteArtwork expected = atlas.OnStandardObjects(target.Artwork.StandardObjects ?? throw new InvalidOperationException(
-                "Verification requires the runtime's standard OBJ page."), grapple.PointAnimationFrame, grapple.Angle);
-            AssertTrue(grappleDraws.All(draw => ReferenceEquals(expected, draw.Artwork)), context);
+            SpriteImage expected = sheets.Get(SpriteSheetId.Grapple).Image;
+            AssertTrue(grappleDraws.All(draw => draw is ImageSpriteDraw image && ReferenceEquals(expected, image.Image.Sheet)), context);
         }
     }
 }

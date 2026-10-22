@@ -10,6 +10,7 @@ public static class SpriteSheetDefinitions
     public static string FileName(SpriteSheetId sheet) => sheet switch
     {
         SpriteSheetId.EscapeTimer => "escape-timer",
+        SpriteSheetId.Grapple => "grapple",
         SpriteSheetId.IntroProjectiles => "intro-projectiles",
         SpriteSheetId.ProjectilesPower => "projectiles-power",
         SpriteSheetId.ProjectilesWave => "projectiles-wave",

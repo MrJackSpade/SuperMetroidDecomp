@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -39,7 +40,7 @@ internal static class GrappleEndpointGeometryVerification
             };
             grapple.SegmentAnimationTimers[15] = WrappingCountdown.Start(1);
             var oamFrame = new SpriteFrameBuffer();
-            SamusGrappleBeamDrawing.DrawConnectedBeam(grapple, oamFrame, new(camera, camera), SpriteFrameTestArtwork.BlankGrapple, samusPose: pose, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+            SamusGrappleBeamDrawing.DrawConnectedBeam(grapple, oamFrame, new(camera, camera), InstalledFixtures.GrappleSheet, samusPose: pose);
             OamBuffer oam = oamFrame.FinalizeAsOam();
             bool swinging = pose is SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose;
             ushort relativeY = unchecked((ushort)(endpointY - camera));

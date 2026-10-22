@@ -43,8 +43,7 @@ public static class SamusGrappleBeamDrawing
         SamusState samus,
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> layer1,
-        SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteCatalog? compositions = null,
-        SpriteArtwork? standardObjects = null)
+        ProjectileDrawArtwork objects)
     {
         Ensure.NotNull(samus);
         Ensure.NotNull(sprites);
@@ -99,12 +98,14 @@ public static class SamusGrappleBeamDrawing
         // shared main flare only; charge-spark direction offsets do not apply.
         ushort tableIndex = unchecked((ushort)(
             grapple.FlareAnimationFrame + SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteDefinitions.MainFlareSelectorOffset));
-        // Flare compositions name characters $50-$5D of the standard OBJ sheet.
-        sprites.Add(new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleFlare),
-            (compositions ?? throw new InvalidOperationException(
-                "Grapple flare requires installed sprite compositions.")).Frame(tableIndex),
-            standardObjects ?? throw new InvalidOperationException("Grapple flare requires the installed standard OBJ page."),
-            new Position16<ScreenPixels>(screenX, screenY), SnesTileFlipFlags.None, 0, 0));
+        // Flare compositions name characters $50-$5D of the standard OBJ sheet, which no beam or trail upload covers,
+        // so the loaded beams' projectile sheet shows them as the standard page does.
+        if (!SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteCatalog.Contains(tableIndex))
+            throw new InvalidDataException($"Unknown charge-flare sprite selector {tableIndex:X4}.");
+        SpriteSheetFrame image = objects.Sheet.Frame(SuperMetroid.Core.Samus.Artwork.ProjectileSheetDefinitions.FlareFrame(
+            SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteDefinitions.Selectors[tableIndex]));
+        sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleFlare), image,
+            new Position16<ScreenPixels>(screenX, screenY), SpriteMirror.None, image.Priority));
         return true;
     }
 
@@ -168,9 +169,8 @@ public static class SamusGrappleBeamDrawing
         SamusGrappleState grapple,
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> layer1,
-        SuperMetroid.Core.Samus.Artwork.GrappleTileAtlas? artwork = null,
-        SamusPoseId samusPose = 0,
-        SpriteArtwork? standardObjects = null)
+        SpriteSheet? sheet = null,
+        SamusPoseId samusPose = 0)
     {
         Ensure.NotNull(grapple);
         Ensure.NotNull(sprites);
@@ -182,10 +182,9 @@ public static class SamusGrappleBeamDrawing
         GrapplePointAnimationDefinitions.Advance(grapple);
         // Natively `$9B:BFA5` uploads the endpoint frame and the four rope characters for the angle's sector to
         // OBJ characters $20-$24; the draws below bind that selection over the standard OBJ page.
-        SuperMetroid.Core.Samus.Artwork.GrappleTileAtlas installed = artwork ?? throw new InvalidOperationException(
-            "The grapple beam requires installed grapple artwork.");
-        SpriteArtwork tiles = installed.OnStandardObjects(standardObjects ?? throw new InvalidOperationException(
-            "The grapple beam requires the installed standard OBJ page."), grapple.PointAnimationFrame, grapple.Angle);
+        SpriteSheet installed = sheet ?? throw new InvalidOperationException("The grapple beam requires the installed grapple sheet.");
+        SuperMetroid.Core.Samus.Artwork.GrappleRopeOrientation orientation =
+            SuperMetroid.Core.Samus.Artwork.GrappleTileDefinitions.OrientationFor(grapple.Angle);
 
         // `$9B:BFA5` increments the shared flare counter after both tile records, saturating
         // at 120 by a signed comparison. It happens even at zero rope length; only the OAM
@@ -212,7 +211,8 @@ public static class SamusGrappleBeamDrawing
         int angleHigh = grapple.Angle.TableIndex;
         int flipBits = (angleHigh & 1 << 7) >> 1;
         flipBits |= 2 * ((((angleHigh ^ flipBits) & 1 << 6) ^ 1 << 6));
-        ushort flipAttributes = SnesLittleEndian.Word(0, unchecked((byte)flipBits));
+        SpriteMirror mirror = ((flipBits & 1 << 6) != 0 ? SpriteMirror.Horizontal : SpriteMirror.None) |
+            ((flipBits & 1 << 7) != 0 ? SpriteMirror.Vertical : SpriteMirror.None);
         int screenXFixed = unchecked(SnesSixteenSixteen.FromWhole(grapple.BeamStart.X - layer1.X - SamusGrappleRomData.Rendering.CharacterCenterOffset));
         int screenYFixed = unchecked(SnesSixteenSixteen.FromWhole(grapple.BeamStart.Y - layer1.Y - SamusGrappleRomData.Rendering.CharacterCenterOffset));
         // Native enters the loop before decrementing quotient-minus-one: even a
@@ -247,25 +247,23 @@ public static class SamusGrappleBeamDrawing
             // the remaining rope slots entirely at the first off-screen segment.
             if (((screenX | screenY) & SamusGrappleRomData.Rendering.SegmentOutsideViewportMask) != 0)
                 break;
-            ushort appearance = installed.Sprites?.Segment(grapple.SegmentAnimationFrames[instructionSlot])
-                ?? unchecked((ushort)(SamusGrappleRomData.Rendering.FirstSegmentAttributes + grapple.SegmentAnimationFrames[instructionSlot]));
-            var segmentAttributes = new SnesObjAttributeWord(unchecked((ushort)(appearance | flipAttributes)));
-            sprites.Add(new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleRope, segment),
-                ObjPartFrames.SmallObject(segmentAttributes, 0), tiles,
-                new Position16<ScreenPixels>(screenX, screenY), SnesTileFlipFlags.None,
-                (byte)segmentAttributes.PaletteIndex, (byte)segmentAttributes.Priority));
+            // `$94:AFDE`'s direction flips are ORed into the segment's own; the sheet holds each combination.
+            SpriteSheetFrame image = installed.Frame(SuperMetroid.Core.Samus.Artwork.GrappleSheetDefinitions.RopeFrame(
+                orientation, grapple.SegmentAnimationFrames[instructionSlot], mirror));
+            sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleRope, segment), image,
+                new Position16<ScreenPixels>(screenX, screenY), SpriteMirror.None, image.Priority));
             screenXFixed = unchecked(screenXFixed + stepX);
             screenYFixed = unchecked(screenYFixed + stepY);
         }
 
-        DrawBeamEndpoint(grapple, sprites, tiles, layer1, samusPose,
-            installed.Sprites?.Endpoint ?? SamusGrappleRomData.Rendering.EndpointAttributes);
+        DrawBeamEndpoint(grapple, sprites, installed.Frame(SuperMetroid.Core.Samus.Artwork.GrappleSheetDefinitions.EndpointFrame(
+            grapple.PointAnimationFrame)), layer1, samusPose);
     }
 
 
     /// <summary>Preserves the pose-selected endpoint routines at $94:B0F9/B14B.</summary>
-    private static void DrawBeamEndpoint(SamusGrappleState grapple, SpriteFrameBuffer sprites, SpriteArtwork tiles,
-        Position16<RoomPixels> layer1, SamusPoseId samusPose, ushort attributes)
+    private static void DrawBeamEndpoint(SamusGrappleState grapple, SpriteFrameBuffer sprites, SpriteSheetFrame image,
+        Position16<RoomPixels> layer1, SamusPoseId samusPose)
     {
         bool swinging = samusPose is SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose;
         ushort relativeY = unchecked((ushort)(grapple.Anchor.Y - layer1.Y));
@@ -279,11 +277,9 @@ public static class SamusGrappleBeamDrawing
         // half-character offset, even when wrapped coordinates look adjacent.
         int borrowX = swinging && grapple.Anchor.X < layer1.X ? 1 : 0;
         int borrowY = swinging && grapple.Anchor.Y < layer1.Y ? 1 : 0;
-        var endpoint = new SnesObjAttributeWord(attributes);
-        sprites.Add(new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleEndpoint),
-            ObjPartFrames.SmallObject(endpoint, 0), tiles,
+        sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleEndpoint), image,
             new Position16<ScreenPixels>(unchecked((ushort)(grapple.Anchor.X - layer1.X - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowX)), unchecked((ushort)(relativeY - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowY))),
-            SnesTileFlipFlags.None, (byte)endpoint.PaletteIndex, (byte)endpoint.Priority));
+            SpriteMirror.None, image.Priority));
     }
 
 

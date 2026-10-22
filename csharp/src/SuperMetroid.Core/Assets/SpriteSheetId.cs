@@ -5,6 +5,8 @@ public enum SpriteSheetId
 {
     /// <summary>The escape countdown's label and digits.</summary>
     EscapeTimer,
+    /// <summary>The grapple beam's endpoint and rope.</summary>
+    Grapple,
     /// <summary>Samus's projectiles, bombs, charge flare and trails as the intro's flashbacks draw them.</summary>
     IntroProjectiles,
     /// <summary>Samus's projectiles, bombs, charge flare and trails with the power beam equipped.</summary>

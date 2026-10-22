@@ -7,7 +7,9 @@ using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Grapple;
@@ -27,53 +29,23 @@ internal static class GrappleSpriteArtworkVerification
         AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GrappleSpriteDefinitions.EndpointAttributeAddress), catalog.Endpoint, "Extracted endpoint attributes match native immediate");
         for (int i = 0; i < 4; i++)
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GrappleSpriteDefinitions.SegmentAttributeAddresses[i]), catalog.Segment(i), "Extracted segment attributes match timed native record");
-        var document = RequiredJson.Parse(json);
-        Change(document.Required("endpoint"));
-        foreach (var segment in document.Required("segments").AsArray().RequiredElements()) Change(segment);
-        var changedCatalog = GrappleSpriteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
-        var stock = GrappleTileAtlas.Load(new MemoryStream(png), catalog);
-        var changed = GrappleTileAtlas.Load(new MemoryStream(png), changedCatalog);
-        var guard = new CartridgeReadGuard(bus).Forbid(
-            address => address is >= 0x94b13d and <= 0x94b13e or >= 0x94b17d and <= 0x94b17e or >= 0x94b18b and <= 0x94b19e,
-            _ => "Grapple still reads native visual records.");
+        // The installed grapple sheet composes each frame from the installed appearances, which match the cartridge above:
+        // the endpoint as one small OBJ, and each rope segment with the rope direction's flips ORed into its own.
+        SpriteSheetSources composed = GrappleSheetComposer.Sources(SamusSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory));
+        Dictionary<string, SpriteFrame> frames = composed.Frames.ToDictionary(frame => frame.Name, frame => frame.Frame, StringComparer.Ordinal);
         int cases = 0;
-        for (int angle = 0; angle < 256; angle += 4)
+        for (int point = 0; point < GrappleSheetDefinitions.EndpointFrameCount; point++, cases++)
+            AssertEqual(ObjPartFrames.SmallObject(new SnesObjAttributeWord(catalog.Endpoint), 0).Parts.Single(),
+                frames[GrappleSheetDefinitions.EndpointFrame(point)].Parts.Single(), $"Grapple endpoint frame {point} is the native endpoint OBJ");
+        foreach (GrappleRopeOrientation orientation in Enum.GetValues<GrappleRopeOrientation>())
+        for (int segment = 0; segment < GrappleSpriteDefinitions.SegmentFrameCount; segment++)
+        foreach (SpriteMirror mirror in GrappleSheetDefinitions.RopeMirrors)
         {
-            var originalState = Seed(); var stockState = Seed(); var editedState = Seed();
-            for (int tick = 0; tick < 25; tick++)
-            {
-                var originalOamFrame = new SpriteFrameBuffer(); var stockOamFrame = new SpriteFrameBuffer(); var editedOamFrame = new SpriteFrameBuffer();
-                SamusGrappleBeamDrawing.DrawConnectedBeam(originalState, originalOamFrame, new(0, 0), SpriteFrameTestArtwork.BlankGrapple, standardObjects: SpriteFrameTestArtwork.StandardObjects);
-                OamBuffer originalOam = originalOamFrame.FinalizeAsOam();
-                SamusGrappleBeamDrawing.DrawConnectedBeam(stockState, stockOamFrame, new(0, 0), stock, standardObjects: SpriteFrameTestArtwork.StandardObjects);
-                OamBuffer stockOam = stockOamFrame.FinalizeAsOam();
-                SamusGrappleBeamDrawing.DrawConnectedBeam(editedState, editedOamFrame, new(0, 0), changed, standardObjects: SpriteFrameTestArtwork.StandardObjects);
-                OamBuffer editedOam = editedOamFrame.FinalizeAsOam();
-                AssertTrue(originalOam.ImageEquals(stockOam), "Stock JSON preserves entire native OAM");
-                AssertEqual((stockOam.LastFinalizedSpriteCount * 4), (editedOam.LastFinalizedSpriteCount * 4), "Visual edit preserves segment count");
-                AssertTrue(stockOam.HighTable.SequenceEqual(editedOam.HighTable), "Visual edit preserves object size and high-X");
-                for (int offset = 0; offset < (stockOam.LastFinalizedSpriteCount * 4); offset += 4)
-                {
-                    AssertEqual(stockOam.LowTable[offset], editedOam.LowTable[offset], "Visual edit preserves segment X");
-                    AssertEqual(stockOam.LowTable[offset + 1], editedOam.LowTable[offset + 1], "Visual edit preserves segment Y");
-                    AssertEqual((byte)(stockOam.LowTable[offset + 2] ^ 1), editedOam.LowTable[offset + 2], "Selected tile column reaches real renderer");
-                    AssertEqual((byte)(stockOam.LowTable[offset + 3] ^ 2), editedOam.LowTable[offset + 3], "Selected palette reaches real renderer");
-                }
-                AssertTrue(GraphDigest(originalState).SequenceEqual(GraphDigest(stockState)) &&
-                    GraphDigest(stockState).SequenceEqual(GraphDigest(editedState)), "Visual edits preserve all Grapple state and animation timing");
-                cases++;
-            }
-            SamusGrappleState Seed()
-            {
-                var state = new SamusGrappleState
-                {
-                    Phase = GrapplePhase.ConnectedSwinging, RopeLength = 120,
-                    BeamStart = new(100, 100), Anchor = new(200, 60),
-                    Angle = SnesAngle.FromTableIndex(unchecked((byte)angle)), PointAnimationTimer = WrappingCountdown.Start(5),
-                };
-                for (int i = 0; i < 16; i++) { state.SegmentAnimationTimers[i] = WrappingCountdown.Start(1); state.SegmentAnimationFrames[i] = (byte)(i & 3); }
-                return state;
-            }
+            ushort flips = (ushort)(((mirror & SpriteMirror.Horizontal) != 0 ? 0x4000 : 0) | ((mirror & SpriteMirror.Vertical) != 0 ? 0x8000 : 0));
+            AssertEqual(ObjPartFrames.SmallObject(new SnesObjAttributeWord((ushort)(catalog.Segment(segment) | flips)), 0).Parts.Single(),
+                frames[GrappleSheetDefinitions.RopeFrame(orientation, segment, mirror)].Parts.Single(),
+                $"Grapple rope {orientation} frame {segment} mirrored {mirror} is the native segment OBJ with the rope's flips");
+            cases++;
         }
         foreach (string bad in new[] { "null", "{}", "{", "{\"version\":1,\"version\":1}", System.Text.Encoding.UTF8.GetString(json).Replace("\"palette\": 5", "\"palette\": 8") })
             AssertThrows<InvalidDataException>(() => GrappleSpriteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(bad))), "Invalid Grapple presentation rejected");
@@ -95,12 +67,7 @@ internal static class GrappleSpriteArtworkVerification
         boundary.Required("endpoint")["flipX"] = true; boundary.Required("endpoint")["flipY"] = true;
         AssertEqual(ushort.MaxValue, GrappleSpriteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(boundary.ToJsonString()))).Endpoint,
             "Every OBJ attribute bit can be authored without leaking into timing/geometry");
-        Console.WriteLine($"Grapple sprite JSON: {cases} production frames match native OAM; edited tile/palette preserves positions, full simulation state and uploads with visual ROM forbidden.");
-        static void Change(JsonNode style)
-        {
-            style["tileColumn"] = style.Required("tileColumn").GetValue<int>() ^ 1;
-            style["palette"] = style.Required("palette").GetValue<int>() ^ 1;
-        }
+        Console.WriteLine($"Grapple sprite JSON: native appearances extracted and {cases} grapple sheet frames composed from them; invalid documents rejected.");
     }
 
     /// <summary>Runs the Grapple sprite-artwork verification command with the retail cartridge.</summary>

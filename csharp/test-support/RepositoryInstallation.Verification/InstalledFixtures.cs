@@ -88,6 +88,9 @@ internal static class InstalledFixtures
     internal static ProjectileDrawArtwork ProjectileArtwork(ushort equippedBeams = 0) =>
         new(ProjectileSheets.Gameplay(SpriteSheets), (SamusBeamFlags)equippedBeams);
 
+    /// <summary>The installation's grapple sheet.</summary>
+    internal static SpriteSheet GrappleSheet => SpriteSheets.Get(SpriteSheetId.Grapple);
+
     /// <summary>The installation's pre-coloured sprite sheets, loaded once per process.</summary>
     internal static InstalledSpriteSheets SpriteSheets => spriteSheets.Value;
 

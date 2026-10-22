@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -26,19 +27,18 @@ internal static class ProjectileSheetPixelsVerification
     internal static void VerifyProjectileSheetPixels()
     {
         int frames = 0;
-        ProjectileSheetComposer.ProjectileSheetInputs inputs = ProjectileSheetComposer.ProjectileSheetInputs.Load(
-            RepositoryInstallation.Installation.ContentDirectory);
-        foreach (SpriteSheetId id in new[] { SpriteSheetId.ProjectilesPower, SpriteSheetId.ProjectilesSpazerPlasmaIce, SpriteSheetId.IntroProjectiles })
+        SamusSheetInputs inputs = SamusSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory);
+        foreach (SpriteSheetId id in new[] { SpriteSheetId.ProjectilesPower, SpriteSheetId.ProjectilesSpazerPlasmaIce, SpriteSheetId.IntroProjectiles, SpriteSheetId.Grapple })
         {
-            ProjectileSheetComposer.ProjectileSheetSources sources = ProjectileSheetComposer.Sources(inputs, id);
+            SpriteSheetSources sources = id == SpriteSheetId.Grapple ? GrappleSheetComposer.Sources(inputs) : ProjectileSheetComposer.Sources(inputs, id);
             SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(id);
             var cgram = new SnesCgram();
             for (int colour = 0; colour < sources.SpriteColours.Length; colour++)
                 cgram.SetColor(SpriteColours + colour, sources.SpriteColours[colour]);
             var origin = new Position16<ScreenPixels>((ushort)(Canvas.X / 2), (ushort)(Canvas.Y / 2));
-            foreach ((string name, SpriteFrame frame) in sources.Frames)
+            foreach ((string name, SpriteFrame frame, SpriteArtwork characters) in sources.Frames)
             {
-                var composed = new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectile), frame, sources.Page, origin,
+                var composed = new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectile), frame, characters, origin,
                     SnesTileFlipFlags.None, 0, 0);
                 SpriteSheetFrame image = sheet.Frame(name);
                 var drawn = new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectile), image, origin, SpriteMirror.None, image.Priority);

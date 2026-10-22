@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Grapple;
@@ -27,7 +28,7 @@ internal static class GrappleQuantityRangesVerification
                 PointAnimationTimer = WrappingCountdown.Start(5),
             };
             SamusGrappleBeamDrawing.DrawConnectedBeam(grapple, new SpriteFrameBuffer(), new(0, 0),
-                SpriteFrameTestArtwork.BlankGrapple, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+                InstalledFixtures.GrappleSheet);
             ushort word = (ushort)start;
             if (unchecked((short)(word - 120)) < 0)
                 word = unchecked((ushort)(word + 1));

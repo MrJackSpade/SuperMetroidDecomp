@@ -530,7 +530,7 @@ in colour math). Place an edited copy of either in `overrides/sprite-sheets` und
 edited frame list must keep every frame the family draws. The escape countdown (`escape-timer`) is drawn
 this way, as are Samus's projectiles, bombs, charge flare and trails: one sheet per beam combination
 (`projectiles-power`, `projectiles-plasma-ice-wave` and so on), whose characters and beam colours differ,
-and `intro-projectiles` for the intro's flashbacks. The escape countdown's layout, `escape-timer.json` in `overrides/maps`, now holds only the
+and `intro-projectiles` for the intro's flashbacks, and the grapple beam's endpoint and rope (`grapple`). The escape countdown's layout, `escape-timer.json` in `overrides/maps`, now holds only the
 anchors and digit spacing; a layout written for the earlier version, which also held the frames and
 palette, is rejected until it is rewritten.
 

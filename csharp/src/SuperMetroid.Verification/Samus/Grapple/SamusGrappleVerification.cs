@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core;
@@ -658,13 +659,10 @@ firingLevel, cancelledSamus, controllerInput: 0);
         SyntheticSamusCartridge.WriteSingleObjectProjectileSpritemap(
             bus, pointer, x: 2, y: 0xfd, tileAttributes: 0x3456);
     }
-    var fixtureFlareSprites = ChargeFlareSpriteCatalog.Load(
-        new MemoryStream(ChargeFlareSpriteExtractor.Extract(bus)));
     var grappleFlareOamFrame = new SpriteFrameBuffer();
     grappleFlareOamFrame.BeginFrame();
     AssertTrue(SamusGrappleBeamDrawing.DrawFlareBeforeSamus(
-            samus, grappleFlareOamFrame, layer1: new(100, 50), compositions: fixtureFlareSprites,
-            standardObjects: SpriteFrameTestArtwork.StandardObjects),
+            samus, grappleFlareOamFrame, layer1: new(100, 50), InstalledFixtures.ProjectileArtwork()),
         "connected grapple flare passes unsigned screen-Y gate");
     OamBuffer grappleFlareOam = grappleFlareOamFrame.FinalizeAsOam();
     AssertEqual(1, samus.Grapple.FlareCounter,
@@ -673,14 +671,11 @@ firingLevel, cancelledSamus, controllerInput: 0);
         "first grapple flare selects shared main frame sixteen");
     AssertEqual(2, samus.Grapple.FlareAnimationTimer.RawValue,
         "first grapple flare performs decrement-before-test");
-    AssertEqual(4, (grappleFlareOam.LastFinalizedSpriteCount * 4),
-        "grapple flare appends one ROM-authored OAM entry");
-    OamEntry grappleFlare = grappleFlareOam.GetEntry(0);
-    AssertEqual(100, grappleFlare.Position.X, "grapple flare spritemap X offset");
-    AssertEqual(100, grappleFlare.Position.Y, "grapple flare signed Y offset");
-    AssertEqual(0x56, grappleFlare.TileNumber, "grapple flare retains ROM tile bits");
-    AssertEqual(2, grappleFlare.Palette, "grapple flare retains ROM palette bits");
-    AssertEqual(3, grappleFlare.Priority, "grapple flare retains ROM priority bits");
+    var grappleFlare = (ImageSpriteDraw)grappleFlareOamFrame.Draws.Single();
+    AssertEqual(InstalledFixtures.SpriteSheets.Get(SpriteSheetId.ProjectilesPower).Frame(ProjectileSheetDefinitions.FlareFrame(
+            ChargeFlareSpriteDefinitions.Selectors[16 + ChargeFlareSpriteDefinitions.MainFlareSelectorOffset])), grappleFlare.Image,
+        "grapple flare shows main flare frame sixteen from the loaded beams' projectile sheet");
+    AssertEqual(new Position16<ScreenPixels>(98, 103), grappleFlare.Origin, "grapple flare is placed at the flare origin");
 
     // Selector provenance is now compiled even without installed artwork. The
     // independent all-angle cartridge comparison covers its exact sector boundaries.
@@ -696,17 +691,15 @@ firingLevel, cancelledSamus, controllerInput: 0);
         samus.Grapple,
         grappleOamFrame,
         layer1: new(100, 50),
-        artwork: SpriteFrameTestArtwork.BlankGrapple,
-        standardObjects: SpriteFrameTestArtwork.StandardObjects);
+        InstalledFixtures.GrappleSheet);
     OamBuffer grappleOam = grappleOamFrame.FinalizeAsOam();
 
     AssertEqual(0x9a8200, GrapplePointAnimationDefinitions.SourceAddress(samus.Grapple.PointAnimationFrame),
         "grapple selects the native first endpoint tile");
     AssertEqual(segmentSource, GrappleTileDefinitions.TransferFor(GrappleTileDefinitions.SegmentAssetFor(samus.Grapple.Angle)).SourceAddress,
         "grapple selects the native angle-selected segment tiles");
-    AssertTrue(grappleOamFrame.Draws.All(draw => draw.Artwork.Id.Variant ==
-            SpriteFrameTestArtwork.BlankGrapple.Tiles(samus.Grapple.PointAnimationFrame, samus.Grapple.Angle).Id.Variant),
-        "grapple draws bind that endpoint and segment selection");
+    AssertTrue(grappleOamFrame.Draws.All(draw => ReferenceEquals(InstalledFixtures.GrappleSheet.Image, ((ImageSpriteDraw)draw).Image.Sheet)),
+        "grapple draws show frames of the grapple sheet");
     AssertEqual(2, samus.Grapple.FlareCounter,
         "post-Samus grapple tile pass increments flare counter");
 
@@ -750,8 +743,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
         zeroLengthGrapple,
         zeroLengthOamFrame,
         layer1: new(100, 50),
-        artwork: SpriteFrameTestArtwork.BlankGrapple,
-        standardObjects: SpriteFrameTestArtwork.StandardObjects);
+        InstalledFixtures.GrappleSheet);
     OamBuffer zeroLengthOam = zeroLengthOamFrame.FinalizeAsOam();
     AssertEqual(2, zeroLengthGrapple.FlareCounter,
         "zero-length grapple still advances flare counter");

@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
 /// Pre-assembles and pre-colours a family's frames into one sprite sheet (#1392): each frame composed from its parts over
-/// the family's characters, coloured with its standard palette rows, cropped to its parts and packed in rows no wider
+/// its characters, coloured with its standard palette rows, cropped to its parts and packed in rows no wider
 /// than <see cref="MaximumWidth"/>. A frame with no parts is an empty frame.
 /// </summary>
 internal static class SpriteSheetComposer
@@ -21,25 +21,24 @@ internal static class SpriteSheetComposer
     /// <summary>The widest a sheet is packed; a frame that would cross it starts a new row of frames.</summary>
     internal const int MaximumWidth = 1024;
 
-    /// <summary>Composes <paramref name="frames"/> in order onto one sheet.</summary>
-    /// <param name="frames">Each frame's installed name and its parts.</param>
-    /// <param name="artwork">The characters the parts index.</param>
-    /// <param name="spriteColours">The eight sprite palette rows as the family is drawn with them, sixteen colours each.</param>
+    /// <summary>Composes a sheet's frames in order onto one sheet.</summary>
+    /// <param name="sources">Each frame's installed name, parts and characters, and the eight sprite palette rows as the
+    /// family is drawn with them, sixteen colours each.</param>
     /// <param name="palette">The row of parts that do not choose their own.</param>
     /// <param name="priority">The priority of parts that do not choose their own.</param>
     /// <exception cref="InvalidDataException">A frame mixes blending and non-blending rows, or priorities.</exception>
-    internal static ComposedSpriteSheet Compose(IReadOnlyList<KeyValuePair<string, SpriteFrame>> frames, SpriteArtwork artwork,
-        ReadOnlySpan<Bgr555> spriteColours, int palette, int priority)
+    internal static ComposedSpriteSheet Compose(SpriteSheetSources sources, int palette, int priority)
     {
-        Ensure.NotNull(frames);
-        Ensure.NotNull(artwork);
+        Ensure.NotNull(sources);
+        IReadOnlyList<SheetFrameSource> frames = sources.Frames;
+        ReadOnlySpan<Bgr555> spriteColours = sources.SpriteColours;
         Ensure.LengthEqual(spriteColours, 8 * RowColours);
         var bounds = new FrameBounds[frames.Count];
         var corners = new Position16<ImagePixels>[frames.Count];
         int width = 1, x = 0, y = 0, rowHeight = 0;
         for (int index = 0; index < frames.Count; index++)
         {
-            FrameBounds bound = bounds[index] = Bounds(frames[index].Value);
+            FrameBounds bound = bounds[index] = Bounds(frames[index].Frame);
             if (bound.Width == 0)
                 continue;
             if (x > 0 && x + bound.Width > MaximumWidth)
@@ -58,7 +57,7 @@ internal static class SpriteSheetComposer
         var manifest = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         for (int index = 0; index < frames.Count; index++)
         {
-            (string name, SpriteFrame frame) = (frames[index].Key, frames[index].Value);
+            (string name, SpriteFrame frame, SpriteArtwork artwork) = (frames[index].Name, frames[index].Frame, frames[index].Characters);
             FrameBounds bound = bounds[index];
             Position16<ImagePixels> corner = corners[index];
             bool blends = false;

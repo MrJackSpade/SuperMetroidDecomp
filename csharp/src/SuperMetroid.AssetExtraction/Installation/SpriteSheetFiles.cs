@@ -38,10 +38,10 @@ public static class SpriteSheetFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         Directory.CreateDirectory(directory);
         var hashes = new Dictionary<string, string>(StringComparer.Ordinal);
-        ProjectileSheetComposer.ProjectileSheetInputs projectiles = ProjectileSheetComposer.ProjectileSheetInputs.Load(content);
+        SamusSheetInputs samus = SamusSheetInputs.Load(content);
         foreach (SpriteSheetId sheet in SpriteSheetDefinitions.Sheets)
         {
-            ComposedSpriteSheet composed = Compose(bus, projectiles, sheet);
+            ComposedSpriteSheet composed = Compose(bus, samus, sheet);
             using var image = new MemoryStream();
             RgbaPng.Write(image, composed.Size, composed.Pixels);
             Write(directory, ImageFile(sheet), image.ToArray(), hashes);
@@ -92,17 +92,18 @@ public static class SpriteSheetFiles
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
     /// <summary>Composes one sheet.</summary>
-    private static ComposedSpriteSheet Compose(ISnesAddressSpace bus, ProjectileSheetComposer.ProjectileSheetInputs projectiles,
-        SpriteSheetId sheet) => sheet switch
+    private static ComposedSpriteSheet Compose(ISnesAddressSpace bus, SamusSheetInputs samus, SpriteSheetId sheet) => sheet switch
     {
         SpriteSheetId.EscapeTimer => EscapeTimerSheetComposer.Compose(bus),
-        _ => ProjectileSheetComposer.Compose(projectiles, sheet),
+        SpriteSheetId.Grapple => GrappleSheetComposer.Compose(samus),
+        _ => ProjectileSheetComposer.Compose(samus, sheet),
     };
 
     /// <summary>The frames a sheet must hold: the ones its family draws.</summary>
     internal static IEnumerable<string> FrameNames(SpriteSheetId sheet) => sheet switch
     {
         SpriteSheetId.EscapeTimer => EscapeTimerPresentationDefinitions.Glyphs.Select(EscapeTimerPresentationDefinitions.FrameName),
+        SpriteSheetId.Grapple => GrappleSheetDefinitions.Frames,
         _ => ProjectileSheetDefinitions.Frames,
     };
 

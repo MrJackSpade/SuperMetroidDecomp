@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -7,7 +8,7 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>
-/// Verification access (#1392): the composition each installed projectile sheet frame was composed from, so a draw of
+/// Verification access (#1392): the composition each installed projectile and grapple sheet frame was composed from, so a draw of
 /// that frame can be compared with cartridge OAM oracles as the parts it shows. Frames are found by sheet, rectangle
 /// and origin, since a runtime and the fixtures load the sheets separately.
 /// </summary>
@@ -32,15 +33,14 @@ internal static class SheetFrameSources
     private static Dictionary<FrameKey, FrameSource> Build()
     {
         var result = new Dictionary<FrameKey, FrameSource>();
-        ProjectileSheetComposer.ProjectileSheetInputs inputs = ProjectileSheetComposer.ProjectileSheetInputs.Load(
-            RepositoryInstallation.Installation.ContentDirectory);
+        SamusSheetInputs inputs = SamusSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory);
         foreach (SpriteSheetId id in SpriteSheetDefinitions.Sheets.Where(id => id != SpriteSheetId.EscapeTimer))
         {
-            ProjectileSheetComposer.ProjectileSheetSources composed = ProjectileSheetComposer.Sources(inputs, id);
+            SpriteSheetSources composed = id == SpriteSheetId.Grapple ? GrappleSheetComposer.Sources(inputs) : ProjectileSheetComposer.Sources(inputs, id);
             SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(id);
             // Every empty frame shows nothing, so the first of those that share a key stands for all of them.
-            foreach ((string name, SpriteFrame frame) in composed.Frames)
-                result.TryAdd(Key(sheet.Frame(name)), new FrameSource(frame, composed.Page));
+            foreach (SheetFrameSource frame in composed.Frames)
+                result.TryAdd(Key(sheet.Frame(frame.Name)), new FrameSource(frame.Frame, frame.Characters));
         }
         return result;
     }

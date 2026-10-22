@@ -29,10 +29,6 @@ internal static class ChargeFlareCompositionsVerification
     {
         byte[] json = ChargeFlareSpriteExtractor.Extract(bus);
         var stock = ChargeFlareSpriteCatalog.Load(new MemoryStream(json));
-        var allEdited = RequiredJson.Parse(json);
-        foreach (var frame in allEdited.Required("frames").AsObject())
-        foreach (var part in (frame.Value ?? throw new InvalidOperationException("Verification requires frame.Value.")).AsArray().RequiredElements())
-            part["offsetX"] = part.Required("offsetX").GetValue<int>() + 7;
         // The retail ROM's installation is shared and only read here; another ROM installs its own.
         using var temporaryDirectory = new TestScratchDirectory("map-catalog");
         GameInstallation installation = Path.GetFullPath(sourceRom) == Path.GetFullPath("Super Metroid.smc")
@@ -43,7 +39,7 @@ internal static class ChargeFlareCompositionsVerification
         var maps = installation.LoadMaps();
         Suite(nameof(VerifyChargeFlareProduction), () => VerifyChargeFlareProduction(bus, stock, body,
             roomAssets, maps));
-        Suite(nameof(VerifyGrappleFlarePresentation), () => VerifyGrappleFlarePresentation(bus, stock, Load(allEdited), body,
+        Suite(nameof(VerifyGrappleFlarePresentation), () => VerifyGrappleFlarePresentation(bus, body,
             roomAssets, maps, installation.LoadProjectiles().GrappleTiles));
         if (!flareOnly)
         {

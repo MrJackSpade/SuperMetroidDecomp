@@ -126,12 +126,12 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
     }
     /// <summary>
     /// The endpoint character for animation <paramref name="pointFrame"/> followed by the four rope characters the
-    /// grapple <paramref name="angle"/> selects: OBJ characters $20-$24 as the beam's sprites name them.
+    /// rope <paramref name="orientation"/> selects: OBJ characters $20-$24 as the beam's sprites name them.
     /// </summary>
-    public SpriteArtwork Tiles(int pointFrame, SnesAngle angle)
+    public SpriteArtwork Tiles(int pointFrame, GrappleRopeOrientation orientation)
     {
         VramAssetId point = GrappleTileDefinitions.PointAssetFor(pointFrame);
-        VramAssetId segments = GrappleTileDefinitions.SegmentAssetFor(angle);
+        VramAssetId segments = GrappleTileDefinitions.SegmentAssetFor(orientation);
         return tileSets.GetOrAdd(new GrappleTileSetKey(point, segments), key => new SpriteArtwork(
             new SpriteArtworkId(SpriteArtworkKind.GrappleTiles, SnesLittleEndian.Word(checked((byte)key.Segments), checked((byte)key.Point))),
             [.. Resolve(key.Point).Span, .. Resolve(key.Segments).Span]));
@@ -141,7 +141,7 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
     /// The standard OBJ page with <see cref="Tiles"/> over characters $20-$24: the beam's sprites name OBJ characters
     /// directly, and one stock rope frame names tile $1FF outside the grapple's own characters.
     /// </summary>
-    public SpriteArtwork OnStandardObjects(SpriteArtwork standardObjects, int pointFrame, SnesAngle angle)
+    public SpriteArtwork OnStandardObjects(SpriteArtwork standardObjects, int pointFrame, GrappleRopeOrientation orientation)
     {
         Ensure.NotNull(standardObjects);
         if (!ReferenceEquals(pagesComposedOn, standardObjects))
@@ -149,7 +149,7 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
             pages.Clear();
             pagesComposedOn = standardObjects;
         }
-        SpriteArtwork tiles = Tiles(pointFrame, angle);
+        SpriteArtwork tiles = Tiles(pointFrame, orientation);
         return pages.GetOrAdd(tiles.Id.Variant, variant => SpriteArtwork.Overlay(
             new SpriteArtworkId(SpriteArtworkKind.GrappleTilesOnStandardObjects, variant), standardObjects, tiles,
             GrappleTileDefinitions.FirstCharacter));

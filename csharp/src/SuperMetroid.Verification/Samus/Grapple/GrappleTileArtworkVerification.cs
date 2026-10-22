@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
@@ -41,7 +42,7 @@ internal static class GrappleTileArtworkVerification
                 _ => "Grapple still reads tile pixel ROM.");
         AssertThrows<InvalidOperationException>(() => SamusGrappleBeamDrawing.DrawConnectedBeam(new SamusGrappleState { Phase = GrapplePhase.Firing, PointAnimationTimer = WrappingCountdown.Start(5) },
                 new SpriteFrameBuffer(), new(0, 0)),
-            "The grapple beam fails loudly without installed grapple artwork");
+            "The grapple beam fails loudly without the installed grapple sheet");
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {
             ushort expected = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusGrappleRomData.Rendering.SegmentTilePointers + ((angle >> 9) & 254));
@@ -53,15 +54,14 @@ internal static class GrappleTileArtworkVerification
         for (byte frame = 0; frame < 4; frame++)
         foreach (ushort timer in new ushort[] { 0, 1, 5, 65535 })
         {
-            SamusGrappleState native = Seed(), selected = Seed(), changed = Seed();
-            OamBuffer oa = SpriteFrameBuffer.DrawnOam(sprites => SamusGrappleBeamDrawing.DrawConnectedBeam(native, sprites, new(0, 0), stock, standardObjects: SpriteFrameTestArtwork.StandardObjects));
-            OamBuffer ob = SpriteFrameBuffer.DrawnOam(sprites => SamusGrappleBeamDrawing.DrawConnectedBeam(selected, sprites, new(0, 0), stock, standardObjects: SpriteFrameTestArtwork.StandardObjects));
-            OamBuffer oc = SpriteFrameBuffer.DrawnOam(sprites => SamusGrappleBeamDrawing.DrawConnectedBeam(changed, sprites, new(0, 0), edited, standardObjects: SpriteFrameTestArtwork.StandardObjects));
-            AssertTrue(oa.ImageEquals(ob) && oa.ImageEquals(oc), "Grapple PNG edits do not change rope OBJ placement or composition");
-            AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(selected)) && GraphDigest(native).SequenceEqual(GraphDigest(changed)), "Grapple PNG edits preserve entire rope/animation simulation state");
+            SamusGrappleState native = Seed(), selected = Seed();
+            OamBuffer oa = SpriteFrameBuffer.DrawnOam(sprites => SamusGrappleBeamDrawing.DrawConnectedBeam(native, sprites, new(0, 0), InstalledFixtures.GrappleSheet));
+            OamBuffer ob = SpriteFrameBuffer.DrawnOam(sprites => SamusGrappleBeamDrawing.DrawConnectedBeam(selected, sprites, new(0, 0), InstalledFixtures.GrappleSheet));
+            AssertTrue(oa.ImageEquals(ob), "Grapple sheet draws are deterministic in rope OBJ placement and composition");
+            AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(selected)), "Grapple draws preserve entire rope/animation simulation state");
             // The binding holds the endpoint frame's character, then the angle sector's four rope characters, exactly
             // as the cartridge uploads them to $6200/$6210.
-            SpriteArtwork stockTiles = stock.Tiles(selected.PointAnimationFrame, selected.Angle);
+            SpriteArtwork stockTiles = stock.Tiles(selected.PointAnimationFrame, GrappleTileDefinitions.OrientationFor(selected.Angle));
             byte[] nativeTiles = [.. RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                     GrapplePointAnimationDefinitions.SourceAddress(selected.PointAnimationFrame), SpriteArtwork.CharacterByteCount),
                 .. RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
@@ -70,7 +70,7 @@ internal static class GrappleTileArtworkVerification
             AssertTrue(stockTiles.Characters.SequenceEqual(nativeTiles), "Stock grapple binding holds the native endpoint and rope characters");
             byte[] expectedEdited = stockTiles.Characters.ToArray();
             for (int character = 0; character < 5; character++) expectedEdited[character * SpriteArtwork.CharacterByteCount] ^= 128;
-            AssertTrue(edited.Tiles(changed.PointAnimationFrame, changed.Angle).Characters.SequenceEqual(expectedEdited),
+            AssertTrue(edited.Tiles(selected.PointAnimationFrame, GrappleTileDefinitions.OrientationFor(selected.Angle)).Characters.SequenceEqual(expectedEdited),
                 "Selected Grapple pixels change exactly five mapped bits of the binding");
             cases++;
             SamusGrappleState Seed() => new()
@@ -80,7 +80,7 @@ internal static class GrappleTileArtworkVerification
                 BeamStart = new(100, 100), Anchor = new(200, 60), FlareCounter = 1,
             };
         }
-        Suite(nameof(VerifyGrappleTileBinding), () => VerifyGrappleTileBinding(stock, edited));
+        Suite(nameof(VerifyGrappleTileBinding), VerifyGrappleTileBinding);
         using var wrong = new MemoryStream();
         IndexedPng.Write(wrong, new(8, 8), new byte[64], SnesGraphics.DiagnosticPalette(16)); wrong.Position = 0;
         AssertThrows<InvalidDataException>(() => GrappleTileAtlas.Load(wrong), "Wrong Grapple PNG dimensions rejected");

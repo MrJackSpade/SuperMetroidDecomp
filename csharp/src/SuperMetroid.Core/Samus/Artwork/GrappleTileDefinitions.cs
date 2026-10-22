@@ -33,15 +33,27 @@ public static class GrappleTileDefinitions
     /// <summary>$9A:8200/8A00/9200 Tiles_GrappleBeam groups; only endpoint and segment-owned characters are extracted.</summary>
     public static IReadOnlyList<GrappleTileTransfer> Transfers => transfers;
 
-    /// <summary>$9B:C005 folds the unsigned angle into an even table byte offset, equivalent to angle / 1024.</summary>
-    public static VramAssetId SegmentAssetFor(SnesAngle angle)
+    /// <summary>
+    /// The rope character set the grapple's angle selects: `$9B:C005` folds the unsigned angle into an even table byte
+    /// offset, equivalent to angle / 1024.
+    /// </summary>
+    public static GrappleRopeOrientation OrientationFor(SnesAngle angle)
     {
         // The 64 sectors repeat after half a turn. Reflect each half-turn about
         // its midpoint, retaining the native three/eight/five sector widths.
         int halfTurnSector = (angle.RawValue >> 10) & 31;
         int distance = Math.Min(halfTurnSector, 31 - halfTurnSector);
-        return distance < 3 ? Vertical : distance < 11 ? Diagonal : Horizontal;
+        return distance < 3 ? GrappleRopeOrientation.Vertical : distance < 11 ? GrappleRopeOrientation.Diagonal : GrappleRopeOrientation.Horizontal;
     }
+
+    /// <summary>The installed rope characters of an orientation.</summary>
+    public static VramAssetId SegmentAssetFor(GrappleRopeOrientation orientation) => orientation switch
+    {
+        GrappleRopeOrientation.Horizontal => Horizontal,
+        GrappleRopeOrientation.Diagonal => Diagonal,
+        GrappleRopeOrientation.Vertical => Vertical,
+        _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, "Undefined rope orientation."),
+    };
     /// <summary>$9B:BFBD cycles endpoint characters at $8200/$8400/$8600/$8800, independently of rope angle.</summary>
     public static VramAssetId PointAssetFor(int frame) => frame switch
     {

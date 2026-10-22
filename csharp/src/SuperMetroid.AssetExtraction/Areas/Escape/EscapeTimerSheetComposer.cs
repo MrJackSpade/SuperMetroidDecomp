@@ -26,7 +26,8 @@ internal static class EscapeTimerSheetComposer
     internal static ComposedSpriteSheet Compose(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var frames = new List<KeyValuePair<string, SpriteFrame>>();
+        EscapeTimerTileAtlas tiles = EscapeTimerTileAtlas.Load(new MemoryStream(EscapeTimerTileAtlasExtractor.Extract(bus), writable: false));
+        var frames = new List<SheetFrameSource>();
         foreach (EscapeTimerGlyph glyph in EscapeTimerPresentationDefinitions.Glyphs)
         {
             string name = EscapeTimerPresentationDefinitions.FrameName(glyph);
@@ -34,10 +35,9 @@ internal static class EscapeTimerSheetComposer
                 ? EscapeCartridgeTables.TimerLabelSpritemap
                 : EscapeCartridgeTables.TimerSpritemapBank | (EscapeCartridgeTables.FirstTimerDigitSpritemap +
                     EscapeTimerPresentationDefinitions.DigitValue(glyph) * EscapeCartridgeTables.TimerDigitSpritemapStride);
-            frames.Add(KeyValuePair.Create(name, new SpriteFrame(name, ReadSpritemap(bus, spritemap))));
+            frames.Add(new(name, new SpriteFrame(name, ReadSpritemap(bus, spritemap)), tiles.Artwork));
         }
-        EscapeTimerTileAtlas tiles = EscapeTimerTileAtlas.Load(new MemoryStream(EscapeTimerTileAtlasExtractor.Extract(bus), writable: false));
-        return SpriteSheetComposer.Compose(frames, tiles.Artwork, GameplayBasePaletteFiles.RoomLoadSpriteColours(bus), PaletteRow, 0);
+        return SpriteSheetComposer.Compose(new SpriteSheetSources(frames, GameplayBasePaletteFiles.RoomLoadSpriteColours(bus)), PaletteRow, 0);
     }
 
     /// <summary>Reads one timer spritemap's parts, with characters counted from the timer artwork's first.</summary>

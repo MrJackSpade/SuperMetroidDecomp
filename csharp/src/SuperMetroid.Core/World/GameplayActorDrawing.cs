@@ -275,8 +275,7 @@ internal sealed class GameplayActorDrawing
                         _player.Samus,
                         _sprites,
                         _room.Camera.PixelPosition,
-                        _artwork.ChargeFlareCompositions,
-                        _artwork.StandardObjects);
+                        ProjectileArtwork);
                 }
                 else if (!grappleHandlerInstalled)
                 {
@@ -344,9 +343,8 @@ internal sealed class GameplayActorDrawing
                         _player.Samus.Grapple,
                         _sprites,
                         _room.Camera.PixelPosition,
-                        _artwork.GrappleArtwork,
-                        _player.Samus.Pose,
-                        _artwork.StandardObjects);
+                        _artwork.SpriteSheets?.Get(SpriteSheetId.Grapple),
+                        _player.Samus.Pose);
                 }
                 else
                 {

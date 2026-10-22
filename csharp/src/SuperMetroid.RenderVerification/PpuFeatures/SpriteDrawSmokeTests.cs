@@ -129,15 +129,18 @@ internal static class SpriteDrawSmokeTests
             var sheetPixels = new Rgba32[64 * 48];
             var sheetIndices = new byte[64 * 48];
             var sheetPriorities = new byte[64 * 48];
+            var sheetPartRows = new byte[64 * 48];
             for (int pixel = 0; pixel < sheetPixels.Length; pixel++)
             {
                 if (random.Next(3) == 0)
                     continue;
                 sheetIndices[pixel] = (byte)(random.Next(8) * 16 + random.Next(1, 16));
                 sheetPriorities[pixel] = (byte)random.Next(4);
+                // A part's own row is part of the row it was coloured with, the rest being the draw's ORed bits.
+                sheetPartRows[pixel] = (byte)(sheetIndices[pixel] / 16 & random.Next(8));
                 sheetPixels[pixel] = standard[sheetIndices[pixel]].ToRgba32();
             }
-            var sheet = new SpriteImage("Seeded", new(64, 48), sheetPixels, sheetIndices, standard, sheetPriorities);
+            var sheet = new SpriteImage("Seeded", new(64, 48), sheetPixels, sheetIndices, standard, sheetPriorities, sheetPartRows);
             for (int index = random.Next(1, 6); index > 0; index--)
             {
                 var size = new Extent16<ImagePixels>((ushort)random.Next(1, 33), (ushort)random.Next(1, 33));
@@ -146,7 +149,7 @@ internal static class SpriteDrawSmokeTests
                     SpritePaletteRowSet.Rows.Where(_ => random.Next(2) == 0).Aggregate(SpritePaletteRows.None, (rows, row) => rows | row));
                 var origin = new Position16<ScreenPixels>(unchecked((ushort)random.Next(-60, 300)), unchecked((ushort)random.Next(-60, 270)));
                 draws.Insert(random.Next(draws.Count + 1), new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer, 100 + index), image, origin,
-                    (SpriteMirror)random.Next(4)));
+                    (SpriteMirror)random.Next(4), random.Next(3) == 0 ? random.Next(8) : null));
             }
             var memory = new PpuMemorySnapshot(vram, palette, draws.ToImmutable());
             Check(memory, [new ObjRenderLayer()], $"seeded scene {cases}");

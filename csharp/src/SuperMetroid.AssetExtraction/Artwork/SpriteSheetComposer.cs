@@ -56,6 +56,7 @@ internal static class SpriteSheetComposer
         var pixels = new Rgba32[width * height];
         var paletteIndices = new byte[width * height];
         var priorities = new byte[width * height];
+        var partRows = new byte[width * height];
         var manifest = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         for (int index = 0; index < frames.Count; index++)
         {
@@ -68,7 +69,8 @@ internal static class SpriteSheetComposer
             for (int partIndex = frame.Parts.Length - 1; partIndex >= 0; partIndex--)
             {
                 SpriteFramePart part = frame.Parts[partIndex];
-                int paletteRow = part.Palette ?? palette;
+                int partRow = part.Palette ?? palette;
+                int paletteRow = partRow | sources.PaletteBits;
                 if (partIndex == frame.Parts.Length - 1)
                     blends = paletteRow >= FirstBlendingRow;
                 else if (blends != paletteRow >= FirstBlendingRow)
@@ -90,6 +92,7 @@ internal static class SpriteSheetComposer
                         paletteIndices[sheetY * width + sheetX] = (byte)(paletteRow * RowColours + colour);
                         // Parts are laid back to front, so each pixel ends with the priority of the part in front.
                         priorities[sheetY * width + sheetX] = (byte)(part.Priority ?? priority);
+                        partRows[sheetY * width + sheetX] = (byte)partRow;
                     }
                 }
             }
@@ -105,7 +108,7 @@ internal static class SpriteSheetComposer
         ushort[] colours = new ushort[spriteColours.Length];
         for (int colour = 0; colour < colours.Length; colour++)
             colours[colour] = spriteColours[colour].ToWord();
-        return new ComposedSpriteSheet(new((ushort)width, (ushort)height), pixels, paletteIndices, priorities,
+        return new ComposedSpriteSheet(new((ushort)width, (ushort)height), pixels, paletteIndices, priorities, partRows,
             new SpriteSheetDocument { Version = SpriteSheet.Version, Colours = colours, Frames = manifest });
     }
 

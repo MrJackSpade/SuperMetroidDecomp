@@ -46,7 +46,7 @@ public static class SpriteSheetFiles
             RgbaPng.Write(image, composed.Size, composed.Pixels);
             Write(directory, ImageFile(sheet), image.ToArray(), hashes);
             using var palette = new MemoryStream();
-            RgbaPng.Write(palette, composed.Size, PaletteImage(composed.PaletteIndices, composed.Priorities));
+            RgbaPng.Write(palette, composed.Size, PaletteImage(composed.PaletteIndices, composed.Priorities, composed.PartRows));
             Write(directory, PaletteFile(sheet), palette.ToArray(), hashes);
             Write(directory, FrameFile(sheet), SpriteSheet.Write(composed.Manifest), hashes);
         }
@@ -90,7 +90,8 @@ public static class SpriteSheetFiles
             if (indexSize != size)
                 throw new InvalidDataException($"Sprite sheet {PaletteFile(sheet)} is not the size of {ImageFile(sheet)}.");
             SpriteSheet loaded = SpriteSheet.Load(new MemoryStream(frames, writable: false), SpriteSheetDefinitions.FileName(sheet),
-                size, pixels, [.. indices.Select(index => index.R)], [.. indices.Select(index => index.G)]);
+                size, pixels, [.. indices.Select(index => index.R)], [.. indices.Select(index => index.G)],
+                [.. indices.Select(index => index.B)]);
             if (!loaded.HoldsExactly(FrameNames(sheet, body)))
                 throw new InvalidDataException($"Sprite sheet {FrameFile(sheet)} does not hold exactly the frames its family draws.");
             sheets.Add(sheet, loaded);
@@ -125,15 +126,21 @@ public static class SpriteSheetFiles
     /// <summary>A sheet's image file name.</summary>
     internal static string ImageFile(SpriteSheetId sheet) => SpriteSheetDefinitions.FileName(sheet) + ".png";
 
-    /// <summary>A sheet's palette-index image file name: each pixel's palette row times sixteen plus its colour in red, its priority in green.</summary>
+    /// <summary>
+    /// A sheet's palette-index image file name: each pixel's palette row times sixteen plus its colour in red, its
+    /// priority in green and its part palette row in blue.
+    /// </summary>
     internal static string PaletteFile(SpriteSheetId sheet) => SpriteSheetDefinitions.FileName(sheet) + ".palette.png";
 
-    /// <summary>The palette-index image: each index in red and priority in green, opaque where a colour is shown.</summary>
-    private static Rgba32[] PaletteImage(ReadOnlySpan<byte> indices, ReadOnlySpan<byte> priorities)
+    /// <summary>
+    /// The palette-index image: each index in red, priority in green and part palette row in blue, opaque where a colour
+    /// is shown.
+    /// </summary>
+    private static Rgba32[] PaletteImage(ReadOnlySpan<byte> indices, ReadOnlySpan<byte> priorities, ReadOnlySpan<byte> partRows)
     {
         var pixels = new Rgba32[indices.Length];
         for (int pixel = 0; pixel < indices.Length; pixel++)
-            pixels[pixel] = new Rgba32(indices[pixel], priorities[pixel], 0, indices[pixel] == 0 ? (byte)0 : byte.MaxValue);
+            pixels[pixel] = new Rgba32(indices[pixel], priorities[pixel], partRows[pixel], indices[pixel] == 0 ? (byte)0 : byte.MaxValue);
         return pixels;
     }
 

@@ -93,6 +93,9 @@ public static class SnesObjRenderer
     /// <summary>The palette row a blending image reports, so colour math treats it as the upper rows' sprites.</summary>
     private const byte BlendingImageRow = 4;
 
+    /// <summary>Colours in one sprite palette row.</summary>
+    private const int RowColours = 16;
+
     /// <summary>
     /// Rasterizes one image draw from its pre-coloured pixels, a pixel with zero alpha being transparent. While a palette
     /// effect has changed a row the frame uses, its pixels show that row's live colours instead.
@@ -101,7 +104,7 @@ public static class SnesObjRenderer
         ObjRasterTargets targets)
     {
         Offset16<ScreenPixels> corner = draw.Corner;
-        bool standard = draw.Image.ShowsStandardColours(cgram.Colors);
+        bool standard = draw.PaletteOverride is null && draw.Image.ShowsStandardColours(cgram.Colors);
         byte row = draw.Image.Blends ? BlendingImageRow : (byte)0;
         for (ushort y = 0; y < draw.Image.Size.Y; y++)
         {
@@ -114,6 +117,7 @@ public static class SnesObjRenderer
                 if ((uint)screenX >= frame.X)
                     continue;
                 Rgba32 pixel;
+                byte pixelRow = row;
                 if (standard)
                 {
                     pixel = draw.PixelAt(new(x, y));
@@ -122,12 +126,19 @@ public static class SnesObjRenderer
                 }
                 else
                 {
-                    byte index = draw.PaletteIndexAt(new(x, y));
+                    int index = draw.PaletteIndexAt(new(x, y));
                     if (index == 0)
                         continue;
+                    if (draw.PaletteOverride is int overriding)
+                    {
+                        // The cartridge ORs the draw's palette bits into each part's own; the override takes the
+                        // place of those the image was coloured with, and its row decides colour math.
+                        pixelRow = (byte)(draw.PartRowAt(new(x, y)) | overriding);
+                        index = pixelRow * RowColours + index % RowColours;
+                    }
                     pixel = cgram.GetRgba(SpriteColours + index);
                 }
-                Plot(screenY * frame.X + screenX, pixel, row, draw.PriorityAt(new(x, y)), selectedPriority, targets);
+                Plot(screenY * frame.X + screenX, pixel, pixelRow, draw.PriorityAt(new(x, y)), selectedPriority, targets);
             }
         }
     }

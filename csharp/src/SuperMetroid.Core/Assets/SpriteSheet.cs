@@ -40,6 +40,7 @@ public sealed class SpriteSheet
         content.Append("palette indices", Image.PaletteIndices);
         content.Append("standard colours", System.Runtime.InteropServices.MemoryMarshal.AsBytes(Image.StandardColours));
         content.Append("priorities", Image.Priorities);
+        content.Append("part rows", Image.PartRows);
         foreach ((string name, SpriteSheetFrame frame) in frames.OrderBy(pair => pair.Key, StringComparer.Ordinal))
         {
             content.AppendName("frame", name);
@@ -62,9 +63,10 @@ public sealed class SpriteSheet
     /// <param name="pixels">The image's pixels.</param>
     /// <param name="paletteIndices">Each pixel's palette row times sixteen plus its colour.</param>
     /// <param name="priorities">Each pixel's priority against the backgrounds 0..3.</param>
+    /// <param name="partRows">Each pixel's part palette row 0..7.</param>
     /// <exception cref="InvalidDataException">The manifest is malformed, of another revision, or places a frame off the image.</exception>
     public static SpriteSheet Load(Stream manifest, string name, Extent16<ImagePixels> size, ReadOnlySpan<Rgba32> pixels,
-        ReadOnlySpan<byte> paletteIndices, ReadOnlySpan<byte> priorities)
+        ReadOnlySpan<byte> paletteIndices, ReadOnlySpan<byte> priorities, ReadOnlySpan<byte> partRows)
     {
         SpriteSheetDocument document = JsonAssetDocument.Read<SpriteSheetDocument>(manifest, Options, $"sprite sheet {name}");
         if (document.Version != Version)
@@ -74,7 +76,7 @@ public sealed class SpriteSheet
         SpriteImage image;
         try
         {
-            image = new SpriteImage(name, size, pixels, paletteIndices, [.. document.Colours.Select(Bgr555.FromWord)], priorities);
+            image = new SpriteImage(name, size, pixels, paletteIndices, [.. document.Colours.Select(Bgr555.FromWord)], priorities, partRows);
         }
         catch (ArgumentException error)
         {

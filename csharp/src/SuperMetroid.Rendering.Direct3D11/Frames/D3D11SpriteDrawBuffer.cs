@@ -36,6 +36,15 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     private const uint BlendsFlag = 1 << 8;
     /// <summary>Flags bit marking an image whose uploaded words are palette indices, because a palette effect changed a row it uses.</summary>
     private const uint RecolourFlag = 1 << 9;
+
+    /// <summary>Image record flag bits 10-12: the palette row ORed into each pixel's part row.</summary>
+    private const int OverrideRowShift = 10;
+
+    /// <summary>Image record flag: the draw shows the image in an overriding palette row.</summary>
+    private const uint OverrideFlag = 1 << 13;
+
+    /// <summary>Index word bits 10-12: the pixel's part palette row.</summary>
+    private const int PartRowShift = 10;
     /// <summary>Flags position of an image record's frame width, the stride between its uploaded pixel rows.</summary>
     private const int StrideShift = 16;
 
@@ -80,9 +89,10 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
             else if (draw is ImageSpriteDraw image && imageWords.TryAdd(image.Image, words))
             {
                 words += image.Image.Size.X * image.Image.Size.Y;
-                if (!image.Image.ShowsStandardColours(cgram))
-                    recoloured.Add(image.Image);
             }
+            // A frame drawn with an overriding palette, or whose rows an effect has changed, uploads its indices.
+            if (draw is ImageSpriteDraw shown && (shown.PaletteOverride is not null || !shown.Image.ShowsStandardColours(cgram)))
+                recoloured.Add(shown.Image);
         }
         if (words > Upload.Length)
         {
@@ -97,7 +107,8 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         {
             if (draw is ImageSpriteDraw image)
             {
-                PackImage(upload.Slice(record, RecordWords), image, imageWords[image.Image], recoloured.Contains(image.Image));
+                PackImage(upload.Slice(record, RecordWords), image, imageWords[image.Image],
+                    image.PaletteOverride is null && recoloured.Contains(image.Image));
                 record += RecordWords;
                 continue;
             }
@@ -122,6 +133,7 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
             ReadOnlySpan<Rgba32> pixels = frame.Sheet.Pixels;
             ReadOnlySpan<byte> indices = frame.Sheet.PaletteIndices;
             ReadOnlySpan<byte> priorities = frame.Sheet.Priorities;
+            ReadOnlySpan<byte> partRows = frame.Sheet.PartRows;
             bool indexed = recoloured.Contains(frame);
             int target = offset;
             for (int row = 0; row < frame.Size.Y; row++)
@@ -130,26 +142,30 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
                 for (int column = 0; column < frame.Size.X; column++, target++)
                 {
                     Rgba32 pixel = pixels[source + column];
-                    // An index word keeps its priority above the index; a colour word keeps it, plus one, in the alpha
-                    // byte, whose zero stays transparent.
+                    // An index word keeps its priority and part row above the index; a colour word keeps the priority,
+                    // plus one, in the alpha byte, whose zero stays transparent.
                     uint priority = priorities[source + column];
                     upload[target] = indexed
-                        ? indices[source + column] | priority << 8
+                        ? indices[source + column] | priority << 8 | (uint)partRows[source + column] << PartRowShift
                         : D3D11ConstantPacking.Bytes(pixel.R, pixel.G, pixel.B, pixel.A == 0 ? (byte)0 : (byte)(priority + 1));
                 }
             }
         }
     }
 
-    /// <summary>Packs one image draw: its screen rectangle, mirroring, blending, recolouring and its frame's uploaded words.</summary>
+    /// <summary>
+    /// Packs one image draw: its screen rectangle, mirroring, blending, recolouring or palette override and its frame's
+    /// uploaded words.
+    /// </summary>
     private static void PackImage(Span<uint> record, ImageSpriteDraw draw, int frameWords, bool recolour)
     {
+        uint overriding = draw.PaletteOverride is int row ? OverrideFlag | RecolourFlag | (uint)row << OverrideRowShift : 0;
         Offset16<ScreenPixels> corner = draw.Corner;
         SpriteSheetFrame frame = draw.Image;
         record[0] = D3D11ConstantPacking.Halves(unchecked((ushort)corner.X), unchecked((ushort)corner.Y));
         record[1] = D3D11ConstantPacking.Halves(frame.Size.X, frame.Size.Y);
         record[2] = ((draw.Mirror & SpriteMirror.Horizontal) != 0 ? FlipXFlag : 0) | ((draw.Mirror & SpriteMirror.Vertical) != 0 ? FlipYFlag : 0)
-            | ImageFlag | (frame.Blends ? BlendsFlag : 0) | (recolour ? RecolourFlag : 0) | (uint)frame.Size.X << StrideShift;
+            | ImageFlag | (frame.Blends ? BlendsFlag : 0) | (recolour ? RecolourFlag : 0) | overriding | (uint)frame.Size.X << StrideShift;
         record[3] = (uint)frameWords;
     }
 

@@ -3,7 +3,8 @@
 // (eight words each) and the drawn images' pre-coloured pixels. No OAM or OBJ VRAM is read.
 StructuredBuffer<uint> SpriteDraws : register(t1);
 static const uint SpriteRecordWords = 4;
-static const uint SpriteFlipX = 1, SpriteFlipY = 2, SpriteImage = 128, SpriteBlends = 256, SpriteRecolour = 512;
+static const uint SpriteFlipX = 1, SpriteFlipY = 2, SpriteImage = 128, SpriteBlends = 256, SpriteRecolour = 512,
+    SpritePaletteOverride = 8192;
 // The palette row a blending image reports, so colour math treats it as the upper rows' sprites.
 static const uint BlendingImageRow = 4;
 
@@ -41,8 +42,17 @@ bool ResolveSpritePart(uint part, uint2 screen, out uint2 hit, out uint palette)
         // Each image pixel carries its own priority: above an index, or plus one in a colour's alpha byte.
         if ((flags & SpriteRecolour) != 0)
         {
-            if ((pixel & 255) == 0) return false;
-            hit = uint2(Palette(128 + (pixel & 255)), pixel >> 8);
+            uint index = pixel & 255;
+            if (index == 0) return false;
+            if ((flags & SpritePaletteOverride) != 0)
+            {
+                // The cartridge ORs the draw's palette bits into each part's own; the override takes the place of those
+                // the image was coloured with, and its row decides colour math.
+                uint row = ((pixel >> 10) & 7) | ((flags >> 10) & 7);
+                index = row * 16 + (index & 15);
+                palette = row;
+            }
+            hit = uint2(Palette(128 + index), (pixel >> 8) & 3);
             return true;
         }
         if ((pixel >> 24) == 0) return false;

@@ -11,12 +11,27 @@ public sealed record ImageSpriteDraw : SpriteDraw
     /// <param name="image">The sheet frame shown.</param>
     /// <param name="origin">The screen point the frame's origin lands on; each coordinate is a signed 16-bit value.</param>
     /// <param name="mirror">Mirrors the frame about its origin.</param>
-    public ImageSpriteDraw(SpriteSource source, SpriteSheetFrame image, Position16<ScreenPixels> origin, SpriteMirror mirror)
+    /// <param name="paletteOverride">
+    /// The palette row ORed into each pixel's part row in place of the one the image was coloured with, as an enemy's
+    /// hit or freeze flash supplies, or null for the image's own colours.
+    /// </param>
+    /// <exception cref="ArgumentOutOfRangeException">The override is not a sprite palette row.</exception>
+    public ImageSpriteDraw(SpriteSource source, SpriteSheetFrame image, Position16<ScreenPixels> origin, SpriteMirror mirror,
+        int? paletteOverride = null)
         : base(source, origin)
     {
+        if (paletteOverride is < 0 or > SpriteImage.MaximumPaletteRow)
+            throw new ArgumentOutOfRangeException(nameof(paletteOverride), paletteOverride, "Sprite palette rows are 0..7.");
         Image = Ensure.NotNull(image);
         Mirror = mirror;
+        PaletteOverride = paletteOverride;
     }
+
+    /// <summary>
+    /// The palette row ORed into each pixel's part row in place of the one the image was coloured with, or null for the
+    /// image's own colours.
+    /// </summary>
+    public int? PaletteOverride { get; }
 
     /// <summary>The sheet frame shown.</summary>
     public SpriteSheetFrame Image { get; }
@@ -50,6 +65,9 @@ public sealed record ImageSpriteDraw : SpriteDraw
 
     /// <summary>The palette row times sixteen plus colour of the image pixel shown at <paramref name="cell"/>.</summary>
     public byte PaletteIndexAt(Position16<ScreenPixels> cell) => Image.Sheet.PaletteIndices[SheetIndex(cell)];
+
+    /// <summary>The part palette row 0..7 of the image pixel shown at <paramref name="cell"/>.</summary>
+    public byte PartRowAt(Position16<ScreenPixels> cell) => Image.Sheet.PartRows[SheetIndex(cell)];
 
     /// <summary>The priority against the backgrounds 0..3 of the image pixel shown at <paramref name="cell"/>.</summary>
     public byte PriorityAt(Position16<ScreenPixels> cell) => Image.Sheet.Priorities[SheetIndex(cell)];

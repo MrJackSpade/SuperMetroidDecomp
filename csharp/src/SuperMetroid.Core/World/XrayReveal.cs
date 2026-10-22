@@ -46,7 +46,8 @@ internal sealed class XrayReveal
         var level = _room.LevelData ?? throw new InvalidOperationException("X-ray setup has no level data.");
         Position16<RoomPixels> layer1 = _backgroundScroll.Layer1Position;
         Position16<RoomPixels> bg1Scroll = layer1 + _backgroundScroll.Bg1Offset;
-        var bg1 = new RoomBackgroundLayer(level.ForegroundPlane, _backgroundScroll.Bg1Offset.AsBgPlaneOffset());
+        // The copy reads the plane's tile words, not its pictures.
+        var bg1 = new RoomBackgroundLayer(level.ForegroundPlane, _backgroundScroll.Bg1Offset.AsBgPlaneOffset(), null);
         var map = XrayRevealTilemap.Build(level, bg1, bg1Scroll, layer1,
             (byte)room.AreaIndex, XrayRevealVisuals);
         XrayRevealOverlays.Apply(level, map, plms.CollectiblePlms.Collectibles, _system,

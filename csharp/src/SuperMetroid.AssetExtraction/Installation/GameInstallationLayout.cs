@@ -41,6 +41,8 @@ public static class GameInstallationLayout
     public const string RoomPaletteDirectoryName = "room-palettes";
     /// <summary>Content child directory for visual block compositions independent of collision.</summary>
     public const string RoomMetatileDirectoryName = "room-blocks";
+    /// <summary>Pre-coloured room block sheets, one per tileset (#1392).</summary>
+    public const string RoomBlockSheetDirectoryName = "room-block-sheets";
     /// <summary>Content child directory shared by background tilemaps and sky tilemaps.</summary>
     public const string RoomBackgroundTilemapDirectoryName = "room-backgrounds";
     /// <summary>Content child directory for visual room-block references independent of native collision and BTS.</summary>
@@ -106,7 +108,7 @@ public static class GameInstallationLayout
     /// <summary>Receipt filename within stock content, recording the installation format and source cartridge digest.</summary>
     public const string ReceiptFileName = "installation.json";
     /// <summary>Current installation-receipt version; incompatible stock content requires validation and repair before opening.</summary>
-    public const int FormatVersion = 123;
+    public const int FormatVersion = 124;
     /// <summary>Backup of the previously published stock game tree during an atomic install.</summary>
     internal const string PreviousDirectoryName = ".game.previous";
     /// <summary>Prefix for a stock tree being prepared before publication.</summary>

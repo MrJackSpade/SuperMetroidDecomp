@@ -3,15 +3,19 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
-/// Samples an immutable background while retaining the last decoded tile row. The tiles come from a
-/// <see cref="IBgTileSource"/> (room level data or a VRAM tilemap) and their characters from VRAM. Windowed
-/// composition may skip pixels; the cache key is the tile and its row, not call count, so clipping, flipped tiles and
-/// discontinuous HDMA remain exact. Create a new sampler after changing VRAM or palette contents.
+/// Samples an immutable background while retaining the last decoded tile row. The background comes from a
+/// <see cref="IBgSource"/>: room blocks as pre-coloured pictures (#1392), other tiles (a VRAM tilemap, the BG3 plane)
+/// with their characters from VRAM. Windowed composition may skip pixels; the cache key is the tile and its row, not
+/// call count, so clipping, flipped tiles and discontinuous HDMA remain exact. Create a new sampler after changing VRAM
+/// or palette contents.
 /// </summary>
 [PpuLayoutBoundary("backend: software PPU per-pixel background character fetch")]
-internal sealed class SnesBackgroundPixelSampler(SnesVram vram, Rgba32[] colors,
-    IBgTileSource tiles, int characters, BgBitDepth depth)
+internal sealed class SnesBackgroundPixelSampler(SnesVram vram, Rgba32[] colors, IPaletteColors cgram,
+    IBgSource background, int characters, BgBitDepth depth)
 {
+    /// <summary>Decodes the block pictures the background shows against the frame's CGRAM.</summary>
+    private readonly BgPicturePixels pictures = new(cgram);
+
     /// <summary>Tile word and source row of the cached decode; minus one forces the first fetch.</summary>
     private int cachedKey = -1;
     /// <summary>The cached source row's bitplane bytes, reused across its eight pixels; a 2-bpp row leaves the upper two zero.</summary>
@@ -20,8 +24,17 @@ internal sealed class SnesBackgroundPixelSampler(SnesVram vram, Rgba32[] colors,
     /// <summary>Samples the plane pixel at a scrolled position; transparent where the background shows nothing.</summary>
     internal BackgroundPixelSample Sample(Position16<BgPlanePixels> pixel, ColorZero colorZero = ColorZero.Transparent)
     {
-        if (!tiles.TrySample(pixel, out BgTileSample sample))
+        if (!background.TrySample(pixel, out BgSample shown))
             return new BackgroundPixelSample(default, false);
+        if (shown.Picture is not null)
+        {
+            // A picture keeps no row for its transparent pixels, so only a layer whose colour zero is transparent shows one.
+            if (colorZero == ColorZero.Opaque)
+                throw new InvalidOperationException("A block picture cannot be sampled with an opaque colour zero.");
+            return pictures.TryDecode(shown, colors, out Rgba32 pictured, out bool high)
+                ? new BackgroundPixelSample(pictured, high) : new BackgroundPixelSample(default, false);
+        }
+        BgTileSample sample = shown.Tile;
         SnesBgTilemapWord tile = sample.Tile;
         int py = tile.FlipVertically ? 7 - sample.Pixel.Y : sample.Pixel.Y;
         int key = tile.Raw << 3 | py;

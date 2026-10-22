@@ -561,6 +561,15 @@ logo's characters replace the shooting scene's. The escape countdown's layout, `
 anchors and digit spacing; a layout written for the earlier version, which also held the frames and
 palette, is rejected until it is rewritten.
 
+Room blocks are drawn from pre-coloured block sheets in `game/room-block-sheets`, one for each tileset
+(`{blocks}.{characters}.{palette}`, for example `Norfair.Norfair.HeatedNorfair`), in the same three files as a sprite
+sheet. Each 16x16 picture is one block as its definition gives it, before the level mirrors it, coloured with the
+tileset's background palette; its name lists the block's four tile words and, for each, the artwork its character
+shows. A block whose characters a room rebinds after loading (animated spikes, sand and treadmills, the Tourian statues,
+collectibles' graphics, library background transfers and Kraid's backdrop) has a picture for each artwork that can
+show there, and the room draws the one its bindings show now. Edited copies go in `overrides/room-block-sheets`. The
+Ceres Ridley arena, whose planes read the object characters, still draws its blocks from characters.
+
 Sound effects are decoded into the manifest's `soundPrograms` catalog. Each effect in
 `soundLibraries` has a stable ID such as `sfx-1-01` and names the channel programs it routes.
 Routing pointers and voice-allocation configurations are compiled engine mechanics and cannot

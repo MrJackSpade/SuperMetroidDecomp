@@ -142,7 +142,8 @@ internal static class SpriteDrawSmokeTests
                     : (byte)(sheetIndices[pixel] / 16 & random.Next(8));
                 sheetPixels[pixel] = standard[sheetIndices[pixel]].ToRgba32();
             }
-            var sheet = new SpriteImage("Seeded", new(64, 48), sheetPixels, sheetIndices, standard, sheetPriorities, sheetPartRows);
+            var sheet = new SpriteImage("Seeded", new(64, 48), sheetPixels, sheetIndices, new SpriteImagePalette(SpriteImageColours.Sprite, [.. standard]),
+                sheetPriorities, sheetPartRows);
             for (int index = random.Next(1, 6); index > 0; index--)
             {
                 var size = new Extent16<ImagePixels>((ushort)random.Next(1, 33), (ushort)random.Next(1, 33));

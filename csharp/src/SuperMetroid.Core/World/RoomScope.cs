@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -34,6 +35,19 @@ internal sealed record RoomScope
 
     /// <summary>The room's layer-1 scroll-boundary camera.</summary>
     public required ScrollBoundaryCamera Camera { get; init; }
+
+    /// <summary>Resolves the pre-coloured picture each block the room's planes show draws as (#1392).</summary>
+    public required RoomBlockPictureResolver BlockPictures { get; init; }
+
+    /// <summary>
+    /// Which character page the planes of <paramref name="room"/> draw from: setup ASM $8F:C97B points the Ceres Ridley
+    /// arena's BG1 and BG2 at the object character page (#1357); every other room, and the frames before a room is
+    /// active, draw from the tileset.
+    /// </summary>
+    internal static RoomBackgroundCharacters CharactersOf(CartridgeRoomHeader? room) =>
+        room?.State.SetupCallback == RoomSetupCallback.SetCeresRidleyBgCharacterBaseAndSpawnHaze
+            ? RoomBackgroundCharacters.ObjectCharacterPage
+            : RoomBackgroundCharacters.Tileset;
 
     /// <summary>Words the room's actors wrote over its BG1 tilemap (the Ceres escape warning), or null (#1346).</summary>
     public RoomTilemapOverlay? Bg1Overlay { get; private set; }

@@ -24,18 +24,16 @@ public sealed class CartridgeRoomAssets
         CartridgeRoomHeader header,
         RoomLevelData levelData,
         RoomScrollGrid scrolls,
-        byte[] creCharacters,
-        byte[] roomCharacters,
-        byte[] paletteBytes,
-        TilesetDefinition tileset)
+        RoomTilesetArtwork tileset)
     {
         Header = header;
         LevelData = levelData;
         Scrolls = scrolls;
-        CreCharacters = creCharacters;
-        RoomCharacters = roomCharacters;
-        PaletteBytes = paletteBytes;
-        Tileset = tileset;
+        CreCharacters = tileset.CreCharacters;
+        RoomCharacters = tileset.RoomCharacters;
+        PaletteBytes = tileset.PaletteBytes;
+        Tileset = tileset.Tileset;
+        BlockSheet = tileset.BlockSheet;
     }
 
     /// <summary>Selected room header and room-state metadata used to choose level source, graphics set, dimensions, scrolls, and door table; loading these assets does not execute its room ASM.</summary>
@@ -53,6 +51,41 @@ public sealed class CartridgeRoomAssets
     /// <summary>Compiled graphics-set source identities selected by the room-state index and used to resolve installed metatiles, characters, and palette artwork.</summary>
     public TilesetDefinition Tileset { get; }
 
+    /// <summary>The pre-coloured pictures of the tileset's blocks the room's planes draw from (#1392).</summary>
+    public RoomBlockSheet BlockSheet { get; }
+
+    /// <summary>
+    /// The block definitions a room of <paramref name="tileset"/> loads: the common room elements' and then the tileset's,
+    /// or a Ceres room's tileset alone.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The definitions are not whole blocks.</exception>
+    public static byte[] BlockDefinitions(RoomMetatileCatalog metatiles, TilesetDefinition tileset, bool ceres)
+    {
+        Ensure.NotNull(metatiles);
+        byte[] roomBlockDefinitions = metatiles.Get(tileset.Blocks).Transfer.ToArray();
+        byte[] blockDefinitions;
+        if (ceres)
+        {
+            // $82:E7D3 installs a Ceres tileset directly at WRAM $A000. Unlike Zebes
+            // rooms, area six does not reserve the first $800 bytes for common CRE blocks.
+            blockDefinitions = roomBlockDefinitions;
+        }
+        else
+        {
+            byte[] creDefinitions = metatiles.Cre.Transfer.ToArray();
+            blockDefinitions = new byte[creDefinitions.Length + roomBlockDefinitions.Length];
+            creDefinitions.CopyTo(blockDefinitions, 0);
+            roomBlockDefinitions.CopyTo(blockDefinitions, creDefinitions.Length);
+        }
+
+        if (blockDefinitions.Length == 0 || (blockDefinitions.Length & 7) != 0)
+        {
+            throw new InvalidDataException(
+                $"Tileset {tileset} produced ${blockDefinitions.Length:X} bytes of block definitions; native blocks are eight bytes each.");
+        }
+        return blockDefinitions;
+    }
+
     /// <summary>Reads every compressed input named by the selected room and graphics set.</summary>
     public static CartridgeRoomAssets Load(RoomScrollStorage scrollStorage, CartridgeRoomHeader header, RoomAssetCatalogs catalogs)
     {
@@ -65,28 +98,7 @@ public sealed class CartridgeRoomAssets
         RoomVisualLayoutCatalog visualLayouts = catalogs.VisualLayouts;
         TilesetDefinition tileset = RoomTilesetDefinitions.Get(header.State.GraphicsSet);
 
-        byte[] roomBlockDefinitions = metatileArt.Get(tileset.Blocks).Transfer.ToArray();
-        byte[] blockDefinitions;
-        if (header.AreaIndex == AreaId.Ceres)
-        {
-            // $82:E7D3 installs a Ceres tileset directly at WRAM $A000. Unlike Zebes
-            // rooms, area six does not reserve the first $800 bytes for common CRE blocks.
-            blockDefinitions = roomBlockDefinitions;
-        }
-        else
-        {
-            byte[] creDefinitions = metatileArt.Cre.Transfer.ToArray();
-            blockDefinitions = new byte[creDefinitions.Length + roomBlockDefinitions.Length];
-            creDefinitions.CopyTo(blockDefinitions, 0);
-            roomBlockDefinitions.CopyTo(blockDefinitions, creDefinitions.Length);
-        }
-
-        if (blockDefinitions.Length == 0 || (blockDefinitions.Length & 7) != 0)
-        {
-            throw new InvalidDataException(
-                $"Graphics set ${header.State.GraphicsSet:X2} produced ${blockDefinitions.Length:X} " +
-                "bytes of block definitions; native blocks are eight bytes each.");
-        }
+        byte[] blockDefinitions = BlockDefinitions(metatileArt, tileset, header.AreaIndex == AreaId.Ceres);
 
         // Installed visual layouts imply a retail room source. Its collision/BTS and
         // native overread allocation come from the stock-only installed level streams;
@@ -100,10 +112,8 @@ public sealed class CartridgeRoomAssets
             header,
             levelData,
             scrolls,
-            characterArt.Cre.Transfer.ToArray(),
-            characterArt.Get(tileset.Characters).Transfer.ToArray(),
-            paletteArt.Get(tileset.Palette).Transfer.ToArray(),
-            tileset);
+            new RoomTilesetArtwork(tileset, characterArt.Cre.Transfer.ToArray(), characterArt.Get(tileset.Characters).Transfer.ToArray(),
+                paletteArt.Get(tileset.Palette).Transfer.ToArray(), catalogs.BlockSheets.Get(tileset)));
     }
 
     /// <summary>
@@ -128,6 +138,23 @@ public sealed class CartridgeRoomAssets
         }
     }
 
+    /// <summary>
+    /// The two character uploads a room of <paramref name="tileset"/> loads, in order: the common room elements, then the
+    /// tileset's characters over them (#1350).
+    /// </summary>
+    [PpuLayoutBoundary("codec: the room's character uploads' native VRAM destinations")]
+    public static IReadOnlyList<BgCharacterUpload> CharacterUploads(TilesetDefinition tileset, ReadOnlyMemory<byte> creCharacters,
+        ReadOnlyMemory<byte> roomCharacters) =>
+    [
+        // Preserve $82:E783's transfer order, not merely its two destinations. Ordinary
+        // area art ends at byte $5000, but Ceres tileset $11 expands to the full $8000-byte
+        // BG character allocation. The second transfer from VRAM byte $0000 must therefore
+        // overwrite the CRE upload at $5000..$7FFF; reversing these calls produces the
+        // characteristic vertical-stripe corruption seen when CRE replaces Ceres tiles.
+        new(RoomBgArtwork.CommonRoomElements, RoomGraphicsLayout.CommonRoomElementCharacters.Offset, creCharacters),
+        new(RoomBgArtwork.Tileset(tileset.Characters), RoomGraphicsLayout.AreaCharacters.Offset, roomCharacters),
+    ];
+
     /// <summary>Binds the room's two character regions (#1350) and installs its first 128 CGRAM colors.</summary>
     [PpuLayoutBoundary("codec: the room's character uploads' native VRAM destinations")]
     public void LoadGraphics(BgArtworkBindings backgrounds, IPaletteColors cgram)
@@ -135,15 +162,8 @@ public sealed class CartridgeRoomAssets
         Ensure.NotNull(backgrounds);
         Ensure.NotNull(cgram);
 
-        // Preserve $82:E783's transfer order, not merely its two destinations. Ordinary
-        // area art ends at byte $5000, but Ceres tileset $11 expands to the full $8000-byte
-        // BG character allocation. The second transfer from VRAM byte $0000 must therefore
-        // overwrite the CRE upload at $5000..$7FFF; reversing these calls produces the
-        // characteristic vertical-stripe corruption seen when CRE replaces Ceres tiles.
-        backgrounds.Bind(new BgArtworkIdentity("common room element characters"),
-            RoomGraphicsLayout.CommonRoomElementCharacters.Offset, CreCharacters);
-        backgrounds.Bind(new BgArtworkIdentity($"tileset characters {Tileset.Characters}"),
-            RoomGraphicsLayout.AreaCharacters.Offset, RoomCharacters);
+        foreach (BgCharacterUpload upload in CharacterUploads(Tileset, CreCharacters, RoomCharacters))
+            upload.BindTo(backgrounds);
         if (PaletteBytes.Length < RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount)
         {
             throw new InvalidDataException(

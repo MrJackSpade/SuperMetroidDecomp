@@ -113,7 +113,7 @@ internal sealed class RoomFxAnimatedTilesState
             writes.EnqueueBackground(mechanics.TransferByteCount, sourceAddress, Destination);
         else if (artwork is not null)
             (backgrounds ?? throw new InvalidOperationException("A direct room-FX frame needs background bindings."))
-                .Bind(new BgArtworkIdentity($"room-FX frame ${sourceAddress:X6}"), Destination.Word,
+                .Bind(BgArtworkIdentity.Transfer(sourceAddress), Destination.Word,
                     artwork.Frame(sourceAddress, mechanics.TransferByteCount).Span);
         else
             throw new InvalidOperationException(

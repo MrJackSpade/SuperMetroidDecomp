@@ -54,6 +54,7 @@ public sealed record SpriteSheetFrame
     public bool ShowsStandardColours(ReadOnlySpan<Bgr555> colours)
     {
         ReadOnlySpan<Bgr555> standard = Sheet.StandardColours;
+        int first = Sheet.FirstColour;
         for (int row = 0; row < 8; row++)
         {
             if ((Rows & SpritePaletteRowSet.Rows[row]) == 0)
@@ -61,13 +62,10 @@ public sealed record SpriteSheetFrame
             // Colour zero is transparent and never shown.
             for (int colour = 1; colour < 16; colour++)
             {
-                if (colours[SpriteColours + row * 16 + colour] != standard[row * 16 + colour])
+                if (colours[first + row * 16 + colour] != standard[row * 16 + colour])
                     return false;
             }
         }
         return true;
     }
-
-    /// <summary>CGRAM's first sprite colour.</summary>
-    private const int SpriteColours = 128;
 }

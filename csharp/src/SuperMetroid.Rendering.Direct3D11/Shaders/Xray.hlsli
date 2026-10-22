@@ -9,6 +9,7 @@ static const uint SubscreenGameplayBg2AndCapturedBg3 = 3;
 uint2 XrayBackground(uint roomSource, uint map, uint chars, uint2 size, uint2 position, bool fourBit, bool opaqueZero)
 {
     uint entry = 0;
+    uint picture = 0;
     uint2 within = uint2(0, 0);
     bool shown = true;
     uint source = roomSource & 255;
@@ -23,7 +24,7 @@ uint2 XrayBackground(uint roomSource, uint map, uint chars, uint2 size, uint2 po
     else if (source == RoomSourceBossBg2)
         entry = BossBg2Word(position, size, within);
     else if (source != 0)
-        shown = RoomTile(source, position, entry, within);
+        shown = RoomTile(source, position, entry, within, picture);
     else
     {
         position &= size * 8 - 1;
@@ -32,13 +33,26 @@ uint2 XrayBackground(uint roomSource, uint map, uint chars, uint2 size, uint2 po
         entry = ReadWord(map + page + (tile.y & 31) * 32 + (tile.x & 31));
         within = position & 7;
     }
-    uint px = (entry & 16384) != 0 ? 7 - within.x : within.x;
-    uint py = (entry & 32768) != 0 ? 7 - within.y : within.y;
-    uint row = ((chars + (entry & 1023) * (fourBit ? 16 : 8)) & 32767) * 2 + py * 2;
-    uint shift = 7 - px;
-    uint color = ((ReadByte(row) >> shift) & 1) | (((ReadByte(row + 1) >> shift) & 1) << 1);
-    if (fourBit) color |= (((ReadByte(row + 16) >> shift) & 1) << 2) | (((ReadByte(row + 17) >> shift) & 1) << 3);
-    return shown ? uint2(color != 0 || opaqueZero ? Palette(((entry >> 10) & 7) * (fourBit ? 16 : 4) + color) : 0, (entry >> 13) & 1) : uint2(0, 0);
+    uint2 sample = uint2(0, 0);
+    if (picture != 0)
+    {
+        // A block picture (#1392) keeps no row for its transparent pixels, which show nothing.
+        uint index;
+        bool high;
+        uint colour = PicturePixel(picture, within, index, high);
+        if (shown && index != 0) sample = uint2(colour, high ? 1 : 0);
+    }
+    else
+    {
+        uint px = (entry & 16384) != 0 ? 7 - within.x : within.x;
+        uint py = (entry & 32768) != 0 ? 7 - within.y : within.y;
+        uint row = ((chars + (entry & 1023) * (fourBit ? 16 : 8)) & 32767) * 2 + py * 2;
+        uint shift = 7 - px;
+        uint color = ((ReadByte(row) >> shift) & 1) | (((ReadByte(row + 1) >> shift) & 1) << 1);
+        if (fourBit) color |= (((ReadByte(row + 16) >> shift) & 1) << 2) | (((ReadByte(row + 17) >> shift) & 1) << 3);
+        if (shown) sample = uint2(color != 0 || opaqueZero ? Palette(((entry >> 10) & 7) * (fourBit ? 16 : 4) + color) : 0, (entry >> 13) & 1);
+    }
+    return sample;
 }
 
 void XrayInsert(uint2 candidate, int candidateRank, uint candidateSource,

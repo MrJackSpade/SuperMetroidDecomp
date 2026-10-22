@@ -152,6 +152,12 @@ public sealed record GameInstallation(string Root)
     /// <summary>Loads validated visual metatile compositions and compatible user edits independently of collision and BTS data.</summary>
     public RoomMetatileCatalog LoadRoomMetatiles() =>
         RoomMetatileArtworkFiles.Load(RoomMetatileDirectory, RoomMetatileOverrideDirectory);
+    /// <summary>Stock pre-coloured room block sheets under the replaceable content tree.</summary>
+    public string RoomBlockSheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomBlockSheetDirectoryName);
+    /// <summary>Edited block pictures survive stock content replacement.</summary>
+    public string RoomBlockSheetOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomBlockSheetDirectoryName);
+    /// <summary>Loads every tileset's pre-coloured block sheet, preferring the player's edits (#1392).</summary>
+    public RoomBlockSheetCatalog LoadRoomBlockSheets() => RoomBlockSheetFiles.Load(RoomBlockSheetDirectory, RoomBlockSheetOverrideDirectory);
     /// <summary>Stock background tilemaps, including sky tilemaps, under the replaceable content tree.</summary>
     public string RoomBackgroundTilemapDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomBackgroundTilemapDirectoryName);
     /// <summary>Stock visual room-block references under the replaceable content tree.</summary>
@@ -435,6 +441,7 @@ public sealed record GameInstallation(string Root)
             RoomCharacterArt = LoadRoomCharacters(),
             RoomPaletteArt = LoadRoomPalettes(),
             RoomMetatileArt = LoadRoomMetatiles(),
+            RoomBlockSheets = LoadRoomBlockSheets(),
             RoomVisualLayouts = LoadRoomVisualLayouts(),
             RoomLevelStreams = LoadRoomLevelStreams(),
             RoomPlmShotBlockVisuals = LoadRoomPlmShotBlockVisuals(),

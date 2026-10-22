@@ -149,7 +149,7 @@ internal static class RetailKraidCaptureTests
         var vram = new SnesVram();
         vram.LoadBytes(0, scene.Memory.Vram);
         OrdinaryGameplayRegisters r = gameplay.Registers;
-        IBgTileSource bg2 = gameplay.Rooms.Bg2Shown(new VramBgTilemap(vram, r.Bg2TilemapWord, r.Bg2MapSize), r.Bg2MapSize);
+        IBgSource bg2 = gameplay.Rooms.Bg2Shown(new VramBgTilemap(vram, r.Bg2TilemapWord, r.Bg2MapSize), r.Bg2MapSize);
         var shown = new SortedSet<ushort>();
         for (int line = 0; line < SnesPpuLayout.ScreenHeightPixels - SnesPpuLayout.GameplayHudHeightPixels; line += 4)
         {
@@ -157,8 +157,9 @@ internal static class RetailKraidCaptureTests
             for (int x = 0; x < SnesPpuLayout.ScreenWidthPixels; x += 4)
             {
                 if (bg2.TrySample(new Position16<BgPlanePixels>(unchecked((ushort)(scroll.X + x)),
-                        unchecked((ushort)(scroll.Y + SnesPpuLayout.GameplayHudHeightPixels + line))), out BgTileSample sample))
-                    shown.Add(sample.Tile.Raw);
+                        unchecked((ushort)(scroll.Y + SnesPpuLayout.GameplayHudHeightPixels + line))), out BgSample sample))
+                    shown.Add(sample.Picture is null ? sample.Tile.Tile.Raw
+                        : throw new InvalidOperationException($"{context}: BG2 shows a room block picture where Kraid's tilemap was expected."));
             }
         }
         if (shown.Any(word => word != KraidBackgroundRomData.BlankTile))

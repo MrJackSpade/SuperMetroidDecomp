@@ -48,6 +48,9 @@ internal interface IGameplayArtwork
     /// <summary>Room metatiles.</summary>
     RoomMetatileCatalog? RoomMetatileArt { get; }
 
+    /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>
+    RoomBlockSheetCatalog? RoomBlockSheets { get; }
+
     /// <summary>Initial room foreground and background layouts.</summary>
     RoomVisualLayoutCatalog? RoomVisualLayouts { get; }
 

@@ -53,6 +53,9 @@ internal sealed record AcceptedFrameBoundaryDependencies
     /// <summary>Active room, door, and scrolling sky.</summary>
     public required ActiveRoomState Room { get; init; }
 
+    /// <summary>The background character bindings the room's block pictures are resolved over (#1392).</summary>
+    public required BgArtworkBindings Backgrounds { get; init; }
+
     /// <summary>Suit pickup.</summary>
     public required SamusSuitPickupState SuitPickup { get; init; }
 

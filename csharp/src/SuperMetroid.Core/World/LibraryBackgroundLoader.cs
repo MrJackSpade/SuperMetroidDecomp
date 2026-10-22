@@ -67,7 +67,7 @@ public static class LibraryBackgroundLoader
     [PpuLayoutBoundary("codec: library-background character transfers' native VRAM words")]
     private static void BindCharacters(LibraryBackgroundArtwork artwork, LibraryBackgroundInstruction transfer, ReadOnlySpan<byte> characters, ushort destination) =>
         (artwork.Backgrounds ?? throw new InvalidOperationException("A library background's character transfer requires background bindings."))
-            .Bind(new BgArtworkIdentity($"library characters ${transfer.SourceAddress:X6}"), destination, characters);
+            .Bind(RoomBgArtwork.Library(transfer.SourceAddress), destination, characters);
 
     /// <summary>Routes a transfer command (plain, Kraid or door-selected) to live memory or its installed art catalog, preserving its VRAM word destination.</summary>
     [PpuLayoutBoundary("codec: library-background command 2 VRAM DMA (native source and VMADD)")]

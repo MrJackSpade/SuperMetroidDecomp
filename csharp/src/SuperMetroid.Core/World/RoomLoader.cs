@@ -11,6 +11,7 @@ using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -794,7 +795,8 @@ internal sealed class RoomLoader
         {
             RoomViewportLoadMode.DisplayInitialViewport => null,
             RoomViewportLoadMode.StreamThroughDoor => new DoorOpeningPpuScroll(_backgroundScroll.Bg1Scroll,
-                new RoomBackgroundLayer(_room.LoadedLevelData.ForegroundPlane, _backgroundScroll.Bg1Offset.AsBgPlaneOffset())),
+                new RoomBackgroundLayer(_room.LoadedLevelData.ForegroundPlane, _backgroundScroll.Bg1Offset.AsBgPlaneOffset(),
+                    SourceScreenPictures())),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(viewportLoadMode), viewportLoadMode, "Unknown room viewport load mode."),
         };
@@ -1260,14 +1262,26 @@ internal sealed class RoomLoader
         throw new InvalidOperationException("No cartridge room header is active.");
     }
 
+    /// <summary>
+    /// The pictures the outgoing room's BG1 blocks show as a door begins (#1392), which its screen keeps through the
+    /// door's opening scroll; none while its planes draw from the object character page.
+    /// </summary>
+    private RoomBlockPictureTable? SourceScreenPictures()
+    {
+        RoomScope scope = _room.Scope ?? throw new InvalidOperationException("A door began with no room loaded.");
+        return RoomScope.CharactersOf(_room.ActiveRoom) == RoomBackgroundCharacters.Tileset
+            ? scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane, null, _backgrounds)
+            : null;
+    }
+
     /// <summary>The host-bound room catalogs; room loading never substitutes cartridge artwork.</summary>
     private RoomAssetCatalogs RequireRoomAssetCatalogs() =>
         _artwork.RoomCharacterArt is { } characters && _artwork.RoomPaletteArt is { } palettes &&
         _artwork.RoomMetatileArt is { } metatiles && _artwork.RoomVisualLayouts is { } layouts &&
-        _artwork.RoomLevelStreams is { } levelStreams
-            ? new RoomAssetCatalogs(characters, palettes, metatiles, layouts, levelStreams)
+        _artwork.RoomLevelStreams is { } levelStreams && _artwork.RoomBlockSheets is { } blockSheets
+            ? new RoomAssetCatalogs(characters, palettes, metatiles, layouts, levelStreams, blockSheets)
             : throw new InvalidOperationException(
-                "Room loading requires installed character, palette, metatile, visual-layout, and level-stream assets.");
+                "Room loading requires installed character, palette, metatile, visual-layout, level-stream and block-sheet assets.");
 
 
     /// <summary>The 16-pixel block a coordinate lies in within its 256-pixel screen.</summary>

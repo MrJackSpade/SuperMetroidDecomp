@@ -158,7 +158,7 @@ internal sealed class SuperMetroidRuntime
         GameplayWindows = new GameplayWindowRegisters(Room);
         Bg2TilemapStaging = new Bg2TilemapStaging();
         Xray = new XrayReveal(BackgroundScroll, Room, System, Bg2TilemapStaging);
-        FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { Input = new AcceptedFrameInput(Controller1, PhysicalController1, Options, Clock), EnemySession = EnemySession, RoomFx = RoomFx, Artwork = Artwork, Hud = Hud, BackgroundScroll = BackgroundScroll, Display = Display, DisplayedSprites = DisplayedSprites, GameplayWindows = GameplayWindows, Sprites = Sprites, Player = Player, Room = Room, SuitPickup = SuitPickup, Xray = Xray, DrainQueuedVramWrites = DrainQueuedVramWrites });
+        FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { Input = new AcceptedFrameInput(Controller1, PhysicalController1, Options, Clock), Backgrounds = BgArtwork, EnemySession = EnemySession, RoomFx = RoomFx, Artwork = Artwork, Hud = Hud, BackgroundScroll = BackgroundScroll, Display = Display, DisplayedSprites = DisplayedSprites, GameplayWindows = GameplayWindows, Sprites = Sprites, Player = Player, Room = Room, SuitPickup = SuitPickup, Xray = Xray, DrainQueuedVramWrites = DrainQueuedVramWrites });
         BackgroundPhase = new BackgroundScrollPhase(BackgroundScroll, Room);
         ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { EnemySession = EnemySession, Artwork = Artwork, AttractSession = AttractSession, Cgram = Cgram, Controller1 = Controller1, Display = Display, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room});
         EnemyRoomEffects = new EnemyRoomEffects(new EnemyRoomEffectsDependencies { Cgram = Cgram, Display = Display, EscapeTimer = EscapeTimer, Player = Player, Room = Room, System = System});
@@ -220,6 +220,7 @@ internal sealed class SuperMetroidRuntime
         Bind(a => a.RoomCharacterArt, value => Artwork.RoomCharacterArt = value);
         Bind(a => a.RoomPaletteArt, value => Artwork.RoomPaletteArt = value);
         Bind(a => a.RoomMetatileArt, value => Artwork.RoomMetatileArt = value);
+        Bind(a => a.RoomBlockSheets, value => Artwork.RoomBlockSheets = value);
         Bind(a => a.RoomVisualLayouts, value => Artwork.RoomVisualLayouts = value);
         Bind(a => a.RoomLevelStreams, value => Artwork.RoomLevelStreams = value);
         Bind(a => a.RoomPlmShotBlockVisuals, value => ShotBlockVisuals.RoomPlmShotBlockVisuals = value);

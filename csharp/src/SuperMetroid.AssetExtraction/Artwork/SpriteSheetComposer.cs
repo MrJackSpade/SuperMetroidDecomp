@@ -101,7 +101,7 @@ internal static class SpriteSheetComposer
         for (int colour = 0; colour < colours.Length; colour++)
             colours[colour] = spriteColours[colour].ToWord();
         return new ComposedSpriteSheet(new((ushort)width, (ushort)height), canvas.Pixels, canvas.PaletteIndices, canvas.Priorities,
-            canvas.PartRows, new SpriteSheetDocument { Version = SpriteSheet.Version, Colours = colours, Frames = manifest, PartImages = partManifest });
+            canvas.PartRows, new SpriteSheetDocument { Version = SpriteSheet.Version, Palette = SpriteImageColours.Sprite, Colours = colours, Frames = manifest, PartImages = partManifest });
     }
 
     /// <summary>The name of the part image composed <paramref name="ordinal"/>th.</summary>

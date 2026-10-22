@@ -19,6 +19,9 @@ using SuperMetroid.Core.Progression;
 /// <summary>Checks X-ray setup's staged BG1 capture and frozen reveal-map lifetime.</summary>
 internal static class XraySetupVerification
 {
+    /// <summary>The common room elements' block definitions, which precede the tileset's own.</summary>
+    private const int CommonRoomElementBlocks = 0x100;
+
     /// <summary>Checks stage-four reveal construction from the shown BG1 plane with edited art and overlays (#1351).</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyXraySetupBuffers()
@@ -55,26 +58,32 @@ internal static class XraySetupVerification
         SnesButton held = runtime.Options.ControllerBindings.Dash;
         runtime.StepFrame(held); // Stage one, before either BG1 page is captured.
         RoomLevelData level = runtime.Room.LoadedLevelData;
-        // BG1 shows level data (#1346): repaint every block's visual with one tile word, keeping collision.
-        void ShowEverywhere(ushort tile)
+        // Markers are tileset blocks whose four tile words no other definition holds, so a word of one in the reveal
+        // can only have been copied from a block showing it; the room draws them from their installed pictures (#1392).
+        byte[] table = level.BlockDefinitions.ToArray();
+        ushort[] words = [.. Enumerable.Range(0, table.Length / 2).Select(word => SnesLittleEndian.Word(table[word * 2], table[word * 2 + 1]))];
+        Dictionary<ushort, int> uses = words.GroupBy(word => word).ToDictionary(group => group.Key, group => group.Count());
+        int[] markers = [.. Enumerable.Range(CommonRoomElementBlocks, words.Length / 4 - CommonRoomElementBlocks)
+            .Where(definition => Enumerable.Range(0, 4).All(corner => uses[words[definition * 4 + corner]] == 1)).Take(4)];
+        AssertEqual(4, markers.Length, "the room's tileset has four blocks of unique tile words");
+        ushort Marker(int stage) => words[markers[stage] * 4];
+        // BG1 shows level data (#1346): show one block everywhere, keeping collision.
+        void ShowEverywhere(int stage)
         {
-            const int visual = 1;
-            for (int corner = 0; corner < 4; corner++)
-                level.SetBlockDefinitionWord(visual * 4 + corner, tile);
             ReadOnlySpan<ushort> blocks = level.ForegroundEntries.Span;
             for (int block = 0; block < blocks.Length; block++)
-                level.SetPlmForegroundEntry(block, blocks[block], visual);
+                level.SetPlmForegroundEntry(block, blocks[block], checked((ushort)markers[stage]));
         }
         // Stage four builds the reveal from the BG1 plane the room shows then (#1351); nothing is captured earlier.
-        ShowEverywhere(0x0456);
+        ShowEverywhere(0);
         runtime.StepFrame(held);
-        ShowEverywhere(0x0789);
+        ShowEverywhere(1);
         runtime.StepFrame(held);
-        ShowEverywhere(0x0abc);
+        ShowEverywhere(2);
         runtime.StepFrame(held);
         var scroll = runtime.BackgroundScroll;
         var room = runtime.Room.LoadedRoom;
-        var bg1 = new RoomBackgroundLayer(level.ForegroundPlane, scroll.Bg1Offset.AsBgPlaneOffset());
+        var bg1 = new RoomBackgroundLayer(level.ForegroundPlane, scroll.Bg1Offset.AsBgPlaneOffset(), null);
         var original = XrayRevealTilemap.Build(level, bg1,
             scroll.Layer1Position + scroll.Bg1Offset,
             scroll.Layer1Position, (byte)room.AreaIndex);
@@ -87,9 +96,9 @@ internal static class XraySetupVerification
         XrayRevealOverlays.Apply(level, expected, runtime.Plms.CollectiblePlms.Collectibles, runtime.System,
             room.State.XrayOverlay, scroll.Layer1Position, runtime.Xray.XrayRevealVisuals);
         AssertTrue(expected.SequenceEqual(XraySetupMemory.ReadReveal(runtime.Xray)), "stage four builds from the shown BG1 plane and overlays");
-        AssertTrue(expected.Contains((ushort)0x0abc), "the reveal copies the level data shown at stage four");
-        AssertTrue(!expected.Any(word => word is 0x0456 or 0x0789), "no earlier setup call's BG1 reaches the reveal");
-        ShowEverywhere(0x0def);
+        AssertTrue(expected.Contains(Marker(2)), "the reveal copies the level data shown at stage four");
+        AssertTrue(!expected.Any(word => word == Marker(0) || word == Marker(1)), "no earlier setup call's BG1 reaches the reveal");
+        ShowEverywhere(3);
         for (int frame = 0; frame < 90; frame++) runtime.StepFrame(held);
         AssertTrue(expected.SequenceEqual(XraySetupMemory.ReadReveal(runtime.Xray)), "widening/full beam never rebuilds the frozen reveal map");
         for (int frame = 0; frame < 8; frame++) runtime.StepFrame(0);

@@ -34,7 +34,7 @@ internal static class RoomBackgroundsVerification
             blocks[block] = (ushort)((block % 4) << 10 | block);
         var plane = new RoomLevelPlane(new Extent16<RoomBlocks>(Side, Side), blocks, [.. definitions]);
         var offset = new Offset16<BgPlanePixels>(0x10, -0x08);
-        var layer = new RoomBackgroundLayer(plane, offset);
+        var layer = new RoomBackgroundLayer(plane, offset, null);
 
         int checks = 0;
         for (int y = 0; y < Side * RoomLevelPlane.BlockPixels; y += 3)
@@ -51,35 +51,35 @@ internal static class RoomBackgroundsVerification
                 $"scroll {x + offset.X},{y + offset.Y} samples the tile's pixel at the level position");
             checks++;
         }
-        AssertTrue(!layer.TrySample(new Position16<BgPlanePixels>(0, 0) + offset + new Offset16<BgPlanePixels>(-1, 0), out _),
+        AssertTrue(!layer.TrySample(new Position16<BgPlanePixels>(0, 0) + offset + new Offset16<BgPlanePixels>(-1, 0), out BgTileSample _),
             "a scroll left of the room shows no tile");
-        AssertTrue(!layer.TrySample(new Position16<BgPlanePixels>(0, Side * RoomLevelPlane.BlockPixels) + offset, out _),
+        AssertTrue(!layer.TrySample(new Position16<BgPlanePixels>(0, Side * RoomLevelPlane.BlockPixels) + offset, out BgTileSample _),
             "a scroll below the room shows no tile");
 
         // The door's source screen covers the window at its scroll, below the HUD and the first blank scanline.
         var sourceBlocks = Enumerable.Repeat((ushort)15, Side * Side).ToArray();
         var source = new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(Side, Side), sourceBlocks, [.. definitions]),
-            new Offset16<BgPlanePixels>(0, 0));
+            new Offset16<BgPlanePixels>(0, 0), null);
         var sourceScroll = new Position16<BgPlanePixels>(0, 0);
         var door = RoomDoorBackground.Begin(source, sourceScroll);
         var withDoor = new RoomBackgrounds(layer, null, RoomBackgroundsFixtures.BlankBg3(), door).Bg1Source;
         var top = new Position16<BgPlanePixels>(0x18, SnesPpuLayout.FirstVisibleBackgroundScanline + SnesPpuLayout.GameplayHudHeightPixels);
-        AssertTrue(withDoor.TrySample(top, out BgTileSample doorSample) && doorSample.Tile.Raw == 15 * 4 + 1,
+        AssertTrue(withDoor.TrySample(top, out BgSample doorSample) && doorSample.Tile.Tile.Raw == 15 * 4 + 1,
             "the door window's first gameplay line shows the source room");
-        AssertTrue(withDoor.TrySample(top + new Offset16<BgPlanePixels>(0, -1), out BgTileSample above) &&
-                layer.TrySample(top + new Offset16<BgPlanePixels>(0, -1), out BgTileSample destination) && above == destination,
+        AssertTrue(withDoor.TrySample(top + new Offset16<BgPlanePixels>(0, -1), out BgSample above) &&
+                layer.TrySample(top + new Offset16<BgPlanePixels>(0, -1), out BgTileSample destination) && above.Tile == destination,
             "the line above the window shows the destination room");
 
         // Words written over BG1 replace the room's tile at their tilemap cell only.
         var overlay = RoomTilemapOverlay.Empty.With(3 * 32 + 5, [0x1234]);
         var withOverlay = new RoomBackgrounds(layer, null, RoomBackgroundsFixtures.BlankBg3(), null, overlay).Bg1Source;
         var cell = new Position16<BgPlanePixels>(5 * 8 + 2, 3 * 8 + 1);
-        AssertTrue(withOverlay.TrySample(cell, out BgTileSample written) && written.Tile.Raw == 0x1234 &&
-                written.Pixel == new Position16<CharacterPixels>(2, 1),
+        AssertTrue(withOverlay.TrySample(cell, out BgSample written) && written.Tile.Tile.Raw == 0x1234 &&
+                written.Tile.Pixel == new Position16<CharacterPixels>(2, 1),
             "a written word is shown at its tilemap cell");
         var neighbor = cell + new Offset16<BgPlanePixels>(8, 0);
-        AssertTrue(withOverlay.TrySample(neighbor, out BgTileSample unwritten) &&
-                layer.TrySample(neighbor, out BgTileSample room) && unwritten == room,
+        AssertTrue(withOverlay.TrySample(neighbor, out BgSample unwritten) &&
+                layer.TrySample(neighbor, out BgTileSample room) && unwritten.Tile == room,
             "the next cell shows the room");
         Console.WriteLine($"  Room backgrounds: {checks} level samples, door window and overlay agree.");
     }
@@ -137,7 +137,7 @@ internal static class RoomBackgroundsVerification
             for (int x = 0; x < 256; x += 41)
             {
                 var screen = new Offset16<BgPlanePixels>((short)x, (short)y);
-                AssertTrue(published.Bg1Source.TrySample(scroll + screen, out BgTileSample shown) &&
+                AssertTrue(published.Bg1.TrySample(scroll + screen, out BgTileSample shown) &&
                         level.ForegroundPlane.TryTileAt(camera + screen, out SnesBgTilemapWord expected) && shown.Tile == expected,
                     $"{room.Name} BG1 at screen {x},{y} shows the level at the camera");
             }

@@ -1,5 +1,7 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using System.Collections.Immutable;
 using Vortice.Direct3D11;
@@ -12,15 +14,22 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// <summary>
 /// The frame's room backgrounds packed for Tiles.hlsl at register t3 (#1346): a header of three plane records (BG1, BG2
 /// and a door's source room), the door window, the BG1 overlay, sky, BG3 and BG2 overlay offsets; then each plane's level
-/// words, each distinct set of block definitions as tilemap words, the overlay's words, the sky's rows (#1347), the
+/// words, each distinct set of block definitions as tilemap words, each plane's picture of each definition and the
+/// pictures themselves with their sheets' standard colours (#1392), the overlay's words, the sky's rows (#1347), the
 /// BG3 plane and the BG2 overlay's words (#1348), a Ceres Mode 7 map (#1349) and a boss body's BG2 tilemap (#1352).
-/// The GPU resolves every room tile from these, so
-/// nothing is streamed into VRAM. Repacked only when the published planes, offsets, door or overlay change.
+/// The GPU resolves every room pixel from these, so nothing is streamed into VRAM. Repacked only when the published
+/// planes, their pictures, offsets, door or overlay change.
 /// </summary>
 internal sealed class D3D11RoomLevelBuffer : IDisposable
 {
-    /// <summary>Words per plane record: level-word offset, width, height, definition offset, scroll offset X and Y.</summary>
-    private const int RecordWords = 6;
+    /// <summary>
+    /// Words per plane record: level-word offset, width, height, definition offset, scroll offset X and Y, and the offset
+    /// of the picture each definition shows, or zero for a plane drawn from characters.
+    /// </summary>
+    private const int RecordWords = 7;
+
+    /// <summary>Words per packed block picture: its sheet's colours' offset, its colours, then its palette indices and priorities.</summary>
+    private const int PictureWords = 1 + 2 * RoomBlockSheet.BlockPixels * RoomBlockSheet.BlockPixels;
     /// <summary>Plane slots: BG1, BG2 and a door's source room.</summary>
     private const int PlaneSlots = 3;
     /// <summary>Header words: the plane records, the door window origin, and the offsets of the BG1 overlay, the sky rows,
@@ -95,6 +104,31 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         foreach (RoomBackgroundLayer? layer in planes)
             if (layer is not null && definitionWords.TryAdd(layer.Plane.Definitions, words))
                 words += layer.Plane.Definitions.Length / sizeof(ushort);
+        // Each plane's picture of each definition, then each distinct picture and sheet palette once (#1392).
+        var pictureTables = new int[PlaneSlots];
+        for (int slot = 0; slot < PlaneSlots; slot++)
+        {
+            if (planes[slot]?.Pictures is not { } table)
+                continue;
+            pictureTables[slot] = words;
+            words += table.Definitions;
+        }
+        var pictureWords = new Dictionary<SpriteSheetFrame, int>();
+        var colourWords = new Dictionary<SpriteImage, int>();
+        foreach (RoomBackgroundLayer? layer in planes)
+        {
+            if (layer?.Pictures is not { } table)
+                continue;
+            for (int definition = 0; definition < table.Definitions; definition++)
+            {
+                if (table.Picture(definition) is not { } picture)
+                    continue;
+                if (colourWords.TryAdd(picture.Sheet, words))
+                    words += SpriteImage.SpriteColourCount;
+                if (pictureWords.TryAdd(picture, words))
+                    words += PictureWords;
+            }
+        }
         int overlayOffset = overlay is null ? 0 : words;
         if (overlay is not null)
             words += RoomTilemapOverlay.WordCount;
@@ -133,6 +167,10 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             upload[record + 3] = (uint)definitionWords[plane.Definitions];
             upload[record + 4] = unchecked((ushort)layer.ScrollOffset.X);
             upload[record + 5] = unchecked((ushort)layer.ScrollOffset.Y);
+            upload[record + 6] = (uint)pictureTables[slot];
+            if (layer.Pictures is { } table)
+                for (int definition = 0; definition < table.Definitions; definition++)
+                    upload[pictureTables[slot] + definition] = table.Picture(definition) is { } shown ? (uint)pictureWords[shown] : 0;
             ReadOnlySpan<ushort> blocks = plane.Blocks;
             for (int block = 0; block < blocks.Length; block++)
                 upload[blockOffsets[slot] + block] = blocks[block];
@@ -140,6 +178,11 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         foreach ((ImmutableArray<byte> definitions, int offset) in definitionWords)
             for (int word = 0; word < definitions.Length / sizeof(ushort); word++)
                 upload[offset + word] = SnesLittleEndian.Word(definitions[word * 2], definitions[word * 2 + 1]);
+        foreach ((SpriteImage sheet, int offset) in colourWords)
+            for (int colour = 0; colour < SpriteImage.SpriteColourCount; colour++)
+                upload[offset + colour] = sheet.StandardColours[colour].ToWord();
+        foreach ((SpriteSheetFrame picture, int offset) in pictureWords)
+            PackPicture(upload.Slice(offset, PictureWords), picture, colourWords[picture.Sheet]);
         if (door is not null)
             upload[DoorWindowWord] = D3D11ConstantPacking.Halves(door.WindowOrigin.X, door.WindowOrigin.Y);
         upload[OverlayWord] = (uint)overlayOffset;
@@ -171,6 +214,28 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
                 upload[bossBg2Offset + word] = bossBg2.Words[word];
         packed = frame;
         return true;
+    }
+
+    /// <summary>
+    /// Packs one block picture: its sheet's colours' offset, then each pixel's colour as Tiles.hlsl packs one, then each
+    /// pixel's palette index with its tile priority above it.
+    /// </summary>
+    private static void PackPicture(Span<uint> words, SpriteSheetFrame picture, int colours)
+    {
+        SpriteImage sheet = picture.Sheet;
+        int pixels = RoomBlockSheet.BlockPixels * RoomBlockSheet.BlockPixels;
+        words[0] = (uint)colours;
+        for (int y = 0; y < RoomBlockSheet.BlockPixels; y++)
+        {
+            for (int x = 0; x < RoomBlockSheet.BlockPixels; x++)
+            {
+                int pixel = (picture.Corner.Y + y) * sheet.Size.X + picture.Corner.X + x;
+                Rgba32 colour = sheet.Pixels[pixel];
+                int at = y * RoomBlockSheet.BlockPixels + x;
+                words[1 + at] = colour.R | (uint)colour.G << 8 | (uint)colour.B << 16 | (uint)colour.A << 24;
+                words[1 + pixels + at] = sheet.PaletteIndices[pixel] | (uint)sheet.Priorities[pixel] << 8;
+            }
+        }
     }
 
     /// <summary>Creates the buffer and its view at <paramref name="words"/> words.</summary>

@@ -37,11 +37,11 @@ internal static class InstalledFixtures
     /// <summary>The installation's starting and common sprite colours.</summary>
     internal static GameplayBasePaletteCatalog GameplayBasePalettes => gameplayBasePalettes.Value;
 
-    /// <summary>Lazy stock character, palette, metatile, and visual-layout catalogs.</summary>
+    /// <summary>Lazy stock character, palette, metatile, visual-layout, level-stream and block-sheet catalogs.</summary>
     private static readonly Lazy<RoomAssetCatalogs> roomAssets = new(() => new RoomAssetCatalogs(
         RepositoryInstallation.Installation.LoadRoomCharacters(), RepositoryInstallation.Installation.LoadRoomPalettes(),
         RepositoryInstallation.Installation.LoadRoomMetatiles(), RepositoryInstallation.Installation.LoadRoomVisualLayouts(),
-        RepositoryInstallation.Installation.LoadRoomLevelStreams()));
+        RepositoryInstallation.Installation.LoadRoomLevelStreams(), RepositoryInstallation.Installation.LoadRoomBlockSheets()));
 
     /// <summary>Lazy map and shared presentation resources.</summary>
     private static readonly Lazy<AreaMapPresentationCatalog> maps = new(() => RepositoryInstallation.Installation.LoadMaps());

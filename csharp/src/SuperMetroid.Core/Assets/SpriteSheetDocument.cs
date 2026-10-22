@@ -6,7 +6,10 @@ public sealed record SpriteSheetDocument
     /// <summary>The manifest's schema revision, <see cref="SpriteSheet.Version"/>.</summary>
     public required int Version { get; init; }
 
-    /// <summary>The 128 sprite colours the sheet was coloured with, as CGRAM words.</summary>
+    /// <summary>Which half of CGRAM the sheet's palette indices and colours name.</summary>
+    public required SpriteImageColours Palette { get; init; }
+
+    /// <summary>The 128 colours of that half the sheet was coloured with, as CGRAM words.</summary>
     public required ushort[] Colours { get; init; }
 
     /// <summary>The frames by name.</summary>

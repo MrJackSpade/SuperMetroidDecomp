@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class SpriteSheet
 {
     /// <summary>The manifest schema revision this catalog reads.</summary>
-    public const int Version = 2;
+    public const int Version = 3;
 
     /// <summary>The frames by name.</summary>
     private readonly Dictionary<string, SpriteSheetFrame> frames;
@@ -34,6 +34,7 @@ public sealed class SpriteSheet
     internal void AppendIdentity(SelectedPresentationHash content)
     {
         content.AppendName("sheet", Image.Name);
+        content.Append("palette", (int)Image.Colours);
         content.Append("width", Image.Size.X);
         content.Append("height", Image.Size.Y);
         content.Append("pixels", System.Runtime.InteropServices.MemoryMarshal.AsBytes(Image.Pixels));
@@ -84,7 +85,8 @@ public sealed class SpriteSheet
         SpriteImage image;
         try
         {
-            image = new SpriteImage(name, size, pixels, paletteIndices, [.. document.Colours.Select(Bgr555.FromWord)], priorities, partRows);
+            image = new SpriteImage(name, size, pixels, paletteIndices,
+                new SpriteImagePalette(document.Palette, [.. document.Colours.Select(Bgr555.FromWord)]), priorities, partRows);
         }
         catch (ArgumentException error)
         {

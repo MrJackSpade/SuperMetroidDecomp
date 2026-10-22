@@ -27,11 +27,50 @@ public sealed class BgArtworkBindings(SnesVram vram)
         owned ??= [];
         if (!owned.TryGetValue(identity, out byte[]? copy) || !bytes.SequenceEqual(copy))
             owned[identity] = copy = bytes.ToArray();
-        var binding = new BgArtworkBinding(firstWord, copy, Vram.NextWriteStamp());
+        var binding = new BgArtworkBinding(identity, firstWord, copy, Vram.NextWriteStamp());
         // A binding a newer one covers entirely can no longer show.
         bindings.RemoveAll(older => older.FirstWord >= binding.FirstWord &&
             older.FirstWord + older.WordCount <= binding.FirstWord + binding.WordCount);
         bindings.Add(binding);
+    }
+
+    /// <summary>
+    /// What shows over <paramref name="wordCount"/> VRAM words from <paramref name="firstWord"/> (#1392): the newest binding
+    /// over them, which must cover them all, and how far into its artwork they begin.
+    /// </summary>
+    /// <exception cref="InvalidDataException">
+    /// No binding covers the words, the newest over them covers only some, or VRAM has been written over them since it was
+    /// made, so they show bytes no installed artwork names.
+    /// </exception>
+    public BgArtworkShown Showing(int firstWord, int wordCount) =>
+        TryShowing(firstWord, wordCount, out BgArtworkShown shown) ? shown
+            : throw new InvalidDataException($"No background artwork is bound over VRAM words ${firstWord:X4}..${firstWord + wordCount - 1:X4}.");
+
+    /// <summary>What shows over the words, as <see cref="Showing"/> finds it; false where no binding covers any of them.</summary>
+    /// <exception cref="InvalidDataException">The newest binding over the words covers only some, or VRAM has written over them since.</exception>
+    public bool TryShowing(int firstWord, int wordCount, out BgArtworkShown shown)
+    {
+        int end = firstWord + wordCount;
+        for (int index = bindings.Count - 1; index >= 0; index--)
+        {
+            BgArtworkBinding binding = bindings[index];
+            int bindingEnd = binding.FirstWord + binding.WordCount;
+            if (binding.FirstWord >= end || bindingEnd <= firstWord)
+                continue;
+            if (binding.FirstWord > firstWord || bindingEnd < end)
+                throw new InvalidDataException(
+                    $"{binding.Identity.Name} shows over only some of VRAM words ${firstWord:X4}..${end - 1:X4}.");
+            for (int word = firstWord; word < end; word++)
+            {
+                if (Vram.WriteStampAt(word) > binding.Stamp)
+                    throw new InvalidDataException(
+                        $"VRAM word ${word:X4} was written over {binding.Identity.Name} outside the background artwork bindings.");
+            }
+            shown = new BgArtworkShown(binding.Identity, firstWord - binding.FirstWord);
+            return true;
+        }
+        shown = default;
+        return false;
     }
 
     /// <summary>Starts <paramref name="vram"/> tracking write order, which bindings are ordered against.</summary>

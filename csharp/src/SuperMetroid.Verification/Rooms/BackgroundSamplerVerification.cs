@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 
+using SuperMetroid.Core.Rooms.Backgrounds;
+
 namespace SuperMetroid.Verification.Rooms;
 
 /// <summary>Compares cached SNES background pixel sampling with an independent
@@ -27,8 +29,9 @@ internal static class BackgroundSamplerVerification
         {
             // Exercise VRAM wrapping as well as page boundaries and random flipped tiles.
             int map = 32760, characters = 32760;
-            var sampler = new SnesBackgroundPixelSampler(vram, colors,
-                new VramBgTilemap(vram, map, new Extent16<TilemapCells>(width, height)), characters, fourBit ? BgBitDepth.FourBpp : BgBitDepth.TwoBpp);
+            var sampler = new SnesBackgroundPixelSampler(vram, colors, cgram,
+                new BgTileLayer(new VramBgTilemap(vram, map, new Extent16<TilemapCells>(width, height))), characters,
+                fourBit ? BgBitDepth.FourBpp : BgBitDepth.TwoBpp);
             for (int run = 0; run < 256; run++)
             {
                 int originX = random.Next(-1024, 1024), y = random.Next(-1024, 1024);

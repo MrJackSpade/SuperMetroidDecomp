@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Plms;
@@ -290,19 +291,42 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         _nextCollectibleGraphicsSlot = (_nextCollectibleGraphicsSlot + 1) & 3;
 
         // The 256 bytes contain two 16x16 animation frames, four 4bpp tiles apiece.
-        backgrounds.Bind(new BgArtworkIdentity($"collectible slot {graphicsSlot}: {kind}"),
-            RoomGraphicsLayout.CollectibleCharacters.Offset + graphicsSlot * RoomGraphicsVram.CollectibleSlotWordCount, graphics.Span);
+        SlotUpload(suppliedGraphic is null ? RoomBgArtwork.Collectible(kind) : RoomBgArtwork.SuppliedCollectible(kind), graphicsSlot, graphics)
+            .BindTo(backgrounds);
 
-        int startingTileNumber = CollectibleDynamicGraphicsDefinitions.FirstTileNumber + graphicsSlot * 8;
-        int firstDefinitionWord = CollectibleDynamicGraphicsDefinitions.FirstBlockDefinitionWord + graphicsSlot * 8;
-        for (int child = 0; child < 8; child++)
-        {
-            byte palette = paletteOffsets.Span[child];
-            ushort tilemapWord = unchecked((ushort)(
-                startingTileNumber + child + (palette << 10)));
-            level.SetBlockDefinitionWord(firstDefinitionWord + child, tilemapWord);
-        }
+        int firstDefinitionWord = CollectibleDynamicGraphicsDefinitions.FirstBlockDefinitionWord + graphicsSlot * SlotDefinitionWords;
+        ushort[] words = SlotDefinitions(graphicsSlot, paletteOffsets.Span);
+        for (int child = 0; child < words.Length; child++)
+            level.SetBlockDefinitionWord(firstDefinitionWord + child, words[child]);
         return graphicsSlot;
+    }
+
+    /// <summary>The block definition words one collectible slot's two animation frames take: four tiles each.</summary>
+    internal const int SlotDefinitionWords = 8;
+
+    /// <summary>The collectible graphic slots instruction <c>$84:8764</c> rotates through.</summary>
+    internal const int GraphicsSlots = 4;
+
+    /// <summary>The first block definition one collectible slot's frames are written to.</summary>
+    internal static int FirstSlotDefinition(int graphicsSlot) =>
+        (CollectibleDynamicGraphicsDefinitions.FirstBlockDefinitionWord + graphicsSlot * SlotDefinitionWords) / RoomBlockPictureNames.Tiles;
+
+    /// <summary>Binds <paramref name="graphics"/>, a collectible's two frames, over the characters of slot <paramref name="graphicsSlot"/> (#1350).</summary>
+    [PpuLayoutBoundary("codec: the collectible character slots' native VRAM words")]
+    internal static BgCharacterUpload SlotUpload(BgArtworkIdentity identity, int graphicsSlot, ReadOnlyMemory<byte> graphics) =>
+        new(identity, RoomGraphicsLayout.CollectibleCharacters.Offset + graphicsSlot * RoomGraphicsVram.CollectibleSlotWordCount, graphics);
+
+    /// <summary>
+    /// The block definition words a collectible writes for slot <paramref name="graphicsSlot"/>: each of its eight
+    /// characters in the palette row <paramref name="paletteOffsets"/> gives it.
+    /// </summary>
+    internal static ushort[] SlotDefinitions(int graphicsSlot, ReadOnlySpan<byte> paletteOffsets)
+    {
+        int startingTileNumber = CollectibleDynamicGraphicsDefinitions.FirstTileNumber + graphicsSlot * SlotDefinitionWords;
+        var words = new ushort[SlotDefinitionWords];
+        for (int child = 0; child < words.Length; child++)
+            words[child] = unchecked((ushort)(startingTileNumber + child + (paletteOffsets[child] << 10)));
+        return words;
     }
 
     /// <summary>Advances one item's reveal, pickup, message wait, or shot-block respawn list.</summary>

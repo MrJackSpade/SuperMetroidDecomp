@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.Artwork;
+
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
@@ -6,7 +8,13 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// </summary>
 /// <param name="Plane">The room plane shown.</param>
 /// <param name="ScrollOffset">The scroll register less the layer position.</param>
-public sealed record RoomBackgroundLayer(RoomLevelPlane Plane, Offset16<BgPlanePixels> ScrollOffset) : IBgTileSource
+/// <param name="Pictures">
+/// The pre-coloured picture each of the plane's blocks shows (#1392), or null for a plane read only for its tile words
+/// (the X-ray reveal's copy) or shown in the Ceres Ridley arena, whose planes draw from the object character page until
+/// that page's artwork is pictured.
+/// </param>
+public sealed record RoomBackgroundLayer(RoomLevelPlane Plane, Offset16<BgPlanePixels> ScrollOffset, RoomBlockPictureTable? Pictures)
+    : IBgTileSource, IBgSource
 {
     /// <inheritdoc />
     public bool TrySample(Position16<BgPlanePixels> scrolled, out BgTileSample sample)
@@ -19,5 +27,15 @@ public sealed record RoomBackgroundLayer(RoomLevelPlane Plane, Offset16<BgPlaneP
         }
         sample = BgTileSample.At(tile, level);
         return true;
+    }
+
+    /// <summary>What the plane shows at a scrolled position: its block's picture pixel, or its tile where it has no pictures.</summary>
+    public bool TrySample(Position16<BgPlanePixels> scrolled, out BgSample sample)
+    {
+        if (Pictures is { } pictures)
+            return pictures.TrySample(Plane, scrolled - ScrollOffset, out sample);
+        bool shown = TrySample(scrolled, out BgTileSample tile);
+        sample = BgSample.OfTile(tile);
+        return shown;
     }
 }

@@ -27,21 +27,21 @@ public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLaye
     RoomBackgroundCharacters Characters = RoomBackgroundCharacters.Tileset)
 {
     /// <summary>The BG1 this frame shows, as a renderer samples it: door source, then overlay, then level data.</summary>
-    public IBgTileSource Bg1Source => new Bg1Composite(this);
+    public IBgSource Bg1Source => new Bg1Composite(this);
 
     /// <summary>
     /// BG2 from a boss body that owns it, the room's layer-2 plane or the sky's rows, or null when BG2 shows its own
     /// loaded tilemap.
     /// </summary>
-    public IBgTileSource? Bg2Source => BossBg2 is { } boss ? boss : Bg2 is { } plane ? plane : Sky;
+    public IBgSource? Bg2Source => BossBg2 is { } boss ? new BgTileLayer(boss) : Bg2 is { } plane ? plane : Sky is { } sky ? new BgTileLayer(sky) : null;
 
     /// <summary>
     /// BG2 as the frame shows it: <see cref="Bg2Source"/>, or <paramref name="loadedTilemap"/> when BG2 shows its own
     /// tilemap, under any words written over BG2 at their tilemap positions in a <paramref name="mapSize"/> layout.
     /// </summary>
-    public IBgTileSource Bg2Shown(IBgTileSource loadedTilemap, Extent16<TilemapCells> mapSize)
+    public IBgSource Bg2Shown(IBgTileSource loadedTilemap, Extent16<TilemapCells> mapSize)
     {
-        IBgTileSource shown = Bg2Source ?? Ensure.NotNull(loadedTilemap);
+        IBgSource shown = Bg2Source ?? new BgTileLayer(Ensure.NotNull(loadedTilemap));
         return Bg2Overlay is { } overlay ? new Overlaid(shown, overlay, mapSize) : shown;
     }
 
@@ -49,14 +49,14 @@ public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLaye
     private static Extent16<TilemapCells> Bg1MapSize { get; } = new(2 * SnesPpuLayout.TilemapPageWidthInTiles, SnesPpuLayout.TilemapPageWidthInTiles);
 
     /// <summary>Words written over a background, then the background.</summary>
-    private sealed class Overlaid(IBgTileSource under, RoomTilemapOverlay overlay, Extent16<TilemapCells> mapSize) : IBgTileSource
+    private sealed class Overlaid(IBgSource under, RoomTilemapOverlay overlay, Extent16<TilemapCells> mapSize) : IBgSource
     {
         /// <inheritdoc />
-        public bool TrySample(Position16<BgPlanePixels> scrolled, out BgTileSample sample)
+        public bool TrySample(Position16<BgPlanePixels> scrolled, out BgSample sample)
         {
             if (overlay.TryTileAt(scrolled, mapSize, out SnesBgTilemapWord tile))
             {
-                sample = BgTileSample.At(tile, scrolled);
+                sample = BgSample.OfTile(BgTileSample.At(tile, scrolled));
                 return true;
             }
             return under.TrySample(scrolled, out sample);
@@ -64,16 +64,16 @@ public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLaye
     }
 
     /// <summary>Resolves BG1 in its precedence order.</summary>
-    private sealed class Bg1Composite(RoomBackgrounds backgrounds) : IBgTileSource
+    private sealed class Bg1Composite(RoomBackgrounds backgrounds) : IBgSource
     {
         /// <inheritdoc />
-        public bool TrySample(Position16<BgPlanePixels> scrolled, out BgTileSample sample)
+        public bool TrySample(Position16<BgPlanePixels> scrolled, out BgSample sample)
         {
             if (backgrounds.DoorSource is { } door && door.Covers(scrolled))
                 return door.SourceRoom.TrySample(scrolled, out sample);
             if (backgrounds.Bg1Overlay is { } overlay && overlay.TryTileAt(scrolled, Bg1MapSize, out SnesBgTilemapWord tile))
             {
-                sample = BgTileSample.At(tile, scrolled);
+                sample = BgSample.OfTile(BgTileSample.At(tile, scrolled));
                 return true;
             }
             return backgrounds.Bg1.TrySample(scrolled, out sample);

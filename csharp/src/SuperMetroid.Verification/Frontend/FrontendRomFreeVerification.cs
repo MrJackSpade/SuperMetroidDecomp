@@ -128,6 +128,7 @@ internal static class FrontendRomFreeVerification
         var characters = installation.LoadRoomCharacters();
         var roomPalettes = installation.LoadRoomPalettes();
         var metatiles = installation.LoadRoomMetatiles();
+        var blockSheets = installation.LoadRoomBlockSheets();
         var visualLayouts = installation.LoadRoomVisualLayouts();
         var levelStreams = installation.LoadRoomLevelStreams();
         var backgrounds = installation.LoadRoomBackgroundTilemaps();
@@ -218,6 +219,7 @@ internal static class FrontendRomFreeVerification
                 RoomCharacterArt = characters,
                 RoomPaletteArt = roomPalettes,
                 RoomMetatileArt = metatiles,
+                RoomBlockSheets = blockSheets,
                 RoomVisualLayouts = visualLayouts,
                 RoomLevelStreams = levelStreams,
                 RoomBackgroundTilemapArt = backgrounds,

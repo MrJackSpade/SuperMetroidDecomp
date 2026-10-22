@@ -129,8 +129,10 @@ internal static class XrayGameplayTests
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(Word(), Word()), new Position16<Bg2Pixels>(Word(), Word()),
                 frame % 2 == 0 ? new Extent16<TilemapCells>(64, 32) : new Extent16<TilemapCells>(32, 64), VramWord(), VramWord(), VramWord(), VramWord(),
                 (SnesMainScreenLayers)(random.Next(32) & 0x13));
+            // Every fifth frame's planes draw from block pictures (#1392).
             var gameplay = new OrdinaryGameplayRenderLayer(registers, RoomBackgroundsFixtures.Seeded(random, registers.Bg1Scroll.AsBgPlaneScroll(),
-                    frame % 2 == 0 ? registers.Bg2Scroll.AsBgPlaneScroll() : null, door: frame % 3 == 0, overlay: frame % 4 == 0),
+                    frame % 2 == 0 ? registers.Bg2Scroll.AsBgPlaneScroll() : null, door: frame % 3 == 0, overlay: frame % 4 == 0,
+                    pictureColours: frame % 5 == 0 ? colors : null),
                 new Bg2HdmaScrollTables(
                 Enumerable.Range(0, 192).Select(_ => Word()).ToArray(),
                 Enumerable.Range(0, 192).Select(_ => Word()).ToArray()));

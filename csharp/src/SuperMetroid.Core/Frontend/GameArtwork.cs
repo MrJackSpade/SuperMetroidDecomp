@@ -72,6 +72,9 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>Room metatiles.</summary>
     public RoomMetatileCatalog? RoomMetatileArt { get; init; }
 
+    /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>
+    public RoomBlockSheetCatalog? RoomBlockSheets { get; init; }
+
     /// <summary>Initial room foreground and background layouts.</summary>
     public RoomVisualLayoutCatalog? RoomVisualLayouts { get; init; }
 

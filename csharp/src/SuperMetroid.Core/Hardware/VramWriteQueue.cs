@@ -194,7 +194,7 @@ public sealed class VramWriteQueue
                     throw new InvalidOperationException(
                         $"Queued VRAM transfer of {entry.SizeInBytes} bytes from ${entry.SourceAddress:X6} has no installed artwork.");
                 if (entry.Background)
-                    BindBackground(backgrounds, entry, new BgArtworkIdentity($"artwork ${entry.SourceAddress:X6}"), selected.Span);
+                    BindBackground(backgrounds, entry, BgArtworkIdentity.Transfer(entry.SourceAddress), selected.Span);
                 else
                 {
                     vram.ExecuteQueuedAssetWrite(selected.Span, entry.Destination.Encoded);

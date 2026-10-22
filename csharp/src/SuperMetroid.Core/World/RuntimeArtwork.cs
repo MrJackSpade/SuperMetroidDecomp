@@ -454,6 +454,9 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     /// <summary>Host-selected visual block compositions, rebound after debugger-state restore.</summary>
     [field: NonSerialized]
     public RoomMetatileCatalog? RoomMetatileArt { get; set; }
+
+    /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>
+    public RoomBlockSheetCatalog? RoomBlockSheets { get; set; }
     /// <summary>Host-selected base room palettes, rebound after debugger-state restore.</summary>
     [field: NonSerialized]
     public RoomStaticPaletteCatalog? RoomPaletteArt { get; set; }

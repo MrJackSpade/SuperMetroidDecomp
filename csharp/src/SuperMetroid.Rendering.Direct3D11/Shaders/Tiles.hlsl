@@ -24,15 +24,19 @@ cbuffer TileParameters : register(b0)
 StructuredBuffer<uint> Memory : register(t0);
 // Published background layers (D3D11BgLayerBuffer): count, 6-word records, cells, then artwork characters.
 StructuredBuffer<uint> BgLayers : register(t2);
-// Room level planes (D3D11RoomLevelBuffer): BG1, BG2 and door-source plane records, the door window, the BG1 overlay.
+// Room level planes (D3D11RoomLevelBuffer): BG1, BG2 and door-source plane records, the door window, the BG1 overlay,
+// and the pre-coloured block pictures the planes' definitions show (#1392).
 StructuredBuffer<uint> RoomLevels : register(t3);
 // RoomSource: 0 samples the VRAM tilemap; otherwise the room's BG1 or BG2 as level data shows it, the sky's rows,
 // the BG3 plane, or a boss body's BG2 tilemap. RoomSourceBg2Overlay added to it lays words written over BG2 on top.
 static const uint RoomSourceBg1 = 1, RoomSourceBg2 = 2, RoomSourceSky = 3, RoomSourceBg3 = 4, RoomSourceMode7Map = 5;
 static const uint RoomSourceBossBg2 = 6;
 static const uint RoomSourceBg2Overlay = 256;
-static const uint RoomRecordWords = 6, RoomDoorSlot = 2, RoomDoorWindowWord = 18, RoomOverlayWord = 19, RoomSkyWord = 20;
-static const uint RoomBg3Word = 21, RoomBg2OverlayWord = 22, RoomMode7MapWord = 23, RoomBossBg2Word = 24;
+static const uint RoomRecordWords = 7, RoomDoorSlot = 2, RoomDoorWindowWord = 21, RoomOverlayWord = 22, RoomSkyWord = 23;
+static const uint RoomBg3Word = 24, RoomBg2OverlayWord = 25, RoomMode7MapWord = 26, RoomBossBg2Word = 27;
+// A block picture: its sheet's standard colours' offset, then its 16x16 colours, then each pixel's palette index and,
+// above it, its tile priority.
+static const uint PictureColoursWord = 0, PicturePixelsWord = 1, PictureIndicesWord = 257;
 RWTexture2D<uint> Output : register(u0);
 RWTexture2D<uint2> Objects : register(u1);
 
@@ -79,22 +83,34 @@ uint BgLayerColor(uint layer, uint2 screen)
         color |= (((BgLayerByte(artwork, row + 16) >> (7 - px)) & 1) << 2) | (((BgLayerByte(artwork, row + 17) >> (7 - px)) & 1) << 3);
     return color == 0 ? 0 : ((cell >> 16) & 7) * (1u << bpp) + color;
 }
-// The tile a room plane shows at a scrolled position, and the pixel within it; false outside the room. A mirrored
-// block shows its definition's opposite quadrant with that tile's own flip toggled (LevelBlockTilemapExpander).
-bool RoomPlaneTile(uint slot, uint2 scrolled, out uint entry, out uint2 within)
+// What a room plane shows at a scrolled position; false outside the room. A plane with pictures (#1392) shows its
+// block's picture, mirrored by the block's flips, and `within` is the picture pixel; otherwise it shows a tile and the
+// pixel within it, a mirrored block showing its definition's opposite quadrant with that tile's own flip toggled
+// (LevelBlockTilemapExpander).
+bool RoomPlaneTile(uint slot, uint2 scrolled, out uint entry, out uint2 within, out uint picture)
 {
     uint record = slot * RoomRecordWords;
     uint width = RoomLevels[record + 1], height = RoomLevels[record + 2];
     uint2 level = (scrolled - uint2(RoomLevels[record + 4], RoomLevels[record + 5])) & 65535;
     entry = 0;
+    picture = 0;
     within = level & 7;
     bool inside = level.x < width * 16 && level.y < height * 16;
     if (inside)
     {
         uint word = RoomLevels[RoomLevels[record] + (level.y >> 4) * width + (level.x >> 4)];
         uint h = (word >> 10) & 1, v = (word >> 11) & 1;
-        uint quadrant = ((((level.y >> 3) & 1) ^ v) << 1) | (((level.x >> 3) & 1) ^ h);
-        entry = RoomLevels[RoomLevels[record + 3] + (word & 1023) * 4 + quadrant] ^ (h << 14) ^ (v << 15);
+        uint pictures = RoomLevels[record + 6];
+        if (pictures != 0)
+        {
+            picture = RoomLevels[pictures + (word & 1023)];
+            within = uint2(h != 0 ? 15 - (level.x & 15) : level.x & 15, v != 0 ? 15 - (level.y & 15) : level.y & 15);
+        }
+        else
+        {
+            uint quadrant = ((((level.y >> 3) & 1) ^ v) << 1) | (((level.x >> 3) & 1) ^ h);
+            entry = RoomLevels[RoomLevels[record + 3] + (word & 1023) * 4 + quadrant] ^ (h << 14) ^ (v << 15);
+        }
     }
     return inside;
 }
@@ -134,9 +150,10 @@ uint BossBg2Word(uint2 scrolled, uint2 size, out uint2 within)
 }
 // BG2 from the room's layer-2 plane or the sky's rows, or BG1 as RoomBackgrounds resolves it: a door's source
 // screen, then words written over BG1, then the level plane.
-bool RoomTile(uint source, uint2 scrolled, out uint entry, out uint2 within)
+bool RoomTile(uint source, uint2 scrolled, out uint entry, out uint2 within, out uint picture)
 {
     entry = 0;
+    picture = 0;
     within = uint2(0, 0);
     scrolled &= 65535;
     uint slot = source == RoomSourceBg2 ? 1 : 0;
@@ -161,7 +178,7 @@ bool RoomTile(uint source, uint2 scrolled, out uint entry, out uint2 within)
     if (source == RoomSourceSky)
         shown = SkyTile(scrolled, entry, within);
     else if (!overlaid)
-        shown = RoomPlaneTile(slot, scrolled, entry, within);
+        shown = RoomPlaneTile(slot, scrolled, entry, within, picture);
     return shown;
 }
 uint Pack(uint3 c, uint alpha) { return c.r | (c.g << 8) | (c.b << 16) | (alpha << 24); }
@@ -171,6 +188,22 @@ uint Palette(uint index)
     uint word = Memory[PaletteOffset + index];
     uint3 c = uint3(word & 31, (word >> 5) & 31, (word >> 10) & 31);
     return Pack((c << 3) | (c >> 2), 255);
+}
+// A block picture's pixel (#1392): its background palette index (0 transparent), its tile priority, and its colour,
+// the picture's own while the pixel's palette row still holds its sheet's standard colours, else the row's live colour.
+uint PicturePixel(uint picture, uint2 pixel, out uint index, out bool high)
+{
+    uint at = pixel.y * 16 + pixel.x;
+    uint meta = RoomLevels[picture + PictureIndicesWord + at];
+    index = meta & 255;
+    high = (meta >> 8) != 0;
+    if (index == 0) return 0;
+    uint standard = RoomLevels[picture + PictureColoursWord];
+    uint row = index & ~15u;
+    bool same = true;
+    [loop] for (uint colour = 1; colour < 16; colour++)
+        same = same && (Memory[PaletteOffset + row + colour] & 32767) == RoomLevels[standard + row + colour];
+    return same ? RoomLevels[picture + PicturePixelsWord + at] : Palette(index);
 }
 
 #include "Objects.hlsli"
@@ -347,6 +380,7 @@ void Main(uint3 id : SV_DispatchThreadID)
     uint2 sampleScreen = id.xy;
     if (Operation == OpBg4 && Reserved27 > 1) sampleScreen -= sampleScreen % Reserved27;
     uint entry = 0;
+    uint picture = 0;
     uint2 within = uint2(0, 0);
     uint2 scrolled = (sampleScreen + scroll) & 65535;
     uint source = RoomSource & 255;
@@ -362,7 +396,7 @@ void Main(uint3 id : SV_DispatchThreadID)
         entry = BossBg2Word(scrolled, uint2(MapWidth, MapHeight), within);
     else if (source != 0)
     {
-        if (!RoomTile(source, scrolled, entry, within)) return;
+        if (!RoomTile(source, scrolled, entry, within, picture)) return;
     }
     else
     {
@@ -373,22 +407,35 @@ void Main(uint3 id : SV_DispatchThreadID)
         entry = ReadWord(TilemapWord + page + (tileY & 31) * 32 + (tileX & 31));
         within = uint2(x & 7, y & 7);
     }
-    if (PriorityFilter != 0 && ((entry >> 13) & 1) != PriorityFilter - 1) return;
-    uint sourceX = (entry & 16384) != 0 ? 7 - within.x : within.x;
-    uint sourceY = (entry & 32768) != 0 ? 7 - within.y : within.y;
     bool fourBpp = Operation == OpBg4 || (Operation == OpSubscreenAdd && Reserved27 != 0);
-    uint stride = fourBpp ? 16 : 8;
-    uint row = ((CharacterWord + (entry & 1023) * stride) & 32767) * 2 + sourceY * 2;
-    uint shift = 7 - sourceX;
-    uint color = ((ReadByte(row) >> shift) & 1) | (((ReadByte(row + 1) >> shift) & 1) << 1);
-    if (fourBpp)
-        color |= (((ReadByte(row + 16) >> shift) & 1) << 2) | (((ReadByte(row + 17) >> shift) & 1) << 3);
+    uint color;
+    bool high;
+    uint sampled;
+    if (picture != 0)
+    {
+        // A block picture keeps no row for its transparent pixels; room planes show colour zero as transparent.
+        sampled = PicturePixel(picture, within, color, high);
+        if (PriorityFilter != 0 && (high ? 1u : 0u) != PriorityFilter - 1) return;
+    }
+    else
+    {
+        high = (entry & 8192) != 0;
+        if (PriorityFilter != 0 && (high ? 1u : 0u) != PriorityFilter - 1) return;
+        uint sourceX = (entry & 16384) != 0 ? 7 - within.x : within.x;
+        uint sourceY = (entry & 32768) != 0 ? 7 - within.y : within.y;
+        uint stride = fourBpp ? 16 : 8;
+        uint row = ((CharacterWord + (entry & 1023) * stride) & 32767) * 2 + sourceY * 2;
+        uint shift = 7 - sourceX;
+        color = ((ReadByte(row) >> shift) & 1) | (((ReadByte(row + 1) >> shift) & 1) << 1);
+        if (fourBpp)
+            color |= (((ReadByte(row + 16) >> shift) & 1) << 2) | (((ReadByte(row + 17) >> shift) & 1) << 3);
+        sampled = Palette(((entry >> 10) & 7) * (fourBpp ? 16 : 4) + color);
+    }
     bool objectSubscreen = Operation == OpSubscreenAdd && AddR != 0;
     uint2 subObject = objectSubscreen ? Objects[id.xy] : uint2(0, 255);
     bool objectWins = objectSubscreen && subObject.y != 255 &&
-        (color == 0 || subObject.y >= ((entry & 8192) != 0 ? 3 : 2));
+        (color == 0 || subObject.y >= (high ? 3u : 2u));
     if (color == 0 && TransparentZero != 0 && !objectWins) return;
-    uint sampled = Palette(((entry >> 10) & 7) * (fourBpp ? 16 : 4) + color);
     if (objectWins) sampled = subObject.x;
     if (Operation == OpSubscreenAdd)
     {

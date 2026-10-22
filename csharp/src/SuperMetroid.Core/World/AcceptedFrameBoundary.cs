@@ -4,11 +4,11 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
@@ -56,6 +56,9 @@ internal sealed class AcceptedFrameBoundary
     private readonly HudState _hud;
     /// <summary>Supplies the loaded room, door, and scrolling sky whose register shadows are latched.</summary>
     private readonly ActiveRoomState _room;
+
+    /// <summary>The background character bindings the room's block pictures are resolved over (#1392).</summary>
+    private readonly BgArtworkBindings _backgrounds;
     /// <summary>Supplies the suit pickup whose COLDATA color is latched.</summary>
     private readonly SamusSuitPickupState _suitPickup;
     /// <summary>Supplies the frozen X-ray reveal map the publication latches.</summary>
@@ -76,6 +79,7 @@ internal sealed class AcceptedFrameBoundary
         _sprites = dependencies.Sprites;
         _player = dependencies.Player;
         _room = dependencies.Room;
+        _backgrounds = dependencies.Backgrounds;
         _roomFx = dependencies.RoomFx;
         _hud = dependencies.Hud;
         _suitPickup = dependencies.SuitPickup;
@@ -151,6 +155,9 @@ internal sealed class AcceptedFrameBoundary
             CaptureRoomBackgrounds());
         _artwork.PublishReboundHudArtwork();
         _drainQueuedVramWrites();
+        // The planes' blocks show what this NMI's uploads bound, as the characters they read did (#1392).
+        if (_display.Latched.Rooms is { } rooms)
+            _display.Latched = _display.Latched with { Rooms = WithBlockPictures(rooms) };
         // The displayed enemy-format draws show the OBJ characters this frame's uploads bound, as the OAM it latched
         // reads the VRAM those uploads wrote.
         if (_displayedSprites.Shows(SpriteArtworkKind.GameplayObjects))
@@ -214,20 +221,31 @@ internal sealed class AcceptedFrameBoundary
             return null;
         RoomLevelData level = scope.LevelData;
         Layer2ScrollModes layer2 = _backgroundScroll.Layer2Scroll;
+        // Each plane's pictures are resolved once this NMI's uploads have bound (WithBlockPictures).
         return new RoomBackgrounds(
-            new RoomBackgroundLayer(level.ForegroundPlane, _backgroundScroll.Bg1Offset.AsBgPlaneOffset()),
+            new RoomBackgroundLayer(level.ForegroundPlane, _backgroundScroll.Bg1Offset.AsBgPlaneOffset(), null),
             layer2.Horizontal.Streams || layer2.Vertical.Streams
-                ? new RoomBackgroundLayer(level.BackgroundPlane, _backgroundScroll.Bg2Offset.AsBgPlaneOffset())
+                ? new RoomBackgroundLayer(level.BackgroundPlane, _backgroundScroll.Bg2Offset.AsBgPlaneOffset(), null)
                 : null,
             CaptureLayer3Plane(),
             _room.DoorSourceBackground,
             scope.Bg1Overlay,
             Bg2Overlay: scope.Bg2Overlay,
             Mode7: scope.Mode7Map?.Publish(),
-            // Setup ASM $8F:C97B points the Ceres Ridley arena's BG1 and BG2 at the object character page (#1357).
-            Characters: _room.ActiveRoom?.State.SetupCallback == RoomSetupCallback.SetCeresRidleyBgCharacterBaseAndSpawnHaze
-                ? RoomBackgroundCharacters.ObjectCharacterPage
-                : RoomBackgroundCharacters.Tileset);
+            Characters: RoomScope.CharactersOf(_room.ActiveRoom));
+    }
+
+    /// <summary>
+    /// <paramref name="rooms"/> with its BG1 and BG2 planes showing the pictures their blocks show over what the bindings
+    /// show now (#1392); unchanged while its planes draw from the object character page.
+    /// </summary>
+    private RoomBackgrounds WithBlockPictures(RoomBackgrounds rooms)
+    {
+        if (rooms.Characters != RoomBackgroundCharacters.Tileset)
+            return rooms;
+        RoomScope scope = _room.Scope ?? throw new InvalidOperationException("Room backgrounds were captured with no room loaded.");
+        RoomBlockPictureTable pictures = scope.BlockPictures.Resolve(rooms.Bg1.Plane, rooms.Bg2?.Plane, _backgrounds);
+        return rooms with { Bg1 = rooms.Bg1 with { Pictures = pictures }, Bg2 = rooms.Bg2 is { } bg2 ? bg2 with { Pictures = pictures } : null };
     }
 
     /// <summary>

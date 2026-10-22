@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -104,6 +105,7 @@ internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeR
         LoadStation = LoadStation,
         LevelData = LevelData ?? throw Missing(nameof(LevelData)),
         Camera = Camera ?? throw Missing(nameof(Camera)),
+        BlockPictures = new RoomBlockPictureResolver(Assets.BlockSheet),
         ScrollingSky = ScrollingSky,
         Mode7Map = Mode7Map,
         LandingSiteEntry = LandingSiteEntry,

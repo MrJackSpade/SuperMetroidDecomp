@@ -1,13 +1,14 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// A finished, pre-coloured image the installation provides: a sheet of an actor's frames or one part's image, coloured
-/// with its standard palette. Beside the pixels it keeps each pixel's sprite palette row and colour, and the standard
-/// colours of those rows, so a palette effect that changes a row's colours recolours the image as it did the characters.
+/// A finished, pre-coloured image the installation provides: a sheet of an actor's frames or one part's image, or a
+/// sheet of a room tileset's blocks, coloured with its standard palette. Beside the pixels it keeps each pixel's palette
+/// row and colour, and the standard colours of those rows, so a palette effect that changes a row's colours recolours the
+/// image as it did the characters.
 /// </summary>
 public sealed class SpriteImage
 {
-    /// <summary>The sprite colours of the eight OBJ palette rows, sixteen each.</summary>
+    /// <summary>The colours of one half of CGRAM's eight palette rows, sixteen each.</summary>
     public const int SpriteColourCount = 128;
 
     /// <summary>The pixels, row by row from the top.</summary>
@@ -33,16 +34,20 @@ public sealed class SpriteImage
     /// <param name="size">The image's width and height in pixels; both are positive.</param>
     /// <param name="pixels">Width times height pixels, row by row from the top; a pixel with zero alpha is transparent.</param>
     /// <param name="paletteIndices">Each pixel's palette row times sixteen plus its colour, zero where transparent.</param>
-    /// <param name="standardColours">The 128 sprite colours the pixels were coloured with.</param>
-    /// <param name="priorities">Each pixel's priority against the backgrounds 0..3.</param>
+    /// <param name="palette">Which half of CGRAM the palette indices name, and the 128 colours of it the pixels were coloured with.</param>
+    /// <param name="priorities">Each pixel's priority against the backgrounds 0..3, or a background pixel's tile priority 0..1.</param>
     /// <param name="partRows">
     /// Each pixel's part palette row 0..7, before a draw's palette bits were ORed into it, with <see cref="FixedPartRow"/>
     /// where the part keeps its own row under a draw's override.
     /// </param>
     /// <exception cref="ArgumentException">The name is empty, a dimension is zero, a length does not match or a priority exceeds 3.</exception>
     public SpriteImage(string name, Extent16<ImagePixels> size, ReadOnlySpan<Rgba32> pixels, ReadOnlySpan<byte> paletteIndices,
-        ReadOnlySpan<Bgr555> standardColours, ReadOnlySpan<byte> priorities, ReadOnlySpan<byte> partRows)
+        SpriteImagePalette palette, ReadOnlySpan<byte> priorities, ReadOnlySpan<byte> partRows)
     {
+        Ensure.NotNull(palette);
+        if (!Enum.IsDefined(palette.Half))
+            throw new ArgumentException($"Sprite image {name} names no half of CGRAM.", nameof(palette));
+        ReadOnlySpan<Bgr555> standardColours = palette.Standard.AsSpan();
         ArgumentException.ThrowIfNullOrEmpty(name);
         if (size.X == 0 || size.Y == 0)
             throw new ArgumentException($"Sprite image {name} has no pixels.", nameof(size));
@@ -63,6 +68,7 @@ public sealed class SpriteImage
         }
         Name = name;
         Size = size;
+        Colours = palette.Half;
         this.pixels = pixels.ToArray();
         this.paletteIndices = paletteIndices.ToArray();
         this.standardColours = standardColours.ToArray();
@@ -89,13 +95,19 @@ public sealed class SpriteImage
     /// <summary>The image's width and height in pixels.</summary>
     public Extent16<ImagePixels> Size { get; }
 
+    /// <summary>Which half of CGRAM the palette indices name.</summary>
+    public SpriteImageColours Colours { get; }
+
+    /// <summary>The CGRAM colour palette index zero names: 128 for a sprite image, 0 for a background one.</summary>
+    public int FirstColour => Colours == SpriteImageColours.Sprite ? SpriteColourCount : 0;
+
     /// <summary>The pixels, row by row from the top; a pixel with zero alpha is transparent.</summary>
     public ReadOnlySpan<Rgba32> Pixels => pixels;
 
     /// <summary>Each pixel's palette row times sixteen plus its colour, zero where transparent.</summary>
     public ReadOnlySpan<byte> PaletteIndices => paletteIndices;
 
-    /// <summary>The 128 sprite colours the pixels were coloured with.</summary>
+    /// <summary>The 128 colours of the image's half of CGRAM the pixels were coloured with.</summary>
     public ReadOnlySpan<Bgr555> StandardColours => standardColours;
 
     /// <summary>Each pixel's priority against the backgrounds 0..3, as the part that shows it had it.</summary>

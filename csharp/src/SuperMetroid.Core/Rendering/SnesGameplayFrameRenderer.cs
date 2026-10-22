@@ -137,8 +137,10 @@ public static class SnesGameplayFrameRenderer
 
         // BG1 comes from the room backgrounds; BG2 from the room's layer-2 plane or the sky's rows, or the
         // tilemap its owner loaded when it has neither, under any words written over it (#1346, #1347, #1348).
-        IBgTileSource bg1 = layer.Rooms.Bg1Source;
-        IBgTileSource bg2 = layer.Rooms.Bg2Shown(new VramBgTilemap(vram, bg2TilemapBaseWord, bg2TilemapSize), bg2TilemapSize);
+        IBgSource bg1 = layer.Rooms.Bg1Source;
+        IBgSource bg2 = layer.Rooms.Bg2Shown(new VramBgTilemap(vram, bg2TilemapBaseWord, bg2TilemapSize), bg2TilemapSize);
+        // Room blocks draw from their pre-coloured pictures (#1392), recoloured where a palette effect changed a row.
+        var pictures = new BgPicturePixels(cgram);
         for (int screenY = HudHeight; screenY < Height; screenY++)
         {
             SnesMainScreenLayers activeLayers = mainScreenLayersByLine.IsEmpty ? mainScreenLayers
@@ -167,15 +169,8 @@ public static class SnesGameplayFrameRenderer
 
                 if (bg2Enabled && (windowMasks[screenX] & SnesMainScreenLayers.Bg2) == 0 &&
                     bg2.TrySample(new Position16<BgPlanePixels>(
-                        unchecked((ushort)bg2Mosaic.SourceX(screenX, activeBg2HorizontalScroll)), bg2ScrolledY), out BgTileSample bg2Sample) &&
-                    TryDecodeOrdinaryGameplayBgPixel(
-                        vramBytes,
-                        palette,
-                        bg2Sample.Tile,
-                        bg2CharacterBaseWord,
-                        bg2Sample.Pixel,
-                        out Rgba32 bg2Color,
-                        out bool bg2High))
+                        unchecked((ushort)bg2Mosaic.SourceX(screenX, activeBg2HorizontalScroll)), bg2ScrolledY), out BgSample bg2Sample) &&
+                    TryDecodeGameplayBgSample(vramBytes, palette, pictures, bg2Sample, bg2CharacterBaseWord, out Rgba32 bg2Color, out bool bg2High))
                 {
                     winner = bg2Color;
                     winnerRank = bg2High ? 6 : 3;
@@ -183,15 +178,8 @@ public static class SnesGameplayFrameRenderer
 
                 if (bg1Enabled && (windowMasks[screenX] & SnesMainScreenLayers.Bg1) == 0 &&
                     bg1.TrySample(new Position16<BgPlanePixels>(
-                        unchecked((ushort)(bg1Scroll.X + screenX)), bg1ScrolledY), out BgTileSample bg1Sample) &&
-                    TryDecodeOrdinaryGameplayBgPixel(
-                        vramBytes,
-                        palette,
-                        bg1Sample.Tile,
-                        bg1CharacterBaseWord,
-                        bg1Sample.Pixel,
-                        out Rgba32 bg1Color,
-                        out bool bg1High))
+                        unchecked((ushort)(bg1Scroll.X + screenX)), bg1ScrolledY), out BgSample bg1Sample) &&
+                    TryDecodeGameplayBgSample(vramBytes, palette, pictures, bg1Sample, bg1CharacterBaseWord, out Rgba32 bg1Color, out bool bg1High))
                 {
                     int bg1Rank = bg1High ? 7 : 4;
                     if (bg1Rank > winnerRank)
@@ -225,6 +213,15 @@ public static class SnesGameplayFrameRenderer
             }
         }
     }
+
+    /// <summary>Decodes a BG sample: a block picture's pixel, or a four-bit tile pixel from the characters.</summary>
+    [System.Runtime.CompilerServices.MethodImpl(
+        System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+    private static bool TryDecodeGameplayBgSample(ReadOnlySpan<byte> vram, ReadOnlySpan<Rgba32> palette, BgPicturePixels pictures,
+        in BgSample sample, int characterBaseWord, out Rgba32 color, out bool highPriority) =>
+        sample.Picture is null
+            ? TryDecodeOrdinaryGameplayBgPixel(vram, palette, sample.Tile.Tile, characterBaseWord, sample.Tile.Pixel, out color, out highPriority)
+            : pictures.TryDecode(sample, palette, out color, out highPriority);
 
     /// <summary>Decodes a four-bit BG tile pixel, reporting transparency and the tile's priority bit alongside its CGRAM color.</summary>
     [System.Runtime.CompilerServices.MethodImpl(

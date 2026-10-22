@@ -1,8 +1,11 @@
 using System.Collections.Immutable;
 using System.Buffers.Binary;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
@@ -53,7 +56,67 @@ internal static class RoomBackgroundsFixtures
             blocks[block] = index;
         }
         return new(new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(SideBlocks, SideBlocks),
-            blocks, [.. definitions]), default), null, BlankBg3());
+            blocks, [.. definitions]), default, null), null, BlankBg3());
+    }
+
+    /// <summary>Block pictures on one seeded sheet.</summary>
+    private const int SeededPictureCount = 16;
+
+    /// <summary>
+    /// A seeded sheet of block pictures, some pixels transparent, of either tile priority and in every row, and a table
+    /// showing one of them for each definition. Even rows' standard colours are <paramref name="scene"/>'s, odd rows'
+    /// differ, so a renderer shows the pictures' own colours for some rows and the scene's for others.
+    /// </summary>
+    private static RoomBlockPictureTable SeededPictures(Random random, Bgr555[] scene)
+    {
+        int side = RoomBlockSheet.BlockPixels, columns = 4;
+        var size = new Extent16<ImagePixels>((ushort)(columns * side), (ushort)(SeededPictureCount / columns * side));
+        var standard = new ushort[SpriteImage.SpriteColourCount];
+        for (int colour = 0; colour < standard.Length; colour++)
+            standard[colour] = colour / 16 % 2 == 0 ? scene[colour].ToWord() : (ushort)random.Next(32768);
+        int pixels = size.X * size.Y;
+        var image = new Rgba32[pixels];
+        var indices = new byte[pixels];
+        var priorities = new byte[pixels];
+        var partRows = new byte[pixels];
+        for (int pixel = 0; pixel < pixels; pixel++)
+        {
+            if (random.Next(3) == 0)
+                continue;
+            int row = random.Next(8);
+            indices[pixel] = (byte)(row * 16 + random.Next(1, 16));
+            priorities[pixel] = (byte)random.Next(2);
+            partRows[pixel] = (byte)(row | SpriteImage.FixedPartRow);
+            image[pixel] = Bgr555.FromWord(standard[indices[pixel]]).ToRgba32();
+        }
+        var frames = new Dictionary<string, SpriteSheetFrameDocument>();
+        for (int picture = 0; picture < SeededPictureCount; picture++)
+        {
+            var corner = new Position16<ImagePixels>((ushort)(picture % columns * side), (ushort)(picture / columns * side));
+            SpritePaletteRows rows = SpritePaletteRows.None;
+            for (int y = 0; y < side; y++)
+            for (int x = 0; x < side; x++)
+            {
+                byte index = indices[(corner.Y + y) * size.X + corner.X + x];
+                if (index != 0)
+                    rows |= SpritePaletteRowSet.Rows[index / 16];
+            }
+            frames.Add($"{picture}", new SpriteSheetFrameDocument { Corner = corner, Size = new((ushort)side, (ushort)side), Origin = default, Rows = rows, Parts = [] });
+        }
+        var document = new SpriteSheetDocument
+        {
+            Version = SpriteSheet.Version,
+            Palette = SpriteImageColours.Background,
+            Colours = standard,
+            Frames = frames,
+            PartImages = [],
+        };
+        SpriteSheet sheet = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(document), writable: false), "seeded blocks", size, image,
+            indices, priorities, partRows);
+        var shown = new SpriteSheetFrame?[Definitions];
+        for (int definition = 0; definition < shown.Length; definition++)
+            shown[definition] = sheet.Frame($"{random.Next(SeededPictureCount)}");
+        return new RoomBlockPictureTable(new RoomBlockSheet(default(TilesetDefinition), sheet), shown);
     }
 
     /// <summary>
@@ -66,8 +129,12 @@ internal static class RoomBackgroundsFixtures
     /// <param name="bg2Scroll">The BG2 scroll registers, or null for no BG2 plane.</param>
     /// <param name="door">Whether a door's source screen covers part of BG1.</param>
     /// <param name="overlay">Whether words are written over part of BG1.</param>
+    /// <param name="pictureColours">
+    /// The scene's 256 CGRAM colours when the planes draw from seeded block pictures (#1392), whose even rows keep these
+    /// colours as standard and whose odd rows differ, as under a palette effect; null for planes drawn from characters.
+    /// </param>
     internal static RoomBackgrounds Seeded(Random random, Position16<BgPlanePixels> bg1Scroll,
-        Position16<BgPlanePixels>? bg2Scroll = null, bool door = false, bool overlay = false)
+        Position16<BgPlanePixels>? bg2Scroll = null, bool door = false, bool overlay = false, Bgr555[]? pictureColours = null)
     {
         var bytes = new byte[Definitions * RoomLevelPlane.DefinitionBytes];
         random.NextBytes(bytes);
@@ -80,7 +147,7 @@ internal static class RoomBackgroundsFixtures
             var inside = new Position16<BgPlanePixels>((ushort)random.Next(SideBlocks * RoomLevelPlane.BlockPixels / 2),
                 (ushort)random.Next(SideBlocks * RoomLevelPlane.BlockPixels / 2));
             return new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(SideBlocks, SideBlocks), blocks, definitions),
-                scroll - inside);
+                scroll - inside, pictureColours is null ? null : SeededPictures(random, pictureColours));
         }
         RoomBackgroundLayer bg1 = Layer(bg1Scroll);
         RoomBackgroundLayer? bg2 = bg2Scroll is { } scroll2 ? Layer(scroll2) : null;

@@ -146,7 +146,7 @@ internal static class RoomBlockUploads
             for (int slot = 0; slot < CollectiblePlms.GraphicsSlots; slot++)
                 yield return new CollectibleSlotUpload(
                     CollectiblePlms.SlotUpload(RoomBgArtwork.Collectible(graphic.Kind), slot, graphic.Tiles),
-                    CollectiblePlms.FirstSlotDefinition(slot), CollectiblePlms.SlotDefinitions(slot, graphic.PaletteOffsets.Span));
+                    CollectiblePlms.SlotDefinitions(slot, graphic.PaletteOffsets.Span));
         }
     }
 
@@ -185,7 +185,6 @@ internal static class RoomBlockUploads
 
     /// <summary>A collectible's graphics bound in one slot and the block definitions it writes there.</summary>
     /// <param name="Upload">The graphics bound.</param>
-    /// <param name="FirstDefinition">The first block definition written.</param>
     /// <param name="Words">The tile words written, four per definition.</param>
-    internal sealed record CollectibleSlotUpload(BgCharacterUpload Upload, int FirstDefinition, ushort[] Words);
+    internal sealed record CollectibleSlotUpload(BgCharacterUpload Upload, ushort[] Words);
 }

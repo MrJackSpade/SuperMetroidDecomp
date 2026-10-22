@@ -307,10 +307,6 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     /// <summary>The collectible graphic slots instruction <c>$84:8764</c> rotates through.</summary>
     internal const int GraphicsSlots = 4;
 
-    /// <summary>The first block definition one collectible slot's frames are written to.</summary>
-    internal static int FirstSlotDefinition(int graphicsSlot) =>
-        (CollectibleDynamicGraphicsDefinitions.FirstBlockDefinitionWord + graphicsSlot * SlotDefinitionWords) / RoomBlockPictureNames.Tiles;
-
     /// <summary>Binds <paramref name="graphics"/>, a collectible's two frames, over the characters of slot <paramref name="graphicsSlot"/> (#1350).</summary>
     [PpuLayoutBoundary("codec: the collectible character slots' native VRAM words")]
     internal static BgCharacterUpload SlotUpload(BgArtworkIdentity identity, int graphicsSlot, ReadOnlyMemory<byte> graphics) =>

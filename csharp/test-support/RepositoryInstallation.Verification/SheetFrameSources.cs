@@ -26,6 +26,20 @@ internal static class SheetFrameSources
         Add(sources.Value, sheet, composed);
     }
 
+    /// <summary>
+    /// Pairs one image a fixture pictures from OBJ characters with its composition over <paramref name="page"/>, its parts
+    /// naming their own palette rows.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">An image of the same name, rectangle and origin is registered already.</exception>
+    internal static void Register(SpriteSheetFrame image, SpriteFrame composition, SpriteArtwork page, ScreenObjectSizes sizes)
+    {
+        Ensure.NotNull(image);
+        Ensure.NotNull(composition);
+        Ensure.NotNull(page);
+        if (!sources.Value.TryAdd(Key(image), new FrameSource(composition, page, 0, null, true, sizes)))
+            throw new InvalidOperationException($"Image {image.Sheet.Name} is registered already.");
+    }
+
     /// <summary>Pairs each of <paramref name="sheet"/>'s frames with what it was composed from; frames already paired keep theirs.</summary>
     private static void Add(System.Collections.Concurrent.ConcurrentDictionary<FrameKey, FrameSource> target, SpriteSheet sheet,
         SpriteSheetSources composed)

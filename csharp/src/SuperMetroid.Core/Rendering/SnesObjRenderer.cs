@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>Software projection of whole-frame sprite draws into an RGBA frame, each read from its bound artwork.</summary>
+/// <summary>Software projection of whole-frame sprite draws into an RGBA frame, each a pre-coloured image (#1392).</summary>
 [PpuLayoutBoundary("backend: software OBJ rasterizer reading the OBJ palette rows of CGRAM")]
 public static class SnesObjRenderer
 {
@@ -79,9 +79,7 @@ public static class SnesObjRenderer
     private static void DrawEntry(Extent16<ScreenPixels> frame, SpriteDraw draw, IPaletteColors cgram,
         int? selectedPriority, ObjRasterTargets targets)
     {
-        if (draw is CharacterSpriteDraw character)
-            DrawCharacters(frame, character, cgram, selectedPriority, targets);
-        else if (draw is ImageSpriteDraw image)
+        if (draw is ImageSpriteDraw image)
             DrawImage(frame, image, cgram, selectedPriority, targets);
         else
             throw new InvalidDataException($"The software renderer cannot draw a {draw.GetType().Name}.");
@@ -133,35 +131,6 @@ public static class SnesObjRenderer
                     pixel = cgram.GetRgba(SpriteColours + index);
                 }
                 Plot(screenY * frame.X + screenX, pixel, pixelRow, draw.PriorityAt(new(x, y)), selectedPriority, targets);
-            }
-        }
-    }
-
-    /// <summary>Rasterizes one character draw from its bound artwork, last part first so the first part ends in front.</summary>
-    private static void DrawCharacters(Extent16<ScreenPixels> frame, CharacterSpriteDraw draw, IPaletteColors cgram,
-        int? selectedPriority, ObjRasterTargets targets)
-    {
-        for (int index = draw.Frame.Parts.Length - 1; index >= 0; index--)
-        {
-            SpriteScreenPart part = draw.Place(index);
-            for (ushort row = 0; row < part.Size.Y; row++)
-            {
-                int screenY = part.Position.Y + row;
-                if ((uint)screenY >= frame.Y)
-                    continue;
-                for (ushort column = 0; column < part.Size.X; column++)
-                {
-                    int screenX = part.Position.X + column;
-                    if ((uint)screenX >= frame.X)
-                        continue;
-                    int character = part.CharacterAt(new(column, row), out Position16<CharacterPixels> pixel);
-                    byte colorIndex = draw.Artwork.ColorIndex(character, pixel);
-                    // OBJ palettes live in the upper half of CGRAM. Each OBJ palette number
-                    // selects one 16-color row: 128 + palette*16 + the 4-bpp pixel value.
-                    if (colorIndex != 0)
-                        Plot(screenY * frame.X + screenX, cgram.GetRgba(128 + part.Palette * 16 + colorIndex), (byte)part.Palette,
-                            (byte)part.Priority, selectedPriority, targets);
-                }
             }
         }
     }

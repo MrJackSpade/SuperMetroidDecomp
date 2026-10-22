@@ -101,6 +101,15 @@ internal static class EnemySheetFilesVerification
         return raster;
     }
 
+    /// <summary>Renders the cartridge's character composition alone.</summary>
+    private static Raster Render(CharacterSpriteDraw draw, SnesCgram cgram)
+    {
+        int count = SnesPpuLayout.ScreenSize.X * SnesPpuLayout.ScreenSize.Y;
+        var raster = new Raster(new Rgba32[count], new byte[count], new byte[count]);
+        CharacterSpriteRaster.RenderResolved([draw], cgram, new ObjRasterTargets(raster.Pixels, raster.Priorities, raster.Palettes));
+        return raster;
+    }
+
     /// <summary>One rendered screen.</summary>
     /// <param name="Pixels">Colours, row by row.</param>
     /// <param name="Priorities">Each pixel's winning priority, or transparent.</param>

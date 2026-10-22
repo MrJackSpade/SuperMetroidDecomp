@@ -15,6 +15,7 @@ using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationAssert;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
 

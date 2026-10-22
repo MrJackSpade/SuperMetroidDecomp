@@ -20,4 +20,16 @@ public readonly record struct SpriteFramePart(
     /// <summary>The highest character index this part reads in its artwork.</summary>
     public int LastCharacter =>
         Character + (Size.Y / SpriteArtwork.CharacterPixels - 1) * SpriteArtwork.CharactersPerRow + Size.X / SpriteArtwork.CharacterPixels - 1;
+
+    /// <summary>The artwork character holding a pixel of this part, from its position inside the part's rectangle.</summary>
+    /// <param name="cell">Pixel inside the part, before the part's own mirroring.</param>
+    /// <param name="pixel">The pixel's position inside the returned character.</param>
+    public int CharacterAt(Position16<ScreenPixels> cell, out Position16<CharacterPixels> pixel)
+    {
+        int sourceX = (Flip & SnesTileFlipFlags.Horizontal) != 0 ? Size.X - 1 - cell.X : cell.X;
+        int sourceY = (Flip & SnesTileFlipFlags.Vertical) != 0 ? Size.Y - 1 - cell.Y : cell.Y;
+        pixel = new((ushort)(sourceX % SpriteArtwork.CharacterPixels), (ushort)(sourceY % SpriteArtwork.CharacterPixels));
+        return Character + sourceY / SpriteArtwork.CharacterPixels * SpriteArtwork.CharactersPerRow
+            + sourceX / SpriteArtwork.CharacterPixels;
+    }
 }

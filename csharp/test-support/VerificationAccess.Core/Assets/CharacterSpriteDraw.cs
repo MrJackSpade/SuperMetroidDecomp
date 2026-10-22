@@ -1,10 +1,12 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// A sprite draw composed from character artwork: source X showing frame Y at position P, with flip, palette and
-/// priority, read from bound characters. Draws move to pre-coloured images (#1392).
+/// Verification oracle (#1392): a frame composed from character artwork as the cartridge composes it, source X showing
+/// frame Y at position P with flip, palette and priority, read from bound characters. Gameplay draws pre-coloured
+/// images; checks compare each with this composition through <see cref="SuperMetroid.Core.Rendering.CharacterSpriteRaster"/>.
 /// </summary>
-public sealed record CharacterSpriteDraw : SpriteDraw
+internal sealed record CharacterSpriteDraw
 {
     /// <summary>Checks that the frame reads only characters the artwork has, so a bad binding fails where it is made.</summary>
     /// <param name="source">The actor or display element shown.</param>
@@ -18,7 +20,6 @@ public sealed record CharacterSpriteDraw : SpriteDraw
     /// <exception cref="ArgumentException">The frame reads a character beyond the artwork.</exception>
     public CharacterSpriteDraw(SpriteSource source, SpriteFrame frame, SpriteArtwork artwork, Position16<ScreenPixels> origin,
         SnesTileFlipFlags flip, int palette, int priority)
-        : base(source, origin)
     {
         Ensure.NotNull(frame);
         Ensure.NotNull(artwork);
@@ -26,6 +27,8 @@ public sealed record CharacterSpriteDraw : SpriteDraw
         if (priority is < 0 or > 3) throw new ArgumentOutOfRangeException(nameof(priority), priority, "OBJ priorities are 0..3.");
         if (frame.LastCharacter >= artwork.CharacterCount)
             throw new ArgumentException($"Frame {frame.Name} reads character {frame.LastCharacter}; artwork {artwork.Id} has {artwork.CharacterCount}.", nameof(frame));
+        Source = source;
+        Origin = origin;
         Frame = frame;
         Artwork = artwork;
         Flip = flip;
@@ -36,6 +39,12 @@ public sealed record CharacterSpriteDraw : SpriteDraw
     /// <summary>Priority against the backgrounds 0..3 for parts that do not choose their own; validated by the constructor.</summary>
     public int Priority { get; }
 
+    /// <summary>The actor or display element shown.</summary>
+    public SpriteSource Source { get; }
+
+    /// <summary>The frame origin in screen pixels; each coordinate is a signed 16-bit value.</summary>
+    public Position16<ScreenPixels> Origin { get; }
+
     /// <summary>The whole frame shown.</summary>
     public SpriteFrame Frame { get; }
     /// <summary>The artwork the frame's characters index.</summary>
@@ -44,10 +53,6 @@ public sealed record CharacterSpriteDraw : SpriteDraw
     public SnesTileFlipFlags Flip { get; }
     /// <summary>OBJ palette row 0..7 for parts that do not choose their own; validated by the constructor.</summary>
     public int Palette { get; }
-
-    /// <summary>The same draw over other artwork of the same layout, which must hold every character the frame reads.</summary>
-    /// <param name="artwork">The artwork the draw now reads.</param>
-    public CharacterSpriteDraw WithArtwork(SpriteArtwork artwork) => new(Source, Frame, artwork, Origin, Flip, Palette, Priority);
 
     /// <summary>Names the draw for debugger watches: source, frame and signed origin.</summary>
     public override string ToString() =>

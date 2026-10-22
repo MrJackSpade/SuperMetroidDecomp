@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.VerificationAssert;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -21,7 +22,7 @@ internal static class UploadedPictureChecks
     /// every pixel's colour, palette row and priority, with at least one pixel painted.
     /// </summary>
     internal static void AssertPaintsLikeParts(SuperMetroidRuntime runtime, ImmutableArray<SpriteDraw> pictures,
-        ImmutableArray<SpriteDraw> parts, string message)
+        ImmutableArray<CharacterSpriteDraw> parts, string message)
     {
         AssertTrue(pictures.Length > 0 && pictures.All(draw => draw is ImageSpriteDraw), $"{message}: draws from a sheet");
         var cgram = new SnesCgram();
@@ -30,7 +31,7 @@ internal static class UploadedPictureChecks
         int count = SnesPpuLayout.ScreenSize.X * SnesPpuLayout.ScreenSize.Y;
         var expected = new ObjRasterTargets(new Rgba32[count], new byte[count], new byte[count]);
         var actual = new ObjRasterTargets(new Rgba32[count], new byte[count], new byte[count]);
-        SnesObjRenderer.RenderResolved(parts, cgram, expected);
+        CharacterSpriteRaster.RenderResolved(parts, cgram, expected);
         SnesObjRenderer.RenderResolved(pictures, cgram, actual);
         int painted = 0;
         for (int pixel = 0; pixel < count; pixel++)
@@ -54,7 +55,7 @@ internal static class UploadedPictureChecks
     {
         SpriteArtwork live = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.ObjCharacters);
         AssertPaintsLikeParts(runtime, pictures,
-            [.. pictures.Select(draw => (SpriteDraw)SheetFrameSources.CharacterDraw(AssertIs<ImageSpriteDraw>(draw, $"{message}: draws from a sheet"), live))],
+            [.. pictures.Select(draw => SheetFrameSources.CharacterDraw(AssertIs<ImageSpriteDraw>(draw, $"{message}: draws from a sheet"), live))],
             message);
     }
 

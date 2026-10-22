@@ -40,18 +40,25 @@ internal static class SpriteFrameBufferAccess
         /// </summary>
         internal OamBuffer FinalizedAsOam() => sprites.AssembledOam(parkUnused: true);
 
-        /// <summary>Assembles the finalized frame's draw parts in emission order.</summary>
-        [PpuLayoutBoundary("exact hardware test: rebuilds native OAM tables from whole-frame draws")]
-        internal OamBuffer AssembledOam(bool parkUnused)
+        /// <summary>Assembles the finalized frame's draw parts in emission order, each image draw standing for its composition.</summary>
+        internal OamBuffer AssembledOam(bool parkUnused) =>
+            Assemble([.. sprites.Draws.Select(drawn => SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.CharacterDraw((ImageSpriteDraw)drawn))], parkUnused);
+    }
+
+    /// <summary>
+    /// The OAM image <paramref name="compositions"/> stand for: their parts in order, each naming OBJ character artwork-base
+    /// + character, its coordinates wrapped to OAM's nine-bit X and eight-bit Y, 16-pixel parts large. Unused records
+    /// stay zero, or are parked at Y=$F0 as `$80:896E` leaves them.
+    /// </summary>
+    [PpuLayoutBoundary("exact hardware test: rebuilds native OAM tables from whole-frame draws")]
+    internal static OamBuffer Assemble(IReadOnlyList<CharacterSpriteDraw> compositions, bool parkUnused)
+    {
         {
             var low = new byte[SnesPpuLayoutConstants.OamLowTableByteCount];
             var high = new byte[SnesPpuLayoutConstants.OamUploadByteCount - SnesPpuLayoutConstants.OamLowTableByteCount];
             int slot = 0;
-            foreach (SpriteDraw drawn in sprites.Draws)
+            foreach (CharacterSpriteDraw entry in compositions)
             {
-                // A projectile sheet frame stands for the composition it was composed from.
-                CharacterSpriteDraw entry = drawn as CharacterSpriteDraw ??
-                    SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.CharacterDraw((ImageSpriteDraw)drawn);
                 int baseCharacter = FirstObjCharacter(entry.Artwork.Id.Kind);
                 for (int part = 0; part < entry.Frame.Parts.Length; part++)
                 {

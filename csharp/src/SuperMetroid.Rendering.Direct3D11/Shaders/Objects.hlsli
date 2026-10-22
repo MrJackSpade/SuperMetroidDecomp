@@ -1,21 +1,12 @@
-// Whole-frame sprite draws, packed by D3D11SpriteDrawBuffer: word 0 is the record count, then four words per record in
-// front-to-back order (position, extent, flags, first character or pixel word), then the bound artwork characters
-// (eight words each) and the drawn images' pre-coloured pixels. No OAM or OBJ VRAM is read.
+// Whole-frame sprite draws, packed by D3D11SpriteDrawBuffer: word 0 is the record count, then four words per image draw
+// in front-to-back order (position, extent, flags, first pixel word), then the drawn images' pre-coloured pixels. No
+// OAM, OBJ characters or VRAM is read (#1392).
 StructuredBuffer<uint> SpriteDraws : register(t1);
 static const uint SpriteRecordWords = 4;
-static const uint SpriteFlipX = 1, SpriteFlipY = 2, SpriteImage = 128, SpriteRecolour = 512,
+static const uint SpriteFlipX = 1, SpriteFlipY = 2, SpriteRecolour = 512,
     SpritePaletteOverride = 8192;
 // The palette row a blending image reports, so colour math treats it as the upper rows' sprites.
 static const uint BlendingImageRow = 4;
-
-uint ReadArtworkByte(uint wordOffset, uint byteIndex)
-{
-    // Byte selection stays explicit for the same FXC /O3 reason as ReadByte.
-    uint word = SpriteDraws[wordOffset + (byteIndex >> 2)];
-    if ((byteIndex & 2) != 0) word >>= 16;
-    if ((byteIndex & 1) != 0) word >>= 8;
-    return word & 255;
-}
 
 bool ResolveSpritePart(uint part, uint2 screen, out uint2 hit, out uint palette)
 {
@@ -32,47 +23,33 @@ bool ResolveSpritePart(uint part, uint2 screen, out uint2 hit, out uint palette)
     if (delta.x < 0 || delta.y < 0 || delta.x >= (int)size.x || delta.y >= (int)size.y) return false;
     uint sourceX = (flags & SpriteFlipX) != 0 ? size.x - 1 - (uint)delta.x : (uint)delta.x;
     uint sourceY = (flags & SpriteFlipY) != 0 ? size.y - 1 - (uint)delta.y : (uint)delta.y;
-    uint priority = (flags >> 5) & 3;
-    if ((flags & SpriteImage) != 0)
+    // A pre-coloured image: its pixel is the colour, and zero alpha is transparent. While a palette effect has changed a
+    // row the frame uses, its words are palette indices and the frame shows the live colours.
+    uint pixel = SpriteDraws[SpriteDraws[record + 3] + sourceY * (flags >> 16) + sourceX];
+    // Each image pixel carries its own priority and colour math: above an index, which names its row, or in a colour's
+    // alpha byte, as its priority plus one plus four where its row takes part in colour math.
+    if ((flags & SpriteRecolour) != 0)
     {
-        // A pre-coloured image: its pixel is the colour, and zero alpha is transparent. While a palette effect has
-        // changed a row the frame uses, its words are palette indices and the frame shows the live colours.
-        uint pixel = SpriteDraws[SpriteDraws[record + 3] + sourceY * (flags >> 16) + sourceX];
-        // Each image pixel carries its own priority and colour math: above an index, which names its row, or in a
-        // colour's alpha byte, as its priority plus one plus four where its row takes part in colour math.
-        if ((flags & SpriteRecolour) != 0)
+        uint index = pixel & 255;
+        if (index == 0) return false;
+        palette = index >> 4;
+        if ((flags & SpritePaletteOverride) != 0)
         {
-            uint index = pixel & 255;
-            if (index == 0) return false;
-            palette = index >> 4;
-            if ((flags & SpritePaletteOverride) != 0)
-            {
-                // The cartridge ORs the draw's palette bits into each part's own; the override takes the place of those
-                // the image was coloured with, and its row decides colour math. A part flagged as naming its own row
-                // keeps it, as frontend spritemaps place only their palette-inheriting parts in the draw's palette.
-                uint part = (pixel >> 10) & 15;
-                uint row = (part & 8) != 0 ? (part & 7) : (part | ((flags >> 10) & 7));
-                index = row * 16 + (index & 15);
-                palette = row;
-            }
-            hit = uint2(Palette(128 + index), (pixel >> 8) & 3);
-            return true;
+            // The cartridge ORs the draw's palette bits into each part's own; the override takes the place of those
+            // the image was coloured with, and its row decides colour math. A part flagged as naming its own row
+            // keeps it, as frontend spritemaps place only their palette-inheriting parts in the draw's palette.
+            uint part = (pixel >> 10) & 15;
+            uint row = (part & 8) != 0 ? (part & 7) : (part | ((flags >> 10) & 7));
+            index = row * 16 + (index & 15);
+            palette = row;
         }
-        uint alpha = pixel >> 24;
-        if (alpha == 0) return false;
-        palette = alpha > BlendingImageRow ? BlendingImageRow : 0;
-        hit = uint2(pixel | 0xff000000, (alpha - 1) & 3);
+        hit = uint2(Palette(128 + index), (pixel >> 8) & 3);
         return true;
     }
-    // Characters sit sixteen to a row of the artwork sheet, eight words each.
-    uint character = SpriteDraws[record + 3] + ((sourceY >> 3) * 16 + (sourceX >> 3)) * 8;
-    uint row = (sourceY & 7) * 2;
-    uint shift = 7 - (sourceX & 7);
-    uint color = ((ReadArtworkByte(character, row) >> shift) & 1) | (((ReadArtworkByte(character, row + 1) >> shift) & 1) << 1)
-        | (((ReadArtworkByte(character, row + 16) >> shift) & 1) << 2) | (((ReadArtworkByte(character, row + 17) >> shift) & 1) << 3);
-    if (color == 0) return false;
-    palette = (flags >> 2) & 7;
-    hit = uint2(Palette(128 + palette * 16 + color), priority);
+    uint alpha = pixel >> 24;
+    if (alpha == 0) return false;
+    palette = alpha > BlendingImageRow ? BlendingImageRow : 0;
+    hit = uint2(pixel | 0xff000000, (alpha - 1) & 3);
     return true;
 }
 

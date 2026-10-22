@@ -19,8 +19,7 @@ internal readonly record struct PlacedSpritePart(SpriteArtworkId Artwork, Sprite
         foreach (SpriteDraw draw in draws)
         {
             // A whole pre-coloured frame stands for the parts of the composition it was composed from.
-            CharacterSpriteDraw character = draw as CharacterSpriteDraw
-                ?? SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.CharacterDraw((ImageSpriteDraw)draw);
+            CharacterSpriteDraw character = SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.CharacterDraw((ImageSpriteDraw)draw);
             for (int index = 0; index < character.Frame.Parts.Length; index++)
                 parts.Add(new(character.Artwork.Id, character.Place(index)));
         }
@@ -50,6 +49,13 @@ internal readonly record struct PlacedSpritePart(SpriteArtworkId Artwork, Sprite
     /// The parts a frontend screen's finalized OAM shows once captured, converted as <see cref="ObjCharacterImage"/>
     /// converts it. Parts name characters, so the conversion reads no character pixels.
     /// </summary>
-    internal static PlacedSpritePart[] OfOam(OamBuffer oam, int objectSelection) =>
-        Of(ObjCharacterImageConstants.Draws(oam, new SnesVram(), objectSelection));
+    internal static PlacedSpritePart[] OfOam(OamBuffer oam, int objectSelection)
+    {
+        if (ObjCharacterImageConstants.Composition(oam, new SnesVram(), objectSelection) is not { } composition)
+            return [];
+        var parts = new PlacedSpritePart[composition.Frame.Parts.Length];
+        for (int index = 0; index < parts.Length; index++)
+            parts[index] = new(composition.Artwork.Id, composition.Place(index));
+        return parts;
+    }
 }

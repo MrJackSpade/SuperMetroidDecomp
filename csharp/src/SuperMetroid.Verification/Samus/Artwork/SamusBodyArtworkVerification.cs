@@ -124,8 +124,8 @@ internal static class SamusBodyArtworkVerification
             var nativeOam = new OamBuffer();
             nativeOam.BeginFrame();
             DrawImportedSamusSpritemap(bus, nativeOam, (ushort)index, new(127, 131));
-            OamBuffer installedOam = SpriteFrameBuffer.DrawnOam(frame => frame.AddSamusSpritemap((ushort)index,
-                new Position16<ScreenPixels>(127, 131), SpriteFrameTestArtwork.Spritemaps(sprites), new SpriteSource(SpriteSourceKind.Samus)));
+            OamBuffer installedOam = SamusSpritemapDrawsAccess.SamusSpritemapOam((ushort)index,
+                new Position16<ScreenPixels>(127, 131), SpriteFrameTestArtwork.Spritemaps(sprites), new SpriteSource(SpriteSourceKind.Samus));
             AssertTrue(nativeOam.ImageEquals(installedOam) &&
                 nativeOam.NextByteOffset == installedOam.LastFinalizedSpriteCount * 4,
                 $"Samus OAM index {index} installed/native staging parity");
@@ -134,8 +134,8 @@ internal static class SamusBodyArtworkVerification
         int zeroIndex = Array.FindIndex(sprites.Entries.ToArray(), entry => entry is null);
         AssertTrue(zeroIndex >= 0, "retail Samus pointer table contains a zero entry");
         // Owner decision on #1318 row 11: a zero entry draws nothing instead of reading direct-page scratch.
-        OamBuffer zeroOam = SpriteFrameBuffer.DrawnOam(frame => frame.AddSamusSpritemap((ushort)zeroIndex,
-            new Position16<ScreenPixels>(127, 131), SpriteFrameTestArtwork.Spritemaps(sprites), new SpriteSource(SpriteSourceKind.Samus)));
+        OamBuffer zeroOam = SamusSpritemapDrawsAccess.SamusSpritemapOam((ushort)zeroIndex,
+            new Position16<ScreenPixels>(127, 131), SpriteFrameTestArtwork.Spritemaps(sprites), new SpriteSource(SpriteSourceKind.Samus));
         AssertEqual(0, zeroOam.LastFinalizedSpriteCount, "zero Samus pointer draws nothing");
         for (int i = 0; i < stock.LandingYOffsets.Length; i++)
             AssertEqual(bus.ReadCartridgeByte(SamusRenderingRomData.Body.LandingVerticalOffsets + i),
@@ -487,10 +487,10 @@ internal static class SamusBodyArtworkVerification
         AssertTrue(replacement.Frames[0].TopPosition != stock.Frames[0].TopPosition,
             "Samus body JSON override changes a visual frame selector");
         ushort poseOneIndex = stock.Spritemaps.TopBase(SamusPoseId.FacingRightNormalPose);
-        OamBuffer stockSpritemapOam = SpriteFrameBuffer.DrawnOam(frame => frame.AddSamusSpritemap(poseOneIndex,
-            new Position16<ScreenPixels>(128, 128), SpriteFrameTestArtwork.Spritemaps(stock.Spritemaps), new SpriteSource(SpriteSourceKind.Samus)));
-        OamBuffer editedSpritemapOam = SpriteFrameBuffer.DrawnOam(frame => frame.AddSamusSpritemap(poseOneIndex,
-            new Position16<ScreenPixels>(128, 128), SpriteFrameTestArtwork.Spritemaps(replacement.Spritemaps), new SpriteSource(SpriteSourceKind.Samus)));
+        OamBuffer stockSpritemapOam = SamusSpritemapDrawsAccess.SamusSpritemapOam(poseOneIndex,
+            new Position16<ScreenPixels>(128, 128), SpriteFrameTestArtwork.Spritemaps(stock.Spritemaps), new SpriteSource(SpriteSourceKind.Samus));
+        OamBuffer editedSpritemapOam = SamusSpritemapDrawsAccess.SamusSpritemapOam(poseOneIndex,
+            new Position16<ScreenPixels>(128, 128), SpriteFrameTestArtwork.Spritemaps(replacement.Spritemaps), new SpriteSource(SpriteSourceKind.Samus));
         AssertEqual(unchecked((byte)(stockSpritemapOam.LowTable[0] + 1)),
             editedSpritemapOam.LowTable[0],
             "edited Samus spritemap part changes production OAM X by one pixel");

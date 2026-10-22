@@ -17,6 +17,7 @@ using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationAssert;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
@@ -80,7 +81,7 @@ internal static class MotherBrainPicturesVerification
                 sprites.FinalizeFrame();
                 ImmutableArray<SpriteDraw> pictures = [.. sprites.Draws];
                 UploadedPictureChecks.AssertPaintsLikeParts(runtime, pictures,
-                    [.. pictures.Select(draw => (SpriteDraw)SheetFrameSources.CharacterDraw(AssertIs<ImageSpriteDraw>(draw, $"Mother Brain {frame} {context}: draws from a sheet"), rotted))],
+                    [.. pictures.Select(draw => SheetFrameSources.CharacterDraw(AssertIs<ImageSpriteDraw>(draw, $"Mother Brain {frame} {context}: draws from a sheet"), rotted))],
                     $"Mother Brain {frame} {context}");
                 drawn++;
             }

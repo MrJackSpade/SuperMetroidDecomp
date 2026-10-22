@@ -13,13 +13,10 @@ public sealed class ObjCharacterUploads
     public const int TableByteCount = 512 * 32;
 
     /// <summary>The uploads in order; a later upload shows over an earlier one where they overlap.</summary>
-    private readonly List<ObjCharacterUpload> _uploads = [];
+    internal readonly List<ObjCharacterUpload> uploads = [];
 
-    /// <summary>Each upload's place among all uploads ever recorded, alongside <see cref="_uploads"/>.</summary>
+    /// <summary>Each upload's place among all uploads ever recorded, alongside <see cref="uploads"/>.</summary>
     private readonly List<long> _stamps = [];
-
-    /// <summary>The uploads in order.</summary>
-    public IReadOnlyList<ObjCharacterUpload> Uploads => _uploads;
 
     /// <summary>The place of the latest upload among all uploads ever recorded; zero before the first.</summary>
     public long Recorded { get; private set; }
@@ -38,17 +35,17 @@ public sealed class ObjCharacterUploads
         if (sourceOffset < 0)
             throw new ArgumentOutOfRangeException(nameof(sourceOffset), sourceOffset, "A source offset is a byte index.");
         // An upload wholly covered by a later one no longer shows anywhere; dropping it keeps the record bounded.
-        for (int index = _uploads.Count - 1; index >= 0; index--)
+        for (int index = uploads.Count - 1; index >= 0; index--)
         {
-            ObjCharacterUpload earlier = _uploads[index];
+            ObjCharacterUpload earlier = uploads[index];
             if (earlier.FirstByte >= firstByte && earlier.FirstByte + earlier.ByteCount <= firstByte + byteCount)
             {
-                _uploads.RemoveAt(index);
+                uploads.RemoveAt(index);
                 _stamps.RemoveAt(index);
             }
         }
         Recorded++;
-        _uploads.Add(new ObjCharacterUpload(firstByte, byteCount, source, sourceOffset));
+        uploads.Add(new ObjCharacterUpload(firstByte, byteCount, source, sourceOffset));
         _stamps.Add(Recorded);
     }
 
@@ -66,9 +63,9 @@ public sealed class ObjCharacterUploads
     /// <summary>The upload that shows last over any of <paramref name="byteCount"/> bytes from <paramref name="firstByte"/>, if any has.</summary>
     public ObjCharacterUpload? LastOver(int firstByte, int byteCount)
     {
-        for (int index = _uploads.Count - 1; index >= 0; index--)
+        for (int index = uploads.Count - 1; index >= 0; index--)
         {
-            ObjCharacterUpload upload = _uploads[index];
+            ObjCharacterUpload upload = uploads[index];
             if (upload.FirstByte < firstByte + byteCount && firstByte < upload.FirstByte + upload.ByteCount)
                 return upload;
         }
@@ -81,9 +78,9 @@ public sealed class ObjCharacterUploads
     /// </summary>
     public bool ShowsNewerOver(int firstByte, int byteCount, long stamp)
     {
-        for (int index = 0; index < _uploads.Count; index++)
+        for (int index = 0; index < uploads.Count; index++)
         {
-            ObjCharacterUpload upload = _uploads[index];
+            ObjCharacterUpload upload = uploads[index];
             if (_stamps[index] > stamp && upload.FirstByte < firstByte + byteCount && firstByte < upload.FirstByte + upload.ByteCount)
                 return true;
         }

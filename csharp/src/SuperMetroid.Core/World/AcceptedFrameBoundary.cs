@@ -160,10 +160,6 @@ internal sealed class AcceptedFrameBoundary
         // The planes' blocks show what this NMI's uploads bound, as the characters they read did (#1392).
         if (_display.Latched.Rooms is { } rooms)
             _display.Latched = WithBlockPictures(_display.Latched, rooms, reveal);
-        // The displayed enemy-format draws show the OBJ characters this frame's uploads bound, as the OAM it latched
-        // reads the VRAM those uploads wrote.
-        if (_displayedSprites.Shows(SpriteArtworkKind.GameplayObjects))
-            _displayedSprites.RebindArtwork(SpriteArtworkKind.GameplayObjects, _artwork.GameplayObjectPage(_enemySession.ObjCharacters));
         // A rebound snapshot may retain old CGRAM and legacy queued transfers.
         // Apply current content only at this accepted NMI, after those writes.
         _artwork.PublishReboundBeamPalette();

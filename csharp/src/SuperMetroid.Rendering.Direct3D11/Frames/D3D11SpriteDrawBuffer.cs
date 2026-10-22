@@ -8,30 +8,22 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
 /// <summary>
 /// The shader's <c>SpriteDraws</c> buffer: one frame's whole-frame sprite draws packed as Objects.hlsli reads them.
-/// Word 0 holds the record count, then four words per record in front-to-back order: a character draw's parts, or one
-/// record per image draw. Then each bound artwork's characters and each drawn sheet frame's pixels, once each, so a
-/// large sheet costs only the frames a scene shows. The GPU buffer grows to fit the largest frame seen.
+/// Word 0 holds the record count, then four words per image draw in front-to-back order, then each drawn sheet frame's
+/// pixels, once each, so a large sheet costs only the frames a scene shows. The GPU buffer grows to fit the largest
+/// frame seen.
 /// </summary>
 internal sealed class D3D11SpriteDrawBuffer : IDisposable
 {
     /// <summary>Words of the header holding the record count.</summary>
     private const int HeaderWords = 1;
-    /// <summary>Words per packed record: position, extent, flags, first character or pixel word.</summary>
+    /// <summary>Words per packed record: position, extent, flags, first pixel word.</summary>
     private const int RecordWords = 4;
-    /// <summary>Words per four-bit planar character.</summary>
-    private const int CharacterWords = SpriteArtwork.CharacterByteCount / sizeof(uint);
     /// <summary>Allocation for a frame with no or few draws; larger frames grow it.</summary>
     private const int InitialWords = 1024;
     /// <summary>Flags bit mirroring a record horizontally.</summary>
     private const uint FlipXFlag = 1;
     /// <summary>Flags bit mirroring a record vertically.</summary>
     private const uint FlipYFlag = 2;
-    /// <summary>Flags position of a character part's three-bit OBJ palette.</summary>
-    private const int PaletteShift = 2;
-    /// <summary>Flags position of the two-bit priority.</summary>
-    private const int PriorityShift = 5;
-    /// <summary>Flags bit marking an image record, whose last word points at pre-coloured pixels.</summary>
-    private const uint ImageFlag = 1 << 7;
     /// <summary>Flags bit marking an image that takes part in colour blending.</summary>
     private const int BlendingRow = 4;
     /// <summary>Flags bit marking an image whose uploaded words are palette indices, because a palette effect changed a row it uses.</summary>
@@ -70,26 +62,19 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     /// <param name="cgram">The frame's 256 colours, against which each image frame's standard colours are checked.</param>
     internal void Pack(ReadOnlySpan<SpriteDraw> draws, ReadOnlySpan<Bgr555> cgram)
     {
-        int records = 0;
         foreach (SpriteDraw draw in draws)
-            records += draw switch
-            {
-                CharacterSpriteDraw character => character.Frame.Parts.Length,
-                ImageSpriteDraw => 1,
-                _ => throw Unsupported(draw),
-            };
+        {
+            if (draw is not ImageSpriteDraw)
+                throw Unsupported(draw);
+        }
+        int records = draws.Length;
         int words = HeaderWords + records * RecordWords;
-        var artworkWords = new Dictionary<SpriteArtwork, int>(ReferenceEqualityComparer.Instance);
         var imageWords = new Dictionary<SpriteSheetFrame, int>(ReferenceEqualityComparer.Instance);
         var recoloured = new HashSet<SpriteSheetFrame>(ReferenceEqualityComparer.Instance);
         foreach (SpriteDraw draw in draws)
         {
-            if (draw is CharacterSpriteDraw character && artworkWords.TryAdd(character.Artwork, words))
-                words += character.Artwork.CharacterCount * CharacterWords;
-            else if (draw is ImageSpriteDraw image && imageWords.TryAdd(image.Image, words))
-            {
+            if (draw is ImageSpriteDraw image && imageWords.TryAdd(image.Image, words))
                 words += image.Image.Size.X * image.Image.Size.Y;
-            }
             // A frame drawn with an overriding palette, or whose rows an effect has changed, uploads its indices.
             if (draw is ImageSpriteDraw shown && (shown.PaletteOverride is not null || !shown.Image.ShowsStandardColours(cgram)))
                 recoloured.Add(shown.Image);
@@ -105,29 +90,11 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         int record = HeaderWords;
         foreach (SpriteDraw draw in draws)
         {
-            if (draw is ImageSpriteDraw image)
-            {
-                PackImage(upload.Slice(record, RecordWords), image, imageWords[image.Image],
-                    image.PaletteOverride is null && recoloured.Contains(image.Image));
-                record += RecordWords;
-                continue;
-            }
-            var character = (CharacterSpriteDraw)draw;
-            int artwork = artworkWords[character.Artwork];
-            for (int index = 0; index < character.Frame.Parts.Length; index++)
-            {
-                SpriteScreenPart part = character.Place(index);
-                upload[record] = D3D11ConstantPacking.Halves(unchecked((ushort)part.Position.X), unchecked((ushort)part.Position.Y));
-                upload[record + 1] = D3D11ConstantPacking.Halves(part.Size.X, part.Size.Y);
-                upload[record + 2] = (part.FlipX ? FlipXFlag : 0) | (part.FlipY ? FlipYFlag : 0)
-                    | (uint)part.Palette << PaletteShift | (uint)part.Priority << PriorityShift;
-                upload[record + 3] = (uint)(artwork + part.Character * CharacterWords);
-                record += RecordWords;
-            }
+            var image = (ImageSpriteDraw)draw;
+            PackImage(upload.Slice(record, RecordWords), image, imageWords[image.Image],
+                image.PaletteOverride is null && recoloured.Contains(image.Image));
+            record += RecordWords;
         }
-        foreach ((SpriteArtwork artwork, int offset) in artworkWords)
-            System.Runtime.InteropServices.MemoryMarshal.Cast<byte, uint>(artwork.Characters)
-                .CopyTo(upload[offset..]);
         foreach ((SpriteSheetFrame frame, int offset) in imageWords)
         {
             ReadOnlySpan<Rgba32> pixels = frame.Sheet.Pixels;
@@ -168,7 +135,7 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         record[0] = D3D11ConstantPacking.Halves(unchecked((ushort)corner.X), unchecked((ushort)corner.Y));
         record[1] = D3D11ConstantPacking.Halves(frame.Size.X, frame.Size.Y);
         record[2] = ((draw.Mirror & SpriteMirror.Horizontal) != 0 ? FlipXFlag : 0) | ((draw.Mirror & SpriteMirror.Vertical) != 0 ? FlipYFlag : 0)
-            | ImageFlag | (recolour ? RecolourFlag : 0) | overriding | (uint)frame.Size.X << StrideShift;
+            | (recolour ? RecolourFlag : 0) | overriding | (uint)frame.Size.X << StrideShift;
         record[3] = (uint)frameWords;
     }
 

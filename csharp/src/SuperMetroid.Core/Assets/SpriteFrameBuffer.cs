@@ -39,27 +39,6 @@ public sealed class SpriteFrameBuffer
         finalized = ImmutableCollectionsMarshal.AsArray(draws) ?? throw new ArgumentException("A published frame needs a draw list.", nameof(draws));
     }
 
-    /// <summary>
-    /// Points every finalized draw over artwork of <paramref name="kind"/> at <paramref name="artwork"/>. The NMI uses it
-    /// after its uploads, so a frame's draws show the characters the same NMI bound.
-    /// </summary>
-    /// <param name="kind">The artwork kind to rebind.</param>
-    /// <param name="artwork">The artwork those draws now show.</param>
-    public void RebindArtwork(SpriteArtworkKind kind, SpriteArtwork artwork)
-    {
-        Ensure.NotNull(artwork);
-        if (!Array.Exists(finalized, draw => draw is CharacterSpriteDraw character && character.Artwork.Id.Kind == kind &&
-                !ReferenceEquals(character.Artwork, artwork)))
-            return;
-        // A published draw list is shared with the staging buffer it was latched from, so rebinding copies it.
-        finalized = Array.ConvertAll(finalized, draw => draw is CharacterSpriteDraw character && character.Artwork.Id.Kind == kind
-            ? character.WithArtwork(artwork) : draw);
-    }
-
-    /// <summary>Whether any finalized draw shows artwork of <paramref name="kind"/>.</summary>
-    public bool Shows(SpriteArtworkKind kind) =>
-        Array.Exists(finalized, draw => draw is CharacterSpriteDraw character && character.Artwork.Id.Kind == kind);
-
     /// <summary>Makes a finalized frame the displayed one, as the NMI does.</summary>
     /// <param name="staging">The buffer the main loop built and finalized.</param>
     public void LatchFrom(SpriteFrameBuffer staging) => finalized = Ensure.NotNull(staging).finalized;

@@ -83,6 +83,15 @@ internal static class ProjectileSheetPixelsVerification
         return result;
     }
 
+    /// <summary>Renders the cartridge's character composition alone on the canvas.</summary>
+    private static Raster Render(CharacterSpriteDraw draw, SnesCgram cgram)
+    {
+        int count = Canvas.X * Canvas.Y;
+        var result = new Raster(new Rgba32[count], new byte[count], new byte[count]);
+        CharacterSpriteRaster.RenderResolved([draw], cgram, new ObjRasterTargets(result.Pixels, result.Priorities, result.Palettes), Canvas);
+        return result;
+    }
+
     /// <summary>One rendered canvas.</summary>
     /// <param name="Pixels">Colours, row by row.</param>
     /// <param name="Priorities">Each pixel's winning priority, or transparent.</param>

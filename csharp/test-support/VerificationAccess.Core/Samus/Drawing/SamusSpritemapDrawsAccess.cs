@@ -27,29 +27,27 @@ internal static class SamusSpritemapDrawsAccess
     /// word index into the bank-$92 pointer table at <c>$92:808D</c>, at a screen origin, with the parts' authored
     /// palettes and priorities.
     /// </summary>
-    /// <param name="sprites">The frame receiving the draw after everything already emitted.</param>
     /// <param name="spritemapIndex">Index into the installed Samus spritemap table.</param>
     /// <param name="origin">Screen-space origin produced by bank $90.</param>
     /// <param name="artwork">The spritemaps and the characters their parts name.</param>
     /// <param name="source">The Samus element the draw shows.</param>
-    internal static void AddSamusSpritemap(
-        this SpriteFrameBuffer sprites,
+    internal static OamBuffer SamusSpritemapOam(
         int spritemapIndex,
         Position16<ScreenPixels> origin,
         SamusSpritemapArtwork artwork,
         SpriteSource source)
     {
-        Ensure.NotNull(sprites);
         if (artwork.Spritemaps.TryGetFrame(spritemapIndex, out SpriteFrame? frame))
         {
             // A spritemap that names a character beyond its own sheet reads the rest of the OBJ table there.
             SpriteArtwork characters = frame.LastCharacter < artwork.Characters.CharacterCount
                 ? artwork.Characters : artwork.PageCharacters();
-            sprites.Add(new CharacterSpriteDraw(source, frame, characters, origin, SnesTileFlipFlags.None, 0, 0));
-            return;
+            return SpriteFrameBufferAccess.Assemble([new CharacterSpriteDraw(source, frame, characters, origin, SnesTileFlipFlags.None, 0, 0)],
+                parkUnused: false);
         }
         // A zero entry in the installed pointer table dereferences $92:0000, direct-page scratch. Its parts would need
         // direct-page emulation the port does not model, so a zero entry is exempt and draws nothing (owner decision
         // on #1318).
+        return SpriteFrameBufferAccess.Assemble([], parkUnused: false);
     }
 }

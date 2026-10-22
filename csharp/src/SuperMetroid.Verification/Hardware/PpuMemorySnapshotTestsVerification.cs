@@ -20,10 +20,11 @@ internal static class PpuMemorySnapshotTestsVerification
         vram.LoadBytes(0, characters);
         for (int index = 0; index < SnesCgram.ColorCount; index++)
             cgram.SetColor(index, Bgr555.FromWord((ushort)(index * 97)));
-        var frame = new SpriteFrame("Fixture", [new(new(0, 0), new(8, 8), 0, SnesTileFlipFlags.None, null, null)]);
-        var artwork = new SpriteArtwork(new(SpriteArtworkKind.EscapeTimerTiles), new byte[SpriteArtwork.CharacterByteCount]);
+        var image = new SpriteImage("Fixture", new(8, 8), new Rgba32[64], new byte[64],
+            new SpriteImagePalette(SpriteImageColours.Sprite, [.. new Bgr555[SpriteImage.SpriteColourCount]]), new byte[64], new byte[64]);
         sprites.BeginFrame();
-        sprites.Add(new CharacterSpriteDraw(new(SpriteSourceKind.EscapeTimer), frame, artwork, new(10, 20), SnesTileFlipFlags.None, 1, 2));
+        sprites.Add(new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), new SpriteSheetFrame(image, default, new(8, 8), default,
+            SpritePaletteRows.None, []), new(10, 20), SpriteMirror.None));
         sprites.FinalizeFrame();
         Bgr555[] expectedPalette = cgram.Colors.ToArray();
 

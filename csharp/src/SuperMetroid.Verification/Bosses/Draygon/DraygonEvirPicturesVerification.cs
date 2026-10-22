@@ -18,6 +18,7 @@ using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationAssert;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Bosses.Draygon;
 
@@ -87,13 +88,10 @@ internal static class DraygonEvirPicturesVerification
         AssertTrue((InstalledFixtures.EnemyTiles.Spritemaps ?? throw new InvalidOperationException("Verification requires the installed compositions."))
             .TryGetDisplay(shown, out EnemySpritemapParts parts), $"the Evir's frame {shown} has an installed composition");
         ushort paletteBits = evir.Attributes.PaletteBits;
-        var parted = new SpriteFrameBuffer();
-        parted.BeginFrame();
-        EnemyPartComposition.PublishParts(parted, live, drawn[0].Source, EnemySpriteFrames.Frame(parts, checked((ushort)evir.Attributes.TileNumber), paletteBits),
+        CharacterSpriteDraw parted = EnemyPartComposition.Parts(live, drawn[0].Source, EnemySpriteFrames.Frame(parts, checked((ushort)evir.Attributes.TileNumber), paletteBits),
             drawn[0].Origin, paletteBits);
-        parted.FinalizeFrame();
 
-        UploadedPictureChecks.AssertPaintsLikeParts(runtime, drawn, parted.Draws, $"the Evir {when}");
+        UploadedPictureChecks.AssertPaintsLikeParts(runtime, drawn, [parted], $"the Evir {when}");
         return drawn;
     }
 

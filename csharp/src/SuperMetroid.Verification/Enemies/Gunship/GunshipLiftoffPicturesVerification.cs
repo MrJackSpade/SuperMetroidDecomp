@@ -78,15 +78,12 @@ internal static class GunshipLiftoffPicturesVerification
                     UploadedPictureChecks.ExpectedPictures(sheets, name, layers, made), drawn,
                     $"after {step} liftoff uploads the ship's {part.DefinitionId}");
 
-                var parted = new SpriteFrameBuffer();
-                parted.BeginFrame();
-                EnemyPartComposition.PublishSpritemap(parted, live, source, runtime.EnemySession.TileArtwork?.Spritemaps
+                CharacterSpriteDraw parted = EnemyPartComposition.Spritemap(live, source, runtime.EnemySession.TileArtwork?.Spritemaps
                     ?? throw new InvalidOperationException("The runtime loads the enemy compositions."), new EnemySpritemapDraw
                 {
                     Frame = frame, Origin = new(drawn[0].Origin.X, drawn[0].Origin.Y), PaletteBits = part.PaletteIndex, BaseTileIndex = part.VramTilesIndex,
-                });
-                parted.FinalizeFrame();
-                UploadedPictureChecks.AssertPaintsLikeParts(runtime, drawn, parted.Draws, $"the ship's {part.DefinitionId} after {step} liftoff uploads");
+                }) ?? throw new InvalidOperationException($"The ship's {part.DefinitionId} frame has parts.");
+                UploadedPictureChecks.AssertPaintsLikeParts(runtime, drawn, [parted], $"the ship's {part.DefinitionId} after {step} liftoff uploads");
             }
         }
         AssertTrue(pictured > 0, "the ship is drawn over characters its takeoff uploads");

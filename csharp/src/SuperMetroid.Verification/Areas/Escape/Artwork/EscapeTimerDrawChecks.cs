@@ -59,7 +59,7 @@ internal static class EscapeTimerDrawChecks
         palettes.LoadCommonSprites(cgram, RoomLoadingRomData.CommonGameplaySpritePaletteCgramIndex);
         palettes.LoadEnemyProjectileSprites(cgram, RoomLoadingRomData.InitialEnemyProjectilePaletteCgramIndex);
 
-        var sprites = new List<SpriteDraw>();
+        var sprites = new List<CharacterSpriteDraw>();
         for (int index = 0; index < native.AppendedSpriteCount; index++)
         {
             OamEntry entry = native.GetEntry(index);
@@ -96,6 +96,15 @@ internal static class EscapeTimerDrawChecks
         int count = SnesPpuLayout.ScreenSize.X * SnesPpuLayout.ScreenSize.Y;
         var raster = new Raster(new Rgba32[count], new byte[count], new byte[count]);
         SnesObjRenderer.RenderResolved([.. draws], cgram, new ObjRasterTargets(raster.Pixels, raster.Priorities, raster.Palettes));
+        return raster;
+    }
+
+    /// <summary>Renders the cartridge's character composition to a full screen's colours, priorities and palette rows.</summary>
+    private static Raster Render(IEnumerable<CharacterSpriteDraw> draws, SnesCgram cgram)
+    {
+        int count = SnesPpuLayout.ScreenSize.X * SnesPpuLayout.ScreenSize.Y;
+        var raster = new Raster(new Rgba32[count], new byte[count], new byte[count]);
+        CharacterSpriteRaster.RenderResolved([.. draws], cgram, new ObjRasterTargets(raster.Pixels, raster.Priorities, raster.Palettes));
         return raster;
     }
 

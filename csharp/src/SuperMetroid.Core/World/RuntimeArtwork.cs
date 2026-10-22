@@ -25,14 +25,6 @@ namespace SuperMetroid.Core.World;
 internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTransferSource, IObjCharacterSourceResolver,
     IInstalledObjCharacterArtwork, IInstalledBossObjCharacterArtwork, IInstalledAreaObjCharacterArtwork
 {
-    /// <summary>The page cache for the gameplay OBJ character table; artwork, never saved.</summary>
-    [NonSerialized] private ObjCharacterTablePage? gameplayObjectPage;
-
-    /// <summary>The gameplay OBJ character page enemy-format sprites draw from: the table's uploads over current artwork.</summary>
-    /// <param name="uploads">The OBJ character table's uploads.</param>
-    internal SpriteArtwork GameplayObjectPage(ObjCharacterUploads uploads) =>
-        (gameplayObjectPage ??= new ObjCharacterTablePage()).Page(uploads, this);
-
     /// <summary>Resolves an OBJ binding's installed VRAM asset.</summary>
     ReadOnlyMemory<byte> IObjCharacterSourceResolver.ResolveAsset(VramAssetId asset) => ResolveVramAsset(asset);
 

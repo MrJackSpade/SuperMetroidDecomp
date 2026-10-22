@@ -3018,8 +3018,8 @@ internal static class LookupStream1Verification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifySamusZeroOamSelectorDrawsNothing(SamusSpritemapArtworkCatalog stock)
     {
-        OamBuffer oam = SpriteFrameBuffer.DrawnOam(frame => frame.AddSamusSpritemap(3, new Position16<ScreenPixels>(127, 131),
-            SpriteFrameTestArtwork.Spritemaps(stock), new SpriteSource(SpriteSourceKind.Samus)));
+        OamBuffer oam = SamusSpritemapDrawsAccess.SamusSpritemapOam(3, new Position16<ScreenPixels>(127, 131),
+            SpriteFrameTestArtwork.Spritemaps(stock), new SpriteSource(SpriteSourceKind.Samus));
         OamBuffer empty = SpriteFrameBuffer.DrawnOam(_ => { });
         AssertTrue(oam.LowTable.SequenceEqual(empty.LowTable) && oam.HighTable.SequenceEqual(empty.HighTable),
             "a zero selector draws no OAM entry through the actual renderer");

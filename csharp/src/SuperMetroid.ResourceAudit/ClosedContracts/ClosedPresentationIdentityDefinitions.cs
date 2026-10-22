@@ -49,12 +49,15 @@ internal static class ClosedPresentationIdentityDefinitions
         ("IntroNarrationPresentation", "GetLines" or "Compile", "page") =>
             Enum.GetValues<IntroNarrationPageId>().Select(id => (int)id).ToArray(),
         ("EndingTextPresentation", "Compile", "sequence") => Enum.GetValues<EndingTextSequence>().Select(id => (int)id).ToArray(),
-        ("MapSpriteCatalog", "Draw", "id") => MapSpriteDefinitions.Frames.Select(frame => (int)frame.Id).ToArray(),
+        ("MapSpriteSheet", "Draw", "id") => MapSpriteDefinitions.Frames.Select(frame => (int)frame.Id).ToArray(),
         ("PauseReserveTankPresentation", "Draw", "nativeIdentity") => PauseReserveTankDefinitions.Frames().Select(frame => (int)frame.Id).ToArray(),
         ("TitleGraphicsPresentation", "DrawSprite", "sprite") => TitleSpriteDefinitions.All.Select(sprite => (int)sprite).ToArray(),
-        ("IntroCaretSpritePresentation", "Draw", "pose.Index") => IntroCaretSpriteDefinitions.Frames.Select(frame => frame.Pose.Index).ToArray(),
-        ("IntroMotherBrainSpritePresentation", "Draw", "pose.Index") => IntroMotherBrainSpriteDefinitions.Frames.Select(frame => frame.Pose.Index).ToArray(),
-        ("IntroMotherBrainExplosionSpritePresentation", "Draw", "pose.Index") => IntroMotherBrainExplosionSpriteDefinitions.Frames.Select(frame => frame.Pose.Index).ToArray(),
+        // A drawer does not reveal its family: a pose qualifies when some intro family owns it.
+        ("CinematicSpriteSheet", "Draw", "pose.Index") => IntroCaretSpriteDefinitions.Frames
+            .Concat(IntroMotherBrainSpriteDefinitions.Frames).Concat(IntroMotherBrainExplosionSpriteDefinitions.Frames)
+            .Concat(IntroDiscoveryActorSpriteDefinitions.Frames).Concat(IntroEggEffectSpriteDefinitions.Frames)
+            .Concat(IntroRinkaSpriteDefinitions.Frames).Concat(IntroScientistSpriteDefinitions.Frames)
+            .Select(frame => frame.Pose.Index).Distinct().ToArray(),
         ("ProjectileTrailCatalog", "Resolve", "frame") => [.. ProjectileTrailVisualDefinitions.Frames.Select(frame => (int)frame)],
         ("RoomFxLayer3TilemapCatalog", "Resolve", "type") => RoomFxLayer3TilemapFormat.Types.Select(type => (int)type).ToArray(),
         ("RoomFxPaletteBlendCatalog", "Apply", "selection") => RoomFxPaletteBlendDefinitions.Ids.Select(id => (int)id).Append(0).ToArray(),

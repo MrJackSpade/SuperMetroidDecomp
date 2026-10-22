@@ -51,10 +51,10 @@ internal static class ClosedPresentationContractChecks
                     ChozoAndTubeColorCatalog chozo, GameplayBasePaletteCatalog basePalette,
                     SamusDeathPaletteArtworkCatalog samusDeath,
                     SnesCgram cgram, Span<ushort> tiles, Span<byte> bytes,
-                    ScreenSprites oam, int dynamicIndex) {
+                    ScreenSprites oam, SpriteSheet sheet, int dynamicIndex) {
                     hud.ApplyAmmo(tiles, dynamicIndex, 123);
                     hud.MinimapCellIndex(new SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.TilemapCells>(99, 0));
-                    menu.DrawCursor(oam, dynamicIndex, new(0,0));
+                    FileSelectPresentation.DrawCursor(oam, sheet, dynamicIndex, new(0,0));
                     menu.DynamicAnchor(FileSelectAnchor.CopyConfirmSource);
                     colors.ApplyRecoveryLights(cgram, dynamicIndex);
                     colors.ApplyFlash(cgram, 14);
@@ -62,8 +62,8 @@ internal static class ClosedPresentationContractChecks
                     options.ApplySpecialToggle(bytes, dynamicIndex > 0
                         ? GameOptionsToggle.IconCancel
                         : GameOptionsToggle.Moonwalk, false);
-                    gameOver.DrawBaby(oam, SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame.Open);
-                    gameOver.DrawBaby(oam, (SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame)99);
+                    gameOver.DrawBaby(oam, sheet, SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame.Open);
+                    gameOver.DrawBaby(oam, sheet, (SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame)99);
                     reserve.ApplyLabel(bytes, dynamicIndex > 0 ? PauseReserveLabel.Auto : PauseReserveLabel.Manual);
                     reserve.ApplyArrowColors(cgram, true, dynamicIndex, 6, 11);
                     reserve.ApplyDigit(bytes, 0, 10);

@@ -31,25 +31,25 @@ internal static class CinematicPresentationContractChecks
             class CinematicConsumer {
                 void Inspect(TitlePalettePresentation palette, TitleGradientPresentation gradient,
                     TitleGraphicsPresentation title, IntroEyeTilemapPresentation eye,
-                    IntroCaretSpritePresentation caret, IntroMotherBrainSpritePresentation motherBrain,
-                    IntroMotherBrainExplosionSpritePresentation explosions, CeresDoorVisualCatalog door,
+                    CinematicSpriteSheet caret, CinematicSpriteSheet motherBrain,
+                    CinematicSpriteSheet explosions, CeresDoorVisualCatalog door,
                     EscapeTimerPresentation timer, CeresEscapeOverlayTilemapCatalog overlay,
                     EscapeTimer countdown, SnesVram vram, SnesCgram cgram, SuperMetroid.Core.Assets.ScreenSprites oam,
-                    SuperMetroid.Core.Assets.SpriteFrameBuffer sprites, SuperMetroid.Core.Assets.SpriteArtwork timerArtwork,
-                    SuperMetroid.Core.Assets.ScreenSprites titleSprites) {
+                    SuperMetroid.Core.Assets.SpriteFrameBuffer sprites, SuperMetroid.Core.Assets.SpriteSheet timerSheet,
+                    SuperMetroid.Core.Assets.ScreenSprites titleSprites, SuperMetroid.Core.Assets.SpriteSheet sheet) {
                     palette.Apply(cgram);
                     gradient.Resolve(ushort.MaxValue);
-                    title.DrawSprite(TitleSprite.SuperMetroidLogo, titleSprites, default, 0);
-                    title.DrawSprite((TitleSprite)(-1), titleSprites, default, 0);
-                    title.DrawSprite((TitleSprite)31, titleSprites, default, 0);
+                    TitleGraphicsPresentation.DrawSprite(sheet, TitleSprite.SuperMetroidLogo, titleSprites, default, 0);
+                    TitleGraphicsPresentation.DrawSprite(sheet, (TitleSprite)(-1), titleSprites, default, 0);
+                    TitleGraphicsPresentation.DrawSprite(sheet, (TitleSprite)31, titleSprites, default, 0);
                     eye.FrameWords(IntroEyeTilemapFormat.FrameCount - 1);
                     eye.FrameWords(IntroEyeTilemapFormat.FrameCount);
                     caret.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(25), oam, default, 0);
-                    caret.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(26), oam, default, 0);
+                    caret.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(999), oam, default, 0);
                     motherBrain.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(0), oam, default, 0);
-                    motherBrain.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(3), oam, default, 0);
+                    motherBrain.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(998), oam, default, 0);
                     explosions.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(67), oam, default, 0);
-                    explosions.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(73), oam, default, 0);
+                    explosions.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(997), oam, default, 0);
                     door.LoadTiles(vram);
                     door.LoadNormalColors(cgram, CeresDoorVisualRomData.NormalTargetColor);
                     door.LoadEscapeColors(cgram, CeresDoorVisualRomData.ActiveTargetColor);
@@ -57,7 +57,7 @@ internal static class CinematicPresentationContractChecks
                     door.LoadAnimationColors(cgram, CeresDoorVisualRomData.AnimationRowCount);
                     door.Mode7DoorFrame(CeresDoorVisualRomData.Mode7FrameCount - 1);
                     door.Mode7DoorFrame(CeresDoorVisualRomData.Mode7FrameCount);
-                    timer.Draw(countdown, sprites, timerArtwork);
+                    timer.Draw(countdown, sprites, timerSheet);
                     overlay.TryResolve(CeresEscapeOverlayTilemapDefinitions.Emergency.SourceAddress, 18, out _);
                     overlay.TryResolve(CeresEscapeOverlayTilemapDefinitions.Emergency.SourceAddress, 0, out _);
                     overlay.TryResolve(0, 0, out _);

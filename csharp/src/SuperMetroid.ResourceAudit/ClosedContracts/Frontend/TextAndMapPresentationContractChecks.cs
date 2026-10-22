@@ -32,7 +32,7 @@ internal static class TextAndMapPresentationContractChecks
             using SuperMetroid.Core.Rooms;
             class TextMapConsumer {
                 void Inspect(EscapeTypewriterPresentation escape, IntroNarrationPresentation intro,
-                    EndingTextPresentation ending, CreditsPresentation credits, MapSpriteCatalog sprites,
+                    EndingTextPresentation ending, CreditsPresentation credits, MapSpriteCatalog sprites, SpriteSheet mapSheet,
                     MapArrowPresentation arrows, MapScreenPresentation screen, SnesVram vram,
                     ScreenSprites objects, System.Span<ushort> tilemap, AreaId area) {
                     escape.Get(EscapeTypewriterProgramId.Ceres);
@@ -49,8 +49,8 @@ internal static class TextAndMapPresentationContractChecks
                     credits.GetRow(CreditsPresentationDefinitions.ExpectedCompiledRows - 1);
                     credits.GetRow(CreditsPresentationDefinitions.ExpectedCompiledRows);
                     credits.GetRow(-1);
-                    sprites.Draw(MapSpriteId.WorldTitle, objects, default, 0);
-                    sprites.Draw((MapSpriteId)1, objects, default, 0);
+                    MapSpriteSheet.Draw(mapSheet, MapSpriteId.WorldTitle, objects, default, 0);
+                    MapSpriteSheet.Draw(mapSheet, (MapSpriteId)1, objects, default, 0);
                     sprites.LoadArtworkTo(new PauseVram(vram).ObjectCharacters);
                     arrows.Get(MapScrollDirection.Left);
                     arrows.Get(MapScrollDirection.Down);

@@ -97,7 +97,9 @@ internal static class ConsumerAudit
         // Draw(), Segment(), Fragment(), LoadTo() and Color() also consume resources.
         // Core also consumes internal draw contracts. Accessibility is not a
         // coverage boundary; inventory instance operations, not just public Get().
-        if (method.IsStatic) return;
+        // A static operation is a lookup when a reviewed contract names it: a draw from a pre-coloured sheet maps an
+        // identity to its frame without reading the presentation's own state (#1392).
+        if (method.IsStatic && !ReviewedStaticOperation(method)) return;
         // A reviewed closed contract classifies the call first: it may be reached through a narrow interface that
         // lives outside the artwork layer (gameplay reads the frontend's map install through IGameplayPresentationContent).
         if (closedProviders?.TryInspect(call, semantic, method, exports, report, source) == true) return;
@@ -151,8 +153,15 @@ internal static class ConsumerAudit
             (type.Name.EndsWith("Catalog", StringComparison.Ordinal) ||
              type.Name.EndsWith("Presentation", StringComparison.Ordinal) ||
              type.Name.EndsWith("ColorSource", StringComparison.Ordinal) ||
-             type.Name.EndsWith("Visuals", StringComparison.Ordinal));
+             type.Name.EndsWith("Visuals", StringComparison.Ordinal) ||
+             // A family's drawer over its pre-coloured sheet selects a frame by identity (#1392).
+             (type.Name.EndsWith("Sheet", StringComparison.Ordinal) && space.EndsWith(".Artwork", StringComparison.Ordinal)));
     }
+
+    /// <summary>Whether a reviewed closed contract names <paramref name="method"/>'s static operation.</summary>
+    private static bool ReviewedStaticOperation(IMethodSymbol method) =>
+        ClosedContracts.ClosedPresentationContractDefinitions.All.Any(contract =>
+            contract.Type == method.ContainingType.ToDisplayString() && contract.Methods.Contains(method.Name, StringComparer.Ordinal));
 
     /// <summary>Maps a known presentation operation to the resource domain it addresses.</summary>
     private static string? Domain(string type, string method) => new PresentationMethod(type, method) switch

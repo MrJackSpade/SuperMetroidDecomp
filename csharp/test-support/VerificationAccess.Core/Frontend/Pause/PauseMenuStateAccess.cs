@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Hardware;
 
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>Verification access to <see cref="PauseMenuState"/> members production does not use.</summary>
@@ -21,7 +23,7 @@ internal static class PauseMenuStateAccess
         internal SelectorAnimation ItemSelectorAnimationState => new SelectorAnimation(self.ItemSelectorAnimationFrame, self.ItemSelectorAnimationTimer);
 
         /// <summary>Number of cartridge OBJ records emitted by the most recent render.</summary>
-        internal int LastRenderedSpriteCount => self.screen.Objects.Draws.Length;
+        internal int LastRenderedSpriteCount => self.screen.Objects.LastFinalizedSpriteCount;
 
         /// <summary>Pose of the Samus map marker when it was the last indicator a pause render drew.</summary>
         internal SuperMetroid.Core.Frontend.Map.MapSpriteId? LastMapIndicatorSprite => self.LastMapIndicatorSprite;

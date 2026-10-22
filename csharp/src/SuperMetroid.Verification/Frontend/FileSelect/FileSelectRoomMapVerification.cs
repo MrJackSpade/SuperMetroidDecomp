@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Rooms;
@@ -50,7 +51,7 @@ internal static class FileSelectRoomMapVerification
             for (int x = 0; x < 64; x++)
                 if ((x + y) % 7 == 0) system.MarkExploredMapTile(area, new(checked((ushort)x), checked((ushort)y)));
             if (downloaded) system.SetAreaMapAcquired(area);
-            var graphics = new FileSelectRoomMapGraphics(system, area, mapPresentation: RetailPresentationFixture());
+            var graphics = new FileSelectRoomMapGraphics(system, area, mapPresentation: RetailPresentationFixture(), mapSheet: MenuSheetFixtures.MapSprites(RetailPresentationFixture().Sprites));
             byte[] pause = AreaMapTilemapBuilder.Build(map, system, MapTileWords.PauseBlank);
             for (int y = 0; y < 32; y++)
             for (int x = 0; x < 64; x++)
@@ -89,7 +90,7 @@ internal static class FileSelectRoomMapVerification
             var retailIcons = new FileSelectMapIcons(system, area);
             retailIcons.BindStations(RetailPresentationFixture().Stations);
             retailIcons.BindLandmarks(RetailPresentationFixture().Landmarks);
-            retailIcons.BindSprites(RetailPresentationFixture().Sprites);
+            retailIcons.BindSprites(MenuSheetFixtures.MapSprites(RetailPresentationFixture().Sprites));
             var retailOam = ScreenSpritesFixtures.Blank();
             retailOam.BeginFrame();
             retailIcons.DrawBeforeMarker(retailOam, new(0, 0));
@@ -110,8 +111,8 @@ internal static class FileSelectRoomMapVerification
         snapshot.UsedSaveStationBytes[8] = 1;
         saves.SaveSlot(0, snapshot);
         var slot = saves.ReadSlot(0);
-        var cancel = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, RetailPresentationFixture());
-        var control = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0, RetailPresentationFixture());
+        var cancel = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
+        var control = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
         foreach (var menu in new[] { cancel, control })
         {
             for (int i = 0; i < 48; i++) menu.Step(0);
@@ -126,9 +127,9 @@ internal static class FileSelectRoomMapVerification
             "room cancel must retain the map/icons drawn before input until next coroutine call");
         var system = new Bank80SystemState();
         system.LoadMapStationBytes(slot.MapStationBytes);
-        Rgba32[] roomFrame = new FileSelectRoomMapGraphics(system, AreaId.Maridia, mapPresentation: RetailPresentationFixture()).RenderFrameOnly();
+        Rgba32[] roomFrame = new FileSelectRoomMapGraphics(system, AreaId.Maridia, mapPresentation: RetailPresentationFixture(), mapSheet: MenuSheetFixtures.MapSprites(RetailPresentationFixture().Sprites)).RenderFrameOnly();
         var maps = RetailPresentationFixture();
-        var areaGraphics = new FileSelectAreaMapGraphics(4, maps.Tiles, maps.Palettes, maps.Screens, maps.WorldArtwork, maps.Sprites);
+        var areaGraphics = new FileSelectAreaMapGraphics(4, maps.Tiles, maps.Palettes, maps.Screens, maps.WorldArtwork, maps.Sprites, MenuSheetFixtures.MapSprites(maps.Sprites));
         areaGraphics.BindLabels(maps.Labels);
         Rgba32[] area = areaGraphics.Render(new ushort[] { 0, 0, 0, 0, 1, 0 });
         for (int tick = 1; tick <= 4; tick++)
@@ -204,7 +205,7 @@ internal static class FileSelectRoomMapVerification
         animations.StepArrows(direction => direction == MapScrollDirection.Left);
         ScreenSprites Draw()
         {
-            var oam = ScreenSpritesFixtures.Blank(); oam.BeginFrame(); animations.DrawArrows(oam, sprites); oam.FinalizeFrame(); return oam;
+            var oam = ScreenSpritesFixtures.Blank(); oam.BeginFrame(); animations.DrawArrows(oam, MenuSheetFixtures.MapSprites(sprites)); oam.FinalizeFrame(); return oam;
         }
         ScreenSprites first = Draw();
         AssertEqual(1, first.LastFinalizedSpriteCount, "only available arrows draw");
@@ -261,7 +262,7 @@ internal static class FileSelectRoomMapVerification
         var icons = new FileSelectMapIcons(system, AreaId.Brinstar);
         icons.BindLandmarks(MapLandmarkLayout.Load(landmarkJson));
         icons.BindStations(MapStationLayout.Load(stationJson));
-        icons.BindSprites(sprites);
+        icons.BindSprites(MenuSheetFixtures.MapSprites(sprites));
         ScreenSprites Draw()
         {
             var oam = ScreenSpritesFixtures.Blank();
@@ -513,7 +514,7 @@ internal static class FileSelectRoomMapVerification
             AssertEqual(backing, marker.ShowBacking, "station marker alternates backing at loop boundary");
             var oam = ScreenSpritesFixtures.Blank();
             oam.BeginFrame();
-            marker.Draw(oam, new(24, 16), sprites);
+            marker.Draw(oam, new(24, 16), MenuSheetFixtures.MapSprites(sprites));
             oam.FinalizeFrame();
             AssertEqual(backing ? 2 : 1, oam.LastFinalizedSpriteCount, "marker backing OAM emission");
             AssertEqual(74, oam.LowTable[0], "marker subtracts horizontal scroll and sprite offset");
@@ -521,7 +522,7 @@ internal static class FileSelectRoomMapVerification
             AssertEqual(0x3e, oam.LowTable[3], "marker retains sprite priority with palette seven");
             byte[] first = oam.LowTable.ToArray();
             oam.BeginFrame();
-            marker.Draw(oam, new(24, 16), sprites);
+            marker.Draw(oam, new(24, 16), MenuSheetFixtures.MapSprites(sprites));
             oam.FinalizeFrame();
             AssertTrue(first.SequenceEqual(oam.LowTable.ToArray()), "repainting station marker does not advance animation");
         }

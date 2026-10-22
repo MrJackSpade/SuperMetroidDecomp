@@ -44,10 +44,10 @@ internal static class ScreenSpritesFixtures
                 ?? SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.CharacterDraw((ImageSpriteDraw)draw);
             foreach (SpriteFramePart part in character.Frame.Parts)
             {
-                int x = (character.Origin.X + part.Offset.X) & 0x1ff;
-                int y = (character.Origin.Y + part.Offset.Y) & 0xff;
                 bool large = part.Size != sprites.Sizes.Small;
                 var attributes = SnesObjAttributeWord.Create(part.Character, part.Palette ?? character.Palette, part.Priority ?? character.Priority, part.Flip);
+                (int x, int y) = draw is ImageSpriteDraw ? Loaded(sprites, character.Origin, part, large, attributes)
+                    : ((character.Origin.X + part.Offset.X) & 0x1ff, (character.Origin.Y + part.Offset.Y) & 0xff);
                 oam.LowTableBytes[index * 4] = unchecked((byte)x);
                 oam.LowTableBytes[index * 4 + 1] = unchecked((byte)y);
                 oam.WriteAttributes(index * 4, attributes);
@@ -58,6 +58,22 @@ internal static class ScreenSpritesFixtures
         oam.NextByteOffset = index * 4;
         oam.FinalizeFrame();
         return oam;
+    }
+
+    /// <summary>
+    /// Where the spritemap loader places one part of an image drawn at <paramref name="origin"/>: a part it would hide
+    /// below the screen is parked where the loader parks it, so the OAM matches the cartridge's byte for byte.
+    /// </summary>
+    private static (int X, int Y) Loaded(ScreenSprites sprites, Position16<ScreenPixels> origin, SpriteFramePart part, bool large,
+        SnesObjAttributeWord attributes)
+    {
+        ScreenSprites loader = new(sprites.Artwork, sprites.Sizes);
+        loader.BeginFrame();
+        loader.AddPart(SnesSpritemapXWord.Create(part.Offset.X, large), SnesSpritemapYByte.Create(part.Offset.Y), attributes,
+            new Position16<OamPixels>(unchecked((ushort)(origin.X & 0x1ff)), unchecked((ushort)(origin.Y & 0xff))));
+        loader.FinishFrame();
+        Position16<ScreenPixels> placed = loader.Draws[0].Origin;
+        return (placed.X & 0x1ff, placed.Y & 0xff);
     }
 
     /// <summary>Reads a finished frame's sprite entries as the OAM tables they stand for.</summary>

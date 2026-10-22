@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
@@ -133,8 +134,8 @@ internal static class MapSaveMarkersVerification
         snapshot.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 1;
         saves.SaveSlot(0, snapshot);
         var slot = saves.ReadSlot(0);
-        var control = new FileSelectMapMenuState(new CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original);
-        var menu = new FileSelectMapMenuState(new CartridgeAudioState(), slot, 0, edited);
+        var control = new FileSelectMapMenuState(new CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original, MenuSheetFixtures.For(original));
+        var menu = new FileSelectMapMenuState(new CartridgeAudioState(), slot, 0, edited, MenuSheetFixtures.For(edited));
         for (int frame = 0; frame < 104; frame++)
         {
             SnesButton input = frame == 48 ? SnesButton.Start : 0;
@@ -145,7 +146,7 @@ internal static class MapSaveMarkersVerification
         AssertTrue(!control.Render().SequenceEqual(menu.Render()), "selected save marker edit changes actual room-map pixels");
         using var captured = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(captured, menu); captured.Position = 0;
         menu = DebuggerObjectGraphSerializer.Deserialize<FileSelectMapMenuState>(captured);
-        menu.BindMapPresentation(original);
+        menu.BindFixtureArtwork(original);
         AssertTrue(control.Render().SequenceEqual(menu.Render()), "restored marker rebind preserves scroll/animation and restores current stock position");
         for (int frame = 0; frame < 80; frame++)
         {
@@ -178,7 +179,7 @@ internal static class MapSaveMarkersVerification
         byte[] Draw(FileSelectStationMarker marker)
         {
             var oam = ScreenSpritesFixtures.Blank(); oam.BeginFrame();
-            marker.Draw(oam, new(24, 8), original.Sprites);
+            marker.Draw(oam, new(24, 8), MenuSheetFixtures.MapSprites(original.Sprites));
             oam.FinalizeFrame();
             return oam.LowTable.ConcatToArray(oam.HighTable);
         }

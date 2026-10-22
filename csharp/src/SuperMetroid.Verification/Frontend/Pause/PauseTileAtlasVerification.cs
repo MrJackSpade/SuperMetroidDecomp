@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -44,8 +45,8 @@ internal static class PauseTileAtlasVerification
             var system = new Bank80SystemState(); system.SetAreaMapAcquired(area);
             var samus = new SamusState { CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge };
             var nativeSamus = new SamusState { CollectedBeams = samus.CollectedBeams, EquippedBeams = samus.EquippedBeams };
-            var native = new PauseMenuState(new PauseMenuEntry { Samus = nativeSamus, System = system, AreaIndex = area, RoomMapPosition = new(10, 10), MapPresentation = original });
-            var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = area, RoomMapPosition = new(10, 10), MapPresentation = original });
+            var native = new PauseMenuState(new PauseMenuEntry { Samus = nativeSamus, System = system, AreaIndex = area, RoomMapPosition = new(10, 10), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+            var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = area, RoomMapPosition = new(10, 10), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
             int toMap = 2 + PausePageTransitionNativeLength + 1;
             for (int tick = 0; tick < toMap + PausePageTransitionNativeLength + 2; tick++)
             {
@@ -59,14 +60,14 @@ internal static class PauseTileAtlasVerification
             AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "artwork edit fixture reaches equipment page");
             var before = pause.Render();
             var selected = new Selected(pause.SelectedCategory, pause.SelectedItem, samus.EquippedBeams, samus.CollectedBeams);
-            pause.BindMapPresentation(edited);
+            pause.BindFixtureArtwork(edited);
             var after = pause.Render();
             AssertTrue(!before.SequenceEqual(after), "pause UI PNG edit reaches actual equipment pixels immediately");
             AssertTrue(after.SequenceEqual(RenderForComparison(pause.CaptureRenderSnapshot())), "edited pause artwork reaches captured rendering");
             AssertEqual(selected, new Selected(pause.SelectedCategory, pause.SelectedItem, samus.EquippedBeams, samus.CollectedBeams), "artwork rebind preserves selection and equipment");
             using var captured = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(captured, pause); captured.Position = 0;
             pause = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(captured);
-            pause.BindMapPresentation(original);
+            pause.BindFixtureArtwork(original);
             AssertTrue(before.SequenceEqual(pause.Render()), "restored pause uses current PNG without changing animation phase");
         }
         File.WriteAllText(path, "invalid PNG");

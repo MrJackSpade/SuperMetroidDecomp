@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
@@ -39,9 +40,9 @@ internal static class MapLandmarksVerification
             var native = new FileSelectMapIcons(system, area);
             var installed = new FileSelectMapIcons(system, area);
             native.BindLandmarks(original.Landmarks);
-            native.BindSprites(original.Sprites);
+            native.BindSprites(MenuSheetFixtures.MapSprites(original.Sprites));
             installed.BindLandmarks(original.Landmarks);
-            installed.BindSprites(original.Sprites);
+            installed.BindSprites(MenuSheetFixtures.MapSprites(original.Sprites));
             AssertTrue(Draw(native, area).SequenceEqual(Draw(installed, area)), $"landmark OAM {area}/{bits}/{downloaded}");
             AssertEqual((byte)bits, system.GetBossBitsRaw(area), "landmark drawing preserves boss state");
             AssertEqual(downloaded, system.HasAreaMap(area), "landmark drawing preserves map acquisition");
@@ -59,7 +60,7 @@ internal static class MapLandmarksVerification
         // An undiscovered living boss remains invisible even after its visual is moved.
         var unknown = new Bank80SystemState();
         var hidden = new FileSelectMapIcons(unknown, AreaId.WreckedShip);
-        hidden.BindSprites(original.Sprites);
+        hidden.BindSprites(MenuSheetFixtures.MapSprites(original.Sprites));
         hidden.BindLandmarks(original.Landmarks); byte[] hiddenBefore = Draw(hidden, AreaId.WreckedShip);
         hidden.BindLandmarks(edited.Landmarks);
         AssertTrue(hiddenBefore.SequenceEqual(Draw(hidden, AreaId.WreckedShip)), "landmark edit cannot reveal living boss/elevators without map download");
@@ -71,24 +72,24 @@ internal static class MapLandmarksVerification
             system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
             var marker = new FileSelectStationMarker(area, 0, original.SaveMarkers);
             var native = new FileSelectRoomMapGraphics(system, area,
-                mapPresentation: original);
-            var room = new FileSelectRoomMapGraphics(system, area, mapPresentation: original);
+                mapPresentation: original, mapSheet: MenuSheetFixtures.MapSprites(original.Sprites));
+            var room = new FileSelectRoomMapGraphics(system, area, mapPresentation: original, mapSheet: MenuSheetFixtures.MapSprites(original.Sprites));
             var before = native.Render(new(0, 0), marker);
             AssertTrue(before.SequenceEqual(room.Render(new(0, 0), marker)), "full file-select landmark stock pixel parity");
-            room.BindMapPresentation(edited);
+            room.BindFixtureArtwork(edited);
             AssertTrue(!before.SequenceEqual(room.Render(new(0, 0), marker)), "edited landmarks change file-select pixels");
             using var capture = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(capture, room); capture.Position = 0;
             room = DebuggerObjectGraphSerializer.Deserialize<FileSelectRoomMapGraphics>(capture);
-            room.BindMapPresentation(original);
+            room.BindFixtureArtwork(original);
             AssertTrue(before.SequenceEqual(room.Render(new(0, 0), marker)), "restored file-select uses current landmark content");
             if (area != AreaId.WreckedShip) continue;
-            var pauseNative = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = area, RoomMapPosition = new(19, 20), MapPresentation = original });
-            var pause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = area, RoomMapPosition = new(19, 20), MapPresentation = original });
+            var pauseNative = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = area, RoomMapPosition = new(19, 20), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+            var pause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = area, RoomMapPosition = new(19, 20), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
             var pauseBefore = pauseNative.Render();
             AssertTrue(pauseBefore.SequenceEqual(pause.Render()), "pause stock boss pixels with ROM coordinates blocked");
-            pause.BindMapPresentation(edited);
+            pause.BindFixtureArtwork(edited);
             AssertTrue(!pauseBefore.SequenceEqual(pause.Render()), "boss layout edit changes pause pixels");
-            pause.BindMapPresentation(original);
+            pause.BindFixtureArtwork(original);
             AssertTrue(pauseBefore.SequenceEqual(pause.Render()), "pause boss layout rebind restores pixels");
         }
         string rebuilt = Path.Combine(overrides, "rebuilt");

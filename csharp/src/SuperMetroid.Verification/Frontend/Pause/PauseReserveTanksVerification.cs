@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -66,7 +67,7 @@ internal static class PauseReserveTanksVerification
                     DebuggerObjectGraphSerializer.Serialize(saved, pause);
                     saved.Position = 0;
                     var restored = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(saved);
-                    restored.BindMapPresentation(RetailPresentationFixture());
+                    restored.BindFixtureArtwork(RetailPresentationFixture());
                     AssertTrue(actual.SequenceEqual(restored.Render()), "saved pause preserves nonzero native tank-flicker phase");
                 }
                 if (capacity == 400 && supply == 199 && phase == 0)

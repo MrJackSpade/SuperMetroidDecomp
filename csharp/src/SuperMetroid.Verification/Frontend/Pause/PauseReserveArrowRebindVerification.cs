@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseEquipmentRulesVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Frontend.Pause;
@@ -21,13 +22,13 @@ internal static class PauseReserveArrowRebindVerification
     {
         var catalog = RetailPresentationFixture();
         var samus = new SamusState { MaxReserveEnergy = 100, ReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Manual, Health = 50, MaxHealth = 99 };
-        var menu = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = catalog });
+        var menu = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = catalog, SpriteSheets = MenuSheetFixtures.For(catalog) });
         EnterPauseEquipment(menu);
         AssertEqual(PauseEquipmentCategory.Reserves, menu.SelectedCategory, "fixture settles on the reserve page selection");
         var pixels = menu.Render();
         byte[] vram = menu.CaptureRenderSnapshot().Memory.Vram.ToArray();
 
-        menu.BindMapPresentation(catalog);
+        menu.BindFixtureArtwork(catalog);
         AssertTrue(vram.SequenceEqual(menu.CaptureRenderSnapshot().Memory.Vram), "same-content rebind keeps the latched reserve arrow tilemap");
         AssertTrue(pixels.SequenceEqual(menu.Render()), "same-content rebind keeps exact reserve page pixels");
 
@@ -35,7 +36,7 @@ internal static class PauseReserveArrowRebindVerification
         DebuggerObjectGraphSerializer.Serialize(state, menu);
         state.Position = 0;
         var restored = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(state);
-        restored.BindMapPresentation(catalog);
+        restored.BindFixtureArtwork(catalog);
         AssertTrue(pixels.SequenceEqual(restored.Render()), "restore plus rebind keeps exact reserve page pixels");
         Console.WriteLine("Reserve arrow rebind: same-content rebind and restore keep the latched arrow palette and exact pixels.");
     }

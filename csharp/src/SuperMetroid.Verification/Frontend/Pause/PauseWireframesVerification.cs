@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -54,8 +55,8 @@ internal static class PauseWireframesVerification
             {
                 SamusEquipmentFlags equipped = (SamusEquipmentFlags)items | (gravity ? SamusEquipmentFlags.GravitySuit : SamusEquipmentFlags.None);
                 var samus = new SamusState { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = SamusBeamFlags.Charge };
-                var native = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = samus.CollectedBeams }, System = new Bank80SystemState(), AreaIndex = AreaId.Maridia, RoomMapPosition = new(5, 5), MapPresentation = original });
-                var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Maridia, RoomMapPosition = new(5, 5), MapPresentation = original });
+                var native = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = samus.CollectedBeams }, System = new Bank80SystemState(), AreaIndex = AreaId.Maridia, RoomMapPosition = new(5, 5), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+                var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Maridia, RoomMapPosition = new(5, 5), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
                 // Every tick compares the complete render inputs; identical inputs cannot render
                 // differently, so pixels are rasterized once each page change settles.
                 void StepBoth(SnesButton input)
@@ -76,7 +77,7 @@ internal static class PauseWireframesVerification
                 AssertEqual(PauseScreenMode.Map, pause.ScreenMode, "wireframe fixture returns to the map page");
                 // Rebind on the map must not replace the map's shared BG1 page.
                 byte[] map = pause.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x1000).ToArray();
-                pause.BindMapPresentation(edited);
+                pause.BindFixtureArtwork(edited);
                 AssertTrue(map.SequenceEqual(pause.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x1000)), "wireframe edit while viewing map does not overwrite BG1 map");
                 EnterEquipment(pause);
                 AssertPage(pause, edited, kind);
@@ -87,19 +88,19 @@ internal static class PauseWireframesVerification
                 using var captured = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(captured, new object[] { pause, samus }); captured.Position = 0;
                 var restored = DebuggerObjectGraphSerializer.Deserialize<object[]>(captured);
                 pause = (PauseMenuState)restored[0]; samus = (SamusState)restored[1];
-                pause.BindMapPresentation(original);
+                pause.BindFixtureArtwork(original);
                 AssertPage(pause, original, kind);
                 AssertTrue(!editedPixels.SequenceEqual(pause.Render()), "restored current wireframe changes visible equipment pixels");
                 AssertEqual(cursor, new CursorBeforeRestore(pause.SelectedCategory, pause.SelectedItem), "wireframe replacement preserves cursor");
                 AssertEqual(inventory, new Inventory(samus.EquippedItems, samus.CollectedItems, samus.EquippedBeams, samus.CollectedBeams), "wireframe replacement cannot equip or collect upgrades");
-                pause.BindMapPresentation(edited);
+                pause.BindFixtureArtwork(edited);
                 AssertTrue(editedPixels.SequenceEqual(pause.Render()), "repeated restored-content rebind preserves exact animation phase");
             }
         }
         // Exercise selection through real menu actions, not only a direct bit fixture.
         var toggledSamus = new SamusState { CollectedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.HiJumpBoots),
             EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.HiJumpBoots) };
-        var toggles = new PauseMenuState(new PauseMenuEntry { Samus = toggledSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var toggles = new PauseMenuState(new PauseMenuEntry { Samus = toggledSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         EnterEquipment(toggles); AssertPage(toggles, original, PauseWireframeKind.VariaSuitHiJump);
         toggles.Step(0, SnesButton.A); AssertPage(toggles, original, PauseWireframeKind.PowerSuitHiJump);
         toggles.Step(0, SnesButton.Down);

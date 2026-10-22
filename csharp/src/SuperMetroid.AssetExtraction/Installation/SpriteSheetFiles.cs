@@ -6,6 +6,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
+using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
@@ -84,6 +85,7 @@ public static class SpriteSheetFiles
         SpriteSheetId.GameOver => GameOverPresentationDefinitions.SpriteNames.ToArray(),
         SpriteSheetId.FileSelect => FileSelectPresentationDefinitions.SheetFrames,
         SpriteSheetId.GameOptions => GameOptionsPresentationDefinitions.SheetFrames,
+        SpriteSheetId.MapSprites => MapSpriteDefinitions.SheetFrames,
         _ => ProjectileSheetDefinitions.Frames,
     };
 

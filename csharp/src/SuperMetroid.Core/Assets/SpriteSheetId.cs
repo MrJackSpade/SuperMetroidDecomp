@@ -23,6 +23,8 @@ public enum SpriteSheetId
     FileSelect,
     /// <summary>The options menu's page headings and cursor.</summary>
     GameOptions,
+    /// <summary>The file-select and pause maps' markers, elevator and area labels, arrows and position indicator.</summary>
+    MapSprites,
     /// <summary>Samus's projectiles, bombs, charge flare and trails as the intro's flashbacks draw them.</summary>
     IntroProjectiles,
     /// <summary>Samus's projectiles, bombs, charge flare and trails with the power beam equipped.</summary>

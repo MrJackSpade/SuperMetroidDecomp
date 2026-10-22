@@ -193,7 +193,7 @@ internal static class InstalledFixtures
 
     /// <summary>Creates a file-select area map from installed presentation resources.</summary>
     internal static FileSelectAreaMapGraphics CreateFileSelectAreaMap(int selectedArea) =>
-        FileSelectAreaMapGraphics.FromPresentation(selectedArea, Maps);
+        FileSelectAreaMapGraphics.FromPresentation(selectedArea, Maps, SpriteSheets.Get(SpriteSheetId.MapSprites));
 
     /// <summary>Creates the title sequence with installed gradient, palette, and graphics defaults.</summary>
     internal static TitleSequenceState CreateTitle(CartridgeAudioState? audio = null,
@@ -205,7 +205,7 @@ internal static class InstalledFixtures
 
     /// <summary>Creates a pause menu while retaining the supplied state and installed map presentation.</summary>
     internal static PauseMenuState CreatePause(PauseMenuEntry entry) =>
-        new(new PauseMenuEntry { Samus = entry.Samus, System = entry.System, AreaIndex = entry.AreaIndex, RoomMapPosition = entry.RoomMapPosition, Audio = entry.Audio, GameplayLayer3 = entry.GameplayLayer3, MapRevealMode = entry.MapRevealMode, MapPresentation = Maps });
+        new(new PauseMenuEntry { Samus = entry.Samus, System = entry.System, AreaIndex = entry.AreaIndex, RoomMapPosition = entry.RoomMapPosition, Audio = entry.Audio, GameplayLayer3 = entry.GameplayLayer3, MapRevealMode = entry.MapRevealMode, MapPresentation = Maps, SpriteSheets = SpriteSheets });
 
     /// <summary>
     /// A private copy of the installation for a check that corrupts and restores stock files, so

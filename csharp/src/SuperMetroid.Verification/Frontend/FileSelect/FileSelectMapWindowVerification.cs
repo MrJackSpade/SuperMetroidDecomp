@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Frontend.FileSelect.FileSelectMapEntryVerification;
@@ -117,7 +118,7 @@ internal static class FileSelectMapWindowVerification
         AssertTrue(FileSelectMapWindowCompositor.Composite(area, frame, returning).All(pixel => pixel == areaColor),
             "completed return disables room frame and restores entire area scene");
         var graphics = new FileSelectRoomMapGraphics(new SuperMetroid.Core.Progression.Bank80SystemState(),
-            SuperMetroid.Core.Progression.AreaId.Maridia, mapPresentation: RetailPresentationFixture());
+            SuperMetroid.Core.Progression.AreaId.Maridia, mapPresentation: RetailPresentationFixture(), mapSheet: MenuSheetFixtures.MapSprites(RetailPresentationFixture().Sprites));
         Rgba32[] frameOnly = graphics.RenderFrameOnly().ToArray();
         graphics.screen.Tilemaps.AreaMap[0] = 0x1234;
         AssertTrue(frameOnly.SequenceEqual(graphics.RenderFrameOnly()), "transition frame never samples room-map BG1 tiles");
@@ -137,7 +138,7 @@ internal static class FileSelectMapWindowVerification
         int[] indices = [86, 107, 102, 81, 97, 118];
         int[] activeColors = [0x01db, 0x0bb1, 0x0013, 0x7fe0, 0x6400, 0x6417];
         var maps = RetailPresentationFixture();
-        var graphics = new FileSelectAreaMapGraphics(0, maps.Tiles, maps.Palettes, maps.Screens, maps.WorldArtwork, maps.Sprites);
+        var graphics = new FileSelectAreaMapGraphics(0, maps.Tiles, maps.Palettes, maps.Screens, maps.WorldArtwork, maps.Sprites, MenuSheetFixtures.MapSprites(maps.Sprites));
         graphics.BindLabels(maps.Labels);
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {

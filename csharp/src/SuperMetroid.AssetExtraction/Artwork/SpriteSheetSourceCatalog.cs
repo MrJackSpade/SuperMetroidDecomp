@@ -40,6 +40,7 @@ internal sealed class SpriteSheetSourceCatalog
         SpriteSheetId.GameOver => GameOverSheetComposer.Sources(maps.Value),
         SpriteSheetId.FileSelect => FileSelectSheetComposer.Sources(maps.Value),
         SpriteSheetId.GameOptions => GameOptionsSheetComposer.Sources(maps.Value),
+        SpriteSheetId.MapSprites => MapSpriteSheetComposer.Sources(maps.Value),
         _ => SamusSheetSources.For(samus.Value, sheet),
     };
 }

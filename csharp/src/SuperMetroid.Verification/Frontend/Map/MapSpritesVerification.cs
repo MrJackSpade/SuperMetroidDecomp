@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -64,7 +65,7 @@ internal static class MapSpritesVerification
         Suite(nameof(VerifyRenderedEdit), () => VerifyRenderedEdit(edited));
         for (int palette = 0; palette < 8; palette++)
         {
-            authored.BeginFrame(); edited.Sprites.Draw(MapSpriteId.MarkerBoss, authored, new(100, 100), (ushort)(palette << 9)); authored.FinishFrame();
+            authored.BeginFrame(); MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(edited.Sprites), MapSpriteId.MarkerBoss, authored, new(100, 100), (ushort)(palette << 9)); authored.FinishFrame();
             AssertEqual((byte)112, authored.LowTable[0], "authored horizontal offset reaches OAM");
             AssertEqual((byte)96, authored.LowTable[1], "authored vertical offset reaches OAM");
             var attributes = new SnesObjAttributeWord(SnesLittleEndian.Word(authored.LowTable[2], authored.LowTable[3]));
@@ -76,7 +77,7 @@ internal static class MapSpritesVerification
         }
         frames["Marker.Boss"] = [];
         File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, options));
-        authored.BeginFrame(); AreaMapPresentationCatalog.Load(stock, overrides).Sprites.Draw(MapSpriteId.MarkerBoss, authored, new(0, 0), 0); authored.FinishFrame();
+        authored.BeginFrame(); MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(AreaMapPresentationCatalog.Load(stock, overrides).Sprites), MapSpriteId.MarkerBoss, authored, new(0, 0), 0); authored.FinishFrame();
         AssertEqual(0, authored.LastFinalizedSpriteCount, "authored empty visual frame is valid");
         frames.Remove("Marker.Boss");
         File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, options));
@@ -111,24 +112,24 @@ internal static class MapSpritesVerification
             system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
             var marker = new FileSelectStationMarker(AreaId.WreckedShip, 0,
                 original.SaveMarkers);
-            var room = new FileSelectRoomMapGraphics(system, AreaId.WreckedShip, mapPresentation: original);
+            var room = new FileSelectRoomMapGraphics(system, AreaId.WreckedShip, mapPresentation: original, mapSheet: MenuSheetFixtures.MapSprites(original.Sprites));
             var nativeRoom = new FileSelectRoomMapGraphics(system,
-                AreaId.WreckedShip, mapPresentation: original);
+                AreaId.WreckedShip, mapPresentation: original, mapSheet: MenuSheetFixtures.MapSprites(original.Sprites));
             var before = nativeRoom.Render(new(0, 0), marker);
             AssertTrue(before.SequenceEqual(room.Render(new(0, 0), marker)), "stock map sprite pixels match with source reads blocked");
-            room.BindMapPresentation(replacement);
+            room.BindFixtureArtwork(replacement);
             AssertTrue(!before.SequenceEqual(room.Render(new(0, 0), marker)), "independent sprite resource edit changes file-select pixels");
             using var capture = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(capture, room); capture.Position = 0;
             room = DebuggerObjectGraphSerializer.Deserialize<FileSelectRoomMapGraphics>(capture);
-            room.BindMapPresentation(original);
+            room.BindFixtureArtwork(original);
             AssertTrue(before.SequenceEqual(room.Render(new(0, 0), marker)), "restored sprite resources bind current content");
-            var pauseNative = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.WreckedShip, RoomMapPosition = new(19, 20), MapPresentation = original });
-            var pause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.WreckedShip, RoomMapPosition = new(19, 20), MapPresentation = original });
+            var pauseNative = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.WreckedShip, RoomMapPosition = new(19, 20), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+            var pause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.WreckedShip, RoomMapPosition = new(19, 20), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
             var pauseBefore = pauseNative.Render();
             AssertTrue(pauseBefore.SequenceEqual(pause.Render()), "pause map sprite pixels match with source reads blocked");
-            pause.BindMapPresentation(replacement);
+            pause.BindFixtureArtwork(replacement);
             AssertTrue(!pauseBefore.SequenceEqual(pause.Render()), "independent sprite resource edit changes pause pixels");
-            pause.BindMapPresentation(original);
+            pause.BindFixtureArtwork(original);
             AssertTrue(pauseBefore.SequenceEqual(pause.Render()), "pause sprite rebind restores stock pixels");
         }
     }

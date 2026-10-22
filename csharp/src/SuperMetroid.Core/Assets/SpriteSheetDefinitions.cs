@@ -19,6 +19,7 @@ public static class SpriteSheetDefinitions
         SpriteSheetId.GameOver => "game-over",
         SpriteSheetId.FileSelect => "file-select",
         SpriteSheetId.GameOptions => "game-options",
+        SpriteSheetId.MapSprites => "map-sprites",
         SpriteSheetId.IntroProjectiles => "intro-projectiles",
         SpriteSheetId.ProjectilesPower => "projectiles-power",
         SpriteSheetId.ProjectilesWave => "projectiles-wave",

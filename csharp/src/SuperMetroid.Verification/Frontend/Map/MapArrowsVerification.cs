@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json;
@@ -47,7 +48,7 @@ internal static class MapArrowsVerification
         var control = new FileSelectMapAnimations(original.Arrows);
         changed.StepArrows(_ => true); control.StepArrows(_ => true);
         AssertTrue(!Draw(changed).SequenceEqual(Draw(control)), "edited anchor moves actual emitted arrow sprite coordinates");
-        var graphics = new FileSelectRoomMapGraphics(new Bank80SystemState(), AreaId.Maridia, mapPresentation: original);
+        var graphics = new FileSelectRoomMapGraphics(new Bank80SystemState(), AreaId.Maridia, mapPresentation: original, mapSheet: MenuSheetFixtures.MapSprites(original.Sprites));
         var marker = new FileSelectStationMarker(AreaId.Maridia, 0, original.SaveMarkers);
         AssertTrue(!graphics.Render(new(0, 0), marker, changed).ToArray().SequenceEqual(graphics.Render(new(0, 0), marker, control)),
             "edited arrow anchor changes actual composed room-map pixels");
@@ -94,7 +95,7 @@ internal static class MapArrowsVerification
         byte[] Draw(FileSelectMapAnimations animation)
         {
             var oam = ScreenSpritesFixtures.Blank(); oam.BeginFrame();
-            animation.DrawArrows(oam, original.Sprites);
+            animation.DrawArrows(oam, MenuSheetFixtures.MapSprites(original.Sprites));
             oam.FinalizeFrame();
             return oam.LowTable.ConcatToArray(oam.HighTable);
         }

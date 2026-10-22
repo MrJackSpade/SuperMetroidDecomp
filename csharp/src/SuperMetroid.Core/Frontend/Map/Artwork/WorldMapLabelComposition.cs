@@ -93,19 +93,22 @@ internal sealed class WorldMapLabelComposition
         return new(id, parts[^1].OffsetX, twoLines ? parts[3].OffsetX : 0, advances, null);
     }
 
-    /// <summary>Places authored parts or the area's reconstructed glyph sequence as sprite entries (#1358).</summary>
-    internal void Draw(ScreenSprites sprites, Position16<OamPixels> origin, ushort paletteBits)
+    /// <summary>
+    /// The authored parts or the area's reconstructed glyph sequence as a whole frame (#1392); the glyphs take their
+    /// draw's palette.
+    /// </summary>
+    internal SpriteFrame ToFrame(string name)
     {
-        if (authored is not null) { authored.Draw(sprites, origin, paletteBits); return; }
-        _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
+        if (authored is not null)
+            return authored.ToFrame(name, 0);
         string text = Text(identity);
-        for (int index = 0; index < text.Length; index++)
+        return new(name, [.. Enumerable.Range(0, text.Length).Select(index =>
         {
             int tile = WorldMapTileDefinitions.LabelLetterACell + text[text.Length - 1 - index] - 'A';
-            sprites.AddPart(SnesSpritemapXWord.Create(HorizontalOffset(index, text.Length), false),
-                SnesSpritemapYByte.Create(VerticalOffset(identity, index)),
-                SnesObjAttributeWord.Create(tile, 0, 3).WithPaletteBits(paletteBits), origin);
-        }
+            return ObjPartFrames.Part(SnesSpritemapXWord.Create(HorizontalOffset(index, text.Length), false),
+                SnesSpritemapYByte.Create(VerticalOffset(identity, index)), SnesObjAttributeWord.Create(tile, 0, 3), 0,
+                inheritPalette: true);
+        })]);
     }
 
     /// <summary>Accumulates eight-pixel cells and selected optical advances from the line's authored start.</summary>

@@ -8,6 +8,9 @@ public static class MapSpriteDefinitions
     /// <summary>Required named compositions in the map-sprite presentation document: 26 sparse native identities, not the size of the complete $82:C569 pointer table or a bound on its IDs.</summary>
     public const int Count = 26;
 
+    /// <summary>The map sprite sheet's frames, one per named role.</summary>
+    public static IEnumerable<string> SheetFrames => Frames.Select(frame => frame.Name);
+
     /// <summary>Enumerates named roles in the established presentation-document order.</summary>
     public static IEnumerable<MapSpriteFrameName> Frames
     {

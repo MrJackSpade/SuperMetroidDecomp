@@ -34,7 +34,7 @@ internal static class RetailFileMapTests
                 ushort[] masks = Enumerable.Repeat(used, 6).ToArray();
                 Compare(graphics.Render(masks, backdrop), graphics.CaptureRenderSnapshot(masks, backdrop ? AreaMapColorMath.WithBackdrop : AreaMapColorMath.ForegroundOnly), $"area={area}, labels/backdrop");
             }
-            var room = new FileSelectRoomMapGraphics(new Bank80SystemState(), (AreaId)area, mapPresentation: InstalledFixtures.Maps);
+            var room = new FileSelectRoomMapGraphics(new Bank80SystemState(), (AreaId)area, mapPresentation: InstalledFixtures.Maps, mapSheet: MenuSheetFixtures.MapSprites(InstalledFixtures.Maps.Sprites));
             Compare(room.RenderFrameOnly(), room.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly), "frame-only");
             foreach (ushort scroll in new ushort[] { 0, 255, 511, ushort.MaxValue })
                 Compare(room.RenderBackgrounds(new(scroll, scroll)), room.CaptureRenderSnapshot(new(scroll, scroll)), $"room={area}, scroll={scroll}");
@@ -45,8 +45,8 @@ internal static class RetailFileMapTests
             var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
             save.MapStationBytes[4] = 1; save.UsedSaveStationBytes[8] = 1;
             saves.SaveSlot(0, save);
-            var legacy = new FileSelectMapMenuState(new CartridgeAudioState(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, InstalledFixtures.Maps);
-            var captured = new FileSelectMapMenuState(new CartridgeAudioState(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, InstalledFixtures.Maps);
+            var legacy = new FileSelectMapMenuState(new CartridgeAudioState(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, InstalledFixtures.Maps, MenuSheetFixtures.For(InstalledFixtures.Maps));
+            var captured = new FileSelectMapMenuState(new CartridgeAudioState(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, InstalledFixtures.Maps, MenuSheetFixtures.For(InstalledFixtures.Maps));
             var phases = new HashSet<FileSelectMapNavigationPhase>();
             for (int tick = 0; tick < 300 && !legacy.LoadRequested && !legacy.OptionsRequested; tick++)
             {

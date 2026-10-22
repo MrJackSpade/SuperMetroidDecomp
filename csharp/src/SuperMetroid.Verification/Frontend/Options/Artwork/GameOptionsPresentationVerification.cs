@@ -109,7 +109,7 @@ internal static class GameOptionsPresentationVerification
         GameOptionsPhase phaseBeforeRebind = stockMenu.Phase;
         int selectedBeforeRebind = stockMenu.SelectedItem;
         int cursorXBeforeRebind = stockMenu.CaptureRenderSnapshot().Memory.SpriteParts()[0].Part.Position.X;
-        stockMenu.BindMapPresentation(edited);
+        stockMenu.BindFixtureArtwork(edited);
         AssertEqual(phaseBeforeRebind, stockMenu.Phase,
             "options content rebind preserves menu phase");
         AssertEqual(selectedBeforeRebind, stockMenu.SelectedItem,

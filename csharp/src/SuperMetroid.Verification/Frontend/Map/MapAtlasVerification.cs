@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
@@ -28,10 +29,10 @@ internal static class MapAtlasVerification
         var guard = NewMapDataGuard(bus, rules);
         var system = new Bank80SystemState();
         system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
-        var menu = new FileSelectRoomMapGraphics(system, AreaId.Crateria, mapPresentation: original);
+        var menu = new FileSelectRoomMapGraphics(system, AreaId.Crateria, mapPresentation: original, mapSheet: MenuSheetFixtures.MapSprites(original.Sprites));
         var samus = new SamusState();
-        var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
-        var nativePause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+        var nativePause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         Rgba32[] pauseBefore = pause.Render(), menuBefore = menu.RenderBackgrounds(new(0, 0)).ToArray();
         AssertTrue(pauseBefore.SequenceEqual(nativePause.Render()), "installed stock atlas gives exact pause pixels with artwork ROM blocked");
         Directory.CreateDirectory(overrides);
@@ -48,8 +49,8 @@ internal static class MapAtlasVerification
         byte[] planar = Enumerable.Range(0, source.Length).Select(vram.ReadByte).ToArray();
         byte[] decoded = SnesGraphics.DecodePlanarTiles(planar, 4, MapTileAtlasFormat.TileColumns, out _);
         AssertTrue(decoded.SequenceEqual(image.Pixels), "every edited PNG pixel reaches compiled tile data");
-        menu.BindMapPresentation(edited);
-        pause.BindMapPresentation(edited);
+        menu.BindFixtureArtwork(edited);
+        pause.BindFixtureArtwork(edited);
         AssertTrue(!menuBefore.SequenceEqual(menu.RenderBackgrounds(new(0, 0))), "PNG artwork changes rendered file-select map");
         AssertTrue(!pauseBefore.SequenceEqual(pause.Render()), "PNG artwork changes rendered pause map");
         bool InnerMapChanged(Rgba32[] before, Rgba32[] after) => Enumerable.Range(64, 96)
@@ -60,8 +61,8 @@ internal static class MapAtlasVerification
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(state, menu);
         state.Position = 0;
         menu = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<FileSelectRoomMapGraphics>(state);
-        menu.BindMapPresentation(original);
-        pause.BindMapPresentation(original);
+        menu.BindFixtureArtwork(original);
+        pause.BindFixtureArtwork(original);
         AssertTrue(menuBefore.SequenceEqual(menu.RenderBackgrounds(new(0, 0))), "restored menu replaces stale modified atlas pixels");
         AssertTrue(pauseBefore.SequenceEqual(pause.Render()), "pause rebind restores exact stock atlas pixels");
         string rebuilt = Path.Combine(overrides, "stock-rebuilt");

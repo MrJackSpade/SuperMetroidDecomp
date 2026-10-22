@@ -71,17 +71,16 @@ public sealed class FileSelectMapAnimations
 
     /// <summary>Appends currently visible arrow compositions to OAM using OBJ palette three, without advancing counters or changing scroll availability.</summary>
     /// <param name="entries">Destination sprite buffer owned by the menu frame being composed.</param>
-    /// <param name="sprites">Required installed map sprite compositions; no cartridge-art fallback is used when absent.</param>
+    /// <param name="sheet">Required installed map sprite sheet; no cartridge-art fallback is used when absent.</param>
     /// <param name="verticalOffset">Screen-pixel Y translation added to each bound arrow anchor with unsigned 16-bit wrapping; pause-map rendering supplies its header offset here.</param>
     /// <exception cref="InvalidOperationException">Installed sprite definitions are absent, including when the optional argument is omitted.</exception>
-    public void DrawArrows(ScreenSprites entries, MapSpriteCatalog? sprites = null, int verticalOffset = 0)
+    public void DrawArrows(ScreenSprites entries, SpriteSheet? sheet = null, int verticalOffset = 0)
     {
-        MapSpriteCatalog installed = sprites ?? throw new InvalidOperationException(
-            "Map arrows require installed sprite definitions.");
+        SpriteSheet installed = sheet ?? throw new InvalidOperationException("Map arrows require the installed map sprite sheet.");
         foreach (Arrow arrow in arrows)
         {
             if (!arrow.Visible) continue;
-            installed.Draw(arrow.Base, entries, arrow.Position + new Offset16<OamPixels>(0, unchecked((short)verticalOffset)),
+            MapSpriteSheet.Draw(installed, arrow.Base, entries, arrow.Position + new Offset16<OamPixels>(0, unchecked((short)verticalOffset)),
                 SnesObjPalettes.Palette(3).PaletteBits);
         }
     }

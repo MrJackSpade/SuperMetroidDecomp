@@ -15,8 +15,10 @@ public sealed class FileSelectRoomMapGraphics
     internal readonly MenuScreen screen;
     /// <summary>Map landmarks, stations, and boss icons drawn around the saved-station marker.</summary>
     private readonly FileSelectMapIcons icons;
-    /// <summary>Installed map sprite compositions used when drawing the marker and animated arrows.</summary>
+    /// <summary>Installed map sprite compositions whose page the menu screen loads.</summary>
     [NonSerialized] private MapSpriteCatalog? sprites;
+    /// <summary>The installed map sprite sheet the icons, marker and arrows draw from.</summary>
+    [NonSerialized] private SpriteSheet? mapSheet;
     /// <summary>The room map's palette, initialized from file-select presentation colors and subsequently updated by the menu's palette-animation owner.</summary>
     public ScreenPalette Palette => screen.Palette;
     /// <summary>Persistent downloaded-map and explored-cell state held by the icon owner.</summary>
@@ -27,8 +29,9 @@ public sealed class FileSelectRoomMapGraphics
     /// <param name="area">One of the six Zebes map areas, excluding Ceres.</param>
     /// <param name="revealMode">Optional presentation reveal override when projecting installed map cells; ordinary selection uses persistence-driven visibility.</param>
     /// <param name="mapPresentation">Required installed map tiles, palettes, screens, and sprite/layout resources, despite the optional parameter syntax.</param>
+    /// <param name="mapSheet">Required installed map sprite sheet, despite the optional parameter syntax.</param>
     public FileSelectRoomMapGraphics(Bank80SystemState system, AreaId area,
-        MapRevealMode revealMode = MapRevealMode.None, AreaMapPresentationCatalog? mapPresentation = null)
+        MapRevealMode revealMode = MapRevealMode.None, AreaMapPresentationCatalog? mapPresentation = null, SpriteSheet? mapSheet = null)
     {
         Ensure.NotNull(system);
         if (mapPresentation is null)
@@ -38,7 +41,7 @@ public sealed class FileSelectRoomMapGraphics
         icons.BindStations(mapPresentation.Stations);
         icons.BindLandmarks(mapPresentation.Landmarks);
         sprites = mapPresentation.Sprites;
-        icons.BindSprites(sprites);
+        BindMapSheet(mapSheet ?? throw new InvalidOperationException("Room-map graphics require the installed map sprite sheet."));
         int index = AreaIds.ToIndex(area);
         if (index >= FileSelectMapRomData.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
@@ -60,13 +63,19 @@ public sealed class FileSelectRoomMapGraphics
             .LoadTo(screen.Tilemaps.Bg2, MapScreenDefinitions.RoomFrame(area));
     }
 
+    /// <summary>Rebinds the map sprite sheet the icons, marker and arrows draw from.</summary>
+    internal void BindMapSheet(SpriteSheet? sheet)
+    {
+        mapSheet = sheet;
+        icons.BindSprites(sheet);
+    }
+
     /// <summary>Reprojects current host artwork without resetting menu animation or scroll state.</summary>
     internal void BindMapPresentation(AreaMapPresentationCatalog? catalog)
     {
         icons.BindStations(catalog?.Stations);
         icons.BindLandmarks(catalog?.Landmarks);
         sprites = catalog?.Sprites;
-        icons.BindSprites(sprites);
         screen.BindMapSprites(sprites);
         if (catalog is not null)
             new CgramPalettes(screen.Palette).LoadImageExcept(catalog.Palettes.FileSelect, FrontendPaletteLayout.MapHighlightCycle);
@@ -89,9 +98,9 @@ public sealed class FileSelectRoomMapGraphics
         ScreenSprites entries = screen.Objects;
         entries.BeginFrame();
         icons.DrawBeforeMarker(entries, scroll);
-        marker.Draw(entries, scroll, sprites);
+        marker.Draw(entries, scroll, mapSheet);
         icons.DrawAfterMarker(entries, scroll,
-            animations is null ? null : () => animations.DrawArrows(entries, sprites));
+            animations is null ? null : () => animations.DrawArrows(entries, mapSheet));
         entries.FinishFrame();
     }
 

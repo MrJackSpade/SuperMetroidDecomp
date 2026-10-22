@@ -20,19 +20,22 @@ public sealed class MapSpriteCatalog
     /// <summary>The shared menu OBJ page the catalog's compositions draw from (#1358).</summary>
     public SpriteArtwork Page => field ??= characters.Page();
 
-    /// <summary>Draws a named map marker, elevator, label, or indicator at a screen-pixel anchor as sprite entries (#1358).</summary>
-    public void Draw(MapSpriteId id, ScreenSprites sprites, Position16<OamPixels> origin, ushort paletteBits)
+    /// <summary>
+    /// A named map marker, elevator, label, or indicator as a whole frame over <see cref="Page"/> (#1392): an area label,
+    /// an installed composition, or the native marker geometry, whose parts all take their draw's palette.
+    /// </summary>
+    internal SpriteFrame Frame(MapSpriteId id)
     {
-        var label = GetWorldLabel(id);
-        if (label is not null) { label.Draw(sprites, origin, paletteBits); return; }
-        var frame = GetFrame(id);
-        if (frame is not null) { frame.Draw(sprites, origin, paletteBits); return; }
-        _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
-        for (int index = 0; index < MapMarkerGeometry.PartCount(id); index++)
+        string name = MapSpriteDefinitions.Name(id);
+        if (GetWorldLabel(id) is { } label)
+            return label.ToFrame(name);
+        if (GetFrame(id) is { } frame)
+            return frame.ToFrame(name, 0);
+        return new(name, [.. Enumerable.Range(0, MapMarkerGeometry.PartCount(id)).Select(index =>
         {
-            var part = MapMarkerGeometry.Part(id, index);
-            sprites.AddPart(part.X, part.Y, part.Attributes.WithPaletteBits(paletteBits), origin);
-        }
+            CompiledSpritePart part = MapMarkerGeometry.Part(id, index);
+            return ObjPartFrames.Part(part.X, part.Y, part.Attributes, 0, inheritPalette: true);
+        })]);
     }
     /// <summary>Selects an installed composition by its named native drawing role.</summary>
     internal SpriteComposition? GetFrame(MapSpriteId id) => id switch

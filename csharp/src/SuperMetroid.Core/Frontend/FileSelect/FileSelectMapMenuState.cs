@@ -4,6 +4,8 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
@@ -12,15 +14,15 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// Entry, area/room confirmation, scrolling, return and load handoff each retain their
 /// own timer and input boundary; rendering never advances those owners.
 /// </remarks>
-public sealed class FileSelectMapMenuState : IFrontendScreen
+public sealed class FileSelectMapMenuState : IMenuFrontendScreen
 {
     /// <inheritdoc/>
-    void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork, SuperMetroidGameState state)
+    public void BindSpriteSheets(InstalledSpriteSheets? sheets)
     {
-        Ensure.NotNull(previous);
-        Ensure.NotNull(artwork);
-        if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
-            BindMapPresentation(artwork.MapPresentation);
+        SpriteSheet map = (sheets ?? throw new InvalidOperationException("File-select map requires the installed sprite sheets."))
+            .Get(SpriteSheetId.MapSprites);
+        areaGraphics.BindMapSheet(map);
+        roomGraphics.BindMapSheet(map);
     }
 
     /// <summary>Receives confirmation, scrolling and transition sound requests during updates.</summary>
@@ -63,10 +65,12 @@ public sealed class FileSelectMapMenuState : IFrontendScreen
     /// <param name="slot">Selected save slot; its area must be one of the six Zebes identities and its station supplies the compiled load/scroll anchor.</param>
     /// <param name="initialHeldInput">Native controller-button word already held on entry, latched to prevent a held confirmation button becoming a fresh navigation press.</param>
     /// <param name="mapPresentation">Required installed map artwork/layout catalog, rebound separately after debugger restoration.</param>
+    /// <param name="spriteSheets">Required installed sprite sheets the map's sprites draw from, rebound with the other artwork.</param>
     /// <exception cref="ArgumentOutOfRangeException">The save area is outside Zebes; Ceres bypasses this menu.</exception>
-    /// <exception cref="InvalidOperationException">Map presentation assets are absent.</exception>
+    /// <exception cref="InvalidOperationException">Map presentation assets or the sprite sheets are absent.</exception>
     public FileSelectMapMenuState(CartridgeAudioState audio,
-        SuperMetroidSaveSlot slot, SnesButton initialHeldInput, AreaMapPresentationCatalog? mapPresentation = null)
+        SuperMetroidSaveSlot slot, SnesButton initialHeldInput, AreaMapPresentationCatalog? mapPresentation = null,
+        InstalledSpriteSheets? spriteSheets = null)
     {
         this.audio = Ensure.NotNull(audio);
         Ensure.NotNull(slot);
@@ -83,8 +87,10 @@ public sealed class FileSelectMapMenuState : IFrontendScreen
         var typedArea = (AreaId)area;
         if (mapPresentation is null)
             throw new InvalidOperationException("File-select map requires installed map presentation assets.");
-        areaGraphics = FileSelectAreaMapGraphics.FromPresentation(area, mapPresentation);
-        roomGraphics = new FileSelectRoomMapGraphics(system, typedArea, mapPresentation: mapPresentation);
+        SpriteSheet mapSheet = (spriteSheets ?? throw new InvalidOperationException("File-select map requires the installed sprite sheets."))
+            .Get(SpriteSheetId.MapSprites);
+        areaGraphics = FileSelectAreaMapGraphics.FromPresentation(area, mapPresentation, mapSheet);
+        roomGraphics = new FileSelectRoomMapGraphics(system, typedArea, mapPresentation: mapPresentation, mapSheet: mapSheet);
         this.mapPresentation = mapPresentation;
         Scroll = CreateScrollForCurrentContent();
         marker = new FileSelectStationMarker(typedArea, slot.SaveStation, mapPresentation.SaveMarkers);
@@ -104,7 +110,7 @@ public sealed class FileSelectMapMenuState : IFrontendScreen
     public bool OptionsRequested { get; private set; }
 
     /// <summary>Rebinds host presentation after restoration without restarting navigation.</summary>
-    internal void BindMapPresentation(AreaMapPresentationCatalog? catalog)
+    public void BindMapPresentation(AreaMapPresentationCatalog? catalog)
     {
         mapPresentation = catalog;
         navigation.BindLabels(catalog?.Labels);

@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using System.Buffers.Binary;
@@ -23,16 +25,18 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// equipment-screen A press changes the same bits consumed by movement, rendering, and SRAM;
 /// there is no host-only copy that can diverge from gameplay.
 /// </remarks>
-internal sealed class PauseMenuState : IFrontendScreen
+internal sealed class PauseMenuState : IMenuFrontendScreen
 {
     /// <inheritdoc/>
-    void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork, SuperMetroidGameState state)
-    {
-        Ensure.NotNull(previous);
-        Ensure.NotNull(artwork);
-        if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
-            BindMapPresentation(artwork.MapPresentation);
-    }
+    [MemberNotNull(nameof(spriteSheets))]
+    public void BindSpriteSheets(InstalledSpriteSheets? sheets) =>
+        spriteSheets = sheets ?? throw new InvalidOperationException("Pause menu requires the installed sprite sheets.");
+
+    /// <summary>The installed sprite sheets the map's sprites draw from; artwork, never saved.</summary>
+    [NonSerialized] private InstalledSpriteSheets spriteSheets;
+
+    /// <summary>The map sprite sheet the map's markers, labels, arrows and position indicator draw from.</summary>
+    private SpriteSheet MapSheet => spriteSheets.Get(SpriteSheetId.MapSprites);
 
 
     /// <summary>Queues menu navigation and animation sounds when a live frontend owns audio.</summary>
@@ -106,6 +110,7 @@ internal sealed class PauseMenuState : IFrontendScreen
 
         this.mapPresentation = entry.MapPresentation ?? throw new InvalidOperationException(
             "Pause menu requires installed map and equipment presentation assets.");
+        BindSpriteSheets(entry.SpriteSheets);
         this.samus = Ensure.NotNull(entry.Samus);
         this.system = Ensure.NotNull(entry.System);
         this.audio = entry.Audio;
@@ -299,9 +304,9 @@ internal sealed class PauseMenuState : IFrontendScreen
         {
             var icons = new FileSelectMapIcons(system, area);
             icons.BindLandmarks(mapPresentation?.Landmarks);
-            icons.BindSprites(mapPresentation?.Sprites);
+            icons.BindSprites(MapSheet);
             if (mapLabelsBeforeIcons) icons.DrawElevatorLabels(screen.Objects, MapScrollPosition);
-            CurrentMapArrows?.DrawArrows(screen.Objects, mapPresentation?.Sprites, PauseMapScrollLayout.ArrowVerticalOffset);
+            CurrentMapArrows?.DrawArrows(screen.Objects, MapSheet, PauseMapScrollLayout.ArrowVerticalOffset);
             DrawMapPositionIndicator();
             // Native pause shares the boss lists, defeated overlays and downloaded
             // destination lettering with file select. Preserve their per-phase OAM order.
@@ -714,15 +719,11 @@ internal sealed class PauseMenuState : IFrontendScreen
         UploadButtonRows();
     }
 
-    /// <summary>Draws an installed map sprite composition with its selected palette bits.</summary>
-    private void DrawMenuSpritemap(MapSpriteId id, Position16<OamPixels> origin, ushort paletteBits)
-    {
+    /// <summary>Draws a map sprite sheet frame with its selected palette bits.</summary>
+    private void DrawMenuSpritemap(MapSpriteId id, Position16<OamPixels> origin, ushort paletteBits) =>
         // Map compositions use this shared entry. Extracted equipment selectors
         // and reserve tanks draw through their semantic presentation owners.
-        (mapPresentation ?? throw new InvalidOperationException(
-            "Menu spritemap requires installed presentation assets."))
-            .Sprites.Draw(id, screen.Objects, origin, paletteBits);
-    }
+        MapSpriteSheet.Draw(MapSheet, id, screen.Objects, origin, paletteBits);
 
     /// <summary>Shows the current mutable equipment page on BG1's first screen, leaving the second as the map left it.</summary>
     private void UploadEquipmentTilemap() =>
@@ -917,7 +918,7 @@ internal sealed class PauseMenuState : IFrontendScreen
     }
 
     /// <summary>Rebinds edited map and pause artwork while retaining live scroll, palette, and label state.</summary>
-    internal void BindMapPresentation(AreaMapPresentationCatalog? catalog)
+    public void BindMapPresentation(AreaMapPresentationCatalog? catalog)
     {
         AreaMapPresentationCatalog? previousCatalog = mapPresentation;
         mapPresentation = catalog ?? throw new InvalidOperationException(

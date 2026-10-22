@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
@@ -32,4 +33,7 @@ internal sealed record PauseMenuEntry
 
     /// <summary>Map presentation.</summary>
     public AreaMapPresentationCatalog? MapPresentation { get; init; } = null;
+
+    /// <summary>The installed sprite sheets the map's sprites draw from.</summary>
+    public InstalledSpriteSheets? SpriteSheets { get; init; } = null;
 }

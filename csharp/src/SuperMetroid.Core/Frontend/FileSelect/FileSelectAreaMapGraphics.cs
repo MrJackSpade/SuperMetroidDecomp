@@ -25,18 +25,18 @@ public sealed class FileSelectAreaMapGraphics
     [NonSerialized] private WorldMapLabelLayout? labels;
     /// <summary>Installed foreground and per-area background tilemaps.</summary>
     [NonSerialized] private MapScreenPresentation? screens;
-    /// <summary>Installed OBJ art for the title and area labels.</summary>
-    [NonSerialized] private MapSpriteCatalog? sprites;
+    /// <summary>The installed map sprite sheet the title and area labels draw from.</summary>
+    [NonSerialized] private SpriteSheet? mapSheet;
     /// <summary>Replaces label positions without changing the selected area or PPU state.</summary>
     internal void BindLabels(WorldMapLabelLayout? content) => labels = content;
 
     /// <summary>Area-map graphics bound to every installed resource the file-select map draws.</summary>
     public static FileSelectAreaMapGraphics FromPresentation(int selectedArea,
-        AreaMapPresentationCatalog presentation)
+        AreaMapPresentationCatalog presentation, SpriteSheet mapSheet)
     {
         Ensure.NotNull(presentation);
         var graphics = new FileSelectAreaMapGraphics(selectedArea, presentation.Tiles, presentation.Palettes,
-            presentation.Screens, presentation.WorldArtwork, presentation.Sprites);
+            presentation.Screens, presentation.WorldArtwork, presentation.Sprites, mapSheet);
         graphics.BindLabels(presentation.Labels);
         return graphics;
     }
@@ -48,17 +48,19 @@ public sealed class FileSelectAreaMapGraphics
     /// <param name="mapScreens">Required foreground and per-area background tilemap resources.</param>
     /// <param name="worldArtwork">Required world-map character artwork.</param>
     /// <param name="mapSprites">Required map-label OBJ artwork.</param>
+    /// <param name="mapSheet">Required map sprite sheet the title and labels draw from.</param>
     /// <exception cref="InvalidOperationException">Any required presentation resource is absent despite its optional parameter default.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The selected area is outside the six Zebes identities.</exception>
     public FileSelectAreaMapGraphics(int selectedArea, MapTileAtlas? mapTiles = null, MapStaticPalettes? mapPalettes = null,
-        MapScreenPresentation? mapScreens = null, WorldMapArtwork? worldArtwork = null, MapSpriteCatalog? mapSprites = null)
+        MapScreenPresentation? mapScreens = null, WorldMapArtwork? worldArtwork = null, MapSpriteCatalog? mapSprites = null,
+        SpriteSheet? mapSheet = null)
     {
         if (mapTiles is null || mapPalettes is null || mapScreens is null ||
-            worldArtwork is null || mapSprites is null)
+            worldArtwork is null || mapSprites is null || mapSheet is null)
             throw new InvalidOperationException("Area-map graphics require installed presentation assets.");
         Palettes = mapPalettes;
         screens = mapScreens;
-        sprites = mapSprites;
+        this.mapSheet = mapSheet;
         screen = new MenuScreen(mapTiles, mapPalettes, worldArtwork, mapSprites);
         LoadForeground();
         // State one completes its first-two-palette fade with these entries black.
@@ -125,8 +127,11 @@ public sealed class FileSelectAreaMapGraphics
         Palettes = content;
         if (content is not null) LoadInstalledPalette((AreaId)SelectedArea);
     }
-    /// <summary>Rebinds label OBJ art in both this owner and its menu screen.</summary>
-    private void BindSprites(MapSpriteCatalog? content) { sprites = content; screen.BindMapSprites(content); }
+    /// <summary>Rebinds the menu screen's label OBJ art.</summary>
+    private void BindSprites(MapSpriteCatalog? content) => screen.BindMapSprites(content);
+
+    /// <summary>Rebinds the map sprite sheet the title and labels draw from.</summary>
+    internal void BindMapSheet(SpriteSheet? sheet) => mapSheet = sheet;
 
     /// <summary>Loads the selected area's installed world colors into menu CGRAM.</summary>
     private void LoadInstalledPalette(AreaId selectedArea)
@@ -142,7 +147,7 @@ public sealed class FileSelectAreaMapGraphics
             throw new ArgumentException("Area labels require six used-station masks.", nameof(usedStationMasks));
         ScreenSprites entries = screen.Objects;
         entries.BeginFrame();
-        if (labels is null || sprites is null)
+        if (labels is null || mapSheet is null)
             throw new InvalidOperationException("World-map labels require installed layout and sprite assets.");
         Draw(MapSpriteId.WorldTitle, new(128, 16), 0);
         for (int displayArea = 0; displayArea < FileSelectMapRomData.AreaCount; displayArea++)
@@ -163,7 +168,7 @@ public sealed class FileSelectAreaMapGraphics
 
         void Draw(MapSpriteId id, Position16<OamPixels> origin, ushort palette)
         {
-            sprites.Draw(id, entries, origin, palette);
+            MapSpriteSheet.Draw(mapSheet, id, entries, origin, palette);
         }
     }
 

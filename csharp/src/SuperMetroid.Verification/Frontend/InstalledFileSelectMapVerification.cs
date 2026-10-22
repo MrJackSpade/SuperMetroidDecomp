@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -21,8 +22,8 @@ internal static class InstalledFileSelectMapVerification
         snapshot.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 1;
         saves.SaveSlot(0, snapshot);
         var slot = saves.ReadSlot(0);
-        var control = new FileSelectMapMenuState(new CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original);
-        var installed = new FileSelectMapMenuState(new CartridgeAudioState(), slot, 0, original);
+        var control = new FileSelectMapMenuState(new CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original, MenuSheetFixtures.For(original));
+        var installed = new FileSelectMapMenuState(new CartridgeAudioState(), slot, 0, original, MenuSheetFixtures.For(original));
 
         // One raster per side: the two captured renders are compared with each other.
         var nativeRaster = new Rgba32[256 * 224];
@@ -57,14 +58,14 @@ internal static class InstalledFileSelectMapVerification
         // must be rebound, not captured into that closure or the debugger graph.
         using var state = new MemoryStream();
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(state, installed);
-        installed.BindMapPresentation(edited);
+        installed.BindFixtureArtwork(edited);
         using var reboundState = new MemoryStream();
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(reboundState, installed);
         AssertTrue(state.WrittenBytes().SequenceEqual(reboundState.WrittenBytes()),
             "catalog-only identity change outside this area is not serialized into menu graph");
         state.Position = 0;
         installed = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<FileSelectMapMenuState>(state);
-        installed.BindMapPresentation(original);
+        installed.BindFixtureArtwork(original);
         AssertTrue(control.Render().SequenceEqual(installed.Render()), "restored room map retains scrolled frame");
         StepBoth(SnesButton.B);
         for (int i = 0; i < 60; i++) StepBoth(0);
@@ -79,8 +80,8 @@ internal static class InstalledFileSelectMapVerification
             AssertTrue(installed.LoadRequested, "ROM-free map reaches gameplay-load handoff after full fade");
             // Exercise the other exit from a fresh area view as well. The test
             // ends at the handoff; gameplay/options retain separate dependencies.
-            control = new FileSelectMapMenuState(new CartridgeAudioState(), slot, 0, original);
-            installed = new FileSelectMapMenuState(new CartridgeAudioState(), slot, 0, original);
+            control = new FileSelectMapMenuState(new CartridgeAudioState(), slot, 0, original, MenuSheetFixtures.For(original));
+            installed = new FileSelectMapMenuState(new CartridgeAudioState(), slot, 0, original, MenuSheetFixtures.For(original));
             for (int tick = 0; tick < 48; tick++) StepBoth(0);
             StepBoth(SnesButton.B);
             for (int tick = 0; tick < 32 && !installed.OptionsRequested; tick++) StepBoth(0);

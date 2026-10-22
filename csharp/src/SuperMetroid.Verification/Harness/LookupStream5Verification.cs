@@ -674,7 +674,7 @@ internal static class LookupStream5Verification
             if (downloaded) system.SetAreaMapAcquired(area);
             if (defeated) system.SetBossBits(area, (BossBits)1);
             var icons = new FileSelectMapIcons(system, area);
-            icons.BindLandmarks(adjustment == 0 ? layout : editedLayout); icons.BindSprites(sprites);
+            icons.BindLandmarks(adjustment == 0 ? layout : editedLayout); icons.BindSprites(MenuSheetFixtures.MapSprites(sprites));
             var actual = ScreenSpritesFixtures.Blank(); var expected = ScreenSpritesFixtures.Blank();
             icons.DrawBossMarkers(actual, new(7, 9));
             int pointer = Root(FileSelectMapIconRomData.BossLists, area), bits = defeated ? 1 : 0;
@@ -709,7 +709,7 @@ internal static class LookupStream5Verification
             AssertTrue(actual.ImageEquals(expected), "Actual native ordered landmark OAM");
             AssertEqual(defeated ? (byte)1 : (byte)0, system.GetBossBitsRaw(area), "Drawing preserves boss bits");
             AssertEqual(downloaded, system.HasAreaMap(area), "Drawing preserves map state");
-            void Draw(MapSpriteId id, int x, int y, ushort palette) => sprites.Draw(id, expected, new(unchecked((ushort)(x + adjustment - 7)), unchecked((ushort)(y + adjustment - 9))), palette);
+            void Draw(MapSpriteId id, int x, int y, ushort palette) => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(sprites), id, expected, new(unchecked((ushort)(x + adjustment - 7)), unchecked((ushort)(y + adjustment - 9))), palette);
         }
         AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarkDefinitions.Bosses((AreaId)7), "Invalid boss area");
         AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarkDefinitions.Elevators(AreaId.Ceres), "Ceres has no elevator labels");

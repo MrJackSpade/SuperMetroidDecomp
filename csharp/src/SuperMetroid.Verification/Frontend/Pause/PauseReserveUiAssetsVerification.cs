@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -28,8 +29,8 @@ internal static class PauseReserveUiAssetsVerification
         var guard = NewPauseReserveUiReadGuard(bus);
 
         var nativeSamus = Samus(); var installedSamus = Samus();
-        var native = new PauseMenuState(new PauseMenuEntry { Samus = nativeSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = original });
-        var installed = new PauseMenuState(new PauseMenuEntry { Samus = installedSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var native = new PauseMenuState(new PauseMenuEntry { Samus = nativeSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+        var installed = new PauseMenuState(new PauseMenuEntry { Samus = installedSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         EnterEquipment(native); EnterEquipment(installed);
         for (int frame = 0; frame < 64; frame++)
         {
@@ -59,8 +60,8 @@ internal static class PauseReserveUiAssetsVerification
         using (var output = File.Create(path)) PauseReserveUiPresentation.Write(output, editedDocument);
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "reserve UI override changes selected content identity");
-        var stockPause = new PauseMenuState(new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = original });
-        var editedPause = new PauseMenuState(new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = edited });
+        var stockPause = new PauseMenuState(new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+        var editedPause = new PauseMenuState(new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = edited, SpriteSheets = MenuSheetFixtures.For(edited) });
         AssertTrue(stockPause.ReadReserveSupplyDigit(2) != editedPause.ReadReserveSupplyDigit(2),
             "edited reserve digit reaches the actual mutable equipment page");
         EnterEquipment(stockPause); EnterEquipment(editedPause);
@@ -76,7 +77,7 @@ internal static class PauseReserveUiAssetsVerification
         using var captured = new MemoryStream();
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(captured, editedPause); captured.Position = 0;
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(captured);
-        restored.BindMapPresentation(original);
+        restored.BindFixtureArtwork(original);
         AssertEqual(cursorBeforeRestore, new CursorBeforeRestore(restored.SelectedCategory, restored.SelectedItem),
             "reserve UI content rebind preserves the live equipment cursor");
         AssertTrue(!editedPause.Render().SequenceEqual(restored.Render()),

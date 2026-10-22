@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -49,7 +50,7 @@ internal static class PauseReserveTankAssetsVerification
                 if (capacity == 100 && supply == 1 && phase == 4)
                 {
                     using var state = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(state, installed); state.Position = 0;
-                    var restored = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(state); restored.BindMapPresentation(catalog);
+                    var restored = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(state); restored.BindFixtureArtwork(catalog);
                     AssertTrue(actual.Memory.SpriteParts().SequenceEqual(restored.CaptureRenderSnapshot().Memory.SpriteParts()), "restored nonzero fill flicker phase retains exact OAM");
                     AssertTrue(restored.Render().SequenceEqual(restored.Render()), "repeated draw does not advance fill flicker");
                 }
@@ -85,9 +86,9 @@ internal static class PauseReserveTankAssetsVerification
             DebuggerObjectGraphSerializer.Serialize(state, new object[] { menu, samus }); state.Position = 0;
             var restored = DebuggerObjectGraphSerializer.Deserialize<object[]>(state); menu = (PauseMenuState)restored[0]; samus = (SamusState)restored[1];
         }
-        menu.BindMapPresentation(catalog);
+        menu.BindFixtureArtwork(catalog);
         AssertTrue(!editedPixels.SequenceEqual(menu.Render()), "restore binds current stock artwork instead of frozen edited content");
-        menu.BindMapPresentation(edited);
+        menu.BindFixtureArtwork(edited);
         AssertTrue(editedPixels.SequenceEqual(menu.Render()), "restoring current edited content preserves exact pixels and phase");
         menu.Step(0, SnesButton.Down); menu.Step(0, SnesButton.A);
         AssertEqual(51, samus.Health, "custom reserve art cannot change transfer amount");
@@ -128,7 +129,7 @@ internal static class PauseReserveTankAssetsVerification
         }
         static PauseMenuState Create(ISnesAddressSpace source, SamusState state, AreaMapPresentationCatalog content)
         {
-            var pause = new PauseMenuState(new PauseMenuEntry { Samus = state, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = content });
+            var pause = new PauseMenuState(new PauseMenuEntry { Samus = state, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = content, SpriteSheets = MenuSheetFixtures.For(content) });
             EnterPauseEquipment(pause);
             return pause;
         }

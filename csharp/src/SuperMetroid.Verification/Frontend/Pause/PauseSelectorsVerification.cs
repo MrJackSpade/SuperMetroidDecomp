@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -60,7 +61,7 @@ internal static class PauseSelectorsVerification
                 if (tick == 51)
                 {
                     using var state = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(state, pause); state.Position = 0;
-                    pause = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(state); pause.BindMapPresentation(catalog);
+                    pause = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(state); pause.BindFixtureArtwork(catalog);
                 }
             }
         }
@@ -78,7 +79,7 @@ internal static class PauseSelectorsVerification
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(catalog.ContentIdentity != edited.ContentIdentity, "selector-only edit changes catalog identity");
         var customSamus = new SamusState { CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge };
-        var customMenu = new PauseMenuState(new PauseMenuEntry { Samus = customSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = edited });
+        var customMenu = new PauseMenuState(new PauseMenuEntry { Samus = customSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = edited, SpriteSheets = MenuSheetFixtures.For(edited) });
         customMenu.Step(SnesButton.R, SnesButton.R);
         while (customMenu.ScreenMode == PauseScreenMode.Map) customMenu.Step(0, 0);
         AssertEqual(new SelectorAnimation(0, 4), customMenu.ItemSelectorAnimationState, "custom initial duration applies exactly at page setup");
@@ -111,10 +112,10 @@ internal static class PauseSelectorsVerification
             var restored = DebuggerObjectGraphSerializer.Deserialize<object[]>(state);
             customMenu = (PauseMenuState)restored[0]; customSamus = (SamusState)restored[1];
         }
-        customMenu.BindMapPresentation(catalog);
+        customMenu.BindFixtureArtwork(catalog);
         AssertEqual(timing, customMenu.ItemSelectorAnimationState, "rebind does not reset saved visual timing");
         customMenu.Render(); AssertEqual((ushort)47, customMenu.LastIndicatorOrigin.X, "restored stock anchor replaces edited anchor");
-        customMenu.BindMapPresentation(edited); AssertTrue(before.SequenceEqual(customMenu.Render()), "restored edit returns exact pixels without advancing animation");
+        customMenu.BindFixtureArtwork(edited); AssertTrue(before.SequenceEqual(customMenu.Render()), "restored edit returns exact pixels without advancing animation");
         customMenu.Step(0, SnesButton.A);
         AssertEqual(SamusBeamFlags.None, customSamus.EquippedBeams, "custom hidden/visible selector cannot prevent actual equipment toggle");
         AssertEqual(SamusBeamFlags.Charge, customSamus.CollectedBeams, "selector edit cannot change collection");
@@ -122,12 +123,12 @@ internal static class PauseSelectorsVerification
         for (int tick = 0; shortened.ItemSelectorAnimationState.Frame != 12 && tick < 100; tick++) shortened.Step(0, 0);
         var oldTiming = shortened.ItemSelectorAnimationState;
         AssertEqual(12, oldTiming.Frame, "short-cycle fixture reaches a stock-only phase");
-        shortened.BindMapPresentation(edited);
+        shortened.BindFixtureArtwork(edited);
         AssertEqual(oldTiming, shortened.ItemSelectorAnimationState, "shorter content does not rewrite saved timer/phase at bind");
         AssertEqual(0, shortened.CaptureRenderSnapshot().Memory.SpriteParts().Length, "short cycle safely projects saved phase modulo its new length");
         for (int tick = 0; tick < oldTiming.Timer; tick++) shortened.Step(0, 0);
         AssertEqual(new SelectorAnimation(1, 3), shortened.ItemSelectorAnimationState, "next expiry advances into the authored short cycle");
-        var empty = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = edited });
+        var empty = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = edited, SpriteSheets = MenuSheetFixtures.For(edited) });
         EnterPauseEquipment(empty);
         var emptyTiming = empty.ItemSelectorAnimationState;
         for (int tick = 0; tick < 40; tick++) empty.Step(0, 0);
@@ -159,7 +160,7 @@ internal static class PauseSelectorsVerification
                 samus.CollectedBeams = samus.EquippedBeams = bit.Beam;
                 samus.CollectedItems = samus.EquippedItems = bit.Item;
             }
-            var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = content });
+            var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = content, SpriteSheets = MenuSheetFixtures.For(content) });
             EnterPauseEquipment(pause);
             if (category == 0 && item == 1) pause.Step(0, SnesButton.Down);
             return pause;

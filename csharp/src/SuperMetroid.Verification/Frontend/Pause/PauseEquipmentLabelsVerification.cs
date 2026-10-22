@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Hardware;
@@ -37,8 +38,8 @@ internal static class PauseEquipmentLabelsVerification
         ];
         foreach (SamusState inventory in inventories)
         {
-            byte[] expected = EquipmentPage(new PauseMenuState(new PauseMenuEntry { Samus = Clone(inventory), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original }));
-            byte[] actual = EquipmentPage(new PauseMenuState(new PauseMenuEntry { Samus = Clone(inventory), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original }));
+            byte[] expected = EquipmentPage(new PauseMenuState(new PauseMenuEntry { Samus = Clone(inventory), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) }));
+            byte[] actual = EquipmentPage(new PauseMenuState(new PauseMenuEntry { Samus = Clone(inventory), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) }));
             AssertTrue(expected.SequenceEqual(actual),
                 "installed equipment labels match native tilemap with label ROM sources forbidden");
         }
@@ -57,9 +58,9 @@ internal static class PauseEquipmentLabelsVerification
 
         var liveSamus = new SamusState { CollectedBeams = SamusBeamFlags.Charge,
             EquippedBeams = SamusBeamFlags.Charge };
-        var live = new PauseMenuState(new PauseMenuEntry { Samus = liveSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var live = new PauseMenuState(new PauseMenuEntry { Samus = liveSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         byte[] before = EquipmentPage(live);
-        live.BindMapPresentation(edited);
+        live.BindFixtureArtwork(edited);
         byte[] after = live.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800).ToArray();
         AssertTrue(!before.SequenceEqual(after), "edited label placement/art refreshes current equipment page");
         ushort moved = BinaryPrimitives.ReadUInt16LittleEndian(after.AsSpan(
@@ -71,11 +72,11 @@ internal static class PauseEquipmentLabelsVerification
         // change. The first four Varia words must remain the contiguous source tail.
         var glitchSamus = new SamusState { CollectedItems = (SamusEquipmentFlags)0x3300, EquippedItems = (SamusEquipmentFlags)0x3300,
             CollectedBeams = (SamusBeamFlags)0x100f, EquippedBeams = (SamusBeamFlags)4 };
-        var glitch = new PauseMenuState(new PauseMenuEntry { Samus = glitchSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var glitch = new PauseMenuState(new PauseMenuEntry { Samus = glitchSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         EquipmentPage(glitch);
         SelectPauseBoots(glitch);
         glitch.Step(0, (SnesButton.Left | SnesButton.A));
-        glitch.BindMapPresentation(edited);
+        glitch.BindFixtureArtwork(edited);
         byte[] glitchPage = glitch.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800).ToArray();
         int plasma = (document.Labels["Beam.Plasma"].Row * PauseEquipmentLabelDefinitions.TilemapColumns +
             document.Labels["Beam.Plasma"].Column) * sizeof(ushort);

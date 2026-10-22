@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Tooling;
 using System.Text.Json;
@@ -32,7 +33,7 @@ internal static class MapPaletteCycleVerification
         var arrows = new FileSelectMapAnimations(original.Arrows);
         arrows.StepArrows(_ => true);
         var arrowOam = ScreenSpritesFixtures.Blank();
-        arrowOam.BeginFrame(); arrows.DrawArrows(arrowOam, original.Sprites); arrowOam.FinishFrame();
+        arrowOam.BeginFrame(); arrows.DrawArrows(arrowOam, MenuSheetFixtures.MapSprites(original.Sprites)); arrowOam.FinishFrame();
         ushort nativeArrowPalette = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapAnimationRomData.AnimatedSpritePalette);
         AssertTrue(arrowOam.NextByteOffset > 0, "arrow palette test draws actual sprites");
         for (int offset = 0; offset < arrowOam.NextByteOffset; offset += 4)
@@ -68,8 +69,8 @@ internal static class MapPaletteCycleVerification
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "palette edit invalidates selected content identity");
 
         var system = new Bank80SystemState();
-        var pause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
-        var nativePause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var pause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+        var nativePause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         for (int tick = 0; tick < 60; tick++)
         {
             pause.Step(0, 0); nativePause.Step(0, 0);
@@ -79,7 +80,7 @@ internal static class MapPaletteCycleVerification
         DebuggerObjectGraphSerializer.Serialize(snapshot, pause);
         snapshot.Position = 0;
         pause = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(snapshot);
-        pause.BindMapPresentation(edited);
+        pause.BindFixtureArtwork(edited);
         bool cycleColorsChanged = false;
         for (int tick = 0; tick < 60; tick++)
         {
@@ -109,7 +110,7 @@ internal static class MapPaletteCycleVerification
             AssertEqual(nativePause.MapScroll, pause.MapScroll, "palette-only edit preserves map navigation");
         }
         AssertTrue(cycleColorsChanged, "edited highlight colors animate in restored pause CGRAM with palette ROM blocked");
-        pause.BindMapPresentation(original);
+        pause.BindFixtureArtwork(original);
         for (int tick = 0; tick < 60; tick++) { pause.Step(0, 0); nativePause.Step(0, 0); }
         AssertTrue(pause.Render().SequenceEqual(nativePause.Render()), "rebind preserves timing and returns to exact stock animated pixels");
 
@@ -119,14 +120,14 @@ internal static class MapPaletteCycleVerification
         saved.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 1;
         saves.SaveSlot(0, saved);
         var slot = saves.ReadSlot(0);
-        var nativeMenu = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original);
-        var menu = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0, original);
+        var nativeMenu = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original, MenuSheetFixtures.For(original));
+        var menu = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0, original, MenuSheetFixtures.For(original));
         for (int tick = 0; tick < 48; tick++) { nativeMenu.Step(0); menu.Step(0); }
         nativeMenu.Step(SnesButton.Start);
         menu.Step(SnesButton.Start);
         for (int tick = 0; tick < 54; tick++) { nativeMenu.Step(0); menu.Step(0); }
         AssertEqual(FileSelectMapNavigationPhase.Room, menu.Phase, "palette replacement test reaches file-select room map");
-        menu.BindMapPresentation(edited);
+        menu.BindFixtureArtwork(edited);
         bool menuEdit = false;
         for (int tick = 0; tick < 60; tick++)
         {

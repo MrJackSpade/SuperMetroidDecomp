@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -39,7 +40,7 @@ internal static class PauseScreenPublicationVerification
         DebuggerObjectGraphSerializer.Serialize(state, pause);
         state.Position = 0;
         var restored = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(state);
-        restored.BindMapPresentation(RetailPresentationFixture());
+        restored.BindFixtureArtwork(RetailPresentationFixture());
         AssertTrue(shown.SequenceEqual(restored.Render()), "a restored pause screen shows the same frame once its artwork is rebound");
         Console.WriteLine("  Pause screen: map and equipment pages publish their own tilemaps, palette and sprite entries, and survive a debugger round trip.");
     }

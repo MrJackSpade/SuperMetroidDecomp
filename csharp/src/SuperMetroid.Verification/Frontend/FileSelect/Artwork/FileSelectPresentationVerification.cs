@@ -111,7 +111,7 @@ internal static class FileSelectPresentationVerification
         FileSelectPhase phaseBeforeRebind = stockMenu.Phase;
         FileSelectItem selectionBeforeRebind = stockMenu.SelectedItem;
         Rgba32[] pixelsBeforeRebind = stockMenu.Render().ToArray();
-        stockMenu.BindMapPresentation(edited);
+        stockMenu.BindFixtureArtwork(edited);
         AssertEqual(phaseBeforeRebind, stockMenu.Phase,
             "file-select content rebind preserves phase");
         AssertEqual(selectionBeforeRebind, stockMenu.SelectedItem,

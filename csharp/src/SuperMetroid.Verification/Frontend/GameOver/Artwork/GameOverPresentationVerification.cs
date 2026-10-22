@@ -128,7 +128,7 @@ internal static class GameOverPresentationVerification
         int? stepBeforeRebind = originalMenu.BabyStep;
         GameOverMenuPhase phaseBeforeRebind = originalMenu.Phase;
         int babyXBeforeRebind = originalMenu.CaptureRenderSnapshot().Memory.SpriteParts()[0].Part.Position.X;
-        originalMenu.BindMapPresentation(edited);
+        originalMenu.BindFixtureArtwork(edited);
         AssertEqual(stepBeforeRebind, originalMenu.BabyStep,
             "game-over content rebind preserves Baby animation phase");
         AssertEqual(phaseBeforeRebind, originalMenu.Phase,

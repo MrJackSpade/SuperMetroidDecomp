@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Hardware;
@@ -79,7 +80,7 @@ internal static class PauseBackdropsVerification
                 var pixels = pause.Render();
                 AssertTrue(native.Render().SequenceEqual(pixels), "seven-area stock pixels match native path with frame, buttons and label ROM reads blocked");
                 var selection = new PauseBackdropsSelection(pause.ScreenMode, pause.SelectedCategory, pause.SelectedItem, pause.MapScroll);
-                pause.BindMapPresentation(edited);
+                pause.BindFixtureArtwork(edited);
                 var changed = pause.CaptureRenderSnapshot();
                 AssertTrue(changed.Memory.Vram.SequenceEqual(persistentEdit.CaptureRenderSnapshot().Memory.Vram),
                     "fresh edited session and live rebind retain the same artwork through equipment return and Start");
@@ -103,14 +104,14 @@ internal static class PauseBackdropsVerification
                     using var capture = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(capture, pause); capture.Position = 0;
                     pause = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(capture);
                 }
-                pause.BindMapPresentation(original);
+                pause.BindFixtureArtwork(original);
                 AssertTrue(pixels.SequenceEqual(pause.Render()), "current-content restore preserves complete pixels and animation phase");
             }
         }
         // The native invalid-beam selection deliberately leaves an overlong label
         // in equipment VRAM. A full inventory rebuild during content rebind loses it.
         var samus = new SamusState { CollectedItems = (SamusEquipmentFlags)0x3300, EquippedItems = (SamusEquipmentFlags)0x3300, CollectedBeams = (SamusBeamFlags)0x100f, EquippedBeams = (SamusBeamFlags)4 };
-        var glitch = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var glitch = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         EnterPauseEquipment(glitch);
         SelectPauseBoots(glitch);
         AssertEqual(0, glitch.SelectedItem, "fixture selects Hi-Jump Boots");
@@ -118,7 +119,7 @@ internal static class PauseBackdropsVerification
         AssertEqual((ushort)12, samus.EquippedBeams.ToNativeWord(), "fixture actually performs native Boots-to-Plasma simultaneous-input glitch");
         byte[] glitchPage = glitch.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800).ToArray();
         AssertEqual((ushort)0x0900, BinaryPrimitives.ReadUInt16LittleEndian(glitchPage.AsSpan(0x514)), "fixture retains native VAR overrun beyond ordinary Plasma label");
-        glitch.BindMapPresentation(edited);
+        glitch.BindFixtureArtwork(edited);
         AssertTrue(glitchPage.SequenceEqual(glitch.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800)), "replacing backdrop does not rebuild away live native equipment glitch");
 
         void Reject(PauseBackdropDocument invalid, string message) => AssertThrows<InvalidDataException>(() =>
@@ -164,7 +165,7 @@ internal static class PauseBackdropsVerification
             // pause map draws elevator destinations for acquired maps, which Ceres does not have.
             var system = new Bank80SystemState();
             if (area != AreaId.Ceres) system.SetAreaMapAcquired(area);
-            return new(new PauseMenuEntry { Samus = new SamusState { CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge }, System = system, AreaIndex = area, RoomMapPosition = new(10, 10), MapPresentation = catalog });
+            return new(new PauseMenuEntry { Samus = new SamusState { CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge }, System = system, AreaIndex = area, RoomMapPosition = new(10, 10), MapPresentation = catalog, SpriteSheets = MenuSheetFixtures.For(catalog) });
         }
     }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -52,7 +53,7 @@ internal static class MapSpriteCasesVerification
                         "horizontal label edits remain positions; other authored edits retain their composition");
                     var expected = ScreenSpritesFixtures.Blank(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
                     MenuSpriteCompiler.Compile(parts, role.Name).Draw(expected, new(100, 100), 0x600);
-                    edited.Draw((MapSpriteId)role.NativeId, actual, new(100, 100), 0x600);
+                    MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(edited), (MapSpriteId)role.NativeId, actual, new(100, 100), 0x600);
                     expected.FinalizeFrame(); actual.FinalizeFrame();
                     AssertTrue(expected.ImageEquals(actual),
                         "every marker part field preserves independently authored edits");
@@ -71,7 +72,7 @@ internal static class MapSpriteCasesVerification
                     int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.NativeId * 2);
                     DrawImportedSpritemap(rom, expected, pointer, new(100, 100), 0x600);
                 }
-                edited.Draw((MapSpriteId)frame.NativeId, actual, new(100, 100), 0x600);
+                MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(edited), (MapSpriteId)frame.NativeId, actual, new(100, 100), 0x600);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.ImageEquals(actual),
                     "independently edited map sprite role and all unchanged roles");
@@ -80,8 +81,10 @@ internal static class MapSpriteCasesVerification
             AssertThrows<InvalidDataException>(() => Load(frames), "each map sprite role remains required");
         }
         foreach (ushort invalid in new ushort[] { 0, 3, 8, 12, 0x37, 0x3f, 0x58, 0x5e, 0x64, ushort.MaxValue })
-            AssertThrows<InvalidOperationException>(() => stock.Draw((MapSpriteId)invalid, ScreenSpritesFixtures.Blank(), new(0, 0), 0), "undefined map sprite identity fails");
-        AssertThrows<InvalidOperationException>(() => stock.Draw(0, ScreenSpritesFixtures.Blank(), new(0, 0), 0xffff), "undefined identity precedes invalid palette");
+            AssertThrows<ArgumentOutOfRangeException>(() => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(stock), (MapSpriteId)invalid,
+                ScreenSpritesFixtures.Blank(), new(0, 0), 0), "undefined map sprite identity fails");
+        AssertThrows<ArgumentOutOfRangeException>(() => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(stock), 0, ScreenSpritesFixtures.Blank(),
+            new(0, 0), 0xffff), "undefined identity precedes invalid palette");
         MapSpriteCatalog Load(Dictionary<string, SpriteVisualPart[]> frames)
         {
             byte[] json = JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, ArtworkJson.Options);
@@ -111,7 +114,16 @@ internal static class MapSpriteCasesVerification
                     installed.AddOccupyingPart(new Position16<OamPixels>(12, 34), 56);
                 }
                 DrawImportedSpritemap(bus, native, pointer, new(x, y), (ushort)(palette << 9));
-                catalog.Draw((MapSpriteId)frame.NativeId, installed, new(x, y), (ushort)(palette << 9));
+                // A pre-coloured frame cannot show part of itself: one the object limit would cut short fails, where
+                // the cartridge drops the parts past the limit.
+                SpriteSheetFrame image = MenuSheetFixtures.MapSprites(catalog).Frame(frame.Name);
+                if (occupied + image.Objects > ScreenSprites.Capacity)
+                {
+                    AssertThrows<InvalidOperationException>(() => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(catalog),
+                        (MapSpriteId)frame.NativeId, installed, new(x, y), (ushort)(palette << 9)), $"{frame.Name} past the object limit fails");
+                    continue;
+                }
+                MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(catalog), (MapSpriteId)frame.NativeId, installed, new(x, y), (ushort)(palette << 9));
                 native.FinalizeFrame(); installed.FinalizeFrame();
                 AssertEqual(native.LastFinalizedSpriteCount, installed.LastFinalizedSpriteCount, "map sprite count/capacity matches native");
                 AssertTrue(native.ImageEquals(installed),

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -37,7 +38,7 @@ internal static class PauseMapAreaLabelsVerification
             var labels = new FileSelectMapIcons(system, area);
             var presentation = RetailPresentationFixture();
             labels.BindLandmarks(presentation.Landmarks);
-            labels.BindSprites(presentation.Sprites);
+            labels.BindSprites(MenuSheetFixtures.MapSprites(presentation.Sprites));
             var gated = ScreenSpritesFixtures.Blank(); gated.BeginFrame();
             labels.DrawElevatorLabels(gated, new(0, 0));
             gated.FinishFrame();
@@ -64,8 +65,12 @@ internal static class PauseMapAreaLabelsVerification
             var oam = pause.screen.Objects;
             AssertTrue(oam.LastFinalizedSpriteCount * 4 >= labelBytes, $"{area} pause emits all native destination label parts");
             int start = oam.LastFinalizedSpriteCount * 4 - labelBytes;
-            AssertTrue(oam.LowTable.Slice(start, labelBytes).SequenceEqual(native.LowTable[..labelBytes]),
-                $"{area} destination spelling, order, coordinates and palette match raw ROM OAM");
+            byte[] emitted = oam.LowTable.Slice(start, labelBytes).ToArray();
+            int differs = -1;
+            for (int index = 0; index < labelBytes && differs < 0; index++)
+                if (emitted[index] != native.LowTable[index]) differs = index;
+            AssertTrue(differs < 0, $"{area} destination spelling, order, coordinates and palette match raw ROM OAM" + (differs < 0 ? "" :
+                $"; object {differs / 4} emitted {Convert.ToHexString(emitted, differs / 4 * 4, 4)}, native {Convert.ToHexString(native.LowTable.Slice(differs / 4 * 4, 4))}"));
             AssertLabels(start, "stable map");
             var nativePixels = SnesObjRenderer.Render(native, rawVram, nativeColors, PauseMenuLayout.ObjectSelection);
             var installedPixels = SnesObjRenderer.Render(native, PauseScreenFixtures.Vram(pause.screen), PauseScreenFixtures.Cgram(pause.screen), PauseMenuLayout.ObjectSelection);
@@ -88,7 +93,7 @@ internal static class PauseMapAreaLabelsVerification
                 DebuggerObjectGraphSerializer.Serialize(stream, pause);
                 stream.Position = 0;
                 pause = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(stream);
-                pause.BindMapPresentation(RetailPresentationFixture());
+                pause.BindFixtureArtwork(RetailPresentationFixture());
             }
             AssertTrue(beforeRestore.SequenceEqual(pause.Render()), "restoring preserves destination-label fade priority");
             pause.Step(SnesButton.R, 0); _ = pause.Render();

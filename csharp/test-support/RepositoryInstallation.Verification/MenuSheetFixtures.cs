@@ -51,6 +51,19 @@ internal static class MenuSheetFixtures
                 $"presentation-{RuntimeHelpers.GetHashCode(key):X8}"));
     }
 
+    /// <summary>Map sprite sheets already composed, by catalog.</summary>
+    private static readonly ConditionalWeakTable<MapSpriteCatalog, SpriteSheet> mapSprites = new();
+
+    /// <summary>The map sprite sheet <paramref name="catalog"/> composes, coloured with the installation's menus.</summary>
+    internal static SpriteSheet MapSprites(MapSpriteCatalog catalog)
+    {
+        ArgumentNullException.ThrowIfNull(catalog);
+        return ReferenceEquals(catalog, InstalledFixtures.Maps.Sprites)
+            ? InstalledFixtures.SpriteSheets.Get(SpriteSheetId.MapSprites)
+            : mapSprites.GetValue(catalog, key => Load(SpriteSheetId.MapSprites, MapSpriteSheetComposer.Sources(key, InstalledFixtures.Maps),
+                $"catalog-{RuntimeHelpers.GetHashCode(key):X8}"));
+    }
+
     /// <summary>Composes and registers a fixture presentation's menu sheets beside the installed others.</summary>
     private static InstalledSpriteSheets Compose(AreaMapPresentationCatalog maps)
     {
@@ -60,6 +73,7 @@ internal static class MenuSheetFixtures
                      (SpriteSheetId.GameOver, GameOverSheetComposer.Sources(maps)),
                      (SpriteSheetId.FileSelect, FileSelectSheetComposer.Sources(maps)),
                      (SpriteSheetId.GameOptions, GameOptionsSheetComposer.Sources(maps)),
+                     (SpriteSheetId.MapSprites, MapSpriteSheetComposer.Sources(maps)),
                  })
             sheets[id] = Load(id, sources, $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
         return new InstalledSpriteSheets(sheets);

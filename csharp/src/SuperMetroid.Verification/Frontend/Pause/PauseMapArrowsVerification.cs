@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -27,7 +28,7 @@ internal static class PauseMapArrowsVerification
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(10, 10) });
         pause.CurrentMapScrollBounds = new PauseMapScroll(new(0, 0), new(512, 256));
         pause.CurrentMapArrows = null;
-        pause.BindMapPresentation(RetailPresentationFixture());
+        pause.BindFixtureArtwork(RetailPresentationFixture());
         var nativeColors = new SnesCgram();
         for (int color = 0; color < SnesCgram.ColorCount; color++) nativeColors.SetColor(color, Bgr555.FromWord(checked(Read(0xb6f000 + color * 2))));
         int nativePaletteTimer = 1, nativePaletteFrame = 0;
@@ -96,7 +97,7 @@ internal static class PauseMapArrowsVerification
             DebuggerObjectGraphSerializer.Serialize(stream, pause);
             stream.Position = 0;
             pause = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(stream);
-            pause.BindMapPresentation(RetailPresentationFixture());
+            pause.BindFixtureArtwork(RetailPresentationFixture());
         }
         AssertTrue(beforeRestore.SequenceEqual(pause.Render()), "debugger restore/rebind retains the current arrow display");
         pause.MapScrollPosition = new Position16<MapPixels>(100, 70);

@@ -201,7 +201,8 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     }
 
     /// <summary>Publishes rebound HUD characters at the active PPU character base on accepted NMI.</summary>
-    internal void PublishReboundHudArtwork()
+    /// <param name="backgrounds">The background artwork bindings, which bind the HUD characters' load.</param>
+    internal void PublishReboundHudArtwork(BgArtworkBindings backgrounds)
     {
         if (pendingHudTiles is not { } hudTiles) return;
         // Binding a restored session changes content ownership, not the already
@@ -211,7 +212,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         // his private BG2 tilemap occupies the ordinary $4000 HUD character
         // address. A restored-state art rebind must honor the *current* PPU
         // character base, or the next NMI paints HUD pixels across Kraid.
-        hudTiles.LoadCharactersTo(_display.HudCharactersAtCurrentBase(_vram));
+        hudTiles.LoadCharactersTo(_display.HudCharactersAtCurrentBase(_vram), backgrounds);
         pendingHudTiles = null;
     }
     /// <summary>Matches a native DMA source and exact length to the currently installed immutable visual data.</summary>

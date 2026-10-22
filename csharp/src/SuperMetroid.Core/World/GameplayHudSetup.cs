@@ -40,6 +40,14 @@ internal sealed class GameplayHudSetup
     internal void SelectGameplayHudCharacterBase() => _display.GameplayHudCharacterBaseWord = GameplayVramLayout.HudCharacterWord;
 
     /// <summary>
+    /// Queues the standard BG3 characters' upload at the ordinary HUD base, followed by its clearing half: a game has them
+    /// there whenever it enters a room through a door, as only Kraid's room writes over them and his death restores them
+    /// before any of its doors opens.
+    /// </summary>
+    internal void QueueHudCharacters() =>
+        _vramWrites.EnqueueBackgroundAsset(VramAssetId.StandardHudTiles, HudTileAtlasFormat.TransferByteCount, GameplayVram.HudCharacterUploadDma);
+
+    /// <summary>
     /// $82:8318 follows the BG3 transfer with $2E00 bytes of standard sprite tiles at VRAM $6000: the installed sheet
     /// when one is bound, otherwise the cartridge source. The dynamic Samus DMA refreshes its four reserved regions each
     /// NMI; fixed projectile tiles such as bomb $14C-$14F remain in the untouched portion.
@@ -68,7 +76,7 @@ internal sealed class GameplayHudSetup
         // The HUD's characters are installed artwork bound at the NMI (#1350).
         if (_artwork.MapPresentation is null)
             throw new InvalidOperationException("Initializing the HUD requires installed HUD artwork.");
-        _vramWrites.EnqueueBackgroundAsset(VramAssetId.StandardHudTiles, HudTileAtlasFormat.TransferByteCount, GameplayVram.HudCharacterUploadDma);
+        QueueHudCharacters();
 
         QueueStandardObjectTiles();
 

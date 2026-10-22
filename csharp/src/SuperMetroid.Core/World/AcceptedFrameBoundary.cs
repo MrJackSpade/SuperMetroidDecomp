@@ -155,7 +155,7 @@ internal sealed class AcceptedFrameBoundary
             // The reveal and the room's planes are drawn once this NMI's uploads have bound (WithBlockPictures).
             null,
             CaptureRoomBackgrounds());
-        _artwork.PublishReboundHudArtwork();
+        _artwork.PublishReboundHudArtwork(_backgrounds);
         _drainQueuedVramWrites();
         // The planes' blocks show what this NMI's uploads bound, as the characters they read did (#1392).
         if (_display.Latched.Rooms is { } rooms)

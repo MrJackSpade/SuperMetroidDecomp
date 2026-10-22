@@ -94,6 +94,13 @@ internal static class InstalledFixtures
     /// <summary>The installation's pre-coloured sprite sheets, loaded once per process.</summary>
     internal static InstalledSpriteSheets SpriteSheets => spriteSheets.Value;
 
+    /// <summary>The installation's pre-coloured enemy sheets, loaded once per process.</summary>
+    internal static SuperMetroid.Core.Enemies.Artwork.InstalledEnemySheets EnemySheets => enemySheets.Value;
+
+    /// <summary>Backing loader for <see cref="EnemySheets"/>.</summary>
+    private static readonly Lazy<SuperMetroid.Core.Enemies.Artwork.InstalledEnemySheets> enemySheets =
+        new(() => RepositoryInstallation.Installation.LoadEnemySheets());
+
     /// <summary>Backing loader for <see cref="SpriteSheets"/>.</summary>
     private static readonly Lazy<InstalledSpriteSheets> spriteSheets = new(() => RepositoryInstallation.Installation.LoadSpriteSheets());
 

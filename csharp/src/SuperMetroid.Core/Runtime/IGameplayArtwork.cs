@@ -159,6 +159,9 @@ internal interface IGameplayArtwork
     /// <summary>The pre-coloured sprite sheets drawn families select their frames from.</summary>
     InstalledSpriteSheets? SpriteSheets { get; }
 
+    /// <summary>The pre-coloured enemy sheets, by the room graphics set that loads each enemy.</summary>
+    InstalledEnemySheets? EnemySheets { get; }
+
     /// <summary>Charge-flare placement.</summary>
     ChargeFlarePlacementCatalog? ChargeFlarePlacement { get; }
 

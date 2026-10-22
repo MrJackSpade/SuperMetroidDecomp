@@ -195,6 +195,9 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>The pre-coloured sprite sheets drawn families select their frames from.</summary>
     public InstalledSpriteSheets? SpriteSheets { get; init; }
 
+    /// <summary>The pre-coloured enemy sheets, by the room graphics set that loads each enemy.</summary>
+    public InstalledEnemySheets? EnemySheets { get; init; }
+
     /// <summary>Charge-flare placement.</summary>
     public ChargeFlarePlacementCatalog? ChargeFlarePlacement { get; init; }
 

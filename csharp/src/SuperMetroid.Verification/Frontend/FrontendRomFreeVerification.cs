@@ -169,6 +169,7 @@ internal static class FrontendRomFreeVerification
                 MapPresentation = maps,
                 GameplayBasePalettes = palettes,
                 EnemyTileArtwork = enemies.Enemies,
+                EnemySheets = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemySheets,
                 BossArtwork = enemies.Bosses,
                 AreaArtwork = enemies.Areas,
                 StandardObjectArt = objects,

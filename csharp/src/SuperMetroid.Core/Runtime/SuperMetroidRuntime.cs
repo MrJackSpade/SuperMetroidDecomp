@@ -257,6 +257,7 @@ internal sealed class SuperMetroidRuntime
         Bind(a => a.TrailArtwork, value => Artwork.TrailArtwork = value);
         Bind(a => a.SamusOverreads, value => Artwork.SamusOverreads = value);
         Bind(a => a.SpriteSheets, value => Artwork.SpriteSheets = value);
+        Bind(a => a.EnemySheets, value => EnemySession.Sheets = value);
         Bind(a => a.ChargeFlarePlacement, value => Artwork.ChargeFlarePlacement = value);
         Bind(a => a.ChargeFlareCompositions, value => Artwork.ChargeFlareCompositions = value);
         Bind(a => a.GrappleArtwork, value => Artwork.GrappleArtwork = value);

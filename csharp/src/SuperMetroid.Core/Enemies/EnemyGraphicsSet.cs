@@ -15,6 +15,21 @@ internal sealed class EnemyGraphicsSet
     /// <summary>Resolved graphics records in room-set order, used for DMA scheduling and per-enemy tile/palette indexes.</summary>
     internal readonly List<RoomEnemyGraphicsSetEntry> Entries = new();
 
+    /// <summary>The graphics set the room loaded, which selects its enemies' installed sheets.</summary>
+    internal RoomEnemyGraphicsSetDefinition? LoadedSet { get; private set; }
+
+    /// <summary>The loaded set's record for <paramref name="enemy"/>.</summary>
+    /// <exception cref="InvalidDataException">The room's graphics set does not load that enemy.</exception>
+    internal RoomEnemyGraphicsSetEntry Entry(EnemyDefinitionId enemy)
+    {
+        foreach (RoomEnemyGraphicsSetEntry entry in Entries)
+        {
+            if (entry.DefinitionId == enemy)
+                return entry;
+        }
+        throw new InvalidDataException($"Enemy graphics set {LoadedSet?.Name ?? "(none loaded)"} does not load {enemy}.");
+    }
+
 
     /// <summary>
     /// Appends enemy tile DMAs after the standard OBJ transfer queued by room setup.
@@ -48,6 +63,7 @@ internal sealed class EnemyGraphicsSet
         SnesVram vram,
         IPaletteColors cgram)
     {
+        LoadedSet = graphicsSet;
         int nextEnemyTileIndex = 0;
         int nextStagingOffset = RoomEnemyRomLayout.OrdinaryStagingOffset;
 

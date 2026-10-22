@@ -34,7 +34,8 @@ internal static class AttractRuntimeBindingsVerification
         game.BindArtwork(game.Artwork with
         {
             GameplayBasePalettes = palettes,
-            EnemyTileArtwork = enemyArtwork.Enemies, BossArtwork = enemyArtwork.Bosses, AreaArtwork = enemyArtwork.Areas,
+            EnemyTileArtwork = enemyArtwork.Enemies,
+            EnemySheets = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemySheets, BossArtwork = enemyArtwork.Bosses, AreaArtwork = enemyArtwork.Areas,
             StandardObjectArt = objects,
         });
         int incomingRandom = game.DispatcherRandomNumber;

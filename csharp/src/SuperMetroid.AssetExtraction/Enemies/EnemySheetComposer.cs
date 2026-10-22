@@ -1,0 +1,153 @@
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.World;
+
+namespace SuperMetroid.AssetExtraction.Enemies;
+
+/// <summary>
+/// Composes the pre-coloured enemy sheets (#1392). Each room graphics set is loaded as a room load leaves it: the
+/// standard OBJ characters with each member's tiles uploaded after them, and each member's palette loaded into its
+/// row. Every member's sheet holds the frames its behaviour shows, composed at its tile index and coloured in its row
+/// as the set leaves it, so a row a later member overwrites shows that member's colours, as on the cartridge. Each
+/// pixel keeps its part's own row, so a hit or freeze flash can still OR in its palette.
+/// </summary>
+internal static class EnemySheetComposer
+{
+    /// <summary>The byte of the OBJ character table the enemy tile region begins at.</summary>
+    private static readonly int EnemyRegionTableByte =
+        (EnemyVramLayout.EnemyTiles.Offset - GameplayVramLayout.ObjectCharacters.Offset) * sizeof(ushort);
+
+    /// <summary>CGRAM's first sprite colour.</summary>
+    private const int SpriteColours = 128;
+
+    /// <summary>Every graphics set's sheets, each distinct sheet once.</summary>
+    internal static EnemySheetComposition Compose(EnemySheetInputs inputs)
+    {
+        Ensure.NotNull(inputs);
+        var distinct = new Dictionary<string, string>(StringComparer.Ordinal);
+        var sheets = new Dictionary<string, ComposedSpriteSheet>(StringComparer.Ordinal);
+        var perEnemy = new Dictionary<EnemyDefinitionId, int>();
+        var sets = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
+        foreach (RoomEnemyGraphicsSetDefinition set in RoomEnemyGraphicsSetDefinitions.All)
+        {
+            var members = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach ((RoomEnemyGraphicsSetEntry entry, SpriteSheetSources sources) in Sources(inputs, set))
+            {
+                ComposedSpriteSheet composed = SpriteSheetComposer.Compose(sources, 0, 0);
+                string key = Fingerprint(composed);
+                if (!distinct.TryGetValue(key, out string? name))
+                {
+                    int ordinal = perEnemy.GetValueOrDefault(entry.DefinitionId);
+                    perEnemy[entry.DefinitionId] = ordinal + 1;
+                    name = SheetName(entry.DefinitionId, ordinal);
+                    distinct.Add(key, name);
+                    sheets.Add(name, composed);
+                }
+                // A set that lists an enemy twice loads it once into each record's row; both must show alike.
+                if (members.TryGetValue(entry.DefinitionId.ToString(), out string? listed) && listed != name)
+                    throw new InvalidDataException($"Enemy graphics set {set.Name} colours {entry.DefinitionId} two ways.");
+                members[entry.DefinitionId.ToString()] = name;
+            }
+            sets.Add(set.Name, members);
+        }
+        return new EnemySheetComposition(sheets, new EnemySheetManifestDocument { Version = EnemySheetDefinitions.ManifestVersion, Sets = sets });
+    }
+
+    /// <summary>
+    /// What each member of <paramref name="set"/> composes, in record order. A member whose definition draws no
+    /// frames, as the unported ones, or draws from characters it uploads, has no sheet.
+    /// </summary>
+    internal static IEnumerable<(RoomEnemyGraphicsSetEntry Entry, SpriteSheetSources Sources)> Sources(EnemySheetInputs inputs,
+        RoomEnemyGraphicsSetDefinition set)
+    {
+        Ensure.NotNull(inputs);
+        Ensure.NotNull(set);
+        var graphics = new EnemyGraphicsSet(new EnemyRoomBinding(new EnemySession { TileArtwork = inputs.Enemies },
+            CompiledRoomEnemyDefinitions.Instance, services: null));
+        SnesCgram cgram = RoomLoadPalettes.Cgram(inputs.Palettes);
+        graphics.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set, new SnesVram(), cgram);
+        SpriteArtwork page = Page(inputs, graphics);
+        Bgr555[] colours = cgram.Colors[SpriteColours..].ToArray();
+        foreach (RoomEnemyGraphicsSetEntry entry in graphics.Entries)
+        {
+            if (EnemySheetDefinitions.DrawnFromCharacters.Contains(entry.DefinitionId) ||
+                !EnemyDefinitionFrameDefinitions.Frames.TryGetValue(entry.DefinitionId, out IReadOnlyList<EnemyFrameId>? shown))
+                continue;
+            ushort tileBase = checked((ushort)entry.VramTilesIndex);
+            int paletteBits = SnesObjAttributeWord.FromPaletteBits(
+                unchecked((ushort)((entry.PaletteRow & EnemyTileDataMasks.PaletteNibbleBits) << 9))).PaletteIndex;
+            yield return (entry, new SpriteSheetSources(Frames(inputs.Enemies, shown, tileBase, page).ToList(), colours, paletteBits));
+        }
+    }
+
+    /// <summary>The OBJ character table as the set leaves it: the standard characters, then each member's tile upload.</summary>
+    private static SpriteArtwork Page(EnemySheetInputs inputs, EnemyGraphicsSet graphics)
+    {
+        var table = new byte[ObjCharacterUploads.TableByteCount];
+        inputs.StandardObjects.Span.CopyTo(table);
+        foreach (RoomEnemyGraphicsSetEntry entry in graphics.Entries)
+        {
+            if (!inputs.Enemies.TryResolve(entry.Definition.TileDataAddress, entry.TileByteCount, out ReadOnlyMemory<byte> tiles))
+                throw new InvalidDataException($"Enemy {entry.DefinitionId} has no installed tiles for its graphics-set upload.");
+            int first = EnemyRegionTableByte + entry.StagingOffset;
+            int shown = Math.Min(tiles.Length, table.Length - first);
+            if (shown > 0)
+                tiles.Span[..shown].CopyTo(table.AsSpan(first));
+        }
+        return ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.GameplayObjects), table);
+    }
+
+    /// <summary>The names of the frames an enemy's sheets hold, in composition order.</summary>
+    internal static IEnumerable<string> FrameNames(EnemyTileArtworkCatalog enemies, EnemyDefinitionId enemy) =>
+        EnemyDefinitionFrameDefinitions.Frames.TryGetValue(enemy, out IReadOnlyList<EnemyFrameId>? shown)
+            ? Composed(enemies, shown).Select(frame => frame.Name) : [];
+
+    /// <summary>Each shown frame over the page: an ordinary frame whole, an extended frame component by component.</summary>
+    private static IEnumerable<SheetFrameSource> Frames(EnemyTileArtworkCatalog enemies, IReadOnlyList<EnemyFrameId> shown,
+        ushort tileBase, SpriteArtwork page) =>
+        // The palette bits are the sheet's, ORed in at composition, so each pixel keeps its part's own row.
+        Composed(enemies, shown).Select(frame => new SheetFrameSource(frame.Name, EnemySpriteFrames.Frame(frame.Parts, tileBase, 0), page));
+
+    /// <summary>
+    /// Each shown frame's composition by sheet frame name: an ordinary frame whole, an extended frame component by
+    /// component. A frame no installed composition shows draws nothing to compose.
+    /// </summary>
+    private static IEnumerable<(string Name, EnemySpritemapParts Parts)> Composed(EnemyTileArtworkCatalog enemies, IReadOnlyList<EnemyFrameId> shown)
+    {
+        EnemySpritemapCatalog spritemaps = enemies.Spritemaps ?? throw new InvalidDataException("Enemy sheets require the installed enemy compositions.");
+        EnemyExtendedFrameCatalog extended = enemies.ExtendedFrames ?? throw new InvalidDataException("Enemy sheets require the installed extended frames.");
+        foreach (EnemyFrameId frame in shown)
+        {
+            if (spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts))
+                yield return (EnemySheetDefinitions.FrameName(frame), parts);
+            else if (extended.TryGetDisplay(frame, out ReadOnlyMemory<EnemyExtendedDrawComponent> components))
+            {
+                for (int component = 0; component < components.Length; component++)
+                    yield return (EnemySheetDefinitions.ComponentFrameName(frame, component), components.Span[component].Parts);
+            }
+        }
+    }
+
+    /// <summary>The installed name of an enemy's <paramref name="ordinal"/>th distinct sheet.</summary>
+    private static string SheetName(EnemyDefinitionId enemy, int ordinal) => $"{enemy}.{ordinal}";
+
+    /// <summary>A composed sheet's content hash, which identical sheets share.</summary>
+    private static string Fingerprint(ComposedSpriteSheet sheet)
+    {
+        using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+        hash.AppendData(MemoryMarshal.AsBytes(sheet.Pixels.AsSpan()));
+        hash.AppendData(sheet.PaletteIndices);
+        hash.AppendData(sheet.Priorities);
+        hash.AppendData(sheet.PartRows);
+        hash.AppendData(SpriteSheet.Write(sheet.Manifest));
+        return Convert.ToHexString(hash.GetHashAndReset());
+    }
+}

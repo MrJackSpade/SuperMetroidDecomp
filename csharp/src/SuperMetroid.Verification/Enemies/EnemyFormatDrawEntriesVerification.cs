@@ -16,15 +16,13 @@ using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.Artwork;
 
 /// <summary>
-/// Checks #1343's enemy-format draws: an ordinary enemy, an extended enemy and an enemy projectile publish whole-frame
-/// entries over the OBJ page their room's uploaded enemy tile sets bind, and the shake tick is a simulation phase.
+/// Checks #1343's enemy-format draws as #1392 draws them: an ordinary enemy and each visible component of an extended
+/// enemy publish the frames of the sheets their room's graphics set names, a draw in another palette row shows its
+/// frame in that row, an enemy projectile still publishes a whole-frame entry over the OBJ page, and the shake tick is
+/// a simulation phase.
 /// </summary>
 internal static class EnemyFormatDrawEntriesVerification
 {
-    /// <summary>The ordinary enemy's packed tile base and palette bits.</summary>
-    private const ushort OrdinaryTileBase = 64;
-    /// <summary>Palette two, as packed attribute bits.</summary>
-    private const ushort OrdinaryPaletteBits = 2 << 9;
     /// <summary>The projectile's palette.</summary>
     private const byte ProjectilePalette = 5;
     /// <summary>The projectile's palette as packed attribute bits.</summary>
@@ -33,55 +31,49 @@ internal static class EnemyFormatDrawEntriesVerification
     private const ushort ProjectileTileBase = 4;
     /// <summary>The projectile's graphics index: its palette bits with its tile base.</summary>
     private const ushort ProjectileGraphicsIndex = ProjectilePaletteBits | ProjectileTileBase;
+    /// <summary>A palette row neither enemy is loaded in, which a draw then shows its frame in.</summary>
+    private const int OtherRow = 6;
 
-    /// <summary>Publishes a constructed population and checks every entry and the bound tile set.</summary>
+    /// <summary>Loads a room graphics set, publishes a constructed population and checks every entry.</summary>
     internal static void VerifyEnemyFormatDrawEntries()
     {
         InstalledEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
-        var resolver = new EnemyTileTransfers(artwork);
         EnemySpritemapCatalog spritemaps = artwork.Enemies.Spritemaps ?? throw new InvalidOperationException("The installation has no enemy spritemaps.");
         EnemyExtendedFrameCatalog extendedFrames = artwork.Enemies.ExtendedFrames ?? throw new InvalidOperationException("The installation has no extended enemy frames.");
         EnemyProjectileSpritemapCatalog projectileSpritemaps = artwork.Enemies.ProjectileSpritemaps ?? throw new InvalidOperationException("The installation has no enemy projectile spritemaps.");
 
-        // The room's enemy tile set reaches the OBJ characters only through the NMI queue, as a named transfer.
-        RoomEnemyDefinition boyon = RoomEnemyDefinitionCatalog.Get(EnemyDefinitionId.Boyon);
-        int boyonBytes = boyon.TileDataSize & short.MaxValue;
-        var queue = new VramWriteQueue();
-        queue.Enqueue((ushort)boyonBytes, boyon.TileDataAddress, EnemyVram.EnemyTilesDma(0));
-        queue.DrainTo(new SnesVram(), resolver, enemies.Room.Session.ObjCharacters, BgArtworkFixtures.For(new SnesVram()));
-        ObjCharacterUpload upload = enemies.Room.Session.ObjCharacters.Uploads.Single();
-        AssertTrue(upload.Source is TransferObjCharacters, "Enemy tiles bind their installed artwork, not copied bytes");
-        SpriteArtwork page = new ObjCharacterTablePage().Page(enemies.Room.Session.ObjCharacters, resolver);
-        AssertTrue(artwork.Enemies.TryResolve(boyon.TileDataAddress, boyonBytes, out ReadOnlyMemory<byte> boyonTiles) &&
-            page.Characters.Slice(upload.FirstByte, boyonBytes).SequenceEqual(boyonTiles.Span),
-            "The OBJ page shows the room's enemy tile set where its upload lands");
+        // A room's graphics set: a Beetom, an ordinary enemy, and a walking space pirate, an extended one.
+        RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetDefinitions.GreenPiratesShaft;
+        enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set, new SnesVram(), new SnesCgram());
+        RoomEnemyGraphicsSetEntry beetom = enemies.GraphicsSet.Entry(EnemyDefinitionId.Beetom);
+        RoomEnemyGraphicsSetEntry pirate = enemies.GraphicsSet.Entry(EnemyDefinitionId.PirateGreenWalking);
 
-        // Ordinary enemy on layer zero.
-        EnemySpritemapDefinition ordinaryFrame = EnemySpritemapDefinitions.Frames.First(frame =>
-            spritemaps.TryGetDisplay(frame.Bank, frame.Pointer, out EnemySpritemapParts parts) && parts.Count > 0);
+        // Ordinary enemy on layer zero, in the row its graphics set loaded it in.
+        EnemyFrameId ordinaryFrame = EnemyDefinitionFrameDefinitions.Frames[EnemyDefinitionId.Beetom]
+            .First(frame => spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts) && parts.Count > 0);
         RoomEnemySlot ordinary = enemies.SlotTable.Slots[0];
-        ordinary.Bind(EnemyDefinitionId.Boyon, default(RoomEnemyDefinition));
-        ordinary.Frame = RoomEnemySlotFrameAccess.FrameAt(ordinaryFrame.Bank, ordinaryFrame.Pointer);
-        ordinary.VramTilesIndex = OrdinaryTileBase;
-        ordinary.PaletteIndex = OrdinaryPaletteBits;
+        ordinary.Bind(EnemyDefinitionId.Beetom, default(RoomEnemyDefinition));
+        ordinary.Frame = ordinaryFrame;
+        ordinary.VramTilesIndex = checked((ushort)beetom.VramTilesIndex);
+        ordinary.PaletteIndex = PaletteBits(beetom.PaletteRow);
         ordinary.Position = ordinary.Position.WithWhole(new(100, 80));
         enemies.Drawing.Enqueue(0, 0);
 
         // Extended enemy on layer one, showing a frame with several components.
-        EnemySpritemapDefinition extendedFrame = EnemyExtendedFrameDefinitions.Frames.First(frame =>
-            frame.Bank != EnemyExtendedFrameDefinitions.Bank &&
-            extendedFrames.TryGetDisplay(frame.Bank, frame.Pointer, out ReadOnlyMemory<EnemyExtendedDrawComponent> components) &&
-            components.Length > 1);
+        EnemyFrameId extendedFrame = EnemyDefinitionFrameDefinitions.Frames[EnemyDefinitionId.PirateGreenWalking]
+            .First(frame => extendedFrames.TryGetDisplay(frame, out ReadOnlyMemory<EnemyExtendedDrawComponent> components) && components.Length > 1);
         RoomEnemySlot extended = enemies.SlotTable.Slots[1];
-        extended.Bind(EnemyDefinitionId.Boyon, default(RoomEnemyDefinition));
+        extended.Bind(EnemyDefinitionId.PirateGreenWalking, default(RoomEnemyDefinition));
         extended.ExtraProperties = extended.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
-        extended.Frame = RoomEnemySlotFrameAccess.FrameAt(extendedFrame.Bank, extendedFrame.Pointer);
+        extended.Frame = extendedFrame;
+        extended.VramTilesIndex = checked((ushort)pirate.VramTilesIndex);
+        extended.PaletteIndex = PaletteBits(pirate.PaletteRow);
         extended.InstructionTimer = WrappingCountdown.Start(7);
         extended.Position = extended.Position.WithWhole(new(120, 110));
         enemies.Drawing.Enqueue(1, EnemySlotTable.NativeSlotSize);
 
-        // Enemy projectile in the high-priority pass.
+        // Enemy projectile in the high-priority pass, still drawn over the OBJ page.
         EnemyProjectileFrameId projectileFrame = EnemyProjectilePresentationFrameSets.All.ToArray()
             .Select(frame => EnemyProjectileFrames.Identity(frame.Name))
             .First(frame => EnemyProjectileFrames.Parts(projectileSpritemaps, frame).Length > 0);
@@ -92,6 +84,7 @@ internal static class EnemyFormatDrawEntriesVerification
         projectile.GraphicsIndex = ProjectileGraphicsIndex;
         projectile.Position = projectile.Position.WithWhole(new(30, 40));
 
+        SpriteArtwork page = new ObjCharacterTablePage().Page(enemies.Room.Session.ObjCharacters, new EnemyTileTransfers(artwork));
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
         enemies.Drawing.AdvanceLayers(Position16<RoomPixels>.Zero, 0, 7);
@@ -99,27 +92,43 @@ internal static class EnemyFormatDrawEntriesVerification
         enemies.Projectiles.DrawEnemyProjectilePass(sprites, page, Position16<RoomPixels>.Zero, EnemyProjectileDrawPriority.High, false);
         sprites.FinalizeFrame();
         SpriteDraw[] draws = [.. sprites.Draws];
-        AssertTrue(draws.All(draw => ReferenceEquals(page, draw.Artwork)), "Every entry binds the room's OBJ page");
 
-        spritemaps.TryGetDisplay(ordinaryFrame.Bank, ordinaryFrame.Pointer, out EnemySpritemapParts ordinaryParts);
-        AssertEntry(draws[0], new SpriteSource(SpriteSourceKind.Enemy, 0), EnemySpriteFrames.Frame(ordinaryParts, OrdinaryTileBase, OrdinaryPaletteBits),
-            new(100, 80), 2, "Ordinary enemy");
+        SpriteSheet beetomSheet = InstalledFixtures.EnemySheets.For(set, EnemyDefinitionId.Beetom);
+        AssertImage(draws[0], new SpriteSource(SpriteSourceKind.Enemy, 0), beetomSheet.Frame(EnemySheetDefinitions.FrameName(ordinaryFrame)),
+            new(100, 80), null, "Ordinary enemy");
 
-        extendedFrames.TryGetDisplay(extendedFrame.Bank, extendedFrame.Pointer, out ReadOnlyMemory<EnemyExtendedDrawComponent> components);
+        SpriteSheet pirateSheet = InstalledFixtures.EnemySheets.For(set, EnemyDefinitionId.PirateGreenWalking);
+        extendedFrames.TryGetDisplay(extendedFrame, out ReadOnlyMemory<EnemyExtendedDrawComponent> components);
         int entry = 1;
-        foreach (EnemyExtendedDrawComponent component in components.Span)
+        for (int component = 0; component < components.Length; component++)
         {
-            Position16<OamPixels> origin = new Position16<OamPixels>(120, 110) + component.Offset;
+            Position16<OamPixels> origin = new Position16<OamPixels>(120, 110) + components.Span[component].Offset;
             if (((origin.X + 128) & EnemyDrawMasks.OffscreenBits) != 0 || ((origin.Y + 128) & EnemyDrawMasks.OffscreenBits) != 0)
                 continue;
-            AssertEntry(draws[entry++], new SpriteSource(SpriteSourceKind.Enemy, 1), EnemySpriteFrames.Frame(component.Parts, 0, 0),
-                new(origin.X, origin.Y), 0, "Extended enemy component");
+            AssertImage(draws[entry++], new SpriteSource(SpriteSourceKind.Enemy, 1),
+                pirateSheet.Frame(EnemySheetDefinitions.ComponentFrameName(extendedFrame, component)), new(origin.X, origin.Y), null,
+                "Extended enemy component");
         }
         AssertTrue(entry > 2, "The extended enemy publishes one entry per visible component");
 
-        AssertEntry(draws[entry++], new SpriteSource(SpriteSourceKind.EnemyProjectile, 17),
-            EnemySpriteFrames.Frame(EnemyProjectileFrames.Parts(projectileSpritemaps, projectileFrame), ProjectileTileBase, ProjectilePaletteBits), new(30, 40), ProjectilePalette, "Enemy projectile");
+        var projectileDraw = (CharacterSpriteDraw)draws[entry++];
+        AssertEqual(new SpriteSource(SpriteSourceKind.EnemyProjectile, 17), projectileDraw.Source, "Enemy projectile names its slot");
+        AssertTrue(ReferenceEquals(EnemySpriteFrames.Frame(EnemyProjectileFrames.Parts(projectileSpritemaps, projectileFrame), ProjectileTileBase,
+            ProjectilePaletteBits), projectileDraw.Frame), "Enemy projectile shows its composition's frame");
+        AssertTrue(ReferenceEquals(page, projectileDraw.Artwork), "Enemy projectile binds the room's OBJ page");
+        AssertEqual(new Position16<ScreenPixels>(30, 40), projectileDraw.Origin, "Enemy projectile is placed at its screen origin");
+        AssertEqual(ProjectilePalette, projectileDraw.Palette, "Enemy projectile binds its selected palette");
         AssertEqual(draws.Length, entry, "No other entries are published");
+
+        // An enemy drawn in a row its set did not load it in shows its frame in that row.
+        ordinary.PaletteIndex = PaletteBits(OtherRow);
+        sprites.BeginFrame();
+        enemies.Drawing.AdvanceLayers(Position16<RoomPixels>.Zero, 0, 0);
+        enemies.Drawing.DrawLayers(sprites, page, Position16<RoomPixels>.Zero, 0, 0);
+        sprites.FinalizeFrame();
+        AssertImage(sprites.Draws[0], new SpriteSource(SpriteSourceKind.Enemy, 0), beetomSheet.Frame(EnemySheetDefinitions.FrameName(ordinaryFrame)),
+            new(100, 80), OtherRow, "Ordinary enemy in another row");
+        ordinary.PaletteIndex = PaletteBits(beetom.PaletteRow);
 
         // The shake tick belongs to the advance: it is consumed identically whether or not the frame is drawn.
         ordinary.FrameCounter = 0;
@@ -134,15 +143,18 @@ internal static class EnemyFormatDrawEntriesVerification
         AssertEqual(1, undisplayed, "An undrawn frame consumes one shake tick");
         AssertEqual(undisplayed, ordinary.ShakeTimer.RawValue, "A drawn frame consumes the same shake tick");
         AssertEqual(new Position16<ScreenPixels>(101, 80), sprites.Draws[0].Origin, "The drawn frame shows the shaken origin");
-        Console.WriteLine($"Enemy-format draws: ordinary, {entry - 2}-component extended and projectile entries over the bound enemy tile page; shake advance independent of display.");
+        Console.WriteLine($"Enemy-format draws: ordinary and {entry - 2}-component extended entries from their graphics set's sheets, a frame in another row, and a projectile over the enemy tile page; shake advance independent of display.");
 
-        static void AssertEntry(SpriteDraw draw, SpriteSource source, SpriteFrame frame, Position16<ScreenPixels> origin, byte palette, string subject)
+        static void AssertImage(SpriteDraw draw, SpriteSource source, SpriteSheetFrame frame, Position16<ScreenPixels> origin, int? row, string subject)
         {
-            AssertEqual(source, draw.Source, $"{subject} names its slot");
-            AssertTrue(ReferenceEquals(frame, draw.Frame), $"{subject} shows its composition's frame");
-            AssertEqual(origin, draw.Origin, $"{subject} is placed at its screen origin");
-            AssertEqual(palette, draw.Palette, $"{subject} binds its selected palette");
+            var image = draw as ImageSpriteDraw ?? throw new InvalidOperationException($"{subject} is a {draw.GetType().Name}, not a sheet frame.");
+            AssertEqual(source, image.Source, $"{subject} names its slot");
+            AssertTrue(ReferenceEquals(frame, image.Image), $"{subject} shows its sheet's frame");
+            AssertEqual(origin, image.Origin, $"{subject} is placed at its screen origin");
+            AssertEqual(row, image.PaletteOverride, $"{subject} shows its frame in the row it is drawn in");
         }
+
+        static ushort PaletteBits(int row) => checked((ushort)((row & 15) << 9));
     }
 
     /// <summary>Runs the enemy-format draw-entry confirmation.</summary>

@@ -25,6 +25,8 @@ public static class GameInstallationLayout
     public const string SamusOverreadDirectoryName = "samus-overreads";
     /// <summary>Pre-coloured sprite sheets and their frame manifests.</summary>
     public const string SpriteSheetDirectoryName = "sprite-sheets";
+    /// <summary>Pre-coloured enemy sheets and the manifest naming each graphics set's sheet for each enemy.</summary>
+    public const string EnemySheetDirectoryName = SuperMetroid.Core.Enemies.Artwork.EnemySheetDefinitions.DirectoryName;
     /// <summary>Content child directory for Samus body PNGs and visual selectors.</summary>
     public const string SamusBodyDirectoryName = "samus-body";
     /// <summary>Content child directory for opening-cinematic artwork.</summary>
@@ -104,7 +106,7 @@ public static class GameInstallationLayout
     /// <summary>Receipt filename within stock content, recording the installation format and source cartridge digest.</summary>
     public const string ReceiptFileName = "installation.json";
     /// <summary>Current installation-receipt version; incompatible stock content requires validation and repair before opening.</summary>
-    public const int FormatVersion = 101;
+    public const int FormatVersion = 102;
     /// <summary>Backup of the previously published stock game tree during an atomic install.</summary>
     internal const string PreviousDirectoryName = ".game.previous";
     /// <summary>Prefix for a stock tree being prepared before publication.</summary>

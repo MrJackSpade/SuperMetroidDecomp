@@ -66,4 +66,8 @@ public sealed class EnemySession
     [field: NonSerialized]
     internal EnemyTileArtworkCatalog? TileArtwork { get; set; }
 
+    /// <summary>The installed pre-coloured enemy sheets; artwork, never saved. The host reinstalls them after a restore.</summary>
+    [field: NonSerialized]
+    internal IEnemySheetSource? Sheets { get; set; }
+
 }

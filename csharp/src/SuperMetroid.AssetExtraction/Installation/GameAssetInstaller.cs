@@ -340,6 +340,9 @@ public static class GameAssetInstaller
         new(GameInstallationLayout.SpriteSheetDirectoryName,
             Step("Composing sprite sheets...", (bus, d) => SpriteSheetFiles.Extract(bus, Path.GetDirectoryName(d)!, d, SupportedCartridge.Sha256),
                 SpriteSheetFiles.ValidateStock)),
+        new(GameInstallationLayout.EnemySheetDirectoryName,
+            Step("Composing enemy sheets...", (_, d) => EnemySheetFiles.Extract(Path.GetDirectoryName(d)!, d, SupportedCartridge.Sha256),
+                EnemySheetFiles.ValidateStock)),
     ];
 
     /// <summary>Content failures a repair rebuilds from the ROM, rather than errors to surface.</summary>

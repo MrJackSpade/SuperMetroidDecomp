@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
@@ -20,9 +21,8 @@ internal static class PowerBombDeathDrawingVerification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyPowerBombDeathDrawing()
     {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var spritemaps = EnemySpritemapDocuments.Load(new MemoryStream(EnemySpritemapFiles.Extract(rom)));
-        var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = spritemaps });
+        EnemyTileArtworkCatalog artwork = InstalledFixtures.EnemyTiles;
+        EnemySpritemapCatalog spritemaps = artwork.Spritemaps ?? throw new InvalidOperationException("The installation has no enemy spritemaps.");
 
         Confirm(EnemyDefinitionId.Atomic, respawns: false, lethal: true);
         Confirm(EnemyDefinitionId.Sidehopper, respawns: false, lethal: true);
@@ -35,16 +35,21 @@ internal static class PowerBombDeathDrawingVerification
             var fixture = CreateEnemyDropFixture(CreateDropTestSamus(), [1]);
             var enemies = fixture.System;
             enemies.TileArtwork = artwork;
+            // The room's graphics set loads the enemy, as every room that holds one does.
+            var set = new RoomEnemyGraphicsSetDefinition($"power-bomb {header}", [new RoomEnemyGraphicsSetHeader(header, PaletteRow: 1)]);
+            enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set, new SnesVram(), new SnesCgram());
+            RoomEnemyGraphicsSetEntry graphics = enemies.GraphicsSet.Entry(header);
             var actor = enemies.SlotTable.Slots[0];
             actor.Bind(header, actor.Definition);
             actor.Bind(actor.DefinitionId, RoomEnemyDefinitionCatalog.Get(header));
+            actor.VramTilesIndex = checked((ushort)graphics.VramTilesIndex);
+            actor.PaletteIndex = checked((ushort)((graphics.PaletteRow & 15) << 9));
             actor.Health = lethal ? (ushort)1 : (ushort)1000;
             actor.Position = actor.Position.WithWhole(new(128, 128));
             actor.Radius = new(actor.Definition.Radius.X, actor.Definition.Radius.Y);
             actor.Properties = EnemyPropertyWord.FromNativeWord(respawns ? (ushort)EnemyProperties.RespawnIfKilled : (ushort)0);
-            actor.SpritemapPointer = EnemySpritemapDefinitions.Frames
-                .First(frame => frame.Bank == actor.NativeHeader.Bank &&
-                    spritemaps.TryGetDisplay(frame.Bank, frame.Pointer, out var parts) && parts.Length != 0).Pointer;
+            actor.Frame = EnemyDefinitionFrameDefinitions.Frames[header]
+                .First(frame => spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts) && parts.Count != 0);
 
             // Freeze only the AI while producing the real draw queue. The following
             // explicit damage call represents the later runtime power-bomb phase.

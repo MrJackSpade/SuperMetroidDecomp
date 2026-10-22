@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
@@ -80,6 +81,12 @@ public sealed record GameInstallation(string Root)
     public string SpriteSheetOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.SpriteSheetDirectoryName);
     /// <summary>Loads every validated sprite sheet, preferring the player's overrides.</summary>
     public InstalledSpriteSheets LoadSpriteSheets() => SpriteSheetFiles.Load(SpriteSheetDirectory, SpriteSheetOverrideDirectory);
+    /// <summary>Stock pre-coloured enemy sheets and the manifest naming each graphics set's sheet for each enemy.</summary>
+    public string EnemySheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EnemySheetDirectoryName);
+    /// <summary>Player-edited enemy sheet files, which replace the stock files of the same name.</summary>
+    public string EnemySheetOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EnemySheetDirectoryName);
+    /// <summary>Loads every validated enemy sheet, preferring the player's overrides.</summary>
+    public InstalledEnemySheets LoadEnemySheets() => EnemySheetFiles.Load(EnemySheetDirectory, EnemySheetOverrideDirectory);
     /// <summary>Stock indexed common gameplay OBJ sheet and its source manifest.</summary>
     public string StandardObjectDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.StandardObjectDirectoryName);
     /// <summary>Editable common gameplay OBJ sheet, preserved across stock rebuilds.</summary>
@@ -472,6 +479,7 @@ public sealed record GameInstallation(string Root)
             GrappleArtwork = projectiles.GrappleTiles,
             SamusOverreads = LoadSamusOverreads(),
             SpriteSheets = LoadSpriteSheets(),
+            EnemySheets = LoadEnemySheets(),
         };
     }
 }

@@ -9,11 +9,15 @@ internal static class RoomEnemySystemArtworkAccess
     /// <summary>The artwork a fixture installs.</summary>
     extension(RoomEnemySystem self)
     {
-        /// <summary>The session's installed enemy presentation.</summary>
+        /// <summary>The session's installed enemy presentation, and the enemy sheets drawn with it.</summary>
         internal EnemyTileArtworkCatalog? TileArtwork
         {
             get => self.Room.Session.TileArtwork;
-            set => self.Room.Session.TileArtwork = value;
+            set
+            {
+                self.Room.Session.TileArtwork = value;
+                self.Room.Session.Sheets = value is null ? null : SuperMetroid.TestSupport.RepositoryInstallation.Verification.EnemySheetFixtures.For(value);
+            }
         }
 
         /// <summary>The bosses' installed artwork, through the session's binding.</summary>

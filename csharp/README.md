@@ -536,7 +536,9 @@ and `intro-projectiles` for the intro's flashbacks, the grapple beam's endpoint 
 the Power Suit's colours; the other suits recolour it through its palette map), the arm cannon's covers and the
 chest cover drawn over it (`samus-overlays`, coloured likewise), and her footstep splashes, lava spray, dust, diving
 splash and bubbles (`samus-atmosphere`), and her suit explosion as she dies (`samus-death`; the death palette recolours
-it). The escape countdown's layout, `escape-timer.json` in `overrides/maps`, now holds only the
+it). Ordinary enemies are drawn from `enemy-sheets`: one sheet for each enemy as a room's graphics set loads it, in the
+colours its palette row holds there, so an enemy shown in another palette has a sheet of its own; `enemy-sheets.json`
+names each graphics set's sheet for each of its enemies. The escape countdown's layout, `escape-timer.json` in `overrides/maps`, now holds only the
 anchors and digit spacing; a layout written for the earlier version, which also held the frames and
 palette, is rejected until it is rewritten.
 

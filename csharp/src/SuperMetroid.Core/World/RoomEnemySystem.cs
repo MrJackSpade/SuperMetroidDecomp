@@ -590,12 +590,12 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         RoomFx = new EnemyRoomFx();
         RoomStatus = new EnemyRoomStatus(session);
         FrameContext = new EnemyFrameContext(session);
-        Presentation = new EnemyPresentation(Room);
+        GraphicsSet = new EnemyGraphicsSet(Room);
+        Presentation = new EnemyPresentation(Room, GraphicsSet);
         BossPresentation = new BossPresentation(Presentation, BossArtworkBinding);
         SlotTable = new EnemySlotTable();
         MorphBallEyeBehavior = new MorphBallEyeBehavior(SlotTable);
         ProcessingWindow = new EnemyProcessingWindow(FrameContext, MorphBallEyeBehavior, Room, SlotTable);
-        GraphicsSet = new EnemyGraphicsSet(Room);
         Dispatch = new EnemySlotDispatch(Room, SlotTable, GraphicsSet, ProcessingWindow);
         PopulationLoader = new EnemyPopulationLoader(Room, RoomStatus, SlotTable, Dispatch);
         RidleyEncounter = new RidleyEncounter(SlotTable, session);

@@ -462,28 +462,10 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         foreground[row * roomWidth + 6] = 0x8000;
     RoomLevelData level = new RoomLevelData(new(roomWidth, roomHeight), new RoomLevelPlanes(foreground, new byte[foreground.Length], new ushort[foreground.Length]), new byte[8]);
 
-    var paletteDocument = new EnemyPaletteSheetDocument
-    {
-        Version = 1,
-        Colors = Enumerable.Range(0, EnemyPaletteSheet.ColorCount).Select(_ =>
-            new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray(),
-    };
-    using var paletteJson = new MemoryStream(EnemyPaletteSheet.Write(paletteDocument));
-    var palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
-    {
-        [definitionPointer] = EnemyPaletteSheet.Load(paletteJson),
-    };
-    // Installed artwork requires complete tiles; one blank tile replaces the old omitted art.
-    using var tilePng = new MemoryStream();
-    IndexedPng.Write(tilePng, new(8, 8), new byte[64], SnesGraphics.DiagnosticPalette(16));
-    tilePng.Position = 0;
-    var sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
-    {
-        [definitionPointer] = RoomCharacterAtlas.Load(tilePng, 32),
-    };
+    // The fixture's enemy draws from the installed artwork's sheets; its tiles and colours are not what it checks.
     var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0))
     {
-        TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes }),
+        TileArtwork = InstalledFixtures.EnemyTiles,
     };
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram));
     RoomEnemySlot ripper = enemies.SlotTable.Slots[0];
@@ -565,31 +547,21 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     AssertEqual(0xffff, ripperState.XVelocity.WholeWord, "Ripper reversal signed whole X velocity");
     AssertEqual(0xe527, ripper.SpritemapPointer, "Ripper reversal selects left-facing frame");
 
-    // WriteEnemyOAM `$A0:947B` applies enemy shake to the shared ordinary-spritemap
-    // origin. One synthetic one-entry map makes both signs and the timer consumption
-    // observable without borrowing the production displacement calculation.
-    var frames = EnemySpritemapDefinitions.Frames.ToArray();
-    var spriteDocument = new EnemySpritemapDocument
-    {
-        Version = (int)EnemySpritemapSchema.Current,
-        Frames = frames.ToDictionary(frame => frame.Name, frame =>
-            frame.Bank == 0xa2 && frame.Pointer == 0xe527
-                ? new[] { new SpriteVisualPart { OffsetX = 0, OffsetY = 0, Size = 8,
-                    TileColumn = 0, TileRow = 0, Palette = 0, Priority = 0,
-                    FlipX = false, FlipY = false } }
-                : Array.Empty<SpriteVisualPart>()),
-        DisplayFrames = frames.ToDictionary(frame => frame.Name, frame => frame.Name),
-    };
-    using var spriteJson = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
-        spriteDocument, CamelCaseJson));
-    enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, Spritemaps = EnemySpritemapDocuments.Load(spriteJson) });
+    // WriteEnemyOAM `$A0:947B` applies enemy shake to the shared ordinary-spritemap origin: the reversed frame drawn
+    // unshaken, then with each sign, makes both signs and the timer consumption observable.
+    var steadyOam = new OamBuffer();
+    ripper.ShakeTimer = WrappingCountdown.Start(0);
+    steadyOam.BeginFrame();
+    enemies.Drawing.DrawLayersAsOam(steadyOam, new(0, 0), 0, 7);
+    steadyOam.FinalizeFrame();
+    int steadyX = steadyOam.GetEntry(0).Position.X;
     var shakenOam = new OamBuffer();
     ripper.FrameCounter = 0;
     ripper.ShakeTimer = WrappingCountdown.Start(2);
     shakenOam.BeginFrame();
     enemies.Drawing.DrawLayersAsOam(shakenOam, new(0, 0), 0, 7);
     shakenOam.FinalizeFrame();
-    AssertEqual(89, shakenOam.GetEntry(0).Position.X,
+    AssertEqual(steadyX + 1, shakenOam.GetEntry(0).Position.X,
         "enemy shake frame-counter bit one clear adds one X pixel");
     AssertEqual(1, ripper.ShakeTimer.RawValue, "enemy draw consumes one shake tick");
 
@@ -598,7 +570,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     shakenOam.BeginFrame();
     enemies.Drawing.DrawLayersAsOam(shakenOam, new(0, 0), 0, 7);
     shakenOam.FinalizeFrame();
-    AssertEqual(87, shakenOam.GetEntry(0).Position.X,
+    AssertEqual(steadyX - 1, shakenOam.GetEntry(0).Position.X,
         "enemy shake frame-counter bit one set subtracts one X pixel");
     AssertEqual(1, ripper.ShakeTimer.RawValue, "negative enemy draw consumes one shake tick");
 

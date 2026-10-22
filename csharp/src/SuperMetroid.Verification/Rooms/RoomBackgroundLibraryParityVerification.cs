@@ -65,16 +65,21 @@ internal static class RoomBackgroundLibraryParityVerification
 
                 LibraryBackgroundStaging selectedStaging = LibraryBackgroundStagingFixtures.Fresh();
                 var selectedVram = new SnesVram();
-                LibraryBackgroundExecutionResult selected = LibraryBackgroundLoader.ExecuteProgram(selectedStaging, selectedVram, LibraryBackgroundProgramDefinitions.Get(program.Pointer), door == 0 ? FixtureRoomHeaders.UnmatchedDoor : DoorDefinitions.Get(door), new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });
+                // Installed character transfers bind their artwork instead of writing VRAM (#1350); the frame composes
+                // them over the VRAM image, which is what the native transfer left in VRAM.
+                var bindings = new BgArtworkBindings(selectedVram);
+                LibraryBackgroundExecutionResult selected = LibraryBackgroundLoader.ExecuteProgram(selectedStaging, selectedVram, LibraryBackgroundProgramDefinitions.Get(program.Pointer), door == 0 ? FixtureRoomHeaders.UnmatchedDoor : DoorDefinitions.Get(door), new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters, Backgrounds = bindings });
+                byte[] selectedImage = selectedVram.Bytes.ToArray();
+                bindings.ComposeOver(selectedImage);
                 AssertEqual(native, selected,
                     $"library background $8F:{program.Pointer:X4}, door ${door:X4} command result");
                 for (int index = 0; index < nativeVram.Bytes.Length; index++)
                 {
-                    if (nativeVram.ReadByte(index) == selectedVram.ReadByte(index)) continue;
+                    if (nativeVram.ReadByte(index) == selectedImage[index]) continue;
                     throw new InvalidDataException(
                         $"Library background $8F:{program.Pointer:X4}, door ${door:X4} differs " +
                         $"at VRAM byte ${index:X4}: native ${nativeVram.ReadByte(index):X2}, " +
-                        $"installed ${selectedVram.ReadByte(index):X2}; " +
+                        $"installed ${selectedImage[index]:X2}; " +
                         $"sources {string.Join(", ", list.Select(source => $"${source.SourceAddress:X6}"))}.");
                 }
 

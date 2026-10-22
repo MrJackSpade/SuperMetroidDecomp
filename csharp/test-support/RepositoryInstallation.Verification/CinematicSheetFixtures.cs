@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 
@@ -19,6 +20,29 @@ internal static class CinematicSheetFixtures
     /// <summary>Drawers already composed, by presentation.</summary>
     private static readonly ConditionalWeakTable<object, CinematicSpriteSheet> drawers = new();
 
+    /// <summary>Ceres flight sheets already composed, by flight artwork.</summary>
+    private static readonly ConditionalWeakTable<CeresFlightArtworkCatalog, SpriteSheet> flights = new();
+
+    /// <summary>The Ceres flight sheet <paramref name="flight"/> composes.</summary>
+    internal static SpriteSheet CeresFlight(CeresFlightArtworkCatalog flight)
+    {
+        ArgumentNullException.ThrowIfNull(flight);
+        return ReferenceEquals(flight, InstalledFixtures.IntroArtwork.CeresFlight)
+            ? InstalledFixtures.SpriteSheets.Get(SpriteSheetId.CeresFlightSprites)
+            : flights.GetValue(flight, key => Load(IntroSpriteSheetComposer.CeresFlightSources(key),
+                $"ceres-flight-fixture-{RuntimeHelpers.GetHashCode(key):X8}"));
+    }
+
+    extension(IntroCeresFlightState self)
+    {
+        /// <summary>Binds <paramref name="flight"/> and the Ceres flight sheet it composes, as the game rebinds both.</summary>
+        internal void BindFixtureFlightArtwork(CeresFlightArtworkCatalog flight)
+        {
+            self.BindArtwork(flight);
+            self.BindSpriteSheet(CeresFlight(flight));
+        }
+    }
+
     /// <summary>The installed sheets with the intro sheet <paramref name="intro"/> composes.</summary>
     internal static InstalledSpriteSheets WithIntro(IntroCinematicArtworkCatalog intro)
     {
@@ -28,6 +52,7 @@ internal static class CinematicSheetFixtures
             {
                 var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
                 sheets[SpriteSheetId.IntroSprites] = Load(IntroSpriteSheetComposer.Sources(key), $"intro-fixture-{RuntimeHelpers.GetHashCode(key):X8}");
+                sheets[SpriteSheetId.CeresFlightSprites] = CeresFlight(key.CeresFlight);
                 return new InstalledSpriteSheets(sheets);
             });
     }

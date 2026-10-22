@@ -23,6 +23,7 @@ public static class SpriteSheetDefinitions
         SpriteSheetId.PauseSprites => "pause-sprites",
         SpriteSheetId.Title => "title",
         SpriteSheetId.IntroSprites => "intro-sprites",
+        SpriteSheetId.CeresFlightSprites => "ceres-flight-sprites",
         SpriteSheetId.IntroProjectiles => "intro-projectiles",
         SpriteSheetId.ProjectilesPower => "projectiles-power",
         SpriteSheetId.ProjectilesWave => "projectiles-wave",

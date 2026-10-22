@@ -56,7 +56,7 @@ internal static class CinematicScreenPublicationVerification
     /// </summary>
     internal static void VerifyCinematicRoundTrips()
     {
-        var flight = new IntroCeresFlightState(new CartridgeAudioState(), InstalledFixtures.IntroArtwork.CeresFlight);
+        var flight = new IntroCeresFlightState(new CartridgeAudioState(), InstalledFixtures.IntroArtwork.CeresFlight, spriteSheet: CinematicSheetFixtures.CeresFlight(InstalledFixtures.IntroArtwork.CeresFlight));
         for (int frame = 0; frame < 5000 && flight.Phase != IntroCeresFlightPhase.FlyingTowardCeres; frame++)
             flight.StepFrame();
         AssertEqual(IntroCeresFlightPhase.FlyingTowardCeres, flight.Phase, "the flight reaches its rear view");
@@ -65,7 +65,7 @@ internal static class CinematicScreenPublicationVerification
         for (int cell = 0; cell < CeresFlightRomData.Vram.Mode7MapSliceByteCount; cell++)
             AssertEqual(maps[CeresFlightRomData.Vram.Mode7MapSliceByteCount + cell], rear.Vram[cell * 2], $"rear view shows rear map cell {cell}");
         var restoredFlight = RoundTrip(flight);
-        restoredFlight.BindArtwork(InstalledFixtures.IntroArtwork.CeresFlight);
+        restoredFlight.BindFixtureFlightArtwork(InstalledFixtures.IntroArtwork.CeresFlight);
         AssertSameFrame(rear, restoredFlight.CaptureRenderSnapshot().Memory, "Ceres flight");
 
         var destruction = InstalledFixtures.CreateDestruction();

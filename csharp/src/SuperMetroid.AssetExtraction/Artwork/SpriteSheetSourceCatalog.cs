@@ -49,6 +49,7 @@ internal sealed class SpriteSheetSourceCatalog
         SpriteSheetId.PauseSprites => PauseSheetComposer.Sources(maps.Value),
         SpriteSheetId.Title => TitleSheetComposer.Sources(maps.Value),
         SpriteSheetId.IntroSprites => IntroSpriteSheetComposer.Sources(intro.Value),
+        SpriteSheetId.CeresFlightSprites => IntroSpriteSheetComposer.CeresFlightSources(intro.Value.CeresFlight),
         _ => SamusSheetSources.For(samus.Value, sheet),
     };
 }

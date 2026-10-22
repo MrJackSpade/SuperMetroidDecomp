@@ -17,4 +17,6 @@ public enum CinematicSpriteFamily
     IntroMotherBrainExplosion,
     /// <summary>The intro narration's caret.</summary>
     IntroCaret,
+    /// <summary>The Ceres approach's stars and rear-view gunship and station.</summary>
+    CeresFlight,
 }

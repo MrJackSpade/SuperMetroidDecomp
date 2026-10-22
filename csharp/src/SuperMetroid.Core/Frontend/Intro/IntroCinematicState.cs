@@ -58,6 +58,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         spriteSheets = sheets;
         projectileSheets = sheets is null ? null : ProjectileSheets.IntroFlashbacks(sheets);
         CurrentFlashbackSamus?.Presentation.TileTransfers.BindSheets(spriteSheets);
+        CurrentCeresFlight?.BindSpriteSheet(sheets?.Get(SpriteSheetId.CeresFlightSprites));
     }
 
     /// <summary>The installed sheets the flashbacks' Samus draws from.</summary>
@@ -556,7 +557,9 @@ public sealed class IntroCinematicState : IFrontendScreen
                     // the fourteen-frame delayed music command has completed.
                     CurrentCeresFlight = new IntroCeresFlightState(audio
                         ?? throw new InvalidOperationException("The Ceres flight waits on the cartridge music queue."),
-                        characterArtwork?.CeresFlight, subtitles.Enabled);
+                        characterArtwork?.CeresFlight, subtitles.Enabled,
+                        (spriteSheets ?? throw new InvalidOperationException("The Ceres flight requires the installed sprite sheets."))
+                            .Get(SpriteSheetId.CeresFlightSprites));
                     Phase = IntroCinematicPhase.CeresFlight;
                 }
                 break;

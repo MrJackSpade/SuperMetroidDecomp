@@ -3,6 +3,7 @@ using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -22,7 +23,7 @@ internal sealed class IntroCeresFlightState
     /// <summary>Whether <see cref="viewImage"/> shows the rear-view map.</summary>
     [NonSerialized] private bool viewImageIsRear;
     /// <summary>Installed sprite compositions, rebound without restarting the scene.</summary>
-    [NonSerialized] private CeresFlightSpritePresentation? spriteArtwork;
+    [NonSerialized] private CinematicSpriteSheet? spriteArtwork;
     /// <summary>Optional edited rear-view actor positions.</summary>
     [NonSerialized] private CeresFlightActorLayout? actorLayout;
     /// <summary>Mode 1 caption tiles progressively written during the SPACE COLONY title.</summary>
@@ -70,12 +71,13 @@ internal sealed class IntroCeresFlightState
     /// <param name="audio">The shared music queue that $8B:BDE4 waits on.</param>
     /// <param name="artwork">Installed cinematic artwork; the approach cannot start without it.</param>
     /// <param name="japaneseText">Native <c>AltText</c>, which adds the katakana SPACE COLONY caption.</param>
+    /// <param name="spriteSheet">The Ceres flight sheet the stars and rear-view actors draw from; required.</param>
     public IntroCeresFlightState(CartridgeAudioState audio,
-        CeresFlightArtworkCatalog? artwork = null, bool japaneseText = false)
+        CeresFlightArtworkCatalog? artwork = null, bool japaneseText = false, SpriteSheet? spriteSheet = null)
     {
         this.japaneseText = japaneseText;
         this.audio = Ensure.NotNull(audio);
-        spriteArtwork = artwork?.Sprites;
+        BindSpriteSheet(spriteSheet ?? throw new InvalidOperationException("Ceres approach requires the installed Ceres flight sheet."));
         actorLayout = artwork?.Actors;
 
         CeresFlightArtworkCatalog content = artwork ?? throw new InvalidOperationException(
@@ -97,10 +99,13 @@ internal sealed class IntroCeresFlightState
         Phase = IntroCeresFlightPhase.Initial;
     }
 
+    /// <summary>Rebinds the Ceres flight sheet the stars and rear-view actors draw from.</summary>
+    public void BindSpriteSheet(SpriteSheet? sheet) =>
+        spriteArtwork = sheet is null ? null : new CinematicSpriteSheet(sheet, CinematicSpriteFamily.CeresFlight);
+
     /// <summary>Reapplies current external art and palette without resetting the live flight phase.</summary>
     public void BindArtwork(CeresFlightArtworkCatalog? artwork)
     {
-        spriteArtwork = artwork?.Sprites;
         actorLayout = artwork?.Actors;
         this.artwork = artwork;
         viewImage = null;

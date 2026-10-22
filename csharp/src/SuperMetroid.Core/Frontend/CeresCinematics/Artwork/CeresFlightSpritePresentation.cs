@@ -10,10 +10,16 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 /// frames shared by the Ceres approach and destruction scenes. Animation timing
 /// and actor motion remain in their compiled owners.
 /// </summary>
-public sealed class CeresFlightSpritePresentation : IIntroCinematicSpritePresentation
+public sealed class CeresFlightSpritePresentation : IIntroCinematicSpritePresentation, ICinematicSpriteFrames
 {
     /// <summary>Installed Ceres compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
+
+    /// <inheritdoc/>
+    CinematicSpriteFamily ICinematicSpriteFrames.Family => CinematicSpriteFamily.CeresFlight;
+
+    /// <inheritdoc/>
+    IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> ICinematicSpriteFrames.Frames => frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
     public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(CeresFlightSpritePresentation), frames);

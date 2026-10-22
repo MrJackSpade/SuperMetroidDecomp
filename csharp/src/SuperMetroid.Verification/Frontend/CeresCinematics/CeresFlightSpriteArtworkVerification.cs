@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
@@ -56,8 +57,8 @@ internal static class CeresFlightSpriteArtworkVerification
             CeresFlightSpritePresentation.Write(output, document);
 
         CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
-        var stockFlight = new IntroCeresFlightState(new CartridgeAudioState(), stock);
-        var editedFlight = new IntroCeresFlightState(new CartridgeAudioState(), edited);
+        var stockFlight = new IntroCeresFlightState(new CartridgeAudioState(), stock, spriteSheet: CinematicSheetFixtures.CeresFlight(stock));
+        var editedFlight = new IntroCeresFlightState(new CartridgeAudioState(), edited, spriteSheet: CinematicSheetFixtures.CeresFlight(edited));
         for (int frame = 0; frame < CeresFrontApproachTicks; frame++)
         {
             stockFlight.StepFrame();
@@ -75,7 +76,7 @@ internal static class CeresFlightSpriteArtworkVerification
                     SoftwareLayeredSnapshotRenderer.Render(replacement)),
             "Ceres star composition edit changes production OAM and visible pixels");
 
-        stockFlight.BindArtwork(edited);
+        stockFlight.BindFixtureFlightArtwork(edited);
         AssertTrue(stockFlight.CaptureRenderSnapshot().Memory.SpriteParts().SequenceEqual(
                 replacement.Memory.SpriteParts()),
             "restored Ceres flight rebinds the selected actor composition without restarting");
@@ -92,8 +93,9 @@ internal static class CeresFlightSpriteArtworkVerification
             "a sprite override cannot hide corrupted stock Ceres sprites");
         GameInstallation repaired = GameAssetInstaller.EnsureInstalled(installation.Root)
             ?? throw new InvalidOperationException("Ceres sprites vanished during stock repair.");
+        CeresFlightArtworkCatalog repairedArtwork = repaired.LoadIntroCinematicArt().CeresFlight;
         var repairedFlight = new IntroCeresFlightState(new CartridgeAudioState(),
-            repaired.LoadIntroCinematicArt().CeresFlight);
+            repairedArtwork, spriteSheet: CinematicSheetFixtures.CeresFlight(repairedArtwork));
         for (int frame = 0; frame < CeresFrontApproachTicks; frame++)
             repairedFlight.StepFrame();
         AssertTrue(repairedFlight.CaptureRenderSnapshot().Memory.SpriteParts().SequenceEqual(

@@ -31,6 +31,8 @@ public enum SpriteSheetId
     Title,
     /// <summary>The intro's cinematic actors, Mother Brain and her explosions, and the narration caret.</summary>
     IntroSprites,
+    /// <summary>The Ceres approach's stars and rear-view gunship and station.</summary>
+    CeresFlightSprites,
     /// <summary>Samus's projectiles, bombs, charge flare and trails as the intro's flashbacks draw them.</summary>
     IntroProjectiles,
     /// <summary>Samus's projectiles, bombs, charge flare and trails with the power beam equipped.</summary>

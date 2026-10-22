@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -37,9 +38,13 @@ internal static class SpawnedObjectSheetComposer
         {
             [0] = new SpawnedObjectSheetPlan(0, 0, [], Anywhere: true),
         };
+        // The frames encounters draw themselves at character zero join the objects any room spawns.
+        foreach (EnemyDefinitionId enemy in drawn.Where(EncounterFrameDefinitions.ByEnemy.ContainsKey).Distinct())
+            plans[0].Spawners.Add(enemy);
         foreach (EnemyDefinitionId enemy in drawn.Where(SpawnedObjectFrameDefinitions.ByEnemy.ContainsKey).Distinct())
         {
-            plans[0].Spawners.Add(enemy);
+            if (!plans[0].Spawners.Contains(enemy))
+                plans[0].Spawners.Add(enemy);
             EnemyGraphicsIndexes indexes = graphics.DrawIndexes(enemy);
             var word = new SnesObjAttributeWord(checked((ushort)(indexes.TileIndex | indexes.PaletteIndex)));
             int palette = SnesObjAttributeWord.FromPaletteBits(checked((ushort)indexes.PaletteIndex)).PaletteIndex;
@@ -73,7 +78,11 @@ internal static class SpawnedObjectSheetComposer
             .Concat(SpriteObjectFrames(spawned.SpriteObjects).Select(frame => characters.Pictures(
                 EnemySheetDefinitions.SpriteObjectFrameName(frame),
                 EnemySpriteFrames.Frame(spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts) ? parts
-                    : throw new InvalidDataException($"Room sprite-object frame {frame} has no installed composition."), tileBase, 0))))];
+                    : throw new InvalidDataException($"Room sprite-object frame {frame} has no installed composition."), tileBase, 0))))
+            .Concat(EncounterFrames(plan.Spawners, plan.Anywhere).Select(frame => characters.Pictures(
+                EnemySheetDefinitions.EncounterFrameName(frame),
+                EnemySpriteFrames.Frame(spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts) ? parts
+                    : throw new InvalidDataException($"Encounter frame {frame} has no installed composition."), tileBase, 0))))];
         return new SpawnedObjectSheetSource(plan,
             new SpriteSheetSources([.. frames.SelectMany(pictures => pictures.Sources)], colours,
                 ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection), plan.Palette),
@@ -86,13 +95,23 @@ internal static class SpawnedObjectSheetComposer
     {
         SpawnedObjects spawned = Spawned(new SpawnedObjectSheetPlan(0, 0, [.. spawners], anywhere));
         return spawned.Projectiles.Select(EnemySheetDefinitions.ProjectileFrameName)
-            .Concat(SpriteObjectFrames(spawned.SpriteObjects).Select(EnemySheetDefinitions.SpriteObjectFrameName));
+            .Concat(SpriteObjectFrames(spawned.SpriteObjects).Select(EnemySheetDefinitions.SpriteObjectFrameName))
+            .Concat(EncounterFrames(spawners, anywhere).Select(EnemySheetDefinitions.EncounterFrameName));
     }
+
+    /// <summary>
+    /// The frames the encounters of <paramref name="spawners"/> draw themselves at character zero, which the character-zero
+    /// sheet, the one holding the objects any room spawns, holds, each once in a stable order.
+    /// </summary>
+    private static IEnumerable<EnemyFrameId> EncounterFrames(IEnumerable<EnemyDefinitionId> spawners, bool anywhere) =>
+        anywhere ? spawners.Where(EncounterFrameDefinitions.ByEnemy.ContainsKey).SelectMany(enemy => EncounterFrameDefinitions.ByEnemy[enemy])
+            .Distinct().Order() : [];
 
     /// <summary>Every object a plan's spawners, and any room when it says so, can spawn, each once in a stable order.</summary>
     private static SpawnedObjects Spawned(SpawnedObjectSheetPlan plan)
     {
-        IEnumerable<SpawnedObjects> sources = plan.Spawners.Select(enemy => SpawnedObjectFrameDefinitions.ByEnemy[enemy]);
+        IEnumerable<SpawnedObjects> sources = plan.Spawners.Where(SpawnedObjectFrameDefinitions.ByEnemy.ContainsKey)
+            .Select(enemy => SpawnedObjectFrameDefinitions.ByEnemy[enemy]);
         if (plan.Anywhere)
             sources = sources.Prepend(SpawnedObjectFrameDefinitions.Anywhere);
         return new SpawnedObjects([.. sources.SelectMany(spawned => spawned.Projectiles).Distinct().Order()],

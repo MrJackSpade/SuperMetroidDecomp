@@ -25,6 +25,8 @@ internal static class RidleyAcidVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
+        // The room load's queued uploads, the acid's characters among them, are shown once its first frame drains them.
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         var fx = runtime.RoomLayer3Fx;
         AssertEqual(RoomFxType.Acid, fx.Type, "final Ridley room authors acid, not lava");
         AssertEqual((ushort)528, fx.BaseY.Whole, "acid starts below the arena");
@@ -69,7 +71,8 @@ internal static class RidleyAcidVerification
 
         void AssertAcidVisible(bool expectedVisible)
         {
-            var memory = PpuMemorySnapshotConstants.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites);
+            // The background characters are the installed artwork the room's uploads name, as the displayed frame captures them.
+            var memory = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites, runtime.BgArtwork);
             // The room's BG3 plane under a blank HUD: the acid page the room effect chose.
             var plane = Layer3Plane.Compose(new ushort[Layer3Plane.HudRows * Layer3Plane.Columns], fx.EffectPageWords());
             var effect = SnesGameplayFrameRenderer.CaptureRoomLayer3Fx((fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay().")), plane);

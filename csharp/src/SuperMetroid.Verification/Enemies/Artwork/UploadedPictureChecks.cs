@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Collections.Immutable;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -43,6 +44,18 @@ internal static class UploadedPictureChecks
                 painted++;
         }
         AssertTrue(painted > 0, $"{message}: paints pixels");
+    }
+
+    /// <summary>
+    /// Asserts each of <paramref name="pictures"/> paints exactly what its frame's parts paint over the runtime's live
+    /// characters: its own composition drawn over those characters in place of the page it was composed over.
+    /// </summary>
+    internal static void AssertPicturesPaintOverLive(SuperMetroidRuntime runtime, ImmutableArray<SpriteDraw> pictures, string message)
+    {
+        SpriteArtwork live = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.ObjCharacters);
+        AssertPaintsLikeParts(runtime, pictures,
+            [.. pictures.Select(draw => (SpriteDraw)SheetFrameSources.CharacterDraw(AssertIs<ImageSpriteDraw>(draw, $"{message}: draws from a sheet"), live))],
+            message);
     }
 
     /// <summary>

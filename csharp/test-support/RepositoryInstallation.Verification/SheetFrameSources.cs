@@ -45,7 +45,14 @@ internal static class SheetFrameSources
 
     /// <summary>The character draw an image draw of a projectile sheet frame shows: its composition over its page, placed and mirrored alike.</summary>
     /// <exception cref="InvalidOperationException">The frame is not a projectile sheet frame.</exception>
-    internal static CharacterSpriteDraw CharacterDraw(ImageSpriteDraw draw)
+    internal static CharacterSpriteDraw CharacterDraw(ImageSpriteDraw draw) => CharacterDraw(draw, null);
+
+    /// <summary>
+    /// The character draw an image draw of a sheet frame shows, its composition placed and mirrored alike, over
+    /// <paramref name="characters"/> in place of the page it was composed over when given.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The frame is not a sheet frame.</exception>
+    internal static CharacterSpriteDraw CharacterDraw(ImageSpriteDraw draw, SpriteArtwork? characters)
     {
         Ensure.NotNull(draw);
         FrameSource source = Find(Key(draw.Image)) ?? throw new InvalidOperationException($"{draw} shows a frame no sheet was composed with.");
@@ -53,13 +60,13 @@ internal static class SheetFrameSources
             ((draw.Mirror & SpriteMirror.Vertical) != 0 ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.None);
         // A frontend draw's override places the parts that take their draw's palette in its row and leaves the others.
         if (source.PartsKeepOwnRows && draw.PaletteOverride is int row)
-            return new CharacterSpriteDraw(draw.Source, source.Frame, source.Page, draw.Origin, flip, row, 0);
+            return new CharacterSpriteDraw(draw.Source, source.Frame, characters ?? source.Page, draw.Origin, flip, row, 0);
         // A family's palette bits, or the draw's override in their place, OR into each part's own row, as the
         // cartridge ORs an enemy's.
         int bits = draw.PaletteOverride ?? source.PaletteBits;
         SpriteFrame frame = bits == 0 ? source.Frame
             : new SpriteFrame(source.Frame.Name, [.. source.Frame.Parts.Select(part => part with { Palette = (part.Palette ?? 0) | bits })]);
-        return new CharacterSpriteDraw(draw.Source, frame, source.Page, draw.Origin, flip, source.FramePalette ?? 0, 0);
+        return new CharacterSpriteDraw(draw.Source, frame, characters ?? source.Page, draw.Origin, flip, source.FramePalette ?? 0, 0);
     }
 
     /// <summary>The object sizes of the screen an image draw's sheet frame was composed for.</summary>

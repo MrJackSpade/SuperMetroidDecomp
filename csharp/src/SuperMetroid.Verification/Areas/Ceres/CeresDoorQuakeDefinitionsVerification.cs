@@ -64,7 +64,9 @@ internal static class CeresDoorQuakeDefinitionsVerification
         byte[] stockJson = EnemySpritemapFiles.Extract(rom);
         EnemySpritemapCatalog installed = EnemySpritemapDocuments.Load(
             new MemoryStream(stockJson, writable: false));
-        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = installed });
+        enemies.TileArtwork = SpawnedObjectFixtures.InstalledTilesWith(installed);
+        // Ceres Ridley's scene draws from his room's sheets.
+        SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
         short[] expectedOffsets = [0, 0, -4, -1];
         int? baseX = null;
         for (ushort phase = 0; phase < expectedOffsets.Length; phase++)
@@ -100,8 +102,8 @@ internal static class CeresDoorQuakeDefinitionsVerification
         };
         byte[] editedJson = JsonSerializer.SerializeToUtf8Bytes(visual,
             CamelCaseJson);
-        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = EnemySpritemapDocuments.Load(
-                new MemoryStream(editedJson, writable: false)) });
+        enemies.TileArtwork = SpawnedObjectFixtures.InstalledTilesWith(EnemySpritemapDocuments.Load(
+                new MemoryStream(editedJson, writable: false)));
         var editedOverlay = new OamBuffer();
         editedOverlay.BeginFrame();
         editedOverlay.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(frame, EnemyFormatDrawAccess.BlankObjectPage, new(0, 0)));

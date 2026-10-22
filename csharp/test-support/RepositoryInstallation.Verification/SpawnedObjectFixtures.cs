@@ -38,6 +38,29 @@ internal static class SpawnedObjectFixtures
     internal static RoomEnemyGraphicsSetDefinition CharacterDrawnSet =>
         RoomEnemyGraphicsSetDefinitions.All.First(set => !InstalledFixtures.EnemySheets.SpawnsFromSheets(set));
 
+    /// <summary>
+    /// Loads into <paramref name="enemies"/> the graphics set a retail room drawing <paramref name="enemy"/> loads, as that
+    /// room's load does, so its sheets draw it, and gives <paramref name="slot"/> the indexes it draws at there.
+    /// </summary>
+    internal static void LoadSetDrawing(RoomEnemySystem enemies, EnemyDefinitionId enemy, RoomEnemySlot? slot = null)
+    {
+        ArgumentNullException.ThrowIfNull(enemies);
+        enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SetDrawing(enemy), new SnesVram(), new SnesCgram());
+        if (slot is null)
+            return;
+        EnemyGraphicsIndexes indexes = enemies.GraphicsSet.DrawIndexes(enemy);
+        slot.VramTilesIndex = indexes.TileIndex;
+        slot.PaletteIndex = indexes.PaletteIndex;
+    }
+
+    /// <summary>The installed enemy artwork with <paramref name="spritemaps"/> in place of its compositions.</summary>
+    internal static SuperMetroid.Core.Enemies.Artwork.EnemyTileArtworkCatalog InstalledTilesWith(SuperMetroid.Core.Enemies.Artwork.EnemySpritemapCatalog spritemaps)
+    {
+        SuperMetroid.Core.Enemies.Artwork.EnemyTileArtworkCatalog catalog = RepositoryInstallation.Installation.LoadEnemyTiles().Enemies;
+        catalog.Spritemaps = spritemaps;
+        return catalog;
+    }
+
     /// <summary>The presentation <paramref name="state"/>'s spawned objects draw through.</summary>
     internal static EnemyPresentation Presentation(CartridgeRoomState state)
     {

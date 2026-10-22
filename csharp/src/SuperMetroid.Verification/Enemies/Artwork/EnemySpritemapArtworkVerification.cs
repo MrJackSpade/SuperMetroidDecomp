@@ -2799,9 +2799,11 @@ internal static class EnemySpritemapArtworkVerification
             () => LoadSpritemapOverride(),
             "malformed enemy composition override fails loudly");
 
+        // Ridley's scene adds his tail and wings to his body, so his frames are checked through his scene's own route.
         static EnemyDefinitionId? FrameOwner(EnemyFrameId? frame) => frame is not { } shown ? null
             : EnemyDefinitionFrameDefinitions.Frames.Where(entry => entry.Value.Contains(shown)
-                    && !EnemySheetDefinitions.DrawnFromCharacters.Contains(entry.Key))
+                    && !EnemySheetDefinitions.DrawnFromCharacters.Contains(entry.Key)
+                    && entry.Key is not (EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.RidleyExplosion))
                 .Select(entry => (EnemyDefinitionId?)entry.Key).Order().FirstOrDefault();
 
         static OamBuffer DrawEnemy(InstalledEnemyArtwork art,
@@ -2977,6 +2979,8 @@ internal static class EnemySpritemapArtworkVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
         RoomEnemySlot ridley = enemies.SlotTable.Slots[0];
         ridley.Bind(EnemyDefinitionId.RidleyCeres, ridley.Definition);
+        // Ceres Ridley's scene draws from his room's sheets.
+        SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
         // A pose part-way through its duration is held for this draw update.
         enemies.RidleyEncounter.Ridley = new SuperMetroid.Core.Bosses.Ridley.RidleyEnemyState
         {

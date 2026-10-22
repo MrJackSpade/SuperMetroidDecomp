@@ -3,6 +3,7 @@ using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hardware;
 
@@ -17,8 +18,9 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <param name="Areas">The areas' artwork, which their encounters upload.</param>
 /// <param name="StandardObjects">The standard OBJ characters a room load uploads first.</param>
 /// <param name="Palettes">The starting and common sprite colours a room load copies.</param>
+/// <param name="EscapeTimer">The escape timer's characters, which escapes upload.</param>
 internal sealed record EnemySheetInputs(EnemyTileArtworkCatalog Enemies, BossArtworkCatalog Bosses, AreaArtworkCatalog Areas,
-    ReadOnlyMemory<byte> StandardObjects, GameplayBasePaletteCatalog Palettes)
+    ReadOnlyMemory<byte> StandardObjects, GameplayBasePaletteCatalog Palettes, EscapeTimerTileAtlas EscapeTimer)
     : IObjCharacterSourceResolver, IInstalledObjCharacterArtwork, IInstalledBossObjCharacterArtwork, IInstalledAreaObjCharacterArtwork
 {
     /// <summary>Loads the stock artwork from installed content.</summary>
@@ -31,7 +33,15 @@ internal sealed record EnemySheetInputs(EnemyTileArtworkCatalog Enemies, BossArt
             installed.Bosses,
             installed.Areas,
             StandardObjectArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.StandardObjectDirectoryName), null).Transfer,
-            GameplayBasePaletteFiles.Load(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName), null));
+            GameplayBasePaletteFiles.Load(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName), null),
+            LoadEscapeTimer(Path.Combine(content, GameInstallationLayout.MapDirectoryName, EscapeTimerTileAtlasFormat.FileName)));
+    }
+
+    /// <summary>The installed escape timer characters at <paramref name="path"/>.</summary>
+    private static EscapeTimerTileAtlas LoadEscapeTimer(string path)
+    {
+        using FileStream png = File.OpenRead(path);
+        return EscapeTimerTileAtlas.Load(png);
     }
 
     /// <inheritdoc/>
@@ -52,7 +62,8 @@ internal sealed record EnemySheetInputs(EnemyTileArtworkCatalog Enemies, BossArt
     /// <exception cref="InvalidDataException">The enemy artwork holds no gunship takeoff pictures.</exception>
     /// <exception cref="ArgumentOutOfRangeException">No catalogued upload names the asset.</exception>
     ReadOnlyMemory<byte> IObjCharacterSourceResolver.ResolveAsset(VramAssetId asset) =>
-        (Enemies.GunshipLiftoff ?? throw new InvalidDataException("Enemy sheets require the installed gunship takeoff pictures.")).Resolve(asset);
+        asset is VramAssetId.EscapeTimerFirstTiles or VramAssetId.EscapeTimerSecondTiles ? EscapeTimer.Resolve(asset)
+            : (Enemies.GunshipLiftoff ?? throw new InvalidDataException("Enemy sheets require the installed gunship takeoff pictures.")).Resolve(asset);
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">No catalogued upload names a native transfer.</exception>

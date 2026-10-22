@@ -15,8 +15,8 @@ internal static class RuntimeCharacterUploadDefinitions
 {
     /// <summary>
     /// Each enemy's encounter's uploads: Draygon's opening uploads the Evirs she releases, the gunship's takeoff its five
-    /// liftoff pictures, Crocomire's death his skeleton and a Torizo's instruction lists the characters of the poses it
-    /// shows next.
+    /// liftoff pictures, Crocomire's death his skeleton, a Torizo's instruction lists the characters of the poses it
+    /// shows next, and Ceres Ridley's getaway the escape timer and its warning.
     /// </summary>
     internal static RuntimeCharacterUploadCatalog Catalog { get; } = new(new Dictionary<EnemyDefinitionId, IReadOnlyList<RuntimeCharacterUpload>>
     {
@@ -25,5 +25,6 @@ internal static class RuntimeCharacterUploadDefinitions
         [EnemyDefinitionId.Crocomire] = CrocomireSkeletonTransferDefinitions.Uploads,
         [EnemyDefinitionId.BombTorizo] = TorizoInstructionVramTransferDefinitions.Uploads,
         [EnemyDefinitionId.GoldenTorizo] = TorizoInstructionVramTransferDefinitions.Uploads,
+        [EnemyDefinitionId.RidleyCeres] = CeresEscapeCharacterUploads.All,
     });
 }

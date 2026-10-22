@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
@@ -73,6 +74,8 @@ internal static class RidleySupplementalArtworkVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.RidleyCeres, slot.Definition);
         slot.Position = slot.Position.WithWhole(new(200, 100));
+        // Ceres Ridley's scene draws from his room's sheets.
+        SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
         var state = new RidleyEnemyState
         {
             MovementAnimationEnabled = true,

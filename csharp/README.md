@@ -543,10 +543,11 @@ names each graphics set's sheet for each of its enemies. The `Spawned-` sheets b
 for each graphics set and tile base the objects draw at; `enemy-sheets.json` names those too. A room with no enemies
 loads no set and draws under the one the previous room left, or, as a session's first room, under `SessionStart`: the
 standard characters alone, with only the objects any room spawns. A boss that uploads characters over its room's
-mid-fight (Draygon, the gunship, Crocomire, the Torizos) has, for each frame drawn over them, layers of its parts each
+mid-fight (Draygon, the gunship, Crocomire, the Torizos, Ceres Ridley's getaway) has, for each frame drawn over them, layers of its parts each
 pictured for every upload the characters it reads can hold, and the game draws the layers for what is uploaded now;
-`enemy-sheets.json` names each such frame's layers. Graphics sets loading Ridley, Mother Brain or a corpse, whose
-characters change in ways not yet pictured, still draw from characters. The game-over screen's Baby, egg and cursor are drawn from
+`enemy-sheets.json` names each such frame's layers. Frames an encounter draws itself, as Ridley's tail and wings and
+the Baby he carries, are in its set's character-zero `Spawned-` sheet. Graphics sets loading Mother Brain or a corpse,
+whose characters change in ways not yet pictured, still draw from characters. The game-over screen's Baby, egg and cursor are drawn from
 `game-over`, file select's borders, cursor, helmets and copy arrows from `file-select`, the options menu's headings and
 cursor from `game-options`, and the file-select and pause maps' markers, labels, arrows and position indicator from
 `map-sprites`, the pause menu's equipment selectors and reserve-tank strip from `pause-sprites`, and the title's

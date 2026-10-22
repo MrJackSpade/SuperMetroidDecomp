@@ -146,7 +146,8 @@ internal sealed class CeresRidleyBabyScene
         int wingPointerIndex = (state.FacingDirection == RidleyFacing.Left ? 0 : 10) + state.WingFrame;
         EnemyFrameId wingFrame = RidleySupplementalVisualDefinitions.WingFrames.Of(
             wingPointerIndex);
-        _presentation.PublishEnemySpritemap(sprites, objects, new SpriteSource(SpriteSourceKind.RidleyWings), new EnemySpritemapDraw { Frame = wingFrame, Origin = new(unchecked((ushort)(slot.Position.X.Whole - camera.X)), unchecked((ushort)(slot.Position.Y.Whole - camera.Y))), PaletteBits = state.SpritemapPaletteIndex.PaletteBits, BaseTileIndex = 0 });
+        _presentation.PublishEncounterFrame(sprites, objects, new SpriteSource(SpriteSourceKind.RidleyWings), wingFrame,
+            new(unchecked((ushort)(slot.Position.X.Whole - camera.X)), unchecked((ushort)(slot.Position.Y.Whole - camera.Y))), state.SpritemapPaletteIndex.PaletteBits);
     }
 
     /// <summary>
@@ -207,7 +208,8 @@ internal sealed class CeresRidleyBabyScene
         {
             if (AdvanceCeresBabyDrawInstruction(state) is { } babyFrame)
             {
-                _presentation.PublishEnemySpritemap(sprites, objects, new SpriteSource(SpriteSourceKind.CeresBaby), new EnemySpritemapDraw { Frame = babyFrame, Origin = state.BabyPosition.Whole.ToScreen(camera).ToOam(), PaletteBits = 0, BaseTileIndex = 0 });
+                _presentation.PublishEncounterFrame(sprites, objects, new SpriteSource(SpriteSourceKind.CeresBaby), babyFrame,
+                    state.BabyPosition.Whole.ToScreen(camera), 0);
             }
         }
 
@@ -224,7 +226,8 @@ internal sealed class CeresRidleyBabyScene
             // words and the assembly omits an ASL. Preserve that retail byte-index read:
             // bytes 00,00,FC,FF become signed X offsets 0,0,-4,-1.
             int quakeXOffset = CeresDoorQuakeDefinitions.XOffset(_earthquake.EarthquakeTimer.RawValue);
-            _presentation.PublishEnemySpritemap(sprites, objects, new SpriteSource(SpriteSourceKind.CeresDoorOverlay), new EnemySpritemapDraw { Frame = CeresDoorFrameDefinitions.RidleyPrivateOverlayFrame, Origin = new(unchecked((ushort)(door.Position.X.Whole - camera.X + quakeXOffset)), unchecked((ushort)(door.Position.Y.Whole - camera.Y))), PaletteBits = EnemyPaletteBits.Palette2, BaseTileIndex = 0 });
+            _presentation.PublishEncounterFrame(sprites, objects, new SpriteSource(SpriteSourceKind.CeresDoorOverlay), CeresDoorFrameDefinitions.RidleyPrivateOverlayFrame,
+                new(unchecked((ushort)(door.Position.X.Whole - camera.X + quakeXOffset)), unchecked((ushort)(door.Position.Y.Whole - camera.Y))), EnemyPaletteBits.Palette2);
         }
     }
 
@@ -294,6 +297,6 @@ internal sealed class CeresRidleyBabyScene
         Position16<RoomPixels> camera)
     {
         Position16<ScreenPixels> screen = segment.Position.ToScreen(camera);
-        _presentation.PublishEnemySpritemap(sprites, objects, source, new EnemySpritemapDraw { Frame = frame, Origin = screen.ToOam(), PaletteBits = paletteIndex.PaletteBits, BaseTileIndex = 0 });
+        _presentation.PublishEncounterFrame(sprites, objects, source, frame, screen, paletteIndex.PaletteBits);
     }
 }

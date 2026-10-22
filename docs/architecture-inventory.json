@@ -106892,6 +106892,32 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.World.Artwork.CeresEscapeCharacterUploads",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/World/Artwork/CeresEscapeCharacterUploads.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.World.Artwork.EncounterFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/World/Artwork/EncounterFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.World.Artwork.EnemyCompositionBanksTooling",
       "kind": "static class",
       "scope": "test",
@@ -123701,6 +123727,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Bosses/Ridley/CeresRidleyMode7ColorsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Bosses.Ridley.CeresRidleyPicturesVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/Ridley/CeresRidleyPicturesVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

@@ -8,13 +8,15 @@ public static class EnemyTileBaseDefinitions
 {
     /// <summary>
     /// The character index each enemy that fixes one draws from: Ceres's doors and steam draw from characters loaded with
-    /// the Ceres tileset, and a Zebetite from those following its room's first 128 enemy tiles.
+    /// the Ceres tileset, a Zebetite from those following its room's first 128 enemy tiles, and the fragments Ridley's death
+    /// scatters from the first characters.
     /// </summary>
     public static IReadOnlyDictionary<EnemyDefinitionId, int> Fixed { get; } = new Dictionary<EnemyDefinitionId, int>
     {
         [EnemyDefinitionId.CeresDoor] = 0,
         [EnemyDefinitionId.Steam] = 0,
         [EnemyDefinitionId.Zebetite] = 128,
+        [EnemyDefinitionId.RidleyExplosion] = 0,
     };
 
     /// <summary>

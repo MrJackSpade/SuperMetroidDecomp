@@ -25,8 +25,10 @@ public static class EnemySheetDefinitions
     {
         EnemyDefinitionId.CorpseSidehopper, EnemyDefinitionId.CorpseTorizo,
         EnemyDefinitionId.MotherBrainBody, EnemyDefinitionId.MotherBrainHead, EnemyDefinitionId.MotherBrainTubes,
-        EnemyDefinitionId.Ridley, EnemyDefinitionId.RidleyCeres, EnemyDefinitionId.RidleyExplosion,
     };
+
+    /// <summary>The spawned-object sheet frame showing a frame an encounter draws itself (#1392).</summary>
+    public static string EncounterFrameName(EnemyFrameId frame) => $"Encounter.{frame}";
 
     /// <summary>The sheet frame showing an ordinary enemy frame.</summary>
     public static string FrameName(EnemyFrameId frame) => frame.ToString();

@@ -174,6 +174,26 @@ internal sealed class EnemyPresentation
             [.. regions.Select(region => catalog.Showing(ObjCharacters, uploads, region))]));
     }
 
+    /// <summary>
+    /// Publishes a frame an encounter draws itself, outside the enemy list, at character index zero (#1392): from its
+    /// graphics set's character-zero spawned-object sheet while its spawned objects draw from sheets, else over the OBJ
+    /// characters.
+    /// </summary>
+    /// <param name="sprites">The frame's sprite description.</param>
+    /// <param name="objects">The gameplay OBJ character page.</param>
+    /// <param name="source">The actor shown.</param>
+    /// <param name="frame">The frame.</param>
+    /// <param name="origin">The frame origin on screen.</param>
+    /// <param name="paletteBits">The draw's palette selection.</param>
+    internal void PublishEncounterFrame(SpriteFrameBuffer sprites, SpriteArtwork objects, SpriteSource source, EnemyFrameId frame,
+        Position16<ScreenPixels> origin, int paletteBits)
+    {
+        if (SpawnsFromSheets)
+            PublishSpawnedFrame(sprites, source, EnemySheetDefinitions.EncounterFrameName(frame), origin, 0, checked((ushort)paletteBits));
+        else
+            PublishEnemySpritemap(sprites, objects, source, new EnemySpritemapDraw { Frame = frame, Origin = origin.ToOam(), PaletteBits = paletteBits, BaseTileIndex = 0 });
+    }
+
     /// <summary>The installed enemy sheets.</summary>
     private IEnemySheetSource Sheets => _room.Session.Sheets ?? throw new InvalidOperationException(
         "Enemy drawing requires the installed enemy sheets.");

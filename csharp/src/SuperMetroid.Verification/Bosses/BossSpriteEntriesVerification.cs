@@ -98,6 +98,8 @@ internal static class BossSpriteEntriesVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.RidleyCeres, slot.Definition);
         slot.Position = slot.Position.WithWhole(new(200, 100));
+        // Ceres Ridley's scene draws from his room's sheets.
+        SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
         enemies.RidleyEncounter.Ridley = new SuperMetroid.Core.Bosses.Ridley.RidleyEnemyState
         {
             MovementAnimationEnabled = true,

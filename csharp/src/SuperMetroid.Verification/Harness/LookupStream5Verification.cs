@@ -1846,10 +1846,12 @@ internal static class LookupStream5Verification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             RidleyEncounter = { CeresStatus = CeresEscapeStatus.RidleyEscaped },
-            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = installed }),
+            TileArtwork = SpawnedObjectFixtures.InstalledTilesWith(installed),
         };
         enemies.RidleyEncounter.Ridley = new RidleyEnemyState { MovementAnimationEnabled = false };
         enemies.SlotTable.Slots[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.SlotTable.Slots[0].Definition);
+        // Ceres Ridley's scene draws from his room's sheets.
+        SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
         var door = enemies.SlotTable.Slots[1];
         door.Bind(EnemyDefinitionId.CeresDoor, door.Definition);
         var doorState = new CeresDoorEnemyState { HandsDrawingToRidley = true };

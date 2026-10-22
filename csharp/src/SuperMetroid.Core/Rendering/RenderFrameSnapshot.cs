@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Closed, immutable display packet. It contains neither game objects nor backend handles.</summary>
@@ -13,22 +14,19 @@ public sealed class RenderFrameSnapshot
     public Rgba32? SolidColor { get; }
     /// <summary>Native visible output size of 256 pixels by 224 physical scanlines, including the HUD where present, before any host presentation scaling.</summary>
     public Extent16<ScreenPixels> Size { get; } = SnesPpuLayout.ScreenSize;
-    /// <summary>Owned copy of the ordered outer fade levels, insulated from the caller's input span.</summary>
-    private readonly byte[] brightnessPasses;
-
     /// <summary>
-    /// Outer dispatcher fades in original order, after the scene's own brightness.
-    /// Do not multiply these into a single factor: each pass has integer rounding.
+    /// The fades the screen passes through after the scene's own brightness, in order. Do not multiply them into a single
+    /// factor: each rounds its own result.
     /// </summary>
-    public ReadOnlySpan<byte> BrightnessPasses => brightnessPasses;
+    public ImmutableArray<FadeLevel> Fades { get; }
 
     /// <summary>Creates a layered display packet, retaining the immutable composition and taking an owned copy of its additional ordered brightness passes; the other payload choices remain absent.</summary>
     /// <param name="identity">Publication identity with positive host sequence and generation.</param>
     /// <param name="layers">Complete immutable layered scene payload, including its scene brightness.</param>
-    /// <param name="brightnessPasses">Additional master-brightness levels 0..15, applied in order after scene rendering; an empty span adds no passes.</param>
+    /// <param name="fades">The fades applied in order after the scene; empty or default for none.</param>
     public RenderFrameSnapshot(RenderFrameIdentity identity, LayeredRenderSnapshot layers,
-        ReadOnlySpan<byte> brightnessPasses = default)
-        : this(identity, brightnessPasses)
+        ImmutableArray<FadeLevel> fades = default)
+        : this(identity, fades)
     {
         Ensure.NotNull(layers);
         Layers = layers;
@@ -37,10 +35,10 @@ public sealed class RenderFrameSnapshot
     /// <summary>Creates a Mode 7/OBJ display packet, retaining the immutable composition and taking an owned copy of its additional ordered brightness passes; the other payload choices remain absent.</summary>
     /// <param name="identity">Publication identity with positive host sequence and generation.</param>
     /// <param name="mode7">Complete immutable Mode 7/backdrop and OBJ payload, including its scene brightness.</param>
-    /// <param name="brightnessPasses">Additional master-brightness levels 0..15, applied in order after scene rendering; an empty span adds no passes.</param>
+    /// <param name="fades">The fades applied in order after the scene; empty or default for none.</param>
     public RenderFrameSnapshot(RenderFrameIdentity identity, Mode7ObjRenderSnapshot mode7,
-        ReadOnlySpan<byte> brightnessPasses = default)
-        : this(identity, brightnessPasses)
+        ImmutableArray<FadeLevel> fades = default)
+        : this(identity, fades)
     {
         Ensure.NotNull(mode7);
         Mode7 = mode7;
@@ -49,20 +47,17 @@ public sealed class RenderFrameSnapshot
     /// <summary>Creates a full-frame solid-color display packet and takes an owned copy of its ordered brightness passes; no PPU composition payload is retained.</summary>
     /// <param name="identity">Publication identity with positive host sequence and generation.</param>
     /// <param name="solidColor">RGBA value used to fill all 256-by-224 output pixels before brightness filtering.</param>
-    /// <param name="brightnessPasses">Master-brightness levels 0..15, applied successively with each pass's integer rounding; an empty span leaves the supplied color unchanged.</param>
+    /// <param name="fades">The fades applied in order after the scene; empty or default for none.</param>
     public RenderFrameSnapshot(RenderFrameIdentity identity, Rgba32 solidColor,
-        ReadOnlySpan<byte> brightnessPasses = default)
-        : this(identity, brightnessPasses) => SolidColor = solidColor;
+        ImmutableArray<FadeLevel> fades = default)
+        : this(identity, fades) => SolidColor = solidColor;
 
-    /// <summary>Validates host identity and SNES fade bounds before copying the packet's outer brightness passes.</summary>
-    private RenderFrameSnapshot(RenderFrameIdentity identity, ReadOnlySpan<byte> brightnessPasses)
+    /// <summary>Validates the host identity and keeps the fades.</summary>
+    private RenderFrameSnapshot(RenderFrameIdentity identity, ImmutableArray<FadeLevel> fades)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(identity.Sequence);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(identity.Generation);
-        foreach (byte level in brightnessPasses)
-            if (level > SnesPpuLayout.MaximumMasterBrightness)
-                throw new ArgumentOutOfRangeException(nameof(brightnessPasses));
         Identity = identity;
-        this.brightnessPasses = brightnessPasses.ToArray();
+        Fades = fades.IsDefault ? [] : fades;
     }
 }

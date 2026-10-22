@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Frontend.Ending;
@@ -46,7 +47,7 @@ internal sealed class FrontendDisplay
     internal RenderFrameSnapshot Retained(RenderFrameIdentity identity)
     {
         if (captureIdentity is not null) throw new InvalidOperationException("Cannot republish during display capture.");
-        return Reframe(capturedDisplay, identity, capturedDisplay.BrightnessPasses);
+        return Reframe(capturedDisplay, identity, capturedDisplay.Fades);
     }
 
     /// <summary>Starts capturing the frame published under <paramref name="identity"/>.</summary>
@@ -64,7 +65,7 @@ internal sealed class FrontendDisplay
     internal RenderFrameSnapshot CompleteCapture(RenderFrameIdentity identity)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
-        capturedDisplay = Reframe(capturedDisplay, identity, capturedDisplay.BrightnessPasses);
+        capturedDisplay = Reframe(capturedDisplay, identity, capturedDisplay.Fades);
         return capturedDisplay;
     }
 
@@ -150,13 +151,12 @@ internal sealed class FrontendDisplay
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
         RenderFrameSnapshot frame = capturedDisplay;
-        byte[] passes = [.. frame.BrightnessPasses, brightness];
-        capturedDisplay = Reframe(frame, frame.Identity, passes);
+        capturedDisplay = Reframe(frame, frame.Identity, frame.Fades.Add(new FadeLevel(brightness)));
     }
 
     /// <summary>Reuses captured composition with a new host identity and brightness pass history.</summary>
     private static RenderFrameSnapshot Reframe(RenderFrameSnapshot frame, RenderFrameIdentity identity,
-        ReadOnlySpan<byte> passes)
+        ImmutableArray<FadeLevel> passes)
     {
         if (frame.Layers is { } layers) return new(identity, layers, passes);
         if (frame.Mode7 is { } mode7) return new(identity, mode7, passes);

@@ -144,12 +144,12 @@ public sealed class D3D11FrameRenderer : IDisposable
             return;
         }
         Rgba32 color = packet.SolidColor ?? throw new NotSupportedException("This compute path does not yet support the requested composition.");
-        if (packet.BrightnessPasses.Length > D3D11ShaderLayout.MaximumBrightnessPasses) throw new ArgumentOutOfRangeException(nameof(packet));
+        if (packet.Fades.Length > D3D11ShaderLayout.MaximumBrightnessPasses) throw new ArgumentOutOfRangeException(nameof(packet));
         uint[] data = ClearUploadConstants();
         data[0] = D3D11ConstantPacking.Bytes(color.R, color.G, color.B, color.A);
-        data[1] = (uint)packet.BrightnessPasses.Length;
+        data[1] = (uint)packet.Fades.Length;
         data[2] = packet.Size.X; data[3] = packet.Size.Y;
-        for (int i = 0; i < packet.BrightnessPasses.Length; i++) data[D3D11ShaderLayout.SolidHeaderWords + i] = packet.BrightnessPasses[i];
+        for (int i = 0; i < packet.Fades.Length; i++) data[D3D11ShaderLayout.SolidHeaderWords + i] = (uint)packet.Fades[i].Brightness;
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.CSSetShader(shader);
         owner.Context.CSSetConstantBuffer(0, constants);
@@ -609,7 +609,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         }
         if (!gradient.IsEmpty) DispatchTitleGradient(gradient);
         DispatchTile(D3D11TileOperation.Brightness, new D3D11TileDispatch { Level = (uint)scene.Brightness });
-        foreach (byte level in packet.BrightnessPasses) DispatchTile(D3D11TileOperation.Brightness, new D3D11TileDispatch { Level = level });
+        foreach (FadeLevel fade in packet.Fades) DispatchTile(D3D11TileOperation.Brightness, new D3D11TileDispatch { Level = (uint)fade.Brightness });
     }
 
     /// <summary>Packs one tile operation's full constant buffer and dispatches the native screen grid.</summary>

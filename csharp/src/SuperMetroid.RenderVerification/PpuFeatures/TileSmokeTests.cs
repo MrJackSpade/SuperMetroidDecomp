@@ -39,7 +39,7 @@ internal static class TileSmokeTests
 
         void Check(RenderLayer[] layers, string name, byte brightness = 15)
         {
-            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, layers, 3, brightness), new byte[] { 13, 11 });
+            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, layers, 3, brightness), [new FadeLevel(13), new FadeLevel(11)]);
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame), $"{device.Kind}: {name} #{count}");
         }
     }

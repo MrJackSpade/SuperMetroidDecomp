@@ -36,7 +36,7 @@ internal static class WindowSceneSmokeTests
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(parentMemory,
                 new RenderLayer[] { new ObjPriorityRenderLayer(0), window,
                     new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), true),
-                    new ObjPriorityRenderLayer(3), window, new FixedColorAddRenderLayer(1,2,3) }, 3, 13), new byte[] { 11 });
+                    new ObjPriorityRenderLayer(3), window, new FixedColorAddRenderLayer(1,2,3) }, 3, 13), [new FadeLevel(11)]);
             var before = renderer.UploadStatistics;
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: scene window {count}, edges {edges}, brightness {brightness}");

@@ -75,7 +75,7 @@ internal static class ColorWindowSmokeTests
         {
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
                 new RenderLayer[] { new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), null),
-                    windows, new FixedColorAddRenderLayer(1, 2, 3), windows }, 3, 13), new byte[] { 11 });
+                    windows, new FixedColorAddRenderLayer(1, 2, 3), windows }, 3, 13), [new FadeLevel(11)]);
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: color-window sample {count}");
         }

@@ -23,8 +23,8 @@ public static class SoftwareFrameSnapshotRenderer
             Array.Fill(pixels, color);
         }
         else throw new InvalidDataException("Render packet has no composition payload.");
-        foreach (byte level in frame.BrightnessPasses)
-            MasterBrightnessFilter.Apply(pixels, level);
+        foreach (FadeLevel fade in frame.Fades)
+            MasterBrightnessFilter.Apply(pixels, checked((byte)fade.Brightness));
         return pixels;
     }
 }

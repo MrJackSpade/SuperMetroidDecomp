@@ -215,7 +215,7 @@ internal static partial class SwapchainTests
             RenderFrameSnapshot? latest = null;
             RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, new RetailDoorCase { Door = door, Destination = destination }, context, packet =>
                 {
-                    latest = new(new(++sequence, 1, packet.Identity.SimulationFrame), (packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")), packet.BrightnessPasses);
+                    latest = new(new(++sequence, 1, packet.Identity.SimulationFrame), (packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")), packet.Fades);
                     worker.Publish(latest);
                 });
             PumpUntil(() => clock.ElapsedMilliseconds >= 250);

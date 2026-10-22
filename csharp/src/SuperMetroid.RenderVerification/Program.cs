@@ -195,7 +195,7 @@ internal static class Program
                 foreach (byte alpha in new byte[] { 0, 1, 128, 255 })
                 for (byte brightness = 0; brightness <= 15; brightness++)
                 {
-                    var frame = new RenderFrameSnapshot(new(++samples, 1, 0), new Rgba32(231, 123, 47, alpha), new byte[] { brightness, 11 });
+                    var frame = new RenderFrameSnapshot(new(++samples, 1, 0), new Rgba32(231, 123, 47, alpha), [new FadeLevel(brightness), new FadeLevel(11)]);
                     Rgba32[] expected = SoftwareFrameSnapshotRenderer.Render(frame);
                     Rgba32[] actual = renderer.RenderForReadback(frame);
                     PixelComparison.Verify(frame, expected, actual, $"{kind}: solid compute sample {samples}");

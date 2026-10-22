@@ -30,7 +30,7 @@ internal static class Mode7SmokeTests
             var registers = new Mode7RenderRegisters(scale, 113, -113, scale, new Offset16<Mode7Pixels>(128, 112), new Offset16<Mode7Pixels>(offset, offset),
                 overflow == Mode7OverflowMode.CharacterZero, overflow == Mode7OverflowMode.Wrap);
             var frame = new RenderFrameSnapshot(new(++count, 1, 0),
-                new Mode7ObjRenderSnapshot(memory, registers, 3, 13), new byte[] { 11 });
+                new Mode7ObjRenderSnapshot(memory, registers, 3, 13), [new FadeLevel(11)]);
             Check(frame);
             Check(new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
                 new RenderLayer[] { new ObjRenderLayer(), new Mode7RenderLayer(registers),

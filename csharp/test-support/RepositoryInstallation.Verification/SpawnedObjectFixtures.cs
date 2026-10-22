@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.World;
@@ -11,10 +13,9 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 /// </summary>
 internal static class SpawnedObjectFixtures
 {
-    /// <summary>The first retail graphics set loading <paramref name="enemy"/> whose spawned objects draw from sheets.</summary>
+    /// <summary>The first retail graphics set loading <paramref name="enemy"/>.</summary>
     internal static RoomEnemyGraphicsSetDefinition SetLoading(EnemyDefinitionId enemy) =>
-        RoomEnemyGraphicsSetDefinitions.All.First(set => set.Records.ToArray().Any(record => record.DefinitionId == enemy)
-            && InstalledFixtures.EnemySheets.SpawnsFromSheets(set));
+        RoomEnemyGraphicsSetDefinitions.All.First(set => set.Records.ToArray().Any(record => record.DefinitionId == enemy));
 
     /// <summary>
     /// The first retail graphics set drawing <paramref name="enemy"/>: one loading it, or else one whose rooms place it
@@ -32,11 +33,21 @@ internal static class SpawnedObjectFixtures
         || RoomStateDefinitions.All.Any(state => state.EnemyPopulation.Records.ToArray().Any(record => record.DefinitionId == enemy));
 
     /// <summary>
-    /// The first retail graphics set whose spawned objects still draw from their parts, as a boss or corpse it loads
-    /// uploads its own characters.
+    /// Loads into <paramref name="enemies"/> a retail graphics set whose character-zero sheet holds projectile
+    /// <paramref name="frame"/>: the first set loading an enemy that spawns it, or, for an object any room spawns, the
+    /// first set.
     /// </summary>
-    internal static RoomEnemyGraphicsSetDefinition CharacterDrawnSet =>
-        RoomEnemyGraphicsSetDefinitions.All.First(set => !InstalledFixtures.EnemySheets.SpawnsFromSheets(set));
+    /// <exception cref="InvalidOperationException">No enemy a set loads spawns the frame and no room spawns it anywhere.</exception>
+    internal static void LoadSetSpawning(RoomEnemySystem enemies, EnemyProjectileFrameId frame)
+    {
+        ArgumentNullException.ThrowIfNull(enemies);
+        RoomEnemyGraphicsSetDefinition set = SpawnedObjectFrameDefinitions.Anywhere.Projectiles.Contains(frame)
+            ? RoomEnemyGraphicsSetDefinitions.All.First()
+            : RoomEnemyGraphicsSetDefinitions.All.FirstOrDefault(candidate => candidate.Records.ToArray().Any(record =>
+                SpawnedObjectFrameDefinitions.ByEnemy.TryGetValue(record.DefinitionId, out SpawnedObjects? spawned) && spawned.Projectiles.Contains(frame)))
+            ?? throw new InvalidOperationException($"No retail graphics set spawns projectile frame {frame}.");
+        enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set, new SnesVram(), new SnesCgram());
+    }
 
     /// <summary>
     /// Loads into <paramref name="enemies"/> the graphics set a retail room drawing <paramref name="enemy"/> loads, as that

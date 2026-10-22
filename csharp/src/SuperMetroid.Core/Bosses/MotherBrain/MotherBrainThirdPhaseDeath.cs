@@ -3,7 +3,6 @@ using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Rooms.Artwork;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Escape;
@@ -15,16 +14,13 @@ internal sealed class MotherBrainThirdPhaseDeath
 {
     /// <summary>Advances the post-fight corpse animation and its room effects.</summary>
     internal readonly MotherBrainCorpseRottingState CorpseRotting = new();
-    /// <summary>Optional room artwork used to emit corpse tile transfers in installed rooms.</summary>
-    private readonly RoomCharacterAtlas? _corpseArtwork;
 
     /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head programs, the brain's flags and the earthquake, with the walking and posture requests they share.</summary>
     private readonly MotherBrainLateFightState _state;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal MotherBrainThirdPhaseDeath(RoomCharacterAtlas? corpseArtwork, EnemyStagingSurfaces? corpseStaging, MotherBrainLateFightState state)
+    internal MotherBrainThirdPhaseDeath(EnemyStagingSurfaces? corpseStaging, MotherBrainLateFightState state)
     {
-        _corpseArtwork = corpseArtwork;
         CorpseStaging = corpseStaging;
         _state = state;
     }
@@ -102,9 +98,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// Executes the corpse-table and graphics-buffer half of head initialization
     /// <c>$A9:8705-$870B</c>. A real encounter calls this once when the brain enemy spawns.
     /// </summary>
-    public void InitializeCorpseRotting() =>
-        CorpseRotting.Initialize(CorpseStaging, _corpseArtwork ?? throw new InvalidDataException(
-            "Mother Brain corpse rotting requires installed tile artwork."));
+    public void InitializeCorpseRotting() => CorpseRotting.Initialize(CorpseStaging);
 
     /// <summary>Publishes the next corpse VRAM page from the authored source and destination rows.</summary>
     private MotherBrainSpriteTileTransferRequest CreateNextCorpseTileTransfer()

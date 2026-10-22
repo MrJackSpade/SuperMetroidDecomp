@@ -17,10 +17,10 @@ internal interface ICeresEncounter
     int ResolveCeresRidleyProjectileHits(SamusProjectileSystem projectiles, SamusBombProjectileSystem sharedProjectiles);
 
     /// <summary>Draws the Baby and door OBJ during EnemyMain, before the post-enemy hook is installed.</summary>
-    void DrawCeresRidleyImmediateBabyAndDoor(SpriteFrameBuffer sprites, SpriteArtwork objects, Position16<RoomPixels> camera);
+    void DrawCeresRidleyImmediateBabyAndDoor(SpriteFrameBuffer sprites, Position16<RoomPixels> camera);
 
     /// <summary>Runs Ceres Ridley's post-enemy draw hook.</summary>
-    void DrawCeresRidleyPostEnemyHook(SpriteFrameBuffer sprites, SpriteArtwork objects, Position16<RoomPixels> camera);
+    void DrawCeresRidleyPostEnemyHook(SpriteFrameBuffer sprites, Position16<RoomPixels> camera);
 
     /// <summary>Runs the getaway room's main routine.</summary>
     void RunCeresRidleyGetawayRoomMain(SamusState? samus, int nmiFrameCounter);

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
@@ -26,16 +25,11 @@ public sealed class CeresElevatorArrivalState
     internal readonly CeresElevatorProjectile pad;
     /// <summary>Second spawned projectile, which waits behind the pad until touchdown.</summary>
     internal readonly CeresElevatorProjectile platform;
-    /// <summary>Installed visual compositions rebound after restoring a debugger snapshot.</summary>
-    [NonSerialized] private EnemyProjectileSpritemapCatalog? projectileSpritemaps;
 
     /// <summary>Installs both compiled definitions and performs their initialization AIs.</summary>
-    public CeresElevatorArrivalState(
-        SamusState samus,
-        EnemyProjectileSpritemapCatalog? projectileSpritemaps = null)
+    public CeresElevatorArrivalState(SamusState samus)
     {
         Ensure.NotNull(samus);
-        this.projectileSpritemaps = projectileSpritemaps;
 
         // SpawnEprojWithGfx first copies enemy slot zero's tile/palette word. The shared
         // initializer then clears it, so both actors use room-loaded OBJ tiles and the
@@ -53,10 +47,6 @@ public sealed class CeresElevatorArrivalState
 
     /// <summary>True after both projectiles delete themselves when Samus reaches Y=72.</summary>
     public bool IsComplete => !pad.Active && !platform.Active;
-
-    /// <summary>Rebinds installed compositions after a debugger-state restore.</summary>
-    public void BindProjectileSpritemaps(EnemyProjectileSpritemapCatalog? catalog) =>
-        projectileSpritemaps = catalog;
 
     /// <summary>
     /// Executes <c>EprojRunAll</c>'s relative order for the two freshly spawned slots.
@@ -110,16 +100,14 @@ public sealed class CeresElevatorArrivalState
     /// Emits the low-priority bank-$8D spritemaps selected by the live instruction lists.
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
-    /// <param name="objects">The gameplay OBJ character page.</param>
     /// <param name="presentation">Publishes the platforms from the loaded graphics set's sheets.</param>
     /// <param name="camera">Layer-one camera position in whole room pixels.</param>
-    internal void Draw(SpriteFrameBuffer sprites, SpriteArtwork objects, EnemyPresentation presentation, Position16<RoomPixels> camera)
+    internal void Draw(SpriteFrameBuffer sprites, EnemyPresentation presentation, Position16<RoomPixels> camera)
     {
         Ensure.NotNull(sprites);
-        Ensure.NotNull(objects);
         Ensure.NotNull(presentation);
-        DrawProjectile(pad, 0, sprites, objects, presentation, camera);
-        DrawProjectile(platform, 1, sprites, objects, presentation, camera);
+        DrawProjectile(pad, 0, sprites, presentation, camera);
+        DrawProjectile(platform, 1, sprites, presentation, camera);
     }
 
     /// <summary>The moving pad's position: Samus's whole position, <c>MovingPadYOffset</c> lower.</summary>
@@ -165,12 +153,11 @@ public sealed class CeresElevatorArrivalState
         }
     }
 
-    /// <summary>Draws an active on-screen projectile through its installed bank-8D composition.</summary>
-    private void DrawProjectile(
+    /// <summary>Draws an active on-screen projectile from its graphics set's sheet.</summary>
+    private static void DrawProjectile(
         CeresElevatorProjectile projectile,
         int instance,
         SpriteFrameBuffer sprites,
-        SpriteArtwork objects,
         EnemyPresentation presentation,
         Position16<RoomPixels> camera)
     {
@@ -185,18 +172,9 @@ public sealed class CeresElevatorArrivalState
         }
 
         ushort paletteBits = new SnesObjAttributeWord(checked((ushort)projectile.GraphicsIndex)).PaletteBits;
-        if (presentation.SpawnsFromSheets)
-        {
-            presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.CeresElevatorArrival, instance),
-                EnemySheetDefinitions.ProjectileFrameName(CeresElevatorArrivalDefinitions.Frame(pose)), screen,
-                unchecked((byte)projectile.GraphicsIndex), paletteBits);
-            return;
-        }
-        var installed = projectileSpritemaps ?? throw new InvalidOperationException(
-            "Ceres elevator projectiles require installed sprite artwork.");
-        EnemyPresentation.PublishParts(sprites, objects, new SpriteSource(SpriteSourceKind.CeresElevatorArrival, instance),
-            EnemySpriteFrames.Frame(installed.Get(CeresElevatorArrivalDefinitions.Frame(pose)), unchecked((byte)projectile.GraphicsIndex), paletteBits),
-            screen, paletteBits);
+        presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.CeresElevatorArrival, instance),
+            EnemySheetDefinitions.ProjectileFrameName(CeresElevatorArrivalDefinitions.Frame(pose)), screen,
+            unchecked((byte)projectile.GraphicsIndex), paletteBits);
     }
 
     /// <summary>Small per-slot state for the two Ceres arrival enemy projectiles.</summary>

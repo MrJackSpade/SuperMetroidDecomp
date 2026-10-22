@@ -55,7 +55,9 @@ internal static class CorpseRotPicturesVerification
         IEnemySheetSource sheets = runtime.EnemySession.Sheets ?? throw new InvalidOperationException("The runtime loads the enemy sheets.");
         RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;
         CorpseRotSimulation simulation = CorpseRotSimulation.Of(runtime.EnemySession.TileArtwork
-            ?? throw new InvalidOperationException("The runtime loads the enemy tiles."), [enemy]).Single(corpse => corpse.Flesh == rot.Flesh);
+                ?? throw new InvalidOperationException("The runtime loads the enemy tiles."),
+            runtime.Enemies.BossArtworkBinding.Artwork ?? throw new InvalidOperationException("The runtime loads the boss art."), [enemy])
+            .Single(corpse => corpse.Flesh == rot.Flesh.ToString());
         AssertTrue(simulation.Rows.Select(Region).ToHashSet().SetEquals(rot.Rows.Keys),
             $"{context}: the extraction's rows are the ones the runtime uploads");
         var shown = rot.Rows.Keys.ToDictionary(region => region, _ => (int?)null);
@@ -75,11 +77,11 @@ internal static class CorpseRotPicturesVerification
             var sprites = new SpriteFrameBuffer();
             sprites.BeginFrame();
             // The dust each finished row raises, and every other object the room shows, draws over what the rows show.
-            runtime.Enemies.Projectiles.DrawHighPriorityEnemyProjectiles(sprites, loaded, camera, timeIsFrozen: false);
+            runtime.Enemies.Projectiles.DrawHighPriorityEnemyProjectiles(sprites, camera, timeIsFrozen: false);
             runtime.Enemies.Drawing.AdvanceLayers(camera, 0, 7);
-            runtime.Enemies.Drawing.DrawLayers(sprites, loaded, camera, 0, 7);
-            runtime.Enemies.Projectiles.DrawLowPriorityEnemyProjectiles(sprites, loaded, camera, timeIsFrozen: false);
-            runtime.Enemies.SpriteObjects.DrawRoomSpriteObjects(sprites, loaded, camera);
+            runtime.Enemies.Drawing.DrawLayers(sprites, camera, 0, 7);
+            runtime.Enemies.Projectiles.DrawLowPriorityEnemyProjectiles(sprites, camera, timeIsFrozen: false);
+            runtime.Enemies.SpriteObjects.DrawRoomSpriteObjects(sprites, camera);
             sprites.FinalizeFrame();
 
             EnemyFrameId frame = slot.Frame ?? throw new InvalidOperationException($"{context} shows a frame.");
@@ -116,7 +118,8 @@ internal static class CorpseRotPicturesVerification
         UploadedPictureChecks.AssertDrawnPictures(sheet, expected, drawn, context);
         var parted = new SpriteFrameBuffer();
         parted.BeginFrame();
-        runtime.Enemies.Presentation.PublishEnemySpritemap(parted, rotting, source, frame with { Origin = new(drawn[0].Origin.X, drawn[0].Origin.Y) });
+        EnemyPartComposition.PublishSpritemap(parted, rotting, source, runtime.EnemySession.TileArtwork?.Spritemaps
+            ?? throw new InvalidOperationException("The runtime loads the enemy compositions."), frame with { Origin = new(drawn[0].Origin.X, drawn[0].Origin.Y) });
         parted.FinalizeFrame();
         UploadedPictureChecks.AssertPaintsLikeParts(runtime, drawn, parted.Draws, context);
     }

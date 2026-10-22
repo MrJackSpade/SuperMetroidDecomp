@@ -110,7 +110,7 @@ internal sealed class MotherBrainRainbowAndDeath
         }
         if (step.PhaseBefore == MotherBrainBodyFunction.ThirdPhaseDeathFadeToGrey && step.PaletteRequested)
             LoadMotherBrainDeathCorpseFade(sequence.State.GreyTransitionCounter - 1);
-        foreach (var transfer in step.CorpseRottingVramTransfers) _motherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(transfer);
+        foreach (MotherBrainCorpseRotUpload upload in step.CorpseRottingVramTransfers) _motherBrainEncounter.ShowMotherBrainCorpseRot(upload);
         foreach (var dust in step.CorpseDustRequests)
         {
             _projectiles.SpawnRoomGraphicsDustExplosion(dust.Position, dust.Animation);

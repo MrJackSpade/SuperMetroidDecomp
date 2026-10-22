@@ -35,7 +35,7 @@ internal static class CeresElevatorArrivalVerification
         var bus = NewCeresArrivalDefinitionReadGuard(memory);
 
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0000)) };
-        var arrival = new CeresElevatorArrivalState(samus, artwork);
+        var arrival = new CeresElevatorArrivalState(samus);
         arrival.Step(samus);
 
         // With native graphics index zero, each actor shows its composition at tile base zero in the parts' own

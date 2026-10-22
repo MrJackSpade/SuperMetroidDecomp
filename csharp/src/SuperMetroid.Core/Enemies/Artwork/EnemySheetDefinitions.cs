@@ -16,17 +16,6 @@ public static class EnemySheetDefinitions
     /// <summary>The manifest revision this build reads.</summary>
     public const int ManifestVersion = 4;
 
-    /// <summary>
-    /// The enemies whose characters change while they draw in ways not yet pre-coloured, as Mother Brain's parts upload
-    /// tiles at run time; they draw from those characters, and have no sheets. An encounter whose uploads are catalogued
-    /// (<see cref="RuntimeCharacterUploadCatalog"/>) draws from sheets holding a picture for each upload instead, and a
-    /// rotting corpse from sheets holding a picture for each rot step (<see cref="CorpseRotUploads"/>).
-    /// </summary>
-    public static IReadOnlySet<EnemyDefinitionId> DrawnFromCharacters { get; } = new HashSet<EnemyDefinitionId>
-    {
-        EnemyDefinitionId.MotherBrainBody, EnemyDefinitionId.MotherBrainHead, EnemyDefinitionId.MotherBrainTubes,
-    };
-
     /// <summary>The spawned-object sheet frame showing a frame an encounter draws itself (#1392).</summary>
     public static string EncounterFrameName(EnemyFrameId frame) => $"Encounter.{frame}";
 

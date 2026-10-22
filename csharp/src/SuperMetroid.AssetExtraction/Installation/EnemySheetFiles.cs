@@ -58,8 +58,8 @@ public static class EnemySheetFiles
         var pictures = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, CharacterRegion[][]>>();
         var spawnedPictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, CharacterRegion[][]>>();
         // The sheets' frames are named from the stock enemy compositions installed beside them.
-        var enemies = new Lazy<EnemyTileArtworkCatalog>(() => EnemyTileArtworkFiles.Load(
-            Path.Combine(Path.GetDirectoryName(Path.GetFullPath(stockDirectory))!, GameInstallationLayout.EnemyTileDirectoryName), null).Enemies);
+        var artwork = new Lazy<InstalledEnemyArtwork>(() => EnemyTileArtworkFiles.Load(
+            Path.Combine(Path.GetDirectoryName(Path.GetFullPath(stockDirectory))!, GameInstallationLayout.EnemyTileDirectoryName), null));
         var setRegions = new Dictionary<string, SetRegions>(StringComparer.Ordinal);
         foreach ((string set, Dictionary<string, string> members) in manifest.Sets)
         {
@@ -68,13 +68,13 @@ public static class EnemySheetFiles
             // The corpses that rot in the set's rooms are pictured for the rot steps the extraction plays from their art.
             SetRegions regions = setRegions[set] = new SetRegions(RuntimeCharacterUploadDefinitions.Catalog.Of(RoomEnemyGraphicsSetDefinitions.DrawnUnder
                 .FirstOrDefault(definition => definition.Name == set) ?? throw new InvalidDataException($"Enemy sheet manifest names unknown graphics set {set}.")),
-                CorpseRotSimulation.Of(enemies.Value, drawn));
+                CorpseRotSimulation.Of(artwork.Value.Enemies, artwork.Value.Bosses, drawn));
             foreach ((string enemyName, string name) in members)
             {
                 var enemy = Enum.Parse<EnemyDefinitionId>(enemyName);
                 SpriteSheet sheet = loaded[name];
                 Dictionary<string, CharacterRegion[][]> framePictures = FramePictures(manifest.Pictures, set, enemyName, regions);
-                if (!sheet.HoldsExactly(EnemySheetComposer.FrameNames(enemies.Value, enemy).SelectMany(frame => regions.PictureNames(frame,
+                if (!sheet.HoldsExactly(EnemySheetComposer.FrameNames(artwork.Value.Enemies, enemy).SelectMany(frame => regions.PictureNames(frame,
                         framePictures.GetValueOrDefault(frame, []), CorpseRotSimulation.Rots(enemy)))))
                     throw new InvalidDataException($"Enemy sheet {name} does not hold exactly the pictures of the frames {enemy} shows.");
                 sheets.Add(new EnemySheetKey(set, enemy), sheet);

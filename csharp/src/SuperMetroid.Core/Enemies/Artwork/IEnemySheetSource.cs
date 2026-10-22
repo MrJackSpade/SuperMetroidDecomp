@@ -9,12 +9,6 @@ public interface IEnemySheetSource
     /// <exception cref="InvalidDataException">The set does not load that enemy.</exception>
     SpriteSheet For(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy);
 
-    /// <summary>
-    /// Whether graphics set <paramref name="set"/>'s spawned objects draw from sheets. A set loading an enemy that draws
-    /// from characters it uploads keeps the objects spawned there on characters too, as their characters change with it.
-    /// </summary>
-    bool SpawnsFromSheets(RoomEnemyGraphicsSetDefinition set);
-
     /// <summary>The sheet graphics set <paramref name="set"/> draws the objects spawned at <paramref name="tileBase"/> from.</summary>
     /// <exception cref="InvalidDataException">No spawner the set loads draws at that base.</exception>
     SpawnedObjectSheet Spawned(RoomEnemyGraphicsSetDefinition set, int tileBase);

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -51,9 +50,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     internal MotherBrainThirdPhaseDeath ThirdPhaseDeath { get; }
 
 
-    /// <summary>Standalone cartridge fixtures omit artwork and staging; installed rooms bind both.</summary>
-    public MotherBrainRainbowBeamAttackSequence(RoomCharacterAtlas? corpseArtwork = null,
-        EnemyStagingSurfaces? corpseStaging = null)
+    /// <summary>Standalone cartridge fixtures omit the staging surfaces; installed rooms bind them.</summary>
+    public MotherBrainRainbowBeamAttackSequence(EnemyStagingSurfaces? corpseStaging = null)
     {
         State = new MotherBrainLateFightState();
         RainbowAttack = new MotherBrainRainbowAttackPhases(_movement, State);
@@ -61,7 +59,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         DrainedByBaby = new MotherBrainDrainedByBabyPhases(State);
         Revival = new MotherBrainRevivalPhases(State);
         ThirdPhaseFight = new MotherBrainThirdPhaseFight(State);
-        ThirdPhaseDeath = new MotherBrainThirdPhaseDeath(corpseArtwork, corpseStaging, State);
+        ThirdPhaseDeath = new MotherBrainThirdPhaseDeath(corpseStaging, State);
     }
 
     /// <summary>

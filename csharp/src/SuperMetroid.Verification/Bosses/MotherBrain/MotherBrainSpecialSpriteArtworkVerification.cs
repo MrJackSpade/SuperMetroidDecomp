@@ -16,34 +16,19 @@ using SuperMetroid.Core.World;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Escape;
 
-/// <summary>Checks installed Mother Brain sprite transfers, native leg records and the mutable corpse WRAM source.</summary>
+/// <summary>Checks installed Mother Brain sprite transfers, native leg records and the refused corpse sources.</summary>
 internal static class MotherBrainSpecialSpriteArtworkVerification
 {
     /// <summary>
-    /// Plants a distinct cartridge byte at the bank-$A0 alias of the corpse tile source so a
-    /// transfer that wrongly read cartridge data instead of mutable WRAM would be observable.
+    /// Refuses both the corpse's WRAM graphics buffer and its cartridge-bank alias as transfer sources: the rotting corpse's
+    /// rows show the extraction's rot pictures by step (#1392), and #549 removed the cartridge fallback.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge sentinel for the Mother Brain corpse tile transfer source")]
-    private static void SeedMotherBrainCorpseCartridgeSentinel(TestAddressSpace source) =>
-        source.WriteBytes(0xa0c000, [0x6b]);
-
-    /// <summary>Distinguishes the corpse's mutable WRAM graphics buffer from its cartridge-bank alias at the transfer boundary.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyMotherBrainSpriteTransferSources()
     {
-        var source = new TestAddressSpace();
-        SeedMotherBrainCorpseCartridgeSentinel(source);
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        StagingByteView corpseTiles = enemies.Room.Staging.MotherBrainCorpseTiles;
-        corpseTiles[0] = 0x5a;
-        SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.ObjCharacters,
-            new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles, enemies.BossArtwork ?? InstalledFixtures.BossArtwork, enemies.AreaArtwork ?? InstalledFixtures.AreaArtwork)));
-
-        enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(new MotherBrainSpriteTileTransferRequest(0, 1,
-            MotherBrainCorpseRottingStateConstants.GraphicsBufferAddress, 0x7000));
-        AssertEqual((byte)0x5a, ObjVram().ReadByte(0x7000 * 2),
-            "Mother Brain corpse tile transfer reads the mutable corpse staging");
-        // #549 removed the cartridge fallback: an unbound cartridge source is refused.
+        AssertThrows<InvalidDataException>(() => enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(new MotherBrainSpriteTileTransferRequest(0, 1,
+            MotherBrainCorpseRottingStateConstants.GraphicsBufferAddress, 0x7000)),
+            "Mother Brain refuses the corpse staging as a transfer source");
         AssertThrows<InvalidDataException>(() => enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(new MotherBrainSpriteTileTransferRequest(0, 1, 0xa0c000, 0x7001)),
             "Mother Brain refuses a cartridge-source transfer with no installed artwork binding");
     }
@@ -251,12 +236,10 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             new MotherBrainSpriteTileTransferRequest(0, 1, 0xa0c000, 0x7000),
             "uncatalogued cartridge source does not fall back to ROM");
 
-        StagingByteView corpseTiles = enemies.Room.Staging.MotherBrainCorpseTiles;
-        corpseTiles[0] = 0x5a;
-        enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(new MotherBrainSpriteTileTransferRequest(0, 1,
-                MotherBrainCorpseRottingStateConstants.GraphicsBufferAddress, 0x7000));
-        AssertEqual((byte)0x5a, ObjVram().ReadByte(0x7000 * 2),
-            "installed Mother Brain still copies the mutable corpse staging to VRAM");
+        // The rotting corpse's rows show the extraction's rot pictures by step (#1392); no staging is copied to VRAM.
+        AssertMotherBrainInstalledTransferRejected(enemies,
+            new MotherBrainSpriteTileTransferRequest(0, 1, MotherBrainCorpseRottingStateConstants.GraphicsBufferAddress, 0x7000),
+            "corpse staging is not transferred as characters");
     }
 
     /// <summary>Reads source bytes from retail data for independent VRAM transfer comparison.</summary>

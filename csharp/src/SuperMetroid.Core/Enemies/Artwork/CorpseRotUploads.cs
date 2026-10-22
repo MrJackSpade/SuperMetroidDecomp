@@ -17,8 +17,9 @@ internal sealed class CorpseRotUploads
     /// <param name="destination">The native destination the cartridge uploads the row to.</param>
     /// <param name="byteCount">The row's bytes.</param>
     /// <param name="step">The rot steps the corpse's characters had taken when uploaded.</param>
+    /// <param name="stamp">The place of the latest OBJ character upload when this one is made, which a later one shows over.</param>
     [PpuLayoutBoundary("codec: a corpse row upload's native VRAM destination in the OBJ characters")]
-    internal void Show(VramDmaDestination destination, int byteCount, int step)
+    internal void Show(VramDmaDestination destination, int byteCount, int step, long stamp)
     {
         int firstByte = ObjCharacterUploads.TableByte(destination);
         if (firstByte < 0 || byteCount <= 0 || firstByte + byteCount > ObjCharacterUploads.TableByteCount)
@@ -27,12 +28,15 @@ internal sealed class CorpseRotUploads
         Ensure.AtLeastZero(step);
         // A row wholly covered by a later upload no longer shows anywhere.
         rows.RemoveAll(row => row.FirstByte >= firstByte && row.FirstByte + row.ByteCount <= firstByte + byteCount);
-        rows.Add(new CorpseRotRow(firstByte, byteCount, step));
+        rows.Add(new CorpseRotRow(firstByte, byteCount, step, stamp));
     }
 
-    /// <summary>The rot step <paramref name="region"/> shows, while a corpse upload shows over it.</summary>
+    /// <summary>
+    /// The rot step <paramref name="region"/> shows, while a corpse upload shows over it, and the place of the latest OBJ
+    /// character upload when it was made.
+    /// </summary>
     /// <exception cref="InvalidDataException">A corpse upload shows over only part of the region.</exception>
-    internal bool TryShowing(CharacterRegion region, out int step)
+    internal bool TryShowing(CharacterRegion region, out int step, out long stamp)
     {
         Ensure.NotNull(region);
         for (int index = rows.Count - 1; index >= 0; index--)
@@ -44,12 +48,14 @@ internal sealed class CorpseRotUploads
                 throw new InvalidDataException(
                     $"A corpse row upload at table byte {row.FirstByte} shows over part of the region at {region.FirstByte}.");
             step = row.Step;
+            stamp = row.Stamp;
             return true;
         }
         step = 0;
+        stamp = 0;
         return false;
     }
 
     /// <summary>One uploaded corpse row.</summary>
-    private sealed record CorpseRotRow(int FirstByte, int ByteCount, int Step);
+    private sealed record CorpseRotRow(int FirstByte, int ByteCount, int Step, long Stamp);
 }

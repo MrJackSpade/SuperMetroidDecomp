@@ -2803,7 +2803,6 @@ internal static class EnemySpritemapArtworkVerification
         // Ridley's scene adds his tail and wings to his body, so his frames are checked through his scene's own route.
         static EnemyDefinitionId? FrameOwner(EnemyFrameId? frame) => frame is not { } shown ? null
             : EnemyDefinitionFrameDefinitions.Frames.Where(entry => entry.Value.Contains(shown)
-                    && !EnemySheetDefinitions.DrawnFromCharacters.Contains(entry.Key)
                     && entry.Key is not (EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.RidleyExplosion))
                 .Select(entry => (EnemyDefinitionId?)entry.Key).Order().FirstOrDefault();
 
@@ -2942,12 +2941,13 @@ internal static class EnemySpritemapArtworkVerification
     private static void VerifyInstalledMotherBrainDrawHook(
         SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
     {
+        EnemyGraphicsIndexes indexes = MotherBrainHeadIndexes();
         foreach (NativeEnemySpritemapDefinition frame in MotherBrainVisualDefinitionsConstants.Frames())
         {
             OamBuffer actual = DrawInstalledMotherBrainFrame(
                 stock, frame.Pointer, new(0x0140, 0x00a0));
             var expected = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(0x0040, 0x0090), PaletteBits = 0x0400, BaseTileIndex = 0x0010 });
+            DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(0x0040, 0x0090), PaletteBits = indexes.PaletteIndex, BaseTileIndex = indexes.TileIndex });
             AssertTrue(actual.ImageEquals(expected) &&
                        actual.NextByteOffset == expected.NextByteOffset,
                 $"Mother Brain private draw uses installed {frame.Name} with native OAM");
@@ -2959,17 +2959,28 @@ internal static class EnemySpritemapArtworkVerification
             "Mother Brain private draw still culls a head above the viewport");
     }
 
+    /// <summary>The tile base and palette Mother Brain's room's graphics set loads her head with.</summary>
+    private static EnemyGraphicsIndexes MotherBrainHeadIndexes()
+    {
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles };
+        SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.MotherBrainHead);
+        return enemies.GraphicsSet.DrawIndexes(EnemyDefinitionId.MotherBrainHead);
+    }
+
     /// <summary>Draws one Mother Brain world frame through the installed private renderer under a cartridge-read guard.</summary>
     private static OamBuffer DrawInstalledMotherBrainFrame(
         InstalledEnemyArtwork art, ushort pointer,
         Position16<RoomPixels> world)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
+        // She draws from the sheet her room's set composes from this artwork, at the indexes it loads her with.
+        SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.MotherBrainHead);
+        EnemyGraphicsIndexes indexes = enemies.GraphicsSet.DrawIndexes(EnemyDefinitionId.MotherBrainHead);
         var oam = new OamBuffer();
         EnemyFrameId frame = RoomEnemySlotFrameAccess.FrameAt(MotherBrainVisualToolingDefinitions.Bank, pointer)
             ?? throw new InvalidOperationException("A Mother Brain draw shows a frame.");
-        oam.AppendDrawn(sprites => enemies.MotherBrainBehavior.Head.DrawMotherBrainWorldSpritemap(sprites, EnemyFormatDrawAccess.BlankObjectPage,
-            new SpriteSource(SpriteSourceKind.MotherBrainBrain), new MotherBrainWorldFrame(frame, world, 0x0400, 0x0010),
+        oam.AppendDrawn(sprites => enemies.MotherBrainBehavior.Head.DrawMotherBrainWorldSpritemap(sprites,
+            new SpriteSource(SpriteSourceKind.MotherBrainBrain), new MotherBrainWorldFrame(frame, world, indexes.PaletteIndex, indexes.TileIndex),
             new Position16<RoomPixels>(0x0100, 0x0010)));
         return oam;
     }
@@ -2990,7 +3001,7 @@ internal static class EnemySpritemapArtworkVerification
         };
         var oam = new OamBuffer();
         oam.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(
-            frame, EnemyFormatDrawAccess.BlankObjectPage, Position16<RoomPixels>.Zero));
+            frame, Position16<RoomPixels>.Zero));
         AssertTrue(oam.NextByteOffset > 0, "Ceres Baby drew OAM");
         return oam;
     }

@@ -15,9 +15,6 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
     /// <summary>Each set's spawned-object sheet for each tile base.</summary>
     private readonly Dictionary<SpawnedObjectSheetKey, SpawnedObjectSheet> spawned;
 
-    /// <summary>The sets whose spawned objects draw from sheets.</summary>
-    private readonly HashSet<string> spawningSets;
-
     /// <summary>Each set's enemy sheets' frames drawn over characters its encounters upload, and the layers they draw as.</summary>
     private readonly Dictionary<EnemySheetKey, IReadOnlyDictionary<string, CharacterRegion[][]>> pictures;
 
@@ -37,7 +34,6 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
         Uploads = Ensure.NotNull(uploads);
         this.sheets = new Dictionary<EnemySheetKey, SpriteSheet>(Ensure.NotNull(sheets));
         this.spawned = new Dictionary<SpawnedObjectSheetKey, SpawnedObjectSheet>(Ensure.NotNull(spawned));
-        spawningSets = [.. this.spawned.Keys.Select(key => key.Set)];
         this.pictures = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, CharacterRegion[][]>>(Ensure.NotNull(pictures));
         this.spawnedPictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, CharacterRegion[][]>>(Ensure.NotNull(spawnedPictures));
     }
@@ -63,9 +59,6 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
     public SpriteSheet For(string set, EnemyDefinitionId enemy) =>
         sheets.TryGetValue(new EnemySheetKey(set, enemy), out SpriteSheet? sheet) ? sheet
             : throw new InvalidDataException($"Enemy graphics set {set} installs no sheet for {enemy}.");
-
-    /// <inheritdoc/>
-    public bool SpawnsFromSheets(RoomEnemyGraphicsSetDefinition set) => spawningSets.Contains(Ensure.NotNull(set).Name);
 
     /// <inheritdoc/>
     public SpawnedObjectSheet Spawned(RoomEnemyGraphicsSetDefinition set, int tileBase) => Spawned(Ensure.NotNull(set).Name, tileBase);

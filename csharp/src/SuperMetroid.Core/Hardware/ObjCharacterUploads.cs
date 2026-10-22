@@ -15,8 +15,14 @@ public sealed class ObjCharacterUploads
     /// <summary>The uploads in order; a later upload shows over an earlier one where they overlap.</summary>
     private readonly List<ObjCharacterUpload> _uploads = [];
 
+    /// <summary>Each upload's place among all uploads ever recorded, alongside <see cref="_uploads"/>.</summary>
+    private readonly List<long> _stamps = [];
+
     /// <summary>The uploads in order.</summary>
     public IReadOnlyList<ObjCharacterUpload> Uploads => _uploads;
+
+    /// <summary>The place of the latest upload among all uploads ever recorded; zero before the first.</summary>
+    public long Recorded { get; private set; }
 
     /// <summary>Records <paramref name="byteCount"/> bytes of <paramref name="source"/> shown from table byte <paramref name="firstByte"/>.</summary>
     /// <param name="firstByte">Table byte the shown range starts at.</param>
@@ -32,8 +38,18 @@ public sealed class ObjCharacterUploads
         if (sourceOffset < 0)
             throw new ArgumentOutOfRangeException(nameof(sourceOffset), sourceOffset, "A source offset is a byte index.");
         // An upload wholly covered by a later one no longer shows anywhere; dropping it keeps the record bounded.
-        _uploads.RemoveAll(earlier => earlier.FirstByte >= firstByte && earlier.FirstByte + earlier.ByteCount <= firstByte + byteCount);
+        for (int index = _uploads.Count - 1; index >= 0; index--)
+        {
+            ObjCharacterUpload earlier = _uploads[index];
+            if (earlier.FirstByte >= firstByte && earlier.FirstByte + earlier.ByteCount <= firstByte + byteCount)
+            {
+                _uploads.RemoveAt(index);
+                _stamps.RemoveAt(index);
+            }
+        }
+        Recorded++;
         _uploads.Add(new ObjCharacterUpload(firstByte, byteCount, source, sourceOffset));
+        _stamps.Add(Recorded);
     }
 
     /// <summary>The table byte an upload to <paramref name="destination"/> starts at, which lies outside the table for one that misses it.</summary>
@@ -57,6 +73,21 @@ public sealed class ObjCharacterUploads
                 return upload;
         }
         return null;
+    }
+
+    /// <summary>
+    /// Whether an upload recorded after the one <paramref name="stamp"/> places shows over any of <paramref name="byteCount"/>
+    /// bytes from <paramref name="firstByte"/>: what a corpse's rot upload made at that stamp shows there no longer shows.
+    /// </summary>
+    public bool ShowsNewerOver(int firstByte, int byteCount, long stamp)
+    {
+        for (int index = 0; index < _uploads.Count; index++)
+        {
+            ObjCharacterUpload upload = _uploads[index];
+            if (_stamps[index] > stamp && upload.FirstByte < firstByte + byteCount && firstByte < upload.FirstByte + upload.ByteCount)
+                return true;
+        }
+        return false;
     }
 
     /// <summary>

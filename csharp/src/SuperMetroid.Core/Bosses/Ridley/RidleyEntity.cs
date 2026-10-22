@@ -73,10 +73,10 @@ internal sealed class RidleyEntity(
     public ushort? CommonDrawPaletteIndex() => IsBody ? encounter.Ridley?.CommonDrawPaletteIndex.Raw : null;
 
     /// <summary>Both Ridley mains call DrawRidleyTail/DrawRidleyWings before the common writer emits the body.</summary>
-    public void DrawBeforeBody(SpriteFrameBuffer sprites, SpriteArtwork objects, Position16<RoomPixels> camera)
+    public void DrawBeforeBody(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
     {
         if (IsBody)
-            ceres.BabyScene.DrawRidleySupplementalSprites(sprites, objects, Slot, camera);
+            ceres.BabyScene.DrawRidleySupplementalSprites(sprites, Slot, camera);
     }
 
     /// <summary>

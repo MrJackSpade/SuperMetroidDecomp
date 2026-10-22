@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Corpses;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 
@@ -140,20 +139,17 @@ internal sealed class EnemyDrawList
     /// still write OAM between them, in the cartridge's order.
     /// </summary>
     /// <param name="sprites">The frame's sprite description; the occupant and boss hooks write its OAM.</param>
-    /// <param name="objects">The gameplay OBJ character page.</param>
     /// <param name="camera">Layer-one camera position (viewport top-left) in whole room pixels.</param>
     /// <param name="firstLayer">First native draw layer, inclusively; the range <see cref="AdvanceLayers"/> prepared.</param>
     /// <param name="lastLayer">Last native draw layer, inclusively; the range <see cref="AdvanceLayers"/> prepared.</param>
     /// <exception cref="InvalidOperationException">The range was not prepared by <see cref="AdvanceLayers"/>.</exception>
     public void DrawLayers(
         SpriteFrameBuffer sprites,
-        SpriteArtwork objects,
         Position16<RoomPixels> camera,
         int firstLayer,
         int lastLayer)
     {
         Ensure.NotNull(sprites);
-        Ensure.NotNull(objects);
         if (_prepared is not { } prepared || _preparedLayers != new EnemyDrawLayerRange(firstLayer, lastLayer))
             throw new InvalidOperationException($"Enemy layers {firstLayer}..{lastLayer} were not advanced before drawing.");
         _prepared = null;
@@ -169,24 +165,14 @@ internal sealed class EnemyDrawList
                 // An occupant may draw supplemental sprites before the common writer emits its body (Ridley's tail
                 // and wings), preserving both that drawing order and the enemy's normal layer queue.
                 if (slot.Entity is IEnemyDrawHooks drawHooks)
-                    drawHooks.DrawBeforeBody(sprites, objects, camera);
-                bool sheet = !EnemySheetDefinitions.DrawnFromCharacters.Contains(slot.DefinitionId);
+                    drawHooks.DrawBeforeBody(sprites, camera);
                 if (draw.Frame is { } frame)
                 {
                     // The common empty frame is compiled definition data and draws nothing.
                     if (frame == EnemyFrameId.Empty)
                         continue;
-                    if (sheet)
-                    {
-                        _presentation.PublishSheetFrame(sprites, source, slot.DefinitionId, EnemySheetDefinitions.FrameName(frame),
-                            new Position16<ScreenPixels>(draw.Origin.X, draw.Origin.Y), draw.PaletteBits, slot.VramTilesIndex);
-                        continue;
-                    }
-                    _presentation.PublishEnemySpritemap(sprites, objects, source, new EnemySpritemapDraw
-                    {
-                        Frame = frame, Origin = draw.Origin.ToOam(), PaletteBits = draw.PaletteBits,
-                        BaseTileIndex = checked((ushort)slot.VramTilesIndex),
-                    });
+                    _presentation.PublishSheetFrame(sprites, source, slot.DefinitionId, EnemySheetDefinitions.FrameName(frame),
+                        new Position16<ScreenPixels>(draw.Origin.X, draw.Origin.Y), draw.PaletteBits, slot.VramTilesIndex);
                     continue;
                 }
 
@@ -202,17 +188,10 @@ internal sealed class EnemyDrawList
                     if (((componentOrigin.X + 128) & EnemyDrawMasks.OffscreenBits) != 0 ||
                         ((componentOrigin.Y + 128) & EnemyDrawMasks.OffscreenBits) != 0)
                         continue;
-                    if (sheet)
-                    {
-                        _presentation.PublishSheetFrame(sprites, source, slot.DefinitionId,
-                            EnemySheetDefinitions.ComponentFrameName(draw.ExtendedFrame ?? throw new InvalidOperationException(
-                                "An extended enemy draw was prepared without its frame."), index),
-                            new Position16<ScreenPixels>(componentOrigin.X, componentOrigin.Y), draw.PaletteBits, slot.VramTilesIndex);
-                        continue;
-                    }
-                    EnemyPresentation.PublishParts(sprites, objects, source,
-                        EnemySpriteFrames.Frame(component.Parts, checked((ushort)slot.VramTilesIndex), checked((ushort)draw.PaletteBits)),
-                        new Position16<ScreenPixels>(componentOrigin.X, componentOrigin.Y), checked((ushort)draw.PaletteBits));
+                    _presentation.PublishSheetFrame(sprites, source, slot.DefinitionId,
+                        EnemySheetDefinitions.ComponentFrameName(draw.ExtendedFrame ?? throw new InvalidOperationException(
+                            "An extended enemy draw was prepared without its frame."), index),
+                        new Position16<ScreenPixels>(componentOrigin.X, componentOrigin.Y), draw.PaletteBits, slot.VramTilesIndex);
                 }
             }
 
@@ -222,8 +201,8 @@ internal sealed class EnemyDrawList
             // the frontend's disjoint low/high-priority layer ranges.
             if (layer == 5)
             {
-                _motherBrainBehavior.Head.DrawMotherBrainHook(sprites, objects, camera);
-                _deadTorizoBehavior.DrawDeadTorizoHook(sprites, objects, camera);
+                _motherBrainBehavior.Head.DrawMotherBrainHook(sprites, camera);
+                _deadTorizoBehavior.DrawDeadTorizoHook(sprites, camera);
             }
         }
     }

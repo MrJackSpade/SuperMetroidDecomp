@@ -71,8 +71,6 @@ internal static class EnemySheetComposer
             sets.Add(set.Name, members);
             if (memberPictures.Count > 0)
                 pictures.Add(set.Name, memberPictures);
-            if (!setSources.SpawnsFromSheets)
-                continue;
             var bases = new Dictionary<string, SpawnedObjectSheetDocument>(StringComparer.Ordinal);
             var basePictures = new Dictionary<string, Dictionary<string, CharacterRegion[][]>>(StringComparer.Ordinal);
             foreach ((SpawnedObjectSheetPlan plan, SpriteSheetSources sources, IReadOnlyDictionary<string, CharacterRegion[][]> framePictures) in setSources.Spawned)
@@ -119,10 +117,9 @@ internal static class EnemySheetComposer
     internal static GraphicsSetSheetSources Sources(EnemySheetInputs inputs, RoomEnemyGraphicsSetDefinition set)
     {
         LoadedGraphicsSet loaded = Load(inputs, set);
-        bool spawnsFromSheets = SpawnedObjectSheetComposer.Covers(loaded.Drawn);
-        return new GraphicsSetSheetSources([.. EnemySources(inputs, loaded)], spawnsFromSheets,
-            spawnsFromSheets ? [.. SpawnedObjectSheetComposer.Plans(loaded.Graphics, loaded.Drawn).Select(plan =>
-                SpawnedObjectSheetComposer.Sources(inputs.Enemies, plan, loaded.Characters, loaded.Colours))] : []);
+        return new GraphicsSetSheetSources([.. EnemySources(inputs, loaded)],
+            [.. SpawnedObjectSheetComposer.Plans(loaded.Graphics, loaded.Drawn).Select(plan =>
+                SpawnedObjectSheetComposer.Sources(inputs.Enemies, plan, loaded.Characters, loaded.Colours))]);
     }
 
     /// <summary>What each enemy drawn under <paramref name="loaded"/> composes.</summary>
@@ -132,8 +129,7 @@ internal static class EnemySheetComposer
         Bgr555[] colours = loaded.Colours;
         foreach (EnemyDefinitionId enemy in loaded.Drawn)
         {
-            if (EnemySheetDefinitions.DrawnFromCharacters.Contains(enemy) ||
-                !EnemyDefinitionFrameDefinitions.Frames.TryGetValue(enemy, out IReadOnlyList<EnemyFrameId>? shown))
+            if (!EnemyDefinitionFrameDefinitions.Frames.TryGetValue(enemy, out IReadOnlyList<EnemyFrameId>? shown))
                 continue;
             EnemyGraphicsIndexes indexes = graphics.DrawIndexes(enemy);
             int paletteBits = SnesObjAttributeWord.FromPaletteBits(checked((ushort)indexes.PaletteIndex)).PaletteIndex;
@@ -169,7 +165,7 @@ internal static class EnemySheetComposer
             .SelectMany(state => state.EnemyPopulation.Records.ToArray().Select(record => record.DefinitionId))
             .Except(members).Distinct().Order();
         EnemyDefinitionId[] drawn = [.. members, .. placed];
-        var regions = new SetRegions(RuntimeCharacterUploadDefinitions.Catalog.Of(set), CorpseRotSimulation.Of(inputs.Enemies, drawn));
+        var regions = new SetRegions(RuntimeCharacterUploadDefinitions.Catalog.Of(set), CorpseRotSimulation.Of(inputs.Enemies, inputs.Bosses, drawn));
         return new LoadedGraphicsSet(graphics, new SetCharacters(Table(inputs, graphics), regions, inputs), cgram.Colors[SpriteColours..].ToArray(), drawn);
     }
 

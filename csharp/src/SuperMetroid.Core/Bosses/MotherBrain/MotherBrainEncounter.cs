@@ -117,19 +117,19 @@ internal sealed class MotherBrainEncounter
         if (_bossArtwork.EscapeTimerArtwork?.TryRecordNativeTransfer(
             _presentation.ObjCharacters, unchecked((int)transfer.SourceAddress), checked((ushort)transfer.Size), checked((ushort)transfer.VramDestination)) == true)
             return;
-        if (SnesAddressMath.BankNumber(unchecked((int)transfer.SourceAddress)) is not (126 or 127)) // Banks $7E/$7F: WRAM.
-        {
-            // Every cartridge-backed source used by this encounter has an installed
-            // art owner above. The remaining live transfer is the mutable $7E:9000
-            // corpse buffer; an unknown ROM source must never silently reintroduce
-            // a cartridge dependency in an installed game.
-            throw new InvalidDataException(
-                $"Mother Brain sprite transfer {transfer} has no installed artwork binding.");
-        }
-        // The mutable $7E:9000 corpse buffer reaches the OBJ characters through the ordinary mode-1 DMA.
-        _presentation.ObjCharacters.RecordUpload(destination, transfer.Size, new StagedObjCharacters(
-            _room.Staging.ReadNativeTransfer(unchecked((int)transfer.SourceAddress), transfer.Size)));
+        // Every source this encounter transfers has an installed art owner above; the rotting corpse's rows record their
+        // rot step instead (ShowMotherBrainCorpseRot).
+        throw new InvalidDataException($"Mother Brain sprite transfer {transfer} has no installed artwork binding.");
     }
+
+    /// <summary>
+    /// Records the upload of one row of the rotting corpse, after the rot step it shows (#1392): the corpse's sheet
+    /// pictures each step, so the room records only the step its rows show.
+    /// </summary>
+    [PpuLayoutBoundary("codec: Mother Brain corpse row transfers' native VRAM destinations")]
+    internal void ShowMotherBrainCorpseRot(MotherBrainCorpseRotUpload upload) =>
+        _presentation.ShowRot(VramDmaDestination.At(GameplayVramLayout.ObjectCharacters,
+            upload.Transfer.VramDestination - GameplayVramLayout.ObjectCharacters.Offset), upload.Transfer.Size, upload.Step);
 
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)

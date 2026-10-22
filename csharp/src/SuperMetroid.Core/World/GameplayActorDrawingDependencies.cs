@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
 
@@ -27,8 +26,6 @@ internal sealed record GameplayActorDrawingDependencies
     public required GameplayDisplayState Display { get; init; }
 
 
-    /// <summary>The enemy words and installed enemy artwork that outlive each room.</summary>
-    public required EnemySession EnemySession { get; init; }
 
     /// <summary>Freeze.</summary>
     public required GameplayTimeFreeze Freeze { get; init; }

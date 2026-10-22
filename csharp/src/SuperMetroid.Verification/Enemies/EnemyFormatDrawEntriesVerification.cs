@@ -18,7 +18,7 @@ using SuperMetroid.Core.World.Artwork;
 /// <summary>
 /// Checks #1343's enemy-format draws as #1392 draws them: an ordinary enemy and each visible component of an extended
 /// enemy publish the frames of the sheets their room's graphics set names, a draw in another palette row shows its
-/// frame in that row, an enemy projectile still publishes a whole-frame entry over the OBJ page, and the shake tick is
+/// frame in that row, an enemy projectile publishes its frame from the set's spawned-object sheet, and the shake tick is
 /// a simulation phase.
 /// </summary>
 internal static class EnemyFormatDrawEntriesVerification
@@ -27,8 +27,8 @@ internal static class EnemyFormatDrawEntriesVerification
     private const byte ProjectilePalette = 5;
     /// <summary>The projectile's palette as packed attribute bits.</summary>
     private const ushort ProjectilePaletteBits = ProjectilePalette << 9;
-    /// <summary>The projectile's packed tile base.</summary>
-    private const ushort ProjectileTileBase = 4;
+    /// <summary>The projectile's packed tile base: character zero, where its set composes every object it can spawn.</summary>
+    private const ushort ProjectileTileBase = 0;
     /// <summary>The projectile's graphics index: its palette bits with its tile base.</summary>
     private const ushort ProjectileGraphicsIndex = ProjectilePaletteBits | ProjectileTileBase;
     /// <summary>A palette row neither enemy is loaded in, which a draw then shows its frame in.</summary>
@@ -73,9 +73,8 @@ internal static class EnemyFormatDrawEntriesVerification
         extended.Position = extended.Position.WithWhole(new(120, 110));
         enemies.Drawing.Enqueue(1, EnemySlotTable.NativeSlotSize);
 
-        // Enemy projectile in the high-priority pass, still drawn over the OBJ page.
-        EnemyProjectileFrameId projectileFrame = EnemyProjectilePresentationFrameSets.All.ToArray()
-            .Select(frame => EnemyProjectileFrames.Identity(frame.Name))
+        // Enemy projectile in the high-priority pass, drawn from the set's spawned-object sheet.
+        EnemyProjectileFrameId projectileFrame = SpawnedObjectFrameDefinitions.Anywhere.Projectiles
             .First(frame => EnemyProjectileFrames.Parts(projectileSpritemaps, frame).Length > 0);
         RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[17];
         projectile.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
@@ -84,12 +83,11 @@ internal static class EnemyFormatDrawEntriesVerification
         projectile.GraphicsIndex = ProjectileGraphicsIndex;
         projectile.Position = projectile.Position.WithWhole(new(30, 40));
 
-        SpriteArtwork page = new ObjCharacterTablePage().Page(enemies.Room.Session.ObjCharacters, new EnemyTileTransfers(artwork));
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
         enemies.Drawing.AdvanceLayers(Position16<RoomPixels>.Zero, 0, 7);
-        enemies.Drawing.DrawLayers(sprites, page, Position16<RoomPixels>.Zero, 0, 7);
-        enemies.Projectiles.DrawEnemyProjectilePass(sprites, page, Position16<RoomPixels>.Zero, EnemyProjectileDrawPriority.High, false);
+        enemies.Drawing.DrawLayers(sprites, Position16<RoomPixels>.Zero, 0, 7);
+        enemies.Projectiles.DrawEnemyProjectilePass(sprites, Position16<RoomPixels>.Zero, EnemyProjectileDrawPriority.High, false);
         sprites.FinalizeFrame();
         SpriteDraw[] draws = [.. sprites.Draws];
 
@@ -111,20 +109,17 @@ internal static class EnemyFormatDrawEntriesVerification
         }
         AssertTrue(entry > 2, "The extended enemy publishes one entry per visible component");
 
-        var projectileDraw = (CharacterSpriteDraw)draws[entry++];
-        AssertEqual(new SpriteSource(SpriteSourceKind.EnemyProjectile, 17), projectileDraw.Source, "Enemy projectile names its slot");
-        AssertTrue(ReferenceEquals(EnemySpriteFrames.Frame(EnemyProjectileFrames.Parts(projectileSpritemaps, projectileFrame), ProjectileTileBase,
-            ProjectilePaletteBits), projectileDraw.Frame), "Enemy projectile shows its composition's frame");
-        AssertTrue(ReferenceEquals(page, projectileDraw.Artwork), "Enemy projectile binds the room's OBJ page");
-        AssertEqual(new Position16<ScreenPixels>(30, 40), projectileDraw.Origin, "Enemy projectile is placed at its screen origin");
-        AssertEqual(ProjectilePalette, projectileDraw.Palette, "Enemy projectile binds its selected palette");
+        SpawnedObjectSheet projectileSheet = InstalledFixtures.EnemySheets.Spawned(set, ProjectileTileBase);
+        AssertImage(draws[entry++], new SpriteSource(SpriteSourceKind.EnemyProjectile, 17),
+            projectileSheet.Sheet.Frame(EnemySheetDefinitions.ProjectileFrameName(projectileFrame)), new(30, 40),
+            projectileSheet.Palette == ProjectilePalette ? null : ProjectilePalette, "Enemy projectile");
         AssertEqual(draws.Length, entry, "No other entries are published");
 
         // An enemy drawn in a row its set did not load it in shows its frame in that row.
         ordinary.PaletteIndex = PaletteBits(OtherRow);
         sprites.BeginFrame();
         enemies.Drawing.AdvanceLayers(Position16<RoomPixels>.Zero, 0, 0);
-        enemies.Drawing.DrawLayers(sprites, page, Position16<RoomPixels>.Zero, 0, 0);
+        enemies.Drawing.DrawLayers(sprites, Position16<RoomPixels>.Zero, 0, 0);
         sprites.FinalizeFrame();
         AssertImage(sprites.Draws[0], new SpriteSource(SpriteSourceKind.Enemy, 0), beetomSheet.Frame(EnemySheetDefinitions.FrameName(ordinaryFrame)),
             new(100, 80), OtherRow, "Ordinary enemy in another row");
@@ -138,7 +133,7 @@ internal static class EnemyFormatDrawEntriesVerification
         ordinary.ShakeTimer = WrappingCountdown.Start(2);
         sprites.BeginFrame();
         enemies.Drawing.AdvanceLayers(Position16<RoomPixels>.Zero, 0, 7);
-        enemies.Drawing.DrawLayers(sprites, page, Position16<RoomPixels>.Zero, 0, 7);
+        enemies.Drawing.DrawLayers(sprites, Position16<RoomPixels>.Zero, 0, 7);
         sprites.FinalizeFrame();
         AssertEqual(1, undisplayed, "An undrawn frame consumes one shake tick");
         AssertEqual(undisplayed, ordinary.ShakeTimer.RawValue, "A drawn frame consumes the same shake tick");

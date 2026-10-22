@@ -2722,6 +2722,8 @@ internal static class SpawnedObjectFrameDefinitions
     [
         EnemyProjectileFrameId.SkreeDebris,
         EnemyProjectileFrameId.MetareeDebris,
+        EnemyProjectileFrameId.CeresFallingDebrisFrame00,
+        EnemyProjectileFrameId.CeresFallingDebrisFrame01,
         EnemyProjectileFrameId.AlcoonFireballFrame00,
         EnemyProjectileFrameId.AlcoonFireballFrame01,
         EnemyProjectileFrameId.AlcoonFireballFrame02,

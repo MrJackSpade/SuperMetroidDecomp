@@ -36,8 +36,6 @@ internal sealed record EnemyFramePhaseDependencies
     /// <summary>The frame's sprite description, which Ceres Ridley's in-main Baby draw publishes into.</summary>
     public required SpriteFrameBuffer Sprites { get; init; }
 
-    /// <summary>The installed gameplay artwork the OBJ character page composes from.</summary>
-    public required RuntimeArtwork Artwork { get; init; }
 
     /// <summary>Player.</summary>
     public required SamusFrameState Player { get; init; }

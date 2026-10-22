@@ -41,11 +41,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
         InstalledEnemyArtwork artwork = installation.LoadEnemyTiles();
         EnemyProjectileSpritemapCatalog projectileArtwork = (artwork.Enemies.ProjectileSpritemaps ?? throw new InvalidOperationException("Verification requires artwork.ProjectileSpritemaps."));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
-        // A set whose boss or corpse uploads its own characters still draws its spawned objects from their parts,
-        // the composition this oracle compares with the cartridge's.
-        enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.CharacterDrawnSet,
-            new SnesVram(), new SnesCgram());
-        int enemyCases = 0, projectileCases = 0, spriteObjectCases = 0;
+        int enemyCases = 0, projectileCases = 0;
 
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         foreach ((ushort x, ushort y, bool clip) in new VerifyEnemySpriteArtworkBoundaryCase[]
@@ -57,29 +53,14 @@ internal static class EnemySpriteArtworkBoundaryVerification
             Equal(expected, actual, $"enemy {frame.Name}");
             enemyCases++;
 
-            if (frame.Bank != EnemySpritemapDefinitions.RoomSpriteObjectBank || clip) continue;
-            RoomSpriteObjectSlot sprite = enemies.RoomSpriteObjects[31];
-            sprite.Cursor = AnimationProgramCursor<RoomSpriteObjectProgram>.Start(RoomSpriteObjectProgram.SmallExplosion);
-            sprite.Frame = RoomSpriteObjectVisualDefinitions.FrameOf(frame.Pointer);
-            sprite.Position = sprite.Position.WithWhole(new(x, y));
-            sprite.Attributes = new SnesObjAttributeWord(0x0a04);
-            actual = new OamBuffer(); expected = new OamBuffer();
-            enemies.SpriteObjects.DrawRoomSpriteObjectsAsOam(actual, Position16<RoomPixels>.Zero);
-            DrawImportedEnemySpritemap(source, expected, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(x, y), PaletteBits = 0x0a00, BaseTileIndex = 4 });
-            Equal(expected, actual, $"room sprite object {frame.Name}");
-            sprite.Clear();
-            spriteObjectCases++;
         }
 
-        RoomEnemyProjectileSlot roomSlot = enemies.Projectiles.EnemyProjectiles[17];
+        // Spawned objects draw from the sheets the extraction composes from these compositions (#1392): each installed
+        // composition draws the cartridge's OAM.
         foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameSets.All)
         foreach ((ushort x, ushort y) in new EnemySpriteArtworkBoundaryVerifyEnemySpriteArtworkBoundaryCase[] { new EnemySpriteArtworkBoundaryVerifyEnemySpriteArtworkBoundaryCase(128, 96), new EnemySpriteArtworkBoundaryVerifyEnemySpriteArtworkBoundaryCase(255, 252), new EnemySpriteArtworkBoundaryVerifyEnemySpriteArtworkBoundaryCase(0, ushort.MaxValue) })
         {
             ushort pointer = source.ReadCartridgeWordFixedBank(0x860000 | frame.OperandAddress);
-            roomSlot.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
-            roomSlot.DrawPriority = EnemyProjectileDrawPriority.High;
-            roomSlot.Frame = EnemyProjectileSlotFrameAccess.ProgramFrameAt(frame.OperandAddress);
-            roomSlot.Position = roomSlot.Position.WithWhole(new(x, y)); roomSlot.GraphicsIndex = 0x0a04;
             var expected = new OamBuffer(); var actual = new OamBuffer();
             // The sprite list places every part at its signed position and leaves clipping at the screen edges to the
             // backend; native OAM instead parks a part that crosses the top or bottom edge at Y=$F0. The oracle therefore
@@ -89,31 +70,26 @@ internal static class EnemySpriteArtworkBoundaryVerification
                 Bank = 0x8d, Pointer = pointer, Origin = new(x, y),
                 PaletteBits = new SnesObjAttributeWord(0x0a04).PaletteBits, BaseTileIndex = 0x04, ClipVerticalWrap = false,
             });
-            enemies.Projectiles.DrawEnemyProjectilePassAsOam(actual, Position16<RoomPixels>.Zero, EnemyProjectileDrawPriority.High, false);
+            actual.AddEnemySpritemap(projectileArtwork.GetProgramFrame(frame.OperandAddress).Span, new Position16<OamPixels>(x, y),
+                new SnesObjAttributeWord(0x0a04).PaletteBits, 0x04);
             Equal(expected, actual, $"room projectile {frame.Name} at {x},{y}");
 
             projectileCases++;
         }
-        roomSlot.Clear();
         AssertEqual(0, projectileArtwork.Get(EnemyProjectileSpritemapDefinitions.BlankSpritemap).Length,
             "native initial blank projectile is compiled as a zero-part frame");
         foreach (EnemyProjectileFrameId composition in Enum.GetValues<EnemyProjectileFrameId>().Where(EnemyProjectileFrames.IsComposition))
         {
             ushort pointer = EnemyProjectileFrames.Composition(composition);
-            string name = composition.ToString();
-            roomSlot.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
-            roomSlot.DrawPriority = EnemyProjectileDrawPriority.High;
-            roomSlot.Position = roomSlot.Position.WithWhole(new(128, 96));
-            roomSlot.GraphicsIndex = 0x0a04; roomSlot.Frame = composition;
             var actual = new OamBuffer(); var expected = new OamBuffer();
-            enemies.Projectiles.DrawEnemyProjectilePassAsOam(actual, Position16<RoomPixels>.Zero, EnemyProjectileDrawPriority.High, false);
+            actual.AddEnemySpritemap(projectileArtwork.Get(pointer).Span, new Position16<OamPixels>(128, 96), 0x0a00, 0x04,
+                clipVerticalWrap: true, originYIsOnScreen: true);
             DrawImportedEnemyProjectileSpritemap(source, expected, pointer, new(128, 96), 0x0a04, true);
-            Equal(expected, actual, $"direct projectile {name}");
+            Equal(expected, actual, $"direct projectile {composition}");
         }
-        roomSlot.Clear();
 
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 100)) };
-        var elevator = new CeresElevatorArrivalState(samus, projectileArtwork);
+        var elevator = new CeresElevatorArrivalState(samus);
         elevator.Step(samus);
         var elevatorActual = new OamBuffer(); var elevatorExpected = new OamBuffer();
         elevator.DrawAsOam(elevatorActual, SuperMetroid.TestSupport.RepositoryInstallation.Verification.SpawnedObjectFixtures.Presentation(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElev0), Position16<RoomPixels>.Zero);
@@ -129,7 +105,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
         AssertTrue(!MetadataShape.DeclaresMethod(typeof(OamBuffer), "AddEnemyProjectileSpritemap") &&
             !MetadataShape.DeclaresMethod(typeof(OamBuffer), "ReadSpritemapByte", BindingFlags.Static | BindingFlags.NonPublic),
             "Core OAM cannot recover a generic spritemap address reader");
-        Console.WriteLine($"Enemy OAM boundary: {enemyCases} enemy cases, {spriteObjectCases} room-object frames and {projectileCases} program-frame cases pass through ROM-free owners; Ceres and synthetic arithmetic/timed-projectile checks pass.");
+        Console.WriteLine($"Enemy OAM boundary: {enemyCases} enemy and room-object cases and {projectileCases} program-frame cases pass through ROM-free owners; Ceres and synthetic arithmetic/timed-projectile checks pass.");
 
         static void Equal(OamBuffer expected, OamBuffer actual, string context)
         {

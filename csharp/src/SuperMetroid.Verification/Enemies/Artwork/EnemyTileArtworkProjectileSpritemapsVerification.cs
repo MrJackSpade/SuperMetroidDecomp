@@ -53,6 +53,12 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
     /// <summary>The graphics index the drawing fixtures give every projectile: palette five, tile offset $0004.</summary>
     private const ushort FixtureGraphicsIndex = 0x0a04;
 
+    /// <summary>
+    /// The graphics index the production-drawn checks give a projectile: palette row five at character zero, where every
+    /// set composes each object it can spawn (#1392).
+    /// </summary>
+    private const ushort SpawnedGraphicsIndex = 0x0a00;
+
     /// <summary>Projectile kinds whose typed programs (#641) present frames by key instead of running a native list.</summary>
     private static readonly HashSet<RoomEnemyProjectileKind> TypedProgramKinds =
     [
@@ -347,8 +353,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             "n00b-tube flicker instruction uses installed OAM without visual ROM reads");
 
         var installedSamus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0)) };
-        var installedArrival = new CeresElevatorArrivalState(
-            installedSamus, installed);
+        var installedArrival = new CeresElevatorArrivalState(installedSamus);
         for (int frame = 0; frame < 3; frame++)
         {
             installedArrival.Step(installedSamus);
@@ -966,7 +971,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             var oam = new OamBuffer();
             oam.BeginFrame();
             DrawImportedEnemyProjectileSpritemap(source, oam, pointer, new(128, 96),
-                FixtureGraphicsIndex, originYIsOnScreen: true);
+                SpawnedGraphicsIndex, originYIsOnScreen: true);
             return oam;
         }
 
@@ -987,12 +992,10 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             ISnesAddressSpace source)
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
-            // A set whose boss or corpse uploads its own characters still draws its spawned objects from their parts,
-            // the composition this oracle compares with the cartridge's.
-            enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.CharacterDrawnSet,
-                new SnesVram(), new SnesCgram());
-            Action<RoomEnemySlot> spawn = program == SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree)
-                ? enemies.Projectiles.SpawnSkreeParticleBurst : enemies.Projectiles.SpawnMetareeParticleBurst;
+            bool skree = program == SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree);
+            // The particles draw from the sheets a set loading their spawner composes from this artwork.
+            SpawnedObjectFixtures.LoadSetDrawing(enemies, skree ? EnemyDefinitionId.Skree : EnemyDefinitionId.Metaree);
+            Action<RoomEnemySlot> spawn = skree ? enemies.Projectiles.SpawnSkreeParticleBurst : enemies.Projectiles.SpawnMetareeParticleBurst;
             var enemy = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
@@ -1031,16 +1034,14 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             ushort presentationKey, ISnesAddressSpace source, RoomEnemyProjectileKind kind)
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
-            // A set whose boss or corpse uploads its own characters still draws its spawned objects from their parts,
-            // the composition this oracle compares with the cartridge's.
-            enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.CharacterDrawnSet,
-                new SnesVram(), new SnesCgram());
             RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
             slot.Kind = kind;
             slot.Position = slot.Position.WithWhole(new(128, 96));
-            slot.GraphicsIndex = FixtureGraphicsIndex;
+            slot.GraphicsIndex = SpawnedGraphicsIndex;
             // As the typed runner does when it shows the program frame the key installs.
             slot.Frame = EnemyProjectileSlotFrameAccess.ProgramFrameAt(presentationKey);
+            // It draws from the sheets a set spawning it composes from this artwork.
+            SpawnedObjectFixtures.LoadSetSpawning(enemies, slot.Frame ?? throw new InvalidOperationException($"Key ${presentationKey:X4} shows a frame."));
             var oam = new OamBuffer();
             oam.BeginFrame();
             enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
@@ -1051,18 +1052,16 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             ISnesAddressSpace source)
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
-            // A set whose boss or corpse uploads its own characters still draws its spawned objects from their parts,
-            // the composition this oracle compares with the cartridge's.
-            enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.CharacterDrawnSet,
-                new SnesVram(), new SnesCgram());
             RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
             slot.Kind = RoomEnemyProjectileKind.NoobTubeShard;
             slot.Variable1 = 128;
             slot.Position = slot.Position.WithWhole(new(128, 96));
-            slot.GraphicsIndex = FixtureGraphicsIndex;
+            slot.GraphicsIndex = SpawnedGraphicsIndex;
             // The first shard's flying loop opens with its reflecting flicker.
             slot.StartAnimation(new NoobTubeProjectileAnimation(NoobTubeProjectileProgram.Shard0Loop));
             enemies.Projectiles.ProcessEnemyProjectileInstructions(slot, new SamusState(), Position16<RoomPixels>.Zero);
+            // It draws from the sheets a set spawning it composes from this artwork.
+            SpawnedObjectFixtures.LoadSetSpawning(enemies, slot.Frame ?? throw new InvalidOperationException("The shard shows a frame."));
             var oam = new OamBuffer();
             oam.BeginFrame();
             enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);

@@ -173,7 +173,7 @@ internal static class DeadTorizoArtworkVerification
             // The corpse records the rot step each uploaded row shows, where its native descriptor uploads it (#1392).
             foreach (VramWriteEntry transfer in nativeTransfers.Skip(phase * 7))
                 AssertTrue(installed.Presentation.RotUploads.TryShowing(
-                        new CharacterRegion(ObjCharacterUploads.TableByte(transfer.Destination), transfer.SizeInBytes), out int step) && step == 0,
+                        new CharacterRegion(ObjCharacterUploads.TableByte(transfer.Destination), transfer.SizeInBytes), out int step, out _) && step == 0,
                     $"Dead Torizo phase {phase} uploads each native descriptor's row");
         }
         Console.WriteLine("  Dead Torizo VRAM uploads: fourteen native descriptors and both real frame builders match.");
@@ -252,7 +252,7 @@ internal static class DeadTorizoArtworkVerification
     {
         RoomEnemySystem enemies = InitializeDeadTorizo(artwork);
         var oam = new OamBuffer();
-        oam.AppendDrawn(frame => enemies.DeadTorizoBehavior.DrawDeadTorizoHook(frame, EnemyFormatDrawAccess.BlankObjectPage, camera));
+        oam.AppendDrawn(frame => enemies.DeadTorizoBehavior.DrawDeadTorizoHook(frame, camera));
         return oam;
     }
 

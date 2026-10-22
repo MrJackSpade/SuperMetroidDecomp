@@ -196,13 +196,13 @@ internal static class AuditContractChecks
         exports.Add(ResourceDomains.EnemyDisplay, ResourceIndex.Address(0xa8, empty));
         Require(!exports.Contains(ResourceDomains.EnemySimple, ResourceIndex.Address(0xa8, empty)),
             "a compiled renderer no-op must not imply an installed catalog entry");
-        const string renderer = "class Fixture { void PublishEnemySpritemap(EnemySpritemapDraw draw) { " +
-            "if (draw.Frame == EnemyFrameId.Empty) return; } }";
+        const string renderer = "class Fixture { void DrawLayers(EnemyFrameId[] frames) { foreach (EnemyFrameId frame in frames) { " +
+            "if (frame == EnemyFrameId.Empty) continue; } } }";
         MethodDeclarationSyntax ParseMethod(string text) => CSharpSyntaxTree.ParseText(text)
             .GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>().Single();
         Require(CompiledEnemyDisplayAudit.HasNoOpBranch(ParseMethod(renderer)),
             "the precise reviewed no-op branch must be recognized");
-        Require(!CompiledEnemyDisplayAudit.HasNoOpBranch(ParseMethod(renderer.Replace("return;", "DrawArt();", StringComparison.Ordinal))) &&
+        Require(!CompiledEnemyDisplayAudit.HasNoOpBranch(ParseMethod(renderer.Replace("continue;", "DrawArt();", StringComparison.Ordinal))) &&
             !CompiledEnemyDisplayAudit.HasNoOpBranch(ParseMethod(renderer.Replace("EnemyFrameId.Empty", "EnemyFrameId.EmptyExtended", StringComparison.Ordinal))),
             "changed behavior or identity arguments must invalidate the reviewed classification");
     }

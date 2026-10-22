@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core.Frontend.Options;
@@ -1455,14 +1456,16 @@ internal static class LookupStream3Verification
         for (ushort y = 0; y < 48; y++)
         foreach (bool move in new[] { false, true })
         {
-            StagingByteView actualTiles = new EnemyStagingSurfaces().MotherBrainCorpseTiles;
-            StagingByteView expectedTiles = new EnemyStagingSurfaces().MotherBrainCorpseTiles;
-            for (int offset = 0; offset < 0x600; offset++)
-            {
-                byte value = (byte)(offset * 37 + 11);
-                actualTiles[offset] = value;
-                expectedTiles[offset] = value;
-            }
+            // The extraction stages the corpse from its art and rots it to picture each step (#1392): stage a pattern
+            // through art whose rows hold it.
+            byte[] expectedTiles = new byte[0x600];
+            for (int offset = 0; offset < expectedTiles.Length; offset++)
+                expectedTiles[offset] = (byte)(offset * 37 + 11);
+            byte[] atlas = new byte[MotherBrainCorpseArtworkDefinitions.ByteCount];
+            for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
+                expectedTiles.AsSpan(row * MotherBrainCorpseArtworkDefinitions.RowBytes, MotherBrainCorpseArtworkDefinitions.InitialCopyLength(row))
+                    .CopyTo(atlas.AsSpan(MotherBrainCorpseArtworkDefinitions.InitialCopySource(row) - MotherBrainCorpseArtworkDefinitions.SourceAddress));
+            CorpseStaging actualTiles = CorpseStaging.MotherBrain(atlas);
             int source = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9e262 + (y >> 3) * 2) + (y & 7) * 2;
             int destination = source + ((y & 7) < 6 ? 0 : 0xd4);
             for (int column = 0; column < 7; column++)
@@ -1489,9 +1492,16 @@ internal static class LookupStream3Verification
                     expectedTiles[start + source + 17] = 0;
                 }
             }
-            MotherBrainCorpseRottingState.CopyOrMovePixelRow(actualTiles, y, move ? CorpseRowOperation.Move : CorpseRowOperation.Copy);
-            for (int offset = 0; offset < 0x600; offset++)
-                AssertEqual(expectedTiles[offset], actualTiles[offset], "stream 3 corpse row geometry");
+            actualTiles.MoveRow(CorpseRowGeometry.MotherBrain, y, move ? CorpseRowOperation.Move : CorpseRowOperation.Copy);
+            // The movers never write below the sixth row, so the staged rows hold every effect.
+            for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
+            {
+                int first = row * MotherBrainCorpseArtworkDefinitions.RowBytes;
+                byte[] staged = actualTiles.Upload(new CorpseRotRow(row, MotherBrainCorpseArtworkDefinitions.StagingAddress + first,
+                    MotherBrainCorpseArtworkDefinitions.InitialCopyLength(row), 0));
+                for (int offset = 0; offset < staged.Length; offset++)
+                    AssertEqual(expectedTiles[first + offset], staged[offset], "stream 3 corpse row geometry");
+            }
         }
         foreach (int invalid in new[] { -1, 6, int.MaxValue })
         {

@@ -63,7 +63,7 @@ internal static class GunshipLiftoffPicturesVerification
             var sprites = new SpriteFrameBuffer();
             sprites.BeginFrame();
             runtime.Enemies.Drawing.AdvanceLayers(camera, 0, 7);
-            runtime.Enemies.Drawing.DrawLayers(sprites, live, camera, 0, 7);
+            runtime.Enemies.Drawing.DrawLayers(sprites, camera, 0, 7);
             sprites.FinalizeFrame();
             foreach (RoomEnemySlot part in new[] { top, bottom })
             {
@@ -80,7 +80,8 @@ internal static class GunshipLiftoffPicturesVerification
 
                 var parted = new SpriteFrameBuffer();
                 parted.BeginFrame();
-                runtime.Enemies.Presentation.PublishEnemySpritemap(parted, live, source, new EnemySpritemapDraw
+                EnemyPartComposition.PublishSpritemap(parted, live, source, runtime.EnemySession.TileArtwork?.Spritemaps
+                    ?? throw new InvalidOperationException("The runtime loads the enemy compositions."), new EnemySpritemapDraw
                 {
                     Frame = frame, Origin = new(drawn[0].Origin.X, drawn[0].Origin.Y), PaletteBits = part.PaletteIndex, BaseTileIndex = part.VramTilesIndex,
                 });

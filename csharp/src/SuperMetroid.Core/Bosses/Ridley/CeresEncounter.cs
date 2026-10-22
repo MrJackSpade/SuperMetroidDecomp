@@ -21,12 +21,12 @@ internal sealed class CeresEncounter(RidleyEncounter encounter, CeresRidleyBehav
         ceresRidley.Hits.ResolveCeresRidleyProjectileHits(projectiles, sharedProjectiles);
 
     /// <inheritdoc/>
-    public void DrawCeresRidleyImmediateBabyAndDoor(SpriteFrameBuffer sprites, SpriteArtwork objects, Position16<RoomPixels> camera) =>
-        ceresRidley.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(sprites, objects, camera);
+    public void DrawCeresRidleyImmediateBabyAndDoor(SpriteFrameBuffer sprites, Position16<RoomPixels> camera) =>
+        ceresRidley.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(sprites, camera);
 
     /// <inheritdoc/>
-    public void DrawCeresRidleyPostEnemyHook(SpriteFrameBuffer sprites, SpriteArtwork objects, Position16<RoomPixels> camera) =>
-        ceresRidley.BabyScene.DrawCeresRidleyPostEnemyHook(sprites, objects, camera);
+    public void DrawCeresRidleyPostEnemyHook(SpriteFrameBuffer sprites, Position16<RoomPixels> camera) =>
+        ceresRidley.BabyScene.DrawCeresRidleyPostEnemyHook(sprites, camera);
 
     /// <inheritdoc/>
     public void RunCeresRidleyGetawayRoomMain(SamusState? samus, int nmiFrameCounter) =>

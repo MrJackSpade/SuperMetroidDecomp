@@ -56,7 +56,14 @@ internal static class DeadMonsterRottingDefinitions
     /// <summary>Converts an eight-pixel corpse row offset into its species-specific staged tile byte offset.</summary>
     internal static ushort RotationOffset(CorpseRotationTable table, ushort yOffset)
     {
-        (int count, int tiles) = table switch
+        (int count, int tiles) = RotationExtent(table);
+        int row = yOffset >> 3;
+        if (row >= count) throw new ArgumentOutOfRangeException(nameof(yOffset));
+        return (ushort)(row * tiles * 32);
+    }
+
+    /// <summary>The rows of characters a corpse's rotation table reaches and the characters in each.</summary>
+    internal static CorpseRotationExtent RotationExtent(CorpseRotationTable table) => table switch
         {
             CorpseRotationTable.Torizo => new CorpseRotationExtent(13, 10),
             CorpseRotationTable.Sidehopper => new CorpseRotationExtent(6, 5),
@@ -64,10 +71,6 @@ internal static class DeadMonsterRottingDefinitions
             CorpseRotationTable.Skree => new CorpseRotationExtent(5, 2),
             _ => throw new InvalidOperationException($"Undefined CorpseRotationTable {table}."),
         };
-        int row = yOffset >> 3;
-        if (row >= count) throw new ArgumentOutOfRangeException(nameof(yOffset));
-        return (ushort)(row * tiles * 32);
-    }
 
     /// <summary>Calculates live-WRAM DMA rows for supported Sidehopper, Zoomer, Ripper, and Skree variant tables.</summary>
     internal static ImmutableArray<DeadMonsterVramTransferDefinition> ForTransferTable(CorpseTransferTable table)

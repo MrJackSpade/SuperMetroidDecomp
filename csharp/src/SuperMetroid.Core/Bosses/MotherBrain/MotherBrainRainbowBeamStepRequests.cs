@@ -42,8 +42,8 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>The death explosions requested.</summary>
     internal List<MotherBrainDeathExplosionRequest> DeathExplosions { get; } = new(capacity: 4);
 
-    /// <summary>The corpse-rotting VRAM transfers requested.</summary>
-    internal List<MotherBrainSpriteTileTransferRequest> CorpseRottingVramTransfers { get; } = new(capacity: 6);
+    /// <summary>The corpse-rotting uploads requested, each with the rot step it shows.</summary>
+    internal List<MotherBrainCorpseRotUpload> CorpseRottingVramTransfers { get; } = new(capacity: 6);
 
     /// <summary>The corpse dust requested.</summary>
     internal List<MotherBrainCorpseDustRequest> CorpseDustRequests { get; } = new(capacity: 1);

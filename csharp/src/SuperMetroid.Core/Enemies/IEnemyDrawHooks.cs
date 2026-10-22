@@ -10,7 +10,6 @@ internal interface IEnemyDrawHooks : IEnemyEntity
 
     /// <summary>Publishes supplemental sprites before the common writer publishes the occupant's body.</summary>
     /// <param name="sprites">The frame's sprite description.</param>
-    /// <param name="objects">The gameplay OBJ character page.</param>
     /// <param name="camera">The camera position.</param>
-    void DrawBeforeBody(SpriteFrameBuffer sprites, SpriteArtwork objects, Position16<RoomPixels> camera);
+    void DrawBeforeBody(SpriteFrameBuffer sprites, Position16<RoomPixels> camera);
 }

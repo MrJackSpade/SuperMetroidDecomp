@@ -8,7 +8,8 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <summary>
 /// Pre-assembles and pre-colours a family's frames into one sprite sheet (#1392): each frame composed from its parts over
 /// its characters, coloured with its standard palette rows, cropped to its parts and packed in rows no wider
-/// than <see cref="MaximumWidth"/>. A frame with no parts is an empty frame. Each distinct part is also composed alone
+/// than <see cref="MaximumWidth"/>, or, for a sheet that would then be taller than an artwork image can be, the
+/// narrowest doubling of it within that bound that keeps the sheet within it too. A frame with no parts is an empty frame. Each distinct part is also composed alone
 /// as a part image, which the frame lists in draw order, so a screen whose object limit cuts the frame short can show
 /// its first parts as the cartridge's loader does.
 /// </summary>
@@ -17,7 +18,7 @@ internal static class SpriteSheetComposer
     /// <summary>Colours in one sprite palette row.</summary>
     private const int RowColours = 16;
 
-    /// <summary>The widest a sheet is packed; a frame that would cross it starts a new row of frames.</summary>
+    /// <summary>The widest a sheet that fits is packed; a frame that would cross it starts a new row of frames.</summary>
     internal const int MaximumWidth = 1024;
 
     /// <summary>Composes a sheet's frames in order onto one sheet, then their part images.</summary>
@@ -60,26 +61,15 @@ internal static class SpriteSheetComposer
             })];
         }
         SheetFrameSource[] laid = [.. frames, .. parts];
-        var bounds = new FrameBounds[laid.Length];
+        FrameBounds[] bounds = [.. laid.Select(frame => Bounds(frame.Frame))];
         var corners = new Position16<ImagePixels>[laid.Length];
-        int width = 1, x = 0, y = 0, rowHeight = 0;
-        for (int index = 0; index < laid.Length; index++)
+        int width = 0, height = int.MaxValue;
+        for (int rowWidth = MaximumWidth; height > RgbaPng.MaximumDimension; rowWidth *= 2)
         {
-            FrameBounds bound = bounds[index] = Bounds(laid[index].Frame);
-            if (bound.Width == 0)
-                continue;
-            if (x > 0 && x + bound.Width > MaximumWidth)
-            {
-                y += rowHeight;
-                x = 0;
-                rowHeight = 0;
-            }
-            corners[index] = new(checked((ushort)x), checked((ushort)y));
-            x += bound.Width;
-            rowHeight = Math.Max(rowHeight, bound.Height);
-            width = Math.Max(width, x);
+            if (rowWidth > RgbaPng.MaximumDimension)
+                throw new InvalidDataException($"Sheet {frames[0].Name}'s frames do not fit in a {RgbaPng.MaximumDimension}-pixel square image.");
+            (width, height) = Pack(bounds, corners, rowWidth);
         }
-        int height = Math.Max(1, y + rowHeight);
         var canvas = new Canvas(width, height, spriteColours.ToArray());
         var manifest = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         var partManifest = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
@@ -102,6 +92,32 @@ internal static class SpriteSheetComposer
             colours[colour] = spriteColours[colour].ToWord();
         return new ComposedSpriteSheet(new((ushort)width, (ushort)height), canvas.Pixels, canvas.PaletteIndices, canvas.Priorities,
             canvas.PartRows, new SpriteSheetDocument { Version = SpriteSheet.Version, Palette = SpriteImageColours.Sprite, Colours = colours, Frames = manifest, PartImages = partManifest });
+    }
+
+    /// <summary>
+    /// Packs the frames' covers in order in rows no wider than <paramref name="rowWidth"/>, a cover that would cross it
+    /// starting a new row, writing each one's corner, and gives the sheet's size.
+    /// </summary>
+    private static (int Width, int Height) Pack(FrameBounds[] bounds, Position16<ImagePixels>[] corners, int rowWidth)
+    {
+        int width = 1, x = 0, y = 0, rowHeight = 0;
+        for (int index = 0; index < bounds.Length; index++)
+        {
+            FrameBounds bound = bounds[index];
+            if (bound.Width == 0)
+                continue;
+            if (x > 0 && x + bound.Width > rowWidth)
+            {
+                y += rowHeight;
+                x = 0;
+                rowHeight = 0;
+            }
+            corners[index] = new(checked((ushort)x), checked((ushort)y));
+            x += bound.Width;
+            rowHeight = Math.Max(rowHeight, bound.Height);
+            width = Math.Max(width, x);
+        }
+        return (width, Math.Max(1, y + rowHeight));
     }
 
     /// <summary>The name of the part image composed <paramref name="ordinal"/>th.</summary>

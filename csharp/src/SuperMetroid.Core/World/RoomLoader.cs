@@ -1221,9 +1221,7 @@ internal sealed class RoomLoader
         // before the first draw and explicitly clears that graphics index. The specialized
         // arrival model owns that native post-initialization value; passing the transient
         // enemy word here previously recolored the level-data concealer teal.
-        _room.LoadedScope.BeginCeresElevatorArrival(new CeresElevatorArrivalState(
-            _player.Samus,
-            _enemySession.TileArtwork?.ProjectileSpritemaps));
+        _room.LoadedScope.BeginCeresElevatorArrival(new CeresElevatorArrivalState(_player.Samus));
 
         // The locked Ceres-start frame handler still publishes the initial minimap. The
         // ordinary update below used to be gated on GroundedSamusMovementEnabled, leaving

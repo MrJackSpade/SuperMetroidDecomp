@@ -1653,7 +1653,7 @@ internal static class LookupStream2Verification
             {
                 var region = new CharacterRegion(ObjCharacterUploads.TableByte(VramDmaDestination.FromNative(rows[index].EncodedVramDestination)),
                     rows[index].SizeInBytes);
-                AssertTrue(enemies.Presentation.RotUploads.TryShowing(region, out int step) && step == 0,
+                AssertTrue(enemies.Presentation.RotUploads.TryShowing(region, out int step, out _) && step == 0,
                     "Dead Torizo uploads each native row before its rot begins");
             }
             AssertThrows<ArgumentOutOfRangeException>(() => { _ = rows[-1]; }, "Dead Torizo negative row");

@@ -841,7 +841,14 @@ internal static void VerifyCeresRidleyRoomEntry()
             Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31,
         };
     }
-    byte[] fixturePixels = SnesGraphics.DecodePlanarTiles(fixturePlanar, 4, 1,
+    // The set's sheets compose over the characters its upload leaves, so the fixture's tile leads a sheet as long as
+    // Ridley's upload.
+    int uploadByteCount = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(definitionPointer).TileDataSize
+        & EnemyTileDataMasks.ByteCountBits;
+    byte[] uploadPlanar = new byte[Math.Max(uploadByteCount, fixturePlanar.Length)];
+    fixturePlanar.CopyTo(uploadPlanar, 0);
+    int uploadTiles = uploadPlanar.Length / RoomCharacterAtlasFormat.BytesPerTile;
+    byte[] fixturePixels = SnesGraphics.DecodePlanarTiles(uploadPlanar, 4, Math.Min(RoomCharacterAtlasFormat.TileColumns, uploadTiles),
         out Extent16<ImagePixels> fixtureSize);
     using var fixtureTilePng = new MemoryStream();
     IndexedPng.Write(fixtureTilePng, fixtureSize, fixturePixels,
@@ -871,12 +878,17 @@ internal static void VerifyCeresRidleyRoomEntry()
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
             {
                 [definitionPointer] = RoomCharacterAtlas.Load(
-                    new MemoryStream(fixtureTilePng.ToArray()), 0x20),
+                    new MemoryStream(fixtureTilePng.ToArray()), uploadPlanar.Length),
             }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
             {
                 [definitionPointer] = EnemyPaletteSheet.Load(new MemoryStream(
                     EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = fixturePalette }))),
-            }, Spritemaps = EnemySpritemapDocuments.Load(fixtureSpriteJson) }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = CreateCeresDoorFixtureVisuals(bus), CeresEscapeTiles = InstalledFixtures.AreaArtwork.CeresEscapeTiles, CeresEscapeOverlayTilemaps = InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps },
+            }, Spritemaps = EnemySpritemapDocuments.Load(fixtureSpriteJson), ExtendedFrames = InstalledFixtures.EnemyTiles.ExtendedFrames,
+            ProjectileSpritemaps = InstalledFixtures.EnemyTiles.ProjectileSpritemaps,
+            DmaSources = new Dictionary<EnemyDefinitionId, int>
+            {
+                [definitionPointer] = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(definitionPointer).TileDataAddress,
+            } }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = CreateCeresDoorFixtureVisuals(bus), CeresEscapeTiles = InstalledFixtures.AreaArtwork.CeresEscapeTiles, CeresEscapeOverlayTilemaps = InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps },
         BossArtworkBinding =
         {
             CeresRidleyColors = CeresRidleyColorCatalog.Load(new MemoryStream(
@@ -924,7 +936,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         enemies.Earthquake.EarthquakeTimer = WrappingCountdown.FromRaw(timer);
         var doorOam = new OamBuffer();
         doorOam.BeginFrame();
-        doorOam.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(frame, EnemyFormatDrawAccess.BlankObjectPage, new(0, 0)));
+        doorOam.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(frame, new(0, 0)));
         doorOam.FinalizeFrame();
         AssertEqual(100 + expectedDoorOffsets[timer], doorOam.GetEntry(0).Position.X,
             $"Ceres private door hook byte-indexed quake phase {timer}");

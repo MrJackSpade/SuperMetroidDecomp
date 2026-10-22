@@ -6,10 +6,8 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>What a room graphics set's pre-coloured sheets compose (#1392).</summary>
 /// <param name="Enemies">Each enemy sheet, by the enemy drawn under the set.</param>
-/// <param name="SpawnsFromSheets">Whether the set's spawned objects draw from sheets.</param>
-/// <param name="Spawned">Each spawned-object sheet, by its plan; none when the set's spawned objects draw from characters.</param>
-internal sealed record GraphicsSetSheetSources(IReadOnlyList<EnemySheetSource> Enemies, bool SpawnsFromSheets,
-    IReadOnlyList<SpawnedObjectSheetSource> Spawned);
+/// <param name="Spawned">Each spawned-object sheet, by its plan.</param>
+internal sealed record GraphicsSetSheetSources(IReadOnlyList<EnemySheetSource> Enemies, IReadOnlyList<SpawnedObjectSheetSource> Spawned);
 
 /// <summary>What one enemy's sheet composes under a graphics set.</summary>
 /// <param name="Enemy">The enemy.</param>

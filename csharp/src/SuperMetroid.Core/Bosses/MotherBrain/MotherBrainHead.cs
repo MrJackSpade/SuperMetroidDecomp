@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
@@ -34,14 +34,11 @@ internal sealed class MotherBrainHead
     private readonly MotherBrainProjectiles _projectileAttacks;
     /// <summary>Mother Brain's state lookups, body and brain program setters, timers and PLM requests.</summary>
     private readonly MotherBrainEncounterAccess _access;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal MotherBrainHead(MotherBrainHeadDependencies dependencies)
     {
-        _bossArtwork = dependencies.BossArtwork;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _audio = dependencies.Audio;
@@ -68,7 +65,7 @@ internal sealed class MotherBrainHead
         // The cartridge seeds the complete future corpse effect during room load, not when
         // Mother Brain dies. Keeping this eager call preserves the exact WRAM state visible
         // throughout every earlier phase and prevents the death sequence from inventing it.
-        state.CorpseRotting.Initialize(_room.Staging, _bossArtwork.MotherBrainCorpse);
+        state.CorpseRotting.Initialize(_room.Staging);
 
         head.Health = 3000;
         // `$A9:8714` gives the head enemy the dummy program for life (the encounter state's
@@ -124,7 +121,7 @@ internal sealed class MotherBrainHead
     /// record carries extended-spritemap bit <c>$0004</c>; routing it through the generic
     /// extended parser is precisely the corruption the cartridge hook avoids.
     /// </summary>
-    internal void DrawMotherBrainHook(SpriteFrameBuffer sprites, SpriteArtwork objects, Position16<RoomPixels> camera)
+    internal void DrawMotherBrainHook(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
     {
         MotherBrainEnemyState? state = _motherBrainEncounter.MotherBrain;
         RoomEnemySlot? head = state?.Head;
@@ -147,7 +144,6 @@ internal sealed class MotherBrainHead
                 MotherBrainDrawData.BrainLeftCullMargin - camera.X)) >= 0)
         DrawMotherBrainWorldSpritemap(
             sprites,
-            objects,
             new SpriteSource(SpriteSourceKind.MotherBrainBrain),
             new MotherBrainWorldFrame(
                 MotherBrainVisualDefinitions.HeadFrames.Of(brainFrame),
@@ -171,7 +167,6 @@ internal sealed class MotherBrainHead
             Position16<RoomPixels> segment = segments[index];
             DrawMotherBrainWorldSpritemap(
                 sprites,
-                objects,
                 new SpriteSource(SpriteSourceKind.MotherBrainNeck, segments.Length - 1 - index),
                 new MotherBrainWorldFrame(MotherBrainVisualDefinitions.NeckJointFrame, segment + neckShake,
                     state.NeckPalette.PaletteBits, checked((ushort)head.VramTilesIndex)),
@@ -179,10 +174,9 @@ internal sealed class MotherBrainHead
         }
     }
 
-    /// <summary>Publishes a selected world-space Mother Brain frame with palette and camera offsets.</summary>
+    /// <summary>Publishes a selected world-space Mother Brain frame from the head's sheet with palette and camera offsets.</summary>
     internal void DrawMotherBrainWorldSpritemap(
         SpriteFrameBuffer sprites,
-        SpriteArtwork objects,
         SpriteSource source,
         MotherBrainWorldFrame frame,
         Position16<RoomPixels> camera)
@@ -194,7 +188,9 @@ internal sealed class MotherBrainHead
         if (unchecked((short)screen.Y) < 0)
             return;
 
-        _presentation.PublishEnemySpritemap(sprites, objects, source, new EnemySpritemapDraw { Frame = frame.Frame, Origin = screen.ToOam(), PaletteBits = frame.PaletteIndex, BaseTileIndex = frame.VramTilesIndex });
+        // The head's sheet pictures each frame over what the encounter's uploads and the corpse's rot leave (#1392).
+        _presentation.PublishSheetFrame(sprites, source, EnemyDefinitionId.MotherBrainHead, EnemySheetDefinitions.FrameName(frame.Frame), screen,
+            frame.PaletteIndex, frame.VramTilesIndex);
     }
 
     /// <summary>Derives the head's current shake offset from the encounter's animation state.</summary>

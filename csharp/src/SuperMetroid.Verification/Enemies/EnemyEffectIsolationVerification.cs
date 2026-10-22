@@ -99,11 +99,8 @@ internal static class EnemyEffectIsolationVerification
         EnemyStagingSurfaces edited = editedEnemies.Room.Staging;
         var baselineRot = new MotherBrainCorpseRottingState();
         var editedRot = new MotherBrainCorpseRottingState();
-        baselineRot.Initialize(baseline, CorpseEffectArtwork(0x55));
-        editedRot.Initialize(edited, CorpseEffectArtwork(0xaa));
-        AssertTrue(!baseline.RottingHeap.Bytes.SequenceEqual(edited.RottingHeap.Bytes), "different installed corpse pixels reach the rotting heap");
-        Action<MotherBrainSpriteTileTransferRequest> baselineTransfer = baselineEnemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer;
-        Action<MotherBrainSpriteTileTransferRequest> editedTransfer = editedEnemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer;
+        baselineRot.Initialize(baseline);
+        editedRot.Initialize(edited);
         int finished = 0;
         // Entry i waits 2*i calls and needs max(1,ceil(i/2)) destructive moves. The last
         // entry therefore completes on 94+24=118; different pixels cannot alter that.
@@ -142,22 +139,19 @@ internal static class EnemyEffectIsolationVerification
             for (int index = 0; index < MotherBrainCorpseRottingState.EntryCount; index++)
                 AssertEqual(MotherBrainCorpseRottingState.ReadEntry(baseline, index),
                     MotherBrainCorpseRottingState.ReadEntry(edited, index), "every corpse row's Y/delay is independent of artwork");
-            int artEnd = MotherBrainCorpseRottingState.GraphicsBufferSize;
-            AssertTrue(baseline.RottingHeap.Bytes[artEnd..].SequenceEqual(edited.RottingHeap.Bytes[artEnd..]) &&
-                baseline.Bg2.Bytes.SequenceEqual(edited.Bg2.Bytes), "corpse art changes only its graphics buffer");
-            foreach (var request in expected.VramTransfers) baselineTransfer(request);
-            foreach (var request in actual.VramTransfers) editedTransfer(request);
-            SnesVram shown = ObjCharacterVramImage.Of(baselineEnemies.Room.Session.ObjCharacters, new EnemyTileTransfers(InstalledFixtures.EnemyArtwork));
-            foreach (var request in expected.VramTransfers)
+            // Each row the corpse uploads shows the step it was uploaded after (#1392).
+            foreach (MotherBrainCorpseRotUpload upload in expected.VramTransfers)
             {
-                int source = checked((int)request.SourceAddress) - MotherBrainCorpseRottingState.GraphicsBufferAddress;
-                AssertTrue(shown.Bytes.Slice(request.VramDestination * 2, request.Size)
-                    .SequenceEqual(baseline.RottingHeap.Bytes.Slice(source, request.Size)), "production staging DMA uploads current rot pixels");
+                AssertEqual(call, upload.Step, "each upload shows the step just taken");
+                baselineEnemies.MotherBrainEncounter.ShowMotherBrainCorpseRot(upload);
+                var region = new CharacterRegion((upload.Transfer.VramDestination - GameplayVramLayout.ObjectCharacters.Offset) * 2, upload.Transfer.Size);
+                AssertTrue(baselineEnemies.Presentation.RotUploads.TryShowing(region, out int shown, out _) && shown == call,
+                    "the encounter records the step each corpse row shows");
             }
         }
         AssertEqual(MotherBrainCorpseRottingState.EntryCount, finished, "each of the 48 completion callbacks fires exactly once");
         AssertEqual(118u, baselineRot.ProcessCallCount, "fixed corpse completion clock");
-        Console.WriteLine("  Mother Brain replacement: 118 exact calls, 48 row completions, 702 RAM DMA uploads, dust/audio timing unchanged.");
+        Console.WriteLine("  Mother Brain corpse: 118 exact calls, 48 row completions, 702 recorded row uploads, dust/audio timing unchanged.");
     }
 
     /// <summary>Runs the Crocomire melt and Mother Brain corpse artwork isolation checks.</summary>

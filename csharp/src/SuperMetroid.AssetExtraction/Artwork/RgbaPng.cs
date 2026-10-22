@@ -23,8 +23,8 @@ public static class RgbaPng
     /// <summary>Bytes per RGBA pixel.</summary>
     private const int PixelBytes = 4;
 
-    /// <summary>The largest dimension accepted, which bounds a malformed header's allocation.</summary>
-    private const int MaximumDimension = 8192;
+    /// <summary>The largest dimension accepted, which bounds a malformed header's allocation; artwork is composed within it.</summary>
+    internal const int MaximumDimension = 8192;
 
     /// <summary>Writes an RGBA image as a PNG.</summary>
     /// <param name="output">The stream written to; the caller keeps ownership.</param>

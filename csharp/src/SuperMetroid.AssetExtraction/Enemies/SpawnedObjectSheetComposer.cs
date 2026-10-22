@@ -18,21 +18,16 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// Composes the spawned-object sheets of a room graphics set (#1392): the enemy projectiles and room sprite objects its
 /// enemies spawn, over the set's OBJ page and in its colours. A spawned object's parts draw at its spawner's tile base or
 /// at base 0, so each spawner's objects are composed at its own base, in its row, and every object the set can spawn is
-/// also composed at base 0, with the objects any room spawns. A set loading an enemy that draws from characters it
-/// uploads has no spawned-object sheets, as the characters its objects show change with it.
+/// also composed at base 0, with the objects any room spawns.
 /// </summary>
 internal static class SpawnedObjectSheetComposer
 {
-    /// <summary>Whether a set drawing <paramref name="drawn"/> draws its spawned objects from sheets.</summary>
     /// <summary>The frames rotting corpses' encounters draw themselves, which show the rot: the dead Torizo's hook.</summary>
     private static readonly HashSet<EnemyFrameId> RotEncounterFrames =
         [.. EncounterFrameDefinitions.ByEnemy.Where(encounter => CorpseRotSimulation.Rots(encounter.Key)).SelectMany(encounter => encounter.Value)];
 
     /// <summary>Whether spawned-object sheet frame <paramref name="name"/> is a rotting corpse's own, which shows its rot.</summary>
     internal static bool ShowsRot(string name) => RotEncounterFrames.Any(frame => EnemySheetDefinitions.EncounterFrameName(frame) == name);
-
-    internal static bool Covers(IEnumerable<EnemyDefinitionId> drawn) =>
-        !Ensure.NotNull(drawn).Any(EnemySheetDefinitions.DrawnFromCharacters.Contains);
 
     /// <summary>
     /// The spawned-object sheets of a set whose enemy graphics are <paramref name="graphics"/>, drawing

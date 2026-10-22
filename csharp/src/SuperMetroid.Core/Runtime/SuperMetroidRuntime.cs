@@ -160,9 +160,9 @@ internal sealed class SuperMetroidRuntime
         Xray = new XrayReveal(BackgroundScroll, Room, System, Bg2TilemapStaging);
         FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { Input = new AcceptedFrameInput(Controller1, PhysicalController1, Options, Clock), Backgrounds = BgArtwork, EnemySession = EnemySession, RoomFx = RoomFx, Artwork = Artwork, Hud = Hud, BackgroundScroll = BackgroundScroll, Display = Display, DisplayedSprites = DisplayedSprites, GameplayWindows = GameplayWindows, Sprites = Sprites, Player = Player, Room = Room, SuitPickup = SuitPickup, Xray = Xray, DrainQueuedVramWrites = DrainQueuedVramWrites });
         BackgroundPhase = new BackgroundScrollPhase(BackgroundScroll, Room);
-        ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { EnemySession = EnemySession, Artwork = Artwork, AttractSession = AttractSession, Cgram = Cgram, Controller1 = Controller1, Display = Display, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room});
+        ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { Artwork = Artwork, AttractSession = AttractSession, Cgram = Cgram, Controller1 = Controller1, Display = Display, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room});
         EnemyRoomEffects = new EnemyRoomEffects(new EnemyRoomEffectsDependencies { Cgram = Cgram, Display = Display, EscapeTimer = EscapeTimer, Player = Player, Room = Room, System = System});
-        EnemyPhase = new EnemyFramePhase(new EnemyFramePhaseDependencies { BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Artwork = Artwork, Player = Player, Room = Room, VramWrites = VramWrites});
+        EnemyPhase = new EnemyFramePhase(new EnemyFramePhaseDependencies { BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room, VramWrites = VramWrites});
         HdmaPhase = new HdmaObjectPhase(Freeze, System);
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing, BackgroundScroll = BackgroundScroll, Display = Display, EnemyPhase = EnemyPhase, HdmaPhase = HdmaPhase, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
@@ -265,11 +265,7 @@ internal sealed class SuperMetroidRuntime
         Bind(a => a.BeamArtwork, value => Artwork.BeamArtwork = value);
         Bind(a => a.BossArtwork, value => BossArtwork.Artwork = value);
         Bind(a => a.AreaArtwork, value => AreaArtwork.Artwork = value);
-        Bind(a => a.EnemyTileArtwork, value =>
-        {
-            EnemySession.TileArtwork = value;
-            Room.CeresElevatorArrival?.BindProjectileSpritemaps(value?.ProjectileSpritemaps);
-        });
+        Bind(a => a.EnemyTileArtwork, value => EnemySession.TileArtwork = value);
     }
 
     /// <summary>

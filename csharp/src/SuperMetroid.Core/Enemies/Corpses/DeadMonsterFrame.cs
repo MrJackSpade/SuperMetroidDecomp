@@ -44,7 +44,7 @@ internal sealed class DeadMonsterFrame
         int step = taken + 1;
         rotSteps[flesh] = step;
         foreach (DeadMonsterVramTransferDefinition transfer in DeadMonsterRottingDefinitions.ForTransferTable(flesh))
-            _presentation.RotUploads.Show(transfer.Destination, transfer.SizeInBytes, step);
+            _presentation.ShowRot(transfer.Destination, transfer.SizeInBytes, step);
     }
 
     /// <summary>

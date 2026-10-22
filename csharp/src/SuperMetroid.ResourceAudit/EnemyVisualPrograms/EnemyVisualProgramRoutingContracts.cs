@@ -11,7 +11,7 @@ internal static class EnemyVisualProgramRoutingContracts
     /// <remarks>Each routing method and the type that owns it.</remarks>
     private static readonly RoutedMethod[] Methods =
     [
-        new RoutedMethod("PublishEnemySpritemap", "EnemyPresentation"),
+        new RoutedMethod("PublishSheetFrame", "EnemyPresentation"),
         new RoutedMethod("ProcessInstructions", "EnemyInstructionInterpreter"),
         new RoutedMethod("ProcessEnemyProjectileInstructions", "EnemyProjectileEngine"),
     ];

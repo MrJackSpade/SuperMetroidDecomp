@@ -251,12 +251,12 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         int step = checked((int)state.ProcessCallCount);
         foreach (DeadTorizoVramTransferDefinition record in
                  DeadTorizoVramTransferDefinitions.ForHalf(state.UploadsOddTransferHalf))
-            _presentation.RotUploads.Show(record.Destination, record.SizeInBytes, step);
+            _presentation.ShowRot(record.Destination, record.SizeInBytes, step);
     }
 
 
     /// <summary>Runs the post-enemy ordinary-spritemap hook at <c>$A9:D39A</c>, publishing its frame as the encounter's own (#1392).</summary>
-    internal void DrawDeadTorizoHook(SpriteFrameBuffer sprites, SpriteArtwork objects, Position16<RoomPixels> camera)
+    internal void DrawDeadTorizoHook(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
     {
         if (DeadTorizo is null)
             return;
@@ -264,7 +264,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         ushort screenY = unchecked((ushort)(187 - camera.Y));
         if (unchecked((short)screenY) < 0)
             return;
-        _presentation.PublishEncounterFrame(sprites, objects, new SpriteSource(SpriteSourceKind.DeadTorizoHook), DeadTorizoArtworkDefinitions.HookFrame,
+        _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.DeadTorizoHook), DeadTorizoArtworkDefinitions.HookFrame,
             new Position16<ScreenPixels>(unchecked((ushort)(296 - camera.X)), screenY), paletteBits: 0);
     }
 

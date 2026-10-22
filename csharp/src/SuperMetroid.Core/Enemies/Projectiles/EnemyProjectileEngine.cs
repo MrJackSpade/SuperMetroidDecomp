@@ -334,47 +334,39 @@ internal sealed class EnemyProjectileEngine
     /// preceding room-sprite-object phase at <c>$A0:8855</c>.
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
-    /// <param name="objects">The gameplay OBJ character page.</param>
     /// <param name="camera">Layer-one camera position in whole room pixels.</param>
     /// <param name="timeIsFrozen">Whether time is frozen, which stops the earthquake displacement.</param>
     public void DrawHighPriorityEnemyProjectiles(
         SpriteFrameBuffer sprites,
-        SpriteArtwork objects,
         Position16<RoomPixels> camera,
         bool timeIsFrozen = false)
     {
         Ensure.NotNull(sprites);
-        Ensure.NotNull(objects);
         _room.EnsureLoaded();
 
         // Sprite objects precede only the high pass. Repeating them in the low pass would
         // duplicate explosions, dust, and Spark's trail in the same frame.
-        _spriteObjects.DrawRoomSpriteObjects(sprites, objects, camera);
+        _spriteObjects.DrawRoomSpriteObjects(sprites, camera);
         DrawEnemyProjectilePass(
             sprites,
-            objects,
             camera,
             EnemyProjectileDrawPriority.High, timeIsFrozen);
     }
 
     /// <summary>Ports <c>Draw_LowPriority_EnemyProjectile</c> at <c>$86:83B2</c>.</summary>
     /// <param name="sprites">The frame's sprite description.</param>
-    /// <param name="objects">The gameplay OBJ character page.</param>
     /// <param name="camera">Layer-one camera position in whole room pixels.</param>
     /// <param name="timeIsFrozen">Whether time is frozen, which stops the earthquake displacement.</param>
     public void DrawLowPriorityEnemyProjectiles(
         SpriteFrameBuffer sprites,
-        SpriteArtwork objects,
         Position16<RoomPixels> camera,
         bool timeIsFrozen = false)
     {
         Ensure.NotNull(sprites);
-        Ensure.NotNull(objects);
         _room.EnsureLoaded();
 
         DrawEnemyProjectilePass(
             sprites,
-            objects,
             camera,
             EnemyProjectileDrawPriority.Low, timeIsFrozen);
     }
@@ -382,13 +374,11 @@ internal sealed class EnemyProjectileEngine
     /// <summary>Publishes one priority class in descending slot order so earlier entries win overlaps.</summary>
     internal void DrawEnemyProjectilePass(
         SpriteFrameBuffer sprites,
-        SpriteArtwork objects,
         Position16<RoomPixels> camera,
         EnemyProjectileDrawPriority priority,
         bool timeIsFrozen)
     {
         Offset16<RoomPixels> shake = _earthquake.GetEnemyProjectileShake(timeIsFrozen);
-        bool fromSheets = _presentation.SpawnsFromSheets;
         // Both cartridge routines scan native indexes $22,$20,...,$00. Physical array
         // index seventeen therefore reaches OAM first and wins equal-priority overlap.
         for (int projectileIndex = _enemyProjectiles.Length - 1;
@@ -407,19 +397,10 @@ internal sealed class EnemyProjectileEngine
                 continue;
 
             ushort paletteBits = new SnesObjAttributeWord(checked((ushort)projectile.GraphicsIndex)).PaletteBits;
-            if (fromSheets)
-            {
-                // The blank frame draws nothing.
-                if (frame != EnemyProjectileFrameId.Blank)
-                    _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile, projectileIndex),
-                        EnemySheetDefinitions.ProjectileFrameName(frame), screen, unchecked((byte)projectile.GraphicsIndex), paletteBits);
-                continue;
-            }
-            var artwork = _room.Artwork?.ProjectileSpritemaps ?? throw new InvalidOperationException(
-                "Room enemy projectiles require installed sprite artwork.");
-            ReadOnlyMemory<SpritemapPart> parts = EnemyProjectileFrames.Parts(artwork, frame);
-            EnemyPresentation.PublishParts(sprites, objects, new SpriteSource(SpriteSourceKind.EnemyProjectile, projectileIndex),
-                EnemySpriteFrames.Frame(parts, unchecked((byte)projectile.GraphicsIndex), paletteBits), screen, paletteBits);
+            // The blank frame draws nothing.
+            if (frame != EnemyProjectileFrameId.Blank)
+                _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile, projectileIndex),
+                    EnemySheetDefinitions.ProjectileFrameName(frame), screen, unchecked((byte)projectile.GraphicsIndex), paletteBits);
         }
     }
 

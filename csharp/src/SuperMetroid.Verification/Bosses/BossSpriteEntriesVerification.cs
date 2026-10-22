@@ -37,16 +37,23 @@ internal static class BossSpriteEntriesVerification
     {
         EnemyTileArtworkCatalog artwork = InstalledFixtures.EnemyTiles;
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
+        SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.CorpseTorizo);
         enemies.DeadTorizoBehavior.InitializeDeadTorizo(enemies.SlotTable.Slots[0]);
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        enemies.DeadTorizoBehavior.DrawDeadTorizoHook(sprites, EnemyFormatDrawAccess.BlankObjectPage, DeadTorizoCamera);
+        enemies.DeadTorizoBehavior.DrawDeadTorizoHook(sprites, DeadTorizoCamera);
         sprites.FinalizeFrame();
-        SpriteDraw corpse = sprites.Draws.Single();
-        AssertEqual(new SpriteSource(SpriteSourceKind.DeadTorizoHook), corpse.Source, "Dead Torizo's hook names its source");
-        AssertTrue(ReferenceEquals(EnemyFormatDrawAccess.BlankObjectPage, corpse.Artwork), "Dead Torizo's hook draws over the OBJ page");
-        AssertEqual(new Position16<ScreenPixels>(unchecked((ushort)(296 - DeadTorizoCamera.X)), unchecked((ushort)(187 - DeadTorizoCamera.Y))), corpse.Origin,
-            "Dead Torizo's hook frame sits at its fixed room point");
+        // The hook draws one picture per layer of its frame, each for what the rotting rows it reads show.
+        SpriteImage hookSheet = InstalledFixtures.EnemySheets.Spawned(SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.CorpseTorizo), 0).Sheet.Image;
+        AssertTrue(sprites.Draws.Length > 0, "Dead Torizo's hook draws");
+        foreach (SpriteDraw corpse in sprites.Draws)
+        {
+            AssertEqual(new SpriteSource(SpriteSourceKind.DeadTorizoHook), corpse.Source, "Dead Torizo's hook names its source");
+            AssertTrue(corpse is ImageSpriteDraw hook && hook.Image.Sheet == hookSheet,
+                "Dead Torizo's hook draws from its set's character-zero sheet");
+            AssertEqual(new Position16<ScreenPixels>(unchecked((ushort)(296 - DeadTorizoCamera.X)), unchecked((ushort)(187 - DeadTorizoCamera.Y))), corpse.Origin,
+                "Dead Torizo's hook frame sits at its fixed room point");
+        }
 
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         var uploads = new ObjCharacterUploads();
@@ -112,7 +119,7 @@ internal static class BossSpriteEntriesVerification
         };
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        enemies.CeresRidleyBehavior.BabyScene.DrawRidleySupplementalSprites(sprites, EnemyFormatDrawAccess.BlankObjectPage, slot, Position16<RoomPixels>.Zero);
+        enemies.CeresRidleyBehavior.BabyScene.DrawRidleySupplementalSprites(sprites, slot, Position16<RoomPixels>.Zero);
         sprites.FinalizeFrame();
         SpriteSource[] expected = [.. new[] { 6, 5, 4, 3, 2, 1, 0 }.Select(segment => new SpriteSource(SpriteSourceKind.RidleyTail, segment)),
             new SpriteSource(SpriteSourceKind.RidleyWings)];
@@ -132,7 +139,7 @@ internal static class BossSpriteEntriesVerification
         Console.WriteLine("Boss sprite entries stage 3: Ridley's tail and wings publish named entries in order; Ceres escape pages bind by range.");
     }
 
-    /// <summary>Stage 4: Mother Brain's tile transfers show installed pages, and its WRAM corpse buffer the bytes it held.</summary>
+    /// <summary>Stage 4: Mother Brain's tile transfers show installed pages, and her WRAM corpse buffer is never transferred.</summary>
     internal static void VerifyBossSpriteEntriesStage4()
     {
         InstalledEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
@@ -151,10 +158,11 @@ internal static class BossSpriteEntriesVerification
                 .SequenceEqual(new MotherBrainCorpseCharacters(1).Resolve(resolver).Span),
             "The corpse page resolves to the installed corpse tiles");
 
-        enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(new MotherBrainSpriteTileTransferRequest(0, 64,
-            MotherBrainCorpseArtworkDefinitions.StagingAddress, MotherBrainCorpseArtworkDefinitions.VramPageDestination(2)));
-        AssertTrue(uploads.Uploads[^1].Source is StagedObjCharacters, "The WRAM corpse buffer shows the bytes it held");
-        Console.WriteLine("Boss sprite entries stage 4: Mother Brain's transfers bind installed pages and its corpse buffer's staged bytes.");
+        // The rotting corpse's rows show the extraction's rot pictures by step (#1392).
+        AssertThrows<InvalidDataException>(() => enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(new MotherBrainSpriteTileTransferRequest(0, 64,
+            MotherBrainCorpseArtworkDefinitions.StagingAddress, MotherBrainCorpseArtworkDefinitions.VramPageDestination(2))),
+            "The WRAM corpse buffer is never transferred as characters");
+        Console.WriteLine("Boss sprite entries stage 4: Mother Brain's transfers bind installed pages and refuse her corpse buffer.");
     }
 
     /// <summary>Runs the #1344 confirmations.</summary>

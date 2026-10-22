@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Bosses.Draygon;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
@@ -34,11 +33,6 @@ internal sealed class GameplayActorDrawing
     /// <summary>Provides accepted-NMI cadence for blinking and drawing branches.</summary>
     private readonly FrameClock _clock;
 
-    /// <summary>The gameplay OBJ character page enemy-format sprites draw from, as the table's bindings show it.</summary>
-    private SpriteArtwork ObjectPage => _artwork.GameplayObjectPage(_enemySession.ObjCharacters);
-
-    /// <summary>The session's OBJ character table, which the gameplay object page binds.</summary>
-    private readonly EnemySession _enemySession;
     /// <summary>Receives Samus's whole-frame draws in the same order as the OAM sprites around them.</summary>
     private readonly SpriteFrameBuffer _sprites;
     /// <summary>Supplies Samus pose, palettes, grapple state, and movement effects.</summary>
@@ -54,7 +48,6 @@ internal sealed class GameplayActorDrawing
         _cgram = dependencies.Cgram;
         _controller1 = dependencies.Controller1;
         _display = dependencies.Display;
-        _enemySession = dependencies.EnemySession;
         _freeze = dependencies.Freeze;
         _clock = dependencies.Clock;
         _sprites = dependencies.Sprites;
@@ -87,11 +80,11 @@ internal sealed class GameplayActorDrawing
             // $1000 selected by Draw_HighPriority_EnemyProjectile at `$86:8390`.
             // That named pass occurs here, before enemy layers zero through two and
             // Samus; lower OAM indices retain their native same-priority overlap win.
-            _room.CeresElevatorArrival?.Draw(_sprites, ObjectPage, room.Enemies.Presentation, _room.Camera.PixelPosition);
+            _room.CeresElevatorArrival?.Draw(_sprites, room.Enemies.Presentation, _room.Camera.PixelPosition);
             if (room.Enemies.IsLoaded)
             {
                 room.Enemies.Projectiles.DrawHighPriorityEnemyProjectiles(
-                    _sprites, ObjectPage,
+                    _sprites,
                     _room.Camera.PixelPosition, _freeze.TimeIsFrozen);
             }
         }
@@ -102,7 +95,7 @@ internal sealed class GameplayActorDrawing
         if (!deathOwnsSamus && room.Enemies.IsLoaded)
         {
             room.Enemies.Drawing.AdvanceLayers(_room.Camera.PixelPosition, 0, 2);
-            room.Enemies.Drawing.DrawLayers(_sprites, ObjectPage, _room.Camera.PixelPosition, 0, 2);
+            room.Enemies.Drawing.DrawLayers(_sprites, _room.Camera.PixelPosition, 0, 2);
         }
 
         if (paletteEffects == SamusPaletteEffects.Advance)
@@ -395,21 +388,21 @@ internal sealed class GameplayActorDrawing
             // At phase three Samus/room.Projectiles are emitted before enemy layer three;
             // ordinary enemy layers four and five follow without another insertion.
             room.Enemies.Drawing.AdvanceLayers(_room.Camera.PixelPosition, 3, 5);
-            room.Enemies.Drawing.DrawLayers(_sprites, ObjectPage, _room.Camera.PixelPosition, 3, 5);
+            room.Enemies.Drawing.DrawLayers(_sprites, _room.Camera.PixelPosition, 3, 5);
         }
 
         if (!deathOwnsSamus && room.Enemies.IsLoaded &&
             !_player.Samus.Xray.AreEnemyProjectilesSuspended)
         {
             room.Enemies.Projectiles.DrawLowPriorityEnemyProjectiles(
-                _sprites, ObjectPage,
+                _sprites,
                 _room.Camera.PixelPosition, _freeze.TimeIsFrozen);
         }
 
         if (!deathOwnsSamus && room.Enemies.IsLoaded)
         {
             room.Enemies.Drawing.AdvanceLayers(_room.Camera.PixelPosition, 6, 7);
-            room.Enemies.Drawing.DrawLayers(_sprites, ObjectPage, _room.Camera.PixelPosition, 6, 7);
+            room.Enemies.Drawing.DrawLayers(_sprites, _room.Camera.PixelPosition, 6, 7);
         }
 
         if (!deathOwnsSamus && room.Enemies.IsLoaded && room.Enemies.DisplaySources.Draygon is { } draygon)
@@ -434,7 +427,6 @@ internal sealed class GameplayActorDrawing
             // preserves the hook's actual OAM position instead of inventing a Baby slot.
             room.Enemies.Ceres.DrawCeresRidleyPostEnemyHook(
                 _sprites,
-                ObjectPage,
                 _room.Camera.PixelPosition);
         }
     }

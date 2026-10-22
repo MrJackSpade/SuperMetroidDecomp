@@ -94,7 +94,7 @@ internal static class RidleySupplementalArtworkVerification
         enemies.RidleyEncounter.Ridley = state;
         var oam = new OamBuffer();
         oam.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawRidleySupplementalSprites(
-            frame, EnemyFormatDrawAccess.BlankObjectPage, slot, Position16<RoomPixels>.Zero));
+            frame, slot, Position16<RoomPixels>.Zero));
         return oam;
     }
 

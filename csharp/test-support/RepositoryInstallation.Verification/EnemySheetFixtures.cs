@@ -48,11 +48,6 @@ internal static class EnemySheetFixtures
         }
 
         /// <inheritdoc/>
-        public bool SpawnsFromSheets(RoomEnemyGraphicsSetDefinition set) =>
-            installed is not null && RoomEnemyGraphicsSetDefinitions.DrawnUnder.Contains(set) ? installed.SpawnsFromSheets(set)
-                : sets.GetValue(set, Compose).SpawnsFromSheets;
-
-        /// <inheritdoc/>
         public SpawnedObjectSheet Spawned(RoomEnemyGraphicsSetDefinition set, int tileBase)
         {
             if (installed is not null && RoomEnemyGraphicsSetDefinitions.DrawnUnder.Contains(set))
@@ -102,7 +97,7 @@ internal static class EnemySheetFixtures
                 spawned[plan.TileBase] = new SpawnedObjectSheet(Load(sources, $"Spawned-{plan.TileBase:X3}-{owner}"), plan.Palette);
                 spawnedPictures[plan.TileBase] = framePictures;
             }
-            return new ComposedSet(enemies, setSources.SpawnsFromSheets, spawned, pictures, spawnedPictures);
+            return new ComposedSet(enemies, spawned, pictures, spawnedPictures);
         }
 
         /// <summary>Composes, loads and registers one sheet under <paramref name="name"/>.</summary>
@@ -118,11 +113,10 @@ internal static class EnemySheetFixtures
 
     /// <summary>One composed graphics set's sheets.</summary>
     /// <param name="Enemies">Each enemy's sheet.</param>
-    /// <param name="SpawnsFromSheets">Whether its spawned objects draw from sheets.</param>
     /// <param name="Spawned">Each spawned-object sheet by tile base.</param>
     /// <param name="Pictures">Each enemy sheet's frames drawn over uploaded characters, and the regions they are drawn over.</param>
     /// <param name="SpawnedPictures">The same for each spawned-object sheet, by tile base.</param>
-    private sealed record ComposedSet(IReadOnlyDictionary<EnemyDefinitionId, SpriteSheet> Enemies, bool SpawnsFromSheets,
+    private sealed record ComposedSet(IReadOnlyDictionary<EnemyDefinitionId, SpriteSheet> Enemies,
         IReadOnlyDictionary<int, SpawnedObjectSheet> Spawned,
         IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyDictionary<string, CharacterRegion[][]>> Pictures,
         IReadOnlyDictionary<int, IReadOnlyDictionary<string, CharacterRegion[][]>> SpawnedPictures);

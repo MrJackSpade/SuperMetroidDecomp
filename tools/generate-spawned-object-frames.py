@@ -131,9 +131,12 @@ def main():
             family = re.sub(r'(Behavior|Factory)$', '', os.path.splitext(os.path.basename(path))[0])
             behaviours.append((family, os.path.relpath(path, CORE).replace(os.sep, '/'), served, frames, kinds))
 
+    # Constructing a projectile program family spawns its frames too, as a room routine spawns Ceres's falling debris.
+    family_construction = re.compile(r'\bnew (?:' + '|'.join(sorted(families)) + r')\(')
     anywhere_paths = {path for path, text in texts.items()
                       if path not in reached_by_behaviours and path not in TABLES and path not in family_paths
-                      and SPAWNS.search(text) and os.path.basename(path) != 'EnemyProjectileFrameId.cs'}
+                      and (SPAWNS.search(text) or family_construction.search(text))
+                      and os.path.basename(path) != 'EnemyProjectileFrameId.cs'}
     anywhere_frames, anywhere_kinds = spawned(anywhere_paths)
 
     def array(element, name, values, summary):

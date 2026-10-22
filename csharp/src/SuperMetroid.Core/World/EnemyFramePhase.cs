@@ -31,8 +31,6 @@ internal sealed class EnemyFramePhase
     private readonly FrameClock _clock;
     /// <summary>Receives Ceres Ridley's immediate Baby and door sprites before queued enemy layers.</summary>
     private readonly SpriteFrameBuffer _sprites;
-    /// <summary>The installed gameplay artwork the OBJ character page composes from.</summary>
-    private readonly RuntimeArtwork _artwork;
     /// <summary>Exposes Samus's pose, motion, and collision handoffs around EnemyMain.</summary>
     private readonly SamusFrameState _player;
     /// <summary>Provides active room geometry and camera and receives enemy camera requests.</summary>
@@ -52,7 +50,6 @@ internal sealed class EnemyFramePhase
         _freeze = dependencies.Freeze;
         _clock = dependencies.Clock;
         _sprites = dependencies.Sprites;
-        _artwork = dependencies.Artwork;
         _player = dependencies.Player;
         _room = dependencies.Room;
         _vramWrites = dependencies.VramWrites;
@@ -161,7 +158,6 @@ internal sealed class EnemyFramePhase
             // during EnemyMain, so emit the Baby/door OBJ now—before queued enemy layers.
             room.Enemies.Ceres.DrawCeresRidleyImmediateBabyAndDoor(
                 _sprites,
-                _artwork.GameplayObjectPage(room.Enemies.Room.Session.ObjCharacters),
                 _room.Camera.PixelPosition);
             if (_player.Samus is not null)
             {

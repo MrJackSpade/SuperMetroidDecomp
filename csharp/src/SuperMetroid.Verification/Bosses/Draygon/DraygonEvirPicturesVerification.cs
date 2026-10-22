@@ -78,7 +78,7 @@ internal static class DraygonEvirPicturesVerification
         SpriteArtwork live = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.ObjCharacters);
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        runtime.Enemies.SpriteObjects.DrawRoomSpriteObjects(sprites, live, Position16<RoomPixels>.Zero);
+        runtime.Enemies.SpriteObjects.DrawRoomSpriteObjects(sprites, Position16<RoomPixels>.Zero);
         sprites.FinalizeFrame();
         ImmutableArray<SpriteDraw> drawn = [.. sprites.Draws.Where(draw => draw.Source == new SpriteSource(SpriteSourceKind.RoomSpriteObject, evir.SlotIndex))];
         AssertTrue(drawn.Length > 0, $"the Evir draws {when}");
@@ -89,7 +89,7 @@ internal static class DraygonEvirPicturesVerification
         ushort paletteBits = evir.Attributes.PaletteBits;
         var parted = new SpriteFrameBuffer();
         parted.BeginFrame();
-        EnemyPresentation.PublishParts(parted, live, drawn[0].Source, EnemySpriteFrames.Frame(parts, checked((ushort)evir.Attributes.TileNumber), paletteBits),
+        EnemyPartComposition.PublishParts(parted, live, drawn[0].Source, EnemySpriteFrames.Frame(parts, checked((ushort)evir.Attributes.TileNumber), paletteBits),
             drawn[0].Origin, paletteBits);
         parted.FinalizeFrame();
 

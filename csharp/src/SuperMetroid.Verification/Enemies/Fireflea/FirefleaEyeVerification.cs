@@ -34,8 +34,7 @@ internal static class FirefleaEyeVerification
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
         runtime.Enemies.Drawing.AdvanceLayers(new(cameraX, cameraY), 0, 7);
-        runtime.Enemies.Drawing.DrawLayers(sprites, runtime.Artwork.GameplayObjectPage(runtime.EnemySession.ObjCharacters),
-            new(cameraX, cameraY), 0, 7);
+        runtime.Enemies.Drawing.DrawLayers(sprites, new(cameraX, cameraY), 0, 7);
         sprites.FinalizeFrame();
         AssertTrue(sprites.Draws.Length > 0, "retail rock eye emits sprites");
         var memory = PpuMemorySnapshotConstants.Capture(runtime.Vram, runtime.Cgram, sprites);

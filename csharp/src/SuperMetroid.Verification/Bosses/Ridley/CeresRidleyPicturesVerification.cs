@@ -53,7 +53,7 @@ internal static class CeresRidleyPicturesVerification
             BabyPosition = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0080)),
         };
         ImmutableArray<SpriteDraw> scene = Draw(runtime, (sprites, live) =>
-            runtime.Enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(sprites, live, Camera));
+            runtime.Enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(sprites, Camera));
         AssertTrue(scene.Any(draw => draw.Source.Kind == SpriteSourceKind.CeresBaby), "Ceres Ridley's scene draws the Baby");
         UploadedPictureChecks.AssertPicturesPaintOverLive(runtime, scene, $"Ceres Ridley's scene with {door.DefinitionId} following him");
 
@@ -69,7 +69,7 @@ internal static class CeresRidleyPicturesVerification
         };
         ridley.Position = ridley.Position.WithWhole(new(200, 100));
         ImmutableArray<SpriteDraw> supplements = Draw(runtime, (sprites, live) =>
-            runtime.Enemies.CeresRidleyBehavior.BabyScene.DrawRidleySupplementalSprites(sprites, live, ridley, Camera));
+            runtime.Enemies.CeresRidleyBehavior.BabyScene.DrawRidleySupplementalSprites(sprites, ridley, Camera));
         AssertTrue(supplements.Any(draw => draw.Source.Kind == SpriteSourceKind.RidleyWings), "Ceres Ridley draws his wings");
         UploadedPictureChecks.AssertPicturesPaintOverLive(runtime, supplements, "Ceres Ridley's tail and wings");
         Console.WriteLine($"Ceres Ridley pictures: {scene.Length} scene and {supplements.Length} tail and wing pictures paint their frames over the live characters.");

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// Enemy presentation state: the bound VRAM and CGRAM, boss and gradual palette effects, the
-/// host-installed color and artwork catalogs, and installed-spritemap drawing.
+/// host-installed color and artwork catalogs, and drawing from the installed sheets.
 /// </summary>
 [RoomLifetime]
 internal sealed class EnemyPresentation
@@ -83,32 +83,15 @@ internal sealed class EnemyPresentation
     /// <summary>The rot step each region the room's rotting corpses upload shows (#1392).</summary>
     internal CorpseRotUploads RotUploads { get; } = new();
 
+    /// <summary>Records a rotting corpse's upload of a row of its characters after rot step <paramref name="step"/> (#1392).</summary>
+    internal void ShowRot(VramDmaDestination destination, int byteCount, int step) =>
+        RotUploads.Show(destination, byteCount, step, ObjCharacters.Recorded);
+
     /// <summary>
     /// The session's shared <c>PaletteChangeNumerator</c>. Enemies and the runtime's door and death
     /// fades advance this one counter, as the cartridge's fades all advance one WRAM word.
     /// </summary>
     public GradualColorChangeCounter GradualColorChange => _room.Session.GradualColorChange;
-
-    /// <summary>Publishes an installed enemy composition over the OBJ page, or accepts the compiled common empty frame.</summary>
-    /// <remarks>A nonempty frame without installed display art is an asset error rather than a cartridge fallback.</remarks>
-    /// <param name="sprites">The frame's sprite description.</param>
-    /// <param name="objects">The gameplay OBJ character page.</param>
-    /// <param name="source">The enemy shown.</param>
-    /// <param name="draw">The composition, its origin on screen, palette bits and packed tile base.</param>
-    internal void PublishEnemySpritemap(SpriteFrameBuffer sprites, SpriteArtwork objects, SpriteSource source, EnemySpritemapDraw draw)
-    {
-        // The common empty frame is compiled definition data, not missing artwork.
-        if (draw.Frame == EnemyFrameId.Empty)
-            return;
-        if (_room.Artwork?.Spritemaps?.TryGetDisplay(draw.Frame, out EnemySpritemapParts installed) == true)
-        {
-            ushort paletteBits = checked((ushort)draw.PaletteBits);
-            PublishParts(sprites, objects, source, EnemySpriteFrames.Frame(installed, checked((ushort)draw.BaseTileIndex), paletteBits),
-                new Position16<ScreenPixels>(draw.Origin.X, draw.Origin.Y), paletteBits);
-            return;
-        }
-        throw new InvalidDataException($"Enemy frame {draw.Frame} requires an installed display composition.");
-    }
 
     /// <summary>
     /// Publishes one frame of <paramref name="enemy"/>'s installed sheet (#1392): the sheet its room's graphics set
@@ -135,13 +118,6 @@ internal sealed class EnemyPresentation
         foreach (string picture in Pictures(frame, Sheets.Layers(LoadedSet, enemy, frame)))
             sprites.Add(new ImageSpriteDraw(source, sheet.Frame(picture), origin, SpriteMirror.None, drawn == loaded ? null : drawn));
     }
-
-    /// <summary>
-    /// Whether the loaded graphics set's spawned objects (enemy projectiles, room sprite objects and the Ceres elevator's
-    /// platforms) draw from pre-coloured sheets (#1392); a set loading an enemy drawn from characters it uploads keeps
-    /// them on characters.
-    /// </summary>
-    internal bool SpawnsFromSheets => Sheets.SpawnsFromSheets(LoadedSet);
 
     /// <summary>
     /// Publishes one spawned object's frame from the loaded graphics set's sheet for the tile base it draws at (#1392).
@@ -176,29 +152,23 @@ internal sealed class EnemyPresentation
         RuntimeCharacterUploadCatalog catalog = Sheets.Uploads;
         IReadOnlyList<RuntimeCharacterUpload> uploads = catalog.Of(LoadedSet);
         return layers.Select((regions, layer) => catalog.PictureName(frame, layer,
-            [.. regions.Select(region => RotUploads.TryShowing(region, out int step)
+            [.. regions.Select(region => RotUploads.TryShowing(region, out int step, out long stamp)
+                    && !ObjCharacters.ShowsNewerOver(region.FirstByte, region.ByteCount, stamp)
                 ? new CharacterRegionContent(region, null, step) : catalog.Showing(ObjCharacters, uploads, region))]));
     }
 
     /// <summary>
     /// Publishes a frame an encounter draws itself, outside the enemy list, at character index zero (#1392): from its
-    /// graphics set's character-zero spawned-object sheet while its spawned objects draw from sheets, else over the OBJ
-    /// characters.
+    /// graphics set's character-zero spawned-object sheet.
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
-    /// <param name="objects">The gameplay OBJ character page.</param>
     /// <param name="source">The actor shown.</param>
     /// <param name="frame">The frame.</param>
     /// <param name="origin">The frame origin on screen.</param>
     /// <param name="paletteBits">The draw's palette selection.</param>
-    internal void PublishEncounterFrame(SpriteFrameBuffer sprites, SpriteArtwork objects, SpriteSource source, EnemyFrameId frame,
-        Position16<ScreenPixels> origin, int paletteBits)
-    {
-        if (SpawnsFromSheets)
-            PublishSpawnedFrame(sprites, source, EnemySheetDefinitions.EncounterFrameName(frame), origin, 0, checked((ushort)paletteBits));
-        else
-            PublishEnemySpritemap(sprites, objects, source, new EnemySpritemapDraw { Frame = frame, Origin = origin.ToOam(), PaletteBits = paletteBits, BaseTileIndex = 0 });
-    }
+    internal void PublishEncounterFrame(SpriteFrameBuffer sprites, SpriteSource source, EnemyFrameId frame,
+        Position16<ScreenPixels> origin, int paletteBits) =>
+        PublishSpawnedFrame(sprites, source, EnemySheetDefinitions.EncounterFrameName(frame), origin, 0, checked((ushort)paletteBits));
 
     /// <summary>The installed enemy sheets.</summary>
     private IEnemySheetSource Sheets => _room.Session.Sheets ?? throw new InvalidOperationException(
@@ -206,17 +176,5 @@ internal sealed class EnemyPresentation
 
     /// <summary>The graphics set the room draws under.</summary>
     private RoomEnemyGraphicsSetDefinition LoadedSet => _graphicsSet.LoadedSet;
-
-    /// <summary>Publishes one enemy-format frame over the OBJ page.</summary>
-    /// <param name="sprites">The frame's sprite description.</param>
-    /// <param name="objects">The gameplay OBJ character page.</param>
-    /// <param name="source">The actor shown.</param>
-    /// <param name="frame">The whole frame, its parts' palettes and tiles already formed.</param>
-    /// <param name="origin">The frame origin on screen.</param>
-    /// <param name="paletteBits">The palette selection the frame was formed with.</param>
-    internal static void PublishParts(SpriteFrameBuffer sprites, SpriteArtwork objects, SpriteSource source,
-        SpriteFrame frame, Position16<ScreenPixels> origin, ushort paletteBits) =>
-        sprites.Add(new CharacterSpriteDraw(source, frame, objects, origin, default,
-            (byte)SnesObjAttributeWord.FromPaletteBits(paletteBits).PaletteIndex, 0));
 
 }

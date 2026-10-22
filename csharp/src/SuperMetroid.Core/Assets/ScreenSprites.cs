@@ -102,8 +102,8 @@ public sealed class ScreenSprites
     /// <summary>
     /// Places a whole pre-coloured frame at <paramref name="origin"/> (#1392), standing for the objects of its
     /// composition; a frame of no parts places nothing. The loader's vertical-wrap hiding hides only parts an image
-    /// clips, so the frame needs none; a frame the 128-object limit would cut short cannot show part of itself and
-    /// fails instead.
+    /// clips, so the frame needs none. A frame the 128-object limit cuts short places its first parts as their own
+    /// pre-coloured images, as the cartridge's loader keeps the parts that fit and drops the rest.
     /// </summary>
     /// <param name="frame">The frame placed.</param>
     /// <param name="origin">Where the frame's origin lands.</param>
@@ -112,17 +112,21 @@ public sealed class ScreenSprites
     /// Which spritemap loader the cartridge draws the frame with: on screen, the origin's low Y byte lies on or below the
     /// screen; off screen, it lies above it.
     /// </param>
-    /// <exception cref="InvalidOperationException">The frame's parts do not fit in the objects left.</exception>
     public void AddImage(SpriteSheetFrame frame, Position16<OamPixels> origin, int? paletteOverride = null,
         SpriteOrigin side = SpriteOrigin.OnScreen)
     {
         Ensure.NotNull(frame);
-        if (frame.Objects == 0)
+        if (frame.Objects == 0 || next >= Capacity)
             return;
-        if (next + frame.Objects > Capacity)
-            throw new InvalidOperationException($"A {frame.Objects}-object frame at object {next} exceeds the screen's {Capacity} objects.");
-        placed[next] = new ScreenObject(default, IsLarge: false, origin, frame, frame.Objects, paletteOverride, side);
-        next += frame.Objects;
+        if (next + frame.Objects <= Capacity)
+        {
+            placed[next] = new ScreenObject(default, IsLarge: false, origin, frame, frame.Objects, paletteOverride, side);
+            next += frame.Objects;
+            return;
+        }
+        // Each part keeps the frame's origin and loader, so it lands where the whole frame would show it.
+        foreach (SpriteSheetFramePart part in frame.Parts.Take(Capacity - next))
+            placed[next++] = new ScreenObject(default, IsLarge: false, origin, part.Image, 1, paletteOverride, side);
     }
 
     /// <summary>Applies the spritemap loader's vertical-wrap hiding and places the part, until the frame is full.</summary>

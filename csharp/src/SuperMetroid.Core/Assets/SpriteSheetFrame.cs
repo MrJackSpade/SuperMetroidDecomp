@@ -9,11 +9,10 @@ public sealed record SpriteSheetFrame
     /// <param name="size">The rectangle's width and height; both are positive, or both zero for an empty frame.</param>
     /// <param name="origin">The point of the rectangle, from its top-left pixel, that lands on the draw's origin; it may lie outside the rectangle.</param>
     /// <param name="rows">The sprite palette rows the frame's pixels were coloured from.</param>
-    /// <param name="objects">The parts the frame was composed from, each an object of the screen's object limit.</param>
+    /// <param name="parts">The parts the frame was composed from, in draw order; none for a part image itself.</param>
     /// <exception cref="ArgumentException">The rectangle has one dimension but not the other, or leaves the sheet.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">The frame stands for a negative number of objects.</exception>
     public SpriteSheetFrame(SpriteImage sheet, Position16<ImagePixels> corner, Extent16<ImagePixels> size, Offset16<ImagePixels> origin,
-        SpritePaletteRows rows, int objects)
+        SpritePaletteRows rows, IReadOnlyList<SpriteSheetFramePart> parts)
     {
         Ensure.NotNull(sheet);
         if ((size.X == 0) != (size.Y == 0) || corner.X + size.X > sheet.Size.X || corner.Y + size.Y > sheet.Size.Y)
@@ -23,7 +22,7 @@ public sealed record SpriteSheetFrame
         Size = size;
         Origin = origin;
         Rows = rows;
-        Objects = Ensure.AtLeastZero(objects);
+        Parts = Ensure.NotNull(parts);
     }
 
     /// <summary>The image the frame is cut from.</summary>
@@ -41,8 +40,11 @@ public sealed record SpriteSheetFrame
     /// <summary>The sprite palette rows the frame's pixels were coloured from.</summary>
     public SpritePaletteRows Rows { get; }
 
-    /// <summary>The parts the frame was composed from, each an object of the screen's object limit.</summary>
-    public int Objects { get; }
+    /// <summary>The parts the frame was composed from, in draw order, each an object of the screen's object limit.</summary>
+    public IReadOnlyList<SpriteSheetFramePart> Parts { get; }
+
+    /// <summary>The objects the frame stands for: one per part.</summary>
+    public int Objects => Parts.Count;
 
     /// <summary>
     /// Whether <paramref name="colours"/> hold this frame's standard colours in every row it uses, so its pixels show

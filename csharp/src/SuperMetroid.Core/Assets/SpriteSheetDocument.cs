@@ -11,4 +11,7 @@ public sealed record SpriteSheetDocument
 
     /// <summary>The frames by name.</summary>
     public required Dictionary<string, SpriteSheetFrameDocument> Frames { get; init; }
+
+    /// <summary>The pre-coloured part images the frames' parts show, by name; they have no parts of their own.</summary>
+    public required Dictionary<string, SpriteSheetFrameDocument> PartImages { get; init; }
 }

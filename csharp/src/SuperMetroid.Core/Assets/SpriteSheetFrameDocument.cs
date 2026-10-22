@@ -15,6 +15,6 @@ public sealed record SpriteSheetFrameDocument
     /// <summary>The sprite palette rows the frame was coloured from.</summary>
     public required SpritePaletteRows Rows { get; init; }
 
-    /// <summary>The parts the frame was composed from, each an object of the screen's object limit.</summary>
-    public required int Objects { get; init; }
+    /// <summary>The parts the frame was composed from, in draw order, each an object of the screen's object limit.</summary>
+    public required SpriteSheetPartDocument[] Parts { get; init; }
 }

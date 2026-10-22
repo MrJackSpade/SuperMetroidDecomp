@@ -122,16 +122,6 @@ internal static class PauseReserveFramesVerification
             int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.Id * 2);
             DrawImportedSpritemap(rom, expected, pointer, new(x, y), 0x600);
             SpriteSheet sheet = MenuSheetFixtures.PauseSprites(presentation);
-            // A pre-coloured frame cannot show part of itself: one the object limit would cut short fails, where the
-            // cartridge drops the parts past the limit.
-            int objects = ScreenSpritesFixtures.Frame(probe => presentation.Draw(probe, sheet, (PauseReserveTankVisual)frame.Id, index))
-                .LastFinalizedSpriteCount;
-            if (occupied + objects > ScreenSprites.Capacity)
-            {
-                AssertThrows<InvalidOperationException>(() => presentation.Draw(actual, sheet, (PauseReserveTankVisual)frame.Id, index),
-                    "a reserve frame past the object limit fails");
-                continue;
-            }
             presentation.Draw(actual, sheet, (PauseReserveTankVisual)frame.Id, index);
             expected.FinalizeFrame(); actual.FinalizeFrame();
             AssertTrue(expected.ImageEquals(actual),

@@ -30,8 +30,16 @@ internal static class SheetFrameSources
         SpriteSheetSources composed)
     {
         foreach (SheetFrameSource frame in composed.Frames)
-            target.TryAdd(Key(sheet.Frame(frame.Name)),
-                new FrameSource(frame.Frame, frame.Characters, composed.PaletteBits, frame.Palette, composed.PartsKeepOwnRows));
+        {
+            SpriteSheetFrame image = sheet.Frame(frame.Name);
+            target.TryAdd(Key(image), new FrameSource(frame.Frame, frame.Characters, composed.PaletteBits, frame.Palette, composed.PartsKeepOwnRows));
+            // Each part, drawn at the frame's origin, is its part alone at its place in the frame, as a frame the
+            // object limit cuts short shows it.
+            for (int part = 0; part < image.Parts.Count; part++)
+                target.TryAdd(Key(image.Parts[part].Image), new FrameSource(
+                    new SpriteFrame($"{frame.Name}#{part}", [frame.Frame.Parts[part]]),
+                    frame.Characters, composed.PaletteBits, frame.Palette, composed.PartsKeepOwnRows));
+        }
     }
 
     /// <summary>The character draw an image draw of a projectile sheet frame shows: its composition over its page, placed and mirrored alike.</summary>

@@ -114,20 +114,12 @@ internal static class MapSpriteCasesVerification
                     installed.AddOccupyingPart(new Position16<OamPixels>(12, 34), 56);
                 }
                 DrawImportedSpritemap(bus, native, pointer, new(x, y), (ushort)(palette << 9));
-                // A pre-coloured frame cannot show part of itself: one the object limit would cut short fails, where
-                // the cartridge drops the parts past the limit.
-                SpriteSheetFrame image = MenuSheetFixtures.MapSprites(catalog).Frame(frame.Name);
-                if (occupied + image.Objects > ScreenSprites.Capacity)
-                {
-                    AssertThrows<InvalidOperationException>(() => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(catalog),
-                        (MapSpriteId)frame.NativeId, installed, new(x, y), (ushort)(palette << 9)), $"{frame.Name} past the object limit fails");
-                    continue;
-                }
                 MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(catalog), (MapSpriteId)frame.NativeId, installed, new(x, y), (ushort)(palette << 9));
                 native.FinalizeFrame(); installed.FinalizeFrame();
                 AssertEqual(native.LastFinalizedSpriteCount, installed.LastFinalizedSpriteCount, "map sprite count/capacity matches native");
                 AssertTrue(native.ImageEquals(installed),
-                    $"{frame.Name} preserves native order, coordinates, attributes and clipping");
+                    $"{frame.Name} preserves native order, coordinates, attributes and clipping " +
+                    $"(at {x},{y} palette {palette} with {occupied} objects placed; native {native.FirstDifference(ScreenSpritesFixtures.ToOam(installed))})");
             }
         }
     }

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class SpriteSheet
 {
     /// <summary>The manifest schema revision this catalog reads.</summary>
-    public const int Version = 1;
+    public const int Version = 2;
 
     /// <summary>The frames by name.</summary>
     private readonly Dictionary<string, SpriteSheetFrame> frames;
@@ -52,6 +52,15 @@ public sealed class SpriteSheet
             content.Append("origin y", frame.Origin.Y);
             foreach (SpritePaletteRows row in SpritePaletteRowSet.Rows)
                 content.Append("row", (frame.Rows & row) != 0 ? 1 : 0);
+            foreach (SpriteSheetFramePart part in frame.Parts)
+            {
+                content.Append("part corner x", part.Image.Corner.X);
+                content.Append("part corner y", part.Image.Corner.Y);
+                content.Append("part width", part.Image.Size.X);
+                content.Append("part height", part.Image.Size.Y);
+                content.Append("part offset x", part.Offset.X);
+                content.Append("part offset y", part.Offset.Y);
+            }
         }
     }
 
@@ -81,22 +90,46 @@ public sealed class SpriteSheet
         {
             throw new InvalidDataException($"Sprite sheet {name}: {error.Message}", error);
         }
+        // Part images come first: the frames name them.
+        var partImages = new Dictionary<string, SpriteSheetFrame>(StringComparer.Ordinal);
+        foreach ((string partName, SpriteSheetFrameDocument? part) in document.PartImages ??
+            throw new InvalidDataException($"Sprite sheet {name} has no part image list."))
+        {
+            if (part is not { Parts.Length: 0 })
+                throw new InvalidDataException($"Sprite sheet {name} part image {partName} is null or has parts of its own.");
+            partImages.Add(partName, Cut(image, name, partName, part, []));
+        }
         var frames = new Dictionary<string, SpriteSheetFrame>(StringComparer.Ordinal);
         foreach ((string frameName, SpriteSheetFrameDocument? frame) in document.Frames ??
             throw new InvalidDataException($"Sprite sheet {name} has no frame list."))
         {
-            if (frame is null)
-                throw new InvalidDataException($"Sprite sheet {name} frame {frameName} is null.");
-            try
+            if (frame?.Parts is null)
+                throw new InvalidDataException($"Sprite sheet {name} frame {frameName} is null or has no part list.");
+            SpriteSheetFramePart[] parts = [.. frame.Parts.Select(part =>
             {
-                frames.Add(frameName, new SpriteSheetFrame(image, frame.Corner, frame.Size, frame.Origin, frame.Rows, frame.Objects));
-            }
-            catch (ArgumentException error)
-            {
-                throw new InvalidDataException($"Sprite sheet {name} frame {frameName}: {error.Message}", error);
-            }
+                SpriteSheetFrame partImage = partImages.TryGetValue(part.Image, out SpriteSheetFrame? found) ? found
+                    : throw new InvalidDataException($"Sprite sheet {name} frame {frameName} names missing part image {part.Image}.");
+                // The part lands at its place from the frame's origin when drawn at that origin.
+                var placed = new SpriteSheetFrame(image, partImage.Corner, partImage.Size, partImage.Origin + -part.Offset, partImage.Rows, []);
+                return new SpriteSheetFramePart(placed, part.Offset);
+            })];
+            frames.Add(frameName, Cut(image, name, frameName, frame, parts));
         }
         return new SpriteSheet(image, frames);
+    }
+
+    /// <summary>Cuts one frame or part image from the sheet image.</summary>
+    private static SpriteSheetFrame Cut(SpriteImage image, string sheet, string name, SpriteSheetFrameDocument document,
+        IReadOnlyList<SpriteSheetFramePart> parts)
+    {
+        try
+        {
+            return new SpriteSheetFrame(image, document.Corner, document.Size, document.Origin, document.Rows, parts);
+        }
+        catch (ArgumentException error)
+        {
+            throw new InvalidDataException($"Sprite sheet {sheet} frame {name}: {error.Message}", error);
+        }
     }
 
     /// <summary>Serializes a sheet manifest.</summary>

@@ -12,6 +12,20 @@ internal static class PpuImageAccess
         [PpuLayoutBoundary("exact hardware test: compares complete OAM low/high-table images")]
         internal bool ImageEquals(OamBuffer other) =>
             self.LowTable.SequenceEqual(other.LowTable) && self.HighTable.SequenceEqual(other.HighTable);
+
+        /// <summary>The first object whose record differs from <paramref name="other"/>'s, for a failure message.</summary>
+        [PpuLayoutBoundary("exact hardware test: reports the first differing OAM low/high-table record")]
+        internal string FirstDifference(OamBuffer other)
+        {
+            for (int index = 0; index < self.LowTable.Length / 4; index++)
+            {
+                ReadOnlySpan<byte> mine = self.LowTable.Slice(index * 4, 4), theirs = other.LowTable.Slice(index * 4, 4);
+                int high = self.HighTable[index / 4] >> (index % 4 * 2) & 3, otherHigh = other.HighTable[index / 4] >> (index % 4 * 2) & 3;
+                if (!mine.SequenceEqual(theirs) || high != otherHigh)
+                    return $"object {index}: {Convert.ToHexString(mine)}/{high} against {Convert.ToHexString(theirs)}/{otherHigh}";
+            }
+            return "no difference";
+        }
     }
 
     /// <summary>Adds a complete 64 KiB VRAM comparison for exact image tests.</summary>

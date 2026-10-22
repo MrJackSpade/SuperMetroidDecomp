@@ -112,15 +112,6 @@ internal static class PauseSelectorCompositionsVerification
                 for (int i = 0; i < occupied; i++) { expected.AddOccupyingPart(new Position16<OamPixels>(12, 34), 56); actual.AddOccupyingPart(new Position16<OamPixels>(12, 34), 56); }
                 DrawImportedSpritemap(rom, expected, pointer, new(x, y), 0x600);
                 SpriteSheet sheet = MenuSheetFixtures.PauseSprites(selector);
-                // A pre-coloured frame cannot show part of itself: one the object limit would cut short fails, where
-                // the cartridge drops the parts past the limit.
-                int objects = ScreenSpritesFixtures.Frame(probe => selector.Draw(probe, sheet, anchor.Category, anchor.Item, phase)).LastFinalizedSpriteCount;
-                if (occupied + objects > ScreenSprites.Capacity)
-                {
-                    AssertThrows<InvalidOperationException>(() => selector.Draw(actual, sheet, anchor.Category, anchor.Item, phase),
-                        "a selector past the object limit fails");
-                    continue;
-                }
                 selector.Draw(actual, sheet, anchor.Category, anchor.Item, phase);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.ImageEquals(actual),

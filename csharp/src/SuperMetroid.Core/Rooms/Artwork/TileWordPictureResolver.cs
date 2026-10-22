@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 
@@ -33,7 +34,7 @@ public sealed class TileWordPictureResolver(TileWordSheet sheet)
     public ImmutableArray<BgTilePicture?> Resolve(ImmutableArray<ushort> tilemap, BgArtworkBindings bindings)
     {
         ushort[] words = ImmutableCollectionsMarshal.AsArray(tilemap) ?? throw new ArgumentException("A default tilemap has no words.", nameof(tilemap));
-        return Resolve(words, words.Length, index => words[index], bindings);
+        return Resolve(words, words.Length, index => words[index], bindings, Bg12CharacterBase(TileWordLayer.Bg12));
     }
 
     /// <summary>The picture of each word written in <paramref name="overlay"/> over what <paramref name="bindings"/> show now.</summary>
@@ -41,16 +42,36 @@ public sealed class TileWordPictureResolver(TileWordSheet sheet)
     public ImmutableArray<BgTilePicture?> Resolve(RoomTilemapOverlay overlay, BgArtworkBindings bindings)
     {
         ImmutableArray<int> words = Ensure.NotNull(overlay).Words;
-        return Resolve(overlay, words.Length, index => words[index], bindings);
+        return Resolve(overlay, words.Length, index => words[index], bindings, Bg12CharacterBase(TileWordLayer.Bg12));
     }
+
+    /// <summary>
+    /// The picture of each word of the BG3 <paramref name="plane"/> over what <paramref name="bindings"/> show now at its
+    /// characters from <paramref name="characterBase"/>, the HUD character base BG3 shows.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The sheet pictures a word over nothing its character shows.</exception>
+    public ImmutableArray<BgTilePicture?> Resolve(Layer3Plane plane, BgArtworkBindings bindings, int characterBase)
+    {
+        Ensure.NotNull(plane);
+        if (Sheet.Layer != TileWordLayer.Bg3)
+            throw new InvalidOperationException($"{Sheet.Name} pictures no BG3 words.");
+        return Resolve(plane, Layer3Plane.Columns * Layer3Plane.Rows, index => plane.Words[index], bindings, characterBase);
+    }
+
+    /// <summary>The character base BG1 and BG2's words name characters from.</summary>
+    /// <exception cref="InvalidOperationException">The sheet pictures another layer's words.</exception>
+    [PpuLayoutBoundary("codec: the room tileset's character base BG1 and BG2 words name characters from")]
+    private int Bg12CharacterBase(TileWordLayer layer) => Sheet.Layer == layer ? RoomGraphicsLayout.AreaCharacters.Offset
+        : throw new InvalidOperationException($"{Sheet.Name} pictures no {layer} words.");
 
     /// <summary>
     /// The picture of each of <paramref name="count"/> words <paramref name="wordAt"/> gives, <see cref="RoomTilemapOverlay.Unwritten"/>
     /// for none, re-resolving only the words whose characters show something else since <paramref name="words"/> was last resolved.
     /// </summary>
-    [PpuLayoutBoundary("codec: the BG characters written tile words name, from the room tileset's character base")]
-    private ImmutableArray<BgTilePicture?> Resolve(object words, int count, Func<int, int> wordAt, BgArtworkBindings bindings)
+    [PpuLayoutBoundary("codec: the BG characters written tile words name, from their layer's character base")]
+    private ImmutableArray<BgTilePicture?> Resolve(object words, int count, Func<int, int> wordAt, BgArtworkBindings bindings, int characterBase)
     {
+        int characterWords = TileWordSheet.CharacterWordsOf(Sheet.Layer);
         Ensure.NotNull(bindings);
         bool fresh = !ReferenceEquals(words, source);
         if (fresh)
@@ -68,8 +89,7 @@ public sealed class TileWordPictureResolver(TileWordSheet sheet)
             var word = new SnesBgTilemapWord((ushort)written);
             if (!characters.TryGetValue(word.CharacterIndex, out BgArtworkShown now))
             {
-                now = bindings.Showing(RoomGraphicsLayout.AreaCharacters.Offset + word.CharacterIndex * RoomBlockPictureNames.CharacterWords,
-                    RoomBlockPictureNames.CharacterWords);
+                now = bindings.Showing(characterBase + word.CharacterIndex * characterWords, characterWords);
                 characters.Add(word.CharacterIndex, now);
             }
             if (!fresh && now == shown[index])

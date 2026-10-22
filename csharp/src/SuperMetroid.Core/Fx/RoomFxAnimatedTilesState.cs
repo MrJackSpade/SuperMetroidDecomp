@@ -46,9 +46,12 @@ internal sealed class RoomFxAnimatedTilesState
     /// Replaces the previous room's object with the one spawned by the selected FX type.
     /// Non-animated types deliberately leave the owner empty.
     /// </summary>
-    public void Load(RoomFxType type)
-    {
-        AnimatedTileObject definition = type switch
+    public void Load(RoomFxType type) => LoadDefinition(ObjectOf(type));
+
+    /// <summary>The animated-tile object a room effect of <paramref name="type"/> animates BG3's characters with, or none.</summary>
+    /// <exception cref="InvalidOperationException">The type is undefined.</exception>
+    public static AnimatedTileObject ObjectOf(RoomFxType type) =>
+        type switch
         {
             RoomFxType.Lava => AnimatedTileObject.Lava,
             RoomFxType.Acid => AnimatedTileObject.Acid,
@@ -59,8 +62,6 @@ internal sealed class RoomFxAnimatedTilesState
                 RoomFxType.CeresRidley or RoomFxType.CeresElevator or RoomFxType.CeresHaze => 0,
             _ => throw new InvalidOperationException($"Undefined RoomFxType {type}."),
         };
-        LoadDefinition(definition);
-    }
 
     /// <summary>Loads a timed looping object selected by a cartridge header, independent of FX type.</summary>
     /// <exception cref="InvalidOperationException">This object has already loaded a definition.</exception>

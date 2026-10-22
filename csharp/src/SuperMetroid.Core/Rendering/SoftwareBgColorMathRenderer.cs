@@ -4,46 +4,27 @@ namespace SuperMetroid.Core.Rendering;
 [PpuLayoutBoundary("backend: software PPU background colour-math rasterizer")]
 internal static class SoftwareBgColorMathRenderer
 {
-    /// <summary>Samples each physical scanline's 2-bpp tiles from the BG3 plane, skips transparent color zero, and applies clipped byte-channel color math.</summary>
+    /// <summary>
+    /// Samples each physical scanline of the BG3 plane as BG3 shows it (from its pictures once resolved, #1392), skips
+    /// transparent colour zero, and applies clipped byte-channel colour math.
+    /// </summary>
     internal static void Composite(Span<Rgba32> output, SnesVram vram, IPaletteColors cgram, Bg2BppColorMathRenderLayer layer)
     {
         int width = SnesPpuLayout.ScreenWidthPixels, height = SnesPpuLayout.ScreenHeightPixels;
         Ensure.LengthEqual(output, width * height);
-        int yMask = layer.MapHeightTiles * SnesPpuLayout.BackgroundTileSizePixels - 1;
-        ReadOnlySpan<byte> bytes = vram.Bytes;
-        Span<Rgba32> palette = stackalloc Rgba32[SnesCgram.ColorCount];
+        var palette = new Rgba32[SnesCgram.ColorCount];
         for (int i = 0; i < palette.Length; i++) palette[i] = cgram.GetRgba(i);
+        var plane = new SnesBackgroundPixelSampler(vram, palette, cgram, layer.Plane.Shown(layer.FirstRow, layer.MapHeightTiles),
+            layer.CharacterWord, BgBitDepth.TwoBpp);
         for (int y = layer.FirstScanline; y < height; y++)
         {
             Position16<BgPlanePixels> scroll = layer.Scrolls[y];
-            int sy = (scroll.Y + y) & yMask;
-            int previousTileX = -1, paletteOffset = 0;
-            byte plane0 = 0, plane1 = 0;
-            bool flipX = false;
             for (int x = 0; x < width; x++)
             {
-                int sx = (scroll.X + x) & (width - 1);
-                int tileX = sx >> 3;
-                if (tileX != previousTileX)
-                {
-                    // Fine scroll and per-line HDMA are resolved before caching.
-                    // A tile run shares its map word, bitplane row and palette;
-                    // no mutable state is cached across scanlines or frames.
-                    SnesBgTilemapWord tile = layer.Plane.WordAt(layer.FirstRow + (sy >> 3), tileX);
-                    int py = tile.FlipVertically ? 7 - (sy & 7) : sy & 7;
-                    int character = ((layer.CharacterWord + tile.CharacterIndex * 8) & (SnesPpuLayout.VramWordCount - 1)) * 2;
-                    int addressMask = SnesPpuLayout.VramWordCount * 2 - 1;
-                    plane0 = bytes[(character + py * 2) & addressMask];
-                    plane1 = bytes[(character + py * 2 + 1) & addressMask];
-                    paletteOffset = tile.PaletteIndex * 4;
-                    flipX = tile.FlipHorizontally;
-                    previousTileX = tileX;
-                }
-                int px = flipX ? 7 - (sx & 7) : sx & 7;
-                int mask = 1 << (7 - px);
-                int color = ((plane0 & mask) != 0 ? 1 : 0) | ((plane1 & mask) != 0 ? 2 : 0);
-                if (color == 0) continue;
-                Rgba32 overlay = palette[paletteOffset + color];
+                // Fine scroll and per-line HDMA are resolved before sampling.
+                BackgroundPixelSample sample = plane.Sample(new Position16<BgPlanePixels>(unchecked((ushort)(scroll.X + x)), unchecked((ushort)(scroll.Y + y))));
+                if (sample.Color.A == 0) continue;
+                Rgba32 overlay = sample.Color;
                 int index = y * width + x;
                 Rgba32 source = output[index];
                 output[index] = layer.Operation == ExpandedColorMathOperation.Subtract

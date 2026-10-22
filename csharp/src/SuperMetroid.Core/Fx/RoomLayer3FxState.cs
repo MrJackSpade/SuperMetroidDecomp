@@ -147,7 +147,10 @@ public sealed class RoomLayer3FxState
     public Position16<Bg3Pixels> Scroll { get; private set; }
 
     /// <summary>Whether the translated effect supplies a gameplay-region BG3 plane.</summary>
-    public bool IsRenderable => Type is
+    public bool IsRenderable => ShowsPage(Type);
+
+    /// <summary>Whether a room of effect <paramref name="type"/> shows the effect's authored page on BG3.</summary>
+    public static bool ShowsPage(RoomFxType type) => type is
         RoomFxType.Lava or RoomFxType.Acid or RoomFxType.Water or RoomFxType.TourianEntranceStatue or
         RoomFxType.Rain or RoomFxType.Fog or RoomFxType.Spores;
 

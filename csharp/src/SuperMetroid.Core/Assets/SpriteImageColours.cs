@@ -8,4 +8,10 @@ public enum SpriteImageColours
 
     /// <summary>The eight background palette rows, CGRAM colours 0 to 127: room block sheets.</summary>
     Background,
+
+    /// <summary>
+    /// BG3's eight four-colour palette rows, CGRAM colours 0 to 31: HUD and room effect sheets. Every pixel keeps its row
+    /// times four plus its colour, colour zero included, so a layer that shows colour zero shows its row's (#1392).
+    /// </summary>
+    TwoBppBackground,
 }

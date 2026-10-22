@@ -43,6 +43,8 @@ static const uint RoomSkyImageWord = 30;
 static const uint RoomBossBg2PicturesWord = 31;
 // The BG2 overlay's pictures (#1392), laid out as a boss body's.
 static const uint RoomBg2OverlayPicturesWord = 32;
+// The BG3 plane's pictures (#1392), laid out as a boss body's.
+static const uint RoomBg3PicturesWord = 33;
 // The X-ray reveal (XrayRevealPlane): 17 block columns by 16 rows, each its picture's offset with its arrangement in the
 // top four bits: as defined, mirrored horizontally, vertically or both, or its tile rows swapped.
 static const uint RevealColumns = 17, RevealRows = 16;
@@ -147,10 +149,21 @@ bool SkyTile(uint2 scrolled, out uint entry, out uint2 within, out uint picture)
     return shown;
 }
 // The BG3 plane (Layer3Plane): 32 by 64 words. A window of `rows` rows from `firstRow` repeats every 256 pixels across.
-uint Bg3Word(uint firstRow, uint rows, uint2 scrolled, out uint2 within)
+// Where the plane's pictures are resolved (#1392), `picture` is the word's picture and `within` its pixel in it.
+uint Bg3Word(uint firstRow, uint rows, uint2 scrolled, out uint2 within, out uint picture)
 {
     within = scrolled & 7;
-    return RoomLevels[RoomLevels[RoomBg3Word] + (firstRow + (scrolled.y >> 3) % rows) * 32 + ((scrolled.x >> 3) & 31)];
+    uint index = (firstRow + (scrolled.y >> 3) % rows) * 32 + ((scrolled.x >> 3) & 31);
+    picture = 0;
+    uint pictures = RoomLevels[RoomBg3PicturesWord];
+    if (pictures != 0)
+    {
+        picture = RoomLevels[pictures + 2 * index];
+        uint corner = RoomLevels[pictures + 2 * index + 1];
+        if (picture != 0)
+            within += uint2(corner & 65535, corner >> 16);
+    }
+    return RoomLevels[RoomLevels[RoomBg3Word] + index];
 }
 // A word written over BG2 at the tilemap word a `size` layout places the scrolled position (RoomTilemapOverlay), with
 // `within` its pixel; where the overlay's pictures are resolved (#1392), `picture` is its word's picture and `within` the
@@ -269,17 +282,22 @@ uint Palette(uint index)
 // the picture's own while the pixel's palette row still holds its sheet's standard colours, else the row's live colour.
 uint PicturePixel(uint picture, uint2 pixel, out uint index, out bool high)
 {
-    uint at = pixel.y * RoomLevels[picture + PictureWidthWord] + pixel.x;
+    uint width = RoomLevels[picture + PictureWidthWord];
+    uint at = pixel.y * (width & 65535) + pixel.x;
     uint meta = RoomLevels[picture + PicturePixelsWord + RoomLevels[picture + PictureCountWord] + at];
-    index = meta & 255;
+    uint full = meta & 255;
     high = (meta >> 8) != 0;
-    if (index == 0) return 0;
+    // A two-bit picture (#1392) keeps colour zero's row: `index` is its colour, and colour zero shows that row's live
+    // colour where the layer shows colour zero, as the characters did.
+    bool twoBpp = (width >> 16) != 0;
+    index = twoBpp ? (full & 3) : full;
+    if (index == 0) return twoBpp ? Palette(full) : 0;
     uint standard = RoomLevels[picture + PictureColoursWord];
-    uint row = index & ~15u;
+    uint row = full & ~15u;
     bool same = true;
     [loop] for (uint colour = 1; colour < 16; colour++)
         same = same && (Memory[PaletteOffset + row + colour] & 32767) == RoomLevels[standard + row + colour];
-    return same ? RoomLevels[picture + PicturePixelsWord + at] : Palette(index);
+    return same ? RoomLevels[picture + PicturePixelsWord + at] : Palette(full);
 }
 
 #include "Objects.hlsli"
@@ -464,7 +482,7 @@ void Main(uint3 id : SV_DispatchThreadID)
     if ((RoomSource & RoomSourceBg2Overlay) != 0 && Bg2OverlayWord(scrolled, uint2(MapWidth, MapHeight), written, picture, within))
         entry = written;
     else if (source == RoomSourceBg3)
-        entry = Bg3Word(TilemapWord, MapHeight, scrolled, within);
+        entry = Bg3Word(TilemapWord, MapHeight, scrolled, within, picture);
     else if (source == RoomSourceBossBg2)
         entry = BossBg2Word(scrolled, uint2(MapWidth, MapHeight), within, picture);
     else if (source == RoomSourceXrayReveal)

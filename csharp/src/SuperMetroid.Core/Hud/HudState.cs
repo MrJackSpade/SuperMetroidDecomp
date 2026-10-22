@@ -354,7 +354,7 @@ public sealed class HudState
     }
 
     /// <summary>Changes the selected item's palette without rebuilding its tile words.</summary>
-    private void ToggleItemHighlight(HudItem selectedItem, int paletteIndex)
+    internal void ToggleItemHighlight(HudItem selectedItem, int paletteIndex)
     {
         (presentation ?? throw new InvalidOperationException(
             "HUD selection requires installed presentation assets.")).ToggleItemHighlight(Tiles, selectedItem, paletteIndex);

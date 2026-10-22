@@ -35,7 +35,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int PlaneSlots = 3;
     /// <summary>Header words: the plane records, the door window origin, and the offsets of the BG1 overlay, the sky rows,
     /// the BG3 plane and the BG2 overlay.</summary>
-    private const int HeaderWords = PlaneSlots * RecordWords + 12;
+    private const int HeaderWords = PlaneSlots * RecordWords + 13;
     /// <summary>Header word of the door window's scrolled origin.</summary>
     private const int DoorWindowWord = PlaneSlots * RecordWords;
     /// <summary>Header word of the overlay's first word, or zero without an overlay.</summary>
@@ -72,6 +72,13 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// words draw from characters.
     /// </summary>
     private const int Bg2OverlayPicturesWord = BossBg2PicturesWord + 1;
+    /// <summary>
+    /// Header word of the BG3 plane's pictures (#1392), laid out as <see cref="BossBg2PicturesWord"/>'s, or zero while its
+    /// words draw from characters.
+    /// </summary>
+    private const int Bg3PicturesWord = Bg2OverlayPicturesWord + 1;
+    /// <summary>The width word's bit marking a two-bit picture, whose pixels keep colour zero's row (#1392).</summary>
+    private const uint TwoBppPictureBit = 1u << 16;
     /// <summary>The bit an X-ray reveal block's arrangement starts at.</summary>
     private const int ArrangementShift = 28;
     /// <summary>A sky row word that selects no page: the row shows nothing.</summary>
@@ -181,6 +188,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         int bodyPicturesOffset = AddTilePictures(bodyPictures, bossBg2?.Words.Length ?? 0);
         ImmutableArray<BgTilePicture?> overlayPictures = bg2Overlay?.Pictures ?? default;
         int overlayPicturesOffset = AddTilePictures(overlayPictures, RoomTilemapOverlay.WordCount);
+        ImmutableArray<BgTilePicture?> bg3Pictures = bg3?.Pictures ?? default;
+        int bg3PicturesOffset = AddTilePictures(bg3Pictures, Layer3Plane.Rows * Layer3Plane.Columns);
         // Reserves two words for each of `count` tile pictures and adds each picture; zero without pictures.
         int AddTilePictures(ImmutableArray<BgTilePicture?> pictures, int count)
         {
@@ -303,6 +312,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         PackTilePictures(upload, bodyPictures, bodyPicturesOffset, bossBg2?.Words.Length ?? 0, pictureWords);
         upload[Bg2OverlayPicturesWord] = (uint)overlayPicturesOffset;
         PackTilePictures(upload, overlayPictures, overlayPicturesOffset, RoomTilemapOverlay.WordCount, pictureWords);
+        upload[Bg3PicturesWord] = (uint)bg3PicturesOffset;
+        PackTilePictures(upload, bg3Pictures, bg3PicturesOffset, Layer3Plane.Rows * Layer3Plane.Columns, pictureWords);
         packed = frame;
         return true;
     }
@@ -334,7 +345,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         SpriteImage sheet = picture.Sheet;
         int width = picture.Size.X, pixels = width * picture.Size.Y;
         words[0] = (uint)colours;
-        words[1] = (uint)width;
+        words[1] = (uint)width | (sheet.Colours == SpriteImageColours.TwoBppBackground ? TwoBppPictureBit : 0);
         words[2] = (uint)pixels;
         for (int y = 0; y < picture.Size.Y; y++)
         {

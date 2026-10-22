@@ -111,6 +111,29 @@ internal static class RoomBackgroundsFixtures
         return overlay.WithPictures(SeededBodyPictures(random, scene, RoomTilemapOverlay.WordCount));
     }
 
+    /// <summary>
+    /// <paramref name="plane"/> drawn from seeded two-bit pictures (#1392): each word a quarter of a seeded 16x16 picture
+    /// whose pixels keep colour zero's row, even 16-colour rows coloured as <paramref name="scene"/> is and odd ones
+    /// differently, about one word in eight drawing from its character instead.
+    /// </summary>
+    internal static Layer3Plane SeededBg3Pictures(Random random, Bgr555[] scene, Layer3Plane plane)
+    {
+        int side = RoomBlockSheet.BlockPixels, columns = 4;
+        var size = new Extent16<ImagePixels>((ushort)(columns * side), (ushort)(SeededPictureCount / columns * side));
+        var corners = new Dictionary<string, Position16<ImagePixels>>();
+        for (int picture = 0; picture < SeededPictureCount; picture++)
+            corners.Add($"{picture}", new Position16<ImagePixels>((ushort)(picture % columns * side), (ushort)(picture / columns * side)));
+        SpriteSheet sheet = SeededSheet(random, scene, size, corners, new Extent16<ImagePixels>((ushort)side, (ushort)side), "seeded BG3",
+            SpriteImageColours.TwoBppBackground);
+        var pictures = new BgTilePicture?[Layer3Plane.Columns * Layer3Plane.Rows];
+        for (int word = 0; word < pictures.Length; word++)
+        {
+            pictures[word] = random.Next(8) == 0 ? null : new BgTilePicture(sheet.Frame($"{random.Next(SeededPictureCount)}"),
+                new Position16<ImagePixels>((ushort)(random.Next(2) * 8), (ushort)(random.Next(2) * 8)));
+        }
+        return Ensure.NotNull(plane).WithPictures([.. pictures]);
+    }
+
     /// <summary>A seeded image of the scrolling sky's rows, with rebound cells as <see cref="SeededBackground"/> has (#1392).</summary>
     internal static RoomBackgroundImagePlane SeededSky(Random random, Bgr555[] scene) =>
         SeededImage(random, scene, SuperMetroid.Core.Rooms.Scrolling.SkyTilemap.Rows);
@@ -158,8 +181,10 @@ internal static class RoomBackgroundsFixtures
     /// <paramref name="frameSize"/> frame at each of <paramref name="corners"/>.
     /// </summary>
     private static SpriteSheet SeededSheet(Random random, Bgr555[] scene, Extent16<ImagePixels> size,
-        Dictionary<string, Position16<ImagePixels>> corners, Extent16<ImagePixels> frameSize, string name)
+        Dictionary<string, Position16<ImagePixels>> corners, Extent16<ImagePixels> frameSize, string name,
+        SpriteImageColours kind = SpriteImageColours.Background)
     {
+        bool twoBpp = kind == SpriteImageColours.TwoBppBackground;
         var standard = new ushort[SpriteImage.SpriteColourCount];
         for (int colour = 0; colour < standard.Length; colour++)
             standard[colour] = colour / 16 % 2 == 0 ? scene[colour].ToWord() : (ushort)random.Next(32768);
@@ -170,6 +195,18 @@ internal static class RoomBackgroundsFixtures
         var partRows = new byte[pixels];
         for (int pixel = 0; pixel < pixels; pixel++)
         {
+            // A two-bit pixel keeps its row times four plus its colour, colour zero included and transparent.
+            if (twoBpp)
+            {
+                int twoBppRow = random.Next(8), colour = random.Next(4);
+                indices[pixel] = (byte)(twoBppRow * 4 + colour);
+                priorities[pixel] = (byte)random.Next(2);
+                if (colour == 0)
+                    continue;
+                partRows[pixel] = (byte)(indices[pixel] / 16 | SpriteImage.FixedPartRow);
+                image[pixel] = Bgr555.FromWord(standard[indices[pixel]]).ToRgba32();
+                continue;
+            }
             if (random.Next(3) == 0)
                 continue;
             int row = random.Next(8);
@@ -186,7 +223,7 @@ internal static class RoomBackgroundsFixtures
             for (int x = 0; x < frameSize.X; x++)
             {
                 byte index = indices[(corner.Y + y) * size.X + corner.X + x];
-                if (index != 0)
+                if (index % (twoBpp ? 4 : 16) != 0)
                     rows |= SpritePaletteRowSet.Rows[index / 16];
             }
             frames.Add(frame, new SpriteSheetFrameDocument { Corner = corner, Size = frameSize, Origin = default, Rows = rows, Parts = [] });
@@ -194,7 +231,7 @@ internal static class RoomBackgroundsFixtures
         var document = new SpriteSheetDocument
         {
             Version = SpriteSheet.Version,
-            Palette = SpriteImageColours.Background,
+            Palette = kind,
             Colours = standard,
             Frames = frames,
             PartImages = [],

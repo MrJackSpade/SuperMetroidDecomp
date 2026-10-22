@@ -15,16 +15,20 @@ public sealed class RoomBlockSheetCatalog
     /// </summary>
     /// <exception cref="ArgumentException">A sheet is filed under another tileset, or an image under another name.</exception>
     public RoomBlockSheetCatalog(IReadOnlyDictionary<TilesetDefinition, RoomBlockSheet> sheets,
-        IReadOnlyDictionary<string, RoomBackgroundImage> backgrounds, IReadOnlyDictionary<TilesetDefinition, TileWordSheet> tileWords)
+        IReadOnlyDictionary<string, RoomBackgroundImage> backgrounds, IReadOnlyDictionary<TilesetDefinition, TileWordSheet> tileWords,
+        IReadOnlyDictionary<TilesetDefinition, TileWordSheet> bg3Words)
     {
         Sheets = Ensure.NotNull(sheets);
         Backgrounds = Ensure.NotNull(backgrounds);
         TileWords = Ensure.NotNull(tileWords);
-        foreach ((TilesetDefinition tileset, TileWordSheet words) in tileWords)
+        Bg3Words = Ensure.NotNull(bg3Words);
+        foreach ((TilesetDefinition tileset, TileWordSheet words) in tileWords.Concat(bg3Words))
         {
             if (words.Tileset != tileset)
                 throw new ArgumentException($"{words.Name} is filed under {tileset}.", nameof(tileWords));
         }
+        if (tileWords.Values.Any(words => words.Layer != TileWordLayer.Bg12) || bg3Words.Values.Any(words => words.Layer != TileWordLayer.Bg3))
+            throw new ArgumentException("A tile word sheet is filed under another layer's sheets.", nameof(tileWords));
         foreach ((string name, RoomBackgroundImage background) in backgrounds)
         {
             if (background.Name != name)
@@ -43,8 +47,16 @@ public sealed class RoomBlockSheetCatalog
     /// <summary>The library background images by name.</summary>
     public IReadOnlyDictionary<string, RoomBackgroundImage> Backgrounds { get; }
 
-    /// <summary>The tile word sheets by the tileset whose rooms the words are written in.</summary>
+    /// <summary>The sheets of words written over BG1 and BG2, by the tileset whose rooms the words are written in.</summary>
     public IReadOnlyDictionary<TilesetDefinition, TileWordSheet> TileWords { get; }
+
+    /// <summary>The sheets of the HUD's and room effects' BG3 words, by the tileset whose colours they show in.</summary>
+    public IReadOnlyDictionary<TilesetDefinition, TileWordSheet> Bg3Words { get; }
+
+    /// <summary>The BG3 word sheet of <paramref name="tileset"/>.</summary>
+    /// <exception cref="InvalidDataException">No sheet is installed for the tileset.</exception>
+    public TileWordSheet Bg3(TilesetDefinition tileset) =>
+        Bg3Words.TryGetValue(tileset, out TileWordSheet? words) ? words : throw new InvalidDataException($"No BG3 word sheet is installed for {tileset}.");
 
     /// <summary>A content identity of every sheet, in tileset order.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomBlockSheetCatalog), content =>
@@ -61,7 +73,7 @@ public sealed class RoomBlockSheetCatalog
             foreach (ushort word in background.TilemapWords)
                 content.Append("word", word);
         }
-        foreach (TileWordSheet words in TileWords.Values.OrderBy(words => words.Name, StringComparer.Ordinal))
+        foreach (TileWordSheet words in TileWords.Values.Concat(Bg3Words.Values).OrderBy(words => words.Name, StringComparer.Ordinal))
         {
             content.AppendName("words", words.Name);
             words.Sheet.AppendIdentity(content);

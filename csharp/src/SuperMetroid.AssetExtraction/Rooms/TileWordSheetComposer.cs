@@ -12,7 +12,14 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -24,16 +31,16 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// Pre-assembles and pre-colours the tile words written over each tileset's rooms (#1392): one image of each part each
-/// writer writes over BG1 or BG2 (a boss's body frames, typed text), coloured with the tileset's standard palette over
-/// the characters the room has loaded, and each tile word pictured again over each artwork the room binds after loading
-/// at its character.
+/// writer writes over BG1 or BG2 (a boss's body frames, typed text) or BG3 (the HUD, an effect's page), coloured with the
+/// tileset's standard palette over the characters the room has loaded, and each tile word pictured again over each
+/// artwork the room binds after loading at its character.
 /// </summary>
 internal static class TileWordSheetComposer
 {
     /// <summary>Tiles across a part: the width of the tilemaps the words are written into.</summary>
     private const int PartTiles = 32;
 
-    /// <summary>Composes the sheet of <paramref name="writers"/>' words over <paramref name="content"/>, the room as it has loaded.</summary>
+    /// <summary>Composes the sheet of <paramref name="writers"/>' BG1 and BG2 words over <paramref name="content"/>, the room as it has loaded.</summary>
     /// <exception cref="InvalidDataException">A part reads a character nothing the room loads is bound over.</exception>
     [PpuLayoutBoundary("codec: the BG characters written tile words name, from the room tileset's character base")]
     internal static ComposedTileWordSheet Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads,
@@ -41,14 +48,50 @@ internal static class TileWordSheetComposer
     {
         Ensure.NotNull(inputs);
         Ensure.NotNull(uploads);
-        Ensure.NotNull(content);
-        IReadOnlyList<BgCharacterUpload> load = CartridgeRoomAssets.CharacterUploads(tileset, inputs.Characters.Cre.Transfer,
-            inputs.Characters.Get(tileset.Characters).Transfer);
-        Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = load.Concat(uploads.Uploads).GroupBy(upload => upload.Identity)
-            .ToDictionary(group => group.Key, group => group.First().Bytes);
-        Bgr555[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).Transfer.Span);
         List<(string Name, BodyPart Part)> parts = [.. Ensure.NotNull(writers).Order()
             .SelectMany(writer => Parts(inputs, writer).Select(part => ($"{writer}.{part.Name}", part.Part)))];
+        return Compose(inputs, tileset, TileWordLayer.Bg12, parts, content, uploads.Uploads, [RoomGraphicsLayout.AreaCharacters.Offset]);
+    }
+
+    /// <summary>
+    /// Composes the sheet of the BG3 words a room of <paramref name="tileset"/> shows: the HUD, its minimap's map tiles and
+    /// the pages of the room effects its rooms run, over the HUD's and effects' characters at each HUD character base, and
+    /// over each of <paramref name="bg3Uploads"/>, what any room binds over BG3's characters.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A part reads a character nothing the room loads is bound over.</exception>
+    internal static ComposedTileWordSheet ComposeBg3(RoomBlockSheetInputs inputs, TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads,
+        IReadOnlyList<BgCharacterUpload> bg3Uploads)
+    {
+        Ensure.NotNull(inputs);
+        Ensure.NotNull(uploads);
+        // The minimap keeps showing the last area's map until it next updates, as across an area's elevator, so every
+        // area's map tiles can show in any room.
+        List<(string Name, BodyPart Part)> parts = [.. HudParts(inputs.Maps.GameplayHud), ("Minimap", Minimap(inputs.Maps, Enum.GetValues<AreaId>())),
+            .. uploads.FxTypes.Order().Select(type => ($"Fx{type}", Page(inputs.Maps.RoomFxLayer3Tilemaps.Resolve(type).Span))),
+            Fill(RoomFxRomData.Layer3.ClearTilemapWord)];
+        return Compose(inputs, tileset, TileWordLayer.Bg3, parts,
+            uploads.Bg3Content ?? throw new InvalidDataException($"No room of {tileset} records what BG3 shows over."),
+            [RoomBlockUploads.HudCharacters(inputs), .. bg3Uploads, .. uploads.Uploads],
+            [uploads.Bg3ContentBase, .. uploads.Bg3CharacterBases.Where(characterBase => characterBase != uploads.Bg3ContentBase).Order()]);
+    }
+
+    /// <summary>
+    /// Composes <paramref name="layer"/>'s sheet of <paramref name="parts"/> over <paramref name="content"/>, each word's
+    /// character read at the first of <paramref name="bases"/>, and each word pictured again over each of
+    /// <paramref name="options"/> covering its character at any of them.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A part reads a character nothing the room loads is bound over.</exception>
+    [PpuLayoutBoundary("codec: the BG characters written tile words name, from their layer's character bases")]
+    private static ComposedTileWordSheet Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset, TileWordLayer layer,
+        List<(string Name, BodyPart Part)> parts, BgArtworkBindings content, IReadOnlyList<BgCharacterUpload> options, int[] bases)
+    {
+        Ensure.NotNull(content);
+        int characterWords = TileWordSheet.CharacterWordsOf(layer);
+        IReadOnlyList<BgCharacterUpload> load = CartridgeRoomAssets.CharacterUploads(tileset, inputs.Characters.Cre.Transfer,
+            inputs.Characters.Get(tileset.Characters).Transfer);
+        Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = load.Append(RoomBlockUploads.HudCharacters(inputs)).Concat(options)
+            .GroupBy(upload => upload.Identity).ToDictionary(group => group.Key, group => group.First().Bytes);
+        Bgr555[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).Transfer.Span);
 
         var tiles = new List<TileWordSheetTile>();
         var pictured = new HashSet<(ushort, BgArtworkShown)>();
@@ -65,9 +108,9 @@ internal static class TileWordSheetComposer
             }
             foreach (((int y, int x), ushort word) in written)
             {
-                int first = CharacterWord(word);
-                if (!content.TryShowing(first, RoomBlockPictureNames.CharacterWords, out BgArtworkShown shown))
-                    throw new InvalidDataException($"{TileWordSheet.NameOf(tileset)} part {name} reads a character at VRAM word ${first:X4} its room loads nothing over.");
+                int first = CharacterWord(bases[0], word, characterWords);
+                if (!content.TryShowing(first, characterWords, out BgArtworkShown shown))
+                    throw new InvalidDataException($"{TileWordSheet.NameOf(layer, tileset)} part {name} reads a character at VRAM word ${first:X4} its room loads nothing over.");
                 placed.Add((top, word, shown, x, y));
                 if (pictured.Add((word, shown)))
                     tiles.Add(new TileWordSheetTile(new BgTileArtwork(new SnesBgTilemapWord(word), shown), name, Corner(x, y)));
@@ -78,12 +121,14 @@ internal static class TileWordSheetComposer
         var rebound = new List<(ushort Word, BgArtworkShown Shown)>();
         foreach (ushort word in placed.Select(tile => tile.Word).Distinct())
         {
-            int first = CharacterWord(word);
-            foreach (BgCharacterUpload upload in uploads.Uploads.Where(upload => RoomBlockSheetComposer.Covers(upload, first)))
+            foreach (int first in bases.Select(characterBase => CharacterWord(characterBase, word, characterWords)))
             {
-                var shown = new BgArtworkShown(upload.Identity, first - upload.FirstWord);
-                if (pictured.Add((word, shown)))
-                    rebound.Add((word, shown));
+                foreach (BgCharacterUpload upload in options.Where(upload => RoomBlockSheetComposer.Covers(upload, first, characterWords)))
+                {
+                    var shown = new BgArtworkShown(upload.Identity, first - upload.FirstWord);
+                    if (pictured.Add((word, shown)))
+                        rebound.Add((word, shown));
+                }
             }
         }
         int reboundRows = (rebound.Count + PartTiles - 1) / PartTiles;
@@ -102,16 +147,21 @@ internal static class TileWordSheetComposer
         int frameTop = 0;
         foreach ((string name, BodyPart part) in parts)
         {
-            frames.Add(name, Frame(canvas, frameTop, part.Rows));
+            frames.Add(name, Frame(canvas, frameTop, part.Rows, layer));
             frameTop += part.Rows;
         }
         if (reboundRows > 0)
-            frames.Add(TileWordSheet.ReboundFrameName, Frame(canvas, top, reboundRows));
-        return new ComposedTileWordSheet(tileset, canvas.ToSheet(colours, frames), tiles);
+            frames.Add(TileWordSheet.ReboundFrameName, Frame(canvas, top, reboundRows, layer));
+        return new ComposedTileWordSheet(layer, tileset, canvas.ToSheet(colours, frames, TileWordSheet.ColoursOf(layer)), tiles);
 
-        void Paint(int x, int y, ushort word, BgArtworkShown shown) =>
-            canvas.PaintTile(x * RoomTileCanvas.CharacterPixels, y * RoomTileCanvas.CharacterPixels, new SnesBgTilemapWord(word),
-                bytes[shown.Artwork].Span.Slice(shown.WordOffset * sizeof(ushort), RoomTileCanvas.CharacterBytes), colours);
+        void Paint(int x, int y, ushort word, BgArtworkShown shown)
+        {
+            ReadOnlySpan<byte> character = bytes[shown.Artwork].Span.Slice(shown.WordOffset * sizeof(ushort), characterWords * sizeof(ushort));
+            if (layer == TileWordLayer.Bg3)
+                canvas.PaintTwoBppTile(x * RoomTileCanvas.CharacterPixels, y * RoomTileCanvas.CharacterPixels, new SnesBgTilemapWord(word), character, colours);
+            else
+                canvas.PaintTile(x * RoomTileCanvas.CharacterPixels, y * RoomTileCanvas.CharacterPixels, new SnesBgTilemapWord(word), character, colours);
+        }
     }
 
     /// <summary>The pixel corner of the tile at (<paramref name="x"/>, <paramref name="y"/>) within its frame.</summary>
@@ -119,8 +169,9 @@ internal static class TileWordSheetComposer
         new((ushort)(x * RoomTileCanvas.CharacterPixels), (ushort)(y * RoomTileCanvas.CharacterPixels));
 
     /// <summary>The frame of <paramref name="rows"/> tile rows from row <paramref name="top"/>, across the sheet.</summary>
-    private static SpriteSheetFrameDocument Frame(RoomTileCanvas canvas, int top, int rows)
+    private static SpriteSheetFrameDocument Frame(RoomTileCanvas canvas, int top, int rows, TileWordLayer layer)
     {
+        int rowColours = layer == TileWordLayer.Bg3 ? 4 : 16;
         var corner = new Position16<ImagePixels>(0, (ushort)(top * RoomTileCanvas.CharacterPixels));
         var size = new Extent16<ImagePixels>((ushort)canvas.Width, (ushort)(rows * RoomTileCanvas.CharacterPixels));
         SpritePaletteRows coloured = SpritePaletteRows.None;
@@ -128,7 +179,7 @@ internal static class TileWordSheetComposer
         for (int x = 0; x < size.X; x++)
         {
             byte index = canvas.PaletteIndices[(corner.Y + y) * canvas.Width + x];
-            if (index != 0)
+            if (index % rowColours != 0)
                 coloured |= SpritePaletteRowSet.Rows[index / 16];
         }
         return new SpriteSheetFrameDocument { Corner = corner, Size = size, Origin = default, Rows = coloured, Parts = [] };
@@ -212,6 +263,85 @@ internal static class TileWordSheetComposer
         return new BodyPart([.. runs]);
     }
 
+    /// <summary>
+    /// The HUD as a fully stocked Samus sees it, its top row above its three rows, then every other word its writers write:
+    /// each energy and reserve-tank count, each ammunition count, each item highlighted and not, the reserve indicator on,
+    /// off and cleared, and no items at all.
+    /// </summary>
+    private static IEnumerable<(string Name, BodyPart Part)> HudParts(GameplayHudPresentation presentation)
+    {
+        SamusEquipmentFlags everything = Enum.GetValues<SamusEquipmentFlags>().Aggregate((all, item) => all | item);
+        var stocked = new HudSnapshot(1499, 1499, 230, 230, 50, 50, 50, 50, everything, HudItem.Beam, 400, ReserveTankMode.Auto);
+        var hud = new HudState();
+        hud.BindPresentation(presentation);
+        hud.Initialize(stocked);
+        ushort[] shown = [.. presentation.TopRow(), .. hud.MutableRows];
+        yield return ("Hud", Rows(shown));
+        var glyphs = new SortedSet<ushort>();
+        void Show(HudSnapshot snapshot)
+        {
+            hud.Initialize(snapshot);
+            glyphs.UnionWith(hud.MutableRows.ToArray());
+        }
+        for (int tanks = 0; tanks <= 14; tanks++)
+        {
+            int maximum = 99 + tanks * 100;
+            for (int health = 0; health <= maximum; health++)
+                Show(stocked with { Health = health, MaxHealth = maximum });
+        }
+        for (int ammunition = 0; ammunition <= 999; ammunition++)
+        {
+            Show(stocked with
+            {
+                Missiles = ammunition, MaxMissiles = 999, SuperMissiles = ammunition % 100, MaxSuperMissiles = 99,
+                PowerBombs = ammunition % 100, MaxPowerBombs = 99,
+            });
+        }
+        foreach (HudItem item in Enum.GetValues<HudItem>())
+        {
+            Show(stocked with { SelectedItem = item });
+            hud.ToggleItemHighlight(item, presentation.DeselectedPalette);
+            glyphs.UnionWith(hud.MutableRows.ToArray());
+        }
+        Show(stocked with { ReserveHealth = 0 });
+        Show(stocked with { ReserveMode = ReserveTankMode.None });
+        hud.ClearAutoReserveIndicator();
+        glyphs.UnionWith(hud.MutableRows.ToArray());
+        Show(HudSnapshot.CeresDebug);
+        glyphs.ExceptWith(shown);
+        yield return ("Glyphs", Rows([.. glyphs]));
+    }
+
+    /// <summary>Every word the HUD's minimap shows of <paramref name="areas"/>' maps: each tile explored and not, blinking or not, and the blank.</summary>
+    private static BodyPart Minimap(AreaMapPresentationCatalog maps, IEnumerable<AreaId> areas)
+    {
+        var words = new SortedSet<ushort> { (ushort)MapTileWords.HudBlank };
+        foreach (AreaId area in areas)
+        {
+            IAreaMapView map = maps.Get(area);
+            for (int y = 0; y < 32; y++)
+            for (int x = 0; x < 64; x++)
+            {
+                MapTileWord tile = map.GetTile(new Position16<MapTiles>((ushort)x, (ushort)y));
+                foreach (MapTileWord shown in new[] { tile.ForHud(true), tile.ForHud(false) })
+                {
+                    words.Add((ushort)shown);
+                    words.Add((ushort)shown.WithLocationBlink());
+                }
+            }
+        }
+        return Rows([.. words]);
+    }
+
+    /// <summary>A room effect's page, as its little-endian words lay it out.</summary>
+    private static BodyPart Page(ReadOnlySpan<byte> page)
+    {
+        var words = new ushort[page.Length / sizeof(ushort)];
+        for (int word = 0; word < words.Length; word++)
+            words[word] = SnesLittleEndian.Word(page[word * 2], page[word * 2 + 1]);
+        return Rows(words);
+    }
+
     /// <summary>Each frame of a catalog: its writes, at the tilemap words they write.</summary>
     private static IEnumerable<(string Name, BodyPart Part)> FrameParts(EnemyBg2FrameCatalog catalog) =>
         catalog.Frames.OrderBy(frame => frame.Key.ToString(), StringComparer.Ordinal).Select(frame => (frame.Key.ToString(),
@@ -240,10 +370,10 @@ internal static class TileWordSheetComposer
     /// <summary>The failure for a writer whose installed artwork is missing.</summary>
     private static InvalidDataException Missing(TileWordWriter writer) => new($"The installed enemy artwork has no {writer} body.");
 
-    /// <summary>The first VRAM word of the character tile word <paramref name="word"/> names.</summary>
-    [PpuLayoutBoundary("codec: the BG characters written tile words name, from the room tileset's character base")]
-    private static int CharacterWord(ushort word) =>
-        RoomGraphicsLayout.AreaCharacters.Offset + new SnesBgTilemapWord(word).CharacterIndex * RoomBlockPictureNames.CharacterWords;
+    /// <summary>The first VRAM word of the character <paramref name="word"/> names from <paramref name="characterBase"/>.</summary>
+    [PpuLayoutBoundary("codec: the BG characters written tile words name, from their layer's character base")]
+    private static int CharacterWord(int characterBase, ushort word, int characterWords) =>
+        characterBase + new SnesBgTilemapWord(word).CharacterIndex * characterWords;
 
     /// <summary>One part: the runs of words it writes, laid out at their tilemap positions.</summary>
     /// <param name="Runs">The runs.</param>
@@ -264,7 +394,8 @@ internal static class TileWordSheetComposer
 }
 
 /// <summary>A composed tile word sheet: its part images and where it pictures each tile word over each artwork.</summary>
+/// <param name="Layer">The backgrounds the words are written over.</param>
 /// <param name="Tileset">The tileset whose rooms the words are written in.</param>
 /// <param name="Sheet">The part images.</param>
 /// <param name="Tiles">Every tile pictured.</param>
-internal sealed record ComposedTileWordSheet(TilesetDefinition Tileset, ComposedSpriteSheet Sheet, IReadOnlyList<TileWordSheetTile> Tiles);
+internal sealed record ComposedTileWordSheet(TileWordLayer Layer, TilesetDefinition Tileset, ComposedSpriteSheet Sheet, IReadOnlyList<TileWordSheetTile> Tiles);

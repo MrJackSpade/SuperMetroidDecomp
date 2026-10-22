@@ -113,6 +113,7 @@ internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeR
             : null,
         BodyPictures = Assets.Pictures.TileWords.TryGetValue(Assets.Tileset, out TileWordSheet? words) ? new TileWordPictureResolver(words) : null,
         Bg2OverlayPictures = words is null ? null : new TileWordPictureResolver(words),
+        Bg3Pictures = new TileWordPictureResolver(Assets.Pictures.Bg3(Assets.Tileset)),
         SkyImage = ScrollingSky is { } sky
             ? new RoomBackgroundImageResolver(Assets.Pictures.Background(RoomBackgroundImage.SkyNameOf(sky.Variant, Assets.Tileset)),
                 Assets.BlockSheet, Room.State.Background is { } skyProgram ? LoadedArtwork(skyProgram) : RoomLoadArtwork())

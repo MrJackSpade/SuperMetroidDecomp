@@ -209,7 +209,7 @@ public sealed class VramWriteQueue
                 if (data.Length != entry.SizeInBytes)
                     throw new InvalidDataException($"VRAM asset {entry.AssetId} has {data.Length} bytes; queued transfer requires {entry.SizeInBytes}.");
                 if (entry.Background)
-                    BindBackground(backgrounds, entry, new BgArtworkIdentity($"asset {entry.AssetId}"), data.Span);
+                    BindBackground(backgrounds, entry, BgArtworkIdentity.Asset(entry.AssetId), data.Span);
                 else
                 {
                     vram.ExecuteQueuedAssetWrite(data.Span, entry.Destination.Encoded);

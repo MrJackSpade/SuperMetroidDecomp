@@ -133,14 +133,26 @@ public static class SnesBgTilemapRenderer
         Render2BppEntries(output, vram, cgram, addresses.CharacterBaseWord, entries, transparentColorZero, priority);
     }
 
-    /// <summary>Renders the top <paramref name="rowCount"/> rows of the BG3 plane (#1348), as <see cref="Render2Bpp(Span{Rgba32}, SnesVram, IPaletteColors, BgVramAddresses, int, bool, bool?)"/> renders a VRAM tilemap.</summary>
+    /// <summary>
+    /// Renders the top <paramref name="rowCount"/> rows of the BG3 plane (#1348) as it shows them: from its words' pictures
+    /// once resolved (#1392), otherwise from their characters at <paramref name="characterBaseWord"/>.
+    /// </summary>
     public static void Render2Bpp(Span<Rgba32> output, SnesVram vram, IPaletteColors cgram, Layer3Plane plane, int characterBaseWord, int rowCount, ColorZero colorZero = ColorZero.Opaque)
     {
         Ensure.NotNull(plane);
+        Ensure.NotNull(cgram);
         if (rowCount is <= 0 or > 32)
             throw new ArgumentOutOfRangeException(nameof(rowCount));
-        Render2BppEntries(output, vram, cgram, characterBaseWord,
-            plane.Words[..(rowCount * SnesPpuLayout.TilemapPageWidthInTiles)], colorZero == ColorZero.Transparent, null);
+        const int width = SnesPpuLayout.TilemapPageWidthInTiles * SnesPpuLayout.BackgroundTileSizePixels;
+        Ensure.LengthEqual(output, checked(width * rowCount * SnesPpuLayout.BackgroundTileSizePixels));
+        var colors = new Rgba32[SnesCgram.ColorCount];
+        for (int color = 0; color < colors.Length; color++)
+            colors[color] = cgram.GetRgba(color);
+        var sampler = new SnesBackgroundPixelSampler(vram, colors, cgram, plane.Shown(0, SnesPpuLayout.TilemapPageWidthInTiles),
+            characterBaseWord, BgBitDepth.TwoBpp);
+        for (int y = 0; y < rowCount * SnesPpuLayout.BackgroundTileSizePixels; y++)
+        for (int x = 0; x < width; x++)
+            output[y * width + x] = sampler.Sample(new Position16<BgPlanePixels>((ushort)x, (ushort)y), colorZero).Color;
     }
 
     /// <summary>Renders 32-wide rows of 2-bpp tilemap words: one row per 32 entries.</summary>

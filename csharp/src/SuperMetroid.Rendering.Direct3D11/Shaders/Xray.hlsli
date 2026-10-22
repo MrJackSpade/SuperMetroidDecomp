@@ -17,7 +17,7 @@ uint2 XrayBackground(uint roomSource, uint map, uint chars, uint2 size, uint2 po
     if ((roomSource & RoomSourceBg2Overlay) != 0 && Bg2OverlayWord(position & 65535, size, written, picture, within))
         entry = written;
     else if (source == RoomSourceBg3)
-        entry = Bg3Word(map, size.y, position & 65535, within);
+        entry = Bg3Word(map, size.y, position & 65535, within, picture);
     else if (source == RoomSourceBossBg2)
         entry = BossBg2Word(position, size, within, picture);
     else if (source == RoomSourceXrayReveal)
@@ -41,7 +41,7 @@ uint2 XrayBackground(uint roomSource, uint map, uint chars, uint2 size, uint2 po
         uint index;
         bool high;
         uint colour = PicturePixel(picture, within, index, high);
-        if (shown && index != 0) sample = uint2(colour, high ? 1 : 0);
+        if (shown && (index != 0 || opaqueZero)) sample = uint2(colour, high ? 1 : 0);
     }
     else
     {

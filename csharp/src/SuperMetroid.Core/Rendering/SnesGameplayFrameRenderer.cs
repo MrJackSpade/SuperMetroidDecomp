@@ -221,7 +221,7 @@ public static class SnesGameplayFrameRenderer
         in BgSample sample, int characterBaseWord, out Rgba32 color, out bool highPriority) =>
         sample.Picture is null
             ? TryDecodeOrdinaryGameplayBgPixel(vram, palette, sample.Tile.Tile, characterBaseWord, sample.Tile.Pixel, out color, out highPriority)
-            : pictures.TryDecode(sample, palette, out color, out highPriority);
+            : pictures.TryDecode(sample, palette, ColorZero.Transparent, out color, out highPriority);
 
     /// <summary>Decodes a four-bit BG tile pixel, reporting transparency and the tile's priority bit alongside its CGRAM color.</summary>
     [System.Runtime.CompilerServices.MethodImpl(

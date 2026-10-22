@@ -9,4 +9,7 @@ public readonly record struct BgArtworkIdentity(string Name)
     /// and other transfers named by where the cartridge keeps them.
     /// </summary>
     public static BgArtworkIdentity Transfer(int sourceAddress) => new($"artwork ${sourceAddress:X6}");
+
+    /// <summary>The installed VRAM asset <paramref name="asset"/>, as the VRAM queue binds it.</summary>
+    public static BgArtworkIdentity Asset(VramAssetId asset) => new($"asset {asset}");
 }

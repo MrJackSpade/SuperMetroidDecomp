@@ -11,6 +11,8 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
@@ -131,10 +133,13 @@ internal static class RoomBlockPicturesVerification
     }
 
     /// <summary>A retail runtime with <paramref name="room"/> loaded and Samus held still.</summary>
-    private static SuperMetroidRuntime LoadRoom(RoomHeaderDefinition room)
+    private static SuperMetroidRuntime LoadRoom(RoomHeaderDefinition room) => LoadRoom(room, HudSnapshot.CeresDebug);
+
+    /// <summary>A retail runtime with <paramref name="room"/> loaded, the HUD showing <paramref name="hud"/> and Samus held still.</summary>
+    private static SuperMetroidRuntime LoadRoom(RoomHeaderDefinition room, HudSnapshot hud)
     {
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(hud);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(room);
@@ -247,6 +252,58 @@ internal static class RoomBlockPicturesVerification
         }
         AssertTrue(frames > 0, $"{room.Name}'s boss writes frames");
         Console.WriteLine($"Tile word pictures: {sheet.Name} pictured {frames} body frames over {room.Name} as it loads.");
+    }
+
+    /// <summary>
+    /// Confirms BG3 draws from the tileset's BG3 word sheet (#1392): in a room of each effect whose page BG3 shows, and in
+    /// Kraid's room, whose library background moves the HUD's characters, the latched BG3 plane draws from pictures, and
+    /// every word of it under a stocked HUD resolves to a picture painting what its two-bit character paints at the HUD
+    /// character base BG3 shows, colour zero's row included. The words are resolved against the characters as the check
+    /// reads them, since an effect can bind its next frame after the latch.
+    /// </summary>
+    internal static void VerifyBg3Pictures()
+    {
+        var stocked = new HudSnapshot(1234, 1499, 123, 230, 45, 50, 6, 50,
+            Enum.GetValues<SamusEquipmentFlags>().Aggregate((all, item) => all | item), HudItem.Missile, 300, ReserveTankMode.Auto);
+        var rooms = new List<RoomHeaderDefinition> { RoomHeaderDefinitions.Kraid };
+        foreach (RoomFxType effect in new[] { RoomFxType.Lava, RoomFxType.Acid, RoomFxType.Water, RoomFxType.Rain, RoomFxType.Fog, RoomFxType.Spores })
+        {
+            rooms.Add(RoomHeaderDefinitions.All.First(room => RoomStateSelectionDefinitions.GetStates(room)[0].Fx?.Records
+                .Any(record => RoomFxTypes.FromCartridge(record.Type, room.Name) == effect) == true));
+        }
+        foreach (RoomHeaderDefinition room in rooms)
+        {
+            SuperMetroidRuntime runtime = LoadRoom(room, stocked);
+            runtime.StepFrame(0);
+            GameplayNmiDisplayLatch latched = runtime.Display.Latched;
+            Layer3Plane plane = (latched.Rooms ?? throw new InvalidOperationException($"{room.Name} shows no room backgrounds.")).Bg3;
+            AssertTrue(!plane.Pictures.IsDefault, $"{room.Name}: BG3 draws from its pictures");
+            ReadOnlySpan<byte> vram = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites, runtime.BgArtwork).Vram;
+            int characterBase = latched.Scene.HudCharacterWord;
+            ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver((runtime.Room.Scope
+                ?? throw new InvalidOperationException($"{room.Name} has no room scope.")).Bg3Pictures.Sheet).Resolve(plane, runtime.BgArtwork, characterBase);
+            for (int index = 0; index < Layer3Plane.Columns * Layer3Plane.Rows; index++)
+            {
+                BgTilePicture picture = pictures[index] ?? throw new InvalidOperationException($"{room.Name}: BG3 word {index} draws from its character.");
+                var word = new SnesBgTilemapWord(plane.Words[index]);
+                SpriteImage sheet = picture.Picture.Sheet;
+                for (int y = 0; y < CharacterPixels; y++)
+                for (int x = 0; x < CharacterPixels; x++)
+                {
+                    int pixelRow = word.FlipVertically ? CharacterPixels - 1 - y : y;
+                    int bit = 7 - (word.FlipHorizontally ? CharacterPixels - 1 - x : x);
+                    int address = (characterBase + word.CharacterIndex * 8) * sizeof(ushort) + pixelRow * 2;
+                    int colour = (vram[address] >> bit & 1) | (vram[address + 1] >> bit & 1) << 1;
+                    int expected = word.PaletteIndex * 4 + colour;
+                    int at = (picture.Picture.Corner.Y + picture.Corner.Y + y) * sheet.Size.X + picture.Picture.Corner.X + picture.Corner.X + x;
+                    AssertTrue(sheet.PaletteIndices[at] == expected && (sheet.Priorities[at] != 0) == word.HasPriority
+                            && (colour == 0 ? sheet.Pixels[at].A == 0 : sheet.Pixels[at] == sheet.StandardColours[expected].ToRgba32()),
+                        $"{room.Name}: BG3 word {index} ${word.Raw:X4} pixel ({x}, {y}) paints index {sheet.PaletteIndices[at]} where its character, "
+                        + $"{runtime.BgArtwork.Showing(characterBase + word.CharacterIndex * 8, 8)}, paints {expected}");
+                }
+            }
+            Console.WriteLine($"BG3 pictures: {room.Name}'s HUD and effect page painted from their pictures at base ${characterBase:X4}.");
+        }
     }
 
     /// <summary>Loads <paramref name="room"/> and checks its background image over <see cref="Frames"/> frames.</summary>
@@ -428,6 +485,7 @@ internal static class RoomBlockPicturesVerification
         Suite(nameof(VerifyRoomBlockPictures), VerifyRoomBlockPictures);
         Suite(nameof(VerifyRoomBackgroundImages), VerifyRoomBackgroundImages);
         Suite(nameof(VerifyTileWordPictures), VerifyTileWordPictures);
+        Suite(nameof(VerifyBg3Pictures), VerifyBg3Pictures);
         return 0;
     }
 }

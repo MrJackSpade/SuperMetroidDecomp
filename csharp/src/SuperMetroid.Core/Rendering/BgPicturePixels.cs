@@ -14,6 +14,9 @@ internal sealed class BgPicturePixels(IPaletteColors cgram)
     /// <summary>Colours in one palette row.</summary>
     private const int RowColours = 16;
 
+    /// <summary>Colours in one two-bit palette row.</summary>
+    private const int TwoBppRowColours = 4;
+
     /// <summary>The sheet whose standard rows were last checked.</summary>
     private CheckedSheet last = new(null, 0);
 
@@ -23,16 +26,30 @@ internal sealed class BgPicturePixels(IPaletteColors cgram)
     /// <summary>Decodes a picture sample's colour and tile priority; false where the pixel is transparent.</summary>
     /// <param name="sample">A sample of a block picture.</param>
     /// <param name="palette">The frame's 256 CGRAM colours as RGBA.</param>
+    /// <param name="colorZero">
+    /// Whether the layer shows colour zero, as the HUD does: a two-bit picture's colour-zero pixel then shows its row's live
+    /// colour zero, as the characters did.
+    /// </param>
     /// <param name="color">The pixel's colour.</param>
     /// <param name="highPriority">Whether the pixel's tile had the priority bit.</param>
-    internal bool TryDecode(in BgSample sample, ReadOnlySpan<Rgba32> palette, out Rgba32 color, out bool highPriority)
+    /// <exception cref="InvalidOperationException">An opaque colour zero is asked of a picture that keeps no row for it.</exception>
+    internal bool TryDecode(in BgSample sample, ReadOnlySpan<Rgba32> palette, ColorZero colorZero, out Rgba32 color, out bool highPriority)
     {
         SpriteSheetFrame picture = sample.Picture ?? throw new ArgumentException("The sample shows a tile, not a block picture.", nameof(sample));
         SpriteImage sheet = picture.Sheet;
         int pixel = (picture.Corner.Y + sample.PicturePixel.Y) * sheet.Size.X + picture.Corner.X + sample.PicturePixel.X;
         byte index = sheet.PaletteIndices[pixel];
-        if (index == 0)
+        bool twoBpp = sheet.Colours == SpriteImageColours.TwoBppBackground;
+        if (twoBpp ? index % TwoBppRowColours == 0 : index == 0)
         {
+            if (colorZero == ColorZero.Opaque)
+            {
+                if (!twoBpp)
+                    throw new InvalidOperationException($"{sheet.Name} keeps no row for its transparent pixels, which an opaque colour zero needs.");
+                color = palette[sheet.FirstColour + index];
+                highPriority = sheet.Priorities[pixel] != 0;
+                return true;
+            }
             color = default;
             highPriority = false;
             return false;

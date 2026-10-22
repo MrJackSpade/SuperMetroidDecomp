@@ -42,10 +42,11 @@ public static class RoomBlockSheetFiles
             store.Write(RoomBlockSheet.NameOf(tileset), sheet);
         foreach ((string name, ComposedRoomBackground background) in composition.Backgrounds)
             store.Write(name, background.Sheet);
-        foreach (ComposedTileWordSheet words in composition.TileWords.Values)
-            store.Write(TileWordSheet.NameOf(words.Tileset), words.Sheet);
+        ComposedTileWordSheet[] wordSheets = [.. composition.TileWords.Values, .. composition.Bg3Words.Values];
+        foreach (ComposedTileWordSheet words in wordSheets)
+            store.Write(TileWordSheet.NameOf(words.Layer, words.Tileset), words.Sheet);
         store.Finish(sourceCartridgeSha256);
-        var sheets = new WordManifest(WordManifestVersion, [.. composition.TileWords.Values.Select(words => new WordSheetDocument(
+        var sheets = new WordManifest(WordManifestVersion, [.. wordSheets.Select(words => new WordSheetDocument(words.Layer,
             RoomBlockSheet.NameOf(words.Tileset), [.. words.Tiles.Select(tile => new WordTileDocument(tile.Tile.Word.Raw, tile.Tile.Shown.Artwork.Name,
                 tile.Tile.Shown.WordOffset, tile.Frame, tile.Corner.X, tile.Corner.Y))]))]);
         File.WriteAllBytes(Path.Combine(directory, WordManifestFileName), JsonSerializer.SerializeToUtf8Bytes(sheets, JsonOptions));
@@ -81,14 +82,18 @@ public static class RoomBlockSheetFiles
             tilesets.ToDictionary(tileset => tileset, tileset => new RoomBlockSheet(tileset, store.Read(RoomBlockSheet.NameOf(tileset)))),
             manifest.Words.ToDictionary(entry => entry.Key, entry => new RoomBackgroundImage(entry.Key, store.Read(entry.Key), [.. entry.Value]),
                 StringComparer.Ordinal),
-            words.Sheets.Select(sheet => Words(sheet, byName.TryGetValue(sheet.Tileset, out TilesetDefinition tileset) ? tileset
+            Sheets(TileWordLayer.Bg12), Sheets(TileWordLayer.Bg3));
+
+        // The installed sheets of one layer's words, each under its tileset.
+        Dictionary<TilesetDefinition, TileWordSheet> Sheets(TileWordLayer layer) => words.Sheets.Where(sheet => sheet.Layer == layer)
+            .Select(sheet => Words(sheet, byName.TryGetValue(sheet.Tileset, out TilesetDefinition tileset) ? tileset
                 : throw new InvalidDataException($"Tile word manifest {wordPath} names unknown tileset {sheet.Tileset}."), store))
-                .ToDictionary(sheet => sheet.Tileset));
+            .ToDictionary(sheet => sheet.Tileset);
     }
 
     /// <summary>The tile word sheet <paramref name="document"/> describes, read from <paramref name="store"/>.</summary>
     private static TileWordSheet Words(WordSheetDocument document, TilesetDefinition tileset, SpriteSheetStore store) =>
-        new(tileset, store.Read(TileWordSheet.NameOf(tileset)),
+        new(document.Layer, tileset, store.Read(TileWordSheet.NameOf(document.Layer, tileset)),
             document.Tiles.Select(tile => new TileWordSheetTile(new BgTileArtwork(new SnesBgTilemapWord(tile.Word),
                 new BgArtworkShown(new BgArtworkIdentity(tile.Artwork), tile.Offset)), tile.Frame, new Position16<ImagePixels>(tile.X, tile.Y))));
 
@@ -106,9 +111,10 @@ public static class RoomBlockSheetFiles
     private sealed record WordManifest(int Version, WordSheetDocument[] Sheets);
 
     /// <summary>One tile word sheet.</summary>
+    /// <param name="Layer">The backgrounds the words are written over.</param>
     /// <param name="Tileset">The installed name of the tileset whose rooms the words are written in.</param>
     /// <param name="Tiles">Where the sheet pictures each tile word over each artwork.</param>
-    private sealed record WordSheetDocument(string Tileset, WordTileDocument[] Tiles);
+    private sealed record WordSheetDocument(TileWordLayer Layer, string Tileset, WordTileDocument[] Tiles);
 
     /// <summary>Where a tile word sheet pictures one tile word over one artwork.</summary>
     /// <param name="Word">The tile word.</param>

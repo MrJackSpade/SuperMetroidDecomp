@@ -40,8 +40,12 @@ internal static class RoomBlockSheetComposer
             if (uploads.WordContent is { } content)
                 words.Add(tileset, TileWordSheetComposer.Compose(inputs, tileset, uploads, uploads.Writers, content));
         }
+        // BG3's characters outlive the room that binds them: an effect's frames and Kraid's restoration stay bound in the
+        // rooms after, until something binds over them again, so every room's BG3 words are pictured over all of them.
+        BgCharacterUpload[] bg3Uploads = [.. tilesets.Values.SelectMany(uploads => uploads.Bg3Uploads)
+            .DistinctBy(upload => (upload.Identity, upload.FirstWord))];
         return new RoomSheetComposition(tilesets.ToDictionary(entry => entry.Key, entry => Compose(inputs, entry.Key, entry.Value)), backgrounds,
-            words);
+            words, tilesets.ToDictionary(entry => entry.Key, entry => TileWordSheetComposer.ComposeBg3(inputs, entry.Key, entry.Value, bg3Uploads)));
     }
 
     /// <summary>
@@ -213,9 +217,9 @@ internal static class RoomBlockSheetComposer
 
     /// <summary>Whether <paramref name="upload"/> covers the character from <paramref name="first"/>.</summary>
     /// <exception cref="InvalidDataException">The upload covers only part of the character.</exception>
-    internal static bool Covers(BgCharacterUpload upload, int first)
+    internal static bool Covers(BgCharacterUpload upload, int first, int characterWords = RoomBlockPictureNames.CharacterWords)
     {
-        int end = first + RoomBlockPictureNames.CharacterWords, uploadEnd = upload.FirstWord + upload.WordCount;
+        int end = first + characterWords, uploadEnd = upload.FirstWord + upload.WordCount;
         if (upload.FirstWord >= end || uploadEnd <= first)
             return false;
         return upload.FirstWord <= first && uploadEnd >= end

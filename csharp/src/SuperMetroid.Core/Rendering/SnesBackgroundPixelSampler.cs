@@ -28,10 +28,7 @@ internal sealed class SnesBackgroundPixelSampler(SnesVram vram, Rgba32[] colors,
             return new BackgroundPixelSample(default, false);
         if (shown.Picture is not null)
         {
-            // A picture keeps no row for its transparent pixels, so only a layer whose colour zero is transparent shows one.
-            if (colorZero == ColorZero.Opaque)
-                throw new InvalidOperationException("A block picture cannot be sampled with an opaque colour zero.");
-            return pictures.TryDecode(shown, colors, out Rgba32 pictured, out bool high)
+            return pictures.TryDecode(shown, colors, colorZero, out Rgba32 pictured, out bool high)
                 ? new BackgroundPixelSample(pictured, high) : new BackgroundPixelSample(default, false);
         }
         BgTileSample sample = shown.Tile;

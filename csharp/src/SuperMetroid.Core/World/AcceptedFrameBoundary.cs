@@ -298,6 +298,8 @@ internal sealed class AcceptedFrameBoundary
                 Bg2Image = image,
                 SkyImage = sky,
                 Bg2Overlay = bg2Overlay,
+                // The HUD and the room effect's page draw from the BG3 sheet's pictures at the HUD character base BG3 shows.
+                Bg3 = rooms.Bg3.WithPictures(scope.Bg3Pictures.Resolve(rooms.Bg3, _backgrounds, latched.Scene.HudCharacterWord)),
             },
             XrayReveal = revealed is null ? null : new XrayRevealPlane(revealed, pictures),
         };

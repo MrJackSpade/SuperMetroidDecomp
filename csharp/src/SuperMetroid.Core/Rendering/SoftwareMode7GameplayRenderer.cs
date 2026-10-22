@@ -52,7 +52,7 @@ internal static class SoftwareMode7GameplayRenderer
         }
         if (layer.HudScanlines != 0)
         {
-            // BG3 writes every HUD pixel (opaque color zero), so it renders straight into the frame.
+            // BG3 writes every HUD pixel (opaque color zero), from its pictures once resolved, so it renders straight into the frame.
             int hudRows = layer.HudScanlines / SnesPpuLayout.BackgroundTileSizePixels;
             SnesBgTilemapRenderer.Render2Bpp(output.AsSpan(0, width * hudRows * SnesPpuLayout.BackgroundTileSizePixels), memory.Vram, memory.Cgram, layer.Hud, layer.HudCharacterWord, hudRows);
         }

@@ -113,6 +113,18 @@ internal static class OrdinarySmokeTests
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, boss BG2 tilemap, HDMA {hdma}");
         }
+        // The HUD drawn from two-bit pictures (#1392), colour zero opaque in its row's colour, some words from their characters.
+        var hudPictured = pictured with { Bg3 = RoomBackgroundsFixtures.SeededBg3Pictures(random, colors, pictured.Bg3) };
+        for (int hdma = 0; hdma < 4; hdma += 3)
+        {
+            var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
+                new Extent16<TilemapCells>(64, 32), 0x4800, 0, 0x6000, 0x4000, SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
+            var layer = new OrdinaryGameplayRenderLayer(registers, hudPictured, new Bg2HdmaScrollTables(
+                (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
+            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
+            PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
+                $"{device.Kind}: ordinary {count}, BG3 pictures, HDMA {hdma}");
+        }
         // Words written over BG2 drawn from their pictures (#1392), some still from their characters, over each BG2 map size.
         var typed = pictured with { Bg2Overlay = RoomBackgroundsFixtures.SeededPicturedOverlay(random, colors) };
         foreach (var geometry in new[] { new OrdinarySmokeRunCase(64, 32), new OrdinarySmokeRunCase(32, 64) })

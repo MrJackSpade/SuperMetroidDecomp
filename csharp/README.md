@@ -575,7 +575,9 @@ cell's block picture while they show something else. The scrolling sky is an ima
 sky (`SkyLand`, `SkyOcean`) and tileset. Words written over a room's BG2 after it loads (the bodies of Kraid, Phantoon,
 Draygon, Crocomire and Mother Brain, and the Zebes escape warning) are pictured on one sheet per tileset,
 `Words.<tileset>`, with an image of each part each writer writes; `tile-words.json` records where each tile word is
-pictured over each artwork that can show at its character.
+pictured over each artwork that can show at its character. BG3 has a sheet per tileset too, `Bg3Words.<tileset>`: the
+HUD fully stocked, every other word the HUD writes, the minimap's map tiles and each room effect's page, in BG3's
+four-colour rows with every pixel keeping its palette index, colour zero included.
 Edited copies go in `overrides/room-block-sheets`. The
 Ceres Ridley arena, whose planes read the object characters, still draws its blocks from characters.
 

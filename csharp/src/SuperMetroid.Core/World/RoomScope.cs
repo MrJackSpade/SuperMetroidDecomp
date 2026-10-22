@@ -51,6 +51,9 @@ internal sealed record RoomScope
     /// <summary>Resolves what words written over BG2 show, or null in a tileset nothing writes words over (#1392).</summary>
     public required TileWordPictureResolver? Bg2OverlayPictures { get; init; }
 
+    /// <summary>Resolves what the HUD and the room effect's page show on BG3 (#1392).</summary>
+    public required TileWordPictureResolver Bg3Pictures { get; init; }
+
     /// <summary>
     /// Which character page the planes of <paramref name="room"/> draw from: setup ASM $8F:C97B points the Ceres Ridley
     /// arena's BG1 and BG2 at the object character page (#1357); every other room, and the frames before a room is

@@ -347,7 +347,7 @@ internal sealed class KraidDeath
         if ((uint)transferIndex >= KraidBackgroundRomData.StandardBg3TransferCount)
             throw new ArgumentOutOfRangeException(nameof(transferIndex));
 
-        int destinationWord = transferIndex * (KraidBackgroundRomData.StandardBg3TransferBytes / 2);
+        int destinationWord = BossVram.KraidBg3RestoreQuarterWord(transferIndex);
 
         // `$A7:C777-$C7EF` deliberately spreads the $1000-byte restoration over four
         // enemy frames. The runtime path appends the same four native seven-byte DMA
@@ -362,8 +362,7 @@ internal sealed class KraidDeath
                 KraidBackgroundRomData.StandardBg3AssetForQuarter(transferIndex),
                 KraidBackgroundRomData.StandardBg3TransferBytes, BossVram.KraidBg3RestoreDma(destinationWord));
         else
-            BossVram.BindKraidBg3Restore(_presentation.Backgrounds, new BgArtworkIdentity($"standard BG3 characters quarter {transferIndex}"),
-                destinationWord, hud.KraidRestoreQuarter(transferIndex).Span);
+            BossVram.BindKraidBg3Restore(_presentation.Backgrounds, transferIndex, hud.KraidRestoreQuarter(transferIndex).Span);
 
         state.DeathBg3TransferCount++;
         state.Parts[body.SlotIndex].Function = next;

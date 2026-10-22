@@ -24,10 +24,11 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <param name="BackgroundTilemaps">The library backgrounds' tilemaps.</param>
 /// <param name="Skies">The scrolling skies' tilemaps, which some library backgrounds transfer.</param>
 /// <param name="EscapeTypewriter">The escape typewriter's programs, whose text is typed over a room's background.</param>
+/// <param name="Maps">The map presentation: the HUD, the area maps its minimap shows and the room effects' BG3 pages.</param>
 internal sealed record RoomBlockSheetInputs(RoomCharacterAtlasCatalog Characters, RoomMetatileCatalog Metatiles,
     RoomStaticPaletteCatalog Palettes, RoomFxAnimatedTileAtlas AnimatedTiles, RoomPlmDynamicCollectibleArtCatalog Collectibles,
     BossArtworkCatalog Bosses, HudTileAtlas Hud, RoomBackgroundTilemapCatalog BackgroundTilemaps, RoomSkyTilemapCatalog Skies,
-    EscapeTypewriterPresentation EscapeTypewriter)
+    EscapeTypewriterPresentation EscapeTypewriter, AreaMapPresentationCatalog Maps)
 {
     /// <summary>Loads the stock artwork from installed content.</summary>
     internal static RoomBlockSheetInputs Load(string content)
@@ -44,6 +45,7 @@ internal sealed record RoomBlockSheetInputs(RoomCharacterAtlasCatalog Characters
             maps.HudTiles,
             RoomBackgroundTilemapArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomBackgroundTilemapDirectoryName), null),
             RoomSkyTilemapArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomBackgroundTilemapDirectoryName), null),
-            maps.EscapeTypewriter);
+            maps.EscapeTypewriter,
+            maps);
     }
 }

@@ -128,7 +128,7 @@ internal static class SpriteDrawSmokeTests
             {
                 var size = new Extent16<ImagePixels>((ushort)random.Next(1, 33), (ushort)random.Next(1, 33));
                 var corner = new Position16<ImagePixels>((ushort)random.Next(0, 64 - size.X + 1), (ushort)random.Next(0, 48 - size.Y + 1));
-                var image = new SpriteSheetFrame(sheet, corner, size, new((short)random.Next(-8, 40), (short)random.Next(-8, 40)), random.Next(2) == 0);
+                var image = new SpriteSheetFrame(sheet, corner, size, new((short)random.Next(-8, 40), (short)random.Next(-8, 40)), random.Next(2) == 0, random.Next(4));
                 var origin = new Position16<ScreenPixels>(unchecked((ushort)random.Next(-60, 300)), unchecked((ushort)random.Next(-60, 270)));
                 draws.Insert(random.Next(draws.Count + 1), new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer, 100 + index), image, origin,
                     (SpriteMirror)random.Next(4), random.Next(4)));

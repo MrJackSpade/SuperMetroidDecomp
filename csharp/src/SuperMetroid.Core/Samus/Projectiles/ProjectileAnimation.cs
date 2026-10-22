@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
@@ -72,8 +73,10 @@ internal sealed class ProjectileAnimation
             return;
         }
 
-        sprites.Add(new CharacterSpriteDraw(source, artwork.Sprites.Frame(slot.Sprite ?? throw new InvalidOperationException("A drawn projectile shows a composition.")), artwork.Page,
-            new Position16<ScreenPixels>(unchecked((ushort)screenX), screenY), default, 0, 0));
+        SpriteSheetFrame image = artwork.Sheet.Frame(ProjectileSheetDefinitions.ProjectileFrame(
+            slot.Sprite ?? throw new InvalidOperationException("A drawn projectile shows a composition.")));
+        sprites.Add(new ImageSpriteDraw(source, image, new Position16<ScreenPixels>(unchecked((ushort)screenX), screenY),
+            SpriteMirror.None, image.Priority));
     }
 
     /// <summary>Advances a flare component only after its countdown underflows, honoring restart and rewind delay commands.</summary>
@@ -151,16 +154,16 @@ internal sealed class ProjectileAnimation
             : component switch { 0 => 0, 1 => 30, _ => 36 }));
         // `$90:BBEA` keeps only the low byte of the frame word before adding the offset.
         ushort tableIndex = unchecked((ushort)(indexOffset + (SnesLittleEndian.LowByte(_charge.FlareFrame(component)))));
-        var catalog = artwork.Compositions ?? throw new InvalidOperationException(
-            "Charge flare requires installed sprite compositions.");
         // A frame that wrapped to $FF selects a pointer past the end of $93:A1A1. Native then
         // draws a "spritemap" out of WRAM, I/O registers and open bus (into OAM only; the
         // index is masked to $1FF). That garbage needs full memory emulation and has no
         // gameplay effect, so the port draws nothing for it (#1275, Mother Brain glitch movie).
         if (!SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteCatalog.Contains(tableIndex))
             return;
-        sprites.Add(new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.SamusChargeFlare, component), catalog.Frame(tableIndex),
-            artwork.Objects.Page, new Position16<ScreenPixels>(screenX, screenY), default, 0, 0));
+        SpriteSheetFrame image = artwork.Objects.Sheet.Frame(ProjectileSheetDefinitions.FlareFrame(
+            SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteDefinitions.Selectors[tableIndex]));
+        sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusChargeFlare, component), image,
+            new Position16<ScreenPixels>(screenX, screenY), SpriteMirror.None, image.Priority));
     }
 
     /// <summary>Clears all component frames and countdowns when charge-flare animation is retired.</summary>

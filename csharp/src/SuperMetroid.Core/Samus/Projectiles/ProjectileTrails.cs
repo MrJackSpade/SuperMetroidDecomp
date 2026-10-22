@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Projectiles;
@@ -98,8 +99,7 @@ internal sealed class ProjectileTrails
     internal static void AdvanceTrailSide(
         SamusProjectileTrailSlot pair,
         bool timeIsFrozen,
-        HorizontalDirection direction,
-        SuperMetroid.Core.Samus.Artwork.ProjectileTrailCatalog? artwork)
+        HorizontalDirection direction)
     {
         SamusProjectileTrailSide side = direction == HorizontalDirection.Left ? pair.Left : pair.Right;
         if (side.InstructionTimer.IsZero)
@@ -123,8 +123,7 @@ internal sealed class ProjectileTrails
                     if (step is ProjectileTrailStep.Pose pose)
                     {
                         side.InstructionTimer = WrappingCountdown.FromRaw(pose.Duration);
-                        side.TileNumberAttributes = (artwork ?? throw new InvalidOperationException(
-                            "A trail pose needs the installed trail artwork.")).Resolve(pose.Frame);
+                        side.ShownPose = pose.Frame;
                         side.Cursor = cursor.Next();
                         break;
                     }
@@ -162,7 +161,6 @@ internal sealed class ProjectileTrails
         int slotIndex,
         Position16<RoomPixels> layer1,
         HorizontalDirection direction,
-        SuperMetroid.Core.Samus.Artwork.ProjectileTrailCatalog? artwork,
         ProjectileDrawArtwork objects)
     {
         SamusProjectileTrailSide side = direction == HorizontalDirection.Left ? pair.Left : pair.Right;
@@ -178,10 +176,10 @@ internal sealed class ProjectileTrails
         if ((SnesLittleEndian.HighByteInPlace(screenX)) != 0 || (SnesLittleEndian.HighByteInPlace(screenY)) != 0)
             return;
 
-        SnesObjAttributeWord attributes = artwork is null
-            ? side.TileNumberAttributes : artwork.ResolveCurrent(side.Cursor, side.TileNumberAttributes);
-        sprites.Add(new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectileTrail, slotIndex * 2 + (direction == HorizontalDirection.Left ? 0 : 1)),
-            ObjPartFrames.SmallObject(attributes, 0), objects.Page,
-            new Position16<ScreenPixels>(screenX, screenY), default, 0, 0));
+        // A side allocated over an earlier trail keeps showing that trail's last pose until its own first one.
+        SpriteSheetFrame image = objects.Sheet.Frame(side.ShownPose is { } pose
+            ? ProjectileSheetDefinitions.TrailFrame(pose) : ProjectileSheetDefinitions.UnshownTrailFrame);
+        sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectileTrail, slotIndex * 2 + (direction == HorizontalDirection.Left ? 0 : 1)),
+            image, new Position16<ScreenPixels>(screenX, screenY), SpriteMirror.None, image.Priority));
     }
 }

@@ -1,14 +1,12 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>The installed charge-flare placement and sprite compositions (#633), and the OBJ page it draws over.</summary>
+/// <summary>The installed charge-flare placement (#633) and the projectile sheet the flare draws from.</summary>
 public readonly record struct ChargeFlareArtwork
 {
     /// <summary>Placement.</summary>
     public required SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacementCatalog? Placement { get; init; }
 
-    /// <summary>Compositions.</summary>
-    public required SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteCatalog? Compositions { get; init; }
 
-    /// <summary>The projectile OBJ page the flare's characters index.</summary>
+    /// <summary>The projectile sheet the flare's frames are drawn from.</summary>
     public required ProjectileDrawArtwork Objects { get; init; }
 }

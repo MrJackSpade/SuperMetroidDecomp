@@ -357,8 +357,16 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     public InstalledSpriteSheets? SpriteSheets
     {
         get;
-        set;
+        set
+        {
+            field = value;
+            ProjectileSheets = value is null ? null : SuperMetroid.Core.Samus.Artwork.ProjectileSheets.Gameplay(value);
+        }
     }
+
+    /// <summary>The projectile sheets Samus's projectiles, bombs, charge flare and trails draw from.</summary>
+    [field: NonSerialized]
+    public SuperMetroid.Core.Samus.Artwork.ProjectileSheets? ProjectileSheets { get; private set; }
 
     /// <summary>Beam artwork bound since the last accepted NMI, whose palette that NMI publishes.</summary>
     [NonSerialized] private BeamTileCatalog? pendingBeamPalette;

@@ -78,7 +78,7 @@ internal static class ChargeFlarePlacementVerification
             ushort selector = (ushort)(component == 0 ? 0 : facingLeft ? (component == 1 ? 42 : 48) : (component == 1 ? 30 : 36));
             if ((SnesLittleEndian.HighByteInPlace(y)) == 0) DrawImportedFlareSpritemap(bus, native, selector, new(x, y));
             OamBuffer actual = SpriteFrameBuffer.DrawnOam(frame => drawMetadata(frame, samus, Position16<RoomPixels>.Zero, component, transform,
-                new ChargeFlareArtwork { Placement = stock, Compositions = sprites, Objects = objects },
+                new ChargeFlareArtwork { Placement = stock, Objects = objects },
                 new ChargeFlarePose { Direction = direction, Running = running, PoseYOffset = yOffset, FacingLeft = facingLeft }));
             AssertTrue(native.ImageEquals(actual), "Flare placement stock preserves native OAM/culling for running, facing, overread directions and Mode7");
             AssertEqual(native.NextByteOffset / 4, actual.LastFinalizedSpriteCount, "Flare placement preserves OAM admission");
@@ -88,9 +88,9 @@ internal static class ChargeFlarePlacementVerification
         PrepareRetailSamusFixture(subject);
         byte[] beforeSamus = GraphDigest(subject), beforeSystem = GraphDigest(system);
         OamBuffer original = SpriteFrameBuffer.DrawnOam(frame => draw(frame, subject, Position16<RoomPixels>.Zero, 0, null,
-            new ChargeFlareArtwork { Placement = stock, Compositions = sprites, Objects = objects }));
+            new ChargeFlareArtwork { Placement = stock, Objects = objects }));
         OamBuffer changed = SpriteFrameBuffer.DrawnOam(frame => draw(frame, subject, Position16<RoomPixels>.Zero, 0, null,
-            new ChargeFlareArtwork { Placement = edited, Compositions = sprites, Objects = objects }));
+            new ChargeFlareArtwork { Placement = edited, Objects = objects }));
         AssertTrue(original.LastFinalizedSpriteCount > 0, "Edited flare placement fixture draws visible sprites");
         AssertEqual(original.LastFinalizedSpriteCount, changed.LastFinalizedSpriteCount, "Visual shift retains sprite count");
         for (int i = 0; i < original.LastFinalizedSpriteCount; i++)
@@ -112,10 +112,10 @@ internal static class ChargeFlarePlacementVerification
             var guarded = new FlarePlacementGuard(bus, subject.Pose, 2, true);
             original = SpriteFrameBuffer.DrawnOam(frame => originalSystem.DrawChargeFlare(frame, subject, new(0, 0),
                 originalSystem.AdvanceChargeFlare(subject), null,
-                new ChargeFlareArtwork { Placement = stock, Compositions = sprites, Objects = objects }));
+                new ChargeFlareArtwork { Placement = stock, Objects = objects }));
             changed = SpriteFrameBuffer.DrawnOam(frame => editedSystem.DrawChargeFlare(frame, subject, new(0, 0),
                 editedSystem.AdvanceChargeFlare(subject), null,
-                new ChargeFlareArtwork { Placement = edited, Compositions = sprites, Objects = objects }));
+                new ChargeFlareArtwork { Placement = edited, Objects = objects }));
             AssertTrue(original.LastFinalizedSpriteCount > 0, "Public normal/Hyper flare producer emits visible components");
             AssertEqual(original.LastFinalizedSpriteCount, changed.LastFinalizedSpriteCount, "Public flare placement preserves component admission");
             for (int i = 0; i < original.LastFinalizedSpriteCount; i++)

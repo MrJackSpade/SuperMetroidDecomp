@@ -17,6 +17,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend;
 namespace SuperMetroid.Verification.Samus.Projectiles;
@@ -69,14 +70,16 @@ internal static class ProjectileCompositionsVerification
         byte[] editedJson = JsonSerializer.SerializeToUtf8Bytes(document, options);
         var edited = ProjectileSpriteCatalog.Load(new MemoryStream(editedJson));
         Suite(nameof(VerifyProjectileFiles), () => VerifyProjectileFiles(rom, editedJson));
+        // The retail ROM's installation is shared and only read here; another ROM installs its own.
         using var temporaryDirectory = new TestScratchDirectory("map-catalog");
-        GameInstallation installation = GameAssetInstaller.Install(
-            Path.GetFullPath(sourceRom), temporaryDirectory.Root);
+        GameInstallation installation = Path.GetFullPath(sourceRom) == Path.GetFullPath("Super Metroid.smc")
+            ? RepositoryInstallation.Installation
+            : GameAssetInstaller.Install(Path.GetFullPath(sourceRom), temporaryDirectory.Root);
         var roomAssets = new MapPresentationInstalledRoomAssets(installation);
-        Suite(nameof(VerifyRuntimeProjectileCompositions), () => VerifyRuntimeProjectileCompositions(content, edited, editedId,
+        Suite(nameof(VerifyRuntimeProjectileSheets), () => VerifyRuntimeProjectileSheets(editedId, installation.LoadSpriteSheets(),
             roomAssets, installation.LoadMaps()));
         if (!compositionOnly)
-            VerifyIntroProjectileArtwork(rom, content, edited, editedId);
+            VerifyIntroProjectileArtwork(editedId);
         var baselineOam = new OamBuffer(); var editedOam = new OamBuffer();
         content.Draw(editedId, baselineOam, new(100, 100)); edited.Draw(editedId, editedOam, new(100, 100));
         AssertEqual(unchecked((byte)(baselineOam.LowTable[0] + (original.OffsetX == 255 ? -1 : 1))), editedOam.LowTable[0], "Edited offset reaches emitted OAM");
@@ -140,7 +143,7 @@ internal static class ProjectileCompositionsVerification
             bomb.BombTimer = WrappingCountdown.Start(1);
             foreach (ushort parity in new ushort[] { 0, 1, 2, 3 })
             {
-                ProjectileDrawArtwork artwork = InstalledFixtures.ProjectileArtwork(content);
+                ProjectileDrawArtwork artwork = InstalledFixtures.ProjectileArtwork();
                 var native = new SpriteFrameBuffer(); var extracted = new SpriteFrameBuffer();
                 native.BeginFrame(); extracted.BeginFrame();
                 shots.DrawLiveProjectiles(native, Position16<RoomPixels>.Zero, parity, artwork);
@@ -162,7 +165,7 @@ internal static class ProjectileCompositionsVerification
                 bomb.BombTimer = WrappingCountdown.Start(0);
                 var hidden = new SpriteFrameBuffer();
                 hidden.BeginFrame();
-                bombs.Draw(hidden, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork(content));
+                bombs.Draw(hidden, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork());
                 hidden.FinalizeFrame();
                 AssertEqual(0, hidden.Draws.Length, "Detonated power bomb remains hidden with extracted art");
             }
@@ -176,35 +179,31 @@ internal static class ProjectileCompositionsVerification
             .ForbidAll(address => $"Composition draw read ROM {address:X6}.")
             .RejectWrites(_ => "Composition draw mutated the bus.");
 
-    /// <summary>Checks frontend gameplay drawing binds selected projectile art for each production owner family.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyRuntimeProjectileCompositions(
-        ProjectileSpriteCatalog stock, ProjectileSpriteCatalog edited, ushort sprite,
+    /// <summary>
+    /// Checks the three projectile actor passes draw the composition's frame from the bound projectile sheet, that a
+    /// rebound sheet set reaches them, and that saved graphs exclude the sheets and draw alike once rebound.
+    /// </summary>
+    private static void VerifyRuntimeProjectileSheets(ushort sprite, InstalledSpriteSheets sheets,
         MapPresentationInstalledRoomAssets roomAssets, AreaMapPresentationCatalog maps)
     {
         var random = new CartridgeRandom();
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: roomAssets.InitialPalettes, random: random);
         runtime.Artwork.MapPresentation = maps;
         roomAssets.Bind(runtime);
-        runtime.Artwork.ProjectileCompositions = stock;
+        runtime.Artwork.SpriteSheets = sheets;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
         game.AdoptRuntime(runtime);
-        byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
-        {
-            target.Sprites.BeginFrame();
-            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
-            target.Sprites.FinalizeFrame();
-            OamBuffer image = target.Sprites.FinalizedAsOam();
-            return image.LowTable.ConcatToArray(image.HighTable);
-        }
+        game.BindArtwork(game.Artwork with { SpriteSheets = sheets });
+        string frame = ProjectileSheetDefinitions.ProjectileFrame(ProjectileSpriteNative.Projectile(sprite));
         // Seed only a visible timed composition. The shared production actor draw, not
         // a duplicate test emitter, must bind all three owner passes to host content.
         foreach (ushort family in new ushort[] { 0x10, 0x700, 0x500 })
         {
             runtime.Projectiles.Reset(); runtime.BombProjectiles.Reset();
+            var kind = family == 0x500 ? SpriteSourceKind.SamusBomb : SpriteSourceKind.SamusProjectile;
             if (family == 0x500)
             {
                 var slot = runtime.BombProjectiles.Slots[0];
@@ -217,69 +216,47 @@ internal static class ProjectileCompositionsVerification
                 slot.Type = family; slot.Cursor = ProjectileFixtureCursors.Active; slot.SpritemapPointer = sprite;
                 slot.Position = slot.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
             }
-            // Actor drawing also updates mutable visual state. Compare identical
-            // captured states rather than two sequential draws of one runtime.
-            var stockCopy = CloneGame();
-            var editedCopy = CloneGame();
-            byte[] baseline = Draw(runtime);
-            stockCopy.BindArtwork(stockCopy.Artwork with
-            {
-                ProjectileCompositions = stock,
-            });
-            AssertTrue(baseline.SequenceEqual(Draw(stockCopy.Session.GameplayRuntime)),
-                "Restored stock projectile actor matches the same initial state");
-            editedCopy.BindArtwork(editedCopy.Artwork with
-            {
-                ProjectileCompositions = edited,
-            });
-            AssertTrue(!baseline.SequenceEqual(Draw(editedCopy.Session.GameplayRuntime)),
-                "Edited composition reaches runtime actor drawing");
+            SpriteSheet power = sheets.Get(SpriteSheetId.ProjectilesPower);
+            AssertEqual(power.Frame(frame), Shown(runtime, kind).Image, $"Family ${family:X} draws its composition's frame from the bound power-beam sheet");
+            InstalledSpriteSheets rebound = RepositoryInstallation.Installation.LoadSpriteSheets();
+            game.BindArtwork(game.Artwork with { SpriteSheets = rebound });
+            AssertTrue(ReferenceEquals(rebound.Get(SpriteSheetId.ProjectilesPower).Image, Shown(runtime, kind).Image.Sheet),
+                $"Family ${family:X} draws from rebound sheets");
+            game.BindArtwork(game.Artwork with { SpriteSheets = sheets });
         }
-        game.BindArtwork(game.Artwork with
-        {
-            ProjectileCompositions = null,
-        });
+        game.BindArtwork(game.Artwork with { SpriteSheets = null });
         using var without = new MemoryStream();
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(without, game);
-        game.BindArtwork(game.Artwork with
-        {
-            ProjectileCompositions = stock,
-        });
+        game.BindArtwork(game.Artwork with { SpriteSheets = sheets });
         using var with = new MemoryStream();
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(with, game);
-        AssertTrue(without.WrittenBytes().SequenceEqual(with.WrittenBytes()), "Projectile content excluded from frontend and runtime state graph");
+        AssertTrue(without.WrittenBytes().SequenceEqual(with.WrittenBytes()), "Sprite sheets are excluded from the frontend and runtime state graph");
         with.Position = 0;
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
         var restoredRuntime = restored.Session.GameplayRuntime;
-        AssertTrue(restoredRuntime.Artwork.ProjectileCompositions is null, "Restored runtime requires external composition rebind");
+        AssertTrue(restoredRuntime.Artwork.SpriteSheets is null, "Restored runtime requires external sheet rebind");
         roomAssets.Bind(restoredRuntime);
         restoredRuntime.Artwork.MapPresentation = maps;
         restoredRuntime.Player.IntroducedSamus.Presentation.TileTransfers.BindArtwork(roomAssets.SamusBody);
         restoredRuntime.Player.IntroducedSamus.ArmCannon.Artwork = roomAssets.SamusBody.ArmCannon;
-        restored.BindArtwork(restored.Artwork with
-        {
-            ProjectileCompositions = edited,
-        });
-        game.BindArtwork(game.Artwork with
-        {
-            ProjectileCompositions = edited,
-        });
-        AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Restored graph draws current edited content after rebind");
-        Console.WriteLine("Projectile runtime binding: three actor draw passes, stock parity, visual edits and nonserialized restore/rebind pass.");
+        restored.BindArtwork(restored.Artwork with { SpriteSheets = sheets });
+        AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Restored graph draws the bound sheets after rebind");
+        Console.WriteLine("Projectile runtime binding: three actor draw passes, sheet frames, sheet rebinding and nonserialized restore/rebind pass.");
 
-        SuperMetroid.Core.Frontend.SuperMetroidGame CloneGame()
+        static byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
         {
-            using var snapshot = new MemoryStream();
-            SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(snapshot, game);
-            snapshot.Position = 0;
-            var clone = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer
-                .Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(snapshot);
-            var cloneRuntime = clone.Session.GameplayRuntime;
-            roomAssets.Bind(cloneRuntime);
-            cloneRuntime.Artwork.MapPresentation = maps;
-            cloneRuntime.Player.IntroducedSamus.Presentation.TileTransfers.BindArtwork(roomAssets.SamusBody);
-            cloneRuntime.Player.IntroducedSamus.ArmCannon.Artwork = roomAssets.SamusBody.ArmCannon;
-            return clone;
+            target.Sprites.BeginFrame();
+            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
+            target.Sprites.FinalizeFrame();
+            OamBuffer image = target.Sprites.FinalizedAsOam();
+            return image.LowTable.ConcatToArray(image.HighTable);
+        }
+        static ImageSpriteDraw Shown(SuperMetroid.Core.Runtime.SuperMetroidRuntime target, SpriteSourceKind kind)
+        {
+            target.Sprites.BeginFrame();
+            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
+            target.Sprites.FinalizeFrame();
+            return target.Sprites.Draws.OfType<ImageSpriteDraw>().Single(draw => draw.Source.Kind == kind);
         }
     }
 

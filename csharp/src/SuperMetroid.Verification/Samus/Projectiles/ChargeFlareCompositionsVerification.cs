@@ -41,7 +41,7 @@ internal static class ChargeFlareCompositionsVerification
         SamusBodyArtworkCatalog body = installation.LoadSamusBodyArt();
         var roomAssets = new MapPresentationInstalledRoomAssets(installation);
         var maps = installation.LoadMaps();
-        Suite(nameof(VerifyChargeFlareProduction), () => VerifyChargeFlareProduction(bus, stock, Load(allEdited), body,
+        Suite(nameof(VerifyChargeFlareProduction), () => VerifyChargeFlareProduction(bus, stock, body,
             roomAssets, maps));
         Suite(nameof(VerifyGrappleFlarePresentation), () => VerifyGrappleFlarePresentation(bus, stock, Load(allEdited), body,
             roomAssets, maps, installation.LoadProjectiles().GrappleTiles));

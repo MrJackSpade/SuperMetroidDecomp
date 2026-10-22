@@ -9,21 +9,24 @@ public sealed class SamusProjectileTrailSide
     public WrappingCountdown InstructionTimer { get; internal set; }
     /// <summary>The side's place in its trail program: the step it runs when its timer next expires.</summary>
     public ProjectileTrailCursor Cursor { get; internal set; }
-    /// <summary>Packed tile number and OBJ attributes drawn for this trail side.</summary>
-    public SnesObjAttributeWord TileNumberAttributes { get; internal set; }
+    /// <summary>
+    /// The pose this side last showed, which it draws; null once cleared. Allocation does not clear it, so a new trail
+    /// shows the slot's previous pose until its own first one, as the cartridge's retained tile word does.
+    /// </summary>
+    public ProjectileTrailFrame? ShownPose { get; internal set; }
     /// <summary>
     /// Room-pixel position the side shows this frame: <see cref="Position"/> when the side last advanced. `$90:B6A9`
     /// draws each side right after advancing it, so a sibling's later move command shows only on the next frame.
     /// </summary>
     public Position16<RoomPixels> DisplayedPosition { get; internal set; }
 
-    /// <summary>Resets the sprite position, timer, program cursor, and OBJ attributes for one trail side.</summary>
+    /// <summary>Resets the sprite position, timer, program cursor and shown pose for one trail side.</summary>
     internal void ClearFields()
     {
         Position = Position16<RoomPixels>.Zero;
         InstructionTimer = WrappingCountdown.Start(0);
         Cursor = default;
-        TileNumberAttributes = default;
+        ShownPose = null;
         DisplayedPosition = Position16<RoomPixels>.Zero;
     }
 }

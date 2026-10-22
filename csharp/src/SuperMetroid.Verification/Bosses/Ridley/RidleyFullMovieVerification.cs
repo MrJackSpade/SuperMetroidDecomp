@@ -1413,7 +1413,7 @@ internal static class RidleyFullMovieVerification
                     if (!trail.Left.InstructionTimer.IsZero)
                     {
                         Check($"Trail {trail.SlotIndex} Left InstructionPointer", trail.Left.InstructionPointer, NativeSnapshotMemory.TrailLeftInstructionPointer + trail.NativeByteIndex);
-                        Check($"Trail {trail.SlotIndex} Left TileNumberAttributes", trail.Left.TileNumberAttributes, NativeSnapshotMemory.TrailLeftTileNumberAttributes + trail.NativeByteIndex);
+                        Check($"Trail {trail.SlotIndex} Left TileNumberAttributes", ProjectileTrailNative.NativeWord(trail.Left.ShownPose), NativeSnapshotMemory.TrailLeftTileNumberAttributes + trail.NativeByteIndex);
                         Check($"Trail {trail.SlotIndex} Left XPosition", trail.Left.Position.X, NativeSnapshotMemory.TrailLeftXPosition + trail.NativeByteIndex);
                         Check($"Trail {trail.SlotIndex} Left YPosition", trail.Left.Position.Y, NativeSnapshotMemory.TrailLeftYPosition + trail.NativeByteIndex);
                     }
@@ -1421,7 +1421,7 @@ internal static class RidleyFullMovieVerification
                     if (!trail.Right.InstructionTimer.IsZero)
                     {
                         Check($"Trail {trail.SlotIndex} Right InstructionPointer", trail.Right.InstructionPointer, NativeSnapshotMemory.TrailRightInstructionPointer + trail.NativeByteIndex);
-                        Check($"Trail {trail.SlotIndex} Right TileNumberAttributes", trail.Right.TileNumberAttributes, NativeSnapshotMemory.TrailRightTileNumberAttributes + trail.NativeByteIndex);
+                        Check($"Trail {trail.SlotIndex} Right TileNumberAttributes", ProjectileTrailNative.NativeWord(trail.Right.ShownPose), NativeSnapshotMemory.TrailRightTileNumberAttributes + trail.NativeByteIndex);
                         Check($"Trail {trail.SlotIndex} Right XPosition", trail.Right.Position.X, NativeSnapshotMemory.TrailRightXPosition + trail.NativeByteIndex);
                         Check($"Trail {trail.SlotIndex} Right YPosition", trail.Right.Position.Y, NativeSnapshotMemory.TrailRightYPosition + trail.NativeByteIndex);
                     }

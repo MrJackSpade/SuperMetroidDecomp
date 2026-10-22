@@ -9,8 +9,8 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// <summary>
 /// The shader's <c>SpriteDraws</c> buffer: one frame's whole-frame sprite draws packed as Objects.hlsli reads them.
 /// Word 0 holds the record count, then four words per record in front-to-back order: a character draw's parts, or one
-/// record per image draw. Then each bound artwork's characters and each drawn image's pixels, once each. The GPU buffer
-/// grows to fit the largest frame seen.
+/// record per image draw. Then each bound artwork's characters and each drawn sheet frame's pixels, once each, so a
+/// large sheet costs only the frames a scene shows. The GPU buffer grows to fit the largest frame seen.
 /// </summary>
 internal sealed class D3D11SpriteDrawBuffer : IDisposable
 {
@@ -34,7 +34,7 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     private const uint ImageFlag = 1 << 7;
     /// <summary>Flags bit marking an image that takes part in colour blending.</summary>
     private const uint BlendsFlag = 1 << 8;
-    /// <summary>Flags position of an image record's sheet width, the stride between its pixel rows.</summary>
+    /// <summary>Flags position of an image record's frame width, the stride between its uploaded pixel rows.</summary>
     private const int StrideShift = 16;
 
     /// <summary>Device that owns the buffer.</summary>
@@ -67,13 +67,13 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
             };
         int words = HeaderWords + records * RecordWords;
         var artworkWords = new Dictionary<SpriteArtwork, int>(ReferenceEqualityComparer.Instance);
-        var imageWords = new Dictionary<SpriteImage, int>(ReferenceEqualityComparer.Instance);
+        var imageWords = new Dictionary<SpriteSheetFrame, int>(ReferenceEqualityComparer.Instance);
         foreach (SpriteDraw draw in draws)
         {
             if (draw is CharacterSpriteDraw character && artworkWords.TryAdd(character.Artwork, words))
                 words += character.Artwork.CharacterCount * CharacterWords;
-            else if (draw is ImageSpriteDraw image && imageWords.TryAdd(image.Image.Sheet, words))
-                words += image.Image.Sheet.Pixels.Length;
+            else if (draw is ImageSpriteDraw image && imageWords.TryAdd(image.Image, words))
+                words += image.Image.Size.X * image.Image.Size.Y;
         }
         if (words > Upload.Length)
         {
@@ -88,7 +88,7 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         {
             if (draw is ImageSpriteDraw image)
             {
-                PackImage(upload.Slice(record, RecordWords), image, imageWords[image.Image.Sheet]);
+                PackImage(upload.Slice(record, RecordWords), image, imageWords[image.Image]);
                 record += RecordWords;
                 continue;
             }
@@ -108,24 +108,32 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         foreach ((SpriteArtwork artwork, int offset) in artworkWords)
             System.Runtime.InteropServices.MemoryMarshal.Cast<byte, uint>(artwork.Characters)
                 .CopyTo(upload[offset..]);
-        foreach ((SpriteImage sheet, int offset) in imageWords)
+        foreach ((SpriteSheetFrame frame, int offset) in imageWords)
         {
-            ReadOnlySpan<Rgba32> pixels = sheet.Pixels;
-            for (int index = 0; index < pixels.Length; index++)
-                upload[offset + index] = D3D11ConstantPacking.Bytes(pixels[index].R, pixels[index].G, pixels[index].B, pixels[index].A);
+            ReadOnlySpan<Rgba32> pixels = frame.Sheet.Pixels;
+            int target = offset;
+            for (int row = 0; row < frame.Size.Y; row++)
+            {
+                int source = (frame.Corner.Y + row) * frame.Sheet.Size.X + frame.Corner.X;
+                for (int column = 0; column < frame.Size.X; column++, target++)
+                {
+                    Rgba32 pixel = pixels[source + column];
+                    upload[target] = D3D11ConstantPacking.Bytes(pixel.R, pixel.G, pixel.B, pixel.A);
+                }
+            }
         }
     }
 
-    /// <summary>Packs one image draw: its screen rectangle, mirroring, priority, blending and first pixel of its frame.</summary>
-    private static void PackImage(Span<uint> record, ImageSpriteDraw draw, int sheetWords)
+    /// <summary>Packs one image draw: its screen rectangle, mirroring, priority, blending and its frame's uploaded pixels.</summary>
+    private static void PackImage(Span<uint> record, ImageSpriteDraw draw, int frameWords)
     {
         Offset16<ScreenPixels> corner = draw.Corner;
         SpriteSheetFrame frame = draw.Image;
         record[0] = D3D11ConstantPacking.Halves(unchecked((ushort)corner.X), unchecked((ushort)corner.Y));
         record[1] = D3D11ConstantPacking.Halves(frame.Size.X, frame.Size.Y);
         record[2] = ((draw.Mirror & SpriteMirror.Horizontal) != 0 ? FlipXFlag : 0) | ((draw.Mirror & SpriteMirror.Vertical) != 0 ? FlipYFlag : 0)
-            | (uint)draw.Priority << PriorityShift | ImageFlag | (frame.Blends ? BlendsFlag : 0) | (uint)frame.Sheet.Size.X << StrideShift;
-        record[3] = (uint)(sheetWords + frame.Corner.Y * frame.Sheet.Size.X + frame.Corner.X);
+            | (uint)draw.Priority << PriorityShift | ImageFlag | (frame.Blends ? BlendsFlag : 0) | (uint)frame.Size.X << StrideShift;
+        record[3] = (uint)frameWords;
     }
 
     /// <summary>The error for a kind of draw this buffer cannot pack.</summary>

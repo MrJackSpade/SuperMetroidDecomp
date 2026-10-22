@@ -6,6 +6,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
@@ -25,7 +26,7 @@ internal static class SpriteSheetFilesVerification
         {
             string stock = Path.Combine(scratch.FullName, "stock");
             string overrides = Path.Combine(scratch.FullName, "overrides");
-            SpriteSheetFiles.Extract(bus, stock, SupportedCartridge.Sha256);
+            SpriteSheetFiles.Extract(bus, RepositoryInstallation.Installation.ContentDirectory, stock, SupportedCartridge.Sha256);
             InstalledSpriteSheets installed = SpriteSheetFiles.Load(stock, null);
 
             ComposedSpriteSheet composed = EscapeTimerSheetComposer.Compose(bus);

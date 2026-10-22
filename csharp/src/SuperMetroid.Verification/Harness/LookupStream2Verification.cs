@@ -1394,6 +1394,8 @@ internal static class LookupStream2Verification
         byte[] json = ProjectileTrailExtractor.Extract(bus);
         var catalog = ProjectileTrailCatalog.Load(new MemoryStream(json));
         var encountered = new HashSet<ushort>();
+        // The cartridge's retained tile words, which the native interpreter keeps beside the port's sides.
+        var nativeWords = new Dictionary<SamusProjectileTrailSide, ushort>();
         foreach (ushort start in new[] { ProjectileTrailDefinitions.LeftIce, ProjectileTrailDefinitions.RightIce, ProjectileTrailDefinitions.Wave, ProjectileTrailDefinitions.Missile })
         {
             ushort cursor = start;
@@ -1405,6 +1407,7 @@ internal static class LookupStream2Verification
                 else { cursor += 2; }
             }
             var nativeSystem = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Overreads = InstalledFixtures.SamusOverreads }; var authoredSystem = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Overreads = InstalledFixtures.SamusOverreads };
+            nativeWords.Clear();
             foreach (var system in new[] { nativeSystem, authoredSystem })
             {
                 var pair = system.TrailSlots[0];
@@ -1419,8 +1422,8 @@ internal static class LookupStream2Verification
                 StepNative(nativeSystem.TrailSlots[0], nativeSystem.TrailSlots[0].Right, nativeOam, frozenFrame);
                 OamBuffer authoredOam = SpriteFrameBuffer.DrawnOam(frame =>
                 {
-                    authoredSystem.AdvanceTrails(frozenFrame, catalog);
-                    authoredSystem.DrawTrails(frame, Position16<RoomPixels>.Zero, catalog, InstalledFixtures.ProjectileArtwork());
+                    authoredSystem.AdvanceTrails(frozenFrame);
+                    authoredSystem.DrawTrails(frame, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork());
                 });
                 AssertTrue(nativeOam.LowTable.SequenceEqual(authoredOam.LowTable), "Trail catalog preserves live command/termination/freeze frame output");
                 foreach (var sides in new[] { new VerifyLookupStream2TrailProgramsCase(nativeSystem.TrailSlots[0].Left, authoredSystem.TrailSlots[0].Left), new VerifyLookupStream2TrailProgramsCase(nativeSystem.TrailSlots[0].Right, authoredSystem.TrailSlots[0].Right) })
@@ -1462,7 +1465,7 @@ internal static class LookupStream2Verification
                     {
                         side.InstructionTimer = WrappingCountdown.FromRaw(word);
                         if (word == 0) return;
-                        side.TileNumberAttributes = ReadVerificationWord(bus, 0x900000 | (cursor + 2));
+                        nativeWords[side] = ReadVerificationWord(bus, 0x900000 | (cursor + 2));
                         side.InstructionPointer = (ushort)(cursor + 4);
                         break;
                     }
@@ -1472,7 +1475,7 @@ internal static class LookupStream2Verification
                     else throw new InvalidDataException($"Unexpected native trail command {word:X4}.");
                 }
             }
-            oam.AddProjectileTrailSprite(new Position16<OamPixels>((byte)side.Position.X, (byte)side.Position.Y), side.TileNumberAttributes);
+            oam.AddProjectileTrailSprite(new Position16<OamPixels>((byte)side.Position.X, (byte)side.Position.Y), nativeWords.GetValueOrDefault(side));
         }
     }
 

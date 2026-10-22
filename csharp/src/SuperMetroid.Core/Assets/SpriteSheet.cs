@@ -47,6 +47,7 @@ public sealed class SpriteSheet
             content.Append("origin x", frame.Origin.X);
             content.Append("origin y", frame.Origin.Y);
             content.Append("blends", frame.Blends ? 1 : 0);
+            content.Append("priority", frame.Priority);
         }
     }
 
@@ -66,7 +67,7 @@ public sealed class SpriteSheet
                 throw new InvalidDataException($"Sprite sheet {image.Name} frame {name} is null.");
             try
             {
-                frames.Add(name, new SpriteSheetFrame(image, frame.Corner, frame.Size, frame.Origin, frame.Blends));
+                frames.Add(name, new SpriteSheetFrame(image, frame.Corner, frame.Size, frame.Origin, frame.Blends, frame.Priority));
             }
             catch (ArgumentException error)
             {

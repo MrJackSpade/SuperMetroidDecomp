@@ -14,13 +14,13 @@ internal static class ChargeFlareDrawAccess
     extension(SamusProjectileSystem system)
     {
         /// <summary>
-        /// Advances the flare, publishes the components it shows over the installed projectile page, and returns the
+        /// Advances the flare, publishes the components it shows from the installed projectile sheet, and returns the
         /// OAM image those draws stand for.
         /// </summary>
         internal OamBuffer ChargeFlareOam(SamusState samus, Position16<RoomPixels> layer1,
-            ChargeFlarePlacementCatalog? placement, ChargeFlareSpriteCatalog? compositions, SamusMode7Transform? mode7Transform = null) =>
+            ChargeFlarePlacementCatalog? placement, SamusMode7Transform? mode7Transform = null) =>
             SpriteFrameBuffer.DrawnOam(frame => system.DrawChargeFlare(frame, samus, layer1,
                 system.AdvanceChargeFlare(samus), mode7Transform,
-                new ChargeFlareArtwork { Placement = placement, Compositions = compositions, Objects = InstalledFixtures.ProjectileArtwork() }));
+                new ChargeFlareArtwork { Placement = placement, Objects = InstalledFixtures.ProjectileArtwork() }));
     }
 }

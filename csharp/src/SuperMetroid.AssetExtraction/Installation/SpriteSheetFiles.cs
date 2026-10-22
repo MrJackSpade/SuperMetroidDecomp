@@ -6,6 +6,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 
@@ -25,18 +27,21 @@ public static class SpriteSheetFiles
     private const int FormatVersion = 1;
 
     /// <summary>Composes and writes every sheet, then validates the result.</summary>
-    /// <param name="bus">Cartridge source for the frames, characters and colours.</param>
+    /// <param name="bus">Cartridge source for frames no installed artwork holds.</param>
+    /// <param name="content">Installed stock content holding the characters, compositions and colours the sheets compose from.</param>
     /// <param name="directory">Destination directory, created if absent.</param>
     /// <param name="sourceCartridgeSha256">Identity written into the manifest.</param>
-    public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
+    public static void Extract(ISnesAddressSpace bus, string content, string directory, string sourceCartridgeSha256)
     {
         Ensure.NotNull(bus);
+        ArgumentException.ThrowIfNullOrWhiteSpace(content);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         Directory.CreateDirectory(directory);
         var hashes = new Dictionary<string, string>(StringComparer.Ordinal);
+        ProjectileSheetComposer.ProjectileSheetInputs projectiles = ProjectileSheetComposer.ProjectileSheetInputs.Load(content);
         foreach (SpriteSheetId sheet in SpriteSheetDefinitions.Sheets)
         {
-            ComposedSpriteSheet composed = Compose(bus, sheet);
+            ComposedSpriteSheet composed = Compose(bus, projectiles, sheet);
             using var image = new MemoryStream();
             RgbaPng.Write(image, composed.Size, composed.Pixels);
             Write(directory, ImageFile(sheet), image.ToArray(), hashes);
@@ -86,18 +91,19 @@ public static class SpriteSheetFiles
     /// <summary>Used by installer completeness checks; overrides do not affect stock provenance.</summary>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
-    /// <summary>Composes one sheet from the cartridge.</summary>
-    private static ComposedSpriteSheet Compose(ISnesAddressSpace bus, SpriteSheetId sheet) => sheet switch
+    /// <summary>Composes one sheet.</summary>
+    private static ComposedSpriteSheet Compose(ISnesAddressSpace bus, ProjectileSheetComposer.ProjectileSheetInputs projectiles,
+        SpriteSheetId sheet) => sheet switch
     {
         SpriteSheetId.EscapeTimer => EscapeTimerSheetComposer.Compose(bus),
-        _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
+        _ => ProjectileSheetComposer.Compose(projectiles, sheet),
     };
 
     /// <summary>The frames a sheet must hold: the ones its family draws.</summary>
     internal static IEnumerable<string> FrameNames(SpriteSheetId sheet) => sheet switch
     {
         SpriteSheetId.EscapeTimer => EscapeTimerPresentationDefinitions.Glyphs.Select(EscapeTimerPresentationDefinitions.FrameName),
-        _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
+        _ => ProjectileSheetDefinitions.Frames,
     };
 
     /// <summary>A sheet's image file name.</summary>

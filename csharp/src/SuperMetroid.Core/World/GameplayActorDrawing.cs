@@ -62,9 +62,8 @@ internal sealed class GameplayActorDrawing
         _room = dependencies.Room;
     }
 
-    /// <summary>What Samus's projectile, bomb, flare and trail draws bind: compositions and the page of the beam last loaded.</summary>
-    private ProjectileDrawArtwork ProjectileArtwork => new(_artwork.ProjectileCompositions, _artwork.ProjectileObjects,
-        _artwork.LoadedBeams);
+    /// <summary>What Samus's projectile, bomb, flare and trail draws show: the sheet of the beam last loaded.</summary>
+    private ProjectileDrawArtwork ProjectileArtwork => new(_artwork.ProjectileSheets, _artwork.LoadedBeams);
     /// <summary>Shared enemy-layer/Samus/projectile drawing, independently of movement.</summary>
     internal void DrawGameplayActors(RoomScope room, SamusDrawOwner owner, SamusPaletteEffects paletteEffects = SamusPaletteEffects.Advance)
     {
@@ -295,7 +294,6 @@ internal sealed class GameplayActorDrawing
                         new ChargeFlareArtwork
                         {
                             Placement = _artwork.ChargeFlarePlacement,
-                            Compositions = _artwork.ChargeFlareCompositions,
                             Objects = ProjectileArtwork,
                         });
                 }
@@ -376,8 +374,8 @@ internal sealed class GameplayActorDrawing
             // `$90:B6A9`. Trails are detached world-space objects, so they must keep
             // animating after their source beam has collided or left the viewport.
             // Trails animate as a simulation phase, under time freeze too, then show where they are.
-            room.Projectiles.AdvanceTrails(_freeze.TimeIsFrozen, _artwork.TrailArtwork);
-            room.Projectiles.DrawTrails(_sprites, _room.Camera.PixelPosition, _artwork.TrailArtwork, ProjectileArtwork);
+            room.Projectiles.AdvanceTrails(_freeze.TimeIsFrozen);
+            room.Projectiles.DrawTrails(_sprites, _room.Camera.PixelPosition, ProjectileArtwork);
 
             // The native post-draw input snapshot survives the next alpha pass. In
             // particular, Fire can first cancel a spin and then start Grapple without

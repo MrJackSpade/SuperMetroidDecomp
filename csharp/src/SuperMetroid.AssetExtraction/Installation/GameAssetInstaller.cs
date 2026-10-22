@@ -251,8 +251,6 @@ public static class GameAssetInstaller
             Step("Extracting gameplay base palettes...", (bus, d) => GameplayBasePaletteFiles.Extract(bus, d, SupportedCartridge.Sha256), GameplayBasePaletteFiles.ValidateStock)),
         new(GameInstallationLayout.SamusOverreadDirectoryName,
             Step("Extracting Samus overread bytes...", (bus, d) => SamusOverreadFiles.Extract(bus, d, SupportedCartridge.Sha256), SamusOverreadFiles.ValidateStock)),
-        new(GameInstallationLayout.SpriteSheetDirectoryName,
-            Step("Composing sprite sheets...", (bus, d) => SpriteSheetFiles.Extract(bus, d, SupportedCartridge.Sha256), SpriteSheetFiles.ValidateStock)),
         new(GameInstallationLayout.StandardObjectDirectoryName,
             Step("Extracting standard sprite artwork...", (bus, d) => StandardObjectArtworkFiles.Extract(bus, d, SupportedCartridge.Sha256), StandardObjectArtworkFiles.ValidateStock)),
         new(GameInstallationLayout.ProjectileDirectoryName,
@@ -338,6 +336,10 @@ public static class GameAssetInstaller
             Step("Extracting permanent-item tile PNGs...", (bus, d) => RoomPlmDynamicCollectibleArtFiles.Extract(bus, d, SupportedCartridge.Sha256), RoomPlmDynamicCollectibleArtFiles.ValidateStock)),
         new(GameInstallationLayout.XrayRevealVisualDirectoryName,
             Step("Extracting X-ray reveal visuals...", (bus, d) => XrayRevealVisualFiles.Extract(bus, d, SupportedCartridge.Sha256), XrayRevealVisualFiles.ValidateStock)),
+        // Last: the sheets compose from the stock artwork every earlier component has installed beside them.
+        new(GameInstallationLayout.SpriteSheetDirectoryName,
+            Step("Composing sprite sheets...", (bus, d) => SpriteSheetFiles.Extract(bus, Path.GetDirectoryName(d)!, d, SupportedCartridge.Sha256),
+                SpriteSheetFiles.ValidateStock)),
     ];
 
     /// <summary>Content failures a repair rebuilds from the ROM, rather than errors to surface.</summary>

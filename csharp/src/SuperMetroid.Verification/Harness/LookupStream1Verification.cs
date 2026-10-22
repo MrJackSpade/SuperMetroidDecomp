@@ -1647,9 +1647,9 @@ internal static class LookupStream1Verification
             var expected = new OamBuffer();
             DrawImportedFlareSpritemap((SuperMetroidAddressSpace)rom, expected, 0, new((ushort)(100 + x), unchecked((ushort)(100 + y - unchecked((byte)body.GraphicsYOffset(pose))))));
             OamBuffer actual = SpriteFrameBuffer.DrawnOam(frame => draw(frame, samus, Position16<RoomPixels>.Zero, 0, null,
-                new ChargeFlareArtwork { Placement = stock, Compositions = compositions, Objects = flareObjects }));
+                new ChargeFlareArtwork { Placement = stock, Objects = flareObjects }));
             OamBuffer edited = SpriteFrameBuffer.DrawnOam(frame => draw(frame, samus, Position16<RoomPixels>.Zero, 0, null,
-                new ChargeFlareArtwork { Placement = shifted, Compositions = compositions, Objects = flareObjects }));
+                new ChargeFlareArtwork { Placement = shifted, Objects = flareObjects }));
             AssertTrue(expected.ImageEquals(actual), "Actual flare OAM matches independently positioned native sprite");
             AssertEqual(expected.NextByteOffset / 4, actual.LastFinalizedSpriteCount, "Native flare OAM admission");
             AssertTrue(actual.LastFinalizedSpriteCount > 0, "Focused flare placement fixture emits its native sprite");

@@ -527,8 +527,10 @@ Sprites are moving to finished images. A sprite family that has moved is drawn f
 sheet in `game/sprite-sheets`: an RGBA PNG (`{family}.png`, transparent where alpha is zero) and its
 frame list (`{family}.json`: each frame's rectangle on the sheet, its origin, and whether it takes part
 in colour math). Place an edited copy of either in `overrides/sprite-sheets` under the same name; an
-edited frame list must keep every frame the family draws. The escape countdown (`escape-timer`) is the
-first family drawn this way. Its layout, `escape-timer.json` in `overrides/maps`, now holds only the
+edited frame list must keep every frame the family draws. The escape countdown (`escape-timer`) is drawn
+this way, as are Samus's projectiles, bombs, charge flare and trails: one sheet per beam combination
+(`projectiles-power`, `projectiles-plasma-ice-wave` and so on), whose characters and beam colours differ,
+and `intro-projectiles` for the intro's flashbacks. The escape countdown's layout, `escape-timer.json` in `overrides/maps`, now holds only the
 anchors and digit spacing; a layout written for the earlier version, which also held the frames and
 palette, is rejected until it is rewritten.
 

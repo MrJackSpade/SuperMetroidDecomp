@@ -59,22 +59,6 @@ public sealed class ProjectileTrailCatalog
         throw new InvalidDataException($"Missing trail frame {frame}.");
     }
 
-    /// <summary>Resolves the last shown trail appearance from the side's program cursor, preserving attributes when a newly allocated side has not shown a pose.</summary>
-    /// <param name="cursor">The side's cursor; after a pose it sits on the step that follows it.</param>
-    /// <param name="nativeAttributes">Retained tile/attribute word returned unchanged before the side's first pose, including while time is frozen.</param>
-    /// <returns>The selected appearance of the pose the side showed last, or the unchanged retained word before its first pose.</returns>
-    /// <exception cref="InvalidDataException">The step before the cursor is not a pose.</exception>
-    public ushort ResolveCurrent(SuperMetroid.Core.Samus.Projectiles.ProjectileTrailCursor cursor, ushort nativeAttributes)
-    {
-        // A frozen, newly allocated side has not shown its first pose. Preserve
-        // the native retained attributes rather than displaying an animation frame early.
-        if (cursor.PreviousPose is not { } shown)
-            return nativeAttributes;
-        return shown is SuperMetroid.Core.Samus.Projectiles.ProjectileTrailStep.Pose pose
-            ? Resolve(pose.Frame)
-            : throw new InvalidDataException($"Trail cursor {cursor} does not follow a pose.");
-    }
-
     /// <summary>Validates every native trail-frame appearance and compiles independent OBJ attributes, retaining only differences from the default appearances.</summary>
     /// <param name="json">Case-sensitive UTF-8 JSON read from its current position; the caller retains ownership of the stream.</param>
     /// <param name="tiles">Optional tile provider associated with this catalog by reference, without uploading graphics or changing frame validation.</param>

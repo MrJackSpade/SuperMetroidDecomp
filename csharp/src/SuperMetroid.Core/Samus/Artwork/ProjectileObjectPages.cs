@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Artwork;
@@ -32,11 +31,6 @@ public sealed class ProjectileObjectPages
         this.trails = Ensure.NotNull(trails);
     }
 
-    /// <summary>The page bound for an equipped-beam word.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The word selects no beam combination (bits 4-11 set).</exception>
-    public SpriteArtwork For(SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams) =>
-        For(new SamusBeamLoadoutWord(equippedBeams).Combination ?? throw new ArgumentOutOfRangeException(
-            nameof(equippedBeams), equippedBeams, "Equipped-beam index is outside the beam-combination tables."));
 
     /// <summary>The page bound for a beam combination.</summary>
     public SpriteArtwork For(SamusBeamCombination beam) => pages.GetOrAdd(beam, Compose);

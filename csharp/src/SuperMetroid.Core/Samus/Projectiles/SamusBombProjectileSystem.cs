@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
@@ -293,9 +294,10 @@ public sealed class SamusBombProjectileSystem
             if (screenX < -48 || screenX >= 304 || (SnesLittleEndian.HighByteInPlace(screenY)) != 0)
                 continue;
 
-            sprites.Add(new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.SamusBomb, slotIndex),
-                artwork.Sprites.Frame(slot.Sprite ?? throw new InvalidOperationException("A drawn bomb shows a composition.")), artwork.Page,
-                new Position16<ScreenPixels>(unchecked((ushort)screenX), screenY), default, 0, 0));
+            SpriteSheetFrame image = artwork.Sheet.Frame(ProjectileSheetDefinitions.ProjectileFrame(
+                slot.Sprite ?? throw new InvalidOperationException("A drawn bomb shows a composition.")));
+            sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusBomb, slotIndex), image,
+                new Position16<ScreenPixels>(unchecked((ushort)screenX), screenY), SpriteMirror.None, image.Priority));
         }
     }
 

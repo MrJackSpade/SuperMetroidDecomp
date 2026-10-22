@@ -144,7 +144,7 @@ public sealed class SamusProjectileSystem
         SuperMetroid.Core.Samus.Artwork.BeamPaletteCatalog? palettes)
     {
         Ensure.NotNull(cgram);
-        LoadSelectedBeamPalette(cgram, SelectedCombination(equippedBeams), palettes);
+        LoadBeamPalette(cgram, SelectedCombination(equippedBeams), palettes);
     }
 
     /// <summary>
@@ -155,8 +155,8 @@ public sealed class SamusProjectileSystem
         new SamusBeamLoadoutWord(equippedBeams).Combination ?? throw new ArgumentOutOfRangeException(
             nameof(equippedBeams), equippedBeams, "Equipped-beam index is outside the beam-combination tables.");
 
-    /// <summary>Loads a selected beam's final CGRAM palette from installed art or the special beam definitions.</summary>
-    private static void LoadSelectedBeamPalette(IPaletteColors cgram,
+    /// <summary>Loads a beam combination's final CGRAM palette from installed art or the special beam definitions.</summary>
+    public static void LoadBeamPalette(IPaletteColors cgram,
         SamusBeamCombination selection, SuperMetroid.Core.Samus.Artwork.BeamPaletteCatalog? palettes)
     {
         switch (selection)
@@ -665,10 +665,7 @@ public sealed class SamusProjectileSystem
     /// WRAM <c>$0A78</c>. Frozen trails retain their current record and are still drawn;
     /// their timers and embedded position commands do not advance.
     /// </param>
-    /// <param name="artwork">Installed trail frame artwork; required by a trail side when it resolves a timed display record.</param>
-    public void AdvanceTrails(
-        bool timeIsFrozen,
-        SuperMetroid.Core.Samus.Artwork.ProjectileTrailCatalog? artwork = null)
+    public void AdvanceTrails(bool timeIsFrozen)
     {
 
         // Native Y starts at byte index $22, so the most recently preferred allocation slot
@@ -676,28 +673,26 @@ public sealed class SamusProjectileSystem
         for (int slotIndex = TrailSlotCount - 1; slotIndex >= 0; slotIndex--)
         {
             SamusProjectileTrailSlot slot = SlotTable.TrailSlots[slotIndex];
-            ProjectileTrails.AdvanceTrailSide(slot, timeIsFrozen, direction: HorizontalDirection.Left, artwork);
-            ProjectileTrails.AdvanceTrailSide(slot, timeIsFrozen, direction: HorizontalDirection.Right, artwork);
+            ProjectileTrails.AdvanceTrailSide(slot, timeIsFrozen, direction: HorizontalDirection.Left);
+            ProjectileTrails.AdvanceTrailSide(slot, timeIsFrozen, direction: HorizontalDirection.Right);
         }
     }
 
     /// <summary>Publishes every live trail side, in the advance's slot and side order.</summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="layer1">Whole-pixel room camera origin subtracted from trail coordinates.</param>
-    /// <param name="artwork">Installed trail frame artwork.</param>
-    /// <param name="objects">The projectile OBJ page the trail characters are bound in.</param>
+    /// <param name="objects">The projectile sheet the trail poses are drawn from.</param>
     public void DrawTrails(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> layer1,
-        SuperMetroid.Core.Samus.Artwork.ProjectileTrailCatalog? artwork,
         ProjectileDrawArtwork objects)
     {
         Ensure.NotNull(sprites);
         for (int slotIndex = TrailSlotCount - 1; slotIndex >= 0; slotIndex--)
         {
             SamusProjectileTrailSlot slot = SlotTable.TrailSlots[slotIndex];
-            ProjectileTrails.DrawTrailSide(sprites, slot, slotIndex, layer1, direction: HorizontalDirection.Left, artwork, objects);
-            ProjectileTrails.DrawTrailSide(sprites, slot, slotIndex, layer1, direction: HorizontalDirection.Right, artwork, objects);
+            ProjectileTrails.DrawTrailSide(sprites, slot, slotIndex, layer1, direction: HorizontalDirection.Left, objects);
+            ProjectileTrails.DrawTrailSide(sprites, slot, slotIndex, layer1, direction: HorizontalDirection.Right, objects);
         }
     }
 

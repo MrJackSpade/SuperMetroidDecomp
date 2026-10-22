@@ -105,6 +105,14 @@ public sealed class IntroCinematicArtworkCatalog
     /// <summary>Destruction maps and subsequent Zebes reveal art.</summary>
     public CeresDestructionArtworkCatalog CeresDestruction { get; }
 
+    /// <summary>The intro OBJ page: the intro sheet with the cinematic sheet uploaded over its tail.</summary>
+    public SpriteArtwork ObjectPage()
+    {
+        var id = new SpriteArtworkId(SpriteArtworkKind.IntroObjects);
+        return ObjCharacterPage.With(id, ObjCharacterPage.Create(id, IntroObjectCharacters.Transfer.Span),
+            CinematicObjectCharacters.Transfer.Span, SuperMetroid.Core.Samus.Artwork.ProjectileObjectPageDefinitions.IntroCinematicObjectsFirstCharacter);
+    }
+
     /// <summary>Identity of the entire selected opening bundle, including its owned Ceres flight/reveal art.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(IntroCinematicArtworkCatalog), content =>
     {

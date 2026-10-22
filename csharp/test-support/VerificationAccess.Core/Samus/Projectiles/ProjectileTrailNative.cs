@@ -96,6 +96,27 @@ internal static class ProjectileTrailNative
             ? found
             : throw new InvalidDataException($"No trail pose is stored at $90:{address:X4}.");
 
+    /// <summary>The cartridge's retained tile word for a side's shown pose: the pose's stock appearance, or zero once cleared.</summary>
+    internal static ushort NativeWord(ProjectileTrailFrame? shownPose) =>
+        shownPose is { } pose ? SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Projectiles.Trails.Resolve(pose) : (ushort)0;
+
+    /// <summary>
+    /// The shown pose a retained tile word stands for: none for the cleared word, otherwise the first pose whose stock
+    /// appearance it is. Poses that share a word look alike.
+    /// </summary>
+    /// <exception cref="InvalidDataException">No pose has the word as its appearance.</exception>
+    internal static ProjectileTrailFrame? ShownPose(ushort nativeWord)
+    {
+        if (nativeWord == 0)
+            return null;
+        foreach (ProjectileTrailFrame pose in ProjectileTrailVisualDefinitions.Frames)
+        {
+            if (NativeWord(pose) == nativeWord)
+                return pose;
+        }
+        throw new InvalidDataException($"No trail pose appears as tile word ${nativeWord:X4}.");
+    }
+
     /// <summary>The installed name of <paramref name="frame"/>.</summary>
     internal static string Name(ProjectileTrailFrame frame) =>
         ProjectileTrailVisualDefinitions.FrameNames[ProjectileTrailVisualDefinitions.Frames.ToList().IndexOf(frame)];

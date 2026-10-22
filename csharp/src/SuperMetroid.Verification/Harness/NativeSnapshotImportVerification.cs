@@ -207,8 +207,8 @@ internal static class NativeSnapshotImportVerification
             trail.Right.InstructionTimer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.TrailRightInstructionTimer + trail.NativeByteIndex));
             trail.Left.InstructionPointer = W(NativeSnapshotMemory.TrailLeftInstructionPointer + trail.NativeByteIndex);
             trail.Right.InstructionPointer = W(NativeSnapshotMemory.TrailRightInstructionPointer + trail.NativeByteIndex);
-            trail.Left.TileNumberAttributes = W(NativeSnapshotMemory.TrailLeftTileNumberAttributes + trail.NativeByteIndex);
-            trail.Right.TileNumberAttributes = W(NativeSnapshotMemory.TrailRightTileNumberAttributes + trail.NativeByteIndex);
+            trail.Left.ShownPose = ProjectileTrailNative.ShownPose(W(NativeSnapshotMemory.TrailLeftTileNumberAttributes + trail.NativeByteIndex));
+            trail.Right.ShownPose = ProjectileTrailNative.ShownPose(W(NativeSnapshotMemory.TrailRightTileNumberAttributes + trail.NativeByteIndex));
             trail.Left.Position = new Position16<RoomPixels>(
                 W(NativeSnapshotMemory.TrailLeftXPosition + trail.NativeByteIndex), W(NativeSnapshotMemory.TrailLeftYPosition + trail.NativeByteIndex));
             trail.Right.Position = new Position16<RoomPixels>(

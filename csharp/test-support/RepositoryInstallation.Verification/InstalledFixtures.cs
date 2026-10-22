@@ -84,12 +84,15 @@ internal static class InstalledFixtures
     /// <summary>The installation's projectile artwork and frame bindings, loaded once per process.</summary>
     internal static InstalledProjectilePresentation Projectiles => projectiles.Value;
 
-    /// <summary>
-    /// Projectile draw artwork binding <paramref name="compositions"/> (the installed ones when null) to pages of the
-    /// installed beam and trail characters over a blank standard OBJ page, for checks of draw geometry and bindings.
-    /// </summary>
-    internal static ProjectileDrawArtwork ProjectileArtwork(ProjectileSpriteCatalog? compositions = null, ushort equippedBeams = 0) =>
-        new(compositions ?? Projectiles.Catalog, projectilePages.Value, (SamusBeamFlags)equippedBeams);
+    /// <summary>Projectile draw artwork showing the installed gameplay projectile sheet of <paramref name="equippedBeams"/>.</summary>
+    internal static ProjectileDrawArtwork ProjectileArtwork(ushort equippedBeams = 0) =>
+        new(ProjectileSheets.Gameplay(SpriteSheets), (SamusBeamFlags)equippedBeams);
+
+    /// <summary>The installation's pre-coloured sprite sheets, loaded once per process.</summary>
+    internal static InstalledSpriteSheets SpriteSheets => spriteSheets.Value;
+
+    /// <summary>Backing loader for <see cref="SpriteSheets"/>.</summary>
+    private static readonly Lazy<InstalledSpriteSheets> spriteSheets = new(() => RepositoryInstallation.Installation.LoadSpriteSheets());
 
     /// <summary>The installation's standard OBJ sheet, loaded once per process.</summary>
     internal static SuperMetroid.Core.Rooms.Artwork.RoomCharacterAtlas StandardObjects => standardObjects.Value;
@@ -97,18 +100,14 @@ internal static class InstalledFixtures
     private static readonly Lazy<SuperMetroid.Core.Rooms.Artwork.RoomCharacterAtlas> standardObjects =
         new(() => RepositoryInstallation.Installation.LoadStandardObjects());
 
-    /// <summary>Binds the installed standard OBJ sheet and beam and trail artwork a runtime's projectile pages compose.</summary>
+    /// <summary>Binds the installed standard OBJ sheet, beam and trail artwork and the sprite sheets a runtime's projectiles draw from.</summary>
     internal static void BindProjectileArtwork(SuperMetroid.Core.Runtime.SuperMetroidRuntime runtime)
     {
         runtime.Artwork.StandardObjectArt = StandardObjects;
         runtime.Artwork.BeamArtwork = Projectiles.BeamTiles;
         runtime.Artwork.TrailArtwork = Projectiles.Trails;
+        runtime.Artwork.SpriteSheets = SpriteSheets;
     }
-
-    /// <summary>The installed beam and trail characters over a blank standard OBJ page.</summary>
-    private static readonly Lazy<ProjectileObjectPages> projectilePages = new(() => new(
-        SuperMetroid.Core.Assets.SpriteFrameTestArtwork.StandardObjects, Projectiles.BeamTiles,
-        Projectiles.Trails.Tiles ?? throw new InvalidOperationException("The installation has no trail characters.")));
 
     /// <summary>The installation's Samus body and arm-cannon artwork, loaded once per process.</summary>
     internal static SamusBodyArtworkCatalog SamusBody => samusBody.Value;

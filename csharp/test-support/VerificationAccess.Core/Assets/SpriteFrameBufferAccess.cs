@@ -23,7 +23,8 @@ internal static class SpriteFrameBufferAccess
     {
         /// <summary>
         /// Finalizes the frame and returns the OAM image the cartridge builds for it: its draws' parts in emission
-        /// order. Each part names OBJ character artwork-base + character, its coordinates wrap
+        /// order, an image draw standing for the composition its sheet frame was composed from. Each part names OBJ
+        /// character artwork-base + character, its coordinates wrap
         /// to OAM's nine-bit X and eight-bit Y, and 16-pixel parts are large. Unused records stay zero, as in a native
         /// buffer that was appended to but not finalized.
         /// </summary>
@@ -46,8 +47,11 @@ internal static class SpriteFrameBufferAccess
             var low = new byte[SnesPpuLayoutConstants.OamLowTableByteCount];
             var high = new byte[SnesPpuLayoutConstants.OamUploadByteCount - SnesPpuLayoutConstants.OamLowTableByteCount];
             int slot = 0;
-            foreach (SpriteDraw entry in sprites.Draws)
+            foreach (SpriteDraw drawn in sprites.Draws)
             {
+                // A projectile sheet frame stands for the composition it was composed from.
+                CharacterSpriteDraw entry = drawn as CharacterSpriteDraw ??
+                    SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.CharacterDraw((ImageSpriteDraw)drawn);
                 int baseCharacter = FirstObjCharacter(entry.Artwork.Id.Kind);
                 for (int part = 0; part < entry.Frame.Parts.Length; part++)
                 {

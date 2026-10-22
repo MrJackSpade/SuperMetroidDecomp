@@ -37,7 +37,7 @@ internal static class EscapeTimerSheetComposer
             frames.Add(KeyValuePair.Create(name, new SpriteFrame(name, ReadSpritemap(bus, spritemap))));
         }
         EscapeTimerTileAtlas tiles = EscapeTimerTileAtlas.Load(new MemoryStream(EscapeTimerTileAtlasExtractor.Extract(bus), writable: false));
-        return SpriteSheetComposer.Compose(frames, tiles.Artwork, GameplayBasePaletteFiles.RoomLoadSpriteColours(bus), PaletteRow);
+        return SpriteSheetComposer.Compose(frames, tiles.Artwork, GameplayBasePaletteFiles.RoomLoadSpriteColours(bus), PaletteRow, 0);
     }
 
     /// <summary>Reads one timer spritemap's parts, with characters counted from the timer artwork's first.</summary>

@@ -50,6 +50,10 @@ internal static class PowerBombFuseVerification
                 AssertEqual(new AnimationProgramCursor<SamusProjectileProgram>(fast, position),
                     SamusPowerBombFuse.FastAnimation(new AnimationProgramCursor<SamusProjectileProgram>(slow, position)),
                     $"{slow} position {position} switches to the same fast position");
+        // Each counterpart is the position the native fuse reaches by adding its offset to the live list pointer.
+        foreach (var counterpart in SamusPowerBombFuseData.FastCounterparts)
+            AssertEqual(unchecked((ushort)(SamusProjectileProgramAddresses.Address(counterpart.Key) + SamusPowerBombFuseData.FastAnimationOffset)),
+                SamusProjectileProgramAddresses.Address(counterpart.Value), $"{counterpart.Key} switches where the native list pointer lands");
         Suite(nameof(VerifyPowerBombRetainedRadiusSpeed), () => VerifyPowerBombRetainedRadiusSpeed());
         Suite(nameof(VerifyPowerBombRadiusWrap), () => VerifyPowerBombRadiusWrap());
         Console.WriteLine("Power Bomb fuse: native boundary/flag/wrap cases and complete 60-frame fuse agree.");

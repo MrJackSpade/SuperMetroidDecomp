@@ -23,10 +23,12 @@ public static class SamusPowerBombFuse
             SpawnExplosion: false, DeleteProjectile: false);
     }
 
-    /// <summary>
-    /// Switches a list to its fast-animation counterpart $1C bytes on, as the fuse's add to the live instruction pointer
-    /// does; the slow and fast lists share their layout, so the phase carries over.
-    /// </summary>
+    /// <summary>Switches a bomb or Power Bomb to the same frame of its fast animation.</summary>
+    /// <exception cref="InvalidDataException">The cursor is not a slow bomb or Power Bomb position.</exception>
     internal static AnimationProgramCursor<SamusProjectileProgram>? FastAnimation(AnimationProgramCursor<SamusProjectileProgram>? cursor) =>
-        cursor is { } live ? SamusProjectileProgramAddresses.Offset(live, SamusPowerBombFuseData.FastAnimationOffset) : null;
+        cursor is { } live
+            ? SamusPowerBombFuseData.FastCounterparts.TryGetValue(live, out AnimationProgramCursor<SamusProjectileProgram> fast)
+                ? fast
+                : throw new InvalidDataException($"{live} has no fast-animation counterpart.")
+            : null;
 }

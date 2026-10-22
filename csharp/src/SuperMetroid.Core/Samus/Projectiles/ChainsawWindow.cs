@@ -69,8 +69,10 @@ internal sealed class ChainsawWindow
         // variable word, so the fuse countdown is read from and written back to that word.
         PowerBombFuseStep fuse = SamusPowerBombFuse.Step(WrappingCountdown.FromRaw(checked((ushort)slot.Variable)), sharedProjectiles.PowerBombExplosion.IsArmed);
         slot.Variable = fuse.Timer.RawValue;
-        if (fuse.FastAnimation)
-            slot.Cursor = SamusPowerBombFuse.FastAnimation(slot.Cursor);
+        // On a beam the fuse's fast-list switch adds its offset to the beam's own list pointer, so where it lands is
+        // the native list layout's: a glitch the port reproduces through that layout.
+        if (fuse.FastAnimation && slot.Cursor is { } live)
+            slot.Cursor = SamusProjectileProgramAddresses.Offset(live, SamusPowerBombFuseData.FastAnimationOffset);
 
         if (fuse.SpawnExplosion)
             sharedProjectiles.PowerBombExplosion.Spawn(slot.Position.Whole);

@@ -69,11 +69,13 @@ internal static class RoomBlockPicturesVerification
     /// <summary>
     /// In the Parlor, whose rock background shows its room's load, and in the Tourian statue room, whose statues' frames
     /// rebind the characters its background reads, BG2 draws the library background's image, and every pixel of its two
-    /// pages paints what BG2's tilemap tiles paint over the live characters, frame after frame.
+    /// pages paints what BG2's tilemap tiles paint over the live characters, frame after frame. Crateria Power Bombs runs
+    /// the sky's main loop without its band HDMA, so BG2 shows its rock background's image, not the sky (#1403).
     /// </summary>
     internal static void VerifyRoomBackgroundImages()
     {
         CheckBackground(RoomHeaderDefinitions.Parlor, expectRebound: false);
+        CheckBackground(RoomHeaderDefinitions.CrateriaPowerBombs, expectRebound: false);
         CheckBackground(RoomHeaderDefinitions.Statues, expectRebound: true);
         CheckSky(RoomHeaderDefinitions.LandingSite);
     }

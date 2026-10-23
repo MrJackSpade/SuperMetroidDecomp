@@ -47,7 +47,7 @@ public static class SoftwareGameplayColorMathRenderer
         var hud = new BgPictureSampler(colors, memory.Cgram, rooms.ShownBg3.Shown(0, SnesPpuLayout.TilemapPageWidthInTiles));
         var bg1Sampler = new SnesBackgroundPixelSampler(memory.Vram, colors, memory.Cgram, rooms.Bg1Source, r.Bg1CharacterWord, BgBitDepth.FourBpp);
         var bg2Sampler = new SnesBackgroundPixelSampler(memory.Vram, colors, memory.Cgram,
-            rooms.Bg2Shown(new VramBgTilemap(memory.Vram, r.Bg2TilemapWord, r.Bg2MapSize), r.Bg2MapSize), r.Bg2CharacterWord, BgBitDepth.FourBpp);
+            rooms.Bg2Shown(r.Bg2MapSize), r.Bg2CharacterWord, BgBitDepth.FourBpp);
         var subSampler = layer.Subscreen is { } subLayer ? new BgPictureSampler(colors, memory.Cgram,
             subLayer.Plane.Shown(subLayer.FirstRow, subLayer.MapHeightTiles)) : null;
         SnesObjRenderer.RenderResolved(memory.Sprites.Draws, memory.Cgram, new ObjRasterTargets(objects.AsSpan(0, output.Length), priorities.AsSpan(0, output.Length), palettes.AsSpan(0, output.Length)), new Extent16<ScreenPixels>(checked((ushort)width), checked((ushort)height)));

@@ -262,18 +262,10 @@ internal sealed class AcceptedFrameBoundary
         RoomBlockPictureTable pictures = scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane,
             rooms.Bg2 is null ? null : scope.LevelData.BackgroundPlane, characters,
             revealed?.Select(block => block.Definition) ?? []);
-        // Where BG2 shows the tilemap its library background loaded, it draws the background's image (#1392): not over a
-        // streaming layer-2 plane, a scrolling sky or a boss body that owns BG2.
-        RoomBackgroundImagePlane? image = null;
-        if (rooms.Bg2 is null && scope.ScrollingSky is null && latched.Bosses.KraidBody is null && latched.Bosses.EnemyBg2 is null
-            && scope.BackgroundImage is { } background)
-        {
-            background.Image.AssertLoadedIntoBg2(_backgrounds);
-            image = background.Resolve(_backgrounds);
-        }
-        // A sky room's BG2 shows the sky's rows, drawn from their image (#1392, #1403).
+        // A sky room's BG2 shows the sky's rows, drawn from their image (#1392, #1403), once the room has configured the
+        // sky's band HDMA; without it, BG2 shows the room's own background.
         SkyPictures? sky = null;
-        if (scope.ScrollingSky is { } scrollingSky)
+        if (scope.ScrollingSky is { HorizontalHdmaConfigured: true } scrollingSky)
         {
             RoomBackgroundImageResolver skyImage = scope.SkyImage
                 ?? throw new InvalidDataException($"{scope.Room.Definition.Name} shows a scrolling sky with no installed sky image.");
@@ -281,6 +273,15 @@ internal sealed class AcceptedFrameBoundary
                 .Tilemap(scrollingSky.Variant);
             skyImage.Image.AssertPictures(rows.Words);
             sky = new SkyPictures(skyImage.Resolve(_backgrounds), rows);
+        }
+        // Where BG2 shows the tilemap its library background loaded, it draws the background's image (#1392): not over a
+        // streaming layer-2 plane, the sky's rows or a boss body that owns BG2.
+        RoomBackgroundImagePlane? image = null;
+        if (rooms.Bg2 is null && sky is null && latched.Bosses.KraidBody is null && latched.Bosses.EnemyBg2 is null
+            && scope.BackgroundImage is { } background)
+        {
+            background.Image.AssertLoadedIntoBg2(_backgrounds);
+            image = background.Resolve(_backgrounds);
         }
         // A boss body that owns BG2 draws each word from its body sheet's picture over what the word's character shows.
         ImmutableArray<ushort>? body = latched.Bosses.KraidBody?.Tilemap.Words ?? latched.Bosses.EnemyBg2?.Words;

@@ -148,10 +148,7 @@ internal static class RetailKraidCaptureTests
     {
         LayeredRenderSnapshot scene = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var gameplay = (OrdinaryGameplayRenderLayer)scene.Layers[0];
-        var vram = new SnesVram();
-        vram.LoadBytes(0, scene.Memory.Vram);
-        OrdinaryGameplayRegisters r = gameplay.Registers;
-        IBgSource bg2 = gameplay.Rooms.Bg2Shown(new VramBgTilemap(vram, r.Bg2TilemapWord, r.Bg2MapSize), r.Bg2MapSize);
+        IBgSource bg2 = gameplay.Rooms.Bg2Shown(gameplay.Registers.Bg2MapSize);
         var shown = new SortedSet<ushort>();
         for (int line = 0; line < SnesPpuLayout.ScreenHeightPixels - SnesPpuLayout.GameplayHudHeightPixels; line += 4)
         {
@@ -160,15 +157,12 @@ internal static class RetailKraidCaptureTests
             {
                 var at = new Position16<BgPlanePixels>(unchecked((ushort)(scroll.X + x)),
                     unchecked((ushort)(scroll.Y + SnesPpuLayout.GameplayHudHeightPixels + line)));
-                if (bg2.TrySample(at, out BgSample sample))
+                if (bg2.TrySample(at, out BgSample _))
                 {
-                    if (sample.Picture is null)
-                        shown.Add(sample.Tile.Tile.Raw);
-                    else if (gameplay.Rooms.BossBg2 is not null)
-                        shown.UnionWith(runtime.Display.Latched.Bosses.KraidBody?.Tilemap.Words
-                            ?? throw new InvalidOperationException($"{context}: BG2 shows a boss body Kraid has not latched."));
-                    else
-                        throw new InvalidOperationException($"{context}: BG2 shows a picture where Kraid's tilemap was expected.");
+                    if (gameplay.Rooms.BossBg2 is null)
+                        throw new InvalidOperationException($"{context}: BG2 shows the room's own background where Kraid's tilemap was expected.");
+                    shown.UnionWith(runtime.Display.Latched.Bosses.KraidBody?.Tilemap.Words
+                        ?? throw new InvalidOperationException($"{context}: BG2 shows a boss body Kraid has not latched."));
                 }
             }
         }

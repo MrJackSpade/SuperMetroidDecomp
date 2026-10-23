@@ -28,17 +28,14 @@ internal static class Mode7GameplaySnapshotTestsVerification
         int samples = 0;
         foreach (short matrix in new short[] { 0, 128, 256, -256, 511, short.MinValue })
         foreach (ushort scroll in new ushort[] { 0, 255, 511, ushort.MaxValue })
-        foreach (bool floorEnabled in new[] { false, true })
         {
+            // The floor band below shows the room's layer-2 plane (#1403); the retail Ridley capture below draws it.
             var m = new AffineTransform(matrix, 17, -33, matrix, new Offset16<Mode7Pixels>(128, 96), new Offset16<Mode7Pixels>(-13, unchecked((short)scroll)));
-            Mode1FloorBand? floor = floorEnabled ? new(208, GameplayVramLayout.Bg2TilemapWord, 0x6000, new Position16<Bg2Pixels>(scroll, scroll), new Extent16<TilemapCells>(64, 32)) : null;
-            var layer = new Mode7GameplayRenderLayer(m, Layer3CellsFixtures.FromVram(live.Vram.Bytes, live.Cgram.Colors), AffineFloorFixtures.Floor(live.Vram.Bytes, live.Cgram.Colors), SnesPpuLayout.GameplayHudHeightPixels, floor);
-            Rgba32[] expected = floorEnabled
-                ? SnesGameplayFrameRendererConstants.RenderHudCeresRidleyGetawayAndObjs(live.Vram, live.Cgram, live.Sprites, m, new CeresGetawayFloor { Bg2Scroll = new Position16<Bg2Pixels>(scroll, scroll), Bg2CharacterBaseWord = 0x6000 })
-                : SnesGameplayFrameRendererConstants.RenderHudMode7AndObjs(live.Vram, live.Cgram, live.Sprites, m);
+            var layer = new Mode7GameplayRenderLayer(m, Layer3CellsFixtures.FromVram(live.Vram.Bytes, live.Cgram.Colors), AffineFloorFixtures.Floor(live.Vram.Bytes, live.Cgram.Colors), SnesPpuLayout.GameplayHudHeightPixels);
+            Rgba32[] expected = SnesGameplayFrameRendererConstants.RenderHudMode7AndObjs(live.Vram, live.Cgram, live.Sprites, m);
             var packet = new RenderFrameSnapshot(new(++samples, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 15));
             AssertTrue(expected.SequenceEqual(RenderForComparison(packet)),
-                $"Mode-7 gameplay full pixel parity matrix {matrix}, scroll {scroll}, floor {floorEnabled}");
+                $"Mode-7 gameplay full pixel parity matrix {matrix}, scroll {scroll}");
             AssertEqual(layer, (Mode7GameplayRenderLayer)(packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")).Layers[0], "the Mode-7 band layer keeps all register fields");
             if (samples == 1)
             {
@@ -70,7 +67,8 @@ internal static class Mode7GameplaySnapshotTestsVerification
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "Ridley packet survives mode exit and live memory replacement");
         AssertThrows<ArgumentOutOfRangeException>(() => new Mode7GameplayRenderLayer(default, RoomBackgroundsFixtures.BlankBg3(), RoomBackgroundsFixtures.BlankMode7Floor(), 31), "HUD must cover complete tile rows");
         AssertThrows<ArgumentOutOfRangeException>(() => new Mode7GameplayRenderLayer(default, RoomBackgroundsFixtures.BlankBg3(), RoomBackgroundsFixtures.BlankMode7Floor(), 32,
-            new Mode1FloorBand(31, 0, 0, new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32))), "floor cannot overlap HUD");
+            new Mode1FloorBand(31, new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32), RoomBackgroundsFixtures.Blank().Bg1)),
+            "floor cannot overlap HUD");
         Console.WriteLine($"  Mode-7 gameplay snapshots: {samples} full-frame matrix/scroll/floor comparisons match.");
     }
 }

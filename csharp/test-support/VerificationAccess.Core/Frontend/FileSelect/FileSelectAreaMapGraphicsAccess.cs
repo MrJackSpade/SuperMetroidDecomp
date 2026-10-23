@@ -19,7 +19,7 @@ internal static class FileSelectAreaMapGraphicsAccess
             Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(MenuScreenFixtures.Cgram(self.screen), 256 * 224, new Rgba32[256 * 224]);
             Rgba32[] foreground = new Rgba32[256 * 224];
             foreground.AsSpan().Clear();
-            SnesBgTilemapRenderer.Composite4BppViewport(foreground, MenuScreenFixtures.Vram(self.screen), MenuScreenFixtures.Cgram(self.screen), new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg1TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, 32) });
+            SnesBgTilemapRendererConstants.Composite4BppViewport(foreground, MenuScreenFixtures.Vram(self.screen), MenuScreenFixtures.Cgram(self.screen), new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg1TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, 32) });
             SnesLayerCompositor.Composite(pixels, foreground);
             Rgba32[] subscreen = new Rgba32[256 * 28 * 8];
             subscreen.AsSpan().Clear();

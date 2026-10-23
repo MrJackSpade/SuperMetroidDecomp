@@ -31,7 +31,7 @@ internal static class ViewportParityVerification
             bool? priority = test % 3 == 0 ? null : test % 3 == 1;
             ushort[]? lineScroll = test % 5 == 0 ? Enumerable.Range(0, height).Select(_ => (ushort)random.Next(65536)).ToArray() : null;
             ViewportReference.Composite4BppViewport(expected, vram, cgram, new BgVramAddresses { TilemapBaseWord = map, CharacterBaseWord = chars }, new BgViewport { Scroll = scroll, Size = size, TilemapSize = mapSize, HorizontalScrollByLine = lineScroll }, priority);
-            SnesBgTilemapRenderer.Composite4BppViewport(actual, vram, cgram, new BgVramAddresses { TilemapBaseWord = map, CharacterBaseWord = chars }, new BgViewport { Scroll = scroll, Size = size, TilemapSize = mapSize, HorizontalScrollByLine = lineScroll }, priority);
+            SnesBgTilemapRendererConstants.Composite4BppViewport(actual, vram, cgram, new BgVramAddresses { TilemapBaseWord = map, CharacterBaseWord = chars }, new BgViewport { Scroll = scroll, Size = size, TilemapSize = mapSize, HorizontalScrollByLine = lineScroll }, priority);
             AssertTrue(actual.SequenceEqual(expected), $"tile-row viewport exact pixels case {test}");
         }
         Console.WriteLine("  Viewport: 120 scalar-reference cases match flips, priority, scroll, wrapping and clipped tile rows.");
@@ -42,7 +42,7 @@ internal static class ViewportParityVerification
         double scalarMilliseconds = clock.Elapsed.TotalMilliseconds / 50;
         clock.Restart();
         for (int frame = 0; frame < 50; frame++)
-            SnesBgTilemapRenderer.Composite4BppViewport(benchmarkPixels, vram, cgram, new BgVramAddresses { TilemapBaseWord = 0x3000, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(3, 5), Size = SnesPpuLayout.ScreenSize });
+            SnesBgTilemapRendererConstants.Composite4BppViewport(benchmarkPixels, vram, cgram, new BgVramAddresses { TilemapBaseWord = 0x3000, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(3, 5), Size = SnesPpuLayout.ScreenSize });
         Console.WriteLine($"  Viewport benchmark: scalar={scalarMilliseconds:F3}ms tile-row={clock.Elapsed.TotalMilliseconds / 50:F3}ms per 256x224 plane (informational, not a flaky timing assertion).");
     }
 }

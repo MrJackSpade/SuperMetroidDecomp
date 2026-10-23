@@ -112,7 +112,6 @@ public static class SnesGameplayFrameRenderer
         Extent16<TilemapCells> bg2TilemapSize = registers.Bg2MapSize;
         int bg1CharacterBaseWord = registers.Bg1CharacterWord;
         int bg2CharacterBaseWord = registers.Bg2CharacterWord;
-        int bg2TilemapBaseWord = registers.Bg2TilemapWord;
         SnesMainScreenLayers mainScreenLayers = registers.MainScreenLayers;
         int bg2FirstScanline = registers.Bg2FirstScanline;
         int bg2EndScanline = registers.Bg2EndScanline;
@@ -135,7 +134,7 @@ public static class SnesGameplayFrameRenderer
         // BG1 comes from the room backgrounds; BG2 from the room's layer-2 plane or the sky's rows, or the
         // tilemap its owner loaded when it has neither, under any words written over it (#1346, #1347, #1348).
         IBgSource bg1 = layer.Rooms.Bg1Source;
-        IBgSource bg2 = layer.Rooms.Bg2Shown(new VramBgTilemap(vram, bg2TilemapBaseWord, bg2TilemapSize), bg2TilemapSize);
+        IBgSource bg2 = layer.Rooms.Bg2Shown(bg2TilemapSize);
         // Room blocks draw from their pre-coloured pictures (#1392), recoloured where a palette effect changed a row.
         var pictures = new BgPicturePixels(cgram);
         for (int screenY = HudHeight; screenY < Height; screenY++)

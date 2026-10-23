@@ -15,9 +15,6 @@ public sealed class BgCharacterFormat
     /// <summary>The color index every background treats as transparent.</summary>
     public const int TransparentColorIndex = 0;
 
-    /// <summary>Palettes a tilemap entry's three-bit palette field can select.</summary>
-    public const int PaletteCount = 8;
-
     /// <summary>Bit planes interleaved in one row word: the pair's even plane in the low byte, its odd plane in the high byte.</summary>
     public const int PlanesPerPair = 2;
 

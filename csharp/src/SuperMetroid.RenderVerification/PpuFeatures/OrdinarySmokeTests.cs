@@ -23,8 +23,10 @@ internal static class OrdinarySmokeTests
         Bgr555[] colors = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
         var memory = PpuMemorySnapshot.FromOam(vram, colors, oam, 128, 3);
         // Even HDMA cases show BG2 from a room plane; case one from the ocean sky's rows, whose last chunks show
-        // nothing (#1347); case three from the VRAM tilemap.
+        // nothing (#1347); case three from a library background's image (#1403), which no 64x64 map ever shows, so a
+        // room plane there.
         var rooms = RoomBackgroundsFixtures.Seeded(random, new(511, 255), new(65535, 511), door: true, overlay: true);
+        var loaded = rooms with { Bg2 = null, Bg2Image = RoomBackgroundsFixtures.SeededBackground(random, colors) };
         var sky = rooms with
         {
             Bg2 = null,
@@ -42,7 +44,8 @@ internal static class OrdinarySmokeTests
             if ((mask & 4) != 0) flags |= SnesMainScreenLayers.Obj;
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
                 new Extent16<TilemapCells>((ushort)geometry.First, (ushort)geometry.Second), 0x4800, 0, 0x6000, flags);
-            var layer = new OrdinaryGameplayRenderLayer(registers, hdma % 2 == 0 ? rooms : hdma == 1 ? sky : rooms with { Bg2 = null }, new Bg2HdmaScrollTables(
+            var layer = new OrdinaryGameplayRenderLayer(registers,
+                hdma % 2 == 0 || geometry is { First: 64, Second: 64 } && hdma == 3 ? rooms : hdma == 1 ? sky : loaded, new Bg2HdmaScrollTables(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
                 new RenderLayer[] { layer }, 15));

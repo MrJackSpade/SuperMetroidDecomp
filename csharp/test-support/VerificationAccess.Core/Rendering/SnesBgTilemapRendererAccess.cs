@@ -20,7 +20,7 @@ internal static class SnesBgTilemapRendererAccess
             bool? priority = null)
         {
             var output = new Rgba32[viewport.Size.X * viewport.Size.Y];
-            SnesBgTilemapRenderer.Composite4BppViewport(output, vram, cgram, addresses, viewport, priority);
+            SnesBgTilemapRendererConstants.Composite4BppViewport(output, vram, cgram, addresses, viewport, priority);
             return output;
         }
 

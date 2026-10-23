@@ -1,4 +1,4 @@
-using System.Buffers.Binary;
+﻿using System.Buffers.Binary;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
@@ -65,5 +65,54 @@ internal static class RoomBlockFixtures
             composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities, composed.PartRows);
         return new RoomBlockPictureTable(new RoomBlockSheet(default(TilesetDefinition), sheet),
             [.. Enumerable.Range(0, count).Select(block => (SpriteSheetFrame?)sheet.Frame($"{block}"))]);
+    }
+
+    /// <summary>
+    /// The library background a fixture loaded into BG2 (#1403): the two tilemap pages at <paramref name="tilemapWord"/> in
+    /// <paramref name="image"/>, the first above the second, each word painted from the four-bit characters at
+    /// <paramref name="characterWord"/> and coloured from <paramref name="palette"/>, as extraction paints a room's
+    /// background image.
+    /// </summary>
+    [PpuLayoutBoundary("exact hardware test: decodes a fixture's BG2 tilemap and four-bit characters into a background image")]
+    internal static RoomBackgroundImagePlane LoadedBackground(ReadOnlySpan<byte> image, ReadOnlySpan<Bgr555> palette, int tilemapWord,
+        int characterWord = 0)
+    {
+        const int tile = 8, characterWords = 16, pageWords = RoomBackgroundImage.PageTiles * RoomBackgroundImage.PageTiles;
+        var canvas = new RoomTileCanvas(RoomBackgroundImage.PagePixels, RoomBackgroundImage.Pages * RoomBackgroundImage.PagePixels);
+        Bgr555[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
+        var character = new byte[characterWords * sizeof(ushort)];
+        var words = new ushort[RoomBackgroundImage.Words];
+        SpritePaletteRows coloured = SpritePaletteRows.None;
+        for (int index = 0; index < words.Length; index++)
+        {
+            int at = SnesVramAddressing.ByteOffsetOfWord(tilemapWord + index);
+            words[index] = BinaryPrimitives.ReadUInt16LittleEndian(image.Slice(at, sizeof(ushort)));
+            var word = new SnesBgTilemapWord(words[index]);
+            for (int part = 0; part < characterWords; part++)
+            {
+                int from = SnesVramAddressing.ByteOffsetOfWord(characterWord + word.CharacterIndex * characterWords + part);
+                character[part * 2] = image[from];
+                character[part * 2 + 1] = image[from + 1];
+            }
+            int page = index / pageWords, within = index % pageWords;
+            coloured |= canvas.PaintTile(within % RoomBackgroundImage.PageTiles * tile,
+                page * RoomBackgroundImage.PagePixels + within / RoomBackgroundImage.PageTiles * tile, word, character, colours);
+        }
+        var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
+        {
+            [RoomBackgroundImage.FrameName] = new SpriteSheetFrameDocument
+            {
+                Corner = default,
+                Size = new Extent16<ImagePixels>(RoomBackgroundImage.PagePixels, RoomBackgroundImage.Pages * RoomBackgroundImage.PagePixels),
+                Origin = default,
+                Rows = coloured,
+                Parts = [],
+            },
+        };
+        ComposedSpriteSheet composed = canvas.ToSheet(colours, frames);
+        SpriteSheet sheet = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(composed.Manifest), writable: false), "loaded-background-fixture",
+            composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities, composed.PartRows);
+        var background = new RoomBackgroundImage("loaded-background-fixture", sheet, [.. words]);
+        return new RoomBackgroundImagePlane(background, new SpriteSheetFrame?[background.CellCount]);
     }
 }

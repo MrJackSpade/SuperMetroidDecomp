@@ -65,8 +65,10 @@ internal static class RoomBackgroundsFixtures
             }
             blocks[block] = index;
         }
+        // BG2 shows the tilemap the fixture loaded at the gameplay BG2 tilemap, as a library background's image (#1403).
         return new(new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(SideBlocks, SideBlocks),
-            blocks, [.. definitions]).Cells, default, RoomBlockFixtures.Pictures(definitions, image, palette)), null, BlankBg3());
+            blocks, [.. definitions]).Cells, default, RoomBlockFixtures.Pictures(definitions, image, palette)), null, BlankBg3(),
+            Bg2Image: RoomBlockFixtures.LoadedBackground(image, palette, GameplayVramLayout.Bg2TilemapWord));
     }
 
     /// <summary>
@@ -299,7 +301,7 @@ internal static class RoomBackgroundsFixtures
     /// </summary>
     /// <param name="random">The seeded source.</param>
     /// <param name="bg1Scroll">The BG1 scroll registers the room is shown through.</param>
-    /// <param name="bg2Scroll">The BG2 scroll registers, or null for no BG2 plane.</param>
+    /// <param name="bg2Scroll">The BG2 scroll registers, or null for a seeded library background image in place of a BG2 plane.</param>
     /// <param name="door">Whether a door's source screen covers part of BG1.</param>
     /// <param name="overlay">Whether words are written over part of BG1.</param>
     /// <param name="pictureColours">
@@ -329,6 +331,7 @@ internal static class RoomBackgroundsFixtures
             : null;
         Bgr555[] scene = pictureColours ?? new Bgr555[SnesPpuLayout.CgramColorCount];
         RoomOverlayPictures? written = overlay ? SeededOverlayRun(random, scene, random.Next(8, 24)) : null;
-        return new RoomBackgrounds(bg1, bg2, SeededBg3Pictures(random, scene), source, written);
+        return new RoomBackgrounds(bg1, bg2, SeededBg3Pictures(random, scene), source, written,
+            Bg2Image: bg2 is null ? SeededBackground(random, scene) : null);
     }
 }

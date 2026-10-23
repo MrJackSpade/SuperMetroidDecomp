@@ -75,20 +75,20 @@ internal static class IntroCinematicStateAccess
         internal void CompositeScientistRoomPriority(Span<Rgba32> pixels, bool priority)
         {
             // Composited directly; transparent pixels leave the frame untouched, as a plane would.
-            SnesBgTilemapRenderer.Composite4BppViewport(pixels, self.ShownVram, self.palette, new BgVramAddresses { TilemapBaseWord = IntroVram.LaboratoryTilemapWord(self.CurrentScientistCutscene?.Scene ??
+            SnesBgTilemapRendererConstants.Composite4BppViewport(pixels, self.ShownVram, self.palette, new BgVramAddresses { TilemapBaseWord = IntroVram.LaboratoryTilemapWord(self.CurrentScientistCutscene?.Scene ??
                     IntroLaboratoryScene.Delivery), CharacterBaseWord = 0 }, new BgViewport { Scroll = self.CurrentScientistCutscene?.Background.AsBgPlaneScroll() ?? default, Size = new Extent16<ScreenPixels>(IntroCinematicStateConstants.ScreenWidth, IntroCinematicStateConstants.ScreenHeight), TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
         }
         /// <summary>Overlays only the requested SR388 BG1 priority tiles, leaving transparent pixels untouched.</summary>
         internal void CompositeBabyDiscoveryRoomPriority(Span<Rgba32> pixels, bool priority)
         {
             // Composited directly; transparent pixels leave the frame untouched, as a plane would.
-            SnesBgTilemapRenderer.Composite4BppViewport(pixels, self.ShownVram, self.palette, new BgVramAddresses { TilemapBaseWord = IntroCinematicRomData.Layers.SceneBg2TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, IntroCinematicState.GameplayFlashbackBg1VerticalScroll), Size = new Extent16<ScreenPixels>(IntroCinematicStateConstants.ScreenWidth, IntroCinematicStateConstants.ScreenHeight), TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
+            SnesBgTilemapRendererConstants.Composite4BppViewport(pixels, self.ShownVram, self.palette, new BgVramAddresses { TilemapBaseWord = IntroCinematicRomData.Layers.SceneBg2TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, IntroCinematicState.GameplayFlashbackBg1VerticalScroll), Size = new Extent16<ScreenPixels>(IntroCinematicStateConstants.ScreenWidth, IntroCinematicStateConstants.ScreenHeight), TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
         }
         /// <summary>Overlays only the requested Mother Brain BG1 priority tiles, leaving transparent pixels untouched.</summary>
         internal void CompositeMotherBrainRoomPriority(Span<Rgba32> pixels, bool priority)
         {
             // Composited directly; transparent pixels leave the frame untouched, as a plane would.
-            SnesBgTilemapRenderer.Composite4BppViewport(pixels, self.ShownVram, self.palette, new BgVramAddresses { TilemapBaseWord = IntroCinematicRomData.Layers.SceneBg1TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = (self.CurrentFlashbackMotherBrain?.Background ??
+            SnesBgTilemapRendererConstants.Composite4BppViewport(pixels, self.ShownVram, self.palette, new BgVramAddresses { TilemapBaseWord = IntroCinematicRomData.Layers.SceneBg1TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = (self.CurrentFlashbackMotherBrain?.Background ??
                     new Position16<RoomPixels>(0, IntroCinematicState.GameplayFlashbackBg1VerticalScroll)).AsBgPlaneScroll(), Size = new Extent16<ScreenPixels>(IntroCinematicStateConstants.ScreenWidth, IntroCinematicStateConstants.ScreenHeight), TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
         }
         /// <summary>Clears reused raster scratch before overlaying narration BG3 tiles of one priority.</summary>

@@ -363,7 +363,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             Objects(3);
 
             void Objects(uint priority) => DispatchTile(D3D11TileOperation.InsertObj, new D3D11TileDispatch { Priority = priority + 1, FirstScanline = (uint)floorStart });
-            void Background(bool high) => DispatchTile(D3D11TileOperation.Bg4, new D3D11TileDispatch { RoomSource = floor.Room is null ? D3D11RoomSource.VramTilemap : D3D11RoomSource.Bg2, Map = (uint)floor.TilemapWord, Characters = (uint)floor.CharacterWord, Scroll = floor.Scroll.AsBgPlaneScroll(), MapSize = floor.MapSize, Priority = Priority(high), FirstScanline = (uint)floorStart });
+            void Background(bool high) => DispatchTile(D3D11TileOperation.Bg4, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Bg2, Scroll = floor.Scroll.AsBgPlaneScroll(), MapSize = floor.MapSize, Priority = Priority(high), FirstScanline = (uint)floorStart });
         }
         // HUD color zero is opaque, and OBJ never overlays this band.
         if (layer.HudScanlines != 0)

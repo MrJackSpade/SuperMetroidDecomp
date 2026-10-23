@@ -35,9 +35,10 @@ internal static class XrayGameplayTests
                 vram.LoadBytes(64 + y * 2, new byte[] { 0, 255 }); // BG2 character two, green.
                 vram.LoadBytes(0x2000 + 48 + y * 2, new byte[] { 255, 255 }); // BG3 character three, blue.
             }
-            var bg1 = RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1));
             vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)2, 2048).ToArray(), GameplayVramLayout.Bg2TilemapWord, 1);
             vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)3, 1024).ToArray(), 0x5C00, 1);
+            // BG2 shows the tilemap just loaded, as its library background's image (#1403).
+            var bg1 = RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1));
             var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
             oam[0] = 16; oam[1] = 64; oam[3] = (byte)(0x30 | palette << 1);
             var memory = PpuMemorySnapshot.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0);

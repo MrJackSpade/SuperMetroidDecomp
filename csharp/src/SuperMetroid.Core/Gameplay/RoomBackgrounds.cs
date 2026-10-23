@@ -48,12 +48,15 @@ public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLaye
 
     /// <summary>
     /// BG2 as the frame shows it: <see cref="Bg2Source"/>, or when BG2 shows its own tilemap, the room's library
-    /// background image or else <paramref name="loadedTilemap"/>, under any words written over BG2 at their tilemap
-    /// positions in a <paramref name="mapSize"/> layout.
+    /// background image through a <paramref name="mapSize"/> layout, under any words written over BG2 at their tilemap
+    /// positions in that layout.
     /// </summary>
-    public IBgSource Bg2Shown(IBgTileSource loadedTilemap, Extent16<TilemapCells> mapSize)
+    /// <exception cref="InvalidOperationException">The frame publishes nothing BG2 shows.</exception>
+    public IBgSource Bg2Shown(Extent16<TilemapCells> mapSize)
     {
-        IBgSource shown = Bg2Source ?? Bg2Image?.At(mapSize) ?? new BgTileLayer(Ensure.NotNull(loadedTilemap));
+        // Every room state streams its layer-2 plane or loads a library background (#1403).
+        IBgSource shown = Bg2Source ?? Bg2Image?.At(mapSize)
+            ?? throw new InvalidOperationException("The frame publishes no layer-2 plane, sky, boss body, reveal or background image for BG2.");
         return Bg2Overlay is { } overlay ? new Overlaid(shown, overlay, mapSize) : shown;
     }
 

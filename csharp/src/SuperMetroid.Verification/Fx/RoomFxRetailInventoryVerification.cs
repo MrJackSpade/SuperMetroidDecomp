@@ -334,7 +334,7 @@ internal static class RoomFxRetailInventoryVerification
             SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
                 hiddenFrame,
                 vram,
-                cgram,
+                cgram.AsPaletteColors(),
                 hiddenSnapshot);
             AssertTrue(hiddenFrame.All(pixel => pixel == default),
                 $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
@@ -363,7 +363,7 @@ internal static class RoomFxRetailInventoryVerification
             SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
                 visibleFrame,
                 vram,
-                cgram,
+                cgram.AsPaletteColors(),
                 visibleSnapshot);
             AssertTrue(visibleFrame.Any(pixel => pixel != default),
                 $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
@@ -424,9 +424,9 @@ internal static class RoomFxRetailInventoryVerification
 
         // Give the three nontransparent two-bit values distinct colors so the assertion
         // observes changes in the ROM pixels, not merely a still opaque rectangle.
-        cgram.SetColor(25, Bgr555.FromWord(0x001f));
-        cgram.SetColor(26, Bgr555.FromWord(0x03e0));
-        cgram.SetColor(27, Bgr555.FromWord(0x7c00));
+        cgram.AsPaletteColors().SetColor(25, Bgr555.FromWord(0x001f));
+        cgram.AsPaletteColors().SetColor(26, Bgr555.FromWord(0x03e0));
+        cgram.AsPaletteColors().SetColor(27, Bgr555.FromWord(0x7c00));
         ushort cameraY = unchecked((ushort)(
             fx.BaseY.Whole - RetailRoomFxDefinitions.AuditSurfaceScreenY));
         fx.PrimeViewport(new Position16<RoomPixels>(0, cameraY));
@@ -482,7 +482,7 @@ internal static class RoomFxRetailInventoryVerification
             SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
         if (SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(snapshot,
                 Layer3CellsFixtures.FromWords(plane.Words, BgArtworkFixtures.ComposedVram(vram).Bytes, cgram.Colors)) is { } layer)
-            SoftwareBgColorMathRenderer.Composite(frame, cgram, layer);
+            SoftwareBgColorMathRenderer.Composite(frame, cgram.AsPaletteColors(), layer);
         return frame;
     }
 
@@ -656,7 +656,7 @@ internal static class RoomFxRetailInventoryVerification
             $"room {definition.Room} risen lava enters the gameplay viewport");
         var frame = new Rgba32[
             SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
-        SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(frame, vram, cgram, finalSnapshot);
+        SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(frame, vram, cgram.AsPaletteColors(), finalSnapshot);
         AssertTrue(frame.Any(pixel => pixel != default),
             $"room {definition.Room} risen lava is visibly composed");
     }
@@ -876,7 +876,7 @@ internal static class RoomFxRetailInventoryVerification
         SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
             frame,
             vram,
-            cgram,
+            cgram.AsPaletteColors(),
             (fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay().")));
         AssertTrue(frame.All(pixel => pixel == default),
             "transition to $FFFF heat FX cannot carry visible lava from the source room");
@@ -922,7 +922,7 @@ internal static class RoomFxRetailInventoryVerification
         // its optional three-color blend. Seeding every two-bit BG3 palette makes the audit
         // independent of a particular graphics set without masking record-owned overrides.
         for (int color = 1; color < 32; color++)
-            cgram.SetColor(color, Bgr555.FromWord(0x7fff));
+            cgram.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x7fff));
     }
 
     /// <summary>Extracts a bank-$8F room and state pair from a named disassembly symbol line.</summary>

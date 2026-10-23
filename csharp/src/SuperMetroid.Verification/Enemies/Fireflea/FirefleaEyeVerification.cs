@@ -37,7 +37,7 @@ internal static class FirefleaEyeVerification
         runtime.Enemies.Drawing.DrawLayers(sprites, new(cameraX, cameraY), 0, 7);
         sprites.FinalizeFrame();
         AssertTrue(sprites.Draws.Length > 0, "retail rock eye emits sprites");
-        var memory = FramePaintConstants.Capture(runtime.Cgram, sprites);
+        var memory = FramePaintConstants.Capture(runtime.Cgram.AsPaletteColors(), sprites);
         var source = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         var actualDarkness = (GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual((byte)0xa2, (byte)actualDarkness.ColorMath, "reported room captures the native OBJ-excluding blend mask");

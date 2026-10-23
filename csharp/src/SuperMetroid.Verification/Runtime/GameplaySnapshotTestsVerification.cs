@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
@@ -76,7 +77,7 @@ internal static class GameplaySnapshotTestsVerification
         LayeredScene captured = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         Rgba32[] retail = RenderForComparison(captured);
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
-        for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Cgram.SetColor(color, new Bgr555(0, 0, 0));
+        for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Cgram.AsPaletteColors().SetColor(color, new Bgr555(0, 0, 0));
         AssertTrue(retail.SequenceEqual(RenderForComparison(captured)),
             "gameplay packet survives complete live VRAM/CGRAM replacement");
         Console.WriteLine($"  Gameplay snapshots: {samples} priority/mask/HDMA/geometry cases and retained retail base match.");

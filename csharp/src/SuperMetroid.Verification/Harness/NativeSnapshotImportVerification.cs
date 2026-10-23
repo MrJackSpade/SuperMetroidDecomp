@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Enemies.PipeBugs;
@@ -85,7 +86,7 @@ internal static class NativeSnapshotImportVerification
             level.SetBehavior(index, memory[NativeSnapshotMemory.Bts + index]);
         }
 
-        runtime.Cgram.LoadBytes(memory.AsSpan(NativeSnapshotMemory.PaletteBuffer, CgramPalettes.ByteCount));
+        runtime.Cgram.AsPaletteColors().LoadBytes(memory.AsSpan(NativeSnapshotMemory.PaletteBuffer, CgramPalettes.ByteCount));
         var initialPaletteSlots = runtime.RoomPaletteFx.slots;
         for (int slot = 0; slot < initialPaletteSlots.Length; slot++)
         {

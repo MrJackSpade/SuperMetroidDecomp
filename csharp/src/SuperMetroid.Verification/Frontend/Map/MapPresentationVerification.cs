@@ -500,7 +500,7 @@ internal static class MapPresentationVerification
             SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette + MotherBrainRainbowPaletteRomData.ColorCount * sizeof(ushort),
                 MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainRainbowPaletteRomData.SecondaryColor);
             original.MotherBrainRainbowPalette.ApplyRainbow(installed, frame);
-            AssertTrue(new CgramPalettes(native).ImageEquals(new CgramPalettes(installed)),
+            AssertTrue(new CgramPalettes(native).ImageEquals(new CgramPalettes(installed.AsPaletteColors())),
                 $"Mother Brain rainbow frame {frame} matches all native CGRAM colors");
         }
 
@@ -515,10 +515,10 @@ internal static class MapPresentationVerification
             native.SetColor(MotherBrainRainbowPaletteRomDataConstants.BodyColor + 14, Bgr555.FromWord(0x1235));
             native.SetColor(MotherBrainRainbowPaletteRomDataConstants.BrainColor + 13, Bgr555.FromWord(0x2234));
             native.SetColor(MotherBrainRainbowPaletteRomDataConstants.BrainColor + 14, Bgr555.FromWord(0x2235));
-            installed.SetColor(MotherBrainRainbowPaletteRomDataConstants.BodyColor + 13, Bgr555.FromWord(0x1234));
-            installed.SetColor(MotherBrainRainbowPaletteRomDataConstants.BodyColor + 14, Bgr555.FromWord(0x1235));
-            installed.SetColor(MotherBrainRainbowPaletteRomDataConstants.BrainColor + 13, Bgr555.FromWord(0x2234));
-            installed.SetColor(MotherBrainRainbowPaletteRomDataConstants.BrainColor + 14, Bgr555.FromWord(0x2235));
+            installed.AsPaletteColors().SetColor(MotherBrainRainbowPaletteRomDataConstants.BodyColor + 13, Bgr555.FromWord(0x1234));
+            installed.AsPaletteColors().SetColor(MotherBrainRainbowPaletteRomDataConstants.BodyColor + 14, Bgr555.FromWord(0x1235));
+            installed.AsPaletteColors().SetColor(MotherBrainRainbowPaletteRomDataConstants.BrainColor + 13, Bgr555.FromWord(0x2234));
+            installed.AsPaletteColors().SetColor(MotherBrainRainbowPaletteRomDataConstants.BrainColor + 14, Bgr555.FromWord(0x2235));
             int table = draining ? MotherBrainDrainedPaletteRomData.ToGreyTable :
                 MotherBrainDrainedPaletteRomData.FromGreyTable;
             int count = draining ? MotherBrainDrainedPaletteRomData.DrainedColors :
@@ -533,7 +533,7 @@ internal static class MapPresentationVerification
                 MotherBrainDrainedPaletteRomData.BackLegColor);
             if (draining) original.MotherBrainRainbowPalette.ApplyToGrey(installed, frame);
             else original.MotherBrainRainbowPalette.ApplyFromGrey(installed, frame);
-            AssertTrue(new CgramPalettes(native).ImageEquals(new CgramPalettes(installed)),
+            AssertTrue(new CgramPalettes(native).ImageEquals(new CgramPalettes(installed.AsPaletteColors())),
                 $"Mother Brain {(draining ? "drain" : "revival")} frame {frame} retains exact native CGRAM and preserved colors");
         }
 
@@ -546,7 +546,7 @@ internal static class MapPresentationVerification
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeNormal, bus, MotherBrainRainbowPaletteRomData.NormalSecondarySource,
             MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainRainbowPaletteRomData.SecondaryColor);
         original.MotherBrainRainbowPalette.ApplyNormal(installedNormal);
-        AssertTrue(new CgramPalettes(nativeNormal).ImageEquals(new CgramPalettes(installedNormal)),
+        AssertTrue(new CgramPalettes(nativeNormal).ImageEquals(new CgramPalettes(installedNormal.AsPaletteColors())),
             "Mother Brain normal restoration matches both fixed native sources");
         AssertEqual(MotherBrainBeamRomData.InitialColor,
             original.MotherBrainRainbowPalette.BeamInitialColor,
@@ -766,7 +766,7 @@ internal static class MapPresentationVerification
             MotherBrainHealthPalette.Apply(native, health, extracted);
             MotherBrainHealthPalette.Apply(installed, health,
                 original.MotherBrainHealthPalette);
-            AssertTrue(new CgramPalettes(native).ImageEquals(new CgramPalettes(installed)),
+            AssertTrue(new CgramPalettes(native.AsPaletteColors()).ImageEquals(new CgramPalettes(installed.AsPaletteColors())),
                 $"Mother Brain health {health} stock colors exactly match the native three-copy output");
             AssertEqual(0, installed.Colors[MotherBrainRainbowPaletteRomDataConstants.BrainColor - 1],
                 "Mother Brain health palette leaves transparent color untouched");

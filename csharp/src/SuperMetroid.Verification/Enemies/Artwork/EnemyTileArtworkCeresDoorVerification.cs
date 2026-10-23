@@ -37,12 +37,12 @@ internal static class EnemyTileArtworkCeresDoorVerification
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeColors, bus, CeresDoorVisualRomData.NormalColors,
             CeresDoorVisualRomData.SetupColorCount, CeresDoorVisualRomDataConstants.NormalTargetColor);
         visual.LoadNormalColors(CeresDoorColourDefinitions.Inactive.In(compiledColors));
-        AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(compiledColors)),
+        AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(compiledColors.AsPaletteColors())),
             "installed Ceres-door normal RGB5 palette matches the cartridge");
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeColors, bus, CeresDoorVisualRomData.EscapeColors,
             CeresDoorVisualRomData.SetupColorCount, CeresDoorVisualRomDataConstants.ActiveTargetColor);
         visual.LoadEscapeColors(CeresDoorColourDefinitions.Active.In(compiledColors));
-        AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(compiledColors)),
+        AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(compiledColors.AsPaletteColors())),
             "installed Ceres-door escape RGB5 palette matches the cartridge");
         for (int row = 0; row < CeresDoorVisualRomData.AnimationRowCount; row++)
         {
@@ -52,7 +52,7 @@ internal static class EnemyTileArtworkCeresDoorVerification
                 CeresDoorVisualRomData.AnimationColorCount,
                 CeresDoorVisualRomDataConstants.AnimationTargetColor);
             visual.LoadAnimationColors(compiledColors.BackgroundSets, row);
-            AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(compiledColors)),
+            AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(compiledColors.AsPaletteColors())),
                 $"installed Ceres-door animated RGB5 row {row} matches the cartridge");
         }
         for (int frame = 0; frame < CeresDoorVisualRomData.Mode7FrameCount; frame++)

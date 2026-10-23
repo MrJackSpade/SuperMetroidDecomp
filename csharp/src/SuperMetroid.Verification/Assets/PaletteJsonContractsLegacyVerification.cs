@@ -67,11 +67,11 @@ internal static class PaletteJsonContractsLegacyVerification
             var actual = new GameplayColours(new SpriteColourSets());
             var expected = new GameplayColours(new SpriteColourSets());
             migrated.ApplyRoomEntry(actual); roomStock.ApplyRoomEntry(expected);
-            AssertTrue(new CgramPalettes(actual).ImageEquals(new CgramPalettes(expected)), "legacy inherits exact room-entry colors");
+            AssertTrue(new CgramPalettes(actual.AsPaletteColors()).ImageEquals(new CgramPalettes(expected.AsPaletteColors())), "legacy inherits exact room-entry colors");
             for (int frame = 0; frame < MotherBrainRoomColorRomData.RecoveryLightsFrames; frame++)
             {
                 migrated.ApplyRecoveryLights(actual, frame); roomStock.ApplyRecoveryLights(expected, frame);
-                AssertTrue(new CgramPalettes(actual).ImageEquals(new CgramPalettes(expected)), "legacy inherits exact room recovery colors");
+                AssertTrue(new CgramPalettes(actual.AsPaletteColors()).ImageEquals(new CgramPalettes(expected.AsPaletteColors())), "legacy inherits exact room recovery colors");
             }
             migrated.ApplyFinal(actual);
             AssertEqual(PackPaletteContractColor((JsonObject)oldRoom.Required("finalRoom").Required(0)),
@@ -92,7 +92,7 @@ internal static class PaletteJsonContractsLegacyVerification
         for (int frame = 0; frame < MotherBrainFakeDeathPaletteRomData.FrameCount; frame++)
         {
             migratedRainbow.ApplyFakeDeathToGrey(legacyCgram, frame); rainbowStock.ApplyFakeDeathToGrey(stockCgram, frame);
-            AssertTrue(new CgramPalettes(legacyCgram).ImageEquals(new CgramPalettes(stockCgram)), "legacy inherits exact fake-death colors");
+            AssertTrue(new CgramPalettes(legacyCgram.AsPaletteColors()).ImageEquals(new CgramPalettes(stockCgram.AsPaletteColors())), "legacy inherits exact fake-death colors");
         }
         migratedRainbow.ApplyNormal(legacyCgram);
         AssertEqual(PackPaletteContractColor((JsonObject)oldRainbow.Required("normal").Required("body").Required(0)),

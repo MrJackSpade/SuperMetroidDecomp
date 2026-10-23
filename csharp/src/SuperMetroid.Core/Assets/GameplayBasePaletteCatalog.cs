@@ -24,7 +24,10 @@ public sealed class GameplayBasePaletteCatalog
         content.AppendColors("common sprites", commonSprites);
     });
 
-    /// <summary>Loads the complete selected 256-color starting image into CGRAM.</summary>
+    /// <summary>Loads the complete selected 256-colour starting image into gameplay's colours.</summary>
+    public void LoadInitial(GameplayColours colours) => Ensure.NotNull(colours).LoadCartridgeImage(initial);
+
+    /// <summary>Loads the complete selected 256-colour starting image into a screen's colours.</summary>
     public void LoadInitial(IPaletteColors cgram)
     {
         Ensure.NotNull(cgram);

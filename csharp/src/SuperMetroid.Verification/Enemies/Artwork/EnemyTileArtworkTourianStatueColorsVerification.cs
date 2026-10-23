@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Tooling;
 using System.Text;
@@ -142,11 +143,11 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         }
         installedRoom.TourianStatues.StepTiles();
         editedRoom.TourianStatues.StepTiles();
-        AssertTrue(new CgramPalettes(nativeGreyCgram).ImageEquals(new CgramPalettes(installedRoom.Cgram)),
+        AssertTrue(new CgramPalettes(nativeGreyCgram).ImageEquals(new CgramPalettes(installedRoom.Cgram.AsPaletteColors())),
             "Tourian grey room instruction preserves full native CGRAM");
         var differences = greyDestinations
             .Select(destination => new Difference(Index:destination + 1, Mask:1 << 10)).ToArray();
-        CheckOnlyDifferences(nativeGreyCgram, editedRoom.Cgram, differences,
+        CheckOnlyDifferences(nativeGreyCgram, editedRoom.Cgram.AsPaletteColors(), differences,
             "Tourian grey room instruction edit");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Tourian statue installed paths avoid migrated ROM colors");

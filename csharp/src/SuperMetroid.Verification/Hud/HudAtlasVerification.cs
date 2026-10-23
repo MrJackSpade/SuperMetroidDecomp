@@ -110,7 +110,7 @@ internal static class HudAtlasVerification
             // No room palette has been installed in this focused runtime fixture.
             // Give every BG3 color a distinct grayscale value so a changed index is
             // observable, rather than accepting parity between two black HUDs.
-            for (int i = 0; i < 32; i++) runtime.Cgram.SetColor(i, Bgr555.FromWord((ushort)(i * 0x421)));
+            for (int i = 0; i < 32; i++) runtime.Cgram.AsPaletteColors().SetColor(i, Bgr555.FromWord((ushort)(i * 0x421)));
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.Hud.UpdateMinimap(runtime.System, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = (runtime.Artwork.MapPresentation ?? throw new InvalidOperationException("Verification requires runtime.Artwork.MapPresentation.")).Get(AreaId.Crateria) });
             runtime.Hud.QueueUpload(runtime.VramWrites);
@@ -120,7 +120,7 @@ internal static class HudAtlasVerification
         {
             var shown = new SnesVram();
             shown.LoadBytes(0, runtime.ComposedVram());
-            return SnesBgTilemapRenderer.Render2Bpp(shown, runtime.Cgram, GameplayVramLayout.HudTilemapWord, GameplayVramLayout.HudCharacterWord, 4);
+            return SnesBgTilemapRenderer.Render2Bpp(shown, runtime.Cgram.AsPaletteColors(), GameplayVramLayout.HudTilemapWord, GameplayVramLayout.HudCharacterWord, 4);
         }
     }
 }

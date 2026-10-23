@@ -695,7 +695,7 @@ internal static class LookupStream4Verification
             for (int row = 0; row < 16; row++)
             {
                 var cgram = new GameplayColours(new SpriteColourSets());
-                cgram.SetColor(96, Bgr555.FromWord(0x1234)); cgram.SetColor(100, Bgr555.FromWord(0x2345));
+                cgram.AsPaletteColors().SetColor(96, Bgr555.FromWord(0x1234)); cgram.AsPaletteColors().SetColor(100, Bgr555.FromWord(0x2345));
                 selected.ApplyAlarm(cgram, row);
                 for (int color = 0; color < 3; color++)
                 {
@@ -2465,7 +2465,7 @@ internal static class LookupStream4Verification
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a277+color*2)),selected.ResolveBackground(color),"Intro edits leave background independent");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1f7+color*2)),selected.ResolveSprite(color),"Intro edits leave sprite independent");
             }
-            var cgram=new GameplayColours(new SpriteColourSets()); for(int color=0;color<256;color++)cgram.SetColor(color,Bgr555.FromWord(0x1234));
+            var cgram=new GameplayColours(new SpriteColourSets()); for(int color=0;color<256;color++)cgram.AsPaletteColors().SetColor(color,Bgr555.FromWord(0x1234));
             selected.ApplyIntro(cgram);
             for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0x1234,cgram.Colors[color],"Full intro target copy");
             if(edit is -1 or 0 or 48 or 74)
@@ -2527,7 +2527,7 @@ internal static class LookupStream4Verification
             }
             foreach(bool white in new[]{false,true})
             {
-                var cgram=new GameplayColours(new SpriteColourSets()); for(int color=0;color<256;color++)cgram.SetColor(color,Bgr555.FromWord(0x1234));
+                var cgram=new GameplayColours(new SpriteColourSets()); for(int color=0;color<256;color++)cgram.AsPaletteColors().SetColor(color,Bgr555.FromWord(0x1234));
                 selected.ApplyHurt(cgram,white,5);
                 for(int color=0;color<256;color++)
                 {
@@ -2591,7 +2591,7 @@ internal static class LookupStream4Verification
             }
             foreach(bool white in new[]{false,true})
             {
-                var cgram=new GameplayColours(new SpriteColourSets()); for(int color=0;color<256;color++) cgram.SetColor(color,Bgr555.FromWord(0x1234));
+                var cgram=new GameplayColours(new SpriteColourSets()); for(int color=0;color<256;color++) cgram.AsPaletteColors().SetColor(color,Bgr555.FromWord(0x1234));
                 selected.ApplyHurt(cgram,white,3);
                 for(int color=0;color<256;color++)
                 {
@@ -2647,7 +2647,7 @@ internal static class LookupStream4Verification
             AssertEqual(hash, selected.ContentIdentity, "Draygon health independent RGB edits preserve full resource identity");
             for (int band = 0; band < 8; band++)
             {
-                var cgram = new GameplayColours(new SpriteColourSets()); for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
+                var cgram = new GameplayColours(new SpriteColourSets()); for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
                 selected.ApplyHealthBand(cgram, band);
                 for (int color = 0; color < 256; color++)
                     AssertEqual(color is >= 89 and < 93 ? Pack(document.HealthBands[band][color - 89]) : (ushort)0x1234, cgram.Colors[color], "Exact changed health transfer and neighbors");
@@ -2782,7 +2782,7 @@ internal static class LookupStream4Verification
             for (int row = 0; row < 15; row++)
             {
                 var cgram = new GameplayColours(new SpriteColourSets());
-                for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
+                for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
                 selected.ApplyReveal(cgram, row);
                 for (int color = 0; color < 256; color++)
                     AssertEqual(color is >= 113 and < 127 ? Pack(document.Reveal[row][color - 113]) : (ushort)0x1234,
@@ -3257,7 +3257,7 @@ internal static class LookupStream4Verification
             }
             var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Start = starts, Baby = babies })));
             var cgram = new GameplayColours(new SpriteColourSets());
-            for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
+            for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
             selected.ApplyStart(cgram);
             for (int color = 0; color < 256; color++)
             {
@@ -3326,7 +3326,7 @@ internal static class LookupStream4Verification
             for (int row = 0; row < 4; row++)
             {
                 var cgram = new GameplayColours(new SpriteColourSets());
-                for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
+                for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
                 selected.ApplyBaby(cgram, row);
                 for (int color = 0; color < 256; color++)
                 {
@@ -3397,7 +3397,7 @@ internal static class LookupStream4Verification
             }
             var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Start = starts, RetreatShared = shared })));
             var cgram = new GameplayColours(new SpriteColourSets());
-            for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
+            for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
             selected.ApplyRetreat(cgram);
             for (int color = 0; color < 256; color++)
             {
@@ -3469,7 +3469,7 @@ internal static class LookupStream4Verification
             else if (edit >= 26) eyes[14][edit - 26] = Change(eyes[14][edit - 26], channel);
             var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { RetreatBg = retreat, BodyFade = body, EyeFade = eyes })));
             var cgram = new GameplayColours(new SpriteColourSets());
-            for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
+            for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
             selected.ApplyRetreat(cgram);
             for (int color = 0; color < 256; color++)
             {
@@ -3522,7 +3522,7 @@ internal static class LookupStream4Verification
             for (int row = 0; row < 3; row++)
             {
                 var cgram = new GameplayColours(new SpriteColourSets());
-                for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
+                for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
                 selected.ApplyHealth(cgram, row);
                 for (int color = 0; color < 256; color++)
                 {

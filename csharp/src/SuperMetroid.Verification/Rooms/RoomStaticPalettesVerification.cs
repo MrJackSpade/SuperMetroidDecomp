@@ -60,7 +60,7 @@ internal static class RoomStaticPalettesVerification
             var installedCgram = new GameplayColours(new SpriteColourSets());
             native.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), nativeCgram.BackgroundSets);
             installed.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), installedCgram.BackgroundSets);
-            AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
+            AssertTrue(new CgramPalettes(nativeCgram.AsPaletteColors()).ImageEquals(new CgramPalettes(installedCgram.AsPaletteColors())),
                 $"room $8F:{roomPointer:X4} loads installed palette without source reads");
         }
 

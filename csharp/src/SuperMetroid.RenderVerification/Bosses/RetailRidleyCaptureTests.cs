@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -52,7 +53,7 @@ internal static class RetailRidleyCaptureTests
         }
         (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Mode7Active = false;
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
-        for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Cgram.SetColor(color, new Bgr555(0, 0, 0));
+        for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Cgram.AsPaletteColors().SetColor(color, new Bgr555(0, 0, 0));
         foreach (var sample in retained.AsEnumerable().Reverse())
             PixelComparison.Verify(sample.Packet, sample.Expected, renderer.RenderForReadback(sample.Packet),
                 $"{device.Kind}: retained Ridley {sample.Packet.Identity.Sequence}");

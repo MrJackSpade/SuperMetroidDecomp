@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// Gameplay's colours as the writers that still address them by position reach them (#1405): each position reads and
-/// writes the colours of the owner that holds it. Every position has an owner: the explicit owners first, then the sprite
-/// colour sets and the background colour sets. The router goes when no writer addresses colours by position.
+/// Gameplay's colours (#1405): the background and sprite colour sets and the owners, such as Samus's colours, that hold
+/// some of the colours the sprites show. Writers write an owner's colours. The composition, every colour as it shows, is
+/// what a frame is drawn in, and the cartridge's initial image is the one load that names colours by position.
 /// </summary>
-public sealed class GameplayColours : IPaletteColors
+public sealed class GameplayColours
 {
     /// <summary>The colours gameplay addresses by position.</summary>
     public const int ColorCount = 256;
@@ -35,7 +35,7 @@ public sealed class GameplayColours : IPaletteColors
     /// <summary>The background colour sets.</summary>
     public BackgroundColourSets BackgroundSets { get; } = new();
 
-    /// <inheritdoc />
+    /// <summary>Every colour as it shows, in the cartridge's colour order.</summary>
     public ReadOnlySpan<Bgr555> Colors
     {
         get
@@ -47,30 +47,15 @@ public sealed class GameplayColours : IPaletteColors
         }
     }
 
-    /// <inheritdoc />
-    public void SetColor(int index, Bgr555 color)
+    /// <summary>
+    /// Loads the cartridge's initial 256-colour image, the one load that names colours by position: each colour goes to
+    /// the owner that holds its position.
+    /// </summary>
+    public void LoadCartridgeImage(ReadOnlySpan<Bgr555> image)
     {
-        Ensure.BetweenInclusive(0, ColorCount - 1, index);
-        Owner(index).Set(index, color);
-    }
-
-    /// <inheritdoc />
-    public Rgba32 GetRgba(int index)
-    {
-        Ensure.BetweenInclusive(0, ColorCount - 1, index);
-        return Owner(index).At(index).ToRgba32();
-    }
-
-    /// <inheritdoc />
-    public void LoadBytes(ReadOnlySpan<byte> bytes, int destinationIndex = 0)
-    {
-        if ((bytes.Length & 1) != 0)
-            throw new ArgumentException("Palette data must contain complete two-byte colours.", nameof(bytes));
-        int count = bytes.Length / 2;
-        if (destinationIndex < 0 || destinationIndex + count > ColorCount)
-            throw new ArgumentOutOfRangeException(nameof(destinationIndex), "A palette load must remain within 256 colours.");
-        for (int color = 0; color < count; color++)
-            SetColor(destinationIndex + color, Bgr555.FromCgramPortWord(SnesLittleEndian.Word(bytes[color * 2], bytes[color * 2 + 1])));
+        Ensure.LengthEqual(image, ColorCount);
+        for (int position = 0; position < ColorCount; position++)
+            Owner(position).Set(position, image[position]);
     }
 
     /// <summary>The owner holding <paramref name="position"/>.</summary>

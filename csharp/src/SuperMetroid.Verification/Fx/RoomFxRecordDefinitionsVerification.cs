@@ -68,7 +68,7 @@ internal static class RoomFxRecordDefinitionsVerification
             "Ceres compiled FX liquid options");
         AssertTrue(nativeVram.ImageEquals(compiledVram),
             "Ceres compiled FX retains VRAM output");
-        AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(compiledCgram)),
+        AssertTrue(new CgramPalettes(nativeCgram.AsPaletteColors()).ImageEquals(new CgramPalettes(compiledCgram.AsPaletteColors())),
             "Ceres compiled FX retains CGRAM output");
 
         var nativePaletteSession = new PaletteFxSessionState();

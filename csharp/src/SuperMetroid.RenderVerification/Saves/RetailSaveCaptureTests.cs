@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -60,7 +61,7 @@ internal static class RetailSaveCaptureTests
                 var oam = new OamBuffer(); oam.BeginFrame();
                 runtime.Enemies.DrawEnemyProjectiles(oam, runtime.Room.LoadedCamera.PixelPosition);
                 oam.FinalizeFrame();
-                electricity = SnesObjRenderer.RenderResolved(oam, runtime.Vram, runtime.Cgram,
+                electricity = SnesObjRenderer.RenderResolved(oam, runtime.Vram, runtime.Cgram.AsPaletteColors(),
                     GameplayRenderDefinitions.ObjectSelection).Pixels.Any(p => p.A != 0 && (p.R != 0 || p.G != 0 || p.B != 0));
             }
             var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());

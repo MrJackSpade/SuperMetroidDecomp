@@ -152,7 +152,7 @@ internal static class RoomCharacterInstallationVerification
                 "installed RGB5 override changes only its room CGRAM color");
             var compiledStockCgram = new SnesCgram();
             stockPalettes.GetAt(paletteSource).LoadTo(compiledStockCgram);
-            AssertTrue(new CgramPalettes(stockCgram).ImageEquals(new CgramPalettes(compiledStockCgram)),
+            AssertTrue(new CgramPalettes(stockCgram.AsPaletteColors()).ImageEquals(new CgramPalettes(compiledStockCgram)),
                 "installed stock room palette matches native room CGRAM");
 
             AssertTrue(File.Exists(Path.Combine(installed.RoomMetatileDirectory,
@@ -319,7 +319,7 @@ internal static class RoomCharacterInstallationVerification
                 paletteArt: repaired.LoadRoomPalettes());
             var repairedCgram = new GameplayColours(new SpriteColourSets());
             repairedPaletteRoom.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), repairedCgram.BackgroundSets);
-            AssertTrue(new CgramPalettes(repairedCgram).ImageEquals(new CgramPalettes(editedCgram)),
+            AssertTrue(new CgramPalettes(repairedCgram.AsPaletteColors()).ImageEquals(new CgramPalettes(editedCgram.AsPaletteColors())),
                 "repaired installation retains the selected user room palette");
             CartridgeRoomAssets repairedBlocks = LoadFixtureRoomAssets(landing,
                 metatileArt: repaired.LoadRoomMetatiles());

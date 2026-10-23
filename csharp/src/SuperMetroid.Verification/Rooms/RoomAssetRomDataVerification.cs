@@ -137,7 +137,7 @@ internal static class RoomAssetRomDataVerification
             native.LoadGraphics(BgArtworkFixtures.For(nativeVram), nativeCgram.BackgroundSets);
             guarded.LoadGraphics(BgArtworkFixtures.For(guardedVram), guardedCgram.BackgroundSets);
             AssertTrue(nativeVram.ImageEquals(guardedVram) &&
-                new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(guardedCgram)),
+                new CgramPalettes(nativeCgram.AsPaletteColors()).ImageEquals(new CgramPalettes(guardedCgram.AsPaletteColors())),
                 $"room $8F:{roomPointer:X4} retains exact VRAM/CGRAM output");
         }
 
@@ -208,7 +208,7 @@ internal static class RoomAssetRomDataVerification
             native.LoadGraphics(BgArtworkFixtures.For(nativeVram), nativeCgram.BackgroundSets);
             installed.LoadGraphics(BgArtworkFixtures.For(installedVram), installedCgram.BackgroundSets);
             AssertTrue(nativeVram.ImageEquals(installedVram) &&
-                new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
+                new CgramPalettes(nativeCgram.AsPaletteColors()).ImageEquals(new CgramPalettes(installedCgram.AsPaletteColors())),
                 $"room $8F:{roomPointer:X4} retains exact compiled-art VRAM/CGRAM output");
         }
 

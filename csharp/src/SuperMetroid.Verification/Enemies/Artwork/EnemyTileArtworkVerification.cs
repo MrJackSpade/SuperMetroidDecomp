@@ -234,7 +234,7 @@ internal static class EnemyTileArtworkVerification
                 SnesCgram nativeCgram = LoadNativeEnemyPalette(bus, pointer);
                 var installedCgram = new GameplayColours(new SpriteColourSets());
                 stock.Enemies.LoadPaletteTo(pointer, installedCgram.SpriteSets.Set(0));
-                AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
+                AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram.AsPaletteColors())),
                     $"enemy ${(int)pointer:X4} RGB5 JSON preserves all native palette slots");
             }
 
@@ -362,7 +362,7 @@ internal static class EnemyTileArtworkVerification
             var reloadedColors = new GameplayColours(new SpriteColourSets());
             EnemyTileArtworkFiles.Load(directory, overrideDirectory)
                 .Enemies.LoadPaletteTo(editedPointer, reloadedColors.SpriteSets.Set(0));
-            AssertTrue(new CgramPalettes(reloadedColors).ImageEquals(new CgramPalettes(changedColors)),
+            AssertTrue(new CgramPalettes(reloadedColors.AsPaletteColors()).ImageEquals(new CgramPalettes(changedColors.AsPaletteColors())),
                 "enemy palette override survives catalog reload");
 
             byte[] original = File.ReadAllBytes(editedFile);

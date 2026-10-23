@@ -271,7 +271,7 @@ internal static class RoomFxRomDataVerification
             for (int row = 0; row < 8; row++)
                 character[row * 2] = 0xff;
             vram.LoadBytes((0x4000 + 8) * 2, character);
-            cgram.SetColor(1, Bgr555.FromWord(0x7c00));
+            cgram.AsPaletteColors().SetColor(1, Bgr555.FromWord(0x7c00));
         }
         else
         {
@@ -296,8 +296,8 @@ internal static class RoomFxRomDataVerification
             }
             vram.LoadBytes((0x4000 + 1 * 8) * 2, redDecoyCharacter);
             vram.LoadBytes((0x4000 + 2 * 8) * 2, blueEffectCharacter);
-            cgram.SetColor(1, Bgr555.FromWord(0x001f));
-            cgram.SetColor(2, Bgr555.FromWord(0x7c00));
+            cgram.AsPaletteColors().SetColor(1, Bgr555.FromWord(0x001f));
+            cgram.AsPaletteColors().SetColor(2, Bgr555.FromWord(0x7c00));
             snapshot = snapshot with { Scroll = Position16<Bg3Pixels>.Zero };
         }
 
@@ -307,7 +307,7 @@ internal static class RoomFxRomDataVerification
         var frame = new Rgba32[
             SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
         SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
-            frame, vram, cgram, snapshot);
+            frame, vram, cgram.AsPaletteColors(), snapshot);
         if (type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid)
         {
             int above = 90 * SnesGameplayFrameRenderer.Width + 20;
@@ -325,7 +325,7 @@ internal static class RoomFxRomDataVerification
             SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
                 hiddenSurfaceFrame,
                 vram,
-                cgram,
+                cgram.AsPaletteColors(),
                 snapshot with
                 {
                     Surface = new(0, ushort.MaxValue),
@@ -383,7 +383,7 @@ internal static class RoomFxRomDataVerification
             SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
                 wrappedFrame,
                 vram,
-                cgram,
+                cgram.AsPaletteColors(),
                 snapshot with { Scroll = snapshot.Scroll.WithY(0x0100) });
             Rgba32 wrappedEffectPixel = wrappedFrame[
                 SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width];
@@ -411,7 +411,7 @@ internal static class RoomFxRomDataVerification
             () => SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
                 frame,
                 vram,
-                cgram,
+                cgram.AsPaletteColors(),
                 snapshot with { LayerBlendConfiguration = wrongBlend }),
             $"{type} rejects another FX type's layer-blending route");
     }

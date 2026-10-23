@@ -64,7 +64,7 @@ internal static class LookupFxBlendSelectorsVerification
                 byte id = (byte)value;
                 int selectionIndex = Array.IndexOf(ids, id);
                 var cgram = new GameplayColours(new SpriteColourSets());
-                cgram.SetColor(25, Bgr555.FromWord(0x1234)); cgram.SetColor(26, Bgr555.FromWord(0x2345)); cgram.SetColor(27, Bgr555.FromWord(0x3456));
+                cgram.AsPaletteColors().SetColor(25, Bgr555.FromWord(0x1234)); cgram.AsPaletteColors().SetColor(26, Bgr555.FromWord(0x2345)); cgram.AsPaletteColors().SetColor(27, Bgr555.FromWord(0x3456));
                 if (selectionIndex >= 0)
                 {
                     var colors = catalog.Resolve((RoomFxPaletteBlend)id);

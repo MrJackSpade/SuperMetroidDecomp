@@ -687,7 +687,7 @@ internal static class RidleyFullMovieVerification
         samus.SelectedHudItem = HudItem.Missile; samus.SuperMissiles = 5;
         samus.Presentation.LoadSuitPalette(samus, runtime.Player.Colours);
         Bgr555[] expected = runtime.Cgram.Colors.Slice(192, 16).ToArray();
-        for (int color = 192; color < 208; color++) runtime.Cgram.SetColor(color, Bgr555.FromWord(0x1234));
+        for (int color = 192; color < 208; color++) runtime.Cgram.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
         runtime.StepFrame(SnesButton.Select);
         AssertEqual(HudItem.SuperMissile, samus.SelectedHudItem, "selection enters Super Missiles without charge");
         AssertTrue(runtime.Cgram.Colors.Slice(192, 16).SequenceEqual(expected),
@@ -1242,7 +1242,7 @@ internal static class RidleyFullMovieVerification
             bool portWaitingForScroll = game.DoorTransitionPhaseForVerification is
                 DoorTransitionPhase.WaitForDoorOpeningScroll or DoorTransitionPhase.FinishDoorLoading;
             bool deferLoadingOwners = nativeLoading && portWaitingForScroll;
-            IPaletteColors comparedPalette = runtime.Cgram;
+            IPaletteColors comparedPalette = runtime.Cgram.AsPaletteColors();
             if (game.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB or
                 SuperMetroidGameState.UnpausingA or SuperMetroidGameState.UnpausingB)
             {

@@ -1757,8 +1757,8 @@ internal static class LookupStream3Verification
             var cgram = new GameplayColours(new SpriteColourSets());
             for (int frame = 0; frame < 8; frame++)
             {
-                cgram.SetColor(0x4e, new Bgr555(27, 3, 0));
-                cgram.SetColor(0x9e, new Bgr555(27, 3, 0));
+                cgram.AsPaletteColors().SetColor(0x4e, new Bgr555(27, 3, 0));
+                cgram.AsPaletteColors().SetColor(0x9e, new Bgr555(27, 3, 0));
                 palette.ApplyFromGrey(cgram, frame);
                 for (int color = 0; color < 13; color++)
                 {
@@ -2366,14 +2366,14 @@ internal static class LookupStream3Verification
                     var actual = new GameplayColours(new SpriteColourSets());
                     stock.ApplyRecoveryLights(expected, frame);
                     edited.ApplyRecoveryLights(actual, frame);
-                    AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)),
+                    AssertTrue(new CgramPalettes(expected.AsPaletteColors()).ImageEquals(new CgramPalettes(actual.AsPaletteColors())),
                         "stream 3 independent final-room edit cannot change recovery content");
                     for (int phase = 0; phase < 2; phase++)
                     {
                         int flashFrame = frame * 2 + phase;
                         stock.ApplyFlash(expected, flashFrame);
                         edited.ApplyFlash(actual, flashFrame);
-                        AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)),
+                        AssertTrue(new CgramPalettes(expected.AsPaletteColors()).ImageEquals(new CgramPalettes(actual.AsPaletteColors())),
                             "stream 3 independent final-room edit cannot change flash content");
                     }
                 }
@@ -2389,7 +2389,7 @@ internal static class LookupStream3Verification
             var actual = new GameplayColours(new SpriteColourSets());
             stock.ApplyRecoveryLights(expected, frame);
             oldOverride.ApplyRecoveryLights(actual, frame);
-            AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)), "stream 3 legacy room override reuses calculated stock recovery");
+            AssertTrue(new CgramPalettes(expected.AsPaletteColors()).ImageEquals(new CgramPalettes(actual.AsPaletteColors())), "stream 3 legacy room override reuses calculated stock recovery");
         }
     }
 

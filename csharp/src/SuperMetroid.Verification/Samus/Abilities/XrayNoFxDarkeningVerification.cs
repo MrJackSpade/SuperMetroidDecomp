@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rendering;
@@ -45,9 +46,9 @@ internal static class XrayNoFxDarkeningVerification
         runtime.Vram.LoadBytes(0x3fe * 32, tile);
         runtime.Vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)0x3fe, 2048).ToArray(),
             GameplayVramLayout.Bg1TilemapWord, 1);
-        runtime.Cgram.SetColor(1, new Bgr555(24, 20, 16));
+        runtime.Cgram.AsPaletteColors().SetColor(1, new Bgr555(24, 20, 16));
         // Native Clear_FX_Tilemap's $184E selects BG3 palette six, color three.
-        runtime.Cgram.SetColor(6 * 4 + 3, new Bgr555(0, 0, 0));
+        runtime.Cgram.AsPaletteColors().SetColor(6 * 4 + 3, new Bgr555(0, 0, 0));
         var snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
         var expected = new Rgba32(99, 82, 66, 255); // RGB5(12,10,8)

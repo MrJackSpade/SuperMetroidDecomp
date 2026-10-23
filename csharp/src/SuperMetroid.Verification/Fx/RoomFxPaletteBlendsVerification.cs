@@ -203,9 +203,9 @@ internal static class RoomFxPaletteBlendsVerification
         var memory = new TestAddressSpace();
         var bus = NewForbiddenRoomFxPaletteBus(memory);
         var cgram = new GameplayColours(new SpriteColourSets());
-        cgram.SetColor(25, Bgr555.FromWord(0x1234));
-        cgram.SetColor(26, Bgr555.FromWord(0x2345));
-        cgram.SetColor(27, Bgr555.FromWord(0x3456));
+        cgram.AsPaletteColors().SetColor(25, Bgr555.FromWord(0x1234));
+        cgram.AsPaletteColors().SetColor(26, Bgr555.FromWord(0x2345));
+        cgram.AsPaletteColors().SetColor(27, Bgr555.FromWord(0x3456));
         var stateSession = new RoomFxSession{
             PaletteBlendColors = catalog,
             Layer3Tilemaps = tilemaps,

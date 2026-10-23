@@ -36,11 +36,11 @@ internal sealed class SamusColourRig : IPaletteColors, IPaletteFxColourOwners
     public ReadOnlySpan<Bgr555> Colors => colours.Colors;
 
     /// <inheritdoc />
-    public void SetColor(int index, Bgr555 color) => colours.SetColor(index, color);
+    public void SetColor(int index, Bgr555 color) => colours.AsPaletteColors().SetColor(index, color);
 
     /// <inheritdoc />
-    public Rgba32 GetRgba(int index) => colours.GetRgba(index);
+    public Rgba32 GetRgba(int index) => colours.AsPaletteColors().GetRgba(index);
 
     /// <inheritdoc />
-    public void LoadBytes(ReadOnlySpan<byte> bytes, int destinationIndex = 0) => colours.LoadBytes(bytes, destinationIndex);
+    public void LoadBytes(ReadOnlySpan<byte> bytes, int destinationIndex = 0) => colours.AsPaletteColors().LoadBytes(bytes, destinationIndex);
 }

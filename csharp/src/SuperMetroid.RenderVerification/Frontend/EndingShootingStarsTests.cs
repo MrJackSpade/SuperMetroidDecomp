@@ -84,12 +84,12 @@ internal static class EndingShootingStarsTests
             byte[] snapshotVram = scene.ShownVram();
             Require(snapshot.Paint.SpriteDraws.Length > 0, "Post-credits owner emits star OAM");
             var emptyMemory = new FramePaint(snapshot.Paint.Colors, []);
-            var withoutStars = new LayeredRenderSnapshot(emptyMemory, snapshot.Layers.ToArray(), snapshot.Brightness);
+            var withoutStars = new LayeredScene(emptyMemory, snapshot.Layers.ToArray(), snapshot.Brightness);
             var pixels = scene.Render();
             var noStars = SoftwareLayeredSnapshotRenderer.Render(withoutStars);
             bool hidden = scene.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingSamus;
             Require(pixels.SequenceEqual(noStars) == hidden, "Stars are visible except behind the native text-only TM");
-            var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), snapshot);
+            var packet = new DisplayPacket(new(tick + 1, 1, (ushort)tick), snapshot);
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "Post-credits stars CPU/GPU rendering");
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "Star rendering is repeatable");
             Require(EndingCreditsPresentation.CaptureRenderSnapshot(scene).Paint.SpriteParts().SequenceEqual(snapshot.Paint.SpriteParts()), "Capture does not advance star animation");

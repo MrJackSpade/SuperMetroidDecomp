@@ -32,9 +32,9 @@ internal static class EndingFlyawayArtworkVerification
                 $"installed ending flyaway preserves native phase at frame {frame}");
             if (native.Stage.Phase == EndingCreditsPhase.ZebesExplosionTileUpload)
             {
-                LayeredRenderSnapshot expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
+                LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
                 byte[] expectedVram = native.ShownVram();
-                LayeredRenderSnapshot actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
+                LayeredScene actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
                 byte[] actualVram = installed.ShownVram();
                 AssertTrue(actualVram.SequenceEqual(expectedVram) &&
                         actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&

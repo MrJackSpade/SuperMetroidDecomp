@@ -42,17 +42,17 @@ internal static class TitleSnapshotTestsVerification
                     // Compare at phase boundaries and throughout motion, not just black
                     // endpoints. It remains the reference until extraction is qualified.
                     Rgba32[] expected = scene.Render();
-                    Mode7ObjRenderSnapshot packet = scene.CaptureRenderSnapshot();
+                    FloorScene packet = scene.CaptureRenderSnapshot();
                     Array.Fill(reusable, new Rgba32(255, 0, 255));
                     var reused = SoftwareFrameSnapshotRenderer.Render(
-                        new RenderFrameSnapshot(new(frame + 1, 1, (ushort)frame), packet), reusable);
+                        new DisplayPacket(new(frame + 1, 1, (ushort)frame), packet), reusable);
                     AssertTrue(ReferenceEquals(reusable, reused), "title caller-owned output retained");
                     Match(expected, reused, frame, phase);
                     Match(expected, SoftwareFrameSnapshotRenderer.Render(
-                        new RenderFrameSnapshot(new(frame + 1, 1, (ushort)frame), packet)), frame, phase);
+                        new DisplayPacket(new(frame + 1, 1, (ushort)frame), packet)), frame, phase);
                     Match(expected, SoftwareMode7ObjSnapshotRenderer.Render(packet), frame, phase);
                     Match(expected, SoftwareMode7ObjSnapshotRenderer.Render(packet), frame, phase);
-                    Mode7ObjRenderSnapshot repeat = scene.CaptureRenderSnapshot();
+                    FloorScene repeat = scene.CaptureRenderSnapshot();
                     AssertTrue(packet.Paint.SpriteParts().SequenceEqual(repeat.Paint.SpriteParts()), "repeat title OAM capture");
                     Match(control.Render(), expected, frame, phase);
                     comparisons++;

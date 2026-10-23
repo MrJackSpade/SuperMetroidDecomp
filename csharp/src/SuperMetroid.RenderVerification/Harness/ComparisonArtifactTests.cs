@@ -16,7 +16,7 @@ internal static class ComparisonArtifactTests
     /// mismatch evidence, then verifies the unaltered frame through GPU readback.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
-        var packet = new RenderFrameSnapshot(new(1, 1, 0), new Rgba32(31, 73, 127));
+        var packet = new DisplayPacket(new(1, 1, 0), new Rgba32(31, 73, 127));
         var expected = SoftwareFrameSnapshotRenderer.Render(packet);
         var actual = expected.ToArray();
         int first = packet.Size.X + 2, last = 3 * packet.Size.X + 5;

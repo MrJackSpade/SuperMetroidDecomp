@@ -84,7 +84,7 @@ internal static class PillarFirstEntryVerification
             // opaque scenery must not count as visible. Samus stays well above these
             // head-local windows, and the two owners are separated by 320 pixels.
             var memory = snapshot.Paint;
-            var withoutObjects = new LayeredRenderSnapshot(
+            var withoutObjects = new LayeredScene(
                 new FramePaint(memory.Colors, []),
                 snapshot.Layers, snapshot.Brightness);
             var background = SoftwareLayeredSnapshotRenderer.Render(withoutObjects);

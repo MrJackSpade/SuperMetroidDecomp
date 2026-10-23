@@ -8,7 +8,7 @@ internal static class NativeMode7Probe
 {
     /// <summary>Samples Mode-7 background pixels using upstream PPU math, then composites objects, gradient, and brightness.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native VRAM words")]
-    internal static Rgba32[] Render(Mode7ObjRenderSnapshot snapshot, byte[] bytes, int scanlineBias)
+    internal static Rgba32[] Render(FloorScene snapshot, byte[] bytes, int scanlineBias)
     {
         var bg = (snapshot.Background ?? throw new InvalidOperationException("Verification requires snapshot.Background."));
         int Sign13(int value) => (value << 19) >> 19;

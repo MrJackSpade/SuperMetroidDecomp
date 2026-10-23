@@ -868,7 +868,7 @@ public sealed class PlayableGameControl : UserControl
     /// <summary>Invalidates older display packets across reset and state-load boundaries.</summary>
     private long displayGeneration;
     /// <summary>Captured scene awaiting GPU publication or software rasterization.</summary>
-    internal RenderFrameSnapshot? pendingDisplay;
+    internal DisplayPacket? pendingDisplay;
     /// <summary>Asynchronous Direct3D worker owning the canvas window when enabled.</summary>
     internal D3D11RenderWorker? gpuWorker;
     /// <summary>Prevents duplicate renderer initialization for this control.</summary>
@@ -1044,7 +1044,7 @@ public sealed class PlayableGameControl : UserControl
     private void RefreshDisplay()
     {
         if (gpuWorker is not null) return;
-        RenderFrameSnapshot packet = pendingDisplay
+        DisplayPacket packet = pendingDisplay
             ?? throw new InvalidOperationException("The software canvas requires a captured scene.");
         canvas.ReplaceFrame(new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height), SoftwareFrameSnapshotRenderer.Render(packet));
     }

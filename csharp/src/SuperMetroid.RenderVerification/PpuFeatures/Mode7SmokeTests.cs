@@ -32,16 +32,16 @@ internal static class Mode7SmokeTests
         foreach (Mode7OverflowMode overflow in Enum.GetValues<Mode7OverflowMode>())
         {
             var registers = new AffineTransform(scale, 113, -113, scale, new Offset16<Mode7Pixels>(128, 112), new Offset16<Mode7Pixels>(offset, offset), overflow);
-            var frame = new RenderFrameSnapshot(new(++count, 1, 0),
-                new Mode7ObjRenderSnapshot(memory, registers, 13, floor: map), [new FadeLevel(11)]);
+            var frame = new DisplayPacket(new(++count, 1, 0),
+                new FloorScene(memory, registers, 13, floor: map), [new FadeLevel(11)]);
             Check(frame);
-            Check(new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
+            Check(new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory,
                 new RenderLayer[] { new ObjRenderLayer(), new Mode7RenderLayer(registers, map),
                     new FixedColorAddRenderLayer(3, 7, 11) }, 15)));
-            Check(new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
+            Check(new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory,
                 new RenderLayer[] { new Mode7RenderLayer(registers, map, AddBg1Subscreen: true) }, 15)));
         }
-        Check(new RenderFrameSnapshot(new(++count, 1, 0), new Mode7ObjRenderSnapshot(memory, null, 15)));
+        Check(new DisplayPacket(new(++count, 1, 0), new FloorScene(memory, null, 15)));
         foreach (int hud in new[] { 0, 8, 32, 208 })
         foreach (int? floorStart in new int?[] { null, 208, 223 })
         foreach (short scale in new short[] { 256, -113, 511, 0 })
@@ -52,8 +52,8 @@ internal static class Mode7SmokeTests
             var layer = new Mode7GameplayRenderLayer(
                 new(scale, 71, -71, scale, new(128, 112), new(-17, 211), Mode7OverflowMode.CharacterZero),
                 bg3, map, hud, band);
-            Check(new RenderFrameSnapshot(new(++count, 1, 0),
-                new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 13)));
+            Check(new DisplayPacket(new(++count, 1, 0),
+                new LayeredScene(memory, new RenderLayer[] { layer }, 13)));
         }
         // A Ceres room's map drawn from seeded tile pictures (#1392), some rows recoloured by the scene, and from the
         // fixture's characters, with outside pixels transparent, as Ceres rooms show them, or character zero.
@@ -66,12 +66,12 @@ internal static class Mode7SmokeTests
             var layer = new Mode7GameplayRenderLayer(
                 new(scale, 71, -71, scale, new(128, 112), new(-17, 211), fill ? Mode7OverflowMode.CharacterZero : Mode7OverflowMode.Transparent),
                 bg3, shown, hud, null);
-            Check(new RenderFrameSnapshot(new(++count, 1, 0),
-                new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 13)));
+            Check(new DisplayPacket(new(++count, 1, 0),
+                new LayeredScene(memory, new RenderLayer[] { layer }, 13)));
         }
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact Mode 7 comparisons passed.");
 
-        void Check(RenderFrameSnapshot frame) => PixelComparison.Verify(frame,
+        void Check(DisplayPacket frame) => PixelComparison.Verify(frame,
             SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
             $"{device.Kind}: Mode 7 sample {count}");
     }

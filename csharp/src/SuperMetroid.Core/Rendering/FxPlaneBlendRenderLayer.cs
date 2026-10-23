@@ -2,8 +2,8 @@ using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>Owned 2-bpp BG color-math plane with a physical-line scroll table.</summary>
-public sealed record Bg2BppColorMathRenderLayer : RenderLayer
+/// <summary>The room effect plane blended over gameplay, with its own scroll for each physical line.</summary>
+public sealed record FxPlaneBlendRenderLayer : RenderLayer
 {
     /// <summary>Owned physical-scanline scroll pairs, copied so later caller edits cannot change a submitted layer.</summary>
     private readonly Position16<BgPlanePixels>[] scrolls;
@@ -31,7 +31,7 @@ public sealed record Bg2BppColorMathRenderLayer : RenderLayer
     /// <param name="firstScanline">Inclusive first physical scanline from 0 through 224; 224 means no visible lines participate.</param>
     /// <param name="operation">Addition or subtraction for the standalone expanded-byte compositor.</param>
     /// <param name="scrolls">Exactly 224 register pairs, indexed by physical output scanline; the constructor takes an owned copy.</param>
-    public Bg2BppColorMathRenderLayer(Layer3Cells plane, int firstRow, int mapHeightTiles,
+    public FxPlaneBlendRenderLayer(Layer3Cells plane, int firstRow, int mapHeightTiles,
         int firstScanline, ExpandedColorMathOperation operation, ReadOnlySpan<Position16<BgPlanePixels>> scrolls)
     {
         if (mapHeightTiles is not (32 or 64)) throw new ArgumentOutOfRangeException(nameof(mapHeightTiles));

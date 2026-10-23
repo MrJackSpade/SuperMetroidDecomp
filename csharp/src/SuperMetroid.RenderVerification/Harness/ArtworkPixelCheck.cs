@@ -23,7 +23,7 @@ internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRend
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal void Pair(SnesVram stock, SnesVram edited, OamBuffer oam, string context)
     {
-        RenderFrameSnapshot a = Packet(stock), b = Packet(edited);
+        DisplayPacket a = Packet(stock), b = Packet(edited);
         Rgba32[] first = SoftwareFrameSnapshotRenderer.Render(a);
         Rgba32[] second = SoftwareFrameSnapshotRenderer.Render(b);
         var substitutions = Enumerable.Range(0, 16).ToDictionary(
@@ -44,13 +44,13 @@ internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRend
         // detects stale renderer caches keyed only by reused VRAM destinations.
         Compare(a, first, context + " retained stock after replacement");
 
-        RenderFrameSnapshot Packet(SnesVram vram) => new(new(++sequence, 1, 0),
-            new LayeredRenderSnapshot(FramePaintConstants.CaptureFrontend(vram, colors, oam, 3),
+        DisplayPacket Packet(SnesVram vram) => new(new(++sequence, 1, 0),
+            new LayeredScene(FramePaintConstants.CaptureFrontend(vram, colors, oam, 3),
                 [new ObjRenderLayer()], 15));
     }
 
     /// <summary>Reads a GPU frame and compares its pixels with the software renderer's expected output.</summary>
-    private void Compare(RenderFrameSnapshot frame, Rgba32[] expected, string context)
+    private void Compare(DisplayPacket frame, Rgba32[] expected, string context)
     {
         PixelComparison.Verify(frame, expected, renderer.RenderForReadback(frame), $"{device.Kind}: {context}");
         Comparisons++;

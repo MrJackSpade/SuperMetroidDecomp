@@ -45,7 +45,7 @@ internal static class RetailRidleyCaptureTests
             if (scene.Layers[0] is not Mode7GameplayRenderLayer { Floor: not null } mixed ||
                 mixed.HudScanlines != SnesPpuLayout.GameplayHudHeightPixels)
                 throw new InvalidOperationException("Retail Ridley fixture did not capture mixed Mode-7 floor and HUD.");
-            var packet = new RenderFrameSnapshot(new(retained.Count + 1, 1, 0), scene);
+            var packet = new DisplayPacket(new(retained.Count + 1, 1, 0), scene);
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                 $"{device.Kind}: retail Ridley scale={scale}, tilt={tilt}, scroll={scroll}");
             retained.Add(new RetainedFrame(packet, expected));

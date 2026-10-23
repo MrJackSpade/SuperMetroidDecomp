@@ -201,7 +201,7 @@ internal sealed class IntroCeresFlightState
     }
 
     /// <summary>Captures matrix, ordered layers and rear-view fixed-color registers without rasterizing.</summary>
-    public LayeredRenderSnapshot CaptureRenderSnapshot()
+    public LayeredScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
         byte[] image = Image();
@@ -210,7 +210,7 @@ internal sealed class IntroCeresFlightState
             IntroCeresFlightPhase.StartGameAtCeres or IntroCeresFlightPhase.Finished)
         {
             // The caption draws from the flight's object characters' pre-coloured tiles (#1392).
-            var caption = new Bg4BppRenderLayer(ScreenTileMap.Capture(image, CeresFlightRomData.Layers.SpaceColonyTilemapWord, new Extent16<TilemapCells>(32, 32),
+            var caption = new TileRenderLayer(ScreenTileMap.Capture(image, CeresFlightRomData.Layers.SpaceColonyTilemapWord, new Extent16<TilemapCells>(32, 32),
                 (captionTiles ?? throw new InvalidOperationException("The Ceres flight's caption requires the installed sprite sheets."))
                     .Pictures(CeresFlightRomData.Layers.SpaceColonyCharacterWord, BgBitDepth.FourBpp)), new Position16<BgPlanePixels>(0, 0), false);
             layers.Add(caption);

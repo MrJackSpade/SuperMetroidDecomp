@@ -488,7 +488,7 @@ public static class SnesGameplayFrameRenderer
     }
 
     /// <summary>Resolves FX type, liquid visibility and wave phase into a backend-neutral BG equation.</summary>
-    public static Bg2BppColorMathRenderLayer? CaptureRoomLayer3Fx(RoomLayer3FxRenderSnapshot fx, Layer3Cells plane)
+    public static FxPlaneBlendRenderLayer? CaptureRoomLayer3Fx(RoomLayer3FxRenderSnapshot fx, Layer3Cells plane)
     {
         LayerBlendingConfiguration required = fx.Type switch
         {

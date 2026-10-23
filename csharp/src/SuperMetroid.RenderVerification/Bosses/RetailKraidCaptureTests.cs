@@ -53,7 +53,7 @@ internal static class RetailKraidCaptureTests
             if (changed || tick % 8 == 0 || mainLoop)
             {
                 var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
-                var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
+                var packet = new DisplayPacket(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                     $"{device.Kind}: Kraid rise tick={tick}, AI={BodyFunction()}");
             }
@@ -85,7 +85,7 @@ internal static class RetailKraidCaptureTests
             if (changed || tick % 4 == 0 || finished)
             {
                 var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
-                var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
+                var packet = new DisplayPacket(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: Kraid growth tick={tick}, AI={BodyFunction()}");
                 growthSamples++;
             }
@@ -114,7 +114,7 @@ internal static class RetailKraidCaptureTests
             if (changed || tick % 4 == 0 || boss.DeathSequenceComplete)
             {
                 var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
-                var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
+                var packet = new DisplayPacket(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: Kraid death tick={tick}, AI={BodyFunction()}");
                 deathSamples++;
             }
@@ -146,7 +146,7 @@ internal static class RetailKraidCaptureTests
     /// </summary>
     private static void RequireBlankBg2(SuperMetroidRuntime runtime, string context)
     {
-        LayeredRenderSnapshot scene = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
+        LayeredScene scene = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var gameplay = (OrdinaryGameplayRenderLayer)scene.Layers[0];
         IBgSource bg2 = gameplay.Rooms.Bg2Shown(gameplay.View.Bg2MapSize);
         var shown = new SortedSet<ushort>();
@@ -174,7 +174,7 @@ internal static class RetailKraidCaptureTests
     /// Requires every door frame's HUD rows to match the frame before the door: leaving Kraid's room must never draw the
     /// destination's tiles through his HUD character base (#1428).
     /// </summary>
-    private static Action<RenderFrameSnapshot> RequireSteadyHud(SuperMetroidRuntime runtime, string context)
+    private static Action<DisplayPacket> RequireSteadyHud(SuperMetroidRuntime runtime, string context)
     {
         const int hudPixels = SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.GameplayHudHeightPixels;
         Rgba32[] before = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()).AsSpan(0, hudPixels).ToArray();

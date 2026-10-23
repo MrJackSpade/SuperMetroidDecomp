@@ -7,7 +7,7 @@ namespace SuperMetroid.TestSupport.FrameCapture;
 internal static class PixelComparison
 {
     /// <summary>Checks exact RGBA pixels and reports mismatch count, first sample, and inclusive bounds with fixture identity.</summary>
-    internal static void Verify(RenderFrameSnapshot packet, Rgba32[] expected, Rgba32[] actual, string context)
+    internal static void Verify(DisplayPacket packet, Rgba32[] expected, Rgba32[] actual, string context)
     {
         if (expected.Length != packet.Size.X * packet.Size.Y || actual.Length != expected.Length)
             throw new InvalidDataException($"{context}: unexpected frame dimensions.");
@@ -33,7 +33,7 @@ internal static class PixelComparison
     /// Writes the expected, actual and difference frames at their native size beside the test's binaries, in a folder
     /// named for the failure, and returns its full path.
     /// </summary>
-    private static string Save(RenderFrameSnapshot packet, string context, Rgba32[] expected, Rgba32[] actual, Rgba32[] difference)
+    private static string Save(DisplayPacket packet, string context, Rgba32[] expected, Rgba32[] actual, Rgba32[] difference)
     {
         string name = string.Concat($"{context} {packet.Identity.Sequence}".Select(character => char.IsLetterOrDigit(character) ? character : '-'));
         string directory = Path.Combine(AppContext.BaseDirectory, "pixel-failures", name);

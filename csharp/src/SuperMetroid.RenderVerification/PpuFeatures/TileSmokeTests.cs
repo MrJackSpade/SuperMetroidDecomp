@@ -26,25 +26,25 @@ internal static class TileSmokeTests
         foreach (ushort height in new ushort[] { 32, 64 })
         foreach (bool? priority in new bool?[] { null, false, true })
         foreach (ushort scroll in new ushort[] { 0, 7, 255, 511, ushort.MaxValue })
-            Check(new RenderLayer[] { new Bg4BppRenderLayer(Cells(0x7ffe, width, height, upper), new Position16<BgPlanePixels>(scroll, scroll), priority) }, "4bpp geometry/priority/scroll");
+            Check(new RenderLayer[] { new TileRenderLayer(Cells(0x7ffe, width, height, upper), new Position16<BgPlanePixels>(scroll, scroll), priority) }, "4bpp geometry/priority/scroll");
         ScreenLayerPictures font = VramTileFixtures.Tiles(bytes, palette, 0x7ff8, BgBitDepth.TwoBpp);
         foreach (bool transparent in new[] { false, true })
         foreach (bool? priority in new bool?[] { null, false, true })
         foreach (ushort scroll in new ushort[] { 0, 1, 223, 255, ushort.MaxValue })
-            Check(new RenderLayer[] { new Bg2BppViewportRenderLayer(Cells(0x7fff, 32, 32, font), scroll, transparent, priority) }, "2bpp viewport/priority/key");
+            Check(new RenderLayer[] { new TileViewportRenderLayer(Cells(0x7fff, 32, 32, font), scroll, transparent, priority) }, "2bpp viewport/priority/key");
         ScreenLayerPictures lower = VramTileFixtures.Tiles(bytes, palette, 0, BgBitDepth.FourBpp);
         ScreenLayerPictures text = VramTileFixtures.Tiles(bytes, palette, 0x4000, BgBitDepth.TwoBpp);
         for (byte brightness = 0; brightness <= 15; brightness++)
             Check(new RenderLayer[] {
-                new Bg4BppRenderLayer(Cells(0x4000, 64, 32, lower), new Position16<BgPlanePixels>(3, 11), false),
-                new Bg4BppRenderLayer(Cells(0x4800, 32, 64, upper), new Position16<BgPlanePixels>(65535, 255), true),
-                new Bg2BppViewportRenderLayer(Cells(0x5800, 32, 32, text), 13, true, null),
+                new TileRenderLayer(Cells(0x4000, 64, 32, lower), new Position16<BgPlanePixels>(3, 11), false),
+                new TileRenderLayer(Cells(0x4800, 32, 64, upper), new Position16<BgPlanePixels>(65535, 255), true),
+                new TileViewportRenderLayer(Cells(0x5800, 32, 32, text), 13, true, null),
                 new FixedColorAddRenderLayer(3, 17, 31) }, "ordered planes/fixed-color/fades", brightness);
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} tile/color-math GPU comparisons passed.");
 
         void Check(RenderLayer[] layers, string name, byte brightness = 15)
         {
-            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, layers, brightness), [new FadeLevel(13), new FadeLevel(11)]);
+            var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, layers, brightness), [new FadeLevel(13), new FadeLevel(11)]);
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame), $"{device.Kind}: {name} #{count}");
         }
     }
@@ -72,8 +72,8 @@ internal static class TileSmokeTests
         var palette = new Bgr555[SnesPpuLayout.CgramColorCount];
         palette[3 * 16 + 2] = new Bgr555(31, 0, 0); palette[3 * 16 + 10] = new Bgr555(0, 0, 31);
         var memory = new FramePaint(palette, []);
-        var frame = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory,
-            new RenderLayer[] { new Bg4BppRenderLayer(VramTileFixtures.Cells(vram, palette, 0x4000, 0x6000, BgBitDepth.FourBpp, new Extent16<TilemapCells>(32, 32)),
+        var frame = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory,
+            new RenderLayer[] { new TileRenderLayer(VramTileFixtures.Cells(vram, palette, 0x4000, 0x6000, BgBitDepth.FourBpp, new Extent16<TilemapCells>(32, 32)),
                 new Position16<BgPlanePixels>(0, 0), null) }, 15));
         var expected = SoftwareFrameSnapshotRenderer.Render(frame);
         if (expected[0] != new SuperMetroid.Core.Hardware.Rgba32(255, 0, 0))

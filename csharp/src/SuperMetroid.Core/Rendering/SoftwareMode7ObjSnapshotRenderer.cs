@@ -11,7 +11,7 @@ public static class SoftwareMode7ObjSnapshotRenderer
     /// <returns>The completed RGBA frame in the supplied array when nonnull, otherwise a new array; disposing scratch does not invalidate the pixels.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="snapshot"/> is null.</exception>
     /// <exception cref="ArgumentException">A supplied output buffer does not contain exactly 57344 pixels.</exception>
-    public static Rgba32[] Render(Mode7ObjRenderSnapshot snapshot, Rgba32[]? outputBuffer = null)
+    public static Rgba32[] Render(FloorScene snapshot, Rgba32[]? outputBuffer = null)
     {
         Ensure.NotNull(snapshot);
         // Existing raster kernels consume hardware-model readers. Rehydrate private

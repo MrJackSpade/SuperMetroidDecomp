@@ -110,7 +110,7 @@ public sealed class FileSelectRoomMapGraphics
 
     /// <summary>Captures the installed room map/frame and optional marker/arrows without advancing any animation.</summary>
     [PpuLayoutBoundary("codec: file-select room-map render packet layers")]
-    public LayeredRenderSnapshot CaptureRenderSnapshot(Position16<MapPixels> scroll = default,
+    public LayeredScene CaptureRenderSnapshot(Position16<MapPixels> scroll = default,
         FileSelectStationMarker? marker = null, FileSelectMapAnimations? animations = null, RoomMapContent content = RoomMapContent.Scene)
     {
         var layers = new List<RenderLayer>();
@@ -119,14 +119,14 @@ public sealed class FileSelectRoomMapGraphics
         byte[] image = MenuScreenImage.Compose(screen);
         ScreenTileMap frame = ScreenTileMap.Capture(image, MenuVramLayout.Bg2TilemapWord, new Extent16<TilemapCells>(32, 32), tiles);
         if (content == RoomMapContent.FrameOnly)
-            layers.Add(new Bg4BppRenderLayer(frame, new Position16<BgPlanePixels>(0, FileSelectMapRomData.RoomFrameVerticalScroll), null));
+            layers.Add(new TileRenderLayer(frame, new Position16<BgPlanePixels>(0, FileSelectMapRomData.RoomFrameVerticalScroll), null));
         else
         {
             ScreenTileMap map = ScreenTileMap.Capture(image, MenuVramLayout.Bg1TilemapWord, new Extent16<TilemapCells>(64, 32), tiles);
             foreach (bool priority in new[] { false, true })
             {
-                layers.Add(new Bg4BppRenderLayer(frame, new Position16<BgPlanePixels>(0, FileSelectMapRomData.RoomFrameVerticalScroll), priority));
-                layers.Add(new Bg4BppRenderLayer(map, scroll.AsBgPlaneScroll(), priority));
+                layers.Add(new TileRenderLayer(frame, new Position16<BgPlanePixels>(0, FileSelectMapRomData.RoomFrameVerticalScroll), priority));
+                layers.Add(new TileRenderLayer(map, scroll.AsBgPlaneScroll(), priority));
             }
         }
         if (marker is not null && content != RoomMapContent.FrameOnly)

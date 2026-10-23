@@ -458,7 +458,7 @@ public sealed class SuperMetroidGame
     /// that explicitly; this method never fabricates a GPU packet from a CPU raster or
     /// calls a scene draw routine to reconstruct an earlier display.
     /// </remarks>
-    public RenderFrameSnapshot GetRetainedDisplay(long hostSequence, long hostGeneration)
+    public DisplayPacket GetRetainedDisplay(long hostSequence, long hostGeneration)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hostSequence);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hostGeneration);

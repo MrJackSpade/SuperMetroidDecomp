@@ -271,9 +271,9 @@ internal static class EndingPaletteArtworkVerification
             bool first = reached.Add(nativeState.Stage.Phase);
             if (first || frame % 173 == 0)
             {
-                LayeredRenderSnapshot expected = EndingCreditsPresentation.CaptureRenderSnapshot(nativeState);
+                LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(nativeState);
                 byte[] expectedVram = nativeState.ShownVram();
-                LayeredRenderSnapshot actual = EndingCreditsPresentation.CaptureRenderSnapshot(installedState);
+                LayeredScene actual = EndingCreditsPresentation.CaptureRenderSnapshot(installedState);
                 byte[] actualVram = installedState.ShownVram();
                 AssertTrue(actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
                         actualVram.SequenceEqual(expectedVram) &&
@@ -475,9 +475,9 @@ internal static class EndingPaletteArtworkVerification
             editedAudio.AdvanceFrame(default);
             stockAudio.AdvanceFrame(default);
             if (frame % 3 != 0) continue;
-            LayeredRenderSnapshot changed = EndingCreditsPresentation.CaptureRenderSnapshot(editedScene);
+            LayeredScene changed = EndingCreditsPresentation.CaptureRenderSnapshot(editedScene);
             byte[] changedVram = editedScene.ShownVram();
-            LayeredRenderSnapshot original = EndingCreditsPresentation.CaptureRenderSnapshot(stockScene);
+            LayeredScene original = EndingCreditsPresentation.CaptureRenderSnapshot(stockScene);
             byte[] originalVram = stockScene.ShownVram();
             if (changed.Paint.Colors.SequenceEqual(original.Paint.Colors)) continue;
             AssertTrue(changedVram.SequenceEqual(originalVram),
@@ -566,9 +566,9 @@ internal static class EndingPaletteArtworkVerification
             stockAudio.AdvanceFrame(default);
             if (stockState.Stage.Phase != EndingCreditsPhase.Credits || stockState.Stage.Brightness == 0 ||
                 frame % 19 != 0) continue;
-            LayeredRenderSnapshot changed = EndingCreditsPresentation.CaptureRenderSnapshot(editedState);
+            LayeredScene changed = EndingCreditsPresentation.CaptureRenderSnapshot(editedState);
             byte[] changedVram = editedState.ShownVram();
-            LayeredRenderSnapshot original = EndingCreditsPresentation.CaptureRenderSnapshot(stockState);
+            LayeredScene original = EndingCreditsPresentation.CaptureRenderSnapshot(stockState);
             byte[] originalVram = stockState.ShownVram();
             AssertTrue(changedVram.SequenceEqual(originalVram),
                 "credits palette edit does not alter graphics VRAM");
@@ -618,9 +618,9 @@ internal static class EndingPaletteArtworkVerification
             stockAudio.AdvanceFrame(default);
             if (stockState.Stage.Phase != EndingCreditsPhase.PostCreditsLogo || frame % 3 != 0)
                 continue;
-            LayeredRenderSnapshot changed = EndingCreditsPresentation.CaptureRenderSnapshot(editedState);
+            LayeredScene changed = EndingCreditsPresentation.CaptureRenderSnapshot(editedState);
             byte[] changedVram = editedState.ShownVram();
-            LayeredRenderSnapshot original = EndingCreditsPresentation.CaptureRenderSnapshot(stockState);
+            LayeredScene original = EndingCreditsPresentation.CaptureRenderSnapshot(stockState);
             byte[] originalVram = stockState.ShownVram();
             AssertTrue(changedVram.SequenceEqual(originalVram),
                 "logo fade color edit does not alter graphics VRAM");

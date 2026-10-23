@@ -179,17 +179,17 @@ public sealed class FileSelectAreaMapGraphics
 
     /// <summary>Captures BG1/subscreen math followed by labels, preserving OBJ exclusion from color addition.</summary>
     [PpuLayoutBoundary("codec: file-select area-map render packet layers")]
-    public LayeredRenderSnapshot CaptureRenderSnapshot(ReadOnlySpan<ushort> usedStationMasks, AreaMapColorMath colorMath = AreaMapColorMath.WithBackdrop)
+    public LayeredScene CaptureRenderSnapshot(ReadOnlySpan<ushort> usedStationMasks, AreaMapColorMath colorMath = AreaMapColorMath.WithBackdrop)
     {
         PrepareLabels(usedStationMasks);
         // The foreground and the area's background draw from the area's pre-coloured tiles (#1392).
         ScreenCharacters tiles = screen.AreaMapTiles((AreaId)SelectedArea);
         byte[] image = MenuScreenImage.Compose(screen);
-        var foreground = new Bg4BppRenderLayer(ScreenTileMap.Capture(image, MenuVramLayout.Bg1TilemapWord, new Extent16<TilemapCells>(32, 32),
+        var foreground = new TileRenderLayer(ScreenTileMap.Capture(image, MenuVramLayout.Bg1TilemapWord, new Extent16<TilemapCells>(32, 32),
             tiles.Pictures(0, BgBitDepth.FourBpp)), new Position16<BgPlanePixels>(0, 0), null);
         return new(MenuScreenImage.Capture(screen), new RenderLayer[] {
             foreground,
-            new BgSubscreenAddRenderLayer(ScreenTileMap.Capture(image, FileSelectMapRomData.AreaBackgroundVram, Bg2BppViewportRenderLayer.MapSize,
+            new TileAddRenderLayer(ScreenTileMap.Capture(image, FileSelectMapRomData.AreaBackgroundVram, TileViewportRenderLayer.MapSize,
                     tiles.Pictures(FileSelectMapRomData.AreaBackgroundCharacters, BgBitDepth.TwoBpp)),
                 colorMath == AreaMapColorMath.WithBackdrop ? null : foreground),
             new ObjRenderLayer() }, SnesPpuLayout.MaximumMasterBrightness);

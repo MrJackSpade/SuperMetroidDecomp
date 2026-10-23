@@ -377,7 +377,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// No pixels are composed, and the returned value retains no live scene references.
     /// Call at the same display boundary as Render, before subsequent state changes.
     /// </summary>
-    public Mode7ObjRenderSnapshot CaptureRenderSnapshot()
+    public FloorScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
         short scale = unchecked((short)Zoom);

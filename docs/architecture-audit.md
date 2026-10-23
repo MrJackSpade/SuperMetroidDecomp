@@ -144,7 +144,7 @@ The build analyzer reports conversions whose only purpose is to reach another op
 
 A `ToArray()` that is stored, passed, compared through another overload, or that snapshots a reused buffer keeps an
 ownership purpose and is not reported. The code fix removes the adapter where that is unambiguous. Domain transforms
-belong to their owner type, such as `LayeredRenderSnapshot.Without<TLayer>()` and `LayersOf<TLayer>()`.
+belong to their owner type, such as `LayeredScene.Without<TLayer>()` and `LayersOf<TLayer>()`.
 
 ## One top-level type per file
 

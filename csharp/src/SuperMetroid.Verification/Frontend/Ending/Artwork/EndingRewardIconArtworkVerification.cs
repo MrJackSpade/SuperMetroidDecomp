@@ -52,9 +52,9 @@ internal static class EndingRewardIconArtworkVerification
             if (nativeScene.Stage.Phase == EndingCreditsPhase.PostCreditsJump)
             {
                 jumpFrames++;
-                LayeredRenderSnapshot expected = EndingCreditsPresentation.CaptureRenderSnapshot(nativeScene);
+                LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(nativeScene);
                 byte[] expectedVram = nativeScene.ShownVram();
-                LayeredRenderSnapshot actual = EndingCreditsPresentation.CaptureRenderSnapshot(installedScene);
+                LayeredScene actual = EndingCreditsPresentation.CaptureRenderSnapshot(installedScene);
                 byte[] actualVram = installedScene.ShownVram();
                 AssertTrue(actualVram.SequenceEqual(expectedVram) &&
                         actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
@@ -146,12 +146,12 @@ internal static class EndingRewardIconArtworkVerification
                 }
                 AssertEqual(EndingCreditsPhase.PostCreditsJump, scene.Stage.Phase,
                     $"{name} override fixture remains in the native landing upload");
-                LayeredRenderSnapshot before = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
+                LayeredScene before = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                 byte[] beforeVram = scene.ShownVram();
                 scene.Stage.BindMode7Artwork(edited);
                 // The ending draws its Mode 7 characters from the sheets the edited art composes (#1392).
                 scene.InstalledArtwork.BindSpriteSheets(EndingSheetFixtures.WithEndingMode7(edited));
-                LayeredRenderSnapshot rebound = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
+                LayeredScene rebound = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                 byte[] reboundVram = scene.ShownVram();
                 AssertTrue(scene.Stage.Phase == EndingCreditsPhase.PostCreditsJump &&
                         before.Paint.Colors.SequenceEqual(rebound.Paint.Colors) &&
@@ -169,8 +169,8 @@ internal static class EndingRewardIconArtworkVerification
                         [..EndingRewardIconArtworkFormat.TransferBytes]
                         .SequenceEqual(edited.RewardIcon.Transfer.Span),
                     $"{name} supplies every final native upload byte");
-                LayeredRenderSnapshot baseline = EndingCreditsPresentation.CaptureRenderSnapshot(installedScene);
-                LayeredRenderSnapshot changed = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
+                LayeredScene baseline = EndingCreditsPresentation.CaptureRenderSnapshot(installedScene);
+                LayeredScene changed = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                 AssertTrue(!SoftwareLayeredSnapshotRenderer.Render(baseline)
                         .SequenceEqual(
                             SoftwareLayeredSnapshotRenderer.Render(changed)),

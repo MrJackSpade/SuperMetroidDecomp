@@ -39,7 +39,7 @@ internal static class RetailDoorCaptureTests
     }
 
     /// <summary>Advances a door through scrolling and destination load, comparing each captured frame.</summary>
-    internal static void VerifyTransition(D3D11RenderDevice device, D3D11FrameRenderer renderer, SuperMetroidRuntime runtime, RetailDoorCase doorCase, string context, Action<RenderFrameSnapshot>? publish = null)
+    internal static void VerifyTransition(D3D11RenderDevice device, D3D11FrameRenderer renderer, SuperMetroidRuntime runtime, RetailDoorCase doorCase, string context, Action<DisplayPacket>? publish = null)
     {
             PublishDoor(runtime, doorCase.Door);
             var transition = new DoorTransitionState();
@@ -51,7 +51,7 @@ internal static class RetailDoorCaptureTests
                 if (transition.Phase == DoorTransitionPhase.WaitForDoorOpeningScroll) scrollFrames++;
                 transition.Step(runtime, audio, 0, SuperMetroid.Core.Compatibility.InstantRoomLoad.Instance);
                 var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
-                var packet = new RenderFrameSnapshot(new(++frames, 1, (ushort)frames), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
+                var packet = new DisplayPacket(new(++frames, 1, (ushort)frames), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 publish?.Invoke(packet);
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                     $"{device.Kind}: door {doorCase.Door:X4}, {context}, frame={frames}, phase={transition.Phase}");

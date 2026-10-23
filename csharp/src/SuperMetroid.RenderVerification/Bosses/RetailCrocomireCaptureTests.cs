@@ -47,7 +47,7 @@ internal static class RetailCrocomireCaptureTests
             var baseLayer = (OrdinaryGameplayRenderLayer)scene.Layers[0];
             if (baseLayer.Bg2LineScrolls.VerticalShown || (death ?? throw new InvalidOperationException("Verification requires death.")).MeltingHdmaActive)
                 throw new InvalidOperationException("Crocomire fight incorrectly enabled melting HDMA.");
-            var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), scene);
+            var packet = new DisplayPacket(new(tick + 1, 1, (ushort)tick), scene);
             PixelComparison.Verify(packet, FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()),
                 renderer.RenderForReadback(packet), $"{device.Kind}: Crocomire fight {tick}");
         }
@@ -73,7 +73,7 @@ internal static class RetailCrocomireCaptureTests
             if (changed || firstDistortion || tick % 16 == 0 || complete)
             {
                 var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
-                var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
+                var packet = new DisplayPacket(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                     $"{device.Kind}: Crocomire tick={tick}, phase={(int)boss.DeathSequenceIndex:X2}");
             }

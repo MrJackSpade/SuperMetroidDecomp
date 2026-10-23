@@ -17,7 +17,7 @@ public sealed class FrameCompositionAnalyzer : DiagnosticAnalyzer
     public const string FrameCompositionId = "SME6442";
 
     /// <summary>The types the backend receives a frame through; everything their members reach is a draw path.</summary>
-    internal static readonly ImmutableHashSet<string> DrawEntryTypes = ["RenderFrameSnapshot", "SpriteDraw"];
+    internal static readonly ImmutableHashSet<string> DrawEntryTypes = ["DisplayPacket", "SpriteDraw"];
 
     /// <summary>Character pages and sheets: the hardware's tile memory, from which frames are composed.</summary>
     internal static readonly ImmutableHashSet<string> CharacterPageTypes =

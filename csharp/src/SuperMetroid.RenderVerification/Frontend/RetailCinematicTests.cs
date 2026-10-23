@@ -31,7 +31,7 @@ internal static class RetailCinematicTests
             var scene = captured.CaptureTranslatedRenderSnapshot();
             bool changed = phases.Add(legacy.Phase);
             bool sample = changed || tick % 31 == 0;
-            var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), scene);
+            var packet = new DisplayPacket(new(tick + 1, 1, (ushort)tick), scene);
             if (sample)
             {
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),

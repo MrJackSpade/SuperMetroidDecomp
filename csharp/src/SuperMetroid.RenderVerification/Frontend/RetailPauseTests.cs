@@ -27,7 +27,7 @@ internal static class RetailPauseTests
         int samples = 0;
         void Compare(string page)
         {
-            var packet = new RenderFrameSnapshot(new(++samples, 1, 0), pause.CaptureRenderSnapshot());
+            var packet = new DisplayPacket(new(++samples, 1, 0), pause.CaptureRenderSnapshot());
             PixelComparison.Verify(packet, SoftwareFrameSnapshotRenderer.Render(packet), renderer.RenderForReadback(packet), $"{device.Kind}: pause {page}");
         }
         Compare("map");

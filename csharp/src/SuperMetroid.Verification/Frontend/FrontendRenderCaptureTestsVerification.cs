@@ -33,7 +33,7 @@ internal static class FrontendRenderCaptureTestsVerification
             "the initial display is a published black frame");
         var states = new HashSet<SuperMetroidGameState>();
         int packetCount = 0;
-        RenderFrameSnapshot? held = null;
+        DisplayPacket? held = null;
         Rgba32[]? heldPixels = null;
         for (int tick = 0; tick < 500; tick++)
         {
@@ -46,7 +46,7 @@ internal static class FrontendRenderCaptureTestsVerification
             AssertSequenceEqual(legacy.AudioEventsForVerification, captured.AudioEventsForVerification, "captured frontend audio event order");
             states.Add(expected.GameState);
             Rgba32[] actualPixels;
-            RenderFrameSnapshot packet = actual.Snapshot;
+            DisplayPacket packet = actual.Snapshot;
             {
                 long allocationStart = GC.GetAllocatedBytesForCurrentThread();
                 var metadata = captured.CurrentFrame;
@@ -62,8 +62,8 @@ internal static class FrontendRenderCaptureTestsVerification
                 actualPixels = SoftwareFrameSnapshotRenderer.Render(packet);
                 // Republish twice, as a paused host may attach/resize or load a new
                 // presentation generation. Neither operation may replay draw effects.
-                RenderFrameSnapshot retained = captured.GetRetainedDisplay(10000 + tick, 8);
-                RenderFrameSnapshot repeated = captured.GetRetainedDisplay(20000 + tick, 9);
+                DisplayPacket retained = captured.GetRetainedDisplay(10000 + tick, 8);
+                DisplayPacket repeated = captured.GetRetainedDisplay(20000 + tick, 9);
                 AssertEqual(10000L + tick, retained.Identity.Sequence, "retained display gets host sequence");
                 AssertEqual(8L, retained.Identity.Generation, "retained display gets new generation");
                 AssertEqual(expected.FrameNumber, retained.Identity.SimulationFrame, "republish retains simulation identity");

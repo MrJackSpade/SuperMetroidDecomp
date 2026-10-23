@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rendering;
 /// This composition is one supported packet shape, not a substitute for mixed-mode
 /// gameplay, windows or main/subscreen color math.
 /// </summary>
-public sealed record Mode7ObjRenderSnapshot
+public sealed record FloorScene
 {
     /// <summary>The frame's colours and sprite draws, retained by reference without another copy.</summary>
     public FramePaint Paint { get; }
@@ -34,7 +34,7 @@ public sealed record Mode7ObjRenderSnapshot
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is out of range.</exception>
     /// <param name="floor">The floor's map and tiles, given exactly when <paramref name="background"/> is.</param>
     /// <exception cref="ArgumentException"><paramref name="gradient"/> has the wrong nonzero length or an unsupported control, or a floor is given without a transform or a transform without a floor.</exception>
-    public Mode7ObjRenderSnapshot(FramePaint paint, AffineTransform? background,
+    public FloorScene(FramePaint paint, AffineTransform? background,
         int brightness, ReadOnlySpan<SuperMetroid.Core.Rendering.TitleGradientLine> gradient = default,
         AffineFloor? floor = null)
     {

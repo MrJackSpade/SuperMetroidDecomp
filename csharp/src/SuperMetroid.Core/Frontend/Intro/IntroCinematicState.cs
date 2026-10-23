@@ -1399,14 +1399,14 @@ level, samus, NmiFrameWord(elapsedUpdates));
     }
 
     /// <summary>Prepares the current display once and owns all inputs needed by a detached renderer.</summary>
-    internal LayeredRenderSnapshot CaptureTranslatedRenderSnapshot()
+    internal LayeredScene CaptureTranslatedRenderSnapshot()
     {
         if (CurrentCeresFlight is not null && Phase == IntroCinematicPhase.CeresFlight)
             return CurrentCeresFlight.CaptureRenderSnapshot();
 
         byte[] image = Image();
         SpriteFrameBuffer oam;
-        Bg4BppRenderLayer room;
+        TileRenderLayer room;
         if (Phase is IntroCinematicPhase.MotherBrainCrossfade or
             IntroCinematicPhase.MotherBrainFlashback or IntroCinematicPhase.PageTwoCrossfade)
         {
@@ -1437,7 +1437,7 @@ level, samus, NmiFrameWord(elapsedUpdates));
             // The first card is opaque and unscrolled; later text is transparent
             // and cropped one tile down. Do not conflate those two PPU setups.
             return new(new FramePaint(palette.Colors, oam.Draws),
-                new RenderLayer[] { new Bg2BppViewportRenderLayer(NarrationCells(image), 0, false, null) }, ScreenFade.Displayed(Inidisp));
+                new RenderLayer[] { new TileViewportRenderLayer(NarrationCells(image), 0, false, null) }, ScreenFade.Displayed(Inidisp));
         }
         else
         {
@@ -1445,7 +1445,7 @@ level, samus, NmiFrameWord(elapsedUpdates));
             room = Plane(image, IntroCinematicRomData.Layers.PortraitTilemapWord, new(0, GameplayFlashbackBg1VerticalScroll));
         }
 
-        var text = new Bg2BppViewportRenderLayer(NarrationCells(image), GameplayFlashbackBg1VerticalScroll, true, false);
+        var text = new TileViewportRenderLayer(NarrationCells(image), GameplayFlashbackBg1VerticalScroll, true, false);
         // Mode 1 with high-priority BG3: preserve both the OBJ winner and the
         // insertion points of text/room priority planes during palette crossfades.
         return new(new FramePaint(palette.Colors, oam.Draws), new RenderLayer[]
@@ -1474,11 +1474,11 @@ level, samus, NmiFrameWord(elapsedUpdates));
     internal static ushort NmiFrameWord(int elapsedUpdates) => unchecked((ushort)elapsedUpdates);
 
     /// <summary>Defines a four-bit background plane at the selected tilemap and source scroll, drawn from the scene's tiles (#1392).</summary>
-    private Bg4BppRenderLayer Plane(byte[] image, ushort tilemap, Position16<BgPlanePixels> scroll) =>
+    private TileRenderLayer Plane(byte[] image, ushort tilemap, Position16<BgPlanePixels> scroll) =>
         new(ScreenTileMap.Capture(image, tilemap, new Extent16<TilemapCells>(32, 32), Tiles.Pictures(0, BgBitDepth.FourBpp)), scroll, false);
 
     /// <summary>The narration's cells, showing its font characters (#1392).</summary>
     [PpuLayoutBoundary("codec: the narration's tilemap and font character base")]
     private ScreenTileMap NarrationCells(byte[] image) => ScreenTileMap.Capture(image, IntroCinematicRomData.Layers.NarrationTilemapWord,
-        Bg2BppViewportRenderLayer.MapSize, Tiles.Pictures(IntroCinematicRomData.Layers.FontCharacterBaseWord, BgBitDepth.TwoBpp));
+        TileViewportRenderLayer.MapSize, Tiles.Pictures(IntroCinematicRomData.Layers.FontCharacterBaseWord, BgBitDepth.TwoBpp));
 }

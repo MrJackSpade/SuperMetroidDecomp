@@ -44,7 +44,7 @@ internal static class RoomPerformanceStateFixture
         double stepMs = 0, renderMs = 0, audioMs = 0;
         var pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         Rgba32[]? pixels = null;
-        RenderFrameSnapshot? lastSnapshot = null;
+        DisplayPacket? lastSnapshot = null;
         for (long frame = 1; frame <= 720; frame++)
         {
             data.Record(0);
@@ -72,7 +72,7 @@ internal static class RoomPerformanceStateFixture
         {
             foreach (RenderLayer layer in layers.Layers)
             {
-                var isolated = new LayeredRenderSnapshot(layers.Paint, [layer], layers.Brightness);
+                var isolated = new LayeredScene(layers.Paint, [layer], layers.Brightness);
                 // These isolated costs include snapshot-memory setup and backdrop
                 // creation, so they locate expensive operations but are not additive.
                 for (int i = 0; i < 10; i++) SoftwareLayeredSnapshotRenderer.Render(isolated);

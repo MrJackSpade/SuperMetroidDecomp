@@ -29,7 +29,7 @@ internal static class RetailFrontendTests
             if (newPhase || tick % 17 == 0 || title.Phase == TitleSequencePhase.TitleScreenFadeOut)
             {
                 var expected = title.Render();
-                var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), title.CaptureRenderSnapshot());
+                var packet = new DisplayPacket(new(tick + 1, 1, (ushort)tick), title.CaptureRenderSnapshot());
                 if (title.Phase == TitleSequencePhase.SceneThreeZoom && (packet.Mode7 ?? throw new InvalidOperationException("Verification requires packet.Mode7.")).Gradient.IsEmpty)
                     throw new InvalidOperationException("Native scene-three gradient was not spawned.");
                 if (title.Phase == TitleSequencePhase.YearText && !(packet.Mode7 ?? throw new InvalidOperationException("Verification requires packet.Mode7.")).Gradient.IsEmpty)

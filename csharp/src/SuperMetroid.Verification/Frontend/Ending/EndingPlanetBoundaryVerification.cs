@@ -86,14 +86,14 @@ internal static class EndingPlanetBoundaryVerification
     /// Planet-explosion frames to dump for the native PPU comparison, into a caller-owned scratch directory, with the
     /// capture each dump was written from.
     /// </summary>
-    internal sealed record PlanetFrameCapture(string Directory, IReadOnlySet<int> Frames, Dictionary<int, LayeredRenderSnapshot> Snapshots);
+    internal sealed record PlanetFrameCapture(string Directory, IReadOnlySet<int> Frames, Dictionary<int, LayeredScene> Snapshots);
 
     /// <summary>
     /// The probe's input (csharp/test-fixtures/ending-native-ppu/probe.c): VRAM, CGRAM as little-endian words, the
     /// screen's 544-byte OAM upload, then OBSEL and brightness.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: dumps native VRAM, CGRAM and OAM tables for the pinned native PPU")]
-    private static byte[] NativeProbeInput(LayeredRenderSnapshot snapshot, byte[] snapshotVram, OamBuffer oam, byte objectSelection)
+    private static byte[] NativeProbeInput(LayeredScene snapshot, byte[] snapshotVram, OamBuffer oam, byte objectSelection)
     {
         var input = new List<byte>(SnesPpuLayout.VramByteCount + SnesPpuLayout.CgramColorCount * 2 + SnesPpuLayoutConstants.OamUploadByteCount + 2);
         input.AddRange(snapshotVram);
@@ -164,7 +164,7 @@ internal static class EndingPlanetBoundaryVerification
             if (capture is not null && capture.Frames.Contains(frame))
             {
                 // The native comparison replays exactly this sample's graphics and OAM under the retail registers.
-                LayeredRenderSnapshot sample = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
+                LayeredScene sample = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
                 capture.Snapshots[frame] = sample;
                 File.WriteAllBytes(Path.Combine(capture.Directory, $"later-{frame:D4}-{ending.Stage.Phase}.ppu"),
                     NativeProbeInput(sample, ending.ShownVram(), ScreenSpritesFixtures.ToOam(EndingCreditsPresentation.PrepareSprites(ending, EndingCreditsPresentation.CurrentEscapeObjectSheet(ending))),

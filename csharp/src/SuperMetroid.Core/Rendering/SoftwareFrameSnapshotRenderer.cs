@@ -9,7 +9,7 @@ public static class SoftwareFrameSnapshotRenderer
     /// paths may still return a different array. Always use the returned
     /// array and finish consuming it before reusing the supplied buffer for another frame.
     /// </summary>
-    public static Rgba32[] Render(RenderFrameSnapshot frame, Rgba32[]? gameplayOutputBuffer = null)
+    public static Rgba32[] Render(DisplayPacket frame, Rgba32[]? gameplayOutputBuffer = null)
     {
         Ensure.NotNull(frame);
         if (gameplayOutputBuffer is not null && gameplayOutputBuffer.Length != frame.Size.X * frame.Size.Y)

@@ -46,7 +46,7 @@ internal sealed class MovieReplayVideo : IDisposable
     internal FrontendFrame Step(SuperMetroidGame game, SnesButton input)
     {
         CapturedFrontendFrame captured = game.StepCaptured(input, ++sequence, 1);
-        RenderFrameSnapshot snapshot = captured.Snapshot;
+        DisplayPacket snapshot = captured.Snapshot;
         Rgba32[] pixels = SoftwareFrameSnapshotRenderer.Render(snapshot);
         if (encoder is null)
         {

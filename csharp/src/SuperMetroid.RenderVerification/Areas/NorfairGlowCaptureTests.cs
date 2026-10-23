@@ -22,7 +22,7 @@ internal static class NorfairGlowCaptureTests
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Cathedral, new Position16<RoomPixels>(0, 0));
         runtime.Player.IntroducedSamus.Control.LockHandlers();
-        LayeredRenderSnapshot? original = null;
+        LayeredScene? original = null;
         SuperMetroid.Core.Hardware.Rgba32[]? initialPixels = null;
         int maximumChanged = 0;
         for (int tick = 0; tick < 232; tick++)
@@ -30,7 +30,7 @@ internal static class NorfairGlowCaptureTests
             runtime.StepFrame(0);
             var scene = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
             original ??= scene;
-            var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), scene);
+            var packet = new DisplayPacket(new(tick + 1, 1, (ushort)tick), scene);
             PixelComparison.Verify(packet, FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()),
                 renderer.RenderForReadback(packet), $"{device.Kind}: Norfair glow frame {tick}");
 
@@ -43,9 +43,9 @@ internal static class NorfairGlowCaptureTests
             var memory = new FramePaint(colors, original.Paint.SpriteDraws);
             var originalLayer = (OrdinaryGameplayRenderLayer)original.Layers[0];
             var registers = originalLayer.View;
-            var foreground = new LayeredRenderSnapshot(memory,
+            var foreground = new LayeredScene(memory,
                 [new OrdinaryGameplayRenderLayer(registers with { MainScreenLayers = SnesMainScreenLayers.Bg1 }, originalLayer.Rooms)], original.Brightness);
-            var isolated = new RenderFrameSnapshot(new(tick + 1, 2, (ushort)tick), foreground);
+            var isolated = new DisplayPacket(new(tick + 1, 2, (ushort)tick), foreground);
             var pixels = SoftwareFrameSnapshotRenderer.Render(isolated);
             PixelComparison.Verify(isolated, pixels, renderer.RenderForReadback(isolated),
                 $"{device.Kind}: isolated Norfair foreground {tick}");

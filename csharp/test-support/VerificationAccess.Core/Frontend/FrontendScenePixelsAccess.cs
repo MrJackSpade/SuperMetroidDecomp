@@ -14,8 +14,8 @@ internal static class FrontendScenePixelsAccess
     private static RenderFrameIdentity Identity => new(1, 1, 0);
 
     /// <summary>Rasterizes a layered snapshot.</summary>
-    internal static Rgba32[] Pixels(LayeredRenderSnapshot snapshot) =>
-        SoftwareFrameSnapshotRenderer.Render(new RenderFrameSnapshot(Identity, snapshot));
+    internal static Rgba32[] Pixels(LayeredScene snapshot) =>
+        SoftwareFrameSnapshotRenderer.Render(new DisplayPacket(Identity, snapshot));
 
     /// <summary>Rasterizes a published gameplay frame.</summary>
     /// <param name="frame">The published frame.</param>

@@ -261,7 +261,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Captures the scrolled options page and selector without composing pixels.</summary>
-    public LayeredRenderSnapshot CaptureRenderSnapshot()
+    public LayeredScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
         return MenuRenderSnapshotCapture.Capture(screen,

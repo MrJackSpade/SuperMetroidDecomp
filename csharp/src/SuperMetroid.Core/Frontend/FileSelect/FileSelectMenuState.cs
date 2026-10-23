@@ -209,7 +209,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Captures file-menu display state after simulation-owned OAM preparation.</summary>
-    public LayeredRenderSnapshot CaptureRenderSnapshot()
+    public LayeredScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
         return MenuRenderSnapshotCapture.Capture(screen, 0, ScreenFade.Displayed(brightness));

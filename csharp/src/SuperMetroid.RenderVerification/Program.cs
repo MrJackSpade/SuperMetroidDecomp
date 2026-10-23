@@ -125,7 +125,7 @@ internal static class Program
                     long sequence = 0;
                     MinimapBlinkAudit.Run(runtime =>
                     {
-                        var packet = new RenderFrameSnapshot(new(++sequence, 1, runtime.Clock.Counter),
+                        var packet = new DisplayPacket(new(++sequence, 1, runtime.Clock.Counter),
                             GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                         var pixels = renderer.RenderForReadback(packet);
                         PixelComparison.Verify(packet, FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()), pixels,
@@ -180,7 +180,7 @@ internal static class Program
                 try { renderer.Readback(); } catch (InvalidOperationException) { rejected = true; }
                 if (!rejected) throw new InvalidOperationException("Readback before submission was accepted.");
                 ComparisonArtifactTests.Run(device, renderer);
-                RenderFrameSnapshot? last = null;
+                DisplayPacket? last = null;
                 for (int i = 0; i < 64; i++)
                 {
                     last = new(new(i + 1, 1, 0), new Rgba32((byte)i, 73, 129));
@@ -195,7 +195,7 @@ internal static class Program
                 foreach (byte alpha in new byte[] { 0, 1, 128, 255 })
                 for (byte brightness = 0; brightness <= 15; brightness++)
                 {
-                    var frame = new RenderFrameSnapshot(new(++samples, 1, 0), new Rgba32(231, 123, 47, alpha), [new FadeLevel(brightness), new FadeLevel(11)]);
+                    var frame = new DisplayPacket(new(++samples, 1, 0), new Rgba32(231, 123, 47, alpha), [new FadeLevel(brightness), new FadeLevel(11)]);
                     Rgba32[] expected = SoftwareFrameSnapshotRenderer.Render(frame);
                     Rgba32[] actual = renderer.RenderForReadback(frame);
                     PixelComparison.Verify(frame, expected, actual, $"{kind}: solid compute sample {samples}");

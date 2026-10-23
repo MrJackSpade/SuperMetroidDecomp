@@ -64,7 +64,7 @@ internal static class RetailSaveCaptureTests
                     GameplayRenderDefinitions.ObjectSelection).Pixels.Any(p => p.A != 0 && (p.R != 0 || p.G != 0 || p.B != 0));
             }
             var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
-            var packet = new RenderFrameSnapshot(new(frames + 1, 1, (ushort)frames), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
+            var packet = new DisplayPacket(new(frames + 1, 1, (ushort)frames), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: save animation frame {frames}");
             var current = runtime.Plms.StationSnapshots.Single(s => s.Kind == StationKind.Save);
             if (completion && current.SaveStationLockedOut && current.SavePhase == SaveStationPhase.Idle && !samus.Control.AlphaLocked)

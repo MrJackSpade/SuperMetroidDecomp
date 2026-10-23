@@ -31,7 +31,7 @@ internal static class HardwareWindowTests
                 (SnesWindowSelectionPair)0x0b, empty ? 120 : 32, 96, 64, 128, operation * 0x55, operation);
             var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(3, 5), new Position16<Bg2Pixels>(7, 11), new Extent16<TilemapCells>(64, 32),
                 layers, Windows: windows, MainScreenWindowMask: admission);
-            var frame = new RenderFrameSnapshot(new(++sequence, 1, 0), new LayeredRenderSnapshot(memory,
+            var frame = new DisplayPacket(new(++sequence, 1, 0), new LayeredScene(memory,
                 new RenderLayer[] { new OrdinaryGameplayRenderLayer(registers, rooms) }, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: native windows operation={operation}, TMW={admission}, empty={empty}");

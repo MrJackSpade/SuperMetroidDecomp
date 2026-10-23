@@ -27,7 +27,7 @@ public sealed record GameplayColorMathRenderLayer : RenderLayer
     /// <summary>Fixed-color blue intensity, 0 through <see cref="Bgr555.MaxChannel"/>.</summary>
     public int FixedBlue { get; }
     /// <summary>Optional captured 2-bpp BG3-style subscreen plane.</summary>
-    public Bg2BppColorMathRenderLayer? Subscreen { get; }
+    public FxPlaneBlendRenderLayer? Subscreen { get; }
     /// <summary>Admit gameplay BG2 to the subscreen, competing with any captured BG3 by Mode-1 priority.</summary>
     public bool SubscreenUsesBg2 { get; }
 
@@ -39,7 +39,7 @@ public sealed record GameplayColorMathRenderLayer : RenderLayer
     /// <param name="subscreen">Optional captured 2-bpp plane competing on the subscreen.</param>
     /// <param name="subscreenUsesBg2">Whether gameplay BG2 also competes on the subscreen.</param>
     [IndependentFlag("independent PPU facts of the captured frame: x-ray block reveal, and BG2 in the subscreen")]
-    public GameplayColorMathRenderLayer(OrdinaryGameplayRenderLayer gameplay, ReadOnlySpan<XrayWindowLine> lines, bool revealBlocks, ColorMathRegisters math, Bg2BppColorMathRenderLayer? subscreen = null, bool subscreenUsesBg2 = false)
+    public GameplayColorMathRenderLayer(OrdinaryGameplayRenderLayer gameplay, ReadOnlySpan<XrayWindowLine> lines, bool revealBlocks, ColorMathRegisters math, FxPlaneBlendRenderLayer? subscreen = null, bool subscreenUsesBg2 = false)
     {
         Ensure.NotNull(gameplay);
         if (subscreenUsesBg2 && !math.AddSubscreen)

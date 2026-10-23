@@ -88,7 +88,7 @@ internal static class GameOptionsCursorPhasesVerification
     /// <summary>
     /// The final sprite part's nine-bit OAM X, because the cursor follows the heading; native X=$0180 hides it.
     /// </summary>
-    internal static int LastSpriteX(LayeredRenderSnapshot frame)
+    internal static int LastSpriteX(LayeredScene frame)
     {
         PlacedSpritePart[] parts = frame.Paint.SpriteParts();
         AssertTrue(parts.Length > 0, "options has a cursor sprite");

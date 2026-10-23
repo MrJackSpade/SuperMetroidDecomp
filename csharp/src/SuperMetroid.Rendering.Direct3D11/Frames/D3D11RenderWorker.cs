@@ -131,7 +131,7 @@ public sealed class D3D11RenderWorker
     /// <param name="frame">Current-generation frame with a strictly increasing sequence, including across load/reset generations; simulation data remains outside the mailbox.</param>
     /// <exception cref="ArgumentNullException"><paramref name="frame"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The worker is stopping, the generation differs, or the sequence does not increase; stored worker failures are also rethrown.</exception>
-    public void Publish(RenderFrameSnapshot frame)
+    public void Publish(DisplayPacket frame)
     {
         lock (lifecycle)
         {
@@ -198,7 +198,7 @@ public sealed class D3D11RenderWorker
     {
         try
         {
-            RenderFrameSnapshot? retained = null;
+            DisplayPacket? retained = null;
             bool suspended = false;
             int consecutiveLosses = 0;
             while (true)
@@ -236,7 +236,7 @@ public sealed class D3D11RenderWorker
 
     /// <summary>Creates one device generation and consumes mailbox frames until shutdown or device loss.</summary>
     private void RunDevice(nint window, ref Extent16<DisplayPixels> clientSize, D3D11DeviceKind kind,
-        ref RenderFrameSnapshot? retained, ref bool suspended, ref int consecutiveLosses)
+        ref DisplayPacket? retained, ref bool suspended, ref int consecutiveLosses)
     {
             using var device = new D3D11RenderDevice(kind);
             try

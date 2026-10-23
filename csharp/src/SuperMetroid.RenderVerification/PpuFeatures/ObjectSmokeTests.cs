@@ -31,9 +31,9 @@ internal static class ObjectSmokeTests
             Check(memory, obsel, new RenderLayer[] { new ObjRenderLayer() });
             Check(memory, obsel, new RenderLayer[] {
                 new ObjPriorityRenderLayer(0),
-                new Bg4BppRenderLayer(cells, new Position16<BgPlanePixels>(3, 11), false),
+                new TileRenderLayer(cells, new Position16<BgPlanePixels>(3, 11), false),
                 new ObjPriorityRenderLayer(1), new ObjPriorityRenderLayer(2),
-                new Bg4BppRenderLayer(cells, new Position16<BgPlanePixels>(3, 11), true),
+                new TileRenderLayer(cells, new Position16<BgPlanePixels>(3, 11), true),
                 new ObjPriorityRenderLayer(3) });
         }
         // Earlier OAM wins even when the later entry has greater display priority.
@@ -52,8 +52,8 @@ internal static class ObjectSmokeTests
 
         void Check(FramePaint memory, byte obsel, RenderLayer[] layers)
         {
-            var frame = new RenderFrameSnapshot(new(++cases, 1, 0),
-                new LayeredRenderSnapshot(memory, layers, 15));
+            var frame = new DisplayPacket(new(++cases, 1, 0),
+                new LayeredScene(memory, layers, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame),
                 renderer.RenderForReadback(frame), $"{device.Kind}: OBJ sample {cases}, OBSEL {obsel}, parts {memory.SpriteParts().Length}");
         }

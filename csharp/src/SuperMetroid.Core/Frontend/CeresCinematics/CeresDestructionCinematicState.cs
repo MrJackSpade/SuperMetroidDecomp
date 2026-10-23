@@ -901,7 +901,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>Captures the scene's exact Mode 7/OBJ insertion order or Mode 1 planet plane.</summary>
-    public LayeredRenderSnapshot CaptureRenderSnapshot()
+    public LayeredScene CaptureRenderSnapshot()
     {
         byte[] shown = Image();
         PrepareRenderSprites();
@@ -927,7 +927,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             // Preserve the existing non-mosaicked Mode 1 path. Mosaic implementation
             // is a cartridge-correctness change, not an implicit part of this extraction.
             // The Zebes reveal draws from the pre-coloured tiles of the characters the uploads leave (#1392).
-            layers = [new Bg4BppRenderLayer(ScreenTileMap.Capture(shown, CeresDestructionRomData.Rendering.Mode1TilemapWord, new Extent16<TilemapCells>(32, 32),
+            layers = [new TileRenderLayer(ScreenTileMap.Capture(shown, CeresDestructionRomData.Rendering.Mode1TilemapWord, new Extent16<TilemapCells>(32, 32),
                 UploadedTiles().Pictures(CeresDestructionRomData.Rendering.Mode1CharacterWord, BgBitDepth.FourBpp)), new Position16<BgPlanePixels>(0, 0), null)];
         }
         if (CaptureStationExplosion() is { } blast)

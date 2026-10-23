@@ -2,14 +2,14 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Closed, immutable display packet. It contains neither game objects nor backend handles.</summary>
-public sealed class RenderFrameSnapshot
+public sealed class DisplayPacket
 {
     /// <summary>Host publication identity and captured simulation counter; sequence and generation are validated as positive, while mailbox publication enforces ordering and generation membership.</summary>
     public RenderFrameIdentity Identity { get; }
     /// <summary>Immutable PPU memory and ordered layer composition when this is a layered packet; otherwise <see langword="null"/>.</summary>
-    public LayeredRenderSnapshot? Layers { get; }
+    public LayeredScene? Layers { get; }
     /// <summary>Immutable Mode 7/backdrop and OBJ composition when this is a Mode 7 packet; otherwise <see langword="null"/>.</summary>
-    public Mode7ObjRenderSnapshot? Mode7 { get; }
+    public FloorScene? Mode7 { get; }
     /// <summary>RGBA color filling every output pixel when this is a solid-color packet; otherwise <see langword="null"/>. Outer brightness passes are still applied.</summary>
     public Rgba32? SolidColor { get; }
     /// <summary>Native visible output size of 256 pixels by 224 physical scanlines, including the HUD where present, before any host presentation scaling.</summary>
@@ -24,7 +24,7 @@ public sealed class RenderFrameSnapshot
     /// <param name="identity">Publication identity with positive host sequence and generation.</param>
     /// <param name="layers">Complete immutable layered scene payload, including its scene brightness.</param>
     /// <param name="fades">The fades applied in order after the scene; empty or default for none.</param>
-    public RenderFrameSnapshot(RenderFrameIdentity identity, LayeredRenderSnapshot layers,
+    public DisplayPacket(RenderFrameIdentity identity, LayeredScene layers,
         ImmutableArray<FadeLevel> fades = default)
         : this(identity, fades)
     {
@@ -36,7 +36,7 @@ public sealed class RenderFrameSnapshot
     /// <param name="identity">Publication identity with positive host sequence and generation.</param>
     /// <param name="mode7">Complete immutable Mode 7/backdrop and OBJ payload, including its scene brightness.</param>
     /// <param name="fades">The fades applied in order after the scene; empty or default for none.</param>
-    public RenderFrameSnapshot(RenderFrameIdentity identity, Mode7ObjRenderSnapshot mode7,
+    public DisplayPacket(RenderFrameIdentity identity, FloorScene mode7,
         ImmutableArray<FadeLevel> fades = default)
         : this(identity, fades)
     {
@@ -48,12 +48,12 @@ public sealed class RenderFrameSnapshot
     /// <param name="identity">Publication identity with positive host sequence and generation.</param>
     /// <param name="solidColor">RGBA value used to fill all 256-by-224 output pixels before brightness filtering.</param>
     /// <param name="fades">The fades applied in order after the scene; empty or default for none.</param>
-    public RenderFrameSnapshot(RenderFrameIdentity identity, Rgba32 solidColor,
+    public DisplayPacket(RenderFrameIdentity identity, Rgba32 solidColor,
         ImmutableArray<FadeLevel> fades = default)
         : this(identity, fades) => SolidColor = solidColor;
 
     /// <summary>Validates the host identity and keeps the fades.</summary>
-    private RenderFrameSnapshot(RenderFrameIdentity identity, ImmutableArray<FadeLevel> fades)
+    private DisplayPacket(RenderFrameIdentity identity, ImmutableArray<FadeLevel> fades)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(identity.Sequence);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(identity.Generation);

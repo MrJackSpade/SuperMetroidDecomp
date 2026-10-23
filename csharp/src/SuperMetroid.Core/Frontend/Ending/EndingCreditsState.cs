@@ -484,7 +484,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     internal Mode7TilePictures Mode7Tiles() => screen.Mode7Tiles(InstalledArtwork.Sheets);
 
     /// <summary>Captures the finale BG priority planes and one winning subscreen color-add layer.</summary>
-    internal LayeredRenderSnapshot CaptureExplosionFinale()
+    internal LayeredScene CaptureExplosionFinale()
     {
         if (!EscapeScenes.ExplosionFinaleDisplay) return CaptureExplosionBurst();
         // F2FA: TM=BG1|BG2, TS=BG2|OBJ, CGADSUB=$33. Resolve the two
@@ -497,18 +497,18 @@ internal sealed class EndingCreditsState : IFrontendScreen
             Plane(EndingExplosionDisplayDefinitions.FinaleMainMap, BgTilePriority.Low),
             Plane(EndingExplosionDisplayDefinitions.FinaleSubMap, BgTilePriority.High),
             Plane(EndingExplosionDisplayDefinitions.FinaleMainMap, BgTilePriority.High),
-            new BgSubscreenAddRenderLayer(ExplosionCells(image, EndingExplosionDisplayDefinitions.FinaleSubMap), IncludeObjects: true,
+            new TileAddRenderLayer(ExplosionCells(image, EndingExplosionDisplayDefinitions.FinaleSubMap), IncludeObjects: true,
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];
         return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers, checked((byte)Stage.Brightness));
 
-        Bg4BppRenderLayer Plane(ushort map, BgTilePriority priority) => new(ExplosionCells(image, map),
+        TileRenderLayer Plane(ushort map, BgTilePriority priority) => new(ExplosionCells(image, map),
             new Position16<BgPlanePixels>(0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow), priority == BgTilePriority.High);
     }
 
     /// <summary>The cells of the explosion's one-screen map at <paramref name="map"/>, showing its characters' pre-coloured tiles (#1392).</summary>
     private ScreenTileMap ExplosionCells(byte[] image, ushort map) =>
-        Cells(image, map, Bg2BppViewportRenderLayer.MapSize, EndingPaletteId.Explosion, EndingExplosionDisplayDefinitions.Characters, BgBitDepth.FourBpp);
+        Cells(image, map, TileViewportRenderLayer.MapSize, EndingPaletteId.Explosion, EndingExplosionDisplayDefinitions.Characters, BgBitDepth.FourBpp);
 
     /// <summary>
     /// The cells of the <paramref name="size"/> map at <paramref name="tilemapWord"/> in <paramref name="image"/> (#1403), showing
@@ -518,19 +518,19 @@ internal sealed class EndingCreditsState : IFrontendScreen
         ScreenTileMap.Capture(image, tilemapWord, size, BackgroundTiles(palette, characterBase, depth));
 
     /// <summary>Captures the burst's BG1/OBJ main screen and BG2 subscreen color math.</summary>
-    private LayeredRenderSnapshot CaptureExplosionBurst()
+    private LayeredScene CaptureExplosionBurst()
     {
         // F2B7: BG1 and OBJ on main, BG2 on sub, math only for BG1 and
         // eligible OBJ palettes. Keep the backdrop and OBJ palettes 0–3 unmodified.
         byte[] image = Image();
-        var main = new Bg4BppRenderLayer(ExplosionCells(image, EndingExplosionDisplayDefinitions.InitialMap),
+        var main = new TileRenderLayer(ExplosionCells(image, EndingExplosionDisplayDefinitions.InitialMap),
             new Position16<BgPlanePixels>(0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow), null);
         RenderLayer[] layers =
         [
             new ObjPriorityRenderLayer(0), new ObjPriorityRenderLayer(1),
             main with { Priority = false }, new ObjPriorityRenderLayer(2),
             main with { Priority = true }, new ObjPriorityRenderLayer(3),
-            new BgSubscreenAddRenderLayer(ExplosionCells(image, EndingExplosionDisplayDefinitions.BurstSubMap), main, MainObjects: true,
+            new TileAddRenderLayer(ExplosionCells(image, EndingExplosionDisplayDefinitions.BurstSubMap), main, MainObjects: true,
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];
         return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers, checked((byte)Stage.Brightness));

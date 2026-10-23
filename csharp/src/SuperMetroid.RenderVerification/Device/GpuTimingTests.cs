@@ -9,7 +9,7 @@ using SuperMetroid.TestSupport.FrameCapture;
 internal static class GpuTimingTests
 {
     /// <summary>Checks FIFO timestamps and frame identity while comparing the timed render with software output.</summary>
-    internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer, RenderFrameSnapshot frame)
+    internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer, DisplayPacket frame)
     {
         VerifyTimingWindow();
         using var timer = new D3D11GpuTimer(device, capacity: 2);

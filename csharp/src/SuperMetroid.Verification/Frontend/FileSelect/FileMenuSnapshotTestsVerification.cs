@@ -79,12 +79,12 @@ internal static class FileMenuSnapshotTestsVerification
         OptionTick();
         Console.WriteLine($"  File/options snapshots: {comparisons} retail frames match through COPY/CLEAR, controller scrolling, special settings and fades.");
 
-        void Check(Func<Rgba32[]> legacy, Func<LayeredRenderSnapshot> capture, Action step)
+        void Check(Func<Rgba32[]> legacy, Func<LayeredScene> capture, Action step)
         {
             Rgba32[] expected = legacy();
-            LayeredRenderSnapshot snapshot = capture();
+            LayeredScene snapshot = capture();
             Match(expected, SoftwareFrameSnapshotRenderer.Render(
-                new RenderFrameSnapshot(new(comparisons + 1, 1, (ushort)comparisons), snapshot)));
+                new DisplayPacket(new(comparisons + 1, 1, (ushort)comparisons), snapshot)));
             Match(expected, SoftwareLayeredSnapshotRenderer.Render(snapshot));
             Match(expected, SoftwareLayeredSnapshotRenderer.Render(capture()));
             step();

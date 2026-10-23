@@ -239,11 +239,11 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
 
     /// <summary>Captures BG1/OBJ only; the game-over PPU does not enable BG2.</summary>
     [PpuLayoutBoundary("codec: game-over render packet layers")]
-    public LayeredRenderSnapshot CaptureRenderSnapshot()
+    public LayeredScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
         byte[] image = MenuScreenImage.Compose(screen);
-        RenderLayer[] layers = [new Bg4BppRenderLayer(ScreenTileMap.Capture(image, MenuVramLayout.Bg1TilemapWord,
+        RenderLayer[] layers = [new TileRenderLayer(ScreenTileMap.Capture(image, MenuVramLayout.Bg1TilemapWord,
             new Extent16<TilemapCells>(GameOverRomData.TilemapWidth, GameOverRomData.TilemapHeight), screen.FileSelectTiles.Pictures(0, BgBitDepth.FourBpp)),
             new Position16<BgPlanePixels>(0, 0), null), new ObjRenderLayer()];
         return new(MenuScreenImage.Capture(screen), layers, checked((byte)brightness));

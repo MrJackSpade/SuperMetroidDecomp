@@ -37,7 +37,7 @@ internal static class FrameCompositionAnalyzerTests
         Check("""
             class SnesCgram { }
             class Memory { private readonly SnesCgram[] rows = []; }
-            class RenderFrameSnapshot { public Memory? Memory { get; } }
+            class DisplayPacket { public Memory? Memory { get; } }
             """, "'rows' holds palette rows on a draw path; draw a pre-assembled, pre-coloured image selected by identity instead");
 
         // A type the draw entries do not reach may keep its pages: an extraction-side or effect-side catalog.

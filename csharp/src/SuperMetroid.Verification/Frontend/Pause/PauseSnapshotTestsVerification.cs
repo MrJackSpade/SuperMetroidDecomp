@@ -47,12 +47,12 @@ internal static class PauseSnapshotTestsVerification
         for (int frame = 0; frame < 128; frame++)
         {
             Rgba32[] expected = pause.Render();
-            LayeredRenderSnapshot packet = pause.CaptureRenderSnapshot();
+            LayeredScene packet = pause.CaptureRenderSnapshot();
             Match(expected, SoftwareFrameSnapshotRenderer.Render(
-                new RenderFrameSnapshot(new(frame + 1, 1, (ushort)frame), packet)), frame);
+                new DisplayPacket(new(frame + 1, 1, (ushort)frame), packet)), frame);
             Match(expected, SoftwareLayeredSnapshotRenderer.Render(packet), frame);
             Match(expected, SoftwareLayeredSnapshotRenderer.Render(packet), frame);
-            LayeredRenderSnapshot repeated = pause.CaptureRenderSnapshot();
+            LayeredScene repeated = pause.CaptureRenderSnapshot();
             AssertTrue(packet.Paint.SpriteParts().SequenceEqual(repeated.Paint.SpriteParts()), "repeat pause capture OAM");
             pages.Add(pause.ScreenMode);
             levels.Add(packet.Brightness);
@@ -67,10 +67,10 @@ internal static class PauseSnapshotTestsVerification
         // A caller may reuse the command array immediately after publication.
         var captured = pause.CaptureRenderSnapshot();
         RenderLayer[] layers = captured.Layers.ToArray();
-        var owned = new LayeredRenderSnapshot(captured.Paint, layers, captured.Brightness);
+        var owned = new LayeredScene(captured.Paint, layers, captured.Brightness);
         layers[0] = new ObjPriorityRenderLayer(3);
         AssertEqual(captured.Layers[0], owned.Layers[0], "snapshot owns priority sequence");
-        AssertThrows<ArgumentException>(() => new LayeredRenderSnapshot(captured.Paint,
+        AssertThrows<ArgumentException>(() => new LayeredScene(captured.Paint,
             new RenderLayer[] { new ObjPriorityRenderLayer(4) }, 15), "reject invalid OBJ priority");
         Console.WriteLine("  Pause snapshots: 128 retail map/equipment/fade frames match exactly, including retained HUD and packet lifetime.");
 

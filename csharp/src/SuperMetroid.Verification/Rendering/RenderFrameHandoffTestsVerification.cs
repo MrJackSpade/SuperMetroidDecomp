@@ -13,16 +13,16 @@ internal static class RenderFrameHandoffTestsVerification
     internal static void VerifyRenderFrameHandoff()
     {
         ImmutableArray<FadeLevel> fades = [new(2), new(12)];
-        var first = new RenderFrameSnapshot(new(1, 1, ushort.MaxValue),
+        var first = new DisplayPacket(new(1, 1, ushort.MaxValue),
             new Rgba32(198, 127, 63, 255), fades);
         Rgba32[] pixels = SoftwareFrameSnapshotRenderer.Render(first);
         AssertEqual(new Rgba32(20, 12, 6, 255), pixels[0], "ordered fade rounding and owned operations");
         AssertEqual(pixels[0], pixels[^1], "solid packet covers native frame");
         AssertTrue(pixels.SequenceEqual(RenderForComparison(first)),
             "packet repeat render is observational");
-        AssertThrows<ArgumentOutOfRangeException>(() => new RenderFrameSnapshot(new(0, 1, 0),
+        AssertThrows<ArgumentOutOfRangeException>(() => new DisplayPacket(new(0, 1, 0),
             default(Rgba32)), "zero sequence rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => new RenderFrameSnapshot(new(1, 0, 0),
+        AssertThrows<ArgumentOutOfRangeException>(() => new DisplayPacket(new(1, 0, 0),
             default(Rgba32)), "zero generation rejected");
 
         var mailbox = new LatestRenderFrameMailbox(1);
@@ -51,7 +51,7 @@ internal static class RenderFrameHandoffTestsVerification
         mailbox.Publish(new(new(5, 2, 1), default(Rgba32)));
         Task consumer = Task.Run(() =>
         {
-            RenderFrameSnapshot held = mailbox.TakeLatest()
+            DisplayPacket held = mailbox.TakeLatest()
                 ?? throw new InvalidOperationException("Consumer fixture had no frame.");
             acquired.Set();
             if (!release.Wait(TimeSpan.FromSeconds(10)))

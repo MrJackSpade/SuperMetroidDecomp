@@ -42,7 +42,7 @@ internal static class MessageSnapshotTestsVerification
             int previousRadius = -1;
             bool previousYes = true;
             bool toggledSave = false, releasedSave = false;
-            RenderFrameSnapshot? held = null;
+            DisplayPacket? held = null;
             Rgba32[]? heldPixels = null;
             for (int tick = 0; tick < 600 && state.IsActive; tick++)
             {
@@ -54,8 +54,8 @@ internal static class MessageSnapshotTestsVerification
                     GameplayMessageBoxRendererConstants.Composite(expected, state, vram, cgram);
                     MessageBoxRenderLayer? layer = GameplayMessageBoxRenderer.Capture(state, messages);
                     RenderLayer[] layers = layer is null ? [] : [layer];
-                    var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick),
-                        new LayeredRenderSnapshot(memory, layers, 15));
+                    var packet = new DisplayPacket(new(++samples, 1, (ushort)tick),
+                        new LayeredScene(memory, layers, 15));
                     AssertTrue(expected.SequenceEqual(RenderForComparison(packet)),
                         $"message {id}, radius {state.RadiusPixels}");
                     if (layer is not null)
@@ -94,7 +94,7 @@ internal static class MessageSnapshotTestsVerification
                 var layer = MessageBoxRenderLayer.FromTilemap(tiles, radius, messages);
                 Rgba32[] expected = baseline.ToArray();
                 GameplayMessageBoxRendererConstants.CompositeTilemap(expected, tiles, height.Key, radius, vram, cgram);
-                var packet = new RenderFrameSnapshot(new(++samples, 1, 0), new LayeredRenderSnapshot(memory, [layer], 15));
+                var packet = new DisplayPacket(new(++samples, 1, 0), new LayeredScene(memory, [layer], 15));
                 AssertTrue(expected.SequenceEqual(RenderForComparison(packet)), $"message geometry {height.Key} rows, radius {radius}");
             }
         }

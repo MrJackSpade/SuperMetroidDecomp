@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal static class EndingCreditsPresentation
 {
     /// <summary>Resolves the ending display at its existing draw boundary, without rasterization.</summary>
-    public static LayeredRenderSnapshot CaptureRenderSnapshot(EndingCreditsState ending)
+    public static LayeredScene CaptureRenderSnapshot(EndingCreditsState ending)
     {
         if (ending.UsesExplosionFinaleDisplay) return ending.CaptureExplosionFinale();
         byte[] image = ending.Image();
@@ -20,7 +20,7 @@ internal static class EndingCreditsPresentation
         if (ending.InstalledArtwork.CurrentEndingLogo is not null)
         {
             if (ending.InstalledArtwork.CurrentEndingLogo.CrossfadeStarted)
-                layers.Add(new Bg4BppRenderLayer(ending.Cells(image, EndingLogoDefinitions.Tilemap, new Extent16<TilemapCells>(32, 32),
+                layers.Add(new TileRenderLayer(ending.Cells(image, EndingLogoDefinitions.Tilemap, new Extent16<TilemapCells>(32, 32),
                     EndingPaletteId.PostCredits, EndingLogoDefinitions.Characters, BgBitDepth.FourBpp), new Position16<BgPlanePixels>(0, 0), null));
             layers.Add(new ObjRenderLayer(ending.InstalledArtwork.CurrentEndingLogo.CrossfadeStarted));
             layers.Add(PostCreditsLayer(ending, image));
@@ -40,7 +40,7 @@ internal static class EndingCreditsPresentation
         }
         if (ending.Stage.Phase == EndingCreditsPhase.Credits)
         {
-            layers.Add(new Bg4BppRenderLayer(ending.Cells(image, EndingCreditsRomData.Rendering.CreditsTilemapWord, new Extent16<TilemapCells>(32, 32),
+            layers.Add(new TileRenderLayer(ending.Cells(image, EndingCreditsRomData.Rendering.CreditsTilemapWord, new Extent16<TilemapCells>(32, 32),
                 EndingPaletteId.Credits, EndingCreditsRomData.Rendering.CreditsCharacterWord, BgBitDepth.FourBpp), ending.Credits.ScrollPosition, null));
             // Credits intentionally do not run the sprite draw routine.
             memory = new FramePaint(ending.screen.Palette.Colors, []);
@@ -55,7 +55,7 @@ internal static class EndingCreditsPresentation
                 if (PostCreditsBackgroundEnabled(ending))
                     layers.Add(PostCreditsLayer(ending, image));
                 if (ending.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop)
-                    layers.Add(new BgSubscreenAddRenderLayer(ending.Cells(image, EndingWavySamusDefinitions.TilemapWord, Bg2BppViewportRenderLayer.MapSize,
+                    layers.Add(new TileAddRenderLayer(ending.Cells(image, EndingWavySamusDefinitions.TilemapWord, TileViewportRenderLayer.MapSize,
                             EndingPaletteId.PostCredits, EndingWavySamusDefinitions.CharacterWord, BgBitDepth.TwoBpp),
                         PostCreditsLayer(ending, image))
                         .WithScrolls(EndingWavySamusDefinitions.ScrollsAtAge(
@@ -154,7 +154,7 @@ internal static class EndingCreditsPresentation
         || (ending.Stage.Phase == EndingCreditsPhase.PostCreditsReward && ending.Stage.EndingReward != EndingReward.Armored);
 
     /// <summary>The post-credits background plane: the waiting backdrop, or the uploaded text map at its current scroll and height.</summary>
-    private static Bg4BppRenderLayer PostCreditsLayer(EndingCreditsState ending, byte[] image)
+    private static TileRenderLayer PostCreditsLayer(EndingCreditsState ending, byte[] image)
     {
         var size = new Extent16<TilemapCells>(32, checked((ushort)ending.CreditsRoll.PostCreditsMapHeight));
         return UsesWaitingBackground(ending)

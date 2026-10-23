@@ -10,7 +10,7 @@ public static class SoftwareLayeredSnapshotRenderer
     /// <exception cref="ArgumentNullException"><paramref name="snapshot"/> is null.</exception>
     /// <exception cref="ArgumentException">A supplied output buffer has an invalid pixel count.</exception>
     /// <exception cref="InvalidDataException">A captured layer is not supported by this software consumer.</exception>
-    public static Rgba32[] Render(LayeredRenderSnapshot snapshot, Rgba32[]? gameplayOutputBuffer = null)
+    public static Rgba32[] Render(LayeredScene snapshot, Rgba32[]? gameplayOutputBuffer = null)
     {
         Ensure.NotNull(snapshot);
         using var scratch = new RenderScratch();
@@ -26,7 +26,7 @@ public static class SoftwareLayeredSnapshotRenderer
         bool usesObjInsertion = false;
         foreach (RenderLayer layer in snapshot.Layers)
             usesObjInsertion |= layer is ObjRenderLayer or ObjPriorityRenderLayer or Mode7RenderLayer { SubtractObjSubscreen: true } or Mode7RenderLayer { AddBg1Subscreen: true }
-                or BgSubscreenAddRenderLayer { IncludeObjects: true } or BgSubscreenAddRenderLayer { MainObjects: true };
+                or TileAddRenderLayer { IncludeObjects: true } or TileAddRenderLayer { MainObjects: true };
         ResolvedObjFrame objects = usesObjInsertion
             ? scratch.ResolveObjects(memory)
             : default;
@@ -45,7 +45,7 @@ public static class SoftwareLayeredSnapshotRenderer
                         scene.AsSpan(offset, window.Right - window.Left).CopyTo(output.AsSpan(offset));
                     }
                     break;
-                case BgSubscreenAddRenderLayer sub:
+                case TileAddRenderLayer sub:
                     Rgba32[] subscreen = SampleSubscreen(memory, scratch, sub, null);
                     if (sub.IncludeObjects)
                     {
@@ -83,7 +83,7 @@ public static class SoftwareLayeredSnapshotRenderer
                     output = SoftwareMode7GameplayRenderer.Render(memory, scratch, gameplay7,
                         gameplayOutputBuffer);
                     break;
-                case Bg2BppColorMathRenderLayer bgMath:
+                case FxPlaneBlendRenderLayer bgMath:
                     SoftwareBgColorMathRenderer.Composite(output, memory.Cgram, bgMath);
                     break;
                 case MessageBoxRenderLayer message:
@@ -97,11 +97,11 @@ public static class SoftwareLayeredSnapshotRenderer
                     output = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
                         memory.Cgram, memory.Sprites, gameplay, gameplayOutputBuffer);
                     break;
-                case Bg2BppViewportRenderLayer bg:
+                case TileViewportRenderLayer bg:
                     Rgba32[] plane = scratch.Colors(256 * 32 * 8);
                     plane.AsSpan().Clear();
                     SnesBgTilemapRenderer.CompositeViewport(plane, memory.Cgram, bg.Cells,
-                        new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = new Extent16<ScreenPixels>(256, 256), TilemapSize = Bg2BppViewportRenderLayer.MapSize }, bg.Priority,
+                        new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = new Extent16<ScreenPixels>(256, 256), TilemapSize = TileViewportRenderLayer.MapSize }, bg.Priority,
                         bg.TransparentColorZero ? ColorZero.Transparent : ColorZero.Opaque);
                     for (int y = 0; y < SnesPpuLayout.ScreenHeightPixels; y++)
                         SnesLayerCompositor.Composite(output.AsSpan(y * SnesPpuLayout.ScreenWidthPixels,
@@ -178,7 +178,7 @@ public static class SoftwareLayeredSnapshotRenderer
                                     AddFixed(value.B, priorityWhite.Blue)) : value;
                         }
                     break;
-                case Bg4BppRenderLayer bg:
+                case TileRenderLayer bg:
                     CompositeBg4(output, memory, bg, bg.Priority);
                     break;
                 default:
@@ -191,14 +191,14 @@ public static class SoftwareLayeredSnapshotRenderer
 
     /// <summary>Samples a subscreen's cells (#1403), applying captured per-scanline scrolls when present.</summary>
     private static Rgba32[] SampleSubscreen(SoftwarePpuSnapshotMemory memory, RenderScratch scratch,
-        BgSubscreenAddRenderLayer layer, bool? priority)
+        TileAddRenderLayer layer, bool? priority)
     {
         bool perLine = !layer.Scrolls.IsEmpty;
         Rgba32[] source = scratch.Colors(256 * (perLine ? 256 : 224));
         source.AsSpan().Clear();
         ushort scroll = perLine ? (ushort)0 : checked((ushort)layer.VerticalScroll);
         SnesBgTilemapRenderer.CompositeViewport(source, memory.Cgram, layer.Cells,
-            new BgViewport { Scroll = new Position16<BgPlanePixels>(0, scroll), Size = new Extent16<ScreenPixels>(256, checked((ushort)(perLine ? 256 : 224))), TilemapSize = Bg2BppViewportRenderLayer.MapSize },
+            new BgViewport { Scroll = new Position16<BgPlanePixels>(0, scroll), Size = new Extent16<ScreenPixels>(256, checked((ushort)(perLine ? 256 : 224))), TilemapSize = TileViewportRenderLayer.MapSize },
             priority);
         if (!perLine) return source;
         var result = scratch.Colors(256 * 224);
@@ -209,7 +209,7 @@ public static class SoftwareLayeredSnapshotRenderer
         return result;
     }
     /// <summary>Composites a frontend tile layer's cells over <paramref name="output"/> (#1403).</summary>
-    private static void CompositeBg4(Span<Rgba32> output, SoftwarePpuSnapshotMemory memory, Bg4BppRenderLayer bg, bool? priority) =>
+    private static void CompositeBg4(Span<Rgba32> output, SoftwarePpuSnapshotMemory memory, TileRenderLayer bg, bool? priority) =>
         SnesBgTilemapRenderer.CompositeViewport(output, memory.Cgram, bg.Cells,
             new BgViewport { Scroll = bg.Scroll, Size = SnesPpuLayout.ScreenSize, TilemapSize = bg.MapSize }, priority);
 

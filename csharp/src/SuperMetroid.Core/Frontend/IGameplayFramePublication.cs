@@ -10,5 +10,5 @@ internal interface IGameplayFramePublication
     /// <param name="runtime">The gameplay runtime that just advanced.</param>
     /// <param name="current">The display currently published.</param>
     /// <param name="nextIdentity">Takes the identity for a newly published frame.</param>
-    RenderFrameSnapshot Publish(SuperMetroidRuntime runtime, RenderFrameSnapshot current, Func<RenderFrameIdentity> nextIdentity);
+    DisplayPacket Publish(SuperMetroidRuntime runtime, DisplayPacket current, Func<RenderFrameIdentity> nextIdentity);
 }

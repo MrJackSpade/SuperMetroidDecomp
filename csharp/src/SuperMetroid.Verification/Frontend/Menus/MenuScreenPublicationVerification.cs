@@ -81,7 +81,7 @@ internal static class MenuScreenPublicationVerification
     }
 
     /// <summary>Asserts that <paramref name="snapshot"/> is composed from <paramref name="screen"/>'s published state.</summary>
-    private static void AssertPublished(MenuScreen screen, LayeredRenderSnapshot snapshot, string menu)
+    private static void AssertPublished(MenuScreen screen, LayeredScene snapshot, string menu)
     {
         FramePaint memory = snapshot.Paint;
         // The image the menu composes from its screen when it captures a frame (#1403).

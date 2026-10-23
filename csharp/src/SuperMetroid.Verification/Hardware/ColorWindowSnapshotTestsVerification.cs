@@ -91,13 +91,13 @@ internal static class ColorWindowSnapshotTestsVerification
         AssertTrue(alpha.All(p => p == new Rgba32(255, 50, 255, 17)), "windows own input, saturate bytes and preserve alpha");
         AssertThrows<ArgumentException>(() => new ScanlineColorAddRenderLayer(new ColorAddWindow[223]),
             "window operation rejects incomplete scanline table");
-        var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { owned }, 15));
+        var packet = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory, new RenderLayer[] { owned }, 15));
         Console.WriteLine($"  Color window snapshots: {samples} suit/haze/Power Bomb comparisons, clipping and lifetime agree.");
 
         void Compare(Rgba32[] expected, ScanlineColorAddRenderLayer layer)
         {
-            var frame = new RenderFrameSnapshot(new(++samples, 1, (ushort)samples),
-                new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 15));
+            var frame = new DisplayPacket(new(++samples, 1, (ushort)samples),
+                new LayeredScene(memory, new RenderLayer[] { layer }, 15));
             AssertTrue(expected.SequenceEqual(RenderForComparison(frame)),
                 $"color window snapshot sample {samples}");
         }

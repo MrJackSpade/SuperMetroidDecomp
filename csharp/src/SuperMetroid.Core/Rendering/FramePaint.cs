@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rendering;
 /// <remarks>
 /// Capture on the simulation owner. Once captured, neither later simulation writes nor software-render scratch buffers
 /// can change it. Sprites are whole-frame draws only; a frontend screen's OAM storage is converted when it is captured
-/// (<see cref="ObjCharacterImage"/>).
+/// (the extraction pipeline's ObjCharacterImage).
 /// </remarks>
 public sealed class FramePaint
 {

@@ -1,6 +1,7 @@
 ﻿using SuperMetroid.Core.Assets;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Core.Rendering;
 

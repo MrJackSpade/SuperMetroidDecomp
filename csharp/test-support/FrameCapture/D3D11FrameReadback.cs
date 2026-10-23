@@ -16,7 +16,7 @@ internal static class D3D11FrameReadback
     extension(D3D11FrameRenderer self)
     {
         /// <summary>Diagnostic convenience; production presentation must use Render without readback.</summary>
-        public Rgba32[] RenderForReadback(RenderFrameSnapshot packet)
+        public Rgba32[] RenderForReadback(DisplayPacket packet)
         {
             self.Render(packet);
             return self.Readback();

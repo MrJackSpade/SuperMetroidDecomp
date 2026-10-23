@@ -86,10 +86,10 @@ internal static class GraphDigestVerification
             SuperMetroid.Core.Hardware.SnesPpuLayout.ScreenHeightPixels];
 
     /// <summary>Renders a packet into shared scratch pixels for an immediate comparison.</summary>
-    internal static SuperMetroid.Core.Hardware.Rgba32[] RenderForComparison(SuperMetroid.Core.Rendering.RenderFrameSnapshot frame) =>
+    internal static SuperMetroid.Core.Hardware.Rgba32[] RenderForComparison(SuperMetroid.Core.Rendering.DisplayPacket frame) =>
         SuperMetroid.Core.Rendering.SoftwareFrameSnapshotRenderer.Render(frame, comparisonRaster);
 
     /// <summary>Renders a layered scene into shared scratch pixels for an immediate comparison.</summary>
-    internal static SuperMetroid.Core.Hardware.Rgba32[] RenderForComparison(SuperMetroid.Core.Rendering.LayeredRenderSnapshot frame) =>
+    internal static SuperMetroid.Core.Hardware.Rgba32[] RenderForComparison(SuperMetroid.Core.Rendering.LayeredScene frame) =>
         SuperMetroid.Core.Rendering.SoftwareLayeredSnapshotRenderer.Render(frame, comparisonRaster);
 }

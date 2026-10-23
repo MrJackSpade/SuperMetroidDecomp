@@ -46,7 +46,7 @@ internal static class CeresMode7MapVerification
         var getaway = runtime.Enemies.RidleyEncounter.CeresRidley ?? throw new InvalidOperationException("The Ceres Ridley room has a getaway state.");
         getaway.Mode7Active = true;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        LayeredRenderSnapshot captured = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
+        LayeredScene captured = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var mode7 = (Mode7GameplayRenderLayer)captured.Layers[0];
         AssertTrue(mode7.Map.Cells.SequenceEqual(second.Cells), "the Mode 7 layer draws the published map");
         Console.WriteLine("  Ceres Mode 7: the tileset map publishes, map writes reach the next NMI, and the Mode 7 layer draws it.");

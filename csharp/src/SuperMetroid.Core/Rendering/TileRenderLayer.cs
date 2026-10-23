@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rendering;
 /// <param name="Cells">The layer's cells and the tiles they show.</param>
 /// <param name="Scroll">The layer's scroll in pixels, before the map wraps.</param>
 /// <param name="Priority">Selects only cells of one priority tier, or null for both.</param>
-public sealed record Bg4BppRenderLayer(ScreenTileMap Cells, Position16<BgPlanePixels> Scroll, bool? Priority) : RenderLayer
+public sealed record TileRenderLayer(ScreenTileMap Cells, Position16<BgPlanePixels> Scroll, bool? Priority) : RenderLayer
 {
     /// <summary>The layer's cells and the tiles they show.</summary>
     public ScreenTileMap Cells

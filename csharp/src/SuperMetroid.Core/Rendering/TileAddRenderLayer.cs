@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Rendering;
 /// <param name="MainObjects">Whether main-plane OBJ visibility and palettes 4..7 affect eligibility when a coverage layer is supplied; has no effect without that layer.</param>
 /// <param name="VerticalScroll">Uniform vertical scroll in pixels when per-line scrolls are absent.</param>
 [IndependentFlag("independent PPU settings of the layer: which object layers it adds")]
-public sealed record BgSubscreenAddRenderLayer(ScreenTileMap Cells,
-    Bg4BppRenderLayer? MainCoverage = null, bool IncludeObjects = false,
+public sealed record TileAddRenderLayer(ScreenTileMap Cells,
+    TileRenderLayer? MainCoverage = null, bool IncludeObjects = false,
     bool MainObjects = false, int VerticalScroll = 0) : RenderLayer
 {
     /// <summary>The subscreen's cells and the tiles they show.</summary>
@@ -16,15 +16,15 @@ public sealed record BgSubscreenAddRenderLayer(ScreenTileMap Cells,
     public ScreenTileMap Cells
     {
         get;
-        init => field = Bg2BppViewportRenderLayer.RequireScreen(value);
-    } = Bg2BppViewportRenderLayer.RequireScreen(Cells);
+        init => field = TileViewportRenderLayer.RequireScreen(value);
+    } = TileViewportRenderLayer.RequireScreen(Cells);
 
-    /// <summary>Uniform vertical scroll in pixels, 0 through <see cref="Bg2BppViewportRenderLayer.MaximumScroll"/>.</summary>
+    /// <summary>Uniform vertical scroll in pixels, 0 through <see cref="TileViewportRenderLayer.MaximumScroll"/>.</summary>
     public int VerticalScroll
     {
         get;
-        init => field = Ensure.BetweenInclusive(0, Bg2BppViewportRenderLayer.MaximumScroll, value);
-    } = Ensure.BetweenInclusive(0, Bg2BppViewportRenderLayer.MaximumScroll, VerticalScroll);
+        init => field = Ensure.BetweenInclusive(0, TileViewportRenderLayer.MaximumScroll, value);
+    } = Ensure.BetweenInclusive(0, TileViewportRenderLayer.MaximumScroll, VerticalScroll);
 
     /// <summary>Copied per-scanline scrolls; an empty array selects the uniform scroll.</summary>
     private Position16<BgPlanePixels>[] scrolls = [];
@@ -35,7 +35,7 @@ public sealed record BgSubscreenAddRenderLayer(ScreenTileMap Cells,
     /// <param name="value">Exactly 224 scroll pairs in visible output-row order; background source coordinates wrap within the 256-by-256 page.</param>
     /// <returns>A record copy retaining the other layer settings and a new scroll array.</returns>
     /// <exception cref="ArgumentException">The scroll count differs from the visible screen height.</exception>
-    public BgSubscreenAddRenderLayer WithScrolls(ReadOnlySpan<Position16<BgPlanePixels>> value)
+    public TileAddRenderLayer WithScrolls(ReadOnlySpan<Position16<BgPlanePixels>> value)
     {
         Ensure.LengthEqual(value, Hardware.SnesPpuLayout.ScreenHeightPixels);
         var copy = this with { };

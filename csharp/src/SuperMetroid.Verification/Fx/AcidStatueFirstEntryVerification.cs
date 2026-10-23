@@ -84,7 +84,7 @@ internal static class AcidStatueFirstEntryVerification
             RoomLayer3FxRenderSnapshot? displayed = runtime.Display.DisplayedRoomLayer3Fx;
             if (activeRoom != destinationRoom)
                 continue;
-            LayeredRenderSnapshot? snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
+            LayeredScene? snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
             if (snapshot is null)
                 continue;
             Rgba32[] pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);

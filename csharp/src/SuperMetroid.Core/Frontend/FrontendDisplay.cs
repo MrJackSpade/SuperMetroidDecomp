@@ -26,7 +26,7 @@ internal sealed class FrontendDisplay
     /// <summary>Sequence of frames published outside a host capture.</summary>
     private long uncapturedSequence;
     /// <summary>The published frame; black until a scene publishes.</summary>
-    private RenderFrameSnapshot capturedDisplay;
+    private DisplayPacket capturedDisplay;
 
     /// <summary>Starts with a black frame.</summary>
     /// <param name="gameplayFrames">How gameplay updates become the published display.</param>
@@ -44,7 +44,7 @@ internal sealed class FrontendDisplay
 
     /// <summary>Republishes the last frame under a new identity without recapturing.</summary>
     /// <param name="identity">The new identity.</param>
-    internal RenderFrameSnapshot Retained(RenderFrameIdentity identity)
+    internal DisplayPacket Retained(RenderFrameIdentity identity)
     {
         if (captureIdentity is not null) throw new InvalidOperationException("Cannot republish during display capture.");
         return Reframe(capturedDisplay, identity, capturedDisplay.Fades);
@@ -62,7 +62,7 @@ internal sealed class FrontendDisplay
     /// that immutable content takes this publication's identity without recapturing a scene that has already
     /// advanced into the next state.
     /// </summary>
-    internal RenderFrameSnapshot CompleteCapture(RenderFrameIdentity identity)
+    internal DisplayPacket CompleteCapture(RenderFrameIdentity identity)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
         capturedDisplay = Reframe(capturedDisplay, identity, capturedDisplay.Fades);
@@ -150,12 +150,12 @@ internal sealed class FrontendDisplay
     internal void ApplyBrightness(byte brightness)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
-        RenderFrameSnapshot frame = capturedDisplay;
+        DisplayPacket frame = capturedDisplay;
         capturedDisplay = Reframe(frame, frame.Identity, frame.Fades.Add(new FadeLevel(brightness)));
     }
 
     /// <summary>Reuses captured composition with a new host identity and brightness pass history.</summary>
-    private static RenderFrameSnapshot Reframe(RenderFrameSnapshot frame, RenderFrameIdentity identity,
+    private static DisplayPacket Reframe(DisplayPacket frame, RenderFrameIdentity identity,
         ImmutableArray<FadeLevel> passes)
     {
         if (frame.Layers is { } layers) return new(identity, layers, passes);

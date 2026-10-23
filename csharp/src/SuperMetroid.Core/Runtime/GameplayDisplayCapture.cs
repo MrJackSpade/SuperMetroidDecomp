@@ -24,12 +24,12 @@ public static class GameplayDisplayCapture
     /// Captures the full currently modeled gameplay composition, including mixed video-mode bands,
     /// room FX, X-ray ownership, message glyphs, and the final suit/power-bomb color effects.
     /// </summary>
-    public static LayeredRenderSnapshot Capture(GameplayDisplayFrame frame)
+    public static LayeredScene Capture(GameplayDisplayFrame frame)
     {
         Ensure.NotNull(frame);
         GameplayNmiDisplayLatch latched = frame.Latched;
         GameplayFrameEndDisplayInputs live = frame.FrameEnd;
-        LayeredRenderSnapshot basis = latched.ShowsMode7 ? CaptureMode7Base(frame) : CaptureOrdinaryBase(frame);
+        LayeredScene basis = latched.ShowsMode7 ? CaptureMode7Base(frame) : CaptureOrdinaryBase(frame);
         var layers = new List<RenderLayer>(basis.Layers.ToArray());
         GameplayPpuRenderSnapshot ppu = latched.Ppu;
         bool doorOwnsDisplay = live.DoorTransitionMainScreenLayers is not null;
@@ -83,7 +83,7 @@ public static class GameplayDisplayCapture
     /// Mode-7 rooms are rejected rather than silently interpreting their memory as tiles.
     /// </summary>
     [PpuLayoutBoundary("codec: ordinary gameplay render packet (BG base registers)")]
-    public static LayeredRenderSnapshot CaptureOrdinaryBase(GameplayDisplayFrame frame)
+    public static LayeredScene CaptureOrdinaryBase(GameplayDisplayFrame frame)
     {
         Ensure.NotNull(frame);
         GameplayNmiDisplayLatch latched = frame.Latched;
@@ -229,7 +229,7 @@ public static class GameplayDisplayCapture
     private static ushort Add(ushort scroll, short shake) => unchecked((ushort)(scroll + shake));
 
     /// <summary>Normal Fireflea blending ($88:80B0), before and after X-ray owns the window.</summary>
-    private static GameplayColorMathRenderLayer CaptureFirefleaDarkness(FixedColorRegisterSnapshot fixedColor, LayeredRenderSnapshot basis)
+    private static GameplayColorMathRenderLayer CaptureFirefleaDarkness(FixedColorRegisterSnapshot fixedColor, LayeredScene basis)
     {
         if (basis.Layers[0] is not OrdinaryGameplayRenderLayer ordinary)
             throw new InvalidOperationException("Fireflea darkness requires ordinary Mode-1 gameplay.");
@@ -242,7 +242,7 @@ public static class GameplayDisplayCapture
 
     /// <summary>Captures the Ceres shaft or Ridley Mode-7 matrix and HUD, adding the Mode-1 floor band during Ridley's getaway.</summary>
     [PpuLayoutBoundary("codec: Mode 7 gameplay render packet (BG3 and floor base registers)")]
-    private static LayeredRenderSnapshot CaptureMode7Base(GameplayDisplayFrame frame)
+    private static LayeredScene CaptureMode7Base(GameplayDisplayFrame frame)
     {
         GameplayNmiDisplayLatch latched = frame.Latched;
         GameplayPpuRenderSnapshot ppu = latched.Ppu;
@@ -279,7 +279,7 @@ public static class GameplayDisplayCapture
     }
 
     /// <summary>Removes BG2 when Phantoon is hidden, or uses it as an additive subscreen when the body is semitransparent.</summary>
-    private static RenderLayer CapturePhantoonBlending(PhantoonDisplaySnapshot phantoon, LayeredRenderSnapshot basis)
+    private static RenderLayer CapturePhantoonBlending(PhantoonDisplaySnapshot phantoon, LayeredScene basis)
     {
         var ordinary = (OrdinaryGameplayRenderLayer)basis.Layers[0];
         var mode = phantoon.Configuration;
@@ -297,7 +297,7 @@ public static class GameplayDisplayCapture
 
     /// <summary>Captures X-ray's layer ownership before priority resolution and color math.</summary>
     [PpuLayoutBoundary("codec: X-ray render packet, reveal tilemap written into the snapshot BG2 image")]
-    private static LayeredRenderSnapshot? CaptureXray(GameplayDisplayFrame frame, LayeredRenderSnapshot basis)
+    private static LayeredScene? CaptureXray(GameplayDisplayFrame frame, LayeredScene basis)
     {
         if (frame.FrameEnd.Xray is not { } xray) return null;
         bool finishedThisFrame = xray.FinishedThisFrame;
@@ -342,7 +342,7 @@ public static class GameplayDisplayCapture
             // Clear_FX_Tilemap leaves an opaque BG3 plane even without a visible FX
             // actor. Room initialization supplies zero scroll and the 32x64 BG3 map;
             // capture its real pixels rather than substituting transparent backdrop.
-            sub = new Bg2BppColorMathRenderLayer(
+            sub = new FxPlaneBlendRenderLayer(
                 ordinary.Rooms.ShownBg3, 0,
                 Layer3Plane.Rows,
                 SnesPpuLayout.GameplayHudHeightPixels,

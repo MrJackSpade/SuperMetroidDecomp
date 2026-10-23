@@ -7,7 +7,7 @@ internal static class MenuRenderSnapshotCapture
 {
     /// <summary>Captures the menu screen's artwork, tilemaps, palette and sprite entries with the established BG2, BG1, OBJ layer order and current brightness.</summary>
     [PpuLayoutBoundary("codec: shared menu render packet layers")]
-    internal static LayeredRenderSnapshot Capture(MenuScreen screen, ushort bg1VerticalScroll, byte brightness)
+    internal static LayeredScene Capture(MenuScreen screen, ushort bg1VerticalScroll, byte brightness)
     {
         // These menus currently compose entire BG2, BG1 and OBJ planes in that order.
         // Preserve that established path here; do not silently replace it with the
@@ -17,8 +17,8 @@ internal static class MenuRenderSnapshotCapture
         byte[] image = MenuScreenImage.Compose(screen);
         RenderLayer[] layers =
         [
-            new Bg4BppRenderLayer(ScreenTileMap.Capture(image, MenuVramLayout.Bg2TilemapWord, new Extent16<TilemapCells>(32, 32), tiles), new Position16<BgPlanePixels>(0, 0), null),
-            new Bg4BppRenderLayer(ScreenTileMap.Capture(image, MenuVramLayout.Bg1TilemapWord, new Extent16<TilemapCells>(32, 32), tiles), new Position16<BgPlanePixels>(0, bg1VerticalScroll), null),
+            new TileRenderLayer(ScreenTileMap.Capture(image, MenuVramLayout.Bg2TilemapWord, new Extent16<TilemapCells>(32, 32), tiles), new Position16<BgPlanePixels>(0, 0), null),
+            new TileRenderLayer(ScreenTileMap.Capture(image, MenuVramLayout.Bg1TilemapWord, new Extent16<TilemapCells>(32, 32), tiles), new Position16<BgPlanePixels>(0, bg1VerticalScroll), null),
             new ObjRenderLayer(),
         ];
         return new(MenuScreenImage.Capture(screen), layers, brightness);

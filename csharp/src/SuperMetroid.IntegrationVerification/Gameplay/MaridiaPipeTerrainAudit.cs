@@ -12,7 +12,7 @@ internal static class MaridiaPipeTerrainAudit
 {
     /// <summary>Compares visible BG1/BG2 VRAM words with expanded authored tube blocks and reports the first mismatch.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    public static void Observe(SuperMetroidRuntime runtime, RenderFrameSnapshot snapshot, int frame, bool requireAuthoredTerrain = false)
+    public static void Observe(SuperMetroidRuntime runtime, DisplayPacket snapshot, int frame, bool requireAuthoredTerrain = false)
     {
         if (runtime.Room.ActiveRoom?.Definition != RoomHeaderDefinitions.Toilet || snapshot.Layers is not { } layers) return;
         var gameplay = layers.LayersOf<OrdinaryGameplayRenderLayer>().Single();

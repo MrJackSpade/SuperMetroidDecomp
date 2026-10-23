@@ -18,5 +18,5 @@ internal sealed class RetainedGameplayFrames : IGameplayFramePublication
     }
 
     /// <inheritdoc />
-    public RenderFrameSnapshot Publish(SuperMetroidRuntime runtime, RenderFrameSnapshot current, Func<RenderFrameIdentity> nextIdentity) => current;
+    public DisplayPacket Publish(SuperMetroidRuntime runtime, DisplayPacket current, Func<RenderFrameIdentity> nextIdentity) => current;
 }

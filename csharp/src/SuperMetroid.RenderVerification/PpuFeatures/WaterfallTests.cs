@@ -46,10 +46,10 @@ internal static class WaterfallTests
         Layer3Cells plane = Layer3CellsFixtures.FromVram(vram.Bytes, cgram.Colors, 0x1000);
         var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
             WaterfallRoomDisplayRules.MainScreen);
-        var bg3 = new Bg2BppColorMathRenderLayer(plane, Layer3Plane.Rows / 2, 32, 32,
+        var bg3 = new FxPlaneBlendRenderLayer(plane, Layer3Plane.Rows / 2, 32, 32,
             ExpandedColorMathOperation.Subtract, new Position16<BgPlanePixels>[224]);
         var layer = new GameplayColorMathRenderLayer(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1), new TilemapCell(14, 8, new(4))) with { Bg3 = plane }), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new ColorMathRegisters { ColorMath = WaterfallRoomDisplayRules.ColorMath, AddSubscreen = true, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, bg3, subscreenUsesBg2: true);
-        var scene = new LayeredRenderSnapshot(memory, [layer], 15);
+        var scene = new LayeredScene(memory, [layer], 15);
         var pixels = SoftwareLayeredSnapshotRenderer.Render(scene);
         Check(16, 19, 13, 7, "BG2 beats low BG3 and subtracts through foreground");
         Check(32, 22, 17, 12, "high BG3 beats BG2");
@@ -58,7 +58,7 @@ internal static class WaterfallTests
         Check(80, 24, 20, 16, "OBJ palette three is exempt");
         Check(96, 19, 13, 7, "OBJ palette four participates");
         Check(112, 19, 13, 7, "backdrop participates");
-        var packet = new RenderFrameSnapshot(new(1, 1, 0), scene);
+        var packet = new DisplayPacket(new(1, 1, 0), scene);
         PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "waterfall source/priority/color math");
         Console.WriteLine($"{device.Kind}: waterfall priority, colors and OBJ exemptions passed.");
 

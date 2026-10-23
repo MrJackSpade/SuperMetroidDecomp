@@ -63,7 +63,7 @@ internal static class RuntimeOverlayTests
         RenderedFrame Check(string context)
         {
             Rgba32[] expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()).ToArray();
-            var packet = new RenderFrameSnapshot(new(++sequence, 1, 0), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
+            var packet = new DisplayPacket(new(++sequence, 1, 0), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
             PixelComparison.Verify(packet, expected, SoftwareFrameSnapshotRenderer.Render(packet), $"software: {context}");
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: {context}");
             return new RenderedFrame(packet, expected);

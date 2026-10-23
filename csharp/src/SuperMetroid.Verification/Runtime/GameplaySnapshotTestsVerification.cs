@@ -50,15 +50,15 @@ internal static class GameplaySnapshotTestsVerification
             // Mutating both caller arrays after capture must not alter retained HDMA.
             Array.Fill(x, (ushort)1234);
             Array.Fill(y, (ushort)5678);
-            var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)samples),
-                new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 15));
+            var packet = new DisplayPacket(new(++samples, 1, (ushort)samples),
+                new LayeredScene(memory, new RenderLayer[] { layer }, 15));
             AssertTrue(expected.SequenceEqual(RenderForComparison(packet)),
                 $"gameplay snapshot {mapSize.X}x{mapSize.Y}, mask {mask}, HDMA {hdma}");
             if (samples == 1)
             {
                 AssertThrows<ArgumentException>(() => new Bg2LineScrolls(new ushort[1], default),
                     "reject partial gameplay HDMA");
-                AssertThrows<ArgumentException>(() => new LayeredRenderSnapshot(memory,
+                AssertThrows<ArgumentException>(() => new LayeredScene(memory,
                     new RenderLayer[] { new ObjRenderLayer(), layer }, 15), "base cannot erase prior operations");
             }
         }
@@ -73,7 +73,7 @@ internal static class GameplaySnapshotTestsVerification
             "Mode-7 shaft cannot silently capture as ordinary tiles");
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        LayeredRenderSnapshot captured = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
+        LayeredScene captured = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         Rgba32[] retail = RenderForComparison(captured);
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
         for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Cgram.SetColor(color, new Bgr555(0, 0, 0));

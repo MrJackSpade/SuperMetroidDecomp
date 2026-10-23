@@ -56,11 +56,11 @@ internal static class GameplayCaptureIntegrationTestsVerification
         runtime.SuitPickup.Begin(runtime.Player.IntroducedSamus, new(0, 0), SamusSuitPickupKind.Varia);
         runtime.SuitPickup.Step(runtime.Player.IntroducedSamus, runtime.Cgram);
         Rgba32[] expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
-        LayeredRenderSnapshot captured = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
+        LayeredScene captured = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertTrue(captured.Layers.Length == 4 && captured.Layers[0] is OrdinaryGameplayRenderLayer
             && captured.Layers[1] is ScanlineColorAddRenderLayer && captured.Layers[2] is MessageBoxRenderLayer
             && captured.Layers[3] is ScanlineColorAddRenderLayer, "base/Power Bomb/message/suit order");
-        var retained = new RenderFrameSnapshot(new(1, 1, 0), captured);
+        var retained = new DisplayPacket(new(1, 1, 0), captured);
         AssertTrue(expected.SequenceEqual(RenderForComparison(retained)), "composed gameplay overlay parity");
         runtime.MessageBox.Step(SnesButton.A);
         runtime.SuitPickup.Step(runtime.Player.IntroducedSamus, runtime.Cgram);

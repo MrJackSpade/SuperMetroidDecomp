@@ -15,7 +15,7 @@ internal sealed class CapturedGameplayFrames : IGameplayFramePublication
     }
 
     /// <inheritdoc />
-    public RenderFrameSnapshot Publish(SuperMetroidRuntime runtime, RenderFrameSnapshot current, Func<RenderFrameIdentity> nextIdentity)
+    public DisplayPacket Publish(SuperMetroidRuntime runtime, DisplayPacket current, Func<RenderFrameIdentity> nextIdentity)
     {
         Ensure.NotNull(runtime);
         Ensure.NotNull(nextIdentity);

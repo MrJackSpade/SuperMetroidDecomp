@@ -30,7 +30,7 @@ internal static class ShaderFailureTests
             // Late shader failure occurs after earlier native resources were created.
             // A fresh renderer must still execute correctly on the same owner/device.
             using var recovered = new D3D11FrameRenderer(device);
-            var packet = new RenderFrameSnapshot(new(1, 1, 0), new Rgba32(13, 29, 71));
+            var packet = new DisplayPacket(new(1, 1, 0), new Rgba32(13, 29, 71));
             PixelComparison.Verify(packet, SoftwareFrameSnapshotRenderer.Render(packet), recovered.RenderForReadback(packet),
                 $"{device.Kind}: initialization after missing {missing}");
         }

@@ -18,7 +18,7 @@ internal static class DisplayPacketAnalyzerTests
         // The published frame carrying a memory image.
         Check("""
             class Memory { private readonly byte[] bytes = []; }
-            class RenderFrameSnapshot { public Memory? Image { get; } }
+            class DisplayPacket { public Memory? Image { get; } }
             """, "'bytes' holds raw memory in the published display packet; describe what is shown, not the memory or registers that showed it");
         // A span of 16-bit words is raw memory too.
         Check("""

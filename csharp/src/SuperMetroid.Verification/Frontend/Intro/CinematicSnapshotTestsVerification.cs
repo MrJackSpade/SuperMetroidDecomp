@@ -38,7 +38,7 @@ internal static class CinematicSnapshotTestsVerification
             if (changed || tick % 7 == 0)
             {
                 Rgba32[] expected = flight.Render();
-                LayeredRenderSnapshot snapshot = flight.CaptureRenderSnapshot();
+                LayeredScene snapshot = flight.CaptureRenderSnapshot();
                 coloredRearView |= snapshot.Layers.Any(layer => layer is FixedColorAddRenderLayer c
                     && (c.Red != 0 || c.Green != 0 || c.Blue != 0));
                 Compare(expected, snapshot, tick);
@@ -61,9 +61,9 @@ internal static class CinematicSnapshotTestsVerification
             if (changed || tick % 13 == 0)
             {
                 Rgba32[] expected = destruction.Render();
-                LayeredRenderSnapshot snapshot = destruction.CaptureRenderSnapshot();
+                LayeredScene snapshot = destruction.CaptureRenderSnapshot();
                 mode7 |= snapshot.Layers.Any(layer => layer is Mode7RenderLayer);
-                mode1 |= snapshot.Layers.Any(layer => layer is Bg4BppRenderLayer);
+                mode1 |= snapshot.Layers.Any(layer => layer is TileRenderLayer);
                 foreach (var window in snapshot.LayersOf<ScanlineColorAddRenderLayer>())
                 {
                     explosionWindow |= window.Windows.Any(row =>
@@ -92,7 +92,7 @@ internal static class CinematicSnapshotTestsVerification
             for (int tick = 0; tick < 300 && !menu.ContinueRequested && !menu.TitleRequested; tick++)
             {
                 Rgba32[] expected = menu.Render();
-                LayeredRenderSnapshot snapshot = menu.CaptureRenderSnapshot();
+                LayeredScene snapshot = menu.CaptureRenderSnapshot();
                 Compare(expected, snapshot, tick);
                 SnesButton input = 0;
                 if (menu.Phase == GameOverMenuPhase.Main)
@@ -111,9 +111,9 @@ internal static class CinematicSnapshotTestsVerification
         }
         Console.WriteLine($"  Cinematic snapshots: {samples} Ceres/Zebes frames ({phases.Count} phases) and {menuSamples} game-over frames match.");
 
-        static void Compare(Rgba32[] expected, LayeredRenderSnapshot snapshot, int tick)
+        static void Compare(Rgba32[] expected, LayeredScene snapshot, int tick)
         {
-            RenderFrameSnapshot roundTrip = new(new(tick + 1, 1, (ushort)tick), snapshot);
+            DisplayPacket roundTrip = new(new(tick + 1, 1, (ushort)tick), snapshot);
             Rgba32[] pixels = SoftwareFrameSnapshotRenderer.Render(roundTrip);
             AssertEqual(expected.Length, pixels.Length, "cinematic snapshot dimensions");
             for (int i = 0; i < pixels.Length; i++)
@@ -138,12 +138,12 @@ internal static class CinematicSnapshotTestsVerification
             // Independent owners are essential: legacy draw advances projectile trails.
             // Calling both producers on one scene would run those side effects twice.
             Rgba32[] expected = legacy.Render();
-            LayeredRenderSnapshot snapshot = captured.CaptureTranslatedRenderSnapshot();
+            LayeredScene snapshot = captured.CaptureTranslatedRenderSnapshot();
             bool newPhase = phases.Add(legacy.Phase);
             bool sample = newPhase || tick % 31 == 0;
             if (sample)
             {
-                RenderFrameSnapshot packet = new(new(tick + 1, 1, (ushort)tick), snapshot);
+                DisplayPacket packet = new(new(tick + 1, 1, (ushort)tick), snapshot);
                 AssertTrue(expected.SequenceEqual(RenderForComparison(packet)),
                     $"intro captured pixels: {legacy.Phase}, tick {tick}");
                 samples++;

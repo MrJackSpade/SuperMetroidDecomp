@@ -211,21 +211,21 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     private void Queue(SoundEffectId sound) => audio.QueueSound(sound, maximumQueued: 6);
 
     /// <summary>Captures both map-memory owners and resolved window edges at the display boundary.</summary>
-    public LayeredRenderSnapshot CaptureRenderSnapshot()
+    public LayeredScene CaptureRenderSnapshot()
     {
-        LayeredRenderSnapshot Area(AreaMapColorMath colorMath = AreaMapColorMath.WithBackdrop) => areaGraphics.CaptureRenderSnapshot(usedStations, colorMath);
-        LayeredRenderSnapshot Frame() => roomGraphics.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly);
-        LayeredRenderSnapshot Room(FileSelectStationMarker? shownMarker) => roomGraphics.CaptureRenderSnapshot(Scroll.Scroll,
+        LayeredScene Area(AreaMapColorMath colorMath = AreaMapColorMath.WithBackdrop) => areaGraphics.CaptureRenderSnapshot(usedStations, colorMath);
+        LayeredScene Frame() => roomGraphics.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly);
+        LayeredScene Room(FileSelectStationMarker? shownMarker) => roomGraphics.CaptureRenderSnapshot(Scroll.Scroll,
             shownMarker, drawArrows ? animations : null);
         if (!entry.IsComplete)
         {
-            LayeredRenderSnapshot areaScene = Area();
+            LayeredScene areaScene = Area();
             Bgr555[] palette = areaScene.Paint.Colors.ToArray(); palette[0] = Bgr555.Black;
-            var black = new LayeredRenderSnapshot(new FramePaint(palette, []), [], SnesPpuLayout.MaximumMasterBrightness);
+            var black = new LayeredScene(new FramePaint(palette, []), [], SnesPpuLayout.MaximumMasterBrightness);
             return entry.Phase == FileSelectMapEntryPhase.Revealing
                 ? Insert(black, areaScene, entry.Left, entry.Top, entry.Right + 1, entry.Bottom) : black;
         }
-        LayeredRenderSnapshot scene = Phase switch
+        LayeredScene scene = Phase switch
         {
             FileSelectMapNavigationPhase.ExpandingWindow or FileSelectMapNavigationPhase.InitializingRoom =>
                 Window(Area(AreaMapColorMath.ForegroundOnly), Frame(), navigation.ActiveWindow),
@@ -245,7 +245,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Projects the native clipped room/area transition into render layers, including completed and off-screen windows.</summary>
-    private static LayeredRenderSnapshot Window(LayeredRenderSnapshot areaScene, LayeredRenderSnapshot roomScene, FileSelectMapWindow window)
+    private static LayeredScene Window(LayeredScene areaScene, LayeredScene roomScene, FileSelectMapWindow window)
     {
         if (window.IsComplete) return window.IsReturning ? areaScene : roomScene;
         Position16<ScreenPixels> topLeft = window.TopLeft, bottomRight = window.BottomRight;
@@ -259,7 +259,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Overlays an inner scene inside half-open screen bounds while retaining the basis scene's PPU memory and brightness.</summary>
-    private static LayeredRenderSnapshot Insert(LayeredRenderSnapshot basis, LayeredRenderSnapshot inside,
+    private static LayeredScene Insert(LayeredScene basis, LayeredScene inside,
         int left, int top, int right, int bottom)
     {
         RenderLayer[] layers = [.. basis.Layers, new WindowedSceneRenderLayer(inside, left, top, right, bottom)];

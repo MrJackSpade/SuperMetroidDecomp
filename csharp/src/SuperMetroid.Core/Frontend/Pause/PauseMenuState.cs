@@ -280,7 +280,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
     /// <summary>Prepares OAM on the simulation owner, then captures without raster work.</summary>
     [PpuLayoutBoundary("codec: pause render packet layers")]
-    public LayeredRenderSnapshot CaptureRenderSnapshot()
+    public LayeredScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
         ushort mapX = ScreenMode == PauseScreenMode.Map ? MapScrollPosition.X : (ushort)0;
@@ -290,11 +290,11 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // Every plane draws from the pause screen's pre-coloured tiles (#1392).
         ScreenLayerPictures planes = screen.Tiles.Pictures(0, BgBitDepth.FourBpp);
         byte[] image = PauseScreenImage.Compose(screen);
-        var bg1 = new Bg4BppRenderLayer(ScreenTileMap.Capture(image, PauseMenuLayout.Bg1TilemapWord, new Extent16<TilemapCells>(64, 32), planes),
+        var bg1 = new TileRenderLayer(ScreenTileMap.Capture(image, PauseMenuLayout.Bg1TilemapWord, new Extent16<TilemapCells>(64, 32), planes),
             new Position16<BgPlanePixels>(mapX, mapY), false);
-        var bg2 = new Bg4BppRenderLayer(ScreenTileMap.Capture(image, PauseMenuLayout.Bg2TilemapWord, new Extent16<TilemapCells>(32, 32), planes),
+        var bg2 = new TileRenderLayer(ScreenTileMap.Capture(image, PauseMenuLayout.Bg2TilemapWord, new Extent16<TilemapCells>(32, 32), planes),
             new Position16<BgPlanePixels>(0, SnesPpuLayout.FirstVisibleBackgroundScanline), false);
-        var bg3 = new Bg2BppViewportRenderLayer(ScreenTileMap.Capture(image, GameplayVramLayout.HudTilemapWord, Bg2BppViewportRenderLayer.MapSize,
+        var bg3 = new TileViewportRenderLayer(ScreenTileMap.Capture(image, GameplayVramLayout.HudTilemapWord, TileViewportRenderLayer.MapSize,
             screen.Tiles.Pictures(GameplayVramLayout.HudCharacterWord, BgBitDepth.TwoBpp)), SnesPpuLayout.FirstVisibleBackgroundScanline, true, false);
         RenderLayer[] layers =
         [

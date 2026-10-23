@@ -1,10 +1,12 @@
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Rendering;
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Decodes OBSEL's object size selection into the sizes a screen's objects draw at (#1358).</summary>
 [PpuLayoutBoundary("codec: OBSEL bits 5-7, the small/large object size pair")]
-public static class ObjectSelectionCodec
+internal static class ObjectSelectionCodec
 {
     /// <summary>The eight size pairs, by OBSEL bits 5-7.</summary>
     private static readonly ScreenObjectSizes[] SizePairs =

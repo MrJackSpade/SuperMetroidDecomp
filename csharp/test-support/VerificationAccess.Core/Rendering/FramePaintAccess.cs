@@ -11,7 +11,7 @@ internal static class FramePaintAccess
     {
         /// <summary>
         /// A snapshot whose sprites are an OAM fixture's records, converted as a frontend capture converts them
-        /// (<see cref="ObjCharacterImage"/>), so the records reach both backends only as a frame description.
+        /// (the extraction pipeline's ObjCharacterImage), so the records reach both backends only as a frame description.
         /// </summary>
         [PpuLayoutBoundary("exact hardware test: builds frames from native OAM fixture tables")]
         internal static FramePaint FromOam(ReadOnlySpan<byte> vram, ReadOnlySpan<Bgr555> cgram,

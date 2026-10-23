@@ -32,7 +32,7 @@ internal static class FileMapSnapshotTestsVerification
             var legacy = new FileSelectMapMenuState(new CartridgeAudioState(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
             var capture = new FileSelectMapMenuState(new CartridgeAudioState(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
             var phases = new HashSet<FileSelectMapNavigationPhase>();
-            LayeredRenderSnapshot? previous = null;
+            LayeredScene? previous = null;
             Rgba32[]? previousPixels = null;
             for (int tick = 0; tick < 300 && !legacy.LoadRequested && !legacy.OptionsRequested; tick++)
             {
@@ -45,7 +45,7 @@ internal static class FileMapSnapshotTestsVerification
                     AssertTrue(previousPixels.SequenceEqual(RenderForComparison(previous)), "map packet survives window/palette/marker update");
                 phases.Add(legacy.Phase);
                 Rgba32[] expected = legacy.Render();
-                LayeredRenderSnapshot packet = capture.CaptureRenderSnapshot();
+                LayeredScene packet = capture.CaptureRenderSnapshot();
                 Compare(expected, packet, $"map navigation {legacy.Phase}, tick {tick}, cancel {cancel}");
                 AssertEqual(legacy.Phase, capture.Phase, "map capture preserves navigation");
                 AssertEqual(legacy.LoadRequested, capture.LoadRequested, "map capture preserves load signal");
@@ -88,9 +88,9 @@ internal static class FileMapSnapshotTestsVerification
         AssertTrue(sawMap && game.GameState == SuperMetroidGameState.MainGameplay, "saved-file frontend completes map and load");
         Console.WriteLine($"  File map snapshots: {samples} area/room/entry/window/load/cancel comparisons match.");
 
-        void Compare(Rgba32[] expected, LayeredRenderSnapshot captured, string name)
+        void Compare(Rgba32[] expected, LayeredScene captured, string name)
         {
-            var packet = new RenderFrameSnapshot(new(++samples, 1, 0), captured);
+            var packet = new DisplayPacket(new(++samples, 1, 0), captured);
             AssertTrue(expected.SequenceEqual(RenderForComparison(packet)), name);
         }
     }
@@ -103,10 +103,10 @@ internal static class FileMapSnapshotTestsVerification
         var red = new FramePaint(ToColors(palette), []);
         palette[0] = 31 << 10;
         var blue = new FramePaint(ToColors(palette), []);
-        var child = new LayeredRenderSnapshot(blue, new RenderLayer[] { new ObjRenderLayer() }, 15);
+        var child = new LayeredScene(blue, new RenderLayer[] { new ObjRenderLayer() }, 15);
         var window = new WindowedSceneRenderLayer(child, 127, 111, 130, 113);
-        var parent = new LayeredRenderSnapshot(red, new RenderLayer[] { window }, 15);
-        var packet = new RenderFrameSnapshot(new(1, 1, 0), parent);
+        var parent = new LayeredScene(red, new RenderLayer[] { window }, 15);
+        var packet = new DisplayPacket(new(1, 1, 0), parent);
         Rgba32[] pixels = SoftwareFrameSnapshotRenderer.Render(packet);
         for (int y = 0; y < 224; y++)
         for (int x = 0; x < 256; x++)

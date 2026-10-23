@@ -29,9 +29,9 @@ internal static class RetailTransitionTests
             {
                 var expected = destruction.Render();
                 var scene = destruction.CaptureRenderSnapshot();
-                mode1 |= scene.Layers.Any(layer => layer is Bg4BppRenderLayer);
+                mode1 |= scene.Layers.Any(layer => layer is TileRenderLayer);
                 mode7 |= scene.Layers.Any(layer => layer is Mode7RenderLayer);
-                var packet = new RenderFrameSnapshot(new(++cinematicCount, 1, (ushort)tick), scene);
+                var packet = new DisplayPacket(new(++cinematicCount, 1, (ushort)tick), scene);
                 Check(packet, expected, $"Ceres/Zebes {destruction.Phase}, tick {tick}");
                 destruction.Step();
                 Check(packet, expected, $"retained Ceres/Zebes tick {tick}");
@@ -48,7 +48,7 @@ internal static class RetailTransitionTests
             for (int tick = 0; tick < 300 && !menu.ContinueRequested && !menu.TitleRequested; tick++)
             {
                 var expected = menu.Render();
-                var packet = new RenderFrameSnapshot(new(++menuCount, 2, (ushort)tick), menu.CaptureRenderSnapshot());
+                var packet = new DisplayPacket(new(++menuCount, 2, (ushort)tick), menu.CaptureRenderSnapshot());
                 Check(packet, expected, $"game-over {menu.Phase}, no={chooseNo}, tick {tick}");
                 SnesButton input = 0;
                 if (menu.Phase == GameOverMenuPhase.Main)
@@ -65,7 +65,7 @@ internal static class RetailTransitionTests
         }
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {cinematicCount} Ceres/Zebes samples across {phases.Count} phases and {menuCount} game-over frames match.");
 
-        void Check(RenderFrameSnapshot packet, Rgba32[] expected, string context) =>
+        void Check(DisplayPacket packet, Rgba32[] expected, string context) =>
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: {context}");
     }
 }

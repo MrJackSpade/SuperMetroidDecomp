@@ -83,9 +83,9 @@ internal static class CeresDestructionArtworkVerification
             bool firstPhaseFrame = phases.Add(native.Phase);
             if (firstPhaseFrame || frame % 211 == 0)
             {
-                LayeredRenderSnapshot expected = native.CaptureRenderSnapshot();
+                LayeredScene expected = native.CaptureRenderSnapshot();
                 byte[] expectedVram = native.ShownVram();
-                LayeredRenderSnapshot actual = installed.CaptureRenderSnapshot();
+                LayeredScene actual = installed.CaptureRenderSnapshot();
                 byte[] actualVram = installed.ShownVram();
                 AssertTrue(actual.Brightness == expected.Brightness &&
                         actualVram.SequenceEqual(expectedVram) &&
@@ -257,9 +257,9 @@ internal static class CeresDestructionArtworkVerification
         IntroCinematicArtworkCatalog editedSprites = installation.LoadIntroCinematicArt();
         var spriteState = CreateRetailDestructionFixture(artwork: stock);
         for (int frame = 0; frame < 36; frame++) spriteState.Step();
-        LayeredRenderSnapshot beforeSprites = spriteState.CaptureRenderSnapshot();
+        LayeredScene beforeSprites = spriteState.CaptureRenderSnapshot();
         spriteState.BindFixtureDestructionArtwork(editedSprites);
-        LayeredRenderSnapshot afterSprites = spriteState.CaptureRenderSnapshot();
+        LayeredScene afterSprites = spriteState.CaptureRenderSnapshot();
         AssertTrue(!beforeSprites.Paint.SpriteParts().SequenceEqual(afterSprites.Paint.SpriteParts()) &&
                 !SoftwareLayeredSnapshotRenderer.Render(beforeSprites).SequenceEqual(
                     SoftwareLayeredSnapshotRenderer.Render(afterSprites)),
@@ -299,10 +299,10 @@ internal static class CeresDestructionArtworkVerification
         IntroCinematicArtworkCatalog editedCeres = installation.LoadIntroCinematicArt();
         var ceresState = CreateRetailDestructionFixture(artwork: stock);
         for (int frame = 0; frame < 36; frame++) ceresState.Step();
-        LayeredRenderSnapshot beforeCeres = ceresState.CaptureRenderSnapshot();
+        LayeredScene beforeCeres = ceresState.CaptureRenderSnapshot();
         byte[] beforeCeresVram = ceresState.ShownVram();
         ceresState.BindFixtureDestructionArtwork(editedCeres);
-        LayeredRenderSnapshot afterCeres = ceresState.CaptureRenderSnapshot();
+        LayeredScene afterCeres = ceresState.CaptureRenderSnapshot();
         byte[] afterCeresVram = ceresState.ShownVram();
         AssertTrue(!beforeCeresVram.SequenceEqual(afterCeresVram) &&
                 !SoftwareLayeredSnapshotRenderer.Render(beforeCeres).SequenceEqual(
@@ -353,7 +353,7 @@ internal static class CeresDestructionArtworkVerification
             zebesState.Step();
         AssertEqual(CeresDestructionPhase.FadeInZebes, zebesState.Phase,
             "rebind fixture reaches Zebes reveal");
-        LayeredRenderSnapshot originalZebes = zebesState.CaptureRenderSnapshot();
+        LayeredScene originalZebes = zebesState.CaptureRenderSnapshot();
         byte[] originalZebesVram = zebesState.ShownVram();
         zebesState.BindFixtureDestructionArtwork(editedZebesMap);
         AssertTrue(!zebesState.ShownVram().SequenceEqual(

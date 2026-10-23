@@ -31,7 +31,7 @@ internal static class TitleScreenPublicationVerification
         bool drewSprites = false;
         for (int frame = 0; frame < 9 * TitleSequenceRomData.Timing.BabyFrameDuration; frame++)
         {
-            Mode7ObjRenderSnapshot snapshot = title.CaptureRenderSnapshot();
+            FloorScene snapshot = title.CaptureRenderSnapshot();
             byte[] snapshotVram = title.ShownVram();
             var shownBytes = new byte[pageBytes];
             for (int pixel = 0; pixel < pageBytes; pixel++)

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rendering;
 /// <param name="TransparentColorZero">Whether pen zero is transparent.</param>
 /// <param name="Priority">Selects only cells of one priority tier, or null for both.</param>
 [IndependentFlag("the layer's colour-zero transparency, an independent PPU setting")]
-public sealed record Bg2BppViewportRenderLayer(ScreenTileMap Cells, int VerticalScroll, bool TransparentColorZero, bool? Priority) : RenderLayer
+public sealed record TileViewportRenderLayer(ScreenTileMap Cells, int VerticalScroll, bool TransparentColorZero, bool? Priority) : RenderLayer
 {
     /// <summary>The largest scroll.</summary>
     public const int MaximumScroll = ushort.MaxValue;

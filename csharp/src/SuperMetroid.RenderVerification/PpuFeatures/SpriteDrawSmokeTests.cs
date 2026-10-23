@@ -134,15 +134,15 @@ internal static class SpriteDrawSmokeTests
             Check(memory, [new ObjRenderLayer()], $"seeded scene {cases}");
             Check(memory, [
                 new ObjPriorityRenderLayer(0),
-                new Bg4BppRenderLayer(cells, new Position16<BgPlanePixels>(3, 11), false),
+                new TileRenderLayer(cells, new Position16<BgPlanePixels>(3, 11), false),
                 new ObjPriorityRenderLayer(1), new ObjPriorityRenderLayer(2),
-                new Bg4BppRenderLayer(cells, new Position16<BgPlanePixels>(3, 11), true),
+                new TileRenderLayer(cells, new Position16<BgPlanePixels>(3, 11), true),
                 new ObjPriorityRenderLayer(3)], $"seeded priority ladder {cases}");
         }
 
         Rgba32[] Check(FramePaint memory, RenderLayer[] layers, string label)
         {
-            var frame = new RenderFrameSnapshot(new(++cases, 1, 0), new LayeredRenderSnapshot(memory, layers, 15));
+            var frame = new DisplayPacket(new(++cases, 1, 0), new LayeredScene(memory, layers, 15));
             Rgba32[] expected = SoftwareFrameSnapshotRenderer.Render(frame);
             PixelComparison.Verify(frame, expected, renderer.RenderForReadback(frame), $"{device.Kind}: {label}");
             return expected;

@@ -124,7 +124,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>Submits GPU composition without staging allocation, readback or a CPU raster.</summary>
-    public void Render(RenderFrameSnapshot packet)
+    public void Render(DisplayPacket packet)
     {
         owner.VerifyOwner(); ObjectDisposedException.ThrowIf(disposed, this);
         Ensure.NotNull(packet);
@@ -134,7 +134,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>Selects layered, Mode 7, or solid-color composition and submits its compute passes.</summary>
-    private unsafe void RenderCore(RenderFrameSnapshot packet)
+    private unsafe void RenderCore(DisplayPacket packet)
     {
         if (packet.Layers is { } layers) { DrawLayers(packet, layers); return; }
         if (packet.Mode7 is { } mode7)
@@ -142,7 +142,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             var operations = new List<RenderLayer>();
             if (mode7.Background is { } background && mode7.Floor is { } shownFloor) operations.Add(new Mode7RenderLayer(background, shownFloor));
             operations.Add(new ObjRenderLayer());
-            DrawLayers(packet, new LayeredRenderSnapshot(mode7.Paint,
+            DrawLayers(packet, new LayeredScene(mode7.Paint,
                 operations.ToArray(), mode7.Brightness), mode7.Gradient);
             return;
         }
@@ -206,7 +206,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             : throw new InvalidOperationException("A frame's layers show two different BG3 planes.");
 
     /// <summary>Uploads BG2 scanline scrolls for add/subtract color math.</summary>
-    private unsafe void DispatchBackgroundMath(Bg2BppColorMathRenderLayer layer)
+    private unsafe void DispatchBackgroundMath(FxPlaneBlendRenderLayer layer)
     {
         var data = ClearUploadConstants();
         data[0] = (uint)(layer.Operation == ExpandedColorMathOperation.Add
@@ -275,7 +275,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>Combines gameplay BG2, captured BG3, windows, and HDMA layer enables for X-Ray color math.</summary>
-    private unsafe void DispatchGameplayColorMath(LayeredRenderSnapshot scene, GameplayColorMathRenderLayer layer)
+    private unsafe void DispatchGameplayColorMath(LayeredScene scene, GameplayColorMathRenderLayer layer)
     {
         if (layer.Gameplay.View.MainScreenWindowMask != SuperMetroid.Core.Hardware.SnesMainScreenLayers.None)
             throw new NotSupportedException("Combining captured hardware windows with GPU gameplay color math is not translated.");
@@ -432,7 +432,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>Uploads BG subscreen scroll and main-coverage data for color addition.</summary>
-    private unsafe void DispatchSubscreen(BgSubscreenAddRenderLayer layer)
+    private unsafe void DispatchSubscreen(TileAddRenderLayer layer)
     {
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.SubscreenAdd;
@@ -470,10 +470,10 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// <summary>The cells a frontend layer draws (#1403): its own and, for a subscreen, its main coverage's.</summary>
     private static IEnumerable<ScreenTileMap> ScreenMaps(RenderLayer layer) => layer switch
     {
-        Bg4BppRenderLayer bg => [bg.Cells],
-        Bg2BppViewportRenderLayer bg => [bg.Cells],
-        BgSubscreenAddRenderLayer { MainCoverage: { } coverage } sub => [sub.Cells, coverage.Cells],
-        BgSubscreenAddRenderLayer sub => [sub.Cells],
+        TileRenderLayer bg => [bg.Cells],
+        TileViewportRenderLayer bg => [bg.Cells],
+        TileAddRenderLayer { MainCoverage: { } coverage } sub => [sub.Cells, coverage.Cells],
+        TileAddRenderLayer sub => [sub.Cells],
         _ => [],
     };
 
@@ -490,12 +490,12 @@ public sealed class D3D11FrameRenderer : IDisposable
         });
 
     /// <summary>Rejects unsupported layers, uploads PPU memory once, then dispatches passes in scene order.</summary>
-    private unsafe void DrawLayers(RenderFrameSnapshot packet, LayeredRenderSnapshot scene,
+    private unsafe void DrawLayers(DisplayPacket packet, LayeredScene scene,
         ReadOnlySpan<SuperMetroid.Core.Rendering.TitleGradientLine> gradient = default)
     {
         // Reject unimplemented operations before changing GPU state. No CPU fallback.
         foreach (RenderLayer layer in scene.Layers)
-            if (layer is not (Bg4BppRenderLayer or Bg2BppViewportRenderLayer or FixedColorAddRenderLayer or ObjRenderLayer or ObjPriorityRenderLayer or Mode7RenderLayer or Mode7GameplayRenderLayer or ScanlineColorAddRenderLayer or Bg2BppColorMathRenderLayer or BgSubscreenAddRenderLayer or MessageBoxRenderLayer or OrdinaryGameplayRenderLayer or WindowedSceneRenderLayer or GameplayColorMathRenderLayer))
+            if (layer is not (TileRenderLayer or TileViewportRenderLayer or FixedColorAddRenderLayer or ObjRenderLayer or ObjPriorityRenderLayer or Mode7RenderLayer or Mode7GameplayRenderLayer or ScanlineColorAddRenderLayer or FxPlaneBlendRenderLayer or TileAddRenderLayer or MessageBoxRenderLayer or OrdinaryGameplayRenderLayer or WindowedSceneRenderLayer or GameplayColorMathRenderLayer))
                 throw new NotSupportedException($"GPU layer {layer.GetType().Name} is not implemented yet.");
         var memory = memoryUpload;
         for (int i = 0; i < scene.Paint.Colors.Length; i++) memory[i] = scene.Paint.Colors[i].ToWord();
@@ -540,7 +540,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                 bg3 = SameBg3(bg3, mode7.Hud);
                 mode7Map = SameFloor(mode7Map, mode7.Map);
             }
-            else if (layer is Bg2BppColorMathRenderLayer math)
+            else if (layer is FxPlaneBlendRenderLayer math)
                 bg3 = SameBg3(bg3, math.Plane);
             else if (layer is GameplayColorMathRenderLayer { Subscreen: { } sub })
                 bg3 = SameBg3(bg3, sub.Plane);
@@ -558,7 +558,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.CSSetUnorderedAccessView(1, objectView);
         DispatchTile(D3D11TileOperation.Backdrop, new D3D11TileDispatch());
         bool needsObjects = false;
-        foreach (RenderLayer layer in scene.Layers) needsObjects |= layer is ObjRenderLayer or ObjPriorityRenderLayer or Mode7GameplayRenderLayer or OrdinaryGameplayRenderLayer or Mode7RenderLayer { SubtractObjSubscreen: true } or BgSubscreenAddRenderLayer { IncludeObjects: true };
+        foreach (RenderLayer layer in scene.Layers) needsObjects |= layer is ObjRenderLayer or ObjPriorityRenderLayer or Mode7GameplayRenderLayer or OrdinaryGameplayRenderLayer or Mode7RenderLayer { SubtractObjSubscreen: true } or TileAddRenderLayer { IncludeObjects: true };
         if (needsObjects) DispatchTile(D3D11TileOperation.ResolveObj, new D3D11TileDispatch());
         foreach (RenderLayer layer in scene.Layers)
         {
@@ -576,10 +576,10 @@ public sealed class D3D11FrameRenderer : IDisposable
                 case MessageBoxRenderLayer message:
                     DispatchMessage(message);
                     break;
-                case BgSubscreenAddRenderLayer sub:
+                case TileAddRenderLayer sub:
                     DispatchSubscreen(sub);
                     break;
-                case Bg2BppColorMathRenderLayer math:
+                case FxPlaneBlendRenderLayer math:
                     DispatchBackgroundMath(math);
                     break;
                 case ScanlineColorAddRenderLayer windows:
@@ -597,10 +597,10 @@ public sealed class D3D11FrameRenderer : IDisposable
                 case ObjPriorityRenderLayer obj:
                     DispatchTile(D3D11TileOperation.InsertObj, new D3D11TileDispatch { Priority = (uint)obj.Priority + 1, Green = obj.FixedColor is not null ? 1u : 0u, Blue = obj.FixedColor is { } priorityColor ? (uint)(priorityColor.Red | priorityColor.Green << 5 | priorityColor.Blue << 10) : 0 });
                     break;
-                case Bg4BppRenderLayer bg:
+                case TileRenderLayer bg:
                     DispatchScreenTiles(D3D11TileOperation.Bg4, bg.Cells, bg.Scroll, bg.Priority);
                     break;
-                case Bg2BppViewportRenderLayer bg:
+                case TileViewportRenderLayer bg:
                     DispatchScreenTiles(D3D11TileOperation.Bg2, bg.Cells, new Position16<BgPlanePixels>(0, checked((ushort)bg.VerticalScroll)), bg.Priority, bg.TransparentColorZero);
                     break;
                 case FixedColorAddRenderLayer add:
@@ -714,13 +714,13 @@ public sealed class D3D11FrameRenderer : IDisposable
     private D3D11FrameRenderer? childRenderer;
 
     /// <summary>Renders a non-nested child scene and copies its selected rectangle into the parent output.</summary>
-    private void DrawWindow(RenderFrameSnapshot packet, WindowedSceneRenderLayer window)
+    private void DrawWindow(DisplayPacket packet, WindowedSceneRenderLayer window)
     {
         if (window.Left == window.Right || window.Top == window.Bottom) return;
         // A single reusable child owns distinct memory, resolved OAM and output.
         // The contract prohibits nested windows, bounding scratch resource usage.
         childRenderer ??= Own(new D3D11FrameRenderer(owner));
-        var childPacket = new RenderFrameSnapshot(packet.Identity, window.Scene);
+        var childPacket = new DisplayPacket(packet.Identity, window.Scene);
         childRenderer.DrawLayers(childPacket, window.Scene);
         owner.Context.CSSetUnorderedAccessView(0, null);
         owner.Context.CSSetUnorderedAccessView(1, null);

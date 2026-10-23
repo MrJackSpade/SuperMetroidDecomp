@@ -108,8 +108,8 @@ internal static class TitleGradientVerification
         {
             stock.Step(0);
             installed.Step(0);
-            Mode7ObjRenderSnapshot native = stock.CaptureRenderSnapshot();
-            Mode7ObjRenderSnapshot extracted = installed.CaptureRenderSnapshot();
+            FloorScene native = stock.CaptureRenderSnapshot();
+            FloorScene extracted = installed.CaptureRenderSnapshot();
             if (stock.Phase != installed.Phase ||
                 !native.Paint.SpriteParts().SequenceEqual(extracted.Paint.SpriteParts()))
                 throw new InvalidDataException($"Installed title sprite composition differs at frame {frame} ({stock.Phase}).");
@@ -495,7 +495,7 @@ internal static class TitleGradientVerification
         for (int frame = 0; frame < 16; frame++)
         {
             title.Step(0);
-            Mode7ObjRenderSnapshot snapshot = title.CaptureRenderSnapshot();
+            FloorScene snapshot = title.CaptureRenderSnapshot();
             if (!snapshot.Gradient.IsEmpty)
                 return new CaptureInstalledTitleGradientResult(snapshot.Gradient.ToArray(), title.Mode7MatrixScale);
         }

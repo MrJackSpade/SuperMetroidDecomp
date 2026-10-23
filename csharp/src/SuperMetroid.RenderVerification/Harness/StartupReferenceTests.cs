@@ -25,7 +25,7 @@ internal static class StartupReferenceTests
     {
         var title = RenderRetailFixture.CreateTitle();
         SuperMetroid.Core.Hardware.Rgba32[]? nativePixels = null;
-        RenderFrameSnapshot? closestPacket = null;
+        DisplayPacket? closestPacket = null;
         int closestDifference = int.MaxValue;
         if (!yearOnly)
         {
@@ -66,12 +66,12 @@ internal static class StartupReferenceTests
                 if (differences < closestDifference)
                 {
                     closestDifference = differences;
-                    closestPacket = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), title.CaptureRenderSnapshot());
+                    closestPacket = new DisplayPacket(new(tick + 1, 1, (ushort)tick), title.CaptureRenderSnapshot());
                 }
             }
             if (digest == referenceDigest)
             {
-                var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), title.CaptureRenderSnapshot());
+                var packet = new DisplayPacket(new(tick + 1, 1, (ushort)tick), title.CaptureRenderSnapshot());
                 if (!yearOnly)
                 {
                     // The title's memory image, which the frame's floor is drawn from (#1403).

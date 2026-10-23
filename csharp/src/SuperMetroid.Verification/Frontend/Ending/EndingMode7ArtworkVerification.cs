@@ -56,9 +56,9 @@ internal static class EndingMode7ArtworkVerification
             bool first = phases.Add(native.Stage.Phase);
             if (first || frame % 173 == 0)
             {
-                LayeredRenderSnapshot expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
+                LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
                 byte[] expectedVram = native.ShownVram();
-                LayeredRenderSnapshot actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
+                LayeredScene actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
                 byte[] actualVram = installed.ShownVram();
                 AssertTrue(actualVram.SequenceEqual(expectedVram) &&
                         actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
@@ -109,7 +109,7 @@ internal static class EndingMode7ArtworkVerification
                 state.Step();
                 audio.AdvanceFrame(default);
             }
-            LayeredRenderSnapshot baselineSnapshot = EndingCreditsPresentation.CaptureRenderSnapshot(state);
+            LayeredScene baselineSnapshot = EndingCreditsPresentation.CaptureRenderSnapshot(state);
             byte[] baselineSnapshotVram = state.ShownVram();
             AssertTrue(baselineSnapshot.Brightness > 0,
                 $"ending {id} override fixture reaches a visible frame");
@@ -128,7 +128,7 @@ internal static class EndingMode7ArtworkVerification
                 EndingMode7SceneArtwork.WriteMap(output, map);
             EndingMode7ArtworkCatalog editedMap = installation.LoadEndingMode7Art();
             state.Stage.BindMode7Artwork(editedMap);
-            LayeredRenderSnapshot mapSnapshot = EndingCreditsPresentation.CaptureRenderSnapshot(state);
+            LayeredScene mapSnapshot = EndingCreditsPresentation.CaptureRenderSnapshot(state);
             byte[] mapSnapshotVram = state.ShownVram();
             byte[] mapVram = mapSnapshotVram.ToArray();
             AssertTrue(!baseline.SequenceEqual(mapVram) &&
@@ -189,7 +189,7 @@ internal static class EndingMode7ArtworkVerification
             state.Stage.BindMode7Artwork(editedCharacters);
             // The ending draws its Mode 7 characters from the sheets the edited art composes (#1392).
             state.InstalledArtwork.BindSpriteSheets(EndingSheetFixtures.WithEndingMode7(editedCharacters));
-            LayeredRenderSnapshot characterSnapshot = EndingCreditsPresentation.CaptureRenderSnapshot(state);
+            LayeredScene characterSnapshot = EndingCreditsPresentation.CaptureRenderSnapshot(state);
             byte[] characterSnapshotVram = state.ShownVram();
             byte[] characterVram = characterSnapshotVram.ToArray();
             AssertTrue(!baseline.SequenceEqual(characterVram) &&

@@ -36,13 +36,13 @@ internal static class Mode7GameplaySnapshotTestsVerification
             var m = new AffineTransform(matrix, 17, -33, matrix, new Offset16<Mode7Pixels>(128, 96), new Offset16<Mode7Pixels>(-13, unchecked((short)scroll)));
             var layer = new Mode7GameplayRenderLayer(m, Layer3CellsFixtures.FromVram(fixtureVram.Bytes, live.Cgram.Colors), AffineFloorFixtures.Floor(fixtureVram.Bytes, live.Cgram.Colors), SnesPpuLayout.GameplayHudHeightPixels);
             Rgba32[] expected = SnesGameplayFrameRendererConstants.RenderHudMode7AndObjs(fixtureVram, live.Cgram, live.Sprites, m);
-            var packet = new RenderFrameSnapshot(new(++samples, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 15));
+            var packet = new DisplayPacket(new(++samples, 1, 0), new LayeredScene(memory, new RenderLayer[] { layer }, 15));
             AssertTrue(expected.SequenceEqual(RenderForComparison(packet)),
                 $"Mode-7 gameplay full pixel parity matrix {matrix}, scroll {scroll}");
             AssertEqual(layer, (Mode7GameplayRenderLayer)(packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")).Layers[0], "the Mode-7 band layer keeps all register fields");
             if (samples == 1)
             {
-                AssertThrows<ArgumentException>(() => new LayeredRenderSnapshot(memory,
+                AssertThrows<ArgumentException>(() => new LayeredScene(memory,
                     new RenderLayer[] { new ObjRenderLayer(), layer }, 15), "Mode-7 base cannot erase earlier layers");
             }
         }
@@ -62,7 +62,7 @@ internal static class Mode7GameplaySnapshotTestsVerification
         // Room main's M7A..M7Y shadows reach the PPU at the accepted NMI (#1307).
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         Rgba32[] retail = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
-        var retained = new RenderFrameSnapshot(new(100, 1, 0), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
+        var retained = new DisplayPacket(new(100, 1, 0), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "retail Ridley capture resolves mixed bands and haze");
         getaway.Mode7Active = false; getaway.Mode7MatrixA = default;
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);

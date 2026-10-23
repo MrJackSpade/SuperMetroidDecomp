@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rendering;
 public sealed record WindowedSceneRenderLayer : RenderLayer
 {
     /// <summary>Gets the retained immutable child snapshot, with its own PPU memory and layer ladder; matching screen pixels replace the parent, including backdrop pixels.</summary>
-    public LayeredRenderSnapshot Scene { get; }
+    public LayeredScene Scene { get; }
     /// <summary>Gets the inclusive left screen-pixel edge, from 0 through 256; the child scene is not translated to this origin.</summary>
     public int Left { get; }
     /// <summary>Gets the inclusive top physical scanline, from 0 through 224; child sampling retains full-screen coordinates.</summary>
@@ -23,7 +23,7 @@ public sealed record WindowedSceneRenderLayer : RenderLayer
     /// <exception cref="ArgumentNullException"><paramref name="scene"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Edges are crossed or outside the 256-by-224 visible screen.</exception>
     /// <exception cref="ArgumentException"><paramref name="scene"/> contains another windowed-scene insertion.</exception>
-    public WindowedSceneRenderLayer(LayeredRenderSnapshot scene, int left, int top, int right, int bottom)
+    public WindowedSceneRenderLayer(LayeredScene scene, int left, int top, int right, int bottom)
     {
         Ensure.NotNull(scene);
         if (left < 0 || top < 0 || right < left || bottom < top ||

@@ -46,8 +46,8 @@ internal static class BackgroundMosaicTests
                 Bg2Mosaic: new(size));
             var ordinary = new OrdinaryGameplayRenderLayer(registers, rooms, new Bg2LineScrolls(horizontal, vertical));
             RenderLayer layer = mode is 0 or 3 ? ordinary : new GameplayColorMathRenderLayer(ordinary, Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new ColorMathRegisters { ColorMath = mode == 2 ? SnesColorMathControl.Backdrop : SnesColorMathControl.None, AddSubscreen = mode == 2, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, subscreenUsesBg2: mode == 2);
-            var scene = new LayeredRenderSnapshot(memory, [layer], 15);
-            var packet = new RenderFrameSnapshot(new(++cases, 1, 0), scene);
+            var scene = new LayeredScene(memory, [layer], 15);
+            var packet = new DisplayPacket(new(++cases, 1, 0), scene);
             var actual = SoftwareLayeredSnapshotRenderer.Render(scene);
             for (int y = 0; y < 224; y++)
             for (int x = 0; x < 256; x++)

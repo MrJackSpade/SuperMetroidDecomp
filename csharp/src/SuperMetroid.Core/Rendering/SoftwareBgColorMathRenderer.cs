@@ -8,7 +8,7 @@ internal static class SoftwareBgColorMathRenderer
     /// Samples each physical scanline of the BG3 plane from its cells' pictures (#1403), skips
     /// transparent colour zero, and applies clipped byte-channel colour math.
     /// </summary>
-    internal static void Composite(Span<Rgba32> output, IPaletteColors cgram, Bg2BppColorMathRenderLayer layer)
+    internal static void Composite(Span<Rgba32> output, IPaletteColors cgram, FxPlaneBlendRenderLayer layer)
     {
         int width = SnesPpuLayout.ScreenWidthPixels, height = SnesPpuLayout.ScreenHeightPixels;
         Ensure.LengthEqual(output, width * height);

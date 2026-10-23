@@ -20,9 +20,9 @@ internal static class RetailFileMapTests
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         int samples = 0;
-        void Compare(Rgba32[] expected, LayeredRenderSnapshot scene, string context)
+        void Compare(Rgba32[] expected, LayeredScene scene, string context)
         {
-            var packet = new RenderFrameSnapshot(new(++samples, 1, 0), scene);
+            var packet = new DisplayPacket(new(++samples, 1, 0), scene);
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: file map {context}");
         }
         for (int area = 0; area < 6; area++)

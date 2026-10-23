@@ -18,7 +18,7 @@ public sealed class DisplayPacketAnalyzer : DiagnosticAnalyzer
     public const string DisplayPacketId = "SME6443";
 
     /// <summary>The types a frame is published as; everything their members reach is in the packet.</summary>
-    internal static readonly ImmutableHashSet<string> PacketTypes = ["RenderFrameSnapshot", "DisplayPacket"];
+    internal static readonly ImmutableHashSet<string> PacketTypes = ["DisplayPacket"];
 
     /// <summary>Camel-case words naming the hardware's memories, their words, or its registers.</summary>
     internal static readonly ImmutableHashSet<string> HardwareWords = ImmutableHashSet.Create(StringComparer.OrdinalIgnoreCase,

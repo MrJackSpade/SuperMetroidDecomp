@@ -42,7 +42,7 @@ internal static class ScreenTilePicturesVerification
     {
         AreaMapPresentationCatalog maps = InstalledFixtures.Maps;
         int screens = 0, layers = 0;
-        void Check(LayeredRenderSnapshot scene, byte[] vram, string name)
+        void Check(LayeredScene scene, byte[] vram, string name)
         {
             layers += AssertDrawnFromTiles(scene, vram, name);
             screens++;
@@ -77,9 +77,9 @@ internal static class ScreenTilePicturesVerification
     {
         var sampled = new HashSet<string>();
         int layers = 0;
-        void Check(LayeredRenderSnapshot scene, byte[] vram, string name)
+        void Check(LayeredScene scene, byte[] vram, string name)
         {
-            if (scene.Layers.ToArray().Any(layer => layer is Bg4BppRenderLayer or Bg2BppViewportRenderLayer or BgSubscreenAddRenderLayer or Mode7RenderLayer)
+            if (scene.Layers.ToArray().Any(layer => layer is TileRenderLayer or TileViewportRenderLayer or TileAddRenderLayer or Mode7RenderLayer)
                 && sampled.Add(name))
                 layers += AssertDrawnFromTiles(scene, vram, name);
         }
@@ -119,8 +119,8 @@ internal static class ScreenTilePicturesVerification
             EndingCreditsState ending = CreateRetailEndingFixture(audio, hours, 59);
             while (ending.Stage.Phase != EndingCreditsPhase.SeeYouNextMission)
             {
-                LayeredRenderSnapshot scene = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
-                if (scene.Layers.ToArray().Any(layer => layer is Bg4BppRenderLayer or Bg2BppViewportRenderLayer or BgSubscreenAddRenderLayer or Mode7RenderLayer)
+                LayeredScene scene = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
+                if (scene.Layers.ToArray().Any(layer => layer is TileRenderLayer or TileViewportRenderLayer or TileAddRenderLayer or Mode7RenderLayer)
                     && sampled.Add($"{hours} hours, {ending.Stage.Phase}"))
                     layers += AssertDrawnFromTiles(scene, ending.ShownVram(), $"ending at {hours} hours, {ending.Stage.Phase}");
                 ending.Step();
@@ -141,11 +141,11 @@ internal static class ScreenTilePicturesVerification
         var sampled = new HashSet<string>();
         for (int tick = 0; tick < TitleTicks && !title.FileSelectRequested; tick++)
         {
-            Mode7ObjRenderSnapshot scene = title.CaptureRenderSnapshot();
+            FloorScene scene = title.CaptureRenderSnapshot();
             if (scene.Floor is { } floor && sampled.Add($"{title.Phase} {floor.Tiles.GetHashCode()}"))
             {
                 Rgba32[] pictured = SoftwareMode7ObjSnapshotRenderer.Render(scene).ToArray();
-                Rgba32[] characters = SoftwareMode7ObjSnapshotRenderer.Render(new Mode7ObjRenderSnapshot(scene.Paint, scene.Background, scene.Brightness,
+                Rgba32[] characters = SoftwareMode7ObjSnapshotRenderer.Render(new FloorScene(scene.Paint, scene.Background, scene.Brightness,
                     scene.Gradient, AffineFloorFixtures.Floor(title.ShownVram(), scene.Paint.Colors))).ToArray();
                 AssertTrue(pictured.SequenceEqual(characters), $"title {title.Phase}: drawn from its pictures, the Mode 7 background matches its characters");
             }
@@ -181,7 +181,7 @@ internal static class ScreenTilePicturesVerification
     /// matches it drawn with each tile layer's cells showing tiles decoded from the scene's own VRAM characters and CGRAM,
     /// and each Mode 7 map drawn from its characters; returns the layers checked.
     /// </summary>
-    private static int AssertDrawnFromTiles(LayeredRenderSnapshot scene, byte[] vram, string name)
+    private static int AssertDrawnFromTiles(LayeredScene scene, byte[] vram, string name)
     {
         int layers = 0;
         var decoded = new Dictionary<ScreenLayerPictures, ScreenLayerPictures>();
@@ -201,10 +201,10 @@ internal static class ScreenTilePicturesVerification
         {
             RenderLayer stripped = layer switch
             {
-                Bg4BppRenderLayer bg => bg with { Cells = FromCharacters(bg.Cells) },
-                Bg2BppViewportRenderLayer bg => bg with { Cells = FromCharacters(bg.Cells) },
+                TileRenderLayer bg => bg with { Cells = FromCharacters(bg.Cells) },
+                TileViewportRenderLayer bg => bg with { Cells = FromCharacters(bg.Cells) },
                 Mode7RenderLayer mode7 => mode7 with { Floor = new AffineFloor(mode7.Floor.Cells, AffineFloorFixtures.Floor(vram, scene.Paint.Colors).Tiles) },
-                BgSubscreenAddRenderLayer sub => sub with
+                TileAddRenderLayer sub => sub with
                 {
                     Cells = FromCharacters(sub.Cells),
                     MainCoverage = sub.MainCoverage is { } coverage ? coverage with { Cells = FromCharacters(coverage.Cells) } : null,
@@ -219,7 +219,7 @@ internal static class ScreenTilePicturesVerification
         }
         AssertTrue(layers > 0, $"{name} draws backgrounds");
         Rgba32[] pictured = RenderNamed(scene, name);
-        Rgba32[] characters = SoftwareLayeredSnapshotRenderer.Render(new LayeredRenderSnapshot(scene.Paint, [.. fromCharacters], scene.Brightness)).ToArray();
+        Rgba32[] characters = SoftwareLayeredSnapshotRenderer.Render(new LayeredScene(scene.Paint, [.. fromCharacters], scene.Brightness)).ToArray();
         int mismatch = -1;
         for (int pixel = 0; pixel < pictured.Length; pixel++)
         {
@@ -262,10 +262,10 @@ internal static class ScreenTilePicturesVerification
     /// <summary>The cells a layer draws: its own and, for a subscreen, its coverage's.</summary>
     private static IEnumerable<ScreenTileMap> TileMaps(RenderLayer layer) => layer switch
     {
-        Bg4BppRenderLayer bg => [bg.Cells],
-        Bg2BppViewportRenderLayer bg => [bg.Cells],
-        BgSubscreenAddRenderLayer { MainCoverage: { } coverage } sub => [sub.Cells, coverage.Cells],
-        BgSubscreenAddRenderLayer sub => [sub.Cells],
+        TileRenderLayer bg => [bg.Cells],
+        TileViewportRenderLayer bg => [bg.Cells],
+        TileAddRenderLayer { MainCoverage: { } coverage } sub => [sub.Cells, coverage.Cells],
+        TileAddRenderLayer sub => [sub.Cells],
         _ => [],
     };
 
@@ -301,7 +301,7 @@ internal static class ScreenTilePicturesVerification
 
     /// <summary>Renders <paramref name="scene"/>, naming the screen in any failure to draw it.</summary>
     /// <exception cref="InvalidOperationException">The scene cannot be drawn.</exception>
-    private static Rgba32[] RenderNamed(LayeredRenderSnapshot scene, string name)
+    private static Rgba32[] RenderNamed(LayeredScene scene, string name)
     {
         try
         {

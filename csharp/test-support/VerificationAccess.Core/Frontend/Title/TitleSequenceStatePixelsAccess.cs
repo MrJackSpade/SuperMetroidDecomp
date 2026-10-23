@@ -10,6 +10,6 @@ internal static class TitleSequenceStatePixelsAccess
     extension(TitleSequenceState scene)
     {
         /// <summary>Captures the scene and rasterizes its snapshot in software.</summary>
-        internal Rgba32[] Render() => SoftwareFrameSnapshotRenderer.Render(new RenderFrameSnapshot(new RenderFrameIdentity(1, 1, 0), scene.CaptureRenderSnapshot()));
+        internal Rgba32[] Render() => SoftwareFrameSnapshotRenderer.Render(new DisplayPacket(new RenderFrameIdentity(1, 1, 0), scene.CaptureRenderSnapshot()));
     }
 }

@@ -76,9 +76,9 @@ internal static class CeresFlightArtworkVerification
             bool enteredPhase = phases.Add(native.Phase);
             if (enteredPhase || tick % 97 == 0)
             {
-                LayeredRenderSnapshot original = native.CaptureRenderSnapshot();
+                LayeredScene original = native.CaptureRenderSnapshot();
                 byte[] originalVram = native.ShownVram();
-                LayeredRenderSnapshot compiled = installed.CaptureRenderSnapshot();
+                LayeredScene compiled = installed.CaptureRenderSnapshot();
                 byte[] compiledVram = installed.ShownVram();
                 AssertTrue(compiled.Brightness == original.Brightness &&
                         compiledVram.SequenceEqual(originalVram) &&
@@ -298,9 +298,9 @@ internal static class CeresFlightArtworkVerification
             native.StepFrame();
             changed.StepFrame();
         }
-        LayeredRenderSnapshot stockFrame = native.CaptureRenderSnapshot();
+        LayeredScene stockFrame = native.CaptureRenderSnapshot();
         byte[] stockFrameVram = native.ShownVram();
-        LayeredRenderSnapshot editedFrame = changed.CaptureRenderSnapshot();
+        LayeredScene editedFrame = changed.CaptureRenderSnapshot();
         byte[] editedFrameVram = changed.ShownVram();
         AssertTrue(stockFrameVram.SequenceEqual(editedFrameVram),
             "Ceres palette edit does not change graphics VRAM");

@@ -32,7 +32,7 @@ internal static class InstalledSporesTests
         string maps = Path.Combine(Path.GetFullPath(installationRoot), "game", "maps");
         AreaMapPresentationCatalog stock = AreaMapPresentationCatalog.Load(maps, null);
         CheckArtwork(stock.RoomFxAnimatedTiles, maps, romPath, nativeArtworkDirectory);
-        var packets = new List<RenderFrameSnapshot>();
+        var packets = new List<DisplayPacket>();
         using var overridesScratch = new TestScratchDirectory("installed-spores");
         string overrides = overridesScratch.Root;
         try
@@ -47,7 +47,7 @@ internal static class InstalledSporesTests
             {
                 using var device = new D3D11RenderDevice(kind);
                 using var renderer = new D3D11FrameRenderer(device);
-                foreach (RenderFrameSnapshot packet in packets)
+                foreach (DisplayPacket packet in packets)
                 {
                     PixelComparison.Verify(packet, SoftwareFrameSnapshotRenderer.Render(packet),
                         renderer.RenderForReadback(packet), $"{kind}: spores case {packet.Identity}");
@@ -73,7 +73,7 @@ internal static class InstalledSporesTests
     /// <summary>Compares stock and edited spores FX over freeze, scroll wrap, and animated transfers while guarding gameplay state.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     private static void CheckOwners(AreaMapPresentationCatalog stock, AreaMapPresentationCatalog edited,
-        List<RenderFrameSnapshot> packets)
+        List<DisplayPacket> packets)
     {
         var mechanics = RoomFxAnimatedTileMechanicsDefinitions.All.Single(
             value => value.AnimatedObject == AnimatedTileObject.Spores);
@@ -150,7 +150,7 @@ internal static class InstalledSporesTests
                     Require(!layer.RevealBlocks && layer.ColorMath == (SnesColorMathControl)0x32 &&
                         layer.Lines.All(line => line.Left > line.Right) && layer.Subscreen is not null,
                         "Spore capture does not use native source-aware $32 blending.");
-                    packets.Add(new(new(packets.Count + 1, 1, 0), new LayeredRenderSnapshot(
+                    packets.Add(new(new(packets.Count + 1, 1, 0), new LayeredScene(
                         new(editedColors.Colors, []), [layer], 15)));
                 }
                 comparisons++;
@@ -337,7 +337,7 @@ internal static class InstalledSporesTests
 
     /// <summary>Compares source-aware spores blending against an independent Mode 1 priority and BGR555 pixel oracle.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
-    private static void CheckPixels(List<RenderFrameSnapshot> packets)
+    private static void CheckPixels(List<DisplayPacket> packets)
     {
         int cases = 0;
         foreach (int palette in Enumerable.Range(0, 8))
@@ -370,7 +370,7 @@ internal static class InstalledSporesTests
                     Bg3 = Layer3CellsFixtures.FromVram(vram.Bytes, colors.Colors, 0x4000),
                 }),
                 new(RoomFxType.Spores, LayerBlendingConfiguration.Spores, Position16<Bg3Pixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue)));
-            var scene = new LayeredRenderSnapshot(FramePaint.FromOam(vram.Bytes, colors.Colors, oam, 1, 0), [layer], 15);
+            var scene = new LayeredScene(FramePaint.FromOam(vram.Bytes, colors.Colors, oam, 1, 0), [layer], 15);
             Rgba32[] pixels = SoftwareLayeredSnapshotRenderer.Render(scene);
             // Independent Mode-1 priority and integer BGR555 oracle. A color-only
             // post-process cannot distinguish excluded BG1/low OBJ from BG2 here.
@@ -392,7 +392,7 @@ internal static class InstalledSporesTests
                     $"Spore source exclusion differs: x{x}, expected {expected}, actual {pixels[64 * 256 + x]}; palette {palette}, OBJ {objPriority}, BG priorities {bg1High}/{bg2High}, planes {enabled}.");
             }
             Require(pixels[0] == new Rgba32(16, 16, 16), "Spores blended into the HUD.");
-            var packet = new RenderFrameSnapshot(new(packets.Count + 1, 1, 0), scene);
+            var packet = new DisplayPacket(new(packets.Count + 1, 1, 0), scene);
             packets.Add(packet); cases++;
         }
         Console.WriteLine($"{cases} independent spore pixel cases cover BG1 exclusion, BG2/backdrop addition, all OBJ palettes/priorities and HUD preservation.");

@@ -156,7 +156,7 @@ internal static partial class SwapchainTests
         {
             using var presenter = new D3D11SwapchainPresenter(device, window, new Extent16<DisplayPixels>(640, 480));
             var gate = new RenderPresentationGate(1);
-            var packet = new RenderFrameSnapshot(new(1, 1, 0), new Rgba32(173,91,27));
+            var packet = new DisplayPacket(new(1, 1, 0), new Rgba32(173,91,27));
             renderer.Render(packet);
             _ = presenter.TryAcquireFrameOpportunity();
             var outcome = presenter.Present(renderer, packet.Identity, gate, null);
@@ -212,7 +212,7 @@ internal static partial class SwapchainTests
             worker.Publish(new(new(sequence, 1, 0), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame())));
             PumpUntil(() => entered.IsSet);
             var clock = Stopwatch.StartNew();
-            RenderFrameSnapshot? latest = null;
+            DisplayPacket? latest = null;
             RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, new RetailDoorCase { Door = door, Destination = destination }, context, packet =>
                 {
                     latest = new(new(++sequence, 1, packet.Identity.SimulationFrame), (packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")), packet.Fades);

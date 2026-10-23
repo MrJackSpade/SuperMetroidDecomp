@@ -65,9 +65,9 @@ internal static class CeresFlightSpriteArtworkVerification
             stockFlight.StepFrame();
             editedFlight.StepFrame();
         }
-        LayeredRenderSnapshot original = stockFlight.CaptureRenderSnapshot();
+        LayeredScene original = stockFlight.CaptureRenderSnapshot();
         byte[] originalVram = stockFlight.ShownVram();
-        LayeredRenderSnapshot replacement = editedFlight.CaptureRenderSnapshot();
+        LayeredScene replacement = editedFlight.CaptureRenderSnapshot();
         byte[] replacementVram = editedFlight.ShownVram();
         AssertEqual(IntroCeresFlightPhase.FlyingIntoCamera, editedFlight.Phase,
             "Ceres star edit reaches the visible front approach");

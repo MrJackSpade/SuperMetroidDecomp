@@ -3285,7 +3285,12 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The room sprite objects code outside the enemy behaviours spawns in any room.</summary>
     private static readonly RoomSpriteObjectKind[] AnywhereSpriteObjects =
     [
+        RoomSpriteObjectKind.BotwoonSmallExplosion,
+        RoomSpriteObjectKind.DustCloud,
         RoomSpriteObjectKind.EnemyProjectileDud,
+        RoomSpriteObjectKind.ShortBigDustCloud,
+        RoomSpriteObjectKind.Smoke,
+        RoomSpriteObjectKind.SporeSpawnDyingExplosion,
     ];
 
     /// <summary>What each enemy definition can spawn.</summary>

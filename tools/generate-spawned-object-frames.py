@@ -4,8 +4,8 @@ Enemy projectiles and room sprite objects draw from sheets composed per graphics
 shows its spawner's characters (at the spawner's tile base) or the room's (at base 0), so a sheet needs the frames its
 spawners can show. This generator reads them from the source as tools/generate-enemy-definition-frames.py reads enemy
 frames: for each enemy behaviour, the projectile frames, projectile animation families, projectile kinds and room
-sprite-object kinds its code reaches; and for the code outside every behaviour that spawns objects, the same, as the
-objects any room can show. Run from the repository root; --check exits nonzero when the committed file differs.
+sprite-object kinds its code reaches; and for the code outside every behaviour that spawns objects, with the definition
+tables it chooses them from, the same, as the objects any room can show. Run from the repository root; --check exits nonzero when the committed file differs.
 """
 import glob
 import os
@@ -20,7 +20,9 @@ TYPED_STARTS = os.path.join(CORE, 'Enemies', 'Projectiles', 'EnemyProjectileType
 # every spawner's.
 TABLES = {os.path.join(CORE, 'Enemies', 'Projectiles', name) for name in
           ('EnemyProjectileTypedStarts.cs', 'EnemyProjectileDefinitionCatalog.cs', 'EnemyProjectileFrames.cs')} | {
-    OUTPUT, os.path.join(CORE, 'Enemies', 'Artwork', 'EnemyProjectileSpritemapCatalog.cs')}
+    OUTPUT, os.path.join(CORE, 'Enemies', 'Artwork', 'EnemyProjectileSpritemapCatalog.cs'),
+    os.path.join(CORE, 'Enemies', 'SpriteObjects', 'RoomSpriteObjectVisualDefinitions.cs'),
+    os.path.join(CORE, 'Rooms', 'SpriteObjects', 'RoomSpriteObjectDefinitions.cs')}
 # Types every family names that carry no frames of their own; following them would merge unrelated families.
 SHARED = {'EnemyFrameId', 'EnemyDefinitionId', 'SpriteFrameBuffer', 'SpriteSource', 'RoomEnemySlot', 'SamusState',
           'EnemyPresentation', 'RoomEnemySystem', 'EnemyFrameTable', 'EnemyProjectileFrameId', 'RoomEnemyProjectileKind',
@@ -133,10 +135,16 @@ def main():
 
     # Constructing a projectile program family spawns its frames too, as a room routine spawns Ceres's falling debris.
     family_construction = re.compile(r'\bnew (?:' + '|'.join(sorted(families)) + r')\(')
-    anywhere_paths = {path for path, text in texts.items()
-                      if path not in reached_by_behaviours and path not in TABLES and path not in family_paths
-                      and (SPAWNS.search(text) or family_construction.search(text))
-                      and os.path.basename(path) != 'EnemyProjectileFrameId.cs'}
+    anywhere_spawners = {path for path, text in texts.items()
+                         if path not in reached_by_behaviours and path not in TABLES and path not in family_paths
+                         and (SPAWNS.search(text) or family_construction.search(text))
+                         and os.path.basename(path) != 'EnemyProjectileFrameId.cs'}
+    # A spawner outside the behaviours may choose what it spawns from a definition table, as the escape's explosions
+    # choose their sprite-object kinds; the table's kinds and frames are its own.
+    anywhere_paths = set(anywhere_spawners)
+    for path in sorted(anywhere_spawners):
+        anywhere_paths |= walk(path, lambda start, name, candidate: frame_tables(start, name, candidate)
+                               and candidate not in reached_by_behaviours and candidate not in family_paths)
     anywhere_frames, anywhere_kinds = spawned(anywhere_paths)
 
     def array(element, name, values, summary):

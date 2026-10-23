@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core;
+using SuperMetroid.Core;
 using static SuperMetroid.EnsureVerification.Harness.AnalyzerTests;
 using static SuperMetroid.EnsureVerification.Contracts.MemberDocumentationAnalyzerTests;
 using static SuperMetroid.EnsureVerification.CartridgeEncoding.CartridgeEncodingAnalyzerTests;
@@ -72,6 +72,7 @@ internal static class Program
                 new AnalyzerSuite(nameof(AddressIdentityAnalyzerTests.VerifyAddressIdentityAnalyzer), AddressIdentityAnalyzerTests.VerifyAddressIdentityAnalyzer),
                 new AnalyzerSuite(nameof(FrameCompositionAnalyzerTests.VerifyFrameCompositionAnalyzer), FrameCompositionAnalyzerTests.VerifyFrameCompositionAnalyzer),
                 new AnalyzerSuite(nameof(DisplayPacketAnalyzerTests.VerifyDisplayPacketAnalyzer), DisplayPacketAnalyzerTests.VerifyDisplayPacketAnalyzer),
+                new AnalyzerSuite(nameof(PaletteLayoutAnalyzerTests.VerifyPaletteLayoutAnalyzer), PaletteLayoutAnalyzerTests.VerifyPaletteLayoutAnalyzer),
                 new AnalyzerSuite(nameof(VerifyKindTaggedRecordAnalyzer), VerifyKindTaggedRecordAnalyzer),
                 new AnalyzerSuite(nameof(VerifyStringIdentityAnalyzer), VerifyStringIdentityAnalyzer),
                 new AnalyzerSuite(nameof(VerifyDspRegisterAccessAnalyzer), VerifyDspRegisterAccessAnalyzer),

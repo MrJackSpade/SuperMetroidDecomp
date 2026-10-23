@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -34,7 +36,14 @@ internal static class RoomBackgroundsVerification
             blocks[block] = (ushort)((block % 4) << 10 | block);
         var plane = new RoomLevelPlane(new Extent16<RoomBlocks>(Side, Side), blocks, [.. definitions]);
         var offset = new Offset16<BgPlanePixels>(0x10, -0x08);
-        var layer = new RoomBackgroundLayer(plane, offset, null);
+        IBgTileSource planeTiles = plane.Tiles(offset);
+        // The destination and the door's source room draw block pictures of different characters (#1403).
+        var random = new Random(1346);
+        var palette = new Bgr555[SnesPpuLayout.CgramColorCount];
+        byte[] destinationImage = new byte[SnesPpuLayout.VramByteCount], sourceImage = new byte[SnesPpuLayout.VramByteCount];
+        random.NextBytes(destinationImage);
+        random.NextBytes(sourceImage);
+        var layer = new RoomBackgroundLayer(plane.Cells, offset, RoomBlockFixtures.Pictures(definitions, destinationImage, palette));
 
         int checks = 0;
         for (int y = 0; y < Side * RoomLevelPlane.BlockPixels; y += 3)
@@ -45,29 +54,32 @@ internal static class RoomBackgroundsVerification
                 blocks[y / RoomLevelPlane.BlockPixels * Side + x / RoomLevelPlane.BlockPixels], definitions);
             bool right = x % RoomLevelPlane.BlockPixels >= 8, bottom = y % RoomLevelPlane.BlockPixels >= 8;
             SnesBgTilemapWord expected = bottom ? right ? tiles.BottomRight : tiles.BottomLeft : right ? tiles.TopRight : tiles.TopLeft;
-            AssertTrue(layer.TrySample(level + offset, out BgTileSample sample), $"level pixel {x},{y} is inside the room");
+            AssertTrue(planeTiles.TrySample(level + offset, out BgTileSample sample), $"level pixel {x},{y} is inside the room");
             AssertEqual(expected, sample.Tile, $"scroll {x + offset.X},{y + offset.Y} shows the level block's tile at scroll minus offset");
             AssertEqual(new Position16<CharacterPixels>((ushort)(x % 8), (ushort)(y % 8)), sample.Pixel,
                 $"scroll {x + offset.X},{y + offset.Y} samples the tile's pixel at the level position");
             checks++;
         }
-        AssertTrue(!layer.TrySample(new Position16<BgPlanePixels>(0, 0) + offset + new Offset16<BgPlanePixels>(-1, 0), out BgTileSample _),
+        AssertTrue(!planeTiles.TrySample(new Position16<BgPlanePixels>(0, 0) + offset + new Offset16<BgPlanePixels>(-1, 0), out BgTileSample _),
             "a scroll left of the room shows no tile");
-        AssertTrue(!layer.TrySample(new Position16<BgPlanePixels>(0, Side * RoomLevelPlane.BlockPixels) + offset, out BgTileSample _),
+        AssertTrue(!planeTiles.TrySample(new Position16<BgPlanePixels>(0, Side * RoomLevelPlane.BlockPixels) + offset, out BgTileSample _),
             "a scroll below the room shows no tile");
+        AssertTrue(!layer.TrySample(new Position16<BgPlanePixels>(0, 0) + offset + new Offset16<BgPlanePixels>(-1, 0), out BgSample _),
+            "a scroll left of the room shows no block");
 
         // The door's source screen covers the window at its scroll, below the HUD and the first blank scanline.
         var sourceBlocks = Enumerable.Repeat((ushort)15, Side * Side).ToArray();
-        var source = new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(Side, Side), sourceBlocks, [.. definitions]),
-            new Offset16<BgPlanePixels>(0, 0), null);
+        RoomBlockPictureTable sourcePictures = RoomBlockFixtures.Pictures(definitions, sourceImage, palette);
+        var source = new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(Side, Side), sourceBlocks, [.. definitions]).Cells,
+            new Offset16<BgPlanePixels>(0, 0), sourcePictures);
         var sourceScroll = new Position16<BgPlanePixels>(0, 0);
         var door = RoomDoorBackground.Begin(source, sourceScroll);
         var withDoor = new RoomBackgrounds(layer, null, RoomBackgroundsFixtures.BlankBg3(), door).Bg1Source;
         var top = new Position16<BgPlanePixels>(0x18, SnesPpuLayout.FirstVisibleBackgroundScanline + SnesPpuLayout.GameplayHudHeightPixels);
-        AssertTrue(withDoor.TrySample(top, out BgSample doorSample) && doorSample.Tile.Tile.Raw == 15 * 4 + 1,
+        AssertTrue(withDoor.TrySample(top, out BgSample doorSample) && doorSample.Picture?.Sheet == sourcePictures.Sheet.Sheet.Image,
             "the door window's first gameplay line shows the source room");
         AssertTrue(withDoor.TrySample(top + new Offset16<BgPlanePixels>(0, -1), out BgSample above) &&
-                layer.TrySample(top + new Offset16<BgPlanePixels>(0, -1), out BgTileSample destination) && above.Tile == destination,
+                layer.TrySample(top + new Offset16<BgPlanePixels>(0, -1), out BgSample destination) && above == destination,
             "the line above the window shows the destination room");
 
         // Words written over BG1 replace the room's tile at their tilemap cell only.
@@ -79,7 +91,7 @@ internal static class RoomBackgroundsVerification
             "a written word is shown at its tilemap cell");
         var neighbor = cell + new Offset16<BgPlanePixels>(8, 0);
         AssertTrue(withOverlay.TrySample(neighbor, out BgSample unwritten) &&
-                layer.TrySample(neighbor, out BgTileSample room) && unwritten.Tile == room,
+                layer.TrySample(neighbor, out BgSample room) && unwritten == room,
             "the next cell shows the room");
         Console.WriteLine($"  Room backgrounds: {checks} level samples, door window and overlay agree.");
     }
@@ -123,12 +135,12 @@ internal static class RoomBackgroundsVerification
             RoomBackgrounds published = runtime.Display.Latched.Rooms
                 ?? throw new InvalidOperationException("A loaded room publishes its backgrounds.");
             RoomLevelData level = runtime.Room.LoadedLevelData;
-            AssertTrue(ReferenceEquals(level.ForegroundPlane, published.Bg1.Plane), $"{room.Name} BG1 is the room's foreground plane");
+            AssertTrue(ReferenceEquals(level.ForegroundPlane.Cells, published.Bg1.Blocks), $"{room.Name} BG1 is the room's foreground plane");
             AssertEqual(runtime.BackgroundScroll.Bg1Offset.AsBgPlaneOffset(), published.Bg1.ScrollOffset, $"{room.Name} BG1 offset");
             AssertEqual(streams, published.Bg2 is not null, $"{room.Name} BG2 comes from level data only when layer 2 streams");
             if (published.Bg2 is { } bg2)
             {
-                AssertTrue(ReferenceEquals(level.BackgroundPlane, bg2.Plane), $"{room.Name} BG2 is the room's layer-2 plane");
+                AssertTrue(ReferenceEquals(level.BackgroundPlane.Cells, bg2.Blocks), $"{room.Name} BG2 is the room's layer-2 plane");
                 AssertEqual(runtime.BackgroundScroll.Bg2Offset.AsBgPlaneOffset(), bg2.ScrollOffset, $"{room.Name} BG2 offset");
             }
             Position16<BgPlanePixels> scroll = runtime.BackgroundScroll.Bg1Scroll.AsBgPlaneScroll();
@@ -137,7 +149,7 @@ internal static class RoomBackgroundsVerification
             for (int x = 0; x < 256; x += 41)
             {
                 var screen = new Offset16<BgPlanePixels>((short)x, (short)y);
-                AssertTrue(published.Bg1.TrySample(scroll + screen, out BgTileSample shown) &&
+                AssertTrue(level.ForegroundPlane.Tiles(published.Bg1.ScrollOffset).TrySample(scroll + screen, out BgTileSample shown) &&
                         level.ForegroundPlane.TryTileAt(camera + screen, out SnesBgTilemapWord expected) && shown.Tile == expected,
                     $"{room.Name} BG1 at screen {x},{y} shows the level at the camera");
             }

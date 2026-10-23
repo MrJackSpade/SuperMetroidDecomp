@@ -36,23 +36,23 @@ static const uint RoomSourceBossBg2 = 6, RoomSourceXrayReveal = 7, RoomSourceBg2
 // of its palette row zero tile, x below y, and the pixels from one palette row's block to the next.
 static const uint RoomSourceScreenTiles = 9;
 static const uint RoomSourceBg2Overlay = 256;
-static const uint RoomRecordWords = 7, RoomDoorSlot = 2, RoomDoorWindowWord = 21, RoomOverlayWord = 22, RoomSkyWord = 23;
-static const uint RoomBg3Word = 24, RoomBg2OverlayWord = 25, RoomMode7MapWord = 26, RoomBossBg2Word = 27, RoomXrayRevealWord = 28;
+static const uint RoomRecordWords = 6, RoomDoorSlot = 2, RoomDoorWindowWord = 18, RoomOverlayWord = 19, RoomSkyWord = 20;
+static const uint RoomBg3Word = 21, RoomBg2OverlayWord = 22, RoomMode7MapWord = 23, RoomBossBg2Word = 24, RoomXrayRevealWord = 25;
 // A library background (RoomBackgroundImagePlane): its image picture's offset, then each 16x16 cell's picture offset.
-static const uint RoomBg2ImageWord = 29;
+static const uint RoomBg2ImageWord = 26;
 // The scrolling sky's image, laid out as a library background's: its image picture's offset, then each cell's.
-static const uint RoomSkyImageWord = 30;
+static const uint RoomSkyImageWord = 27;
 // A boss body's pictures (#1392): two words per tilemap word, its picture's offset (zero where it draws from its
 // character), then its corner in the picture, x below y.
-static const uint RoomBossBg2PicturesWord = 31;
+static const uint RoomBossBg2PicturesWord = 28;
 // The BG2 overlay's pictures (#1392), laid out as a boss body's.
-static const uint RoomBg2OverlayPicturesWord = 32;
+static const uint RoomBg2OverlayPicturesWord = 29;
 // The image of the message box the frame shows (#1392).
-static const uint RoomMessagePictureWord = 33;
+static const uint RoomMessagePictureWord = 30;
 // The picture of a Ceres room's Mode 7 tiles (#1392), sixteen 8x8 tiles to a row, or zero while the map draws from VRAM.
-static const uint RoomMode7PictureWord = 34;
+static const uint RoomMode7PictureWord = 31;
 // The BG1 overlay's pictures (#1392), laid out as a boss body's.
-static const uint RoomBg1OverlayPicturesWord = 35;
+static const uint RoomBg1OverlayPicturesWord = 32;
 // The X-ray reveal (XrayRevealPlane): 17 block columns by 16 rows, each its picture's offset with its arrangement in the
 // top four bits: as defined, mirrored horizontally, vertically or both, or its tile rows swapped.
 static const uint RevealColumns = 17, RevealRows = 16;
@@ -79,15 +79,14 @@ uint ReadWord(uint address)
     address = (address & 32767) * 2;
     return ReadByte(address) | (ReadByte(address + 1) << 8);
 }
-// What a room plane shows at a scrolled position; false outside the room. A plane with pictures (#1392) shows its
-// block's picture, mirrored by the block's flips, and `within` is the picture pixel; otherwise it shows a tile and the
-// pixel within it, a mirrored block showing its definition's opposite quadrant with that tile's own flip toggled
-// (LevelBlockTilemapExpander).
+// What a room plane shows at a scrolled position; false outside the room: its block's picture (#1392), mirrored by the
+// block's flips, with `within` the picture pixel. Each packed block is its definition with its horizontal and vertical
+// mirroring in bits ten and eleven (#1403).
 bool RoomPlaneTile(uint slot, uint2 scrolled, out uint entry, out uint2 within, out uint picture)
 {
     uint record = slot * RoomRecordWords;
     uint width = RoomLevels[record + 1], height = RoomLevels[record + 2];
-    uint2 level = (scrolled - uint2(RoomLevels[record + 4], RoomLevels[record + 5])) & 65535;
+    uint2 level = (scrolled - uint2(RoomLevels[record + 3], RoomLevels[record + 4])) & 65535;
     entry = 0;
     picture = 0;
     within = level & 7;
@@ -96,17 +95,8 @@ bool RoomPlaneTile(uint slot, uint2 scrolled, out uint entry, out uint2 within, 
     {
         uint word = RoomLevels[RoomLevels[record] + (level.y >> 4) * width + (level.x >> 4)];
         uint h = (word >> 10) & 1, v = (word >> 11) & 1;
-        uint pictures = RoomLevels[record + 6];
-        if (pictures != 0)
-        {
-            picture = RoomLevels[pictures + (word & 1023)];
-            within = uint2(h != 0 ? 15 - (level.x & 15) : level.x & 15, v != 0 ? 15 - (level.y & 15) : level.y & 15);
-        }
-        else
-        {
-            uint quadrant = ((((level.y >> 3) & 1) ^ v) << 1) | (((level.x >> 3) & 1) ^ h);
-            entry = RoomLevels[RoomLevels[record + 3] + (word & 1023) * 4 + quadrant] ^ (h << 14) ^ (v << 15);
-        }
+        picture = RoomLevels[RoomLevels[record + 5] + (word & 1023)];
+        within = uint2(h != 0 ? 15 - (level.x & 15) : level.x & 15, v != 0 ? 15 - (level.y & 15) : level.y & 15);
     }
     return inside;
 }

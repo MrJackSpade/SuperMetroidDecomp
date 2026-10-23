@@ -29,21 +29,20 @@ public sealed class RoomBlockPictureTable
     /// <summary>The picture definition <paramref name="definition"/> shows, or null when the planes do not use it.</summary>
     public SpriteSheetFrame? Picture(int definition) => pictures[definition];
 
-    /// <summary>The picture pixel <paramref name="plane"/> shows at a level pixel; false outside the room.</summary>
+    /// <summary>The picture pixel <paramref name="blocks"/> show at a level pixel; false outside the room.</summary>
     /// <exception cref="InvalidOperationException">The block there uses a definition the table was not resolved for.</exception>
-    public bool TrySample(RoomLevelPlane plane, Position16<BgPlanePixels> level, out BgSample sample)
+    public bool TrySample(RoomBlockCells blocks, Position16<BgPlanePixels> level, out BgSample sample)
     {
-        Ensure.NotNull(plane);
-        if (level.X >= plane.Size.X * RoomLevelPlane.BlockPixels || level.Y >= plane.Size.Y * RoomLevelPlane.BlockPixels)
+        Ensure.NotNull(blocks);
+        if (!blocks.TryCellAt(level, out RoomBlockCell cell, out Position16<BgPlanePixels> within))
         {
             sample = default;
             return false;
         }
-        var word = new RoomLevelWord(plane.Blocks[level.Y / RoomLevelPlane.BlockPixels * plane.Size.X + level.X / RoomLevelPlane.BlockPixels]);
-        SpriteSheetFrame picture = pictures[word.VisualBlockIndex]
-            ?? throw new InvalidOperationException($"Block definition {word.VisualBlockIndex} was not resolved for the plane showing it.");
-        LevelBlockFlipFlags flips = word.VisualFlipFlags;
-        int x = level.X % RoomLevelPlane.BlockPixels, y = level.Y % RoomLevelPlane.BlockPixels;
+        SpriteSheetFrame picture = pictures[cell.Definition]
+            ?? throw new InvalidOperationException($"Block definition {cell.Definition} was not resolved for the plane showing it.");
+        LevelBlockFlipFlags flips = cell.Flips;
+        int x = within.X, y = within.Y;
         sample = BgSample.OfPicture(picture, new Position16<ImagePixels>(
             (ushort)((flips & LevelBlockFlipFlags.Horizontal) != 0 ? RoomLevelPlane.BlockPixels - 1 - x : x),
             (ushort)((flips & LevelBlockFlipFlags.Vertical) != 0 ? RoomLevelPlane.BlockPixels - 1 - y : y)));

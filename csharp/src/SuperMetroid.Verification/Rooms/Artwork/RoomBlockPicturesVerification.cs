@@ -443,7 +443,7 @@ internal static class RoomBlockPicturesVerification
         RoomCharacterSource characters = RoomCharacterSource.Of(rooms.Characters, runtime.BgArtwork, runtime.EnemySession.ObjCharacters);
         PpuMemorySnapshot memory = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites, runtime.BgArtwork);
         ReadOnlySpan<byte> vram = memory.Vram;
-        ReadOnlySpan<byte> definitions = rooms.Bg1.Plane.Definitions.AsSpan();
+        ReadOnlySpan<byte> definitions = runtime.Room.LoadedLevelData.ForegroundPlane.Definitions.AsSpan();
         int pictures = 0, uploaded = 0;
         for (int definition = 0; definition < table.Definitions; definition++)
         {

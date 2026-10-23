@@ -54,6 +54,34 @@ public sealed class RoomLevelPlane
     /// <summary>The room's block definitions, <see cref="DefinitionBytes"/> bytes each, shared by every plane of one publication.</summary>
     public ImmutableArray<byte> Definitions { get; }
 
+    /// <summary>The plane's blocks as a frame shows them (#1403), read once.</summary>
+    public RoomBlockCells Cells => field ??= new RoomBlockCells(Size, [.. blocks.Select(word =>
+    {
+        var level = new RoomLevelWord(word);
+        return new RoomBlockCell(level.VisualBlockIndex, level.VisualFlipFlags);
+    })]);
+
+    /// <summary>The plane's tiles through a scroll register, for simulation that reads the words a plane shows.</summary>
+    /// <param name="scrollOffset">The scroll register less the layer position.</param>
+    public IBgTileSource Tiles(Offset16<BgPlanePixels> scrollOffset) => new ScrolledTiles(this, scrollOffset);
+
+    /// <summary>The plane's tiles through a scroll register.</summary>
+    private sealed class ScrolledTiles(RoomLevelPlane plane, Offset16<BgPlanePixels> scrollOffset) : IBgTileSource
+    {
+        /// <inheritdoc />
+        public bool TrySample(Position16<BgPlanePixels> scrolled, out BgTileSample sample)
+        {
+            Position16<BgPlanePixels> level = scrolled - scrollOffset;
+            if (!plane.TryTileAt(level, out SnesBgTilemapWord tile))
+            {
+                sample = default;
+                return false;
+            }
+            sample = BgTileSample.At(tile, level);
+            return true;
+        }
+    }
+
     /// <summary>The four tiles a block shows, already mirrored by the block's flips.</summary>
     /// <param name="block">The block, inside the room.</param>
     public ExpandedBlockTiles BlockTiles(Position16<RoomBlocks> block) =>

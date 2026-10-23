@@ -222,9 +222,9 @@ internal sealed class AcceptedFrameBoundary
         Layer2ScrollModes layer2 = _backgroundScroll.Layer2Scroll;
         // Each plane's pictures are resolved once this NMI's uploads have bound (WithBlockPictures).
         return new RoomBackgrounds(
-            new RoomBackgroundLayer(level.ForegroundPlane, _backgroundScroll.Bg1Offset.AsBgPlaneOffset(), null),
+            new RoomBackgroundLayer(level.ForegroundPlane.Cells, _backgroundScroll.Bg1Offset.AsBgPlaneOffset(), null),
             layer2.Horizontal.Streams || layer2.Vertical.Streams
-                ? new RoomBackgroundLayer(level.BackgroundPlane, _backgroundScroll.Bg2Offset.AsBgPlaneOffset(), null)
+                ? new RoomBackgroundLayer(level.BackgroundPlane.Cells, _backgroundScroll.Bg2Offset.AsBgPlaneOffset(), null)
                 : null,
             null,
             _room.DoorSourceBackground,
@@ -252,13 +252,15 @@ internal sealed class AcceptedFrameBoundary
         RevealedBlock[]? revealed = null;
         if (reveal is { } words)
         {
-            if (_revealIndex is null || _revealIndex.Definitions != rooms.Bg1.Plane.Definitions)
-                _revealIndex = new RevealedBlockIndex(rooms.Bg1.Plane.Definitions);
+            if (_revealIndex is null || _revealIndex.Definitions != scope.LevelData.ForegroundPlane.Definitions)
+                _revealIndex = new RevealedBlockIndex(scope.LevelData.ForegroundPlane.Definitions);
             revealed = XrayRevealPlane.BlocksOf(words.AsSpan(), _revealIndex);
         }
         // The Ceres Ridley arena's backgrounds read the OBJ character table's uploads (#1392).
         RoomCharacterSource characters = RoomCharacterSource.Of(rooms.Characters, _backgrounds, _enemySession.ObjCharacters);
-        RoomBlockPictureTable pictures = scope.BlockPictures.Resolve(rooms.Bg1.Plane, rooms.Bg2?.Plane, characters,
+        // The planes the latch shows are the level data's, which nothing changes before this NMI's pictures resolve.
+        RoomBlockPictureTable pictures = scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane,
+            rooms.Bg2 is null ? null : scope.LevelData.BackgroundPlane, characters,
             revealed?.Select(block => block.Definition) ?? []);
         // Where BG2 shows the tilemap its library background loaded, it draws the background's image (#1392): not over a
         // streaming layer-2 plane, a scrolling sky or a boss body that owns BG2.

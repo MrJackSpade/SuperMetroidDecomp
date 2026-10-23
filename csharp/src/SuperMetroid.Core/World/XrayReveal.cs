@@ -47,7 +47,7 @@ internal sealed class XrayReveal
         Position16<RoomPixels> layer1 = _backgroundScroll.Layer1Position;
         Position16<RoomPixels> bg1Scroll = layer1 + _backgroundScroll.Bg1Offset;
         // The copy reads the plane's tile words, not its pictures.
-        var bg1 = new RoomBackgroundLayer(level.ForegroundPlane, _backgroundScroll.Bg1Offset.AsBgPlaneOffset(), null);
+        IBgTileSource bg1 = level.ForegroundPlane.Tiles(_backgroundScroll.Bg1Offset.AsBgPlaneOffset());
         var map = XrayRevealTilemap.Build(level, bg1, bg1Scroll, layer1,
             (byte)room.AreaIndex, XrayRevealVisuals);
         XrayRevealOverlays.Apply(level, map, plms.CollectiblePlms.Collectibles, _system,

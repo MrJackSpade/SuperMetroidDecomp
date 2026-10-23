@@ -366,7 +366,7 @@ internal static class InstalledSporesTests
                 GameplayVramLayout.Bg2TilemapWord, 0, 0,
                 SnesMainScreenLayers.Obj | ((enabled & 1) != 0 ? SnesMainScreenLayers.Bg1 : 0) |
                     ((enabled & 2) != 0 ? SnesMainScreenLayers.Bg2 : 0));
-            var layer = SnesGameplayFrameRenderer.CaptureSpores(new(registers, RoomBackgroundsFixtures.Uniform(new((ushort)(1 | (bg1High ? 0x2000 : 0)))) with
+            var layer = SnesGameplayFrameRenderer.CaptureSpores(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, colors.Colors, new((ushort)(1 | (bg1High ? 0x2000 : 0)))) with
                 {
                     Bg3 = Layer3CellsFixtures.FromVram(vram.Bytes, colors.Colors, 0x4000),
                 }),

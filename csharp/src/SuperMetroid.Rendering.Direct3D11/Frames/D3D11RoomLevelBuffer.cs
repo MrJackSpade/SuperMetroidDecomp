@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
@@ -16,20 +17,20 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
 /// <summary>
 /// The frame's room backgrounds packed for Tiles.hlsl at register t3 (#1346): a header of three plane records (BG1, BG2
-/// and a door's source room), the door window, the BG1 overlay, sky, BG3 and BG2 overlay offsets; then each plane's level
-/// words, each distinct set of block definitions as tilemap words, each plane's picture of each definition and the
-/// pictures themselves with their sheets' standard colours (#1392), the overlay's words, the sky's rows (#1347), the
-/// BG3 plane and the BG2 overlay's words (#1348), a Ceres Mode 7 map (#1349) and a boss body's BG2 tilemap (#1352).
+/// and a door's source room), the door window, the BG1 overlay, sky, BG3 and BG2 overlay offsets; then each plane's
+/// blocks (#1403), each plane's picture of each definition and the pictures themselves with their sheets' standard
+/// colours (#1392), the overlay's words, the sky's rows (#1347), the BG3 plane's pictures and the BG2 overlay's words
+/// (#1348), a Mode 7 floor (#1349, #1403) and a boss body's BG2 tilemap (#1352).
 /// The GPU resolves every room pixel from these, so nothing is streamed into VRAM. Repacked only when the published
 /// planes, their pictures, offsets, door or overlay change.
 /// </summary>
 internal sealed class D3D11RoomLevelBuffer : IDisposable
 {
     /// <summary>
-    /// Words per plane record: level-word offset, width, height, definition offset, scroll offset X and Y, and the offset
-    /// of the picture each definition shows, or zero for a plane drawn from characters.
+    /// Words per plane record: block offset, width, height, scroll offset X and Y, and the offset of the picture each
+    /// definition shows.
     /// </summary>
-    private const int RecordWords = 7;
+    private const int RecordWords = 6;
 
     /// <summary>Words before a packed picture's pixels: its sheet's colours' offset, its width and its pixel count.</summary>
     private const int PictureHeaderWords = 3;
@@ -146,7 +147,6 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             && skyImage is null && message is null && screens.IsEmpty && mode7s.IsEmpty))
             return false;
         RoomBackgroundLayer?[] planes = [bg1, bg2, door?.SourceRoom];
-        var definitionWords = new Dictionary<ImmutableArray<byte>, int>();
         int words = HeaderWords;
         // Each frontend layer's character tile table comes first, so its word fits the half a dispatch names it in (#1392).
         screenTables.Clear();
@@ -175,17 +175,15 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             if (planes[slot] is not { } layer)
                 continue;
             blockOffsets[slot] = words;
-            words += layer.Plane.Blocks.Length;
+            words += layer.Blocks.Cells.Length;
         }
-        foreach (RoomBackgroundLayer? layer in planes)
-            if (layer is not null && definitionWords.TryAdd(layer.Plane.Definitions, words))
-                words += layer.Plane.Definitions.Length / sizeof(ushort);
         // Each plane's picture of each definition, then each distinct picture and sheet palette once (#1392).
         var pictureTables = new int[PlaneSlots];
         for (int slot = 0; slot < PlaneSlots; slot++)
         {
-            if (planes[slot]?.Pictures is not { } table)
+            if (planes[slot] is not { } layer)
                 continue;
+            RoomBlockPictureTable table = layer.Pictures ?? throw new InvalidOperationException("A room plane is drawn once its pictures are resolved.");
             pictureTables[slot] = words;
             words += table.Definitions;
         }
@@ -290,24 +288,23 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             if (planes[slot] is not { } layer)
                 continue;
             int record = slot * RecordWords;
-            RoomLevelPlane plane = layer.Plane;
+            RoomBlockCells blocks = layer.Blocks;
             upload[record] = (uint)blockOffsets[slot];
-            upload[record + 1] = plane.Size.X;
-            upload[record + 2] = plane.Size.Y;
-            upload[record + 3] = (uint)definitionWords[plane.Definitions];
-            upload[record + 4] = unchecked((ushort)layer.ScrollOffset.X);
-            upload[record + 5] = unchecked((ushort)layer.ScrollOffset.Y);
-            upload[record + 6] = (uint)pictureTables[slot];
-            if (layer.Pictures is { } table)
-                for (int definition = 0; definition < table.Definitions; definition++)
-                    upload[pictureTables[slot] + definition] = table.Picture(definition) is { } shown ? (uint)pictureWords[shown] : 0;
-            ReadOnlySpan<ushort> blocks = plane.Blocks;
-            for (int block = 0; block < blocks.Length; block++)
-                upload[blockOffsets[slot] + block] = blocks[block];
+            upload[record + 1] = blocks.Size.X;
+            upload[record + 2] = blocks.Size.Y;
+            upload[record + 3] = unchecked((ushort)layer.ScrollOffset.X);
+            upload[record + 4] = unchecked((ushort)layer.ScrollOffset.Y);
+            upload[record + 5] = (uint)pictureTables[slot];
+            RoomBlockPictureTable table = layer.Pictures ?? throw new InvalidOperationException("A room plane is drawn once its pictures are resolved.");
+            for (int definition = 0; definition < table.Definitions; definition++)
+                upload[pictureTables[slot] + definition] = table.Picture(definition) is { } shown ? (uint)pictureWords[shown] : 0;
+            // Each block's definition, with its horizontal and vertical mirroring in bits ten and eleven, as Tiles.hlsl reads a block.
+            ImmutableArray<RoomBlockCell> cells = blocks.Cells;
+            for (int block = 0; block < cells.Length; block++)
+                upload[blockOffsets[slot] + block] = (uint)cells[block].Definition
+                    | ((cells[block].Flips & LevelBlockFlipFlags.Horizontal) != 0 ? 1u << 10 : 0)
+                    | ((cells[block].Flips & LevelBlockFlipFlags.Vertical) != 0 ? 1u << 11 : 0);
         }
-        foreach ((ImmutableArray<byte> definitions, int offset) in definitionWords)
-            for (int word = 0; word < definitions.Length / sizeof(ushort); word++)
-                upload[offset + word] = SnesLittleEndian.Word(definitions[word * 2], definitions[word * 2 + 1]);
         foreach ((SpriteImage sheet, int offset) in colourWords)
             for (int colour = 0; colour < sheet.StandardColours.Length; colour++)
                 upload[offset + colour] = sheet.StandardColours[colour].ToWord();

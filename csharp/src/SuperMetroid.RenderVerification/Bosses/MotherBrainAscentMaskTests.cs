@@ -34,7 +34,7 @@ internal static class MotherBrainAscentMaskTests
         ushort[] masks = Enumerable.Range(32, 192).Select(y => (ushort)(y < 56 ? 0x15 : y < 216 ? 0x13 : 0x05)).ToArray();
         foreach (bool active in new[] { true, false })
         {
-            var layer = new OrdinaryGameplayRenderLayer(registers, RoomBackgroundsFixtures.Uniform(new(1)), mainScreenLayersByLine: active ? masks : []);
+            var layer = new OrdinaryGameplayRenderLayer(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1)), mainScreenLayersByLine: active ? masks : []);
             var scene = new LayeredRenderSnapshot(memory, [layer], 15);
             var pixels = SoftwareLayeredSnapshotRenderer.Render(scene);
             Check(16, 218, active ? 1 : 129, "leg hidden by floor only during ascent");

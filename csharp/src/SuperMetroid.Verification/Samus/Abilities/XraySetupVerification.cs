@@ -83,7 +83,7 @@ internal static class XraySetupVerification
         runtime.StepFrame(held);
         var scroll = runtime.BackgroundScroll;
         var room = runtime.Room.LoadedRoom;
-        var bg1 = new RoomBackgroundLayer(level.ForegroundPlane, scroll.Bg1Offset.AsBgPlaneOffset(), null);
+        IBgTileSource bg1 = level.ForegroundPlane.Tiles(scroll.Bg1Offset.AsBgPlaneOffset());
         var original = XrayRevealTilemap.Build(level, bg1,
             scroll.Layer1Position + scroll.Bg1Offset,
             scroll.Layer1Position, (byte)room.AreaIndex);

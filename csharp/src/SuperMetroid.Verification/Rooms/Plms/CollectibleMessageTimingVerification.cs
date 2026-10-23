@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Input;
@@ -43,9 +44,10 @@ internal static class CollectibleMessageTimingVerification
         // The tiles the displayed frame shows for the pickup block: its latched room BG1 (#1346).
         ushort[] TileWords()
         {
-            ExpandedBlockTiles shown = (runtime.Display.Latched.Rooms ?? throw new InvalidOperationException(
-                "The displayed frame has no room backgrounds.")).Bg1.Plane.BlockTiles(
-                runtime.Room.LoadedLevelData.Size.CellAtRowMajorIndex(item.BlockIndex));
+            RoomBlockCell cell = (runtime.Display.Latched.Rooms ?? throw new InvalidOperationException(
+                "The displayed frame has no room backgrounds.")).Bg1.Blocks.Cells[item.BlockIndex];
+            ExpandedBlockTiles shown = LevelBlockTilemapExpander.Expand((ushort)(cell.Definition | (int)cell.Flips),
+                runtime.Room.LoadedLevelData.ForegroundPlane.Definitions.AsSpan());
             return [shown.TopLeft.Raw, shown.TopRight.Raw, shown.BottomLeft.Raw, shown.BottomRight.Raw];
         }
         ushort[] HudWords() => runtime.Hud.Tiles.WhereToArray((_, index) => index % 32 < 26);

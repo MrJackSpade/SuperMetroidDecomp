@@ -795,7 +795,7 @@ internal sealed class RoomLoader
         {
             RoomViewportLoadMode.DisplayInitialViewport => null,
             RoomViewportLoadMode.StreamThroughDoor => new DoorOpeningPpuScroll(_backgroundScroll.Bg1Scroll,
-                new RoomBackgroundLayer(_room.LoadedLevelData.ForegroundPlane, _backgroundScroll.Bg1Offset.AsBgPlaneOffset(),
+                new RoomBackgroundLayer(_room.LoadedLevelData.ForegroundPlane.Cells, _backgroundScroll.Bg1Offset.AsBgPlaneOffset(),
                     SourceScreenPictures())),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(viewportLoadMode), viewportLoadMode, "Unknown room viewport load mode."),

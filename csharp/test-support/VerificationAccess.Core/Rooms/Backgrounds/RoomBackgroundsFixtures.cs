@@ -21,7 +21,7 @@ internal static class RoomBackgroundsFixtures
     private const int Definitions = 1024;
 
     /// <summary>A room whose BG1 shows tile word zero over the whole unscrolled screen, no BG2 plane, and a zero BG3 plane.</summary>
-    internal static RoomBackgrounds Blank() => Uniform(default);
+    internal static RoomBackgrounds Blank() => Uniform(new byte[SnesPpuLayout.VramByteCount], new Bgr555[SnesPpuLayout.CgramColorCount], default);
 
     /// <summary>A BG3 plane of zero words, as a blank memory image shows it (#1403).</summary>
     internal static Layer3Cells BlankBg3() => Layer3CellsFixtures.Blank;
@@ -35,9 +35,10 @@ internal static class RoomBackgroundsFixtures
     /// <summary>
     /// A room whose BG1 shows <paramref name="tile"/> in every cell over the whole unscrolled screen, as a VRAM BG1
     /// tilemap filled with that word did, except the listed eight-pixel <paramref name="cells"/>; no BG2 plane; and a zero
-    /// BG3 plane.
+    /// BG3 plane. Its blocks draw pictures of the characters at the start of <paramref name="image"/>, coloured from
+    /// <paramref name="palette"/> (#1403).
     /// </summary>
-    internal static RoomBackgrounds Uniform(SnesBgTilemapWord tile,
+    internal static RoomBackgrounds Uniform(ReadOnlySpan<byte> image, ReadOnlySpan<Bgr555> palette, SnesBgTilemapWord tile,
         params ReadOnlySpan<TilemapCell> cells)
     {
         // Each block's four cells, top left, top right, bottom left, bottom right, as its definition stores them.
@@ -64,7 +65,7 @@ internal static class RoomBackgroundsFixtures
             blocks[block] = index;
         }
         return new(new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(SideBlocks, SideBlocks),
-            blocks, [.. definitions]), default, null), null, BlankBg3());
+            blocks, [.. definitions]).Cells, default, RoomBlockFixtures.Pictures(definitions, image, palette)), null, BlankBg3());
     }
 
     /// <summary>
@@ -284,8 +285,8 @@ internal static class RoomBackgroundsFixtures
     /// <param name="door">Whether a door's source screen covers part of BG1.</param>
     /// <param name="overlay">Whether words are written over part of BG1.</param>
     /// <param name="pictureColours">
-    /// The scene's 256 CGRAM colours when the planes draw from seeded block pictures (#1392), whose even rows keep these
-    /// colours as standard and whose odd rows differ, as under a palette effect; null for planes drawn from characters.
+    /// The scene's 256 CGRAM colours the planes' seeded block pictures (#1392) keep as standard in their even rows, odd rows
+    /// differing as under a palette effect; null for black.
     /// </param>
     internal static RoomBackgrounds Seeded(Random random, Position16<BgPlanePixels> bg1Scroll,
         Position16<BgPlanePixels>? bg2Scroll = null, bool door = false, bool overlay = false, Bgr555[]? pictureColours = null)
@@ -300,8 +301,8 @@ internal static class RoomBackgroundsFixtures
                 blocks[index] = (ushort)random.Next(ushort.MaxValue + 1);
             var inside = new Position16<BgPlanePixels>((ushort)random.Next(SideBlocks * RoomLevelPlane.BlockPixels / 2),
                 (ushort)random.Next(SideBlocks * RoomLevelPlane.BlockPixels / 2));
-            return new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(SideBlocks, SideBlocks), blocks, definitions),
-                scroll - inside, pictureColours is null ? null : SeededPictures(random, pictureColours));
+            return new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(SideBlocks, SideBlocks), blocks, definitions).Cells,
+                scroll - inside, SeededPictures(random, pictureColours ?? new Bgr555[SnesPpuLayout.CgramColorCount]));
         }
         RoomBackgroundLayer bg1 = Layer(bg1Scroll);
         RoomBackgroundLayer? bg2 = bg2Scroll is { } scroll2 ? Layer(scroll2) : null;

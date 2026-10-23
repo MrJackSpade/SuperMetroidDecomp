@@ -27,11 +27,12 @@ internal static class SoftwareMode7GameplayRenderer
             var low = scratch.Colors(output.Length);
             var high = scratch.Colors(output.Length);
             var viewport = new BgViewport { Scroll = floor.Scroll.AsBgPlaneScroll(), Size = SnesPpuLayout.ScreenSize, TilemapSize = floor.MapSize };
-            // The floor is the room's layer-2 plane when it streams (#1346), otherwise the BG2 tilemap.
+            // The floor is the room's layer-2 plane when it streams (#1346), drawn from its block pictures (#1392), otherwise
+            // the BG2 tilemap.
             if (floor.Room is { } room)
             {
-                SnesBgTilemapRenderer.Composite4BppViewport(low, memory.Vram, memory.Cgram, room, floor.CharacterWord, viewport, priority: false);
-                SnesBgTilemapRenderer.Composite4BppViewport(high, memory.Vram, memory.Cgram, room, floor.CharacterWord, viewport, priority: true);
+                SnesBgTilemapRenderer.CompositeViewport(low, memory.Cgram, room, viewport, priority: false);
+                SnesBgTilemapRenderer.CompositeViewport(high, memory.Cgram, room, viewport, priority: true);
             }
             else
             {

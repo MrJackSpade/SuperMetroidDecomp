@@ -48,7 +48,7 @@ internal static class WaterfallTests
             GameplayVramLayout.Bg2TilemapWord, 0, 0, WaterfallRoomDisplayRules.MainScreen);
         var bg3 = new Bg2BppColorMathRenderLayer(plane, Layer3Plane.Rows / 2, 32, 32,
             ExpandedColorMathOperation.Subtract, new Position16<BgPlanePixels>[224]);
-        var layer = new GameplayColorMathRenderLayer(new(registers, RoomBackgroundsFixtures.Uniform(new(1), new TilemapCell(14, 8, new(4))) with { Bg3 = plane }), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new ColorMathRegisters { ColorMath = WaterfallRoomDisplayRules.ColorMath, AddSubscreen = true, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, bg3, subscreenUsesBg2: true);
+        var layer = new GameplayColorMathRenderLayer(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1), new TilemapCell(14, 8, new(4))) with { Bg3 = plane }), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new ColorMathRegisters { ColorMath = WaterfallRoomDisplayRules.ColorMath, AddSubscreen = true, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, bg3, subscreenUsesBg2: true);
         var scene = new LayeredRenderSnapshot(memory, [layer], 15);
         var pixels = SoftwareLayeredSnapshotRenderer.Render(scene);
         Check(16, 19, 13, 7, "BG2 beats low BG3 and subtracts through foreground");

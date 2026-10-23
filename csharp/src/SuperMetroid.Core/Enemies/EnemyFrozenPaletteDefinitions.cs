@@ -1,8 +1,9 @@
+using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>The palette a frozen enemy draws with.</summary>
+/// <summary>The colour set a frozen enemy draws with: the beam's that froze it (#1405).</summary>
 internal static class EnemyFrozenPaletteDefinitions
 {
-    /// <summary>Palette six, as OAM attribute palette bits ($0C00).</summary>
-    internal const ushort PaletteBits = 0x0c00;
+    /// <summary>The frozen colour set's palette bits.</summary>
+    internal static ushort PaletteBits => SnesObjPalettes.Palette(SpriteColourSetDefinitions.Frozen).PaletteBits;
 }

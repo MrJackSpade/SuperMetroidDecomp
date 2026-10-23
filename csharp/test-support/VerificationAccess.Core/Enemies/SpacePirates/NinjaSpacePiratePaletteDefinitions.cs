@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.SpacePirates;
+﻿namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>Native shared gold-Pirate palette selected when a ninja Space Pirate initializes.</summary>
 internal static class NinjaSpacePiratePaletteDefinitions

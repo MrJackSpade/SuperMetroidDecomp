@@ -13,15 +13,18 @@ public sealed class GameplayColours : IPaletteColors
     /// <summary>The colours no owner holds yet.</summary>
     private readonly Bgr555[] unowned = new Bgr555[ColorCount];
 
-    /// <summary>The owners, consulted in order.</summary>
+    /// <summary>The owners, consulted in order: the explicit owners, then the sprite colour sets.</summary>
     private readonly IGameplayColourOwner[] owners;
 
     /// <summary>Every colour as the owners and the router hold it, rebuilt on each read of <see cref="Colors"/>.</summary>
     [NonSerialized]
     private Bgr555[]? composed;
 
-    /// <summary>Routes the positions <paramref name="owners"/> hold to them.</summary>
-    public GameplayColours(params IGameplayColourOwner[] owners) => this.owners = Ensure.NotNull(owners);
+    /// <summary>Routes the positions <paramref name="owners"/> hold to them, and the sprite positions they do not to the sets.</summary>
+    public GameplayColours(params IGameplayColourOwner[] owners) => this.owners = [.. Ensure.NotNull(owners), SpriteSets];
+
+    /// <summary>The sprite colour sets, which hold the sprite colours no other owner holds.</summary>
+    public SpriteColourSets SpriteSets { get; } = new();
 
     /// <inheritdoc />
     public ReadOnlySpan<Bgr555> Colors

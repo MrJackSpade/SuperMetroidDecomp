@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Animals.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -487,7 +488,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void LoadDachoraPalette(
         RoomEnemySlot slot, DachoraPalettePhase phase, int frame)
     {
-        CgramPalette destination = _presentation.CgramRows.ObjectRow((slot.PaletteIndex >> 9) & 7);
+        ColourRun destination = _presentation.ColourSetOf(slot);
         if (_room.Artwork?.DachoraColors is { } colors)
         {
             for (int color = 0; color < DachoraColorRomData.ColorsPerFrame; color++)

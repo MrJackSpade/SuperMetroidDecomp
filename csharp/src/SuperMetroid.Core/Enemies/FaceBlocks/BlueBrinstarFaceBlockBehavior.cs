@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.FaceBlocks.Artwork;
@@ -176,7 +177,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         int frame = _blueBrinstarFaceBlockPaletteFrame & (BlueBrinstarFaceBlockPaletteFrameCount - 1);
         var colors = _room.Artwork?.AuxiliaryColors ?? throw new InvalidDataException(
             "Face-block palette animation requires installed artwork.");
-        CgramPalette animated = _presentation.CgramRows.ObjectRow(_blueBrinstarFaceBlockPaletteRow)
+        ColourRun animated = _presentation.ColourSet(_blueBrinstarFaceBlockPaletteRow)
             .Slice(FirstAnimatedFaceBlockPaletteColor, BlueBrinstarFaceBlockAnimatedColorCount);
         for (int color = 0; color < BlueBrinstarFaceBlockAnimatedColorCount; color++)
         {

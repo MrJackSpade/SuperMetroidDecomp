@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -29,10 +31,10 @@ internal static class Mode7TileSheetComposer
         Bgr555[] background = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).Transfer.Span);
         // The sprite half as a room load leaves it: gameplay starts from the initial palette, and each room load restores
         // the common sprite and enemy-projectile rows; an actor's own row shows its live colours over these.
-        var loaded = new SnesCgram();
+        var loaded = new ScreenPalette();
         inputs.Objects.Palettes.LoadInitial(loaded);
-        inputs.Objects.Palettes.LoadCommonSprites(loaded, RoomLoadingRomData.CommonGameplaySpritePaletteCgramIndex);
-        inputs.Objects.Palettes.LoadEnemyProjectileSprites(loaded, RoomLoadingRomData.InitialEnemyProjectilePaletteCgramIndex);
+        inputs.Objects.Palettes.LoadCommonSprites(loaded.SpriteRow(SpriteColourSetDefinitions.Common));
+        inputs.Objects.Palettes.LoadEnemyProjectileSprites(loaded.SpriteRow(SpriteColourSetDefinitions.EnemyProjectiles));
         var colours = new Bgr555[SpriteImage.ColourCountOf(SpriteImageColours.FullPalette)];
         loaded.Colors.CopyTo(colours);
         background.CopyTo(colours, 0);

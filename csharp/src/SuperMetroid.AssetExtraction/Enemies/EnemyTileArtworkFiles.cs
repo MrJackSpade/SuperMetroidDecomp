@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
@@ -115,10 +116,10 @@ public static class EnemyTileArtworkFiles
                     Colors = colors,
                 });
                 var nativeCgram = new SnesCgram();
-                var compiledCgram = new SnesCgram();
+                var compiledCgram = new ScreenPalette();
                 new CgramPalettes(nativeCgram).All.LoadPortBytes(nativeColors);
                 EnemyPaletteSheet.Load(new MemoryStream(paletteJson, writable: false))
-                    .LoadTo(new CgramPalettes(compiledCgram).BackgroundRow(0));
+                    .LoadTo(compiledCgram.BackgroundRow(0));
                 if (!new CgramPalettes(nativeCgram).Image.SequenceEqual(new CgramPalettes(compiledCgram).Image))
                     throw new InvalidDataException($"Enemy ${headerWord:X4} palette JSON changed native colors.");
                 File.WriteAllBytes(Path.Combine(directory,

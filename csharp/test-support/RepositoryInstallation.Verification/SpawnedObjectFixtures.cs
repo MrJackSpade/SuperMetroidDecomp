@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies;
@@ -46,7 +47,7 @@ internal static class SpawnedObjectFixtures
             : RoomEnemyGraphicsSetDefinitions.All.FirstOrDefault(candidate => candidate.Records.ToArray().Any(record =>
                 SpawnedObjectFrameDefinitions.ByEnemy.TryGetValue(record.DefinitionId, out SpawnedObjects? spawned) && spawned.Projectiles.Contains(frame)))
             ?? throw new InvalidOperationException($"No retail graphics set spawns projectile frame {frame}.");
-        enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set, new SnesVram(), new SnesCgram());
+        enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set, new SnesVram(), new SpriteColourSets());
     }
 
     /// <summary>
@@ -56,7 +57,7 @@ internal static class SpawnedObjectFixtures
     internal static void LoadSetDrawing(RoomEnemySystem enemies, EnemyDefinitionId enemy, RoomEnemySlot? slot = null)
     {
         ArgumentNullException.ThrowIfNull(enemies);
-        enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SetDrawing(enemy), new SnesVram(), new SnesCgram());
+        enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SetDrawing(enemy), new SnesVram(), new SpriteColourSets());
         if (slot is null)
             return;
         EnemyGraphicsIndexes indexes = enemies.GraphicsSet.DrawIndexes(enemy);
@@ -79,7 +80,7 @@ internal static class SpawnedObjectFixtures
         var session = new EnemySession { TileArtwork = InstalledFixtures.EnemyTiles, Sheets = InstalledFixtures.EnemySheets };
         var room = new EnemyRoomBinding(session, CompiledRoomEnemyDefinitions.Instance, services: null);
         var graphics = new EnemyGraphicsSet(room);
-        graphics.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, state.EnemyGraphicsSet, new SnesVram(), new SnesCgram());
+        graphics.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, state.EnemyGraphicsSet, new SnesVram(), new SpriteColourSets());
         return new EnemyPresentation(room, graphics);
     }
 }

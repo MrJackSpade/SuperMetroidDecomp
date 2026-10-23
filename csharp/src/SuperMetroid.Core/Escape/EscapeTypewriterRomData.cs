@@ -22,6 +22,4 @@ public static class EscapeTypewriterRomData
         new(SoundEffectLibrary.Library2, 0x45);
     /// <summary>$A6:C23F escape message foreground colors are copied from these two entries.</summary>
     public const int ColorSource = 125;
-    /// <summary>$A6:C242 the two message foreground colors land at these entries.</summary>
-    public const int ColorDestination = 157;
 }

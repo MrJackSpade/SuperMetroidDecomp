@@ -857,7 +857,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         // CGRAM or VRAM merely because its state happens to retain a non-empty set pointer.
         RoomEnemyPopulationDefinition population = request.Population;
         if (!population.Records.IsEmpty)
-            GraphicsSet.LoadGraphicsSet(definitions, request.GraphicsSet, request.Vram, request.Cgram);
+            GraphicsSet.LoadGraphicsSet(definitions, request.GraphicsSet, request.Vram, request.Cgram.SpriteSets);
         PopulationLoader.LoadPopulation(
             definitions,
             population,

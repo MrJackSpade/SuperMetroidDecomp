@@ -232,8 +232,8 @@ internal static class EnemyTileArtworkVerification
                 AssertTrue(vram.Bytes[..byteCount].SequenceEqual(native),
                     $"enemy ${(int)pointer:X4} PNG preserves every native tile byte");
                 SnesCgram nativeCgram = LoadNativeEnemyPalette(bus, pointer);
-                var installedCgram = new SnesCgram();
-                stock.Enemies.LoadPaletteTo(pointer, new CgramPalettes(installedCgram).All.Slice(8 * 16, 16));
+                var installedCgram = new GameplayColours();
+                stock.Enemies.LoadPaletteTo(pointer, installedCgram.SpriteSets.Set(0));
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                     $"enemy ${(int)pointer:X4} RGB5 JSON preserves all native palette slots");
             }
@@ -349,19 +349,19 @@ internal static class EnemyTileArtworkVerification
             File.WriteAllBytes(paletteOverridePath, EnemyPaletteSheet.Write(
                 new EnemyPaletteSheetDocument { Version = 1, Colors = editedColors }));
             InstalledEnemyArtwork editedPalette = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
-            var originalColors = new SnesCgram();
-            var changedColors = new SnesCgram();
-            stock.Enemies.LoadPaletteTo(editedPointer, new CgramPalettes(originalColors).All.Slice(8 * 16, 16));
-            editedPalette.Enemies.LoadPaletteTo(editedPointer, new CgramPalettes(changedColors).All.Slice(8 * 16, 16));
+            var originalColors = new GameplayColours();
+            var changedColors = new GameplayColours();
+            stock.Enemies.LoadPaletteTo(editedPointer, originalColors.SpriteSets.Set(0));
+            editedPalette.Enemies.LoadPaletteTo(editedPointer, changedColors.SpriteSets.Set(0));
             AssertEqual((ushort)(originalColors.Colors[128].ToWord() ^ 1), changedColors.Colors[128],
                 "RGB5 override changes its selected enemy palette channel");
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 if (color != 128)
                     AssertEqual(originalColors.Colors[color], changedColors.Colors[color],
                         "enemy palette edit leaves all other CGRAM slots unchanged");
-            var reloadedColors = new SnesCgram();
+            var reloadedColors = new GameplayColours();
             EnemyTileArtworkFiles.Load(directory, overrideDirectory)
-                .Enemies.LoadPaletteTo(editedPointer, new CgramPalettes(reloadedColors).All.Slice(8 * 16, 16));
+                .Enemies.LoadPaletteTo(editedPointer, reloadedColors.SpriteSets.Set(0));
             AssertTrue(new CgramPalettes(reloadedColors).ImageEquals(new CgramPalettes(changedColors)),
                 "enemy palette override survives catalog reload");
 

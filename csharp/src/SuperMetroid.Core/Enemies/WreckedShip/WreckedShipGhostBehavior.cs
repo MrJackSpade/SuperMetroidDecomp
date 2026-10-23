@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.WreckedShip.Artwork;
@@ -242,7 +243,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         WreckedShipGhostEnemyState state)
     {
         AdvanceWreckedShipGhostFlicker(slot, state);
-        CgramPalette palette = WreckedShipGhostPalette(slot);
+        ColourRun palette = WreckedShipGhostPalette(slot);
         int colorsChanged = 0;
         for (int color = 0; color < palette.Count; color++)
         {
@@ -376,7 +377,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state)
     {
-        CgramPalette palette = WreckedShipGhostPalette(slot);
+        ColourRun palette = WreckedShipGhostPalette(slot);
         int componentsChanged = 0;
         ReadOnlySpan<Bgr555> target = state.TargetPalette.Span;
         for (int color = 0; color < palette.Count; color++)
@@ -409,9 +410,8 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         return current.With(channel, currentComponent);
     }
 
-    /// <summary>Selects the ghost's OBJ palette row from its native palette index.</summary>
-    private CgramPalette WreckedShipGhostPalette(RoomEnemySlot slot) =>
-        _presentation.CgramRows.ObjectRow((slot.PaletteIndex >> 9) & 7);
+    /// <summary>The colour set the ghost's palette bits select.</summary>
+    private ColourRun WreckedShipGhostPalette(RoomEnemySlot slot) => _presentation.ColourSetOf(slot);
 
     /// <summary>Advances WreckedShipGhost's typed animation.</summary>
     internal static void AdvanceWreckedShipGhostTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>

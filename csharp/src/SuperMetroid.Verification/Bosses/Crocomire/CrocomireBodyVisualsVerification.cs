@@ -212,7 +212,7 @@ internal static class CrocomireBodyVisualsVerification
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             // He draws as his room draws him: at his tile base and in his palette there.
             enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Crocomire),
-                new SnesVram(), new SnesCgram());
+                new SnesVram(), new SpriteColourSets());
             EnemyGraphicsIndexes indexes = enemies.GraphicsSet.DrawIndexes(EnemyDefinitionId.Crocomire);
             slot.VramTilesIndex = indexes.TileIndex;
             slot.PaletteIndex = indexes.PaletteIndex;
@@ -233,7 +233,7 @@ internal static class CrocomireBodyVisualsVerification
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
             enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Crocomire),
-                new SnesVram(), new SnesCgram());
+                new SnesVram(), new SpriteColourSets());
             return enemies.GraphicsSet.DrawIndexes(EnemyDefinitionId.Crocomire);
         }
     }

@@ -2813,7 +2813,7 @@ internal static class EnemySpritemapArtworkVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
             // The enemy draws as a room drawing it loads it: at its tile base and in its palette there.
             enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(definition),
-                new SnesVram(), new SnesCgram());
+                new SnesVram(), new SpriteColourSets());
             EnemyGraphicsIndexes indexes = enemies.GraphicsSet.DrawIndexes(definition);
             enemies.Drawing.Enqueue(0, 0);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -3014,7 +3014,7 @@ internal static class EnemySpritemapArtworkVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
         // Draygon's evirs show in Draygon's room, whose graphics set loads her.
         enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.DraygonBody),
-            new SnesVram(), new SnesCgram());
+            new SnesVram(), new SpriteColourSets());
         Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, ushort, RoomSpriteObjectSlot?> spawn =
             (owner, position, kind, graphicsIndex) => owner.SpriteObjects.SpawnRoomSpriteObject(position, kind, graphicsIndex);
         Action<RoomEnemySystem, OamBuffer, Position16<RoomPixels>> draw =

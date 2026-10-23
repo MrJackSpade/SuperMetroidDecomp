@@ -48,7 +48,7 @@ public sealed class EnemyPaletteSheet
 
     /// <summary>Copies all sixteen selected colors, including color zero, into consecutive current CGRAM entries; the room graphics-set owner selects the destination and controls palette animation.</summary>
     /// <param name="destination">The sixteen-colour OBJ palette row the room graphics-set record selects.</param>
-    public void LoadTo(CgramPalette destination) => destination.CopyFrom(colors);
+    public void LoadTo(ColourRun destination) => destination.CopyFrom(colors);
 
     /// <summary>Requires case-insensitive known property names and writes indented camel-case JSON.</summary>
     private static readonly JsonSerializerOptions Options = new()

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Drawing;
@@ -22,7 +23,7 @@ internal static class FrozenMetroidShellVerification
         var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
         // The shell draws as a Metroid room loads it: at the Metroid's tile base and in its palette.
         enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetLoading(EnemyDefinitionId.Metroid),
-            new SnesVram(), new SnesCgram());
+            new SnesVram(), new SpriteColourSets());
         EnemyGraphicsIndexes indexes = enemies.GraphicsSet.DrawIndexes(EnemyDefinitionId.Metroid);
         var slot = enemies.SlotTable.Slots[0];
         slot.Position = slot.Position.WithWhole(new(120, 100));

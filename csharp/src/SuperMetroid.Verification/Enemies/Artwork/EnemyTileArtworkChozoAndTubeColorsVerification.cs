@@ -113,7 +113,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
             initialize(enemies, statue);
             for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
                 AssertEqual(resolve(color),
-                    cgram.Colors[ChozoAndTubeColorRomData.Destination + color],
+                    cgram.Colors[ChozoAndTubeColorRomDataConstants.Destination + color],
                     $"live {name} CGRAM color {color}");
             if (expectedProgram is not null)
             {

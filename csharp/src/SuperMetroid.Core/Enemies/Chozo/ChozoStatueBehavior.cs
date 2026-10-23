@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Progression;
@@ -85,7 +87,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeN00bTubeCracks()
     {
         (_room.Artwork?.ChozoAndTubeColors ?? throw new InvalidDataException(
-            "Tube crack colors require installed artwork.")).ApplyTubeCracks(_presentation.Cgram);
+            "Tube crack colors require installed artwork.")).ApplyTubeCracks(ChozoAndTubeColours());
     }
 
     /// <summary>Ports $AA:E725-$E7A1 for both shipped parameter-two variants.</summary>
@@ -125,14 +127,14 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.IsWreckedShip)
         {
             state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.WreckedShipInitial);
-            ChozoStatueColors().ApplyWreckedShip(_presentation.Cgram);
+            ChozoStatueColors().ApplyWreckedShip(ChozoAndTubeColours());
             PublishHardcodedChozoPlm(PlmHeaderId.WreckedShipChozoHand, ChozoStatuePlmRomData.WreckedShipHandBlock);
             PublishHardcodedChozoPlm(PlmHeaderId.BlockSlopeAccessForWreckedShipChozo, ChozoStatuePlmRomData.WreckedShipSlopeAccessBlock);
         }
         else
         {
             state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.LowerNorfairInitial);
-            ChozoStatueColors().ApplyLowerNorfair(_presentation.Cgram);
+            ChozoStatueColors().ApplyLowerNorfair(ChozoAndTubeColours());
             PublishHardcodedChozoPlm(PlmHeaderId.LowerNorfairChozoHand, ChozoStatuePlmRomData.LowerNorfairHandBlock);
         }
     }
@@ -140,6 +142,10 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies the installed Wrecked Ship or Lower Norfair statue palette to live CGRAM.</summary>
     private ChozoAndTubeColorCatalog ChozoStatueColors() =>
         _room.Artwork?.ChozoAndTubeColors ?? throw new InvalidDataException("Chozo statue colors require installed artwork.");
+
+    /// <summary>The two sprite colour sets the Chozo statues and the glass tube colour (#1405).</summary>
+    private ColourRun ChozoAndTubeColours() =>
+        _presentation.Cgram.SpriteSets.Sets(SpriteColourSetDefinitions.ChozoAndTube, SpriteColourSetDefinitions.ChozoAndTubeSets);
 
     /// <summary>
     /// Represents the exact enemy-slot side effect produced by the bank-$84 Chozo hand

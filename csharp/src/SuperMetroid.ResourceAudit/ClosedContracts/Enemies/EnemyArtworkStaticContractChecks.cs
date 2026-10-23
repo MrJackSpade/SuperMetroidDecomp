@@ -27,7 +27,7 @@ internal static class EnemyArtworkStaticContractChecks
             using SuperMetroid.Core.Hardware;
             class EnemyArtworkConsumer {
                 void Inspect(EnemyTileArtworkCatalog art, SuperMetroid.Core.Enemies.EnemyDefinitionId pointer, int source, int length,
-                    VramRegion vram, CgramPalette cgram) {
+                    VramRegion vram, SuperMetroid.Core.Assets.ColourRun cgram) {
                     art.LoadPaletteTo((SuperMetroid.Core.Enemies.EnemyDefinitionId){{(ushort)first.DefinitionId}}, cgram);
                     art.LoadPaletteTo(0, cgram);
                     art.TryResolve({{first.SourceAddress}}, {{first.ByteCount}}, out _);

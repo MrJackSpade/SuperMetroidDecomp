@@ -19,7 +19,8 @@ internal static class UploadedPictureChecks
 {
     /// <summary>
     /// Asserts <paramref name="pictures"/> paint exactly what <paramref name="parts"/> paint in the runtime's live colours:
-    /// every pixel's colour, palette row and priority, with at least one pixel painted.
+    /// every pixel's colour, whether it blends, and its priority, with at least one pixel painted. A sprite pixel's row
+    /// decides only whether it blends (#1405), so that is what is compared.
     /// </summary>
     internal static void AssertPaintsLikeParts(SuperMetroidRuntime runtime, ImmutableArray<SpriteDraw> pictures,
         ImmutableArray<CharacterSpriteDraw> parts, string message)
@@ -37,7 +38,7 @@ internal static class UploadedPictureChecks
         for (int pixel = 0; pixel < count; pixel++)
         {
             if (expected.Pixels[pixel] != actual.Pixels[pixel] || expected.Priorities[pixel] != actual.Priorities[pixel] ||
-                expected.Palettes[pixel] != actual.Palettes[pixel])
+                Blending(expected.Palettes[pixel]) != Blending(actual.Palettes[pixel]))
                 throw new InvalidOperationException($"{message}: the picture differs from the frame over the live characters at screen pixel " +
                     $"({pixel % SnesPpuLayout.ScreenSize.X},{pixel / SnesPpuLayout.ScreenSize.X}): colour {actual.Pixels[pixel]} for {expected.Pixels[pixel]}, " +
                     $"row {actual.Palettes[pixel]} for {expected.Palettes[pixel]}, priority {actual.Priorities[pixel]} for {expected.Priorities[pixel]}.");
@@ -46,6 +47,9 @@ internal static class UploadedPictureChecks
         }
         AssertTrue(painted > 0, $"{message}: paints pixels");
     }
+
+    /// <summary>Whether a sprite pixel of row <paramref name="row"/> is drawn, and if so whether it blends.</summary>
+    private static int Blending(byte row) => row == SnesObjRenderer.TransparentPriority ? -1 : row >= 4 ? 1 : 0;
 
     /// <summary>
     /// Asserts each of <paramref name="pictures"/> paints exactly what its frame's parts paint over the runtime's live

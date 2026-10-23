@@ -86,7 +86,7 @@ public sealed class EnemyTileArtworkCatalog
     }
 
     /// <summary>Loads the sixteen indexed colors selected by a room graphics-set record.</summary>
-    public void LoadPaletteTo(EnemyDefinitionId definitionId, CgramPalette destination)
+    public void LoadPaletteTo(EnemyDefinitionId definitionId, ColourRun destination)
     {
         if (!palettes.TryGetValue(definitionId, out EnemyPaletteSheet? palette))
             throw new InvalidDataException($"Enemy ${(int)definitionId:X4} has no installed palette.");

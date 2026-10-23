@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Input;
@@ -1101,10 +1102,8 @@ internal sealed class RoomLoader
     {
         GameplayBasePaletteCatalog artwork = _artwork.InitialPaletteArt ?? throw new InvalidOperationException(
             "Room loading requires the installed gameplay palette catalog.");
-        artwork.LoadCommonSprites(_cgram,
-            RoomLoadingRomData.CommonGameplaySpritePaletteCgramIndex);
-        artwork.LoadEnemyProjectileSprites(_cgram,
-            RoomLoadingRomData.InitialEnemyProjectilePaletteCgramIndex);
+        artwork.LoadCommonSprites(_cgram.SpriteSets.Set(SpriteColourSetDefinitions.Common));
+        artwork.LoadEnemyProjectileSprites(_cgram.SpriteSets.Set(SpriteColourSetDefinitions.EnemyProjectiles));
     }
 
     /// <summary>

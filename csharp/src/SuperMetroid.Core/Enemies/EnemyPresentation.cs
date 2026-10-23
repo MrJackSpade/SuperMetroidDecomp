@@ -29,6 +29,12 @@ internal sealed class EnemyPresentation
     /// <summary>The bound CGRAM's enemy and boss ranges.</summary>
     internal EnemyPalettes Palettes => new(Cgram);
 
+    /// <summary>Sprite colour set <paramref name="set"/> (#1405).</summary>
+    internal ColourRun ColourSet(int set) => Cgram.SpriteSets.Set(set);
+
+    /// <summary>The sprite colour set <paramref name="slot"/>'s palette bits select (#1405).</summary>
+    internal ColourRun ColourSetOf(RoomEnemySlot slot) => ColourSet(SnesObjAttributeWord.FromPaletteBits(checked((ushort)slot.PaletteIndex)).PaletteIndex);
+
     /// <summary>The bound CGRAM's hardware banks and rows, for actors whose palette row is selected at run time.</summary>
     internal CgramPalettes CgramRows => new(Cgram);
 

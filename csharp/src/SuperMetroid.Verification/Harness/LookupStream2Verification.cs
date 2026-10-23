@@ -1568,23 +1568,23 @@ internal static class LookupStream2Verification
         static void Check(ChozoAndTubeColorCatalog catalog, ChozoAndTubeColorDocument document)
         {
             static ushort Word(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
-            var cgram = new SnesCgram();
-            catalog.ApplyTubeCracks(cgram);
+            var cgram = new GameplayColours();
+            catalog.ApplyTubeCracks(cgram.SpriteSets.Sets(1, 2));
             for (int color = 0; color < 32; color++)
             {
                 ushort word = Word(document.TubeCracks[color]);
                 AssertEqual(word, catalog.ResolveTubeCracks(color), "independent tube color preserved");
-                AssertEqual(word, cgram.Colors[ChozoAndTubeColorRomData.Destination + color], "tube color reaches CGRAM");
+                AssertEqual(word, cgram.Colors[ChozoAndTubeColorRomDataConstants.Destination + color], "tube color reaches CGRAM");
                 AssertEqual(Word(document.WreckedShip[color]), catalog.ResolveWreckedShip(color), "Wrecked Ship palette preserved");
                 AssertEqual(Word(document.LowerNorfair[color]), catalog.ResolveLowerNorfair(color), "Lower Norfair palette preserved");
             }
-            var statues = new SnesCgram();
-            catalog.ApplyWreckedShip(statues);
+            var statues = new GameplayColours();
+            catalog.ApplyWreckedShip(statues.SpriteSets.Sets(1, 2));
             for (int color = 0; color < 32; color++)
-                AssertEqual(Word(document.WreckedShip[color]), statues.Colors[ChozoAndTubeColorRomData.Destination + color], "Wrecked Ship color reaches CGRAM");
-            catalog.ApplyLowerNorfair(statues);
+                AssertEqual(Word(document.WreckedShip[color]), statues.Colors[ChozoAndTubeColorRomDataConstants.Destination + color], "Wrecked Ship color reaches CGRAM");
+            catalog.ApplyLowerNorfair(statues.SpriteSets.Sets(1, 2));
             for (int color = 0; color < 32; color++)
-                AssertEqual(Word(document.LowerNorfair[color]), statues.Colors[ChozoAndTubeColorRomData.Destination + color], "Lower Norfair color reaches CGRAM");
+                AssertEqual(Word(document.LowerNorfair[color]), statues.Colors[ChozoAndTubeColorRomDataConstants.Destination + color], "Lower Norfair color reaches CGRAM");
             string expected = SelectedPresentationHash.Create("ChozoAndTubeColorCatalog-v1", content =>
             {
                 content.AppendWords("tubeCracks", document.TubeCracks.Select(Word).ToArray());

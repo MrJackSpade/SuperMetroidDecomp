@@ -1134,21 +1134,21 @@ internal static class LookupStream5Verification
             };
             Check(native with { Frames = rows });
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ApplyFrame(new SnesCgram(), -1, 0),
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ApplyFrame(new SpriteColourSets().Set(0).Slice(0, 4), -1),
             "Magdollite pulse lower frame bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ApplyFrame(new SnesCgram(), 4, 0),
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ApplyFrame(new SpriteColourSets().Set(0).Slice(0, 4), 4),
             "Magdollite pulse upper frame bound");
         Console.WriteLine("Magdollite pulse:16 native colors,48 independent RGB edits, actual CGRAM, canonical identity and frame bounds pass; four independent glow colors remain pending.");
 
         static MagdollitePaletteCycle Check(MagdollitePaletteCycleDocument expected)
         {
             var actual = MagdollitePaletteCycle.Load(new MemoryStream(MagdollitePaletteCycle.Write(expected), writable: false));
-            var cgram = new SnesCgram();
+            var cgram = new GameplayColours();
             ushort[][] packed = expected.Frames.Select(row => row.Select(rgb =>
                 (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10)).ToArray()).ToArray();
             for (int frame = 0; frame < packed.Length; frame++)
             {
-                actual.ApplyFrame(cgram, frame, 144);
+                actual.ApplyFrame(cgram.SpriteSets.Set(1).Slice(0, 4), frame);
                 for (int color = 0; color < packed[frame].Length; color++)
                     AssertEqual(packed[frame][color],
                         cgram.Colors[144 + color],

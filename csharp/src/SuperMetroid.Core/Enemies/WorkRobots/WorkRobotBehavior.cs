@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Progression;
@@ -362,12 +363,11 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         int record = WorkRobotPaletteAnimationRecord;
         ushort recordByteOffset = checked((ushort)(record * WorkRobotPaletteTimingDefinitions.RecordByteCount));
 
-        int destination = 128 +
-            WorkRobotPaletteAnimationPaletteRow * 16 +
-            WorkRobotPaletteRomData.FirstAnimatedColor;
+        ColourRun animated = _presentation.ColourSet(WorkRobotPaletteAnimationPaletteRow)
+            .Slice(WorkRobotPaletteRomData.FirstAnimatedColor, WorkRobotPaletteRomData.ColorCount);
         (_room.Artwork?.WorkRobotPaletteCycle ?? throw new InvalidDataException(
             "Work Robot palette animation requires installed artwork."))
-            .ApplyFrame(_presentation.Cgram, record, destination);
+            .ApplyFrame(animated, record);
         WorkRobotPaletteAnimationTimer =
             WrappingCountdown.FromRaw(WorkRobotPaletteTimingDefinitions.DurationForByteOffset(recordByteOffset));
         WorkRobotPaletteAnimationRecord = record + 1;

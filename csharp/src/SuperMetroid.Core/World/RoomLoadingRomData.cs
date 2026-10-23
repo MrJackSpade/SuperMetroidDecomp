@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.World;
@@ -9,10 +8,6 @@ internal static class RoomLoadingRomData
 
     /// <summary>CGRAM color index receiving the common gameplay OBJ palette.</summary>
     public const int CommonGameplaySpritePaletteCgramIndex = 128;
-
-    /// <summary>CGRAM color index receiving the initial enemy-projectile palette.</summary>
-    public const int InitialEnemyProjectilePaletteCgramIndex =
-        GameplayBasePaletteFormat.EnemyProjectileInitialColor;
 
     /// <summary>Power Suit load-appearance palette-FX definition at $8D:E1F4.</summary>
     public const PaletteFxObject PowerSuitLoadPaletteFx = PaletteFxObject.SamusLoadingPowerSuit;

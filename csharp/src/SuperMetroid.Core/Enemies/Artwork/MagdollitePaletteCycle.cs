@@ -56,20 +56,15 @@ public sealed class MagdollitePaletteCycle
     }
 
     /// <summary>Writes the selected four-color row without advancing cycle timing or altering the other colors in Magdollite's OBJ palette.</summary>
-    /// <param name="cgram">CGRAM receiving the selected packed colors.</param>
+    /// <param name="animated">The four animated colours of Magdollite's colour set.</param>
     /// <param name="frame">Palette-cycle row 0..3 chosen by the enemy's graphics-drawn hook.</param>
-    /// <param name="destination">First CGRAM color-word index 0..252; the native hook supplies its selected OBJ palette base plus nine.</param>
-    /// <exception cref="ArgumentNullException">The CGRAM target is null.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">The row index or four-color destination range is invalid.</exception>
-    [PpuLayoutBoundary("codec: palette-cycle colours at their native CGRAM index operand")]
-    public void ApplyFrame(IPaletteColors cgram, int frame, int destination)
+    /// <exception cref="ArgumentOutOfRangeException">The row index is invalid.</exception>
+    /// <exception cref="ArgumentException">The run is not four colours.</exception>
+    public void ApplyFrame(ColourRun animated, int frame)
     {
-        Ensure.NotNull(cgram);
-        if (destination < 0 ||
-            destination + MagdollitePaletteRomData.AnimatedColorCount > CgramPalettes.ColorCount)
-            throw new ArgumentOutOfRangeException(nameof(destination));
+        Ensure.LengthEqual(animated.Colors, MagdollitePaletteRomData.AnimatedColorCount);
         for (int color = 0; color < MagdollitePaletteRomData.AnimatedColorCount; color++)
-            new CgramPalettes(cgram).All.Write(destination + color, Resolve(frame, color));
+            animated.Write(color, Resolve(frame, color));
     }
 
     /// <summary>Validates and compiles the four RGB5 glow rows, preserving independent edits rather than requiring all later rows to rotate the first.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
@@ -54,10 +55,10 @@ internal static class EscapeTimerDrawChecks
             AssertEqual(SpriteSourceKind.EscapeTimer, draw.Source.Kind, message + ": draw source");
             AssertTrue(draw is ImageSpriteDraw, message + ": timer draws are sheet images");
         }
-        var cgram = new SnesCgram();
+        var cgram = new ScreenPalette();
         palettes.LoadInitial(cgram);
-        palettes.LoadCommonSprites(cgram, RoomLoadingRomData.CommonGameplaySpritePaletteCgramIndex);
-        palettes.LoadEnemyProjectileSprites(cgram, RoomLoadingRomData.InitialEnemyProjectilePaletteCgramIndex);
+        palettes.LoadCommonSprites(cgram.SpriteRow(SpriteColourSetDefinitions.Common));
+        palettes.LoadEnemyProjectileSprites(cgram.SpriteRow(SpriteColourSetDefinitions.EnemyProjectiles));
 
         var sprites = new List<CharacterSpriteDraw>();
         for (int index = 0; index < native.AppendedSpriteCount; index++)
@@ -91,7 +92,7 @@ internal static class EscapeTimerDrawChecks
     }
 
     /// <summary>Renders draws to a full screen's colours, priorities and palette rows.</summary>
-    private static Raster Render(IEnumerable<SpriteDraw> draws, SnesCgram cgram)
+    private static Raster Render(IEnumerable<SpriteDraw> draws, IPaletteColors cgram)
     {
         int count = SnesPpuLayout.ScreenSize.X * SnesPpuLayout.ScreenSize.Y;
         var raster = new Raster(new Rgba32[count], new byte[count], new byte[count]);
@@ -100,7 +101,7 @@ internal static class EscapeTimerDrawChecks
     }
 
     /// <summary>Renders the cartridge's character composition to a full screen's colours, priorities and palette rows.</summary>
-    private static Raster Render(IEnumerable<CharacterSpriteDraw> draws, SnesCgram cgram)
+    private static Raster Render(IEnumerable<CharacterSpriteDraw> draws, IPaletteColors cgram)
     {
         int count = SnesPpuLayout.ScreenSize.X * SnesPpuLayout.ScreenSize.Y;
         var raster = new Raster(new Rgba32[count], new byte[count], new byte[count]);

@@ -2168,15 +2168,15 @@ internal static class LookupStream3Verification
             new MemoryStream(WorkRobotPaletteCycle.Write(document), writable: false));
         void Check(WorkRobotPaletteCycle cycle)
         {
-            var cgram = new SnesCgram();
+            var cgram = new GameplayColours();
             for (int frame = 0; frame < 6; frame++)
             {
-                cycle.ApplyFrame(cgram, frame, 9);
+                cycle.ApplyFrame(cgram.SpriteSets.Set(0).Slice(9, 4), frame);
                 for (int color = 0; color < 4; color++)
                 {
                     AssertEqual(words[frame][color], cycle.Resolve(frame, color),
                         "stream 3 Work Robot selected color");
-                    AssertEqual(words[frame][color], cgram.Colors[9 + color],
+                    AssertEqual(words[frame][color], cgram.Colors[128 + 9 + color],
                         "stream 3 Work Robot applied color");
                 }
             }

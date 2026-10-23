@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -239,8 +240,9 @@ internal sealed class EnemyDrawList
         if (slot.Entity is IEnemyDrawHooks drawHooks && drawHooks.CommonDrawPaletteIndex() is { } owned)
             return owned;
 
+        // A hit flash shows the common sprite colours on alternate phases.
         if (!slot.FlashTimer.IsZero && (_frameContext.RandomEnemyCounter & 2) != 0)
-            return 0;
+            return SnesObjPalettes.Palette(SpriteColourSetDefinitions.Common).PaletteBits;
 
         if (!slot.FrozenTimer.IsZero &&
             (slot.FrozenTimer.RawValue >= 90 || (slot.FrozenTimer.RawValue & 2) != 0))

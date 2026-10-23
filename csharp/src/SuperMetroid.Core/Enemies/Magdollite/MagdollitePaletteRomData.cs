@@ -16,10 +16,4 @@ public static class MagdollitePaletteRomData
     public const int FirstAnimatedColor = 9;
     /// <summary>Four RGB5 color words per cycle update, replacing OBJ-row colors 9 through 12; <c>EnemyGraphicsDrawnHook_Magdollite_PeriodicallyCyclePalettes</c> at $A8:B0B2 leaves the other twelve colors unchanged.</summary>
     public const int AnimatedColorCount = 4;
-
-    /// <summary>One CGRAM palette's size in bytes.</summary>
-    public const int PaletteBytes = 0x20;
-
-    /// <summary>The CGRAM byte where sprite palettes begin.</summary>
-    public const int SpritePaletteByteBase = 0x0100;
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -44,8 +45,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal WrappingCountdown MagdollitePaletteAnimationTimer { get; set; }
     /// <summary>The palette cycle's current row, 0 through <see cref="MagdollitePaletteRomData.FrameCount"/> minus one; each step advances it around the cycle.</summary>
     internal int MagdollitePaletteFrame { get; set; }
-    /// <summary>OBJ palette byte offset selected by the final initialized Magdollite record.</summary>
-    internal int MagdollitePaletteBaseColor { get; set; }
+    /// <summary>The sprite colour set the final initialized Magdollite record selects, whose colours the cycle animates.</summary>
+    internal int MagdolliteColourSet { get; set; }
     /// <summary>Whether any Magdollite initializer installed the room's palette hook.</summary>
     internal bool MagdollitePaletteAnimationInstalled { get; set; }
 
@@ -93,10 +94,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         // Retail's last Magdollite record therefore resets this clock to eight and selects
         // its OBJ palette. Model the resulting singleton hook, not nine independent cycles.
         MagdollitePaletteAnimationInstalled = true;
-        int paletteNumber = new SuperMetroid.Core.Hardware.SnesObjAttributeWord(
+        MagdolliteColourSet = new SuperMetroid.Core.Hardware.SnesObjAttributeWord(
             checked((ushort)slot.PaletteIndex)).PaletteIndex;
-        MagdollitePaletteBaseColor =
-            (paletteNumber * MagdollitePaletteRomData.PaletteBytes + MagdollitePaletteRomData.SpritePaletteByteBase) / sizeof(ushort);
         MagdollitePaletteAnimationTimer = WrappingCountdown.Start(8);
         MagdollitePaletteFrame = 0;
     }
@@ -526,11 +525,11 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         MagdollitePaletteAnimationTimer = WrappingCountdown.Start(8);
         MagdollitePaletteFrame = (MagdollitePaletteFrame + 1) % MagdollitePaletteRomData.FrameCount;
         int paletteFrame = MagdollitePaletteFrame;
-        int destination = MagdollitePaletteBaseColor +
-            MagdollitePaletteRomData.FirstAnimatedColor;
+        ColourRun animated = _presentation.ColourSet(MagdolliteColourSet)
+            .Slice(MagdollitePaletteRomData.FirstAnimatedColor, MagdollitePaletteRomData.AnimatedColorCount);
         (_room.Artwork?.MagdollitePaletteCycle ?? throw new InvalidDataException(
             "Magdollite palette animation requires installed artwork."))
-            .ApplyFrame(_presentation.Cgram, paletteFrame, destination);
+            .ApplyFrame(animated, paletteFrame);
     }
 
     /// <summary>

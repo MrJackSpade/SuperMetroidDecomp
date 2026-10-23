@@ -64,19 +64,15 @@ public sealed class WorkRobotPaletteCycle
         return frames is null ? StockColor(frame, color) : frames[frame][color];
     }
 
-    /// <summary>Copies one four-color frame into CGRAM without advancing the native timer.</summary>
-    /// <param name="cgram">Destination color memory.</param>
+    /// <summary>Copies one four-color frame over <paramref name="animated"/> without advancing the timer.</summary>
+    /// <param name="animated">The four animated colours of the Work Robot's colour set.</param>
     /// <param name="frame">Zero-based cycle record from 0 through 5.</param>
-    /// <param name="destination">First CGRAM color index receiving the record.</param>
-    [PpuLayoutBoundary("codec: palette-cycle colours at their native CGRAM index operand")]
-    public void ApplyFrame(IPaletteColors cgram, int frame, int destination)
+    /// <exception cref="ArgumentException">The run is not four colours.</exception>
+    public void ApplyFrame(ColourRun animated, int frame)
     {
-        Ensure.NotNull(cgram);
-        if (destination < 0 ||
-            destination + WorkRobotPaletteRomData.ColorCount > CgramPalettes.ColorCount)
-            throw new ArgumentOutOfRangeException(nameof(destination));
+        Ensure.LengthEqual(animated.Colors, WorkRobotPaletteRomData.ColorCount);
         for (int color = 0; color < WorkRobotPaletteRomData.ColorCount; color++)
-            new CgramPalettes(cgram).All.Write(destination + color, Resolve(frame, color));
+            animated.Write(color, Resolve(frame, color));
     }
 
     /// <summary>Loads and validates the six four-color Work Robot frames from JSON.</summary>

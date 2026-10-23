@@ -126,7 +126,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         // affects both consumers without changing the ninja's animation or slot state.
         (_room.Artwork ?? throw new InvalidOperationException(
             "Gold Space Pirate requires installed palette artwork."))
-            .LoadPaletteTo(EnemyDefinitionId.PirateGoldWall, new EnemyPalettes(_presentation.Cgram).NinjaSpacePirate);
+            .LoadPaletteTo(EnemyDefinitionId.PirateGoldWall, _presentation.ColourSet(SpriteColourSetDefinitions.NinjaSpacePirate));
     }
 
     /// <summary>Dispatches the literal function installed in native variable A.</summary>

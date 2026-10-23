@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rendering;
 /// the colours that one colour variant of the screen's pre-coloured tiles shows. The screen publishes them with its frame.
 /// </summary>
 /// <remarks>The shared palette effects write through <see cref="IPaletteColors"/> until #1405 types them.</remarks>
-public sealed class ScreenPalette : IPaletteColors
+public sealed class ScreenPalette : IPaletteColors, ISpriteColourSets
 {
     /// <summary>The number of colours a screen palette holds.</summary>
     public const int ColorCount = 2 * RowsPerKind * ColoursPerRow;
@@ -42,6 +42,9 @@ public sealed class ScreenPalette : IPaletteColors
     /// <summary>Sprite row <paramref name="row"/>, zero through seven.</summary>
     public ColourRun SpriteRow(int row) =>
         Sprites.Slice(Ensure.BetweenInclusive(0, RowsPerKind - 1, row) * ColoursPerRow, ColoursPerRow);
+
+    /// <inheritdoc />
+    public ColourRun Set(int set) => SpriteRow(set);
 
     /// <summary>The colour behind every layer, where nothing is drawn.</summary>
     public Bgr555 Backdrop

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -15,8 +16,8 @@ internal static class RoomLoadPalettes
         Ensure.NotNull(palettes);
         var cgram = new ScreenPalette();
         palettes.LoadInitial(cgram);
-        palettes.LoadCommonSprites(cgram, RoomLoadingRomData.CommonGameplaySpritePaletteCgramIndex);
-        palettes.LoadEnemyProjectileSprites(cgram, RoomLoadingRomData.InitialEnemyProjectilePaletteCgramIndex);
+        palettes.LoadCommonSprites(cgram.SpriteRow(SpriteColourSetDefinitions.Common));
+        palettes.LoadEnemyProjectileSprites(cgram.SpriteRow(SpriteColourSetDefinitions.EnemyProjectiles));
         return cgram;
     }
 }

@@ -31,24 +31,12 @@ public sealed class GameplayBasePaletteCatalog
         new CgramPalettes(cgram).LoadImage(initial);
     }
 
-    /// <summary>Loads the selected 16-color common-sprite palette at a CGRAM color index.</summary>
-    [PpuLayoutBoundary("codec: room-load sprite palette copies at their native CGRAM index operands")]
-    public void LoadCommonSprites(IPaletteColors cgram, int destination)
-    {
-        Ensure.NotNull(cgram);
-        for (int color = 0; color < commonSprites.Length; color++)
-            new CgramPalettes(cgram).All.Write(destination + color, commonSprites[color]);
-    }
+    /// <summary>Loads the selected sixteen common sprite colours into <paramref name="set"/>.</summary>
+    public void LoadCommonSprites(ColourRun set) => set.CopyFrom(commonSprites);
 
-    /// <summary>Copies the 16 enemy-projectile colors from the initial image to a CGRAM color index.</summary>
-    [PpuLayoutBoundary("codec: room-load sprite palette copies at their native CGRAM index operands")]
-    public void LoadEnemyProjectileSprites(IPaletteColors cgram, int destination)
-    {
-        Ensure.NotNull(cgram);
-        for (int color = 0; color < GameplayBasePaletteFormat.SpriteColorCount; color++)
-            new CgramPalettes(cgram).All.Write(destination + color,
-                initial[GameplayBasePaletteFormat.EnemyProjectileInitialColor + color]);
-    }
+    /// <summary>Copies the sixteen enemy-projectile colours of the initial image into <paramref name="set"/>.</summary>
+    public void LoadEnemyProjectileSprites(ColourRun set) =>
+        set.CopyFrom(initial.AsSpan(GameplayBasePaletteFormat.EnemyProjectileInitialColor, GameplayBasePaletteFormat.SpriteColorCount));
 
     /// <summary>Loads and validates the full initial and common-sprite RGB5 palettes.</summary>
     public static GameplayBasePaletteCatalog Load(Stream json)

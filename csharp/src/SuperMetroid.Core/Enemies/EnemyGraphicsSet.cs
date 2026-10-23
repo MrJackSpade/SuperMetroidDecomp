@@ -1,4 +1,5 @@
-﻿namespace SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Assets;
+namespace SuperMetroid.Core.Enemies;
 
 /// <summary>The room's bank-$B4 enemy graphics set: the staged tiles and palettes, their uploads, and each enemy's tile and palette indexes.</summary>
 internal sealed class EnemyGraphicsSet
@@ -56,7 +57,7 @@ internal sealed class EnemyGraphicsSet
         IRoomEnemyDefinitionSource definitions,
         RoomEnemyGraphicsSetDefinition graphicsSet,
         SnesVram vram,
-        IPaletteColors cgram)
+        ISpriteColourSets sets)
     {
         LoadedSet = graphicsSet;
         foreach (RoomEnemyGraphicsSetEntry entry in LayOut(definitions, graphicsSet, vram))
@@ -67,7 +68,7 @@ internal sealed class EnemyGraphicsSet
             // seven, but retaining the wider mask makes corrupt data fail visibly.
             (_room.Artwork ?? throw new InvalidOperationException(
                 "Enemy population requires installed palette artwork."))
-                .LoadPaletteTo(entry.DefinitionId, new CgramPalettes(cgram).ObjectRow(checked((byte)entry.PaletteRow)));
+                .LoadPaletteTo(entry.DefinitionId, sets.Set(entry.PaletteRow));
             Entries.Add(entry);
         }
     }

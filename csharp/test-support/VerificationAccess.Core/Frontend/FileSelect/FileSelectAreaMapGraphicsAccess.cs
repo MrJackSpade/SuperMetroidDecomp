@@ -23,7 +23,7 @@ internal static class FileSelectAreaMapGraphicsAccess
             SnesLayerCompositor.Composite(pixels, foreground);
             Rgba32[] subscreen = new Rgba32[256 * 28 * 8];
             subscreen.AsSpan().Clear();
-            SnesBgTilemapRenderer.Render2Bpp(subscreen, MenuScreenFixtures.Vram(self.screen), MenuScreenFixtures.Cgram(self.screen), new BgVramAddresses { TilemapBaseWord = FileSelectMapRomData.AreaBackgroundVram, CharacterBaseWord = FileSelectMapRomData.AreaBackgroundCharacters }, 28, transparentColorZero: true);
+            SnesBgTilemapRendererConstants.Render2Bpp(subscreen, MenuScreenFixtures.Vram(self.screen), MenuScreenFixtures.Cgram(self.screen), new BgVramAddresses { TilemapBaseWord = FileSelectMapRomData.AreaBackgroundVram, CharacterBaseWord = FileSelectMapRomData.AreaBackgroundCharacters }, 28, transparentColorZero: true);
             // $81:AAAC changes CGADSUB from $25 to $05: BG1 still adds BG3, but
             // transparent BG1 cells now retain the backdrop instead of adding BG3 to it.
             if (!includeBackdropInColorMath)

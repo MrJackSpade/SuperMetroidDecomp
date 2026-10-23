@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
@@ -130,9 +131,11 @@ internal static class ObjSubscreenVerification
         ushort[] colors = new ushort[256];
         colors[0] = 31;
         colors[20] = 31 << 10;
+        // The subscreen and its coverage are the one-screen maps at a tilemap word, read as the fixture stands when drawn.
+        ScreenTileMap Cells(int tilemapWord) => VramTileFixtures.Cells(vram, ToColors(colors), tilemapWord, 0, BgBitDepth.FourBpp, Bg2BppViewportRenderLayer.MapSize);
         var memory = new PpuMemorySnapshot(vram, ToColors(colors), []);
         var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory,
-            new RenderLayer[] { new BgSubscreenAddRenderLayer(0x7000, 0, FourBpp: true) }, 15));
+            new RenderLayer[] { new BgSubscreenAddRenderLayer(Cells(0x7000)) }, 15));
         AssertTrue(SoftwareFrameSnapshotRenderer.Render(packet).All(pixel => pixel == new Rgba32(255, 0, 255)),
             "four-bit subscreen resolves upper bitplanes and sixteen-color palette stride before addition");
 
@@ -146,8 +149,8 @@ internal static class ObjSubscreenVerification
             oam[0] = 8; oam[1] = 8; oam[3] = (byte)(palette * 2);
             var masked = new RenderFrameSnapshot(new(3, 1, 0), new LayeredRenderSnapshot(
                 PpuMemorySnapshot.FromOam(vram, ToColors(colors), oam, 1, 3),
-                new RenderLayer[] { new ObjRenderLayer(), new BgSubscreenAddRenderLayer(0x7000, 0,
-                    new Bg4BppRenderLayer(0x6800, 0, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null), FourBpp: true, MainObjects: true) }, 15));
+                new RenderLayer[] { new ObjRenderLayer(), new BgSubscreenAddRenderLayer(Cells(0x7000),
+                    new Bg4BppRenderLayer(Cells(0x6800), new Position16<BgPlanePixels>(0, 0), null), MainObjects: true) }, 15));
             var pixels = SoftwareFrameSnapshotRenderer.Render(masked);
             AssertEqual(new Rgba32(255, 0, 0), pixels[0], "masked subscreen does not add to backdrop");
             AssertEqual(palette == 4 ? new Rgba32(0, 255, 255) : new Rgba32(0, 255, 0), pixels[8 * 256 + 8],
@@ -162,7 +165,7 @@ internal static class ObjSubscreenVerification
             vram[0xe000 + (32 + 1) * 2 + 1] = (byte)(4 | (highBackground ? 32 : 0));
             var composite = new RenderFrameSnapshot(new(2, 1, 0), new LayeredRenderSnapshot(
                 PpuMemorySnapshot.FromOam(vram, ToColors(colors), oam, 1, 3),
-                new RenderLayer[] { new BgSubscreenAddRenderLayer(0x7000, 0, FourBpp: true, IncludeObjects: true) }, 15));
+                new RenderLayer[] { new BgSubscreenAddRenderLayer(Cells(0x7000), IncludeObjects: true) }, 15));
             bool objectWins = priority >= (highBackground ? 3 : 2);
             AssertEqual(objectWins ? new Rgba32(255, 255, 0) : new Rgba32(255, 0, 255),
                 SoftwareFrameSnapshotRenderer.Render(composite)[8 * 256 + 8],

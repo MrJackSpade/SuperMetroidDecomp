@@ -5,6 +5,11 @@ using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx.Artwork;
+using System.Runtime.CompilerServices;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -40,7 +45,7 @@ internal static class SnesGameplayFrameRendererConstants
     /// generic Mode-7 elevator path does not have: BG3 owns the HUD, Mode 7 owns the arena,
     /// and the final sixteen scanlines switch back to Mode 1 with only BG2 and OBJ enabled.
     /// </summary>
-    public static Rgba32[] RenderHudCeresRidleyGetawayAndObjs(SnesVram vram, SnesCgram cgram, SpriteFrameBuffer sprites, Mode7RenderRegisters registers, CeresGetawayFloor floor, byte obsel = SnesGameplayFrameRenderer.DefaultObjectSelection, Rgba32[]? outputBuffer = null)
+    public static Rgba32[] RenderHudCeresRidleyGetawayAndObjs(SnesVram vram, SnesCgram cgram, SpriteFrameBuffer sprites, Mode7RenderRegisters registers, CeresGetawayFloor floor, byte obsel = SnesGameplayFrameRendererConstants.DefaultObjectSelection, Rgba32[]? outputBuffer = null)
     {
         Ensure.NotNull(vram);
         Ensure.NotNull(cgram);
@@ -298,7 +303,7 @@ internal static class SnesGameplayFrameRendererConstants
         var geometry = new BgTilemapGeometry(fullScreenAtmosphere
             ? RoomFxRomDataLayer3Constants.FullScreenAtmosphereTilemapSize
             : RoomFxRomDataLayer3Constants.LiquidTilemapSize);
-        BgCharacterFormat format = BgCharacterFormat.TwoBitsPerPixel;
+        BgCharacterFormat format = BgCharacterFormatConstants.TwoBitsPerPixel;
         // The image a capture shows: bound background characters over VRAM (#1350).
         SnesVram image = BgArtworkFixtures.ComposedVram(vram);
         ReadOnlySpan<byte> fxVram = image.Bytes;
@@ -433,4 +438,6 @@ internal static class SnesGameplayFrameRendererConstants
             ArrayPool<byte>.Shared.Return(rentedObjectPriorities, clearArray: false);
         }
     }
+    /// <summary>The gameplay OBSEL: 8x8 and 16x16 OBJs, character base 3.</summary>
+    internal const byte DefaultObjectSelection = 3;
 }

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Collections.Immutable;
 
 namespace SuperMetroid.RenderVerification.PpuFeatures;
@@ -128,12 +129,14 @@ internal static class SpriteDrawSmokeTests
                     (SpriteMirror)random.Next(4), random.Next(3) == 0 ? random.Next(8) : null));
             }
             var memory = new PpuMemorySnapshot(vram, palette, draws.ToImmutable());
+            ScreenTileMap cells = VramTileFixtures.Cells(vram, palette, GameplayVramLayout.Bg2TilemapWord, GameplayVramLayout.HudCharacterWord, BgBitDepth.FourBpp,
+                new Extent16<TilemapCells>(32, 32));
             Check(memory, [new ObjRenderLayer()], $"seeded scene {cases}");
             Check(memory, [
                 new ObjPriorityRenderLayer(0),
-                new Bg4BppRenderLayer(GameplayVramLayout.Bg2TilemapWord, GameplayVramLayout.HudCharacterWord, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), false),
+                new Bg4BppRenderLayer(cells, new Position16<BgPlanePixels>(3, 11), false),
                 new ObjPriorityRenderLayer(1), new ObjPriorityRenderLayer(2),
-                new Bg4BppRenderLayer(GameplayVramLayout.Bg2TilemapWord, GameplayVramLayout.HudCharacterWord, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), true),
+                new Bg4BppRenderLayer(cells, new Position16<BgPlanePixels>(3, 11), true),
                 new ObjPriorityRenderLayer(3)], $"seeded priority ladder {cases}");
         }
 

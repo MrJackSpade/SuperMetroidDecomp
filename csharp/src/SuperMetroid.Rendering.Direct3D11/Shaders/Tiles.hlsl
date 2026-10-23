@@ -300,16 +300,15 @@ uint PicturePixel(uint picture, uint2 pixel, out uint index, out bool high)
 #include "Objects.hlsli"
 #include "Xray.hlsli"
 
-// A frontend layer's VRAM tilemap word at the scrolled position (#1392), drawn from the pre-coloured tile of its
-// character in `table`: `picture` is the tile's sheet picture, and `within` the pixel in it under the word's palette row,
-// flipped as the word flips it.
+// A frontend layer's cell at the scrolled position (#1403), packed row by row from room level word `TilemapWord`, drawn
+// from the pre-coloured tile of its character in `table` (#1392): `picture` is the tile's sheet picture, and `within` the
+// pixel in it under the cell's palette row, mirrored as the cell mirrors it.
 uint ScreenTile(uint2 sampleScreen, uint2 scroll, uint table, out uint2 within, out uint picture)
 {
     uint x = (sampleScreen.x + scroll.x) & (MapWidth * 8 - 1);
     uint y = (sampleScreen.y + scroll.y) & (MapHeight * 8 - 1);
     uint tileX = x >> 3, tileY = y >> 3;
-    uint page = ((tileY >> 5) * (MapWidth >> 5) + (tileX >> 5)) * 1024;
-    uint entry = ReadWord(TilemapWord + page + (tileY & 31) * 32 + (tileX & 31));
+    uint entry = RoomLevels[TilemapWord + tileY * MapWidth + tileX];
     uint at = table + (entry & 1023) * 3;
     picture = RoomLevels[at];
     uint corner = RoomLevels[at + 1];
@@ -325,27 +324,18 @@ bool MainCoverage(uint2 screen)
     uint4 map = uint4(MatrixA, MatrixB, MatrixC, MatrixD);
     uint2 position = (screen + map.zw) & (geometry.xy * 8 - 1);
     uint2 tile = position >> 3;
-    uint page = ((tile.y >> 5) * (geometry.x >> 5) + (tile.x >> 5)) * 1024;
-    uint entry = ReadWord(map.x + page + (tile.y & 31) * 32 + (tile.x & 31));
+    // The coverage layer's cells, packed row by row from room level word map.x (#1403).
+    uint entry = RoomLevels[map.x + tile.y * geometry.x + tile.x];
     if (geometry.z != 0 && ((entry >> 13) & 1) != geometry.z - 1) return false;
     uint px = (entry & 16384) != 0 ? 7 - (position.x & 7) : position.x & 7;
     uint py = (entry & 32768) != 0 ? 7 - (position.y & 7) : position.y & 7;
-    bool covered;
-    if (CoverageTable != 0)
-    {
-        // The coverage layer draws from its characters' pre-coloured tiles (#1392): an opaque pixel of its tile covers.
-        uint at = CoverageTable + (entry & 1023) * 3;
-        uint corner = RoomLevels[at + 1];
-        uint index;
-        bool ignored;
-        covered = RoomLevels[at] != 0 && PicturePixel(RoomLevels[at], uint2(px + (corner & 65535),
-            py + (corner >> 16) + ((entry >> 10) & 7) * RoomLevels[at + 2]), index, ignored) != 0 && index != 0;
-    }
-    else
-    {
-        uint row = ((map.y + (entry & 1023) * 16) & 32767) * 2 + py * 2;
-        covered = (((ReadByte(row) | ReadByte(row + 1) | ReadByte(row + 16) | ReadByte(row + 17)) >> (7 - px)) & 1) != 0;
-    }
+    // The coverage layer draws from its characters' pre-coloured tiles (#1392): an opaque pixel of its tile covers.
+    uint at = CoverageTable + (entry & 1023) * 3;
+    uint corner = RoomLevels[at + 1];
+    uint index;
+    bool ignored;
+    bool covered = RoomLevels[at] != 0 && PicturePixel(RoomLevels[at], uint2(px + (corner & 65535),
+        py + (corner >> 16) + ((entry >> 10) & 7) * RoomLevels[at + 2]), index, ignored) != 0 && index != 0;
     if (AddG != 0)
     {
         uint palette;
@@ -573,7 +563,7 @@ void Main(uint3 id : SV_DispatchThreadID)
         entry = ReadWord(TilemapWord + page + (tileY & 31) * 32 + (tileX & 31));
         within = uint2(x & 7, y & 7);
     }
-    bool fourBpp = Operation == OpBg4 || (Operation == OpSubscreenAdd && Reserved27 != 0);
+    bool fourBpp = Operation == OpBg4;
     uint color;
     bool high;
     uint sampled;

@@ -4,13 +4,12 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
-/// What each character a frontend background layer's tilemap words can name shows (#1392): the pre-coloured tile of the
-/// artwork loaded there, by the character's index from the layer's character base; none where no artwork the screen
-/// loads shows that character.
+/// A frontend tile layer's tile set (#1392): the pre-coloured tile of each character its cells can show, by the
+/// character's index from the layer's character base; none where no artwork the screen loads shows that character.
 /// </summary>
 public sealed class ScreenLayerPictures
 {
-    /// <summary>The character indices a tilemap word can name.</summary>
+    /// <summary>The character indices a cell can show.</summary>
     public const int CharacterIndices = 1024;
 
     /// <summary>Holds each character index's tile.</summary>
@@ -33,18 +32,18 @@ public sealed class ScreenLayerPictures
     public ImmutableArray<ScreenTileSheet> Sheets { get; }
 
     /// <summary>
-    /// What tile word <paramref name="word"/> shows at <paramref name="pixel"/> of its character: its tile's pixel under the
-    /// word's palette row, flipped as the word flips it, with the word's priority.
+    /// What <paramref name="cell"/> shows at <paramref name="pixel"/> of its tile: the tile's pixel under the cell's palette
+    /// row, mirrored as the cell mirrors it, with the cell's priority.
     /// </summary>
-    /// <exception cref="InvalidDataException">The word names a character no artwork the screen loads shows.</exception>
-    public BgSample Sample(SnesBgTilemapWord word, Position16<CharacterPixels> pixel)
+    /// <exception cref="InvalidDataException">The cell shows a character no artwork the screen loads shows.</exception>
+    public BgSample Sample(ScreenTileCell cell, Position16<CharacterPixels> pixel)
     {
-        ScreenTilePicture tile = Tiles[word.CharacterIndex]
-            ?? throw new InvalidDataException($"Tile word ${word.Raw:X4} names character {word.CharacterIndex}, which no artwork the screen loads shows.");
-        Position16<ImagePixels> corner = tile.Sheet.Corner(tile.Character, word.PaletteIndex);
-        int x = word.FlipHorizontally ? ScreenTileSheet.TilePixels - 1 - pixel.X : pixel.X;
-        int y = word.FlipVertically ? ScreenTileSheet.TilePixels - 1 - pixel.Y : pixel.Y;
-        return BgSample.OfTilePicture(new BgTileSample(word, pixel), tile.Sheet.Picture,
-            new Position16<ImagePixels>((ushort)(corner.X + x), (ushort)(corner.Y + y)));
+        ScreenTilePicture tile = Tiles[cell.Tile]
+            ?? throw new InvalidDataException($"A cell shows character {cell.Tile}, which no artwork the screen loads shows.");
+        Position16<ImagePixels> corner = tile.Sheet.Corner(tile.Character, cell.PaletteRow);
+        int x = cell.FlipHorizontally ? ScreenTileSheet.TilePixels - 1 - pixel.X : pixel.X;
+        int y = cell.FlipVertically ? ScreenTileSheet.TilePixels - 1 - pixel.Y : pixel.Y;
+        return BgSample.OfTilePicture(tile.Sheet.Picture, new Position16<ImagePixels>((ushort)(corner.X + x), (ushort)(corner.Y + y)),
+            cell.HighPriority);
     }
 }

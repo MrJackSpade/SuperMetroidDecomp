@@ -41,7 +41,7 @@ internal static class SnesBgTilemapRendererAccess
             const int width = 32 * 8;
             int height = rowCount * 8;
             var output = new Rgba32[width * height];
-            SnesBgTilemapRenderer.Render2Bpp(output, vram, cgram, new BgVramAddresses { TilemapBaseWord = tilemapBaseWord, CharacterBaseWord = characterBaseWord }, rowCount, transparentColorZero, priority);
+            SnesBgTilemapRendererConstants.Render2Bpp(output, vram, cgram, new BgVramAddresses { TilemapBaseWord = tilemapBaseWord, CharacterBaseWord = characterBaseWord }, rowCount, transparentColorZero, priority);
             return output;
         }
     }

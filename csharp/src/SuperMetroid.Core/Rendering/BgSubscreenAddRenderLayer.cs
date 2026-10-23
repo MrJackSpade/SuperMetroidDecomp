@@ -1,32 +1,23 @@
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>Adds a 2-bpp or vertically scrolled 4-bpp subscreen; optional coverage excludes transparent main-plane pixels. OBJ coordinates remain screen-relative.</summary>
-/// <param name="TilemapWord">Subscreen BG tilemap base VRAM word address, using a 32-by-32 character-cell page.</param>
-/// <param name="CharacterWord">Subscreen character-data base VRAM word address, interpreted at the selected bit depth.</param>
-/// <param name="MainCoverage">Optional main-plane BG descriptor whose opaque samples permit addition; null permits addition without a BG coverage mask.</param>
-/// <param name="FourBpp">True to sample four-bit BG characters, false for two-bit characters; pen zero remains transparent.</param>
+/// <summary>Adds a frontend tile layer's subscreen (#1403); optional coverage excludes transparent main-plane pixels. OBJ coordinates remain screen-relative.</summary>
+/// <param name="Cells">The subscreen's cells and the tiles they show, a 32-by-32 map.</param>
+/// <param name="MainCoverage">Optional main-plane layer whose opaque samples permit addition; null permits addition without a coverage mask.</param>
 /// <param name="IncludeObjects">Whether to composite screen-relative OBJ pixels onto the subscreen using native BG/OBJ priority thresholds before adding its colors.</param>
-/// <param name="MainObjects">Whether main-plane OBJ visibility and palettes 4..7 affect eligibility when a coverage descriptor is supplied; has no effect without that descriptor.</param>
-/// <param name="VerticalScroll">Uniform vertical scroll in pixels when per-line registers are absent; nonzero values require four-bit sampling.</param>
-/// <param name="Pictures">The pre-coloured tiles its characters show, which it draws from (#1392); null while it draws from VRAM.</param>
-[IndependentFlag("independent PPU settings of the layer: bit depth and which object layers it adds")]
-public sealed record BgSubscreenAddRenderLayer(int TilemapWord, int CharacterWord,
-    Bg4BppRenderLayer? MainCoverage = null, bool FourBpp = false, bool IncludeObjects = false,
-    bool MainObjects = false, int VerticalScroll = 0, ScreenLayerPictures? Pictures = null) : RenderLayer
+/// <param name="MainObjects">Whether main-plane OBJ visibility and palettes 4..7 affect eligibility when a coverage layer is supplied; has no effect without that layer.</param>
+/// <param name="VerticalScroll">Uniform vertical scroll in pixels when per-line scrolls are absent.</param>
+[IndependentFlag("independent PPU settings of the layer: which object layers it adds")]
+public sealed record BgSubscreenAddRenderLayer(ScreenTileMap Cells,
+    Bg4BppRenderLayer? MainCoverage = null, bool IncludeObjects = false,
+    bool MainObjects = false, int VerticalScroll = 0) : RenderLayer
 {
-    /// <summary>Subscreen BG tilemap base VRAM word address, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
-    public int TilemapWord
+    /// <summary>The subscreen's cells and the tiles they show.</summary>
+    /// <exception cref="ArgumentException">The map is not one screen.</exception>
+    public ScreenTileMap Cells
     {
         get;
-        init => field = VramWordRange.Require(value);
-    } = VramWordRange.Require(TilemapWord);
-
-    /// <summary>Subscreen character-data base VRAM word address, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
-    public int CharacterWord
-    {
-        get;
-        init => field = VramWordRange.Require(value);
-    } = VramWordRange.Require(CharacterWord);
+        init => field = Bg2BppViewportRenderLayer.RequireScreen(value);
+    } = Bg2BppViewportRenderLayer.RequireScreen(Cells);
 
     /// <summary>Uniform vertical scroll in pixels, 0 through <see cref="Bg2BppViewportRenderLayer.MaximumScroll"/>.</summary>
     public int VerticalScroll
@@ -35,15 +26,15 @@ public sealed record BgSubscreenAddRenderLayer(int TilemapWord, int CharacterWor
         init => field = Ensure.BetweenInclusive(0, Bg2BppViewportRenderLayer.MaximumScroll, value);
     } = Ensure.BetweenInclusive(0, Bg2BppViewportRenderLayer.MaximumScroll, VerticalScroll);
 
-    /// <summary>Copied per-scanline BG scroll registers; an empty array selects the uniform scroll properties.</summary>
+    /// <summary>Copied per-scanline scrolls; an empty array selects the uniform scroll.</summary>
     private Position16<BgPlanePixels>[] scrolls = [];
-    /// <summary>Owned physical-line registers; empty means the uniform scroll fields.</summary>
+    /// <summary>Owned physical-line scrolls; empty means the uniform scroll.</summary>
     public ReadOnlySpan<Position16<BgPlanePixels>> Scrolls => scrolls;
 
-    /// <summary>Returns a copied layer with independently owned per-line scroll registers, leaving this descriptor and the caller's input untouched; these registers replace uniform background scrolling, not OBJ positions.</summary>
-    /// <param name="value">Exactly 224 scroll-register pairs in visible output-row order; background source coordinates wrap within the 256-by-256 page.</param>
-    /// <returns>A record copy retaining the other layer settings and a new scroll array; its registers apply to either bit depth.</returns>
-    /// <exception cref="ArgumentException">The register count differs from the visible screen height.</exception>
+    /// <summary>Returns a copied layer with independently owned per-line scrolls, leaving this descriptor and the caller's input untouched; these scrolls replace uniform background scrolling, not OBJ positions.</summary>
+    /// <param name="value">Exactly 224 scroll pairs in visible output-row order; background source coordinates wrap within the 256-by-256 page.</param>
+    /// <returns>A record copy retaining the other layer settings and a new scroll array.</returns>
+    /// <exception cref="ArgumentException">The scroll count differs from the visible screen height.</exception>
     public BgSubscreenAddRenderLayer WithScrolls(ReadOnlySpan<Position16<BgPlanePixels>> value)
     {
         Ensure.LengthEqual(value, Hardware.SnesPpuLayout.ScreenHeightPixels);

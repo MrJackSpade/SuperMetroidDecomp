@@ -97,7 +97,7 @@ internal static class IntroCinematicStateAccess
             // The renderer skips tiles of the other priority, so clear the reused plane first.
             Rgba32[] fullText = new Rgba32[IntroCinematicStateConstants.ScreenWidth * 32 * 8];
             fullText.AsSpan().Clear();
-            SnesBgTilemapRenderer.Render2Bpp(fullText, self.ShownVram, self.palette, new BgVramAddresses { TilemapBaseWord = IntroCinematicRomData.Layers.NarrationTilemapWord, CharacterBaseWord = IntroCinematicRomData.Layers.FontCharacterBaseWord }, rowCount: 32, transparentColorZero: true, priority: priority);
+            SnesBgTilemapRendererConstants.Render2Bpp(fullText, self.ShownVram, self.palette, new BgVramAddresses { TilemapBaseWord = IntroCinematicRomData.Layers.NarrationTilemapWord, CharacterBaseWord = IntroCinematicRomData.Layers.FontCharacterBaseWord }, rowCount: 32, transparentColorZero: true, priority: priority);
             SnesLayerCompositor.Composite(pixels, fullText.AsSpan(8 * IntroCinematicStateConstants.ScreenWidth, IntroCinematicStateConstants.ScreenWidth * IntroCinematicStateConstants.ScreenHeight));
         }
         /// <summary>Overlays OBJ sprites at one SNES priority level into the cinematic frame.</summary>

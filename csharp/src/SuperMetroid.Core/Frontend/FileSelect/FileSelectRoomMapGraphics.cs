@@ -116,15 +116,19 @@ public sealed class FileSelectRoomMapGraphics
         var layers = new List<RenderLayer>();
         // Both planes draw from the map characters' pre-coloured tiles (#1392).
         ScreenLayerPictures tiles = screen.FileSelectTiles.Pictures(FileSelectMapRomData.RoomCharacters, BgBitDepth.FourBpp);
+        byte[] image = MenuScreenImage.Compose(screen);
+        ScreenTileMap frame = ScreenTileMap.Capture(image, MenuVramLayout.Bg2TilemapWord, new Extent16<TilemapCells>(32, 32), tiles);
         if (content == RoomMapContent.FrameOnly)
-            layers.Add(new Bg4BppRenderLayer(MenuVramLayout.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters, new Position16<BgPlanePixels>(0, FileSelectMapRomData.RoomFrameVerticalScroll), new Extent16<TilemapCells>(32, 32), null, tiles));
+            layers.Add(new Bg4BppRenderLayer(frame, new Position16<BgPlanePixels>(0, FileSelectMapRomData.RoomFrameVerticalScroll), null));
         else
+        {
+            ScreenTileMap map = ScreenTileMap.Capture(image, MenuVramLayout.Bg1TilemapWord, new Extent16<TilemapCells>(64, 32), tiles);
             foreach (bool priority in new[] { false, true })
             {
-                layers.Add(new Bg4BppRenderLayer(MenuVramLayout.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters, new Position16<BgPlanePixels>(0, FileSelectMapRomData.RoomFrameVerticalScroll), new Extent16<TilemapCells>(32, 32), priority, tiles));
-                layers.Add(new Bg4BppRenderLayer(MenuVramLayout.Bg1TilemapWord, FileSelectMapRomData.RoomCharacters,
-                    scroll.AsBgPlaneScroll(), new Extent16<TilemapCells>(64, 32), priority, tiles));
+                layers.Add(new Bg4BppRenderLayer(frame, new Position16<BgPlanePixels>(0, FileSelectMapRomData.RoomFrameVerticalScroll), priority));
+                layers.Add(new Bg4BppRenderLayer(map, scroll.AsBgPlaneScroll(), priority));
             }
+        }
         if (marker is not null && content != RoomMapContent.FrameOnly)
         {
             PrepareIcons(scroll, marker, animations);
@@ -135,7 +139,7 @@ public sealed class FileSelectRoomMapGraphics
             screen.Objects.BeginFrame();
             screen.Objects.FinishFrame();
         }
-        return new(MenuScreenImage.Capture(screen), layers.ToArray(),
+        return new(MenuScreenImage.Capture(screen, image), layers.ToArray(),
             SnesPpuLayout.MaximumMasterBrightness);
     }
 }

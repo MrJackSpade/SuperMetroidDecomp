@@ -1404,13 +1404,14 @@ level, samus, NmiFrameWord(elapsedUpdates));
         if (CurrentCeresFlight is not null && Phase == IntroCinematicPhase.CeresFlight)
             return CurrentCeresFlight.CaptureRenderSnapshot();
 
+        byte[] image = Image();
         SpriteFrameBuffer oam;
         Bg4BppRenderLayer room;
         if (Phase is IntroCinematicPhase.MotherBrainCrossfade or
             IntroCinematicPhase.MotherBrainFlashback or IntroCinematicPhase.PageTwoCrossfade)
         {
             oam = PrepareMotherBrainSprites();
-            room = Plane(IntroCinematicRomData.Layers.SceneBg1TilemapWord,
+            room = Plane(image, IntroCinematicRomData.Layers.SceneBg1TilemapWord,
                 (CurrentFlashbackMotherBrain?.Background ??
                     new Position16<RoomPixels>(0, GameplayFlashbackBg1VerticalScroll)).AsBgPlaneScroll());
         }
@@ -1418,7 +1419,7 @@ level, samus, NmiFrameWord(elapsedUpdates));
             IntroCinematicPhase.BabyDiscovery or IntroCinematicPhase.PageThreeCrossfade)
         {
             oam = PrepareBabyDiscoverySprites();
-            room = Plane(IntroCinematicRomData.Layers.SceneBg2TilemapWord, new(0, GameplayFlashbackBg1VerticalScroll));
+            room = Plane(image, IntroCinematicRomData.Layers.SceneBg2TilemapWord, new(0, GameplayFlashbackBg1VerticalScroll));
         }
         else if (Phase is IntroCinematicPhase.BabyMetroidDeliveryCrossfade or
             IntroCinematicPhase.BabyMetroidDelivery or IntroCinematicPhase.PageFourCrossfade or
@@ -1426,7 +1427,7 @@ level, samus, NmiFrameWord(elapsedUpdates));
             IntroCinematicPhase.BabyMetroidExamination or IntroCinematicPhase.PageFiveCrossfade)
         {
             oam = PrepareScientistSprites();
-            room = Plane(IntroVram.LaboratoryTilemapWord(ScientistCutscene.Scene), ScientistCutscene.Background.AsBgPlaneScroll());
+            room = Plane(image, IntroVram.LaboratoryTilemapWord(ScientistCutscene.Scene), ScientistCutscene.Background.AsBgPlaneScroll());
         }
         else if (CurrentObjects is null)
         {
@@ -1435,22 +1436,19 @@ level, samus, NmiFrameWord(elapsedUpdates));
             oam.FinalizeFrame();
             // The first card is opaque and unscrolled; later text is transparent
             // and cropped one tile down. Do not conflate those two PPU setups.
-            return new(new PpuMemorySnapshot(Image(), palette.Colors, oam.Draws),
-                new RenderLayer[] { new Bg2BppViewportRenderLayer(
-                    IntroCinematicRomData.Layers.NarrationTilemapWord,
-                    IntroCinematicRomData.Layers.FontCharacterBaseWord, 0, false, null, FontPictures()) }, ScreenFade.Displayed(Inidisp));
+            return new(new PpuMemorySnapshot(image, palette.Colors, oam.Draws),
+                new RenderLayer[] { new Bg2BppViewportRenderLayer(NarrationCells(image), 0, false, null) }, ScreenFade.Displayed(Inidisp));
         }
         else
         {
             oam = PrepareIllustratedPageSprites();
-            room = Plane(IntroCinematicRomData.Layers.PortraitTilemapWord, new(0, GameplayFlashbackBg1VerticalScroll));
+            room = Plane(image, IntroCinematicRomData.Layers.PortraitTilemapWord, new(0, GameplayFlashbackBg1VerticalScroll));
         }
 
-        var text = new Bg2BppViewportRenderLayer(IntroCinematicRomData.Layers.NarrationTilemapWord,
-            IntroCinematicRomData.Layers.FontCharacterBaseWord, GameplayFlashbackBg1VerticalScroll, true, false, FontPictures());
+        var text = new Bg2BppViewportRenderLayer(NarrationCells(image), GameplayFlashbackBg1VerticalScroll, true, false);
         // Mode 1 with high-priority BG3: preserve both the OBJ winner and the
         // insertion points of text/room priority planes during palette crossfades.
-        return new(new PpuMemorySnapshot(Image(), palette.Colors, oam.Draws), new RenderLayer[]
+        return new(new PpuMemorySnapshot(image, palette.Colors, oam.Draws), new RenderLayer[]
         {
             new ObjPriorityRenderLayer(0), text, new ObjPriorityRenderLayer(1), room,
             new ObjPriorityRenderLayer(2), room with { Priority = true },
@@ -1476,10 +1474,11 @@ level, samus, NmiFrameWord(elapsedUpdates));
     internal static ushort NmiFrameWord(int elapsedUpdates) => unchecked((ushort)elapsedUpdates);
 
     /// <summary>Defines a four-bit background plane at the selected tilemap and source scroll, drawn from the scene's tiles (#1392).</summary>
-    private Bg4BppRenderLayer Plane(ushort tilemap, Position16<BgPlanePixels> scroll) =>
-        new(tilemap, 0, scroll, new Extent16<TilemapCells>(32, 32), false, Tiles.Pictures(0, BgBitDepth.FourBpp));
+    private Bg4BppRenderLayer Plane(byte[] image, ushort tilemap, Position16<BgPlanePixels> scroll) =>
+        new(ScreenTileMap.Capture(image, tilemap, new Extent16<TilemapCells>(32, 32), Tiles.Pictures(0, BgBitDepth.FourBpp)), scroll, false);
 
-    /// <summary>What the narration's font characters show (#1392).</summary>
-    [PpuLayoutBoundary("codec: the narration font's character base")]
-    private ScreenLayerPictures FontPictures() => Tiles.Pictures(IntroCinematicRomData.Layers.FontCharacterBaseWord, BgBitDepth.TwoBpp);
+    /// <summary>The narration's cells, showing its font characters (#1392).</summary>
+    [PpuLayoutBoundary("codec: the narration's tilemap and font character base")]
+    private ScreenTileMap NarrationCells(byte[] image) => ScreenTileMap.Capture(image, IntroCinematicRomData.Layers.NarrationTilemapWord,
+        Bg2BppViewportRenderLayer.MapSize, Tiles.Pictures(IntroCinematicRomData.Layers.FontCharacterBaseWord, BgBitDepth.TwoBpp));
 }

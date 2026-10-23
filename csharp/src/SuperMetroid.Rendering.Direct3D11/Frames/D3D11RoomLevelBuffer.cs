@@ -109,6 +109,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private readonly Dictionary<ScreenLayerPictures, int> screenTables = [];
     /// <summary>Where the last <see cref="Pack"/> put each Mode 7 map's tile picture table.</summary>
     private readonly Dictionary<Mode7TilePictures, int> mode7Tables = [];
+    /// <summary>Where the last <see cref="Pack"/> put each frontend layer's cells (#1403).</summary>
+    private readonly Dictionary<ScreenTileMap, int> screenMaps = [];
 
     /// <summary>Creates an empty buffer.</summary>
     internal D3D11RoomLevelBuffer(ID3D11Device device)
@@ -139,6 +141,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         RoomBackgroundImagePlane? image = frame.Bg2Image, skyImage = frame.SkyImage;
         SpriteSheetFrame? message = frame.MessagePicture;
         ImmutableArray<ScreenLayerPictures> screens = frame.Screens?.Layers ?? [];
+        ImmutableArray<ScreenTileMap> screenCells = frame.Screens?.Maps ?? [];
         Mode7TilePictures? roomMode7 = mode7?.Tiles is { } roomTiles ? Mode7TilePictures.Of(roomTiles) : null;
         ImmutableArray<Mode7TilePictures> mode7s = [.. (frame.Screens?.Mode7 ?? []).Concat(roomMode7 is null ? [] : [roomMode7])];
         // No dispatch samples t3 without one of these, so such a scene keeps the last packed room unread.
@@ -163,6 +166,12 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         }
         if (words > ushort.MaxValue)
             throw new InvalidOperationException($"A frame's {screenTables.Count} frontend layer tile tables do not fit the half word a dispatch names them in.");
+        screenMaps.Clear();
+        foreach (ScreenTileMap map in screenCells)
+        {
+            if (screenMaps.TryAdd(map, words))
+                words += map.Cells.Length;
+        }
         var blockOffsets = new int[PlaneSlots];
         for (int slot = 0; slot < PlaneSlots; slot++)
         {
@@ -312,6 +321,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             PackPicture(upload.Slice(offset, PictureHeaderWords + 2 * picture.Size.X * picture.Size.Y), picture, colourWords[picture.Sheet]);
         foreach ((ScreenLayerPictures screen, int offset) in screenTables)
             PackScreenTable(upload.Slice(offset, ScreenTableWords), screen, pictureWords);
+        foreach ((ScreenTileMap map, int offset) in screenMaps)
+            PackScreenMap(upload.Slice(offset, map.Cells.Length), map);
         foreach ((Mode7TilePictures tiles, int offset) in mode7Tables)
             PackTilePictures(upload, tiles.Pictures, offset, Mode7TilePictures.Tiles, pictureWords);
         upload[Bg2ImageWord] = (uint)imageOffset;
@@ -400,6 +411,27 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// <exception cref="InvalidOperationException">The last packing held no such map.</exception>
     internal uint Mode7Table(Mode7TilePictures tiles) => mode7Tables.TryGetValue(tiles, out int offset) ? (uint)offset
         : throw new InvalidOperationException("A Mode 7 map's tiles were not packed with its frame.");
+
+    /// <summary>The room level buffer word of <paramref name="map"/>'s first cell in the last packing (#1403).</summary>
+    /// <exception cref="InvalidOperationException">The last packing held no such map.</exception>
+    internal uint ScreenMap(ScreenTileMap map) => screenMaps.TryGetValue(map, out int offset) ? (uint)offset
+        : throw new InvalidOperationException("A frontend layer's cells were not packed with its frame.");
+
+    /// <summary>
+    /// Packs a frontend layer's cells (#1403), one word each, row by row: the cell's tile in the low ten bits, its palette
+    /// row above them, then its priority and its horizontal and vertical mirroring, as Tiles.hlsl decodes a cell.
+    /// </summary>
+    private static void PackScreenMap(Span<uint> words, ScreenTileMap map)
+    {
+        const int paletteRowShift = 10;
+        const uint highPriority = 1u << 13, flipHorizontally = 1u << 14, flipVertically = 1u << 15;
+        for (int index = 0; index < map.Cells.Length; index++)
+        {
+            ScreenTileCell cell = map.Cells[index];
+            words[index] = (uint)cell.Tile | (uint)cell.PaletteRow << paletteRowShift | (cell.HighPriority ? highPriority : 0)
+                | (cell.FlipHorizontally ? flipHorizontally : 0) | (cell.FlipVertically ? flipVertically : 0);
+        }
+    }
 
     /// <summary>The room level buffer word of <paramref name="pictures"/>' character tile table in the last packing (#1392).</summary>
     /// <exception cref="InvalidOperationException">The last packing held no such layer.</exception>

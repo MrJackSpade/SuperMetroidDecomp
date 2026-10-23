@@ -4,6 +4,7 @@ using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Compares Direct3D tile and color-math output with the software PPU renderer.</summary>
 internal static class TileSmokeTests
@@ -17,23 +18,27 @@ internal static class TileSmokeTests
         byte[] bytes = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(bytes);
         Bgr555[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
         var memory = new PpuMemorySnapshot(bytes, palette, []);
+        ScreenLayerPictures upper = VramTileFixtures.Tiles(bytes, palette, 0x6000, BgBitDepth.FourBpp);
+        ScreenTileMap Cells(int tilemapWord, ushort width, ushort height, ScreenLayerPictures tiles) =>
+            ScreenTileMap.Capture(bytes, tilemapWord, new Extent16<TilemapCells>(width, height), tiles);
         int count = 0;
         foreach (ushort width in new ushort[] { 32, 64 })
         foreach (ushort height in new ushort[] { 32, 64 })
         foreach (bool? priority in new bool?[] { null, false, true })
         foreach (ushort scroll in new ushort[] { 0, 7, 255, 511, ushort.MaxValue })
-            Check(new RenderLayer[] { new Bg4BppRenderLayer(0x7ffe, 0x6000, new Position16<BgPlanePixels>(scroll, scroll), new Extent16<TilemapCells>(width, height), priority) }, "4bpp geometry/priority/scroll");
+            Check(new RenderLayer[] { new Bg4BppRenderLayer(Cells(0x7ffe, width, height, upper), new Position16<BgPlanePixels>(scroll, scroll), priority) }, "4bpp geometry/priority/scroll");
+        ScreenLayerPictures font = VramTileFixtures.Tiles(bytes, palette, 0x7ff8, BgBitDepth.TwoBpp);
         foreach (bool transparent in new[] { false, true })
         foreach (bool? priority in new bool?[] { null, false, true })
         foreach (ushort scroll in new ushort[] { 0, 1, 223, 255, ushort.MaxValue })
-            Check(new RenderLayer[] { new Bg2BppViewportRenderLayer(0x7fff, 0x7ff8, scroll, transparent, priority) }, "2bpp viewport/priority/key");
-        foreach (bool priority in new[] { false, true })
-            Check(new RenderLayer[] { new Bg2BppRenderLayer(0x5800, 0x4000, 28, priority) }, "2bpp visible plane");
+            Check(new RenderLayer[] { new Bg2BppViewportRenderLayer(Cells(0x7fff, 32, 32, font), scroll, transparent, priority) }, "2bpp viewport/priority/key");
+        ScreenLayerPictures lower = VramTileFixtures.Tiles(bytes, palette, 0, BgBitDepth.FourBpp);
+        ScreenLayerPictures text = VramTileFixtures.Tiles(bytes, palette, 0x4000, BgBitDepth.TwoBpp);
         for (byte brightness = 0; brightness <= 15; brightness++)
             Check(new RenderLayer[] {
-                new Bg4BppRenderLayer(0x4000, 0, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(64, 32), false),
-                new Bg4BppRenderLayer(0x4800, 0x6000, new Position16<BgPlanePixels>(65535, 255), new Extent16<TilemapCells>(32, 64), true),
-                new Bg2BppViewportRenderLayer(0x5800, 0x4000, 13, true, null),
+                new Bg4BppRenderLayer(Cells(0x4000, 64, 32, lower), new Position16<BgPlanePixels>(3, 11), false),
+                new Bg4BppRenderLayer(Cells(0x4800, 32, 64, upper), new Position16<BgPlanePixels>(65535, 255), true),
+                new Bg2BppViewportRenderLayer(Cells(0x5800, 32, 32, text), 13, true, null),
                 new FixedColorAddRenderLayer(3, 17, 31) }, "ordered planes/fixed-color/fades", brightness);
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} tile/color-math GPU comparisons passed.");
 
@@ -44,7 +49,10 @@ internal static class TileSmokeTests
         }
     }
 
-    /// <summary>Checks the flipped fourth-plane byte that previously selected the wrong palette color.</summary>
+    /// <summary>
+    /// Checks a flipped tile's fourth-plane byte reaches its picture (#1403): the byte an earlier shader decode misread,
+    /// selecting the wrong palette color.
+    /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyFourthPlaneByteSelection(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
@@ -65,7 +73,8 @@ internal static class TileSmokeTests
         palette[3 * 16 + 2] = new Bgr555(31, 0, 0); palette[3 * 16 + 10] = new Bgr555(0, 0, 31);
         var memory = new PpuMemorySnapshot(vram, palette, []);
         var frame = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory,
-            new RenderLayer[] { new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null) }, 15));
+            new RenderLayer[] { new Bg4BppRenderLayer(VramTileFixtures.Cells(vram, palette, 0x4000, 0x6000, BgBitDepth.FourBpp, new Extent16<TilemapCells>(32, 32)),
+                new Position16<BgPlanePixels>(0, 0), null) }, 15));
         var expected = SoftwareFrameSnapshotRenderer.Render(frame);
         if (expected[0] != new SuperMetroid.Core.Hardware.Rgba32(255, 0, 0))
             throw new InvalidOperationException("Fourth-plane fixture no longer selects color two.");

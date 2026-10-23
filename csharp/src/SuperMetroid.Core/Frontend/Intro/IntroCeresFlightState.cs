@@ -203,15 +203,15 @@ internal sealed class IntroCeresFlightState
     public LayeredRenderSnapshot CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
+        byte[] image = Image();
         var layers = new List<RenderLayer> { new ObjPriorityRenderLayer(0) };
         if (Phase is IntroCeresFlightPhase.SpaceColonyTitle or IntroCeresFlightPhase.FadeOut or
             IntroCeresFlightPhase.StartGameAtCeres or IntroCeresFlightPhase.Finished)
         {
             // The caption draws from the flight's object characters' pre-coloured tiles (#1392).
-            var caption = new Bg4BppRenderLayer(CeresFlightRomData.Layers.SpaceColonyTilemapWord,
-                CeresFlightRomData.Layers.SpaceColonyCharacterWord, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), false,
+            var caption = new Bg4BppRenderLayer(ScreenTileMap.Capture(image, CeresFlightRomData.Layers.SpaceColonyTilemapWord, new Extent16<TilemapCells>(32, 32),
                 (captionTiles ?? throw new InvalidOperationException("The Ceres flight's caption requires the installed sprite sheets."))
-                    .Pictures(CeresFlightRomData.Layers.SpaceColonyCharacterWord, BgBitDepth.FourBpp));
+                    .Pictures(CeresFlightRomData.Layers.SpaceColonyCharacterWord, BgBitDepth.FourBpp)), new Position16<BgPlanePixels>(0, 0), false);
             layers.Add(caption);
             layers.Add(new ObjPriorityRenderLayer(1));
             layers.Add(caption with { Priority = true });
@@ -232,7 +232,7 @@ internal sealed class IntroCeresFlightState
             byte flash = checked((byte)flashIntensity);
             layers.Add(new FixedColorAddRenderLayer(flash, flash, flash));
         }
-        return new(new PpuMemorySnapshot(Image(), palette.Colors, objects.Draws), layers.ToArray(), checked((byte)brightness));
+        return new(new PpuMemorySnapshot(image, palette.Colors, objects.Draws), layers.ToArray(), checked((byte)brightness));
     }
 
     /// <summary>Places the front stars or surviving rear-view actors as this frame's sprite entries.</summary>

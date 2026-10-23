@@ -16,8 +16,6 @@ namespace SuperMetroid.Core.Rendering;
 [PpuLayoutBoundary("backend: software PPU gameplay frame compositor")]
 public static class SnesGameplayFrameRenderer
 {
-    /// <summary>The gameplay OBSEL: 8x8 and 16x16 OBJs, character base 3.</summary>
-    internal const byte DefaultObjectSelection = 3;
 
     /// <summary>Visible SNES viewport width in pixels.</summary>
     public const int Width = SnesPpuLayout.ScreenWidthPixels;

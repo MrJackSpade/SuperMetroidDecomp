@@ -30,12 +30,10 @@ public sealed class LayeredRenderSnapshot
         // cannot rearrange a queued frame's priority ladder after publication.
         foreach (RenderLayer layer in layers)
         {
-            if (layer is not (ObjPriorityRenderLayer or ObjRenderLayer or Bg4BppRenderLayer or Bg2BppRenderLayer or Bg2BppViewportRenderLayer or Mode7RenderLayer or FixedColorAddRenderLayer or OrdinaryGameplayRenderLayer or ScanlineColorAddRenderLayer or MessageBoxRenderLayer or Bg2BppColorMathRenderLayer or Mode7GameplayRenderLayer or BgSubscreenAddRenderLayer or WindowedSceneRenderLayer or GameplayColorMathRenderLayer))
+            if (layer is not (ObjPriorityRenderLayer or ObjRenderLayer or Bg4BppRenderLayer or Bg2BppViewportRenderLayer or Mode7RenderLayer or FixedColorAddRenderLayer or OrdinaryGameplayRenderLayer or ScanlineColorAddRenderLayer or MessageBoxRenderLayer or Bg2BppColorMathRenderLayer or Mode7GameplayRenderLayer or BgSubscreenAddRenderLayer or WindowedSceneRenderLayer or GameplayColorMathRenderLayer))
                 throw new ArgumentException("Unrecognized or null render layer.", nameof(layers));
             if (layer is Mode7RenderLayer { SubtractObjSubscreen: true, AddBg1Subscreen: true })
                 throw new ArgumentException("Mode 7 cannot select two different color-math operations.", nameof(layers));
-            if (layer is BgSubscreenAddRenderLayer { FourBpp: false, VerticalScroll: not 0 })
-                throw new ArgumentException("Scrolled subscreen descriptors require the four-bit viewport sampler.", nameof(layers));
             if (layer is ObjRenderLayer { FixedColor: not null, AddToScreen: true })
                 throw new ArgumentException("OBJ fixed color requires replacing OBJ.", nameof(layers));
             if (layer is Bg4BppRenderLayer bg4 &&
@@ -44,9 +42,6 @@ public sealed class LayeredRenderSnapshot
             if (layer is BgSubscreenAddRenderLayer { MainCoverage: { } coverage } &&
                 (coverage.MapSize.X is not (32 or 64) || coverage.MapSize.Y is not (32 or 64)))
                 throw new ArgumentException("Coverage BGSC geometry must be 32 or 64 tiles on each axis.", nameof(layers));
-            if (layer is Bg2BppRenderLayer bg2 && bg2.RowCount !=
-                Hardware.SnesPpuLayout.ScreenHeightPixels / Hardware.SnesPpuLayout.BackgroundTileSizePixels)
-                throw new ArgumentException("This full-frame 2-bpp operation requires exactly the visible tile rows.", nameof(layers));
         }
         for (int i = 1; i < layers.Length; i++)
             if (layers[i] is OrdinaryGameplayRenderLayer or Mode7GameplayRenderLayer or GameplayColorMathRenderLayer)

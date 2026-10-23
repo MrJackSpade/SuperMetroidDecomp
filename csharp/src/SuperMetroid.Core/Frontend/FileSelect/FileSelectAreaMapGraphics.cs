@@ -184,13 +184,14 @@ public sealed class FileSelectAreaMapGraphics
         PrepareLabels(usedStationMasks);
         // The foreground and the area's background draw from the area's pre-coloured tiles (#1392).
         ScreenCharacters tiles = screen.AreaMapTiles((AreaId)SelectedArea);
-        var foreground = new Bg4BppRenderLayer(MenuVramLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null,
-            tiles.Pictures(0, BgBitDepth.FourBpp));
-        return new(MenuScreenImage.Capture(screen), new RenderLayer[] {
+        byte[] image = MenuScreenImage.Compose(screen);
+        var foreground = new Bg4BppRenderLayer(ScreenTileMap.Capture(image, MenuVramLayout.Bg1TilemapWord, new Extent16<TilemapCells>(32, 32),
+            tiles.Pictures(0, BgBitDepth.FourBpp)), new Position16<BgPlanePixels>(0, 0), null);
+        return new(MenuScreenImage.Capture(screen, image), new RenderLayer[] {
             foreground,
-            new BgSubscreenAddRenderLayer(FileSelectMapRomData.AreaBackgroundVram,
-                FileSelectMapRomData.AreaBackgroundCharacters, colorMath == AreaMapColorMath.WithBackdrop ? null : foreground,
-                Pictures: tiles.Pictures(FileSelectMapRomData.AreaBackgroundCharacters, BgBitDepth.TwoBpp)),
+            new BgSubscreenAddRenderLayer(ScreenTileMap.Capture(image, FileSelectMapRomData.AreaBackgroundVram, Bg2BppViewportRenderLayer.MapSize,
+                    tiles.Pictures(FileSelectMapRomData.AreaBackgroundCharacters, BgBitDepth.TwoBpp)),
+                colorMath == AreaMapColorMath.WithBackdrop ? null : foreground),
             new ObjRenderLayer() }, SnesPpuLayout.MaximumMasterBrightness);
     }
 }

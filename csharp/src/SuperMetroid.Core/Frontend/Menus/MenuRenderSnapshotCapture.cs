@@ -14,12 +14,13 @@ internal static class MenuRenderSnapshotCapture
         // gameplay priority ladder while moving composition to another backend.
         // Both planes draw from the menus' pre-coloured tiles (#1392).
         ScreenLayerPictures tiles = screen.FileSelectTiles.Pictures(0, BgBitDepth.FourBpp);
+        byte[] image = MenuScreenImage.Compose(screen);
         RenderLayer[] layers =
         [
-            new Bg4BppRenderLayer(MenuVramLayout.Bg2TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null, tiles),
-            new Bg4BppRenderLayer(MenuVramLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, bg1VerticalScroll), new Extent16<TilemapCells>(32, 32), null, tiles),
+            new Bg4BppRenderLayer(ScreenTileMap.Capture(image, MenuVramLayout.Bg2TilemapWord, new Extent16<TilemapCells>(32, 32), tiles), new Position16<BgPlanePixels>(0, 0), null),
+            new Bg4BppRenderLayer(ScreenTileMap.Capture(image, MenuVramLayout.Bg1TilemapWord, new Extent16<TilemapCells>(32, 32), tiles), new Position16<BgPlanePixels>(0, bg1VerticalScroll), null),
             new ObjRenderLayer(),
         ];
-        return new(MenuScreenImage.Capture(screen), layers, brightness);
+        return new(MenuScreenImage.Capture(screen, image), layers, brightness);
     }
 }

@@ -7,6 +7,7 @@ using SuperMetroid.Rendering.Direct3D11.Frames;
 using SuperMetroid.Rendering.Direct3D11.Telemetry;
 namespace SuperMetroid.RenderVerification.Device;
 using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Checks the D3D11 display scaler, GPU timing boundaries, and compute reuse after display.</summary>
 internal static class DisplayPassTests
@@ -21,7 +22,8 @@ internal static class DisplayPassTests
         Bgr555[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount)
             .Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
         var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(new PpuMemorySnapshot(vram, palette, []),
-            [new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), null)], 15));
+            [new Bg4BppRenderLayer(VramTileFixtures.Cells(vram, palette, 0x4000, 0x6000, BgBitDepth.FourBpp, new Extent16<TilemapCells>(32, 32)),
+                new Position16<BgPlanePixels>(3, 11), null)], 15));
         var native = SoftwareFrameSnapshotRenderer.Render(packet);
         int count = 0;
         using var timer = new D3D11GpuTimer(device);

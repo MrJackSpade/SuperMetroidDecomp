@@ -12,19 +12,19 @@ internal static class EndingCreditsPresentation
     public static LayeredRenderSnapshot CaptureRenderSnapshot(EndingCreditsState ending)
     {
         if (ending.UsesExplosionFinaleDisplay) return ending.CaptureExplosionFinale();
+        byte[] image = ending.Image();
         var layers = new List<RenderLayer>();
         EndingObjectSheet objectSheet = CurrentEscapeObjectSheet(ending);
         PpuMemorySnapshot memory;
         if (ending.InstalledArtwork.CurrentEndingLogo is not null)
         {
             if (ending.InstalledArtwork.CurrentEndingLogo.CrossfadeStarted)
-                layers.Add(new Bg4BppRenderLayer(EndingLogoDefinitions.Tilemap, EndingLogoDefinitions.Characters,
-                    new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null,
-                    ending.BackgroundTiles(EndingPaletteId.PostCredits, EndingLogoDefinitions.Characters, BgBitDepth.FourBpp)));
+                layers.Add(new Bg4BppRenderLayer(ending.Cells(image, EndingLogoDefinitions.Tilemap, new Extent16<TilemapCells>(32, 32),
+                    EndingPaletteId.PostCredits, EndingLogoDefinitions.Characters, BgBitDepth.FourBpp), new Position16<BgPlanePixels>(0, 0), null));
             layers.Add(new ObjRenderLayer(ending.InstalledArtwork.CurrentEndingLogo.CrossfadeStarted));
-            layers.Add(PostCreditsLayer(ending));
+            layers.Add(PostCreditsLayer(ending, image));
             // The logo assembles over the shooting scene's page.
-            return new(CaptureMemory(ending, EndingObjectSheet.RewardFalling), layers.ToArray(), checked((byte)ending.Stage.Brightness));
+            return new(CaptureMemory(ending, image, EndingObjectSheet.RewardFalling), layers.ToArray(), checked((byte)ending.Stage.Brightness));
         }
         if (ending.CreditsRoll.CurrentPostShot is not null)
         {
@@ -35,15 +35,14 @@ internal static class EndingCreditsPresentation
             layers.Add(new ObjPriorityRenderLayer(1));
             layers.Add(new ObjPriorityRenderLayer(2));
             layers.Add(new ObjPriorityRenderLayer(3));
-            return new(CaptureMemory(ending, CurrentRewardObjectSheet(ending)), layers.ToArray(), checked((byte)ending.Stage.Brightness));
+            return new(CaptureMemory(ending, image, CurrentRewardObjectSheet(ending)), layers.ToArray(), checked((byte)ending.Stage.Brightness));
         }
         if (ending.Stage.Phase == EndingCreditsPhase.Credits)
         {
-            layers.Add(new Bg4BppRenderLayer(EndingCreditsRomData.Rendering.CreditsTilemapWord,
-                EndingCreditsRomData.Rendering.CreditsCharacterWord, ending.Credits.ScrollPosition, new Extent16<TilemapCells>(32, 32), null,
-                ending.BackgroundTiles(EndingPaletteId.Credits, EndingCreditsRomData.Rendering.CreditsCharacterWord, BgBitDepth.FourBpp)));
+            layers.Add(new Bg4BppRenderLayer(ending.Cells(image, EndingCreditsRomData.Rendering.CreditsTilemapWord, new Extent16<TilemapCells>(32, 32),
+                EndingPaletteId.Credits, EndingCreditsRomData.Rendering.CreditsCharacterWord, BgBitDepth.FourBpp), ending.Credits.ScrollPosition, null));
             // Credits intentionally do not run the sprite draw routine.
-            memory = new PpuMemorySnapshot(ending.Image(), ending.screen.Palette.Colors, []);
+            memory = new PpuMemorySnapshot(image, ending.screen.Palette.Colors, []);
         }
         else
         {
@@ -53,12 +52,11 @@ internal static class EndingCreditsPresentation
                 if (ending.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop)
                     layers.Add(new ObjPriorityRenderLayer(0));
                 if (PostCreditsBackgroundEnabled(ending))
-                    layers.Add(PostCreditsLayer(ending));
+                    layers.Add(PostCreditsLayer(ending, image));
                 if (ending.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop)
-                    layers.Add(new BgSubscreenAddRenderLayer(EndingWavySamusDefinitions.TilemapWord,
-                        EndingWavySamusDefinitions.CharacterWord,
-                        PostCreditsLayer(ending),
-                        Pictures: ending.BackgroundTiles(EndingPaletteId.PostCredits, EndingWavySamusDefinitions.CharacterWord, BgBitDepth.TwoBpp))
+                    layers.Add(new BgSubscreenAddRenderLayer(ending.Cells(image, EndingWavySamusDefinitions.TilemapWord, Bg2BppViewportRenderLayer.MapSize,
+                            EndingPaletteId.PostCredits, EndingWavySamusDefinitions.CharacterWord, BgBitDepth.TwoBpp),
+                        PostCreditsLayer(ending, image))
                         .WithScrolls(EndingWavySamusDefinitions.ScrollsAtAge(
                             EndingCreditsRomData.Timing.WaitingBackdropFrames - ending.Stage.PhaseTimer)));
             }
@@ -74,7 +72,7 @@ internal static class EndingCreditsPresentation
                     ending.Stage.Mode7.Whole.AsSignedRegister(), WrapOutsideMap: AtmosphericMapWraps(ending)),
                     AddBg1Subscreen: AtmosphericMapWraps(ending), Tiles: ending.Mode7Tiles()));
             }
-            memory = CaptureMemory(ending, objectSheet);
+            memory = CaptureMemory(ending, image, objectSheet);
             if (EndingObjectsEnabled(ending) && !AtmosphericMapWraps(ending))
             {
                 if (UsesFlyawayMode7Priority(ending))
@@ -155,21 +153,19 @@ internal static class EndingCreditsPresentation
         || (ending.Stage.Phase == EndingCreditsPhase.PostCreditsReward && ending.Stage.EndingReward != EndingReward.Armored);
 
     /// <summary>The post-credits background plane: the waiting backdrop, or the uploaded text map at its current scroll and height.</summary>
-    private static Bg4BppRenderLayer PostCreditsLayer(EndingCreditsState ending)
+    private static Bg4BppRenderLayer PostCreditsLayer(EndingCreditsState ending, byte[] image)
     {
         var size = new Extent16<TilemapCells>(32, checked((ushort)ending.CreditsRoll.PostCreditsMapHeight));
         return UsesWaitingBackground(ending)
-            ? new(EndingCreditsRomData.Rendering.WaitingTilemapWord, EndingCreditsRomData.Rendering.WaitingCharacterWord,
-                ending.Stage.PostCreditsScroll, size, null,
-                ending.BackgroundTiles(EndingPaletteId.PostCredits, EndingCreditsRomData.Rendering.WaitingCharacterWord, BgBitDepth.FourBpp))
-            : new(EndingVram.TextTilemapWord(ending.CreditsRoll.PostCreditsTextTilemap), EndingCreditsRomData.Rendering.PostCreditsCharacterWord,
-                ending.Stage.PostCreditsScroll, size, null,
-                ending.BackgroundTiles(EndingPaletteId.PostCredits, EndingCreditsRomData.Rendering.PostCreditsCharacterWord, BgBitDepth.FourBpp));
+            ? new(ending.Cells(image, EndingCreditsRomData.Rendering.WaitingTilemapWord, size,
+                EndingPaletteId.PostCredits, EndingCreditsRomData.Rendering.WaitingCharacterWord, BgBitDepth.FourBpp), ending.Stage.PostCreditsScroll, null)
+            : new(ending.Cells(image, EndingVram.TextTilemapWord(ending.CreditsRoll.PostCreditsTextTilemap), size,
+                EndingPaletteId.PostCredits, EndingCreditsRomData.Rendering.PostCreditsCharacterWord, BgBitDepth.FourBpp), ending.Stage.PostCreditsScroll, null);
     }
 
-    /// <summary>The scene's memories with this frame's sprite entries over the OBJ page of <paramref name="objectSheet"/>.</summary>
-    internal static PpuMemorySnapshot CaptureMemory(EndingCreditsState ending, EndingObjectSheet objectSheet) =>
-        new(ending.Image(), ending.screen.Palette.Colors, PrepareSprites(ending, objectSheet).Draws);
+    /// <summary>The scene's memory image <paramref name="image"/> with this frame's sprite entries over the OBJ page of <paramref name="objectSheet"/>.</summary>
+    internal static PpuMemorySnapshot CaptureMemory(EndingCreditsState ending, byte[] image, EndingObjectSheet objectSheet) =>
+        new(image, ending.screen.Palette.Colors, PrepareSprites(ending, objectSheet).Draws);
 
     /// <summary>
     /// Places the scene's sprite entries at the simulation display boundary without advancing sprite state, each drawn

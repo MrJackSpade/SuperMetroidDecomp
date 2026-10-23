@@ -4,6 +4,7 @@ using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Compares D3D11 and software windowed-scene rendering across native PPU geometry and brightness cases.</summary>
 internal static class WindowSceneSmokeTests
@@ -21,9 +22,14 @@ internal static class WindowSceneSmokeTests
             return PpuMemorySnapshot.FromOam(vram, palette, oam, 128, obsel);
         }
         var parentMemory = Memory(3); var childMemory = Memory(7);
+        var background = new Bg4BppRenderLayer(VramTileFixtures.Cells(parentMemory.Vram, parentMemory.Cgram, 0x4000, 0x6000, BgBitDepth.FourBpp,
+            new Extent16<TilemapCells>(32, 32)), new Position16<BgPlanePixels>(3, 11), true);
+        // The parent's tile layer packs its cells once; drawing it before the counted frames leaves each of them only
+        // its memory and sprite-draw uploads.
         int count = 0;
-        // Each scene render uploads its memory, sprite-draw and BG-layer buffers once. The two draw buffers upload their
-        // grown capacity, so a frame's bytes are fixed per window shape rather than computable from the scene alone.
+        renderer.RenderForReadback(new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(parentMemory, [background], 15)));
+        // Each scene render uploads its memory and sprite-draw buffers once. The draw buffer uploads its grown capacity,
+        // so a frame's bytes are fixed per window shape rather than computable from the scene alone.
         var bytesByChildren = new Dictionary<int, long>();
         foreach (var edges in new[] { new WindowEdges(0,0,256,224), new WindowEdges(0,0,0,224), new WindowEdges(1,1,255,223),
             new WindowEdges(17,32,219,200), new WindowEdges(255,223,256,224), new WindowEdges(0,0,1,1), new WindowEdges(0,224,256,224) })
@@ -35,7 +41,7 @@ internal static class WindowSceneSmokeTests
             var window = new WindowedSceneRenderLayer(child, edges.Left, edges.Top, edges.Right, edges.Bottom);
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(parentMemory,
                 new RenderLayer[] { new ObjPriorityRenderLayer(0), window,
-                    new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), true),
+                    background,
                     new ObjPriorityRenderLayer(3), window, new FixedColorAddRenderLayer(1,2,3) }, 13), [new FadeLevel(11)]);
             var before = renderer.UploadStatistics;
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
@@ -44,7 +50,7 @@ internal static class WindowSceneSmokeTests
             int children = edges.Left == edges.Right || edges.Top == edges.Bottom ? 0 : 2;
             long memoryAndConstantBytes = (1 + children) * D3D11ShaderLayout.PpuMemoryWords * sizeof(uint)
                 + (8 + children * 5) * D3D11ShaderLayout.SolidConstantWords * sizeof(uint);
-            long expectedCalls = (1 + children) * 3 + 8 + children * 5;
+            long expectedCalls = (1 + children) * 2 + 8 + children * 5;
             long bytes = after.Bytes - before.Bytes;
             long firstBytes = bytesByChildren.TryGetValue(children, out long seen) ? seen : bytesByChildren[children] = bytes;
             if (after.Calls - before.Calls != expectedCalls || bytes <= memoryAndConstantBytes || bytes != firstBytes)

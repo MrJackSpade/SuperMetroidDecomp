@@ -4,6 +4,7 @@ using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Compares software and Direct3D OBJ rendering across sprite sizes, counts, priorities, and overlap.</summary>
 internal static class ObjectSmokeTests
@@ -19,6 +20,7 @@ internal static class ObjectSmokeTests
         random.NextBytes(oam);
         Bgr555[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount)
             .Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
+        ScreenTileMap cells = VramTileFixtures.Cells(vram, palette, 0x4000, 0x6000, BgBitDepth.FourBpp, new Extent16<TilemapCells>(32, 32));
         int cases = 0;
         for (int size = 0; size < 8; size++)
         foreach (int count in new[] { 0, 1, 37, 128 })
@@ -29,9 +31,9 @@ internal static class ObjectSmokeTests
             Check(memory, obsel, new RenderLayer[] { new ObjRenderLayer() });
             Check(memory, obsel, new RenderLayer[] {
                 new ObjPriorityRenderLayer(0),
-                new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), false),
+                new Bg4BppRenderLayer(cells, new Position16<BgPlanePixels>(3, 11), false),
                 new ObjPriorityRenderLayer(1), new ObjPriorityRenderLayer(2),
-                new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), true),
+                new Bg4BppRenderLayer(cells, new Position16<BgPlanePixels>(3, 11), true),
                 new ObjPriorityRenderLayer(3) });
         }
         // Earlier OAM wins even when the later entry has greater display priority.

@@ -289,11 +289,13 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         ushort mapY = unchecked((ushort)((ScreenMode == PauseScreenMode.Map ? MapScrollPosition.Y : 0) + SnesPpuLayout.FirstVisibleBackgroundScanline));
         // Every plane draws from the pause screen's pre-coloured tiles (#1392).
         ScreenLayerPictures planes = screen.Tiles.Pictures(0, BgBitDepth.FourBpp);
-        var bg1 = new Bg4BppRenderLayer(PauseMenuLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(mapX, mapY), new Extent16<TilemapCells>(64, 32), false, planes);
-        var bg2 = new Bg4BppRenderLayer(PauseMenuLayout.Bg2TilemapWord, 0, new Position16<BgPlanePixels>(0, SnesPpuLayout.FirstVisibleBackgroundScanline), new Extent16<TilemapCells>(32, 32), false, planes);
-        var bg3 = new Bg2BppViewportRenderLayer(GameplayVramLayout.HudTilemapWord,
-            GameplayVramLayout.HudCharacterWord,
-            SnesPpuLayout.FirstVisibleBackgroundScanline, true, false, screen.Tiles.Pictures(GameplayVramLayout.HudCharacterWord, BgBitDepth.TwoBpp));
+        byte[] image = PauseScreenImage.Compose(screen);
+        var bg1 = new Bg4BppRenderLayer(ScreenTileMap.Capture(image, PauseMenuLayout.Bg1TilemapWord, new Extent16<TilemapCells>(64, 32), planes),
+            new Position16<BgPlanePixels>(mapX, mapY), false);
+        var bg2 = new Bg4BppRenderLayer(ScreenTileMap.Capture(image, PauseMenuLayout.Bg2TilemapWord, new Extent16<TilemapCells>(32, 32), planes),
+            new Position16<BgPlanePixels>(0, SnesPpuLayout.FirstVisibleBackgroundScanline), false);
+        var bg3 = new Bg2BppViewportRenderLayer(ScreenTileMap.Capture(image, GameplayVramLayout.HudTilemapWord, Bg2BppViewportRenderLayer.MapSize,
+            screen.Tiles.Pictures(GameplayVramLayout.HudCharacterWord, BgBitDepth.TwoBpp)), SnesPpuLayout.FirstVisibleBackgroundScanline, true, false);
         RenderLayer[] layers =
         [
             new ObjPriorityRenderLayer(0), bg3,
@@ -301,7 +303,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             new ObjPriorityRenderLayer(2), bg2 with { Priority = true }, bg1 with { Priority = true },
             new ObjPriorityRenderLayer(3), bg3 with { Priority = true },
         ];
-        return new(PauseScreenImage.Capture(screen), layers, checked((byte)(Transition == PauseMenuTransition.None ? 15 : TransitionBrightness)));
+        return new(PauseScreenImage.Capture(screen, image), layers, checked((byte)(Transition == PauseMenuTransition.None ? 15 : TransitionBrightness)));
     }
 
     /// <summary>Assembles map markers or equipment sprites in their native page-specific order.</summary>

@@ -436,12 +436,11 @@ public sealed class D3D11FrameRenderer : IDisposable
     {
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.SubscreenAdd;
-        data[1] = (uint)layer.TilemapWord; data[2] = (uint)layer.CharacterWord;
+        data[1] = roomLevels.ScreenMap(layer.Cells);
         data[4] = (uint)layer.VerticalScroll;
         data[5] = 32; data[6] = 32; data[8] = 1; data[26] = 224;
-        data[27] = layer.FourBpp ? 1u : 0u;
-        data[14] = (uint)ScreenSource(layer.Pictures) | ScreenTable(layer.Pictures) << 16;
-        data[D3D11ShaderLayout.CoverageTableWord] = ScreenTable(layer.MainCoverage?.Pictures);
+        data[14] = (uint)D3D11RoomSource.ScreenTiles | roomLevels.ScreenTable(layer.Cells.Tiles) << 16;
+        data[D3D11ShaderLayout.CoverageTableWord] = layer.MainCoverage is { } covering ? roomLevels.ScreenTable(covering.Cells.Tiles) : 0;
         data[10] = layer.IncludeObjects ? 1u : 0u;
         data[11] = layer.MainObjects ? 1u : 0u;
         if (layer.MainCoverage is { } coverage)
@@ -449,7 +448,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             // Subscreen operations do not use the Mode-7 matrix header. Keep coverage
             // there so all physical scanline rows remain available to HDMA scrolls.
             int offset = 16;
-            data[offset] = (uint)coverage.TilemapWord; data[offset + 1] = (uint)coverage.CharacterWord;
+            data[offset] = roomLevels.ScreenMap(coverage.Cells);
             data[offset + 2] = coverage.Scroll.X; data[offset + 3] = coverage.Scroll.Y;
             data[offset + 4] = coverage.MapSize.X; data[offset + 5] = coverage.MapSize.Y;
             data[offset + 6] = Priority(coverage.Priority); data[offset + 7] = 1;
@@ -468,21 +467,27 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.Dispatch(32, 28, 1);
     }
 
-    /// <summary>The character tiles a frontend layer draws from (#1392): its own and, for a subscreen, its main coverage's.</summary>
-    private static IEnumerable<ScreenLayerPictures?> ScreenPictures(RenderLayer layer) => layer switch
+    /// <summary>The cells a frontend layer draws (#1403): its own and, for a subscreen, its main coverage's.</summary>
+    private static IEnumerable<ScreenTileMap> ScreenMaps(RenderLayer layer) => layer switch
     {
-        Bg4BppRenderLayer bg => [bg.Pictures],
-        Bg2BppViewportRenderLayer bg => [bg.Pictures],
-        BgSubscreenAddRenderLayer sub => [sub.Pictures, sub.MainCoverage?.Pictures],
+        Bg4BppRenderLayer bg => [bg.Cells],
+        Bg2BppViewportRenderLayer bg => [bg.Cells],
+        BgSubscreenAddRenderLayer { MainCoverage: { } coverage } sub => [sub.Cells, coverage.Cells],
+        BgSubscreenAddRenderLayer sub => [sub.Cells],
         _ => [],
     };
 
-    /// <summary>Where a frontend layer reads its tiles: its characters' pre-coloured tiles once it carries them (#1392), otherwise VRAM.</summary>
-    private static D3D11RoomSource ScreenSource(ScreenLayerPictures? pictures) =>
-        pictures is null ? D3D11RoomSource.VramTilemap : D3D11RoomSource.ScreenTiles;
-
-    /// <summary>The room level buffer word of a frontend layer's character tile table, or zero while it draws from VRAM.</summary>
-    private uint ScreenTable(ScreenLayerPictures? pictures) => pictures is null ? 0 : roomLevels.ScreenTable(pictures);
+    /// <summary>
+    /// Dispatches a frontend tile layer's cells (#1403), each drawn from its tile's pre-coloured picture, colour zero
+    /// transparent unless <paramref name="transparentZero"/> is false.
+    /// </summary>
+    private void DispatchScreenTiles(D3D11TileOperation operation, ScreenTileMap cells, Position16<BgPlanePixels> scroll, bool? priority,
+        bool transparentZero = true) =>
+        DispatchTile(operation, new D3D11TileDispatch
+        {
+            Map = roomLevels.ScreenMap(cells), Scroll = scroll, MapSize = cells.Size, Priority = Priority(priority),
+            TransparentZero = transparentZero ? 1u : 0u, RoomSource = D3D11RoomSource.ScreenTiles, ScreenTable = roomLevels.ScreenTable(cells.Tiles),
+        });
 
     /// <summary>Rejects unsupported layers, uploads PPU memory once, then dispatches passes in scene order.</summary>
     private unsafe void DrawLayers(RenderFrameSnapshot packet, LayeredRenderSnapshot scene,
@@ -490,7 +495,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     {
         // Reject unimplemented operations before changing GPU state. No CPU fallback.
         foreach (RenderLayer layer in scene.Layers)
-            if (layer is not (Bg4BppRenderLayer or Bg2BppRenderLayer or Bg2BppViewportRenderLayer or FixedColorAddRenderLayer or ObjRenderLayer or ObjPriorityRenderLayer or Mode7RenderLayer or Mode7GameplayRenderLayer or ScanlineColorAddRenderLayer or Bg2BppColorMathRenderLayer or BgSubscreenAddRenderLayer or MessageBoxRenderLayer or OrdinaryGameplayRenderLayer or WindowedSceneRenderLayer or GameplayColorMathRenderLayer))
+            if (layer is not (Bg4BppRenderLayer or Bg2BppViewportRenderLayer or FixedColorAddRenderLayer or ObjRenderLayer or ObjPriorityRenderLayer or Mode7RenderLayer or Mode7GameplayRenderLayer or ScanlineColorAddRenderLayer or Bg2BppColorMathRenderLayer or BgSubscreenAddRenderLayer or MessageBoxRenderLayer or OrdinaryGameplayRenderLayer or WindowedSceneRenderLayer or GameplayColorMathRenderLayer))
                 throw new NotSupportedException($"GPU layer {layer.GetType().Name} is not implemented yet.");
         var memory = memoryUpload;
         MemoryMarshal.Cast<byte, uint>(scene.Memory.Vram).CopyTo(memory);
@@ -515,18 +520,18 @@ public sealed class D3D11FrameRenderer : IDisposable
         RoomBackgroundLayer? floor = null;
         Layer3Plane? bg3 = rooms?.Bg3;
         Mode7MapSnapshot? mode7Map = null;
-        var screens = new List<ScreenLayerPictures>();
+        var screens = new List<ScreenTileMap>();
         var mode7Screens = new List<Mode7TilePictures>();
         foreach (RenderLayer layer in scene.Layers)
         {
             // A frontend Mode 7 map that draws from its tiles' pictures (#1392), each once.
             if (layer is Mode7RenderLayer { Tiles: { } mode7Tiles } && !mode7Screens.Contains(mode7Tiles))
                 mode7Screens.Add(mode7Tiles);
-            // The frontend layers that draw from their characters' pre-coloured tiles (#1392), each once.
-            foreach (ScreenLayerPictures? pictures in ScreenPictures(layer))
+            // The frontend layers' cells (#1403), each once.
+            foreach (ScreenTileMap cells in ScreenMaps(layer))
             {
-                if (pictures is not null && !screens.Contains(pictures))
-                    screens.Add(pictures);
+                if (!screens.Contains(cells))
+                    screens.Add(cells);
             }
             if (layer is Mode7GameplayRenderLayer mode7)
             {
@@ -592,13 +597,10 @@ public sealed class D3D11FrameRenderer : IDisposable
                     DispatchTile(D3D11TileOperation.InsertObj, new D3D11TileDispatch { Priority = (uint)obj.Priority + 1, Green = obj.FixedColor is not null ? 1u : 0u, Blue = obj.FixedColor is { } priorityColor ? (uint)(priorityColor.Red | priorityColor.Green << 5 | priorityColor.Blue << 10) : 0 });
                     break;
                 case Bg4BppRenderLayer bg:
-                    DispatchTile(D3D11TileOperation.Bg4, new D3D11TileDispatch { Map = (uint)bg.TilemapWord, Characters = (uint)bg.CharacterWord, Scroll = bg.Scroll, MapSize = bg.MapSize, Priority = Priority(bg.Priority), RoomSource = ScreenSource(bg.Pictures), ScreenTable = ScreenTable(bg.Pictures) });
-                    break;
-                case Bg2BppRenderLayer bg:
-                    DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { Map = (uint)bg.TilemapWord, Characters = (uint)bg.CharacterWord, Priority = Priority(bg.Priority) });
+                    DispatchScreenTiles(D3D11TileOperation.Bg4, bg.Cells, bg.Scroll, bg.Priority);
                     break;
                 case Bg2BppViewportRenderLayer bg:
-                    DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { Map = (uint)bg.TilemapWord, Characters = (uint)bg.CharacterWord, Scroll = new Position16<BgPlanePixels>(0, checked((ushort)bg.VerticalScroll)), Priority = Priority(bg.Priority), TransparentZero = bg.TransparentColorZero ? 1u : 0u, RoomSource = ScreenSource(bg.Pictures), ScreenTable = ScreenTable(bg.Pictures) });
+                    DispatchScreenTiles(D3D11TileOperation.Bg2, bg.Cells, new Position16<BgPlanePixels>(0, checked((ushort)bg.VerticalScroll)), bg.Priority, bg.TransparentColorZero);
                     break;
                 case FixedColorAddRenderLayer add:
                     DispatchTile(D3D11TileOperation.FixedAdd, new D3D11TileDispatch { Red = (uint)add.Red, Green = (uint)add.Green, Blue = (uint)add.Blue });

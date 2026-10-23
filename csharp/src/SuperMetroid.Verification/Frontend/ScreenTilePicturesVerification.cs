@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend.CeresCinematics;
@@ -26,8 +27,8 @@ namespace SuperMetroid.Verification.Frontend;
 
 /// <summary>
 /// Checks the menu screens draw their backgrounds from pre-coloured screen tiles (#1392): every background layer of each
-/// menu screen carries its characters' tiles, and the screen drawn from them matches it drawn from VRAM's characters
-/// and CGRAM, pixel for pixel.
+/// menu screen carries its cells and its characters' tiles (#1403), and the screen drawn from them matches it drawn from
+/// VRAM's characters and CGRAM, pixel for pixel.
 /// </summary>
 internal static class ScreenTilePicturesVerification
 {
@@ -172,28 +173,43 @@ internal static class ScreenTilePicturesVerification
     }
 
     /// <summary>
-    /// Asserts each background layer of <paramref name="scene"/> carries its characters' tiles, and the scene drawn from them
-    /// matches it drawn from its characters; returns the layers checked.
+    /// Asserts each background layer of <paramref name="scene"/> draws from its characters' tiles: the scene drawn from them
+    /// matches it drawn with each tile layer's cells showing tiles decoded from the scene's own VRAM characters and CGRAM,
+    /// and each Mode 7 map drawn from its characters; returns the layers checked.
     /// </summary>
     private static int AssertDrawnFromTiles(LayeredRenderSnapshot scene, string name)
     {
         int layers = 0;
+        var decoded = new Dictionary<ScreenLayerPictures, ScreenLayerPictures>();
+        ScreenTileMap FromCharacters(ScreenTileMap cells)
+        {
+            if (!decoded.TryGetValue(cells.Tiles, out ScreenLayerPictures? tiles))
+            {
+                // Only the characters the scene's layers show from this tile set need decoding.
+                int[] shown = [.. scene.Layers.ToArray().SelectMany(TileMaps).Where(map => map.Tiles == cells.Tiles).SelectMany(map => map.Cells).Select(cell => cell.Tile)];
+                tiles = VramTileFixtures.Tiles(scene.Memory.Vram, scene.Memory.Cgram, CharacterBase(scene.Memory.Vram, cells, name), cells.Tiles.Depth, shown);
+                decoded.Add(cells.Tiles, tiles);
+            }
+            return new ScreenTileMap(tiles, cells.Size, cells.Cells);
+        }
         var fromCharacters = new List<RenderLayer>();
         foreach (RenderLayer layer in scene.Layers)
         {
-            (RenderLayer stripped, ScreenLayerPictures? pictures) = layer switch
+            RenderLayer stripped = layer switch
             {
-                Bg4BppRenderLayer bg => ((RenderLayer)(bg with { Pictures = null }), bg.Pictures),
-                Bg2BppViewportRenderLayer bg => (bg with { Pictures = null }, bg.Pictures),
-                Mode7RenderLayer mode7 => (mode7 with { Tiles = null }, null),
-                BgSubscreenAddRenderLayer sub => (sub with { Pictures = null, MainCoverage = sub.MainCoverage is { } coverage ? coverage with { Pictures = null } : null },
-                    sub.Pictures),
-                _ => (layer, (ScreenLayerPictures?)null),
+                Bg4BppRenderLayer bg => bg with { Cells = FromCharacters(bg.Cells) },
+                Bg2BppViewportRenderLayer bg => bg with { Cells = FromCharacters(bg.Cells) },
+                Mode7RenderLayer mode7 => mode7 with { Tiles = null },
+                BgSubscreenAddRenderLayer sub => sub with
+                {
+                    Cells = FromCharacters(sub.Cells),
+                    MainCoverage = sub.MainCoverage is { } coverage ? coverage with { Cells = FromCharacters(coverage.Cells) } : null,
+                },
+                _ => layer,
             };
             if (!ReferenceEquals(stripped, layer))
             {
-                AssertTrue(pictures is not null || layer is Mode7RenderLayer { Tiles: not null },
-                    $"{name}: its {layer.GetType().Name} draws from its characters' tiles");
+                AssertTrue(layer is not Mode7RenderLayer { Tiles: null }, $"{name}: its {layer.GetType().Name} draws from its characters' tiles");
                 layers++;
             }
             fromCharacters.Add(stripped);
@@ -213,6 +229,71 @@ internal static class ScreenTilePicturesVerification
         AssertTrue(mismatch < 0, $"{name}: drawn from its tiles it matches its characters, but pixel ({mismatch % 256}, {mismatch / 256}) is " +
             $"{(mismatch < 0 ? default : pictured[mismatch])} where its characters draw {(mismatch < 0 ? default : characters[mismatch])}");
         return layers;
+    }
+
+    /// <summary>
+    /// The character base <paramref name="cells"/>' tiles picture: of the bases a background can select, one every
+    /// <see cref="CharacterBaseStep"/> words, the one whose characters match the most of the tiles the cells show.
+    /// </summary>
+    [PpuLayoutBoundary("exact hardware test: finds the VRAM character base a frontend layer's tiles were loaded at")]
+    private static int CharacterBase(ReadOnlySpan<byte> vram, ScreenTileMap cells, string name)
+    {
+        ScreenLayerPictures tiles = cells.Tiles;
+        int[] shown = [.. cells.Cells.Select(cell => cell.Tile).Distinct().Where(tile => tiles.Tiles[tile] is not null)];
+        int best = -1, bestMatches = 0;
+        for (int characterBase = 0; characterBase < SnesPpuLayout.VramWordCount; characterBase += CharacterBaseStep)
+        {
+            int matches = 0;
+            foreach (int tile in shown)
+            {
+                if (ShowsCharacter(vram, characterBase, tile, tiles))
+                    matches++;
+            }
+            if (matches > bestMatches)
+                (best, bestMatches) = (characterBase, matches);
+        }
+        AssertTrue(best >= 0, $"{name}: a layer's tiles picture the characters at one of its selectable character bases");
+        return best;
+    }
+
+    /// <summary>The cells a layer draws: its own and, for a subscreen, its coverage's.</summary>
+    private static IEnumerable<ScreenTileMap> TileMaps(RenderLayer layer) => layer switch
+    {
+        Bg4BppRenderLayer bg => [bg.Cells],
+        Bg2BppViewportRenderLayer bg => [bg.Cells],
+        BgSubscreenAddRenderLayer { MainCoverage: { } coverage } sub => [sub.Cells, coverage.Cells],
+        BgSubscreenAddRenderLayer sub => [sub.Cells],
+        _ => [],
+    };
+
+    /// <summary>The words between the character bases a background can select.</summary>
+    private const int CharacterBaseStep = 0x1000;
+
+    /// <summary>Whether <paramref name="tiles"/>' tile <paramref name="tile"/> pictures, under its first palette row, the VRAM character it names from <paramref name="characterBase"/>.</summary>
+    [PpuLayoutBoundary("exact hardware test: decodes a VRAM character's bitplanes to compare it with its picture")]
+    private static bool ShowsCharacter(ReadOnlySpan<byte> vram, int characterBase, int tile, ScreenLayerPictures tiles)
+    {
+        ScreenTilePicture picture = tiles.Tiles[tile] ?? throw new ArgumentException($"Tile {tile} shows nothing.", nameof(tile));
+        bool fourBpp = tiles.Depth == BgBitDepth.FourBpp;
+        int words = ScreenTileSheet.CharacterWordsOf(tiles.Depth);
+        SpriteImage image = picture.Sheet.Picture.Sheet;
+        Position16<ImagePixels> corner = picture.Sheet.Corner(picture.Character, 0);
+        for (int y = 0; y < ScreenTileSheet.TilePixels; y++)
+        {
+            int row = SnesVramAddressing.ByteOffsetOfWord(characterBase + tile * words + y);
+            int upper = SnesVramAddressing.ByteOffsetOfWord(characterBase + tile * words + y + 8);
+            for (int x = 0; x < ScreenTileSheet.TilePixels; x++)
+            {
+                int shift = 7 - x;
+                int colour = (vram[row] >> shift & 1) | (vram[row + 1] >> shift & 1) << 1;
+                if (fourBpp)
+                    colour |= (vram[upper] >> shift & 1) << 2 | (vram[upper + 1] >> shift & 1) << 3;
+                int pixel = (picture.Sheet.Picture.Corner.Y + corner.Y + y) * image.Size.X + picture.Sheet.Picture.Corner.X + corner.X + x;
+                if (image.PaletteIndices[pixel] % (fourBpp ? 16 : 4) != colour)
+                    return false;
+            }
+        }
+        return true;
     }
 
     /// <summary>Renders <paramref name="scene"/>, naming the screen in any failure to draw it.</summary>

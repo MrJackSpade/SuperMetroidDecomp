@@ -115,7 +115,7 @@ internal static class WordReadsVerification
         AssertEqual(7, BgCharacterGrid.SourcePixel(0, flipped: true), "flip mirrors within the character");
         AssertEqual(3 * 16 + 9, four4.CgramColor(3, 9), "4-bpp palettes hold sixteen colors");
 
-        BgCharacterFormat two = BgCharacterFormat.TwoBitsPerPixel;
+        BgCharacterFormat two = BgCharacterFormatConstants.TwoBitsPerPixel;
         int twoRow = two.RowByteOffset(characterBaseWord: 0x4000, character: 1, row: 0);
         AssertEqual((0x4000 + 8) * 2, twoRow, "2-bpp row offset: 8 words per character");
         vram[twoRow] = 0b1100_0000;

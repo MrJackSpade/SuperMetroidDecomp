@@ -926,9 +926,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             // Preserve the existing non-mosaicked Mode 1 path. Mosaic implementation
             // is a cartridge-correctness change, not an implicit part of this extraction.
             // The Zebes reveal draws from the pre-coloured tiles of the characters the uploads leave (#1392).
-            layers = [new Bg4BppRenderLayer(CeresDestructionRomData.Rendering.Mode1TilemapWord,
-                CeresDestructionRomData.Rendering.Mode1CharacterWord, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null,
-                UploadedTiles().Pictures(CeresDestructionRomData.Rendering.Mode1CharacterWord, BgBitDepth.FourBpp))];
+            layers = [new Bg4BppRenderLayer(ScreenTileMap.Capture(shown, CeresDestructionRomData.Rendering.Mode1TilemapWord, new Extent16<TilemapCells>(32, 32),
+                UploadedTiles().Pictures(CeresDestructionRomData.Rendering.Mode1CharacterWord, BgBitDepth.FourBpp)), new Position16<BgPlanePixels>(0, 0), null)];
         }
         if (CaptureStationExplosion() is { } blast)
             layers = [.. layers, blast];

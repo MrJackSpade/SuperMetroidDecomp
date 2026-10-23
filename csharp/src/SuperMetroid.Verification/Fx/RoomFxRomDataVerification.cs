@@ -150,7 +150,7 @@ internal static class RoomFxRomDataVerification
     {
         var bus = new TestAddressSpace();
         var vram = new SnesVram();
-        var cgram = new GameplayColours();
+        var cgram = new GameplayColours(new SpriteColourSets());
         var presentation = RetailPresentationFixture();
         var stateSession = new RoomFxSession{
             Layer3Tilemaps = presentation.RoomFxLayer3Tilemaps,

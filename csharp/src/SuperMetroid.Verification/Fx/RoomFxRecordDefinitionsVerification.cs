@@ -44,8 +44,8 @@ internal static class RoomFxRecordDefinitionsVerification
         CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, (station.Room ?? throw new InvalidDataException("Ceres station has no room.")).Pointer);
         var nativeVram = new SnesVram();
         var compiledVram = new SnesVram();
-        var nativeCgram = new GameplayColours();
-        var compiledCgram = new GameplayColours();
+        var nativeCgram = new GameplayColours(new SpriteColourSets());
+        var compiledCgram = new GameplayColours(new SpriteColourSets());
         RoomFxPaletteBlendCatalog colors = RoomFxPaletteBlendCatalog.Load(
             new MemoryStream(RoomFxPaletteBlendExtractor.Extract(bus)));
         RoomFxLayer3TilemapCatalog tilemaps = RoomFxLayer3TilemapCatalog.Load(

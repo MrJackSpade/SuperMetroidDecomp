@@ -47,7 +47,7 @@ internal static class BotwoonHealthPaletteDefinitionsVerification
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), BossArtwork = new BossArtworkCatalog { BotwoonColors = BotwoonColorCatalog.Load(colors) },
         };
-        enemies.Presentation.BindCgram(new GameplayColours());
+        enemies.Presentation.BindCgram(new GameplayColours(new SpriteColourSets()));
         Action<RoomEnemySlot, BotwoonEnemyState> update = enemies.BotwoonBehavior.UpdateBotwoonHealthPalette;
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         var state = new BotwoonEnemyState()

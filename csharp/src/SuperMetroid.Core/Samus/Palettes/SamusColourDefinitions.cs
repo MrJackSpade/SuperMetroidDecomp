@@ -19,6 +19,9 @@ internal static class SamusColourDefinitions
     /// <summary>The ink row Samus without her suit is coloured in.</summary>
     public const int SuitlessInkRow = 7;
 
+    /// <summary>The sprite colour set Samus without her suit shows.</summary>
+    public const int SuitlessSpriteSet = 7;
+
     /// <summary>The visor's colour within the suit.</summary>
     public const int VisorColour = SamusPaletteRomData.Common.VisorColorOffset;
 

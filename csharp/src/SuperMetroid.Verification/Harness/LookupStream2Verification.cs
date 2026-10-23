@@ -1568,7 +1568,7 @@ internal static class LookupStream2Verification
         static void Check(ChozoAndTubeColorCatalog catalog, ChozoAndTubeColorDocument document)
         {
             static ushort Word(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
-            var cgram = new GameplayColours();
+            var cgram = new GameplayColours(new SpriteColourSets());
             catalog.ApplyTubeCracks(cgram.SpriteSets.Sets(1, 2));
             for (int color = 0; color < 32; color++)
             {
@@ -1578,7 +1578,7 @@ internal static class LookupStream2Verification
                 AssertEqual(Word(document.WreckedShip[color]), catalog.ResolveWreckedShip(color), "Wrecked Ship palette preserved");
                 AssertEqual(Word(document.LowerNorfair[color]), catalog.ResolveLowerNorfair(color), "Lower Norfair palette preserved");
             }
-            var statues = new GameplayColours();
+            var statues = new GameplayColours(new SpriteColourSets());
             catalog.ApplyWreckedShip(statues.SpriteSets.Sets(1, 2));
             for (int color = 0; color < 32; color++)
                 AssertEqual(Word(document.WreckedShip[color]), statues.Colors[ChozoAndTubeColorRomDataConstants.Destination + color], "Wrecked Ship color reaches CGRAM");

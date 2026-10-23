@@ -102,10 +102,10 @@ internal static class SamusSuitColorsVerification
                 $"Power Suit color {color} is installed without a runtime bus");
 
         AssertThrows<InvalidOperationException>(
-            () => SamusNormalSuitPalette.Load(new SamusColours().Suit, 0, null),
+            () => SamusNormalSuitPalette.Load(new SamusColourRig().Samus.Suit, 0, null),
             "missing installed normal suit colors fail explicitly");
         AssertThrows<InvalidOperationException>(
-            () => SamusNormalSuitPalette.LoadPower(new SamusColours().Suit, null),
+            () => SamusNormalSuitPalette.LoadPower(new SamusColourRig().Samus.Suit, null),
             "missing installed Power Suit colors fail explicitly");
         Console.WriteLine("Normal suit catalog boundary: all 48 stock colors, native pointers, Power copy, and missing-content errors pass without a runtime bus.");
     }

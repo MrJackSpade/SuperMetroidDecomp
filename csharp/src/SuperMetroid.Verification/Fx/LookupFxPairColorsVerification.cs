@@ -46,7 +46,7 @@ internal static class LookupFxPairColorsVerification
             };
             AssertEqual(expected, (calculated ?? throw new InvalidOperationException("Verification requires calculated.")), "Native paired-color component rule");
             AssertEqual(expected, (stock.Resolve((RoomFxPaletteBlend)id)[color].ToWord() >> shift) & 31, "Installed paired-color component");
-            var cgram = new GameplayColours();
+            var cgram = new GameplayColours(new SpriteColourSets());
             stock.Apply(cgram.BackgroundSets, (RoomFxPaletteBlend)id);
             AssertEqual(expected, (cgram.Colors[25 + color].ToWord() >> shift) & 31, "Applied paired-color component");
         }

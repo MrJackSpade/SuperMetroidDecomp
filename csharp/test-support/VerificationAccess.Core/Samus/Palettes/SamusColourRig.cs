@@ -14,10 +14,15 @@ internal sealed class SamusColourRig : IPaletteColors
     private readonly GameplayColours colours;
 
     /// <summary>Creates fresh colours, Samus's black like the rest.</summary>
-    public SamusColourRig() => colours = new GameplayColours(Samus);
+    public SamusColourRig()
+    {
+        var spriteSets = new SpriteColourSets();
+        Samus = new SamusColours(spriteSets.Set(SamusColourDefinitions.SuitlessSpriteSet));
+        colours = new GameplayColours(spriteSets, Samus);
+    }
 
     /// <summary>Samus's colours, which her effects write.</summary>
-    public SamusColours Samus { get; } = new();
+    public SamusColours Samus { get; }
 
     /// <summary>The router, for what takes gameplay's colours.</summary>
     public GameplayColours Gameplay => colours;

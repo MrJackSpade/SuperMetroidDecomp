@@ -136,7 +136,7 @@ internal static class DownwardGatePlmsVerification
         // the shared projectile pool. Recreate that exact boundary and inspect initializer E.
         SeedEmptyRoomEnemyPopulation(bus, 0x9600);
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
-        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new GameplayColours()) { Level = level, Samus = new SamusState() });
+        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new GameplayColours(new SpriteColourSets())) { Level = level, Samus = new SamusState() });
         enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(request, level.Size.X);
         RoomEnemyProjectileSlot actor = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
         AssertEqual(RoomEnemyProjectileKind.DownwardGateClosed, actor.Kind,

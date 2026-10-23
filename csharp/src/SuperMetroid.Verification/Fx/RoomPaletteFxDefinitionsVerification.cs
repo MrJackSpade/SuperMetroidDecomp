@@ -104,7 +104,7 @@ internal static class RoomPaletteFxDefinitionsVerification
         hyperBeam.Spawn();
         var hyperColors = SuperMetroid.Core.Samus.Artwork.HyperBeamFxColorCatalog.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.HyperBeamFxColorExtractor.Extract(rom)));
-        hyperBeam.Step(new SamusColours(), hyperColors);
+        hyperBeam.Step(new SamusColourRig().Samus, hyperColors);
         AssertEqual(0, hyperBeam.CurrentFrameIndex,
             "specialized Hyper Beam owner executes with its definition bytes forbidden");
 

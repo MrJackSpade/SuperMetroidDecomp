@@ -1326,7 +1326,7 @@ internal static class LookupStream4Verification
             { BossArtworkBinding = { CeresRidleyFloorColors = colors } };
         var vram = new SnesVram();
         enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
-        enemies.Presentation.BindCgram(new GameplayColours());
+        enemies.Presentation.BindCgram(new GameplayColours(new SpriteColourSets()));
         enemies.Room.Session.FloorQueueResidue = new SuperMetroid.Core.Hardware.Mode7TransferQueueResidue();
         Action<RidleyEnemyState, SamusState?, int> tick = enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyMode7Getaway;
         var state = new RidleyEnemyState { Mode7TableIndex = 1 };
@@ -1797,7 +1797,7 @@ internal static class LookupStream4Verification
             }
         }
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(new SamusColours().Beam, SamusBeamCombinations.FromTableIndex(invalid)), "Calculated beam colors preserve selection bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(new SamusColourRig().Samus.Beam, SamusBeamCombinations.FromTableIndex(invalid)), "Calculated beam colors preserve selection bounds");
         Console.WriteLine("Beam paint:192 native selected words,zero stock overrides,576 independent RGB edits,6924 exact palette copies including36 actual masked-selection producers and read guard pass.");
     }
 

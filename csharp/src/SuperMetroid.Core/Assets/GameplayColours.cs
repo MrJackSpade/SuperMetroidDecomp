@@ -18,10 +18,16 @@ public sealed class GameplayColours : IPaletteColors
     private Bgr555[]? composed;
 
     /// <summary>Routes the positions <paramref name="owners"/> hold to them, and the positions they do not to the sets.</summary>
-    public GameplayColours(params IGameplayColourOwner[] owners) => this.owners = [.. Ensure.NotNull(owners), SpriteSets, BackgroundSets];
+    /// <param name="spriteSets">The sprite colour sets, which owners such as Samus's colours may also show.</param>
+    /// <param name="owners">The owners consulted before the sets.</param>
+    public GameplayColours(SpriteColourSets spriteSets, params IGameplayColourOwner[] owners)
+    {
+        SpriteSets = Ensure.NotNull(spriteSets);
+        this.owners = [.. Ensure.NotNull(owners), SpriteSets, BackgroundSets];
+    }
 
     /// <summary>The sprite colour sets, which hold the sprite colours no other owner holds.</summary>
-    public SpriteColourSets SpriteSets { get; } = new();
+    public SpriteColourSets SpriteSets { get; }
 
     /// <summary>The background colour sets.</summary>
     public BackgroundColourSets BackgroundSets { get; } = new();

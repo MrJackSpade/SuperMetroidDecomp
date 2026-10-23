@@ -208,7 +208,7 @@ internal static class LookupStream5Verification
             int randomCalls = 0;
             system.VerificationServices().NextRandom = () => (ushort)(++randomCalls == 1 ? bucket : nextPattern);
             // The fade writes Phantoon's palette rows toward its installed fade colors.
-            system.Presentation.BindCgram(new GameplayColours());
+            system.Presentation.BindCgram(new GameplayColours(new SpriteColourSets()));
             system.TileArtwork = InstalledFixtures.EnemyTiles;
             system.BossArtwork = InstalledFixtures.BossArtwork;
             system.AreaArtwork = InstalledFixtures.AreaArtwork;
@@ -368,7 +368,7 @@ internal static class LookupStream5Verification
             byte[] initial = Enumerable.Range(0, 12).Select(index => (byte)(index % 2 == 0 ? 0x5d : 0xa7)).ToArray();
             vram.LoadBytes((destination - 1) * 2, initial);
             system.Presentation.BindVram(BgArtworkFixtures.For(vram));
-            system.Presentation.BindCgram(new GameplayColours());
+            system.Presentation.BindCgram(new GameplayColours(new SpriteColourSets()));
             var slots = (RoomEnemySlot[])system.SlotTable.Slots;
             foreach (ushort tick in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 0xfffe, 0xffff, 0 })
             {
@@ -1143,7 +1143,7 @@ internal static class LookupStream5Verification
         static MagdollitePaletteCycle Check(MagdollitePaletteCycleDocument expected)
         {
             var actual = MagdollitePaletteCycle.Load(new MemoryStream(MagdollitePaletteCycle.Write(expected), writable: false));
-            var cgram = new GameplayColours();
+            var cgram = new GameplayColours(new SpriteColourSets());
             ushort[][] packed = expected.Frames.Select(row => row.Select(rgb =>
                 (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10)).ToArray()).ToArray();
             for (int frame = 0; frame < packed.Length; frame++)
@@ -1620,7 +1620,7 @@ internal static class LookupStream5Verification
         static ushort Pack(PaletteRgb5 color) => (ushort)(color.Red | color.Green<<5 | color.Blue<<10);
         void Check(CeresDoorVisualCatalog actual,CeresDoorVisualDocument expected)
         {
-            var cgram = new GameplayColours();
+            var cgram = new GameplayColours(new SpriteColourSets());
             for(int row =0;row<8;row++)
             {
                 actual.LoadAnimationColors(cgram.BackgroundSets,row);

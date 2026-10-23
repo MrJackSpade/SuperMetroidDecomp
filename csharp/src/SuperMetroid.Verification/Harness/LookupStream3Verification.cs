@@ -2168,7 +2168,7 @@ internal static class LookupStream3Verification
             new MemoryStream(WorkRobotPaletteCycle.Write(document), writable: false));
         void Check(WorkRobotPaletteCycle cycle)
         {
-            var cgram = new GameplayColours();
+            var cgram = new GameplayColours(new SpriteColourSets());
             for (int frame = 0; frame < 6; frame++)
             {
                 cycle.ApplyFrame(cgram.SpriteSets.Set(0).Slice(9, 4), frame);

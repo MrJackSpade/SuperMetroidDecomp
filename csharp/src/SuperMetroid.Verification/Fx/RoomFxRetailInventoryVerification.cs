@@ -269,7 +269,7 @@ internal static class RoomFxRetailInventoryVerification
                 RoomFxRomDataRecordTooling.YVelocityOffset);
 
         var vram = new SnesVram();
-        var cgram = new GameplayColours();
+        var cgram = new GameplayColours(new SpriteColourSets());
         SeedVisibleRoomFxPalette(cgram);
         var actualSession = CreateRetailFxSession(bus);
         var actual = RoomLayer3FxState.ForRoom(actualSession, cgram.BackgroundSets,
@@ -418,7 +418,7 @@ internal static class RoomFxRetailInventoryVerification
             RetailRoomFxDefinitions.VisibleLavaRoom);
         ushort record = RoomFxDefinitions.SelectedRecordPointer(room.State.Fx, door: null);
         var vram = new SnesVram();
-        var cgram = new GameplayColours();
+        var cgram = new GameplayColours(new SpriteColourSets());
         var fxSession = CreateRetailFxSession(bus);
         var fx = RoomLayer3FxState.ForRoom(fxSession, cgram.BackgroundSets, room.State.Fx, door: null, randomNumber: 0);
 
@@ -615,7 +615,7 @@ internal static class RoomFxRetailInventoryVerification
             $"rising-lava door $83:{door.Pointer:X4} destination");
 
         var vram = new SnesVram();
-        var cgram = new GameplayColours();
+        var cgram = new GameplayColours(new SpriteColourSets());
         SeedVisibleRoomFxPalette(cgram);
         var fxSession = CreateRetailFxSession(bus);
         var fx = RoomLayer3FxState.ForRoom(fxSession, cgram.BackgroundSets,
@@ -851,7 +851,7 @@ internal static class RoomFxRetailInventoryVerification
             RetailRoomFxDefinitions.HiddenLavaRoom);
 
         var vram = new SnesVram();
-        var cgram = new GameplayColours();
+        var cgram = new GameplayColours(new SpriteColourSets());
         SeedVisibleRoomFxPalette(cgram);
         var fxSession = CreateRetailFxSession(bus);
         var fx = RoomLayer3FxState.ForRoom(fxSession, cgram.BackgroundSets, visibleRoom.State.Fx, door: null, randomNumber: 0);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Frontend;
@@ -55,7 +56,7 @@ internal static class NullContractsVerification
         var room = new ActiveRoomState();
         AssertThrows<InvalidOperationException>(() => _ = room.LoadedLevelData, "room level data requires a loaded room");
         AssertThrows<InvalidOperationException>(() => _ = room.LoadedCamera, "room camera requires a loaded room");
-        var player = new SamusFrameState();
+        var player = new SamusFrameState(new SpriteColourSets());
         AssertThrows<InvalidOperationException>(() => _ = player.IntroducedSamus, "gameplay Samus requires her introduction");
         player.Samus = new SamusState();
         AssertTrue(ReferenceEquals(player.Samus, player.IntroducedSamus), "the introduced Samus is the attached actor");

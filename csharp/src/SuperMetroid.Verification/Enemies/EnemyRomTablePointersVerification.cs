@@ -122,7 +122,7 @@ internal static class EnemyRomTablePointersVerification
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
             var system = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
-            system.Presentation.BindCgram(new GameplayColours());
+            system.Presentation.BindCgram(new GameplayColours(new SpriteColourSets()));
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
             slot.SetSpawnParameter1(parameter);
             slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);

@@ -47,7 +47,7 @@ internal static class SamusHurtColorsVerification
         CompareHurtCycle(rom, catalog, cinematic: false);
         CompareHurtCycle(rom, catalog, cinematic: true);
         AssertThrows<InvalidOperationException>(() => SamusHurtFlashPalette.Update(
-            new SamusColours().Suit, new SamusState { HurtFlashCounter = 1 }, 0),
+            new SamusColourRig().Samus.Suit, new SamusState { HurtFlashCounter = 1 }, 0),
             "hurt flash requires installed color artwork instead of a cartridge fallback");
         AssertThrows<InvalidDataException>(() => SamusHurtColorCatalog.Load(
             new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))),

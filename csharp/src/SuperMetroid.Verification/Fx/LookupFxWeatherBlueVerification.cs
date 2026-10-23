@@ -19,7 +19,7 @@ internal static class LookupFxWeatherBlueVerification
             int expected = (native >> 5) & 31;
             AssertEqual(expected, (RoomFxPaletteBlendDefinitions.CalculatedThirdGreen((RoomFxPaletteBlend)id) ?? throw new InvalidOperationException("Verification requires RoomFxPaletteBlendDefinitions.CalculatedThirdGreen((RoomFxPaletteBlend)id).")), "Native weather third green");
             AssertEqual(expected, (stock.Resolve((RoomFxPaletteBlend)id)[2].ToWord() >> 5) & 31, "Installed weather third green");
-            var cgram = new GameplayColours(); stock.Apply(cgram.BackgroundSets, (RoomFxPaletteBlend)id);
+            var cgram = new GameplayColours(new SpriteColourSets()); stock.Apply(cgram.BackgroundSets, (RoomFxPaletteBlend)id);
             AssertEqual(expected, (cgram.Colors[27].ToWord() >> 5) & 31, "Applied weather third green");
             var owner = new RoomFxThirdColor((RoomFxPaletteBlend)id, Bgr555.FromWord(checked(native)));
             AssertTrue(owner.greenOverride is null, "Stock weather third green is not stored");
@@ -45,7 +45,7 @@ internal static class LookupFxWeatherBlueVerification
             int expected = (native >> 10) & 31;
             AssertEqual(expected, (RoomFxPaletteBlendDefinitions.CalculatedThirdBlue((RoomFxPaletteBlend)id, native & 31) ?? throw new InvalidOperationException("Verification requires RoomFxPaletteBlendDefinitions.CalculatedThirdBlue((RoomFxPaletteBlend)id, native & 31).")), "Native weather third blue");
             AssertEqual(expected, (stock.Resolve((RoomFxPaletteBlend)id)[2].ToWord() >> 10) & 31, "Installed weather third blue");
-            var cgram = new GameplayColours();
+            var cgram = new GameplayColours(new SpriteColourSets());
             stock.Apply(cgram.BackgroundSets, (RoomFxPaletteBlend)id);
             AssertEqual(expected, (cgram.Colors[27].ToWord() >> 10) & 31, "Applied weather third blue");
             var owner = new RoomFxThirdColor((RoomFxPaletteBlend)id, Bgr555.FromWord(checked(native)));

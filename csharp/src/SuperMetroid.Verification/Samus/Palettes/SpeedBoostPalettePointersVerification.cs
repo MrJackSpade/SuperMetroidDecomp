@@ -64,11 +64,11 @@ internal static class SpeedBoostPalettePointersVerification
             SpecialSuperPaletteFlags = LastAlternatingPhase,
             Presentation = { FullBodyCycleColors = cycleColors },
         };
-        AssertTrue(SamusSpecialSuperPalette.Update(new SamusColours(), lastPhase),
+        AssertTrue(SamusSpecialSuperPalette.Update(new SamusColourRig().Samus, lastPhase),
             "the last alternating phase still owns the palette");
         AssertEqual(LastAlternatingPhase + 1, lastPhase.SpecialSuperPaletteFlags,
             "the last alternating phase advances onto the drained branch");
-        AssertTrue(!SamusSpecialSuperPalette.Update(new SamusColours(), lastPhase),
+        AssertTrue(!SamusSpecialSuperPalette.Update(new SamusColourRig().Samus, lastPhase),
             "the drained branch is not the Metroid alternation");
         AssertEqual(LastAlternatingPhase + 1, lastPhase.SpecialSuperPaletteFlags,
             "the alternation leaves the drained branch's phase alone");
@@ -77,12 +77,12 @@ internal static class SpeedBoostPalettePointersVerification
             SpecialSuperPaletteFlags = ushort.MaxValue,
             Presentation = { FullBodyCycleColors = cycleColors },
         };
-        AssertTrue(!SamusSpecialSuperPalette.Update(new SamusColours(), highestPhase),
+        AssertTrue(!SamusSpecialSuperPalette.Update(new SamusColourRig().Samus, highestPhase),
             "the highest stored phase is the drained branch too");
         AssertEqual(ushort.MaxValue, highestPhase.SpecialSuperPaletteFlags,
             "the highest stored phase does not wrap to zero");
         AssertThrows<InvalidOperationException>(() => SamusSpecialSuperPalette.Update(
-            new SamusColours(), new SamusState { SpecialSuperPaletteFlags = 1 }),
+            new SamusColourRig().Samus, new SamusState { SpecialSuperPaletteFlags = 1 }),
             "Metroid attachment requires installed Speed Booster colors");
         Console.WriteLine("Speed Booster palettes: four equipment cases match ROM and live CGRAM with no CPU bus; missing assets fail.");
     }

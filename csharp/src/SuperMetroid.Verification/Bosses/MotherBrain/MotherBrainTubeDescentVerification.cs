@@ -15,7 +15,7 @@ internal static class MotherBrainTubeDescentVerification
     internal static int VerifyMotherBrainTubeDescent()
     {
         var enemies = new RoomEnemySystem(new EnemySession()) { BossArtworkBinding = { MotherBrainRoomColors = InstalledFixtures.Maps.MotherBrainRoomColors } };
-        enemies.Presentation.BindCgram(new GameplayColours());
+        enemies.Presentation.BindCgram(new GameplayColours(new SpriteColourSets()));
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]) { Head = enemies.SlotTable.Slots[1] };
         enemies.MotherBrainEncounter.MotherBrain = state;
         var tube = enemies.SlotTable.Slots[2];

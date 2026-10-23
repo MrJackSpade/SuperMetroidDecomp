@@ -45,7 +45,7 @@ internal static class BossDisplayBindingsFixtureVerification
                 TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas,
             };
             Enemies.Presentation.BindVram(BgArtworkFixtures.For(Vram));
-            Enemies.Presentation.BindCgram(new GameplayColours());
+            Enemies.Presentation.BindCgram(new GameplayColours(new SpriteColourSets()));
             Actor.Bind(definition, Actor.Definition);
             Actor.Bind(Actor.DefinitionId, RoomEnemyDefinitionCatalog.Get(definition));
             Actor.Position = Actor.Position.WithWhole(new(128, 128));

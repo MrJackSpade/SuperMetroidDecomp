@@ -141,8 +141,9 @@ internal sealed class SuperMetroidRuntime
         Ensure.NotNull(artwork);
         System = new Bank80SystemState(random);
         Display = new GameplayDisplayState();
-        Player = new SamusFrameState();
-        Cgram = new GameplayColours(Player.Colours);
+        var spriteSets = new SpriteColourSets();
+        Player = new SamusFrameState(spriteSets);
+        Cgram = new GameplayColours(spriteSets, Player.Colours);
         Room = new ActiveRoomState();
         Clock = Ensure.NotNull(clock);
         Options = new GameplayOptions();

@@ -204,7 +204,7 @@ internal static class HyperBeamFxColorArtworkVerification
                 "Hyper Beam FX edit changes only the selected visual color channel");
 
         foreach (int invalidFrame in new[] { -1, 10, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => catalog.Apply(new SamusColours().HyperBeam, invalidFrame), "FX frame bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => catalog.Apply(new SamusColourRig().Samus.HyperBeam, invalidFrame), "FX frame bounds");
         foreach (string editScope in new[] { "all", "even", "green", "red", "white", "shade-sources" })
         {
             var document = RequiredJson.Deserialize<HyperBeamFxColorDocument>(json, ArtworkJson.Options);

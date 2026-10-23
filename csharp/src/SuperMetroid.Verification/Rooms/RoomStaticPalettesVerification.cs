@@ -56,8 +56,8 @@ internal static class RoomStaticPalettesVerification
             CartridgeRoomHeader header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
             CartridgeRoomAssets native = LoadFixtureRoomAssets(header);
             CartridgeRoomAssets installed = LoadFixtureRoomAssets(header, paletteArt: catalog);
-            var nativeCgram = new GameplayColours();
-            var installedCgram = new GameplayColours();
+            var nativeCgram = new GameplayColours(new SpriteColourSets());
+            var installedCgram = new GameplayColours(new SpriteColourSets());
             native.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), nativeCgram.BackgroundSets);
             installed.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), installedCgram.BackgroundSets);
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
@@ -85,7 +85,7 @@ internal static class RoomStaticPalettesVerification
         compiled[selectedSource] = replacement;
         CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(landing,
             paletteArt: new RoomStaticPaletteCatalog(compiled.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.PaletteSetAt(pair.Key), pair => pair.Value)));
-        var editedRoomCgram = new GameplayColours();
+        var editedRoomCgram = new GameplayColours(new SpriteColourSets());
         editedRoom.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), editedRoomCgram.BackgroundSets);
         AssertEqual(editedCgram.Colors[0], editedRoomCgram.Colors[0],
             "edited RGB5 room palette changes real room-loader CGRAM");

@@ -232,7 +232,7 @@ internal static class EnemyTileArtworkVerification
                 AssertTrue(vram.Bytes[..byteCount].SequenceEqual(native),
                     $"enemy ${(int)pointer:X4} PNG preserves every native tile byte");
                 SnesCgram nativeCgram = LoadNativeEnemyPalette(bus, pointer);
-                var installedCgram = new GameplayColours();
+                var installedCgram = new GameplayColours(new SpriteColourSets());
                 stock.Enemies.LoadPaletteTo(pointer, installedCgram.SpriteSets.Set(0));
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                     $"enemy ${(int)pointer:X4} RGB5 JSON preserves all native palette slots");
@@ -349,8 +349,8 @@ internal static class EnemyTileArtworkVerification
             File.WriteAllBytes(paletteOverridePath, EnemyPaletteSheet.Write(
                 new EnemyPaletteSheetDocument { Version = 1, Colors = editedColors }));
             InstalledEnemyArtwork editedPalette = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
-            var originalColors = new GameplayColours();
-            var changedColors = new GameplayColours();
+            var originalColors = new GameplayColours(new SpriteColourSets());
+            var changedColors = new GameplayColours(new SpriteColourSets());
             stock.Enemies.LoadPaletteTo(editedPointer, originalColors.SpriteSets.Set(0));
             editedPalette.Enemies.LoadPaletteTo(editedPointer, changedColors.SpriteSets.Set(0));
             AssertEqual((ushort)(originalColors.Colors[128].ToWord() ^ 1), changedColors.Colors[128],
@@ -359,7 +359,7 @@ internal static class EnemyTileArtworkVerification
                 if (color != 128)
                     AssertEqual(originalColors.Colors[color], changedColors.Colors[color],
                         "enemy palette edit leaves all other CGRAM slots unchanged");
-            var reloadedColors = new GameplayColours();
+            var reloadedColors = new GameplayColours(new SpriteColourSets());
             EnemyTileArtworkFiles.Load(directory, overrideDirectory)
                 .Enemies.LoadPaletteTo(editedPointer, reloadedColors.SpriteSets.Set(0));
             AssertTrue(new CgramPalettes(reloadedColors).ImageEquals(new CgramPalettes(changedColors)),

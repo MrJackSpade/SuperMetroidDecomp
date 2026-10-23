@@ -132,8 +132,8 @@ internal static class RoomAssetRomDataVerification
                 $"room $8F:{roomPointer:X4} retains exact decompressed visual inputs");
             var nativeVram = new SnesVram();
             var guardedVram = new SnesVram();
-            var nativeCgram = new GameplayColours();
-            var guardedCgram = new GameplayColours();
+            var nativeCgram = new GameplayColours(new SpriteColourSets());
+            var guardedCgram = new GameplayColours(new SpriteColourSets());
             native.LoadGraphics(BgArtworkFixtures.For(nativeVram), nativeCgram.BackgroundSets);
             guarded.LoadGraphics(BgArtworkFixtures.For(guardedVram), guardedCgram.BackgroundSets);
             AssertTrue(nativeVram.ImageEquals(guardedVram) &&
@@ -203,8 +203,8 @@ internal static class RoomAssetRomDataVerification
                 $"room $8F:{roomPointer:X4} loads compiled characters with source reads forbidden");
             var nativeVram = new SnesVram();
             var installedVram = new SnesVram();
-            var nativeCgram = new GameplayColours();
-            var installedCgram = new GameplayColours();
+            var nativeCgram = new GameplayColours(new SpriteColourSets());
+            var installedCgram = new GameplayColours(new SpriteColourSets());
             native.LoadGraphics(BgArtworkFixtures.For(nativeVram), nativeCgram.BackgroundSets);
             installed.LoadGraphics(BgArtworkFixtures.For(installedVram), installedCgram.BackgroundSets);
             AssertTrue(nativeVram.ImageEquals(installedVram) &&

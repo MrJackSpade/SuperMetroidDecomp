@@ -69,17 +69,7 @@ public sealed class RoomLevelPlane
     private sealed class ScrolledTiles(RoomLevelPlane plane, Offset16<BgPlanePixels> scrollOffset) : IBgTileSource
     {
         /// <inheritdoc />
-        public bool TrySample(Position16<BgPlanePixels> scrolled, out BgTileSample sample)
-        {
-            Position16<BgPlanePixels> level = scrolled - scrollOffset;
-            if (!plane.TryTileAt(level, out SnesBgTilemapWord tile))
-            {
-                sample = default;
-                return false;
-            }
-            sample = BgTileSample.At(tile, level);
-            return true;
-        }
+        public bool TryTileAt(Position16<BgPlanePixels> scrolled, out SnesBgTilemapWord tile) => plane.TryTileAt(scrolled - scrollOffset, out tile);
     }
 
     /// <summary>The four tiles a block shows, already mirrored by the block's flips.</summary>

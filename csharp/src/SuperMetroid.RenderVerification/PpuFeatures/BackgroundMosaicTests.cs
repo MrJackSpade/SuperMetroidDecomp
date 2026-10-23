@@ -32,6 +32,8 @@ internal static class BackgroundMosaicTests
         var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         oam[0] = 96; oam[1] = 64; oam[2] = 1; oam[3] = 0x3e;
         var memory = PpuMemorySnapshot.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0);
+        // BG1's plane and BG2's loaded tilemap show tile word zero, the pattern, drawn from their pictures (#1403).
+        var rooms = RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, default);
         ushort[] horizontal = Enumerable.Range(0, 192).Select(y => (ushort)(y * 3 + 7)).ToArray();
         ushort[] vertical = Enumerable.Range(0, 192).Select(y => (ushort)(65530 + y)).ToArray();
         int cases = 0;
@@ -39,11 +41,10 @@ internal static class BackgroundMosaicTests
         foreach (int mode in Enumerable.Range(0, 4))
         {
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
-                GameplayVramLayout.Bg2TilemapWord, 0, 0,
                 SnesMainScreenLayers.Obj | (mode == 2 ? SnesMainScreenLayers.None : SnesMainScreenLayers.Bg2) |
                     (mode == 3 ? SnesMainScreenLayers.Bg1 : SnesMainScreenLayers.None),
                 Bg2Mosaic: new(size));
-            var ordinary = new OrdinaryGameplayRenderLayer(registers, RoomBackgroundsFixtures.Blank(), new Bg2HdmaScrollTables(horizontal, vertical));
+            var ordinary = new OrdinaryGameplayRenderLayer(registers, rooms, new Bg2HdmaScrollTables(horizontal, vertical));
             RenderLayer layer = mode is 0 or 3 ? ordinary : new GameplayColorMathRenderLayer(ordinary, Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new ColorMathRegisters { ColorMath = mode == 2 ? SnesColorMathControl.Backdrop : SnesColorMathControl.None, AddSubscreen = mode == 2, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, subscreenUsesBg2: mode == 2);
             var scene = new LayeredRenderSnapshot(memory, [layer], 15);
             var packet = new RenderFrameSnapshot(new(++cases, 1, 0), scene);

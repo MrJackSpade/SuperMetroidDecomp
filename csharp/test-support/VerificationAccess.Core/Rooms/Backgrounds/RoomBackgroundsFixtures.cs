@@ -108,6 +108,30 @@ internal static class RoomBackgroundsFixtures
     }
 
     /// <summary>
+    /// The boss body a fixture loaded as a <paramref name="size"/> tilemap at <paramref name="tilemapWord"/> in
+    /// <paramref name="image"/>, in the hardware's screen order (#1403): each cell's word painted from the characters at
+    /// <paramref name="characterWord"/>.
+    /// </summary>
+    internal static BossBodyPictures BodyFromTilemap(ReadOnlySpan<byte> image, ReadOnlySpan<Bgr555> palette, int tilemapWord,
+        Extent16<TilemapCells> size, int characterWord = 0)
+    {
+        var words = new ushort[size.X * size.Y];
+        for (int cell = 0; cell < words.Length; cell++)
+            words[cell] = BinaryPrimitives.ReadUInt16LittleEndian(image.Slice(SnesVramAddressing.ByteOffsetOfWord(tilemapWord + cell), sizeof(ushort)));
+        ushort[] distinct = [.. words.Distinct()];
+        // Each distinct word painted as a block of four copies of itself; its top-left quarter pictures the word.
+        var definitions = new byte[distinct.Length * RoomLevelPlane.DefinitionBytes];
+        for (int index = 0; index < distinct.Length; index++)
+        for (int corner = 0; corner < 4; corner++)
+            BinaryPrimitives.WriteUInt16LittleEndian(definitions.AsSpan(index * RoomLevelPlane.DefinitionBytes + corner * sizeof(ushort)), distinct[index]);
+        RoomBlockPictureTable painted = RoomBlockFixtures.Pictures(definitions, image, palette, characterWord);
+        var pictureOf = new Dictionary<ushort, BgTilePicture>();
+        for (int index = 0; index < distinct.Length; index++)
+            pictureOf[distinct[index]] = new BgTilePicture(painted.Picture(index) ?? throw new InvalidOperationException("A painted word has no picture."), default);
+        return new BossBodyPictures(size, [.. words.Select(word => (BgTilePicture?)pictureOf[word])]);
+    }
+
+    /// <summary>
     /// A boss body of <paramref name="size"/> that shows tilemap word <paramref name="word"/> in every cell (#1403), its
     /// picture painted from the characters at <paramref name="characterWord"/> in <paramref name="image"/>.
     /// </summary>

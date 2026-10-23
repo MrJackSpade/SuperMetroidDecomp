@@ -283,15 +283,13 @@ public sealed class D3D11FrameRenderer : IDisposable
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.XrayGameplay;
         // Xray.hlsli reuses the tile header for BG1/BG2 registers and CGADSUB.
-        data[1] = (uint)r.Bg1CharacterWord; data[2] = (uint)r.Bg2CharacterWord;
         data[3] = r.Bg1Scroll.X;
         data[4] = unchecked((ushort)(r.Bg1Scroll.Y + SnesPpuLayout.FirstVisibleBackgroundScanline));
         data[5] = r.Bg2MapSize.X; data[6] = r.Bg2MapSize.Y;
         data[7] = (uint)r.MainScreenLayers; data[8] = layer.RevealBlocks ? 1u : 0u;
         data[9] = (uint)layer.ColorMath;
         data[10] = (uint)layer.FixedRed; data[11] = (uint)layer.FixedGreen; data[12] = (uint)layer.FixedBlue;
-        data[16] = (uint)r.Bg2TilemapWord;
-        // BG1 is always the room's; BG2 is its layer-2 plane, the sky's rows or the tilemap at word 16.
+        // BG1 is always the room's; BG2 is what the room publishes for it (#1403).
         data[14] = D3D11RoomSources.Bg2Of(layer.Gameplay.Rooms);
         data[22] = layer.AddSubscreen ? 1u : 0u;
         data[26] = 224;
@@ -400,7 +398,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         void Background1(bool high)
         {
             if ((activeLayers & SnesMainScreenLayers.Bg1) != 0)
-                DispatchTile(D3D11TileOperation.Bg4, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Bg1, Characters = (uint)r.Bg1CharacterWord, Scroll = r.Bg1Scroll.AsBgPlaneScroll() + new Offset16<BgPlanePixels>(0, SnesPpuLayout.FirstVisibleBackgroundScanline), MapSize = new Extent16<TilemapCells>(64, 32), Priority = Priority(high), FirstScanline = (uint)first, EndScanline = (uint)end, Windows = r.Windows, WindowMask = r.MainScreenWindowMask, WindowTarget = SnesWindowTarget.Bg1 });
+                DispatchTile(D3D11TileOperation.Bg4, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Bg1, Scroll = r.Bg1Scroll.AsBgPlaneScroll() + new Offset16<BgPlanePixels>(0, SnesPpuLayout.FirstVisibleBackgroundScanline), MapSize = new Extent16<TilemapCells>(64, 32), Priority = Priority(high), FirstScanline = (uint)first, EndScanline = (uint)end, Windows = r.Windows, WindowMask = r.MainScreenWindowMask, WindowTarget = SnesWindowTarget.Bg1 });
         }
         void Background2(bool high)
         {
@@ -414,7 +412,6 @@ public sealed class D3D11FrameRenderer : IDisposable
         var r = layer.Registers;
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.Bg4;
-        data[1] = (uint)r.Bg2TilemapWord; data[2] = (uint)r.Bg2CharacterWord;
         data[5] = r.Bg2MapSize.X; data[6] = r.Bg2MapSize.Y;
         data[7] = Priority(high); data[8] = 1; data[15] = 1;
         data[14] = D3D11RoomSources.Bg2Of(layer.Rooms);

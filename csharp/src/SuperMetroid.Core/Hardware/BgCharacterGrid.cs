@@ -13,9 +13,4 @@ public static class BgCharacterGrid
     /// <summary>The pixel's position within its character, zero through seven.</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int PixelWithinCharacter(int pixel) => pixel % SnesPpuLayout.BackgroundTileSizePixels;
-
-    /// <summary>The source row or column of a character pixel, mirrored when the entry flips that axis.</summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int SourcePixel(int pixel, bool flipped) =>
-        flipped ? SnesPpuLayout.BackgroundTileSizePixels - 1 - pixel : pixel;
 }

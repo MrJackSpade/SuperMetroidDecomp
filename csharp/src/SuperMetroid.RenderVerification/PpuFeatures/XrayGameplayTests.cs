@@ -45,7 +45,6 @@ internal static class XrayGameplayTests
             Layer3Cells plane = Layer3CellsFixtures.FromVram(vram.Bytes, cgram.Colors, 0x1000);
             bg1 = bg1 with { Bg3 = plane };
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
-                GameplayVramLayout.Bg2TilemapWord, 0, 0,
                 SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
             var lines = Enumerable.Repeat(new XrayWindowLine(128, 255), 224).ToArray();
             var controls = SnesColorMathControl.Bg1 | SnesColorMathControl.Bg2 | SnesColorMathControl.Obj | SnesColorMathControl.Backdrop
@@ -126,10 +125,8 @@ internal static class XrayGameplayTests
             var colors = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
             // The OBSEL is drawn after the layer below, keeping the seeded stream; the OAM converts under it then.
             ushort Word() => (ushort)random.Next(65536);
-            // Tilemap and character bases are VRAM word addresses, which are fifteen bits.
-            int VramWord() => random.Next(SnesPpuLayout.VramWordCount);
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(Word(), Word()), new Position16<Bg2Pixels>(Word(), Word()),
-                frame % 2 == 0 ? new Extent16<TilemapCells>(64, 32) : new Extent16<TilemapCells>(32, 64), VramWord(), VramWord(), VramWord(),
+                frame % 2 == 0 ? new Extent16<TilemapCells>(64, 32) : new Extent16<TilemapCells>(32, 64),
                 (SnesMainScreenLayers)(random.Next(32) & 0x13));
             // Every fifth frame's planes draw from block pictures (#1392).
             var gameplay = new OrdinaryGameplayRenderLayer(registers, RoomBackgroundsFixtures.Seeded(random, registers.Bg1Scroll.AsBgPlaneScroll(),
@@ -159,7 +156,7 @@ internal static class XrayGameplayTests
             var colors = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
             ushort Fine() => (ushort)random.Next(16);
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>((ushort)random.Next(65536), (ushort)random.Next(65536)),
-                new Position16<Bg2Pixels>(Fine(), Fine()), new Extent16<TilemapCells>(64, 32), 0x4800, 0, 0x6000,
+                new Position16<Bg2Pixels>(Fine(), Fine()), new Extent16<TilemapCells>(64, 32),
                 SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
             SuperMetroid.Core.Gameplay.RoomBackgrounds seeded = RoomBackgroundsFixtures.Seeded(random, registers.Bg1Scroll.AsBgPlaneScroll(), pictureColours: colors);
             var gameplay = new OrdinaryGameplayRenderLayer(registers, seeded with { XrayReveal = RoomBackgroundsFixtures.SeededReveal(random, colors) });

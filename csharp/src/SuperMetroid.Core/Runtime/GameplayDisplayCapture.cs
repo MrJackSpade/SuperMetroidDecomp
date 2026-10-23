@@ -119,8 +119,6 @@ public static class GameplayDisplayCapture
         DraygonBodyScanlines bg2Lines = bosses.DraygonBody?.VisibleLines(ppu.Layer1Position) ?? new DraygonBodyScanlines(32, 224);
         Position16<Bg2Pixels>? crocomireBg2Scroll = bosses.CrocomireBg2Scroll;
         bool verticalStatueMap = scene.FxType == RoomFxType.TourianEntranceStatue;
-        ushort character = latched.Rooms?.Characters == RoomBackgroundCharacters.ObjectCharacterPage
-            ? GameplayRenderDefinitions.CeresCharacterWord : (ushort)0;
         GameplayWindowRegisterSnapshot displayedWindows = latched.Windows;
         SnesMainScreenLayers displayedMainScreen =
             displayedWindows.MainScreen & TmLayerBits;
@@ -134,8 +132,6 @@ public static class GameplayDisplayCapture
                 : bosses.MotherBrainBody is { Scroll: not null } ? new Extent16<TilemapCells>(32, 32)
                 : sky?.HorizontalHdmaConfigured != true && !verticalStatueMap ? new Extent16<TilemapCells>(64, 32)
                 : new Extent16<TilemapCells>(32, 64),
-            GameplayVramLayout.Bg2TilemapWord,
-            character, character,
             live.DoorTransitionMainScreenLayers ??
                 (bosses.MotherBrainBody is { Hidden: true }
                     ? SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj
@@ -323,7 +319,7 @@ public static class GameplayDisplayCapture
             {
                 // The reveal map is drawn on BG2 at BG1's fine scroll within one 16-pixel block.
                 Bg2Scroll = new Position16<Bg2Pixels>((ushort)(ppu.Bg1Scroll.X & 15), (ushort)(ppu.Bg1Scroll.Y & 15)),
-                Bg2MapSize = new Extent16<TilemapCells>(64, 32), Bg2TilemapWord = GameplayVramLayout.Bg2TilemapWord,
+                Bg2MapSize = new Extent16<TilemapCells>(64, 32),
             };
         }
         registers = registers with

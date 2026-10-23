@@ -59,7 +59,7 @@ public static class SnesGameplayFrameRenderer
             Span<Rgba32> objectPixels = rentedObjectPixels.AsSpan(0, pixelCount);
             Span<byte> objectPriorities = rentedObjectPriorities.AsSpan(0, pixelCount);
             SnesObjRenderer.RenderResolved(sprites.Draws, cgram, new ObjRasterTargets(objectPixels, objectPriorities));
-            CompositeOrdinaryGameplayViewport(output, vram, cgram, objectPixels, objectPriorities, layer, windowMasks);
+            CompositeOrdinaryGameplayViewport(output, cgram, objectPixels, objectPriorities, layer, windowMasks);
         }
         finally
         {
@@ -88,7 +88,6 @@ public static class SnesGameplayFrameRenderer
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void CompositeOrdinaryGameplayViewport(
         Span<Rgba32> output,
-        SnesVram vram,
         IPaletteColors cgram,
         ReadOnlySpan<Rgba32> objectPixels,
         ReadOnlySpan<byte> objectPriorities,
@@ -110,8 +109,6 @@ public static class SnesGameplayFrameRenderer
         ReadOnlySpan<ushort> bg2HorizontalScrollByLine = layer.Bg2LineScrolls.Horizontal;
         ReadOnlySpan<ushort> bg2VerticalScrollByLine = layer.Bg2LineScrolls.Vertical;
         Extent16<TilemapCells> bg2TilemapSize = registers.Bg2MapSize;
-        int bg1CharacterBaseWord = registers.Bg1CharacterWord;
-        int bg2CharacterBaseWord = registers.Bg2CharacterWord;
         SnesMainScreenLayers mainScreenLayers = registers.MainScreenLayers;
         int bg2FirstScanline = registers.Bg2FirstScanline;
         int bg2EndScanline = registers.Bg2EndScanline;
@@ -127,7 +124,6 @@ public static class SnesGameplayFrameRenderer
         // per frame. Going through bounds-checking object methods and decoding BGR555 for
         // both background candidates at every pixel dominated Debug-host frame time while
         // producing the same immutable values throughout this render pass.
-        ReadOnlySpan<byte> vramBytes = vram.Bytes;
         Span<Rgba32> palette = stackalloc Rgba32[SnesCgram.ColorCount];
         ExpandCgram(cgram, palette);
 
@@ -166,7 +162,7 @@ public static class SnesGameplayFrameRenderer
                 if (bg2Enabled && (windowMasks[screenX] & SnesMainScreenLayers.Bg2) == 0 &&
                     bg2.TrySample(new Position16<BgPlanePixels>(
                         unchecked((ushort)bg2Mosaic.SourceX(screenX, activeBg2HorizontalScroll)), bg2ScrolledY), out BgSample bg2Sample) &&
-                    TryDecodeGameplayBgSample(vramBytes, palette, pictures, bg2Sample, bg2CharacterBaseWord, out Rgba32 bg2Color, out bool bg2High))
+                    pictures.TryDecode(bg2Sample, palette, ColorZero.Transparent, out Rgba32 bg2Color, out bool bg2High))
                 {
                     winner = bg2Color;
                     winnerRank = bg2High ? 6 : 3;
@@ -175,7 +171,7 @@ public static class SnesGameplayFrameRenderer
                 if (bg1Enabled && (windowMasks[screenX] & SnesMainScreenLayers.Bg1) == 0 &&
                     bg1.TrySample(new Position16<BgPlanePixels>(
                         unchecked((ushort)(bg1Scroll.X + screenX)), bg1ScrolledY), out BgSample bg1Sample) &&
-                    TryDecodeGameplayBgSample(vramBytes, palette, pictures, bg1Sample, bg1CharacterBaseWord, out Rgba32 bg1Color, out bool bg1High))
+                    pictures.TryDecode(bg1Sample, palette, ColorZero.Transparent, out Rgba32 bg1Color, out bool bg1High))
                 {
                     int bg1Rank = bg1High ? 7 : 4;
                     if (bg1Rank > winnerRank)
@@ -208,43 +204,6 @@ public static class SnesGameplayFrameRenderer
                 output[destination] = winner;
             }
         }
-    }
-
-    /// <summary>Decodes a BG sample: a block picture's pixel, or a four-bit tile pixel from the characters.</summary>
-    [System.Runtime.CompilerServices.MethodImpl(
-        System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-    private static bool TryDecodeGameplayBgSample(ReadOnlySpan<byte> vram, ReadOnlySpan<Rgba32> palette, BgPicturePixels pictures,
-        in BgSample sample, int characterBaseWord, out Rgba32 color, out bool highPriority) =>
-        sample.Picture is null
-            ? TryDecodeOrdinaryGameplayBgPixel(vram, palette, sample.Tile.Tile, characterBaseWord, sample.Tile.Pixel, out color, out highPriority)
-            : pictures.TryDecode(sample, palette, ColorZero.Transparent, out color, out highPriority);
-
-    /// <summary>Decodes a four-bit BG tile pixel, reporting transparency and the tile's priority bit alongside its CGRAM color.</summary>
-    [System.Runtime.CompilerServices.MethodImpl(
-        System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-    internal static bool TryDecodeOrdinaryGameplayBgPixel(
-        ReadOnlySpan<byte> vram,
-        ReadOnlySpan<Rgba32> palette,
-        SnesBgTilemapWord entry,
-        int characterBaseWord,
-        Position16<CharacterPixels> pixel,
-        out Rgba32 color,
-        out bool highPriority)
-    {
-        highPriority = entry.HasPriority;
-
-        BgCharacterFormat format = BgCharacterFormat.FourBitsPerPixel;
-        int row = format.RowByteOffset(characterBaseWord, entry.CharacterIndex,
-            BgCharacterGrid.SourcePixel(pixel.Y, entry.FlipVertically));
-        int colorIndex = format.ColorIndexAt(vram, row, BgCharacterGrid.SourcePixel(pixel.X, entry.FlipHorizontally));
-        if (colorIndex == BgCharacterFormat.TransparentColorIndex)
-        {
-            color = default;
-            return false;
-        }
-
-        color = palette[format.CgramColor(entry.PaletteIndex, colorIndex)];
-        return true;
     }
 
     /// <summary>

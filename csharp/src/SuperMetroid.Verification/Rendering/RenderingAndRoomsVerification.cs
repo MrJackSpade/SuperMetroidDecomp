@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Rooms.Backgrounds.RoomSkyTilemapsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -1002,8 +1003,12 @@ internal static void VerifyFourBitBackgroundRendering()
         gameplaySprites,
         new OrdinaryGameplayRenderLayer(
             new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0x00e0),
-                new Extent16<TilemapCells>(32, 64), GameplayVramLayout.Bg2TilemapWord, 0, 0, SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj),
-            RoomBackgroundsFixtures.Blank(),
+                new Extent16<TilemapCells>(32, 64), SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj),
+            // BG2 shows the tilemap just loaded, as its library background's image (#1403).
+            RoomBackgroundsFixtures.Blank() with
+            {
+                Bg2Image = RoomBlockFixtures.LoadedBackground(gameplayVram.Bytes, gameplayCgram.Colors, GameplayVramLayout.Bg2TilemapWord),
+            },
             new Bg2HdmaScrollTables(horizontalByLine, default)));
     AssertEqual(new Rgba32(0, 0, 255),
         gameplayFrame[SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width],
@@ -1025,8 +1030,13 @@ internal static void VerifyFourBitBackgroundRendering()
         gameplaySprites,
         new OrdinaryGameplayRenderLayer(
             new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0),
-                new Extent16<TilemapCells>(64, 64), kraidBg2BaseWord, 0, 0, SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj),
-            RoomBackgroundsFixtures.Blank()));
+                new Extent16<TilemapCells>(64, 64), SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj),
+            // Kraid's body is the 64x64 map he loads at $4000, drawn from its pictures (#1403).
+            RoomBackgroundsFixtures.Blank() with
+            {
+                BossBg2 = RoomBackgroundsFixtures.BodyFromTilemap(gameplayVram.Bytes, gameplayCgram.Colors, kraidBg2BaseWord,
+                    new Extent16<TilemapCells>(64, 64)),
+            }));
     AssertEqual(new Rgba32(255, 0, 0),
         gameplayFrame[SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width],
         "ordinary compositor consumes Kraid's 64x64 BG2 map at $4000");

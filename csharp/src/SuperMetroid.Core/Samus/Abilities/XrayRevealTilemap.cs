@@ -92,7 +92,7 @@ public static class XrayRevealTilemap
             var cell = new Position16<BgPlanePixels>(
                 unchecked((ushort)(scroll.X + (((x & 63) * SnesPpuLayout.BackgroundTileSizePixels - scroll.X) & (XrayTilemapLayout.TilemapPixelWidth - 1)))),
                 unchecked((ushort)(scroll.Y + (((y & 31) * SnesPpuLayout.BackgroundTileSizePixels - scroll.Y) & (XrayTilemapLayout.TilemapPixelHeight - 1)))));
-            return bg1.TrySample(cell, out BgTileSample sample) ? sample.Tile.Raw : (ushort)0;
+            return bg1.TryTileAt(cell, out SnesBgTilemapWord tile) ? tile.Raw : (ushort)0;
         }
         void CopyMetatile(int destination, ushort metatile)
         {

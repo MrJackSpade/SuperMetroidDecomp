@@ -49,12 +49,6 @@ public sealed class SnesVram
         return capturedImage;
     }
 
-    /// <summary>
-    /// Provides a non-writable view for renderers, assertions, and debugger inspection.
-    /// Writes should pass through DMA-aware methods so word stepping remains visible.
-    /// </summary>
-    public ReadOnlySpan<byte> Bytes => _bytes;
-
     /// <summary>Starts tracking when each word is written, for background artwork bindings to order against (#1350).</summary>
     internal void TrackWriteOrder() => _writeStamps ??= new uint[WordCount];
 
@@ -69,17 +63,6 @@ public sealed class SnesVram
 
     /// <summary>Records that a write stamped <paramref name="stamp"/> reached <paramref name="wordCount"/> words from <paramref name="firstWord"/>.</summary>
     private void StampWords(int firstWord, int wordCount, uint stamp) => _writeStamps?.AsSpan(firstWord, wordCount).Fill(stamp);
-
-    /// <summary>
-    /// Reads a byte by physical VRAM byte offset.
-    /// </summary>
-    public byte ReadByte(int byteOffset)
-    {
-        if ((uint)byteOffset >= ByteCount)
-            throw new ArgumentOutOfRangeException(nameof(byteOffset));
-
-        return _bytes[byteOffset];
-    }
 
     /// <summary>Reads one little-endian PPU word for debugger inspection and verification.</summary>
     public ushort ReadWord(int wordAddress)

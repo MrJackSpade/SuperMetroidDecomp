@@ -48,10 +48,10 @@ internal static class SnesBgTilemapRendererConstants
                 for (int y = 0; y < SnesPpuLayout.BackgroundTileSizePixels; y++)
                 {
                     int row = format.RowByteOffset(characterBaseWord, entry.CharacterIndex,
-                        BgCharacterGrid.SourcePixel(y, entry.FlipVertically));
+                        BgCharacterGridConstants.SourcePixel(y, entry.FlipVertically));
                     for (int x = 0; x < SnesPpuLayout.BackgroundTileSizePixels; x++)
                     {
-                        int colorIndex = format.ColorIndexAt(vramBytes, row, BgCharacterGrid.SourcePixel(x, entry.FlipHorizontally));
+                        int colorIndex = format.ColorIndexAt(vramBytes, row, BgCharacterGridConstants.SourcePixel(x, entry.FlipHorizontally));
 
                         // Every SNES BG treats color index zero as transparent when another
                         // layer is being composed below it. Existing single-layer callers
@@ -122,11 +122,11 @@ internal static class SnesBgTilemapRendererConstants
                 }
 
                 int row = format.RowByteOffset(addresses.CharacterBaseWord, entry.CharacterIndex,
-                    BgCharacterGrid.SourcePixel(pixelY, entry.FlipVertically));
+                    BgCharacterGridConstants.SourcePixel(pixelY, entry.FlipVertically));
                 for (int offset = 0; offset < runLength; offset++)
                 {
                     int colorIndex = format.ColorIndexAt(vramBytes, row,
-                        BgCharacterGrid.SourcePixel(pixelX + offset, entry.FlipHorizontally));
+                        BgCharacterGridConstants.SourcePixel(pixelX + offset, entry.FlipHorizontally));
                     if (colorIndex != BgCharacterFormat.TransparentColorIndex)
                         output[screenY * width + screenX + offset] = colors[format.CgramColor(entry.PaletteIndex, colorIndex)];
                 }

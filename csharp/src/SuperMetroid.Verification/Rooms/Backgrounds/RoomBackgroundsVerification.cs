@@ -55,15 +55,13 @@ internal static class RoomBackgroundsVerification
                 blocks[y / RoomLevelPlane.BlockPixels * Side + x / RoomLevelPlane.BlockPixels], definitions);
             bool right = x % RoomLevelPlane.BlockPixels >= 8, bottom = y % RoomLevelPlane.BlockPixels >= 8;
             SnesBgTilemapWord expected = bottom ? right ? tiles.BottomRight : tiles.BottomLeft : right ? tiles.TopRight : tiles.TopLeft;
-            AssertTrue(planeTiles.TrySample(level + offset, out BgTileSample sample), $"level pixel {x},{y} is inside the room");
-            AssertEqual(expected, sample.Tile, $"scroll {x + offset.X},{y + offset.Y} shows the level block's tile at scroll minus offset");
-            AssertEqual(new Position16<CharacterPixels>((ushort)(x % 8), (ushort)(y % 8)), sample.Pixel,
-                $"scroll {x + offset.X},{y + offset.Y} samples the tile's pixel at the level position");
+            AssertTrue(planeTiles.TryTileAt(level + offset, out SnesBgTilemapWord tile), $"level pixel {x},{y} is inside the room");
+            AssertEqual(expected, tile, $"scroll {x + offset.X},{y + offset.Y} shows the level block's tile at scroll minus offset");
             checks++;
         }
-        AssertTrue(!planeTiles.TrySample(new Position16<BgPlanePixels>(0, 0) + offset + new Offset16<BgPlanePixels>(-1, 0), out BgTileSample _),
+        AssertTrue(!planeTiles.TryTileAt(new Position16<BgPlanePixels>(0, 0) + offset + new Offset16<BgPlanePixels>(-1, 0), out SnesBgTilemapWord _),
             "a scroll left of the room shows no tile");
-        AssertTrue(!planeTiles.TrySample(new Position16<BgPlanePixels>(0, Side * RoomLevelPlane.BlockPixels) + offset, out BgTileSample _),
+        AssertTrue(!planeTiles.TryTileAt(new Position16<BgPlanePixels>(0, Side * RoomLevelPlane.BlockPixels) + offset, out SnesBgTilemapWord _),
             "a scroll below the room shows no tile");
         AssertTrue(!layer.TrySample(new Position16<BgPlanePixels>(0, 0) + offset + new Offset16<BgPlanePixels>(-1, 0), out BgSample _),
             "a scroll left of the room shows no block");
@@ -153,8 +151,8 @@ internal static class RoomBackgroundsVerification
             for (int x = 0; x < 256; x += 41)
             {
                 var screen = new Offset16<BgPlanePixels>((short)x, (short)y);
-                AssertTrue(level.ForegroundPlane.Tiles(published.Bg1.ScrollOffset).TrySample(scroll + screen, out BgTileSample shown) &&
-                        level.ForegroundPlane.TryTileAt(camera + screen, out SnesBgTilemapWord expected) && shown.Tile == expected,
+                AssertTrue(level.ForegroundPlane.Tiles(published.Bg1.ScrollOffset).TryTileAt(scroll + screen, out SnesBgTilemapWord shown) &&
+                        level.ForegroundPlane.TryTileAt(camera + screen, out SnesBgTilemapWord expected) && shown == expected,
                     $"{room.Name} BG1 at screen {x},{y} shows the level at the camera");
             }
         }

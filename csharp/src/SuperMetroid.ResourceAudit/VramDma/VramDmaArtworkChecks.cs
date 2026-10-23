@@ -39,7 +39,7 @@ internal static class VramDmaArtworkChecks
             ReadOnlySpan<byte> expected = ((IVramAssetProvider)runtime.Artwork).Resolve(pair.Asset).Span;
             VramDmaContractChecks.Require(expected.Length == pair.Count, "native alias uses the typed length");
             for (int offset = 0; offset < pair.Count; offset++)
-                VramDmaContractChecks.Require(runtime.Vram.ReadByte(offset) == expected[offset], "native alias preserves each compiled byte");
+                VramDmaContractChecks.Require(VramBytes.At(runtime.Vram, offset) == expected[offset], "native alias preserves each compiled byte");
             var invalid = new VramWriteQueue();
             invalid.Enqueue((ushort)(pair.Count + 1), pair.Source, VramDmaDestination.FromNative(0));
             bool rejected = false;
@@ -54,7 +54,7 @@ internal static class VramDmaArtworkChecks
         pending.Enqueue(checked((ushort)first.ByteCount), first.SourceAddress, VramDmaDestination.FromNative(0));
         runtime.Artwork.GrappleArtwork = Grapple(2);
         pending.DrainTo(runtime.Vram, runtime.Artwork);
-        VramDmaContractChecks.Require(runtime.Vram.ReadByte(0) == 0 && runtime.Vram.ReadByte(1) == 255,
+        VramDmaContractChecks.Require(VramBytes.At(runtime.Vram, 0) == 0 && VramBytes.At(runtime.Vram, 1) == 255,
             "already-pending native record resolves newly rebound PNG pixels");
         Console.WriteLine("Native DMA artwork: ten HUD/timer/Grapple aliases match typed bytes through the actual runtime/RAM-only queue; invalid lengths rejected; pending PNG rebinding passed.");
     }

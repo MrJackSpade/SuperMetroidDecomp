@@ -84,5 +84,14 @@ internal static class SnesVramAccess
                     destinationWord = (destinationWord + destination.WordIncrement) & (SnesVram.WordCount - 1);
             }
         }
+        /// <summary>The current image, read through the capture the display takes; writes pass through the DMA-aware methods.</summary>
+        public ReadOnlySpan<byte> Bytes => self.CaptureImage();
+        /// <summary>Reads a byte by physical VRAM byte offset, through the word that holds it.</summary>
+        public byte ReadByte(int byteOffset)
+        {
+            if ((uint)byteOffset >= SnesVram.ByteCount)
+                throw new ArgumentOutOfRangeException(nameof(byteOffset));
+            return (byte)(self.ReadWord(byteOffset / 2) >> byteOffset % 2 * 8);
+        }
     }
 }

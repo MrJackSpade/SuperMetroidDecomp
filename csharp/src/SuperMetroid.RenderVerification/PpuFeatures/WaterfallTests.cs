@@ -45,7 +45,7 @@ internal static class WaterfallTests
         var memory = PpuMemorySnapshot.FromOam(vram.Bytes, cgram.Colors, oam, 2, 0);
         Layer3Cells plane = Layer3CellsFixtures.FromVram(vram.Bytes, cgram.Colors, 0x1000);
         var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
-            GameplayVramLayout.Bg2TilemapWord, 0, 0, WaterfallRoomDisplayRules.MainScreen);
+            WaterfallRoomDisplayRules.MainScreen);
         var bg3 = new Bg2BppColorMathRenderLayer(plane, Layer3Plane.Rows / 2, 32, 32,
             ExpandedColorMathOperation.Subtract, new Position16<BgPlanePixels>[224]);
         var layer = new GameplayColorMathRenderLayer(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1), new TilemapCell(14, 8, new(4))) with { Bg3 = plane }), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new ColorMathRegisters { ColorMath = WaterfallRoomDisplayRules.ColorMath, AddSubscreen = true, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, bg3, subscreenUsesBg2: true);

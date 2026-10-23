@@ -112,7 +112,7 @@ internal static class WordReadsVerification
         vram[row + 17] = 0b0001_0001;
         AssertSequenceEqual(FourBppRowColorIndices,
             Enumerable.Range(0, 8).Select(column => four4.ColorIndexAt(vram, row, column)).ToArray(), "4-bpp planes 0-3 weight 1, 2, 4, 8");
-        AssertEqual(7, BgCharacterGrid.SourcePixel(0, flipped: true), "flip mirrors within the character");
+        AssertEqual(7, BgCharacterGridConstants.SourcePixel(0, flipped: true), "flip mirrors within the character");
         AssertEqual(3 * 16 + 9, four4.CgramColor(3, 9), "4-bpp palettes hold sixteen colors");
 
         BgCharacterFormat two = BgCharacterFormatConstants.TwoBitsPerPixel;

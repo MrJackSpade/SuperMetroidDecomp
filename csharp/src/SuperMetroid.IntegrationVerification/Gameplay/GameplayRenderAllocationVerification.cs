@@ -16,7 +16,7 @@ internal static class GameplayRenderAllocationVerification
         var cgram = new SnesCgram();
         var sprites = new SpriteFrameBuffer();
         cgram.SetColor(0, Bgr555.FromWord(0x1234));
-        var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32), 0, 0, 0,
+        var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
             SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
         var rooms = RoomBackgroundsFixtures.Seeded(new Random(1346), registers.Bg1Scroll.AsBgPlaneScroll(),
             registers.Bg2Scroll.AsBgPlaneScroll(), door: true, overlay: true);

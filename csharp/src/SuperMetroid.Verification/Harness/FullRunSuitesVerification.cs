@@ -20,7 +20,6 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidVerificatio
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidWallClearTimingVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidWrongWaySpeedVerification;
 using static SuperMetroid.Verification.Rooms.BackgroundMosaicVerification;
-using static SuperMetroid.Verification.Rooms.BackgroundSamplerVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.BeamCallbackTablesVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.BeamImpactSoundVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.BeamSpeedRowsVerification;
@@ -483,7 +482,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyCinematicCrystalFlash), () => VerifyCinematicCrystalFlash("csharp/test-fixtures/movement-release/cinematic-flash-432.csv")),
         new(nameof(VerifyElevatubeScrolling), () => VerifyElevatubeScrolling()),
         new(nameof(VerifyIniEditing), () => VerifyIniEditing()),
-        new(nameof(VerifyBackgroundSampler), () => VerifyBackgroundSampler()),
         .. RenderContractSuites(),
         new(nameof(VerifyRandomNumberGeneratorExhaustively), () => VerifyRandomNumberGeneratorExhaustively()),
         new(nameof(SaveLoadRandomAudit), () => SaveLoadRandomAudit.Run(Path.GetFullPath("Super Metroid.smc"), InstalledFixtures.BindGame)),

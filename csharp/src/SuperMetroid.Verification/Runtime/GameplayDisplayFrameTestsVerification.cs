@@ -226,7 +226,7 @@ internal static class GameplayDisplayFrameTestsVerification
             "door setup $8F:E513 clears BGMODE with its Mode 7 matrix");
         AssertTrue(arena.Rooms?.Characters != RoomBackgroundCharacters.ObjectCharacterPage, "room setup BG12NBA waits for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(GameplayRenderDefinitions.CeresCharacterWord, Registers(runtime).Bg1CharacterWord,
+        AssertEqual(RoomBackgroundCharacters.ObjectCharacterPage, runtime.PublishDisplayFrame().Latched.Rooms?.Characters,
             "the accepted NMI publishes the Ceres Ridley BG12NBA");
 
         RidleyEnemyState getaway = runtime.Enemies.RidleyEncounter.CeresRidley

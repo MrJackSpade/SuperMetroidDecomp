@@ -107,7 +107,7 @@ internal static class SnesGameplayFrameRendererConstants
                     previousTileX = tileX;
                 }
 
-                if (SnesGameplayFrameRenderer.TryDecodeOrdinaryGameplayBgPixel(
+                if (SnesGameplayFrameRendererConstants.TryDecodeOrdinaryGameplayBgPixel(
                         vramBytes,
                         palette,
                         bg2Entry,
@@ -335,9 +335,9 @@ internal static class SnesGameplayFrameRendererConstants
                 SnesBgTilemapWord entry = image.ReadWord(geometry.EntryWordAddress(tilemapBaseWord,
                     new Position16<TilemapCells>((ushort)BgCharacterGrid.CharacterOf(scrolledX), (ushort)tileY)));
                 int row = format.RowByteOffset(GameplayVramLayout.HudCharacterWord, entry.CharacterIndex,
-                    BgCharacterGrid.SourcePixel(pixelY, entry.FlipVertically));
+                    BgCharacterGridConstants.SourcePixel(pixelY, entry.FlipVertically));
                 int color = format.ColorIndexAt(fxVram, row,
-                    BgCharacterGrid.SourcePixel(BgCharacterGrid.PixelWithinCharacter(scrolledX), entry.FlipHorizontally));
+                    BgCharacterGridConstants.SourcePixel(BgCharacterGrid.PixelWithinCharacter(scrolledX), entry.FlipHorizontally));
                 if (color == BgCharacterFormat.TransparentColorIndex)
                     continue;
 
@@ -441,4 +441,31 @@ internal static class SnesGameplayFrameRendererConstants
     }
     /// <summary>The gameplay OBSEL: 8x8 and 16x16 OBJs, character base 3.</summary>
     internal const byte DefaultObjectSelection = 3;
+    /// <summary>Decodes a four-bit BG tile pixel, reporting transparency and the tile's priority bit alongside its CGRAM color.</summary>
+    [System.Runtime.CompilerServices.MethodImpl(
+        System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+    internal static bool TryDecodeOrdinaryGameplayBgPixel(
+        ReadOnlySpan<byte> vram,
+        ReadOnlySpan<Rgba32> palette,
+        SnesBgTilemapWord entry,
+        int characterBaseWord,
+        Position16<CharacterPixels> pixel,
+        out Rgba32 color,
+        out bool highPriority)
+    {
+        highPriority = entry.HasPriority;
+
+        BgCharacterFormat format = BgCharacterFormat.FourBitsPerPixel;
+        int row = format.RowByteOffset(characterBaseWord, entry.CharacterIndex,
+            BgCharacterGridConstants.SourcePixel(pixel.Y, entry.FlipVertically));
+        int colorIndex = format.ColorIndexAt(vram, row, BgCharacterGridConstants.SourcePixel(pixel.X, entry.FlipHorizontally));
+        if (colorIndex == BgCharacterFormat.TransparentColorIndex)
+        {
+            color = default;
+            return false;
+        }
+
+        color = palette[format.CgramColor(entry.PaletteIndex, colorIndex)];
+        return true;
+    }
 }

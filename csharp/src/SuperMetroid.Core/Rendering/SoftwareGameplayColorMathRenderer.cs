@@ -45,9 +45,9 @@ public static class SoftwareGameplayColorMathRenderer
         for (int color = 0; color < colors.Length; color++) colors[color] = memory.Cgram.GetRgba(color);
         RoomBackgrounds rooms = layer.Gameplay.Rooms;
         var hud = new BgPictureSampler(colors, memory.Cgram, rooms.ShownBg3.Shown(0, SnesPpuLayout.TilemapPageWidthInTiles));
-        var bg1Sampler = new SnesBackgroundPixelSampler(memory.Vram, colors, memory.Cgram, rooms.Bg1Source, r.Bg1CharacterWord, BgBitDepth.FourBpp);
-        var bg2Sampler = new SnesBackgroundPixelSampler(memory.Vram, colors, memory.Cgram,
-            rooms.Bg2Shown(r.Bg2MapSize), r.Bg2CharacterWord, BgBitDepth.FourBpp);
+        // BG1 and BG2 draw from the pictures the room publishes (#1403).
+        var bg1Sampler = new BgPictureSampler(colors, memory.Cgram, rooms.Bg1Source);
+        var bg2Sampler = new BgPictureSampler(colors, memory.Cgram, rooms.Bg2Shown(r.Bg2MapSize));
         var subSampler = layer.Subscreen is { } subLayer ? new BgPictureSampler(colors, memory.Cgram,
             subLayer.Plane.Shown(subLayer.FirstRow, subLayer.MapHeightTiles)) : null;
         SnesObjRenderer.RenderResolved(memory.Sprites.Draws, memory.Cgram, new ObjRasterTargets(objects.AsSpan(0, output.Length), priorities.AsSpan(0, output.Length), palettes.AsSpan(0, output.Length)), new Extent16<ScreenPixels>(checked((ushort)width), checked((ushort)height)));

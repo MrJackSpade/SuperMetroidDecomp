@@ -150,7 +150,7 @@ internal static class XrayInputVerification
             AssertTrue(baseFrame.Memory.Vram.SequenceEqual(excludedFrame.Memory.Vram), "excluded room retains original VRAM");
             AssertTrue((excluded.ColorMath & SnesColorMathControl.Obj) == 0, "excluded-room CGADSUB leaves Samus color unchanged");
             AssertEqual(excludedRoom != RoomHeaderDefinitions.GlassTunnel,
-                excluded.Gameplay.Registers.MainScreenLayers.HasFlag(SnesMainScreenLayers.Bg2), "CEFB alone removes BG2");
+                excluded.Gameplay.View.MainScreenLayers.HasFlag(SnesMainScreenLayers.Bg2), "CEFB alone removes BG2");
             for (int frame = 0; frame < 8; frame++) runtime.StepFrame(0);
         }
         Console.WriteLine("  X-ray input: normal Select/Run activation, full beam and release restore gameplay.");

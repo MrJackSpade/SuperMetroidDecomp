@@ -362,7 +362,7 @@ internal static class InstalledSporesTests
             vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)3, 1024).ToArray(), 0x5c00, 1);
             var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
             oam[0] = 16; oam[1] = 64; oam[3] = (byte)(objPriority << 4 | palette << 1);
-            var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
+            var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
                 SnesMainScreenLayers.Obj | ((enabled & 1) != 0 ? SnesMainScreenLayers.Bg1 : 0) |
                     ((enabled & 2) != 0 ? SnesMainScreenLayers.Bg2 : 0));
             var layer = SnesGameplayFrameRenderer.CaptureSpores(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, colors.Colors, new((ushort)(1 | (bg1High ? 0x2000 : 0)))) with

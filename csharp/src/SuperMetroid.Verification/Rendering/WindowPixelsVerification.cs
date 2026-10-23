@@ -40,11 +40,11 @@ internal static class WindowPixelsVerification
                 (SnesWindowSelectionPair)0x0b, 32, 96, 64, 128, operation * 0x55, operation);
             var admission = (SnesMainScreenLayers)((mask & 7) | ((mask & 8) << 1));
             Rgba32[] actual = Draw(layers, windows, admission);
-            var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(3, 5), new Position16<Bg2Pixels>(7, 11), new Extent16<TilemapCells>(64, 32),
+            var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(3, 5), new Position16<Bg2Pixels>(7, 11), new Extent16<TilemapCells>(64, 32),
                 layers, Windows: windows, MainScreenWindowMask: admission);
             var packet = new RenderFrameSnapshot(new(1, 1, 1),
                 new LayeredRenderSnapshot(capturedMemory, new RenderLayer[] { new OrdinaryGameplayRenderLayer(registers, rooms) }, 15));
-            var restoredRegisters = ((OrdinaryGameplayRenderLayer)(packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")).Layers[0]).Registers;
+            var restoredRegisters = ((OrdinaryGameplayRenderLayer)(packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")).Layers[0]).View;
             AssertEqual(windows, restoredRegisters.Windows, "the frame keeps its window registers");
             AssertEqual(admission, restoredRegisters.MainScreenWindowMask, "the frame keeps its TMW");
             AssertTrue(actual.SequenceEqual(RenderForComparison(packet)),
@@ -69,7 +69,7 @@ internal static class WindowPixelsVerification
         Rgba32[] Draw(SnesMainScreenLayers enabled, SnesWindowRegisters windows = default,
             SnesMainScreenLayers admission = SnesMainScreenLayers.None) =>
             SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(memory.Vram, memory.Cgram, memory.Sprites,
-                new OrdinaryGameplayRenderLayer(new OrdinaryGameplayRegisters(new Position16<RoomPixels>(3, 5), new Position16<Bg2Pixels>(7, 11),
+                new OrdinaryGameplayRenderLayer(new OrdinaryGameplayView(new Position16<RoomPixels>(3, 5), new Position16<Bg2Pixels>(7, 11),
                     new Extent16<TilemapCells>(64, 32),
                     enabled, Windows: windows, MainScreenWindowMask: admission), rooms));
     }

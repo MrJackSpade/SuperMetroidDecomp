@@ -93,7 +93,7 @@ internal static class GameplayDisplayFrameTestsVerification
         // Each boss's body shows in its own room, whose artwork pictures it (#1392).
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Kraid, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        OrdinaryGameplayRegisters before = Registers(runtime);
+        OrdinaryGameplayView before = Registers(runtime);
         var kraid = new KraidEnemyState { OwnsBg2Tilemap = true, Bg2Scroll = new Position16<Bg2Pixels>(320, 88) };
         runtime.Enemies.KraidBehavior.Access.Kraid = kraid;
         MarkMainLoopWrite(runtime);
@@ -125,7 +125,7 @@ internal static class GameplayDisplayFrameTestsVerification
     [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
     private static void VerifySceneRegisterTiming(SuperMetroidRuntime runtime)
     {
-        OrdinaryGameplayRegisters before = Registers(runtime);
+        OrdinaryGameplayView before = Registers(runtime);
         RoomFxType originalFx = runtime.RoomLayer3Fx.Type;
         runtime.RoomLayer3Fx.Type = RoomFxType.TourianEntranceStatue;
         MarkMainLoopWrite(runtime);
@@ -168,7 +168,7 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var darkness = (GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual(9, darkness.FixedRed, "Fireflea COLDATA publishes with its blend selector");
-        AssertEqual(LatchMarker, darkness.Gameplay.Registers.Windows.ObjectColorLogic, "Fireflea COLDATA publishes with the frame's window latch");
+        AssertEqual(LatchMarker, darkness.Gameplay.View.Windows.ObjectColorLogic, "Fireflea COLDATA publishes with the frame's window latch");
         fixedColor.Red = 32 + 4;
         AssertEqual(9, ((GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).FixedRed,
             "a main-loop COLDATA write waits for the next accepted NMI");
@@ -253,26 +253,26 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.GameplayWindows.Cache.WriteByte(GameplayWindowRegisterAddresses.ObjectColorLogic, LatchMarker);
 
     /// <summary>Asserts a main-loop write is not yet displayed.</summary>
-    private static void AssertPending(SuperMetroidRuntime runtime, Func<OrdinaryGameplayRegisters, bool> unchanged, string input)
+    private static void AssertPending(SuperMetroidRuntime runtime, Func<OrdinaryGameplayView, bool> unchanged, string input)
     {
         AssertTrue(unchanged(Registers(runtime)), $"{input} written by the main loop waits for the NMI");
     }
 
     /// <summary>Asserts an accepted NMI publishes the write in the same latch as the marked window register.</summary>
     [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
-    private static void AssertPublished(SuperMetroidRuntime runtime, Func<OrdinaryGameplayRegisters, bool> published, string input)
+    private static void AssertPublished(SuperMetroidRuntime runtime, Func<OrdinaryGameplayView, bool> published, string input)
     {
         AssertTrue(Registers(runtime).Windows.ObjectColorLogic != LatchMarker, $"{input}: marker is not yet displayed");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        OrdinaryGameplayRegisters registers = Registers(runtime);
+        OrdinaryGameplayView registers = Registers(runtime);
         AssertTrue(published(registers), $"the accepted NMI publishes {input}");
         AssertEqual(LatchMarker, registers.Windows.ObjectColorLogic, $"{input} publishes with the same NMI's window latch");
         runtime.GameplayWindows.Cache.WriteByte(GameplayWindowRegisterAddresses.ObjectColorLogic, 0);
     }
 
     /// <summary>The ordinary gameplay registers of a freshly published frame.</summary>
-    private static OrdinaryGameplayRegisters Registers(SuperMetroidRuntime runtime) =>
-        ((OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0]).Registers;
+    private static OrdinaryGameplayView Registers(SuperMetroidRuntime runtime) =>
+        ((OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0]).View;
 
     /// <summary>Runs the focused gameplay display frame confirmation.</summary>
     [VerificationCommand("--gameplay-display-frame")]

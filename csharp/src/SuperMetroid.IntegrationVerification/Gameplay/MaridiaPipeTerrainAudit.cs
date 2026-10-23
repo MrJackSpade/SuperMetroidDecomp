@@ -16,7 +16,7 @@ internal static class MaridiaPipeTerrainAudit
     {
         if (runtime.Room.ActiveRoom?.Definition != RoomHeaderDefinitions.Toilet || snapshot.Layers is not { } layers) return;
         var gameplay = layers.LayersOf<OrdinaryGameplayRenderLayer>().Single();
-        var r = gameplay.Registers;
+        var r = gameplay.View;
         var scroll = runtime.BackgroundScroll;
         var level = runtime.Room.LoadedLevelData;
         foreach (bool background in new[] { false, true })

@@ -37,7 +37,7 @@ public static class SnesGameplayFrameRenderer
     {
         Ensure.NotNull(layer);
         Rgba32[] output = CreateBackdrop(cgram, outputBuffer);
-        OrdinaryGameplayRegisters registers = layer.Registers;
+        OrdinaryGameplayView registers = layer.View;
         Span<SnesMainScreenLayers> windowMasks = stackalloc SnesMainScreenLayers[Width];
         if (registers.MainScreenWindowMask == SnesMainScreenLayers.None)
             windowMasks.Clear();
@@ -103,7 +103,7 @@ public static class SnesGameplayFrameRenderer
         }
 
         // The layer validated its BG2 map size and every per-line table at construction.
-        OrdinaryGameplayRegisters registers = layer.Registers;
+        OrdinaryGameplayView registers = layer.View;
         Position16<RoomPixels> bg1Scroll = registers.Bg1Scroll;
         Extent16<TilemapCells> bg2TilemapSize = registers.Bg2MapSize;
         SnesMainScreenLayers mainScreenLayers = registers.MainScreenLayers;

@@ -183,10 +183,10 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             words += reveal.Blocks.Length;
         int imageOffset = image is null ? 0 : words;
         if (image is not null)
-            words += 1 + image.Image.CellCount;
+            words += 1 + image.CellCount;
         int skyImageOffset = skyImage is null ? 0 : words;
         if (skyImage is not null)
-            words += 1 + skyImage.Image.CellCount;
+            words += 1 + skyImage.CellCount;
         void AddPicture(SpriteSheetFrame picture)
         {
             if (colourWords.TryAdd(picture.Sheet, words))
@@ -208,8 +208,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         {
             if (plane is null)
                 continue;
-            AddPicture(plane.Image.Picture);
-            for (int cell = 0; cell < plane.Image.CellCount; cell++)
+            AddPicture(plane.Picture);
+            for (int cell = 0; cell < plane.CellCount; cell++)
             {
                 if (plane.Cell(cell) is { } picture)
                     AddPicture(picture);
@@ -302,8 +302,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         {
             if (plane is null)
                 continue;
-            upload[offset] = (uint)pictureWords[plane.Image.Picture];
-            for (int cell = 0; cell < plane.Image.CellCount; cell++)
+            upload[offset] = (uint)pictureWords[plane.Picture];
+            for (int cell = 0; cell < plane.CellCount; cell++)
                 upload[offset + 1 + cell] = plane.Cell(cell) is { } picture ? (uint)pictureWords[picture] : 0;
         }
         if (door is not null)

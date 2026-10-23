@@ -42,7 +42,7 @@ internal static class GameplaySnapshotTestsVerification
             SnesMainScreenLayers layers = (mask & 1) == 0 ? 0 : SnesMainScreenLayers.Bg1;
             if ((mask & 2) != 0) layers |= SnesMainScreenLayers.Bg2;
             if ((mask & 4) != 0) layers |= SnesMainScreenLayers.Obj;
-            var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
+            var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
                 mapSize, layers);
             var layer = new OrdinaryGameplayRenderLayer(registers, (hdma & 1) == 0 || mapSize == new Extent16<TilemapCells>(64, 64) ? rooms : loaded,
                 new Bg2LineScrolls(x, y));

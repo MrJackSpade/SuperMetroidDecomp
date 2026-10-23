@@ -48,7 +48,7 @@ internal static class KraidBodyPublicationVerification
             "the risen body publishes both working pages, blank elsewhere");
         AssertEqual(state.Bg2Scroll, risen.Scroll, "the body publishes at Kraid's BG2 scroll");
         var drawn = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime) && drawn.Registers.Bg2MapSize == risen.Tilemap.Size,
+        AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime) && drawn.View.Bg2MapSize == risen.Tilemap.Size,
             "the capture draws the published body on BG2 at its map size");
 
         // Mouth open: the head frame shows over the upper page, which a later upload would cover.

@@ -277,9 +277,9 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// <summary>Combines gameplay BG2, captured BG3, windows, and HDMA layer enables for X-Ray color math.</summary>
     private unsafe void DispatchGameplayColorMath(LayeredRenderSnapshot scene, GameplayColorMathRenderLayer layer)
     {
-        if (layer.Gameplay.Registers.MainScreenWindowMask != SuperMetroid.Core.Hardware.SnesMainScreenLayers.None)
+        if (layer.Gameplay.View.MainScreenWindowMask != SuperMetroid.Core.Hardware.SnesMainScreenLayers.None)
             throw new NotSupportedException("Combining captured hardware windows with GPU gameplay color math is not translated.");
-        var r = layer.Gameplay.Registers;
+        var r = layer.Gameplay.View;
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.XrayGameplay;
         // Xray.hlsli reuses the tile header for BG1/BG2 registers and CGADSUB.
@@ -372,7 +372,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     [PpuLayoutBoundary("backend: Direct3D 11 PPU dispatch of the ordinary gameplay layers")]
     private void DispatchOrdinaryGameplay(OrdinaryGameplayRenderLayer layer)
     {
-        OrdinaryGameplayRegisters r = layer.Registers;
+        OrdinaryGameplayView r = layer.View;
         // Preserve the Mode-1 priority ladder. Resolving OAM before these passes
         // prevents a hidden higher-index sprite from reappearing at another rank.
         int first = SnesPpuLayout.GameplayHudHeightPixels, end;
@@ -409,7 +409,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// <summary>Draws one BG2 priority band with HDMA scroll, mosaic, and window masking.</summary>
     private unsafe void DispatchGameplayBg2(OrdinaryGameplayRenderLayer layer, bool high, int first, int end)
     {
-        var r = layer.Registers;
+        var r = layer.View;
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.Bg4;
         data[5] = r.Bg2MapSize.X; data[6] = r.Bg2MapSize.Y;

@@ -42,7 +42,7 @@ internal static class NorfairGlowCaptureTests
                 colors[index] = scene.Memory.Cgram[index];
             var memory = new PpuMemorySnapshot(original.Memory.Vram, colors, original.Memory.SpriteDraws);
             var originalLayer = (OrdinaryGameplayRenderLayer)original.Layers[0];
-            var registers = originalLayer.Registers;
+            var registers = originalLayer.View;
             var foreground = new LayeredRenderSnapshot(memory,
                 [new OrdinaryGameplayRenderLayer(registers with { MainScreenLayers = SnesMainScreenLayers.Bg1 }, originalLayer.Rooms)], original.Brightness);
             var isolated = new RenderFrameSnapshot(new(tick + 1, 2, (ushort)tick), foreground);

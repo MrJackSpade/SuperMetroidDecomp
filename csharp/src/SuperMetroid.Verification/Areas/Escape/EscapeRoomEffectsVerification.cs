@@ -42,8 +42,8 @@ internal static class EscapeRoomEffectsVerification
                     var capture = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
                     var layer = (OrdinaryGameplayRenderLayer)capture.Layers[0];
                     var actual = SoftwareLayeredSnapshotRenderer.Render(capture);
-                    var noObjects = new OrdinaryGameplayRenderLayer(layer.Registers with
-                    { MainScreenLayers = layer.Registers.MainScreenLayers & ~SnesMainScreenLayers.Obj }, layer.Rooms,
+                    var noObjects = new OrdinaryGameplayRenderLayer(layer.View with
+                    { MainScreenLayers = layer.View.MainScreenLayers & ~SnesMainScreenLayers.Obj }, layer.Rooms,
                         layer.Bg2LineScrolls);
                     var baseline = SoftwareLayeredSnapshotRenderer.Render(new(capture.Memory, [noObjects], capture.Brightness));
                     foreach (var sprite in runtime.Enemies.RoomSpriteObjects.Where(s => s.IsActive))
@@ -57,9 +57,9 @@ internal static class EscapeRoomEffectsVerification
                         visibleExplosion |= changed > 8;
                     }
                     var displayedShake = runtime.Display.DisplayedGameplayPpu.RoomShake;
-                    var stationary = new OrdinaryGameplayRenderLayer(noObjects.Registers with
+                    var stationary = new OrdinaryGameplayRenderLayer(noObjects.View with
                     {
-                        Bg1Scroll = layer.Registers.Bg1Scroll - displayedShake.Bg1
+                        Bg1Scroll = layer.View.Bg1Scroll - displayedShake.Bg1
                     }, layer.Rooms, layer.Bg2LineScrolls);
                     var unshaken = SoftwareLayeredSnapshotRenderer.Render(new(capture.Memory, [stationary], capture.Brightness));
                     visibleShake |= baseline.Where((pixel, index) => index >= 32 * 256 && pixel != unshaken[index]).Count() > 500;

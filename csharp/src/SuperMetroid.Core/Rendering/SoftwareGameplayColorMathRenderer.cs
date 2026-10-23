@@ -11,7 +11,7 @@ public static class SoftwareGameplayColorMathRenderer
     internal static Rgba32[] Render(SoftwarePpuSnapshotMemory memory, GameplayColorMathRenderLayer layer,
         Rgba32[]? outputBuffer)
     {
-        if (layer.Gameplay.Registers.MainScreenWindowMask != SnesMainScreenLayers.None)
+        if (layer.Gameplay.View.MainScreenWindowMask != SnesMainScreenLayers.None)
             throw new NotSupportedException("Combining captured hardware windows with gameplay color math is not translated.");
         int count = SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels;
         if (outputBuffer is not null && outputBuffer.Length != count)
@@ -36,7 +36,7 @@ public static class SoftwareGameplayColorMathRenderer
     private static Rgba32[] RenderWithScratch(SoftwarePpuSnapshotMemory memory, GameplayColorMathRenderLayer layer,
         Rgba32[] output, Rgba32[] objects, byte[] priorities, byte[] palettes)
     {
-        var r = layer.Gameplay.Registers;
+        var r = layer.Gameplay.View;
         int width = SnesPpuLayout.ScreenWidthPixels, height = SnesPpuLayout.ScreenHeightPixels;
         bool halfEnabled = (layer.ColorMath & SnesColorMathControl.Half) != 0;
         bool subtract = (layer.ColorMath & SnesColorMathControl.Subtract) != 0;
@@ -137,7 +137,7 @@ public static class SoftwareGameplayColorMathRenderer
     /// The BG2 plane pixel sampled at a screen pixel: the line's HDMA scroll replacements (or the
     /// latched registers), then mosaic grouping.
     /// </summary>
-    private static Position16<BgPlanePixels> Bg2Source(OrdinaryGameplayRegisters r, OrdinaryGameplayRenderLayer gameplay,
+    private static Position16<BgPlanePixels> Bg2Source(OrdinaryGameplayView r, OrdinaryGameplayRenderLayer gameplay,
         int lineIndex, Position16<ScreenPixels> screen)
     {
         Position16<Bg2Pixels> scroll = gameplay.Bg2ScrollAt(lineIndex);

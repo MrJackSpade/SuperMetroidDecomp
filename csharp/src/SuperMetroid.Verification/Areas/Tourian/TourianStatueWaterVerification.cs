@@ -74,7 +74,7 @@ internal static class TourianStatueWaterVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var descending = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual(unchecked((ushort)(runtime.Display.DisplayedGameplayPpu.Layer1Position.Y + runtime.TourianStatues.DisplayedVerticalOffset)),
-            descending.Registers.Bg2Scroll.Y, "Statue descent retains its independent BG2 vertical scroll");
+            descending.View.Bg2Scroll.Y, "Statue descent retains its independent BG2 vertical scroll");
         AssertEqual((short)0xb0, (runtime.Display.DisplayedRoomLayer3Fx ?? throw new InvalidOperationException("Verification requires a published room FX snapshot.")).WaterSurfaceScreenY,
             "Statue motion does not move its water surface");
         runtime.RoomLayer3Fx.ApplyCartridgeMotionWrites(targetYPosition: 0xb4,

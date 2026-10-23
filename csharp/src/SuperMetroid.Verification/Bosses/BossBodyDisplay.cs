@@ -13,7 +13,7 @@ internal static class BossBodyDisplay
     /// </summary>
     internal static bool ShowsLatchedBody(OrdinaryGameplayRenderLayer drawn, SuperMetroidRuntime runtime)
     {
-        if (drawn.Rooms.BossBg2 is not { } shown || shown.Size != drawn.Registers.Bg2MapSize)
+        if (drawn.Rooms.BossBg2 is not { } shown || shown.Size != drawn.View.Bg2MapSize)
             return false;
         System.Collections.Immutable.ImmutableArray<BgTilePicture?> latched = runtime.Display.Latched.Bosses.BodyPictures;
         return !latched.IsDefault && shown.Pictures.Select(picture => (BgTilePicture?)picture).SequenceEqual(latched.Take(shown.Pictures.Length));

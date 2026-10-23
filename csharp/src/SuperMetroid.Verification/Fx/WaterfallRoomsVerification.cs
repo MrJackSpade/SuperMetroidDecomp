@@ -46,7 +46,7 @@ internal static class WaterfallRoomsVerification
             AssertTrue(math.SubscreenUsesBg2, "waterfall capture admits BG2 subscreen");
             AssertEqual((byte)0xb1, (byte)math.ColorMath, "waterfall native CGADSUB");
             AssertEqual(SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj,
-                math.Gameplay.Registers.MainScreenLayers, "waterfall main excludes BG2");
+                math.Gameplay.View.MainScreenLayers, "waterfall main excludes BG2");
             AssertTrue(!snapshot.Layers.Any(layer => layer is Bg2BppColorMathRenderLayer),
                 "waterfall has no second post-composition liquid overlay");
             var pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);

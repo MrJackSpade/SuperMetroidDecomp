@@ -38,9 +38,9 @@ internal static class GameplayCaptureIntegrationTestsVerification
             GameplayWindowRegisterAddresses.ObjectColorLogic,
             0x0412);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        OrdinaryGameplayRegisters acceptedRegisters =
+        OrdinaryGameplayView acceptedRegisters =
             ((OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame())
-                .Layers[0]).Registers;
+                .Layers[0]).View;
         AssertEqual(0x12, acceptedRegisters.Windows.ObjectColorLogic,
             "accepted NMI publishes Chainsaw WOBJLOG store");
         AssertEqual(SnesMainScreenLayers.Bg3, acceptedRegisters.MainScreenLayers,

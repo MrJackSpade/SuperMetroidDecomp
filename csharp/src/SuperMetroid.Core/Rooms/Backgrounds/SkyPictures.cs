@@ -37,7 +37,7 @@ public sealed class SkyPictures : IBgSource
         }
         sample = Image.Cell(y / cell * (RoomBackgroundImage.PageTiles / 2) + x / cell) is { } picture
             ? BgSample.OfPicture(picture, new Position16<ImagePixels>((ushort)(x % cell), (ushort)(y % cell)))
-            : BgSample.OfPicture(Image.Image.Picture, new Position16<ImagePixels>((ushort)x, (ushort)y));
+            : BgSample.OfPicture(Image.Picture, new Position16<ImagePixels>((ushort)x, (ushort)y));
         return true;
     }
 }

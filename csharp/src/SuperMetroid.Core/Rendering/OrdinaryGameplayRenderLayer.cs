@@ -11,11 +11,11 @@ public sealed record OrdinaryGameplayRenderLayer : RenderLayer
 {
     /// <summary>The layers each gameplay line shows, where a room effect changes them line by line.</summary>
     private readonly SnesMainScreenLayers[] mainScreenLayersByLine;
-    /// <summary>Captured register values for this composition operation; PPU memory and OAM belong to the enclosing render snapshot, not this value.</summary>
-    public OrdinaryGameplayRegisters Registers { get; }
+    /// <summary>How the frame views the gameplay scene: scrolls, layers, windows and mosaic.</summary>
+    public OrdinaryGameplayView View { get; }
     /// <summary>The room backgrounds BG1 and BG2 show, resolved from level data through the scroll registers (#1346).</summary>
     public RoomBackgrounds Rooms { get; }
-    /// <summary>BG2's per-line scrolls for physical lines 32..223; an axis no effect drives uses <see cref="OrdinaryGameplayRegisters.Bg2Scroll"/> on every line.</summary>
+    /// <summary>BG2's per-line scrolls for physical lines 32..223; an axis no effect drives uses <see cref="OrdinaryGameplayView.Bg2Scroll"/> on every line.</summary>
     public Bg2LineScrolls Bg2LineScrolls { get; }
     /// <summary>The layers physical lines 32..223 show; nonempty entries replace the gameplay layers, not the separate window mask or fixed HUD composition.</summary>
     public ReadOnlySpan<SnesMainScreenLayers> MainScreenLayersByLine => mainScreenLayersByLine;
@@ -26,7 +26,7 @@ public sealed record OrdinaryGameplayRenderLayer : RenderLayer
     /// <param name="bg2LineScrolls">Optional per-line BG2 scrolls for physical lines 32..223.</param>
     /// <param name="mainScreenLayersByLine">Empty or exactly 192 per-line layer sets.</param>
     /// <exception cref="ArgumentException">BG2 dimensions are unsupported or a nonempty TM table does not contain exactly 192 values.</exception>
-    public OrdinaryGameplayRenderLayer(OrdinaryGameplayRegisters registers, RoomBackgrounds rooms,
+    public OrdinaryGameplayRenderLayer(OrdinaryGameplayView registers, RoomBackgrounds rooms,
         Bg2LineScrolls bg2LineScrolls = default, ReadOnlySpan<SnesMainScreenLayers> mainScreenLayersByLine = default)
     {
         if (registers.Bg2MapSize.X is not (32 or 64) || registers.Bg2MapSize.Y is not (32 or 64)
@@ -34,12 +34,12 @@ public sealed record OrdinaryGameplayRenderLayer : RenderLayer
             throw new ArgumentException("Gameplay BG2 requires 32 or 64 tiles on each axis.", nameof(registers));
         if (!mainScreenLayersByLine.IsEmpty && mainScreenLayersByLine.Length != Bg2LineScrolls.GameplayLines)
             throw new ArgumentException("Per-line layers cover exactly 192 gameplay lines.");
-        Registers = registers;
+        View = registers;
         Rooms = Ensure.NotNull(rooms);
         Bg2LineScrolls = bg2LineScrolls;
         this.mainScreenLayersByLine = mainScreenLayersByLine.ToArray();
     }
 
     /// <summary>The BG2 scroll registers on gameplay line <paramref name="line"/> (0..191).</summary>
-    public Position16<Bg2Pixels> Bg2ScrollAt(int line) => Bg2LineScrolls.At(line, Registers.Bg2Scroll);
+    public Position16<Bg2Pixels> Bg2ScrollAt(int line) => Bg2LineScrolls.At(line, View.Bg2Scroll);
 }

@@ -40,7 +40,7 @@ internal static class BackgroundMosaicTests
         foreach (int size in Enumerable.Range(1, 16))
         foreach (int mode in Enumerable.Range(0, 4))
         {
-            var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
+            var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
                 SnesMainScreenLayers.Obj | (mode == 2 ? SnesMainScreenLayers.None : SnesMainScreenLayers.Bg2) |
                     (mode == 3 ? SnesMainScreenLayers.Bg1 : SnesMainScreenLayers.None),
                 Bg2Mosaic: new(size));

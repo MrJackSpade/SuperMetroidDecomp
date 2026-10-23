@@ -122,7 +122,7 @@ public static class GameplayDisplayCapture
         GameplayWindowRegisterSnapshot displayedWindows = latched.Windows;
         SnesMainScreenLayers displayedMainScreen =
             displayedWindows.MainScreen & TmLayerBits;
-        var registers = new OrdinaryGameplayRegisters(bg1Scroll,
+        var registers = new OrdinaryGameplayView(bg1Scroll,
             new Position16<Bg2Pixels>(kraidBody is { } kraidX ? Add(kraidX.Scroll.X, shake.Bg2.X)
                 : crocomireBg2Scroll is { } crocomireX ? Add(crocomireX.X, shake.Bg2.X) : bg2Scroll.X,
                 kraidBody is { } kraidY ? Add(kraidY.Scroll.Y, shake.Bg2.Y)
@@ -285,9 +285,9 @@ public static class GameplayDisplayCapture
         var mode = phantoon.Configuration;
         if (mode is not (LayerBlendingConfiguration.PhantoonHidden or LayerBlendingConfiguration.PhantoonSemiTransparent))
             return ordinary;
-        var gameplay = new OrdinaryGameplayRenderLayer(ordinary.Registers with
+        var gameplay = new OrdinaryGameplayRenderLayer(ordinary.View with
         {
-            MainScreenLayers = ordinary.Registers.MainScreenLayers & ~SnesMainScreenLayers.Bg2,
+            MainScreenLayers = ordinary.View.MainScreenLayers & ~SnesMainScreenLayers.Bg2,
         }, ordinary.Rooms, ordinary.Bg2LineScrolls);
         if (mode == LayerBlendingConfiguration.PhantoonHidden) return gameplay;
         // $88:80D9: TM=$15, TS=$02, CGADSUB=$35. Gameplay HUD is the separate
@@ -312,7 +312,7 @@ public static class GameplayDisplayCapture
         var mode = XrayRoomDisplayRules.Select(xrayRoom, scene.FxType, scene.BossId);
         bool reveal = mode == XrayRoomBlendMode.RevealBlocks;
         byte[] bytes = basis.Memory.Vram.ToArray();
-        var registers = ordinary.Registers;
+        var registers = ordinary.View;
         if (reveal)
         {
             registers = registers with

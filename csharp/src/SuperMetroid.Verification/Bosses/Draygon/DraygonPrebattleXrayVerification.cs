@@ -48,7 +48,7 @@ internal static class DraygonPrebattleXrayVerification
         AssertEqual(DraygonAiFunction.IntroInitialDelay, (boss ?? throw new InvalidOperationException("Verification requires boss.")).Function, "X-Ray preserves the pre-battle phase");
         var scene = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var math = (GameplayColorMathRenderLayer)scene.Layers[0];
-        var r = math.Gameplay.Registers;
+        var r = math.Gameplay.View;
         AssertTrue(!math.RevealBlocks, "native boss exclusion preserves the original BG2 artwork");
         AssertEqual(32, r.Bg2FirstScanline, "native offscreen TM table begins below HUD");
         AssertEqual(32, r.Bg2EndScanline, "native offscreen TM table hides all Draygon BG2 lines");
@@ -75,13 +75,13 @@ internal static class DraygonPrebattleXrayVerification
         var combat = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         var ordinary = (OrdinaryGameplayRenderLayer)combat.Layers[0];
         var combatWithoutBg2 = new LayeredRenderSnapshot(combat.Memory,
-            new RenderLayer[] { new OrdinaryGameplayRenderLayer(ordinary.Registers with
-                { MainScreenLayers = ordinary.Registers.MainScreenLayers & ~SnesMainScreenLayers.Bg2 }, ordinary.Rooms, ordinary.Bg2LineScrolls) }, combat.Brightness);
+            new RenderLayer[] { new OrdinaryGameplayRenderLayer(ordinary.View with
+                { MainScreenLayers = ordinary.View.MainScreenLayers & ~SnesMainScreenLayers.Bg2 }, ordinary.Rooms, ordinary.Bg2LineScrolls) }, combat.Brightness);
         int visible = SoftwareLayeredSnapshotRenderer.Render(combat).Zip(SoftwareLayeredSnapshotRenderer.Render(combatWithoutBg2), (first, second) => first != second).Count(differs => differs);
         Console.WriteLine($"Battle-start Draygon body: {visible} visible pixels.");
         AssertTrue(visible > 0, "battle start still displays Draygon's body");
 
-        Rgba32[] RenderWithRegisters(OrdinaryGameplayRegisters registers)
+        Rgba32[] RenderWithRegisters(OrdinaryGameplayView registers)
         {
             var gameplay = new OrdinaryGameplayRenderLayer(registers, math.Gameplay.Rooms, math.Gameplay.Bg2LineScrolls, math.Gameplay.MainScreenLayersByLine);
             var changed = new GameplayColorMathRenderLayer(gameplay, math.Lines, math.RevealBlocks, new ColorMathRegisters { ColorMath = math.ColorMath, AddSubscreen = math.AddSubscreen, FixedRed = math.FixedRed, FixedGreen = math.FixedGreen, FixedBlue = math.FixedBlue }, math.Subscreen, math.SubscreenUsesBg2);

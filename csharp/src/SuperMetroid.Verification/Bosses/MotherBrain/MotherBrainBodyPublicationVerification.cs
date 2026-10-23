@@ -50,10 +50,10 @@ internal static class MotherBrainBodyPublicationVerification
             "phase two publishes her body at her posture scroll");
         AssertEqual(roomScroll, runtime.BackgroundScroll.Bg2Scroll, "Mother Brain leaves the room's BG2 scroll alone");
         var drawn = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertEqual(new Extent16<TilemapCells>(32, 32), drawn.Registers.Bg2MapSize, "her body shows on one 32x32 screen");
-        AssertEqual(state.Bg2Scroll + runtime.Display.Latched.Ppu.RoomShake.Bg2, drawn.Registers.Bg2Scroll, "her scroll places her body");
+        AssertEqual(new Extent16<TilemapCells>(32, 32), drawn.View.Bg2MapSize, "her body shows on one 32x32 screen");
+        AssertEqual(state.Bg2Scroll + runtime.Display.Latched.Ppu.RoomShake.Bg2, drawn.View.Bg2Scroll, "her scroll places her body");
         AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), "the capture draws her body image");
-        AssertTrue(drawn.Registers.MainScreenLayers.HasFlag(SnesMainScreenLayers.Bg2), "her shown body keeps BG2 on the main screen");
+        AssertTrue(drawn.View.MainScreenLayers.HasFlag(SnesMainScreenLayers.Bg2), "her shown body keeps BG2 on the main screen");
 
         // Death: the flicker hides her body.
         state.DeathBg2Hidden = true;
@@ -61,7 +61,7 @@ internal static class MotherBrainBodyPublicationVerification
         AssertEqual(new MotherBrainBodyPlacement(state.Bg2Scroll, true), runtime.Display.Latched.Bosses.MotherBrainBody,
             "the death flicker publishes her body hidden");
         var hidden = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertTrue(!hidden.Registers.MainScreenLayers.HasFlag(SnesMainScreenLayers.Bg2), "a hidden body leaves BG2 off the main screen");
+        AssertTrue(!hidden.View.MainScreenLayers.HasFlag(SnesMainScreenLayers.Bg2), "a hidden body leaves BG2 off the main screen");
         Console.WriteLine("  Mother Brain body: phase one shows the pipes; phase two publishes her placed body; death hides it.");
     }
 

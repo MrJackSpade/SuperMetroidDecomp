@@ -148,7 +148,7 @@ internal static class RetailKraidCaptureTests
     {
         LayeredRenderSnapshot scene = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var gameplay = (OrdinaryGameplayRenderLayer)scene.Layers[0];
-        IBgSource bg2 = gameplay.Rooms.Bg2Shown(gameplay.Registers.Bg2MapSize);
+        IBgSource bg2 = gameplay.Rooms.Bg2Shown(gameplay.View.Bg2MapSize);
         var shown = new SortedSet<ushort>();
         for (int line = 0; line < SnesPpuLayout.ScreenHeightPixels - SnesPpuLayout.GameplayHudHeightPixels; line += 4)
         {

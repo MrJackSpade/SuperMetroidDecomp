@@ -93,7 +93,7 @@ public static class SoftwareLayeredSnapshotRenderer
                     SoftwareScanlineColorRenderer.Composite(output, colorWindows);
                     break;
                 case OrdinaryGameplayRenderLayer gameplay:
-                    OrdinaryGameplayRegisters r = gameplay.Registers;
+                    OrdinaryGameplayView r = gameplay.View;
                     output = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
                         memory.Vram, memory.Cgram, memory.Sprites, gameplay, gameplayOutputBuffer);
                     break;

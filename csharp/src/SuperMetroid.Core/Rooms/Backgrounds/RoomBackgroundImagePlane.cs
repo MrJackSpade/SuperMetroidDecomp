@@ -4,24 +4,28 @@ using SuperMetroid.Core.Rooms.Artwork;
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
-/// A room's background image as BG2 shows it at one moment (#1392): the image, and the block picture of each 16x16 cell
-/// whose characters show artwork the room bound after loading.
+/// A room's background image as BG2 shows it at one moment (#1392, #1403): the image's picture, and the block picture of
+/// each 16x16 cell whose characters show artwork the room bound after loading.
 /// </summary>
 public sealed class RoomBackgroundImagePlane
 {
     /// <summary>Each cell's picture, null where the image shows; the array is never written after it is shared.</summary>
     private readonly SpriteSheetFrame?[] cells;
 
-    /// <summary>Keeps the image and the cells' pictures.</summary>
+    /// <summary>Keeps the image's picture and the cells' pictures.</summary>
     public RoomBackgroundImagePlane(RoomBackgroundImage image, SpriteSheetFrame?[] cells)
     {
-        Image = Ensure.NotNull(image);
+        Ensure.NotNull(image);
         this.cells = Ensure.NotNull(cells);
         Ensure.LengthEqual(cells, image.CellCount);
+        Picture = image.Picture;
     }
 
-    /// <summary>The background's image.</summary>
-    public RoomBackgroundImage Image { get; }
+    /// <summary>The picture of the whole image, its pages or rows one above the next.</summary>
+    public SpriteSheetFrame Picture { get; }
+
+    /// <summary>The image's 16x16 cells.</summary>
+    public int CellCount => cells.Length;
 
     /// <summary>The picture cell <paramref name="cell"/> shows in place of the image, or null.</summary>
     public SpriteSheetFrame? Cell(int cell) => cells[cell];
@@ -45,7 +49,7 @@ public sealed class RoomBackgroundImagePlane
             int cell = page * (pageTiles / 2) * (pageTiles / 2) + pageY / 16 * (pageTiles / 2) + pageX / 16;
             sample = plane.cells[cell] is { } picture
                 ? BgSample.OfPicture(picture, new Position16<ImagePixels>((ushort)(pageX % 16), (ushort)(pageY % 16)))
-                : BgSample.OfPicture(plane.Image.Picture, new Position16<ImagePixels>((ushort)pageX, (ushort)(page * RoomBackgroundImage.PagePixels + pageY)));
+                : BgSample.OfPicture(plane.Picture, new Position16<ImagePixels>((ushort)pageX, (ushort)(page * RoomBackgroundImage.PagePixels + pageY)));
             return true;
         }
     }

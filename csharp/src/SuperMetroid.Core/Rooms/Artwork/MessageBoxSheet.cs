@@ -1,9 +1,8 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 
-namespace SuperMetroid.Core.Hud.Artwork;
+namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
 /// The installed pre-coloured gameplay message boxes of one tileset's rooms (#1392): one image of each message's text in
@@ -12,6 +11,9 @@ namespace SuperMetroid.Core.Hud.Artwork;
 /// </summary>
 public sealed class MessageBoxSheet
 {
+    /// <summary>Words in a row of a message: one row of the BG3 tilemap page a message box is drawn into.</summary>
+    private const int RowWords = SnesPpuLayout.TilemapPageWidthInTiles;
+
     /// <summary>Each image by the words it pictures.</summary>
     private readonly Dictionary<string, SpriteSheetFrame> pictures = new(StringComparer.Ordinal);
 
@@ -30,8 +32,7 @@ public sealed class MessageBoxSheet
             SpriteSheetFrame frame = sheet.Frame(name);
             if (frame.Sheet.Colours != SpriteImageColours.TwoBppBackground)
                 throw new InvalidDataException($"{Name} is not coloured as BG3's characters are.");
-            if (words.Length % GameplayMessageRomData.Layout.TilemapWidth != 0 || frame.Size.X != GameplayMessageRomData.Layout.TilemapWidth * 8
-                || frame.Size.Y != words.Length / GameplayMessageRomData.Layout.TilemapWidth * 8)
+            if (words.Length % RowWords != 0 || frame.Size.X != RowWords * 8 || frame.Size.Y != words.Length / RowWords * 8)
                 throw new InvalidDataException($"{Name}'s image {name} is not the size of the {words.Length} words it pictures.");
             if (!pictures.TryAdd(KeyOf(words.AsSpan()), frame))
                 throw new InvalidDataException($"{Name} pictures the words of {name} twice.");

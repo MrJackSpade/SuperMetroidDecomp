@@ -66,7 +66,7 @@ internal static class ViewportReference
                 int sourceX = entry.FlipHorizontally ? tilePixels - 1 - pixelX : pixelX;
                 int sourceY = entry.FlipVertically ? tilePixels - 1 - pixelY : pixelY;
                 int characterWord = (addresses.CharacterBaseWord + entry.CharacterIndex * format.WordsPerCharacter) & vramWordMask;
-                int rowAddress = characterWord * SnesVramAddressing.BytesPerWord + sourceY * BgCharacterFormat.BytesPerPlanePairRow;
+                int rowAddress = characterWord * SnesVramAddressingConstants.BytesPerWord + sourceY * BgCharacterFormat.BytesPerPlanePairRow;
                 // The leftmost pixel is each plane byte's most significant bit; plane n weighs 2^n.
                 int pixelBit = tilePixels - 1 - sourceX;
                 int color = 0;

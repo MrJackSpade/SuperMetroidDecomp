@@ -473,12 +473,11 @@ internal sealed class EndingCreditsState : IFrontendScreen
     internal bool UsesExplosionFinaleDisplay => (EscapeScenes.ExplosionFinaleDisplay || EscapeScenes.ExplosionBurstDisplay) && !EndingCreditsPresentation.ExplosionWhiteout(this)
         && Stage.Phase < EndingCreditsPhase.PlanetEscapeFast;
 
-    /// <summary>
-    /// What a background reading <paramref name="depth"/> characters from <paramref name="characterBase"/> shows in the scenes
-    /// <paramref name="palette"/> colours: its characters' pre-coloured tiles (#1392).
-    /// </summary>
-    internal ScreenLayerPictures BackgroundTiles(EndingPaletteId palette, int characterBase, BgBitDepth depth) =>
-        screen.Tiles(InstalledArtwork.Sheets, palette).Pictures(characterBase, depth);
+    /// <summary>What <paramref name="layer"/> shows reading <paramref name="depth"/> characters: their pre-coloured tiles (#1392).</summary>
+    internal ScreenLayerPictures LayerTiles(EndingTileLayer layer, BgBitDepth depth) => screen.Tiles(InstalledArtwork.Sheets, layer, depth);
+
+    /// <summary>The floor's cells: what the floor scene, flyaway and reward uploads lay out.</summary>
+    internal byte[] FloorCells() => screen.FloorCells(Stage.FloorArtwork, Flyaway.FlightArtwork);
 
     /// <summary>What the Mode 7 map shows: the pre-coloured characters the uploads leave (#1392).</summary>
     internal Mode7TilePictures FloorTiles() => screen.FloorTiles(InstalledArtwork.Sheets);
@@ -490,54 +489,59 @@ internal sealed class EndingCreditsState : IFrontendScreen
         // F2FA: TM=BG1|BG2, TS=BG2|OBJ, CGADSUB=$33. Resolve the two
         // main backgrounds by priority, then add the single winning subscreen pixel.
         // OBJ is not independently drawn on main, which would punch holes in the glow.
-        byte[] image = Image();
         RenderLayer[] layers =
         [
             Plane(EndingExplosionDisplayDefinitions.FinaleSubMap, BgTilePriority.Low),
             Plane(EndingExplosionDisplayDefinitions.FinaleMainMap, BgTilePriority.Low),
             Plane(EndingExplosionDisplayDefinitions.FinaleSubMap, BgTilePriority.High),
             Plane(EndingExplosionDisplayDefinitions.FinaleMainMap, BgTilePriority.High),
-            new TileAddRenderLayer(ExplosionCells(image, EndingExplosionDisplayDefinitions.FinaleSubMap), IncludeObjects: true,
+            new TileAddRenderLayer(ExplosionCells(EndingExplosionDisplayDefinitions.FinaleSubMap), IncludeObjects: true,
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];
         return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers, checked((byte)Stage.Brightness));
 
-        TileRenderLayer Plane(ushort map, BgTilePriority priority) => new(ExplosionCells(image, map),
+        TileRenderLayer Plane(EndingObjectFragmentId map, BgTilePriority priority) => new(ExplosionCells(map),
             new Position16<BgPlanePixels>(0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow), priority == BgTilePriority.High);
     }
 
-    /// <summary>The cells of the explosion's one-screen map at <paramref name="map"/>, showing its characters' pre-coloured tiles (#1392).</summary>
-    private ScreenTileMap ExplosionCells(byte[] image, ushort map) =>
-        Cells(image, map, TileViewportRenderLayer.MapSize, EndingPaletteId.Explosion, EndingExplosionDisplayDefinitions.Characters, BgBitDepth.FourBpp);
+    /// <summary>The cells of the explosion's one-screen <paramref name="map"/>, showing its characters' pre-coloured tiles (#1392).</summary>
+    private ScreenTileMap ExplosionCells(EndingObjectFragmentId map) =>
+        ScreenTileMap.Of(screen.ExplosionPlane(map, Stage.ObjectArtwork), TileViewportRenderLayer.MapSize, LayerTiles(EndingTileLayer.Explosion, BgBitDepth.FourBpp));
 
     /// <summary>
-    /// The cells of the <paramref name="size"/> map at <paramref name="tilemapWord"/> in <paramref name="image"/> (#1403), showing
-    /// the pre-coloured tiles of the <paramref name="depth"/> characters at <paramref name="characterBase"/> under <paramref name="palette"/>.
+    /// The cells of the <paramref name="size"/> map <paramref name="plane"/> shows (#1404), showing <paramref name="layer"/>'s
+    /// pre-coloured tiles of <paramref name="depth"/> characters. A two-screen text map shows the final text's lower screen
+    /// below its upper one.
     /// </summary>
-    internal ScreenTileMap Cells(byte[] image, int tilemapWord, Extent16<TilemapCells> size, EndingPaletteId palette, int characterBase, BgBitDepth depth) =>
-        ScreenTileMap.Capture(image, tilemapWord, size, BackgroundTiles(palette, characterBase, depth));
+    /// <exception cref="ArgumentException">A plane other than the text plane is asked for two screens.</exception>
+    internal ScreenTileMap Cells(EndingPlane plane, Extent16<TilemapCells> size, EndingTileLayer layer, BgBitDepth depth)
+    {
+        ReadOnlySpan<ushort> upper = screen.Plane(plane, Stage.ObjectArtwork);
+        if (size.Y <= EndingCreditsRomData.Rendering.TilemapHeight)
+            return ScreenTileMap.Of(upper[..(size.X * size.Y)], size, LayerTiles(layer, depth));
+        if (plane != EndingPlane.Text)
+            throw new ArgumentException($"The {plane} plane has one screen.", nameof(plane));
+        ushort[] words = [.. upper, .. screen.Plane(EndingPlane.TextLower, Stage.ObjectArtwork)];
+        return ScreenTileMap.Of(words.AsSpan(0, size.X * size.Y), size, LayerTiles(layer, depth));
+    }
 
     /// <summary>Captures the burst's BG1/OBJ main screen and BG2 subscreen color math.</summary>
     private LayeredScene CaptureExplosionBurst()
     {
         // F2B7: BG1 and OBJ on main, BG2 on sub, math only for BG1 and
         // eligible OBJ palettes. Keep the backdrop and OBJ palettes 0–3 unmodified.
-        byte[] image = Image();
-        var main = new TileRenderLayer(ExplosionCells(image, EndingExplosionDisplayDefinitions.InitialMap),
+        var main = new TileRenderLayer(ExplosionCells(EndingExplosionDisplayDefinitions.InitialMap),
             new Position16<BgPlanePixels>(0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow), null);
         RenderLayer[] layers =
         [
             new ObjPriorityRenderLayer(0), new ObjPriorityRenderLayer(1),
             main with { Priority = false }, new ObjPriorityRenderLayer(2),
             main with { Priority = true }, new ObjPriorityRenderLayer(3),
-            new TileAddRenderLayer(ExplosionCells(image, EndingExplosionDisplayDefinitions.BurstSubMap), main, MainObjects: true,
+            new TileAddRenderLayer(ExplosionCells(EndingExplosionDisplayDefinitions.BurstSubMap), main, MainObjects: true,
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];
         return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers, checked((byte)Stage.Brightness));
     }
-
-    /// <summary>The memory image the ending's transfers leave over the bound artwork.</summary>
-    internal byte[] Image() => screen.Image(new EndingScreenArtwork(Stage.FloorArtwork, Flyaway.FlightArtwork, Stage.ObjectArtwork, Stage.EndingFont, Stage.EndingReward));
 
     /// <summary>Whether the current cinematic phase leaves its escape or planet backdrop visible.</summary>
     internal bool EscapeBackgroundEnabled => Stage.Phase is < EndingCreditsPhase.ZebesExplosionTileUpload

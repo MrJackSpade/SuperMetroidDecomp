@@ -283,8 +283,8 @@ internal static class ScreenTilePicturesVerification
         Position16<ImagePixels> corner = picture.Sheet.Corner(picture.Character, 0);
         for (int y = 0; y < ScreenTileSheet.TilePixels; y++)
         {
-            int row = SnesVramAddressing.ByteOffsetOfWord(characterBase + tile * words + y);
-            int upper = SnesVramAddressing.ByteOffsetOfWord(characterBase + tile * words + y + 8);
+            int row = SnesVramAddressingConstants.ByteOffsetOfWord(characterBase + tile * words + y);
+            int upper = SnesVramAddressingConstants.ByteOffsetOfWord(characterBase + tile * words + y + 8);
             for (int x = 0; x < ScreenTileSheet.TilePixels; x++)
             {
                 int shift = 7 - x;

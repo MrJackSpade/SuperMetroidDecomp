@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
 
@@ -46,7 +46,7 @@ internal sealed class EndingEscapeScenes
         _stage.SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudLeftTop, EndingSpriteRole.CloudLeftA);
         _stage.SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudRightBottom, EndingSpriteRole.CloudRightB);
         _stage.SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudLeftBottom, EndingSpriteRole.CloudLeftB);
-        _stage.Mode7 = new(_stage.Mode7.X.WithWhole(0), default);
+        _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(0), default);
         _stage.FloorZoom = EndingCreditsRomData.Motion.EscapeInitialScale;
         _stage.FloorAngle = EndingCreditsRomData.Motion.EscapeInitialAngle.ToAngle();
         _stage.Brightness = 0;
@@ -72,7 +72,7 @@ internal sealed class EndingEscapeScenes
         _stage.SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudTopB, EndingSpriteRole.CloudTopB);
         _stage.SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudBottomA, EndingSpriteRole.CloudBottomA);
         _stage.SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudBottomB, EndingSpriteRole.CloudBottomB);
-        _stage.Mode7 = new(_stage.Mode7.X.WithWhole(0), default);
+        _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(0), default);
         _stage.FloorZoom = EndingCreditsRomData.Motion.EscapeInitialScale;
         _stage.FloorAngle = EndingCreditsRomData.Motion.EscapeInitialAngle.ToAngle();
         _stage.Brightness = 0;

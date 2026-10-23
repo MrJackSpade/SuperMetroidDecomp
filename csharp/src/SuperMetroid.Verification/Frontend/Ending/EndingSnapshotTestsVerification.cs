@@ -115,7 +115,7 @@ internal static class EndingSnapshotTestsVerification
                     var backgrounds = finale.LayersOf<TileRenderLayer>();
                     AssertTrue(backgrounds.Zip(new[] { 0x7800, 0x7400, 0x7800, 0x7400 }).All(shown => ShowsTilemap(legacy.ShownVram(), shown.First.Cells, shown.Second)),
                         "native explosion finale selects both background maps in main-screen priority order");
-                    AssertTrue(backgrounds.All(bg => ShowsCharacters(bg.Cells, legacy.BackgroundTiles(EndingPaletteId.Explosion, 0x4000, BgBitDepth.FourBpp))),
+                    AssertTrue(backgrounds.All(bg => ShowsCharacters(bg.Cells, legacy.LayerTiles(EndingTileLayer.Explosion, BgBitDepth.FourBpp))),
                         "explosion finale uses Mode1 character base, not stale Mode7 decoding");
                     AssertTrue(!finale.Layers.Any(layer => layer is ObjRenderLayer or ObjPriorityRenderLayer),
                         "F2FA moves OBJ exclusively to the subscreen");
@@ -179,7 +179,10 @@ internal static class EndingSnapshotTestsVerification
                     var add = flash.LayersOf<FixedColorAddRenderLayer>().Single();
                     AssertEqual((byte)Math.Max(0, 31 - elapsed), add.Red, "native post-shot white fade component");
                     var textPlane = flash.LayersOf<TileRenderLayer>().Single();
-                    AssertTrue(ShowsTilemap(legacy.ShownVram(), textPlane.Cells, 0x4c00), "final text uses native upper screen");
+                    // The lower screen is off screen at zero scroll until its own upload replaces it (#1404), so only the
+                    // upper screen is the native one here.
+                    AssertTrue(ShowsUpperScreen(legacy.ShownVram(), textPlane.Cells, 0x4c00),
+                        "final text uses native upper screen" + TilemapDifference(legacy.ShownVram(), textPlane.Cells, 0x4c00));
                     AssertEqual(64, textPlane.MapSize.Y, "final text map is two screens tall");
                     if (firstPhaseFrame)
                         AssertTrue(legacy.Render().All(pixel => pixel == new Rgba32(255, 255, 255)), "post-shot flash begins fully white");
@@ -253,7 +256,7 @@ internal static class EndingSnapshotTestsVerification
                     if (hours < 10)
                     {
                         AssertTrue(ShowsTilemap(legacy.ShownVram(), backgrounds[0].Cells, 0x4c00), "reward reveal selects waiting BG2, not producer BG1");
-                        AssertTrue(ShowsCharacters(backgrounds[0].Cells, legacy.BackgroundTiles(EndingPaletteId.PostCredits, 0x5000, BgBitDepth.FourBpp)),
+                        AssertTrue(ShowsCharacters(backgrounds[0].Cells, legacy.LayerTiles(EndingTileLayer.Waiting, BgBitDepth.FourBpp)),
                             "reward reveal uses waiting BG2 characters");
                     }
                 }
@@ -364,7 +367,24 @@ internal static class EndingSnapshotTestsVerification
     /// <summary>Whether <paramref name="cells"/> are the cells of the tilemap at <paramref name="tilemapWord"/> in the scene's memory image <paramref name="vram"/>.</summary>
     [PpuLayoutBoundary("exact hardware test: compares a layer's cells with the native tilemap the cartridge selects")]
     private static bool ShowsTilemap(byte[] vram, ScreenTileMap cells, int tilemapWord) =>
-        ScreenTileMap.Capture(vram, tilemapWord, cells.Size, cells.Tiles).Equals(cells);
+        ScreenTileMapConstants.Capture(vram, tilemapWord, cells.Size, cells.Tiles).Equals(cells);
+
+    /// <summary>Whether the upper 32-row screen of <paramref name="cells"/> shows the tilemap at <paramref name="tilemapWord"/>.</summary>
+    private static bool ShowsUpperScreen(byte[] vram, ScreenTileMap cells, int tilemapWord)
+    {
+        var screen = new Extent16<TilemapCells>(cells.Size.X, 32);
+        ScreenTileMap native = ScreenTileMapConstants.Capture(vram, tilemapWord, screen, cells.Tiles);
+        return native.Cells.AsSpan().SequenceEqual(cells.Cells.AsSpan(0, native.Cells.Length));
+    }
+
+    /// <summary>Where <paramref name="cells"/> first differ from the tilemap at <paramref name="tilemapWord"/>, or nothing when they match.</summary>
+    private static string TilemapDifference(byte[] vram, ScreenTileMap cells, int tilemapWord)
+    {
+        ScreenTileMap native = ScreenTileMapConstants.Capture(vram, tilemapWord, cells.Size, cells.Tiles);
+        int differing = Enumerable.Range(0, cells.Cells.Length).Where(cell => native.Cells[cell] != cells.Cells[cell]).Count();
+        int first = Enumerable.Range(0, cells.Cells.Length).FirstOrDefault(cell => native.Cells[cell] != cells.Cells[cell], -1);
+        return first < 0 ? "" : $" ({differing} cells differ; first at row {first / cells.Size.X}, column {first % cells.Size.X}: native {native.Cells[first]}, shown {cells.Cells[first]})";
+    }
 
     /// <summary>Whether <paramref name="cells"/> show the tiles of <paramref name="characters"/>.</summary>
     private static bool ShowsCharacters(ScreenTileMap cells, ScreenLayerPictures characters) =>

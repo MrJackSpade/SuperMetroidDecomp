@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.FileSelect;
@@ -30,7 +31,8 @@ internal static class FrontendShownVramAccess
     extension(CeresDestructionCinematicState self) { internal byte[] ShownVram() => CeresDestructionScreenMemory.Compose(self); }
 
     /// <summary>The ending's composed image.</summary>
-    extension(EndingCreditsState self) { internal byte[] ShownVram() => self.Image(); }
+    extension(EndingCreditsState self) { internal byte[] ShownVram() => EndingScreenImage.Compose(self.screen.uploads,
+        new EndingScreenArtwork(self.Stage.FloorArtwork, self.Flyaway.FlightArtwork, self.Stage.ObjectArtwork, self.Stage.EndingFont, self.Stage.EndingReward)); }
 
     /// <summary>The title screen's composed image.</summary>
     extension(TitleSequenceState self) { internal byte[] ShownVram() => TitleScreenMemory.Compose(self); }

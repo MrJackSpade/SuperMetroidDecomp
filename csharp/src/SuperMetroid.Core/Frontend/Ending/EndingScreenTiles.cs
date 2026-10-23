@@ -7,18 +7,17 @@ using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
-/// What the ending's Mode 1 backgrounds show (#1392): the characters its uploads leave, as their pre-coloured tiles under
+/// What the ending's backgrounds show (#1392, #1404): the characters its uploads leave, as their pre-coloured tiles under
 /// the palette each of its scenes loads: the credits' font under the credits palette; the post-credits text, subtitle,
 /// logo, waiting backdrop and wavy Samus under the post-credits palette; and the explosion under the explosion palette.
 /// </summary>
-[PpuLayoutBoundary("codec: the ending's background character uploads at their native words")]
 internal static class EndingScreenTiles
 {
     /// <summary>
-    /// The Mode 7 characters <paramref name="uploads"/> leave: each escape and explosion scene's, the flyaway gunship's
-    /// chunks and the reward icon's; an upload of other characters over Mode 7's leaves those tiles unpictured.
+    /// The floor characters <paramref name="uploads"/> leave: each escape and explosion scene's, the flyaway gunship's
+    /// chunks and the reward icon's; an upload of other characters over the floor's leaves those tiles unpictured.
     /// </summary>
-    internal static Mode7TilePictures Mode7(InstalledSpriteSheets sheets, IEnumerable<EndingUpload> uploads)
+    internal static Mode7TilePictures Floor(InstalledSpriteSheets sheets, IEnumerable<EndingUpload> uploads)
     {
         Ensure.NotNull(sheets);
         var tiles = new FloorCharacters();
@@ -35,54 +34,82 @@ internal static class EndingScreenTiles
             // The flyaway's first lane uploads the gunship's characters; its second, the map.
             else if (upload.Kind == EndingUploadKind.FlyawayChunk && upload.Key < chunksPerLane)
                 tiles.Show(ScreenTileSheets.Floor(sheets, SpriteSheetId.EndingFlyawayMode7Tiles), upload.Key * chunkTiles, upload.Key * chunkTiles, chunkTiles);
+            // Each reward chunk pictures the next run of the floor's tiles.
             else if (upload.Kind == EndingUploadKind.RewardChunk)
-                tiles.Show(ScreenTileSheets.Floor(sheets, SpriteSheetId.EndingRewardIconMode7Tiles),
-                    EndingRewardGraphicsUploadDefinitions.DestinationWord(upload.Key) / Mode7CharacterSheet.TileBytes, upload.Key * rewardTiles, rewardTiles);
+                tiles.Show(ScreenTileSheets.Floor(sheets, SpriteSheetId.EndingRewardIconMode7Tiles), upload.Key * rewardTiles, upload.Key * rewardTiles, rewardTiles);
             else if (upload.Kind == EndingUploadKind.CreditsCharacterArt)
                 tiles.Clear(0, EndingCreditsRomData.Rendering.FloorBytes / sizeof(ushort) / Mode7CharacterSheet.TileBytes);
         }
         return tiles.Pictures();
     }
 
-    /// <summary>The characters <paramref name="uploads"/> leave, as the scenes coloured by <paramref name="palette"/> show them.</summary>
-    internal static ScreenCharacters Of(InstalledSpriteSheets sheets, EndingPaletteId palette, IEnumerable<EndingUpload> uploads)
+    /// <summary>The tiles <paramref name="layer"/> shows once <paramref name="uploads"/> have been made, in order.</summary>
+    internal static ScreenLayerPictures Layer(InstalledSpriteSheets sheets, EndingTileLayer layer, BgBitDepth depth, IEnumerable<EndingUpload> uploads)
     {
         Ensure.NotNull(sheets);
-        var tiles = new ScreenCharacters();
-        // Uploads of characters no scene the palette colours shows leave nothing it pictures.
+        var tiles = new ScreenTileSet(depth);
         foreach (EndingUpload upload in Ensure.NotNull(uploads))
         {
-            if (palette == EndingPaletteId.Credits && upload.Kind == EndingUploadKind.CreditsFont)
-                Show(SpriteSheetId.EndingCreditsFontTiles, EndingVramLayout.CreditsFont.Offset, 0, EndingCreditsRomData.Rendering.FontCharacterBytes);
-            else if (palette == EndingPaletteId.PostCredits && upload.Kind == EndingUploadKind.CreditsFont)
-                Show(SpriteSheetId.EndingTextFontTiles, EndingVramLayout.CreditsFont.Offset, 0, EndingCreditsRomData.Rendering.FontCharacterBytes);
-            else if (palette == EndingPaletteId.PostCredits && upload.Kind == EndingUploadKind.CreditsCharacterArt)
+            switch (layer)
             {
-                Show(SpriteSheetId.EndingWaitingTiles, EndingVramLayout.WaitingCharacters.Offset, 0, EndingCreditsRomData.Rendering.WaitingCharacterBytes);
-                Show(SpriteSheetId.EndingWavySamusTiles, EndingVramLayout.PostCreditsFragmentA.Offset, 0, EndingCreditsRomData.Rendering.PostCreditsFragmentABytes);
+                case EndingTileLayer.Credits:
+                    if (upload.Kind == EndingUploadKind.CreditsFont)
+                        Place(SpriteSheetId.EndingCreditsFontTiles, EndingTileSetDefinitions.FontFirstTile, 0, EndingCreditsRomData.Rendering.FontCharacterBytes);
+                    break;
+                case EndingTileLayer.PostCreditsText:
+                    if (upload.Kind == EndingUploadKind.CreditsFont)
+                        Place(SpriteSheetId.EndingTextFontTiles, EndingTileSetDefinitions.FontFirstTile, 0, EndingCreditsRomData.Rendering.FontCharacterBytes);
+                    else if (upload.Kind == EndingUploadKind.CreditsCharacterArt)
+                        Place(SpriteSheetId.EndingWaitingTiles, EndingTileSetDefinitions.TextWaitingFirstTile, 0, EndingCreditsRomData.Rendering.WaitingCharacterBytes);
+                    else if (upload.Kind == EndingUploadKind.PostShotTransfer)
+                        PlacePostShot(EndingPostShotUploadDefinitions.Get(upload.Key), EndingTileSetDefinitions.TextLogoFirstTile);
+                    break;
+                case EndingTileLayer.Waiting:
+                    if (upload.Kind == EndingUploadKind.CreditsCharacterArt)
+                        Place(SpriteSheetId.EndingWaitingTiles, EndingTileSetDefinitions.WaitingFirstTile, 0, EndingCreditsRomData.Rendering.WaitingCharacterBytes);
+                    else if (upload.Kind == EndingUploadKind.PostShotTransfer)
+                        PlacePostShot(EndingPostShotUploadDefinitions.Get(upload.Key), EndingTileSetDefinitions.WaitingLogoFirstTile);
+                    break;
+                case EndingTileLayer.Logo:
+                    if (upload.Kind == EndingUploadKind.PostShotTransfer)
+                        PlacePostShot(EndingPostShotUploadDefinitions.Get(upload.Key), EndingTileSetDefinitions.LogoFirstTile);
+                    break;
+                case EndingTileLayer.WavySamus:
+                    if (upload.Kind == EndingUploadKind.CreditsCharacterArt)
+                        Place(SpriteSheetId.EndingWavySamusTiles, EndingTileSetDefinitions.WavySamusFirstTile, 0, EndingCreditsRomData.Rendering.PostCreditsFragmentABytes);
+                    break;
+                case EndingTileLayer.Explosion:
+                    if (upload.Kind == EndingUploadKind.ExplosionObjects)
+                        Place(SpriteSheetId.EndingExplosionTiles, EndingTileSetDefinitions.ExplosionFirstTile, 0, EndingCreditsRomData.Rendering.ExplosionObjectBytes);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(layer), layer, "Undefined ending tile layer.");
             }
-            else if (palette == EndingPaletteId.PostCredits && upload.Kind == EndingUploadKind.PostShotTransfer)
-                ShowPostShot(EndingPostShotUploadDefinitions.Get(upload.Key));
-            else if (palette == EndingPaletteId.Explosion && upload.Kind == EndingUploadKind.ExplosionObjects)
-                Show(SpriteSheetId.EndingExplosionTiles, EndingVramLayout.ExplosionObjects.Offset, 0, EndingCreditsRomData.Rendering.ExplosionObjectBytes);
         }
-        return tiles;
+        return tiles.Pictures();
 
-        // Shows a post-shot transfer's subtitle font or logo characters; its tilemap is not characters.
-        void ShowPostShot(EndingPostShotUploadDefinition transfer)
+        // Places a post-shot transfer's subtitle font, on the text layer, or its logo characters, whose chunks follow one
+        // another from the logo's first tile; the transfer's tilemap is not characters.
+        void PlacePostShot(EndingPostShotUploadDefinition transfer, int logoFirstTile)
         {
-            if (transfer.Source == EndingPostShotUploadSource.Subtitle)
-                Show(SpriteSheetId.EndingSubtitleTiles, transfer.DestinationWord, 0, transfer.Length);
+            if (transfer.Source == EndingPostShotUploadSource.Subtitle && layer == EndingTileLayer.PostCreditsText)
+                Place(SpriteSheetId.EndingSubtitleTiles, EndingTileSetDefinitions.SubtitleFirstTile, 0, transfer.Length);
             else if (transfer.Source == EndingPostShotUploadSource.LogoTiles)
-                Show(SpriteSheetId.EndingLogoTiles, transfer.DestinationWord, transfer.SourceAddress - EndingPostShotDefinitions.LogoTileSource, transfer.Length);
+            {
+                int offset = transfer.SourceAddress - EndingPostShotDefinitions.LogoTileSource;
+                Place(SpriteSheetId.EndingLogoTiles, logoFirstTile, offset, transfer.Length, offset);
+            }
         }
 
-        // Shows `bytes` of the sheet's artwork from byte `offset`, loaded at VRAM word `firstWord`.
-        void Show(SpriteSheetId id, int firstWord, int offset, int bytes)
+        // Places `bytes` of the sheet's artwork from byte `offset` at `firstTile`, plus `tileOffset` bytes' worth of
+        // tiles; a layer reading characters of another depth shows none of them.
+        void Place(SpriteSheetId id, int firstTile, int offset, int bytes, int tileOffset = 0)
         {
             ScreenTileSheet sheet = ScreenTileSheets.Of(sheets, id);
+            if (sheet.Depth != depth)
+                return;
             int characterBytes = ScreenTileSheet.CharacterWordsOf(sheet.Depth) * sizeof(ushort);
-            tiles.Show(sheet, firstWord, offset / characterBytes, bytes / characterBytes);
+            tiles.Place(sheet, firstTile + tileOffset / characterBytes, offset / characterBytes, bytes / characterBytes);
         }
     }
 }

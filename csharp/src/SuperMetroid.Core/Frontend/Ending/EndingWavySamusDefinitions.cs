@@ -3,10 +3,6 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>Post-credits BG3 scroll program and artwork identities.</summary>
 internal static class EndingWavySamusDefinitions
 {
-    /// <summary>$8B:8400 / Setup_PPU_Credits selects the transformation map at VRAM word $2400.</summary>
-    internal const ushort TilemapWord = 0x2400;
-    /// <summary>$8B:8413 / Setup_PPU_Credits selects BG3 characters at VRAM word $2000.</summary>
-    internal const ushort CharacterWord = 0x2000;
     /// <summary>$88:EC48 / Spawn_WavySamus_HDMAObject seeds unsigned 8.8 amplitude $4000.</summary>
     private const int Amplitude = 0x4000;
     /// <summary>$88:EC4E / Spawn_WavySamus_HDMAObject seeds phase delta eight, doubled to a byte index.</summary>

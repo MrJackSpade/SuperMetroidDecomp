@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Frontend.Ending;
@@ -12,7 +13,7 @@ internal static class EndingScreenFixtures
     internal static SnesVram Vram(EndingScreen screen, EndingScreenArtwork artwork)
     {
         var vram = new SnesVram();
-        vram.LoadBytes(0, screen.Image(artwork));
+        vram.LoadBytes(0, EndingScreenImage.Compose(screen.uploads, artwork));
         return vram;
     }
 }

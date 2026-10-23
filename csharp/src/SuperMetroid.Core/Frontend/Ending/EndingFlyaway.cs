@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
@@ -51,7 +51,7 @@ internal sealed class EndingFlyaway
         palettes.EndingObjectTransparent.Write(0, Bgr555.Black);
         _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.PlanetAfterglow, 0);
         _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.GunshipEmergence, 0);
-        _stage.Mode7 = new(_stage.Mode7.X.WithWhole(unchecked((ushort)-72)), new(unchecked((ushort)-104), 0));
+        _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(unchecked((ushort)-72)), new(unchecked((ushort)-104), 0));
         _stage.FloorZoom = EndingCreditsRomData.Motion.PlanetEscapeInitialScale;
         _stage.FloorAngle = SnesAngle.NormalizeTableIndex(-112);
         _stage.PhaseTimer = 192;
@@ -68,7 +68,7 @@ internal sealed class EndingFlyaway
             _stage.PhaseTimer--;
         else StepFlyawayFade();
         _stage.FloorAngle = _stage.FloorAngle.AddTableUnits(-4);
-        _stage.Mode7 = _stage.Mode7.WithX(AddSignedFixed(_stage.Mode7.X, EndingCreditsRomData.Motion.PlanetFastDelta(PlanetMotionIndex)));
+        _stage.FloorPosition = _stage.FloorPosition.WithX(AddSignedFixed(_stage.FloorPosition.X, EndingCreditsRomData.Motion.PlanetFastDelta(PlanetMotionIndex)));
         PlanetMotionIndex = (PlanetMotionIndex + 1) % EndingCreditsRomData.Motion.PlanetFastPatternLength;
         _stage.FloorZoom -= 8;
         if (_stage.FloorZoom < EndingCreditsRomData.Motion.PlanetFastEndScale)
@@ -84,7 +84,7 @@ internal sealed class EndingFlyaway
         StepFlyawayFade();
         if (_stage.FloorAngle != EndingCreditsRomData.Motion.PlanetSlowTargetAngle)
             _stage.FloorAngle = _stage.FloorAngle.AddTableUnits(-1);
-        _stage.Mode7 = _stage.Mode7.WithX(AddSignedFixed(_stage.Mode7.X, EndingCreditsRomData.Motion.PlanetSlowDelta(PlanetMotionIndex)));
+        _stage.FloorPosition = _stage.FloorPosition.WithX(AddSignedFixed(_stage.FloorPosition.X, EndingCreditsRomData.Motion.PlanetSlowDelta(PlanetMotionIndex)));
         PlanetMotionIndex = (PlanetMotionIndex + 1) % EndingCreditsRomData.Motion.PlanetSlowPatternLength;
         _stage.FloorZoom -= 2;
         if (_stage.FloorZoom < EndingCreditsRomData.Motion.PlanetSlowEndScale)
@@ -111,7 +111,7 @@ internal sealed class EndingFlyaway
     {
         StepFlyawayFade();
         PlanetVelocity -= SnesSignedSixteenSixteen.FromRaw(EndingCreditsRomData.Motion.AccelerationDelta16Point16);
-        _stage.Mode7 = _stage.Mode7.WithX(AddSignedFixed(_stage.Mode7.X, PlanetVelocity.RawValue));
+        _stage.FloorPosition = _stage.FloorPosition.WithX(AddSignedFixed(_stage.FloorPosition.X, PlanetVelocity.RawValue));
         if (_stage.FloorZoom < EndingCreditsRomData.Motion.PlanetTurnStartScale &&
             (CinematicFrame & 3) == 0 &&
             _stage.FloorAngle != EndingCreditsRomData.Motion.PlanetExitTargetAngle)

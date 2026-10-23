@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
@@ -15,9 +16,6 @@ internal sealed class EndingScreen
     /// <summary>The transfers since the last full clear, oldest first.</summary>
     internal readonly List<EndingUpload> uploads = [];
 
-    /// <summary>The replayed memory image, until a transfer or a rebind changes it.</summary>
-    [NonSerialized]
-    private byte[]? image;
 
     /// <summary>The ending's colors, including partial fades.</summary>
     public ScreenPalette Palette { get; } = new();
@@ -26,14 +24,24 @@ internal sealed class EndingScreen
     public void Clear()
     {
         uploads.Clear();
-        image = null;
-        tiles = null;
-        floorTiles = null;
+        ForgetShown();
     }
 
-    /// <summary>What the uploads' characters show under each palette the ending's scenes load (#1392), until the uploads change.</summary>
+    /// <summary>What each tile layer shows (#1392), until the uploads change.</summary>
     [NonSerialized]
-    private Dictionary<EndingPaletteId, ScreenCharacters>? tiles;
+    private Dictionary<EndingLayerTiles, ScreenLayerPictures>? tiles;
+
+    /// <summary>The words each plane holds, until the uploads or the artwork change.</summary>
+    [NonSerialized]
+    private Dictionary<EndingPlane, ushort[]>? planes;
+
+    /// <summary>The words each explosion map holds, until the uploads or the artwork change.</summary>
+    [NonSerialized]
+    private Dictionary<EndingObjectFragmentId, ushort[]>? explosionPlanes;
+
+    /// <summary>The floor's cells, until the uploads or the artwork change.</summary>
+    [NonSerialized]
+    private byte[]? floorCells;
 
     /// <summary>The sheets <see cref="tiles"/> were read from.</summary>
     [NonSerialized]
@@ -52,11 +60,11 @@ internal sealed class EndingScreen
             floorTiles = null;
             tileSheets = sheets;
         }
-        return floorTiles ??= EndingScreenTiles.Mode7(sheets, uploads);
+        return floorTiles ??= EndingScreenTiles.Floor(sheets, uploads);
     }
 
-    /// <summary>What the uploads' characters show in the scenes <paramref name="palette"/> colours (#1392).</summary>
-    internal ScreenCharacters Tiles(InstalledSpriteSheets sheets, EndingPaletteId palette)
+    /// <summary>What <paramref name="layer"/> shows, reading <paramref name="depth"/> characters (#1392).</summary>
+    internal ScreenLayerPictures Tiles(InstalledSpriteSheets sheets, EndingTileLayer layer, BgBitDepth depth)
     {
         if (!ReferenceEquals(tileSheets, sheets))
         {
@@ -65,8 +73,9 @@ internal sealed class EndingScreen
             tileSheets = sheets;
         }
         tiles ??= [];
-        if (!tiles.TryGetValue(palette, out ScreenCharacters? shown))
-            tiles.Add(palette, shown = EndingScreenTiles.Of(sheets, palette, uploads));
+        var key = new EndingLayerTiles(layer, depth);
+        if (!tiles.TryGetValue(key, out ScreenLayerPictures? shown))
+            tiles.Add(key, shown = EndingScreenTiles.Layer(sheets, layer, depth, uploads));
         return shown;
     }
 
@@ -80,24 +89,49 @@ internal sealed class EndingScreen
     internal int LogoTileTransfers => uploads.Count(upload => upload.Kind == EndingUploadKind.PostShotTransfer &&
         EndingPostShotUploadDefinitions.Get(upload.Key).Source == EndingPostShotUploadSource.LogoTiles);
 
-    /// <summary>Forgets the replayed image after the bound artwork changes.</summary>
+    /// <summary>Forgets what the screen shows after the bound artwork changes.</summary>
     public void Invalidate()
     {
-        image = null;
-        tiles = null;
-        floorTiles = null;
+        ForgetShown();
     }
 
-    /// <summary>The memory image the transfers leave over <paramref name="artwork"/>.</summary>
-    internal byte[] Image(EndingScreenArtwork artwork) => image ??= EndingScreenImage.Compose(uploads, artwork);
+    /// <summary>The words <paramref name="plane"/> holds over <paramref name="objects"/>.</summary>
+    internal ReadOnlySpan<ushort> Plane(EndingPlane plane, EndingObjectArtworkCatalog? objects)
+    {
+        planes ??= [];
+        if (!planes.TryGetValue(plane, out ushort[]? words))
+            planes.Add(plane, words = EndingScreenPlanes.Of(plane, uploads, objects));
+        return words;
+    }
+
+    /// <summary>The words the explosion's <paramref name="fragment"/> map holds over <paramref name="objects"/>.</summary>
+    internal ReadOnlySpan<ushort> ExplosionPlane(EndingObjectFragmentId fragment, EndingObjectArtworkCatalog? objects)
+    {
+        explosionPlanes ??= [];
+        if (!explosionPlanes.TryGetValue(fragment, out ushort[]? words))
+            explosionPlanes.Add(fragment, words = EndingScreenPlanes.Explosion(fragment, uploads, objects));
+        return words;
+    }
+
+    /// <summary>The floor's cells over <paramref name="floor"/> and <paramref name="flight"/>.</summary>
+    internal byte[] FloorCells(EndingFloorArtworkCatalog? floor, CeresFlightArtworkCatalog? flight) =>
+        floorCells ??= EndingScreenFloor.Cells(uploads, floor, flight);
+
+    /// <summary>Forgets every plane, cell and tile the screen showed.</summary>
+    private void ForgetShown()
+    {
+        tiles = null;
+        planes = null;
+        explosionPlanes = null;
+        floorCells = null;
+        floorTiles = null;
+    }
 
     /// <summary>Appends <paramref name="upload"/>, dropping the earlier transfer whose words it covers.</summary>
     private void Record(EndingUpload upload)
     {
         uploads.RemoveAll(earlier => earlier.IsReplacedBy(upload));
         uploads.Add(upload);
-        image = null;
-        tiles = null;
-        floorTiles = null;
+        ForgetShown();
     }
 }

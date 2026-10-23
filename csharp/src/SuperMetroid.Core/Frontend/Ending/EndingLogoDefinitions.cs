@@ -52,8 +52,4 @@ internal static class EndingLogoDefinitions
     public const int InitialPalette = 0x8cefe9;
     /// <summary>F1E7 spawns the logo's palette-FX object $8D:E200 at landing.</summary>
     public const PaletteFxObject LandingPaletteFx = PaletteFxObject.PostCreditsSuperMetroidIcon;
-    /// <summary>F25E selects the logo BG2 tilemap at VRAM word $5400.</summary>
-    public const ushort Tilemap = 0x5400;
-    /// <summary>F25E selects logo BG2 characters at VRAM word $6000.</summary>
-    public const ushort Characters = 0x6000;
 }

@@ -20,7 +20,7 @@ internal static class ColorWindowSmokeTests
         var memory = new FramePaint(palette, []);
         Layer3Cells bg3 = Layer3CellsFixtures.FromVram(vram, palette, 0x7ff8);
         ScreenLayerPictures tiles = VramTileFixtures.Tiles(vram, palette, 0x6000, BgBitDepth.FourBpp);
-        var background = new TileRenderLayer(ScreenTileMap.Capture(vram, 0x4000, new Extent16<TilemapCells>(32, 32), tiles), new Position16<BgPlanePixels>(3, 11), null);
+        var background = new TileRenderLayer(ScreenTileMapConstants.Capture(vram, 0x4000, new Extent16<TilemapCells>(32, 32), tiles), new Position16<BgPlanePixels>(3, 11), null);
         ScreenTileMap subscreen = VramTileFixtures.Cells(vram, palette, 0x5800, 0x4000, BgBitDepth.TwoBpp, TileViewportRenderLayer.MapSize);
         int count = 0;
         for (int sample = 0; sample < 64; sample++)
@@ -57,7 +57,7 @@ internal static class ColorWindowSmokeTests
         foreach (bool? priority in new bool?[] { null, false, true })
         foreach (bool masked in new[] { false, true })
         {
-            var coverage = masked ? new TileRenderLayer(ScreenTileMap.Capture(vram, 0x7ffe, new Extent16<TilemapCells>(width, height), tiles),
+            var coverage = masked ? new TileRenderLayer(ScreenTileMapConstants.Capture(vram, 0x7ffe, new Extent16<TilemapCells>(width, height), tiles),
                 new Position16<BgPlanePixels>(65535, 511), priority) : null;
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory,
                 new RenderLayer[] { background,

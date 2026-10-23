@@ -1,10 +1,13 @@
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Ending;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>Typed view of the ending's VRAM allocations (#630).</summary>
 [PpuLayoutBoundary("rendering view: ending and credits VRAM")]
-public readonly struct EndingVram(SnesVram vram)
+internal readonly struct EndingVram(SnesVram vram)
 {
     /// <summary>The escape/explosion OBJ sheet.</summary>
     public VramRegion ExplosionObjects => new(vram, EndingVramLayout.ExplosionObjects);

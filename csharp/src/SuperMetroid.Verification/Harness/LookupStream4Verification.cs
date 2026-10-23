@@ -787,7 +787,7 @@ internal static class LookupStream4Verification
         {
             int count = fast ? 16 : 8, address = fast ? 0x8BDD02 : 0x8BDDAD;
             var state = new EndingCreditsState(new SuperMetroid.Core.Audio.CartridgeAudioState(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0 });
-            state.Stage.Mode7 = state.Stage.Mode7.WithWholeX(100).WithFractionX(0xC000);
+            state.Stage.FloorPosition = state.Stage.FloorPosition.WithWholeX(100).WithFractionX(0xC000);
             state.Stage.FloorZoom = 0xC00; state.Stage.PhaseTimer = 100;
             state.Stage.Phase = fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow;
             Action step = fast ? state.Flyaway.StepPlanetEscapeFast : state.Flyaway.StepPlanetEscapeSlow;
@@ -801,17 +801,17 @@ internal static class LookupStream4Verification
                 step();
                 AssertEqual(SnesAngle.FromTableIndex((byte)expectedAngle), state.Stage.FloorAngle, "rotation context advances independently of selected signs");
                 AssertEqual((ushort)expectedZoom, state.Stage.FloorZoom, "zoom context advances independently of selected signs");
-                AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)expected)), state.Stage.Mode7.X.Whole, "production shake whole position follows native indexed values");
-                AssertEqual((ushort)expected, state.Stage.Mode7.X.Fraction, "production shake fraction preserves carry/borrow");
+                AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)expected)), state.Stage.FloorPosition.X.Whole, "production shake whole position follows native indexed values");
+                AssertEqual((ushort)expected, state.Stage.FloorPosition.X.Fraction, "production shake fraction preserves carry/borrow");
                 AssertEqual((ushort)((frame + 1) % count), state.Flyaway.PlanetMotionIndex, "production shake advances after selection and wraps native mask");
             }
             state.Stage.FloorZoom = fast ? EndingCreditsRomData.Motion.PlanetFastEndScale : EndingCreditsRomData.Motion.PlanetSlowEndScale;
             state.Flyaway.PlanetMotionIndex = (ushort)(count - 1);
-            state.Stage.Mode7 = state.Stage.Mode7.WithWholeX(0).WithFractionX(0x4000);
+            state.Stage.FloorPosition = state.Stage.FloorPosition.WithWholeX(0).WithFractionX(0x4000);
             step();
             uint finalPosition = unchecked(0x4000u + (uint)Native(address + (count - 1) * 4));
-            AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)finalPosition)), state.Stage.Mode7.X.Whole, "terminal negative sample wraps whole position before handoff");
-            AssertEqual((ushort)finalPosition, state.Stage.Mode7.X.Fraction, "terminal fraction is preserved before handoff");
+            AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)finalPosition)), state.Stage.FloorPosition.X.Whole, "terminal negative sample wraps whole position before handoff");
+            AssertEqual((ushort)finalPosition, state.Stage.FloorPosition.X.Fraction, "terminal fraction is preserved before handoff");
             AssertEqual(fast ? EndingCreditsPhase.PlanetEscapeSlow : EndingCreditsPhase.PlanetEscapeAccelerating, state.Stage.Phase, "native zoom boundary chooses next phase after selected motion");
             AssertEqual(0, state.Flyaway.PlanetMotionIndex, "handoff preserves wrapped/reset index");
             if (!fast)

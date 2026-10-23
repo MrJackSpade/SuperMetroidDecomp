@@ -20,7 +20,7 @@ internal static class TileSmokeTests
         var memory = new FramePaint(palette, []);
         ScreenLayerPictures upper = VramTileFixtures.Tiles(bytes, palette, 0x6000, BgBitDepth.FourBpp);
         ScreenTileMap Cells(int tilemapWord, ushort width, ushort height, ScreenLayerPictures tiles) =>
-            ScreenTileMap.Capture(bytes, tilemapWord, new Extent16<TilemapCells>(width, height), tiles);
+            ScreenTileMapConstants.Capture(bytes, tilemapWord, new Extent16<TilemapCells>(width, height), tiles);
         int count = 0;
         foreach (ushort width in new ushort[] { 32, 64 })
         foreach (ushort height in new ushort[] { 32, 64 })

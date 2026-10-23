@@ -117,7 +117,7 @@ internal static class RoomBackgroundsFixtures
     {
         var words = new ushort[size.X * size.Y];
         for (int cell = 0; cell < words.Length; cell++)
-            words[cell] = BinaryPrimitives.ReadUInt16LittleEndian(image.Slice(SnesVramAddressing.ByteOffsetOfWord(tilemapWord + cell), sizeof(ushort)));
+            words[cell] = BinaryPrimitives.ReadUInt16LittleEndian(image.Slice(SnesVramAddressingConstants.ByteOffsetOfWord(tilemapWord + cell), sizeof(ushort)));
         ushort[] distinct = [.. words.Distinct()];
         // Each distinct word painted as a block of four copies of itself; its top-left quarter pictures the word.
         var definitions = new byte[distinct.Length * RoomLevelPlane.DefinitionBytes];

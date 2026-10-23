@@ -33,7 +33,7 @@ internal static class Layer3CellsFixtures
         var words = new ushort[Layer3Plane.Columns * Layer3Plane.Rows];
         for (int cell = 0; cell < words.Length; cell++)
         {
-            int at = SnesVramAddressing.ByteOffsetOfWord(GameplayVramLayout.HudTilemapWord + cell);
+            int at = SnesVramAddressingConstants.ByteOffsetOfWord(GameplayVramLayout.HudTilemapWord + cell);
             words[cell] = SnesLittleEndian.Word(image[at], image[at + 1]);
         }
         return FromWords(words, image, palette, characterWord);
@@ -62,7 +62,7 @@ internal static class Layer3CellsFixtures
             var word = new SnesBgTilemapWord(distinct[place]);
             for (int part = 0; part < characterWords; part++)
             {
-                int at = SnesVramAddressing.ByteOffsetOfWord(characterWord + word.CharacterIndex * characterWords + part);
+                int at = SnesVramAddressingConstants.ByteOffsetOfWord(characterWord + word.CharacterIndex * characterWords + part);
                 character[part * 2] = image[at];
                 character[part * 2 + 1] = image[at + 1];
             }

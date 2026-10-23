@@ -1,3 +1,5 @@
+﻿using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>The range of a VRAM word address that a render layer names as a tilemap or character base.</summary>

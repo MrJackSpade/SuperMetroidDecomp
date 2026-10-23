@@ -37,7 +37,7 @@ internal static class VramTileFixtures
         {
             for (int word = 0; word < words; word++)
             {
-                int offset = SnesVramAddressing.ByteOffsetOfWord(characterWord + Ensure.BetweenInclusive(0, ScreenLayerPictures.CharacterIndices - 1, shown[place]) * words + word);
+                int offset = SnesVramAddressingConstants.ByteOffsetOfWord(characterWord + Ensure.BetweenInclusive(0, ScreenLayerPictures.CharacterIndices - 1, shown[place]) * words + word);
                 bytes[(place * words + word) * sizeof(ushort)] = image[offset];
                 bytes[(place * words + word) * sizeof(ushort) + 1] = image[offset + 1];
             }
@@ -58,5 +58,5 @@ internal static class VramTileFixtures
     /// </summary>
     internal static ScreenTileMap Cells(ReadOnlySpan<byte> image, ReadOnlySpan<Bgr555> palette, int tilemapWord, int characterWord, BgBitDepth depth,
         Extent16<TilemapCells> size) =>
-        ScreenTileMap.Capture(image, tilemapWord, size, Tiles(image, palette, characterWord, depth));
+        ScreenTileMapConstants.Capture(image, tilemapWord, size, Tiles(image, palette, characterWord, depth));
 }

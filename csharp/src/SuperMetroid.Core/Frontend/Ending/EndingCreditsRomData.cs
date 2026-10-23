@@ -121,18 +121,8 @@ public static class EndingCreditsRomData
         public const int TilemapHeight = 32;
         /// <summary>Number of sixteen-bit tilemap words in one 32-by-32 credits or result page.</summary>
         public const int TilemapWords = TilemapWidth * TilemapHeight;
-        /// <summary>VRAM word address $4800 for the scrolling-credit BG1 tilemap.</summary>
-        public const ushort CreditsTilemapWord = 0x4800;
-        /// <summary>VRAM word address $4000 for the Font 3 character base used by scrolling credits.</summary>
-        public const ushort CreditsCharacterWord = 0x4000;
         /// <summary>$8B:E190 selects BG1 for the result text, using the credits font/map bases.</summary>
         public const ushort PostCreditsTilemapWord = 0x4800;
-        /// <summary>VRAM word address $4000 for the post-credits BG1 Font 3 character base, shared with the credits font.</summary>
-        public const ushort PostCreditsCharacterWord = 0x4000;
-        /// <summary>$8B:DFD9/$DFB9 load the waiting-Samus BG2 map and characters.</summary>
-        public const ushort WaitingTilemapWord = 0x4c00;
-        /// <summary>VRAM word address $5000 for BG2 waiting-Samus characters loaded by the post-credits setup.</summary>
-        public const ushort WaitingCharacterWord = 0x5000;
         /// <summary>Size in bytes of one complete ending Mode 7 lane, also used for the full reward character sheet.</summary>
         public const int FloorBytes = 0x4000;
         /// <summary>$8B:DAD3 table stride and Func118 queue transfer size.</summary>

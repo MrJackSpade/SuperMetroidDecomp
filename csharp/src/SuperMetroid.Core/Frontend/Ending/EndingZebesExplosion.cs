@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.Ending;
@@ -42,7 +42,7 @@ internal sealed class EndingZebesExplosion
         _stage.SpawnSprite(EndingCreditsRomData.Sprites.ExplosionLava, EndingSpriteRole.ExplosionLava);
         _stage.SpawnSprite(EndingCreditsRomData.Sprites.ExplosionGlow, EndingSpriteRole.ExplosionGlow);
         _stage.SpawnSprite(EndingCreditsRomData.Sprites.ExplosionStars, EndingSpriteRole.ExplosionStars);
-        _stage.Mode7 = new(_stage.Mode7.X.WithWhole(0), default);
+        _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(0), default);
         _stage.FloorZoom = EndingCreditsRomData.Motion.EscapeInitialScale;
         _stage.FloorAngle = SnesAngle.Zero;
         _stage.Brightness = 0;

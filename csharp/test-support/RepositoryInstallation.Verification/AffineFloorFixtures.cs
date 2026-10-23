@@ -27,6 +27,6 @@ internal static class AffineFloorFixtures
             composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities, composed.PartRows);
         Mode7TilePictures tiles = new FloorCharacters()
             .Show(new Mode7CharacterSheet(SpriteSheetId.TitleMode7Tiles, sheet), 0, 0, Mode7TilePictures.Tiles).Pictures();
-        return AffineFloor.Capture(image, tiles);
+        return AffineFloorConstants.Capture(image, tiles);
     }
 }

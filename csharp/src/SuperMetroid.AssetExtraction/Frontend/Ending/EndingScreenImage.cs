@@ -1,6 +1,9 @@
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Ending;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>
 /// Replays the ending's recorded transfers over the bound artwork into the memory image the backends draw (#1358), each
@@ -26,10 +29,10 @@ internal static class EndingScreenImage
         {
             case EndingUploadKind.FloorSceneTiles:
                 EndingFloorSceneArtwork scene = Mode7(artwork)[(EndingFloorSceneId)upload.Key];
-                var mode7 = new Mode7Vram(vram);
-                mode7.LoadMap(scene.Map.Span);
-                mode7.LoadMap(scene.Map.Span, cell: EndingFloorArtworkFormat.MapByteCount);
-                mode7.LoadCharacters(scene.Characters.Span);
+                var floor = new Mode7Vram(vram);
+                floor.LoadMap(scene.Map.Span);
+                floor.LoadMap(scene.Map.Span, cell: EndingFloorArtworkFormat.MapByteCount);
+                floor.LoadCharacters(scene.Characters.Span);
                 break;
             case EndingUploadKind.FlyawayChunk:
                 ReplayFlyawayChunk(vram, upload.Key, artwork);
@@ -80,22 +83,22 @@ internal static class EndingScreenImage
     /// <summary>One of the sixteen flyaway chunks: the first half replace Mode 7 characters, the rest the padded map.</summary>
     private static void ReplayFlyawayChunk(SnesVram vram, int index, EndingScreenArtwork artwork)
     {
-        CeresCinematics.Artwork.CeresFlightArtworkCatalog flight = artwork.Flight ?? throw new InvalidOperationException(
+        SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresFlightArtworkCatalog flight = artwork.Flight ?? throw new InvalidOperationException(
             "Ending flyaway requires installed flight artwork.");
         int chunkBytes = EndingCreditsRomData.Rendering.FlyawayUploadBytes;
         int chunksPerLane = EndingCreditsRomData.Rendering.FloorBytes / chunkBytes;
         int offset = index % chunksPerLane * chunkBytes;
-        var mode7 = new Mode7Vram(vram);
+        var floor = new Mode7Vram(vram);
         if (index < chunksPerLane)
         {
-            mode7.LoadCharacters(flight.FloorCharacters.Span.Slice(offset, chunkBytes), offset);
+            floor.LoadCharacters(flight.FloorCharacters.Span.Slice(offset, chunkBytes), offset);
             return;
         }
         // The map lane is the flight's map data padded with the blank tile to the full lane.
         var map = new byte[EndingCreditsRomData.Rendering.FloorBytes];
         flight.FloorMaps.Span[..EndingCreditsRomData.Rendering.FlyawayMapDataBytes].CopyTo(map);
         map.AsSpan(EndingCreditsRomData.Rendering.FlyawayMapDataBytes).Fill(EndingCreditsRomData.Rendering.FlyawayBlankTile);
-        mode7.LoadMap(map.AsSpan(offset, chunkBytes), offset);
+        floor.LoadMap(map.AsSpan(offset, chunkBytes), offset);
     }
 
     /// <summary>The waiting, shooting and reward characters with the post-credits map fragments.</summary>
@@ -135,7 +138,7 @@ internal static class EndingScreenImage
 
     /// <summary>The bound Mode 7 artwork.</summary>
     private static EndingFloorArtworkCatalog Mode7(EndingScreenArtwork artwork) =>
-        artwork.Mode7 ?? throw new InvalidOperationException("Ending Mode-7 scenes require installed artwork.");
+        artwork.Floor ?? throw new InvalidOperationException("Ending Mode-7 scenes require installed artwork.");
 
     /// <summary>The bound OBJ artwork.</summary>
     private static EndingObjectArtworkCatalog Objects(EndingScreenArtwork artwork) =>

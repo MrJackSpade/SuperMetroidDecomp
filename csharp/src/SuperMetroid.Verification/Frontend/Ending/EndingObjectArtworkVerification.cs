@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;

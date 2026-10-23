@@ -40,12 +40,12 @@ public sealed class BgCharacterFormat
     public int ColorsPerPalette => 1 << BitsPerPixel;
 
     /// <summary>VRAM words one character occupies.</summary>
-    public int WordsPerCharacter => BitsPerPixel / PlanesPerPair * BytesPerPlanePair / SnesVramAddressing.BytesPerWord;
+    public int WordsPerCharacter => BitsPerPixel / PlanesPerPair * BytesPerPlanePair / SnesVramAddressingConstants.BytesPerWord;
 
     /// <summary>The VRAM byte offset of a character row's first plane pair.</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int RowByteOffset(int characterBaseWord, int character, int row) =>
-        SnesVramAddressing.ByteOffsetOfWord(characterBaseWord + character * WordsPerCharacter) + row * BytesPerPlanePairRow;
+        SnesVramAddressingConstants.ByteOffsetOfWord(characterBaseWord + character * WordsPerCharacter) + row * BytesPerPlanePairRow;
 
     /// <summary>The color index of one pixel of a character row, read from every bit plane.</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

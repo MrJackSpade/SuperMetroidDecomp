@@ -45,7 +45,7 @@ internal static class RoomBlockFixtures
                     definitions.Slice(block * RoomLevelPlane.DefinitionBytes + corner * sizeof(ushort))));
                 for (int part = 0; part < characterWords; part++)
                 {
-                    int at = SnesVramAddressing.ByteOffsetOfWord(characterWord + word.CharacterIndex * characterWords + part);
+                    int at = SnesVramAddressingConstants.ByteOffsetOfWord(characterWord + word.CharacterIndex * characterWords + part);
                     character[part * 2] = image[at];
                     character[part * 2 + 1] = image[at + 1];
                 }
@@ -85,12 +85,12 @@ internal static class RoomBlockFixtures
         SpritePaletteRows coloured = SpritePaletteRows.None;
         for (int index = 0; index < words.Length; index++)
         {
-            int at = SnesVramAddressing.ByteOffsetOfWord(tilemapWord + index);
+            int at = SnesVramAddressingConstants.ByteOffsetOfWord(tilemapWord + index);
             words[index] = BinaryPrimitives.ReadUInt16LittleEndian(image.Slice(at, sizeof(ushort)));
             var word = new SnesBgTilemapWord(words[index]);
             for (int part = 0; part < characterWords; part++)
             {
-                int from = SnesVramAddressing.ByteOffsetOfWord(characterWord + word.CharacterIndex * characterWords + part);
+                int from = SnesVramAddressingConstants.ByteOffsetOfWord(characterWord + word.CharacterIndex * characterWords + part);
                 character[part * 2] = image[from];
                 character[part * 2 + 1] = image[from + 1];
             }

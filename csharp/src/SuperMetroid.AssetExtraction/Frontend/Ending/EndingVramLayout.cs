@@ -1,4 +1,7 @@
-namespace SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Hardware;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>
 /// The ending's VRAM allocations (#630): the escape/explosion OBJ sheets, the credits font and
@@ -6,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// its allocations alias the whole store.
 /// </summary>
 [PpuLayoutBoundary("catalog: ending and credits VRAM")]
-public static class EndingVramLayout
+internal static class EndingVramLayout
 {
     /// <summary>VMADD $4000-$6FFF: the escape/explosion OBJ sheet <c>$8B:D8C1</c> uploads from <c>$7F:8000</c>.</summary>
     public static readonly PpuLayoutCell ExplosionObjects = Vram(nameof(ExplosionObjects), 0x4000, 0x3000, "4-bpp OBJ characters");

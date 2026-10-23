@@ -444,7 +444,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 PaletteFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
                 PaletteFx.SpawnDefinition(CeresDestructionRomData.PaletteFx.EngineFlicker, 0);
             }
-            PaletteFx.Step(palette, paletteFxColors ?? throw new InvalidOperationException(
+            PaletteFx.Step(new ScreenPaletteFxColours(palette), paletteFxColors ?? throw new InvalidOperationException(
                     "Ceres palette FX requires installed palette colors."), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             if (PaletteFx.SoundRequests.Count != 0 || PaletteFx.MusicRequests.Count != 0)
                 throw new InvalidDataException("Ceres engine palette program unexpectedly requested audio.");

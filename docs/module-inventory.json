@@ -192,7 +192,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Frontend",
       "role": "production",
-      "files": 720,
+      "files": 721,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
@@ -222,7 +222,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
-      "files": 188,
+      "files": 191,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets",
@@ -363,7 +363,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Runtime",
       "role": "production",
-      "files": 26,
+      "files": 27,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
@@ -582,8 +582,11 @@
       "files": 36,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Hardware",
+        "csharp/src/SuperMetroid.Core/Runtime",
+        "csharp/src/SuperMetroid.Core/Samus",
         "csharp/src/SuperMetroid.EnsureAnalyzer",
         "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
         "csharp/test-support/VerificationAccess.Core"
@@ -954,7 +957,7 @@
     {
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
-      "files": 960,
+      "files": 961,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -46222,6 +46225,21 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Frontend/ScreenPaletteFxColours.cs",
+      "module": "csharp/src/SuperMetroid.Core/Frontend",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Frontend",
+      "layer": "Frontend",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Assets",
+        "csharp/src/SuperMetroid.Core/Fx",
+        "csharp/src/SuperMetroid.Core/Rendering"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Frontend/SelectedGameplayOptions.cs",
       "module": "csharp/src/SuperMetroid.Core/Frontend",
       "role": "production",
@@ -47591,6 +47609,19 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/IPaletteFxColourOwners.cs",
+      "module": "csharp/src/SuperMetroid.Core/Fx",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Fx.PaletteFx",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Assets"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxColorDefinition.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
@@ -47745,6 +47776,26 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Programs"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxColourOwner.cs",
+      "module": "csharp/src/SuperMetroid.Core/Fx",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Fx.PaletteFx",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxColours.cs",
+      "module": "csharp/src/SuperMetroid.Core/Fx",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Fx.PaletteFx",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
       ]
     },
     {
@@ -48615,6 +48666,7 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Audio",
         "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Hardware",
@@ -59101,6 +59153,21 @@
       "layer": "Runtime",
       "assemblies": [
         "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Runtime/GameplayPaletteFxColours.cs",
+      "module": "csharp/src/SuperMetroid.Core/Runtime",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Runtime",
+      "layer": "Runtime",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Assets",
+        "csharp/src/SuperMetroid.Core/Fx",
+        "csharp/src/SuperMetroid.Core/Samus"
       ]
     },
     {
@@ -71464,8 +71531,11 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Hardware",
+        "csharp/src/SuperMetroid.Core/Runtime",
+        "csharp/src/SuperMetroid.Core/Samus",
         "csharp/test-support/VerificationAccess.Core"
       ]
     },
@@ -125527,6 +125597,22 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxColoursPositions.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Fx.PaletteFx",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Fx"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxDeleteDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -131159,7 +131245,9 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Assets",
+        "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Hardware",
+        "csharp/src/SuperMetroid.Core/Runtime",
         "csharp/src/SuperMetroid.Core/Samus"
       ]
     },

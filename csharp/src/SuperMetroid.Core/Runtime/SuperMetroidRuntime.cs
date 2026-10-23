@@ -144,6 +144,7 @@ internal sealed class SuperMetroidRuntime
         var spriteSets = new SpriteColourSets();
         Player = new SamusFrameState(spriteSets);
         Cgram = new GameplayColours(spriteSets, Player.Colours);
+        PaletteFxColours = new GameplayPaletteFxColours(Cgram, Player.Colours);
         Room = new ActiveRoomState();
         Clock = Ensure.NotNull(clock);
         Options = new GameplayOptions();
@@ -335,6 +336,9 @@ internal sealed class SuperMetroidRuntime
     /// her colours (#1405).
     /// </summary>
     public GameplayColours Cgram { get; }
+
+    /// <summary>The colours palette-FX objects write, by owner (#1405).</summary>
+    internal IPaletteFxColourOwners PaletteFxColours { get; }
 
     /// <summary>The palette-FX handler enable bit and heat phases, which outlive each room's palette FX.</summary>
     public PaletteFxSessionState PaletteFxSession { get; } = new();
@@ -639,7 +643,7 @@ internal sealed class SuperMetroidRuntime
         if (Room.LoadedScope.PaletteFx.HandlerEnabled && !Room.LoadedScope.Enemies.Elevator.ElevatorDoorTransitionActive &&
             Player.Samus?.Xray.ArePaletteFxSuspended != true)
         {
-            Room.LoadedScope.PaletteFx.Step(Cgram, Artwork.MapPresentation?.RoomPaletteFx ?? throw new InvalidOperationException(
+            Room.LoadedScope.PaletteFx.Step(PaletteFxColours, Artwork.MapPresentation?.RoomPaletteFx ?? throw new InvalidOperationException(
                     "Gameplay palette FX requires installed map presentation colors."), new PaletteFxConditions { SamusY = Player.Samus?.Position.Y.Whole ?? 0, EquippedItems = Player.Samus?.EquippedItems ?? 0, EnemyZeroIsDead = Room.LoadedScope.Enemies.SlotTable.Slots.Count == 0 || Room.LoadedScope.Enemies.SlotTable.Slots[0].Health == 0, AreaMiniBossDefeated = Room.ActiveRoom is { } paletteRoom &&
                     System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss), Samus = Player.Samus?.RoomView, NmiFrameCounter = Clock.Counter }, Room.LoadedScope.BombProjectiles.PowerBombExplosion.Activity);
         }

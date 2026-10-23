@@ -27,8 +27,7 @@ internal static class PaletteLayoutAnalyzerTests
             """, "'Palettes' holds colours named as a palette" + advice);
         // Colours keyed by an integer slot.
         Check("""
-            using System.Collections.Generic;
-            class Flight { private readonly Dictionary<int, Bgr555> edits = []; }
+            class Flight { private readonly System.Collections.Generic.Dictionary<int, Bgr555> edits = []; }
             """, "'edits' keys colours by an integer slot" + advice);
 
         // An effect's colour list with a domain name.
@@ -41,8 +40,7 @@ internal static class PaletteLayoutAnalyzerTests
             """);
         // A slot-keyed table is still keyed by slot.
         Check("""
-            using System.Collections.Generic;
-            class Flight { private readonly Dictionary<ushort, Bgr555[]> rowsBySlot = []; }
+            class Flight { private readonly System.Collections.Generic.Dictionary<ushort, Bgr555[]> rowsBySlot = []; }
             """, "'rowsBySlot' keys colours by an integer slot" + advice);
         // One colour named for its role, even beside a palette word.
         Check("""
@@ -50,9 +48,8 @@ internal static class PaletteLayoutAnalyzerTests
             """);
         // Colours keyed by an identity, not a slot.
         Check("""
-            using System.Collections.Generic;
             enum Area { Crateria }
-            class Map { private readonly Dictionary<Area, Bgr555[]> world = []; }
+            class Map { private readonly System.Collections.Generic.Dictionary<Area, Bgr555[]> world = []; }
             """);
         // A palette word on something that holds no colours.
         Check("""

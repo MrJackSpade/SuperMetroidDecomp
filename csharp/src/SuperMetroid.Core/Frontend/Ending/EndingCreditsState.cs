@@ -432,7 +432,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
         }
 
         // The native cinematic invokes the shared bank-$8D interpreter after actors.
-        Stage.PaletteFxSystem.Step(screen.Palette, InstalledArtwork.PaletteFxArtwork ?? throw new InvalidOperationException(
+        Stage.PaletteFxSystem.Step(new ScreenPaletteFxColours(screen.Palette), InstalledArtwork.PaletteFxArtwork ?? throw new InvalidOperationException(
                 "Ending palette FX requires installed palette colors."), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         if (Stage.PaletteFxSystem.SoundRequests.Count != 0 || Stage.PaletteFxSystem.MusicRequests.Count != 0)
             throw new InvalidDataException("Ending palette program requested an unhandled audio command.");

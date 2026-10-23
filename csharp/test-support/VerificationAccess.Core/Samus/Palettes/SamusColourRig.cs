@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hardware;
@@ -8,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Palettes;
 /// Gameplay's colours as a check reads them back by position, with Samus's held by her own colours (#1405): her
 /// effects write <see cref="Samus"/>, and the check reads every colour, hers among them, through the router.
 /// </summary>
-internal sealed class SamusColourRig : IPaletteColors
+internal sealed class SamusColourRig : IPaletteColors, IPaletteFxColourOwners
 {
     /// <summary>Routes Samus's positions to <see cref="Samus"/>.</summary>
     private readonly GameplayColours colours;
@@ -23,6 +25,9 @@ internal sealed class SamusColourRig : IPaletteColors
 
     /// <summary>Samus's colours, which her effects write.</summary>
     public SamusColours Samus { get; }
+
+    /// <inheritdoc />
+    public ColourRun Colours(PaletteFxColourOwner owner) => new GameplayPaletteFxColours(colours, Samus).Colours(owner);
 
     /// <summary>The router, for what takes gameplay's colours.</summary>
     public GameplayColours Gameplay => colours;

@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public sealed class HyperBeamPaletteFxState
 {
     /// <summary>The colour position the Hyper Beam palette program names, which its object checks the program against.</summary>
-    private const int ProgramColourPosition = SamusPaletteRomData.HyperBeamFx.DestinationByteIndex / sizeof(ushort);
+    private static readonly PaletteFxColours ProgramColours = new(PaletteFxColourOwner.SamusBeams, 1);
 
     /// <summary>Where the object's typed program resumes between palette handler calls.</summary>
     private AnimationProgramCursor<PaletteFxProgram> cursor;
@@ -94,7 +94,7 @@ public sealed class HyperBeamPaletteFxState
 
         WrappingCountdown unusedCounter = default;
         AnimationProgramAdvance<PaletteFxFrame> advance = PaletteFxAnimations.Programs.Advance(ref cursor, ref unusedCounter,
-            (cue, _) => cue == new PaletteFxCue.SetColorIndex(ColorIndex: ProgramColourPosition)
+            (cue, _) => cue == new PaletteFxCue.SetColours(ProgramColours)
                 ? null
                 : throw new InvalidDataException($"The Hyper Beam palette program published {cue}, which its object does not carry out."));
         if (advance is not AnimationProgramAdvance<PaletteFxFrame>.Show shown)

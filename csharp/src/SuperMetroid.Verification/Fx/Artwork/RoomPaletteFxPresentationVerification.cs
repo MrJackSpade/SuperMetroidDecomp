@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json;
@@ -70,8 +71,8 @@ internal static class RoomPaletteFxPresentationVerification
             installed.SpawnDefinition(definition.DefinitionPointer, equippedItems: 0);
         }
 
-        var nativeCgram = new SnesCgram();
-        var installedCgram = new SnesCgram();
+        var nativeCgram = new SamusColourRig();
+        var installedCgram = new SamusColourRig();
         int frames = NorfairEnvironmentalPaletteFxColorDefinitions.CycleFrames * 2;
         for (int frame = 0; frame < frames; frame++)
         {
@@ -703,8 +704,8 @@ internal static class RoomPaletteFxPresentationVerification
             };
             native.SpawnDefinition(RoomPaletteFxDefinitions.SamusInHeat, (SamusEquipmentFlags)equipment);
             installed.SpawnDefinition(RoomPaletteFxDefinitions.SamusInHeat, (SamusEquipmentFlags)equipment);
-            var nativeCgram = new SnesCgram();
-            var installedCgram = new SnesCgram();
+            var nativeCgram = new SamusColourRig();
+            var installedCgram = new SamusColourRig();
             int steps = 1 + Enumerable.Range(0, definition.Frames.Count)
                 .Sum(phase => PaletteFxHeatProgramDefinitionConstants.Duration(definition.Suit, phase));
             for (int step = 0; step <= steps; step++)
@@ -751,8 +752,8 @@ internal static class RoomPaletteFxPresentationVerification
             var installed = new RoomPaletteFxSystem(installedSession);
             native.SpawnDefinition(definition, equippedItems: 0);
             installed.SpawnDefinition(definition, equippedItems: 0);
-            var nativeCgram = new SnesCgram();
-            var installedCgram = new SnesCgram();
+            var nativeCgram = new SamusColourRig();
+            var installedCgram = new SamusColourRig();
             for (int frame = 0; frame < framesToRun; frame++)
             {
                 native.Step(nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = samusY, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
@@ -813,8 +814,8 @@ internal static class RoomPaletteFxPresentationVerification
             var installed = new RoomPaletteFxSystem(installedSession);
             native.SpawnDefinition(definition, equippedItems: 0);
             installed.SpawnDefinition(definition, equippedItems: 0);
-            var nativeCgram = new SnesCgram();
-            var installedCgram = new SnesCgram();
+            var nativeCgram = new SamusColourRig();
+            var installedCgram = new SamusColourRig();
             const int frames = 160;
             for (int frame = 0; frame < frames; frame++)
             {
@@ -870,8 +871,8 @@ internal static class RoomPaletteFxPresentationVerification
             installed.SpawnDefinition(definition.DefinitionPointer, equippedItems: 0);
         }
 
-        var nativeCgram = new SnesCgram();
-        var installedCgram = new SnesCgram();
+        var nativeCgram = new SamusColourRig();
+        var installedCgram = new SamusColourRig();
         const int frames = 80;
         for (int frame = 0; frame < frames; frame++)
         {
@@ -980,8 +981,8 @@ internal static class RoomPaletteFxPresentationVerification
             equippedItems: 0);
         // The same native control stream selects both color sources. Only the
         // visible CGRAM word should change, not phase or sound side effects.
-        var stockCgram = new SnesCgram();
-        var editedCgram = new SnesCgram();
+        var stockCgram = new SamusColourRig();
+        var editedCgram = new SamusColourRig();
         stockOwner.Step(stockCgram, currentStock, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         editedOwner.Step(editedCgram, editedHeat, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         AssertTrue(!new CgramPalettes(stockCgram).ImageEquals(new CgramPalettes(editedCgram)),

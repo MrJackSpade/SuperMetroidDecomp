@@ -248,7 +248,7 @@ internal static class LookupStream2Verification
             var actualSession = new PaletteFxSessionState();
             var actual = new RoomPaletteFxSystem(actualSession);
             actual.SpawnDefinition(definition.DefinitionPointer, equippedItems: 0);
-            var cgram = new SnesCgram();
+            var cgram = new SamusColourRig();
             var colors = new ReferencePaletteFxColorSource(guarded);
             int frameIndex = 0, elapsed = 0;
             for (int tick = 0; tick <= cycle; tick++)

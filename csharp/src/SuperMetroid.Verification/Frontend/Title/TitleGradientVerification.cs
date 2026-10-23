@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.Title.TitleSequenceRomDataVerification;
@@ -323,8 +324,8 @@ internal static class TitleGradientVerification
             installed.SpawnDefinition(definition.DefinitionPointer, 0);
         }
 
-        var nativeCgram = new SnesCgram();
-        var installedCgram = new SnesCgram();
+        var nativeCgram = new SamusColourRig();
+        var installedCgram = new SamusColourRig();
         int frames = TitleScreenAmbientPaletteFxColorDefinitions.All.Max(
             definition => definition.CycleFrames) * 2;
         for (int frame = 0; frame < frames; frame++)
@@ -524,7 +525,7 @@ internal static class TitleGradientVerification
             oam.AddRawSmallSprite(new Position16<OamPixels>(0, 0), (ushort)((7 - palette) << 9));
             oam.FinalizeFrame();
             SnesObjRenderer.RenderResolved(DrawColours.ResolveAll(ObjCharacterImageConstants.Draws(oam, vram, 0), cgram.Colors), new ObjRasterTargets(pixels, priorities, palettes));
-            AssertEqual(palette, palettes[0], "winning OBJ palette survives equal-color overlap");
+            AssertEqual((byte)(palette >= 4 ? 4 : 0), palettes[0], "winning OBJ palette's blending survives equal-color overlap");
             AssertEqual(byte.MaxValue, palettes[8], "transparent pixel has no palette owner");
             AssertEqual(palette < 4 ? color : new Rgba32(0, 8, 8, 255),
                 TitleGradientColorMath.Apply(color, additive, palettes[0]), "title OBJ palette eligibility");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -26,7 +27,7 @@ internal static class NorfairGlowVerification
         {
             var fxSession = new PaletteFxSessionState();
             var fx = new RoomPaletteFxSystem(fxSession);
-            var colors = new SnesCgram();
+            var colors = new SamusColourRig();
             fx.SpawnDefinition(stream.Definition, 0);
             ushort[] ramp = stream.Definition == 0xf791 ? red : orange;
             for (int cycle = 0; cycle < 3; cycle++)

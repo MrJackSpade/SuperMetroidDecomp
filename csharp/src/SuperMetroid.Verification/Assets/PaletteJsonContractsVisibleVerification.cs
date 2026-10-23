@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Tooling;
 using System.Reflection;
@@ -49,8 +50,8 @@ internal static class PaletteJsonContractsVisibleVerification
         // ticking concurrently. Compare all native instruction timers, not endpoints.
         for (int tick = 0; tick < 160; tick++)
         {
-            stockFx.Step(stockCgram, original, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-            editedFx.Step(editedCgram, replacement, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            stockFx.Step(new ScreenPaletteFxColours(stockCgram), original, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            editedFx.Step(new ScreenPaletteFxColours(editedCgram), replacement, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             AssertPaletteContractFxState(stockFx, editedFx);
             AssertSameBytes(stockBus.WorkRam, editedBus.WorkRam, "color replacement preserves all live WRAM");
             foreach (var definition in TitleScreenAmbientPaletteFxColorDefinitions.All)

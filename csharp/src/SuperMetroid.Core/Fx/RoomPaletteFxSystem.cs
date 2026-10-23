@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms;
@@ -144,10 +145,10 @@ public sealed class RoomPaletteFxSystem
     /// presentation on every step. Construction creates only serializable program
     /// state; it cannot hide an unbound color source until a later instruction.
     /// </remarks>
-    public void Step(IPaletteColors cgram, IPaletteFxColorSource colors, PaletteFxConditions conditions,
+    public void Step(IPaletteFxColourOwners owners, IPaletteFxColorSource colors, PaletteFxConditions conditions,
         IActivePowerBomb? powerBomb = null)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(owners);
         Ensure.NotNull(colors);
         audioPowerBomb = powerBomb;
 
@@ -172,7 +173,7 @@ public sealed class RoomPaletteFxSystem
             if (!slot.InstructionTimer.IsZero)
                 continue;
 
-            ExecuteProgram(cgram, colors, slot);
+            ExecuteProgram(owners, colors, slot);
         }
     }
 
@@ -199,7 +200,7 @@ public sealed class RoomPaletteFxSystem
 
         RoomPaletteFxDefinition compiled = RoomPaletteFxDefinitions.Get(definition);
         slot.Object = definition;
-        slot.ColorIndex = 0;
+        slot.Target = default;
         slot.PreInstruction = PaletteFxPreInstruction.Null;
         slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(compiled.InitialProgram);
         slot.InstructionTimer = WrappingCountdown.Start(1);
@@ -342,7 +343,7 @@ public sealed class RoomPaletteFxSystem
 
     /// <summary>Runs the slot's typed program until it shows its next timed colour record or deletes the object.</summary>
     private void ExecuteProgram(
-        IPaletteColors cgram,
+        IPaletteFxColourOwners owners,
         IPaletteFxColorSource colors,
         PaletteFxSlot slot)
     {
@@ -360,7 +361,7 @@ public sealed class RoomPaletteFxSystem
         {
             case AnimationProgramAdvance<PaletteFxFrame>.Show shown:
                 slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
-                WritePaletteRecord(cgram, colors, slot, shown.Frame);
+                WritePaletteRecord(owners, colors, slot, shown.Frame);
                 return;
             case AnimationProgramAdvance<PaletteFxFrame>.Stop:
                 slot.Clear();
@@ -377,8 +378,8 @@ public sealed class RoomPaletteFxSystem
     {
         switch (cue)
         {
-            case PaletteFxCue.SetColorIndex setColorIndex:
-                slot.ColorIndex = setColorIndex.ColorIndex;
+            case PaletteFxCue.SetColours setColours:
+                slot.Target = setColours.Target;
                 return;
             case PaletteFxCue.SetPreInstruction setPreInstruction:
                 slot.PreInstruction = setPreInstruction.PreInstruction;
@@ -401,15 +402,15 @@ public sealed class RoomPaletteFxSystem
         }
     }
 
-    /// <summary>Writes one timed colour record to CGRAM from the slot's colour index, skipping the entries its layout skips.</summary>
-    [PpuLayoutBoundary("codec: palette-FX instruction colour-index operands ($8D SetColorIndex)")]
+    /// <summary>Writes one timed colour record to the slot's target colours, skipping the colours its layout skips.</summary>
     private static void WritePaletteRecord(
-        IPaletteColors cgram,
+        IPaletteFxColourOwners owners,
         IPaletteFxColorSource colors,
         PaletteFxSlot slot,
         PaletteFxFrame frame)
     {
-        int colorIndex = slot.ColorIndex;
+        ColourRun target = owners.Colours(slot.Target.Owner);
+        int colorIndex = slot.Target.Colour;
         int written = 0;
         foreach (PaletteFxRecordPart part in PaletteFxRecordDefinitions.Layout(frame))
         {
@@ -422,13 +423,12 @@ public sealed class RoomPaletteFxSystem
             {
                 if (!colors.TryReadColor(new PaletteFxColorKey(frame, written), out Bgr555 color))
                     throw new InvalidDataException($"Palette-FX colour {written} of record {frame.Record} of object {slot.Object} has no installed definition.");
-                if (colorIndex >= CgramPalettes.ColorCount)
+                if (colorIndex >= target.Count)
                 {
                     throw new InvalidDataException(
-                        $"Palette-FX object {slot.Object} selected invalid CGRAM colour {colorIndex}.");
+                        $"Palette-FX object {slot.Object} wrote past {slot.Target.Owner}'s colours at colour {colorIndex}.");
                 }
-                // The colour index is palette-FX instruction data ($8D:xxxx SetColorIndex).
-                new CgramPalettes(cgram).All.Write(colorIndex, color);
+                target.Write(colorIndex, color);
                 colorIndex++;
                 written++;
             }
@@ -440,8 +440,8 @@ public sealed class RoomPaletteFxSystem
     {
         /// <summary>The palette-FX object the slot runs; null marks an available slot.</summary>
         public PaletteFxObject? Object { get; set; }
-        /// <summary>CGRAM colour selected by the most recent SetColorIndex command (native byte offset twice this).</summary>
-        public int ColorIndex { get; set; }
+        /// <summary>The colours the most recent <see cref="PaletteFxCue.SetColours"/> cue selected.</summary>
+        public PaletteFxColours Target { get; set; }
         /// <summary>
         /// Pre-instruction evaluated before this slot's program timer; none while the slot is free, which never runs
         /// because the slot is skipped while free.
@@ -458,7 +458,7 @@ public sealed class RoomPaletteFxSystem
         public void Clear()
         {
             Object = null;
-            ColorIndex = 0;
+            Target = default;
             PreInstruction = null;
             Cursor = default;
             InstructionTimer = WrappingCountdown.Start(0);

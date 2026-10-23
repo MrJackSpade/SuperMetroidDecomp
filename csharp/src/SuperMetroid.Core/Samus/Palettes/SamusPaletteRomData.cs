@@ -206,8 +206,6 @@ public static class SamusPaletteRomData
     {
         /// <summary>Expected no-op setup callback in the object definition.</summary>
         public const PaletteFxSetup SetupCallback = PaletteFxSetup.Null;
-        /// <summary>Palette-buffer byte index selecting OBJ palette six, color one.</summary>
-        public const ushort DestinationByteIndex = 0x01c2;
     }
 
     /// <summary>Palette tables consumed by the fatal-damage sequence.</summary>

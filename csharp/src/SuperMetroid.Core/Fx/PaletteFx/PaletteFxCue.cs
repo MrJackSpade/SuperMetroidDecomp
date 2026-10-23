@@ -12,9 +12,9 @@ public abstract record PaletteFxCue
     /// <param name="Sound">The library-2 sound a <see cref="QueueSoundLibrary2"/> cue queues.</param>
     public sealed record QueueSoundLibrary2(SoundEffectId? Sound) : PaletteFxCue;
 
-    /// <summary><c>$8D:C655</c>: later records write from this CGRAM byte index.</summary>
-    /// <param name="ColorIndex">The CGRAM colour a <see cref="SetColorIndex"/> cue makes the object's next record start at.</param>
-    public sealed record SetColorIndex(int ColorIndex) : PaletteFxCue;
+    /// <summary><c>$8D:C655</c>: later records write from these colours.</summary>
+    /// <param name="Target">The owner's colour a <see cref="SetColours"/> cue makes the object's next record start at.</param>
+    public sealed record SetColours(PaletteFxColours Target) : PaletteFxCue;
 
     /// <summary><c>$8D:F1C6</c>: publishes the Norfair heat palette index.</summary>
     /// <param name="HeatPhase">The Norfair heat animation phase a <see cref="SetHeatPaletteIndex"/> cue publishes.</param>

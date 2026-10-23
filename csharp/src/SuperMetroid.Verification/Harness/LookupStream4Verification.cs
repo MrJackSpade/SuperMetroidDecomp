@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -117,7 +118,7 @@ internal static class LookupStream4Verification
         var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
         var fxSession = new PaletteFxSessionState();
         var fx = new RoomPaletteFxSystem(fxSession);
-        var cgram = new SnesCgram();
+        var cgram = new SamusColourRig();
         fx.SpawnDefinition(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer, 0);
         int ticks = 0;
         foreach (var row in rows)
@@ -232,7 +233,7 @@ internal static class LookupStream4Verification
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
             var fxSession = new PaletteFxSessionState();
             var fx = new RoomPaletteFxSystem(fxSession);
-            var cgram = new SnesCgram();
+            var cgram = new SamusColourRig();
             fx.SpawnDefinition(definition.DefinitionPointer, 0);
             for (int cycle = 0; cycle < 2; cycle++)
             foreach (var row in nativeRows)
@@ -327,7 +328,7 @@ internal static class LookupStream4Verification
                 fx.SpawnDefinition(program.DefinitionPointer, 0);
             for (int tick = 0; tick <= 80; tick++)
             {
-                fx.Step(cgram, selected, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                fx.Step(new ScreenPaletteFxColours(cgram), selected, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 ushort[] expected = document.Colors.Select(Pack).ToArray();
                 foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
                 {
@@ -466,7 +467,7 @@ internal static class LookupStream4Verification
             var nativeSession = new PaletteFxSessionState();
             var native = new RoomPaletteFxSystem(nativeSession); var installedSession = new PaletteFxSessionState();
                                                                  var installed = new RoomPaletteFxSystem(installedSession);
-            var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
+            var nativeCgram = new SamusColourRig(); var installedCgram = new SamusColourRig();
             native.SpawnDefinition(definition.DefinitionPointer, 0);
             installed.SpawnDefinition(definition.DefinitionPointer, 0);
             for (int step = 0; step <= definition.CycleFrames; step++)
@@ -541,7 +542,7 @@ internal static class LookupStream4Verification
             var nativeSession = new PaletteFxSessionState();
             var native = new RoomPaletteFxSystem(nativeSession); var installedSession = new PaletteFxSessionState();
                                                                  var installed = new RoomPaletteFxSystem(installedSession);
-            var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
+            var nativeCgram = new SamusColourRig(); var installedCgram = new SamusColourRig();
             native.SpawnDefinition(definition.DefinitionPointer, 0);
             installed.SpawnDefinition(definition.DefinitionPointer, 0);
             for (int step = 0; step <= 24; step++)

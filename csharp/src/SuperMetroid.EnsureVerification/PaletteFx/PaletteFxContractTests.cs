@@ -46,12 +46,14 @@ internal static class PaletteFxContractTests
 
         // The colors dependency is non-null by contract and the null-forgiving operator is banned (#623), so the
         // compiler rejects a null caller; the first step paints with the supplied colors.
-        var cgram = new SnesCgram();
+        var sprites = new SuperMetroid.Core.Assets.SpriteColourSets();
+        var samus = new SuperMetroid.Core.Samus.Palettes.SamusColours(sprites.Set(SuperMetroid.Core.Samus.Palettes.SamusColourDefinitions.SuitlessSpriteSet));
+        var cgram = new SuperMetroid.Core.Assets.GameplayColours(sprites, samus);
         var fxSession = new PaletteFxSessionState();
         var fx = new RoomPaletteFxSystem(fxSession);
         fx.SpawnDefinition(PaletteFxObject.CutsceneGunshipEngineFlicker, 0);
         int colorIndex = GunshipEngineColorIndex / sizeof(ushort);
-        fx.Step(cgram, new ContractPaletteColors(), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        fx.Step(new SuperMetroid.Core.Runtime.GameplayPaletteFxColours(cgram, samus), new ContractPaletteColors(), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         if (cgram.Colors[colorIndex] != new Bgr555(31, 0, 0) || fx.ActiveCount != 1)
             throw new InvalidOperationException("The first palette step did not paint the supplied colors.");
         Console.WriteLine("#1152: eight compiler dependency contracts and the supplied-colors step pass; no gameplay search.");
@@ -67,7 +69,7 @@ internal static class PaletteFxContractTests
             using SuperMetroid.Core.Hardware;
             class PaletteCaller
             {
-                void Run(RoomPaletteFxSystem fx, SnesCgram cgram,
+                void Run(RoomPaletteFxSystem fx, IPaletteFxColourOwners cgram,
                     IPaletteFxColorSource colors, IPaletteFxColorSource? optionalColors, PaletteFxConditions frame)
                 {
                     {{statement}}

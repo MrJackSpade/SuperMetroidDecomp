@@ -1207,8 +1207,8 @@ internal static class MapPresentationVerification
             var editedPaletteFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
             stockPaletteFx.SpawnDefinition(definitionPointer, 0);
             editedPaletteFx.SpawnDefinition(definitionPointer, 0);
-            stockPaletteFx.Step(stockRuntime.Cgram, original.RoomPaletteFx, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-            editedPaletteFx.Step(editedRuntime.Cgram, edited.RoomPaletteFx, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            stockPaletteFx.Step(stockRuntime.PaletteFxColours, original.RoomPaletteFx, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            editedPaletteFx.Step(editedRuntime.PaletteFxColours, edited.RoomPaletteFx, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             AssertTrue(
                 stockRuntime.Cgram.Colors[colorByteIndex / sizeof(ushort)] !=
                 editedRuntime.Cgram.Colors[colorByteIndex / sizeof(ushort)],

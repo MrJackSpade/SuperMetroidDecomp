@@ -34,9 +34,6 @@ internal sealed class EnemyPresentation
     /// <summary>The sprite colour set <paramref name="slot"/>'s palette bits select (#1405).</summary>
     internal ColourRun ColourSetOf(RoomEnemySlot slot) => ColourSet(SnesObjAttributeWord.FromPaletteBits(checked((ushort)slot.PaletteIndex)).PaletteIndex);
 
-    /// <summary>The bound CGRAM's hardware banks and rows, for actors whose palette row is selected at run time.</summary>
-    internal CgramPalettes CgramRows => new(Cgram);
-
     /// <summary>The room's bound VRAM; enemy artwork transfers require the room's video memory to be bound.</summary>
     internal SnesVram Vram
     {

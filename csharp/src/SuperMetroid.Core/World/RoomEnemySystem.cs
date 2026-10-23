@@ -1465,7 +1465,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// entries are transferred: untouched HUD, suit, and room rows retain their own targets.
     /// Current CGRAM must not be changed by instructions which target the fade buffer.
     /// </summary>
-    internal void ConsumeTargetPaletteWrites(Action<int, Bgr555> write)
+    internal void ConsumeTargetPaletteWrites(Action<SporeSpawnStagedColour> write)
     {
         Ensure.NotNull(write);
         SporeSpawnBehavior.ConsumeTargetColors(write);

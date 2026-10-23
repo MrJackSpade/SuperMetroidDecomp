@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
@@ -71,13 +72,13 @@ internal static class TorizoPaletteShakeVerification
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(saved, state);
         saved.Position = 0;
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<TorizoEnemyState>(saved);
-        var restoredColors = new SnesCgram();
-        for (int i = 0; i < 256; i++) restoredColors.SetColor(i, cgram.Colors[i]);
+        // The restored fade carries its own copy of the statue's colours, which it steps as the live one steps them.
+        CartridgePaletteTransition restoredFade = restored.PaletteTransition ?? throw new InvalidOperationException("Verification requires restored.PaletteTransition.");
         for (int call = 2; call < 14; call++)
         {
             Execute(TorizoCueKind.AdvancePaletteFade);
-            (restored.PaletteTransition ?? throw new InvalidOperationException("Verification requires restored.PaletteTransition.")).Step(restoredColors, TorizoPaletteDefinitions.BodyPaletteMask);
-            AssertTrue(new CgramPalettes(cgram).ImageEquals(new CgramPalettes(restoredColors)), "Mid-fade save preserves each color step");
+            restoredFade.Step();
+            AssertTrue(restoredFade.Target.Run(0).Colors.SequenceEqual(cgram.Colors.Slice(144, 32)), "Mid-fade save preserves each color step");
         }
         VerifyTorizoPaletteCatalogsAgainstRetailRom(cgram);
         Suite(nameof(VerifyTorizoLandingLifetime), () => VerifyTorizoLandingLifetime());

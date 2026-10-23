@@ -12,11 +12,6 @@ public static class SamusXrayRomData
     /// <summary>Palette words copied into Samus's visor colors while X-ray is active.</summary>
     public static class Palette
     {
-        /// <summary>First CGRAM color occupied by Samus's OBJ palette.</summary>
-        public const int SamusCgramIndex = SamusPaletteRomData.Common.SamusObjPaletteStart;
-        /// <summary>CGRAM color within Samus's palette occupied by the visor.</summary>
-        public const int VisorCgramIndex =
-            SamusCgramIndex + SamusPaletteRomData.Common.VisorColorOffset;
         /// <summary>Final visor word offset retained while the beam widens.</summary>
         public const ushort WideningFinalWordOffset = 4;
         /// <summary>First visor word offset in the full-beam cycle.</summary>

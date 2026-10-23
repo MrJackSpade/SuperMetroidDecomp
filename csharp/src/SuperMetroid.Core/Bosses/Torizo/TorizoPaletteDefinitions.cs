@@ -3,12 +3,8 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <summary>Targets and mask for Torizo's native palette-transition instructions.</summary>
 internal static class TorizoPaletteDefinitions
 {
-    /// <summary>$AA:B271 selects sprite palettes 1 and 2 via mask $0600.</summary>
-    internal const ushort BodyPaletteMask = 0x0600;
     /// <summary>$82:DAFF supplies denominator 12 to the selected-palette fade.</summary>
     internal const int FadeDenominator = 12;
-    /// <summary>$AA:C26F/$C276 target CGRAM rows 9 and 10, beginning at color 144.</summary>
-    internal const int FirstBodyColor = 144;
     /// <summary>
     /// $AA:8687/$86A7, sprite palettes 3 and 7 shared by both Torizos (CGRAM rows eleven and
     /// fifteen): orb/flame and statue-shading paint. Row eleven's colors nine to fifteen and

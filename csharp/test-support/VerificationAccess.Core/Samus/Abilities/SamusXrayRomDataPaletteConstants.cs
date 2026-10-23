@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 namespace SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Palettes;
 
@@ -29,4 +30,9 @@ internal static class SamusXrayRomDataPaletteConstants
         /// <inheritdoc cref="SamusXrayRomDataPaletteConstants.VisorWords"/>
         internal static int VisorWords => SamusXrayRomDataPaletteConstants.VisorWords;
     }
+        /// <summary>First CGRAM color occupied by Samus's OBJ palette.</summary>
+        public const int SamusCgramIndex = SamusPaletteRomData.Common.SamusObjPaletteStart;
+        /// <summary>CGRAM color within Samus's palette occupied by the visor.</summary>
+        public const int VisorCgramIndex =
+            SamusCgramIndex + SamusPaletteRomData.Common.VisorColorOffset;
 }

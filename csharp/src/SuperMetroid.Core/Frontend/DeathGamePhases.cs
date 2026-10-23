@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Samus;
@@ -102,11 +103,12 @@ internal sealed class DeathGamePhases(FrontendSession session)
         if (session.Runtime is null)
             throw new InvalidOperationException("Death palette setup requires a runtime.");
 
-        var target = new Bgr555[CgramPalettes.ColorCount];
-        ReadOnlySpan<Bgr555> current = new CgramPalettes(session.Runtime.Cgram).Image;
-        // `$82:DCA3-$DCB3` restores only palette-buffer colors $C0-$CF into the otherwise
-        // black target. Suitless row $F0 and all room/OBJ rows therefore fade away.
-        current.Slice(192, 16).CopyTo(target.AsSpan(192, 16));
+        ColourImage target = session.Runtime.Cgram.Capture();
+        // `$82:DCA3-$DCB3` restores only Samus's suit colours into the otherwise black target.
+        // Her suitless sprite set and every room and sprite colour therefore fade away.
+        target.Fill(Bgr555.Black);
+        ColourRun suit = session.Runtime.Player.Colours.Suit;
+        suit.Colors.CopyTo(target.Of(suit));
         session.BeginDeathPaletteFade(new CartridgePaletteTransition(target, denominator: 6, session.Runtime.EnemySession.GradualColorChange));
     }
 
@@ -120,6 +122,6 @@ internal sealed class DeathGamePhases(FrontendSession session)
         if (session.Runtime is null)
             throw new InvalidOperationException("Death palette fade requires a runtime.");
         return (session.DeathPaletteFade ?? throw new InvalidOperationException(
-            "Death palette target was not prepared.")).Step(session.Runtime.Cgram);
+            "Death palette target was not prepared.")).Step();
     }
 }

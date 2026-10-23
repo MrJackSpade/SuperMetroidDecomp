@@ -1207,7 +1207,8 @@ internal sealed class RoomLoader
         // blue value from `Initial_Palette_spritePalette5` in that one entry makes the
         // elevator landing recess appear pre-filled; the cartridge's zero makes it black
         // until the moving pad reaches it and both projectiles delete themselves.
-        new NewGamePalettes(_cgram).ClearCeresElevatorConcealer();
+        // The concealer's colour is Samus's grapple flare colour, which the cartridge's zero clears ($82:8190).
+        _player.Colours.GrappleFlare.Fill(Bgr555.Black);
 
         SamusPoseMetadata.RefreshCollisionRadii(_player.Samus);
         SamusPresentation.InitializeAnimation(_player.Samus);

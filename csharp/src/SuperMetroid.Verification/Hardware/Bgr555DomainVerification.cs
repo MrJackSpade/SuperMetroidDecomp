@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Fx.PaletteFx;
 
@@ -62,11 +64,13 @@ internal static class Bgr555DomainVerification
         AssertEqual(sample.ToRgba32(), cgram.GetRgba(2), "CGRAM RGBA is the color's expansion");
 
         // A production fade on typed colors reaches its exact target (native $82:DA02 ramp).
-        var target = new Bgr555[SnesCgram.ColorCount];
-        Array.Fill(target, Bgr555.White);
+        var colours = new ScreenPalette();
+        colours.Load(cgram.Colors);
+        var target = new ColourImage(colours.All);
+        target.Fill(Bgr555.White);
         var fade = new CartridgePaletteTransition(target, denominator: 6, new GradualColorChangeCounter());
-        for (int step = 0; step < 16 && !fade.Step(cgram); step++) { }
-        AssertTrue(cgram.Colors.IndexOfAnyExcept(Bgr555.White) < 0, "typed palette fade installs its exact target");
+        for (int step = 0; step < 16 && !fade.Step(); step++) { }
+        AssertTrue(colours.All.Colors.IndexOfAnyExcept(Bgr555.White) < 0, "typed palette fade installs its exact target");
 
         Console.WriteLine("Bgr555 domain: all 32768 words, port masking, channel bounds, RGBA expansion, operations, and CGRAM agree.");
     }

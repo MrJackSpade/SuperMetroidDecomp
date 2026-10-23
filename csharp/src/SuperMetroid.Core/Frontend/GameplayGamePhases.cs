@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Enemies;
@@ -142,7 +143,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // toward the white target with denominator eight.
         RunMainGameplayState(controllerInput, gameplayAudio);
         if ((session.TimeUpPaletteFade ?? throw new InvalidOperationException(
-                "Time-up white-out started without its target palette.")).Step(session.GameplayRuntime.Cgram))
+                "Time-up white-out started without its target palette.")).Step())
         {
             session.GameState = SuperMetroidGameState.WhitingOutFromTimeUp;
             session.screenFade.Clear();
@@ -329,8 +330,8 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     {
         if (session.Runtime is null)
             throw new InvalidOperationException("Time-up requires a gameplay runtime.");
-        var white = new Bgr555[CgramPalettes.ColorCount];
-        Array.Fill(white, TimeUpRomData.WhiteColor);
+        ColourImage white = session.Runtime.Cgram.Capture();
+        white.Fill(TimeUpRomData.WhiteColor);
         session.BeginTimeUpPaletteFade(new CartridgePaletteTransition(white, TimeUpRomData.WhiteOutDenominator,
             session.Runtime.EnemySession.GradualColorChange));
         session.GameState = SuperMetroidGameState.TimeUp;

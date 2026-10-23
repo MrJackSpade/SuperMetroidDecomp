@@ -86,14 +86,15 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Creates the per-statue gradual color transition against the live CGRAM image on first use.</summary>
     private CartridgePaletteTransition GetTorizoPaletteTransition(TorizoEnemyState state) =>
         state.PaletteTransition ??= new CartridgePaletteTransition(
-            _presentation.CgramRows.Image, TorizoPaletteDefinitions.FadeDenominator, _presentation.GradualColorChange);
+            new ColourImage(TorizoBodyColours), TorizoPaletteDefinitions.FadeDenominator, _presentation.GradualColorChange);
+
+    /// <summary>The body and belly colours the statue's fades change.</summary>
+    private ColourRun TorizoBodyColours => _presentation.Cgram.SpriteSets.Sets(1, 2);
 
     /// <summary>Sets target colors beginning at the first body entry for the authored palette fade.</summary>
     private void SetTorizoPaletteTarget(TorizoEnemyState state, ReadOnlySpan<Bgr555> colors)
     {
-        var transition = GetTorizoPaletteTransition(state);
-        for (int color = 0; color < colors.Length; color++)
-            transition.SetTargetColor(TorizoPaletteDefinitions.FirstBodyColor + color, colors[color]);
+        colors.CopyTo(GetTorizoPaletteTransition(state).Target.Of(TorizoBodyColours));
     }
 
     /// <summary>Ports <c>Torizo_Main</c> and its <c>toriz_var_E</c> dispatcher.</summary>
@@ -311,7 +312,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.AdvancePaletteFade }:
-                GetTorizoPaletteTransition(state).Step(_presentation.Cgram, TorizoPaletteDefinitions.BodyPaletteMask);
+                GetTorizoPaletteTransition(state).Step();
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.FadeToNormalColors }:

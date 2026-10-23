@@ -107,10 +107,10 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
             throw new InvalidDataException("Live Spore Spawn initializer did not install state.");
         for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
         {
-            int slot = SporeSpawnColorRomData.SporeDestination + color;
+            int slot = SporeSpawnColorRomDataConstants.SporeDestination + color;
             AssertEqual(colors.ResolveSpore(color), cgram.Colors[slot],
                 $"live spore CGRAM color {color}");
-            AssertEqual(colors.ResolveSpore(color), state.TargetPalette.AsSpan()[slot],
+            AssertEqual(colors.ResolveSpore(color), StagedAt(state, slot),
                 $"live spore target color {color}");
         }
         AssertEqual(AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.InitialAlive),
@@ -121,7 +121,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
             enemies.SporeSpawnBehavior.LoadSporeSpawnHealthPalette((ushort)(frame * SporeSpawnColorRomData.FrameByteCount));
             for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
                 AssertEqual(colors.ResolveHealth(frame, color),
-                    cgram.Colors[SporeSpawnColorRomData.SpriteDestination + color],
+                    cgram.Colors[SporeSpawnColorRomDataConstants.SpriteDestination + color],
                     $"live Spore Spawn health frame {frame} color {color}");
         }
 
@@ -178,11 +178,11 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
 
             void CheckLayer(SporeSpawnDeathPaletteLayer layer)
             {
-                int destination = SporeSpawnColorRomData.DeathDestination(layer);
+                int destination = SporeSpawnColorRomDataConstants.DeathDestination(layer);
                 for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
                 {
                     Bgr555 actual = targetOnly
-                        ? state.TargetPalette.AsSpan()[destination + color]
+                        ? StagedAt(state, destination + color)
                         : cgram.Colors[destination + color];
                     AssertEqual(colors.ResolveDeath(layer, frame, color), actual,
                         $"live Spore Spawn {(targetOnly ? "target" : "current")} " +
@@ -205,4 +205,8 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
                 $"{name} frame {frame} edit leaves adjacent color unchanged");
         }
     }
+
+    /// <summary>The fade-target colour Spore Spawn last staged at the cartridge's colour <paramref name="position"/>.</summary>
+    private static Bgr555 StagedAt(SporeSpawnEnemyState state, int position) =>
+        state.StagedTargetColours.Last(staged => ColourSetRunPositions.First(staged.Run) + staged.Colour == position).Value;
 }

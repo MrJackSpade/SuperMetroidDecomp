@@ -23,8 +23,6 @@ public static class SamusPaletteRomData
     {
         /// <summary>First CGRAM color of Samus OBJ palette four.</summary>
         public const int SamusObjPaletteStart = 192;
-        /// <summary>First CGRAM color of suitless Samus OBJ palette seven.</summary>
-        public const int SuitlessObjPaletteStart = 240;
         /// <summary>Number of colors in one complete SNES palette.</summary>
         public const int ColorsPerObjPalette = 16;
         /// <summary>Samus-palette-relative visor color index.</summary>

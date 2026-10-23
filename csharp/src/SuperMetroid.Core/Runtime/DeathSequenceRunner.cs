@@ -97,6 +97,7 @@ internal sealed class DeathSequenceRunner
         _player.LastDeathSequenceStep = _player.Samus.DeathSequence.Step(
             _player.Samus,
             _cgram,
+            _player.Colours,
             _artwork.SamusBodyArt?.DeathPalettes);
         if (_player.LastDeathSequenceStep.Value.DrawPose)
         {

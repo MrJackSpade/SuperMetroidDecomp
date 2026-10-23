@@ -57,6 +57,10 @@ public readonly struct ColourRun
         return ownerColours.Slice(First, Count);
     }
 
+    /// <summary>Whether <paramref name="other"/>'s colours are all among this run's, of the same owner.</summary>
+    internal bool Contains(ColourRun other) =>
+        ReferenceEquals(colours, other.colours) && other.First >= First && other.First + other.Count <= First + Count;
+
     /// <summary>Whether the owner's colour at <paramref name="position"/> is in the run.</summary>
     internal bool Covers(int position) => position >= First && position < First + Count;
 

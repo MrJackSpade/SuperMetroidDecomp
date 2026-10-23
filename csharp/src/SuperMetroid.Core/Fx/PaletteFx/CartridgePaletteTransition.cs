@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
@@ -6,24 +7,22 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </summary>
 internal sealed class CartridgePaletteTransition
 {
-    /// <summary>Copied 256-color destination used across the fade.</summary>
-    private readonly Bgr555[] target;
     /// <summary>Native divisor controlling how far each interpolation call moves.</summary>
     private readonly int denominator;
     /// <summary>Shared WRAM fade counter advanced and reset by this transition.</summary>
     private readonly GradualColorChangeCounter numerator;
 
     /// <summary>Captures the destination palette and binds the native shared fade counter.</summary>
-    /// <param name="target">All 256 destination CGRAM colors in native order; copied into the transition's target buffer.</param>
+    /// <param name="target">The colours to fade to, an image of the colours the transition changes.</param>
     /// <param name="denominator">Native interpolation divisor, one through 65534; transition number denominator plus one installs the exact target.</param>
     /// <param name="numerator">The shared <c>$7E:C400</c> transition number this fade advances.</param>
-    public CartridgePaletteTransition(ReadOnlySpan<Bgr555> target, int denominator, GradualColorChangeCounter numerator)
+    public CartridgePaletteTransition(ColourImage target, int denominator, GradualColorChangeCounter numerator)
     {
         Ensure.NotNull(numerator);
-        Ensure.LengthEqual(target, CgramPalettes.ColorCount);
+        Ensure.NotNull(target);
         if (denominator is <= 0 or > (ushort.MaxValue - 1))
             throw new ArgumentOutOfRangeException(nameof(denominator));
-        this.target = target.ToArray();
+        Target = target;
         this.denominator = denominator;
         this.numerator = numerator;
     }
@@ -33,9 +32,8 @@ internal sealed class CartridgePaletteTransition
     /// no-op, number denominator+1 reaches the exact target, and the following call returns
     /// complete while resetting the native counter.
     /// </summary>
-    public bool Step(IPaletteColors cgram, ushort paletteMask = ushort.MaxValue)
+    public bool Step()
     {
-        Ensure.NotNull(cgram);
         int transitionNumber = numerator.Numerator;
         if (transitionNumber > denominator + 1)
         {
@@ -43,27 +41,23 @@ internal sealed class CartridgePaletteTransition
             return true;
         }
 
-        var palettes = new CgramPalettes(cgram);
-        for (int row = 0; row < CgramPalettes.RowCount; row++)
+        for (int run = 0; run < Target.RunCount; run++)
         {
-            // Each mask bit selects one 16-colour row, as the native row loop does.
-            if ((paletteMask & (1 << row)) == 0)
-                continue;
-            CgramPalette palette = palettes.Row(row);
-            for (int index = 0; index < palette.Count; index++)
+            ColourRun colours = Target.Run(run);
+            ReadOnlySpan<Bgr555> goals = Target.Copy(run);
+            for (int index = 0; index < colours.Count; index++)
             {
-                Bgr555 current = palette[index];
-                Bgr555 goal = target[row * palette.Count + index];
-                if (current != goal)
-                    palette.Write(index, CalculateColor(transitionNumber, current, goal));
+                Bgr555 current = colours[index];
+                if (current != goals[index])
+                    colours.Write(index, CalculateColor(transitionNumber, current, goals[index]));
             }
         }
         numerator.Advance();
         return false;
     }
 
-    /// <summary>Updates the native target buffer without resetting fade progress or current colors.</summary>
-    internal void SetTargetColor(int index, Bgr555 color) => target[index] = color;
+    /// <summary>The colours the transition fades to, which a caller may change without resetting fade progress or current colours.</summary>
+    internal ColourImage Target { get; }
 
     /// <summary>Applies native fixed-point interpolation independently to each RGB5 channel.</summary>
     private Bgr555 CalculateColor(int step, Bgr555 current, Bgr555 destination) =>

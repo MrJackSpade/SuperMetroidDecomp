@@ -34,8 +34,8 @@ internal static class SamusXrayRomDataVerification
         AssertEqual(SnesAngle.HalfTurn.TableIndex + 1,
             SamusXrayRomData.Window.AbsoluteTangentWordCount,
             "X-ray absolute tangent table includes both half-turn endpoints");
-        AssertEqual(SamusXrayRomData.Palette.SamusCgramIndex + 4,
-            SamusXrayRomData.Palette.VisorCgramIndex,
+        AssertEqual(SamusXrayRomDataPaletteConstants.SamusCgramIndex + 4,
+            SamusXrayRomDataPaletteConstants.VisorCgramIndex,
             "X-ray visor occupies Samus palette color four");
 
         string romPath = Path.GetFullPath("Super Metroid.smc");

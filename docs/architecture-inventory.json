@@ -10697,6 +10697,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Assets.ColourImage",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/ColourImage.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Assets.ColourKeying",
       "kind": "enum",
       "scope": "product",
@@ -29083,6 +29096,22 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnColorRomDataConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/SporeSpawn/SporeSpawnColorRomDataConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnCue",
       "kind": "record",
       "scope": "product",
@@ -29237,6 +29266,38 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnEnemyStateAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/SporeSpawn/SporeSpawnEnemyStateAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnEnemyStateAccess.extension(SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnEnemyState)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/SporeSpawn/SporeSpawnEnemyStateAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnEntity",
@@ -29493,6 +29554,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnStagedColour",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnStagedColour.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Torizo.Artwork.GoldenTorizoStrideGeometryDefinitions",
@@ -78327,32 +78401,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Gameplay.NewGamePaletteLayout",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Gameplay/NewGamePaletteLayout.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Gameplay.NewGamePalettes",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Gameplay/NewGamePalettes.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Gameplay.RoomBackgrounds",
       "kind": "record",
       "scope": "product",
@@ -78701,6 +78749,38 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Hardware.CgramPalettesAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Hardware/CgramPalettesAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Hardware.CgramPalettesAccess.extension(SuperMetroid.Core.Hardware.CgramPalettes)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Hardware/CgramPalettesAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Hardware.ColorChannel",
@@ -79554,7 +79634,7 @@
         "csharp/src/SuperMetroid.Core/Hardware/PpuMemoryLayout.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Hardware.PpuMemoryLayoutConstants",
@@ -79570,7 +79650,7 @@
         "csharp/test-support/VerificationAccess.Core/Hardware/PpuMemoryLayoutConstants.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Hardware.RedGreenLevels",
@@ -104448,19 +104528,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Palettes.SamusPaletteLayout",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPaletteLayout.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Palettes.SamusPaletteNative",
       "kind": "static class",
       "scope": "test",
@@ -104858,19 +104925,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Palettes.SamusPalettes",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPalettes.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Samus.Palettes.SamusVisorPaletteState",
@@ -109913,30 +109967,17 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.World.DoorTransitionPaletteDefinitions",
+      "type": "SuperMetroid.Core.World.DoorTransitionColourDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/World/DoorTransitionPaletteDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/World/DoorTransitionColourDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.World.DoorTransitionPalettes",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/World/DoorTransitionPalettes.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.World.DoorTransitionRunner",

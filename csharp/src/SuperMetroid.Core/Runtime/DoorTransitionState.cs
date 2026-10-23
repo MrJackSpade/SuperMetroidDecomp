@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Enemies.Elevator;
@@ -24,8 +25,8 @@ internal sealed class DoorTransitionState
     /// <summary>The door's palette transition, which exists from the start of the door fade.</summary>
     [AllowNull]
     private CartridgePaletteTransition PaletteTransition { get => field ?? throw new InvalidOperationException("The door palette transition has not started."); set; }
-    /// <summary>Source palette snapshot restored after atomic destination room construction.</summary>
-    private Bgr555[]? fadedSourcePalette;
+    /// <summary>The faded source colours, restored after atomic destination room construction.</summary>
+    private ColourImage? fadedSource;
     /// <summary>Door header captured before the destination room replaces the source.</summary>
     private CartridgeDoorHeader? door;
     /// <summary>Samus's source-room position used to compute the final door-scroll placement.</summary>
@@ -64,7 +65,7 @@ internal sealed class DoorTransitionState
             BuildSourceFadeTarget(runtime),
             denominator: 12,
             runtime.EnemySession.GradualColorChange);
-        fadedSourcePalette = null;
+        fadedSource = null;
         Phase = DoorTransitionPhase.WaitForSoundQueues;
     }
 
@@ -120,7 +121,7 @@ internal sealed class DoorTransitionState
                 // A palette step returns to MainGameLoop. Hardware stalls while it
                 // executes are not additional dispatches, but this step is one.
                 runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjects: HdmaObjectProcessing.Run, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
-                if (PaletteTransition.Step(runtime.Cgram))
+                if (PaletteTransition.Step())
                 {
                     runtime.Sprites.BeginFrame();
                     runtime.Sprites.FinalizeFrame();
@@ -193,15 +194,16 @@ internal sealed class DoorTransitionState
                 // PLMs, FX, backgrounds, and then yields once per NMI until the IRQ raises
                 // door_transition_flag bit $8000. The host room constructor performs that
                 // setup atomically; its following calls now run the real coordinate path.
-                fadedSourcePalette = new CgramPalettes(runtime.Cgram).Image.ToArray();
+                fadedSource = runtime.Cgram.Capture();
                 runtime.RoomLoader.LoadPendingDoorDestinationForTransition(sourceSamus);
                 // The load re-asserted the door's gates ($0795/$0797) over the destination's
                 // enemies: elevator AI stays frozen through the final palette fade.
-                Bgr555[] destinationTarget = new CgramPalettes(runtime.Cgram).Image.ToArray();
-                RestorePalette(runtime.Cgram, fadedSourcePalette);
-                // UpdateBeamTilesAndPalette writes live colors during loading, unlike
-                // the destination room/enemy/suit target palettes used by the fade.
-                DoorTransitionPaletteDefinitions.RestoreLoadedBeamPalette(runtime.Cgram, destinationTarget);
+                ColourImage destinationTarget = runtime.Cgram.Capture();
+                fadedSource.Restore();
+                // UpdateBeamTilesAndPalette ($90:ACCD) writes the loaded beam colours live during loading,
+                // unlike the destination room, enemy and suit colours, which wait for the fade.
+                ColourRun beam = runtime.Player.Colours.Beam;
+                beam.CopyFrom(destinationTarget.Of(beam));
                 runtime.RoomLoader.BeginDoorOpeningScroll(
                     door ?? throw new InvalidOperationException("Door header was not captured."),
                     sourceSamus,
@@ -234,7 +236,7 @@ internal sealed class DoorTransitionState
                     // scrolling update, before the NMI that precedes destination fade-in.
                     // Setup lists can alter visible room state here; deferring them to the
                     // first ordinary gameplay frame exposes their pre-PLM state.
-                    DoorTransitionPaletteDefinitions.PublishCompletedScrollVisor(runtime.Cgram);
+                    runtime.Player.Colours.Visor.Write(0, DoorTransitionColourDefinitions.DoorCompletionVisorGreen);
                     runtime.PlmPhase.RunDoorTransitionPlmHandler(runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope.BombProjectiles, runtime.Room.LoadedScope);
                     Phase = DoorTransitionPhase.FinishDoorLoading;
                 }
@@ -299,8 +301,9 @@ internal sealed class DoorTransitionState
                 Phase = DoorTransitionPhase.FadeInDestinationPalette;
                 // Enemy instruction lists run after the initial destination palette copy.
                 // Their target writes belong to this same fade, not a private dead buffer.
-                runtime.Room.LoadedScope.Enemies.ConsumeTargetPaletteWrites(PaletteTransition.SetTargetColor);
-                if (PaletteTransition.Step(runtime.Cgram))
+                runtime.Room.LoadedScope.Enemies.ConsumeTargetPaletteWrites(staged =>
+                    PaletteTransition.Target.Of(staged.Run.In(runtime.Cgram))[staged.Colour] = staged.Value);
+                if (PaletteTransition.Step())
                 {
                     // $82:E737 releases $0795 after EnemyMain and the last fade step.
                     // Movement resumes on the following gameplay frame, not this one.
@@ -326,29 +329,34 @@ internal sealed class DoorTransitionState
     }
 
     /// <summary>Fades room colors while preserving HUD and applicable common CRE or escape-timer colors.</summary>
-    private static Bgr555[] BuildSourceFadeTarget(SuperMetroidRuntime runtime)
+    private static ColourImage BuildSourceFadeTarget(SuperMetroidRuntime runtime)
     {
-        var target = new Bgr555[CgramPalettes.ColorCount];
-        ReadOnlySpan<Bgr555> current = new CgramPalettes(runtime.Cgram).Image;
+        ColourImage target = runtime.Cgram.Capture();
+        target.Fill(Bgr555.Black);
 
         // Keep HUD colors legible while the source room palette disappears.
-        DoorTransitionPaletteDefinitions.PreserveHud(current, target);
+        Keep(runtime.Cgram, target, DoorTransitionColourDefinitions.Hud);
 
         CartridgeRoomHeader sourceRoom = runtime.Room.ActiveRoom ??
             throw new InvalidOperationException(
                 "Door palette fade started without an active source room header.");
         if (!sourceRoom.UsesIsolatedDoorTransition && !runtime.RoomLoader.PendingDoorDestinationUsesIsolatedDoorTransition)
         {
-            DoorTransitionPaletteDefinitions.PreserveCommonCre(current, target);
+            Keep(runtime.Cgram, target, DoorTransitionColourDefinitions.CommonRoom);
             if (runtime.EscapeTimer.IsActive)
-                DoorTransitionPaletteDefinitions.PreserveEscapeTimer(current, target);
+                Keep(runtime.Cgram, target, DoorTransitionColourDefinitions.EscapeTimer);
         }
         return target;
     }
 
-    /// <summary>Restores the faded source colors after destination loading replaces CGRAM.</summary>
-    private static void RestorePalette(IPaletteColors cgram, ReadOnlySpan<Bgr555> colors)
+    /// <summary>Puts <paramref name="kept"/>' current colours into <paramref name="target"/>.</summary>
+    private static void Keep(GameplayColours colours, ColourImage target, IReadOnlyList<IColourSetRun> kept)
     {
-        new CgramPalettes(cgram).LoadImage(colors);
+        foreach (IColourSetRun run in kept)
+        {
+            ColourRun live = run.In(colours);
+            live.Colors.CopyTo(target.Of(live));
+        }
     }
+
 }

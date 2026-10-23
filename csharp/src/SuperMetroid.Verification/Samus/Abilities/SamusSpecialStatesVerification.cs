@@ -804,10 +804,10 @@ internal static void VerifySamusDeathSequence()
     AssertTrue(!samus.DeathSequence.SpinJumpSoundRequested, "ordinary death does not request spin SFX");
     AssertEqual(2, samus.AnimationFrameTimer.RawValue, "death pose retains two-tick delay");
 
-    var cgram = new SnesCgram();
+    var cgram = new SamusColourRig();
     SamusDeathSequenceStepResult step = default;
     for (int call = 1; call <= 16; call++)
-        step = samus.DeathSequence.Step(samus, cgram, artwork);
+        step = samus.DeathSequence.Step(samus, cgram.Gameplay, cgram.Samus, artwork);
     AssertEqual(SamusDeathSequencePhase.Flashing, samus.DeathSequence.Phase,
         "sixteen preflash calls enter flashing");
     AssertEqual(5, samus.AnimationFrame, "unmorphed death frame loops at five");
@@ -817,7 +817,7 @@ internal static void VerifySamusDeathSequence()
     // queues segment four at `$6000`, resets the explosion state, immediately decrements
     // 21 to 20, and draws right-facing spritemap `$81C`.
     for (int call = 1; call <= 60; call++)
-        step = samus.DeathSequence.Step(samus, cgram, artwork);
+        step = samus.DeathSequence.Step(samus, cgram.Gameplay, cgram.Samus, artwork);
     AssertEqual(SamusDeathSequencePhase.SuitExplosion, samus.DeathSequence.Phase,
         "60 flashing calls enter suit explosion");
     AssertEqual(0, samus.DeathSequence.AnimationIndex,
@@ -834,7 +834,7 @@ internal static void VerifySamusDeathSequence()
     int explosionCalls = 0;
     while (samus.DeathSequence.Phase != SamusDeathSequencePhase.Complete)
     {
-        step = samus.DeathSequence.Step(samus, cgram, artwork);
+        step = samus.DeathSequence.Step(samus, cgram.Gameplay, cgram.Samus, artwork);
         explosionCalls++;
         AssertTrue(explosionCalls <= 135, "death explosion terminates on native timer sum");
     }

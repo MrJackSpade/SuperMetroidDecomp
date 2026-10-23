@@ -130,7 +130,7 @@ internal static class PpuLayoutBoundaryVerification
         for (int slot = first; slot < end; slot++)
             write.Write(slot - writer.Offset, Probe(slot, seed));
         for (int slot = first; slot < end; slot++)
-            AssertEqual(Probe(slot, seed), read[slot - reader.Offset], $"{context} colour ${slot:X2}");
+            AssertEqual(Probe(slot, seed), read.Colors[slot - reader.Offset], $"{context} colour ${slot:X2}");
 
         static Bgr555 Probe(int slot, int seed) =>
             new((slot + seed) & Bgr555.MaxChannel, (slot * 3 + seed) & Bgr555.MaxChannel, (slot * 7 + seed) & Bgr555.MaxChannel);
@@ -179,8 +179,8 @@ internal static class PpuLayoutBoundaryVerification
         CgramPalette row = new CgramPalettes(cgram).ObjectRow(7);
         var color = new Bgr555(31, 7, 19);
         row.Write(9, color);
-        AssertEqual(color, row[9], "a Bgr555 colour round-trips through an OBJ palette row");
-        AssertEqual(color, cgram.Colors[PpuMemoryLayout.ObjectPaletteRows[7].Offset + 9], "OBJ row 7 colour 9 is CGRAM slot $F9");
+        AssertEqual(color, row.Colors[9], "a Bgr555 colour round-trips through an OBJ palette row");
+        AssertEqual(color, cgram.Colors[PpuMemoryLayoutConstants.ObjectPaletteRows[7].Offset + 9], "OBJ row 7 colour 9 is CGRAM slot $F9");
         AssertEqual(color.ToRgba32(), row.Rgba(9), "the view's RGBA matches the colour's expansion");
 
         var oam = new OamBuffer();
@@ -221,8 +221,8 @@ internal static class PpuLayoutBoundaryVerification
 
         AssertThrows<ArgumentOutOfRangeException>(() => new PpuLayoutCell("Past", PpuLayoutRegion.Vram, 0x7ff0, 0x20, "words"),
             "a VRAM cell must fit in $8000 words");
-        AssertThrows<ArgumentOutOfRangeException>(() => PpuMemoryLayout.Colors("Past", 0xf8, 9, "colours"), "a CGRAM cell must fit in 256 colours");
-        AssertThrows<ArgumentException>(() => new VramRegion(vram, PpuMemoryLayout.ObjectPaletteRows[0]), "a VRAM view rejects a CGRAM cell");
+        AssertThrows<ArgumentOutOfRangeException>(() => PpuMemoryLayoutConstants.Colors("Past", 0xf8, 9, "colours"), "a CGRAM cell must fit in 256 colours");
+        AssertThrows<ArgumentException>(() => new VramRegion(vram, PpuMemoryLayoutConstants.ObjectPaletteRows[0]), "a VRAM view rejects a CGRAM cell");
         AssertThrows<ArgumentException>(() => new CgramPalette(cgram, GameplayVramLayoutConstants.Bg1Tilemap), "a palette view rejects a VRAM cell");
         AssertThrows<ArgumentOutOfRangeException>(() => VramDmaDestination.At(GameplayVramLayout.HudTilemap, GameplayVramLayout.HudTilemap.Count),
             "a queued destination must start inside its cell");
@@ -309,9 +309,9 @@ internal static class PpuLayoutBoundaryVerification
         var cgram = new SnesCgram();
         CgramPalette row = new CgramPalettes(cgram).BackgroundRow(0);
         row.LoadPortBytes([0xff, 0xff, 0x1f, 0x80], start: 1);
-        AssertEqual(Bgr555.White, row[1], "port word $FFFF stores $7FFF");
-        AssertEqual(new Bgr555(31, 0, 0), row[2], "port word $801F stores $001F");
-        AssertEqual((ushort)0x7fff, row[1].ToWord(), "the stored raw word has bit 15 clear");
+        AssertEqual(Bgr555.White, row.Colors[1], "port word $FFFF stores $7FFF");
+        AssertEqual(new Bgr555(31, 0, 0), row.Colors[2], "port word $801F stores $001F");
+        AssertEqual((ushort)0x7fff, row.Colors[1].ToWord(), "the stored raw word has bit 15 clear");
         AssertThrows<ArgumentOutOfRangeException>(() => Bgr555.FromWord(0x8000), "a Bgr555 rejects bit 15");
         AssertThrows<ArgumentException>(() => row.LoadPortBytes([0x00]), "a port stream carries whole colour words");
     }
@@ -336,7 +336,7 @@ internal static class PpuLayoutBoundaryVerification
             {
                 CgramPalette objects = new CgramPalettes(cgram).Objects;
                 for (int index = 0; index < objects.Count; index++)
-                    objects.Write(index, Bgr555.Saturating(objects[index].Red + 1, frame & 31, index & 31));
+                    objects.Write(index, Bgr555.Saturating(objects.Colors[index].Red + 1, frame & 31, index & 31));
                 VramRegion bg1 = new VramRegion(vram, GameplayVramLayoutConstants.Bg1Tilemap);
                 for (int line = 0; line < 32; line++)
                 {

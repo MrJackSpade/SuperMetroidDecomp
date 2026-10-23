@@ -6,6 +6,9 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public interface IGameplayColourOwner
 {
+    /// <summary>All of the owner's colours, as runs that each cover one of its stores.</summary>
+    IReadOnlyList<ColourRun> Stores { get; }
+
     /// <summary>Whether the owner holds the colour at <paramref name="position"/>.</summary>
     bool Holds(int position);
 

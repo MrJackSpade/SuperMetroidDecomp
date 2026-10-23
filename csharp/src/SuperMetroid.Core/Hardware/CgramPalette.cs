@@ -34,9 +34,6 @@ public readonly struct CgramPalette
     /// <summary>The number of colours in the range.</summary>
     public int Count { get; }
 
-    /// <summary>The colour at <paramref name="index"/> within the range.</summary>
-    public Bgr555 this[int index] => cgram.Colors[first + Index(index)];
-
     /// <summary>The range's colours, in CGRAM order.</summary>
     public ReadOnlySpan<Bgr555> Colors => cgram.Colors.Slice(first, Count);
 
@@ -52,13 +49,6 @@ public readonly struct CgramPalette
         CheckSpan(start, colors.Length);
         for (int index = 0; index < colors.Length; index++)
             cgram.SetColor(first + start + index, colors[index]);
-    }
-
-    /// <summary>Writes <paramref name="color"/> to every colour in the range.</summary>
-    public void Fill(Bgr555 color)
-    {
-        for (int index = 0; index < Count; index++)
-            cgram.SetColor(first + index, color);
     }
 
     /// <summary>

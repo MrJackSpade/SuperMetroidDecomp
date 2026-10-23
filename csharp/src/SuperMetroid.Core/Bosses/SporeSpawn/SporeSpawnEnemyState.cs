@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 
@@ -10,10 +11,8 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// </summary>
 public sealed class SporeSpawnEnemyState
 {
-    /// <summary>Staged CGRAM colors published by Spore Spawn's palette update.</summary>
-    internal readonly Bgr555[] TargetPalette = new Bgr555[256];
-    /// <summary>Marks staged palette slots so unrelated colors remain untouched.</summary>
-    private readonly bool[] _targetPaletteWritten = new bool[256];
+    /// <summary>Fade-target colours Spore Spawn has staged and the door's fade has not yet taken (#1405).</summary>
+    internal readonly List<SporeSpawnStagedColour> stagedTargetColours = [];
 
     /// <summary>Binds boss-specific state to its live common enemy slot.</summary>
     internal SporeSpawnEnemyState(RoomEnemySlot body) => Body = body;
@@ -72,21 +71,14 @@ public sealed class SporeSpawnEnemyState
     /// <summary>Defeated-area miniboss flag sampled at room initialization; selects the solid dead body and cleared ceiling instead of the live fight setup.</summary>
     public bool LoadedAsDefeated { get; internal set; }
 
-    /// <summary>Stages one palette color for the next frame effect publication.</summary>
-    internal void WriteTargetColor(int index, Bgr555 value)
-    {
-        TargetPalette[index] = value;
-        _targetPaletteWritten[index] = true;
-    }
+    /// <summary>Stages <paramref name="value"/> as the fade target of <paramref name="run"/>'s colour <paramref name="colour"/>.</summary>
+    internal void WriteTargetColor(IColourSetRun run, int colour, Bgr555 value) => stagedTargetColours.Add(new(run, colour, value));
 
-    /// <summary>Publishes only staged colors and clears their pending markers afterward.</summary>
-    internal void ConsumeTargetColors(Action<int, Bgr555> write)
+    /// <summary>Hands every staged colour to <paramref name="write"/> in staging order, then forgets them.</summary>
+    internal void ConsumeTargetColors(Action<SporeSpawnStagedColour> write)
     {
-        for (int index = 0; index < TargetPalette.Length; index++)
-        {
-            if (!_targetPaletteWritten[index]) continue;
-            write(index, TargetPalette[index]);
-            _targetPaletteWritten[index] = false;
-        }
+        foreach (SporeSpawnStagedColour staged in stagedTargetColours)
+            write(staged);
+        stagedTargetColours.Clear();
     }
 }

@@ -25,6 +25,9 @@ public abstract class ColourSets : IGameplayColourOwner
     /// <summary>Every set, as one run.</summary>
     public ColourRun All => new(colours, 0, colours.Length);
 
+    /// <inheritdoc />
+    public IReadOnlyList<ColourRun> Stores => [All];
+
     /// <summary>Set <paramref name="set"/>, zero through seven.</summary>
     public ColourRun Set(int set) => new(colours, Ensure.BetweenInclusive(0, SetCount - 1, set) * SetColours, SetColours);
 

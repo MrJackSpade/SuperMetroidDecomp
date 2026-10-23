@@ -1100,13 +1100,20 @@ internal static class LookupStream3Verification
                 int color = (destination - targetPaletteBase) / 2;
                 expected[color] = sourceColors[color];
             }
-            switch (group)
+            IColourSetRun[] kept = group switch
             {
-                case 0: DoorTransitionPaletteDefinitions.PreserveHud(ToColors(sourceColors), actual); break;
-                case 1: DoorTransitionPaletteDefinitions.PreserveCommonCre(ToColors(sourceColors), actual); break;
-                case 2: DoorTransitionPaletteDefinitions.PreserveEscapeTimer(ToColors(sourceColors), actual); break;
-                default:
-                    break;
+                0 => DoorTransitionColourDefinitions.Hud,
+                1 => DoorTransitionColourDefinitions.CommonRoom,
+                2 => DoorTransitionColourDefinitions.EscapeTimer,
+                _ => [],
+            };
+            foreach (IColourSetRun run in kept)
+            {
+                for (int colour = 0; colour < ColourSetRunPositions.Count(run); colour++)
+                {
+                    int position = ColourSetRunPositions.First(run) + colour;
+                    actual[position] = ToColors(sourceColors)[position];
+                }
             }
             AssertTrue(ToColors(expected).SequenceEqual(actual), "stream 3 exact native door fade preserved and black slots");
         }

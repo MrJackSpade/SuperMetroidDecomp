@@ -22,7 +22,7 @@ internal static class SamusPaletteRomDataVerification
         AssertEqual(
             SamusPaletteRomData.Common.SamusObjPaletteStart +
                 SamusPaletteRomData.Common.VisorColorOffset,
-            SamusXrayRomData.Palette.VisorCgramIndex,
+            SamusXrayRomDataPaletteConstants.VisorCgramIndex,
             "shared visor destination agrees with X-ray catalog");
         AssertEqual(
             SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteCount,

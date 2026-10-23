@@ -14,4 +14,12 @@ internal static class ColourSetRunPositions
         SpriteColourRun sprite => ColourSets.SetCount * ColourSets.SetColours + sprite.Set * ColourSets.SetColours + sprite.Colour,
         _ => throw new ArgumentOutOfRangeException(nameof(run), run, "Unknown colour set run."),
     };
+
+    /// <summary>The number of colours in <paramref name="run"/>.</summary>
+    internal static int Count(IColourSetRun run) => run switch
+    {
+        BackgroundColourRun background => background.Count,
+        SpriteColourRun sprite => sprite.Count,
+        _ => throw new ArgumentOutOfRangeException(nameof(run), run, "Unknown colour set run."),
+    };
 }

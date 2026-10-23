@@ -107,7 +107,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Assets",
       "role": "production",
-      "files": 73,
+      "files": 74,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Hardware",
@@ -127,7 +127,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Bosses",
       "role": "production",
-      "files": 932,
+      "files": 933,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
@@ -238,7 +238,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Gameplay",
       "role": "production",
-      "files": 25,
+      "files": 23,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets",
@@ -391,7 +391,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Samus",
       "role": "production",
-      "files": 556,
+      "files": 554,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets",
@@ -431,7 +431,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/World",
       "role": "production",
-      "files": 93,
+      "files": 92,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
@@ -957,7 +957,7 @@
     {
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
-      "files": 961,
+      "files": 964,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -8404,6 +8404,20 @@
       "layer": "Foundation",
       "assemblies": [
         "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Assets/ColourImage.cs",
+      "module": "csharp/src/SuperMetroid.Core/Assets",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Assets",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Hardware"
       ]
     },
     {
@@ -20477,6 +20491,7 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Hardware",
         "csharp/src/SuperMetroid.Core/Programs",
@@ -20660,6 +20675,20 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Audio"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnStagedColour.cs",
+      "module": "csharp/src/SuperMetroid.Core/Bosses",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Bosses.SporeSpawn",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Assets",
+        "csharp/src/SuperMetroid.Core/Hardware"
       ]
     },
     {
@@ -38795,6 +38824,7 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Audio",
         "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Enemies",
@@ -41906,12 +41936,12 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
+        "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Audio",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Escape",
         "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Gameplay",
-        "csharp/src/SuperMetroid.Core/Hardware",
         "csharp/src/SuperMetroid.Core/Hud",
         "csharp/src/SuperMetroid.Core/Input",
         "csharp/src/SuperMetroid.Core/Progression",
@@ -47475,6 +47505,7 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Hardware"
       ]
     },
@@ -49116,32 +49147,6 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Spatial"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Gameplay/NewGamePaletteLayout.cs",
-      "module": "csharp/src/SuperMetroid.Core/Gameplay",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Gameplay",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Hardware"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Gameplay/NewGamePalettes.cs",
-      "module": "csharp/src/SuperMetroid.Core/Gameplay",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Gameplay",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Hardware"
       ]
     },
     {
@@ -59045,6 +59050,7 @@
         "csharp/src/SuperMetroid.Core/Areas",
         "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Audio",
+        "csharp/src/SuperMetroid.Core/Bosses",
         "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Escape",
@@ -63744,19 +63750,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPaletteLayout.cs",
-      "module": "csharp/src/SuperMetroid.Core/Samus",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Samus.Palettes",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Hardware"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPaletteRomData.cs",
       "module": "csharp/src/SuperMetroid.Core/Samus",
       "role": "production",
@@ -63767,19 +63760,6 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Fx"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPalettes.cs",
-      "module": "csharp/src/SuperMetroid.Core/Samus",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Samus.Palettes",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Hardware"
       ]
     },
     {
@@ -67106,7 +67086,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/World/DoorTransitionPaletteDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/World/DoorTransitionColourDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/World",
       "role": "production",
       "namespace": "SuperMetroid.Core.World",
@@ -67115,21 +67095,8 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Hardware"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/World/DoorTransitionPalettes.cs",
-      "module": "csharp/src/SuperMetroid.Core/World",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.World",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Hardware",
-        "csharp/src/SuperMetroid.Core/Samus"
       ]
     },
     {
@@ -67784,7 +67751,6 @@
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Escape",
         "csharp/src/SuperMetroid.Core/Fx",
-        "csharp/src/SuperMetroid.Core/Hardware",
         "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Samus",
@@ -87151,6 +87117,7 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Bosses",
         "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Enemies",
@@ -104527,8 +104494,10 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Fx",
-        "csharp/src/SuperMetroid.Core/Hardware"
+        "csharp/src/SuperMetroid.Core/Hardware",
+        "csharp/src/SuperMetroid.Core/Rendering"
       ]
     },
     {
@@ -119338,6 +119307,38 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Bosses/SporeSpawn/SporeSpawnColorRomDataConstants.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Bosses.SporeSpawn",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Bosses"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Bosses/SporeSpawn/SporeSpawnEnemyStateAccess.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Bosses.SporeSpawn",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Bosses"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Bosses/SporeSpawn/SporeSpawnHitboxCallbackCodecAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -126521,6 +126522,22 @@
     },
     {
       "path": "csharp/test-support/VerificationAccess.Core/Hardware/BgCharacterGridConstants.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Hardware",
+      "layer": "Hardware",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Hardware"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Hardware/CgramPalettesAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Hardware",

@@ -58,6 +58,9 @@ public sealed class SamusColours : IGameplayColourOwner, IInkRowColours
     /// <summary>The grapple flare's colour.</summary>
     public ColourRun GrappleFlare => new(flare, 0, flare.Length);
 
+    /// <inheritdoc />
+    public IReadOnlyList<ColourRun> Stores => [Suit, GrappleFlare, Beam];
+
     /// <summary>
     /// <paramref name="draws"/> with Samus's own draws given the colours she shows them in; the others are left to be
     /// resolved when the frame is published.

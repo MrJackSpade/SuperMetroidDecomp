@@ -26,6 +26,9 @@ public sealed class GameplayColours : IPaletteColors
         this.owners = [.. Ensure.NotNull(owners), SpriteSets, BackgroundSets];
     }
 
+    /// <summary>A copy of every owner's colours as they are now.</summary>
+    public ColourImage Capture() => new([.. owners.SelectMany(owner => owner.Stores)]);
+
     /// <summary>The sprite colour sets, which hold the sprite colours no other owner holds.</summary>
     public SpriteColourSets SpriteSets { get; }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
@@ -132,7 +133,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             Bgr555 value = (_bossArtwork.Artwork?.SporeSpawnColors ?? throw new InvalidDataException(
                 "Spore Spawn spore palette requires installed artwork.")).ResolveSpore(color);
-            state.WriteTargetColor(SporeSpawnColorRomData.SporeDestination + color, value);
+            state.WriteTargetColor(BossColourDefinitions.SporeSpawnSpores, color, value);
             _presentation.BossColours().SporeSpawnSpores.Write(color, value);
         }
 
@@ -638,17 +639,25 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             layer == SporeSpawnDeathPaletteLayer.Sprite
                 ? SporeSpawnColorRomData.DeathSpriteFrameCount
                 : SporeSpawnColorRomData.DeathSceneFrameCount);
-        int destination = SporeSpawnColorRomData.DeathDestination(layer);
         for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
         {
             Bgr555 value = (_bossArtwork.Artwork?.SporeSpawnColors ?? throw new InvalidDataException(
                 "Spore Spawn death palette requires installed artwork.")).ResolveDeath(layer, frame, color);
             if (targetOnly)
-                state.WriteTargetColor(destination + color, value);
+                state.WriteTargetColor(DeathColours(layer), color, value);
             else
                 _presentation.BossColours().SporeSpawnDeath(layer).Write(color, value);
         }
     }
+
+    /// <summary>The colours Spore Spawn's death fades on <paramref name="layer"/>.</summary>
+    private static IColourSetRun DeathColours(SporeSpawnDeathPaletteLayer layer) => layer switch
+    {
+        SporeSpawnDeathPaletteLayer.Sprite => BossColourDefinitions.SporeSpawnBody,
+        SporeSpawnDeathPaletteLayer.Level => BossColourDefinitions.SporeSpawnDeathLevel,
+        SporeSpawnDeathPaletteLayer.Background => BossColourDefinitions.SporeSpawnDeathBackground,
+        _ => throw new ArgumentOutOfRangeException(nameof(layer), layer, "Undefined Spore Spawn death palette layer."),
+    };
 
     /// <summary>Uses one RNG word to place a hardening dust burst and request its sound.</summary>
     private void SpawnSporeSpawnHardeningDust(SporeSpawnEnemyState state)
@@ -822,7 +831,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     internal SporeSpawnEnemyState? SporeSpawn { get; set; }
 
     /// <summary>Publishes Spore Spawn's pending target palette writes, if the boss is present.</summary>
-    internal void ConsumeTargetColors(Action<int, Bgr555> write) => SporeSpawn?.ConsumeTargetColors(write);
+    internal void ConsumeTargetColors(Action<SporeSpawnStagedColour> write) => SporeSpawn?.ConsumeTargetColors(write);
 
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)

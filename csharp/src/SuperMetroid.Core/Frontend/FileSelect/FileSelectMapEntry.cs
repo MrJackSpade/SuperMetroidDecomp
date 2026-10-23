@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rendering;
@@ -39,13 +40,13 @@ public sealed class FileSelectMapEntry
     {
         Ensure.NotNull(mapPalettes);
         Palette.Load(mapPalettes.FileSelect);
-        Bgr555[] target = EntryTarget(mapPalettes.FileSelect);
         // File select runs outside gameplay; no other fade advances the counter meanwhile.
         palette = new CartridgePaletteTransition(
-            target, FileSelectMapRomData.EntryPaletteDenominator, new GradualColorChangeCounter());
+            new ColourImage(Palette.All), FileSelectMapRomData.EntryPaletteDenominator, new GradualColorChangeCounter());
+        EntryTarget(mapPalettes.FileSelect).CopyTo(palette.Target.Of(Palette.All));
         // The gradual first-two-palettes routine starts at transition number one,
         // unlike the global door/death fade. Consume only the shared helper's no-op.
-        palette.Step(Palette);
+        palette.Step();
     }
 
     /// <summary>Changes the fade destination while retaining its current colors and counter.</summary>
@@ -54,9 +55,7 @@ public sealed class FileSelectMapEntry
         if (content is null) return;
         // Update the destination without restarting the ongoing fade or replacing
         // current interpolated colors. The native two cleared entries stay black.
-        Bgr555[] target = EntryTarget(content.FileSelect);
-        for (int color = 0; color < target.Length; color++)
-            palette.SetTargetColor(color, target[color]);
+        EntryTarget(content.FileSelect).CopyTo(palette.Target.Of(Palette.All));
     }
 
     /// <summary>The colours the entry fade reaches: <paramref name="fileSelect"/> with the entry's black colours.</summary>
@@ -81,7 +80,7 @@ public sealed class FileSelectMapEntry
         switch (Phase)
         {
             case FileSelectMapEntryPhase.PaletteFade:
-                if (palette.Step(Palette)) Phase = FileSelectMapEntryPhase.LoadForeground;
+                if (palette.Step()) Phase = FileSelectMapEntryPhase.LoadForeground;
                 break;
             case FileSelectMapEntryPhase.LoadForeground:
                 Phase = FileSelectMapEntryPhase.LoadBackground;

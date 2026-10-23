@@ -1343,6 +1343,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             _player.LastDeathSequenceStep = samus.DeathSequence.Step(
                 samus,
                 _cgram,
+                _player.Colours,
                 _artwork.SamusBodyArt?.DeathPalettes);
         }
         // Command six's bare RTL beta ($90:E8D6) skips animation like the locked beta.

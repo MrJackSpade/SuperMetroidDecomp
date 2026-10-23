@@ -328,12 +328,15 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         upload[XrayRevealWord] = (uint)revealOffset;
         if (reveal is not null)
         {
-            ReadOnlySpan<RevealedBlock> blocks = reveal.Blocks;
+            ReadOnlySpan<RevealedBlock?> blocks = reveal.Blocks;
             for (int block = 0; block < blocks.Length; block++)
             {
-                SpriteSheetFrame picture = reveal.Pictures.Picture(blocks[block].Definition)
-                    ?? throw new InvalidOperationException($"The X-ray reveal's block definition {blocks[block].Definition} has no picture.");
-                upload[revealOffset + block] = (uint)pictureWords[picture] | ShaderArrangement(blocks[block].Arrangement) << ArrangementShift;
+                // A block copied from beyond the room has no picture: zero, which draws nothing.
+                if (blocks[block] is not { } shown)
+                    continue;
+                SpriteSheetFrame picture = reveal.Pictures.Picture(shown.Definition)
+                    ?? throw new InvalidOperationException($"The X-ray reveal's block definition {shown.Definition} has no picture.");
+                upload[revealOffset + block] = (uint)pictureWords[picture] | ShaderArrangement(shown.Arrangement) << ArrangementShift;
             }
         }
         upload[BossBg2Word] = (uint)bossBg2Offset;

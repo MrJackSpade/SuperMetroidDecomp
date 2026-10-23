@@ -249,7 +249,7 @@ internal sealed class AcceptedFrameBoundary
             mode7.Tiles.AssertShownBy(_backgrounds, mode7.NamedTiles);
         if (rooms.Characters != RoomBackgroundCharacters.Tileset && reveal is not null)
             throw new InvalidOperationException("X-ray reveals a room whose planes draw from the object character page.");
-        RevealedBlock[]? revealed = null;
+        RevealedBlock?[]? revealed = null;
         if (reveal is { } words)
         {
             if (_revealIndex is null || _revealIndex.Definitions != scope.LevelData.ForegroundPlane.Definitions)
@@ -261,7 +261,7 @@ internal sealed class AcceptedFrameBoundary
         // The planes the latch shows are the level data's, which nothing changes before this NMI's pictures resolve.
         RoomBlockPictureTable pictures = scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane,
             rooms.Bg2 is null ? null : scope.LevelData.BackgroundPlane, characters,
-            revealed?.Select(block => block.Definition) ?? []);
+            revealed?.OfType<RevealedBlock>().Select(block => block.Definition) ?? []);
         // A sky room's BG2 shows the sky's rows, drawn from their image (#1392, #1403), once the room has configured the
         // sky's band HDMA; without it, BG2 shows the room's own background.
         SkyPictures? sky = null;

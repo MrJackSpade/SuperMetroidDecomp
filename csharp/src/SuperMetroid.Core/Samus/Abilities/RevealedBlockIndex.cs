@@ -30,12 +30,20 @@ public sealed class RevealedBlockIndex
     /// <summary>The definitions laid out.</summary>
     public ImmutableArray<byte> Definitions { get; }
 
-    /// <summary>The block whose layout writes the four tile words, top left to bottom right.</summary>
+    /// <summary>
+    /// The block whose layout writes the four tile words, top left to bottom right; null for a block the copy took from
+    /// beyond the room, where BG1 shows nothing and the copy writes zero words that lay out no definition.
+    /// </summary>
     /// <exception cref="InvalidDataException">No definition laid out any of the reveal's ways writes those words.</exception>
-    public RevealedBlock Find(ushort topLeft, ushort topRight, ushort bottomLeft, ushort bottomRight) =>
-        layouts.TryGetValue(new ExpandedBlockTiles(new(topLeft), new(topRight), new(bottomLeft), new(bottomRight)), out RevealedBlock block) ? block
-            : throw new InvalidDataException(
-                $"The X-ray reveal writes ${topLeft:X4} ${topRight:X4} ${bottomLeft:X4} ${bottomRight:X4}, which lays out no block definition.");
+    public RevealedBlock? Find(ushort topLeft, ushort topRight, ushort bottomLeft, ushort bottomRight)
+    {
+        if (layouts.TryGetValue(new ExpandedBlockTiles(new(topLeft), new(topRight), new(bottomLeft), new(bottomRight)), out RevealedBlock block))
+            return block;
+        if ((topLeft | topRight | bottomLeft | bottomRight) == 0)
+            return null;
+        throw new InvalidDataException(
+            $"The X-ray reveal writes ${topLeft:X4} ${topRight:X4} ${bottomLeft:X4} ${bottomRight:X4}, which lays out no block definition.");
+    }
 
     /// <summary>The four tile words <paramref name="arrangement"/> lays definition <paramref name="definition"/> out as.</summary>
     private static ExpandedBlockTiles Words(ReadOnlySpan<byte> definitions, int definition, RevealedBlockArrangement arrangement)

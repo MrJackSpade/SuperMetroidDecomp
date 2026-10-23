@@ -161,7 +161,8 @@ bool RevealPicture(uint2 scrolled, out uint picture, out uint2 within)
     if (arrangement == 1 || arrangement == 3) within.x = 15 - within.x;
     if (arrangement == 2 || arrangement == 3) within.y = 15 - within.y;
     if (arrangement == 4) within.y = (within.y + 8) & 15;
-    return true;
+    // A block copied from beyond the room has no picture and shows nothing.
+    return picture != 0;
 }
 // The picture and pixel a room's library background shows at a scrolled BG2 position through a `size` map (#1392): a
 // rebound cell's picture, or the image of both pages; false on a page past the two the image pictures.

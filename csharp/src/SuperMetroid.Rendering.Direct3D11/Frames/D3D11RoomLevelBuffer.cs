@@ -20,7 +20,7 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// and a door's source room), the door window, the BG1 overlay, sky, BG3 and BG2 overlay offsets; then each plane's
 /// blocks (#1403), each plane's picture of each definition and the pictures themselves with their sheets' standard
 /// colours (#1392), the BG1 and BG2 overlays' pictures (#1348, #1403), the sky's rows (#1347), the BG3 plane's pictures,
-/// a Mode 7 floor (#1349, #1403) and a boss body's BG2 tilemap (#1352).
+/// a Mode 7 floor (#1349, #1403) and a boss body's pictures (#1352, #1403).
 /// The GPU resolves every room pixel from these, so nothing is streamed into VRAM. Repacked only when the published
 /// planes, their pictures, offsets, door or overlay change.
 /// </summary>
@@ -38,18 +38,18 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int PlaneSlots = 3;
     /// <summary>Header words: the plane records, the door window origin, and the offsets of the BG1 overlay, the sky rows,
     /// the BG3 plane and the BG2 overlay.</summary>
-    private const int HeaderWords = PlaneSlots * RecordWords + 13;
+    private const int HeaderWords = PlaneSlots * RecordWords + 12;
     /// <summary>Header word of the door window's scrolled origin.</summary>
     private const int DoorWindowWord = PlaneSlots * RecordWords;
     /// <summary>
-    /// Header word of the BG1 overlay's pictures (#1403), laid out as <see cref="BossBg2PicturesWord"/>'s with no picture
+    /// Header word of the BG1 overlay's pictures (#1403), laid out as <see cref="BossBg2Word"/>'s with no picture
     /// where nothing was written, or zero without an overlay.
     /// </summary>
     private const int OverlayWord = DoorWindowWord + 1;
     /// <summary>Header word of the sky's first row word, or zero without a sky (#1347).</summary>
     private const int SkyWord = OverlayWord + 1;
     /// <summary>
-    /// Header word of the BG3 plane's pictures (#1403), laid out as <see cref="BossBg2PicturesWord"/>'s, or zero without
+    /// Header word of the BG3 plane's pictures (#1403), laid out as <see cref="BossBg2Word"/>'s, or zero without
     /// a plane.
     /// </summary>
     private const int Bg3Word = SkyWord + 1;
@@ -57,7 +57,10 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int Bg2OverlayWord = Bg3Word + 1;
     /// <summary>Header word of the Mode 7 map's first word, or zero without one (#1349); four tile numbers per word.</summary>
     private const int Mode7MapWord = Bg2OverlayWord + 1;
-    /// <summary>Header word of a boss body's BG2 tilemap's first word, or zero without one (#1352).</summary>
+    /// <summary>
+    /// Header word of a boss body's pictures (#1352, #1403), or zero without one: two words per tilemap cell, its picture's
+    /// offset, then its corner in the picture, x below y.
+    /// </summary>
     private const int BossBg2Word = Mode7MapWord + 1;
     /// <summary>
     /// Header word of the X-ray reveal's first block, or zero without one (#1392): each block its picture's offset, with its
@@ -71,13 +74,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int Bg2ImageWord = XrayRevealWord + 1;
     /// <summary>Header word of the scrolling sky's image, laid out as <see cref="Bg2ImageWord"/>'s, or zero without one (#1392).</summary>
     private const int SkyImageWord = Bg2ImageWord + 1;
-    /// <summary>
-    /// Header word of a boss body's pictures (#1392), or zero while it draws from characters: two words per tilemap word,
-    /// its picture's offset, zero where it draws from its character, then its corner in the picture, x below y.
-    /// </summary>
-    private const int BossBg2PicturesWord = SkyImageWord + 1;
     /// <summary>Header word of the image of the message box the frame shows, or zero without one (#1392).</summary>
-    private const int MessagePictureWord = BossBg2PicturesWord + 1;
+    private const int MessagePictureWord = SkyImageWord + 1;
     /// <summary>Header word of the Ceres room Mode 7 map's tile picture table, or zero while it draws from VRAM's characters (#1392).</summary>
     private const int Mode7PictureWord = MessagePictureWord + 1;
     /// <summary>The width word's bit marking a two-bit picture, whose pixels keep colour zero's row (#1392).</summary>
@@ -128,7 +126,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         SkyTilemap? sky = frame.Sky;
         Layer3Cells? bg3 = frame.Bg3;
         AffineFloor? mode7 = frame.Mode7;
-        BossBg2Tilemap? bossBg2 = frame.BossBg2;
+        BossBodyPictures? bossBg2 = frame.BossBg2;
         XrayRevealPlane? reveal = frame.XrayReveal;
         RoomBackgroundImagePlane? image = frame.Bg2Image, skyImage = frame.SkyImage;
         SpriteSheetFrame? message = frame.MessagePicture;
@@ -231,8 +229,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             foreach (SpriteSheetFrame picture in tiles.Sheets)
                 AddPicture(picture);
         }
-        ImmutableArray<BgTilePicture?> bodyPictures = bossBg2?.Pictures ?? default;
-        int bodyPicturesOffset = AddTilePictures(bodyPictures, bossBg2?.Words.Length ?? 0);
+        ImmutableArray<BgTilePicture?> bodyPictures = bossBg2 is null ? default : [.. bossBg2.Pictures.Select(picture => (BgTilePicture?)picture)];
+        int bossBg2Offset = AddTilePictures(bodyPictures, bodyPictures.IsDefault ? 0 : bodyPictures.Length);
         ImmutableArray<BgTilePicture?> bg2OverlayPictures = bg2Overlay?.Pictures ?? default;
         int bg2OverlayOffset = AddTilePictures(bg2OverlayPictures, RoomTilemapOverlay.WordCount);
         ImmutableArray<BgTilePicture?> overlayPictures = overlay?.Pictures ?? default;
@@ -259,9 +257,6 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         int mode7Offset = mode7 is null ? 0 : words;
         if (mode7 is not null)
             words += AffineFloor.CellCount / sizeof(uint);
-        int bossBg2Offset = bossBg2 is null ? 0 : words;
-        if (bossBg2 is not null)
-            words += bossBg2.Words.Length;
         if (words > Upload.Length)
         {
             Dispose();
@@ -344,11 +339,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             }
         }
         upload[BossBg2Word] = (uint)bossBg2Offset;
-        if (bossBg2 is not null)
-            for (int word = 0; word < bossBg2.Words.Length; word++)
-                upload[bossBg2Offset + word] = bossBg2.Words[word];
-        upload[BossBg2PicturesWord] = (uint)bodyPicturesOffset;
-        PackTilePictures(upload, bodyPictures, bodyPicturesOffset, bossBg2?.Words.Length ?? 0, pictureWords);
+        PackTilePictures(upload, bodyPictures, bossBg2Offset, bodyPictures.IsDefault ? 0 : bodyPictures.Length, pictureWords);
         upload[Bg3Word] = (uint)bg3PicturesOffset;
         upload[MessagePictureWord] = message is null ? 0 : (uint)pictureWords[message];
         upload[Mode7PictureWord] = mode7 is null ? 0 : (uint)mode7Tables[mode7.Tiles];

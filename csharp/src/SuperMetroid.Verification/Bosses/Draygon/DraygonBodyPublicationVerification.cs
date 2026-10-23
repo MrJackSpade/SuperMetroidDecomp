@@ -46,8 +46,7 @@ internal static class DraygonBodyPublicationVerification
             EnemyBg2ImageSnapshot image = runtime.Display.Latched.Bosses.EnemyBg2
                 ?? throw new InvalidOperationException("Draygon publishes his enemy BG2 image.");
             var drawn = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-            AssertTrue(drawn.Rooms.BossBg2 is { } shown && shown.Words.AsSpan().SequenceEqual(image.Words.AsSpan(0, shown.Words.Length)),
-                $"Draygon at {body} shows his body image on BG2");
+            AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), $"Draygon at {body} shows his body image on BG2");
             AssertEqual(expected + runtime.Display.Latched.Ppu.RoomShake.Bg2, drawn.Registers.Bg2Scroll, $"Draygon at {body} places the image at his body");
             AssertEqual(placement.VisibleLines(runtime.Display.Latched.Ppu.Layer1Position),
                 new DraygonBodyScanlines(drawn.Registers.Bg2FirstScanline, drawn.Registers.Bg2EndScanline), $"Draygon at {body} shows BG2 on the scanlines around his body");

@@ -97,11 +97,12 @@ internal static class OrdinarySmokeTests
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, sky image, HDMA {hdma}");
         }
-        // A boss body's BG2 tilemap (#1352) at the 64x64 map its registers select, with and without HDMA scrolls.
+        // A boss body (#1352) drawn from its pictures (#1403) at the 64x64 map its registers select, with and without HDMA
+        // scrolls.
         var boss = rooms with
         {
             Bg2 = null,
-            BossBg2 = new BossBg2Tilemap([.. Enumerable.Range(0, 64 * 64).Select(_ => (ushort)random.Next(65536))], new(64, 64)),
+            BossBg2 = new BossBodyPictures(new(64, 64), RoomBackgroundsFixtures.SeededBodyPictures(random, colors, 64 * 64)),
         };
         for (int hdma = 0; hdma < 4; hdma++)
         {
@@ -147,19 +148,6 @@ internal static class OrdinarySmokeTests
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, BG1 overlay pictures");
-        }
-        // The boss body drawn from its pictures (#1392), some words still from their characters.
-        BossBg2Tilemap bossTilemap = boss.BossBg2 ?? throw new InvalidOperationException("The boss case has no body.");
-        var bodyPictured = boss with { BossBg2 = bossTilemap.WithPictures(RoomBackgroundsFixtures.SeededBodyPictures(random, colors, bossTilemap.Words.Length)) };
-        for (int hdma = 0; hdma < 4; hdma += 3)
-        {
-            var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
-                new Extent16<TilemapCells>(64, 64), 0x4800, 0, 0x6000, SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
-            var layer = new OrdinaryGameplayRenderLayer(registers, bodyPictured, new Bg2HdmaScrollTables(
-                (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
-            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 15));
-            PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
-                $"{device.Kind}: ordinary {count}, boss body pictures, HDMA {hdma}");
         }
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact ordinary gameplay comparisons passed.");
     }

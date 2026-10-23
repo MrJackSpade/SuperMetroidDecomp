@@ -52,8 +52,7 @@ internal static class MotherBrainBodyPublicationVerification
         var drawn = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual(new Extent16<TilemapCells>(32, 32), drawn.Registers.Bg2MapSize, "her body shows on one 32x32 screen");
         AssertEqual(state.Bg2Scroll + runtime.Display.Latched.Ppu.RoomShake.Bg2, drawn.Registers.Bg2Scroll, "her scroll places her body");
-        AssertTrue(drawn.Rooms.BossBg2 is { } shown && shown.Words.AsSpan().SequenceEqual(image.Words.AsSpan(0, shown.Words.Length)),
-            "the capture draws her body image");
+        AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), "the capture draws her body image");
         AssertTrue(drawn.Registers.MainScreenLayers.HasFlag(SnesMainScreenLayers.Bg2), "her shown body keeps BG2 on the main screen");
 
         // Death: the flicker hides her body.

@@ -91,21 +91,33 @@ internal static class RoomBackgroundsFixtures
     internal static RoomBackgroundImagePlane SeededBackground(Random random, Bgr555[] scene) =>
         SeededImage(random, scene, RoomBackgroundImage.Words / RoomBackgroundImage.PageTiles);
 
-    /// <summary>
-    /// Seeded pictures for <paramref name="words"/> boss body words (#1392): each a quarter of a seeded block picture, about
-    /// one in eight drawing from its character instead.
-    /// </summary>
+    /// <summary>Seeded pictures for <paramref name="words"/> tile words (#1392): each a quarter of a seeded block picture.</summary>
     internal static System.Collections.Immutable.ImmutableArray<BgTilePicture?> SeededBodyPictures(Random random, Bgr555[] scene, int words)
     {
         RoomBlockPictureTable blocks = SeededPictures(random, scene);
         var pictures = new BgTilePicture?[words];
         for (int word = 0; word < words; word++)
         {
-            pictures[word] = random.Next(8) == 0 ? null : new BgTilePicture(blocks.Picture(random.Next(Definitions))
+            pictures[word] = new BgTilePicture(blocks.Picture(random.Next(Definitions))
                 ?? throw new InvalidOperationException("A seeded block has no picture."),
                 new Position16<ImagePixels>((ushort)(random.Next(2) * 8), (ushort)(random.Next(2) * 8)));
         }
         return [.. pictures];
+    }
+
+    /// <summary>
+    /// A boss body of <paramref name="size"/> that shows tilemap word <paramref name="word"/> in every cell (#1403), its
+    /// picture painted from the characters at <paramref name="characterWord"/> in <paramref name="image"/>.
+    /// </summary>
+    internal static BossBodyPictures UniformBody(SnesBgTilemapWord word, Extent16<TilemapCells> size, ReadOnlySpan<byte> image,
+        ReadOnlySpan<Bgr555> palette, int characterWord = 0)
+    {
+        var definition = new byte[RoomLevelPlane.DefinitionBytes];
+        for (int corner = 0; corner < 4; corner++)
+            System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(definition.AsSpan(corner * sizeof(ushort)), word.Raw);
+        SpriteSheetFrame block = RoomBlockFixtures.Pictures(definition, image, palette, characterWord).Picture(0)
+            ?? throw new InvalidOperationException("The painted block has no picture.");
+        return new BossBodyPictures(size, [.. Enumerable.Repeat((BgTilePicture?)new BgTilePicture(block, default), size.X * size.Y)]);
     }
 
     /// <summary>
@@ -121,7 +133,8 @@ internal static class RoomBackgroundsFixtures
         int first = random.Next(RoomTilemapOverlay.WordCount - count);
         System.Collections.Immutable.ImmutableArray<BgTilePicture?> written = SeededBodyPictures(random, scene, count);
         var pictures = new BgTilePicture?[RoomTilemapOverlay.WordCount];
-        written.CopyTo(pictures, first);
+        for (int index = 0; index < count; index++)
+            pictures[first + index] = random.Next(8) == 0 ? null : written[index];
         return new RoomOverlayPictures([.. pictures]);
     }
 

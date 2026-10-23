@@ -27,7 +27,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="SkyImage">The scrolling sky's rows drawn from their image, where BG2 shows the sky (#1392).</param>
 public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLayer? Bg2, Layer3Cells? Bg3,
     RoomDoorBackground? DoorSource = null, RoomOverlayPictures? Bg1Overlay = null, SkyTilemap? Sky = null,
-    RoomOverlayPictures? Bg2Overlay = null, AffineFloor? Mode7 = null, BossBg2Tilemap? BossBg2 = null,
+    RoomOverlayPictures? Bg2Overlay = null, AffineFloor? Mode7 = null, BossBodyPictures? BossBg2 = null,
     RoomBackgroundCharacters Characters = RoomBackgroundCharacters.Tileset, XrayRevealPlane? XrayReveal = null,
     RoomBackgroundImagePlane? Bg2Image = null, RoomBackgroundImagePlane? SkyImage = null)
 {
@@ -42,7 +42,7 @@ public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLaye
     /// BG2 from a boss body that owns it, the room's layer-2 plane, the X-ray reveal or the sky's rows, or null when BG2
     /// shows its own loaded tilemap.
     /// </summary>
-    public IBgSource? Bg2Source => BossBg2 is { } boss ? boss.Shown : Bg2 is { } plane ? plane
+    public IBgSource? Bg2Source => BossBg2 is { } boss ? boss : Bg2 is { } plane ? plane
         : XrayReveal is { } reveal ? reveal : Sky is { } sky ? SkyImage?.AsSky(sky) ?? new BgTileLayer(sky) : null;
 
     /// <summary>

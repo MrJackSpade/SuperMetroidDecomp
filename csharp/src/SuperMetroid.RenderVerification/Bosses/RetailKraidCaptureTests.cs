@@ -125,7 +125,7 @@ internal static class RetailKraidCaptureTests
             !deathPhases.Contains(KraidAiFunction.DeathSink) ||
             !deathPhases.Contains(KraidAiFunction.DeathFadeInBackground))
             throw new InvalidOperationException("Kraid death missed sinking, background fade or four BG3 restores.");
-        RequireBlankBg2(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()), $"{device.Kind}: defeated Kraid");
+        RequireBlankBg2(runtime, $"{device.Kind}: defeated Kraid");
         Console.WriteLine($"{device.Kind}: Kraid death: {deathSamples} exact samples across {deathPhases.Count} AI states; sinking, fade, BG3 restore and blank BG2 verified.");
         RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, new RetailDoorCase { Door = KraidAuditDefinitions.LeftExitDoor, Destination = KraidAuditDefinitions.LeftExitDestination }, "defeated Kraid left", RequireSteadyHud(runtime, $"{device.Kind}: defeated Kraid left"));
         // The second route starts from the saved defeat bit, as in the existing
@@ -142,10 +142,11 @@ internal static class RetailKraidCaptureTests
     /// <summary>
     /// Requires every BG2 tile the screen shows to be Kraid's blank tile. Once he has sunk, <c>$A7:C715</c> and
     /// <c>$A7:C751</c> fill BG2's 32x32 map with <c>$0338</c>, so nothing of his body or the room's BG2 remains (#1427).
-    /// Where BG2 draws his body from its pictures (#1392), the word a picture shows is his body's word there.
+    /// Where BG2 draws his body from its pictures (#1392, #1403), the words they picture are his latched body's.
     /// </summary>
-    private static void RequireBlankBg2(LayeredRenderSnapshot scene, string context)
+    private static void RequireBlankBg2(SuperMetroidRuntime runtime, string context)
     {
+        LayeredRenderSnapshot scene = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var gameplay = (OrdinaryGameplayRenderLayer)scene.Layers[0];
         var vram = new SnesVram();
         vram.LoadBytes(0, scene.Memory.Vram);
@@ -163,8 +164,9 @@ internal static class RetailKraidCaptureTests
                 {
                     if (sample.Picture is null)
                         shown.Add(sample.Tile.Tile.Raw);
-                    else if (gameplay.Rooms.BossBg2 is { } body && body.TrySample(at, out BgTileSample word))
-                        shown.Add(word.Tile.Raw);
+                    else if (gameplay.Rooms.BossBg2 is not null)
+                        shown.UnionWith(runtime.Display.Latched.Bosses.KraidBody?.Tilemap.Words
+                            ?? throw new InvalidOperationException($"{context}: BG2 shows a boss body Kraid has not latched."));
                     else
                         throw new InvalidOperationException($"{context}: BG2 shows a picture where Kraid's tilemap was expected.");
                 }

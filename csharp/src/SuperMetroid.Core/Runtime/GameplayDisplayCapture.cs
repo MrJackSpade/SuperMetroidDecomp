@@ -152,12 +152,13 @@ public static class GameplayDisplayCapture
         if (latched.Phantoon?.Wave is { } phantoonWave)
             bg2HorizontalScrolls = phantoonWave.GameplayScrolls();
         // A sky room shows the sky's rows on BG2 (#1347); Kraid shows his body there while he owns it (#1352), and a
-        // boss that owns the enemy BG2 image shows it through BG2's map size (#1353).
+        // boss that owns the enemy BG2 image shows it through BG2's map size (#1353), each from its pictures (#1403).
+        Extent16<TilemapCells>? bodySize = kraidBody?.Tilemap.Size ?? (bosses.EnemyBg2 is null ? null : registers.Bg2MapSize);
         RoomBackgrounds rooms = (latched.Rooms
             ?? throw new InvalidOperationException("Ordinary gameplay capture has no room backgrounds.")) with
             {
                 Sky = live.ScrollingSky?.Tilemap,
-                BossBg2 = (kraidBody?.Tilemap ?? bosses.EnemyBg2?.Tilemap(registers.Bg2MapSize))?.WithPictures(bosses.BodyPictures),
+                BossBg2 = bodySize is { } size ? new BossBodyPictures(size, bosses.BodyPictures) : null,
             };
         var layer = new OrdinaryGameplayRenderLayer(registers, rooms, new Bg2HdmaScrollTables(
             VisibleLines(bg2HorizontalScrolls),

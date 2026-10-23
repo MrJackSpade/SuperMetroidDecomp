@@ -48,7 +48,7 @@ internal static class KraidBodyPublicationVerification
             "the risen body publishes both working pages, blank elsewhere");
         AssertEqual(state.Bg2Scroll, risen.Scroll, "the body publishes at Kraid's BG2 scroll");
         var drawn = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertTrue(ReferenceEquals(risen.Tilemap, drawn.Rooms.BossBg2) && drawn.Registers.Bg2MapSize == risen.Tilemap.Size,
+        AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime) && drawn.Registers.Bg2MapSize == risen.Tilemap.Size,
             "the capture draws the published body on BG2 at its map size");
 
         // Mouth open: the head frame shows over the upper page, which a later upload would cover.
@@ -67,8 +67,7 @@ internal static class KraidBodyPublicationVerification
         AssertTrue(cleared.Tilemap.Words.All(word => word == KraidBackgroundRomData.BlankTile),
             "the cleared body publishes only the blank tile");
         var dead = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertTrue(dead.Rooms.BossBg2 is { } shown && shown.Words.All(word => word == KraidBackgroundRomData.BlankTile),
-            "BG2 shows the cleared map, not the room's");
+        AssertTrue(BossBodyDisplay.ShowsLatchedBody(dead, runtime), "BG2 shows the cleared map, not the room's");
         Console.WriteLine("  Kraid body: risen, roaring and cleared frames publish at Kraid's BG2 scroll.");
     }
 

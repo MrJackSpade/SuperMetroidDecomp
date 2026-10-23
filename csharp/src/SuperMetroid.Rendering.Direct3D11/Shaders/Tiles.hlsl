@@ -42,13 +42,10 @@ static const uint RoomBg3Word = 21, RoomBg2OverlayWord = 22, RoomMode7MapWord = 
 static const uint RoomBg2ImageWord = 26;
 // The scrolling sky's image, laid out as a library background's: its image picture's offset, then each cell's.
 static const uint RoomSkyImageWord = 27;
-// A boss body's pictures (#1392): two words per tilemap word, its picture's offset (zero where it draws from its
-// character), then its corner in the picture, x below y.
-static const uint RoomBossBg2PicturesWord = 28;
 // The image of the message box the frame shows (#1392).
-static const uint RoomMessagePictureWord = 29;
+static const uint RoomMessagePictureWord = 28;
 // The picture of a Ceres room's Mode 7 tiles (#1392), sixteen 8x8 tiles to a row, or zero while the map draws from VRAM.
-static const uint RoomMode7PictureWord = 30;
+static const uint RoomMode7PictureWord = 29;
 // The X-ray reveal (XrayRevealPlane): 17 block columns by 16 rows, each its picture's offset with its arrangement in the
 // top four bits: as defined, mirrored horizontally, vertically or both, or its tile rows swapped.
 static const uint RevealColumns = 17, RevealRows = 16;
@@ -143,26 +140,20 @@ bool Bg2OverlayPicture(uint2 scrolled, uint2 size, out uint picture, out uint2 w
     }
     return picture != 0;
 }
-// A boss body's tilemap (BossBg2Tilemap) in the hardware's screen order, at the pass's map size. Every BG2 sampler
-// reads the boss through this, so a color-math pass shows the same body as an ordinary one (#1426).
-// Where the body's pictures are resolved (#1392), `picture` is its word's picture and `within` its pixel in it.
-uint BossBg2Word(uint2 scrolled, uint2 size, out uint2 within, out uint picture)
+// A boss body's picture (BossBodyPictures, #1403) at a scrolled position of its tilemap in the hardware's screen order,
+// at the pass's map size, with `within` its pixel in it: two words per cell, its picture's offset, then its corner in the
+// picture, x below y. Every BG2 sampler reads the boss through this, so a color-math pass shows the same body as an
+// ordinary one (#1426).
+void BossBg2Picture(uint2 scrolled, uint2 size, out uint2 within, out uint picture)
 {
     uint2 position = scrolled & 65535 & (size * 8 - 1);
     uint2 tile = position >> 3;
     uint page = ((tile.y >> 5) * (size.x >> 5) + (tile.x >> 5)) * 1024;
     uint index = page + (tile.y & 31) * 32 + (tile.x & 31);
-    within = position & 7;
-    picture = 0;
-    uint pictures = RoomLevels[RoomBossBg2PicturesWord];
-    if (pictures != 0)
-    {
-        picture = RoomLevels[pictures + 2 * index];
-        uint corner = RoomLevels[pictures + 2 * index + 1];
-        if (picture != 0)
-            within += uint2(corner & 65535, corner >> 16);
-    }
-    return RoomLevels[RoomLevels[RoomBossBg2Word] + index];
+    uint pictures = RoomLevels[RoomBossBg2Word];
+    picture = RoomLevels[pictures + 2 * index];
+    uint corner = RoomLevels[pictures + 2 * index + 1];
+    within = (position & 7) + uint2(corner & 65535, corner >> 16);
 }
 // The X-ray reveal's block picture and pixel at a scrolled BG2 position (#1392); false past the blocks it builds, which
 // BG2's scroll never shows.
@@ -494,7 +485,7 @@ void Main(uint3 id : SV_DispatchThreadID)
             if (!Bg3Picture(TilemapWord, MapHeight, scrolled, within, picture)) return;
         }
         else if (source == RoomSourceBossBg2)
-            entry = BossBg2Word(scrolled, uint2(MapWidth, MapHeight), within, picture);
+            BossBg2Picture(scrolled, uint2(MapWidth, MapHeight), within, picture);
         else if (source == RoomSourceXrayReveal)
         {
             if (!RevealPicture(scrolled, picture, within)) return;

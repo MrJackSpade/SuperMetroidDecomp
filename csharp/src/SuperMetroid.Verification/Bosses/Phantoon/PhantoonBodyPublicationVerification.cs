@@ -59,8 +59,7 @@ internal static class PhantoonBodyPublicationVerification
             ?? throw new InvalidOperationException("Phantoon publishes his enemy BG2 image.");
         AssertTrue(image.Words.AsSpan().SequenceEqual(expected), "the published image holds the drawn body frame over the cleared image");
         var drawn = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertTrue(drawn.Rooms.BossBg2 is { } shown && shown.Words.AsSpan().SequenceEqual(expected.AsSpan(0, shown.Words.Length)),
-            "the capture draws the body image on BG2");
+        AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), "the capture draws the body image on BG2");
 
         // Swooping fade-out: the wave channel is deleted, the body stays.
         state.Parts[state.Eye.SlotIndex].WaveMode = 0;

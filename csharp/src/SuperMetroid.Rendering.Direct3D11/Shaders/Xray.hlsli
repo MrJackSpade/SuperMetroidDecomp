@@ -19,7 +19,7 @@ uint2 XrayBackground(uint roomSource, uint map, uint chars, uint2 size, uint2 po
         if (source == RoomSourceBg3)
             shown = Bg3Picture(map, size.y, position & 65535, within, picture);
         else if (source == RoomSourceBossBg2)
-            entry = BossBg2Word(position, size, within, picture);
+            BossBg2Picture(position, size, within, picture);
         else if (source == RoomSourceXrayReveal)
             shown = RevealPicture(position & 65535, picture, within);
         else if (source == RoomSourceBg2Image)

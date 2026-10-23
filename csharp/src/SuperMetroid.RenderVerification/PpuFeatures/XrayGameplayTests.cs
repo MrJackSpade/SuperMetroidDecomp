@@ -82,7 +82,7 @@ internal static class XrayGameplayTests
                 foreach (bool blackBody in new[] { false, true })
                 {
                     var bodyRooms = bossImage
-                        ? bg1 with { BossBg2 = new BossBg2Tilemap([.. Enumerable.Repeat((ushort)2, 64 * 32)], new(64, 32)) }
+                        ? bg1 with { BossBg2 = RoomBackgroundsFixtures.UniformBody(new(2), new(64, 32), vram.Bytes, cgram.Colors) }
                         : bg1;
                     var additive = new GameplayColorMathRenderLayer(new(registers with
                     {

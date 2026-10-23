@@ -45,7 +45,7 @@ internal static class GameplaySnapshotTestsVerification
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
                 mapSize, layers);
             var layer = new OrdinaryGameplayRenderLayer(registers, (hdma & 1) == 0 || mapSize == new Extent16<TilemapCells>(64, 64) ? rooms : loaded,
-                new Bg2HdmaScrollTables(x, y));
+                new Bg2LineScrolls(x, y));
             Rgba32[] expected = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
                 live.Vram, live.Cgram, live.Sprites, layer);
             // Mutating both caller arrays after capture must not alter retained HDMA.
@@ -57,7 +57,7 @@ internal static class GameplaySnapshotTestsVerification
                 $"gameplay snapshot {mapSize.X}x{mapSize.Y}, mask {mask}, HDMA {hdma}");
             if (samples == 1)
             {
-                AssertThrows<ArgumentException>(() => new Bg2HdmaScrollTables(new ushort[1], default),
+                AssertThrows<ArgumentException>(() => new Bg2LineScrolls(new ushort[1], default),
                     "reject partial gameplay HDMA");
                 AssertThrows<ArgumentException>(() => new LayeredRenderSnapshot(memory,
                     new RenderLayer[] { new ObjRenderLayer(), layer }, 15), "base cannot erase prior operations");

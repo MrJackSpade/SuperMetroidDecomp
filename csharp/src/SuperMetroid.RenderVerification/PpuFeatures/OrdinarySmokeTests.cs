@@ -45,7 +45,7 @@ internal static class OrdinarySmokeTests
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
                 new Extent16<TilemapCells>((ushort)geometry.First, (ushort)geometry.Second), flags);
             var layer = new OrdinaryGameplayRenderLayer(registers,
-                hdma % 2 == 0 || geometry is { First: 64, Second: 64 } && hdma == 3 ? rooms : hdma == 1 ? sky : loaded, new Bg2HdmaScrollTables(
+                hdma % 2 == 0 || geometry is { First: 64, Second: 64 } && hdma == 3 ? rooms : hdma == 1 ? sky : loaded, new Bg2LineScrolls(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
                 new RenderLayer[] { layer }, 15));
@@ -72,7 +72,7 @@ internal static class OrdinarySmokeTests
             if ((mask & 4) != 0) flags |= SnesMainScreenLayers.Obj;
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
                 new Extent16<TilemapCells>(64, 32), flags);
-            var layer = new OrdinaryGameplayRenderLayer(registers, pictured, new Bg2HdmaScrollTables(
+            var layer = new OrdinaryGameplayRenderLayer(registers, pictured, new Bg2LineScrolls(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
@@ -86,7 +86,7 @@ internal static class OrdinarySmokeTests
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
                 new Extent16<TilemapCells>((ushort)geometry.First, (ushort)geometry.Second),
                 SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
-            var layer = new OrdinaryGameplayRenderLayer(registers, background, new Bg2HdmaScrollTables(
+            var layer = new OrdinaryGameplayRenderLayer(registers, background, new Bg2LineScrolls(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
@@ -103,7 +103,7 @@ internal static class OrdinarySmokeTests
         {
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
                 new Extent16<TilemapCells>(64, 64), SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
-            var layer = new OrdinaryGameplayRenderLayer(registers, boss, new Bg2HdmaScrollTables(
+            var layer = new OrdinaryGameplayRenderLayer(registers, boss, new Bg2LineScrolls(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
@@ -115,7 +115,7 @@ internal static class OrdinarySmokeTests
         {
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
                 new Extent16<TilemapCells>(64, 32), SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
-            var layer = new OrdinaryGameplayRenderLayer(registers, hudPictured, new Bg2HdmaScrollTables(
+            var layer = new OrdinaryGameplayRenderLayer(registers, hudPictured, new Bg2LineScrolls(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),

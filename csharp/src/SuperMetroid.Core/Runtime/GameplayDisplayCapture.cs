@@ -155,7 +155,7 @@ public static class GameplayDisplayCapture
             {
                 BossBg2 = bodySize is { } size ? new BossBodyPictures(size, bosses.BodyPictures) : null,
             };
-        var layer = new OrdinaryGameplayRenderLayer(registers, rooms, new Bg2HdmaScrollTables(
+        var layer = new OrdinaryGameplayRenderLayer(registers, rooms, new Bg2LineScrolls(
             VisibleLines(bg2HorizontalScrolls),
             VisibleLines(crocomireBg2Scroll is not null ? live.CrocomireMeltingScrolls : lavaY)),
             live.DoorTransitionMainScreenLayers is null && live.MotherBrainRisingHdmaActive

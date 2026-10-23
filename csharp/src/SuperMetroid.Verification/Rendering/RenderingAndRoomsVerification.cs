@@ -1009,7 +1009,7 @@ internal static void VerifyFourBitBackgroundRendering()
             {
                 Bg2Image = RoomBlockFixtures.LoadedBackground(gameplayVram.Bytes, gameplayCgram.Colors, GameplayVramLayout.Bg2TilemapWord),
             },
-            new Bg2HdmaScrollTables(horizontalByLine, default)));
+            new Bg2LineScrolls(horizontalByLine, default)));
     AssertEqual(new Rgba32(0, 0, 255),
         gameplayFrame[SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width],
         "ordinary compositor consumes sky HOFS and vertical BGSC screen");

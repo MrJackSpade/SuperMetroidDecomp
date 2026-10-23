@@ -132,7 +132,7 @@ internal static class XrayGameplayTests
             var gameplay = new OrdinaryGameplayRenderLayer(registers, RoomBackgroundsFixtures.Seeded(random, registers.Bg1Scroll.AsBgPlaneScroll(),
                     frame % 2 == 0 ? registers.Bg2Scroll.AsBgPlaneScroll() : null, door: frame % 3 == 0, overlay: frame % 4 == 0,
                     pictureColours: frame % 5 == 0 ? colors : null),
-                new Bg2HdmaScrollTables(
+                new Bg2LineScrolls(
                 Enumerable.Range(0, 192).Select(_ => Word()).ToArray(),
                 Enumerable.Range(0, 192).Select(_ => Word()).ToArray()));
             var lines = Enumerable.Range(0, 224).Select(_ => new XrayWindowLine((byte)random.Next(256), (byte)random.Next(256))).ToArray();

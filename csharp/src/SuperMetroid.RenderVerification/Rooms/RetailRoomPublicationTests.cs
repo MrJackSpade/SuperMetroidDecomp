@@ -64,7 +64,8 @@ internal static class RetailRoomPublicationTests
                     GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 if (fx == PublishedFx.Heat &&
                     ((packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")).Layers[0] is not OrdinaryGameplayRenderLayer heat ||
-                    heat.Bg2LineScrolls.Vertical.CountDistinct() != 3))
+                    !heat.Bg2LineScrolls.VerticalShown
+                    || Enumerable.Range(0, Bg2LineScrolls.GameplayLines).Select(line => heat.Bg2ScrollAt(line).Y).Distinct().Count() != 3))
                     throw new InvalidOperationException("Heat packet lost the three-valued vertical distortion table.");
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                     $"{device.Kind}: room {room.Name} publication {tick}");

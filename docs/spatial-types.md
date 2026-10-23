@@ -117,8 +117,8 @@ the wrapped value (collision and PLM grid probes).
   `WithX`/`WithY` or a named domain operation.
 - Methods that accept or return one location/vector/size take one typed value, not adjacent
   scalar parameters or tuples.
-- Collections store spatial values, not parallel component arrays. Independent hardware streams
-  (the BG2 HDMA scroll tables, `Bg2HdmaScrollTables`) are one adapter type that answers per-line values.
+- Collections store spatial values, not parallel component arrays. Independent per-axis streams
+  (BG2's per-line scrolls, `Bg2LineScrolls`) are one type that stores positions and answers per-line values.
 - Components are split only at exact boundaries — native WRAM/save-state/snapshot codecs,
   hardware registers, rendering-backend and P/Invoke adapters, and external file formats (the
   JSON document record itself) — through one named codec operation, and those declarations carry

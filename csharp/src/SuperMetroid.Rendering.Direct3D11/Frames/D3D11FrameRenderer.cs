@@ -314,7 +314,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             // The high half carries the main-screen enable register for this line;
             // the low half retains the independent color-window edges.
             var mainScreen = layer.Gameplay.MainScreenLayersByLine.IsEmpty
-                ? r.MainScreenLayers : (SnesMainScreenLayers)layer.Gameplay.MainScreenLayersByLine[line];
+                ? r.MainScreenLayers : layer.Gameplay.MainScreenLayersByLine[line];
             // Draygon's TM HDMA still suppresses repeated BG2 art while X-Ray owns color math.
             if (y < r.Bg2FirstScanline || y >= r.Bg2EndScanline) mainScreen &= ~SnesMainScreenLayers.Bg2;
             data[offset + 2] |= D3D11ConstantPacking.Bytes(0, 0, (byte)mainScreen, 0);
@@ -380,10 +380,10 @@ public sealed class D3D11FrameRenderer : IDisposable
         while (first < SnesPpuLayout.ScreenHeightPixels)
         {
             activeLayers = layer.MainScreenLayersByLine.IsEmpty ? r.MainScreenLayers
-                : (SnesMainScreenLayers)layer.MainScreenLayersByLine[first - SnesPpuLayout.GameplayHudHeightPixels];
+                : layer.MainScreenLayersByLine[first - SnesPpuLayout.GameplayHudHeightPixels];
             end = first + 1;
             while (end < SnesPpuLayout.ScreenHeightPixels && (layer.MainScreenLayersByLine.IsEmpty ||
-                layer.MainScreenLayersByLine[end - SnesPpuLayout.GameplayHudHeightPixels] == (ushort)activeLayers)) end++;
+                layer.MainScreenLayersByLine[end - SnesPpuLayout.GameplayHudHeightPixels] == activeLayers)) end++;
             Objects(0); Objects(1); Background2(false); Background1(false);
             Objects(2); Background2(true); Background1(true); Objects(3);
             first = end;

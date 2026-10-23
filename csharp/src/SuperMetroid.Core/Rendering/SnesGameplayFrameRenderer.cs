@@ -105,15 +105,12 @@ public static class SnesGameplayFrameRenderer
         // The layer validated its BG2 map size and every per-line table at construction.
         OrdinaryGameplayRegisters registers = layer.Registers;
         Position16<RoomPixels> bg1Scroll = registers.Bg1Scroll;
-        Position16<Bg2Pixels> bg2Scroll = registers.Bg2Scroll;
-        ReadOnlySpan<ushort> bg2HorizontalScrollByLine = layer.Bg2LineScrolls.Horizontal;
-        ReadOnlySpan<ushort> bg2VerticalScrollByLine = layer.Bg2LineScrolls.Vertical;
         Extent16<TilemapCells> bg2TilemapSize = registers.Bg2MapSize;
         SnesMainScreenLayers mainScreenLayers = registers.MainScreenLayers;
         int bg2FirstScanline = registers.Bg2FirstScanline;
         int bg2EndScanline = registers.Bg2EndScanline;
         BackgroundMosaicSampling bg2Mosaic = registers.Bg2Mosaic;
-        ReadOnlySpan<ushort> mainScreenLayersByLine = layer.MainScreenLayersByLine;
+        ReadOnlySpan<SnesMainScreenLayers> mainScreenLayersByLine = layer.MainScreenLayersByLine;
 
         // Resolve the complete Mode-1 ladder in a single destination scan. The previous
         // implementation walked the 256x192 viewport eight times (four BG insertions and
@@ -136,7 +133,7 @@ public static class SnesGameplayFrameRenderer
         for (int screenY = HudHeight; screenY < Height; screenY++)
         {
             SnesMainScreenLayers activeLayers = mainScreenLayersByLine.IsEmpty ? mainScreenLayers
-                : (SnesMainScreenLayers)mainScreenLayersByLine[screenY - HudHeight];
+                : mainScreenLayersByLine[screenY - HudHeight];
             bool bg1Enabled = (activeLayers & SnesMainScreenLayers.Bg1) != 0;
             bool bg2LayerEnabled = (activeLayers & SnesMainScreenLayers.Bg2) != 0;
             bool objEnabled = (activeLayers & SnesMainScreenLayers.Obj) != 0;
@@ -145,13 +142,9 @@ public static class SnesGameplayFrameRenderer
             // physical scanline one. OBJ's preceding-line evaluation is separate.
             int physicalBackgroundY = screenY + SnesPpuLayout.FirstVisibleBackgroundScanline;
             ushort bg1ScrolledY = unchecked((ushort)(bg1Scroll.Y + physicalBackgroundY));
-            ushort activeBg2HorizontalScroll = bg2HorizontalScrollByLine.IsEmpty
-                ? bg2Scroll.X
-                : bg2HorizontalScrollByLine[screenY - HudHeight];
-            ushort activeBg2VerticalScroll = bg2VerticalScrollByLine.IsEmpty
-                ? bg2Scroll.Y
-                : bg2VerticalScrollByLine[screenY - HudHeight];
-            ushort bg2ScrolledY = unchecked((ushort)bg2Mosaic.SourceY(screenY, activeBg2VerticalScroll));
+            Position16<Bg2Pixels> lineBg2Scroll = layer.Bg2ScrollAt(screenY - HudHeight);
+            ushort activeBg2HorizontalScroll = lineBg2Scroll.X;
+            ushort bg2ScrolledY = unchecked((ushort)bg2Mosaic.SourceY(screenY, lineBg2Scroll.Y));
 
             for (int screenX = 0; screenX < Width; screenX++)
             {

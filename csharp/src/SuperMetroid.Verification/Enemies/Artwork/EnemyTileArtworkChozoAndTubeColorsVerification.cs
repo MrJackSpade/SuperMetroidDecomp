@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Programs;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -104,9 +105,9 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         void VerifyLive(ushort variant, Func<int, Bgr555> resolve, string name,
             Action<RoomEnemySystem, RoomEnemySlot> initialize, ChozoStatueProgram? expectedProgram)
         {
-            var cgram = new SnesCgram();
+            var cgram = new SamusColourRig();
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
-            enemies.Presentation.BindCgram(cgram);
+            enemies.Presentation.BindCgram(cgram.Gameplay);
             RoomEnemySlot statue = enemies.SlotTable.Slots[0];
             statue.SetSpawnParameter2(variant);
             initialize(enemies, statue);

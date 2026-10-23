@@ -41,12 +41,4 @@ public sealed class FramePaint
 
     /// <summary>The displayed whole-frame sprite draws in emission order, frontmost first, each with its colours resolved.</summary>
     public ImmutableArray<SpriteDraw> SpriteDraws => ImmutableCollectionsMarshal.AsImmutableArray(spriteDraws);
-
-    /// <summary>What gameplay paints with: its palette now and the sprites it displays.</summary>
-    public static FramePaint Capture(IPaletteColors palette, SpriteFrameBuffer sprites)
-    {
-        Ensure.NotNull(palette);
-        Ensure.NotNull(sprites);
-        return new(palette.Colors, sprites.Draws);
-    }
 }

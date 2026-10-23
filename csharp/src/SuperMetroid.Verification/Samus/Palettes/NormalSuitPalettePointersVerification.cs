@@ -45,8 +45,8 @@ internal static class NormalSuitPalettePointersVerification
                 SpecialSuperPaletteFlags = 2,
                 Presentation = { SuitColors = suitColors },
             };
-            var installedColors = new SnesCgram();
-            AssertTrue(SamusSpecialSuperPalette.Update(installedColors, samus),
+            var installedColors = new SamusColourRig();
+            AssertTrue(SamusSpecialSuperPalette.Update(installedColors.Samus, samus),
                 "installed special palette restores normal suit without a CPU bus");
             for (int color = 0; color < SamusSuitColorFormat.ColorsPerSuit; color++)
                 AssertEqual((ushort)(RomDataReader.ReadWordFixedBank(rom,

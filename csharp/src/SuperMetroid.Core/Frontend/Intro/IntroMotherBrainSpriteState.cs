@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus.Projectiles;
 
@@ -101,7 +102,7 @@ internal sealed class IntroMotherBrainSpriteState
             return;
 
         bool normalPalette = (hurtFlashTimer.RawValue & 1) != 0;
-        ScreenColours row = colours.SpriteRow(IntroMotherBrainDefinitions.HurtFlashSpriteRow);
+        ColourRun row = colours.SpriteRow(IntroMotherBrainDefinitions.HurtFlashSpriteRow);
         if (normalPalette)
             row.CopyFrom(row.SamePositionsIn(introPalette));
         else

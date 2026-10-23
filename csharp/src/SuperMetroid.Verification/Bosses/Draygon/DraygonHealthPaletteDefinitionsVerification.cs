@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Draygon;
@@ -52,7 +54,7 @@ internal static class DraygonHealthPaletteDefinitionsVerification
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), BossArtwork = new BossArtworkCatalog { DraygonColors = DraygonColorCatalog.Load(colors) },
         };
-        enemies.Presentation.BindCgram(new SnesCgram());
+        enemies.Presentation.BindCgram(new GameplayColours());
         Action<DraygonEnemyState> update = enemies.DraygonBehavior.Combat.UpdateDraygonHealthPalette;
         var state = new DraygonEnemyState(enemies.SlotTable.Slots[0]);
 

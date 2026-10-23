@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Gameplay;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -20,7 +22,7 @@ internal static class MaridiaPuyoPileVerification
         var assets = LoadFixtureRoomAssets(room);
         var random = new Bank80SystemState();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { SeedRandom = random.SetRandomNumber }) { TileArtwork = FixtureEnemyTileArtwork() };
-        enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new SnesCgram()));
+        enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new GameplayColours()));
         // These are the six literal retail population records, not a constructed pile.
         Population[] population =
             [new Population(87,156,0x0f00), new Population(98,156,0x0f00), new Population(105,156,0x0f00),

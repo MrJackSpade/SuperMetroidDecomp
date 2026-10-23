@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rendering;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 
@@ -64,7 +63,7 @@ public sealed class MapPaletteCycle
     /// <remarks>Writes all sixteen colours including the row's first colour.</remarks>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is outside the selected cycle.</exception>
     /// <exception cref="ArgumentException"><paramref name="row"/> does not hold sixteen colours.</exception>
-    public void Apply(ScreenColours row, int frame)
+    public void Apply(ColourRun row, int frame)
     {
         CheckFrame(frame);
         if (row.Count != MapPaletteCycleFormat.ColorCount)

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
 
@@ -93,7 +93,7 @@ internal sealed class EndingZebesExplosion
     }
 
     /// <summary>Scales one row of the explosion's colours from those captured when the crossfade began.</summary>
-    private void ApplyExplosionFade(ScreenColours row, int factor)
+    private void ApplyExplosionFade(ColourRun row, int factor)
     {
         ReadOnlySpan<Bgr555> source = row.SamePositionsIn(explosionFadeSource);
         for (int colour = 0; colour < row.Count; colour++)

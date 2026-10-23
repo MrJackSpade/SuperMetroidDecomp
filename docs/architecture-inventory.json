@@ -10623,6 +10623,19 @@
       "disposition": "constructor-parameters"
     },
     {
+      "type": "SuperMetroid.Core.Assets.ColourRun",
+      "kind": "struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/ColourRun.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Assets.CompiledSpritePart",
       "kind": "record struct",
       "scope": "product",
@@ -10770,6 +10783,45 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Assets.GameplayColours",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/GameplayColours.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Assets.IGameplayColourOwner",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/IGameplayColourOwner.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.Core.Assets.IInkRowColours",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/IInkRowColours.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
     },
     {
       "type": "SuperMetroid.Core.Assets.ImageSpriteDraw",
@@ -84539,19 +84591,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Rendering.ScreenColours",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/ScreenColours.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Rendering.ScreenLayerPictures",
       "kind": "class",
       "scope": "product",
@@ -103952,6 +103991,61 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Palettes.SamusColourDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusColourDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Palettes.SamusColourRig",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/Palettes/SamusColourRig.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Palettes.SamusColours",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusColours.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Palettes.SamusColours.Place",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusColours.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Samus.Palettes.SamusHurtFlashPalette",

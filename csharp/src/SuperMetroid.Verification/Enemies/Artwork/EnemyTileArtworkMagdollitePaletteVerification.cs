@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -72,8 +73,8 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         // Exercise the actual global graphics-drawn hook, not a palette helper.
         // Forbid all bus reads: installed artwork must be sufficient on every tick.
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
-        var cgram = new SnesCgram();
-        enemies.Presentation.BindCgram(cgram);
+        var cgram = new SamusColourRig();
+        enemies.Presentation.BindCgram(cgram.Gameplay);
         enemies.MagdolliteBehavior.MagdollitePaletteAnimationInstalled = true;
         enemies.MagdolliteBehavior.MagdollitePaletteAnimationTimer = WrappingCountdown.Start(8);
         enemies.MagdolliteBehavior.MagdollitePaletteFrame = 0;

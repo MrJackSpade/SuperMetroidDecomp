@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
@@ -27,7 +29,7 @@ internal static class TorizoInitializationDefinitionsVerification
             AssertTrue(native.SequenceEqual(actual), "Every Torizo initialization record word matches ROM");
 
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-            enemies.Presentation.BindCgram(new SnesCgram());
+            enemies.Presentation.BindCgram(new GameplayColours());
             bool defeated = false;
             enemies.VerificationServices().IsAreaTorizoDefeated = () => defeated;
             Action<RoomEnemySlot, SamusState?, SnesButton> initializeWithInput = enemies.BombTorizoBehavior.Movement.InitializeBombTorizo;

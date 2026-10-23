@@ -102,8 +102,36 @@ public sealed class DrawColours
     }
 
     /// <summary>
-    /// <paramref name="draws"/> with their colours resolved under <paramref name="frameColours"/>, a frame's 256 colours,
-    /// as the frame publishes them.
+    /// The colours <paramref name="draw"/> shows where <paramref name="owner"/> holds the colours of some of its ink rows:
+    /// each ink row the frame uses shows the owner's colours over the image's own, and blends as its own row does.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The draw has an override, which an owner's draws never take.</exception>
+    public static DrawColours Owned(ImageSpriteDraw draw, IInkRowColours owner)
+    {
+        Ensure.NotNull(draw);
+        Ensure.NotNull(owner);
+        if (draw.PaletteOverride is not null)
+            throw new InvalidOperationException("An owner colours its draws itself; an override selects colours from a row.");
+        ReadOnlySpan<Bgr555> standard = draw.Image.Sheet.StandardColours;
+        var shown = new Bgr555[]?[Keys];
+        Span<Bgr555> colours = stackalloc Bgr555[RowColours];
+        for (int row = 0; row < InkRows; row++)
+        {
+            if ((draw.Image.Rows & SpritePaletteRowSet.Rows[row]) == 0)
+                continue;
+            ReadOnlySpan<Bgr555> own = standard.Slice(row * RowColours, RowColours);
+            own.CopyTo(colours);
+            owner.Overlay(row, colours);
+            // Colour zero is transparent and never shown.
+            if (!colours[1..].SequenceEqual(own[1..]))
+                shown[row] = colours.ToArray();
+        }
+        return new DrawColours(ColourKeying.InkRow, shown, OwnBlending);
+    }
+
+    /// <summary>
+    /// <paramref name="draws"/> with the colours of those no owner coloured resolved under <paramref name="frameColours"/>,
+    /// a frame's 256 colours, as the frame publishes them. An owner's draws keep the colours it gave them.
     /// </summary>
     /// <exception cref="InvalidDataException">A draw is not an image draw.</exception>
     public static ImmutableArray<SpriteDraw> ResolveAll(ImmutableArray<SpriteDraw> draws, ReadOnlySpan<Bgr555> frameColours)
@@ -112,7 +140,7 @@ public sealed class DrawColours
         foreach (SpriteDraw draw in draws)
         {
             var image = draw as ImageSpriteDraw ?? throw new InvalidDataException($"A {draw.GetType().Name} has no image to colour.");
-            resolved.Add(image with { Colours = Resolve(image, frameColours) });
+            resolved.Add(image.Colours is null ? image with { Colours = Resolve(image, frameColours) } : image);
         }
         return resolved.MoveToImmutable();
     }

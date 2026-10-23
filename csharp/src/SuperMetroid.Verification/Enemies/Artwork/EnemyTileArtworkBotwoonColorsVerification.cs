@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -60,9 +61,9 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
             "Botwoon color override survives catalog reload");
 
         var guard = NewBotwoonColorReadGuard(rom);
-        var cgram = new SnesCgram();
+        var cgram = new SamusColourRig();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
-        enemies.Presentation.BindCgram(cgram);
+        enemies.Presentation.BindCgram(cgram.Gameplay);
         Action<RoomEnemySlot, BotwoonEnemyState> update = enemies.BotwoonBehavior.UpdateBotwoonHealthPalette;
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         var state = new BotwoonEnemyState()

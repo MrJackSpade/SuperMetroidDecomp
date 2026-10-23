@@ -92,8 +92,8 @@ internal static class SamusFullBodyCycleColorsVerification
         foreach (ushort pointer in originalPointers)
         {
             AssertEqual(ordinal++, SamusFullBodyCycleColorFormat.PaletteIndex(pointer), "Original palette allocation order equals calculated index");
-            var cgram = new SnesCgram();
-            native.Apply(cgram, pointer);
+            var cgram = new SamusColourRig();
+            native.Apply(cgram.Samus, pointer);
             for (int color = 0; color < 16; color++)
             {
                 ushort expected = ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
@@ -445,8 +445,8 @@ internal static class SamusFullBodyCycleColorsVerification
                     SpecialPaletteTimer = WrappingCountdown.Start(1),
                     SpecialPaletteFrame = (ushort)(phase * 2),
                 };
-                var cgram = new SnesCgram();
-                AssertTrue(speed.UpdateSpeedBoosterPalette(cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = items }, cycleColors: edited.SamusFullBodyCycleColors),
+                var cgram = new SamusColourRig();
+                AssertTrue(speed.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = items }, cycleColors: edited.SamusFullBodyCycleColors),
                     "Speed Booster reaches installed color source");
                 AssertColors(cgram, SamusFullBodyCycleFamily.SpeedBooster, suit, phase);
             }
@@ -454,8 +454,8 @@ internal static class SamusFullBodyCycleColorsVerification
             for (int phase = 0; phase < 6; phase++)
             {
                 var screw = new SamusHorizontalSpeedState { SpecialPaletteFrame = (ushort)(phase * 2) };
-                var cgram = new SnesCgram();
-                AssertTrue(screw.UpdateSpeedBoosterPalette(cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack) }, cycleColors: edited.SamusFullBodyCycleColors),
+                var cgram = new SamusColourRig();
+                AssertTrue(screw.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack) }, cycleColors: edited.SamusFullBodyCycleColors),
                     "Screw Attack reaches installed color source");
                 AssertColors(cgram, SamusFullBodyCycleFamily.ScrewAttack, suit,
                     Math.Min(phase, 6 - phase));
@@ -465,8 +465,8 @@ internal static class SamusFullBodyCycleColorsVerification
             AssertTrue(stored.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(0x0400)), "seed stored shine");
             for (int phase = 0; phase < 6; phase++)
             {
-                var cgram = new SnesCgram();
-                AssertTrue(stored.Shinespark.UpdatePalette(cgram, items,
+                var cgram = new SamusColourRig();
+                AssertTrue(stored.Shinespark.UpdatePalette(cgram.Samus, items,
                         cycleColors: edited.SamusFullBodyCycleColors),
                     "stored shine reaches installed color source");
                 AssertColors(cgram, SamusFullBodyCycleFamily.StoredShine, suit,
@@ -478,8 +478,8 @@ internal static class SamusFullBodyCycleColorsVerification
             active.Shinespark.BeginWindup(active);
             for (int phase = 0; phase < 4; phase++)
             {
-                var cgram = new SnesCgram();
-                AssertTrue(active.Shinespark.UpdatePalette(cgram, items,
+                var cgram = new SamusColourRig();
+                AssertTrue(active.Shinespark.UpdatePalette(cgram.Samus, items,
                         cycleColors: edited.SamusFullBodyCycleColors),
                     "active shinespark reaches installed color source");
                 AssertColors(cgram, SamusFullBodyCycleFamily.ActiveShinespark, suit, phase);
@@ -491,8 +491,8 @@ internal static class SamusFullBodyCycleColorsVerification
                 SpecialSuperPaletteFlags = 1,
                 Presentation = { FullBodyCycleColors = edited.SamusFullBodyCycleColors },
             };
-            var attachmentColors = new SnesCgram();
-            AssertTrue(SamusSpecialSuperPalette.Update(attachmentColors, attached),
+            var attachmentColors = new SamusColourRig();
+            AssertTrue(SamusSpecialSuperPalette.Update(attachmentColors.Samus, attached),
                 "Metroid attachment reaches installed Speed Booster color source");
             AssertColors(attachmentColors, SamusFullBodyCycleFamily.SpeedBooster, suit, 3);
         }
@@ -538,7 +538,7 @@ internal static class SamusFullBodyCycleColorsVerification
             "removing cycle-color override restores stock identity");
         Console.WriteLine("Samus full-body cycles: 768 native colors, four live families/three suits, attachment flash, ROM guard, rebind, strict values and override removal pass.");
 
-        void AssertColors(SnesCgram cgram, SamusFullBodyCycleFamily family, int suit, int shade)
+        void AssertColors(SamusColourRig cgram, SamusFullBodyCycleFamily family, int suit, int shade)
         {
             ushort pointer = SamusFullBodyCycleColorFormat.Pointer(family, suit, shade);
             for (int color = 0; color < SamusFullBodyCycleColorFormat.ColorsPerPalette; color++)

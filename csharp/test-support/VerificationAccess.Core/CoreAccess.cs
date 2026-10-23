@@ -4,7 +4,6 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core;
 using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Kraid;

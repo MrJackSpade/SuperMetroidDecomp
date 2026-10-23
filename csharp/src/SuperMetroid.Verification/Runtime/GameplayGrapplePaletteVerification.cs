@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
@@ -37,12 +38,16 @@ internal static class GameplayGrapplePaletteVerification
         foreach (var enemy in runtime.Enemies.SlotTable.Slots) enemy.Clear();
         var words = new ushort[32 * 16];
         for (int i = 12 * 32; i < 13 * 32; i++) words[i] = 0x8000;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 16), new RoomLevelPlanes(words, new byte[512], new ushort[512]), new byte[8]);
-        runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { LevelData = level });
+        var scope = runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.");
+        // The synthetic floor keeps the Parlor's own block definitions, so the published plane resolves its blocks to the
+        // pictures the room's tileset sheet holds.
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 16), new RoomLevelPlanes(words, new byte[512], new ushort[512]),
+            scope.LevelData.BlockDefinitions.ToArray());
+        runtime.Room.Adopt(scope with { LevelData = level });
         var samus = runtime.Player.IntroducedSamus;
-        var expected = new SnesCgram();
+        var expected = new SamusColourRig();
         var palettes = projectiles.BeamTiles.Palettes ?? throw new InvalidDataException("Missing beam palettes.");
-        palettes.LoadTo(expected, SamusBeamCombination.Ice);
+        palettes.LoadTo(expected.Samus.Beam, SamusBeamCombination.Ice);
         foreach (ushort beam in new ushort[] { 0, 4 })
         {
             samus.Pose = SamusPoseId.FacingRightNormalPose;
@@ -56,7 +61,7 @@ internal static class GameplayGrapplePaletteVerification
             samus.Position = samus.Position.WithWhole(new(128, (ushort)(192 - samus.Kinematics.Radius.Y)));
             samus.Kinematics.YSpeed = default;
             runtime.StepFrame(0);
-            palettes.LoadTo(runtime.Cgram, SamusBeamCombinations.FromTableIndex(beam));
+            palettes.LoadTo(runtime.Player.Colours.Beam, SamusBeamCombinations.FromTableIndex(beam));
             runtime.Cgram.SetColor(223, Bgr555.FromWord(0x1234));
             runtime.StepFrame(SnesButton.X);
             AssertTrue(runtime.Player.LastGrappleMovement is { Fired: true }, "normal HUD input fires grapple");
@@ -65,7 +70,7 @@ internal static class GameplayGrapplePaletteVerification
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             samus.CommitPoseHistory();
-            palettes.LoadTo(runtime.Cgram, SamusBeamCombinations.FromTableIndex(beam));
+            palettes.LoadTo(runtime.Player.Colours.Beam, SamusBeamCombinations.FromTableIndex(beam));
             runtime.Cgram.SetColor(223, Bgr555.FromWord(0x1234));
             runtime.StepFrame(SnesButton.X);
             AssertTrue(runtime.Player.LastGrappleMovement is { Fired: true }, "native pose-change window refires grapple");
@@ -73,8 +78,8 @@ internal static class GameplayGrapplePaletteVerification
             for (int frame = 0; frame < 4 && samus.Grapple.Phase != GrapplePhase.Inactive; frame++)
                 runtime.StepFrame(0);
             AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "release cancels extending grapple");
-            var ordinary = new SnesCgram();
-            palettes.LoadTo(ordinary, SamusBeamCombinations.FromTableIndex(beam));
+            var ordinary = new SamusColourRig();
+            palettes.LoadTo(ordinary.Samus.Beam, SamusBeamCombinations.FromTableIndex(beam));
             AssertTrue(runtime.Cgram.Colors.Slice(224, 16).SequenceEqual(ordinary.Colors.Slice(224, 16)),
                 "cancel restores equipped beam palette");
         }

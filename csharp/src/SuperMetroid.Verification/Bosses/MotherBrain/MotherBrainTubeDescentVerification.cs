@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
@@ -13,7 +15,7 @@ internal static class MotherBrainTubeDescentVerification
     internal static int VerifyMotherBrainTubeDescent()
     {
         var enemies = new RoomEnemySystem(new EnemySession()) { BossArtworkBinding = { MotherBrainRoomColors = InstalledFixtures.Maps.MotherBrainRoomColors } };
-        enemies.Presentation.BindCgram(new SnesCgram());
+        enemies.Presentation.BindCgram(new GameplayColours());
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]) { Head = enemies.SlotTable.Slots[1] };
         enemies.MotherBrainEncounter.MotherBrain = state;
         var tube = enemies.SlotTable.Slots[2];

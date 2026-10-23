@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rendering;
 using System.Buffers.Binary;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -119,7 +118,7 @@ public sealed class PauseReserveUiPresentation
     /// <param name="arrowRow">The background row whose two arrow colours change.</param>
     /// <param name="animated">Whether to sample the 32-phase pulse rather than the solid colors; the pause owner decides when AUTO selection should animate.</param>
     /// <param name="frame">Pulse phase, masked to its low five bits; normally the accepted eight-bit frame counter and ignored for solid colors.</param>
-    public void ApplyArrowColors(ScreenColours arrowRow, bool animated, int frame)
+    public void ApplyArrowColors(ColourRun arrowRow, bool animated, int frame)
     {
         var colors = animated ? new ReserveArrowColors(ArrowColor(frame, ReserveArrowColorSlot.Color6), ArrowColor(frame, ReserveArrowColorSlot.Color11)) : new ReserveArrowColors(solidColor6, solidColor11);
         arrowRow.Write(PauseReserveUiDefinitions.ArrowFirstColour, colors.Color6);

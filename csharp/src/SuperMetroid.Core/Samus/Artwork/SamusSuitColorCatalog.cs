@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Samus.Palettes;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
@@ -67,11 +66,10 @@ public sealed class SamusSuitColorCatalog
     }
 
     /// <summary>Writes only Samus's sixteen OBJ colors; no equipment or phase state changes.</summary>
-    public void Apply(IPaletteColors cgram, ushort suitTableOffset)
+    public void Apply(ColourRun suit, ushort suitTableOffset)
     {
-        Ensure.NotNull(cgram);
         for (int index = 0; index < SamusSuitColorFormat.ColorsPerSuit; index++)
-            new SamusPalettes(cgram).Suit.Write(index,
+            suit.Write(index,
                 Resolve(suitTableOffset, index));
     }
 

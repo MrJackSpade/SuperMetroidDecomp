@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -75,8 +76,8 @@ internal static class CeresRidleyMode7ColorsVerification
 
         var guard = NewCeresRidleyMode7ColorReadGuard(rom, forbidden);
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { CeresRidleyFloorColors = edited.CeresRidleyFloorColors } };
-        var cgram = new SnesCgram();
-        enemies.Presentation.BindCgram(cgram);
+        var cgram = new SamusColourRig();
+        enemies.Presentation.BindCgram(cgram.Gameplay);
         Action<ushort> select = enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyMode7Palette;
         var visited = new HashSet<int>();
         for (int index = 0; index < 112; index++)

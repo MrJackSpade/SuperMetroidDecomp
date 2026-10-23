@@ -43,7 +43,7 @@ internal sealed class RoomLoader
     /// <summary>Tracks both background layers' scroll positions across door loading.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Receives room and player palette data during a load.</summary>
-    private readonly SnesCgram _cgram;
+    private readonly GameplayColours _cgram;
     /// <summary>Retains controller state needed when a room transition begins.</summary>
     private readonly ControllerInputState _controller1;
     /// <summary>Publishes the display setup for a newly active room.</summary>
@@ -255,7 +255,7 @@ internal sealed class RoomLoader
         // Command nine does not begin at its endpoint. It selects a front-facing pose,
         // frame two/timer three, a suit-specific bank-$8D palette object, and the 360-call
         // appearance handler before restoring ordinary input.
-        _player.IntroducedSamus.Presentation.LoadSuitPalette(_player.IntroducedSamus, _cgram);
+        _player.IntroducedSamus.Presentation.LoadSuitPalette(_player.IntroducedSamus, _player.Colours);
         SamusPoseMetadata.ApplyZebesStartPoseSetup(_player.IntroducedSamus);
         SamusPresentation.SetAnimationFrameFromSpecialHandler(_player.IntroducedSamus, frame: 2, timer: 3);
         _player.IntroducedSamus.LiquidPhysics.RoomIdentity = room.Identity;
@@ -365,7 +365,7 @@ internal sealed class RoomLoader
             station.CameraPosition,
             RoomViewportLoadMode.DisplayInitialViewport,
             new RoomEntry { GunshipScenario = GunshipLoadScenario.EscapingCeres, LoadStation = station });
-        samus.Presentation.LoadSuitPalette(samus, _cgram);
+        samus.Presentation.LoadSuitPalette(samus, _player.Colours);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.LiquidPhysics.RoomIdentity = room.Identity;
@@ -773,7 +773,7 @@ internal sealed class RoomLoader
         // has already driven OBJ palette four to black at this point. Omitting this shared
         // reload therefore retained valid OAM and tile data but rendered Samus as a solid
         // black silhouette after every ordinary desktop door transition.
-        _player.Samus.Presentation.LoadSuitPalette(_player.Samus, _cgram);
+        _player.Samus.Presentation.LoadSuitPalette(_player.Samus, _player.Colours);
 
         // The door loader writes no SamusYRadius; the next unlocked alpha's SetSamusRadius
         // does, so an elevator rider keeps the boarding pose's radius through the door.
@@ -1022,7 +1022,7 @@ internal sealed class RoomLoader
 
         // $82:E4CC updates the entering beam before $82:E4D8 initializes enemies. Golden Torizo's code mutates
         // equipment during initialization; its grant must not retroactively select the beam loaded for this room.
-        _artwork.UpdateBeamTilesAndPalette(_cgram, _player.Samus?.EquippedBeams ?? 0);
+        _artwork.UpdateBeamTilesAndPalette(_player.Colours, _player.Samus?.EquippedBeams ?? 0);
 
         // `$A0:8A1E` LoadEnemies builds the destination's enemy RAM, with the door-transition gates clear, over the
         // projectile and first-free words the outgoing room's enemies left.
@@ -1197,7 +1197,7 @@ internal sealed class RoomLoader
             Position = FixedPosition<RoomPixels>.FromWhole(_room.ActiveLoadStation.SamusPosition.WithY(0)),
         };
         _artwork.BindSamusPalettePresentation();
-        SamusPresentation.LoadPowerSuitPalette(_cgram, _artwork.MapPresentation?.SamusSuitColors);
+        SamusPresentation.LoadPowerSuitPalette(_player.Colours.Suit, _artwork.MapPresentation?.SamusSuitColors);
         _tester.ApplyTesterInventory();
 
         // Fresh-game loading has one deliberately non-general palette write after copying

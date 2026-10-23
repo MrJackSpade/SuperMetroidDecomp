@@ -14,7 +14,7 @@ internal sealed record EnemyFramePhaseDependencies
 
 
     /// <summary>Cgram.</summary>
-    public required SnesCgram Cgram { get; init; }
+    public required GameplayColours Cgram { get; init; }
 
     /// <summary>Controller1.</summary>
     public required ControllerInputState Controller1 { get; init; }

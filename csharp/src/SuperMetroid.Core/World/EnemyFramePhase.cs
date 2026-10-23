@@ -17,8 +17,6 @@ internal sealed class EnemyFramePhase
 {
     /// <summary>Receives enemy-authored BG2 scroll changes before the next NMI latches the frame.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
-    /// <summary>Receives suit-palette reloads after enemies change Samus's pose or charge state.</summary>
-    private readonly SnesCgram _cgram;
     /// <summary>Supplies current and newly pressed controller words to EnemyMain.</summary>
     private readonly ControllerInputState _controller1;
     /// <summary>Provides the active Samus Mode 7 transform to the enemy frame.</summary>
@@ -43,7 +41,6 @@ internal sealed class EnemyFramePhase
     internal EnemyFramePhase(EnemyFramePhaseDependencies dependencies)
     {
         _backgroundScroll = dependencies.BackgroundScroll;
-        _cgram = dependencies.Cgram;
         _controller1 = dependencies.Controller1;
         _display = dependencies.Display;
         _enemyRoomEffects = dependencies.EnemyRoomEffects;
@@ -90,7 +87,7 @@ internal sealed class EnemyFramePhase
     {
         if (_room.Camera is not null && room.Enemies.IsLoaded)
         {
-            EnemyFrameResult result = room.Enemies.StepFrame(new RoomEnemyFrame { Camera = _room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = _player.Samus, NewlyPressedControllerInput = _controller1.NewlyPressed, Level = _room.LevelData, ControllerInput = _controller1.Current, SamusProjectiles = room.Projectiles, NmiFrameCounter8 = _clock.Counter8, Mode7Transform = _display.ActiveSamusMode7Transform, SharedProjectiles = room.BombProjectiles, VramWriteQueue = _vramWrites, ResolveSamusContactBeforeAi = true, CollisionPlms = room.Plms.BreakableTerrain, NmiFrameCounter = _clock.Counter, ProcessingListPrepared = processingList == EnemyProcessingList.Prepared, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
+            EnemyFrameResult result = room.Enemies.StepFrame(new RoomEnemyFrame { Camera = _room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = _player.Samus, SamusColours = _player.Colours, NewlyPressedControllerInput = _controller1.NewlyPressed, Level = _room.LevelData, ControllerInput = _controller1.Current, SamusProjectiles = room.Projectiles, NmiFrameCounter8 = _clock.Counter8, Mode7Transform = _display.ActiveSamusMode7Transform, SharedProjectiles = room.BombProjectiles, VramWriteQueue = _vramWrites, ResolveSamusContactBeforeAi = true, CollisionPlms = room.Plms.BreakableTerrain, NmiFrameCounter = _clock.Counter, ProcessingListPrepared = processingList == EnemyProcessingList.Prepared, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
             _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(result.RoomEffects, room.Plms, room.Layer3Fx, room.PaletteFx, room.Enemies);
             if (result.Elevator == ElevatorFrameEvent.DepartureStarted)
             {
@@ -103,7 +100,7 @@ internal sealed class EnemyFramePhase
                 // clears flare/projectile state, but cannot restore runtime-owned CGRAM.
                 // Without this write, cancelling charge leaves its last flashing colors
                 // behind after the palette handler becomes inactive.
-                _player.IntroducedSamus.Presentation.LoadSuitPalette(_player.IntroducedSamus, _cgram);
+                _player.IntroducedSamus.Presentation.LoadSuitPalette(_player.IntroducedSamus, _player.Colours);
             }
             if (result.DraygonDiscardedSamusPoseRequests)
             {
@@ -168,7 +165,7 @@ internal sealed class EnemyFramePhase
                     // ship explicitly clears elevator status after installing locked demo
                     // handlers. The enemy system owns pose/motion; these two global words
                     // remain runtime-owned and are applied on its typed event boundary.
-                    _player.Samus.Presentation.LoadSuitPalette(_player.Samus, _cgram);
+                    _player.Samus.Presentation.LoadSuitPalette(_player.Samus, _player.Colours);
                     room.Enemies.Elevator.ResetStatus();
                 }
                 else if (result.Gunship == GunshipFrameEvent.LandingCompleted)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -85,10 +86,10 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
                     PhantoonColorRomData.HealthBandCount *
                     PhantoonColorRomData.HealthBandColorCount * sizeof(ushort)),
             address => $"Phantoon accessed migrated palette ROM ${address:X6}.");
-        var cgram = new SnesCgram();
+        var cgram = new SamusColourRig();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         Type type = typeof(RoomEnemySystem);
-        enemies.Presentation.BindCgram(cgram);
+        enemies.Presentation.BindCgram(cgram.Gameplay);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         RoomEnemySlot eye = enemies.SlotTable.Slots[1];
         RoomEnemySlot tentacles = enemies.SlotTable.Slots[2];

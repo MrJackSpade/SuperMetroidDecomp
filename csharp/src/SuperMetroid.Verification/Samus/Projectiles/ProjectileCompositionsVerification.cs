@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json;
@@ -343,10 +344,10 @@ internal static class ProjectileCompositionsVerification
         var hyperEdited = installation.LoadProjectiles();
         AssertTrue(hyperEdited.SelectedSha256 != paletteEdited.SelectedSha256,
             "Hyper Beam FX override changes selected identity");
-        var hyperNative = new SnesCgram();
-        var hyperSelected = new SnesCgram();
-        (stock.BeamTiles.HyperBeamFxColors ?? throw new InvalidOperationException("Verification requires stock.BeamTiles.HyperBeamFxColors.")).Apply(hyperNative, 3, 225);
-        (hyperEdited.BeamTiles.HyperBeamFxColors ?? throw new InvalidOperationException("Verification requires hyperEdited.BeamTiles.HyperBeamFxColors.")).Apply(hyperSelected, 3, 225);
+        var hyperNative = new SamusColourRig();
+        var hyperSelected = new SamusColourRig();
+        (stock.BeamTiles.HyperBeamFxColors ?? throw new InvalidOperationException("Verification requires stock.BeamTiles.HyperBeamFxColors.")).Apply(hyperNative.Samus.HyperBeam, 3);
+        (hyperEdited.BeamTiles.HyperBeamFxColors ?? throw new InvalidOperationException("Verification requires hyperEdited.BeamTiles.HyperBeamFxColors.")).Apply(hyperSelected.Samus.HyperBeam, 3);
         AssertEqual((ushort)(hyperNative.Colors[227].ToWord() ^ 1), hyperSelected.Colors[227],
             "Installed Hyper Beam FX override changes its selected color");
         ProjectilePresentationFiles.Extract(bus, installation.ProjectileDirectory);

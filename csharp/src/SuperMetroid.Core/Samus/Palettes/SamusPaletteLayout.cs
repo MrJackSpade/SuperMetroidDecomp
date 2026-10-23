@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Palettes;
@@ -23,18 +22,6 @@ public static class SamusPaletteLayout
     /// <summary>CGADD $E0-$EF (OBJ palette 6): the selected beam palette loaded by <c>$90:AC8D</c>.</summary>
     public static readonly PpuLayoutCell Beam = PpuMemoryLayout.Colors(nameof(Beam),
         SamusProjectileRomData.Palettes.BeamDestinationIndex, SuperMetroid.Core.Samus.Artwork.BeamPaletteDefinitions.ColorCount, "Bgr555 OBJ palette");
-
-    /// <summary>CGADD $DF (OBJ palette 5, colour 15): the grapple flare colour <c>$9B:C686</c> writes beside the beam palette.</summary>
-    public static readonly PpuLayoutCell GrappleFlare = PpuMemoryLayout.Colors(nameof(GrappleFlare),
-        SamusGrappleRomData.Palettes.FlareColorIndex, 1, "Bgr555 OBJ palette colour");
-
-    /// <summary>CGADD $E0-$E9: the Crystal Flash body colours in OBJ palette 6.</summary>
-    public static readonly PpuLayoutCell CrystalFlashBody = PpuMemoryLayout.Colors(nameof(CrystalFlashBody),
-        SamusPaletteRomData.CrystalFlash.BodyCgramStart, SuperMetroid.Core.Samus.Artwork.CrystalFlashColorFormat.BodyColorCount, "Bgr555 Crystal Flash body");
-
-    /// <summary>CGADD $EA-$EF: the Crystal Flash bubble colours in OBJ palette 6.</summary>
-    public static readonly PpuLayoutCell CrystalFlashBubble = PpuMemoryLayout.Colors(nameof(CrystalFlashBubble),
-        SamusPaletteRomData.CrystalFlash.BubbleCgramStart, SuperMetroid.Core.Samus.Artwork.CrystalFlashColorFormat.BubbleColorCount, "Bgr555 Crystal Flash bubble");
 
     /// <summary>CGADD $00-$BF: every colour below Samus's palette, whited out by the death sequence (<c>$9B:B4E0</c>).</summary>
     public static readonly PpuLayoutCell DeathWhiteoutBelowSuit = PpuMemoryLayout.Colors(nameof(DeathWhiteoutBelowSuit),

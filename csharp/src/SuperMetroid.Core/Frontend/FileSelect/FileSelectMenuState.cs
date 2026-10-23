@@ -546,7 +546,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         if (copyArrowPaletteTimer == 0 || --copyArrowPaletteTimer != 0)
             return;
         copyArrowPaletteTimer = FileCopyArrowDefinitions.PaletteDelay;
-        ScreenColours arrow = screen.Palette.SpriteRow(FileCopyArrowDefinitions.SpriteRow)
+        ColourRun arrow = screen.Palette.SpriteRow(FileCopyArrowDefinitions.SpriteRow)
             .Slice(FileCopyArrowDefinitions.FirstColour, FileCopyArrowDefinitions.ColorCount);
         int last = arrow.Count - 1;
         Bgr555 color = arrow[0];

@@ -40,7 +40,7 @@ internal sealed class EnemyPresentation
     }
 
     /// <summary>The room's bound CGRAM; enemy palette writes require the room's video memory to be bound.</summary>
-    internal SnesCgram Cgram
+    internal GameplayColours Cgram
     {
         get => field ?? throw new InvalidOperationException("Enemy presentation has no bound CGRAM; the room's video memory must be bound first.");
         private set;
@@ -73,7 +73,7 @@ internal sealed class EnemyPresentation
         Bg2Image ?? throw new InvalidOperationException("No boss has attached the enemy BG2 image.");
 
     /// <summary>Room load: binds the CGRAM the room's enemy palettes write.</summary>
-    internal void BindCgram(SnesCgram cgram) => Cgram = Ensure.NotNull(cgram);
+    internal void BindCgram(GameplayColours cgram) => Cgram = Ensure.NotNull(cgram);
     /// <summary>
     /// The session's gameplay OBJ character table bindings, which enemy-format sprites draw from. Uploads that bypass
     /// the NMI queue (Draygon's Evir sheet, Crocomire's skeleton chunks) record themselves here.

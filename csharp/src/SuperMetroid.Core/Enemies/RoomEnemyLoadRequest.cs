@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -12,7 +13,7 @@ public sealed record RoomEnemyLoadRequest : IRoomEnemyLoad
 {
     /// <summary>Creates a load of <paramref name="population"/> into the room's <paramref name="backgrounds"/> and their VRAM.</summary>
     public RoomEnemyLoadRequest(RoomEnemyPopulationDefinition population,
-        RoomEnemyGraphicsSetDefinition graphicsSet, BgArtworkBindings backgrounds, SnesCgram cgram)
+        RoomEnemyGraphicsSetDefinition graphicsSet, BgArtworkBindings backgrounds, GameplayColours cgram)
     {
         Population = Ensure.NotNull(population);
         GraphicsSet = Ensure.NotNull(graphicsSet);
@@ -33,7 +34,7 @@ public sealed record RoomEnemyLoadRequest : IRoomEnemyLoad
     public BgArtworkBindings Backgrounds { get; }
 
     /// <inheritdoc />
-    public SnesCgram Cgram { get; }
+    public GameplayColours Cgram { get; }
 
     /// <inheritdoc />
     public RoomLevelData? Level { get; init; }

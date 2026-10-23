@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
@@ -58,13 +59,13 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
             "Crystal Flash timing production fixture begins");
 
         var guard = NewCrystalFlashPaletteTimingReadGuard(rom);
-        var cgram = new SnesCgram();
+        var cgram = new SamusColourRig();
         var colors = RetailPresentationFixture().CrystalFlashColors;
         int callCount = CrystalFlashPaletteTimingDefinitions.RecordCount *
             CrystalFlashPaletteTimingDefinitions.AuthoredDuration;
         for (int call = 0; call < callCount; call++)
         {
-            AssertTrue(samus.CrystalFlash.UpdatePalette(cgram, samus, colors: colors),
+            AssertTrue(samus.CrystalFlash.UpdatePalette(cgram.Samus, samus, colors: colors),
                 $"Crystal Flash timing call {call} retains palette ownership");
 
             ushort expectedTimer = unchecked((ushort)(

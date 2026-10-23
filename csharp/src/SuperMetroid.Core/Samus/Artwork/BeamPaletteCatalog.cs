@@ -1,7 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Progression;
 
@@ -69,13 +68,13 @@ public sealed class BeamPaletteCatalog
     }
 
     /// <summary>Copies all sixteen colors of an ordinary beam selection to CGRAM entries 224..239 (OBJ palette 6), matching native <c>Load_Beam_Palette_withStackPrepped</c> at <c>$90:ACCD</c>; does not run charge or Hyper Beam color animation.</summary>
-    /// <param name="cgram">Destination color memory to update.</param>
+    /// <param name="beam">The beam colours to change.</param>
     /// <param name="selection">Retail beam combination $0..$B.</param>
-    public void LoadTo(IPaletteColors cgram, SamusBeamCombination selection)
+    public void LoadTo(ColourRun beam, SamusBeamCombination selection)
     {
         if (!selection.IsRetail) throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam palettes cover retail combinations only.");
         for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
-            new SamusPalettes(cgram).Beam.Write(i, Color(selection, i));
+            beam.Write(i, Color(selection, i));
     }
 
     /// <summary>Serializes a beam-palette document as indented camel-case UTF-8 JSON and validates it through <see cref="Load"/> before returning the bytes.</summary>

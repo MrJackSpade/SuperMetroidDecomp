@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Tooling;
 using System.Text;
@@ -49,7 +50,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         CartridgeReadGuard guard = new CartridgeReadGuard(bus).Forbid(forbidden.Contains,
             address => $"Installed Norfair Ridley palette read migrated ROM byte ${address:X6}.");
         (SnesCgram nativeCgram, RidleyEnemyState nativeState) = CreateReference();
-        (RoomEnemySystem installed, SnesCgram installedCgram, RoomEnemySlot installedSlot,
+        (RoomEnemySystem installed, SamusColourRig installedCgram, RoomEnemySlot installedSlot,
             RidleyEnemyState installedState) = Create(guard, stock);
         AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
             "Norfair Ridley initial palette matches all native CGRAM entries");
@@ -86,7 +87,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         byte[] editedBytes = Encoding.UTF8.GetBytes(changed.ToJsonString());
         File.WriteAllBytes(overridePath, editedBytes);
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        (RoomEnemySystem editedEnemy, SnesCgram editedCgram, RoomEnemySlot editedSlot,
+        (RoomEnemySystem editedEnemy, SamusColourRig editedCgram, RoomEnemySlot editedSlot,
             RidleyEnemyState editedState) = Create(guard, edited);
         (SnesCgram controlCgram, RidleyEnemyState controlState) = CreateReference();
         CheckEditedCgram("Norfair Ridley edited initial colors", revealRowVisible: false);
@@ -205,10 +206,10 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             ISnesAddressSpace source, InstalledEnemyArtwork artwork)
         {
             var enemy = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
-            var cgram = new SnesCgram();
+            var cgram = new SamusColourRig();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 cgram.SetColor(color, Bgr555.FromWord((ushort)(color * 31)));
-            enemy.Presentation.BindCgram(cgram);
+            enemy.Presentation.BindCgram(cgram.Gameplay);
             enemy.VerificationServices().IsAreaBossDefeated = () => false;
             RoomEnemySlot slot = enemy.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);

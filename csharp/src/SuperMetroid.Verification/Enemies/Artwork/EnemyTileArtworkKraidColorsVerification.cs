@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Tooling;
 using System.Text.Json;
@@ -194,8 +195,8 @@ internal static class EnemyTileArtworkKraidColorsVerification
         KraidPaletteConsumer consumer)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
-        var cgram = new SnesCgram();
-        enemies.Presentation.BindCgram(cgram);
+        var cgram = new SamusColourRig();
+        enemies.Presentation.BindCgram(cgram.Gameplay);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Health = 1000;
         var state = new KraidEnemyState();

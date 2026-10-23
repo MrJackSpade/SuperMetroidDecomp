@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
@@ -50,13 +51,13 @@ internal sealed class BeamFiring
     /// clear its visible flare and restore the normal suit palette. Unlike HUD
     /// cancellation, this does not rewrite the previous-charge sampling word.
     /// </summary>
-    public void ConsumePseudoScrewCharge(IPaletteColors cgram, SamusState samus)
+    public void ConsumePseudoScrewCharge(SamusColours colours, SamusState samus)
     {
         _charge.SamusChargePaletteIndex = 0;
         _charge.FlareCounter = 0;
         samus.ProjectileFlareCounter = 0;
         _animation.ClearFlareAnimationState();
-        ProjectileAnimation.LoadNormalSuitPalette(cgram, samus);
+        ProjectileAnimation.LoadNormalSuitPalette(colours, samus);
     }
 
     /// <summary>Clears the charge counter, its prior sample, and all flare animation layers.</summary>

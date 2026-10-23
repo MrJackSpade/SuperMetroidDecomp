@@ -31,7 +31,7 @@ internal static class SnesBgTilemapRendererAccess
         /// </summary>
         internal static Rgba32[] Render2Bpp(
             SnesVram vram,
-            SnesCgram cgram,
+            IPaletteColors cgram,
             int tilemapBaseWord,
             int characterBaseWord,
             int rowCount,

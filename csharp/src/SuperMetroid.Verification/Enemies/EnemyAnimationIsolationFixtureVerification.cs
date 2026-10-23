@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Boyon;
@@ -42,7 +43,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
         /// <summary>Fixture VRAM receiving enemy tile presentation.</summary>
         internal SnesVram Vram { get; } = new();
         /// <summary>Fixture palette memory receiving enemy colors.</summary>
-        internal SnesCgram Colors { get; } = new();
+        internal SamusColourRig Colors { get; } = new();
         /// <summary>Current deterministic RNG word supplied to enemy behavior.</summary>
         internal ushort RandomWord { get; private set; } = 1;
         /// <summary>Number of RNG steps consumed by the running actor.</summary>
@@ -69,7 +70,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Level = new RoomLevelData(new Extent16<RoomBlocks>(roomBlocks, roomBlocks), new RoomLevelPlanes(layer, new byte[layer.Length], new ushort[layer.Length]), []);
             Enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             Enemies.Presentation.BindVram(BgArtworkFixtures.For(Vram));
-            Enemies.Presentation.BindCgram(Colors);
+            Enemies.Presentation.BindCgram(Colors.Gameplay);
             Enemies.VerificationServices().NextRandom = NextRandom;
             Enemies.VerificationServices().ReadRandom = () => RandomWord;
             Enemies.VerificationServices().SeedRandom = value => RandomWord = value;

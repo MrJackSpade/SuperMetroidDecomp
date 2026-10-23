@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -40,7 +41,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         // Native initialization for x=$100, span=$80, facing left: midpoint=$C0;
         // 32 acceleration steps sum to $4200, so the adjusted right post is $102.
         const ushort nativeX = 0x0102;
-        (RoomEnemySlot stockSlot, SnesCgram stockColors, AnimationProgramCursor<NinjaSpacePirateProgram> stockProgram) = Initialize(stock);
+        (RoomEnemySlot stockSlot, SamusColourRig stockColors, AnimationProgramCursor<NinjaSpacePirateProgram> stockProgram) = Initialize(stock);
         AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(stockColors)),
             "Installed ninja target palette preserves full native CGRAM including neighbors");
         AssertEqual(nativeX, stockSlot.Position.X.Whole,
@@ -59,7 +60,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         edit.Required("colors").Required(4)["red"] = red.GetValue<int>() ^ 1;
         File.WriteAllText(overridePath, edit.ToJsonString());
         var selected = EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory);
-        (RoomEnemySlot editedSlot, SnesCgram editedColors, _) = Initialize(selected);
+        (RoomEnemySlot editedSlot, SamusColourRig editedColors, _) = Initialize(selected);
         for (int color = 0; color < SnesCgram.ColorCount; color++)
             AssertEqual((ushort)(nativeColors.Colors[color].ToWord() ^
                 (color == NinjaSpacePiratePaletteDefinitions.TargetColor + 4 ? 1 : 0)),
@@ -72,7 +73,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         EnemyTileArtworkFiles.Extract(bus, stockDirectory, SupportedCartridge.Sha256);
         AssertTrue(savedOverride.SequenceEqual(File.ReadAllBytes(overridePath)),
             "Enemy stock re-extraction preserves the shared ninja color override");
-        (RoomEnemySlot restoredSlot, SnesCgram restoredColors, _) = Initialize(
+        (RoomEnemySlot restoredSlot, SamusColourRig restoredColors, _) = Initialize(
             EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory));
         AssertTrue(new CgramPalettes(restoredColors).ImageEquals(new CgramPalettes(editedColors)),
             "Reload after stock repair retains the selected ninja target colors");
@@ -84,10 +85,10 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
             InstalledEnemyArtwork artwork)
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
-            var colors = new SnesCgram();
+            var colors = new SamusColourRig();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 colors.SetColor(color, Bgr555.FromWord((ushort)(color * 17)));
-            enemies.Presentation.BindCgram(colors);
+            enemies.Presentation.BindCgram(colors.Gameplay);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.PirateGreyNinja, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

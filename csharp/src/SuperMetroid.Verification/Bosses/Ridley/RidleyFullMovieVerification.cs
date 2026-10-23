@@ -685,7 +685,7 @@ internal static class RidleyFullMovieVerification
         samus.Position = samus.Position.WithWhole(new(512, 400));
         samus.EquippedItems = SamusEquipmentFlags.VariaSuit;
         samus.SelectedHudItem = HudItem.Missile; samus.SuperMissiles = 5;
-        samus.Presentation.LoadSuitPalette(samus, runtime.Cgram);
+        samus.Presentation.LoadSuitPalette(samus, runtime.Player.Colours);
         Bgr555[] expected = runtime.Cgram.Colors.Slice(192, 16).ToArray();
         for (int color = 192; color < 208; color++) runtime.Cgram.SetColor(color, Bgr555.FromWord(0x1234));
         runtime.StepFrame(SnesButton.Select);

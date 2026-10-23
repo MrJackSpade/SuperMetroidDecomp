@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Installation;
@@ -57,12 +59,12 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
     /// </summary>
     internal Bgr555[] SuitedColours()
     {
-        SnesCgram cgram = RoomLoadColours();
-        SuitColors.Apply(cgram, PowerSuit);
-        SamusProjectileSystem.LoadBeamPalette(cgram, SamusBeamCombination.Power, Projectiles.BeamTiles.Palettes);
+        ScreenPalette cgram = RoomLoadColours();
+        SuitColors.Apply(cgram.SpriteRow(SamusColourDefinitions.SuitInkRow), PowerSuit);
+        SamusProjectileSystem.LoadBeamPalette(cgram.SpriteRow(SamusColourDefinitions.BeamInkRow), SamusBeamCombination.Power, Projectiles.BeamTiles.Palettes);
         return cgram.Colors[SpriteColours..].ToArray();
     }
 
     /// <summary>CGRAM as a room load leaves it: the starting image with the common and enemy-projectile sprite rows.</summary>
-    internal SnesCgram RoomLoadColours() => RoomLoadPalettes.Cgram(Palettes);
+    internal ScreenPalette RoomLoadColours() => RoomLoadPalettes.Colours(Palettes);
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -9,10 +10,10 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 internal static class RoomLoadPalettes
 {
     /// <summary>CGRAM as a room load leaves it: the starting image with the common and enemy-projectile sprite rows.</summary>
-    internal static SnesCgram Cgram(GameplayBasePaletteCatalog palettes)
+    internal static ScreenPalette Colours(GameplayBasePaletteCatalog palettes)
     {
         Ensure.NotNull(palettes);
-        var cgram = new SnesCgram();
+        var cgram = new ScreenPalette();
         palettes.LoadInitial(cgram);
         palettes.LoadCommonSprites(cgram, RoomLoadingRomData.CommonGameplaySpritePaletteCgramIndex);
         palettes.LoadEnemyProjectileSprites(cgram, RoomLoadingRomData.InitialEnemyProjectilePaletteCgramIndex);

@@ -311,10 +311,6 @@ public static class SamusPaletteRomData
         public const int BodyColorCount = 10;
         /// <summary>Number of colors copied for the bubble portion.</summary>
         public const int BubbleColorCount = 6;
-        /// <summary>First CGRAM color of OBJ palette six.</summary>
-        public const int BodyCgramStart = 0xe0;
-        /// <summary>First CGRAM color of the bubble portion in OBJ palette six.</summary>
-        public const int BubbleCgramStart = 0xea;
     }
 
     /// <summary>Raw COLDATA endpoints used by the shared Varia/Gravity pickup sequence.</summary>

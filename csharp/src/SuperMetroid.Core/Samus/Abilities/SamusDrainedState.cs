@@ -200,17 +200,17 @@ public sealed class SamusDrainedState
     /// value becomes the delay between advances of the ten-entry palette index.
     /// </remarks>
     /// <returns>True when this state owned the current frame's Samus palette dispatch.</returns>
-    public bool UpdatePalette(IPaletteColors cgram, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
+    public bool UpdatePalette(SamusColours colours, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         SamusSuitColorCatalog? suitColors = null)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(colours);
 
         if (_suitPaletteRestoreRequested)
         {
             // `$90:F3E9` and `$91:E56B` choose Gravity before Varia, then Power. The table
             // stores byte offsets 0/2/4 rather than a host enum, matching every other Samus
             // palette restoration path in bank `$91`.
-            SamusNormalSuitPalette.Load(cgram, equippedItems, suitColors);
+            SamusNormalSuitPalette.Load(colours.Suit, equippedItems, suitColors);
             _suitPaletteRestoreRequested = false;
             return true;
         }
@@ -225,7 +225,7 @@ public sealed class SamusDrainedState
         if (PresentationColors is null)
             throw new InvalidOperationException("Drained Samus requires installed Hyper Beam colors.");
         for (int index = 0; index < SamusHyperBeamColorFormat.ColorsPerFrame; index++)
-            new SamusPalettes(cgram).Suit.Write(index,
+            colours.Suit.Write(index,
                 PresentationColors.Resolve(paletteFrame, index));
 
         CountdownStep timer = CommonPaletteTimer.Decrement();

@@ -103,10 +103,10 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     // Update_Beam_Tiles_and_Palette writes sprite palette six; the projectile page the power beam
     // binds shows its $100 bytes where the native DMA to VRAM word $6300 placed them.
-    var beamCgram = new SnesCgram();
+    var beamCgram = new SamusColourRig();
     var beamPalettes = BeamPaletteCatalog.Load(new MemoryStream(BeamPaletteExtractor.Extract(bus)));
     var beamArtwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(bus), beamPalettes);
-    SamusProjectileSystem.LoadBeamPalette(beamCgram, equippedBeams: 0, beamPalettes);
+    SamusProjectileSystem.LoadBeamPalette(beamCgram.Samus.Beam, equippedBeams: 0, beamPalettes);
     ReadOnlySpan<byte> beamPage = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, beamArtwork,
         InstalledFixtures.Projectiles.Trails.Tiles ?? throw new InvalidOperationException("The installation has no trail characters."))
         .For(SuperMetroid.Core.Progression.SamusBeamFlags.None).Characters;
@@ -423,7 +423,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     // entries once per palette call. Verify Power/Varia/Gravity independently for both the
     // normal charge and contact-damage-index-four pseudo-screw families. Six calls must
     // wrap the native byte offset 0,2,4,6,8,10 back to zero.
-    var liveChargeCgram = new SnesCgram();
+    var liveChargeCgram = new SamusColourRig();
     ushort[] suitEquipment = [0x0000, 0x0001, 0x0020];
     for (int family = 0; family < 2; family++)
     {
@@ -438,7 +438,7 @@ internal static void VerifySamusPowerBeamProjectiles()
                 AssertEqual(palette * 2, chargeProjectiles.Charge.SamusChargePaletteIndex,
                     $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} selects palette ordinal");
                 SamusBeamChargePaletteStepResult liveChargeStep =
-                    chargeProjectiles.UpdateBeamChargePalette(liveChargeCgram, chargeSamus);
+                    chargeProjectiles.UpdateBeamChargePalette(liveChargeCgram.Samus, chargeSamus);
                 // The installed colors are unique per family/suit/palette, so the CGRAM check
                 // below identifies the palette the call selected.
                 AssertEqual(
@@ -467,12 +467,12 @@ internal static void VerifySamusPowerBeamProjectiles()
     // pausing and resuming on the second palette.
     chargeSamus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.None;
     chargeSamus.EquippedItems = 0;
-    chargeProjectiles.UpdateBeamChargePalette(liveChargeCgram, chargeSamus);
+    chargeProjectiles.UpdateBeamChargePalette(liveChargeCgram.Samus, chargeSamus);
     AssertEqual(2, chargeProjectiles.Charge.SamusChargePaletteIndex,
         "one live charge-palette call advances byte offset to two");
     chargeSamus.Grapple.Phase = GrapplePhase.Firing;
     SamusBeamChargePaletteStepResult grappleSuppressesCharge =
-        chargeProjectiles.UpdateBeamChargePalette(liveChargeCgram, chargeSamus);
+        chargeProjectiles.UpdateBeamChargePalette(liveChargeCgram.Samus, chargeSamus);
     AssertEqual(SamusBeamChargePaletteAction.Inactive, grappleSuppressesCharge.Action,
         "active grapple suppresses charge-body palette");
     AssertEqual(0, chargeProjectiles.Charge.SamusChargePaletteIndex,
@@ -504,12 +504,12 @@ internal static void VerifySamusPowerBeamProjectiles()
     // complete suit palette. Seed transparent color zero with a sentinel to catch a broad
     // sixteen-color white fill, and equip both suit bits to prove Gravity wins over Varia.
     chargeSamus.EquippedItems = (SamusEquipmentFlags)0x0021;
-    var chargedGlowCgram = new SnesCgram();
+    var chargedGlowCgram = new SamusColourRig();
     chargedGlowCgram.SetColor(192, Bgr555.FromWord(0x4321));
     for (int call = 0; call < 4; call++)
     {
         SamusBeamChargePaletteStepResult paletteStep =
-            chargeProjectiles.UpdateBeamChargePalette(chargedGlowCgram, chargeSamus);
+            chargeProjectiles.UpdateBeamChargePalette(chargedGlowCgram.Samus, chargeSamus);
         if (call < 3)
         {
             AssertEqual(SamusBeamChargePaletteAction.OrdinaryWhite, paletteStep.Action,
@@ -666,13 +666,13 @@ internal static void VerifySamusPowerBeamProjectiles()
     // `$8014` supplies ten descending even table offsets with an odd no-write hold after
     // each one. The twenty-first call sees `$8000`, skips the padding pointer, and restores
     // Power Suit. Verify every ROM word so reversed palette order cannot look plausible.
-    var hyperGlowCgram = new SnesCgram();
+    var hyperGlowCgram = new SamusColourRig();
     for (int call = 0; call < 21; call++)
     {
         Bgr555[] beforeColors = hyperGlowCgram.Colors.ToArray();
         ushort hyperTimerBefore = hyperProjectiles.Charge.ChargedShotGlowTimer.RawValue;
         SamusBeamChargePaletteStepResult paletteStep =
-            hyperProjectiles.UpdateBeamChargePalette(hyperGlowCgram, hyperSamus);
+            hyperProjectiles.UpdateBeamChargePalette(hyperGlowCgram.Samus, hyperSamus);
         if (call < 20 && (call & 1) == 0)
         {
             int palette = call / 2;

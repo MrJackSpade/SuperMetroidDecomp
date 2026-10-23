@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
@@ -29,16 +30,16 @@ internal static class CrystalFlashVisualsVerification
             int body = Banks.Palette | Word(CrystalFlash.BodyRecords + record * CrystalFlash.BodyRecordByteCount);
             int bubble = Banks.Palette | Word(SamusCartridgeTables.BubblePointers + elapsed / 5 % CrystalFlash.BubblePaletteCount * 2);
             for (int color = 0; color < CrystalFlash.BodyColorCount; color++)
-                AssertEqual(Word(body + color * 2), packet.Paint.Colors[CrystalFlash.BodyCgramStart + color],
+                AssertEqual(Word(body + color * 2), packet.Paint.Colors[SamusPaletteRomDataCrystalFlashConstants.BodyCgramStart + color],
                     $"runtime Crystal Flash body palette at frame {elapsed}");
             for (int color = 0; color < CrystalFlash.BubbleColorCount; color++)
-                AssertEqual(Word(bubble + color * 2), packet.Paint.Colors[CrystalFlash.BubbleCgramStart + color],
+                AssertEqual(Word(bubble + color * 2), packet.Paint.Colors[SamusPaletteRomDataCrystalFlashConstants.BubbleCgramStart + color],
                     $"runtime Crystal Flash bubble palette at frame {elapsed}");
         }
 
         var pixels = SoftwareLayeredSnapshotRenderer.Render(packet);
         var colors = packet.Paint.Colors.ToArray();
-        Array.Clear(colors, CrystalFlash.BodyCgramStart, Common.ColorsPerObjPalette);
+        Array.Clear(colors, SamusPaletteRomDataCrystalFlashConstants.BodyCgramStart, Common.ColorsPerObjPalette);
         var mutedMemory = new FramePaint(colors, packet.Paint.SpriteDraws);
         var mutedBody = SoftwareLayeredSnapshotRenderer.Render(new LayeredScene(mutedMemory,
             packet.Layers, packet.Brightness));

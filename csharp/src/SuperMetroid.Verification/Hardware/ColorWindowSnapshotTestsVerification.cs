@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
@@ -50,7 +51,7 @@ internal static class ColorWindowSnapshotTestsVerification
                     retained = SamusSuitPickupRenderer.Capture(pickup.Flash);
                     Compare(expected, (retained ?? throw new InvalidOperationException("Verification requires retained.")));
                 }
-                pickup.Step(samus, new SnesCgram());
+                pickup.Step(samus, new SamusColours());
                 if (retained is not null) Compare((expected ?? throw new InvalidOperationException("Verification requires expected.")), retained);
             }
             AssertTrue(!pickup.IsActive, "suit window fixture completes");

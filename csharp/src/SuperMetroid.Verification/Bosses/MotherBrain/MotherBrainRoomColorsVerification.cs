@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -20,8 +21,8 @@ internal static class MotherBrainRoomColorsVerification
         string overrides, AreaMapPresentationCatalog original,
         GameplayBasePaletteCatalog initialPalettes)
     {
-        var nativeCgram = new SnesCgram();
-        var installedCgram = new SnesCgram();
+        var nativeCgram = new SamusColourRig();
+        var installedCgram = new SamusColourRig();
         MotherBrainRoomColorPresentation extracted = MotherBrainRoomColorPresentation.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom),
                 writable: false));
@@ -139,14 +140,14 @@ internal static class MotherBrainRoomColorsVerification
         }, ArtworkJson.Options);
         File.WriteAllBytes(replacement, previousVersion);
         AreaMapPresentationCatalog migratedV2 = AreaMapPresentationCatalog.Load(stock, overrides);
-        var migratedRecovery = new SnesCgram();
-        var originalRecovery = new SnesCgram();
+        var migratedRecovery = new SamusColourRig();
+        var originalRecovery = new SamusColourRig();
         migratedV2.MotherBrainRoomColors.ApplyRecoveryLights(migratedRecovery, 0);
         original.MotherBrainRoomColors.ApplyRecoveryLights(originalRecovery, 0);
         AssertTrue(new CgramPalettes(migratedRecovery).ImageEquals(new CgramPalettes(originalRecovery)),
             "version-two override inherits new recovery-light colors from stock");
-        var migratedV2Entry = new SnesCgram();
-        var originalV2Entry = new SnesCgram();
+        var migratedV2Entry = new SamusColourRig();
+        var originalV2Entry = new SamusColourRig();
         migratedV2.MotherBrainRoomColors.ApplyRoomEntry(migratedV2Entry);
         original.MotherBrainRoomColors.ApplyRoomEntry(originalV2Entry);
         AssertTrue(!new CgramPalettes(migratedV2Entry).ImageEquals(new CgramPalettes(originalV2Entry)),
@@ -160,14 +161,14 @@ internal static class MotherBrainRoomColorsVerification
         }, ArtworkJson.Options);
         File.WriteAllBytes(replacement, legacy);
         AreaMapPresentationCatalog migrated = AreaMapPresentationCatalog.Load(stock, overrides);
-        var migratedFlash = new SnesCgram();
-        var originalFlash = new SnesCgram();
+        var migratedFlash = new SamusColourRig();
+        var originalFlash = new SamusColourRig();
         migrated.MotherBrainRoomColors.ApplyFlash(migratedFlash, 0);
         original.MotherBrainRoomColors.ApplyFlash(originalFlash, 0);
         AssertTrue(!new CgramPalettes(migratedFlash).ImageEquals(new CgramPalettes(originalFlash)),
             "version-one room-color override retains its existing flash edit");
-        var migratedEntry = new SnesCgram();
-        var originalEntry = new SnesCgram();
+        var migratedEntry = new SamusColourRig();
+        var originalEntry = new SamusColourRig();
         migrated.MotherBrainRoomColors.ApplyRoomEntry(migratedEntry);
         original.MotherBrainRoomColors.ApplyRoomEntry(originalEntry);
         AssertTrue(new CgramPalettes(migratedEntry).ImageEquals(new CgramPalettes(originalEntry)),
@@ -193,8 +194,8 @@ internal static class MotherBrainRoomColorsVerification
     private static void VerifyMotherBrainRecoveryLights(MotherBrainRoomColorPresentation installed,
         MotherBrainRoomColorPresentation extracted)
     {
-        var nativeCgram = new SnesCgram();
-        var installedCgram = new SnesCgram();
+        var nativeCgram = new SamusColourRig();
+        var installedCgram = new SamusColourRig();
         Seed(nativeCgram);
         Seed(installedCgram);
         var native = CreateEnemy(nativeCgram, extracted);
@@ -224,8 +225,8 @@ internal static class MotherBrainRoomColorsVerification
     private static void AssertRecoveryLightsEdited(AreaMapPresentationCatalog original,
         AreaMapPresentationCatalog edited)
     {
-        var stockCgram = new SnesCgram();
-        var editedCgram = new SnesCgram();
+        var stockCgram = new SamusColourRig();
+        var editedCgram = new SamusColourRig();
         var stock = CreateEnemy(stockCgram,
             original.MotherBrainRoomColors);
         var replacement = CreateEnemy(editedCgram,
@@ -255,8 +256,8 @@ internal static class MotherBrainRoomColorsVerification
     private static void AssertRoomEntryEdited(AreaMapPresentationCatalog original,
         AreaMapPresentationCatalog edited)
     {
-        var stockCgram = new SnesCgram();
-        var editedCgram = new SnesCgram();
+        var stockCgram = new SamusColourRig();
+        var editedCgram = new SamusColourRig();
         var stockEnemy = CreateEnemy(stockCgram,
             original.MotherBrainRoomColors);
         var editedEnemy = CreateEnemy(editedCgram,
@@ -280,8 +281,8 @@ internal static class MotherBrainRoomColorsVerification
         AreaMapPresentationCatalog edited, int expectedFirstColor, int expectedDifferences,
         bool flash = false)
     {
-        var stockCgram = new SnesCgram();
-        var editedCgram = new SnesCgram();
+        var stockCgram = new SamusColourRig();
+        var editedCgram = new SamusColourRig();
         var stockEnemy = CreateEnemy(stockCgram,
             original.MotherBrainRoomColors);
         var editedEnemy = CreateEnemy(editedCgram,
@@ -311,18 +312,18 @@ internal static class MotherBrainRoomColorsVerification
     }
 
     /// <summary>Binds one installed room-color catalog and CGRAM destination to a fresh Mother Brain enemy system.</summary>
-    private static RoomEnemySystem CreateEnemy(SnesCgram cgram,
+    private static RoomEnemySystem CreateEnemy(SamusColourRig cgram,
         MotherBrainRoomColorPresentation? colors)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { MotherBrainRoomColors = colors } };
-        enemies.Presentation.BindCgram(cgram);
+        enemies.Presentation.BindCgram(cgram.Gameplay);
         enemies.Presentation.BindVram(BgArtworkFixtures.For(new SnesVram()));
         return enemies;
     }
 
     /// <summary>Seeds every CGRAM word with a distinct bounded color so unintended palette writes remain observable.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void Seed(SnesCgram cgram)
+    private static void Seed(SamusColourRig cgram)
     {
         for (int index = 0; index < SnesCgram.ColorCount; index++)
             cgram.SetColor(index, Bgr555.FromWord((ushort)(index * 71 & 0x7fff)));

@@ -175,10 +175,10 @@ public sealed class SamusSuitPickupState
     }
 
     /// <summary>Runs one installed bank-$88 HDMA pre-instruction.</summary>
-    public void Step(SamusState samus, IPaletteColors cgram)
+    public void Step(SamusState samus, SamusColours colours)
     {
         Ensure.NotNull(samus);
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(colours);
         if (!IsActive)
             return;
         if (_preInstructionInstallCallsRemaining != 0)
@@ -199,7 +199,7 @@ public sealed class SamusSuitPickupState
                 StepCurvedWidening();
                 break;
             case SamusSuitPickupStage.RevealSuit:
-                RevealSuit(samus, cgram);
+                RevealSuit(samus, colours);
                 break;
             case SamusSuitPickupStage.LightBeamShrinks:
                 StepLightBeamShrinks();
@@ -331,7 +331,7 @@ public sealed class SamusSuitPickupState
     }
 
     /// <summary>Installs the equipment bit, suited front pose, and palette at the native third-stage handoff.</summary>
-    private void RevealSuit(SamusState samus, IPaletteColors cgram)
+    private void RevealSuit(SamusState samus, SamusColours colours)
     {
         SamusEquipmentFlags mask = Kind == SamusSuitPickupKind.Varia
             ? SamusEquipmentFlags.VariaSuit
@@ -344,7 +344,7 @@ public sealed class SamusSuitPickupState
         // The reveal phase publishes another transition, even if the other suit
         // already selected this same front-facing pose at entry.
         samus.CommitPoseHistory();
-        samus.Presentation.LoadSuitPalette(samus, cgram);
+        samus.Presentation.LoadSuitPalette(samus, colours);
         Stage = SamusSuitPickupStage.LightBeamShrinks;
     }
 

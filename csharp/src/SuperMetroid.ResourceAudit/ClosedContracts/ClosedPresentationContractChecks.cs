@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -67,8 +68,8 @@ internal static class ClosedPresentationContractChecks
                     reserve.ApplyLabel(bytes, dynamicIndex > 0 ? PauseReserveLabel.Auto : PauseReserveLabel.Manual);
                     reserve.ApplyArrowColors(screen.BackgroundRow(0), true, dynamicIndex);
                     reserve.ApplyDigit(bytes, 0, 10);
-                    beam.LoadTo(cgram, 0);
-                    beam.LoadTo(cgram, (SuperMetroid.Core.Progression.SamusBeamCombination)12);
+                    beam.LoadTo(screen.SpriteRow(6), 0);
+                    beam.LoadTo(screen.SpriteRow(6), (SuperMetroid.Core.Progression.SamusBeamCombination)12);
                     ridley.ApplyHealth(cgram, 0);
                     ridley.ApplyHealth(cgram, 3);
                     crocomire.ApplyFightBody(cgram);

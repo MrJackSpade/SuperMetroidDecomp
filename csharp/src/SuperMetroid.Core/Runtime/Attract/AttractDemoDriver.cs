@@ -22,8 +22,6 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     private readonly RuntimeArtwork _artwork;
     /// <summary>Owns the scripted input and the temporary controller substitution scope.</summary>
     private readonly AttractDemoSession _attractSession;
-    /// <summary>Receives the demo Samus suit palette during scene setup.</summary>
-    private readonly SnesCgram _cgram;
     /// <summary>Player controller replaced by demo input only during Samus updates.</summary>
     private readonly ControllerInputState _controller1;
     /// <summary>The session's Mode 7 transfer residue, which a demo's Samus reads.</summary>
@@ -46,7 +44,6 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     {
         _artwork = dependencies.Artwork;
         _attractSession = dependencies.AttractSession;
-        _cgram = dependencies.Cgram;
         _controller1 = dependencies.Controller1;
         _enemySession = dependencies.EnemySession;
         _hudSetup = dependencies.HudSetup;
@@ -125,7 +122,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
             RoomViewportLoadMode.DisplayInitialViewport);
         // The scene's room setup acts on the demo room the load just built.
         ApplyAttractRoomSetup(scene.RoomSetup, _room.LoadedScope.Enemies);
-        _player.Samus.Presentation.LoadSuitPalette(_player.Samus, _cgram);
+        _player.Samus.Presentation.LoadSuitPalette(_player.Samus, _player.Colours);
         SamusPoseMetadata.RefreshCollisionRadii(_player.Samus);
         SamusPresentation.InitializeAnimation(_player.Samus);
         _player.Samus.Presentation.PrimeGraphics(_player.Samus);

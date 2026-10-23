@@ -94,27 +94,27 @@ public sealed class CrystalFlashColorCatalog
     }
 
     /// <summary>Copies one body frame to CGRAM colors $E0-$E9 without changing the bubble colors or advancing any gameplay timer.</summary>
-    /// <param name="cgram">Destination color memory.</param>
+    /// <param name="colours">Destination color memory.</param>
     /// <param name="frame">Zero-based body playback record index, 0 through 9.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="colours"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The body frame index is outside the sequence.</exception>
-    public void ApplyBody(IPaletteColors cgram, int frame)
+    public void ApplyBody(SamusColours colours, int frame)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(colours);
         for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
-            new SamusPalettes(cgram).CrystalFlashBody.Write(color,
+            colours.CrystalFlashBody.Write(color,
                 ResolveBody(frame, color));
     }
     /// <summary>Copies one bubble frame to CGRAM colors $EA-$EF without changing the body colors or advancing any gameplay timer.</summary>
-    /// <param name="cgram">Destination color memory.</param>
+    /// <param name="colours">Destination color memory.</param>
     /// <param name="frame">Zero-based bubble palette index, 0 through 5.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="colours"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The bubble frame index is outside the sequence.</exception>
-    public void ApplyBubble(IPaletteColors cgram, int frame)
+    public void ApplyBubble(SamusColours colours, int frame)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(colours);
         for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
-            new SamusPalettes(cgram).CrystalFlashBubble.Write(color,
+            colours.CrystalFlashBubble.Write(color,
                 ResolveBubble(frame, color));
     }
 

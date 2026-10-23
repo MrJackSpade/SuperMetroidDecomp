@@ -158,7 +158,7 @@ internal static class EnemySheetComposer
         Ensure.NotNull(set);
         var graphics = new EnemyGraphicsSet(new EnemyRoomBinding(new EnemySession { TileArtwork = inputs.Enemies },
             CompiledRoomEnemyDefinitions.Instance, services: null));
-        SnesCgram cgram = RoomLoadPalettes.Cgram(inputs.Palettes);
+        ScreenPalette cgram = RoomLoadPalettes.Colours(inputs.Palettes);
         graphics.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set, new SnesVram(), cgram);
         List<EnemyDefinitionId> members = [.. graphics.Entries.Select(entry => entry.DefinitionId)];
         IEnumerable<EnemyDefinitionId> placed = RoomStateDefinitions.All.Where(state => state.EnemyGraphicsSet.Name == set.Name)

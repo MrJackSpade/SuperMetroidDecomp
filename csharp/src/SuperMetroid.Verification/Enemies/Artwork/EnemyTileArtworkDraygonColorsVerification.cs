@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -93,10 +94,10 @@ internal static class EnemyTileArtworkDraygonColorsVerification
                     < (DraygonColorRomData.WhiteFlashSource +
                         DraygonColorRomData.WhiteFlashCount * sizeof(ushort)),
             address => $"Draygon accessed migrated palette ROM ${address:X6}.");
-        var cgram = new SnesCgram();
+        var cgram = new SamusColourRig();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         Type type = typeof(RoomEnemySystem);
-        enemies.Presentation.BindCgram(cgram);
+        enemies.Presentation.BindCgram(cgram.Gameplay);
         enemies.Presentation.BindVram(BgArtworkFixtures.For(new SnesVram()));
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.DraygonBody, body.Definition);

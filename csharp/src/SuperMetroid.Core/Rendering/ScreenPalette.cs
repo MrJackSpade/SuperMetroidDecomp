@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
@@ -26,20 +27,20 @@ public sealed class ScreenPalette : IPaletteColors
     public ReadOnlySpan<Bgr555> Colors => colors;
 
     /// <summary>Every colour of the screen.</summary>
-    public ScreenColours All => new(this, 0, ColorCount);
+    public ColourRun All => new(colors, 0, ColorCount);
 
     /// <summary>The background rows' colours.</summary>
-    public ScreenColours Background => new(this, 0, KindColours);
+    public ColourRun Background => new(colors, 0, KindColours);
 
     /// <summary>The sprite rows' colours.</summary>
-    public ScreenColours Sprites => new(this, KindColours, KindColours);
+    public ColourRun Sprites => new(colors, KindColours, KindColours);
 
     /// <summary>Background row <paramref name="row"/>, zero through seven.</summary>
-    public ScreenColours BackgroundRow(int row) =>
+    public ColourRun BackgroundRow(int row) =>
         Background.Slice(Ensure.BetweenInclusive(0, RowsPerKind - 1, row) * ColoursPerRow, ColoursPerRow);
 
     /// <summary>Sprite row <paramref name="row"/>, zero through seven.</summary>
-    public ScreenColours SpriteRow(int row) =>
+    public ColourRun SpriteRow(int row) =>
         Sprites.Slice(Ensure.BetweenInclusive(0, RowsPerKind - 1, row) * ColoursPerRow, ColoursPerRow);
 
     /// <summary>The colour behind every layer, where nothing is drawn.</summary>
@@ -57,7 +58,7 @@ public sealed class ScreenPalette : IPaletteColors
     }
 
     /// <summary>Replaces every colour with <paramref name="screenColours"/> except those in <paramref name="kept"/>.</summary>
-    public void LoadExcept(ReadOnlySpan<Bgr555> screenColours, params ReadOnlySpan<ScreenColours> kept)
+    public void LoadExcept(ReadOnlySpan<Bgr555> screenColours, params ReadOnlySpan<ColourRun> kept)
     {
         Ensure.LengthEqual(screenColours, ColorCount);
         for (int position = 0; position < ColorCount; position++)
@@ -96,9 +97,9 @@ public sealed class ScreenPalette : IPaletteColors
     }
 
     /// <summary>Whether a run in <paramref name="kept"/> holds the colour at <paramref name="position"/>.</summary>
-    private static bool Keeps(ReadOnlySpan<ScreenColours> kept, int position)
+    private static bool Keeps(ReadOnlySpan<ColourRun> kept, int position)
     {
-        foreach (ScreenColours run in kept)
+        foreach (ColourRun run in kept)
         {
             if (run.Covers(position))
                 return true;

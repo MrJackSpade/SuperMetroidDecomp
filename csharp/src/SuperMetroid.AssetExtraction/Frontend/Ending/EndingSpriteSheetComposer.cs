@@ -113,7 +113,7 @@ internal static class EndingSpriteSheetComposer
     private static void PostCreditsColours(EndingPaletteCatalog palettes, ScreenPalette colours)
     {
         palettes[EndingPaletteId.Credits].LoadTo(colours.Background, 0);
-        ScreenColours restored = colours.All.Slice(EndingColourRowDefinitions.PostCreditsKeptColours,
+        ColourRun restored = colours.All.Slice(EndingColourRowDefinitions.PostCreditsKeptColours,
             ScreenPalette.ColorCount - EndingColourRowDefinitions.PostCreditsKeptColours);
         palettes[EndingPaletteId.PostCredits].LoadTo(restored, palettes[EndingPaletteId.PostCredits].FirstColorFor(restored));
     }

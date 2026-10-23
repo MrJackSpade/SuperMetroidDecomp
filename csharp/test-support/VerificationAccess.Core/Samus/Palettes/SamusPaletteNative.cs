@@ -151,7 +151,7 @@ internal static class SamusPaletteNative
         internal Bgr555 Resolve(ushort pointer, int colorIndex) => colors.Resolve(Palette(pointer), colorIndex);
 
         /// <summary>Copies the cycle palette at bank-$9B <paramref name="pointer"/> to Samus's suit colors.</summary>
-        internal void Apply(IPaletteColors cgram, ushort pointer) => colors.Apply(cgram, Palette(pointer));
+        internal void Apply(SamusColours colours, ushort pointer) => colors.Apply(colours, Palette(pointer));
     }
 
     /// <summary>The charge and Hyper-shot lists by bank-$9B palette address.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
@@ -13,6 +14,9 @@ namespace SuperMetroid.Core.Samus;
 /// </summary>
 internal sealed class SamusFrameState
 {
+    /// <summary>Samus's colours, which outlive each Samus (#1405).</summary>
+    public SamusColours Colours { get; } = new();
+
     /// <summary>Remaining native load-appearance updates before ordinary Samus drawing resumes.</summary>
     internal WrappingCountdown LoadAppearanceFramesRemaining { get; private set; }
     /// <summary>Palette-FX object selected while Samus's load appearance is active.</summary>

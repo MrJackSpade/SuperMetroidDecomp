@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFixtureHeadVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -16,7 +18,7 @@ internal static class BabyMetroidThemeVerification
         var enemies = new RoomEnemySystem(new EnemySession());
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
         enemies.MotherBrainEncounter.MotherBrain = state;
-        enemies.Presentation.BindCgram(new SnesCgram());
+        enemies.Presentation.BindCgram(new GameplayColours());
         var baby = new BabyMetroidCutsceneState();
         baby.Phase = BabyMetroidCutscenePhase.FinalCharge;
         baby.Health = 0;

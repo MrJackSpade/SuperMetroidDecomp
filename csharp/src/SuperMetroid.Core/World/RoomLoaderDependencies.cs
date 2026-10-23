@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Input;
@@ -29,7 +30,7 @@ internal sealed record RoomLoaderDependencies
 
 
     /// <summary>Cgram.</summary>
-    public required SnesCgram Cgram { get; init; }
+    public required GameplayColours Cgram { get; init; }
 
     /// <summary>Controller1.</summary>
     public required ControllerInputState Controller1 { get; init; }

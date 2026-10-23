@@ -87,15 +87,15 @@ internal static class SamusVisorColorsVerification
     {
         var native = new SamusVisorPaletteState { PresentationColors = ReadOriginalVisorColors(rom) };
         var installed = new SamusVisorPaletteState { PresentationColors = catalog };
-        var nativeCgram = new SnesCgram();
-        var installedCgram = new SnesCgram();
+        var nativeCgram = new SamusColourRig();
+        var installedCgram = new SamusColourRig();
         var guarded = NewForbiddenVisorColorBus(rom);
         for (int frame = 0; frame < 32; frame++)
         {
             int sourceOffset = native.PaletteByteOffset;
-            native.Update(nativeCgram, 0,
+            native.Update(nativeCgram.Samus, 0,
                 LayerBlendingConfiguration.VisorBackdrop28);
-            installed.Update(installedCgram, 0,
+            installed.Update(installedCgram.Samus, 0,
                 LayerBlendingConfiguration.VisorBackdrop28);
             // `$91:D864` reloads the expired countdown to the frame delay only on the call
             // that writes a color; countdown calls leave it below that delay.
@@ -122,8 +122,8 @@ internal static class SamusVisorColorsVerification
         native.Xray.PresentationColors = ReadOriginalVisorColors(rom);
         var installed = CreateXraySamus();
         installed.Xray.PresentationColors = catalog;
-        var nativeCgram = new SnesCgram();
-        var installedCgram = new SnesCgram();
+        var nativeCgram = new SamusColourRig();
+        var installedCgram = new SamusColourRig();
         var guarded = NewForbiddenVisorColorBus(rom);
 
         // Check one X-ray palette update and its resulting source offset and CGRAM color.
@@ -132,8 +132,8 @@ internal static class SamusVisorColorsVerification
             // This fixture enters the full-beam stage immediately before call 11;
             // native $91:DCEA restarts that stage at color byte offset six.
             ushort sourceOffset = call == 11 ? (ushort)6 : checked((ushort)native.Xray.SpecialPaletteFrame);
-            bool expected = native.Xray.UpdatePalette(nativeCgram, native.EquippedItems);
-            bool actual = installed.Xray.UpdatePalette(installedCgram, installed.EquippedItems);
+            bool expected = native.Xray.UpdatePalette(nativeCgram.Samus, native.EquippedItems);
+            bool actual = installed.Xray.UpdatePalette(installedCgram.Samus, installed.EquippedItems);
             if (expected)
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusVisorColorFormat.SourceAddress + sourceOffset), installedCgram.Colors[196],
                     $"X-ray visor call {call} matches native color word");
@@ -202,17 +202,17 @@ internal static class SamusVisorColorsVerification
             ReferenceEquals(edited.SamusVisorColors, runtimeSamus.Xray.PresentationColors),
             "new Samus binds installed visor colors for both room and X-ray cycles");
         var visor = new SamusVisorPaletteState { PresentationColors = edited.SamusVisorColors };
-        var cgram = new SnesCgram();
+        var cgram = new SamusColourRig();
         var guarded = NewForbiddenVisorColorBus(new TestAddressSpace());
-        _ = visor.Update(cgram, 0, LayerBlendingConfiguration.VisorBackdrop28);
+        _ = visor.Update(cgram.Samus, 0, LayerBlendingConfiguration.VisorBackdrop28);
         AssertEqual(edited.SamusVisorColors.Resolve(3), cgram.Colors[196],
             "edited visor color reaches room-cycle CGRAM");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "edited visor color avoids native table");
         SamusState xraySamus = CreateXraySamus();
         xraySamus.Xray.PresentationColors = edited.SamusVisorColors;
-        var xrayCgram = new SnesCgram();
+        var xrayCgram = new SamusColourRig();
         var guardedXray = NewForbiddenVisorColorBus(rom);
-        AssertTrue(xraySamus.Xray.UpdatePalette(xrayCgram, xraySamus.EquippedItems),
+        AssertTrue(xraySamus.Xray.UpdatePalette(xrayCgram.Samus, xraySamus.EquippedItems),
             "edited X-ray widening cycle writes CGRAM");
         AssertEqual(edited.SamusVisorColors.Resolve(0), xrayCgram.Colors[196],
             "edited visor color reaches X-ray CGRAM");

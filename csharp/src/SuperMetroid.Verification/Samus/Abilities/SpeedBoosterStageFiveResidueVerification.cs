@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Ceres;
@@ -50,7 +52,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
             BossArtworkBinding = { CeresRidleyFloorColors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(bus))) },
         };
         enemies.Presentation.BindVram(BgArtworkFixtures.For(new SnesVram()));
-        enemies.Presentation.BindCgram(new SnesCgram());
+        enemies.Presentation.BindCgram(new GameplayColours());
         enemies.Room.Session.FloorQueueResidue = residue;
         var state = new RidleyEnemyState { Mode7TableIndex = 1 };
 

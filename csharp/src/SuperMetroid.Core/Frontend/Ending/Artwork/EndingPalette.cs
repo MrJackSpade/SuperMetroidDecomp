@@ -50,7 +50,7 @@ public sealed class EndingPalette
     /// <param name="destination">The screen colours to change; the others keep theirs.</param>
     /// <param name="sourceColor">Zero-based starting color in this resource.</param>
     /// <exception cref="ArgumentOutOfRangeException">The source range is outside this resource.</exception>
-    public void LoadTo(ScreenColours destination, int sourceColor)
+    public void LoadTo(ColourRun destination, int sourceColor)
     {
         Ensure.BetweenInclusive(0, ColorCount - destination.Count, sourceColor);
         for (int colour = 0; colour < destination.Count; colour++)
@@ -58,11 +58,11 @@ public sealed class EndingPalette
     }
 
     /// <summary>The colour of this whole-screen resource at the screen position of <paramref name="positions"/>' colour <paramref name="colour"/>.</summary>
-    public Bgr555 Color(ScreenColours positions, int colour) => Color(FirstColorFor(positions) + colour);
+    public Bgr555 Color(ColourRun positions, int colour) => Color(FirstColorFor(positions) + colour);
 
     /// <summary>Where <paramref name="positions"/> start in this whole-screen resource.</summary>
     /// <exception cref="InvalidOperationException">This resource does not hold a whole screen's colours.</exception>
-    internal int FirstColorFor(ScreenColours positions) => ColorCount == ScreenPalette.ColorCount
+    internal int FirstColorFor(ColourRun positions) => ColorCount == ScreenPalette.ColorCount
         ? positions.First
         : throw new InvalidOperationException("Only a whole screen's colours have the screen's positions.");
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -22,8 +23,8 @@ internal static class MotherBrainFakeDeathPaletteVerification
 
         void VerifyFade(bool toGrey)
         {
-            var expected = new SnesCgram();
-            var actual = new SnesCgram();
+            var expected = new SamusColourRig();
+            var actual = new SamusColourRig();
             var enemies = CreateFakeDeathPaletteEnemy(installed, actual);
             var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0])
             {
@@ -69,10 +70,10 @@ internal static class MotherBrainFakeDeathPaletteVerification
 
     /// <summary>Creates a Mother Brain actor with installed colors and a bus that forbids palette ROM reads.</summary>
     private static RoomEnemySystem CreateFakeDeathPaletteEnemy(
-        MotherBrainRainbowPalettePresentation colors, SnesCgram cgram)
+        MotherBrainRainbowPalettePresentation colors, SamusColourRig cgram)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { MotherBrainRainbowColors = colors } };
-        enemies.Presentation.BindCgram(cgram);
+        enemies.Presentation.BindCgram(cgram.Gameplay);
         return enemies;
     }
 
@@ -81,7 +82,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
     internal static CaptureFakeDeathPaletteFrameResult
         CaptureFakeDeathPaletteFrame(MotherBrainRainbowPalettePresentation colors, bool toGrey)
     {
-        var cgram = new SnesCgram();
+        var cgram = new SamusColourRig();
         var enemies = CreateFakeDeathPaletteEnemy(colors, cgram);
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0])
         {

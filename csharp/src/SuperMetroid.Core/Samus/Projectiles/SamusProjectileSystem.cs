@@ -139,13 +139,10 @@ public sealed class SamusProjectileSystem
     /// pages bind the equipped beam's characters (<see cref="SuperMetroid.Core.Samus.Artwork.ProjectileObjectPages"/>).
     /// </summary>
     public static void LoadBeamPalette(
-        IPaletteColors cgram,
+        ColourRun beam,
         SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams,
-        SuperMetroid.Core.Samus.Artwork.BeamPaletteCatalog? palettes)
-    {
-        Ensure.NotNull(cgram);
-        LoadBeamPalette(cgram, SelectedCombination(equippedBeams), palettes);
-    }
+        SuperMetroid.Core.Samus.Artwork.BeamPaletteCatalog? palettes) =>
+        LoadBeamPalette(beam, SelectedCombination(equippedBeams), palettes);
 
     /// <summary>
     /// $90:AC8D/$90:ACCD index their tables by the equipped-beam word's low twelve bits; an
@@ -156,22 +153,22 @@ public sealed class SamusProjectileSystem
             nameof(equippedBeams), equippedBeams, "Equipped-beam index is outside the beam-combination tables.");
 
     /// <summary>Loads a beam combination's final CGRAM palette from installed art or the special beam definitions.</summary>
-    public static void LoadBeamPalette(IPaletteColors cgram,
+    public static void LoadBeamPalette(ColourRun beam,
         SamusBeamCombination selection, SuperMetroid.Core.Samus.Artwork.BeamPaletteCatalog? palettes)
     {
         switch (selection)
         {
             case ChainsawBeamGraphicsDefinitions.Selection:
-                LoadChainsawPalette(cgram);
+                LoadChainsawPalette(beam);
                 break;
             case SpacetimeBeamGraphicsDefinitions.Selection:
-                SpacetimeBeamGraphicsDefinitions.LoadPalette(cgram);
+                SpacetimeBeamGraphicsDefinitions.LoadPalette(beam);
                 break;
             case SamusBeamCombination.Power or SamusBeamCombination.Wave or SamusBeamCombination.Ice or
                 SamusBeamCombination.IceWave or SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave or
                 SamusBeamCombination.SpazerIce or SamusBeamCombination.SpazerIceWave or SamusBeamCombination.Plasma or
                 SamusBeamCombination.PlasmaWave or SamusBeamCombination.PlasmaIce or SamusBeamCombination.PlasmaIceWave:
-                (palettes ?? throw new InvalidOperationException("Beam palette requires installed artwork.")).LoadTo(cgram, selection);
+                (palettes ?? throw new InvalidOperationException("Beam palette requires installed artwork.")).LoadTo(beam, selection);
                 break;
             case SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaIceWave:
                 throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam combination has no translated palette.");
@@ -181,9 +178,8 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>Writes the glitched Chainsaw beam palette's sixteen colours into the beam palette.</summary>
-    private static void LoadChainsawPalette(IPaletteColors cgram)
+    private static void LoadChainsawPalette(ColourRun beam)
     {
-        var beam = new SamusPalettes(cgram).Beam;
         for (int color = 0; color < ChainsawBeamGraphicsDefinitions.Palette.Count; color++)
             beam.Write(color, ChainsawBeamGraphicsDefinitions.Palette[color]);
     }
@@ -200,12 +196,12 @@ public sealed class SamusProjectileSystem
     /// That action models carry set at `$91:D70B`, bypassing special handlers for one frame.
     /// </remarks>
     public SamusBeamChargePaletteStepResult UpdateBeamChargePalette(
-        IPaletteColors cgram,
+        SamusColours colours,
         SamusState samus,
         LayerBlendingConfiguration layerBlendingDefaultConfig =
             LayerBlendingConfiguration.NormalGameplay)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(colours);
         Ensure.NotNull(samus);
         LastVisorPaletteStep = default;
 
@@ -235,7 +231,7 @@ public sealed class SamusProjectileSystem
                 int paletteIndex = Charge.SamusChargePaletteIndex / 2;
                 (samus.Presentation.ChargeColors ?? throw new InvalidOperationException(
                     "Charge palette requires installed colors."))
-                    .ApplyCharge(cgram, pseudoScrew, suitOffset / 2, paletteIndex);
+                    .ApplyCharge(colours, pseudoScrew, suitOffset / 2, paletteIndex);
 
                 Charge.SamusChargePaletteIndex = Charge.SamusChargePaletteIndex >= 10
                     ? 0
@@ -252,7 +248,7 @@ public sealed class SamusProjectileSystem
             // palette zero rather than resuming a partially completed cycle.
             Charge.SamusChargePaletteIndex = 0;
             LastVisorPaletteStep = samus.VisorPalette.Update(
-                cgram,
+                colours,
                 samus.Xray.SpecialPaletteKind,
                 layerBlendingDefaultConfig);
             LastBeamChargePaletteStep = new(
@@ -268,7 +264,7 @@ public sealed class SamusProjectileSystem
             Charge.ChargedShotGlowTimer = Charge.ChargedShotGlowTimer.Decrement().Remaining;
             if (Charge.ChargedShotGlowTimer.IsZero)
             {
-                ProjectileAnimation.LoadNormalSuitPalette(cgram, samus);
+                ProjectileAnimation.LoadNormalSuitPalette(colours, samus);
                 LastBeamChargePaletteStep = new(
                     SamusBeamChargePaletteAction.RestoredNormalSuit);
                 return LastBeamChargePaletteStep;
@@ -278,7 +274,7 @@ public sealed class SamusProjectileSystem
             // That is exactly colors 15..1: transparent color zero is intentionally left
             // untouched while every visible Samus color becomes yellow `$03FF`.
             for (int color = 1; color < 16; color++)
-                new SamusPalettes(cgram).Suit.Write(color, new Bgr555(31, 31, 0));
+                colours.Suit.Write(color, new Bgr555(31, 31, 0));
 
             LastBeamChargePaletteStep = new(
                 SamusBeamChargePaletteAction.OrdinaryWhite);
@@ -302,7 +298,7 @@ public sealed class SamusProjectileSystem
             // `$91:D7C1` branches before DEC at `$D7CB`. Native explicitly zeroes the
             // already-`$8000` timer and returns carry so `$D717` performs the suit copy.
             Charge.ChargedShotGlowTimer = WrappingCountdown.Start(0);
-            ProjectileAnimation.LoadNormalSuitPalette(cgram, samus);
+            ProjectileAnimation.LoadNormalSuitPalette(colours, samus);
             LastBeamChargePaletteStep = new(
                 SamusBeamChargePaletteAction.RestoredNormalSuit);
             return LastBeamChargePaletteStep;
@@ -315,7 +311,7 @@ public sealed class SamusProjectileSystem
         int hyperPaletteIndex = (20 - tableOffset) / 2;
         (samus.Presentation.ChargeColors ?? throw new InvalidOperationException(
             "Hyper Beam palette requires installed colors."))
-            .ApplyHyper(cgram, hyperPaletteIndex);
+            .ApplyHyper(colours, hyperPaletteIndex);
         Charge.ChargedShotGlowTimer = Charge.ChargedShotGlowTimer.Decrement().Remaining;
         LastBeamChargePaletteStep = new(
             SamusBeamChargePaletteAction.HyperPalette);

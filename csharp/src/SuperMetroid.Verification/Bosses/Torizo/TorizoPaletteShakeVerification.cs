@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -18,9 +19,9 @@ internal static class TorizoPaletteShakeVerification
     internal static int VerifyTorizoPaletteShake()
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var cgram = new SnesCgram();
+        var cgram = new SamusColourRig();
         for (int i = 0; i < 256; i++) cgram.SetColor(i, Bgr555.FromWord(0x7fff));
-        enemies.Presentation.BindCgram(cgram);
+        enemies.Presentation.BindCgram(cgram.Gameplay);
         var actor = enemies.SlotTable.Slots[0];
         actor.Bind(EnemyDefinitionId.BombTorizo, actor.Definition);
         actor.Bind(actor.DefinitionId, RoomEnemyDefinitionCatalog.Get(actor.DefinitionId));
@@ -87,7 +88,7 @@ internal static class TorizoPaletteShakeVerification
     /// <summary>Compares the faded body colors and every cataloged Torizo palette row with bank $AA.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Torizo palette tables in bank $AA")]
-    private static void VerifyTorizoPaletteCatalogsAgainstRetailRom(SnesCgram cgram)
+    private static void VerifyTorizoPaletteCatalogsAgainstRetailRom(IPaletteColors cgram)
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int i = 0; i < 32; i++)

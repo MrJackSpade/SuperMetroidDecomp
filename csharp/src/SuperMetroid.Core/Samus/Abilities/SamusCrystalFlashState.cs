@@ -356,12 +356,12 @@ public sealed class SamusCrystalFlashState
     /// currently equipped beam combination.
     /// </remarks>
     public bool UpdatePalette(
-        IPaletteColors cgram,
+        SamusColours colours,
         SamusState samus,
         SuperMetroid.Core.Samus.Artwork.BeamPaletteCatalog? palettes = null,
         SuperMetroid.Core.Samus.Artwork.CrystalFlashColorCatalog? colors = null)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(colours);
         Ensure.NotNull(samus);
         if (SpecialPaletteKind != SamusSpecialPaletteType.CrystalFlash)
             return false;
@@ -374,7 +374,7 @@ public sealed class SamusCrystalFlashState
                 !beamType.IsRetail)
                 throw new ArgumentOutOfRangeException(nameof(samus), "Equipped beam combination is outside the retail table.");
             (palettes ?? throw new InvalidOperationException(
-                "Crystal Flash requires installed beam palettes.")).LoadTo(cgram, beamType);
+                "Crystal Flash requires installed beam palettes.")).LoadTo(colours.Beam, beamType);
 
             SpecialPaletteKind = SamusSpecialPaletteType.None;
             SpecialPaletteFrame = 0;
@@ -396,7 +396,7 @@ public sealed class SamusCrystalFlashState
                 SpecialPaletteFrame >= SamusPaletteRomData.CrystalFlash.BubblePaletteCount * sizeof(ushort))
                 throw new InvalidDataException(
                     $"Crystal Flash bubble frame {SpecialPaletteFrame} has no installed color.");
-            colors.ApplyBubble(cgram, SpecialPaletteFrame / sizeof(ushort));
+            colors.ApplyBubble(colours, SpecialPaletteFrame / sizeof(ushort));
 
             // The frame was validated below the table end above, so this advance stays far below any wrap.
             int nextBubbleFrame = SpecialPaletteFrame + sizeof(ushort);
@@ -420,7 +420,7 @@ public sealed class SamusCrystalFlashState
             CrystalPaletteTimer =
                 WrappingCountdown.FromRaw(CrystalFlashPaletteTimingDefinitions.DurationForByteOffset(
                     BodyPaletteRecordOffset));
-            colors.ApplyBody(cgram,
+            colors.ApplyBody(colours,
                 BodyPaletteRecordOffset / SamusPaletteRomData.CrystalFlash.BodyRecordByteCount);
 
             // The offset was validated as one of the ten records above, so this advance cannot wrap.

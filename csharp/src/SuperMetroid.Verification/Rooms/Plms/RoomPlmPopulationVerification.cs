@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core;
@@ -1242,7 +1243,7 @@ internal static class RoomPlmPopulationVerification
         SeedSaveStationElectricityProjectile(bus);
 
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0x4040));
-        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new SnesCgram()) { Level = level, Samus = new SamusState() });
+        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new GameplayColours()) { Level = level, Samus = new SamusState() });
         enemies.Projectiles.SpawnSaveStationElectricity(saveBlockIndex, level.Size.X);
 
         var visible = new SpriteVisualPart

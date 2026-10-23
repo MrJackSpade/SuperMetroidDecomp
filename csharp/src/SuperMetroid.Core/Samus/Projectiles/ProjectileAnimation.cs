@@ -174,9 +174,9 @@ internal sealed class ProjectileAnimation
 
     /// <summary>Restores sixteen suit colors from installed artwork.</summary>
     internal static void LoadNormalSuitPalette(
-        IPaletteColors cgram,
+        SamusColours colours,
         SamusState samus) =>
-        SamusNormalSuitPalette.Load(cgram, samus.EquippedItems, samus.Presentation.SuitColors);
+        SamusNormalSuitPalette.Load(colours.Suit, samus.EquippedItems, samus.Presentation.SuitColors);
 
     /// <summary>Maps equipped suit bits to the native normal-suit palette table offset.</summary>
     internal static ushort GetSuitPaletteOffset(SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems) =>

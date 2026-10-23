@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Enemies.Kago;
@@ -45,7 +47,7 @@ internal static class EnemyProjectileDefinitionsVerification
         const ushort populationPointer = 0x9400;
         TestAddressSpace setupBus = CreateEmptyEnemyPopulationCartridge(populationPointer);
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: setupBus, services: new StandaloneRoomEnemyServices(() => 0));
-        enemies.Load(new RoomEnemyLoadRequest(setupBus.ReadEnemyPopulation(populationPointer), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new SnesCgram()));
+        enemies.Load(new RoomEnemyLoadRequest(setupBus.ReadEnemyPopulation(populationPointer), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new GameplayColours()));
         var guard = NewEnemyProjectileDefinitionReadGuard(setupBus, forbidden);
         RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
         Func<RoomEnemyProjectileSlot, SamusState, SuperMetroid.Core.Samus.Movement.KnockbackHorizontalDirection?> collideWithSamus =

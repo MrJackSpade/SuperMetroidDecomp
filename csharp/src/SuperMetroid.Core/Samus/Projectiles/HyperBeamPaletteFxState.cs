@@ -17,9 +17,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </remarks>
 public sealed class HyperBeamPaletteFxState
 {
-    /// <summary>CGRAM destination for the Hyper Beam projectile cycle, converted from its byte offset.</summary>
-    private const int DestinationColorIndex =
-        SamusPaletteRomData.HyperBeamFx.DestinationByteIndex / sizeof(ushort);
+    /// <summary>The colour position the Hyper Beam palette program names, which its object checks the program against.</summary>
+    private const int ProgramColourPosition = SamusPaletteRomData.HyperBeamFx.DestinationByteIndex / sizeof(ushort);
 
     /// <summary>Where the object's typed program resumes between palette handler calls.</summary>
     private AnimationProgramCursor<PaletteFxProgram> cursor;
@@ -66,10 +65,10 @@ public sealed class HyperBeamPaletteFxState
     }
 
     /// <summary>Runs one call of <c>PaletteFXObject_Handler</c> for the Hyper Beam object.</summary>
-    public HyperBeamPaletteFxStepResult Step(IPaletteColors cgram,
+    public HyperBeamPaletteFxStepResult Step(SamusColours colours,
         HyperBeamFxColorCatalog? presentationColors = null)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(colours);
 
         if (!IsActive)
         {
@@ -95,7 +94,7 @@ public sealed class HyperBeamPaletteFxState
 
         WrappingCountdown unusedCounter = default;
         AnimationProgramAdvance<PaletteFxFrame> advance = PaletteFxAnimations.Programs.Advance(ref cursor, ref unusedCounter,
-            (cue, _) => cue == new PaletteFxCue.SetColorIndex(ColorIndex: DestinationColorIndex)
+            (cue, _) => cue == new PaletteFxCue.SetColorIndex(ColorIndex: ProgramColourPosition)
                 ? null
                 : throw new InvalidDataException($"The Hyper Beam palette program published {cue}, which its object does not carry out."));
         if (advance is not AnimationProgramAdvance<PaletteFxFrame>.Show shown)
@@ -109,7 +108,7 @@ public sealed class HyperBeamPaletteFxState
 
         (presentationColors ?? throw new InvalidOperationException(
             "Hyper Beam palette FX requires installed colors."))
-            .Apply(cgram, frameIndex, DestinationColorIndex);
+            .Apply(colours.HyperBeam, frameIndex);
 
         InstructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
         CurrentFrameIndex = frameIndex;

@@ -56,25 +56,23 @@ internal sealed class SamusPresentation
     /// Copies <c>SamusPalettes_PowerSuit</c> at <c>$9B:9400</c> to palette-buffer/CGRAM
     /// entries 192–207, porting <c>Samus_LoadSuitPalette</c>'s no-suit branch.
     /// </summary>
-    public static void LoadPowerSuitPalette(IPaletteColors cgram,
+    public static void LoadPowerSuitPalette(ColourRun suit,
         SamusSuitColorCatalog? suitColors = null)
     {
-        Ensure.NotNull(cgram);
-
         // OBJ palettes begin at CGRAM 128. Spritemap palette 4 therefore resolves to 192,
         // exactly matching CopyToSamusSuitPalette's &palette_buffer[192] destination.
-        SamusNormalSuitPalette.LoadPower(cgram, suitColors);
+        SamusNormalSuitPalette.LoadPower(suit, suitColors);
     }
 
     /// <summary>
     /// Ports <c>Samus_LoadSuitPalette</c> at <c>$91:DEBA</c>, giving Gravity priority over
     /// Varia and falling back to Power Suit when neither equipment bit is enabled.
     /// </summary>
-    public void LoadSuitPalette(SamusState samus, IPaletteColors cgram)
+    public void LoadSuitPalette(SamusState samus, SamusColours colours)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(colours);
 
-        SamusNormalSuitPalette.Load(cgram, samus.EquippedItems, SuitColors);
+        SamusNormalSuitPalette.Load(colours.Suit, samus.EquippedItems, SuitColors);
     }
 
     /// <summary>

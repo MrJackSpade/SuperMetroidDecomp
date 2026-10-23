@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
@@ -53,10 +54,10 @@ internal static class BeamTileArtworkVerification
             for (int index = 0; index < native.Bytes.Length; index++)
                 if (index != firstByte) AssertEqual(native.Bytes[index], extracted.Bytes[index], "Beam edit cannot change neighboring VRAM or other pixels");
             AssertEqual(BeamTileAtlasDefinitions.ByteCount, edited.Transfer.Length, "Edited upload retains native DMA size");
-            var actualPalette = new SnesCgram(); var expectedPalette = new SnesCgram();
+            var actualPalette = new SamusColourRig(); var expectedPalette = new SnesCgram();
             var nativeQueue = new VramWriteQueue();
             LoadNativeBeamFixture(bus, null, expectedPalette, nativeQueue, selection);
-            SamusProjectileSystem.LoadBeamPalette(actualPalette, (SamusBeamFlags)selection, catalog.Palettes);
+            SamusProjectileSystem.LoadBeamPalette(actualPalette.Samus.Beam, (SamusBeamFlags)selection, catalog.Palettes);
             var legacyVram = new SnesVram();
             nativeQueue.DrainTo(legacyVram, catalog, null, BgArtworkFixtures.For(legacyVram));
             AssertTrue(legacyVram.ImageEquals(native), "Legacy beam source resolves exact native pixels without ROM DMA");

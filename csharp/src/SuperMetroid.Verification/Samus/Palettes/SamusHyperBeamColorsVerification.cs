@@ -308,13 +308,13 @@ internal static class SamusHyperBeamColorsVerification
         var shot = SamusChargeColorCatalog.Load(new MemoryStream(chargeJson));
         AssertEqual(typeof(SamusHyperBeamColorCatalog), MetadataShape.FieldType(typeof(SamusChargeColorCatalog), "hyperShot", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic),
             "Hyper-shot owns the shared calculated representation, not another whole palette table");
-        var shotCgram = new SnesCgram();
+        var shotCgram = new SamusColourRig();
         for (int frame = 0; frame < 10; frame++)
         {
             ushort pointer = ReadVerificationWord(rom, 0x91d83d - 2 * frame);
             AssertEqual(ReadVerificationWord(rom, 0x91d99e + 2 * (9 - frame)), pointer,
                 "Both native pointer views address the same rows in reverse playback order");
-            shot.ApplyHyper(shotCgram, frame);
+            shot.ApplyHyper(shotCgram.Samus, frame);
             for (int color = 0; color < 16; color++)
             {
                 ushort expected = ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
@@ -325,7 +325,7 @@ internal static class SamusHyperBeamColorsVerification
         foreach (int invalid in new[] { -1, 10, int.MinValue, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => shot.ResolveHyper(invalid, 0), "Hyper-shot frame bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => shot.ApplyHyper(shotCgram, invalid), "Hyper-shot apply frame bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => shot.ApplyHyper(shotCgram.Samus, invalid), "Hyper-shot apply frame bounds");
         }
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => shot.ResolveHyper(0, invalid), "Hyper-shot color bounds");
@@ -357,7 +357,7 @@ internal static class SamusHyperBeamColorsVerification
         var shotGuard = NewForbiddenHyperBeamColorBus(rom);
         for (int call = 0; call < 20; call++)
         {
-            var step = projectiles.UpdateBeamChargePalette(shotCgram, shotSamus);
+            var step = projectiles.UpdateBeamChargePalette(shotCgram.Samus, shotSamus);
             AssertEqual((call & 1) == 0 ? SamusBeamChargePaletteAction.HyperPalette : SamusBeamChargePaletteAction.HyperHold,
                 step.Action, "Original Hyper-shot alternating paint/hold cadence");
             ushort pointer = ReadVerificationWord(rom, 0x91d83d - 2 * (call / 2));
@@ -369,11 +369,11 @@ internal static class SamusHyperBeamColorsVerification
         var installedSamus = new SamusState();
         installedSamus.Drained.EnableRainbow(installedSamus);
         installedSamus.Drained.PresentationColors = catalog;
-        var installedCgram = new SnesCgram();
+        var installedCgram = new SamusColourRig();
         var guarded = NewForbiddenHyperBeamColorBus(rom);
         for (int call = 0; call < 22; call++)
         {
-            AssertTrue(installedSamus.Drained.UpdatePalette(installedCgram, 0),
+            AssertTrue(installedSamus.Drained.UpdatePalette(installedCgram.Samus, 0),
                 $"Hyper Beam call {call} owns palette");
             // Original91D96F copies the selected row before DEC; EnableRainbow's
             // timer/reload are1, so every call advances and wraps at native limit10.
@@ -427,10 +427,10 @@ internal static class SamusHyperBeamColorsVerification
         AssertTrue(ReferenceEquals(edited.SamusHyperBeamColors, samus.Drained.PresentationColors),
             "new Samus binds installed Hyper Beam colors");
         samus.Drained.EnableRainbow(samus);
-        var cgram = new SnesCgram();
+        var cgram = new SamusColourRig();
         var guarded = NewForbiddenHyperBeamColorBus(rom);
         for (int frame = 0; frame <= 4; frame++)
-            AssertTrue(samus.Drained.UpdatePalette(cgram, samus.EquippedItems),
+            AssertTrue(samus.Drained.UpdatePalette(cgram.Samus, samus.EquippedItems),
                 $"edited Hyper Beam frame {frame} writes colors");
         AssertEqual(edited.SamusHyperBeamColors.Resolve(4, 7), cgram.Colors[199],
             "edited Hyper Beam color reaches CGRAM on its selected frame");

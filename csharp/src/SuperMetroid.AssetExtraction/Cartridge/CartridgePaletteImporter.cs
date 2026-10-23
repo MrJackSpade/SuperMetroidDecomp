@@ -18,7 +18,7 @@ public static class CartridgePaletteImporter
     /// <param name="destinationIndex">First zero-based CGRAM color slot to replace.</param>
     [PpuLayoutBoundary("codec: decodes cartridge CGRAM DMA words into an import scratch CGRAM")]
     public static void LoadToCgram(
-        SnesCgram destination,
+        IPaletteColors destination,
         ISnesAddressSpace bus,
         int sourceAddress,
         int colorCount = SnesCgram.ColorCount,

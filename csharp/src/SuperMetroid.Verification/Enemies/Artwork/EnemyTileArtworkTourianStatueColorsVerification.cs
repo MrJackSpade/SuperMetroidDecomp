@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json.Nodes;
@@ -50,8 +51,8 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         var guard = NewTourianStatueColorGuard(bus, forbidden);
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
-            SnesCgram nativeCgram = SeedColors();
-            (RoomEnemySystem installed, SnesCgram installedCgram) = CreateEnemy(guard, stock);
+            SamusColourRig nativeCgram = SeedColors();
+            (RoomEnemySystem installed, SamusColourRig installedCgram) = CreateEnemy(guard, stock);
             ReferenceEntrance(nativeCgram);
             Initialize(installed, parameter);
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
@@ -66,8 +67,8 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         }
         foreach (ushort parameter in new ushort[] { 0, 2, 4, 6 })
         {
-            SnesCgram nativeCgram = SeedColors();
-            (RoomEnemySystem installed, SnesCgram installedCgram) = CreateEnemy(guard, stock);
+            SamusColourRig nativeCgram = SeedColors();
+            (RoomEnemySystem installed, SamusColourRig installedCgram) = CreateEnemy(guard, stock);
             ReferenceEye(nativeCgram, parameter);
             installed.TourianUnlockBehavior.SpawnTourianEyeGlow(parameter);
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
@@ -93,16 +94,16 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         changed.Required("eye").Required(2).Required(1)["blue"] = changed.Required("eye").Required(2).Required(1).Required("blue").GetValue<int>() ^ 1;
         File.WriteAllBytes(overridePath, Encoding.UTF8.GetBytes(changed.ToJsonString()));
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        SnesCgram nativeEntryCgram = SeedColors();
-        (RoomEnemySystem editedEntry, SnesCgram editedEntryCgram) = CreateEnemy(guard, edited);
+        SamusColourRig nativeEntryCgram = SeedColors();
+        (RoomEnemySystem editedEntry, SamusColourRig editedEntryCgram) = CreateEnemy(guard, edited);
         ReferenceEntrance(nativeEntryCgram);
         Initialize(editedEntry, 0);
         CheckOnlyDifferences(nativeEntryCgram, editedEntryCgram,
             [new Difference(TourianStatuePaletteRomData.BaseCgramIndex + 1, 1),
              new Difference(TourianStatuePaletteRomData.StatueCgramIndex + 1, 1 << 5)],
             "Tourian entrance edit");
-        SnesCgram nativeEyeCgram = SeedColors();
-        (RoomEnemySystem editedEye, SnesCgram editedEyeCgram) = CreateEnemy(guard, edited);
+        SamusColourRig nativeEyeCgram = SeedColors();
+        (RoomEnemySystem editedEye, SamusColourRig editedEyeCgram) = CreateEnemy(guard, edited);
         ReferenceEye(nativeEyeCgram, 4);
         editedEye.TourianUnlockBehavior.SpawnTourianEyeGlow(4);
         CheckOnlyDifferences(nativeEyeCgram, editedEyeCgram,
@@ -127,7 +128,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath), forbidden), editedGrey);
         // Use the room's pre-step palette as the unchanged background, then apply
         // only the native grey instruction writes read from the four retail programs.
-        var nativeGreyCgram = new SnesCgram();
+        var nativeGreyCgram = new SamusColourRig();
         for (int color = 0; color < SnesCgram.ColorCount; color++)
             nativeGreyCgram.SetColor(color, installedRoom.Cgram.Colors[color]);
         var greyDestinations = new List<int>();
@@ -185,16 +186,16 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
 
         // Native palette writes from $AA:D7C8 and $86:B88E, independent of the
         // installed catalog and production callbacks used on the actual side.
-        void ReferenceEntrance(SnesCgram cgram)
+        void ReferenceEntrance(SamusColourRig cgram)
         {
             CopyReferenceColors(cgram, 0xaad785, 240, 16);
             CopyReferenceColors(cgram, 0xaad765, 160, 16);
         }
 
-        void ReferenceEye(SnesCgram cgram, ushort parameter) =>
+        void ReferenceEye(SamusColourRig cgram, ushort parameter) =>
             CopyReferenceColors(cgram, 0x86b91e + parameter * 4, 249, 4);
 
-        void CopyReferenceColors(SnesCgram cgram, int source, int destination, int count)
+        void CopyReferenceColors(SamusColourRig cgram, int source, int destination, int count)
         {
             for (int color = 0; color < count; color++)
                 cgram.SetColor(destination + color, Bgr555.FromWord(checked(ReadReferenceWord(source + color * 2))));
@@ -203,9 +204,9 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         ushort ReadReferenceWord(int address) =>
             SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1));
 
-        static SnesCgram SeedColors()
+        static SamusColourRig SeedColors()
         {
-            var cgram = new SnesCgram();
+            var cgram = new SamusColourRig();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 cgram.SetColor(color, Bgr555.FromWord((ushort)(color * 31)));
             return cgram;
@@ -215,8 +216,8 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             ISnesAddressSpace source, InstalledEnemyArtwork artwork)
         {
             var enemy = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
-            SnesCgram cgram = SeedColors();
-            enemy.Presentation.BindCgram(cgram);
+            SamusColourRig cgram = SeedColors();
+            enemy.Presentation.BindCgram(cgram.Gameplay);
             return new CreateEnemyResult(enemy, cgram);
         }
 
@@ -261,7 +262,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
 
     /// <summary>Requires an edited CGRAM image to differ only at the specified RGB5 channel bits.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void CheckOnlyDifferences(SnesCgram reference, SnesCgram edited,
+    private static void CheckOnlyDifferences(IPaletteColors reference, IPaletteColors edited,
         IReadOnlyList<Difference> differences, string context)
     {
         for (int color = 0; color < SnesCgram.ColorCount; color++)

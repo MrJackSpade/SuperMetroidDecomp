@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rendering;
 using System.Collections.Immutable;

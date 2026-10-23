@@ -18,8 +18,6 @@ internal sealed class PlmFramePhase
 {
     /// <summary>Installed beam artwork staged when a collected beam changes projectile graphics.</summary>
     private readonly RuntimeArtwork _artwork;
-    /// <summary>Live palette memory updated after beam collection.</summary>
-    private readonly SnesCgram _cgram;
     /// <summary>Current and newly pressed buttons passed to PLM and message handlers.</summary>
     private readonly ControllerInputState _controller1;
     /// <summary>Applies gate projectiles requested during the PLM pass.</summary>
@@ -44,7 +42,6 @@ internal sealed class PlmFramePhase
     internal PlmFramePhase(PlmFramePhaseDependencies dependencies)
     {
         _artwork = dependencies.Artwork;
-        _cgram = dependencies.Cgram;
         _controller1 = dependencies.Controller1;
         _enemyRoomEffects = dependencies.EnemyRoomEffects;
         _freeze = dependencies.Freeze;
@@ -141,7 +138,7 @@ internal sealed class PlmFramePhase
                     InWorldCollectibleKind.SpazerBeam or
                     InWorldCollectibleKind.PlasmaBeam)
                 {
-                    _artwork.UpdateBeamTilesAndPalette(_cgram, samus.EquippedBeams);
+                    _artwork.UpdateBeamTilesAndPalette(_player.Colours, samus.EquippedBeams);
                 }
                 else if (pickup.Kind is
                          InWorldCollectibleKind.VariaSuit or

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
@@ -10,7 +11,7 @@ internal sealed record TourianStatueSequenceDependencies
 
 
     /// <summary>Cgram.</summary>
-    public required SnesCgram Cgram { get; init; }
+    public required GameplayColours Cgram { get; init; }
 
 
     /// <summary>Player.</summary>

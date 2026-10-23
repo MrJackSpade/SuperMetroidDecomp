@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Gunship.Artwork;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -35,7 +36,7 @@ internal static class GunshipLandingVerification
 
         var bus = new TestAddressSpace();
         var vram = new SnesVram();
-        var cgram = new SnesCgram();
+        var cgram = new SamusColourRig();
         bool zebesTimebombSet = false;
 
         SeedPostCeresGunshipCartridge(bus, topDefinition, bottomDefinition, populationPointer, tilesetPointer);
@@ -51,7 +52,7 @@ internal static class GunshipLandingVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: new GunshipMotionFixtureGuard(bus), services: new StandaloneRoomEnemyServices(() => 0) { Events = new FixtureEventFlags { HasEvent = eventNumber =>
                 zebesTimebombSet && eventNumber == EventNumber.ZebesTimebombSet } }) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
         samus.Presentation.TileTransfers.BindBodyFixture(InstalledFixtures.SamusBody);
-        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram) { Samus = samus, GunshipScenario = GunshipLoadScenario.EscapingCeres });
+        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram.Gameplay) { Samus = samus, GunshipScenario = GunshipLoadScenario.EscapingCeres });
 
         RoomEnemySlot top = enemies.SlotTable.Slots[0];
         RoomEnemySlot bottom = enemies.SlotTable.Slots[1];

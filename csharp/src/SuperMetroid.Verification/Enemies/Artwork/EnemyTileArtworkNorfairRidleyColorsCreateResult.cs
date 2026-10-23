@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hardware;
@@ -10,4 +11,4 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// <param name="Second">The second.</param>
 /// <param name="Third">The third.</param>
 /// <param name="Fourth">The fourth.</param>
-internal readonly record struct EnemyTileArtworkNorfairRidleyColorsCreateResult(RoomEnemySystem First, SnesCgram Second, RoomEnemySlot Third, RidleyEnemyState Fourth);
+internal readonly record struct EnemyTileArtworkNorfairRidleyColorsCreateResult(RoomEnemySystem First, SamusColourRig Second, RoomEnemySlot Third, RidleyEnemyState Fourth);

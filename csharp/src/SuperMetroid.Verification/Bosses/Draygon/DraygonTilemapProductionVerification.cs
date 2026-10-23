@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Enemies.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -37,14 +38,14 @@ internal static class DraygonTilemapProductionVerification
         var installation = RepositoryInstallation.Installation;
         var assets = LoadFixtureRoomAssets(room, installation.LoadRoomCharacters(),
             installation.LoadRoomPalettes(), installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());
-        var vram = new SnesVram(); var cgram = new SnesCgram(); assets.LoadGraphics(BgArtworkFixtures.For(vram), cgram);
+        var vram = new SnesVram(); var cgram = new SamusColourRig(); assets.LoadGraphics(BgArtworkFixtures.For(vram), cgram);
         var random = new Bank80SystemState();
         random.SetRandomNumber(0x1234);
         var samus = new SamusState { Health = 999, MaxHealth = 999, Position = FixedPosition<RoomPixels>.FromWhole(new(256, 64)),
             Pose = SamusPoseId.FacingRightNormalPose };
         SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => false } }) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
-        enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(vram), cgram) { Level = assets.LevelData, Samus = samus });
+        enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(vram), cgram.Gameplay) { Level = assets.LevelData, Samus = samus });
         var boss = enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Fresh Draygon population did not load.");
         // Observe which native enemy indexes were actually scheduled, without adding
         // a diagnostic callback to production. This does NOT independently verify AI

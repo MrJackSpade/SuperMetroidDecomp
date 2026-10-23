@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Input;
@@ -43,7 +45,7 @@ internal static class BossDisplayBindingsFixtureVerification
                 TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas,
             };
             Enemies.Presentation.BindVram(BgArtworkFixtures.For(Vram));
-            Enemies.Presentation.BindCgram(new SnesCgram());
+            Enemies.Presentation.BindCgram(new GameplayColours());
             Actor.Bind(definition, Actor.Definition);
             Actor.Bind(Actor.DefinitionId, RoomEnemyDefinitionCatalog.Get(definition));
             Actor.Position = Actor.Position.WithWhole(new(128, 128));

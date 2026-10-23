@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -16,7 +18,7 @@ internal static class WreckedShipGhostBehaviorVerification
     internal static void VerifyWreckedShipGhostBehavior()
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation.BindCgram(new SnesCgram());
+        enemies.Presentation.BindCgram(new GameplayColours());
         RoomEnemySlot ghost = enemies.SlotTable.Slots[0];
         ghost.Bind(EnemyDefinitionId.Coven, ghost.Definition);
         ghost.Bind(ghost.DefinitionId, default(RoomEnemyDefinition));

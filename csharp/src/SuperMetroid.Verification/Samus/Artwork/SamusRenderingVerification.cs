@@ -42,14 +42,14 @@ internal static void VerifySamusRenderingSlice()
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x0086)),
     };
     samus.Presentation.TileTransfers.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
-    var cgram = new SnesCgram();
+    var cgram = new SamusColourRig();
     var vram = new SnesVram();
     var oamFrame = new SpriteFrameBuffer();
     var oam = new OamBuffer();
 
     SamusSuitColorCatalog suitColors = SamusSuitColorCatalog.Load(
         new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
-    SamusPresentation.LoadPowerSuitPalette(cgram, suitColors);
+    SamusPresentation.LoadPowerSuitPalette(cgram.Samus.Suit, suitColors);
     AssertEqual(0x3800, cgram.Colors[192], "Samus power-suit palette color zero at CGRAM 192");
     AssertEqual(0x000d, cgram.Colors[207], "Samus power-suit palette color fifteen at CGRAM 207");
 
@@ -656,7 +656,7 @@ internal static void VerifySamusArmCannon()
 internal static void VerifySamusVisorPalette()
 {
     var bus = new TestAddressSpace();
-    var cgram = new SnesCgram();
+    var cgram = new SamusColourRig();
     ushort[] colors = [0x1000, 0x1001, 0x1002, 0x2000, 0x2001, 0x2002];
     WriteVisorColors(bus, colors);
 
@@ -664,7 +664,7 @@ internal static void VerifySamusVisorPalette()
     var state = new SamusVisorPaletteState { PresentationColors = visorColors };
     cgram.SetColor(196, Bgr555.FromWord(0x7777));
     state.Update(
-        cgram, specialSamusPaletteType: 0,
+        cgram.Samus, specialSamusPaletteType: 0,
         layerBlendingDefaultConfig: LayerBlendingConfiguration.NormalGameplay);
     AssertEqual(new VerifySamusVisorPaletteCase(1, 6), new VerifySamusVisorPaletteCase(state.Timer, state.PaletteByteOffset),
         "ordinary room resets visor animation, priming timer one and table offset six");
@@ -673,7 +673,7 @@ internal static void VerifySamusVisorPalette()
 
     // The first `$28` call decrements timer one to zero and immediately copies offset six.
     state.Update(
-        cgram, 0, LayerBlendingConfiguration.VisorBackdrop28);
+        cgram.Samus, 0, LayerBlendingConfiguration.VisorBackdrop28);
     AssertTrue(cgram.Colors[196].ToWord() != 0x7777,
         "backdrop room writes first visor color immediately");
     AssertEqual(colors[6 / 2], cgram.Colors[196], "first visor source is table offset six");
@@ -687,7 +687,7 @@ internal static void VerifySamusVisorPalette()
         Bgr555 colorBeforeCountdown = cgram.Colors[196];
         int offsetBeforeCountdown = state.PaletteByteOffset;
         state.Update(
-            cgram, 0, LayerBlendingConfiguration.VisorBackdrop2A);
+            cgram.Samus, 0, LayerBlendingConfiguration.VisorBackdrop2A);
         AssertTrue(cgram.Colors[196] == colorBeforeCountdown &&
                 state.PaletteByteOffset == offsetBeforeCountdown,
             $"visor countdown timer {expectedTimer} writes no color and keeps its offset");
@@ -697,14 +697,14 @@ internal static void VerifySamusVisorPalette()
             break;
     }
     state.Update(
-        cgram, 0, LayerBlendingConfiguration.VisorBackdrop2A);
+        cgram.Samus, 0, LayerBlendingConfiguration.VisorBackdrop2A);
     AssertEqual(colors[8 / 2], cgram.Colors[196], "second visor source is table offset eight");
     AssertEqual(0x2001, cgram.Colors[196], "second backdrop visor color");
     AssertEqual(new VerifySamusVisorPaletteCase(5, 10), new VerifySamusVisorPaletteCase(state.Timer, state.PaletteByteOffset),
         "second write advances the offset to ten");
 
     for (int call = 0; call < 5; call++)
-        state.Update(cgram, SamusSpecialPaletteType.None, LayerBlendingConfiguration.VisorBackdrop28);
+        state.Update(cgram.Samus, SamusSpecialPaletteType.None, LayerBlendingConfiguration.VisorBackdrop28);
     AssertEqual(0x2002, cgram.Colors[196], "third backdrop visor color");
     AssertEqual(new VerifySamusVisorPaletteCase(5, 6), new VerifySamusVisorPaletteCase(state.Timer, state.PaletteByteOffset),
         "third write wraps only to room-cycle offset six");
@@ -712,7 +712,7 @@ internal static void VerifySamusVisorPalette()
     VerifySamusVisorPaletteCase beforeXray = new VerifySamusVisorPaletteCase(state.Timer, state.PaletteByteOffset);
     cgram.SetColor(196, Bgr555.FromWord(0x3456));
     state.Update(
-        cgram, SamusSpecialPaletteType.Xray, LayerBlendingConfiguration.VisorBackdrop28);
+        cgram.Samus, SamusSpecialPaletteType.Xray, LayerBlendingConfiguration.VisorBackdrop28);
     AssertTrue(new VerifySamusVisorPaletteCase(state.Timer, state.PaletteByteOffset) == beforeXray && cgram.Colors[196].ToWord() == 0x3456,
         "X-ray special handler suppresses ordinary visor cycle");
     AssertEqual(beforeXray, new VerifySamusVisorPaletteCase(state.Timer, state.PaletteByteOffset),
@@ -726,7 +726,7 @@ internal static void VerifySamusVisorPalette()
     integratedSamus.VisorPalette.PresentationColors = visorColors;
     var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
     SamusBeamChargePaletteStepResult charge = projectiles.UpdateBeamChargePalette(
-        cgram, integratedSamus,
+        cgram.Samus, integratedSamus,
         layerBlendingDefaultConfig: LayerBlendingConfiguration.VisorBackdrop28);
     AssertEqual(SamusBeamChargePaletteAction.Inactive, charge.Action,
         "inactive charging retains beam-palette result");
@@ -748,7 +748,7 @@ internal static void VerifySamusVisorPalette()
 internal static void VerifySamusHurtFlashPalette()
 {
     var bus = new TestAddressSpace();
-    var cgram = new SnesCgram();
+    var cgram = new SamusColourRig();
 
     SeedHurtFlashPalettes(bus);
 
@@ -770,7 +770,7 @@ internal static void VerifySamusHurtFlashPalette()
         Bgr555[] paletteBefore = cgram.Colors.Slice(192, 16).ToArray();
         int soundsBefore = samus.LiquidPhysics.SoundRequests.Count;
         SamusHurtFlashPalette.Update(
-            cgram, samus, controllerInput: 0, presentationColors: hurtColors);
+            cgram.Samus.Suit, samus, controllerInput: 0, presentationColors: hurtColors);
         bool paletteChanged = !paletteBefore.SequenceEqual(cgram.Colors.Slice(192, 16));
         AssertEqual(call, counterBefore,
             $"hurt palette call {call} reads pre-increment counter");
@@ -829,7 +829,7 @@ internal static void VerifySamusHurtFlashPalette()
     var cinematic = new SamusState { HurtFlashCounter = 2, EquippedItems = (SamusEquipmentFlags)0x0020 };
     cinematic.LiquidPhysics.CinematicFunctionActive = true;
     SamusHurtFlashPalette.Update(
-        cgram, cinematic, controllerInput: 0, presentationColors: hurtColors);
+        cgram.Samus.Suit, cinematic, controllerInput: 0, presentationColors: hurtColors);
     AssertEqual(0x5000, cgram.Colors[192],
         "cinematic even hurt call selects intro palette");
     AssertEqual(0, cinematic.LiquidPhysics.SoundRequests.Count,
@@ -850,7 +850,7 @@ internal static void VerifySamusHurtFlashPalette()
         HurtFlashCounter = 39,
     };
     SamusHurtFlashPalette.Update(
-        cgram, spinning, controllerInput: 0);
+        cgram.Samus.Suit, spinning, controllerInput: 0);
     AssertEqual(1, spinning.LiquidPhysics.SoundRequests.Count,
         "counter forty restores Screw Attack sound");
     AssertEqual(new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x33), 9),
@@ -868,7 +868,7 @@ internal static void VerifySamusHurtFlashPalette()
         ProjectileFlareCounter = 0x10,
     };
     SamusHurtFlashPalette.Update(
-        cgram, charging, SnesButton.X);
+        cgram.Samus.Suit, charging, SnesButton.X);
     AssertEqual(0, charging.LiquidPhysics.SoundRequests.Count,
         "counter forty arms charging-beam recovery without an immediate sound");
     AssertEqual(ResumeChargingBeamSoundLatch.ResumeNextPass, charging.ResumeChargingBeamSound,
@@ -887,7 +887,7 @@ internal static void VerifySamusHurtFlashPalette()
     var grapple = new SamusState { HurtFlashCounter = 39 };
     grapple.Grapple.Phase = GrapplePhase.WallGrabRelease;
     SamusHurtFlashPalette.Update(
-        cgram, grapple, controllerInput: 0);
+        cgram.Samus.Suit, grapple, controllerInput: 0);
     AssertEqual(1, grapple.LiquidPhysics.SoundRequests.Count,
         "counter forty restores pre-cancel grapple sound");
     AssertEqual(new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x06), 9),
@@ -897,7 +897,7 @@ internal static void VerifySamusHurtFlashPalette()
     var cancelledGrapple = new SamusState { HurtFlashCounter = 39 };
     cancelledGrapple.Grapple.Phase = GrapplePhase.CancelPending;
     SamusHurtFlashPalette.Update(
-        cgram, cancelledGrapple, controllerInput: 0);
+        cgram.Samus.Suit, cancelledGrapple, controllerInput: 0);
     AssertEqual(ResumeChargingBeamSoundLatch.Clear, cancelledGrapple.ResumeChargingBeamSound,
         "grapple cancel cutoff suppresses recovery sound and charging latch");
     AssertEqual(0, cancelledGrapple.LiquidPhysics.SoundRequests.Count,

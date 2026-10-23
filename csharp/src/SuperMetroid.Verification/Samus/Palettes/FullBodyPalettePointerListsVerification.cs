@@ -67,8 +67,8 @@ internal static class FullBodyPalettePointerListsVerification
             for (int phase = 0; phase < 6; phase++)
             {
                 var speed = new SamusHorizontalSpeedState { SpecialPaletteFrame = (ushort)(phase * 2) };
-                var actual = new SnesCgram();
-                AssertTrue(speed.UpdateSpeedBoosterPalette(actual, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack) }, cycleColors: cycleColors),
+                var actual = new SamusColourRig();
+                AssertTrue(speed.UpdateSpeedBoosterPalette(actual.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack) }, cycleColors: cycleColors),
                     "Screw Attack copies a palette without reading either pointer table");
                 int shade = Math.Min(phase, 6 - phase);
                 AssertPaletteColors(rom, actual, 0x9ca0 + suit * 0x200 + shade * 0x20,
@@ -85,8 +85,8 @@ internal static class FullBodyPalettePointerListsVerification
                     SpecialPaletteTimer = WrappingCountdown.Start(1),
                     SpecialPaletteFrame = (ushort)(phase * 2),
                 };
-                var actual = new SnesCgram();
-                AssertTrue(speed.UpdateSpeedBoosterPalette(actual, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = items }, cycleColors: cycleColors),
+                var actual = new SamusColourRig();
+                AssertTrue(speed.UpdateSpeedBoosterPalette(actual.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = items }, cycleColors: cycleColors),
                     "active Speed Booster copies a palette without reading either pointer table");
                 AssertPaletteColors(rom, actual, 0x9b20 + suit * 0x200 + phase * 0x20,
                     $"active Speed Booster suit {suit}, phase {phase}");
@@ -98,8 +98,8 @@ internal static class FullBodyPalettePointerListsVerification
             AssertTrue(stored.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(0x0400)), "seed stored shine");
             for (int phase = 0; phase < 6; phase++)
             {
-                var actual = new SnesCgram();
-                AssertTrue(stored.Shinespark.UpdatePalette(actual, items,
+                var actual = new SamusColourRig();
+                AssertTrue(stored.Shinespark.UpdatePalette(actual.Samus, items,
                     cycleColors: cycleColors),
                     "stored shine copies a palette without reading either pointer table");
                 int shade = Math.Min(phase, 6 - phase);
@@ -114,8 +114,8 @@ internal static class FullBodyPalettePointerListsVerification
             active.Shinespark.BeginWindup(active);
             for (int phase = 0; phase < 4; phase++)
             {
-                var actual = new SnesCgram();
-                AssertTrue(active.Shinespark.UpdatePalette(actual, items,
+                var actual = new SamusColourRig();
+                AssertTrue(active.Shinespark.UpdatePalette(actual.Samus, items,
                     cycleColors: cycleColors),
                     "active shinespark copies a palette without reading either pointer table");
                 AssertPaletteColors(rom, actual, 0x9c20 + suit * 0x200 + phase * 0x20,
@@ -135,8 +135,8 @@ internal static class FullBodyPalettePointerListsVerification
             "active shinespark does not catalogue an unaligned phase offset");
 
         var adjacentScrew = new SamusHorizontalSpeedState { SpecialPaletteFrame = 12 };
-        var adjacentScrewColors = new SnesCgram();
-        AssertTrue(adjacentScrew.UpdateSpeedBoosterPalette(adjacentScrewColors, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = SamusEquipmentFlags.ScrewAttack }, cycleColors: cycleColors),
+        var adjacentScrewColors = new SamusColourRig();
+        AssertTrue(adjacentScrew.UpdateSpeedBoosterPalette(adjacentScrewColors.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = SamusEquipmentFlags.ScrewAttack }, cycleColors: cycleColors),
             "non-catalog Screw Attack phase retains native adjacent-data read");
         AssertPaletteColors(rom, adjacentScrewColors, 0x9ea0,
             "Screw Attack phase twelve reads the adjacent Varia list");
@@ -147,8 +147,8 @@ internal static class FullBodyPalettePointerListsVerification
             SpecialPaletteTimer = WrappingCountdown.Start(1),
             SpecialPaletteFrame = 8,
         };
-        var adjacentBoostColors = new SnesCgram();
-        AssertTrue(adjacentBoost.UpdateSpeedBoosterPalette(adjacentBoostColors, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = 0 }, cycleColors: cycleColors),
+        var adjacentBoostColors = new SamusColourRig();
+        AssertTrue(adjacentBoost.UpdateSpeedBoosterPalette(adjacentBoostColors.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = 0 }, cycleColors: cycleColors),
             "non-catalog Speed Booster phase retains native adjacent-data read");
         AssertPaletteColors(rom, adjacentBoostColors, 0x9d20,
             "Speed Booster phase eight reads the adjacent Varia list");
@@ -199,7 +199,7 @@ internal static class FullBodyPalettePointerListsVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for full-body cycle palette colors")]
     private static void AssertPaletteColors(
-        ISnesAddressSpace rom, SnesCgram actual, int pointer, string context)
+        ISnesAddressSpace rom, SamusColourRig actual, int pointer, string context)
     {
         for (int color = 0; color < SamusPaletteRomData.Common.ColorsPerObjPalette; color++)
             AssertEqual((ushort)(RomDataReader.ReadWordFixedBank(

@@ -505,17 +505,17 @@ public sealed class SamusXrayState
 
     /// <summary>Runs `$91:DCB4-$DD30` and writes only visor color four until restoration.</summary>
     public bool UpdatePalette(
-        IPaletteColors cgram,
+        SamusColours colours,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         SamusSuitColorCatalog? suitColors = null)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(colours);
 
         if (VisorPaletteMode == XrayVisorPaletteMode.RestoreSuitPalette)
         {
             // Carry clear from the native handler asks the outer dispatcher to load the
             // complete normal suit palette, then clears every X-ray palette word.
-            SamusNormalSuitPalette.Load(cgram, equippedItems, suitColors);
+            SamusNormalSuitPalette.Load(colours.Suit, equippedItems, suitColors);
             SpecialPaletteKind = SamusSpecialPaletteType.None;
             SpecialPaletteFrame = 0;
             CommonPaletteTimer = WrappingCountdown.Start(0);
@@ -546,7 +546,7 @@ public sealed class SamusXrayState
             !PresentationColors.TryResolveByteOffset(SpecialPaletteFrame, out Bgr555 visorColor))
             throw new InvalidDataException(
                 $"X-ray visor offset {SpecialPaletteFrame} has no installed color.");
-        new SamusPalettes(cgram).Visor.Write(0, visorColor);
+        colours.Visor.Write(0, visorColor);
 
         if (VisorPaletteMode == XrayVisorPaletteMode.Widening)
         {

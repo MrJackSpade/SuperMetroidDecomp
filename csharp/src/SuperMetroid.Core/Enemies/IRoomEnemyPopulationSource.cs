@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>Where a room's enemy population and its graphics come from.</summary>
@@ -13,5 +14,5 @@ public interface IRoomEnemyPopulationSource
     SnesVram Vram { get; }
 
     /// <summary>CGRAM the enemy palettes load into.</summary>
-    SnesCgram Cgram { get; }
+    GameplayColours Cgram { get; }
 }

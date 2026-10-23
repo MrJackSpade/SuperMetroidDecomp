@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Assets;
@@ -228,7 +229,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         NinjaSpacePirateInstructionProgramDefinitionsCreateSystemResult CreateSystem()
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork };
-            enemies.Presentation.BindCgram(new SnesCgram());
+            enemies.Presentation.BindCgram(new GameplayColours());
             enemies.VerificationServices().NextRandom = () => 1;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.PirateGreyNinja, slot.Definition);

@@ -19,6 +19,7 @@ internal static class SamusColorPresentationContractChecks
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
+            using SuperMetroid.Core.Assets;
             using SuperMetroid.Core.Hardware;
             using SuperMetroid.Core.Samus.Artwork;
             using SuperMetroid.Core.Samus.Palettes;
@@ -27,10 +28,10 @@ internal static class SamusColorPresentationContractChecks
                     SamusChargeColorCatalog charge, SamusHurtColorCatalog hurt,
                     SamusHyperBeamColorCatalog hyper, SamusVisorColorCatalog visor,
                     CrystalFlashColorCatalog flash, PowerBombFixedColorCatalog bomb,
-                    HyperBeamFxColorCatalog fx, SnesCgram cgram, int destination) {
-                    body.Apply(cgram, new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
+                    HyperBeamFxColorCatalog fx, SamusColours colours, ColourRun run) {
+                    body.Apply(colours, new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
                         SamusFullBodyCycleColorFormat.SuitCount - 1, SamusFullBodyCycleColorFormat.ShadesPerSuit - 1));
-                    body.Apply(cgram, new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
+                    body.Apply(colours, new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
                         SamusFullBodyCycleColorFormat.SuitCount, 0));
                     body.Resolve(new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
                         SamusFullBodyCycleColorFormat.SuitCount - 1, SamusFullBodyCycleColorFormat.ShadesPerSuit - 1),
@@ -38,12 +39,12 @@ internal static class SamusColorPresentationContractChecks
                     body.Resolve(new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
                         SamusFullBodyCycleColorFormat.SuitCount - 1, SamusFullBodyCycleColorFormat.ShadesPerSuit - 1),
                         SamusFullBodyCycleColorFormat.ColorsPerPalette);
-                    suit.Apply(cgram, 4);
-                    suit.Apply(cgram, 1);
-                    charge.ApplyCharge(cgram, false, SamusChargeColorFormat.SuitCount - 1, SamusChargeColorFormat.PhasesPerSuit - 1);
-                    charge.ApplyCharge(cgram, true, 0, SamusChargeColorFormat.PhasesPerSuit);
-                    charge.ApplyHyper(cgram, SamusChargeColorFormat.HyperFrameCount - 1);
-                    charge.ApplyHyper(cgram, SamusChargeColorFormat.HyperFrameCount);
+                    suit.Apply(run, 4);
+                    suit.Apply(run, 1);
+                    charge.ApplyCharge(colours, false, SamusChargeColorFormat.SuitCount - 1, SamusChargeColorFormat.PhasesPerSuit - 1);
+                    charge.ApplyCharge(colours, true, 0, SamusChargeColorFormat.PhasesPerSuit);
+                    charge.ApplyHyper(colours, SamusChargeColorFormat.HyperFrameCount - 1);
+                    charge.ApplyHyper(colours, SamusChargeColorFormat.HyperFrameCount);
                     hurt.Resolve(SamusHurtColorVariant.Intro, SamusHurtColorFormat.ColorsPerPalette - 1);
                     hurt.Resolve((SamusHurtColorVariant)int.MaxValue, 0);
                     hyper.Resolve(SamusHyperBeamColorFormat.FrameCount - 1, SamusHyperBeamColorFormat.ColorsPerFrame - 1);
@@ -51,16 +52,16 @@ internal static class SamusColorPresentationContractChecks
                     visor.TryResolveByteOffset(SamusVisorColorFormat.ColorCount * sizeof(ushort) - 1, out _);
                     visor.Resolve(SamusVisorColorFormat.ColorCount - 1);
                     visor.Resolve(SamusVisorColorFormat.ColorCount);
-                    flash.ApplyBody(cgram, CrystalFlashColorFormat.BodyFrameCount - 1);
-                    flash.ApplyBody(cgram, CrystalFlashColorFormat.BodyFrameCount);
-                    flash.ApplyBubble(cgram, CrystalFlashColorFormat.BubbleFrameCount - 1);
-                    flash.ApplyBubble(cgram, CrystalFlashColorFormat.BubbleFrameCount);
+                    flash.ApplyBody(colours, CrystalFlashColorFormat.BodyFrameCount - 1);
+                    flash.ApplyBody(colours, CrystalFlashColorFormat.BodyFrameCount);
+                    flash.ApplyBubble(colours, CrystalFlashColorFormat.BubbleFrameCount - 1);
+                    flash.ApplyBubble(colours, CrystalFlashColorFormat.BubbleFrameCount);
                     bomb.Resolve(PowerBombFixedColorSequence.Explosion, SamusPaletteRomData.PowerBomb.ExplosionColorCount - 1);
                     bomb.Resolve(PowerBombFixedColorSequence.PreExplosion, SamusPaletteRomData.PowerBomb.PreExplosionColorCount - 1);
                     bomb.Resolve(PowerBombFixedColorSequence.PreExplosion, SamusPaletteRomData.PowerBomb.PreExplosionColorCount);
                     bomb.Resolve((PowerBombFixedColorSequence)int.MaxValue, 0);
-                    fx.Apply(cgram, HyperBeamFxColorFormat.FrameCount - 1, destination);
-                    fx.Apply(cgram, HyperBeamFxColorFormat.FrameCount, destination);
+                    fx.Apply(run, HyperBeamFxColorFormat.FrameCount - 1);
+                    fx.Apply(run, HyperBeamFxColorFormat.FrameCount);
                 }
             }
             """;

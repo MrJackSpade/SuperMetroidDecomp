@@ -146,8 +146,8 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(SamusSpecialPaletteType.CrystalFlash, samus.CrystalFlash.SpecialPaletteKind,
         "Crystal Flash installs palette handler seven");
 
-    var crystalCgram = new SnesCgram();
-    AssertTrue(samus.CrystalFlash.UpdatePalette(crystalCgram, samus, beamPalettes, crystalColors),
+    var crystalCgram = new SamusColourRig();
+    AssertTrue(samus.CrystalFlash.UpdatePalette(crystalCgram.Samus, samus, beamPalettes, crystalColors),
         "Crystal Flash palette handler owns first visible frame");
     AssertEqual(0x0100, crystalCgram.Colors[0xe0],
         "Crystal Flash body palette begins at sprite palette-six color zero");
@@ -171,7 +171,7 @@ internal static void VerifySamusCrystalFlash()
     // Five more calls expire only the bubble timer and select pointer one. The ten-call
     // body timer remains halfway through its first record.
     for (int paletteCall = 0; paletteCall < 5; paletteCall++)
-        samus.CrystalFlash.UpdatePalette(crystalCgram, samus, beamPalettes, crystalColors);
+        samus.CrystalFlash.UpdatePalette(crystalCgram.Samus, samus, beamPalettes, crystalColors);
     AssertEqual(0x0220, crystalCgram.Colors[0xea],
         "Crystal Flash bubble palette advances independently");
     AssertEqual(5, samus.CrystalFlash.CrystalPaletteTimer.RawValue,
@@ -308,7 +308,7 @@ internal static void VerifySamusCrystalFlash()
         "following beta pass restores normal movement handler");
     AssertEqual(0xffff, samus.CrystalFlash.SpecialPaletteTimer.RawValue,
         "cleanup requests normal palette restoration");
-    AssertTrue(samus.CrystalFlash.UpdatePalette(crystalCgram, samus, beamPalettes, crystalColors),
+    AssertTrue(samus.CrystalFlash.UpdatePalette(crystalCgram.Samus, samus, beamPalettes, crystalColors),
         "Crystal Flash finish restores beam palette");
     AssertEqual(0x0300, crystalCgram.Colors[0xe0],
         "Crystal Flash finish restores beam palette color zero");
@@ -402,7 +402,7 @@ internal static void VerifySamusXray()
 
     SeedXrayCartridge(bus);
 
-    var cgram = new SnesCgram();
+    var cgram = new SamusColourRig();
     var xrayColors = SamusVisorColorCatalog.Load(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.SamusVisorColorExtractor.Extract(bus)));
     var xraySuitColors = SamusSuitColorCatalog.Load(new MemoryStream(
@@ -442,7 +442,7 @@ internal static void VerifySamusXray()
 
     // Palette handler eight runs in the palette-FX phase. Timer one expires immediately,
     // writes only visor color four, advances byte offset zero to two, and reloads five.
-    AssertTrue(standing.Xray.UpdatePalette(cgram, standing.EquippedItems, xraySuitColors),
+    AssertTrue(standing.Xray.UpdatePalette(cgram.Samus, standing.EquippedItems, xraySuitColors),
         "X-ray widening palette writes first visor color");
     AssertEqual(0x3be0, cgram.Colors[196], "first widening visor color");
     AssertEqual(2, standing.Xray.SpecialPaletteFrame, "widening palette offset advances");
@@ -502,7 +502,7 @@ internal static void VerifySamusXray()
     AssertEqual(248, xrayFrame[0].R,
         "X-ray gameplay window never modifies the IRQ-owned HUD band");
 
-    AssertTrue(standing.Xray.UpdatePalette(cgram, standing.EquippedItems, xraySuitColors),
+    AssertTrue(standing.Xray.UpdatePalette(cgram.Samus, standing.EquippedItems, xraySuitColors),
         "full beam enters visor cycle");
     AssertEqual(XrayVisorPaletteMode.FullBeam, standing.Xray.VisorPaletteMode, "full beam palette mode");
     AssertEqual(0x43ff, cgram.Colors[196], "first full-beam visor color");
@@ -573,7 +573,7 @@ internal static void VerifySamusXray()
         "X-ray teardown sound is consumable exactly once");
     AssertTrue(!standing.Xray.ConsumeDeactivationSoundRequest(),
         "consumed X-ray teardown sound cannot replay");
-    AssertTrue(standing.Xray.UpdatePalette(cgram, standing.EquippedItems, xraySuitColors),
+    AssertTrue(standing.Xray.UpdatePalette(cgram.Samus, standing.EquippedItems, xraySuitColors),
         "X-ray teardown restores normal suit palette");
     AssertEqual(0x0104, cgram.Colors[196], "normal palette replaces visor color");
     AssertEqual(SamusSpecialPaletteType.None, standing.Xray.SpecialPaletteKind, "X-ray palette handler clears");

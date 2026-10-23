@@ -939,7 +939,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         screen.BindArtwork(catalog);
         // Live highlights and reserve-arrow colors belong to their animation
         // owners. Replacing the static base must not reset their phase.
-        ScreenColours arrow = screen.Palette.BackgroundRow(PauseReserveUiDefinitions.ArrowBackgroundRow);
+        ColourRun arrow = screen.Palette.BackgroundRow(PauseReserveUiDefinitions.ArrowBackgroundRow);
         screen.Palette.LoadExcept(catalog.Palettes.Pause, screen.Palette.SpriteRow(MapScreenDefinitions.HighlightSpriteRow),
             arrow.Slice(PauseReserveUiDefinitions.ArrowFirstColour, 1), arrow.Slice(PauseReserveUiDefinitions.ArrowSecondColour, 1));
         LoadPauseBackdrop();

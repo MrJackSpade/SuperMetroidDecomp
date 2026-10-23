@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -205,10 +206,10 @@ internal static class ProjectileHostBindingVerification
         {
             if (!actual.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinations.FromTableIndex(selection))).Span.SequenceEqual(expected.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinations.FromTableIndex(selection))).Span))
                 throw new InvalidDataException("Host restored stale beam artwork instead of current PNG selection.");
-            var boundColors = new SuperMetroid.Core.Hardware.SnesCgram();
-            var diskColors = new SuperMetroid.Core.Hardware.SnesCgram();
-            (actual.Palettes ?? throw new InvalidDataException("Host palette catalog is absent.")).LoadTo(boundColors, SamusBeamCombinations.FromTableIndex(selection));
-            (expected.Palettes ?? throw new InvalidOperationException("Verification requires expected.Palettes.")).LoadTo(diskColors, SamusBeamCombinations.FromTableIndex(selection));
+            var boundColors = new SamusColourRig();
+            var diskColors = new SamusColourRig();
+            (actual.Palettes ?? throw new InvalidDataException("Host palette catalog is absent.")).LoadTo(boundColors.Samus.Beam, SamusBeamCombinations.FromTableIndex(selection));
+            (expected.Palettes ?? throw new InvalidOperationException("Verification requires expected.Palettes.")).LoadTo(diskColors.Samus.Beam, SamusBeamCombinations.FromTableIndex(selection));
             if (!new CgramPalettes(boundColors).ImageEquals(new CgramPalettes(diskColors)))
                 throw new InvalidDataException("Host restored stale palette colors instead of current selection.");
         }

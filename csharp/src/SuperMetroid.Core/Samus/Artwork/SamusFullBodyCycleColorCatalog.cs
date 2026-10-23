@@ -214,11 +214,11 @@ public sealed class SamusFullBodyCycleColorCatalog
     }
 
     /// <summary>Copies sixteen display colors to Samus OBJ palette four.</summary>
-    public void Apply(IPaletteColors cgram, SamusFullBodyCyclePalette palette)
+    public void Apply(SamusColours colours, SamusFullBodyCyclePalette palette)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(colours);
         for (int index = 0; index < SamusFullBodyCycleColorFormat.ColorsPerPalette; index++)
-            new SamusPalettes(cgram).Suit.Write(index,
+            colours.Suit.Write(index,
                 Resolve(palette, index));
     }
 

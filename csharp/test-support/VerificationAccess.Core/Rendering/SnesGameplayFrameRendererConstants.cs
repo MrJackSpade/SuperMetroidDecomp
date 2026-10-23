@@ -240,7 +240,7 @@ internal static class SnesGameplayFrameRendererConstants
     public static void ApplyRoomLayer3FxColorMath(
         Span<Rgba32> frame,
         SnesVram vram,
-        SnesCgram cgram,
+        IPaletteColors cgram,
         RoomLayer3FxRenderSnapshot fx)
     {
         Ensure.NotNull(vram);

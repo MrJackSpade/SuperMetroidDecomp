@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -40,10 +41,10 @@ internal static class MamaTurtleEnemyDefinitionsVerification
         CartridgeRoomAssets assets = LoadFixtureRoomAssets(room, installation.LoadRoomCharacters(),
             installation.LoadRoomPalettes(), installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());
         var vram = new SnesVram();
-        var cgram = new SnesCgram();
+        var cgram = new SamusColourRig();
         assets.LoadGraphics(BgArtworkFixtures.For(vram), cgram);
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 0)) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
-        enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(vram), cgram) { Level = assets.LevelData, Samus = new SamusState() });
+        enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(vram), cgram.Gameplay) { Level = assets.LevelData, Samus = new SamusState() });
 
         AssertEqual(5, enemies.SlotTable.EnemyCount, "Mama Turtle retail population count");
         AssertEqual(EnemyDefinitionId.MamaTurtle,

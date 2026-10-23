@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -58,7 +59,7 @@ internal sealed class EndingPostShot
     }
 
     /// <summary>Fades one row from its captured colours using the 32-step component progression.</summary>
-    private void ApplyFade(ScreenColours row, int elapsed)
+    private void ApplyFade(ColourRun row, int elapsed)
     {
         int remaining = EndingPostShotDefinitions.FadeFrames - elapsed;
         ReadOnlySpan<Bgr555> source = row.SamePositionsIn(sourcePalette);

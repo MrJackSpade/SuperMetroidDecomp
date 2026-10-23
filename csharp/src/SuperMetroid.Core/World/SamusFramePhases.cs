@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Elevator;
@@ -6,7 +7,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Gameplay;
@@ -25,7 +25,7 @@ internal sealed class SamusFramePhases
     /// <summary>Opens the attract demo's Samus input window and selects the demo's new-input word.</summary>
     private readonly IAttractSamusInput _attractDemo;
     /// <summary>Receives Samus and grapple palette writes at their gameplay phase.</summary>
-    private readonly SnesCgram _cgram;
+    private readonly GameplayColours _cgram;
     /// <summary>Supplies held and newly pressed controller bits to Samus phase handlers.</summary>
     private readonly ControllerInputState _controller1;
     /// <summary>Gates movement and animation branches during gameplay time freeze.</summary>
@@ -71,7 +71,7 @@ internal sealed class SamusFramePhases
     /// equipped combination.
     /// </summary>
     internal void UpdateGameplayBeamTilesAndPalette(SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams) =>
-        _artwork.UpdateBeamTilesAndPalette(_cgram, equippedBeams);
+        _artwork.UpdateBeamTilesAndPalette(_player.Colours, equippedBeams);
 
     /// <summary>
     /// <c>GrappleBeamHandler</c> ($9B:C490), reached from the HUD-selection dispatch of
@@ -140,7 +140,7 @@ internal sealed class SamusFramePhases
             // reload the equipped beam palette before returning to inactive.
             (_artwork.BeamArtwork?.Palettes ?? throw new InvalidOperationException(
                 "Grapple cleanup requires installed beam artwork."))
-                .LoadTo(_cgram, new SamusBeamLoadoutWord(_player.Samus.EquippedBeams).Combination ?? throw new InvalidOperationException(
+                .LoadTo(_player.Colours.Beam, new SamusBeamLoadoutWord(_player.Samus.EquippedBeams).Combination ?? throw new InvalidOperationException(
                     "Equipped-beam index is outside the beam-combination tables."));
         }
 
@@ -158,8 +158,8 @@ internal sealed class SamusFramePhases
         // Both ordinary HUD firing and debug entry select the installed native palette.
         (_artwork.BeamArtwork?.Palettes ?? throw new InvalidOperationException(
             "Grapple palette requires installed beam artwork."))
-            .LoadTo(_cgram, SamusGrappleRomData.Palettes.FiringSelection);
-        new SamusPalettes(_cgram).GrappleFlare.Write(0, SamusGrappleRomData.Palettes.FlareColor);
+            .LoadTo(_player.Colours.Beam, SamusGrappleRomData.Palettes.FiringSelection);
+        _player.Colours.GrappleFlare.Write(0, SamusGrappleRomData.Palettes.FlareColor);
     }
 
     /// <summary>
@@ -347,7 +347,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             {
                 room.Projectiles.Firing.CancelChargeForHudSelection();
                 samus.ProjectileFlareCounter = 0;
-                samus.Presentation.LoadSuitPalette(samus, _cgram);
+                samus.Presentation.LoadSuitPalette(samus, _player.Colours);
             }
 
             // The selected scope uses held Run, not Fire. Setup installs its
@@ -372,7 +372,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             {
                 room.Projectiles.Firing.CancelChargeForBombSpread();
                 samus.ProjectileFlareCounter = 0;
-                samus.Presentation.LoadSuitPalette(samus, _cgram);
+                samus.Presentation.LoadSuitPalette(samus, _player.Colours);
             }
 
         }

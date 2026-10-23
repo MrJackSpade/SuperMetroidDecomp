@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Assets;
@@ -55,8 +56,6 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     /// <summary>Resolves a typed VRAM asset from its currently bound artwork catalog.</summary>
     ReadOnlyMemory<byte> IVramAssetProvider.Resolve(VramAssetId asset) => ResolveVramAsset(asset);
 
-    /// <summary>Receives selected beam palettes during a safe rebind.</summary>
-    private readonly SnesCgram _cgram;
     /// <summary>Locates the current HUD character base in VRAM.</summary>
     private readonly GameplayDisplayState _display;
     /// <summary>Receives enemy artwork and presentation catalogs for every room's enemies.</summary>
@@ -99,7 +98,6 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     /// <summary>Captures the runtime owners that consume host-installed visual assets.</summary>
     internal RuntimeArtwork(RuntimeArtworkDependencies dependencies)
     {
-        _cgram = dependencies.Cgram;
         _display = dependencies.Display;
         _enemySession = dependencies.EnemySession;
         _bossArtwork = dependencies.BossArtwork;
@@ -367,10 +365,10 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     /// Ports <c>Update_Beam_Tiles_and_Palette</c> at $90:AC8D: latches the beam whose characters the projectile pages
     /// show and loads its palette.
     /// </summary>
-    internal void UpdateBeamTilesAndPalette(IPaletteColors cgram, SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams)
+    internal void UpdateBeamTilesAndPalette(SamusColours colours, SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams)
     {
         LoadedBeams = equippedBeams;
-        SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(cgram, equippedBeams, BeamArtwork?.Palettes);
+        SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(colours.Beam, equippedBeams, BeamArtwork?.Palettes);
     }
 
     /// <summary>
@@ -387,7 +385,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
             // restores the selected normal palette; host rebind must not erase its phase.
             samus.CrystalFlash.SpecialPaletteKind != SuperMetroid.Core.Samus.Abilities.SamusSpecialPaletteType.CrystalFlash &&
             !samus.Drained.HyperBeamPaletteFx.IsActive)
-            beamArtwork.Palettes?.LoadTo(_cgram, selection);
+            beamArtwork.Palettes?.LoadTo(_player.Colours.Beam, selection);
         pendingBeamPalette = null;
     }
 

@@ -28,8 +28,6 @@ internal sealed class EnemyCollision
     private readonly RoomEarthquake _earthquake;
     /// <summary>Supplies the current enemy frame's timing and state to collision callbacks.</summary>
     private readonly EnemyFrameContext _frameContext;
-    /// <summary>Updates enemy presentation when a collision changes its visible state.</summary>
-    private readonly EnemyPresentation _presentation;
     /// <summary>Connects collision outcomes to enemy-owned projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Supplies the active room's area and environment to collision logic.</summary>
@@ -45,7 +43,6 @@ internal sealed class EnemyCollision
         _deathsAndDrops = dependencies.DeathsAndDrops;
         _earthquake = dependencies.Earthquake;
         _frameContext = dependencies.FrameContext;
-        _presentation = dependencies.Presentation;
         _projectiles = dependencies.Projectiles;
         _room = dependencies.Room;
         _slotTable = dependencies.SlotTable;
@@ -958,7 +955,8 @@ internal sealed class EnemyCollision
                 // contact removes Pseudo Screw's flare; genuine Screw Attack does not.
                 SamusProjectileSystem projectiles = _frameContext.SamusProjectiles
                     ?? throw new InvalidOperationException("Pseudo Screw enemy contact requires the live projectile owner.");
-                projectiles.Firing.ConsumePseudoScrewCharge(_presentation.Cgram, samus);
+                projectiles.Firing.ConsumePseudoScrewCharge(_frameContext.SamusColours
+                    ?? throw new InvalidOperationException("Pseudo Screw enemy contact requires Samus's colours."), samus);
                 baseDamage = 200;
                 vulnerabilityOffset = EnemyVulnerabilityDefinitions.PseudoScrewOffset;
                 break;

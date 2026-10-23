@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -318,8 +319,8 @@ internal static class SpacetimeBeamVerification
         {
             // The palette is a defined one (#1318), whatever the enemy-projectile WRAM it once aliased holds.
             for (int i = 0; i < 32; i++) bus.WriteByte(0x7e19ff + i, (byte)(i * 7 + seed));
-            var cgram = new SnesCgram();
-            SamusProjectileSystem.LoadBeamPalette(cgram, (SamusBeamFlags)0x100e, artwork.Palettes);
+            var cgram = new SamusColourRig();
+            SamusProjectileSystem.LoadBeamPalette(cgram.Samus.Beam, (SamusBeamFlags)0x100e, artwork.Palettes);
             for (int i = 0; i < 16; i++) AssertEqual(SpacetimeBeamGraphicsDefinitions.PaletteWord, cgram.Colors[0xe0 + i],
                 "SpaceTime colors are its defined palette");
         }

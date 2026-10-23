@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
@@ -25,7 +26,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
     {
         if (stock.Bosses.ZebetiteColors is null)
             throw new InvalidDataException("Installed enemy artwork lacks Zebetite pulse colors.");
-        SnesCgram nativeCgram = SeedColors();
+        SamusColourRig nativeCgram = SeedColors();
         ushort nativeCounter = 0;
         CartridgeReadGuard guard = new CartridgeReadGuard(bus).Forbid(
             address => address is >= ZebetiteDefinitions.PaletteSource and
@@ -33,7 +34,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
                     ZebetiteColorFormat.FrameCount * ZebetiteColorFormat.ColorsPerFrame *
                     sizeof(ushort)),
             address => $"Installed Zebetite pulse read migrated ROM color ${address:X6}.");
-        (RoomEnemySystem installed, SnesCgram installedCgram) = Create(guard, stock);
+        (RoomEnemySystem installed, SamusColourRig installedCgram) = Create(guard, stock);
         for (int call = 0; call < ZebetiteColorFormat.FrameCount * 2; call++)
         {
             ReferenceCycle(nativeCgram, ref nativeCounter);
@@ -60,8 +61,8 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         byte[] selectedBytes = System.Text.Encoding.UTF8.GetBytes(editedDocument.ToJsonString());
         File.WriteAllBytes(overridePath, selectedBytes);
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        (RoomEnemySystem selected, SnesCgram selectedCgram) = Create(guard, edited);
-        SnesCgram controlCgram = SeedColors();
+        (RoomEnemySystem selected, SamusColourRig selectedCgram) = Create(guard, edited);
+        SamusColourRig controlCgram = SeedColors();
         ushort controlCounter = 0;
         for (int call = 0; call < 2; call++)
         {
@@ -94,7 +95,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         AssertTrue(selectedBytes.SequenceEqual(File.ReadAllBytes(overridePath)),
             "Stock re-extraction preserves the Zebetite color override");
         var reloaded = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        var persistedCgram = new SnesCgram();
+        var persistedCgram = new SamusColourRig();
         (reloaded.Bosses.ZebetiteColors ?? throw new InvalidOperationException("Verification requires reloaded.ZebetiteColors.")).Apply(persistedCgram, 3,
             ZebetiteDefinitions.PaletteDestinationColor);
         AssertEqual(selectedCgram.Colors[ZebetiteDefinitions.PaletteDestinationColor + 1],
@@ -123,8 +124,8 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             ISnesAddressSpace source, InstalledEnemyArtwork artwork)
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
-            SnesCgram cgram = SeedColors();
-            enemies.Presentation.BindCgram(cgram);
+            SamusColourRig cgram = SeedColors();
+            enemies.Presentation.BindCgram(cgram.Gameplay);
             RoomEnemySlot primarySlot = enemies.SlotTable.Slots[0];
             var primary = new ZebetiteEnemyState(primarySlot.Spawn.Population);
             primarySlot.SetSpeciesState(primary, primary.ClearWithRecord);
@@ -134,7 +135,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         static int Counter(RoomEnemySystem enemies) => enemies.ZebetiteBehavior.SharedPaletteCycle;
 
         // Independent $A6:FD5E pulse: advance modulo eight, copy two raw colors.
-        void ReferenceCycle(SnesCgram cgram, ref ushort counter)
+        void ReferenceCycle(SamusColourRig cgram, ref ushort counter)
         {
             counter = (ushort)((counter + 1) & 7);
             for (int color = 0; color < 2; color++)
@@ -145,9 +146,9 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             }
         }
 
-        static SnesCgram SeedColors()
+        static SamusColourRig SeedColors()
         {
-            var cgram = new SnesCgram();
+            var cgram = new SamusColourRig();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 cgram.SetColor(color, Bgr555.FromWord((ushort)(color * 31)));
             return cgram;

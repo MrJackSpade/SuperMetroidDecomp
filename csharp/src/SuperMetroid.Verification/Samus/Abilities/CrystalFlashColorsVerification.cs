@@ -68,16 +68,16 @@ internal static class CrystalFlashColorsVerification
         SamusState nativeSamus = StartCrystalFlash();
 
         var guard = NewCrystalFlashColorReadGuard(rom);
-        var cgram = new SnesCgram();
-        var nativeCgram = new SnesCgram();
+        var cgram = new SamusColourRig();
+        var nativeCgram = new SamusColourRig();
         int duration = CrystalFlashPaletteTimingDefinitions.AuthoredDuration;
         int calls = CrystalFlashColorFormat.BodyFrameCount * duration;
         for (int call = 0; call < calls; call++)
         {
-            AssertTrue(samus.CrystalFlash.UpdatePalette(cgram, samus,
+            AssertTrue(samus.CrystalFlash.UpdatePalette(cgram.Samus, samus,
                     palettes: null, colors: edited.CrystalFlashColors),
                 $"Crystal Flash call {call} retains palette ownership");
-            AssertTrue(nativeSamus.CrystalFlash.UpdatePalette(nativeCgram, nativeSamus,
+            AssertTrue(nativeSamus.CrystalFlash.UpdatePalette(nativeCgram.Samus, nativeSamus,
                     colors: native),
                 $"native Crystal Flash call {call} retains palette ownership");
             AssertEqual(nativeSamus.CrystalFlash.CrystalPaletteTimer.RawValue,
@@ -96,11 +96,11 @@ internal static class CrystalFlashColorsVerification
             int bubbleFrame = call / 5 % CrystalFlashColorFormat.BubbleFrameCount;
             for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
                 AssertEqual(edited.CrystalFlashColors.ResolveBody(bodyFrame, color),
-                    cgram.Colors[SamusPaletteRomData.CrystalFlash.BodyCgramStart + color],
+                    cgram.Colors[SamusPaletteRomDataCrystalFlashConstants.BodyCgramStart + color],
                     $"Crystal Flash body call {call}, color {color} reaches CGRAM");
             for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
                 AssertEqual(edited.CrystalFlashColors.ResolveBubble(bubbleFrame, color),
-                    cgram.Colors[SamusPaletteRomData.CrystalFlash.BubbleCgramStart + color],
+                    cgram.Colors[SamusPaletteRomDataCrystalFlashConstants.BubbleCgramStart + color],
                     $"Crystal Flash bubble call {call}, color {color} reaches CGRAM");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,

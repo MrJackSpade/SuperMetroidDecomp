@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Areas.Tourian.LookupTourianArtworkVerification;
@@ -44,7 +46,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
         {
             bool soul = soulValue != 0;
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
-            enemies.Presentation.BindCgram(new SnesCgram());
+            enemies.Presentation.BindCgram(new GameplayColours());
             if (soul) enemies.TourianUnlockBehavior.SpawnTourianSoul(parameter);
             else enemies.TourianUnlockBehavior.SpawnTourianEyeGlow(parameter);
 

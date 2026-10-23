@@ -133,7 +133,7 @@ public sealed class GameOverPresentation
     public void ApplyBabyPalette(ScreenPalette colours, GameOverBabyPalette palette)
     {
         _ = GameOverPresentationDefinitions.BabyPaletteName(palette);
-        ScreenColours row = Ensure.NotNull(colours).SpriteRow(GameOverPresentationDefinitions.BabySpriteRow);
+        ColourRun row = Ensure.NotNull(colours).SpriteRow(GameOverPresentationDefinitions.BabySpriteRow);
         for (int index = 0; index < row.Count; index++)
             row.Write(index, babyPalettes.Read(palette, index));
     }

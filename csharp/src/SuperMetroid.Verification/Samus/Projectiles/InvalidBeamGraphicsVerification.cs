@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Assets;
@@ -46,8 +47,8 @@ internal static class InvalidBeamGraphicsVerification
         var gameplayBus = NewProjectileCompositionForbiddenBus();
         for (ushort beam = 0; beam < 12; beam++)
         {
-            var ordinary = new SnesCgram();
-            SamusProjectileSystem.LoadBeamPalette(ordinary, (SamusBeamFlags)beam, artwork.Palettes);
+            var ordinary = new SamusColourRig();
+            SamusProjectileSystem.LoadBeamPalette(ordinary.Samus.Beam, (SamusBeamFlags)beam, artwork.Palettes);
             int table = SamusCartridgeTables.PalettePointers + beam * 2;
             int source = (int)new SnesAddress(0x90, SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, table), CpuBusRegionRead.Read(bus, table + 1)));
             for (int color = 0; color < 16; color++)
@@ -59,8 +60,8 @@ internal static class InvalidBeamGraphicsVerification
         ushort[] nativePalette = [0x0890, 0x30c2, 0x5822, 0x90ec, 0x6ead, 0x2919, 0x000f, 0xfcaa,
             0x8067, 0x1cad, 0xc90a, 0x004d, 0x19f0, 0x4ec9, 0xf000, 0xad14];
         {
-            var cgram = new SnesCgram();
-            SamusProjectileSystem.LoadBeamPalette(cgram, (SamusBeamFlags)0x000d, artwork.Palettes);
+            var cgram = new SamusColourRig();
+            SamusProjectileSystem.LoadBeamPalette(cgram.Samus.Beam, (SamusBeamFlags)0x000d, artwork.Palettes);
             // The page Chainsaw's equipped word binds shows the bytes its native DMA reads.
             var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, artwork,
                 InstalledFixtures.Projectiles.Trails.Tiles ?? throw new InvalidOperationException("The installation has no trail characters."));

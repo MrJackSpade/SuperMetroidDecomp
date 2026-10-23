@@ -737,11 +737,11 @@ false);
     /// Runs palette handler one or six from <c>$91:D6F7</c>, including normal restoration
     /// when its signed countdown expires.
     /// </summary>
-    public bool UpdatePalette(IPaletteColors cgram, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
+    public bool UpdatePalette(SamusColours colours, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         SamusSuitColorCatalog? suitColors = null,
         SamusFullBodyCycleColorCatalog? cycleColors = null)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(colours);
         if (PaletteType is not (SamusSpecialPaletteType.SpeedBoosterShine or SamusSpecialPaletteType.Shinesparking))
             return false;
 
@@ -760,7 +760,7 @@ false);
             PaletteFrameOffset = 0;
             if (Phase == ShinesparkPhase.Stored)
                 Phase = ShinesparkPhase.Inactive;
-            SamusNormalSuitPalette.Load(cgram, equippedItems, suitColors);
+            SamusNormalSuitPalette.Load(colours.Suit, equippedItems, suitColors);
             return true;
         }
 
@@ -775,7 +775,7 @@ false);
             throw new InvalidDataException(
                 $"Shinespark palette type {(int)PaletteType} offset {PaletteFrameOffset} is not compiled.");
         (cycleColors ?? throw new InvalidOperationException(
-            "Shinespark palette requires installed color assets.")).Apply(cgram, palette);
+            "Shinespark palette requires installed color assets.")).Apply(colours, palette);
 
         int exclusiveLimit = PaletteType == SamusSpecialPaletteType.SpeedBoosterShine ? 12 : 8;
         // The offset is always below its limit before this advance, so it never approaches a wrap.

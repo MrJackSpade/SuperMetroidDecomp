@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;
@@ -17,7 +18,7 @@ namespace SuperMetroid.Core.World;
 internal sealed class EnemyRoomEffects
 {
     /// <summary>Destination for Mother Brain's room palette and FX transitions.</summary>
-    private readonly SnesCgram _cgram;
+    private readonly GameplayColours _cgram;
     /// <summary>Receives layer-blending defaults selected by a Mother Brain FX entry.</summary>
     private readonly GameplayDisplayState _display;
     /// <summary>Starts the escape countdown on Mother Brain's requested frame.</summary>

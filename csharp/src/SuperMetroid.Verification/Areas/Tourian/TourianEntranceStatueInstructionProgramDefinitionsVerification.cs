@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Tourian;
@@ -25,7 +27,7 @@ internal static class TourianEntranceStatueInstructionProgramDefinitionsVerifica
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
-            enemies.Presentation.BindCgram(new SnesCgram());
+            enemies.Presentation.BindCgram(new GameplayColours());
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

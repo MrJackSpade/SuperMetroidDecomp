@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Programs;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -82,10 +83,10 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
                 < (CrocomirePaletteRomData.WallSpikesSource +
                     CrocomirePaletteRomData.WallSpikesCount * sizeof(ushort)),
             address => $"Crocomire accessed migrated palette ROM ${address:X6}.");
-        var cgram = new SnesCgram();
+        var cgram = new SamusColourRig();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         Type type = typeof(RoomEnemySystem);
-        enemies.Presentation.BindCgram(cgram);
+        enemies.Presentation.BindCgram(cgram.Gameplay);
         enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
         enemies.VerificationServices().SetRoomScrollState = (_, _) => { };
         RoomEnemySlot body = enemies.SlotTable.Slots[0];

@@ -162,8 +162,8 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2GhostPalette(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(new EnemySession());
-        var cgram = new SnesCgram();
-        enemies.Presentation.BindCgram(cgram);
+        var cgram = new SamusColourRig();
+        enemies.Presentation.BindCgram(cgram.Gameplay);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.PaletteIndex = 0;
         var state = new WreckedShipGhostEnemyState { PhaseTimer = WrappingCountdown.Start(2) };
@@ -1902,16 +1902,16 @@ internal static class LookupStream2Verification
             source, ArtworkJson.Options);
         var stock = CrystalFlashColorCatalog.Load(new MemoryStream(source));
         AssertTrue(stock.body is null, "Original Crystal Flash body selects calculation without stored rows");
-        var cgram = new SnesCgram();
+        var cgram = new SamusColourRig();
         for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
         {
             ushort pointer = ReadVerificationWord(rom, SamusPaletteRomData.CrystalFlash.BodyRecords + frame * 4);
-            stock.ApplyBody(cgram, frame);
+            stock.ApplyBody(cgram.Samus, frame);
             for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
             {
                 ushort expected = ReadVerificationWord(rom, 0x9b0000 | pointer + 2 * color);
                 AssertEqual(expected, stock.ResolveBody(frame, color), "Original Crystal Flash body RGB5 word");
-                AssertEqual(expected, cgram.Colors[SamusPaletteRomData.CrystalFlash.BodyCgramStart + color], "Calculated body color reaches CGRAM");
+                AssertEqual(expected, cgram.Colors[SamusPaletteRomDataCrystalFlashConstants.BodyCgramStart + color], "Calculated body color reaches CGRAM");
                 var rows = document.Body.Select(row => (PaletteRgb5[])row.Clone()).ToArray();
                 rows[frame][color] = rows[frame][color] with { Red = (rows[frame][color].Red + 1) % 32 };
                 var changedDocument = document with { Body = rows };
@@ -1919,17 +1919,17 @@ internal static class LookupStream2Verification
                 AssertTrue(changed.body is not null, "Independent supplied body edit retains its rows");
                 for (int verifyFrame = 0; verifyFrame < rows.Length; verifyFrame++)
                 {
-                    changed.ApplyBody(cgram, verifyFrame);
+                    changed.ApplyBody(cgram.Samus, verifyFrame);
                     for (int verifyColor = 0; verifyColor < rows[verifyFrame].Length; verifyColor++)
                     {
                         var rgb = rows[verifyFrame][verifyColor];
                         ushort word = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
                         AssertEqual(word, changed.ResolveBody(verifyFrame, verifyColor), "All supplied body fields preserved");
-                        AssertEqual(word, cgram.Colors[SamusPaletteRomData.CrystalFlash.BodyCgramStart + verifyColor], "Supplied body color reaches CGRAM");
+                        AssertEqual(word, cgram.Colors[SamusPaletteRomDataCrystalFlashConstants.BodyCgramStart + verifyColor], "Supplied body color reaches CGRAM");
                     }
                 }
                 // Restore stock CGRAM for the remaining checks in this original frame.
-                stock.ApplyBody(cgram, frame);
+                stock.ApplyBody(cgram.Samus, frame);
             }
         }
         var residuals = stock.bubble;
@@ -1941,21 +1941,21 @@ internal static class LookupStream2Verification
             ushort pointer = ReadVerificationWord(rom, SamusCartridgeTables.BubblePointers + frame * 2);
             ushort original = ReadVerificationWord(rom, 0x9b0000 | pointer + 2 * color);
             AssertEqual(original, stock.ResolveBubble(frame, color), "Original bubble payload preserved");
-            stock.ApplyBubble(cgram, frame);
-            AssertEqual(original, cgram.Colors[SamusPaletteRomData.CrystalFlash.BubbleCgramStart + color], "Original bubble color reaches CGRAM");
+            stock.ApplyBubble(cgram.Samus, frame);
+            AssertEqual(original, cgram.Colors[SamusPaletteRomDataCrystalFlashConstants.BubbleCgramStart + color], "Original bubble color reaches CGRAM");
             var rows = document.Bubble.Select(row => (PaletteRgb5[])row.Clone()).ToArray();
             rows[frame][color] = rows[frame][color] with { Green = (rows[frame][color].Green + 1) % 32 };
             var changedDocument = document with { Bubble = rows };
             var changed = CrystalFlashColorCatalog.Load(new MemoryStream(CrystalFlashColorCatalog.Write(changedDocument)));
             for (int verifyFrame = 0; verifyFrame < rows.Length; verifyFrame++)
             {
-                changed.ApplyBubble(cgram, verifyFrame);
+                changed.ApplyBubble(cgram.Samus, verifyFrame);
                 for (int verifyColor = 0; verifyColor < rows[verifyFrame].Length; verifyColor++)
                 {
                     var rgb = rows[verifyFrame][verifyColor];
                     ushort word = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
                     AssertEqual(word, changed.ResolveBubble(verifyFrame, verifyColor), "All supplied bubble fields preserved");
-                    AssertEqual(word, cgram.Colors[SamusPaletteRomData.CrystalFlash.BubbleCgramStart + verifyColor], "Supplied bubble color reaches CGRAM");
+                    AssertEqual(word, cgram.Colors[SamusPaletteRomDataCrystalFlashConstants.BubbleCgramStart + verifyColor], "Supplied bubble color reaches CGRAM");
                 }
             }
             AssertTrue(changed.body is null, "Independent bubble edit preserves body calculation");

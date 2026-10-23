@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Programs;
@@ -39,11 +40,11 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
             installation.LoadRoomCharacters(), installation.LoadRoomPalettes(),
             installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());
         var vram = new SnesVram();
-        var cgram = new SnesCgram();
+        var cgram = new SamusColourRig();
         assets.LoadGraphics(BgArtworkFixtures.For(vram), cgram);
         var random = new Bank80SystemState();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber }) { TileArtwork = (installedArt ?? InstalledFixtures.EnemyArtwork).Enemies, BossArtwork = (installedArt ?? InstalledFixtures.EnemyArtwork).Bosses, AreaArtwork = (installedArt ?? InstalledFixtures.EnemyArtwork).Areas };
-        enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(vram), cgram) { Level = assets.LevelData });
+        enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(vram), cgram.Gameplay) { Level = assets.LevelData });
 
         RoomEnemySlot actor = enemies.SlotTable.Slots[0];
         AlcoonEnemyState state = enemies.AlcoonStates[0] ??

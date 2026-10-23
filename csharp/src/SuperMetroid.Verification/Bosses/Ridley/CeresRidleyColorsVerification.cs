@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -95,8 +96,8 @@ internal static class CeresRidleyColorsVerification
             BossArtwork = fixtureAssets.EnemyTiles.Bosses,
             AreaArtwork = fixtureAssets.EnemyTiles.Areas,
         };
-        var cgram = new SnesCgram();
-        enemies.Presentation.BindCgram(cgram);
+        var cgram = new SamusColourRig();
+        enemies.Presentation.BindCgram(cgram.Gameplay);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         Action<RoomEnemySlot> initialize = enemies.CeresRidleyBehavior.Flight.InitializeCeresRidley;
         initialize(slot);
@@ -230,10 +231,10 @@ internal static class CeresRidleyColorsVerification
             var nativeEnemy = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { CeresRidleyColors = original.CeresRidleyColors } };
             var stockEnemy = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { CeresRidleyColors = original.CeresRidleyColors } };
             var editedEnemy = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { CeresRidleyColors = edited.CeresRidleyColors } };
-            var nativeCgram = new SnesCgram();
-            var stockCgram = new SnesCgram();
-            var editedCgram = new SnesCgram();
-            foreach ((RoomEnemySystem owner, ISnesAddressSpace addressSpace, SnesCgram palette)
+            var nativeCgram = new SamusColourRig();
+            var stockCgram = new SamusColourRig();
+            var editedCgram = new SamusColourRig();
+            foreach ((RoomEnemySystem owner, ISnesAddressSpace addressSpace, SamusColourRig palette)
                 in new VerifyCeresAlarmPaletteCase[]
                 {
                     new VerifyCeresAlarmPaletteCase(nativeEnemy, rom, nativeCgram),
@@ -241,7 +242,7 @@ internal static class CeresRidleyColorsVerification
                     new VerifyCeresAlarmPaletteCase(editedEnemy, guarded, editedCgram),
                 })
             {
-                owner.Presentation.BindCgram(palette);
+                owner.Presentation.BindCgram(palette.Gameplay);
             }
             var nativeTick = new Action<RidleyEnemyState, int>(nativeEnemy.CeresRidleyBehavior.Getaway.UpdateCeresSelfDestructPalette);
             var stockTick = new Action<RidleyEnemyState, int>(stockEnemy.CeresRidleyBehavior.Getaway.UpdateCeresSelfDestructPalette);
@@ -287,10 +288,10 @@ internal static class CeresRidleyColorsVerification
             var nativeEnemy = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { CeresRidleyColors = original.CeresRidleyColors } };
             var stockEnemy = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { CeresRidleyColors = original.CeresRidleyColors } };
             var editedEnemy = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { CeresRidleyColors = edited.CeresRidleyColors } };
-            var nativeCgram = new SnesCgram();
-            var stockCgram = new SnesCgram();
-            var editedCgram = new SnesCgram();
-            foreach ((RoomEnemySystem owner, ISnesAddressSpace addressSpace, SnesCgram palette)
+            var nativeCgram = new SamusColourRig();
+            var stockCgram = new SamusColourRig();
+            var editedCgram = new SamusColourRig();
+            foreach ((RoomEnemySystem owner, ISnesAddressSpace addressSpace, SamusColourRig palette)
                 in new VerifyCeresAlarmPaletteCase[]
                 {
                     new VerifyCeresAlarmPaletteCase(nativeEnemy, rom, nativeCgram),
@@ -298,7 +299,7 @@ internal static class CeresRidleyColorsVerification
                     new VerifyCeresAlarmPaletteCase(editedEnemy, guarded, editedCgram),
                 })
             {
-                owner.Presentation.BindCgram(palette);
+                owner.Presentation.BindCgram(palette.Gameplay);
             }
             var nativeTick = new Action<RoomEnemySlot, RidleyEnemyState>(nativeEnemy.RidleyBehavior.Interactions.UpdateNorfairRidleyHealthPalette);
             var stockTick = new Action<RoomEnemySlot, RidleyEnemyState>(stockEnemy.RidleyBehavior.Interactions.UpdateNorfairRidleyHealthPalette);

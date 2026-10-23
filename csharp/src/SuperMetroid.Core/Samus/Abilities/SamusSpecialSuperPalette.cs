@@ -19,10 +19,10 @@ public static class SamusSpecialSuperPalette
 
     /// <returns>True when the special branch owned—and wrote—the visible Samus palette.</returns>
     public static bool Update(
-        IPaletteColors cgram,
+        SamusColours colours,
         SamusState samus)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(colours);
         Ensure.NotNull(samus);
 
         int phase = samus.SpecialSuperPaletteFlags;
@@ -30,11 +30,11 @@ public static class SamusSpecialSuperPalette
             return false;
 
         if ((phase & 1) == 0)
-            SamusNormalSuitPalette.Load(cgram, samus.EquippedItems, samus.Presentation.SuitColors);
+            SamusNormalSuitPalette.Load(colours.Suit, samus.EquippedItems, samus.Presentation.SuitColors);
         else
             (samus.Presentation.FullBodyCycleColors ?? throw new InvalidOperationException(
                 "Metroid-attachment palette requires installed Samus full-body cycle colors."))
-                .Apply(cgram, SamusPaletteRomData.FullBodyCycles.SpeedBoostPalette(
+                .Apply(colours, SamusPaletteRomData.FullBodyCycles.SpeedBoostPalette(
                     samus.EquippedItems.GetSuitPaletteTableOffset()));
         // The phase is below the drained branch here, so advancing it never wraps.
         samus.SpecialSuperPaletteFlags = phase + 1;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -31,6 +32,9 @@ public sealed record RoomEnemyFrame
 
     /// <summary>Player shot system used by enemy collision and custom touch paths.</summary>
     public SamusProjectileSystem? SamusProjectiles { get; init; } = null;
+
+    /// <summary>Samus's colours, which Pseudo Screw's enemy contact changes (#1405).</summary>
+    public SamusColours? SamusColours { get; init; } = null;
 
     /// <summary>Current native eight-bit NMI clock; null uses the low byte of the standalone enemy-pass clock.</summary>
     public int? NmiFrameCounter8 { get; init; } = null;

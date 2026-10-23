@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Gameplay;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
@@ -34,7 +36,7 @@ internal static class RoomEnemyLoadContractsVerification
 
         var services = new StandaloneRoomEnemyServices(() => 0x1234);
         AssertEqual(GunshipLoadScenario.Ordinary, new RoomEnemyLoadRequest(
-            RoomEnemyPopulationDefinitions.DraygonState1MotherBrainState2, RoomEnemyGraphicsSetDefinitions.Draygon1MotherBrain2, BgArtworkFixtures.For(new SnesVram()), new SnesCgram()).GunshipScenario,
+            RoomEnemyPopulationDefinitions.DraygonState1MotherBrainState2, RoomEnemyGraphicsSetDefinitions.Draygon1MotherBrain2, BgArtworkFixtures.For(new SnesVram()), new GameplayColours()).GunshipScenario,
             "the ordinary gunship scenario is the named default");
 
         AssertEqual(0x1234, services.Random.Generate(), "the standalone RNG generates through its installed generator");

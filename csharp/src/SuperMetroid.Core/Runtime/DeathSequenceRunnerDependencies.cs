@@ -12,7 +12,7 @@ internal sealed record DeathSequenceRunnerDependencies
     public required RuntimeArtwork Artwork { get; init; }
 
     /// <summary>Cgram.</summary>
-    public required SnesCgram Cgram { get; init; }
+    public required GameplayColours Cgram { get; init; }
 
     /// <summary>Display.</summary>
     public required GameplayDisplayState Display { get; init; }

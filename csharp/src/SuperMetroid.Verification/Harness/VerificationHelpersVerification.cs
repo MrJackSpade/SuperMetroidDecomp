@@ -75,7 +75,7 @@ internal static class VerificationHelpersVerification
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void AssertPaletteSlice(
-        SnesCgram actual,
+        IPaletteColors actual,
         int destinationIndex,
         ReadOnlySpan<ushort> expected,
         string context)

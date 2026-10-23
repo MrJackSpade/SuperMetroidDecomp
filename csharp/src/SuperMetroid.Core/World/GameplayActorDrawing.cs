@@ -22,8 +22,6 @@ internal sealed class GameplayActorDrawing
     private readonly RuntimeArtwork _artwork;
     /// <summary>Provides the attract-demo state that can alter ordinary Samus presentation.</summary>
     private readonly IAttractDemoState _attractSession;
-    /// <summary>Receives the palette writes that the software PPU will read for this frame.</summary>
-    private readonly SnesCgram _cgram;
     /// <summary>Supplies the current input state used by presentation handlers.</summary>
     private readonly ControllerInputState _controller1;
     /// <summary>Controls gameplay display modes that can suppress ordinary Samus drawing.</summary>
@@ -45,7 +43,6 @@ internal sealed class GameplayActorDrawing
     {
         _artwork = dependencies.Artwork;
         _attractSession = dependencies.AttractSession;
-        _cgram = dependencies.Cgram;
         _controller1 = dependencies.Controller1;
         _display = dependencies.Display;
         _freeze = dependencies.Freeze;
@@ -112,9 +109,9 @@ internal sealed class GameplayActorDrawing
             // and drained palettes retain their native same-frame priority.
             if (!deathOwnsSamus)
                 _player.Samus.HorizontalSpeed.ApplyPendingNormalSuitPaletteRestore(
-                    _cgram, _player.Samus.EquippedItems, _artwork.MapPresentation?.SamusSuitColors);
+                    _player.Colours, _player.Samus.EquippedItems, _artwork.MapPresentation?.SamusSuitColors);
             bool drainedOwnsSamusPalette = !deathOwnsSamus &&
-                _player.Samus.Drained.UpdatePalette(_cgram, _player.Samus.EquippedItems,
+                _player.Samus.Drained.UpdatePalette(_player.Colours, _player.Samus.EquippedItems,
                     _artwork.MapPresentation?.SamusSuitColors);
             LastVisorPaletteStep = default;
             bool chargeGlowRestoredNormalPalette = false;
@@ -125,7 +122,7 @@ internal sealed class GameplayActorDrawing
                 // white for three calls and restore the ROM suit on call four; Hyper shots
                 // step ten complete bank-$9B palettes on alternating calls before restore.
                 LastBeamChargePaletteStep = room.Projectiles.UpdateBeamChargePalette(
-                    _cgram,
+                    _player.Colours,
                     _player.Samus,
                     _display.LayerBlendingDefaultConfig);
                 LastVisorPaletteStep = room.Projectiles.LastVisorPaletteStep;
@@ -136,7 +133,7 @@ internal sealed class GameplayActorDrawing
                     LastBeamChargePaletteStep.Action == SamusBeamChargePaletteAction.RestoredNormalSuit;
 
                 if (!chargeGlowRestoredNormalPalette)
-                    _player.Samus.HorizontalSpeed.UpdateSpeedBoosterPalette(_cgram, new SpeedBoosterPaletteFrame { MovementType = SamusPoseMetadata.ReadMovementType(_player.Samus), AnimationFrame = _player.Samus.AnimationFrame, EquippedItems = _player.Samus.EquippedItems, SuppressActiveSpeedBoosterPalette = _player.Samus.Shinespark.PaletteType != SamusSpecialPaletteType.None ||
+                    _player.Samus.HorizontalSpeed.UpdateSpeedBoosterPalette(_player.Colours, new SpeedBoosterPaletteFrame { MovementType = SamusPoseMetadata.ReadMovementType(_player.Samus), AnimationFrame = _player.Samus.AnimationFrame, EquippedItems = _player.Samus.EquippedItems, SuppressActiveSpeedBoosterPalette = _player.Samus.Shinespark.PaletteType != SamusSpecialPaletteType.None ||
                         _player.Samus.CrystalFlash.SpecialPaletteKind ==
                             SamusSpecialPaletteType.CrystalFlash ||
                         _player.Samus.Xray.SpecialPaletteKind == SamusSpecialPaletteType.Xray, BottomBoundarySubmerged = _player.Samus.LiquidPhysics.IsBottomBoundarySubmerged(_player.Samus) }, suitColors: _artwork.MapPresentation?.SamusSuitColors, cycleColors: _artwork.MapPresentation?.SamusFullBodyCycleColors,
@@ -147,7 +144,7 @@ internal sealed class GameplayActorDrawing
             if (!deathOwnsSamus && !drainedOwnsSamusPalette && !chargeGlowRestoredNormalPalette)
             {
                 _player.Samus.Shinespark.UpdatePalette(
-                    _cgram,
+                    _player.Colours,
                     _player.Samus.EquippedItems,
                     _artwork.MapPresentation?.SamusSuitColors,
                     _artwork.MapPresentation?.SamusFullBodyCycleColors);
@@ -158,7 +155,7 @@ internal sealed class GameplayActorDrawing
             if (!deathOwnsSamus && !drainedOwnsSamusPalette && !chargeGlowRestoredNormalPalette)
             {
                 _player.Samus.CrystalFlash.UpdatePalette(
-                    _cgram,
+                    _player.Colours,
                     _player.Samus,
                     _artwork.BeamArtwork?.Palettes,
                     _artwork.MapPresentation?.CrystalFlashColors);
@@ -168,7 +165,7 @@ internal sealed class GameplayActorDrawing
             if (!deathOwnsSamus && !drainedOwnsSamusPalette && !chargeGlowRestoredNormalPalette)
             {
                 _player.Samus.Xray.UpdatePalette(
-                    _cgram,
+                    _player.Colours,
                     _player.Samus.EquippedItems,
                     _artwork.MapPresentation?.SamusSuitColors);
             }
@@ -178,11 +175,11 @@ internal sealed class GameplayActorDrawing
             // took the routine's earlier branch.
             bool metroidOwnsSamusPalette = !deathOwnsSamus &&
                 !drainedOwnsSamusPalette &&
-                SamusSpecialSuperPalette.Update(_cgram, _player.Samus);
+                SamusSpecialSuperPalette.Update(_player.Colours, _player.Samus);
             if (!deathOwnsSamus && !drainedOwnsSamusPalette && !metroidOwnsSamusPalette)
             {
                 SamusHurtFlashPalette.Update(
-                    _cgram,
+                    _player.Colours.Suit,
                     _player.Samus,
                     _controller1.Current,
                     _artwork.MapPresentation?.SamusHurtColors);

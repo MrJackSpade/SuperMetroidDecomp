@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidContourCaseMappingsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidHeadCommandMappingVerification;
@@ -85,7 +87,7 @@ internal static class KraidHeadInstructionsVerification
         var state = new KraidEnemyState();
         enemies.KraidBehavior.Access.Kraid = state;
         var guard = new KraidHeadProgramReadGuard(rom);
-        enemies.Presentation.BindCgram(new SnesCgram());
+        enemies.Presentation.BindCgram(new GameplayColours());
         enemies.Presentation.BindVram(BgArtworkFixtures.For(new SnesVram()));
         var glow = new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Head.InitializeKraidEyeGlow);
         var death = new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Death.InitializeKraidDeath);

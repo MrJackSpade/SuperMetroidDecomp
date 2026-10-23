@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -36,7 +38,7 @@ internal static class CeresDoorInitializationDefinitionsVerification
 
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
             enemies.Presentation.BindVram(BgArtworkFixtures.For(new SnesVram()));
-            enemies.Presentation.BindCgram(new SnesCgram());
+            enemies.Presentation.BindCgram(new GameplayColours());
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.SetSpawnParameter1(variant);
 

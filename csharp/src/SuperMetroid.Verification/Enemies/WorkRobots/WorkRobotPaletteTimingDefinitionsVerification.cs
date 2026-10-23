@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -87,13 +88,13 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
             new MemoryStream(WorkRobotPaletteCycle.Write(visual), writable: false));
 
         var guard = NewWorkRobotPaletteTimingReadGuard(rom);
-        var cgram = new SnesCgram();
+        var cgram = new SamusColourRig();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), WorkRobotPaletteCycle = edited }),
         };
         Type type = typeof(RoomEnemySystem);
-        enemies.Presentation.BindCgram(cgram);
+        enemies.Presentation.BindCgram(cgram.Gameplay);
         enemies.WorkRobotBehavior.WorkRobotPaletteAnimationTimer = WrappingCountdown.Start(1);
         enemies.WorkRobotBehavior.WorkRobotPaletteAnimationRecord = 0;
         enemies.WorkRobotBehavior.WorkRobotPaletteAnimationPaletteRow = 0;

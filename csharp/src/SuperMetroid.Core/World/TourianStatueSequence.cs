@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
@@ -20,7 +21,7 @@ public sealed class TourianStatueSequence
 {
 
     /// <summary>Receives the black clear and installed grey-color palette writes from tile instructions.</summary>
-    private readonly SnesCgram _cgram;
+    private readonly GameplayColours _cgram;
     /// <summary>Holds statue busy/released bits, effect spawning, vertical offset, and descent earthquake state.</summary>
     private readonly RoomEnemySystem _enemies;
     /// <summary>Supplies equipped items to palette FX created during the release animation.</summary>

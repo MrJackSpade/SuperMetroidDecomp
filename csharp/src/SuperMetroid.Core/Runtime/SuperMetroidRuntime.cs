@@ -142,6 +142,7 @@ internal sealed class SuperMetroidRuntime
         System = new Bank80SystemState(random);
         Display = new GameplayDisplayState();
         Player = new SamusFrameState();
+        Cgram = new GameplayColours(Player.Colours);
         Room = new ActiveRoomState();
         Clock = Ensure.NotNull(clock);
         Options = new GameplayOptions();
@@ -328,8 +329,11 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The background character artwork the frame shows, composed over <see cref="Vram"/> at capture (#1350).</summary>
     public BgArtworkBindings BgArtwork { get; }
 
-    /// <summary>PPU color RAM initialized from <c>kInitialPalette</c> at ROM <c>$9A:8000</c>.</summary>
-    public SnesCgram Cgram { get; } = new();
+    /// <summary>
+    /// Gameplay's colours, initialized from <c>kInitialPalette</c> at ROM <c>$9A:8000</c>; the positions Samus holds are
+    /// her colours (#1405).
+    /// </summary>
+    public GameplayColours Cgram { get; }
 
     /// <summary>The palette-FX handler enable bit and heat phases, which outlive each room's palette FX.</summary>
     public PaletteFxSessionState PaletteFxSession { get; } = new();
@@ -561,7 +565,7 @@ internal sealed class SuperMetroidRuntime
         {
             if (Player.Samus is null)
                 throw new InvalidOperationException("A suit transformation has no Samus owner.");
-            SuitPickup.Step(Player.Samus, Cgram);
+            SuitPickup.Step(Player.Samus, Player.Colours);
         }
 
         // DisplayMessageBox waits on NMI while retaining the already-published room OAM,
@@ -642,7 +646,7 @@ internal sealed class SuperMetroidRuntime
         if (Room.LoadedScope.PaletteFx.HandlerEnabled)
         {
             Player.Samus?.Drained.HyperBeamPaletteFx.Step(
-                Cgram,
+                Player.Colours,
                 Artwork.BeamArtwork?.HyperBeamFxColors);
         }
     }
@@ -1053,7 +1057,7 @@ internal sealed class SuperMetroidRuntime
             SuitPickup.IsActive ? SuitPickup.Beam : null,
             SamusXrayDisplaySnapshot.Capture(Player.Samus, Player.LastXrayBeamStep),
             Room.LoadedScope.TourianStatues.Enabled);
-        return new(Display.Latched, frameEnd, FramePaint.Capture(Cgram, DisplayedSprites));
+        return new(Display.Latched, frameEnd, new FramePaint(Cgram.Colors, Player.Colours.ColourOwnDraws(DisplayedSprites.Draws)));
     }
 
     /// <summary>

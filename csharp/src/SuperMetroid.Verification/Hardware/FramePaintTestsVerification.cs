@@ -24,8 +24,8 @@ internal static class FramePaintTestsVerification
         sprites.FinalizeFrame();
         Bgr555[] expectedPalette = cgram.Colors.ToArray();
 
-        FramePaint first = FramePaint.Capture(cgram, sprites);
-        FramePaint repeated = FramePaint.Capture(cgram, sprites);
+        FramePaint first = FramePaintConstants.Capture(cgram, sprites);
+        FramePaint repeated = FramePaintConstants.Capture(cgram, sprites);
         AssertTrue(first.Colors.SequenceEqual(expectedPalette), "CGRAM capture changed native words");
         AssertTrue(first.SpriteDraws.SequenceEqual(sprites.Draws), "capture keeps the frame's draws in emission order");
         AssertTrue(repeated.Colors.SequenceEqual(first.Colors) && repeated.SpriteDraws.SequenceEqual(first.SpriteDraws),

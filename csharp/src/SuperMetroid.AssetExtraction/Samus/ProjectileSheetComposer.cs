@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
@@ -28,27 +29,25 @@ internal static class ProjectileSheetComposer
     {
         Ensure.NotNull(inputs);
         InstalledProjectilePresentation projectiles = inputs.Projectiles;
-        SnesCgram cgram;
+        ScreenPalette cgram;
         SpriteArtwork basePage;
         SamusBeamCombination beams;
         if (sheet == SpriteSheetId.IntroProjectiles)
         {
             IntroCinematicArtworkCatalog intro = inputs.Intro;
-            cgram = new SnesCgram();
+            cgram = new ScreenPalette();
             basePage = intro.ObjectPage;
             beams = SamusBeamCombination.Power;
             // `$8B:A3AC` loads the beam palette, then the intro's whole palette over it.
-            SamusProjectileSystem.LoadBeamPalette(cgram, beams, projectiles.BeamTiles.Palettes);
-            var introColours = new ScreenPalette();
-            intro.Palette.LoadTo(introColours);
-            new CgramPalettes(cgram).LoadImage(introColours.Colors);
+            SamusProjectileSystem.LoadBeamPalette(cgram.SpriteRow(SamusColourDefinitions.BeamInkRow), beams, projectiles.BeamTiles.Palettes);
+            intro.Palette.LoadTo(cgram);
         }
         else
         {
             cgram = inputs.RoomLoadColours();
             basePage = inputs.StandardObjects;
             beams = Combination(sheet);
-            SamusProjectileSystem.LoadBeamPalette(cgram, beams, projectiles.BeamTiles.Palettes);
+            SamusProjectileSystem.LoadBeamPalette(cgram.SpriteRow(SamusColourDefinitions.BeamInkRow), beams, projectiles.BeamTiles.Palettes);
         }
         SpriteArtwork page = new ProjectileObjectPages(basePage, projectiles.BeamTiles, projectiles.Trails.Tiles ??
             throw new InvalidDataException("The installed projectile trails have no characters.")).For(beams);

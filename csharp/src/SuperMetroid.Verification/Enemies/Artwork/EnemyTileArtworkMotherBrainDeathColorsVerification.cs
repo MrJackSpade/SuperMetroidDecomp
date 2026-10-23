@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -115,10 +116,10 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
                     < (MotherBrainDeathRomData.DoorPalette +
                         MotherBrainDeathRomData.BodyColorCount * sizeof(ushort)),
             address => $"Live Mother Brain death read migrated ROM ${address:X6}.");
-        var cgram = new SnesCgram();
+        var cgram = new SamusColourRig();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         Type type = typeof(RoomEnemySystem);
-        enemies.Presentation.BindCgram(cgram);
+        enemies.Presentation.BindCgram(cgram.Gameplay);
         cgram.SetColor(MotherBrainDeathRomData.BodyColors - 1, Bgr555.FromWord(0x1234));
         cgram.SetColor(MotherBrainDeathRomData.BrainColors - 1, Bgr555.FromWord(0x1234));
         cgram.SetColor(MotherBrainDeathRomData.LegColors - 1, Bgr555.FromWord(0x1234));

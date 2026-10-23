@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -59,7 +61,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             {
                 var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
                 enemies.Presentation.BindVram(BgArtworkFixtures.For(new SnesVram()));
-                enemies.Presentation.BindCgram(new SnesCgram());
+                enemies.Presentation.BindCgram(new GameplayColours());
                 enemies.VerificationServices().NextRandom = () => 0;
                 enemies.VerificationServices().ReadRandom = () => 0;
 

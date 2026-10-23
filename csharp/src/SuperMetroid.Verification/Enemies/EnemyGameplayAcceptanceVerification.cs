@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using System.Reflection;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Assets;
@@ -82,7 +83,7 @@ internal static class EnemyGameplayAcceptanceVerification
             .OrderBy(candidate => candidate.EnemyPopulation.Records.Length)
             .ThenBy(candidate => RoomEnemyPopulationDefinitions.PointerOf(candidate.EnemyPopulation)).First();
         RoomEnemyPopulationDefinition population = state.EnemyPopulation;
-        (RoomEnemySystem baseline, byte[] beforeCharacters, SnesCgram beforeColors) = Load(stock);
+        (RoomEnemySystem baseline, byte[] beforeCharacters, SamusColourRig beforeColors) = Load(stock);
         AssertEqual(population.Records.Length, baseline.SlotTable.EnemyCount, "compiled population publishes its exact count");
         AssertEqual(population.Records.Length * EnemySlotTable.NativeSlotSize, baseline.SlotTable.FirstFreeEnemyIndex,
             "compiled population publishes its physical first-free offset");
@@ -126,7 +127,7 @@ internal static class EnemyGameplayAcceptanceVerification
         byte[] stockBytes = File.ReadAllBytes(Path.Combine(stockPath, EnemyTileArtworkFormat.FileName(editedPointer)));
         string stockHash = Convert.ToHexString(SHA256.HashData(stockBytes));
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockPath, overridePath);
-        (RoomEnemySystem changed, byte[] afterCharacters, SnesCgram afterColors) = Load(edited);
+        (RoomEnemySystem changed, byte[] afterCharacters, SamusColourRig afterColors) = Load(edited);
         RoomEnemyGraphicsSetEntry[] entries = [.. baseline.GraphicsSet.Entries];
         ObjCharacterUpload[] uploads = [.. baseline.Room.Session.ObjCharacters.Uploads];
         AssertEqual(entries.Length, uploads.Length, "each selected enemy tile set lands as one OBJ character upload");
@@ -165,8 +166,8 @@ internal static class EnemyGameplayAcceptanceVerification
         {
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 1)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
-            var vram = new SnesVram(); var colors = new SnesCgram();
-            enemies.Load(new RoomEnemyLoadRequest(state.EnemyPopulation, state.EnemyGraphicsSet, BgArtworkFixtures.For(vram), colors));
+            var vram = new SnesVram(); var colors = new SamusColourRig();
+            enemies.Load(new RoomEnemyLoadRequest(state.EnemyPopulation, state.EnemyGraphicsSet, BgArtworkFixtures.For(vram), colors.Gameplay));
             // The room's enemy tile set reaches the OBJ characters only through the NMI queue, as named transfers.
             var transfers = new EnemyTileTransfers(artwork);
             var queue = new VramWriteQueue();

@@ -355,12 +355,12 @@ public sealed class SamusHorizontalSpeedState
     /// <c>Handle_ScrewAttack_SpeedBoosting_Palette</c> at <c>$91:D9B2</c>.
     /// </summary>
     /// <returns>True when this call copied a ROM-authored palette into CGRAM.</returns>
-    public bool UpdateSpeedBoosterPalette(IPaletteColors cgram, SpeedBoosterPaletteFrame frame, SamusSuitColorCatalog? suitColors = null, SamusFullBodyCycleColorCatalog? cycleColors = null,
+    public bool UpdateSpeedBoosterPalette(SamusColours colours, SpeedBoosterPaletteFrame frame, SamusSuitColorCatalog? suitColors = null, SamusFullBodyCycleColorCatalog? cycleColors = null,
         SamusOverreadCatalog? overreads = null)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(colours);
 
-        bool paletteCopied = ApplyPendingNormalSuitPaletteRestore(cgram, frame.EquippedItems, suitColors);
+        bool paletteCopied = ApplyPendingNormalSuitPaletteRestore(colours, frame.EquippedItems, suitColors);
         ushort suitTableOffset = frame.EquippedItems.GetSuitPaletteTableOffset();
 
         // Stored-shine and shinespark handlers have priority in `$91:D6F7`. Cancellation's
@@ -397,11 +397,11 @@ public sealed class SamusHorizontalSpeedState
                 // Carry clear at `$91:DA48` asks the outer palette dispatcher to copy
                 // the normal suit palette for frames 27 onward. Frames 1..26 cycle below.
                 // CGRAM is the desktop runtime's directly visible palette buffer.
-                LoadNormalSuitPalette(cgram, frame.EquippedItems, suitColors);
+                LoadNormalSuitPalette(colours, frame.EquippedItems, suitColors);
                 return true;
             }
 
-            CopyAndAdvanceScrewAttackPalette(cgram, suitTableOffset, cycleColors);
+            CopyAndAdvanceScrewAttackPalette(colours, suitTableOffset, cycleColors);
             return true;
         }
 
@@ -418,7 +418,7 @@ public sealed class SamusHorizontalSpeedState
                 return paletteCopied;
             }
 
-            CopyAndAdvanceScrewAttackPalette(cgram, suitTableOffset, cycleColors);
+            CopyAndAdvanceScrewAttackPalette(colours, suitTableOffset, cycleColors);
             return true;
         }
 
@@ -436,7 +436,7 @@ public sealed class SamusHorizontalSpeedState
 
         SpeedBoosterPaletteSource source = SamusPaletteRomData.FullBodyCycles.ReadActiveSpeedBoosterPalette(
             suitTableOffset, checked((ushort)SpecialPaletteFrame));
-        SamusSpeedBoosterPalette.Apply(cgram, source, cycleColors, overreads);
+        SamusSpeedBoosterPalette.Apply(colours, source, cycleColors, overreads);
 
         // The native clamp is AFTER the copy. Screw Attack can leave phase eight or ten
         // in this shared word; retain that one bounded overrun before pinning phase six.
@@ -458,21 +458,21 @@ public sealed class SamusHorizontalSpeedState
     /// replace their colors in the same frame; they must not erase a later charge flash.
     /// </summary>
     public bool ApplyPendingNormalSuitPaletteRestore(
-        IPaletteColors cgram, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
+        SamusColours colours, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         SamusSuitColorCatalog? suitColors = null)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(colours);
         if (!NormalSuitPaletteRestoreRequested)
             return false;
 
-        SamusNormalSuitPalette.Load(cgram, equippedItems, suitColors);
+        SamusNormalSuitPalette.Load(colours.Suit, equippedItems, suitColors);
         NormalSuitPaletteRestoreRequested = false;
         return true;
     }
 
     /// <summary>Copies one of the six ROM-authored Screw Attack palettes and wraps its offset.</summary>
     private void CopyAndAdvanceScrewAttackPalette(
-        IPaletteColors cgram,
+        SamusColours colours,
         ushort suitTableOffset,
         SamusFullBodyCycleColorCatalog? cycleColors)
     {
@@ -480,7 +480,7 @@ public sealed class SamusHorizontalSpeedState
             suitTableOffset, checked((ushort)SpecialPaletteFrame));
         (cycleColors ?? throw new InvalidOperationException(
             "Screw Attack palette requires installed Samus full-body cycle colors."))
-            .Apply(cgram, palette);
+            .Apply(colours, palette);
 
         // Offsets 0,2,4,6,8,10 form the six-frame cycle. The native CMP uses the current
         // offset, so ten wraps to zero only after its palette has been copied.
@@ -491,11 +491,11 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>Loads the normal Power/Varia/Gravity palette selected by the native suit index.</summary>
     private static void LoadNormalSuitPalette(
-        IPaletteColors cgram,
+        SamusColours colours,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         SamusSuitColorCatalog? suitColors)
     {
-        SamusNormalSuitPalette.Load(cgram, equippedItems, suitColors);
+        SamusNormalSuitPalette.Load(colours.Suit, equippedItems, suitColors);
     }
 
     /// <summary>

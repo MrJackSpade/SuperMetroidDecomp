@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
 
@@ -94,7 +95,7 @@ internal sealed class EndingCreditsRoll
     }
 
     /// <summary>Reads one authored palette target without replacing the current fade state.</summary>
-    private Bgr555 StaticPaletteColor(EndingPaletteId id, ScreenColours positions, int colour)
+    private Bgr555 StaticPaletteColor(EndingPaletteId id, ColourRun positions, int colour)
         => (_stage.PaletteArtwork ?? throw new InvalidOperationException(
             "Ending palettes require installed artwork."))[id].Color(positions, colour);
 
@@ -116,7 +117,7 @@ internal sealed class EndingCreditsRoll
     }
 
     /// <summary>Fades one post-credits row toward its authored colours with 8.8 component truncation.</summary>
-    private void ApplyPostCreditsPaletteRange(ScreenColours row, int step)
+    private void ApplyPostCreditsPaletteRange(ColourRun row, int step)
     {
         // E110 saves Intro4 as its target, clears colors $20-$2F, then E158 runs the
         // shared 8CB2 component accumulator 32 times. Each increment is component<<3

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
@@ -28,20 +29,20 @@ internal static class SuitPickupSharedScratchVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         });
         var pickup = new SamusSuitPickupState();
-        var cgram = new SnesCgram();
+        var cgram = new SamusColourRig();
         pickup.Begin(samus, new Position16<RoomPixels>(0, 0), SamusSuitPickupKind.Varia);
         AssertScratch(samus, 0, 0, "setup");
 
         // Two instruction-list calls precede the first stage call and leave the scratch untouched.
-        pickup.Step(samus, cgram);
-        pickup.Step(samus, cgram);
+        pickup.Step(samus, cgram.Samus);
+        pickup.Step(samus, cgram.Samus);
         AssertScratch(samus, 0, 0, "instruction-list setup");
 
         // Stage zero: the word is the grown scanline count, until the stage hands over the narrow beam's edges.
         StepThrough(pickup, samus, cgram, SamusSuitPickupStage.LightBeamAppears,
             context => AssertScratch(samus, 0, checked((ushort)pickup.Beam.Progress), context));
         AssertScratch(samus, 1, SamusSpecialSequenceRomData.SuitPickup.NarrowBeamEndpoints, "uniform widening starts");
-        pickup.Step(samus, cgram);
+        pickup.Step(samus, cgram.Samus);
         AssertScratch(samus, 1, SnesLittleEndian.Word(119, 121), "first uniform widening call");
 
         // Columns: the word is the edge pair, left column in the low byte, until the curved stage reaches full width.
@@ -51,7 +52,7 @@ internal static class SuitPickupSharedScratchVerification
         StepThrough(pickup, samus, cgram, SamusSuitPickupStage.CurvedWidening,
             context => AssertScratch(samus, 2, BeamEdgeWord(pickup), context));
         AssertScratch(samus, 3, 0, "full-width beam clears the word for the reveal");
-        pickup.Step(samus, cgram);
+        pickup.Step(samus, cgram.Samus);
         AssertEqual(SamusSuitPickupStage.LightBeamShrinks, pickup.Stage, "the reveal hands over to the shrinking stage");
         AssertScratch(samus, 4, 0, "reveal");
 
@@ -59,26 +60,26 @@ internal static class SuitPickupSharedScratchVerification
         StepThrough(pickup, samus, cgram, SamusSuitPickupStage.LightBeamShrinks,
             context => AssertScratch(samus, 4, checked((ushort)pickup.Beam.Progress), context));
         AssertScratch(samus, 5, SamusSpecialSequenceRomData.SuitPickup.DissipationStart, "dissipation starts");
-        pickup.Step(samus, cgram);
+        pickup.Step(samus, cgram.Samus);
         AssertEqual(7, pickup.Beam.Left.X, "the first dissipation call wraps the left column from 255 to 7");
         AssertScratch(samus, 5, SnesLittleEndian.Word(7, 240), "first dissipation call");
         StepThrough(pickup, samus, cgram, SamusSuitPickupStage.LightBeamDissipates,
             context => AssertScratch(samus, 5, BeamEdgeWord(pickup), context));
         AssertScratch(samus, 6, BeamEdgeWord(pickup), "the last centre line awaits cleanup");
-        pickup.Step(samus, cgram);
+        pickup.Step(samus, cgram.Samus);
         AssertTrue(!pickup.IsActive, "cleanup ends the transformation");
         AssertScratch(samus, 0, 0, "cleanup");
         Console.WriteLine("Suit pickup shared scratch: every stage publishes its number and exact light-beam word to the spark and Crystal Flash.");
     }
 
     /// <summary>Runs stage calls while <paramref name="stage"/> stays current, checking the scratch after each call that keeps it.</summary>
-    private static void StepThrough(SamusSuitPickupState pickup, SamusState samus, SnesCgram cgram,
+    private static void StepThrough(SamusSuitPickupState pickup, SamusState samus, SamusColourRig cgram,
         SamusSuitPickupStage stage, Action<string> checkWithinStage)
     {
         AssertEqual(stage, pickup.Stage, $"{stage} is current before its calls");
         for (int call = 1; call <= MaximumCallsPerStage; call++)
         {
-            pickup.Step(samus, cgram);
+            pickup.Step(samus, cgram.Samus);
             if (pickup.Stage != stage)
                 return;
             checkWithinStage($"{stage} call {call}");

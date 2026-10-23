@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Samus.Abilities;
 namespace SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Projectiles;
 
@@ -21,4 +24,8 @@ internal static class SamusPaletteRomDataCrystalFlashConstants
         /// <inheritdoc cref="SamusPaletteRomDataCrystalFlashConstants.BeamPalettePointers"/>
         internal static int BeamPalettePointers => SamusPaletteRomDataCrystalFlashConstants.BeamPalettePointers;
     }
+        /// <summary>First CGRAM color of OBJ palette six.</summary>
+        public const int BodyCgramStart = 0xe0;
+        /// <summary>First CGRAM color of the bubble portion in OBJ palette six.</summary>
+        public const int BubbleCgramStart = 0xea;
 }

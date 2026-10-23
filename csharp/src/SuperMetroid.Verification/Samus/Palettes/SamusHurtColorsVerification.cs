@@ -47,7 +47,7 @@ internal static class SamusHurtColorsVerification
         CompareHurtCycle(rom, catalog, cinematic: false);
         CompareHurtCycle(rom, catalog, cinematic: true);
         AssertThrows<InvalidOperationException>(() => SamusHurtFlashPalette.Update(
-            new SnesCgram(), new SamusState { HurtFlashCounter = 1 }, 0),
+            new SamusColours().Suit, new SamusState { HurtFlashCounter = 1 }, 0),
             "hurt flash requires installed color artwork instead of a cartridge fallback");
         AssertThrows<InvalidDataException>(() => SamusHurtColorCatalog.Load(
             new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))),
@@ -66,7 +66,7 @@ internal static class SamusHurtColorsVerification
         samus.Presentation.SuitColors = SamusSuitColorCatalog.Load(new MemoryStream(
             SamusSuitColorExtractor.Extract(rom)));
         samus.LiquidPhysics.CinematicFunctionActive = cinematic;
-        var cgram = new SnesCgram();
+        var cgram = new SamusColourRig();
         var guarded = NewForbiddenHurtColorBus(rom);
         // Each call starts from a sentinel palette, so CGRAM shows whether that call wrote
         // colors and, when it did, which native source it selected.
@@ -76,7 +76,7 @@ internal static class SamusHurtColorsVerification
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
                 cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + index, Bgr555.FromWord(checked(sentinel)));
             SamusHurtFlashPalette.Update(
-                cgram, samus, 0, catalog);
+                cgram.Samus.Suit, samus, 0, catalog);
             AssertEqual((ushort)(call + 1), samus.HurtFlashCounter,
                 $"{(cinematic ? "intro" : "ordinary")} hurt call {call} counter");
             if (call == 7)
@@ -123,10 +123,10 @@ internal static class SamusHurtColorsVerification
         {
             var samus = new SamusState { HurtFlashCounter = (ushort)(cinematic ? 2 : 1) };
             samus.LiquidPhysics.CinematicFunctionActive = cinematic;
-            var cgram = new SnesCgram();
+            var cgram = new SamusColourRig();
             var guarded = NewForbiddenHurtColorBus(rom);
             SamusHurtFlashPalette.Update(
-                cgram, samus, 0, edited.SamusHurtColors);
+                cgram.Samus.Suit, samus, 0, edited.SamusHurtColors);
             SamusHurtColorVariant variant = cinematic
                 ? SamusHurtColorVariant.Intro : SamusHurtColorVariant.Hurt;
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)

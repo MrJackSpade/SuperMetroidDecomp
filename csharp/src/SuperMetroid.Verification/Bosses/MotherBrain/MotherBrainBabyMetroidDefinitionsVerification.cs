@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Gameplay;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -41,7 +43,7 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
             "Mother Brain Baby population definition");
 
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
-        enemies.Presentation.BindCgram(new SnesCgram());
+        enemies.Presentation.BindCgram(new GameplayColours());
 
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.MotherBrainBody, body.Definition);

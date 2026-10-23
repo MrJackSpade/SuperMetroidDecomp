@@ -106,7 +106,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
             (resumedSamus.EquippedItems & SamusEquipmentFlags.SpeedBooster) != 0);
         // Samus command $0C also calls LoadSamusSuitPalette at $91:E6CB.
         // Equipment bits are live, but the restored gameplay palette is cached.
-        resumedSamus.Presentation.LoadSuitPalette(resumedSamus, session.GameplayRuntime.Cgram);
+        resumedSamus.Presentation.LoadSuitPalette(resumedSamus, session.GameplayRuntime.Player.Colours);
         session.GameplayRuntime.Room.LoadedScope.Plms.Stations.ResumeMapStationsAfterUnpause();
         resumedSamus.Control.ReleaseRefillStationOnUnpause();
         session.GameplayRuntime.Room.LoadedScope.Enemies.Elevator.ClearElevatorFlagsOnGameplayResume();

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -79,10 +80,10 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
             "cutscene Baby color override survives catalog reload");
 
         var guard = NewBabyMetroidCutsceneColorReadGuard(rom);
-        var cgram = new SnesCgram();
+        var cgram = new SamusColourRig();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         Type type = typeof(RoomEnemySystem);
-        enemies.Presentation.BindCgram(cgram);
+        enemies.Presentation.BindCgram(cgram.Gameplay);
         int destination = BabyMetroidCutsceneColorRomData.DestinationByteIndex / 2;
         cgram.SetColor(destination - 1, Bgr555.FromWord(0x1234));
         enemies.BabyMetroidCutsceneBehavior.LoadBabyMetroidCutsceneInitialPalette();

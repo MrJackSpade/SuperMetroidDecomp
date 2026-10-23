@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Bosses.Artwork;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -72,7 +73,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), BossArtwork = new BossArtworkCatalog { CrocomireColors = colors },
         };
-        var cgram = new SnesCgram();
+        var cgram = new SamusColourRig();
         var death = new CrocomireDeathState
         {
             RumbleYOffset = 0,
@@ -85,7 +86,7 @@ internal static class CrocomireRumbleDefinitionsVerification
             DeathSequenceIndex = CrocomireDeathPhase.RumbleHiddenWall,
             RumbleTableOffset = 4,
         };
-        enemies.Presentation.BindCgram(cgram);
+        enemies.Presentation.BindCgram(cgram.Gameplay);
         enemies.CrocomireBehavior.Access.CrocomireDeath = death;
 
         // The reference model keeps the cartridge's words; production keeps signed pixel quantities, which the

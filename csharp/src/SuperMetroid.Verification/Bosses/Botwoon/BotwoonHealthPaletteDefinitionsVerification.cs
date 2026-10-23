@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Botwoon;
@@ -45,7 +47,7 @@ internal static class BotwoonHealthPaletteDefinitionsVerification
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), BossArtwork = new BossArtworkCatalog { BotwoonColors = BotwoonColorCatalog.Load(colors) },
         };
-        enemies.Presentation.BindCgram(new SnesCgram());
+        enemies.Presentation.BindCgram(new GameplayColours());
         Action<RoomEnemySlot, BotwoonEnemyState> update = enemies.BotwoonBehavior.UpdateBotwoonHealthPalette;
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         var state = new BotwoonEnemyState()

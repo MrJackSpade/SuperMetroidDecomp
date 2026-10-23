@@ -9,12 +9,12 @@ public static class DoorTransitionPaletteDefinitions
     /// <summary>Reproduces the live sprite-palette-six write of $90:ACCD after restoring the faded source colors; the newly loaded beam colors do not wait for the destination palette fade.</summary>
     /// <param name="current">Live CGRAM palette to receive colors 224..239; all other colors are retained.</param>
     /// <param name="loaded">Destination's captured palette, indexed by CGRAM color number, containing at least 240 colors.</param>
-    public static void RestoreLoadedBeamPalette(SnesCgram current, ReadOnlySpan<Bgr555> loaded) =>
+    public static void RestoreLoadedBeamPalette(IPaletteColors current, ReadOnlySpan<Bgr555> loaded) =>
         new DoorTransitionPalettes(current).RestoreBeamFrom(loaded);
 
     /// <summary>Performs $82:E52B-$E52E's live visor reset to $3BE0 when door scrolling completes, before the final loading PLM handler.</summary>
     /// <param name="current">Live CGRAM palette whose sprite-palette-four color four (index 196) is replaced; no fade target is modified.</param>
-    public static void PublishCompletedScrollVisor(SnesCgram current) =>
+    public static void PublishCompletedScrollVisor(IPaletteColors current) =>
         new DoorTransitionPalettes(current).Visor.Write(0, DoorCompletionVisorGreen);
 
     /// <summary>$82:E1F1: Palettes_BG3P2MinimapExplored; CGRAM slot copied unchanged during the source fade.</summary>

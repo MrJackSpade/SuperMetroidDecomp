@@ -85,8 +85,8 @@ internal static class SamusSuitColorsVerification
 
         for (int suit = 0; suit < equipment.Length; suit++)
         {
-            var cgram = new SnesCgram();
-            SamusNormalSuitPalette.Load(cgram, (SamusEquipmentFlags)equipment[suit], colors);
+            var cgram = new SamusColourRig();
+            SamusNormalSuitPalette.Load(cgram.Samus.Suit, (SamusEquipmentFlags)equipment[suit], colors);
             for (int color = 0; color < SamusSuitColorFormat.ColorsPerSuit; color++)
                 AssertEqual(
                     (ushort)(ReadNativeSuitColor(cartridge, sourceAddresses[suit], color) & 0x7fff),
@@ -94,18 +94,18 @@ internal static class SamusSuitColorsVerification
                     $"suit {suit} color {color} is installed without a runtime bus");
         }
 
-        var power = new SnesCgram();
-        SamusNormalSuitPalette.LoadPower(power, colors);
+        var power = new SamusColourRig();
+        SamusNormalSuitPalette.LoadPower(power.Samus.Suit, colors);
         for (int color = 0; color < SamusSuitColorFormat.ColorsPerSuit; color++)
             AssertEqual(colors.Resolve(0, color),
                 power.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color],
                 $"Power Suit color {color} is installed without a runtime bus");
 
         AssertThrows<InvalidOperationException>(
-            () => SamusNormalSuitPalette.Load(new SnesCgram(), 0, null),
+            () => SamusNormalSuitPalette.Load(new SamusColours().Suit, 0, null),
             "missing installed normal suit colors fail explicitly");
         AssertThrows<InvalidOperationException>(
-            () => SamusNormalSuitPalette.LoadPower(new SnesCgram(), null),
+            () => SamusNormalSuitPalette.LoadPower(new SamusColours().Suit, null),
             "missing installed Power Suit colors fail explicitly");
         Console.WriteLine("Normal suit catalog boundary: all 48 stock colors, native pointers, Power copy, and missing-content errors pass without a runtime bus.");
     }
@@ -150,7 +150,7 @@ internal static class SamusSuitColorsVerification
             "Samus suit color override changes installed-content identity");
 
         var guard = NewSuitColorReadGuard(bus);
-        var cgram = new SnesCgram();
+        var cgram = new SamusColourRig();
         var samus = new SamusState { Presentation = { SuitColors = edited.SamusSuitColors } };
         ushort[] equipment =
         [
@@ -161,7 +161,7 @@ internal static class SamusSuitColorsVerification
         for (int suit = 0; suit < equipment.Length; suit++)
         {
             samus.EquippedItems = (SamusEquipmentFlags)equipment[suit];
-            samus.Presentation.LoadSuitPalette(samus, cgram);
+            samus.Presentation.LoadSuitPalette(samus, cgram.Samus);
             AssertEqual(edited.SamusSuitColors.Resolve(offsets[suit], 1),
                 cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + 1],
                 $"edited suit {suit} reaches live Samus CGRAM");
@@ -173,7 +173,7 @@ internal static class SamusSuitColorsVerification
         samus.EquippedItems = (SamusEquipmentFlags)equipment[1];
         samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
         AssertTrue(samus.HorizontalSpeed.ApplyPendingNormalSuitPaletteRestore(
-                cgram, samus.EquippedItems, edited.SamusSuitColors),
+                cgram.Samus, samus.EquippedItems, edited.SamusSuitColors),
             "momentum cancellation admits installed normal suit restoration");
         AssertEqual(edited.SamusSuitColors.Resolve(2, 1),
             cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + 1],
@@ -184,7 +184,7 @@ internal static class SamusSuitColorsVerification
         ushort hurtRestoreSentinel = unchecked((ushort)(edited.SamusSuitColors.Resolve(2, 1).ToWord() ^ 0x7fff));
         cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + 1, Bgr555.FromWord(checked(hurtRestoreSentinel)));
         SamusHurtFlashPalette.Update(
-            cgram, samus, controllerInput: 0);
+            cgram.Samus.Suit, samus, controllerInput: 0);
         AssertTrue(cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + 1].ToWord() != hurtRestoreSentinel,
             "even hurt-flash frame restores the normal suit");
         AssertEqual(edited.SamusSuitColors.Resolve(2, 1),
@@ -192,7 +192,7 @@ internal static class SamusSuitColorsVerification
             "hurt-flash recovery preserves edited Varia color");
 
         samus.EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.ScrewAttack);
-        AssertTrue(samus.HorizontalSpeed.UpdateSpeedBoosterPalette(cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = samus.EquippedItems }, suitColors: edited.SamusSuitColors),
+        AssertTrue(samus.HorizontalSpeed.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = samus.EquippedItems }, suitColors: edited.SamusSuitColors),
             "Screw Attack recovery frame restores the normal suit");
         AssertEqual(edited.SamusSuitColors.Resolve(2, 1),
             cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + 1],

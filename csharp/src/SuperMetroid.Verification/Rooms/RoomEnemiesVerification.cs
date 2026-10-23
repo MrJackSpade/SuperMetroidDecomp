@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.World.Artwork;
@@ -88,7 +90,7 @@ internal static void VerifyRoomEnemyLoading()
 
     var bus = new TestAddressSpace();
     var vram = new SnesVram();
-    var cgram = new SnesCgram();
+    var cgram = new SamusColourRig();
 
     // The first header is intentionally filled at every documented offset. Besides making
     // the parsed record useful to future damage/interaction translations, this catches a
@@ -146,7 +148,7 @@ internal static void VerifyRoomEnemyLoading()
     {
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors }),
     };
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram));
+    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram.Gameplay));
 
     AssertEqual(1, enemies.SlotTable.EnemyCount, "enemy population count");
     AssertEqual(EnemySlotTable.NativeSlotSize, enemies.SlotTable.FirstFreeEnemyIndex,
@@ -215,8 +217,8 @@ internal static void VerifyRoomEnemyLoading()
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors }),
     };
     var installedVram = new SnesVram();
-    var installedCgram = new SnesCgram();
-    installedEnemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(installedVram), installedCgram));
+    var installedCgram = new SamusColourRig();
+    installedEnemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(installedVram), installedCgram.Gameplay));
     var installedQueue = new VramWriteQueue();
     installedEnemies.GraphicsSet.QueueGraphicsUploads(installedQueue);
     installedQueue.DrainTo(installedVram, seededTiles, installedEnemies.Room.Session.ObjCharacters, BgArtworkFixtures.For(installedVram));
@@ -250,7 +252,7 @@ internal static void VerifyRoomEnemyLoading()
     SeedRoomEnemyPopulation(bus, emptyPopulationPointer, deathQuota: 0x7f);
     cgram.SetColor(128, Bgr555.FromWord(0x4567));
     vram.LoadBytes(0xe000, new byte[] { 0x5a });
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(emptyPopulationPointer), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(vram), cgram));
+    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(emptyPopulationPointer), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(vram), cgram.Gameplay));
 
     AssertEqual(0, enemies.SlotTable.EnemyCount, "empty population clears enemy count");
     AssertEqual(0, enemies.GraphicsSet.Entries.Count, "empty population skips graphics set");
@@ -356,7 +358,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 0);
 
     var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new SnesCgram()));
+    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new GameplayColours()));
 
     RoomEnemyProjectileSlot eyeShot = enemies.Projectiles.EnemyProjectiles[17];
     eyeShot.Kind = RoomEnemyProjectileKind.EyeDoorProjectile;
@@ -427,7 +429,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     const ushort vulnerabilityPointer = 0xedea;
     var bus = new TestAddressSpace();
     var vram = new SnesVram();
-    var cgram = new SnesCgram();
+    var cgram = new SamusColourRig();
 
     WriteEnemyDefinition(bus, definitionPointer, new EnemyDefinitionFields { TileDataSize = 32, PalettePointer = 0xe457, Bank = 0xa2, TileDataAddress = 0xa28000, BossId = 0, NamePointer = 0, FieldSeed = 0x5200 });
     SeedEnemyDefinitionWord(bus, definitionPointer, 4, 200);
@@ -473,7 +475,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     {
         TileArtwork = InstalledFixtures.EnemyTiles,
     };
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram));
+    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram.Gameplay));
     RoomEnemySlot ripper = enemies.SlotTable.Slots[0];
     if (verifyXrayTimers)
     {
@@ -694,7 +696,7 @@ internal static void VerifyCeresElevatorPlatformAnimation()
     const ushort tilesetPointer = 0x9480;
     var bus = new TestAddressSpace();
     var vram = new SnesVram();
-    var cgram = new SnesCgram();
+    var cgram = new SamusColourRig();
 
     WriteEnemyDefinition(bus, definitionPointer, new EnemyDefinitionFields { TileDataSize = 0, PalettePointer = 0xf4ec, Bank = 0xa6, TileDataAddress = 0xa68000, BossId = 0, NamePointer = 0, FieldSeed = 0x4300 });
     SeedEnemyDefinitionWord(bus, definitionPointer, 18, 0xf6c5);
@@ -714,7 +716,7 @@ internal static void VerifyCeresElevatorPlatformAnimation()
     // The platform frames are written into the room's Mode 7 map (#1349).
     var map = new FloorMap(new byte[FloorMap.Cells], default, RoomBackgroundsFixtures.FloorTiles());
     var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { FloorMap = map }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = CreateCeresDoorFixtureVisuals(bus) } };
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram));
+    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram.Gameplay));
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     for (int index = 0; index < 4; index++)
         AssertEqual(light[index], map.Publish().Cells[0x060e + index].Tile,
@@ -741,7 +743,7 @@ internal static void VerifyCeresDoorBossBranch()
     const ushort tilesetPointer = 0x94c0;
     var bus = new TestAddressSpace();
     var vram = new SnesVram();
-    var cgram = new SnesCgram();
+    var cgram = new SamusColourRig();
 
     WriteEnemyDefinition(bus, definitionPointer, new EnemyDefinitionFields { TileDataSize = 0, PalettePointer = 0xf4ec, Bank = 0xa6, TileDataAddress = 0xa68000, BossId = 0, NamePointer = 0, FieldSeed = 0x4380 });
     SeedEnemyDefinitionWord(bus, definitionPointer, 18, 0xf6c5);
@@ -769,7 +771,7 @@ internal static void VerifyCeresDoorBossBranch()
             areaBossReads++;
             return areaBossDefeated;
         } } }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = CreateCeresDoorFixtureVisuals(bus) } };
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram) { Samus = samus });
+    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram.Gameplay) { Samus = samus });
     RoomEnemySlot door = enemies.SlotTable.Slots[0];
     door.CurrentInstruction = 0xf55e;
     door.InstructionTimer = WrappingCountdown.Start(1);
@@ -826,7 +828,7 @@ internal static void VerifyCeresRidleyRoomEntry()
 
     var bus = new TestAddressSpace();
     var vram = new SnesVram();
-    var cgram = new SnesCgram();
+    var cgram = new SamusColourRig();
 
     SeedCeresRidleyRoomEntryCartridge(bus, definitionPointer, populationPointer, tilesetPointer);
     const EnemyDefinitionId ceresDoorDefinitionPointer = EnemyDefinitionId.CeresDoor;
@@ -901,7 +903,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterExtractor.Extract(bus), writable: false))
         enemies.BossArtworkBinding.EscapeTypewriterPresentation = EscapeTypewriterPresentation.Load(escapeText);
     ClearCeresEscapeTypewriterSource(bus);
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram));
+    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram.Gameplay));
 
     RoomEnemySlot ridley = enemies.SlotTable.Slots[0];
     RidleyEnemyState state = enemies.RidleyEncounter.CeresRidley

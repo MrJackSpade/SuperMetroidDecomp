@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -23,7 +25,7 @@ internal static class StatueSplashVerification
         for (ushort random = 0; random < 64; random++)
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => random)) { TileArtwork = FixtureEnemyTileArtwork(), AreaArtwork = InstalledFixtures.AreaArtwork };
-            enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new SnesCgram()));
+            enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new GameplayColours()));
             foreach (var actor in enemies.Projectiles.EnemyProjectiles) actor.Kind = 0;
             enemies.TourianUnlockBehavior.TourianStatueWaterSurface = new(0, 216);
             enemies.TourianUnlockBehavior.SpawnTourianEyeGlow(0);

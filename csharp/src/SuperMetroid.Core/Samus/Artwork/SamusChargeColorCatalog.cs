@@ -51,20 +51,20 @@ public sealed class SamusChargeColorCatalog
     }
 
     /// <summary>Installs all sixteen selected charge or pseudo-Screw inks at CGRAM 192–207, including the retained transparent-slot word; charge admission and phase advancement remain Samus behavior.</summary>
-    /// <param name="cgram">Current Samus OBJ palette destination.</param>
+    /// <param name="colours">Current Samus OBJ palette destination.</param>
     /// <param name="pseudo">True for pseudo-Screw's bright/normal holds; false for the charged-beam whitening pulse.</param>
     /// <param name="suit">Suit index: Power 0, Varia 1, Gravity 2.</param>
     /// <param name="phase">Playback phase 0–5; stock charge shades follow 0/1/2/3/2/1, while pseudo-Screw holds bright for 0–2 and normal for 3–5.</param>
-    public void ApplyCharge(IPaletteColors cgram, bool pseudo, int suit, int phase) =>
-        Apply(cgram, pseudo ? pseudoScrew : chargedBeam, suit, phase);
+    public void ApplyCharge(SamusColours colours, bool pseudo, int suit, int phase) =>
+        Apply(colours, pseudo ? pseudoScrew : chargedBeam, suit, phase);
 
     /// <summary>Installs all sixteen Hyper-shot inks at CGRAM 192–207 for playback frame 0–9; shot-glow timing and the native decrementing palette cursor remain engine-owned.</summary>
-    public void ApplyHyper(IPaletteColors cgram, int frame)
+    public void ApplyHyper(SamusColours colours, int frame)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(colours);
         if ((uint)frame >= SamusChargeColorFormat.HyperFrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
         for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
-            new SamusPalettes(cgram).Suit.Write(color, ResolveHyper(frame, color));
+            colours.Suit.Write(color, ResolveHyper(frame, color));
     }
 
     /// <summary>Loads version-1 <c>samus-charge-colors.json</c>, validating three suits with six phases each, ten Hyper-shot frames, sixteen colors per row, and RGB5 channels from 0 through 31.</summary>
@@ -158,11 +158,11 @@ public sealed class SamusChargeColorCatalog
     }
 
     /// <summary>Copies the selected sixteen-ink row into Samus's OBJ palette without altering phase timing.</summary>
-    private static void Apply(IPaletteColors cgram, ChargeInputs source, int suit, int phase)
+    private static void Apply(SamusColours colours, ChargeInputs source, int suit, int phase)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(colours);
         for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
-            new SamusPalettes(cgram).Suit.Write(color,
+            colours.Suit.Write(color,
                 source.Resolve(suit, phase, color));
     }
     /// <summary>Requires three suits and six complete RGB5 rows per suit before building the charge or pseudo-Screw view.</summary>

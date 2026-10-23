@@ -329,7 +329,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         // $8B:A3AC performs the ordinary beam palette load before copying the full intro palette, which
         // replaces it; the flashback projectile pages bind the beam's characters.
-        SamusProjectileSystem.LoadBeamPalette(palette, equippedBeams: 0, beamArtwork?.Palettes);
+        SamusProjectileSystem.LoadBeamPalette(palette.SpriteRow(SamusColourDefinitions.BeamInkRow), equippedBeams: 0, beamArtwork?.Palettes);
         characterArtwork.Palette.LoadTo(palette);
 
         // The PPU loads above are invisible: the intro stays in forced blank until its fade.
@@ -1147,7 +1147,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
         // `$90:E84D` runs the ordinary Samus palette handler even in intro-demo state.
         // This supplies the alternating hurt colors and eventual suit-palette restoration;
         // invincibility flicker remains independently enforced by Samus.Draw.
-        SamusHurtFlashPalette.Update(palette, samus, demoInput, samusHurtColors);
+        SamusHurtFlashPalette.Update(palette.SpriteRow(SamusColourDefinitions.SuitInkRow), samus, demoInput, samusHurtColors);
 
         // `$8B:8E0D` ages the two hit words after both Samus state handlers, but before the
         // cinematic-object walker can publish a new Rinka collision later in this frame.

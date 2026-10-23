@@ -1,4 +1,3 @@
-﻿using SuperMetroid.Core.Enemies.OldTourianWall;
 
 namespace SuperMetroid.Core.Enemies.OldTourianWall;
 

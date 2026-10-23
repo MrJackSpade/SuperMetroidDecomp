@@ -15,7 +15,7 @@ internal sealed class DeathSequenceRunner
     /// <summary>Provides installed death palettes and explosion sprite compositions.</summary>
     private readonly RuntimeArtwork _artwork;
     /// <summary>Receives the death sequence's palette transitions.</summary>
-    private readonly SnesCgram _cgram;
+    private readonly GameplayColours _cgram;
     /// <summary>Supplies the active Samus Mode-7 transform during death drawing.</summary>
     private readonly GameplayDisplayState _display;
     /// <summary>Processes one accepted NMI before each isolated death-state frame.</summary>

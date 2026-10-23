@@ -41,11 +41,11 @@ public sealed class SamusVisorPaletteState
     /// Advances one palette-handler call and optionally writes CGRAM color 196.
     /// </summary>
     public SamusVisorPaletteStepResult Update(
-        IPaletteColors cgram,
+        SamusColours colours,
         SamusSpecialPaletteType specialSamusPaletteType,
         LayerBlendingConfiguration layerBlendingDefaultConfig)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(colours);
 
         // X-ray handler eight owns this same visor color. `$91:D842` returns immediately,
         // preserving the countdown and offset so ordinary room animation resumes where it stopped.
@@ -76,7 +76,7 @@ public sealed class SamusVisorPaletteState
         if (PresentationColors is null ||
             !PresentationColors.TryResolveByteOffset(sourceOffset, out Bgr555 color))
             throw new InvalidDataException($"Visor palette offset {sourceOffset} has no installed color.");
-        new SamusPalettes(cgram).Visor.Write(0, color);
+        colours.Visor.Write(0, color);
 
         // Only offsets 6, 8, and 10 belong to the room-backdrop cycle. Offsets 0/2/4 are
         // X-ray widening colors and are selected by the separate X-ray palette handler.

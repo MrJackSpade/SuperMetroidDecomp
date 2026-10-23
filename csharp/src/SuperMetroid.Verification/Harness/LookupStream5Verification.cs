@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Frontend.Intro;
@@ -206,7 +208,7 @@ internal static class LookupStream5Verification
             int randomCalls = 0;
             system.VerificationServices().NextRandom = () => (ushort)(++randomCalls == 1 ? bucket : nextPattern);
             // The fade writes Phantoon's palette rows toward its installed fade colors.
-            system.Presentation.BindCgram(new SnesCgram());
+            system.Presentation.BindCgram(new GameplayColours());
             system.TileArtwork = InstalledFixtures.EnemyTiles;
             system.BossArtwork = InstalledFixtures.BossArtwork;
             system.AreaArtwork = InstalledFixtures.AreaArtwork;
@@ -366,7 +368,7 @@ internal static class LookupStream5Verification
             byte[] initial = Enumerable.Range(0, 12).Select(index => (byte)(index % 2 == 0 ? 0x5d : 0xa7)).ToArray();
             vram.LoadBytes((destination - 1) * 2, initial);
             system.Presentation.BindVram(BgArtworkFixtures.For(vram));
-            system.Presentation.BindCgram(new SnesCgram());
+            system.Presentation.BindCgram(new GameplayColours());
             var slots = (RoomEnemySlot[])system.SlotTable.Slots;
             foreach (ushort tick in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 0xfffe, 0xffff, 0 })
             {
@@ -2003,8 +2005,8 @@ internal static class LookupStream5Verification
             foreach (ushort variant in new ushort[] { 0, 3 })
             {
                 var system = new RoomEnemySystem(new EnemySession()) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = visual } };
-                var cgram = new SnesCgram();
-                system.Presentation.BindCgram(cgram);
+                var cgram = new SamusColourRig();
+                system.Presentation.BindCgram(cgram.Gameplay);
                 var slot = system.SlotTable.Slots[0]; slot.SetSpawnParameter1(variant);
                 new Action<RoomEnemySlot>(system.CeresDoorBehavior.InitializeCeresDoor)(slot);
                 int destination = variant == 3 ? CeresDoorVisualRomData.NormalTargetColor : CeresDoorVisualRomData.ActiveTargetColor;
@@ -2069,8 +2071,8 @@ internal static class LookupStream5Verification
             foreach (ushort variant in new ushort[] { 0, 3 })
             {
                 var system = new RoomEnemySystem(new EnemySession()) { RidleyEncounter = { CeresStatus = CeresEscapeStatus.SelfDestructStarted }, TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = visual } };
-                var cgram = new SnesCgram();
-                system.Presentation.BindCgram(cgram);
+                var cgram = new SamusColourRig();
+                system.Presentation.BindCgram(cgram.Gameplay);
                 var slot = system.SlotTable.Slots[0]; slot.SetSpawnParameter1(variant);
                 new Action<RoomEnemySlot>(system.CeresDoorBehavior.InitializeCeresDoor)(slot);
                 int destination = CeresDoorVisualRomData.ActiveTargetColor;
@@ -2136,8 +2138,8 @@ internal static class LookupStream5Verification
             for (int row = 0; row < 8; row++) for (int color = 0; color < 6; color++)
                 AssertEqual(Pack(document.Animation[row][color]), basis.ColorAt(row, color), "Every supplied beacon channel remains independent");
             var system = new RoomEnemySystem(new EnemySession()) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = visual } };
-            var cgram = new SnesCgram();
-            system.Presentation.BindCgram(cgram);
+            var cgram = new SamusColourRig();
+            system.Presentation.BindCgram(cgram.Gameplay);
             system.Presentation.BindVram(BgArtworkFixtures.For(new SnesVram()));
             Action tick = system.CeresDoorBehavior.RunCeresDoorPaletteAnimation;
             foreach (int counter in editedRow < 0 ? Enumerable.Range(0, 64) : new[] { editedRow * 8 })

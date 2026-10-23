@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Samus.Projectiles;
+﻿using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies;
@@ -36,6 +37,8 @@ internal sealed class EnemyFrameContext
     internal int NmiFrameCounter { get; private set; }
     /// <summary>Live projectile system supplied by EnemyMain to both ordinary and custom enemy-touch callbacks.</summary>
     internal SamusProjectileSystem? SamusProjectiles { get; private set; }
+    /// <summary>Samus's colours for the pass, which Pseudo Screw's enemy contact changes (#1405).</summary>
+    internal SamusColours? SamusColours { get; private set; }
     /// <summary>Forces every enemy slot through the current pass when native processing requires a full sweep.</summary>
     internal bool ProcessAllEnemies { get; private set; }
 
@@ -50,6 +53,7 @@ internal sealed class EnemyFrameContext
     {
         DeferLoaderTimeCameraReads = deferLoaderTimeCameraReads;
         SamusProjectiles = null;
+        SamusColours = null;
     }
 
 
@@ -60,10 +64,11 @@ internal sealed class EnemyFrameContext
     /// Enemy frame start: the freeze flag, the live projectiles, and the sixteen-bit frame counter, which standalone
     /// passes without a runtime clock take from the random counter.
     /// </summary>
-    internal void BeginFrame(bool timeIsFrozen, SamusProjectileSystem? samusProjectiles, int? nmiFrameCounter)
+    internal void BeginFrame(bool timeIsFrozen, SamusProjectileSystem? samusProjectiles, SamusColours? samusColours, int? nmiFrameCounter)
     {
         TimeIsFrozen = timeIsFrozen;
         SamusProjectiles = samusProjectiles;
+        SamusColours = samusColours;
         NmiFrameCounter = nmiFrameCounter ?? RandomEnemyCounter;
     }
 

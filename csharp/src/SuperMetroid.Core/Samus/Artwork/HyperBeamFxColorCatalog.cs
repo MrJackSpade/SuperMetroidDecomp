@@ -206,16 +206,14 @@ public sealed class HyperBeamFxColorCatalog
     }
 
     /// <summary>Resolves and writes the eight colors of one projectile palette row without advancing animation state; the native Hyper Beam handler targets OBJ palette 6 colors 1..8, CGRAM entries 225..232.</summary>
-    /// <param name="cgram">Destination color memory to update.</param>
+    /// <param name="destination">The colours the cycle shows, eight of them.</param>
     /// <param name="frame">Zero-based palette row, from 0 through 9.</param>
-    /// <param name="destination">CGRAM color-entry index of the first output color, not a byte offset; the following seven entries are also written.</param>
-    [PpuLayoutBoundary("codec: Hyper Beam FX colours at their native CGRAM index operand")]
-    public void Apply(IPaletteColors cgram, int frame, int destination)
+    public void Apply(ColourRun destination, int frame)
     {
-        Ensure.NotNull(cgram);
         if ((uint)frame >= HyperBeamFxColorFormat.FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
+        Ensure.LengthEqual(destination.Colors, HyperBeamFxColorFormat.ColorsPerFrame);
         for (int color = 0; color < HyperBeamFxColorFormat.ColorsPerFrame; color++)
-            new CgramPalettes(cgram).All.Write(destination + color, Resolve(frame, color));
+            destination.Write(color, Resolve(frame, color));
     }
 
     /// <summary>Serializes the projectile-color document as indented camel-case UTF-8 JSON, then validates it through <see cref="Load"/> before returning the bytes.</summary>

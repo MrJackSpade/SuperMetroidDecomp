@@ -38,7 +38,7 @@ internal static class RuntimeOverlayTests
         runtime.MessageBox.Begin(GameplayMessageIds.MapDataAccessCompleted, 0);
         for (int tick = 0; tick < 13; tick++) runtime.MessageBox.Step(0);
         runtime.SuitPickup.Begin(runtime.Player.IntroducedSamus, new(0, 0), SamusSuitPickupKind.Varia);
-        runtime.SuitPickup.Step(runtime.Player.IntroducedSamus, runtime.Cgram);
+        runtime.SuitPickup.Step(runtime.Player.IntroducedSamus, runtime.Player.Colours);
         var initial = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         if (initial.Layers.Length != 4 || initial.Layers[0] is not OrdinaryGameplayRenderLayer
             || initial.Layers[1] is not ScanlineColorAddRenderLayer
@@ -51,7 +51,7 @@ internal static class RuntimeOverlayTests
             var retained = Check($"combined overlay tick {tick}");
             runtime.BombProjectiles.PowerBombExplosion.StepFrame();
             runtime.MessageBox.Step(0);
-            runtime.SuitPickup.Step(runtime.Player.IntroducedSamus, runtime.Cgram);
+            runtime.SuitPickup.Step(runtime.Player.IntroducedSamus, runtime.Player.Colours);
             // Force GPU resources to contain the next frame before replaying the old
             // packet. A cached output or borrowed live palette cannot satisfy this.
             Check($"updated overlay tick {tick}");

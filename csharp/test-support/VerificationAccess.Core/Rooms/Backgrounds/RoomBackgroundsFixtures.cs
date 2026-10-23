@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rendering;
 using System.Collections.Immutable;
@@ -108,16 +109,20 @@ internal static class RoomBackgroundsFixtures
     }
 
     /// <summary>
-    /// A seeded overlay of words written over BG2, drawn from seeded pictures as <see cref="SeededBodyPictures"/> seeds them
-    /// (#1392).
+    /// A seeded run of words written over a background (#1392, #1403), drawn from seeded pictures as
+    /// <see cref="SeededBodyPictures"/> seeds them; a run position it leaves without a picture shows the background.
     /// </summary>
-    internal static RoomTilemapOverlay SeededPicturedOverlay(Random random, Bgr555[] scene)
+    internal static RoomOverlayPictures SeededPicturedOverlay(Random random, Bgr555[] scene) =>
+        SeededOverlayRun(random, scene, random.Next(64, 256));
+
+    /// <summary>A seeded run of <paramref name="count"/> words written over a background, as <see cref="SeededPicturedOverlay"/> seeds them.</summary>
+    private static RoomOverlayPictures SeededOverlayRun(Random random, Bgr555[] scene, int count)
     {
-        var words = new ushort[random.Next(64, 256)];
-        for (int index = 0; index < words.Length; index++)
-            words[index] = (ushort)random.Next(ushort.MaxValue + 1);
-        RoomTilemapOverlay overlay = RoomTilemapOverlay.Empty.With(random.Next(RoomTilemapOverlay.WordCount - words.Length), words);
-        return overlay.WithPictures(SeededBodyPictures(random, scene, RoomTilemapOverlay.WordCount));
+        int first = random.Next(RoomTilemapOverlay.WordCount - count);
+        System.Collections.Immutable.ImmutableArray<BgTilePicture?> written = SeededBodyPictures(random, scene, count);
+        var pictures = new BgTilePicture?[RoomTilemapOverlay.WordCount];
+        written.CopyTo(pictures, first);
+        return new RoomOverlayPictures([.. pictures]);
     }
 
     /// <summary>
@@ -309,14 +314,8 @@ internal static class RoomBackgroundsFixtures
         RoomDoorBackground? source = door
             ? RoomDoorBackground.Begin(Layer(bg1Scroll), bg1Scroll + new Offset16<BgPlanePixels>((short)random.Next(-128, 128), 0))
             : null;
-        RoomTilemapOverlay? written = null;
-        if (overlay)
-        {
-            var words = new ushort[random.Next(8, 24)];
-            for (int index = 0; index < words.Length; index++)
-                words[index] = (ushort)random.Next(ushort.MaxValue + 1);
-            written = RoomTilemapOverlay.Empty.With(random.Next(RoomTilemapOverlay.WordCount - words.Length), words);
-        }
-        return new RoomBackgrounds(bg1, bg2, SeededBg3Pictures(random, pictureColours ?? new Bgr555[SnesPpuLayout.CgramColorCount]), source, written);
+        Bgr555[] scene = pictureColours ?? new Bgr555[SnesPpuLayout.CgramColorCount];
+        RoomOverlayPictures? written = overlay ? SeededOverlayRun(random, scene, random.Next(8, 24)) : null;
+        return new RoomBackgrounds(bg1, bg2, SeededBg3Pictures(random, scene), source, written);
     }
 }

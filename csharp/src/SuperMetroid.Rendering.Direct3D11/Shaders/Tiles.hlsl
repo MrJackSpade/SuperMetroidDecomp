@@ -45,14 +45,10 @@ static const uint RoomSkyImageWord = 27;
 // A boss body's pictures (#1392): two words per tilemap word, its picture's offset (zero where it draws from its
 // character), then its corner in the picture, x below y.
 static const uint RoomBossBg2PicturesWord = 28;
-// The BG2 overlay's pictures (#1392), laid out as a boss body's.
-static const uint RoomBg2OverlayPicturesWord = 29;
 // The image of the message box the frame shows (#1392).
-static const uint RoomMessagePictureWord = 30;
+static const uint RoomMessagePictureWord = 29;
 // The picture of a Ceres room's Mode 7 tiles (#1392), sixteen 8x8 tiles to a row, or zero while the map draws from VRAM.
-static const uint RoomMode7PictureWord = 31;
-// The BG1 overlay's pictures (#1392), laid out as a boss body's.
-static const uint RoomBg1OverlayPicturesWord = 32;
+static const uint RoomMode7PictureWord = 30;
 // The X-ray reveal (XrayRevealPlane): 17 block columns by 16 rows, each its picture's offset with its arrangement in the
 // top four bits: as defined, mirrored horizontally, vertically or both, or its tile rows swapped.
 static const uint RevealColumns = 17, RevealRows = 16;
@@ -131,25 +127,21 @@ bool Bg3Picture(uint firstRow, uint rows, uint2 scrolled, out uint2 within, out 
     within = (scrolled & 7) + uint2(corner & 65535, corner >> 16);
     return picture != 0;
 }
-// A word written over BG2 at the tilemap word a `size` layout places the scrolled position (RoomTilemapOverlay), with
-// `within` its pixel; where the overlay's pictures are resolved (#1392), `picture` is its word's picture and `within` the
-// pixel in it.
-bool Bg2OverlayWord(uint2 scrolled, uint2 size, out uint entry, out uint picture, out uint2 within)
+// The picture of a word written over BG2 (RoomOverlayPictures, #1403) at the tilemap word a `size` layout places the
+// scrolled position, laid out as a boss body's pictures with none where nothing was written; `within` its pixel in it.
+bool Bg2OverlayPicture(uint2 scrolled, uint2 size, out uint picture, out uint2 within)
 {
     uint2 tile = (scrolled & (size * 8 - 1)) >> 3;
     uint index = ((tile.y >> 5) * (size.x >> 5) + (tile.x >> 5)) * 1024 + (tile.y & 31) * 32 + (tile.x & 31);
-    entry = index < 2048 ? RoomLevels[RoomLevels[RoomBg2OverlayWord] + index] : 4294967295u;
+    uint pictures = RoomLevels[RoomBg2OverlayWord];
     within = scrolled & 7;
-    picture = 0;
-    uint pictures = RoomLevels[RoomBg2OverlayPicturesWord];
-    if (entry != 4294967295u && pictures != 0)
+    picture = pictures != 0 && index < 2048 ? RoomLevels[pictures + 2 * index] : 0;
+    if (picture != 0)
     {
-        picture = RoomLevels[pictures + 2 * index];
         uint corner = RoomLevels[pictures + 2 * index + 1];
-        if (picture != 0)
-            within += uint2(corner & 65535, corner >> 16);
+        within += uint2(corner & 65535, corner >> 16);
     }
-    return entry != 4294967295u;
+    return picture != 0;
 }
 // A boss body's tilemap (BossBg2Tilemap) in the hardware's screen order, at the pass's map size. Every BG2 sampler
 // reads the boss through this, so a color-math pass shows the same body as an ordinary one (#1426).
@@ -222,20 +214,16 @@ bool RoomTile(uint source, uint2 scrolled, out uint entry, out uint2 within, out
             slot = RoomDoorSlot;
         else if (overlay != 0)
         {
+            // A word written over BG1 draws from its picture (#1403); none where nothing was written.
             uint2 cell = uint2((scrolled.x >> 3) & 63, (scrolled.y >> 3) & 31);
             uint index = (cell.x >> 5) * 1024 + cell.y * 32 + (cell.x & 31);
-            uint written = RoomLevels[overlay + index];
-            overlaid = written != 4294967295u;
-            entry = written;
+            picture = RoomLevels[overlay + 2 * index];
+            overlaid = picture != 0;
             within = scrolled & 7;
-            // Where the overlay's pictures are resolved (#1392), its word draws from its picture.
-            uint pictures = RoomLevels[RoomBg1OverlayPicturesWord];
-            if (overlaid && pictures != 0)
+            if (overlaid)
             {
-                picture = RoomLevels[pictures + 2 * index];
-                uint corner = RoomLevels[pictures + 2 * index + 1];
-                if (picture != 0)
-                    within += uint2(corner & 65535, corner >> 16);
+                uint corner = RoomLevels[overlay + 2 * index + 1];
+                within += uint2(corner & 65535, corner >> 16);
             }
         }
     }
@@ -497,41 +485,43 @@ void Main(uint3 id : SV_DispatchThreadID)
     uint2 within = uint2(0, 0);
     uint2 scrolled = (sampleScreen + scroll) & 65535;
     uint source = RoomSource & 255;
-    uint written = 0;
-    if ((RoomSource & RoomSourceBg2Overlay) != 0 && Bg2OverlayWord(scrolled, uint2(MapWidth, MapHeight), written, picture, within))
-        entry = written;
-    else if (source == RoomSourceBg3)
+    // A word written over BG2 shows its picture over whatever BG2 shows there (#1403).
+    bool overlaid = (RoomSource & RoomSourceBg2Overlay) != 0 && Bg2OverlayPicture(scrolled, uint2(MapWidth, MapHeight), picture, within);
+    if (!overlaid)
     {
-        if (!Bg3Picture(TilemapWord, MapHeight, scrolled, within, picture)) return;
-    }
-    else if (source == RoomSourceBossBg2)
-        entry = BossBg2Word(scrolled, uint2(MapWidth, MapHeight), within, picture);
-    else if (source == RoomSourceXrayReveal)
-    {
-        if (!RevealPicture(scrolled, picture, within)) return;
-    }
-    else if (source == RoomSourceBg2Image)
-    {
-        if (!Bg2ImagePicture(scrolled, uint2(MapWidth, MapHeight), picture, within)) return;
-    }
-    else if (source == RoomSourceScreenTiles)
-    {
-        entry = ScreenTile(sampleScreen, scroll, RoomSource >> 16, within, picture);
-        // A word naming a character no artwork the screen loads shows draws nothing.
-        if (picture == 0) return;
-    }
-    else if (source != 0)
-    {
-        if (!RoomTile(source, scrolled, entry, within, picture)) return;
-    }
-    else
-    {
-        uint x = (sampleScreen.x + scroll.x) & (MapWidth * 8 - 1);
-        uint y = (sampleScreen.y + scroll.y) & (MapHeight * 8 - 1);
-        uint tileX = x >> 3, tileY = y >> 3;
-        uint page = ((tileY >> 5) * (MapWidth >> 5) + (tileX >> 5)) * 1024;
-        entry = ReadWord(TilemapWord + page + (tileY & 31) * 32 + (tileX & 31));
-        within = uint2(x & 7, y & 7);
+        if (source == RoomSourceBg3)
+        {
+            if (!Bg3Picture(TilemapWord, MapHeight, scrolled, within, picture)) return;
+        }
+        else if (source == RoomSourceBossBg2)
+            entry = BossBg2Word(scrolled, uint2(MapWidth, MapHeight), within, picture);
+        else if (source == RoomSourceXrayReveal)
+        {
+            if (!RevealPicture(scrolled, picture, within)) return;
+        }
+        else if (source == RoomSourceBg2Image)
+        {
+            if (!Bg2ImagePicture(scrolled, uint2(MapWidth, MapHeight), picture, within)) return;
+        }
+        else if (source == RoomSourceScreenTiles)
+        {
+            entry = ScreenTile(sampleScreen, scroll, RoomSource >> 16, within, picture);
+            // A word naming a character no artwork the screen loads shows draws nothing.
+            if (picture == 0) return;
+        }
+        else if (source != 0)
+        {
+            if (!RoomTile(source, scrolled, entry, within, picture)) return;
+        }
+        else
+        {
+            uint x = (sampleScreen.x + scroll.x) & (MapWidth * 8 - 1);
+            uint y = (sampleScreen.y + scroll.y) & (MapHeight * 8 - 1);
+            uint tileX = x >> 3, tileY = y >> 3;
+            uint page = ((tileY >> 5) * (MapWidth >> 5) + (tileX >> 5)) * 1024;
+            entry = ReadWord(TilemapWord + page + (tileY & 31) * 32 + (tileX & 31));
+            within = uint2(x & 7, y & 7);
+        }
     }
     bool fourBpp = Operation == OpBg4;
     uint color;

@@ -26,8 +26,8 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="Bg2Image">The room's library background drawn from its image, where BG2 shows the tilemap it loaded (#1392).</param>
 /// <param name="SkyImage">The scrolling sky's rows drawn from their image, where BG2 shows the sky (#1392).</param>
 public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLayer? Bg2, Layer3Cells? Bg3,
-    RoomDoorBackground? DoorSource = null, RoomTilemapOverlay? Bg1Overlay = null, SkyTilemap? Sky = null,
-    RoomTilemapOverlay? Bg2Overlay = null, AffineFloor? Mode7 = null, BossBg2Tilemap? BossBg2 = null,
+    RoomDoorBackground? DoorSource = null, RoomOverlayPictures? Bg1Overlay = null, SkyTilemap? Sky = null,
+    RoomOverlayPictures? Bg2Overlay = null, AffineFloor? Mode7 = null, BossBg2Tilemap? BossBg2 = null,
     RoomBackgroundCharacters Characters = RoomBackgroundCharacters.Tileset, XrayRevealPlane? XrayReveal = null,
     RoomBackgroundImagePlane? Bg2Image = null, RoomBackgroundImagePlane? SkyImage = null)
 {
@@ -60,7 +60,7 @@ public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLaye
     private static Extent16<TilemapCells> Bg1MapSize { get; } = new(2 * SnesPpuLayout.TilemapPageWidthInTiles, SnesPpuLayout.TilemapPageWidthInTiles);
 
     /// <summary>Words written over a background, then the background.</summary>
-    private sealed class Overlaid(IBgSource under, RoomTilemapOverlay overlay, Extent16<TilemapCells> mapSize) : IBgSource
+    private sealed class Overlaid(IBgSource under, RoomOverlayPictures overlay, Extent16<TilemapCells> mapSize) : IBgSource
     {
         /// <inheritdoc />
         public bool TrySample(Position16<BgPlanePixels> scrolled, out BgSample sample)

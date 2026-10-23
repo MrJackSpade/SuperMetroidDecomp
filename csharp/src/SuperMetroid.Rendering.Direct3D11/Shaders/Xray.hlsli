@@ -13,26 +13,27 @@ uint2 XrayBackground(uint roomSource, uint map, uint chars, uint2 size, uint2 po
     uint2 within = uint2(0, 0);
     bool shown = true;
     uint source = roomSource & 255;
-    uint written = 0;
-    if ((roomSource & RoomSourceBg2Overlay) != 0 && Bg2OverlayWord(position & 65535, size, written, picture, within))
-        entry = written;
-    else if (source == RoomSourceBg3)
-        shown = Bg3Picture(map, size.y, position & 65535, within, picture);
-    else if (source == RoomSourceBossBg2)
-        entry = BossBg2Word(position, size, within, picture);
-    else if (source == RoomSourceXrayReveal)
-        shown = RevealPicture(position & 65535, picture, within);
-    else if (source == RoomSourceBg2Image)
-        shown = Bg2ImagePicture(position & 65535, size, picture, within);
-    else if (source != 0)
-        shown = RoomTile(source, position, entry, within, picture);
-    else
+    bool overlaid = (roomSource & RoomSourceBg2Overlay) != 0 && Bg2OverlayPicture(position & 65535, size, picture, within);
+    if (!overlaid)
     {
-        position &= size * 8 - 1;
-        uint2 tile = position >> 3;
-        uint page = ((tile.y >> 5) * (size.x >> 5) + (tile.x >> 5)) * 1024;
-        entry = ReadWord(map + page + (tile.y & 31) * 32 + (tile.x & 31));
-        within = position & 7;
+        if (source == RoomSourceBg3)
+            shown = Bg3Picture(map, size.y, position & 65535, within, picture);
+        else if (source == RoomSourceBossBg2)
+            entry = BossBg2Word(position, size, within, picture);
+        else if (source == RoomSourceXrayReveal)
+            shown = RevealPicture(position & 65535, picture, within);
+        else if (source == RoomSourceBg2Image)
+            shown = Bg2ImagePicture(position & 65535, size, picture, within);
+        else if (source != 0)
+            shown = RoomTile(source, position, entry, within, picture);
+        else
+        {
+            position &= size * 8 - 1;
+            uint2 tile = position >> 3;
+            uint page = ((tile.y >> 5) * (size.x >> 5) + (tile.x >> 5)) * 1024;
+            entry = ReadWord(map + page + (tile.y & 31) * 32 + (tile.x & 31));
+            within = position & 7;
+        }
     }
     uint2 sample = uint2(0, 0);
     if (picture != 0)

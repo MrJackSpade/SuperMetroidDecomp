@@ -97,19 +97,23 @@ internal static class CeresRidleyPicturesVerification
             runtime.Enemies.CeresRidleyBehavior.Getaway.TickCeresRidleySelfDestruct(ridley, runtime.VramWrites);
             runtime.FrameBoundary.BeginAcceptedFrame(0);
         }
-        RoomTilemapOverlay overlay = runtime.Display.Latched.Rooms?.Bg1Overlay
+        RoomTilemapOverlay overlay = runtime.Room.LoadedScope.Bg1Overlay
             ?? throw new InvalidOperationException("Ceres Ridley's getaway wrote no warning over BG1.");
-        AssertTrue(!overlay.Pictures.IsDefault, "The warning over BG1 draws from pictures");
+        RoomOverlayPictures shown = runtime.Display.Latched.Rooms?.Bg1Overlay
+            ?? throw new InvalidOperationException("The displayed frame shows no warning over BG1.");
         ReadOnlySpan<byte> page = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.ObjCharacters).Characters;
         int written = 0;
         for (int index = 0; index < RoomTilemapOverlay.WordCount; index++)
         {
             if (overlay.Words[index] == RoomTilemapOverlay.Unwritten)
+            {
+                AssertTrue(shown.Pictures[index] is null, $"Nothing written at word {index} shows nothing over BG1");
                 continue;
+            }
             written++;
             var word = new SnesBgTilemapWord((ushort)overlay.Words[index]);
-            BgTilePicture picture = overlay.Pictures[index]
-                ?? throw new InvalidOperationException($"The warning's word {index}, ${word.Raw:X4}, draws from its character.");
+            BgTilePicture picture = shown.Pictures[index]
+                ?? throw new InvalidOperationException($"The warning's word {index}, ${word.Raw:X4}, shows no picture.");
             SpriteImage sheet = picture.Picture.Sheet;
             for (int y = 0; y < CharacterPixels; y++)
             {

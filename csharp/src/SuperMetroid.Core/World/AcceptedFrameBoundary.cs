@@ -228,8 +228,8 @@ internal sealed class AcceptedFrameBoundary
                 : null,
             null,
             _room.DoorSourceBackground,
-            scope.Bg1Overlay,
-            Bg2Overlay: scope.Bg2Overlay,
+            // What actors wrote over BG1 and BG2 is drawn once this NMI's uploads have bound (WithBlockPictures).
+            null,
             Mode7: scope.Mode7Map?.Publish(),
             Characters: RoomScope.CharactersOf(_room.ActiveRoom));
     }
@@ -286,13 +286,13 @@ internal sealed class AcceptedFrameBoundary
                 .Resolve(bodyWords, characters)
             : default;
         // Words written over BG2 draw from the sheet's pictures the same way.
-        RoomTilemapOverlay? bg2Overlay = rooms.Bg2Overlay is { } overlay
-            ? overlay.WithPictures((scope.Bg2OverlayPictures ?? throw new InvalidDataException(
+        RoomOverlayPictures? bg2Overlay = scope.Bg2Overlay is { } overlay
+            ? new RoomOverlayPictures((scope.Bg2OverlayPictures ?? throw new InvalidDataException(
                 $"{scope.Room.Definition.Name} writes over BG2 with no installed tile word sheet.")).Resolve(overlay, characters))
             : null;
         // Words written over BG1, as the Ceres escape's warning, draw from the sheet's pictures the same way.
-        RoomTilemapOverlay? bg1Overlay = rooms.Bg1Overlay is { } written
-            ? written.WithPictures((scope.Bg1OverlayPictures ?? throw new InvalidDataException(
+        RoomOverlayPictures? bg1Overlay = scope.Bg1Overlay is { } written
+            ? new RoomOverlayPictures((scope.Bg1OverlayPictures ?? throw new InvalidDataException(
                 $"{scope.Room.Definition.Name} writes over BG1 with no installed tile word sheet.")).Resolve(written, characters))
             : null;
         return latched with

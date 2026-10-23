@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Hardware;
@@ -82,12 +83,15 @@ internal static class RoomBackgroundsVerification
                 layer.TrySample(top + new Offset16<BgPlanePixels>(0, -1), out BgSample destination) && above == destination,
             "the line above the window shows the destination room");
 
-        // Words written over BG1 replace the room's tile at their tilemap cell only.
-        var overlay = RoomTilemapOverlay.Empty.With(3 * 32 + 5, [0x1234]);
-        var withOverlay = new RoomBackgrounds(layer, null, RoomBackgroundsFixtures.BlankBg3(), null, overlay).Bg1Source;
+        // Words written over BG1 replace the room's tile at their tilemap cell only, drawn from their pictures (#1403).
+        SpriteSheetFrame wordPicture = sourcePictures.Picture(0) ?? throw new InvalidOperationException("The fixture's first block has no picture.");
+        var overlaid = new BgTilePicture?[RoomTilemapOverlay.WordCount];
+        overlaid[3 * 32 + 5] = new BgTilePicture(wordPicture, new Position16<ImagePixels>(8, 0));
+        var withOverlay = new RoomBackgrounds(layer, null, RoomBackgroundsFixtures.BlankBg3(), null,
+            new RoomOverlayPictures([.. overlaid])).Bg1Source;
         var cell = new Position16<BgPlanePixels>(5 * 8 + 2, 3 * 8 + 1);
-        AssertTrue(withOverlay.TrySample(cell, out BgSample written) && written.Tile.Tile.Raw == 0x1234 &&
-                written.Tile.Pixel == new Position16<CharacterPixels>(2, 1),
+        AssertTrue(withOverlay.TrySample(cell, out BgSample written) && written.Picture == wordPicture &&
+                written.PicturePixel == new Position16<ImagePixels>(8 + 2, 1),
             "a written word is shown at its tilemap cell");
         var neighbor = cell + new Offset16<BgPlanePixels>(8, 0);
         AssertTrue(withOverlay.TrySample(neighbor, out BgSample unwritten) &&

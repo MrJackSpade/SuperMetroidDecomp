@@ -144,21 +144,6 @@ public sealed class SnesVram
         }
     }
 
-    /// <summary>Fills Mode 7 low bytes as repeated writes to $2118 do.</summary>
-    public void FillMode7MapBytes(byte value, int wordCount, ushort destinationWord = 0)
-    {
-        writeGeneration++;
-        uint stamp = BeginWrite();
-        if ((uint)wordCount > WordCount)
-            throw new ArgumentOutOfRangeException(nameof(wordCount));
-        int destination = destinationWord & WordAddressMask;
-        for (int index = 0; index < wordCount; index++)
-        {
-            _bytes[destination * 2] = value;
-            StampWords(destination, 1, stamp);
-            destination = (destination + 1) & WordAddressMask;
-        }
-    }
     /// <summary>Runs the same mode-1 VRAM port sequence from compiled artwork, without synthesizing a CPU address space.</summary>
     public void ExecuteQueuedAssetWrite(ReadOnlySpan<byte> bytes, ushort encodedDestination)
     {

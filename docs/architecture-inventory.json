@@ -4057,6 +4057,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Frontend.Intro.CeresDestructionObjectPage",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Intro/CeresDestructionObjectPage.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicArtworkFiles",
       "kind": "static class",
       "scope": "product",
@@ -57520,14 +57533,30 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.CeresCinematics.CeresDestructionScreenImage",
+      "type": "SuperMetroid.Core.Frontend.CeresCinematics.CeresDestructionScenery",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/CeresDestructionScreenImage.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/CeresDestructionScenery.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.CeresCinematics.CeresDestructionScreenMemory",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/CeresCinematics/CeresDestructionScreenMemory.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -57727,19 +57756,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.CeresCinematics.CeresFlightRomData.Layers",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/CeresFlightRomData.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.CeresCinematics.CeresFlightRomData.Music",
       "kind": "static class",
       "scope": "product",
@@ -57766,14 +57782,49 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.CeresCinematics.CeresFlightScreenImage",
+      "type": "SuperMetroid.Core.Frontend.CeresCinematics.CeresFlightRomDataConstants",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/CeresFlightScreenImage.cs"
+        "csharp/test-support/VerificationAccess.Core/Frontend/CeresCinematics/CeresFlightRomDataConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.CeresCinematics.CeresFlightRomDataConstants.Layers",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/CeresCinematics/CeresFlightRomDataConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.CeresCinematics.CeresFlightScreenMemory",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/CeresCinematics/CeresFlightScreenMemory.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -57792,14 +57843,30 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.CeresCinematics.CeresVram",
-      "kind": "struct",
+      "type": "SuperMetroid.Core.Frontend.CeresCinematics.CeresTileSetDefinitions",
+      "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/CeresVram.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/CeresTileSetDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.CeresCinematics.CeresVram",
+      "kind": "struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/CeresCinematics/CeresVram.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -57807,12 +57874,15 @@
     {
       "type": "SuperMetroid.Core.Frontend.CeresCinematics.CeresVramLayout",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/CeresVramLayout.cs"
+        "csharp/test-support/VerificationAccess.Core/Frontend/CeresCinematics/CeresVramLayout.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -69830,6 +69900,38 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.Title.Artwork.TitleGraphicsPresentationAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/Title/Artwork/TitleGraphicsPresentationAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Title.Artwork.TitleGraphicsPresentationAccess.extension(SuperMetroid.Core.Frontend.Title.Artwork.TitleGraphicsPresentation)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/Title/Artwork/TitleGraphicsPresentationAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Title.Artwork.TitlePaletteDocument",
       "kind": "record",
       "scope": "product",
@@ -70031,14 +70133,17 @@
       "disposition": "constructor-parameters"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Title.TitleScreenImage",
+      "type": "SuperMetroid.Core.Frontend.Title.TitleScreenMemory",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Title/TitleScreenImage.cs"
+        "csharp/test-support/VerificationAccess.Core/Frontend/Title/TitleScreenMemory.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -70361,14 +70466,30 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Title.TitleVram",
-      "kind": "struct",
+      "type": "SuperMetroid.Core.Frontend.Title.TitleTileSetDefinitions",
+      "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Title/TitleVram.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Title/TitleTileSetDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Title.TitleVram",
+      "kind": "struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/Title/TitleVram.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -70376,12 +70497,15 @@
     {
       "type": "SuperMetroid.Core.Frontend.Title.TitleVramLayout",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Title/TitleVramLayout.cs"
+        "csharp/test-support/VerificationAccess.Core/Frontend/Title/TitleVramLayout.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -78614,6 +78738,38 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Hardware.Mode7VramAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Hardware/Mode7VramAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Hardware.Mode7VramAccess.extension(SuperMetroid.Core.Hardware.Mode7Vram)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Hardware/Mode7VramAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Hardware.Mode7VramLayout",

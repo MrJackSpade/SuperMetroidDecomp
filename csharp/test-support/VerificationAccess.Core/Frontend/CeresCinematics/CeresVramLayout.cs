@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>
@@ -5,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// gunship and station planes use <see cref="Mode7VramLayout"/>.
 /// </summary>
 [PpuLayoutBoundary("catalog: Ceres flight and destruction cinematic VRAM")]
-public static class CeresVramLayout
+internal static class CeresVramLayout
 {
     /// <summary>VMADD $6000-$7FFF: the space/gunship/Ceres OBJ characters (bytes $C000-$FFFF), later overlaid by the shared cinematic sheet.</summary>
     public static readonly PpuLayoutCell ObjectCharacters = new(nameof(ObjectCharacters), PpuLayoutRegion.Vram,
@@ -13,7 +14,7 @@ public static class CeresVramLayout
 
     /// <summary>VMADD $5C00-$5FFF: the Mode 1 BG1 "SPACE COLONY" caption tilemap.</summary>
     public static readonly PpuLayoutCell SpaceColonyTilemap = new(nameof(SpaceColonyTilemap), PpuLayoutRegion.Vram,
-        CeresFlightRomData.Layers.SpaceColonyTilemapWord, 0x0400, "BG tilemap words (32x32)", PpuMemoryLayout.Vram);
+        CeresFlightRomDataConstants.Layers.SpaceColonyTilemapWord, 0x0400, "BG tilemap words (32x32)", PpuMemoryLayout.Vram);
 
     /// <summary>VMADD $5C00-$5FFF (bytes $B800-$BFFF): the Zebes reveal's Mode 1 tilemap, reusing the caption plane.</summary>
     public static readonly PpuLayoutCell ZebesTilemap = new(nameof(ZebesTilemap), PpuLayoutRegion.Vram,

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
@@ -6,8 +8,8 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// Composes the Ceres flight's published artwork and caption into the memory image the backends draw (#1358): the Mode 7
 /// characters, the blank-filled map with the front or rear view's slice, the OBJ characters and the SPACE COLONY caption.
 /// </summary>
-[PpuLayoutBoundary("codec: the Ceres flight's Mode 7 view, OBJ characters and caption at their native words")]
-internal static class CeresFlightScreenImage
+[PpuLayoutBoundary("exact hardware test: the Ceres flight's Mode 7 view, OBJ characters and caption at their native words")]
+internal static class CeresFlightScreenMemory
 {
     /// <summary>The image of <paramref name="artwork"/>'s front view, or its rear view once <c>$BE22</c> has queued it.</summary>
     internal static byte[] View(CeresFlightArtworkCatalog artwork, bool rear)
@@ -32,4 +34,9 @@ internal static class CeresFlightScreenImage
         new CeresVram(vram).SpaceColonyTilemap.Write(caption);
         return vram.CaptureImage();
     }
+
+    /// <summary>The image <paramref name="flight"/> shows: its view with the SPACE COLONY caption over it.</summary>
+    internal static byte[] Compose(IntroCeresFlightState flight) =>
+        WithCaption(View(flight.Artwork ?? throw new InvalidOperationException("Ceres approach rendering requires installed cinematic artwork."),
+            flight.ShowsRearView), flight.SpaceColonyTilemap);
 }

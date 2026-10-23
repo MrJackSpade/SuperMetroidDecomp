@@ -80,10 +80,6 @@ public static class CeresDestructionRomData
         public const short ZebesCenterX = 56;
         /// <summary>M7Y center used by the following Zebes approach composition.</summary>
         public const short ZebesCenterY = 24;
-        /// <summary>VRAM word base of the Mode 1 Zebes tilemap.</summary>
-        public const ushort Mode1TilemapWord = 0x5c00;
-        /// <summary>VRAM word base of the Mode 1 Zebes character graphics.</summary>
-        public const ushort Mode1CharacterWord = 0x6000;
         /// <summary>Mask that wraps cinematic world X coordinates to nine bits.</summary>
         public const ushort WorldXMask = 0x01ff;
     }

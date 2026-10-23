@@ -1,8 +1,9 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>Typed view of the Ceres cinematics' Mode 1 VRAM (#630).</summary>
 [PpuLayoutBoundary("rendering view: Ceres flight and destruction cinematic VRAM")]
-public readonly struct CeresVram(SnesVram vram)
+internal readonly struct CeresVram(SnesVram vram)
 {
     /// <summary>The cinematic OBJ characters.</summary>
     public VramRegion ObjectCharacters => new(vram, CeresVramLayout.ObjectCharacters);

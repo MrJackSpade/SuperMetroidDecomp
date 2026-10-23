@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Title.Artwork;
 public sealed class TitleGraphicsPresentation
 {
     /// <summary>Owned Mode-7 title characters and map, OBJ characters, and baby character page.</summary>
-    private readonly byte[] floorCharacters, floorMap, objectCharacters, babyCharacters;
+    internal readonly byte[] floorCharacters, floorMap, objectCharacters, babyCharacters;
     /// <summary>Compiled OAM compositions keyed by title composition.</summary>
     private readonly Dictionary<TitleSprite, SpriteComposition> sprites;
 
@@ -33,8 +33,6 @@ public sealed class TitleGraphicsPresentation
     public ReadOnlySpan<byte> FloorCharacters => floorCharacters;
     /// <summary>64-by-64 title map of Mode-7 character indexes.</summary>
     public ReadOnlySpan<byte> FloorMap => floorMap;
-    /// <summary>Four-bit title OBJ character graphics selected by sprite compositions.</summary>
-    public ReadOnlySpan<byte> ObjectCharacters => objectCharacters;
     /// <summary>Separate eight-bit Mode-7 character page for the baby Metroid scene.</summary>
     public ReadOnlySpan<byte> BabyCharacters => babyCharacters;
 
@@ -63,7 +61,7 @@ public sealed class TitleGraphicsPresentation
         Stream objectTilesPng,
         Stream babyTilesPng)
     {
-        IndexedPngImage mode7 = IndexedPng.Read(
+        IndexedPngImage floorImage = IndexedPng.Read(
             floorTilesPng,
             new(TitleGraphicsFormat.FloorWidth, TitleGraphicsFormat.FloorHeight));
         IndexedPngImage objects = IndexedPng.Read(
@@ -72,7 +70,7 @@ public sealed class TitleGraphicsPresentation
         IndexedPngImage baby = IndexedPng.Read(
             babyTilesPng,
             new(TitleGraphicsFormat.BabyWidth, TitleGraphicsFormat.BabyHeight));
-        if (mode7.Palette.Length != 256 || baby.Palette.Length != 256 || objects.Palette.Length != 16)
+        if (floorImage.Palette.Length != 256 || baby.Palette.Length != 256 || objects.Palette.Length != 16)
             throw new InvalidDataException("Title graphics require 256-color Mode 7/Baby PNGs and a 16-color OBJ PNG.");
 
         TitleFloorMapDocument map;
@@ -102,7 +100,7 @@ public sealed class TitleGraphicsPresentation
         Dictionary<TitleSprite, SpriteComposition> sprites = CompileSprites(map.Sprites);
 
         return new TitleGraphicsPresentation(
-            SnesMode7TileEncoder.Encode(mode7.Pixels, mode7.Size),
+            SnesMode7TileEncoder.Encode(floorImage.Pixels, floorImage.Size),
             map.Tiles.Select(tile => checked((byte)tile)).ToArray(),
             SnesPlanarTileEncoder.Encode(objects.Pixels, objects.Size, 4),
             SnesMode7TileEncoder.Encode(baby.Pixels, baby.Size),

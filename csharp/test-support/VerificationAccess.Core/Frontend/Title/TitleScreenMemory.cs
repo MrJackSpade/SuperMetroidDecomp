@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Title;
@@ -6,8 +7,8 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// Composes the title's published artwork into the memory image the backends draw (#1358): the interleaved Mode 7
 /// characters and map, the OBJ characters, and the Baby Metroid page the animation currently shows.
 /// </summary>
-[PpuLayoutBoundary("codec: the title's Mode 7 planes, OBJ characters and Baby Metroid page at their native words")]
-internal static class TitleScreenImage
+[PpuLayoutBoundary("exact hardware test: the title's Mode 7 planes, OBJ characters and Baby Metroid page at their native words")]
+internal static class TitleScreenMemory
 {
     /// <summary>The memory image of <paramref name="artwork"/> with Baby Metroid source page <paramref name="babySourcePage"/> shown.</summary>
     internal static byte[] Compose(TitleGraphicsPresentation artwork, int babySourcePage)
@@ -37,4 +38,9 @@ internal static class TitleScreenImage
         title.LoadBabyMetroidPage(baby.Slice(page, TitleSequenceRomData.Transfers.BabyCharacterPageByteCount));
         return vram.CaptureImage();
     }
+
+    /// <summary>The memory image <paramref name="title"/> shows at its current Baby Metroid frame.</summary>
+    internal static byte[] Compose(TitleSequenceState title) =>
+        Compose(title.TitleGraphics ?? throw new InvalidOperationException("Title rendering requires installed title artwork."),
+            TitleSequenceRomData.Transfers.BabyAnimationSourcePages[title.BabyFrame]);
 }

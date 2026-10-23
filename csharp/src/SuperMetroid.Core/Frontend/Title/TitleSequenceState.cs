@@ -64,8 +64,8 @@ public sealed class TitleSequenceState : IFrontendScreen
     private readonly CartridgeAudioState? audio;
     /// <summary>The title's colors: the installed palette and live console palette-FX changes (#1358).</summary>
     internal readonly ScreenPalette palette = new();
-    /// <summary>The composed memory image of the bound artwork and shown Baby Metroid page, until either changes.</summary>
-    [NonSerialized] private byte[]? image;
+    /// <summary>The floor's cells as the bound artwork lays them out, until it is rebound.</summary>
+    [NonSerialized] private byte[]? floorMap;
     /// <summary>Runs the two console-light palette-FX programs during the title sequence.</summary>
     private RoomPaletteFxSystem consolePaletteFx = new(new PaletteFxSessionState());
     /// <summary>The title and copyright sprite entries in native drawing order, over the title OBJ page (#1358).</summary>
@@ -77,7 +77,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>Host-selected title palette rebound after debugger-state restoration.</summary>
     [NonSerialized] private TitlePalettePresentation? titlePalettePresentation;
     /// <summary>Host-selected title graphics rebound after debugger-state restoration.</summary>
-    [NonSerialized] private TitleGraphicsPresentation? titleGraphicsPresentation;
+    [field: NonSerialized] internal TitleGraphicsPresentation? TitleGraphics { get; private set; }
     /// <summary>Countdown for the active title phase, including fade and idle stages.</summary>
     internal int PhaseTimer { get; private set; }
     /// <summary>The title card whose steps are running.</summary>
@@ -92,14 +92,14 @@ public sealed class TitleSequenceState : IFrontendScreen
     internal Position16<ScreenPixels> ActiveOrigin { get; set; }
     /// <summary>Object attributes (the OBJ palette) applied to every part of the active composition.</summary>
     internal SnesObjAttributeWord ActiveObjectPalette { get; set; }
-    /// <summary>Mode 7 background position whose whole words are interpreted as signed pixels.</summary>
-    private FixedPosition<Mode7Pixels> mode7;
+    /// <summary>The floor's pan position, whose whole words are interpreted as signed pixels.</summary>
+    private FixedPosition<Mode7Pixels> panPosition;
     /// <summary>Native 8.8 Mode 7 matrix scale animated from the close-up scene to identity.</summary>
     internal int Zoom { get; private set; }
     /// <summary>Current SNES screen brightness applied after composing title layers.</summary>
     internal int Brightness { get; private set; }
     /// <summary>Index into the Baby Metroid character page cycle.</summary>
-    private int babyFrame;
+    internal int BabyFrame { get; private set; }
     /// <summary>Frames left before the next Baby Metroid character page transfer.</summary>
     private int babyFrameTimer;
     /// <summary>Tracks the TM bit that exposes Mode 7 BG1 behind title objects.</summary>
@@ -139,7 +139,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         BindSpriteSheets(spriteSheets);
         this.titleGradientPresentation = titleGradientPresentation;
         this.titlePalettePresentation = titlePalettePresentation;
-        this.titleGraphicsPresentation = titleGraphicsPresentation ?? throw new InvalidOperationException(
+        TitleGraphics = titleGraphicsPresentation ?? throw new InvalidOperationException(
             "Title sequence requires installed graphics presentation assets.");
         if (titlePalettePresentation is null)
             throw new InvalidOperationException(
@@ -200,8 +200,8 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>Rebinds installed sprite compositions after debugger-state restoration.</summary>
     internal void BindTitleGraphics(TitleGraphicsPresentation? presentation)
     {
-        titleGraphicsPresentation = presentation;
-        image = null;
+        TitleGraphics = presentation;
+        floorMap = null;
     }
 
     /// <summary>Rebinds installed title colors after debugger-state restoration.</summary>
@@ -248,23 +248,23 @@ public sealed class TitleSequenceState : IFrontendScreen
                 break;
 
             case TitleSequencePhase.SceneZeroPan:
-                mode7 = mode7.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(
-                    mode7.X, -TitleSequenceRomData.Scenes.PanVelocity16Point16));
-                if (unchecked((short)mode7.X.Whole) < TitleSequenceRomData.Scenes.SceneZeroEndX)
+                panPosition = panPosition.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(
+                    panPosition.X, -TitleSequenceRomData.Scenes.PanVelocity16Point16));
+                if (unchecked((short)panPosition.X.Whole) < TitleSequenceRomData.Scenes.SceneZeroEndX)
                     BeginTextSequence(TitleSequenceRomData.TextSequences.Nintendo);
                 break;
 
             case TitleSequencePhase.SceneOnePan:
-                mode7 = mode7.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(
-                    mode7.X, -TitleSequenceRomData.Scenes.PanVelocity16Point16));
-                if (unchecked((short)mode7.X.Whole) < TitleSequenceRomData.Scenes.SceneOneEndX)
+                panPosition = panPosition.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(
+                    panPosition.X, -TitleSequenceRomData.Scenes.PanVelocity16Point16));
+                if (unchecked((short)panPosition.X.Whole) < TitleSequenceRomData.Scenes.SceneOneEndX)
                     BeginTextSequence(TitleSequenceRomData.TextSequences.Presents);
                 break;
 
             case TitleSequencePhase.SceneTwoPan:
-                mode7 = mode7.WithY(IntroCinematicMotion.AddSignedSixteenSixteen(
-                    mode7.Y, TitleSequenceRomData.Scenes.PanVelocity16Point16));
-                if (unchecked((short)mode7.Y.Whole) >= TitleSequenceRomData.Scenes.SceneTwoEndY)
+                panPosition = panPosition.WithY(IntroCinematicMotion.AddSignedSixteenSixteen(
+                    panPosition.Y, TitleSequenceRomData.Scenes.PanVelocity16Point16));
+                if (unchecked((short)panPosition.Y.Whole) >= TitleSequenceRomData.Scenes.SceneTwoEndY)
                     BeginTextSequence(TitleSequenceRomData.TextSequences.MetroidThree);
                 break;
 
@@ -381,21 +381,33 @@ public sealed class TitleSequenceState : IFrontendScreen
     {
         PrepareRenderSprites();
         short scale = unchecked((short)Zoom);
-        byte[] image = Image();
         return new(new FramePaint(palette.Colors, objects.Draws),
             floorBackgroundEnabled
                 ? new AffineTransform(scale, TitleSequenceRomData.Scenes.Rotation.TableIndex,
-                    0, scale, new Offset16<Mode7Pixels>(128, 128), mode7.Whole.AsSignedRegister())
+                    0, scale, new Offset16<Mode7Pixels>(128, 128), panPosition.Whole.AsSignedRegister())
                 : null,
             checked((byte)Brightness), gradientEnabled ? ResolveTitleGradient() : default,
-            floorBackgroundEnabled ? AffineFloor.Capture(image, FloorTiles(TitleSequenceRomData.Transfers.BabyAnimationSourcePages[babyFrame])) : null);
+            floorBackgroundEnabled ? AffineFloor.Of(FloorMap(), FloorTiles(TitleSequenceRomData.Transfers.BabyAnimationSourcePages[BabyFrame])) : null);
     }
 
-    /// <summary>The title screen's composed memory image at the current baby Metroid frame, which its floor reads.</summary>
+    /// <summary>
+    /// The floor's cells: the installed map over the initial tile every other cell keeps, as the title's setup fills the
+    /// map and loads the installed map over its start.
+    /// </summary>
     /// <exception cref="InvalidOperationException">No title artwork is installed.</exception>
-    internal byte[] Image() => image ??= TitleScreenImage.Compose(titleGraphicsPresentation
-        ?? throw new InvalidOperationException("Title rendering requires installed title artwork."),
-        TitleSequenceRomData.Transfers.BabyAnimationSourcePages[babyFrame]);
+    /// <exception cref="InvalidDataException">The installed map is shorter than the map the title loads.</exception>
+    private byte[] FloorMap()
+    {
+        if (floorMap is not null)
+            return floorMap;
+        ReadOnlySpan<byte> map = (TitleGraphics ?? throw new InvalidOperationException("Title rendering requires installed title artwork.")).FloorMap;
+        if (map.Length < TitleSequenceRomData.Transfers.FloorMapByteCount)
+            throw new InvalidDataException("Title Mode 7 map stream is shorter than its $1000-byte DMA.");
+        var cells = new byte[AffineFloor.CellCount];
+        cells.AsSpan().Fill(TitleSequenceRomData.Transfers.FloorInitialMapByte);
+        map[..TitleSequenceRomData.Transfers.FloorMapByteCount].CopyTo(cells);
+        return floorMap = cells;
+    }
 
     /// <summary>Resolves the installed title gradient at the current Mode 7 scale.</summary>
     private ReadOnlySpan<TitleGradientLine> ResolveTitleGradient()
@@ -494,7 +506,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         ActiveSprite = null;
         ActiveOrigin = definition.Origin;
         ActiveObjectPalette = definition.CharacterOffset;
-        mode7 = new(mode7.X.WithFraction(0), mode7.Y.WithFraction(0));
+        panPosition = new(panPosition.X.WithFraction(0), panPosition.Y.WithFraction(0));
 
         // Initial PPU setup and each of the first three completed pan functions select
         // TM=$10 before the next text actor becomes visible. Keeping an explicit register
@@ -516,7 +528,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         ActiveOrigin = TitleSequenceRomData.Sprites.LogoOrigin;
         ActiveObjectPalette = TitleSequenceRomData.Sprites.TitleCharacterOffset;
         floorBackgroundEnabled = true;
-        mode7 = new(mode7.X.WithWhole(0), mode7.Y.WithWhole(0));
+        panPosition = new(panPosition.X.WithWhole(0), panPosition.Y.WithWhole(0));
         Zoom = TitleSequenceRomData.Scenes.IdentityScale;
     }
 
@@ -535,10 +547,8 @@ public sealed class TitleSequenceState : IFrontendScreen
         if (--babyFrameTimer > 0)
             return;
 
-        babyFrame = (babyFrame + 1) % TitleSequenceRomData.Transfers.BabyAnimationSourcePages.Length;
+        BabyFrame = (BabyFrame + 1) % TitleSequenceRomData.Transfers.BabyAnimationSourcePages.Length;
         babyFrameTimer = TitleSequenceRomData.Timing.BabyFrameDuration;
-        // The instruction list uploads the next source page; the capture shows it.
-        image = null;
     }
 
     /// <summary>Installs a compiled Mode 7 scene's position and scale while clearing the previous text sprite.</summary>
@@ -547,7 +557,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         Phase = definition.Phase;
         floorBackgroundEnabled = true;
         Zoom = definition.Scale;
-        mode7 = new(mode7.X.WithWhole(definition.Position.X), mode7.Y.WithWhole(definition.Position.Y));
+        panPosition = new(panPosition.X.WithWhole(definition.Position.X), panPosition.Y.WithWhole(definition.Position.Y));
         ActiveSprite = null;
     }
 }

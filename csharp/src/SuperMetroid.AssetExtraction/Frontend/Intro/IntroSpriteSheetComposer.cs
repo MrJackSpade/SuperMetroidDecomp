@@ -55,8 +55,7 @@ internal static class IntroSpriteSheetComposer
     internal static SpriteSheetSources CeresDestructionSources(IntroCinematicArtworkCatalog intro, IReadOnlyList<CeresDestructionUpload> uploads)
     {
         Ensure.NotNull(intro);
-        // The scene's tilemap uploads leave its OBJ characters alone, so either outcome composes the same page.
-        SpriteArtwork page = CeresDestructionScreenImage.ObjectPage(CeresDestructionScreenImage.Compose(intro, uploads, withSamus: false));
+        SpriteArtwork page = CeresDestructionObjectPage.Of(intro, uploads);
         return Compose([intro.CeresFlight.Sprites, intro.CeresDestruction.Sprites], page, intro.CeresFlight.Palette.LoadTo);
     }
 

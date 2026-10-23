@@ -14,13 +14,6 @@ public readonly struct Mode7Vram(SnesVram vram)
         vram.LoadMode7MapBytes(tileNumbers, (ushort)(Mode7VramLayout.Map.Offset + cell));
     }
 
-    /// <summary>Writes <paramref name="count"/> copies of <paramref name="tileNumber"/> starting at map cell <paramref name="cell"/>.</summary>
-    public void FillMap(byte tileNumber, int count, int cell = 0)
-    {
-        Check(cell, count);
-        vram.FillMode7MapBytes(tileNumber, count, (ushort)(Mode7VramLayout.Map.Offset + cell));
-    }
-
     /// <summary>Writes character pixels starting at pixel <paramref name="pixel"/> (64 per character) through the high-byte port.</summary>
     public void LoadCharacters(ReadOnlySpan<byte> pixels, int pixel = 0)
     {

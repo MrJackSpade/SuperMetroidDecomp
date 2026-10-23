@@ -93,5 +93,14 @@ internal static class SnesVramAccess
                 throw new ArgumentOutOfRangeException(nameof(byteOffset));
             return (byte)(self.ReadWord(byteOffset / 2) >> byteOffset % 2 * 8);
         }
+        /// <summary>Fills Mode 7 low bytes as repeated writes to $2118 do.</summary>
+        public void FillMode7MapBytes(byte value, int wordCount, ushort destinationWord = 0)
+        {
+            if ((uint)wordCount > SnesVram.WordCount)
+                throw new ArgumentOutOfRangeException(nameof(wordCount));
+            var bytes = new byte[wordCount];
+            bytes.AsSpan().Fill(value);
+            self.LoadMode7MapBytes(bytes, destinationWord);
+        }
     }
 }

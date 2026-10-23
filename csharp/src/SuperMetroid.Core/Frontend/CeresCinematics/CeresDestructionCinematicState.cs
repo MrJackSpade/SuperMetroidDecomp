@@ -62,27 +62,27 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>What the Mode 7 characters the uploads leave show, read again only once another upload is made.</summary>
     private Mode7TilePictures UploadedFloorTiles()
     {
-        if (uploadedFloorTiles is null || uploadedFloorTilesCount != uploads.Count)
+        if (uploadedFloorTiles is null || uploadedFloorTilesCount != Uploads.Count)
         {
-            uploadedFloorTiles = CeresScreenTiles.DestructionFloor(spriteSheets, uploads);
-            uploadedFloorTilesCount = uploads.Count;
+            uploadedFloorTiles = CeresScreenTiles.DestructionFloor(spriteSheets, Uploads);
+            uploadedFloorTilesCount = Uploads.Count;
         }
         return uploadedFloorTiles;
     }
 
     /// <summary>What the uploads' characters show (#1392), read at <see cref="uploadedTilesCount"/> uploads; artwork, never saved.</summary>
-    [NonSerialized] private ScreenCharacters? uploadedTiles;
+    [NonSerialized] private ScreenLayerPictures? uploadedTiles;
 
     /// <summary>The uploads <see cref="uploadedTiles"/> was read at.</summary>
     [NonSerialized] private int uploadedTilesCount;
 
     /// <summary>What the characters the uploads leave show, read again only once another upload is made, so the frame's tiles keep their packing.</summary>
-    private ScreenCharacters UploadedTiles()
+    private ScreenLayerPictures UploadedTiles()
     {
-        if (uploadedTiles is null || uploadedTilesCount != uploads.Count)
+        if (uploadedTiles is null || uploadedTilesCount != Uploads.Count)
         {
-            uploadedTiles = CeresScreenTiles.Destruction(spriteSheets, uploads);
-            uploadedTilesCount = uploads.Count;
+            uploadedTiles = CeresScreenTiles.Destruction(spriteSheets, Uploads);
+            uploadedTilesCount = Uploads.Count;
         }
         return uploadedTiles;
     }
@@ -90,15 +90,15 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Shared queue for Ceres music and the final station blast sound.</summary>
     private readonly CartridgeAudioState? audio;
     /// <summary>The scene's graphics transfers in the order the phases made them; the capture replays them over the bound artwork (#1358).</summary>
-    private readonly List<CeresDestructionUpload> uploads = [];
+    internal List<CeresDestructionUpload> Uploads { get; } = [];
     /// <summary>The scene's colors: the Ceres base palette and later engine-flicker program (#1358).</summary>
     internal readonly ScreenPalette palette = new();
     /// <summary>The live actors' sprite entries over the OBJ characters the uploads leave (#1358).</summary>
     internal readonly ScreenSprites objects;
-    /// <summary>The replayed memory image of the bound artwork, until an upload or a rebind changes it.</summary>
-    [NonSerialized] private byte[]? image;
+    /// <summary>The floor's cells the uploads leave over the bound artwork, until an upload or a rebind changes them.</summary>
+    [NonSerialized] private byte[]? floorMap;
     /// <summary>Installed art rebound after debugger restoration rather than serialized with scene state.</summary>
-    [NonSerialized] private IntroCinematicArtworkCatalog? artwork;
+    [field: NonSerialized] internal IntroCinematicArtworkCatalog? Artwork { get; private set; }
     /// <summary>The installed sprite sheets the Ceres and Zebes actors draw from; artwork, never saved.</summary>
     [NonSerialized] private InstalledSpriteSheets spriteSheets;
 
@@ -106,7 +106,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// The actors' sheet over the OBJ characters the uploads have left: the Ceres scene's until the Zebes reveal loads
     /// its characters over them, then the reveal's.
     /// </summary>
-    private CeresSceneSpriteSheet Sprites => new(spriteSheets.Get(uploads.Contains(CeresDestructionUpload.ZebesReveal)
+    private CeresSceneSpriteSheet Sprites => new(spriteSheets.Get(Uploads.Contains(CeresDestructionUpload.ZebesReveal)
         ? SpriteSheetId.ZebesRevealSprites : SpriteSheetId.CeresDestructionSprites));
     /// <summary>Live asteroid, blast, planet, star, and title objects in update order.</summary>
     internal readonly List<IntroDiscoverySprite> actors = [];
@@ -165,7 +165,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Controls whether BG1 is inserted between OBJ priorities during Mode-7 rendering.</summary>
     private SnesMainScreenLayers mainScreenLayers = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj;
     /// <summary>State $25 route when the escape timer expires while Samus remains aboard Ceres.</summary>
-    private readonly bool withSamus;
+    internal bool WithSamus { get; }
 
     /// <param name="audio">The shared music and sound queue.</param>
     /// <param name="fixedColors">Installed power-bomb fixed colors for the station explosion.</param>
@@ -185,10 +185,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         InstalledSpriteSheets? spriteSheets = null)
     {
         BindSpriteSheets(spriteSheets);
-        this.withSamus = outcome == CeresDestructionOutcome.SamusAboard;
+        WithSamus = outcome == CeresDestructionOutcome.SamusAboard;
         this.audio = audio;
         this.paletteFxColors = paletteFxColors;
-        this.artwork = artwork ?? throw new InvalidOperationException(
+        Artwork = artwork ?? throw new InvalidOperationException(
             "Ceres destruction requires installed cinematic artwork.");
         stationExplosion.PresentationColors = fixedColors;
         objects = new ScreenSprites();
@@ -223,8 +223,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// </summary>
     internal void BindArtwork(IntroCinematicArtworkCatalog? value)
     {
-        artwork = value;
-        image = null;
+        Artwork = value;
+        floorMap = null;
         if (value is null) return;
         if (Phase <= CeresDestructionPhase.FlyToZebesInitial)
             value.CeresFlight.Palette.LoadTo(palette);
@@ -256,7 +256,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             audio?.QueueMusicDelayed8(
                 MusicCommand.LoadData(CeresDestructionRomData.Music.CeresDataIndex));
             audio?.QueueMusicDelayed(
-                MusicCommand.SelectTrack(withSamus
+                MusicCommand.SelectTrack(WithSamus
                     ? CeresDestructionRomData.Music.CeresWithSamusTrack
                     : CeresDestructionRomData.Music.CeresTrack),
                 MusicCommandDelay.FromDelayedYArgument(CeresDestructionRomData.Music.DelayArgument));
@@ -341,7 +341,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 // State $25 instead stops the music and ends at the death black-out ($C64E).
                 if (StepSlowFadeOut())
                 {
-                    if (withSamus)
+                    if (WithSamus)
                     {
                         audio?.QueueMusicDelayed8(MusicCommand.Stop);
                         Phase = CeresDestructionPhase.Finished;
@@ -459,7 +459,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Stages Ceres Mode-7 and OBJ transfers, palettes, and three initial actors after the ninth NMI wait.</summary>
     private void SetupCeresDestruction()
     {
-        IntroCinematicArtworkCatalog content = artwork ?? throw new InvalidOperationException(
+        IntroCinematicArtworkCatalog content = Artwork ?? throw new InvalidOperationException(
             "Ceres destruction requires installed cinematic artwork.");
         RequireMinimum(content.CeresFlight.FloorCharacters.Length, CeresDestructionRomData.Transfers.FloorCharacterBytes,
             "Ceres destruction Mode-7 characters");
@@ -482,7 +482,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         {
             CeresDestructionActorDefinition definition =
                 CeresDestructionActorDefinitions.InitialActor(index);
-            if (artwork?.CeresDestruction.DestructionActors is { } layout)
+            if (Artwork?.CeresDestruction.DestructionActors is { } layout)
             {
                 CeresDestructionActorPlacement placement = layout[index];
                 definition = definition with { Position = placement.Position };
@@ -499,7 +499,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Stages the planet-reveal Mode-1 map and resets camera, angle, fade, and mosaic state.</summary>
     private void SetupZebesReveal()
     {
-        IntroCinematicArtworkCatalog content = artwork ?? throw new InvalidOperationException(
+        IntroCinematicArtworkCatalog content = Artwork ?? throw new InvalidOperationException(
             "Zebes reveal requires installed cinematic artwork.");
         RequireMinimum(content.CeresDestruction.ZebesMap.Transfer.Length, CeresDestructionRomData.Transfers.ZebesTilemapMinimumBytes,
             "Zebes reveal tilemap");
@@ -598,7 +598,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         CeresDestructionActorDefinition definition =
             CeresDestructionActorDefinitions.ZebesActor(index);
-        if (artwork?.CeresDestruction.RevealActors is { } layout)
+        if (Artwork?.CeresDestruction.RevealActors is { } layout)
         {
             CeresRevealActorPlacement placement = layout[index];
             definition = definition with { Position = placement.Position };
@@ -690,13 +690,17 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Records one of the scene's graphics transfers; the next capture replays it.</summary>
     private void Upload(CeresDestructionUpload upload)
     {
-        uploads.Add(upload);
-        image = null;
+        Uploads.Add(upload);
+        floorMap = null;
     }
 
-    /// <summary>The memory image the scene's transfers leave over the bound artwork.</summary>
-    internal byte[] Image() => image ??= CeresDestructionScreenImage.Compose(artwork ?? throw new InvalidOperationException(
-        "Ceres destruction rendering requires installed cinematic artwork."), uploads, withSamus);
+    /// <summary>The floor's cells the scene's uploads leave over the bound artwork.</summary>
+    private byte[] FloorMap() => floorMap ??= CeresDestructionScenery.FloorMap(Artwork ?? throw new InvalidOperationException(
+        "Ceres destruction rendering requires installed cinematic artwork."), Uploads, WithSamus);
+
+    /// <summary>The Zebes reveal's tilemap, once its upload is made.</summary>
+    private ushort[] ZebesTilemap() => CeresDestructionScenery.ZebesTilemap(Artwork ?? throw new InvalidOperationException(
+        "Ceres destruction rendering requires installed cinematic artwork."), Uploads);
 
     /// <summary>Starts the power-bomb blast, queues sound, adds its sprite, and replaces the station maps.</summary>
     private void SpawnFinalCeresExplosion()
@@ -903,7 +907,6 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Captures the scene's exact Mode 7/OBJ insertion order or Mode 1 planet plane.</summary>
     public LayeredScene CaptureRenderSnapshot()
     {
-        byte[] shown = Image();
         PrepareRenderSprites();
         RenderLayer[] layers;
         if (usesFloor && (mainScreenLayers & SnesMainScreenLayers.Bg1) == 0)
@@ -914,21 +917,21 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         else if (usesFloor)
         {
             var (a, b, c, d) = FloorRotationMatrix.Calculate(angle, Zoom);
-            var mode7 = new AffineTransform(a, b, c, d,
+            var floor = new AffineTransform(a, b, c, d,
                 Phase <= CeresDestructionPhase.FadeOutCeres
                     ? new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.CeresCenterX, CeresDestructionRomData.Rendering.CeresCenterY)
                     : new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.ZebesCenterX, CeresDestructionRomData.Rendering.ZebesCenterY),
                 Background.Whole.AsSignedRegister());
-            layers = [new ObjPriorityRenderLayer(0), new Mode7RenderLayer(mode7, AffineFloor.Capture(shown, UploadedFloorTiles())),
+            layers = [new ObjPriorityRenderLayer(0), new Mode7RenderLayer(floor, AffineFloor.Of(FloorMap(), UploadedFloorTiles())),
                 new ObjPriorityRenderLayer(1), new ObjPriorityRenderLayer(2), new ObjPriorityRenderLayer(3)];
         }
         else
         {
             // Preserve the existing non-mosaicked Mode 1 path. Mosaic implementation
             // is a cartridge-correctness change, not an implicit part of this extraction.
-            // The Zebes reveal draws from the pre-coloured tiles of the characters the uploads leave (#1392).
-            layers = [new TileRenderLayer(ScreenTileMap.Capture(shown, CeresDestructionRomData.Rendering.Mode1TilemapWord, new Extent16<TilemapCells>(32, 32),
-                UploadedTiles().Pictures(CeresDestructionRomData.Rendering.Mode1CharacterWord, BgBitDepth.FourBpp)), new Position16<BgPlanePixels>(0, 0), null)];
+            // The Zebes reveal draws from the pre-coloured tiles of the characters the Uploads leave (#1392).
+            layers = [new TileRenderLayer(ScreenTileMap.Of(ZebesTilemap(), new Extent16<TilemapCells>(32, 32), UploadedTiles()),
+                new Position16<BgPlanePixels>(0, 0), null)];
         }
         if (CaptureStationExplosion() is { } blast)
             layers = [.. layers, blast];

@@ -20,20 +20,20 @@ internal static class FrontendShownVramAccess
     extension(IntroCinematicState self)
     {
         internal byte[] ShownVram() => self.CurrentCeresFlight is { } flight && self.Phase == IntroCinematicPhase.CeresFlight
-            ? flight.Image() : IntroScreenMemory.Compose(self);
+            ? CeresFlightScreenMemory.Compose(flight) : IntroScreenMemory.Compose(self);
     }
 
     /// <summary>The Ceres flight's composed image.</summary>
-    extension(IntroCeresFlightState self) { internal byte[] ShownVram() => self.Image(); }
+    extension(IntroCeresFlightState self) { internal byte[] ShownVram() => CeresFlightScreenMemory.Compose(self); }
 
     /// <summary>The Ceres destruction's composed image.</summary>
-    extension(CeresDestructionCinematicState self) { internal byte[] ShownVram() => self.Image(); }
+    extension(CeresDestructionCinematicState self) { internal byte[] ShownVram() => CeresDestructionScreenMemory.Compose(self); }
 
     /// <summary>The ending's composed image.</summary>
     extension(EndingCreditsState self) { internal byte[] ShownVram() => self.Image(); }
 
     /// <summary>The title screen's composed image.</summary>
-    extension(TitleSequenceState self) { internal byte[] ShownVram() => self.Image(); }
+    extension(TitleSequenceState self) { internal byte[] ShownVram() => TitleScreenMemory.Compose(self); }
 
     /// <summary>The game over menu's composed image.</summary>
     extension(GameOverMenuState self) { internal byte[] ShownVram() => MenuScreenMemory.Compose(self.screen); }

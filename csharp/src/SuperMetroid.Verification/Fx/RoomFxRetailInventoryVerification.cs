@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Globalization;
 using SuperMetroid.Core.Hardware;
@@ -268,10 +269,10 @@ internal static class RoomFxRetailInventoryVerification
                 RoomFxRomDataRecordTooling.YVelocityOffset);
 
         var vram = new SnesVram();
-        var cgram = new SnesCgram();
+        var cgram = new GameplayColours();
         SeedVisibleRoomFxPalette(cgram);
         var actualSession = CreateRetailFxSession(bus);
-        var actual = RoomLayer3FxState.ForRoom(actualSession, cgram,
+        var actual = RoomLayer3FxState.ForRoom(actualSession, cgram.BackgroundSets,
             room.State.Fx,
             EntryDoor(doorPointer),
             randomNumber: 0);
@@ -417,9 +418,9 @@ internal static class RoomFxRetailInventoryVerification
             RetailRoomFxDefinitions.VisibleLavaRoom);
         ushort record = RoomFxDefinitions.SelectedRecordPointer(room.State.Fx, door: null);
         var vram = new SnesVram();
-        var cgram = new SnesCgram();
+        var cgram = new GameplayColours();
         var fxSession = CreateRetailFxSession(bus);
-        var fx = RoomLayer3FxState.ForRoom(fxSession, cgram, room.State.Fx, door: null, randomNumber: 0);
+        var fx = RoomLayer3FxState.ForRoom(fxSession, cgram.BackgroundSets, room.State.Fx, door: null, randomNumber: 0);
 
         // Give the three nontransparent two-bit values distinct colors so the assertion
         // observes changes in the ROM pixels, not merely a still opaque rectangle.
@@ -473,7 +474,7 @@ internal static class RoomFxRetailInventoryVerification
     /// <summary>Composes a captured BG3 FX layer with its current VRAM image and CGRAM for visible-surface comparisons.</summary>
     private static Rgba32[] RenderRoomFx(
         SnesVram vram,
-        SnesCgram cgram,
+        GameplayColours cgram,
         RoomLayer3FxRenderSnapshot snapshot,
         Layer3Plane plane)
     {
@@ -614,10 +615,10 @@ internal static class RoomFxRetailInventoryVerification
             $"rising-lava door $83:{door.Pointer:X4} destination");
 
         var vram = new SnesVram();
-        var cgram = new SnesCgram();
+        var cgram = new GameplayColours();
         SeedVisibleRoomFxPalette(cgram);
         var fxSession = CreateRetailFxSession(bus);
-        var fx = RoomLayer3FxState.ForRoom(fxSession, cgram,
+        var fx = RoomLayer3FxState.ForRoom(fxSession, cgram.BackgroundSets,
             room.State.Fx,
             door,
             randomNumber: 0,
@@ -809,7 +810,7 @@ internal static class RoomFxRetailInventoryVerification
         var fxSession = CreateRetailFxSession(bus);
         RoomLayer3FxState fx;
         var vram = new SnesVram();
-        fx = RoomLayer3FxState.ForRoom(fxSession, new SnesCgram(),
+        fx = RoomLayer3FxState.ForRoom(fxSession, new BackgroundColourSets(),
             room.State.Fx,
             EntryDoor(doorPointer),
             randomNumber: 0);
@@ -850,23 +851,23 @@ internal static class RoomFxRetailInventoryVerification
             RetailRoomFxDefinitions.HiddenLavaRoom);
 
         var vram = new SnesVram();
-        var cgram = new SnesCgram();
+        var cgram = new GameplayColours();
         SeedVisibleRoomFxPalette(cgram);
         var fxSession = CreateRetailFxSession(bus);
-        var fx = RoomLayer3FxState.ForRoom(fxSession, cgram, visibleRoom.State.Fx, door: null, randomNumber: 0);
+        var fx = RoomLayer3FxState.ForRoom(fxSession, cgram.BackgroundSets, visibleRoom.State.Fx, door: null, randomNumber: 0);
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
         fx.Step(BgArtworkFixtures.For(vram), new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
         AssertEqual(RoomFxType.Lava, fx.Type, "transition source owns visible lava");
 
         // Loading a no-FX room must clear the owner even though the old tilemap and
         // animated characters remain in VRAM until another producer overwrites them.
-        fx = RoomLayer3FxState.ForRoom(fxSession, cgram, fx: null, door: null, randomNumber: 0);
+        fx = RoomLayer3FxState.ForRoom(fxSession, cgram.BackgroundSets, fx: null, door: null, randomNumber: 0);
         AssertTrue(fx.CaptureForDisplay() is null,
             "transition to no-FX room clears the prior liquid snapshot");
 
         // Loading a heat-only $FFFF record retains the lava type and BG2/palette owners,
         // but the stale visible liquid plane must remain suppressed.
-        fx = RoomLayer3FxState.ForRoom(fxSession, cgram, hiddenRoom.State.Fx, door: null, randomNumber: 0);
+        fx = RoomLayer3FxState.ForRoom(fxSession, cgram.BackgroundSets, hiddenRoom.State.Fx, door: null, randomNumber: 0);
         Layer3PlaneFixtures.WriteEffectPlane(vram, fx);
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
         fx.Step(BgArtworkFixtures.For(vram), new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
@@ -915,7 +916,7 @@ internal static class RoomFxRetailInventoryVerification
 
     /// <summary>Seeds nonzero BG3 colors before FX-specific blends so visibility does not depend on a room graphics set.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void SeedVisibleRoomFxPalette(SnesCgram cgram)
+    private static void SeedVisibleRoomFxPalette(GameplayColours cgram)
     {
         // Standard room palettes normally provide these colors before LoadFXHeader applies
         // its optional three-color blend. Seeding every two-bit BG3 palette makes the audit

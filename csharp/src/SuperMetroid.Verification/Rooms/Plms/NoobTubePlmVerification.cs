@@ -356,7 +356,7 @@ internal static class NoobTubePlmVerification
         // record and import its presentation dependencies at this verification boundary.
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var roomFxSession = CreateRetailFxSession(rom);
-        var roomFx = RoomLayer3FxState.ForRoom(roomFxSession, new SnesCgram(), RoomFxDefinitions.Suffix(0x9c94), door: null,
+        var roomFx = RoomLayer3FxState.ForRoom(roomFxSession, new BackgroundColourSets(), RoomFxDefinitions.Suffix(0x9c94), door: null,
             randomNumber: 0);
         return roomFx;
     }

@@ -34,18 +34,18 @@ internal static class BackgroundTransferPresentationContractChecks
                 void Inspect(PhantoonBg2FrameCatalog phantoon, DraygonBg2FrameCatalog draygon,
                     CrocomireBg2FrameCatalog crocomire, MotherBrainBodyBg2FrameCatalog motherBrain,
                     RoomFxLayer3TilemapCatalog pages, RoomFxPaletteBlendCatalog blends,
-                    EndingObjectArtworkCatalog ending, GunshipLiftoffArtworkCatalog ship, SnesCgram cgram) {
+                    EndingObjectArtworkCatalog ending, GunshipLiftoffArtworkCatalog ship, SnesCgram cgram, SuperMetroid.Core.Assets.BackgroundColourSets backgrounds) {
                     phantoon.TryGet(0, out _);
                     draygon.TryGet(0, out _);
                     crocomire.TryGet(0, out _);
                     motherBrain.TryGet(SuperMetroid.Core.Enemies.Artwork.EnemyFrameId.MotherBrainBodyOamInitialDummy, out _);
                     pages.Resolve(RoomFxType.Lava);
                     pages.Resolve((RoomFxType)255);
-                    blends.Apply(cgram, 0);
-                    blends.Apply(cgram, RoomFxPaletteBlend.Lava);
-                    blends.Apply(cgram, (RoomFxPaletteBlend)1);
-                    blends.Apply(cgram, (RoomFxPaletteBlend)255);
-                    blends.Apply(cgram, RoomFxPaletteBlend.Fog);
+                    blends.Apply(backgrounds, 0);
+                    blends.Apply(backgrounds, RoomFxPaletteBlend.Lava);
+                    blends.Apply(backgrounds, (RoomFxPaletteBlend)1);
+                    blends.Apply(backgrounds, (RoomFxPaletteBlend)255);
+                    blends.Apply(backgrounds, RoomFxPaletteBlend.Fog);
                     ending.Fragment(EndingObjectFragmentId.Segment7C);
                     ending.Fragment((EndingObjectFragmentId)4);
                     ship.Resolve(VramAssetId.GunshipLiftoffFirstTiles);

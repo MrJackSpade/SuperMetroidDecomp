@@ -132,10 +132,10 @@ internal static class RoomAssetRomDataVerification
                 $"room $8F:{roomPointer:X4} retains exact decompressed visual inputs");
             var nativeVram = new SnesVram();
             var guardedVram = new SnesVram();
-            var nativeCgram = new SnesCgram();
-            var guardedCgram = new SnesCgram();
-            native.LoadGraphics(BgArtworkFixtures.For(nativeVram), nativeCgram);
-            guarded.LoadGraphics(BgArtworkFixtures.For(guardedVram), guardedCgram);
+            var nativeCgram = new GameplayColours();
+            var guardedCgram = new GameplayColours();
+            native.LoadGraphics(BgArtworkFixtures.For(nativeVram), nativeCgram.BackgroundSets);
+            guarded.LoadGraphics(BgArtworkFixtures.For(guardedVram), guardedCgram.BackgroundSets);
             AssertTrue(nativeVram.ImageEquals(guardedVram) &&
                 new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(guardedCgram)),
                 $"room $8F:{roomPointer:X4} retains exact VRAM/CGRAM output");
@@ -203,10 +203,10 @@ internal static class RoomAssetRomDataVerification
                 $"room $8F:{roomPointer:X4} loads compiled characters with source reads forbidden");
             var nativeVram = new SnesVram();
             var installedVram = new SnesVram();
-            var nativeCgram = new SnesCgram();
-            var installedCgram = new SnesCgram();
-            native.LoadGraphics(BgArtworkFixtures.For(nativeVram), nativeCgram);
-            installed.LoadGraphics(BgArtworkFixtures.For(installedVram), installedCgram);
+            var nativeCgram = new GameplayColours();
+            var installedCgram = new GameplayColours();
+            native.LoadGraphics(BgArtworkFixtures.For(nativeVram), nativeCgram.BackgroundSets);
+            installed.LoadGraphics(BgArtworkFixtures.For(installedVram), installedCgram.BackgroundSets);
             AssertTrue(nativeVram.ImageEquals(installedVram) &&
                 new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"room $8F:{roomPointer:X4} retains exact compiled-art VRAM/CGRAM output");

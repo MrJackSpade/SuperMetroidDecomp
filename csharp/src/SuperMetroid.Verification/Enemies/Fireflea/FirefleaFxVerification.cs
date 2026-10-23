@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
@@ -44,7 +45,7 @@ internal static class FirefleaFxVerification
         Suite(nameof(VerifyFirefleaDarknessAlgorithm), () => VerifyFirefleaDarknessAlgorithm(rom));
         Suite(nameof(VerifyFirefleaFrozenDarkness), VerifyFirefleaFrozenDarkness);
         Suite(nameof(VerifyFirefleaUninitializedTimerWrap), VerifyFirefleaUninitializedTimerWrap);
-        fx = RoomLayer3FxState.ForDefinition(fxSession, new SnesCgram(), record, 0);
+        fx = RoomLayer3FxState.ForDefinition(fxSession, new GameplayColours(), record, 0);
         AssertEqual(FirefleaFxDefinitions.FlashDuration, fx.Fireflea.Timer.RawValue, "Fireflea load initializes native six-frame timer");
         AssertTrue(!fx.IsRenderable, "Fireflea darkness does not invent a BG3 texture");
         for (int frame = 1; frame <= 144; frame++)
@@ -65,7 +66,7 @@ internal static class FirefleaFxVerification
         AssertEqual(LayerBlendingConfiguration.Fireflea, fx.LayerBlendConfiguration, "frozen Fireflea still selects blending");
         for (ushort level = 0; level <= 12; level += 2)
         {
-            fx = RoomLayer3FxState.ForDefinition(fxSession, new SnesCgram(), record, 0);
+            fx = RoomLayer3FxState.ForDefinition(fxSession, new GameplayColours(), record, 0);
             for (int frame = 1; frame <= 78; frame++)
             {
                 fx.Step(BgArtworkFixtures.For(vram), new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true, FirefleaDarknessLevel = level });
@@ -82,7 +83,7 @@ internal static class FirefleaFxVerification
         }
         // Removing the effect must stop its producer, not let the old flashing timer
         // keep changing a subsequent room's fixed color.
-        fx = RoomLayer3FxState.ForRoom(fxSession, new SnesCgram(), null, null, 0);
+        fx = RoomLayer3FxState.ForRoom(fxSession, new BackgroundColourSets(), null, null, 0);
         fixedColor.Red = 0x25;
         fx.Step(BgArtworkFixtures.For(vram), new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
         AssertEqual(0x25, fixedColor.Red, "non-Fireflea room does not execute the old producer");

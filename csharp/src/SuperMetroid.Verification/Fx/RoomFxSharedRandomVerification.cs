@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Fx.RoomFxRomDataVerification;
 using SuperMetroid.Core.Fx;
@@ -14,7 +15,7 @@ internal static class RoomFxSharedRandomVerification
     /// liquid room; returns the freshly loaded effect for the caller's visual checks.
     /// </summary>
     internal static RoomLayer3FxState VerifyRoomFxSharedRandomState(TestAddressSpace bus,
-        SnesCgram cgram, RoomFxSession session, RoomLayer3FxState fx, ushort record, RoomFxType type)
+        GameplayColours cgram, RoomFxSession session, RoomLayer3FxState fx, ushort record, RoomFxType type)
     {
         bool swaps = type is RoomFxType.Lava or RoomFxType.Acid;
         var system = new Bank80SystemState();
@@ -34,7 +35,7 @@ internal static class RoomFxSharedRandomVerification
         fx.AdvanceHdmaSharedState(system, true);
         fx.AdvanceHdmaSharedState(system, false);
         AssertEqual(swaps ? 0x3412 : 0x1234, system.RandomNumber, $"{type} frozen startup still installs callback");
-        fx = RoomLayer3FxState.ForRoom(session, cgram, null, null, 0);
+        fx = RoomLayer3FxState.ForRoom(session, cgram.BackgroundSets, null, null, 0);
         system.SetRandomNumber(0x1234);
         fx.AdvanceHdmaSharedState(system, false);
         fx.AdvanceHdmaSharedState(system, false);

@@ -886,7 +886,7 @@ internal sealed class RoomLoader
             ? new ScrollingSkyState(ScrollingSkyState.VariantOf(room.State.MainCallback), skyHdmaConfigured)
             : null;
 
-        assets.LoadGraphics(_backgrounds, _cgram);
+        assets.LoadGraphics(_backgrounds, _cgram.BackgroundSets);
         // Ceres rooms draw Mode 7 from their own map, which the door and Ridley then patch (#1349).
         scope.FloorMap = room.Definition.AreaIndex == AreaId.Ceres ? assets.CreateMode7Map() : null;
 
@@ -903,7 +903,7 @@ internal sealed class RoomLoader
         // animtile state before palette-FX objects and enemies begin running.
         var roomLayer3Fx = RoomLayer3FxState.ForRoom(
             _roomFx,
-            _cgram,
+            _cgram.BackgroundSets,
             room.State.Fx,
             door,
             _system.RandomNumber,

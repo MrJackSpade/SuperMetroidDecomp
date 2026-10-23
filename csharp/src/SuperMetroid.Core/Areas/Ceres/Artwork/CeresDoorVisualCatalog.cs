@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Areas.Artwork;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
@@ -145,13 +144,13 @@ public sealed class CeresDoorVisualCatalog
     /// <summary>Resolves one escape-state ink from the selected palette.</summary>
     private Bgr555 EscapeColor(int color) => escape.ColorAt(color);
 
-    /// <summary>Installs six selected inks at CGRAM 41–46 from animation row 0–7 corresponding to $A6:F871; the actor derives the row from its frame bits 3–5.</summary>
-    public void LoadAnimationColors(IPaletteColors cgram, int row)
+    /// <summary>Installs the door animation's six colours from animation row 0–7 corresponding to $A6:F871; the actor derives the row from its frame bits 3–5.</summary>
+    public void LoadAnimationColors(BackgroundColourSets colours, int row)
     {
-        Ensure.NotNull(cgram);
+        ColourRun animated = CeresDoorColourDefinitions.Animation.In(colours);
         if ((uint)row >= CeresDoorVisualRomData.AnimationRowCount) throw new ArgumentOutOfRangeException(nameof(row));
         for (int color = 0; color < CeresDoorVisualRomData.AnimationColorCount; color++)
-            new AreaPalettes(cgram).CeresDoorAnimation.Write(color, AnimationColor(row, color));
+            animated.Write(color, AnimationColor(row, color));
     }
 
     /// <summary>Resolves one ink from the actor-selected door animation row.</summary>

@@ -33,7 +33,7 @@ internal static class EnemyTileArtworkCeresDoorVerification
             "installed Ceres-door PNG preserves the complete direct tile DMA");
 
         var nativeColors = new SnesCgram();
-        var compiledColors = new SnesCgram();
+        var compiledColors = new GameplayColours();
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeColors, bus, CeresDoorVisualRomData.NormalColors,
             CeresDoorVisualRomData.SetupColorCount, CeresDoorVisualRomData.NormalTargetColor);
         visual.LoadNormalColors(compiledColors, CeresDoorVisualRomData.NormalTargetColor);
@@ -51,7 +51,7 @@ internal static class EnemyTileArtworkCeresDoorVerification
                     row * CeresDoorVisualRomData.AnimationRowByteStride,
                 CeresDoorVisualRomData.AnimationColorCount,
                 CeresDoorVisualRomData.AnimationTargetColor);
-            visual.LoadAnimationColors(compiledColors, row);
+            visual.LoadAnimationColors(compiledColors.BackgroundSets, row);
             AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(compiledColors)),
                 $"installed Ceres-door animated RGB5 row {row} matches the cartridge");
         }
@@ -116,14 +116,14 @@ internal static class EnemyTileArtworkCeresDoorVerification
         AssertEqual((byte)(nativeTiles[0] ^ 0x80),
             editedVram.Bytes[CeresDoorVisualRomData.TileVramDestination],
             "Ceres-door PNG override changes the live first tile pixel");
-        var editedCgram = new SnesCgram();
+        var editedCgram = new GameplayColours();
         edited.LoadNormalColors(editedCgram, CeresDoorVisualRomData.NormalTargetColor);
         AssertTrue(editedCgram.Colors[CeresDoorVisualRomData.NormalTargetColor] !=
             compiledColors.Colors[CeresDoorVisualRomData.NormalTargetColor],
             "Ceres-door palette override changes the live normal color");
-        edited.LoadAnimationColors(editedCgram, 0);
-        var stockAnimationCgram = new SnesCgram();
-        visual.LoadAnimationColors(stockAnimationCgram, 0);
+        edited.LoadAnimationColors(editedCgram.BackgroundSets, 0);
+        var stockAnimationCgram = new GameplayColours();
+        visual.LoadAnimationColors(stockAnimationCgram.BackgroundSets, 0);
         AssertTrue(editedCgram.Colors[CeresDoorVisualRomData.AnimationTargetColor] !=
             stockAnimationCgram.Colors[CeresDoorVisualRomData.AnimationTargetColor],
             "Ceres-door animation override changes the live selected frame");

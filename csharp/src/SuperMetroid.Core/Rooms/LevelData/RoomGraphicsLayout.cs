@@ -21,8 +21,4 @@ public static class RoomGraphicsLayout
     /// </summary>
     public static readonly PpuLayoutCell CollectibleCharacters = new(nameof(CollectibleCharacters), PpuLayoutRegion.Vram,
         0x3e00, 0x0200, "4-bpp BG characters, four 8-character slots", GameplayVramLayout.BackgroundCharacters);
-
-    /// <summary>CGADD $00-$7F: the tileset palette copied by <c>LoadCRETilesTilesetTilesAndPalette</c>.</summary>
-    public static readonly PpuLayoutCell TilesetPalette = PpuMemoryLayout.Colors(nameof(TilesetPalette), 0, 0x80,
-        "Bgr555 BG palettes (CGDATA words)");
 }

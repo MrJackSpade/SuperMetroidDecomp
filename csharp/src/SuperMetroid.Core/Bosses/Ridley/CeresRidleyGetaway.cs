@@ -240,8 +240,8 @@ internal sealed class CeresRidleyGetaway
             case 0:
                 // $A6:C062 copies four already-live colors before the warning graphics
                 // replace their tiles. These are palette indices, not byte offsets.
-                CopyCeresWarningColors(_presentation.CgramRows.BackgroundRow(0), _presentation.CgramRows.BackgroundRow(6));
-                CopyCeresWarningColors(_presentation.CgramRows.BackgroundRow(1), _presentation.CgramRows.BackgroundRow(5));
+                CopyCeresWarningColors(_presentation.BackgroundSets.Set(0), _presentation.BackgroundSets.Set(6));
+                CopyCeresWarningColors(_presentation.BackgroundSets.Set(1), _presentation.BackgroundSets.Set(5));
                 state.CeresEscapeTransfers = CeresEscapeTransferCursor.TimerSprites;
                 state.FunctionTimer = WrappingCountdown.Start(2);
                 goto case 2;
@@ -330,7 +330,7 @@ internal sealed class CeresRidleyGetaway
     }
 
     /// <summary>$A6:C062: colours one and three of <paramref name="source"/> replace those of <paramref name="destination"/>.</summary>
-    private static void CopyCeresWarningColors(CgramPalette source, CgramPalette destination)
+    private static void CopyCeresWarningColors(ColourRun source, ColourRun destination)
     {
         destination.Write(1, source[1]);
         destination.Write(3, source[3]);

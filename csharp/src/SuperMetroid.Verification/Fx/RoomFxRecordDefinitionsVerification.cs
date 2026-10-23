@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -43,8 +44,8 @@ internal static class RoomFxRecordDefinitionsVerification
         CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, (station.Room ?? throw new InvalidDataException("Ceres station has no room.")).Pointer);
         var nativeVram = new SnesVram();
         var compiledVram = new SnesVram();
-        var nativeCgram = new SnesCgram();
-        var compiledCgram = new SnesCgram();
+        var nativeCgram = new GameplayColours();
+        var compiledCgram = new GameplayColours();
         RoomFxPaletteBlendCatalog colors = RoomFxPaletteBlendCatalog.Load(
             new MemoryStream(RoomFxPaletteBlendExtractor.Extract(bus)));
         RoomFxLayer3TilemapCatalog tilemaps = RoomFxLayer3TilemapCatalog.Load(
@@ -53,9 +54,9 @@ internal static class RoomFxRecordDefinitionsVerification
         RoomLayer3FxState nativeFx;
         var compiledFxSession = new RoomFxSession{ PaletteBlendColors = colors, Layer3Tilemaps = tilemaps };
         RoomLayer3FxState compiledFx;
-        nativeFx = RoomLayer3FxState.ForRoom(nativeFxSession, nativeCgram, room.State.Fx,
+        nativeFx = RoomLayer3FxState.ForRoom(nativeFxSession, nativeCgram.BackgroundSets, room.State.Fx,
             station.Door, randomNumber: 0, room.Definition);
-        compiledFx = RoomLayer3FxState.ForRoom(compiledFxSession, compiledCgram, room.State.Fx,
+        compiledFx = RoomLayer3FxState.ForRoom(compiledFxSession, compiledCgram.BackgroundSets, room.State.Fx,
             station.Door, randomNumber: 0, room.Definition);
         AssertEqual(nativeFx.Type, compiledFx.Type, "Ceres compiled FX type");
         AssertEqual(nativeFx.BaseY.Whole, compiledFx.BaseY.Whole, "Ceres compiled FX base Y");

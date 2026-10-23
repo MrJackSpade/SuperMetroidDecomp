@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Fx.LookupFxBlendSelectorsVerification;
@@ -45,8 +46,8 @@ internal static class LookupFxPairColorsVerification
             };
             AssertEqual(expected, (calculated ?? throw new InvalidOperationException("Verification requires calculated.")), "Native paired-color component rule");
             AssertEqual(expected, (stock.Resolve((RoomFxPaletteBlend)id)[color].ToWord() >> shift) & 31, "Installed paired-color component");
-            var cgram = new SnesCgram();
-            stock.Apply(cgram, (RoomFxPaletteBlend)id);
+            var cgram = new GameplayColours();
+            stock.Apply(cgram.BackgroundSets, (RoomFxPaletteBlend)id);
             AssertEqual(expected, (cgram.Colors[25 + color].ToWord() >> shift) & 31, "Applied paired-color component");
         }
     }

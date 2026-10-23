@@ -10,6 +10,4 @@ public readonly struct AreaPalettes(IPaletteColors cgram)
     public CgramPalette TourianStatue => new(cgram, AreaCgramLayout.TourianStatue);
     /// <summary>Tourian statue eye.</summary>
     public CgramPalette TourianStatueEye => new(cgram, AreaCgramLayout.TourianStatueEye);
-    /// <summary>Ceres door animation.</summary>
-    public CgramPalette CeresDoorAnimation => new(cgram, AreaCgramLayout.CeresDoorAnimation);
 }

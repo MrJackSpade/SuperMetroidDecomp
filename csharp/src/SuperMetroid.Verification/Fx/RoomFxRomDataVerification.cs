@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Fx.AreaAnimatedTileObjectDefinitionsVerification;
@@ -149,7 +150,7 @@ internal static class RoomFxRomDataVerification
     {
         var bus = new TestAddressSpace();
         var vram = new SnesVram();
-        var cgram = new SnesCgram();
+        var cgram = new GameplayColours();
         var presentation = RetailPresentationFixture();
         var stateSession = new RoomFxSession{
             Layer3Tilemaps = presentation.RoomFxLayer3Tilemaps,
@@ -194,7 +195,7 @@ internal static class RoomFxRomDataVerification
     private static void VerifyRenderableLayer3Fx(
         TestAddressSpace bus,
         SnesVram vram,
-        SnesCgram cgram,
+        GameplayColours cgram,
         RoomFxSession session,
         ushort record,
         RoomFxType type)
@@ -417,7 +418,7 @@ internal static class RoomFxRomDataVerification
 
     /// <summary>Decodes a literal synthetic sixteen-byte record independently of the compiled catalog before production FX initialization.</summary>
     internal static RoomLayer3FxState LoadSyntheticRoomFx(RoomFxSession session, TestAddressSpace bus,
-        SnesCgram cgram, ushort pointer) =>
+        GameplayColours cgram, ushort pointer) =>
         RoomLayer3FxState.ForDefinition(session, cgram, ReadSyntheticRoomFxRecord(bus, pointer), randomNumber: 0);
 
     /// <summary>Reads all sixteen bank-$83 record bytes in native word/byte order for the independent fixture oracle.</summary>

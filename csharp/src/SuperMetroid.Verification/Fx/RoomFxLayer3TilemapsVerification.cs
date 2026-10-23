@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
@@ -120,7 +121,7 @@ internal static class RoomFxLayer3TilemapsVerification
             Layer3Tilemaps = catalog,
             PaletteBlendColors = paletteColors,
         };
-        RoomLayer3FxState state = RoomLayer3FxState.ForDefinition(stateSession, new SnesCgram(), record, randomNumber: 0);
+        RoomLayer3FxState state = RoomLayer3FxState.ForDefinition(stateSession, new GameplayColours(), record, randomNumber: 0);
         AssertEqual(type, state.Type, "installed room-FX BG3 page preserves the selected FX type");
         return Layer3Plane.Compose(new ushort[Layer3Plane.HudRows * Layer3Plane.Columns], state.EffectPageWords());
     }

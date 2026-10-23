@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies;
@@ -26,8 +25,8 @@ internal sealed class EnemyPresentation
         _graphicsSet = graphicsSet;
     }
 
-    /// <summary>The bound CGRAM's enemy and boss ranges.</summary>
-    internal EnemyPalettes Palettes => new(Cgram);
+    /// <summary>Gameplay's background colour sets (#1405).</summary>
+    internal BackgroundColourSets BackgroundSets => Cgram.BackgroundSets;
 
     /// <summary>Sprite colour set <paramref name="set"/> (#1405).</summary>
     internal ColourRun ColourSet(int set) => Cgram.SpriteSets.Set(set);

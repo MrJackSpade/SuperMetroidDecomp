@@ -1,30 +1,30 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// Gameplay's colours as the writers that still address them by position reach them (#1405): the positions an owner
-/// holds read and write that owner's colours, and the rest are held here. Each step of #1405 moves positions into an
-/// owner; the router goes when it holds none.
+/// Gameplay's colours as the writers that still address them by position reach them (#1405): each position reads and
+/// writes the colours of the owner that holds it. Every position has an owner: the explicit owners first, then the sprite
+/// colour sets and the background colour sets. The router goes when no writer addresses colours by position.
 /// </summary>
 public sealed class GameplayColours : IPaletteColors
 {
     /// <summary>The colours gameplay addresses by position.</summary>
     public const int ColorCount = 256;
 
-    /// <summary>The colours no owner holds yet.</summary>
-    private readonly Bgr555[] unowned = new Bgr555[ColorCount];
-
-    /// <summary>The owners, consulted in order: the explicit owners, then the sprite colour sets.</summary>
+    /// <summary>The owners, consulted in order: the explicit owners, then the sprite and background colour sets.</summary>
     private readonly IGameplayColourOwner[] owners;
 
     /// <summary>Every colour as the owners and the router hold it, rebuilt on each read of <see cref="Colors"/>.</summary>
     [NonSerialized]
     private Bgr555[]? composed;
 
-    /// <summary>Routes the positions <paramref name="owners"/> hold to them, and the sprite positions they do not to the sets.</summary>
-    public GameplayColours(params IGameplayColourOwner[] owners) => this.owners = [.. Ensure.NotNull(owners), SpriteSets];
+    /// <summary>Routes the positions <paramref name="owners"/> hold to them, and the positions they do not to the sets.</summary>
+    public GameplayColours(params IGameplayColourOwner[] owners) => this.owners = [.. Ensure.NotNull(owners), SpriteSets, BackgroundSets];
 
     /// <summary>The sprite colour sets, which hold the sprite colours no other owner holds.</summary>
     public SpriteColourSets SpriteSets { get; } = new();
+
+    /// <summary>The background colour sets.</summary>
+    public BackgroundColourSets BackgroundSets { get; } = new();
 
     /// <inheritdoc />
     public ReadOnlySpan<Bgr555> Colors
@@ -33,7 +33,7 @@ public sealed class GameplayColours : IPaletteColors
         {
             composed ??= new Bgr555[ColorCount];
             for (int position = 0; position < ColorCount; position++)
-                composed[position] = Owner(position) is { } owner ? owner.At(position) : unowned[position];
+                composed[position] = Owner(position).At(position);
             return composed;
         }
     }
@@ -42,17 +42,14 @@ public sealed class GameplayColours : IPaletteColors
     public void SetColor(int index, Bgr555 color)
     {
         Ensure.BetweenInclusive(0, ColorCount - 1, index);
-        if (Owner(index) is { } owner)
-            owner.Set(index, color);
-        else
-            unowned[index] = color;
+        Owner(index).Set(index, color);
     }
 
     /// <inheritdoc />
     public Rgba32 GetRgba(int index)
     {
         Ensure.BetweenInclusive(0, ColorCount - 1, index);
-        return (Owner(index) is { } owner ? owner.At(index) : unowned[index]).ToRgba32();
+        return Owner(index).At(index).ToRgba32();
     }
 
     /// <inheritdoc />
@@ -67,14 +64,14 @@ public sealed class GameplayColours : IPaletteColors
             SetColor(destinationIndex + color, Bgr555.FromCgramPortWord(SnesLittleEndian.Word(bytes[color * 2], bytes[color * 2 + 1])));
     }
 
-    /// <summary>The owner holding <paramref name="position"/>, or null where the router holds it.</summary>
-    private IGameplayColourOwner? Owner(int position)
+    /// <summary>The owner holding <paramref name="position"/>.</summary>
+    private IGameplayColourOwner Owner(int position)
     {
         foreach (IGameplayColourOwner owner in owners)
         {
             if (owner.Holds(position))
                 return owner;
         }
-        return null;
+        throw new ArgumentOutOfRangeException(nameof(position), position, "No owner holds this gameplay colour.");
     }
 }

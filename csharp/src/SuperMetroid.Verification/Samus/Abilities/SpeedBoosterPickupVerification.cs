@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.CollectiblesVerification;
@@ -25,7 +26,7 @@ internal static class SpeedBoosterPickupVerification
             SeedCollectibleRom(bus);
             var vram = new SnesVram();
             var fxSession = CreateRetailFxSession(cartridge);
-            var fx = RoomLayer3FxState.ForRoom(fxSession, new SnesCgram(), RoomFxDefinitions.Suffix(0x8600), null, 0);
+            var fx = RoomLayer3FxState.ForRoom(fxSession, new BackgroundColourSets(), RoomFxDefinitions.Suffix(0x8600), null, 0);
             CollectibleFixture fixture = LoadCollectible(bus, (ushort)(chozo ? PlmHeaderId.ChozoSpeedBooster : PlmHeaderId.ExposedSpeedBooster), roomArgument: 8, precollected: false, roomFx: fx);
             fixture.Plms.Step(fixture.Level);
             if (chozo)

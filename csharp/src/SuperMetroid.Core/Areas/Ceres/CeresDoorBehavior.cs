@@ -332,7 +332,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Bits 3..5 of the frame counter: a new row of six colors every eight frames.
         int colorRow = (frame >> 3) % 8;
-        SelectedCeresDoorVisual.LoadAnimationColors(_presentation.Cgram, colorRow);
+        SelectedCeresDoorVisual.LoadAnimationColors(_presentation.BackgroundSets, colorRow);
     }
 
     /// <summary>Advances CeresDoor's typed animation.</summary>

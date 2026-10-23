@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Loaded artwork inks with calculated components separated from arbitrary edits.</summary>
@@ -26,11 +27,11 @@ internal sealed class RoomFxBlendColors
         thirdOverride = RoomFxPaletteBlendDefinitions.CalculatedThirdColor(selection) == third ? null : new(selection, third);
     }
 
-    /// <summary>Writes the three resulting blend inks to BG3 palette entries 25 through 27.</summary>
-    public void Apply(IPaletteColors cgram)
+    /// <summary>Writes the three resulting blend colours to <paramref name="blend"/>.</summary>
+    public void Apply(ColourRun blend)
     {
-        new RoomFxPalettes(cgram).Layer3Blend.Write(0, primary.CreateColor());
-        new RoomFxPalettes(cgram).Layer3Blend.Write(1, secondary.CreateColor());
-        new RoomFxPalettes(cgram).Layer3Blend.Write(2, thirdOverride?.CreateColor() ?? Bgr555.Black);
+        blend.Write(0, primary.CreateColor());
+        blend.Write(1, secondary.CreateColor());
+        blend.Write(2, thirdOverride?.CreateColor() ?? Bgr555.Black);
     }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Fx.Artwork;
@@ -180,28 +181,28 @@ public sealed class RoomLayer3FxState
 
     /// <summary>Builds one room's layer-3 FX from the current door's native FX record.</summary>
     /// <param name="session">The Fireflea state, COLDATA shadows and installed FX artwork, which outlive each room.</param>
-    /// <param name="cgram">CGRAM receiving the record's palette blend.</param>
+    /// <param name="colours">The background colours receiving the record's palette blend.</param>
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the FX record.</param>
     /// <param name="randomNumber">The session random number rain reads.</param>
     /// <param name="room">The room, for rooms that suppress the earthquake sound.</param>
     public static RoomLayer3FxState ForRoom(
         RoomFxSession session,
-        IPaletteColors cgram,
+        BackgroundColourSets colours,
         RoomFxDefinition? fx,
         CartridgeDoorHeader? door,
         int randomNumber,
         RoomHeaderDefinition? room = null) =>
-        ForRecord(session, cgram, new RoomFxLoadSource { Fx = fx, Door = door, RandomNumber = randomNumber, Room = room, SuppliedDefinition = null });
+        ForRecord(session, colours, new RoomFxLoadSource { Fx = fx, Door = door, RandomNumber = randomNumber, Room = room, SuppliedDefinition = null });
 
     /// <summary>Builds one room's layer-3 FX from a load source, which may supply its record directly.</summary>
     /// <param name="session">The Fireflea state, COLDATA shadows and installed FX artwork, which outlive each room.</param>
-    /// <param name="cgram">CGRAM receiving the record's palette blend.</param>
+    /// <param name="colours">The background colours receiving the record's palette blend.</param>
     /// <param name="source">The FX record's source.</param>
-    internal static RoomLayer3FxState ForRecord(RoomFxSession session, IPaletteColors cgram, RoomFxLoadSource source)
+    internal static RoomLayer3FxState ForRecord(RoomFxSession session, BackgroundColourSets colours, RoomFxLoadSource source)
     {
         var fx = new RoomLayer3FxState(session);
-        fx.SelectRecord(cgram, source);
+        fx.SelectRecord(colours, source);
         return fx;
     }
 
@@ -209,9 +210,9 @@ public sealed class RoomLayer3FxState
     /// Selects the door's FX record and initializes the liquid and palette state shared by room effects and PLMs.
     /// The BG3 plane the room shows is cleared under the HUD with the effect's page from row 31 (<see cref="Layer3Plane"/>).
     /// </summary>
-    private void SelectRecord(IPaletteColors cgram, RoomFxLoadSource source)
+    private void SelectRecord(BackgroundColourSets colours, RoomFxLoadSource source)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(colours);
 
         if (source.Room is { } room && RoomFxRomData.Earthquake.SoundSuppressedRooms.Contains(room))
             EarthquakeSoundTimer = WrappingCountdown.Start(ushort.MaxValue);
@@ -232,7 +233,7 @@ public sealed class RoomLayer3FxState
             definition.Layer3LayerBlend,
             $"room FX {source.Fx?.Name}");
         animatedTiles.Load(Type);
-        ApplyPaletteBlend(cgram, definition.PaletteBlend);
+        ApplyPaletteBlend(colours, definition.PaletteBlend);
 
         if (Type == RoomFxType.Fireflea)
             Fireflea.Initialize();
@@ -453,7 +454,7 @@ public sealed class RoomLayer3FxState
     /// $89:AB02 LoadFxEntry reloads motion, blending and three colors, but does not restart
     /// HDMA, animated tiles, or the liquid's current motion phase as a room load would.
     /// </summary>
-    internal LayerBlendingConfiguration ApplyEntry(IPaletteColors cgram,
+    internal LayerBlendingConfiguration ApplyEntry(BackgroundColourSets colours,
         RoomFxRecordDefinition definition)
     {
         Ensure.NotNull(definition);
@@ -464,16 +465,16 @@ public sealed class RoomLayer3FxState
         LiquidOptions = RoomLiquidOptionsCodec.FromRecordByte(definition.LiquidOptions);
         LayerBlendConfiguration = LayerBlendingConfigurations.FromCartridge(
             definition.Layer3LayerBlend, "LoadFxEntry");
-        ApplyPaletteBlend(cgram, definition.PaletteBlend);
+        ApplyPaletteBlend(colours, definition.PaletteBlend);
         return LayerBlendingConfigurations.FromCartridge(
             definition.DefaultLayerBlend, "LoadFxEntry");
     }
 
     /// <summary>Applies the selected FX blend colors from installed presentation data.</summary>
-    private void ApplyPaletteBlend(IPaletteColors cgram, byte selection)
+    private void ApplyPaletteBlend(BackgroundColourSets colours, byte selection)
     {
         (PaletteBlendColors ?? throw new InvalidOperationException(
-            "Room FX requires installed palette-blend colors.")).Apply(cgram,
+            "Room FX requires installed palette-blend colors.")).Apply(colours,
             ClosedNativeWords.Decode<RoomFxPaletteBlend>(selection, "room-FX palette blend"));
     }
 

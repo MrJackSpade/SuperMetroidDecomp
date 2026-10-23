@@ -88,7 +88,7 @@ internal static class InstalledSporesTests
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
             byte[] initialRam = memory.WorkRam.ToArray();
             var baselineVram = new SnesVram(); var editedVram = new SnesVram();
-            var colors = new SnesCgram(); var editedColors = new SnesCgram();
+            var colors = new GameplayColours(); var editedColors = new GameplayColours();
             RoomLayer3FxState baseline = RoomLayer3FxState.ForDefinition(Create(stock), colors, definition, 0);
             RoomLayer3FxState replacement = RoomLayer3FxState.ForDefinition(Create(edited), editedColors, definition, 0);
             Require(baseline.Type == RoomFxType.Spores && baseline.CaptureForDisplay() is not null,
@@ -346,7 +346,7 @@ internal static class InstalledSporesTests
         foreach (bool bg2High in new[] { false, true })
         foreach (int enabled in Enumerable.Range(0, 4))
         {
-            var vram = new SnesVram(); var colors = new SnesCgram();
+            var vram = new SnesVram(); var colors = new GameplayColours();
             colors.SetColor(0, new Bgr555(2, 2, 2));
             colors.SetColor(1, new Bgr555(10, 0, 0)); colors.SetColor(2, new Bgr555(0, 12, 0)); colors.SetColor(3, new Bgr555(0, 0, 7));
             colors.SetColor(128 + palette * 16 + 1, new Bgr555(18, 2, 0));

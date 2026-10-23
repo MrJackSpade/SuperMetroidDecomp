@@ -1608,8 +1608,8 @@ internal static class LookupStream5Verification
             var changed = document with { Animation = rows };
             Check(Load(changed),changed);
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadAnimationColors(new SnesCgram(),-1),"Ceres animation lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadAnimationColors(new SnesCgram(),8),"Ceres animation upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadAnimationColors(new BackgroundColourSets(),-1),"Ceres animation lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadAnimationColors(new BackgroundColourSets(),8),"Ceres animation upper bound");
         Console.WriteLine("Stream 5 Ceres door ramp:48 native colors,48 independently edited cells, actual CGRAM,90 independent setup-channel edits, six shared setup slots and canonical identities pass; stock seeds, phases and escape colors store no edits.");
 
         PaletteRgb5[] Colors(int source,int count) => Enumerable.Range(0,count).Select(index =>
@@ -1620,10 +1620,10 @@ internal static class LookupStream5Verification
         static ushort Pack(PaletteRgb5 color) => (ushort)(color.Red | color.Green<<5 | color.Blue<<10);
         void Check(CeresDoorVisualCatalog actual,CeresDoorVisualDocument expected)
         {
-            var cgram = new SnesCgram();
+            var cgram = new GameplayColours();
             for(int row =0;row<8;row++)
             {
-                actual.LoadAnimationColors(cgram,row);
+                actual.LoadAnimationColors(cgram.BackgroundSets,row);
                 for(int color=0;color<6;color++) AssertEqual(Pack(expected.Animation[row][color]),cgram.Colors[CeresDoorVisualRomData.AnimationTargetColor+color],"Ceres independent animation color");
             }
             actual.LoadNormalColors(cgram,0);

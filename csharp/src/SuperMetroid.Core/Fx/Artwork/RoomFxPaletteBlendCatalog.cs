@@ -85,15 +85,15 @@ public sealed class RoomFxPaletteBlendCatalog
         JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
     /// <summary>Applies the native three-color write, or clears only color 27 for selection zero.</summary>
-    public void Apply(IPaletteColors cgram, RoomFxPaletteBlend selection)
+    public void Apply(BackgroundColourSets colours, RoomFxPaletteBlend selection)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(colours);
         if (selection == RoomFxPaletteBlend.None)
         {
-            new RoomFxPalettes(cgram).Layer3Empty.Write(0, Bgr555.Black);
+            RoomFxColourDefinitions.Layer3Empty.In(colours).Fill(Bgr555.Black);
             return;
         }
-        SelectColors(selection).Apply(cgram);
+        SelectColors(selection).Apply(RoomFxColourDefinitions.Layer3Blend.In(colours));
     }
 
     /// <summary>Resolves one authored blend selector to its installed three-color record.</summary>

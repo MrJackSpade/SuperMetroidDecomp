@@ -35,7 +35,7 @@ internal static class CinematicPresentationContractChecks
                     CinematicSpriteSheet caret, CinematicSpriteSheet motherBrain,
                     CinematicSpriteSheet explosions, CeresDoorVisualCatalog door,
                     EscapeTimerPresentation timer, CeresEscapeOverlayTilemapCatalog overlay,
-                    EscapeTimer countdown, SnesVram vram, SnesCgram cgram, SuperMetroid.Core.Rendering.ScreenPalette screen, SuperMetroid.Core.Assets.ScreenSprites oam,
+                    EscapeTimer countdown, SnesVram vram, SnesCgram cgram, SuperMetroid.Core.Assets.BackgroundColourSets backgrounds, SuperMetroid.Core.Rendering.ScreenPalette screen, SuperMetroid.Core.Assets.ScreenSprites oam,
                     SuperMetroid.Core.Assets.SpriteFrameBuffer sprites, SuperMetroid.Core.Assets.SpriteSheet timerSheet,
                     SuperMetroid.Core.Assets.ScreenSprites titleSprites, SuperMetroid.Core.Assets.SpriteSheet sheet) {
                     palette.Apply(screen);
@@ -54,8 +54,8 @@ internal static class CinematicPresentationContractChecks
                     door.LoadTiles(vram);
                     door.LoadNormalColors(cgram, CeresDoorVisualRomData.NormalTargetColor);
                     door.LoadEscapeColors(cgram, CeresDoorVisualRomData.ActiveTargetColor);
-                    door.LoadAnimationColors(cgram, CeresDoorVisualRomData.AnimationRowCount - 1);
-                    door.LoadAnimationColors(cgram, CeresDoorVisualRomData.AnimationRowCount);
+                    door.LoadAnimationColors(backgrounds, CeresDoorVisualRomData.AnimationRowCount - 1);
+                    door.LoadAnimationColors(backgrounds, CeresDoorVisualRomData.AnimationRowCount);
                     door.Mode7DoorFrame(CeresDoorVisualRomData.Mode7FrameCount - 1);
                     door.Mode7DoorFrame(CeresDoorVisualRomData.Mode7FrameCount);
                     timer.Draw(countdown, sprites, timerSheet);

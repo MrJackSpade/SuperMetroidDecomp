@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Fx;
@@ -9,11 +10,11 @@ internal static class RoomLayer3FxStateAccess
     extension(RoomLayer3FxState)
     {
         /// <summary>Builds room FX from an explicit immutable FX definition through the normal room-load path.</summary>
-        internal static RoomLayer3FxState ForDefinition(RoomFxSession session, SnesCgram cgram,
+        internal static RoomLayer3FxState ForDefinition(RoomFxSession session, GameplayColours cgram,
             RoomFxRecordDefinition definition, ushort randomNumber)
         {
             Ensure.NotNull(definition);
-            return RoomLayer3FxState.ForRecord(session, cgram, new RoomFxLoadSource
+            return RoomLayer3FxState.ForRecord(session, cgram.BackgroundSets, new RoomFxLoadSource
             {
                 Fx = null,
                 Door = definition.Door,

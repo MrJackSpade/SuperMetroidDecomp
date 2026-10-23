@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -8,4 +9,4 @@ namespace SuperMetroid.Verification.Fx;
 /// <param name="State">The state.</param>
 /// <param name="Bus">The bus.</param>
 /// <param name="Cgram">The cgram.</param>
-internal readonly record struct ConstructBlendLoadResult(RoomLayer3FxState State, CartridgeReadGuard Bus, SnesCgram Cgram);
+internal readonly record struct ConstructBlendLoadResult(RoomLayer3FxState State, CartridgeReadGuard Bus, GameplayColours Cgram);

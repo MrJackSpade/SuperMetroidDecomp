@@ -7803,6 +7803,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Areas.Ceres.Artwork.CeresDoorColourDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresDoorColourDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Areas.Ceres.Artwork.CeresDoorEscapePaintDefinitions",
       "kind": "class",
       "scope": "product",
@@ -10562,6 +10575,32 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Assets.BackgroundColourRun",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/BackgroundColourRun.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Assets.BackgroundColourSets",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/BackgroundColourSets.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Assets.CharacterSpriteDraw",
       "kind": "record",
       "scope": "test",
@@ -10634,6 +10673,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Assets.ColourSets",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/ColourSets.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Assets.CompiledSpritePart",
@@ -11435,7 +11487,7 @@
         "csharp/src/SuperMetroid.Core/Assets/SpriteColourSets.cs"
       ],
       "partial": "none",
-      "disposition": "owner"
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Assets.SpriteComposition",
@@ -26375,6 +26427,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonRoomColourDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonRoomColourDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonSoundDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -39532,32 +39597,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPaletteLayout.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Drawing.EnemyPalettes",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Drawing.EnemyPartComposition",
@@ -56459,6 +56498,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Escape.EscapeTypewriterColourDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Escape/EscapeTypewriterColourDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Escape.EscapeTypewriterGlyph",
       "kind": "record struct",
       "scope": "product",
@@ -71563,6 +71615,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Fx.Artwork.RoomFxColourDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/Artwork/RoomFxColourDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Fx.Artwork.RoomFxLayer3TilemapCatalog",
       "kind": "class",
       "scope": "product",
@@ -71736,32 +71801,6 @@
       ],
       "partial": "none",
       "disposition": "constructor-parameters"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.RoomFxPaletteLayout",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/RoomFxPaletteLayout.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.RoomFxPalettes",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/RoomFxPalettes.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Fx.Artwork.RoomFxSporeTilemap",
@@ -88700,7 +88739,7 @@
         "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomGraphicsVram.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Rooms.LevelData.RoomLevelData",

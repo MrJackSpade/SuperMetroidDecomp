@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json.Nodes;
@@ -55,10 +56,10 @@ internal static class RoomStaticPalettesVerification
             CartridgeRoomHeader header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
             CartridgeRoomAssets native = LoadFixtureRoomAssets(header);
             CartridgeRoomAssets installed = LoadFixtureRoomAssets(header, paletteArt: catalog);
-            var nativeCgram = new SnesCgram();
-            var installedCgram = new SnesCgram();
-            native.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), nativeCgram);
-            installed.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), installedCgram);
+            var nativeCgram = new GameplayColours();
+            var installedCgram = new GameplayColours();
+            native.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), nativeCgram.BackgroundSets);
+            installed.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), installedCgram.BackgroundSets);
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"room $8F:{roomPointer:X4} loads installed palette without source reads");
         }
@@ -84,8 +85,8 @@ internal static class RoomStaticPalettesVerification
         compiled[selectedSource] = replacement;
         CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(landing,
             paletteArt: new RoomStaticPaletteCatalog(compiled.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.PaletteSetAt(pair.Key), pair => pair.Value)));
-        var editedRoomCgram = new SnesCgram();
-        editedRoom.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), editedRoomCgram);
+        var editedRoomCgram = new GameplayColours();
+        editedRoom.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), editedRoomCgram.BackgroundSets);
         AssertEqual(editedCgram.Colors[0], editedRoomCgram.Colors[0],
             "edited RGB5 room palette changes real room-loader CGRAM");
 

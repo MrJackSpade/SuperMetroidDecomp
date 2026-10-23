@@ -131,7 +131,7 @@ internal sealed class MotherBrainRainbowAndDeath
                 : new(EscapeTypewriterProgramId.Zebes, EscapeTypewriterRomData.ZebesTileBase);
             _presentation.ColourSet(SpriteColourSetDefinitions.EscapeTypewriterText)
                 .Slice(SpriteColourSetDefinitions.EscapeTypewriterTextFirstColour, 2)
-                .CopyFrom(_presentation.Palettes.EscapeTypewriterSource.Colors);
+                .CopyFrom(EscapeTypewriterColourDefinitions.Source.In(_presentation.BackgroundSets).Colors);
             state.Bg2Scroll = Position16<Bg2Pixels>.Zero;
         }
         if (step.ExplodedDoorPaletteRequested)

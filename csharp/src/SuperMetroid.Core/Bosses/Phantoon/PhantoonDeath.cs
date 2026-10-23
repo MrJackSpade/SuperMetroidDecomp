@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -256,7 +257,7 @@ internal sealed class PhantoonDeath
             return true;
         }
 
-        CgramPalette room = _presentation.Palettes.WreckedShipPowerOn;
+        ColourRun room = PhantoonRoomColourDefinitions.PowerOn.In(_presentation.BackgroundSets);
         for (int color = 0; color < room.Count; color++)
         {
             Bgr555 current = room[color];

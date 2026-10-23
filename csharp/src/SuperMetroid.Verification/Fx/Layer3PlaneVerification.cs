@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Fx;
@@ -54,7 +55,7 @@ internal static class Layer3PlaneVerification
         RoomFxRecordDefinition record = RoomFxDefinitions.AllRecords.First(candidate =>
             candidate.Type == (byte)RoomFxType.Water && candidate.DoorPointer == 0) with { BaseYPosition = 0x0080 };
         var session = new RoomFxSession { Layer3Tilemaps = presentation.RoomFxLayer3Tilemaps, PaletteBlendColors = presentation.RoomFxPaletteBlends };
-        RoomLayer3FxState water = RoomLayer3FxState.ForDefinition(session, new SnesCgram(), record, 0);
+        RoomLayer3FxState water = RoomLayer3FxState.ForDefinition(session, new GameplayColours(), record, 0);
         AssertEqual<RoomFxType?>(RoomFxType.Water, water.EffectPageType, "the water room shows the water page");
 
         var hudRows = new ushort[Layer3Plane.HudRows * Layer3Plane.Columns];

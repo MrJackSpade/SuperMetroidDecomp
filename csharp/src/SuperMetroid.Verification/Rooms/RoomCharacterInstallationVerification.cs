@@ -142,10 +142,10 @@ internal static class RoomCharacterInstallationVerification
             RoomStaticPaletteCatalog editedPalettes = installed.LoadRoomPalettes();
             CartridgeRoomAssets editedPaletteRoom = LoadFixtureRoomAssets(landing,
                 paletteArt: editedPalettes);
-            var stockCgram = new SnesCgram();
-            var editedCgram = new SnesCgram();
-            native.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), stockCgram);
-            editedPaletteRoom.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), editedCgram);
+            var stockCgram = new GameplayColours();
+            var editedCgram = new GameplayColours();
+            native.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), stockCgram.BackgroundSets);
+            editedPaletteRoom.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), editedCgram.BackgroundSets);
             AssertTrue(stockCgram.Colors[0] != editedCgram.Colors[0] &&
                 stockCgram.Colors[1..RoomStaticPaletteFormat.ColorCount]
                     .SequenceEqual(editedCgram.Colors[1..RoomStaticPaletteFormat.ColorCount]),
@@ -317,8 +317,8 @@ internal static class RoomCharacterInstallationVerification
                 "repaired installation retains the selected user room artwork");
             CartridgeRoomAssets repairedPaletteRoom = LoadFixtureRoomAssets(landing,
                 paletteArt: repaired.LoadRoomPalettes());
-            var repairedCgram = new SnesCgram();
-            repairedPaletteRoom.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), repairedCgram);
+            var repairedCgram = new GameplayColours();
+            repairedPaletteRoom.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), repairedCgram.BackgroundSets);
             AssertTrue(new CgramPalettes(repairedCgram).ImageEquals(new CgramPalettes(editedCgram)),
                 "repaired installation retains the selected user room palette");
             CartridgeRoomAssets repairedBlocks = LoadFixtureRoomAssets(landing,

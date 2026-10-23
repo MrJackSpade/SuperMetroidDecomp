@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Scrolling;
@@ -160,10 +161,10 @@ public sealed class CartridgeRoomAssets
 
     /// <summary>Binds the room's two character regions (#1350) and installs its first 128 CGRAM colors.</summary>
     [PpuLayoutBoundary("codec: the room's character uploads' native VRAM destinations")]
-    public void LoadGraphics(BgArtworkBindings backgrounds, IPaletteColors cgram)
+    public void LoadGraphics(BgArtworkBindings backgrounds, BackgroundColourSets colours)
     {
         Ensure.NotNull(backgrounds);
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(colours);
 
         foreach (BgCharacterUpload upload in CharacterUploads(Tileset, CreCharacters, RoomCharacters))
             upload.BindTo(backgrounds);
@@ -172,8 +173,9 @@ public sealed class CartridgeRoomAssets
             throw new InvalidDataException(
                 $"Tileset palette expanded to ${PaletteBytes.Length:X} bytes; expected at least $100.");
         }
-        RoomGraphicsVram.TilesetPalette(cgram).LoadPortBytes(
-            PaletteBytes.AsSpan(0, RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount));
+        ColourRun room = colours.All;
+        for (int colour = 0; colour < room.Count; colour++)
+            room.Write(colour, Bgr555.FromCgramPortWord(BinaryPrimitives.ReadUInt16LittleEndian(PaletteBytes.AsSpan(colour * sizeof(ushort)))));
     }
 
     /// <summary>Parses BG1, BTS, and BG2 while retaining native allocation tails beyond visible room screens.</summary>

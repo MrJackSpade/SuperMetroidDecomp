@@ -53,20 +53,20 @@ internal static class RoomFxPaletteBlendsVerification
         {
             ReadOnlySpan<Bgr555> compiled = catalog.Resolve(id);
 
-            (RoomLayer3FxState state, CartridgeReadGuard bus, SnesCgram cgram) =
+            (RoomLayer3FxState state, CartridgeReadGuard bus, GameplayColours cgram) =
                 ConstructBlendLoad(catalog, tilemaps, (byte)id);
             for (int index = 0; index < compiled.Length; index++)
                 AssertEqual(compiled[index], cgram.Colors[RoomFxRomData.Layer3.PaletteBlendDestinationIndex + index],
                     $"room-FX blend {(int)id:X2} installed load color {index}");
             AssertEqual(0, bus.ForbiddenReadAttempts, $"room-FX blend {(int)id:X2} load does not read bank-$89");
 
-            _ = state.ApplyEntry(cgram, SelectCompiledBlendRecord((byte)id));
+            _ = state.ApplyEntry(cgram.BackgroundSets, SelectCompiledBlendRecord((byte)id));
             for (int index = 0; index < compiled.Length; index++)
                 AssertEqual(compiled[index], cgram.Colors[RoomFxRomData.Layer3.PaletteBlendDestinationIndex + index],
                     $"room-FX blend {(int)id:X2} installed FX-entry color {index}");
             AssertEqual(0, bus.ForbiddenReadAttempts, $"room-FX blend {(int)id:X2} FX entry does not read bank-$89");
         }
-        (RoomLayer3FxState emptyState, CartridgeReadGuard emptyBus, SnesCgram emptyCgram) =
+        (RoomLayer3FxState emptyState, CartridgeReadGuard emptyBus, GameplayColours emptyCgram) =
             ConstructBlendLoad(catalog, tilemaps, 0);
         _ = emptyState;
         AssertEqual(0x1234, emptyCgram.Colors[25], "zero blend preserves color 25");
@@ -170,7 +170,7 @@ internal static class RoomFxPaletteBlendsVerification
         Bgr555 expected = edited.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava)[0];
         AssertTrue(expected != baseline.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava)[0],
             "room-FX blend edit changes the authored color");
-        (_, CartridgeReadGuard bus, SnesCgram cgram) = ConstructBlendLoad(
+        (_, CartridgeReadGuard bus, GameplayColours cgram) = ConstructBlendLoad(
             edited.RoomFxPaletteBlends, edited.RoomFxLayer3Tilemaps,
             (byte)RoomFxPaletteBlend.Lava);
         AssertEqual(expected, cgram.Colors[RoomFxRomData.Layer3.PaletteBlendDestinationIndex],
@@ -202,7 +202,7 @@ internal static class RoomFxPaletteBlendsVerification
         RoomFxRecordDefinition record = SelectCompiledBlendRecord(selection);
         var memory = new TestAddressSpace();
         var bus = NewForbiddenRoomFxPaletteBus(memory);
-        var cgram = new SnesCgram();
+        var cgram = new GameplayColours();
         cgram.SetColor(25, Bgr555.FromWord(0x1234));
         cgram.SetColor(26, Bgr555.FromWord(0x2345));
         cgram.SetColor(27, Bgr555.FromWord(0x3456));

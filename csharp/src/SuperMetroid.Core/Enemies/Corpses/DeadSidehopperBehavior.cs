@@ -345,7 +345,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             "Dead-sidehopper palette transformation requires installed artwork.");
         for (int color = 0; color < 15; color++)
         {
-            _presentation.ColourSet(SpriteColourSetDefinitions.DeadSidehopper).Slice(1, SpriteColourSets.SetColours - 1).Write(
+            _presentation.ColourSet(SpriteColourSetDefinitions.DeadSidehopper).Slice(1, ColourSets.SetColours - 1).Write(
                 color,
                 colors.Resolve(SuperMetroid.Core.Enemies.Artwork.EnemyAuxiliaryPalette.DeadSidehopper,
                     state.PaletteStage - 1, color));

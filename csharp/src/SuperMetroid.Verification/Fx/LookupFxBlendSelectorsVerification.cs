@@ -63,13 +63,13 @@ internal static class LookupFxBlendSelectorsVerification
             {
                 byte id = (byte)value;
                 int selectionIndex = Array.IndexOf(ids, id);
-                var cgram = new SnesCgram();
+                var cgram = new GameplayColours();
                 cgram.SetColor(25, Bgr555.FromWord(0x1234)); cgram.SetColor(26, Bgr555.FromWord(0x2345)); cgram.SetColor(27, Bgr555.FromWord(0x3456));
                 if (selectionIndex >= 0)
                 {
                     var colors = catalog.Resolve((RoomFxPaletteBlend)id);
                     AssertEqual(3, colors.Length, "Exactly three loaded colors");
-                    catalog.Apply(cgram, (RoomFxPaletteBlend)id);
+                    catalog.Apply(cgram.BackgroundSets, (RoomFxPaletteBlend)id);
                     for (int color = 0; color < 3; color++)
                     {
                         // Calculated stock black components have their own native proofs.
@@ -86,12 +86,12 @@ internal static class LookupFxBlendSelectorsVerification
                     AssertThrows<InvalidDataException>(() => { _ = catalog.Resolve((RoomFxPaletteBlend)id); }, "Unknown resolve selector rejects including zero");
                     if (id == 0)
                     {
-                        catalog.Apply(cgram, (RoomFxPaletteBlend)id);
+                        catalog.Apply(cgram.BackgroundSets, (RoomFxPaletteBlend)id);
                         AssertEqual(0x1234, cgram.Colors[25], "Zero preserves color25");
                         AssertEqual(0x2345, cgram.Colors[26], "Zero preserves color26");
                         AssertEqual(0, cgram.Colors[27], "Zero clears color27 only");
                     }
-                    else AssertThrows<InvalidDataException>(() => catalog.Apply(cgram, (RoomFxPaletteBlend)id), "Unknown apply selector rejects");
+                    else AssertThrows<InvalidDataException>(() => catalog.Apply(cgram.BackgroundSets, (RoomFxPaletteBlend)id), "Unknown apply selector rejects");
                 }
             }
         }

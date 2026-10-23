@@ -195,7 +195,7 @@ internal sealed class EnemyRoomEffects
             // each frame would reset its delay and prevent the acid from moving.
             RoomFxDefinition fx = _room.LoadedRoom.State.Fx
                 ?? throw new InvalidOperationException("Mother Brain requested an FX entry in a room without FX.");
-            _display.LayerBlendingDefaultConfig = roomLayer3Fx.ApplyEntry(_cgram,
+            _display.LayerBlendingDefaultConfig = roomLayer3Fx.ApplyEntry(_cgram.BackgroundSets,
                 fx.Records[requests.MotherBrainFxEntry]);
         }
         if (requests.MotherBrainPlms.Count == 0)

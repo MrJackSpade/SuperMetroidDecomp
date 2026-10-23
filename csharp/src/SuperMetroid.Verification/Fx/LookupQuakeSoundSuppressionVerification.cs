@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx;
@@ -32,15 +33,15 @@ internal static class LookupQuakeSoundSuppressionVerification
         var state = new RoomLayer3FxState(stateSession);
         var bus = new TestAddressSpace();
         var vram = new SnesVram();
-        var cgram = new SnesCgram();
+        var cgram = new GameplayColours();
         foreach (RoomHeaderDefinition? room in nativeRooms.Select(pointer => RoomHeaderDefinitions.Get(pointer)).Append(null))
         {
-            state = RoomLayer3FxState.ForRoom(stateSession, cgram, fx: null, door: null, randomNumber: 0,
+            state = RoomLayer3FxState.ForRoom(stateSession, cgram.BackgroundSets, fx: null, door: null, randomNumber: 0,
                 room: room);
             state.PublishStatueEarthquakeSound(0, mainGameLoopCarry: true);
             AssertEqual(room is not null ? 0 : 1, state.SoundRequests.Count,
                 "Actual room initialization and quake emission honor native suppression");
-            state = RoomLayer3FxState.ForRoom(stateSession, cgram, fx: null, door: null, randomNumber: 0,
+            state = RoomLayer3FxState.ForRoom(stateSession, cgram.BackgroundSets, fx: null, door: null, randomNumber: 0,
                 room: null);
             state.PublishStatueEarthquakeSound(0, mainGameLoopCarry: true);
             AssertEqual(1, state.SoundRequests.Count, "Unsuppressed room resets previous sentinel");

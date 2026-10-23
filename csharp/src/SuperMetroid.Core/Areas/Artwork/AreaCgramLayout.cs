@@ -1,4 +1,3 @@
-﻿using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Tourian;
 
 namespace SuperMetroid.Core.Areas.Artwork;
@@ -18,8 +17,4 @@ public static class AreaCgramLayout
     /// <summary>CGADD $F9-$FC: the Tourian statue eye glow.</summary>
     public static readonly PpuLayoutCell TourianStatueEye = PpuMemoryLayout.Colors(nameof(TourianStatueEye),
         TourianStatuePaletteRomData.EyeCgramIndex, TourianStatuePaletteRomData.EyeColorCount, "Bgr555 eye glow");
-
-    /// <summary>CGADD $29-$2E (byte offset $0052): the Ceres door animation colours.</summary>
-    public static readonly PpuLayoutCell CeresDoorAnimation = PpuMemoryLayout.Colors(nameof(CeresDoorAnimation),
-        CeresDoorVisualRomData.AnimationTargetColor, CeresDoorVisualRomData.AnimationColorCount, "Bgr555 door animation");
 }

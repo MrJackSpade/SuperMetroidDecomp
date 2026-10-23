@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
@@ -29,8 +30,8 @@ internal static class LookupFxBlendBlackColorsVerification
             int expected = (ReadVerificationWord(rom, 0x89aa06 + id) >> shift) & 31;
             AssertEqual(expected, ((RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id) ?? throw new InvalidOperationException("Verification requires RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id).")).ToWord() >> shift) & 31, "Original third-color component");
             AssertEqual(expected, (stock.Resolve((RoomFxPaletteBlend)id)[2].ToWord() >> shift) & 31, "Resolved third-color component");
-            var cgram = new SnesCgram();
-            stock.Apply(cgram, (RoomFxPaletteBlend)id);
+            var cgram = new GameplayColours();
+            stock.Apply(cgram.BackgroundSets, (RoomFxPaletteBlend)id);
             AssertEqual(expected, (cgram.Colors[27].ToWord() >> shift) & 31, "Applied third-color component");
         }
     }

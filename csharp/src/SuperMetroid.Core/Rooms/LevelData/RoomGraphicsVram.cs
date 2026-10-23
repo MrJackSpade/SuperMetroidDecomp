@@ -9,7 +9,4 @@ public static class RoomGraphicsVram
 {
     /// <summary>Words in one collectible character slot: two 16x16 frames of four characters.</summary>
     public const int CollectibleSlotWordCount = 128;
-
-    /// <summary>The tileset palette in <paramref name="cgram"/>.</summary>
-    public static CgramPalette TilesetPalette(IPaletteColors cgram) => new(cgram, RoomGraphicsLayout.TilesetPalette);
 }

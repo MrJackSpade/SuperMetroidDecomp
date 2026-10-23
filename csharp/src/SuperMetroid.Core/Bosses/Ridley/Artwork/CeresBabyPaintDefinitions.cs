@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
@@ -28,7 +29,7 @@ internal sealed class CeresBabyPaintDefinitions
     /// <summary>Independent dome and outline inputs retained from the supplied first row.</summary>
     private readonly int domeTint, domeGreen, domeShadeStep, outlineRed;
     /// <summary>Supplied colors that depart from the calculated material composition.</summary>
-    internal readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
 
     /// <summary>Matches four Ceres pose rows to shared body paint while preserving independent color edits.</summary>
     internal CeresBabyPaintDefinitions(Bgr555[][] rows, CeresRidleyFadeColorDefinitions body)
@@ -37,7 +38,7 @@ internal sealed class CeresBabyPaintDefinitions
         this.body = body;
         for (int row = 0; row < rowCount; row++)
             for (int color = 0; color < 15; color++)
-                if (Calculate(row, color) != rows[row][color]) edits.Add(row * 15 + color, rows[row][color]);
+                if (Calculate(row, color) != rows[row][color]) edits.Add(new ColourCell(row, color), rows[row][color]);
     }
 
     /// <summary>The same material at Norfair Ridley $A6:E1F1-E20E, with its own supplied values.</summary>
@@ -46,7 +47,7 @@ internal sealed class CeresBabyPaintDefinitions
     {
         standaloneBody = new(initial[4], initial[5], initial[6]);
         for (int color = 0; color < 15; color++)
-            if (Calculate(0, color) != initial[color]) edits.Add(color, initial[color]);
+            if (Calculate(0, color) != initial[color]) edits.Add(new ColourCell(0, color), initial[color]);
     }
 
     /// <summary>Extracts glass, dome, and outline material inputs from a fifteen-color source row.</summary>
@@ -65,7 +66,7 @@ internal sealed class CeresBabyPaintDefinitions
     {
         if ((uint)row >= rowCount) throw new ArgumentOutOfRangeException(nameof(row));
         if ((uint)color >= 15) throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(row * 15 + color, out Bgr555 edited) ? edited : Calculate(row, color);
+        return edits.TryGetValue(new ColourCell(row, color), out Bgr555 edited) ? edited : Calculate(row, color);
     }
 
     /// <summary>Applies clipped pose brightening with delayed red for the tooth pulse.</summary>

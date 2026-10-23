@@ -140,7 +140,7 @@ internal static class EnemyTileArtworkShitroidColorsVerification
             for (int color = 0; color < ShitroidColorRomData.TargetColorCount; color++)
             {
                 Bgr555 expected = colors.TargetColor(target, color);
-                AssertEqual(expected, state.TargetPalette.AsSpan()[destination + color],
+                AssertEqual(expected, state.TargetColours(target)[color],
                     $"live Shitroid {target} target buffer color {color}");
                 AssertEqual(expected, cgram.Colors[destination + color],
                     $"live Shitroid {target} CGRAM color {color}");

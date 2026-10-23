@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Ceres;
 
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
@@ -23,7 +24,7 @@ internal sealed class CeresRidleyAlarmColorDefinitions
     /// <summary>Initial green component of the dark warning shade.</summary>
     private const int DarkGreen = 5;
     /// <summary>Independent supplied colors that differ from the reflected sixteen-row trajectory.</summary>
-    internal readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
 
     /// <summary>Compares supplied warning colors with calculated rows and retains only independently edited cells.</summary>
     internal CeresRidleyAlarmColorDefinitions(Bgr555[][] rows)
@@ -31,7 +32,7 @@ internal sealed class CeresRidleyAlarmColorDefinitions
         for (int row = 0; row < CeresRidleyPaletteRomData.AlarmRowCount; row++)
         for (int color = 0; color < CeresRidleyPaletteRomData.AlarmColorCount; color++)
             if (Calculate(row, color) != rows[row][color])
-                edits.Add(row * CeresRidleyPaletteRomData.AlarmColorCount + color, rows[row][color]);
+                edits.Add(new ColourCell(row, color), rows[row][color]);
     }
 
     /// <summary>$A6:C1DF-C23E: sixteen rows ascend through row8, then revisit rows7..1.</summary>
@@ -48,7 +49,7 @@ internal sealed class CeresRidleyAlarmColorDefinitions
         _ = SourceRow(row);
         if ((uint)color >= CeresRidleyPaletteRomData.AlarmColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        int key = row * CeresRidleyPaletteRomData.AlarmColorCount + color;
+        var key = new ColourCell(row, color);
         return edits.TryGetValue(key, out Bgr555 value) ? value : Calculate(row, color);
     }
 

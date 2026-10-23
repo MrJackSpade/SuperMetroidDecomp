@@ -32,7 +32,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public sealed class SamusFullBodyCycleColorCatalog
 {
     /// <summary>Authored colors remaining after canonical shade relationships and independent endpoint channels are removed.</summary>
-    internal readonly Dictionary<int, Bgr555> colors;
+    internal readonly Dictionary<ColourCell, Bgr555> colors;
     /// <summary>Independent red and green input for Power's first dim Speed Booster ink.</summary>
     internal readonly LoadingPaletteInputView.Channels powerDim1;
     /// <summary>Independent blue input for Power's second dim Speed Booster ink.</summary>
@@ -63,11 +63,12 @@ public sealed class SamusFullBodyCycleColorCatalog
     /// <summary>Separates supplied colors into categorical ink overrides and endpoint channels with computable shade bases.</summary>
     private SamusFullBodyCycleColorCatalog(Bgr555[][] palettes)
     {
-        colors = new Dictionary<int, Bgr555>();
+        colors = new Dictionary<ColourCell, Bgr555>();
         for (int palette = 0; palette < palettes.Length; palette++)
         for (int color = 0; color < SamusFullBodyCycleColorFormat.ColorsPerPalette; color++)
         {
             int index = palette * SamusFullBodyCycleColorFormat.ColorsPerPalette + color;
+            var indexCell = new ColourCell(palette, color);
             int source = SamusFullBodyCycleColorFormat.CanonicalColorIndex(palette, color);
             Bgr555 value = palettes[palette][color];
             if (source != index && value == palettes[source / 16][source % 16]) continue;
@@ -92,7 +93,7 @@ public sealed class SamusFullBodyCycleColorCatalog
                 palettes[28][color], palettes[31][color], out Bgr555 variaInk) && value == variaInk) continue;
             if (palette == 32 && color is 1 or 12 && value ==
                 SamusFullBodyCycleColorFormat.GravitySharedBase(palettes[0][color], palettes[1][color])) continue;
-            colors.Add(index, value);
+            colors.Add(indexCell, value);
         }
         powerDim1 = Capture(1, 1, LoadingPaletteColorDefinitions.TintColor, 2);
         powerDim2 = Capture(1, 2, LoadingPaletteColorDefinitions.TintColor, 2);
@@ -114,7 +115,7 @@ public sealed class SamusFullBodyCycleColorCatalog
             Bgr555 expected;
             if (palette == 31) _ = SamusFullBodyCycleColorFormat.TryVariaScrewInk(palette, color, basis, basis, out expected);
             else _ = SamusFullBodyCycleColorFormat.TryScrewAttackTint(palette, color, basis, out expected);
-            colors.Remove(palette * 16 + color);
+            colors.Remove(new ColourCell(palette, color));
             return new(palettes[palette][color], expected);
         }
 
@@ -124,7 +125,7 @@ public sealed class SamusFullBodyCycleColorCatalog
             Bgr555 expected;
             if (color == 8) expected = SamusFullBodyCycleColorFormat.ActiveShineTint(basis, 1);
             else _ = SamusFullBodyCycleColorFormat.TryActiveGoldRamp(palette, color, basis, out expected);
-            colors.Remove(palette * 16 + color);
+            colors.Remove(new ColourCell(palette, color));
             return new(palettes[palette][color], expected);
         }
 
@@ -132,7 +133,7 @@ public sealed class SamusFullBodyCycleColorCatalog
         {
             Bgr555 basis = palettes[palette / 16 * 16][color];
             Bgr555 expected = tint(basis, shade);
-            colors.Remove(palette * 16 + color);
+            colors.Remove(new ColourCell(palette, color));
             return new(palettes[palette][color], expected);
         }
     }
@@ -168,7 +169,7 @@ public sealed class SamusFullBodyCycleColorCatalog
             default:
                 break;
         }
-        if (colors.TryGetValue(index, out Bgr555 value)) return value;
+        if (colors.TryGetValue(new ColourCell(index / SamusFullBodyCycleColorFormat.ColorsPerPalette, index % SamusFullBodyCycleColorFormat.ColorsPerPalette), out Bgr555 value)) return value;
         if (index is 513 or 524)
             return SamusFullBodyCycleColorFormat.GravitySharedBase(ResolveIndex(index % 16), ResolveIndex(16 + index % 16));
         int palette = index / 16, color = index % 16;

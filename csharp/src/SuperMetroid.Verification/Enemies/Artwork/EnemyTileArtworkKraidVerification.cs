@@ -237,7 +237,7 @@ internal static class EnemyTileArtworkKraidVerification
         image.Pixels[0] ^= 1;
         using (var output = File.Create(Path.Combine(overrides, HudTileAtlasFormat.FileName)))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
-                image.Pixels, image.Palette);
+                image.Pixels, image.Colours);
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(mapDirectory, overrides);
         SnesVram changed = RunKraidBg3Restoration(enemyArtwork,
             edited.HudTiles, edited, useQueue: true);
@@ -324,7 +324,7 @@ internal static class EnemyTileArtworkKraidVerification
         string overridePath = Path.Combine(overrides, fileName);
         using (var output = File.Create(overridePath))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
-                image.Pixels, image.Palette);
+                image.Pixels, image.Colours);
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrides);
         SnesVram changed = UploadKraidRoomBackground(edited);
         int destination = KraidBackgroundRomData.RoomBackgroundTileVramWord * sizeof(ushort);

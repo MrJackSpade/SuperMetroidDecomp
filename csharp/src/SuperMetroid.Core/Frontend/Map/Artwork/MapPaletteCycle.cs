@@ -11,7 +11,7 @@ public sealed class MapPaletteCycle
     /// <summary>Independent forward color phases or the complete supplied sequence for other lengths.</summary>
     internal readonly Bgr555[][] colors;
     /// <summary>Reverse-traversal colors that differ from their mirrored forward phase.</summary>
-    internal readonly Dictionary<int, Bgr555> reverseColorEdits = [];
+    internal readonly Dictionary<ColourCell, Bgr555> reverseColorEdits = [];
 
     /// <summary>
     /// Native $82:C10C pauses fifteen ticks at the loop origin and advances other
@@ -32,7 +32,7 @@ public sealed class MapPaletteCycle
         for (int frame = phaseCount; frame < FrameCount; frame++)
         for (int color = 0; color < MapPaletteCycleFormat.ColorCount; color++)
             if (suppliedColors[frame][color] != colors[Phase(frame)][color])
-                reverseColorEdits.Add(frame * MapPaletteCycleFormat.ColorCount + color, suppliedColors[frame][color]);
+                reverseColorEdits.Add(new ColourCell(frame, color), suppliedColors[frame][color]);
     }
 
     /// <summary>Number of selected ordered color frames, one through 255; the animation owner, not this resource, advances and wraps the frame cursor.</summary>
@@ -70,7 +70,7 @@ public sealed class MapPaletteCycle
             throw new ArgumentException($"A highlight cycle colours {MapPaletteCycleFormat.ColorCount} colours.", nameof(row));
         for (int color = 0; color < MapPaletteCycleFormat.ColorCount; color++)
             row.Write(color,
-                reverseColorEdits.TryGetValue(frame * MapPaletteCycleFormat.ColorCount + color, out Bgr555 edited)
+                reverseColorEdits.TryGetValue(new ColourCell(frame, color), out Bgr555 edited)
                     ? edited : colors[Phase(frame)][color]);
     }
 

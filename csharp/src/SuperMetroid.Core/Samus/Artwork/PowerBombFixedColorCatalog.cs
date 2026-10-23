@@ -7,14 +7,14 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public sealed class PowerBombFixedColorCatalog
 {
     /// <summary>Authored pre-explosion colors that differ from the calculated sixteen-entry stock sequence.</summary>
-    internal readonly Dictionary<int, Bgr555> preExplosion;
+    internal readonly Dictionary<ColourCell, Bgr555> preExplosion;
     /// <summary>Authored explosion colors, including later entries without a calculated stock definition.</summary>
-    internal readonly Dictionary<int, Bgr555> explosion;
+    internal readonly Dictionary<ColourCell, Bgr555> explosion;
 
     /// <summary>Retains validated component edits separately for the two radius-selected sequences.</summary>
     private PowerBombFixedColorCatalog(
-        Dictionary<int, Bgr555> preExplosion,
-        Dictionary<int, Bgr555> explosion)
+        Dictionary<ColourCell, Bgr555> preExplosion,
+        Dictionary<ColourCell, Bgr555> explosion)
     {
         this.preExplosion = preExplosion;
         this.explosion = explosion;
@@ -48,7 +48,7 @@ public sealed class PowerBombFixedColorCatalog
     /// <summary>Returns authored display color; phase and radius indexing remain engine-owned.</summary>
     public Bgr555 Resolve(PowerBombFixedColorSequence sequence, int index)
     {
-        Dictionary<int, Bgr555> colors = sequence switch
+        Dictionary<ColourCell, Bgr555> colors = sequence switch
         {
             PowerBombFixedColorSequence.PreExplosion => preExplosion,
             PowerBombFixedColorSequence.Explosion => explosion,
@@ -56,18 +56,18 @@ public sealed class PowerBombFixedColorCatalog
         };
         if ((uint)index >= PowerBombFixedColorFormat.Count(sequence))
             throw new ArgumentOutOfRangeException(nameof(index));
-        if (colors.TryGetValue(index, out var supplied)) return supplied;
+        if (colors.TryGetValue(new ColourCell(0, index), out var supplied)) return supplied;
         if (PowerBombFixedColorFormat.TryCalculateStock(sequence, index, out var calculated)) return calculated;
         throw new InvalidDataException("Power Bomb color has neither supplied content nor a calculated definition.");
     }
 
     /// <summary>Checks RGB5 channels and keeps entries that differ from the calculated stock sequence.</summary>
-    private static Dictionary<int, Bgr555> Compile(
+    private static Dictionary<ColourCell, Bgr555> Compile(
         PaletteRgb5[]? source, int count, PowerBombFixedColorSequence sequence, string name)
     {
         if (source is null || source.Length != count)
             throw new InvalidDataException($"Power Bomb {name} requires {count} RGB5 colors.");
-        var colors = new Dictionary<int, Bgr555>();
+        var colors = new Dictionary<ColourCell, Bgr555>();
         for (int index = 0; index < source.Length; index++)
         {
             PaletteRgb5? color = source[index];
@@ -76,7 +76,7 @@ public sealed class PowerBombFixedColorCatalog
                 throw new InvalidDataException($"Power Bomb {name} color {index} requires components from zero through 31.");
             var supplied = new Bgr555(color.Red, color.Green, color.Blue);
             if (!PowerBombFixedColorFormat.TryCalculateStock(sequence, index, out var calculated) || supplied != calculated)
-                colors.Add(index, supplied);
+                colors.Add(new ColourCell(0, index), supplied);
         }
         return colors;
     }

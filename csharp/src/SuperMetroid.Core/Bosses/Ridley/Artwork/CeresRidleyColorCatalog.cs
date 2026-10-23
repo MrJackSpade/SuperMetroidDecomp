@@ -17,9 +17,9 @@ public sealed class CeresRidleyColorCatalog
     /// <summary>The reflected self-destruct text cycle is independent of Ridley's body fades.</summary>
     internal readonly CeresRidleyAlarmColorDefinitions alarm;
     /// <summary>Only retreat BG colors that differ from the body, eye, and neutral composition.</summary>
-    internal readonly Dictionary<int, Bgr555> retreatBg = [];
+    internal readonly Dictionary<ColourCell, Bgr555> retreatBg = [];
     /// <summary>Only supplied differences from the first eight door paints: native $A6:AA01-AA10 repeats $A6:E171-E180.</summary>
-    internal readonly Dictionary<int, Bgr555> retreatShared = [];
+    internal readonly Dictionary<ColourCell, Bgr555> retreatShared = [];
     /// <summary>Private Baby draw shades retain their link to the body fade family.</summary>
     internal readonly CeresBabyPaintDefinitions baby;
 
@@ -32,12 +32,12 @@ public sealed class CeresRidleyColorCatalog
         this.health = new(parts.Health, parts.BodyFade, parts.EyeFade);
         this.alarm = parts.Alarm;
         for (int color = 0; color < parts.RetreatBg.Length; color++)
-            if (parts.RetreatBg[color] != CalculateRetreatBg(color)) this.retreatBg.Add(color, parts.RetreatBg[color]);
+            if (parts.RetreatBg[color] != CalculateRetreatBg(color)) this.retreatBg.Add(new ColourCell(0, color), parts.RetreatBg[color]);
         // The retreat copies the normal door/container paints into both drawing domains.
         // Keep only independent supplied differences from the existing startup owner.
         for (int color = 0; color < parts.RetreatShared.Length; color++)
             if (parts.RetreatShared[color] != this.start.Resolve(color + 1))
-                this.retreatShared.Add(color, parts.RetreatShared[color]);
+                this.retreatShared.Add(new ColourCell(0, color), parts.RetreatShared[color]);
         this.baby = parts.Baby;
     }
 
@@ -46,7 +46,7 @@ public sealed class CeresRidleyColorCatalog
     {
         if ((uint)color >= CeresRidleyPaletteRomData.RetreatBgColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return retreatBg.TryGetValue(color, out Bgr555 edited) ? edited : CalculateRetreatBg(color);
+        return retreatBg.TryGetValue(new ColourCell(0, color), out Bgr555 edited) ? edited : CalculateRetreatBg(color);
     }
     /// <summary>Composes the native retreat background from body-fade row one, eye-fade row fourteen, and its neutral final color.</summary>
     private Bgr555 CalculateRetreatBg(int color) => color < 11 ? bodyFade.Resolve(1, color)
@@ -56,7 +56,7 @@ public sealed class CeresRidleyColorCatalog
     {
         if ((uint)color >= CeresRidleyPaletteRomData.RetreatSharedColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return retreatShared.TryGetValue(color, out Bgr555 edited) ? edited : start.Resolve(color + 1);
+        return retreatShared.TryGetValue(new ColourCell(0, color), out Bgr555 edited) ? edited : start.Resolve(color + 1);
     }
 
     /// <summary>Copies the 32 startup colors from native $A6:E16F into CGRAM entries 160..191, initializing the door/container and Baby OBJ palettes.</summary>

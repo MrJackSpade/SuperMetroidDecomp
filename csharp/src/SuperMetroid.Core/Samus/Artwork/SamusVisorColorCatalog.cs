@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public sealed class SamusVisorColorCatalog
 {
     /// <summary>Only installed color edits differing from the reviewed $9B:A3C0 stock words.</summary>
-    internal readonly Dictionary<int, Bgr555> colors;
+    internal readonly Dictionary<ColourCell, Bgr555> colors;
 
     /// <summary>Retains copied visor color edits independently of the mutable JSON document.</summary>
-    private SamusVisorColorCatalog(Dictionary<int, Bgr555> colors) => this.colors = colors;
+    private SamusVisorColorCatalog(Dictionary<ColourCell, Bgr555> colors) => this.colors = colors;
 
     /// <summary>Validates the six RGB5 visor colors and compiles independent edits relative to the reviewed $9B:A3C0 widening/cycling definitions.</summary>
     /// <param name="json">UTF-8 JSON source consumed from its current position and left open.</param>
@@ -25,7 +25,7 @@ public sealed class SamusVisorColorCatalog
             document.Colors is null || document.Colors.Length != SamusVisorColorFormat.ColorCount)
             throw new InvalidDataException("Samus visor colors require the supported version and six RGB5 colors.");
 
-        var compiled = new Dictionary<int, Bgr555>();
+        var compiled = new Dictionary<ColourCell, Bgr555>();
         for (int index = 0; index < document.Colors.Length; index++)
         {
             PaletteRgb5? color = document.Colors[index];
@@ -33,7 +33,7 @@ public sealed class SamusVisorColorCatalog
                 (uint)color.Green > 31 || (uint)color.Blue > 31)
                 throw new InvalidDataException($"Samus visor color {index} requires RGB components from zero through 31.");
             Bgr555 packed = color.ToBgr555();
-            if (packed != SamusVisorColorDefinitions.Color(index)) compiled.Add(index, packed);
+            if (packed != SamusVisorColorDefinitions.Color(index)) compiled.Add(new ColourCell(0, index), packed);
         }
         return new(compiled);
     }
@@ -68,7 +68,7 @@ public sealed class SamusVisorColorCatalog
     {
         if ((uint)index >= SamusVisorColorFormat.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(index));
-        return colors.TryGetValue(index, out Bgr555 color) ? color : SamusVisorColorDefinitions.Color(index);
+        return colors.TryGetValue(new ColourCell(0, index), out Bgr555 color) ? color : SamusVisorColorDefinitions.Color(index);
     }
 
 }

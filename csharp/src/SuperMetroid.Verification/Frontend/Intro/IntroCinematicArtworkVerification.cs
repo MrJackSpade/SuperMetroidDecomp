@@ -356,7 +356,7 @@ internal static class IntroCinematicArtworkVerification
                     image = IndexedPng.Read(input, new(256, checked((ushort)(tileRows * 8))));
                 image.Pixels[0] = (byte)((image.Pixels[0] + 1) & 15);
                 using (var output = File.Create(overridePath))
-                    IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+                    IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
 
                 IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
                 var editedState = CreateRetailIntroFixture(characterArtwork: edited);
@@ -525,7 +525,7 @@ internal static class IntroCinematicArtworkVerification
                 IndexedPngImage image = IndexedPng.Read(input, new(256, 256));
                 image.Pixels[0] = (byte)((image.Pixels[0] + 1) & 15);
                 using var output = File.Create(backgroundOverridePath);
-                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
             }
             IntroCinematicArtworkCatalog selected = installation.LoadIntroCinematicArt();
             File.WriteAllBytes(backgroundStockPath, [0]);

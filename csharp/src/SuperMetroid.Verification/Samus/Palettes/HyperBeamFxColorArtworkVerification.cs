@@ -237,7 +237,7 @@ internal static class HyperBeamFxColorArtworkVerification
                     bool sharedEndpoint = frame == 0 && color == 1 || frame == 2 && color is 1 or 3 ||
                         frame == 4 && color is 1 or 3 || frame == 6 && color is 1 or 3 or 4;
                     AssertEqual(sharedEndpoint, endpointInputs.ContainsKey(frame * 8 + color), "Shared endpoint ownership");
-                    AssertEqual((frame & 1) == 0 && color != 0 && !(frame == 2 && color >= 4) && !pairedOwner && !middleShade && !transformedEndpoint && !sharedEndpoint && !(frame == 0 && color >= 4), stored.ContainsKey(frame * 8 + color),
+                    AssertEqual((frame & 1) == 0 && color != 0 && !(frame == 2 && color >= 4) && !pairedOwner && !middleShade && !transformedEndpoint && !sharedEndpoint && !(frame == 0 && color >= 4), stored.ContainsKey(new ColourCell(frame, color)),
                         "Original FX input ownership");
                 }
             }

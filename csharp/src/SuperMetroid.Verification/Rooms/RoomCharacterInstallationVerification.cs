@@ -76,7 +76,7 @@ internal static class RoomCharacterInstallationVerification
             Directory.CreateDirectory(installed.RoomCharacterOverrideDirectory);
             string overridePath = Path.Combine(installed.RoomCharacterOverrideDirectory, name);
             using (var output = File.Create(overridePath))
-                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
             RoomCharacterAtlasCatalog edited = installed.LoadRoomCharacters();
             CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(landing, edited);
             AssertTrue(!editedRoom.RoomCharacters.SequenceEqual(native.RoomCharacters),
@@ -113,7 +113,7 @@ internal static class RoomCharacterInstallationVerification
             string ghostOverridePath = Path.Combine(installed.RoomCharacterOverrideDirectory, ghostName);
             using (var output = File.Create(ghostOverridePath))
                 IndexedPng.Write(output, new(ghostImage.Size.X, ghostImage.Size.Y),
-                    ghostImage.Pixels, ghostImage.Palette);
+                    ghostImage.Pixels, ghostImage.Colours);
             RoomCharacterAtlasCatalog editedGhost = installed.LoadRoomCharacters();
             SnesVram editedGhostVram = ShownVram(LibraryBackgroundProgramDefinitions.Get(ghostTransfer.ListPointer), new LibraryBackgroundArtwork { TilemapArt = RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps(), CharacterArt = editedGhost });
             int ghostDestinationByte = ghostTransfer.VramDestination.Value * 2;

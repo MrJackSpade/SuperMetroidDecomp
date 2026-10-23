@@ -104,7 +104,7 @@ internal static class CeresEscapeTileArtworkVerification
             using var output = File.Create(Path.Combine(overrideDirectory,
                 warning.FileName));
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
-                image.Pixels, image.Palette);
+                image.Pixels, image.Colours);
         }
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);

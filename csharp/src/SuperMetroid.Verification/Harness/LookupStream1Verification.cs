@@ -568,7 +568,7 @@ internal static class LookupStream1Verification
                 AssertEqual(image.Pixels[index], EscapeTimerGlyphDefinitions.Outline(index, pixel => image.Pixels[pixel] == Ink(pixel)), "Direct native calculated outline/transparency");
             byte[] editedPixels = (byte[])image.Pixels.Clone(); editedPixels[index] ^= 15;
             using var stream = new MemoryStream();
-            IndexedPng.Write(stream, new(200, 8), editedPixels, image.Palette); stream.Position = 0;
+            IndexedPng.Write(stream, new(200, 8), editedPixels, image.Colours); stream.Position = 0;
             var edited = EscapeTimerTileAtlas.Load(stream);
             for (int other = 0; other < 1600; other++)
             {
@@ -1375,8 +1375,8 @@ internal static class LookupStream1Verification
                 ushort expectedIntro = (ushort)(red | red << 5 | Math.Max(4, red - 2) << 10);
                 int Blend(int shift) => (2 * ((supplied[index + 16] >> shift) & 31) + 155) / 7;
                 ushort expectedHurt = (ushort)(Blend(0) | Blend(5) << 5 | Blend(10) << 10);
-                AssertEqual(supplied[index + 16] != expectedIntro, edited.introOverrides.ContainsKey(index), "Exact intro edit exception membership");
-                AssertEqual(supplied[index] != expectedHurt, edited.hurtOverrides.ContainsKey(index), "Exact independent hurt exception membership");
+                AssertEqual(supplied[index + 16] != expectedIntro, edited.introOverrides.ContainsKey(new ColourCell(0, index)), "Exact intro edit exception membership");
+                AssertEqual(supplied[index] != expectedHurt, edited.hurtOverrides.ContainsKey(new ColourCell(0, index)), "Exact independent hurt exception membership");
             }
         }
         for (int index = 0; index < 32; index++)
@@ -2162,7 +2162,7 @@ internal static class LookupStream1Verification
         byte[] pixels = (byte[])image.Pixels.Clone();
         pixels[5 * 8] ^= 1;
         using var editedPng = new MemoryStream();
-        IndexedPng.Write(editedPng, new(image.Size.X, image.Size.Y), pixels, image.Palette);
+        IndexedPng.Write(editedPng, new(image.Size.X, image.Size.Y), pixels, image.Colours);
         editedPng.Position = 0;
         var edited = SamusArmCannonArtworkCatalogTooling.Load(new MemoryStream(json), editedPng);
         Verify(edited, true);
@@ -2544,7 +2544,7 @@ internal static class LookupStream1Verification
         SamusVisorColorCatalog Load(SamusVisorColorDocument value) =>
             SamusVisorColorCatalog.Load(new MemoryStream(SamusVisorColorCatalog.Write(value)));
         var stock = Load(document);
-        Dictionary<int, Bgr555> Stored(SamusVisorColorCatalog value) => value.colors;
+        Dictionary<ColourCell, Bgr555> Stored(SamusVisorColorCatalog value) => value.colors;
         ushort Native(int index)
         {
             int address = SamusVisorColorFormat.SourceAddress + index * 2;
@@ -2564,7 +2564,7 @@ internal static class LookupStream1Verification
             changedColors[edited] = new PaletteRgb5 { Red = changedWord & 31, Green = (changedWord >> 5) & 31, Blue = changedWord >> 10 };
             var changed = Load(document with { Colors = changedColors });
             AssertEqual(1, Stored(changed).Count, "visor independent edit stores exactly one exception");
-            AssertEqual(changedWord, Stored(changed)[edited], "visor exception preserves supplied RGB5");
+            AssertEqual(changedWord, Stored(changed)[new ColourCell(0, edited)], "visor exception preserves supplied RGB5");
             for (int index = 0; index < SamusVisorColorFormat.ColorCount; index++)
                 AssertEqual(index == edited ? changedWord : Native(index), changed.Resolve(index), "visor supplied edit is independent");
         }

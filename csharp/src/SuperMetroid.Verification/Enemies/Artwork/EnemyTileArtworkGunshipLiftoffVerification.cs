@@ -83,7 +83,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
             image.Pixels[0] ^= 1;
             using var output = File.Create(overridePath);
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
-                image.Pixels, image.Palette);
+                image.Pixels, image.Colours);
         }
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrides);
         runtime.EnemySession.TileArtwork = edited.Enemies;

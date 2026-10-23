@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
@@ -20,7 +21,7 @@ internal sealed class CeresRidleyStartColorDefinitions
     /// <summary>Previously validated Baby material reused by the second palette.</summary>
     private readonly CeresBabyPaintDefinitions baby;
     /// <summary>Independent supplied changes to either palette, including transparent entries.</summary>
-    internal readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
 
     /// <summary>Separates the two palettes, preserving colors that differ from calculated source materials.</summary>
     internal CeresRidleyStartColorDefinitions(ReadOnlySpan<Bgr555> colors, CeresBabyPaintDefinitions initialBaby)
@@ -30,14 +31,14 @@ internal sealed class CeresRidleyStartColorDefinitions
         door = new(colors.Slice(1, PaletteSize - 1));
         baby = initialBaby;
         for (int color = 0; color < colors.Length; color++)
-            if (Calculate(color) != colors[color]) edits.Add(color, colors[color]);
+            if (Calculate(color) != colors[color]) edits.Add(new ColourCell(0, color), colors[color]);
     }
 
     /// <summary>Uses a supplied edit when present, otherwise reconstructing the selected source color.</summary>
     internal Bgr555 Resolve(int color)
     {
         if ((uint)color >= 2 * PaletteSize) throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(color, out Bgr555 edited) ? edited : Calculate(color);
+        return edits.TryGetValue(new ColourCell(0, color), out Bgr555 edited) ? edited : Calculate(color);
     }
 
     /// <summary>Calculates copied clear-black entries, door paint, or Baby paint for an unedited index.</summary>

@@ -40,7 +40,7 @@ public sealed class EndingRewardIconArtwork
         ValidateMap(map);
         IndexedPngImage image = IndexedPng.Read(charactersPng,
             new(EndingFloorArtworkFormat.CharacterWidth, EndingFloorArtworkFormat.CharacterHeight));
-        if (image.Palette.Length != 256)
+        if (image.Colours.Length != 256)
             throw new InvalidDataException("Reward icon characters require a 256-color indexed PNG.");
         byte[] characters = SnesMode7TileEncoder.Encode(image.Pixels,
             image.Size);

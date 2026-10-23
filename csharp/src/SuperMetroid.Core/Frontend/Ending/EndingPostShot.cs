@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal sealed class EndingPostShot
 {
     /// <summary>Palette captured before the shot and Samus fades begin.</summary>
-    private readonly Bgr555[] sourcePalette;
+    private readonly Bgr555[] sourceColours;
     /// <summary>Post-shot update count driving the shooting and Samus fade schedules.</summary>
     private int calls;
     /// <summary>Frames remaining after rotation reaches its minimum scale.</summary>
@@ -23,7 +23,7 @@ internal sealed class EndingPostShot
     public bool ReadyForWhiteFlash { get; private set; }
 
     /// <summary>Captures the starting palette for the post-shot rotation, fades and logo transfers.</summary>
-    public EndingPostShot(ScreenPalette palette) => sourcePalette = Ensure.NotNull(palette).Colors.ToArray();
+    public EndingPostShot(ScreenPalette palette) => sourceColours = Ensure.NotNull(palette).Colors.ToArray();
 
     /// <summary>Advances the native rotation, both palette fades, timed VRAM uploads, and white-flash handoff by one update.</summary>
     public void Step(EndingScreen screen)
@@ -62,7 +62,7 @@ internal sealed class EndingPostShot
     private void ApplyFade(ColourRun row, int elapsed)
     {
         int remaining = EndingPostShotDefinitions.FadeFrames - elapsed;
-        ReadOnlySpan<Bgr555> source = row.SamePositionsIn(sourcePalette);
+        ReadOnlySpan<Bgr555> source = row.SamePositionsIn(sourceColours);
         for (int colour = 0; colour < row.Count; colour++)
         {
             // The 8.8 accumulator subtracts component<<3 on every call;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
 /// <summary>
@@ -26,9 +27,9 @@ internal sealed class CeresDoorAnimationPaintDefinitions
     /// <summary>Red channel retained independently for the dim middle amber phase.</summary>
     internal readonly int dimMiddleAmberRed;
     /// <summary>Seed colors that differ from the shared normal target paint.</summary>
-    internal readonly Dictionary<int, Bgr555> seedEdits = [];
+    internal readonly Dictionary<ColourCell, Bgr555> seedEdits = [];
     /// <summary>Individual source cells that differ from the calculated mirrored fade.</summary>
-    internal readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
 
     /// <summary>Captures independent paint channels and per-cell edits from eight six-color source rows.</summary>
     internal CeresDoorAnimationPaintDefinitions(Bgr555[][] rows, CeresDoorNormalPaintDefinitions normal)
@@ -40,10 +41,10 @@ internal sealed class CeresDoorAnimationPaintDefinitions
         firstSeedBlue = rows[1][0].Blue;
         dimMiddleAmberRed = rows[3][4].Red;
         for (int color = 0; color < 6; color++)
-            if (rows[1][color] != SharedSeed(color)) seedEdits.Add(color, rows[1][color]);
+            if (rows[1][color] != SharedSeed(color)) seedEdits.Add(new ColourCell(0, color), rows[1][color]);
         for (int row = 0; row < 8; row++)
             for (int color = 0; color < 6; color++)
-                if (rows[row][color] != Calculate(row, color)) edits.Add(row * 6 + color, rows[row][color]);
+                if (rows[row][color] != Calculate(row, color)) edits.Add(new ColourCell(row, color), rows[row][color]);
     }
 
     /// <summary>Uses normal target paint for each seed, with the first seed's independent blue channel.</summary>
@@ -61,14 +62,14 @@ internal sealed class CeresDoorAnimationPaintDefinitions
             throw new ArgumentOutOfRangeException(nameof(row));
         if ((uint)color >= 6)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(row * 6 + color, out Bgr555 edited) ? edited : Calculate(row, color);
+        return edits.TryGetValue(new ColourCell(row, color), out Bgr555 edited) ? edited : Calculate(row, color);
     }
 
     /// <summary>Applies the five-step mirrored fade, peak gold brightening, and dim amber exception.</summary>
     private Bgr555 Calculate(int row, int color)
     {
         int phase = Math.Min(row, 7 - row);
-        Bgr555 seed = seedEdits.TryGetValue(color, out Bgr555 edited) ? edited : SharedSeed(color);
+        Bgr555 seed = seedEdits.TryGetValue(new ColourCell(0, color), out Bgr555 edited) ? edited : SharedSeed(color);
         int red = seed.Red, green = seed.Green, blue = seed.Blue;
         if (phase == 0 && color >= 3)
         {

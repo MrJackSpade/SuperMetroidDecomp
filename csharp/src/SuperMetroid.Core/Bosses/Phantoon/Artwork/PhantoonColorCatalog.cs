@@ -28,11 +28,11 @@ public sealed class PhantoonColorCatalog
         });
 
     /// <summary>Health-band colors that differ from the calculated material and damage shades.</summary>
-    internal readonly Dictionary<int, Bgr555> healthEdits = [];
+    internal readonly Dictionary<ColourCell, Bgr555> healthEdits = [];
     /// <summary>Nonblack targets supplied for Phantoon's fade-out palette.</summary>
-    internal readonly Dictionary<int, Bgr555> fadeOutEdits = [];
+    internal readonly Dictionary<ColourCell, Bgr555> fadeOutEdits = [];
     /// <summary>Powered-ship colors that differ from the calculated paint palette.</summary>
-    internal readonly Dictionary<int, Bgr555> powerEdits = [];
+    internal readonly Dictionary<ColourCell, Bgr555> powerEdits = [];
 
     /// <summary>Retains only authored deviations from the calculated health, fade, and ship-power colors.</summary>
     private PhantoonColorCatalog(Bgr555[][] healthBands, Bgr555[] fadeOut, Bgr555[] powerOn)
@@ -40,11 +40,11 @@ public sealed class PhantoonColorCatalog
         for (int band = 0; band < healthBands.Length; band++)
         for (int color = 0; color < healthBands[band].Length; color++)
             if (healthBands[band][color] != PhantoonHealthPaintDefinitions.Color(band, color))
-                healthEdits.Add(band * PhantoonColorRomData.HealthBandColorCount + color, healthBands[band][color]);
+                healthEdits.Add(new ColourCell(band, color), healthBands[band][color]);
         for (int color = 0; color < fadeOut.Length; color++)
-            if (fadeOut[color] != Bgr555.Black) fadeOutEdits.Add(color, fadeOut[color]);
+            if (fadeOut[color] != Bgr555.Black) fadeOutEdits.Add(new ColourCell(0, color), fadeOut[color]);
         for (int color = 0; color < powerOn.Length; color++)
-            if (powerOn[color] != WreckedShipPowerPaintDefinitions.Color(color)) powerEdits.Add(color, powerOn[color]);
+            if (powerOn[color] != WreckedShipPowerPaintDefinitions.Color(color)) powerEdits.Add(new ColourCell(0, color), powerOn[color]);
     }
 
     /// <summary>
@@ -57,7 +57,7 @@ public sealed class PhantoonColorCatalog
         _ = CheckBand(band);
         if ((uint)color >= PhantoonColorRomData.HealthBandColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        int key = band * PhantoonColorRomData.HealthBandColorCount + color;
+        var key = new ColourCell(band, color);
         return healthEdits.TryGetValue(key, out Bgr555 edit) ? edit : PhantoonHealthPaintDefinitions.Color(band, color);
     }
     /// <summary>
@@ -68,13 +68,13 @@ public sealed class PhantoonColorCatalog
     {
         if ((uint)color >= PhantoonColorRomData.FadeOutCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return fadeOutEdits.GetValueOrDefault(color);
+        return fadeOutEdits.GetValueOrDefault(new ColourCell(0, color));
     }
     /// <summary>$A7:CA61-CB40: all seven powered ship material palettes calculate; supplied words remain independently editable.</summary>
     public Bgr555 ResolvePowerOn(int color)
     {
         if ((uint)color >= PhantoonColorRomData.PowerOnCount) throw new ArgumentOutOfRangeException(nameof(color));
-        return powerEdits.TryGetValue(color, out Bgr555 edit) ? edit : WreckedShipPowerPaintDefinitions.Color(color);
+        return powerEdits.TryGetValue(new ColourCell(0, color), out Bgr555 edit) ? edit : WreckedShipPowerPaintDefinitions.Color(color);
     }
     /// <summary>Loads and validates Phantoon's health, fade-out, and ship-power RGB5 sources.</summary>
     /// <param name="json">Caller-owned stream containing the color document.</param>

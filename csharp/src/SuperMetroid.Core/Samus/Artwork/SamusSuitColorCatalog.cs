@@ -20,9 +20,9 @@ public sealed class SamusSuitColorCatalog
     /// <summary>Complete authored Power suit palette, including its transparent-slot payload.</summary>
     private readonly Bgr555[] power;
     /// <summary>Only Varia slots differing from the Power palette's shared inks.</summary>
-    internal readonly Dictionary<int, Bgr555> varia;
+    internal readonly Dictionary<ColourCell, Bgr555> varia;
     /// <summary>Only Gravity slots differing from the Power palette's shared inks.</summary>
-    internal readonly Dictionary<int, Bgr555> gravity;
+    internal readonly Dictionary<ColourCell, Bgr555> gravity;
 
     /// <summary>Stores a Power palette and only differing colors for the other suits.</summary>
     /// <remarks>Original $9B:9400/9520/9800 share twelve of sixteen slots
@@ -38,11 +38,11 @@ public sealed class SamusSuitColorCatalog
     }
 
     /// <summary>Finds independently selected suit inks while omitting slots that reuse the Power palette word.</summary>
-    private static Dictionary<int, Bgr555> Differences(Bgr555[] supplied, Bgr555[] power)
+    private static Dictionary<ColourCell, Bgr555> Differences(Bgr555[] supplied, Bgr555[] power)
     {
-        var differences = new Dictionary<int, Bgr555>();
+        var differences = new Dictionary<ColourCell, Bgr555>();
         for (int index = 0; index < supplied.Length; index++)
-            if (supplied[index] != power[index]) differences.Add(index, supplied[index]);
+            if (supplied[index] != power[index]) differences.Add(new ColourCell(0, index), supplied[index]);
         return differences;
     }
 
@@ -52,7 +52,7 @@ public sealed class SamusSuitColorCatalog
     /// <returns>The selected packed SNES RGB555 word.</returns>
     public Bgr555 Resolve(ushort suitTableOffset, int colorIndex)
     {
-        Dictionary<int, Bgr555>? differences = suitTableOffset switch
+        Dictionary<ColourCell, Bgr555>? differences = suitTableOffset switch
         {
             0 => null,
             2 => varia,
@@ -61,7 +61,7 @@ public sealed class SamusSuitColorCatalog
         };
         if ((uint)colorIndex >= SamusSuitColorFormat.ColorsPerSuit)
             throw new ArgumentOutOfRangeException(nameof(colorIndex));
-        return differences is not null && differences.TryGetValue(colorIndex, out Bgr555 color)
+        return differences is not null && differences.TryGetValue(new ColourCell(0, colorIndex), out Bgr555 color)
             ? color : power[colorIndex];
     }
 

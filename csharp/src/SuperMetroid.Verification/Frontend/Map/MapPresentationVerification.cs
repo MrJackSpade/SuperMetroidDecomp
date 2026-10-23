@@ -1361,7 +1361,7 @@ internal static class MapPresentationVerification
         byte[] pixels = image.Pixels.Select(value => unchecked((byte)(value + 1))).ToArray();
         string replacement = Path.Combine(overrides, name);
         using (var output = File.Create(replacement))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), pixels, image.Colours);
 
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,

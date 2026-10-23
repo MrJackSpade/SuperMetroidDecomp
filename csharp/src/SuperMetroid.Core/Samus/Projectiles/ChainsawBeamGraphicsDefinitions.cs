@@ -16,7 +16,7 @@ internal static class ChainsawBeamGraphicsDefinitions
     /// by that routine's instruction bytes; these are those words as CGRAM keeps them, without the bit it discards.
     /// The verification derives every colour from the cartridge bytes.
     /// </summary>
-    internal static readonly IReadOnlyList<Bgr555> Palette = Array.AsReadOnly<Bgr555>(
+    internal static readonly IReadOnlyList<Bgr555> Colours = Array.AsReadOnly<Bgr555>(
     [
         new(16, 4, 2),
         new(2, 6, 12),

@@ -41,7 +41,7 @@ internal static class MapAtlasVerification
         using (var input = File.OpenRead(Path.Combine(stock, MapTileAtlasFormat.FileName)))
             image = IndexedPng.Read(input, new(MapTileAtlasFormat.Width, MapTileAtlasFormat.Height));
         for (int i = 0; i < image.Pixels.Length; i++) image.Pixels[i] = (byte)((image.Pixels[i] + 1) % MapTileAtlasFormat.ColorCount);
-        using (var output = File.Create(replacement)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+        using (var output = File.Create(replacement)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         byte[] replacementBytes = File.ReadAllBytes(replacement);
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "PNG edit changes selected catalog identity");
@@ -72,7 +72,7 @@ internal static class MapAtlasVerification
         File.WriteAllText(replacement, "invalid PNG");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "bad PNG override fails without stock fallback");
         AssertEqual("invalid PNG", File.ReadAllText(replacement), "bad PNG override retained for repair");
-        using (var output = File.Create(replacement)) IndexedPng.Write(output, new(1, 1), [0], image.Palette);
+        using (var output = File.Create(replacement)) IndexedPng.Write(output, new(1, 1), [0], image.Colours);
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "wrong native atlas dimensions rejected");
         File.WriteAllBytes(replacement, replacementBytes);
         var tooManyColors = SnesGraphics.DiagnosticPalette(17);

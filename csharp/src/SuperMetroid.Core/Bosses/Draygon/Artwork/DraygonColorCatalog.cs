@@ -40,7 +40,7 @@ public sealed class DraygonColorCatalog
     /// <summary>Normal sprite material colors used outside white hurt flashes.</summary>
     internal readonly DraygonMaterialPaintDefinitions sprite;
     /// <summary>Only edited flash colors; stock entries are calculated on lookup.</summary>
-    internal readonly Dictionary<int, Bgr555> whiteFlash = new();
+    internal readonly Dictionary<ColourCell, Bgr555> whiteFlash = new();
     /// <summary>Four selected colors for each of Draygon's eight health palette rows.</summary>
     internal readonly DraygonHealthPaintDefinitions healthBands;
 
@@ -52,7 +52,7 @@ public sealed class DraygonColorCatalog
         this.background = new(background);
         this.sprite = new(sprite);
         for (int color = 0; color < whiteFlash.Length; color++)
-            if (whiteFlash[color] != StockWhiteFlash(color)) this.whiteFlash.Add(color, whiteFlash[color]);
+            if (whiteFlash[color] != StockWhiteFlash(color)) this.whiteFlash.Add(new ColourCell(0, color), whiteFlash[color]);
         this.healthBands = new(healthBands);
     }
 
@@ -67,7 +67,7 @@ public sealed class DraygonColorCatalog
     {
         if ((uint)color >= DraygonColorRomData.WhiteFlashCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return whiteFlash.TryGetValue(color, out Bgr555 selected) ? selected : StockWhiteFlash(color);
+        return whiteFlash.TryGetValue(new ColourCell(0, color), out Bgr555 selected) ? selected : StockWhiteFlash(color);
     }
 
     /// <summary>Gets one of the four selected colors in an eight-row health palette table.</summary>

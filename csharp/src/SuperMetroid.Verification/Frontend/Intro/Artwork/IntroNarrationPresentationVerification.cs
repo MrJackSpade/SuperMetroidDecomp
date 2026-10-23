@@ -129,7 +129,7 @@ internal static class IntroNarrationPresentationVerification
         editableFont.Pixels[0] ^= 1;
         using var editedFontPng = new MemoryStream();
         IndexedPng.Write(editedFontPng, new(editableFont.Size.X, editableFont.Size.Y),
-            editableFont.Pixels, editableFont.Palette);
+            editableFont.Pixels, editableFont.Colours);
         editedFontPng.Position = 0;
         IntroFontAtlas editedFont = IntroFontAtlas.Load(editedFontPng);
         installedIntro.BindIntroFont(editedFont);
@@ -235,7 +235,7 @@ internal static class IntroNarrationPresentationVerification
         Directory.CreateDirectory(overrideDirectory);
         string replacement = Path.Combine(overrideDirectory, IntroFontAtlasFormat.FileName);
         using (var output = File.Create(replacement))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(
             stockDirectory, overrideDirectory);
         AssertTrue(!edited.IntroFont.Transfer.Span.SequenceEqual(

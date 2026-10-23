@@ -88,7 +88,7 @@ internal static class CrocomireSkeletonArtworkVerification
             image.Pixels[0] ^= 1;
             using var output = File.Create(overridePath);
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
-                image.Pixels, image.Palette);
+                image.Pixels, image.Colours);
         }
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrides);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 /// <summary>
@@ -26,18 +27,18 @@ internal sealed class DraygonHealthPaintDefinitions
     /// <summary>Healthy gold shades step down green by six per shade.</summary>
     private const int HealthyGreenStep = 6;
     /// <summary>Extracted belly colors that differ from the interpolated gold-to-red ramp.</summary>
-    internal readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
 
     /// <summary>Retains only differences from the four-shade, eight-band paint calculation.</summary>
     internal DraygonHealthPaintDefinitions(Bgr555[][] rows)
     {
         for (int band = 0; band < Bands; band++)
             for (int shade = 0; shade < Shades; shade++)
-                if (rows[band][shade] != Calculate(band, shade)) edits.Add(band * Shades + shade, rows[band][shade]);
+                if (rows[band][shade] != Calculate(band, shade)) edits.Add(new ColourCell(band, shade), rows[band][shade]);
     }
 
     /// <summary>Uses an extracted edit when present, otherwise interpolates the requested belly shade.</summary>
-    internal Bgr555 Color(int band, int shade) => edits.TryGetValue(band * Shades + shade, out Bgr555 edited)
+    internal Bgr555 Color(int band, int shade) => edits.TryGetValue(new ColourCell(band, shade), out Bgr555 edited)
         ? edited : Calculate(band, shade);
 
     /// <summary>

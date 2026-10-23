@@ -13,7 +13,7 @@ public sealed class CrystalFlashColorCatalog
     /// <summary>Complete edited body frames, retained only when any supplied color differs from the native calculated pulse.</summary>
     internal readonly Bgr555[][]? body;
     /// <summary>Bubble samples that differ from the rotating ramp, including the independently painted stock white.</summary>
-    internal readonly Dictionary<int, Bgr555> bubble = [];
+    internal readonly Dictionary<ColourCell, Bgr555> bubble = [];
 
     /// <summary>Compares all supplied frames with native color rules before retaining only independent edits.</summary>
     private CrystalFlashColorCatalog(Bgr555[][] body, Bgr555[][] bubble)
@@ -31,7 +31,7 @@ public sealed class CrystalFlashColorCatalog
         for (int frame = 0; frame < CrystalFlashColorFormat.BubbleFrameCount; frame++)
         for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
             if (bubble[frame][color] != CalculateBubble(frame, color))
-                this.bubble.Add(frame * CrystalFlashColorFormat.BubbleColorCount + color, bubble[frame][color]);
+                this.bubble.Add(new ColourCell(frame, color), bubble[frame][color]);
     }
 
     /// <summary>Returns one editable body color for a native playback record, calculating stock rows when they require no stored overrides.</summary>
@@ -72,7 +72,7 @@ public sealed class CrystalFlashColorCatalog
             throw new ArgumentOutOfRangeException(nameof(frame));
         if ((uint)color >= CrystalFlashColorFormat.BubbleColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return bubble.TryGetValue(frame * CrystalFlashColorFormat.BubbleColorCount + color, out Bgr555 supplied)
+        return bubble.TryGetValue(new ColourCell(frame, color), out Bgr555 supplied)
             ? supplied : CalculateBubble(frame, color);
     }
 

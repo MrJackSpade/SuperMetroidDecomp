@@ -73,7 +73,7 @@ internal static class DeadTourianCorpseArtworkVerification
         string overrideDirectory = Path.Combine(directory, "dead-sidehopper-overrides");
         Directory.CreateDirectory(overrideDirectory);
         using (var output = File.Create(Path.Combine(overrideDirectory, fileName)))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         var nativeCopies = ReferenceDeadTourianCorpseGraphics(
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"), new EnemyStagingSurfaces(),
             EnemyDefinitionId.CorpseSidehopper, 0);

@@ -36,7 +36,7 @@ public sealed class EndingFloorSceneArtwork
         EndingFloorMapDocument document = ReadMap(mapJson);
         IndexedPngImage image = IndexedPng.Read(charactersPng,
             new(EndingFloorArtworkFormat.CharacterWidth, EndingFloorArtworkFormat.CharacterHeight));
-        if (image.Palette.Length != 256)
+        if (image.Colours.Length != 256)
             throw new InvalidDataException("Ending Mode-7 characters require a 256-color indexed PNG.");
         byte[] characters = SnesMode7TileEncoder.Encode(image.Pixels,
             image.Size);

@@ -32,7 +32,7 @@ internal static class ProjectileTrailAtlasVerification
             var image = IndexedPng.Read(new MemoryStream(png), new(ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height));
             image.Pixels[tile * 8] ^= 1;
             using var changed = new MemoryStream();
-            IndexedPng.Write(changed, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+            IndexedPng.Write(changed, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
             changed.Position = 0;
             var edited = ProjectileTrailAtlas.Load(changed);
             ReadOnlySpan<byte> actual = new ProjectileObjectPages(standard, InstalledFixtures.Projectiles.BeamTiles, edited).For(SuperMetroid.Core.Progression.SamusBeamFlags.None).Characters;
@@ -64,7 +64,7 @@ internal static class ProjectileTrailAtlasVerification
         image.Pixels[0] ^= 1;
         image.Pixels[64] ^= 1;
         using var stream = new MemoryStream();
-        IndexedPng.Write(stream, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+        IndexedPng.Write(stream, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         stream.Position = 0;
         var atlas = ProjectileTrailAtlas.Load(stream);
         var catalog = ProjectileTrailCatalog.Load(new MemoryStream(ProjectileTrailExtractor.Extract(bus)), atlas);

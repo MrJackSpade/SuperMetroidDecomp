@@ -1034,7 +1034,7 @@ internal static class LookupStream5Verification
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveGrey(8), "Grey ramp upper bound");
         Console.WriteLine("Tourian statue ramps: all56 native palette colors,168 independent full-range channel edits, zero stock overrides, actual CGRAM and canonical identities pass; selected material paint scope complete.");
 
-        void CheckResidualCount(Dictionary<int, Bgr555> edits, int expected) =>
+        void CheckResidualCount(Dictionary<ColourCell, Bgr555> edits, int expected) =>
             AssertEqual(expected, edits.Count, "Exact stock ramp residual count");
 
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
@@ -2111,7 +2111,7 @@ internal static class LookupStream5Verification
         CeresDoorAnimationPaintDefinitions stock = Check(-1);
         AssertEqual(17, stock.firstSeedBlue, "Selected beacon blue");
         AssertEqual(14, stock.dimMiddleAmberRed, "Selected dim amber red");
-        foreach (Dictionary<int, Bgr555> overrides in new[] { stock.seedEdits, stock.edits })
+        foreach (Dictionary<ColourCell, Bgr555> overrides in new[] { stock.seedEdits, stock.edits })
             AssertEqual(0, overrides.Count, "All native beacon dependencies calculate without overrides");
         for (int row = 0; row < 8; row++)
         for (int color = 0; color < 6; color++)
@@ -2137,7 +2137,7 @@ internal static class LookupStream5Verification
             var visual = CeresDoorVisualCatalog.Load(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualCatalog.Write(document)));
             for (int row = 0; row < 8; row++) for (int color = 0; color < 6; color++)
                 AssertEqual(Pack(document.Animation[row][color]), basis.ColorAt(row, color), "Every supplied beacon channel remains independent");
-            var system = new RoomEnemySystem(new EnemySession()) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = visual } };
+            var system = new RoomEnemySystem(new EnemySession(), services: new StandaloneRoomEnemyServices(() => 0) { FloorMap = new FloorMap(new byte[FloorMap.Cells], default, RoomBackgroundsFixtures.FloorTiles()) }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = visual } };
             var cgram = new SamusColourRig();
             system.Presentation.BindCgram(cgram.Gameplay);
             system.Presentation.BindVram(BgArtworkFixtures.For(new SnesVram()));

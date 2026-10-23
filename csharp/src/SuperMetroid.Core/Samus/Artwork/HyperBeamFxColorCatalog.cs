@@ -25,7 +25,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public sealed class HyperBeamFxColorCatalog
 {
     /// <summary>Exact supplied colors that differ from every derived hue and shade relationship.</summary>
-    internal readonly Dictionary<int, Bgr555> colors = new();
+    internal readonly Dictionary<ColourCell, Bgr555> colors = new();
     /// <summary>Base RGB5 intensity shared by the stock neutral highlight channels.</summary>
     internal readonly int neutralIntensity;
     /// <summary>Independent edits to the neutral highlight's otherwise equal channels.</summary>
@@ -71,7 +71,7 @@ public sealed class HyperBeamFxColorCatalog
                 endpointInputs.Add(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, new(value, basis, independentMask));
                 continue;
             }
-            colors.Add(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, value);
+            colors.Add(new ColourCell(frame, color), value);
         }
     }
 
@@ -87,7 +87,7 @@ public sealed class HyperBeamFxColorCatalog
     private Bgr555 Resolve(int frame, int color)
     {
         if (frame == 0 && color == 0) return neutralOverrides.Apply(HyperBeamFxColorFormat.Neutral(neutralIntensity));
-        if (colors.TryGetValue(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, out Bgr555 value)) return value;
+        if (colors.TryGetValue(new ColourCell(frame, color), out Bgr555 value)) return value;
         if (pairedInputs.TryGetValue(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, out var paired))
         {
             var shared = SharedEndpointChannels(frame, color, Resolve(0, 0), frame == 0 ? Bgr555.Black : Resolve(0, 3));

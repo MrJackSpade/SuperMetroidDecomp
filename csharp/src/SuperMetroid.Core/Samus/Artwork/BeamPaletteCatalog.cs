@@ -10,19 +10,19 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public sealed class BeamPaletteCatalog
 {
     /// <summary>Only selected RGB5 words that differ from calculated stock beam paint.</summary>
-    internal readonly Dictionary<int, Bgr555> palettes = new();
+    internal readonly Dictionary<ColourCell, Bgr555> palettes = new();
     /// <summary>Stores independently edited colors while deriving unchanged words from stock paint.</summary>
     internal BeamPaletteCatalog(Bgr555[][] rows)
     {
         for (int index = 0; index < rows.Length; index++)
         for (int color = 0; color < BeamPaletteDefinitions.ColorCount; color++)
             if (rows[index][color] != BeamPaintDefinitions.Color(SamusBeamCombinations.FromTableIndex(index), color))
-                palettes.Add(index * BeamPaletteDefinitions.ColorCount + color, rows[index][color]);
+                palettes.Add(new ColourCell(index, color), rows[index][color]);
     }
 
     /// <summary>Gets an edited beam color when supplied, otherwise its calculated stock value.</summary>
     private Bgr555 Color(SamusBeamCombination selection, int color) =>
-        palettes.TryGetValue(selection.TableIndex * BeamPaletteDefinitions.ColorCount + color, out Bgr555 supplied)
+        palettes.TryGetValue(new ColourCell(selection.TableIndex, color), out Bgr555 supplied)
             ? supplied : BeamPaintDefinitions.Color(selection, color);
     /// <summary>Strict camel-case JSON settings shared by beam palette loading and writing.</summary>
     private static readonly JsonSerializerOptions Options = new()

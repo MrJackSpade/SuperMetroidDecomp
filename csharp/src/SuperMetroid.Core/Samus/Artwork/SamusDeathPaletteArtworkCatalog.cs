@@ -53,11 +53,11 @@ public sealed class SamusDeathPaletteArtworkCatalog
     private static readonly Bgr555 WhiteInkColor = new(31, 31, 31);
 
     /// <summary>Independent edits to selected suited RGB5 ink words.</summary>
-    internal readonly Dictionary<int, Bgr555> suited = new();
+    internal readonly Dictionary<ColourCell, Bgr555> suited = new();
     /// <summary>Channel overrides for suited fade rows derived from base inks.</summary>
     internal readonly Dictionary<int, LoadingPaletteInputView.Channels> suitedFadeInputs = new();
     /// <summary>Independent edits to selected suitless RGB5 ink words.</summary>
-    internal readonly Dictionary<int, Bgr555> suitless = new();
+    internal readonly Dictionary<ColourCell, Bgr555> suitless = new();
     /// <summary>Channel overrides for suitless fade rows derived from base inks.</summary>
     internal readonly Dictionary<int, LoadingPaletteInputView.Channels> suitlessFadeInputs = new();
     /// <summary>Edits to neutral shades shared by death palette derivations.</summary>
@@ -98,6 +98,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
         for (int color = 0; color < ColorCount; color++)
         {
             int key = (suit * SamusPaletteRomData.Death.PaletteCount + palette) * ColorCount + color;
+            var keyCell = new ColourCell((suit * SamusPaletteRomData.Death.PaletteCount + palette), color);
             Bgr555 value = suited[suit][palette][color];
             if (palette == 0 && suit != 0 && value == suited[0][0][color]) continue;
             if (palette == 1 && (suit != 0 || color != 0) && value == suited[0][1][0]) continue;
@@ -108,12 +109,13 @@ public sealed class SamusDeathPaletteArtworkCatalog
                 Bgr555 expected = SamusPaletteFade.EighthTowardWhite(suited[suit][0][color], palette - 1);
                 if (value != expected) suitedFadeInputs.Add(key, new(value, expected));
             }
-            else this.suited.Add(key, value);
+            else this.suited.Add(keyCell, value);
         }
         for (int palette = 0; palette < SamusPaletteRomData.Death.PaletteCount; palette++)
         for (int color = 0; color < ColorCount; color++)
         {
             int key = palette * ColorCount + color;
+            var keyCell = new ColourCell(palette, color);
             Bgr555 value = suitless[palette][color];
             if (palette == 9 && color != 0 && value == suitless[9][0]) continue;
             if (palette == 1 && value == suitless[0][color]) continue;
@@ -127,7 +129,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
             {
                 if (TrySuitlessTintEndpoint(suitless[0][6], value, out Bgr555 expected))
                     tintShadeInputs.Add(key, new(value, expected, independentMask: 5));
-                else this.suitless.Add(key, value);
+                else this.suitless.Add(keyCell, value);
                 continue;
             }
             if (palette == 0 && color == 8)
@@ -140,7 +142,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
             {
                 if (TrySuitlessTintShade(suitless[0][6], suitless[0][10], value.Blue, color, out Bgr555 expected))
                     tintShadeInputs.Add(key, new(value, expected, independentMask: 4));
-                else this.suitless.Add(key, value);
+                else this.suitless.Add(keyCell, value);
                 continue;
             }
             if (palette == 0 && color is 2 or 3)
@@ -170,7 +172,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
                 Bgr555 expected = SamusPaletteFade.EighthTowardWhite(suitless[0][color], palette - 1);
                 if (value != expected) suitlessFadeInputs.Add(key, new(value, expected));
             }
-            else this.suitless.Add(key, value);
+            else this.suitless.Add(keyCell, value);
         }
         this.whiteout = new(whiteout);
         for (int frame = 0; frame < explosionPaletteIndices.Length; frame++)
@@ -227,7 +229,8 @@ public sealed class SamusDeathPaletteArtworkCatalog
         if ((uint)color >= ColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         int key = (suit * SamusPaletteRomData.Death.PaletteCount + palette) * ColorCount + color;
-        if (suited.TryGetValue(key, out Bgr555 value)) return value;
+        var keyCell = new ColourCell((suit * SamusPaletteRomData.Death.PaletteCount + palette), color);
+        if (suited.TryGetValue(keyCell, out Bgr555 value)) return value;
         if (palette == 0) return SuitedColor(0, 0, color);
         if (palette == 1) return suit == 0 && color == 0 ? YellowFlashColor : SuitedColor(0, 1, 0);
         if (palette == 9) return SuitlessColor(9, 0);
@@ -252,7 +255,8 @@ public sealed class SamusDeathPaletteArtworkCatalog
         if ((uint)color >= ColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         int key = palette * ColorCount + color;
-        if (suitless.TryGetValue(key, out Bgr555 value)) return value;
+        var keyCell = new ColourCell(palette, color);
+        if (suitless.TryGetValue(keyCell, out Bgr555 value)) return value;
         if (palette == 0 && color == 5)
             return neutralInputs.TryGetValue(key, out var whiteInput) ? whiteInput.Apply(WhiteInkColor) : WhiteInkColor;
         if (palette == 0 && color == 4)

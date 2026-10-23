@@ -180,8 +180,8 @@ public sealed class SamusProjectileSystem
     /// <summary>Writes the glitched Chainsaw beam palette's sixteen colours into the beam palette.</summary>
     private static void LoadChainsawPalette(ColourRun beam)
     {
-        for (int color = 0; color < ChainsawBeamGraphicsDefinitions.Palette.Count; color++)
-            beam.Write(color, ChainsawBeamGraphicsDefinitions.Palette[color]);
+        for (int color = 0; color < ChainsawBeamGraphicsDefinitions.Colours.Count; color++)
+            beam.Write(color, ChainsawBeamGraphicsDefinitions.Colours[color]);
     }
     /// <summary>
     /// Runs <c>HandleBeamChargePalettes</c> at <c>$91:D743-$D7D4</c> against the

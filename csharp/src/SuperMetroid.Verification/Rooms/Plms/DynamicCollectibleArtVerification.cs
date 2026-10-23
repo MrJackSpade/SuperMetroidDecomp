@@ -50,7 +50,7 @@ internal static class DynamicCollectibleArtVerification
                        Path.Combine(overrideDirectory, name), FileMode.CreateNew,
                        FileAccess.Write))
                 IndexedPng.Write(editedPng, new(image.Size.X, image.Size.Y),
-                    image.Pixels, image.Palette);
+                    image.Pixels, image.Colours);
 
             JsonNode paletteDocument = JsonNode.Parse(File.ReadAllText(
                 Path.Combine(stockDirectory,

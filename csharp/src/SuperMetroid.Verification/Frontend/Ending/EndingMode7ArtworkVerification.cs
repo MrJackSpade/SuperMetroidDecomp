@@ -184,7 +184,7 @@ internal static class EndingMode7ArtworkVerification
                 image = IndexedPng.Read(input, new(EndingFloorArtworkFormat.CharacterWidth, EndingFloorArtworkFormat.CharacterHeight));
             Array.Fill(image.Pixels, (byte)0);
             using (var output = File.Create(pngOverride))
-                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
             EndingFloorArtworkCatalog editedCharacters = installation.LoadEndingMode7Art();
             state.Stage.BindFloorArtwork(editedCharacters);
             // The ending draws its Mode 7 characters from the sheets the edited art composes (#1392).

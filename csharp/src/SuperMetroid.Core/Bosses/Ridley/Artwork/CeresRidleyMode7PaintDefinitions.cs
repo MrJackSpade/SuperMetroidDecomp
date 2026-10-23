@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
@@ -18,7 +19,7 @@ internal sealed class CeresRidleyMode7PaintDefinitions
     /// <summary>The reviewed eye contour shared by every zoom bucket.</summary>
     private readonly CeresRidleyFadeColorDefinitions.EyePaint eyes;
     /// <summary>Extracted colors that differ from the computed contour at a row and color index.</summary>
-    internal readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
 
     /// <summary>Builds the shared contours from the first native row and retains only differences in later rows.</summary>
     internal CeresRidleyMode7PaintDefinitions(Bgr555[][] rows)
@@ -26,7 +27,7 @@ internal sealed class CeresRidleyMode7PaintDefinitions
         body = new(rows[0].AsSpan(0, 11));
         eyes = CeresRidleyFadeColorDefinitions.EyePaint.From(rows[0].AsSpan(11, 3));
         for (int row = 0; row < 9; row++) for (int color = 0; color < 15; color++)
-            if (Calculate(row, color) != rows[row][color]) edits.Add(row * 15 + color, rows[row][color]);
+            if (Calculate(row, color) != rows[row][color]) edits.Add(new ColourCell(row, color), rows[row][color]);
     }
 
     /// <summary>$A6:B123 (also header E16D) equals the canonical Golden low contour at $84:8050; no duplicate grey input.</summary>
@@ -39,7 +40,7 @@ internal sealed class CeresRidleyMode7PaintDefinitions
     {
         if ((uint)row >= 9) throw new ArgumentOutOfRangeException(nameof(row));
         if ((uint)color >= 15) throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(row * 15 + color, out Bgr555 edited) ? edited : Calculate(row, color);
+        return edits.TryGetValue(new ColourCell(row, color), out Bgr555 edited) ? edited : Calculate(row, color);
     }
 
     /// <summary>Applies one exposure step through bucket six and two steps for each remaining zoom bucket.</summary>

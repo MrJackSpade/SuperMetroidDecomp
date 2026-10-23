@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Botwoon.Artwork;
 
 /// <summary>
@@ -14,17 +15,17 @@ internal sealed class BotwoonHealthPaintDefinitions
     /// <summary>$B3:973B/975B: copied slot0 target in bands1/2; independently observable CGRAM data.</summary>
     private static readonly Bgr555 EarlyBandTransparentTarget = Bgr555.FromWord(0x2003);
     /// <summary>Imported band colors that differ from the reviewed endpoint interpolation.</summary>
-    internal readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
 
     /// <summary>Retains source colors only where they differ from the eight-band health ramp.</summary>
     internal BotwoonHealthPaintDefinitions(Bgr555[][] rows)
     {
         for (int band = 0; band < 8; band++) for (int color = 0; color < 16; color++)
-            if (rows[band][color] != Calculate(band, color)) edits.Add(band * 16 + color, rows[band][color]);
+            if (rows[band][color] != Calculate(band, color)) edits.Add(new ColourCell(band, color), rows[band][color]);
     }
 
     /// <summary>Returns an imported exception or interpolates the selected healthy and damaged paints.</summary>
-    internal Bgr555 Resolve(int band, int color) => edits.TryGetValue(band * 16 + color, out Bgr555 value)
+    internal Bgr555 Resolve(int band, int color) => edits.TryGetValue(new ColourCell(band, color), out Bgr555 value)
         ? value : Calculate(band, color);
 
     /// <summary>Interpolates RGB5 channels over seven intervals while preserving copied slot-zero metadata.</summary>

@@ -30,7 +30,7 @@ internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
     {
         get
         {
-            int selected = drawingOrder[index];
+            int selected = drawingOrder[Ensure.BetweenInclusive(0, drawingOrder.Length - 1, index)];
             SpritemapPart part = HalfPart(Math.Abs(selected) - 1);
             return selected < 0 ? Reflect(part) : part;
         }

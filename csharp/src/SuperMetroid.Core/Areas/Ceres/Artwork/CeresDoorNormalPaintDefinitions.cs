@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
 /// <summary>
@@ -21,7 +22,7 @@ internal sealed class CeresDoorNormalPaintDefinitions
     /// <summary>Selected categorical channel seeds keyed by palette slot and channel.</summary>
     internal readonly Dictionary<int, int> paint = [];
     /// <summary>Supplied colors that depart from the calculated normal-door composition.</summary>
-    internal readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
 
     /// <summary>Separates chosen material paint channels from calculated and independently edited colors.</summary>
     internal CeresDoorNormalPaintDefinitions(ReadOnlySpan<Bgr555> colors)
@@ -33,7 +34,7 @@ internal sealed class CeresDoorNormalPaintDefinitions
                 if (StoresPaint(slot, channel))
                     paint.Add(slot * 3 + (int)channel, colors[slot - 1][channel]);
         for (int slot = 1; slot <= colors.Length; slot++)
-            if (Calculate(slot) != colors[slot - 1]) edits.Add(slot, colors[slot - 1]);
+            if (Calculate(slot) != colors[slot - 1]) edits.Add(new ColourCell(0, slot), colors[slot - 1]);
     }
 
     /// <summary>Identifies channels whose values are authored seeds rather than derived hues.</summary>
@@ -53,7 +54,8 @@ internal sealed class CeresDoorNormalPaintDefinitions
     {
         if ((uint)index >= 15) throw new ArgumentOutOfRangeException(nameof(index));
         int slot = index + 1;
-        return edits.TryGetValue(slot, out Bgr555 color) ? color : Calculate(slot);
+        var slotCell = new ColourCell(0, index + 1);
+        return edits.TryGetValue(slotCell, out Bgr555 color) ? color : Calculate(slot);
     }
 
     /// <summary>Builds a normal door shade from categorical channel seeds and copied warm targets.</summary>

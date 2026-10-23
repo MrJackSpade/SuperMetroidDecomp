@@ -97,7 +97,7 @@ internal static class MapSpritesVerification
         using (var input = File.OpenRead(Path.Combine(stock, MapSpriteFormat.PngFile)))
             image = IndexedPng.Read(input, new(MapSpriteFormat.Width, MapSpriteFormat.Height));
         for (int pixel = 0; pixel < image.Pixels.Length; pixel++) image.Pixels[pixel] = (byte)((image.Pixels[pixel] + 1) % 16);
-        using (var output = File.Create(pngPath)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+        using (var output = File.Create(pngPath)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         var pngEdit = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(pngEdit.ContentIdentity != original.ContentIdentity, "PNG alone changes selected content identity");
         Suite(nameof(VerifyRenderedEdit), () => VerifyRenderedEdit(pngEdit));

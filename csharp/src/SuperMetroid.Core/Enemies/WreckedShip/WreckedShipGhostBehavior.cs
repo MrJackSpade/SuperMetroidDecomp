@@ -76,7 +76,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         // the 280-frame appearance delay expires. SnesCgram is this runtime's already-settled
         // visible buffer, so clear it alongside the retained target buffer; otherwise the
         // first white ramp would begin from the graphics-set palette and overflow BGR fields.
-        state.MutableTargetPalette.Clear();
+        state.MutableTargetColours.Clear();
         WreckedShipGhostPalette(slot).Fill(Bgr555.Black);
         slot.SetSpeciesState(state, state.ClearWithRecord);
     }
@@ -263,8 +263,8 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             return;
 
         state.Function = WreckedShipGhostAiFunction.FadingToGhostPalette;
-        for (int color = 0; color < state.MutableTargetPalette.Length; color++)
-            state.MutableTargetPalette[color] = WreckedShipGhostAppearanceDefinitions.PaletteColor(color);
+        for (int color = 0; color < state.MutableTargetColours.Length; color++)
+            state.MutableTargetColours[color] = WreckedShipGhostAppearanceDefinitions.PaletteColor(color);
     }
 
     /// <summary>Ports $A8:9BAD, including the simultaneous flicker and per-component fade.</summary>
@@ -314,7 +314,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
         state.Function = WreckedShipGhostAiFunction.WaitingForWhiteFade;
         slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
-        state.MutableTargetPalette.Fill(Bgr555.White);
+        state.MutableTargetColours.Fill(Bgr555.White);
     }
 
     /// <summary>Ports $A8:9C69: finish whitening, hide, and restart the 120-frame delay.</summary>
@@ -379,7 +379,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     {
         ColourRun palette = WreckedShipGhostPalette(slot);
         int componentsChanged = 0;
-        ReadOnlySpan<Bgr555> target = state.TargetPalette.Span;
+        ReadOnlySpan<Bgr555> target = state.TargetColours.Span;
         for (int color = 0; color < palette.Count; color++)
         {
             Bgr555 current = palette[color];

@@ -200,7 +200,7 @@ internal static class PostCreditsCharacterArtworkVerification
                     Array.Fill(image.Pixels, (byte)0);
                     using var output = File.Create(overridePath);
                     IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels,
-                        image.Palette);
+                        image.Colours);
                 }
                 EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
                 var stockBus = NewEndingObjectSourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));

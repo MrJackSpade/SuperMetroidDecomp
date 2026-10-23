@@ -156,7 +156,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             // targets must use the currently selected installed palette.
             var baseline = new ScreenPalette();
             value.Palette.LoadTo(baseline);
-            baseline.Colors.CopyTo(introPalette);
+            baseline.Colors.CopyTo(introColours);
             if (Phase is IntroCinematicPhase.Initial or IntroCinematicPhase.WaitForInitialMusicQueue)
                 value.Palette.LoadTo(palette);
             if (Phase is >= IntroCinematicPhase.WaitForPageOneMusicQueue and
@@ -208,7 +208,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private readonly ushort[] textTilemap =
         new ushort[IntroCinematicRomData.Layers.TextTilemapWordCount];
     /// <summary>Target palette restored by transitions back from gameplay flashbacks.</summary>
-    private readonly Bgr555[] introPalette = new Bgr555[ScreenPalette.ColorCount];
+    private readonly Bgr555[] introColours = new Bgr555[ScreenPalette.ColorCount];
     /// <summary>Persistent bank-$8C actor and caret walker for illustrated pages.</summary>
     internal IntroCinematicObjectSystem? CurrentObjects { get; private set; }
     /// <summary>The intro's sprite objects, which exist from the first text page onward.</summary>
@@ -305,7 +305,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             "Opening cinematic requires installed artwork.");
         this.samusBodyArtwork = samusBodyArtwork;
         characterArtwork.Palette.LoadTo(palette);
-        palette.Colors.CopyTo(introPalette);
+        palette.Colors.CopyTo(introColours);
 
         RequireMinimum(characterArtwork.BackgroundCharacters.Transfer.Length, IntroCinematicRomData.Transfers.BackgroundCharacterBytes,
             "intro BG1/BG2 characters");
@@ -636,7 +636,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         {
             CurrentFlashbackMotherBrain.RunPreInstruction(
                 palette,
-                introPalette,
+                introColours,
                 FrameCounterWord(elapsedUpdates),
                 crossfadeCounter.RawValue);
             // $8B:B842: deleting Mother Brain after the page-two crossfade hides Samus from
@@ -725,7 +725,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         // $8B:B018 replaces the target palette with kPalettes_Intro, decomposes every
         // component, clears only the incoming gameplay ranges, and immediately composes.
-        paletteFader = new CinematicPaletteFader(introPalette);
+        paletteFader = new CinematicPaletteFader(introColours);
         ClearPaletteSpans(IntroCinematicRomData.Palette.Narration);
         paletteFader.ComposeInto(palette);
 
@@ -769,7 +769,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // $8B:B35F spawns page-two's bank-$8C BG object, selects the reverse gameplay-to-
         // text palette routine, and restores the already allocated caret object.
         Objects.StartEnglishPageTwo();
-        paletteFader = new CinematicPaletteFader(introPalette);
+        paletteFader = new CinematicPaletteFader(introColours);
         ClearPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
         paletteFader.ComposeInto(palette);
         crossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
@@ -821,7 +821,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         CurrentFlashbackLevel = null;
         flashbackProjectiles.Reset();
 
-        paletteFader = new CinematicPaletteFader(introPalette);
+        paletteFader = new CinematicPaletteFader(introColours);
         ClearPaletteSpans(IntroCinematicRomData.Palette.Narration);
         paletteFader.ComposeInto(palette);
         crossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
@@ -855,7 +855,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // spawns its bank-$8C text object and enters the same gameplay-to-text palette
         // routine used after Mother Brain. The SR388 actors continue running beneath it.
         Objects.StartEnglishPageThree();
-        paletteFader = new CinematicPaletteFader(introPalette);
+        paletteFader = new CinematicPaletteFader(introColours);
         ClearPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
         paletteFader.ComposeInto(palette);
         crossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
@@ -883,7 +883,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         CurrentScientistCutscene = IntroScientistCutsceneState.CreateDelivery();
         CurrentBabyDiscovery = null;
 
-        paletteFader = new CinematicPaletteFader(introPalette);
+        paletteFader = new CinematicPaletteFader(introColours);
         ClearPaletteSpans(IntroCinematicRomData.Palette.Discovery);
         paletteFader.ComposeInto(palette);
 
@@ -927,7 +927,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // cinematic-function counter, while the reverse routine deliberately consumes the
         // still-$007F IntroCrossFadeTimer set by the delivery scene.
         Objects.StartEnglishPageFour();
-        paletteFader = new CinematicPaletteFader(introPalette);
+        paletteFader = new CinematicPaletteFader(introColours);
         ClearPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
         paletteFader.ComposeInto(palette);
         crossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
@@ -965,7 +965,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // $B123 selects BG1SC=$5C, starts the page at Y=-24, and spawns definition $CE67.
         // Its setup is otherwise the same two-counter scientist crossfade as delivery.
         CurrentScientistCutscene = IntroScientistCutsceneState.CreateExamination();
-        paletteFader = new CinematicPaletteFader(introPalette);
+        paletteFader = new CinematicPaletteFader(introColours);
         ClearPaletteSpans(IntroCinematicRomData.Palette.Discovery);
         paletteFader.ComposeInto(palette);
         crossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
@@ -981,7 +981,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private void SetupPageFiveCrossfade()
     {
         Objects.StartEnglishPageFive();
-        paletteFader = new CinematicPaletteFader(introPalette);
+        paletteFader = new CinematicPaletteFader(introColours);
         ClearPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
         paletteFader.ComposeInto(palette);
         crossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);

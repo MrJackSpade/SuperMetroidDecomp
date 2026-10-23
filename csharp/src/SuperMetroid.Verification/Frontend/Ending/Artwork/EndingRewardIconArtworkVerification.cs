@@ -110,7 +110,7 @@ internal static class EndingRewardIconArtworkVerification
                     Array.Fill(image.Pixels, (byte)0);
                     using var output = File.Create(overridePath);
                     IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
-                        image.Pixels, image.Palette);
+                        image.Pixels, image.Colours);
                 }
                 EndingFloorArtworkCatalog edited = installation.LoadEndingMode7Art();
                 var uploadBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
@@ -210,7 +210,7 @@ internal static class EndingRewardIconArtworkVerification
         persistentImage.Pixels[0] = (byte)(persistentImage.Pixels[0] ^ 1);
         using (var output = File.Create(userPng))
             IndexedPng.Write(output, new(persistentImage.Size.X, persistentImage.Size.Y),
-                persistentImage.Pixels, persistentImage.Palette);
+                persistentImage.Pixels, persistentImage.Colours);
         byte[] selected = installation.LoadEndingMode7Art().RewardIcon.Transfer.ToArray();
         string stockMap = Path.Combine(installation.EndingMode7Directory,
             EndingRewardIconArtworkFormat.MapFileName);

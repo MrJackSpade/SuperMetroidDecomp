@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>
@@ -14,7 +15,7 @@ internal sealed class CeresRidleyHealthPaintDefinitions
     /// <summary>Source healthy body and eye paints from which the three damage bands are calculated.</summary>
     private readonly CeresRidleyFadeColorDefinitions body, eyes;
     /// <summary>Authored departures from the calculated health shades, keyed by row and color.</summary>
-    internal readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
 
     /// <summary>Records only input colors that differ from the calculated healthy-to-membrane tint.</summary>
     internal CeresRidleyHealthPaintDefinitions(Bgr555[][] rows,
@@ -22,7 +23,7 @@ internal sealed class CeresRidleyHealthPaintDefinitions
     {
         this.body = body; this.eyes = eyes;
         for (int row = 0; row < 3; row++) for (int color = 0; color < 14; color++)
-            if (Calculate(row, color) != rows[row][color]) edits.Add(row * 14 + color, rows[row][color]);
+            if (Calculate(row, color) != rows[row][color]) edits.Add(new ColourCell(row, color), rows[row][color]);
     }
 
     /// <summary>Uses an authored override where present, otherwise calculates the selected damage-band shade.</summary>
@@ -30,7 +31,7 @@ internal sealed class CeresRidleyHealthPaintDefinitions
     {
         if ((uint)row >= 3) throw new ArgumentOutOfRangeException(nameof(row));
         if ((uint)color >= 14) throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(row * 14 + color, out Bgr555 edited) ? edited : Calculate(row, color);
+        return edits.TryGetValue(new ColourCell(row, color), out Bgr555 edited) ? edited : Calculate(row, color);
     }
 
     /// <summary>Tints healthy armor or eyes toward middle membrane paint, preserving two chosen channel shades.</summary>

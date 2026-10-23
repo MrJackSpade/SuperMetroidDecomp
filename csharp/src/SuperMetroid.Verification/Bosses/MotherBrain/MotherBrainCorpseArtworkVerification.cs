@@ -107,7 +107,7 @@ internal static class MotherBrainCorpseArtworkVerification
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
         using (var output = File.Create(overridePath))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
         byte[] editedCharacters = TransferMotherBrainCorpsePages(edited);
         int editedVramOffset = (MotherBrainCorpseArtworkDefinitions.VramPageDestination(0) - GameplayVramLayout.ObjectCharacters.Offset) * 2 +

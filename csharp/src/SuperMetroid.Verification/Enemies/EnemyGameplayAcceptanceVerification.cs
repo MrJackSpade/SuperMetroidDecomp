@@ -122,7 +122,7 @@ internal static class EnemyGameplayAcceptanceVerification
             IndexedPngImage image = IndexedPng.Read(input, new(checked((ushort)(columns * 8)), checked((ushort)((tiles + columns - 1) / columns * 8))));
             image.Pixels[0] ^= 1;
             using var output = File.Create(Path.Combine(overridePath, EnemyTileArtworkFormat.FileName(alias)));
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         }
         byte[] stockBytes = File.ReadAllBytes(Path.Combine(stockPath, EnemyTileArtworkFormat.FileName(editedPointer)));
         string stockHash = Convert.ToHexString(SHA256.HashData(stockBytes));

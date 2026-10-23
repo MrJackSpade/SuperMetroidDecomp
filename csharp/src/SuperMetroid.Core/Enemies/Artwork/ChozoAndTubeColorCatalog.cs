@@ -22,11 +22,11 @@ public sealed class ChozoAndTubeColorCatalog
     /// <summary>Eight authored crack inks from which the unedited stock halves and shade ramp are calculated.</summary>
     internal readonly Bgr555[] tubeColorSeeds;
     /// <summary>Supplied crack colors that differ from the stock seed and repeated ramp.</summary>
-    internal readonly Dictionary<int, Bgr555> tubeColorEdits = [];
+    internal readonly Dictionary<ColourCell, Bgr555> tubeColorEdits = [];
     /// <summary>Wrecked Ship statue inks that differ from the calculated Chozo paint.</summary>
-    internal readonly Dictionary<int, Bgr555> wreckedShipEdits = [];
+    internal readonly Dictionary<ColourCell, Bgr555> wreckedShipEdits = [];
     /// <summary>Lower Norfair statue inks that differ from the calculated Chozo paint.</summary>
-    internal readonly Dictionary<int, Bgr555> lowerNorfairEdits = [];
+    internal readonly Dictionary<ColourCell, Bgr555> lowerNorfairEdits = [];
 
     /// <summary>Preserves authored crack seeds and only deviations from calculated stock tube and statue colors.</summary>
     private ChozoAndTubeColorCatalog(Bgr555[] tubeCracks, Bgr555[] wreckedShip,
@@ -37,13 +37,13 @@ public sealed class ChozoAndTubeColorCatalog
         tubeColorSeeds = tubeCracks[..8];
         for (int color = 8; color < tubeCracks.Length; color++)
             if (tubeCracks[color] != CalculateTubeColor(color))
-                tubeColorEdits.Add(color, tubeCracks[color]);
+                tubeColorEdits.Add(new ColourCell(0, color), tubeCracks[color]);
         for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
         {
             if (wreckedShip[color] != ChozoStatuePaintDefinitions.Color(ChozoStatuePalette.WreckedShip, color))
-                wreckedShipEdits.Add(color, wreckedShip[color]);
+                wreckedShipEdits.Add(new ColourCell(0, color), wreckedShip[color]);
             if (lowerNorfair[color] != ChozoStatuePaintDefinitions.Color(ChozoStatuePalette.LowerNorfair, color))
-                lowerNorfairEdits.Add(color, lowerNorfair[color]);
+                lowerNorfairEdits.Add(new ColourCell(0, color), lowerNorfair[color]);
         }
     }
 
@@ -52,7 +52,7 @@ public sealed class ChozoAndTubeColorCatalog
     {
         if ((uint)color >= ChozoAndTubeColorRomData.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return tubeColorEdits.TryGetValue(color, out Bgr555 edited) ? edited : CalculateTubeColor(color);
+        return tubeColorEdits.TryGetValue(new ColourCell(0, color), out Bgr555 edited) ? edited : CalculateTubeColor(color);
     }
 
     /// <summary>$AA:E2DD: two equal16-color halves; colors8..15 linearly shade RGB5(31,27,29) to(0,0,1).</summary>
@@ -72,8 +72,8 @@ public sealed class ChozoAndTubeColorCatalog
     {
         if ((uint)color >= ChozoAndTubeColorRomData.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        Dictionary<int, Bgr555> edits = palette == ChozoStatuePalette.WreckedShip ? wreckedShipEdits : lowerNorfairEdits;
-        return edits.TryGetValue(color, out Bgr555 edited) ? edited : ChozoStatuePaintDefinitions.Color(palette, color);
+        Dictionary<ColourCell, Bgr555> edits = palette == ChozoStatuePalette.WreckedShip ? wreckedShipEdits : lowerNorfairEdits;
+        return edits.TryGetValue(new ColourCell(0, color), out Bgr555 edited) ? edited : ChozoStatuePaintDefinitions.Color(palette, color);
     }
 
     /// <summary>Expands a statue variant into its ordered 32-color CGRAM image for identity hashing.</summary>

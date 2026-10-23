@@ -34,7 +34,7 @@ internal static class PauseTileAtlasVerification
         IndexedPngImage image;
         using (var input = File.OpenRead(stockPath)) image = IndexedPng.Read(input, new(MapTileAtlasFormat.Width, MapTileAtlasFormat.Height));
         for (int pixel = 0; pixel < image.Pixels.Length; pixel++) image.Pixels[pixel] = (byte)((image.Pixels[pixel] + 1) % 16);
-        using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+        using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "pause-only PNG edit changes content identity");
         var firstMap = new SnesVram(); var editedMap = new SnesVram();
@@ -72,7 +72,7 @@ internal static class PauseTileAtlasVerification
         }
         File.WriteAllText(path, "invalid PNG");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "corrupt pause override is not silently replaced");
-        using (var output = File.Create(path)) IndexedPng.Write(output, new(1, 1), [0], image.Palette);
+        using (var output = File.Create(path)) IndexedPng.Write(output, new(1, 1), [0], image.Colours);
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "pause PNG dimensions enforced");
         image.Pixels[0] = 16;
         using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, SnesGraphics.DiagnosticPalette(17));

@@ -32,10 +32,4 @@ public static class ShitroidColorRomData
     public const int NormalColorsPerFrame = 4;
     /// <summary>Sixteen packed RGB5 words in each $A9:F8A6/$F8C6/$F8E6 target image, including its transparent-slot payload: a complete 32-byte OBJ palette row for initialization or target-color transitions.</summary>
     public const int TargetColorCount = 16;
-    /// <summary>Target-palette colour index $90 receiving the sidehopper target image.</summary>
-    public const int SidehopperDestination = 0x90;
-    /// <summary>Target-palette colour index $A0 receiving the Shitroid target image.</summary>
-    public const int ShitroidDestination = 0xa0;
-    /// <summary>Target-palette colour index $F0 receiving the dead-sidehopper target image.</summary>
-    public const int DeadSidehopperDestination = 0xf0;
 }

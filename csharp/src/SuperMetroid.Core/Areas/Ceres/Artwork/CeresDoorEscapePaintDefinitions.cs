@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
 /// <summary>
@@ -19,7 +20,7 @@ internal sealed class CeresDoorEscapePaintDefinitions
     /// <summary>Blue component of the terminal cyan target-paint slot.</summary>
     private readonly int accentBlue;
     /// <summary>Extracted colors that differ from the derived surface and warm-target paint.</summary>
-    internal readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
 
     /// <summary>Uses the normal door's warm targets when compiling the escape paint.</summary>
     internal CeresDoorEscapePaintDefinitions(ReadOnlySpan<Bgr555> colors, CeresDoorNormalPaintDefinitions normal)
@@ -44,14 +45,14 @@ internal sealed class CeresDoorEscapePaintDefinitions
         surface = new(colors[..8]);
         accentBlue = colors[14].Blue;
         for (int index = 0; index < colors.Length; index++)
-            if (Calculate(index) != colors[index]) edits.Add(index, colors[index]);
+            if (Calculate(index) != colors[index]) edits.Add(new ColourCell(0, index), colors[index]);
     }
 
     /// <summary>Selects an extracted edit when present, otherwise resolves the derived surface or target color.</summary>
     internal Bgr555 ColorAt(int index)
     {
         if ((uint)index >= 15) throw new ArgumentOutOfRangeException(nameof(index));
-        return edits.TryGetValue(index, out Bgr555 edited) ? edited : Calculate(index);
+        return edits.TryGetValue(new ColourCell(0, index), out Bgr555 edited) ? edited : Calculate(index);
     }
 
     /// <summary>Combines surface inks, shared warm targets, and the saturated cyan terminal slot.</summary>

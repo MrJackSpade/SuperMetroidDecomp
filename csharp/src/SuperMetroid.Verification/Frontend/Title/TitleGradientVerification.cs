@@ -206,7 +206,7 @@ internal static class TitleGradientVerification
             new MemoryStream(files[TitleGraphicsFormat.FloorTilesFile]),
             new(TitleGraphicsFormat.FloorWidth, TitleGraphicsFormat.FloorHeight));
         using var wrong = new MemoryStream();
-        IndexedPng.Write(wrong, new(8, 8), new byte[64], mode7.Palette);
+        IndexedPng.Write(wrong, new(8, 8), new byte[64], mode7.Colours);
         wrong.Position = 0;
         AssertThrows<InvalidDataException>(() => TitleGraphicsPresentation.Load(
             wrong,

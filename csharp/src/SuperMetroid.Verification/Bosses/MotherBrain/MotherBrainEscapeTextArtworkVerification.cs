@@ -69,7 +69,7 @@ internal static class MotherBrainEscapeTextArtworkVerification
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
         using (var output = File.Create(overridePath))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
         SnesVram editedVram = TransferMotherBrainEscapeTextPages(edited);
         int firstDestination = EscapeTextArtworkDefinitions.PageDestination(0) * 2;

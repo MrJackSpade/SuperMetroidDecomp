@@ -76,7 +76,7 @@ public sealed class KraidColorCatalog
         /// <summary>Named native source that supplies calculated unedited colors.</summary>
         private readonly KraidPaletteSource source;
         /// <summary>Only supplied colors that differ from the reviewed stock paint.</summary>
-        internal readonly Dictionary<int, Bgr555> deviations = new();
+        internal readonly Dictionary<ColourCell, Bgr555> deviations = new();
 
         /// <summary>Records independent edits to one sixteen-color source.</summary>
         internal StockBand(KraidPaletteSource source, Bgr555[] supplied)
@@ -84,13 +84,13 @@ public sealed class KraidColorCatalog
             this.source = source;
             for (int index = 0; index < supplied.Length; index++)
                 if (KraidPaintDefinitions.Color(source, index) != supplied[index])
-                    deviations.Add(index, supplied[index]);
+                    deviations.Add(new ColourCell(0, index), supplied[index]);
         }
 
         /// <summary>Native color count of this named source.</summary>
         public int Count => KraidPaletteRomData.ColorCount(source);
         /// <summary>Edited color at an index, or its calculated stock paint.</summary>
-        public Bgr555 this[int index] => deviations.TryGetValue(index, out Bgr555 supplied)
+        public Bgr555 this[int index] => deviations.TryGetValue(new ColourCell(0, index), out Bgr555 supplied)
             ? supplied : KraidPaintDefinitions.Color(source, index);
 
         /// <summary>Visits source colors in their native palette order.</summary>
@@ -127,7 +127,7 @@ public sealed class KraidColorCatalog
     internal sealed class HealthPalette : IReadOnlyList<Bgr555>
     {
         /// <summary>Edited authored endpoints or interior samples that differ from calculated interpolation.</summary>
-        internal readonly Dictionary<int, Bgr555> deviations = new();
+        internal readonly Dictionary<ColourCell, Bgr555> deviations = new();
 
         /// <summary>Records endpoint edits before comparing interior colors against those selected endpoints.</summary>
         internal HealthPalette(Bgr555[] supplied)
@@ -135,10 +135,10 @@ public sealed class KraidColorCatalog
             // Authored cells first: interior interpolation reads the (possibly edited) endpoints.
             for (int index = 0; index < supplied.Length; index++)
                 if (KraidPaintDefinitions.HealthAuthored(index) is Bgr555 stock && stock != supplied[index])
-                    deviations.Add(index, supplied[index]);
+                    deviations.Add(new ColourCell(0, index), supplied[index]);
             for (int index = 0; index < supplied.Length; index++)
                 if (KraidPaintDefinitions.HealthAuthored(index) is null && Calculate(index) != supplied[index])
-                    deviations.Add(index, supplied[index]);
+                    deviations.Add(new ColourCell(0, index), supplied[index]);
         }
 
         /// <summary>White flash plus eight native sixteen-color health bands.</summary>
@@ -150,7 +150,7 @@ public sealed class KraidColorCatalog
             {
                 if ((uint)index >= Count)
                     throw new ArgumentOutOfRangeException(nameof(index));
-                return deviations.TryGetValue(index, out Bgr555 supplied) ? supplied : Calculate(index);
+                return deviations.TryGetValue(new ColourCell(0, index), out Bgr555 supplied) ? supplied : Calculate(index);
             }
         }
 

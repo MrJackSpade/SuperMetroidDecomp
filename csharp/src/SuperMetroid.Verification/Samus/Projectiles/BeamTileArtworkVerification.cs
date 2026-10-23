@@ -45,7 +45,7 @@ internal static class BeamTileArtworkVerification
             var image = IndexedPng.Read(new MemoryStream(png), new(64, 8));
             image.Pixels[0] ^= 1;
             using var editedPng = new MemoryStream();
-            IndexedPng.Write(editedPng, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+            IndexedPng.Write(editedPng, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
             editedPng.Position = 0;
             var edited = BeamTileAtlas.Load(editedPng, SamusBeamCombinations.FromTableIndex(selection));
             edited.LoadTo(extracted);
@@ -116,7 +116,7 @@ internal static class BeamTileArtworkVerification
         var image = IndexedPng.Read(new MemoryStream(files[BeamTileAtlasDefinitions.FileName(0)]), new(64, 8));
         image.Pixels[0] ^= 1;
         using var png = new MemoryStream();
-        IndexedPng.Write(png, new(64, 8), image.Pixels, image.Palette);
+        IndexedPng.Write(png, new(64, 8), image.Pixels, image.Colours);
         var changed = new Dictionary<string, byte[]>(files) { [BeamTileAtlasDefinitions.FileName(0)] = png.ToArray() };
         var edited = BeamTileCatalog.Load(changed, stock.Palettes);
         var runtime = CreateRetailRuntimeFixture();

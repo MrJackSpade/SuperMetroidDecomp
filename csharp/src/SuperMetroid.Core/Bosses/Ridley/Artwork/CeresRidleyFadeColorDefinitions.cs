@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Ceres;
 
 
@@ -32,7 +33,7 @@ internal sealed class CeresRidleyFadeColorDefinitions
         }
     }
     /// <summary>Imported colors that differ from the common quantized fade formula.</summary>
-    internal readonly Dictionary<int, Bgr555> overrides = new();
+    internal readonly Dictionary<ColourCell, Bgr555> overrides = new();
     /// <summary>Number of colors in a row of the selected fade table.</summary>
     private int Colors => kind == CeresRidleyFadeKind.Eyes
         ? CeresRidleyPaletteRomData.EyeFadeColorCount : CeresRidleyPaletteRomData.BodyFadeColorCount;
@@ -49,14 +50,14 @@ internal sealed class CeresRidleyFadeColorDefinitions
         for (int row = 0; row < Rows; row++)
         for (int color = 0; color < Colors; color++)
             if (rows[row][color] != Calculate(row, color))
-                overrides[row * Colors + color] = rows[row][color];
+                overrides[new ColourCell(row, color)] = rows[row][color];
     }
 
     /// <summary>Returns a supplied exception color when present, otherwise the calculated fade shade.</summary>
     internal Bgr555 Resolve(int row, int color)
     {
         Validate(row, color);
-        int key = row * Colors + color;
+        var key = new ColourCell(row, color);
         return overrides.TryGetValue(key, out Bgr555 edited) ? edited : Calculate(row, color);
     }
 

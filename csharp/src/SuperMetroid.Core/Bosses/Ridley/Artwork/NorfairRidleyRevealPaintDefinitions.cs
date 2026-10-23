@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>
@@ -37,14 +38,14 @@ internal sealed class NorfairRidleyRevealPaintDefinitions
     /// </summary>
     private const int CavernHighlightRed = 14, CavernRedStep = 5, CavernHighlightBlue = 2;
     /// <summary>Independently supplied row colors that differ from the scaled material endpoints.</summary>
-    internal readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
 
     /// <summary>Captures only palette cells that differ from the calculated fifteen-step reveal.</summary>
     internal NorfairRidleyRevealPaintDefinitions(Bgr555[][] rows)
     {
         for (int row = 0; row < Rows; row++)
             for (int color = 0; color < Colors; color++)
-                if (rows[row][color] != Calculate(row, color)) edits.Add(row * Colors + color, rows[row][color]);
+                if (rows[row][color] != Calculate(row, color)) edits.Add(new ColourCell(row, color), rows[row][color]);
     }
 
     /// <summary>Resolves an independently edited reveal cell or scales its stock material endpoint.</summary>
@@ -52,7 +53,7 @@ internal sealed class NorfairRidleyRevealPaintDefinitions
     {
         ValidateRow(row);
         if ((uint)color >= Colors) throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(row * Colors + color, out Bgr555 edited) ? edited : Calculate(row, color);
+        return edits.TryGetValue(new ColourCell(row, color), out Bgr555 edited) ? edited : Calculate(row, color);
     }
 
     /// <summary>Restricts lookup to the fifteen native reveal phases.</summary>

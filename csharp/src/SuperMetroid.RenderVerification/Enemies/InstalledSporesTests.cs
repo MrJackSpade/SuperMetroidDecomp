@@ -225,7 +225,7 @@ internal static class InstalledSporesTests
                 image.Pixels.AsSpan(y * image.Size.X, width).CopyTo(pixels.AsSpan(y * width));
             pixels[0] = (byte)((pixels[0] + 1) % 4);
             using var legacyPng = new MemoryStream();
-            IndexedPng.Write(legacyPng, new(checked((ushort)width), 8), pixels, image.Palette);
+            IndexedPng.Write(legacyPng, new(checked((ushort)width), 8), pixels, image.Colours);
             legacyPng.Position = 0;
             RoomFxAnimatedTileAtlas legacy = RoomFxAnimatedTileAtlas.Load(legacyPng, stock);
             byte[] expected = (byte[])planar.Clone();
@@ -266,7 +266,7 @@ internal static class InstalledSporesTests
         for (int x = RoomFxAnimatedTileAtlasFormat.PreSporesWidth; x < image.Size.X; x++)
             image.Pixels[y * image.Size.X + x] = (byte)((x + y) % 3 + 1);
         using (var output = File.Create(Path.Combine(overrides, RoomFxAnimatedTileAtlasFormat.FileName)))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
 
         JsonNode tilemaps = RequiredJson.Parse(File.ReadAllBytes(Path.Combine(maps, RoomFxLayer3TilemapFormat.FileName)));
         foreach (JsonNode? cell in tilemaps.Required("pages").Required("Spores").AsArray().RequiredElements())

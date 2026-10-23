@@ -154,7 +154,7 @@ internal static class EscapeTimerPresentationVerification
         image.Pixels[0] ^= 1;
         string tileReplacement = Path.Combine(overrides, EscapeTimerTileAtlasFormat.FileName);
         using (var output = File.Create(tileReplacement))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         var editedArtwork = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(!original.EscapeTimerTiles.Resolve(VramAssetId.EscapeTimerFirstTiles).Span.SequenceEqual(
             editedArtwork.EscapeTimerTiles.Resolve(VramAssetId.EscapeTimerFirstTiles).Span),
@@ -164,7 +164,7 @@ internal static class EscapeTimerPresentationVerification
             "timer PNG edit leaves the second compiled transfer untouched");
 
         using (var output = File.Create(tileReplacement))
-            IndexedPng.Write(output, new(EscapeTimerTileAtlasFormat.Width - 8, EscapeTimerTileAtlasFormat.Height), image.Pixels.AsSpan(0, image.Pixels.Length - 64), image.Palette);
+            IndexedPng.Write(output, new(EscapeTimerTileAtlasFormat.Width - 8, EscapeTimerTileAtlasFormat.Height), image.Pixels.AsSpan(0, image.Pixels.Length - 64), image.Colours);
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides),
             "wrong-size timer PNG fails loudly");
 

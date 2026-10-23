@@ -103,7 +103,7 @@ public sealed class SamusChargeColorCatalog
         /// <summary>Selects three-phase pseudo-Screw holds instead of the mirrored charge pulse.</summary>
         private readonly bool pseudo;
         /// <summary>Palette cells whose supplied inks cannot be shared with a canonical suit or phase.</summary>
-        internal readonly Dictionary<int, Bgr555> colors = new();
+        internal readonly Dictionary<ColourCell, Bgr555> colors = new();
         /// <summary>Per-channel deviations from the calculated whitening or pseudo-Screw bright tint.</summary>
         internal readonly Dictionary<int, LoadingPaletteInputView.Channels> fadeInputs = new();
 
@@ -127,12 +127,13 @@ public sealed class SamusChargeColorCatalog
                 }
                 if (suit != 0 && phase == canonical && (pseudo || phase == 0) && value == source[0][phase][color]) continue;
                 int key = (suit * 6 + phase) * 16 + color;
+                var keyCell = new ColourCell((suit * 6 + phase), color);
                 if (!pseudo && phase == canonical && phase != 0)
                 {
                     Bgr555 expected = SamusPaletteFade.EighthTowardWhite(source[suit][0][color], phase);
                     if (value != expected) fadeInputs.Add(key, new(value, expected));
                 }
-                else colors.Add(key, value);
+                else colors.Add(keyCell, value);
             }
         }
 
@@ -143,7 +144,8 @@ public sealed class SamusChargeColorCatalog
             int canonical = SamusChargeColorFormat.CanonicalPhase(pseudo, phase);
             if ((uint)color >= SamusChargeColorFormat.ColorsPerPalette) throw new ArgumentOutOfRangeException(nameof(color));
             int key = (suit * 6 + phase) * 16 + color;
-            if (colors.TryGetValue(key, out Bgr555 value)) return value;
+            var keyCell = new ColourCell((suit * 6 + phase), color);
+            if (colors.TryGetValue(keyCell, out Bgr555 value)) return value;
             if (phase != canonical) return Resolve(suit, canonical, color);
             if (pseudo && phase == 0)
             {

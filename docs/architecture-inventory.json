@@ -10697,6 +10697,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Assets.ColourCell",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/ColourCell.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Assets.ColourImage",
       "kind": "class",
       "scope": "product",

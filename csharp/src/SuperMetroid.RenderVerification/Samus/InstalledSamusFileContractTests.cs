@@ -118,7 +118,7 @@ internal static class InstalledSamusFileContractTests
                 IndexedPngImage image = IndexedPng.Read(stream, new(checked((ushort)width), checked((ushort)height)));
                 string path = Path.Combine(overrides, name);
                 using (var output = File.Create(path))
-                    IndexedPng.Write(output, new(checked((ushort)(width + 8)), checked((ushort)height)), new byte[(width + 8) * height], image.Palette);
+                    IndexedPng.Write(output, new(checked((ushort)(width + 8)), checked((ushort)height)), new byte[(width + 8) * height], image.Colours);
                 Reject("PNG geometry", path, requireInner: true);
                 Restore();
                 if (!(name.StartsWith("top-", StringComparison.Ordinal) || name.StartsWith("bottom-", StringComparison.Ordinal))) continue;
@@ -132,7 +132,7 @@ internal static class InstalledSamusFileContractTests
                 int unusedTile = definitions[position].Planar.Length / 32;
                 image.Pixels[(position * 16 + unusedTile / 8 * 8) * width + unusedTile % 8 * 8] = 1;
                 using (var output = File.Create(path))
-                    IndexedPng.Write(output, new(checked((ushort)width), checked((ushort)height)), image.Pixels, image.Palette);
+                    IndexedPng.Write(output, new(checked((ushort)width), checked((ushort)height)), image.Pixels, image.Colours);
                 Reject("painted unused body character", path, requireInner: true);
                 Restore();
             }

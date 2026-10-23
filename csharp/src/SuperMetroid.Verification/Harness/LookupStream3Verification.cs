@@ -2686,17 +2686,18 @@ internal static class LookupStream3Verification
                 AssertTrue(parts.SequenceEqual(EnemySpritemapCatalog.CompileParts(document.Frames[frame.Name], frame.Name)),
                     "stream 3 exact supplied Baby part order and every visual field");
             }
-            string expected = SelectedPresentationHash.Create("enemy-oam-v1", content =>
+            // The catalog names each frame by its identity (#1402), in identity-name order; every frame here shows itself.
+            string expected = SelectedPresentationHash.Create("enemy-oam-v2", content =>
             {
-                foreach (var frame in definitions.OrderBy(frame => ((int)new SnesAddress(frame.Bank, frame.Pointer))))
+                foreach (var frame in definitions.OrderBy(frame => frame.Frame.ToString(), StringComparer.Ordinal))
                 {
-                    content.Append("frame", ((int)new SnesAddress(frame.Bank, frame.Pointer)));
+                    content.AppendName("frame", frame.Frame.ToString());
                     content.AppendEnemyParts(EnemySpritemapCatalog.CompileParts(document.Frames[frame.Name], frame.Name));
                 }
-                foreach (var frame in definitions.OrderBy(frame => ((int)new SnesAddress(frame.Bank, frame.Pointer))))
+                foreach (var frame in definitions.OrderBy(frame => frame.Frame.ToString(), StringComparer.Ordinal))
                 {
-                    content.Append("native-binding", ((int)new SnesAddress(frame.Bank, frame.Pointer)));
-                    content.Append("selected-binding", ((int)new SnesAddress(frame.Bank, frame.Pointer)));
+                    content.AppendName("native-binding", frame.Frame.ToString());
+                    content.AppendName("selected-binding", frame.Frame.ToString());
                 }
             });
             AssertEqual(expected, catalog.ContentIdentity, "stream 3 indexed OAM view retains canonical hash framing");

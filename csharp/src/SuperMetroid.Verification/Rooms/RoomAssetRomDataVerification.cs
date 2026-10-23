@@ -225,7 +225,7 @@ internal static class RoomAssetRomDataVerification
         painted[0] ^= 1;
         using var paintedPng = new MemoryStream();
         IndexedPng.Write(paintedPng, new(landingImage.Size.X, landingImage.Size.Y), painted,
-            landingImage.Palette);
+            landingImage.Colours);
         compiledBySource[landingSource] = RoomCharacterAtlas.Load(
             new MemoryStream(paintedPng.ToArray()), landingNative.Length);
         var editedCatalog = new RoomCharacterAtlasCatalog(compiledCre, compiledBySource.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.CharacterSetAt(pair.Key), pair => pair.Value));
@@ -252,7 +252,7 @@ internal static class RoomAssetRomDataVerification
         byte[] edited = (byte[])decoded.Pixels.Clone();
         edited[0] ^= 1;
         using var changedPng = new MemoryStream();
-        IndexedPng.Write(changedPng, new(decoded.Size.X, decoded.Size.Y), edited, decoded.Palette);
+        IndexedPng.Write(changedPng, new(decoded.Size.X, decoded.Size.Y), edited, decoded.Colours);
         AssertTrue(!RoomCharacterAtlas.Load(new MemoryStream(changedPng.ToArray()), partialNative.Length)
                 .Transfer.Span.SequenceEqual(partialNative),
             "painting a room PNG changes the compiled runtime character bytes");
@@ -260,7 +260,7 @@ internal static class RoomAssetRomDataVerification
         edited = (byte[])decoded.Pixels.Clone();
         edited[(firstPaddingTile / columns * 8) * decoded.Size.X + firstPaddingTile % columns * 8] = 1;
         using var invalidPng = new MemoryStream();
-        IndexedPng.Write(invalidPng, new(decoded.Size.X, decoded.Size.Y), edited, decoded.Palette);
+        IndexedPng.Write(invalidPng, new(decoded.Size.X, decoded.Size.Y), edited, decoded.Colours);
         AssertThrows<InvalidDataException>(() => RoomCharacterAtlas.Load(
                 new MemoryStream(invalidPng.ToArray()), partialNative.Length),
             "room atlas rejects artwork in unused final-row cells");

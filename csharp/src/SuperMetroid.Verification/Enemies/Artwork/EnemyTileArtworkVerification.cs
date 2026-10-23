@@ -253,7 +253,7 @@ internal static class EnemyTileArtworkVerification
             Directory.CreateDirectory(overrideDirectory);
             string overridePath = Path.Combine(overrideDirectory, Path.GetFileName(editedFile));
             using (var output = File.Create(overridePath))
-                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
             InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
             string meltFile = Path.Combine(directory,
                 CrocomireMeltingArtworkFormat.FirstFileName);
@@ -264,7 +264,7 @@ internal static class EnemyTileArtworkVerification
                 using var meltOutput = File.Create(Path.Combine(overrideDirectory,
                     CrocomireMeltingArtworkFormat.FirstFileName));
                 IndexedPng.Write(meltOutput, new(meltImage.Size.X, meltImage.Size.Y),
-                    meltImage.Pixels, meltImage.Palette);
+                    meltImage.Pixels, meltImage.Colours);
             }
             InstalledEnemyArtwork editedMelt = EnemyTileArtworkFiles.Load(
                 directory, overrideDirectory);

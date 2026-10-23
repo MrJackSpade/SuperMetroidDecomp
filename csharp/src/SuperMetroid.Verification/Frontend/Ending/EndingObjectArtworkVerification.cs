@@ -353,7 +353,7 @@ internal static class EndingObjectArtworkVerification
                     new(RoomCharacterAtlasFormat.TileColumns * 8, checked((ushort)(rows * 8))));
             Array.Fill(image.Pixels, (byte)0);
             using (var output = File.Create(overridePath))
-                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
             EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
             scene.InstalledArtwork.BindFixtureObjectArtwork(edited);
             LayeredScene changed = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
@@ -403,7 +403,7 @@ internal static class EndingObjectArtworkVerification
         persistentClouds.Pixels[0] = (byte)((persistentClouds.Pixels[0] + 1) & 15);
         using (var output = File.Create(invalidPath))
             IndexedPng.Write(output, new(persistentClouds.Size.X, persistentClouds.Size.Y),
-                persistentClouds.Pixels, persistentClouds.Palette);
+                persistentClouds.Pixels, persistentClouds.Colours);
         byte[] editedClouds = installation.LoadEndingObjectArt().Clouds.Transfer.ToArray();
         string stockExplosion = Path.Combine(installation.EndingObjectDirectory,
             EndingObjectArtworkFormat.ExplosionFileName);

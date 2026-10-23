@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
@@ -21,15 +22,15 @@ internal sealed class NorfairRidleyInitialPaintDefinitions
     /// <summary>Copied blue channel shared by the two clear-slot source records.</summary>
     private readonly int clearBlue;
     /// <summary>Supplied clear-slot colors that differ from the copied native metadata.</summary>
-    internal readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
 
     /// <summary>Splits 32 supplied targets into two materials and preserves independent clear-slot edits.</summary>
     internal NorfairRidleyInitialPaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {
         Ensure.LengthEqual(colors, 32);
         clearBlue = colors[0].Blue;
-        if (colors[0] != ClearSlot) edits.Add(0, colors[0]);
-        if (colors[16] != ClearSlot) edits.Add(16, colors[16]);
+        if (colors[0] != ClearSlot) edits.Add(new ColourCell(0, 0), colors[0]);
+        if (colors[16] != ClearSlot) edits.Add(new ColourCell(0, 16), colors[16]);
         armor = new(colors.Slice(1, 15));
         organ = new(colors.Slice(17, 15));
     }
@@ -41,7 +42,7 @@ internal sealed class NorfairRidleyInitialPaintDefinitions
     internal Bgr555 ColorAt(int index)
     {
         if ((uint)index >= 32) throw new ArgumentOutOfRangeException(nameof(index));
-        if (edits.TryGetValue(index, out Bgr555 edited)) return edited;
+        if (edits.TryGetValue(new ColourCell(0, index), out Bgr555 edited)) return edited;
         if (index is 0 or 16) return ClearSlot;
         return index < 16 ? armor.ColorAt(index - 1) : organ.Resolve(0, index - 17);
     }

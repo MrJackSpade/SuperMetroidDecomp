@@ -20,17 +20,17 @@ public sealed class ZebetiteColorCatalog
         });
 
     /// <summary>Only palette cells edited away from the calculated native pulse, keyed by frame and color.</summary>
-    internal readonly Dictionary<int, Bgr555> edits;
+    internal readonly Dictionary<ColourCell, Bgr555> edits;
 
     /// <summary>Captures validated color overrides for an eight-frame barrier pulse.</summary>
-    private ZebetiteColorCatalog(Dictionary<int, Bgr555> edits) => this.edits = edits;
+    private ZebetiteColorCatalog(Dictionary<ColourCell, Bgr555> edits) => this.edits = edits;
 
     /// <summary>Calculated symmetric pulse of the two selected barrier-core paints.</summary>
     private static Bgr555 NativeColor(int frame, int color) => ZebetitePulsePaintDefinitions.Color(frame, color);
 
     /// <summary>Selects an edited pulse color when present, otherwise the symmetric native color.</summary>
     private Bgr555 Resolve(int frame, int color) =>
-        edits.TryGetValue(frame * ZebetiteColorFormat.ColorsPerFrame + color, out Bgr555 edited)
+        edits.TryGetValue(new ColourCell(frame, color), out Bgr555 edited)
             ? edited : NativeColor(frame, color);
 
     /// <summary>Strict camel-case JSON options shared by load and write.</summary>
@@ -62,7 +62,7 @@ public sealed class ZebetiteColorCatalog
             !ZebetiteColorFormat.Shape.HasRows(document.Frames))
             throw new InvalidDataException("Zebetite colors require all eight frames at the supported version.");
 
-        var edits = new Dictionary<int, Bgr555>();
+        var edits = new Dictionary<ColourCell, Bgr555>();
         for (int frame = 0; frame < document.Frames.Length; frame++)
         {
             PaletteRgb5[]? colors = document.Frames[frame];
@@ -75,7 +75,7 @@ public sealed class ZebetiteColorCatalog
                     throw new InvalidDataException($"Zebetite frame {frame}, color {color} requires RGB5 channels.");
                 Bgr555 selected = rgb.ToBgr555();
                 if (selected != NativeColor(frame, color))
-                    edits.Add(frame * ZebetiteColorFormat.ColorsPerFrame + color, selected);
+                    edits.Add(new ColourCell(frame, color), selected);
             }
         }
         return new(edits);

@@ -402,7 +402,7 @@ internal static class LookupStream4Verification
         {
             byte[] changedPixels = image.Pixels.ToArray(); changedPixels[pixel] ^= 1;
             using var changedPng = new MemoryStream();
-            IndexedPng.Write(changedPng, new(128, 80), changedPixels, image.Palette); changedPng.Position = 0;
+            IndexedPng.Write(changedPng, new(128, 80), changedPixels, image.Colours); changedPng.Position = 0;
             var changed = EndingFontAtlas.Load(changedPng);
             int x = pixel % 128, y = pixel / 128, tile = y / 8 * 16 + x / 8;
             byte[] expected = native.ToArray();
@@ -965,7 +965,7 @@ internal static class LookupStream4Verification
             }
             for (int frame = 0; frame < 7; frame++)
             {
-                AssertEqual(frame == 6 || unresolved, values.ContainsKey(frame * 16 + color), "Only explicit unresolved columns and final colors remain stored");
+                AssertEqual(frame == 6 || unresolved, values.ContainsKey(new ColourCell(frame, color)), "Only explicit unresolved columns and final colors remain stored");
                 bool calculated = SporeSpawnDeathColorDefinitions.TryLevelColor(Bgr555.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e5b9 + color * 2)))), frame, color, out Bgr555 value);
                 AssertEqual(!unresolved, calculated, "Required trajectories are never disguised as calculated defaults");
                 if (calculated)
@@ -1034,7 +1034,7 @@ internal static class LookupStream4Verification
         for (int frame = 0; frame < 7; frame++)
             for (int color = 0; color < 16; color++)
             {
-                AssertEqual(frame == 6, values.ContainsKey(frame * 16 + color), "Stock background has no interior fallback samples");
+                AssertEqual(frame == 6, values.ContainsKey(new ColourCell(frame, color)), "Stock background has no interior fallback samples");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e5d9 + frame * 32 + color * 2)),
                     SporeSpawnDeathColorDefinitions.BackgroundColor(Bgr555.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e699 + color * 2)))), frame, color),
                     "Direct background calculation matches every original word independently of catalog loading");
@@ -1094,7 +1094,7 @@ internal static class LookupStream4Verification
         for (int frame = 0; frame < 8; frame++)
             for (int color = 0; color < 16; color++)
             {
-                AssertEqual(frame == 7, values.ContainsKey(frame * 16 + color), "Only final endpoint row remains stored in stock fade");
+                AssertEqual(frame == 7, values.ContainsKey(new ColourCell(frame, color)), "Only final endpoint row remains stored in stock fade");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3f9 + frame * 32 + color * 2)),
                     SporeSpawnColorCatalog.CalculateDeathSpriteColor(Bgr555.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3f9 + color * 2)))), Bgr555.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e4d9 + color * 2)))), frame),
                     "Direct channel interpolation equals every original sprite death word without loading fallback samples");
@@ -2841,7 +2841,7 @@ internal static class LookupStream4Verification
     {
         ushort[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + i * 2))).ToArray();
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
-        static void NoEdits(Dictionary<int, Bgr555> edits) =>
+        static void NoEdits(Dictionary<ColourCell, Bgr555> edits) =>
             AssertEqual(0, edits.Count, "Native material has no unexplained output overrides");
         byte[] json = NorfairRidleyColorExtractor.Extract(rom);
         var original = RequiredJson.Deserialize<NorfairRidleyColorDocument>(json, ArtworkJson.Options);
@@ -3174,7 +3174,7 @@ internal static class LookupStream4Verification
                 byte[] pixels = image.Pixels.ToArray();
                 pixels[editedPixel] ^= 1;
                 using var changedPng = new MemoryStream();
-                IndexedPng.Write(changedPng, new(64, 8), pixels, image.Palette);
+                IndexedPng.Write(changedPng, new(64, 8), pixels, image.Colours);
                 byte[] changed = changedPng.ToArray();
                 var edited = BeamTileAtlas.Load(new MemoryStream(changed), SamusBeamCombinations.FromTableIndex(selection));
                 byte[] expected = native.ToArray();

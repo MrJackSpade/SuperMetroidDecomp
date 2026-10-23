@@ -73,7 +73,7 @@ internal static class DeadTorizoArtworkVerification
         string overrideDirectory = Path.Combine(directory, "dead-torizo-overrides");
         Directory.CreateDirectory(overrideDirectory);
         using (var output = File.Create(Path.Combine(overrideDirectory, fileName)))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         byte[] installedTiles = Staged(installed, 0, 0x1000);
         byte[] editedTiles = Staged(StageDeadTorizoArtwork(EnemyTileArtworkFiles.Load(directory, overrideDirectory)), 0, 0x1000);
         AssertEqual((byte)(installedTiles[0x60] ^ 0x80),

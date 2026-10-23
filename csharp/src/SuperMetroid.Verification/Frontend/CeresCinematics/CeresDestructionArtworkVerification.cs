@@ -343,7 +343,7 @@ internal static class CeresDestructionArtworkVerification
         zebesPng.Pixels[0] = (byte)((zebesPng.Pixels[0] + 1) & 15);
         using (var output = File.Create(zebesPngOverride))
             IndexedPng.Write(output, new(zebesPng.Size.X, zebesPng.Size.Y),
-                zebesPng.Pixels, zebesPng.Palette);
+                zebesPng.Pixels, zebesPng.Colours);
         IntroCinematicArtworkCatalog editedZebesPng = installation.LoadIntroCinematicArt();
         File.Delete(zebesPngOverride);
 

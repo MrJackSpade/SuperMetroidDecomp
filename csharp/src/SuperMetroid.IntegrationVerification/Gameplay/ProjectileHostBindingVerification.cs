@@ -62,7 +62,7 @@ internal static class ProjectileHostBindingVerification
             image = IndexedPng.Read(input, new(64, 8));
         image.Pixels[0] ^= 1;
         using (var output = File.Create(Path.Combine(installation.ProjectileOverrideDirectory, beamName)))
-            IndexedPng.Write(output, new(64, 8), image.Pixels, image.Palette);
+            IndexedPng.Write(output, new(64, 8), image.Pixels, image.Colours);
         var colors = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, BeamPaletteDefinitions.FileName)));
         colors.Required("palettes").Required(BeamPaletteDefinitions.Key(0)).Required(0)["red"] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, BeamPaletteDefinitions.FileName), colors.ToJsonString());
@@ -73,7 +73,7 @@ internal static class ProjectileHostBindingVerification
             image = IndexedPng.Read(input, new(ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height));
         image.Pixels[0] ^= 1;
         using (var output = File.Create(Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailAtlasDefinitions.FileName)))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         var flare = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlarePlacementDefinitions.FileName)));
         flare.Required("offsets").Required(ChargeFlarePlacementDefinitions.Key(false, 0))["x"] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlarePlacementDefinitions.FileName), flare.ToJsonString());
@@ -84,7 +84,7 @@ internal static class ProjectileHostBindingVerification
             image = IndexedPng.Read(input, new(GrappleTileDefinitions.Width, GrappleTileDefinitions.Height));
         image.Pixels[0] ^= 1;
         using (var output = File.Create(Path.Combine(installation.ProjectileOverrideDirectory, GrappleTileDefinitions.FileName)))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         var grappleStyles = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleSpriteDefinitions.FileName)));
         grappleStyles.Required("endpoint")["palette"] = 4;
         foreach (var style in grappleStyles.Required("segments").AsArray().RequiredElements()) style["palette"] = 4;

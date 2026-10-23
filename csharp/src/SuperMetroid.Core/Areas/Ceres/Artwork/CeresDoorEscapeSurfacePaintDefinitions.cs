@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
 /// <summary>
@@ -16,7 +17,7 @@ internal sealed class CeresDoorEscapeSurfacePaintDefinitions
     /// <summary>Selected bevel endpoints and middle blue channel retained from the supplied eight-color surface.</summary>
     private readonly int bevelPeak, bevelShadow, middleBevelBlue;
     /// <summary>Per-color exceptions kept when supplied art differs from the calculated shared material.</summary>
-    internal readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
 
     /// <summary>Captures the selected color parameters and preserves every independently edited supplied color.</summary>
     internal CeresDoorEscapeSurfacePaintDefinitions(ReadOnlySpan<Bgr555> colors)
@@ -28,14 +29,14 @@ internal sealed class CeresDoorEscapeSurfacePaintDefinitions
         bevelShadow = colors[7].Red;
         middleBevelBlue = colors[5].Blue;
         for (int index = 0; index < colors.Length; index++)
-            if (Calculate(index) != colors[index]) edits.Add(index, colors[index]);
+            if (Calculate(index) != colors[index]) edits.Add(new ColourCell(0, index), colors[index]);
     }
 
     /// <summary>Returns an authored exception where present or the calculated grey-blue door shade.</summary>
     internal Bgr555 ColorAt(int index)
     {
         if ((uint)index >= 8) throw new ArgumentOutOfRangeException(nameof(index));
-        return edits.TryGetValue(index, out Bgr555 edited) ? edited : Calculate(index);
+        return edits.TryGetValue(new ColourCell(0, index), out Bgr555 edited) ? edited : Calculate(index);
     }
 
     /// <summary>Builds the clipped five-step bevel ramp and blue tint, preserving the selected middle-bevel blue level.</summary>

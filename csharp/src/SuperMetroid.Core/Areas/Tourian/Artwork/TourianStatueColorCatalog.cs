@@ -135,20 +135,20 @@ public sealed class TourianStatueColorCatalog
         /// <summary>Number of indexed colors in this band's native palette geometry.</summary>
         private readonly int count;
         /// <summary>Only supplied colors that differ from the calculated stock band.</summary>
-        internal readonly Dictionary<int, Bgr555> edits = [];
+        internal readonly Dictionary<ColourCell, Bgr555> edits = [];
         /// <summary>Compares supplied colors with stock paint and retains independent edits.</summary>
         internal PaletteBand(TourianStatuePaintBand band, ReadOnlySpan<Bgr555> supplied)
         {
             this.band = band;
             count = supplied.Length;
             for (int color = 0; color < count; color++)
-                if (supplied[color] != TourianStatuePaintDefinitions.Color(band, color)) edits.Add(color, supplied[color]);
+                if (supplied[color] != TourianStatuePaintDefinitions.Color(band, color)) edits.Add(new ColourCell(0, color), supplied[color]);
         }
         /// <summary>Resolves an edited color or calculates its stock paint after validating the index.</summary>
         internal Bgr555 Read(int color)
         {
             if ((uint)color >= count) throw new ArgumentOutOfRangeException(nameof(color));
-            return edits.TryGetValue(color, out Bgr555 edited) ? edited : TourianStatuePaintDefinitions.Color(band, color);
+            return edits.TryGetValue(new ColourCell(0, color), out Bgr555 edited) ? edited : TourianStatuePaintDefinitions.Color(band, color);
         }
         /// <summary>Materializes the selected band for content hashing in indexed color order.</summary>
         internal Bgr555[] Words()

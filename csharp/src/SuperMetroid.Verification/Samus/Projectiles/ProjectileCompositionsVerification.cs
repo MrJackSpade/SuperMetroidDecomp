@@ -303,7 +303,7 @@ internal static class ProjectileCompositionsVerification
         using (var input = File.OpenRead(beamStock)) beamImage = IndexedPng.Read(input, new(64, 8));
         beamImage.Pixels[0] ^= 1;
         using (var output = File.Create(beamOverride))
-            IndexedPng.Write(output, new(64, 8), beamImage.Pixels, beamImage.Palette);
+            IndexedPng.Write(output, new(64, 8), beamImage.Pixels, beamImage.Colours);
         var beamEdited = installation.LoadProjectiles();
         AssertTrue(beamEdited.SelectedSha256 != edited.SelectedSha256, "PNG-only change updates aggregate content identity");
         AssertEqual((byte)(stock.BeamTiles.Resolve(BeamTileCatalog.AssetFor(0)).Span[0] ^ 0x80),
@@ -382,7 +382,7 @@ internal static class ProjectileCompositionsVerification
         var trailImage = IndexedPng.Read(new MemoryStream(File.ReadAllBytes(trailPngStock)), new(ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height));
         trailImage.Pixels[0] ^= 1;
         using var trailPng = new MemoryStream();
-        IndexedPng.Write(trailPng, new(trailImage.Size.X, trailImage.Size.Y), trailImage.Pixels, trailImage.Palette);
+        IndexedPng.Write(trailPng, new(trailImage.Size.X, trailImage.Size.Y), trailImage.Pixels, trailImage.Colours);
         File.WriteAllBytes(trailPngOverride, trailPng.ToArray());
         var pngEdited = installation.LoadProjectiles();
         AssertTrue(pngEdited.SelectedSha256 != trailEdited.SelectedSha256, "Trail PNG-only edit changes identity");
@@ -438,7 +438,7 @@ internal static class ProjectileCompositionsVerification
         var grappleImage = IndexedPng.Read(new MemoryStream(File.ReadAllBytes(grappleStock)), new(GrappleTileDefinitions.Width, GrappleTileDefinitions.Height));
         grappleImage.Pixels[0] ^= 1;
         using var grapplePng = new MemoryStream();
-        IndexedPng.Write(grapplePng, new(grappleImage.Size.X, grappleImage.Size.Y), grappleImage.Pixels, grappleImage.Palette);
+        IndexedPng.Write(grapplePng, new(grappleImage.Size.X, grappleImage.Size.Y), grappleImage.Pixels, grappleImage.Colours);
         File.WriteAllBytes(grappleOverride, grapplePng.ToArray());
         var grappleEdited = installation.LoadProjectiles();
         AssertTrue(grappleEdited.SelectedSha256 != compositionEdited.SelectedSha256, "Grapple PNG-only edit changes content identity");

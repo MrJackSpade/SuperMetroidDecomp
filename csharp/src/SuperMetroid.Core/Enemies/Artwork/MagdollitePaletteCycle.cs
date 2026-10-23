@@ -24,7 +24,7 @@ public sealed class MagdollitePaletteCycle
     /// <summary>Four independently authored glow colors underlying the native row rotations.</summary>
     private readonly Bgr555[] colors;
     /// <summary>Later-row cells that differ from the native rotation of the first row.</summary>
-    internal readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
 
     /// <summary>
     /// Palette_Magdollite_Glow_0..3 at $A8:AC2E-AC34 rotates left one color per
@@ -37,7 +37,7 @@ public sealed class MagdollitePaletteCycle
         for (int frame = 1; frame < frames.Length; frame++)
         for (int color = 0; color < colors.Length; color++)
             if (frames[frame][color] != colors[(color + frame) % colors.Length])
-                edits.Add(frame * colors.Length + color, frames[frame][color]);
+                edits.Add(new ColourCell(frame, color), frames[frame][color]);
     }
 
     /// <summary>Returns one selected glow color, using the first row's native left rotation unless the requested later-row cell was independently edited.</summary>
@@ -51,7 +51,7 @@ public sealed class MagdollitePaletteCycle
             throw new ArgumentOutOfRangeException(nameof(frame));
         if ((uint)color >= colors.Length)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(frame * colors.Length + color, out Bgr555 edited)
+        return edits.TryGetValue(new ColourCell(frame, color), out Bgr555 edited)
             ? edited : colors[(color + frame) % colors.Length];
     }
 

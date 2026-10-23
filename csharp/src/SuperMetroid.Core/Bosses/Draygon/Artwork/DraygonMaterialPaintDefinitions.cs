@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 /// <summary>
@@ -36,21 +37,21 @@ internal sealed class DraygonMaterialPaintDefinitions
     private const int MagentaBlue = 22,
         RedTargetRed = 18, RedTargetGreen = 4, RedTargetBlue = 6;
     /// <summary>Selected palette entries whose installed channels differ from calculated stock material paint.</summary>
-    internal readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
 
     /// <summary>Retains only independently edited entries from the sixteen-color Draygon material palette.</summary>
     internal DraygonMaterialPaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {
         Ensure.LengthEqual(colors, 16);
         for (int color = 0; color < colors.Length; color++)
-            if (colors[color] != StockColor(color)) edits.Add(color, colors[color]);
+            if (colors[color] != StockColor(color)) edits.Add(new ColourCell(0, color), colors[color]);
     }
 
     /// <summary>Uses an installed paint edit when present and otherwise calculates the selected stock material shade.</summary>
     internal Bgr555 Color(int index)
     {
         if ((uint)index >= 16) throw new ArgumentOutOfRangeException(nameof(index));
-        return edits.TryGetValue(index, out Bgr555 edited) ? edited : StockColor(index);
+        return edits.TryGetValue(new ColourCell(0, index), out Bgr555 edited) ? edited : StockColor(index);
     }
 
     /// <summary>Copied clear-slot target with its independent blue channel.</summary>

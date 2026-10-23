@@ -69,7 +69,7 @@ internal sealed class InstalledSamusArtworkFixture : IDisposable
                 using var output = File.Create(Path.Combine(installation.SamusBodyOverrideDirectory, name));
                 // Preserve transparent zero, PNG palette, dimensions and unused cells.
                 // Only four-bit character indices are changed, on disk, then reloaded.
-                IndexedPng.Write(output, new(checked((ushort)width), checked((ushort)height)), image.Pixels, image.Palette);
+                IndexedPng.Write(output, new(checked((ushort)width), checked((ushort)height)), image.Pixels, image.Colours);
             }
         }
         catch { Dispose(); throw; }

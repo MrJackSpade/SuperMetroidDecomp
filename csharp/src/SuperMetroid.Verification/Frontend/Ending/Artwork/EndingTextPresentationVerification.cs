@@ -106,7 +106,7 @@ internal static class EndingTextPresentationVerification
         editableFont.Pixels[0] ^= 1;
         using var editedFontPng = new MemoryStream();
         IndexedPng.Write(editedFontPng, new(editableFont.Size.X, editableFont.Size.Y),
-            editableFont.Pixels, editableFont.Palette);
+            editableFont.Pixels, editableFont.Colours);
         editedFontPng.Position = 0;
         EndingFontAtlas editedFont = EndingFontAtlas.Load(editedFontPng);
         AssertTrue(!editedFont.Transfer.Span.SequenceEqual(font.Transfer.Span),
@@ -173,7 +173,7 @@ internal static class EndingTextPresentationVerification
         Directory.CreateDirectory(overrideDirectory);
         string replacement = Path.Combine(overrideDirectory, EndingFontAtlasFormat.FileName);
         using (var output = File.Create(replacement))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(
             stockDirectory, overrideDirectory);
         AssertTrue(!edited.EndingFont.Transfer.Span.SequenceEqual(

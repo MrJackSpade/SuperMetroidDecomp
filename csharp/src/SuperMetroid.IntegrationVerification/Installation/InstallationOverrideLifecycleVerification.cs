@@ -244,7 +244,7 @@ internal static class InstallationOverrideLifecycleVerification
         IndexedPngImage image;
         using (Stream input = File.OpenRead(path)) image = IndexedPng.Read(input, size);
         image.Pixels[0] = (byte)((image.Pixels[0] + 1) % (1 << bitsPerPixel));
-        using (Stream output = File.Create(path)) IndexedPng.Write(output, size, image.Pixels, image.Palette);
+        using (Stream output = File.Create(path)) IndexedPng.Write(output, size, image.Pixels, image.Colours);
         return SnesPlanarTileEncoder.Encode(image.Pixels, size, bitsPerPixel);
     }
 

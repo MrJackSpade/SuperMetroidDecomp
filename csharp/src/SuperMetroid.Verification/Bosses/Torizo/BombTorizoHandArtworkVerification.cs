@@ -59,7 +59,7 @@ internal static class BombTorizoHandArtworkVerification
             var image = IndexedPng.Read(input, new(checked((ushort)(columns * 8)), checked((ushort)((tiles + columns - 1) / columns * 8))));
             image.Pixels[0] ^= 1;
             using var output = File.Create(Path.Combine(overrides, page.FileName));
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         }
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrides);
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();

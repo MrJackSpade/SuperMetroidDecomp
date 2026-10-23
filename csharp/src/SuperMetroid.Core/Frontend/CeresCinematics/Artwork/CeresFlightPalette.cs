@@ -9,9 +9,9 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 public sealed class CeresFlightPalette
 {
     /// <summary>Independent painted colors; only repeated sections and endpoint-defined ramps are calculated.</summary>
-    internal readonly Dictionary<int, Bgr555> colors = [];
+    internal readonly Dictionary<ColourCell, Bgr555> colors = [];
     /// <summary>Supplied slots that differ from those calculated relationships remain independent.</summary>
-    internal readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
 
     /// <summary>Separates the supplied CGRAM image into independent colors and edited exceptions.</summary>
     private CeresFlightPalette(Bgr555[] supplied)
@@ -19,17 +19,17 @@ public sealed class CeresFlightPalette
         for (int index = 0; index < supplied.Length; index++)
         {
             int source = SharedIndex(index);
-            if (!IsRampInterior(source)) colors.TryAdd(source, supplied[source]);
+            if (!IsRampInterior(source)) colors.TryAdd(new ColourCell(0, source), supplied[source]);
         }
         for (int index = 0; index < supplied.Length; index++)
-            if (supplied[index] != Calculate(index)) edits.Add(index, supplied[index]);
+            if (supplied[index] != Calculate(index)) edits.Add(new ColourCell(0, index), supplied[index]);
     }
 
     /// <summary>Selected BGR555 color, including independent resource edits.</summary>
     public Bgr555 ColorAt(int index)
     {
         if ((uint)index >= ScreenPalette.ColorCount) throw new ArgumentOutOfRangeException(nameof(index));
-        return edits.TryGetValue(index, out Bgr555 edited) ? edited : Calculate(index);
+        return edits.TryGetValue(new ColourCell(0, index), out Bgr555 edited) ? edited : Calculate(index);
     }
 
     /// <summary>Writes the colours as little-endian words for the content identity, without retaining them.</summary>
@@ -68,9 +68,9 @@ public sealed class CeresFlightPalette
     private Bgr555 Calculate(int index)
     {
         int source = SharedIndex(index);
-        if (!IsRampInterior(source)) return colors[source];
+        if (!IsRampInterior(source)) return colors[new ColourCell(0, source)];
         int step = source - RampStart;
-        Bgr555 first = colors[RampStart], last = colors[RampEnd];
+        Bgr555 first = colors[new ColourCell(0, RampStart)], last = colors[new ColourCell(0, RampEnd)];
         return first.Zip(last, (_, start, end) => (start * (7 - step) + end * step + 3) / 7);
     }
 

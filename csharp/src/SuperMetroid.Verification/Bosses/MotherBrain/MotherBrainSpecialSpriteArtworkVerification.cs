@@ -80,7 +80,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             Directory.CreateDirectory(overrideDirectory);
             string overridePath = Path.Combine(overrideDirectory, sheet.FileName);
             using (var output = File.Create(overridePath))
-                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
             InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
             SnesVram editedVram = TransferMotherBrainSpecialPages(edited,
                 sheet);

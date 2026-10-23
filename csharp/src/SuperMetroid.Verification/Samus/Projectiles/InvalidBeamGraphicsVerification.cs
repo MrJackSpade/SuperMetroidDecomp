@@ -33,7 +33,7 @@ internal static class InvalidBeamGraphicsVerification
                 ? ChainsawBeamGraphicsDefinitionsConstants.OpenBusByte
                 : bus.ReadCartridgeByte(highByteAddress - 1);
             Bgr555 native = Bgr555.FromCgramPortWord(SnesLittleEndian.Word(low, bus.ReadCartridgeByte(highByteAddress)));
-            AssertEqual(native, ChainsawBeamGraphicsDefinitions.Palette[color],
+            AssertEqual(native, ChainsawBeamGraphicsDefinitions.Colours[color],
                 $"Chainsaw palette colour {color} is the open-bus byte and Samus_Animate's instruction bytes as CGRAM keeps them");
         }
         using var scratch = new TestScratchDirectory("projectile-artwork");

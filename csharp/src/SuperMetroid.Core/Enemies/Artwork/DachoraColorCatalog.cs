@@ -20,9 +20,9 @@ public sealed class DachoraColorCatalog
     /// <summary>The sixteen supplied normal colors used as the basis of both animated phases.</summary>
     private readonly Bgr555[] normal;
     /// <summary>Speed-frame colors that differ from the normal palette's calculated blue ramp.</summary>
-    internal readonly Dictionary<int, Bgr555> speedEdits = new();
+    internal readonly Dictionary<ColourCell, Bgr555> speedEdits = new();
     /// <summary>Shine-frame colors that differ from the calculated fade toward white.</summary>
-    internal readonly Dictionary<int, Bgr555> shineEdits = new();
+    internal readonly Dictionary<ColourCell, Bgr555> shineEdits = new();
 
     /// <summary>Retains the normal palette and only deviations from calculated speed and shine frames.</summary>
     private DachoraColorCatalog(Bgr555[] normal, Bgr555[][] speed, Bgr555[][] shine)
@@ -31,7 +31,7 @@ public sealed class DachoraColorCatalog
         for (int frame = 0; frame < DachoraColorRomData.AnimatedFrameCount; frame++)
         for (int color = 0; color < DachoraColorRomData.ColorsPerFrame; color++)
         {
-            int key = frame * DachoraColorRomData.ColorsPerFrame + color;
+            var key = new ColourCell(frame, color);
             if (speed[frame][color] != SpeedColor(frame, color)) speedEdits.Add(key, speed[frame][color]);
             if (shine[frame][color] != ShineColor(frame, color)) shineEdits.Add(key, shine[frame][color]);
         }
@@ -87,7 +87,7 @@ public sealed class DachoraColorCatalog
             throw new ArgumentOutOfRangeException(nameof(frame), $"Dachora phase {phase} has no frame {frame}.");
         if ((uint)color >= DachoraColorRomData.ColorsPerFrame)
             throw new ArgumentOutOfRangeException(nameof(color));
-        int key = frame * DachoraColorRomData.ColorsPerFrame + color;
+        var key = new ColourCell(frame, color);
         return phase switch
         {
             DachoraPalettePhase.Speed => speedEdits.TryGetValue(key, out Bgr555 speed) ? speed : SpeedColor(frame, color),

@@ -180,7 +180,7 @@ internal static class LookupStream2Verification
         }
         brightening(slot, state);
         AssertEqual(WreckedShipGhostAiFunction.FadingToGhostPalette, state.Function, "White flash installs native target palette phase");
-        AssertTrue(state.TargetPalette.Span.SequenceEqual(ToColors(native)), "Actual target buffer includes unused sprite slots");
+        AssertTrue(state.TargetColours.Span.SequenceEqual(ToColors(native)), "Actual target buffer includes unused sprite slots");
         for (int tick = 1; tick <= 32; tick++)
         {
             int expectedChanges = 0;
@@ -1934,7 +1934,7 @@ internal static class LookupStream2Verification
         }
         var residuals = stock.bubble;
         AssertEqual(1, residuals.Count, "One stock bubble residual remains pending");
-        AssertEqual(0x7fff, residuals[30], "Final-frame leading white remains supplied data");
+        AssertEqual(0x7fff, residuals[new ColourCell(0, 30)], "Final-frame leading white remains supplied data");
         for (int frame = 0; frame < CrystalFlashColorFormat.BubbleFrameCount; frame++)
         for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
         {

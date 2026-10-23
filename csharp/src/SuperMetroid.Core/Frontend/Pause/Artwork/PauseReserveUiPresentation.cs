@@ -24,7 +24,7 @@ public sealed class PauseReserveUiPresentation
     /// <summary>Grey midpoint levels from which each mirrored pulse ramp is calculated.</summary>
     private readonly ReserveArrowGreyLevels arrowGreyLevels;
     /// <summary>Independently edited pulse colors that depart from the mirrored ramp.</summary>
-    internal readonly Dictionary<int, Bgr555> arrowColorEdits = [];
+    internal readonly Dictionary<ColourCell, Bgr555> arrowColorEdits = [];
 
     /// <summary>Compacts stock-equivalent digit/arrow positions and derives sparse label and pulse-color edits.</summary>
     private PauseReserveUiPresentation(PauseReserveUiParts parts)
@@ -48,9 +48,9 @@ public sealed class PauseReserveUiPresentation
         for (int frame = 0; frame < parts.ArrowFrames.Length; frame++)
         {
             if (parts.ArrowFrames[frame].Color6 != CalculateArrowColor(frame, ReserveArrowColorSlot.Color6))
-                arrowColorEdits.Add(frame * 2, parts.ArrowFrames[frame].Color6);
+                arrowColorEdits.Add(new ColourCell(frame, 0), parts.ArrowFrames[frame].Color6);
             if (parts.ArrowFrames[frame].Color11 != CalculateArrowColor(frame, ReserveArrowColorSlot.Color11))
-                arrowColorEdits.Add(frame * 2 + 1, parts.ArrowFrames[frame].Color11);
+                arrowColorEdits.Add(new ColourCell(frame, 1), parts.ArrowFrames[frame].Color11);
         }
     }
 
@@ -163,7 +163,7 @@ public sealed class PauseReserveUiPresentation
     private Bgr555 ArrowColor(int frame, ReserveArrowColorSlot slot)
     {
         frame &= PauseReserveUiDefinitions.ArrowFrames - 1;
-        return arrowColorEdits.TryGetValue(frame * 2 + (slot == ReserveArrowColorSlot.Color11 ? 1 : 0), out Bgr555 supplied)
+        return arrowColorEdits.TryGetValue(new ColourCell(frame, (slot == ReserveArrowColorSlot.Color11 ? 1 : 0)), out Bgr555 supplied)
             ? supplied : CalculateArrowColor(frame, slot);
     }
     /// <summary>Compiles editable reserve labels, digit words, arrow placements, and RGB5 pulse colors into a selected presentation.</summary>

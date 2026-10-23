@@ -20,7 +20,7 @@ internal static class IndexedPngVerification
         AssertTrue(png.AsSpan(png.Length - 4).SequenceEqual(new byte[] { 0xae, 0x42, 0x60, 0x82 }), "PNG IEND CRC matches published wire value");
         var decoded = IndexedPng.Read(new MemoryStream(png), new(11, 3));
         AssertTrue(indexes.SequenceEqual(decoded.Pixels), "indexed PNG retains original indexes");
-        AssertTrue(palette.SequenceEqual(decoded.Palette), "indexed PNG retains RGB and transparent palette entry");
+        AssertTrue(palette.SequenceEqual(decoded.Colours), "indexed PNG retains RGB and transparent palette entry");
         AssertThrows<InvalidDataException>(() => IndexedPng.Read(new MemoryStream(png), new(12, 3)), "PNG wrong dimensions rejected");
         AssertThrows<InvalidDataException>(() => IndexedPng.Read(new MemoryStream(png[..^1]), new(11, 3)), "PNG truncation rejected");
         byte[] corrupt = png.ToArray(); corrupt[29] ^= 1;

@@ -70,7 +70,7 @@ public sealed class TitleGraphicsPresentation
         IndexedPngImage baby = IndexedPng.Read(
             babyTilesPng,
             new(TitleGraphicsFormat.BabyWidth, TitleGraphicsFormat.BabyHeight));
-        if (floorImage.Palette.Length != 256 || baby.Palette.Length != 256 || objects.Palette.Length != 16)
+        if (floorImage.Colours.Length != 256 || baby.Colours.Length != 256 || objects.Colours.Length != 16)
             throw new InvalidDataException("Title graphics require 256-color Mode 7/Baby PNGs and a 16-color OBJ PNG.");
 
         TitleFloorMapDocument map;

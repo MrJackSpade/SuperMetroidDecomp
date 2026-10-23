@@ -71,7 +71,7 @@ internal static class ReserveTilePixelsVerification
 
         void CheckEdited(byte[] pixels, int expectedStored)
         {
-            using var png = new MemoryStream(); IndexedPng.Write(png, new(128, 128), pixels, image.Palette); png.Position = 0;
+            using var png = new MemoryStream(); IndexedPng.Write(png, new(128, 128), pixels, image.Colours); png.Position = 0;
             var edited = MapSpriteCatalog.Load(new MemoryStream(json), png);
             AssertEqual(expectedStored, edited.StoredReservePixelCount, "exact independent pixel capture count");
             var vram = new SnesVram(); edited.LoadArtworkTo(new VramStore(vram).All.Slice(0x4000 / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));

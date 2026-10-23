@@ -105,7 +105,7 @@ internal static class MapScreensVerification
             IndexedPngImage image;
             using (var input = File.OpenRead(Path.Combine(stock, atlas.First))) image = IndexedPng.Read(input, new(WorldMapArtworkFormat.Width, checked((ushort)atlas.Second)));
             for (int pixel = 0; pixel < image.Pixels.Length; pixel++) image.Pixels[pixel] = (byte)((image.Pixels[pixel] + 1) % atlas.Third);
-            using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+            using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
             var artEdit = AreaMapPresentationCatalog.Load(stock, overrides);
             AssertTrue(artEdit.ContentIdentity != original.ContentIdentity, "each world PNG affects identity independently");
             var changedWorld = World(guard, artEdit, (int)AreaId.Maridia);
@@ -114,7 +114,7 @@ internal static class MapScreensVerification
             AssertTrue(worldBefore.RenderBackgrounds().SequenceEqual(changedWorld.RenderBackgrounds()), "world artwork rebind restores exact stock pixels");
             File.WriteAllText(path, "invalid PNG");
             AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "corrupt world PNG override cannot silently select stock");
-            using (var output = File.Create(path)) IndexedPng.Write(output, new(1, 1), [0], image.Palette);
+            using (var output = File.Create(path)) IndexedPng.Write(output, new(1, 1), [0], image.Colours);
             AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "wrong world PNG dimensions rejected");
             image.Pixels[0] = (byte)atlas.Third;
             using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, SnesGraphics.DiagnosticPalette(atlas.Third + 1));

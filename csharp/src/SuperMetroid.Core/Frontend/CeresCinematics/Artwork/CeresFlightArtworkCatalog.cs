@@ -77,7 +77,7 @@ public sealed class CeresFlightArtworkCatalog
             new(CeresFlightArtworkFormat.FloorWidth, CeresFlightArtworkFormat.FloorHeight));
         IndexedPngImage objects = IndexedPng.Read(objectPng,
             new(CeresFlightArtworkFormat.ObjectWidth, CeresFlightArtworkFormat.ObjectHeight));
-        if (floorImage.Palette.Length != 256 || objects.Palette.Length != 16)
+        if (floorImage.Colours.Length != 256 || objects.Colours.Length != 16)
             throw new InvalidDataException("Ceres flight requires 256-color Mode-7 and 16-color OBJ PNGs.");
 
         CeresFlightMapDocument document = ReadMap(mapJson);

@@ -12,9 +12,9 @@ public sealed class SamusHurtColorCatalog
     /// <summary>Intro shade levels that differ from the calculated native levels.</summary>
     internal readonly Dictionary<int, byte> introLevels;
     /// <summary>Intro colors whose full RGB5 words cannot be derived from their shade levels.</summary>
-    internal readonly Dictionary<int, Bgr555> introOverrides;
+    internal readonly Dictionary<ColourCell, Bgr555> introOverrides;
     /// <summary>Hurt colors that differ from the corresponding intro-derived native flash shade.</summary>
-    internal readonly Dictionary<int, Bgr555> hurtOverrides;
+    internal readonly Dictionary<ColourCell, Bgr555> hurtOverrides;
 
     /// <summary>Retains only independent palette edits and derives unchanged native shade relationships.</summary>
     private SamusHurtColorCatalog(Bgr555[] hurt, Bgr555[] intro)
@@ -26,10 +26,10 @@ public sealed class SamusHurtColorCatalog
             .ToDictionary(index => index, index => (byte)(intro[index].Red));
         introOverrides = Enumerable.Range(1, 15)
             .Where(index => intro[index] != SamusHurtColorDefinitions.IntroFromLevel(IntroLevel(index)))
-            .ToDictionary(index => index, index => intro[index]);
+            .ToDictionary(index => new ColourCell(0, index), index => intro[index]);
         hurtOverrides = Enumerable.Range(1, 15)
             .Where(index => hurt[index] != SamusHurtColorDefinitions.HurtFromIntro(intro[index]))
-            .ToDictionary(index => index, index => hurt[index]);
+            .ToDictionary(index => new ColourCell(0, index), index => hurt[index]);
     }
 
     /// <summary>Compiles the installed hurt and cinematic palettes into independent color edits and calculated native shade relationships.</summary>
@@ -66,14 +66,14 @@ public sealed class SamusHurtColorCatalog
         if ((uint)index >= SamusHurtColorFormat.ColorsPerPalette)
             throw new ArgumentOutOfRangeException(nameof(index));
         if (variant == SamusHurtColorVariant.Intro) return Intro(index);
-        return index == 0 ? hurtZero ?? SamusHurtColorDefinitions.HurtTransparentWord : hurtOverrides.TryGetValue(index, out Bgr555 value)
+        return index == 0 ? hurtZero ?? SamusHurtColorDefinitions.HurtTransparentWord : hurtOverrides.TryGetValue(new ColourCell(0, index), out Bgr555 value)
             ? value : SamusHurtColorDefinitions.HurtFromIntro(Intro(index));
     }
 
     /// <summary>Gets an independently edited intro shade level or its native default.</summary>
     private byte IntroLevel(int index) => introLevels.TryGetValue(index, out byte level) ? level : SamusHurtColorDefinitions.DefaultIntroLevel(index);
     /// <summary>Gets an edited intro color or derives it from the selected shade level.</summary>
-    private Bgr555 Intro(int index) => index == 0 ? introZero ?? SamusHurtColorDefinitions.IntroTransparentWord : introOverrides.TryGetValue(index, out Bgr555 value)
+    private Bgr555 Intro(int index) => index == 0 ? introZero ?? SamusHurtColorDefinitions.IntroTransparentWord : introOverrides.TryGetValue(new ColourCell(0, index), out Bgr555 value)
         ? value : SamusHurtColorDefinitions.IntroFromLevel(IntroLevel(index));
     /// <summary>Checks one complete sixteen-color RGB5 document array and converts it to packed colors.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, string name)

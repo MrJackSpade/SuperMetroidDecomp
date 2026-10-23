@@ -114,25 +114,21 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         Shitroid = state;
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        CopyShitroidTargetPalette(state, ShitroidColorTarget.Sidehopper,
-            ShitroidColorRomData.SidehopperDestination);
-        CopyShitroidTargetPalette(state, ShitroidColorTarget.Shitroid,
-            ShitroidColorRomData.ShitroidDestination);
-        CopyShitroidTargetPalette(state, ShitroidColorTarget.DeadSidehopper,
-            ShitroidColorRomData.DeadSidehopperDestination);
+        CopyShitroidTargetColours(state, ShitroidColorTarget.Sidehopper);
+        CopyShitroidTargetColours(state, ShitroidColorTarget.Shitroid);
+        CopyShitroidTargetColours(state, ShitroidColorTarget.DeadSidehopper);
     }
 
-    /// <summary>Copies an installed target palette into mutable encounter state and the visible boss palette.</summary>
-    private void CopyShitroidTargetPalette(
+    /// <summary>Copies an installed target row's colours into mutable encounter state and the visible boss colours.</summary>
+    private void CopyShitroidTargetColours(
         ShitroidEnemyState state,
-        ShitroidColorTarget target,
-        int destinationColor)
+        ShitroidColorTarget target)
     {
         for (int color = 0; color < ShitroidColorRomData.TargetColorCount; color++)
         {
             Bgr555 value = (_bossArtwork.Artwork?.ShitroidColors ?? throw new InvalidDataException(
                 "Shitroid target palette requires installed artwork.")).TargetColor(target, color);
-            state.MutableTargetPalette[destinationColor + color] = value;
+            state.TargetColours(target)[color] = value;
 
             // This runtime currently presents completed room fades directly in CGRAM.
             // Keep the separate target copy above, but install the same completed value so

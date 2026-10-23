@@ -153,7 +153,7 @@ internal static class SamusHyperBeamColorsVerification
                     AssertTrue(Equals(frame == 1 || index == 13 ? null : (int?)(native >> 5 & 31), green), "Original green endpoint is shared or a calculated middle shadow");
                     AssertEqual(native, input.Resolve(frame == 9, native & 31, native >> 5 & 31), "Original endpoint native channel reconstruction");
                 }
-                AssertEqual(!sharedShade && source == frame * 16 + index && !(frame == 7 && index != 0) && !(index != 0 && (frame & 1) == 0) && !(index != 0 && frame is 1 or 5 or 9) && !(frame == 3 && index == 13), stored.ContainsKey(frame * 16 + index), "Hyper Beam input ownership");
+                AssertEqual(!sharedShade && source == frame * 16 + index && !(frame == 7 && index != 0) && !(index != 0 && (frame & 1) == 0) && !(index != 0 && frame is 1 or 5 or 9) && !(frame == 3 && index == 13), stored.ContainsKey(new ColourCell(frame, index)), "Hyper Beam input ownership");
             }
         }
         AssertThrows<ArgumentOutOfRangeException>(() =>

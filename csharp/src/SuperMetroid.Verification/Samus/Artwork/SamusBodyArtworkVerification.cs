@@ -348,7 +348,7 @@ internal static class SamusBodyArtworkVerification
         byte[] pixels = (byte[])image.Pixels.Clone();
         pixels[0] = (byte)((pixels[0] + 1) & 15);
         using (var output = File.Create(overridePng))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), pixels, image.Colours);
         string selectedManifest = Path.Combine(installation.SamusBodyOverrideDirectory,
             SamusBodyArtworkFiles.ManifestFileName);
         JsonNode document = RequiredJson.Parse(File.ReadAllText(Path.Combine(
@@ -398,7 +398,7 @@ internal static class SamusBodyArtworkVerification
         editedDeathPixels[0] = (byte)((editedDeathPixels[0] + 1) & 15);
         using (var output = File.Create(deathTileOverride))
             IndexedPng.Write(output, new(deathTileImage.Size.X, deathTileImage.Size.Y),
-                editedDeathPixels, deathTileImage.Palette);
+                editedDeathPixels, deathTileImage.Colours);
         string armJsonOverride = Path.Combine(installation.SamusBodyOverrideDirectory,
             SamusArmCannonArtworkFormat.JsonFileName);
         JsonNode armDocument = RequiredJson.Parse(File.ReadAllText(Path.Combine(
@@ -426,7 +426,7 @@ internal static class SamusBodyArtworkVerification
         armPixels[selectedArmPixel] = (byte)((armPixels[selectedArmPixel] + 1) & 15);
         using (var output = File.Create(armPngOverride))
             IndexedPng.Write(output, new(armImage.Size.X, armImage.Size.Y), armPixels,
-                armImage.Palette);
+                armImage.Colours);
         SamusBodyArtworkCatalog replacement = installation.LoadSamusBodyArt();
         AssertTrue(stock.ArmCannon.ReadDrawingByteAt(armXAddress) !=
                 replacement.ArmCannon.ReadDrawingByteAt(armXAddress),

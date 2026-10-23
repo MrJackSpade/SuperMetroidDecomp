@@ -58,7 +58,7 @@ internal static class StandardObjectArtworkVerification
             Directory.CreateDirectory(overrides);
             string overridePath = Path.Combine(overrides, StandardObjectArtworkFormat.FileName);
             using (var output = File.Create(overridePath))
-                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
             RoomCharacterAtlas edited = StandardObjectArtworkFiles.Load(stock, overrides);
             AssertTrue(!edited.Transfer.Span.SequenceEqual(baseline.Transfer.Span),
                 "selected indexed PNG changes the native standard OBJ transfer");

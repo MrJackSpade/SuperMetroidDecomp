@@ -92,7 +92,7 @@ internal static class EnemyTileArtworkCeresDoorVerification
         using (var output = File.Create(Path.Combine(overrides,
                    CeresDoorVisualFormat.TilesFileName)))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels,
-                image.Palette);
+                image.Colours);
         string colorsPath = Path.Combine(directory, CeresDoorVisualFormat.ColorsFileName);
         CeresDoorVisualDocument document = RequiredJson.Deserialize<CeresDoorVisualDocument>(
             File.ReadAllBytes(colorsPath),

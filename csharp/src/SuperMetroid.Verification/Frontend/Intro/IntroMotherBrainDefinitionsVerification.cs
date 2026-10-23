@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
@@ -85,7 +86,7 @@ internal static class IntroMotherBrainDefinitionsVerification
         for (int hit = 0; hit < 4; hit++)
             AssertEqual(hit == 3, motherBrain.RecordMissileHit(),
                 $"intro Mother Brain hit {hit + 1} starts explosion only on the fourth hit");
-        var cgram = new SnesCgram();
+        var cgram = new ScreenPalette();
         var palette = new ushort[SnesCgram.ColorCount];
         for (ushort frame = 1; frame <= 128; frame++)
         {

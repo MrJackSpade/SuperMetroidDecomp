@@ -138,7 +138,7 @@ public sealed class IntroCinematicArtworkCatalog
         content.Append("egg-sprites", Convert.FromHexString(EggEffectSprites.ContentIdentity));
         content.Append("discovery-sprites", Convert.FromHexString(DiscoveryActorSprites.ContentIdentity));
         content.Append("scientist-sprites", Convert.FromHexString(ScientistSprites.ContentIdentity));
-        content.Append("palette", Palette.Transfer.Span);
+        content.Append("palette", Palette.ColorWords.Span);
         content.Append("ceres-flight", Convert.FromHexString(CeresFlight.ContentIdentity));
         content.Append("ceres-destruction", Convert.FromHexString(CeresDestruction.ContentIdentity));
     });

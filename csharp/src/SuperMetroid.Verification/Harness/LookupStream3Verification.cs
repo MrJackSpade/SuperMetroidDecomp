@@ -102,10 +102,10 @@ internal static class LookupStream3Verification
         Console.WriteLine("Intro palette rows:256 native colors and768 single-channel and256 combined RGB5 edits preserve transfer bytes/CGRAM/instance isolation; reviewed material choices and all shade calculations keep no stock rows.");
         static void Confirm(IntroCinematicPalette selected, ushort[] expected)
         {
-            ReadOnlySpan<byte> bytes = selected.Transfer.Span;
+            ReadOnlySpan<byte> bytes = selected.ColorWords.Span;
             for (int color = 0; color < expected.Length; color++)
                 AssertEqual(expected[color], System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(bytes[(color * 2)..]), "intro palette transfer word");
-            var cgram = new SnesCgram();
+            var cgram = new ScreenPalette();
             selected.LoadTo(cgram);
             AssertTrue(ToColors(expected).SequenceEqual(cgram.Colors), "intro palette CGRAM load");
         }

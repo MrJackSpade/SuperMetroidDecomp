@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using System.Buffers.Binary;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -45,29 +46,25 @@ public sealed class EndingPalette
             colorBytes.AsSpan(index * Bgr555.ByteCount)));
     }
 
-    /// <summary>Preserves the cartridge's partial source/destination CGRAM transfers.</summary>
-    /// <param name="colours">Destination color memory; colors outside the requested transfer are left unchanged.</param>
-    /// <param name="sourceColor">Zero-based starting color in this resource, not a byte offset.</param>
-    /// <param name="count">Number of consecutive color words to transfer; zero is allowed.</param>
-    /// <param name="destinationColor">Zero-based starting CGRAM color index; the complete transfer must fit its 256 colors.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="colours"/> is null.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">The source range or destination range is outside its color memory.</exception>
-    [PpuLayoutBoundary("codec: compiled ending palette transfers at their CGRAM index operands")]
-    public void LoadTo(IPaletteColors colours, int sourceColor, int count, int destinationColor)
+    /// <summary>Changes <paramref name="destination"/> to this resource's colours from <paramref name="sourceColor"/>.</summary>
+    /// <param name="destination">The screen colours to change; the others keep theirs.</param>
+    /// <param name="sourceColor">Zero-based starting color in this resource.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The source range is outside this resource.</exception>
+    public void LoadTo(ScreenColours destination, int sourceColor)
     {
-        Ensure.NotNull(colours);
-        if (sourceColor < 0 || count < 0 || sourceColor > ColorCount - count)
-            throw new ArgumentOutOfRangeException(nameof(sourceColor));
-        if (colorBytes is not null)
-            new CgramPalettes(colours).All.LoadPortBytes(colorBytes.AsSpan(sourceColor * Bgr555.ByteCount,
-                count * Bgr555.ByteCount), destinationColor);
-        else
-        {
-            Span<byte> transfer = stackalloc byte[count * Bgr555.ByteCount];
-            WriteColors(transfer, sourceColor, count);
-            new CgramPalettes(colours).All.LoadPortBytes(transfer, destinationColor);
-        }
+        Ensure.BetweenInclusive(0, ColorCount - destination.Count, sourceColor);
+        for (int colour = 0; colour < destination.Count; colour++)
+            destination.Write(colour, Color(sourceColor + colour));
     }
+
+    /// <summary>The colour of this whole-screen resource at the screen position of <paramref name="positions"/>' colour <paramref name="colour"/>.</summary>
+    public Bgr555 Color(ScreenColours positions, int colour) => Color(FirstColorFor(positions) + colour);
+
+    /// <summary>Where <paramref name="positions"/> start in this whole-screen resource.</summary>
+    /// <exception cref="InvalidOperationException">This resource does not hold a whole screen's colours.</exception>
+    internal int FirstColorFor(ScreenColours positions) => ColorCount == ScreenPalette.ColorCount
+        ? positions.First
+        : throw new InvalidOperationException("Only a whole screen's colours have the screen's positions.");
 
     /// <summary>Materializes a requested contiguous color range as little-endian BGR555 words.</summary>
     private void WriteColors(Span<byte> bytes, int sourceColor, int count)

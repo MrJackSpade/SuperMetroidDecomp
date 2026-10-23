@@ -38,34 +38,6 @@ public readonly struct CgramPalettes(IPaletteColors cgram)
         All.CopyFrom(colors);
     }
 
-    /// <summary>
-    /// Replaces the complete image with <paramref name="colors"/> except the colours in
-    /// <paramref name="preserved"/>, which keep their current values.
-    /// </summary>
-    public void LoadImageExcept(ReadOnlySpan<Bgr555> colors, params ReadOnlySpan<PpuLayoutCell> preserved)
-    {
-        Ensure.LengthEqual(colors, ColorCount);
-        CgramPalette all = All;
-        for (int color = 0; color < ColorCount; color++)
-        {
-            if (!Covers(preserved, color))
-                all.Write(color, colors[color]);
-        }
-    }
-
-    /// <summary>Tests whether a CGRAM color belongs to a preserved range and rejects cells from another PPU region.</summary>
-    private static bool Covers(ReadOnlySpan<PpuLayoutCell> cells, int color)
-    {
-        foreach (PpuLayoutCell cell in cells)
-        {
-            if (cell.Region != PpuLayoutRegion.Cgram)
-                throw new ArgumentException($"{cell.Name} is not a CGRAM range.", nameof(cells));
-            if (color >= cell.Offset && color < cell.Offset + cell.Count)
-                return true;
-        }
-        return false;
-    }
-
     /// <summary>Background palette row <paramref name="row"/> (0-7).</summary>
     public CgramPalette BackgroundRow(int row) => Background.Slice(RowStart(row), PpuMemoryLayout.ColorsPerRow);
 

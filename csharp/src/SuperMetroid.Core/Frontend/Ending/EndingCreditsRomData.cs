@@ -91,14 +91,6 @@ public static class EndingCreditsRomData
     /// <summary>Ending VRAM transfer extents, byte and word destinations, tilemap geometry, and palette color-index ranges.</summary>
     public static class Rendering
     {
-        /// <summary>$8B:E110 clears the 16-color BG2 waiting palette at byte index $0040.</summary>
-        public const int WaitingPaletteStart = 32;
-        /// <summary>Sixteen color words in the waiting-Samus BG2 palette and each reward palette fade range.</summary>
-        public const int WaitingPaletteCount = 16;
-        /// <summary>$8B:E1D2 clears byte-index $01A0 for the suitless reward palette.</summary>
-        public const int SuitlessRewardPaletteStart = 208;
-        /// <summary>$8B:E1D2 additionally clears byte-index $01C0 for the helmetless suited body.</summary>
-        public const int SuitedRewardPaletteStart = 224;
         /// <summary>Ending bank-$8B Mode-7 projection center X, in physical map pixels.</summary>
         public const short FloorCenterX = 56;
         /// <summary>Ending bank-$8B Mode-7 projection center Y, in physical map pixels.</summary>
@@ -149,12 +141,6 @@ public static class EndingCreditsRomData
         public const int WaitingTilemapBytes = 0x0800;
         /// <summary>Byte length of the small BG3 transformation-character upload.</summary>
         public const int PostCreditsFragmentABytes = 0x0100;
-        /// <summary>Half-palette extent of 128 color words, used as source, length, and CGRAM destination for explosion OBJ colors; the legacy Bytes suffix does not denote bytes.</summary>
-        public const int PaletteHalfBytes = 128;
-        /// <summary>Number of color words restored after credits, covering color indexes 4-255; the legacy Bytes suffix does not denote bytes.</summary>
-        public const int PostCreditsPaletteBytes = 252;
-        /// <summary>Source and destination color index four for the post-credits palette restoration, preserving colors zero through three.</summary>
-        public const int PostCreditsPaletteDestination = 4;
         /// <summary>Packed SNES BGR555 white, with all three five-bit channels at full intensity.</summary>
         public static Bgr555 WhiteColor => Bgr555.White;
     }

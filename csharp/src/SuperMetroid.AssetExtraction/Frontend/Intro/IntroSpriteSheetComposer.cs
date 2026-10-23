@@ -74,12 +74,12 @@ internal static class IntroSpriteSheetComposer
     /// Each family's composition of every pose over <paramref name="page"/>, coloured as <paramref name="loadColours"/>
     /// loads them, at the menus' object sizes the intro and Ceres scenes draw at.
     /// </summary>
-    private static SpriteSheetSources Compose(IEnumerable<ICinematicSpriteFrames> families, SpriteArtwork page, Action<SnesCgram> loadColours)
+    private static SpriteSheetSources Compose(IEnumerable<ICinematicSpriteFrames> families, SpriteArtwork page, Action<ScreenPalette> loadColours)
     {
-        var cgram = new SnesCgram();
-        loadColours(cgram);
+        var colours = new ScreenPalette();
+        loadColours(colours);
         ScreenObjectSizes sizes = ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection);
-        return new SpriteSheetSources([.. Frames(families, page, sizes)], cgram.Colors[SpriteColours..].ToArray(), sizes,
+        return new SpriteSheetSources([.. Frames(families, page, sizes)], colours.Colors[SpriteColours..].ToArray(), sizes,
             PartsKeepOwnRows: true);
     }
 

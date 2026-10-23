@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Frontend.Ending.Artwork;
+﻿using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.Ending;
@@ -64,10 +65,8 @@ internal sealed class EndingCreditsRoll
     {
         // F6FE copies Intro4 colors $04-$FF, disables text glow, forces blank, and arms
         // function 129 for sixty calls. Preserve colors zero through three as native does.
-        _stage.LoadStaticPalette(EndingPaletteId.PostCredits,
-            EndingCreditsRomData.Rendering.PostCreditsPaletteDestination,
-            EndingCreditsRomData.Rendering.PostCreditsPaletteBytes,
-            EndingCreditsRomData.Rendering.PostCreditsPaletteDestination);
+        _stage.LoadStaticPalette(EndingPaletteId.PostCredits, screen.Palette.All.Slice(EndingColourRowDefinitions.PostCreditsKeptColours,
+            ScreenPalette.ColorCount - EndingColourRowDefinitions.PostCreditsKeptColours));
         _stage.Brightness = 0;
         UploadPostCreditsTilemap();
         _stage.PhaseTimer = 60;
@@ -95,14 +94,13 @@ internal sealed class EndingCreditsRoll
     }
 
     /// <summary>Reads one authored palette target without replacing the current fade state.</summary>
-    private Bgr555 StaticPaletteColor(EndingPaletteId id, int color)
+    private Bgr555 StaticPaletteColor(EndingPaletteId id, ScreenColours positions, int colour)
         => (_stage.PaletteArtwork ?? throw new InvalidOperationException(
-            "Ending palettes require installed artwork."))[id].Color(color);
+            "Ending palettes require installed artwork."))[id].Color(positions, colour);
 
     /// <summary>Fades the post-credits waiting backdrop toward its authored palette.</summary>
     internal void ApplyWaitingBackdropPalette(int step)
-        => ApplyPostCreditsPaletteRange(EndingCreditsRomData.Rendering.WaitingPaletteStart,
-            EndingCreditsRomData.Rendering.WaitingPaletteCount, step);
+        => ApplyPostCreditsPaletteRange(screen.Palette.BackgroundRow(EndingColourRowDefinitions.WaitingBackgroundRow), step);
 
     /// <summary>Interpolation step for suitless or helmetless reward colors.</summary>
     private int rewardPaletteStep;
@@ -112,24 +110,21 @@ internal sealed class EndingCreditsRoll
     {
         if (_stage.EndingReward == EndingReward.Armored) return;
         ApplyWaitingBackdropPalette(EndingCreditsRomData.Timing.WaitingPaletteFadeFrames - rewardPaletteStep);
-        ApplyPostCreditsPaletteRange(EndingCreditsRomData.Rendering.SuitlessRewardPaletteStart,
-            EndingCreditsRomData.Rendering.WaitingPaletteCount, rewardPaletteStep);
+        ApplyPostCreditsPaletteRange(screen.Palette.SpriteRow(EndingColourRowDefinitions.SuitlessRewardSpriteRow), rewardPaletteStep);
         if (_stage.EndingReward == EndingReward.Helmetless)
-            ApplyPostCreditsPaletteRange(EndingCreditsRomData.Rendering.SuitedRewardPaletteStart,
-                EndingCreditsRomData.Rendering.WaitingPaletteCount, rewardPaletteStep);
+            ApplyPostCreditsPaletteRange(screen.Palette.SpriteRow(EndingColourRowDefinitions.SuitedRewardSpriteRow), rewardPaletteStep);
     }
 
-    /// <summary>Applies native 8.8 component truncation to a post-credits CGRAM range.</summary>
-    [PpuLayoutBoundary("codec: native ending fade over its CGRAM index range")]
-    private void ApplyPostCreditsPaletteRange(int start, int count, int step)
+    /// <summary>Fades one post-credits row toward its authored colours with 8.8 component truncation.</summary>
+    private void ApplyPostCreditsPaletteRange(ScreenColours row, int step)
     {
         // E110 saves Intro4 as its target, clears colors $20-$2F, then E158 runs the
         // shared 8CB2 component accumulator 32 times. Each increment is component<<3
         // in 8.8 precision; composing takes only its high byte, preserving truncation.
-        for (int index = start; index < start + count; index++)
+        for (int colour = 0; colour < row.Count; colour++)
         {
-            Bgr555 target = StaticPaletteColor(EndingPaletteId.PostCredits, index);
-            new CgramPalettes(screen.Palette).All.Write(index, target.Map((_, channel) => SnesEightEight.Multiply(channel << 3, step)));
+            Bgr555 target = StaticPaletteColor(EndingPaletteId.PostCredits, row, colour);
+            row.Write(colour, target.Map((_, channel) => SnesEightEight.Multiply(channel << 3, step)));
         }
     }
 
@@ -152,10 +147,7 @@ internal sealed class EndingCreditsRoll
         CurrentPostShot = null;
         // E48A restores the shooting palette and selects BG1SC=$4E: the final
         // text map is two screens tall, not the credits' single-screen map.
-        _stage.LoadStaticPalette(EndingPaletteId.PostCredits,
-            EndingPostShotDefinitions.ShootingPaletteStart,
-            EndingPostShotDefinitions.PaletteColors,
-            EndingPostShotDefinitions.ShootingPaletteStart);
+        _stage.LoadStaticPalette(EndingPaletteId.PostCredits, screen.Palette.SpriteRow(EndingColourRowDefinitions.ShootingSpriteRow));
         PostCreditsTextTilemap = EndingTextTilemap.FinalText;
         PostCreditsMapHeight = EndingPostShotDefinitions.FinalTextMapHeight;
         _stage.PostCreditsScroll = Position16<BgPlanePixels>.Zero;

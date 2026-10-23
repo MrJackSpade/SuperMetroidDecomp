@@ -9,8 +9,10 @@ public static class FileCopyArrowDefinitions
     public const int InitialPaletteDelay = 8;
     /// <summary>$81:9A09: subsequent arrow palette rotation delay.</summary>
     internal const int PaletteDelay = 4;
-    /// <summary>$81:9A0F: OBJ palette 1, color 1 (CGRAM index 145).</summary>
-    internal const int FirstColor = 145;
+    /// <summary>The sprite row whose colours the arrows rotate.</summary>
+    internal const int SpriteRow = 1;
+    /// <summary>The first colour of the row the arrows rotate.</summary>
+    internal const int FirstColour = 1;
     /// <summary>$81:9A17-9A27: rotate seven colors, preserving transparent color zero.</summary>
     internal const int ColorCount = 7;
     /// <summary>$82:BB0E: all file-copy arrows use screen X = $14.</summary>

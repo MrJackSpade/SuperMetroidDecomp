@@ -31,10 +31,10 @@ internal static class GameOverSheetComposer
         frames.Add(Frame(GameOverPresentationDefinitions.EggFrame, gameOver.eggSprite, page, gameOver.EggPaletteIndex));
         for (int frame = 0; frame < GameOverPresentationDefinitions.CursorFrameCount; frame++)
             frames.Add(Frame(GameOverPresentationDefinitions.CursorFrameName(frame), gameOver.cursorSprites[frame], page, gameOver.CursorPaletteIndex));
-        var cgram = new SnesCgram();
-        new CgramPalettes(cgram).LoadImage(maps.Palettes.FileSelect);
-        gameOver.ApplyBabyPalette(cgram, GameOverBabyPalette.Idle);
-        return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true);
+        var colours = new ScreenPalette();
+        colours.Load(maps.Palettes.FileSelect);
+        gameOver.ApplyBabyPalette(colours, GameOverBabyPalette.Idle);
+        return new SpriteSheetSources(frames, colours.Colors[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true);
     }
 
     /// <summary>A composition as a sheet frame, its palette-inheriting parts in the palette its draw selects.</summary>

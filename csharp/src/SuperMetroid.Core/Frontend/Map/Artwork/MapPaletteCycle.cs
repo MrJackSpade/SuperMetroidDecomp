@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 
@@ -57,19 +58,19 @@ public sealed class MapPaletteCycle
         return durationEdits.TryGetValue(frame, out byte duration) ? duration : StockDuration(frame);
     }
 
-    /// <summary>Copies the selected frame's sixteen BGR555 colors into consecutive live CGRAM slots without advancing time or requesting audio.</summary>
-    /// <param name="destination">Live palette state modified in place.</param>
+    /// <summary>Copies the selected frame's sixteen colours over <paramref name="row"/> without advancing time or requesting audio.</summary>
+    /// <param name="row">The screen row the highlights colour, changed in place.</param>
     /// <param name="frame">Zero-based frame index, strictly below <see cref="FrameCount"/>.</param>
-    /// <param name="firstColor">CGRAM color index of the first destination, zero through 240; map consumers use 176 for colors 176-191, not a byte address.</param>
-    /// <remarks>Writes all sixteen colors including the row's first color. Destination bounds are checked per write, so an invalid range can leave earlier colors already written.</remarks>
+    /// <remarks>Writes all sixteen colours including the row's first colour.</remarks>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is outside the selected cycle.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">A destination color index falls outside CGRAM's 256 slots.</exception>
-    [PpuLayoutBoundary("codec: palette-cycle colours at their native CGRAM index operand")]
-    public void Apply(IPaletteColors destination, int frame, int firstColor)
+    /// <exception cref="ArgumentException"><paramref name="row"/> does not hold sixteen colours.</exception>
+    public void Apply(ScreenColours row, int frame)
     {
         CheckFrame(frame);
+        if (row.Count != MapPaletteCycleFormat.ColorCount)
+            throw new ArgumentException($"A highlight cycle colours {MapPaletteCycleFormat.ColorCount} colours.", nameof(row));
         for (int color = 0; color < MapPaletteCycleFormat.ColorCount; color++)
-            new CgramPalettes(destination).All.Write(firstColor + color,
+            row.Write(color,
                 reverseColorEdits.TryGetValue(frame * MapPaletteCycleFormat.ColorCount + color, out Bgr555 edited)
                     ? edited : colors[Phase(frame)][color]);
     }

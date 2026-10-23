@@ -108,7 +108,7 @@ internal sealed class MenuScreen
     public void BindMapPalettes(MapStaticPalettes? mapPalettes)
     {
         MapStaticPalettes palettes = mapPalettes ?? throw new InvalidOperationException("Menus require installed palettes.");
-        new CgramPalettes(Palette).LoadImage(palettes.FileSelect);
+        Palette.Load(palettes.FileSelect);
     }
 
     /// <summary>The installed world-map characters, which a menu cannot draw without.</summary>

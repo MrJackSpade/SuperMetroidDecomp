@@ -53,10 +53,4 @@ internal static class EndingPostShotDefinitions
     public const int FadeFrames = 32;
     /// <summary>Func141 waits 180 calls before switching to the white-flash Mode-1 display.</summary>
     public const int HoldFrames = 180;
-    /// <summary>F604 fades the shooting-sheet palette at CGRAM $C0.</summary>
-    public const int ShootingPaletteStart = 192;
-    /// <summary>F604/Func140 fade the visible Samus palette at CGRAM $F0.</summary>
-    public const int SamusPaletteStart = 240;
-    /// <summary>Each reward OBJ palette contains sixteen colors.</summary>
-    public const int PaletteColors = 16;
 }

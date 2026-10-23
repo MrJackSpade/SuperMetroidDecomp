@@ -117,7 +117,7 @@ internal static class IntroCinematicArtworkVerification
             Suite(nameof(VerifyIntroDiscoveryActorSpriteArtwork), () => VerifyIntroDiscoveryActorSpriteArtwork(bus, stock, installation));
             Suite(nameof(VerifyIntroScientistSpriteArtwork), () => VerifyIntroScientistSpriteArtwork(bus, stock, installation));
             Suite(nameof(VerifyIntroMotherBrainDemoInput), () => VerifyIntroMotherBrainDemoInput(bus, stock));
-            AssertTrue(stock.Palette.Transfer.Span.SequenceEqual(
+            AssertTrue(stock.Palette.ColorWords.Span.SequenceEqual(
                     RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicRomData.Assets.Palette,
                         CgramPalettes.ByteCount)),
                 "installed opening palette preserves every native RGB5 word");
@@ -234,8 +234,8 @@ internal static class IntroCinematicArtworkVerification
                         index == 1 ? color with { Red = 32 } : color).ToArray(),
                 }))), "opening palette rejects out-of-range RGB5 channels");
             File.Delete(paletteOverridePath);
-            AssertTrue(installation.LoadIntroCinematicArt().Palette.Transfer.Span.SequenceEqual(
-                    stock.Palette.Transfer.Span),
+            AssertTrue(installation.LoadIntroCinematicArt().Palette.ColorWords.Span.SequenceEqual(
+                    stock.Palette.ColorWords.Span),
                 "removing opening palette override restores exact native colors");
             File.WriteAllBytes(paletteOverridePath, [0]);
             AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
@@ -246,8 +246,8 @@ internal static class IntroCinematicArtworkVerification
                 "opening palette stock corruption fails manifest validation");
             _ = GameAssetInstaller.EnsureInstalled(root)
                 ?? throw new InvalidOperationException("Opening palette stock repair lost the installation.");
-            AssertTrue(installation.LoadIntroCinematicArt().Palette.Transfer.Span.SequenceEqual(
-                    stock.Palette.Transfer.Span),
+            AssertTrue(installation.LoadIntroCinematicArt().Palette.ColorWords.Span.SequenceEqual(
+                    stock.Palette.ColorWords.Span),
                 "stock repair restores exact cartridge opening palette colors");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "installed opening palette never rereads its cartridge source");

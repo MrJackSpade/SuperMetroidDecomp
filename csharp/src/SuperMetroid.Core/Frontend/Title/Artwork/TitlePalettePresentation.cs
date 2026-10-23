@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -42,14 +43,10 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
         animatedColors.TryGetValue(key, out color) ||
         TitleAmbientColorDefinitions.TryCalculate(key, colors, animatedColors, out color);
 
-    /// <summary>Loads the complete authored palette into native CGRAM slots zero through 255.</summary>
-    /// <param name="destination">Color memory whose full initial palette is replaced; ambient animation and skip-only replacements are applied separately by the title state.</param>
+    /// <summary>Replaces every colour of the screen with the authored palette.</summary>
+    /// <param name="destination">The screen's colours; ambient animation and skip-only replacements are applied separately by the title state.</param>
     /// <exception cref="ArgumentNullException"><paramref name="destination"/> is null.</exception>
-    public void Apply(IPaletteColors destination)
-    {
-        Ensure.NotNull(destination);
-        new CgramPalettes(destination).LoadImage(colors);
-    }
+    public void Apply(ScreenPalette destination) => Ensure.NotNull(destination).Load(colors);
 
     /// <summary>Validates initial, ambient-animation and skip-only RGB5 colors and compiles independently owned native palette words.</summary>
     /// <param name="json">UTF-8 JSON read from its current position to the end and left open.</param>
@@ -63,14 +60,14 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
 
         if (document.Version != TitlePaletteFormat.Version ||
             document.Colors is null ||
-            document.Colors.Length != CgramPalettes.ColorCount)
+            document.Colors.Length != ScreenPalette.ColorCount)
         {
             throw new InvalidDataException(
                 $"Title palette requires version {TitlePaletteFormat.Version} and " +
-                $"{CgramPalettes.ColorCount} RGB5 colors.");
+                $"{ScreenPalette.ColorCount} RGB5 colors.");
         }
 
-        var colors = new Bgr555[CgramPalettes.ColorCount];
+        var colors = new Bgr555[ScreenPalette.ColorCount];
         for (int index = 0; index < colors.Length; index++)
         {
             PaletteRgb5? color = document.Colors[index];

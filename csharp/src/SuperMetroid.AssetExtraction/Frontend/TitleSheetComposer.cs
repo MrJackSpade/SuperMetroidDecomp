@@ -32,9 +32,9 @@ internal static class TitleSheetComposer
             string name = TitleSpriteDefinitions.FrameName(sprite);
             return new SheetFrameSource(name, graphics.Frame(sprite, name), graphics.ObjectPage, FrontendSheetPalette.FramePalette);
         })];
-        var cgram = new SnesCgram();
-        palette.Apply(cgram);
-        return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(),
+        var colours = new ScreenPalette();
+        palette.Apply(colours);
+        return new SpriteSheetSources(frames, colours.Colors[SpriteColours..].ToArray(),
             ObjectSelectionCodec.Sizes(TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector), PartsKeepOwnRows: true);
     }
 }

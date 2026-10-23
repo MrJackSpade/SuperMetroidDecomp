@@ -1335,7 +1335,7 @@ internal static class LookupStream5Verification
         foreach (int count in new[] { 1, 15, 255 })
             Check(original with { Frames = Enumerable.Range(0, count).Select(i => frames[i % 14]).ToArray() });
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Duration(-1), "Highlight lower frame bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Apply(new SnesCgram(), 14, 0), "Highlight upper frame bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Apply(new ScreenPalette().SpriteRow(MapScreenDefinitions.HighlightSpriteRow), 14), "Highlight upper frame bound");
         Console.WriteLine("Map highlight: 224 native colors,14 timing/phase records, all independent color/hold edits and custom frame counts pass actual CGRAM application; eight color seed rows remain pending.");
 
         static MapPaletteCycle Check(MapPaletteCycleDocument document)
@@ -1343,16 +1343,16 @@ internal static class LookupStream5Verification
             byte[] json = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
             var cycle = MapPaletteCycle.Load(new MemoryStream(json, writable: false));
             AssertEqual(document.Frames.Length, cycle.FrameCount, "Custom highlight frame count");
-            var cgram = new SnesCgram();
+            var cgram = new ScreenPalette();
             for (int frame = 0; frame < cycle.FrameCount; frame++)
             {
                 AssertEqual((byte)document.Frames[frame].DurationTicks, cycle.Duration(frame), "Independent highlight hold");
-                cycle.Apply(cgram, frame, MapAnimationRomData.PaletteDestination);
+                cycle.Apply(cgram.SpriteRow(MapScreenDefinitions.HighlightSpriteRow), frame);
                 for (int color = 0; color < 16; color++)
                 {
                     var rgb = document.Frames[frame].Colors[color];
                     AssertEqual((ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10),
-                        cgram.Colors[MapAnimationRomData.PaletteDestination + color], "Independent highlight CGRAM color");
+                        cgram.Colors[ScreenColourPositions.Sprite(MapScreenDefinitions.HighlightSpriteRow) + color], "Independent highlight CGRAM color");
                 }
             }
             return cycle;
@@ -1914,7 +1914,7 @@ internal static class LookupStream5Verification
         }
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(-1), "Ceres palette lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(SnesCgram.ColorCount), "Ceres palette upper bound");
-        AssertThrows<ArgumentException>(() => stock.CopyTransferTo(new byte[CgramPalettes.ByteCount - 1]), "Ceres palette output extent");
+        AssertThrows<ArgumentException>(() => stock.CopyColorWordsTo(new byte[CeresFlightPalette.ColorWordBytes - 1]), "Ceres palette output extent");
         IReadOnlyDictionary<string, byte[]> files = SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightArtworkExtractor.Extract(rom);
         var catalog = CeresFlightArtworkCatalog.Load(Open(CeresFlightArtworkFormat.FloorFileName),
             Open(CeresFlightArtworkFormat.MapFileName), Open(CeresFlightArtworkFormat.ObjectFileName),
@@ -1939,8 +1939,8 @@ internal static class LookupStream5Verification
             var document = new CeresFlightPaletteDocument { Version = 1, Colors = colors };
             using var json = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
             CeresFlightPalette actual = CeresFlightPalette.Load(json);
-            var cgram = new SnesCgram(); actual.LoadTo(cgram);
-            Span<byte> bytes = stackalloc byte[CgramPalettes.ByteCount]; actual.CopyTransferTo(bytes);
+            var cgram = new ScreenPalette(); actual.LoadTo(cgram);
+            Span<byte> bytes = stackalloc byte[CeresFlightPalette.ColorWordBytes]; actual.CopyColorWordsTo(bytes);
             for (int index = 0; index < colors.Length; index++)
             {
                 PaletteRgb5 color = colors[index];

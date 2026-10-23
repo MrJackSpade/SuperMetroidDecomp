@@ -113,8 +113,7 @@ internal sealed class EndingArtwork
         if (creditsAssetsLoaded)
             return;
 
-        _stage.LoadStaticPalette(EndingPaletteId.Credits, 0,
-            EndingCreditsRomData.Rendering.PaletteHalfBytes, 0);
+        _stage.LoadStaticPalette(EndingPaletteId.Credits, screen.Palette.Background);
         ReadOnlyMemory<byte> font = _stage.ResolveEndingFont().Transfer;
         EndingStage.RequireMinimum(font, EndingCreditsRomData.Rendering.FontCharacterBytes,
             "credits font");

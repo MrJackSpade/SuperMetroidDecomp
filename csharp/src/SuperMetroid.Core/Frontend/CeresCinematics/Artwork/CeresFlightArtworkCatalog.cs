@@ -41,14 +41,13 @@ public sealed class CeresFlightArtworkCatalog
     public CeresFlightActorLayout Actors { get; }
 
     /// <summary>Identity of all selected approach maps, characters, colors, OAM frames and placements.</summary>
-    [PpuLayoutBoundary("codec: native 512-byte CGRAM transfer image of the Ceres flight palette")]
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(CeresFlightArtworkCatalog), content =>
     {
-        content.Append("floorImage-characters", FloorCharacters.Span);
-        content.Append("floorImage-maps", FloorMaps.Span);
+        content.Append("mode7-characters", FloorCharacters.Span);
+        content.Append("mode7-maps", FloorMaps.Span);
         content.Append("object-characters", ObjectCharacters.Span);
-        Span<byte> paletteBytes = stackalloc byte[SuperMetroid.Core.Hardware.CgramPalettes.ByteCount];
-        Palette.CopyTransferTo(paletteBytes);
+        Span<byte> paletteBytes = stackalloc byte[CeresFlightPalette.ColorWordBytes];
+        Palette.CopyColorWordsTo(paletteBytes);
         content.Append("palette", paletteBytes);
         content.Append("sprites", Convert.FromHexString(Sprites.ContentIdentity));
         content.Append("actors", Convert.FromHexString(Actors.ContentIdentity));

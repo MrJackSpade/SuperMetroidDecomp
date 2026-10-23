@@ -59561,6 +59561,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingColourRowDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingColourRowDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Ending.EndingCreditsDomains",
       "kind": "static class",
       "scope": "product",
@@ -61093,6 +61106,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.FileSelect.FileSelectEntryColourDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/FileSelect/FileSelectEntryColourDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.FileSelect.FileSelectHelmetAnimation",
       "kind": "static class",
       "scope": "product",
@@ -61773,32 +61799,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Frontend/FrontendFrame.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.FrontendPaletteLayout",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/FrontendPaletteLayout.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.FrontendPalettes",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/FrontendPalettes.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -69328,19 +69328,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Pause.PauseReserveArrowRomData",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Pause/PauseReserveArrowRomData.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.Pause.PauseReserveItem",
       "kind": "enum",
       "scope": "product",
@@ -70170,6 +70157,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Title.TitleCopyrightColourDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Title/TitleCopyrightColourDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Title.TitleFloorSceneDefinition",
@@ -84511,6 +84511,19 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.ScreenColours",
+      "kind": "struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/ScreenColours.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Rendering.ScreenLayerPictures",
@@ -143810,6 +143823,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Harness/RunFlagsCommandsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Harness.ScreenColourPositions",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Harness/ScreenColourPositions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

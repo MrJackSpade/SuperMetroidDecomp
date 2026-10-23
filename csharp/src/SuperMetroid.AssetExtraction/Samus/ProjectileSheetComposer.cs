@@ -39,7 +39,9 @@ internal static class ProjectileSheetComposer
             beams = SamusBeamCombination.Power;
             // `$8B:A3AC` loads the beam palette, then the intro's whole palette over it.
             SamusProjectileSystem.LoadBeamPalette(cgram, beams, projectiles.BeamTiles.Palettes);
-            intro.Palette.LoadTo(cgram);
+            var introColours = new ScreenPalette();
+            intro.Palette.LoadTo(introColours);
+            new CgramPalettes(cgram).LoadImage(introColours.Colors);
         }
         else
         {

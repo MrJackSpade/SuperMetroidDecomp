@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
@@ -28,7 +29,7 @@ internal static class GameOverBabyColorsVerification
         GameOverPresentation presentation = GameOverPresentation.Load(stream);
         AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(json)),
             presentation.ContentIdentity, "Baby presentation preserves content identity");
-        var cgram = new SnesCgram();
+        var cgram = new ScreenPalette();
         for (int phase = 0; phase < 4; phase++)
         {
             presentation.ApplyBabyPalette(cgram, (GameOverBabyPalette)phase);

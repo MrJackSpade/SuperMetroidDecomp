@@ -50,7 +50,7 @@ internal static class ClosedPresentationContractChecks
                     MotherBrainRainbowPalettePresentation rainbow, MotherBrainDeathColorCatalog death,
                     ChozoAndTubeColorCatalog chozo, GameplayBasePaletteCatalog basePalette,
                     SamusDeathPaletteArtworkCatalog samusDeath,
-                    SnesCgram cgram, Span<ushort> tiles, Span<byte> bytes,
+                    SnesCgram cgram, SuperMetroid.Core.Rendering.ScreenPalette screen, Span<ushort> tiles, Span<byte> bytes,
                     ScreenSprites oam, SpriteSheet sheet, int dynamicIndex) {
                     hud.ApplyAmmo(tiles, dynamicIndex, 123);
                     hud.MinimapCellIndex(new SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.TilemapCells>(99, 0));
@@ -65,7 +65,7 @@ internal static class ClosedPresentationContractChecks
                     gameOver.DrawBaby(oam, sheet, SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame.Open);
                     gameOver.DrawBaby(oam, sheet, (SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame)99);
                     reserve.ApplyLabel(bytes, dynamicIndex > 0 ? PauseReserveLabel.Auto : PauseReserveLabel.Manual);
-                    reserve.ApplyArrowColors(cgram, true, dynamicIndex, 6, 11);
+                    reserve.ApplyArrowColors(screen.BackgroundRow(0), true, dynamicIndex);
                     reserve.ApplyDigit(bytes, 0, 10);
                     beam.LoadTo(cgram, 0);
                     beam.LoadTo(cgram, (SuperMetroid.Core.Progression.SamusBeamCombination)12);

@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Tooling;
@@ -43,8 +44,8 @@ internal static class MapPaletteCycleVerification
         var installed = new MapPaletteAnimation();
         installed.Bind(original.HighlightCycle);
         AssertEqual(MapAnimationRomData.PaletteFrameCount, original.HighlightCycle.FrameCount, "imported native highlight frame count");
-        var nativeColors = new SnesCgram();
-        var installedColors = new SnesCgram();
+        var nativeColors = new ScreenPalette();
+        var installedColors = new ScreenPalette();
         int loops = 0;
         for (int tick = 0; tick < 600; tick++)
         {
@@ -87,8 +88,8 @@ internal static class MapPaletteCycleVerification
             pause.Step(0, 0); nativePause.Step(0, 0);
             var editedMemory = pause.CaptureRenderSnapshot().Paint;
             var stockMemory = nativePause.CaptureRenderSnapshot().Paint;
-            cycleColorsChanged |= !editedMemory.Colors.Slice(MapAnimationRomData.PaletteDestination, 16)
-                .SequenceEqual(stockMemory.Colors.Slice(MapAnimationRomData.PaletteDestination, 16));
+            cycleColorsChanged |= !editedMemory.Colors.Slice(ScreenColourPositions.Sprite(MapScreenDefinitions.HighlightSpriteRow), 16)
+                .SequenceEqual(stockMemory.Colors.Slice(ScreenColourPositions.Sprite(MapScreenDefinitions.HighlightSpriteRow), 16));
             AssertTrue(editedMemory.Colors.Slice(240, 16).SequenceEqual(stockMemory.Colors.Slice(240, 16)),
                 "highlight edit leaves the native palette-seven pause cursor colors unchanged");
             // Since #1251 the pause-map scroll arrows draw with OBJ palette 3 as on the cartridge,
@@ -98,8 +99,8 @@ internal static class MapPaletteCycleVerification
             var stockPalette3 = new HashSet<SuperMetroid.Core.Hardware.Rgba32>();
             for (int color = 0; color < 16; color++)
             {
-                editedPalette3.Add(editedMemory.Colors[MapAnimationRomData.PaletteDestination + color].ToRgba32());
-                stockPalette3.Add(stockMemory.Colors[MapAnimationRomData.PaletteDestination + color].ToRgba32());
+                editedPalette3.Add(editedMemory.Colors[ScreenColourPositions.Sprite(MapScreenDefinitions.HighlightSpriteRow) + color].ToRgba32());
+                stockPalette3.Add(stockMemory.Colors[ScreenColourPositions.Sprite(MapScreenDefinitions.HighlightSpriteRow) + color].ToRgba32());
             }
             var editedPixels = pause.Render();
             var stockPixels = nativePause.Render();

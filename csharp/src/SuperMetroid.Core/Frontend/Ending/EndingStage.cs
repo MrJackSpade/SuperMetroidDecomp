@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
@@ -132,12 +133,16 @@ internal sealed class EndingStage
     }
 
     /// <summary>Copies a range of authored ending colors into the live CGRAM destination.</summary>
-    internal void LoadStaticPalette(EndingPaletteId id, int sourceColor, int count,
-        int destinationColor)
-    {
-        (PaletteArtwork ?? throw new InvalidOperationException(
-            "Ending palettes require installed artwork."))[id].LoadTo(screen.Palette, sourceColor, count, destinationColor);
-    }
+    internal void LoadStaticPalette(EndingPaletteId id, ScreenColours destination) =>
+        LoadStaticPalette(id, destination, Palette(id).FirstColorFor(destination));
+
+    /// <summary>Loads <paramref name="destination"/> from <paramref name="id"/>'s colours from <paramref name="sourceColor"/>.</summary>
+    internal void LoadStaticPalette(EndingPaletteId id, ScreenColours destination, int sourceColor) =>
+        Palette(id).LoadTo(destination, sourceColor);
+
+    /// <summary>The installed ending palette <paramref name="id"/>.</summary>
+    private EndingPalette Palette(EndingPaletteId id) =>
+        (PaletteArtwork ?? throw new InvalidOperationException("Ending palettes require installed artwork."))[id];
 
     /// <summary>Moves animal and star actors and deletes subordinate explosion layers at their native handoffs.</summary>
     internal void StepEndingSpritePreInstruction(EndingSprite wrapper)

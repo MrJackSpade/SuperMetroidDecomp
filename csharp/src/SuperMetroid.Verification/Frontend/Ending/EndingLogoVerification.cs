@@ -29,7 +29,7 @@ internal static class EndingLogoVerification
         Suite(nameof(VerifyEndingLogoDefinitions), () => VerifyEndingLogoDefinitions(bus));
         Suite(nameof(VerifyEndingLogoPrograms), () => VerifyEndingLogoPrograms(bus));
         var guarded = NewEndingLogoDefinitionReadGuard(bus);
-        var cgram = new SnesCgram();
+        var cgram = new ScreenPalette();
         int landings = 0;
         EndingPaletteCatalog palettes = RepositoryInstallation.Installation.LoadEndingPalettes();
         var logoSprites = CinematicSheetFixtures.Drawer(RepositoryInstallation.Installation.LoadEndingObjectArt().LogoSprites);

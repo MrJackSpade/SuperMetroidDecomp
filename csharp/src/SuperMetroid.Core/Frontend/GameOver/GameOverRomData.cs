@@ -75,8 +75,6 @@ public static class GameOverRomData
         public const ushort AcceptedAnswerHoldDuration = 180;
         /// <summary>Native $FFFF animation sentinel, which restarts the stream at $82:BC27 rather than deleting the Baby or drawing a frame.</summary>
         public const ushort End = 0xffff;
-        /// <summary>CGRAM color-entry index $C0, the start of OBJ palette four; each Baby frame copies sixteen colors here at $82:BBA9.</summary>
-        public const int PaletteDestinationIndex = 0xc0;
         /// <summary>Sixteen colors per game-over Baby palette source.</summary>
         /// <remarks>Issues #625 and #972: four contiguous 16-word sources at
         /// $82:BD97+$20*p are selected by GameOverBabyAnimationDefinitions.NativePalettePointer

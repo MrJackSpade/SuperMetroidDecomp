@@ -1322,23 +1322,23 @@ internal static class MapPresentationVerification
         AssertEqual(stockSkip.Phase, editedSkip.Phase,
             "skip copyright palette override preserves title phase");
         AssertEqual(edited.TitlePalette.SkipCopyrightWhite,
-            editedSkip.PaletteColors[TitleSequenceRomData.Palette.CopyrightWhiteIndex],
+            editedSkip.PaletteColors[ScreenColourPositions.Sprite(TitleCopyrightColourDefinitions.SpriteRow, TitleCopyrightColourDefinitions.WhiteColour)],
             "skip route uses edited copyright white");
         AssertEqual(edited.TitlePalette.SkipCopyrightRed,
-            editedSkip.PaletteColors[TitleSequenceRomData.Palette.CopyrightRedIndex],
+            editedSkip.PaletteColors[ScreenColourPositions.Sprite(TitleCopyrightColourDefinitions.SpriteRow, TitleCopyrightColourDefinitions.RedColour)],
             "skip route uses edited copyright red");
         AssertTrue(!stockSkip.Render().SequenceEqual(editedSkip.Render()),
             "skip copyright palette override changes rendered title output");
         editedSkip.BindTitlePalette(original.TitlePalette);
         AssertEqual(original.TitlePalette.SkipCopyrightWhite,
-            editedSkip.PaletteColors[TitleSequenceRomData.Palette.CopyrightWhiteIndex],
+            editedSkip.PaletteColors[ScreenColourPositions.Sprite(TitleCopyrightColourDefinitions.SpriteRow, TitleCopyrightColourDefinitions.WhiteColour)],
             "restored title uses current stock skip white");
         AssertEqual(original.TitlePalette.SkipCopyrightRed,
-            editedSkip.PaletteColors[TitleSequenceRomData.Palette.CopyrightRedIndex],
+            editedSkip.PaletteColors[ScreenColourPositions.Sprite(TitleCopyrightColourDefinitions.SpriteRow, TitleCopyrightColourDefinitions.RedColour)],
             "restored title uses current stock skip red");
         editedSkip.BindTitlePalette(edited.TitlePalette);
         AssertEqual(edited.TitlePalette.SkipCopyrightWhite,
-            editedSkip.PaletteColors[TitleSequenceRomData.Palette.CopyrightWhiteIndex],
+            editedSkip.PaletteColors[ScreenColourPositions.Sprite(TitleCopyrightColourDefinitions.SpriteRow, TitleCopyrightColourDefinitions.WhiteColour)],
             "live title rebind applies edited skip white");
 
         File.Delete(replacement);

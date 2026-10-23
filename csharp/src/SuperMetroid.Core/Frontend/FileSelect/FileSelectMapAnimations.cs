@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Assets;
@@ -53,7 +54,7 @@ public sealed class FileSelectMapAnimations
     /// <summary>Returns the native library-three sound request at the palette loop terminator.</summary>
     /// <param name="colours">The screen's colours, whose sprite palette row three takes the cycle's colours when this menu tick reaches a frame boundary.</param>
     /// <returns>True when the cycle wraps and the caller should queue MapPaletteLoop; this method does not enqueue audio itself.</returns>
-    public bool StepPalette(IPaletteColors colours) => palette.Step(colours);
+    public bool StepPalette(ScreenPalette colours) => palette.Step(colours);
 
     /// <summary>Arrows advance only when their native boundary test allows them to be drawn.</summary>
     /// <param name="available">Direction-specific scroll-boundary predicate; unavailable arrows become hidden and retain their existing frame and remaining timer.</param>

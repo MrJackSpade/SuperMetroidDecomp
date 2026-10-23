@@ -64,8 +64,7 @@ public sealed class FileSelectAreaMapGraphics
         screen = new MenuScreen(mapTiles, mapPalettes, worldArtwork, mapSprites, sheets);
         LoadForeground();
         // State one completes its first-two-palette fade with these entries black.
-        new FrontendPalettes(screen.Palette).FileSelectEntryBlackFirst.Write(0, Bgr555.Black);
-        new FrontendPalettes(screen.Palette).FileSelectEntryBlackSecond.Write(0, Bgr555.Black);
+        FileSelectMapEntry.BlackenEntryColours(screen.Palette);
         SelectArea(selectedArea);
     }
 
@@ -142,7 +141,7 @@ public sealed class FileSelectAreaMapGraphics
     private void LoadInstalledPalette(AreaId selectedArea)
     {
         var colors = Palettes.World(selectedArea);
-        new CgramPalettes(screen.Palette).LoadImage(colors);
+        screen.Palette.Load(colors);
     }
 
     /// <summary>Builds title and valid used-station labels in display order, highlighting the selected area.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Tooling;
@@ -191,7 +192,7 @@ internal static class FileSelectRoomMapVerification
         {
             return animations.arrows[index].Frame;
         }
-        var cgram = new SnesCgram();
+        var cgram = new ScreenPalette();
         cgram.SetColor(175, new Bgr555(13, 2, 0)); cgram.SetColor(192, new Bgr555(24, 2, 0));
         AssertTrue(!animations.StepPalette(cgram), "initial map palette tick advances to frame one without loop sound");
         for (int color = 0; color < 16; color++)

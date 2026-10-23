@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Frontend.Intro;
@@ -59,7 +60,7 @@ internal sealed class IntroMotherBrainSpriteState
     /// Runs the actor pre-instruction that precedes its instruction-list timer decrement.
     /// </summary>
     public void RunPreInstruction(
-        IPaletteColors colours,
+        ScreenPalette colours,
         ReadOnlySpan<Bgr555> introPalette,
         ushort cinematicFrameCounter,
         ushort introCrossfadeTimer)
@@ -93,14 +94,18 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>
     /// Eight-frame white/normal alternation loaded into OBJ palette seven by <c>$8B:B846</c>.
     /// </summary>
-    public void ApplyHurtFlash(IPaletteColors colours, ReadOnlySpan<Bgr555> introPalette)
+    public void ApplyHurtFlash(ScreenPalette colours, ReadOnlySpan<Bgr555> introPalette)
     {
         Ensure.NotNull(colours);
         if (hurtFlashTimer.IsZero)
             return;
 
         bool normalPalette = (hurtFlashTimer.RawValue & 1) != 0;
-        new FrontendPalettes(colours).WriteIntroMotherBrain(introPalette, flashWhite: !normalPalette);
+        ScreenColours row = colours.SpriteRow(IntroMotherBrainDefinitions.HurtFlashSpriteRow);
+        if (normalPalette)
+            row.CopyFrom(row.SamePositionsIn(introPalette));
+        else
+            row.Fill(Bgr555.White);
         hurtFlashTimer = hurtFlashTimer.Decrement().Remaining;
     }
 

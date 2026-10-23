@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using System.Buffers.Binary;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -115,17 +116,14 @@ public sealed class PauseReserveUiPresentation
     }
 
     /// <summary>Writes the two selected arrow bevel colours to the screen's colours, using either the pulse frame or the solid appearance.</summary>
-    /// <param name="colours">The screen's colours, modified at the two supplied colour indices.</param>
+    /// <param name="arrowRow">The background row whose two arrow colours change.</param>
     /// <param name="animated">Whether to sample the 32-phase pulse rather than the solid colors; the pause owner decides when AUTO selection should animate.</param>
     /// <param name="frame">Pulse phase, masked to its low five bits; normally the accepted eight-bit frame counter and ignored for solid colors.</param>
-    /// <param name="color6Index">The palette index 0-255 of the arrow's colour six.</param>
-    /// <param name="color11Index">The palette index 0-255 of the arrow's colour eleven.</param>
-    /// <exception cref="ArgumentOutOfRangeException">A supplied palette index is invalid.</exception>
-    public void ApplyArrowColors(IPaletteColors colours, bool animated, int frame, int color6Index, int color11Index)
+    public void ApplyArrowColors(ScreenColours arrowRow, bool animated, int frame)
     {
         var colors = animated ? new ReserveArrowColors(ArrowColor(frame, ReserveArrowColorSlot.Color6), ArrowColor(frame, ReserveArrowColorSlot.Color11)) : new ReserveArrowColors(solidColor6, solidColor11);
-        Ensure.NotNull(colours).SetColor(color6Index, colors.Color6);
-        colours.SetColor(color11Index, colors.Color11);
+        arrowRow.Write(PauseReserveUiDefinitions.ArrowFirstColour, colors.Color6);
+        arrowRow.Write(PauseReserveUiDefinitions.ArrowSecondColour, colors.Color11);
     }
 
     /// <summary>

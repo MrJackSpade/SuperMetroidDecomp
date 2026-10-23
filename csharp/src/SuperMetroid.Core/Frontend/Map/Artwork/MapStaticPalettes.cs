@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
@@ -52,7 +53,7 @@ public sealed class MapStaticPalettes
     /// <summary>Requires exactly 256 RGB5 entries and converts each validated channel triplet to a SNES color word.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? colors, string name)
     {
-        if (colors is null || colors.Length != CgramPalettes.ColorCount)
+        if (colors is null || colors.Length != ScreenPalette.ColorCount)
             throw new InvalidDataException($"Map palette {name} requires 256 RGB colors.");
         var result = new Bgr555[colors.Length];
         for (int i = 0; i < colors.Length; i++)

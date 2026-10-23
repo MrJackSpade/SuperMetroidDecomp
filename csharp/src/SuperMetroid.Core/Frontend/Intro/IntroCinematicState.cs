@@ -156,7 +156,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             // targets must use the currently selected installed palette.
             var baseline = new ScreenPalette();
             value.Palette.LoadTo(baseline);
-            new CgramPalettes(baseline).Image.CopyTo(introPalette);
+            baseline.Colors.CopyTo(introPalette);
             if (Phase is IntroCinematicPhase.Initial or IntroCinematicPhase.WaitForInitialMusicQueue)
                 value.Palette.LoadTo(palette);
             if (Phase is >= IntroCinematicPhase.WaitForPageOneMusicQueue and
@@ -208,7 +208,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private readonly ushort[] textTilemap =
         new ushort[IntroCinematicRomData.Layers.TextTilemapWordCount];
     /// <summary>Target palette restored by transitions back from gameplay flashbacks.</summary>
-    private readonly Bgr555[] introPalette = new Bgr555[CgramPalettes.ColorCount];
+    private readonly Bgr555[] introPalette = new Bgr555[ScreenPalette.ColorCount];
     /// <summary>Persistent bank-$8C actor and caret walker for illustrated pages.</summary>
     internal IntroCinematicObjectSystem? CurrentObjects { get; private set; }
     /// <summary>The intro's sprite objects, which exist from the first text page onward.</summary>
@@ -305,7 +305,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             "Opening cinematic requires installed artwork.");
         this.samusBodyArtwork = samusBodyArtwork;
         characterArtwork.Palette.LoadTo(palette);
-        new CgramPalettes(palette).Image.CopyTo(introPalette);
+        palette.Colors.CopyTo(introPalette);
 
         RequireMinimum(characterArtwork.BackgroundCharacters.Transfer.Length, IntroCinematicRomData.Transfers.BackgroundCharacterBytes,
             "intro BG1/BG2 characters");

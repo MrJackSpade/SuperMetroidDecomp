@@ -11,8 +11,6 @@ public static class MapAnimationRomData
     public const int PaletteTiming = 0x82c10c;
     /// <summary>$82:A987, sixteen-color frames copied into CGRAM palette eleven.</summary>
     public const int PaletteColors = 0x82a987;
-    /// <summary>$82:A92B replaces colors 176 through 191, including color zero.</summary>
-    public const int PaletteDestination = 176;
     /// <summary>Native highlight record: duration, sprite-frame index, and spritemap ID.</summary>
     public const int PaletteTimingStride = 3;
 }

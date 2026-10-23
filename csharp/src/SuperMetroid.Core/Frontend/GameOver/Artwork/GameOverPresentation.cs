@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -129,11 +130,12 @@ public sealed class GameOverPresentation
     /// <param name="colours">The screen's colours.</param>
     /// <param name="palette">Idle or one of the three crying palettes selected by the compiled Baby sequence.</param>
     /// <exception cref="ArgumentOutOfRangeException">The palette identity is unsupported.</exception>
-    public void ApplyBabyPalette(IPaletteColors colours, GameOverBabyPalette palette)
+    public void ApplyBabyPalette(ScreenPalette colours, GameOverBabyPalette palette)
     {
         _ = GameOverPresentationDefinitions.BabyPaletteName(palette);
-        for (int index = 0; index < GameOverRomData.BabyAnimation.PaletteColorCount; index++)
-            Ensure.NotNull(colours).SetColor(GameOverRomData.BabyAnimation.PaletteDestinationIndex + index, babyPalettes.Read(palette, index));
+        ScreenColours row = Ensure.NotNull(colours).SpriteRow(GameOverPresentationDefinitions.BabySpriteRow);
+        for (int index = 0; index < row.Count; index++)
+            row.Write(index, babyPalettes.Read(palette, index));
     }
 
     /// <summary>Reads and validates game-over JSON, compiling its tilemap, sprite compositions, palette artwork, and screen layout.</summary>

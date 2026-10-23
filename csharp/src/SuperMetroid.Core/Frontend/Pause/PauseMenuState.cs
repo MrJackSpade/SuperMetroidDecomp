@@ -154,7 +154,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // orange `1` glyph. Copying only the live HUD without replaying this queued DMA
         // consequently tiled `1` through every otherwise-empty map cell.
         screen.Tilemaps.ClearFx(PauseMenuLayout.Bg3FxClearTile);
-        new CgramPalettes(screen.Palette).LoadImage(entry.MapPresentation.Palettes.Pause);
+        screen.Palette.Load(entry.MapPresentation.Palettes.Pause);
 
         // LoadPauseScreenBaseTilemaps does *not* leave the bottom two button-label rows
         // solely in the $B6:E000 BG2 image. It keeps a mutable $B6:E400 copy at WRAM
@@ -939,8 +939,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         screen.BindArtwork(catalog);
         // Live highlights and reserve-arrow colors belong to their animation
         // owners. Replacing the static base must not reset their phase.
-        new CgramPalettes(screen.Palette).LoadImageExcept(catalog.Palettes.Pause, FrontendPaletteLayout.MapHighlightCycle,
-            FrontendPaletteLayout.PauseReserveArrowColor6, FrontendPaletteLayout.PauseReserveArrowColor11);
+        ScreenColours arrow = screen.Palette.BackgroundRow(PauseReserveUiDefinitions.ArrowBackgroundRow);
+        screen.Palette.LoadExcept(catalog.Palettes.Pause, screen.Palette.SpriteRow(MapScreenDefinitions.HighlightSpriteRow),
+            arrow.Slice(PauseReserveUiDefinitions.ArrowFirstColour, 1), arrow.Slice(PauseReserveUiDefinitions.ArrowSecondColour, 1));
         LoadPauseBackdrop();
         RefreshPauseButtonArtwork();
         // Refresh the authored base and rebuild the now-semantic inventory layer. The
@@ -1039,8 +1040,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     {
         PauseReserveUiPresentation presentation = (mapPresentation ?? throw new InvalidOperationException(
             "Reserve arrow requires installed presentation assets.")).PauseReserveUi;
-        presentation.ApplyArrowColors(screen.Palette, state == ReserveArrowState.Animated, frameCounterByte,
-            PauseReserveArrowRomData.Color6Index, PauseReserveArrowRomData.Color11Index);
+        presentation.ApplyArrowColors(screen.Palette.BackgroundRow(PauseReserveUiDefinitions.ArrowBackgroundRow),
+            state == ReserveArrowState.Animated, frameCounterByte);
         presentation.ApplyArrowTilePalettes(equipmentTilemap, state != ReserveArrowState.Hidden);
         reserveArrowLatched = true;
         reserveArrowLatchedState = state;

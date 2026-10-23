@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Map;
@@ -22,7 +23,7 @@ public sealed class MapPaletteAnimation
     public void Reset() { Timer = 1; Frame = 0; }
 
     /// <summary>Copies the native palette frame; true requests library-three MapPaletteLoop.</summary>
-    public bool Step(IPaletteColors colours)
+    public bool Step(ScreenPalette colours)
     {
         if (Timer == 0) return false;
         Timer--;
@@ -35,7 +36,7 @@ public sealed class MapPaletteAnimation
         bool wrapped = next >= cycle.FrameCount;
         Frame = wrapped ? 0 : next;
         Timer = cycle.Duration(Frame);
-        cycle.Apply(colours, Frame, MapAnimationRomData.PaletteDestination);
+        cycle.Apply(Ensure.NotNull(colours).SpriteRow(MapScreenDefinitions.HighlightSpriteRow), Frame);
         return wrapped;
     }
 }

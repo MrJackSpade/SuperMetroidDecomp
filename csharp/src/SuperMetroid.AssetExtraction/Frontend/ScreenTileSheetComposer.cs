@@ -218,7 +218,7 @@ internal static class ScreenTileSheetComposer
     private static ReadOnlySpan<Bgr555> EndingColours(EndingPaletteCatalog palettes, EndingPaletteId palette)
     {
         var colours = new ScreenPalette();
-        palettes[palette].LoadTo(colours, 0, ScreenPalette.ColorCount, 0);
+        palettes[palette].LoadTo(colours.All, 0);
         return colours.Colors;
     }
 

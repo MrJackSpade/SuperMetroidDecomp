@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
@@ -13,15 +14,15 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </remarks>
 public sealed class CinematicPaletteFader
 {
-    /// <summary>Current 8.8 colour for each of 256 CGRAM colors.</summary>
-    private readonly CinematicFadeColor[] current = new CinematicFadeColor[CgramPalettes.ColorCount];
+    /// <summary>Current 8.8 colour for each of the screen's colours.</summary>
+    private readonly CinematicFadeColor[] current = new CinematicFadeColor[ScreenPalette.ColorCount];
     /// <summary>One thirty-second of each target colour in 8.8 form.</summary>
-    private readonly CinematicFadeColor[] step = new CinematicFadeColor[CgramPalettes.ColorCount];
+    private readonly CinematicFadeColor[] step = new CinematicFadeColor[ScreenPalette.ColorCount];
 
     /// <summary>Ports <c>DecomposePaletteDataForFading</c> at $8B:8C09.</summary>
     public CinematicPaletteFader(ReadOnlySpan<Bgr555> targetPalette)
     {
-        Ensure.LengthEqual(targetPalette, CgramPalettes.ColorCount);
+        Ensure.LengthEqual(targetPalette, ScreenPalette.ColorCount);
 
         for (int color = 0; color < targetPalette.Length; color++)
         {
@@ -58,22 +59,22 @@ public sealed class CinematicPaletteFader
             current[color] = current[color].PlusWrapped(step[color]);
     }
 
-    /// <summary>Ports <c>ComposeFadingPalettes</c> at $8B:8CEA into live CGRAM.</summary>
-    public void ComposeInto(IPaletteColors colours)
+    /// <summary>Ports <c>ComposeFadingPalettes</c> at $8B:8CEA into the screen's colours.</summary>
+    public void ComposeInto(ScreenPalette colours)
     {
         Ensure.NotNull(colours);
-        Span<Bgr555> image = stackalloc Bgr555[CgramPalettes.ColorCount];
+        Span<Bgr555> image = stackalloc Bgr555[ScreenPalette.ColorCount];
         for (int color = 0; color < image.Length; color++)
             image[color] = current[color].Visible;
-        new CgramPalettes(colours).LoadImage(image);
+        colours.Load(image);
     }
 
     /// <summary>Converts a nonempty span to a bounded palette color interval.</summary>
     private static PaletteColorRange ValidateRange(IntroPaletteSpan span)
     {
         // The native do/while routine handles at least one color, and the run stays inside the 256-color buffer.
-        int firstColor = Ensure.BetweenInclusive(0, CgramPalettes.ColorCount - 1, span.FirstColor);
-        int colorCount = Ensure.BetweenInclusive(1, CgramPalettes.ColorCount - firstColor, span.ColorCount);
+        int firstColor = Ensure.BetweenInclusive(0, ScreenPalette.ColorCount - 1, span.FirstColor);
+        int colorCount = Ensure.BetweenInclusive(1, ScreenPalette.ColorCount - firstColor, span.ColorCount);
         return new PaletteColorRange(firstColor, firstColor + colorCount);
     }
 }

@@ -14,6 +14,8 @@ public static class MapScreenDefinitions
     public static MapScreenPageId WorldForeground => MapScreenPageId.WorldForeground.Instance;
     /// <summary>Number of columns and rows in each complete SNES tilemap page.</summary>
     public const int PageColumns = 32, PageRows = 32;
+    /// <summary>The sprite row the map's highlight colour cycle colours.</summary>
+    public const int HighlightSpriteRow = 3;
     /// <summary>Number of tilemap cells in one 32-by-32 page.</summary>
     public const int PageCells = PageColumns * PageRows;
     /// <summary>Serialized byte count of one page of 16-bit tilemap words.</summary>

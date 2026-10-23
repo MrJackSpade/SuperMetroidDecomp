@@ -38,9 +38,8 @@ public sealed class FileSelectMapEntry
     public FileSelectMapEntry(MapStaticPalettes mapPalettes)
     {
         Ensure.NotNull(mapPalettes);
-        new CgramPalettes(Palette).LoadImage(mapPalettes.FileSelect);
-        Bgr555[] target = new CgramPalettes(Palette).Image.ToArray();
-        target[14] = target[30] = Bgr555.Black;
+        Palette.Load(mapPalettes.FileSelect);
+        Bgr555[] target = EntryTarget(mapPalettes.FileSelect);
         // File select runs outside gameplay; no other fade advances the counter meanwhile.
         palette = new CartridgePaletteTransition(
             target, FileSelectMapRomData.EntryPaletteDenominator, new GradualColorChangeCounter());
@@ -55,8 +54,25 @@ public sealed class FileSelectMapEntry
         if (content is null) return;
         // Update the destination without restarting the ongoing fade or replacing
         // current interpolated colors. The native two cleared entries stay black.
-        for (int color = 0; color < CgramPalettes.ColorCount; color++)
-            palette.SetTargetColor(color, color is 14 or 30 ? Bgr555.Black : content.FileSelect[color]);
+        Bgr555[] target = EntryTarget(content.FileSelect);
+        for (int color = 0; color < target.Length; color++)
+            palette.SetTargetColor(color, target[color]);
+    }
+
+    /// <summary>The colours the entry fade reaches: <paramref name="fileSelect"/> with the entry's black colours.</summary>
+    private static Bgr555[] EntryTarget(ReadOnlySpan<Bgr555> fileSelect)
+    {
+        var target = new ScreenPalette();
+        target.Load(fileSelect);
+        BlackenEntryColours(target);
+        return target.Colors.ToArray();
+    }
+
+    /// <summary>Makes the colour the entry fade holds black in each of the first background rows.</summary>
+    internal static void BlackenEntryColours(ScreenPalette palette)
+    {
+        for (int row = 0; row < FileSelectEntryColourDefinitions.BlackRows; row++)
+            palette.BackgroundRow(row).Write(FileSelectEntryColourDefinitions.BlackColour, Bgr555.Black);
     }
 
     /// <summary>Advances the palette fade, setup coroutine, or centered reveal by one frontend update.</summary>

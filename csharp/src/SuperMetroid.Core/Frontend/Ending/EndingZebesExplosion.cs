@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
 
@@ -33,10 +34,7 @@ internal sealed class EndingZebesExplosion
     {
         _stage.LoadFloor(EndingFloorSceneId.PlanetExplosion);
         _artwork.LoadEndingObjectCharacters();
-        _stage.LoadStaticPalette(EndingPaletteId.Explosion,
-            EndingCreditsRomData.Rendering.PaletteHalfBytes,
-            EndingCreditsRomData.Rendering.PaletteHalfBytes,
-            EndingCreditsRomData.Rendering.PaletteHalfBytes);
+        _stage.LoadStaticPalette(EndingPaletteId.Explosion, screen.Palette.Sprites);
         sprites.Clear();
         _stage.SpawnSprite(EndingCreditsRomData.Sprites.ExplodingZebes, EndingSpriteRole.ExplodingZebes);
         _stage.SpawnSprite(EndingCreditsRomData.Sprites.ExplosionLava, EndingSpriteRole.ExplosionLava);
@@ -67,10 +65,10 @@ internal sealed class EndingZebesExplosion
         // Func115 clears the previous cloud palette programs before taking its source
         // snapshot; otherwise their next instruction can overwrite the new OBJ fade.
         _stage.ResetPaletteFx();
-        explosionFadeSource = new CgramPalettes(screen.Palette).Image.ToArray();
+        explosionFadeSource = screen.Palette.Colors.ToArray();
         explosionFadeStep = 0;
-        ApplyExplosionFade(EndingExplosionFadeDefinitions.FirstObjectStart, 0);
-        ApplyExplosionFade(EndingExplosionFadeDefinitions.SecondObjectStart, 0);
+        ApplyExplosionFade(screen.Palette.SpriteRow(EndingColourRowDefinitions.ExplosionFirstSpriteRow), 0);
+        ApplyExplosionFade(screen.Palette.SpriteRow(EndingColourRowDefinitions.ExplosionSecondSpriteRow), 0);
         _stage.PhaseTimer = EndingExplosionFadeDefinitions.InitialCountdown;
     }
 
@@ -81,10 +79,10 @@ internal sealed class EndingZebesExplosion
         if ((_stage.PhaseTimer & 1) == 0)
         {
             explosionFadeStep++;
-            ApplyExplosionFade(EndingExplosionFadeDefinitions.BackgroundStart,
+            ApplyExplosionFade(screen.Palette.BackgroundRow(EndingColourRowDefinitions.ExplosionBackgroundRow),
                 EndingExplosionFadeDefinitions.Steps - explosionFadeStep);
-            ApplyExplosionFade(EndingExplosionFadeDefinitions.FirstObjectStart, explosionFadeStep);
-            ApplyExplosionFade(EndingExplosionFadeDefinitions.SecondObjectStart, explosionFadeStep);
+            ApplyExplosionFade(screen.Palette.SpriteRow(EndingColourRowDefinitions.ExplosionFirstSpriteRow), explosionFadeStep);
+            ApplyExplosionFade(screen.Palette.SpriteRow(EndingColourRowDefinitions.ExplosionSecondSpriteRow), explosionFadeStep);
         }
         if (--_stage.PhaseTimer < 0)
         {
@@ -94,14 +92,11 @@ internal sealed class EndingZebesExplosion
         }
     }
 
-    /// <summary>Scales one native explosion palette range from the captured CGRAM source by the current fade factor.</summary>
-    [PpuLayoutBoundary("codec: native ending fade over its CGRAM index range")]
-    private void ApplyExplosionFade(int start, int factor)
+    /// <summary>Scales one row of the explosion's colours from those captured when the crossfade began.</summary>
+    private void ApplyExplosionFade(ScreenColours row, int factor)
     {
-        for (int i = start; i < start + EndingExplosionFadeDefinitions.Colors; i++)
-        {
-            new CgramPalettes(screen.Palette).All.Write(i, explosionFadeSource[i].Map((_, channel) =>
-                channel * factor / EndingExplosionFadeDefinitions.Steps));
-        }
+        ReadOnlySpan<Bgr555> source = row.SamePositionsIn(explosionFadeSource);
+        for (int colour = 0; colour < row.Count; colour++)
+            row.Write(colour, source[colour].Map((_, channel) => channel * factor / EndingExplosionFadeDefinitions.Steps));
     }
 }

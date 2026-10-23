@@ -1702,10 +1702,10 @@ internal static class LookupStream2Verification
         var stock = PauseReserveUiPresentation.Load(new MemoryStream(source));
         var edits = stock.arrowColorEdits;
         AssertEqual(0, edits.Count, "Native channel choices plus calculated ramps need no unexplained color overrides");
-        var cgram = new SnesCgram();
+        var cgram = new ScreenPalette();
         for (int frame = 0; frame < 32; frame++)
         {
-            stock.ApplyArrowColors(cgram, true, frame, 6, 11);
+            stock.ApplyArrowColors(cgram.BackgroundRow(0), true, frame);
             AssertEqual(ReadVerificationWord(rom, 0x82ad5d + 2 * frame), cgram.Colors[6], "Native arrow color6 reaches CGRAM");
             AssertEqual(ReadVerificationWord(rom, 0x82ad9d + 2 * frame), cgram.Colors[11], "Native arrow color11 reaches CGRAM");
         }
@@ -1744,15 +1744,15 @@ internal static class LookupStream2Verification
 
         static void Check(PauseReserveUiPresentation presentation, PauseReserveUiDocument expected)
         {
-            var cgram = new SnesCgram();
+            var cgram = new ScreenPalette();
             for (int frame = -1; frame <= 32; frame++)
             {
-                presentation.ApplyArrowColors(cgram, true, frame, 6, 11);
+                presentation.ApplyArrowColors(cgram.BackgroundRow(0), true, frame);
                 var row = expected.Arrow.Frames[frame & 31];
                 AssertEqual(Pack(row.Color6), cgram.Colors[6], "Independent supplied color6");
                 AssertEqual(Pack(row.Color11), cgram.Colors[11], "Independent supplied color11");
             }
-            presentation.ApplyArrowColors(cgram, false, 0, 6, 11);
+            presentation.ApplyArrowColors(cgram.BackgroundRow(0), false, 0);
             AssertEqual(Pack(expected.Arrow.SolidColor6), cgram.Colors[6], "Solid arrow color6");
             AssertEqual(Pack(expected.Arrow.SolidColor11), cgram.Colors[11], "Solid arrow color11");
         }

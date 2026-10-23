@@ -97,10 +97,10 @@ internal static class EndingPaletteArtworkVerification
         }
         AssertEqual(0x7fff, remaindersSeen, "original data exercises every quantization remainder");
         AssertTrue(loaded.Transfer.Span.SequenceEqual(original), "computed fade preserves complete exported bytes");
-        var cgram = new SnesCgram();
+        var cgram = new ScreenPalette();
         for (int step = 0; step < 16; step++)
         {
-            loaded.LoadTo(cgram, step * 32, 32, 64);
+            loaded.LoadTo(cgram.All.Slice(64, 32), step * 32);
             for (int color = 0; color < 32; color++)
             {
                 int offset = (step * 32 + color) * 2;
@@ -125,9 +125,9 @@ internal static class EndingPaletteArtworkVerification
             AssertThrows<ArgumentOutOfRangeException>(() => fade.Color(invalid), "computed fade index domain");
             AssertThrows<ArgumentOutOfRangeException>(() => loaded.Color(invalid), "loaded fade index domain");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => loaded.LoadTo(cgram, 511, 2, 0), "computed fade source transfer bounds");
-        AssertThrows<ArgumentOutOfRangeException>(() => loaded.LoadTo(cgram, 0, 32, 240), "computed fade destination transfer bounds");
-        loaded.LoadTo(cgram, 512, 0, 256);
+        AssertThrows<ArgumentOutOfRangeException>(() => loaded.LoadTo(cgram.All.Slice(0, 2), 511), "computed fade source transfer bounds");
+        AssertThrows<ArgumentOutOfRangeException>(() => loaded.LoadTo(cgram.All.Slice(240, 32), 0), "computed fade destination transfer bounds");
+        loaded.LoadTo(cgram.All.Slice(256, 0), 512);
         AssertEqual(512, loaded.ColorCount, "computed fade retains published resource size");
     }
 
@@ -367,8 +367,8 @@ internal static class EndingPaletteArtworkVerification
             }
             if (id is EndingPaletteId.LogoInitial or EndingPaletteId.LogoCrossfade)
             {
-                var stockCgram = new SnesCgram();
-                var editedCgram = new SnesCgram();
+                var stockCgram = new ScreenPalette();
+                var editedCgram = new ScreenPalette();
                 var stockLogo = new EndingLogo(stockCgram, () => { }, stock);
                 var editedLogo = new EndingLogo(editedCgram, () => { }, edited);
                 if (id == EndingPaletteId.LogoCrossfade)
@@ -499,8 +499,8 @@ internal static class EndingPaletteArtworkVerification
     private static void VerifyEndingLogoPaletteArtwork(EndingPaletteCatalog stock,
         ISnesAddressSpace nativeBus, MutableCartridgeReadGuard guardedBus)
     {
-        var nativeCgram = new SnesCgram();
-        var installedCgram = new SnesCgram();
+        var nativeCgram = new ScreenPalette();
+        var installedCgram = new ScreenPalette();
         var nativeLogo = new EndingLogo(nativeCgram, () => { }, stock);
         var installedLogo = new EndingLogo(installedCgram, () => { }, stock);
         AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),

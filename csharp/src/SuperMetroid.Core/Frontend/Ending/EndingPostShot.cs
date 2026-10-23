@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Func139–142: rotate the shot graphic, fade Samus, and stage the final logo.</summary>
@@ -21,20 +22,20 @@ internal sealed class EndingPostShot
     public bool ReadyForWhiteFlash { get; private set; }
 
     /// <summary>Captures the starting palette for the post-shot rotation, fades and logo transfers.</summary>
-    public EndingPostShot(IPaletteColors colours) => sourcePalette = new CgramPalettes(colours).Image.ToArray();
+    public EndingPostShot(ScreenPalette palette) => sourcePalette = Ensure.NotNull(palette).Colors.ToArray();
 
     /// <summary>Advances the native rotation, both palette fades, timed VRAM uploads, and white-flash handoff by one update.</summary>
     public void Step(EndingScreen screen)
     {
         Ensure.NotNull(screen);
-        IPaletteColors colours = screen.Palette;
+        ScreenPalette colours = screen.Palette;
         if (ReadyForWhiteFlash) throw new InvalidOperationException("Post-shot white-flash handoff must be consumed.");
         calls++;
-        ApplyFade(colours, EndingPostShotDefinitions.ShootingPaletteStart,
+        ApplyFade(colours.SpriteRow(EndingColourRowDefinitions.ShootingSpriteRow),
             Math.Min(calls, EndingPostShotDefinitions.FadeFrames));
         int samusFade = Math.Clamp(calls - EndingPostShotDefinitions.SamusFadeDelay, 0,
             EndingPostShotDefinitions.FadeFrames);
-        ApplyFade(colours, EndingPostShotDefinitions.SamusPaletteStart, samusFade);
+        ApplyFade(colours.SpriteRow(EndingColourRowDefinitions.SamusSpriteRow), samusFade);
         if (!RotationFinished)
         {
             Angle = Angle.AddTableUnits(-EndingPostShotDefinitions.AngleStep);
@@ -56,17 +57,16 @@ internal sealed class EndingPostShot
         }
     }
 
-    /// <summary>Fades one CGRAM palette range from its captured colors using the native 32-step component progression.</summary>
-    [PpuLayoutBoundary("codec: native ending fade over its CGRAM index range")]
-    private void ApplyFade(IPaletteColors colours, int start, int elapsed)
+    /// <summary>Fades one row from its captured colours using the 32-step component progression.</summary>
+    private void ApplyFade(ScreenColours row, int elapsed)
     {
         int remaining = EndingPostShotDefinitions.FadeFrames - elapsed;
-        for (int index = start; index < start + EndingPostShotDefinitions.PaletteColors; index++)
+        ReadOnlySpan<Bgr555> source = row.SamePositionsIn(sourcePalette);
+        for (int colour = 0; colour < row.Count; colour++)
         {
-            // The native 8.8 accumulator subtracts component<<3 on every call;
+            // The 8.8 accumulator subtracts component<<3 on every call;
             // taking the high byte is exactly floor(component * remaining / 32).
-            new CgramPalettes(colours).All.Write(index, sourcePalette[index].Map((_, channel) =>
-                channel * remaining / EndingPostShotDefinitions.FadeFrames));
+            row.Write(colour, source[colour].Map((_, channel) => channel * remaining / EndingPostShotDefinitions.FadeFrames));
         }
     }
 

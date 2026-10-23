@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Harness;
 using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json.Nodes;
@@ -41,8 +42,8 @@ internal static class PaletteJsonContractsVisibleVerification
             stockFx.SpawnDefinition(definition.DefinitionPointer, 0);
             editedFx.SpawnDefinition(definition.DefinitionPointer, 0);
         }
-        var stockCgram = new SnesCgram();
-        var editedCgram = new SnesCgram();
+        var stockCgram = new ScreenPalette();
+        var editedCgram = new ScreenPalette();
         original.Apply(stockCgram); replacement.Apply(editedCgram);
         // Two complete tube-light cycles, with the independent one-frame displays
         // ticking concurrently. Compare all native instruction timers, not endpoints.
@@ -73,7 +74,7 @@ internal static class PaletteJsonContractsVisibleVerification
             AssertEqual(stockMap.Step(stockCgram), editedMap.Step(editedCgram), "map cycle sound/wrap timing unchanged");
             AssertEqual(stockMap.Timer, editedMap.Timer, "map cycle frame/timer unchanged");
             AssertEqual(stockMap.Frame, editedMap.Frame, "map cycle frame/timer unchanged");
-            int destination = MapAnimationRomData.PaletteDestination + 1;
+            int destination = ScreenColourPositions.Sprite(MapScreenDefinitions.HighlightSpriteRow) + 1;
             AssertEqual((ushort)(stockCgram.Colors[destination].ToWord() ^ 0x7fff), editedCgram.Colors[destination],
                 "map replacement changes exactly the selected color");
             AssertPaletteContractPixels(stockCgram, editedCgram, destination);
@@ -112,8 +113,12 @@ internal static class PaletteJsonContractsVisibleVerification
 
     /// <summary>Renders a tile or sprite with one selected CGRAM color to observe the exact RGB5 replacement.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    private static void AssertPaletteContractPixels(SnesCgram stock, SnesCgram edited, int color)
+    private static void AssertPaletteContractPixels(ScreenPalette stockColours, ScreenPalette editedColours, int color)
     {
+        var stock = new SnesCgram();
+        new CgramPalettes(stock).LoadImage(stockColours.Colors);
+        var edited = new SnesCgram();
+        new CgramPalettes(edited).LoadImage(editedColours.Colors);
         var vram = new SnesVram();
         int index = color % 16;
         AssertTrue(index != 0, "visible fixture does not confuse transparent color zero with authored color");

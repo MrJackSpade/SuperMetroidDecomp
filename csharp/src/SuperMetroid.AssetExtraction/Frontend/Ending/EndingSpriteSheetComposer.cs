@@ -40,9 +40,9 @@ internal static class EndingSpriteSheetComposer
                     SnesSpritemapYByte.Create(0), EndingShootingStarDefinitions.Attribute(frame), 0, sizes)]), characters,
                     FrontendSheetPalette.FramePalette);
             }));
-        var cgram = new SnesCgram();
-        page.LoadColours(palettes, cgram);
-        return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(), sizes, PartsKeepOwnRows: true);
+        var colours = new ScreenPalette();
+        page.LoadColours(palettes, colours);
+        return new SpriteSheetSources(frames, colours.Colors[SpriteColours..].ToArray(), sizes, PartsKeepOwnRows: true);
     }
 
     /// <summary>The frames ending sheet <paramref name="sheet"/> holds.</summary>
@@ -74,8 +74,7 @@ internal static class EndingSpriteSheetComposer
                 (palettes, cgram) =>
                 {
                     EscapeColours(palettes, cgram);
-                    palettes[EndingPaletteId.Explosion].LoadTo(cgram, EndingCreditsRomData.Rendering.PaletteHalfBytes,
-                        EndingCreditsRomData.Rendering.PaletteHalfBytes, EndingCreditsRomData.Rendering.PaletteHalfBytes);
+                    palettes[EndingPaletteId.Explosion].LoadTo(cgram.Sprites, palettes[EndingPaletteId.Explosion].FirstColorFor(cgram.Sprites));
                 }),
             SpriteSheetId.EndingSuitedRewardSprites => Reward(EndingReward.Armored),
             SpriteSheetId.EndingSuitlessRewardSprites => Reward(EndingReward.Suitless),
@@ -107,15 +106,16 @@ internal static class EndingSpriteSheetComposer
     }
 
     /// <summary>The escape scenes' colours.</summary>
-    private static void EscapeColours(EndingPaletteCatalog palettes, SnesCgram cgram) =>
-        palettes[EndingPaletteId.Escape].LoadTo(cgram, 0, SnesCgram.ColorCount, 0);
+    private static void EscapeColours(EndingPaletteCatalog palettes, ScreenPalette colours) =>
+        palettes[EndingPaletteId.Escape].LoadTo(colours.All, 0);
 
     /// <summary>The post-credits colours: the credits' background half under the post-credits scenes' own.</summary>
-    private static void PostCreditsColours(EndingPaletteCatalog palettes, SnesCgram cgram)
+    private static void PostCreditsColours(EndingPaletteCatalog palettes, ScreenPalette colours)
     {
-        palettes[EndingPaletteId.Credits].LoadTo(cgram, 0, EndingCreditsRomData.Rendering.PaletteHalfBytes, 0);
-        palettes[EndingPaletteId.PostCredits].LoadTo(cgram, EndingCreditsRomData.Rendering.PostCreditsPaletteDestination,
-            EndingCreditsRomData.Rendering.PostCreditsPaletteBytes, EndingCreditsRomData.Rendering.PostCreditsPaletteDestination);
+        palettes[EndingPaletteId.Credits].LoadTo(colours.Background, 0);
+        ScreenColours restored = colours.All.Slice(EndingColourRowDefinitions.PostCreditsKeptColours,
+            ScreenPalette.ColorCount - EndingColourRowDefinitions.PostCreditsKeptColours);
+        palettes[EndingPaletteId.PostCredits].LoadTo(restored, palettes[EndingPaletteId.PostCredits].FirstColorFor(restored));
     }
 
     /// <summary>
@@ -124,5 +124,5 @@ internal static class EndingSpriteSheetComposer
     /// </summary>
     private sealed record EndingPage(EndingObjectSheet ObjectSheet, EndingReward Reward, IReadOnlyList<EndingUpload> Transfers,
         Func<EndingObjectArtworkCatalog, IEnumerable<ICinematicSpriteFrames>> Families, bool Stars,
-        Action<EndingPaletteCatalog, SnesCgram> LoadColours);
+        Action<EndingPaletteCatalog, ScreenPalette> LoadColours);
 }

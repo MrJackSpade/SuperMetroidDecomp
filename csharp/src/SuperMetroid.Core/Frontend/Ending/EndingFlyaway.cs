@@ -45,10 +45,9 @@ internal sealed class EndingFlyaway
     internal void SetupPlanetEscape()
     {
         // Func120 clears the explosion flash's backdrop and transparent palette entries.
-        var palettes = new FrontendPalettes(screen.Palette);
-        palettes.EndingBackdrop.Write(0, Bgr555.Black);
-        palettes.EndingLogoBackground.Write(0, Bgr555.Black);
-        palettes.EndingObjectTransparent.Write(0, Bgr555.Black);
+        screen.Palette.Backdrop = Bgr555.Black;
+        screen.Palette.BackgroundRow(EndingColourRowDefinitions.LogoBackgroundRow).Write(0, Bgr555.Black);
+        screen.Palette.SpriteRow(EndingColourRowDefinitions.ClearedSpriteRow).Write(0, Bgr555.Black);
         _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.PlanetAfterglow, 0);
         _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.GunshipEmergence, 0);
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(unchecked((ushort)-72)), new(unchecked((ushort)-104), 0));
@@ -120,7 +119,8 @@ internal sealed class EndingFlyaway
         }
         if (_stage.FloorZoom < EndingCreditsRomData.Motion.PlanetExitScale)
         {
-            _stage.LoadStaticPalette(EndingPaletteId.FinalGunship, 0, 16, 80);
+            _stage.LoadStaticPalette(EndingPaletteId.FinalGunship,
+                screen.Palette.BackgroundRow(EndingColourRowDefinitions.FinalGunshipBackgroundRow), 0);
             _stage.SpawnSprite(
                 EndingCreditsRomData.Sprites.OperationWasText,
                 EndingSpriteRole.OperationWasText);
@@ -181,7 +181,7 @@ internal sealed class EndingFlyaway
         PrepareFlyawayStreams();
         // Func117 restores the BG half before disabling BG1. OBJ VRAM and palettes
         // remain live while Func118 replaces the two Mode-7 lanes over sixteen NMIs.
-        _stage.LoadStaticPalette(EndingPaletteId.Explosion, 0, 128, 0);
+        _stage.LoadStaticPalette(EndingPaletteId.Explosion, screen.Palette.Background);
     }
 
     /// <summary>Requires the Ceres flight artwork the native sixteen-NMI flyaway DMA sequence transfers.</summary>

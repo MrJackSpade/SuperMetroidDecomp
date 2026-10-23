@@ -152,12 +152,8 @@ public static class TitleSequenceRomData
     /// <summary>Fixed palette replacements made only by the immediate-title skip path.</summary>
     public static class Palette
     {
-        /// <summary>CGRAM color-word index 201 replaced with the skip-path white copyright color.</summary>
-        public const int CopyrightWhiteIndex = 201;
         /// <summary>Packed SNES BGR555 white $7FFF installed by the immediate-title skip path.</summary>
         public static Bgr555 CopyrightWhite => Bgr555.White;
-        /// <summary>CGRAM color-word index 202 replaced with the skip-path red copyright color.</summary>
-        public const int CopyrightRedIndex = 202;
         /// <summary>Packed SNES BGR555 word $7D80 for the skip-only copyright color, preserving the native payload despite the legacy Red name.</summary>
         public static Bgr555 CopyrightRed => Bgr555.FromWord(0x7d80);
     }

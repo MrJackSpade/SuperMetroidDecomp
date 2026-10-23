@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Native source addresses, exact sizes, and file identities for ending colors.</summary>
@@ -30,7 +31,7 @@ public static class EndingPaletteDefinitions
     public static int ColorCount(EndingPaletteId id) => id switch
     {
         EndingPaletteId.Escape or EndingPaletteId.PostCredits or EndingPaletteId.Credits or
-            EndingPaletteId.Explosion => CgramPalettes.ColorCount,
+            EndingPaletteId.Explosion => ScreenPalette.ColorCount,
         EndingPaletteId.FinalGunship => 16,
         EndingPaletteId.LogoInitial => 16,
         EndingPaletteId.LogoCrossfade => EndingLogoDefinitions.PaletteSteps * 2 * 16,

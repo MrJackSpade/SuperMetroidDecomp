@@ -38,7 +38,7 @@ internal sealed class EndingEscapeScenes
     /// <summary>Loads the first cloud scene, resets its Mode-7 transform and queues escape music.</summary>
     internal void SetupEscapeSceneA()
     {
-        _stage.LoadStaticPalette(EndingPaletteId.Escape, 0, 256, 0);
+        _stage.LoadStaticPalette(EndingPaletteId.Escape, screen.Palette.All);
         _stage.LoadFloor(EndingFloorSceneId.EscapeA);
         _artwork.LoadEscapeCloudCharacters();
         sprites.Clear();
@@ -113,14 +113,14 @@ internal sealed class EndingEscapeScenes
         {
             case CinematicSpriteCueKind.FadeExplosionPalette:
                 _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.FadePlanet, 0);
-                new FrontendPalettes(screen.Palette).EndingExplosionGlow.Write(0, new Bgr555(1, 0, 0));
+                screen.Palette.SpriteRow(EndingColourRowDefinitions.GlowSpriteRow).Write(EndingColourRowDefinitions.GlowColour, new Bgr555(1, 0, 0));
                 return;
 
             case CinematicSpriteCueKind.SpawnExplosionSilhouette:
                 _stage.SpawnSprite(
                     EndingCreditsRomData.Sprites.ExplosionSilhouette,
                     EndingSpriteRole.ExplosionSilhouette);
-                new FrontendPalettes(screen.Palette).EndingBackdrop.Write(0, EndingCreditsRomData.Rendering.WhiteColor);
+                screen.Palette.Backdrop = EndingCreditsRomData.Rendering.WhiteColor;
                 return;
 
             case CinematicSpriteCueKind.StartZebesExplosion:
@@ -147,10 +147,9 @@ internal sealed class EndingEscapeScenes
             case CinematicSpriteCueKind.EndZebesExplosion:
                 // F32B disables TM/TS without deleting the actors: the stars must still
                 // advance and become visible again when Func120 starts the flyaway.
-                var flash = new FrontendPalettes(screen.Palette);
-                flash.EndingBackdrop.Write(0, EndingCreditsRomData.Rendering.WhiteColor);
-                flash.EndingObjectTransparent.Write(0, EndingCreditsRomData.Rendering.WhiteColor);
-                flash.EndingLogoBackground.Fill(EndingCreditsRomData.Rendering.WhiteColor);
+                screen.Palette.Backdrop = EndingCreditsRomData.Rendering.WhiteColor;
+                screen.Palette.SpriteRow(EndingColourRowDefinitions.ClearedSpriteRow).Write(0, EndingCreditsRomData.Rendering.WhiteColor);
+                screen.Palette.BackgroundRow(EndingColourRowDefinitions.LogoBackgroundRow).Fill(EndingCreditsRomData.Rendering.WhiteColor);
                 _stage.PhaseTimer = 120;
                 _stage.Phase = EndingCreditsPhase.WaitForPlanetEscapeMusic;
                 return;

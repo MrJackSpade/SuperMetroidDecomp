@@ -266,11 +266,11 @@ internal static class TitleGradientVerification
             installedSkip.Step(0);
         }
         AssertEqual(nativeSkip.Phase, installedSkip.Phase, "title skip phase unaffected by installed colors");
-        AssertEqual(nativeSkip.PaletteColors[TitleSequenceRomData.Palette.CopyrightWhiteIndex],
-            installedSkip.PaletteColors[TitleSequenceRomData.Palette.CopyrightWhiteIndex],
+        AssertEqual(nativeSkip.PaletteColors[ScreenColourPositions.Sprite(TitleCopyrightColourDefinitions.SpriteRow, TitleCopyrightColourDefinitions.WhiteColour)],
+            installedSkip.PaletteColors[ScreenColourPositions.Sprite(TitleCopyrightColourDefinitions.SpriteRow, TitleCopyrightColourDefinitions.WhiteColour)],
             "installed title skip white matches native");
-        AssertEqual(nativeSkip.PaletteColors[TitleSequenceRomData.Palette.CopyrightRedIndex],
-            installedSkip.PaletteColors[TitleSequenceRomData.Palette.CopyrightRedIndex],
+        AssertEqual(nativeSkip.PaletteColors[ScreenColourPositions.Sprite(TitleCopyrightColourDefinitions.SpriteRow, TitleCopyrightColourDefinitions.RedColour)],
+            installedSkip.PaletteColors[ScreenColourPositions.Sprite(TitleCopyrightColourDefinitions.SpriteRow, TitleCopyrightColourDefinitions.RedColour)],
             "installed title skip red matches native");
         Console.WriteLine(
             $"  Title palette presentation: {SnesCgram.ColorCount} initial, 36 ambient, and two skip " +

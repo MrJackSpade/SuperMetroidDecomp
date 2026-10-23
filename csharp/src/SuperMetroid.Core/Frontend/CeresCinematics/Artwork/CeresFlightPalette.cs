@@ -1,10 +1,11 @@
+using SuperMetroid.Core.Rendering;
 using System.Buffers.Binary;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
-/// <summary>The Ceres approach's full, editable 256-color CGRAM image.</summary>
+/// <summary>The Ceres approach's full, editable 256 screen colours.</summary>
 public sealed class CeresFlightPalette
 {
     /// <summary>Independent painted colors; only repeated sections and endpoint-defined ramps are calculated.</summary>
@@ -27,16 +28,15 @@ public sealed class CeresFlightPalette
     /// <summary>Selected BGR555 color, including independent resource edits.</summary>
     public Bgr555 ColorAt(int index)
     {
-        if ((uint)index >= CgramPalettes.ColorCount) throw new ArgumentOutOfRangeException(nameof(index));
+        if ((uint)index >= ScreenPalette.ColorCount) throw new ArgumentOutOfRangeException(nameof(index));
         return edits.TryGetValue(index, out Bgr555 edited) ? edited : Calculate(index);
     }
 
-    /// <summary>Writes serialization/hash bytes without retaining a runtime palette image.</summary>
-    [PpuLayoutBoundary("codec: compiled 512-byte CGRAM transfer image of the Ceres flight palette")]
-    public void CopyTransferTo(Span<byte> destination)
+    /// <summary>Writes the colours as little-endian words for the content identity, without retaining them.</summary>
+    public void CopyColorWordsTo(Span<byte> destination)
     {
-        if (destination.Length < CgramPalettes.ByteCount) throw new ArgumentException("Palette output requires 512 bytes.", nameof(destination));
-        for (int index = 0; index < CgramPalettes.ColorCount; index++)
+        if (destination.Length < ColorWordBytes) throw new ArgumentException("Palette output requires 512 bytes.", nameof(destination));
+        for (int index = 0; index < ScreenPalette.ColorCount; index++)
             BinaryPrimitives.WriteUInt16LittleEndian(destination.Slice(index * Bgr555.ByteCount), ColorAt(index).ToWord());
     }
 
@@ -82,10 +82,10 @@ public sealed class CeresFlightPalette
         CeresFlightPaletteDocument document = JsonAssetDocument.Read<CeresFlightPaletteDocument>(
             json, ArtworkJson.Options, "Ceres flight palette");
         if (document.Version != CeresFlightPaletteFormat.Version ||
-            document.Colors is not { Length: CgramPalettes.ColorCount })
+            document.Colors is not { Length: ScreenPalette.ColorCount })
             throw new InvalidDataException("Ceres flight palette requires 256 RGB5 colors.");
 
-        var compiled = new Bgr555[CgramPalettes.ColorCount];
+        var compiled = new Bgr555[ScreenPalette.ColorCount];
         for (int index = 0; index < document.Colors.Length; index++)
         {
             PaletteRgb5? color = document.Colors[index];
@@ -110,14 +110,17 @@ public sealed class CeresFlightPalette
         json.Write(bytes);
     }
 
-    /// <summary>Replaces all 256 current CGRAM entries with the selected approach palette, including backdrop and OBJ colors; cinematic timing, brightness, and fades remain the caller's responsibility.</summary>
-    /// <param name="colours">Destination color memory to overwrite in color-entry order.</param>
-    public void LoadTo(IPaletteColors colours)
+    /// <summary>The bytes of the colours as little-endian words.</summary>
+    public const int ColorWordBytes = ScreenPalette.ColorCount * Bgr555.ByteCount;
+
+    /// <summary>Replaces every colour of the screen with the selected approach palette; cinematic timing, brightness, and fades remain the caller's responsibility.</summary>
+    /// <param name="colours">The screen's colours.</param>
+    public void LoadTo(ScreenPalette colours)
     {
         Ensure.NotNull(colours);
-        Span<Bgr555> image = stackalloc Bgr555[CgramPalettes.ColorCount];
+        Span<Bgr555> image = stackalloc Bgr555[ScreenPalette.ColorCount];
         for (int index = 0; index < image.Length; index++)
             image[index] = ColorAt(index);
-        new CgramPalettes(colours).LoadImage(image);
+        colours.Load(image);
     }
 }

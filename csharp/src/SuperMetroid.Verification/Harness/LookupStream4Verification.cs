@@ -319,7 +319,7 @@ internal static class LookupStream4Verification
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
             var fxSession = new PaletteFxSessionState();
             var fx = new RoomPaletteFxSystem(fxSession);
-            var cgram = new SnesCgram();
+            var cgram = new ScreenPalette();
             selected.Apply(cgram);
             foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
                 fx.SpawnDefinition(program.DefinitionPointer, 0);

@@ -11,6 +11,8 @@ public static class GameOverPresentationDefinitions
     public const int TilemapCellCount = GameOverRomData.TilemapWidth * GameOverRomData.TilemapHeight;
     /// <summary>2048 bytes required to transfer the page's sixteen-bit tilemap words.</summary>
     public const int TilemapByteCount = TilemapCellCount * sizeof(ushort);
+    /// <summary>The sprite row the Baby's animated colours change.</summary>
+    public const int BabySpriteRow = 4;
     /// <summary>Four frames in the looping missile-cursor animation.</summary>
     public const int CursorFrameCount = 4;
     /// <summary>Schema sprite identity of the egg composition, drawn at the Baby anchor.</summary>

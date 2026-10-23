@@ -538,7 +538,7 @@ internal static void VerifyIntroGameplayFlashbackVerticalScroll()
     // removes four on an odd frame, oscillating around eight rather than around zero.
     for (int hit = 0; hit < 4; hit++)
         motherBrain.RecordMissileHit();
-    var cgram = new SnesCgram();
+    var cgram = new ScreenPalette();
     var introPalette = new ushort[SnesCgram.ColorCount];
     motherBrain.RunPreInstruction(cgram, ToColors(introPalette), cinematicFrameCounter: 2, introCrossfadeTimer: 0x7f);
     AssertEqual(12, motherBrain.Background.Y,
@@ -559,7 +559,7 @@ internal static void VerifyCinematicPaletteFader()
     // Component four produces step $0020, making the fixed-point rounding boundary easy
     // to see: seven calls compose to zero and the eighth composes to component one.
     target[20] = 0x1084;
-    var cgram = new SnesCgram();
+    var cgram = new ScreenPalette();
     var fader = new CinematicPaletteFader(ToColors(target));
 
     // $8B:B018 clears incoming range $28/$03. Because X is a byte offset, the first

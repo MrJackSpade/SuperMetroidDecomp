@@ -214,7 +214,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         if (Phase is TitleSequencePhase.TitleScreenFadeIn or
             TitleSequencePhase.TitleScreen or TitleSequencePhase.TitleScreenFadeOut)
         {
-            new FrontendPalettes(palette).WriteTitleCopyright(
+            WriteCopyright(
                 presentation?.SkipCopyrightWhite ?? TitleSequenceRomData.Palette.CopyrightWhite,
                 presentation?.SkipCopyrightRed ?? TitleSequenceRomData.Palette.CopyrightRed);
         }
@@ -515,13 +515,21 @@ public sealed class TitleSequenceState : IFrontendScreen
         floorBackgroundEnabled = false;
     }
 
+    /// <summary>Writes the copyright glyph's white and red colours.</summary>
+    private void WriteCopyright(Bgr555 white, Bgr555 red)
+    {
+        ScreenColours row = palette.SpriteRow(TitleCopyrightColourDefinitions.SpriteRow);
+        row.Write(TitleCopyrightColourDefinitions.WhiteColour, white);
+        row.Write(TitleCopyrightColourDefinitions.RedColour, red);
+    }
+
     /// <summary>Installs the logo, gradient, copyright colors, and identity Mode 7 scene used after a skip.</summary>
     private void EnterImmediateTitleObjects()
     {
         gradientEnabled = true;
         // Skip transition `$8B:9A9C` explicitly overwrites the two glyph colors used by
         // the Nintendo copyright spritemap after restoring CGRAM's upper half.
-        new FrontendPalettes(palette).WriteTitleCopyright(
+        WriteCopyright(
             titlePalettePresentation?.SkipCopyrightWhite ?? TitleSequenceRomData.Palette.CopyrightWhite,
             titlePalettePresentation?.SkipCopyrightRed ?? TitleSequenceRomData.Palette.CopyrightRed);
         ActiveSprite = TitleSprite.SuperMetroidLogo;

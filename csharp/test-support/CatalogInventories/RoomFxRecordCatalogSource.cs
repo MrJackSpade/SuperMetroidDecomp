@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -6,6 +7,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.TestSupport.CatalogInventories;
 
@@ -100,7 +102,22 @@ internal static class RoomFxRecordCatalogSource
 
     /// <summary>Renders a record's door and terminator flag as the generated catalog spells them.</summary>
     private static string RenderDoor(RoomFxRecordDefinition record) =>
-        record.Terminates ? "null, true" : record.Door is { } door ? $"DoorDefinitions.{door.Name}, false" : "null, false";
+        record.Terminates ? "null, true" : record.Door is { } door ? $"{DeclaringDoorClass(door.Name)}.{door.Name}, false" : "null, false";
+
+    /// <summary>The door-definition class that names <paramref name="name"/>: its area's, or the shared one for doors no area names.</summary>
+    private static string DeclaringDoorClass(string name)
+    {
+        Type[] areas = [.. typeof(DoorDefinitions).Assembly.GetTypes().Where(type =>
+            type.Namespace == typeof(DoorDefinitions).Namespace && type != typeof(DoorDefinitions) &&
+            type.Name.EndsWith(nameof(DoorDefinitions), StringComparison.Ordinal) &&
+            type.GetProperty(name, BindingFlags.Public | BindingFlags.Static) is not null)];
+        return areas.Length switch
+        {
+            0 => nameof(DoorDefinitions),
+            1 => areas[0].Name,
+            _ => throw new InvalidOperationException($"Door {name} is named by {areas.Length} area classes."),
+        };
+    }
 
     /// <summary>Renders the named headers for the generated Core catalog.</summary>
     internal static string RenderRoomFxDefinitions(RetailRoomFxCapture capture)

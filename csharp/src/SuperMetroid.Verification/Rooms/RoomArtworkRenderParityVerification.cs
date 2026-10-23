@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -70,36 +72,49 @@ internal static class RoomArtworkRenderParityVerification
 
             void VerifyVisibleOverrides()
             {
-                int characterSource = (native.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")).Assets.Tileset.CharacterAddress;
-                string characterName = RoomCharacterAtlasFormat.SourceFileName(characterSource);
-                string stockCharacterPath = Path.Combine(installation.RoomCharacterDirectory,
-                    characterName);
-                int tileCount = native.Room.Scope.Assets.RoomCharacters.Length /
-                    RoomCharacterAtlasFormat.BytesPerTile;
-                int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
-                int rows = (tileCount + columns - 1) / columns;
-                IndexedPngImage characterImage;
-                using (var stockPng = File.OpenRead(stockCharacterPath))
-                    characterImage = IndexedPng.Read(stockPng, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))));
-                for (int index = 0; index < characterImage.Pixels.Length; index++)
-                    characterImage.Pixels[index] = (byte)((characterImage.Pixels[index] + 1) & 15);
-                Directory.CreateDirectory(installation.RoomCharacterOverrideDirectory);
-                string characterOverridePath = Path.Combine(
-                    installation.RoomCharacterOverrideDirectory, characterName);
-                if (File.Exists(characterOverridePath))
-                    throw new InvalidOperationException("Render parity fixture found an existing character override.");
+                // Rooms draw their block sheet's pictures: its image where a row's live colours are the sheet's standard ones,
+                // and its palette indices in the live colours elsewhere. A player's recolour overrides both files; here each
+                // opaque pixel shows the inverse of its colour and its row's next colour.
+                TilesetDefinition tileset = (native.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")).Assets.Tileset;
+                string sheetName = RoomBlockSheet.NameOf(tileset);
+                Rgba32 Inverted(Rgba32 pixel) => pixel with { R = (byte)~pixel.R, G = (byte)~pixel.G, B = (byte)~pixel.B };
+                Rgba32 NextColour(Rgba32 pixel) => pixel with { R = (byte)((pixel.R & ~15) | ((pixel.R & 15) % 15 + 1)) };
+                string[] overridePaths = [.. new (string File, Func<Rgba32, Rgba32> Edit)[]
+                {
+                    (SpriteSheetStore.ImageFile(sheetName), Inverted),
+                    (SpriteSheetStore.PaletteFile(sheetName), NextColour),
+                }.Select(edit => Path.Combine(installation.RoomBlockSheetOverrideDirectory, edit.File))];
+                Directory.CreateDirectory(installation.RoomBlockSheetOverrideDirectory);
+                if (overridePaths.Any(File.Exists))
+                    throw new InvalidOperationException("Render parity fixture found an existing block sheet override.");
                 try
                 {
-                    using (var editedPng = File.Create(characterOverridePath))
-                        IndexedPng.Write(editedPng, new(characterImage.Size.X, characterImage.Size.Y),
-                            characterImage.Pixels, characterImage.Palette);
+                    WriteEdited(SpriteSheetStore.ImageFile(sheetName), Inverted);
+                    WriteEdited(SpriteSheetStore.PaletteFile(sheetName), NextColour);
                     SuperMetroidRuntime changed = LoadRoom(installedArt: true);
                     Rgba32[] changedFrame = FrontendScenePixelsAccess.Pixels(changed.PublishDisplayFrame());
                     AssertTrue(!nativeFrame.SequenceEqual(changedFrame),
-                        "Landing Site character PNG override changes rendered pixels");
-                    AssertGameplayPlanesUnchanged(changed, "character PNG");
+                        "Landing Site block sheet override changes rendered pixels");
+                    AssertGameplayPlanesUnchanged(changed, "block sheet");
                 }
-                finally { File.Delete(characterOverridePath); }
+                finally
+                {
+                    foreach (string path in overridePaths)
+                        File.Delete(path);
+                }
+
+                void WriteEdited(string file, Func<Rgba32, Rgba32> edit)
+                {
+                    Rgba32[] pixels = RgbaPng.Read(new MemoryStream(File.ReadAllBytes(Path.Combine(installation.RoomBlockSheetDirectory, file)),
+                        writable: false), out Extent16<ImagePixels> size);
+                    for (int index = 0; index < pixels.Length; index++)
+                    {
+                        if (pixels[index].A != 0)
+                            pixels[index] = edit(pixels[index]);
+                    }
+                    using var edited = File.Create(Path.Combine(installation.RoomBlockSheetOverrideDirectory, file));
+                    RgbaPng.Write(edited, size, pixels);
+                }
 
                 string blockName = RoomMetatileFormat.CreFileName;
                 string stockBlockPath = Path.Combine(installation.RoomMetatileDirectory, blockName);
@@ -126,7 +141,7 @@ internal static class RoomArtworkRenderParityVerification
                     AssertGameplayPlanesUnchanged(changed, "visual block JSON");
                 }
                 finally { File.Delete(blockOverridePath); }
-                Console.WriteLine("  Landing Site: PNG and visual block edits both alter rendered pixels " +
+                Console.WriteLine("  Landing Site: block sheet and visual block edits both alter rendered pixels " +
                     "without changing BG1 placement or BTS.");
             }
 
@@ -149,6 +164,7 @@ internal static class RoomArtworkRenderParityVerification
                     runtime.Artwork.RoomMetatileArt = installation.LoadRoomMetatiles();
                     runtime.Artwork.RoomBackgroundTilemapArt = installation.LoadRoomBackgroundTilemaps();
                     runtime.Artwork.RoomSkyTilemapArt = installation.LoadRoomSkyTilemaps();
+                    runtime.Artwork.RoomBlockSheets = installation.LoadRoomBlockSheets();
                 }
                 runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
                 runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -160,7 +176,9 @@ internal static class RoomArtworkRenderParityVerification
                 CartridgeDoorHeader door = SuperMetroid.AssetExtraction.Rooms.CartridgeDoorHeaderImporter.Load(bus, doorPointer);
                 AssertEqual(expectedRoom, door.DestinationRoom,
                     $"{name} parity uses its real entry door");
-                runtime.LoadCartridgeRoomThroughDoorForVerification(door);
+                // The Landing Site opens on its sky, which its sky image draws; its bottom-left screen shows the ground's
+                // blocks, which the override checks change.
+                runtime.LoadCartridgeRoomThroughDoorForVerification(door, useRealLandingDoor ? new Position16<RoomPixels>(0, 5 * 256 - 224) : default);
                 runtime.FrameBoundary.BeginAcceptedFrame(0);
                 return runtime;
             }

@@ -28,8 +28,8 @@ public sealed class ScreenTileSet
     public ScreenTileSet Place(ScreenTileSheet sheet, int firstTile, int firstCharacter, int count)
     {
         Ensure.NotNull(sheet);
-        Ensure.BetweenInclusive(0, sheet.Characters - 1, firstCharacter);
-        Ensure.BetweenInclusive(1, sheet.Characters - firstCharacter, count);
+        Ensure.BetweenInclusive(0, sheet.TileCount - 1, firstCharacter);
+        Ensure.BetweenInclusive(1, sheet.TileCount - firstCharacter, count);
         return Fill(sheet, firstTile, firstCharacter, count, 1);
     }
 
@@ -39,7 +39,7 @@ public sealed class ScreenTileSet
     public ScreenTileSet PlaceRepeated(ScreenTileSheet sheet, int firstTile, int character, int copies)
     {
         Ensure.NotNull(sheet);
-        Ensure.BetweenInclusive(0, sheet.Characters - 1, character);
+        Ensure.BetweenInclusive(0, sheet.TileCount - 1, character);
         Ensure.BetweenInclusive(1, int.MaxValue, copies);
         return Fill(sheet, firstTile, character, copies, 0);
     }

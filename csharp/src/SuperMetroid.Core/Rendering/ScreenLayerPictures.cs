@@ -40,7 +40,7 @@ public sealed class ScreenLayerPictures
     {
         ScreenTilePicture tile = Tiles[cell.Tile]
             ?? throw new InvalidDataException($"A cell shows character {cell.Tile}, which no artwork the screen loads shows.");
-        Position16<ImagePixels> corner = tile.Sheet.Corner(tile.Character, cell.PaletteRow);
+        Position16<ImagePixels> corner = tile.Sheet.Corner(tile.SheetTile, cell.ColourVariant);
         int x = cell.FlipHorizontally ? ScreenTileSheet.TilePixels - 1 - pixel.X : pixel.X;
         int y = cell.FlipVertically ? ScreenTileSheet.TilePixels - 1 - pixel.Y : pixel.Y;
         return BgSample.OfTilePicture(tile.Sheet.Picture, new Position16<ImagePixels>((ushort)(corner.X + x), (ushort)(corner.Y + y)),

@@ -32,7 +32,7 @@ public sealed class CeresFlightPalette
     }
 
     /// <summary>Writes serialization/hash bytes without retaining a runtime palette image.</summary>
-    [PpuLayoutBoundary("codec: native 512-byte CGRAM transfer image of the Ceres flight palette")]
+    [PpuLayoutBoundary("codec: compiled 512-byte CGRAM transfer image of the Ceres flight palette")]
     public void CopyTransferTo(Span<byte> destination)
     {
         if (destination.Length < CgramPalettes.ByteCount) throw new ArgumentException("Palette output requires 512 bytes.", nameof(destination));
@@ -76,7 +76,7 @@ public sealed class CeresFlightPalette
 
     /// <summary>Loads the supported palette schema with exactly 256 non-null RGB5 colors, rejecting malformed or duplicate JSON properties and channels outside 0..31; supplied edits remain independent of calculated stock repeats and ramps.</summary>
     /// <param name="json">Caller-owned UTF-8 JSON stream containing the complete Ceres approach palette in CGRAM order.</param>
-    /// <returns>The immutable selected palette corresponding to native <c>Palettes_SpaceGunshipCeres</c> at <c>$8C:E5E9</c>.</returns>
+    /// <returns>The immutable selected palette corresponding to compiled <c>Palettes_SpaceGunshipCeres</c> at <c>$8C:E5E9</c>.</returns>
     public static CeresFlightPalette Load(Stream json)
     {
         CeresFlightPaletteDocument document = JsonAssetDocument.Read<CeresFlightPaletteDocument>(
@@ -85,7 +85,7 @@ public sealed class CeresFlightPalette
             document.Colors is not { Length: CgramPalettes.ColorCount })
             throw new InvalidDataException("Ceres flight palette requires 256 RGB5 colors.");
 
-        var native = new Bgr555[CgramPalettes.ColorCount];
+        var compiled = new Bgr555[CgramPalettes.ColorCount];
         for (int index = 0; index < document.Colors.Length; index++)
         {
             PaletteRgb5? color = document.Colors[index];
@@ -93,9 +93,9 @@ public sealed class CeresFlightPalette
                 (uint)color.Blue > 31)
                 throw new InvalidDataException(
                     $"Ceres flight palette color {index} requires red, green and blue in 0..31.");
-            native[index] = color.ToBgr555();
+            compiled[index] = color.ToBgr555();
         }
-        return new CeresFlightPalette(native);
+        return new CeresFlightPalette(compiled);
     }
 
     /// <summary>Serializes a palette document with the presentation JSON options and validates it through <see cref="Load"/> before writing any bytes to the destination.</summary>
@@ -111,13 +111,13 @@ public sealed class CeresFlightPalette
     }
 
     /// <summary>Replaces all 256 current CGRAM entries with the selected approach palette, including backdrop and OBJ colors; cinematic timing, brightness, and fades remain the caller's responsibility.</summary>
-    /// <param name="cgram">Destination color memory to overwrite in color-entry order.</param>
-    public void LoadTo(IPaletteColors cgram)
+    /// <param name="colours">Destination color memory to overwrite in color-entry order.</param>
+    public void LoadTo(IPaletteColors colours)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(colours);
         Span<Bgr555> image = stackalloc Bgr555[CgramPalettes.ColorCount];
         for (int index = 0; index < image.Length; index++)
             image[index] = ColorAt(index);
-        new CgramPalettes(cgram).LoadImage(image);
+        new CgramPalettes(colours).LoadImage(image);
     }
 }

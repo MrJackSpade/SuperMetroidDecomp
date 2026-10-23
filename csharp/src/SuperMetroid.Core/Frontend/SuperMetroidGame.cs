@@ -302,7 +302,7 @@ public sealed class SuperMetroidGame
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchPausingDarkening(controllerInput, gameplayAudio),
                 name: () => $"Pausing: gameplay darken ({Session.PauseBrightness})"),
             new GamePhase(SuperMetroidGameState.Pausing,
-                MainLoopRandomCall.NonGameplayHdmaThenAdvance,
+                MainLoopRandomCall.NonGameplayLineEffectsThenAdvance,
                 step: (controllerInput, _) => PausePhases.DispatchPausing(controllerInput),
                 name: () => "Pausing: load pause assets",
                 audio: GamePhaseAudio.PauseInputEpilogue),
@@ -400,7 +400,7 @@ public sealed class SuperMetroidGame
                 name: () => nameof(SuperMetroidGameState.TimeUp)),
             // $24 fades without a gameplay call; its HDMA objects still run until it clears them.
             new GamePhase(SuperMetroidGameState.WhitingOutFromTimeUp,
-                MainLoopRandomCall.NonGameplayHdmaThenAdvance,
+                MainLoopRandomCall.NonGameplayLineEffectsThenAdvance,
                 step: (controllerInput, _) => CinematicPhases.DispatchWhitingOutFromTimeUp(controllerInput),
                 name: () => nameof(SuperMetroidGameState.WhitingOutFromTimeUp)),
             new GamePhase(SuperMetroidGameState.CeresGoesBoomWithSamus,
@@ -540,7 +540,7 @@ public sealed class SuperMetroidGame
                 // GenerateRandomNumber call; it is not the reset vector's seed store.
                 Session.Random.Generate();
                 break;
-            case MainLoopRandomCall.NonGameplayHdmaThenAdvance:
+            case MainLoopRandomCall.NonGameplayLineEffectsThenAdvance:
                 // HDMA runs before $0D disables it; lava swaps the live RNG bytes.
                 Session.GameplayRuntime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjects: HdmaObjectProcessing.Run, Session.GameplayRuntime.Room.LoadedScope.Plms, Session.GameplayRuntime.Room.LoadedScope);
                 break;

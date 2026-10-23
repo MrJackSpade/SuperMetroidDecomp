@@ -280,7 +280,7 @@ internal static class ScreenTilePicturesVerification
         bool fourBpp = tiles.Depth == BgBitDepth.FourBpp;
         int words = ScreenTileSheet.CharacterWordsOf(tiles.Depth);
         SpriteImage image = picture.Sheet.Picture.Sheet;
-        Position16<ImagePixels> corner = picture.Sheet.Corner(picture.Character, 0);
+        Position16<ImagePixels> corner = picture.Sheet.Corner(picture.SheetTile, 0);
         for (int y = 0; y < ScreenTileSheet.TilePixels; y++)
         {
             int row = SnesVramAddressingConstants.ByteOffsetOfWord(characterBase + tile * words + y);

@@ -181,7 +181,7 @@ internal static class EndingCreditsPresentation
             ending.CreditsRoll.CurrentRewardJump.Draw(objects, new CinematicSpriteSheet(Sheet(), CinematicSpriteFamily.EndingReward));
         else
         {
-            foreach (EndingSprite wrapper in ending.sprites.OrderByDescending(actor => actor.NativeSlot))
+            foreach (EndingSprite wrapper in ending.sprites.OrderByDescending(actor => actor.TraversalSlot))
             {
                 CinematicSpriteFamily family = wrapper.Role.Family() switch
                 {

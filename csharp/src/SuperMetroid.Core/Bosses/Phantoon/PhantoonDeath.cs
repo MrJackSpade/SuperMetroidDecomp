@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Progression;
@@ -126,8 +126,8 @@ internal sealed class PhantoonDeath
         state.Parts[state.Tentacles.SlotIndex].RequestedWaveMode = PhantoonWaveRomData.DeathMode;
         state.Wave.Begin(PhantoonWaveRomData.DeathMode);
         state.Parts[body.SlotIndex].Function = PhantoonAiFunction.DyingFadeOut;
-        state.Parts[state.Eye.SlotIndex].MosaicRegister = PhantoonDeathDefinitions.InitialMosaicRegister;
-        state.MosaicBlockSize = MosaicBlockSizeOf(PhantoonDeathDefinitions.InitialMosaicRegister);
+        state.Parts[state.Eye.SlotIndex].MosaicRegister = PhantoonDeathDefinitions.InitialMosaic;
+        state.MosaicBlockSize = MosaicBlockSizeOf(PhantoonDeathDefinitions.InitialMosaic);
 
         // The body remains the BG2 producer. Eye/tentacle/mouth become invisible and ignore
         // Samus while preserving every unrelated raw property bit exactly as $DA6C does.

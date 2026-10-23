@@ -383,7 +383,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         for (int index = 0; index < map.Cells.Length; index++)
         {
             ScreenTileCell cell = map.Cells[index];
-            words[index] = (uint)cell.Tile | (uint)cell.PaletteRow << paletteRowShift | (cell.HighPriority ? highPriority : 0)
+            words[index] = (uint)cell.Tile | (uint)cell.ColourVariant << paletteRowShift | (cell.HighPriority ? highPriority : 0)
                 | (cell.FlipHorizontally ? flipHorizontally : 0) | (cell.FlipVertically ? flipVertically : 0);
         }
     }
@@ -404,7 +404,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         {
             if (screen.Tiles[index] is not { } tile)
                 continue;
-            Position16<ImagePixels> corner = tile.Sheet.Corner(tile.Character, 0);
+            Position16<ImagePixels> corner = tile.Sheet.Corner(tile.SheetTile, 0);
             table[3 * index] = (uint)pictureWords[tile.Sheet.Picture];
             table[3 * index + 1] = D3D11ConstantPacking.Halves(corner.X, corner.Y);
             table[3 * index + 2] = (uint)tile.Sheet.RowStride;

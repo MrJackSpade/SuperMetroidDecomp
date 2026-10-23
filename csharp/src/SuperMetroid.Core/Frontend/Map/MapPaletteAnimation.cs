@@ -22,7 +22,7 @@ public sealed class MapPaletteAnimation
     public void Reset() { Timer = 1; Frame = 0; }
 
     /// <summary>Copies the native palette frame; true requests library-three MapPaletteLoop.</summary>
-    public bool Step(IPaletteColors cgram)
+    public bool Step(IPaletteColors colours)
     {
         if (Timer == 0) return false;
         Timer--;
@@ -35,7 +35,7 @@ public sealed class MapPaletteAnimation
         bool wrapped = next >= cycle.FrameCount;
         Frame = wrapped ? 0 : next;
         Timer = cycle.Duration(Frame);
-        cycle.Apply(cgram, Frame, MapAnimationRomData.PaletteDestination);
+        cycle.Apply(colours, Frame, MapAnimationRomData.PaletteDestination);
         return wrapped;
     }
 }

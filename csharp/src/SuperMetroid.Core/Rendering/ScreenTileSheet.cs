@@ -13,11 +13,11 @@ public sealed class ScreenTileSheet
     /// <summary>The frame picturing every tile.</summary>
     public const string FrameName = "tiles";
 
-    /// <summary>Characters across a row of the sheet.</summary>
+    /// <summary>Tiles across a row of the sheet.</summary>
     public const int Columns = 32;
 
     /// <summary>The palette rows a tilemap word can select.</summary>
-    public const int PaletteRows = 8;
+    public const int ColourVariants = 8;
 
     /// <summary>Pixels along a tile's side.</summary>
     public const int TilePixels = 8;
@@ -31,9 +31,9 @@ public sealed class ScreenTileSheet
         Picture = Ensure.NotNull(sheet).Frame(FrameName);
         if (Picture.Sheet.Colours != ColoursOf(depth))
             throw new InvalidDataException($"Screen tile sheet {id} is not coloured for {depth} characters.");
-        if (Picture.Size.X != Columns * TilePixels || Picture.Size.Y == 0 || Picture.Size.Y % (PaletteRows * TilePixels) != 0)
+        if (Picture.Size.X != Columns * TilePixels || Picture.Size.Y == 0 || Picture.Size.Y % (ColourVariants * TilePixels) != 0)
             throw new InvalidDataException($"Screen tile sheet {id} is {Picture.Size.X}x{Picture.Size.Y}, not whole blocks of tiles for each palette row.");
-        BlockRows = Picture.Size.Y / (PaletteRows * TilePixels);
+        BlockRows = Picture.Size.Y / (ColourVariants * TilePixels);
     }
 
     /// <summary>The installed sheet.</summary>
@@ -49,7 +49,7 @@ public sealed class ScreenTileSheet
     public int BlockRows { get; }
 
     /// <summary>The characters each palette row's block holds.</summary>
-    public int Characters => BlockRows * Columns;
+    public int TileCount => BlockRows * Columns;
 
     /// <summary>Pixels from one palette row's block to the next.</summary>
     public int RowStride => BlockRows * TilePixels;
@@ -58,8 +58,8 @@ public sealed class ScreenTileSheet
     /// <exception cref="ArgumentOutOfRangeException">The sheet holds no such character or row.</exception>
     public Position16<ImagePixels> Corner(int character, int row)
     {
-        Ensure.BetweenInclusive(0, Characters - 1, character);
-        Ensure.BetweenInclusive(0, PaletteRows - 1, row);
+        Ensure.BetweenInclusive(0, TileCount - 1, character);
+        Ensure.BetweenInclusive(0, ColourVariants - 1, row);
         return CornerOf(character, row, BlockRows);
     }
 

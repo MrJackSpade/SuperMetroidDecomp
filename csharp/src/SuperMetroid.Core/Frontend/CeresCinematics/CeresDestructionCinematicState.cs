@@ -516,7 +516,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         Zoom = CeresDestructionRomData.Motion.IdentityScale;
         brightness = 0;
         fadeCounter = 1;
-        phaseTimer = CeresDestructionRomData.Timing.InitialMosaicRegister;
+        phaseTimer = CeresDestructionRomData.Timing.InitialMosaic;
         usesFloor = false;
     }
 

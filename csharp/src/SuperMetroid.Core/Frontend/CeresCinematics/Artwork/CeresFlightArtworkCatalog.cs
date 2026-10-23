@@ -44,8 +44,8 @@ public sealed class CeresFlightArtworkCatalog
     [PpuLayoutBoundary("codec: native 512-byte CGRAM transfer image of the Ceres flight palette")]
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(CeresFlightArtworkCatalog), content =>
     {
-        content.Append("mode7-characters", FloorCharacters.Span);
-        content.Append("mode7-maps", FloorMaps.Span);
+        content.Append("floorImage-characters", FloorCharacters.Span);
+        content.Append("floorImage-maps", FloorMaps.Span);
         content.Append("object-characters", ObjectCharacters.Span);
         Span<byte> paletteBytes = stackalloc byte[SuperMetroid.Core.Hardware.CgramPalettes.ByteCount];
         Palette.CopyTransferTo(paletteBytes);
@@ -74,11 +74,11 @@ public sealed class CeresFlightArtworkCatalog
         Ensure.NotNull(paletteJson);
         Ensure.NotNull(spritesJson);
         Ensure.NotNull(actorsJson);
-        IndexedPngImage mode7 = IndexedPng.Read(floorPng,
+        IndexedPngImage floorImage = IndexedPng.Read(floorPng,
             new(CeresFlightArtworkFormat.FloorWidth, CeresFlightArtworkFormat.FloorHeight));
         IndexedPngImage objects = IndexedPng.Read(objectPng,
             new(CeresFlightArtworkFormat.ObjectWidth, CeresFlightArtworkFormat.ObjectHeight));
-        if (mode7.Palette.Length != 256 || objects.Palette.Length != 16)
+        if (floorImage.Palette.Length != 256 || objects.Palette.Length != 16)
             throw new InvalidDataException("Ceres flight requires 256-color Mode-7 and 16-color OBJ PNGs.");
 
         CeresFlightMapDocument document = ReadMap(mapJson);
@@ -89,7 +89,7 @@ public sealed class CeresFlightArtworkCatalog
             map[CeresFlightArtworkFormat.MapCellsPerView + index] =
                 checked((byte)document.RearTiles[index]);
         }
-        byte[] characters = SnesMode7TileEncoder.Encode(mode7.Pixels, mode7.Size);
+        byte[] characters = SnesMode7TileEncoder.Encode(floorImage.Pixels, floorImage.Size);
         byte[] objectCharacters = SnesPlanarTileEncoder.Encode(objects.Pixels,
             objects.Size, 4);
         if (characters.Length != CeresFlightArtworkFormat.FloorByteCount ||

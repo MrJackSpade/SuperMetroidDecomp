@@ -92,7 +92,7 @@ public static class CeresDestructionRomData
         /// <summary>Updates that the completed Zebes approach remains visible.</summary>
         public const ushort ZebesHoldFrames = 0x0040;
         /// <summary>Initial MOSAIC register value enabling a size-eight effect on BG1.</summary>
-        public const byte InitialMosaicRegister = 0x81;
+        public const byte InitialMosaic = 0x81;
         /// <summary>MOSAIC register increment applied by each fade step.</summary>
         public const byte MosaicFadeStep = 0x10;
         /// <summary>Mask selecting the mosaic-size field.</summary>

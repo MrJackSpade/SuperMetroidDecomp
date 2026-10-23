@@ -10,7 +10,7 @@ internal sealed class EndingAnimalEscapeDefinitions : ICinematicSpriteFrames
     /// <summary>The pod's four frames, as the ending's sheet composes them.</summary>
     internal static readonly EndingAnimalEscapeDefinitions Sprites = new();
     /// <summary>$8B:DD98 tests event $0F, then $DDA7 forces native byte slot $04.</summary>
-    internal const int NativeSlot = 2;
+    internal const int ForcedSlot = 2;
     /// <summary>$8B:EF99-EFA2 initializes both pod coordinates to $0080.</summary>
     internal const ushort Origin = 0x0080;
     /// <summary>$8B:EFA5 selects OBJ palette seven.</summary>

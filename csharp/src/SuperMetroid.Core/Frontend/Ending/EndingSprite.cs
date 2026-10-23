@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal sealed record EndingSprite(IntroDiscoverySprite Sprite, EndingSpriteRole Role)
 {
     /// <summary>Physical slot used by descending native actor traversal.</summary>
-    public int NativeSlot { get; init; }
+    public int TraversalSlot { get; init; }
     /// <summary>Whether cloud motion has entered its moving instruction phase.</summary>
     public bool CloudMoving { get; set; }
 }

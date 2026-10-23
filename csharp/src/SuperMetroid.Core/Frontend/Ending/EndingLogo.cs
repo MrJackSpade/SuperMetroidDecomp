@@ -26,7 +26,7 @@ internal sealed class EndingLogo
     public bool Completed => PaletteStep == EndingLogoDefinitions.PaletteSteps;
 
     /// <summary>Creates four logo actors and loads the initial artwork palette into CGRAM.</summary>
-    public EndingLogo(IPaletteColors cgram, Action landed,
+    public EndingLogo(IPaletteColors colours, Action landed,
         EndingPaletteCatalog? paletteArtwork = null)
     {
         this.landed = landed;
@@ -40,17 +40,17 @@ internal sealed class EndingLogo
                 definition.Program);
             actors[i].InstallPreInstruction(definition.PreInstruction);
         }
-        new FrontendPalettes(cgram).EndingLogoBackground.Fill(Bgr555.Black);
+        new FrontendPalettes(colours).EndingLogoBackground.Fill(Bgr555.Black);
         (paletteArtwork ?? throw new InvalidOperationException(
             "Ending logo requires installed palette artwork."))
-            [EndingPaletteId.LogoInitial].LoadTo(cgram, 0, 16, 240);
+            [EndingPaletteId.LogoInitial].LoadTo(colours, 0, 16, 240);
     }
 
     /// <summary>Restored scene state keeps its current CGRAM; only future transfers change.</summary>
     public void BindPaletteArtwork(EndingPaletteCatalog? value) => paletteArtwork = value;
 
     /// <summary>Applies the pending crossfade pair before moving actors and interpreting their next instructions.</summary>
-    public void Step(IPaletteColors cgram)
+    public void Step(IPaletteColors colours)
     {
         if (Completed) throw new InvalidOperationException("Completed logo must hand off to percentage text.");
         // The cinematic function runs before sprite instructions, so the first palette
@@ -60,7 +60,7 @@ internal sealed class EndingLogo
             for (int palette = 0; palette < 2; palette++)
             {
                 for (int i = 15; i >= 0; i--)
-                    (palette == 0 ? new FrontendPalettes(cgram).EndingLogoBackground : new FrontendPalettes(cgram).EndingLogoObjects).Write(i,
+                    (palette == 0 ? new FrontendPalettes(colours).EndingLogoBackground : new FrontendPalettes(colours).EndingLogoObjects).Write(i,
                         (paletteArtwork ?? throw new InvalidOperationException(
                             "Ending logo requires installed palette artwork."))
                             [EndingPaletteId.LogoCrossfade].Color((PaletteStep * 2 + palette) * 16 + i));

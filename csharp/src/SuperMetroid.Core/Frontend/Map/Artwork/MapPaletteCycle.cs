@@ -17,14 +17,14 @@ public sealed class MapPaletteCycle
     /// Native $82:C10C pauses fifteen ticks at the loop origin and advances other
     /// highlight phases every three ticks. Independently edited frame holds remain exact.
     /// </summary>
-    private static byte NativeDuration(int frame) => frame == 0 ? (byte)15 : (byte)3;
+    private static byte StockDuration(int frame) => frame == 0 ? (byte)15 : (byte)3;
 
     /// <summary>Retains independent holds and paint edits while deriving the stock fourteen-frame mirror.</summary>
     private MapPaletteCycle(byte[] durations, Bgr555[][] suppliedColors)
     {
         FrameCount = durations.Length;
         for (int frame = 0; frame < FrameCount; frame++)
-            if (durations[frame] != NativeDuration(frame)) durationEdits.Add(frame, durations[frame]);
+            if (durations[frame] != StockDuration(frame)) durationEdits.Add(frame, durations[frame]);
         // The fourteen native frames traverse eight phases forward then backward.
         // Retain the independent phase artwork; only the reverse traversal is calculated.
         int phaseCount = FrameCount == 14 ? 8 : FrameCount;
@@ -54,7 +54,7 @@ public sealed class MapPaletteCycle
     public byte Duration(int frame)
     {
         CheckFrame(frame);
-        return durationEdits.TryGetValue(frame, out byte duration) ? duration : NativeDuration(frame);
+        return durationEdits.TryGetValue(frame, out byte duration) ? duration : StockDuration(frame);
     }
 
     /// <summary>Copies the selected frame's sixteen BGR555 colors into consecutive live CGRAM slots without advancing time or requesting audio.</summary>

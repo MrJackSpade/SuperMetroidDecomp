@@ -98,7 +98,7 @@ internal sealed class EndingEscapeScenes
         // which then runs later in this same frame; higher slots wait until next frame.
         for (int slot = EndingSpriteSlots.Count - 1; slot >= 0; slot--)
         {
-            EndingSprite? wrapper = sprites.Find(actor => actor.NativeSlot == slot && actor.Sprite.IsActive);
+            EndingSprite? wrapper = sprites.Find(actor => actor.TraversalSlot == slot && actor.Sprite.IsActive);
             if (wrapper is null) continue;
             _stage.StepEndingSpritePreInstruction(wrapper);
             wrapper.Sprite.Step(HandleSpriteCue);

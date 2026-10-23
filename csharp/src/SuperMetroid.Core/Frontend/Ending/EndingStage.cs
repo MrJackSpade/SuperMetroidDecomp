@@ -90,7 +90,7 @@ internal sealed class EndingStage
             EndingSpriteRole.ExplosionStarsRight => EndingSpriteSlots.RightStars,
             EndingSpriteRole.ExplosionStarsLeft => EndingSpriteSlots.LeftStars,
             EndingSpriteRole.ExplosionAfterglow => EndingSpriteSlots.Afterglow,
-            EndingSpriteRole.AnimalEscape => EndingAnimalEscapeDefinitions.NativeSlot,
+            EndingSpriteRole.AnimalEscape => EndingAnimalEscapeDefinitions.ForcedSlot,
             // Every other actor takes the highest free dynamic slot.
             EndingSpriteRole.CloudRightA or EndingSpriteRole.CloudLeftA or EndingSpriteRole.CloudRightB or
             EndingSpriteRole.CloudLeftB or EndingSpriteRole.CloudTopA or EndingSpriteRole.CloudTopB or
@@ -99,13 +99,13 @@ internal sealed class EndingStage
             EndingSpriteRole.ExplosionSilhouette or EndingSpriteRole.OperationWasText or
             EndingSpriteRole.CompletedSuccessfullyText or EndingSpriteRole.ClearTimeText or
             EndingSpriteRole.ClearTimeDigit or EndingSpriteRole.RewardSamus => Enumerable.Range(0, EndingSpriteSlots.Count).Reverse()
-                .FirstOrDefault(candidate => !sprites.Any(actor => actor.NativeSlot == candidate && actor.Sprite.IsActive), -1),
+                .FirstOrDefault(candidate => !sprites.Any(actor => actor.TraversalSlot == candidate && actor.Sprite.IsActive), -1),
             _ => throw new ArgumentOutOfRangeException(nameof(role), role, "Undefined ending sprite role."),
         };
         if (slot < 0) throw new InvalidOperationException("Ending cinematic actor slots exhausted.");
-        sprites.RemoveAll(actor => actor.NativeSlot == slot);
+        sprites.RemoveAll(actor => actor.TraversalSlot == slot);
         sprites.Add(new EndingSprite(new IntroDiscoverySprite(position, palette, program), role)
-            { NativeSlot = slot });
+            { TraversalSlot = slot });
         if (role == EndingSpriteRole.ExplosionStarsLeft)
             sprites[^1].Sprite.InstallPreInstruction(CinematicSpritePreInstruction.ZebesExplosionStarsWaitForFlyaway);
     }

@@ -66,7 +66,7 @@ internal static class PhantoonWaveVerification
     private static void VerifyPhantoonDeathMosaicSizes()
     {
         int steps = 0;
-        for (int mosaic = PhantoonDeathDefinitions.InitialMosaicRegister;
+        for (int mosaic = PhantoonDeathDefinitions.InitialMosaic;
              mosaic <= PhantoonDeathDefinitions.FinalMosaicRegister;
              mosaic += PhantoonDeathDefinitions.MosaicSizeStep)
         {

@@ -84,9 +84,9 @@ internal static class ScreenTileSheetComposer
         int count = characters.Length / bytes;
         int blockRows = ScreenTileSheet.BlockRowsOf(count);
         var canvas = new RoomTileCanvas(ScreenTileSheet.Columns * ScreenTileSheet.TilePixels,
-            ScreenTileSheet.PaletteRows * blockRows * ScreenTileSheet.TilePixels);
+            ScreenTileSheet.ColourVariants * blockRows * ScreenTileSheet.TilePixels);
         Bgr555[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
-        for (int row = 0; row < ScreenTileSheet.PaletteRows; row++)
+        for (int row = 0; row < ScreenTileSheet.ColourVariants; row++)
         {
             for (int character = 0; character < count; character++)
             {
@@ -101,7 +101,7 @@ internal static class ScreenTileSheetComposer
         }
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
         {
-            [ScreenTileSheet.FrameName] = TileWordSheetComposer.Frame(canvas, 0, ScreenTileSheet.PaletteRows * blockRows,
+            [ScreenTileSheet.FrameName] = TileWordSheetComposer.Frame(canvas, 0, ScreenTileSheet.ColourVariants * blockRows,
                 depth == BgBitDepth.FourBpp ? TileWordLayer.Bg12 : TileWordLayer.Bg3),
         };
         return canvas.ToSheet(colours, frames, ScreenTileSheet.ColoursOf(depth));

@@ -21,20 +21,20 @@ internal sealed class EndingPostShot
     public bool ReadyForWhiteFlash { get; private set; }
 
     /// <summary>Captures the starting palette for the post-shot rotation, fades and logo transfers.</summary>
-    public EndingPostShot(IPaletteColors cgram) => sourcePalette = new CgramPalettes(cgram).Image.ToArray();
+    public EndingPostShot(IPaletteColors colours) => sourcePalette = new CgramPalettes(colours).Image.ToArray();
 
     /// <summary>Advances the native rotation, both palette fades, timed VRAM uploads, and white-flash handoff by one update.</summary>
     public void Step(EndingScreen screen)
     {
         Ensure.NotNull(screen);
-        IPaletteColors cgram = screen.Palette;
+        IPaletteColors colours = screen.Palette;
         if (ReadyForWhiteFlash) throw new InvalidOperationException("Post-shot white-flash handoff must be consumed.");
         calls++;
-        ApplyFade(cgram, EndingPostShotDefinitions.ShootingPaletteStart,
+        ApplyFade(colours, EndingPostShotDefinitions.ShootingPaletteStart,
             Math.Min(calls, EndingPostShotDefinitions.FadeFrames));
         int samusFade = Math.Clamp(calls - EndingPostShotDefinitions.SamusFadeDelay, 0,
             EndingPostShotDefinitions.FadeFrames);
-        ApplyFade(cgram, EndingPostShotDefinitions.SamusPaletteStart, samusFade);
+        ApplyFade(colours, EndingPostShotDefinitions.SamusPaletteStart, samusFade);
         if (!RotationFinished)
         {
             Angle = Angle.AddTableUnits(-EndingPostShotDefinitions.AngleStep);
@@ -58,14 +58,14 @@ internal sealed class EndingPostShot
 
     /// <summary>Fades one CGRAM palette range from its captured colors using the native 32-step component progression.</summary>
     [PpuLayoutBoundary("codec: native ending fade over its CGRAM index range")]
-    private void ApplyFade(IPaletteColors cgram, int start, int elapsed)
+    private void ApplyFade(IPaletteColors colours, int start, int elapsed)
     {
         int remaining = EndingPostShotDefinitions.FadeFrames - elapsed;
         for (int index = start; index < start + EndingPostShotDefinitions.PaletteColors; index++)
         {
             // The native 8.8 accumulator subtracts component<<3 on every call;
             // taking the high byte is exactly floor(component * remaining / 32).
-            new CgramPalettes(cgram).All.Write(index, sourcePalette[index].Map((_, channel) =>
+            new CgramPalettes(colours).All.Write(index, sourcePalette[index].Map((_, channel) =>
                 channel * remaining / EndingPostShotDefinitions.FadeFrames));
         }
     }

@@ -36,29 +36,29 @@ public sealed class EndingObjectArtworkCatalog
         RewardSprites = Ensure.NotNull(parts.RewardSprites);
         LogoSprites = Ensure.NotNull(parts.LogoSprites);
         Ensure.NotNull(parts.Fragments);
-        if (!HasNativeLength(Clouds, EndingObjectTransfer.Clouds) ||
-            !HasNativeLength(Explosion, EndingObjectTransfer.Explosion) ||
-            !HasNativeLength(WaitingSamus, EndingObjectTransfer.WaitingSamus) ||
-            !HasNativeLength(ShootingScreen, EndingObjectTransfer.ShootingScreen) ||
-            !HasNativeLength(SuitlessSamus, EndingObjectTransfer.SuitlessSamus) ||
-            !HasNativeLength(WaitingTilemap.Transfer, EndingObjectTransfer.WaitingTilemap) ||
-            !HasNativeLength(PostCreditsFragmentA, EndingObjectTransfer.PostCreditsFragmentA) ||
-            !HasNativeLength(PostCreditsFragmentB, EndingObjectTransfer.PostCreditsFragmentB) ||
-            !HasNativeLength(PostShotLogoTiles, EndingObjectTransfer.PostShotLogoTiles) ||
-            !HasNativeLength(PostShotLogoMap.Transfer, EndingObjectTransfer.PostShotLogoMap) ||
+        if (!HasRequiredLength(Clouds, EndingObjectTransfer.Clouds) ||
+            !HasRequiredLength(Explosion, EndingObjectTransfer.Explosion) ||
+            !HasRequiredLength(WaitingSamus, EndingObjectTransfer.WaitingSamus) ||
+            !HasRequiredLength(ShootingScreen, EndingObjectTransfer.ShootingScreen) ||
+            !HasRequiredLength(SuitlessSamus, EndingObjectTransfer.SuitlessSamus) ||
+            !HasRequiredLength(WaitingTilemap.Transfer, EndingObjectTransfer.WaitingTilemap) ||
+            !HasRequiredLength(PostCreditsFragmentA, EndingObjectTransfer.PostCreditsFragmentA) ||
+            !HasRequiredLength(PostCreditsFragmentB, EndingObjectTransfer.PostCreditsFragmentB) ||
+            !HasRequiredLength(PostShotLogoTiles, EndingObjectTransfer.PostShotLogoTiles) ||
+            !HasRequiredLength(PostShotLogoMap.Transfer, EndingObjectTransfer.PostShotLogoMap) ||
             parts.Fragments.Count != EndingObjectArtworkFormat.FragmentCount ||
             parts.Fragments.Any(fragment => fragment is null ||
-                !HasNativeLength(fragment, EndingObjectTransfer.ExplosionFragment)))
+                !HasRequiredLength(fragment, EndingObjectTransfer.ExplosionFragment)))
             throw new InvalidDataException("Ending OBJ catalog has an incorrect native transfer length.");
         this.fragments = parts.Fragments.ToArray();
     }
 
     /// <summary>Checks an atlas transfer against the cartridge's required byte count.</summary>
-    private static bool HasNativeLength(RoomCharacterAtlas atlas, EndingObjectTransfer transfer) =>
-        HasNativeLength(atlas.Transfer, transfer);
+    private static bool HasRequiredLength(RoomCharacterAtlas atlas, EndingObjectTransfer transfer) =>
+        HasRequiredLength(atlas.Transfer, transfer);
 
     /// <summary>Checks raw transfer bytes against the exact length of their ending-artwork role.</summary>
-    private static bool HasNativeLength(ReadOnlyMemory<byte> bytes, EndingObjectTransfer transfer) =>
+    private static bool HasRequiredLength(ReadOnlyMemory<byte> bytes, EndingObjectTransfer transfer) =>
         bytes.Length == EndingObjectArtworkFormat.ByteCount(transfer);
 
     /// <summary>Compiled 4-bpp atmospheric-cloud OBJ sheet imported from <c>$99:A56F</c> and uploaded at VRAM byte $C000; placement is supplied separately by <see cref="CloudSprites"/>.</summary>

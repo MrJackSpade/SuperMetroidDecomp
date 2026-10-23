@@ -7,7 +7,7 @@ internal enum MainLoopRandomCall
     Reseed,
 
     /// <summary>HDMA objects run first (lava swaps the live RNG bytes), then the RNG advances.</summary>
-    NonGameplayHdmaThenAdvance,
+    NonGameplayLineEffectsThenAdvance,
 
     /// <summary>The RNG advances unless the update resumes the dispatch inside its own NMI wait.</summary>
     AdvanceUnlessResumingWait,

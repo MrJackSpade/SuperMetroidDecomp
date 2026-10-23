@@ -46,7 +46,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// where nothing was written, or zero without an overlay.
     /// </summary>
     private const int OverlayWord = DoorWindowWord + 1;
-    /// <summary>Header word of the sky's first row word, or zero without a sky (#1347).</summary>
+    /// <summary>Header word of the sky's rows, one word each, nonzero where a row selects a page, or zero without a sky (#1347, #1403).</summary>
     private const int SkyWord = OverlayWord + 1;
     /// <summary>
     /// Header word of the BG3 plane's pictures (#1403), laid out as <see cref="BossBg2Word"/>'s, or zero without
@@ -82,8 +82,6 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const uint TwoBppPictureBit = 1u << 16;
     /// <summary>The bit an X-ray reveal block's arrangement starts at.</summary>
     private const int ArrangementShift = 28;
-    /// <summary>A sky row word that selects no page: the row shows nothing.</summary>
-    private const uint SkyRowHidden = uint.MaxValue;
     /// <summary>Words of a frontend layer's character tile table: three for each character index (#1392).</summary>
     private const int ScreenTableWords = 3 * ScreenLayerPictures.CharacterIndices;
     /// <summary>Words of a Mode 7 map's tile picture table: two for each tile (#1392).</summary>
@@ -123,19 +121,19 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         RoomBackgroundLayer? bg1 = frame.Bg1, bg2 = frame.Bg2;
         RoomDoorBackground? door = frame.Door;
         RoomOverlayPictures? overlay = frame.Overlay, bg2Overlay = frame.Bg2Overlay;
-        SkyTilemap? sky = frame.Sky;
+        SkyPictures? sky = frame.Sky;
         Layer3Cells? bg3 = frame.Bg3;
         AffineFloor? mode7 = frame.Mode7;
         BossBodyPictures? bossBg2 = frame.BossBg2;
         XrayRevealPlane? reveal = frame.XrayReveal;
-        RoomBackgroundImagePlane? image = frame.Bg2Image, skyImage = frame.SkyImage;
+        RoomBackgroundImagePlane? image = frame.Bg2Image, skyImage = sky?.Image;
         SpriteSheetFrame? message = frame.MessagePicture;
         ImmutableArray<ScreenLayerPictures> screens = frame.Screens?.Layers ?? [];
         ImmutableArray<ScreenTileMap> screenCells = frame.Screens?.Maps ?? [];
         ImmutableArray<Mode7TilePictures> mode7s = mode7 is null ? [] : [mode7.Tiles];
         // No dispatch samples t3 without one of these, so such a scene keeps the last packed room unread.
         if (packed == frame || (bg1 is null && bg2 is null && sky is null && bg3 is null && mode7 is null && reveal is null && image is null
-            && skyImage is null && message is null && screens.IsEmpty && mode7s.IsEmpty))
+            && message is null && screens.IsEmpty && mode7s.IsEmpty))
             return false;
         RoomBackgroundLayer?[] planes = [bg1, bg2, door?.SourceRoom];
         int words = HeaderWords;
@@ -253,7 +251,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         }
         int skyOffset = sky is null ? 0 : words;
         if (sky is not null)
-            words += SkyTilemap.Rows * SkyTilemap.Columns;
+            words += SkyTilemap.Rows;
         int mode7Offset = mode7 is null ? 0 : words;
         if (mode7 is not null)
             words += AffineFloor.CellCount / sizeof(uint);
@@ -314,8 +312,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         PackTilePictures(upload, overlayPictures, overlayOffset, RoomTilemapOverlay.WordCount, pictureWords);
         upload[SkyWord] = (uint)skyOffset;
         if (sky is not null)
-            for (int word = 0; word < SkyTilemap.Rows * SkyTilemap.Columns; word++)
-                upload[skyOffset + word] = sky.RowShown(word / SkyTilemap.Columns) ? sky.Words[word] : SkyRowHidden;
+            for (int row = 0; row < SkyTilemap.Rows; row++)
+                upload[skyOffset + row] = sky.RowsShown[row] ? 1u : 0u;
         upload[Bg2OverlayWord] = (uint)bg2OverlayOffset;
         PackTilePictures(upload, bg2OverlayPictures, bg2OverlayOffset, RoomTilemapOverlay.WordCount, pictureWords);
         upload[Mode7MapWord] = (uint)mode7Offset;

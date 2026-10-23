@@ -83,19 +83,15 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool horiz
     /// The sky layer the frame shows, positioned from <paramref name="layer1YPosition"/>; null when the room spawned no
     /// band HDMA object, whose BG2 is the room's own background.
     /// </summary>
-    /// <param name="tilemap">The installed sky rows for <see cref="Variant"/>.</param>
     /// <param name="layer1YPosition">The camera's layer-one Y the bands are positioned from.</param>
-    public ScrollingSkyLayer? Publish(SkyTilemap tilemap, ushort layer1YPosition)
+    public ScrollingSkyLayer? Publish(ushort layer1YPosition)
     {
-        Ensure.NotNull(tilemap);
-        if (tilemap.Variant != Variant)
-            throw new ArgumentException($"The sky shows the {Variant} rows; got the {tilemap.Variant} rows.", nameof(tilemap));
         if (!HorizontalHdmaConfigured)
             return null;
         var offsets = ImmutableArray.CreateBuilder<ushort>(_fixedHorizontalScrolls.Length);
         for (int slot = 0; slot < _fixedHorizontalScrolls.Length; slot++)
             offsets.Add(GetDataSlotPosition(slot));
-        return new ScrollingSkyLayer(tilemap, layer1YPosition, offsets.MoveToImmutable(), HdmaEnabled);
+        return new ScrollingSkyLayer(layer1YPosition, offsets.MoveToImmutable(), HdmaEnabled);
     }
 
     /// <summary>Adds each strip's native 16.16 speed and resets the stationary bottom strip.</summary>

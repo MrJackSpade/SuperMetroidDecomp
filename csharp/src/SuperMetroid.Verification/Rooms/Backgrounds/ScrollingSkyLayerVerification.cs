@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -15,7 +14,6 @@ internal static class ScrollingSkyLayerVerification
     /// </summary>
     internal static void VerifyPublishedSkyBands()
     {
-        SkyTilemap rows = RoomSkyTilemapFixtures.Numbered().Tilemap(ScrollingSkyChunkTable.Ocean);
         var sky = new ScrollingSkyState(ScrollingSkyChunkTable.Ocean);
         var expected = new uint[RoomFxRomData.ScrollingSky.DataSlotCount];
         int frozenFrames = 0;
@@ -36,9 +34,8 @@ internal static class ScrollingSkyLayerVerification
             else
                 frozenFrames++;
 
-            ScrollingSkyLayer layer = sky.Publish(rows, cameraY)
+            ScrollingSkyLayer layer = sky.Publish(cameraY)
                 ?? throw new InvalidOperationException("The configured sky publishes its layer.");
-            AssertTrue(ReferenceEquals(rows, layer.Tilemap), $"frame {frame} publishes the ocean rows");
             AssertEqual(cameraY, layer.VerticalScroll, $"frame {frame} positions the bands from the camera");
             AssertEqual(!frozen, layer.BandsShown, $"frame {frame} shows its bands only when time runs");
             AssertEqual(expected.Length, layer.BandOffsets.Length, $"frame {frame} publishes all 23 band offsets");

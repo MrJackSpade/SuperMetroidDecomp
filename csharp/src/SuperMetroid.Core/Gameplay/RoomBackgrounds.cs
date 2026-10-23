@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus.Abilities;
@@ -17,19 +16,21 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="Bg3">The HUD and room effect plane on BG3 (#1348), as its cells' pictures (#1403); null until the accepted NMI that latched it resolves them.</param>
 /// <param name="DoorSource">The source room's BG1 screen during a door's opening scroll, or null.</param>
 /// <param name="Bg1Overlay">Words a room actor wrote over BG1, or null.</param>
-/// <param name="Sky">The scrolling sky's rows on BG2 when the room has no layer-2 plane, or null (#1347).</param>
+/// <param name="Sky">
+/// The scrolling sky on BG2 when the room has no layer-2 plane, drawn from its image (#1347, #1403); null without a sky,
+/// and until the accepted NMI that latched the room resolves its pictures.
+/// </param>
 /// <param name="Bg2Overlay">Words a room actor wrote over BG2, or null (#1348).</param>
 /// <param name="Mode7">The Mode 7 map a Ceres room shows, or null outside Ceres (#1349).</param>
-/// <param name="BossBg2">A boss body's tilemap on BG2 while the boss owns BG2, or null (#1352).</param>
+/// <param name="BossBg2">A boss body's pictures on BG2 while the boss owns BG2, or null (#1352, #1403).</param>
 /// <param name="Characters">Which character page BG1 and BG2 draw from (#1357).</param>
 /// <param name="XrayReveal">The X-ray reveal BG2 shows in place of the room's own BG2, or null (#1392).</param>
 /// <param name="Bg2Image">The room's library background drawn from its image, where BG2 shows the tilemap it loaded (#1392).</param>
-/// <param name="SkyImage">The scrolling sky's rows drawn from their image, where BG2 shows the sky (#1392).</param>
 public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLayer? Bg2, Layer3Cells? Bg3,
-    RoomDoorBackground? DoorSource = null, RoomOverlayPictures? Bg1Overlay = null, SkyTilemap? Sky = null,
+    RoomDoorBackground? DoorSource = null, RoomOverlayPictures? Bg1Overlay = null, SkyPictures? Sky = null,
     RoomOverlayPictures? Bg2Overlay = null, AffineFloor? Mode7 = null, BossBodyPictures? BossBg2 = null,
     RoomBackgroundCharacters Characters = RoomBackgroundCharacters.Tileset, XrayRevealPlane? XrayReveal = null,
-    RoomBackgroundImagePlane? Bg2Image = null, RoomBackgroundImagePlane? SkyImage = null)
+    RoomBackgroundImagePlane? Bg2Image = null)
 {
     /// <summary>The BG3 plane the frame shows (#1403).</summary>
     /// <exception cref="InvalidOperationException">The plane's pictures are not yet resolved.</exception>
@@ -43,7 +44,7 @@ public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLaye
     /// shows its own loaded tilemap.
     /// </summary>
     public IBgSource? Bg2Source => BossBg2 is { } boss ? boss : Bg2 is { } plane ? plane
-        : XrayReveal is { } reveal ? reveal : Sky is { } sky ? SkyImage?.AsSky(sky) ?? new BgTileLayer(sky) : null;
+        : XrayReveal is { } reveal ? reveal : Sky;
 
     /// <summary>
     /// BG2 as the frame shows it: <see cref="Bg2Source"/>, or when BG2 shows its own tilemap, the room's library

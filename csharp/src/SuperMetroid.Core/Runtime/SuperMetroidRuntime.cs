@@ -1041,9 +1041,7 @@ internal sealed class SuperMetroidRuntime
         ScrollingSkyState? sky = Room.ScrollingSky;
         var frameEnd = new GameplayFrameEndDisplayInputs(
             Room.DoorTransitionMainScreenLayers,
-            sky?.Publish((Artwork.RoomSkyTilemapArt ?? throw new InvalidOperationException(
-                    "The scrolling sky has no installed sky pages.")).Tilemap(sky.Variant),
-                Room.Camera?.PixelPosition.Y ?? throw new InvalidOperationException("Scrolling sky has no gameplay camera.")),
+            sky?.Publish(Room.Camera?.PixelPosition.Y ?? throw new InvalidOperationException("Scrolling sky has no gameplay camera.")),
             crocomireDeath is { MeltingHdmaActive: true } melting
                 ? ImmutableArray.CreateRange(melting.Bg2ScrollByScanline) : null,
             motherBrain is { RisingHdmaActive: true },

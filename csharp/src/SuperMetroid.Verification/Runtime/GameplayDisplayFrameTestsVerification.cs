@@ -7,7 +7,6 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -69,7 +68,8 @@ internal static class GameplayDisplayFrameTestsVerification
         explosion.Arm();
         explosion.Spawn(new(128, 120));
         for (int i = 0; i < 20; i++) explosion.StepFrame();
-        runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { ScrollingSky = new ScrollingSkyState(ScrollingSkyChunkTable.Land) });
+        // A sky room installs a live sky the published frame never had (#1403).
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         // Wiping VRAM unbinds the room's artwork, so it follows the next frame's latch; the room reloads below.
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
@@ -135,9 +135,12 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 
         // $88:AFB2 writes the BG2VOFS mirror while the same pass rebuilds the band table.
-        // HDMA reads the table during display; the mirror waits for the NMI upload.
-        var sky = new ScrollingSkyState(ScrollingSkyChunkTable.Land);
-        runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { ScrollingSky = sky });
+        // HDMA reads the table during display; the mirror waits for the NMI upload. A sky room installs its sky, and
+        // the sky's image, as it loads (#1403).
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite, new Position16<RoomPixels>(0, 0));
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
+        before = Registers(runtime);
+        ScrollingSkyState sky = runtime.Room.ScrollingSky ?? throw new InvalidOperationException("The Landing Site installs its scrolling sky.");
         sky.ProcessFrame(SkyLayer1Y, timeIsFrozen: false);
         MarkMainLoopWrite(runtime);
         AssertTrue(runtime.PublishDisplayFrame().FrameEnd.ScrollingSky is not null,
@@ -146,7 +149,7 @@ internal static class GameplayDisplayFrameTestsVerification
             registers.Bg2MapSize == before.Bg2MapSize, "sky BG2VOFS and BG2SC");
         AssertPublished(runtime, registers => registers.Bg2Scroll.Y == SkyLayer1Y &&
             registers.Bg2MapSize == new Extent16<TilemapCells>(32, 64), "sky BG2VOFS and BG2SC");
-        runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { ScrollingSky = null });
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }
 

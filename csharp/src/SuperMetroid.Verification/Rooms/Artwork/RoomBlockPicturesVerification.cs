@@ -86,13 +86,12 @@ internal static class RoomBlockPicturesVerification
     {
         SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
-        RoomBackgroundImagePlane plane = runtime.Display.Latched.Rooms?.SkyImage
+        IBgSource shown = runtime.Display.Latched.Rooms?.Sky
             ?? throw new InvalidOperationException($"{room.Name}: BG2 shows no sky image.");
         SkyTilemap sky = (runtime.Artwork.RoomSkyTilemapArt ?? throw new InvalidOperationException("The fixture has no sky rows."))
             .Tilemap((runtime.Room.Scope?.ScrollingSky ?? throw new InvalidOperationException($"{room.Name} has no sky.")).Variant);
         PpuMemorySnapshot memory = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites, runtime.BgArtwork);
         ReadOnlySpan<byte> vram = memory.Vram;
-        IBgSource shown = plane.AsSky(sky);
         int rows = 0;
         for (int row = 0; row < SkyTilemap.Rows; row++)
         {

@@ -10,7 +10,6 @@ namespace SuperMetroid.Verification.Rooms.Backgrounds;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Scrolling;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Fx;
 
 /// <summary>Checks West Ocean's published scrolling-sky rows against ROM.</summary>
@@ -35,9 +34,11 @@ internal static class OceanSkyVerification
 
         ScrollingSkyState sky = runtime.Room.ScrollingSky ?? throw new InvalidOperationException("Ocean main installs the scrolling sky.");
         AssertEqual(ScrollingSkyChunkTable.Ocean, sky.Variant, "the ocean main reads the ocean chunk table, not the land table");
-        SkyTilemap shown = runtime.PublishDisplayFrame().FrameEnd.ScrollingSky?.Tilemap
-            ?? throw new InvalidOperationException("The ocean frame publishes its sky layer.");
-        AssertTrue(ReferenceEquals(shown, ordinary.Rooms.Sky), "the ocean's BG2 shows the published sky rows");
+        AssertTrue(runtime.PublishDisplayFrame().FrameEnd.ScrollingSky is not null, "The ocean frame publishes its sky layer.");
+        SkyTilemap shown = (runtime.Artwork.RoomSkyTilemapArt ?? throw new InvalidOperationException("The ocean room has no installed sky rows."))
+            .Tilemap(sky.Variant);
+        AssertTrue(ordinary.Rooms.Sky is { } drawn && drawn.RowsShown.SequenceEqual(Enumerable.Range(0, SkyTilemap.Rows).Select(shown.RowShown)),
+            "the ocean's BG2 shows the published sky rows");
         // Every row the camera can show, at each tile-row step down the room, is the ocean ROM chunk's row.
         for (ushort cameraY = 0; cameraY <= 768; cameraY += 8)
         {
@@ -50,8 +51,8 @@ internal static class OceanSkyVerification
                 {
                     int source = 0x8A0000 | (SnesAddressMath.OffsetInBank(pointer + (worldY & 0xF8) * 8 + column * 2));
                     ushort expected = bus.ReadCartridgeWord(source);
-                    AssertTrue(shown.TrySample(new Position16<BgPlanePixels>((ushort)(column * 8), (ushort)worldY), out BgTileSample sample) &&
-                            sample.Tile.Raw == expected,
+                    int row = worldY % (SkyTilemap.Rows * 8) / 8;
+                    AssertTrue(shown.RowShown(row) && shown.Words[row * SkyTilemap.Columns + column] == expected,
                         $"ocean visible row {worldY:X4}, column {column} follows ROM ocean chunk");
                 }
             }

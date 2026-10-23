@@ -271,13 +271,16 @@ internal sealed class AcceptedFrameBoundary
             background.Image.AssertLoadedIntoBg2(_backgrounds);
             image = background.Resolve(_backgrounds);
         }
-        // A sky room's BG2 shows the sky's rows, drawn from their image (#1392).
-        RoomBackgroundImagePlane? sky = null;
-        if (scope.SkyImage is { } skyImage && scope.ScrollingSky is { } scrollingSky)
+        // A sky room's BG2 shows the sky's rows, drawn from their image (#1392, #1403).
+        SkyPictures? sky = null;
+        if (scope.ScrollingSky is { } scrollingSky)
         {
-            skyImage.Image.AssertPictures((_artwork.RoomSkyTilemapArt ?? throw new InvalidOperationException("A sky room has no installed sky rows."))
-                .Tilemap(scrollingSky.Variant).Words);
-            sky = skyImage.Resolve(_backgrounds);
+            RoomBackgroundImageResolver skyImage = scope.SkyImage
+                ?? throw new InvalidDataException($"{scope.Room.Definition.Name} shows a scrolling sky with no installed sky image.");
+            SkyTilemap rows = (_artwork.RoomSkyTilemapArt ?? throw new InvalidOperationException("A sky room has no installed sky rows."))
+                .Tilemap(scrollingSky.Variant);
+            skyImage.Image.AssertPictures(rows.Words);
+            sky = new SkyPictures(skyImage.Resolve(_backgrounds), rows);
         }
         // A boss body that owns BG2 draws each word from its body sheet's picture over what the word's character shows.
         ImmutableArray<ushort>? body = latched.Bosses.KraidBody?.Tilemap.Words ?? latched.Bosses.EnemyBg2?.Words;
@@ -303,7 +306,7 @@ internal sealed class AcceptedFrameBoundary
                 Bg1 = rooms.Bg1 with { Pictures = pictures },
                 Bg2 = rooms.Bg2 is { } bg2 ? bg2 with { Pictures = pictures } : null,
                 Bg2Image = image,
-                SkyImage = sky,
+                Sky = sky,
                 Bg2Overlay = bg2Overlay,
                 Bg1Overlay = bg1Overlay,
                 // The HUD and the room effect's page draw from the BG3 sheet's pictures at the HUD character base BG3 shows.

@@ -25,7 +25,11 @@ internal static class OrdinarySmokeTests
         // Even HDMA cases show BG2 from a room plane; case one from the ocean sky's rows, whose last chunks show
         // nothing (#1347); case three from the VRAM tilemap.
         var rooms = RoomBackgroundsFixtures.Seeded(random, new(511, 255), new(65535, 511), door: true, overlay: true);
-        var sky = rooms with { Bg2 = null, Sky = RoomSkyTilemapFixtures.Numbered().Tilemap(ScrollingSkyChunkTable.Ocean) };
+        var sky = rooms with
+        {
+            Bg2 = null,
+            Sky = new SkyPictures(RoomBackgroundsFixtures.SeededSky(random, colors), RoomSkyTilemapFixtures.Numbered().Tilemap(ScrollingSkyChunkTable.Ocean)),
+        };
         ushort[] x = Enumerable.Range(0, 192).Select(i => unchecked((ushort)(65535 - i * 17))).ToArray();
         ushort[] y = Enumerable.Range(0, 192).Select(i => unchecked((ushort)(511 + i * 3))).ToArray();
         int count = 0;
@@ -84,18 +88,6 @@ internal static class OrdinarySmokeTests
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, background image, geometry {geometry}, HDMA {hdma}");
-        }
-        // The scrolling sky drawn from its image (#1392), some rows showing no page, with and without HDMA scrolls.
-        var skyImage = sky with { SkyImage = RoomBackgroundsFixtures.SeededSky(random, colors) };
-        for (int hdma = 0; hdma < 4; hdma += 3)
-        {
-            var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
-                new Extent16<TilemapCells>(32, 64), 0x4800, 0, 0x6000, SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
-            var layer = new OrdinaryGameplayRenderLayer(registers, skyImage, new Bg2HdmaScrollTables(
-                (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
-            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 15));
-            PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
-                $"{device.Kind}: ordinary {count}, sky image, HDMA {hdma}");
         }
         // A boss body (#1352) drawn from its pictures (#1403) at the 64x64 map its registers select, with and without HDMA
         // scrolls.

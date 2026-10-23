@@ -1,18 +1,15 @@
 using System.Collections.Immutable;
-using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// The scrolling sky as a frame shows it (#1347): its tile rows, and 23 bands that each shift horizontally by their
-/// own offset. The cartridge draws the bands with an indirect HDMA table of BG2HOFS words (<c>$88:ADC2</c>); this is
+/// The scrolling sky's bands as a frame shows them (#1347): 23 bands that each shift horizontally by their own offset. The cartridge draws the bands with an indirect HDMA table of BG2HOFS words (<c>$88:ADC2</c>); this is
 /// that table's source, published as layer state.
 /// </summary>
-/// <param name="Tilemap">The land or ocean sky rows.</param>
 /// <param name="VerticalScroll">The layer-one Y the bands are positioned from; the sky's BG2 vertical scroll, wrapping at 16 bits.</param>
 /// <param name="BandOffsets">The whole-pixel horizontal offset in each of the 23 band data slots.</param>
 /// <param name="BandsShown">False on a frozen frame, whose terminated table leaves every band unshifted.</param>
-public sealed record ScrollingSkyLayer(SkyTilemap Tilemap, int VerticalScroll, ImmutableArray<ushort> BandOffsets, bool BandsShown)
+public sealed record ScrollingSkyLayer(int VerticalScroll, ImmutableArray<ushort> BandOffsets, bool BandsShown)
 {
     /// <summary>
     /// The horizontal scroll of each gameplay line, from physical scanline 32 down: the offset of the band covering

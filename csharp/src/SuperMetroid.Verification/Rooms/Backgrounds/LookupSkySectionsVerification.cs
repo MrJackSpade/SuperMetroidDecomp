@@ -2,7 +2,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Scrolling;
-using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Verification.Rooms.Backgrounds;
 
@@ -37,7 +36,7 @@ internal static class LookupSkySectionsVerification
             expectedSlots[22] = 0;
         }
         ushort end = ReadVerificationWord(rom, 0x88af79);
-        ScrollingSkyLayer layer = sky.Publish(RoomSkyTilemapFixtures.Numbered().Tilemap(ScrollingSkyChunkTable.Land), 0)
+        ScrollingSkyLayer layer = sky.Publish(0)
             ?? throw new InvalidOperationException("The configured sky publishes its layer.");
         for (int worldY = 0; worldY <= ushort.MaxValue; worldY++)
         {

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms.Artwork;
-using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Rooms.Scrolling;
 
@@ -8,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// into a circular BG2 tilemap (<c>$88:AFA3</c>); each visible row holds the row its chunk table selects for that
 /// position, so the sky is drawn from the rows directly and nothing is streamed.
 /// </summary>
-public sealed class SkyTilemap : IBgTileSource
+public sealed class SkyTilemap
 {
     /// <summary>Tile columns in a row; the sky repeats every 256 pixels across.</summary>
     public const int Columns = 32;
@@ -18,9 +17,6 @@ public sealed class SkyTilemap : IBgTileSource
 
     /// <summary>Rows in one chunk: the 32 rows of one tilemap page.</summary>
     private const int RowsPerChunk = 32;
-
-    /// <summary>The vertical position bits that select a row; positions repeat beyond them.</summary>
-    private const int PositionMask = Rows * SnesPpuLayout.BackgroundTileSizePixels - 1;
 
     /// <summary>The tile words of every row, row-major.</summary>
     private readonly ushort[] words = new ushort[Rows * Columns];
@@ -53,18 +49,4 @@ public sealed class SkyTilemap : IBgTileSource
 
     /// <summary>Whether <paramref name="row"/> selects a sky page.</summary>
     public bool RowShown(int row) => shown[row];
-
-    /// <inheritdoc />
-    public bool TrySample(Position16<BgPlanePixels> scrolled, out BgTileSample sample)
-    {
-        int row = (scrolled.Y & PositionMask) / SnesPpuLayout.BackgroundTileSizePixels;
-        if (!shown[row])
-        {
-            sample = default;
-            return false;
-        }
-        int column = scrolled.X / SnesPpuLayout.BackgroundTileSizePixels % Columns;
-        sample = BgTileSample.At(new SnesBgTilemapWord(words[row * Columns + column]), scrolled);
-        return true;
-    }
 }

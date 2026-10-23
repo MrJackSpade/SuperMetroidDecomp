@@ -1222,19 +1222,16 @@ internal static void VerifyScrollingSkyState()
     // The $02E0 section aliases data slot eight, which already received the $0238 row's
     // +0.8000. Its additional +0.C000 produces integer 1 after only one frame.
     AssertEqual(1, sky.GetDataSlotPosition(8), "sky aliased fast HDMA slot");
-    SkyTilemap rows = RoomSkyTilemapFixtures.Numbered().Tilemap(ScrollingSkyChunkTable.Land);
-    ScrollingSkyLayer layer = sky.Publish(rows, 0x02c0) ?? throw new InvalidOperationException("The configured sky publishes its layer.");
+    ScrollingSkyLayer layer = sky.Publish(0x02c0) ?? throw new InvalidOperationException("The configured sky publishes its layer.");
     AssertEqual(1, layer.GameplayLineScrolls(1)[0], "sky scanline resolves aliased HDMA slot");
 
     sky.ProcessFrame(layer1YPosition: 0x041f, timeIsFrozen: true);
     AssertEqual(false, sky.HdmaEnabled, "frozen sky terminates HDMA table");
-    ScrollingSkyLayer frozen = sky.Publish(rows, 0x02c0) ?? throw new InvalidOperationException("The configured sky publishes its layer.");
+    ScrollingSkyLayer frozen = sky.Publish(0x02c0) ?? throw new InvalidOperationException("The configured sky publishes its layer.");
     AssertTrue(!frozen.BandsShown && frozen.GameplayLineScrolls().All(scroll => scroll == 0), "a frozen frame shows every band unshifted");
     AssertEqual(1, frozen.BandOffsets[8], "a frozen frame keeps the band offsets");
-    AssertTrue(new ScrollingSkyState(ScrollingSkyChunkTable.Land, horizontalHdmaConfigured: false).Publish(rows, 0) is null,
+    AssertTrue(new ScrollingSkyState(ScrollingSkyChunkTable.Land, horizontalHdmaConfigured: false).Publish(0) is null,
         "a sky main without the band HDMA object publishes no sky layer");
-    AssertThrows<ArgumentException>(() => sky.Publish(RoomSkyTilemapFixtures.Numbered().Tilemap(ScrollingSkyChunkTable.Ocean), 0),
-        "the land sky rejects the ocean rows");
 
     Console.WriteLine("  Sky: HDMA bands, chunk wrap and the published layer agree.");
 }

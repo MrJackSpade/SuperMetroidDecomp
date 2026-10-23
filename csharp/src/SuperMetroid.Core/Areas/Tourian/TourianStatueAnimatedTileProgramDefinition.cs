@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
@@ -46,8 +47,8 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
     /// <summary>The boss bits of <see cref="BossArea"/> any one of which starts the release.</summary>
     public required BossBits DefeatedBossBits { get; init; }
 
-    /// <summary>The CGRAM colour index of the first of the three colours blacked out when the release starts.</summary>
-    public required int ClearedColorIndex { get; init; }
+    /// <summary>The statue's three colours blacked out when the release starts.</summary>
+    public required IColourSetRun ClearedColours { get; init; }
 
     /// <summary>The even statue selector passed to the eye-glow and soul spawners.</summary>
     public required ushort UnlockEffectParameter { get; init; }
@@ -55,8 +56,8 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
     /// <summary>The palette-FX object spawned during release.</summary>
     public required PaletteFxObject PaletteFx { get; init; }
 
-    /// <summary>The CGRAM colour index that receives the eight common grey colours.</summary>
-    public required int GreyColorIndex { get; init; }
+    /// <summary>The statue's eight colours that receive the common grey colours.</summary>
+    public required IColourSetRun GreyColours { get; init; }
 
 
     /// <summary>The statue's typed animated-tile programs.</summary>

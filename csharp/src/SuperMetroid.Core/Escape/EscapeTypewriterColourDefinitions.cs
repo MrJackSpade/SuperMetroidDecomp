@@ -5,5 +5,5 @@ namespace SuperMetroid.Core.Escape;
 public static class EscapeTypewriterColourDefinitions
 {
     /// <summary>The two room colours the text takes: the last set's colours thirteen and fourteen.</summary>
-    public static readonly BackgroundColourRun Source = new(EscapeTypewriterRomData.ColorSource, 2);
+    public static readonly BackgroundColourRun Source = new(7, 13, 2);
 }

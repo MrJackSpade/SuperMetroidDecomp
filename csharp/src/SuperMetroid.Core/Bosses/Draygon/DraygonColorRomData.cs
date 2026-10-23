@@ -12,22 +12,16 @@ public static class DraygonColorRomData
     public const int IntroSource = 0xa5a217;
     /// <summary>Twenty-five sixteen-bit SNES color words in the initializer's contiguous OBJ transfer; this count is in colors, not bytes.</summary>
     public const int IntroCount = 25;
-    /// <summary>Zero-based CGRAM color index 144 (<c>$90</c>), the first color of OBJ palette one; the 25-color introductory transfer ends at index 168.</summary>
-    public const int IntroDestination = 144;
 
     /// <summary>Normal BG2 body palette <c>Palette_Draygon_BG12_5</c> at <c>$A5:A277</c>, copied by hurt AI <c>$A5:954D</c> before overlaying the selected health-band colors.</summary>
     public const int BackgroundSource = 0xa5a277;
     /// <summary>Sixteen color words in the complete BG body palette, including its first palette slot.</summary>
     public const int BackgroundCount = 16;
-    /// <summary>Zero-based CGRAM color index 80 (<c>$50</c>), the beginning of BG palette five; normal and white-flash transfers replace indices 80..95.</summary>
-    public const int BackgroundDestination = 80;
 
     /// <summary>Normal <c>Palette_Draygon_Sprite7</c> at <c>$A5:A1F7</c>, copied by hurt AI <c>$A5:954D</c> separately from the BG body colors.</summary>
     public const int SpriteSource = 0xa5a1f7;
     /// <summary>Sixteen color words in the complete normal OBJ palette, including the transparent first slot.</summary>
     public const int SpriteCount = 16;
-    /// <summary>Zero-based CGRAM color index 240 (<c>$F0</c>), the beginning of OBJ palette seven; normal and white-flash transfers replace indices 240..255.</summary>
-    public const int SpriteDestination = 240;
 
     /// <summary><c>Palette_Draygon_WhiteFlash</c> at <c>$A5:A297</c>, copied to both the BG2 body and OBJ palette-seven destinations during the hurt flash.</summary>
     public const int WhiteFlashSource = 0xa5a297;
@@ -40,6 +34,4 @@ public static class DraygonColorRomData
     public const int HealthBandCount = 8;
     /// <summary>Four sixteen-bit color words per health row, occupying eight bytes and replacing only the body's damage-sensitive pens.</summary>
     public const int HealthBandColorCount = 4;
-    /// <summary>Zero-based CGRAM color index 89 (<c>$59</c>), BG palette-five pen nine; a health-band update replaces only indices 89..92.</summary>
-    public const int HealthDestination = 89;
 }

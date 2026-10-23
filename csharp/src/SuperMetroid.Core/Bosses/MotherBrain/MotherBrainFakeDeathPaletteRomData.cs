@@ -11,7 +11,4 @@ public static class MotherBrainFakeDeathPaletteRomData
 
     /// <summary>The fake-death fade handlers copy three nontransparent brain sprite colors.</summary>
     public const int ColorCount = 3;
-
-    /// <summary>The fade handlers write from CGRAM byte offset $0122.</summary>
-    public const int BrainColor = 0x0122 / sizeof(ushort);
 }

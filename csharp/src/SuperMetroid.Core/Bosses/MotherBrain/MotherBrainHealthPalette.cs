@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -12,7 +13,7 @@ public static class MotherBrainHealthPalette
     /// <remarks>The caller owns the native recovered-corpse-state gate; this method applies the selected band on every call without checking encounter phase.</remarks>
     /// <exception cref="InvalidOperationException"><paramref name="presentation"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is <see langword="null"/> and presentation artwork is available.</exception>
-    public static void Apply(IPaletteColors cgram, int health,
+    public static void Apply(GameplayColours cgram, int health,
         MotherBrainHealthPalettePresentation? presentation = null)
     {
         int index = health >= MotherBrainHealthPaletteRomData.FirstThreshold ? 0 :

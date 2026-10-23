@@ -13,14 +13,6 @@ public static class MotherBrainDeathRomData
     public const int FirstCorpseFadeSource = 0xadf119;
     /// <summary>Eight corpse-head fade images consumed in ascending order during the rot-away phase.</summary>
     public const int CorpseFadeFrameCount = 8;
-    /// <summary>$A9:AF77 copies the live brain colors beginning at CGRAM entry 145.</summary>
-    public const int BrainColors = 145;
-    /// <summary>$A9:AF7D copies those fifteen colors to sprite palette seven, skipping color zero.</summary>
-    public const int CorpseColors = 241;
-    /// <summary>$AD:E9CC background palette two's first opaque color.</summary>
-    public const int BodyColors = 65;
-    /// <summary>$AD:E9DD back-leg palette three's first opaque color.</summary>
-    public const int LegColors = 177;
     /// <summary>$AD:E9C9 copies fourteen colors per body/leg segment.</summary>
     public const int BodyColorCount = 14;
     /// <summary>$AD:F102 copies fifteen colors into the corpse palette.</summary>

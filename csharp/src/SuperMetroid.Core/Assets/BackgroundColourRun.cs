@@ -1,10 +1,14 @@
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>The <paramref name="Count"/> background colours from colour <paramref name="First"/> of all eight sets (#1405).</summary>
-/// <param name="First">The first colour, counted across the sets.</param>
-/// <param name="Count">The number of colours.</param>
-public readonly record struct BackgroundColourRun(int First, int Count)
+/// <summary>The <paramref name="Count"/> background colours from colour <paramref name="Colour"/> of set <paramref name="Set"/> (#1405).</summary>
+/// <param name="Set">The first colour's set.</param>
+/// <param name="Colour">The first colour within its set.</param>
+/// <param name="Count">The number of colours, which may run on into the following sets.</param>
+public readonly record struct BackgroundColourRun(int Set, int Colour, int Count) : IColourSetRun
 {
     /// <summary>These colours of <paramref name="sets"/>.</summary>
-    public ColourRun In(BackgroundColourSets sets) => Ensure.NotNull(sets).All.Slice(First, Count);
+    public ColourRun In(BackgroundColourSets sets) => Ensure.NotNull(sets).All.Slice(Set * ColourSets.SetColours + Colour, Count);
+
+    /// <inheritdoc />
+    public ColourRun In(GameplayColours colours) => In(Ensure.NotNull(colours).BackgroundSets);
 }

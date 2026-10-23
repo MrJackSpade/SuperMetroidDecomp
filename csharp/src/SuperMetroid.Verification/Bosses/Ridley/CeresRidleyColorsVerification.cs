@@ -101,7 +101,7 @@ internal static class CeresRidleyColorsVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         Action<RoomEnemySlot> initialize = enemies.CeresRidleyBehavior.Flight.InitializeCeresRidley;
         initialize(slot);
-        CheckCgram(document.Start.Length, CeresRidleyPaletteRomData.StartCgramIndex,
+        CheckCgram(document.Start.Length, CeresRidleyPaletteRomDataConstants.StartCgramIndex,
             edited.CeresRidleyColors.ResolveStart, "Ceres Ridley initialization");
 
         Action<RidleyEnemyState> eyeTick = enemies.CeresRidleyBehavior.Fades.TickCeresRidleyEyeFade;
@@ -117,7 +117,7 @@ internal static class CeresRidleyColorsVerification
             AssertEqual(unchecked((ushort)(step + 1)), state.FadePaletteOffset,
                 $"edited eye fade step {step} advances");
             CheckCgram(CeresRidleyPaletteRomData.EyeFadeColorCount,
-                CeresRidleyPaletteRomData.EyeFadeCgramIndex,
+                CeresRidleyPaletteRomDataConstants.EyeFadeCgramIndex,
                 color => edited.CeresRidleyColors.ResolveEyeFade(row, color),
                 $"Ceres Ridley eye fade step {step}");
         }
@@ -130,11 +130,11 @@ internal static class CeresRidleyColorsVerification
             AssertEqual(row == CeresRidleyPaletteRomData.BodyFadeRowCount - 1 ? 0 : row + 1,
                 state.FadePaletteOffset, $"edited body fade row {row} advances to the next row, or resets after the last");
             CheckCgram(CeresRidleyPaletteRomData.BodyFadeColorCount,
-                CeresRidleyPaletteRomData.BodyFadeBgCgramIndex,
+                CeresRidleyPaletteRomDataConstants.BodyFadeBgCgramIndex,
                 color => edited.CeresRidleyColors.ResolveBodyFade(row, color),
                 $"Ceres Ridley body BG fade row {row}");
             CheckCgram(CeresRidleyPaletteRomData.BodyFadeColorCount,
-                CeresRidleyPaletteRomData.BodyFadeObjCgramIndex,
+                CeresRidleyPaletteRomDataConstants.BodyFadeObjCgramIndex,
                 color => edited.CeresRidleyColors.ResolveBodyFade(row, color),
                 $"Ceres Ridley body OBJ fade row {row}");
         }
@@ -146,7 +146,7 @@ internal static class CeresRidleyColorsVerification
             int row = count < 70 ? CeresRidleyPaletteRomData.HealthMidRow :
                 CeresRidleyPaletteRomData.HealthLateRow;
             CheckCgram(CeresRidleyPaletteRomData.HealthColorCount,
-                CeresRidleyPaletteRomData.HealthCgramIndex,
+                CeresRidleyPaletteRomDataConstants.HealthCgramIndex,
                 color => edited.CeresRidleyColors.ResolveHealth(row, color),
                 $"Ceres Ridley hit count {count}");
         }
@@ -162,13 +162,13 @@ internal static class CeresRidleyColorsVerification
         AssertEqual(RidleyAiFunction.CeresPublishEscapeHandoff, activeRidley.Function,
             "Ceres Ridley retreat publishes the Mode-7 handoff");
         CheckCgram(CeresRidleyPaletteRomData.RetreatBgColorCount,
-            CeresRidleyPaletteRomData.RetreatBgCgramIndex,
+            CeresRidleyPaletteRomDataConstants.RetreatBgCgramIndex,
             edited.CeresRidleyColors.ResolveRetreatBg, "Ceres Ridley retreat BG");
         CheckCgram(CeresRidleyPaletteRomData.RetreatSharedColorCount,
-            CeresRidleyPaletteRomData.RetreatSharedBgCgramIndex,
+            CeresRidleyPaletteRomDataConstants.RetreatSharedBgCgramIndex,
             edited.CeresRidleyColors.ResolveRetreatShared, "Ceres Ridley retreat shared BG");
         CheckCgram(CeresRidleyPaletteRomData.RetreatSharedColorCount,
-            CeresRidleyPaletteRomData.RetreatSharedObjCgramIndex,
+            CeresRidleyPaletteRomDataConstants.RetreatSharedObjCgramIndex,
             edited.CeresRidleyColors.ResolveRetreatShared, "Ceres Ridley retreat shared OBJ");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "Ceres Ridley installed colors avoid their original source ranges");
@@ -335,11 +335,11 @@ internal static class CeresRidleyColorsVerification
                     AssertEqual(nativeCgram.Colors[color], stockCgram.Colors[color],
                         $"stock Norfair Ridley health {health} CGRAM {color}");
                     Bgr555 expected = stage != 0 &&
-                        color >= CeresRidleyPaletteRomData.HealthCgramIndex &&
-                        color < CeresRidleyPaletteRomData.HealthCgramIndex +
+                        color >= CeresRidleyPaletteRomDataConstants.HealthCgramIndex &&
+                        color < CeresRidleyPaletteRomDataConstants.HealthCgramIndex +
                             CeresRidleyPaletteRomData.HealthColorCount
                         ? edited.CeresRidleyColors.ResolveHealth(
-                            stage - 1, color - CeresRidleyPaletteRomData.HealthCgramIndex)
+                            stage - 1, color - CeresRidleyPaletteRomDataConstants.HealthCgramIndex)
                         : before[color];
                     AssertEqual(expected, editedCgram.Colors[color],
                         $"edited Norfair Ridley health {health} CGRAM {color}");

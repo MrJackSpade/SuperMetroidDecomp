@@ -153,9 +153,9 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             for (int color = 0; color < SnesCgram.ColorCount; color++)
             {
                 Bgr555 expected = controlCgram.Colors[color];
-                if (color == NorfairRidleyPaletteRomData.InitialCgramIndex + 1)
+                if (color == NorfairRidleyPaletteRomDataConstants.InitialCgramIndex + 1)
                     expected = Bgr555.FromWord((ushort)(expected.ToWord() ^ (1)));
-                if (revealRowVisible && color == NorfairRidleyPaletteRomData.RevealCgramIndex + 3)
+                if (revealRowVisible && color == NorfairRidleyPaletteRomDataConstants.RevealCgramIndex + 3)
                     expected = Bgr555.FromWord((ushort)(expected.ToWord() ^ (1 << 10)));
                 AssertEqual(expected, editedCgram.Colors[color], $"{context} CGRAM {color}");
             }

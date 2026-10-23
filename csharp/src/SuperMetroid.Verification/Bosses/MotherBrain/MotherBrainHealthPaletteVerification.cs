@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -19,7 +20,7 @@ internal static class MotherBrainHealthPaletteVerification
         foreach (var (health, index) in new VerifyMotherBrainHealthPaletteCase[]
             { new VerifyMotherBrainHealthPaletteCase(36000, 0), new VerifyMotherBrainHealthPaletteCase(9000, 0), new VerifyMotherBrainHealthPaletteCase(8999, 1), new VerifyMotherBrainHealthPaletteCase(5400, 1), new VerifyMotherBrainHealthPaletteCase(5399, 2), new VerifyMotherBrainHealthPaletteCase(1800, 2), new VerifyMotherBrainHealthPaletteCase(1799, 3), new VerifyMotherBrainHealthPaletteCase(0, 3) })
         {
-            var cgram = new SnesCgram();
+            var cgram = new GameplayColours(new SpriteColourSets());
             MotherBrainHealthPalette.Apply(cgram, health, InstalledFixtures.Maps.MotherBrainHealthPalette);
             VerifyCopy(0xade6a2, 65);
             VerifyCopy(0xade6a2, 145);

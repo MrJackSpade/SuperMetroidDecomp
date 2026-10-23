@@ -554,7 +554,7 @@ internal static class LookupStream5Verification
             var document = new CrocomireColorDocument { Version = 1, FightBody = bands[0], InitialWall = bands[1], InitialProjectile = bands[2], SkeletonArm = bands[3], WallSpikes = bands[4] };
             var result = CrocomireColorCatalog.Load(new MemoryStream(CrocomireColorCatalog.Write(document)));
             Func<int, Bgr555>[] resolve = [result.ResolveFightBody, result.ResolveInitialWall, result.ResolveInitialProjectile, result.ResolveSkeletonArm, result.ResolveWallSpikes];
-            var cgram = new SnesCgram(); result.ApplyInitial(cgram);
+            var cgram = new GameplayColours(new SpriteColourSets()); result.ApplyInitial(cgram);
             for (int band = 1; band <= 2; band++)
                 for (int ink = 0; ink < counts[band]; ink++)
                     AssertEqual(resolve[band](ink), cgram.Colors[destinations[band] + ink], "Initial seventeen-word copy preserves its independently supplied overlap");
@@ -1042,15 +1042,15 @@ internal static class LookupStream5Verification
         static TourianStatueColorCatalog Check(TourianStatueColorDocument expected)
         {
             var actual = TourianStatueColorCatalog.Load(new MemoryStream(TourianStatueColorCatalog.Write(expected), writable: false));
-            var cgram = new SnesCgram();
+            var cgram = new GameplayColours(new SpriteColourSets());
             actual.ApplyEntrance(cgram);
             for (int color = 0; color < expected.Base.Length; color++)
             {
                 AssertEqual(Pack(expected.Base[color]), actual.ResolveBase(color), "Exact independent base ramp color");
-                AssertEqual(Pack(expected.Base[color]), cgram.Colors[TourianStatuePaletteRomData.BaseCgramIndex + color], "Actual base CGRAM");
-                AssertEqual(Pack(expected.Statue[color]), cgram.Colors[TourianStatuePaletteRomData.StatueCgramIndex + color], "Unchanged statue CGRAM");
+                AssertEqual(Pack(expected.Base[color]), cgram.Colors[TourianStatuePaletteRomDataConstants.BaseCgramIndex + color], "Actual base CGRAM");
+                AssertEqual(Pack(expected.Statue[color]), cgram.Colors[TourianStatuePaletteRomDataConstants.StatueCgramIndex + color], "Unchanged statue CGRAM");
             }
-            actual.ApplyGrey(cgram, 0);
+            actual.ApplyGrey(cgram.BackgroundSets.Set(0).Slice(0, expected.Grey.Length));
             for (int color = 0; color < expected.Grey.Length; color++)
             {
                 AssertEqual(Pack(expected.Grey[color]), actual.ResolveGrey(color), "Exact independent grey ramp color");
@@ -1060,7 +1060,7 @@ internal static class LookupStream5Verification
             {
                 actual.ApplyEye(cgram, (ushort)(row * 2));
                 for (int color = 0; color < expected.Eye[row].Length; color++)
-                    AssertEqual(Pack(expected.Eye[row][color]), cgram.Colors[TourianStatuePaletteRomData.EyeCgramIndex + color], "Unchanged eye CGRAM");
+                    AssertEqual(Pack(expected.Eye[row][color]), cgram.Colors[TourianStatuePaletteRomDataConstants.EyeCgramIndex + color], "Unchanged eye CGRAM");
             }
             string identity = SelectedPresentationHash.Create("TourianStatueColorCatalog-v1", hash =>
             {
@@ -1184,24 +1184,24 @@ internal static class LookupStream5Verification
             };
             Check(native with { Frames = rows });
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Apply(new SnesCgram(), -1, 0),
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Apply(new SpriteColourSets().Set(0).Slice(0, 2), -1),
             "Zebetite pulse lower frame bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Apply(new SnesCgram(), 8, 0),
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Apply(new SpriteColourSets().Set(0).Slice(0, 2), 8),
             "Zebetite pulse upper frame bound");
         Console.WriteLine("Zebetite pulse:16 native colors,48 independent RGB edits, actual CGRAM, canonical identity and frame bounds pass; selected barrier-core paint disposition complete.");
 
         static ZebetiteColorCatalog Check(ZebetiteColorDocument expected)
         {
             var actual = ZebetiteColorCatalog.Load(new MemoryStream(ZebetiteColorCatalog.Write(expected), writable: false));
-            var cgram = new SnesCgram();
+            var cgram = new GameplayColours(new SpriteColourSets());
             ushort[][] packed = expected.Frames.Select(row => row.Select(rgb =>
                 (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10)).ToArray()).ToArray();
             for (int frame = 0; frame < packed.Length; frame++)
             {
-                actual.Apply(cgram, frame, ZebetiteDefinitions.PaletteDestinationColor);
+                actual.Apply(ZebetiteDefinitions.PulseColours.In(cgram), frame);
                 for (int color = 0; color < packed[frame].Length; color++)
                     AssertEqual(packed[frame][color],
-                        cgram.Colors[ZebetiteDefinitions.PaletteDestinationColor + color],
+                        cgram.Colors[ColourSetRunPositions.First(ZebetiteDefinitions.PulseColours) + color],
                         "Zebetite pulse exact selected CGRAM color");
             }
             string identity = SelectedPresentationHash.Create("ZebetiteColorCatalog-v1",
@@ -1624,11 +1624,11 @@ internal static class LookupStream5Verification
             for(int row =0;row<8;row++)
             {
                 actual.LoadAnimationColors(cgram.BackgroundSets,row);
-                for(int color=0;color<6;color++) AssertEqual(Pack(expected.Animation[row][color]),cgram.Colors[CeresDoorVisualRomData.AnimationTargetColor+color],"Ceres independent animation color");
+                for(int color=0;color<6;color++) AssertEqual(Pack(expected.Animation[row][color]),cgram.Colors[CeresDoorVisualRomDataConstants.AnimationTargetColor+color],"Ceres independent animation color");
             }
-            actual.LoadNormalColors(cgram,0);
+            actual.LoadNormalColors(cgram.BackgroundSets.All.Slice(0, 15));
             for(int color=0;color<15;color++) AssertEqual(Pack(expected.Normal[color]),cgram.Colors[color],"Ceres normal palette unchanged");
-            actual.LoadEscapeColors(cgram,0);
+            actual.LoadEscapeColors(cgram.BackgroundSets.All.Slice(0, 15));
             for(int color=0;color<15;color++) AssertEqual(Pack(expected.Escape[color]),cgram.Colors[color],"Ceres escape palette unchanged");
             string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1",content =>
             {
@@ -2009,7 +2009,7 @@ internal static class LookupStream5Verification
                 system.Presentation.BindCgram(cgram.Gameplay);
                 var slot = system.SlotTable.Slots[0]; slot.SetSpawnParameter1(variant);
                 new Action<RoomEnemySlot>(system.CeresDoorBehavior.InitializeCeresDoor)(slot);
-                int destination = variant == 3 ? CeresDoorVisualRomData.NormalTargetColor : CeresDoorVisualRomData.ActiveTargetColor;
+                int destination = variant == 3 ? CeresDoorVisualRomDataConstants.NormalTargetColor : CeresDoorVisualRomDataConstants.ActiveTargetColor;
                 for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Normal[color]), cgram.Colors[destination + color], "Actual normal/target initializer copy");
             }
             string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1", content =>
@@ -2075,7 +2075,7 @@ internal static class LookupStream5Verification
                 system.Presentation.BindCgram(cgram.Gameplay);
                 var slot = system.SlotTable.Slots[0]; slot.SetSpawnParameter1(variant);
                 new Action<RoomEnemySlot>(system.CeresDoorBehavior.InitializeCeresDoor)(slot);
-                int destination = CeresDoorVisualRomData.ActiveTargetColor;
+                int destination = CeresDoorVisualRomDataConstants.ActiveTargetColor;
                 for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Escape[color]), cgram.Colors[destination + color], "Actual escape initializer copy");
             }
             string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1", content =>

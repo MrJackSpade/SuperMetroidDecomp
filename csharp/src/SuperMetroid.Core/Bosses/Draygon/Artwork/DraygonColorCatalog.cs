@@ -83,32 +83,32 @@ public sealed class DraygonColorCatalog
     private static Bgr555 StockWhiteFlash(int color) => color == 0 ? DraygonMaterialPaintDefinitions.ClearTarget : Bgr555.FromWord(0x7fff);
 
     /// <summary>Installs the selected opening colors at their native CGRAM destination.</summary>
-    public void ApplyIntro(IPaletteColors cgram) =>
-        ApplyCalculated(new BossPalettes(cgram).DraygonIntro, DraygonColorRomData.IntroCount, ResolveIntro);
+    public void ApplyIntro(GameplayColours cgram) =>
+        ApplyCalculated(new BossColours(cgram).DraygonIntro, DraygonColorRomData.IntroCount, ResolveIntro);
 
     /// <summary>Installs Draygon's normal or white-flash material colors and the active health band.</summary>
-    public void ApplyHurt(IPaletteColors cgram, bool whiteFrame, int healthBand)
+    public void ApplyHurt(GameplayColours cgram, bool whiteFrame, int healthBand)
     {
         if (whiteFrame)
-            ApplyCalculated(new BossPalettes(cgram).DraygonBackground, DraygonColorRomData.WhiteFlashCount, ResolveWhiteFlash);
+            ApplyCalculated(new BossColours(cgram).DraygonBackground, DraygonColorRomData.WhiteFlashCount, ResolveWhiteFlash);
         else
-            ApplyCalculated(new BossPalettes(cgram).DraygonBackground, DraygonColorRomData.BackgroundCount, ResolveBackground);
+            ApplyCalculated(new BossColours(cgram).DraygonBackground, DraygonColorRomData.BackgroundCount, ResolveBackground);
         if (!whiteFrame)
             ApplyHealthBand(cgram, healthBand);
         if (whiteFrame)
-            ApplyCalculated(new BossPalettes(cgram).DraygonSprite, DraygonColorRomData.WhiteFlashCount, ResolveWhiteFlash);
+            ApplyCalculated(new BossColours(cgram).DraygonSprite, DraygonColorRomData.WhiteFlashCount, ResolveWhiteFlash);
         else
-            ApplyCalculated(new BossPalettes(cgram).DraygonSprite, DraygonColorRomData.SpriteCount, ResolveSprite);
+            ApplyCalculated(new BossColours(cgram).DraygonSprite, DraygonColorRomData.SpriteCount, ResolveSprite);
     }
 
     /// <summary>Installs the four-color health band 0-7.</summary>
-    public void ApplyHealthBand(IPaletteColors cgram, int band)
+    public void ApplyHealthBand(GameplayColours cgram, int band)
     {
         if (band is < 0 or >= DraygonColorRomData.HealthBandCount)
             throw new InvalidDataException($"Draygon health palette band {band} is not authored.");
         Ensure.NotNull(cgram);
         for (int color = 0; color < DraygonColorRomData.HealthBandColorCount; color++)
-            new BossPalettes(cgram).DraygonHealth.Write(color,
+            new BossColours(cgram).DraygonHealth.Write(color,
                 ResolveHealthBand(band, color));
     }
 
@@ -144,7 +144,7 @@ public sealed class DraygonColorCatalog
             : throw new ArgumentOutOfRangeException(nameof(band));
 
     /// <summary>Writes the selected colors in index order to a native CGRAM palette view.</summary>
-    private static void ApplyCalculated(CgramPalette destination, int count, Func<int, Bgr555> resolve)
+    private static void ApplyCalculated(ColourRun destination, int count, Func<int, Bgr555> resolve)
     {
         for (int color = 0; color < count; color++) destination.Write(color, resolve(color));
     }

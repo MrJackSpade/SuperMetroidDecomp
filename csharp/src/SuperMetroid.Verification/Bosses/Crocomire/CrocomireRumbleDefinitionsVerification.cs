@@ -132,7 +132,7 @@ internal static class CrocomireRumbleDefinitionsVerification
             "Crocomire rumble production terminator marker reaches the melt shake counter");
         for (int color = 0; color < CrocomirePaletteRomData.WallSpikesCount; color++)
             AssertEqual(colors.ResolveWallSpikes(color),
-                cgram.Colors[CrocomirePaletteRomData.WallSpikesDestination + color],
+                cgram.Colors[CrocomirePaletteRomDataConstants.WallSpikesDestination + color],
                 $"Crocomire rumble termination applies installed wall-spike color {color}");
 
         Console.WriteLine(

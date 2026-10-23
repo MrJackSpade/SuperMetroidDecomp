@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Fx;
@@ -32,10 +33,10 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             FirstFrameDuration = 6,
             BossArea = AreaId.WreckedShip,
             DefeatedBossBits = BossBits.AreaBoss,
-            ClearedColorIndex = 172,
+            ClearedColours = new SpriteColourRun(2, 12, 3),
             UnlockEffectParameter = 0,
             PaletteFx = PaletteFxObject.GreyOutTourianStatuePhantoon,
-            GreyColorIndex = 160,
+            GreyColours = new SpriteColourRun(2, 0, TourianStatuePaletteRomData.GreyColorCount),
         },
         AnimatedTileObject.TourianStatueRidley => new()
         {
@@ -47,10 +48,10 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             FirstFrameDuration = 10,
             BossArea = AreaId.Norfair,
             DefeatedBossBits = BossBits.AreaBoss,
-            ClearedColorIndex = 153,
+            ClearedColours = new SpriteColourRun(1, 9, 3),
             UnlockEffectParameter = 2,
             PaletteFx = PaletteFxObject.GreyOutTourianStatueRidley,
-            GreyColorIndex = 144,
+            GreyColours = new SpriteColourRun(1, 0, TourianStatuePaletteRomData.GreyColorCount),
         },
         AnimatedTileObject.TourianStatueKraid => new()
         {
@@ -62,10 +63,10 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             FirstFrameDuration = 4,
             BossArea = AreaId.Brinstar,
             DefeatedBossBits = BossBits.AreaBoss,
-            ClearedColorIndex = 124,
+            ClearedColours = new BackgroundColourRun(7, 12, 3),
             UnlockEffectParameter = 6,
             PaletteFx = PaletteFxObject.GreyOutTourianStatueKraid,
-            GreyColorIndex = 112,
+            GreyColours = new BackgroundColourRun(7, 0, TourianStatuePaletteRomData.GreyColorCount),
         },
         AnimatedTileObject.TourianStatueDraygon => new()
         {
@@ -77,10 +78,10 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             FirstFrameDuration = 8,
             BossArea = AreaId.Maridia,
             DefeatedBossBits = BossBits.AreaBoss,
-            ClearedColorIndex = 105,
+            ClearedColours = new BackgroundColourRun(6, 9, 3),
             UnlockEffectParameter = 4,
             PaletteFx = PaletteFxObject.GreyOutTourianStatueDraygon,
-            GreyColorIndex = 96,
+            GreyColours = new BackgroundColourRun(6, 0, TourianStatuePaletteRomData.GreyColorCount),
         },
         AnimatedTileObject.None or AnimatedTileObject.Empty or AnimatedTileObject.HorizontalSpikes or
             AnimatedTileObject.VerticalSpikes or AnimatedTileObject.CrateriaLake or

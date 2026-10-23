@@ -13,4 +13,6 @@ internal static class MotherBrainFakeDeathPaletteRomDataConstants
         /// <inheritdoc cref="MotherBrainFakeDeathPaletteRomDataConstants.FromGreyPointerTable"/>
         internal static int FromGreyPointerTable => MotherBrainFakeDeathPaletteRomDataConstants.FromGreyPointerTable;
     }
+    /// <summary>The fade handlers write from CGRAM byte offset $0122.</summary>
+    public const int BrainColor = 0x0122 / sizeof(ushort);
 }

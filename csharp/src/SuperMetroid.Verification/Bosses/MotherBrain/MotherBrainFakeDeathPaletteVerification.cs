@@ -46,7 +46,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
                 AssertTrue(pointer != 0, "native Mother Brain fake-death palette frame exists");
                 SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(expected, rom, MotherBrainRainbowPaletteRomData.SourceBank | pointer,
                     MotherBrainFakeDeathPaletteRomData.ColorCount,
-                    MotherBrainFakeDeathPaletteRomData.BrainColor);
+                    MotherBrainFakeDeathPaletteRomDataConstants.BrainColor);
                 state.FunctionTimer = WrappingCountdown.Start(0);
                 step(state);
                 AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)),

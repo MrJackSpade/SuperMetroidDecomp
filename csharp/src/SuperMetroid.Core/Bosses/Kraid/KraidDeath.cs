@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
@@ -252,7 +252,7 @@ internal sealed class KraidDeath
         if (state.HurtFrame != 0)
             return;
         for (int color = 0; color < 16; color++)
-            _presentation.BossPalettes().KraidBody.Write(
+            _presentation.BossColours().KraidBody.Write(
                 color,
                 _background.ReadKraidColor(KraidPaletteSource.DeathArm, color));
         _access.StartKraidPartProgram(_slotTable.Slots[1], KraidPartProgram.ArmDyingOrPreparingToLunge);

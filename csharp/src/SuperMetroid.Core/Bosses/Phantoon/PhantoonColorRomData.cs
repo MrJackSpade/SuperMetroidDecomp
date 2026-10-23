@@ -9,8 +9,6 @@ public static class PhantoonColorRomData
     public const int HealthBandCount = 8;
     /// <summary>Number of consecutive colors in each Phantoon health palette band.</summary>
     public const int HealthBandColorCount = 16;
-    /// <summary>First CGRAM color index of Phantoon's sixteen-color body palette.</summary>
-    public const int BodyDestination = 112;
 
     /// <summary>Sixteen-color materialization fade-out target at $A7:CA41.</summary>
     public const int FadeOutSource = 0xa7ca41;

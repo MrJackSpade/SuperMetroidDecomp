@@ -51,7 +51,7 @@ internal static class ClosedPresentationContractChecks
                     MotherBrainRainbowPalettePresentation rainbow, MotherBrainDeathColorCatalog death,
                     ChozoAndTubeColorCatalog chozo, GameplayBasePaletteCatalog basePalette,
                     SamusDeathPaletteArtworkCatalog samusDeath,
-                    SnesCgram cgram, SuperMetroid.Core.Rendering.ScreenPalette screen, Span<ushort> tiles, Span<byte> bytes,
+                    SuperMetroid.Core.Assets.GameplayColours cgram, SuperMetroid.Core.Rendering.ScreenPalette screen, Span<ushort> tiles, Span<byte> bytes,
                     ScreenSprites oam, SpriteSheet sheet, int dynamicIndex) {
                     hud.ApplyAmmo(tiles, dynamicIndex, 123);
                     hud.MinimapCellIndex(new SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.TilemapCells>(99, 0));

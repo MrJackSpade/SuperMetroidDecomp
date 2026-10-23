@@ -13,4 +13,6 @@ internal static class PhantoonColorRomDataConstants
         /// <inheritdoc cref="PhantoonColorRomDataConstants.PowerOnDestination"/>
         internal static int PowerOnDestination => PhantoonColorRomDataConstants.PowerOnDestination;
     }
+    /// <summary>First CGRAM color index of Phantoon's sixteen-color body palette.</summary>
+    public const int BodyDestination = 112;
 }

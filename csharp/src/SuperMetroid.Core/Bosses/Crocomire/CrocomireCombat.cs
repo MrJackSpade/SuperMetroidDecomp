@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -51,7 +51,7 @@ internal sealed class CrocomireCombat
                 "Crocomire hurt palette requires installed artwork.")).ApplyFightBody(_presentation.Cgram);
             return;
         }
-        _presentation.BossPalettes().CrocomireFightBody.Fill(Bgr555.White);
+        _presentation.BossColours().CrocomireFightBody.Fill(Bgr555.White);
     }
 
     /// <summary>Registers component-specific bomb hit routines, including the native no-op gates.</summary>

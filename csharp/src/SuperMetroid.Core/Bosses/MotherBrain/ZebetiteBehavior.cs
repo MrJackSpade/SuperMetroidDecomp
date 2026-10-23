@@ -224,7 +224,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         SharedPaletteCycle = paletteCycle;
         (_bossArtwork.Artwork?.ZebetiteColors ?? throw new InvalidOperationException(
             "Zebetite requires installed palette-cycle colors."))
-            .Apply(_presentation.Cgram, paletteCycle, ZebetiteDefinitions.PaletteDestinationColor);
+            .Apply(ZebetiteDefinitions.PulseColours.In(_presentation.Cgram), paletteCycle);
     }
 
     /// <summary>Restarts the instruction list chosen from the half's pairing and current health.</summary>

@@ -99,15 +99,15 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         ReferenceEntrance(nativeEntryCgram);
         Initialize(editedEntry, 0);
         CheckOnlyDifferences(nativeEntryCgram, editedEntryCgram,
-            [new Difference(TourianStatuePaletteRomData.BaseCgramIndex + 1, 1),
-             new Difference(TourianStatuePaletteRomData.StatueCgramIndex + 1, 1 << 5)],
+            [new Difference(TourianStatuePaletteRomDataConstants.BaseCgramIndex + 1, 1),
+             new Difference(TourianStatuePaletteRomDataConstants.StatueCgramIndex + 1, 1 << 5)],
             "Tourian entrance edit");
         SamusColourRig nativeEyeCgram = SeedColors();
         (RoomEnemySystem editedEye, SamusColourRig editedEyeCgram) = CreateEnemy(guard, edited);
         ReferenceEye(nativeEyeCgram, 4);
         editedEye.TourianUnlockBehavior.SpawnTourianEyeGlow(4);
         CheckOnlyDifferences(nativeEyeCgram, editedEyeCgram,
-            [new Difference(TourianStatuePaletteRomData.EyeCgramIndex + 1, 1 << 10)],
+            [new Difference(TourianStatuePaletteRomDataConstants.EyeCgramIndex + 1, 1 << 10)],
             "Tourian eye edit");
 
         // The $87:837F grey instruction is reached on re-entry after each

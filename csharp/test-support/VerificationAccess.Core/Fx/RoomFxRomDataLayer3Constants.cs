@@ -1,4 +1,6 @@
 ﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -35,4 +37,6 @@ internal static class RoomFxRomDataLayer3Constants
         public const ushort ClearDestinationWord = 0x5880;
         /// <summary>VRAM word destination of a room effect's layer-three tilemap.</summary>
         public const ushort TilemapDestinationWord = 0x5be0;
+        /// <summary>First CGRAM index receiving the shared three-color FX blend.</summary>
+        public const int PaletteBlendDestinationIndex = 25;
 }

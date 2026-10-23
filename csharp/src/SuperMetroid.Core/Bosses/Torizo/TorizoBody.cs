@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms;
@@ -34,8 +34,8 @@ internal sealed class TorizoBody
     {
         for (int color = 0; color < 16; color++)
         {
-            _presentation.BossPalettes().TorizoBody.Write(color, rowNine[color]);
-            _presentation.BossPalettes().TorizoBelly.Write(color, rowTen[color]);
+            _presentation.BossColours().TorizoBody.Write(color, rowNine[color]);
+            _presentation.BossColours().TorizoBelly.Write(color, rowTen[color]);
         }
     }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
@@ -102,7 +103,7 @@ internal static class LookupTourianProgramVerification
                     steps.Add(Cue(TourianStatueTileCueKind.GoToIfReleaseInProgress, Label(labels, operand, at)));
                     break;
                 case AnimatedTileInstruction.ClearThreePaletteColors:
-                    AssertEqual(definition.ClearedColorIndex * sizeof(ushort), (int)operand, $"{at}: cleared colour byte index");
+                    AssertEqual(ColourSetRunPositions.First(definition.ClearedColours) * sizeof(ushort), (int)operand, $"{at}: cleared colour byte index");
                     steps.Add(Cue(TourianStatueTileCueKind.ClearThreeColors));
                     break;
                 case AnimatedTileInstruction.SpawnTourianStatueEyeGlow:
@@ -122,7 +123,7 @@ internal static class LookupTourianProgramVerification
                     steps.Add(Cue(TourianStatueTileCueKind.SetGreyEvent));
                     break;
                 case AnimatedTileInstruction.WriteEightTargetPaletteColors:
-                    AssertEqual(definition.GreyColorIndex * sizeof(ushort), (int)operand, $"{at}: grey colour byte index");
+                    AssertEqual(ColourSetRunPositions.First(definition.GreyColours) * sizeof(ushort), (int)operand, $"{at}: grey colour byte index");
                     steps.Add(Cue(TourianStatueTileCueKind.ApplyGreyColors));
                     break;
                 case AnimatedTileInstruction.Goto:

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
@@ -687,10 +687,10 @@ internal sealed class PhantoonPatterns
 
         for (int color = 0; color < 16; color++)
         {
-            Bgr555 current = _presentation.BossPalettes().PhantoonBody[color];
+            Bgr555 current = _presentation.BossColours().PhantoonBody[color];
             Bgr555 target = (_bossArtwork.Artwork?.PhantoonColors ?? throw new InvalidDataException(
                 "Phantoon fade palette requires installed artwork.")).ResolveFadeOut(color);
-            _presentation.BossPalettes().PhantoonBody.Write(
+            _presentation.BossColours().PhantoonBody.Write(
                 color,
                 PhantoonPresentation.CalculatePhantoonTransitionColor(numerator, denominator, current, target));
         }

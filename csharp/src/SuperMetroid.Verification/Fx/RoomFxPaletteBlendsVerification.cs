@@ -56,13 +56,13 @@ internal static class RoomFxPaletteBlendsVerification
             (RoomLayer3FxState state, CartridgeReadGuard bus, GameplayColours cgram) =
                 ConstructBlendLoad(catalog, tilemaps, (byte)id);
             for (int index = 0; index < compiled.Length; index++)
-                AssertEqual(compiled[index], cgram.Colors[RoomFxRomData.Layer3.PaletteBlendDestinationIndex + index],
+                AssertEqual(compiled[index], cgram.Colors[RoomFxRomDataLayer3Constants.PaletteBlendDestinationIndex + index],
                     $"room-FX blend {(int)id:X2} installed load color {index}");
             AssertEqual(0, bus.ForbiddenReadAttempts, $"room-FX blend {(int)id:X2} load does not read bank-$89");
 
             _ = state.ApplyEntry(cgram.BackgroundSets, SelectCompiledBlendRecord((byte)id));
             for (int index = 0; index < compiled.Length; index++)
-                AssertEqual(compiled[index], cgram.Colors[RoomFxRomData.Layer3.PaletteBlendDestinationIndex + index],
+                AssertEqual(compiled[index], cgram.Colors[RoomFxRomDataLayer3Constants.PaletteBlendDestinationIndex + index],
                     $"room-FX blend {(int)id:X2} installed FX-entry color {index}");
             AssertEqual(0, bus.ForbiddenReadAttempts, $"room-FX blend {(int)id:X2} FX entry does not read bank-$89");
         }
@@ -173,7 +173,7 @@ internal static class RoomFxPaletteBlendsVerification
         (_, CartridgeReadGuard bus, GameplayColours cgram) = ConstructBlendLoad(
             edited.RoomFxPaletteBlends, edited.RoomFxLayer3Tilemaps,
             (byte)RoomFxPaletteBlend.Lava);
-        AssertEqual(expected, cgram.Colors[RoomFxRomData.Layer3.PaletteBlendDestinationIndex],
+        AssertEqual(expected, cgram.Colors[RoomFxRomDataLayer3Constants.PaletteBlendDestinationIndex],
             "edited room-FX blend color reaches production CGRAM");
         AssertEqual(0, bus.ForbiddenReadAttempts, "edited room-FX blend does not read native palette table");
         AssertTrue(SnesGameplayFrameRenderer.CaptureCeresHaze(false,

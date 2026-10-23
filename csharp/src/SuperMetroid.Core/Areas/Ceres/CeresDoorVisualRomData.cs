@@ -16,10 +16,6 @@ public static class CeresDoorVisualRomData
     public const int EscapeColors = 0xa6f50e;
     /// <summary>Number of visible RGB555 colors copied from either setup palette.</summary>
     public const int SetupColorCount = 15;
-    /// <summary>First CGRAM color index receiving the normal setup palette.</summary>
-    public const int NormalTargetColor = 0x142 / 2;
-    /// <summary>First CGRAM color index receiving the active variant's setup palette.</summary>
-    public const int ActiveTargetColor = 0x1e2 / 2;
 
     /// <summary>Eight six-color animation rows at $A6:F871, selected by frame bits 3..5.</summary>
     public const int AnimationColors = 0xa6f871;
@@ -29,8 +25,6 @@ public static class CeresDoorVisualRomData
     public const int AnimationColorCount = 6;
     /// <summary>Byte distance between consecutive native animation rows.</summary>
     public const int AnimationRowByteStride = 0x10;
-    /// <summary>First CGRAM color index receiving the animated six-color span.</summary>
-    public const int AnimationTargetColor = 0x52 / 2;
 
     /// <summary>The two $A6:F900 transfer records resolve to four-byte sources at $A6:F918/F91C.</summary>
     public const int Mode7FirstFrameSource = 0xa6f918;

@@ -20,6 +20,4 @@ public static class EscapeTypewriterRomData
     /// <summary>$A6:C371 queues library-two $45 for every other Ceres typewriter glyph.</summary>
     public static readonly SoundEffectId CeresClick =
         new(SoundEffectLibrary.Library2, 0x45);
-    /// <summary>$A6:C23F escape message foreground colors are copied from these two entries.</summary>
-    public const int ColorSource = 125;
 }

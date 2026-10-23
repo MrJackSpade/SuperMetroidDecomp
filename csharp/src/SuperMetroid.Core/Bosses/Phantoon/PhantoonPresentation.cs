@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms;
@@ -47,9 +47,9 @@ internal sealed class PhantoonPresentation
         int healthBand = Math.Min(7, Math.Max(0, (body.Health - 1) / 312));
         for (int color = 0; color < 16; color++)
         {
-            Bgr555 current = _presentation.BossPalettes().PhantoonBody[color];
+            Bgr555 current = _presentation.BossColours().PhantoonBody[color];
             Bgr555 target = ReadPhantoonHealthColor(healthBand, color);
-            _presentation.BossPalettes().PhantoonBody.Write(
+            _presentation.BossColours().PhantoonBody.Write(
                 color,
                 CalculatePhantoonTransitionColor(numerator, denominator, current, target));
         }

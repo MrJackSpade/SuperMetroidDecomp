@@ -489,14 +489,14 @@ internal static class MapPresentationVerification
         for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.RainbowFrameCount; frame++)
         {
             var native = new SnesCgram();
-            var installed = new SnesCgram();
+            var installed = new GameplayColours(new SpriteColourSets());
             int pointer = MotherBrainRainbowPaletteRomData.PointerTable + frame * sizeof(ushort);
             int palette = MotherBrainRainbowPaletteRomData.SourceBank |
                 SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, pointer), CpuBusRegionRead.Read(bus, pointer + 1));
             SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette, MotherBrainRainbowPaletteRomData.ColorCount,
-                MotherBrainRainbowPaletteRomData.BodyColor);
+                MotherBrainRainbowPaletteRomDataConstants.BodyColor);
             SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette, MotherBrainRainbowPaletteRomData.ColorCount,
-                MotherBrainRainbowPaletteRomData.BrainColor);
+                MotherBrainRainbowPaletteRomDataConstants.BrainColor);
             SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette + MotherBrainRainbowPaletteRomData.ColorCount * sizeof(ushort),
                 MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainRainbowPaletteRomData.SecondaryColor);
             original.MotherBrainRainbowPalette.ApplyRainbow(installed, frame);
@@ -508,17 +508,17 @@ internal static class MapPresentationVerification
         for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.GreyFrameCount; frame++)
         {
             var native = new SnesCgram();
-            var installed = new SnesCgram();
+            var installed = new GameplayColours(new SpriteColourSets());
             // Revival writes thirteen colors and deliberately leaves the last two from
             // the preceding phase. Seed both CGRAM images to catch an overlong copy.
-            native.SetColor(MotherBrainRainbowPaletteRomData.BodyColor + 13, Bgr555.FromWord(0x1234));
-            native.SetColor(MotherBrainRainbowPaletteRomData.BodyColor + 14, Bgr555.FromWord(0x1235));
-            native.SetColor(MotherBrainRainbowPaletteRomData.BrainColor + 13, Bgr555.FromWord(0x2234));
-            native.SetColor(MotherBrainRainbowPaletteRomData.BrainColor + 14, Bgr555.FromWord(0x2235));
-            installed.SetColor(MotherBrainRainbowPaletteRomData.BodyColor + 13, Bgr555.FromWord(0x1234));
-            installed.SetColor(MotherBrainRainbowPaletteRomData.BodyColor + 14, Bgr555.FromWord(0x1235));
-            installed.SetColor(MotherBrainRainbowPaletteRomData.BrainColor + 13, Bgr555.FromWord(0x2234));
-            installed.SetColor(MotherBrainRainbowPaletteRomData.BrainColor + 14, Bgr555.FromWord(0x2235));
+            native.SetColor(MotherBrainRainbowPaletteRomDataConstants.BodyColor + 13, Bgr555.FromWord(0x1234));
+            native.SetColor(MotherBrainRainbowPaletteRomDataConstants.BodyColor + 14, Bgr555.FromWord(0x1235));
+            native.SetColor(MotherBrainRainbowPaletteRomDataConstants.BrainColor + 13, Bgr555.FromWord(0x2234));
+            native.SetColor(MotherBrainRainbowPaletteRomDataConstants.BrainColor + 14, Bgr555.FromWord(0x2235));
+            installed.SetColor(MotherBrainRainbowPaletteRomDataConstants.BodyColor + 13, Bgr555.FromWord(0x1234));
+            installed.SetColor(MotherBrainRainbowPaletteRomDataConstants.BodyColor + 14, Bgr555.FromWord(0x1235));
+            installed.SetColor(MotherBrainRainbowPaletteRomDataConstants.BrainColor + 13, Bgr555.FromWord(0x2234));
+            installed.SetColor(MotherBrainRainbowPaletteRomDataConstants.BrainColor + 14, Bgr555.FromWord(0x2235));
             int table = draining ? MotherBrainDrainedPaletteRomData.ToGreyTable :
                 MotherBrainDrainedPaletteRomData.FromGreyTable;
             int count = draining ? MotherBrainDrainedPaletteRomData.DrainedColors :
@@ -526,8 +526,8 @@ internal static class MapPresentationVerification
             int pointer = table + frame * sizeof(ushort);
             int palette = MotherBrainRainbowPaletteRomData.SourceBank |
                 SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, pointer), CpuBusRegionRead.Read(bus, pointer + 1));
-            SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette, count, MotherBrainRainbowPaletteRomData.BodyColor);
-            SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette, count, MotherBrainRainbowPaletteRomData.BrainColor);
+            SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette, count, MotherBrainRainbowPaletteRomDataConstants.BodyColor);
+            SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette, count, MotherBrainRainbowPaletteRomDataConstants.BrainColor);
             SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette + count * sizeof(ushort),
                 MotherBrainDrainedPaletteRomData.BackLegCount,
                 MotherBrainDrainedPaletteRomData.BackLegColor);
@@ -538,11 +538,11 @@ internal static class MapPresentationVerification
         }
 
         var nativeNormal = new SnesCgram();
-        var installedNormal = new SnesCgram();
+        var installedNormal = new GameplayColours(new SpriteColourSets());
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeNormal, bus, MotherBrainRainbowPaletteRomData.NormalBrainSource,
-            MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainRainbowPaletteRomData.BodyColor);
+            MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainRainbowPaletteRomDataConstants.BodyColor);
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeNormal, bus, MotherBrainRainbowPaletteRomData.NormalBrainSource,
-            MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainRainbowPaletteRomData.BrainColor);
+            MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainRainbowPaletteRomDataConstants.BrainColor);
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeNormal, bus, MotherBrainRainbowPaletteRomData.NormalSecondarySource,
             MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainRainbowPaletteRomData.SecondaryColor);
         original.MotherBrainRainbowPalette.ApplyNormal(installedNormal);
@@ -629,22 +629,22 @@ internal static class MapPresentationVerification
             "Mother Brain rainbow edit changes installed-content identity");
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
         runtime.Artwork.MapPresentation = edited;
-        var stockOutput = new SnesCgram();
-        var editedOutput = new SnesCgram();
+        var stockOutput = new GameplayColours(new SpriteColourSets());
+        var editedOutput = new GameplayColours(new SpriteColourSets());
         original.MotherBrainRainbowPalette.ApplyRainbow(stockOutput, 0);
         (runtime.BossArtwork.MotherBrainRainbowColors ?? throw new InvalidOperationException("Verification requires runtime.BossArtwork.MotherBrainRainbowColors.")).ApplyRainbow(editedOutput, 0);
-        AssertTrue(stockOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor] !=
-            editedOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor],
+        AssertTrue(stockOutput.Colors[MotherBrainRainbowPaletteRomDataConstants.BodyColor] !=
+            editedOutput.Colors[MotherBrainRainbowPaletteRomDataConstants.BodyColor],
             "installed rainbow override reaches the room-enemy binding");
-        stockOutput.Clear();
-        editedOutput.Clear();
+        stockOutput = new GameplayColours(new SpriteColourSets());
+        editedOutput = new GameplayColours(new SpriteColourSets());
         original.MotherBrainRainbowPalette.ApplyToGrey(stockOutput, 0);
         runtime.BossArtwork.MotherBrainRainbowColors.ApplyToGrey(editedOutput, 0);
-        AssertTrue(stockOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor] !=
-            editedOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor],
+        AssertTrue(stockOutput.Colors[MotherBrainRainbowPaletteRomDataConstants.BodyColor] !=
+            editedOutput.Colors[MotherBrainRainbowPaletteRomDataConstants.BodyColor],
             "drain override reaches the native body destination");
-        stockOutput.Clear();
-        editedOutput.Clear();
+        stockOutput = new GameplayColours(new SpriteColourSets());
+        editedOutput = new GameplayColours(new SpriteColourSets());
         original.MotherBrainRainbowPalette.ApplyFromGrey(stockOutput, 0);
         runtime.BossArtwork.MotherBrainRainbowColors.ApplyFromGrey(editedOutput, 0);
         AssertTrue(stockOutput.Colors[MotherBrainDrainedPaletteRomData.BackLegColor] !=
@@ -654,8 +654,8 @@ internal static class MapPresentationVerification
         {
             var stockFade = CaptureFakeDeathPaletteFrame(original.MotherBrainRainbowPalette, toGrey);
             var editedFade = CaptureFakeDeathPaletteFrame(runtime.BossArtwork.MotherBrainRainbowColors, toGrey);
-            AssertTrue(stockFade.Colors[MotherBrainFakeDeathPaletteRomData.BrainColor] !=
-                editedFade.Colors[MotherBrainFakeDeathPaletteRomData.BrainColor],
+            AssertTrue(stockFade.Colors[MotherBrainFakeDeathPaletteRomDataConstants.BrainColor] !=
+                editedFade.Colors[MotherBrainFakeDeathPaletteRomDataConstants.BrainColor],
                 "fake-death edited color reaches the production fade path");
             AssertEqual(1, stockFade.Colors.Zip(editedFade.Colors, (first, second) =>
                 first != second).Count(differs => differs),
@@ -665,12 +665,12 @@ internal static class MapPresentationVerification
             AssertEqual(stockFade.Function, editedFade.Function,
                 "fake-death edit preserves native phase selection");
         }
-        stockOutput.Clear();
-        editedOutput.Clear();
+        stockOutput = new GameplayColours(new SpriteColourSets());
+        editedOutput = new GameplayColours(new SpriteColourSets());
         original.MotherBrainRainbowPalette.ApplyNormal(stockOutput);
         runtime.BossArtwork.MotherBrainRainbowColors.ApplyNormal(editedOutput);
-        AssertTrue(stockOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor] !=
-            editedOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor],
+        AssertTrue(stockOutput.Colors[MotherBrainRainbowPaletteRomDataConstants.BodyColor] !=
+            editedOutput.Colors[MotherBrainRainbowPaletteRomDataConstants.BodyColor],
             "normal-restoration override reaches the native body destination");
         var stockBeam = new MotherBrainRainbowBeamHdmaState
         {
@@ -761,14 +761,14 @@ internal static class MapPresentationVerification
         foreach (var (health, state) in new VerifyMotherBrainHealthPaletteOverrideCase[]
             { new VerifyMotherBrainHealthPaletteOverrideCase(36000, 0), new VerifyMotherBrainHealthPaletteOverrideCase(9000, 0), new VerifyMotherBrainHealthPaletteOverrideCase(8999, 1), new VerifyMotherBrainHealthPaletteOverrideCase(5400, 1), new VerifyMotherBrainHealthPaletteOverrideCase(5399, 2), new VerifyMotherBrainHealthPaletteOverrideCase(1800, 2), new VerifyMotherBrainHealthPaletteOverrideCase(1799, 3), new VerifyMotherBrainHealthPaletteOverrideCase(0, 3) })
         {
-            var native = new SnesCgram();
-            var installed = new SnesCgram();
+            var native = new GameplayColours(new SpriteColourSets());
+            var installed = new GameplayColours(new SpriteColourSets());
             MotherBrainHealthPalette.Apply(native, health, extracted);
             MotherBrainHealthPalette.Apply(installed, health,
                 original.MotherBrainHealthPalette);
             AssertTrue(new CgramPalettes(native).ImageEquals(new CgramPalettes(installed)),
                 $"Mother Brain health {health} stock colors exactly match the native three-copy output");
-            AssertEqual(0, installed.Colors[MotherBrainRainbowPaletteRomData.BrainColor - 1],
+            AssertEqual(0, installed.Colors[MotherBrainRainbowPaletteRomDataConstants.BrainColor - 1],
                 "Mother Brain health palette leaves transparent color untouched");
             AssertEqual(0, installed.Colors[MotherBrainRainbowPaletteRomData.SecondaryColor +
                 MotherBrainRainbowPaletteRomData.ColorCount],
@@ -791,20 +791,20 @@ internal static class MapPresentationVerification
             "Mother Brain health palette override changes installed-content identity");
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
         runtime.Artwork.MapPresentation = edited;
-        var output = new SnesCgram();
-        var stockOutput = new SnesCgram();
+        var output = new GameplayColours(new SpriteColourSets());
+        var stockOutput = new GameplayColours(new SpriteColourSets());
         MotherBrainHealthPalette.Apply(stockOutput, 5399,
             original.MotherBrainHealthPalette);
         MotherBrainHealthPalette.Apply(output, 5399,
             runtime.BossArtwork.MotherBrainHealthColors);
-        AssertTrue(output.Colors[MotherBrainRainbowPaletteRomData.BodyColor] !=
-            stockOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor],
+        AssertTrue(output.Colors[MotherBrainRainbowPaletteRomDataConstants.BodyColor] !=
+            stockOutput.Colors[MotherBrainRainbowPaletteRomDataConstants.BodyColor],
             "installed Mother Brain body edit reaches the live enemy binding");
         AssertTrue(output.Colors[MotherBrainRainbowPaletteRomData.SecondaryColor] !=
             stockOutput.Colors[MotherBrainRainbowPaletteRomData.SecondaryColor],
             "installed Mother Brain leg edit reaches the live enemy binding");
-        AssertEqual(output.Colors[MotherBrainRainbowPaletteRomData.BodyColor],
-            output.Colors[MotherBrainRainbowPaletteRomData.BrainColor],
+        AssertEqual(output.Colors[MotherBrainRainbowPaletteRomDataConstants.BodyColor],
+            output.Colors[MotherBrainRainbowPaletteRomDataConstants.BrainColor],
             "body and brain still share the native palette");
 
         AssertThrows<InvalidDataException>(() => MotherBrainHealthPalettePresentation.Load(

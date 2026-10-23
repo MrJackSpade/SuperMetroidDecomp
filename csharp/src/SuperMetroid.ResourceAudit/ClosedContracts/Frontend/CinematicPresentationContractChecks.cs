@@ -52,8 +52,8 @@ internal static class CinematicPresentationContractChecks
                     explosions.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(67), oam, default, 0);
                     explosions.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(997), oam, default, 0);
                     door.LoadTiles(vram);
-                    door.LoadNormalColors(cgram, CeresDoorVisualRomData.NormalTargetColor);
-                    door.LoadEscapeColors(cgram, CeresDoorVisualRomData.ActiveTargetColor);
+                    door.LoadNormalColors(screen.SpriteRow(2));
+                    door.LoadEscapeColors(screen.SpriteRow(7));
                     door.LoadAnimationColors(backgrounds, CeresDoorVisualRomData.AnimationRowCount - 1);
                     door.LoadAnimationColors(backgrounds, CeresDoorVisualRomData.AnimationRowCount);
                     door.Mode7DoorFrame(CeresDoorVisualRomData.Mode7FrameCount - 1);

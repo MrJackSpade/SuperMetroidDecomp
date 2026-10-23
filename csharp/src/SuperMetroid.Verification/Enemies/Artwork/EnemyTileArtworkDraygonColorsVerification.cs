@@ -106,7 +106,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             throw new InvalidOperationException("Draygon body initialization lost its owner.");
         AssertEqual(DraygonAiFunction.IntroInitialDelay, state.Function,
             "installed Draygon colors leave intro mechanics unchanged");
-        AssertBand(DraygonColorRomData.IntroDestination,
+        AssertBand(DraygonColorRomDataConstants.IntroDestination,
             DraygonColorRomData.IntroCount, colors.ResolveIntro, "intro CGRAM");
 
         state.HealthPaletteBand = 1;
@@ -117,18 +117,18 @@ internal static class EnemyTileArtworkDraygonColorsVerification
                 ? colors.ResolveHealthBand(1, color - 9)
                 : colors.ResolveBackground(color);
             AssertEqual(expected,
-                cgram.Colors[DraygonColorRomData.BackgroundDestination + color],
+                cgram.Colors[DraygonColorRomDataConstants.BackgroundDestination + color],
                 $"Draygon hurt background color {color}");
         }
-        AssertBand(DraygonColorRomData.SpriteDestination,
+        AssertBand(DraygonColorRomDataConstants.SpriteDestination,
             DraygonColorRomData.SpriteCount, colors.ResolveSprite,
             "normal hurt sprite CGRAM");
         body.FlashTimer = WrappingCountdown.Start(2);
         enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, null);
-        AssertBand(DraygonColorRomData.BackgroundDestination,
+        AssertBand(DraygonColorRomDataConstants.BackgroundDestination,
             DraygonColorRomData.WhiteFlashCount, colors.ResolveWhiteFlash,
             "white hurt background CGRAM");
-        AssertBand(DraygonColorRomData.SpriteDestination,
+        AssertBand(DraygonColorRomDataConstants.SpriteDestination,
             DraygonColorRomData.WhiteFlashCount, colors.ResolveWhiteFlash,
             "white hurt sprite CGRAM");
         for (int band = 0; band < DraygonColorRomData.HealthBandCount; band++)
@@ -137,14 +137,14 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             enemies.DraygonBehavior.Combat.CopyDraygonHealthColors(state);
             for (int color = 0; color < DraygonColorRomData.HealthBandColorCount; color++)
                 AssertEqual(colors.ResolveHealthBand(band, color),
-                    cgram.Colors[DraygonColorRomData.HealthDestination + color],
+                    cgram.Colors[DraygonColorRomDataConstants.HealthDestination + color],
                     $"Draygon live health band {band} color {color}");
         }
         AssertEqual(DraygonAiFunction.IntroInitialDelay, state.Function,
             "visual health-band checks leave Draygon AI unchanged");
-        AssertThrows<InvalidDataException>(() => colors.ApplyHealthBand(cgram, -1),
+        AssertThrows<InvalidDataException>(() => colors.ApplyHealthBand(cgram.Gameplay, -1),
             "negative Draygon health band fails loudly");
-        AssertThrows<InvalidDataException>(() => colors.ApplyHealthBand(cgram, 8),
+        AssertThrows<InvalidDataException>(() => colors.ApplyHealthBand(cgram.Gameplay, 8),
             "out-of-range Draygon health-band index fails loudly");
 
         File.WriteAllBytes(overrideFile, [0]);

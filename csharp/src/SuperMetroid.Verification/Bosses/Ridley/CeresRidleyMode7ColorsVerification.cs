@@ -88,7 +88,7 @@ internal static class CeresRidleyMode7ColorsVerification
             select(checked((ushort)frame.Zoom));
             for (int color = 0; color < CeresRidleyPaletteRomData.Mode7ZoomColorCount; color++)
                 AssertEqual(edited.CeresRidleyFloorColors.Resolve(row, color),
-                    cgram.Colors[CeresRidleyPaletteRomData.Mode7ZoomCgramIndex + color],
+                    cgram.Colors[CeresRidleyPaletteRomDataConstants.Mode7ZoomCgramIndex + color],
                     $"Ceres Mode-7 frame {index}, row {row}, color {color}");
         }
         AssertEqual(CeresRidleyPaletteRomData.Mode7ZoomRowCount, visited.Count,

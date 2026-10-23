@@ -1,0 +1,48 @@
+using SuperMetroid.Core.Assets;
+namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+
+/// <summary>The colour runs the <see cref="MotherBrainColours"/> view names (#1405).</summary>
+public static class MotherBrainColourDefinitions
+{
+    /// <summary>Body colours.</summary>
+    public static readonly BackgroundColourRun Body = new(4, 1, 15);
+
+    /// <summary>Brain colours.</summary>
+    public static readonly SpriteColourRun Brain = new(1, 1, 15);
+
+    /// <summary>Rear-leg colours.</summary>
+    public static readonly SpriteColourRun RearLegs = new(3, 1, 15);
+
+    /// <summary>The drain-faded rear-leg colours.</summary>
+    public static readonly SpriteColourRun DrainedRearLegs = new(3, 4, 5);
+
+    /// <summary>The fake-death brain colours.</summary>
+    public static readonly SpriteColourRun FakeDeathBrain = new(1, 1, 3);
+
+    /// <summary>First room-flash slice.</summary>
+    public static readonly BackgroundColourRun RoomFirst = new(3, 4, 12);
+
+    /// <summary>Second room-flash slice.</summary>
+    public static readonly BackgroundColourRun RoomSecond = new(5, 3, 12);
+
+    /// <summary>Mirror of the second room-flash slice.</summary>
+    public static readonly BackgroundColourRun RoomSecondMirror = new(7, 3, 12);
+
+    /// <summary>Phase-two attack sprites.</summary>
+    public static readonly SpriteColourRun PhaseTwoAttack = new(2, 1, 15);
+
+    /// <summary>Phase-two rear legs.</summary>
+    public static readonly SpriteColourRun PhaseTwoRearLegs = new(3, 1, 15);
+
+    /// <summary>Room-entry glass shards.</summary>
+    public static readonly SpriteColourRun GlassShards = new(3, 1, 15);
+
+    /// <summary>Room-entry tube projectiles.</summary>
+    public static readonly SpriteColourRun TubeProjectiles = new(7, 1, 15);
+
+    /// <summary>First room-light slice.</summary>
+    public static readonly BackgroundColourRun RecoveryLightsFirst = new(3, 1, 14);
+
+    /// <summary>Second room-light slice.</summary>
+    public static readonly BackgroundColourRun RecoveryLightsSecond = new(5, 1, 14);
+}

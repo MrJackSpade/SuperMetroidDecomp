@@ -127,7 +127,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         var colors = _bossArtwork.Artwork?.BabyMetroidCutsceneColors ?? throw new InvalidOperationException(
             "Baby Metroid cutscene requires installed colors.");
         for (int color = 0; color < BabyMetroidCutsceneColorRomData.InitialColorCount; color++)
-            _presentation.BossPalettes().BabyMetroidCutscene.Write(color, colors.InitialColor(color));
+            _presentation.BossColours().BabyMetroidCutscene.Write(color, colors.InitialColor(color));
     }
 
     /// <summary>Advances the later Baby slot, publishes cries/healing, and writes body and Baby list changes for their next ordered enemy turns.</summary>
@@ -289,7 +289,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         var colors = _bossArtwork.Artwork?.BabyMetroidCutsceneColors ?? throw new InvalidOperationException(
             "Baby Metroid fade requires installed colors.");
         for (int color = 0; color < palette.ColorCount; color++)
-            _presentation.BossPalettes().BabyMetroidCutscene.Write(color,
+            _presentation.BossColours().BabyMetroidCutscene.Write(color,
                 colors.FadeColor(palette.PaletteIndex, color));
     }
 

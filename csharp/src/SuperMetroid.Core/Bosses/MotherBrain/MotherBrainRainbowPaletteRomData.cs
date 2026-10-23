@@ -9,10 +9,6 @@ public static class MotherBrainRainbowPaletteRomData
     public const int SourceBank = 0xad0000;
     /// <summary>$A9:BD1D copies fifteen nontransparent colors per destination.</summary>
     public const int ColorCount = 15;
-    /// <summary>$A9:BD1D byte destination $82, body background colors.</summary>
-    public const int BodyColor = 0x41;
-    /// <summary>$A9:BD1D byte destination $122, brain and neck sprite colors.</summary>
-    public const int BrainColor = 0x91;
     /// <summary>$A9:BD1D byte destination $162, rear-leg sprite palette.</summary>
     public const int SecondaryColor = 0xb1;
     /// <summary>$A9:BCCE restores brain colors from $A9:9474, skipping transparent color zero.</summary>

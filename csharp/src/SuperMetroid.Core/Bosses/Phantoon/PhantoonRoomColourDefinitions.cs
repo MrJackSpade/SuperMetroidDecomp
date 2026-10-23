@@ -5,5 +5,5 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 internal static class PhantoonRoomColourDefinitions
 {
     /// <summary>The room colours that fade to the Wrecked Ship's powered-on colours: the first seven sets.</summary>
-    internal static readonly BackgroundColourRun PowerOn = new(0, 7 * ColourSets.SetColours);
+    internal static readonly BackgroundColourRun PowerOn = new(0, 0, 7 * ColourSets.SetColours);
 }

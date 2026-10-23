@@ -105,7 +105,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             enemies.PhantoonBehavior.CopyPhantoonHealthPalette(body);
             AssertBodyBand(band, $"Phantoon live health restore band {band}");
             for (int color = 0; color < PhantoonColorRomData.HealthBandColorCount; color++)
-                cgram.SetColor(PhantoonColorRomData.BodyDestination + color, new Bgr555(0, 0, 0));
+                cgram.SetColor(PhantoonColorRomDataConstants.BodyDestination + color, new Bgr555(0, 0, 0));
             state.Parts[eye.SlotIndex].FadeNumerator = 1;
             state.Parts[eye.SlotIndex].FadeComplete = false;
             enemies.PhantoonBehavior.Presentation.AdvancePhantoonFadeIn(body, state, 0);
@@ -127,7 +127,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         enemies.PhantoonBehavior.Patterns.AdvancePhantoonFadeOut(state, 0);
         for (int color = 0; color < PhantoonColorRomData.FadeOutCount; color++)
             AssertEqual(colors.ResolveFadeOut(color),
-                cgram.Colors[PhantoonColorRomData.BodyDestination + color],
+                cgram.Colors[PhantoonColorRomDataConstants.BodyDestination + color],
                 $"Phantoon live fade-out target {color}");
         AssertEqual(2, state.Parts[eye.SlotIndex].FadeNumerator,
             "Phantoon fade-out retains native numerator advance");
@@ -174,7 +174,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         {
             for (int color = 0; color < PhantoonColorRomData.HealthBandColorCount; color++)
                 AssertEqual(colors.ResolveHealth(band, color),
-                    cgram.Colors[PhantoonColorRomData.BodyDestination + color],
+                    cgram.Colors[PhantoonColorRomDataConstants.BodyDestination + color],
                     $"{name} color {color}");
         }
 

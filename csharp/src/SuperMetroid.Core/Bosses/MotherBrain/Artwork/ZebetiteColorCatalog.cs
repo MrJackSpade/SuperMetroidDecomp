@@ -82,16 +82,13 @@ public sealed class ZebetiteColorCatalog
     }
 
     /// <summary>Writes the selected pulse row's two colors without advancing the shared palette counter or testing fade/linkage conditions; native <c>HandleZebetitePaletteAnimation</c> at <c>$A6:FD5E</c> targets CGRAM entries 172 and 173 (OBJ palette 2 colors 12 and 13).</summary>
-    /// <param name="cgram">Destination color memory to update.</param>
+    /// <param name="destination">The two pulsing colours.</param>
     /// <param name="frame">Zero-based pulse row from 0 through 7.</param>
-    /// <param name="destinationColor">CGRAM color-entry index for the first color, not a byte offset; the next entry receives the second color.</param>
-    [PpuLayoutBoundary("codec: palette-cycle colours at their native CGRAM index operand")]
-    public void Apply(IPaletteColors cgram, int frame, int destinationColor)
+    public void Apply(ColourRun destination, int frame)
     {
-        Ensure.NotNull(cgram);
         if ((uint)frame >= ZebetiteColorFormat.FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
         for (int color = 0; color < ZebetiteColorFormat.ColorsPerFrame; color++)
-            new CgramPalettes(cgram).All.Write(destinationColor + color, Resolve(frame, color));
+            destination.Write(color, Resolve(frame, color));
     }
 
     /// <summary>Serializes a Zebetite color document as indented camel-case UTF-8 JSON, then validates the result through <see cref="Load"/> before returning it.</summary>

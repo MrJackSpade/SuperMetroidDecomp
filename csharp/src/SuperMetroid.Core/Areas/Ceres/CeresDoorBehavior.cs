@@ -181,15 +181,15 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // The native destination $142 is a byte offset into target_palettes: colors
             // 161..175. This runtime exposes the final fade target directly in CGRAM.
-            SelectedCeresDoorVisual.LoadNormalColors(_presentation.Cgram, CeresDoorVisualRomData.NormalTargetColor);
+            SelectedCeresDoorVisual.LoadNormalColors(CeresDoorColourDefinitions.Inactive.In(_presentation.Cgram));
             return;
         }
 
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
         if (_ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
-            SelectedCeresDoorVisual.LoadEscapeColors(_presentation.Cgram, CeresDoorVisualRomData.ActiveTargetColor);
+            SelectedCeresDoorVisual.LoadEscapeColors(CeresDoorColourDefinitions.Active.In(_presentation.Cgram));
         else
-            SelectedCeresDoorVisual.LoadNormalColors(_presentation.Cgram, CeresDoorVisualRomData.ActiveTargetColor);
+            SelectedCeresDoorVisual.LoadNormalColors(CeresDoorColourDefinitions.Active.In(_presentation.Cgram));
     }
 
     /// <summary>Dispatches the door's main-AI function.</summary>

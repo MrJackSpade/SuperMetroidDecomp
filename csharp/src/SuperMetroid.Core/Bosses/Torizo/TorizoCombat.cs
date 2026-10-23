@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -109,11 +109,11 @@ internal sealed class TorizoCombat
             "Golden Torizo health palettes require installed artwork.");
         for (int color = 0; color < 16; color++)
         {
-            _presentation.BossPalettes().TorizoBody.Write(
+            _presentation.BossColours().TorizoBody.Write(
                 color,
                 colors.Resolve(SuperMetroid.Core.Enemies.Artwork.EnemyAuxiliaryPalette.GoldenTorizoBody,
                     sourceWord / 16, color));
-            _presentation.BossPalettes().TorizoBelly.Write(
+            _presentation.BossColours().TorizoBelly.Write(
                 color,
                 colors.Resolve(SuperMetroid.Core.Enemies.Artwork.EnemyAuxiliaryPalette.GoldenTorizoBelly,
                     sourceWord / 16, color));
@@ -135,8 +135,8 @@ internal sealed class TorizoCombat
         {
             for (int color = 0; color < 16; color++)
             {
-                _presentation.BossPalettes().TorizoBody.Write(color, Bgr555.White);
-                _presentation.BossPalettes().TorizoBelly.Write(color, Bgr555.White);
+                _presentation.BossColours().TorizoBody.Write(color, Bgr555.White);
+                _presentation.BossColours().TorizoBelly.Write(color, Bgr555.White);
             }
         }
     }

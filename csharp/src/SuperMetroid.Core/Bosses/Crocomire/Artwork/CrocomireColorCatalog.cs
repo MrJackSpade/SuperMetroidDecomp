@@ -76,23 +76,23 @@ public sealed class CrocomireColorCatalog
         content.AppendColors(label, transfer);
     }
     /// <summary>Installs the native initialization transfers in order: seventeen wall words at CGRAM 160–176, then seventeen projectile words at 208–224, retaining each source overlap word.</summary>
-    public void ApplyInitial(IPaletteColors cgram)
+    public void ApplyInitial(GameplayColours cgram)
     {
-        Apply(new BossPalettes(cgram).CrocomireInitialWall, Band.InitialWall);
-        Apply(new BossPalettes(cgram).CrocomireInitialProjectile, Band.InitialProjectile);
+        Apply(new BossColours(cgram).CrocomireInitialWall, Band.InitialWall);
+        Apply(new BossColours(cgram).CrocomireInitialProjectile, Band.InitialProjectile);
     }
 
     /// <summary>Restores the eight selected body/head BG inks from the $A4:B89D role at CGRAM 112–119; the actor separately decides whether a hurt update should show white instead.</summary>
-    public void ApplyFightBody(IPaletteColors cgram) =>
-        Apply(new BossPalettes(cgram).CrocomireFightBody, Band.FightBody);
+    public void ApplyFightBody(GameplayColours cgram) =>
+        Apply(new BossColours(cgram).CrocomireFightBody, Band.FightBody);
 
     /// <summary>Installs the sixteen skeleton-arm OBJ inks corresponding to $A4:B8FD at CGRAM 144–159 when the wall-break sequence begins.</summary>
-    public void ApplySkeletonArm(IPaletteColors cgram) =>
-        Apply(new BossPalettes(cgram).CrocomireSkeletonArm, Band.SkeletonArm);
+    public void ApplySkeletonArm(GameplayColours cgram) =>
+        Apply(new BossColours(cgram).CrocomireSkeletonArm, Band.SkeletonArm);
 
     /// <summary>Installs the sixteen wall-spike OBJ inks corresponding to $A4:B91D at CGRAM 176–191 when the rumble script reaches its terminator.</summary>
-    public void ApplyWallSpikes(IPaletteColors cgram) =>
-        Apply(new BossPalettes(cgram).CrocomireWallSpikes, Band.WallSpikes);
+    public void ApplyWallSpikes(GameplayColours cgram) =>
+        Apply(new BossColours(cgram).CrocomireWallSpikes, Band.WallSpikes);
 
     /// <summary>Loads version-1 <c>crocomire-colors.json</c>, validating the five native transfer lengths and RGB5 channel bounds while keeping hurt-flash and death transitions in actor code.</summary>
     /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
@@ -128,7 +128,7 @@ public sealed class CrocomireColorCatalog
     }
 
     /// <summary>Writes one complete material band to its selected CGRAM destination.</summary>
-    private void Apply(CgramPalette destination, Band band)
+    private void Apply(ColourRun destination, Band band)
     {
         for (int color = 0; color < Count(band); color++)
             destination.Write(color, Get(band, color));

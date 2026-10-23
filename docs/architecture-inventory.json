@@ -7735,27 +7735,27 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Areas.Artwork.AreaCgramLayout",
+      "type": "SuperMetroid.Core.Areas.Artwork.AreaColourDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Areas/Artwork/AreaCgramLayout.cs"
+        "csharp/src/SuperMetroid.Core/Areas/Artwork/AreaColourDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Areas.Artwork.AreaPalettes",
+      "type": "SuperMetroid.Core.Areas.Artwork.AreaColours",
       "kind": "struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Areas/Artwork/AreaPalettes.cs"
+        "csharp/src/SuperMetroid.Core/Areas/Artwork/AreaColours.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -8500,6 +8500,22 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Areas.Ceres.CeresDoorVisualRomDataConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Areas/Ceres/CeresDoorVisualRomDataConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Areas.Ceres.CeresDoorVram",
       "kind": "struct",
       "scope": "product",
@@ -9032,6 +9048,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresRidleyPaletteRomData.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Areas.Ceres.CeresRidleyPaletteRomDataConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Areas/Ceres/CeresRidleyPaletteRomDataConstants.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -10199,6 +10231,22 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Areas.Tourian.TourianStatuePaletteRomDataConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Areas/Tourian/TourianStatuePaletteRomDataConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Areas.Tourian.TourianStatuePictureCharacters",
       "kind": "record",
       "scope": "product",
@@ -10675,6 +10723,22 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Assets.ColourSetRunPositions",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Assets/ColourSetRunPositions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Assets.ColourSets",
       "kind": "class",
       "scope": "product",
@@ -10848,6 +10912,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Assets.IColourSetRun",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/IColourSetRun.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
     },
     {
       "type": "SuperMetroid.Core.Assets.IGameplayColourOwner",
@@ -11472,6 +11549,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Assets/SpriteArtworkKind.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Assets.SpriteColourRun",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/SpriteColourRun.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -13486,17 +13576,30 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
+      "type": "SuperMetroid.Core.Bosses.Artwork.BossColourDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossCgramLayout.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossColourDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Artwork.BossColours",
+      "kind": "struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossColours.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Artwork.BossOamFrameDefinitions",
@@ -13528,19 +13631,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Artwork.BossPalettes",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Artwork.BossVram",
       "kind": "static class",
       "scope": "product",
@@ -13567,14 +13657,14 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Artwork.EnemyPresentationBossPalettes",
+      "type": "SuperMetroid.Core.Bosses.Artwork.EnemyPresentationBossColours",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Artwork/EnemyPresentationBossPalettes.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/EnemyPresentationBossColours.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -15733,6 +15823,22 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomirePaletteRomDataConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Crocomire/CrocomirePaletteRomDataConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomirePart",
       "kind": "enum",
       "scope": "product",
@@ -16771,6 +16877,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonColorRomData.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonColorRomDataConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Draygon/DraygonColorRomDataConstants.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -19923,19 +20045,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainCgramLayout",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainCgramLayout.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainCharacterUploads",
       "kind": "static class",
       "scope": "product",
@@ -19947,6 +20056,32 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainColourDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainColourDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainColours",
+      "kind": "struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainColours.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainCorpseArtworkDefinitions",
@@ -20336,19 +20471,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainPalettePart.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainPalettes",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainPalettes.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -24324,6 +24446,22 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainRainbowPaletteRomDataConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/MotherBrain/MotherBrainRainbowPaletteRomDataConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainRandomSample",
       "kind": "record struct",
       "scope": "product",
@@ -24374,6 +24512,22 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainRoomColorRomDataConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/MotherBrain/MotherBrainRoomColorRomDataConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainRoomColorRomDataTooling",
@@ -27114,17 +27268,30 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Ridley.Artwork.RidleyCgramLayout",
+      "type": "SuperMetroid.Core.Bosses.Ridley.Artwork.RidleyColourDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/RidleyCgramLayout.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/RidleyColourDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.Artwork.RidleyColours",
+      "kind": "struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/RidleyColours.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.Artwork.RidleyFireballVisualDefinitions",
@@ -27170,19 +27337,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Ridley.Artwork.RidleyPalettes",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/RidleyPalettes.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.Artwork.RidleySupplementalVisualDefinitions",
@@ -27582,6 +27736,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/Ridley/NorfairRidleyPaletteRomData.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.NorfairRidleyPaletteRomDataConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Ridley/NorfairRidleyPaletteRomDataConstants.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"

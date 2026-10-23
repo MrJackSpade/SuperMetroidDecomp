@@ -35,7 +35,7 @@ internal static class EnemyColorPresentationContractChecks
                 void Inspect(EnemyAuxiliaryColorCatalog auxiliary, KraidColorCatalog kraid, BotwoonColorCatalog botwoon,
                     BabyMetroidCutsceneColorCatalog baby, NorfairRidleyColorCatalog ridley, ZebetiteColorCatalog zebetite,
                     ShitroidColorCatalog shitroid, CeresRidleyMode7ColorCatalog mode7, DachoraColorCatalog dachora,
-                    MotherBrainHealthPalettePresentation motherBrain, SnesCgram cgram, int destination) {
+                    MotherBrainHealthPalettePresentation motherBrain, SuperMetroid.Core.Assets.GameplayColours cgram, SuperMetroid.Core.Assets.ColourRun pulse) {
                     auxiliary.Resolve(EnemyAuxiliaryPalette.FaceBlock, 7, 3);
                     auxiliary.Resolve(EnemyAuxiliaryPalette.FaceBlock, 7, 4);
                     auxiliary.Resolve(EnemyAuxiliaryPalette.DeadSidehopper, 7, 0);
@@ -52,8 +52,8 @@ internal static class EnemyColorPresentationContractChecks
                     ridley.ApplyInitial(cgram);
                     ridley.ApplyReveal(cgram, NorfairRidleyPaletteRomData.RevealRowCount - 1);
                     ridley.ApplyReveal(cgram, NorfairRidleyPaletteRomData.RevealRowCount);
-                    zebetite.Apply(cgram, ZebetiteColorFormat.FrameCount - 1, destination);
-                    zebetite.Apply(cgram, ZebetiteColorFormat.FrameCount, destination);
+                    zebetite.Apply(pulse, ZebetiteColorFormat.FrameCount - 1);
+                    zebetite.Apply(pulse, ZebetiteColorFormat.FrameCount);
                     shitroid.NormalColor(ShitroidColorRomData.NormalFrameCount - 1, ShitroidColorRomData.NormalColorsPerFrame - 1);
                     shitroid.NormalColor(0, ShitroidColorRomData.NormalColorsPerFrame);
                     shitroid.TargetColor(ShitroidColorTarget.DeadSidehopper, ShitroidColorRomData.TargetColorCount - 1);

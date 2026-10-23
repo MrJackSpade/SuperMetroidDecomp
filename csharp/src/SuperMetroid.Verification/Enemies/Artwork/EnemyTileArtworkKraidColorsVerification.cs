@@ -206,13 +206,13 @@ internal static class EnemyTileArtworkKraidColorsVerification
         {
             case KraidPaletteConsumer.BackdropLoad:
             case KraidPaletteConsumer.InitialTargetLoad:
-                new Action<KraidPaletteSource, CgramPalette>(enemies.KraidBehavior.Rise.LoadKraidColorBand)(
+                new Action<KraidPaletteSource, ColourRun>(enemies.KraidBehavior.Rise.LoadKraidColorBand)(
                         consumer == KraidPaletteConsumer.BackdropLoad
                             ? KraidPaletteSource.RoomBackdrop
                             : KraidPaletteSource.InitialTarget,
                         consumer == KraidPaletteConsumer.BackdropLoad
-                            ? new BossPalettes(cgram).KraidRoomBackdrop
-                            : new BossPalettes(cgram).KraidSprites);
+                            ? new BossColours(cgram.Gameplay).KraidRoomBackdrop
+                            : new BossColours(cgram.Gameplay).KraidSprites);
                 break;
             case KraidPaletteConsumer.BackdropFade:
                 for (int step = 0; step < 13; step++)

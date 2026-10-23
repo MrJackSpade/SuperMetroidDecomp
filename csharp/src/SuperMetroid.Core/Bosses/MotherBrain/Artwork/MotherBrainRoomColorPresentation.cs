@@ -42,36 +42,36 @@ public sealed class MotherBrainRoomColorPresentation
     /// <param name="frame">The flash frame, 0..13.</param>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of the fourteen authored frames.</exception>
     /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
-    public void ApplyFlash(IPaletteColors cgram, int frame)
+    public void ApplyFlash(GameplayColours cgram, int frame)
     {
         if ((uint)frame >= MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount)
             throw new InvalidDataException($"Mother Brain room-flash frame {frame} is not authored.");
         Ensure.NotNull(cgram);
         for (int color = 0; color < MotherBrainRoomColorRomData.SliceColors; color++)
         {
-            new MotherBrainPalettes(cgram).RoomFirst.Write(color, flash.Color(frame, color));
+            new MotherBrainColours(cgram).RoomFirst.Write(color, flash.Color(frame, color));
             Bgr555 second = flash.Color(frame, MotherBrainRoomColorRomData.SliceColors + color);
-            new MotherBrainPalettes(cgram).RoomSecond.Write(color, second);
-            new MotherBrainPalettes(cgram).RoomSecondMirror.Write(color, second);
+            new MotherBrainColours(cgram).RoomSecond.Write(color, second);
+            new MotherBrainColours(cgram).RoomSecondMirror.Write(color, second);
         }
     }
 
     /// <summary>Applies the final grey room colors when the flash program is stopped.</summary>
     /// <param name="cgram">Destination color memory; the same 52..63, 83..94 and mirrored 115..126 slices as <see cref="ApplyFlash"/> are replaced.</param>
     /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
-    public void ApplyFinal(IPaletteColors cgram) => ApplyRoom(cgram, finalRoom);
+    public void ApplyFinal(GameplayColours cgram) => ApplyRoom(cgram, finalRoom);
 
     /// <summary>Installs the two nontransparent OBJ palettes before phase two starts.</summary>
     /// <param name="cgram">Destination color memory; attack colors 161..175 and rear-leg colors 177..191 are replaced while palette color zero is preserved.</param>
     /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
-    public void ApplyPhaseTwoInitial(IPaletteColors cgram)
+    public void ApplyPhaseTwoInitial(GameplayColours cgram)
     {
         Ensure.NotNull(cgram);
         for (int index = 0; index < MotherBrainRoomColorRomData.PhaseTwoColors; index++)
         {
-            new MotherBrainPalettes(cgram).PhaseTwoAttack.Write(index,
+            new MotherBrainColours(cgram).PhaseTwoAttack.Write(index,
                 phaseTwoAttack.Color(index));
-            new MotherBrainPalettes(cgram).PhaseTwoRearLegs.Write(index,
+            new MotherBrainColours(cgram).PhaseTwoRearLegs.Write(index,
                 phaseTwoRearLeg?[index] ?? MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg, index));
         }
     }
@@ -79,14 +79,14 @@ public sealed class MotherBrainRoomColorPresentation
     /// <summary>Installs room-entry glass-shard and tube-projectile sprite colors.</summary>
     /// <param name="cgram">Destination color memory; glass colors 177..191 and tube-projectile colors 241..255 are replaced without their transparent color-zero entries.</param>
     /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
-    public void ApplyRoomEntry(IPaletteColors cgram)
+    public void ApplyRoomEntry(GameplayColours cgram)
     {
         Ensure.NotNull(cgram);
         for (int index = 0; index < MotherBrainRoomColorRomData.InitialColors; index++)
         {
-            new MotherBrainPalettes(cgram).GlassShards.Write(index,
+            new MotherBrainColours(cgram).GlassShards.Write(index,
                 initialGlassShard.Color(index));
-            new MotherBrainPalettes(cgram).TubeProjectiles.Write(index,
+            new MotherBrainColours(cgram).TubeProjectiles.Write(index,
                 initialTubeProjectile.Color(index));
         }
     }
@@ -95,13 +95,13 @@ public sealed class MotherBrainRoomColorPresentation
     /// out colors 1..E of BG palettes 3 and 5, the same slices later restored by $AD:F24B.</summary>
     /// <param name="cgram">Destination color memory; all entries outside indices 49..62 and 81..94 remain unchanged.</param>
     /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
-    public static void ApplyBabyMetroidDeathBlackout(IPaletteColors cgram)
+    public static void ApplyBabyMetroidDeathBlackout(GameplayColours cgram)
     {
         Ensure.NotNull(cgram);
         for (int index = 0; index < MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination; index++)
         {
-            new MotherBrainPalettes(cgram).RecoveryLightsFirst.Write(index, Bgr555.Black);
-            new MotherBrainPalettes(cgram).RecoveryLightsSecond.Write(index, Bgr555.Black);
+            new MotherBrainColours(cgram).RecoveryLightsFirst.Write(index, Bgr555.Black);
+            new MotherBrainColours(cgram).RecoveryLightsSecond.Write(index, Bgr555.Black);
         }
     }
 
@@ -110,7 +110,7 @@ public sealed class MotherBrainRoomColorPresentation
     /// <param name="frame">Recovery image 0..6 in playback order, corresponding to native source $AD:F3D3 - frame * $38; this call does not advance the cutscene's timer.</param>
     /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is outside the seven authored images.</exception>
-    public void ApplyRecoveryLights(IPaletteColors cgram, int frame)
+    public void ApplyRecoveryLights(GameplayColours cgram, int frame)
     {
         Ensure.NotNull(cgram);
         if ((uint)frame >= MotherBrainRoomColorRomData.RecoveryLightsFrames)
@@ -119,23 +119,23 @@ public sealed class MotherBrainRoomColorPresentation
         for (int index = 0; index < MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination;
              index++)
         {
-            new MotherBrainPalettes(cgram).RecoveryLightsFirst.Write(index,
+            new MotherBrainColours(cgram).RecoveryLightsFirst.Write(index,
                 recoveryLights.Color(frame, index));
-            new MotherBrainPalettes(cgram).RecoveryLightsSecond.Write(index,
+            new MotherBrainColours(cgram).RecoveryLightsSecond.Write(index,
                 recoveryLights.Color(frame, MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination + index));
         }
     }
 
     /// <summary>Writes final room colors into both room slices and mirrors the second slice.</summary>
-    private static void ApplyRoom(IPaletteColors cgram, FinalRoomPalette colors)
+    private static void ApplyRoom(GameplayColours cgram, FinalRoomPalette colors)
     {
         Ensure.NotNull(cgram);
         for (int index = 0; index < MotherBrainRoomColorRomData.SliceColors; index++)
         {
-            new MotherBrainPalettes(cgram).RoomFirst.Write(index, colors[index]);
+            new MotherBrainColours(cgram).RoomFirst.Write(index, colors[index]);
             Bgr555 second = colors[MotherBrainRoomColorRomData.SliceColors + index];
-            new MotherBrainPalettes(cgram).RoomSecond.Write(index, second);
-            new MotherBrainPalettes(cgram).RoomSecondMirror.Write(index, second);
+            new MotherBrainColours(cgram).RoomSecond.Write(index, second);
+            new MotherBrainColours(cgram).RoomSecondMirror.Write(index, second);
         }
     }
 

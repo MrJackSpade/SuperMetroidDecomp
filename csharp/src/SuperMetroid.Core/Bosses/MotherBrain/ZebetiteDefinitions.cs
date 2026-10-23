@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -8,8 +9,8 @@ internal static class ZebetiteDefinitions
     /// <summary>Eight two-color pulse records at $A6:FD87..FDA6.</summary>
     public const int PaletteSource = 0xa6fd87;
 
-    /// <summary>Sprite palette two colors C..D, selected by $A6:FD7C.</summary>
-    public const int PaletteDestinationColor = 0x0158 / sizeof(ushort);
+    /// <summary>The two colours the Zebetites pulse: the third sprite set's colours twelve and thirteen.</summary>
+    public static readonly SpriteColourRun PulseColours = new(2, 12, 2);
 
     /// <summary>Native palette-cycle index mask applied to physical enemy slot zero.</summary>
     public const ushort PaletteCycleMask = 7;

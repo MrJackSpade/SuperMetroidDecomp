@@ -235,7 +235,7 @@ public sealed class TourianStatueSequence
                     statue.AnimationState |= TourianStatueAnimationState.ReleaseInProgress;
                     return null;
                 case TourianStatueTileCueKind.ClearThreeColors:
-                    new CgramPalettes(_cgram).All.Slice(definition.ClearedColorIndex, 3).Fill(Bgr555.Black);
+                    definition.ClearedColours.In(_cgram).Fill(Bgr555.Black);
                     return null;
                 case TourianStatueTileCueKind.SpawnEyeGlow:
                     statue.SpawnEyeGlow(definition.UnlockEffectParameter);
@@ -255,7 +255,7 @@ public sealed class TourianStatueSequence
                 case TourianStatueTileCueKind.ApplyGreyColors:
                     (_enemies.AreaArtwork?.TourianStatueColors ?? throw new InvalidOperationException(
                         "Tourian statue animation requires installed grey colors."))
-                        .ApplyGrey(_cgram, definition.GreyColorIndex);
+                        .ApplyGrey(definition.GreyColours.In(_cgram));
                     return null;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(TourianStatueTileCueKind)} {cue.Kind}.");

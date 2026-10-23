@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json.Nodes;
@@ -63,8 +64,8 @@ internal static class PaletteJsonContractsLegacyVerification
             AssertThrows<InvalidDataException>(() => ReadPaletteContract(oldRoom, json => MotherBrainRoomColorPresentation.Load(json)),
                 "old Mother Brain room colors require current stock");
             var migrated = ReadPaletteContract(oldRoom, json => MotherBrainRoomColorPresentation.Load(json, roomStock));
-            var actual = new SnesCgram();
-            var expected = new SnesCgram();
+            var actual = new GameplayColours(new SpriteColourSets());
+            var expected = new GameplayColours(new SpriteColourSets());
             migrated.ApplyRoomEntry(actual); roomStock.ApplyRoomEntry(expected);
             AssertTrue(new CgramPalettes(actual).ImageEquals(new CgramPalettes(expected)), "legacy inherits exact room-entry colors");
             for (int frame = 0; frame < MotherBrainRoomColorRomData.RecoveryLightsFrames; frame++)
@@ -74,7 +75,7 @@ internal static class PaletteJsonContractsLegacyVerification
             }
             migrated.ApplyFinal(actual);
             AssertEqual(PackPaletteContractColor((JsonObject)oldRoom.Required("finalRoom").Required(0)),
-                actual.Colors[MotherBrainRoomColorRomData.FirstColor], "legacy retains edited final-room colors");
+                actual.Colors[MotherBrainRoomColorRomDataConstants.FirstColor], "legacy retains edited final-room colors");
         }
 
         JsonObject rainbow = documents["Mother Brain rainbow"];
@@ -86,8 +87,8 @@ internal static class PaletteJsonContractsLegacyVerification
         AssertThrows<InvalidDataException>(() => ReadPaletteContract(oldRainbow, json => MotherBrainRainbowPalettePresentation.Load(json)),
             "old Mother Brain rainbow colors require current stock");
         var migratedRainbow = ReadPaletteContract(oldRainbow, json => MotherBrainRainbowPalettePresentation.Load(json, rainbowStock));
-        var legacyCgram = new SnesCgram();
-        var stockCgram = new SnesCgram();
+        var legacyCgram = new GameplayColours(new SpriteColourSets());
+        var stockCgram = new GameplayColours(new SpriteColourSets());
         for (int frame = 0; frame < MotherBrainFakeDeathPaletteRomData.FrameCount; frame++)
         {
             migratedRainbow.ApplyFakeDeathToGrey(legacyCgram, frame); rainbowStock.ApplyFakeDeathToGrey(stockCgram, frame);
@@ -95,7 +96,7 @@ internal static class PaletteJsonContractsLegacyVerification
         }
         migratedRainbow.ApplyNormal(legacyCgram);
         AssertEqual(PackPaletteContractColor((JsonObject)oldRainbow.Required("normal").Required("body").Required(0)),
-            legacyCgram.Colors[MotherBrainRainbowPaletteRomData.BodyColor], "legacy retains edited normal colors");
+            legacyCgram.Colors[MotherBrainRainbowPaletteRomDataConstants.BodyColor], "legacy retains edited normal colors");
     }
 
     /// <summary>Packs JSON red, green, and blue channels into the cartridge's 15-bit color word.</summary>

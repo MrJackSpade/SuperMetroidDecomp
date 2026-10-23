@@ -45,16 +45,16 @@ public sealed class MotherBrainHealthPalettePresentation
     /// <param name="damageState">Zero-based health-band selector: zero for health at least 9000, one for 5400..8999, two for 1800..5399, and three below 1800; health selection itself remains in gameplay code.</param>
     /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="damageState"/> is outside zero through three.</exception>
-    public void Apply(IPaletteColors cgram, int damageState)
+    public void Apply(GameplayColours cgram, int damageState)
     {
         Ensure.NotNull(cgram);
         if ((uint)damageState >= MotherBrainHealthPaletteFormat.StateCount)
             throw new ArgumentOutOfRangeException(nameof(damageState));
         for (int color = 0; color < MotherBrainRainbowPaletteRomData.ColorCount; color++)
         {
-            new MotherBrainPalettes(cgram).Body.Write(color, body.Color(damageState, color));
-            new MotherBrainPalettes(cgram).Brain.Write(color, body.Color(damageState, color));
-            new MotherBrainPalettes(cgram).RearLegs.Write(color, backLegs.Color(damageState, color));
+            new MotherBrainColours(cgram).Body.Write(color, body.Color(damageState, color));
+            new MotherBrainColours(cgram).Brain.Write(color, body.Color(damageState, color));
+            new MotherBrainColours(cgram).RearLegs.Write(color, backLegs.Color(damageState, color));
         }
     }
 

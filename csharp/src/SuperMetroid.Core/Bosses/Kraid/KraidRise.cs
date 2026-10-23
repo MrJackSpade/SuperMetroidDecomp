@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -78,7 +79,7 @@ internal sealed class KraidRise
             // immediately before that initializer are not cosmetic bookkeeping: they
             // restore the defeated arena on every room load so the broken ceiling and
             // removed floor spikes cannot return when the player exits and re-enters.
-            LoadKraidColorBand(KraidPaletteSource.RoomBackdrop, _presentation.BossPalettes().KraidRoomBackdrop);
+            LoadKraidColorBand(KraidPaletteSource.RoomBackdrop, _presentation.BossColours().KraidRoomBackdrop);
             state.WorkingTop = state.WorkingBottom = KraidBodyPage.Blank;
             state.BackgroundTilemapsPrepared = true;
             UploadKraidRoomBackgroundTiles();
@@ -111,7 +112,7 @@ internal sealed class KraidRise
 
         // Background palette three's target colors are written at CGRAM palette eleven in
         // native target-palette storage. The software renderer exposes that buffer directly.
-        LoadKraidColorBand(KraidPaletteSource.InitialTarget, _presentation.BossPalettes().KraidSprites);
+        LoadKraidColorBand(KraidPaletteSource.InitialTarget, _presentation.BossColours().KraidSprites);
         _earthquake.EarthquakeType = 5;
     }
 
@@ -160,7 +161,7 @@ internal sealed class KraidRise
     }
 
     /// <summary>Copies one Kraid palette source band to its CGRAM destination.</summary>
-    internal void LoadKraidColorBand(KraidPaletteSource source, CgramPalette destination)
+    internal void LoadKraidColorBand(KraidPaletteSource source, ColourRun destination)
     {
         for (int color = 0; color < KraidPaletteRomData.BandColors; color++)
             destination.Write(color, _background.ReadKraidColor(source, color));

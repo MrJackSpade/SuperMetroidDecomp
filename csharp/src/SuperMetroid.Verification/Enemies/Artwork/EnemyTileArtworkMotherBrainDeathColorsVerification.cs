@@ -120,22 +120,22 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         Type type = typeof(RoomEnemySystem);
         enemies.Presentation.BindCgram(cgram.Gameplay);
-        cgram.SetColor(MotherBrainDeathRomData.BodyColors - 1, Bgr555.FromWord(0x1234));
-        cgram.SetColor(MotherBrainDeathRomData.BrainColors - 1, Bgr555.FromWord(0x1234));
-        cgram.SetColor(MotherBrainDeathRomData.LegColors - 1, Bgr555.FromWord(0x1234));
-        cgram.SetColor(MotherBrainDeathRomData.CorpseColors - 1, Bgr555.FromWord(0x1234));
+        cgram.SetColor(MotherBrainDeathRomDataConstants.BodyColors - 1, Bgr555.FromWord(0x1234));
+        cgram.SetColor(MotherBrainDeathRomDataConstants.BrainColors - 1, Bgr555.FromWord(0x1234));
+        cgram.SetColor(MotherBrainDeathRomDataConstants.LegColors - 1, Bgr555.FromWord(0x1234));
+        cgram.SetColor(MotherBrainDeathRomDataConstants.CorpseColors - 1, Bgr555.FromWord(0x1234));
         for (int frame = 0; frame < MotherBrainDeathRomData.BodyFadeFrameCount; frame++)
         {
             enemies.MotherBrainBehavior.RainbowAndDeath.LoadMotherBrainDeathBodyFade(frame);
             for (int color = 0; color < MotherBrainDeathRomData.BodyColorCount; color++)
             {
                 Bgr555 shared = colors.BodyColor(frame, color);
-                AssertEqual(shared, cgram.Colors[MotherBrainDeathRomData.BodyColors + color],
+                AssertEqual(shared, cgram.Colors[MotherBrainDeathRomDataConstants.BodyColors + color],
                     $"live Mother Brain body death frame {frame} color {color}");
-                AssertEqual(shared, cgram.Colors[MotherBrainDeathRomData.BrainColors + color],
+                AssertEqual(shared, cgram.Colors[MotherBrainDeathRomDataConstants.BrainColors + color],
                     $"live Mother Brain brain death frame {frame} color {color}");
                 AssertEqual(colors.LegColor(frame, color),
-                    cgram.Colors[MotherBrainDeathRomData.LegColors + color],
+                    cgram.Colors[MotherBrainDeathRomDataConstants.LegColors + color],
                     $"live Mother Brain leg death frame {frame} color {color}");
             }
         }
@@ -144,17 +144,17 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
             enemies.MotherBrainBehavior.RainbowAndDeath.LoadMotherBrainDeathCorpseFade(frame);
             for (int color = 0; color < MotherBrainDeathRomData.CorpseColorCount; color++)
                 AssertEqual(colors.CorpseColor(frame, color),
-                    cgram.Colors[MotherBrainDeathRomData.CorpseColors + color],
+                    cgram.Colors[MotherBrainDeathRomDataConstants.CorpseColors + color],
                     $"live Mother Brain corpse death frame {frame} color {color}");
         }
         enemies.MotherBrainBehavior.RainbowAndDeath.LoadMotherBrainDeathDoorPalette();
         for (int color = 0; color < MotherBrainDeathRomData.BodyColorCount; color++)
             AssertEqual(colors.ExplodedDoorColor(color),
-                cgram.Colors[MotherBrainDeathRomData.BrainColors + color],
+                cgram.Colors[MotherBrainDeathRomDataConstants.BrainColors + color],
                 $"live Mother Brain exploded-door color {color}");
-        foreach (int destination in new[] { MotherBrainDeathRomData.BodyColors,
-            MotherBrainDeathRomData.BrainColors, MotherBrainDeathRomData.LegColors,
-            MotherBrainDeathRomData.CorpseColors })
+        foreach (int destination in new[] { MotherBrainDeathRomDataConstants.BodyColors,
+            MotherBrainDeathRomDataConstants.BrainColors, MotherBrainDeathRomDataConstants.LegColors,
+            MotherBrainDeathRomDataConstants.CorpseColors })
             AssertEqual(0x1234, cgram.Colors[destination - 1],
                 $"Mother Brain death palette preserves adjacent color {destination - 1}");
         AssertEqual(0, guard.ForbiddenReadAttempts,

@@ -24,12 +24,12 @@ public sealed class CeresRidleyMode7ColorCatalog
     /// <param name="cgram">Destination palette memory.</param>
     /// <param name="zoomHighByte">High byte of the current native zoom word, 0..8; not a frame timer or byte offset into the stored rows.</param>
     /// <exception cref="ArgumentOutOfRangeException">The zoom row is outside 0..8.</exception>
-    public void Apply(IPaletteColors cgram, int zoomHighByte)
+    public void Apply(GameplayColours cgram, int zoomHighByte)
     {
         Ensure.NotNull(cgram);
         _ = Resolve(zoomHighByte, 0);
         for (int color = 0; color < CeresRidleyPaletteRomData.Mode7ZoomColorCount; color++)
-            new RidleyPalettes(cgram).CeresMode7Zoom.Write(color, rows.Resolve(zoomHighByte, color));
+            new RidleyColours(cgram).CeresMode7Zoom.Write(color, rows.Resolve(zoomHighByte, color));
     }
     /// <summary>Loads all nine zoom shades, each containing fifteen RGB5 colors, rejecting duplicate/unknown JSON properties, unsupported versions, and channel values outside 0..31.</summary>
     /// <param name="json">Caller-owned stream containing the editable Ceres getaway color document.</param>

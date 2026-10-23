@@ -98,14 +98,14 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         AssertEqual(AnimationProgramCursor<CrocomireBodyProgram>.Start(CrocomireBodyProgram.Initial),
             state.BodyCursor,
             "installed Crocomire colors leave the initial program unchanged");
-        AssertBand(CrocomirePaletteRomData.InitialWallDestination,
+        AssertBand(CrocomirePaletteRomDataConstants.InitialWallDestination,
             CrocomirePaletteRomData.InitialWallCount, colors.ResolveInitialWall,
             "initial wall CGRAM");
-        AssertBand(CrocomirePaletteRomData.InitialProjectileDestination,
+        AssertBand(CrocomirePaletteRomDataConstants.InitialProjectileDestination,
             CrocomirePaletteRomData.InitialProjectileCount, colors.ResolveInitialProjectile,
             "initial projectile CGRAM");
         enemies.CrocomireBehavior.Combat.ApplyCrocomireHurtPalette(body);
-        AssertBand(CrocomirePaletteRomData.FightBodyDestination,
+        AssertBand(CrocomirePaletteRomDataConstants.FightBodyDestination,
             CrocomirePaletteRomData.FightBodyCount, colors.ResolveFightBody,
             "restored fight-body CGRAM");
         body.FlashTimer = WrappingCountdown.Start(1);
@@ -113,13 +113,13 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         enemies.CrocomireBehavior.Combat.ApplyCrocomireHurtPalette(body);
         for (int color = 0; color < CrocomirePaletteRomData.FightBodyCount; color++)
             AssertEqual(0x7fff,
-                cgram.Colors[CrocomirePaletteRomData.FightBodyDestination + color],
+                cgram.Colors[CrocomirePaletteRomDataConstants.FightBodyDestination + color],
                 $"Crocomire native white hurt flash {color}");
         AssertEqual(CrocomireDeathPhase.Fighting, state.DeathSequenceIndex,
             "white hurt flash leaves fight phase unchanged");
         state.DeathPhaseDelay = WrappingCountdown.Start(0);
         enemies.CrocomireBehavior.Skeleton.RunCrocomireSkeletonTileLoadAndWallBreak(state);
-        AssertBand(CrocomirePaletteRomData.SkeletonArmDestination,
+        AssertBand(CrocomirePaletteRomDataConstants.SkeletonArmDestination,
             CrocomirePaletteRomData.SkeletonArmCount, colors.ResolveSkeletonArm,
             "skeleton-arm CGRAM");
         AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathSequenceIndex,

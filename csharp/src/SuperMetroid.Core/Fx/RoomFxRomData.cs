@@ -38,10 +38,6 @@ public static class RoomFxRomData
 
         /// <summary>Blank BG3 tilemap word installed by both native FX-clear routines.</summary>
         public const ushort ClearTilemapWord = 0x184e;
-        /// <summary>CGRAM index cleared when no room-effect palette is selected.</summary>
-        public const int EmptyPaletteColorIndex = 27;
-        /// <summary>First CGRAM index receiving the shared three-color FX blend.</summary>
-        public const int PaletteBlendDestinationIndex = 25;
         /// <summary>Number of colors copied by the shared room-effect palette blend.</summary>
         public const int PaletteBlendColorCount = 3;
     }

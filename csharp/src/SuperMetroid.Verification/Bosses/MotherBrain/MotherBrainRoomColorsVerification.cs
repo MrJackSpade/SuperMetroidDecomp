@@ -105,11 +105,11 @@ internal static class MotherBrainRoomColorsVerification
             edited.MotherBrainRoomColors),
             "installed Mother Brain room colors reach the production enemy binding");
         AssertEdited(nameof(MotherBrainBehavior.RunMotherBrainRoomPalette), behavior => behavior.RunMotherBrainRoomPalette, original, edited,
-            MotherBrainRoomColorRomData.FirstColor, 1, flash: true);
+            MotherBrainRoomColorRomDataConstants.FirstColor, 1, flash: true);
         AssertEdited(nameof(MotherBrainFakeDeath.StopMotherBrainRoomPalette), behavior => behavior.FakeDeath.StopMotherBrainRoomPalette, original, edited,
-            MotherBrainRoomColorRomData.SecondColor, 2);
+            MotherBrainRoomColorRomDataConstants.SecondColor, 2);
         AssertEdited(nameof(MotherBrainAscent.SetupMotherBrainPhaseTwoGraphics), behavior => behavior.Ascent.SetupMotherBrainPhaseTwoGraphics, original, edited,
-            MotherBrainRoomColorRomData.PhaseTwoAttackColor, 2);
+            MotherBrainRoomColorRomDataConstants.PhaseTwoAttackColor, 2);
         AssertRoomEntryEdited(original, edited);
         AssertRecoveryLightsEdited(original, edited);
 
@@ -142,14 +142,14 @@ internal static class MotherBrainRoomColorsVerification
         AreaMapPresentationCatalog migratedV2 = AreaMapPresentationCatalog.Load(stock, overrides);
         var migratedRecovery = new SamusColourRig();
         var originalRecovery = new SamusColourRig();
-        migratedV2.MotherBrainRoomColors.ApplyRecoveryLights(migratedRecovery, 0);
-        original.MotherBrainRoomColors.ApplyRecoveryLights(originalRecovery, 0);
+        migratedV2.MotherBrainRoomColors.ApplyRecoveryLights(migratedRecovery.Gameplay, 0);
+        original.MotherBrainRoomColors.ApplyRecoveryLights(originalRecovery.Gameplay, 0);
         AssertTrue(new CgramPalettes(migratedRecovery).ImageEquals(new CgramPalettes(originalRecovery)),
             "version-two override inherits new recovery-light colors from stock");
         var migratedV2Entry = new SamusColourRig();
         var originalV2Entry = new SamusColourRig();
-        migratedV2.MotherBrainRoomColors.ApplyRoomEntry(migratedV2Entry);
-        original.MotherBrainRoomColors.ApplyRoomEntry(originalV2Entry);
+        migratedV2.MotherBrainRoomColors.ApplyRoomEntry(migratedV2Entry.Gameplay);
+        original.MotherBrainRoomColors.ApplyRoomEntry(originalV2Entry.Gameplay);
         AssertTrue(!new CgramPalettes(migratedV2Entry).ImageEquals(new CgramPalettes(originalV2Entry)),
             "version-two override keeps its edited room-entry colors");
         byte[] legacy = JsonSerializer.SerializeToUtf8Bytes(document with
@@ -163,14 +163,14 @@ internal static class MotherBrainRoomColorsVerification
         AreaMapPresentationCatalog migrated = AreaMapPresentationCatalog.Load(stock, overrides);
         var migratedFlash = new SamusColourRig();
         var originalFlash = new SamusColourRig();
-        migrated.MotherBrainRoomColors.ApplyFlash(migratedFlash, 0);
-        original.MotherBrainRoomColors.ApplyFlash(originalFlash, 0);
+        migrated.MotherBrainRoomColors.ApplyFlash(migratedFlash.Gameplay, 0);
+        original.MotherBrainRoomColors.ApplyFlash(originalFlash.Gameplay, 0);
         AssertTrue(!new CgramPalettes(migratedFlash).ImageEquals(new CgramPalettes(originalFlash)),
             "version-one room-color override retains its existing flash edit");
         var migratedEntry = new SamusColourRig();
         var originalEntry = new SamusColourRig();
-        migrated.MotherBrainRoomColors.ApplyRoomEntry(migratedEntry);
-        original.MotherBrainRoomColors.ApplyRoomEntry(originalEntry);
+        migrated.MotherBrainRoomColors.ApplyRoomEntry(migratedEntry.Gameplay);
+        original.MotherBrainRoomColors.ApplyRoomEntry(originalEntry.Gameplay);
         AssertTrue(new CgramPalettes(migratedEntry).ImageEquals(new CgramPalettes(originalEntry)),
             "version-one room-color override inherits only the new room-entry colors from verified stock");
         File.WriteAllText(replacement, "{ broken JSON");
@@ -264,11 +264,11 @@ internal static class MotherBrainRoomColorsVerification
             edited.MotherBrainRoomColors);
         stockEnemy.MotherBrainBehavior.Body.LoadMotherBrainRoomEntryColors();
         editedEnemy.MotherBrainBehavior.Body.LoadMotherBrainRoomEntryColors();
-        AssertTrue(stockCgram.Colors[MotherBrainRoomColorRomData.InitialGlassShardColor] !=
-            editedCgram.Colors[MotherBrainRoomColorRomData.InitialGlassShardColor],
+        AssertTrue(stockCgram.Colors[MotherBrainRoomColorRomDataConstants.InitialGlassShardColor] !=
+            editedCgram.Colors[MotherBrainRoomColorRomDataConstants.InitialGlassShardColor],
             "room-entry glass edit reaches the production color copy");
-        AssertTrue(stockCgram.Colors[MotherBrainRoomColorRomData.InitialTubeProjectileColor] !=
-            editedCgram.Colors[MotherBrainRoomColorRomData.InitialTubeProjectileColor],
+        AssertTrue(stockCgram.Colors[MotherBrainRoomColorRomDataConstants.InitialTubeProjectileColor] !=
+            editedCgram.Colors[MotherBrainRoomColorRomDataConstants.InitialTubeProjectileColor],
             "room-entry tube edit reaches the production color copy");
         AssertEqual(2, stockCgram.Colors.CountDifferences(editedCgram.Colors),
             "room-entry edits change only the two selected CGRAM colors");

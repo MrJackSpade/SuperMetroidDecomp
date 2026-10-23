@@ -143,43 +143,43 @@ public sealed class MotherBrainRainbowPalettePresentation
     }
 
     /// <summary>Copies one cartridge rainbow-list entry to the three body/brain/leg slots.</summary>
-    public void ApplyRainbow(IPaletteColors cgram, int frame) => ApplyFull(cgram, rainbow, frame);
+    public void ApplyRainbow(GameplayColours cgram, int frame) => ApplyFull(cgram, rainbow, frame);
 
     /// <summary>Restores the two fixed normal-palette sources after the beam finishes.</summary>
-    public void ApplyNormal(IPaletteColors cgram) =>
+    public void ApplyNormal(GameplayColours cgram) =>
         ApplyColors(cgram, normal);
 
     /// <summary>Copies a drain fade.</summary>
-    public void ApplyToGrey(IPaletteColors cgram, int frame) =>
+    public void ApplyToGrey(GameplayColours cgram, int frame) =>
         ApplyGrey(cgram, toGrey, frame);
 
     /// <summary>Copies a revival fade, preserving the two native body/brain tail colors.</summary>
-    public void ApplyFromGrey(IPaletteColors cgram, int frame) =>
+    public void ApplyFromGrey(GameplayColours cgram, int frame) =>
         ApplyGrey(cgram, fromGrey, frame);
 
     /// <summary>Changes only the three brain colors during the fake-death descent.</summary>
-    public void ApplyFakeDeathToGrey(IPaletteColors cgram, int frame)
+    public void ApplyFakeDeathToGrey(GameplayColours cgram, int frame)
     {
         Ensure.NotNull(cgram);
         if ((uint)frame >= fakeDeathToGrey.Length)
             throw new InvalidDataException($"Mother Brain fake-death grey frame {frame} is outside the authored sequence.");
         for (int color = 0; color < MotherBrainFakeDeathPaletteRomData.ColorCount; color++)
-            new MotherBrainPalettes(cgram).FakeDeathBrain.Write(color,
+            new MotherBrainColours(cgram).FakeDeathBrain.Write(color,
                 fakeDeathToGrey.Body(frame, color));
     }
 
     /// <summary>Restores only those three colors, reusing the cartridge's revival source table.</summary>
-    public void ApplyFakeDeathFromGrey(IPaletteColors cgram, int frame)
+    public void ApplyFakeDeathFromGrey(GameplayColours cgram, int frame)
     {
         Ensure.NotNull(cgram);
         if ((uint)frame >= fromGrey.Length)
             throw new InvalidDataException($"Mother Brain fake-death revival frame {frame} is outside the authored sequence.");
         for (int color = 0; color < MotherBrainFakeDeathPaletteRomData.ColorCount; color++)
-            new MotherBrainPalettes(cgram).FakeDeathBrain.Write(color, fromGrey.Body(frame, color));
+            new MotherBrainColours(cgram).FakeDeathBrain.Write(color, fromGrey.Body(frame, color));
     }
 
     /// <summary>Copies a complete selected rainbow phase into body, brain, and rear-leg CGRAM slots.</summary>
-    private static void ApplyFull(IPaletteColors cgram, PaletteFrame[] frames, int frame)
+    private static void ApplyFull(GameplayColours cgram, PaletteFrame[] frames, int frame)
     {
         Ensure.NotNull(cgram);
         if ((uint)frame >= frames.Length)
@@ -191,7 +191,7 @@ public sealed class MotherBrainRainbowPalettePresentation
     /// Copies a grey-transition phase. The cartridge also writes the trailing rear color to <c>$7E:017C</c>, a word
     /// nothing reads, so the port does not keep it.
     /// </summary>
-    private static void ApplyGrey(IPaletteColors cgram, IPaletteFade frames, int frame)
+    private static void ApplyGrey(GameplayColours cgram, IPaletteFade frames, int frame)
     {
         Ensure.NotNull(cgram);
         if ((uint)frame >= frames.Length)
@@ -199,23 +199,23 @@ public sealed class MotherBrainRainbowPalettePresentation
         for (int color = 0; color < frames.BodyCount; color++)
         {
             Bgr555 value = frames.Body(frame, color);
-            new MotherBrainPalettes(cgram).Body.Write(color, value);
-            new MotherBrainPalettes(cgram).Brain.Write(color, value);
+            new MotherBrainColours(cgram).Body.Write(color, value);
+            new MotherBrainColours(cgram).Brain.Write(color, value);
         }
         for (int color = 0; color < frames.LegCount; color++)
-            new MotherBrainPalettes(cgram).DrainedRearLegs.Write(color, frames.Leg(frame, color));
+            new MotherBrainColours(cgram).DrainedRearLegs.Write(color, frames.Leg(frame, color));
     }
 
     /// <summary>Mirrors body inks to the brain palette and writes the selected rear-leg inks.</summary>
-    private static void ApplyColors(IPaletteColors cgram, PaletteFrame selected)
+    private static void ApplyColors(GameplayColours cgram, PaletteFrame selected)
     {
         for (int color = 0; color < selected.Body.Length; color++)
         {
-            new MotherBrainPalettes(cgram).Body.Write(color, selected.Body[color]);
-            new MotherBrainPalettes(cgram).Brain.Write(color, selected.Body[color]);
+            new MotherBrainColours(cgram).Body.Write(color, selected.Body[color]);
+            new MotherBrainColours(cgram).Brain.Write(color, selected.Body[color]);
         }
         for (int color = 0; color < selected.LegCount; color++)
-            new MotherBrainPalettes(cgram).RearLegs.Write(color, selected.Leg(color));
+            new MotherBrainColours(cgram).RearLegs.Write(color, selected.Leg(color));
     }
 
     /// <summary>Loads and compiles bounded RGB5 rainbow, drain, revival, restoration, and beam-backdrop colors; validates frame geometry and channels without importing engine timers or signed loop terminators.</summary>

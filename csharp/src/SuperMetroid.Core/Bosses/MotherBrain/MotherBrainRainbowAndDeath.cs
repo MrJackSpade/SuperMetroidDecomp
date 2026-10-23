@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -71,7 +71,7 @@ internal sealed class MotherBrainRainbowAndDeath
         if (step.PhaseBefore == MotherBrainBodyFunction.ThirdPhaseDeathDisableBrainEffects &&
             step.PhaseAfter != step.PhaseBefore)
         {
-            _presentation.BossPalettes().MotherBrainCorpse.CopyFrom(_presentation.BossPalettes().MotherBrainBrain.Colors);
+            _presentation.BossColours().MotherBrainCorpse.CopyFrom(_presentation.BossColours().MotherBrainBrain.Colors);
             state.BrainPalette = sequence.ThirdPhaseDeath.BrainPalette;
             state.BrainPaletteHandlingEnabled = false;
             state.DroolGenerationEnabled = false;
@@ -171,9 +171,9 @@ internal sealed class MotherBrainRainbowAndDeath
             for (int color = 0; color < MotherBrainDeathRomData.BodyColorCount; color++)
             {
                 Bgr555 shared = colors.BodyColor(frame, color);
-                _presentation.BossPalettes().MotherBrainBody.Write(color, shared);
-                _presentation.BossPalettes().MotherBrainBrain.Write(color, shared);
-                _presentation.BossPalettes().MotherBrainLegs.Write(color, colors.LegColor(frame, color));
+                _presentation.BossColours().MotherBrainBody.Write(color, shared);
+                _presentation.BossColours().MotherBrainBrain.Write(color, shared);
+                _presentation.BossColours().MotherBrainLegs.Write(color, colors.LegColor(frame, color));
             }
             return;
         }
@@ -186,7 +186,7 @@ internal sealed class MotherBrainRainbowAndDeath
         if (_bossArtwork.Artwork?.MotherBrainDeathColors is { } colors)
         {
             for (int color = 0; color < MotherBrainDeathRomData.CorpseColorCount; color++)
-                _presentation.BossPalettes().MotherBrainCorpse.Write(color, colors.CorpseColor(frame, color));
+                _presentation.BossColours().MotherBrainCorpse.Write(color, colors.CorpseColor(frame, color));
             return;
         }
         throw new InvalidOperationException("Mother Brain corpse fade requires installed colors.");
@@ -198,7 +198,7 @@ internal sealed class MotherBrainRainbowAndDeath
         if (_bossArtwork.Artwork?.MotherBrainDeathColors is { } colors)
         {
             for (int color = 0; color < MotherBrainDeathRomData.BodyColorCount; color++)
-                _presentation.BossPalettes().MotherBrainBrain.Write(color, colors.ExplodedDoorColor(color));
+                _presentation.BossColours().MotherBrainBrain.Write(color, colors.ExplodedDoorColor(color));
             return;
         }
         throw new InvalidOperationException("Mother Brain exploded door requires installed colors.");

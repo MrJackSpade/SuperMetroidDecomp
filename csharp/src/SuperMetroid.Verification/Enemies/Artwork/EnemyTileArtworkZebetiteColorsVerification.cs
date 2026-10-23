@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -75,7 +76,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         ReferenceCycle(controlCgram, ref controlCounter);
         for (int color = 0; color < SnesCgram.ColorCount; color++)
             AssertEqual((ushort)(controlCgram.Colors[color].ToWord() ^
-                (color == ZebetiteDefinitions.PaletteDestinationColor + 1 ? 1 : 0)),
+                (color == ColourSetRunPositions.First(ZebetiteDefinitions.PulseColours) + 1 ? 1 : 0)),
                 selectedCgram.Colors[color],
                 "Zebetite visual edit changes only one color channel at the selected frame");
         AssertEqual(controlCounter, Counter(selected),
@@ -96,10 +97,9 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             "Stock re-extraction preserves the Zebetite color override");
         var reloaded = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         var persistedCgram = new SamusColourRig();
-        (reloaded.Bosses.ZebetiteColors ?? throw new InvalidOperationException("Verification requires reloaded.ZebetiteColors.")).Apply(persistedCgram, 3,
-            ZebetiteDefinitions.PaletteDestinationColor);
-        AssertEqual(selectedCgram.Colors[ZebetiteDefinitions.PaletteDestinationColor + 1],
-            persistedCgram.Colors[ZebetiteDefinitions.PaletteDestinationColor + 1],
+        (reloaded.Bosses.ZebetiteColors ?? throw new InvalidOperationException("Verification requires reloaded.ZebetiteColors.")).Apply(ZebetiteDefinitions.PulseColours.In(persistedCgram.Gameplay), 3);
+        AssertEqual(selectedCgram.Colors[ColourSetRunPositions.First(ZebetiteDefinitions.PulseColours) + 1],
+            persistedCgram.Colors[ColourSetRunPositions.First(ZebetiteDefinitions.PulseColours) + 1],
             "Reload retains edited Zebetite pulse color");
 
         File.WriteAllText(overridePath, "broken");

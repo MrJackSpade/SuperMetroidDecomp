@@ -63,30 +63,27 @@ public sealed class TourianStatueColorCatalog
     public Bgr555 ResolveGrey(int color) => greyColors.Read(color);
 
     /// <summary>Installs all sixteen base-decoration inks at CGRAM 240–255 and all sixteen statue inks at 160–175, matching the entrance initializer's two OBJ palette bands.</summary>
-    public void ApplyEntrance(IPaletteColors cgram)
+    public void ApplyEntrance(GameplayColours cgram)
     {
-        baseColors.Apply(new AreaPalettes(cgram).TourianStatueBase);
-        statueColors.Apply(new AreaPalettes(cgram).TourianStatue);
+        baseColors.Apply(new AreaColours(cgram).TourianStatueBase);
+        statueColors.Apply(new AreaColours(cgram).TourianStatue);
     }
 
     /// <summary>Installs the selected four-color eye glow at CGRAM 249–252 without altering boss completion or animated-tile state.</summary>
     /// <param name="cgram">Current palette receiving the selected eye colors.</param>
     /// <param name="doubledBossParameter">Native doubled selector: Phantoon 0, Ridley 2, Draygon 4, or Kraid 6.</param>
-    public void ApplyEye(IPaletteColors cgram, ushort doubledBossParameter)
+    public void ApplyEye(GameplayColours cgram, ushort doubledBossParameter)
     {
         if (doubledBossParameter > 6 || (doubledBossParameter & 1) != 0)
             throw new ArgumentOutOfRangeException(nameof(doubledBossParameter));
         Ensure.NotNull(cgram);
         for (int color = 0; color < TourianStatuePaletteRomData.EyeColorCount; color++)
-            new AreaPalettes(cgram).TourianStatueEye.Write(color, ResolveEye(doubledBossParameter >> 1, color));
+            new AreaColours(cgram).TourianStatueEye.Write(color, ResolveEye(doubledBossParameter >> 1, color));
     }
 
-    /// <summary>Installs the eight selected grey inks in current CGRAM at the animation instruction's destination; this method does not own target-palette fade progression.</summary>
-    /// <param name="cgram">Current palette to update.</param>
-    /// <param name="destinationColor">First CGRAM color index, obtained by dividing the native byte-index operand by two.</param>
-    [PpuLayoutBoundary("codec: Tourian grey ink at its native CGRAM index operand")]
-    public void ApplyGrey(IPaletteColors cgram, int destinationColor) =>
-        greyColors.Apply(new CgramPalettes(cgram).All.Slice(destinationColor, TourianStatuePaletteRomData.GreyColorCount));
+    /// <summary>Installs the eight selected grey colours in <paramref name="destination"/>, the statue's; this method does not own target-palette fade progression.</summary>
+    /// <param name="destination">The statue's colours the grey replaces.</param>
+    public void ApplyGrey(ColourRun destination) => greyColors.Apply(destination);
 
     /// <summary>Loads version-1 <c>tourian-statue-colors.json</c>, validating sixteen-color base/statue bands, four four-color eye rows, eight grey inks, and RGB5 channels from 0 through 31.</summary>
     /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
@@ -161,7 +158,7 @@ public sealed class TourianStatueColorCatalog
             return result;
         }
         /// <summary>Writes every selected color into the supplied CGRAM palette slice.</summary>
-        internal void Apply(CgramPalette destination)
+        internal void Apply(ColourRun destination)
         {
             for (int color = 0; color < count; color++) destination.Write(color, Read(color));
         }

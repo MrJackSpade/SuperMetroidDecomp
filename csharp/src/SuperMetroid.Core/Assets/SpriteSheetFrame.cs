@@ -45,27 +45,4 @@ public sealed record SpriteSheetFrame
 
     /// <summary>The objects the frame stands for: one per part.</summary>
     public int Objects => Parts.Count;
-
-    /// <summary>
-    /// Whether <paramref name="colours"/> hold this frame's standard colours in every row it uses, so its pixels show
-    /// them unchanged; otherwise a palette effect has changed a row and the frame shows that row's live colours.
-    /// </summary>
-    /// <param name="colours">The 256 CGRAM colours the frame is drawn over.</param>
-    public bool ShowsStandardColours(ReadOnlySpan<Bgr555> colours)
-    {
-        ReadOnlySpan<Bgr555> standard = Sheet.StandardColours;
-        int first = Sheet.FirstColour;
-        for (int row = 0; row < 8; row++)
-        {
-            if ((Rows & SpritePaletteRowSet.Rows[row]) == 0)
-                continue;
-            // Colour zero is transparent and never shown.
-            for (int colour = 1; colour < 16; colour++)
-            {
-                if (colours[first + row * 16 + colour] != standard[row * 16 + colour])
-                    return false;
-            }
-        }
-        return true;
-    }
 }

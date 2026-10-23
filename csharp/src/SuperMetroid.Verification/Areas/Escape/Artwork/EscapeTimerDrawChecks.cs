@@ -95,7 +95,7 @@ internal static class EscapeTimerDrawChecks
     {
         int count = SnesPpuLayout.ScreenSize.X * SnesPpuLayout.ScreenSize.Y;
         var raster = new Raster(new Rgba32[count], new byte[count], new byte[count]);
-        SnesObjRenderer.RenderResolved([.. draws], cgram, new ObjRasterTargets(raster.Pixels, raster.Priorities, raster.Palettes));
+        SnesObjRenderer.RenderResolved(DrawColours.ResolveAll([.. draws], cgram.Colors), new ObjRasterTargets(raster.Pixels, raster.Priorities, raster.Palettes));
         return raster;
     }
 

@@ -500,7 +500,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         var memory = memoryUpload;
         for (int i = 0; i < scene.Paint.Colors.Length; i++) memory[i] = scene.Paint.Colors[i].ToWord();
         fixed (uint* source = memory) UploadBuffer(memoryBuffer, (nint)source, memory.Length * sizeof(uint));
-        spriteDraws.Pack(scene.Paint.SpriteDraws.AsSpan(), scene.Paint.Colors);
+        spriteDraws.Pack(scene.Paint.SpriteDraws.AsSpan());
         fixed (uint* source = spriteDraws.Upload) UploadBuffer(spriteDraws.Buffer, (nint)source, spriteDraws.Upload.Length * sizeof(uint));
         SuperMetroid.Core.Assets.SpriteSheetFrame? messagePicture = null;
         foreach (RenderLayer layer in scene.Layers)

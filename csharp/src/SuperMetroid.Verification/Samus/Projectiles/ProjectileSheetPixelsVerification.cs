@@ -79,7 +79,7 @@ internal static class ProjectileSheetPixelsVerification
     {
         int count = Canvas.X * Canvas.Y;
         var result = new Raster(new Rgba32[count], new byte[count], new byte[count]);
-        SnesObjRenderer.RenderResolved([draw], cgram, new ObjRasterTargets(result.Pixels, result.Priorities, result.Palettes), Canvas);
+        SnesObjRenderer.RenderResolved(DrawColours.ResolveAll([draw], cgram.Colors), new ObjRasterTargets(result.Pixels, result.Priorities, result.Palettes), Canvas);
         return result;
     }
 

@@ -5,7 +5,6 @@ using System.Runtime.CompilerServices;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Software projection of whole-frame sprite draws into an RGBA frame, each a pre-coloured image (#1392).</summary>
-[PpuLayoutBoundary("backend: software OBJ rasterizer reading the OBJ palette rows of CGRAM")]
 public static class SnesObjRenderer
 {
     /// <summary>Sentinel used when no opaque OBJ owns a raster pixel.</summary>
@@ -17,15 +16,14 @@ public static class SnesObjRenderer
     /// Transparent samples preserve the destination; optional palette ownership is
     /// reset and follows the winning draw part for subsequent color math.
     /// </summary>
-    public static void CompositeUnfiltered(ImmutableArray<SpriteDraw> draws, IPaletteColors cgram,
+    public static void CompositeUnfiltered(ImmutableArray<SpriteDraw> draws,
         Span<Rgba32> pixels, Span<byte> palettes = default, Extent16<ScreenPixels>? size = null)
     {
-        Ensure.NotNull(cgram);
         Extent16<ScreenPixels> frame = RequireFrame(size);
         if (pixels.Length != frame.X * frame.Y || (!palettes.IsEmpty && palettes.Length != pixels.Length))
             throw new ArgumentException("Unexpected OBJ composition buffer dimensions.");
         palettes.Fill(TransparentPriority);
-        Paint(frame, draws, cgram, selectedPriority: null, new ObjRasterTargets(pixels, palettes: palettes));
+        Paint(frame, draws, selectedPriority: null, new ObjRasterTargets(pixels, palettes: palettes));
     }
 
     /// <summary>
@@ -35,14 +33,12 @@ public static class SnesObjRenderer
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void RenderResolved(
         ImmutableArray<SpriteDraw> draws,
-        IPaletteColors cgram,
         ObjRasterTargets targets,
         Extent16<ScreenPixels>? size = null)
     {
         Span<Rgba32> pixels = targets.Pixels;
         Span<byte> priorities = targets.Priorities;
         Span<byte> palettes = targets.Palettes;
-        Ensure.NotNull(cgram);
         Extent16<ScreenPixels> frame = RequireFrame(size);
         int pixelCount = frame.X * frame.Y;
         if (pixels.Length != pixelCount)
@@ -59,48 +55,49 @@ public static class SnesObjRenderer
         // Walking backwards makes each earlier draw replace the previous winner. Unlike a priority-filtered plane, the
         // resolved buffer keeps that winner's priority beside its color so no later pass can resurrect a sprite that
         // already lost the OBJ-vs-OBJ comparison.
-        Paint(frame, draws, cgram, selectedPriority: null, targets);
+        Paint(frame, draws, selectedPriority: null, targets);
     }
 
     /// <summary>
     /// Paints every draw from the back of the emission order to the front, so the earliest-emitted draw finally owns
     /// each pixel; within a draw the first part is frontmost.
     /// </summary>
-    internal static void Paint(Extent16<ScreenPixels> frame, ImmutableArray<SpriteDraw> draws, IPaletteColors cgram,
+    internal static void Paint(Extent16<ScreenPixels> frame, ImmutableArray<SpriteDraw> draws,
         int? selectedPriority, ObjRasterTargets targets)
     {
         if (draws.IsDefault)
             throw new ArgumentException("A frame needs a draw list.", nameof(draws));
         for (int draw = draws.Length - 1; draw >= 0; draw--)
-            DrawEntry(frame, draws[draw], cgram, selectedPriority, targets);
+            DrawEntry(frame, draws[draw], selectedPriority, targets);
     }
 
     /// <summary>Rasterizes one whole-frame draw by its kind.</summary>
-    private static void DrawEntry(Extent16<ScreenPixels> frame, SpriteDraw draw, IPaletteColors cgram,
+    private static void DrawEntry(Extent16<ScreenPixels> frame, SpriteDraw draw,
         int? selectedPriority, ObjRasterTargets targets)
     {
         if (draw is ImageSpriteDraw image)
-            DrawImage(frame, image, cgram, selectedPriority, targets);
+            DrawImage(frame, image, selectedPriority, targets);
         else
             throw new InvalidDataException($"The software renderer cannot draw a {draw.GetType().Name}.");
     }
 
-    /// <summary>CGRAM's first sprite colour.</summary>
-    private const int SpriteColours = 128;
+    /// <summary>The row a blending pixel reports, so colour math treats it as the upper rows' sprites.</summary>
+    private const byte BlendingRow = 4;
 
-    /// <summary>The palette row a blending image reports, so colour math treats it as the upper rows' sprites.</summary>
     /// <summary>Colours in one sprite palette row.</summary>
     private const int RowColours = 16;
 
     /// <summary>
-    /// Rasterizes one image draw from its pre-coloured pixels, a pixel with zero alpha being transparent. While a palette
-    /// effect has changed a row the frame uses, its pixels show that row's live colours instead.
+    /// Rasterizes one image draw in its resolved colours: each pixel shows its image's own colour, or the colour its key
+    /// shows in the frame, and blends as that key does.
     /// </summary>
-    private static void DrawImage(Extent16<ScreenPixels> frame, ImageSpriteDraw draw, IPaletteColors cgram, int? selectedPriority,
+    /// <exception cref="InvalidOperationException">The draw's colours were not resolved when its frame was published.</exception>
+    private static void DrawImage(Extent16<ScreenPixels> frame, ImageSpriteDraw draw, int? selectedPriority,
         ObjRasterTargets targets)
     {
         Offset16<ScreenPixels> corner = draw.Corner;
-        bool standard = draw.PaletteOverride is null && draw.Image.ShowsStandardColours(cgram.Colors);
+        DrawColours colours = draw.Colours ?? throw new InvalidOperationException(
+            "A sprite draw is drawn once its frame has resolved its colours.");
         for (ushort y = 0; y < draw.Image.Size.Y; y++)
         {
             int screenY = corner.Y + y;
@@ -111,26 +108,16 @@ public static class SnesObjRenderer
                 int screenX = corner.X + x;
                 if ((uint)screenX >= frame.X)
                     continue;
-                // Each pixel's palette row decides its colour math, as the cartridge decides it for each OBJ.
                 int index = draw.PaletteIndexAt(new(x, y));
                 if (index == 0)
                     continue;
-                Rgba32 pixel;
-                byte pixelRow = (byte)(index / RowColours);
-                if (standard)
-                    pixel = draw.PixelAt(new(x, y));
-                else
-                {
-                    if (draw.PaletteOverride is int overriding)
-                    {
-                        // The cartridge ORs the draw's palette bits into each part's own; the override takes the
-                        // place of those the image was coloured with, and its row decides colour math.
-                        pixelRow = (byte)SpriteImage.OverriddenRow(draw.PartRowAt(new(x, y)), overriding);
-                        index = pixelRow * RowColours + index % RowColours;
-                    }
-                    pixel = cgram.GetRgba(SpriteColours + index);
-                }
-                Plot(screenY * frame.X + screenX, pixel, pixelRow, (byte)draw.PriorityAt(new(x, y)), selectedPriority, targets);
+                int key = colours.Key(index / RowColours, draw.PartRowAt(new(x, y)));
+                Rgba32 pixel = colours.ShowsOwnColours(key)
+                    ? draw.PixelAt(new(x, y))
+                    : colours.Colour(key, index % RowColours).ToRgba32();
+                // Colour math reads only whether a pixel's row is among the blending ones.
+                byte blendRow = colours.Blends(key) ? BlendingRow : (byte)0;
+                Plot(screenY * frame.X + screenX, pixel, blendRow, (byte)draw.PriorityAt(new(x, y)), selectedPriority, targets);
             }
         }
     }

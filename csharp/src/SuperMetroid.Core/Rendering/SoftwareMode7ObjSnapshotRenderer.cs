@@ -32,7 +32,7 @@ public static class SoftwareMode7ObjSnapshotRenderer
             SnesMode7Renderer.CompositeViewport(pixels, cgram, bg, floor);
         }
         if (snapshot.Gradient.IsEmpty)
-            SnesObjRenderer.CompositeUnfiltered(sprites.Draws, cgram, pixels);
+            SnesObjRenderer.CompositeUnfiltered(sprites.Draws, pixels);
         else
         {
             // Only winning palette identity is needed by title color math. Rent this
@@ -41,7 +41,7 @@ public static class SoftwareMode7ObjSnapshotRenderer
             try
             {
                 Span<byte> palettes = rented.AsSpan(0, pixels.Length);
-                SnesObjRenderer.CompositeUnfiltered(sprites.Draws, cgram, pixels, palettes);
+                SnesObjRenderer.CompositeUnfiltered(sprites.Draws, pixels, palettes);
                 for (int i = 0; i < pixels.Length; i++)
                     pixels[i] = TitleGradientColorMath.Apply(pixels[i], snapshot.Gradient[i / 256],
                         palettes[i] == byte.MaxValue ? null : palettes[i]);

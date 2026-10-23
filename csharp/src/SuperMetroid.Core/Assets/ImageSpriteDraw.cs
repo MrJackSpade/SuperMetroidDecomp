@@ -33,6 +33,9 @@ public sealed record ImageSpriteDraw : SpriteDraw
     /// </summary>
     public int? PaletteOverride { get; }
 
+    /// <summary>What the draw's pixels show, resolved when its frame is published; null until then.</summary>
+    public DrawColours? Colours { get; init; }
+
     /// <summary>The sheet frame shown.</summary>
     public SpriteSheetFrame Image { get; }
 

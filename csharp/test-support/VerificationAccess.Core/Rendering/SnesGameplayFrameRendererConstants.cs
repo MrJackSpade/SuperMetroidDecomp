@@ -425,7 +425,7 @@ internal static class SnesGameplayFrameRendererConstants
         {
             Span<Rgba32> objectPixels = rentedObjectPixels.AsSpan(0, pixelCount);
             Span<byte> objectPriorities = rentedObjectPriorities.AsSpan(0, pixelCount);
-            SnesObjRenderer.RenderResolved(sprites.Draws, cgram, new ObjRasterTargets(objectPixels, objectPriorities));
+            SnesObjRenderer.RenderResolved(DrawColours.ResolveAll(sprites.Draws, cgram.Colors), new ObjRasterTargets(objectPixels, objectPriorities));
             for (int pixel = SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width; pixel < output.Length; pixel++)
             {
                 // Every resolved OBJ priority is above Mode 7 in this PPU configuration.

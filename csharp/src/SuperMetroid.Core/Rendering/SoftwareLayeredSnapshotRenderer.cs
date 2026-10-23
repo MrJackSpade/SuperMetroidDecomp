@@ -64,7 +64,7 @@ public static class SoftwareLayeredSnapshotRenderer
                         if (sub.MainObjects)
                         {
                             palettes = scratch.Bytes(subscreen.Length);
-                            SnesObjRenderer.CompositeUnfiltered(memory.Sprites.Draws, memory.Cgram, scratch.Colors(subscreen.Length), palettes);
+                            SnesObjRenderer.CompositeUnfiltered(memory.Sprites.Draws, scratch.Colors(subscreen.Length), palettes);
                             highMain = scratch.Colors(256 * 224);
                             CompositeBg4(highMain, memory, coverage, true);
                         }
@@ -123,7 +123,7 @@ public static class SoftwareLayeredSnapshotRenderer
                     if (mode7.AddBg1Subscreen)
                     {
                         var palettes = scratch.Bytes(output.Length);
-                        SnesObjRenderer.CompositeUnfiltered(memory.Sprites.Draws, memory.Cgram, scratch.Colors(output.Length), palettes);
+                        SnesObjRenderer.CompositeUnfiltered(memory.Sprites.Draws, scratch.Colors(output.Length), palettes);
                         for (int i = 0; i < output.Length; i++)
                         {
                             Rgba32 sub = mode7Pixels[i];
@@ -150,7 +150,7 @@ public static class SoftwareLayeredSnapshotRenderer
                     {
                         var palettes = scratch.Bytes(output.Length);
                         var coloredObjects = scratch.Colors(output.Length);
-                        SnesObjRenderer.CompositeUnfiltered(memory.Sprites.Draws, memory.Cgram, coloredObjects, palettes);
+                        SnesObjRenderer.CompositeUnfiltered(memory.Sprites.Draws, coloredObjects, palettes);
                         for (int i = 0; i < output.Length; i++)
                         {
                             Rgba32 pixel = coloredObjects[i];
@@ -167,7 +167,7 @@ public static class SoftwareLayeredSnapshotRenderer
                     if (obj.FixedColor is not null)
                     {
                         priorityPalettes = scratch.Bytes(output.Length);
-                        SnesObjRenderer.CompositeUnfiltered(memory.Sprites.Draws, memory.Cgram, scratch.Colors(output.Length), priorityPalettes);
+                        SnesObjRenderer.CompositeUnfiltered(memory.Sprites.Draws, scratch.Colors(output.Length), priorityPalettes);
                     }
                     for (int pixel = 0; pixel < output.Length; pixel++)
                         if (objects.Priorities[pixel] == obj.Priority)

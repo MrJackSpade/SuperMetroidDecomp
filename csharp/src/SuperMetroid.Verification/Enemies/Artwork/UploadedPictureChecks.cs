@@ -32,7 +32,7 @@ internal static class UploadedPictureChecks
         var expected = new ObjRasterTargets(new Rgba32[count], new byte[count], new byte[count]);
         var actual = new ObjRasterTargets(new Rgba32[count], new byte[count], new byte[count]);
         CharacterSpriteRaster.RenderResolved(parts, cgram, expected);
-        SnesObjRenderer.RenderResolved(pictures, cgram, actual);
+        SnesObjRenderer.RenderResolved(DrawColours.ResolveAll(pictures, cgram.Colors), actual);
         int painted = 0;
         for (int pixel = 0; pixel < count; pixel++)
         {

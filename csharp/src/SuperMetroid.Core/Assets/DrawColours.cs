@@ -1,0 +1,138 @@
+using System.Collections.Immutable;
+
+namespace SuperMetroid.Core.Assets;
+
+/// <summary>
+/// What one sprite draw's pixels show in its frame (#1405). Each pixel takes the colours of one key: its ink row, the
+/// row its image was coloured in, or, where the draw follows part rows, its part row. For each key the draw holds the
+/// sixteen colours its pixels show, or none where they show the image's own colours, and whether they blend with what
+/// lies behind them. Backends colour a draw from these alone.
+/// </summary>
+public sealed class DrawColours
+{
+    /// <summary>The most keys a draw holds: the part rows, the eight rows each with and without the fixed-row flag.</summary>
+    public const int Keys = 2 * InkRows;
+
+    /// <summary>The colours in one row.</summary>
+    public const int RowColours = 16;
+
+    /// <summary>The ink rows an image's pixels are coloured in.</summary>
+    private const int InkRows = SpriteImage.MaximumPaletteRow + 1;
+
+    /// <summary>The colours of a frame: the background rows' colours, then the sprite rows'.</summary>
+    private const int FrameColours = 2 * SpriteImage.SpriteColourCount;
+
+    /// <summary>The lowest row whose pixels blend.</summary>
+    private const int FirstBlendingRow = 4;
+
+    /// <summary>For each key, the colours its pixels show, or null where they show the image's own.</summary>
+    private readonly Bgr555[]?[] shown;
+
+    /// <summary>One bit per key whose pixels blend.</summary>
+    private readonly int blending;
+
+    /// <summary>Keeps the resolved colours and blending.</summary>
+    private DrawColours(ColourKeying keying, Bgr555[]?[] shown, int blending)
+    {
+        FollowsPartRows = keying == ColourKeying.PartRow;
+        this.shown = shown;
+        this.blending = blending;
+    }
+
+    /// <summary>
+    /// Whether each pixel takes its part row's colours, as under a draw's override, rather than its ink row's.
+    /// </summary>
+    public bool FollowsPartRows { get; }
+
+    /// <summary>Whether every pixel shows the image's own colours and blends as its own row does.</summary>
+    public bool IsOwn => !FollowsPartRows && shown.All(row => row is null) && blending == OwnBlending;
+
+    /// <summary>The key a pixel of ink row <paramref name="inkRow"/> and part row <paramref name="partRow"/> takes.</summary>
+    public int Key(int inkRow, int partRow) => FollowsPartRows
+        ? Ensure.BetweenInclusive(0, Keys - 1, partRow)
+        : Ensure.BetweenInclusive(0, InkRows - 1, inkRow);
+
+    /// <summary>Whether the pixels of key <paramref name="key"/> show the image's own colours.</summary>
+    public bool ShowsOwnColours(int key) => shown[CheckKey(key)] is null;
+
+    /// <summary>The colour <paramref name="colour"/> of key <paramref name="key"/>'s pixels show.</summary>
+    /// <exception cref="InvalidOperationException">The key's pixels show the image's own colours.</exception>
+    public Bgr555 Colour(int key, int colour) =>
+        (shown[CheckKey(key)] ?? throw new InvalidOperationException($"Key {key} shows the image's own colours."))
+        [Ensure.BetweenInclusive(0, RowColours - 1, colour)];
+
+    /// <summary>Whether the pixels of key <paramref name="key"/> blend with what lies behind them.</summary>
+    public bool Blends(int key) => (blending >> CheckKey(key) & 1) != 0;
+
+    /// <summary>
+    /// The colours <paramref name="draw"/> shows under <paramref name="frameColours"/>, a frame's 256 colours. A plain
+    /// draw shows each ink row the frame uses, keeping its image's own colours while that row holds them. A draw with
+    /// an override shows, for each part row, the row the override leaves it.
+    /// </summary>
+    public static DrawColours Resolve(ImageSpriteDraw draw, ReadOnlySpan<Bgr555> frameColours)
+    {
+        Ensure.NotNull(draw);
+        Ensure.LengthEqual(frameColours, FrameColours);
+        var shown = new Bgr555[]?[Keys];
+        int blending = 0;
+        if (draw.PaletteOverride is int overriding)
+        {
+            for (int partRow = 0; partRow < Keys; partRow++)
+            {
+                int row = SpriteImage.OverriddenRow(partRow, overriding);
+                shown[partRow] = Row(frameColours, row).ToArray();
+                if (row >= FirstBlendingRow)
+                    blending |= 1 << partRow;
+            }
+            return new DrawColours(ColourKeying.PartRow, shown, blending);
+        }
+        ReadOnlySpan<Bgr555> standard = draw.Image.Sheet.StandardColours;
+        for (int row = 0; row < InkRows; row++)
+        {
+            if (row >= FirstBlendingRow)
+                blending |= 1 << row;
+            if ((draw.Image.Rows & SpritePaletteRowSet.Rows[row]) == 0)
+                continue;
+            ReadOnlySpan<Bgr555> colours = Row(frameColours, row);
+            // Colour zero is transparent and never shown.
+            if (!colours[1..].SequenceEqual(standard.Slice(row * RowColours, RowColours)[1..]))
+                shown[row] = colours.ToArray();
+        }
+        return new DrawColours(ColourKeying.InkRow, shown, blending);
+    }
+
+    /// <summary>
+    /// <paramref name="draws"/> with their colours resolved under <paramref name="frameColours"/>, a frame's 256 colours,
+    /// as the frame publishes them.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A draw is not an image draw.</exception>
+    public static ImmutableArray<SpriteDraw> ResolveAll(ImmutableArray<SpriteDraw> draws, ReadOnlySpan<Bgr555> frameColours)
+    {
+        var resolved = ImmutableArray.CreateBuilder<SpriteDraw>(draws.Length);
+        foreach (SpriteDraw draw in draws)
+        {
+            var image = draw as ImageSpriteDraw ?? throw new InvalidDataException($"A {draw.GetType().Name} has no image to colour.");
+            resolved.Add(image with { Colours = Resolve(image, frameColours) });
+        }
+        return resolved.MoveToImmutable();
+    }
+
+    /// <summary>The blending bits of an image's own rows.</summary>
+    private static readonly int OwnBlending = OwnBlendingBits();
+
+    /// <summary>Computes <see cref="OwnBlending"/>.</summary>
+    private static int OwnBlendingBits()
+    {
+        int bits = 0;
+        for (int row = FirstBlendingRow; row < InkRows; row++)
+            bits |= 1 << row;
+        return bits;
+    }
+
+    /// <summary>The sixteen colours of sprite row <paramref name="row"/> in <paramref name="frameColours"/>.</summary>
+    private static ReadOnlySpan<Bgr555> Row(ReadOnlySpan<Bgr555> frameColours, int row) =>
+        frameColours.Slice(SpriteImage.SpriteColourCount + row * RowColours, RowColours);
+
+    /// <summary>Checks that <paramref name="key"/> is one of the draw's.</summary>
+    private int CheckKey(int key) => Ensure.BetweenInclusive(0, (FollowsPartRows ? Keys : InkRows) - 1, key);
+}

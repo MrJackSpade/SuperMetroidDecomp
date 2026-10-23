@@ -97,7 +97,7 @@ internal static class EnemySheetFilesVerification
     {
         int count = SnesPpuLayout.ScreenSize.X * SnesPpuLayout.ScreenSize.Y;
         var raster = new Raster(new Rgba32[count], new byte[count], new byte[count]);
-        SnesObjRenderer.RenderResolved([draw], cgram, new ObjRasterTargets(raster.Pixels, raster.Priorities, raster.Palettes));
+        SnesObjRenderer.RenderResolved(DrawColours.ResolveAll([draw], cgram.Colors), new ObjRasterTargets(raster.Pixels, raster.Priorities, raster.Palettes));
         return raster;
     }
 

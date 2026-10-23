@@ -22,6 +22,6 @@ internal static class SnesObjRendererConstants
         Extent16<ScreenPixels> frame = SnesObjRenderer.RequireFrame(size);
         Ensure.LengthEqual(output, frame.X * frame.Y);
         output.Clear();
-        SnesObjRenderer.Paint(frame, draws, cgram, priority, new ObjRasterTargets(output));
+        SnesObjRenderer.Paint(frame, DrawColours.ResolveAll(draws, cgram.Colors), priority, new ObjRasterTargets(output));
     }
 }

@@ -50,7 +50,7 @@ public static class SoftwareGameplayColorMathRenderer
         var bg2Sampler = new BgPictureSampler(colors, memory.Cgram, rooms.Bg2Shown(r.Bg2MapSize));
         var subSampler = layer.Subscreen is { } subLayer ? new BgPictureSampler(colors, memory.Cgram,
             subLayer.Plane.Shown(subLayer.FirstRow, subLayer.MapHeightTiles)) : null;
-        SnesObjRenderer.RenderResolved(memory.Sprites.Draws, memory.Cgram, new ObjRasterTargets(objects.AsSpan(0, output.Length), priorities.AsSpan(0, output.Length), palettes.AsSpan(0, output.Length)), new Extent16<ScreenPixels>(checked((ushort)width), checked((ushort)height)));
+        SnesObjRenderer.RenderResolved(memory.Sprites.Draws, new ObjRasterTargets(objects.AsSpan(0, output.Length), priorities.AsSpan(0, output.Length), palettes.AsSpan(0, output.Length)), new Extent16<ScreenPixels>(checked((ushort)width), checked((ushort)height)));
         for (int y = 0; y < SnesPpuLayout.GameplayHudHeightPixels; y++)
         for (int x = 0; x < width; x++)
             output[y * width + x] = hud.Sample(new Position16<BgPlanePixels>((ushort)x, (ushort)y), colorZero: ColorZero.Opaque).Color;

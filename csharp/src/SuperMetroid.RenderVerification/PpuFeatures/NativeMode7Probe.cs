@@ -38,7 +38,7 @@ internal static class NativeMode7Probe
         for (int i = 0; i < colors.Length; i++) cgram.SetColor(i, colors[i]);
         var objects = new Rgba32[pixels.Length];
         var palettes = new byte[pixels.Length];
-        SnesObjRenderer.RenderResolved(snapshot.Paint.SpriteDraws, cgram, new ObjRasterTargets(objects, new byte[pixels.Length], palettes));
+        SnesObjRenderer.RenderResolved(snapshot.Paint.SpriteDraws, new ObjRasterTargets(objects, new byte[pixels.Length], palettes));
         SnesLayerCompositor.Composite(pixels, objects);
         for (int i = 0; i < pixels.Length; i++)
             if (!snapshot.Gradient.IsEmpty)

@@ -32,14 +32,14 @@ public sealed class FramePaint
                 throw new ArgumentException("Each sprite draw needs an entry.", nameof(spriteDraws));
         Ensure.LengthEqual(colors, ScreenPalette.ColorCount);
         this.colors = colors.ToArray();
-        this.spriteDraws = ImmutableCollectionsMarshal.AsArray(spriteDraws) ?? throw new ArgumentException(
+        this.spriteDraws = ImmutableCollectionsMarshal.AsArray(DrawColours.ResolveAll(spriteDraws, colors)) ?? throw new ArgumentException(
             "A frame requires a draw list.", nameof(spriteDraws));
     }
 
     /// <summary>The frame's 256 colours, in palette order; conversion to display colours is backend work.</summary>
     public ReadOnlySpan<Bgr555> Colors => colors;
 
-    /// <summary>The displayed whole-frame sprite draws in emission order, frontmost first.</summary>
+    /// <summary>The displayed whole-frame sprite draws in emission order, frontmost first, each with its colours resolved.</summary>
     public ImmutableArray<SpriteDraw> SpriteDraws => ImmutableCollectionsMarshal.AsImmutableArray(spriteDraws);
 
     /// <summary>What gameplay paints with: its palette now and the sprites it displays.</summary>

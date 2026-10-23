@@ -41,10 +41,10 @@ internal sealed class EndingStage
     /// Mode-7 scale in 8.8 units (256 is unity), initially the identity. Every scene starts it at an authored
     /// scale and moves it by a few units per call toward a bound it stops at, so it stays positive and small.
     /// </summary>
-    internal int Mode7Zoom { get; set; } = EndingCreditsRomData.Motion.IdentityScale;
+    internal int FloorZoom { get; set; } = EndingCreditsRomData.Motion.IdentityScale;
 
     /// <summary>Mode-7 byte-angle shared by the escape and planet scenes.</summary>
-    internal SnesAngle Mode7Angle { get; set; }
+    internal SnesAngle FloorAngle { get; set; }
 
     /// <summary>Scroll of the post-credits text map; only the vertical axis moves, during the item-percentage scroll-down.</summary>
     internal Position16<BgPlanePixels> PostCreditsScroll { get; set; }
@@ -70,12 +70,12 @@ internal sealed class EndingStage
     }
 
     /// <summary>Clears VRAM and installs the selected ending scene's Mode-7 map and characters.</summary>
-    internal void LoadMode7(EndingMode7SceneId scene)
+    internal void LoadFloor(EndingFloorSceneId scene)
     {
-        _ = Mode7Artwork ?? throw new InvalidOperationException(
+        _ = FloorArtwork ?? throw new InvalidOperationException(
             "Ending Mode-7 scene requires installed artwork.");
         screen.Clear();
-        screen.Record(EndingUploadKind.Mode7Scene, (int)scene);
+        screen.Record(EndingUploadKind.FloorSceneTiles, (int)scene);
     }
 
     /// <summary>Allocates or replaces a native cinematic actor slot, reserving fixed slots for stars, afterglow and animals.</summary>
@@ -267,7 +267,7 @@ internal sealed class EndingStage
 
     /// <summary>The ending's installed Mode 7 artwork.</summary>
     [field: NonSerialized]
-    internal EndingMode7ArtworkCatalog? Mode7Artwork { get; private set; }
+    internal EndingFloorArtworkCatalog? FloorArtwork { get; private set; }
 
     /// <summary>The ending's installed palettes.</summary>
     [field: NonSerialized]
@@ -321,9 +321,9 @@ internal sealed class EndingStage
     /// backdrop is refreshed without resetting actors, palette, transform or music.
     /// During the native flyaway DMA, already-uploaded chunks are reapplied last.
     /// </summary>
-    internal void BindMode7Artwork(EndingMode7ArtworkCatalog? value)
+    internal void BindFloorArtwork(EndingFloorArtworkCatalog? value)
     {
-        Mode7Artwork = value;
+        FloorArtwork = value;
         screen.Invalidate();
     }
 

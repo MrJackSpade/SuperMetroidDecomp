@@ -28,10 +28,10 @@ public static class PauseEquipmentLabelDefinitions
     public const string HyperKey = "Beam.Hyper";
     /// <summary>Hyper mode's pointer table places its only nonblank patch in the Wave slot.</summary>
     public const int HyperBeamItem = 2;
-    /// <summary>Native Plasma label destination at equipment-page cell $284.</summary>
-    public const int NativePlasmaDestinationCell = 0x284;
+    /// <summary>The Plasma label's destination, equipment-page cell $284.</summary>
+    public const int PlasmaDestinationCell = 0x284;
     /// <summary>The ninth Boots-length Plasma word is subsequently owned by the wireframe at cell $28C.</summary>
-    public const int NativePlasmaWireframeOverlapCell = 0x28c;
+    public const int PlasmaWireframeOverlapCell = 0x28c;
 
     /// <summary>Equipment label identities alias the corresponding selector controls. Native
     /// 82:C08C..C0A6 selects Charge/Ice/Wave/Spazer/Plasma, suit/misc and boot labels in

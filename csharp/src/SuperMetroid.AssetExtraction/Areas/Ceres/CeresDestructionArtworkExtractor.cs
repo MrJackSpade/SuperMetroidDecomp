@@ -24,7 +24,7 @@ internal static class CeresDestructionArtworkExtractor
         Ensure.NotNull(bus);
         byte[] allCeresMaps = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
             CeresDestructionRomData.Assets.CeresTilemaps,
-            maximumOutputBytes: CeresDestructionRomData.Vram.CompressedTilemapLimit);
+            maximumOutputBytes: CeresDestructionRomData.Transfers.CompressedTilemapLimit);
         int firstDestructionByte = 2 * CeresFlightArtworkFormat.MapCellsPerView;
         if (allCeresMaps.Length < firstDestructionByte + CeresDestructionArtworkFormat.MapByteCount)
             throw new InvalidDataException("Ceres destruction lacks its three native map slices.");
@@ -45,7 +45,7 @@ internal static class CeresDestructionArtworkExtractor
 
         byte[] zebesMap = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
             CeresDestructionRomData.Assets.ZebesTilemap,
-            maximumOutputBytes: CeresDestructionRomData.Vram.CompressedTilemapLimit);
+            maximumOutputBytes: CeresDestructionRomData.Transfers.CompressedTilemapLimit);
         if (zebesMap.Length < CeresDestructionArtworkFormat.ZebesMapByteCount)
             throw new InvalidDataException("Zebes reveal tilemap is shorter than its native transfer.");
         byte[] zebesMapJson = RoomBackgroundTilemapExtractor.Encode(

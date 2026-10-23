@@ -232,7 +232,7 @@ internal sealed class AcceptedFrameBoundary
             _room.DoorSourceBackground,
             // What actors wrote over BG1 and BG2 is drawn once this NMI's uploads have bound (WithBlockPictures).
             null,
-            Mode7: scope.Mode7Map?.Publish(),
+            Mode7: scope.FloorMap?.Publish(),
             Characters: RoomScope.CharactersOf(_room.ActiveRoom));
     }
 
@@ -247,7 +247,7 @@ internal sealed class AcceptedFrameBoundary
         // While a Ceres room shows its Mode 7 map, the map draws its tiles' pictures, which its characters must still show
         // (#1392); Ceres Ridley's getaway writes its warning's and doors' characters over them once his Mode 7 ends.
         RoomScope scope = _room.Scope ?? throw new InvalidOperationException("Room backgrounds were captured with no room loaded.");
-        if (latched.ShowsMode7 && scope.Mode7Map is { } mode7)
+        if (latched.ShowsMode7 && scope.FloorMap is { } mode7)
             mode7.Tiles.AssertShownBy(_backgrounds, mode7.NamedTiles);
         if (rooms.Characters != RoomBackgroundCharacters.Tileset && reveal is not null)
             throw new InvalidOperationException("X-ray reveals a room whose planes draw from the object character page.");

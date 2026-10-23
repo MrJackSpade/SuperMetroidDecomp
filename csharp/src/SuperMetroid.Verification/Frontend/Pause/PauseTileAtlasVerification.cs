@@ -24,8 +24,8 @@ internal static class PauseTileAtlasVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause UI tile artwork")]
     internal static void VerifyPauseTileAtlas(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
-        var vram = new SnesVram(); original.PauseTiles.LoadTo(new VramStore(vram).All.Slice(PauseTileAtlasFormat.DestinationByte / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
-        AssertTrue(vram.Bytes.Slice(PauseTileAtlasFormat.DestinationByte, PauseTileAtlasFormat.ByteCount).SequenceEqual(
+        var vram = new SnesVram(); original.PauseTiles.LoadTo(new VramStore(vram).All.Slice(PauseTileAtlasFormatConstants.DestinationByte / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
+        AssertTrue(vram.Bytes.Slice(PauseTileAtlasFormatConstants.DestinationByte, PauseTileAtlasFormat.ByteCount).SequenceEqual(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseTileAtlasFormat.SourceAddress, PauseTileAtlasFormat.ByteCount)), "pause UI PNG round-trips all native character bytes");
         Directory.CreateDirectory(overrides);
         string stockPath = Path.Combine(stock, PauseTileAtlasFormat.FileName);

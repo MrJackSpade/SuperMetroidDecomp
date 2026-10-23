@@ -15,8 +15,8 @@ internal static class TitleFixtureVerification
     {
         var files = TitleGraphicsExtractor.Extract(source);
         var graphics = TitleGraphicsPresentation.Load(
-            new MemoryStream(files[TitleGraphicsFormat.Mode7TilesFile]),
-            new MemoryStream(files[TitleGraphicsFormat.Mode7MapFile]),
+            new MemoryStream(files[TitleGraphicsFormat.FloorTilesFile]),
+            new MemoryStream(files[TitleGraphicsFormat.FloorMapFile]),
             new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
             new MemoryStream(files[TitleGraphicsFormat.BabyTilesFile]));
         var palette = TitlePalettePresentation.Load(new MemoryStream(TitlePaletteExtractor.Extract(source)));

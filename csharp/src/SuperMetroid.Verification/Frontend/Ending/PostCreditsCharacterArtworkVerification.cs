@@ -23,7 +23,7 @@ internal static class PostCreditsCharacterArtworkVerification
     internal static void VerifyPostCreditsCharacterArtwork(GameInstallation installation)
     {
         EndingObjectArtworkCatalog stock = installation.LoadEndingObjectArt();
-        EndingMode7ArtworkCatalog stockMode7 = installation.LoadEndingMode7Art();
+        EndingFloorArtworkCatalog stockMode7 = installation.LoadEndingMode7Art();
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         var source = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         CreditsPresentation credits = CreditsPresentation.Load(new MemoryStream(
@@ -39,7 +39,7 @@ internal static class PostCreditsCharacterArtworkVerification
             native.InstalledArtwork.BindStaffCredits(credits);
             installed.InstalledArtwork.BindStaffCredits(credits);
             installed.InstalledArtwork.BindFixtureObjectArtwork(stock);
-            installed.Stage.BindMode7Artwork(stockMode7);
+            installed.Stage.BindFloorArtwork(stockMode7);
             var checkedPhases = new HashSet<EndingCreditsPhase>();
             for (int frame = 0; frame < 60_000 &&
                 native.Stage.Phase != EndingCreditsPhase.PostCreditsShot; frame++)
@@ -213,8 +213,8 @@ internal static class PostCreditsCharacterArtworkVerification
                 editedState.InstalledArtwork.BindStaffCredits(credits);
                 stockState.InstalledArtwork.BindFixtureObjectArtwork(stock);
                 editedState.InstalledArtwork.BindFixtureObjectArtwork(edited);
-                stockState.Stage.BindMode7Artwork(stockMode7);
-                editedState.Stage.BindMode7Artwork(stockMode7);
+                stockState.Stage.BindFloorArtwork(stockMode7);
+                editedState.Stage.BindFloorArtwork(stockMode7);
                 for (int frame = 0; frame < 60_000 && stockState.Stage.Phase != target; frame++)
                 {
                     AssertEqual(stockState.Stage.Phase, editedState.Stage.Phase,

@@ -1,3 +1,4 @@
+﻿using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Frontend.Map;
 
 /// <summary>Typed view of the installed world map characters in VRAM (#630).</summary>

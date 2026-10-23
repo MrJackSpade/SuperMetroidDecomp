@@ -35,8 +35,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
         }
         if (!ReferenceEquals(previous.IntroCinematicArt, artwork.IntroCinematicArt))
             Flyaway.BindFlightArtwork(artwork.IntroCinematicArt?.CeresFlight);
-        if (!ReferenceEquals(previous.EndingMode7Art, artwork.EndingMode7Art))
-            Stage.BindMode7Artwork(artwork.EndingMode7Art);
+        if (!ReferenceEquals(previous.EndingFloorArt, artwork.EndingFloorArt))
+            Stage.BindFloorArtwork(artwork.EndingFloorArt);
         if (!ReferenceEquals(previous.EndingObjectArt, artwork.EndingObjectArt))
             InstalledArtwork.BindObjectArtwork(artwork.EndingObjectArt);
         if (!ReferenceEquals(previous.EndingPaletteArt, artwork.EndingPaletteArt))
@@ -64,7 +64,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     private EndingBackgroundTextState PostCreditsText => InstalledArtwork.ActivePostCreditsText ??
         throw new InvalidOperationException("The post-credits text is not running.");
     /// <summary>NMI waits <c>CinematicFunction_Ending_Setup</c> has made so far.</summary>
-    private int setupNmiWaits;
+    private int setupFrameWaits;
     /// <summary>Post-credits suitless or helmet-removal gesture actor.</summary>
     internal EndingRewardGesture? CurrentRewardGesture { get; private set; }
     /// <summary>The state of the reward gesture, which exists while that phase runs.</summary>
@@ -114,8 +114,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// True when the next call resumes inside the setup's NMI wait loop rather than starting
     /// a MainGameLoop iteration, so it makes no main-loop RNG call.
     /// </summary>
-    internal bool ResumesAfterNmiWait =>
-        Stage.Phase == EndingCreditsPhase.SetupEscapeFromZebes && setupNmiWaits > 0;
+    internal bool ResumesAfterFrameWait =>
+        Stage.Phase == EndingCreditsPhase.SetupEscapeFromZebes && setupFrameWaits > 0;
 
     /// <summary>Runs one state-$27 dispatcher call.</summary>
     public void Step()
@@ -125,9 +125,9 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.SetupEscapeFromZebes:
                 // Each wait ends the call inside the setup function, before the dispatcher's
                 // manual-return tail; the call after the last wait runs the scene setup.
-                if (setupNmiWaits < EndingCreditsRomData.SetupNmiWaits)
+                if (setupFrameWaits < EndingCreditsRomData.SetupFrameWaits)
                 {
-                    setupNmiWaits++;
+                    setupFrameWaits++;
                     return;
                 }
                 EscapeScenes.SetupEscapeSceneA();
@@ -154,7 +154,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.EscapeSceneA:
                 StepAtmosphericTransform(2);
                 EscapeScenes.StepEscapeClouds();
-                if (Stage.Mode7Zoom >= EndingCreditsRomData.Motion.EscapeEndScale)
+                if (Stage.FloorZoom >= EndingCreditsRomData.Motion.EscapeEndScale)
                 {
                     Stage.RestartFadeCadence();
                     Stage.Phase = EndingCreditsPhase.FadeOutEscapeSceneA;
@@ -178,7 +178,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.EscapeSceneB:
                 StepAtmosphericTransform(3);
                 EscapeScenes.StepEscapeClouds();
-                if (Stage.Mode7Zoom >= EndingCreditsRomData.Motion.EscapeEndScale)
+                if (Stage.FloorZoom >= EndingCreditsRomData.Motion.EscapeEndScale)
                 {
                     Stage.RestartFadeCadence();
                     Stage.Phase = EndingCreditsPhase.FadeOutEscapeSceneB;
@@ -353,7 +353,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 if (RewardGesture.JumpRequested)
                 {
                     CurrentRewardGesture = null;
-                    RequireRewardIcon(Stage.Mode7Artwork?.RewardIcon);
+                    RequireRewardIcon(Stage.FloorArtwork?.RewardIcon);
                     InstalledArtwork.BeginRewardIconUpload();
                     CreditsRoll.CurrentRewardJump = new EndingRewardJump(Stage.EndingReward, InstalledArtwork.UploadRewardGraphic);
                     Stage.Phase = EndingCreditsPhase.PostCreditsJump;
@@ -456,8 +456,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
     {
         // Func111/114 run during both fades as well as the fully visible interval.
         if ((Flyaway.CinematicFrame & 1) == 0)
-            Stage.Mode7Angle = Stage.Mode7Angle.AddTableUnits(-1);
-        Stage.Mode7Zoom += scaleDelta;
+            Stage.FloorAngle = Stage.FloorAngle.AddTableUnits(-1);
+        Stage.FloorZoom += scaleDelta;
     }
 
     /// <summary>The programs showing the clear-time digits, indexed by digit.</summary>
@@ -481,7 +481,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
         screen.Tiles(InstalledArtwork.Sheets, palette).Pictures(characterBase, depth);
 
     /// <summary>What the Mode 7 map shows: the pre-coloured characters the uploads leave (#1392).</summary>
-    internal Mode7TilePictures Mode7Tiles() => screen.Mode7Tiles(InstalledArtwork.Sheets);
+    internal Mode7TilePictures FloorTiles() => screen.FloorTiles(InstalledArtwork.Sheets);
 
     /// <summary>Captures the finale BG priority planes and one winning subscreen color-add layer.</summary>
     internal LayeredScene CaptureExplosionFinale()
@@ -537,7 +537,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     }
 
     /// <summary>The memory image the ending's transfers leave over the bound artwork.</summary>
-    internal byte[] Image() => screen.Image(new EndingScreenArtwork(Stage.Mode7Artwork, Flyaway.FlightArtwork, Stage.ObjectArtwork, Stage.EndingFont, Stage.EndingReward));
+    internal byte[] Image() => screen.Image(new EndingScreenArtwork(Stage.FloorArtwork, Flyaway.FlightArtwork, Stage.ObjectArtwork, Stage.EndingFont, Stage.EndingReward));
 
     /// <summary>Whether the current cinematic phase leaves its escape or planet backdrop visible.</summary>
     internal bool EscapeBackgroundEnabled => Stage.Phase is < EndingCreditsPhase.ZebesExplosionTileUpload

@@ -36,11 +36,11 @@ public enum FileSelectPhase
     /// <summary>$81:944E, native index $00: finish entry fade-out and establish forced blank before the dispatch's internal NMI wait.</summary>
     EnterBlankScreen,
     /// <summary>Continuation of native index $00 after its internal NMI wait; the next update advances to background loading without another main-loop RNG call.</summary>
-    EnterBlankScreenAfterNmi,
+    EnterBlankScreenAfterFrameWait,
     /// <summary>$81:9E93, native index $01: represent the Zebes/starfield BG2 transfer stage; installed graphics were loaded atomically by construction.</summary>
     LoadBackground,
     /// <summary>$81:9ED6, native index $02: set both fade timing words to one and release forced blank before its internal NMI wait.</summary>
     InitializeMain,
     /// <summary>Continuation of native index $02 after its internal NMI wait; advance to main-screen fade-in without another main-loop RNG call.</summary>
-    InitializeMainAfterNmi,
+    InitializeMainAfterFrameWait,
 }

@@ -112,14 +112,11 @@ internal sealed class MapObjectTileArtwork
         return point.X <= fill ? (byte)9 : (byte)14;
     }
 
-    /// <summary>Encodes retained and calculated menu characters into the immediate VRAM transfer payload.</summary>
-    internal void LoadTo(VramRegion destination) => destination.Load(Encode());
-
     /// <summary>The menu's OBJ characters as a sprite page (#1358): character 0 is the first map-object character.</summary>
     internal SpriteArtwork Page() => new(new SpriteArtworkId(SpriteArtworkKind.MenuObjects), Encode());
 
     /// <summary>Encodes retained and calculated menu characters, in OBJ name order.</summary>
-    private byte[] Encode()
+    internal byte[] Encode()
     {
         var transfer = new byte[MapSpriteFormat.ByteCount];
         int stored = 0;

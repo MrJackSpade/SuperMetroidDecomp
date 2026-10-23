@@ -55,7 +55,7 @@ public sealed record GameArtwork : IGameplayArtwork
     public SamusBodyArtworkCatalog? SamusBodyArt { get; init; }
 
     /// <summary>Ending Mode 7 artwork.</summary>
-    public EndingMode7ArtworkCatalog? EndingMode7Art { get; init; }
+    public EndingFloorArtworkCatalog? EndingFloorArt { get; init; }
 
     /// <summary>Ending sprite artwork.</summary>
     public EndingObjectArtworkCatalog? EndingObjectArt { get; init; }

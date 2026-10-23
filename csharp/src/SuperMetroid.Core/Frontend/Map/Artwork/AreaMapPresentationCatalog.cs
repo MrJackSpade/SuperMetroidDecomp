@@ -86,7 +86,7 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider, IGameplayPr
         CrystalFlashColors = parts.CrystalFlashColors;
         SamusChargeColors = parts.SamusChargeColors;
         CeresRidleyColors = parts.CeresRidleyColors;
-        CeresRidleyMode7Colors = parts.CeresRidleyMode7Colors;
+        CeresRidleyFloorColors = parts.CeresRidleyFloorColors;
         SamusHyperBeamColors = parts.SamusHyperBeamColors;
     }
 
@@ -199,7 +199,7 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider, IGameplayPr
     /// <summary>Ceres Ridley colors, shared Norfair Ridley health colors, and private Baby drawing colors; Mode 7 zoom shades are supplied separately.</summary>
     public CeresRidleyColorCatalog CeresRidleyColors { get; }
     /// <summary>Ceres Ridley Mode 7 zoom shades, separate from ordinary Ridley colors and compiled movement and rotation.</summary>
-    public CeresRidleyMode7ColorCatalog CeresRidleyMode7Colors { get; }
+    public CeresRidleyMode7ColorCatalog CeresRidleyFloorColors { get; }
     /// <summary>Samus Hyper Beam palette-cycle colors, separate from charged-beam presentation and other suit cycles.</summary>
     public SamusHyperBeamColorCatalog SamusHyperBeamColors { get; }
     /// <summary>Resolves installed HUD, Kraid HUD-restoration, or escape-timer character bytes for a VRAM transfer.</summary>
@@ -333,7 +333,7 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider, IGameplayPr
         EndingFontAtlas endingFont = Resource(EndingFontAtlasFormat.FileName, "ending font", s => EndingFontAtlas.Load(s));
         CreditsPresentation staffCredits = Resource(CreditsPresentationDefinitions.FileName, "staff credits", s => CreditsPresentation.Load(s));
         TitleGraphicsPresentation titleGraphics = MultiFileResource<TitleGraphicsPresentation>(
-            [TitleGraphicsFormat.Mode7TilesFile, TitleGraphicsFormat.Mode7MapFile, TitleGraphicsFormat.ObjectTilesFile, TitleGraphicsFormat.BabyTilesFile],
+            [TitleGraphicsFormat.FloorTilesFile, TitleGraphicsFormat.FloorMapFile, TitleGraphicsFormat.ObjectTilesFile, TitleGraphicsFormat.BabyTilesFile],
             "title graphics", (s, _) => TitleGraphicsPresentation.Load(s[0], s[1], s[2], s[3]));
         TitlePalettePresentation titlePalette = Resource(TitlePaletteFormat.FileName, "title palette", s => TitlePalettePresentation.Load(s));
         TitleGradientPresentation titleGradient = Resource(TitleGradientFormat.FileName, "title gradient", s => TitleGradientPresentation.Load(s));
@@ -361,10 +361,10 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider, IGameplayPr
         SamusChargeColorCatalog samusChargeColors = Resource(SamusChargeColorFormat.FileName, "Samus charge colors", s => SamusChargeColorCatalog.Load(s));
         CeresRidleyColorCatalog ceresRidleyColors = MigratingResource<CeresRidleyColorCatalog>(CeresRidleyColorFormat.FileName,
             "Ceres Ridley colors", (s, current) => CeresRidleyColorCatalog.Load(s, current), StockFingerprint.SelectedOnly);
-        CeresRidleyMode7ColorCatalog ceresRidleyMode7Colors = Resource(CeresRidleyMode7ColorFormat.FileName, "Ceres Ridley Mode-7 colors", s => CeresRidleyMode7ColorCatalog.Load(s));
+        CeresRidleyMode7ColorCatalog ceresRidleyFloorColors = Resource(CeresRidleyMode7ColorFormat.FileName, "Ceres Ridley Mode-7 colors", s => CeresRidleyMode7ColorCatalog.Load(s));
         SamusHyperBeamColorCatalog samusHyperBeamColors = Resource(SamusHyperBeamColorFormat.FileName, "Samus Hyper Beam colors", s => SamusHyperBeamColorCatalog.Load(s));
         stock.RequireAllManifestFilesRead();
-        var catalog = new AreaMapPresentationCatalog(new AreaMapPresentationParts { Areas = areas, ContentIdentity = Convert.ToHexString(identity.GetHashAndReset()), Tiles = tiles, HudTiles = hudTiles, HighlightCycle = cycle, Palettes = palettes, Labels = labels, Stations = stations, Landmarks = landmarks, SaveMarkers = saveMarkers, Arrows = arrows, Screens = screens, WorldArtwork = artwork, Sprites = sprites, PauseTiles = pauseTiles, PauseBackdrops = pauseBackdrops, PauseWireframes = pauseWireframes, PauseSelectors = pauseSelectors, PauseReserveTanks = pauseReserveTanks, PauseReserveUi = pauseReserveUi, PauseEquipmentBase = pauseEquipmentBase, PauseEquipmentLabels = pauseEquipmentLabels, EscapeTimer = escapeTimer, EscapeTimerTiles = escapeTimerTiles, GameplayHud = gameplayHud, GameOver = gameOver, GameOptions = gameOptions, FileSelect = fileSelect, GameplayMessageTitles = gameplayMessageTitles, GameplayMessagePanels = gameplayMessagePanels, GameplayMessageNotices = gameplayMessageNotices, EscapeTypewriter = escapeTypewriter, IntroNarration = introNarration, IntroFont = introFont, EndingText = endingText, EndingFont = endingFont, StaffCredits = staffCredits, TitleGraphics = titleGraphics, TitlePalette = titlePalette, TitleGradient = titleGradient, RoomPaletteFx = roomPaletteFx, MotherBrainHealthPalette = motherBrainHealthPalette, MotherBrainRainbowPalette = motherBrainRainbowPalette, MotherBrainRoomColors = motherBrainRoomColors, RoomFxAnimatedTiles = roomFxAnimatedTiles, RoomFxLayer3Tilemaps = roomFxLayer3Tilemaps, RoomFxPaletteBlends = roomFxPaletteBlends, PowerBombFixedColors = powerBombFixedColors, SamusVisorColors = samusVisorColors, SamusHurtColors = samusHurtColors, SamusSuitColors = samusSuitColors, SamusFullBodyCycleColors = samusFullBodyCycleColors, CrystalFlashColors = crystalFlashColors, SamusChargeColors = samusChargeColors, CeresRidleyColors = ceresRidleyColors, CeresRidleyMode7Colors = ceresRidleyMode7Colors, SamusHyperBeamColors = samusHyperBeamColors });
+        var catalog = new AreaMapPresentationCatalog(new AreaMapPresentationParts { Areas = areas, ContentIdentity = Convert.ToHexString(identity.GetHashAndReset()), Tiles = tiles, HudTiles = hudTiles, HighlightCycle = cycle, Palettes = palettes, Labels = labels, Stations = stations, Landmarks = landmarks, SaveMarkers = saveMarkers, Arrows = arrows, Screens = screens, WorldArtwork = artwork, Sprites = sprites, PauseTiles = pauseTiles, PauseBackdrops = pauseBackdrops, PauseWireframes = pauseWireframes, PauseSelectors = pauseSelectors, PauseReserveTanks = pauseReserveTanks, PauseReserveUi = pauseReserveUi, PauseEquipmentBase = pauseEquipmentBase, PauseEquipmentLabels = pauseEquipmentLabels, EscapeTimer = escapeTimer, EscapeTimerTiles = escapeTimerTiles, GameplayHud = gameplayHud, GameOver = gameOver, GameOptions = gameOptions, FileSelect = fileSelect, GameplayMessageTitles = gameplayMessageTitles, GameplayMessagePanels = gameplayMessagePanels, GameplayMessageNotices = gameplayMessageNotices, EscapeTypewriter = escapeTypewriter, IntroNarration = introNarration, IntroFont = introFont, EndingText = endingText, EndingFont = endingFont, StaffCredits = staffCredits, TitleGraphics = titleGraphics, TitlePalette = titlePalette, TitleGradient = titleGradient, RoomPaletteFx = roomPaletteFx, MotherBrainHealthPalette = motherBrainHealthPalette, MotherBrainRainbowPalette = motherBrainRainbowPalette, MotherBrainRoomColors = motherBrainRoomColors, RoomFxAnimatedTiles = roomFxAnimatedTiles, RoomFxLayer3Tilemaps = roomFxLayer3Tilemaps, RoomFxPaletteBlends = roomFxPaletteBlends, PowerBombFixedColors = powerBombFixedColors, SamusVisorColors = samusVisorColors, SamusHurtColors = samusHurtColors, SamusSuitColors = samusSuitColors, SamusFullBodyCycleColors = samusFullBodyCycleColors, CrystalFlashColors = crystalFlashColors, SamusChargeColors = samusChargeColors, CeresRidleyColors = ceresRidleyColors, CeresRidleyFloorColors = ceresRidleyFloorColors, SamusHyperBeamColors = samusHyperBeamColors });
         return catalog;
 
         T Resource<T>(string file, string description, Func<Stream, T> compile) where T : class =>

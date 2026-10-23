@@ -13,11 +13,11 @@ internal sealed class MenuCursorParts(int frame) : IReadOnlyList<CompiledSpriteP
     {
         if (supplied.PartCount != 2)
             return supplied;
-        return supplied.CalculateIfMatching(new MenuCursorParts(MenuMissileAnimationDefinitions.SpritemapId(frame) - FirstNativeSpritemap));
+        return supplied.CalculateIfMatching(new MenuCursorParts(MenuMissileAnimationDefinitions.SpritemapId(frame) - FirstSpritemap));
     }
 
-    /// <summary>The first menu missile spritemap identity (<see cref="MenuMissileAnimationDefinitions.FirstNativeSpritemap"/>).</summary>
-    private const int FirstNativeSpritemap = MenuMissileAnimationDefinitions.FirstNativeSpritemap;
+    /// <summary>The first menu missile spritemap identity (<see cref="MenuMissileAnimationDefinitions.FirstSpritemap"/>).</summary>
+    private const int FirstSpritemap = MenuMissileAnimationDefinitions.FirstSpritemap;
     /// <summary>$82:CBCB: first missile pose left tileDF and right tileEF.</summary>
     private const int FirstLeftTile = SecondLeftTile + 1 - MapSpriteFormat.TileColumns;
     /// <summary>$82:CBCB: right tile $EF of the first missile pose.</summary>

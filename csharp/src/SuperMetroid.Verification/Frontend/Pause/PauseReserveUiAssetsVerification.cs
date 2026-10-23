@@ -35,8 +35,8 @@ internal static class PauseReserveUiAssetsVerification
         EnterEquipment(native); EnterEquipment(installed);
         for (int frame = 0; frame < 64; frame++)
         {
-            native.Step(0, 0, nmiFrameCounter8: (byte)frame);
-            installed.Step(0, 0, nmiFrameCounter8: (byte)frame);
+            native.Step(0, 0, frameCounterByte: (byte)frame);
+            installed.Step(0, 0, frameCounterByte: (byte)frame);
             AssertTrue(native.ShownVram().SequenceEqual(installed.ShownVram()),
                 "installed reserve labels/digits/arrow tile palettes match native with their ROM sources forbidden");
             AssertTrue(native.CaptureRenderSnapshot().Paint.Colors.SequenceEqual(installed.CaptureRenderSnapshot().Paint.Colors),
@@ -68,8 +68,8 @@ internal static class PauseReserveUiAssetsVerification
         EnterEquipment(stockPause); EnterEquipment(editedPause);
         for (int frame = 0; frame <= 7; frame++)
         {
-            stockPause.Step(0, 0, nmiFrameCounter8: (byte)frame);
-            editedPause.Step(0, 0, nmiFrameCounter8: (byte)frame);
+            stockPause.Step(0, 0, frameCounterByte: (byte)frame);
+            editedPause.Step(0, 0, frameCounterByte: (byte)frame);
         }
         AssertTrue(!stockPause.Render().SequenceEqual(editedPause.Render()),
             "edited reserve label/digit/arrow presentation changes visible menu pixels");
@@ -116,7 +116,7 @@ internal static class PauseReserveUiAssetsVerification
         };
         static void EnterEquipment(PauseMenuState pause)
         {
-            byte nmiFrame = 0; ChangePausePage(pause, SnesButton.R, input => pause.Step(input, input, nmiFrameCounter8: nmiFrame++));
+            byte nmiFrame = 0; ChangePausePage(pause, SnesButton.R, input => pause.Step(input, input, frameCounterByte: nmiFrame++));
             AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "reserve UI fixture enters equipment");
         }
     }

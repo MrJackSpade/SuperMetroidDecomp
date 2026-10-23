@@ -31,7 +31,7 @@ internal static class CeresMode7MapVerification
         // words of the image they compose.
         AssertTrue(first.Cells.SequenceEqual(AffineFloor.Capture(runtime.ComposedVram(), first.Tiles).Cells),
             "the published map is the tileset map the room's character upload carries");
-        AssertEqual(runtime.Room.LoadedScope.Assets.Tileset, (runtime.Room.LoadedScope.Mode7Map ?? throw new InvalidOperationException("Ceres shows no Mode 7 map.")).Tileset,
+        AssertEqual(runtime.Room.LoadedScope.Assets.Tileset, (runtime.Room.LoadedScope.FloorMap ?? throw new InvalidOperationException("Ceres shows no Mode 7 map.")).Tileset,
             "the map is bound to the room's tileset");
 
         byte[] frame = [0x11, 0x22, 0x33, 0x44];

@@ -9,7 +9,7 @@ internal static class MenuScreenFixtures
     internal static SnesVram Vram(MenuScreen screen)
     {
         var vram = new SnesVram();
-        vram.LoadBytes(0, MenuScreenImage.Compose(screen));
+        vram.LoadBytes(0, MenuScreenMemory.Compose(screen));
         return vram;
     }
 

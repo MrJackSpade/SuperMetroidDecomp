@@ -8,21 +8,29 @@ using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>
-/// What the pause screen's background characters show (#1392): the map, pause interface and HUD characters it loads, as
-/// their pre-coloured tiles under the pause palette.
+/// What the pause screen's layers show (#1392, #1404): the map, pause interface and HUD characters, as their pre-coloured
+/// tiles under the pause palette, at the tile numbers each layer reads.
 /// </summary>
-[PpuLayoutBoundary("codec: the pause screen's background characters at their native words")]
 internal static class PauseScreenTiles
 {
-    /// <summary>The pause screen's characters under the pause palette.</summary>
-    internal static ScreenCharacters Of(InstalledSpriteSheets sheets)
+    /// <summary>The map, equipment and frame planes: the map characters, then the pause interface characters.</summary>
+    internal static ScreenLayerPictures Planes(InstalledSpriteSheets sheets)
     {
         Ensure.NotNull(sheets);
-        return new ScreenCharacters()
-            .Show(ScreenTileSheets.Of(sheets, SpriteSheetId.PauseMapTiles), PauseVramLayout.MapCharacters.Offset, 0, MapTileAtlasFormat.CharacterCount)
-            .Show(ScreenTileSheets.Of(sheets, SpriteSheetId.PauseInterfaceTiles), PauseVramLayout.InterfaceCharacters.Offset, 0,
+        return new ScreenTileSet(BgBitDepth.FourBpp)
+            .Place(ScreenTileSheets.Of(sheets, SpriteSheetId.PauseMapTiles), PauseTileSetDefinitions.MapFirstTile, 0, MapTileAtlasFormat.CharacterCount)
+            .Place(ScreenTileSheets.Of(sheets, SpriteSheetId.PauseInterfaceTiles), PauseTileSetDefinitions.InterfaceFirstTile, 0,
                 PauseTileAtlasFormat.ByteCount / (ScreenTileSheet.CharacterWordsOf(BgBitDepth.FourBpp) * sizeof(ushort)))
-            .Show(ScreenTileSheets.Of(sheets, SpriteSheetId.PauseHudTiles), GameplayVramLayout.HudCharacterUpload.Offset, 0,
-                HudTileAtlasFormat.CharacterByteCount / (ScreenTileSheet.CharacterWordsOf(BgBitDepth.TwoBpp) * sizeof(ushort)));
+            .Pictures();
+    }
+
+    /// <summary>The HUD plane: the HUD characters.</summary>
+    internal static ScreenLayerPictures Hud(InstalledSpriteSheets sheets)
+    {
+        Ensure.NotNull(sheets);
+        return new ScreenTileSet(BgBitDepth.TwoBpp)
+            .Place(ScreenTileSheets.Of(sheets, SpriteSheetId.PauseHudTiles), PauseTileSetDefinitions.HudFirstTile, 0,
+                HudTileAtlasFormat.CharacterByteCount / (ScreenTileSheet.CharacterWordsOf(BgBitDepth.TwoBpp) * sizeof(ushort)))
+            .Pictures();
     }
 }

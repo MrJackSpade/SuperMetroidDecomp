@@ -287,7 +287,7 @@ internal sealed class RoomLoader
         Ensure.NotNull(slot);
         _player.Samus = new SamusState
         {
-            Mode7QueueResidue = _enemySession.Mode7QueueResidue,
+            FloorQueueResidue = _enemySession.FloorQueueResidue,
             Pose = SamusPoseId.FacingRightNormalPose,
             AnimationFrame = 0,
         };
@@ -320,7 +320,7 @@ internal sealed class RoomLoader
         // state the escape left behind; only the inventory below it survives. The player is
         // the same one, so a tester grant already applied to her is not repeated.
         // $91:E12F clears Pose; the port's constructor defaults to the right-facing pose.
-        var samus = new SamusState { Mode7QueueResidue = _enemySession.Mode7QueueResidue, Pose = 0, AnimationFrame = 0 };
+        var samus = new SamusState { FloorQueueResidue = _enemySession.FloorQueueResidue, Pose = 0, AnimationFrame = 0 };
         samus.CopyInventoryFrom(carried);
         _player.Samus = samus;
         _tester.CarryInventoryGrant(carried, samus);
@@ -887,7 +887,7 @@ internal sealed class RoomLoader
 
         assets.LoadGraphics(_backgrounds, _cgram);
         // Ceres rooms draw Mode 7 from their own map, which the door and Ridley then patch (#1349).
-        scope.Mode7Map = room.Definition.AreaIndex == AreaId.Ceres ? assets.CreateMode7Map() : null;
+        scope.FloorMap = room.Definition.AreaIndex == AreaId.Ceres ? assets.CreateMode7Map() : null;
 
         // `$82:E139` is part of every retail room-load/door-transition pipeline. It
         // replaces OBJ palette zero with `kCommonSpritesPalette1` before enemy setup;
@@ -1191,7 +1191,7 @@ internal sealed class RoomLoader
 
         _player.Samus = new SamusState
         {
-            Mode7QueueResidue = _enemySession.Mode7QueueResidue,
+            FloorQueueResidue = _enemySession.FloorQueueResidue,
             Pose = SamusPoseId.ForwardFacingPowerSuitPose,
             AnimationFrame = 0,
             Position = FixedPosition<RoomPixels>.FromWhole(_room.ActiveLoadStation.SamusPosition.WithY(0)),

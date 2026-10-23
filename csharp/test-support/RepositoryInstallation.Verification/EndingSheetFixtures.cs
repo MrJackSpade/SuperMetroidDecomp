@@ -53,7 +53,7 @@ internal static class EndingSheetFixtures
     }
 
     /// <summary>The installed sheets with the ending Mode 7 sheets edited <paramref name="mode7"/> art composes (#1392).</summary>
-    internal static InstalledSpriteSheets WithEndingMode7(EndingMode7ArtworkCatalog mode7)
+    internal static InstalledSpriteSheets WithEndingMode7(EndingFloorArtworkCatalog mode7)
     {
         ArgumentNullException.ThrowIfNull(mode7);
         var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);

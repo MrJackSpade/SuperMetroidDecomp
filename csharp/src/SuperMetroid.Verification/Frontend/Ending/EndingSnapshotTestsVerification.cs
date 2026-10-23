@@ -164,7 +164,7 @@ internal static class EndingSnapshotTestsVerification
                     AssertEqual(hours < 3 ? 279 : 200,
                         tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsJump],
                         "live reward jump consumes native flight and landing durations before shooting");
-                    byte[] icon = RomDataReader.Decompress(bus, EndingCreditsRomData.Assets.PostCreditsMode7Characters,
+                    byte[] icon = RomDataReader.Decompress(bus, EndingCreditsRomData.Assets.PostCreditsFloorCharacters,
                         EndingCreditsRomData.Rendering.DecompressionLimit);
                     AssertTrue(icon.AsSpan(0, 0x8000).SequenceEqual(legacy.ShownVram()[..0x8000]),
                         "live landing uploads all sixteen chunks of the native interleaved icon graphics");

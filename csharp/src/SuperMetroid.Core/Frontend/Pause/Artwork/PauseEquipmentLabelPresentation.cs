@@ -149,11 +149,11 @@ public sealed class PauseEquipmentLabelPresentation
                     ? PauseEquipmentLabelDefinitions.EquipmentWords : words;
                 for (int cell = destinationCell; cell < destinationCell + footprint; cell++)
                 {
-                    bool nativePlasmaWireframeOverlap = id == PauseEquipmentLabelId.Plasma &&
-                        destinationCell == PauseEquipmentLabelDefinitions.NativePlasmaDestinationCell &&
-                        cell == PauseEquipmentLabelDefinitions.NativePlasmaWireframeOverlapCell;
+                    bool plasmaWireframeOverlap = id == PauseEquipmentLabelId.Plasma &&
+                        destinationCell == PauseEquipmentLabelDefinitions.PlasmaDestinationCell &&
+                        cell == PauseEquipmentLabelDefinitions.PlasmaWireframeOverlapCell;
                     if (PauseEquipmentBaseDefinitions.IsNonInventoryLiveOwnedCell(cell) &&
-                        !nativePlasmaWireframeOverlap)
+                        !plasmaWireframeOverlap)
                         throw new InvalidDataException($"Pause equipment label {key} overlaps wireframe or reserve state at cell {cell}.");
                     if (!occupied.Add(cell)) throw new InvalidDataException($"Pause equipment label {key} overlaps another label.");
                 }

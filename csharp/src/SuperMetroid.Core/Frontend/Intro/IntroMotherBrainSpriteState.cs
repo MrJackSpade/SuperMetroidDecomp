@@ -59,7 +59,7 @@ internal sealed class IntroMotherBrainSpriteState
     /// Runs the actor pre-instruction that precedes its instruction-list timer decrement.
     /// </summary>
     public void RunPreInstruction(
-        IPaletteColors cgram,
+        IPaletteColors colours,
         ReadOnlySpan<Bgr555> introPalette,
         ushort cinematicFrameCounter,
         ushort introCrossfadeTimer)
@@ -74,7 +74,7 @@ internal sealed class IntroMotherBrainSpriteState
             return;
         }
 
-        ApplyHurtFlash(cgram, introPalette);
+        ApplyHurtFlash(colours, introPalette);
         if (!ExplosionStarted || pageTwoInstructionStarted)
             return;
 
@@ -93,14 +93,14 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>
     /// Eight-frame white/normal alternation loaded into OBJ palette seven by <c>$8B:B846</c>.
     /// </summary>
-    public void ApplyHurtFlash(IPaletteColors cgram, ReadOnlySpan<Bgr555> introPalette)
+    public void ApplyHurtFlash(IPaletteColors colours, ReadOnlySpan<Bgr555> introPalette)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(colours);
         if (hurtFlashTimer.IsZero)
             return;
 
         bool normalPalette = (hurtFlashTimer.RawValue & 1) != 0;
-        new FrontendPalettes(cgram).WriteIntroMotherBrain(introPalette, flashWhite: !normalPalette);
+        new FrontendPalettes(colours).WriteIntroMotherBrain(introPalette, flashWhite: !normalPalette);
         hurtFlashTimer = hurtFlashTimer.Decrement().Remaining;
     }
 
@@ -116,11 +116,11 @@ internal sealed class IntroMotherBrainSpriteState
         Ensure.NotNull(impacts);
         if (ExplosionStarted)
             return false;
-        return impacts.TryImpactIntroMotherBrainMissile(sharedProjectiles) && RegisterMissileHit();
+        return impacts.TryImpactIntroMotherBrainMissile(sharedProjectiles) && RecordMissileHit();
     }
 
     /// <summary>Records the synchronous hit side effects after the projectile is killed.</summary>
-    public bool RegisterMissileHit()
+    public bool RecordMissileHit()
     {
         hurtFlashTimer = WrappingCountdown.Start(8);
         HitCount++;

@@ -180,14 +180,14 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the frame index into Ceres's getaway motion table, advanced by one each update (native byte offset twice this).</summary>
     public int Mode7TableIndex { get; internal set; }
     /// <summary>Gets the native wrapping angle for the Ceres getaway transform; its table index selects sine/cosine coefficients.</summary>
-    public SnesAngle Mode7Angle { get; internal set; }
+    public SnesAngle FloorAngle { get; internal set; }
     /// <summary>Gets the native signed M7HOFS/M7VOFS offset words applied to the Ceres getaway transform.</summary>
     public Offset16<Mode7Pixels> Mode7Offset { get; internal set; }
     /// <summary>
     /// Gets the getaway's zoom in 1/256 of unit scale, which scales its sine/cosine matrix: 2048 when the getaway
     /// starts, then each table frame's zoom, which the table keeps from zero through 65535.
     /// </summary>
-    public int Mode7Zoom { get; internal set; }
+    public int FloorZoom { get; internal set; }
     /// <summary>Gets the Ceres getaway's signed 8.8 Mode-7 A coefficient, computed from zoom-scaled cosine.</summary>
     public SnesSignedEightEight Mode7MatrixA { get; internal set; }
     /// <summary>Gets the Ceres getaway's signed 8.8 Mode-7 B coefficient, computed from zoom-scaled sine.</summary>

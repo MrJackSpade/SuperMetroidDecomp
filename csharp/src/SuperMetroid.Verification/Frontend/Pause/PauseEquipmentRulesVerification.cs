@@ -138,7 +138,7 @@ internal static class PauseEquipmentRulesVerification
             for (int row = 0; row < 17; row++)
             for (int column = 0; column < 8; column++)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x820000 | (pointer + (row * 8 + column) * 2)),
-                    BinaryPrimitives.ReadUInt16LittleEndian(vram.AsSpan(PauseMenuLayout.Bg1TilemapWord * 2 + 472 + row * 64 + column * 2)),
+                    BinaryPrimitives.ReadUInt16LittleEndian(vram.AsSpan(PauseMenuLayoutConstants.Bg1TilemapWord * 2 + 472 + row * 64 + column * 2)),
                     "selected native wireframe artwork reaches the actual equipment tilemap");
         }
         ushort nativeAmount = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseReserveTransferRomData.TransferAmount);

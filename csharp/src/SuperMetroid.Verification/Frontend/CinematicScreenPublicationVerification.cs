@@ -65,9 +65,9 @@ internal static class CinematicScreenPublicationVerification
         AssertEqual(IntroCeresFlightPhase.FlyingTowardCeres, flight.Phase, "the flight reaches its rear view");
         FramePaint rear = flight.CaptureRenderSnapshot().Paint;
         byte[] rearVram = flight.ShownVram();
-        ReadOnlySpan<byte> maps = InstalledFixtures.IntroArtwork.CeresFlight.Mode7Maps.Span;
-        for (int cell = 0; cell < CeresFlightRomData.Vram.Mode7MapSliceByteCount; cell++)
-            AssertEqual(maps[CeresFlightRomData.Vram.Mode7MapSliceByteCount + cell], rearVram[cell * 2], $"rear view shows rear map cell {cell}");
+        ReadOnlySpan<byte> maps = InstalledFixtures.IntroArtwork.CeresFlight.FloorMaps.Span;
+        for (int cell = 0; cell < CeresFlightRomData.Transfers.FloorMapSliceByteCount; cell++)
+            AssertEqual(maps[CeresFlightRomData.Transfers.FloorMapSliceByteCount + cell], rearVram[cell * 2], $"rear view shows rear map cell {cell}");
         var restoredFlight = RoundTrip(flight);
         restoredFlight.BindFixtureFlightArtwork(InstalledFixtures.IntroArtwork.CeresFlight);
         AssertSameFrame(rearVram, rear, restoredFlight.ShownVram(), restoredFlight.CaptureRenderSnapshot().Paint, "Ceres flight");
@@ -84,11 +84,11 @@ internal static class CinematicScreenPublicationVerification
         IntroCinematicState intro = InstalledFixtures.CreateIntro();
         intro.SetupFirstIllustratedPage();
         (intro.CurrentObjects ?? throw new InvalidOperationException("The first illustrated page creates the cinematic objects.")).Step(0);
-        byte[] image = intro.Image();
+        byte[] image = intro.ShownVram();
         var restoredIntro = RoundTrip(intro);
         restoredIntro.BindIntroFont(InstalledFixtures.Maps.IntroFont);
         restoredIntro.BindFixtureIntroArtwork(InstalledFixtures.IntroArtwork);
-        AssertTrue(image.AsSpan().SequenceEqual(restoredIntro.Image()), "a restored intro shows the same characters, blanked glyphs and tilemaps");
+        AssertTrue(image.AsSpan().SequenceEqual(restoredIntro.ShownVram()), "a restored intro shows the same characters, blanked glyphs and tilemaps");
         AssertTrue(intro.palette.Colors.SequenceEqual(restoredIntro.palette.Colors), "a restored intro keeps its palette");
         Console.WriteLine("  Cinematic screens: the rear view shows its map, and the flight, destruction and intro survive a debugger round trip.");
     }

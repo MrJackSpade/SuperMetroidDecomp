@@ -52,8 +52,8 @@ internal sealed class EndingFlyaway
         _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.PlanetAfterglow, 0);
         _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.GunshipEmergence, 0);
         _stage.Mode7 = new(_stage.Mode7.X.WithWhole(unchecked((ushort)-72)), new(unchecked((ushort)-104), 0));
-        _stage.Mode7Zoom = EndingCreditsRomData.Motion.PlanetEscapeInitialScale;
-        _stage.Mode7Angle = SnesAngle.NormalizeTableIndex(-112);
+        _stage.FloorZoom = EndingCreditsRomData.Motion.PlanetEscapeInitialScale;
+        _stage.FloorAngle = SnesAngle.NormalizeTableIndex(-112);
         _stage.PhaseTimer = 192;
         flyawayWhite = EndingFlyawayFadeDefinitions.InitialWhite;
         flyawayFadeCountdown = EndingFlyawayFadeDefinitions.InitialCountdown;
@@ -67,11 +67,11 @@ internal sealed class EndingFlyaway
         if (_stage.PhaseTimer > 0)
             _stage.PhaseTimer--;
         else StepFlyawayFade();
-        _stage.Mode7Angle = _stage.Mode7Angle.AddTableUnits(-4);
+        _stage.FloorAngle = _stage.FloorAngle.AddTableUnits(-4);
         _stage.Mode7 = _stage.Mode7.WithX(AddSignedFixed(_stage.Mode7.X, EndingCreditsRomData.Motion.PlanetFastDelta(PlanetMotionIndex)));
         PlanetMotionIndex = (PlanetMotionIndex + 1) % EndingCreditsRomData.Motion.PlanetFastPatternLength;
-        _stage.Mode7Zoom -= 8;
-        if (_stage.Mode7Zoom < EndingCreditsRomData.Motion.PlanetFastEndScale)
+        _stage.FloorZoom -= 8;
+        if (_stage.FloorZoom < EndingCreditsRomData.Motion.PlanetFastEndScale)
         {
             PlanetMotionIndex = 0;
             _stage.Phase = EndingCreditsPhase.PlanetEscapeSlow;
@@ -82,12 +82,12 @@ internal sealed class EndingFlyaway
     internal void StepPlanetEscapeSlow()
     {
         StepFlyawayFade();
-        if (_stage.Mode7Angle != EndingCreditsRomData.Motion.PlanetSlowTargetAngle)
-            _stage.Mode7Angle = _stage.Mode7Angle.AddTableUnits(-1);
+        if (_stage.FloorAngle != EndingCreditsRomData.Motion.PlanetSlowTargetAngle)
+            _stage.FloorAngle = _stage.FloorAngle.AddTableUnits(-1);
         _stage.Mode7 = _stage.Mode7.WithX(AddSignedFixed(_stage.Mode7.X, EndingCreditsRomData.Motion.PlanetSlowDelta(PlanetMotionIndex)));
         PlanetMotionIndex = (PlanetMotionIndex + 1) % EndingCreditsRomData.Motion.PlanetSlowPatternLength;
-        _stage.Mode7Zoom -= 2;
-        if (_stage.Mode7Zoom < EndingCreditsRomData.Motion.PlanetSlowEndScale)
+        _stage.FloorZoom -= 2;
+        if (_stage.FloorZoom < EndingCreditsRomData.Motion.PlanetSlowEndScale)
         {
             PlanetVelocity = SnesSignedSixteenSixteen.FromParts(0, EndingCreditsRomData.Motion.InitialAccelerationFraction);
             _stage.Phase = EndingCreditsPhase.PlanetEscapeAccelerating;
@@ -112,13 +112,13 @@ internal sealed class EndingFlyaway
         StepFlyawayFade();
         PlanetVelocity -= SnesSignedSixteenSixteen.FromRaw(EndingCreditsRomData.Motion.AccelerationDelta16Point16);
         _stage.Mode7 = _stage.Mode7.WithX(AddSignedFixed(_stage.Mode7.X, PlanetVelocity.RawValue));
-        if (_stage.Mode7Zoom < EndingCreditsRomData.Motion.PlanetTurnStartScale &&
+        if (_stage.FloorZoom < EndingCreditsRomData.Motion.PlanetTurnStartScale &&
             (CinematicFrame & 3) == 0 &&
-            _stage.Mode7Angle != EndingCreditsRomData.Motion.PlanetExitTargetAngle)
+            _stage.FloorAngle != EndingCreditsRomData.Motion.PlanetExitTargetAngle)
         {
-            _stage.Mode7Angle = _stage.Mode7Angle.AddTableUnits(2);
+            _stage.FloorAngle = _stage.FloorAngle.AddTableUnits(2);
         }
-        if (_stage.Mode7Zoom < EndingCreditsRomData.Motion.PlanetExitScale)
+        if (_stage.FloorZoom < EndingCreditsRomData.Motion.PlanetExitScale)
         {
             _stage.LoadStaticPalette(EndingPaletteId.FinalGunship, 0, 16, 80);
             _stage.SpawnSprite(
@@ -128,7 +128,7 @@ internal sealed class EndingFlyaway
         }
         else
         {
-            _stage.Mode7Zoom -= 4;
+            _stage.FloorZoom -= 4;
         }
     }
 
@@ -189,8 +189,8 @@ internal sealed class EndingFlyaway
     {
         CeresFlightArtworkCatalog artwork = FlightArtwork ?? throw new InvalidOperationException(
             "Ending flyaway requires installed flight artwork.");
-        EndingStage.RequireMinimum(artwork.Mode7Characters, EndingCreditsRomData.Rendering.Mode7Bytes, "flyaway characters");
-        EndingStage.RequireMinimum(artwork.Mode7Maps, EndingCreditsRomData.Rendering.FlyawayMapDataBytes, "flyaway map");
+        EndingStage.RequireMinimum(artwork.FloorCharacters, EndingCreditsRomData.Rendering.FloorBytes, "flyaway characters");
+        EndingStage.RequireMinimum(artwork.FloorMaps, EndingCreditsRomData.Rendering.FlyawayMapDataBytes, "flyaway map");
     }
 
     /// <summary>Transfers one scheduled flyaway chunk to its Mode-7 character or map lane.</summary>

@@ -9,7 +9,7 @@ internal static class PauseScreenFixtures
     internal static SnesVram Vram(PauseScreen screen)
     {
         var vram = new SnesVram();
-        vram.LoadBytes(0, PauseScreenImage.Compose(screen));
+        vram.LoadBytes(0, PauseScreenMemory.Compose(screen));
         return vram;
     }
 

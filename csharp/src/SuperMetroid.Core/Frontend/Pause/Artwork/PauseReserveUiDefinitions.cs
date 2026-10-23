@@ -28,8 +28,6 @@ public static class PauseReserveUiDefinitions
     public const int ArrowColor6Source = 0x82ad5d;
     /// <summary>$82:AD9D, animated reserve-arrow palette-six color-eleven sequence.</summary>
     public const int ArrowColor11Source = 0x82ad9d;
-    /// <summary>$7E:3800, native mutable equipment tilemap base.</summary>
-    public const int TilemapWramBase = 0x3800;
     /// <summary>$82:AB47 destination for MANUAL/AUTO replacement text.</summary>
     public const int ModeCell = 327;
     /// <summary>$82:8FCE destination for the three reserve-supply digits.</summary>

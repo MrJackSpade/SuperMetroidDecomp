@@ -103,7 +103,7 @@ internal sealed class SuperMetroidRuntime
     internal Bg2TilemapStaging Bg2TilemapStaging { get; }
 
     /// <summary>The session's Mode 7 transfer queue residue, bound into the enemies and every Samus this runtime creates.</summary>
-    internal SuperMetroid.Core.Hardware.Mode7TransferQueueResidue Mode7QueueResidue { get; }
+    internal SuperMetroid.Core.Hardware.Mode7TransferQueueResidue FloorQueueResidue { get; }
 
     /// <summary>The <see cref="XrayReveal"/> owner of this SuperMetroidRuntime.</summary>
     internal XrayReveal Xray { get; }
@@ -133,10 +133,10 @@ internal sealed class SuperMetroidRuntime
     /// <param name="overrides">The host's tester conveniences around the cartridge-authentic runtime: invincibility, infinite ammo, map reveal, escape-timeout prevention, and new-session equipment and Tourian unlocks (#633).</param>
     /// <param name="artwork">The installed catalogs; their initial palette is loaded into CGRAM during construction, and <see cref="BindArtwork"/> binds the rest.</param>
     /// <param name="clock">The session's frame clock, shared with the frontend that counts while no runtime exists.</param>
-    /// <param name="mode7QueueResidue">The session's Mode 7 transfer queue residue, which outlives each runtime as WRAM does.</param>
+    /// <param name="floorQueueResidue">The session's Mode 7 transfer queue residue, which outlives each runtime as WRAM does.</param>
     /// <param name="random">The session's random-number word, which outlives each runtime and is never copied.</param>
     internal SuperMetroidRuntime(HostGameplayOverrides overrides, IGameplayArtwork artwork,
-        FrameClock clock, SuperMetroid.Core.Hardware.Mode7TransferQueueResidue mode7QueueResidue, CartridgeRandom random)
+        FrameClock clock, SuperMetroid.Core.Hardware.Mode7TransferQueueResidue floorQueueResidue, CartridgeRandom random)
     {
         Ensure.NotNull(artwork);
         System = new Bank80SystemState(random);
@@ -145,9 +145,9 @@ internal sealed class SuperMetroidRuntime
         Room = new ActiveRoomState();
         Clock = Ensure.NotNull(clock);
         Options = new GameplayOptions();
-        Mode7QueueResidue = Ensure.NotNull(mode7QueueResidue);
+        FloorQueueResidue = Ensure.NotNull(floorQueueResidue);
         BgArtwork = new BgArtworkBindings(Vram);
-        EnemySession.Mode7QueueResidue = Mode7QueueResidue;
+        EnemySession.FloorQueueResidue = FloorQueueResidue;
 
         BeamCharge = new BeamChargeState();
         Freeze = new GameplayTimeFreeze(Player);

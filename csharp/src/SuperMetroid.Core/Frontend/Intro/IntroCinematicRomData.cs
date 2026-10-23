@@ -36,7 +36,7 @@ public static class IntroCinematicRomData
     }
 
     /// <summary>Expected decompressed sizes and native VRAM byte destinations.</summary>
-    public static class Vram
+    public static class Transfers
     {
         /// <summary>Decompressed byte count of the background character graphics.</summary>
         public const int BackgroundCharacterBytes = 0x8000;
@@ -57,20 +57,6 @@ public static class IntroCinematicRomData
     /// <summary>BG tilemap and character bases selected by each intro layer.</summary>
     public static class Layers
     {
-        /// <summary>BG screen-base word used for the portrait tilemap.</summary>
-        public const ushort PortraitTilemapWord = 0x4800;
-        /// <summary>BG screen-base word used for narration text.</summary>
-        public const ushort NarrationTilemapWord = 0x4c00;
-        /// <summary>BG1 screen-base word used by cinematic scenes.</summary>
-        public const ushort SceneBg1TilemapWord = 0x5000;
-        /// <summary>BG2 screen-base word used by cinematic scenes.</summary>
-        public const ushort SceneBg2TilemapWord = 0x5400;
-        /// <summary>BG screen-base word used by the scientist scene's delivery page.</summary>
-        public const ushort ScientistTilemapWord = 0x5800;
-        /// <summary>BG screen-base word used by the scientist scene's examination page.</summary>
-        public const ushort ScientistExaminationTilemapWord = 0x5c00;
-        /// <summary>BG character-base word used by the cinematic font.</summary>
-        public const ushort FontCharacterBaseWord = 0x4000;
         /// <summary>Word count of a complete 32-by-32 text tilemap.</summary>
         public const int TextTilemapWordCount = 0x0400;
         /// <summary>Word count copied for the visible portion of a text tilemap.</summary>
@@ -94,8 +80,6 @@ public static class IntroCinematicRomData
         public const int GameplayBlankWordCount = 640;
         /// <summary>Byte offset of the Japanese blank glyph in the font data.</summary>
         public const int JapaneseBlankSourceOffset = 0x0290;
-        /// <summary>Byte count copied for one Japanese blank glyph.</summary>
-        public const int JapaneseBlankCharacterByteCount = 0x10;
         /// <summary>Tilemap-index delta from the upper to lower Japanese blank region.</summary>
         public const int JapaneseBlankBottomDelta = 896;
         /// <summary>First tilemap word replaced by the final text line.</summary>

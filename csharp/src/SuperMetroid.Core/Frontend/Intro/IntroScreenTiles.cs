@@ -6,27 +6,34 @@ using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// What the opening cinematic's background characters show (#1392): the scene characters and the narration font it loads,
-/// and, once the first illustrated page blanks the Japanese glyphs, the font's blank glyph repeated over them, as their
-/// pre-coloured tiles under the cinematic's palette.
+/// What the opening cinematic's layers show (#1392, #1404): the scene characters, and the narration font with, once the
+/// first illustrated page blanks the Japanese glyphs, the font's blank glyph repeated over them, as their pre-coloured tiles
+/// under the cinematic's palette, at the tile numbers each layer reads.
 /// </summary>
-[PpuLayoutBoundary("codec: the opening cinematic's background characters at their native words")]
 internal static class IntroScreenTiles
 {
-    /// <summary>The cinematic's characters, with the Japanese glyphs blanked when <paramref name="japaneseGlyphsBlanked"/>.</summary>
-    internal static ScreenCharacters Of(InstalledSpriteSheets sheets, bool japaneseGlyphsBlanked)
+    /// <summary>The scene planes: the scene characters.</summary>
+    internal static ScreenLayerPictures Scene(InstalledSpriteSheets sheets)
+    {
+        Ensure.NotNull(sheets);
+        return new ScreenTileSet(BgBitDepth.FourBpp)
+            .Place(ScreenTileSheets.Of(sheets, SpriteSheetId.IntroSceneTiles), IntroTileSetDefinitions.SceneFirstTile, 0,
+                IntroCinematicRomData.Transfers.BackgroundCharacterBytes / (ScreenTileSheet.CharacterWordsOf(BgBitDepth.FourBpp) * sizeof(ushort)))
+            .Pictures();
+    }
+
+    /// <summary>The narration plane, with the Japanese glyphs blanked when <paramref name="japaneseGlyphsBlanked"/>.</summary>
+    internal static ScreenLayerPictures Narration(InstalledSpriteSheets sheets, bool japaneseGlyphsBlanked)
     {
         Ensure.NotNull(sheets);
         ScreenTileSheet font = ScreenTileSheets.Of(sheets, SpriteSheetId.IntroFontTiles);
-        var tiles = new ScreenCharacters()
-            .Show(ScreenTileSheets.Of(sheets, SpriteSheetId.IntroSceneTiles), IntroVramLayout.BackgroundCharacters.Offset, 0,
-                IntroCinematicRomData.Vram.BackgroundCharacterBytes / (ScreenTileSheet.CharacterWordsOf(BgBitDepth.FourBpp) * sizeof(ushort)))
-            .Show(font, IntroVramLayout.FontOne.Offset, 0, IntroFontAtlasFormat.ByteCount / FontCharacterBytes);
+        var tiles = new ScreenTileSet(BgBitDepth.TwoBpp)
+            .Place(font, IntroTileSetDefinitions.FontFirstTile, 0, IntroFontAtlasFormat.ByteCount / FontCharacterBytes);
         // BlankOut_JapanText_Tiles repeats the font's own blank glyph over the Japanese glyphs.
-        return japaneseGlyphsBlanked
-            ? tiles.ShowRepeated(font, IntroVramLayout.JapaneseBlankCharacters.Offset, IntroCinematicRomData.Text.JapaneseBlankSourceOffset / FontCharacterBytes,
-                IntroCinematicRomData.Vram.JapaneseBlankCharactersByteCount / FontCharacterBytes)
-            : tiles;
+        if (japaneseGlyphsBlanked)
+            tiles.PlaceRepeated(font, IntroTileSetDefinitions.JapaneseBlankFirstTile, IntroCinematicRomData.Text.JapaneseBlankSourceOffset / FontCharacterBytes,
+                IntroCinematicRomData.Transfers.JapaneseBlankCharactersByteCount / FontCharacterBytes);
+        return tiles.Pictures();
     }
 
     /// <summary>Bytes of one 2-bpp font character.</summary>

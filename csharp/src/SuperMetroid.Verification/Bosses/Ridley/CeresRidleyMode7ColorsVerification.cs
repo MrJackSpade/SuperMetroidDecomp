@@ -65,16 +65,16 @@ internal static class CeresRidleyMode7ColorsVerification
             "Ceres Mode-7 color edit changes installed identity");
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
         runtime.Artwork.MapPresentation = edited;
-        AssertTrue(ReferenceEquals(edited.CeresRidleyMode7Colors,
-            runtime.BossArtwork.CeresRidleyMode7Colors),
+        AssertTrue(ReferenceEquals(edited.CeresRidleyFloorColors,
+            runtime.BossArtwork.CeresRidleyFloorColors),
             "installed runtime binds Ceres Mode-7 colors to enemy owner");
         runtime.Artwork.MapPresentation = original;
-        AssertTrue(ReferenceEquals(original.CeresRidleyMode7Colors,
-            runtime.BossArtwork.CeresRidleyMode7Colors),
+        AssertTrue(ReferenceEquals(original.CeresRidleyFloorColors,
+            runtime.BossArtwork.CeresRidleyFloorColors),
             "runtime rebind drops old Ceres Mode-7 colors");
 
         var guard = NewCeresRidleyMode7ColorReadGuard(rom, forbidden);
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { CeresRidleyMode7Colors = edited.CeresRidleyMode7Colors } };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { CeresRidleyFloorColors = edited.CeresRidleyFloorColors } };
         var cgram = new SnesCgram();
         enemies.Presentation.BindCgram(cgram);
         Action<ushort> select = enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyMode7Palette;
@@ -86,7 +86,7 @@ internal static class CeresRidleyMode7ColorsVerification
             visited.Add(row);
             select(checked((ushort)frame.Zoom));
             for (int color = 0; color < CeresRidleyPaletteRomData.Mode7ZoomColorCount; color++)
-                AssertEqual(edited.CeresRidleyMode7Colors.Resolve(row, color),
+                AssertEqual(edited.CeresRidleyFloorColors.Resolve(row, color),
                     cgram.Colors[CeresRidleyPaletteRomData.Mode7ZoomCgramIndex + color],
                     $"Ceres Mode-7 frame {index}, row {row}, color {color}");
         }

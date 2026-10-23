@@ -49,7 +49,7 @@ public sealed class FileSelectMapScroll
             if (Enumerable.Range(0, 64).Any(x => Visible(x, y))) { bottom = y; break; }
         ushort minimumX = Wrap(left * 8 - (map.Area == AreaId.Maridia ? 24 : 0));
         ushort maximumX = Wrap(right * 8);
-        ushort nativeMinimumY = Wrap(top * 8);
+        ushort minimumY = Wrap(top * 8);
         ushort maximumY = Wrap(bottom * 8);
         ushort horizontal = Wrap(minimumX + Wrap(maximumX - minimumX) / 2 - 128);
         ushort screenX = Wrap(player.X - horizontal);
@@ -57,7 +57,7 @@ public sealed class FileSelectMapScroll
             horizontal = Wrap(horizontal - Signed(224 - screenX));
         else if (Signed(32 - screenX) >= 0)
             horizontal = Wrap(horizontal - Wrap(32 - screenX));
-        ushort middle = Wrap(nativeMinimumY + Wrap(maximumY - nativeMinimumY) / 2 + 16);
+        ushort middle = Wrap(minimumY + Wrap(maximumY - minimumY) / 2 + 16);
         ushort offset = Wrap((112 - middle) & ~7);
         ushort vertical = Wrap(-offset);
         short distance = Signed(64 - Wrap(player.Y + offset));
@@ -69,7 +69,7 @@ public sealed class FileSelectMapScroll
         Scroll = new(horizontal, vertical);
         Maximum = new(maximumX, maximumY);
         // $81:AD17 adjusts the upper arrow boundary only after positioning.
-        Minimum = new(minimumX, Wrap(nativeMinimumY + 24));
+        Minimum = new(minimumX, Wrap(minimumY + 24));
     }
 
     /// <summary>Determines whether another eight-pixel step fits within the native boundary for a direction.</summary>

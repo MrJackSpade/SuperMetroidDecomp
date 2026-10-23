@@ -42,7 +42,7 @@ internal static class CeresEnginePaletteBindingVerification
         // Enter via the real frontend constructor call, then select exactly the
         // phase reported by the player. No preceding controller playthrough is needed.
         // $8B:C11B's nine NMI waits and its setup step precede the selected phase.
-        for (int step = 0; step <= CeresDestructionRomData.InitialNmiWaits; step++)
+        for (int step = 0; step <= CeresDestructionRomData.InitialFrameWaits; step++)
             game.Step(0);
         CeresDestructionCinematicState scene = Scene(game);
         scene.Phase = CeresDestructionPhase.FlyToZebesInitial;

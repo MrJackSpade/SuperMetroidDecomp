@@ -50,24 +50,24 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         spriteSheets = sheets ?? throw new InvalidOperationException("Ceres destruction requires the installed sprite sheets.");
         uploadedTiles = null;
-        uploadedMode7Tiles = null;
+        uploadedFloorTiles = null;
     }
 
-    /// <summary>What the uploads' Mode 7 characters show (#1392), read at <see cref="uploadedMode7TilesCount"/> uploads; artwork, never saved.</summary>
-    [NonSerialized] private Mode7TilePictures? uploadedMode7Tiles;
+    /// <summary>What the uploads' Mode 7 characters show (#1392), read at <see cref="uploadedFloorTilesCount"/> uploads; artwork, never saved.</summary>
+    [NonSerialized] private Mode7TilePictures? uploadedFloorTiles;
 
-    /// <summary>The uploads <see cref="uploadedMode7Tiles"/> was read at.</summary>
-    [NonSerialized] private int uploadedMode7TilesCount;
+    /// <summary>The uploads <see cref="uploadedFloorTiles"/> was read at.</summary>
+    [NonSerialized] private int uploadedFloorTilesCount;
 
     /// <summary>What the Mode 7 characters the uploads leave show, read again only once another upload is made.</summary>
-    private Mode7TilePictures UploadedMode7Tiles()
+    private Mode7TilePictures UploadedFloorTiles()
     {
-        if (uploadedMode7Tiles is null || uploadedMode7TilesCount != uploads.Count)
+        if (uploadedFloorTiles is null || uploadedFloorTilesCount != uploads.Count)
         {
-            uploadedMode7Tiles = CeresScreenTiles.DestructionMode7(spriteSheets, uploads);
-            uploadedMode7TilesCount = uploads.Count;
+            uploadedFloorTiles = CeresScreenTiles.DestructionFloor(spriteSheets, uploads);
+            uploadedFloorTilesCount = uploads.Count;
         }
-        return uploadedMode7Tiles;
+        return uploadedFloorTiles;
     }
 
     /// <summary>What the uploads' characters show (#1392), read at <see cref="uploadedTilesCount"/> uploads; artwork, never saved.</summary>
@@ -148,7 +148,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Fallback music wait when no shared audio queue is present.</summary>
     private int musicQueueTimer = 14;
     /// <summary>Completed <c>$8B:C11B</c> NMI waits; setup follows the last wait.</summary>
-    private int initialNmiWaits;
+    private int initialFrameWaits;
     /// <summary>
     /// Cinematic updates elapsed, incremented after phase dispatch and before actor handling. Only its phase
     /// within a four-update cycle is read, which a wider counter preserves exactly.
@@ -161,7 +161,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Countdown carried between repeating explosion spawn calls; it fires on reaching zero or below.</summary>
     private WrappingCountdown explosionRepeatCountdown;
     /// <summary>Selects Mode 7 or the planet-reveal Mode 1 tilemap path.</summary>
-    private bool usesMode7 = true;
+    private bool usesFloor = true;
     /// <summary>Controls whether BG1 is inserted between OBJ priorities during Mode-7 rendering.</summary>
     private SnesMainScreenLayers mainScreenLayers = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj;
     /// <summary>State $25 route when the escape timer expires while Samus remains aboard Ceres.</summary>
@@ -198,8 +198,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// True when the next update resumes the initializer after one of its NMI waits, rather
     /// than entering MainGameLoop.
     /// </summary>
-    internal bool ResumesAfterNmiWait =>
-        initialNmiWaits is > 0 and <= CeresDestructionRomData.InitialNmiWaits;
+    internal bool ResumesAfterFrameWait =>
+        initialFrameWaits is > 0 and <= CeresDestructionRomData.InitialFrameWaits;
 
     /// <summary>Rebinds current host artwork after restoring a cinematic debugger state.</summary>
     internal void BindFixedColors(PowerBombFixedColorCatalog? colors) =>
@@ -242,14 +242,14 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         // $8B:C11B waits for nine NMIs within its first dispatch; each wait is one update
         // that resumes it. After the last it sets up the scene and returns to the state-$22
         // wrapper, whose object handling and frame-counter tail ($8B:A367) then run once.
-        if (initialNmiWaits < CeresDestructionRomData.InitialNmiWaits)
+        if (initialFrameWaits < CeresDestructionRomData.InitialFrameWaits)
         {
-            initialNmiWaits++;
+            initialFrameWaits++;
             return;
         }
-        if (initialNmiWaits == CeresDestructionRomData.InitialNmiWaits)
+        if (initialFrameWaits == CeresDestructionRomData.InitialFrameWaits)
         {
-            initialNmiWaits++;
+            initialFrameWaits++;
             SetupCeresDestruction();
             // $8B:C2B8-$C2DF queue the cinematic bank and the state's own track last.
             audio?.QueueMusicDelayed8(MusicCommand.Stop);
@@ -362,7 +362,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
             case CeresDestructionPhase.RemoveZebesMosaic:
                 if (StepZebesMosaic())
-                    SetupZebesMode7Actors();
+                    SetupZebesFloorActors();
                 break;
 
             case CeresDestructionPhase.PlanetZebesTitle:
@@ -461,14 +461,14 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         IntroCinematicArtworkCatalog content = artwork ?? throw new InvalidOperationException(
             "Ceres destruction requires installed cinematic artwork.");
-        RequireMinimum(content.CeresFlight.Mode7Characters.Length, CeresDestructionRomData.Vram.Mode7CharacterBytes,
+        RequireMinimum(content.CeresFlight.FloorCharacters.Length, CeresDestructionRomData.Transfers.FloorCharacterBytes,
             "Ceres destruction Mode-7 characters");
         // The stream is four adjacent native work-RAM regions, not merely the two Ceres
         // screens used by this setup call. `$8B:C345` later consumes the front-gunship
         // screen at +$000 and the clear screen at +$C00 without decompressing again.
-        RequireMinimum(content.CeresFlight.Mode7Maps.Length + content.CeresDestruction.CeresMaps.Length,
-            CeresDestructionRomData.Vram.CeresMinimumTilemapBytes, "Ceres cinematic tilemaps");
-        RequireMinimum(content.CeresFlight.ObjectCharacters.Length, CeresDestructionRomData.Vram.Mode7CharacterBytes,
+        RequireMinimum(content.CeresFlight.FloorMaps.Length + content.CeresDestruction.CeresMaps.Length,
+            CeresDestructionRomData.Transfers.CeresMinimumTilemapBytes, "Ceres cinematic tilemaps");
+        RequireMinimum(content.CeresFlight.ObjectCharacters.Length, CeresDestructionRomData.Transfers.FloorCharacterBytes,
             "Ceres cinematic OBJ characters");
 
         // C11B selects bytes $600-$BFF: the third/fourth 24-row Ceres map pair. The
@@ -501,9 +501,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         IntroCinematicArtworkCatalog content = artwork ?? throw new InvalidOperationException(
             "Zebes reveal requires installed cinematic artwork.");
-        RequireMinimum(content.CeresDestruction.ZebesMap.Transfer.Length, CeresDestructionRomData.Vram.ZebesTilemapMinimumBytes,
+        RequireMinimum(content.CeresDestruction.ZebesMap.Transfer.Length, CeresDestructionRomData.Transfers.ZebesTilemapMinimumBytes,
             "Zebes reveal tilemap");
-        RequireMinimum(content.CeresDestruction.ZebesCharacters.Transfer.Length, CeresDestructionRomData.Vram.Mode7CharacterBytes,
+        RequireMinimum(content.CeresDestruction.ZebesCharacters.Transfer.Length, CeresDestructionRomData.Transfers.FloorCharacterBytes,
             "Zebes reveal characters");
 
         // C699 starts in Mode 1. It also stages the rear-gunship low-byte map at VRAM
@@ -517,13 +517,13 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         brightness = 0;
         fadeCounter = 1;
         phaseTimer = CeresDestructionRomData.Timing.InitialMosaicRegister;
-        usesMode7 = false;
+        usesFloor = false;
     }
 
     /// <summary>Creates the planet, stars, and title sprites for the later Mode-7 flight.</summary>
-    private void SetupZebesMode7Actors()
+    private void SetupZebesFloorActors()
     {
-        usesMode7 = true;
+        usesFloor = true;
         Background = new(Background.X.WithWhole(CeresDestructionRomData.Sprites.ZebesInitialBackgroundX),
             Background.Y.WithWhole(unchecked((ushort)-104)));
         angle = CeresDestructionRomData.Motion.ApproachAngle;
@@ -839,7 +839,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             case CinematicSpriteCueKind.StartFlyingToZebes:
                 // The title actor, not a host timer, publishes the camera flight exactly
                 // where its cartridge instruction list reaches C9C7.
-                Background = new(Background.X.WithWhole(CeresDestructionRomData.Motion.Mode7ExitX),
+                Background = new(Background.X.WithWhole(CeresDestructionRomData.Motion.FloorExitX),
                     Background.Y.WithWhole(unchecked((ushort)-112)));
                 angle = CeresDestructionRomData.Motion.ApproachAngle;
                 Zoom = CeresDestructionRomData.Motion.MinimumScale;
@@ -906,20 +906,20 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         byte[] shown = Image();
         PrepareRenderSprites();
         RenderLayer[] layers;
-        if (usesMode7 && (mainScreenLayers & SnesMainScreenLayers.Bg1) == 0)
+        if (usesFloor && (mainScreenLayers & SnesMainScreenLayers.Bg1) == 0)
         {
             layers = [new ObjPriorityRenderLayer(0), new ObjPriorityRenderLayer(1),
                 new ObjPriorityRenderLayer(2), new ObjPriorityRenderLayer(3)];
         }
-        else if (usesMode7)
+        else if (usesFloor)
         {
-            var (a, b, c, d) = Mode7RotationMatrix.Calculate(angle, Zoom);
+            var (a, b, c, d) = FloorRotationMatrix.Calculate(angle, Zoom);
             var mode7 = new AffineTransform(a, b, c, d,
                 Phase <= CeresDestructionPhase.FadeOutCeres
                     ? new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.CeresCenterX, CeresDestructionRomData.Rendering.CeresCenterY)
                     : new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.ZebesCenterX, CeresDestructionRomData.Rendering.ZebesCenterY),
                 Background.Whole.AsSignedRegister());
-            layers = [new ObjPriorityRenderLayer(0), new Mode7RenderLayer(mode7, AffineFloor.Capture(shown, UploadedMode7Tiles())),
+            layers = [new ObjPriorityRenderLayer(0), new Mode7RenderLayer(mode7, AffineFloor.Capture(shown, UploadedFloorTiles())),
                 new ObjPriorityRenderLayer(1), new ObjPriorityRenderLayer(2), new ObjPriorityRenderLayer(3)];
         }
         else

@@ -25,7 +25,7 @@ internal static class AffineFloorFixtures
         ComposedSpriteSheet composed = ScreenTileSheetComposer.ComposeMode7Pixels(pixels, palette);
         SpriteSheet sheet = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(composed.Manifest), writable: false), "mode7-fixture",
             composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities, composed.PartRows);
-        Mode7TilePictures tiles = new Mode7Characters()
+        Mode7TilePictures tiles = new FloorCharacters()
             .Show(new Mode7CharacterSheet(SpriteSheetId.TitleMode7Tiles, sheet), 0, 0, Mode7TilePictures.Tiles).Pictures();
         return AffineFloor.Capture(image, tiles);
     }

@@ -23,10 +23,6 @@ public static class FileSelectMapRomData
     public const int PalettePrograms = 0x81a4e6;
     /// <summary><c>$81:A40E</c>, palette colors copied in five-word groups.</summary>
     public const int PaletteColors = 0x81a40e;
-    /// <summary>Menu BG3SC=$5C: area-background tilemap VRAM word base.</summary>
-    public const ushort AreaBackgroundVram = 0x5c00;
-    /// <summary>Menu BG34NBA=$04: BG3 character VRAM word base.</summary>
-    public const ushort AreaBackgroundCharacters = 0x4000;
     /// <summary>One native menu tilemap DMA is $800 bytes.</summary>
     public const int TilemapBytes = 0x800;
     /// <summary><c>$82:C749</c>, PLANET ZEBES spritemap ID followed by geographic-area label IDs.</summary>
@@ -49,8 +45,6 @@ public static class FileSelectMapRomData
     public const int RoomLabelWords = 12;
     /// <summary>$82:965F, twelve-word area label pointers in bank $82.</summary>
     public const int AreaLabelPointerTable = 0x82965f;
-    /// <summary>BG12NBA=$33 selects the map and frame character base.</summary>
-    public const ushort RoomCharacters = 0x3000;
     /// <summary>$81:A725 fills the unused BG2 frame words with $2801.</summary>
     public const ushort RoomFrameBlank = 0x2801;
     /// <summary>$82:9628 clears palette bit $1000 in the room-select area label.</summary>

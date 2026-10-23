@@ -125,16 +125,15 @@ public sealed class GameOverPresentation
             new Position16<OamPixels>(checked((ushort)CursorX), checked((ushort)(selectNo ? NoCursorY : YesCursorY))));
     }
 
-    /// <summary>Writes one selected sixteen-color Baby animation palette to the fixed native CGRAM range $C0-$CF.</summary>
-    /// <param name="cgram">Mutable destination color memory.</param>
+    /// <summary>Writes one selected sixteen-colour Baby animation palette over the Baby's sprite palette row.</summary>
+    /// <param name="colours">The screen's colours.</param>
     /// <param name="palette">Idle or one of the three crying palettes selected by the compiled Baby sequence.</param>
     /// <exception cref="ArgumentOutOfRangeException">The palette identity is unsupported.</exception>
-    public void ApplyBabyPalette(IPaletteColors cgram, GameOverBabyPalette palette)
+    public void ApplyBabyPalette(IPaletteColors colours, GameOverBabyPalette palette)
     {
         _ = GameOverPresentationDefinitions.BabyPaletteName(palette);
         for (int index = 0; index < GameOverRomData.BabyAnimation.PaletteColorCount; index++)
-            new GameOverPalettes(cgram).Baby.Write(index,
-                babyPalettes.Read(palette, index));
+            Ensure.NotNull(colours).SetColor(GameOverRomData.BabyAnimation.PaletteDestinationIndex + index, babyPalettes.Read(palette, index));
     }
 
     /// <summary>Reads and validates game-over JSON, compiling its tilemap, sprite compositions, palette artwork, and screen layout.</summary>

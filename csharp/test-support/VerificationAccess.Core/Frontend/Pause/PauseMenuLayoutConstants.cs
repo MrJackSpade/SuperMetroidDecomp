@@ -26,4 +26,8 @@ internal static class PauseMenuLayoutConstants
         /// <inheritdoc cref="PauseMenuLayoutConstants.ReserveSupplyDigitsByteOffset"/>
         internal static int ReserveSupplyDigitsByteOffset => PauseMenuLayoutConstants.ReserveSupplyDigitsByteOffset;
     }
+    /// <summary>BG1 tilemap base word used by the map and equipment pages.</summary>
+    public const ushort Bg1TilemapWord = 0x3000;
+    /// <summary>BG2 tilemap base word used by the pause-screen frame.</summary>
+    public const ushort Bg2TilemapWord = 0x3800;
 }

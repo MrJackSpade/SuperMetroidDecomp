@@ -14,17 +14,17 @@ public static class TitleGraphicsFormat
     /// <summary>Height of the title OBJ character sheet in eight-pixel tiles.</summary>
     public const int ObjectTileRows = 16;
     /// <summary>Installed filename of the title Mode 7 character PNG.</summary>
-    public const string Mode7TilesFile = "title-mode7-tiles.png";
+    public const string FloorTilesFile = "title-mode7-tiles.png";
     /// <summary>Installed filename of the title Mode 7 map JSON document.</summary>
-    public const string Mode7MapFile = "title-mode7-map.json";
+    public const string FloorMapFile = "title-mode7-map.json";
     /// <summary>Installed filename of the title OBJ character PNG.</summary>
     public const string ObjectTilesFile = "title-object-tiles.png";
     /// <summary>Installed filename of the baby Metroid Mode 7 character PNG.</summary>
     public const string BabyTilesFile = "title-baby-tiles.png";
     /// <summary>Width in pixels of the title Mode 7 character image.</summary>
-    public const int Mode7Width = 128;
+    public const int FloorWidth = 128;
     /// <summary>Height in pixels of the title Mode 7 character image.</summary>
-    public const int Mode7Height = 128;
+    public const int FloorHeight = 128;
     /// <summary>Width in cells of the title Mode 7 map.</summary>
     public const int MapWidth = 64;
     /// <summary>Height in cells of the title Mode 7 map.</summary>

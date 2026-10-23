@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Map.Artwork;
 public sealed class MapTileAtlas
 {
     /// <summary>Owned SNES 4-bpp character bytes compiled from indexed PNG pixels.</summary>
-    private readonly byte[] planar;
+    internal readonly byte[] planar;
     /// <summary>Retains an already compiled planar atlas for later VRAM transfers.</summary>
     internal MapTileAtlas(byte[] planar) => this.planar = planar;
 
@@ -18,10 +18,6 @@ public sealed class MapTileAtlas
         var image = IndexedPng.Read(png, new(MapTileAtlasFormat.Width, MapTileAtlasFormat.Height));
         return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Size, 4));
     }
-
-    /// <summary>Copies compiled characters to the screen's own VRAM; source storage cannot be mutated by callers.</summary>
-    /// <param name="destination">The screen's character region receiving the full 8192-byte atlas.</param>
-    public void LoadTo(VramRegion destination) => destination.Load(planar);
 
     /// <summary>The planar 4-bpp characters (#1392).</summary>
     public ReadOnlySpan<byte> Characters => planar;

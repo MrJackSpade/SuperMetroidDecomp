@@ -16,7 +16,7 @@ internal static class CeresScreenTiles
     /// <summary>The Ceres flight's characters: its object characters, which its caption shows.</summary>
     internal static ScreenCharacters Flight(InstalledSpriteSheets sheets) => new ScreenCharacters()
         .Show(ScreenTileSheets.Of(Ensure.NotNull(sheets), SpriteSheetId.CeresFlightObjectTiles), CeresVramLayout.ObjectCharacters.Offset, 0,
-            CeresFlightRomData.Vram.ObjectCharacterByteCount / CharacterBytes);
+            CeresFlightRomData.Transfers.ObjectCharacterByteCount / CharacterBytes);
 
     /// <summary>The characters the destruction's <paramref name="uploads"/> leave over the OBJ characters, in the order it made them.</summary>
     internal static ScreenCharacters Destruction(InstalledSpriteSheets sheets, IEnumerable<CeresDestructionUpload> uploads)
@@ -28,31 +28,31 @@ internal static class CeresScreenTiles
             if (upload == CeresDestructionUpload.CeresScene)
             {
                 tiles.Show(ScreenTileSheets.Of(sheets, SpriteSheetId.CeresFlightObjectTiles), CeresVramLayout.ObjectCharacters.Offset, 0,
-                    CeresDestructionRomData.Vram.Mode7CharacterBytes / CharacterBytes);
+                    CeresDestructionRomData.Transfers.FloorCharacterBytes / CharacterBytes);
                 tiles.Show(ScreenTileSheets.Of(sheets, SpriteSheetId.CeresIntroObjectTiles), CeresVramLayout.ObjectCharacters.Offset, 0,
-                    CeresDestructionRomData.Vram.SharedObjectCharacterBytes / CharacterBytes);
+                    CeresDestructionRomData.Transfers.SharedObjectCharacterBytes / CharacterBytes);
             }
             else if (upload == CeresDestructionUpload.ZebesReveal)
                 tiles.Show(ScreenTileSheets.Of(sheets, SpriteSheetId.ZebesRevealTiles), CeresVramLayout.ObjectCharacters.Offset, 0,
-                    CeresDestructionRomData.Vram.Mode7CharacterBytes / CharacterBytes);
+                    CeresDestructionRomData.Transfers.FloorCharacterBytes / CharacterBytes);
         }
         return tiles;
     }
 
     /// <summary>The Ceres flight's Mode 7 view: its Mode 7 characters.</summary>
-    internal static Mode7TilePictures FlightMode7(InstalledSpriteSheets sheets) => new Mode7Characters()
-        .Show(ScreenTileSheets.Mode7(Ensure.NotNull(sheets), SpriteSheetId.CeresFlightMode7Tiles), 0, 0,
-            CeresFlightRomData.Vram.Mode7CharacterByteCount / Mode7CharacterSheet.TileBytes)
+    internal static Mode7TilePictures FlightFloor(InstalledSpriteSheets sheets) => new FloorCharacters()
+        .Show(ScreenTileSheets.Floor(Ensure.NotNull(sheets), SpriteSheetId.CeresFlightMode7Tiles), 0, 0,
+            CeresFlightRomData.Transfers.FloorCharacterByteCount / Mode7CharacterSheet.TileBytes)
         .Pictures();
 
     /// <summary>The Mode 7 characters the destruction's <paramref name="uploads"/> leave: the flight's, once the Ceres scene loads them.</summary>
-    internal static Mode7TilePictures DestructionMode7(InstalledSpriteSheets sheets, IEnumerable<CeresDestructionUpload> uploads)
+    internal static Mode7TilePictures DestructionFloor(InstalledSpriteSheets sheets, IEnumerable<CeresDestructionUpload> uploads)
     {
         Ensure.NotNull(sheets);
-        var tiles = new Mode7Characters();
+        var tiles = new FloorCharacters();
         if (Ensure.NotNull(uploads).Contains(CeresDestructionUpload.CeresScene))
-            tiles.Show(ScreenTileSheets.Mode7(sheets, SpriteSheetId.CeresFlightMode7Tiles), 0, 0,
-                CeresDestructionRomData.Vram.Mode7CharacterBytes / Mode7CharacterSheet.TileBytes);
+            tiles.Show(ScreenTileSheets.Floor(sheets, SpriteSheetId.CeresFlightMode7Tiles), 0, 0,
+                CeresDestructionRomData.Transfers.FloorCharacterBytes / Mode7CharacterSheet.TileBytes);
         return tiles.Pictures();
     }
 

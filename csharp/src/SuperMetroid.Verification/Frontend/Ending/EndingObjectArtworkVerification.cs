@@ -496,7 +496,7 @@ internal static class EndingObjectArtworkVerification
                 EndingCreditsRomData.Assets.WaitingForCreditsTilemap or
                 EndingCreditsRomData.Assets.PostCreditsTileFragmentA or
                 EndingCreditsRomData.Assets.PostCreditsTileFragmentB or
-                EndingCreditsRomData.Assets.PostCreditsMode7Characters or
+                EndingCreditsRomData.Assets.PostCreditsFloorCharacters or
                 EndingPostShotDefinitions.LogoTiles or
                 EndingPostShotDefinitions.LogoMap,
             address => $"Ending OBJ reread cartridge source ${address:X6}.");

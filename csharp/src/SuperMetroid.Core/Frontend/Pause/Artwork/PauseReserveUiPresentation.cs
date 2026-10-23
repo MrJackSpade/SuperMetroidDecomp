@@ -114,18 +114,18 @@ public sealed class PauseReserveUiPresentation
         }
     }
 
-    /// <summary>Writes the two selected arrow bevel colors to live CGRAM, using either the pulse frame or the solid appearance.</summary>
-    /// <param name="cgram">Live palette destination, modified at the two supplied color indices.</param>
+    /// <summary>Writes the two selected arrow bevel colours to the screen's colours, using either the pulse frame or the solid appearance.</summary>
+    /// <param name="colours">The screen's colours, modified at the two supplied colour indices.</param>
     /// <param name="animated">Whether to sample the 32-phase pulse rather than the solid colors; the pause owner decides when AUTO selection should animate.</param>
-    /// <param name="frame">Pulse phase, masked to its low five bits; normally the accepted eight-bit NMI frame counter and ignored for solid colors.</param>
-    /// <param name="color6Index">CGRAM color index 0-255 for arrow palette slot six, not a byte offset.</param>
-    /// <param name="color11Index">CGRAM color index 0-255 for arrow palette slot eleven, not a byte offset.</param>
-    /// <exception cref="ArgumentOutOfRangeException">A supplied CGRAM color index is invalid.</exception>
-    [PpuLayoutBoundary("codec: reserve-arrow colours at their native CGRAM index operands")]
-    public void ApplyArrowColors(IPaletteColors cgram, bool animated, int frame, int color6Index, int color11Index)
+    /// <param name="frame">Pulse phase, masked to its low five bits; normally the accepted eight-bit frame counter and ignored for solid colors.</param>
+    /// <param name="color6Index">The palette index 0-255 of the arrow's colour six.</param>
+    /// <param name="color11Index">The palette index 0-255 of the arrow's colour eleven.</param>
+    /// <exception cref="ArgumentOutOfRangeException">A supplied palette index is invalid.</exception>
+    public void ApplyArrowColors(IPaletteColors colours, bool animated, int frame, int color6Index, int color11Index)
     {
         var colors = animated ? new ReserveArrowColors(ArrowColor(frame, ReserveArrowColorSlot.Color6), ArrowColor(frame, ReserveArrowColorSlot.Color11)) : new ReserveArrowColors(solidColor6, solidColor11);
-        new CgramPalettes(cgram).All.Write(color6Index, colors.Color6); new CgramPalettes(cgram).All.Write(color11Index, colors.Color11);
+        Ensure.NotNull(colours).SetColor(color6Index, colors.Color6);
+        colours.SetColor(color11Index, colors.Color11);
     }
 
     /// <summary>

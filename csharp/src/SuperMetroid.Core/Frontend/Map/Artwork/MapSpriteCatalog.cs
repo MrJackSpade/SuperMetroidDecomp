@@ -14,8 +14,6 @@ public sealed class MapSpriteCatalog
     internal readonly MapObjectTileArtwork characters;
     /// <summary>Retains validated compositions and the decoded indexed character atlas.</summary>
     private MapSpriteCatalog(FrameSet frames, MapObjectTileArtwork characters) { this.frames = frames; this.characters = characters; }
-    /// <summary>Loads the compiled shared 4-bpp map-object characters into the screen's OBJ character region.</summary>
-    public void LoadArtworkTo(VramRegion destination) => characters.LoadTo(destination);
 
     /// <summary>The shared menu OBJ page the catalog's compositions draw from (#1358).</summary>
     public SpriteArtwork Page => field ??= characters.Page();

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
@@ -6,6 +7,9 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </summary>
 internal sealed class IntroTilemaps
 {
+    /// <summary>The four scene pages' words, page after page.</summary>
+    private readonly ushort[] scenePages = new ushort[IntroCinematicArtworkFormat.BackgroundPageCount * SnesPpuLayout.TilemapPageWordCount];
+
     /// <summary>The portrait tilemap's words.</summary>
     private readonly ushort[] portrait = new ushort[SnesPpuLayout.TilemapPageWordCount];
 
@@ -18,13 +22,21 @@ internal sealed class IntroTilemaps
     /// <summary>The narration tilemap.</summary>
     internal Span<ushort> Narration => narration;
 
+    /// <summary>The tilemap of one scene page.</summary>
+    internal ReadOnlySpan<ushort> ScenePage(IntroScenePage page) =>
+        scenePages.AsSpan((int)page * SnesPpuLayout.TilemapPageWordCount, SnesPpuLayout.TilemapPageWordCount);
+
+    /// <summary>Loads the installed scene pages.</summary>
+    internal void LoadScenePages(ReadOnlySpan<byte> littleEndianWords) =>
+        Load(scenePages, littleEndianWords[..(scenePages.Length * sizeof(ushort))]);
+
     /// <summary>Loads the installed portrait image.</summary>
     internal void LoadPortrait(ReadOnlySpan<byte> littleEndianWords) =>
-        Load(portrait, littleEndianWords[..IntroCinematicRomData.Vram.SamusHeadTilemapBytes]);
+        Load(portrait, littleEndianWords[..IntroCinematicRomData.Transfers.SamusHeadTilemapBytes]);
 
     /// <summary>Loads the installed first narration card.</summary>
     internal void LoadNarration(ReadOnlySpan<byte> littleEndianWords) =>
-        Load(narration, littleEndianWords[..IntroCinematicRomData.Vram.NarrationTilemapBytes]);
+        Load(narration, littleEndianWords[..IntroCinematicRomData.Transfers.NarrationTilemapBytes]);
 
     /// <summary>Loads little-endian words into the start of <paramref name="destination"/>.</summary>
     private static void Load(Span<ushort> destination, ReadOnlySpan<byte> littleEndianWords)

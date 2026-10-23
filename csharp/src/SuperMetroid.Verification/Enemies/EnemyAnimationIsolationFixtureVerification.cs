@@ -117,7 +117,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
         /// <summary>Advances enemy projectiles before the enemy frame using the same frame counter.</summary>
         internal void Step(int frame)
         {
-            Enemies.StepEnemyProjectiles(Level, Samus, nmiFrameCounter8: unchecked((byte)frame));
+            Enemies.StepEnemyProjectiles(Level, Samus, frameCounterByte: unchecked((byte)frame));
             Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = Samus, Level = Level, NmiFrameCounter8 = unchecked((byte)frame) });
         }
 

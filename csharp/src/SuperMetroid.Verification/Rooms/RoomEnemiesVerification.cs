@@ -712,8 +712,8 @@ internal static void VerifyCeresElevatorPlatformAnimation()
     SeedCeresElevatorPlatformTransfers(bus, light, dark);
 
     // The platform frames are written into the room's Mode 7 map (#1349).
-    var map = new Mode7Map(new byte[Mode7Map.Cells], default, RoomBackgroundsFixtures.Mode7Tiles());
-    var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Mode7Map = map }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = CreateCeresDoorFixtureVisuals(bus) } };
+    var map = new FloorMap(new byte[FloorMap.Cells], default, RoomBackgroundsFixtures.FloorTiles());
+    var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { FloorMap = map }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = CreateCeresDoorFixtureVisuals(bus) } };
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram));
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     for (int index = 0; index < 4; index++)
@@ -873,7 +873,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     int generatedRandomCalls = 0;
     // The escape writes its warning text over BG1 (#1346).
     RoomTilemapOverlay ceresOverlay = RoomTilemapOverlay.Empty;
-    var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => { generatedRandomCalls++; return generatedRandom; }) { ReadRandom = () => currentRandom, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => ceresBossDefeated, SetBossDefeated = () => ceresBossDefeated = true }, DrawBg1OverlayWords = (firstWord, words) => ceresOverlay = ceresOverlay.With(firstWord, words), Mode7Map = new Mode7Map(new byte[Mode7Map.Cells], default, RoomBackgroundsFixtures.Mode7Tiles()) })
+    var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => { generatedRandomCalls++; return generatedRandom; }) { ReadRandom = () => currentRandom, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => ceresBossDefeated, SetBossDefeated = () => ceresBossDefeated = true }, DrawBg1OverlayWords = (firstWord, words) => ceresOverlay = ceresOverlay.With(firstWord, words), FloorMap = new FloorMap(new byte[FloorMap.Cells], default, RoomBackgroundsFixtures.FloorTiles()) })
     {
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
             {
@@ -893,7 +893,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         {
             CeresRidleyColors = CeresRidleyColorCatalog.Load(new MemoryStream(
                 SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyColorExtractor.Extract(bus))),
-            CeresRidleyMode7Colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(
+            CeresRidleyFloorColors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(
                 SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorExtractor.Extract(bus))),
         },
     };
@@ -929,7 +929,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     overlayDoor.SetSpeciesState(overlayDoorState, overlayDoorState.ClearWithRecord);
     overlayDoor.Position = overlayDoor.Position.WithWhole(new(100, 80));
     enemies.RidleyEncounter.CeresStatus = CeresEscapeStatus.RidleyEscaped; // Skip the unrelated private Baby list in this draw fixture.
-    enemies.Room.Session.Mode7QueueResidue = new SuperMetroid.Core.Hardware.Mode7TransferQueueResidue();
+    enemies.Room.Session.FloorQueueResidue = new SuperMetroid.Core.Hardware.Mode7TransferQueueResidue();
     short[] expectedDoorOffsets = [0, 0, -4, -1];
     for (ushort timer = 0; timer < expectedDoorOffsets.Length; timer++)
     {
@@ -1216,7 +1216,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         var curve = CeresRidleyGetawayDefinitions.FromIndex(curveIndex);
         expectedX = unchecked((ushort)(expectedX - curve.Velocity.X));
         expectedY = unchecked((ushort)(expectedY + curve.Velocity.Y));
-        AssertEqual(curve.Zoom, state.Mode7Zoom, "Ceres real getaway zoom publication");
+        AssertEqual(curve.Zoom, state.FloorZoom, "Ceres real getaway zoom publication");
         AssertEqual(unchecked((short)expectedX), state.Mode7Offset.X, "Ceres real getaway horizontal integration");
         AssertEqual(unchecked((short)expectedY), state.Mode7Offset.Y, "Ceres real getaway vertical integration");
         AssertTrue(!state.Mode7Finished, "Ceres getaway retains all 112 authored motion frames");

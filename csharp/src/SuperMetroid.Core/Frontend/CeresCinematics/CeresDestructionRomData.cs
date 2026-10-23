@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 public static class CeresDestructionRomData
 {
     /// <summary>$8B:C11B: <c>LDX #8</c> ... <c>DEX : BPL</c> around WaitForNMI, before scene setup.</summary>
-    public const int InitialNmiWaits = 9;
+    public const int InitialFrameWaits = 9;
 
     /// <summary>Native palette-effect instruction-list identities used by the sequence.</summary>
     public static class PaletteFx
@@ -41,12 +41,12 @@ public static class CeresDestructionRomData
     }
 
     /// <summary>VRAM transfer sizes, destinations, and Mode 7 map layout.</summary>
-    public static class Vram
+    public static class Transfers
     {
         /// <summary>Byte capacity of the Mode 7 character lane.</summary>
-        public const int Mode7CharacterBytes = 0x4000;
+        public const int FloorCharacterBytes = 0x4000;
         /// <summary>Byte capacity of the Mode 7 map lane.</summary>
-        public const int Mode7MapCapacityBytes = 0x4000;
+        public const int FloorMapCapacityBytes = 0x4000;
         /// <summary>Maximum decompressed byte count accepted for a scene tilemap.</summary>
         public const int CompressedTilemapLimit = 0x1000;
         /// <summary>Minimum decompressed size required of the combined Ceres tilemaps.</summary>
@@ -64,7 +64,7 @@ public static class CeresDestructionRomData
         /// <summary>Byte count of the shared cinematic OBJ character transfer.</summary>
         public const int SharedObjectCharacterBytes = 0x1a00;
         /// <summary>Initial character index written across the Mode 7 map.</summary>
-        public const byte InitialMode7MapCharacter = 0x8c;
+        public const byte InitialFloorMapCharacter = 0x8c;
         /// <summary>Minimum decompressed byte count required of the Zebes tilemap.</summary>
         public const int ZebesTilemapMinimumBytes = 0x0800;
     }
@@ -135,7 +135,7 @@ public static class CeresDestructionRomData
         /// <summary>The gunship's vertical velocity.</summary>
         public static SnesSignedSixteenSixteen GunshipYVelocity { get; } = SnesSignedSixteenSixteen.FromParts(-1, 0xf000);
         /// <summary>Mode 7 X position that completes the gunship exit.</summary>
-        public const ushort Mode7ExitX = 0x003e;
+        public const ushort FloorExitX = 0x003e;
         /// <summary>Gets the native table-index angle used during the Zebes approach.</summary>
         public static SnesAngle ApproachAngle => SnesAngle.FromTableIndex(0x20);
     }

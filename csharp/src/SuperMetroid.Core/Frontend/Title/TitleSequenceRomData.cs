@@ -22,9 +22,9 @@ public static class TitleSequenceRomData
         /// <summary>$8C:E1E9, Palettes_TitleScreen: full 256-color title CGRAM image, separate from console-light animations and skip-only color replacements.</summary>
         public const int PaletteAddress = 0x8ce1e9;
         /// <summary>$94:E000, Tiles_Title_Background_Mode7: compressed title-background character lane transferred through the high-byte VRAM port.</summary>
-        public const int Mode7CharactersAddress = 0x94e000;
+        public const int FloorCharactersAddress = 0x94e000;
         /// <summary>$96:FC04, Title_Mode7_Tilemap: compressed low-byte Mode 7 tilemap for the title background.</summary>
-        public const int Mode7MapAddress = 0x96fc04;
+        public const int FloorMapAddress = 0x96fc04;
         /// <summary>$95:80D8, Tiles_Title_Sprite: compressed OBJ character sheet for title text, logo, and copyright sprites.</summary>
         public const int ObjectCharactersAddress = 0x9580d8;
         /// <summary>$95:A5E1, Tiles_Baby_Metroid_Mode7: compressed animation character pages inserted into the background's high-byte Mode 7 lane.</summary>
@@ -67,16 +67,16 @@ public static class TitleSequenceRomData
     public static class Scenes
     {
         /// <summary>$8B:9CE1, Instruction_TriggerTitleSequenceScene0: lower pan setup with scale $0048 and background offsets (315,225) pixels.</summary>
-        public static readonly TitleMode7SceneDefinition SceneZero =
+        public static readonly TitleFloorSceneDefinition SceneZero =
             new(TitleSequencePhase.SceneZeroPan, 0x0048, new(0x013b, 0x00e1));
         /// <summary>$8B:9D5D upper scene-one pan setup: scale $0060 and signed background offsets (44,-155) pixels.</summary>
-        public static readonly TitleMode7SceneDefinition SceneOne =
+        public static readonly TitleFloorSceneDefinition SceneOne =
             new(TitleSequencePhase.SceneOnePan, 0x0060, new(0x002c, 0xff65));
         /// <summary>$8B:9DD6 downward scene-two pan setup: scale $0060 and signed background offsets (-177,-160) pixels.</summary>
-        public static readonly TitleMode7SceneDefinition SceneTwo =
+        public static readonly TitleFloorSceneDefinition SceneTwo =
             new(TitleSequencePhase.SceneTwoPan, 0x0060, new(0xff4f, 0xff60));
         /// <summary>$8B:9E58 final scene-three zoom setup: scale $0043 with both background offsets zero.</summary>
-        public static readonly TitleMode7SceneDefinition SceneThree =
+        public static readonly TitleFloorSceneDefinition SceneThree =
             new(TitleSequencePhase.SceneThreeZoom, 0x0043, new(0, 0));
         /// <summary>Pan-speed magnitude in signed 16.16 pixels per title update: 1.5 pixels; scenes zero and one negate it, while scene two pans downward.</summary>
         public const int PanVelocity16Point16 = 0x0001_8000;
@@ -108,7 +108,7 @@ public static class TitleSequenceRomData
     }
 
     /// <summary>VRAM ranges and page order used by title graphics DMA.</summary>
-    public static class Vram
+    public static class Transfers
     {
         /// <summary>Four-phase triangular source-page cycle in $8B:A131..A140.</summary>
         public readonly struct BabyPageSequence : IReadOnlyList<byte>
@@ -138,11 +138,11 @@ public static class TitleSequenceRomData
         /// <summary>Decompressed byte extent required for the Baby's Mode 7 character resource, separate from its $0100-byte animation page uploads.</summary>
         public const int BabyCharacterByteCount = 0x0400;
         /// <summary>Byte length of the full title Mode 7 character lane.</summary>
-        public const int Mode7CharacterByteCount = 0x4000;
+        public const int FloorCharacterByteCount = 0x4000;
         /// <summary>Byte length of the title Mode 7 map prefix uploaded into the low-byte lane.</summary>
-        public const int Mode7MapByteCount = 0x1000;
+        public const int FloorMapByteCount = 0x1000;
         /// <summary>Blank map tile $FF filling the complete low-byte lane before the selected map prefix is uploaded.</summary>
-        public const byte Mode7InitialMapByte = 0xff;
+        public const byte FloorInitialMapByte = 0xff;
         /// <summary>Byte length of one Baby character source page; each byte replaces the high byte of a successive VRAM word.</summary>
         public const int BabyCharacterPageByteCount = 0x0100;
         /// <summary>Immutable four-phase Baby character-page cycle 0,1,2,1 derived from $8B:A131-A140.</summary>

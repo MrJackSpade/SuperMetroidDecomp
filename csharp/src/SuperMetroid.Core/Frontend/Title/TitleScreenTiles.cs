@@ -16,11 +16,11 @@ internal static class TitleScreenTiles
     internal static Mode7TilePictures Of(InstalledSpriteSheets sheets, int babySourcePage)
     {
         Ensure.NotNull(sheets);
-        int pageTiles = TitleSequenceRomData.Vram.BabyCharacterPageByteCount / Mode7CharacterSheet.TileBytes;
-        return new Mode7Characters()
-            .Show(ScreenTileSheets.Mode7(sheets, SpriteSheetId.TitleMode7Tiles), 0, 0,
-                TitleSequenceRomData.Vram.Mode7CharacterByteCount / Mode7CharacterSheet.TileBytes)
-            .Show(ScreenTileSheets.Mode7(sheets, SpriteSheetId.TitleBabyTiles), TitleVramLayout.BabyMetroidCharacters.Offset / Mode7CharacterSheet.TileBytes,
+        int pageTiles = TitleSequenceRomData.Transfers.BabyCharacterPageByteCount / Mode7CharacterSheet.TileBytes;
+        return new FloorCharacters()
+            .Show(ScreenTileSheets.Floor(sheets, SpriteSheetId.TitleMode7Tiles), 0, 0,
+                TitleSequenceRomData.Transfers.FloorCharacterByteCount / Mode7CharacterSheet.TileBytes)
+            .Show(ScreenTileSheets.Floor(sheets, SpriteSheetId.TitleBabyTiles), TitleVramLayout.BabyMetroidCharacters.Offset / Mode7CharacterSheet.TileBytes,
                 babySourcePage * pageTiles, pageTiles)
             .Pictures();
     }

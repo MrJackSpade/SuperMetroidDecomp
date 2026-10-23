@@ -22,11 +22,11 @@ internal static class EndingRewardIconArtworkVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for reward icon Mode-7 characters")]
     internal static void VerifyEndingRewardIconArtwork(GameInstallation installation)
     {
-        EndingMode7ArtworkCatalog stock = installation.LoadEndingMode7Art();
+        EndingFloorArtworkCatalog stock = installation.LoadEndingMode7Art();
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         var source = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         byte[] native = RomDataReader.Decompress(source,
-            EndingCreditsRomData.Assets.PostCreditsMode7Characters,
+            EndingCreditsRomData.Assets.PostCreditsFloorCharacters,
             EndingCreditsRomData.Rendering.DecompressionLimit);
         AssertTrue(stock.RewardIcon.Transfer.Span.SequenceEqual(native.AsSpan(0,
                 EndingRewardIconArtworkFormat.TransferBytes)),
@@ -42,7 +42,7 @@ internal static class EndingRewardIconArtworkVerification
         var installedScene = CreateRetailEndingFixture(installedAudio, 3, 0);
         nativeScene.InstalledArtwork.BindStaffCredits(credits);
         installedScene.InstalledArtwork.BindStaffCredits(credits);
-        installedScene.Stage.BindMode7Artwork(stock);
+        installedScene.Stage.BindFloorArtwork(stock);
         int jumpFrames = 0;
         for (int frame = 0; frame < 60_000 &&
             nativeScene.Stage.Phase != EndingCreditsPhase.PostCreditsShot; frame++)
@@ -93,9 +93,9 @@ internal static class EndingRewardIconArtworkVerification
                 if (name == EndingRewardIconArtworkFormat.MapFileName)
                 {
                     using var output = File.Create(overridePath);
-                    EndingRewardIconArtwork.WriteMap(output, new EndingMode7MapDocument
+                    EndingRewardIconArtwork.WriteMap(output, new EndingFloorMapDocument
                     {
-                        Version = EndingMode7ArtworkFormat.Version,
+                        Version = EndingFloorArtworkFormat.Version,
                         Width = EndingRewardIconArtworkFormat.MapWidth,
                         Height = EndingRewardIconArtworkFormat.MapHeight,
                         Tiles = new int[EndingRewardIconArtworkFormat.MapBytes],
@@ -112,7 +112,7 @@ internal static class EndingRewardIconArtworkVerification
                     IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
                         image.Pixels, image.Palette);
                 }
-                EndingMode7ArtworkCatalog edited = installation.LoadEndingMode7Art();
+                EndingFloorArtworkCatalog edited = installation.LoadEndingMode7Art();
                 var uploadBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
                 var partial = new EndingScreen();
                 for (int chunk = 0; chunk < 8; chunk++)
@@ -130,7 +130,7 @@ internal static class EndingRewardIconArtworkVerification
                 var sceneAudio = new CartridgeAudioState();
                 var scene = CreateRetailEndingFixture(sceneAudio, 3, 0);
                 scene.InstalledArtwork.BindStaffCredits(credits);
-                scene.Stage.BindMode7Artwork(stock);
+                scene.Stage.BindFloorArtwork(stock);
                 for (int frame = 0; frame < 60_000 &&
                     scene.Stage.Phase != EndingCreditsPhase.PostCreditsJump; frame++)
                 {
@@ -148,7 +148,7 @@ internal static class EndingRewardIconArtworkVerification
                     $"{name} override fixture remains in the native landing upload");
                 LayeredScene before = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                 byte[] beforeVram = scene.ShownVram();
-                scene.Stage.BindMode7Artwork(edited);
+                scene.Stage.BindFloorArtwork(edited);
                 // The ending draws its Mode 7 characters from the sheets the edited art composes (#1392).
                 scene.InstalledArtwork.BindSpriteSheets(EndingSheetFixtures.WithEndingMode7(edited));
                 LayeredScene rebound = EndingCreditsPresentation.CaptureRenderSnapshot(scene);

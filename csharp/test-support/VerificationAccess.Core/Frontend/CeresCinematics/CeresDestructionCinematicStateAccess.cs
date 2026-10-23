@@ -23,7 +23,7 @@ internal static class CeresDestructionCinematicStateAccess
         [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
         internal byte ReadMode7MapByte(int mapByteIndex)
         {
-            if ((uint)mapByteIndex >= CeresDestructionRomData.Vram.Mode7MapCapacityBytes)
+            if ((uint)mapByteIndex >= CeresDestructionRomData.Transfers.FloorMapCapacityBytes)
                 throw new ArgumentOutOfRangeException(nameof(mapByteIndex));
             return self.Image()[mapByteIndex * 2];
         }

@@ -348,7 +348,7 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4EndingFontSpaces(ISnesAddressSpace rom)
     {
         byte[] decoded = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(rom),
-            0x97E7DE, EndingCreditsRomData.Rendering.Mode7Bytes);
+            0x97E7DE, EndingCreditsRomData.Rendering.FloorBytes);
         byte[] native = decoded.AsSpan(0, 160 * 32).ToArray();
         byte[] png = EndingFontAtlasExtractor.Extract(rom);
         var image = IndexedPng.Read(new MemoryStream(png), new(128, 80));
@@ -788,7 +788,7 @@ internal static class LookupStream4Verification
             int count = fast ? 16 : 8, address = fast ? 0x8BDD02 : 0x8BDDAD;
             var state = new EndingCreditsState(new SuperMetroid.Core.Audio.CartridgeAudioState(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0 });
             state.Stage.Mode7 = state.Stage.Mode7.WithWholeX(100).WithFractionX(0xC000);
-            state.Stage.Mode7Zoom = 0xC00; state.Stage.PhaseTimer = 100;
+            state.Stage.FloorZoom = 0xC00; state.Stage.PhaseTimer = 100;
             state.Stage.Phase = fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow;
             Action step = fast ? state.Flyaway.StepPlanetEscapeFast : state.Flyaway.StepPlanetEscapeSlow;
             uint expected = 100u << 16 | 0xC000;
@@ -799,13 +799,13 @@ internal static class LookupStream4Verification
                 if (fast || expectedAngle != 0xe0) expectedAngle = unchecked((byte)(expectedAngle - (fast ? 4 : 1)));
                 expectedZoom -= fast ? 8 : 2;
                 step();
-                AssertEqual(SnesAngle.FromTableIndex((byte)expectedAngle), state.Stage.Mode7Angle, "rotation context advances independently of selected signs");
-                AssertEqual((ushort)expectedZoom, state.Stage.Mode7Zoom, "zoom context advances independently of selected signs");
+                AssertEqual(SnesAngle.FromTableIndex((byte)expectedAngle), state.Stage.FloorAngle, "rotation context advances independently of selected signs");
+                AssertEqual((ushort)expectedZoom, state.Stage.FloorZoom, "zoom context advances independently of selected signs");
                 AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)expected)), state.Stage.Mode7.X.Whole, "production shake whole position follows native indexed values");
                 AssertEqual((ushort)expected, state.Stage.Mode7.X.Fraction, "production shake fraction preserves carry/borrow");
                 AssertEqual((ushort)((frame + 1) % count), state.Flyaway.PlanetMotionIndex, "production shake advances after selection and wraps native mask");
             }
-            state.Stage.Mode7Zoom = fast ? EndingCreditsRomData.Motion.PlanetFastEndScale : EndingCreditsRomData.Motion.PlanetSlowEndScale;
+            state.Stage.FloorZoom = fast ? EndingCreditsRomData.Motion.PlanetFastEndScale : EndingCreditsRomData.Motion.PlanetSlowEndScale;
             state.Flyaway.PlanetMotionIndex = (ushort)(count - 1);
             state.Stage.Mode7 = state.Stage.Mode7.WithWholeX(0).WithFractionX(0x4000);
             step();
@@ -1316,16 +1316,16 @@ internal static class LookupStream4Verification
             AssertThrows<ArgumentOutOfRangeException>(() => CeresMode7TransferDefinitions.BabyFrameForPhase(invalid), "Baby transfer phase preserves bounded selection");
         var colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
         // The getaway patches the room's Mode 7 map, which each NMI publishes; it no longer writes VRAM (#1349).
-        byte[] untouchedCells = new byte[Mode7Map.Cells];
+        byte[] untouchedCells = new byte[FloorMap.Cells];
         Array.Fill(untouchedCells, (byte)0x5a);
-        var map = new Mode7Map(untouchedCells, default, RoomBackgroundsFixtures.Mode7Tiles());
+        var map = new FloorMap(untouchedCells, default, RoomBackgroundsFixtures.FloorTiles());
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance,
-            services: new StandaloneRoomEnemyServices(() => 0) { Mode7Map = map })
-            { BossArtworkBinding = { CeresRidleyMode7Colors = colors } };
+            services: new StandaloneRoomEnemyServices(() => 0) { FloorMap = map })
+            { BossArtworkBinding = { CeresRidleyFloorColors = colors } };
         var vram = new SnesVram();
         enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
         enemies.Presentation.BindCgram(new SnesCgram());
-        enemies.Room.Session.Mode7QueueResidue = new SuperMetroid.Core.Hardware.Mode7TransferQueueResidue();
+        enemies.Room.Session.FloorQueueResidue = new SuperMetroid.Core.Hardware.Mode7TransferQueueResidue();
         Action<RidleyEnemyState, SamusState?, int> tick = enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyMode7Getaway;
         var state = new RidleyEnemyState { Mode7TableIndex = 1 };
         byte[] untouched = new byte[SnesVram.ByteCount];
@@ -1660,19 +1660,19 @@ internal static class LookupStream4Verification
         AssertEqual(TitleSpriteDefinitions.All.Count, Enum.GetValues<TitleSprite>().Length, "title composition domain is complete");
         AssertTrue(nativeTitlePointers.SetEquals(SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(rom).Values),
             "extraction maps every native title selector to exactly one named composition");
-        AssertEqual(4, TitleSequenceRomData.Vram.BabyAnimationSourcePages.Length, "title baby animation phase count");
+        AssertEqual(4, TitleSequenceRomData.Transfers.BabyAnimationSourcePages.Length, "title baby animation phase count");
         for (int frame = 0; frame < 4; frame++)
         {
             ushort transfer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8ba133 + frame * 4));
             int nativeSource = CartridgeImportSource.Require(rom).ReadCartridgeLong((0x8b0001 + transfer));
             int firstSource = CartridgeImportSource.Require(rom).ReadCartridgeLong(0x8ba338);
             AssertEqual((nativeSource - firstSource) / 256,
-                (int)TitleSequenceRomData.Vram.BabyAnimationSourcePages[frame], "native title baby source page");
+                (int)TitleSequenceRomData.Transfers.BabyAnimationSourcePages[frame], "native title baby source page");
             AssertEqual((ushort)256, CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8b0004 + transfer)), "native baby transfer size");
             AssertEqual((ushort)0x3800, CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8b0006 + transfer)), "native baby transfer destination");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = TitleSequenceRomData.Vram.BabyAnimationSourcePages[invalid], "title baby exact phase domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = TitleSequenceRomData.Transfers.BabyAnimationSourcePages[invalid], "title baby exact phase domain");
         Console.WriteLine("Title identities: 31 sorted native selectors, four Baby source pages, DMA sizes/destinations and invalid phases pass.");
     }
 
@@ -3434,7 +3434,7 @@ internal static class LookupStream4Verification
             if (edit >= 0) rows[edit / 15][edit % 15] = Change(rows[edit / 15][edit % 15], channel);
             var selected = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(CeresRidleyMode7ColorCatalog.Write(zoomDocument with { ZoomRows = rows })));
             var cgram = new SnesCgram();
-            var enemies = new RoomEnemySystem(new EnemySession()) { BossArtworkBinding = { CeresRidleyMode7Colors = selected } };
+            var enemies = new RoomEnemySystem(new EnemySession()) { BossArtworkBinding = { CeresRidleyFloorColors = selected } };
             enemies.Presentation.BindCgram(cgram);
             Action<ushort> apply = enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyMode7Palette;
             for (int row = 0; row < 9; row++)

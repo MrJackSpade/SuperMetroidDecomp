@@ -49,7 +49,7 @@ public sealed class IntroEyeTilemapPresentation
         }
         /// <summary>Calculates a cell's BG word from the frame anchor and 16-tile row stride.</summary>
         private ushort Calculate(int cell) => unchecked((ushort)(IntroEyeTilemapFormat.FirstWord(frame) +
-            cell % IntroEyeTilemapFormat.Columns + cell / IntroEyeTilemapFormat.Columns * IntroEyeTilemapFormat.NativeRowStride));
+            cell % IntroEyeTilemapFormat.Columns + cell / IntroEyeTilemapFormat.Columns * IntroEyeTilemapFormat.RowStride));
         /// <summary>Supplied override words or a reconstructed native rectangle.</summary>
         internal ReadOnlySpan<ushort> Words
         {

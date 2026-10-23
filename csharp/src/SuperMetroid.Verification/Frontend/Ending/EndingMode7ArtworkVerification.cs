@@ -23,19 +23,19 @@ internal static class EndingMode7ArtworkVerification
     internal static void VerifyEndingMode7Artwork(GameInstallation installation)
     {
         var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        EndingMode7ArtworkCatalog stock = installation.LoadEndingMode7Art();
-        foreach (EndingMode7SceneId id in Enum.GetValues<EndingMode7SceneId>())
+        EndingFloorArtworkCatalog stock = installation.LoadEndingMode7Art();
+        foreach (EndingFloorSceneId id in Enum.GetValues<EndingFloorSceneId>())
         {
-            (int characterSource, int packedSource) = EndingCreditsRomData.Assets.Mode7Sources(id);
+            (int characterSource, int packedSource) = EndingCreditsRomData.Assets.FloorSources(id);
             byte[] nativeCharacters = RomDataReader.Decompress(nativeBus, characterSource,
                 EndingCreditsRomData.Rendering.DecompressionLimit);
             byte[] nativePacked = RomDataReader.Decompress(nativeBus, packedSource,
                 EndingCreditsRomData.Rendering.DecompressionLimit);
-            EndingMode7SceneArtwork compiledScene = stock[id];
+            EndingFloorSceneArtwork compiledScene = stock[id];
             AssertTrue(compiledScene.Characters.Span.SequenceEqual(nativeCharacters.AsSpan(0,
-                    EndingMode7ArtworkFormat.CharacterByteCount)),
+                    EndingFloorArtworkFormat.CharacterByteCount)),
                 $"installed ending {id} PNG preserves every high-lane character byte");
-            for (int cell = 0; cell < EndingMode7ArtworkFormat.MapByteCount; cell++)
+            for (int cell = 0; cell < EndingFloorArtworkFormat.MapByteCount; cell++)
                 AssertEqual(nativePacked[cell * 2], compiledScene.Map.Span[cell],
                     $"installed ending {id} map preserves low-lane cell {cell}");
         }
@@ -46,7 +46,7 @@ internal static class EndingMode7ArtworkVerification
         var installedAudio = new CartridgeAudioState();
         var native = CreateRetailEndingFixture(nativeAudio, 0, 0);
         var installed = CreateRetailEndingFixture(installedAudio, 0, 0);
-        installed.Stage.BindMode7Artwork(stock);
+        installed.Stage.BindFloorArtwork(stock);
         var phases = new HashSet<EndingCreditsPhase>();
         for (int frame = 0; frame < 10000 &&
             native.Stage.Phase != EndingCreditsPhase.ZebesExplosionTileUpload; frame++)
@@ -83,20 +83,20 @@ internal static class EndingMode7ArtworkVerification
             "installed ending Mode-7 scenes never read their six visual ROM sources");
 
         Directory.CreateDirectory(installation.EndingMode7OverrideDirectory);
-        foreach (EndingMode7SceneId id in Enum.GetValues<EndingMode7SceneId>())
+        foreach (EndingFloorSceneId id in Enum.GetValues<EndingFloorSceneId>())
         {
             EndingCreditsPhase target = id switch
             {
-                EndingMode7SceneId.EscapeA => EndingCreditsPhase.WaitForEscapeMusic,
-                EndingMode7SceneId.EscapeB => EndingCreditsPhase.FadeInEscapeSceneB,
-                EndingMode7SceneId.PlanetExplosion => EndingCreditsPhase.FadeInZebesExplosion,
+                EndingFloorSceneId.EscapeA => EndingCreditsPhase.WaitForEscapeMusic,
+                EndingFloorSceneId.EscapeB => EndingCreditsPhase.FadeInEscapeSceneB,
+                EndingFloorSceneId.PlanetExplosion => EndingCreditsPhase.FadeInZebesExplosion,
                 _ => throw new ArgumentOutOfRangeException(nameof(id)),
             };
             var sceneBus = NewEndingMode7SourceReadGuard(
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
             var audio = new CartridgeAudioState();
             var state = CreateRetailEndingFixture(audio, 0, 0);
-            state.Stage.BindMode7Artwork(stock);
+            state.Stage.BindFloorArtwork(stock);
             for (int frame = 0; frame < 10000 && state.Stage.Phase != target; frame++)
             {
                 state.Step();
@@ -116,18 +116,18 @@ internal static class EndingMode7ArtworkVerification
             byte[] baseline = baselineSnapshotVram.ToArray();
             Rgba32[] baselinePixels = SoftwareLayeredSnapshotRenderer.Render(baselineSnapshot);
 
-            string mapName = EndingMode7ArtworkFormat.MapFileName(id);
+            string mapName = EndingFloorArtworkFormat.MapFileName(id);
             string mapOverride = Path.Combine(installation.EndingMode7OverrideDirectory, mapName);
-            EndingMode7MapDocument map;
+            EndingFloorMapDocument map;
             using (var input = File.OpenRead(Path.Combine(installation.EndingMode7Directory, mapName)))
-                map = JsonSerializer.Deserialize<EndingMode7MapDocument>(input,
+                map = JsonSerializer.Deserialize<EndingFloorMapDocument>(input,
                     ArtworkJson.Options)
                     ?? throw new InvalidDataException($"Ending {id} map JSON is empty.");
             Array.Fill(map.Tiles, 0);
             using (var output = File.Create(mapOverride))
-                EndingMode7SceneArtwork.WriteMap(output, map);
-            EndingMode7ArtworkCatalog editedMap = installation.LoadEndingMode7Art();
-            state.Stage.BindMode7Artwork(editedMap);
+                EndingFloorSceneArtwork.WriteMap(output, map);
+            EndingFloorArtworkCatalog editedMap = installation.LoadEndingMode7Art();
+            state.Stage.BindFloorArtwork(editedMap);
             LayeredScene mapSnapshot = EndingCreditsPresentation.CaptureRenderSnapshot(state);
             byte[] mapSnapshotVram = state.ShownVram();
             byte[] mapVram = mapSnapshotVram.ToArray();
@@ -136,13 +136,13 @@ internal static class EndingMode7ArtworkVerification
                     !baselinePixels.SequenceEqual(
                         SoftwareLayeredSnapshotRenderer.Render(mapSnapshot)),
                 $"edited ending {id} map changes visible pixels, but only its Mode-7 VRAM lanes");
-            if (id == EndingMode7SceneId.PlanetExplosion)
+            if (id == EndingFloorSceneId.PlanetExplosion)
             {
                 var partialBus = NewEndingMode7SourceReadGuard(
                     SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
                 var partialAudio = new CartridgeAudioState();
                 var partial = CreateRetailEndingFixture(partialAudio, 0, 0);
-                partial.Stage.BindMode7Artwork(stock);
+                partial.Stage.BindFloorArtwork(stock);
                 for (int frame = 0; frame < 2000 &&
                     partial.Stage.Phase != EndingCreditsPhase.ZebesExplosionTileUpload; frame++)
                 {
@@ -157,36 +157,36 @@ internal static class EndingMode7ArtworkVerification
                     partialAudio.AdvanceFrame(default);
                 }
                 byte[] partiallyUploaded = partial.ShownVram().ToArray();
-                partial.Stage.BindMode7Artwork(editedMap);
+                partial.Stage.BindFloorArtwork(editedMap);
                 byte[] rebound = partial.ShownVram().ToArray();
                 for (int word = 0; word < EndingCreditsRomData.Rendering.FlyawayUploadBytes; word++)
                     AssertEqual(partiallyUploaded[word * 2], rebound[word * 2],
                         $"edited explosion retains already-transferred map word {word}");
                 AssertTrue(!partiallyUploaded.AsSpan(
                         EndingCreditsRomData.Rendering.FlyawayUploadBytes * 2,
-                        EndingCreditsRomData.Rendering.Mode7Bytes * 2 -
+                        EndingCreditsRomData.Rendering.FloorBytes * 2 -
                             EndingCreditsRomData.Rendering.FlyawayUploadBytes * 2)
                     .SequenceEqual(rebound.AsSpan(
                         EndingCreditsRomData.Rendering.FlyawayUploadBytes * 2,
-                        EndingCreditsRomData.Rendering.Mode7Bytes * 2 -
+                        EndingCreditsRomData.Rendering.FloorBytes * 2 -
                             EndingCreditsRomData.Rendering.FlyawayUploadBytes * 2)),
                     "edited explosion updates only the not-yet-transferred Mode-7 map region");
                 AssertEqual(0, partialBus.ForbiddenReadAttempts,
                     "partial explosion rebind never reads authored cartridge sources");
             }
             File.Delete(mapOverride);
-            state.Stage.BindMode7Artwork(stock);
+            state.Stage.BindFloorArtwork(stock);
 
-            string pngName = EndingMode7ArtworkFormat.CharacterFileName(id);
+            string pngName = EndingFloorArtworkFormat.CharacterFileName(id);
             string pngOverride = Path.Combine(installation.EndingMode7OverrideDirectory, pngName);
             IndexedPngImage image;
             using (var input = File.OpenRead(Path.Combine(installation.EndingMode7Directory, pngName)))
-                image = IndexedPng.Read(input, new(EndingMode7ArtworkFormat.CharacterWidth, EndingMode7ArtworkFormat.CharacterHeight));
+                image = IndexedPng.Read(input, new(EndingFloorArtworkFormat.CharacterWidth, EndingFloorArtworkFormat.CharacterHeight));
             Array.Fill(image.Pixels, (byte)0);
             using (var output = File.Create(pngOverride))
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
-            EndingMode7ArtworkCatalog editedCharacters = installation.LoadEndingMode7Art();
-            state.Stage.BindMode7Artwork(editedCharacters);
+            EndingFloorArtworkCatalog editedCharacters = installation.LoadEndingMode7Art();
+            state.Stage.BindFloorArtwork(editedCharacters);
             // The ending draws its Mode 7 characters from the sheets the edited art composes (#1392).
             state.InstalledArtwork.BindSpriteSheets(EndingSheetFixtures.WithEndingMode7(editedCharacters));
             LayeredScene characterSnapshot = EndingCreditsPresentation.CaptureRenderSnapshot(state);
@@ -203,33 +203,33 @@ internal static class EndingMode7ArtworkVerification
         }
 
         string invalidMapPath = Path.Combine(installation.EndingMode7OverrideDirectory,
-            EndingMode7ArtworkFormat.MapFileName(EndingMode7SceneId.EscapeA));
+            EndingFloorArtworkFormat.MapFileName(EndingFloorSceneId.EscapeA));
         File.WriteAllBytes(invalidMapPath, [0]);
         AssertThrows<InvalidDataException>(() => installation.LoadEndingMode7Art(),
             "malformed ending Mode-7 override fails loudly");
         File.Delete(invalidMapPath);
-        EndingMode7MapDocument persistentMap;
+        EndingFloorMapDocument persistentMap;
         using (var input = File.OpenRead(Path.Combine(installation.EndingMode7Directory,
-                   EndingMode7ArtworkFormat.MapFileName(EndingMode7SceneId.EscapeA))))
-            persistentMap = JsonSerializer.Deserialize<EndingMode7MapDocument>(input,
+                   EndingFloorArtworkFormat.MapFileName(EndingFloorSceneId.EscapeA))))
+            persistentMap = JsonSerializer.Deserialize<EndingFloorMapDocument>(input,
                 ArtworkJson.Options)
                 ?? throw new InvalidDataException("Stock ending map is empty.");
         persistentMap.Tiles[0] = unchecked((byte)(persistentMap.Tiles[0] + 1));
         using (var output = File.Create(invalidMapPath))
-            EndingMode7SceneArtwork.WriteMap(output, persistentMap);
-        byte[] selectedMap = installation.LoadEndingMode7Art()[EndingMode7SceneId.EscapeA]
+            EndingFloorSceneArtwork.WriteMap(output, persistentMap);
+        byte[] selectedMap = installation.LoadEndingMode7Art()[EndingFloorSceneId.EscapeA]
             .Map.ToArray();
         string stockPngPath = Path.Combine(installation.EndingMode7Directory,
-            EndingMode7ArtworkFormat.CharacterFileName(EndingMode7SceneId.EscapeA));
+            EndingFloorArtworkFormat.CharacterFileName(EndingFloorSceneId.EscapeA));
         File.WriteAllBytes(stockPngPath, [0]);
         AssertThrows<InvalidDataException>(() => installation.LoadEndingMode7Art(),
             "corrupt stock ending Mode-7 PNG cannot be hidden by a valid override");
         GameInstallation repaired = GameAssetInstaller.EnsureInstalled(installation.Root)
             ?? throw new InvalidOperationException("Ending art vanished during stock repair.");
-        AssertTrue(repaired.LoadEndingMode7Art()[EndingMode7SceneId.EscapeA]
-                .Characters.Span.SequenceEqual(stock[EndingMode7SceneId.EscapeA].Characters.Span),
+        AssertTrue(repaired.LoadEndingMode7Art()[EndingFloorSceneId.EscapeA]
+                .Characters.Span.SequenceEqual(stock[EndingFloorSceneId.EscapeA].Characters.Span),
             "stock ending Mode-7 PNG is regenerated from the installed cartridge");
-        AssertTrue(repaired.LoadEndingMode7Art()[EndingMode7SceneId.EscapeA]
+        AssertTrue(repaired.LoadEndingMode7Art()[EndingFloorSceneId.EscapeA]
                 .Map.Span.SequenceEqual(selectedMap),
             "stock ending art repair preserves the external map override");
         File.Delete(invalidMapPath);
@@ -251,7 +251,7 @@ internal static class EndingMode7ArtworkVerification
                 EndingCreditsRomData.Assets.EscapeCharactersB or
                 EndingCreditsRomData.Assets.ExplosionMap or
                 EndingCreditsRomData.Assets.ExplosionCharacters or
-                EndingCreditsRomData.Assets.PostCreditsMode7Characters,
+                EndingCreditsRomData.Assets.PostCreditsFloorCharacters,
             address => $"Ending art reread cartridge source ${address:X6}.");
         return guard;
     }

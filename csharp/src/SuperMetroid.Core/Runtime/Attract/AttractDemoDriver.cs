@@ -101,7 +101,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
 
         _player.Samus = new SamusState
         {
-            Mode7QueueResidue = _enemySession.Mode7QueueResidue,
+            FloorQueueResidue = _enemySession.FloorQueueResidue,
             Position = FixedPosition<RoomPixels>.FromWhole(scene.SamusPosition),
             EquippedItems = scene.Items, CollectedItems = scene.Items,
             EquippedBeams = scene.EquippedBeams, CollectedBeams = scene.CollectedBeams,

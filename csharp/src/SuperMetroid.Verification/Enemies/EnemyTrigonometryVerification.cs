@@ -738,7 +738,7 @@ internal static class EnemyTrigonometryVerification
             return unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         }
         Func<byte, short>[] cinematicReaders =
-            [Mode7RotationMatrix.ReadSine, EndingCreditsPresentation.ReadSine];
+            [FloorRotationMatrix.ReadSine, EndingCreditsPresentation.ReadSine];
         for (int index = 0; index < 320; index++)
         {
             short expected = Reference(index);

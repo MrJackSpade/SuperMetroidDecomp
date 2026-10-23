@@ -71,21 +71,21 @@ internal static class TitleGradientVerification
         IReadOnlyDictionary<string, byte[]> files =
             SuperMetroid.AssetExtraction.Frontend.Title.TitleGraphicsExtractor.Extract(tracingBus);
         TitleGraphicsPresentation presentation = TitleGraphicsPresentation.Load(
-            new MemoryStream(files[TitleGraphicsFormat.Mode7TilesFile]),
-            new MemoryStream(files[TitleGraphicsFormat.Mode7MapFile]),
+            new MemoryStream(files[TitleGraphicsFormat.FloorTilesFile]),
+            new MemoryStream(files[TitleGraphicsFormat.FloorMapFile]),
             new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
             new MemoryStream(files[TitleGraphicsFormat.BabyTilesFile]));
-        AssertSource(TitleSequenceRomData.Assets.Mode7CharactersAddress,
-            TitleSequenceRomData.Vram.Mode7CharacterByteCount, presentation.Mode7Characters,
+        AssertSource(TitleSequenceRomData.Assets.FloorCharactersAddress,
+            TitleSequenceRomData.Transfers.FloorCharacterByteCount, presentation.FloorCharacters,
             "title Mode 7 characters");
-        AssertSource(TitleSequenceRomData.Assets.Mode7MapAddress,
-            TitleSequenceRomData.Vram.Mode7MapByteCount, presentation.Mode7Map,
+        AssertSource(TitleSequenceRomData.Assets.FloorMapAddress,
+            TitleSequenceRomData.Transfers.FloorMapByteCount, presentation.FloorMap,
             "title Mode 7 map");
         AssertSource(TitleSequenceRomData.Assets.ObjectCharactersAddress,
-            TitleSequenceRomData.Vram.ObjectCharacterByteCount, presentation.ObjectCharacters,
+            TitleSequenceRomData.Transfers.ObjectCharacterByteCount, presentation.ObjectCharacters,
             "title OBJ characters");
         AssertSource(TitleSequenceRomData.Assets.BabyMetroidCharactersAddress,
-            TitleSequenceRomData.Vram.BabyCharacterByteCount, presentation.BabyCharacters,
+            TitleSequenceRomData.Transfers.BabyCharacterByteCount, presentation.BabyCharacters,
             "title Baby characters");
 
         // The installed title uses compiled card timing and sprite selectors alongside
@@ -124,8 +124,8 @@ internal static class TitleGradientVerification
         if (guardedBus.ForbiddenReadAttempts != 0)
             throw new InvalidDataException("Production title reread compressed graphics or native spritemaps.");
 
-        TitleMode7MapDocument spriteDocument = JsonSerializer.Deserialize<TitleMode7MapDocument>(
-            files[TitleGraphicsFormat.Mode7MapFile], ArtworkJson.Options)
+        TitleFloorMapDocument spriteDocument = JsonSerializer.Deserialize<TitleFloorMapDocument>(
+            files[TitleGraphicsFormat.FloorMapFile], ArtworkJson.Options)
             ?? throw new InvalidDataException("Extracted title map document is null.");
         AssertEqual(TitleGraphicsFormat.SpriteFrameCount, spriteDocument.Sprites.Length,
             "title extraction covers all cartridge-selected OBJ frames");
@@ -158,7 +158,7 @@ internal static class TitleGradientVerification
         year.Parts[0] = originalPart with { OffsetX = originalPart.OffsetX + 8 };
         byte[] editedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, ArtworkJson.Options);
         TitleGraphicsPresentation editedPresentation = TitleGraphicsPresentation.Load(
-            new MemoryStream(files[TitleGraphicsFormat.Mode7TilesFile]),
+            new MemoryStream(files[TitleGraphicsFormat.FloorTilesFile]),
             new MemoryStream(editedMap),
             new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
             new MemoryStream(files[TitleGraphicsFormat.BabyTilesFile]));
@@ -195,21 +195,21 @@ internal static class TitleGradientVerification
         year.Parts[0] = originalPart with { TileRow = TitleGraphicsFormat.ObjectTileRows };
         byte[] malformedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, ArtworkJson.Options);
         AssertThrows<InvalidDataException>(() => TitleGraphicsPresentation.Load(
-            new MemoryStream(files[TitleGraphicsFormat.Mode7TilesFile]),
+            new MemoryStream(files[TitleGraphicsFormat.FloorTilesFile]),
             new MemoryStream(malformedMap),
             new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
             new MemoryStream(files[TitleGraphicsFormat.BabyTilesFile])),
             "title graphics reject an out-of-range OBJ region");
 
         IndexedPngImage mode7 = IndexedPng.Read(
-            new MemoryStream(files[TitleGraphicsFormat.Mode7TilesFile]),
-            new(TitleGraphicsFormat.Mode7Width, TitleGraphicsFormat.Mode7Height));
+            new MemoryStream(files[TitleGraphicsFormat.FloorTilesFile]),
+            new(TitleGraphicsFormat.FloorWidth, TitleGraphicsFormat.FloorHeight));
         using var wrong = new MemoryStream();
         IndexedPng.Write(wrong, new(8, 8), new byte[64], mode7.Palette);
         wrong.Position = 0;
         AssertThrows<InvalidDataException>(() => TitleGraphicsPresentation.Load(
             wrong,
-            new MemoryStream(files[TitleGraphicsFormat.Mode7MapFile]),
+            new MemoryStream(files[TitleGraphicsFormat.FloorMapFile]),
             new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
             new MemoryStream(files[TitleGraphicsFormat.BabyTilesFile])),
             "title graphics reject wrong Mode 7 PNG dimensions");
@@ -427,8 +427,8 @@ internal static class TitleGradientVerification
             TitlePaletteExtractor.Extract(bus)));
         IReadOnlyDictionary<string, byte[]> graphicsFiles = TitleGraphicsExtractor.Extract(bus);
         TitleGraphicsPresentation graphics = TitleGraphicsPresentation.Load(
-            new MemoryStream(graphicsFiles[TitleGraphicsFormat.Mode7TilesFile]),
-            new MemoryStream(graphicsFiles[TitleGraphicsFormat.Mode7MapFile]),
+            new MemoryStream(graphicsFiles[TitleGraphicsFormat.FloorTilesFile]),
+            new MemoryStream(graphicsFiles[TitleGraphicsFormat.FloorMapFile]),
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.ObjectTilesFile]),
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.BabyTilesFile]));
         (TitleGradientLine[] rendered, ushort selectedZoom) = CaptureInstalledTitleGradient(

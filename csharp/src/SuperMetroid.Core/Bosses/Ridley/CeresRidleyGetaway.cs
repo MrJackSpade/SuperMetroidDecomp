@@ -61,9 +61,9 @@ internal sealed class CeresRidleyGetaway
         state.Mode7Active = true;
         state.Mode7Finished = false;
         state.Mode7TableIndex = 0;
-        state.Mode7Angle = SnesAngle.FromRaw(1);
+        state.FloorAngle = SnesAngle.FromRaw(1);
         state.Mode7Offset = new Offset16<Mode7Pixels>(-128, 32);
-        state.Mode7Zoom = 2048;
+        state.FloorZoom = 2048;
         state.Mode7MatrixA = CeresRidleyBehavior.Mode7UnitCoefficient;
         state.Mode7MatrixB = CeresRidleyBehavior.Mode7UnitCoefficient;
         state.Mode7MatrixC = CeresRidleyBehavior.Mode7UnitCoefficient;
@@ -137,7 +137,7 @@ internal sealed class CeresRidleyGetaway
             return;
         }
 
-        state.Mode7Zoom = zoom;
+        state.FloorZoom = zoom;
         // The getaway frame's velocity is added to the vertical word and subtracted from the
         // horizontal word.
         state.Mode7Offset = new Offset16<Mode7Pixels>(
@@ -145,12 +145,12 @@ internal sealed class CeresRidleyGetaway
             unchecked((short)(state.Mode7Offset.Y + frame.Velocity.Y)));
 
         UpdateCeresRidleyMode7Palette(zoom);
-        state.Mode7Angle = state.Mode7Angle.AddRaw(48);
+        state.FloorAngle = state.FloorAngle.AddRaw(48);
         UpdateCeresRidleyMode7Matrix(state);
 
         // Both animations queue into this frame's Mode 7 transfer queue, the capsule first, so
         // the wing descriptors start after the capsule's. Their bytes outlive the transfer.
-        var queue = new Mode7TransferQueue(_room.Mode7QueueResidue ?? throw new InvalidOperationException(
+        var queue = new Mode7TransferQueue(_room.FloorQueueResidue ?? throw new InvalidOperationException(
             "The Ceres Ridley getaway requires the session's Mode 7 transfer queue residue."));
 
         // $A6:ACBC advances the Baby capsule on every fourth NMI using 0,1,2,1. The transfer
@@ -182,8 +182,8 @@ internal sealed class CeresRidleyGetaway
     /// <summary>Updates the getaway's Mode-7 transform matrix from its zoom and rotation words.</summary>
     private static void UpdateCeresRidleyMode7Matrix(RidleyEnemyState state)
     {
-        byte angle = state.Mode7Angle.TableIndex;
-        ushort zoom = checked((ushort)state.Mode7Zoom);
+        byte angle = state.FloorAngle.TableIndex;
+        ushort zoom = checked((ushort)state.FloorZoom);
         var diagonal = new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(zoom, new SnesByteAngle(angle).AddTableUnits(SnesByteAngle.QuarterTurn.RawValue)));
         var offDiagonal = new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(zoom, new SnesByteAngle(angle)));
         state.Mode7MatrixA = diagonal;
@@ -198,7 +198,7 @@ internal sealed class CeresRidleyGetaway
         // SetCeresRidleyPaletteAccordingToZoomLevel uses this wrapped bank-$A6 expression.
         // There are fifteen colors; palette entry zero remains the shared transparent color.
         int zoomHighByte = SnesLittleEndian.HighByte(zoom);
-        if (_bossArtwork.CeresRidleyMode7Colors is { } installed &&
+        if (_bossArtwork.CeresRidleyFloorColors is { } installed &&
             zoomHighByte < CeresRidleyPaletteRomData.Mode7ZoomRowCount)
         {
             installed.Apply(_presentation.Cgram, zoomHighByte);

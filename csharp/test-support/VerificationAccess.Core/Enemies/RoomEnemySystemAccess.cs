@@ -363,10 +363,10 @@ internal static class RoomEnemySystemAccess
             RoomLevelData level,
             SamusState? samus,
             Position16<RoomPixels> camera = default,
-            int? nmiFrameCounter8 = null,
+            int? frameCounterByte = null,
             SamusBombProjectileSystem? samusBombs = null)
         {
-            self.StepEnemyProjectileInstructions(level, samus, camera, nmiFrameCounter8, samusBombs);
+            self.StepEnemyProjectileInstructions(level, samus, camera, frameCounterByte, samusBombs);
             self.Projectiles.ResolveEnemyProjectileSamusHits(samus);
         }
 

@@ -82,7 +82,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     /// True when the current menu index stopped at its own NMI wait (<c>$81:8D1D</c> or
     /// <c>$81:9260</c>); the next update finishes that index instead of entering MainGameLoop.
     /// </summary>
-    public bool ResumesAfterNmiWait { get; internal set; }
+    public bool ResumesAfterFrameWait { get; internal set; }
 
     /// <summary>Sticky request raised when the accepted Yes answer has faded fully to black; the outer dispatcher opens file-select map view rather than reloading the save inside this scene.</summary>
     public bool ContinueRequested { get; private set; }
@@ -125,11 +125,11 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     public void Step(SnesButton controllerInput)
     {
         controller.Latch(controllerInput);
-        if (ResumesAfterNmiWait)
+        if (ResumesAfterFrameWait)
         {
             // Both waits are the last call of their index; the remainder only configures
             // presentation and advances the index.
-            ResumesAfterNmiWait = false;
+            ResumesAfterFrameWait = false;
             Phase = Phase switch
             {
                 GameOverMenuPhase.ConfigureGraphics => GameOverMenuPhase.Initialize,
@@ -158,7 +158,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 if (brightness != 0)
                     throw new InvalidOperationException("Game-over menu must begin from a black screen.");
                 audio.QueueSound(SoundEffectLibrary3Sounds.CancelAll, maximumQueued: GameOverRomData.MaximumQueuedSounds);
-                ResumesAfterNmiWait = true;
+                ResumesAfterFrameWait = true;
                 break;
 
             case GameOverMenuPhase.Initialize:
@@ -170,7 +170,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 SelectedItem = YesNoChoice.Yes;
                 brightness = 0;
                 // $81:9260 unblanks and waits for NMI before advancing the index.
-                ResumesAfterNmiWait = true;
+                ResumesAfterFrameWait = true;
                 break;
 
             case GameOverMenuPhase.WaitForInitialMusic:
@@ -238,15 +238,13 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         presentation.LoadTilemapTo(screen.Tilemaps.Bg1);
 
     /// <summary>Captures BG1/OBJ only; the game-over PPU does not enable BG2.</summary>
-    [PpuLayoutBoundary("codec: game-over render packet layers")]
     public LayeredScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
-        byte[] image = MenuScreenImage.Compose(screen);
-        RenderLayer[] layers = [new TileRenderLayer(ScreenTileMap.Capture(image, MenuVramLayout.Bg1TilemapWord,
-            new Extent16<TilemapCells>(GameOverRomData.TilemapWidth, GameOverRomData.TilemapHeight), screen.FileSelectTiles.Pictures(0, BgBitDepth.FourBpp)),
+        RenderLayer[] layers = [new TileRenderLayer(ScreenTileMap.Of(screen.Tilemaps.Bg1,
+            new Extent16<TilemapCells>(GameOverRomData.TilemapWidth, GameOverRomData.TilemapHeight), screen.MenuTiles),
             new Position16<BgPlanePixels>(0, 0), null), new ObjRenderLayer()];
-        return new(MenuScreenImage.Capture(screen), layers, checked((byte)brightness));
+        return new(screen.Paint(), layers, checked((byte)brightness));
     }
 
     /// <summary>Builds the scene's Baby, egg, and selected-answer cursor sprite entries from installed art.</summary>

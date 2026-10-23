@@ -250,7 +250,7 @@ internal static class EndingPaletteArtworkVerification
         installedState.InstalledArtwork.BindEndingText(maps.EndingText);
         installedState.Stage.BindEndingFont(maps.EndingFont);
         installedState.Flyaway.BindFlightArtwork(installation.LoadIntroCinematicArt().CeresFlight);
-        installedState.Stage.BindMode7Artwork(installation.LoadEndingMode7Art());
+        installedState.Stage.BindFloorArtwork(installation.LoadEndingMode7Art());
         installedState.InstalledArtwork.BindFixtureObjectArtwork(installation.LoadEndingObjectArt());
         CreditsPresentation credits = maps.StaffCredits;
         nativeState.InstalledArtwork.BindStaffCredits(credits);
@@ -358,7 +358,7 @@ internal static class EndingPaletteArtworkVerification
                     editedState.Step();
                     stockState.Step();
                 }
-                while (editedState.ResumesAfterNmiWait);
+                while (editedState.ResumesAfterFrameWait);
                 AssertTrue(!EndingCreditsPresentation.CaptureRenderSnapshot(editedState).Paint.Colors.SequenceEqual(
                         EndingCreditsPresentation.CaptureRenderSnapshot(stockState).Paint.Colors) &&
                     editedState.ShownVram().SequenceEqual(

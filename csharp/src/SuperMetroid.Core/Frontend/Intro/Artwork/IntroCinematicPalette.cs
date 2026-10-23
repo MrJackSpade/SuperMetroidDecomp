@@ -12,15 +12,15 @@ public sealed class IntroCinematicPalette
 
     /// <summary>Retains exact supplied colors while recognizing stock, neutral-cycle, and shared cross-fade rows.</summary>
     [PpuLayoutBoundary("codec: native 512-byte CGRAM transfer image of the opening palette")]
-    private IntroCinematicPalette(byte[] nativeBytes)
+    private IntroCinematicPalette(byte[] transfer)
     {
-        if (IntroCinematicPaintDefinitions.Matches(nativeBytes)) { rows = []; return; }
+        if (IntroCinematicPaintDefinitions.Matches(transfer)) { rows = []; return; }
         rows = new PaletteRow[CgramPalettes.ColorCount / IntroCinematicPaletteFormat.ColorsPerRow];
         for (int row = 0; row < rows.Length; row++)
         {
             var colors = new Bgr555[IntroCinematicPaletteFormat.ColorsPerRow];
             for (int color = 0; color < colors.Length; color++)
-                colors[color] = Bgr555.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(nativeBytes.AsSpan(2 * (row * colors.Length + color))));
+                colors[color] = Bgr555.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(transfer.AsSpan(2 * (row * colors.Length + color))));
             bool neutralCycle = false;
             PaletteRow? crossFadeSource = null;
             if (Enum.IsDefined((IntroCinematicAnimatedRow)row))
@@ -56,12 +56,12 @@ public sealed class IntroCinematicPalette
     }
 
     /// <summary>Replaces all 256 CGRAM colors with the installed opening palette, corresponding to native $8C:E3E9-E5E8; does not advance or reset cinematic fade timers.</summary>
-    /// <param name="cgram">Destination CGRAM image, receiving the complete $0200-byte BGR555 transfer.</param>
+    /// <param name="colours">The screen's colours, every one of which the palette replaces.</param>
     [PpuLayoutBoundary("codec: native 512-byte CGRAM transfer image of the opening palette")]
-    public void LoadTo(IPaletteColors cgram)
+    public void LoadTo(IPaletteColors colours)
     {
-        Ensure.NotNull(cgram);
-        new CgramPalettes(cgram).All.LoadPortBytes(Transfer.Span);
+        Ensure.NotNull(colours);
+        new CgramPalettes(colours).All.LoadPortBytes(Transfer.Span);
     }
 
     /// <summary>One CGRAM row represented by exact colors or an equivalent authored color relationship.</summary>
@@ -149,7 +149,7 @@ public sealed class IntroCinematicPalette
             document.Colors is not { Length: CgramPalettes.ColorCount })
             throw new InvalidDataException("Opening palette requires 256 RGB5 colors.");
 
-        var native = new byte[CgramPalettes.ByteCount];
+        var image = new byte[CgramPalettes.ByteCount];
         for (int index = 0; index < document.Colors.Length; index++)
         {
             PaletteRgb5? color = document.Colors[index];
@@ -157,10 +157,10 @@ public sealed class IntroCinematicPalette
                 (uint)color.Blue > 31)
                 throw new InvalidDataException(
                     $"Opening palette color {index} requires red, green and blue in 0..31.");
-            BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(index * Bgr555.ByteCount),
+            BinaryPrimitives.WriteUInt16LittleEndian(image.AsSpan(index * Bgr555.ByteCount),
                 color.ToBgr555().ToWord());
         }
-        return new IntroCinematicPalette(native);
+        return new IntroCinematicPalette(image);
     }
 
     /// <summary>Serializes the complete opening palette as UTF-8 JSON and validates it through <see cref="Load"/> before writing any destination bytes.</summary>

@@ -35,7 +35,7 @@ internal static class CeresRidleyBodyPublicationVerification
         RidleyEnemyState ridley = runtime.Enemies.RidleyEncounter.CeresRidley
             ?? throw new InvalidOperationException("The Ceres Ridley room loads Ridley.");
         ridley.Mode7Active = true;
-        ridley.Mode7Angle = SnesAngle.FromRaw(1);
+        ridley.FloorAngle = SnesAngle.FromRaw(1);
         ridley.Mode7Offset = new Offset16<Mode7Pixels>(-128, 32);
         ridley.Mode7Center = new Position16<Mode7Pixels>(64, 64);
         // The getaway setup's starting table position and animation frames ($A6:A2E3).
@@ -47,18 +47,18 @@ internal static class CeresRidleyBodyPublicationVerification
         {
             runtime.Enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyMode7Getaway(ridley, null, nmiFrame);
             runtime.FrameBoundary.BeginAcceptedFrame(0);
-            AssertTrue(previousAngle is not { } previous || ridley.Mode7Angle != previous, "the getaway turns Ridley between the two frames");
-            previousAngle = ridley.Mode7Angle;
+            AssertTrue(previousAngle is not { } previous || ridley.FloorAngle != previous, "the getaway turns Ridley between the two frames");
+            previousAngle = ridley.FloorAngle;
             CeresRidleyMode7Snapshot transform = runtime.Display.Latched.Bosses.CeresRidleyMode7
                 ?? throw new InvalidOperationException("Ridley's getaway publishes his Mode 7 transform.");
-            AssertEqual(CeresRidleyMode7Snapshot.Capture(ridley), transform, $"angle {ridley.Mode7Angle} publishes Ridley's transform");
+            AssertEqual(CeresRidleyMode7Snapshot.Capture(ridley), transform, $"angle {ridley.FloorAngle} publishes Ridley's transform");
             AffineFloor map = runtime.Display.Latched.Rooms?.Mode7
                 ?? throw new InvalidOperationException("The arena publishes its Mode 7 map.");
             foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(wings))
                 AssertTrue(map.Cells.Slice(transfer.DestinationWord, transfer.TileNumbers.Count).Select(cell => (byte)cell.Tile).SequenceEqual(transfer.TileNumbers),
-                    $"angle {ridley.Mode7Angle} publishes his {wings} body frame");
+                    $"angle {ridley.FloorAngle} publishes his {wings} body frame");
             var mode7 = (Mode7GameplayRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-            AssertTrue(mode7.Map.Cells.SequenceEqual(map.Cells), $"angle {ridley.Mode7Angle} draws his published body");
+            AssertTrue(mode7.Map.Cells.SequenceEqual(map.Cells), $"angle {ridley.FloorAngle} draws his published body");
         }
         Console.WriteLine("  Ceres Ridley body: two getaway rotations publish his transform and body frames on the Mode 7 layer.");
     }

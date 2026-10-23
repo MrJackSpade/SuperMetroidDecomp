@@ -21,7 +21,7 @@ internal static class GameplayRuntimeFactory
         if ((start.Purpose == GameplayRuntimePurpose.SelectedGame) != (start.Selected is not null))
             throw new ArgumentException($"A {start.Purpose} runtime start {(start.Selected is null ? "requires" : "takes no")} selected-game options.", nameof(start));
 
-        var runtime = new SuperMetroidRuntime(start.Overrides, start.Artwork, start.Clock, start.Mode7QueueResidue,
+        var runtime = new SuperMetroidRuntime(start.Overrides, start.Artwork, start.Clock, start.FloorQueueResidue,
             start.Random);
         runtime.System.MainGameLoopCarry = start.MainGameLoopCarry;
         start.Layer1.PublishTo(runtime);

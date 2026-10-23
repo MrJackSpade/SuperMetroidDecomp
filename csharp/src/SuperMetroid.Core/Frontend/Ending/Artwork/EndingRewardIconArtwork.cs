@@ -26,10 +26,10 @@ public sealed class EndingRewardIconArtwork
     {
         Ensure.NotNull(mapJson);
         Ensure.NotNull(charactersPng);
-        EndingMode7MapDocument map;
+        EndingFloorMapDocument map;
         try
         {
-            map = JsonSerializer.Deserialize<EndingMode7MapDocument>(mapJson,
+            map = JsonSerializer.Deserialize<EndingFloorMapDocument>(mapJson,
                 ArtworkJson.Options)
                 ?? throw new InvalidDataException("Reward icon map JSON is null.");
         }
@@ -39,7 +39,7 @@ public sealed class EndingRewardIconArtwork
         }
         ValidateMap(map);
         IndexedPngImage image = IndexedPng.Read(charactersPng,
-            new(EndingMode7ArtworkFormat.CharacterWidth, EndingMode7ArtworkFormat.CharacterHeight));
+            new(EndingFloorArtworkFormat.CharacterWidth, EndingFloorArtworkFormat.CharacterHeight));
         if (image.Palette.Length != 256)
             throw new InvalidDataException("Reward icon characters require a 256-color indexed PNG.");
         byte[] characters = SnesMode7TileEncoder.Encode(image.Pixels,
@@ -58,7 +58,7 @@ public sealed class EndingRewardIconArtwork
     /// <param name="map">Version-1 map containing exactly 16384 eight-bit tile indices.</param>
     /// <exception cref="ArgumentNullException">The destination stream is null.</exception>
     /// <exception cref="InvalidDataException">The map's version, dimensions, index count, or index range is invalid.</exception>
-    public static void WriteMap(Stream json, EndingMode7MapDocument map)
+    public static void WriteMap(Stream json, EndingFloorMapDocument map)
     {
         Ensure.NotNull(json);
         ValidateMap(map);
@@ -66,9 +66,9 @@ public sealed class EndingRewardIconArtwork
     }
 
     /// <summary>Requires a full 128-by-128 reward map of byte-valued tile indices.</summary>
-    private static void ValidateMap(EndingMode7MapDocument map)
+    private static void ValidateMap(EndingFloorMapDocument map)
     {
-        if (map.Version != EndingMode7ArtworkFormat.Version ||
+        if (map.Version != EndingFloorArtworkFormat.Version ||
             map.Width != EndingRewardIconArtworkFormat.MapWidth ||
             map.Height != EndingRewardIconArtworkFormat.MapHeight ||
             map.Tiles is not { Length: EndingRewardIconArtworkFormat.MapBytes } ||

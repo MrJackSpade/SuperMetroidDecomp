@@ -1,3 +1,8 @@
+using System.Collections.Immutable;
+using System.Text.Json;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Menus.Artwork;
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Verification access to <see cref="MapSpriteCatalog"/> members production does not use.</summary>
@@ -32,5 +37,7 @@ internal static class MapSpriteCatalogAccess
 
         /// <summary>Measures the catalog's independent map-object character byte payload.</summary>
         internal int StoredArtworkByteCount => self.characters.StoredOtherByteCount;
+        /// <summary>Loads the compiled shared 4-bpp map-object characters into the screen's OBJ character region.</summary>
+        public void LoadArtworkTo(VramRegion destination) => self.characters.LoadTo(destination);
     }
 }

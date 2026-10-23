@@ -85,7 +85,7 @@ internal static class MenuScreenPublicationVerification
     {
         FramePaint memory = snapshot.Paint;
         // The image the menu composes from its screen when it captures a frame (#1403).
-        byte[] vram = MenuScreenImage.Compose(screen);
+        byte[] vram = MenuScreenMemory.Compose(screen);
         ReadOnlySpan<ushort> tilemaps = screen.Tilemaps.All;
         int first = MenuVramLayout.Bg1TilemapWord * sizeof(ushort);
         for (int word = 0; word < tilemaps.Length; word++)

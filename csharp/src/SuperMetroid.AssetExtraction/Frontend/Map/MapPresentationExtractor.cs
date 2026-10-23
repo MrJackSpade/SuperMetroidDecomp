@@ -251,8 +251,8 @@ public static class MapPresentationExtractor
         IReadOnlyDictionary<string, byte[]> titleGraphics = TitleGraphicsExtractor.Extract(bus);
         foreach (string name in new[]
                  {
-                     TitleGraphicsFormat.Mode7TilesFile,
-                     TitleGraphicsFormat.Mode7MapFile,
+                     TitleGraphicsFormat.FloorTilesFile,
+                     TitleGraphicsFormat.FloorMapFile,
                      TitleGraphicsFormat.ObjectTilesFile,
                      TitleGraphicsFormat.BabyTilesFile,
                  })

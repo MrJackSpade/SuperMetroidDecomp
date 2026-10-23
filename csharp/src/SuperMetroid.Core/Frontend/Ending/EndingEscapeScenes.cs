@@ -39,7 +39,7 @@ internal sealed class EndingEscapeScenes
     internal void SetupEscapeSceneA()
     {
         _stage.LoadStaticPalette(EndingPaletteId.Escape, 0, 256, 0);
-        _stage.LoadMode7(EndingMode7SceneId.EscapeA);
+        _stage.LoadFloor(EndingFloorSceneId.EscapeA);
         _artwork.LoadEscapeCloudCharacters();
         sprites.Clear();
         _stage.SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudRightTop, EndingSpriteRole.CloudRightA);
@@ -47,8 +47,8 @@ internal sealed class EndingEscapeScenes
         _stage.SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudRightBottom, EndingSpriteRole.CloudRightB);
         _stage.SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudLeftBottom, EndingSpriteRole.CloudLeftB);
         _stage.Mode7 = new(_stage.Mode7.X.WithWhole(0), default);
-        _stage.Mode7Zoom = EndingCreditsRomData.Motion.EscapeInitialScale;
-        _stage.Mode7Angle = EndingCreditsRomData.Motion.EscapeInitialAngle.ToAngle();
+        _stage.FloorZoom = EndingCreditsRomData.Motion.EscapeInitialScale;
+        _stage.FloorAngle = EndingCreditsRomData.Motion.EscapeInitialAngle.ToAngle();
         _stage.Brightness = 0;
         _stage.PostCreditsScroll = Position16<BgPlanePixels>.Zero;
         audio.QueueMusicDelayed8(MusicCommand.Stop);
@@ -65,7 +65,7 @@ internal sealed class EndingEscapeScenes
     {
         _stage.ResetPaletteFx();
         _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.GreyClouds, 0);
-        _stage.LoadMode7(EndingMode7SceneId.EscapeB);
+        _stage.LoadFloor(EndingFloorSceneId.EscapeB);
         _artwork.LoadEscapeCloudCharacters();
         sprites.Clear();
         _stage.SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudTopA, EndingSpriteRole.CloudTopA);
@@ -73,8 +73,8 @@ internal sealed class EndingEscapeScenes
         _stage.SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudBottomA, EndingSpriteRole.CloudBottomA);
         _stage.SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudBottomB, EndingSpriteRole.CloudBottomB);
         _stage.Mode7 = new(_stage.Mode7.X.WithWhole(0), default);
-        _stage.Mode7Zoom = EndingCreditsRomData.Motion.EscapeInitialScale;
-        _stage.Mode7Angle = EndingCreditsRomData.Motion.EscapeInitialAngle.ToAngle();
+        _stage.FloorZoom = EndingCreditsRomData.Motion.EscapeInitialScale;
+        _stage.FloorAngle = EndingCreditsRomData.Motion.EscapeInitialAngle.ToAngle();
         _stage.Brightness = 0;
         _stage.RestartFadeCadence();
         _stage.Phase = EndingCreditsPhase.FadeInEscapeSceneB;
@@ -86,7 +86,7 @@ internal sealed class EndingEscapeScenes
         foreach (EndingSprite wrapper in sprites)
         {
             IntroDiscoverySprite sprite = wrapper.Sprite;
-            EndingCloudMotion.Step(wrapper, _stage.Mode7Zoom);
+            EndingCloudMotion.Step(wrapper, _stage.FloorZoom);
             sprite.Step();
         }
     }

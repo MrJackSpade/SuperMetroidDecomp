@@ -76,15 +76,15 @@ internal static class IntroCinematicArtworkVerification
                 "installed compressed cinematic OBJ PNG preserves every native tile byte");
             AssertTrue(stock.BackgroundPages.Span.SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.BackgroundPageTilemaps,
-                        maximumOutputBytes: IntroCinematicRomData.Vram.BackgroundPageTilemapBytes)),
+                        maximumOutputBytes: IntroCinematicRomData.Transfers.BackgroundPageTilemapBytes)),
                 "four installed BG page JSON files preserve every native tilemap word");
             AssertTrue(stock.PortraitTilemap.Span.SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.SamusHeadTilemap,
-                        maximumOutputBytes: IntroCinematicRomData.Vram.SamusHeadTilemapBytes)),
+                        maximumOutputBytes: IntroCinematicRomData.Transfers.SamusHeadTilemapBytes)),
                 "installed portrait JSON preserves every native tilemap word");
             AssertTrue(stock.InitialNarrationTilemap.Span.SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.FirstNarrationTilemap,
-                        maximumOutputBytes: IntroCinematicRomData.Vram.NarrationTilemapBytes)),
+                        maximumOutputBytes: IntroCinematicRomData.Transfers.NarrationTilemapBytes)),
                 "installed initial narration JSON preserves every native tilemap word");
             for (int index = 0; index < IntroFinalLineTilemapFormat.CellCount; index++)
             {
@@ -282,7 +282,7 @@ internal static class IntroCinematicArtworkVerification
             var editedDividerState = CreateRetailIntroFixture(characterArtwork: editedDivider);
             editedDividerState.SetupFirstIllustratedPage();
             byte[] expectedDividerVram = stockDividerVram.ToArray();
-            int dividerByte = (IntroCinematicRomData.Layers.NarrationTilemapWord +
+            int dividerByte = (IntroCinematicRomDataLayersConstants.NarrationTilemapWord +
                 IntroCinematicRomData.Text.FinalLineDestinationStart + changedCell) * sizeof(ushort);
             BinaryPrimitives.WriteUInt16LittleEndian(expectedDividerVram.AsSpan(dividerByte),
                 editedDivider.FinalLine.Words.Span[changedCell]);
@@ -630,7 +630,7 @@ internal static class IntroCinematicArtworkVerification
         AssertEqual(program, installed.EyeProgram,
             "eye art rebind preserves blink program position");
         var eyeCell = IntroEyeAnimationDefinitions.PortraitCell;
-        int destination = IntroCinematicRomData.Layers.PortraitTilemapWord +
+        int destination = IntroCinematicRomDataLayersConstants.PortraitTilemapWord +
             eyeCell.Y * IntroCinematicRomData.Layers.TilemapWidth + eyeCell.X;
         AssertEqual(edited.FrameWords(0)[0], IntroTilemapsFixtures.Vram(installedVram).ReadWord(destination),
             "eye JSON edit reaches the active portrait tile");
@@ -1010,8 +1010,8 @@ internal static class IntroCinematicArtworkVerification
             IntroCinematicRomData.Assets.FirstNarrationTilemap or
             IntroCinematicRomData.Assets.IntroObjectCharacters or
             IntroCinematicRomData.Assets.ObjectCharacters or
-            CeresFlightRomData.Assets.Mode7Characters or
-            CeresFlightRomData.Assets.Mode7Maps or
+            CeresFlightRomData.Assets.FloorCharacters or
+            CeresFlightRomData.Assets.FloorMaps or
             CeresFlightRomData.Assets.ObjectCharacters or
             CeresDestructionRomData.Assets.ZebesTilemap or
             CeresDestructionRomData.Assets.ZebesCharacters or

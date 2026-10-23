@@ -94,7 +94,7 @@ internal sealed class IntroBabyDiscoveryState
     /// the cinematic function, so $8B:AF6C's setup dispatch already plays the demo's first
     /// entry, moves Samus and steps the egg and baby.
     /// </summary>
-    public void Step(int nmiFrameCounter, ushort introCrossfadeTimer)
+    public void Step(int frameCounter, ushort introCrossfadeTimer)
     {
         // $8B:8E0D runs Samus's handlers, ahead of the sprite pass, only while $1A57 is set.
         if (SamusDisplay != IntroSamusDisplay.Hidden && !samusHandlersEnded)
@@ -120,7 +120,7 @@ internal sealed class IntroBabyDiscoveryState
                     Samus,
                     demo.Held,
                     demo.NewlyPressed,
-                    nmiFrameCounter,
+                    frameCounter,
                     random);
             }
         }

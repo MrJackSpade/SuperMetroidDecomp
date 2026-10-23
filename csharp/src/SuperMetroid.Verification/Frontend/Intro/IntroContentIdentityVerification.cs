@@ -166,7 +166,7 @@ internal static class IntroContentIdentityVerification
             return cells;
         }
         var flight = CeresFlightArtworkCatalog.Load(
-            Png("flight-mode7", CeresFlightArtworkFormat.Mode7Width, CeresFlightArtworkFormat.Mode7Height, 256),
+            Png("flight-mode7", CeresFlightArtworkFormat.FloorWidth, CeresFlightArtworkFormat.FloorHeight, 256),
             Json(new CeresFlightMapDocument
             {
                 Version = CeresFlightArtworkFormat.Version, Width = CeresFlightArtworkFormat.MapWidth,

@@ -305,11 +305,19 @@ internal static class SymbolRelocator
             }
 
         // 4. Moved text, grouped into target files.
+        // A source project's global usings do not follow its code; each moved declaration takes those it names.
+        var globalNamespaces = trees.GroupBy(entry => entry.Compilation).ToDictionary(group => group.Key, group =>
+            (IReadOnlySet<string>)group.SelectMany(entry => entry.Tree.GetCompilationUnitRoot().Usings)
+                .Where(u => u.GlobalKeyword.IsKind(SyntaxKind.GlobalKeyword) && u.Alias is null && u.StaticKeyword.IsKind(SyntaxKind.None) && u.Name is not null)
+                .Select(u => u.Name!.ToString()).ToHashSet(StringComparer.Ordinal));
+        var compilationOf = trees.ToDictionary(entry => entry.Tree, entry => entry.Compilation);
         var files = new SortedDictionary<string, TargetFile>(StringComparer.Ordinal);
-        TargetFile FileFor(string path, SyntaxTree source)
+        TargetFile FileFor(string path, Move move)
         {
             if (!files.TryGetValue(path, out var file))
-                files[path] = file = new TargetFile(Usings(source), Namespace(source), style);
+                files[path] = file = new TargetFile([.. Usings(move.Tree)], Namespace(move.Tree), style);
+            foreach (string name in GlobalNamespacesNamed(move, globalNamespaces[compilationOf[move.Tree]]))
+                file.RequireUsing($"using {name};");
             return file;
         }
         foreach (var move in moves)
@@ -318,13 +326,13 @@ internal static class SymbolRelocator
             string relative = TargetRelativePath(identity.Relative(move.Tree.FilePath), style.KeepsProjectDirectory);
             if (move.Placement == Placement.WholeType)
             {
-                FileFor(Path.Combine(targetDirectory, relative), move.Tree).Types.Add(text);
+                FileFor(Path.Combine(targetDirectory, relative), move).Types.Add(text);
                 continue;
             }
             // Static members and instance extensions live in separately named classes, each in its own file.
             string className = move.Placement == Placement.ExtensionMember ? style.ExtensionsName(move.AdapterOwner) : AdapterName(move.AdapterOwner);
             string adapterFile = Path.Combine(targetDirectory, Path.GetDirectoryName(relative) ?? "", className + ".cs");
-            var file = FileFor(adapterFile, move.Tree);
+            var file = FileFor(adapterFile, move);
             var adapter = file.Adapter(move.AdapterOwner, movedInterfaces, implementation => MoveOf(implementation) is not null);
             text = AsAdapterMember(text);
             if (move.Placement == Placement.ExtensionMember)
@@ -561,13 +569,56 @@ internal static class SymbolRelocator
     private static IReadOnlyList<string> Usings(SyntaxTree tree) =>
         [.. tree.GetCompilationUnitRoot().Usings.Select(u => u.ToString())];
 
+    /// <summary>
+    /// The source project's global-using namespaces whose types, attributes or extension methods the moved declaration
+    /// names without qualification, other than those its own namespace already encloses.
+    /// </summary>
+    private static IEnumerable<string> GlobalNamespacesNamed(Move move, IReadOnlySet<string> globalNamespaces)
+    {
+        if (globalNamespaces.Count == 0)
+            yield break;
+        string own = Namespace(move.Tree);
+        var named = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (var name in move.Node.DescendantNodes().OfType<SimpleNameSyntax>())
+        {
+            if (name.Parent is QualifiedNameSyntax qualified && qualified.Right == name ||
+                name.Parent is MemberAccessExpressionSyntax access && access.Name == name && access.Expression is not (ThisExpressionSyntax or BaseExpressionSyntax) &&
+                move.Model.GetSymbolInfo(name).Symbol is not IMethodSymbol { IsExtensionMethod: true } and not IMethodSymbol { ReducedFrom: not null })
+                continue;
+            INamedTypeSymbol? type = move.Model.GetSymbolInfo(name).Symbol switch
+            {
+                INamedTypeSymbol typeSymbol => typeSymbol,
+                IMethodSymbol { MethodKind: MethodKind.Constructor } constructor => constructor.ContainingType,
+                IMethodSymbol { ReducedFrom: { } extension } => extension.ContainingType,
+                IMethodSymbol { IsExtensionMethod: true } extension => extension.ContainingType,
+                _ => null,
+            };
+            while (type?.ContainingType is { } outer)
+                type = outer;
+            if (type?.ContainingNamespace is not { IsGlobalNamespace: false } containing)
+                continue;
+            string ns = containing.ToDisplayString();
+            if (globalNamespaces.Contains(ns) && own != ns && !own.StartsWith(ns + ".", StringComparison.Ordinal))
+                named.Add(ns);
+        }
+        foreach (string ns in named)
+            yield return ns;
+    }
+
     /// <summary>Retains a moved declaration's source namespace.</summary>
     private static string Namespace(SyntaxTree tree) =>
         tree.GetCompilationUnitRoot().Members.OfType<BaseNamespaceDeclarationSyntax>().FirstOrDefault()?.Name.ToString() ?? "";
 
     /// <summary>Accumulates whole types and per-owner adapters for one destination source file.</summary>
-    private sealed class TargetFile(IReadOnlyList<string> usings, string ns, RelocationStyle style)
+    private sealed class TargetFile(List<string> usings, string ns, RelocationStyle style)
     {
+        /// <summary>Adds a using directive the moved code needs, once.</summary>
+        public void RequireUsing(string directive)
+        {
+            if (!usings.Contains(directive))
+                usings.Add(directive);
+        }
+
         /// <summary>Whole declarations to append in this destination namespace.</summary>
         public List<string> Types { get; } = [];
         /// <summary>Adapters indexed by their original shipped owner.</summary>

@@ -92,7 +92,7 @@ internal static class PauseBackdropsVerification
                 foreach (var span in PauseMenuLayout.ButtonLabelSpans)
                 for (int word = 0; word < span.Count; word++)
                 {
-                    int offset = (PauseMenuLayout.Bg2TilemapWord + span.Word + word) * 2;
+                    int offset = (PauseMenuLayoutConstants.Bg2TilemapWord + span.Word + word) * 2;
                     var before = new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(snapshotVram.AsSpan(offset)));
                     var after = new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(changedVram.AsSpan(offset)));
                     AssertEqual(before.PaletteIndex, after.PaletteIndex, "live button highlight wins over replacement palette at every fade position");

@@ -40,8 +40,8 @@ internal static class PauseEquipmentBaseAssetsVerification
         for (int frame = 0; frame < toMap + PausePageTransitionNativeLength + 2; frame++)
         {
             SnesButton input = frame == 0 ? SnesButton.R : frame == toMap ? SnesButton.L : 0;
-            native.Step(input, input, nmiFrameCounter8: (byte)frame);
-            installed.Step(input, input, nmiFrameCounter8: (byte)frame);
+            native.Step(input, input, frameCounterByte: (byte)frame);
+            installed.Step(input, input, frameCounterByte: (byte)frame);
             AssertTrue(native.ShownVram().SequenceEqual(installed.ShownVram()),
                 "equipment base migration retains exact native VRAM through both page transitions");
             AssertTrue(native.Render().SequenceEqual(installed.Render()),
@@ -132,7 +132,7 @@ internal static class PauseEquipmentBaseAssetsVerification
         };
         static void EnterEquipment(PauseMenuState pause)
         {
-            byte nmiFrame = 0; ChangePausePage(pause, SnesButton.R, input => pause.Step(input, input, nmiFrameCounter8: nmiFrame++));
+            byte nmiFrame = 0; ChangePausePage(pause, SnesButton.R, input => pause.Step(input, input, frameCounterByte: nmiFrame++));
             AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "equipment-base fixture enters equipment");
         }
         static int FirstDifference(ReadOnlySpan<byte> left, ReadOnlySpan<byte> right)

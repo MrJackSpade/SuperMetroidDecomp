@@ -9,6 +9,9 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 public sealed class ScreenTileMap : IBgSource, IEquatable<ScreenTileMap>
 {
+    /// <summary>Cells along each side of one screen of a tilemap; a larger map keeps whole screens one after another.</summary>
+    private const int ScreenCells = 32;
+
     /// <summary>Holds a map's cells.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The map has no cells along an axis.</exception>
     /// <exception cref="ArgumentException">The cells do not fill the map.</exception>
@@ -30,6 +33,31 @@ public sealed class ScreenTileMap : IBgSource, IEquatable<ScreenTileMap>
 
     /// <summary>The cells, row by row from the top-left corner.</summary>
     public ImmutableArray<ScreenTileCell> Cells { get; }
+
+    /// <summary>
+    /// Reads a <paramref name="size"/> map of cells from a screen's own tilemap <paramref name="tilemap"/>, each showing one
+    /// of <paramref name="tiles"/>. A map wider or taller than one 32-cell screen keeps its screens one after another,
+    /// left to right, then top to bottom.
+    /// </summary>
+    /// <exception cref="ArgumentException">The tilemap does not hold every cell of the map.</exception>
+    public static ScreenTileMap Of(ReadOnlySpan<ushort> tilemap, Extent16<TilemapCells> size, ScreenLayerPictures tiles)
+    {
+        Ensure.LengthEqual(tilemap, size.X * size.Y);
+        if (size.X % ScreenCells != 0 || size.Y % ScreenCells != 0)
+            throw new ArgumentException($"A {size.X}x{size.Y} map is not whole {ScreenCells}-cell screens.", nameof(size));
+        int screensAcross = size.X / ScreenCells;
+        var cells = ImmutableArray.CreateBuilder<ScreenTileCell>(size.X * size.Y);
+        for (int y = 0; y < size.Y; y++)
+        {
+            for (int x = 0; x < size.X; x++)
+            {
+                int screen = y / ScreenCells * screensAcross + x / ScreenCells;
+                var word = new SnesBgTilemapWord(tilemap[screen * ScreenCells * ScreenCells + y % ScreenCells * ScreenCells + x % ScreenCells]);
+                cells.Add(new ScreenTileCell(word.CharacterIndex, word.PaletteIndex, word.FlipHorizontally, word.FlipVertically, word.HasPriority));
+            }
+        }
+        return new ScreenTileMap(tiles, size, cells.MoveToImmutable());
+    }
 
     /// <summary>
     /// Reads a <paramref name="size"/> map of cells from the tilemap at <paramref name="tilemapWord"/> in the screen's

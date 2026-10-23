@@ -21,25 +21,25 @@ internal static class EndingScreenTiles
     internal static Mode7TilePictures Mode7(InstalledSpriteSheets sheets, IEnumerable<EndingUpload> uploads)
     {
         Ensure.NotNull(sheets);
-        var tiles = new Mode7Characters();
+        var tiles = new FloorCharacters();
         int chunkTiles = EndingCreditsRomData.Rendering.FlyawayUploadBytes / Mode7CharacterSheet.TileBytes;
-        int chunksPerLane = EndingCreditsRomData.Rendering.Mode7Bytes / EndingCreditsRomData.Rendering.FlyawayUploadBytes;
+        int chunksPerLane = EndingCreditsRomData.Rendering.FloorBytes / EndingCreditsRomData.Rendering.FlyawayUploadBytes;
         int rewardTiles = EndingRewardGraphicsUploadDefinitions.ChunkBytes / sizeof(ushort) / Mode7CharacterSheet.TileBytes;
         foreach (EndingUpload upload in Ensure.NotNull(uploads))
         {
-            if (upload.Kind == EndingUploadKind.Mode7Scene)
+            if (upload.Kind == EndingUploadKind.FloorSceneTiles)
             {
-                Mode7CharacterSheet scene = ScreenTileSheets.Mode7(sheets, ScreenTileSheetDefinitions.EndingMode7Scenes[(EndingMode7SceneId)upload.Key]);
+                Mode7CharacterSheet scene = ScreenTileSheets.Floor(sheets, ScreenTileSheetDefinitions.EndingFloorScenes[(EndingFloorSceneId)upload.Key]);
                 tiles.Show(scene, 0, 0, scene.Tiles);
             }
             // The flyaway's first lane uploads the gunship's characters; its second, the map.
             else if (upload.Kind == EndingUploadKind.FlyawayChunk && upload.Key < chunksPerLane)
-                tiles.Show(ScreenTileSheets.Mode7(sheets, SpriteSheetId.EndingFlyawayMode7Tiles), upload.Key * chunkTiles, upload.Key * chunkTiles, chunkTiles);
+                tiles.Show(ScreenTileSheets.Floor(sheets, SpriteSheetId.EndingFlyawayMode7Tiles), upload.Key * chunkTiles, upload.Key * chunkTiles, chunkTiles);
             else if (upload.Kind == EndingUploadKind.RewardChunk)
-                tiles.Show(ScreenTileSheets.Mode7(sheets, SpriteSheetId.EndingRewardIconMode7Tiles),
+                tiles.Show(ScreenTileSheets.Floor(sheets, SpriteSheetId.EndingRewardIconMode7Tiles),
                     EndingRewardGraphicsUploadDefinitions.DestinationWord(upload.Key) / Mode7CharacterSheet.TileBytes, upload.Key * rewardTiles, rewardTiles);
             else if (upload.Kind == EndingUploadKind.CreditsCharacterArt)
-                tiles.Clear(0, EndingCreditsRomData.Rendering.Mode7Bytes / sizeof(ushort) / Mode7CharacterSheet.TileBytes);
+                tiles.Clear(0, EndingCreditsRomData.Rendering.FloorBytes / sizeof(ushort) / Mode7CharacterSheet.TileBytes);
         }
         return tiles.Pictures();
     }

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// Ceres door's platform frames and Ridley's getaway transfer lists. Room state; each NMI publishes it as a
 /// <see cref="AffineFloor"/>, so nothing writes the map into VRAM.
 /// </summary>
-public sealed class Mode7Map
+public sealed class FloorMap
 {
     /// <summary>Tiles along each side of the map.</summary>
     public const int Side = 128;
@@ -29,7 +29,7 @@ public sealed class Mode7Map
     /// <param name="cells">Exactly <see cref="Cells"/> tile numbers, row-major.</param>
     /// <param name="tileset">The room tileset whose Mode 7 characters the map's tile numbers select: its artwork binding.</param>
     /// <param name="tiles">The tileset's pre-coloured tiles the map draws from (#1392).</param>
-    public Mode7Map(ReadOnlySpan<byte> cells, TilesetDefinition tileset, Mode7TileSheet tiles)
+    public FloorMap(ReadOnlySpan<byte> cells, TilesetDefinition tileset, Mode7TileSheet tiles)
     {
         Ensure.LengthEqual(cells, Cells);
         this.cells = cells.ToArray();

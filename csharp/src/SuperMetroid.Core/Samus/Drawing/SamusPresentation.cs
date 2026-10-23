@@ -251,8 +251,8 @@ internal sealed class SamusPresentation
             byte runningOrPoseDelay = samus.HorizontalSpeed.HasRunningMomentum &&
                 SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running
                 ? samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster)
-                    ? samus.HorizontalSpeed.ReadSpeedBoosterAnimationByte(samus.Mode7QueueResidue, samus.AnimationFrame)
-                    : ReadDefaultRunningAnimationByte(samus.Mode7QueueResidue, samus.AnimationFrame)
+                    ? samus.HorizontalSpeed.ReadSpeedBoosterAnimationByte(samus.FloorQueueResidue, samus.AnimationFrame)
+                    : ReadDefaultRunningAnimationByte(samus.FloorQueueResidue, samus.AnimationFrame)
                 : delayOrCommand;
             samus.AnimationFrameTimer = WrappingCountdown.FromRaw(unchecked((ushort)(samus.AnimationFrameBuffer + runningOrPoseDelay)));
             return;
@@ -271,7 +271,7 @@ internal sealed class SamusPresentation
             {
                 ushort stagedFrame = checked((ushort)samus.AnimationFrame);
                 if (samus.HorizontalSpeed.TryAdvanceSpeedBoosterAnimationStage(
-                    samus.Mode7QueueResidue,
+                    samus.FloorQueueResidue,
                     movementType: SamusMovementType.Running,
                     controllerInput,
                     samus.AnimationFrameBuffer,
@@ -291,7 +291,7 @@ internal sealed class SamusPresentation
             {
                 samus.AnimationFrame = 0;
                 samus.AnimationFrameTimer = WrappingCountdown.FromRaw(unchecked((ushort)(
-                    samus.AnimationFrameBuffer + ReadDefaultRunningAnimationByte(samus.Mode7QueueResidue, byteIndex: 0))));
+                    samus.AnimationFrameBuffer + ReadDefaultRunningAnimationByte(samus.FloorQueueResidue, byteIndex: 0))));
                 return;
             }
         }
@@ -451,7 +451,7 @@ internal sealed class SamusPresentation
 
     /// <summary>Reads one compiled delay byte from the animation list selected for this pose.</summary>
     private static byte ReadAnimationByte(SamusState samus, int byteIndex) =>
-        SamusAnimationDelayDefinitions.ReadAnimationByte(samus.Mode7QueueResidue, samus.AnimationDelayList, byteIndex);
+        SamusAnimationDelayDefinitions.ReadAnimationByte(samus.FloorQueueResidue, samus.AnimationDelayList, byteIndex);
 
     /// <summary>
     /// Reads the shared ordinary-Dash delay list selected indirectly through `$91:B5D1`.

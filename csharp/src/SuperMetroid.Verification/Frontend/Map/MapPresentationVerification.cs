@@ -1354,10 +1354,10 @@ internal static class MapPresentationVerification
         string overrides,
         AreaMapPresentationCatalog original)
     {
-        string name = TitleGraphicsFormat.Mode7TilesFile;
+        string name = TitleGraphicsFormat.FloorTilesFile;
         IndexedPngImage image;
         using (var input = File.OpenRead(Path.Combine(stock, name)))
-            image = IndexedPng.Read(input, new(TitleGraphicsFormat.Mode7Width, TitleGraphicsFormat.Mode7Height));
+            image = IndexedPng.Read(input, new(TitleGraphicsFormat.FloorWidth, TitleGraphicsFormat.FloorHeight));
         byte[] pixels = image.Pixels.Select(value => unchecked((byte)(value + 1))).ToArray();
         string replacement = Path.Combine(overrides, name);
         using (var output = File.Create(replacement))
@@ -1397,8 +1397,8 @@ internal static class MapPresentationVerification
         string overrides,
         AreaMapPresentationCatalog original)
     {
-        string name = TitleGraphicsFormat.Mode7MapFile;
-        TitleMode7MapDocument document = JsonSerializer.Deserialize<TitleMode7MapDocument>(
+        string name = TitleGraphicsFormat.FloorMapFile;
+        TitleFloorMapDocument document = JsonSerializer.Deserialize<TitleFloorMapDocument>(
             File.ReadAllBytes(Path.Combine(stock, name)), ArtworkJson.Options)
             ?? throw new InvalidDataException("Extracted title layout is null.");
         ushort yearPointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),

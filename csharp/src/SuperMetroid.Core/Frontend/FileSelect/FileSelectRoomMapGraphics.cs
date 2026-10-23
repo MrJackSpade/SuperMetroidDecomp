@@ -109,20 +109,18 @@ public sealed class FileSelectRoomMapGraphics
     }
 
     /// <summary>Captures the installed room map/frame and optional marker/arrows without advancing any animation.</summary>
-    [PpuLayoutBoundary("codec: file-select room-map render packet layers")]
     public LayeredScene CaptureRenderSnapshot(Position16<MapPixels> scroll = default,
         FileSelectStationMarker? marker = null, FileSelectMapAnimations? animations = null, RoomMapContent content = RoomMapContent.Scene)
     {
         var layers = new List<RenderLayer>();
         // Both planes draw from the map characters' pre-coloured tiles (#1392).
-        ScreenLayerPictures tiles = screen.FileSelectTiles.Pictures(FileSelectMapRomData.RoomCharacters, BgBitDepth.FourBpp);
-        byte[] image = MenuScreenImage.Compose(screen);
-        ScreenTileMap frame = ScreenTileMap.Capture(image, MenuVramLayout.Bg2TilemapWord, new Extent16<TilemapCells>(32, 32), tiles);
+        ScreenLayerPictures tiles = screen.RoomMapTiles;
+        ScreenTileMap frame = ScreenTileMap.Of(screen.Tilemaps.Bg2, new Extent16<TilemapCells>(32, 32), tiles);
         if (content == RoomMapContent.FrameOnly)
             layers.Add(new TileRenderLayer(frame, new Position16<BgPlanePixels>(0, FileSelectMapRomData.RoomFrameVerticalScroll), null));
         else
         {
-            ScreenTileMap map = ScreenTileMap.Capture(image, MenuVramLayout.Bg1TilemapWord, new Extent16<TilemapCells>(64, 32), tiles);
+            ScreenTileMap map = ScreenTileMap.Of(screen.Tilemaps.AreaMap, new Extent16<TilemapCells>(64, 32), tiles);
             foreach (bool priority in new[] { false, true })
             {
                 layers.Add(new TileRenderLayer(frame, new Position16<BgPlanePixels>(0, FileSelectMapRomData.RoomFrameVerticalScroll), priority));
@@ -139,7 +137,7 @@ public sealed class FileSelectRoomMapGraphics
             screen.Objects.BeginFrame();
             screen.Objects.FinishFrame();
         }
-        return new(MenuScreenImage.Capture(screen), layers.ToArray(),
+        return new(screen.Paint(), layers.ToArray(),
             SnesPpuLayout.MaximumMasterBrightness);
     }
 }

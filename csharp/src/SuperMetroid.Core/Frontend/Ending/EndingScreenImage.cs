@@ -24,18 +24,18 @@ internal static class EndingScreenImage
         var ending = new EndingVram(vram);
         switch (upload.Kind)
         {
-            case EndingUploadKind.Mode7Scene:
-                EndingMode7SceneArtwork scene = Mode7(artwork)[(EndingMode7SceneId)upload.Key];
+            case EndingUploadKind.FloorSceneTiles:
+                EndingFloorSceneArtwork scene = Mode7(artwork)[(EndingFloorSceneId)upload.Key];
                 var mode7 = new Mode7Vram(vram);
                 mode7.LoadMap(scene.Map.Span);
-                mode7.LoadMap(scene.Map.Span, cell: EndingMode7ArtworkFormat.MapByteCount);
+                mode7.LoadMap(scene.Map.Span, cell: EndingFloorArtworkFormat.MapByteCount);
                 mode7.LoadCharacters(scene.Characters.Span);
                 break;
             case EndingUploadKind.FlyawayChunk:
                 ReplayFlyawayChunk(vram, upload.Key, artwork);
                 break;
             case EndingUploadKind.EscapeClouds:
-                ending.PostCreditsObjects.Load(Objects(artwork).Clouds.Transfer.Span[..EndingCreditsRomData.Rendering.Mode7Bytes]);
+                ending.PostCreditsObjects.Load(Objects(artwork).Clouds.Transfer.Span[..EndingCreditsRomData.Rendering.FloorBytes]);
                 break;
             case EndingUploadKind.ExplosionObjects:
                 ending.ExplosionObjects.Load(Objects(artwork).Explosion.Transfer.Span[..EndingCreditsRomData.Rendering.ExplosionObjectBytes]);
@@ -83,17 +83,17 @@ internal static class EndingScreenImage
         CeresCinematics.Artwork.CeresFlightArtworkCatalog flight = artwork.Flight ?? throw new InvalidOperationException(
             "Ending flyaway requires installed flight artwork.");
         int chunkBytes = EndingCreditsRomData.Rendering.FlyawayUploadBytes;
-        int chunksPerLane = EndingCreditsRomData.Rendering.Mode7Bytes / chunkBytes;
+        int chunksPerLane = EndingCreditsRomData.Rendering.FloorBytes / chunkBytes;
         int offset = index % chunksPerLane * chunkBytes;
         var mode7 = new Mode7Vram(vram);
         if (index < chunksPerLane)
         {
-            mode7.LoadCharacters(flight.Mode7Characters.Span.Slice(offset, chunkBytes), offset);
+            mode7.LoadCharacters(flight.FloorCharacters.Span.Slice(offset, chunkBytes), offset);
             return;
         }
         // The map lane is the flight's map data padded with the blank tile to the full lane.
-        var map = new byte[EndingCreditsRomData.Rendering.Mode7Bytes];
-        flight.Mode7Maps.Span[..EndingCreditsRomData.Rendering.FlyawayMapDataBytes].CopyTo(map);
+        var map = new byte[EndingCreditsRomData.Rendering.FloorBytes];
+        flight.FloorMaps.Span[..EndingCreditsRomData.Rendering.FlyawayMapDataBytes].CopyTo(map);
         map.AsSpan(EndingCreditsRomData.Rendering.FlyawayMapDataBytes).Fill(EndingCreditsRomData.Rendering.FlyawayBlankTile);
         mode7.LoadMap(map.AsSpan(offset, chunkBytes), offset);
     }
@@ -108,7 +108,7 @@ internal static class EndingScreenImage
         ending.WaitingTilemap.Load(objects.WaitingTilemap.Transfer.Span[..EndingCreditsRomData.Rendering.WaitingTilemapBytes]);
         // Function 126 selects suitless (<3h) or suited (>=3h) art; the latter reuses the waiting-scene sheet.
         ReadOnlySpan<byte> reward = artwork.Reward == EndingReward.Suitless ? objects.SuitlessSamus.Transfer.Span : waiting;
-        ending.RewardCharacters.Load(reward[..EndingCreditsRomData.Rendering.Mode7Bytes]);
+        ending.RewardCharacters.Load(reward[..EndingCreditsRomData.Rendering.FloorBytes]);
         ending.PostCreditsFragmentA.Load(objects.PostCreditsFragmentA.Transfer.Span[..EndingCreditsRomData.Rendering.PostCreditsFragmentABytes]);
         ending.PostCreditsFragmentB.Load(objects.PostCreditsFragmentB.Transfer.Span[..EndingCreditsRomData.Rendering.ObjectFragmentBytes]);
     }
@@ -134,7 +134,7 @@ internal static class EndingScreenImage
         upload.Words ?? throw new InvalidOperationException($"The {upload.Kind} transfer records no tilemap words.");
 
     /// <summary>The bound Mode 7 artwork.</summary>
-    private static EndingMode7ArtworkCatalog Mode7(EndingScreenArtwork artwork) =>
+    private static EndingFloorArtworkCatalog Mode7(EndingScreenArtwork artwork) =>
         artwork.Mode7 ?? throw new InvalidOperationException("Ending Mode-7 scenes require installed artwork.");
 
     /// <summary>The bound OBJ artwork.</summary>

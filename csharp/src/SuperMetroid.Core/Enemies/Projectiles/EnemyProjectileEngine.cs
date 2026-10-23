@@ -247,7 +247,7 @@ internal sealed class EnemyProjectileEngine
         RoomLevelData level,
         SamusState? samus,
         Position16<RoomPixels> camera,
-        int? nmiFrameCounter8,
+        int? frameCounterByte,
         SamusBombProjectileSystem? samusBombs,
         int? nmiFrameCounter)
     {
@@ -266,7 +266,7 @@ internal sealed class EnemyProjectileEngine
         // pass after the pre-instruction returns. Reading each array entry at loop time
         // preserves all three cases and prevents host collection semantics from inventing a
         // universal one-frame spawn delay.
-        int projectileFrame = nmiFrameCounter8 ?? AdvanceStandaloneFrameCounter8();
+        int projectileFrame = frameCounterByte ?? AdvanceStandaloneFrameCounter8();
         CurrentFrame8 = projectileFrame;
         // Standalone audits seed both counters from the same projectile clock.
         CurrentFrame16 = nmiFrameCounter ?? projectileFrame;
@@ -461,7 +461,7 @@ internal sealed class EnemyProjectileEngine
         RoomLevelData level,
         SamusState? samus,
         Position16<RoomPixels> camera,
-        int nmiFrameCounter8,
+        int frameCounterByte,
         SamusBombProjectileSystem? samusBombs)
     {
         if (Handlers.TryInterceptPreInstruction(projectile)) return;
@@ -471,7 +471,7 @@ internal sealed class EnemyProjectileEngine
             throw new InvalidDataException(
                 $"Enemy projectile pre-instruction {projectile.PreInstruction} is not translated.");
         }
-        handler(new EnemyProjectilePreInstructionContext(projectile, level, samus, camera, nmiFrameCounter8, samusBombs));
+        handler(new EnemyProjectilePreInstructionContext(projectile, level, samus, camera, frameCounterByte, samusBombs));
     }
 
     /// <summary>Moves one projectile axis through each crossed room block and clamps it flush at the first collision.</summary>

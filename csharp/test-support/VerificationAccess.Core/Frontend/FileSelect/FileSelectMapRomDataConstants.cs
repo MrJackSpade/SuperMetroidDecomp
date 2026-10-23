@@ -24,4 +24,10 @@ internal static class FileSelectMapRomDataConstants
         /// <inheritdoc cref="FileSelectMapRomDataConstants.WindowVelocities"/>
         internal static int WindowVelocities => FileSelectMapRomDataConstants.WindowVelocities;
     }
+    /// <summary>Menu BG3SC=$5C: area-background tilemap VRAM word base.</summary>
+    public const ushort AreaBackgroundVram = 0x5c00;
+    /// <summary>Menu BG34NBA=$04: BG3 character VRAM word base.</summary>
+    public const ushort AreaBackgroundCharacters = 0x4000;
+    /// <summary>BG12NBA=$33 selects the map and frame character base.</summary>
+    public const ushort RoomCharacters = 0x3000;
 }

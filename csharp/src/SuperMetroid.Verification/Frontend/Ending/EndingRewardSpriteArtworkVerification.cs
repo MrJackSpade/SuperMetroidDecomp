@@ -77,7 +77,7 @@ internal static class EndingRewardSpriteArtworkVerification
                 CreditsPresentationExtractor.Extract(
                     SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")))));
             scene.InstalledArtwork.BindFixtureObjectArtwork(stock);
-            scene.Stage.BindMode7Artwork(installation.LoadEndingMode7Art());
+            scene.Stage.BindFloorArtwork(installation.LoadEndingMode7Art());
             AssertTrue(FindVisibleEdit(EndingCreditsPhase.PostCreditsReward, 60000, 150),
                 "edited suitless idle frame changes live OAM and visible reward pixels");
             AssertTrue(FindVisibleEdit(EndingCreditsPhase.PostCreditsGesture, 2000, 400),

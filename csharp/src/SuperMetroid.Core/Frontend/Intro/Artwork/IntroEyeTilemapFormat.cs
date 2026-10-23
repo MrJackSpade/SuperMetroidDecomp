@@ -14,7 +14,7 @@ public static class IntroEyeTilemapFormat
     /// <summary>Number of row-major tilemap cells in each frame.</summary>
     public const int CellsPerFrame = Columns * Rows;
     /// <summary>$8C:D785/D795/D7A5/D7B5: second tile row begins16 characters after the first; each selected patch uses the native 16-column artwork atlas.</summary>
-    internal const int NativeRowStride = 16;
+    internal const int RowStride = 16;
     /// <summary>$8C:D785: open-eye patch starts at tile389 of the installed95:F90E atlas.</summary>
     private static int OpenTile => SnesCharacterGrid.Cell(row: 56, column: 9);
     /// <summary>$8C:D795: half-open-eye patch starts at tile31D of the same atlas.</summary>

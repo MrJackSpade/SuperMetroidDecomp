@@ -18,7 +18,7 @@ internal static class TitleArtworkReferencesVerification
             .Select(sprite => new TitleSpriteFrame { Sprite = sprite, Parts = [] }).ToArray();
         AssertEqual(TitleGraphicsFormat.SpriteFrameCount, frames.Length,
             "compiled title selectors require exactly 31 distinct artwork frames");
-        var document = new TitleMode7MapDocument
+        var document = new TitleFloorMapDocument
         {
             Version = TitleGraphicsFormat.Version,
             Width = TitleGraphicsFormat.MapWidth,
@@ -26,7 +26,7 @@ internal static class TitleArtworkReferencesVerification
             Tiles = new int[TitleGraphicsFormat.MapWidth * TitleGraphicsFormat.MapHeight],
             Sprites = frames,
         };
-        byte[] mode7 = Png(TitleGraphicsFormat.Mode7Width, TitleGraphicsFormat.Mode7Height, 256);
+        byte[] mode7 = Png(TitleGraphicsFormat.FloorWidth, TitleGraphicsFormat.FloorHeight, 256);
         byte[] objects = Png(TitleGraphicsFormat.ObjectWidth, TitleGraphicsFormat.ObjectHeight, 16);
         byte[] baby = Png(TitleGraphicsFormat.BabyWidth, TitleGraphicsFormat.BabyHeight, 256);
         _ = Load(document);
@@ -41,7 +41,7 @@ internal static class TitleArtworkReferencesVerification
             TitleSpriteFrame[] replacement = (TitleSpriteFrame[])frames.Clone();
             // Repeating the next composition in this slot leaves this one missing at an unchanged count.
             replacement[index] = replacement[index] with { Sprite = frames[(index + 1) % frames.Length].Sprite };
-            TitleMode7MapDocument invalid = document with { Sprites = replacement };
+            TitleFloorMapDocument invalid = document with { Sprites = replacement };
             AssertThrows<InvalidDataException>(() => Load(invalid),
                 $"loading rejects missing title composition {frames[index].Sprite} despite correct count");
             AssertThrows<InvalidDataException>(() =>
@@ -76,7 +76,7 @@ internal static class TitleArtworkReferencesVerification
         Console.WriteLine("PASS title artwork: all 31 required selectors checked at load/write; frame ordering and editable OAM remain valid. No ROM or gameplay probes.");
         return;
 
-        TitleGraphicsPresentation Load(TitleMode7MapDocument value)
+        TitleGraphicsPresentation Load(TitleFloorMapDocument value)
         {
             using var mode7Stream = new MemoryStream(mode7, writable: false);
             using var mapStream = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(value,

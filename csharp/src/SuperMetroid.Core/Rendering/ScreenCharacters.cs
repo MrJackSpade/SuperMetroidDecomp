@@ -24,18 +24,6 @@ public sealed class ScreenCharacters
         return this;
     }
 
-    /// <summary>Records <paramref name="copies"/> copies of <paramref name="sheet"/>'s <paramref name="character"/>, loaded one after another from VRAM word <paramref name="firstWord"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The sheet holds no such character.</exception>
-    public ScreenCharacters ShowRepeated(ScreenTileSheet sheet, int firstWord, int character, int copies)
-    {
-        Ensure.NotNull(sheet);
-        Ensure.BetweenInclusive(0, sheet.Characters - 1, character);
-        Ensure.BetweenInclusive(1, int.MaxValue, copies);
-        loads.Add(new Load(sheet, VramWordRange.Require(firstWord), character, copies, 0));
-        layers.Clear();
-        return this;
-    }
-
     /// <summary>What a layer of <paramref name="depth"/> characters from VRAM word <paramref name="characterBase"/> shows.</summary>
     [PpuLayoutBoundary("codec: the VRAM words a layer's character indices name, wrapping as VRAM addresses do")]
     public ScreenLayerPictures Pictures(int characterBase, BgBitDepth depth)

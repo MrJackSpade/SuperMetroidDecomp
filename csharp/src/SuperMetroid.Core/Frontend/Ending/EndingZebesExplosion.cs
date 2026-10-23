@@ -31,7 +31,7 @@ internal sealed class EndingZebesExplosion
     /// <summary>Loads the planet explosion's Mode-7 and OBJ art and starts its palette crossfade.</summary>
     internal void SetupZebesExplosion()
     {
-        _stage.LoadMode7(EndingMode7SceneId.PlanetExplosion);
+        _stage.LoadFloor(EndingFloorSceneId.PlanetExplosion);
         _artwork.LoadEndingObjectCharacters();
         _stage.LoadStaticPalette(EndingPaletteId.Explosion,
             EndingCreditsRomData.Rendering.PaletteHalfBytes,
@@ -43,8 +43,8 @@ internal sealed class EndingZebesExplosion
         _stage.SpawnSprite(EndingCreditsRomData.Sprites.ExplosionGlow, EndingSpriteRole.ExplosionGlow);
         _stage.SpawnSprite(EndingCreditsRomData.Sprites.ExplosionStars, EndingSpriteRole.ExplosionStars);
         _stage.Mode7 = new(_stage.Mode7.X.WithWhole(0), default);
-        _stage.Mode7Zoom = EndingCreditsRomData.Motion.EscapeInitialScale;
-        _stage.Mode7Angle = SnesAngle.Zero;
+        _stage.FloorZoom = EndingCreditsRomData.Motion.EscapeInitialScale;
+        _stage.FloorAngle = SnesAngle.Zero;
         _stage.Brightness = 0;
         _stage.RestartFadeCadence();
         BeginExplosionCrossfade();
@@ -77,7 +77,7 @@ internal sealed class EndingZebesExplosion
     /// <summary>Interpolates explosion palettes on alternating calls and enters the sixteen-chunk flyaway transfer.</summary>
     internal void StepExplosionCrossfade()
     {
-        _stage.Mode7Zoom += EndingExplosionFadeDefinitions.ZoomStep;
+        _stage.FloorZoom += EndingExplosionFadeDefinitions.ZoomStep;
         if ((_stage.PhaseTimer & 1) == 0)
         {
             explosionFadeStep++;

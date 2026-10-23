@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rendering;
 /// What a frontend screen's Mode 7 characters show (#1392): each installed artwork it loads, as the pre-coloured sheet of
 /// its characters, at the Mode 7 tiles it loads them to; a later load shows over an earlier one.
 /// </summary>
-public sealed class Mode7Characters
+public sealed class FloorCharacters
 {
     /// <summary>The tile each Mode 7 tile shows, null where nothing pictured has loaded.</summary>
     private readonly BgTilePicture?[] tiles = new BgTilePicture?[Mode7TilePictures.Tiles];
@@ -19,7 +19,7 @@ public sealed class Mode7Characters
 
     /// <summary>Records <paramref name="count"/> characters of <paramref name="sheet"/>'s artwork from <paramref name="firstCharacter"/>, loaded to Mode 7 tiles from <paramref name="firstTile"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The sheet holds fewer characters, or the load passes the last tile.</exception>
-    public Mode7Characters Show(Mode7CharacterSheet sheet, int firstTile, int firstCharacter, int count)
+    public FloorCharacters Show(Mode7CharacterSheet sheet, int firstTile, int firstCharacter, int count)
     {
         Ensure.NotNull(sheet);
         Ensure.BetweenInclusive(0, Mode7TilePictures.Tiles - 1, firstTile);
@@ -34,7 +34,7 @@ public sealed class Mode7Characters
 
     /// <summary>Records a load of characters nothing pictures over <paramref name="count"/> Mode 7 tiles from <paramref name="firstTile"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The load passes the last tile.</exception>
-    public Mode7Characters Clear(int firstTile, int count)
+    public FloorCharacters Clear(int firstTile, int count)
     {
         Ensure.BetweenInclusive(0, Mode7TilePictures.Tiles - 1, firstTile);
         Ensure.BetweenInclusive(1, Mode7TilePictures.Tiles - firstTile, count);

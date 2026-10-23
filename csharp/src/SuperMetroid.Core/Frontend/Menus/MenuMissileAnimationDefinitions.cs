@@ -30,7 +30,7 @@ public static class MenuMissileAnimationDefinitions
     }
 
     /// <summary>$82:C5D1: the first menu missile spritemap identity; playback order comes from $82:BAB2, not atlas ordering.</summary>
-    internal const int FirstNativeSpritemap = 0x34;
+    internal const int FirstSpritemap = 0x34;
 
     /// <summary>$82:CBD7: the second missile pose's left cell, the top-left of the $EE/$EF/$FE/$FF two-by-two atlas block.</summary>
     internal const int SecondPoseLeftCell = 0xee;

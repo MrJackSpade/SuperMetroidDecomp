@@ -83,7 +83,7 @@ internal static class PauseMapArrowsVerification
             var rawVram = new SnesVram();
             var tiles = new byte[0x2000];
             for (int i = 0; i < tiles.Length; i++) tiles[i] = bus.ReadCartridgeByte(0xb6c000 + i);
-            rawVram.LoadBytes(MapSpriteFormat.PauseDestination, tiles);
+            rawVram.LoadBytes(PauseVramLayout.MapSpriteByteAddress, tiles);
             var rawPixels = SnesObjRenderer.Render(expected, rawVram, nativeColors, PauseMenuLayout.ObjectSelection);
             int opaque = 0;
             for (int i = 0; i < pixels.Length; i++)

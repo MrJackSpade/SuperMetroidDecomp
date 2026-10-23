@@ -56,7 +56,7 @@ internal static class FrontendRomFreeVerification
         var blockedBg2Bytes = new HashSet<int>();
         var guardedBus = NewFrontendCartridgeReadGuard(installedMemory, blockedBg2Bytes);
         AssertThrows<InvalidOperationException>(
-            () => guardedBus.ReadByte(TitleSequenceRomData.Assets.Mode7CharactersAddress),
+            () => guardedBus.ReadByte(TitleSequenceRomData.Assets.FloorCharactersAddress),
             "startup ROM guard rejects an otherwise valid title graphics source");
 
         var native = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());

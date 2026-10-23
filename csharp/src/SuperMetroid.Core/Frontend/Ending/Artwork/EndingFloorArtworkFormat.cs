@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>File identities and transfer geometry for the three ending backdrops.</summary>
-public static class EndingMode7ArtworkFormat
+public static class EndingFloorArtworkFormat
 {
     /// <summary>Supported JSON map schema revision for both the backdrop and reward-icon documents.</summary>
     public const int Version = 1;
@@ -23,21 +23,21 @@ public static class EndingMode7ArtworkFormat
     /// <summary>Gets the indexed character-atlas filename for escape-a, escape-b, or planet-explosion.</summary>
     /// <param name="id">The native backdrop whose editable PNG is requested.</param>
     /// <exception cref="ArgumentOutOfRangeException">The scene identifier is unsupported.</exception>
-    public static string CharacterFileName(EndingMode7SceneId id) =>
+    public static string CharacterFileName(EndingFloorSceneId id) =>
         $"ending-{SceneName(id)}-mode7-characters.png";
 
     /// <summary>Gets the half-map JSON filename for escape-a, escape-b, or planet-explosion.</summary>
     /// <param name="id">The native backdrop whose editable map is requested.</param>
     /// <exception cref="ArgumentOutOfRangeException">The scene identifier is unsupported.</exception>
-    public static string MapFileName(EndingMode7SceneId id) =>
+    public static string MapFileName(EndingFloorSceneId id) =>
         $"ending-{SceneName(id)}-mode7-map.json";
 
     /// <summary>Maps a supported ending scene to its stable filename stem.</summary>
-    private static string SceneName(EndingMode7SceneId id) => id switch
+    private static string SceneName(EndingFloorSceneId id) => id switch
     {
-        EndingMode7SceneId.EscapeA => "escape-a",
-        EndingMode7SceneId.EscapeB => "escape-b",
-        EndingMode7SceneId.PlanetExplosion => "planet-explosion",
+        EndingFloorSceneId.EscapeA => "escape-a",
+        EndingFloorSceneId.EscapeB => "escape-b",
+        EndingFloorSceneId.PlanetExplosion => "planet-explosion",
         _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };
 }

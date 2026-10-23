@@ -21,7 +21,7 @@ public static class PauseSelectorExtractor
             throw new InvalidDataException("Unexpected native selector category binding.");
         int bases = PauseMenuCartridgeTables.PauseSelectorBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuCartridgeTables.PauseSelectorBases);
         foreach (PauseEquipmentCategory category in Enum.GetValues<PauseEquipmentCategory>())
-            if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), bases + (int)category * 2) != PauseSelectorDefinitions.NativeSpriteId(category))
+            if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), bases + (int)category * 2) != PauseMenuCartridgeTables.SelectorSpritemap(category))
                 throw new InvalidDataException("Unexpected native selector sprite binding.");
         var anchors = new Dictionary<string, Position16<OamPixels>>();
         foreach (var anchor in PauseSelectorDefinitions.Anchors())
@@ -33,7 +33,7 @@ public static class PauseSelectorExtractor
         var frames = new Dictionary<string, SpriteVisualPart[]>();
         // Suits and boots share the Equipment frames, so only the first three categories own a group.
         foreach (PauseEquipmentCategory category in new[] { PauseEquipmentCategory.Reserves, PauseEquipmentCategory.Beams, PauseEquipmentCategory.Suits })
-            frames.Add(PauseSelectorDefinitions.Group(category), MenuSpriteExtractor.Read(bus, PauseSelectorDefinitions.NativeSpriteId(category)));
+            frames.Add(PauseSelectorDefinitions.Group(category), MenuSpriteExtractor.Read(bus, PauseMenuCartridgeTables.SelectorSpritemap(category)));
         int animation = PauseMenuCartridgeTables.PauseSelectorBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuCartridgeTables.PauseSelectorAnimation);
         var phases = new List<PauseSelectorPhase>();
         for (int i = 0; ; i++)

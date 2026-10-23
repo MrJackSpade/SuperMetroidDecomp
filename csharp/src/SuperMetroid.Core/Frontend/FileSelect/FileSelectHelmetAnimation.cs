@@ -8,7 +8,7 @@ internal static class FileSelectHelmetAnimation
     /// <summary>$81:9DF3 reloads the frame timer with eight ticks.</summary>
     internal const int FrameDuration = 8;
     /// <summary>$81:9E2C contains eight consecutive IDs and one repeated terminal ID.</summary>
-    internal const int NativeEntryCount = FrameCount + 1;
+    internal const int EntryCount = FrameCount + 1;
 
     /// <summary>Calculates the complete nine-word mapping at $81:9E2C..9E3D.</summary>
     /// <remarks>
@@ -20,7 +20,7 @@ internal static class FileSelectHelmetAnimation
     /// </remarks>
     internal static ushort SpritemapId(int frame)
     {
-        if ((uint)frame >= NativeEntryCount) throw new ArgumentOutOfRangeException(nameof(frame));
+        if ((uint)frame >= EntryCount) throw new ArgumentOutOfRangeException(nameof(frame));
         return (ushort)(44 + Math.Min(frame, FrameCount - 1));
     }
 }

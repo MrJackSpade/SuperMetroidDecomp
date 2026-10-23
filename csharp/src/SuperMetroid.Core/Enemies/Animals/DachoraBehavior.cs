@@ -122,14 +122,14 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         DachoraEnemyState state,
         SamusState? samus,
         RoomLevelData? level,
-        int nmiFrameCounter8)
+        int frameCounterByte)
     {
         // Echo AI needs only the NMI parity bit. Every body state needs both the active
         // Samus gravity words and authentic room collision, so fail loudly if a caller
         // attempts to run the family without the state that native code reads globally.
         if (state.Function == DachoraAiFunction.Echo)
         {
-            RunDachoraEcho(slot, state, nmiFrameCounter8);
+            RunDachoraEcho(slot, state, frameCounterByte);
             return;
         }
 
@@ -452,15 +452,15 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunDachoraEcho(
         RoomEnemySlot slot,
         DachoraEnemyState state,
-        int nmiFrameCounter8)
+        int frameCounterByte)
     {
         if (!state.EchoLifetime.IsZero)
         {
             state.EchoLifetime = state.EchoLifetime.DecrementToZero();
             bool oddNativeSlot = (slot.SlotIndex & 1) != 0;
             bool visible = oddNativeSlot
-                ? (nmiFrameCounter8 & 1) != 0
-                : (nmiFrameCounter8 & 1) == 0;
+                ? (frameCounterByte & 1) != 0
+                : (frameCounterByte & 1) == 0;
             slot.Properties = visible
                 ? slot.Properties.Without(EnemyProperties.Invisible)
                 : slot.Properties.With(EnemyProperties.Invisible);

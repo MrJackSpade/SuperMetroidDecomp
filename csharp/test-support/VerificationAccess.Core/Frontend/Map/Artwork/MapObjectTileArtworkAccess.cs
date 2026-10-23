@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Menus.Artwork;
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Verification access to <see cref="MapObjectTileArtwork"/> members production does not use.</summary>
@@ -14,5 +17,7 @@ internal static class MapObjectTileArtworkAccess
 
         /// <summary>Measures the separate non-highlight, non-reserve character payload.</summary>
         internal int StoredOtherByteCount => self.otherCharacters.Length;
+        /// <summary>Encodes retained and calculated menu characters into the immediate VRAM transfer payload.</summary>
+        internal void LoadTo(VramRegion destination) => destination.Load(self.Encode());
     }
 }

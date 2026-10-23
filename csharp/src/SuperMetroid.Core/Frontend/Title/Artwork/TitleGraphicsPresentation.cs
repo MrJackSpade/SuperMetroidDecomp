@@ -10,29 +10,29 @@ namespace SuperMetroid.Core.Frontend.Title.Artwork;
 public sealed class TitleGraphicsPresentation
 {
     /// <summary>Owned Mode-7 title characters and map, OBJ characters, and baby character page.</summary>
-    private readonly byte[] mode7Characters, mode7Map, objectCharacters, babyCharacters;
+    private readonly byte[] floorCharacters, floorMap, objectCharacters, babyCharacters;
     /// <summary>Compiled OAM compositions keyed by title composition.</summary>
     private readonly Dictionary<TitleSprite, SpriteComposition> sprites;
 
     /// <summary>Retains validated title transfer bytes and compiled sprite compositions.</summary>
     private TitleGraphicsPresentation(
-        byte[] mode7Characters,
-        byte[] mode7Map,
+        byte[] floorCharacters,
+        byte[] floorMap,
         byte[] objectCharacters,
         byte[] babyCharacters,
         Dictionary<TitleSprite, SpriteComposition> sprites)
     {
-        this.mode7Characters = mode7Characters;
-        this.mode7Map = mode7Map;
+        this.floorCharacters = floorCharacters;
+        this.floorMap = floorMap;
         this.objectCharacters = objectCharacters;
         this.babyCharacters = babyCharacters;
         this.sprites = sprites;
     }
 
     /// <summary>Eight-bit Mode-7 character lane uploaded for the title backdrop.</summary>
-    public ReadOnlySpan<byte> Mode7Characters => mode7Characters;
+    public ReadOnlySpan<byte> FloorCharacters => floorCharacters;
     /// <summary>64-by-64 title map of Mode-7 character indexes.</summary>
-    public ReadOnlySpan<byte> Mode7Map => mode7Map;
+    public ReadOnlySpan<byte> FloorMap => floorMap;
     /// <summary>Four-bit title OBJ character graphics selected by sprite compositions.</summary>
     public ReadOnlySpan<byte> ObjectCharacters => objectCharacters;
     /// <summary>Separate eight-bit Mode-7 character page for the baby Metroid scene.</summary>
@@ -40,7 +40,7 @@ public sealed class TitleGraphicsPresentation
 
     /// <summary>The title OBJ page the compositions draw from: the OBJ sheet as the title uploads it (#1358).</summary>
     public SpriteArtwork ObjectPage => field ??= new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.TitleObjects),
-        objectCharacters.AsSpan(0, Math.Min(TitleSequenceRomData.Vram.ObjectCharacterByteCount, objectCharacters.Length)));
+        objectCharacters.AsSpan(0, Math.Min(TitleSequenceRomData.Transfers.ObjectCharacterByteCount, objectCharacters.Length)));
 
     /// <summary>One title composition as a whole frame over <see cref="ObjectPage"/> (#1392); its parts take their draw's palette.</summary>
     internal SpriteFrame Frame(TitleSprite sprite, string name) => sprites.TryGetValue(sprite, out SpriteComposition? composition)
@@ -52,20 +52,20 @@ public sealed class TitleGraphicsPresentation
             FrontendSheetPalette.Override(paletteBits));
 
     /// <summary>Loads and validates the editable title graphics and map assets.</summary>
-    /// <param name="mode7TilesPng">Indexed 256-color PNG containing the title Mode 7 characters.</param>
-    /// <param name="mode7MapJson">JSON document containing the Mode 7 map and OBJ compositions.</param>
+    /// <param name="floorTilesPng">Indexed 256-color PNG containing the title Mode 7 characters.</param>
+    /// <param name="floorMapJson">JSON document containing the Mode 7 map and OBJ compositions.</param>
     /// <param name="objectTilesPng">Indexed 16-color PNG containing title OBJ characters.</param>
     /// <param name="babyTilesPng">Indexed 256-color PNG containing baby Metroid Mode 7 characters.</param>
     /// <returns>The compiled title graphics presentation.</returns>
     public static TitleGraphicsPresentation Load(
-        Stream mode7TilesPng,
-        Stream mode7MapJson,
+        Stream floorTilesPng,
+        Stream floorMapJson,
         Stream objectTilesPng,
         Stream babyTilesPng)
     {
         IndexedPngImage mode7 = IndexedPng.Read(
-            mode7TilesPng,
-            new(TitleGraphicsFormat.Mode7Width, TitleGraphicsFormat.Mode7Height));
+            floorTilesPng,
+            new(TitleGraphicsFormat.FloorWidth, TitleGraphicsFormat.FloorHeight));
         IndexedPngImage objects = IndexedPng.Read(
             objectTilesPng,
             new(TitleGraphicsFormat.ObjectWidth, TitleGraphicsFormat.ObjectHeight));
@@ -75,11 +75,11 @@ public sealed class TitleGraphicsPresentation
         if (mode7.Palette.Length != 256 || baby.Palette.Length != 256 || objects.Palette.Length != 16)
             throw new InvalidDataException("Title graphics require 256-color Mode 7/Baby PNGs and a 16-color OBJ PNG.");
 
-        TitleMode7MapDocument map;
+        TitleFloorMapDocument map;
         try
         {
-            map = JsonAssetDocument.Read<TitleMode7MapDocument>(
-                mode7MapJson,
+            map = JsonAssetDocument.Read<TitleFloorMapDocument>(
+                floorMapJson,
                 ArtworkJson.Options)
                 ?? throw new InvalidDataException("Title Mode 7 map is null.");
         }
@@ -112,13 +112,13 @@ public sealed class TitleGraphicsPresentation
     /// <summary>Validates and writes an editable title Mode 7 map document as UTF-8 JSON.</summary>
     /// <param name="json">The destination stream.</param>
     /// <param name="document">The map and sprite-composition document to serialize.</param>
-    public static void WriteMap(Stream json, TitleMode7MapDocument document)
+    public static void WriteMap(Stream json, TitleFloorMapDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        TitleMode7MapDocument restored;
+        TitleFloorMapDocument restored;
         try
         {
-            restored = JsonAssetDocument.Read<TitleMode7MapDocument>(bytes, ArtworkJson.Options)
+            restored = JsonAssetDocument.Read<TitleFloorMapDocument>(bytes, ArtworkJson.Options)
                 ?? throw new InvalidDataException("Title Mode 7 map is null.");
         }
         catch (JsonException error)

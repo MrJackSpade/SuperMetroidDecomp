@@ -102,7 +102,7 @@ internal static void VerifySamusRenderingSlice()
     // delay interpreter but does not require valid gameplay movement metadata for $FD.
     const SamusPoseId unusedInstructionPose = (SamusPoseId)0xfd;
     var unusedInstructionResidue = new SuperMetroid.Core.Hardware.Mode7TransferQueueResidue();
-    var unusedInstructionSamus = new SamusState { Pose = unusedInstructionPose, Mode7QueueResidue = unusedInstructionResidue };
+    var unusedInstructionSamus = new SamusState { Pose = unusedInstructionPose, FloorQueueResidue = unusedInstructionResidue };
 
     // `$FA gg aa` selects `gg` only when both vertical speed halves are zero.
     WriteUnusedPoseDelayInstruction(unusedInstructionResidue, [0x01, 0xfa, 0x31, 0x32]);

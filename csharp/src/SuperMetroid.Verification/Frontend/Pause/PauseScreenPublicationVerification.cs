@@ -52,11 +52,11 @@ internal static class PauseScreenPublicationVerification
         PauseScreen screen = pause.screen;
         FramePaint memory = pause.CaptureRenderSnapshot().Paint;
         byte[] vram = pause.ShownVram();
-        AssertWords(vram, PauseMenuLayout.Bg1TilemapWord, screen.Tilemaps.Bg1, $"{page} BG1");
-        AssertWords(vram, PauseMenuLayout.Bg2TilemapWord, screen.Tilemaps.Bg2, $"{page} BG2");
+        AssertWords(vram, PauseMenuLayoutConstants.Bg1TilemapWord, screen.Tilemaps.Bg1, $"{page} BG1");
+        AssertWords(vram, PauseMenuLayoutConstants.Bg2TilemapWord, screen.Tilemaps.Bg2, $"{page} BG2");
         AssertWords(vram, GameplayVramLayout.HudTilemapWord, screen.Tilemaps.Bg3, $"{page} BG3");
-        int tilemapsFirst = PauseMenuLayout.Bg1TilemapWord * sizeof(ushort);
-        int tilemapsEnd = (PauseMenuLayout.Bg2TilemapWord + screen.Tilemaps.Bg2.Length) * sizeof(ushort);
+        int tilemapsFirst = PauseMenuLayoutConstants.Bg1TilemapWord * sizeof(ushort);
+        int tilemapsEnd = (PauseMenuLayoutConstants.Bg2TilemapWord + screen.Tilemaps.Bg2.Length) * sizeof(ushort);
         AssertTrue(vram.AsSpan(0, tilemapsFirst).SequenceEqual(screen.Characters[..tilemapsFirst]) &&
             vram.AsSpan(tilemapsEnd, GameplayVramLayout.HudTilemapWord * sizeof(ushort) - tilemapsEnd)
                 .SequenceEqual(screen.Characters[tilemapsEnd..(GameplayVramLayout.HudTilemapWord * sizeof(ushort))]),

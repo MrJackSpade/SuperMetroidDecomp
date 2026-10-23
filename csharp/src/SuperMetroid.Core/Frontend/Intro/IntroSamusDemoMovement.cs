@@ -26,7 +26,7 @@ internal static class IntroSamusDemoMovement
         SamusState samus,
         SnesButton heldInput,
         SnesButton newlyPressedInput,
-        int nmiFrameCounter,
+        int frameCounter,
         CartridgeRandom random)
     {
         SamusPoseTransitionLookup lookup = SamusPoseTransitionTable.Lookup(
@@ -62,14 +62,14 @@ internal static class IntroSamusDemoMovement
 
                 level,
                 samus,
-                nmiFrameCounter,
+                frameCounter,
                 heldInput);
         }
         else if (SamusPoseMetadata.IsLeftFacingStandingPose(poseAtFrameStart))
         {
             // The demo handler has written its held word into the controller input that
             // $90:A3BA tests, so a held shot holds the standing animation here too.
-            movement = SamusGroundedMovement.StepStanding(level, samus, nmiFrameCounter,
+            movement = SamusGroundedMovement.StepStanding(level, samus, frameCounter,
                 heldInput);
         }
         else
@@ -80,7 +80,7 @@ internal static class IntroSamusDemoMovement
                 $"SR388 intro demo reached invalid grounded-left pose ${(int)poseAtFrameStart:X2}.");
         }
 
-        SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { ControllerInput = heldInput, NmiFrameCounter = nmiFrameCounter, Random = random });
+        SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { ControllerInput = heldInput, NmiFrameCounter = frameCounter, Random = random });
 
         // Native pose commit probes a proposed run before installing it. The clear
         // probe retains its movement; this is shared gameplay behavior, not cosmetic

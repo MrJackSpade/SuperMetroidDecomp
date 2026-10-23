@@ -34,7 +34,7 @@ internal static class PauseReserveArrowVerification
         Rgba32[]? first = null;
         for (byte frame = 0; frame < 32; frame++)
         {
-            pause.Step(0, 0, nmiFrameCounter8: frame);
+            pause.Step(0, 0, frameCounterByte: frame);
             CheckArrow(true, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82ad5d + frame * 2),
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82ad9d + frame * 2), $"AUTO phase {frame}");
             if (frame == 0) first = pause.Render();
@@ -54,8 +54,8 @@ internal static class PauseReserveArrowVerification
         CheckArrow(true, 0x0156, 0x039e, "refill keeps solid arrow");
         pause.Step(0, 0);
         CheckArrow(false, 0x0156, 0x039e, "refill completion disables arrow");
-        pause.Step(0, SnesButton.A, nmiFrameCounter8: 7);
-        pause.Step(0, SnesButton.Down, nmiFrameCounter8: 8);
+        pause.Step(0, SnesButton.A, frameCounterByte: 7);
+        pause.Step(0, SnesButton.Down, frameCounterByte: 8);
         CheckArrow(false, 0x0156, 0x039e, "leaving tanks disables arrow on same call");
         Console.WriteLine("Reserve arrow: all 32 AUTO colors, visible pixels, MANUAL selection/refill/completion and exit agree.");
 

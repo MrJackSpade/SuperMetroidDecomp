@@ -59,13 +59,13 @@ public sealed class CinematicPaletteFader
     }
 
     /// <summary>Ports <c>ComposeFadingPalettes</c> at $8B:8CEA into live CGRAM.</summary>
-    public void ComposeInto(IPaletteColors cgram)
+    public void ComposeInto(IPaletteColors colours)
     {
-        Ensure.NotNull(cgram);
+        Ensure.NotNull(colours);
         Span<Bgr555> image = stackalloc Bgr555[CgramPalettes.ColorCount];
         for (int color = 0; color < image.Length; color++)
             image[color] = current[color].Visible;
-        new CgramPalettes(cgram).LoadImage(image);
+        new CgramPalettes(colours).LoadImage(image);
     }
 
     /// <summary>Converts a nonempty span to a bounded palette color interval.</summary>

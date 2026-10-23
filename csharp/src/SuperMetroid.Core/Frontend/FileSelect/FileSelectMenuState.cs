@@ -114,8 +114,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// True when the next update resumes a native dispatch after its internal NMI wait
     /// rather than entering a new main-loop dispatch, so the main loop's RNG call is absent.
     /// </summary>
-    internal bool ResumesAfterNmiWait => Phase is
-        FileSelectPhase.EnterBlankScreenAfterNmi or FileSelectPhase.InitializeMainAfterNmi;
+    internal bool ResumesAfterFrameWait => Phase is
+        FileSelectPhase.EnterBlankScreenAfterFrameWait or FileSelectPhase.InitializeMainAfterFrameWait;
     /// <summary>Advances one native menu frame from a raw SNES controller word.</summary>
     public void Step(SnesButton controllerInput)
     {
@@ -133,10 +133,10 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 if ((brightness & ScreenFade.FullyLit) != 0)
                     break;
                 brightness = ScreenFade.ForcedBlank;
-                Phase = FileSelectPhase.EnterBlankScreenAfterNmi;
+                Phase = FileSelectPhase.EnterBlankScreenAfterFrameWait;
                 break;
 
-            case FileSelectPhase.EnterBlankScreenAfterNmi:
+            case FileSelectPhase.EnterBlankScreenAfterFrameWait:
                 Phase = FileSelectPhase.LoadBackground;
                 break;
 
@@ -149,10 +149,10 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 // $81:9ED6 sets both fade words to one, then ClearForceBlankAndWaitForNMI.
                 screenFade.SetTiming(1, 1);
                 brightness &= ~ScreenFade.ForcedBlank;
-                Phase = FileSelectPhase.InitializeMainAfterNmi;
+                Phase = FileSelectPhase.InitializeMainAfterFrameWait;
                 break;
 
-            case FileSelectPhase.InitializeMainAfterNmi:
+            case FileSelectPhase.InitializeMainAfterFrameWait:
                 Phase = FileSelectPhase.FadeIn;
                 break;
 
@@ -312,8 +312,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
     /// <summary>Suppresses cursor animation before the initialized main page begins fading in.</summary>
     private bool IsEntryPhase => Phase is FileSelectPhase.EnterBlankScreen or
-        FileSelectPhase.EnterBlankScreenAfterNmi or FileSelectPhase.LoadBackground or
-        FileSelectPhase.InitializeMain or FileSelectPhase.InitializeMainAfterNmi;
+        FileSelectPhase.EnterBlankScreenAfterFrameWait or FileSelectPhase.LoadBackground or
+        FileSelectPhase.InitializeMain or FileSelectPhase.InitializeMainAfterFrameWait;
 
     /// <summary>Hides the selection missile during entry and on completed data-operation pages.</summary>
     private bool ShouldDrawSelectionMissile => !IsEntryPhase && Phase is not
@@ -463,10 +463,10 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             case FileSelectPhase.FadeOutToOptions:
             case FileSelectPhase.FadeOutToTitle:
             case FileSelectPhase.EnterBlankScreen:
-            case FileSelectPhase.EnterBlankScreenAfterNmi:
+            case FileSelectPhase.EnterBlankScreenAfterFrameWait:
             case FileSelectPhase.LoadBackground:
             case FileSelectPhase.InitializeMain:
-            case FileSelectPhase.InitializeMainAfterNmi:
+            case FileSelectPhase.InitializeMainAfterFrameWait:
             default:
                 throw new InvalidDataException($"Invalid data-management phase {Phase}.");
         }

@@ -26,7 +26,7 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     private readonly Action<int, ushort[]>? bg2Overlay;
 
     /// <summary>The installed Mode 7 map, or null when the host provides none.</summary>
-    private readonly Mode7Map? mode7Map;
+    private readonly FloorMap? floorMap;
 
     /// <summary>Services whose RNG advances with <paramref name="generate"/>.</summary>
     public StandaloneRoomEnemyServices(Func<int> generate) => random = new RandomNumbers(Ensure.NotNull(generate));
@@ -66,11 +66,11 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
         (bg1Overlay ?? throw Unavailable.Missing("write words over BG1"))(firstWord, words.ToArray());
 
     /// <summary>Installs the Mode 7 map the Ceres door and Ridley's getaway write.</summary>
-    public Mode7Map Mode7Map { init => mode7Map = Ensure.NotNull(value); }
+    public FloorMap FloorMap { init => floorMap = Ensure.NotNull(value); }
 
     /// <inheritdoc />
     public void DrawMode7Map(int firstCell, ReadOnlySpan<byte> tiles) =>
-        (mode7Map ?? throw Unavailable.Missing("write the room's Mode 7 map")).Write(firstCell, tiles);
+        (floorMap ?? throw Unavailable.Missing("write the room's Mode 7 map")).Write(firstCell, tiles);
 
     /// <summary>Installs the target of words written over BG2, which the Zebes escape typewriter writes.</summary>
     public Action<int, ushort[]> DrawBg2OverlayWords { init => bg2Overlay = Ensure.NotNull(value); }

@@ -1,13 +1,16 @@
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Menus;
 
 /// <summary>
-/// Composes a menu screen's published artwork and tilemaps into the memory image the backends draw (#1358): the
-/// world, map and menu OBJ characters at their native words, and the tilemaps from <see cref="MenuVramLayout.Bg1TilemapWord"/>.
+/// The memory image the cartridge's menu screen holds (#1404): the world, map and menu OBJ characters at the words
+/// <c>LoadInitialMenuTiles</c> ($81:8DDB) loads them to, and the tilemaps from <see cref="MenuVramLayout.Bg1TilemapWord"/>.
+/// The screen keeps no such image; verification composes it to compare against native VRAM.
 /// </summary>
-[PpuLayoutBoundary("codec: the shared menu screen's characters and tilemaps at their native words")]
-internal static class MenuScreenImage
+[PpuLayoutBoundary("exact hardware test: the shared menu screen's characters and tilemaps at their native words")]
+internal static class MenuScreenMemory
 {
     /// <summary>The character image of <paramref name="screen"/>'s bound artwork.</summary>
     internal static byte[] Characters(MenuScreen screen)
@@ -22,7 +25,7 @@ internal static class MenuScreenImage
     /// <summary>The memory image <paramref name="screen"/> shows: its characters with its tilemaps over them.</summary>
     internal static byte[] Compose(MenuScreen screen)
     {
-        byte[] image = screen.Characters.ToArray();
+        byte[] image = Characters(screen);
         ReadOnlySpan<ushort> tilemaps = screen.Tilemaps.All;
         int first = MenuVramLayout.Bg1TilemapWord * sizeof(ushort);
         for (int word = 0; word < tilemaps.Length; word++)
@@ -33,6 +36,10 @@ internal static class MenuScreenImage
         return image;
     }
 
-    /// <summary>What <paramref name="screen"/> paints with: its palette and sprite entries.</summary>
-    internal static FramePaint Capture(MenuScreen screen) => new(screen.Palette.Colors, screen.Objects.Draws);
+    /// <summary>Reads a menu screen's memory image.</summary>
+    extension(MenuScreen self)
+    {
+        /// <summary>The character image of the screen's bound artwork.</summary>
+        internal byte[] Characters => Characters(self);
+    }
 }

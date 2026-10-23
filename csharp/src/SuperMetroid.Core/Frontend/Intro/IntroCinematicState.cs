@@ -59,16 +59,26 @@ public sealed class IntroCinematicState : IFrontendScreen
         projectileSheets = sheets is null ? null : ProjectileSheets.IntroFlashbacks(sheets);
         CurrentFlashbackSamus?.Presentation.TileTransfers.BindSheets(spriteSheets);
         CurrentCeresFlight?.BindSheets(sheets);
-        Tiles = null;
+        SceneTiles = null;
+        NarrationTiles = null;
     }
 
-    /// <summary>What the intro's background characters show (#1392), until its characters change.</summary>
+    /// <summary>What the scene planes show (#1392).</summary>
     [field: NonSerialized]
     [AllowNull]
-    private ScreenCharacters Tiles
+    private ScreenLayerPictures SceneTiles
     {
-        get => field ??= IntroScreenTiles.Of(spriteSheets ?? throw new InvalidOperationException("Opening cinematic rendering requires the installed sprite sheets."),
-            japaneseGlyphsBlanked);
+        get => field ??= IntroScreenTiles.Scene(spriteSheets ?? throw new InvalidOperationException("Opening cinematic rendering requires the installed sprite sheets."));
+        set;
+    }
+
+    /// <summary>What the narration plane shows (#1392), until the Japanese glyphs are blanked.</summary>
+    [field: NonSerialized]
+    [AllowNull]
+    private ScreenLayerPictures NarrationTiles
+    {
+        get => field ??= IntroScreenTiles.Narration(spriteSheets ?? throw new InvalidOperationException("Opening cinematic rendering requires the installed sprite sheets."),
+            JapaneseGlyphsBlanked);
         set;
     }
 
@@ -89,7 +99,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     public required CartridgeRandom Random { get; init; }
 
     /// <summary>The session's Mode 7 transfer queue residue, bound into the flashback Samus.</summary>
-    public SuperMetroid.Core.Hardware.Mode7TransferQueueResidue? Mode7QueueResidue { get; init; }
+    public SuperMetroid.Core.Hardware.Mode7TransferQueueResidue? FloorQueueResidue { get; init; }
 
     /// <summary>Current timed-projectile composition selected by the host.</summary>
     [field: NonSerialized]
@@ -102,9 +112,9 @@ public sealed class IntroCinematicState : IFrontendScreen
     }
 
     /// <summary>Installed first-font transfer rebound after debugger restoration.</summary>
-    [NonSerialized] private IntroFontAtlas? introFont;
+    [field: NonSerialized] internal IntroFontAtlas? IntroFont { get; private set; }
     /// <summary>Installed background, object, and palette content for the intro scenes.</summary>
-    [NonSerialized] private IntroCinematicArtworkCatalog? characterArtwork;
+    [field: NonSerialized] internal IntroCinematicArtworkCatalog? CharacterArtwork { get; private set; }
     /// <summary>Installed Samus body graphics rebound into active flashback actors.</summary>
     [NonSerialized] private SamusBodyArtworkCatalog? samusBodyArtwork;
     /// <summary>Host-owned hurt-flash colors consumed by the shared Samus palette handler.</summary>
@@ -132,14 +142,13 @@ public sealed class IntroCinematicState : IFrontendScreen
     public void BindIntroFont(IntroFontAtlas? value)
     {
         if (value is not null)
-            IntroScreenImage.RequireFont(value.Transfer.Span);
-        introFont = value;
-        characters = null;
+            RequireFont(value.Transfer.Span);
+        IntroFont = value;
     }
     /// <summary>Rebinds installed BG and OBJ pixels after restoring emulated state.</summary>
     public void BindCharacterArtwork(IntroCinematicArtworkCatalog? value)
     {
-        characterArtwork = value;
+        CharacterArtwork = value;
         CurrentCeresFlight?.BindArtwork(value?.CeresFlight);
         if (value is not null)
         {
@@ -160,7 +169,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                     IntroCinematicRomData.Text.FinalLineWordCount));
                 value.FinalLine.Words.Span.CopyTo(tilemaps.Narration[IntroCinematicRomData.Text.FinalLineDestinationStart..]);
             }
-            characters = null;
+            tilemaps.LoadScenePages(value.BackgroundPages.Span);
             tilemaps.LoadPortrait(value.PortraitTilemap.Span);
             // The active eye rectangle overlays the base portrait after its VRAM upload.
             CurrentObjects?.BindEyeArtwork(value.EyeFrames);
@@ -188,9 +197,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>The cinematic actors' sprite entries over the intro OBJ page (#1358).</summary>
     internal readonly ScreenSprites objectSprites;
     /// <summary>Whether <c>BlankOut_JapanText_Tiles</c> has blanked the optional Japanese glyph characters.</summary>
-    private bool japaneseGlyphsBlanked;
-    /// <summary>The composed character image of the bound artwork and font, until a rebind or the Japanese blanking changes it.</summary>
-    [NonSerialized] private byte[]? characters;
+    internal bool JapaneseGlyphsBlanked { get; private set; }
     /// <summary>Tracks the current physical button edges alongside scripted demo input.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>Runs ordinary beam projectiles during gameplay-style flashbacks.</summary>
@@ -261,7 +268,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private WrappingCountdown introCrossfadeCounter;
     /// <summary>
     /// Updates the cinematic has run, counted from zero at its creation; the shared Samus systems receive it through
-    /// <see cref="NmiFrameWord"/> as their frame-counter word.
+    /// <see cref="FrameCounterWord"/> as their frame-counter word.
     /// </summary>
     private int elapsedUpdates;
     /// <summary>$51: the INIDISP byte the cinematic fades; the intro starts in forced blank.</summary>
@@ -292,30 +299,31 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         subtitles = new IntroJapaneseSubtitles(japaneseText);
         this.audio = audio;
-        this.introFont = introFont ?? throw new InvalidOperationException(
+        IntroFont = introFont ?? throw new InvalidOperationException(
             "Opening cinematic requires the installed font atlas.");
-        this.characterArtwork = characterArtwork ?? throw new InvalidOperationException(
+        CharacterArtwork = characterArtwork ?? throw new InvalidOperationException(
             "Opening cinematic requires installed artwork.");
         this.samusBodyArtwork = samusBodyArtwork;
         characterArtwork.Palette.LoadTo(palette);
         new CgramPalettes(palette).Image.CopyTo(introPalette);
 
-        RequireMinimum(characterArtwork.BackgroundCharacters.Transfer.Length, IntroCinematicRomData.Vram.BackgroundCharacterBytes,
+        RequireMinimum(characterArtwork.BackgroundCharacters.Transfer.Length, IntroCinematicRomData.Transfers.BackgroundCharacterBytes,
             "intro BG1/BG2 characters");
-        RequireMinimum(introFont.Transfer.Length, IntroCinematicRomData.Vram.FontOneBytes, "intro font one");
-        RequireMinimum(characterArtwork.PortraitTilemap.Length, IntroCinematicRomData.Vram.SamusHeadTilemapBytes,
+        RequireMinimum(introFont.Transfer.Length, IntroCinematicRomData.Transfers.FontOneBytes, "intro font one");
+        RequireMinimum(characterArtwork.PortraitTilemap.Length, IntroCinematicRomData.Transfers.SamusHeadTilemapBytes,
             "Samus-head BG2 tilemap");
-        RequireMinimum(characterArtwork.BackgroundPages.Length, IntroCinematicRomData.Vram.BackgroundPageTilemapBytes,
+        RequireMinimum(characterArtwork.BackgroundPages.Length, IntroCinematicRomData.Transfers.BackgroundPageTilemapBytes,
             "intro BG1 page tilemaps");
-        RequireMinimum(characterArtwork.CinematicObjectCharacters.Transfer.Length, IntroCinematicRomData.Vram.ObjectCharacterBytes,
+        RequireMinimum(characterArtwork.CinematicObjectCharacters.Transfer.Length, IntroCinematicRomData.Transfers.ObjectCharacterBytes,
             "intro OBJ characters");
-        RequireMinimum(characterArtwork.InitialNarrationTilemap.Length, IntroCinematicRomData.Vram.NarrationTilemapBytes,
+        RequireMinimum(characterArtwork.InitialNarrationTilemap.Length, IntroCinematicRomData.Transfers.NarrationTilemapBytes,
             "first narration BG3 tilemap");
-        IntroScreenImage.RequireFont(introFont.Transfer.Span);
+        RequireFont(introFont.Transfer.Span);
 
         // `$8B:A469-$A529` upload the characters, font, background pages and OBJ sheets the intro binds,
         // and the portrait and first narration card it keeps as its own tilemaps.
         objectSprites = new ScreenSprites();
+        tilemaps.LoadScenePages(characterArtwork.BackgroundPages.Span);
         tilemaps.LoadPortrait(characterArtwork.PortraitTilemap.Span);
         tilemaps.LoadNarration(characterArtwork.InitialNarrationTilemap.Span);
 
@@ -567,7 +575,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                     // the fourteen-frame delayed music command has completed.
                     CurrentCeresFlight = new IntroCeresFlightState(audio
                         ?? throw new InvalidOperationException("The Ceres flight waits on the cartridge music queue."),
-                        characterArtwork?.CeresFlight, subtitles.Enabled,
+                        CharacterArtwork?.CeresFlight, subtitles.Enabled,
                         spriteSheets ?? throw new InvalidOperationException("The Ceres flight requires the installed sprite sheets."));
                     Phase = IntroCinematicPhase.CeresFlight;
                 }
@@ -629,7 +637,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             CurrentFlashbackMotherBrain.RunPreInstruction(
                 palette,
                 introPalette,
-                NmiFrameWord(elapsedUpdates),
+                FrameCounterWord(elapsedUpdates),
                 crossfadeCounter.RawValue);
             // $8B:B842: deleting Mother Brain after the page-two crossfade hides Samus from
             // the next dispatch on.
@@ -663,7 +671,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         // Handle_CinematicSpriteObjects ($8B:93EF) runs after the cinematic function, so the
         // actors a scene setup spawns take their first step in that same dispatch.
-        CurrentBabyDiscovery?.Step(NmiFrameWord(elapsedUpdates), crossfadeCounter.RawValue);
+        CurrentBabyDiscovery?.Step(FrameCounterWord(elapsedUpdates), crossfadeCounter.RawValue);
         CurrentScientistCutscene?.Step(crossfadeCounter.RawValue, introCrossfadeCounter.RawValue);
     }
 
@@ -679,7 +687,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // collision data and must never be expanded as a visual block map.
         CurrentFlashbackSamus = new SamusState
         {
-            Mode7QueueResidue = Mode7QueueResidue,
+            FloorQueueResidue = FloorQueueResidue,
             Pose = SamusPoseId.FacingLeftNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(155, 115)),
             SelectedHudItem = HudItem.Missile,
@@ -1052,12 +1060,12 @@ public sealed class IntroCinematicState : IFrontendScreen
         {
             // `$90:E83C` dispatches the installed `$90:DF38` movement handler. Its shared
             // vertical calculation now carries the eleven-frame Rinka arc through its apex.
-            SamusKnockbackMovement.Step(level, samus, NmiFrameWord(elapsedUpdates));
+            SamusKnockbackMovement.Step(level, samus, FrameCounterWord(elapsedUpdates));
         }
         else if (samus.Pose is SamusPoseId.KnockbackRightPose or SamusPoseId.KnockbackLeftPose)
         {
             hurtEndingProbe = SamusGroundedMovement.StepKnockbackOrCrystalFlashEnding(
-level, samus, NmiFrameWord(elapsedUpdates));
+level, samus, FrameCounterWord(elapsedUpdates));
         }
         else if (CurrentFlashbackDemoInput?.Enabled == true &&
             (SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsLeftFacingRunningPose(samus.Pose)))
@@ -1065,18 +1073,18 @@ level, samus, NmiFrameWord(elapsedUpdates));
             // The demo's later run/jump records use the same alpha/beta order as the
             // discovery scene. This coordinator already animates and commits its pose.
             IntroSamusDemoMovement.StepGroundedLeft(level, samus, demoInput,
-                CurrentFlashbackDemoInput.NewlyPressed, NmiFrameWord(elapsedUpdates), Random);
+                CurrentFlashbackDemoInput.NewlyPressed, FrameCounterWord(elapsedUpdates), Random);
             groundedDemoStepped = true;
         }
         else if (samus.Pose == SamusPoseId.SpinJumpLeftPose)
         {
             fallingMovement = SamusAerialMovement.StepSpinJump(level, samus,
-                demoInput, NmiFrameWord(elapsedUpdates), CurrentFlashbackDemoInput?.NewlyPressed ?? 0);
+                demoInput, FrameCounterWord(elapsedUpdates), CurrentFlashbackDemoInput?.NewlyPressed ?? 0);
         }
         else if (SamusPoseMetadata.IsLeftFacingNormalJumpPose(samus.Pose))
         {
             fallingMovement = SamusAerialMovement.StepNormalJump(level, samus,
-                demoInput, NmiFrameWord(elapsedUpdates));
+                demoInput, FrameCounterWord(elapsedUpdates));
         }
         else if (samus.Pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose)
         {
@@ -1088,13 +1096,13 @@ level, samus, NmiFrameWord(elapsedUpdates));
                 level,
                 samus,
                 demoInput,
-                NmiFrameWord(elapsedUpdates));
+                FrameCounterWord(elapsedUpdates));
         }
 
         // Intro-demo state is not an animation shortcut. `$90:E83F` advances the same
         // cartridge delay programs as gameplay, including every visible hurt/fall frame.
         if (!groundedDemoStepped)
-            SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { ControllerInput = demoInput, NmiFrameCounter = NmiFrameWord(elapsedUpdates), Random = Random });
+            SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { ControllerInput = demoInput, NmiFrameCounter = FrameCounterWord(elapsedUpdates), Random = Random });
 
         // Delay opcodes `$F8/$FD` publish a prospective pose; they are not ordinary frame
         // delays. `$90:E849` consumes that publication before the byte following the opcode
@@ -1106,7 +1114,7 @@ level, samus, NmiFrameWord(elapsedUpdates));
 
         if (!animationTransitionApplied && hurtEndingProbe is { IsUnobstructedDownwardMovement: true })
         {
-            SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, level, SamusPoseTransitions.SelectFallingPoseForCurrentAim(samus), NmiFrameWord(elapsedUpdates));
+            SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, level, SamusPoseTransitions.SelectFallingPoseForCurrentAim(samus), FrameCounterWord(elapsedUpdates));
             animationTransitionApplied = transitionAccepted = true;
         }
 
@@ -1197,10 +1205,10 @@ level, samus, NmiFrameWord(elapsedUpdates));
         // cinematic objects; once $B842 clears it, only the objects remain.
         if (flashbackSamusDisplay != IntroSamusDisplay.Hidden)
         {
-            FlashbackSamus.Presentation.Draw(FlashbackSamus, sprites, layer1: Position16<RoomPixels>.Zero, NmiFrameWord(elapsedUpdates));
+            FlashbackSamus.Presentation.Draw(FlashbackSamus, sprites, layer1: Position16<RoomPixels>.Zero, FrameCounterWord(elapsedUpdates));
             // The flashback's VRAM holds the power beam's characters whatever beam its Samus fires.
             var projectileArtwork = new ProjectileDrawArtwork(projectileSheets, EquippedBeams: 0);
-            flashbackProjectiles.DrawLiveProjectiles(sprites, Position16<RoomPixels>.Zero, NmiFrameWord(elapsedUpdates), projectileArtwork);
+            flashbackProjectiles.DrawLiveProjectiles(sprites, Position16<RoomPixels>.Zero, FrameCounterWord(elapsedUpdates), projectileArtwork);
             flashbackProjectiles.AdvanceTrails(timeIsFrozen: false);
             flashbackProjectiles.DrawTrails(sprites, Position16<RoomPixels>.Zero, projectileArtwork);
             flashbackProjectiles.DrawExplosions(sprites, Position16<RoomPixels>.Zero, projectileArtwork);
@@ -1254,7 +1262,7 @@ level, samus, NmiFrameWord(elapsedUpdates));
         // This cinematic deliberately keeps layer1_x_pos at zero. Samus starts at $178,
         // outside the 256-pixel viewport, and the demo makes her enter from the right; the
         // $54 BG1 screen-base selects different art, not a hidden +$100 camera coordinate.
-        BabyDiscovery.Samus.Presentation.Draw(BabyDiscovery.Samus, sprites, layer1: Position16<RoomPixels>.Zero, NmiFrameWord(elapsedUpdates));
+        BabyDiscovery.Samus.Presentation.Draw(BabyDiscovery.Samus, sprites, layer1: Position16<RoomPixels>.Zero, FrameCounterWord(elapsedUpdates));
     }
 
     /// <summary>Collects scientist-scene objects for the current cinematic display.</summary>
@@ -1304,9 +1312,8 @@ level, samus, NmiFrameWord(elapsedUpdates));
         // $7E:4000, then DMA copies the resulting $600 bytes to VMADD $4180 (byte $8300).
         // English still performs this clear; omitting it exposes stale font glyphs in the
         // otherwise empty lower margin.
-        japaneseGlyphsBlanked = true;
-        characters = null;
-        Tiles = null;
+        JapaneseGlyphsBlanked = true;
+        NarrationTiles = null;
 
         // ClearCinematicBgObjects($2F) fills the complete $7E:3000 staging tilemap. The
         // native border then replaces four 32-tile rows at the top and bottom.
@@ -1321,7 +1328,7 @@ level, samus, NmiFrameWord(elapsedUpdates));
         }
 
         // $8B:A72B maps Japanese subtitle glyph staging into BG3 rows 24-27.
-        (characterArtwork ?? throw new InvalidOperationException(
+        (CharacterArtwork ?? throw new InvalidOperationException(
             "Opening cinematic requires installed artwork."))
             .FinalLine.Words.Span.CopyTo(textTilemap.AsSpan(
                 IntroCinematicRomData.Text.FinalLineDestinationStart,
@@ -1341,7 +1348,7 @@ level, samus, NmiFrameWord(elapsedUpdates));
             subtitles,
             audio,
             NarrationPresentation,
-            characterArtwork.EyeFrames);
+            CharacterArtwork.EyeFrames);
         audio?.QueueMusicDelayed8(MusicCommand.Stop);
         audio?.QueueMusicDelayed8(
             MusicCommand.LoadData(IntroCinematicRomData.Music.DiscoveryDataIndex));
@@ -1404,51 +1411,50 @@ level, samus, NmiFrameWord(elapsedUpdates));
         if (CurrentCeresFlight is not null && Phase == IntroCinematicPhase.CeresFlight)
             return CurrentCeresFlight.CaptureRenderSnapshot();
 
-        byte[] image = Image();
-        SpriteFrameBuffer oam;
+        SpriteFrameBuffer sprites;
         TileRenderLayer room;
         if (Phase is IntroCinematicPhase.MotherBrainCrossfade or
             IntroCinematicPhase.MotherBrainFlashback or IntroCinematicPhase.PageTwoCrossfade)
         {
-            oam = PrepareMotherBrainSprites();
-            room = Plane(image, IntroCinematicRomData.Layers.SceneBg1TilemapWord,
+            sprites = PrepareMotherBrainSprites();
+            room = Plane(tilemaps.ScenePage(IntroScenePage.MotherBrainRoom),
                 (CurrentFlashbackMotherBrain?.Background ??
                     new Position16<RoomPixels>(0, GameplayFlashbackBg1VerticalScroll)).AsBgPlaneScroll());
         }
         else if (Phase is IntroCinematicPhase.BabyDiscoveryCrossfade or
             IntroCinematicPhase.BabyDiscovery or IntroCinematicPhase.PageThreeCrossfade)
         {
-            oam = PrepareBabyDiscoverySprites();
-            room = Plane(image, IntroCinematicRomData.Layers.SceneBg2TilemapWord, new(0, GameplayFlashbackBg1VerticalScroll));
+            sprites = PrepareBabyDiscoverySprites();
+            room = Plane(tilemaps.ScenePage(IntroScenePage.BabyDiscoveryRoom), new(0, GameplayFlashbackBg1VerticalScroll));
         }
         else if (Phase is IntroCinematicPhase.BabyMetroidDeliveryCrossfade or
             IntroCinematicPhase.BabyMetroidDelivery or IntroCinematicPhase.PageFourCrossfade or
             IntroCinematicPhase.BabyMetroidExaminationCrossfade or
             IntroCinematicPhase.BabyMetroidExamination or IntroCinematicPhase.PageFiveCrossfade)
         {
-            oam = PrepareScientistSprites();
-            room = Plane(image, IntroVram.LaboratoryTilemapWord(ScientistCutscene.Scene), ScientistCutscene.Background.AsBgPlaneScroll());
+            sprites = PrepareScientistSprites();
+            room = Plane(tilemaps.ScenePage(IntroScenePages.Laboratory(ScientistCutscene.Scene)), ScientistCutscene.Background.AsBgPlaneScroll());
         }
         else if (CurrentObjects is null)
         {
-            oam = new SpriteFrameBuffer();
-            oam.BeginFrame();
-            oam.FinalizeFrame();
+            sprites = new SpriteFrameBuffer();
+            sprites.BeginFrame();
+            sprites.FinalizeFrame();
             // The first card is opaque and unscrolled; later text is transparent
             // and cropped one tile down. Do not conflate those two PPU setups.
-            return new(new FramePaint(palette.Colors, oam.Draws),
-                new RenderLayer[] { new TileViewportRenderLayer(NarrationCells(image), 0, false, null) }, ScreenFade.Displayed(Inidisp));
+            return new(new FramePaint(palette.Colors, sprites.Draws),
+                new RenderLayer[] { new TileViewportRenderLayer(NarrationCells(), 0, false, null) }, ScreenFade.Displayed(Inidisp));
         }
         else
         {
-            oam = PrepareIllustratedPageSprites();
-            room = Plane(image, IntroCinematicRomData.Layers.PortraitTilemapWord, new(0, GameplayFlashbackBg1VerticalScroll));
+            sprites = PrepareIllustratedPageSprites();
+            room = Plane(tilemaps.Portrait, new(0, GameplayFlashbackBg1VerticalScroll));
         }
 
-        var text = new TileViewportRenderLayer(NarrationCells(image), GameplayFlashbackBg1VerticalScroll, true, false);
+        var text = new TileViewportRenderLayer(NarrationCells(), GameplayFlashbackBg1VerticalScroll, true, false);
         // Mode 1 with high-priority BG3: preserve both the OBJ winner and the
         // insertion points of text/room priority planes during palette crossfades.
-        return new(new FramePaint(palette.Colors, oam.Draws), new RenderLayer[]
+        return new(new FramePaint(palette.Colors, sprites.Draws), new RenderLayer[]
         {
             new ObjPriorityRenderLayer(0), text, new ObjPriorityRenderLayer(1), room,
             new ObjPriorityRenderLayer(2), room with { Priority = true },
@@ -1456,29 +1462,23 @@ level, samus, NmiFrameWord(elapsedUpdates));
         }, ScreenFade.Displayed(Inidisp));
     }
 
-    /// <summary>The memory image the intro shows: its bound characters with its portrait and narration tilemaps over them.</summary>
-    internal byte[] Image()
+    /// <summary>Rejects a font atlas that is not the installed font's size.</summary>
+    internal static void RequireFont(ReadOnlySpan<byte> font)
     {
-        IntroCinematicArtworkCatalog artwork = characterArtwork ?? throw new InvalidOperationException(
-            "Opening cinematic rendering requires installed artwork.");
-        IntroFontAtlas font = introFont ?? throw new InvalidOperationException(
-            "Opening cinematic rendering requires the installed font atlas.");
-        characters ??= IntroScreenImage.Characters(artwork, font.Transfer.Span, japaneseGlyphsBlanked);
-        return IntroScreenImage.Compose(characters, tilemaps);
+        if (font.Length != IntroFontAtlasFormat.ByteCount)
+            throw new InvalidDataException($"Opening font contains {font.Length} bytes; expected {IntroFontAtlasFormat.ByteCount}.");
     }
 
     /// <summary>
     /// The shared Samus systems' frame-counter word after <paramref name="elapsedUpdates"/> updates: its low sixteen
     /// bits, which return to zero every 65536 updates exactly as the cartridge's sixteen-bit counter does.
     /// </summary>
-    internal static ushort NmiFrameWord(int elapsedUpdates) => unchecked((ushort)elapsedUpdates);
+    internal static ushort FrameCounterWord(int elapsedUpdates) => unchecked((ushort)elapsedUpdates);
 
     /// <summary>Defines a four-bit background plane at the selected tilemap and source scroll, drawn from the scene's tiles (#1392).</summary>
-    private TileRenderLayer Plane(byte[] image, ushort tilemap, Position16<BgPlanePixels> scroll) =>
-        new(ScreenTileMap.Capture(image, tilemap, new Extent16<TilemapCells>(32, 32), Tiles.Pictures(0, BgBitDepth.FourBpp)), scroll, false);
+    private TileRenderLayer Plane(ReadOnlySpan<ushort> tilemap, Position16<BgPlanePixels> scroll) =>
+        new(ScreenTileMap.Of(tilemap, new Extent16<TilemapCells>(32, 32), SceneTiles), scroll, false);
 
     /// <summary>The narration's cells, showing its font characters (#1392).</summary>
-    [PpuLayoutBoundary("codec: the narration's tilemap and font character base")]
-    private ScreenTileMap NarrationCells(byte[] image) => ScreenTileMap.Capture(image, IntroCinematicRomData.Layers.NarrationTilemapWord,
-        TileViewportRenderLayer.MapSize, Tiles.Pictures(IntroCinematicRomData.Layers.FontCharacterBaseWord, BgBitDepth.TwoBpp));
+    private ScreenTileMap NarrationCells() => ScreenTileMap.Of(tilemaps.Narration, TileViewportRenderLayer.MapSize, NarrationTiles);
 }

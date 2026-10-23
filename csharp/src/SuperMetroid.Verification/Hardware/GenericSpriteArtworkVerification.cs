@@ -43,8 +43,8 @@ internal static class GenericSpriteArtworkVerification
         // receives mutable memory only and the installed sprite composition catalog.
         var title = new TitleSequenceState(titleGradientPresentation: maps.TitleGradient,
             titlePalettePresentation: maps.TitlePalette, titleGraphicsPresentation: maps.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(maps.TitleGraphics));
-        var document = RequiredJson.Deserialize<TitleMode7MapDocument>(File.ReadAllBytes(
-            Path.Combine(installation.MapDirectory, TitleGraphicsFormat.Mode7MapFile)),
+        var document = RequiredJson.Deserialize<TitleFloorMapDocument>(File.ReadAllBytes(
+            Path.Combine(installation.MapDirectory, TitleGraphicsFormat.FloorMapFile)),
             ArtworkJson.Options);
         var expected = new OamBuffer();
         int titleCases = 0;

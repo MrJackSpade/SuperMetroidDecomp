@@ -29,7 +29,7 @@ internal static class EndingTextPresentationVerification
         EndingFontAtlas font = EndingFontAtlas.Load(new MemoryStream(fontPng, writable: false));
         byte[] nativeFont = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(nativeBus),
             EndingCreditsRomData.Assets.EndingFontCharacters,
-            EndingCreditsRomData.Rendering.Mode7Bytes);
+            EndingCreditsRomData.Rendering.FloorBytes);
         AssertTrue(font.Transfer.Span.SequenceEqual(
             nativeFont.AsSpan(0, EndingFontAtlasFormat.ByteCount)),
             "installed ending-font PNG compiles to exact native planar bytes");

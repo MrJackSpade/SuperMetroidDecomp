@@ -56,7 +56,7 @@ internal static class IntroEyeInstructionsVerification
             for (int row = 0; row < size.Y; row++)
             for (int column = 0; column < size.X; column++)
             {
-                int word = IntroCinematicRomData.Layers.PortraitTilemapWord +
+                int word = IntroCinematicRomDataLayersConstants.PortraitTilemapWord +
                     (cell.Y + row) * IntroCinematicRomData.Layers.TilemapWidth + cell.X + column;
                 AssertEqual(expected[row * size.X + column], IntroTilemapsFixtures.Vram(vram).ReadWord(word), $"{at}: portrait eye frame");
             }

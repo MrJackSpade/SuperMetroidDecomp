@@ -13,7 +13,7 @@ public static class EndingPresentationIdentity
     /// <returns>A new ordinal-keyed dictionary mapping the three installation domain names to their decoded-content identity strings.</returns>
     /// <remarks>Uses the supplied catalogs, including any already selected overrides; does not load files, retain catalog references, or conflate raw-file hashes with engine-build/cartridge provenance.</remarks>
     public static IReadOnlyDictionary<string, string> Create(
-        EndingMode7ArtworkCatalog mode7, EndingObjectArtworkCatalog objects, EndingPaletteCatalog palettes) =>
+        EndingFloorArtworkCatalog mode7, EndingObjectArtworkCatalog objects, EndingPaletteCatalog palettes) =>
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
             [GameInstallationLayout.EndingMode7DirectoryName] = mode7.ContentIdentity,

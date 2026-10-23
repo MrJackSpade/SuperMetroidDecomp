@@ -11,7 +11,7 @@ internal static class FileSelectHelmetAnimationVerification
     /// <summary>Compares all nine native selectors, duration and terminal clamp instructions, and rejects invalid frame indices.</summary>
     internal static void VerifyFileSelectHelmetAnimation(ISnesAddressSpace rom)
     {
-        AssertEqual(9, FileSelectHelmetAnimation.NativeEntryCount, "complete native helmet mapping");
+        AssertEqual(9, FileSelectHelmetAnimation.EntryCount, "complete native helmet mapping");
         for (int frame = 0; frame < 9; frame++)
             AssertEqual(ReadVerificationWord(rom, 0x819e2c + 2 * frame),
                 FileSelectHelmetAnimation.SpritemapId(frame), $"original helmet sprite {frame}");

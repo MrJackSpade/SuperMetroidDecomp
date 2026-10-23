@@ -124,15 +124,15 @@ public sealed class CartridgeRoomAssets
     /// the first $4000 VRAM words, which the room's two character uploads fill, the area tileset over the CRE.
     /// </summary>
     [PpuLayoutBoundary("codec: the Mode 7 map shares VRAM words with the room tileset's character upload")]
-    public Mode7Map CreateMode7Map()
+    public FloorMap CreateMode7Map()
     {
-        var words = new byte[Mode7Map.Cells * 2];
+        var words = new byte[FloorMap.Cells * 2];
         CopyAt(CreCharacters, RoomGraphicsLayout.CommonRoomElementCharacters.Offset * 2);
         CopyAt(RoomCharacters, RoomGraphicsLayout.AreaCharacters.Offset * 2);
-        var cells = new byte[Mode7Map.Cells];
+        var cells = new byte[FloorMap.Cells];
         for (int cell = 0; cell < cells.Length; cell++)
             cells[cell] = words[cell * 2];
-        return new Mode7Map(cells, Tileset, Pictures.Mode7(Tileset));
+        return new FloorMap(cells, Tileset, Pictures.Mode7(Tileset));
 
         void CopyAt(byte[] source, int byteOffset)
         {

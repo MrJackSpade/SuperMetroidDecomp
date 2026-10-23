@@ -139,7 +139,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
             _bossArtwork.MotherBrainRainbowColors = value?.MotherBrainRainbowPalette;
             _bossArtwork.MotherBrainRoomColors = value?.MotherBrainRoomColors;
             _bossArtwork.CeresRidleyColors = value?.CeresRidleyColors;
-            _bossArtwork.CeresRidleyMode7Colors = value?.CeresRidleyMode7Colors;
+            _bossArtwork.CeresRidleyFloorColors = value?.CeresRidleyFloorColors;
             _room.Scope?.Enemies.RebindEscapeTypewriters(value?.EscapeTypewriter);
             // A HUD whose upload is still queued shows nothing yet; that upload resolves to the new artwork itself.
             pendingHudTiles = value is not null && _hud.IsInitialized && !_vramWrites.Queues(VramAssetId.StandardHudTiles)

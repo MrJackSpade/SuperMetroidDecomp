@@ -3,10 +3,6 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// <summary>VRAM layout and palette fields used by the bank-$82 pause-screen routines.</summary>
 internal static class PauseMenuLayout
 {
-    /// <summary>BG1 tilemap base word used by the map and equipment pages.</summary>
-    public const ushort Bg1TilemapWord = 0x3000;
-    /// <summary>BG2 tilemap base word used by the pause-screen frame.</summary>
-    public const ushort Bg2TilemapWord = 0x3800;
     /// <summary>Pause character/palette word used to blank the retained FX plane.</summary>
     public const ushort Bg3FxClearTile = 0x184e;
     /// <summary>Byte offset of those rows in the bank-$B6 button tilemap.</summary>

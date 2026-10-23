@@ -1916,15 +1916,15 @@ internal static class LookupStream5Verification
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(SnesCgram.ColorCount), "Ceres palette upper bound");
         AssertThrows<ArgumentException>(() => stock.CopyTransferTo(new byte[CgramPalettes.ByteCount - 1]), "Ceres palette output extent");
         IReadOnlyDictionary<string, byte[]> files = SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightArtworkExtractor.Extract(rom);
-        var catalog = CeresFlightArtworkCatalog.Load(Open(CeresFlightArtworkFormat.Mode7FileName),
+        var catalog = CeresFlightArtworkCatalog.Load(Open(CeresFlightArtworkFormat.FloorFileName),
             Open(CeresFlightArtworkFormat.MapFileName), Open(CeresFlightArtworkFormat.ObjectFileName),
             Open(CeresFlightPaletteFormat.FileName), Open(CeresFlightSpriteFormat.FileName), Open(CeresFlightActorLayoutFormat.FileName));
         byte[] nativeBytes = new byte[CgramPalettes.ByteCount];
         for (int index = 0; index < nativeBytes.Length; index++) nativeBytes[index] = rom.ReadCartridgeByte(CeresFlightRomData.Assets.Palette + index);
         string expectedHash = SelectedPresentationHash.Create(nameof(CeresFlightArtworkCatalog), content =>
         {
-            content.Append("mode7-characters", catalog.Mode7Characters.Span);
-            content.Append("mode7-maps", catalog.Mode7Maps.Span);
+            content.Append("mode7-characters", catalog.FloorCharacters.Span);
+            content.Append("mode7-maps", catalog.FloorMaps.Span);
             content.Append("object-characters", catalog.ObjectCharacters.Span);
             content.Append("palette", nativeBytes);
             content.Append("sprites", Convert.FromHexString(catalog.Sprites.ContentIdentity));

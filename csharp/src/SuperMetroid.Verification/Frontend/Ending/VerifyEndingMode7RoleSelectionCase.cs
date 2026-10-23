@@ -7,4 +7,4 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 /// <param name="Second">The second.</param>
 /// <param name="Third">The third.</param>
 /// <param name="Fourth">The fourth.</param>
-internal readonly record struct VerifyEndingMode7RoleSelectionCase(EndingMode7SceneId First, int Second, int Third, string Fourth);
+internal readonly record struct VerifyEndingMode7RoleSelectionCase(EndingFloorSceneId First, int Second, int Third, string Fourth);

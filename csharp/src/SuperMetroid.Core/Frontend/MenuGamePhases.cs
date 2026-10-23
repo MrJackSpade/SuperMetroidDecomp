@@ -297,7 +297,7 @@ session.audio, session.Artwork.MapPresentation?.IntroFont, session.Artwork.Intro
             session.Artwork.BeamArtwork, session.Artwork.SamusBodyArt, japaneseText)
         {
             Random = session.Random,
-            Mode7QueueResidue = session.mode7QueueResidue,
+            FloorQueueResidue = session.floorQueueResidue,
             ProjectileCompositions = session.Artwork.ProjectileCompositions,
             ProjectileFrameBindings = session.Artwork.ProjectileFrameBindings,
             TrailArtwork = session.Artwork.TrailArtwork,

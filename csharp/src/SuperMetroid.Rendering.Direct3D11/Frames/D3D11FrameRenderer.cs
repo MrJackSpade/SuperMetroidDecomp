@@ -518,7 +518,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         };
         RoomBackgroundLayer? floor = null;
         Layer3Cells? bg3 = rooms?.Bg3;
-        AffineFloor? mode7Map = null;
+        AffineFloor? floorMap = null;
         // A frame shows one Mode 7 floor, which every Mode 7 dispatch draws from the room buffer (#1403).
         AffineFloor? SameFloor(AffineFloor? shown, AffineFloor floor) => shown is null || shown.Equals(floor) ? floor
             : throw new InvalidOperationException("A frame shows two different Mode 7 floors.");
@@ -527,7 +527,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         foreach (RenderLayer layer in scene.Layers)
         {
             if (layer is Mode7RenderLayer frontendMode7)
-                mode7Map = SameFloor(mode7Map, frontendMode7.Floor);
+                floorMap = SameFloor(floorMap, frontendMode7.Floor);
             // The frontend layers' cells (#1403), each once.
             foreach (ScreenTileMap cells in ScreenMaps(layer))
             {
@@ -538,7 +538,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             {
                 floor = mode7.Floor?.Room ?? floor;
                 bg3 = SameBg3(bg3, mode7.Hud);
-                mode7Map = SameFloor(mode7Map, mode7.Map);
+                floorMap = SameFloor(floorMap, mode7.Map);
             }
             else if (layer is FxPlaneBlendRenderLayer math)
                 bg3 = SameBg3(bg3, math.Plane);
@@ -546,7 +546,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                 bg3 = SameBg3(bg3, sub.Plane);
         }
         if (roomLevels.Pack(new RoomLevelLayers(rooms?.Bg1, rooms?.Bg2 ?? floor, rooms?.DoorSource, rooms?.Bg1Overlay, rooms?.Sky, bg3,
-                rooms?.Bg2Overlay, mode7Map, rooms?.BossBg2, rooms?.XrayReveal, rooms?.Bg2Image,
+                rooms?.Bg2Overlay, floorMap, rooms?.BossBg2, rooms?.XrayReveal, rooms?.Bg2Image,
                 messagePicture, screens.Count == 0 ? null : new ScreenPictureTables([.. screens]))))
             fixed (uint* source = roomLevels.Upload) UploadBuffer(roomLevels.Buffer, (nint)source, roomLevels.Upload.Length * sizeof(uint));
         owner.Context.CSSetShader(tileShader);
@@ -648,7 +648,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         // right shifts. No projected coordinates or raster pixels are uploaded.
         var data = MemoryMarshal.Cast<uint, int>(ClearUploadConstants().AsSpan());
         data[0] = (int)D3D11TileOperation.Mode7;
-        data[14] = (int)D3D11RoomSource.Mode7Map;
+        data[14] = (int)D3D11RoomSource.FloorMap;
         data[16] = registers.MatrixA; data[17] = registers.MatrixB;
         data[18] = registers.MatrixC; data[19] = registers.MatrixD;
         data[20] = registers.Center.X; data[21] = registers.Center.Y;

@@ -60,11 +60,11 @@ public static class RoomBlockSheetFiles
             store.Write(TileWordSheet.NameOf(words.Layer, words.Tileset), words.Sheet);
         foreach ((TilesetDefinition tileset, ComposedSpriteSheet messages) in composition.MessageBoxes)
             store.Write(MessageBoxSheet.NameOf(tileset), messages);
-        foreach (ComposedMode7Tiles tiles in composition.Mode7Tiles.Values)
+        foreach (ComposedMode7Tiles tiles in composition.FloorTiles.Values)
             store.Write(Mode7TileSheet.NameOf(tiles.Tileset), tiles.Sheet);
         store.Finish(sourceCartridgeSha256);
         File.WriteAllBytes(Path.Combine(directory, Mode7ManifestFileName), JsonSerializer.SerializeToUtf8Bytes(
-            new Mode7Manifest(Mode7ManifestVersion, composition.Mode7Tiles.Values.ToDictionary(tiles => RoomBlockSheet.NameOf(tiles.Tileset),
+            new Mode7Manifest(Mode7ManifestVersion, composition.FloorTiles.Values.ToDictionary(tiles => RoomBlockSheet.NameOf(tiles.Tileset),
                 tiles => tiles.Shown.Select(shown => shown is { } bound ? new ShownDocument(bound.Artwork.Name, bound.WordOffset) : null).ToArray(),
                 StringComparer.Ordinal)),
             JsonOptions));

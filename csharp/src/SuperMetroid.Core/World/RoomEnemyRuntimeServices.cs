@@ -88,7 +88,7 @@ internal sealed class RoomEnemyRuntimeServices(
 
     /// <inheritdoc />
     public void DrawMode7Map(int firstCell, ReadOnlySpan<byte> tiles) =>
-        (room.LoadedScope.Mode7Map ?? throw new InvalidOperationException("Only a Ceres room has a Mode 7 map to write."))
+        (room.LoadedScope.FloorMap ?? throw new InvalidOperationException("Only a Ceres room has a Mode 7 map to write."))
             .Write(firstCell, tiles);
 
     /// <summary>Checks whether a requested Bomb Torizo hand PLM header remains active.</summary>

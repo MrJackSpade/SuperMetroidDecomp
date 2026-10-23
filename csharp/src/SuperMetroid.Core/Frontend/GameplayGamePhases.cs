@@ -183,7 +183,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
                     endingSamus.CollectedBeams), JapaneseText = session.GameplayRuntime.JapaneseText, CrittersEscaped = session.GameplayRuntime.System.HasEvent(EventNumber.CrittersEscaped) }));
             session.ActiveEndingCredits.InstalledArtwork.BindEndingText(session.Artwork.MapPresentation?.EndingText);
             session.ActiveEndingCredits.Flyaway.BindFlightArtwork(session.Artwork.IntroCinematicArt?.CeresFlight);
-            session.ActiveEndingCredits.Stage.BindMode7Artwork(session.Artwork.EndingMode7Art);
+            session.ActiveEndingCredits.Stage.BindFloorArtwork(session.Artwork.EndingFloorArt);
             session.ActiveEndingCredits.InstalledArtwork.BindObjectArtwork(session.Artwork.EndingObjectArt);
             session.ActiveEndingCredits.InstalledArtwork.BindPaletteArtwork(session.Artwork.EndingPaletteArt);
             session.ActiveEndingCredits.InstalledArtwork.BindSpriteSheets(session.Artwork.SpriteSheets);

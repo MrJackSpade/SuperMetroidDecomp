@@ -20,7 +20,7 @@ internal interface IGamePhase
     string Name { get; }
 
     /// <summary>True when the next update resumes this state's dispatch after its own NMI wait instead of entering the main loop.</summary>
-    bool ResumesNmiWait { get; }
+    bool ResumesFrameWait { get; }
 
     /// <summary>Runs one dispatch of the state.</summary>
     void Step(SnesButton controllerInput, GameplayAudioFramePublication gameplayAudio);

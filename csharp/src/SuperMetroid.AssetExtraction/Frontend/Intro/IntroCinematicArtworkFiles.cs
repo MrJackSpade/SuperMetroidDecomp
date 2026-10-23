@@ -459,7 +459,7 @@ public static class IntroCinematicArtworkFiles
 
         CeresFlightArtworkCatalog LoadCeresFlight()
         {
-            (string mode7Path, byte[] mode7) = ReadSelected(CeresFlightArtworkFormat.Mode7FileName);
+            (string mode7Path, byte[] mode7) = ReadSelected(CeresFlightArtworkFormat.FloorFileName);
             (string mapPath, byte[] map) = ReadSelected(CeresFlightArtworkFormat.MapFileName);
             (string objectPath, byte[] objects) = ReadSelected(CeresFlightArtworkFormat.ObjectFileName);
             (string palettePath, byte[] palette) = ReadSelected(CeresFlightPaletteFormat.FileName);
@@ -687,7 +687,7 @@ public static class IntroCinematicArtworkFiles
         .. Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
             .Select(IntroCinematicArtworkFormat.BackgroundPageFileName),
         IntroCinematicPaletteFormat.FileName,
-        CeresFlightArtworkFormat.Mode7FileName,
+        CeresFlightArtworkFormat.FloorFileName,
         CeresFlightArtworkFormat.MapFileName,
         CeresFlightArtworkFormat.ObjectFileName,
         CeresFlightPaletteFormat.FileName,

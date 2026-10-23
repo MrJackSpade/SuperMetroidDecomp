@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Map.Artwork;
-using SuperMetroid.Core.Frontend.Menus;
-using SuperMetroid.Core.Frontend.Pause;
 
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
@@ -27,8 +25,4 @@ public static class MapSpriteFormat
     public const int SourceAddress = MapTileAtlasRomData.MenuObjectCharacterData;
     /// <summary>Compiled byte count of the 128-by-128-pixel 4-bpp atlas.</summary>
     public const int ByteCount = Width * Height / 2;
-    /// <summary>File-select OBSEL=$03 places shared menu OBJ characters at VRAM byte $C000.</summary>
-    public const int FileSelectDestination = MenuVramLayout.MapSpriteByteAddress;
-    /// <summary>Pause OBSEL=$01 places the same shared characters at VRAM byte $4000.</summary>
-    public const int PauseDestination = PauseVramLayout.MapSpriteByteAddress;
 }

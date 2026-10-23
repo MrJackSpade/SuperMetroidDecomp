@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>One of the ending's graphics transfers, which its captured image replays in order (#1358).</summary>
 internal enum EndingUploadKind
 {
-    /// <summary><c>LoadMode7</c>'s scene: both map copies and the characters of the scene its key names.</summary>
-    Mode7Scene,
+    /// <summary><c>LoadFloor</c>'s scene: both map copies and the characters of the scene its key names.</summary>
+    FloorSceneTiles,
 
     /// <summary>One of Func118's sixteen flyaway chunks of the Ceres flight's characters or padded map; its key is the chunk.</summary>
     FlyawayChunk,

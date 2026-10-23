@@ -31,7 +31,7 @@ internal static class GameOverMenuIndexesVerification
         {
             menu.Step(0);
             AssertEqual(expected[update].Phase, menu.Phase, $"game-over index after update {update}");
-            AssertEqual(expected[update].Resumes, menu.ResumesAfterNmiWait, $"game-over NMI wait after update {update}");
+            AssertEqual(expected[update].Resumes, menu.ResumesAfterFrameWait, $"game-over NMI wait after update {update}");
         }
         int library3 = (int)SoundEffectLibrary3Sounds.CancelAll.Library - 1;
         byte read = audio.SoundReadPositions[library3];

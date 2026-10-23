@@ -34,19 +34,19 @@ internal static class EndingContentIdentityVerification
         }
         foreach (var native in new[]
         {
-            new VerifyEndingMode7RoleSelectionCase(EndingMode7SceneId.EscapeA, 0x8bd4b4, 0x8bd4d6, "escape-a"),
-            new VerifyEndingMode7RoleSelectionCase(EndingMode7SceneId.EscapeB, 0x8bd775, 0x8bd604, "escape-b"),
-            new VerifyEndingMode7RoleSelectionCase(EndingMode7SceneId.PlanetExplosion, 0x8bd87b, 0x8bd615, "planet-explosion"),
+            new VerifyEndingMode7RoleSelectionCase(EndingFloorSceneId.EscapeA, 0x8bd4b4, 0x8bd4d6, "escape-a"),
+            new VerifyEndingMode7RoleSelectionCase(EndingFloorSceneId.EscapeB, 0x8bd775, 0x8bd604, "escape-b"),
+            new VerifyEndingMode7RoleSelectionCase(EndingFloorSceneId.PlanetExplosion, 0x8bd87b, 0x8bd615, "planet-explosion"),
         })
         {
-            var sources = SuperMetroid.Core.Frontend.Ending.EndingCreditsRomData.Assets.Mode7Sources(native.First);
+            var sources = SuperMetroid.Core.Frontend.Ending.EndingCreditsRomData.Assets.FloorSources(native.First);
             AssertEqual(Source(native.Second), sources.Characters, "original high-lane character source");
             AssertEqual(Source(native.Third), sources.PackedMap, "original packed-map source");
-            AssertEqual($"ending-{native.Fourth}-mode7-characters.png", EndingMode7ArtworkFormat.CharacterFileName(native.First), "published character filename");
-            AssertEqual($"ending-{native.Fourth}-mode7-map.json", EndingMode7ArtworkFormat.MapFileName(native.First), "published map filename");
+            AssertEqual($"ending-{native.Fourth}-mode7-characters.png", EndingFloorArtworkFormat.CharacterFileName(native.First), "published character filename");
+            AssertEqual($"ending-{native.Fourth}-mode7-map.json", EndingFloorArtworkFormat.MapFileName(native.First), "published map filename");
         }
         static MemoryStream Map(int height, int seed) => new(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
-            new EndingMode7MapDocument { Version = 1, Width = 128, Height = height,
+            new EndingFloorMapDocument { Version = 1, Width = 128, Height = height,
                 Tiles = Enumerable.Repeat(seed, 128 * height).ToArray() }, ArtworkJson.Options));
         static MemoryStream Png(int seed)
         {
@@ -56,22 +56,22 @@ internal static class EndingContentIdentityVerification
             png.Position = 0;
             return png;
         }
-        var supplied = new EndingMode7SceneArtwork[3];
+        var supplied = new EndingFloorSceneArtwork[3];
         for (int i = 0; i < supplied.Length; i++)
         {
             using var map = Map(64, i);
             using var png = Png(i);
-            supplied[i] = EndingMode7SceneArtwork.Load(map, png);
+            supplied[i] = EndingFloorSceneArtwork.Load(map, png);
         }
         using var rewardMap = Map(128, 3);
         using var rewardPng = Png(3);
         EndingRewardIconArtwork reward = EndingRewardIconArtwork.Load(rewardMap, rewardPng);
-        var catalog = new EndingMode7ArtworkCatalog(supplied[0], supplied[1], supplied[2], reward);
-        EndingMode7SceneId[] originalOrder = [EndingMode7SceneId.EscapeA, EndingMode7SceneId.EscapeB, EndingMode7SceneId.PlanetExplosion];
+        var catalog = new EndingFloorArtworkCatalog(supplied[0], supplied[1], supplied[2], reward);
+        EndingFloorSceneId[] originalOrder = [EndingFloorSceneId.EscapeA, EndingFloorSceneId.EscapeB, EndingFloorSceneId.PlanetExplosion];
         for (int i = 0; i < originalOrder.Length; i++)
             AssertTrue(ReferenceEquals(supplied[i], catalog[originalOrder[i]]), "ending Mode7 supplied scene identity");
         AssertTrue(ReferenceEquals(reward, catalog.RewardIcon), "ending Mode7 reward identity");
-        string originalHash = SelectedPresentationHash.Create(nameof(EndingMode7ArtworkCatalog), content =>
+        string originalHash = SelectedPresentationHash.Create(nameof(EndingFloorArtworkCatalog), content =>
         {
             content.Append("scene-count", supplied.Length);
             foreach (var scene in supplied)
@@ -84,10 +84,10 @@ internal static class EndingContentIdentityVerification
         AssertEqual(originalHash, catalog.ContentIdentity, "ending Mode7 original hash ordering");
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = catalog[(EndingMode7SceneId)invalid], "ending Mode7 role bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroid.Core.Frontend.Ending.EndingCreditsRomData.Assets.Mode7Sources((EndingMode7SceneId)invalid), "Mode7 source bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingMode7ArtworkFormat.CharacterFileName((EndingMode7SceneId)invalid), "Mode7 character filename bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingMode7ArtworkFormat.MapFileName((EndingMode7SceneId)invalid), "Mode7 map filename bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = catalog[(EndingFloorSceneId)invalid], "ending Mode7 role bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroid.Core.Frontend.Ending.EndingCreditsRomData.Assets.FloorSources((EndingFloorSceneId)invalid), "Mode7 source bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingFloorArtworkFormat.CharacterFileName((EndingFloorSceneId)invalid), "Mode7 character filename bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingFloorArtworkFormat.MapFileName((EndingFloorSceneId)invalid), "Mode7 map filename bounds");
         }
     }
 
@@ -142,7 +142,7 @@ internal static class EndingContentIdentityVerification
         // digest would needlessly change the exact debugger-object layout of older save states.
         foreach (Type type in new[]
         {
-            typeof(EndingObjectArtworkCatalog), typeof(EndingMode7ArtworkCatalog), typeof(EndingPaletteCatalog),
+            typeof(EndingObjectArtworkCatalog), typeof(EndingFloorArtworkCatalog), typeof(EndingPaletteCatalog),
             typeof(EndingCloudSpritePresentation), typeof(EndingExplosionSpritePresentation),
             typeof(EndingCompletionTextSpritePresentation), typeof(EndingRewardSpritePresentation),
             typeof(EndingLogoSpritePresentation),
@@ -247,32 +247,32 @@ internal static class EndingContentIdentityVerification
 
         MemoryStream Mode7Png(string name, int seed)
         {
-            var pixels = new byte[EndingMode7ArtworkFormat.CharacterByteCount];
+            var pixels = new byte[EndingFloorArtworkFormat.CharacterByteCount];
             pixels[0] = (byte)seed;
             if (edit == name + "-pixels") pixels[^1] = 1;
             var png = new MemoryStream();
-            IndexedPng.Write(png, new(EndingMode7ArtworkFormat.CharacterWidth, EndingMode7ArtworkFormat.CharacterHeight),
+            IndexedPng.Write(png, new(EndingFloorArtworkFormat.CharacterWidth, EndingFloorArtworkFormat.CharacterHeight),
                 pixels, Enumerable.Range(0, 256).Select(index => new Rgba32(
                     (byte)(edit == "png-colors" ? 255 - index : index), 0, 0)).ToArray());
             png.Position = 0;
             return png;
         }
-        MemoryStream Mode7Map(string name, int height)
+        MemoryStream FloorMap(string name, int height)
         {
-            var tiles = new int[EndingMode7ArtworkFormat.MapWidth * height];
+            var tiles = new int[EndingFloorArtworkFormat.MapWidth * height];
             if (edit == name + "-map") tiles[^1] = 1;
-            return Json(new EndingMode7MapDocument
+            return Json(new EndingFloorMapDocument
             {
-                Version = EndingMode7ArtworkFormat.Version, Width = EndingMode7ArtworkFormat.MapWidth,
+                Version = EndingFloorArtworkFormat.Version, Width = EndingFloorArtworkFormat.MapWidth,
                 Height = height, Tiles = tiles,
             });
         }
-        EndingMode7SceneArtwork[] scenes = Enum.GetValues<EndingMode7SceneId>().Select(id =>
-            EndingMode7SceneArtwork.Load(Mode7Map(id.ToString(), EndingMode7ArtworkFormat.MapHeight),
+        EndingFloorSceneArtwork[] scenes = Enum.GetValues<EndingFloorSceneId>().Select(id =>
+            EndingFloorSceneArtwork.Load(FloorMap(id.ToString(), EndingFloorArtworkFormat.MapHeight),
                 Mode7Png(id.ToString(), (int)id))).ToArray();
         if (edit == "scene-order") Array.Reverse(scenes);
-        var mode7 = new EndingMode7ArtworkCatalog(scenes[0], scenes[1], scenes[2],
-            EndingRewardIconArtwork.Load(Mode7Map("reward", EndingRewardIconArtworkFormat.MapHeight), Mode7Png("reward", 0)));
+        var mode7 = new EndingFloorArtworkCatalog(scenes[0], scenes[1], scenes[2],
+            EndingRewardIconArtwork.Load(FloorMap("reward", EndingRewardIconArtworkFormat.MapHeight), Mode7Png("reward", 0)));
 
         EndingPalette[] colors = Enum.GetValues<EndingPaletteId>().Select(id => EndingPalette.Load(Json(new EndingPaletteDocument
         {

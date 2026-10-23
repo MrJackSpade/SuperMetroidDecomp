@@ -28,13 +28,19 @@ internal sealed class PauseScreen
     public void BindScreenTiles(InstalledSpriteSheets? sheets)
     {
         Sheets = sheets ?? throw new InvalidOperationException("Pause requires the installed sprite sheets.");
-        Tiles = null;
+        PlaneTiles = null;
+        HudTiles = null;
     }
 
-    /// <summary>What the pause screen's background characters show under the pause palette (#1392).</summary>
+    /// <summary>What the map, equipment and frame planes show under the pause palette (#1392).</summary>
     [field: NonSerialized]
     [AllowNull]
-    internal ScreenCharacters Tiles { get => field ??= PauseScreenTiles.Of(Sheets); private set; }
+    internal ScreenLayerPictures PlaneTiles { get => field ??= PauseScreenTiles.Planes(Sheets); private set; }
+
+    /// <summary>What the HUD plane shows under the pause palette (#1392).</summary>
+    [field: NonSerialized]
+    [AllowNull]
+    internal ScreenLayerPictures HudTiles { get => field ??= PauseScreenTiles.Hud(Sheets); private set; }
 
     /// <summary>The installed artwork the screen draws.</summary>
     [field: NonSerialized]
@@ -58,13 +64,8 @@ internal sealed class PauseScreen
     public void BindArtwork(AreaMapPresentationCatalog artwork)
     {
         Artwork = Ensure.NotNull(artwork);
-        characters = null;
     }
 
-    /// <summary>The composed character image of the bound artwork, until a rebind replaces it.</summary>
-    [NonSerialized]
-    private byte[]? characters;
-
-    /// <summary>The bound artwork's composed character image.</summary>
-    internal ReadOnlySpan<byte> Characters => characters ??= PauseScreenImage.Characters(Artwork);
+    /// <summary>What the screen paints with: its palette and sprite entries.</summary>
+    internal FramePaint Paint() => new(Palette.Colors, Objects.Draws);
 }

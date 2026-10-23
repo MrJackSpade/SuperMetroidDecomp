@@ -34,7 +34,7 @@ internal sealed class SpriteSheetSourceCatalog
     private readonly Lazy<EndingPaletteCatalog> endingPalettes;
 
     /// <summary>The ending's Mode 7 artwork.</summary>
-    private readonly Lazy<EndingMode7ArtworkCatalog> endingMode7;
+    private readonly Lazy<EndingFloorArtworkCatalog> endingMode7;
 
     /// <summary>Reads inputs from installed stock content.</summary>
     internal SpriteSheetSourceCatalog(string content)
@@ -54,7 +54,7 @@ internal sealed class SpriteSheetSourceCatalog
     /// <summary>Composes sheet <paramref name="sheet"/>.</summary>
     internal ComposedSpriteSheet Compose(SpriteSheetId sheet) => ScreenTileSheetDefinitions.Depths.ContainsKey(sheet)
         ? ScreenTileSheetComposer.Compose(sheet, ScreenTiles())
-        : ScreenTileSheetDefinitions.Mode7Sheets.Contains(sheet) ? ScreenTileSheetComposer.ComposeMode7(sheet, ScreenTiles())
+        : ScreenTileSheetDefinitions.FloorSheets.Contains(sheet) ? ScreenTileSheetComposer.ComposeMode7(sheet, ScreenTiles())
         : SpriteSheetComposer.Compose(For(sheet), DefaultPalette, DefaultPriority);
 
     /// <summary>The stock artwork the screen tile sheets compose from.</summary>

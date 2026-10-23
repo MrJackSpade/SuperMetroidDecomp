@@ -9,14 +9,14 @@ namespace SuperMetroid.Core.Frontend;
 /// <param name="randomCall">The main loop's RNG call before the dispatch.</param>
 /// <param name="step">One dispatch.</param>
 /// <param name="name">The current status.</param>
-/// <param name="resumesNmiWait">Whether the next update resumes inside the dispatch's NMI wait; never when omitted.</param>
+/// <param name="resumesFrameWait">Whether the next update resumes inside the dispatch's NMI wait; never when omitted.</param>
 /// <param name="audio">The prologue and epilogue audio handling.</param>
 internal sealed class GamePhase(
     SuperMetroidGameState state,
     MainLoopRandomCall randomCall,
     Action<SnesButton, GameplayAudioFramePublication> step,
     Func<string> name,
-    Func<bool>? resumesNmiWait = null,
+    Func<bool>? resumesFrameWait = null,
     GamePhaseAudio audio = GamePhaseAudio.Ordinary) : IGamePhase
 {
     /// <inheritdoc/>
@@ -32,7 +32,7 @@ internal sealed class GamePhase(
     public string Name => name();
 
     /// <inheritdoc/>
-    public bool ResumesNmiWait => resumesNmiWait?.Invoke() == true;
+    public bool ResumesFrameWait => resumesFrameWait?.Invoke() == true;
 
     /// <inheritdoc/>
     public void Step(SnesButton controllerInput, GameplayAudioFramePublication gameplayAudio) => step(controllerInput, gameplayAudio);

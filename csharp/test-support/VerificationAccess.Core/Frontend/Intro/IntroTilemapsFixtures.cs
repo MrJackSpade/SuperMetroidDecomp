@@ -9,7 +9,7 @@ internal static class IntroTilemapsFixtures
     internal static SnesVram Vram(IntroTilemaps tilemaps)
     {
         var vram = new SnesVram();
-        vram.LoadBytes(0, IntroScreenImage.Compose(new byte[SnesVram.ByteCount], tilemaps));
+        vram.LoadBytes(0, IntroScreenMemory.Compose(new byte[SnesVram.ByteCount], tilemaps));
         return vram;
     }
 }

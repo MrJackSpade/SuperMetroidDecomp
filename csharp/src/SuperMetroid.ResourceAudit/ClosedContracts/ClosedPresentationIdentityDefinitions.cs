@@ -50,7 +50,7 @@ internal static class ClosedPresentationIdentityDefinitions
             Enum.GetValues<IntroNarrationPageId>().Select(id => (int)id).ToArray(),
         ("EndingTextPresentation", "Compile", "sequence") => Enum.GetValues<EndingTextSequence>().Select(id => (int)id).ToArray(),
         ("MapSpriteSheet", "Draw", "id") => MapSpriteDefinitions.Frames.Select(frame => (int)frame.Id).ToArray(),
-        ("PauseReserveTankPresentation", "Draw", "nativeIdentity") => PauseReserveTankDefinitions.Frames().Select(frame => (int)frame.Id).ToArray(),
+        ("PauseReserveTankPresentation", "Draw", "visual") => PauseReserveTankDefinitions.Frames().Select(frame => (int)frame.Id).ToArray(),
         ("TitleGraphicsPresentation", "DrawSprite", "sprite") => TitleSpriteDefinitions.All.Select(sprite => (int)sprite).ToArray(),
         // A drawer does not reveal its family: a pose qualifies when some intro family owns it.
         ("CinematicSpriteSheet", "Draw", "pose.Index") => IntroCaretSpriteDefinitions.Frames

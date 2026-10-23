@@ -80,7 +80,7 @@ internal sealed record RoomScope
     public required ScrollingSkyState? ScrollingSky { get; init; }
 
     /// <summary>The Mode 7 map a Ceres room shows, or null outside Ceres (#1349).</summary>
-    public required Mode7Map? Mode7Map { get; init; }
+    public required FloorMap? FloorMap { get; init; }
 
     /// <summary>Door, header and library-background data of a Landing Site entry, or null.</summary>
     public required LandingSiteEntryState? LandingSiteEntry { get; init; }

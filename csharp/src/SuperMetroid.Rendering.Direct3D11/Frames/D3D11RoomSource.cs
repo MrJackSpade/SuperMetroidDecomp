@@ -14,7 +14,7 @@ internal enum D3D11RoomSource : uint
     /// <summary>The BG3 plane: the HUD and the room effect (#1348).</summary>
     Bg3 = 4,
     /// <summary>The frame's Mode 7 floor: a Ceres room's map (#1349) or a frontend scene's (#1403).</summary>
-    Mode7Map = 5,
+    FloorMap = 5,
     /// <summary>A boss body's BG2 tilemap (#1352).</summary>
     BossBg2 = 6,
     /// <summary>The X-ray reveal's blocks, drawn from block pictures (#1392).</summary>

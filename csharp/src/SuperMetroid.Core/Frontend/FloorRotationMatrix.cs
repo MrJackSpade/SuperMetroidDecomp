@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>The Mode-7 rotation and scale matrix the Ceres flight and destruction scenes write each frame.</summary>
-internal static class Mode7RotationMatrix
+internal static class FloorRotationMatrix
 {
     /// <summary>
     /// The matrix for <paramref name="angle"/> and 8.8 <paramref name="zoom"/>: $8532 reads signed 8-bit sine words from
     /// $A0:B443 and keeps product bits 8..23, so reading the retail table makes the rotation agree at every one of 256
     /// angles.
     /// </summary>
-    internal static Mode7MatrixParameters Calculate(SnesAngle angle, int zoom)
+    internal static FloorMatrixParameters Calculate(SnesAngle angle, int zoom)
     {
         short cosine = ReadSine(angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex);
         short sine = ReadSine(angle.TableIndex);

@@ -16,7 +16,7 @@ internal static class IntroCinematicStateAccess
             get
             {
                 var vram = new SnesVram();
-                vram.LoadBytes(0, self.Image());
+                vram.LoadBytes(0, IntroScreenMemory.Compose(self));
                 return vram;
             }
         }
@@ -82,13 +82,13 @@ internal static class IntroCinematicStateAccess
         internal void CompositeBabyDiscoveryRoomPriority(Span<Rgba32> pixels, bool priority)
         {
             // Composited directly; transparent pixels leave the frame untouched, as a plane would.
-            SnesBgTilemapRendererConstants.Composite4BppViewport(pixels, self.ShownVram, self.palette, new BgVramAddresses { TilemapBaseWord = IntroCinematicRomData.Layers.SceneBg2TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, IntroCinematicState.GameplayFlashbackBg1VerticalScroll), Size = new Extent16<ScreenPixels>(IntroCinematicStateConstants.ScreenWidth, IntroCinematicStateConstants.ScreenHeight), TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
+            SnesBgTilemapRendererConstants.Composite4BppViewport(pixels, self.ShownVram, self.palette, new BgVramAddresses { TilemapBaseWord = IntroCinematicRomDataLayersConstants.SceneBg2TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, IntroCinematicState.GameplayFlashbackBg1VerticalScroll), Size = new Extent16<ScreenPixels>(IntroCinematicStateConstants.ScreenWidth, IntroCinematicStateConstants.ScreenHeight), TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
         }
         /// <summary>Overlays only the requested Mother Brain BG1 priority tiles, leaving transparent pixels untouched.</summary>
         internal void CompositeMotherBrainRoomPriority(Span<Rgba32> pixels, bool priority)
         {
             // Composited directly; transparent pixels leave the frame untouched, as a plane would.
-            SnesBgTilemapRendererConstants.Composite4BppViewport(pixels, self.ShownVram, self.palette, new BgVramAddresses { TilemapBaseWord = IntroCinematicRomData.Layers.SceneBg1TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = (self.CurrentFlashbackMotherBrain?.Background ??
+            SnesBgTilemapRendererConstants.Composite4BppViewport(pixels, self.ShownVram, self.palette, new BgVramAddresses { TilemapBaseWord = IntroCinematicRomDataLayersConstants.SceneBg1TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = (self.CurrentFlashbackMotherBrain?.Background ??
                     new Position16<RoomPixels>(0, IntroCinematicState.GameplayFlashbackBg1VerticalScroll)).AsBgPlaneScroll(), Size = new Extent16<ScreenPixels>(IntroCinematicStateConstants.ScreenWidth, IntroCinematicStateConstants.ScreenHeight), TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
         }
         /// <summary>Clears reused raster scratch before overlaying narration BG3 tiles of one priority.</summary>
@@ -97,7 +97,7 @@ internal static class IntroCinematicStateAccess
             // The renderer skips tiles of the other priority, so clear the reused plane first.
             Rgba32[] fullText = new Rgba32[IntroCinematicStateConstants.ScreenWidth * 32 * 8];
             fullText.AsSpan().Clear();
-            SnesBgTilemapRendererConstants.Render2Bpp(fullText, self.ShownVram, self.palette, new BgVramAddresses { TilemapBaseWord = IntroCinematicRomData.Layers.NarrationTilemapWord, CharacterBaseWord = IntroCinematicRomData.Layers.FontCharacterBaseWord }, rowCount: 32, transparentColorZero: true, priority: priority);
+            SnesBgTilemapRendererConstants.Render2Bpp(fullText, self.ShownVram, self.palette, new BgVramAddresses { TilemapBaseWord = IntroCinematicRomDataLayersConstants.NarrationTilemapWord, CharacterBaseWord = IntroCinematicRomDataLayersConstants.FontCharacterBaseWord }, rowCount: 32, transparentColorZero: true, priority: priority);
             SnesLayerCompositor.Composite(pixels, fullText.AsSpan(8 * IntroCinematicStateConstants.ScreenWidth, IntroCinematicStateConstants.ScreenWidth * IntroCinematicStateConstants.ScreenHeight));
         }
         /// <summary>Overlays OBJ sprites at one SNES priority level into the cinematic frame.</summary>

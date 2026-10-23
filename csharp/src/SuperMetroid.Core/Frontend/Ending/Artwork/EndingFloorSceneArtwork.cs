@@ -9,10 +9,10 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 /// The discarded odd bytes of the native packed map source never reach visible
 /// VRAM because the subsequent high-byte-only transfer overwrites them.
 /// </summary>
-public sealed class EndingMode7SceneArtwork
+public sealed class EndingFloorSceneArtwork
 {
     /// <summary>Retains the validated low-byte map and high-byte character lanes for one scene.</summary>
-    private EndingMode7SceneArtwork(byte[] map, byte[] characters)
+    private EndingFloorSceneArtwork(byte[] map, byte[] characters)
     {
         Map = map;
         Characters = characters;
@@ -29,20 +29,20 @@ public sealed class EndingMode7SceneArtwork
     /// <returns>The decoded map lane and tile-ordered character lane.</returns>
     /// <exception cref="ArgumentNullException">Either input stream is null.</exception>
     /// <exception cref="InvalidDataException">The map schema, atlas format, palette length, or native transfer length is invalid.</exception>
-    public static EndingMode7SceneArtwork Load(Stream mapJson, Stream charactersPng)
+    public static EndingFloorSceneArtwork Load(Stream mapJson, Stream charactersPng)
     {
         Ensure.NotNull(mapJson);
         Ensure.NotNull(charactersPng);
-        EndingMode7MapDocument document = ReadMap(mapJson);
+        EndingFloorMapDocument document = ReadMap(mapJson);
         IndexedPngImage image = IndexedPng.Read(charactersPng,
-            new(EndingMode7ArtworkFormat.CharacterWidth, EndingMode7ArtworkFormat.CharacterHeight));
+            new(EndingFloorArtworkFormat.CharacterWidth, EndingFloorArtworkFormat.CharacterHeight));
         if (image.Palette.Length != 256)
             throw new InvalidDataException("Ending Mode-7 characters require a 256-color indexed PNG.");
         byte[] characters = SnesMode7TileEncoder.Encode(image.Pixels,
             image.Size);
-        if (characters.Length != EndingMode7ArtworkFormat.CharacterByteCount)
+        if (characters.Length != EndingFloorArtworkFormat.CharacterByteCount)
             throw new InvalidDataException("Ending Mode-7 PNG has the wrong native transfer length.");
-        return new EndingMode7SceneArtwork(
+        return new EndingFloorSceneArtwork(
             document.Tiles.Select(tile => checked((byte)tile)).ToArray(), characters);
     }
 
@@ -51,7 +51,7 @@ public sealed class EndingMode7SceneArtwork
     /// <param name="document">Version-1, 128x64 map with exactly 8192 eight-bit tile indices.</param>
     /// <exception cref="ArgumentNullException">The destination stream is null.</exception>
     /// <exception cref="InvalidDataException">The serialized document does not satisfy the ending backdrop map schema.</exception>
-    public static void WriteMap(Stream json, EndingMode7MapDocument document)
+    public static void WriteMap(Stream json, EndingFloorMapDocument document)
     {
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
@@ -61,12 +61,12 @@ public sealed class EndingMode7SceneArtwork
     }
 
     /// <summary>Loads and validates the 128-by-64 backdrop half-map and its byte-valued tile indices.</summary>
-    private static EndingMode7MapDocument ReadMap(Stream json)
+    private static EndingFloorMapDocument ReadMap(Stream json)
     {
-        EndingMode7MapDocument document;
+        EndingFloorMapDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<EndingMode7MapDocument>(json,
+            document = JsonSerializer.Deserialize<EndingFloorMapDocument>(json,
                 ArtworkJson.Options)
                 ?? throw new InvalidDataException("Ending Mode-7 map JSON is null.");
         }
@@ -74,10 +74,10 @@ public sealed class EndingMode7SceneArtwork
         {
             throw new InvalidDataException("Invalid ending Mode-7 map JSON.", error);
         }
-        if (document.Version != EndingMode7ArtworkFormat.Version ||
-            document.Width != EndingMode7ArtworkFormat.MapWidth ||
-            document.Height != EndingMode7ArtworkFormat.MapHeight ||
-            document.Tiles is not { Length: EndingMode7ArtworkFormat.MapByteCount } ||
+        if (document.Version != EndingFloorArtworkFormat.Version ||
+            document.Width != EndingFloorArtworkFormat.MapWidth ||
+            document.Height != EndingFloorArtworkFormat.MapHeight ||
+            document.Tiles is not { Length: EndingFloorArtworkFormat.MapByteCount } ||
             document.Tiles.Any(tile => (uint)tile > byte.MaxValue))
             throw new InvalidDataException(
                 "Ending Mode-7 map requires 128x64 ordered eight-bit tile indexes.");

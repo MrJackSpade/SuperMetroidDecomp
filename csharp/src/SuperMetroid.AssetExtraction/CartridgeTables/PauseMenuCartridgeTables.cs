@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
@@ -54,4 +55,16 @@ internal static class PauseMenuCartridgeTables
 
     /// <summary>All four native artwork patches share bank $82.</summary>
     internal const int PauseWireframeBank = 0x820000;
+
+    /// <summary>$7E:3800, the equipment page's mutable tilemap, which label and reserve destinations address.</summary>
+    internal const int EquipmentTilemapBase = 0x3800;
+
+    /// <summary>$82:C202 bases: the selector spritemap each equipment category binds, Reserve=$14, Beam=$15, Suit and Boots=$16.</summary>
+    internal static ushort SelectorSpritemap(PauseEquipmentCategory category) => category switch
+    {
+        PauseEquipmentCategory.Reserves => 0x14,
+        PauseEquipmentCategory.Beams => 0x15,
+        PauseEquipmentCategory.Suits or PauseEquipmentCategory.Boots => 0x16,
+        _ => throw new InvalidOperationException($"Undefined PauseEquipmentCategory {category}."),
+    };
 }

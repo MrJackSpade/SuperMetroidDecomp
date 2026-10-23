@@ -82,11 +82,11 @@ internal sealed class IntroCeresFlightState
 
         CeresFlightArtworkCatalog content = artwork ?? throw new InvalidOperationException(
             "Ceres approach requires installed cinematic artwork.");
-        RequireMinimum(content.Mode7Characters.Length, CeresFlightRomData.Vram.Mode7CharacterByteCount,
+        RequireMinimum(content.FloorCharacters.Length, CeresFlightRomData.Transfers.FloorCharacterByteCount,
             "gunship/Ceres Mode 7 characters");
-        RequireMinimum(content.Mode7Maps.Length, CeresFlightRomData.Vram.Mode7MapByteCount,
+        RequireMinimum(content.FloorMaps.Length, CeresFlightRomData.Transfers.FloorMapByteCount,
             "gunship front/rear Mode 7 tilemaps");
-        RequireMinimum(content.ObjectCharacters.Length, CeresFlightRomData.Vram.ObjectCharacterByteCount,
+        RequireMinimum(content.ObjectCharacters.Length, CeresFlightRomData.Transfers.ObjectCharacterByteCount,
             "space/Ceres OBJ characters");
         this.artwork = content;
 
@@ -104,11 +104,11 @@ internal sealed class IntroCeresFlightState
     {
         spriteArtwork = sheets is null ? null : new CinematicSpriteSheet(sheets.Get(SpriteSheetId.CeresFlightSprites), CinematicSpriteFamily.CeresFlight);
         captionTiles = sheets is null ? null : CeresScreenTiles.Flight(sheets);
-        mode7Tiles = sheets is null ? null : CeresScreenTiles.FlightMode7(sheets);
+        floorTiles = sheets is null ? null : CeresScreenTiles.FlightFloor(sheets);
     }
 
     /// <summary>What the Mode 7 view's tiles show (#1392); artwork, never saved.</summary>
-    [NonSerialized] private Mode7TilePictures? mode7Tiles;
+    [NonSerialized] private Mode7TilePictures? floorTiles;
 
     /// <summary>What the caption's characters show (#1392); artwork, never saved.</summary>
     [NonSerialized] private ScreenCharacters? captionTiles;
@@ -219,11 +219,11 @@ internal sealed class IntroCeresFlightState
         }
         else
         {
-            var (a, b, c, d) = Mode7RotationMatrix.Calculate(angle, zoom);
+            var (a, b, c, d) = FloorRotationMatrix.Calculate(angle, zoom);
             layers.Add(new Mode7RenderLayer(new(a, b, c, d,
                 new Offset16<Mode7Pixels>(CeresFlightRenderDefinitions.CenterX, CeresFlightRenderDefinitions.CenterY),
                 background.Whole.AsSignedRegister()),
-                AffineFloor.Capture(image, mode7Tiles ?? throw new InvalidOperationException("The Ceres flight's Mode 7 view requires the installed sprite sheets."))));
+                AffineFloor.Capture(image, floorTiles ?? throw new InvalidOperationException("The Ceres flight's Mode 7 view requires the installed sprite sheets."))));
             layers.Add(new ObjPriorityRenderLayer(1));
         }
         layers.Add(new ObjPriorityRenderLayer(2));

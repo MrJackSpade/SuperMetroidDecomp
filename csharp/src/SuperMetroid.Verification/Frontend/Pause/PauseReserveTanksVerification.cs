@@ -35,7 +35,7 @@ internal static class PauseReserveTanksVerification
             foreach (byte phase in new byte[] { 0, 4 })
             {
                 samus.ReserveEnergy = supply;
-                pause.Step(0, 0, nmiFrameCounter8: phase);
+                pause.Step(0, 0, frameCounterByte: phase);
                 var actual = pause.Render();
                 var capture = pause.CaptureRenderSnapshot();
                 byte[] captureVram = pause.ShownVram();

@@ -23,7 +23,7 @@ public static class EndingFontAtlasExtractor
         byte[] decoded = RomDataReader.Decompress(
             CartridgeImportSource.Require(bus),
             EndingCreditsRomData.Assets.EndingFontCharacters,
-            EndingCreditsRomData.Rendering.Mode7Bytes);
+            EndingCreditsRomData.Rendering.FloorBytes);
         if (decoded.Length < EndingFontAtlasFormat.ByteCount)
             throw new InvalidDataException(
                 $"Ending font expanded to {decoded.Length} bytes; expected at least {EndingFontAtlasFormat.ByteCount}.");

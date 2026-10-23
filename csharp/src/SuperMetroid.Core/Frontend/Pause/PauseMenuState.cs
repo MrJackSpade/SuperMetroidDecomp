@@ -184,11 +184,11 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// The runtime supplies its accepted-NMI byte counter for cartridge palette phase;
     /// standalone diagnostic callers may leave that phase at zero.
     /// </summary>
-    public bool Step(SnesButton delayedHeldInput, SnesButton newlyPressedInput, SnesButton? heldInput = null, int nmiFrameCounter8 = 0)
+    public bool Step(SnesButton delayedHeldInput, SnesButton newlyPressedInput, SnesButton? heldInput = null, int frameCounterByte = 0)
     {
         // Stable pause states draw and therefore advance one page-specific sprite animation
         // every frame. Fade states call AdvanceAnimations explicitly from the frontend.
-        AdvanceAnimations(nmiFrameCounter8);
+        AdvanceAnimations(frameCounterByte);
         if (ScreenMode == PauseScreenMode.Map && Transition == PauseMenuTransition.None)
             MapArrows.StepArrows(direction => MapScrollBounds.CanScroll(direction, MapScrollPosition));
         SnesButton delayedPressed = delayedHeldInput;
@@ -222,7 +222,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // frame that unpauses still toggles the selected item. EquipmentScreenMain consumes
         // the ordinary $8F rising-edge word for D-pad/A; only the shared L/R/Start chrome
         // uses the delayed-held word at $05DF.
-        HandleEquipmentInput(newlyPressed, nmiFrameCounter8);
+        HandleEquipmentInput(newlyPressed, frameCounterByte);
         // EquipmentScreenMain refreshes the reserve amount independently of selected
         // label edits. Keep this per-frame write without rebuilding the whole tilemap,
         // which would erase the cartridge's same-frame VAR overrun.
@@ -261,13 +261,13 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// (for example, a debugger watch or PNG capture). The dispatcher calls this exactly
     /// once per emulated frame so inspection cannot change cartridge-visible timing.
     /// </remarks>
-    public void AdvanceAnimations(int nmiFrameCounter8 = 0, PauseAnimationPhase phase = PauseAnimationPhase.Stable)
+    public void AdvanceAnimations(int frameCounterByte = 0, PauseAnimationPhase phase = PauseAnimationPhase.Stable)
     {
         // $82:9156 and $82:9353 emit destination labels before map icons during fade-out.
         mapLabelsBeforeIcons = phase == PauseAnimationPhase.FadingOut || Transition == PauseMenuTransition.MapToEquipmentFadeOut;
         // Only stable map dispatch calls $82:B934. Fade paths retain counters but hide arrows.
         CurrentMapArrows?.StepArrows(_ => false);
-        pauseNmiFrameCounter8 = nmiFrameCounter8;
+        pauseFrameCounterByte = frameCounterByte;
         // $82:90E8 calls the palette handler after stable pause dispatch. The
         // outer pause/unpause fades draw sprites without advancing this owner.
         if (phase == PauseAnimationPhase.Stable && paletteAnimation.Step(screen.Palette))
@@ -288,14 +288,14 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // output-space Y. Keep the cartridge scroll and sprite origins unchanged.
         ushort mapY = unchecked((ushort)((ScreenMode == PauseScreenMode.Map ? MapScrollPosition.Y : 0) + SnesPpuLayout.FirstVisibleBackgroundScanline));
         // Every plane draws from the pause screen's pre-coloured tiles (#1392).
-        ScreenLayerPictures planes = screen.Tiles.Pictures(0, BgBitDepth.FourBpp);
-        byte[] image = PauseScreenImage.Compose(screen);
-        var bg1 = new TileRenderLayer(ScreenTileMap.Capture(image, PauseMenuLayout.Bg1TilemapWord, new Extent16<TilemapCells>(64, 32), planes),
+        ScreenLayerPictures planes = screen.PlaneTiles;
+        var bg1 = new TileRenderLayer(ScreenTileMap.Of(screen.Tilemaps.Bg1, new Extent16<TilemapCells>(64, 32), planes),
             new Position16<BgPlanePixels>(mapX, mapY), false);
-        var bg2 = new TileRenderLayer(ScreenTileMap.Capture(image, PauseMenuLayout.Bg2TilemapWord, new Extent16<TilemapCells>(32, 32), planes),
+        var bg2 = new TileRenderLayer(ScreenTileMap.Of(screen.Tilemaps.Bg2, new Extent16<TilemapCells>(32, 32), planes),
             new Position16<BgPlanePixels>(0, SnesPpuLayout.FirstVisibleBackgroundScanline), false);
-        var bg3 = new TileViewportRenderLayer(ScreenTileMap.Capture(image, GameplayVramLayout.HudTilemapWord, TileViewportRenderLayer.MapSize,
-            screen.Tiles.Pictures(GameplayVramLayout.HudCharacterWord, BgBitDepth.TwoBpp)), SnesPpuLayout.FirstVisibleBackgroundScanline, true, false);
+        // The HUD plane shows its first screen through the viewport.
+        var bg3 = new TileViewportRenderLayer(ScreenTileMap.Of(screen.Tilemaps.Bg3[..PauseTilemaps.ScreenWords], TileViewportRenderLayer.MapSize,
+            screen.HudTiles), SnesPpuLayout.FirstVisibleBackgroundScanline, true, false);
         RenderLayer[] layers =
         [
             new ObjPriorityRenderLayer(0), bg3,
@@ -303,7 +303,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             new ObjPriorityRenderLayer(2), bg2 with { Priority = true }, bg1 with { Priority = true },
             new ObjPriorityRenderLayer(3), bg3 with { Priority = true },
         ];
-        return new(PauseScreenImage.Capture(screen), layers, checked((byte)(Transition == PauseMenuTransition.None ? 15 : TransitionBrightness)));
+        return new(screen.Paint(), layers, checked((byte)(Transition == PauseMenuTransition.None ? 15 : TransitionBrightness)));
     }
 
     /// <summary>Assembles map markers or equipment sprites in their native page-specific order.</summary>
@@ -679,9 +679,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // Labels draw bright in BG palette two and dim in palette five.
         const int BrightLabelPalette = 2;
         const int DimLabelPalette = 5;
-        void SetPalette(int nativeWordIndex, int wordCount, int palette)
+        void SetPalette(int sourceWordIndex, int wordCount, int palette)
         {
-            int localWordIndex = nativeWordIndex - PauseMenuLayout.ButtonSourceWordOrigin;
+            int localWordIndex = sourceWordIndex - PauseMenuLayout.ButtonSourceWordOrigin;
             for (int word = 0; word < wordCount; word++)
             {
                 int byteOffset = (localWordIndex + word) * 2;
@@ -748,14 +748,14 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         PauseEquipmentRules.Mask(category.Category, item);
 
     /// <summary>Dispatches reserve input or moves and toggles equipment in native update order.</summary>
-    private void HandleEquipmentInput(SnesButton pressed, int nmiFrameCounter8)
+    private void HandleEquipmentInput(SnesButton pressed, int frameCounterByte)
     {
         PauseEquipmentCategory dispatchedCategory = SelectedCategory;
         if (dispatchedCategory == PauseEquipmentCategory.Reserves)
         {
             HandleReserveInput(pressed);
             MoveEquipmentSelector(pressed);
-            UpdateReserveArrow(nmiFrameCounter8);
+            UpdateReserveArrow(frameCounterByte);
             return;
         }
         MoveEquipmentSelector(pressed);
@@ -975,7 +975,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             if (reserveArrowLatched)
                 ReapplyLatchedReserveArrow();
             else if (SelectedCategory == PauseEquipmentCategory.Reserves)
-                UpdateReserveArrow(pauseNmiFrameCounter8);
+                UpdateReserveArrow(pauseFrameCounterByte);
         }
         if (ScreenMode != PauseScreenMode.Map) UploadEquipmentTilemap();
         // The serialized live button palette rows still own their overlay on
@@ -1024,27 +1024,27 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private int reserveArrowLatchedFrame;
 
     /// <summary>Runs $82:AD0A after the tank input handler and D-pad response.</summary>
-    private void UpdateReserveArrow(int nmiFrameCounter8)
+    private void UpdateReserveArrow(int frameCounterByte)
     {
         bool inTanks = SelectedCategory == PauseEquipmentCategory.Reserves;
         ReserveArrowState state =
             inTanks && SelectedReserveItem == PauseReserveItem.Mode && samus.ReserveTankMode == ReserveTankMode.Auto ? ReserveArrowState.Animated
             : inTanks && SelectedReserveItem == PauseReserveItem.Transfer ? ReserveArrowState.Solid
             : ReserveArrowState.Hidden;
-        SetReserveArrow(state, nmiFrameCounter8);
+        SetReserveArrow(state, frameCounterByte);
     }
 
     /// <summary>Applies reserve-arrow tile and palette state, then latches it for content rebinds.</summary>
-    private void SetReserveArrow(ReserveArrowState state, int nmiFrameCounter8 = 0)
+    private void SetReserveArrow(ReserveArrowState state, int frameCounterByte = 0)
     {
         PauseReserveUiPresentation presentation = (mapPresentation ?? throw new InvalidOperationException(
             "Reserve arrow requires installed presentation assets.")).PauseReserveUi;
-        presentation.ApplyArrowColors(screen.Palette, state == ReserveArrowState.Animated, nmiFrameCounter8,
+        presentation.ApplyArrowColors(screen.Palette, state == ReserveArrowState.Animated, frameCounterByte,
             PauseReserveArrowRomData.Color6Index, PauseReserveArrowRomData.Color11Index);
         presentation.ApplyArrowTilePalettes(equipmentTilemap, state != ReserveArrowState.Hidden);
         reserveArrowLatched = true;
         reserveArrowLatchedState = state;
-        reserveArrowLatchedFrame = nmiFrameCounter8;
+        reserveArrowLatchedFrame = frameCounterByte;
     }
 
     /// <summary>Re-applies the latched arrow tiles and colors with the currently bound presentation.</summary>
@@ -1070,7 +1070,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Accepted eight-bit frame phase (zero through 255) retained so repeated renders cannot advance tank fill flicker.</summary>
-    private int pauseNmiFrameCounter8;
+    private int pauseFrameCounterByte;
 
     /// <summary>Ports $82:B2AA's full/partial/empty strip and final cap.</summary>
     private void DrawReserveTanks()
@@ -1086,7 +1086,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             int tableOffset = quotient * sizeof(ushort);
             if (tableOffset < PauseReserveTankRomData.FlickerDoubledQuotientLimit &&
                 remainder % PauseReserveTankRomData.EnergyPerFillStep != 0 &&
-                (pauseNmiFrameCounter8 & PauseReserveTankRomData.FlickerFrameMask) == 0)
+                (pauseFrameCounterByte & PauseReserveTankRomData.FlickerFrameMask) == 0)
                 tableOffset += sizeof(ushort);
             if (samus.ReserveEnergy >= PauseReserveTankRomData.EnergyPerTank)
                 tableOffset += PauseReserveTankRomData.SecondTableOffset;

@@ -122,8 +122,8 @@ internal static class LookupStream1Verification
         void Check(WorldMapArtwork art, byte[] expected)
         {
             var vram = new SnesVram(); art.LoadTo(vram);
-            AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormat.ForegroundDestination, front.Length).SequenceEqual(front), "Foreground obligation remains exact and separate");
-            AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormat.BackgroundDestination, back.Length).SequenceEqual(
+            AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormatConstants.ForegroundDestination, front.Length).SequenceEqual(front), "Foreground obligation remains exact and separate");
+            AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormatConstants.BackgroundDestination, back.Length).SequenceEqual(
                 SnesPlanarTileEncoder.Encode(expected, new(size.X, backSize.Y), 2)), "Actual complete BG3 upload preserves independent pixels");
         }
         Check(stock, pixels);
@@ -2627,9 +2627,9 @@ internal static class LookupStream1Verification
         void Check(WorldMapArtwork art, byte[] expected)
         {
             var vram = new SnesVram(); art.LoadTo(vram);
-            AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormat.ForegroundDestination, front.Length).SequenceEqual(
+            AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormatConstants.ForegroundDestination, front.Length).SequenceEqual(
                 SnesPlanarTileEncoder.Encode(expected, size, 4)), "Complete independent foreground upload");
-            AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormat.BackgroundDestination, back.Length).SequenceEqual(back), "Completed BG3 remains exact");
+            AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormatConstants.BackgroundDestination, back.Length).SequenceEqual(back), "Completed BG3 remains exact");
         }
         Check(stock, pixels);
         for (int tile = 0; tile < WorldMapArtworkFormat.ForegroundTileCount; tile++)

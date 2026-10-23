@@ -321,7 +321,7 @@ internal static class RoomBlockPicturesVerification
         SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
         AssertTrue(runtime.Display.Latched.Rooms?.Mode7 is not null, $"{room.Name} shows its Mode 7 map");
-        Mode7Map map = runtime.Room.LoadedScope.Mode7Map ?? throw new InvalidOperationException($"{room.Name} has no Mode 7 map.");
+        FloorMap map = runtime.Room.LoadedScope.FloorMap ?? throw new InvalidOperationException($"{room.Name} has no Mode 7 map.");
         Mode7TileSheet tiles = map.Tiles;
         AssertTrue(map.NamedTiles.All(tile => tiles.Shown[tile] is not null), $"{room.Name}'s Mode 7 map names only pictured tiles");
         ReadOnlySpan<byte> vram = runtime.ComposedVram();

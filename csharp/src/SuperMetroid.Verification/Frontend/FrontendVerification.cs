@@ -537,7 +537,7 @@ internal static void VerifyIntroGameplayFlashbackVerticalScroll()
     // Four impacts select `$8B:B80F`. Its `$8B:B877` shake adds four on an even frame and
     // removes four on an odd frame, oscillating around eight rather than around zero.
     for (int hit = 0; hit < 4; hit++)
-        motherBrain.RegisterMissileHit();
+        motherBrain.RecordMissileHit();
     var cgram = new SnesCgram();
     var introPalette = new ushort[SnesCgram.ColorCount];
     motherBrain.RunPreInstruction(cgram, ToColors(introPalette), cinematicFrameCounter: 2, introCrossfadeTimer: 0x7f);

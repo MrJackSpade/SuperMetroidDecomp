@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Frontend;
 /// <param name="B">M7B.</param>
 /// <param name="C">M7C.</param>
 /// <param name="D">M7D.</param>
-internal readonly record struct Mode7MatrixParameters(short A, short B, short C, short D);
+internal readonly record struct FloorMatrixParameters(short A, short B, short C, short D);

@@ -27,8 +27,4 @@ public static class WorldMapArtworkFormat
     public const int BackgroundTileCount = BackgroundBytes / 16;
     /// <summary>Background atlas height in pixels.</summary>
     public const int BackgroundHeight = BackgroundTileCount / TileColumns * 8;
-    /// <summary>Menu BG1 character base in byte-addressed VRAM.</summary>
-    public const int ForegroundDestination = 0;
-    /// <summary>Menu BG3 character base in byte-addressed VRAM, BG34NBA=$04.</summary>
-    public const int BackgroundDestination = WorldMapVramLayout.BackgroundByteAddress;
 }

@@ -178,12 +178,12 @@ public sealed class SuperMetroidGame
         DoorTransitionPhase startingDoorPhase = Session.doorTransition.Phase;
         // An update that resumes a dispatch after its NMI wait never reaches the main loop's
         // music prologue ($88:84B9) or its sound handler ($82:89EF).
-        bool resumesNmiWait = NextUpdateResumesNmiWait;
+        bool resumesFrameWait = NextUpdateResumesFrameWait;
         // MainGameLoop runs the music queue ($82:894B) before dispatching any game state, so
         // a dispatch that waits on HasQueuedMusic sees this update's queue. Sound handlers
         // run after its coroutine returns. An accepted IRQ/NMI alone runs neither handler,
         // and a message box's lag frames run only the box's own calls (below).
-        bool prologueMusicDispatch = !resumesNmiWait && !messageWasActive &&
+        bool prologueMusicDispatch = !resumesFrameWait && !messageWasActive &&
             (!doorAudioDispatch || phaseAudio != GamePhaseAudio.DoorTransitionSoundsDisabled ||
              startingDoorPhase is not (DoorTransitionPhase.WaitForDoorOpeningScroll or DoorTransitionPhase.FinishDoorLoading));
         IReadOnlyList<CartridgeAudioCommand> prologueMusicCommands = prologueMusicDispatch
@@ -210,7 +210,7 @@ public sealed class SuperMetroidGame
         if (!messageWasActive && Session.Runtime?.MessageBox.IsActive == true)
             Session.audio.QueueCancelSoundEffects();
         bool musicHandler = false;
-        int soundHandlers = !resumesNmiWait && (!doorAudioDispatch ||
+        int soundHandlers = !resumesFrameWait && (!doorAudioDispatch ||
             startingDoorPhase is not (DoorTransitionPhase.LoadMoreThingsAndOpenDoor or DoorTransitionPhase.WaitForDoorOpeningScroll))
             ? 1 : 0;
         if (messageWasActive)
@@ -261,19 +261,19 @@ public sealed class SuperMetroidGame
                 MainLoopRandomCall.AdvanceUnlessResumingWait,
                 step: (controllerInput, _) => MenuPhases.DispatchFileSelectMenus(controllerInput),
                 name: () => Session.ActiveFileSelect.Phase.ToString(),
-                resumesNmiWait: () => Session.ScreenAs<FileSelectMenuState>()?.ResumesAfterNmiWait == true),
+                resumesFrameWait: () => Session.ScreenAs<FileSelectMenuState>()?.ResumesAfterFrameWait == true),
             // The map's final dispatch resumes after its forced-blank NMI wait.
             // The final map dispatch latched its load request, then waited for this NMI ($81:AF8C).
             new GamePhase(SuperMetroidGameState.FileSelectMap,
                 MainLoopRandomCall.AdvanceUnlessResumingWait,
                 step: (controllerInput, _) => MenuPhases.DispatchFileSelectMap(controllerInput),
                 name: () => Session.ScreenAs<FileSelectMapMenuState>()?.Phase.ToString() ?? "Preparing saved-game map",
-                resumesNmiWait: () => Session.ScreenAs<FileSelectMapMenuState>()?.LoadRequested == true),
+                resumesFrameWait: () => Session.ScreenAs<FileSelectMapMenuState>()?.LoadRequested == true),
             new GamePhase(SuperMetroidGameState.LoadingGameData,
                 MainLoopRandomCall.AdvanceUnlessResumingWait,
                 step: (controllerInput, _) => LoadingPhases.DispatchLoadingGameData(controllerInput),
                 name: () => $"Loading Landing Site ({Session.GameLoading.WaitsRemaining} NMI waits)",
-                resumesNmiWait: () => Session.ResumesGameLoadingWait),
+                resumesFrameWait: () => Session.ResumesGameLoadingWait),
             new GamePhase(SuperMetroidGameState.MainGameplayFadeIn,
                 MainLoopRandomCall.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => LoadingPhases.DispatchMainGameplayFadeIn(controllerInput, gameplayAudio),
@@ -366,7 +366,7 @@ public sealed class SuperMetroidGame
                 MainLoopRandomCall.AdvanceUnlessResumingWait,
                 step: (controllerInput, _) => MenuPhases.DispatchGameOverMenu(controllerInput),
                 name: () => nameof(SuperMetroidGameState.GameOverMenu),
-                resumesNmiWait: () => Session.ScreenAs<GameOverMenuState>()?.ResumesAfterNmiWait == true),
+                resumesFrameWait: () => Session.ScreenAs<GameOverMenuState>()?.ResumesAfterFrameWait == true),
             new GamePhase(SuperMetroidGameState.ReserveTanksAuto,
                 MainLoopRandomCall.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchReserveTanksAuto(controllerInput, gameplayAudio),
@@ -379,7 +379,7 @@ public sealed class SuperMetroidGame
                 MainLoopRandomCall.AdvanceUnlessResumingWait,
                 step: (controllerInput, _) => LoadingPhases.DispatchSetUpNewGame(controllerInput),
                 name: () => Session.LoadingExistingSave ? "Loading saved game" : "Loading fresh Ceres game",
-                resumesNmiWait: () => Session.ResumesGameLoadingWait),
+                resumesFrameWait: () => Session.ResumesGameLoadingWait),
             new GamePhase(SuperMetroidGameState.MadeItToCeresElevator,
                 MainLoopRandomCall.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchMadeItToCeresElevator(controllerInput, gameplayAudio),
@@ -393,7 +393,7 @@ public sealed class SuperMetroidGame
                 MainLoopRandomCall.AdvanceUnlessResumingWait,
                 step: (controllerInput, _) => CinematicPhases.DispatchCeresGoesBoom(controllerInput),
                 name: () => $"Ceres destruction: {Session.ScreenAs<CeresDestructionCinematicState>()?.Phase}",
-                resumesNmiWait: () => Session.ScreenAs<CeresDestructionCinematicState>()?.ResumesAfterNmiWait == true),
+                resumesFrameWait: () => Session.ScreenAs<CeresDestructionCinematicState>()?.ResumesAfterFrameWait == true),
             new GamePhase(SuperMetroidGameState.TimeUp,
                 MainLoopRandomCall.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchTimeUp(controllerInput, gameplayAudio),
@@ -407,7 +407,7 @@ public sealed class SuperMetroidGame
                 MainLoopRandomCall.AdvanceUnlessResumingWait,
                 step: (controllerInput, _) => CinematicPhases.DispatchCeresGoesBoomWithSamus(controllerInput),
                 name: () => nameof(SuperMetroidGameState.CeresGoesBoomWithSamus),
-                resumesNmiWait: () => Session.ScreenAs<CeresDestructionCinematicState>()?.ResumesAfterNmiWait == true),
+                resumesFrameWait: () => Session.ScreenAs<CeresDestructionCinematicState>()?.ResumesAfterFrameWait == true),
             new GamePhase(SuperMetroidGameState.SamusEscapesFromZebes,
                 MainLoopRandomCall.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchSamusEscapesFromZebes(controllerInput, gameplayAudio),
@@ -418,7 +418,7 @@ public sealed class SuperMetroidGame
                 MainLoopRandomCall.AdvanceUnlessResumingWait,
                 step: (_, _) => CinematicPhases.DispatchEndingAndCredits(),
                 name: () => $"Ending: {Session.ScreenAs<EndingCreditsState>()?.Stage.Phase}",
-                resumesNmiWait: () => Session.ScreenAs<EndingCreditsState>()?.ResumesAfterNmiWait == true),
+                resumesFrameWait: () => Session.ScreenAs<EndingCreditsState>()?.ResumesAfterFrameWait == true),
             new GamePhase(SuperMetroidGameState.TransitionToDemoA,
                 MainLoopRandomCall.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => AttractPhases.DispatchAttractDemo(controllerInput, gameplayAudio),
@@ -519,7 +519,7 @@ public sealed class SuperMetroidGame
     /// True when the next update resumes a frontend dispatch after its own NMI wait instead
     /// of entering MainGameLoop. Such an update makes no main-loop RNG call.
     /// </summary>
-    internal bool NextUpdateResumesNmiWait => Phases.Of(Session.GameState).ResumesNmiWait;
+    internal bool NextUpdateResumesFrameWait => Phases.Of(Session.GameState).ResumesFrameWait;
 
     /// <summary>
     /// Preserves the bank-$82 main-loop RNG call through title/file selection and
@@ -545,7 +545,7 @@ public sealed class SuperMetroidGame
                 Session.GameplayRuntime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjects: HdmaObjectProcessing.Run, Session.GameplayRuntime.Room.LoadedScope.Plms, Session.GameplayRuntime.Room.LoadedScope);
                 break;
             case MainLoopRandomCall.AdvanceUnlessResumingWait:
-                if (!NextUpdateResumesNmiWait)
+                if (!NextUpdateResumesFrameWait)
                     Session.Random.Generate();
                 break;
             case MainLoopRandomCall.Advance:

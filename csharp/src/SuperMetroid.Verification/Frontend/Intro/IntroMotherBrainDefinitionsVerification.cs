@@ -83,7 +83,7 @@ internal static class IntroMotherBrainDefinitionsVerification
                 $"intro Mother Brain normal frame {frame} selects its native spritemap");
         }
         for (int hit = 0; hit < 4; hit++)
-            AssertEqual(hit == 3, motherBrain.RegisterMissileHit(),
+            AssertEqual(hit == 3, motherBrain.RecordMissileHit(),
                 $"intro Mother Brain hit {hit + 1} starts explosion only on the fourth hit");
         var cgram = new SnesCgram();
         var palette = new ushort[SnesCgram.ColorCount];

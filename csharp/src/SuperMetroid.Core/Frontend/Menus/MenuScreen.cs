@@ -31,27 +31,33 @@ internal sealed class MenuScreen
     [AllowNull]
     private InstalledSpriteSheets Sheets { get => field ?? throw new InvalidOperationException("The menu's screen tiles are rebound after debugger restoration."); set; }
 
-    /// <summary>Each area map's background tiles, once read.</summary>
-    [NonSerialized] private Dictionary<AreaId, ScreenCharacters>? areaMapTiles;
+    /// <summary>Each area map's tiles, once read.</summary>
+    [NonSerialized] private Dictionary<AreaId, AreaMapTiles>? areaMapTiles;
 
     /// <summary>Rebinds the sheets the screen's background tiles come from (#1392).</summary>
     public void BindScreenTiles(InstalledSpriteSheets? sheets)
     {
         Sheets = sheets ?? throw new InvalidOperationException("Menus require the installed sprite sheets.");
-        FileSelectTiles = null;
+        MenuTiles = null;
+        RoomMapTiles = null;
         areaMapTiles = null;
     }
 
-    /// <summary>What the menus' background characters show under the file-select palette (#1392).</summary>
+    /// <summary>What the menu planes show under the file-select palette (#1392).</summary>
     [field: NonSerialized]
     [AllowNull]
-    internal ScreenCharacters FileSelectTiles { get => field ??= MenuScreenTiles.FileSelect(Sheets); private set; }
+    internal ScreenLayerPictures MenuTiles { get => field ??= MenuScreenTiles.Menu(Sheets); private set; }
 
-    /// <summary>What the area map's background characters show under <paramref name="area"/>'s world-map palette (#1392).</summary>
-    internal ScreenCharacters AreaMapTiles(AreaId area)
+    /// <summary>What the room map's planes show under the file-select palette (#1392).</summary>
+    [field: NonSerialized]
+    [AllowNull]
+    internal ScreenLayerPictures RoomMapTiles { get => field ??= MenuScreenTiles.RoomMap(Sheets); private set; }
+
+    /// <summary>What the area map's layers show under <paramref name="area"/>'s world-map palette (#1392).</summary>
+    internal AreaMapTiles AreaMapTiles(AreaId area)
     {
         areaMapTiles ??= [];
-        if (!areaMapTiles.TryGetValue(area, out ScreenCharacters? tiles))
+        if (!areaMapTiles.TryGetValue(area, out AreaMapTiles? tiles))
             areaMapTiles.Add(area, tiles = MenuScreenTiles.AreaMap(Sheets, area));
         return tiles;
     }
@@ -84,21 +90,18 @@ internal sealed class MenuScreen
     public void BindWorldArtwork(WorldMapArtwork? worldArtwork)
     {
         WorldArtwork = RequireWorldArtwork(worldArtwork);
-        characters = null;
     }
 
     /// <summary>Rebinds the map characters.</summary>
     public void BindMapTiles(MapTileAtlas? mapTiles)
     {
         MapTiles = RequireMapTiles(mapTiles);
-        characters = null;
     }
 
     /// <summary>Rebinds the menu OBJ characters.</summary>
     public void BindMapSprites(MapSpriteCatalog? sprites)
     {
         Sprites = RequireSprites(sprites);
-        characters = null;
     }
 
     /// <summary>Loads the file-select palette image.</summary>
@@ -120,10 +123,6 @@ internal sealed class MenuScreen
     private static MapSpriteCatalog RequireSprites(MapSpriteCatalog? sprites) =>
         sprites ?? throw new InvalidOperationException("Menus require installed sprite artwork.");
 
-    /// <summary>The composed character image of the bound artwork, until a rebind replaces it.</summary>
-    [NonSerialized]
-    private byte[]? characters;
-
-    /// <summary>The bound artwork's composed character image.</summary>
-    internal ReadOnlySpan<byte> Characters => characters ??= MenuScreenImage.Characters(this);
+    /// <summary>What the screen paints with: its palette and sprite entries.</summary>
+    internal FramePaint Paint() => new(Palette.Colors, Objects.Draws);
 }

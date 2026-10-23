@@ -20,7 +20,7 @@ internal static class FrontendShownVramAccess
     extension(IntroCinematicState self)
     {
         internal byte[] ShownVram() => self.CurrentCeresFlight is { } flight && self.Phase == IntroCinematicPhase.CeresFlight
-            ? flight.Image() : self.Image();
+            ? flight.Image() : IntroScreenMemory.Compose(self);
     }
 
     /// <summary>The Ceres flight's composed image.</summary>
@@ -36,20 +36,20 @@ internal static class FrontendShownVramAccess
     extension(TitleSequenceState self) { internal byte[] ShownVram() => self.Image(); }
 
     /// <summary>The game over menu's composed image.</summary>
-    extension(GameOverMenuState self) { internal byte[] ShownVram() => MenuScreenImage.Compose(self.screen); }
+    extension(GameOverMenuState self) { internal byte[] ShownVram() => MenuScreenMemory.Compose(self.screen); }
 
     /// <summary>The options menu's composed image.</summary>
-    extension(GameOptionsMenuState self) { internal byte[] ShownVram() => MenuScreenImage.Compose(self.screen); }
+    extension(GameOptionsMenuState self) { internal byte[] ShownVram() => MenuScreenMemory.Compose(self.screen); }
 
     /// <summary>The file select menu's composed image.</summary>
-    extension(FileSelectMenuState self) { internal byte[] ShownVram() => MenuScreenImage.Compose(self.screen); }
+    extension(FileSelectMenuState self) { internal byte[] ShownVram() => MenuScreenMemory.Compose(self.screen); }
 
     /// <summary>The file select area map's composed image.</summary>
-    extension(FileSelectAreaMapGraphics self) { internal byte[] ShownVram() => MenuScreenImage.Compose(self.screen); }
+    extension(FileSelectAreaMapGraphics self) { internal byte[] ShownVram() => MenuScreenMemory.Compose(self.screen); }
 
     /// <summary>The file select room map's composed image.</summary>
-    extension(FileSelectRoomMapGraphics self) { internal byte[] ShownVram() => MenuScreenImage.Compose(self.screen); }
+    extension(FileSelectRoomMapGraphics self) { internal byte[] ShownVram() => MenuScreenMemory.Compose(self.screen); }
 
     /// <summary>The pause menu's composed image.</summary>
-    extension(PauseMenuState self) { internal byte[] ShownVram() => PauseScreenImage.Compose(self.screen); }
+    extension(PauseMenuState self) { internal byte[] ShownVram() => PauseScreenMemory.Compose(self.screen); }
 }

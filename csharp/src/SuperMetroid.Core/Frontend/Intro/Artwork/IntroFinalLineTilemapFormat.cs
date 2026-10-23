@@ -12,7 +12,7 @@ public static class IntroFinalLineTilemapFormat
     /// <summary>Required tile-reference count, 128, corresponding to the $0100-byte native map copied into BG3 rows 24-27.</summary>
     public const int CellCount = Columns * Rows;
     /// <summary>$8B:8DEA/A68F: 0600 bytes of 2bpp glyph staging form four displayed tile rows, yielding 24 columns.</summary>
-    internal const int InteriorColumns = IntroCinematicRomData.Vram.JapaneseBlankCharactersByteCount /
+    internal const int InteriorColumns = IntroCinematicRomData.Transfers.JapaneseBlankCharactersByteCount /
         (IntroFontAtlasFormat.BitsPerPixel * IntroFontAtlasFormat.TileSize * Rows);
     /// <summary>$8B:A72B-A82A: center the subtitle staging width in the 32-column BG page.</summary>
     internal const int MarginColumns = (Columns - InteriorColumns) / 2;
@@ -20,7 +20,7 @@ public static class IntroFinalLineTilemapFormat
     internal static ushort MarginWord => IntroCinematicRomData.Text.JapaneseBlank.Raw;
     /// <summary>$8B:A72B: first subtitle tile follows its VRAM staging destination relative to the font base; palette four and priority are selected subtitle style.</summary>
     internal static ushort FirstInteriorWord => SnesBgTilemapWord.Create(
-        IntroVramLayout.JapaneseBlankFirstCharacter, SubtitlePalette, true, default).Raw;
+        IntroTileSetDefinitions.JapaneseBlankFirstTile, SubtitlePalette, true, default).Raw;
     /// <summary>$8B:A733: chosen palette four for the Japanese subtitle glyph staging area; this display policy is retained as selected typesetting, not prose, pixels or timing.</summary>
     private const int SubtitlePalette = 4;
     /// <summary>Editable JSON filename for the opening cinematic's four-row subtitle staging map, not a prose or animation-sequence file.</summary>

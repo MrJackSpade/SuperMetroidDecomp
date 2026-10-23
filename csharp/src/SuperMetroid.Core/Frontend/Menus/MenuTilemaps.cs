@@ -10,10 +10,7 @@ internal sealed class MenuTilemaps
     internal const int ScreenWords = SnesPpuLayout.TilemapPageWordCount;
 
     /// <summary>The four screens, in their order: BG1, the area map's second screen, BG2, the area background.</summary>
-    private readonly ushort[] words = new ushort[4 * ScreenWords];
-
-    /// <summary>All four screens, for the capture.</summary>
-    internal ReadOnlySpan<ushort> All => words;
+    internal readonly ushort[] words = new ushort[4 * ScreenWords];
 
     /// <summary>The menu BG1 screen.</summary>
     internal Span<ushort> Bg1 => words.AsSpan(0, ScreenWords);

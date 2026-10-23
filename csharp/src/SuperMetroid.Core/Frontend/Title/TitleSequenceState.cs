@@ -42,18 +42,18 @@ public sealed class TitleSequenceState : IFrontendScreen
     internal void BindSpriteSheets(InstalledSpriteSheets? sheets)
     {
         spriteSheets = sheets ?? throw new InvalidOperationException("Title sequence requires the installed sprite sheets.");
-        mode7Tiles = null;
+        floorTiles = null;
     }
 
     /// <summary>What the Mode 7 map shows with each Baby Metroid page loaded (#1392), once read; artwork, never saved.</summary>
-    [NonSerialized] private Dictionary<int, Mode7TilePictures>? mode7Tiles;
+    [NonSerialized] private Dictionary<int, Mode7TilePictures>? floorTiles;
 
     /// <summary>What the Mode 7 map shows with Baby Metroid page <paramref name="page"/> loaded.</summary>
-    private Mode7TilePictures Mode7Tiles(int page)
+    private Mode7TilePictures FloorTiles(int page)
     {
-        mode7Tiles ??= [];
-        if (!mode7Tiles.TryGetValue(page, out Mode7TilePictures? tiles))
-            mode7Tiles.Add(page, tiles = TitleScreenTiles.Of(spriteSheets, page));
+        floorTiles ??= [];
+        if (!floorTiles.TryGetValue(page, out Mode7TilePictures? tiles))
+            floorTiles.Add(page, tiles = TitleScreenTiles.Of(spriteSheets, page));
         return tiles;
     }
 
@@ -103,7 +103,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>Frames left before the next Baby Metroid character page transfer.</summary>
     private int babyFrameTimer;
     /// <summary>Tracks the TM bit that exposes Mode 7 BG1 behind title objects.</summary>
-    private bool mode7BackgroundEnabled;
+    private bool floorBackgroundEnabled;
     /// <summary>Enables the installed scanline gradient during the final title stages.</summary>
     private bool gradientEnabled;
     /// <summary>Selects the demo destination after the shared title fade-out.</summary>
@@ -383,19 +383,19 @@ public sealed class TitleSequenceState : IFrontendScreen
         short scale = unchecked((short)Zoom);
         byte[] image = Image();
         return new(new FramePaint(palette.Colors, objects.Draws),
-            mode7BackgroundEnabled
+            floorBackgroundEnabled
                 ? new AffineTransform(scale, TitleSequenceRomData.Scenes.Rotation.TableIndex,
                     0, scale, new Offset16<Mode7Pixels>(128, 128), mode7.Whole.AsSignedRegister())
                 : null,
             checked((byte)Brightness), gradientEnabled ? ResolveTitleGradient() : default,
-            mode7BackgroundEnabled ? AffineFloor.Capture(image, Mode7Tiles(TitleSequenceRomData.Vram.BabyAnimationSourcePages[babyFrame])) : null);
+            floorBackgroundEnabled ? AffineFloor.Capture(image, FloorTiles(TitleSequenceRomData.Transfers.BabyAnimationSourcePages[babyFrame])) : null);
     }
 
     /// <summary>The title screen's composed memory image at the current baby Metroid frame, which its floor reads.</summary>
     /// <exception cref="InvalidOperationException">No title artwork is installed.</exception>
     internal byte[] Image() => image ??= TitleScreenImage.Compose(titleGraphicsPresentation
         ?? throw new InvalidOperationException("Title rendering requires installed title artwork."),
-        TitleSequenceRomData.Vram.BabyAnimationSourcePages[babyFrame]);
+        TitleSequenceRomData.Transfers.BabyAnimationSourcePages[babyFrame]);
 
     /// <summary>Resolves the installed title gradient at the current Mode 7 scale.</summary>
     private ReadOnlySpan<TitleGradientLine> ResolveTitleGradient()
@@ -450,26 +450,26 @@ public sealed class TitleSequenceState : IFrontendScreen
             {
                 case TitleSequenceInstruction.TriggerScene0:
                     Phase = TitleSequencePhase.SceneZeroPan;
-                    mode7BackgroundEnabled = true; // TM=$11 at `$8B:9CE3-$9CE5`.
+                    floorBackgroundEnabled = true; // TM=$11 at `$8B:9CE3-$9CE5`.
                     ApplyScene(TitleSequenceRomData.Scenes.SceneZero);
                     return;
 
                 case TitleSequenceInstruction.TriggerScene1:
                     Phase = TitleSequencePhase.SceneOnePan;
-                    mode7BackgroundEnabled = true; // TM=$11 at `$8B:9D5D-$9D61`.
+                    floorBackgroundEnabled = true; // TM=$11 at `$8B:9D5D-$9D61`.
                     ApplyScene(TitleSequenceRomData.Scenes.SceneOne);
                     return;
 
                 case TitleSequenceInstruction.TriggerScene2:
                     Phase = TitleSequencePhase.SceneTwoPan;
-                    mode7BackgroundEnabled = true; // TM=$11 at `$8B:9DD6-$9DDA`.
+                    floorBackgroundEnabled = true; // TM=$11 at `$8B:9DD6-$9DDA`.
                     ApplyScene(TitleSequenceRomData.Scenes.SceneTwo);
                     return;
 
                 case TitleSequenceInstruction.TriggerScene3:
                     Phase = TitleSequencePhase.SceneThreeZoom;
                     gradientEnabled = true;
-                    mode7BackgroundEnabled = true; // TM=$11 at `$8B:9E58-$9E5C`.
+                    floorBackgroundEnabled = true; // TM=$11 at `$8B:9E58-$9E5C`.
                     PhaseTimer = 0;
                     ApplyScene(TitleSequenceRomData.Scenes.SceneThree);
                     return;
@@ -500,7 +500,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         // TM=$10 before the next text actor becomes visible. Keeping an explicit register
         // bit also matters when Start skips during a pan: the fade-out preserves whichever
         // TM value was live rather than inferring visibility from the host phase name.
-        mode7BackgroundEnabled = false;
+        floorBackgroundEnabled = false;
     }
 
     /// <summary>Installs the logo, gradient, copyright colors, and identity Mode 7 scene used after a skip.</summary>
@@ -515,7 +515,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         ActiveSprite = TitleSprite.SuperMetroidLogo;
         ActiveOrigin = TitleSequenceRomData.Sprites.LogoOrigin;
         ActiveObjectPalette = TitleSequenceRomData.Sprites.TitleCharacterOffset;
-        mode7BackgroundEnabled = true;
+        floorBackgroundEnabled = true;
         mode7 = new(mode7.X.WithWhole(0), mode7.Y.WithWhole(0));
         Zoom = TitleSequenceRomData.Scenes.IdentityScale;
     }
@@ -535,17 +535,17 @@ public sealed class TitleSequenceState : IFrontendScreen
         if (--babyFrameTimer > 0)
             return;
 
-        babyFrame = (babyFrame + 1) % TitleSequenceRomData.Vram.BabyAnimationSourcePages.Length;
+        babyFrame = (babyFrame + 1) % TitleSequenceRomData.Transfers.BabyAnimationSourcePages.Length;
         babyFrameTimer = TitleSequenceRomData.Timing.BabyFrameDuration;
         // The instruction list uploads the next source page; the capture shows it.
         image = null;
     }
 
     /// <summary>Installs a compiled Mode 7 scene's position and scale while clearing the previous text sprite.</summary>
-    private void ApplyScene(TitleMode7SceneDefinition definition)
+    private void ApplyScene(TitleFloorSceneDefinition definition)
     {
         Phase = definition.Phase;
-        mode7BackgroundEnabled = true;
+        floorBackgroundEnabled = true;
         Zoom = definition.Scale;
         mode7 = new(mode7.X.WithWhole(definition.Position.X), mode7.Y.WithWhole(definition.Position.Y));
         ActiveSprite = null;

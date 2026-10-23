@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 internal sealed class PauseTilemaps
 {
     /// <summary>Words in one 32x32 screen.</summary>
-    private const int ScreenWords = SnesPpuLayout.TilemapPageWordCount;
+    internal const int ScreenWords = SnesPpuLayout.TilemapPageWordCount;
 
     /// <summary>The BG2 row the two button-label rows start on.</summary>
     private const int ButtonRowsFirstRow = 25;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.FileSelect;
 
 namespace SuperMetroid.Core.Frontend.Menus;
@@ -7,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Menus;
 /// by file select, options and game over (#630).
 /// </summary>
 [PpuLayoutBoundary("catalog: shared menu VRAM")]
-public static class MenuVramLayout
+internal static class MenuVramLayout
 {
     /// <summary>VMADD of the menu BG1 32x32 tilemap, for render packets and the PPU backend.</summary>
     [PpuLayoutAccess]
@@ -19,12 +20,12 @@ public static class MenuVramLayout
 
     /// <summary>VMADD $3000-$3FFF: the shared map characters file select and the room map draw with.</summary>
     public static readonly PpuLayoutCell MapCharacters = new(nameof(MapCharacters), PpuLayoutRegion.Vram,
-        FileSelectMapRomData.RoomCharacters, SuperMetroid.Core.Map.Artwork.MapTileAtlasFormat.ByteCount / sizeof(ushort), "4-bpp BG characters (map atlas)",
+        FileSelectMapRomDataConstants.RoomCharacters, SuperMetroid.Core.Map.Artwork.MapTileAtlasFormat.ByteCount / sizeof(ushort), "4-bpp BG characters (map atlas)",
         PpuMemoryLayout.Vram);
 
     /// <summary>VMADD $6000-$6FFF (byte $C000): the map-object OBJ characters uploaded from <c>$B6:C000</c>.</summary>
     public static readonly PpuLayoutCell ObjectCharacters = new(nameof(ObjectCharacters), PpuLayoutRegion.Vram,
-        SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteFormat.FileSelectDestination / sizeof(ushort), SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteFormat.ByteCount / sizeof(ushort),
+        MapSpriteByteAddress / sizeof(ushort), SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteFormat.ByteCount / sizeof(ushort),
         "4-bpp OBJ characters (map objects)", PpuMemoryLayout.Vram);
 
     /// <summary>File-select OBSEL=$03 places the shared menu OBJ characters at VRAM byte $C000.</summary>

@@ -126,7 +126,7 @@ internal static class PauseMenuFixtureVerification
             CrystalFlashColors = stock.CrystalFlashColors,
             SamusChargeColors = stock.SamusChargeColors,
             CeresRidleyColors = stock.CeresRidleyColors,
-            CeresRidleyMode7Colors = stock.CeresRidleyMode7Colors,
+            CeresRidleyFloorColors = stock.CeresRidleyFloorColors,
             SamusHyperBeamColors = stock.SamusHyperBeamColors,
         };
         return new AreaMapPresentationCatalog(parts);

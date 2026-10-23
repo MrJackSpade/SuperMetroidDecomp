@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Hud.Artwork;
 public sealed class HudTileAtlas : IInstalledArtworkTransferSource
 {
     /// <summary>Contiguous HUD characters followed by the zero-filled native BG2 clearing region.</summary>
-    private readonly byte[] transfer;
+    internal readonly byte[] transfer;
     /// <summary>Retains an independently encoded native-size HUD upload for installed transfer lookup.</summary>
     internal HudTileAtlas(byte[] transfer) => this.transfer = transfer;
     /// <summary>Provides the entire $2000-byte upload to callers that divide it into restoration slices.</summary>
@@ -34,9 +34,6 @@ public sealed class HudTileAtlas : IInstalledArtworkTransferSource
             index * HudTileAtlasFormat.RestoreQuarterBytes,
             HudTileAtlasFormat.RestoreQuarterBytes);
     }
-    /// <summary>Writes all $2000 bytes at the standard BG3 character base: the characters followed by the zero-filled BG2 tilemap-clearing half.</summary>
-    /// <param name="vram">Destination VRAM whose existing bytes are overwritten.</param>
-    public void LoadTo(SnesVram vram) => new GameplayVram(vram).HudCharacterUpload.Load(transfer);
 
     /// <summary>
     /// Refreshes artwork without replaying the initial transfer's room-tilemap clearing half, binding the characters again

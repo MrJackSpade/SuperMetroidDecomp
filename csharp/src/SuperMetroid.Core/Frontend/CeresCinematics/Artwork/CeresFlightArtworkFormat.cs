@@ -6,17 +6,17 @@ public static class CeresFlightArtworkFormat
     /// <summary>Required schema revision of the paired front/rear map document.</summary>
     public const int Version = 1;
     /// <summary>Indexed PNG filename for the shared gunship/Ceres chunky Mode-7 characters.</summary>
-    public const string Mode7FileName = "ceres-flight-mode7-characters.png";
+    public const string FloorFileName = "ceres-flight-mode7-characters.png";
     /// <summary>JSON filename for the two ordered approach map slices, distinct from the later destruction map slice.</summary>
     public const string MapFileName = "ceres-flight-mode7-maps.json";
     /// <summary>Indexed PNG filename for the space/Ceres planar OBJ characters and reused SPACE COLONY background characters.</summary>
     public const string ObjectFileName = "ceres-flight-object-characters.png";
     /// <summary>Mode-7 PNG width in pixels: sixteen 8-pixel character columns.</summary>
-    public const int Mode7Width = 128;
+    public const int FloorWidth = 128;
     /// <summary>Mode-7 PNG height in pixels: sixteen 8-pixel character rows.</summary>
-    public const int Mode7Height = 128;
+    public const int FloorHeight = 128;
     /// <summary>Exact chunky Mode-7 character length, $4000 bytes for 256 characters at 64 bytes each.</summary>
-    public const int Mode7ByteCount = 256 * 64;
+    public const int FloorByteCount = 256 * 64;
     /// <summary>OBJ PNG width in pixels: thirty-two 8-pixel character columns.</summary>
     public const int ObjectWidth = 256;
     /// <summary>OBJ PNG height in pixels: sixteen 8-pixel character rows.</summary>

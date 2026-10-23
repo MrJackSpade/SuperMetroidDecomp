@@ -30,54 +30,54 @@ public static class EndingMode7ArtworkFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);
         var hashes = new Dictionary<string, string>(StringComparer.Ordinal);
-        foreach (EndingMode7SceneId id in Enum.GetValues<EndingMode7SceneId>())
+        foreach (EndingFloorSceneId id in Enum.GetValues<EndingFloorSceneId>())
         {
-            (int characterSource, int packedMapSource) = EndingCreditsRomData.Assets.Mode7Sources(id);
+            (int characterSource, int packedMapSource) = EndingCreditsRomData.Assets.FloorSources(id);
             byte[] characters = RomDataReader.Decompress(CartridgeImportSource.Require(bus), characterSource,
                 EndingCreditsRomData.Rendering.DecompressionLimit);
             byte[] packedMap = RomDataReader.Decompress(CartridgeImportSource.Require(bus), packedMapSource,
                 EndingCreditsRomData.Rendering.DecompressionLimit);
-            if (characters.Length < EndingMode7ArtworkFormat.CharacterByteCount ||
-                packedMap.Length < EndingMode7ArtworkFormat.CharacterByteCount)
+            if (characters.Length < EndingFloorArtworkFormat.CharacterByteCount ||
+                packedMap.Length < EndingFloorArtworkFormat.CharacterByteCount)
                 throw new InvalidDataException($"Ending {id} Mode-7 source is shorter than its native DMA.");
 
             // The original two $4000-byte packed DMAs place the same $2000 low-byte
             // sequence in both map halves. Its odd bytes are subsequently replaced
             // by the character source via the high-byte-only Mode-7 port.
-            var lowMap = new byte[EndingMode7ArtworkFormat.MapByteCount];
+            var lowMap = new byte[EndingFloorArtworkFormat.MapByteCount];
             for (int cell = 0; cell < lowMap.Length; cell++)
                 lowMap[cell] = packedMap[cell * 2];
             using var mapJson = new MemoryStream();
-            EndingMode7SceneArtwork.WriteMap(mapJson, new EndingMode7MapDocument
+            EndingFloorSceneArtwork.WriteMap(mapJson, new EndingFloorMapDocument
             {
-                Version = EndingMode7ArtworkFormat.Version,
-                Width = EndingMode7ArtworkFormat.MapWidth,
-                Height = EndingMode7ArtworkFormat.MapHeight,
+                Version = EndingFloorArtworkFormat.Version,
+                Width = EndingFloorArtworkFormat.MapWidth,
+                Height = EndingFloorArtworkFormat.MapHeight,
                 Tiles = lowMap.Select(value => (int)value).ToArray(),
             });
 
             byte[] pixels = SnesGraphics.DecodeMode7Tiles(
-                characters.AsSpan(0, EndingMode7ArtworkFormat.CharacterByteCount).ToArray(),
+                characters.AsSpan(0, EndingFloorArtworkFormat.CharacterByteCount).ToArray(),
                 16, out Extent16<ImagePixels> size);
-            if (size.X != EndingMode7ArtworkFormat.CharacterWidth ||
-                size.Y != EndingMode7ArtworkFormat.CharacterHeight)
+            if (size.X != EndingFloorArtworkFormat.CharacterWidth ||
+                size.Y != EndingFloorArtworkFormat.CharacterHeight)
                 throw new InvalidDataException($"Ending {id} Mode-7 characters have unexpected dimensions.");
             using var png = new MemoryStream();
             IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(256));
             byte[] mapFile = mapJson.ToArray();
             byte[] pngFile = png.ToArray();
-            EndingMode7SceneArtwork compiled = EndingMode7SceneArtwork.Load(
+            EndingFloorSceneArtwork compiled = EndingFloorSceneArtwork.Load(
                 new MemoryStream(mapFile, writable: false),
                 new MemoryStream(pngFile, writable: false));
             if (!compiled.Map.Span.SequenceEqual(lowMap) ||
                 !compiled.Characters.Span.SequenceEqual(characters.AsSpan(0,
-                    EndingMode7ArtworkFormat.CharacterByteCount)))
+                    EndingFloorArtworkFormat.CharacterByteCount)))
                 throw new InvalidDataException($"Ending {id} PNG/JSON did not round-trip its native DMA.");
-            Write(EndingMode7ArtworkFormat.MapFileName(id), mapFile);
-            Write(EndingMode7ArtworkFormat.CharacterFileName(id), pngFile);
+            Write(EndingFloorArtworkFormat.MapFileName(id), mapFile);
+            Write(EndingFloorArtworkFormat.CharacterFileName(id), pngFile);
         }
         byte[] reward = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
-            EndingCreditsRomData.Assets.PostCreditsMode7Characters,
+            EndingCreditsRomData.Assets.PostCreditsFloorCharacters,
             EndingCreditsRomData.Rendering.DecompressionLimit);
         if (reward.Length < EndingRewardIconArtworkFormat.TransferBytes)
             throw new InvalidDataException("Reward icon source is shorter than its sixteen native DMAs.");
@@ -89,9 +89,9 @@ public static class EndingMode7ArtworkFiles
             rewardCharacters[index] = reward[index * 2 + 1];
         }
         using var rewardJson = new MemoryStream();
-        EndingRewardIconArtwork.WriteMap(rewardJson, new EndingMode7MapDocument
+        EndingRewardIconArtwork.WriteMap(rewardJson, new EndingFloorMapDocument
         {
-            Version = EndingMode7ArtworkFormat.Version,
+            Version = EndingFloorArtworkFormat.Version,
             Width = EndingRewardIconArtworkFormat.MapWidth,
             Height = EndingRewardIconArtworkFormat.MapHeight,
             Tiles = rewardMap,
@@ -112,7 +112,7 @@ public static class EndingMode7ArtworkFiles
         Write(EndingRewardIconArtworkFormat.MapFileName, rewardMapFile);
         Write(EndingRewardIconArtworkFormat.CharacterFileName, rewardCharacterFile);
         using var manifest = new FileStream(Path.Combine(directory,
-            EndingMode7ArtworkFormat.ManifestFileName), FileMode.CreateNew, FileAccess.Write);
+            EndingFloorArtworkFormat.ManifestFileName), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest,
             new Manifest(ManifestVersion, sourceCartridgeSha256, hashes), JsonOptions);
 
@@ -131,12 +131,12 @@ public static class EndingMode7ArtworkFiles
     /// <returns>The selected three-backdrop and reward-icon artwork catalog with owned decoded transfer data.</returns>
     /// <remarks>Backdrop maps are 128x64 tile-index half-maps; the reward icon uses a full 128x128 map, with map and character lanes compiled separately.</remarks>
     /// <exception cref="InvalidDataException">Manifest provenance or coverage, a stock digest, or selected map/PNG geometry and content is invalid.</exception>
-    public static EndingMode7ArtworkCatalog Load(string stockDirectory,
+    public static EndingFloorArtworkCatalog Load(string stockDirectory,
         string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
         string manifestPath = Path.Combine(stockDirectory,
-            EndingMode7ArtworkFormat.ManifestFileName);
+            EndingFloorArtworkFormat.ManifestFileName);
         Manifest manifest;
         try
         {
@@ -149,11 +149,11 @@ public static class EndingMode7ArtworkFiles
         }
         string[] names =
         [
-            .. Enum.GetValues<EndingMode7SceneId>()
+            .. Enum.GetValues<EndingFloorSceneId>()
             .SelectMany(id => new[]
             {
-                EndingMode7ArtworkFormat.MapFileName(id),
-                EndingMode7ArtworkFormat.CharacterFileName(id),
+                EndingFloorArtworkFormat.MapFileName(id),
+                EndingFloorArtworkFormat.CharacterFileName(id),
             }),
             EndingRewardIconArtworkFormat.MapFileName,
             EndingRewardIconArtworkFormat.CharacterFileName,
@@ -165,10 +165,10 @@ public static class EndingMode7ArtworkFiles
             names.Any(name => !manifest.StockSha256.ContainsKey(name)))
             throw new InvalidDataException($"Ending art manifest {manifestPath} does not describe this installation.");
 
-        return new EndingMode7ArtworkCatalog(
-            LoadScene(EndingMode7SceneId.EscapeA),
-            LoadScene(EndingMode7SceneId.EscapeB),
-            LoadScene(EndingMode7SceneId.PlanetExplosion),
+        return new EndingFloorArtworkCatalog(
+            LoadScene(EndingFloorSceneId.EscapeA),
+            LoadScene(EndingFloorSceneId.EscapeB),
+            LoadScene(EndingFloorSceneId.PlanetExplosion),
             LoadRewardIcon());
 
         EndingRewardIconArtwork LoadRewardIcon()
@@ -188,13 +188,13 @@ public static class EndingMode7ArtworkFiles
             }
         }
 
-        EndingMode7SceneArtwork LoadScene(EndingMode7SceneId id)
+        EndingFloorSceneArtwork LoadScene(EndingFloorSceneId id)
         {
-            (string mapPath, byte[] map) = ReadSelected(EndingMode7ArtworkFormat.MapFileName(id));
-            (string pngPath, byte[] png) = ReadSelected(EndingMode7ArtworkFormat.CharacterFileName(id));
+            (string mapPath, byte[] map) = ReadSelected(EndingFloorArtworkFormat.MapFileName(id));
+            (string pngPath, byte[] png) = ReadSelected(EndingFloorArtworkFormat.CharacterFileName(id));
             try
             {
-                return EndingMode7SceneArtwork.Load(
+                return EndingFloorSceneArtwork.Load(
                     new MemoryStream(map, writable: false),
                     new MemoryStream(png, writable: false));
             }

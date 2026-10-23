@@ -64,7 +64,7 @@ public static class PauseReserveUiExtractor
         PauseReserveLabelVisual Label(int index, int words)
         {
             int destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseReserveUiDefinitions.LabelDestinations + index * 2) -
-                PauseReserveUiDefinitions.TilemapWramBase;
+                PauseMenuCartridgeTables.EquipmentTilemapBase;
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseReserveUiDefinitions.LabelSources + index * 2);
             return DirectLabel(CartridgeBankWindow.At(PauseMenuCartridgeTables.MenuBank, pointer), destination / 2, words);
         }

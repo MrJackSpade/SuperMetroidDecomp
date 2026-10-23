@@ -32,7 +32,7 @@ internal static class EndingCreditsPresentation
             // Mode 7 places OBJ priority zero below BG1; the other three priorities
             // are above it. BG1 subtracts the winning OBJ subscreen, without halving.
             layers.Add(new ObjPriorityRenderLayer(0));
-            layers.Add(new Mode7RenderLayer(PostShotTransform(ending), AffineFloor.Capture(image, ending.Mode7Tiles()), true));
+            layers.Add(new Mode7RenderLayer(PostShotTransform(ending), AffineFloor.Capture(image, ending.FloorTiles()), true));
             layers.Add(new ObjPriorityRenderLayer(1));
             layers.Add(new ObjPriorityRenderLayer(2));
             layers.Add(new ObjPriorityRenderLayer(3));
@@ -65,18 +65,18 @@ internal static class EndingCreditsPresentation
             {
                 // Fixed addition belongs to backdrop and eligible OBJ, not BG1.
                 if (ending.Flyaway.FlyawayFixedColor is { } backdropWhite) layers.Add(backdropWhite);
-                if (UsesFlyawayMode7Priority(ending)) layers.Add(new ObjPriorityRenderLayer(0, ending.Flyaway.FlyawayFixedColor));
-                short a = Scale(ReadSine(ending.Stage.Mode7Angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex), ending.Stage.Mode7Zoom);
-                short b = Scale(ReadSine(ending.Stage.Mode7Angle.TableIndex), ending.Stage.Mode7Zoom);
+                if (UsesFlyawayFloorPriority(ending)) layers.Add(new ObjPriorityRenderLayer(0, ending.Flyaway.FlyawayFixedColor));
+                short a = Scale(ReadSine(ending.Stage.FloorAngle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex), ending.Stage.FloorZoom);
+                short b = Scale(ReadSine(ending.Stage.FloorAngle.TableIndex), ending.Stage.FloorZoom);
                 layers.Add(new Mode7RenderLayer(new(a, b, unchecked((short)-b), a,
-                    CurrentMode7Center(ending),
+                    CurrentFloorCenter(ending),
                     ending.Stage.Mode7.Whole.AsSignedRegister(), AtmosphericMapWraps(ending) ? Mode7OverflowMode.Wrap : Mode7OverflowMode.Transparent),
-                    AffineFloor.Capture(image, ending.Mode7Tiles()), AddBg1Subscreen: AtmosphericMapWraps(ending)));
+                    AffineFloor.Capture(image, ending.FloorTiles()), AddBg1Subscreen: AtmosphericMapWraps(ending)));
             }
             memory = CaptureMemory(ending, objectSheet);
             if (EndingObjectsEnabled(ending) && !AtmosphericMapWraps(ending))
             {
-                if (UsesFlyawayMode7Priority(ending))
+                if (UsesFlyawayFloorPriority(ending))
                 {
                     layers.Add(new ObjPriorityRenderLayer(1, ending.Flyaway.FlyawayFixedColor));
                     layers.Add(new ObjPriorityRenderLayer(2, ending.Flyaway.FlyawayFixedColor));
@@ -129,15 +129,15 @@ internal static class EndingCreditsPresentation
     internal static bool ExplosionWhiteout(EndingCreditsState ending) => ending.Stage.Phase is EndingCreditsPhase.WaitForPlanetEscapeMusic
         or EndingCreditsPhase.WaitForPlanetEscapeMusicQueue;
     /// <summary>Whether flyaway Mode 7 places priority-zero OBJ behind the ship on BG1.</summary>
-    private static bool UsesFlyawayMode7Priority(EndingCreditsState ending) => ending.Stage.Phase is >= EndingCreditsPhase.PlanetEscapeFast and < EndingCreditsPhase.Credits;
+    private static bool UsesFlyawayFloorPriority(EndingCreditsState ending) => ending.Stage.Phase is >= EndingCreditsPhase.PlanetEscapeFast and < EndingCreditsPhase.Credits;
     /// <summary>Whether the current ending phase draws object actors at all.</summary>
     private static bool EndingObjectsEnabled(EndingCreditsState ending) => !ExplosionWhiteout(ending) && ending.Stage.Phase is not
         (EndingCreditsPhase.PostCreditsCopyright or EndingCreditsPhase.PostCreditsWaitingSamus or EndingCreditsPhase.PostCreditsBlank);
 
     /// <summary>Mode 7 rotation center, shared by atmospheric scenes and changed for flyaway.</summary>
-    private static Offset16<Mode7Pixels> CurrentMode7Center(EndingCreditsState ending) => ending.Stage.Phase < EndingCreditsPhase.PlanetEscapeFast
-        ? new(EndingCreditsRomData.Rendering.AtmosphericMode7Center, EndingCreditsRomData.Rendering.AtmosphericMode7Center)
-        : new(EndingCreditsRomData.Rendering.Mode7CenterX, EndingCreditsRomData.Rendering.Mode7CenterY);
+    private static Offset16<Mode7Pixels> CurrentFloorCenter(EndingCreditsState ending) => ending.Stage.Phase < EndingCreditsPhase.PlanetEscapeFast
+        ? new(EndingCreditsRomData.Rendering.AtmosphericFloorCenter, EndingCreditsRomData.Rendering.AtmosphericFloorCenter)
+        : new(EndingCreditsRomData.Rendering.FloorCenterX, EndingCreditsRomData.Rendering.FloorCenterY);
 
     /// <summary>Whether the phase displays post-credit BG; the armored reward uses OBJ alone.</summary>
     private static bool PostCreditsBackgroundEnabled(EndingCreditsState ending) => ending.Stage.Phase != EndingCreditsPhase.PostCreditsBlank

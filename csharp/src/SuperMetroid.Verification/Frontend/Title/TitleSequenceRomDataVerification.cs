@@ -124,23 +124,23 @@ internal static class TitleSequenceRomDataVerification
         WriteRomWord(rom, TitleGradientRomData.ControlTable + 2, 0x317f);
         WriteRepeatedCompressedStream(
             rom,
-            TitleSequenceRomData.Assets.Mode7CharactersAddress,
-            TitleSequenceRomData.Vram.Mode7CharacterByteCount,
+            TitleSequenceRomData.Assets.FloorCharactersAddress,
+            TitleSequenceRomData.Transfers.FloorCharacterByteCount,
             0);
         WriteRepeatedCompressedStream(
             rom,
-            TitleSequenceRomData.Assets.Mode7MapAddress,
-            TitleSequenceRomData.Vram.Mode7MapByteCount,
+            TitleSequenceRomData.Assets.FloorMapAddress,
+            TitleSequenceRomData.Transfers.FloorMapByteCount,
             0);
         WriteRepeatedCompressedStream(
             rom,
             TitleSequenceRomData.Assets.ObjectCharactersAddress,
-            TitleSequenceRomData.Vram.ObjectCharacterByteCount,
+            TitleSequenceRomData.Transfers.ObjectCharacterByteCount,
             0);
         WriteRepeatedCompressedStream(
             rom,
             TitleSequenceRomData.Assets.BabyMetroidCharactersAddress,
-            TitleSequenceRomData.Vram.BabyCharacterByteCount,
+            TitleSequenceRomData.Transfers.BabyCharacterByteCount,
             0);
 
         WriteConstructedTitleTextList(

@@ -45,7 +45,7 @@ internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeR
     public ScrollingSkyState? ScrollingSky { get; set; }
 
     /// <summary>The Mode 7 map of a Ceres room.</summary>
-    public Mode7Map? Mode7Map { get; set; }
+    public FloorMap? FloorMap { get; set; }
 
     /// <summary>The Landing Site entry, if any.</summary>
     public LandingSiteEntryState? LandingSiteEntry { get; set; }
@@ -121,7 +121,7 @@ internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeR
                 Assets.BlockSheet, Room.State.Background is { } skyProgram ? LoadedArtwork(skyProgram) : RoomLoadArtwork())
             : null,
         ScrollingSky = ScrollingSky,
-        Mode7Map = Mode7Map,
+        FloorMap = FloorMap,
         LandingSiteEntry = LandingSiteEntry,
         Projectiles = Projectiles ?? throw Missing(nameof(Projectiles)),
         BombProjectiles = BombProjectiles ?? throw Missing(nameof(BombProjectiles)),

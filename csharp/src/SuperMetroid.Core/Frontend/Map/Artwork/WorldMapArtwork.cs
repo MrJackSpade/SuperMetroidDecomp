@@ -72,13 +72,6 @@ public sealed class WorldMapArtwork
         _ = SnesPlanarTileEncoder.Encode(back.Pixels, back.Size, 2);
         return new(front.Pixels, back.Pixels);
     }
-    /// <summary>Reconstructs both selected atlases, encodes their row-major 8x8 characters, and loads the foreground 4-bpp and background 2-bpp streams at their fixed VRAM byte offsets.</summary>
-    /// <param name="vram">Destination VRAM receiving both character transfers; this method does not install palette colors or world-map layout words.</param>
-    public void LoadTo(SnesVram vram)
-    {
-        new WorldMapVram(vram).Foreground.Load(ForegroundCharacters());
-        new WorldMapVram(vram).Background.Load(BackgroundCharacters());
-    }
 
     /// <summary>The planar 4-bpp world foreground characters.</summary>
     public byte[] ForegroundCharacters()

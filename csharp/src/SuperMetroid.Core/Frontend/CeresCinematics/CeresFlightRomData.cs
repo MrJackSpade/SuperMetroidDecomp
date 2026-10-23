@@ -9,26 +9,26 @@ public static class CeresFlightRomData
         /// <summary>$8C:E5E9, the 256-color Ceres approach palette.</summary>
         public const int Palette = 0x8ce5e9;
         /// <summary>$95:A82F, compressed Mode-7 character bytes.</summary>
-        public const int Mode7Characters = 0x95a82f;
+        public const int FloorCharacters = 0x95a82f;
         /// <summary>$96:FE69, consecutive front and rear Mode-7 map slices.</summary>
-        public const int Mode7Maps = 0x96fe69;
+        public const int FloorMaps = 0x96fe69;
         /// <summary>$96:D10A, compressed ship/asteroid/colony OBJ characters.</summary>
         public const int ObjectCharacters = 0x96d10a;
     }
 
     /// <summary>Native upload sizes and destinations for Mode 7's separate high-byte character and low-byte map planes, plus the ordinary byte-addressed OBJ transfer.</summary>
-    public static class Vram
+    public static class Transfers
     {
         /// <summary>$8B:BCCD writes 16 KiB through Mode-7's high-byte port.</summary>
-        public const int Mode7CharacterByteCount = 0x4000;
+        public const int FloorCharacterByteCount = 0x4000;
         /// <summary>$8B:BCCD fills the corresponding low-byte map plane with tile $8C.</summary>
-        public const int Mode7MapFillWordCount = 0x4000;
+        public const int FloorMapFillWordCount = 0x4000;
         /// <summary>Character index $8C loaded at $8B:BD1F and written through $2118 to fill the low-byte map plane before replacing the current gunship map slice; not a palette index or fill color.</summary>
-        public const byte Mode7BlankMapTile = 0x8c;
+        public const byte FloorBlankMapTile = 0x8c;
         /// <summary>The front and rear views each replace 32 by 24 low-byte map cells.</summary>
-        public const int Mode7MapSliceByteCount = 0x0300;
+        public const int FloorMapSliceByteCount = 0x0300;
         /// <summary>$0600 decoded bytes containing consecutive $0300-byte front and rear gunship map slices; only one slice is installed at a time.</summary>
-        public const int Mode7MapByteCount = 2 * Mode7MapSliceByteCount;
+        public const int FloorMapByteCount = 2 * FloorMapSliceByteCount;
         /// <summary>$4000 bytes of 4-bpp space/gunship/Ceres OBJ characters, covering 512 8-by-8 tiles; the later Mode-1 SPACE COLONY BG1 caption reuses this transfer.</summary>
         public const int ObjectCharacterByteCount = 0x4000;
     }

@@ -51,7 +51,6 @@ internal static class TextAndMapPresentationContractChecks
                     credits.GetRow(-1);
                     MapSpriteSheet.Draw(mapSheet, MapSpriteId.WorldTitle, objects, default, 0);
                     MapSpriteSheet.Draw(mapSheet, (MapSpriteId)1, objects, default, 0);
-                    sprites.LoadArtworkTo(new PauseVram(vram).ObjectCharacters);
                     arrows.Get(MapScrollDirection.Left);
                     arrows.Get(MapScrollDirection.Down);
                     arrows.Get(MapScrollDirection.None);
@@ -80,11 +79,11 @@ internal static class TextAndMapPresentationContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 24, "all twenty-four calls must first reproduce absent provider adapters" + " (" + before.Describe() + ")");
-        Require(after.Classifications.Count == 15 && after.UnresolvedCount == 9 && after.MissingCount == 0 &&
-            after.Consumers.Count == 24, "supported domains qualify; invalid enums, sparse IDs and rows must remain failing " +
-            "(expected 15/9/0/24; " + after.Describe() + ")");
-        Require(after.ReferenceCount == 15, "each classified call requires its reviewed provider contract" + " (" + after.Describe() + ")");
+        Require(before.UnresolvedCount == 23, "all twenty-three calls must first reproduce absent provider adapters" + " (" + before.Describe() + ")");
+        Require(after.Classifications.Count == 14 && after.UnresolvedCount == 9 && after.MissingCount == 0 &&
+            after.Consumers.Count == 23, "supported domains qualify; invalid enums, sparse IDs and rows must remain failing " +
+            "(expected 14/9/0/23; " + after.Describe() + ")");
+        Require(after.ReferenceCount == 14, "each classified call requires its reviewed provider contract" + " (" + after.Describe() + ")");
     }
 
     /// <summary>Reports a specific text or map provider contract failure.</summary>

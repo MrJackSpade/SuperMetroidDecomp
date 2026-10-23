@@ -16,11 +16,11 @@ internal static class CeresFlightScreenImage
         // $BCCD writes all $4000 character bytes to $2119, fills every corresponding low
         // byte with tile $8C, then overwrites only one view's $300-byte map.
         var mode7 = new Mode7Vram(vram);
-        mode7.LoadCharacters(artwork.Mode7Characters.Span[..CeresFlightRomData.Vram.Mode7CharacterByteCount]);
-        mode7.FillMap(CeresFlightRomData.Vram.Mode7BlankMapTile, CeresFlightRomData.Vram.Mode7MapFillWordCount);
-        int slice = rear ? CeresFlightRomData.Vram.Mode7MapSliceByteCount : 0;
-        mode7.LoadMap(artwork.Mode7Maps.Span.Slice(slice, CeresFlightRomData.Vram.Mode7MapSliceByteCount));
-        new CeresVram(vram).ObjectCharacters.Load(artwork.ObjectCharacters.Span[..CeresFlightRomData.Vram.ObjectCharacterByteCount]);
+        mode7.LoadCharacters(artwork.FloorCharacters.Span[..CeresFlightRomData.Transfers.FloorCharacterByteCount]);
+        mode7.FillMap(CeresFlightRomData.Transfers.FloorBlankMapTile, CeresFlightRomData.Transfers.FloorMapFillWordCount);
+        int slice = rear ? CeresFlightRomData.Transfers.FloorMapSliceByteCount : 0;
+        mode7.LoadMap(artwork.FloorMaps.Span.Slice(slice, CeresFlightRomData.Transfers.FloorMapSliceByteCount));
+        new CeresVram(vram).ObjectCharacters.Load(artwork.ObjectCharacters.Span[..CeresFlightRomData.Transfers.ObjectCharacterByteCount]);
         return vram.CaptureImage();
     }
 

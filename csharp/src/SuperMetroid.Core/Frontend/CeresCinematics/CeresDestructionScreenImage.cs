@@ -23,24 +23,24 @@ internal static class CeresDestructionScreenImage
             {
                 case CeresDestructionUpload.CeresScene:
                     // C11B selects bytes $600-$BFF: the third/fourth 24-row Ceres map pair.
-                    mode7.LoadCharacters(artwork.CeresFlight.Mode7Characters.Span[..CeresDestructionRomData.Vram.Mode7CharacterBytes]);
-                    mode7.FillMap(CeresDestructionRomData.Vram.InitialMode7MapCharacter, CeresDestructionRomData.Vram.Mode7MapCapacityBytes);
-                    mode7.LoadMap(maps.AsSpan(CeresDestructionRomData.Vram.CeresSceneTilemapOffset, CeresDestructionRomData.Vram.CeresSceneTilemapBytes));
-                    ceres.ObjectCharacters.Load(artwork.CeresFlight.ObjectCharacters.Span[..CeresDestructionRomData.Vram.Mode7CharacterBytes]);
+                    mode7.LoadCharacters(artwork.CeresFlight.FloorCharacters.Span[..CeresDestructionRomData.Transfers.FloorCharacterBytes]);
+                    mode7.FillMap(CeresDestructionRomData.Transfers.InitialFloorMapCharacter, CeresDestructionRomData.Transfers.FloorMapCapacityBytes);
+                    mode7.LoadMap(maps.AsSpan(CeresDestructionRomData.Transfers.CeresSceneTilemapOffset, CeresDestructionRomData.Transfers.CeresSceneTilemapBytes));
+                    ceres.ObjectCharacters.Load(artwork.CeresFlight.ObjectCharacters.Span[..CeresDestructionRomData.Transfers.FloorCharacterBytes]);
                     // The final C11B DMA overwrites the first $1A00 OBJ bytes with the standard cinematic sheet at $9A:D200.
-                    ceres.ObjectCharacters.Load(artwork.IntroObjectCharacters.Transfer.Span[..CeresDestructionRomData.Vram.SharedObjectCharacterBytes]);
+                    ceres.ObjectCharacters.Load(artwork.IntroObjectCharacters.Transfer.Span[..CeresDestructionRomData.Transfers.SharedObjectCharacterBytes]);
                     break;
                 case CeresDestructionUpload.FinalExplosionMaps:
                     // State $22 shows the front gunship in the upper rows; state $25 has no gunship and clears them too.
-                    int upperSource = withSamus ? CeresDestructionRomData.Vram.ClearMapSourceOffset : 0;
-                    mode7.LoadMap(maps.AsSpan(upperSource, CeresDestructionRomData.Vram.MapHalfBytes));
-                    mode7.LoadMap(maps.AsSpan(CeresDestructionRomData.Vram.ClearMapSourceOffset, CeresDestructionRomData.Vram.MapHalfBytes),
-                        cell: CeresDestructionRomData.Vram.ClearMapDestinationWord);
+                    int upperSource = withSamus ? CeresDestructionRomData.Transfers.ClearMapSourceOffset : 0;
+                    mode7.LoadMap(maps.AsSpan(upperSource, CeresDestructionRomData.Transfers.MapHalfBytes));
+                    mode7.LoadMap(maps.AsSpan(CeresDestructionRomData.Transfers.ClearMapSourceOffset, CeresDestructionRomData.Transfers.MapHalfBytes),
+                        cell: CeresDestructionRomData.Transfers.ClearMapDestinationWord);
                     break;
                 case CeresDestructionUpload.ZebesReveal:
-                    mode7.LoadMap(maps.AsSpan(CeresDestructionRomData.Vram.MapHalfBytes, CeresDestructionRomData.Vram.MapHalfBytes));
-                    ceres.ZebesTilemap.Load(artwork.CeresDestruction.ZebesMap.Transfer.Span[..CeresDestructionRomData.Vram.ZebesTilemapMinimumBytes]);
-                    ceres.ObjectCharacters.Load(artwork.CeresDestruction.ZebesCharacters.Transfer.Span[..CeresDestructionRomData.Vram.Mode7CharacterBytes]);
+                    mode7.LoadMap(maps.AsSpan(CeresDestructionRomData.Transfers.MapHalfBytes, CeresDestructionRomData.Transfers.MapHalfBytes));
+                    ceres.ZebesTilemap.Load(artwork.CeresDestruction.ZebesMap.Transfer.Span[..CeresDestructionRomData.Transfers.ZebesTilemapMinimumBytes]);
+                    ceres.ObjectCharacters.Load(artwork.CeresDestruction.ZebesCharacters.Transfer.Span[..CeresDestructionRomData.Transfers.FloorCharacterBytes]);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(uploads), upload, "Undefined Ceres destruction upload.");
@@ -57,9 +57,9 @@ internal static class CeresDestructionScreenImage
     /// <summary>The installed Ceres flight and destruction maps joined into the native contiguous transfer source.</summary>
     private static byte[] Tilemaps(IntroCinematicArtworkCatalog artwork)
     {
-        var maps = new byte[CeresDestructionRomData.Vram.CeresMinimumTilemapBytes];
-        artwork.CeresFlight.Mode7Maps.Span.CopyTo(maps);
-        artwork.CeresDestruction.CeresMaps.Span.CopyTo(maps.AsSpan(artwork.CeresFlight.Mode7Maps.Length));
+        var maps = new byte[CeresDestructionRomData.Transfers.CeresMinimumTilemapBytes];
+        artwork.CeresFlight.FloorMaps.Span.CopyTo(maps);
+        artwork.CeresDestruction.CeresMaps.Span.CopyTo(maps.AsSpan(artwork.CeresFlight.FloorMaps.Length));
         return maps;
     }
 }

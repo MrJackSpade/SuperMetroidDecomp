@@ -25,8 +25,8 @@ public static class PauseEquipmentLabelExtractor
                 ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), definition.TilemapPointerTableAddress + item * 2);
                 labels.Add(PauseEquipmentLabelDefinitions.Key(category, item), new()
                 {
-                    Column = ((destination - PauseReserveUiDefinitions.TilemapWramBase) / 2) % PauseEquipmentLabelDefinitions.TilemapColumns,
-                    Row = ((destination - PauseReserveUiDefinitions.TilemapWramBase) / 2) / PauseEquipmentLabelDefinitions.TilemapColumns,
+                    Column = ((destination - PauseMenuCartridgeTables.EquipmentTilemapBase) / 2) % PauseEquipmentLabelDefinitions.TilemapColumns,
+                    Row = ((destination - PauseMenuCartridgeTables.EquipmentTilemapBase) / 2) / PauseEquipmentLabelDefinitions.TilemapColumns,
                     Cells = ReadCells(bus, source, definition.LabelWordCount,
                         PauseEquipmentLabelDefinitions.Key(category, item)),
                 });

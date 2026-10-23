@@ -173,7 +173,7 @@ internal static class CeresSaveStartupVerification
             "#1275 accepted NMIs keep counting through the game-over menu");
         var probeMenu = gameOverProbe.Session.ScreenAs<GameOverMenuState>();
         (probeMenu ?? throw new InvalidOperationException("Verification requires probeMenu.")).Phase = GameOverMenuPhase.Main;
-        probeMenu.ResumesAfterNmiWait = false;
+        probeMenu.ResumesAfterFrameWait = false;
         gameOverProbe.Step(0);
         gameOverProbe.Step(SnesButton.A);
         AssertEqual(SuperMetroidGameState.SetUpNewGame, gameOverProbe.GameState,

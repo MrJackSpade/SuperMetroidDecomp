@@ -11,7 +11,7 @@ public static class EndingCreditsRomData
     /// $8B:D484-$D48C: <c>CinematicFunction_Ending_Setup</c> loads X=8 and calls WaitForNMI
     /// until DEX/BPL falls through, nine NMI waits before its PPU and scene setup.
     /// </summary>
-    public const int SetupNmiWaits = 9;
+    public const int SetupFrameWaits = 9;
 
     /// <summary>Native palette images and compressed artwork sources used to import ending and credits presentation assets.</summary>
     public static class Assets
@@ -42,11 +42,11 @@ public static class EndingCreditsRomData
         /// EscapeB: $8B:D775/D604; explosion: $8B:D87B/D615. Each pair is the
         /// high-byte character lane followed by the packed low-byte map source.
         /// The legacy Map/Characters constant names are inverted relative to these lanes.</summary>
-        public static EndingMode7Sources Mode7Sources(EndingMode7SceneId id) => id switch
+        public static EndingFloorSources FloorSources(EndingFloorSceneId id) => id switch
         {
-            EndingMode7SceneId.EscapeA => new EndingMode7Sources(EscapeMapA, EscapeCharactersA),
-            EndingMode7SceneId.EscapeB => new EndingMode7Sources(EscapeMapB, EscapeCharactersB),
-            EndingMode7SceneId.PlanetExplosion => new EndingMode7Sources(ExplosionMap, ExplosionCharacters),
+            EndingFloorSceneId.EscapeA => new EndingFloorSources(EscapeMapA, EscapeCharactersA),
+            EndingFloorSceneId.EscapeB => new EndingFloorSources(EscapeMapB, EscapeCharactersB),
+            EndingFloorSceneId.PlanetExplosion => new EndingFloorSources(ExplosionMap, ExplosionCharacters),
             _ => throw new ArgumentOutOfRangeException(nameof(id)),
         };
         /// <summary>$8B:D56C decompresses the explosion OBJ sheet into $7F:8000.</summary>
@@ -81,7 +81,7 @@ public static class EndingCreditsRomData
         /// <summary>$97:96F4, Samus_Waiting_for_Credits_to_End_Tilemap: compressed BG2 map accompanying the waiting-Samus sheet.</summary>
         public const int WaitingForCreditsTilemap = 0x9796f4;
         /// <summary>$97:F987, InterleavedTilesTilemapPostCreditsSamusBeamMode7: compressed interleaved Mode 7 beam artwork, separate from the suited reward sheet.</summary>
-        public const int PostCreditsMode7Characters = 0x97f987;
+        public const int PostCreditsFloorCharacters = 0x97f987;
         /// <summary>$99:DA9F, Tiles_PostCredits_Samus_Transformation_Effect: compressed BG3 transformation characters uploaded at VRAM byte $4000.</summary>
         public const int PostCreditsTileFragmentA = 0x99da9f;
         /// <summary>$99:DAB1, PostCredits_Samus_Transformation_Effect_Tilemap: compressed BG3 transformation tilemap uploaded at VRAM byte $4800.</summary>
@@ -100,11 +100,11 @@ public static class EndingCreditsRomData
         /// <summary>$8B:E1D2 additionally clears byte-index $01C0 for the helmetless suited body.</summary>
         public const int SuitedRewardPaletteStart = 224;
         /// <summary>Ending bank-$8B Mode-7 projection center X, in physical map pixels.</summary>
-        public const short Mode7CenterX = 56;
+        public const short FloorCenterX = 56;
         /// <summary>Ending bank-$8B Mode-7 projection center Y, in physical map pixels.</summary>
-        public const short Mode7CenterY = 24;
+        public const short FloorCenterY = 24;
         /// <summary>$8B:D4xx/$D8xx atmospheric/explosion setup writes M7X and M7Y to $0080.</summary>
-        public const short AtmosphericMode7Center = 128;
+        public const short AtmosphericFloorCenter = 128;
         /// <summary>Ending OBSEL=$02 selects the escape/explosion OBJ character base.</summary>
         public const byte EscapeObjectSelection = 2;
         /// <summary>$8B:8293 initializes OBSEL=$A3 for the atmospheric cloud scenes.</summary>
@@ -134,7 +134,7 @@ public static class EndingCreditsRomData
         /// <summary>VRAM word address $5000 for BG2 waiting-Samus characters loaded by the post-credits setup.</summary>
         public const ushort WaitingCharacterWord = 0x5000;
         /// <summary>Size in bytes of one complete ending Mode 7 lane, also used for the full reward character sheet.</summary>
-        public const int Mode7Bytes = 0x4000;
+        public const int FloorBytes = 0x4000;
         /// <summary>$8B:DAD3 table stride and Func118 queue transfer size.</summary>
         public const int FlyawayUploadBytes = 0x0800;
         /// <summary>$8B:D56C preserves the first $0300 map bytes and fills the remainder with tile $8C.</summary>

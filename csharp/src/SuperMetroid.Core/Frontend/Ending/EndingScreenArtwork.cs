@@ -9,5 +9,5 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <param name="Objects">The ending's OBJ sheets, fragments and post-credits art.</param>
 /// <param name="Font">The ending font.</param>
 /// <param name="Reward">The post-credits reward, which selects the reward characters.</param>
-internal sealed record EndingScreenArtwork(EndingMode7ArtworkCatalog? Mode7, CeresFlightArtworkCatalog? Flight,
+internal sealed record EndingScreenArtwork(EndingFloorArtworkCatalog? Mode7, CeresFlightArtworkCatalog? Flight,
     EndingObjectArtworkCatalog? Objects, EndingFontAtlas? Font, EndingReward Reward);

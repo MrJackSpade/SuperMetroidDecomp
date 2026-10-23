@@ -59,11 +59,6 @@ public static class PauseSelectorDefinitions
         };
         return new(checked((ushort)(x - 1)), checked((ushort)(y + item * 8 - 1)));
     }
-    /// <summary>$82:C202 bases: Reserve=$14, Beam=$15, Suit and Boots=$16. Retained as diagnostic identities.</summary>
-    public static ushort NativeSpriteId(PauseEquipmentCategory category) => category switch
-    { PauseEquipmentCategory.Reserves => 0x14, PauseEquipmentCategory.Beams => 0x15,
-        PauseEquipmentCategory.Suits or PauseEquipmentCategory.Boots => 0x16,
-        _ => throw new InvalidOperationException($"Undefined PauseEquipmentCategory {category}.") };
     /// <summary>Selects the visual animation role for an equipment category, sharing the Equipment role between suit/miscellaneous items and boots.</summary>
     /// <param name="category">Native equipment category: 0 reserves, 1 beams, 2 suit/miscellaneous items, or 3 boots.</param>
     /// <returns><c>Reserve</c>, <c>Beam</c>, or <c>Equipment</c>.</returns>

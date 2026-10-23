@@ -117,7 +117,7 @@ public sealed record GameInstallation(string Root)
     /// <summary>Ending scene art edits remain outside replaceable stock content.</summary>
     public string EndingMode7OverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EndingMode7DirectoryName);
     /// <summary>Loads validated ending Mode 7 artwork and compatible scene replacements from the persistent override tree.</summary>
-    public EndingMode7ArtworkCatalog LoadEndingMode7Art() =>
+    public EndingFloorArtworkCatalog LoadEndingMode7Art() =>
         EndingMode7ArtworkFiles.Load(EndingMode7Directory, EndingMode7OverrideDirectory);
     /// <summary>Stock ending sprite artwork under the replaceable content tree.</summary>
     public string EndingObjectDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingObjectDirectoryName);
@@ -435,7 +435,7 @@ public sealed record GameInstallation(string Root)
             StandardObjectArt = LoadStandardObjects(),
             IntroCinematicArt = LoadIntroCinematicArt(),
             SamusBodyArt = LoadSamusBodyArt(),
-            EndingMode7Art = LoadEndingMode7Art(),
+            EndingFloorArt = LoadEndingMode7Art(),
             EndingObjectArt = LoadEndingObjectArt(),
             EndingPaletteArt = LoadEndingPalettes(),
             RoomCharacterArt = LoadRoomCharacters(),

@@ -47,10 +47,10 @@ internal static class CeresRidleyGetawayDefinitionsVerification
             int cursor = 0xa60000 | (ushort)pointer;
             var expectedVram = new byte[SnesVram.ByteCount];
             Array.Fill(expectedVram, (byte)0x5a);
-            var seed = new byte[Mode7Map.Cells];
+            var seed = new byte[FloorMap.Cells];
             for (int cell = 0; cell < seed.Length; cell++)
                 seed[cell] = expectedVram[cell * 2];
-            var actual = new Mode7Map(seed, default, RoomBackgroundsFixtures.Mode7Tiles());
+            var actual = new FloorMap(seed, default, RoomBackgroundsFixtures.FloorTiles());
             foreach (CeresMode7Transfer transfer in compiled)
             {
                 AssertEqual((byte)0x80, rom.ReadCartridgeByte(cursor),

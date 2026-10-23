@@ -1261,7 +1261,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         RoomLevelData level,
         SamusState? samus,
         Position16<RoomPixels> camera = default,
-        int? nmiFrameCounter8 = null,
+        int? frameCounterByte = null,
         SamusBombProjectileSystem? samusBombs = null,
         BackgroundScrollState? backgroundScroll = null,
         int? nmiFrameCounter = null)
@@ -1271,7 +1271,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         PrePhantoonRoomBehavior.BindBackgroundScroll(backgroundScroll);
         DeathsAndDrops.LastEnemyPickupSoundEffect = null;
         DeathsAndDrops.LastEnemyDeathSoundEffectLibrary2 = null;
-        Projectiles.RunPass(level, samus, camera, nmiFrameCounter8, samusBombs, nmiFrameCounter);
+        Projectiles.RunPass(level, samus, camera, frameCounterByte, samusBombs, nmiFrameCounter);
     }
 
     /// <summary>

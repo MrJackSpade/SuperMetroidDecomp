@@ -1,14 +1,17 @@
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.Core.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>
-/// Composes the pause screen's published artwork and tilemaps into the memory image the backends draw (#1358): the map,
-/// pause interface, menu OBJ and HUD characters at their native words, and the BG1, BG2 and BG3 tilemaps over them.
+/// The memory image the cartridge's pause screen holds (#1404): the map, pause interface, menu OBJ and HUD characters at
+/// the words <c>GameState_13</c> uploads them to, and the BG1, BG2 and BG3 tilemaps over them. The screen keeps no such
+/// image; verification composes it to compare against native VRAM.
 /// </summary>
-[PpuLayoutBoundary("codec: the pause screen's characters and tilemaps at their native words")]
-internal static class PauseScreenImage
+[PpuLayoutBoundary("exact hardware test: the pause screen's characters and tilemaps at their native words")]
+internal static class PauseScreenMemory
 {
     /// <summary>The character image of <paramref name="artwork"/>, as <c>GameState_13</c> uploads it.</summary>
     internal static byte[] Characters(AreaMapPresentationCatalog artwork)
@@ -26,7 +29,7 @@ internal static class PauseScreenImage
     internal static byte[] Compose(PauseScreen screen)
     {
         var image = new SnesVram();
-        image.LoadBytes(0, screen.Characters);
+        image.LoadBytes(0, Characters(screen.Artwork));
         var pause = new PauseVram(image);
         pause.Bg1Tilemap.Write(screen.Tilemaps.Bg1);
         pause.Bg2Tilemap.Write(screen.Tilemaps.Bg2);
@@ -34,6 +37,10 @@ internal static class PauseScreenImage
         return image.CaptureImage();
     }
 
-    /// <summary>What <paramref name="screen"/> paints with: its palette and sprite entries.</summary>
-    internal static FramePaint Capture(PauseScreen screen) => new(screen.Palette.Colors, screen.Objects.Draws);
+    /// <summary>Reads a pause screen's memory image.</summary>
+    extension(PauseScreen self)
+    {
+        /// <summary>The character image of the screen's bound artwork.</summary>
+        internal byte[] Characters => Characters(self.Artwork);
+    }
 }

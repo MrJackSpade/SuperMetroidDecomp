@@ -27,7 +27,7 @@ internal static void VerifyCeresDestructionCinematic()
         "Ceres destruction typed approach angle");
     AssertTrue(
         (CeresVramLayout.ObjectCharacters.Offset * 2) +
-            CeresDestructionRomData.Vram.Mode7CharacterBytes <= SnesVram.ByteCount,
+            CeresDestructionRomData.Transfers.FloorCharacterBytes <= SnesVram.ByteCount,
         "Ceres destruction OBJ transfer fits VRAM");
 
     // Ceres' five initial explosions share one program but seed instruction timers 1/16/32/48/64.
@@ -81,13 +81,13 @@ internal static void VerifyCeresDestructionCinematic()
     var state = new CeresDestructionCinematicState(fixedColors: presentation.PowerBombFixedColors, artwork: artwork,
         paletteFxColors: presentation.RoomPaletteFx, spriteSheets: CinematicSheetFixtures.WithIntro(artwork));
     // $8B:C11B's first dispatch waits for nine NMIs; the ninth resume sets the scene up.
-    for (int wait = 0; wait < CeresDestructionRomData.InitialNmiWaits; wait++)
+    for (int wait = 0; wait < CeresDestructionRomData.InitialFrameWaits; wait++)
     {
         state.Step();
-        AssertTrue(state.ResumesAfterNmiWait, "Ceres initializer resumes after each of its NMI waits");
+        AssertTrue(state.ResumesAfterFrameWait, "Ceres initializer resumes after each of its NMI waits");
     }
     state.Step();
-    AssertTrue(!state.ResumesAfterNmiWait, "Ceres initializer returns to the main loop after setup");
+    AssertTrue(!state.ResumesAfterFrameWait, "Ceres initializer returns to the main loop after setup");
     AssertEqual(CeresDestructionPhase.WaitForMusicQueue, state.Phase,
         "Ceres destruction initial music-queue phase");
     AssertEqual((byte)0x22, state.ReadMode7MapByte(0x0000),

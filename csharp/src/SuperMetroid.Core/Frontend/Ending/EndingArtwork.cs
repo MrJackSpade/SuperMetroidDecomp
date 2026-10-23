@@ -74,7 +74,7 @@ internal sealed class EndingArtwork
     {
         byte[] clouds = (_stage.ObjectArtwork ?? throw new InvalidOperationException(
             "Escape clouds require installed object artwork.")).Clouds.Transfer.ToArray();
-        EndingStage.RequireMinimum(clouds, EndingCreditsRomData.Rendering.Mode7Bytes, "escape cloud characters");
+        EndingStage.RequireMinimum(clouds, EndingCreditsRomData.Rendering.FloorBytes, "escape cloud characters");
         screen.Record(EndingUploadKind.EscapeClouds, 0);
     }
 
@@ -149,7 +149,7 @@ internal sealed class EndingArtwork
         byte[] result = _stage.EndingReward == EndingReward.Suitless
             ? artwork.SuitlessSamus.Transfer.ToArray()
             : waiting;
-        EndingStage.RequireMinimum(waiting, EndingCreditsRomData.Rendering.Mode7Bytes,
+        EndingStage.RequireMinimum(waiting, EndingCreditsRomData.Rendering.FloorBytes,
             "waiting-Samus characters");
         EndingStage.RequireMinimum(shooting, EndingCreditsRomData.Rendering.ShootingCharacterBytes,
             "post-credits OBJ characters");
@@ -159,7 +159,7 @@ internal sealed class EndingArtwork
             "post-credits tile fragment A");
         EndingStage.RequireMinimum(fragmentB, EndingCreditsRomData.Rendering.ObjectFragmentBytes,
             "post-credits tile fragment B");
-        EndingStage.RequireMinimum(result, EndingCreditsRomData.Rendering.Mode7Bytes,
+        EndingStage.RequireMinimum(result, EndingCreditsRomData.Rendering.FloorBytes,
             "post-credits reward characters");
         // Function 126 selects suitless (<3h) or suited (>=3h) art; the
         // latter deliberately reuses the waiting-scene sheet, not Mode-7 art.

@@ -34,7 +34,7 @@ internal static class EndingRewardGestureVerification
         var rewardArtwork = new EndingScreenArtwork(RepositoryInstallation.Installation.LoadEndingMode7Art(), null, null, null, EndingReward.Armored);
         var graphicsScreen = new EndingScreen();
         byte[] expectedGraphics = RomDataReader.Decompress(bus,
-            EndingCreditsRomData.Assets.PostCreditsMode7Characters,
+            EndingCreditsRomData.Assets.PostCreditsFloorCharacters,
             EndingCreditsRomData.Rendering.DecompressionLimit);
         for (int chunk = 0; chunk < 16; chunk++)
         {

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Hardware;
@@ -49,27 +50,28 @@ internal static class PauseScreenPublicationVerification
     private static void AssertPublished(PauseMenuState pause, string page)
     {
         PauseScreen screen = pause.screen;
-        PpuMemorySnapshot memory = pause.CaptureRenderSnapshot().Memory;
-        AssertWords(memory, PauseMenuLayout.Bg1TilemapWord, screen.Tilemaps.Bg1, $"{page} BG1");
-        AssertWords(memory, PauseMenuLayout.Bg2TilemapWord, screen.Tilemaps.Bg2, $"{page} BG2");
-        AssertWords(memory, GameplayVramLayout.HudTilemapWord, screen.Tilemaps.Bg3, $"{page} BG3");
+        FramePaint memory = pause.CaptureRenderSnapshot().Paint;
+        byte[] vram = pause.ShownVram();
+        AssertWords(vram, PauseMenuLayout.Bg1TilemapWord, screen.Tilemaps.Bg1, $"{page} BG1");
+        AssertWords(vram, PauseMenuLayout.Bg2TilemapWord, screen.Tilemaps.Bg2, $"{page} BG2");
+        AssertWords(vram, GameplayVramLayout.HudTilemapWord, screen.Tilemaps.Bg3, $"{page} BG3");
         int tilemapsFirst = PauseMenuLayout.Bg1TilemapWord * sizeof(ushort);
         int tilemapsEnd = (PauseMenuLayout.Bg2TilemapWord + screen.Tilemaps.Bg2.Length) * sizeof(ushort);
-        AssertTrue(memory.Vram[..tilemapsFirst].SequenceEqual(screen.Characters[..tilemapsFirst]) &&
-            memory.Vram[tilemapsEnd..(GameplayVramLayout.HudTilemapWord * sizeof(ushort))]
+        AssertTrue(vram.AsSpan(0, tilemapsFirst).SequenceEqual(screen.Characters[..tilemapsFirst]) &&
+            vram.AsSpan(tilemapsEnd, GameplayVramLayout.HudTilemapWord * sizeof(ushort) - tilemapsEnd)
                 .SequenceEqual(screen.Characters[tilemapsEnd..(GameplayVramLayout.HudTilemapWord * sizeof(ushort))]),
             $"{page} draws its bound characters");
-        AssertTrue(memory.Cgram.SequenceEqual(screen.Palette.Colors), $"{page} draws its own palette");
+        AssertTrue(memory.Colors.SequenceEqual(screen.Palette.Colors), $"{page} draws its own palette");
         AssertTrue(screen.Objects.Draws.Length > 0 && memory.SpriteDraws.SequenceEqual(screen.Objects.Draws), $"{page} draws its own sprite entries");
     }
 
-    /// <summary>Asserts that the words from <paramref name="firstWord"/> are exactly <paramref name="expected"/>.</summary>
-    private static void AssertWords(PpuMemorySnapshot memory, int firstWord, ReadOnlySpan<ushort> expected, string context)
+    /// <summary>Asserts that the words of <paramref name="vram"/> from <paramref name="firstWord"/> are exactly <paramref name="expected"/>.</summary>
+    private static void AssertWords(byte[] vram, int firstWord, ReadOnlySpan<ushort> expected, string context)
     {
         for (int word = 0; word < expected.Length; word++)
         {
             int at = (firstWord + word) * sizeof(ushort);
-            AssertEqual(expected[word], SnesLittleEndian.Word(memory.Vram[at], memory.Vram[at + 1]), $"{context} word {word}");
+            AssertEqual(expected[word], SnesLittleEndian.Word(vram[at], vram[at + 1]), $"{context} word {word}");
         }
     }
 

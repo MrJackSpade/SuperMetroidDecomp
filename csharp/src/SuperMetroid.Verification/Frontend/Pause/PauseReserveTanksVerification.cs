@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -37,6 +38,7 @@ internal static class PauseReserveTanksVerification
                 pause.Step(0, 0, nmiFrameCounter8: phase);
                 var actual = pause.Render();
                 var capture = pause.CaptureRenderSnapshot();
+                byte[] captureVram = pause.ShownVram();
                 var native = new OamBuffer();
                 native.BeginFrame();
                 int tank = 0;
@@ -53,7 +55,7 @@ internal static class PauseReserveTanksVerification
                 if (capacity != 0) Draw(0x1f, tank);
                 native.FinalizeFrame();
                 byte[] objects = native.LowTable.ConcatToArray(native.HighTable);
-                var memory = PpuMemorySnapshot.FromOam(capture.Memory.Vram, capture.Memory.Cgram, objects, native.LastFinalizedSpriteCount, PauseMenuLayout.ObjectSelection);
+                var memory = FramePaint.FromOam(captureVram, capture.Paint.Colors, objects, native.LastFinalizedSpriteCount, PauseMenuLayout.ObjectSelection);
                 var expected = SoftwareLayeredSnapshotRenderer.Render(new(memory, capture.Layers, capture.Brightness));
                 // This rectangle encloses the tank strip and end-cap, but not the
                 // independently animated equipment selector. BG remains identical.

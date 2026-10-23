@@ -6,18 +6,8 @@ namespace SuperMetroid.Core.Rendering;
 /// <summary>Room and enemy definition values used by CanXrayShowBlocks ($91:D143).</summary>
 public static class XrayRoomDisplayRules
 {
-    /// <summary>True for the two rooms $91:D143 excludes; every other room is unaffected.</summary>
-    public static bool IsExcludedRoom(RoomHeaderDefinition room) =>
-        room == RoomHeaderDefinitions.Statues || room == RoomHeaderDefinitions.GlassTunnel;
-
     /// <summary>True only for the excluded room whose preserved display also drops BG2 ($88:81A4).</summary>
     public static bool RemovesBg2(RoomHeaderDefinition room) => room == RoomHeaderDefinitions.GlassTunnel;
-    /// <summary>
-    /// Native CheckIfXrayShouldShowAnyBlocks ($91:D158-D172): five equality
-    /// branches on the active enemy-header boss identity preserve the room background.
-    /// These are control-flow cases, not an indexed sequence or numerical progression.
-    /// </summary>
-    private static bool PreservesBossBackground(int bossId) => bossId is 3 or 6 or 7 or 8 or 10;
     /// <summary>$91:D2BC installs RGB5(3,3,3) as CGRAM entry zero after setup.</summary>
     public static Bgr555 ActiveBackdrop => new(3, 3, 3);
 
@@ -36,7 +26,7 @@ public static class XrayRoomDisplayRules
     public static XrayRoomBlendMode Select(RoomHeaderDefinition room, RoomFxType fx, int bossId)
     {
         if (fx == RoomFxType.Fireflea) return XrayRoomBlendMode.Fireflea;
-        if (IsExcludedRoom(room) || PreservesBossBackground(bossId))
+        if (!XrayBlockRevealRules.RevealsBlocks(room, bossId))
             return XrayRoomBlendMode.PreserveBackgrounds;
         return XrayRoomBlendMode.RevealBlocks;
     }

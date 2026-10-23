@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -52,9 +53,11 @@ internal static class EndingRewardIconArtworkVerification
             {
                 jumpFrames++;
                 LayeredRenderSnapshot expected = EndingCreditsPresentation.CaptureRenderSnapshot(nativeScene);
+                byte[] expectedVram = nativeScene.ShownVram();
                 LayeredRenderSnapshot actual = EndingCreditsPresentation.CaptureRenderSnapshot(installedScene);
-                AssertTrue(actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
-                        actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
+                byte[] actualVram = installedScene.ShownVram();
+                AssertTrue(actualVram.SequenceEqual(expectedVram) &&
+                        actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
                         SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
                             SoftwareLayeredSnapshotRenderer.Render(expected)),
                     $"reward icon preserves native partial-upload VRAM and pixels at jump frame {jumpFrames}");
@@ -72,7 +75,7 @@ internal static class EndingRewardIconArtworkVerification
             "reward icon integration covers the full native jump and landing upload interval");
         AssertEqual(0, installedBus.ForbiddenReadAttempts,
             "installed reward icon never rereads its compressed cartridge stream");
-        AssertTrue(EndingCreditsPresentation.CaptureRenderSnapshot(installedScene).Memory.Vram
+        AssertTrue(installedScene.ShownVram()
                 [..EndingRewardIconArtworkFormat.TransferBytes].SequenceEqual(
                     stock.RewardIcon.Transfer.Span),
             "all sixteen native landing chunks reconstruct the installed icon image");
@@ -144,13 +147,15 @@ internal static class EndingRewardIconArtworkVerification
                 AssertEqual(EndingCreditsPhase.PostCreditsJump, scene.Stage.Phase,
                     $"{name} override fixture remains in the native landing upload");
                 LayeredRenderSnapshot before = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
+                byte[] beforeVram = scene.ShownVram();
                 scene.Stage.BindMode7Artwork(edited);
                 // The ending draws its Mode 7 characters from the sheets the edited art composes (#1392).
                 scene.InstalledArtwork.BindSpriteSheets(EndingSheetFixtures.WithEndingMode7(edited));
                 LayeredRenderSnapshot rebound = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
+                byte[] reboundVram = scene.ShownVram();
                 AssertTrue(scene.Stage.Phase == EndingCreditsPhase.PostCreditsJump &&
-                        before.Memory.Cgram.SequenceEqual(rebound.Memory.Cgram) &&
-                        !before.Memory.Vram.SequenceEqual(rebound.Memory.Vram),
+                        before.Paint.Colors.SequenceEqual(rebound.Paint.Colors) &&
+                        !beforeVram.SequenceEqual(reboundVram),
                     $"{name} rebind replaces completed chunks without resetting the jump");
                 for (int frame = 0; frame < 400 &&
                     scene.Stage.Phase != EndingCreditsPhase.PostCreditsShot; frame++)
@@ -160,7 +165,7 @@ internal static class EndingRewardIconArtworkVerification
                 }
                 AssertEqual(EndingCreditsPhase.PostCreditsShot, scene.Stage.Phase,
                     $"{name} edited icon reaches the native shooting phase");
-                AssertTrue(EndingCreditsPresentation.CaptureRenderSnapshot(scene).Memory.Vram
+                AssertTrue(scene.ShownVram()
                         [..EndingRewardIconArtworkFormat.TransferBytes]
                         .SequenceEqual(edited.RewardIcon.Transfer.Span),
                     $"{name} supplies every final native upload byte");

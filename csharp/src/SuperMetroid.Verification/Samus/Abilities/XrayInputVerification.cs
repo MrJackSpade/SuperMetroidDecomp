@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -60,7 +61,7 @@ internal static class XrayInputVerification
                 {
                     AssertTrue(((GameplayColorMathRenderLayer)startup.Layers[0]).Lines.All(line => line.Left > line.Right),
                         "setup keeps the beam closed while copying tilemaps");
-                    AssertEqual(frame == 7 ? XrayRoomDisplayRules.ActiveBackdrop : Bgr555.Black, startup.Memory.Cgram[0],
+                    AssertEqual(frame == 7 ? XrayRoomDisplayRules.ActiveBackdrop : Bgr555.Black, startup.Paint.Colors[0],
                         "only setup stage eight installs the X-ray backdrop");
                 }
             }
@@ -92,15 +93,16 @@ internal static class XrayInputVerification
         var pixels = SoftwareLayeredSnapshotRenderer.Render(captured);
         AssertTrue(reveal.RevealBlocks, "ordinary X-ray room selects terrain revelation");
         AssertEqual((byte)0x73, (byte)reveal.ColorMath, "native reveal-room CGADSUB");
-        AssertEqual(XrayRoomDisplayRules.ActiveBackdrop, captured.Memory.Cgram[0], "setup backdrop reaches the packet");
+        AssertEqual(XrayRoomDisplayRules.ActiveBackdrop, captured.Paint.Colors[0], "setup backdrop reaches the packet");
+        // BG2 shows the setup-owned reveal map, as the blocks its words lay out (#1403).
         var frozenMap = XraySetupMemory.ReadReveal(runtime.Xray);
-        for (int i = 0; i < frozenMap.Length; i++)
-        {
-            int offset = (GameplayVramLayout.Bg2TilemapWord + i) * 2;
-            AssertEqual(frozenMap[i], SnesLittleEndian.Word(captured.Memory.Vram[offset], captured.Memory.Vram[offset + 1]), "captured BG2 is the setup-owned reveal map");
-        }
+        RevealedBlock?[] frozenBlocks = XrayRevealPlane.BlocksOf(frozenMap,
+            new RevealedBlockIndex(runtime.Room.LoadedLevelData.ForegroundPlane.Definitions));
+        XrayRevealPlane shownReveal = reveal.Gameplay.Rooms.XrayReveal
+            ?? throw new InvalidOperationException("The captured X-ray frame shows no reveal.");
+        AssertTrue(Enumerable.SequenceEqual(shownReveal.Blocks.ToArray(), frozenBlocks), "captured BG2 is the setup-owned reveal map");
 
-        byte[] beforeRelease = captured.Memory.Vram.ToArray();
+        RevealedBlock?[] beforeRelease = shownReveal.Blocks.ToArray();
         runtime.StepFrame(0);
         var releaseEdge = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertTrue(releaseEdge.Layers[0] is GameplayColorMathRenderLayer,
@@ -114,7 +116,7 @@ internal static class XrayInputVerification
             AssertTrue(restoring.Layers[0] is GameplayColorMathRenderLayer, "BG2 restore retains X-ray layer ownership");
             AssertTrue(((GameplayColorMathRenderLayer)restoring.Layers[0]).Lines.All(line => line.Left > line.Right),
                 "deactivation closes the beam while BG2 restore completes");
-            AssertEqual(0, restoring.Memory.Cgram[0], "deactivation resets the backdrop before unfreezing");
+            AssertEqual(0, restoring.Paint.Colors[0], "deactivation resets the backdrop before unfreezing");
         }
         runtime.StepFrame(0);
         AssertTrue(!runtime.Freeze.TimeIsFrozen, "phase five releases gameplay time");
@@ -129,8 +131,8 @@ internal static class XrayInputVerification
             "release removes the X-ray display window");
         AssertTrue(pixels.SequenceEqual(RenderForComparison(captured)),
             "a queued X-ray frame remains immutable after gameplay resumes");
-        AssertTrue(beforeRelease.SequenceEqual(captured.Memory.Vram.ToArray()),
-            "a queued X-ray frame retains its reveal memory after gameplay resumes");
+        AssertTrue(Enumerable.SequenceEqual(beforeRelease, captured.LayersOf<GameplayColorMathRenderLayer>().Single().Gameplay.Rooms.XrayReveal?.Blocks.ToArray() ?? []),
+            "a queued X-ray frame retains its reveal after gameplay resumes");
         foreach (RoomHeaderDefinition excludedRoom in new[] { RoomHeaderDefinitions.Statues, RoomHeaderDefinitions.GlassTunnel })
         {
             runtime.LoadCartridgeRoomForDebug(excludedRoom);
@@ -147,7 +149,9 @@ internal static class XrayInputVerification
             var excludedFrame = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
             var excluded = (GameplayColorMathRenderLayer)excludedFrame.Layers[0];
             AssertTrue(!excluded.RevealBlocks, "native excluded room never substitutes the reveal map");
-            AssertTrue(baseFrame.Memory.Vram.SequenceEqual(excludedFrame.Memory.Vram), "excluded room retains original VRAM");
+            var baseRooms = ((OrdinaryGameplayRenderLayer)baseFrame.Layers[0]).Rooms;
+            AssertTrue(excluded.Gameplay.Rooms.XrayReveal is null && excluded.Gameplay.Rooms.Bg2 == baseRooms.Bg2
+                    && excluded.Gameplay.Rooms.Bg2Image == baseRooms.Bg2Image, "excluded room retains the room's own BG2");
             AssertTrue((excluded.ColorMath & SnesColorMathControl.Obj) == 0, "excluded-room CGADSUB leaves Samus color unchanged");
             AssertEqual(excludedRoom != RoomHeaderDefinitions.GlassTunnel,
                 excluded.Gameplay.View.MainScreenLayers.HasFlag(SnesMainScreenLayers.Bg2), "CEFB alone removes BG2");

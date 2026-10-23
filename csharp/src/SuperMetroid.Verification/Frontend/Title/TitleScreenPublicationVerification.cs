@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Title;
@@ -31,18 +32,19 @@ internal static class TitleScreenPublicationVerification
         for (int frame = 0; frame < 9 * TitleSequenceRomData.Timing.BabyFrameDuration; frame++)
         {
             Mode7ObjRenderSnapshot snapshot = title.CaptureRenderSnapshot();
+            byte[] snapshotVram = title.ShownVram();
             var shownBytes = new byte[pageBytes];
             for (int pixel = 0; pixel < pageBytes; pixel++)
-                shownBytes[pixel] = snapshot.Memory.Vram[(TitleVramLayout.BabyMetroidCharacters.Offset + pixel) * 2 + 1];
+                shownBytes[pixel] = snapshotVram[(TitleVramLayout.BabyMetroidCharacters.Offset + pixel) * 2 + 1];
             int page = Enumerable.Range(0, 3).Single(candidate => baby.AsSpan(candidate * pageBytes, pageBytes).SequenceEqual(shownBytes));
             if (shownPages.Count == 0 || shownPages[^1] != page)
                 shownPages.Add(page);
-            AssertTrue(snapshot.Memory.Cgram.SequenceEqual(title.palette.Colors), $"frame {frame} draws the title's own palette");
-            AssertTrue(snapshot.Memory.SpriteDraws.SequenceEqual(title.objects.Draws), $"frame {frame} draws the title's own sprite entries");
-            foreach (var draw in snapshot.Memory.SpriteDraws)
+            AssertTrue(snapshot.Paint.Colors.SequenceEqual(title.palette.Colors), $"frame {frame} draws the title's own palette");
+            AssertTrue(snapshot.Paint.SpriteDraws.SequenceEqual(title.objects.Draws), $"frame {frame} draws the title's own sprite entries");
+            foreach (var draw in snapshot.Paint.SpriteDraws)
                 AssertTrue(draw is ImageSpriteDraw image && ReferenceEquals(titleSheet.Image, image.Image.Sheet),
                     $"frame {frame} sprite entries draw from the title sheet");
-            drewSprites |= snapshot.Memory.SpriteDraws.Length > 0;
+            drewSprites |= snapshot.Paint.SpriteDraws.Length > 0;
             title.Step(0);
         }
         AssertTrue(drewSprites, "the title cards place sprite entries");

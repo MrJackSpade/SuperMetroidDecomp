@@ -35,8 +35,6 @@ internal static class D3D11ShaderLayout
     internal const string DisplayVertexResourceName = "SuperMetroid.Shaders.DisplayVertex.cso";
     /// <summary>Embedded pixel shader for presenting the composed frame.</summary>
     internal const string DisplayPixelResourceName = "SuperMetroid.Shaders.DisplayPixel.cso";
-    /// <summary>Number of 32-bit upload words occupied by the VRAM snapshot.</summary>
-    internal const int VramPackedWords = Core.Hardware.SnesPpuLayout.VramByteCount / sizeof(uint);
-    /// <summary>Total upload words needed for VRAM and one word per CGRAM color.</summary>
-    internal const int PpuMemoryWords = VramPackedWords + Core.Hardware.SnesPpuLayout.CgramColorCount;
+    /// <summary>Upload words of the frame's palette: one per colour (#1403).</summary>
+    internal const int PaletteWords = Core.Hardware.SnesPpuLayout.CgramColorCount;
 }

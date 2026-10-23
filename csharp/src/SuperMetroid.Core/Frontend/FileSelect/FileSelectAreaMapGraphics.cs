@@ -187,7 +187,7 @@ public sealed class FileSelectAreaMapGraphics
         byte[] image = MenuScreenImage.Compose(screen);
         var foreground = new Bg4BppRenderLayer(ScreenTileMap.Capture(image, MenuVramLayout.Bg1TilemapWord, new Extent16<TilemapCells>(32, 32),
             tiles.Pictures(0, BgBitDepth.FourBpp)), new Position16<BgPlanePixels>(0, 0), null);
-        return new(MenuScreenImage.Capture(screen, image), new RenderLayer[] {
+        return new(MenuScreenImage.Capture(screen), new RenderLayer[] {
             foreground,
             new BgSubscreenAddRenderLayer(ScreenTileMap.Capture(image, FileSelectMapRomData.AreaBackgroundVram, Bg2BppViewportRenderLayer.MapSize,
                     tiles.Pictures(FileSelectMapRomData.AreaBackgroundCharacters, BgBitDepth.TwoBpp)),

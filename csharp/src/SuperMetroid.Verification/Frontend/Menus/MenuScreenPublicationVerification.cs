@@ -83,16 +83,18 @@ internal static class MenuScreenPublicationVerification
     /// <summary>Asserts that <paramref name="snapshot"/> is composed from <paramref name="screen"/>'s published state.</summary>
     private static void AssertPublished(MenuScreen screen, LayeredRenderSnapshot snapshot, string menu)
     {
-        PpuMemorySnapshot memory = snapshot.Memory;
+        FramePaint memory = snapshot.Paint;
+        // The image the menu composes from its screen when it captures a frame (#1403).
+        byte[] vram = MenuScreenImage.Compose(screen);
         ReadOnlySpan<ushort> tilemaps = screen.Tilemaps.All;
         int first = MenuVramLayout.Bg1TilemapWord * sizeof(ushort);
         for (int word = 0; word < tilemaps.Length; word++)
-            AssertEqual(tilemaps[word], SnesLittleEndian.Word(memory.Vram[first + word * 2], memory.Vram[first + word * 2 + 1]),
+            AssertEqual(tilemaps[word], SnesLittleEndian.Word(vram[first + word * 2], vram[first + word * 2 + 1]),
                 $"{menu} draws its own tilemap word {word}");
         int last = first + tilemaps.Length * sizeof(ushort);
-        AssertTrue(memory.Vram[..first].SequenceEqual(screen.Characters[..first]) && memory.Vram[last..].SequenceEqual(screen.Characters[last..]),
+        AssertTrue(vram[..first].SequenceEqual(screen.Characters[..first]) && vram[last..].SequenceEqual(screen.Characters[last..]),
             $"{menu} draws its bound characters");
-        AssertTrue(memory.Cgram.SequenceEqual(screen.Palette.Colors), $"{menu} draws its own palette");
+        AssertTrue(memory.Colors.SequenceEqual(screen.Palette.Colors), $"{menu} draws its own palette");
         AssertTrue(screen.Objects.Draws.Length > 0, $"{menu} places sprite entries");
         AssertTrue(memory.SpriteDraws.SequenceEqual(screen.Objects.Draws), $"{menu} draws its own sprite entries");
         // A screen's single objects draw from the menu OBJ page; its whole frames from its sheet.

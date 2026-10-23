@@ -8,7 +8,7 @@ internal static class NativeMode7Probe
 {
     /// <summary>Samples Mode-7 background pixels using upstream PPU math, then composites objects, gradient, and brightness.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native VRAM words")]
-    internal static Rgba32[] Render(Mode7ObjRenderSnapshot snapshot, int scanlineBias)
+    internal static Rgba32[] Render(Mode7ObjRenderSnapshot snapshot, byte[] bytes, int scanlineBias)
     {
         var bg = (snapshot.Background ?? throw new InvalidOperationException("Verification requires snapshot.Background."));
         int Sign13(int value) => (value << 19) >> 19;
@@ -16,8 +16,7 @@ internal static class NativeMode7Probe
         int cx = Sign13(bg.Center.X), cy = Sign13(bg.Center.Y);
         int h = Clip(Sign13(bg.Scroll.X) - cx), v = Clip(Sign13(bg.Scroll.Y) - cy);
         var pixels = new Rgba32[256 * 224];
-        var bytes = snapshot.Memory.Vram;
-        var colors = snapshot.Memory.Cgram;
+        var colors = snapshot.Paint.Colors;
         for (int y = 0; y < 224; y++)
         {
             int startX = ((bg.MatrixA * h) & ~63) + ((bg.MatrixB * (y + scanlineBias)) & ~63) + ((bg.MatrixB * v) & ~63) + SnesEightEight.FromWhole(cx);
@@ -39,7 +38,7 @@ internal static class NativeMode7Probe
         for (int i = 0; i < colors.Length; i++) cgram.SetColor(i, colors[i]);
         var objects = new Rgba32[pixels.Length];
         var palettes = new byte[pixels.Length];
-        SnesObjRenderer.RenderResolved(snapshot.Memory.SpriteDraws, cgram, new ObjRasterTargets(objects, new byte[pixels.Length], palettes));
+        SnesObjRenderer.RenderResolved(snapshot.Paint.SpriteDraws, cgram, new ObjRasterTargets(objects, new byte[pixels.Length], palettes));
         SnesLayerCompositor.Composite(pixels, objects);
         for (int i = 0; i < pixels.Length; i++)
             if (!snapshot.Gradient.IsEmpty)

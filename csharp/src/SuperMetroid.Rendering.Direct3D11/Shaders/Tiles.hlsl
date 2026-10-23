@@ -1,4 +1,4 @@
-// These operation IDs and the packed memory layout match D3D11ShaderLayout.cs.
+// These operation IDs and the palette layout match D3D11ShaderLayout.cs: Memory holds the frame's 256 colours (#1403).
 static const uint OpBackdrop = 0, OpBg4 = 1, OpBg2 = 2, OpBrightness = 3, OpFixedAdd = 4;
 static const uint OpResolveObj = 5, OpInsertObj = 6;
 static const uint OpMode7 = 7;
@@ -7,7 +7,6 @@ static const uint OpBgAdd = 9, OpBgSubtract = 10;
 static const uint OpSubscreenAdd = 11;
 static const uint OpMessage = 12;
 static const uint OpXrayGameplay = 14;
-static const uint PaletteOffset = 16384;
 cbuffer TileParameters : register(b0)
 {
     uint Operation, TilemapWord, CharacterWord, HorizontalScroll;
@@ -55,23 +54,6 @@ static const uint PictureColoursWord = 0, PictureWidthWord = 1, PictureCountWord
 RWTexture2D<uint> Output : register(u0);
 RWTexture2D<uint2> Objects : register(u1);
 
-uint ReadByte(uint address)
-{
-    address &= 65535;
-    // Keep the two byte-selection bits explicit. With the pinned FXC /O3,
-    // (word >> ((address & 3) * 8)) miscompiled the inlined row+17 read:
-    // bytecode selected bits 8..15 even when address&3 was 3. The focused
-    // fourth-plane fixture and packed-VRAM pixel suite guard this boundary.
-    uint word = Memory[address >> 2];
-    if ((address & 2) != 0) word >>= 16;
-    if ((address & 1) != 0) word >>= 8;
-    return word & 255;
-}
-uint ReadWord(uint address)
-{
-    address = (address & 32767) * 2;
-    return ReadByte(address) | (ReadByte(address + 1) << 8);
-}
 // What a room plane shows at a scrolled position; false outside the room: its block's picture (#1392), mirrored by the
 // block's flips, with `within` the picture pixel. Each packed block is its definition with its horizontal and vertical
 // mirroring in bits ten and eleven (#1403).
@@ -221,7 +203,7 @@ uint Pack(uint3 c, uint alpha) { return c.r | (c.g << 8) | (c.b << 16) | (alpha 
 uint3 Unpack(uint c) { return uint3(c & 255, (c >> 8) & 255, (c >> 16) & 255); }
 uint Palette(uint index)
 {
-    uint word = Memory[PaletteOffset + index];
+    uint word = Memory[index];
     uint3 c = uint3(word & 31, (word >> 5) & 31, (word >> 10) & 31);
     return Pack((c << 3) | (c >> 2), 255);
 }
@@ -243,7 +225,7 @@ uint PicturePixel(uint picture, uint2 pixel, out uint index, out bool high)
     uint row = full & ~15u;
     bool same = true;
     [loop] for (uint colour = 1; colour < 16; colour++)
-        same = same && (Memory[PaletteOffset + row + colour] & 32767) == RoomLevels[standard + row + colour];
+        same = same && (Memory[row + colour] & 32767) == RoomLevels[standard + row + colour];
     return same ? RoomLevels[picture + PicturePixelsWord + at] : Palette(full);
 }
 
@@ -492,46 +474,20 @@ void Main(uint3 id : SV_DispatchThreadID)
             // A word naming a character no artwork the screen loads shows draws nothing.
             if (picture == 0) return;
         }
-        else if (source != 0)
+        else
         {
             if (!RoomTile(source, scrolled, entry, within, picture)) return;
         }
-        else
-        {
-            uint x = (sampleScreen.x + scroll.x) & (MapWidth * 8 - 1);
-            uint y = (sampleScreen.y + scroll.y) & (MapHeight * 8 - 1);
-            uint tileX = x >> 3, tileY = y >> 3;
-            uint page = ((tileY >> 5) * (MapWidth >> 5) + (tileX >> 5)) * 1024;
-            entry = ReadWord(TilemapWord + page + (tileY & 31) * 32 + (tileX & 31));
-            within = uint2(x & 7, y & 7);
-        }
     }
-    bool fourBpp = Operation == OpBg4;
+    // Every background draws from pictures (#1403); a position without one shows nothing.
+    if (picture == 0) return;
     uint color;
     bool high;
-    uint sampled;
-    if (picture != 0)
-    {
-        // A block picture keeps no row for its transparent pixels; room planes show colour zero as transparent.
-        sampled = PicturePixel(picture, within, color, high);
-        // A frontend layer's tile takes its word's priority (#1392).
-        if (source == RoomSourceScreenTiles) high = (entry & 8192) != 0;
-        if (PriorityFilter != 0 && (high ? 1u : 0u) != PriorityFilter - 1) return;
-    }
-    else
-    {
-        high = (entry & 8192) != 0;
-        if (PriorityFilter != 0 && (high ? 1u : 0u) != PriorityFilter - 1) return;
-        uint sourceX = (entry & 16384) != 0 ? 7 - within.x : within.x;
-        uint sourceY = (entry & 32768) != 0 ? 7 - within.y : within.y;
-        uint stride = fourBpp ? 16 : 8;
-        uint row = ((CharacterWord + (entry & 1023) * stride) & 32767) * 2 + sourceY * 2;
-        uint shift = 7 - sourceX;
-        color = ((ReadByte(row) >> shift) & 1) | (((ReadByte(row + 1) >> shift) & 1) << 1);
-        if (fourBpp)
-            color |= (((ReadByte(row + 16) >> shift) & 1) << 2) | (((ReadByte(row + 17) >> shift) & 1) << 3);
-        sampled = Palette(((entry >> 10) & 7) * (fourBpp ? 16 : 4) + color);
-    }
+    // A block picture keeps no row for its transparent pixels; room planes show colour zero as transparent.
+    uint sampled = PicturePixel(picture, within, color, high);
+    // A frontend layer's tile takes its word's priority (#1392).
+    if (source == RoomSourceScreenTiles) high = (entry & 8192) != 0;
+    if (PriorityFilter != 0 && (high ? 1u : 0u) != PriorityFilter - 1) return;
     bool objectSubscreen = Operation == OpSubscreenAdd && AddR != 0;
     uint2 subObject = objectSubscreen ? Objects[id.xy] : uint2(0, 255);
     bool objectWins = objectSubscreen && subObject.y != 255 &&

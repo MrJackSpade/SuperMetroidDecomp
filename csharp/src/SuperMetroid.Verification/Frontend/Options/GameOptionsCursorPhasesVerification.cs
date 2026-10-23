@@ -90,7 +90,7 @@ internal static class GameOptionsCursorPhasesVerification
     /// </summary>
     internal static int LastSpriteX(LayeredRenderSnapshot frame)
     {
-        PlacedSpritePart[] parts = frame.Memory.SpriteParts();
+        PlacedSpritePart[] parts = frame.Paint.SpriteParts();
         AssertTrue(parts.Length > 0, "options has a cursor sprite");
         return parts[^1].Part.Position.X & 511;
     }

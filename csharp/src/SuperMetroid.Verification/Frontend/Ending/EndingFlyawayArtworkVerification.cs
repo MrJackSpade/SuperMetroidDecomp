@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using System.Text.Json;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Frontend.Intro.IntroCinematicArtworkVerification;
@@ -32,9 +33,11 @@ internal static class EndingFlyawayArtworkVerification
             if (native.Stage.Phase == EndingCreditsPhase.ZebesExplosionTileUpload)
             {
                 LayeredRenderSnapshot expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
+                byte[] expectedVram = native.ShownVram();
                 LayeredRenderSnapshot actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
-                AssertTrue(actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
-                        actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
+                byte[] actualVram = installed.ShownVram();
+                AssertTrue(actualVram.SequenceEqual(expectedVram) &&
+                        actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
                         SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
                             SoftwareLayeredSnapshotRenderer.Render(expected)),
                     $"ending Mode-7 DMA and visible pixels match at upload {uploadedFrames}");
@@ -91,9 +94,9 @@ internal static class EndingFlyawayArtworkVerification
         }
         AssertEqual(EndingCreditsPhase.ZebesExplosionTileUpload, restored.Stage.Phase,
             "first map chunk leaves seven scheduled uploads pending");
-        byte originalMapByte = EndingCreditsPresentation.CaptureRenderSnapshot(restored).Memory.Vram[0];
+        byte originalMapByte = restored.ShownVram()[0];
         restored.Flyaway.BindFlightArtwork(overrideArt);
-        AssertEqual((byte)edited.FrontTiles[0], EndingCreditsPresentation.CaptureRenderSnapshot(restored).Memory.Vram[0],
+        AssertEqual((byte)edited.FrontTiles[0], restored.ShownVram()[0],
             "restored ending reuploads the edited front-view map byte");
         AssertTrue(originalMapByte != edited.FrontTiles[0],
             "front-view edit changes an already transferred ending map byte");

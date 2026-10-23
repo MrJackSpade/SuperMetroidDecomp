@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -92,11 +93,11 @@ internal static class EndingPlanetBoundaryVerification
     /// screen's 544-byte OAM upload, then OBSEL and brightness.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: dumps native VRAM, CGRAM and OAM tables for the pinned native PPU")]
-    private static byte[] NativeProbeInput(LayeredRenderSnapshot snapshot, OamBuffer oam, byte objectSelection)
+    private static byte[] NativeProbeInput(LayeredRenderSnapshot snapshot, byte[] snapshotVram, OamBuffer oam, byte objectSelection)
     {
         var input = new List<byte>(SnesPpuLayout.VramByteCount + SnesPpuLayout.CgramColorCount * 2 + SnesPpuLayoutConstants.OamUploadByteCount + 2);
-        input.AddRange(snapshot.Memory.Vram);
-        foreach (Bgr555 color in snapshot.Memory.Cgram)
+        input.AddRange(snapshotVram);
+        foreach (Bgr555 color in snapshot.Paint.Colors)
         {
             input.Add(SnesLittleEndian.LowByte(color.ToWord()));
             input.Add(SnesLittleEndian.HighByte(color.ToWord()));
@@ -122,13 +123,13 @@ internal static class EndingPlanetBoundaryVerification
         AssertEqual(EndingCreditsPhase.FadeInZebesExplosion, ending.Stage.Phase, "planet crossfade reached");
         // Rebuild the upper VRAM image from D8C1/D8E1/D901/D921/D941/D961.
         // In particular D961 transfers only $1000 font bytes at byte $A000.
-        byte[] nativeVram = EndingCreditsPresentation.CaptureRenderSnapshot(ending).Memory.Vram.ToArray();
+        byte[] nativeVram = ending.ShownVram().ToArray();
         RomDataReader.Decompress(bus, 0x988304, 0x8000).AsSpan(0, 0x6000).CopyTo(nativeVram.AsSpan(0x8000));
         int[] fragments = [0x98b5c1, 0x98b857, 0x98baed, 0x98bccd];
         for (int index = 0; index < fragments.Length; index++)
             RomDataReader.Decompress(bus, fragments[index], 0x8000).AsSpan(0, 0x800).CopyTo(nativeVram.AsSpan(0xe000 + index * 0x800));
         RomDataReader.Decompress(bus, 0x97e7de, 0x8000).AsSpan(0, 0x1000).CopyTo(nativeVram.AsSpan(0xa000));
-        int memoryDifferences = nativeVram.Zip(EndingCreditsPresentation.CaptureRenderSnapshot(ending).Memory.Vram.ToArray(), (first, second) => first != second).Count(differs => differs);
+        int memoryDifferences = nativeVram.Zip(ending.ShownVram().ToArray(), (first, second) => first != second).Count(differs => differs);
         Console.WriteLine($"Explosion setup: {memoryDifferences} VRAM bytes differ from literal DMA reconstruction.");
         int differences = 0, checkedFrames = 0;
         while (ending.Stage.Phase is EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionPaletteCrossfade)
@@ -138,9 +139,9 @@ internal static class EndingPlanetBoundaryVerification
             // D837 retains M7SEL=0 from atmospheric setup. Its main is BG1,
             // subscreen is OBJ, and CGADSUB=$21 adds OBJ to BG1/backdrop.
             RenderLayer[] nativeLayers = [new Mode7RenderLayer(projection.Transform with { Outside = Mode7OverflowMode.Wrap },
-                    AffineFloorFixtures.Floor(nativeVram, snapshot.Memory.Cgram)),
+                    AffineFloorFixtures.Floor(nativeVram, snapshot.Paint.Colors)),
                 new ObjRenderLayer(AddToScreen: true)];
-            var nativeMemory = new PpuMemorySnapshot(nativeVram, snapshot.Memory.Cgram, snapshot.Memory.SpriteDraws);
+            var nativeMemory = new FramePaint(snapshot.Paint.Colors, snapshot.Paint.SpriteDraws);
             var expected = SoftwareLayeredSnapshotRenderer.Render(new(nativeMemory, nativeLayers, snapshot.Brightness));
             var actual = ending.Render();
             int changed = actual.Zip(expected, (first, second) => first != second).Count(differs => differs);
@@ -153,10 +154,12 @@ internal static class EndingPlanetBoundaryVerification
         for (int frame = 0; frame < 2048 && ending.Stage.Phase != EndingCreditsPhase.PlanetEscapeFast; frame++)
         {
             var live = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
-            byte[] reconstructed = live.Memory.Vram.ToArray();
+            byte[] reconstructed = ending.ShownVram();
             nativeVram.AsSpan(0x8000).CopyTo(reconstructed.AsSpan(0x8000));
-            var nativeMemory = new PpuMemorySnapshot(reconstructed, live.Memory.Cgram, live.Memory.SpriteDraws);
-            var nativePixels = SoftwareLayeredSnapshotRenderer.Render(new(nativeMemory, live.Layers, live.Brightness));
+            // The frame carries no VRAM (#1403): the floor is drawn again from the native reconstruction.
+            RenderLayer[] reconstructedLayers = [.. live.Layers.ToArray().Select(layer => layer is Mode7RenderLayer floor
+                ? (RenderLayer)(floor with { Floor = AffineFloorFixtures.Floor(reconstructed, live.Paint.Colors) }) : layer)];
+            var nativePixels = SoftwareLayeredSnapshotRenderer.Render(new(live.Paint, reconstructedLayers, live.Brightness));
             differences += ending.Render().Zip(nativePixels, (first, second) => first != second).Count(differs => differs);
             if (capture is not null && capture.Frames.Contains(frame))
             {
@@ -164,7 +167,7 @@ internal static class EndingPlanetBoundaryVerification
                 LayeredRenderSnapshot sample = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
                 capture.Snapshots[frame] = sample;
                 File.WriteAllBytes(Path.Combine(capture.Directory, $"later-{frame:D4}-{ending.Stage.Phase}.ppu"),
-                    NativeProbeInput(sample, ScreenSpritesFixtures.ToOam(EndingCreditsPresentation.PrepareSprites(ending, EndingCreditsPresentation.CurrentEscapeObjectSheet(ending))),
+                    NativeProbeInput(sample, ending.ShownVram(), ScreenSpritesFixtures.ToOam(EndingCreditsPresentation.PrepareSprites(ending, EndingCreditsPresentation.CurrentEscapeObjectSheet(ending))),
                         EndingCreditsPresentation.ObjectSelection(EndingCreditsPresentation.CurrentEscapeObjectSheet(ending))));
             }
             ending.Step();

@@ -37,7 +37,7 @@ internal static class EndingExplosionSlotOrderVerification
         expected.FinalizeFrame();
         AssertEqual(37, expected.LastFinalizedSpriteCount, "retail afterglow component count");
         var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
-        var actual = snapshot.Memory;
+        var actual = snapshot.Paint;
         PlacedSpritePart[] afterglowParts = PlacedSpritePart.Of(expected.Draws);
         PlacedSpritePart[] liveParts = [.. actual.SpriteParts().Take(afterglowParts.Length)];
         int[] mismatches = [.. Enumerable.Range(0, afterglowParts.Length).Where(index => index >= liveParts.Length || liveParts[index] != afterglowParts[index])];

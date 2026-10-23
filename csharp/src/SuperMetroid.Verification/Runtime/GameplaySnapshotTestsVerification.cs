@@ -26,7 +26,7 @@ internal static class GameplaySnapshotTestsVerification
             .Select(_ => (ushort)random.Next(32768)).ToArray();
         byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         random.NextBytes(oam);
-        var memory = PpuMemorySnapshot.FromOam(bytes, ToColors(palette), oam, 128, 3);
+        var memory = FramePaint.FromOam(bytes, ToColors(palette), oam, 128, 3);
         var live = new SoftwarePpuSnapshotMemory(memory);
         // Cases without horizontal HDMA show BG2 from a room plane, the others from a library background's image (#1403),
         // which no 64x64 map shows, so a room plane there.
@@ -46,8 +46,7 @@ internal static class GameplaySnapshotTestsVerification
                 mapSize, layers);
             var layer = new OrdinaryGameplayRenderLayer(registers, (hdma & 1) == 0 || mapSize == new Extent16<TilemapCells>(64, 64) ? rooms : loaded,
                 new Bg2LineScrolls(x, y));
-            Rgba32[] expected = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
-                live.Vram, live.Cgram, live.Sprites, layer);
+            Rgba32[] expected = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(live.Cgram, live.Sprites, layer);
             // Mutating both caller arrays after capture must not alter retained HDMA.
             Array.Fill(x, (ushort)1234);
             Array.Fill(y, (ushort)5678);

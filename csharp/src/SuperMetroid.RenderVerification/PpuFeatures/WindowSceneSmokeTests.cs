@@ -15,24 +15,24 @@ internal static class WindowSceneSmokeTests
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var random = new Random(32116);
-        PpuMemorySnapshot Memory(byte obsel)
+        (byte[] Vram, FramePaint Paint) Memory(byte obsel)
         {
             var vram = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(vram);
             var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount]; random.NextBytes(oam);
             Bgr555[] palette = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
-            return PpuMemorySnapshot.FromOam(vram, palette, oam, 128, obsel);
+            return (vram, FramePaint.FromOam(vram, palette, oam, 128, obsel));
         }
         var parentMemory = Memory(3); var childMemory = Memory(7);
-        var background = new Bg4BppRenderLayer(VramTileFixtures.Cells(parentMemory.Vram, parentMemory.Cgram, 0x4000, 0x6000, BgBitDepth.FourBpp,
+        var background = new Bg4BppRenderLayer(VramTileFixtures.Cells(parentMemory.Vram, parentMemory.Paint.Colors, 0x4000, 0x6000, BgBitDepth.FourBpp,
             new Extent16<TilemapCells>(32, 32)), new Position16<BgPlanePixels>(3, 11), true);
-        AffineFloor childFloor = AffineFloorFixtures.Floor(childMemory.Vram, childMemory.Cgram);
-        LayeredRenderSnapshot Child(byte brightness) => new(childMemory, new RenderLayer[] {
+        AffineFloor childFloor = AffineFloorFixtures.Floor(childMemory.Vram, childMemory.Paint.Colors);
+        LayeredRenderSnapshot Child(byte brightness) => new(childMemory.Paint, new RenderLayer[] {
             new Mode7RenderLayer(new(255, 71, -71, 255, new(128, 112), new(13, -11), Mode7OverflowMode.CharacterZero), childFloor),
             new ObjRenderLayer() }, brightness);
         // The parent's tile layer and the child's floor pack once; drawing them before the counted frames leaves each of
         // those only its memory and sprite-draw uploads.
         int count = 0;
-        renderer.RenderForReadback(new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(parentMemory,
+        renderer.RenderForReadback(new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(parentMemory.Paint,
             [background, new WindowedSceneRenderLayer(Child(15), 0, 0, 256, 224)], 15)));
         // Each scene render uploads its memory and sprite-draw buffers once. The draw buffer uploads its grown capacity,
         // so a frame's bytes are fixed per window shape rather than computable from the scene alone.
@@ -43,7 +43,7 @@ internal static class WindowSceneSmokeTests
         {
             LayeredRenderSnapshot child = Child(brightness);
             var window = new WindowedSceneRenderLayer(child, edges.Left, edges.Top, edges.Right, edges.Bottom);
-            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(parentMemory,
+            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(parentMemory.Paint,
                 new RenderLayer[] { new ObjPriorityRenderLayer(0), window,
                     background,
                     new ObjPriorityRenderLayer(3), window, new FixedColorAddRenderLayer(1,2,3) }, 13), [new FadeLevel(11)]);
@@ -52,7 +52,7 @@ internal static class WindowSceneSmokeTests
                 $"{device.Kind}: scene window {count}, edges {edges}, brightness {brightness}");
             var after = renderer.UploadStatistics;
             int children = edges.Left == edges.Right || edges.Top == edges.Bottom ? 0 : 2;
-            long memoryAndConstantBytes = (1 + children) * D3D11ShaderLayout.PpuMemoryWords * sizeof(uint)
+            long memoryAndConstantBytes = (1 + children) * D3D11ShaderLayout.PaletteWords * sizeof(uint)
                 + (8 + children * 5) * D3D11ShaderLayout.SolidConstantWords * sizeof(uint);
             long expectedCalls = (1 + children) * 2 + 8 + children * 5;
             long bytes = after.Bytes - before.Bytes;

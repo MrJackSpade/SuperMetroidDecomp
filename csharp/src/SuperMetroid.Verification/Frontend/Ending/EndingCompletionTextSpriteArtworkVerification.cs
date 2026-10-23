@@ -87,7 +87,7 @@ internal static class EndingCompletionTextSpriteArtworkVerification
                 LayeredRenderSnapshot before = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                 scene.InstalledArtwork.BindFixtureObjectArtwork(edited);
                 LayeredRenderSnapshot after = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                visible = !before.Memory.SpriteParts().SequenceEqual(after.Memory.SpriteParts()) &&
+                visible = !before.Paint.SpriteParts().SequenceEqual(after.Paint.SpriteParts()) &&
                     !SoftwareLayeredSnapshotRenderer.Render(before).SequenceEqual(
                         SoftwareLayeredSnapshotRenderer.Render(after));
                 if (!visible)

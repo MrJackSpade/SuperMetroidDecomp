@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -76,10 +77,12 @@ internal static class CeresFlightArtworkVerification
             if (enteredPhase || tick % 97 == 0)
             {
                 LayeredRenderSnapshot original = native.CaptureRenderSnapshot();
+                byte[] originalVram = native.ShownVram();
                 LayeredRenderSnapshot compiled = installed.CaptureRenderSnapshot();
+                byte[] compiledVram = installed.ShownVram();
                 AssertTrue(compiled.Brightness == original.Brightness &&
-                        compiled.Memory.Vram.SequenceEqual(original.Memory.Vram) &&
-                        compiled.Memory.Cgram.SequenceEqual(original.Memory.Cgram) &&
+                        compiledVram.SequenceEqual(originalVram) &&
+                        compiled.Paint.Colors.SequenceEqual(original.Paint.Colors) &&
                         SoftwareLayeredSnapshotRenderer.Render(compiled).SequenceEqual(
                             SoftwareLayeredSnapshotRenderer.Render(original)),
                     $"installed Ceres flight matches native pixels and PPU state at tick {tick}");
@@ -135,7 +138,7 @@ internal static class CeresFlightArtworkVerification
             CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
             bool isRearMap = name == CeresFlightArtworkFormat.MapFileName;
             var fresh = new IntroCeresFlightState(new CartridgeAudioState(), edited, sheets: CinematicSheetFixtures.WithFlight(edited));
-            AssertTrue(fresh.CaptureRenderSnapshot().Memory.Vram.SequenceEqual(
+            AssertTrue(fresh.ShownVram().SequenceEqual(
                     ExpectedCeresFlightVram(edited, rear: false)),
                 $"edited {name} reaches exact front-view VRAM without changing other bytes");
             var restored = new IntroCeresFlightState(new CartridgeAudioState(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
@@ -149,7 +152,7 @@ internal static class CeresFlightArtworkVerification
                     installation.IntroCinematicDirectory, null));
             parent.CurrentCeresFlight = restored;
             parent.BindFixtureIntroArtwork(installation.LoadIntroCinematicArt());
-            AssertTrue(restored.CaptureRenderSnapshot().Memory.Vram.SequenceEqual(
+            AssertTrue(restored.ShownVram().SequenceEqual(
                     ExpectedCeresFlightVram(edited, rear: true)),
                 $"restored rear view rebinds edited {name} with native map ordering");
             if (isRearMap)
@@ -248,8 +251,8 @@ internal static class CeresFlightArtworkVerification
             original.StepFrame();
             changed.StepFrame();
         }
-        AssertTrue(!original.CaptureRenderSnapshot().Memory.SpriteParts().SequenceEqual(
-                changed.CaptureRenderSnapshot().Memory.SpriteParts()),
+        AssertTrue(!original.CaptureRenderSnapshot().Paint.SpriteParts().SequenceEqual(
+                changed.CaptureRenderSnapshot().Paint.SpriteParts()),
             "edited rear-view placement changes production OAM");
 
         File.WriteAllBytes(stockPath, [0]);
@@ -296,10 +299,12 @@ internal static class CeresFlightArtworkVerification
             changed.StepFrame();
         }
         LayeredRenderSnapshot stockFrame = native.CaptureRenderSnapshot();
+        byte[] stockFrameVram = native.ShownVram();
         LayeredRenderSnapshot editedFrame = changed.CaptureRenderSnapshot();
-        AssertTrue(stockFrame.Memory.Vram.SequenceEqual(editedFrame.Memory.Vram),
+        byte[] editedFrameVram = changed.ShownVram();
+        AssertTrue(stockFrameVram.SequenceEqual(editedFrameVram),
             "Ceres palette edit does not change graphics VRAM");
-        AssertTrue(!stockFrame.Memory.Cgram.SequenceEqual(editedFrame.Memory.Cgram),
+        AssertTrue(!stockFrame.Paint.Colors.SequenceEqual(editedFrame.Paint.Colors),
             "Ceres palette edit reaches active CGRAM");
         AssertTrue(!SoftwareLayeredSnapshotRenderer.Render(stockFrame).SequenceEqual(
                 SoftwareLayeredSnapshotRenderer.Render(editedFrame)),
@@ -307,8 +312,8 @@ internal static class CeresFlightArtworkVerification
 
         var restored = new IntroCeresFlightState(new CartridgeAudioState(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
         restored.BindFixtureFlightArtwork(edited);
-        AssertTrue(restored.CaptureRenderSnapshot().Memory.Cgram.SequenceEqual(
-                new IntroCeresFlightState(new CartridgeAudioState(), edited, sheets: CinematicSheetFixtures.WithFlight(edited)).CaptureRenderSnapshot().Memory.Cgram),
+        AssertTrue(restored.CaptureRenderSnapshot().Paint.Colors.SequenceEqual(
+                new IntroCeresFlightState(new CartridgeAudioState(), edited, sheets: CinematicSheetFixtures.WithFlight(edited)).CaptureRenderSnapshot().Paint.Colors),
             "restored Ceres flight rebinds current palette without restarting phase");
 
         IntroCinematicArtworkCatalog stockParent = IntroCinematicArtworkFiles.Load(
@@ -324,12 +329,12 @@ internal static class CeresFlightArtworkVerification
             restoredDestruction.Step();
             editedDestruction.Step();
         }
-        AssertTrue(!restoredDestruction.CaptureRenderSnapshot().Memory.Cgram.SequenceEqual(
-                editedDestruction.CaptureRenderSnapshot().Memory.Cgram),
+        AssertTrue(!restoredDestruction.CaptureRenderSnapshot().Paint.Colors.SequenceEqual(
+                editedDestruction.CaptureRenderSnapshot().Paint.Colors),
             "shared Ceres palette edit reaches destruction CGRAM");
         restoredDestruction.BindFixtureDestructionArtwork(editedParent);
-        AssertTrue(restoredDestruction.CaptureRenderSnapshot().Memory.Cgram.SequenceEqual(
-                editedDestruction.CaptureRenderSnapshot().Memory.Cgram),
+        AssertTrue(restoredDestruction.CaptureRenderSnapshot().Paint.Colors.SequenceEqual(
+                editedDestruction.CaptureRenderSnapshot().Paint.Colors),
             "restored destruction rebinds its shared palette before engine FX owns CGRAM");
         File.Delete(overridePath);
 

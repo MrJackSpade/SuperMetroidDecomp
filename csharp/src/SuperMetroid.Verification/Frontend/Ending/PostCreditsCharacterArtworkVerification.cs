@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -49,9 +50,11 @@ internal static class PostCreditsCharacterArtworkVerification
                     checkedPhases.Add(native.Stage.Phase))
                 {
                     LayeredRenderSnapshot expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
+                    byte[] expectedVram = native.ShownVram();
                     LayeredRenderSnapshot actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
-                    AssertTrue(actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
-                            actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
+                    byte[] actualVram = installed.ShownVram();
+                    AssertTrue(actualVram.SequenceEqual(expectedVram) &&
+                            actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
                             SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
                                 SoftwareLayeredSnapshotRenderer.Render(expected)),
                         $"installed post-credits art preserves VRAM, palette, and pixels in {hours}h {native.Stage.Phase}");
@@ -82,9 +85,11 @@ internal static class PostCreditsCharacterArtworkVerification
                 installedAudio.AdvanceFrame(default);
                 if (frame < 47) continue;
                 LayeredRenderSnapshot expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
+                byte[] expectedVram = native.ShownVram();
                 LayeredRenderSnapshot actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
-                AssertTrue(actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
-                        actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
+                byte[] actualVram = installed.ShownVram();
+                AssertTrue(actualVram.SequenceEqual(expectedVram) &&
+                        actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
                         SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
                             SoftwareLayeredSnapshotRenderer.Render(expected)),
                     $"installed post-shot logo preserves native VRAM/pixels in {hours}h frame {frame}");
@@ -103,9 +108,11 @@ internal static class PostCreditsCharacterArtworkVerification
                     if (frame % 29 == 0 || native.Stage.Phase == EndingCreditsPhase.PostCreditsLogo)
                     {
                         LayeredRenderSnapshot expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
+                        byte[] expectedVram = native.ShownVram();
                         LayeredRenderSnapshot actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
-                        AssertTrue(actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
-                                actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
+                        byte[] actualVram = installed.ShownVram();
+                        AssertTrue(actualVram.SequenceEqual(expectedVram) &&
+                                actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
                                 SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
                                     SoftwareLayeredSnapshotRenderer.Render(expected)),
                             $"installed logo pixels at frame {frame}");
@@ -113,7 +120,7 @@ internal static class PostCreditsCharacterArtworkVerification
                         {
                             installed.InstalledArtwork.BindFixtureObjectArtwork(editedLogo);
                             LayeredRenderSnapshot changed = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
-                            visibleLogoEdit |= !actual.Memory.SpriteParts().SequenceEqual(changed.Memory.SpriteParts()) &&
+                            visibleLogoEdit |= !actual.Paint.SpriteParts().SequenceEqual(changed.Paint.SpriteParts()) &&
                                 !SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
                                     SoftwareLayeredSnapshotRenderer.Render(changed));
                             installed.InstalledArtwork.BindFixtureObjectArtwork(stock);
@@ -229,12 +236,14 @@ internal static class PostCreditsCharacterArtworkVerification
                     if (frame % 8 == 0)
                     {
                         LayeredRenderSnapshot original = EndingCreditsPresentation.CaptureRenderSnapshot(stockState);
+                        byte[] originalVram = stockState.ShownVram();
                         LayeredRenderSnapshot changed = EndingCreditsPresentation.CaptureRenderSnapshot(editedState);
-                        bool changedVram = !original.Memory.Vram.SequenceEqual(changed.Memory.Vram);
-                        if (!postShotLogo || changedVram)
+                        byte[] changedVram = editedState.ShownVram();
+                        bool artChanged = !originalVram.SequenceEqual(changedVram);
+                        if (!postShotLogo || artChanged)
                         {
-                            AssertTrue(changedVram &&
-                                    original.Memory.Cgram.SequenceEqual(changed.Memory.Cgram),
+                            AssertTrue(artChanged &&
+                                    original.Paint.Colors.SequenceEqual(changed.Paint.Colors),
                                 $"edited {fileName} changes only art, not palette state");
                             if (fragment)
                             {
@@ -244,12 +253,12 @@ internal static class PostCreditsCharacterArtworkVerification
                                 int count = fileName == EndingObjectArtworkFormat.PostCreditsFragmentAFileName
                                     ? EndingObjectArtworkFormat.PostCreditsFragmentAByteCount
                                     : EndingObjectArtworkFormat.PostCreditsFragmentBByteCount;
-                                AssertTrue(original.Memory.Vram[..destination].SequenceEqual(
-                                        changed.Memory.Vram[..destination]) &&
-                                        !original.Memory.Vram[destination..(destination + count)]
-                                            .SequenceEqual(changed.Memory.Vram[destination..(destination + count)]) &&
-                                        original.Memory.Vram[(destination + count)..].SequenceEqual(
-                                            changed.Memory.Vram[(destination + count)..]),
+                                AssertTrue(originalVram[..destination].SequenceEqual(
+                                        changedVram[..destination]) &&
+                                        !originalVram[destination..(destination + count)]
+                                            .SequenceEqual(changedVram[destination..(destination + count)]) &&
+                                        originalVram[(destination + count)..].SequenceEqual(
+                                            changedVram[(destination + count)..]),
                                     $"edited {fileName} changes only its native fragment transfer range");
                             }
                             visible = !SoftwareLayeredSnapshotRenderer.Render(original)
@@ -272,8 +281,10 @@ internal static class PostCreditsCharacterArtworkVerification
                     AssertEqual(phaseBeforeRebind, stockState.Stage.Phase,
                         $"rebind {fileName} preserves the live ending phase");
                     LayeredRenderSnapshot rebound = EndingCreditsPresentation.CaptureRenderSnapshot(stockState);
+                    byte[] reboundVram = stockState.ShownVram();
                     LayeredRenderSnapshot expectedRebind = EndingCreditsPresentation.CaptureRenderSnapshot(editedState);
-                    AssertTrue(rebound.Memory.Vram.SequenceEqual(expectedRebind.Memory.Vram) &&
+                    byte[] expectedRebindVram = editedState.ShownVram();
+                    AssertTrue(reboundVram.SequenceEqual(expectedRebindVram) &&
                             SoftwareLayeredSnapshotRenderer.Render(rebound).SequenceEqual(
                                 SoftwareLayeredSnapshotRenderer.Render(expectedRebind)),
                         $"rebind {fileName} immediately replaces already-uploaded logo art");

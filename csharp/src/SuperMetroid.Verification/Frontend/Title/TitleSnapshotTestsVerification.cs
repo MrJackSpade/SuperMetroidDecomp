@@ -53,7 +53,7 @@ internal static class TitleSnapshotTestsVerification
                     Match(expected, SoftwareMode7ObjSnapshotRenderer.Render(packet), frame, phase);
                     Match(expected, SoftwareMode7ObjSnapshotRenderer.Render(packet), frame, phase);
                     Mode7ObjRenderSnapshot repeat = scene.CaptureRenderSnapshot();
-                    AssertTrue(packet.Memory.SpriteParts().SequenceEqual(repeat.Memory.SpriteParts()), "repeat title OAM capture");
+                    AssertTrue(packet.Paint.SpriteParts().SequenceEqual(repeat.Paint.SpriteParts()), "repeat title OAM capture");
                     Match(control.Render(), expected, frame, phase);
                     comparisons++;
 

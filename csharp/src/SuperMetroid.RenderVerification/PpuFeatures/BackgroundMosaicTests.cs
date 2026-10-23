@@ -31,7 +31,7 @@ internal static class BackgroundMosaicTests
         cgram.SetColor(241, new Bgr555(0, 0, 31));
         var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         oam[0] = 96; oam[1] = 64; oam[2] = 1; oam[3] = 0x3e;
-        var memory = PpuMemorySnapshot.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0);
+        var memory = FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0);
         // BG1's plane and BG2's loaded tilemap show tile word zero, the pattern, drawn from their pictures (#1403).
         var rooms = RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, default);
         ushort[] horizontal = Enumerable.Range(0, 192).Select(y => (ushort)(y * 3 + 7)).ToArray();

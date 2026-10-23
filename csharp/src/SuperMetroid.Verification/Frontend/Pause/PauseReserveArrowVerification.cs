@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveArrowRebindVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Buffers.Binary;
@@ -61,8 +62,9 @@ internal static class PauseReserveArrowVerification
         void CheckArrow(bool enabled, ushort color6, ushort colorB, string context)
         {
             var capture = pause.CaptureRenderSnapshot();
-            var tiles = capture.Memory.Vram.ToArray();
-            var colors = capture.Memory.Cgram.ToArray();
+            byte[] captureVram = pause.ShownVram();
+            var tiles = captureVram.ToArray();
+            var colors = capture.Paint.Colors.ToArray();
             // Independent native AE01/AE46 walk: eight vertical words followed
             // by two horizontal words. Only the three palette bits may change.
             foreach (int offset in Enumerable.Range(0, 8).Select(i => 0x102 + i * 0x40).Concat(HorizontalArrowWordOffsets))
@@ -74,7 +76,7 @@ internal static class PauseReserveArrowVerification
             }
             colors[102] = Bgr555.FromWord(color6);
             colors[107] = Bgr555.FromWord(colorB);
-            var memory = new PpuMemorySnapshot(tiles, colors, capture.Memory.SpriteDraws);
+            var memory = new FramePaint(colors, capture.Paint.SpriteDraws);
             var expectedPixels = SoftwareLayeredSnapshotRenderer.Render(new(memory, capture.Layers, capture.Brightness));
             AssertTrue(pause.Render().SequenceEqual(expectedPixels), context + " rendered arrow matches native tile/palette writes");
         }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -42,6 +43,7 @@ internal static class InvalidBeamSelectionVerification
         SelectPauseBoots(pause);
         AssertEqual(0, pause.SelectedItem, "fixture starts on Hi-Jump Boots");
         var before = pause.CaptureRenderSnapshot();
+        byte[] beforeVram = pause.ShownVram();
         pause.Step(0, (scenario == 0 ? SnesButton.Left | SnesButton.A : SnesButton.Left));
         if (scenario == 1) pause.Step(0, SnesButton.A);
         AssertEqual(PauseEquipmentCategory.Beams, pause.SelectedCategory, "same-frame Left+A moves Boots to Beams");
@@ -49,10 +51,11 @@ internal static class InvalidBeamSelectionVerification
         AssertEqual(scenario == 0 ? 0x000c : scenario == 1 ? 0x0008 : 0x0004, samus.EquippedBeams.ToNativeWord(),
             "native beam bits distinguish simultaneous, adjacent and direction-only input");
         var after = pause.CaptureRenderSnapshot();
-        byte[] expectedVram = after.Memory.Vram.ToArray();
+        byte[] afterVram = pause.ShownVram();
+        byte[] expectedVram = afterVram.ToArray();
         // Restore the entire label region to its before-input contents, then apply only
         // the independently measured CPU writes. Preserve the moving OBJ selector.
-        before.Memory.Vram.Slice(0x6000, 0x800).CopyTo(expectedVram.AsSpan(0x6000));
+        beforeVram.AsSpan(0x6000, 0x800).CopyTo(expectedVram.AsSpan(0x6000));
         ushort[] nativeWords = [0x08ff, 0x08ec, 0x08ed, 0x08ee, 0x08ef, 0x08ff, 0x0900, 0x0901, 0x0902];
         int copiedWords = scenario == 0 ? 9 : scenario == 1 ? 5 : 0;
         for (int word = 0; word < copiedWords; word++)
@@ -72,16 +75,16 @@ internal static class InvalidBeamSelectionVerification
         // The native shared tail refreshes the wireframe independently of label edits.
         // It is unchanged by beam-only toggles; initial fixture item state already uses
         // the same HiJump wireframe in all three scenarios.
-        Console.WriteLine($"scenario={scenario} actual label bytes={Convert.ToHexString(after.Memory.Vram.Slice(0x6508, 18))}");
-        AssertTrue(expectedVram.AsSpan(0x6508, 18).SequenceEqual(after.Memory.Vram.Slice(0x6508, 18)),
+        Console.WriteLine($"scenario={scenario} actual label bytes={Convert.ToHexString(afterVram.AsSpan(0x6508, 18))}");
+        AssertTrue(expectedVram.AsSpan(0x6508, 18).SequenceEqual(afterVram.AsSpan(0x6508, 18)),
             $"native nine/five/zero-word Plasma footprint, scenario {scenario}");
-        var expectedMemory = new PpuMemorySnapshot(expectedVram, after.Memory.Cgram, after.Memory.SpriteDraws);
+        var expectedMemory = new FramePaint(after.Paint.Colors, after.Paint.SpriteDraws);
         var expectedPixels = SoftwareLayeredSnapshotRenderer.Render(new(expectedMemory, after.Layers, after.Brightness));
         var actualPixels = pause.Render();
         if (!expectedPixels.SequenceEqual(actualPixels))
             for (int offset = 0x6000; offset < 0x6800; offset += 2)
-                if (!expectedVram.AsSpan(offset, 2).SequenceEqual(after.Memory.Vram.Slice(offset, 2)))
-                    Console.WriteLine($"tile mismatch {offset:X4}: expected {Convert.ToHexString(expectedVram.AsSpan(offset, 2))}, actual {Convert.ToHexString(after.Memory.Vram.Slice(offset, 2))}");
+                if (!expectedVram.AsSpan(offset, 2).SequenceEqual(afterVram.AsSpan(offset, 2)))
+                    Console.WriteLine($"tile mismatch {offset:X4}: expected {Convert.ToHexString(expectedVram.AsSpan(offset, 2))}, actual {Convert.ToHexString(afterVram.AsSpan(offset, 2))}");
         AssertTrue(expectedPixels.SequenceEqual(actualPixels), $"native rendered VAR/adjacent-frame label, scenario {scenario}");
 
         }

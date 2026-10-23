@@ -29,7 +29,6 @@ public static class SnesGameplayFrameRenderer
     /// including the priority bit of every BG tile and all four OBJ priority groups.
     /// </summary>
     public static Rgba32[] RenderHudOrdinaryBackgroundsAndObjs(
-        SnesVram vram,
         IPaletteColors cgram,
         SpriteFrameBuffer sprites,
         OrdinaryGameplayRenderLayer layer,

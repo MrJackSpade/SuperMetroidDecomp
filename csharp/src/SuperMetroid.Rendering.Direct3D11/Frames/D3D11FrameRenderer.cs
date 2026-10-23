@@ -68,7 +68,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// <summary>Guards later render calls after owner-thread disposal.</summary>
     internal bool disposed;
     /// <summary>Reusable CPU packing buffer for one scene's PPU memory.</summary>
-    private readonly uint[] memoryUpload = new uint[D3D11ShaderLayout.PpuMemoryWords];
+    private readonly uint[] memoryUpload = new uint[D3D11ShaderLayout.PaletteWords];
     /// <summary>Reusable constant-buffer source cleared before each compute pass.</summary>
     private readonly uint[] constantUpload = new uint[D3D11ShaderLayout.SolidConstantWords];
 
@@ -111,7 +111,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             displayVertexShader = Own(owner.Device.CreateVertexShader(LoadShaderBytes(D3D11ShaderLayout.DisplayVertexResourceName)));
             displayPixelShader = Own(owner.Device.CreatePixelShader(LoadShaderBytes(D3D11ShaderLayout.DisplayPixelResourceName)));
             constants = Own(owner.Device.CreateBuffer(new BufferDescription(D3D11ShaderLayout.SolidConstantWords * sizeof(uint), BindFlags.ConstantBuffer)));
-            memoryBuffer = Own(owner.Device.CreateBuffer(new BufferDescription(D3D11ShaderLayout.PpuMemoryWords * sizeof(uint),
+            memoryBuffer = Own(owner.Device.CreateBuffer(new BufferDescription(D3D11ShaderLayout.PaletteWords * sizeof(uint),
                 BindFlags.ShaderResource, ResourceUsage.Default, CpuAccessFlags.None, ResourceOptionFlags.BufferStructured, sizeof(uint))));
             memoryView = Own(owner.Device.CreateShaderResourceView(memoryBuffer));
             spriteDraws = Own(new D3D11SpriteDrawBuffer(owner.Device));
@@ -142,7 +142,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             var operations = new List<RenderLayer>();
             if (mode7.Background is { } background && mode7.Floor is { } shownFloor) operations.Add(new Mode7RenderLayer(background, shownFloor));
             operations.Add(new ObjRenderLayer());
-            DrawLayers(packet, new LayeredRenderSnapshot(mode7.Memory,
+            DrawLayers(packet, new LayeredRenderSnapshot(mode7.Paint,
                 operations.ToArray(), mode7.Brightness), mode7.Gradient);
             return;
         }
@@ -498,10 +498,9 @@ public sealed class D3D11FrameRenderer : IDisposable
             if (layer is not (Bg4BppRenderLayer or Bg2BppViewportRenderLayer or FixedColorAddRenderLayer or ObjRenderLayer or ObjPriorityRenderLayer or Mode7RenderLayer or Mode7GameplayRenderLayer or ScanlineColorAddRenderLayer or Bg2BppColorMathRenderLayer or BgSubscreenAddRenderLayer or MessageBoxRenderLayer or OrdinaryGameplayRenderLayer or WindowedSceneRenderLayer or GameplayColorMathRenderLayer))
                 throw new NotSupportedException($"GPU layer {layer.GetType().Name} is not implemented yet.");
         var memory = memoryUpload;
-        MemoryMarshal.Cast<byte, uint>(scene.Memory.Vram).CopyTo(memory);
-        for (int i = 0; i < scene.Memory.Cgram.Length; i++) memory[D3D11ShaderLayout.VramPackedWords + i] = scene.Memory.Cgram[i].ToWord();
+        for (int i = 0; i < scene.Paint.Colors.Length; i++) memory[i] = scene.Paint.Colors[i].ToWord();
         fixed (uint* source = memory) UploadBuffer(memoryBuffer, (nint)source, memory.Length * sizeof(uint));
-        spriteDraws.Pack(scene.Memory.SpriteDraws.AsSpan(), scene.Memory.Cgram);
+        spriteDraws.Pack(scene.Paint.SpriteDraws.AsSpan(), scene.Paint.Colors);
         fixed (uint* source = spriteDraws.Upload) UploadBuffer(spriteDraws.Buffer, (nint)source, spriteDraws.Upload.Length * sizeof(uint));
         SuperMetroid.Core.Assets.SpriteSheetFrame? messagePicture = null;
         foreach (RenderLayer layer in scene.Layers)

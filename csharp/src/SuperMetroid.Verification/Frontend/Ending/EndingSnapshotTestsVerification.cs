@@ -1,3 +1,4 @@
+﻿using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
@@ -55,12 +56,12 @@ internal static class EndingSnapshotTestsVerification
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.FadeInZebesExplosion];
                     var explosion = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
                     if (firstPhaseFrame && legacy.Stage.Phase == EndingCreditsPhase.FadeInZebesExplosion)
-                        explosionBackgroundSource = explosion.Memory.Cgram.Slice(112, 16).ToArray();
+                        explosionBackgroundSource = explosion.Paint.Colors.Slice(112, 16).ToArray();
                     for (int i = 0; i < 16; i++)
                     {
                         int remaining = 32 - elapsed / 2;
                         Bgr555 expectedColor = (explosionBackgroundSource ?? throw new InvalidOperationException("Verification requires explosionBackgroundSource."))[i].Map((_, channel) => channel * remaining / 32);
-                        AssertEqual(expectedColor, explosion.Memory.Cgram[112 + i], "native explosion BG palette fades out on the same cadence");
+                        AssertEqual(expectedColor, explosion.Paint.Colors[112 + i], "native explosion BG palette fades out on the same cadence");
                     }
 
                     foreach (int start in new[] { 208, 240 })
@@ -71,7 +72,7 @@ internal static class EndingSnapshotTestsVerification
                         ushort expectedColor = (ushort)(((source & 31) * step / 32)
                             | (((source >> 5 & 31) * step / 32) << 5)
                             | (((source >> 10 & 31) * step / 32) << 10));
-                        AssertEqual(expectedColor, explosion.Memory.Cgram[i], "native explosion OBJ palette fades in over both fade-in and crossfade phases");
+                        AssertEqual(expectedColor, explosion.Paint.Colors[i], "native explosion OBJ palette fades in over both fade-in and crossfade phases");
                     }
                     AssertTrue(explosion.LayersOf<ObjRenderLayer>().Single().AddToScreen,
                         "explosion transition adds OBJ subscreen to BG1 and backdrop");
@@ -85,7 +86,7 @@ internal static class EndingSnapshotTestsVerification
                 if (legacy.Stage.Phase == EndingCreditsPhase.PostCreditsShootingStars)
                 {
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsShootingStars];
-                    var colors = EndingCreditsPresentation.CaptureRenderSnapshot(legacy).Memory.Cgram;
+                    var colors = EndingCreditsPresentation.CaptureRenderSnapshot(legacy).Paint.Colors;
                     for (int i = 32; i < 48; i++)
                     {
                         ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8ce7e9 + i * 2);
@@ -101,8 +102,8 @@ internal static class EndingSnapshotTestsVerification
                 {
                     var burst = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
                     var sub = burst.LayersOf<BgSubscreenAddRenderLayer>().Single();
-                    AssertTrue(ShowsTilemap(burst, sub.Cells, 0x7c00), "F2B7 selects burst BG2 map");
-                    AssertTrue(ShowsTilemap(burst, (sub.MainCoverage ?? throw new InvalidOperationException("Verification requires sub.MainCoverage.")).Cells, 0x7000),
+                    AssertTrue(ShowsTilemap(legacy.ShownVram(), sub.Cells, 0x7c00), "F2B7 selects burst BG2 map");
+                    AssertTrue(ShowsTilemap(legacy.ShownVram(), (sub.MainCoverage ?? throw new InvalidOperationException("Verification requires sub.MainCoverage.")).Cells, 0x7000),
                         "F2B7 keeps BG1 map and excludes backdrop color math");
 
                     burstDisplayFrames++;
@@ -112,7 +113,7 @@ internal static class EndingSnapshotTestsVerification
                 {
                     var finale = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
                     var backgrounds = finale.LayersOf<Bg4BppRenderLayer>();
-                    AssertTrue(backgrounds.Zip(new[] { 0x7800, 0x7400, 0x7800, 0x7400 }).All(shown => ShowsTilemap(finale, shown.First.Cells, shown.Second)),
+                    AssertTrue(backgrounds.Zip(new[] { 0x7800, 0x7400, 0x7800, 0x7400 }).All(shown => ShowsTilemap(legacy.ShownVram(), shown.First.Cells, shown.Second)),
                         "native explosion finale selects both background maps in main-screen priority order");
                     AssertTrue(backgrounds.All(bg => ShowsCharacters(bg.Cells, legacy.BackgroundTiles(EndingPaletteId.Explosion, 0x4000, BgBitDepth.FourBpp))),
                         "explosion finale uses Mode1 character base, not stale Mode7 decoding");
@@ -150,7 +151,7 @@ internal static class EndingSnapshotTestsVerification
                     var expectedOam = ScreenSpritesFixtures.Frame(objects => referenceJump.Draw(objects, rewardArt));
                     // The live ending also appends the restored shooting stars after the reference jump actors.
                     PlacedSpritePart[] jumpParts = PlacedSpritePart.Of(expectedOam.Draws);
-                    PlacedSpritePart[] liveParts = [.. jumpFrame.Memory.SpriteParts().Take(jumpParts.Length)];
+                    PlacedSpritePart[] liveParts = [.. jumpFrame.Paint.SpriteParts().Take(jumpParts.Length)];
                     int[] mismatches = [.. Enumerable.Range(0, jumpParts.Length).Where(index => index >= liveParts.Length || liveParts[index] != jumpParts[index])];
                     AssertTrue(mismatches.Length == 0,
                         "live reward preserves native actor positions, sizes, tile indices and palettes on every jump frame" +
@@ -165,7 +166,7 @@ internal static class EndingSnapshotTestsVerification
                         "live reward jump consumes native flight and landing durations before shooting");
                     byte[] icon = RomDataReader.Decompress(bus, EndingCreditsRomData.Assets.PostCreditsMode7Characters,
                         EndingCreditsRomData.Rendering.DecompressionLimit);
-                    AssertTrue(icon.AsSpan(0, 0x8000).SequenceEqual(EndingCreditsPresentation.CaptureRenderSnapshot(legacy).Memory.Vram[..0x8000]),
+                    AssertTrue(icon.AsSpan(0, 0x8000).SequenceEqual(legacy.ShownVram()[..0x8000]),
                         "live landing uploads all sixteen chunks of the native interleaved icon graphics");
                 }
                 if (firstPhaseFrame && legacy.Stage.Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
@@ -178,7 +179,7 @@ internal static class EndingSnapshotTestsVerification
                     var add = flash.LayersOf<FixedColorAddRenderLayer>().Single();
                     AssertEqual((byte)Math.Max(0, 31 - elapsed), add.Red, "native post-shot white fade component");
                     var textPlane = flash.LayersOf<Bg4BppRenderLayer>().Single();
-                    AssertTrue(ShowsTilemap(flash, textPlane.Cells, 0x4c00), "final text uses native upper screen");
+                    AssertTrue(ShowsTilemap(legacy.ShownVram(), textPlane.Cells, 0x4c00), "final text uses native upper screen");
                     AssertEqual(64, textPlane.MapSize.Y, "final text map is two screens tall");
                     if (firstPhaseFrame)
                         AssertTrue(legacy.Render().All(pixel => pixel == new Rgba32(255, 255, 255)), "post-shot flash begins fully white");
@@ -208,7 +209,7 @@ internal static class EndingSnapshotTestsVerification
                     int elapsed = tick - rewardStart;
                     int activeElapsed = elapsed <= 64 ? elapsed : elapsed < 244 ? 64 : elapsed - 180;
                     int fadeStep = activeElapsed / 4;
-                    var colors = EndingCreditsPresentation.CaptureRenderSnapshot(legacy).Memory.Cgram;
+                    var colors = EndingCreditsPresentation.CaptureRenderSnapshot(legacy).Paint.Colors;
                     foreach (int start in hours < 3 ? new[] { 32, 208 } : new[] { 32, 208, 224 })
                     {
                         int factor = start == 32 ? 32 - fadeStep : fadeStep;
@@ -232,14 +233,14 @@ internal static class EndingSnapshotTestsVerification
                     var copyright = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
                     AssertTrue(!copyright.Layers.Any(layer => layer is ObjRenderLayer),
                         "native E293 hides reward actors during copyright panel");
-                    AssertTrue(ShowsTilemap(copyright, copyright.LayersOf<Bg4BppRenderLayer>().Single().Cells, 0x4800),
+                    AssertTrue(ShowsTilemap(legacy.ShownVram(), copyright.LayersOf<Bg4BppRenderLayer>().Single().Cells, 0x4800),
                         "native E293 selects copyright BG1 after first 64 reveal frames");
                 }
                 if (legacy.Stage.Phase is EndingCreditsPhase.WaitForPlanetEscapeMusic or EndingCreditsPhase.WaitForPlanetEscapeMusicQueue)
                 {
                     var flash = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
                     AssertEqual(0, flash.Layers.Length, "native F32B disables both screens for explosion whiteout");
-                    AssertEqual(0x7fff, flash.Memory.Cgram[0], "native explosion whiteout backdrop");
+                    AssertEqual(0x7fff, flash.Paint.Colors[0], "native explosion whiteout backdrop");
                     if (firstPhaseFrame)
                         AssertTrue(legacy.Render().All(pixel => pixel == new Rgba32(255, 255, 255)),
                             "explosion whiteout is white across the actual rendered viewport");
@@ -251,14 +252,14 @@ internal static class EndingSnapshotTestsVerification
                     AssertEqual(hours >= 10 ? 0 : 1, backgrounds.Length, "native reward reveal background enable mask");
                     if (hours < 10)
                     {
-                        AssertTrue(ShowsTilemap(reveal, backgrounds[0].Cells, 0x4c00), "reward reveal selects waiting BG2, not producer BG1");
+                        AssertTrue(ShowsTilemap(legacy.ShownVram(), backgrounds[0].Cells, 0x4c00), "reward reveal selects waiting BG2, not producer BG1");
                         AssertTrue(ShowsCharacters(backgrounds[0].Cells, legacy.BackgroundTiles(EndingPaletteId.PostCredits, 0x5000, BgBitDepth.FourBpp)),
                             "reward reveal uses waiting BG2 characters");
                     }
                 }
                 if (legacy.Stage.Phase is EndingCreditsPhase.PlanetEscapeFast or EndingCreditsPhase.PlanetEscapeSlow or EndingCreditsPhase.PlanetEscapeAccelerating)
                 {
-                    gunshipPalettes.Add(string.Join(',', EndingCreditsPresentation.CaptureRenderSnapshot(legacy).Memory.Cgram.Slice(80, 16).ToArray()));
+                    gunshipPalettes.Add(string.Join(',', EndingCreditsPresentation.CaptureRenderSnapshot(legacy).Paint.Colors.Slice(80, 16).ToArray()));
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PlanetEscapeFast];
                     int expectedWhite = elapsed <= 192 ? 31 : Math.Max(0, 30 - (elapsed - 193) / 8);
                     var flight = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
@@ -276,7 +277,7 @@ internal static class EndingSnapshotTestsVerification
                 }
                 if (legacy.Stage.Phase == EndingCreditsPhase.OperationSuccessfulText && tick % 97 == 0)
                 {
-                    var memory = EndingCreditsPresentation.CaptureRenderSnapshot(legacy).Memory;
+                    var memory = EndingCreditsPresentation.CaptureRenderSnapshot(legacy).Paint;
                     AssertTrue(memory.SpriteParts().All(part => part.Part.Palette <= 2),
                         "explosion actors delete before operation text, leaving only text OBJ palettes");
                 }
@@ -290,32 +291,33 @@ internal static class EndingSnapshotTestsVerification
                     stars?.Draw(starOnlyOam, InstalledFixtures.SpriteSheets.Get(SpriteSheetId.EndingLogoSprites));
                     starOnlyOam.FinalizeFrame();
                     var actual = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
-                    AssertTrue(PlacedSpritePart.Of(starOnlyOam.Draws).SequenceEqual(actual.Memory.SpriteParts()),
+                    AssertTrue(PlacedSpritePart.Of(starOnlyOam.Draws).SequenceEqual(actual.Paint.SpriteParts()),
                         "native E58A leaves only the independent shooting stars before final percentage text");
                 }
                 if (legacy.Stage.Phase == EndingCreditsPhase.PlanetEscapeFast && sample)
                 {
-                    var memory = EndingCreditsPresentation.CaptureRenderSnapshot(legacy).Memory;
+                    var memory = EndingCreditsPresentation.CaptureRenderSnapshot(legacy).Paint;
+                    byte[] vram = legacy.ShownVram();
                     byte[] characters = RomDataReader.Decompress(bus, 0x95a82f, 0x8000);
                     byte[] map = RomDataReader.Decompress(bus, 0x96fe69, 0x8000);
                     for (int word = 0; word < 0x4000; word++)
                     {
-                        AssertEqual(characters[word], memory.Vram[word * 2 + 1], "native flyaway character upload");
-                        AssertEqual(word < 0x300 ? map[word] : (byte)0x8c, memory.Vram[word * 2],
+                        AssertEqual(characters[word], vram[word * 2 + 1], "native flyaway character upload");
+                        AssertEqual(word < 0x300 ? map[word] : (byte)0x8c, vram[word * 2],
                             "native flyaway map upload and padded background");
                     }
-                    AssertEqual(0, memory.Cgram[0], "flyaway clears explosion backdrop");
+                    AssertEqual(0, memory.Colors[0], "flyaway clears explosion backdrop");
                     if (firstPhaseFrame)
-                        AssertEqual(0x7fff, memory.Cgram[81], "native gunship emergence palette starts white");
+                        AssertEqual(0x7fff, memory.Colors[81], "native gunship emergence palette starts white");
                 }
                 if (legacy.Stage.Phase == EndingCreditsPhase.PostCreditsBlank)
                 {
-                    var memory = EndingCreditsPresentation.CaptureRenderSnapshot(legacy).Memory;
+                    var memory = EndingCreditsPresentation.CaptureRenderSnapshot(legacy).Paint;
                     for (int color = 4; color < 256; color++)
                         AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8ce7e9 + color * 2),
-                            memory.Cgram[color], "native end-credits Intro4 palette");
+                            memory.Colors[color], "native end-credits Intro4 palette");
                     byte[] reward = RomDataReader.Decompress(bus, hours < 3 ? 0x97b957 : 0x979803, 0x8000);
-                    AssertTrue(reward.AsSpan(0, 0x4000).SequenceEqual(memory.Vram[..0x4000]),
+                    AssertTrue(reward.AsSpan(0, 0x4000).SequenceEqual(legacy.ShownVram().AsSpan(0, 0x4000)),
                         "reward branch uses native contiguous OBJ characters");
                 }
                 RenderFrameSnapshot? packet = null;
@@ -359,10 +361,10 @@ internal static class EndingSnapshotTestsVerification
         Console.WriteLine($"  Ending snapshots: {samples} sampled frames cover escape, credits and all three reward branches.");
     }
 
-    /// <summary>Whether <paramref name="cells"/> are the cells of the tilemap at <paramref name="tilemapWord"/> in <paramref name="scene"/>'s memory image.</summary>
+    /// <summary>Whether <paramref name="cells"/> are the cells of the tilemap at <paramref name="tilemapWord"/> in the scene's memory image <paramref name="vram"/>.</summary>
     [PpuLayoutBoundary("exact hardware test: compares a layer's cells with the native tilemap the cartridge selects")]
-    private static bool ShowsTilemap(LayeredRenderSnapshot scene, ScreenTileMap cells, int tilemapWord) =>
-        ScreenTileMap.Capture(scene.Memory.Vram, tilemapWord, cells.Size, cells.Tiles).Equals(cells);
+    private static bool ShowsTilemap(byte[] vram, ScreenTileMap cells, int tilemapWord) =>
+        ScreenTileMap.Capture(vram, tilemapWord, cells.Size, cells.Tiles).Equals(cells);
 
     /// <summary>Whether <paramref name="cells"/> show the tiles of <paramref name="characters"/>.</summary>
     private static bool ShowsCharacters(ScreenTileMap cells, ScreenLayerPictures characters) =>

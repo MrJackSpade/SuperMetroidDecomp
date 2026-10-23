@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Hardware;
@@ -63,8 +64,8 @@ internal static class PauseWireframesVerification
                 {
                     native.Step(input, input); pause.Step(input, input);
                     var nativeInputs = native.CaptureRenderSnapshot(); var portInputs = pause.CaptureRenderSnapshot();
-                    AssertTrue(nativeInputs.Memory.Vram.SequenceEqual(portInputs.Memory.Vram), "every native wireframe variant retains exact VRAM through page transitions, including Gravity");
-                    AssertTrue(nativeInputs.Memory.Cgram.SequenceEqual(portInputs.Memory.Cgram) && nativeInputs.Memory.SpriteParts().SequenceEqual(portInputs.Memory.SpriteParts()) &&
+                    AssertTrue(native.ShownVram().SequenceEqual(pause.ShownVram()), "every native wireframe variant retains exact VRAM through page transitions, including Gravity");
+                    AssertTrue(nativeInputs.Paint.Colors.SequenceEqual(portInputs.Paint.Colors) && nativeInputs.Paint.SpriteParts().SequenceEqual(portInputs.Paint.SpriteParts()) &&
                         nativeInputs.Brightness == portInputs.Brightness, "every native wireframe variant retains exact colors, objects and brightness through page transitions");
                 }
                 void AssertPixels() =>
@@ -76,9 +77,9 @@ internal static class PauseWireframesVerification
                 AssertPixels();
                 AssertEqual(PauseScreenMode.Map, pause.ScreenMode, "wireframe fixture returns to the map page");
                 // Rebind on the map must not replace the map's shared BG1 page.
-                byte[] map = pause.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x1000).ToArray();
+                byte[] map = pause.ShownVram().AsSpan(0x6000, 0x1000).ToArray();
                 pause.BindFixtureArtwork(edited);
-                AssertTrue(map.SequenceEqual(pause.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x1000)), "wireframe edit while viewing map does not overwrite BG1 map");
+                AssertTrue(map.SequenceEqual(pause.ShownVram().AsSpan(0x6000, 0x1000)), "wireframe edit while viewing map does not overwrite BG1 map");
                 EnterEquipment(pause);
                 AssertPage(pause, edited, kind);
                 var editedPixels = pause.Render();
@@ -139,7 +140,7 @@ internal static class PauseWireframesVerification
         { EnterPauseEquipment(pause); AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "wireframe fixture enters equipment"); }
         static void AssertPage(PauseMenuState pause, AreaMapPresentationCatalog catalog, PauseWireframeKind kind)
         {
-            byte[] actual = pause.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800).ToArray();
+            byte[] actual = pause.ShownVram().AsSpan(0x6000, 0x800).ToArray();
             byte[] expected = actual.ToArray(); catalog.PauseWireframes.ApplyTo(expected, kind);
             AssertTrue(expected.SequenceEqual(actual), "actual equipment page contains the selected current-content wireframe patch");
         }

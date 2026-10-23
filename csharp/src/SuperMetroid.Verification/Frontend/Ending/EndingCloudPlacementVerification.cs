@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -64,15 +65,16 @@ internal static class EndingCloudPlacementVerification
             foreach (var actor in actors) actor.Sprite.Draw(oam, installedArt: cloudSprites);
             oam.FinalizeFrame();
             var actual = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
+            byte[] actualVram = ending.ShownVram();
             byte[] oamBytes = [.. oam.LowTable.ToArray(), .. oam.HighTable.ToArray()];
-            var expectedMemory = PpuMemorySnapshot.FromOam(actual.Memory.Vram, actual.Memory.Cgram,
+            var expectedMemory = FramePaint.FromOam(actualVram, actual.Paint.Colors,
                 oamBytes, oam.LastFinalizedSpriteCount, EndingCreditsPresentation.ObjectSelection(EndingCreditsPresentation.CurrentEscapeObjectSheet(ending)));
             var expected = SoftwareLayeredSnapshotRenderer.Render(new(expectedMemory, actual.Layers, actual.Brightness));
             var pixels = ending.Render();
             int differs = pixels.ToArray().Zip(expected, (live, native) => live != native).ToList().IndexOf(true);
             AssertTrue(differs < 0, $"scene B cloud positions/motion frame {frame} ({ending.Stage.Phase})" + (differs < 0 ? ""
                 : $": pixel ({differs % 256},{differs / 256}) live {pixels[differs]}, native {expected[differs]}; live draws " +
-                    string.Join(", ", actual.Memory.SpriteDraws.OfType<ImageSpriteDraw>().Select(draw =>
+                    string.Join(", ", actual.Paint.SpriteDraws.OfType<ImageSpriteDraw>().Select(draw =>
                         $"{draw.Image.Size.X}x{draw.Image.Size.Y} at {draw.Corner.X},{draw.Corner.Y}")) + "; native objects " +
                     string.Join(", ", Enumerable.Range(0, oam.LastFinalizedSpriteCount).Select(index => oam.GetEntry(index)).Select(entry =>
                         $"{entry.TileNumber:X3}{(entry.IsLarge ? "L" : "s")} at {entry.Position.X},{entry.Position.Y}"))));
@@ -97,10 +99,13 @@ internal static class EndingCloudPlacementVerification
         AssertEqual(EndingCreditsPhase.EscapeSceneA, ending.Stage.Phase, "takeoff color-math scene reached");
         for (int frame = 0; frame < 90; frame++) ending.Step();
         var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
-        var memory = new SoftwarePpuSnapshotMemory(snapshot.Memory);
+        byte[] snapshotVram = ending.ShownVram();
+        var memory = new SoftwarePpuSnapshotMemory(snapshot.Paint);
+        var shownVram = new SnesVram();
+        shownVram.LoadBytes(0, snapshotVram);
         Mode7RenderLayer shown = snapshot.LayersOf<Mode7RenderLayer>().First();
         var registers = shown.Transform;
-        var background = SnesMode7Renderer.RenderViewport(memory.Vram, memory.Cgram, new AffineTransform { MatrixA = registers.MatrixA, MatrixB = registers.MatrixB, MatrixC = registers.MatrixC, MatrixD = registers.MatrixD, Center = new Offset16<Mode7Pixels>(registers.Center.X, registers.Center.Y), Scroll = new Offset16<Mode7Pixels>(registers.Scroll.X, registers.Scroll.Y), Outside = registers.Outside });
+        var background = SnesMode7Renderer.RenderViewport(shownVram, memory.Cgram, new AffineTransform { MatrixA = registers.MatrixA, MatrixB = registers.MatrixB, MatrixC = registers.MatrixC, MatrixD = registers.MatrixD, Center = new Offset16<Mode7Pixels>(registers.Center.X, registers.Center.Y), Scroll = new Offset16<Mode7Pixels>(registers.Scroll.X, registers.Scroll.Y), Outside = registers.Outside });
         // SetupPpu_5_Mode7 ($8B:8293) writes M7SEL=0, not the $80
         // transparent-overflow mode. Keep this oracle independent of the renderer's
         // overflow policy: the native tile lookup masks BOTH coordinates to ten bits.
@@ -117,8 +122,8 @@ internal static class EndingCloudPlacementVerification
                 + ((registers.MatrixB * v) & ~63) + SnesEightEight.FromWhole(cx) + registers.MatrixA * x) & 1023;
             int sy = SnesEightEight.WholeOf(((registers.MatrixC * h) & ~63) + ((registers.MatrixD * (y + 1)) & ~63)
                 + ((registers.MatrixD * v) & ~63) + SnesEightEight.FromWhole(cy) + registers.MatrixC * x) & 1023;
-            int tile = snapshot.Memory.Vram[((sy >> 3) * 128 + (sx >> 3)) * 2];
-            int color = snapshot.Memory.Vram[(tile * 64 + (sy & 7) * 8 + (sx & 7)) * 2 + 1];
+            int tile = snapshotVram[((sy >> 3) * 128 + (sx >> 3)) * 2];
+            int color = snapshotVram[(tile * 64 + (sy & 7) * 8 + (sx & 7)) * 2 + 1];
             if (color != 0) wrappedBackground[y * 256 + x] = memory.Cgram.GetRgba(color);
         }
         if (checkWrapping) background = wrappedBackground;
@@ -140,7 +145,7 @@ internal static class EndingCloudPlacementVerification
         if (checkWrapping)
         {
             // Isolate overflow from the independently missing main/subscreen math.
-            var projected = SoftwareLayeredSnapshotRenderer.Render(new(snapshot.Memory,
+            var projected = SoftwareLayeredSnapshotRenderer.Render(new(snapshot.Paint,
                 new RenderLayer[] { new Mode7RenderLayer(registers, shown.Floor) }, 15));
             var wrapped = SnesLayerCompositor.CreateBackdrop(memory.Cgram, 256 * 224);
             SnesLayerCompositor.Composite(wrapped, wrappedBackground);

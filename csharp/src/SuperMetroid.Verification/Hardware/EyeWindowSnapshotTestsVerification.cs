@@ -27,7 +27,7 @@ internal static class EyeWindowSnapshotTestsVerification
         VerifyReportedEyeNativeEndpoints();
         var cgram = new SnesCgram(); cgram.SetColor(0, Bgr555.FromWord(0x392a));
         var oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();
-        var memory = PpuMemorySnapshotConstants.CaptureFrontend(new SnesVram(), cgram, oam, 3);
+        var memory = FramePaintConstants.CaptureFrontend(new SnesVram(), cgram, oam, 3);
         Rgba32[] baseline = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
         int samples = 0;
         foreach (ushort width in new ushort[] { 0, 1, 24 })

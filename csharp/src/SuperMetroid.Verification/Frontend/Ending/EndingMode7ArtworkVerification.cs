@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -56,9 +57,11 @@ internal static class EndingMode7ArtworkVerification
             if (first || frame % 173 == 0)
             {
                 LayeredRenderSnapshot expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
+                byte[] expectedVram = native.ShownVram();
                 LayeredRenderSnapshot actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
-                AssertTrue(actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
-                        actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
+                byte[] actualVram = installed.ShownVram();
+                AssertTrue(actualVram.SequenceEqual(expectedVram) &&
+                        actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
                         SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
                             SoftwareLayeredSnapshotRenderer.Render(expected)),
                     $"installed ending art preserves native VRAM and pixels at frame {frame}");
@@ -107,9 +110,10 @@ internal static class EndingMode7ArtworkVerification
                 audio.AdvanceFrame(default);
             }
             LayeredRenderSnapshot baselineSnapshot = EndingCreditsPresentation.CaptureRenderSnapshot(state);
+            byte[] baselineSnapshotVram = state.ShownVram();
             AssertTrue(baselineSnapshot.Brightness > 0,
                 $"ending {id} override fixture reaches a visible frame");
-            byte[] baseline = baselineSnapshot.Memory.Vram.ToArray();
+            byte[] baseline = baselineSnapshotVram.ToArray();
             Rgba32[] baselinePixels = SoftwareLayeredSnapshotRenderer.Render(baselineSnapshot);
 
             string mapName = EndingMode7ArtworkFormat.MapFileName(id);
@@ -125,7 +129,8 @@ internal static class EndingMode7ArtworkVerification
             EndingMode7ArtworkCatalog editedMap = installation.LoadEndingMode7Art();
             state.Stage.BindMode7Artwork(editedMap);
             LayeredRenderSnapshot mapSnapshot = EndingCreditsPresentation.CaptureRenderSnapshot(state);
-            byte[] mapVram = mapSnapshot.Memory.Vram.ToArray();
+            byte[] mapSnapshotVram = state.ShownVram();
+            byte[] mapVram = mapSnapshotVram.ToArray();
             AssertTrue(!baseline.SequenceEqual(mapVram) &&
                     baseline.AsSpan(0x8000).SequenceEqual(mapVram.AsSpan(0x8000)) &&
                     !baselinePixels.SequenceEqual(
@@ -151,9 +156,9 @@ internal static class EndingMode7ArtworkVerification
                     partial.Step();
                     partialAudio.AdvanceFrame(default);
                 }
-                byte[] partiallyUploaded = EndingCreditsPresentation.CaptureRenderSnapshot(partial).Memory.Vram.ToArray();
+                byte[] partiallyUploaded = partial.ShownVram().ToArray();
                 partial.Stage.BindMode7Artwork(editedMap);
-                byte[] rebound = EndingCreditsPresentation.CaptureRenderSnapshot(partial).Memory.Vram.ToArray();
+                byte[] rebound = partial.ShownVram().ToArray();
                 for (int word = 0; word < EndingCreditsRomData.Rendering.FlyawayUploadBytes; word++)
                     AssertEqual(partiallyUploaded[word * 2], rebound[word * 2],
                         $"edited explosion retains already-transferred map word {word}");
@@ -185,7 +190,8 @@ internal static class EndingMode7ArtworkVerification
             // The ending draws its Mode 7 characters from the sheets the edited art composes (#1392).
             state.InstalledArtwork.BindSpriteSheets(EndingSheetFixtures.WithEndingMode7(editedCharacters));
             LayeredRenderSnapshot characterSnapshot = EndingCreditsPresentation.CaptureRenderSnapshot(state);
-            byte[] characterVram = characterSnapshot.Memory.Vram.ToArray();
+            byte[] characterSnapshotVram = state.ShownVram();
+            byte[] characterVram = characterSnapshotVram.ToArray();
             AssertTrue(!baseline.SequenceEqual(characterVram) &&
                     baseline.AsSpan(0x8000).SequenceEqual(characterVram.AsSpan(0x8000)) &&
                     !baselinePixels.SequenceEqual(

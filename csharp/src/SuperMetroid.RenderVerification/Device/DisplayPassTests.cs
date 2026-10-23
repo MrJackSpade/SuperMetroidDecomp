@@ -21,7 +21,7 @@ internal static class DisplayPassTests
         random.NextBytes(vram);
         Bgr555[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount)
             .Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
-        var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(new PpuMemorySnapshot(vram, palette, []),
+        var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(new FramePaint(palette, []),
             [new Bg4BppRenderLayer(VramTileFixtures.Cells(vram, palette, 0x4000, 0x6000, BgBitDepth.FourBpp, new Extent16<TilemapCells>(32, 32)),
                 new Position16<BgPlanePixels>(3, 11), null)], 15));
         var native = SoftwareFrameSnapshotRenderer.Render(packet);

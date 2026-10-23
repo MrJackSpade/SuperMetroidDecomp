@@ -6,23 +6,20 @@ namespace SuperMetroid.Core.Rendering;
 [PpuLayoutBoundary("codec: restores a render snapshot into software PPU memory")]
 internal sealed class SoftwarePpuSnapshotMemory
 {
-    /// <summary>Writable 64 KiB VRAM copy loaded from the current render snapshot.</summary>
-    internal SnesVram Vram { get; } = new();
     /// <summary>Palette copy populated color by color from the current snapshot.</summary>
     internal SnesCgram Cgram { get; } = new();
     /// <summary>Whole-frame sprite draws restored from the snapshot.</summary>
     internal SpriteFrameBuffer Sprites { get; } = new();
 
     /// <summary>Creates scratch PPU memory already populated from one render snapshot.</summary>
-    internal SoftwarePpuSnapshotMemory(PpuMemorySnapshot snapshot) => Load(snapshot);
+    internal SoftwarePpuSnapshotMemory(FramePaint snapshot) => Load(snapshot);
 
     /// <summary>Replaces every modeled byte, so a pooled reader carries nothing between frames.</summary>
-    internal void Load(PpuMemorySnapshot snapshot)
+    internal void Load(FramePaint snapshot)
     {
         Ensure.NotNull(snapshot);
-        Vram.LoadBytes(0, snapshot.Vram);
         for (int index = 0; index < SnesCgram.ColorCount; index++)
-            Cgram.SetColor(index, snapshot.Cgram[index]);
+            Cgram.SetColor(index, snapshot.Colors[index]);
         Sprites.LoadDraws(snapshot.SpriteDraws);
     }
 }

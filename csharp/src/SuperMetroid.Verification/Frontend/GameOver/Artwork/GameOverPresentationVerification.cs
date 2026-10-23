@@ -127,14 +127,14 @@ internal static class GameOverPresentationVerification
             originalMenu.Step(0);
         int? stepBeforeRebind = originalMenu.BabyStep;
         GameOverMenuPhase phaseBeforeRebind = originalMenu.Phase;
-        int babyXBeforeRebind = originalMenu.CaptureRenderSnapshot().Memory.SpriteParts()[0].Part.Position.X;
+        int babyXBeforeRebind = originalMenu.CaptureRenderSnapshot().Paint.SpriteParts()[0].Part.Position.X;
         originalMenu.BindFixtureArtwork(edited);
         AssertEqual(stepBeforeRebind, originalMenu.BabyStep,
             "game-over content rebind preserves Baby animation phase");
         AssertEqual(phaseBeforeRebind, originalMenu.Phase,
             "game-over content rebind preserves menu phase");
         AssertEqual(babyXBeforeRebind + 8,
-            (int)originalMenu.CaptureRenderSnapshot().Memory.SpriteParts()[0].Part.Position.X,
+            (int)originalMenu.CaptureRenderSnapshot().Paint.SpriteParts()[0].Part.Position.X,
             "game-over rebind applies edited Baby anchor without resetting live timing");
 
         File.WriteAllText(replacement, "{ broken game-over JSON");

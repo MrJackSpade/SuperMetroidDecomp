@@ -19,8 +19,7 @@ public static class SoftwareMode7ObjSnapshotRenderer
         // A later direct-span consumer can eliminate these copies without changing the
         // packet or requiring GPU consumers to construct hardware objects.
         using var scratch = new RenderScratch();
-        SoftwarePpuSnapshotMemory memory = scratch.Memory(snapshot.Memory);
-        SnesVram vram = memory.Vram;
+        SoftwarePpuSnapshotMemory memory = scratch.Memory(snapshot.Paint);
         SnesCgram cgram = memory.Cgram;
         SpriteFrameBuffer sprites = memory.Sprites;
 

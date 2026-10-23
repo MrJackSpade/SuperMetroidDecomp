@@ -24,7 +24,7 @@ internal static class ObjSubscreenVerification
         colors[129] = 7 | (31 << 10);
         byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         oam[0] = 8; oam[1] = 8;
-        var memory = PpuMemorySnapshot.FromOam(vram, ToColors(colors), oam, 1, 0);
+        var memory = FramePaint.FromOam(vram, ToColors(colors), oam, 1, 0);
         var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory,
             new RenderLayer[] { new ObjRenderLayer(true) }, 15));
 
@@ -51,7 +51,7 @@ internal static class ObjSubscreenVerification
             byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
             oam[0] = 8; oam[1] = 8; oam[3] = (byte)(palette * 2 + priority * 16);
             var registers = new AffineTransform(256, 0, 0, 256, new Offset16<Mode7Pixels>(0, 0), new Offset16<Mode7Pixels>(0, 0));
-            var memory = PpuMemorySnapshot.FromOam(vram, ToColors(colors), oam, 1, 3);
+            var memory = FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3);
             var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory,
                 new RenderLayer[] { new Mode7RenderLayer(registers, AffineFloorFixtures.Floor(vram, ToColors(colors)), AddBg1Subscreen: true) }, 15));
             var pixels = SoftwareFrameSnapshotRenderer.Render(packet);
@@ -77,7 +77,7 @@ internal static class ObjSubscreenVerification
         colors[129] = 7 | (31 << 10);
         byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         oam[0] = 8; oam[1] = 8;
-        var memory = PpuMemorySnapshot.FromOam(vram, ToColors(colors), oam, 1, 3);
+        var memory = FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3);
         var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory,
             new RenderLayer[] { new Mode7RenderLayer(new(256, 0, 0, 256, default, default), AffineFloorFixtures.Floor(vram, ToColors(colors)), true) }, 15));
         var pixels = SoftwareFrameSnapshotRenderer.Render(packet);
@@ -100,7 +100,7 @@ internal static class ObjSubscreenVerification
             byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
             oam[0] = 8; oam[1] = 8; oam[3] = (byte)(objPalette * 2);
             var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(
-                PpuMemorySnapshot.FromOam(vram, ToColors(palette), oam, 1, 0),
+                FramePaint.FromOam(vram, ToColors(palette), oam, 1, 0),
                 new RenderLayer[] { new ObjRenderLayer(FixedColor: new(8, 4, 2)) }, 15));
             var pixels = SoftwareFrameSnapshotRenderer.Render(packet);
             AssertEqual(objPalette == 4 ? new Rgba32(123, 33, 16) : new Rgba32(57, 0, 0), pixels[8 * 256 + 8],
@@ -110,7 +110,7 @@ internal static class ObjSubscreenVerification
             foreach (byte selectedPriority in new byte[] { 0, 1 })
             {
                 var filtered = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(
-                    PpuMemorySnapshot.FromOam(vram, ToColors(palette), oam, 1, 0),
+                    FramePaint.FromOam(vram, ToColors(palette), oam, 1, 0),
                     new RenderLayer[] { new ObjPriorityRenderLayer(selectedPriority, new(8, 4, 2)) }, 15));
                 var filteredPixels = SoftwareFrameSnapshotRenderer.Render(filtered);
                 AssertEqual(selectedPriority == 0 ? pixels[8 * 256 + 8] : new Rgba32(0, 0, 255),
@@ -133,7 +133,7 @@ internal static class ObjSubscreenVerification
         colors[20] = 31 << 10;
         // The subscreen and its coverage are the one-screen maps at a tilemap word, read as the fixture stands when drawn.
         ScreenTileMap Cells(int tilemapWord) => VramTileFixtures.Cells(vram, ToColors(colors), tilemapWord, 0, BgBitDepth.FourBpp, Bg2BppViewportRenderLayer.MapSize);
-        var memory = new PpuMemorySnapshot(vram, ToColors(colors), []);
+        var memory = new FramePaint(ToColors(colors), []);
         var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory,
             new RenderLayer[] { new BgSubscreenAddRenderLayer(Cells(0x7000)) }, 15));
         AssertTrue(SoftwareFrameSnapshotRenderer.Render(packet).All(pixel => pixel == new Rgba32(255, 0, 255)),
@@ -148,7 +148,7 @@ internal static class ObjSubscreenVerification
             byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
             oam[0] = 8; oam[1] = 8; oam[3] = (byte)(palette * 2);
             var masked = new RenderFrameSnapshot(new(3, 1, 0), new LayeredRenderSnapshot(
-                PpuMemorySnapshot.FromOam(vram, ToColors(colors), oam, 1, 3),
+                FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3),
                 new RenderLayer[] { new ObjRenderLayer(), new BgSubscreenAddRenderLayer(Cells(0x7000),
                     new Bg4BppRenderLayer(Cells(0x6800), new Position16<BgPlanePixels>(0, 0), null), MainObjects: true) }, 15));
             var pixels = SoftwareFrameSnapshotRenderer.Render(masked);
@@ -164,7 +164,7 @@ internal static class ObjSubscreenVerification
             oam[0] = 8; oam[1] = 8; oam[3] = (byte)(priority << 4);
             vram[0xe000 + (32 + 1) * 2 + 1] = (byte)(4 | (highBackground ? 32 : 0));
             var composite = new RenderFrameSnapshot(new(2, 1, 0), new LayeredRenderSnapshot(
-                PpuMemorySnapshot.FromOam(vram, ToColors(colors), oam, 1, 3),
+                FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3),
                 new RenderLayer[] { new BgSubscreenAddRenderLayer(Cells(0x7000), IncludeObjects: true) }, 15));
             bool objectWins = priority >= (highBackground ? 3 : 2);
             AssertEqual(objectWins ? new Rgba32(255, 255, 0) : new Rgba32(255, 0, 255),

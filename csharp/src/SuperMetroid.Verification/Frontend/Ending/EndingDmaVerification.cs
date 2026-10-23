@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Frontend.Ending.EndingSnapshotTestsVerification;
 using SuperMetroid.Core.Hardware;
@@ -36,15 +37,15 @@ internal static class EndingDmaVerification
         AssertEqual((short)0, projection.Scroll.Y, "native atmospheric scroll Y");
         AssertEqual((short)45, projection.MatrixA, "native initial angle 32, scale 64 cosine");
         AssertEqual((short)45, projection.MatrixB, "native initial angle 32, scale 64 sine");
-        var memory = EndingCreditsPresentation.CaptureRenderSnapshot(ending).Memory;
+        byte[] vram = ending.ShownVram();
         byte[] interleaved = RomDataReader.Decompress(bus, 0x99d17e, 0x8000);
         byte[] characters = RomDataReader.Decompress(bus, 0x98bcd6, 0x8000);
         // $8B:D4FC/D51C use mode-1 DMA to both ports; D55C then overwrites
         // only the high lane. These checks are independent of either C# renderer.
         for (int word = 0; word < 0x4000; word++)
         {
-            AssertEqual(interleaved[(word * 2) % 0x4000], memory.Vram[word * 2], "ending native low-lane map DMA");
-            AssertEqual(characters[word], memory.Vram[word * 2 + 1], "ending native high-lane character DMA");
+            AssertEqual(interleaved[(word * 2) % 0x4000], vram[word * 2], "ending native low-lane map DMA");
+            AssertEqual(characters[word], vram[word * 2 + 1], "ending native high-lane character DMA");
         }
         Console.WriteLine("Ending escape DMA matches native low/high VRAM lanes.");
         for (int frame = 0; frame < 20000 && ending.Stage.Phase != EndingCreditsPhase.Credits; frame++)
@@ -54,7 +55,7 @@ internal static class EndingDmaVerification
         }
         AssertEqual(EndingCreditsPhase.Credits, ending.Stage.Phase, "ending reaches credits setup");
         byte[] reward = RomDataReader.Decompress(bus, 0x97b957, 0x8000);
-        AssertTrue(reward.AsSpan(0, 0x4000).SequenceEqual(EndingCreditsPresentation.CaptureRenderSnapshot(ending).Memory.Vram[..0x4000]),
+        AssertTrue(reward.AsSpan(0, 0x4000).SequenceEqual(ending.ShownVram()[..0x4000]),
             "native post-credits reward DMA writes contiguous bytes, not the Mode-7 high lane");
     }
 

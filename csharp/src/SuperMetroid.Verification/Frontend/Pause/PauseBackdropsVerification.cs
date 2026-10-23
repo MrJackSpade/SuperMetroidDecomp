@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using System.Buffers.Binary;
@@ -76,22 +77,24 @@ internal static class PauseBackdropsVerification
                     tick == toMap || tick == toMap + 1 || tick == unpause || tick == unpause + 1;
                 if (area != everyTickArea && !checkpoint) continue;
                 var snapshot = pause.CaptureRenderSnapshot();
-                AssertTrue(native.CaptureRenderSnapshot().Memory.Vram.SequenceEqual(snapshot.Memory.Vram), "every stock transition frame retains exact native VRAM");
+                byte[] snapshotVram = pause.ShownVram();
+                AssertTrue(native.ShownVram().SequenceEqual(snapshotVram), "every stock transition frame retains exact native VRAM");
                 var pixels = pause.Render();
                 AssertTrue(native.Render().SequenceEqual(pixels), "seven-area stock pixels match native path with frame, buttons and label ROM reads blocked");
                 var selection = new PauseBackdropsSelection(pause.ScreenMode, pause.SelectedCategory, pause.SelectedItem, pause.MapScroll);
                 pause.BindFixtureArtwork(edited);
                 var changed = pause.CaptureRenderSnapshot();
-                AssertTrue(changed.Memory.Vram.SequenceEqual(persistentEdit.CaptureRenderSnapshot().Memory.Vram),
+                byte[] changedVram = pause.ShownVram();
+                AssertTrue(changedVram.SequenceEqual(persistentEdit.ShownVram()),
                     "fresh edited session and live rebind retain the same artwork through equipment return and Start");
-                AssertTrue(snapshot.Memory.Vram.Slice(0x6000, 0x1000).SequenceEqual(changed.Memory.Vram.Slice(0x6000, 0x1000)), "backdrop rebind leaves shared map/equipment BG1 untouched");
+                AssertTrue(snapshotVram.AsSpan(0x6000, 0x1000).SequenceEqual(changedVram.AsSpan(0x6000, 0x1000)), "backdrop rebind leaves shared map/equipment BG1 untouched");
                 AssertEqual(selection, new PauseBackdropsSelection(pause.ScreenMode, pause.SelectedCategory, pause.SelectedItem, pause.MapScroll), "backdrop rebind leaves navigation and scroll untouched");
                 foreach (var span in PauseMenuLayout.ButtonLabelSpans)
                 for (int word = 0; word < span.Count; word++)
                 {
                     int offset = (PauseMenuLayout.Bg2TilemapWord + span.Word + word) * 2;
-                    var before = new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(snapshot.Memory.Vram.Slice(offset)));
-                    var after = new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(changed.Memory.Vram.Slice(offset)));
+                    var before = new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(snapshotVram.AsSpan(offset)));
+                    var after = new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(changedVram.AsSpan(offset)));
                     AssertEqual(before.PaletteIndex, after.PaletteIndex, "live button highlight wins over replacement palette at every fade position");
                     AssertTrue(before.CharacterIndex != after.CharacterIndex, "replacement button characters reach live highlighted words");
                 }
@@ -117,10 +120,10 @@ internal static class PauseBackdropsVerification
         AssertEqual(0, glitch.SelectedItem, "fixture selects Hi-Jump Boots");
         glitch.Step(0, (SnesButton.Left | SnesButton.A));
         AssertEqual((ushort)12, samus.EquippedBeams.ToNativeWord(), "fixture actually performs native Boots-to-Plasma simultaneous-input glitch");
-        byte[] glitchPage = glitch.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800).ToArray();
+        byte[] glitchPage = glitch.ShownVram().AsSpan(0x6000, 0x800).ToArray();
         AssertEqual((ushort)0x0900, BinaryPrimitives.ReadUInt16LittleEndian(glitchPage.AsSpan(0x514)), "fixture retains native VAR overrun beyond ordinary Plasma label");
         glitch.BindFixtureArtwork(edited);
-        AssertTrue(glitchPage.SequenceEqual(glitch.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800)), "replacing backdrop does not rebuild away live native equipment glitch");
+        AssertTrue(glitchPage.SequenceEqual(glitch.ShownVram().AsSpan(0x6000, 0x800)), "replacing backdrop does not rebuild away live native equipment glitch");
 
         void Reject(PauseBackdropDocument invalid, string message) => AssertThrows<InvalidDataException>(() =>
             PauseBackdropPresentation.Write(new MemoryStream(), invalid), message);

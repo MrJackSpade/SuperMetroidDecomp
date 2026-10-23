@@ -151,7 +151,7 @@ internal static class InstalledSporesTests
                         layer.Lines.All(line => line.Left > line.Right) && layer.Subscreen is not null,
                         "Spore capture does not use native source-aware $32 blending.");
                     packets.Add(new(new(packets.Count + 1, 1, 0), new LayeredRenderSnapshot(
-                        new(BgArtworkFixtures.Composed(editedVram), editedColors.Colors, []), [layer], 15)));
+                        new(editedColors.Colors, []), [layer], 15)));
                 }
                 comparisons++;
             }
@@ -370,7 +370,7 @@ internal static class InstalledSporesTests
                     Bg3 = Layer3CellsFixtures.FromVram(vram.Bytes, colors.Colors, 0x4000),
                 }),
                 new(RoomFxType.Spores, LayerBlendingConfiguration.Spores, Position16<Bg3Pixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue)));
-            var scene = new LayeredRenderSnapshot(PpuMemorySnapshot.FromOam(vram.Bytes, colors.Colors, oam, 1, 0), [layer], 15);
+            var scene = new LayeredRenderSnapshot(FramePaint.FromOam(vram.Bytes, colors.Colors, oam, 1, 0), [layer], 15);
             Rgba32[] pixels = SoftwareLayeredSnapshotRenderer.Render(scene);
             // Independent Mode-1 priority and integer BGR555 oracle. A color-only
             // post-process cannot distinguish excluded BG1/low OBJ from BG2 here.

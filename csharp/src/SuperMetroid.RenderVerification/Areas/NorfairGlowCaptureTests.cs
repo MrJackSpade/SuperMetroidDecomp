@@ -37,10 +37,10 @@ internal static class NorfairGlowCaptureTests
             // Freeze geometry, camera, objects, and every unrelated palette entry.
             // Any remaining pixel change is specifically the room's foreground glow,
             // not a moving enemy, liquid surface, or BG2 heat distortion.
-            Bgr555[] colors = original.Memory.Cgram.ToArray();
+            Bgr555[] colors = original.Paint.Colors.ToArray();
             foreach (int index in NorfairGlowFixture.ColorIndices)
-                colors[index] = scene.Memory.Cgram[index];
-            var memory = new PpuMemorySnapshot(original.Memory.Vram, colors, original.Memory.SpriteDraws);
+                colors[index] = scene.Paint.Colors[index];
+            var memory = new FramePaint(colors, original.Paint.SpriteDraws);
             var originalLayer = (OrdinaryGameplayRenderLayer)original.Layers[0];
             var registers = originalLayer.View;
             var foreground = new LayeredRenderSnapshot(memory,

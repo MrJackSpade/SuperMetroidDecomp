@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Buffers.Binary;
@@ -132,11 +133,12 @@ internal static class PauseEquipmentRulesVerification
             var pause = Create(new SamusState { EquippedItems = (SamusEquipmentFlags)items, CollectedItems = (SamusEquipmentFlags)items }); EnterPauseEquipment(pause);
             int variant = Array.IndexOf(wireframeMasks, (ushort)(items & 0x0101));
             int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuCartridgeTables.PauseWireframePointers + variant * 2);
-            var memory = pause.CaptureRenderSnapshot().Memory;
+            var memory = pause.CaptureRenderSnapshot().Paint;
+            byte[] vram = pause.ShownVram();
             for (int row = 0; row < 17; row++)
             for (int column = 0; column < 8; column++)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x820000 | (pointer + (row * 8 + column) * 2)),
-                    BinaryPrimitives.ReadUInt16LittleEndian(memory.Vram.Slice(PauseMenuLayout.Bg1TilemapWord * 2 + 472 + row * 64 + column * 2)),
+                    BinaryPrimitives.ReadUInt16LittleEndian(vram.AsSpan(PauseMenuLayout.Bg1TilemapWord * 2 + 472 + row * 64 + column * 2)),
                     "selected native wireframe artwork reaches the actual equipment tilemap");
         }
         ushort nativeAmount = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseReserveTransferRomData.TransferAmount);

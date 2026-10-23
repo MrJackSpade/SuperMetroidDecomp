@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -271,9 +272,11 @@ internal static class EndingPaletteArtworkVerification
             if (first || frame % 173 == 0)
             {
                 LayeredRenderSnapshot expected = EndingCreditsPresentation.CaptureRenderSnapshot(nativeState);
+                byte[] expectedVram = nativeState.ShownVram();
                 LayeredRenderSnapshot actual = EndingCreditsPresentation.CaptureRenderSnapshot(installedState);
-                AssertTrue(actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
-                        actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
+                byte[] actualVram = installedState.ShownVram();
+                AssertTrue(actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
+                        actualVram.SequenceEqual(expectedVram) &&
                         actual.Brightness == expected.Brightness,
                     $"installed ending palettes preserve native PPU state at frame {frame}");
             }
@@ -356,10 +359,10 @@ internal static class EndingPaletteArtworkVerification
                     stockState.Step();
                 }
                 while (editedState.ResumesAfterNmiWait);
-                AssertTrue(!EndingCreditsPresentation.CaptureRenderSnapshot(editedState).Memory.Cgram.SequenceEqual(
-                        EndingCreditsPresentation.CaptureRenderSnapshot(stockState).Memory.Cgram) &&
-                    EndingCreditsPresentation.CaptureRenderSnapshot(editedState).Memory.Vram.SequenceEqual(
-                        EndingCreditsPresentation.CaptureRenderSnapshot(stockState).Memory.Vram),
+                AssertTrue(!EndingCreditsPresentation.CaptureRenderSnapshot(editedState).Paint.Colors.SequenceEqual(
+                        EndingCreditsPresentation.CaptureRenderSnapshot(stockState).Paint.Colors) &&
+                    editedState.ShownVram().SequenceEqual(
+                        stockState.ShownVram()),
                     "edited escape palette reaches the active CGRAM image");
             }
             if (id is EndingPaletteId.LogoInitial or EndingPaletteId.LogoCrossfade)
@@ -458,10 +461,10 @@ internal static class EndingPaletteArtworkVerification
         {
             if (frame == 20)
             {
-                Bgr555[] before = EndingCreditsPresentation.CaptureRenderSnapshot(editedScene).Memory.Cgram.ToArray();
+                Bgr555[] before = EndingCreditsPresentation.CaptureRenderSnapshot(editedScene).Paint.Colors.ToArray();
                 editedScene.InstalledArtwork.BindPaletteFxColors(editedColors);
                 AssertTrue(before.SequenceEqual(
-                        EndingCreditsPresentation.CaptureRenderSnapshot(editedScene).Memory.Cgram),
+                        EndingCreditsPresentation.CaptureRenderSnapshot(editedScene).Paint.Colors),
                     "rebinding ending palette-FX preserves already-drawn CGRAM state");
                 reboundDuringScene = true;
             }
@@ -473,9 +476,11 @@ internal static class EndingPaletteArtworkVerification
             stockAudio.AdvanceFrame(default);
             if (frame % 3 != 0) continue;
             LayeredRenderSnapshot changed = EndingCreditsPresentation.CaptureRenderSnapshot(editedScene);
+            byte[] changedVram = editedScene.ShownVram();
             LayeredRenderSnapshot original = EndingCreditsPresentation.CaptureRenderSnapshot(stockScene);
-            if (changed.Memory.Cgram.SequenceEqual(original.Memory.Cgram)) continue;
-            AssertTrue(changed.Memory.Vram.SequenceEqual(original.Memory.Vram),
+            byte[] originalVram = stockScene.ShownVram();
+            if (changed.Paint.Colors.SequenceEqual(original.Paint.Colors)) continue;
+            AssertTrue(changedVram.SequenceEqual(originalVram),
                 "ending palette-FX edit does not change graphics or transfer timing");
             if (!SoftwareLayeredSnapshotRenderer.Render(changed).SequenceEqual(
                     SoftwareLayeredSnapshotRenderer.Render(original)))
@@ -562,8 +567,10 @@ internal static class EndingPaletteArtworkVerification
             if (stockState.Stage.Phase != EndingCreditsPhase.Credits || stockState.Stage.Brightness == 0 ||
                 frame % 19 != 0) continue;
             LayeredRenderSnapshot changed = EndingCreditsPresentation.CaptureRenderSnapshot(editedState);
+            byte[] changedVram = editedState.ShownVram();
             LayeredRenderSnapshot original = EndingCreditsPresentation.CaptureRenderSnapshot(stockState);
-            AssertTrue(changed.Memory.Vram.SequenceEqual(original.Memory.Vram),
+            byte[] originalVram = stockState.ShownVram();
+            AssertTrue(changedVram.SequenceEqual(originalVram),
                 "credits palette edit does not alter graphics VRAM");
             if (!SoftwareLayeredSnapshotRenderer.Render(changed).SequenceEqual(
                     SoftwareLayeredSnapshotRenderer.Render(original)))
@@ -612,8 +619,10 @@ internal static class EndingPaletteArtworkVerification
             if (stockState.Stage.Phase != EndingCreditsPhase.PostCreditsLogo || frame % 3 != 0)
                 continue;
             LayeredRenderSnapshot changed = EndingCreditsPresentation.CaptureRenderSnapshot(editedState);
+            byte[] changedVram = editedState.ShownVram();
             LayeredRenderSnapshot original = EndingCreditsPresentation.CaptureRenderSnapshot(stockState);
-            AssertTrue(changed.Memory.Vram.SequenceEqual(original.Memory.Vram),
+            byte[] originalVram = stockState.ShownVram();
+            AssertTrue(changedVram.SequenceEqual(originalVram),
                 "logo fade color edit does not alter graphics VRAM");
             if (!SoftwareLayeredSnapshotRenderer.Render(changed).SequenceEqual(
                     SoftwareLayeredSnapshotRenderer.Render(original)))

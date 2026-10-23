@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using System.Buffers.Binary;
@@ -61,7 +62,7 @@ internal static class PauseEquipmentLabelsVerification
         var live = new PauseMenuState(new PauseMenuEntry { Samus = liveSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         byte[] before = EquipmentPage(live);
         live.BindFixtureArtwork(edited);
-        byte[] after = live.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800).ToArray();
+        byte[] after = live.ShownVram().AsSpan(0x6000, 0x800).ToArray();
         AssertTrue(!before.SequenceEqual(after), "edited label placement/art refreshes current equipment page");
         ushort moved = BinaryPrimitives.ReadUInt16LittleEndian(after.AsSpan(
             (charge.Row * PauseEquipmentLabelDefinitions.TilemapColumns + editedColumn) * sizeof(ushort)));
@@ -77,7 +78,7 @@ internal static class PauseEquipmentLabelsVerification
         SelectPauseBoots(glitch);
         glitch.Step(0, (SnesButton.Left | SnesButton.A));
         glitch.BindFixtureArtwork(edited);
-        byte[] glitchPage = glitch.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800).ToArray();
+        byte[] glitchPage = glitch.ShownVram().AsSpan(0x6000, 0x800).ToArray();
         int plasma = (document.Labels["Beam.Plasma"].Row * PauseEquipmentLabelDefinitions.TilemapColumns +
             document.Labels["Beam.Plasma"].Column) * sizeof(ushort);
         // The wireframe refresh owns the ninth word and replaces Varia's fourth
@@ -116,7 +117,7 @@ internal static class PauseEquipmentLabelsVerification
         static byte[] EquipmentPage(PauseMenuState pause)
         {
             EnterPauseEquipment(pause);
-            return pause.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800).ToArray();
+            return pause.ShownVram().AsSpan(0x6000, 0x800).ToArray();
         }
 
         static SamusState Clone(SamusState value) => new()

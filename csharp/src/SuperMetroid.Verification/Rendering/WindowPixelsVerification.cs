@@ -21,7 +21,7 @@ internal static class WindowPixelsVerification
         ushort[] palette = Enumerable.Range(0, 256).Select(_ => (ushort)random.Next(32768)).ToArray();
         byte[] objects = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         random.NextBytes(objects);
-        var capturedMemory = PpuMemorySnapshot.FromOam(bytes, ToColors(palette), objects, 128, 3);
+        var capturedMemory = FramePaint.FromOam(bytes, ToColors(palette), objects, 128, 3);
         var memory = new SoftwarePpuSnapshotMemory(capturedMemory);
         var rooms = RoomBackgroundsFixtures.Seeded(random, new(3, 5), new(7, 11), door: true, overlay: true);
         const SnesMainScreenLayers layers = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj;
@@ -68,7 +68,7 @@ internal static class WindowPixelsVerification
 
         Rgba32[] Draw(SnesMainScreenLayers enabled, SnesWindowRegisters windows = default,
             SnesMainScreenLayers admission = SnesMainScreenLayers.None) =>
-            SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(memory.Vram, memory.Cgram, memory.Sprites,
+            SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(memory.Cgram, memory.Sprites,
                 new OrdinaryGameplayRenderLayer(new OrdinaryGameplayView(new Position16<RoomPixels>(3, 5), new Position16<Bg2Pixels>(7, 11),
                     new Extent16<TilemapCells>(64, 32),
                     enabled, Windows: windows, MainScreenWindowMask: admission), rooms));

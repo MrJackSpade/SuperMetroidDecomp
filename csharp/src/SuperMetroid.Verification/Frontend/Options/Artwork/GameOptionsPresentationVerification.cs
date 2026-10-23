@@ -108,14 +108,14 @@ internal static class GameOptionsPresentationVerification
 
         GameOptionsPhase phaseBeforeRebind = stockMenu.Phase;
         int selectedBeforeRebind = stockMenu.SelectedItem;
-        int cursorXBeforeRebind = stockMenu.CaptureRenderSnapshot().Memory.SpriteParts()[0].Part.Position.X;
+        int cursorXBeforeRebind = stockMenu.CaptureRenderSnapshot().Paint.SpriteParts()[0].Part.Position.X;
         stockMenu.BindFixtureArtwork(edited);
         AssertEqual(phaseBeforeRebind, stockMenu.Phase,
             "options content rebind preserves menu phase");
         AssertEqual(selectedBeforeRebind, stockMenu.SelectedItem,
             "options content rebind preserves selected row");
         AssertEqual(cursorXBeforeRebind + 8,
-            (int)stockMenu.CaptureRenderSnapshot().Memory.SpriteParts()[0].Part.Position.X,
+            (int)stockMenu.CaptureRenderSnapshot().Paint.SpriteParts()[0].Part.Position.X,
             "options rebind applies edited cursor anchor without resetting state");
 
         stockMenu.Step(SnesButton.A);

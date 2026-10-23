@@ -34,7 +34,6 @@ internal static class PauseScreenImage
         return image.CaptureImage();
     }
 
-    /// <summary>The frame <paramref name="screen"/> shows from its composed <paramref name="image"/>, with its palette and sprite entries.</summary>
-    internal static PpuMemorySnapshot Capture(PauseScreen screen, byte[] image) =>
-        new(image, screen.Palette.Colors, screen.Objects.Draws);
+    /// <summary>What <paramref name="screen"/> paints with: its palette and sprite entries.</summary>
+    internal static FramePaint Capture(PauseScreen screen) => new(screen.Palette.Colors, screen.Objects.Draws);
 }

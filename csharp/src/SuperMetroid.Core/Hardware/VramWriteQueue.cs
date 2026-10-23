@@ -125,6 +125,15 @@ public sealed class VramWriteQueue
         TailInBytes = newTail;
     }
 
+    /// <summary>Whether a transfer of <paramref name="asset"/> is still waiting for the next NMI.</summary>
+    public bool Queues(VramAssetId asset)
+    {
+        foreach (VramWriteEntry entry in Entries)
+            if (entry.AssetId == asset)
+                return true;
+        return false;
+    }
+
     /// <summary>Rebinds a known legacy pending artwork transfer without changing its position or byte count.</summary>
     [PpuLayoutAccess]
     public void RebindBusSource(int sourceAddress, ushort sizeInBytes, VramAssetId asset)

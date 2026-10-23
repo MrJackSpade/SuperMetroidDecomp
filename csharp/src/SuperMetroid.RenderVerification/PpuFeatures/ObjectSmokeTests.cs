@@ -27,7 +27,7 @@ internal static class ObjectSmokeTests
         foreach (byte selection in new byte[] { 0, 11, 31 })
         {
             byte obsel = (byte)((size << 5) | selection);
-            var memory = PpuMemorySnapshot.FromOam(vram, palette, oam, count, obsel);
+            var memory = FramePaint.FromOam(vram, palette, oam, count, obsel);
             Check(memory, obsel, new RenderLayer[] { new ObjRenderLayer() });
             Check(memory, obsel, new RenderLayer[] {
                 new ObjPriorityRenderLayer(0),
@@ -44,13 +44,13 @@ internal static class ObjectSmokeTests
         for (int row = 0; row < 8; row++) vram[row * 2] = 0x7f;
         for (int row = 0; row < 8; row++) vram[32 + row * 2] = 0xff;
         oam[6] = 1; oam[7] = 0x32;
-        var overlap = PpuMemorySnapshot.FromOam(vram, palette, oam, 2, 0);
+        var overlap = FramePaint.FromOam(vram, palette, oam, 2, 0);
         Check(overlap, 0, new RenderLayer[] { new ObjRenderLayer() });
         for (byte priority = 0; priority < 4; priority++)
             Check(overlap, 0, new RenderLayer[] { new ObjPriorityRenderLayer(priority) });
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {cases} exact OBJ comparisons passed.");
 
-        void Check(PpuMemorySnapshot memory, byte obsel, RenderLayer[] layers)
+        void Check(FramePaint memory, byte obsel, RenderLayer[] layers)
         {
             var frame = new RenderFrameSnapshot(new(++cases, 1, 0),
                 new LayeredRenderSnapshot(memory, layers, 15));

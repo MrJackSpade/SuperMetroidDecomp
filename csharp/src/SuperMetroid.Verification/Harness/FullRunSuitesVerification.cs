@@ -263,7 +263,7 @@ using static SuperMetroid.Verification.Samus.Palettes.PowerBombFixedColorsVerifi
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombFuseVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombRuntimeIntegrationVerification;
 using static SuperMetroid.Verification.Hardware.PpuLayoutBoundaryVerification;
-using static SuperMetroid.Verification.Hardware.PpuMemorySnapshotTestsVerification;
+using static SuperMetroid.Verification.Hardware.FramePaintTestsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileContactPhaseVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileCooldownsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileInheritanceProbeVerification;
@@ -419,7 +419,7 @@ internal static class FullRunSuitesVerification
     [
         new(nameof(VerifyGameConfigurationIni), () => VerifyGameConfigurationIni()),
         new(nameof(VerifyViewportTileRowParity), () => VerifyViewportTileRowParity()),
-        new(nameof(VerifyPpuMemorySnapshotOwnership), () => VerifyPpuMemorySnapshotOwnership()),
+        new(nameof(VerifyFramePaintOwnership), () => VerifyFramePaintOwnership()),
         new(nameof(VerifyTitleRenderSnapshots), () => VerifyTitleRenderSnapshots()),
         new(nameof(VerifyPauseRenderSnapshots), () => VerifyPauseRenderSnapshots()),
         new(nameof(VerifyPauseHudFromLayer3Plane), () => VerifyPauseHudFromLayer3Plane()),

@@ -73,11 +73,11 @@ internal static class RidleyAcidVerification
         void AssertAcidVisible(bool expectedVisible)
         {
             // The background characters are the installed artwork the room's uploads name, as the displayed frame captures them.
-            var memory = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites, runtime.BgArtwork);
+            var memory = FramePaint.Capture(runtime.Cgram, runtime.DisplayedSprites);
             // The room's BG3 plane under a blank HUD: the acid page the room effect chose.
             var plane = Layer3Plane.Compose(new ushort[Layer3Plane.HudRows * Layer3Plane.Columns], fx.EffectPageWords());
             var effect = SnesGameplayFrameRenderer.CaptureRoomLayer3Fx((fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay().")),
-                Layer3CellsFixtures.FromWords(plane.Words, memory.Vram, memory.Cgram));
+                Layer3CellsFixtures.FromWords(plane.Words, runtime.ComposedVram(), memory.Colors));
             var baseline = SoftwareLayeredSnapshotRenderer.Render(new(memory, [], 15));
             var actual = SoftwareLayeredSnapshotRenderer.Render(new(memory,
                 effect is null ? [] : new RenderLayer[] { effect }, 15));

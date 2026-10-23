@@ -92,8 +92,7 @@ internal static class RoomBlockPicturesVerification
             ?? throw new InvalidOperationException($"{room.Name}: BG2 shows no sky image.");
         SkyTilemap sky = (runtime.Artwork.RoomSkyTilemapArt ?? throw new InvalidOperationException("The fixture has no sky rows."))
             .Tilemap((runtime.Room.Scope?.ScrollingSky ?? throw new InvalidOperationException($"{room.Name} has no sky.")).Variant);
-        PpuMemorySnapshot memory = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites, runtime.BgArtwork);
-        ReadOnlySpan<byte> vram = memory.Vram;
+        ReadOnlySpan<byte> vram = runtime.ComposedVram();
         int rows = 0;
         for (int row = 0; row < SkyTilemap.Rows; row++)
         {
@@ -190,7 +189,7 @@ internal static class RoomBlockPicturesVerification
         SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
         TileWordSheet sheet = (runtime.Room.Scope?.Bg2OverlayPictures ?? throw new InvalidOperationException($"{room.Name} has no tile words.")).Sheet;
-        ReadOnlySpan<byte> vram = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites, runtime.BgArtwork).Vram;
+        ReadOnlySpan<byte> vram = runtime.ComposedVram();
         var typewriter = new EscapeTypewriterState((runtime.BossArtwork.EscapeTypewriterPresentation
             ?? throw new InvalidOperationException("No escape typewriter.")).Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase);
         RoomTilemapOverlay overlay = RoomTilemapOverlay.Empty;
@@ -236,7 +235,7 @@ internal static class RoomBlockPicturesVerification
         SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
         TileWordSheet sheet = (runtime.Room.Scope?.BodyPictures ?? throw new InvalidOperationException($"{room.Name} has no tile words.")).Sheet;
-        ReadOnlySpan<byte> vram = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites, runtime.BgArtwork).Vram;
+        ReadOnlySpan<byte> vram = runtime.ComposedVram();
         int frames = 0;
         foreach ((string name, ImmutableArray<ushort> words) in bodies(runtime))
         {
@@ -283,7 +282,7 @@ internal static class RoomBlockPicturesVerification
             GameplayNmiDisplayLatch latched = runtime.Display.Latched;
             Layer3Plane plane = latched.Layer3 ?? throw new InvalidOperationException($"{room.Name} latches no BG3 plane.");
             AssertTrue(latched.Rooms?.Bg3 is not null, $"{room.Name}: BG3 draws from its pictures");
-            ReadOnlySpan<byte> vram = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites, runtime.BgArtwork).Vram;
+            ReadOnlySpan<byte> vram = runtime.ComposedVram();
             int characterBase = latched.Scene.HudCharacterWord;
             ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver((runtime.Room.Scope
                 ?? throw new InvalidOperationException($"{room.Name} has no room scope.")).Bg3Pictures.Sheet).Resolve(plane, runtime.BgArtwork, characterBase);
@@ -325,7 +324,7 @@ internal static class RoomBlockPicturesVerification
         Mode7Map map = runtime.Room.LoadedScope.Mode7Map ?? throw new InvalidOperationException($"{room.Name} has no Mode 7 map.");
         Mode7TileSheet tiles = map.Tiles;
         AssertTrue(map.NamedTiles.All(tile => tiles.Shown[tile] is not null), $"{room.Name}'s Mode 7 map names only pictured tiles");
-        ReadOnlySpan<byte> vram = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites, runtime.BgArtwork).Vram;
+        ReadOnlySpan<byte> vram = runtime.ComposedVram();
         SpriteImage sheet = tiles.Picture.Sheet;
         int pictured = 0;
         for (int tile = 0; tile < Mode7TileSheet.Tiles; tile++)
@@ -372,8 +371,7 @@ internal static class RoomBlockPicturesVerification
     {
         RoomBackgroundImagePlane plane = runtime.Display.Latched.Rooms?.Bg2Image
             ?? throw new InvalidOperationException($"{where}: BG2 shows no library background image.");
-        PpuMemorySnapshot memory = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites, runtime.BgArtwork);
-        ReadOnlySpan<byte> vram = memory.Vram;
+        ReadOnlySpan<byte> vram = runtime.ComposedVram();
         // A 32x64 map lays the two pages out one above the other, as the image does.
         IBgSource shown = plane.At(new Extent16<TilemapCells>(RoomBackgroundImage.PageTiles, RoomBackgroundImage.Pages * RoomBackgroundImage.PageTiles));
         for (int y = 0; y < RoomBackgroundImage.Pages * RoomBackgroundImage.PagePixels; y++)
@@ -442,8 +440,7 @@ internal static class RoomBlockPicturesVerification
         RoomBackgrounds rooms = runtime.Display.Latched.Rooms ?? throw new InvalidOperationException($"{where}: no room backgrounds are displayed.");
         RoomBlockPictureTable table = rooms.Bg1.Pictures ?? throw new InvalidOperationException($"{where}: BG1 shows no block pictures.");
         RoomCharacterSource characters = RoomCharacterSource.Of(rooms.Characters, runtime.BgArtwork, runtime.EnemySession.ObjCharacters);
-        PpuMemorySnapshot memory = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites, runtime.BgArtwork);
-        ReadOnlySpan<byte> vram = memory.Vram;
+        ReadOnlySpan<byte> vram = runtime.ComposedVram();
         ReadOnlySpan<byte> definitions = runtime.Room.LoadedLevelData.ForegroundPlane.Definitions.AsSpan();
         int pictures = 0, uploaded = 0;
         for (int definition = 0; definition < table.Definitions; definition++)
@@ -491,8 +488,7 @@ internal static class RoomBlockPicturesVerification
     internal static void AssertRevealPaintsWords(SuperMetroidRuntime runtime, ReadOnlySpan<ushort> words, string where)
     {
         XrayRevealPlane reveal = runtime.Display.Latched.XrayReveal ?? throw new InvalidOperationException($"{where}: no X-ray reveal is displayed.");
-        PpuMemorySnapshot memory = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites, runtime.BgArtwork);
-        ReadOnlySpan<byte> vram = memory.Vram;
+        ReadOnlySpan<byte> vram = runtime.ComposedVram();
         for (int row = 0; row < XrayTilemapLayout.MetatileRows; row++)
         for (int column = 0; column < XrayTilemapLayout.MetatileColumns; column++)
         for (int y = 0; y < RoomBlockSheet.BlockPixels; y++)

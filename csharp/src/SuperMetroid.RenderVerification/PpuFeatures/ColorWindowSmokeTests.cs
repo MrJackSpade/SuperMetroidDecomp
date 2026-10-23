@@ -17,7 +17,7 @@ internal static class ColorWindowSmokeTests
         var random = new Random(32114);
         var vram = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(vram);
         Bgr555[] palette = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
-        var memory = new PpuMemorySnapshot(vram, palette, []);
+        var memory = new FramePaint(palette, []);
         Layer3Cells bg3 = Layer3CellsFixtures.FromVram(vram, palette, 0x7ff8);
         ScreenLayerPictures tiles = VramTileFixtures.Tiles(vram, palette, 0x6000, BgBitDepth.FourBpp);
         var background = new Bg4BppRenderLayer(ScreenTileMap.Capture(vram, 0x4000, new Extent16<TilemapCells>(32, 32), tiles), new Position16<BgPlanePixels>(3, 11), null);

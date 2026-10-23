@@ -16,7 +16,7 @@ internal static class EndingCreditsPresentation
         byte[] image = ending.Image();
         var layers = new List<RenderLayer>();
         EndingObjectSheet objectSheet = CurrentEscapeObjectSheet(ending);
-        PpuMemorySnapshot memory;
+        FramePaint memory;
         if (ending.InstalledArtwork.CurrentEndingLogo is not null)
         {
             if (ending.InstalledArtwork.CurrentEndingLogo.CrossfadeStarted)
@@ -25,7 +25,7 @@ internal static class EndingCreditsPresentation
             layers.Add(new ObjRenderLayer(ending.InstalledArtwork.CurrentEndingLogo.CrossfadeStarted));
             layers.Add(PostCreditsLayer(ending, image));
             // The logo assembles over the shooting scene's page.
-            return new(CaptureMemory(ending, image, EndingObjectSheet.RewardFalling), layers.ToArray(), checked((byte)ending.Stage.Brightness));
+            return new(CaptureMemory(ending, EndingObjectSheet.RewardFalling), layers.ToArray(), checked((byte)ending.Stage.Brightness));
         }
         if (ending.CreditsRoll.CurrentPostShot is not null)
         {
@@ -36,14 +36,14 @@ internal static class EndingCreditsPresentation
             layers.Add(new ObjPriorityRenderLayer(1));
             layers.Add(new ObjPriorityRenderLayer(2));
             layers.Add(new ObjPriorityRenderLayer(3));
-            return new(CaptureMemory(ending, image, CurrentRewardObjectSheet(ending)), layers.ToArray(), checked((byte)ending.Stage.Brightness));
+            return new(CaptureMemory(ending, CurrentRewardObjectSheet(ending)), layers.ToArray(), checked((byte)ending.Stage.Brightness));
         }
         if (ending.Stage.Phase == EndingCreditsPhase.Credits)
         {
             layers.Add(new Bg4BppRenderLayer(ending.Cells(image, EndingCreditsRomData.Rendering.CreditsTilemapWord, new Extent16<TilemapCells>(32, 32),
                 EndingPaletteId.Credits, EndingCreditsRomData.Rendering.CreditsCharacterWord, BgBitDepth.FourBpp), ending.Credits.ScrollPosition, null));
             // Credits intentionally do not run the sprite draw routine.
-            memory = new PpuMemorySnapshot(image, ending.screen.Palette.Colors, []);
+            memory = new FramePaint(ending.screen.Palette.Colors, []);
         }
         else
         {
@@ -73,7 +73,7 @@ internal static class EndingCreditsPresentation
                     ending.Stage.Mode7.Whole.AsSignedRegister(), AtmosphericMapWraps(ending) ? Mode7OverflowMode.Wrap : Mode7OverflowMode.Transparent),
                     AffineFloor.Capture(image, ending.Mode7Tiles()), AddBg1Subscreen: AtmosphericMapWraps(ending)));
             }
-            memory = CaptureMemory(ending, image, objectSheet);
+            memory = CaptureMemory(ending, objectSheet);
             if (EndingObjectsEnabled(ending) && !AtmosphericMapWraps(ending))
             {
                 if (UsesFlyawayMode7Priority(ending))
@@ -164,9 +164,9 @@ internal static class EndingCreditsPresentation
                 EndingPaletteId.PostCredits, EndingCreditsRomData.Rendering.PostCreditsCharacterWord, BgBitDepth.FourBpp), ending.Stage.PostCreditsScroll, null);
     }
 
-    /// <summary>The scene's memory image <paramref name="image"/> with this frame's sprite entries over the OBJ page of <paramref name="objectSheet"/>.</summary>
-    internal static PpuMemorySnapshot CaptureMemory(EndingCreditsState ending, byte[] image, EndingObjectSheet objectSheet) =>
-        new(image, ending.screen.Palette.Colors, PrepareSprites(ending, objectSheet).Draws);
+    /// <summary>The scene's colours with this frame's sprite entries over the OBJ page of <paramref name="objectSheet"/>.</summary>
+    internal static FramePaint CaptureMemory(EndingCreditsState ending, EndingObjectSheet objectSheet) =>
+        new(ending.screen.Palette.Colors, PrepareSprites(ending, objectSheet).Draws);
 
     /// <summary>
     /// Places the scene's sprite entries at the simulation display boundary without advancing sprite state, each drawn

@@ -14,7 +14,7 @@ public static class SoftwareLayeredSnapshotRenderer
     {
         Ensure.NotNull(snapshot);
         using var scratch = new RenderScratch();
-        SoftwarePpuSnapshotMemory memory = scratch.Memory(snapshot.Memory);
+        SoftwarePpuSnapshotMemory memory = scratch.Memory(snapshot.Paint);
         // The fused ordinary/X-ray gameplay base owns and fills its output. Creating a
         // backdrop here first would immediately discard a native-sized large object
         // every frame. Other layer sequences still require the initialized backdrop.
@@ -95,7 +95,7 @@ public static class SoftwareLayeredSnapshotRenderer
                 case OrdinaryGameplayRenderLayer gameplay:
                     OrdinaryGameplayView r = gameplay.View;
                     output = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
-                        memory.Vram, memory.Cgram, memory.Sprites, gameplay, gameplayOutputBuffer);
+                        memory.Cgram, memory.Sprites, gameplay, gameplayOutputBuffer);
                     break;
                 case Bg2BppViewportRenderLayer bg:
                     Rgba32[] plane = scratch.Colors(256 * 32 * 8);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using System.Buffers.Binary;
@@ -41,7 +42,7 @@ internal static class PauseEquipmentBaseAssetsVerification
             SnesButton input = frame == 0 ? SnesButton.R : frame == toMap ? SnesButton.L : 0;
             native.Step(input, input, nmiFrameCounter8: (byte)frame);
             installed.Step(input, input, nmiFrameCounter8: (byte)frame);
-            AssertTrue(native.CaptureRenderSnapshot().Memory.Vram.SequenceEqual(installed.CaptureRenderSnapshot().Memory.Vram),
+            AssertTrue(native.ShownVram().SequenceEqual(installed.ShownVram()),
                 "equipment base migration retains exact native VRAM through both page transitions");
             AssertTrue(native.Render().SequenceEqual(installed.Render()),
                 "equipment base migration retains native pixels with its source forbidden");
@@ -85,10 +86,12 @@ internal static class PauseEquipmentBaseAssetsVerification
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(captured);
         restored.BindFixtureArtwork(original);
         var stockSnapshot = stockPause.CaptureRenderSnapshot();
+        byte[] stockSnapshotVram = stockPause.ShownVram();
         var restoredSnapshot = restored.CaptureRenderSnapshot();
-        AssertTrue(stockSnapshot.Memory.Vram.SequenceEqual(restoredSnapshot.Memory.Vram),
-            $"restored equipment page adopts current base VRAM while retaining live page state; first diff={FirstDifference(stockSnapshot.Memory.Vram, restoredSnapshot.Memory.Vram):X4}");
-        AssertTrue(stockSnapshot.Memory.Cgram.SequenceEqual(restoredSnapshot.Memory.Cgram),
+        byte[] restoredSnapshotVram = restored.ShownVram();
+        AssertTrue(stockSnapshotVram.SequenceEqual(restoredSnapshotVram),
+            $"restored equipment page adopts current base VRAM while retaining live page state; first diff={FirstDifference(stockSnapshotVram, restoredSnapshotVram):X4}");
+        AssertTrue(stockSnapshot.Paint.Colors.SequenceEqual(restoredSnapshot.Paint.Colors),
             "equipment base rebind does not alter live palette state");
         AssertTrue(stockPause.Render().SequenceEqual(restored.Render()),
             "restored equipment base reproduces stock pixels at the retained phase");

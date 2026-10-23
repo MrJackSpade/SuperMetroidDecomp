@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
@@ -80,8 +81,9 @@ internal static class EndingShootingStarsTests
             scene.Step();
             if (scene.Brightness == 0 || !seen.Add(scene.Stage.Phase)) continue;
             var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-            Require(snapshot.Memory.SpriteDraws.Length > 0, "Post-credits owner emits star OAM");
-            var emptyMemory = new PpuMemorySnapshot(snapshot.Memory.Vram, snapshot.Memory.Cgram, []);
+            byte[] snapshotVram = scene.ShownVram();
+            Require(snapshot.Paint.SpriteDraws.Length > 0, "Post-credits owner emits star OAM");
+            var emptyMemory = new FramePaint(snapshot.Paint.Colors, []);
             var withoutStars = new LayeredRenderSnapshot(emptyMemory, snapshot.Layers.ToArray(), snapshot.Brightness);
             var pixels = scene.Render();
             var noStars = SoftwareLayeredSnapshotRenderer.Render(withoutStars);
@@ -90,7 +92,7 @@ internal static class EndingShootingStarsTests
             var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), snapshot);
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "Post-credits stars CPU/GPU rendering");
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "Star rendering is repeatable");
-            Require(EndingCreditsPresentation.CaptureRenderSnapshot(scene).Memory.SpriteParts().SequenceEqual(snapshot.Memory.SpriteParts()), "Capture does not advance star animation");
+            Require(EndingCreditsPresentation.CaptureRenderSnapshot(scene).Paint.SpriteParts().SequenceEqual(snapshot.Paint.SpriteParts()), "Capture does not advance star animation");
             if (hidden) break;
         }
         Require(seen.Contains(EndingCreditsPhase.PostCreditsFadeIn) && seen.Contains(EndingCreditsPhase.PostCreditsShootingStars) &&
@@ -104,7 +106,7 @@ internal static class EndingShootingStarsTests
         logo.PaletteStep = 16;
         logo.CrossfadeStarted = true;
         var final = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-        Require(final.Memory.SpriteDraws.Length > 0 && final.LayersOf<ObjRenderLayer>().Any(), "Final logo/text retains the star plane after logo actors finish");
+        Require(final.Paint.SpriteDraws.Length > 0 && final.LayersOf<ObjRenderLayer>().Any(), "Final logo/text retains the star plane after logo actors finish");
         Console.WriteLine($"{device.Kind}: 40 native star definitions, delay/trajectory/animation/reset, visible ending stars, phase masks and late-scene ownership passed.");
 
         ushort Word(int address) => rom.ReadCartridgeWord(address);

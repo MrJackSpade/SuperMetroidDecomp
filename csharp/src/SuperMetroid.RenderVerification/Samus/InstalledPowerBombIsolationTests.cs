@@ -83,8 +83,7 @@ internal static class InstalledPowerBombIsolationTests
                         if (Colors(baseline) != Colors(replacement)) changedColors++;
                         if (second is not null)
                         {
-                            var memoryImage = new PpuMemorySnapshot(new byte[SnesPpuLayout.VramByteCount],
-                                new Bgr555[SnesPpuLayout.CgramColorCount], []);
+                            var memoryImage = new FramePaint(new Bgr555[SnesPpuLayout.CgramColorCount], []);
                             var packet = new RenderFrameSnapshot(new(framesToRender.Count + 1, 1, 0),
                                 new LayeredRenderSnapshot(memoryImage, new RenderLayer[] { second }, 15));
                             framesToRender.Add(new ContextFrame(packet, context));

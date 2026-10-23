@@ -233,7 +233,7 @@ internal sealed class IntroCeresFlightState
             byte flash = checked((byte)flashIntensity);
             layers.Add(new FixedColorAddRenderLayer(flash, flash, flash));
         }
-        return new(new PpuMemorySnapshot(image, palette.Colors, objects.Draws), layers.ToArray(), checked((byte)brightness));
+        return new(new FramePaint(palette.Colors, objects.Draws), layers.ToArray(), checked((byte)brightness));
     }
 
     /// <summary>Places the front stars or surviving rear-view actors as this frame's sprite entries.</summary>
@@ -251,7 +251,7 @@ internal sealed class IntroCeresFlightState
     /// The memory image the scene shows: the bound artwork's view (the rear-view map once $BE22 has queued it) with the
     /// SPACE COLONY caption tilemap over it.
     /// </summary>
-    private byte[] Image()
+    internal byte[] Image()
     {
         CeresFlightArtworkCatalog content = artwork ?? throw new InvalidOperationException(
             "Ceres approach rendering requires installed cinematic artwork.");

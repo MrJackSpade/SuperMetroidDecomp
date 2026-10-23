@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 /// <param name="Latched">Values the most recent accepted NMI made PPU-visible.</param>
 /// <param name="FrameEnd">IRQ- and HDMA-read inputs sampled at publication.</param>
-/// <param name="Memory">VRAM, CGRAM, and displayed OAM at publication.</param>
+/// <param name="Paint">The colours and displayed sprites at publication (#1403).</param>
 public sealed record GameplayDisplayFrame(
     GameplayNmiDisplayLatch Latched,
     GameplayFrameEndDisplayInputs FrameEnd,
-    PpuMemorySnapshot Memory);
+    FramePaint Paint);

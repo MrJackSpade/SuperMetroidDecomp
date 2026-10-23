@@ -70,14 +70,14 @@ internal static class SpanQueriesVerification
         var oam = new OamBuffer();
         oam.BeginFrame();
         oam.FinalizeFrame();
-        var memory = PpuMemorySnapshotConstants.CaptureFrontend(new SnesVram(), cgram, oam, 3);
+        var memory = FramePaintConstants.CaptureFrontend(new SnesVram(), cgram, oam, 3);
         var red = new FixedColorAddRenderLayer(31, 0, 0);
         var objects = new ObjPriorityRenderLayer(2);
         var blue = new FixedColorAddRenderLayer(0, 0, 31);
         var snapshot = new LayeredRenderSnapshot(memory, new RenderLayer[] { red, objects, blue }, 15);
         LayeredRenderSnapshot without = snapshot.Without<FixedColorAddRenderLayer>();
         AssertTrue(without.Layers.SequenceEqual(new RenderLayer[] { objects }), "Without removes only the selected kind");
-        AssertTrue(ReferenceEquals(snapshot.Memory, without.Memory) && without.Brightness == 15,
+        AssertTrue(ReferenceEquals(snapshot.Paint, without.Paint) && without.Brightness == 15,
             "Without shares memory and brightness");
         AssertTrue(snapshot.Layers.SequenceEqual(new RenderLayer[] { red, objects, blue }), "Without leaves the source snapshot unchanged");
         AssertTrue(snapshot.LayersOf<FixedColorAddRenderLayer>().SequenceEqual(new[] { red, blue }), "LayersOf keeps application order");

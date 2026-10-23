@@ -23,16 +23,19 @@ internal static class Mode7GameplaySnapshotTestsVerification
         byte[] bytes = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(bytes);
         byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount]; random.NextBytes(oam);
         ushort[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount).Select(_ => (ushort)random.Next(32768)).ToArray();
-        var memory = PpuMemorySnapshot.FromOam(bytes, ToColors(palette), oam, 128, 3);
+        var memory = FramePaint.FromOam(bytes, ToColors(palette), oam, 128, 3);
         var live = new SoftwarePpuSnapshotMemory(memory);
+        // The reference renderer reads the fixture's own VRAM, which the frame no longer carries (#1403).
+        var fixtureVram = new SnesVram();
+        fixtureVram.LoadBytes(0, bytes);
         int samples = 0;
         foreach (short matrix in new short[] { 0, 128, 256, -256, 511, short.MinValue })
         foreach (ushort scroll in new ushort[] { 0, 255, 511, ushort.MaxValue })
         {
             // The floor band below shows the room's layer-2 plane (#1403); the retail Ridley capture below draws it.
             var m = new AffineTransform(matrix, 17, -33, matrix, new Offset16<Mode7Pixels>(128, 96), new Offset16<Mode7Pixels>(-13, unchecked((short)scroll)));
-            var layer = new Mode7GameplayRenderLayer(m, Layer3CellsFixtures.FromVram(live.Vram.Bytes, live.Cgram.Colors), AffineFloorFixtures.Floor(live.Vram.Bytes, live.Cgram.Colors), SnesPpuLayout.GameplayHudHeightPixels);
-            Rgba32[] expected = SnesGameplayFrameRendererConstants.RenderHudMode7AndObjs(live.Vram, live.Cgram, live.Sprites, m);
+            var layer = new Mode7GameplayRenderLayer(m, Layer3CellsFixtures.FromVram(fixtureVram.Bytes, live.Cgram.Colors), AffineFloorFixtures.Floor(fixtureVram.Bytes, live.Cgram.Colors), SnesPpuLayout.GameplayHudHeightPixels);
+            Rgba32[] expected = SnesGameplayFrameRendererConstants.RenderHudMode7AndObjs(fixtureVram, live.Cgram, live.Sprites, m);
             var packet = new RenderFrameSnapshot(new(++samples, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 15));
             AssertTrue(expected.SequenceEqual(RenderForComparison(packet)),
                 $"Mode-7 gameplay full pixel parity matrix {matrix}, scroll {scroll}");

@@ -1,30 +1,30 @@
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
-/// Owned PPU memory and back-to-front layer insertions at native visible resolution.
+/// What a frame paints with and its back-to-front layer insertions at native visible resolution.
 /// Explicit operations include tile/OBJ insertion, captured color math and bounded scene windows.
 /// </summary>
 public sealed class LayeredRenderSnapshot
 {
     /// <summary>Packet-owned copy of the layer order, insulated from later caller mutations.</summary>
     internal readonly RenderLayer[] layers;
-    /// <summary>Immutable VRAM, CGRAM, and finalized OAM image retained by reference, not copied again by this packet.</summary>
-    public PpuMemorySnapshot Memory { get; }
+    /// <summary>The frame's colours and sprite draws, retained by reference, not copied again by this packet.</summary>
+    public FramePaint Paint { get; }
     /// <summary>Owned operation sequence in back-to-front application order on the 256-by-224-pixel visible viewport.</summary>
     public ReadOnlySpan<RenderLayer> Layers => layers;
     /// <summary>Master brightness 0..15, applied after all layer operations; zero produces black.</summary>
     public int Brightness { get; }
 
-    /// <summary>Retains immutable memory and layer records while copying their ordering into packet-owned storage.</summary>
-    /// <param name="memory">Complete captured PPU memory, independent of later simulation writes.</param>
+    /// <summary>Retains the frame's paint and layer records while copying their ordering into packet-owned storage.</summary>
+    /// <param name="paint">The frame's colours and sprite draws, independent of later simulation writes.</param>
     /// <param name="layers">Supported immutable operations in execution order; an empty sequence displays the backdrop, and a fused gameplay base must be first.</param>
     /// <param name="brightness">Final master brightness, from 0 through 15 inclusive.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="memory"/> is null.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="paint"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is out of range.</exception>
     /// <exception cref="ArgumentException">A layer is null or unsupported, has invalid geometry, priorities or color values, selects incompatible color math, or places a fused gameplay base after another operation.</exception>
-    public LayeredRenderSnapshot(PpuMemorySnapshot memory, ReadOnlySpan<RenderLayer> layers, int brightness)
+    public LayeredRenderSnapshot(FramePaint paint, ReadOnlySpan<RenderLayer> layers, int brightness)
     {
-        Ensure.NotNull(memory);
+        Ensure.NotNull(paint);
         Brightness = Ensure.BetweenInclusive(0, Hardware.SnesPpuLayout.MaximumMasterBrightness, brightness);
         // Each accepted record is sealed and owns any array data. Copy the sequence so a scene
         // cannot rearrange a queued frame's priority ladder after publication.
@@ -46,7 +46,7 @@ public sealed class LayeredRenderSnapshot
         for (int i = 1; i < layers.Length; i++)
             if (layers[i] is OrdinaryGameplayRenderLayer or Mode7GameplayRenderLayer or GameplayColorMathRenderLayer)
                 throw new ArgumentException("The fused gameplay base must be the first operation.", nameof(layers));
-        Memory = memory;
+        Paint = paint;
         this.layers = layers.ToArray();
     }
 

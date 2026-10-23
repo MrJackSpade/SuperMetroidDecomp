@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
@@ -39,6 +40,7 @@ internal static class EndingWavySamusTests
         {
             Require(scene.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop, "Native wave lasts exactly the 180-frame hold");
             var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
+            byte[] snapshotVram = scene.ShownVram();
             var wave = snapshot.LayersOf<BgSubscreenAddRenderLayer>().Single();
             for (int line = 0; line < 224; line++)
             {
@@ -47,13 +49,13 @@ internal static class EndingWavySamusTests
             }
             if (age is 0 or 1 or 2 or 3 or 179)
             {
-                var vram = new SnesVram(); vram.LoadBytes(0, snapshot.Memory.Vram);
+                var vram = new SnesVram(); vram.LoadBytes(0, snapshotVram);
                 var cgram = new SnesCgram();
-                for (int i = 0; i < 256; i++) cgram.SetColor(i, snapshot.Memory.Cgram[i]);
+                for (int i = 0; i < 256; i++) cgram.SetColor(i, snapshot.Paint.Colors[i]);
                 var main = SnesBgTilemapRenderer.Render4BppViewport(vram, cgram, new BgVramAddresses { TilemapBaseWord = 0x4c00, CharacterBaseWord = 0x5000 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = new Extent16<ScreenPixels>(256, 224), TilemapSize = new Extent16<TilemapCells>(32, 32) });
                 var sub = SnesBgTilemapRenderer.Render2Bpp(vram, cgram, 0x2400, 0x2000, rowCount: 32, transparentColorZero: true);
                 var expected = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
-                SnesLayerCompositor.Composite(expected, SnesObjRenderer.Render(snapshot.Memory.SpriteDraws, cgram));
+                SnesLayerCompositor.Composite(expected, SnesObjRenderer.Render(snapshot.Paint.SpriteDraws, cgram));
                 int changed = 0;
                 for (int y = 0; y < 224; y++)
                 for (int x = 0; x < 256; x++)

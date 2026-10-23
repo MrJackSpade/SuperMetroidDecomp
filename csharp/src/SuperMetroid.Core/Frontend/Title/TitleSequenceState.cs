@@ -381,10 +381,8 @@ public sealed class TitleSequenceState : IFrontendScreen
     {
         PrepareRenderSprites();
         short scale = unchecked((short)Zoom);
-        TitleGraphicsPresentation artwork = titleGraphicsPresentation
-            ?? throw new InvalidOperationException("Title rendering requires installed title artwork.");
-        image ??= TitleScreenImage.Compose(artwork, TitleSequenceRomData.Vram.BabyAnimationSourcePages[babyFrame]);
-        return new(new PpuMemorySnapshot(image, palette.Colors, objects.Draws),
+        byte[] image = Image();
+        return new(new FramePaint(palette.Colors, objects.Draws),
             mode7BackgroundEnabled
                 ? new AffineTransform(scale, TitleSequenceRomData.Scenes.Rotation.TableIndex,
                     0, scale, new Offset16<Mode7Pixels>(128, 128), mode7.Whole.AsSignedRegister())
@@ -392,6 +390,12 @@ public sealed class TitleSequenceState : IFrontendScreen
             checked((byte)Brightness), gradientEnabled ? ResolveTitleGradient() : default,
             mode7BackgroundEnabled ? AffineFloor.Capture(image, Mode7Tiles(TitleSequenceRomData.Vram.BabyAnimationSourcePages[babyFrame])) : null);
     }
+
+    /// <summary>The title screen's composed memory image at the current baby Metroid frame, which its floor reads.</summary>
+    /// <exception cref="InvalidOperationException">No title artwork is installed.</exception>
+    internal byte[] Image() => image ??= TitleScreenImage.Compose(titleGraphicsPresentation
+        ?? throw new InvalidOperationException("Title rendering requires installed title artwork."),
+        TitleSequenceRomData.Vram.BabyAnimationSourcePages[babyFrame]);
 
     /// <summary>Resolves the installed title gradient at the current Mode 7 scale.</summary>
     private ReadOnlySpan<TitleGradientLine> ResolveTitleGradient()

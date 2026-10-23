@@ -71,7 +71,7 @@ public static class GameplayDisplayCapture
         AddLayer(SnesGameplayFrameRenderer.CapturePowerBombColorMath(PowerBomb(frame), ppu.Layer1Position));
         AddLayer(live.MessageBox);
         AddLayer(SamusSuitPickupRenderer.Capture(SuitPickup(frame)));
-        return new(basis.Memory, layers.ToArray(), basis.Brightness);
+        return new(basis.Paint, layers.ToArray(), basis.Brightness);
 
         // Append active optional effects without introducing empty render layers.
         void AddLayer(RenderLayer? layer) { if (layer is not null) layers.Add(layer); }
@@ -160,7 +160,7 @@ public static class GameplayDisplayCapture
             VisibleLines(crocomireBg2Scroll is not null ? live.CrocomireMeltingScrolls : lavaY)),
             live.DoorTransitionMainScreenLayers is null && live.MotherBrainRisingHdmaActive
                 ? MotherBrainAscentDisplayDefinitions.BuildGameplayLayers() : default);
-        return new(frame.Memory, new RenderLayer[] { layer },
+        return new(frame.Paint, new RenderLayer[] { layer },
             SnesPpuLayout.MaximumMasterBrightness);
     }
 
@@ -275,7 +275,7 @@ public static class GameplayDisplayCapture
         }
         var layer = new Mode7GameplayRenderLayer(registers, Bg3(latched), (latched.Rooms?.Mode7
                 ?? throw new InvalidOperationException("A Mode 7 gameplay frame shows a Ceres room's Mode 7 map.")), SnesPpuLayout.GameplayHudHeightPixels, floor);
-        return new(frame.Memory, new RenderLayer[] { layer }, SnesPpuLayout.MaximumMasterBrightness);
+        return new(frame.Paint, new RenderLayer[] { layer }, SnesPpuLayout.MaximumMasterBrightness);
     }
 
     /// <summary>Removes BG2 when Phantoon is hidden, or uses it as an additive subscreen when the body is semitransparent.</summary>
@@ -311,9 +311,10 @@ public static class GameplayDisplayCapture
         var ppu = latched.Ppu;
         var mode = XrayRoomDisplayRules.Select(xrayRoom, scene.FxType, scene.BossId);
         bool reveal = mode == XrayRoomBlendMode.RevealBlocks;
-        byte[] bytes = basis.Memory.Vram.ToArray();
+        // The reveal shows once an accepted NMI has latched it; until then BG2 shows what the room shows (#1403).
+        XrayRevealPlane? shownReveal = reveal ? latched.XrayReveal : null;
         var registers = ordinary.View;
-        if (reveal)
+        if (shownReveal is not null)
         {
             registers = registers with
             {
@@ -330,9 +331,9 @@ public static class GameplayDisplayCapture
         };
         // Reveal BG2 must not inherit the room's parallax or liquid HDMA. Excluded
         // rooms retain their original map and per-line register values.
-        // The reveal is BG2, drawn from block pictures (#1392), so the room's layer-2 plane is not shown under it. Before
-        // the first accepted NMI of an X-ray use there is no reveal and BG2 still shows the room's BG2 map in VRAM.
-        var gameplay = reveal ? new OrdinaryGameplayRenderLayer(registers, ordinary.Rooms with { Bg2 = null, Sky = null, XrayReveal = latched.XrayReveal })
+        // The reveal is BG2, drawn from block pictures (#1392), so the room's layer-2 plane is not shown under it.
+        var gameplay = shownReveal is not null
+            ? new OrdinaryGameplayRenderLayer(registers, ordinary.Rooms with { Bg2 = null, Sky = null, XrayReveal = shownReveal })
             : new OrdinaryGameplayRenderLayer(registers, ordinary.Rooms, ordinary.Bg2LineScrolls);
         var sub = mode != XrayRoomBlendMode.Fireflea && latched.RoomLayer3Fx is { } fx
             ? SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(fx, ordinary.Rooms.ShownBg3) : null;
@@ -360,10 +361,10 @@ public static class GameplayDisplayCapture
         // Phase five deletes the HDMA object but its blend bits have already been
         // published for this pass. Only its fixed color is cleared immediately.
         if (finishedThisFrame && mode != XrayRoomBlendMode.Fireflea) red = green = blue = 0;
-        var colors = basis.Memory.Cgram.ToArray();
+        var colors = basis.Paint.Colors.ToArray();
         bool restoring = finishedThisFrame || xray.BeamPhase is XrayBeamPhase.RestoreSecondHalf or XrayBeamPhase.Finish;
         if (!settingUp) colors[0] = restoring ? Bgr555.Black : XrayRoomDisplayRules.ActiveBackdrop;
-        var memory = new PpuMemorySnapshot(bytes, colors, basis.Memory.SpriteDraws);
+        var paint = new FramePaint(colors, basis.Paint.SpriteDraws);
         // Releasing Run merely advances the native dispatcher to phase three. That
         // phase closes the HDMA window on the NEXT call and clears the backdrop;
         // restoration keeps ownership until phase five finally unfreezes gameplay.
@@ -371,6 +372,6 @@ public static class GameplayDisplayCapture
         var lines = closed ? Enumerable.Repeat(new XrayWindowLine(255, 0), SnesPpuLayout.ScreenHeightPixels).ToArray()
             : SnesGameplayFrameRenderer.CaptureXrayWindowLines(xray, ppu.Layer1Position);
         var layer = new GameplayColorMathRenderLayer(gameplay, lines, reveal, new ColorMathRegisters { ColorMath = control, AddSubscreen = mode != XrayRoomBlendMode.Fireflea, FixedRed = red, FixedGreen = green, FixedBlue = blue }, sub);
-        return new(memory, new RenderLayer[] { layer }, basis.Brightness);
+        return new(paint, new RenderLayer[] { layer }, basis.Brightness);
     }
 }

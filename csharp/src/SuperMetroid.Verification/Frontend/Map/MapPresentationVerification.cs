@@ -1427,8 +1427,8 @@ internal static class MapPresentationVerification
             editedTitle.Step(0);
             AssertEqual(stockTitle.Phase, editedTitle.Phase,
                 "title sprite override preserves the native sequence phase");
-            changedOam |= !stockTitle.CaptureRenderSnapshot().Memory.SpriteParts().SequenceEqual(
-                editedTitle.CaptureRenderSnapshot().Memory.SpriteParts());
+            changedOam |= !stockTitle.CaptureRenderSnapshot().Paint.SpriteParts().SequenceEqual(
+                editedTitle.CaptureRenderSnapshot().Paint.SpriteParts());
         }
         AssertTrue(changedOam, "title sprite override changes live title OAM");
 

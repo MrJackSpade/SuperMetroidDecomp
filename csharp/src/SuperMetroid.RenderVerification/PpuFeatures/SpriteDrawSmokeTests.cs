@@ -65,7 +65,7 @@ internal static class SpriteDrawSmokeTests
                 new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer, 2), Frame(1), new(12, 10), SpriteMirror.None),
                 new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer, 3), Frame(3), new(40, 30), SpriteMirror.Horizontal),
             ];
-            var memory = new PpuMemorySnapshot(new byte[SnesPpuLayout.VramByteCount], palette, draws);
+            var memory = new FramePaint(palette, draws);
             Rgba32[] pixels = Check(memory, [new ObjRenderLayer()], "ordering and flip");
             Rgba32 red = new(255, 0, 0), blue = new(0, 0, 255), yellow = new(255, 255, 0);
             ExpectPixel(11, 10, red, "the first draw alone");
@@ -128,7 +128,7 @@ internal static class SpriteDrawSmokeTests
                 draws.Insert(random.Next(draws.Count + 1), new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer, 100 + index), image, origin,
                     (SpriteMirror)random.Next(4), random.Next(3) == 0 ? random.Next(8) : null));
             }
-            var memory = new PpuMemorySnapshot(vram, palette, draws.ToImmutable());
+            var memory = new FramePaint(palette, draws.ToImmutable());
             ScreenTileMap cells = VramTileFixtures.Cells(vram, palette, GameplayVramLayout.Bg2TilemapWord, GameplayVramLayout.HudCharacterWord, BgBitDepth.FourBpp,
                 new Extent16<TilemapCells>(32, 32));
             Check(memory, [new ObjRenderLayer()], $"seeded scene {cases}");
@@ -140,7 +140,7 @@ internal static class SpriteDrawSmokeTests
                 new ObjPriorityRenderLayer(3)], $"seeded priority ladder {cases}");
         }
 
-        Rgba32[] Check(PpuMemorySnapshot memory, RenderLayer[] layers, string label)
+        Rgba32[] Check(FramePaint memory, RenderLayer[] layers, string label)
         {
             var frame = new RenderFrameSnapshot(new(++cases, 1, 0), new LayeredRenderSnapshot(memory, layers, 15));
             Rgba32[] expected = SoftwareFrameSnapshotRenderer.Render(frame);

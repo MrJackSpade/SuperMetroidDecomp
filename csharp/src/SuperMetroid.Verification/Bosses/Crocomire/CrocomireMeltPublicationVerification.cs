@@ -54,7 +54,7 @@ internal static class CrocomireMeltPublicationVerification
             AssertTrue(!heightsBefore.AsSpan().SequenceEqual(death.MeltingColumnHeights), $"melt frame {frame} erases a column");
 
             runtime.FrameBoundary.BeginAcceptedFrame(0);
-            ReadOnlySpan<byte> published = runtime.PublishDisplayFrame().Memory.Vram;
+            ReadOnlySpan<byte> published = runtime.ComposedVram();
             int source = upload.SourceWord - CrocomireMeltingTransferDefinitions.ScratchStart;
             ReadOnlySpan<byte> melted = death.MeltingGraphics.Slice(source, upload.ByteCount);
             AssertTrue(published.Slice(upload.DestinationWord * 2, upload.ByteCount).SequenceEqual(melted),

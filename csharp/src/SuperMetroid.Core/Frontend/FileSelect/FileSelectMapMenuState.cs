@@ -220,8 +220,8 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         if (!entry.IsComplete)
         {
             LayeredRenderSnapshot areaScene = Area();
-            Bgr555[] palette = areaScene.Memory.Cgram.ToArray(); palette[0] = Bgr555.Black;
-            var black = new LayeredRenderSnapshot(new PpuMemorySnapshot(areaScene.Memory.Vram, palette, []), [], SnesPpuLayout.MaximumMasterBrightness);
+            Bgr555[] palette = areaScene.Paint.Colors.ToArray(); palette[0] = Bgr555.Black;
+            var black = new LayeredRenderSnapshot(new FramePaint(palette, []), [], SnesPpuLayout.MaximumMasterBrightness);
             return entry.Phase == FileSelectMapEntryPhase.Revealing
                 ? Insert(black, areaScene, entry.Left, entry.Top, entry.Right + 1, entry.Bottom) : black;
         }
@@ -241,7 +241,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
                 FileSelectMapNavigationPhase.OptionsRequested or FileSelectMapNavigationPhase.EnteringArea => Area(),
             _ => throw new InvalidOperationException($"Undefined file-select map phase {Phase}."),
         };
-        return new(scene.Memory, scene.Layers, checked((byte)brightness));
+        return new(scene.Paint, scene.Layers, checked((byte)brightness));
     }
 
     /// <summary>Projects the native clipped room/area transition into render layers, including completed and off-screen windows.</summary>
@@ -263,6 +263,6 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         int left, int top, int right, int bottom)
     {
         RenderLayer[] layers = [.. basis.Layers, new WindowedSceneRenderLayer(inside, left, top, right, bottom)];
-        return new(basis.Memory, layers, basis.Brightness);
+        return new(basis.Paint, layers, basis.Brightness);
     }
 }

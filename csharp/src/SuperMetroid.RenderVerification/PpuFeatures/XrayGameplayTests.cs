@@ -41,7 +41,7 @@ internal static class XrayGameplayTests
             var bg1 = RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1));
             var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
             oam[0] = 16; oam[1] = 64; oam[3] = (byte)(0x30 | palette << 1);
-            var memory = PpuMemorySnapshot.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0);
+            var memory = FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0);
             Layer3Cells plane = Layer3CellsFixtures.FromVram(vram.Bytes, cgram.Colors, 0x1000);
             bg1 = bg1 with { Bg3 = plane };
             var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
@@ -90,7 +90,7 @@ internal static class XrayGameplayTests
                     }, bodyRooms), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new ColorMathRegisters { ColorMath = SnesColorMathControl.Bg1 | SnesColorMathControl.Bg3 | SnesColorMathControl.Obj | SnesColorMathControl.Backdrop, AddSubscreen = true, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, subscreenUsesBg2: true);
                     var bodyColors = cgram.Colors.ToArray();
                     if (blackBody) bodyColors[2] = Bgr555.Black;
-                    var addScene = new LayeredRenderSnapshot(PpuMemorySnapshot.FromOam(vram.Bytes, bodyColors, oam, 1, 0), [additive], 15);
+                    var addScene = new LayeredRenderSnapshot(FramePaint.FromOam(vram.Bytes, bodyColors, oam, 1, 0), [additive], 15);
                     var addPixels = SoftwareLayeredSnapshotRenderer.Render(addScene);
                     var yellow = new Rgba32(255, blackBody ? (byte)0 : (byte)165, 0);
                     Check(addPixels[64 * 256 + 64], yellow, "BG2 additive color contribution / black identity");
@@ -107,7 +107,7 @@ internal static class XrayGameplayTests
                 // native Fireflea source selection from a whole-frame dark overlay.
                 vram.ExecuteWordTransfer(new ushort[] { 4 }, GameplayVramLayout.Bg2TilemapWord + 8 * 32 + 9, 1);
                 var dark = new GameplayColorMathRenderLayer(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1), new TilemapCell(8, 8, new(4)), new TilemapCell(9, 8, new(4))) with { Bg3 = Layer3CellsFixtures.FromVram(vram.Bytes, cgram.Colors, 0x1000) }), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new ColorMathRegisters { ColorMath = SnesColorMathControl.Bg2 | SnesColorMathControl.Backdrop | SnesColorMathControl.Subtract, AddSubscreen = false, FixedRed = 18, FixedGreen = 18, FixedBlue = 18 });
-                var darkScene = new LayeredRenderSnapshot(PpuMemorySnapshot.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0), new RenderLayer[] { dark }, 15);
+                var darkScene = new LayeredRenderSnapshot(FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0), new RenderLayer[] { dark }, 15);
                 var darkPixels = SoftwareLayeredSnapshotRenderer.Render(darkScene);
                 Check(darkPixels[64 * 256 + 64], new(0, 16, 0, 255), "Fireflea BG2 subtraction");
                 Check(darkPixels[64 * 256 + 72], new(0, 0, 0, 255), "Fireflea backdrop subtraction");
@@ -142,7 +142,7 @@ internal static class XrayGameplayTests
             bool bg2Subscreen = frame % 4 == 0;
             var layer = new GameplayColorMathRenderLayer(gameplay, lines, frame % 2 == 0, new ColorMathRegisters { ColorMath = (SnesColorMathControl)random.Next(256), AddSubscreen = bg2Subscreen || frame % 3 != 0, FixedRed = (byte)random.Next(32), FixedGreen = (byte)random.Next(32), FixedBlue = (byte)random.Next(32) }, bg2Subscreen ? null : bg3, bg2Subscreen);
             byte obsel = (byte)random.Next(256);
-            var memory = PpuMemorySnapshot.FromOam(bytes, colors, oam, 128, obsel);
+            var memory = FramePaint.FromOam(bytes, colors, oam, 128, obsel);
             var scene = new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, (byte)(frame % 16));
             var packet = new RenderFrameSnapshot(new(++count, 1, 0), scene);
             var expected = SoftwareLayeredSnapshotRenderer.Render(scene);
@@ -163,7 +163,7 @@ internal static class XrayGameplayTests
             var lines = Enumerable.Range(0, 224).Select(_ => new XrayWindowLine((byte)random.Next(256), (byte)random.Next(256))).ToArray();
             var layer = new GameplayColorMathRenderLayer(gameplay, lines, true, new ColorMathRegisters { ColorMath = (SnesColorMathControl)random.Next(256), AddSubscreen = false,
                 FixedRed = (byte)random.Next(32), FixedGreen = (byte)random.Next(32), FixedBlue = (byte)random.Next(32) }, null);
-            var memory = PpuMemorySnapshot.FromOam(bytes, colors, oam, 128, 3);
+            var memory = FramePaint.FromOam(bytes, colors, oam, 128, 3);
             var scene = new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 15);
             var packet = new RenderFrameSnapshot(new(++count, 1, 0), scene);
             PixelComparison.Verify(packet, SoftwareLayeredSnapshotRenderer.Render(scene), renderer.RenderForReadback(packet),

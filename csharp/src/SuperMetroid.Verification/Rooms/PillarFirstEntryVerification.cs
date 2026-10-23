@@ -83,9 +83,9 @@ internal static class PillarFirstEntryVerification
             // terrain, acid, color math and priority ladder: emitted OAM hidden behind
             // opaque scenery must not count as visible. Samus stays well above these
             // head-local windows, and the two owners are separated by 320 pixels.
-            var memory = snapshot.Memory;
+            var memory = snapshot.Paint;
             var withoutObjects = new LayeredRenderSnapshot(
-                new PpuMemorySnapshot(memory.Vram, memory.Cgram, []),
+                new FramePaint(memory.Colors, []),
                 snapshot.Layers, snapshot.Brightness);
             var background = SoftwareLayeredSnapshotRenderer.Render(withoutObjects);
             for (int actor = 0; actor < 2; actor++)

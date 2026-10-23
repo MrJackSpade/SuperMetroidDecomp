@@ -72,7 +72,7 @@ internal static class RoomPerformanceStateFixture
         {
             foreach (RenderLayer layer in layers.Layers)
             {
-                var isolated = new LayeredRenderSnapshot(layers.Memory, [layer], layers.Brightness);
+                var isolated = new LayeredRenderSnapshot(layers.Paint, [layer], layers.Brightness);
                 // These isolated costs include snapshot-memory setup and backdrop
                 // creation, so they locate expensive operations but are not additive.
                 for (int i = 0; i < 10; i++) SoftwareLayeredSnapshotRenderer.Render(isolated);

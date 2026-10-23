@@ -85,11 +85,11 @@ internal static class MapPaletteCycleVerification
         for (int tick = 0; tick < 60; tick++)
         {
             pause.Step(0, 0); nativePause.Step(0, 0);
-            var editedMemory = pause.CaptureRenderSnapshot().Memory;
-            var stockMemory = nativePause.CaptureRenderSnapshot().Memory;
-            cycleColorsChanged |= !editedMemory.Cgram.Slice(MapAnimationRomData.PaletteDestination, 16)
-                .SequenceEqual(stockMemory.Cgram.Slice(MapAnimationRomData.PaletteDestination, 16));
-            AssertTrue(editedMemory.Cgram.Slice(240, 16).SequenceEqual(stockMemory.Cgram.Slice(240, 16)),
+            var editedMemory = pause.CaptureRenderSnapshot().Paint;
+            var stockMemory = nativePause.CaptureRenderSnapshot().Paint;
+            cycleColorsChanged |= !editedMemory.Colors.Slice(MapAnimationRomData.PaletteDestination, 16)
+                .SequenceEqual(stockMemory.Colors.Slice(MapAnimationRomData.PaletteDestination, 16));
+            AssertTrue(editedMemory.Colors.Slice(240, 16).SequenceEqual(stockMemory.Colors.Slice(240, 16)),
                 "highlight edit leaves the native palette-seven pause cursor colors unchanged");
             // Since #1251 the pause-map scroll arrows draw with OBJ palette 3 as on the cartridge,
             // so the highlight edit may recolor them. Every differing pixel must therefore show a
@@ -98,8 +98,8 @@ internal static class MapPaletteCycleVerification
             var stockPalette3 = new HashSet<SuperMetroid.Core.Hardware.Rgba32>();
             for (int color = 0; color < 16; color++)
             {
-                editedPalette3.Add(editedMemory.Cgram[MapAnimationRomData.PaletteDestination + color].ToRgba32());
-                stockPalette3.Add(stockMemory.Cgram[MapAnimationRomData.PaletteDestination + color].ToRgba32());
+                editedPalette3.Add(editedMemory.Colors[MapAnimationRomData.PaletteDestination + color].ToRgba32());
+                stockPalette3.Add(stockMemory.Colors[MapAnimationRomData.PaletteDestination + color].ToRgba32());
             }
             var editedPixels = pause.Render();
             var stockPixels = nativePause.Render();

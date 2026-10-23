@@ -29,17 +29,17 @@ internal static class CrystalFlashVisualsVerification
             int body = Banks.Palette | Word(CrystalFlash.BodyRecords + record * CrystalFlash.BodyRecordByteCount);
             int bubble = Banks.Palette | Word(SamusCartridgeTables.BubblePointers + elapsed / 5 % CrystalFlash.BubblePaletteCount * 2);
             for (int color = 0; color < CrystalFlash.BodyColorCount; color++)
-                AssertEqual(Word(body + color * 2), packet.Memory.Cgram[CrystalFlash.BodyCgramStart + color],
+                AssertEqual(Word(body + color * 2), packet.Paint.Colors[CrystalFlash.BodyCgramStart + color],
                     $"runtime Crystal Flash body palette at frame {elapsed}");
             for (int color = 0; color < CrystalFlash.BubbleColorCount; color++)
-                AssertEqual(Word(bubble + color * 2), packet.Memory.Cgram[CrystalFlash.BubbleCgramStart + color],
+                AssertEqual(Word(bubble + color * 2), packet.Paint.Colors[CrystalFlash.BubbleCgramStart + color],
                     $"runtime Crystal Flash bubble palette at frame {elapsed}");
         }
 
         var pixels = SoftwareLayeredSnapshotRenderer.Render(packet);
-        var colors = packet.Memory.Cgram.ToArray();
+        var colors = packet.Paint.Colors.ToArray();
         Array.Clear(colors, CrystalFlash.BodyCgramStart, Common.ColorsPerObjPalette);
-        var mutedMemory = new PpuMemorySnapshot(packet.Memory.Vram, colors, packet.Memory.SpriteDraws);
+        var mutedMemory = new FramePaint(colors, packet.Paint.SpriteDraws);
         var mutedBody = SoftwareLayeredSnapshotRenderer.Render(new LayeredRenderSnapshot(mutedMemory,
             packet.Layers, packet.Brightness));
         int centerX = samus.Position.X.Whole - runtime.Display.DisplayedGameplayPpu.Layer1Position.X;

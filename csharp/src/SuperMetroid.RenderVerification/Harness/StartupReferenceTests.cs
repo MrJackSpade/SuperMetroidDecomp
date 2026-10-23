@@ -74,9 +74,10 @@ internal static class StartupReferenceTests
                 var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), title.CaptureRenderSnapshot());
                 if (!yearOnly)
                 {
-                    if (!NativeMode7Probe.Render((packet.Mode7 ?? throw new InvalidOperationException("Verification requires packet.Mode7.")), 1).SequenceEqual(pixels))
+                    // The title's memory image, which the frame's floor is drawn from (#1403).
+                    if (!NativeMode7Probe.Render((packet.Mode7 ?? throw new InvalidOperationException("Verification requires packet.Mode7.")), title.ShownVram(), 1).SequenceEqual(pixels))
                         throw new InvalidOperationException("Native Mode-7 reference calculation differs from matched frame.");
-                    if (NativeMode7Probe.Render(packet.Mode7, 0).SequenceEqual(pixels))
+                    if (NativeMode7Probe.Render(packet.Mode7, title.ShownVram(), 0).SequenceEqual(pixels))
                         throw new InvalidOperationException("Title fixture no longer distinguishes the reported scanline-origin defect.");
                 }
                 PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet),

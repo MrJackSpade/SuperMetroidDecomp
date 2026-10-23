@@ -997,9 +997,7 @@ internal static void VerifyFourBitBackgroundRendering()
     gameplayVram.ExecuteWordTransfer([0x0801, 0x0c02], destinationWord: 0x4c00, wordIncrement: 1);
     var horizontalByLine = new ushort[SnesGameplayFrameRenderer.Height - SnesGameplayFrameRenderer.HudHeight];
     horizontalByLine[0] = 8;
-    Rgba32[] gameplayFrame = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
-        gameplayVram,
-        gameplayCgram,
+    Rgba32[] gameplayFrame = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(gameplayCgram,
         gameplaySprites,
         new OrdinaryGameplayRenderLayer(
             new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0x00e0),
@@ -1024,9 +1022,7 @@ internal static void VerifyFourBitBackgroundRendering()
         [0x0801],
         destinationWord: unchecked((ushort)(kraidBg2BaseWord + firstGameplaySourceRow * 32)),
         wordIncrement: 1);
-    gameplayFrame = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
-        gameplayVram,
-        gameplayCgram,
+    gameplayFrame = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(gameplayCgram,
         gameplaySprites,
         new OrdinaryGameplayRenderLayer(
             new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0),

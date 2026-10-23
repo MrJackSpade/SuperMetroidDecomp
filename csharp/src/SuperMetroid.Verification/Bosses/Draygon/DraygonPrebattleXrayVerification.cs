@@ -74,7 +74,7 @@ internal static class DraygonPrebattleXrayVerification
         for (int frame = 0; frame < descentFrames + 2; frame++) runtime.StepFrame(0);
         var combat = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         var ordinary = (OrdinaryGameplayRenderLayer)combat.Layers[0];
-        var combatWithoutBg2 = new LayeredRenderSnapshot(combat.Memory,
+        var combatWithoutBg2 = new LayeredRenderSnapshot(combat.Paint,
             new RenderLayer[] { new OrdinaryGameplayRenderLayer(ordinary.View with
                 { MainScreenLayers = ordinary.View.MainScreenLayers & ~SnesMainScreenLayers.Bg2 }, ordinary.Rooms, ordinary.Bg2LineScrolls) }, combat.Brightness);
         int visible = SoftwareLayeredSnapshotRenderer.Render(combat).Zip(SoftwareLayeredSnapshotRenderer.Render(combatWithoutBg2), (first, second) => first != second).Count(differs => differs);
@@ -85,7 +85,7 @@ internal static class DraygonPrebattleXrayVerification
         {
             var gameplay = new OrdinaryGameplayRenderLayer(registers, math.Gameplay.Rooms, math.Gameplay.Bg2LineScrolls, math.Gameplay.MainScreenLayersByLine);
             var changed = new GameplayColorMathRenderLayer(gameplay, math.Lines, math.RevealBlocks, new ColorMathRegisters { ColorMath = math.ColorMath, AddSubscreen = math.AddSubscreen, FixedRed = math.FixedRed, FixedGreen = math.FixedGreen, FixedBlue = math.FixedBlue }, math.Subscreen, math.SubscreenUsesBg2);
-            return SoftwareLayeredSnapshotRenderer.Render(new(scene.Memory, new RenderLayer[] { changed }, scene.Brightness));
+            return SoftwareLayeredSnapshotRenderer.Render(new(scene.Paint, new RenderLayer[] { changed }, scene.Brightness));
         }
     }
 

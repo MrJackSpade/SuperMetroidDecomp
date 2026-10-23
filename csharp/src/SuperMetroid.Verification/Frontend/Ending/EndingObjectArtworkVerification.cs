@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Verification.Frontend.Intro;
@@ -212,9 +213,11 @@ internal static class EndingObjectArtworkVerification
             if (phases.Add(native.Stage.Phase) || frame % 211 == 0)
             {
                 LayeredRenderSnapshot expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
+                byte[] expectedVram = native.ShownVram();
                 LayeredRenderSnapshot actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
-                AssertTrue(actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
-                        actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
+                byte[] actualVram = installed.ShownVram();
+                AssertTrue(actualVram.SequenceEqual(expectedVram) &&
+                        actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
                         SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
                             SoftwareLayeredSnapshotRenderer.Render(expected)),
                     $"ending OBJ PNGs preserve native VRAM/pixels at frame {frame}");
@@ -276,8 +279,8 @@ internal static class EndingObjectArtworkVerification
             LayeredRenderSnapshot beforeCloudEdit = EndingCreditsPresentation.CaptureRenderSnapshot(cloudScene);
             cloudScene.InstalledArtwork.BindFixtureObjectArtwork(editedCloudSprites);
             LayeredRenderSnapshot afterCloudEdit = EndingCreditsPresentation.CaptureRenderSnapshot(cloudScene);
-            visibleCloudEdit = !beforeCloudEdit.Memory.SpriteParts().SequenceEqual(
-                    afterCloudEdit.Memory.SpriteParts()) &&
+            visibleCloudEdit = !beforeCloudEdit.Paint.SpriteParts().SequenceEqual(
+                    afterCloudEdit.Paint.SpriteParts()) &&
                 !SoftwareLayeredSnapshotRenderer.Render(beforeCloudEdit).SequenceEqual(
                     SoftwareLayeredSnapshotRenderer.Render(afterCloudEdit));
             if (!visibleCloudEdit)
@@ -335,6 +338,7 @@ internal static class EndingObjectArtworkVerification
                 audio.AdvanceFrame(default);
             }
             LayeredRenderSnapshot baseline = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
+            byte[] baselineVram = scene.ShownVram();
             EndingCreditsPhase baselinePhase = scene.Stage.Phase;
             AssertTrue(baseline.Brightness > 0,
                 $"ending {name} reaches a visible override frame");
@@ -352,11 +356,12 @@ internal static class EndingObjectArtworkVerification
             EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
             scene.InstalledArtwork.BindFixtureObjectArtwork(edited);
             LayeredRenderSnapshot changed = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-            AssertTrue(!baseline.Memory.Vram.SequenceEqual(changed.Memory.Vram) &&
-                    baseline.Memory.Vram[..(EndingVramLayout.ExplosionObjects.Offset * 2)]
-                        .SequenceEqual(changed.Memory.Vram
+            byte[] changedVram = scene.ShownVram();
+            AssertTrue(!baselineVram.SequenceEqual(changedVram) &&
+                    baselineVram[..(EndingVramLayout.ExplosionObjects.Offset * 2)]
+                        .SequenceEqual(changedVram
                             [..(EndingVramLayout.ExplosionObjects.Offset * 2)]) &&
-                    baseline.Memory.Cgram.SequenceEqual(changed.Memory.Cgram) &&
+                    baseline.Paint.Colors.SequenceEqual(changed.Paint.Colors) &&
                     scene.Stage.Phase == baselinePhase,
                 $"edited {name} changes OBJ VRAM without touching Mode-7 graphics or CGRAM");
             bool visibleEdit = false;

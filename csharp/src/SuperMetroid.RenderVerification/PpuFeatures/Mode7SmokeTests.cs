@@ -20,7 +20,7 @@ internal static class Mode7SmokeTests
         var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         random.NextBytes(vram); random.NextBytes(oam);
         Bgr555[] palette = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
-        var memory = PpuMemorySnapshot.FromOam(vram, palette, oam, 128, 3);
+        var memory = FramePaint.FromOam(vram, palette, oam, 128, 3);
         Layer3Cells bg3 = Layer3CellsFixtures.FromVram(vram, palette, 0x4000);
         AffineFloor map = AffineFloorFixtures.Floor(vram, palette);
         // Below the floor band, the room's layer-2 plane drawn from its block pictures (#1403).

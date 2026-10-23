@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
@@ -51,7 +52,7 @@ internal static class PauseHudPlaneVerification
     /// <summary>The HUD rows of pause's captured BG3 tilemap.</summary>
     private static ushort[] HudWords(PauseMenuState pause)
     {
-        ReadOnlySpan<byte> vram = pause.CaptureRenderSnapshot().Memory.Vram;
+        ReadOnlySpan<byte> vram = pause.ShownVram();
         var words = new ushort[HudWordCount];
         for (int i = 0; i < words.Length; i++)
         {

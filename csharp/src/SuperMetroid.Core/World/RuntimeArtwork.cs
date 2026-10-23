@@ -141,7 +141,9 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
             _bossArtwork.CeresRidleyColors = value?.CeresRidleyColors;
             _bossArtwork.CeresRidleyMode7Colors = value?.CeresRidleyMode7Colors;
             _room.Scope?.Enemies.RebindEscapeTypewriters(value?.EscapeTypewriter);
-            pendingHudTiles = value is not null && _hud.IsInitialized ? value.HudTiles : null;
+            // A HUD whose upload is still queued shows nothing yet; that upload resolves to the new artwork itself.
+            pendingHudTiles = value is not null && _hud.IsInitialized && !_vramWrites.Queues(VramAssetId.StandardHudTiles)
+                ? value.HudTiles : null;
             if (value is not null)
                 RebindLegacyArtworkTransfers();
         }

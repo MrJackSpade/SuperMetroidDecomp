@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Core.World.Artwork;
@@ -3060,14 +3061,14 @@ internal static class LookupStream3Verification
                 beamArtwork: installation.LoadProjectiles().BeamTiles) { Random = new CartridgeRandom() };
             byte[] nativeFont = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
                 IntroCinematicRomData.Assets.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
-            AssertTrue(intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
+            AssertTrue(intro.ShownVram().AsSpan(
                 (IntroVramLayout.FontOne.Offset * 2), nativeFont.Length).SequenceEqual(nativeFont),
                 "actual opening constructor transfers all calculated font bytes");
-            AssertTrue(intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
+            AssertTrue(intro.ShownVram().AsSpan(
                 (IntroVramLayout.NarrationTilemap.Offset * 2), native.Length).SequenceEqual(native),
                 "actual opening constructor transfers calculated narration to native VRAM destination");
             intro.SetupFirstIllustratedPage();
-            var subtitleUpload = intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
+            var subtitleUpload = intro.ShownVram().AsSpan(
                 (IntroVramLayout.NarrationTilemap.Offset * 2) + IntroCinematicRomData.Text.FinalLineDestinationStart * 2,
                 IntroFinalLineTilemapFormat.CellCount * 2);
             for (int index = 0; index < IntroFinalLineTilemapFormat.CellCount; index++)
@@ -3270,7 +3271,7 @@ internal static class LookupStream3Verification
             var font = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
             var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
                 beamArtwork: installation.LoadProjectiles().BeamTiles) { Random = new CartridgeRandom() };
-            AssertTrue(intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
+            AssertTrue(intro.ShownVram().AsSpan(
                 (IntroVramLayout.BackgroundPages.Offset * 2), native.Length).SequenceEqual(native),
                 "actual opening constructor uploads all four calculated background pages");
             Console.WriteLine("Intro backgrounds: 4096 native words, 4096 independent edits, owned fallback, canonical hash and actual four-page VRAM upload pass.");
@@ -3407,7 +3408,7 @@ BranchesToSharedBody:true),
             var font = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
             var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
                 beamArtwork: installation.LoadProjectiles().BeamTiles) { Random = new CartridgeRandom() };
-            AssertTrue(intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
+            AssertTrue(intro.ShownVram().AsSpan(
                 (IntroVramLayout.PortraitTilemap.Offset * 2), native.Length).SequenceEqual(native),
                 "actual opening constructor uploads calculated portrait map");
             Console.WriteLine("Portrait map: 1024 native words, 1024 independent edits, owned fallback, canonical hash and actual VRAM upload pass.");

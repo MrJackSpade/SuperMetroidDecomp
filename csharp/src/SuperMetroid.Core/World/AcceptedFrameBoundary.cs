@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.Ridley;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
@@ -139,7 +140,8 @@ internal sealed class AcceptedFrameBoundary
         if (Displays?.Phantoon is { } phantoonDisplay)
             phantoonDisplay.Blending.LatchDisplay(phantoonDisplay.MosaicBlockSize);
         _room.TourianStatues?.LatchDisplay();
-        ImmutableArray<ushort>? reveal = CaptureXrayRevealTilemap();
+        GameplayLatchedSceneRegisters scene = CaptureSceneRegisters();
+        ImmutableArray<ushort>? reveal = CaptureXrayRevealTilemap(scene);
         _display.Latched = new GameplayNmiDisplayLatch(
             ppu,
             _gameplayWindows.DisplayedGameplayWindowRegisters,
@@ -149,7 +151,7 @@ internal sealed class AcceptedFrameBoundary
             Displays?.Phantoon is { } phantoon ? PhantoonDisplaySnapshot.Capture(phantoon) : null,
             // Before the first room there are no statues, so no descent is displayed.
             _room.TourianStatues?.DisplayedVerticalOffset ?? 0,
-            CaptureSceneRegisters(),
+            scene,
             CaptureBossBackgrounds(),
             CaptureFixedColors(),
             // The reveal and the room's planes are drawn once this NMI's uploads have bound (WithBlockPictures).
@@ -354,8 +356,9 @@ internal sealed class AcceptedFrameBoundary
     /// The reveal tilemap the X-ray setup calls queue for VRAM upload. It is copied while X-ray
     /// is active; otherwise the displayed BG2 tilemap is the room's own.
     /// </summary>
-    private ImmutableArray<ushort>? CaptureXrayRevealTilemap() =>
-        _player.Samus?.Xray.IsActive == true
+    private ImmutableArray<ushort>? CaptureXrayRevealTilemap(GameplayLatchedSceneRegisters scene) =>
+        // Where X-ray preserves the backgrounds ($91:D143) its setup copies no blocks: the words are another room's.
+        _player.Samus?.Xray.IsActive == true && scene.Room is { } room && XrayBlockRevealRules.RevealsBlocks(room, scene.BossId)
             ? ImmutableArray.Create(_xray.RevealTilemap.ToArray())
             : null;
 

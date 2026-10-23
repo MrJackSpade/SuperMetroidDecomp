@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 public sealed record Mode7ObjRenderSnapshot
 {
-    /// <summary>Immutable VRAM, CGRAM, and finalized OAM image retained by reference without another memory copy.</summary>
-    public PpuMemorySnapshot Memory { get; }
+    /// <summary>The frame's colours and sprite draws, retained by reference without another copy.</summary>
+    public FramePaint Paint { get; }
     /// <summary>The floor's transform; null shows no floor, leaving the backdrop.</summary>
     public AffineTransform? Background { get; }
 
@@ -26,24 +26,24 @@ public sealed record Mode7ObjRenderSnapshot
     public ReadOnlySpan<SuperMetroid.Core.Rendering.TitleGradientLine> Gradient => gradient;
 
     /// <summary>Captures a 256-by-224-pixel BG1/backdrop-then-OBJ composition, copying only the optional gradient.</summary>
-    /// <param name="memory">Complete immutable PPU image; retained rather than recaptured from live hardware.</param>
+    /// <param name="paint">The frame's colours and sprite draws; retained rather than recaptured.</param>
     /// <param name="background">The floor's transform, or null to leave the backdrop below OBJ. Sampling uses screen X starting at zero and physical scanline one for the first visible row.</param>
     /// <param name="brightness">Final master brightness from 0 through 15 inclusive; zero produces black.</param>
     /// <param name="gradient">Empty, or exactly 224 scanline controls whose CGADSUB control subtracts from BG1 and the backdrop or adds to them and the OBJs; copied into owned storage.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="memory"/> is null.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="paint"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is out of range.</exception>
     /// <param name="floor">The floor's map and tiles, given exactly when <paramref name="background"/> is.</param>
     /// <exception cref="ArgumentException"><paramref name="gradient"/> has the wrong nonzero length or an unsupported control, or a floor is given without a transform or a transform without a floor.</exception>
-    public Mode7ObjRenderSnapshot(PpuMemorySnapshot memory, AffineTransform? background,
+    public Mode7ObjRenderSnapshot(FramePaint paint, AffineTransform? background,
         int brightness, ReadOnlySpan<SuperMetroid.Core.Rendering.TitleGradientLine> gradient = default,
         AffineFloor? floor = null)
     {
         if (background.HasValue != floor is not null)
             throw new ArgumentException("A floor's transform and its map come together.", nameof(floor));
         Floor = floor;
-        Ensure.NotNull(memory);
+        Ensure.NotNull(paint);
         Brightness = Ensure.BetweenInclusive(0, Hardware.SnesPpuLayout.MaximumMasterBrightness, brightness);
-        Memory = memory;
+        Paint = paint;
         Background = background;
         if (!gradient.IsEmpty && gradient.Length != Hardware.SnesPpuLayout.ScreenHeightPixels)
             throw new ArgumentException("Title gradient requires 224 scanlines.", nameof(gradient));

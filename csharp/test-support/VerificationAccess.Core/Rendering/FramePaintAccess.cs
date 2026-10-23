@@ -3,30 +3,30 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>Verification access to <see cref="PpuMemorySnapshot"/>: OAM fixtures and the parts a frame shows.</summary>
-internal static class PpuMemorySnapshotAccess
+/// <summary>Verification access to <see cref="FramePaint"/>: OAM fixtures and the parts a frame shows.</summary>
+internal static class FramePaintAccess
 {
     /// <summary>Builds snapshots from native OAM fixture tables.</summary>
-    extension(PpuMemorySnapshot)
+    extension(FramePaint)
     {
         /// <summary>
         /// A snapshot whose sprites are an OAM fixture's records, converted as a frontend capture converts them
         /// (<see cref="ObjCharacterImage"/>), so the records reach both backends only as a frame description.
         /// </summary>
         [PpuLayoutBoundary("exact hardware test: builds frames from native OAM fixture tables")]
-        internal static PpuMemorySnapshot FromOam(ReadOnlySpan<byte> vram, ReadOnlySpan<Bgr555> cgram,
+        internal static FramePaint FromOam(ReadOnlySpan<byte> vram, ReadOnlySpan<Bgr555> cgram,
             ReadOnlySpan<byte> oamUpload, int spriteCount, int objectSelection)
         {
             var oam = new OamBuffer();
             oam.LoadUploadPayload(oamUpload, spriteCount);
             var image = new SnesVram();
             image.LoadBytes(0, vram);
-            return new(vram, cgram, ObjCharacterImageConstants.Draws(oam, image, objectSelection));
+            return new(cgram, ObjCharacterImageConstants.Draws(oam, image, objectSelection));
         }
     }
 
     /// <summary>Reads what a captured frame description shows.</summary>
-    extension(PpuMemorySnapshot memory)
+    extension(FramePaint memory)
     {
         /// <summary>Every sprite part the frame shows, frontmost first.</summary>
         internal PlacedSpritePart[] SpriteParts() => PlacedSpritePart.Of(memory.SpriteDraws);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -40,7 +41,7 @@ internal static class IntroNarrationPresentationVerification
             "installed opening-font PNG compiles to exact native planar bytes");
         var installedIntro = CreateRetailIntroFixture(
             introFont: font);
-        AssertTrue(installedIntro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
+        AssertTrue(installedIntro.ShownVram().AsSpan(
             (IntroVramLayout.FontOne.Offset * 2),
             IntroFontAtlasFormat.ByteCount).SequenceEqual(font.Transfer.Span),
             "opening cinematic uploads the installed font without reading its ROM stream");
@@ -132,7 +133,7 @@ internal static class IntroNarrationPresentationVerification
         editedFontPng.Position = 0;
         IntroFontAtlas editedFont = IntroFontAtlas.Load(editedFontPng);
         installedIntro.BindIntroFont(editedFont);
-        AssertTrue(installedIntro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
+        AssertTrue(installedIntro.ShownVram().AsSpan(
             (IntroVramLayout.FontOne.Offset * 2),
             IntroFontAtlasFormat.ByteCount).SequenceEqual(editedFont.Transfer.Span),
             "active opening cinematic rebinds edited font pixels");

@@ -19,6 +19,8 @@ internal static class MaridiaPipeTerrainAudit
         var r = gameplay.View;
         var scroll = runtime.BackgroundScroll;
         var level = runtime.Room.LoadedLevelData;
+        // The frame no longer carries VRAM (#1403); the audit reads the tilemaps gameplay's VRAM holds now.
+        byte[] vram = runtime.ComposedVram();
         foreach (bool background in new[] { false, true })
         {
             if (background && !(scroll.Layer2Scroll.Horizontal.Streams && scroll.Layer2Scroll.Vertical.Streams)) continue;
@@ -46,7 +48,7 @@ internal static class MaridiaPipeTerrainAudit
                     ? (worldX & 8) == 0 ? tiles.TopLeft : tiles.TopRight
                     : (worldX & 8) == 0 ? tiles.BottomLeft : tiles.BottomRight;
                 int address = tilemap + (mapX >= 256 ? 1024 : 0) + (mapY / 8) * 32 + ((mapX / 8) & 31);
-                ushort actual = BinaryPrimitives.ReadUInt16LittleEndian(layers.Memory.Vram[(address * 2)..]);
+                ushort actual = BinaryPrimitives.ReadUInt16LittleEndian(vram.AsSpan(address * 2));
                 if (expected == actual) continue;
                 differences++;
                 rows.Add(blockY);

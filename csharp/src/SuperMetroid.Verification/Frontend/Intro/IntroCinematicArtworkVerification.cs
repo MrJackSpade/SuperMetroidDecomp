@@ -127,15 +127,15 @@ internal static class IntroCinematicArtworkVerification
                 introFont: installation.LoadMaps().IntroFont,
                 characterArtwork: stock,
                 beamArtwork: installation.LoadProjectiles().BeamTiles);
-            var completeNativeMemory = native.CaptureTranslatedRenderSnapshot().Memory;
-            var completeInstalledMemory = completeInstalled.CaptureTranslatedRenderSnapshot().Memory;
-            AssertTrue(completeInstalledMemory.Vram.SequenceEqual(completeNativeMemory.Vram) &&
-                completeInstalledMemory.Cgram.SequenceEqual(completeNativeMemory.Cgram),
+            var completeNativeMemory = native.CaptureTranslatedRenderSnapshot().Paint;
+            var completeInstalledMemory = completeInstalled.CaptureTranslatedRenderSnapshot().Paint;
+            AssertTrue(completeInstalled.ShownVram().SequenceEqual(native.ShownVram()) &&
+                completeInstalledMemory.Colors.SequenceEqual(completeNativeMemory.Colors),
                 "fully installed opening upload preserves every native VRAM and CGRAM word without a cartridge read");
             var guarded = NewIntroArtworkSourceReadGuard(bus);
             var installed = CreateRetailIntroFixture(characterArtwork: stock);
-            byte[] nativeVram = native.CaptureTranslatedRenderSnapshot().Memory.Vram.ToArray();
-            AssertTrue(installed.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(nativeVram),
+            byte[] nativeVram = native.ShownVram().ToArray();
+            AssertTrue(installed.ShownVram().SequenceEqual(nativeVram),
                 "three installed PNGs create exact native opening-cinematic VRAM, including overlapping OBJ uploads");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "installed cinematic never reads cartridge character or BG-page sources");
@@ -148,10 +148,12 @@ internal static class IntroCinematicArtworkVerification
                 if (frame % 60 == 0)
                 {
                     var expectedScene = native.CaptureTranslatedRenderSnapshot();
+                    byte[] expectedSceneVram = native.ShownVram();
                     var actualScene = installed.CaptureTranslatedRenderSnapshot();
+                    byte[] actualSceneVram = installed.ShownVram();
                     AssertTrue(actualScene.Brightness == expectedScene.Brightness &&
-                            actualScene.Memory.Vram.SequenceEqual(expectedScene.Memory.Vram) &&
-                            actualScene.Memory.Cgram.SequenceEqual(expectedScene.Memory.Cgram),
+                            actualSceneVram.SequenceEqual(expectedSceneVram) &&
+                            actualScene.Paint.Colors.SequenceEqual(expectedScene.Paint.Colors),
                         $"installed cinematic preserves native graphics and colors at frame {frame}");
                 }
             }
@@ -174,14 +176,14 @@ internal static class IntroCinematicArtworkVerification
             IntroCinematicArtworkCatalog editedPalette = installation.LoadIntroCinematicArt();
             var editedPaletteState = CreateRetailIntroFixture(characterArtwork: editedPalette);
             var stockPaletteState = CreateRetailIntroFixture(characterArtwork: stock);
-            Bgr555[] originalCgram = stockPaletteState.CaptureTranslatedRenderSnapshot().Memory.Cgram.ToArray();
-            Bgr555[] editedCgram = editedPaletteState.CaptureTranslatedRenderSnapshot().Memory.Cgram.ToArray();
+            Bgr555[] originalCgram = stockPaletteState.CaptureTranslatedRenderSnapshot().Paint.Colors.ToArray();
+            Bgr555[] editedCgram = editedPaletteState.CaptureTranslatedRenderSnapshot().Paint.Colors.ToArray();
             AssertTrue(!editedCgram.SequenceEqual(originalCgram) &&
                 editedCgram.AsSpan(0, 1).SequenceEqual(originalCgram.AsSpan(0, 1)) &&
                 editedCgram.AsSpan(2).SequenceEqual(originalCgram.AsSpan(2)),
                 "edited opening RGB5 color reaches only its production CGRAM destination");
             stockPaletteState.BindFixtureIntroArtwork(editedPalette);
-            AssertTrue(stockPaletteState.CaptureTranslatedRenderSnapshot().Memory.Cgram.SequenceEqual(editedCgram),
+            AssertTrue(stockPaletteState.CaptureTranslatedRenderSnapshot().Paint.Colors.SequenceEqual(editedCgram),
                 "restored initial narration rebinds the current palette without restarting its phase");
             for (int frame = 0; frame < 120; frame++)
             {
@@ -262,9 +264,9 @@ internal static class IntroCinematicArtworkVerification
             var stockDividerState = CreateRetailIntroFixture(characterArtwork: stock);
             foreach (IntroCinematicState scene in new[] { nativeDividerState, stockDividerState })
                 scene.SetupFirstIllustratedPage();
-            byte[] stockDividerVram = stockDividerState.CaptureTranslatedRenderSnapshot().Memory.Vram.ToArray();
+            byte[] stockDividerVram = stockDividerState.ShownVram().ToArray();
             AssertTrue(stockDividerVram.SequenceEqual(
-                    nativeDividerState.CaptureTranslatedRenderSnapshot().Memory.Vram),
+                    nativeDividerState.ShownVram()),
                 "installed opening divider produces exact native illustrated-page VRAM");
             int changedCell = Array.FindIndex(dividerDocument.Cells,
                 cell => cell.TileColumn < RoomBackgroundTilemapFormat.TileColumns - 1);
@@ -285,11 +287,11 @@ internal static class IntroCinematicArtworkVerification
             BinaryPrimitives.WriteUInt16LittleEndian(expectedDividerVram.AsSpan(dividerByte),
                 editedDivider.FinalLine.Words.Span[changedCell]);
             AssertTrue(!expectedDividerVram.SequenceEqual(stockDividerVram) &&
-                    editedDividerState.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(
+                    editedDividerState.ShownVram().SequenceEqual(
                         expectedDividerVram),
                 "one edited divider cell changes only its production BG3 tile word");
             stockDividerState.BindFixtureIntroArtwork(editedDivider);
-            AssertTrue(stockDividerState.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(
+            AssertTrue(stockDividerState.ShownVram().SequenceEqual(
                     expectedDividerVram),
                 "restored illustrated page rebinds divider without erasing live text elsewhere");
             using (var output = File.Create(dividerOverridePath))
@@ -317,7 +319,7 @@ internal static class IntroCinematicArtworkVerification
                 "divider palette edits change displayed illustrated-page pixels");
             File.Delete(dividerOverridePath);
             stockDividerState.BindFixtureIntroArtwork(stock);
-            AssertTrue(stockDividerState.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(
+            AssertTrue(stockDividerState.ShownVram().SequenceEqual(
                     stockDividerVram),
                 "removing opening divider override restores exact native BG3 words");
             AssertThrows<InvalidDataException>(() => IntroFinalLineTilemap.Load(
@@ -375,14 +377,14 @@ internal static class IntroCinematicArtworkVerification
                     BeamTileAtlasDefinitions.ByteCount).CopyTo(expected.AsSpan(
                         BeamTileAtlasDefinitions.DestinationWord * 2));
                 AssertTrue(!expected.SequenceEqual(nativeVram) &&
-                        editedState.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(expected),
+                        editedState.ShownVram().SequenceEqual(expected),
                     $"edited {name} reaches the exact production VRAM transfer without changing other scene bytes");
                 installed.BindFixtureIntroArtwork(edited);
-                AssertTrue(installed.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(expected),
+                AssertTrue(installed.ShownVram().SequenceEqual(expected),
                     $"restored cinematic state rebinds edited {name} with native transfer ordering");
                 File.Delete(overridePath);
                 installed.BindFixtureIntroArtwork(stock);
-                AssertTrue(installed.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(nativeVram),
+                AssertTrue(installed.ShownVram().SequenceEqual(nativeVram),
                     $"removing {name} override restores stock cinematic VRAM");
             }
             for (int page = 0; page < IntroCinematicArtworkFormat.BackgroundPageCount; page++)
@@ -423,7 +425,7 @@ internal static class IntroCinematicArtworkVerification
                     (IntroVramLayout.BackgroundPages.Offset * 2)));
                 AssertTrue(!expected.SequenceEqual(nativeVram) &&
                         CreateRetailIntroFixture(characterArtwork: edited)
-                            .CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(expected),
+                            .ShownVram().SequenceEqual(expected),
                     $"edited {name} reaches exactly its production BG page transfer");
                 if (page == 0)
                 {
@@ -451,11 +453,11 @@ internal static class IntroCinematicArtworkVerification
                         "edited opening BG page produces visible flashback pixels");
                 }
                 installed.BindFixtureIntroArtwork(edited);
-                AssertTrue(installed.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(expected),
+                AssertTrue(installed.ShownVram().SequenceEqual(expected),
                     $"restored cinematic rebinds edited {name} without changing another page");
                 File.Delete(overridePath);
                 installed.BindFixtureIntroArtwork(stock);
-                AssertTrue(installed.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(nativeVram),
+                AssertTrue(installed.ShownVram().SequenceEqual(nativeVram),
                     $"removing {name} override restores stock BG VRAM");
             }
             foreach ((string name, int destination, Func<IntroCinematicArtworkCatalog, ReadOnlyMemory<byte>> transfer)
@@ -490,18 +492,18 @@ internal static class IntroCinematicArtworkVerification
                 transfer(edited).Span.CopyTo(expected.AsSpan(destination));
                 AssertTrue(!expected.SequenceEqual(nativeVram) &&
                         CreateRetailIntroFixture(characterArtwork: edited)
-                            .CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(expected),
+                            .ShownVram().SequenceEqual(expected),
                     $"edited {name} reaches only its initial cinematic VRAM page");
                 var restoredEarly = CreateRetailIntroFixture(characterArtwork: stock);
                 restoredEarly.BindFixtureIntroArtwork(edited);
-                AssertTrue(restoredEarly.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(expected),
+                AssertTrue(restoredEarly.ShownVram().SequenceEqual(expected),
                     $"restored first narration/portrait state receives edited {name}");
 
                 var restoredLate = CreateRetailIntroFixture(characterArtwork: stock);
                 restoredLate.SetupFirstIllustratedPage();
-                byte[] lateBefore = restoredLate.CaptureTranslatedRenderSnapshot().Memory.Vram.ToArray();
+                byte[] lateBefore = restoredLate.ShownVram().ToArray();
                 restoredLate.BindFixtureIntroArtwork(edited);
-                byte[] lateAfter = restoredLate.CaptureTranslatedRenderSnapshot().Memory.Vram.ToArray();
+                byte[] lateAfter = restoredLate.ShownVram().ToArray();
                 if (name == IntroCinematicArtworkFormat.InitialNarrationTilemapFileName)
                     AssertTrue(lateAfter.SequenceEqual(lateBefore),
                         "later typewriter map survives rebinding an edited initial narration page");

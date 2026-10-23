@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Rendering;
@@ -40,7 +41,8 @@ internal static class EndingScreenPublicationVerification
             }
             AssertEqual(target, ending.Stage.Phase, $"the ending reaches {target}");
             AssertTrue(ending.screen.Uploads.Count < 64, $"the ending's transfer record stays bounded at {target}");
-            PpuMemorySnapshot shown = EndingCreditsPresentation.CaptureRenderSnapshot(ending).Memory;
+            FramePaint shown = EndingCreditsPresentation.CaptureRenderSnapshot(ending).Paint;
+            byte[] shownVram = ending.ShownVram();
             EndingCreditsState restored = RoundTrip(ending);
             restored.Flyaway.BindFlightArtwork(InstalledFixtures.IntroArtwork.CeresFlight);
             restored.Stage.BindMode7Artwork(RepositoryInstallation.Installation.LoadEndingMode7Art());
@@ -50,9 +52,9 @@ internal static class EndingScreenPublicationVerification
             restored.Stage.BindEndingFont(InstalledFixtures.Maps.EndingFont);
             restored.InstalledArtwork.BindStaffCredits(InstalledFixtures.Maps.StaffCredits);
             restored.InstalledArtwork.BindEndingText(InstalledFixtures.Maps.EndingText);
-            PpuMemorySnapshot restoredShown = EndingCreditsPresentation.CaptureRenderSnapshot(restored).Memory;
-            AssertTrue(shown.Vram.SequenceEqual(restoredShown.Vram), $"a restored ending shows the same image at {target}");
-            AssertTrue(shown.Cgram.SequenceEqual(restoredShown.Cgram), $"a restored ending shows the same palette at {target}");
+            FramePaint restoredShown = EndingCreditsPresentation.CaptureRenderSnapshot(restored).Paint;
+            AssertTrue(shownVram.SequenceEqual(restored.ShownVram()), $"a restored ending shows the same image at {target}");
+            AssertTrue(shown.Colors.SequenceEqual(restoredShown.Colors), $"a restored ending shows the same palette at {target}");
             AssertTrue(PlacedSpritePart.Of(shown.SpriteDraws).SequenceEqual(PlacedSpritePart.Of(restoredShown.SpriteDraws)),
                 $"a restored ending places the same sprite entries at {target}");
         }

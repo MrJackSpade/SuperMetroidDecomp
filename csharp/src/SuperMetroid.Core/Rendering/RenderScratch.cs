@@ -47,7 +47,7 @@ internal sealed class RenderScratch : IDisposable
     }
 
     /// <summary>VRAM/CGRAM/OAM reader models loaded from one immutable snapshot.</summary>
-    public SoftwarePpuSnapshotMemory Memory(PpuMemorySnapshot snapshot)
+    public SoftwarePpuSnapshotMemory Memory(FramePaint snapshot)
     {
         ObjectDisposedException.ThrowIf(disposed, this);
         SoftwarePpuSnapshotMemory memory;

@@ -500,7 +500,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
             new BgSubscreenAddRenderLayer(ExplosionCells(image, EndingExplosionDisplayDefinitions.FinaleSubMap), IncludeObjects: true,
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];
-        return new(EndingCreditsPresentation.CaptureMemory(this, image, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers, checked((byte)Stage.Brightness));
+        return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers, checked((byte)Stage.Brightness));
 
         Bg4BppRenderLayer Plane(ushort map, BgTilePriority priority) => new(ExplosionCells(image, map),
             new Position16<BgPlanePixels>(0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow), priority == BgTilePriority.High);
@@ -533,7 +533,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
             new BgSubscreenAddRenderLayer(ExplosionCells(image, EndingExplosionDisplayDefinitions.BurstSubMap), main, MainObjects: true,
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];
-        return new(EndingCreditsPresentation.CaptureMemory(this, image, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers, checked((byte)Stage.Brightness));
+        return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers, checked((byte)Stage.Brightness));
     }
 
     /// <summary>The memory image the ending's transfers leave over the bound artwork.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
@@ -41,26 +42,28 @@ internal static class ScreenTilePicturesVerification
     {
         AreaMapPresentationCatalog maps = InstalledFixtures.Maps;
         int screens = 0, layers = 0;
-        void Check(LayeredRenderSnapshot scene, string name)
+        void Check(LayeredRenderSnapshot scene, byte[] vram, string name)
         {
-            layers += AssertDrawnFromTiles(scene, name);
+            layers += AssertDrawnFromTiles(scene, vram, name);
             screens++;
         }
-        Check(new GameOverMenuState(new CartridgeAudioState(), maps, InstalledFixtures.SpriteSheets).CaptureRenderSnapshot(), "game over");
-        Check(new GameOptionsMenuState(mapPresentation: maps, spriteSheets: InstalledFixtures.SpriteSheets).CaptureRenderSnapshot(), "options");
-        Check(new FileSelectMenuState(new SaveSlotStore(maps), new CartridgeAudioState(), maps, InstalledFixtures.SpriteSheets).CaptureRenderSnapshot(),
-            "file select");
+        var gameOver = new GameOverMenuState(new CartridgeAudioState(), maps, InstalledFixtures.SpriteSheets);
+        Check(gameOver.CaptureRenderSnapshot(), gameOver.ShownVram(), "game over");
+        var options = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: InstalledFixtures.SpriteSheets);
+        Check(options.CaptureRenderSnapshot(), options.ShownVram(), "options");
+        var fileSelect = new FileSelectMenuState(new SaveSlotStore(maps), new CartridgeAudioState(), maps, InstalledFixtures.SpriteSheets);
+        Check(fileSelect.CaptureRenderSnapshot(), fileSelect.ShownVram(), "file select");
         var explored = new Bank80SystemState();
         explored.LoadExploredMapBytes(Enumerable.Repeat(byte.MaxValue, 7 * 256).ToArray());
         ushort[] used = Enumerable.Repeat(ushort.MaxValue, FileSelectMapRomData.AreaCount).ToArray();
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
             FileSelectAreaMapGraphics world = InstalledFixtures.CreateFileSelectAreaMap(area);
-            Check(world.CaptureRenderSnapshot(used, AreaMapColorMath.WithBackdrop), $"{(AreaId)area} area map");
-            Check(world.CaptureRenderSnapshot(used, AreaMapColorMath.ForegroundOnly), $"{(AreaId)area} area map without its backdrop");
+            Check(world.CaptureRenderSnapshot(used, AreaMapColorMath.WithBackdrop), world.ShownVram(), $"{(AreaId)area} area map");
+            Check(world.CaptureRenderSnapshot(used, AreaMapColorMath.ForegroundOnly), world.ShownVram(), $"{(AreaId)area} area map without its backdrop");
             var room = new FileSelectRoomMapGraphics(explored, (AreaId)area, mapPresentation: maps, sheets: InstalledFixtures.SpriteSheets);
-            Check(room.CaptureRenderSnapshot(), $"{(AreaId)area} room map");
-            Check(room.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly), $"{(AreaId)area} room map frame");
+            Check(room.CaptureRenderSnapshot(), room.ShownVram(), $"{(AreaId)area} room map");
+            Check(room.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly), room.ShownVram(), $"{(AreaId)area} room map frame");
         }
         Console.WriteLine($"Screen tile pictures: {screens} menu screens draw all {layers} of their background layers from their tiles, as their characters do.");
     }
@@ -74,17 +77,17 @@ internal static class ScreenTilePicturesVerification
     {
         var sampled = new HashSet<string>();
         int layers = 0;
-        void Check(LayeredRenderSnapshot scene, string name)
+        void Check(LayeredRenderSnapshot scene, byte[] vram, string name)
         {
             if (scene.Layers.ToArray().Any(layer => layer is Bg4BppRenderLayer or Bg2BppViewportRenderLayer or BgSubscreenAddRenderLayer or Mode7RenderLayer)
                 && sampled.Add(name))
-                layers += AssertDrawnFromTiles(scene, name);
+                layers += AssertDrawnFromTiles(scene, vram, name);
         }
         var audio = new CartridgeAudioState();
         IntroCinematicState intro = CreateRetailIntroFixture(audio);
         for (int tick = 0; !intro.CeresFlightFinished; tick++)
         {
-            Check(intro.CaptureTranslatedRenderSnapshot(), intro.CurrentCeresFlight is { } flight && intro.Phase == IntroCinematicPhase.CeresFlight
+            Check(intro.CaptureTranslatedRenderSnapshot(), intro.ShownVram(), intro.CurrentCeresFlight is { } flight && intro.Phase == IntroCinematicPhase.CeresFlight
                 ? $"Ceres flight {flight.Phase}" : $"intro {intro.Phase}");
             intro.Step(tick % 47 == 0 ? SnesButton.A : 0);
             audio.AdvanceFrame(default);
@@ -92,7 +95,7 @@ internal static class ScreenTilePicturesVerification
         CeresDestructionCinematicState destruction = CreateRetailDestructionFixture();
         while (!destruction.Finished)
         {
-            Check(destruction.CaptureRenderSnapshot(), $"Ceres destruction {destruction.Phase}");
+            Check(destruction.CaptureRenderSnapshot(), destruction.ShownVram(), $"Ceres destruction {destruction.Phase}");
             destruction.Step();
         }
         AssertTrue(sampled.Contains($"Ceres flight {IntroCeresFlightPhase.SpaceColonyTitle}"), "the Ceres flight's caption is checked");
@@ -119,7 +122,7 @@ internal static class ScreenTilePicturesVerification
                 LayeredRenderSnapshot scene = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
                 if (scene.Layers.ToArray().Any(layer => layer is Bg4BppRenderLayer or Bg2BppViewportRenderLayer or BgSubscreenAddRenderLayer or Mode7RenderLayer)
                     && sampled.Add($"{hours} hours, {ending.Stage.Phase}"))
-                    layers += AssertDrawnFromTiles(scene, $"ending at {hours} hours, {ending.Stage.Phase}");
+                    layers += AssertDrawnFromTiles(scene, ending.ShownVram(), $"ending at {hours} hours, {ending.Stage.Phase}");
                 ending.Step();
                 audio.AdvanceFrame(default);
             }
@@ -142,8 +145,8 @@ internal static class ScreenTilePicturesVerification
             if (scene.Floor is { } floor && sampled.Add($"{title.Phase} {floor.Tiles.GetHashCode()}"))
             {
                 Rgba32[] pictured = SoftwareMode7ObjSnapshotRenderer.Render(scene).ToArray();
-                Rgba32[] characters = SoftwareMode7ObjSnapshotRenderer.Render(new Mode7ObjRenderSnapshot(scene.Memory, scene.Background, scene.Brightness,
-                    scene.Gradient, AffineFloorFixtures.Floor(scene.Memory.Vram, scene.Memory.Cgram))).ToArray();
+                Rgba32[] characters = SoftwareMode7ObjSnapshotRenderer.Render(new Mode7ObjRenderSnapshot(scene.Paint, scene.Background, scene.Brightness,
+                    scene.Gradient, AffineFloorFixtures.Floor(title.ShownVram(), scene.Paint.Colors))).ToArray();
                 AssertTrue(pictured.SequenceEqual(characters), $"title {title.Phase}: drawn from its pictures, the Mode 7 background matches its characters");
             }
             title.Step(0);
@@ -167,9 +170,9 @@ internal static class ScreenTilePicturesVerification
             Samus = new SamusState(), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = maps,
             SpriteSheets = InstalledFixtures.SpriteSheets,
         });
-        int layers = AssertDrawnFromTiles(pause.CaptureRenderSnapshot(), "pause map");
+        int layers = AssertDrawnFromTiles(pause.CaptureRenderSnapshot(), pause.ShownVram(), "pause map");
         PauseEquipmentRulesVerification.EnterPauseEquipment(pause);
-        layers += AssertDrawnFromTiles(pause.CaptureRenderSnapshot(), "pause equipment");
+        layers += AssertDrawnFromTiles(pause.CaptureRenderSnapshot(), pause.ShownVram(), "pause equipment");
         Console.WriteLine($"Screen tile pictures: the pause map and equipment pages draw all {layers} of their background layers from their tiles, as their characters do.");
     }
 
@@ -178,7 +181,7 @@ internal static class ScreenTilePicturesVerification
     /// matches it drawn with each tile layer's cells showing tiles decoded from the scene's own VRAM characters and CGRAM,
     /// and each Mode 7 map drawn from its characters; returns the layers checked.
     /// </summary>
-    private static int AssertDrawnFromTiles(LayeredRenderSnapshot scene, string name)
+    private static int AssertDrawnFromTiles(LayeredRenderSnapshot scene, byte[] vram, string name)
     {
         int layers = 0;
         var decoded = new Dictionary<ScreenLayerPictures, ScreenLayerPictures>();
@@ -188,7 +191,7 @@ internal static class ScreenTilePicturesVerification
             {
                 // Only the characters the scene's layers show from this tile set need decoding.
                 int[] shown = [.. scene.Layers.ToArray().SelectMany(TileMaps).Where(map => map.Tiles == cells.Tiles).SelectMany(map => map.Cells).Select(cell => cell.Tile)];
-                tiles = VramTileFixtures.Tiles(scene.Memory.Vram, scene.Memory.Cgram, CharacterBase(scene.Memory.Vram, cells, name), cells.Tiles.Depth, shown);
+                tiles = VramTileFixtures.Tiles(vram, scene.Paint.Colors, CharacterBase(vram, cells, name), cells.Tiles.Depth, shown);
                 decoded.Add(cells.Tiles, tiles);
             }
             return new ScreenTileMap(tiles, cells.Size, cells.Cells);
@@ -200,7 +203,7 @@ internal static class ScreenTilePicturesVerification
             {
                 Bg4BppRenderLayer bg => bg with { Cells = FromCharacters(bg.Cells) },
                 Bg2BppViewportRenderLayer bg => bg with { Cells = FromCharacters(bg.Cells) },
-                Mode7RenderLayer mode7 => mode7 with { Floor = new AffineFloor(mode7.Floor.Cells, AffineFloorFixtures.Floor(scene.Memory.Vram, scene.Memory.Cgram).Tiles) },
+                Mode7RenderLayer mode7 => mode7 with { Floor = new AffineFloor(mode7.Floor.Cells, AffineFloorFixtures.Floor(vram, scene.Paint.Colors).Tiles) },
                 BgSubscreenAddRenderLayer sub => sub with
                 {
                     Cells = FromCharacters(sub.Cells),
@@ -216,7 +219,7 @@ internal static class ScreenTilePicturesVerification
         }
         AssertTrue(layers > 0, $"{name} draws backgrounds");
         Rgba32[] pictured = RenderNamed(scene, name);
-        Rgba32[] characters = SoftwareLayeredSnapshotRenderer.Render(new LayeredRenderSnapshot(scene.Memory, [.. fromCharacters], scene.Brightness)).ToArray();
+        Rgba32[] characters = SoftwareLayeredSnapshotRenderer.Render(new LayeredRenderSnapshot(scene.Paint, [.. fromCharacters], scene.Brightness)).ToArray();
         int mismatch = -1;
         for (int pixel = 0; pixel < pictured.Length; pixel++)
         {

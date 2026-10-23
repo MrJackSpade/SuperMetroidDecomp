@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.CeresCinematics;
@@ -61,21 +62,23 @@ internal static class CinematicScreenPublicationVerification
         for (int frame = 0; frame < 5000 && flight.Phase != IntroCeresFlightPhase.FlyingTowardCeres; frame++)
             flight.StepFrame();
         AssertEqual(IntroCeresFlightPhase.FlyingTowardCeres, flight.Phase, "the flight reaches its rear view");
-        PpuMemorySnapshot rear = flight.CaptureRenderSnapshot().Memory;
+        FramePaint rear = flight.CaptureRenderSnapshot().Paint;
+        byte[] rearVram = flight.ShownVram();
         ReadOnlySpan<byte> maps = InstalledFixtures.IntroArtwork.CeresFlight.Mode7Maps.Span;
         for (int cell = 0; cell < CeresFlightRomData.Vram.Mode7MapSliceByteCount; cell++)
-            AssertEqual(maps[CeresFlightRomData.Vram.Mode7MapSliceByteCount + cell], rear.Vram[cell * 2], $"rear view shows rear map cell {cell}");
+            AssertEqual(maps[CeresFlightRomData.Vram.Mode7MapSliceByteCount + cell], rearVram[cell * 2], $"rear view shows rear map cell {cell}");
         var restoredFlight = RoundTrip(flight);
         restoredFlight.BindFixtureFlightArtwork(InstalledFixtures.IntroArtwork.CeresFlight);
-        AssertSameFrame(rear, restoredFlight.CaptureRenderSnapshot().Memory, "Ceres flight");
+        AssertSameFrame(rearVram, rear, restoredFlight.ShownVram(), restoredFlight.CaptureRenderSnapshot().Paint, "Ceres flight");
 
         var destruction = InstalledFixtures.CreateDestruction();
         for (int frame = 0; frame < 600; frame++)
             destruction.Step();
-        PpuMemorySnapshot shown = destruction.CaptureRenderSnapshot().Memory;
+        FramePaint shown = destruction.CaptureRenderSnapshot().Paint;
+        byte[] shownVram = destruction.ShownVram();
         var restoredDestruction = RoundTrip(destruction);
         restoredDestruction.BindFixtureDestructionArtwork(InstalledFixtures.IntroArtwork);
-        AssertSameFrame(shown, restoredDestruction.CaptureRenderSnapshot().Memory, "Ceres destruction");
+        AssertSameFrame(shownVram, shown, restoredDestruction.ShownVram(), restoredDestruction.CaptureRenderSnapshot().Paint, "Ceres destruction");
 
         IntroCinematicState intro = InstalledFixtures.CreateIntro();
         intro.SetupFirstIllustratedPage();
@@ -98,11 +101,11 @@ internal static class CinematicScreenPublicationVerification
         return DebuggerObjectGraphSerializer.Deserialize<T>(stream);
     }
 
-    /// <summary>Asserts that two captured frames show the same image, palette and sprite parts.</summary>
-    private static void AssertSameFrame(PpuMemorySnapshot expected, PpuMemorySnapshot actual, string scene)
+    /// <summary>Asserts that two captured frames show the same image, palette and sprite parts, the images their scenes composed.</summary>
+    private static void AssertSameFrame(byte[] expectedVram, FramePaint expected, byte[] actualVram, FramePaint actual, string scene)
     {
-        AssertTrue(expected.Vram.SequenceEqual(actual.Vram), $"a restored {scene} shows the same image");
-        AssertTrue(expected.Cgram.SequenceEqual(actual.Cgram), $"a restored {scene} shows the same palette");
+        AssertTrue(expectedVram.SequenceEqual(actualVram), $"a restored {scene} shows the same image");
+        AssertTrue(expected.Colors.SequenceEqual(actual.Colors), $"a restored {scene} shows the same palette");
         AssertTrue(PlacedSpritePart.Of(expected.SpriteDraws).SequenceEqual(PlacedSpritePart.Of(actual.SpriteDraws)),
             $"a restored {scene} places the same sprite entries");
     }

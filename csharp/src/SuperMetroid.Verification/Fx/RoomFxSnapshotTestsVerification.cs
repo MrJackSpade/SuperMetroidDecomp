@@ -19,7 +19,7 @@ internal static class RoomFxSnapshotTestsVerification
         var cgram = new SnesCgram();
         for (int i = 0; i < SnesCgram.ColorCount; i++) cgram.SetColor(i, Bgr555.FromWord(checked((ushort)random.Next(32768))));
         var oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();
-        var memory = PpuMemorySnapshotConstants.CaptureFrontend(vram, cgram, oam, 3);
+        var memory = FramePaintConstants.CaptureFrontend(vram, cgram, oam, 3);
         Rgba32[] baseline = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
         int samples = 0;
         var configurations = new[]

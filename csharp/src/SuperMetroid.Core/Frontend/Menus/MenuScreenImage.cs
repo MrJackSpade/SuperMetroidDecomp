@@ -33,7 +33,6 @@ internal static class MenuScreenImage
         return image;
     }
 
-    /// <summary>The frame <paramref name="screen"/> shows from its composed <paramref name="image"/>, with its palette and sprite entries.</summary>
-    internal static PpuMemorySnapshot Capture(MenuScreen screen, byte[] image) =>
-        new(image, screen.Palette.Colors, screen.Objects.Draws);
+    /// <summary>What <paramref name="screen"/> paints with: its palette and sprite entries.</summary>
+    internal static FramePaint Capture(MenuScreen screen) => new(screen.Palette.Colors, screen.Objects.Draws);
 }

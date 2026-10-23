@@ -100,9 +100,9 @@ internal static class FileMapSnapshotTestsVerification
     private static void VerifyWindowedSceneContract()
     {
         var palette = new ushort[SnesPpuLayout.CgramColorCount]; palette[0] = 31;
-        var red = new PpuMemorySnapshot(new byte[SnesPpuLayout.VramByteCount], ToColors(palette), []);
+        var red = new FramePaint(ToColors(palette), []);
         palette[0] = 31 << 10;
-        var blue = new PpuMemorySnapshot(new byte[SnesPpuLayout.VramByteCount], ToColors(palette), []);
+        var blue = new FramePaint(ToColors(palette), []);
         var child = new LayeredRenderSnapshot(blue, new RenderLayer[] { new ObjRenderLayer() }, 15);
         var window = new WindowedSceneRenderLayer(child, 127, 111, 130, 113);
         var parent = new LayeredRenderSnapshot(red, new RenderLayer[] { window }, 15);

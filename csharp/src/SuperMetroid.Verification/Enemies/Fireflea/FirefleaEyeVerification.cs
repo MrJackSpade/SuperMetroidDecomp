@@ -37,16 +37,16 @@ internal static class FirefleaEyeVerification
         runtime.Enemies.Drawing.DrawLayers(sprites, new(cameraX, cameraY), 0, 7);
         sprites.FinalizeFrame();
         AssertTrue(sprites.Draws.Length > 0, "retail rock eye emits sprites");
-        var memory = PpuMemorySnapshotConstants.Capture(runtime.Vram, runtime.Cgram, sprites);
+        var memory = FramePaintConstants.Capture(runtime.Cgram, sprites);
         var source = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         var actualDarkness = (GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual((byte)0xa2, (byte)actualDarkness.ColorMath, "reported room captures the native OBJ-excluding blend mask");
         var baseLayer = (OrdinaryGameplayRenderLayer)source.Layers[0];
         // Isolate the actual room OBJ pixels on a black backdrop, retaining the
         // retail graphics/palette and the production source-aware color-math kernel.
-        var palette = memory.Cgram.ToArray();
+        var palette = memory.Colors.ToArray();
         palette[0] = Bgr555.Black;
-        memory = new(memory.Vram, palette, memory.SpriteDraws);
+        memory = new(palette, memory.SpriteDraws);
         var objects = new OrdinaryGameplayRenderLayer(baseLayer.View with { MainScreenLayers = SnesMainScreenLayers.Obj }, baseLayer.Rooms);
         Rgba32[]? bright = null;
         foreach (byte darkness in new byte[] { 0, 6, 12, 18, 24, 25, 31 })

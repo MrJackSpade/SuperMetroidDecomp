@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Buffers.Binary;
@@ -29,7 +30,8 @@ internal static class PauseReserveLabelsVerification
             EnterPauseEquipment(pause);
             AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "reserve label test reached equipment page");
             var snapshot = pause.CaptureRenderSnapshot();
-            byte[] expectedVram = snapshot.Memory.Vram.ToArray();
+            byte[] snapshotVram = pause.ShownVram();
+            byte[] expectedVram = snapshotVram.ToArray();
             // Reset the label regions from the cartridge template first. Otherwise
             // the no-capacity case would compare the renderer against its own output.
             for (int row = 0; row < 2; row++)
@@ -57,8 +59,8 @@ internal static class PauseReserveLabelsVerification
                         BinaryPrimitives.WriteUInt16LittleEndian(expectedVram.AsSpan(offset), (ushort)((before & 0xfc00) | source));
                     }
             }
-            var expectedMemory = new PpuMemorySnapshot(expectedVram, snapshot.Memory.Cgram,
-                snapshot.Memory.SpriteDraws);
+            var expectedMemory = new FramePaint(snapshot.Paint.Colors,
+                snapshot.Paint.SpriteDraws);
             var expectedPixels = SoftwareLayeredSnapshotRenderer.Render(new(expectedMemory, snapshot.Layers, snapshot.Brightness));
             var actualPixels = pause.Render();
 

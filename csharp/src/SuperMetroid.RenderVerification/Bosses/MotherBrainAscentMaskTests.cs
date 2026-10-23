@@ -27,7 +27,7 @@ internal static class MotherBrainAscentMaskTests
         vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)0x2002, 2048).ToArray(), GameplayVramLayout.Bg2TilemapWord, 1);
         var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         oam[0] = 16; oam[1] = 212; oam[2] = 3; oam[3] = 0x30;
-        var memory = PpuMemorySnapshot.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0);
+        var memory = FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0);
         var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
             SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
         SnesMainScreenLayers[] masks = Enumerable.Range(32, 192).Select(y => (SnesMainScreenLayers)(y < 56 ? 0x15 : y < 216 ? 0x13 : 0x05)).ToArray();

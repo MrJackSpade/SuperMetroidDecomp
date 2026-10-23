@@ -17,7 +17,7 @@ internal static class TileSmokeTests
         var random = new Random(32111);
         byte[] bytes = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(bytes);
         Bgr555[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
-        var memory = new PpuMemorySnapshot(bytes, palette, []);
+        var memory = new FramePaint(palette, []);
         ScreenLayerPictures upper = VramTileFixtures.Tiles(bytes, palette, 0x6000, BgBitDepth.FourBpp);
         ScreenTileMap Cells(int tilemapWord, ushort width, ushort height, ScreenLayerPictures tiles) =>
             ScreenTileMap.Capture(bytes, tilemapWord, new Extent16<TilemapCells>(width, height), tiles);
@@ -71,7 +71,7 @@ internal static class TileSmokeTests
             System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(vram.AsSpan(0x4000 * 2 + i * 2), 0xec04);
         var palette = new Bgr555[SnesPpuLayout.CgramColorCount];
         palette[3 * 16 + 2] = new Bgr555(31, 0, 0); palette[3 * 16 + 10] = new Bgr555(0, 0, 31);
-        var memory = new PpuMemorySnapshot(vram, palette, []);
+        var memory = new FramePaint(palette, []);
         var frame = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory,
             new RenderLayer[] { new Bg4BppRenderLayer(VramTileFixtures.Cells(vram, palette, 0x4000, 0x6000, BgBitDepth.FourBpp, new Extent16<TilemapCells>(32, 32)),
                 new Position16<BgPlanePixels>(0, 0), null) }, 15));

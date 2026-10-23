@@ -111,7 +111,7 @@ internal static class TitleGradientVerification
             Mode7ObjRenderSnapshot native = stock.CaptureRenderSnapshot();
             Mode7ObjRenderSnapshot extracted = installed.CaptureRenderSnapshot();
             if (stock.Phase != installed.Phase ||
-                !native.Memory.SpriteParts().SequenceEqual(extracted.Memory.SpriteParts()))
+                !native.Paint.SpriteParts().SequenceEqual(extracted.Paint.SpriteParts()))
                 throw new InvalidDataException($"Installed title sprite composition differs at frame {frame} ({stock.Phase}).");
             if (stock.Phase == TitleSequencePhase.TitleScreen)
             {
@@ -172,8 +172,8 @@ internal static class TitleGradientVerification
             editedTitle.Step(0);
             if (originalTitle.Phase != editedTitle.Phase)
                 throw new InvalidDataException("Title sprite edit altered the native title timing.");
-            if (!originalTitle.CaptureRenderSnapshot().Memory.SpriteParts().SequenceEqual(
-                    editedTitle.CaptureRenderSnapshot().Memory.SpriteParts()))
+            if (!originalTitle.CaptureRenderSnapshot().Paint.SpriteParts().SequenceEqual(
+                    editedTitle.CaptureRenderSnapshot().Paint.SpriteParts()))
             {
                 editVisible = true;
                 pixelChanged |= !originalTitle.Render().SequenceEqual(editedTitle.Render());
@@ -185,12 +185,12 @@ internal static class TitleGradientVerification
             throw new InvalidDataException("Editing the Year composition did not alter visible title pixels.");
         var reboundTitle = CreateTitlePresentationFixture(titleGradientPresentation: gradient, titleGraphicsPresentation: presentation);
         for (int frame = 0; frame < 64; frame++) reboundTitle.Step(0);
-        PlacedSpritePart[] beforeRebind = reboundTitle.CaptureRenderSnapshot().Memory.SpriteParts();
+        PlacedSpritePart[] beforeRebind = reboundTitle.CaptureRenderSnapshot().Paint.SpriteParts();
         reboundTitle.BindFixtureTitleGraphics(editedPresentation);
-        if (beforeRebind.SequenceEqual(reboundTitle.CaptureRenderSnapshot().Memory.SpriteParts()))
+        if (beforeRebind.SequenceEqual(reboundTitle.CaptureRenderSnapshot().Paint.SpriteParts()))
             throw new InvalidDataException("Rebinding a live title failed to apply current sprite composition.");
         reboundTitle.BindFixtureTitleGraphics(presentation);
-        if (!beforeRebind.SequenceEqual(reboundTitle.CaptureRenderSnapshot().Memory.SpriteParts()))
+        if (!beforeRebind.SequenceEqual(reboundTitle.CaptureRenderSnapshot().Paint.SpriteParts()))
             throw new InvalidDataException("Rebinding stock title composition failed to restore the frame.");
         year.Parts[0] = originalPart with { TileRow = TitleGraphicsFormat.ObjectTileRows };
         byte[] malformedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, ArtworkJson.Options);

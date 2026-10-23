@@ -45,13 +45,13 @@ internal static class PauseReserveTankAssetsVerification
                 nativeSamus.ReserveEnergy = installedSamus.ReserveEnergy = supply;
                 native.Step(0, 0, nmiFrameCounter8: phase); installed.Step(0, 0, nmiFrameCounter8: phase);
                 var expected = native.CaptureRenderSnapshot(); var actual = installed.CaptureRenderSnapshot();
-                AssertTrue(expected.Memory.SpriteParts().SequenceEqual(actual.Memory.SpriteParts()), "every legal reserve supply/flicker state matches native ordered OAM with reads forbidden");
+                AssertTrue(expected.Paint.SpriteParts().SequenceEqual(actual.Paint.SpriteParts()), "every legal reserve supply/flicker state matches native ordered OAM with reads forbidden");
                 AssertTrue(native.Render().SequenceEqual(installed.Render()), "every legal reserve supply/flicker state matches native pixels");
                 if (capacity == 100 && supply == 1 && phase == 4)
                 {
                     using var state = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(state, installed); state.Position = 0;
                     var restored = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(state); restored.BindFixtureArtwork(catalog);
-                    AssertTrue(actual.Memory.SpriteParts().SequenceEqual(restored.CaptureRenderSnapshot().Memory.SpriteParts()), "restored nonzero fill flicker phase retains exact OAM");
+                    AssertTrue(actual.Paint.SpriteParts().SequenceEqual(restored.CaptureRenderSnapshot().Paint.SpriteParts()), "restored nonzero fill flicker phase retains exact OAM");
                     AssertTrue(restored.Render().SequenceEqual(restored.Render()), "repeated draw does not advance fill flicker");
                 }
                 comparisons++;
@@ -77,7 +77,7 @@ internal static class PauseReserveTankAssetsVerification
             SnesObjAttributeWord.Create(50, 5, 3, SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical), new Position16<OamPixels>(132, 136));
         tankParts.FinalizeFrame();
         PlacedSpritePart[] tank = PlacedSpritePart.OfOamObjects(tankParts, PauseMenuLayout.ObjectSelection, edited.Sprites.Page.Id);
-        AssertTrue(snapshot.Memory.SpriteParts()[^tank.Length..].SequenceEqual(tank),
+        AssertTrue(snapshot.Paint.SpriteParts()[^tank.Length..].SequenceEqual(tank),
             "actual menu draws the custom tank's position, size, tile, palette, priority and flips");
         var editedPixels = menu.Render();
         AssertTrue(editedPixels.SequenceEqual(RenderForComparison(snapshot)), "edited reserve reaches captured renderer");

@@ -81,12 +81,16 @@ internal static class HudAtlasVerification
         fixtureAssets.Bind(restored);
         restored.Artwork.MapPresentation = edited;
         restored.FrameBoundary.BeginAcceptedFrame(0);
+        // The queued upload binds the HUD's artwork rather than writing VRAM, so the HUD shows what the binding composes.
         AssertTrue(edited.Resolve(VramAssetId.StandardHudTiles).Span.SequenceEqual(
-            restored.Vram.Bytes.Slice(GameplayVramLayout.HudCharacterWord * 2, HudTileAtlasFormat.TransferByteCount)),
+            restored.ComposedVram().AsSpan(GameplayVramLayout.HudCharacterWord * 2, HudTileAtlasFormat.TransferByteCount)),
             "restored pending HUD upload uses newly bound PNG, not captured old pixels");
         Rgba32[] modified = Render(restored);
-        AssertTrue(Render(displayed).SequenceEqual(modified),
-            "already displayed HUD rebind renders the same edited pixels as a fresh pending upload");
+        Rgba32[] rebound = Render(displayed);
+        int[] differing = [.. Enumerable.Range(0, modified.Length).Where(pixel => rebound[pixel] != modified[pixel])];
+        AssertTrue(differing.Length == 0,
+            "already displayed HUD rebind renders the same edited pixels as a fresh pending upload" + (differing.Length == 0 ? ""
+                : $" ({differing.Length} pixels differ, first at {differing[0] % 256},{differing[0] / 256}: rebound {rebound[differing[0]]}, fresh {modified[differing[0]]})"));
         AssertTrue(Enumerable.Range(8, 24).Any(y => Enumerable.Range(216, 40).Any(x => baseline[y * 256 + x] != modified[y * 256 + x])),
             "edited HUD PNG changes rendered minimap region after accepted NMI");
         var alreadyQueued = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
@@ -111,7 +115,12 @@ internal static class HudAtlasVerification
             runtime.Hud.UpdateMinimap(runtime.System, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = (runtime.Artwork.MapPresentation ?? throw new InvalidOperationException("Verification requires runtime.Artwork.MapPresentation.")).Get(AreaId.Crateria) });
             runtime.Hud.QueueUpload(runtime.VramWrites);
         }
-        static Rgba32[] Render(SuperMetroidRuntime runtime) => SnesBgTilemapRenderer.Render2Bpp(runtime.Vram, runtime.Cgram,
-            GameplayVramLayout.HudTilemapWord, GameplayVramLayout.HudCharacterWord, 4);
+        // The HUD's characters show as their bound artwork composes them; a queued upload binds them without writing VRAM.
+        static Rgba32[] Render(SuperMetroidRuntime runtime)
+        {
+            var shown = new SnesVram();
+            shown.LoadBytes(0, runtime.ComposedVram());
+            return SnesBgTilemapRenderer.Render2Bpp(shown, runtime.Cgram, GameplayVramLayout.HudTilemapWord, GameplayVramLayout.HudCharacterWord, 4);
+        }
     }
 }

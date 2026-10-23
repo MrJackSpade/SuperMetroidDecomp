@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using System.Text.Json;
@@ -83,10 +84,12 @@ internal static class CeresDestructionArtworkVerification
             if (firstPhaseFrame || frame % 211 == 0)
             {
                 LayeredRenderSnapshot expected = native.CaptureRenderSnapshot();
+                byte[] expectedVram = native.ShownVram();
                 LayeredRenderSnapshot actual = installed.CaptureRenderSnapshot();
+                byte[] actualVram = installed.ShownVram();
                 AssertTrue(actual.Brightness == expected.Brightness &&
-                        actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
-                        actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
+                        actualVram.SequenceEqual(expectedVram) &&
+                        actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
                         SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
                             SoftwareLayeredSnapshotRenderer.Render(expected)),
                     $"installed Ceres/Zebes art preserves native visible pixels at frame {frame}");
@@ -152,8 +155,8 @@ internal static class CeresDestructionArtworkVerification
             stockReveal.Step();
             movedReveal.Step();
         }
-        AssertTrue(!stockReveal.CaptureRenderSnapshot().Memory.SpriteParts().SequenceEqual(
-                movedReveal.CaptureRenderSnapshot().Memory.SpriteParts()),
+        AssertTrue(!stockReveal.CaptureRenderSnapshot().Paint.SpriteParts().SequenceEqual(
+                movedReveal.CaptureRenderSnapshot().Paint.SpriteParts()),
             "edited planet placement changes production OAM, not just JSON parsing");
         File.WriteAllBytes(actorsPath, [0]);
         AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
@@ -216,8 +219,8 @@ internal static class CeresDestructionArtworkVerification
         AssertEqual(unchecked((ushort)(stockDestructionActors[0].WholePosition.X + 16)),
             movedDestructionActors[0].WholePosition.X,
             "edited destruction layout moves the actual asteroid actor by one tile");
-        AssertTrue(!stockDestruction.CaptureRenderSnapshot().Memory.SpriteParts().SequenceEqual(
-                movedDestruction.CaptureRenderSnapshot().Memory.SpriteParts()),
+        AssertTrue(!stockDestruction.CaptureRenderSnapshot().Paint.SpriteParts().SequenceEqual(
+                movedDestruction.CaptureRenderSnapshot().Paint.SpriteParts()),
             "edited destruction placement changes production OAM");
         File.WriteAllBytes(destructionActorsPath, [0]);
         AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
@@ -257,7 +260,7 @@ internal static class CeresDestructionArtworkVerification
         LayeredRenderSnapshot beforeSprites = spriteState.CaptureRenderSnapshot();
         spriteState.BindFixtureDestructionArtwork(editedSprites);
         LayeredRenderSnapshot afterSprites = spriteState.CaptureRenderSnapshot();
-        AssertTrue(!beforeSprites.Memory.SpriteParts().SequenceEqual(afterSprites.Memory.SpriteParts()) &&
+        AssertTrue(!beforeSprites.Paint.SpriteParts().SequenceEqual(afterSprites.Paint.SpriteParts()) &&
                 !SoftwareLayeredSnapshotRenderer.Render(beforeSprites).SequenceEqual(
                     SoftwareLayeredSnapshotRenderer.Render(afterSprites)),
             "edited Ceres destruction composition changes production OAM and visible pixels");
@@ -276,8 +279,8 @@ internal static class CeresDestructionArtworkVerification
             ?? throw new InvalidOperationException("Ceres destruction sprite repair lost installation.");
         var repairedSpriteState = CreateRetailDestructionFixture(artwork: repaired.LoadIntroCinematicArt());
         for (int frame = 0; frame < 36; frame++) repairedSpriteState.Step();
-        AssertTrue(repairedSpriteState.CaptureRenderSnapshot().Memory.SpriteParts().SequenceEqual(
-                afterSprites.Memory.SpriteParts()),
+        AssertTrue(repairedSpriteState.CaptureRenderSnapshot().Paint.SpriteParts().SequenceEqual(
+                afterSprites.Paint.SpriteParts()),
             "Ceres destruction sprite override survives stock repair and remains visible");
         File.Delete(spritesOverride);
 
@@ -297,9 +300,11 @@ internal static class CeresDestructionArtworkVerification
         var ceresState = CreateRetailDestructionFixture(artwork: stock);
         for (int frame = 0; frame < 36; frame++) ceresState.Step();
         LayeredRenderSnapshot beforeCeres = ceresState.CaptureRenderSnapshot();
+        byte[] beforeCeresVram = ceresState.ShownVram();
         ceresState.BindFixtureDestructionArtwork(editedCeres);
         LayeredRenderSnapshot afterCeres = ceresState.CaptureRenderSnapshot();
-        AssertTrue(!beforeCeres.Memory.Vram.SequenceEqual(afterCeres.Memory.Vram) &&
+        byte[] afterCeresVram = ceresState.ShownVram();
+        AssertTrue(!beforeCeresVram.SequenceEqual(afterCeresVram) &&
                 !SoftwareLayeredSnapshotRenderer.Render(beforeCeres).SequenceEqual(
                     SoftwareLayeredSnapshotRenderer.Render(afterCeres)),
             "restored Ceres destruction adopts edited map and changes visible pixels");
@@ -349,13 +354,14 @@ internal static class CeresDestructionArtworkVerification
         AssertEqual(CeresDestructionPhase.FadeInZebes, zebesState.Phase,
             "rebind fixture reaches Zebes reveal");
         LayeredRenderSnapshot originalZebes = zebesState.CaptureRenderSnapshot();
+        byte[] originalZebesVram = zebesState.ShownVram();
         zebesState.BindFixtureDestructionArtwork(editedZebesMap);
-        AssertTrue(!zebesState.CaptureRenderSnapshot().Memory.Vram.SequenceEqual(
-                originalZebes.Memory.Vram),
+        AssertTrue(!zebesState.ShownVram().SequenceEqual(
+                originalZebesVram),
             "restored Zebes reveal adopts edited BG map without resetting phase");
         zebesState.BindFixtureDestructionArtwork(editedZebesPng);
-        AssertTrue(!zebesState.CaptureRenderSnapshot().Memory.Vram.SequenceEqual(
-                originalZebes.Memory.Vram),
+        AssertTrue(!zebesState.ShownVram().SequenceEqual(
+                originalZebesVram),
             "restored Zebes reveal adopts edited character PNG without resetting phase");
         AssertEqual(CeresDestructionPhase.FadeInZebes, zebesState.Phase,
             "visual rebind leaves native cinematic phase unchanged");

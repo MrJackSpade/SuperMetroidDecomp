@@ -52,10 +52,10 @@ internal static class CeresRidleyBodyPublicationVerification
             CeresRidleyMode7Snapshot transform = runtime.Display.Latched.Bosses.CeresRidleyMode7
                 ?? throw new InvalidOperationException("Ridley's getaway publishes his Mode 7 transform.");
             AssertEqual(CeresRidleyMode7Snapshot.Capture(ridley), transform, $"angle {ridley.Mode7Angle} publishes Ridley's transform");
-            Mode7MapSnapshot map = runtime.Display.Latched.Rooms?.Mode7
+            AffineFloor map = runtime.Display.Latched.Rooms?.Mode7
                 ?? throw new InvalidOperationException("The arena publishes its Mode 7 map.");
             foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(wings))
-                AssertTrue(map.Cells.Slice(transfer.DestinationWord, transfer.TileNumbers.Count).SequenceEqual(transfer.TileNumbers.ToArray()),
+                AssertTrue(map.Cells.Slice(transfer.DestinationWord, transfer.TileNumbers.Count).Select(cell => (byte)cell.Tile).SequenceEqual(transfer.TileNumbers),
                     $"angle {ridley.Mode7Angle} publishes his {wings} body frame");
             var mode7 = (Mode7GameplayRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
             AssertTrue(mode7.Map.Cells.SequenceEqual(map.Cells), $"angle {ridley.Mode7Angle} draws his published body");

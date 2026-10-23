@@ -28,8 +28,6 @@ internal static class GameplayDisplayFrameTestsVerification
     /// <summary>A WOBJLOG value used to mark which accepted NMI published a frame's latch.</summary>
     private const byte LatchMarker = 90;
 
-    /// <summary>The BG3 character base word Kraid's room selects.</summary>
-    private const ushort KraidHudCharacterWord = 8192;
 
     /// <summary>A layer-one Y position the scrolling sky mirrors into BG2VOFS.</summary>
     private const ushort SkyLayer1Y = 291;
@@ -72,10 +70,10 @@ internal static class GameplayDisplayFrameTestsVerification
         explosion.Spawn(new(128, 120));
         for (int i = 0; i < 20; i++) explosion.StepFrame();
         runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { ScrollingSky = new ScrollingSkyState(ScrollingSkyChunkTable.Land) });
-        runtime.Display.GameplayHudCharacterBaseWord = KraidHudCharacterWord;
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
+        // Wiping VRAM unbinds the room's artwork, so it follows the next frame's latch; the room reloads below.
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
         for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Cgram.SetColor(color, new Bgr555(31, 0, 31));
-        runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertTrue(ReferenceEquals(frameEnd, frame.FrameEnd) && ReferenceEquals(latched, frame.Latched),
             "a published frame keeps its own latch and frame-end inputs");
         AssertEqual(false, frame.FrameEnd.PowerBomb.IsActive, "published power bomb inputs are a value copy");
@@ -84,8 +82,7 @@ internal static class GameplayDisplayFrameTestsVerification
             "a published frame survives later simulation, latch and PPU memory changes");
 
         explosion.Reset();
-        runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { ScrollingSky = null });
-        runtime.Display.GameplayHudCharacterBaseWord = GameplayVramLayout.HudCharacterWord;
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }
 
@@ -93,6 +90,9 @@ internal static class GameplayDisplayFrameTestsVerification
     [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
     private static void VerifyBossBackgroundTiming(SuperMetroidRuntime runtime)
     {
+        // Each boss's body shows in its own room, whose artwork pictures it (#1392).
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Kraid, new Position16<RoomPixels>(0, 0));
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         OrdinaryGameplayRegisters before = Registers(runtime);
         var kraid = new KraidEnemyState { OwnsBg2Tilemap = true, Bg2Scroll = new Position16<Bg2Pixels>(320, 88) };
         runtime.Enemies.KraidBehavior.Access.Kraid = kraid;
@@ -104,6 +104,9 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.Enemies.KraidBehavior.Access.Kraid = null;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain, new Position16<RoomPixels>(0, 0));
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
+        before = Registers(runtime);
         var motherBrain = new MotherBrainEnemyState(runtime.Enemies.SlotTable.Slots[0]) { HasBg2ScrollOverride = true, DeathBg2Hidden = true };
         runtime.Enemies.MotherBrainEncounter.MotherBrain = motherBrain;
         MarkMainLoopWrite(runtime);
@@ -114,21 +117,15 @@ internal static class GameplayDisplayFrameTestsVerification
         AssertEqual(motherBrain.RainbowBeamHdma.Color, runtime.PublishDisplayFrame().Latched.FixedColors.RainbowBeam,
             "rainbow beam COLDATA is latched with Mother Brain's registers");
         runtime.Enemies.MotherBrainEncounter.MotherBrain = null;
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }
 
-    /// <summary>BG34NBA, the FX blend selectors and the scrolling sky's BG2 shadows publish with the accepted NMI's latch.</summary>
+    /// <summary>The FX blend selectors and the scrolling sky's BG2 shadows publish with the accepted NMI's latch.</summary>
     [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
     private static void VerifySceneRegisterTiming(SuperMetroidRuntime runtime)
     {
         OrdinaryGameplayRegisters before = Registers(runtime);
-        runtime.Display.GameplayHudCharacterBaseWord = KraidHudCharacterWord;
-        MarkMainLoopWrite(runtime);
-        AssertPending(runtime, registers => registers.HudCharacterWord == before.HudCharacterWord, "BG34NBA");
-        AssertPublished(runtime, registers => registers.HudCharacterWord == KraidHudCharacterWord, "BG34NBA");
-        runtime.Display.GameplayHudCharacterBaseWord = GameplayVramLayout.HudCharacterWord;
-        runtime.FrameBoundary.BeginAcceptedFrame(0);
-
         RoomFxType originalFx = runtime.RoomLayer3Fx.Type;
         runtime.RoomLayer3Fx.Type = RoomFxType.TourianEntranceStatue;
         MarkMainLoopWrite(runtime);
@@ -240,8 +237,8 @@ internal static class GameplayDisplayFrameTestsVerification
             "Ridley's M7A..M7Y and fake BGMODE wait for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var mode7 = (Mode7GameplayRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertEqual((short)240, mode7.Registers.MatrixA, "the accepted NMI publishes Ridley's M7A");
-        AssertEqual((short)33, mode7.Registers.MatrixB, "the accepted NMI publishes Ridley's M7B");
+        AssertEqual((short)240, mode7.Transform.MatrixA, "the accepted NMI publishes Ridley's M7A");
+        AssertEqual((short)33, mode7.Transform.MatrixB, "the accepted NMI publishes Ridley's M7B");
         AssertTrue(mode7.Floor is not null, "the accepted NMI publishes Ridley's mixed Mode 7 band");
         getaway.Mode7Active = false;
         runtime.FrameBoundary.BeginAcceptedFrame(0);

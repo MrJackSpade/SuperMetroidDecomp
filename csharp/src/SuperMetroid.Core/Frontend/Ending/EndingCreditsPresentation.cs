@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
@@ -31,7 +32,7 @@ internal static class EndingCreditsPresentation
             // Mode 7 places OBJ priority zero below BG1; the other three priorities
             // are above it. BG1 subtracts the winning OBJ subscreen, without halving.
             layers.Add(new ObjPriorityRenderLayer(0));
-            layers.Add(new Mode7RenderLayer(PostShotRegisters(ending), true, Tiles: ending.Mode7Tiles()));
+            layers.Add(new Mode7RenderLayer(PostShotTransform(ending), AffineFloor.Capture(image, ending.Mode7Tiles()), true));
             layers.Add(new ObjPriorityRenderLayer(1));
             layers.Add(new ObjPriorityRenderLayer(2));
             layers.Add(new ObjPriorityRenderLayer(3));
@@ -69,8 +70,8 @@ internal static class EndingCreditsPresentation
                 short b = Scale(ReadSine(ending.Stage.Mode7Angle.TableIndex), ending.Stage.Mode7Zoom);
                 layers.Add(new Mode7RenderLayer(new(a, b, unchecked((short)-b), a,
                     CurrentMode7Center(ending),
-                    ending.Stage.Mode7.Whole.AsSignedRegister(), WrapOutsideMap: AtmosphericMapWraps(ending)),
-                    AddBg1Subscreen: AtmosphericMapWraps(ending), Tiles: ending.Mode7Tiles()));
+                    ending.Stage.Mode7.Whole.AsSignedRegister(), AtmosphericMapWraps(ending) ? Mode7OverflowMode.Wrap : Mode7OverflowMode.Transparent),
+                    AffineFloor.Capture(image, ending.Mode7Tiles()), AddBg1Subscreen: AtmosphericMapWraps(ending)));
             }
             memory = CaptureMemory(ending, image, objectSheet);
             if (EndingObjectsEnabled(ending) && !AtmosphericMapWraps(ending))
@@ -98,7 +99,7 @@ internal static class EndingCreditsPresentation
     }
 
     /// <summary>Mode 7 matrix and center for the post-shot reward scene.</summary>
-    private static Mode7RenderRegisters PostShotRegisters(EndingCreditsState ending)
+    private static AffineTransform PostShotTransform(EndingCreditsState ending)
     {
             short a = Scale(ReadSine(ending.PostShot.Angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex), ending.PostShot.Scale);
             short b = Scale(ReadSine(ending.PostShot.Angle.TableIndex), ending.PostShot.Scale);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
@@ -222,7 +223,7 @@ internal sealed class IntroCeresFlightState
             layers.Add(new Mode7RenderLayer(new(a, b, c, d,
                 new Offset16<Mode7Pixels>(CeresFlightRenderDefinitions.CenterX, CeresFlightRenderDefinitions.CenterY),
                 background.Whole.AsSignedRegister()),
-                Tiles: mode7Tiles ?? throw new InvalidOperationException("The Ceres flight's Mode 7 view requires the installed sprite sheets.")));
+                AffineFloor.Capture(image, mode7Tiles ?? throw new InvalidOperationException("The Ceres flight's Mode 7 view requires the installed sprite sheets."))));
             layers.Add(new ObjPriorityRenderLayer(1));
         }
         layers.Add(new ObjPriorityRenderLayer(2));

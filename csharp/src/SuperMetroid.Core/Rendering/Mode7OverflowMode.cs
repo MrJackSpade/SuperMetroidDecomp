@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>Exclusive Mode 7 overflow operations shared by display packets and GPU constants.</summary>
+/// <summary>What shows beyond a Mode 7 floor's 1024 by 1024 pixels (#1403).</summary>
 public enum Mode7OverflowMode : byte
 {
-    /// <summary>M7SEL=$80: samples beyond the 1024-pixel map are transparent.</summary>
+    /// <summary>Nothing shows beyond the floor.</summary>
     Transparent = 0,
-    /// <summary>M7SEL=$C0: use character zero outside the map, retaining the pixel's low three coordinates.</summary>
+    /// <summary>Tile zero shows beyond the floor, at the pixel the low three bits of each coordinate name.</summary>
     CharacterZero = 1,
-    /// <summary>M7SEL bit seven clear: wrap both tile-map coordinates to ten bits.</summary>
+    /// <summary>The floor repeats beyond its edges.</summary>
     Wrap = 2,
 }

@@ -50,7 +50,7 @@ internal static class CeresRidleyGetawayDefinitionsVerification
             var seed = new byte[Mode7Map.Cells];
             for (int cell = 0; cell < seed.Length; cell++)
                 seed[cell] = expectedVram[cell * 2];
-            var actual = new Mode7Map(seed, default);
+            var actual = new Mode7Map(seed, default, RoomBackgroundsFixtures.Mode7Tiles());
             foreach (CeresMode7Transfer transfer in compiled)
             {
                 AssertEqual((byte)0x80, rom.ReadCartridgeByte(cursor),
@@ -79,7 +79,7 @@ internal static class CeresRidleyGetawayDefinitionsVerification
             // Ridley writes each transfer into the room's Mode 7 map, in list order (#1349).
             foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(pointer))
                 actual.Write(transfer.DestinationWord, [.. transfer.TileNumbers]);
-            ReadOnlySpan<byte> cells = actual.Publish().Cells;
+            byte[] cells = [.. actual.Publish().Cells.Select(cell => (byte)cell.Tile)];
             bool matches = true;
             for (int cell = 0; cell < cells.Length; cell++)
                 matches &= cells[cell] == expectedVram[cell * 2];

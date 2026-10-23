@@ -193,10 +193,10 @@ internal static class EndingSnapshotTestsVerification
                     var shotFrame = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
                     var mode = shotFrame.LayersOf<Mode7RenderLayer>().Single();
                     AssertTrue(mode.SubtractObjSubscreen, "live shot enables native BG1 minus OBJ blending");
-                    AssertEqual((short)104, mode.Registers.Center.X, "post-shot matrix horizontal origin");
-                    AssertEqual((short)112, mode.Registers.Center.Y, "post-shot matrix vertical origin");
-                    AssertEqual((short)-4, mode.Registers.Scroll.X, "post-shot horizontal scroll");
-                    AssertEqual((short)-8, mode.Registers.Scroll.Y, "post-shot vertical scroll");
+                    AssertEqual((short)104, mode.Transform.Center.X, "post-shot matrix horizontal origin");
+                    AssertEqual((short)112, mode.Transform.Center.Y, "post-shot matrix vertical origin");
+                    AssertEqual((short)-4, mode.Transform.Scroll.X, "post-shot horizontal scroll");
+                    AssertEqual((short)-8, mode.Transform.Scroll.Y, "post-shot vertical scroll");
                     if (hours == 2 && elapsed == 16)
                     {
 

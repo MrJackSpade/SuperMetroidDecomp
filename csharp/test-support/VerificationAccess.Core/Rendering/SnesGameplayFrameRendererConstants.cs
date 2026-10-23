@@ -27,10 +27,10 @@ internal static class SnesGameplayFrameRendererConstants
     /// interleaved VRAM as Mode-1 4-bpp tiles produces regular one-pixel color stripes—the
     /// conspicuous failure this dedicated path prevents.
     /// </remarks>
-    public static Rgba32[] RenderHudMode7AndObjs(SnesVram vram, SnesCgram cgram, SpriteFrameBuffer sprites, Mode7RenderRegisters registers, Rgba32[]? outputBuffer = null)
+    public static Rgba32[] RenderHudMode7AndObjs(SnesVram vram, SnesCgram cgram, SpriteFrameBuffer sprites, AffineTransform registers, Rgba32[]? outputBuffer = null)
     {
         Rgba32[] output = SnesGameplayFrameRenderer.CreateBackdrop(cgram, outputBuffer);
-        SnesMode7RendererConstants.CompositeViewport(output, vram, cgram, new Mode7RenderRegisters { MatrixA = registers.MatrixA, MatrixB = registers.MatrixB, MatrixC = registers.MatrixC, MatrixD = registers.MatrixD, Center = registers.Center, Scroll = registers.Scroll });
+        SnesMode7RendererConstants.CompositeViewport(output, vram, cgram, new AffineTransform { MatrixA = registers.MatrixA, MatrixB = registers.MatrixB, MatrixC = registers.MatrixC, MatrixD = registers.MatrixD, Center = registers.Center, Scroll = registers.Scroll });
 
         // IRQ command four gives the upper 32 physical scanlines exclusively to BG3.
         // Mode 7 is projected at physical screen coordinates across the destination first;
@@ -45,7 +45,7 @@ internal static class SnesGameplayFrameRendererConstants
     /// generic Mode-7 elevator path does not have: BG3 owns the HUD, Mode 7 owns the arena,
     /// and the final sixteen scanlines switch back to Mode 1 with only BG2 and OBJ enabled.
     /// </summary>
-    public static Rgba32[] RenderHudCeresRidleyGetawayAndObjs(SnesVram vram, SnesCgram cgram, SpriteFrameBuffer sprites, Mode7RenderRegisters registers, CeresGetawayFloor floor, byte obsel = SnesGameplayFrameRendererConstants.DefaultObjectSelection, Rgba32[]? outputBuffer = null)
+    public static Rgba32[] RenderHudCeresRidleyGetawayAndObjs(SnesVram vram, SnesCgram cgram, SpriteFrameBuffer sprites, AffineTransform registers, CeresGetawayFloor floor, byte obsel = SnesGameplayFrameRendererConstants.DefaultObjectSelection, Rgba32[]? outputBuffer = null)
     {
         Ensure.NotNull(vram);
         Ensure.NotNull(cgram);
@@ -56,7 +56,7 @@ internal static class SnesGameplayFrameRendererConstants
         Rgba32[] output = SnesGameplayFrameRenderer.CreateBackdrop(cgram, outputBuffer);
         using var scratch = new RenderScratch();
         Rgba32[] mode7 = scratch.Colors(SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height);
-        SnesMode7RendererConstants.CompositeViewport(mode7, vram, cgram, new Mode7RenderRegisters { MatrixA = registers.MatrixA, MatrixB = registers.MatrixB, MatrixC = registers.MatrixC, MatrixD = registers.MatrixD, Center = registers.Center, Scroll = registers.Scroll });
+        SnesMode7RendererConstants.CompositeViewport(mode7, vram, cgram, new AffineTransform { MatrixA = registers.MatrixA, MatrixB = registers.MatrixB, MatrixC = registers.MatrixC, MatrixD = registers.MatrixD, Center = registers.Center, Scroll = registers.Scroll });
         ResolvedObjFrame objects = scratch.ResolveObjects(sprites, cgram);
 
         // IndirectHDMATable_CeresRidleyMode_BGTileSize and its matching TM table keep

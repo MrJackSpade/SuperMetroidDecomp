@@ -13,7 +13,7 @@ internal enum D3D11RoomSource : uint
     Sky = 3,
     /// <summary>The BG3 plane: the HUD and the room effect (#1348).</summary>
     Bg3 = 4,
-    /// <summary>A Ceres room's Mode 7 map (#1349).</summary>
+    /// <summary>The frame's Mode 7 floor: a Ceres room's map (#1349) or a frontend scene's (#1403).</summary>
     Mode7Map = 5,
     /// <summary>A boss body's BG2 tilemap (#1352).</summary>
     BossBg2 = 6,
@@ -24,7 +24,4 @@ internal enum D3D11RoomSource : uint
 
     /// <summary>A frontend layer's VRAM tilemap, drawn from its characters' pre-coloured tiles in its table (#1392).</summary>
     ScreenTiles = 9,
-
-    /// <summary>A frontend Mode 7 map in VRAM, drawn from its tiles' pre-coloured pictures in its table (#1392).</summary>
-    Mode7Tiles = 10,
 }

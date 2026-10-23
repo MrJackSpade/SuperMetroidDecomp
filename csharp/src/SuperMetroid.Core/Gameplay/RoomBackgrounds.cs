@@ -27,7 +27,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="SkyImage">The scrolling sky's rows drawn from their image, where BG2 shows the sky (#1392).</param>
 public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLayer? Bg2, Layer3Plane Bg3,
     RoomDoorBackground? DoorSource = null, RoomTilemapOverlay? Bg1Overlay = null, SkyTilemap? Sky = null,
-    RoomTilemapOverlay? Bg2Overlay = null, Mode7MapSnapshot? Mode7 = null, BossBg2Tilemap? BossBg2 = null,
+    RoomTilemapOverlay? Bg2Overlay = null, AffineFloor? Mode7 = null, BossBg2Tilemap? BossBg2 = null,
     RoomBackgroundCharacters Characters = RoomBackgroundCharacters.Tileset, XrayRevealPlane? XrayReveal = null,
     RoomBackgroundImagePlane? Bg2Image = null, RoomBackgroundImagePlane? SkyImage = null)
 {

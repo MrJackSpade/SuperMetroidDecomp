@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Intro;
@@ -913,12 +914,12 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         else if (usesMode7)
         {
             var (a, b, c, d) = Mode7RotationMatrix.Calculate(angle, Zoom);
-            var mode7 = new Mode7RenderRegisters(a, b, c, d,
+            var mode7 = new AffineTransform(a, b, c, d,
                 Phase <= CeresDestructionPhase.FadeOutCeres
                     ? new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.CeresCenterX, CeresDestructionRomData.Rendering.CeresCenterY)
                     : new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.ZebesCenterX, CeresDestructionRomData.Rendering.ZebesCenterY),
                 Background.Whole.AsSignedRegister());
-            layers = [new ObjPriorityRenderLayer(0), new Mode7RenderLayer(mode7, Tiles: UploadedMode7Tiles()),
+            layers = [new ObjPriorityRenderLayer(0), new Mode7RenderLayer(mode7, AffineFloor.Capture(shown, UploadedMode7Tiles())),
                 new ObjPriorityRenderLayer(1), new ObjPriorityRenderLayer(2), new ObjPriorityRenderLayer(3)];
         }
         else

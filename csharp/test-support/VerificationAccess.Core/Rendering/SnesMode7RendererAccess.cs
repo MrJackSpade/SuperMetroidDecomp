@@ -22,7 +22,7 @@ internal static class SnesMode7RendererAccess
         internal static Rgba32[] RenderViewport(
             SnesVram vram,
             SnesCgram cgram,
-            Mode7RenderRegisters registers,
+            AffineTransform registers,
             Extent16<ScreenPixels>? size = null)
         {
             Ensure.NotNull(vram);

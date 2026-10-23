@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Audio;
@@ -138,11 +139,11 @@ internal static class ScreenTilePicturesVerification
         for (int tick = 0; tick < TitleTicks && !title.FileSelectRequested; tick++)
         {
             Mode7ObjRenderSnapshot scene = title.CaptureRenderSnapshot();
-            if (scene.Background is not null && sampled.Add($"{title.Phase} {scene.BackgroundTiles?.GetHashCode()}"))
+            if (scene.Floor is { } floor && sampled.Add($"{title.Phase} {floor.Tiles.GetHashCode()}"))
             {
-                AssertTrue(scene.BackgroundTiles is not null, $"title {title.Phase}: its Mode 7 background draws from its characters' pictures");
                 Rgba32[] pictured = SoftwareMode7ObjSnapshotRenderer.Render(scene).ToArray();
-                Rgba32[] characters = SoftwareMode7ObjSnapshotRenderer.Render(scene with { BackgroundTiles = null }).ToArray();
+                Rgba32[] characters = SoftwareMode7ObjSnapshotRenderer.Render(new Mode7ObjRenderSnapshot(scene.Memory, scene.Background, scene.Brightness,
+                    scene.Gradient, AffineFloorFixtures.Floor(scene.Memory.Vram, scene.Memory.Cgram))).ToArray();
                 AssertTrue(pictured.SequenceEqual(characters), $"title {title.Phase}: drawn from its pictures, the Mode 7 background matches its characters");
             }
             title.Step(0);
@@ -199,7 +200,7 @@ internal static class ScreenTilePicturesVerification
             {
                 Bg4BppRenderLayer bg => bg with { Cells = FromCharacters(bg.Cells) },
                 Bg2BppViewportRenderLayer bg => bg with { Cells = FromCharacters(bg.Cells) },
-                Mode7RenderLayer mode7 => mode7 with { Tiles = null },
+                Mode7RenderLayer mode7 => mode7 with { Floor = new AffineFloor(mode7.Floor.Cells, AffineFloorFixtures.Floor(scene.Memory.Vram, scene.Memory.Cgram).Tiles) },
                 BgSubscreenAddRenderLayer sub => sub with
                 {
                     Cells = FromCharacters(sub.Cells),
@@ -209,7 +210,6 @@ internal static class ScreenTilePicturesVerification
             };
             if (!ReferenceEquals(stripped, layer))
             {
-                AssertTrue(layer is not Mode7RenderLayer { Tiles: null }, $"{name}: its {layer.GetType().Name} draws from its characters' tiles");
                 layers++;
             }
             fromCharacters.Add(stripped);

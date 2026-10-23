@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -29,9 +30,9 @@ internal static class Mode7GameplaySnapshotTestsVerification
         foreach (ushort scroll in new ushort[] { 0, 255, 511, ushort.MaxValue })
         foreach (bool floorEnabled in new[] { false, true })
         {
-            var m = new Mode7RenderRegisters(matrix, 17, -33, matrix, new Offset16<Mode7Pixels>(128, 96), new Offset16<Mode7Pixels>(-13, unchecked((short)scroll)));
+            var m = new AffineTransform(matrix, 17, -33, matrix, new Offset16<Mode7Pixels>(128, 96), new Offset16<Mode7Pixels>(-13, unchecked((short)scroll)));
             Mode1FloorBand? floor = floorEnabled ? new(208, GameplayVramLayout.Bg2TilemapWord, 0x6000, new Position16<Bg2Pixels>(scroll, scroll), new Extent16<TilemapCells>(64, 32)) : null;
-            var layer = new Mode7GameplayRenderLayer(m, Layer3PlaneFixtures.FromVram(live.Vram), Mode7MapFixtures.FromVram(live.Vram.Bytes),
+            var layer = new Mode7GameplayRenderLayer(m, Layer3PlaneFixtures.FromVram(live.Vram), AffineFloorFixtures.Floor(live.Vram.Bytes, live.Cgram.Colors),
                 GameplayVramLayout.HudCharacterWord, SnesPpuLayout.GameplayHudHeightPixels, floor);
             Rgba32[] expected = floorEnabled
                 ? SnesGameplayFrameRendererConstants.RenderHudCeresRidleyGetawayAndObjs(live.Vram, live.Cgram, live.Sprites, m, new CeresGetawayFloor { Bg2Scroll = new Position16<Bg2Pixels>(scroll, scroll), Bg2CharacterBaseWord = 0x6000 })
@@ -68,8 +69,8 @@ internal static class Mode7GameplaySnapshotTestsVerification
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
         for (int i = 0; i < SnesPpuLayout.CgramColorCount; i++) runtime.Cgram.SetColor(i, new Bgr555(0, 0, 0));
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "Ridley packet survives mode exit and live memory replacement");
-        AssertThrows<ArgumentOutOfRangeException>(() => new Mode7GameplayRenderLayer(default, RoomBackgroundsFixtures.BlankBg3(), Mode7MapFixtures.FromVram(new byte[0x8000]), 0, 31), "HUD must cover complete tile rows");
-        AssertThrows<ArgumentOutOfRangeException>(() => new Mode7GameplayRenderLayer(default, RoomBackgroundsFixtures.BlankBg3(), Mode7MapFixtures.FromVram(new byte[0x8000]), 0, 32,
+        AssertThrows<ArgumentOutOfRangeException>(() => new Mode7GameplayRenderLayer(default, RoomBackgroundsFixtures.BlankBg3(), RoomBackgroundsFixtures.BlankMode7Floor(), 0, 31), "HUD must cover complete tile rows");
+        AssertThrows<ArgumentOutOfRangeException>(() => new Mode7GameplayRenderLayer(default, RoomBackgroundsFixtures.BlankBg3(), RoomBackgroundsFixtures.BlankMode7Floor(), 0, 32,
             new Mode1FloorBand(31, 0, 0, new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32))), "floor cannot overlap HUD");
         Console.WriteLine($"  Mode-7 gameplay snapshots: {samples} full-frame matrix/scroll/floor comparisons match.");
     }

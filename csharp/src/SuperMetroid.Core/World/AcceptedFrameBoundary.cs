@@ -243,11 +243,11 @@ internal sealed class AcceptedFrameBoundary
     {
         // While a Ceres room shows its Mode 7 map, the map draws its tiles' pictures, which its characters must still show
         // (#1392); Ceres Ridley's getaway writes its warning's and doors' characters over them once his Mode 7 ends.
-        if (latched.ShowsMode7 && rooms.Mode7 is { Tiles: { } mode7Tiles } mode7)
-            mode7Tiles.AssertShownBy(_backgrounds, mode7.NamedTiles);
+        RoomScope scope = _room.Scope ?? throw new InvalidOperationException("Room backgrounds were captured with no room loaded.");
+        if (latched.ShowsMode7 && scope.Mode7Map is { } mode7)
+            mode7.Tiles.AssertShownBy(_backgrounds, mode7.NamedTiles);
         if (rooms.Characters != RoomBackgroundCharacters.Tileset && reveal is not null)
             throw new InvalidOperationException("X-ray reveals a room whose planes draw from the object character page.");
-        RoomScope scope = _room.Scope ?? throw new InvalidOperationException("Room backgrounds were captured with no room loaded.");
         RevealedBlock[]? revealed = null;
         if (reveal is { } words)
         {

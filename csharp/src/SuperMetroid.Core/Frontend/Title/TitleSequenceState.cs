@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
@@ -385,11 +386,11 @@ public sealed class TitleSequenceState : IFrontendScreen
         image ??= TitleScreenImage.Compose(artwork, TitleSequenceRomData.Vram.BabyAnimationSourcePages[babyFrame]);
         return new(new PpuMemorySnapshot(image, palette.Colors, objects.Draws),
             mode7BackgroundEnabled
-                ? new Mode7RenderRegisters(scale, TitleSequenceRomData.Scenes.Rotation.TableIndex,
+                ? new AffineTransform(scale, TitleSequenceRomData.Scenes.Rotation.TableIndex,
                     0, scale, new Offset16<Mode7Pixels>(128, 128), mode7.Whole.AsSignedRegister())
                 : null,
             checked((byte)Brightness), gradientEnabled ? ResolveTitleGradient() : default,
-            mode7BackgroundEnabled ? Mode7Tiles(TitleSequenceRomData.Vram.BabyAnimationSourcePages[babyFrame]) : null);
+            mode7BackgroundEnabled ? AffineFloor.Capture(image, Mode7Tiles(TitleSequenceRomData.Vram.BabyAnimationSourcePages[babyFrame])) : null);
     }
 
     /// <summary>Resolves the installed title gradient at the current Mode 7 scale.</summary>

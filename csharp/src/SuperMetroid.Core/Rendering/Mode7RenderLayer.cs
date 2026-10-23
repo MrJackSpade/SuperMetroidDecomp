@@ -1,10 +1,19 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>Inserts a Mode 7 plane at an explicit position in the OBJ priority ladder.</summary>
-/// <param name="Registers">Unmodified integer projection and overflow controls.</param>
-/// <param name="SubtractObjSubscreen">Subtracts the winning OBJ from BG1.</param>
-/// <param name="AddBg1Subscreen">Owns BG1/OBJ main selection and adds BG1 to eligible main pixels, without halving. Backdrop and OBJ palettes zero through three are excluded.</param>
-/// <param name="Tiles">What each tile of the map shows, which it draws from (#1392); null while it draws from VRAM.</param>
-[IndependentFlag("independent colour-math settings: object subtraction and BG1 addition")]
-public sealed record Mode7RenderLayer(Mode7RenderRegisters Registers, bool SubtractObjSubscreen = false,
-    bool AddBg1Subscreen = false, Mode7TilePictures? Tiles = null) : RenderLayer;
+/// <summary>Inserts a Mode 7 floor at an explicit position in the OBJ priority ladder (#1403).</summary>
+/// <param name="Transform">How the floor is turned, scaled and scrolled onto the screen.</param>
+/// <param name="Floor">The floor's map and tiles.</param>
+/// <param name="SubtractObjSubscreen">Subtracts the winning OBJ from the floor.</param>
+/// <param name="AddBg1Subscreen">Owns floor/OBJ main selection and adds the floor to eligible main pixels, without halving. Backdrop and OBJ palettes zero through three are excluded.</param>
+[IndependentFlag("independent colour-math settings: object subtraction and floor addition")]
+public sealed record Mode7RenderLayer(AffineTransform Transform, AffineFloor Floor, bool SubtractObjSubscreen = false,
+    bool AddBg1Subscreen = false) : RenderLayer
+{
+    /// <summary>The floor's map and tiles.</summary>
+    public AffineFloor Floor
+    {
+        get;
+        init => field = Ensure.NotNull(value);
+    } = Ensure.NotNull(Floor);
+}

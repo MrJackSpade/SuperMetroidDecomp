@@ -137,7 +137,8 @@ internal static class EndingPlanetBoundaryVerification
             var projection = snapshot.LayersOf<Mode7RenderLayer>().Single();
             // D837 retains M7SEL=0 from atmospheric setup. Its main is BG1,
             // subscreen is OBJ, and CGADSUB=$21 adds OBJ to BG1/backdrop.
-            RenderLayer[] nativeLayers = [new Mode7RenderLayer(projection.Registers with { WrapOutsideMap = true }),
+            RenderLayer[] nativeLayers = [new Mode7RenderLayer(projection.Transform with { Outside = Mode7OverflowMode.Wrap },
+                    AffineFloorFixtures.Floor(nativeVram, snapshot.Memory.Cgram)),
                 new ObjRenderLayer(AddToScreen: true)];
             var nativeMemory = new PpuMemorySnapshot(nativeVram, snapshot.Memory.Cgram, snapshot.Memory.SpriteDraws);
             var expected = SoftwareLayeredSnapshotRenderer.Render(new(nativeMemory, nativeLayers, snapshot.Brightness));

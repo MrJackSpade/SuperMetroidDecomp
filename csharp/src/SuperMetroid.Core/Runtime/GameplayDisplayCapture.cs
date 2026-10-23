@@ -173,7 +173,7 @@ public static class GameplayDisplayCapture
         ?? throw new InvalidOperationException("A gameplay frame shows BG3 only once a room is loaded.")).Bg3;
 
     /// <summary>The Mode 7 registers Ceres Ridley's latched shadows program, before room shake.</summary>
-    internal static Mode7RenderRegisters CeresRidleyRegisters(CeresRidleyMode7Snapshot ridley) => new(
+    internal static AffineTransform CeresRidleyRegisters(CeresRidleyMode7Snapshot ridley) => new(
         unchecked(ridley.MatrixA), unchecked(ridley.MatrixB),
         unchecked(ridley.MatrixC), unchecked(ridley.MatrixD),
         ridley.Center.AsSignedRegister(), ridley.Offset);
@@ -251,11 +251,11 @@ public static class GameplayDisplayCapture
         GameplayNmiDisplayLatch latched = frame.Latched;
         GameplayPpuRenderSnapshot ppu = latched.Ppu;
         RoomShakeFrameResult shake = ppu.RoomShake;
-        Mode7RenderRegisters registers;
+        AffineTransform registers;
         Mode1FloorBand? floor = null;
         if (latched.Bosses.CeresRidleyMode7 is { } ridley)
         {
-            Mode7RenderRegisters getaway = CeresRidleyRegisters(ridley);
+            AffineTransform getaway = CeresRidleyRegisters(ridley);
             registers = getaway with
             {
                 Scroll = new Offset16<Mode7Pixels>(

@@ -98,8 +98,9 @@ internal static class EndingCloudPlacementVerification
         for (int frame = 0; frame < 90; frame++) ending.Step();
         var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
         var memory = new SoftwarePpuSnapshotMemory(snapshot.Memory);
-        var registers = snapshot.LayersOf<Mode7RenderLayer>().First().Registers;
-        var background = SnesMode7Renderer.RenderViewport(memory.Vram, memory.Cgram, new Mode7RenderRegisters { MatrixA = registers.MatrixA, MatrixB = registers.MatrixB, MatrixC = registers.MatrixC, MatrixD = registers.MatrixD, Center = new Offset16<Mode7Pixels>(registers.Center.X, registers.Center.Y), Scroll = new Offset16<Mode7Pixels>(registers.Scroll.X, registers.Scroll.Y), WrapOutsideMap = registers.WrapOutsideMap });
+        Mode7RenderLayer shown = snapshot.LayersOf<Mode7RenderLayer>().First();
+        var registers = shown.Transform;
+        var background = SnesMode7Renderer.RenderViewport(memory.Vram, memory.Cgram, new AffineTransform { MatrixA = registers.MatrixA, MatrixB = registers.MatrixB, MatrixC = registers.MatrixC, MatrixD = registers.MatrixD, Center = new Offset16<Mode7Pixels>(registers.Center.X, registers.Center.Y), Scroll = new Offset16<Mode7Pixels>(registers.Scroll.X, registers.Scroll.Y), Outside = registers.Outside });
         // SetupPpu_5_Mode7 ($8B:8293) writes M7SEL=0, not the $80
         // transparent-overflow mode. Keep this oracle independent of the renderer's
         // overflow policy: the native tile lookup masks BOTH coordinates to ten bits.
@@ -140,7 +141,7 @@ internal static class EndingCloudPlacementVerification
         {
             // Isolate overflow from the independently missing main/subscreen math.
             var projected = SoftwareLayeredSnapshotRenderer.Render(new(snapshot.Memory,
-                new RenderLayer[] { new Mode7RenderLayer(registers) }, 15));
+                new RenderLayer[] { new Mode7RenderLayer(registers, shown.Floor) }, 15));
             var wrapped = SnesLayerCompositor.CreateBackdrop(memory.Cgram, 256 * 224);
             SnesLayerCompositor.Composite(wrapped, wrappedBackground);
             int differences = projected.Zip(wrapped, (first, second) => first != second).Count(differs => differs);

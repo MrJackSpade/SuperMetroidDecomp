@@ -44,7 +44,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: new StandaloneRoomEnemyServices(() => throw new InvalidOperationException("The getaway draws no random numbers here."))
             {
-                Mode7Map = new Mode7Map(new byte[Mode7Map.Cells], default),
+                Mode7Map = new Mode7Map(new byte[Mode7Map.Cells], default, RoomBackgroundsFixtures.Mode7Tiles()),
             })
         {
             BossArtworkBinding = { CeresRidleyMode7Colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(bus))) },

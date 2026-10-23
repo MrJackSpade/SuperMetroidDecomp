@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
@@ -9,11 +10,11 @@ public sealed record Mode7ObjRenderSnapshot
 {
     /// <summary>Immutable VRAM, CGRAM, and finalized OAM image retained by reference without another memory copy.</summary>
     public PpuMemorySnapshot Memory { get; }
-    /// <summary>Null disables BG1 without sampling its matrix, retaining the backdrop.</summary>
-    public Mode7RenderRegisters? Background { get; }
+    /// <summary>The floor's transform; null shows no floor, leaving the backdrop.</summary>
+    public AffineTransform? Background { get; }
 
-    /// <summary>What each tile of the background's map shows, which it draws from (#1392); null while it draws from VRAM.</summary>
-    public Mode7TilePictures? BackgroundTiles { get; init; }
+    /// <summary>The floor's map and tiles (#1403), present exactly when <see cref="Background"/> is.</summary>
+    public AffineFloor? Floor { get; }
     /// <summary>Master brightness 0..15 applied after BG1, OBJ, and optional gradient color math.</summary>
     public int Brightness { get; }
     /// <summary>Owned per-scanline fixed-color controls copied from the caller at snapshot construction.</summary>
@@ -26,18 +27,20 @@ public sealed record Mode7ObjRenderSnapshot
 
     /// <summary>Captures a 256-by-224-pixel BG1/backdrop-then-OBJ composition, copying only the optional gradient.</summary>
     /// <param name="memory">Complete immutable PPU image; retained rather than recaptured from live hardware.</param>
-    /// <param name="background">Mode 7 register values, or null to leave the backdrop below OBJ. Sampling uses screen X starting at zero and physical scanline one for the first visible row.</param>
+    /// <param name="background">The floor's transform, or null to leave the backdrop below OBJ. Sampling uses screen X starting at zero and physical scanline one for the first visible row.</param>
     /// <param name="brightness">Final master brightness from 0 through 15 inclusive; zero produces black.</param>
     /// <param name="gradient">Empty, or exactly 224 scanline controls whose CGADSUB control subtracts from BG1 and the backdrop or adds to them and the OBJs; copied into owned storage.</param>
     /// <exception cref="ArgumentNullException"><paramref name="memory"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is out of range.</exception>
-    /// <exception cref="ArgumentException"><paramref name="gradient"/> has the wrong nonzero length or an unsupported control.</exception>
-    /// <param name="backgroundTiles">What each tile of the background's map shows, which it draws from (#1392); null while it draws from VRAM.</param>
-    public Mode7ObjRenderSnapshot(PpuMemorySnapshot memory, Mode7RenderRegisters? background,
+    /// <param name="floor">The floor's map and tiles, given exactly when <paramref name="background"/> is.</param>
+    /// <exception cref="ArgumentException"><paramref name="gradient"/> has the wrong nonzero length or an unsupported control, or a floor is given without a transform or a transform without a floor.</exception>
+    public Mode7ObjRenderSnapshot(PpuMemorySnapshot memory, AffineTransform? background,
         int brightness, ReadOnlySpan<SuperMetroid.Core.Rendering.TitleGradientLine> gradient = default,
-        Mode7TilePictures? backgroundTiles = null)
+        AffineFloor? floor = null)
     {
-        BackgroundTiles = backgroundTiles;
+        if (background.HasValue != floor is not null)
+            throw new ArgumentException("A floor's transform and its map come together.", nameof(floor));
+        Floor = floor;
         Ensure.NotNull(memory);
         Brightness = Ensure.BetweenInclusive(0, Hardware.SnesPpuLayout.MaximumMasterBrightness, brightness);
         Memory = memory;

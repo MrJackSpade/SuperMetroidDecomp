@@ -137,7 +137,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         if (packet.Mode7 is { } mode7)
         {
             var operations = new List<RenderLayer>();
-            if (mode7.Background is { } background) operations.Add(new Mode7RenderLayer(background, Tiles: mode7.BackgroundTiles));
+            if (mode7.Background is { } background && mode7.Floor is { } shownFloor) operations.Add(new Mode7RenderLayer(background, shownFloor));
             operations.Add(new ObjRenderLayer());
             DrawLayers(packet, new LayeredRenderSnapshot(mode7.Memory,
                 operations.ToArray(), mode7.Brightness), mode7.Gradient);
@@ -347,7 +347,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         // Clipping is in physical scanlines. Never translate the projection origin
         // to the start of the band: that changes the matrix/scroll relationship.
         int floorStart = layer.Floor?.FirstScanline ?? 224;
-        DispatchMode7(layer.Registers, layer.HudScanlines, floorStart, roomMap: true);
+        DispatchMode7(layer.Transform, layer.HudScanlines, floorStart);
         DispatchTile(D3D11TileOperation.InsertObj, new D3D11TileDispatch { FirstScanline = (uint)layer.HudScanlines, EndScanline = (uint)floorStart });
         if (layer.Floor is { } floor)
         {
@@ -519,14 +519,15 @@ public sealed class D3D11FrameRenderer : IDisposable
         };
         RoomBackgroundLayer? floor = null;
         Layer3Plane? bg3 = rooms?.Bg3;
-        Mode7MapSnapshot? mode7Map = null;
+        AffineFloor? mode7Map = null;
+        // A frame shows one Mode 7 floor, which every Mode 7 dispatch draws from the room buffer (#1403).
+        AffineFloor? SameFloor(AffineFloor? shown, AffineFloor floor) => shown is null || shown.Equals(floor) ? floor
+            : throw new InvalidOperationException("A frame shows two different Mode 7 floors.");
         var screens = new List<ScreenTileMap>();
-        var mode7Screens = new List<Mode7TilePictures>();
         foreach (RenderLayer layer in scene.Layers)
         {
-            // A frontend Mode 7 map that draws from its tiles' pictures (#1392), each once.
-            if (layer is Mode7RenderLayer { Tiles: { } mode7Tiles } && !mode7Screens.Contains(mode7Tiles))
-                mode7Screens.Add(mode7Tiles);
+            if (layer is Mode7RenderLayer frontendMode7)
+                mode7Map = SameFloor(mode7Map, frontendMode7.Floor);
             // The frontend layers' cells (#1403), each once.
             foreach (ScreenTileMap cells in ScreenMaps(layer))
             {
@@ -537,7 +538,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             {
                 floor = mode7.Floor?.Room ?? floor;
                 bg3 = SameBg3(bg3, mode7.Hud);
-                mode7Map = mode7.Map;
+                mode7Map = SameFloor(mode7Map, mode7.Map);
             }
             else if (layer is Bg2BppColorMathRenderLayer math)
                 bg3 = SameBg3(bg3, math.Plane);
@@ -546,7 +547,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         }
         if (roomLevels.Pack(new RoomLevelLayers(rooms?.Bg1, rooms?.Bg2 ?? floor, rooms?.DoorSource, rooms?.Bg1Overlay, rooms?.Sky, bg3,
                 rooms?.Bg2Overlay, mode7Map, rooms?.BossBg2, rooms?.XrayReveal, rooms?.Bg2Image, rooms?.Sky is null ? null : rooms.SkyImage,
-                messagePicture, screens.Count == 0 && mode7Screens.Count == 0 ? null : new ScreenPictureTables([.. screens], [.. mode7Screens]))))
+                messagePicture, screens.Count == 0 ? null : new ScreenPictureTables([.. screens]))))
             fixed (uint* source = roomLevels.Upload) UploadBuffer(roomLevels.Buffer, (nint)source, roomLevels.Upload.Length * sizeof(uint));
         owner.Context.CSSetShader(tileShader);
         owner.Context.CSSetConstantBuffer(0, constants);
@@ -588,7 +589,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                     DispatchMode7Gameplay(gameplay);
                     break;
                 case Mode7RenderLayer mode7:
-                    DispatchMode7(mode7.Registers, subtractObj: mode7.SubtractObjSubscreen, addBg1: mode7.AddBg1Subscreen, tiles: mode7.Tiles);
+                    DispatchMode7(mode7.Transform, subtractObj: mode7.SubtractObjSubscreen, addBg1: mode7.AddBg1Subscreen);
                     break;
                 case ObjRenderLayer objLayer:
                     DispatchTile(D3D11TileOperation.InsertObj, new D3D11TileDispatch { Red = objLayer.AddToScreen ? 1u : 0u, Green = objLayer.FixedColor is not null ? 1u : 0u, Blue = objLayer.FixedColor is { } color ? (uint)(color.Red | color.Green << 5 | color.Blue << 10) : 0 });
@@ -636,23 +637,29 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// <summary>Encodes unspecified, low, or high tile priority for the compute shader.</summary>
     private static uint Priority(bool? priority) => priority is null ? 0u : priority.Value ? 2u : 1u;
 
-    /// <summary>Uploads signed Mode 7 matrix, center, scroll, overflow, and optional color math.</summary>
-    private unsafe void DispatchMode7(Mode7RenderRegisters registers, int firstScanline = 0, int endScanline = 224,
-        bool subtractObj = false, bool addBg1 = false, bool roomMap = false, Mode7TilePictures? tiles = null)
+    /// <summary>
+    /// Uploads the frame's floor transform: signed matrix, center, scroll, what shows outside the floor, and optional
+    /// color math. The floor's map and tile pictures are in the room buffer (#1403).
+    /// </summary>
+    private unsafe void DispatchMode7(AffineTransform registers, int firstScanline = 0, int endScanline = 224,
+        bool subtractObj = false, bool addBg1 = false)
     {
         // Preserve signed register values, including negative products and arithmetic
         // right shifts. No projected coordinates or raster pixels are uploaded.
         var data = MemoryMarshal.Cast<uint, int>(ClearUploadConstants().AsSpan());
         data[0] = (int)D3D11TileOperation.Mode7;
-        // A Ceres room's map comes from the room buffer (#1349); frontend scenes keep theirs in VRAM.
-        if (roomMap) data[14] = (int)D3D11RoomSource.Mode7Map;
-        // A frontend map draws its tiles' pictures from their table (#1392).
-        else if (tiles is not null) data[14] = (int)((uint)D3D11RoomSource.Mode7Tiles | roomLevels.Mode7Table(tiles) << 16);
+        data[14] = (int)D3D11RoomSource.Mode7Map;
         data[16] = registers.MatrixA; data[17] = registers.MatrixB;
         data[18] = registers.MatrixC; data[19] = registers.MatrixD;
         data[20] = registers.Center.X; data[21] = registers.Center.Y;
         data[22] = registers.Scroll.X; data[23] = registers.Scroll.Y;
-        data[24] = (int)Mode7OverflowPolicy.FromRegisters(registers);
+        data[24] = registers.Outside switch
+        {
+            Mode7OverflowMode.Transparent => 0,
+            Mode7OverflowMode.CharacterZero => 1,
+            Mode7OverflowMode.Wrap => 2,
+            _ => throw new ArgumentOutOfRangeException(nameof(registers), registers.Outside, "Unknown Mode 7 overflow."),
+        };
         data[25] = firstScanline; data[26] = endScanline;
         data[27] = (int)(addBg1 ? Mode7ColorMathOperation.AddBg1
             : subtractObj ? Mode7ColorMathOperation.SubtractObj : Mode7ColorMathOperation.None);

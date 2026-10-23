@@ -67,7 +67,7 @@ internal static void VerifyMode7Rendering()
         vram.ExecuteWordTransfer([(5 << 8)], word, 1);
     }
 
-    Rgba32[] identity = SnesMode7Renderer.RenderViewport(vram, cgram, new Mode7RenderRegisters { MatrixA = 0x0100, MatrixB = 0, MatrixC = 0, MatrixD = 0x0100, Center = new Offset16<Mode7Pixels>(0, 0), Scroll = new Offset16<Mode7Pixels>(0, 0) }, size: new Extent16<ScreenPixels>(8, 8));
+    Rgba32[] identity = SnesMode7Renderer.RenderViewport(vram, cgram, new AffineTransform { MatrixA = 0x0100, MatrixB = 0, MatrixC = 0, MatrixD = 0x0100, Center = new Offset16<Mode7Pixels>(0, 0), Scroll = new Offset16<Mode7Pixels>(0, 0) }, size: new Extent16<ScreenPixels>(8, 8));
     AssertEqual(64, identity.Length, "Mode 7 identity dimensions");
     AssertTrue(identity.Take(56).All(pixel => pixel.R == 255 && pixel.G == 0 && pixel.B == 0),
         "Mode 7 identity reads character rows one through seven on physical scanlines one through seven");
@@ -76,7 +76,7 @@ internal static void VerifyMode7Rendering()
 
     // A center and offset of 1024 place the result outside the 10-bit map. M7SEL=$80 keeps
     // that overflow transparent; character-zero fill would require both bits ($C0).
-    Rgba32[] outside = SnesMode7Renderer.RenderViewport(vram, cgram, new Mode7RenderRegisters { MatrixA = 0x0100, MatrixB = 0, MatrixC = 0, MatrixD = 0x0100, Center = new Offset16<Mode7Pixels>(1024, 0), Scroll = new Offset16<Mode7Pixels>(1024, 0) }, size: new Extent16<ScreenPixels>(1, 1));
+    Rgba32[] outside = SnesMode7Renderer.RenderViewport(vram, cgram, new AffineTransform { MatrixA = 0x0100, MatrixB = 0, MatrixC = 0, MatrixD = 0x0100, Center = new Offset16<Mode7Pixels>(1024, 0), Scroll = new Offset16<Mode7Pixels>(1024, 0) }, size: new Extent16<ScreenPixels>(1, 1));
     AssertEqual(0, outside[0].A, "Mode 7 transparent outside fill");
 
     // A non-identity transform is essential here: applying HOFS after the matrix gives
@@ -96,7 +96,7 @@ internal static void VerifyMode7Rendering()
     vram.LoadBytes((1 * 128 + 2) * 2, [1]); // Correct texel cell (16,8): red character 1.
     vram.LoadBytes((2 * 128 + 3) * 2, [2]); // Old post-matrix-scroll cell: green character 2.
 
-    Rgba32[] rotatedScroll = SnesMode7Renderer.RenderViewport(vram, cgram, new Mode7RenderRegisters { MatrixA = 0, MatrixB = 0x0100, MatrixC = -0x0100, MatrixD = 0, Center = new Offset16<Mode7Pixels>(16, 16), Scroll = new Offset16<Mode7Pixels>(8, 0) }, size: new Extent16<ScreenPixels>(17, 17));
+    Rgba32[] rotatedScroll = SnesMode7Renderer.RenderViewport(vram, cgram, new AffineTransform { MatrixA = 0, MatrixB = 0x0100, MatrixC = -0x0100, MatrixD = 0, Center = new Offset16<Mode7Pixels>(16, 16), Scroll = new Offset16<Mode7Pixels>(8, 0) }, size: new Extent16<ScreenPixels>(17, 17));
     AssertEqual(cgram.GetRgba(5), rotatedScroll[16 * 17 + 16],
         "Mode 7 transforms scroll before adding pivot");
 
@@ -123,7 +123,7 @@ internal static void VerifyMode7Rendering()
     splitVram.ExecuteWordTransfer([0x0001], destinationWord: 0x4800 + 26 * 32, wordIncrement: 1);
     splitVram.LoadBytes((0x6000 + 16) * 2, [0xff, 0x00]);
 
-    Rgba32[] split = SnesGameplayFrameRendererConstants.RenderHudCeresRidleyGetawayAndObjs(splitVram, splitCgram, emptySprites, new Mode7RenderRegisters { MatrixA = 0x0100, MatrixB = 0, MatrixC = 0, MatrixD = 0x0100, Center = new Offset16<Mode7Pixels>(0, 0), Scroll = new Offset16<Mode7Pixels>(0, 0) }, new CeresGetawayFloor { Bg2Scroll = new Position16<Bg2Pixels>(0, 0), Bg2CharacterBaseWord = 0x6000 });
+    Rgba32[] split = SnesGameplayFrameRendererConstants.RenderHudCeresRidleyGetawayAndObjs(splitVram, splitCgram, emptySprites, new AffineTransform { MatrixA = 0x0100, MatrixB = 0, MatrixC = 0, MatrixD = 0x0100, Center = new Offset16<Mode7Pixels>(0, 0), Scroll = new Offset16<Mode7Pixels>(0, 0) }, new CeresGetawayFloor { Bg2Scroll = new Position16<Bg2Pixels>(0, 0), Bg2CharacterBaseWord = 0x6000 });
     AssertEqual(splitCgram.GetRgba(2), split[207 * 256],
         "Ceres Ridley scanline 207 remains Mode 7");
     AssertEqual(splitCgram.GetRgba(1), split[208 * 256],

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using System.Collections.Immutable;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
@@ -23,6 +24,12 @@ internal static class RoomBackgroundsFixtures
 
     /// <summary>A BG3 plane of zero words.</summary>
     internal static Layer3Plane BlankBg3() => new(new ushort[Layer3Plane.Rows * Layer3Plane.Columns]);
+
+    /// <summary>Seeded Mode 7 tile pictures for a Ceres map whose drawing a check does not look at.</summary>
+    internal static Mode7TileSheet Mode7Tiles() => SeededMode7Tiles(new Random(0), new Bgr555[SnesPpuLayout.CgramColorCount]);
+
+    /// <summary>A Mode 7 floor of tile zero everywhere, showing nothing.</summary>
+    internal static AffineFloor BlankMode7Floor() => new([.. new AffineFloorCell[AffineFloor.CellCount]], new Mode7Characters().Pictures());
 
     /// <summary>
     /// A room whose BG1 shows <paramref name="tile"/> in every cell over the whole unscrolled screen, as a VRAM BG1

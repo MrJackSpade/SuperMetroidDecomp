@@ -50,10 +50,10 @@ internal static class ObjSubscreenVerification
             colors[0] = 3 << 10; colors[1] = 8 << 5; colors[129 + palette * 16] = 12;
             byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
             oam[0] = 8; oam[1] = 8; oam[3] = (byte)(palette * 2 + priority * 16);
-            var registers = new Mode7RenderRegisters(256, 0, 0, 256, new Offset16<Mode7Pixels>(0, 0), new Offset16<Mode7Pixels>(0, 0));
+            var registers = new AffineTransform(256, 0, 0, 256, new Offset16<Mode7Pixels>(0, 0), new Offset16<Mode7Pixels>(0, 0));
             var memory = PpuMemorySnapshot.FromOam(vram, ToColors(colors), oam, 1, 3);
             var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory,
-                new RenderLayer[] { new Mode7RenderLayer(registers, AddBg1Subscreen: true) }, 15));
+                new RenderLayer[] { new Mode7RenderLayer(registers, AffineFloorFixtures.Floor(vram, ToColors(colors)), AddBg1Subscreen: true) }, 15));
             var pixels = SoftwareFrameSnapshotRenderer.Render(packet);
             Rgba32 expected = opaqueBg && priority == 0 ? new(0, 132, 0)
                 : opaqueBg && palette == 4 ? new(99, 66, 0) : new(99, 0, 0);
@@ -61,7 +61,7 @@ internal static class ObjSubscreenVerification
             AssertEqual(opaqueBg ? new Rgba32(0, 132, 0) : new Rgba32(0, 0, 24), pixels[0],
                 "BG1 doubles itself but transparent BG1 preserves unmodified backdrop");
             AssertThrows<ArgumentException>(() => new LayeredRenderSnapshot(memory,
-                new RenderLayer[] { new Mode7RenderLayer(registers, true, true) }, 15), "reject contradictory Mode7 math modes");
+                new RenderLayer[] { new Mode7RenderLayer(registers, AffineFloorFixtures.Floor(vram, ToColors(colors)), true, true) }, 15), "reject contradictory Mode7 math modes");
         }
     }
 
@@ -79,7 +79,7 @@ internal static class ObjSubscreenVerification
         oam[0] = 8; oam[1] = 8;
         var memory = PpuMemorySnapshot.FromOam(vram, ToColors(colors), oam, 1, 3);
         var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory,
-            new RenderLayer[] { new Mode7RenderLayer(new(256, 0, 0, 256, default, default), true) }, 15));
+            new RenderLayer[] { new Mode7RenderLayer(new(256, 0, 0, 256, default, default), AffineFloorFixtures.Floor(vram, ToColors(colors)), true) }, 15));
         var pixels = SoftwareFrameSnapshotRenderer.Render(packet);
         AssertEqual(new Rgba32(198, 99, 0), pixels[8 * 256 + 8], "Mode7 minus OBJ clamps each five-bit component without halving");
         AssertEqual(new Rgba32(255, 99, 0), pixels[0], "transparent OBJ leaves Mode7 color unchanged");

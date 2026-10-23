@@ -26,20 +26,21 @@ internal static class CeresMode7MapVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        Mode7MapSnapshot first = Published(runtime);
+        AffineFloor first = Published(runtime);
         // The room's tileset characters are bound (#1350); Mode 7 reads its map from the low bytes of the first $4000
         // words of the image they compose.
-        AssertTrue(first.Cells.SequenceEqual(Mode7MapFixtures.FromVram(runtime.PublishDisplayFrame().Memory.Vram).Cells),
+        AssertTrue(first.Cells.SequenceEqual(AffineFloor.Capture(runtime.PublishDisplayFrame().Memory.Vram, first.Tiles).Cells),
             "the published map is the tileset map the room's character upload carries");
-        AssertEqual(runtime.Room.LoadedScope.Assets.Tileset, first.Tileset, "the map is bound to the room's tileset");
+        AssertEqual(runtime.Room.LoadedScope.Assets.Tileset, (runtime.Room.LoadedScope.Mode7Map ?? throw new InvalidOperationException("Ceres shows no Mode 7 map.")).Tileset,
+            "the map is bound to the room's tileset");
 
         byte[] frame = [0x11, 0x22, 0x33, 0x44];
         runtime.Enemies.Room.Services.DrawMode7Map(CeresDoorVisualRomData.Mode7DestinationWord, frame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        Mode7MapSnapshot second = Published(runtime);
-        AssertTrue(second.Cells.Slice(CeresDoorVisualRomData.Mode7DestinationWord, frame.Length).SequenceEqual(frame),
+        AffineFloor second = Published(runtime);
+        AssertTrue(second.Cells.Slice(CeresDoorVisualRomData.Mode7DestinationWord, frame.Length).Select(cell => (byte)cell.Tile).SequenceEqual(frame),
             "a map write reaches the next NMI's map");
-        AssertTrue(!first.Cells.Slice(CeresDoorVisualRomData.Mode7DestinationWord, frame.Length).SequenceEqual(frame),
+        AssertTrue(!first.Cells.Slice(CeresDoorVisualRomData.Mode7DestinationWord, frame.Length).Select(cell => (byte)cell.Tile).SequenceEqual(frame),
             "the earlier published map keeps its tiles");
 
         var getaway = runtime.Enemies.RidleyEncounter.CeresRidley ?? throw new InvalidOperationException("The Ceres Ridley room has a getaway state.");
@@ -52,7 +53,7 @@ internal static class CeresMode7MapVerification
     }
 
     /// <summary>The Mode 7 map the runtime's last NMI published.</summary>
-    private static Mode7MapSnapshot Published(SuperMetroidRuntime runtime) =>
+    private static AffineFloor Published(SuperMetroidRuntime runtime) =>
         (runtime.Display.Latched.Rooms ?? throw new InvalidOperationException("A loaded room publishes its backgrounds.")).Mode7
             ?? throw new InvalidOperationException("A Ceres room publishes its Mode 7 map.");
 

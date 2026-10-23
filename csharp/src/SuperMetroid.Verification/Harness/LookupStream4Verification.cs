@@ -1318,7 +1318,7 @@ internal static class LookupStream4Verification
         // The getaway patches the room's Mode 7 map, which each NMI publishes; it no longer writes VRAM (#1349).
         byte[] untouchedCells = new byte[Mode7Map.Cells];
         Array.Fill(untouchedCells, (byte)0x5a);
-        var map = new Mode7Map(untouchedCells, default);
+        var map = new Mode7Map(untouchedCells, default, RoomBackgroundsFixtures.Mode7Tiles());
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: new StandaloneRoomEnemyServices(() => 0) { Mode7Map = map })
             { BossArtworkBinding = { CeresRidleyMode7Colors = colors } };
@@ -1348,7 +1348,7 @@ internal static class LookupStream4Verification
                 for (int column = 0; column < 2; column++)
                 {
                     AssertEqual(advances ? rom.ReadCartridgeByte(source + column) : (byte)0x5a,
-                        map.Publish().Cells[destination + column], "Actual getaway selects native capsule rows and preserves non-update NMIs");
+                        map.Publish().Cells[destination + column].Tile, "Actual getaway selects native capsule rows and preserves non-update NMIs");
                 }
             }
         }

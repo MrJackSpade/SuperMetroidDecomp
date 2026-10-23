@@ -26,11 +26,11 @@ public static class SoftwareMode7ObjSnapshotRenderer
 
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram,
             SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels, outputBuffer);
-        if (snapshot.Background is { } bg)
+        if (snapshot.Background is { } bg && snapshot.Floor is { } floor)
         {
             // The kernel preserves destination pixels for transparent samples, so it
             // can project directly over the backdrop without allocating a BG plane.
-            SnesMode7Renderer.CompositeViewport(pixels, vram, cgram, bg, map: null, snapshot.BackgroundTiles);
+            SnesMode7Renderer.CompositeViewport(pixels, cgram, bg, floor);
         }
         if (snapshot.Gradient.IsEmpty)
             SnesObjRenderer.CompositeUnfiltered(sprites.Draws, cgram, pixels);

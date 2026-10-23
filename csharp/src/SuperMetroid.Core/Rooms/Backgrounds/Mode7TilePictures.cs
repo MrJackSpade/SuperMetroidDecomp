@@ -2,9 +2,8 @@ using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
-using SuperMetroid.Core.Rooms.Backgrounds;
 
-namespace SuperMetroid.Core.Rendering;
+namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
 /// What each of the 256 tiles a Mode 7 map can name shows (#1392): its pre-coloured picture and the picture's corner;

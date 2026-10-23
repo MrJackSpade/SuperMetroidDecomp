@@ -118,9 +118,8 @@ public static class SoftwareLayeredSnapshotRenderer
                     }
                     break;
                 case Mode7RenderLayer mode7:
-                    Mode7RenderRegisters m = mode7.Registers;
                     Rgba32[] mode7Pixels = scratch.Colors(SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels);
-                    SnesMode7Renderer.CompositeViewport(mode7Pixels, memory.Vram, memory.Cgram, m, map: null, mode7.Tiles);
+                    SnesMode7Renderer.CompositeViewport(mode7Pixels, memory.Cgram, mode7.Transform, mode7.Floor);
                     if (mode7.AddBg1Subscreen)
                     {
                         var palettes = scratch.Bytes(output.Length);

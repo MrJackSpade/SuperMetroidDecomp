@@ -135,15 +135,14 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         RoomTilemapOverlay? overlay = frame.Overlay, bg2Overlay = frame.Bg2Overlay;
         SkyTilemap? sky = frame.Sky;
         Layer3Plane? bg3 = frame.Bg3;
-        Mode7MapSnapshot? mode7 = frame.Mode7;
+        AffineFloor? mode7 = frame.Mode7;
         BossBg2Tilemap? bossBg2 = frame.BossBg2;
         XrayRevealPlane? reveal = frame.XrayReveal;
         RoomBackgroundImagePlane? image = frame.Bg2Image, skyImage = frame.SkyImage;
         SpriteSheetFrame? message = frame.MessagePicture;
         ImmutableArray<ScreenLayerPictures> screens = frame.Screens?.Layers ?? [];
         ImmutableArray<ScreenTileMap> screenCells = frame.Screens?.Maps ?? [];
-        Mode7TilePictures? roomMode7 = mode7?.Tiles is { } roomTiles ? Mode7TilePictures.Of(roomTiles) : null;
-        ImmutableArray<Mode7TilePictures> mode7s = [.. (frame.Screens?.Mode7 ?? []).Concat(roomMode7 is null ? [] : [roomMode7])];
+        ImmutableArray<Mode7TilePictures> mode7s = mode7 is null ? [] : [mode7.Tiles];
         // No dispatch samples t3 without one of these, so such a scene keeps the last packed room unread.
         if (packed == frame || (bg1 is null && bg2 is null && sky is null && bg3 is null && mode7 is null && reveal is null && image is null
             && skyImage is null && message is null && screens.IsEmpty && mode7s.IsEmpty))
@@ -279,7 +278,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             words += RoomTilemapOverlay.WordCount;
         int mode7Offset = mode7 is null ? 0 : words;
         if (mode7 is not null)
-            words += Mode7Map.Cells / sizeof(uint);
+            words += AffineFloor.CellCount / sizeof(uint);
         int bossBg2Offset = bossBg2 is null ? 0 : words;
         if (bossBg2 is not null)
             words += bossBg2.Words.Length;
@@ -353,9 +352,11 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         upload[Mode7MapWord] = (uint)mode7Offset;
         if (mode7 is not null)
         {
-            ReadOnlySpan<byte> cells = mode7.Cells;
-            for (int word = 0; word < Mode7Map.Cells / sizeof(uint); word++)
-                upload[mode7Offset + word] = BinaryPrimitives.ReadUInt32LittleEndian(cells[(word * sizeof(uint))..]);
+            // Four tile numbers to a word, the first in the low byte.
+            ImmutableArray<AffineFloorCell> cells = mode7.Cells;
+            for (int word = 0; word < AffineFloor.CellCount / sizeof(uint); word++)
+                upload[mode7Offset + word] = (uint)cells[word * 4].Tile | (uint)cells[word * 4 + 1].Tile << 8
+                    | (uint)cells[word * 4 + 2].Tile << 16 | (uint)cells[word * 4 + 3].Tile << 24;
         }
         if (bg2Overlay is not null)
             for (int word = 0; word < RoomTilemapOverlay.WordCount; word++)
@@ -383,7 +384,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         PackTilePictures(upload, bg1OverlayPictures, bg1OverlayPicturesOffset, RoomTilemapOverlay.WordCount, pictureWords);
         upload[Bg3PicturesWord] = (uint)bg3PicturesOffset;
         upload[MessagePictureWord] = message is null ? 0 : (uint)pictureWords[message];
-        upload[Mode7PictureWord] = roomMode7 is null ? 0 : (uint)mode7Tables[roomMode7];
+        upload[Mode7PictureWord] = mode7 is null ? 0 : (uint)mode7Tables[mode7.Tiles];
         PackTilePictures(upload, bg3Pictures, bg3PicturesOffset, Layer3Plane.Rows * Layer3Plane.Columns, pictureWords);
         packed = frame;
         return true;
@@ -406,11 +407,6 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             upload[offset + 2 * word + 1] = D3D11ConstantPacking.Halves(tile.Corner.X, tile.Corner.Y);
         }
     }
-
-    /// <summary>The room level buffer word of <paramref name="tiles"/>' tile picture table in the last packing (#1392).</summary>
-    /// <exception cref="InvalidOperationException">The last packing held no such map.</exception>
-    internal uint Mode7Table(Mode7TilePictures tiles) => mode7Tables.TryGetValue(tiles, out int offset) ? (uint)offset
-        : throw new InvalidOperationException("A Mode 7 map's tiles were not packed with its frame.");
 
     /// <summary>The room level buffer word of <paramref name="map"/>'s first cell in the last packing (#1403).</summary>
     /// <exception cref="InvalidOperationException">The last packing held no such map.</exception>

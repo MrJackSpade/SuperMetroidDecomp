@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
@@ -33,13 +34,15 @@ internal static class Layer3PlaneVerification
         AssertTrue(first.Words[Layer3Plane.Columns..(Layer3Plane.HudRows * Layer3Plane.Columns)].SequenceEqual(runtime.Hud.MutableRows),
             "rows one through three are the rows HudState owns");
 
-        // A HUD change reaches the next NMI's plane; the published one keeps its rows.
+        // A HUD change reaches the next NMI's plane; the published one keeps its rows. The new word is one the HUD's
+        // artwork shows, so the NMI can picture it (#1392).
         const int cell = 7;
         ushort before = runtime.Hud.Tiles[cell];
-        runtime.Hud.Tiles[cell] = 0x1234;
+        ushort changed = topRow.First(word => word != before);
+        runtime.Hud.Tiles[cell] = changed;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual((ushort)0x1234, Published(runtime).WordAt(1, cell).Raw, "the next NMI's plane shows the HUD change");
-        AssertEqual(before, first.WordAt(1, cell).Raw, "an earlier published plane keeps its rows");
+        AssertEqual(changed, Published(runtime).Words[Layer3Plane.Columns + cell], "the next NMI's plane shows the HUD change");
+        AssertEqual(before, first.Words[Layer3Plane.Columns + cell], "an earlier published plane keeps its rows");
         Console.WriteLine("  BG3 plane: the HUD rows publish from HudState at each NMI.");
     }
 
@@ -66,15 +69,16 @@ internal static class Layer3PlaneVerification
             ushort expected = pageWord >= 0 && pageWord * 2 < page.Length
                 ? SnesLittleEndian.Word(page[pageWord * 2], page[pageWord * 2 + 1])
                 : RoomFxRomData.Layer3.ClearTilemapWord;
-            AssertEqual(expected, plane.WordAt(row, column).Raw, $"BG3 row {row} column {column}: cleared, with the water page from row 31");
+            AssertEqual(expected, plane.Words[row * Layer3Plane.Columns + column], $"BG3 row {row} column {column}: cleared, with the water page from row 31");
         }
         AssertTrue(plane.Words[..hudRows.Length].SequenceEqual(hudRows), "the HUD rows stay above the effect");
 
         RoomLayer3FxRenderSnapshot shown = water.CaptureForDisplay() ?? throw new InvalidOperationException("Water is a renderable effect.");
         AssertEqual((ushort)0x0080, shown.Surface.Y, "the published effect carries the constructed liquid level");
-        Bg2BppColorMathRenderLayer layer = SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(shown, plane)
+        Layer3Cells cells = Layer3CellsFixtures.FromWords(plane.Words, new byte[SnesPpuLayout.VramByteCount], new Bgr555[SnesPpuLayout.CgramColorCount]);
+        Bg2BppColorMathRenderLayer layer = SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(shown, cells)
             ?? throw new InvalidOperationException("Water at a visible level captures a BG3 layer.");
-        AssertTrue(ReferenceEquals(plane, layer.Plane) && layer.FirstRow == 0 && layer.MapHeightTiles == Layer3Plane.Rows,
+        AssertTrue(ReferenceEquals(cells, layer.Plane) && layer.FirstRow == 0 && layer.MapHeightTiles == Layer3Plane.Rows,
             "liquid BG3 samples the whole published plane");
         Console.WriteLine("  BG3 plane: a water effect shows its page under the HUD and captures from the plane.");
     }
@@ -108,9 +112,8 @@ internal static class Layer3PlaneVerification
         Console.WriteLine($"  BG3 plane: the typewriter typed {typed.Count} glyphs over {steps} steps at their destinations.");
     }
 
-    /// <summary>The BG3 plane the runtime's last NMI published.</summary>
-    private static Layer3Plane Published(SuperMetroidRuntime runtime) =>
-        (runtime.Display.Latched.Rooms ?? throw new InvalidOperationException("A loaded room publishes its backgrounds.")).Bg3;
+    /// <summary>The BG3 plane's words the runtime's last NMI latched.</summary>
+    private static Layer3Plane Published(SuperMetroidRuntime runtime) => runtime.AcceptedLayer3Plane;
 
     /// <summary>Runs the BG3 plane checks.</summary>
     [VerificationCommand("--bg3-plane")]

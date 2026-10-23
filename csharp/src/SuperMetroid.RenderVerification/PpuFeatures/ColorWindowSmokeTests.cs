@@ -18,7 +18,7 @@ internal static class ColorWindowSmokeTests
         var vram = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(vram);
         Bgr555[] palette = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
         var memory = new PpuMemorySnapshot(vram, palette, []);
-        Layer3Plane bg3 = Layer3PlaneFixtures.FromVram(vram);
+        Layer3Cells bg3 = Layer3CellsFixtures.FromVram(vram, palette, 0x7ff8);
         ScreenLayerPictures tiles = VramTileFixtures.Tiles(vram, palette, 0x6000, BgBitDepth.FourBpp);
         var background = new Bg4BppRenderLayer(ScreenTileMap.Capture(vram, 0x4000, new Extent16<TilemapCells>(32, 32), tiles), new Position16<BgPlanePixels>(3, 11), null);
         ScreenTileMap subscreen = VramTileFixtures.Cells(vram, palette, 0x5800, 0x4000, BgBitDepth.TwoBpp, Bg2BppViewportRenderLayer.MapSize);
@@ -46,7 +46,7 @@ internal static class ColorWindowSmokeTests
             var scrolls = new Position16<BgPlanePixels>[224];
             for (int y = 0; y < scrolls.Length; y++)
                 scrolls[y] = new(unchecked((ushort)(offset + y * 7)), unchecked((ushort)(offset - y * 3)));
-            var math = new Bg2BppColorMathRenderLayer(bg3, height == 32 ? 32 : 0, 0x7ff8, height, first, operation, scrolls);
+            var math = new Bg2BppColorMathRenderLayer(bg3, height == 32 ? 32 : 0, height, first, operation, scrolls);
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
                 new RenderLayer[] { background, math }, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),

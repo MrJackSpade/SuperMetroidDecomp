@@ -25,6 +25,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// The X-ray reveal the NMI queue uploads for BG2 while X-ray is active, drawn from the room's block pictures (#1392).
 /// </param>
 /// <param name="Rooms">The room backgrounds this NMI displays, resolved from level data; null before the first room.</param>
+/// <param name="Layer3">The BG3 plane's words this NMI latched, which its pictures are resolved from and the pause screen keeps; null before the first room.</param>
 public sealed record GameplayNmiDisplayLatch(
     GameplayPpuRenderSnapshot Ppu,
     GameplayWindowRegisterSnapshot Windows,
@@ -37,7 +38,8 @@ public sealed record GameplayNmiDisplayLatch(
     GameplayLatchedBossBackgrounds Bosses,
     GameplayLatchedFixedColors FixedColors,
     XrayRevealPlane? XrayReveal,
-    RoomBackgrounds? Rooms)
+    RoomBackgrounds? Rooms,
+    Layer3Plane? Layer3 = null)
 {
     /// <summary>Whether the latched BGMODE selects the Ceres elevator shaft's or Ridley getaway's Mode 7.</summary>
     public bool ShowsMode7 => Scene.CeresElevatorMode7 || Bosses.CeresRidleyMode7 is not null;

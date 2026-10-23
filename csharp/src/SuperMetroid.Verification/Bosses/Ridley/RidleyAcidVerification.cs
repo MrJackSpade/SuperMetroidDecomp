@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
@@ -75,7 +76,8 @@ internal static class RidleyAcidVerification
             var memory = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites, runtime.BgArtwork);
             // The room's BG3 plane under a blank HUD: the acid page the room effect chose.
             var plane = Layer3Plane.Compose(new ushort[Layer3Plane.HudRows * Layer3Plane.Columns], fx.EffectPageWords());
-            var effect = SnesGameplayFrameRenderer.CaptureRoomLayer3Fx((fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay().")), plane);
+            var effect = SnesGameplayFrameRenderer.CaptureRoomLayer3Fx((fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay().")),
+                Layer3CellsFixtures.FromWords(plane.Words, memory.Vram, memory.Cgram));
             var baseline = SoftwareLayeredSnapshotRenderer.Render(new(memory, [], 15));
             var actual = SoftwareLayeredSnapshotRenderer.Render(new(memory,
                 effect is null ? [] : new RenderLayer[] { effect }, 15));

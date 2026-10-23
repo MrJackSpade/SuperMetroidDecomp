@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using System.Buffers;
@@ -139,7 +140,7 @@ internal static class SnesGameplayFrameRendererConstants
             }
         }
 
-        SnesGameplayFrameRenderer.DrawHud(output, vram, cgram, Layer3PlaneFixtures.FromVram(vram), GameplayVramLayout.HudCharacterWord);
+        SnesGameplayFrameRenderer.DrawHud(output, cgram, Layer3CellsFixtures.FromVram(vram.Bytes, cgram.Colors));
         return output;
     }
     /// <summary>
@@ -415,7 +416,7 @@ internal static class SnesGameplayFrameRendererConstants
 
         // IRQ command 4 writes BG3SC=$5A and TM=$04 for scanlines 0-31. That exposes the
         // four HUD rows at tilemap word $5800 while disabling OBJ in the HUD band.
-        SnesGameplayFrameRenderer.DrawHud(output, vram, cgram, Layer3PlaneFixtures.FromVram(vram), GameplayVramLayout.HudCharacterWord);
+        SnesGameplayFrameRenderer.DrawHud(output, cgram, Layer3CellsFixtures.FromVram(vram.Bytes, cgram.Colors));
 
         int pixelCount = SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height;
         Rgba32[] rentedObjectPixels = ArrayPool<Rgba32>.Shared.Rent(pixelCount);

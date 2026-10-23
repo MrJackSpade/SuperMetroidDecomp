@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -55,81 +53,4 @@ public sealed class Layer3Plane
 
     /// <summary>The plane's tilemap words, row-major.</summary>
     public ReadOnlySpan<ushort> Words => words;
-
-    /// <summary>
-    /// Each word's picture in the room's BG3 tile word sheet, row-major, null where a word draws from its character;
-    /// default before the plane's pictures are resolved (#1392).
-    /// </summary>
-    public ImmutableArray<BgTilePicture?> Pictures { get; private init; }
-
-    /// <summary>The plane drawn from <paramref name="pictures"/>, one for each word.</summary>
-    /// <exception cref="ArgumentException">There is not one picture slot for each word.</exception>
-    public Layer3Plane WithPictures(ImmutableArray<BgTilePicture?> pictures)
-    {
-        if (pictures.IsDefault || pictures.Length != Columns * Rows)
-            throw new ArgumentException($"The BG3 plane needs a picture slot for each of its {Columns * Rows} words.", nameof(pictures));
-        return new Layer3Plane(words) { Pictures = pictures };
-    }
-
-    /// <summary>
-    /// A window of the plane as BG3 shows it: from its words' pictures once resolved, otherwise from their characters; as
-    /// <see cref="Window"/> lays it out.
-    /// </summary>
-    public IBgSource Shown(int firstRow, int rows) =>
-        Pictures.IsDefault ? new BgTileLayer(Window(firstRow, rows)) : new PicturedWindow(this, Window(firstRow, rows), firstRow, rows);
-
-    /// <summary>The word at a cell.</summary>
-    /// <param name="row">Row, 0 through 63.</param>
-    /// <param name="column">Column, 0 through 31.</param>
-    public SnesBgTilemapWord WordAt(int row, int column) => new(words[row * Columns + column]);
-
-    /// <summary>
-    /// The plane as a background of <paramref name="rows"/> rows from <paramref name="firstRow"/>, repeating every 256
-    /// pixels across and every <paramref name="rows"/> rows down.
-    /// </summary>
-    /// <param name="firstRow">The first row: 0 for the whole plane or the HUD, 32 for an atmosphere's page.</param>
-    /// <param name="rows">32 or 64.</param>
-    public IBgTileSource Window(int firstRow, int rows)
-    {
-        if (rows is not (32 or 64) || firstRow < 0 || firstRow + rows > Rows)
-            throw new ArgumentOutOfRangeException(nameof(rows), rows, $"Rows {firstRow}..{firstRow + rows - 1} are not a window of the plane.");
-        return new PlaneWindow(this, firstRow, rows);
-    }
-
-    /// <summary>A window of the plane as a tile source.</summary>
-    private sealed class PlaneWindow(Layer3Plane plane, int firstRow, int rows) : IBgTileSource
-    {
-        /// <inheritdoc />
-        public bool TrySample(Position16<BgPlanePixels> scrolled, out BgTileSample sample)
-        {
-            sample = BgTileSample.At(plane.WordAt(RowAt(scrolled, firstRow, rows), ColumnAt(scrolled)), scrolled);
-            return true;
-        }
-    }
-
-    /// <summary>A window of the plane drawn from its pictures, a word without one from its character.</summary>
-    private sealed class PicturedWindow(Layer3Plane plane, IBgTileSource tiles, int firstRow, int rows) : IBgSource
-    {
-        /// <inheritdoc />
-        public bool TrySample(Position16<BgPlanePixels> scrolled, out BgSample sample)
-        {
-            if (plane.Pictures[RowAt(scrolled, firstRow, rows) * Columns + ColumnAt(scrolled)] is { } picture)
-            {
-                sample = BgSample.OfPicture(picture.Picture, new Position16<ImagePixels>(
-                    (ushort)(picture.Corner.X + scrolled.X % SnesPpuLayout.BackgroundTileSizePixels),
-                    (ushort)(picture.Corner.Y + scrolled.Y % SnesPpuLayout.BackgroundTileSizePixels)));
-                return true;
-            }
-            tiles.TrySample(scrolled, out BgTileSample tile);
-            sample = BgSample.OfTile(tile);
-            return true;
-        }
-    }
-
-    /// <summary>The plane row a window of <paramref name="rows"/> rows from <paramref name="firstRow"/> shows at a scrolled position.</summary>
-    private static int RowAt(Position16<BgPlanePixels> scrolled, int firstRow, int rows) =>
-        firstRow + scrolled.Y / SnesPpuLayout.BackgroundTileSizePixels % rows;
-
-    /// <summary>The plane column a window shows at a scrolled position.</summary>
-    private static int ColumnAt(Position16<BgPlanePixels> scrolled) => scrolled.X / SnesPpuLayout.BackgroundTileSizePixels % Columns;
 }

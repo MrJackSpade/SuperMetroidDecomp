@@ -135,7 +135,7 @@ public static class GameplayDisplayCapture
                 : sky?.HorizontalHdmaConfigured != true && !verticalStatueMap ? new Extent16<TilemapCells>(64, 32)
                 : new Extent16<TilemapCells>(32, 64),
             GameplayVramLayout.Bg2TilemapWord,
-            character, character, scene.HudCharacterWord,
+            character, character,
             live.DoorTransitionMainScreenLayers ??
                 (bosses.MotherBrainBody is { Hidden: true }
                     ? SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj
@@ -169,8 +169,8 @@ public static class GameplayDisplayCapture
     }
 
     /// <summary>The BG3 plane the accepted NMI displays (#1348).</summary>
-    private static Layer3Plane Bg3(GameplayNmiDisplayLatch latched) => (latched.Rooms
-        ?? throw new InvalidOperationException("A gameplay frame shows BG3 only once a room is loaded.")).Bg3;
+    private static Layer3Cells Bg3(GameplayNmiDisplayLatch latched) => (latched.Rooms
+        ?? throw new InvalidOperationException("A gameplay frame shows BG3 only once a room is loaded.")).ShownBg3;
 
     /// <summary>The Mode 7 registers Ceres Ridley's latched shadows program, before room shake.</summary>
     internal static AffineTransform CeresRidleyRegisters(CeresRidleyMode7Snapshot ridley) => new(
@@ -280,8 +280,7 @@ public static class GameplayDisplayCapture
                     unchecked((short)Add(ppu.Bg1Scroll.Y, shake.Bg1.Y))));
         }
         var layer = new Mode7GameplayRenderLayer(registers, Bg3(latched), (latched.Rooms?.Mode7
-                ?? throw new InvalidOperationException("A Mode 7 gameplay frame shows a Ceres room's Mode 7 map.")),
-            GameplayVramLayout.HudCharacterWord, SnesPpuLayout.GameplayHudHeightPixels, floor);
+                ?? throw new InvalidOperationException("A Mode 7 gameplay frame shows a Ceres room's Mode 7 map.")), SnesPpuLayout.GameplayHudHeightPixels, floor);
         return new(frame.Memory, new RenderLayer[] { layer }, SnesPpuLayout.MaximumMasterBrightness);
     }
 
@@ -342,15 +341,14 @@ public static class GameplayDisplayCapture
         var gameplay = reveal ? new OrdinaryGameplayRenderLayer(registers, ordinary.Rooms with { Bg2 = null, Sky = null, XrayReveal = latched.XrayReveal })
             : new OrdinaryGameplayRenderLayer(registers, ordinary.Rooms, ordinary.Bg2LineScrolls);
         var sub = mode != XrayRoomBlendMode.Fireflea && latched.RoomLayer3Fx is { } fx
-            ? SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(fx, ordinary.Rooms.Bg3) : null;
+            ? SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(fx, ordinary.Rooms.ShownBg3) : null;
         if (mode != XrayRoomBlendMode.Fireflea && sub is null)
         {
             // Clear_FX_Tilemap leaves an opaque BG3 plane even without a visible FX
             // actor. Room initialization supplies zero scroll and the 32x64 BG3 map;
             // capture its real pixels rather than substituting transparent backdrop.
             sub = new Bg2BppColorMathRenderLayer(
-                ordinary.Rooms.Bg3, 0,
-                scene.HudCharacterWord,
+                ordinary.Rooms.ShownBg3, 0,
                 Layer3Plane.Rows,
                 SnesPpuLayout.GameplayHudHeightPixels,
                 ExpandedColorMathOperation.Add,

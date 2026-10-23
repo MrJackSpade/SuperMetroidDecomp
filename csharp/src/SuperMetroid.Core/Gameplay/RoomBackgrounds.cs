@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// </summary>
 /// <param name="Bg1">The room's level plane on BG1.</param>
 /// <param name="Bg2">The room's layer-2 plane on BG2, or null when BG2 shows a loaded tilemap.</param>
-/// <param name="Bg3">The HUD and room effect plane on BG3 (#1348).</param>
+/// <param name="Bg3">The HUD and room effect plane on BG3 (#1348), as its cells' pictures (#1403); null until the accepted NMI that latched it resolves them.</param>
 /// <param name="DoorSource">The source room's BG1 screen during a door's opening scroll, or null.</param>
 /// <param name="Bg1Overlay">Words a room actor wrote over BG1, or null.</param>
 /// <param name="Sky">The scrolling sky's rows on BG2 when the room has no layer-2 plane, or null (#1347).</param>
@@ -25,12 +25,16 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="XrayReveal">The X-ray reveal BG2 shows in place of the room's own BG2, or null (#1392).</param>
 /// <param name="Bg2Image">The room's library background drawn from its image, where BG2 shows the tilemap it loaded (#1392).</param>
 /// <param name="SkyImage">The scrolling sky's rows drawn from their image, where BG2 shows the sky (#1392).</param>
-public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLayer? Bg2, Layer3Plane Bg3,
+public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLayer? Bg2, Layer3Cells? Bg3,
     RoomDoorBackground? DoorSource = null, RoomTilemapOverlay? Bg1Overlay = null, SkyTilemap? Sky = null,
     RoomTilemapOverlay? Bg2Overlay = null, AffineFloor? Mode7 = null, BossBg2Tilemap? BossBg2 = null,
     RoomBackgroundCharacters Characters = RoomBackgroundCharacters.Tileset, XrayRevealPlane? XrayReveal = null,
     RoomBackgroundImagePlane? Bg2Image = null, RoomBackgroundImagePlane? SkyImage = null)
 {
+    /// <summary>The BG3 plane the frame shows (#1403).</summary>
+    /// <exception cref="InvalidOperationException">The plane's pictures are not yet resolved.</exception>
+    public Layer3Cells ShownBg3 => Bg3 ?? throw new InvalidOperationException("BG3 is shown once the accepted NMI that latched it resolves its pictures.");
+
     /// <summary>The BG1 this frame shows, as a renderer samples it: door source, then overlay, then level data.</summary>
     public IBgSource Bg1Source => new Bg1Composite(this);
 

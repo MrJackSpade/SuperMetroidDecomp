@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Globalization;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -478,8 +479,9 @@ internal static class RoomFxRetailInventoryVerification
     {
         var frame = new Rgba32[
             SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
-        if (SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(snapshot, plane) is { } layer)
-            SoftwareBgColorMathRenderer.Composite(frame, BgArtworkFixtures.ComposedVram(vram), cgram, layer);
+        if (SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(snapshot,
+                Layer3CellsFixtures.FromWords(plane.Words, BgArtworkFixtures.ComposedVram(vram).Bytes, cgram.Colors)) is { } layer)
+            SoftwareBgColorMathRenderer.Composite(frame, cgram, layer);
         return frame;
     }
 

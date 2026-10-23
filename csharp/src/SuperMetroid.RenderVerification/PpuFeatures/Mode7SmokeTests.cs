@@ -21,7 +21,7 @@ internal static class Mode7SmokeTests
         random.NextBytes(vram); random.NextBytes(oam);
         Bgr555[] palette = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
         var memory = PpuMemorySnapshot.FromOam(vram, palette, oam, 128, 3);
-        Layer3Plane bg3 = Layer3PlaneFixtures.FromVram(vram);
+        Layer3Cells bg3 = Layer3CellsFixtures.FromVram(vram, palette, 0x4000);
         AffineFloor map = AffineFloorFixtures.Floor(vram, palette);
         int count = 0;
         foreach (short scale in new short[] { 0, 1, 255, 256, 512, -256, short.MinValue, short.MaxValue })
@@ -48,7 +48,7 @@ internal static class Mode7SmokeTests
                 : (Mode1FloorBand?)null;
             var layer = new Mode7GameplayRenderLayer(
                 new(scale, 71, -71, scale, new(128, 112), new(-17, 211), Mode7OverflowMode.CharacterZero),
-                bg3, map, 0x4000, hud, band);
+                bg3, map, hud, band);
             Check(new RenderFrameSnapshot(new(++count, 1, 0),
                 new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 13)));
         }
@@ -62,7 +62,7 @@ internal static class Mode7SmokeTests
         {
             var layer = new Mode7GameplayRenderLayer(
                 new(scale, 71, -71, scale, new(128, 112), new(-17, 211), fill ? Mode7OverflowMode.CharacterZero : Mode7OverflowMode.Transparent),
-                bg3, shown, 0x4000, hud, null);
+                bg3, shown, hud, null);
             Check(new RenderFrameSnapshot(new(++count, 1, 0),
                 new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 13)));
         }

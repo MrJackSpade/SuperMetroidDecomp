@@ -41,8 +41,7 @@ internal static class GameplaySnapshotTestsVerification
             if ((mask & 2) != 0) layers |= SnesMainScreenLayers.Bg2;
             if ((mask & 4) != 0) layers |= SnesMainScreenLayers.Obj;
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
-                mapSize, GameplayVramLayout.Bg2TilemapWord, 0, 0x6000,
-                GameplayVramLayout.HudCharacterWord, layers);
+                mapSize, GameplayVramLayout.Bg2TilemapWord, 0, 0x6000, layers);
             var layer = new OrdinaryGameplayRenderLayer(registers, (hdma & 1) == 0 ? rooms : rooms with { Bg2 = null }, new Bg2HdmaScrollTables(x, y));
             Rgba32[] expected = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
                 live.Vram, live.Cgram, live.Sprites, layer);

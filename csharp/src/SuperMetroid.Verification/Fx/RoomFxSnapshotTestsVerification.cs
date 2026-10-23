@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -32,7 +33,7 @@ internal static class RoomFxSnapshotTestsVerification
             new Configuration(RoomFxType.Fog, LayerBlendingConfiguration.FogAdditive),
         };
         // The BG3 plane is the one the oracle reads from VRAM (#1348).
-        Layer3Plane plane = Layer3PlaneFixtures.FromVram(vram);
+        Layer3Cells plane = Layer3CellsFixtures.FromVram(vram.Bytes, cgram.Colors);
         foreach ((RoomFxType type, LayerBlendingConfiguration blend) in configurations)
         foreach (short surface in new short[] { -20, 0, 32, 100, 223, 300 })
         foreach (int phase in new[] { 0, 7, 15 })
@@ -50,12 +51,12 @@ internal static class RoomFxSnapshotTestsVerification
             AssertTrue(actual.AsSpan(0, 256 * 32).SequenceEqual(baseline.AsSpan(0, 256 * 32)), "room FX preserves HUD band");
         }
         var lines = new Position16<BgPlanePixels>[224];
-        var owned = new Bg2BppColorMathRenderLayer(plane, 0, 0x4000, 64, 32, ExpandedColorMathOperation.Add, lines);
+        var owned = new Bg2BppColorMathRenderLayer(plane, 0, 64, 32, ExpandedColorMathOperation.Add, lines);
         Array.Fill(lines, new Position16<BgPlanePixels>(1234, 5678));
         AssertTrue(owned.Scrolls.All(line => line == default), "BG math owns register rows");
-        AssertThrows<ArgumentException>(() => new Bg2BppColorMathRenderLayer(plane, 0, 0, 64, 32,
+        AssertThrows<ArgumentException>(() => new Bg2BppColorMathRenderLayer(plane, 0, 64, 32,
             ExpandedColorMathOperation.Add, new Position16<BgPlanePixels>[223]), "BG math rejects truncated register table");
-        AssertThrows<ArgumentOutOfRangeException>(() => new Bg2BppColorMathRenderLayer(plane, 0, 0, 64, 32,
+        AssertThrows<ArgumentOutOfRangeException>(() => new Bg2BppColorMathRenderLayer(plane, 0, 64, 32,
             (ExpandedColorMathOperation)255, lines), "BG math rejects unknown equation");
         var encoded = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory, [owned], 15));
         AssertThrows<InvalidDataException>(() => SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(

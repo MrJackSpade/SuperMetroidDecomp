@@ -52,6 +52,12 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
 
     /// <summary>CPU words uploaded whole each frame; its length is the GPU buffer's.</summary>
     internal uint[] Upload { get; private set; }
+    /// <summary>Each frame's first upload word, by image frame; reused across packs so a frame allocates nothing.</summary>
+    private readonly Dictionary<SpriteSheetFrame, int> imageWords = new(ReferenceEqualityComparer.Instance);
+
+    /// <summary>The image frames that upload their palette indices; reused across packs.</summary>
+    private readonly HashSet<SpriteSheetFrame> recoloured = new(ReferenceEqualityComparer.Instance);
+
     /// <summary>The GPU buffer.</summary>
     internal ID3D11Buffer Buffer { get; private set; }
     /// <summary>Shader view bound at register t1.</summary>
@@ -69,8 +75,8 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         }
         int records = draws.Length;
         int words = HeaderWords + records * RecordWords;
-        var imageWords = new Dictionary<SpriteSheetFrame, int>(ReferenceEqualityComparer.Instance);
-        var recoloured = new HashSet<SpriteSheetFrame>(ReferenceEqualityComparer.Instance);
+        imageWords.Clear();
+        recoloured.Clear();
         foreach (SpriteDraw draw in draws)
         {
             if (draw is ImageSpriteDraw image && imageWords.TryAdd(image.Image, words))

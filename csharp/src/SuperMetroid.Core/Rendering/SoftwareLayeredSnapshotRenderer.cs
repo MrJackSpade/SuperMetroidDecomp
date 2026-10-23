@@ -84,7 +84,7 @@ public static class SoftwareLayeredSnapshotRenderer
                         gameplayOutputBuffer);
                     break;
                 case Bg2BppColorMathRenderLayer bgMath:
-                    SoftwareBgColorMathRenderer.Composite(output, memory.Vram, memory.Cgram, bgMath);
+                    SoftwareBgColorMathRenderer.Composite(output, memory.Cgram, bgMath);
                     break;
                 case MessageBoxRenderLayer message:
                     GameplayMessageBoxRenderer.Composite(output, message, memory.Cgram);

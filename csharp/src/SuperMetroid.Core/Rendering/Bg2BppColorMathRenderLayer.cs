@@ -13,12 +13,10 @@ public sealed record Bg2BppColorMathRenderLayer : RenderLayer
     /// before tilemap wrapping.
     /// </summary>
     public ReadOnlySpan<Position16<BgPlanePixels>> Scrolls => scrolls;
-    /// <summary>The BG3 plane the layer samples (#1348).</summary>
-    public Layer3Plane Plane { get; }
+    /// <summary>The BG3 plane the layer samples (#1348), as its cells' pictures (#1403).</summary>
+    public Layer3Cells Plane { get; }
     /// <summary>The plane row the layer's tilemap begins on: 0 for liquids, 32 for an atmosphere's page.</summary>
     public int FirstRow { get; }
-    /// <summary>VRAM word address of the 2-bpp character data, 0 through <c>VramWordRange.MaximumWord</c>; each 8-by-8 character occupies eight words.</summary>
-    public int CharacterWord { get; }
     /// <summary>Tilemap height of 32 or 64 eight-pixel rows, determining vertical wrapping; the plane has a fixed width of 32 tiles.</summary>
     public int MapHeightTiles { get; }
     /// <summary>First participating physical output scanline, inclusive; lines before it are untouched, and 224 disables the plane for the entire frame.</summary>
@@ -29,12 +27,11 @@ public sealed record Bg2BppColorMathRenderLayer : RenderLayer
     /// <summary>Captures a 2-bpp background color-math plane and copies its physical-line scroll table, validating the map height, first scanline, and operation without retaining caller-owned mutable storage.</summary>
     /// <param name="plane">The BG3 plane the layer samples.</param>
     /// <param name="firstRow">The plane row the layer's tilemap begins on.</param>
-    /// <param name="characterWord">2-bpp character base address in VRAM words.</param>
     /// <param name="mapHeightTiles">Tilemap height, either 32 or 64 eight-pixel rows.</param>
     /// <param name="firstScanline">Inclusive first physical scanline from 0 through 224; 224 means no visible lines participate.</param>
     /// <param name="operation">Addition or subtraction for the standalone expanded-byte compositor.</param>
     /// <param name="scrolls">Exactly 224 register pairs, indexed by physical output scanline; the constructor takes an owned copy.</param>
-    public Bg2BppColorMathRenderLayer(Layer3Plane plane, int firstRow, int characterWord, int mapHeightTiles,
+    public Bg2BppColorMathRenderLayer(Layer3Cells plane, int firstRow, int mapHeightTiles,
         int firstScanline, ExpandedColorMathOperation operation, ReadOnlySpan<Position16<BgPlanePixels>> scrolls)
     {
         if (mapHeightTiles is not (32 or 64)) throw new ArgumentOutOfRangeException(nameof(mapHeightTiles));
@@ -46,7 +43,6 @@ public sealed record Bg2BppColorMathRenderLayer : RenderLayer
         Ensure.LengthEqual(scrolls, SnesPpuLayout.ScreenHeightPixels);
         Plane = Ensure.NotNull(plane);
         FirstRow = firstRow;
-        CharacterWord = VramWordRange.Require(characterWord);
         MapHeightTiles = mapHeightTiles;
         FirstScanline = firstScanline;
         Operation = operation;

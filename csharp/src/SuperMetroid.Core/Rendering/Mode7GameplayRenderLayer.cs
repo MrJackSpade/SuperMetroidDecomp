@@ -10,11 +10,9 @@ public sealed record Mode7GameplayRenderLayer : RenderLayer
     /// <summary>Gets the floor's transform; sampling uses physical screen coordinates even below the HUD band.</summary>
     public AffineTransform Transform { get; }
     /// <summary>Gets the BG3 plane whose top rows are the HUD, drawn unscrolled with opaque color-zero pixels (#1348).</summary>
-    public Layer3Plane Hud { get; }
+    public Layer3Cells Hud { get; }
     /// <summary>Gets the Mode 7 map the room shows (#1349); its characters are the room tileset's.</summary>
     public AffineFloor Map { get; }
-    /// <summary>Gets the VRAM word base of the HUD's 2-bpp eight-pixel characters, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
-    public int HudCharacterWord { get; }
     /// <summary>Gets the number of top-of-screen scanlines occupied by the opaque HUD, 0..224 in multiples of eight; zero disables the HUD band.</summary>
     public int HudScanlines { get; }
     /// <summary>Gets the optional bottom Mode-1 BG2/OBJ band; null lets Mode 7 and OBJ continue to the bottom of the viewport.</summary>
@@ -24,12 +22,11 @@ public sealed record Mode7GameplayRenderLayer : RenderLayer
     /// <param name="transform">The floor's transform.</param>
     /// <param name="hud">The BG3 plane whose top rows are the HUD.</param>
     /// <param name="map">The Mode 7 map the room shows.</param>
-    /// <param name="hudCharacterWord">VRAM word address of the HUD's 2-bpp character data.</param>
     /// <param name="hudScanlines">Top HUD height, from zero through 224 physical scanlines and divisible by eight.</param>
     /// <param name="floor">Optional value-copied lower band; its first scanline must follow the HUD and be below 224, with each map dimension either 32 or 64 tiles.</param>
     /// <exception cref="ArgumentOutOfRangeException">The HUD height or supplied floor boundary/map dimensions are invalid.</exception>
-    public Mode7GameplayRenderLayer(AffineTransform transform, Layer3Plane hud, AffineFloor map,
-        int hudCharacterWord, int hudScanlines, Mode1FloorBand? floor = null)
+    public Mode7GameplayRenderLayer(AffineTransform transform, Layer3Cells hud, AffineFloor map,
+        int hudScanlines, Mode1FloorBand? floor = null)
     {
         if (hudScanlines < 0 || hudScanlines > SnesPpuLayout.ScreenHeightPixels ||
             hudScanlines % SnesPpuLayout.BackgroundTileSizePixels != 0)
@@ -40,7 +37,6 @@ public sealed record Mode7GameplayRenderLayer : RenderLayer
         Transform = transform;
         Hud = Ensure.NotNull(hud);
         Map = Ensure.NotNull(map);
-        HudCharacterWord = VramWordRange.Require(hudCharacterWord);
         HudScanlines = hudScanlines;
         Floor = floor;
     }

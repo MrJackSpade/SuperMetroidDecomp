@@ -5,17 +5,16 @@ namespace SuperMetroid.Core.Rendering;
 internal static class SoftwareBgColorMathRenderer
 {
     /// <summary>
-    /// Samples each physical scanline of the BG3 plane as BG3 shows it (from its pictures once resolved, #1392), skips
+    /// Samples each physical scanline of the BG3 plane from its cells' pictures (#1403), skips
     /// transparent colour zero, and applies clipped byte-channel colour math.
     /// </summary>
-    internal static void Composite(Span<Rgba32> output, SnesVram vram, IPaletteColors cgram, Bg2BppColorMathRenderLayer layer)
+    internal static void Composite(Span<Rgba32> output, IPaletteColors cgram, Bg2BppColorMathRenderLayer layer)
     {
         int width = SnesPpuLayout.ScreenWidthPixels, height = SnesPpuLayout.ScreenHeightPixels;
         Ensure.LengthEqual(output, width * height);
         var palette = new Rgba32[SnesCgram.ColorCount];
         for (int i = 0; i < palette.Length; i++) palette[i] = cgram.GetRgba(i);
-        var plane = new SnesBackgroundPixelSampler(vram, palette, cgram, layer.Plane.Shown(layer.FirstRow, layer.MapHeightTiles),
-            layer.CharacterWord, BgBitDepth.TwoBpp);
+        var plane = new BgPictureSampler(palette, cgram, layer.Plane.Shown(layer.FirstRow, layer.MapHeightTiles));
         for (int y = layer.FirstScanline; y < height; y++)
         {
             Position16<BgPlanePixels> scroll = layer.Scrolls[y];

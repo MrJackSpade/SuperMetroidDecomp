@@ -1002,8 +1002,7 @@ internal static void VerifyFourBitBackgroundRendering()
         gameplaySprites,
         new OrdinaryGameplayRenderLayer(
             new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0x00e0),
-                new Extent16<TilemapCells>(32, 64), GameplayVramLayout.Bg2TilemapWord, 0, 0,
-                GameplayVramLayout.HudCharacterWord, SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj),
+                new Extent16<TilemapCells>(32, 64), GameplayVramLayout.Bg2TilemapWord, 0, 0, SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj),
             RoomBackgroundsFixtures.Blank(),
             new Bg2HdmaScrollTables(horizontalByLine, default)));
     AssertEqual(new Rgba32(0, 0, 255),
@@ -1026,8 +1025,7 @@ internal static void VerifyFourBitBackgroundRendering()
         gameplaySprites,
         new OrdinaryGameplayRenderLayer(
             new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0),
-                new Extent16<TilemapCells>(64, 64), kraidBg2BaseWord, 0, 0,
-                GameplayVramLayout.HudCharacterWord, SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj),
+                new Extent16<TilemapCells>(64, 64), kraidBg2BaseWord, 0, 0, SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj),
             RoomBackgroundsFixtures.Blank()));
     AssertEqual(new Rgba32(255, 0, 0),
         gameplayFrame[SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width],

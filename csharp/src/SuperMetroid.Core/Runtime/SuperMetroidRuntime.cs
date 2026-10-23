@@ -323,7 +323,7 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The BG3 plane the last accepted NMI latched (#1351): the HUD and room effect as displayed.</summary>
     /// <exception cref="InvalidOperationException">No NMI has latched a room's backgrounds yet.</exception>
     public Layer3Plane AcceptedLayer3Plane =>
-        (Display.Latched.Rooms ?? throw new InvalidOperationException("No accepted NMI has latched a room's BG3 plane.")).Bg3;
+        Display.Latched.Layer3 ?? throw new InvalidOperationException("No accepted NMI has latched a room's BG3 plane.");
 
     /// <summary>The background character artwork the frame shows, composed over <see cref="Vram"/> at capture (#1350).</summary>
     public BgArtworkBindings BgArtwork { get; }

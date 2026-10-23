@@ -145,11 +145,8 @@ public static class SnesBgTilemapRenderer
         }
     }
 
-    /// <summary>
-    /// Renders the top <paramref name="rowCount"/> rows of the BG3 plane (#1348) as it shows them: from its words' pictures
-    /// once resolved (#1392), otherwise from their characters at <paramref name="characterBaseWord"/>.
-    /// </summary>
-    public static void Render2Bpp(Span<Rgba32> output, SnesVram vram, IPaletteColors cgram, Layer3Plane plane, int characterBaseWord, int rowCount, ColorZero colorZero = ColorZero.Opaque)
+    /// <summary>Renders the top <paramref name="rowCount"/> rows of the BG3 plane (#1348) from its cells' pictures (#1403).</summary>
+    public static void Render2Bpp(Span<Rgba32> output, IPaletteColors cgram, Layer3Cells plane, int rowCount, ColorZero colorZero = ColorZero.Opaque)
     {
         Ensure.NotNull(plane);
         Ensure.NotNull(cgram);
@@ -160,8 +157,7 @@ public static class SnesBgTilemapRenderer
         var colors = new Rgba32[SnesCgram.ColorCount];
         for (int color = 0; color < colors.Length; color++)
             colors[color] = cgram.GetRgba(color);
-        var sampler = new SnesBackgroundPixelSampler(vram, colors, cgram, plane.Shown(0, SnesPpuLayout.TilemapPageWidthInTiles),
-            characterBaseWord, BgBitDepth.TwoBpp);
+        var sampler = new BgPictureSampler(colors, cgram, plane.Shown(0, SnesPpuLayout.TilemapPageWidthInTiles));
         for (int y = 0; y < rowCount * SnesPpuLayout.BackgroundTileSizePixels; y++)
         for (int x = 0; x < width; x++)
             output[y * width + x] = sampler.Sample(new Position16<BgPlanePixels>((ushort)x, (ushort)y), colorZero).Color;

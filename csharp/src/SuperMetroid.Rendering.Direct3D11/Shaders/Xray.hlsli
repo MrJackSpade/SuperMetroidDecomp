@@ -17,7 +17,7 @@ uint2 XrayBackground(uint roomSource, uint map, uint chars, uint2 size, uint2 po
     if ((roomSource & RoomSourceBg2Overlay) != 0 && Bg2OverlayWord(position & 65535, size, written, picture, within))
         entry = written;
     else if (source == RoomSourceBg3)
-        entry = Bg3Word(map, size.y, position & 65535, within, picture);
+        shown = Bg3Picture(map, size.y, position & 65535, within, picture);
     else if (source == RoomSourceBossBg2)
         entry = BossBg2Word(position, size, within, picture);
     else if (source == RoomSourceXrayReveal)
@@ -68,7 +68,7 @@ uint XrayGameplay(uint2 screen)
     uint winner = Palette(0);
     if (screen.y < 32)
     {
-        uint2 hud = XrayBackground(RoomSourceBg3, 0, (uint)MatrixB, uint2(32,32), screen, false, true);
+        uint2 hud = XrayBackground(RoomSourceBg3, 0, 0, uint2(32,32), screen, false, true);
         winner = hud.x;
     }
     else
@@ -104,7 +104,7 @@ uint XrayGameplay(uint2 screen)
             sub = XrayBackground(RoomSource, (uint)MatrixA, CharacterWord, uint2(MapWidth,MapHeight), bg2Screen + scan.xy, true, false).x;
         if (OffsetX != 0 && (Reserved3 == SubscreenCapturedBg3 || Reserved3 == SubscreenGameplayBg2AndCapturedBg3) && screen.y >= (uint)CenterY)
         {
-            uint2 bg3 = XrayBackground(RoomSourceBg3, (uint)MatrixC, (uint)MatrixD, uint2(32,(uint)CenterX),
+            uint2 bg3 = XrayBackground(RoomSourceBg3, (uint)MatrixC, 0, uint2(32,(uint)CenterX),
                 screen + uint2(scan.w & 65535, scan.w >> 16), false, false);
             if ((bg3.x >> 24) != 0 && (bg3.y != 0 || (sub >> 24) == 0)) sub = bg3.x;
         }

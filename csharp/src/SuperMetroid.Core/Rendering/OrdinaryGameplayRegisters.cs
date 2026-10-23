@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Rendering;
 /// <param name="Bg2TilemapWord">BG2 tilemap base VRAM word address.</param>
 /// <param name="Bg1CharacterWord">BG1 four-bit planar character base VRAM word address.</param>
 /// <param name="Bg2CharacterWord">BG2 four-bit planar character base VRAM word address.</param>
-/// <param name="HudCharacterWord">BG3 two-bit planar HUD character base VRAM word address.</param>
 /// <param name="MainScreenLayers">Fallback gameplay TM layer enables, replaced rather than combined with any captured per-line enables.</param>
 /// <param name="Bg2FirstScanline">Inclusive physical output scanline at which BG2 drawing starts, intersected with the gameplay region.</param>
 /// <param name="Bg2EndScanline">Exclusive physical output scanline at which BG2 drawing ends.</param>
@@ -17,7 +16,7 @@ namespace SuperMetroid.Core.Rendering;
 public readonly record struct OrdinaryGameplayRegisters(
     Position16<RoomPixels> Bg1Scroll, Position16<Bg2Pixels> Bg2Scroll,
     Extent16<TilemapCells> Bg2MapSize, int Bg2TilemapWord,
-    int Bg1CharacterWord, int Bg2CharacterWord, int HudCharacterWord,
+    int Bg1CharacterWord, int Bg2CharacterWord,
     SnesMainScreenLayers MainScreenLayers,
     int Bg2FirstScanline = 32, int Bg2EndScanline = 224,
     SnesWindowRegisters Windows = default,
@@ -44,11 +43,4 @@ public readonly record struct OrdinaryGameplayRegisters(
         get;
         init => field = VramWordRange.Require(value);
     } = VramWordRange.Require(Bg2CharacterWord);
-
-    /// <summary>BG3 two-bit planar HUD character base VRAM word address, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
-    public int HudCharacterWord
-    {
-        get;
-        init => field = VramWordRange.Require(value);
-    } = VramWordRange.Require(HudCharacterWord);
 }

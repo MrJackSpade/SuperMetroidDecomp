@@ -154,7 +154,8 @@ internal sealed class AcceptedFrameBoundary
             CaptureFixedColors(),
             // The reveal and the room's planes are drawn once this NMI's uploads have bound (WithBlockPictures).
             null,
-            CaptureRoomBackgrounds());
+            CaptureRoomBackgrounds(),
+            _room.Scope is null ? null : CaptureLayer3Plane());
         _artwork.PublishReboundHudArtwork(_backgrounds);
         _drainQueuedVramWrites();
         // The planes' blocks show what this NMI's uploads bound, as the characters they read did (#1392).
@@ -225,7 +226,7 @@ internal sealed class AcceptedFrameBoundary
             layer2.Horizontal.Streams || layer2.Vertical.Streams
                 ? new RoomBackgroundLayer(level.BackgroundPlane, _backgroundScroll.Bg2Offset.AsBgPlaneOffset(), null)
                 : null,
-            CaptureLayer3Plane(),
+            null,
             _room.DoorSourceBackground,
             scope.Bg1Overlay,
             Bg2Overlay: scope.Bg2Overlay,
@@ -304,7 +305,8 @@ internal sealed class AcceptedFrameBoundary
                 Bg2Overlay = bg2Overlay,
                 Bg1Overlay = bg1Overlay,
                 // The HUD and the room effect's page draw from the BG3 sheet's pictures at the HUD character base BG3 shows.
-                Bg3 = rooms.Bg3.WithPictures(scope.Bg3Pictures.Resolve(rooms.Bg3, _backgrounds, latched.Scene.HudCharacterWord)),
+                Bg3 = new Layer3Cells(scope.Bg3Pictures.Resolve(latched.Layer3 ?? throw new InvalidOperationException("A room's NMI latches its BG3 words."),
+                    _backgrounds, latched.Scene.HudCharacterWord)),
             },
             XrayReveal = revealed is null ? null : new XrayRevealPlane(revealed, pictures),
         };

@@ -141,9 +141,10 @@ internal static class InstalledSporesTests
                 if (frame is 0 or 10 or 20 or 30 or 44 or 511 or 1024)
                 {
                     var gameplay = new OrdinaryGameplayRenderLayer(new(default, default, new Extent16<TilemapCells>(64, 32),
-                        GameplayVramLayout.Bg2TilemapWord, 0, 0, 0x4000, SnesMainScreenLayers.Bg2), RoomBackgroundsFixtures.Blank() with
+                        GameplayVramLayout.Bg2TilemapWord, 0, 0, SnesMainScreenLayers.Bg2), RoomBackgroundsFixtures.Blank() with
                         {
-                            Bg3 = Layer3Plane.Compose(new ushort[Layer3Plane.HudRows * Layer3Plane.Columns], replacement.EffectPageWords()),
+                            Bg3 = Layer3CellsFixtures.FromWords(Layer3Plane.Compose(new ushort[Layer3Plane.HudRows * Layer3Plane.Columns],
+                                replacement.EffectPageWords()).Words, new byte[SnesPpuLayout.VramByteCount], new Bgr555[SnesPpuLayout.CgramColorCount]),
                         });
                     var layer = SnesGameplayFrameRenderer.CaptureSpores(gameplay, (replacement.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires replacement.CaptureForDisplay().")));
                     Require(!layer.RevealBlocks && layer.ColorMath == (SnesColorMathControl)0x32 &&
@@ -362,12 +363,12 @@ internal static class InstalledSporesTests
             var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
             oam[0] = 16; oam[1] = 64; oam[3] = (byte)(objPriority << 4 | palette << 1);
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
-                GameplayVramLayout.Bg2TilemapWord, 0, 0, GameplayVramLayout.HudCharacterWord,
+                GameplayVramLayout.Bg2TilemapWord, 0, 0,
                 SnesMainScreenLayers.Obj | ((enabled & 1) != 0 ? SnesMainScreenLayers.Bg1 : 0) |
                     ((enabled & 2) != 0 ? SnesMainScreenLayers.Bg2 : 0));
             var layer = SnesGameplayFrameRenderer.CaptureSpores(new(registers, RoomBackgroundsFixtures.Uniform(new((ushort)(1 | (bg1High ? 0x2000 : 0)))) with
                 {
-                    Bg3 = Layer3PlaneFixtures.FromVram(vram),
+                    Bg3 = Layer3CellsFixtures.FromVram(vram.Bytes, colors.Colors, 0x4000),
                 }),
                 new(RoomFxType.Spores, LayerBlendingConfiguration.Spores, Position16<Bg3Pixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue)));
             var scene = new LayeredRenderSnapshot(PpuMemorySnapshot.FromOam(vram.Bytes, colors.Colors, oam, 1, 0), [layer], 15);

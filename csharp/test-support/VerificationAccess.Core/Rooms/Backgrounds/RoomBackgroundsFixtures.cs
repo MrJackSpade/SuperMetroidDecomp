@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rendering;
 using System.Collections.Immutable;
 using System.Buffers.Binary;
@@ -22,8 +23,8 @@ internal static class RoomBackgroundsFixtures
     /// <summary>A room whose BG1 shows tile word zero over the whole unscrolled screen, no BG2 plane, and a zero BG3 plane.</summary>
     internal static RoomBackgrounds Blank() => Uniform(default);
 
-    /// <summary>A BG3 plane of zero words.</summary>
-    internal static Layer3Plane BlankBg3() => new(new ushort[Layer3Plane.Rows * Layer3Plane.Columns]);
+    /// <summary>A BG3 plane of zero words, as a blank memory image shows it (#1403).</summary>
+    internal static Layer3Cells BlankBg3() => Layer3CellsFixtures.Blank;
 
     /// <summary>Seeded Mode 7 tile pictures for a Ceres map whose drawing a check does not look at.</summary>
     internal static Mode7TileSheet Mode7Tiles() => SeededMode7Tiles(new Random(0), new Bgr555[SnesPpuLayout.CgramColorCount]);
@@ -119,11 +120,10 @@ internal static class RoomBackgroundsFixtures
     }
 
     /// <summary>
-    /// <paramref name="plane"/> drawn from seeded two-bit pictures (#1392): each word a quarter of a seeded 16x16 picture
-    /// whose pixels keep colour zero's row, even 16-colour rows coloured as <paramref name="scene"/> is and odd ones
-    /// differently, about one word in eight drawing from its character instead.
+    /// A BG3 plane of seeded two-bit pictures (#1392, #1403): each cell a quarter of a seeded 16x16 picture whose pixels
+    /// keep colour zero's row, even 16-colour rows coloured as <paramref name="scene"/> is and odd ones differently.
     /// </summary>
-    internal static Layer3Plane SeededBg3Pictures(Random random, Bgr555[] scene, Layer3Plane plane)
+    internal static Layer3Cells SeededBg3Pictures(Random random, Bgr555[] scene)
     {
         int side = RoomBlockSheet.BlockPixels, columns = 4;
         var size = new Extent16<ImagePixels>((ushort)(columns * side), (ushort)(SeededPictureCount / columns * side));
@@ -135,10 +135,10 @@ internal static class RoomBackgroundsFixtures
         var pictures = new BgTilePicture?[Layer3Plane.Columns * Layer3Plane.Rows];
         for (int word = 0; word < pictures.Length; word++)
         {
-            pictures[word] = random.Next(8) == 0 ? null : new BgTilePicture(sheet.Frame($"{random.Next(SeededPictureCount)}"),
+            pictures[word] = new BgTilePicture(sheet.Frame($"{random.Next(SeededPictureCount)}"),
                 new Position16<ImagePixels>((ushort)(random.Next(2) * 8), (ushort)(random.Next(2) * 8)));
         }
-        return Ensure.NotNull(plane).WithPictures([.. pictures]);
+        return new Layer3Cells([.. pictures]);
     }
 
     /// <summary>
@@ -316,9 +316,6 @@ internal static class RoomBackgroundsFixtures
                 words[index] = (ushort)random.Next(ushort.MaxValue + 1);
             written = RoomTilemapOverlay.Empty.With(random.Next(RoomTilemapOverlay.WordCount - words.Length), words);
         }
-        var bg3 = new ushort[Layer3Plane.Rows * Layer3Plane.Columns];
-        for (int index = 0; index < bg3.Length; index++)
-            bg3[index] = (ushort)random.Next(ushort.MaxValue + 1);
-        return new RoomBackgrounds(bg1, bg2, new Layer3Plane(bg3), source, written);
+        return new RoomBackgrounds(bg1, bg2, SeededBg3Pictures(random, pictureColours ?? new Bgr555[SnesPpuLayout.CgramColorCount]), source, written);
     }
 }

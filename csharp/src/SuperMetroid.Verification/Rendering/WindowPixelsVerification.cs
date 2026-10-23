@@ -41,7 +41,7 @@ internal static class WindowPixelsVerification
             var admission = (SnesMainScreenLayers)((mask & 7) | ((mask & 8) << 1));
             Rgba32[] actual = Draw(layers, windows, admission);
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(3, 5), new Position16<Bg2Pixels>(7, 11), new Extent16<TilemapCells>(64, 32),
-                GameplayVramLayout.Bg2TilemapWord, 0, 0, GameplayVramLayout.HudCharacterWord,
+                GameplayVramLayout.Bg2TilemapWord, 0, 0,
                 layers, Windows: windows, MainScreenWindowMask: admission);
             var packet = new RenderFrameSnapshot(new(1, 1, 1),
                 new LayeredRenderSnapshot(capturedMemory, new RenderLayer[] { new OrdinaryGameplayRenderLayer(registers, rooms) }, 15));
@@ -71,7 +71,7 @@ internal static class WindowPixelsVerification
             SnesMainScreenLayers admission = SnesMainScreenLayers.None) =>
             SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(memory.Vram, memory.Cgram, memory.Sprites,
                 new OrdinaryGameplayRenderLayer(new OrdinaryGameplayRegisters(new Position16<RoomPixels>(3, 5), new Position16<Bg2Pixels>(7, 11),
-                    new Extent16<TilemapCells>(64, 32), GameplayVramLayout.Bg2TilemapWord, 0, 0, GameplayVramLayout.HudCharacterWord,
+                    new Extent16<TilemapCells>(64, 32), GameplayVramLayout.Bg2TilemapWord, 0, 0,
                     enabled, Windows: windows, MainScreenWindowMask: admission), rooms));
     }
 

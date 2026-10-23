@@ -72,6 +72,9 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// <summary>Reusable constant-buffer source cleared before each compute pass.</summary>
     private readonly uint[] constantUpload = new uint[D3D11ShaderLayout.SolidConstantWords];
 
+    /// <summary>The frontend tile layers' cells a frame draws, each once; reused across frames.</summary>
+    private readonly List<ScreenTileMap> frameScreens = [];
+
     /// <summary>
     /// Reuses owner-thread scratch after UpdateSubresource has copied its source.
     /// Clear every word: optional scanline/coverage fields must never leak across passes.
@@ -198,7 +201,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>The one BG3 plane a frame shows (#1348): every layer that reads BG3 reads the same plane.</summary>
-    private static Layer3Plane SameBg3(Layer3Plane? shown, Layer3Plane plane) =>
+    private static Layer3Cells SameBg3(Layer3Cells? shown, Layer3Cells plane) =>
         shown is null || ReferenceEquals(shown, plane) ? plane
             : throw new InvalidOperationException("A frame's layers show two different BG3 planes.");
 
@@ -209,7 +212,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[0] = (uint)(layer.Operation == ExpandedColorMathOperation.Add
             ? D3D11TileOperation.BgAdd : D3D11TileOperation.BgSubtract);
         // The BG3 plane window: its first row stands in the tilemap word, its height in the map height (#1348).
-        data[1] = (uint)layer.FirstRow; data[2] = (uint)layer.CharacterWord;
+        data[1] = (uint)layer.FirstRow;
         data[5] = 32; data[6] = (uint)layer.MapHeightTiles; data[8] = 1;
         data[14] = (uint)D3D11RoomSource.Bg3;
         data[25] = (uint)layer.FirstScanline; data[26] = 224;
@@ -287,7 +290,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[7] = (uint)r.MainScreenLayers; data[8] = layer.RevealBlocks ? 1u : 0u;
         data[9] = (uint)layer.ColorMath;
         data[10] = (uint)layer.FixedRed; data[11] = (uint)layer.FixedGreen; data[12] = (uint)layer.FixedBlue;
-        data[16] = (uint)r.Bg2TilemapWord; data[17] = (uint)r.HudCharacterWord;
+        data[16] = (uint)r.Bg2TilemapWord;
         // BG1 is always the room's; BG2 is its layer-2 plane, the sky's rows or the tilemap at word 16.
         data[14] = D3D11RoomSources.Bg2Of(layer.Gameplay.Rooms);
         data[22] = layer.AddSubscreen ? 1u : 0u;
@@ -300,7 +303,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             data[15] = (uint)(layer.SubscreenUsesBg2
                 ? D3D11GameplaySubscreenKind.GameplayBg2AndCapturedBg3
                 : D3D11GameplaySubscreenKind.CapturedBg3);
-            data[18] = (uint)sub.FirstRow; data[19] = (uint)sub.CharacterWord;
+            data[18] = (uint)sub.FirstRow;
             data[20] = (uint)sub.MapHeightTiles; data[21] = (uint)sub.FirstScanline;
         }
         for (int y = 32; y < 224; y++)
@@ -364,7 +367,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         }
         // HUD color zero is opaque, and OBJ never overlays this band.
         if (layer.HudScanlines != 0)
-            DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Bg3, Map = 0, Characters = (uint)layer.HudCharacterWord, TransparentZero = 0, EndScanline = (uint)layer.HudScanlines });
+            DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Bg3, Map = 0, TransparentZero = 0, EndScanline = (uint)layer.HudScanlines });
     }
 
     /// <summary>Composes ordinary gameplay in Mode-1 priority order, splitting bands at layer-enable changes.</summary>
@@ -387,7 +390,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             Objects(2); Background2(true); Background1(true); Objects(3);
             first = end;
         }
-        DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Bg3, Map = 0, Characters = (uint)r.HudCharacterWord, TransparentZero = 0, EndScanline = SnesPpuLayout.GameplayHudHeightPixels, Windows = r.Windows, WindowMask = r.MainScreenWindowMask, WindowTarget = SnesWindowTarget.Bg3 });
+        DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Bg3, Map = 0, TransparentZero = 0, EndScanline = SnesPpuLayout.GameplayHudHeightPixels, Windows = r.Windows, WindowMask = r.MainScreenWindowMask, WindowTarget = SnesWindowTarget.Bg3 });
 
         void Objects(uint priority)
         {
@@ -518,12 +521,13 @@ public sealed class D3D11FrameRenderer : IDisposable
             _ => null,
         };
         RoomBackgroundLayer? floor = null;
-        Layer3Plane? bg3 = rooms?.Bg3;
+        Layer3Cells? bg3 = rooms?.Bg3;
         AffineFloor? mode7Map = null;
         // A frame shows one Mode 7 floor, which every Mode 7 dispatch draws from the room buffer (#1403).
         AffineFloor? SameFloor(AffineFloor? shown, AffineFloor floor) => shown is null || shown.Equals(floor) ? floor
             : throw new InvalidOperationException("A frame shows two different Mode 7 floors.");
-        var screens = new List<ScreenTileMap>();
+        List<ScreenTileMap> screens = frameScreens;
+        screens.Clear();
         foreach (RenderLayer layer in scene.Layers)
         {
             if (layer is Mode7RenderLayer frontendMode7)

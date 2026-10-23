@@ -69,7 +69,7 @@ public static class SnesGameplayFrameRenderer
             ArrayPool<Rgba32>.Shared.Return(rentedObjectPixels, clearArray: false);
             ArrayPool<byte>.Shared.Return(rentedObjectPriorities, clearArray: false);
         }
-        DrawHud(output, vram, cgram, layer.Rooms.Bg3, registers.HudCharacterWord);
+        DrawHud(output, cgram, layer.Rooms.ShownBg3);
         if ((registers.MainScreenWindowMask & SnesMainScreenLayers.Bg3) != 0)
         {
             // The modeled HUD IRQ admits only BG3. A masked HUD pixel therefore
@@ -262,16 +262,9 @@ public static class SnesGameplayFrameRenderer
             destination[color] = source[color].ToRgba32();
     }
 
-    /// <summary>Renders the four BG3 HUD rows from the BG3 plane (#1348) and the selected character base.</summary>
-    internal static void DrawHud(
-        Span<Rgba32> output,
-        SnesVram vram,
-        IPaletteColors cgram,
-        Layer3Plane plane,
-        int characterBaseWord)
-    {
-        SnesBgTilemapRenderer.Render2Bpp(output[..(HudHeight * Width)], vram, cgram, plane, characterBaseWord, Layer3Plane.HudRows);
-    }
+    /// <summary>Renders the four BG3 HUD rows from the BG3 plane's pictures (#1403).</summary>
+    internal static void DrawHud(Span<Rgba32> output, IPaletteColors cgram, Layer3Cells plane) =>
+        SnesBgTilemapRenderer.Render2Bpp(output[..(HudHeight * Width)], cgram, plane, Layer3Plane.HudRows);
 
     /// <summary>
     /// Resolves water's optional per-scanline BG2 distortion from <c>$88:C5E4</c>. The
@@ -541,11 +534,11 @@ public static class SnesGameplayFrameRenderer
             throw new ArgumentException("Waterfall capture requires configuration $16.", nameof(fx));
         var windows = new XrayWindowLine[Height];
         Array.Fill(windows, new XrayWindowLine(255, 0));
-        return new(gameplay, windows, false, new ColorMathRegisters { ColorMath = WaterfallRoomDisplayRules.ColorMath, AddSubscreen = true, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.Bg3), subscreenUsesBg2: true);
+        return new(gameplay, windows, false, new ColorMathRegisters { ColorMath = WaterfallRoomDisplayRules.ColorMath, AddSubscreen = true, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3), subscreenUsesBg2: true);
     }
 
     /// <summary>Resolves FX type, liquid visibility and wave phase into a backend-neutral BG equation.</summary>
-    public static Bg2BppColorMathRenderLayer? CaptureRoomLayer3Fx(RoomLayer3FxRenderSnapshot fx, Layer3Plane plane)
+    public static Bg2BppColorMathRenderLayer? CaptureRoomLayer3Fx(RoomLayer3FxRenderSnapshot fx, Layer3Cells plane)
     {
         LayerBlendingConfiguration required = fx.Type switch
         {
@@ -585,7 +578,6 @@ public static class SnesGameplayFrameRenderer
             LayerBlendingConfiguration.WaterSubtractive or LayerBlendingConfiguration.WaterfallSubtractive;
         // Liquids sample the whole plane; atmospheres repeat its lower 32 rows.
         return new(plane, atmosphere ? Layer3Plane.Rows / 2 : 0,
-            GameplayVramLayout.HudCharacterWord,
             atmosphere ? Layer3Plane.Rows / 2 : Layer3Plane.Rows,
             HudHeight, subtract ? ExpandedColorMathOperation.Subtract : ExpandedColorMathOperation.Add, scrolls);
     }
@@ -602,7 +594,7 @@ public static class SnesGameplayFrameRenderer
             throw new ArgumentException("Spore blending requires a spores FX snapshot.", nameof(fx));
         var emptyWindows = new XrayWindowLine[Height];
         Array.Fill(emptyWindows, new XrayWindowLine(255, 0));
-        return new(gameplay, emptyWindows, false, new ColorMathRegisters { ColorMath = (SnesColorMathControl)RoomFxRomData.Spores.ColorMathSources, AddSubscreen = true, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.Bg3));
+        return new(gameplay, emptyWindows, false, new ColorMathRegisters { ColorMath = (SnesColorMathControl)RoomFxRomData.Spores.ColorMathSources, AddSubscreen = true, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3));
     }
 
     /// <summary>Resolves the selected Ceres gradient into RGB window rows, with no boss-state reference.</summary>

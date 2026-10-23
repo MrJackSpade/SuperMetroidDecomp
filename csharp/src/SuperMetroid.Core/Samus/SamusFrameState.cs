@@ -21,7 +21,7 @@ internal sealed class SamusFrameState
     /// <summary>Samus's frame state, her body without the suit showing <paramref name="spriteSets"/>' set.</summary>
     /// <param name="spriteSets">Gameplay's sprite colour sets.</param>
     internal SamusFrameState(SpriteColourSets spriteSets) =>
-        Colours = new SamusColours(Ensure.NotNull(spriteSets).Set(SamusColourDefinitions.SuitlessSpriteSet));
+        Colours = new SamusColours(spriteSets);
 
     /// <summary>Remaining native load-appearance updates before ordinary Samus drawing resumes.</summary>
     internal WrappingCountdown LoadAppearanceFramesRemaining { get; private set; }

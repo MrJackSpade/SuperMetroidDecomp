@@ -22,6 +22,12 @@ internal static class SamusColourDefinitions
     /// <summary>The sprite colour set Samus without her suit shows.</summary>
     public const int SuitlessSpriteSet = 7;
 
+    /// <summary>The sprite colour set whose last colour is Samus's grapple flare: the enemy projectiles' set.</summary>
+    public const int FlareSpriteSet = 5;
+
+    /// <summary>The grapple flare's colour within its sprite set.</summary>
+    public const int FlareColour = 15;
+
     /// <summary>The visor's colour within the suit.</summary>
     public const int VisorColour = SamusPaletteRomData.Common.VisorColorOffset;
 

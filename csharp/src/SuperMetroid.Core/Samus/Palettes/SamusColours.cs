@@ -1,15 +1,14 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Palettes;
 
 /// <summary>
-/// Samus's colours (#1405): her suit's, which hold her visor's; her beams', which the Crystal Flash and the Hyper Beam
-/// also show; and her grapple flare's. Her effects write them, her draws show them, and they outlive each Samus as the
-/// player does. Her body without the suit shows a sprite colour set, which her death sequence loads as any sprite's
-/// colours are loaded and bosses load for their own sprites.
+/// Samus's colours (#1405): her suit's, which hold her visor's; and her beams', which the Crystal Flash and the Hyper Beam
+/// also show. Her effects write them, her draws show them, and they outlive each Samus as the player does. Two of the
+/// colours she shows are sprite colours others share: her body without the suit shows a whole sprite set, which her death
+/// sequence loads and bosses load for their own sprites, and her grapple flare is the enemy projectiles' set's last colour.
 /// </summary>
 public sealed class SamusColours : IGameplayColourOwner, IInkRowColours
 {
@@ -19,16 +18,16 @@ public sealed class SamusColours : IGameplayColourOwner, IInkRowColours
     /// <summary>The beams' colours.</summary>
     private readonly Bgr555[] beam = new Bgr555[SamusColourDefinitions.RowColours];
 
-    /// <summary>The grapple flare's colour.</summary>
-    private readonly Bgr555[] flare = new Bgr555[1];
-
     /// <summary>For each ink row of Samus's sheets, the colours she holds in it, or null where she holds none.</summary>
     private readonly ColourRun?[] heldByInkRow;
 
-    /// <summary>Lays out which colours each of her sheets' ink rows shows: hers, and <paramref name="suitless"/> for her body without the suit.</summary>
-    /// <param name="suitless">The sprite colour set her body without the suit shows.</param>
-    public SamusColours(ColourRun suitless)
+    /// <summary>Lays out which colours each of her sheets' ink rows shows: hers, and the sprite colours she shares.</summary>
+    /// <param name="spriteSets">Gameplay's sprite colour sets, which hold her suitless body's colours and her grapple flare's.</param>
+    public SamusColours(SpriteColourSets spriteSets)
     {
+        Ensure.NotNull(spriteSets);
+        GrappleFlare = spriteSets.Set(SamusColourDefinitions.FlareSpriteSet).Slice(SamusColourDefinitions.FlareColour, 1);
+        ColourRun suitless = spriteSets.Set(SamusColourDefinitions.SuitlessSpriteSet);
         heldByInkRow = new ColourRun?[SamusColourDefinitions.InkRows];
         heldByInkRow[SamusColourDefinitions.SuitInkRow] = Suit;
         heldByInkRow[SamusColourDefinitions.BeamInkRow] = Beam;
@@ -55,11 +54,11 @@ public sealed class SamusColours : IGameplayColourOwner, IInkRowColours
     /// <summary>The beam colours the Hyper Beam's cycle shows.</summary>
     public ColourRun HyperBeam => Beam.Slice(SamusColourDefinitions.HyperBeamFirstColour, SamusColourDefinitions.HyperBeamColours);
 
-    /// <summary>The grapple flare's colour.</summary>
-    public ColourRun GrappleFlare => new(flare, 0, flare.Length);
+    /// <summary>The grapple flare's colour: the enemy projectiles' sprite set's last colour, which she shares.</summary>
+    public ColourRun GrappleFlare { get; }
 
     /// <inheritdoc />
-    public IReadOnlyList<ColourRun> Stores => [Suit, GrappleFlare, Beam];
+    public IReadOnlyList<ColourRun> Stores => [Suit, Beam];
 
     /// <summary>
     /// <paramref name="draws"/> with Samus's own draws given the colours she shows them in; the others are left to be
@@ -107,13 +106,12 @@ public sealed class SamusColours : IGameplayColourOwner, IInkRowColours
 
     /// <summary>
     /// Where a colour addressed by its gameplay position lies among Samus's, for writers that still address colours by
-    /// position: her suit's, her flare's and her beams' rows.
+    /// position: her suit's and her beams' rows.
     /// </summary>
     private Place? Locate(int position) => position switch
     {
         >= SamusPaletteRomData.Common.SamusObjPaletteStart and < SamusPaletteRomData.Common.SamusObjPaletteStart + SamusColourDefinitions.RowColours
             => new Place(suit, position - SamusPaletteRomData.Common.SamusObjPaletteStart),
-        SamusGrappleRomData.Palettes.FlareColorIndex => new Place(flare, 0),
         >= SamusProjectileRomData.Palettes.BeamDestinationIndex and < SamusProjectileRomData.Palettes.BeamDestinationIndex + SamusColourDefinitions.RowColours
             => new Place(beam, position - SamusProjectileRomData.Palettes.BeamDestinationIndex),
         _ => null,

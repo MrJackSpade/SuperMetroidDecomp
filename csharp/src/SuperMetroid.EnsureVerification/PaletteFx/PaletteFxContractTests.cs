@@ -47,7 +47,7 @@ internal static class PaletteFxContractTests
         // The colors dependency is non-null by contract and the null-forgiving operator is banned (#623), so the
         // compiler rejects a null caller; the first step paints with the supplied colors.
         var sprites = new SuperMetroid.Core.Assets.SpriteColourSets();
-        var samus = new SuperMetroid.Core.Samus.Palettes.SamusColours(sprites.Set(SuperMetroid.Core.Samus.Palettes.SamusColourDefinitions.SuitlessSpriteSet));
+        var samus = new SuperMetroid.Core.Samus.Palettes.SamusColours(sprites);
         var cgram = new SuperMetroid.Core.Assets.GameplayColours(sprites, samus);
         var fxSession = new PaletteFxSessionState();
         var fx = new RoomPaletteFxSystem(fxSession);

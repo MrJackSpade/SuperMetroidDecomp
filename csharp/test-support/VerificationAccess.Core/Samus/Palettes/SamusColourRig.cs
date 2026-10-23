@@ -19,7 +19,7 @@ internal sealed class SamusColourRig : IPaletteColors, IPaletteFxColourOwners
     public SamusColourRig()
     {
         var spriteSets = new SpriteColourSets();
-        Samus = new SamusColours(spriteSets.Set(SamusColourDefinitions.SuitlessSpriteSet));
+        Samus = new SamusColours(spriteSets);
         colours = new GameplayColours(spriteSets, Samus);
     }
 

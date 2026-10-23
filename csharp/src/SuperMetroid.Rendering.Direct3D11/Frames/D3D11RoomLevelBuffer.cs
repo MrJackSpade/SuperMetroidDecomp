@@ -430,7 +430,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
                 Rgba32 colour = sheet.Pixels[pixel];
                 int at = y * width + x;
                 words[PictureHeaderWords + at] = colour.R | (uint)colour.G << 8 | (uint)colour.B << 16 | (uint)colour.A << 24;
-                words[PictureHeaderWords + pixels + at] = sheet.PaletteIndices[pixel] | (uint)sheet.Priorities[pixel] << 8;
+                words[PictureHeaderWords + pixels + at] = (uint)sheet.Inks[pixel].PaletteIndex | (uint)sheet.Inks[pixel].Priority << 8;
             }
         }
     }

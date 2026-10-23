@@ -14,20 +14,11 @@ public sealed class SpriteImage
     /// <summary>The pixels, row by row from the top.</summary>
     private readonly Rgba32[] pixels;
 
-    /// <summary>Each pixel's palette row times sixteen plus its colour; zero where the pixel is transparent.</summary>
-    private readonly byte[] paletteIndices;
+    /// <summary>How each pixel was inked: its palette entry, priority and part row.</summary>
+    private readonly SpriteImageInk[] inks;
 
     /// <summary>The colours the image was coloured with.</summary>
     private readonly Bgr555[] standardColours;
-
-    /// <summary>Each pixel's priority against the backgrounds 0..3, as the part that shows it had it.</summary>
-    private readonly byte[] priorities;
-
-    /// <summary>
-    /// Each pixel's part palette row 0..7, before a draw's palette bits were ORed into it, with
-    /// <see cref="FixedPartRow"/> where the part keeps its own row under a draw's override.
-    /// </summary>
-    private readonly byte[] partRows;
 
     /// <summary>Copies the pixels, palette indices and standard colours of a named image.</summary>
     /// <param name="name">The image's installed name, which names it in diagnostics.</param>
@@ -70,10 +61,10 @@ public sealed class SpriteImage
         Size = size;
         Colours = palette.Half;
         this.pixels = pixels.ToArray();
-        this.paletteIndices = paletteIndices.ToArray();
         this.standardColours = standardColours.ToArray();
-        this.priorities = priorities.ToArray();
-        this.partRows = partRows.ToArray();
+        inks = new SpriteImageInk[pixels.Length];
+        for (int pixel = 0; pixel < inks.Length; pixel++)
+            inks[pixel] = new(paletteIndices[pixel], priorities[pixel], partRows[pixel]);
     }
 
     /// <summary>The standard colours an image coloured as <paramref name="colours"/> keeps: all 256 for a full-palette image.</summary>
@@ -90,7 +81,7 @@ public sealed class SpriteImage
     /// The row a pixel of part row <paramref name="partRow"/> shows under a draw's override: its own row when the part
     /// names it, otherwise its part row with the override ORed in, as the cartridge ORs a draw's palette bits.
     /// </summary>
-    public static int OverriddenRow(byte partRow, int overriding) =>
+    public static int OverriddenRow(int partRow, int overriding) =>
         (partRow & FixedPartRow) != 0 ? partRow & MaximumPaletteRow : partRow | overriding;
 
     /// <summary>The image's installed name.</summary>
@@ -108,17 +99,11 @@ public sealed class SpriteImage
     /// <summary>The pixels, row by row from the top; a pixel with zero alpha is transparent.</summary>
     public ReadOnlySpan<Rgba32> Pixels => pixels;
 
-    /// <summary>Each pixel's palette row times sixteen plus its colour, zero where transparent.</summary>
-    public ReadOnlySpan<byte> PaletteIndices => paletteIndices;
+    /// <summary>How each pixel was inked, row by row from the top: its palette entry, priority and part row.</summary>
+    public ReadOnlySpan<SpriteImageInk> Inks => inks;
 
     /// <summary>The 128 colours of the image's half of CGRAM the pixels were coloured with.</summary>
     public ReadOnlySpan<Bgr555> StandardColours => standardColours;
-
-    /// <summary>Each pixel's priority against the backgrounds 0..3, as the part that shows it had it.</summary>
-    public ReadOnlySpan<byte> Priorities => priorities;
-
-    /// <summary>Each pixel's part palette row, with <see cref="FixedPartRow"/> where the part keeps its own row.</summary>
-    public ReadOnlySpan<byte> PartRows => partRows;
 
     /// <summary>Names the image for debugger watches.</summary>
     public override string ToString() => $"{Name} ({Size.X}x{Size.Y})";

@@ -38,9 +38,9 @@ internal sealed class BgPicturePixels(IPaletteColors cgram)
         SpriteSheetFrame picture = sample.Picture ?? throw new ArgumentException("The sample shows a tile, not a block picture.", nameof(sample));
         SpriteImage sheet = picture.Sheet;
         int pixel = (picture.Corner.Y + sample.PicturePixel.Y) * sheet.Size.X + picture.Corner.X + sample.PicturePixel.X;
-        byte index = sheet.PaletteIndices[pixel];
+        int index = sheet.Inks[pixel].PaletteIndex;
         bool twoBpp = sheet.Colours == SpriteImageColours.TwoBppBackground;
-        bool high = sample.TilePriority ? sample.HighPriority : sheet.Priorities[pixel] != 0;
+        bool high = sample.TilePriority ? sample.HighPriority : sheet.Inks[pixel].Priority != 0;
         if (twoBpp ? index % TwoBppRowColours == 0 : index == 0)
         {
             if (colorZero == ColorZero.Opaque)

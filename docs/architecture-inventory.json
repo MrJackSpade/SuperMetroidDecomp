@@ -11427,6 +11427,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Assets.SpriteImageInk",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/SpriteImageInk.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Assets.SpriteImagePalette",
       "kind": "record",
       "scope": "product",

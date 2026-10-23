@@ -24,11 +24,11 @@ public readonly record struct Bgr555
     /// <summary>Mask for the fifteen CGRAM color bits, excluding the unused high bit.</summary>
     private const ushort ColorBits = (1 << 15) - 1;
 
-    /// <summary>Validated packed SNES color word.</summary>
-    private readonly ushort word;
+    /// <summary>The colour's three five-bit channels, red lowest, as validated.</summary>
+    private readonly ushort channels;
 
     /// <summary>Accepts a previously validated or CGRAM-masked packed word.</summary>
-    private Bgr555(ushort word) => this.word = word;
+    private Bgr555(ushort word) => channels = word;
 
     /// <summary>Packs three channels, each 0-<see cref="MaxChannel"/>.</summary>
     public Bgr555(int red, int green, int blue)
@@ -47,13 +47,13 @@ public readonly record struct Bgr555
     public static Bgr555 White => new(ColorBits);
 
     /// <summary>The red channel, 0-<see cref="MaxChannel"/>.</summary>
-    public int Red => word & MaxChannel;
+    public int Red => channels & MaxChannel;
 
     /// <summary>The green channel, 0-<see cref="MaxChannel"/>.</summary>
-    public int Green => (word >> 5) & MaxChannel;
+    public int Green => (channels >> 5) & MaxChannel;
 
     /// <summary>The blue channel, 0-<see cref="MaxChannel"/>.</summary>
-    public int Blue => (word >> 10) & MaxChannel;
+    public int Blue => (channels >> 10) & MaxChannel;
 
     /// <summary>One channel, 0-<see cref="MaxChannel"/>.</summary>
     public int this[ColorChannel channel] => channel switch
@@ -125,13 +125,13 @@ public readonly record struct Bgr555
     public static Bgr555 FromCgramPortWord(ushort word) => new((ushort)(word & ColorBits));
 
     /// <summary>The packed 15-bit word, for ROM, memory, CGRAM and serialization boundaries.</summary>
-    public ushort ToWord() => word;
+    public ushort ToWord() => channels;
 
     /// <summary>Host RGBA, expanding each five-bit channel to eight bits by bit replication.</summary>
     public Rgba32 ToRgba32() => new(Expand(Red), Expand(Green), Expand(Blue));
 
     /// <inheritdoc />
-    public override string ToString() => $"BGR555(r{Red}, g{Green}, b{Blue}; ${word:X4})";
+    public override string ToString() => $"BGR555(r{Red}, g{Green}, b{Blue}; ${channels:X4})";
 
     /// <summary>Validates and packs three five-bit channels into a SNES color word.</summary>
     private static ushort Pack(int red, int green, int blue)

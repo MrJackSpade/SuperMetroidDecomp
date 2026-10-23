@@ -292,7 +292,7 @@ internal static class ScreenTilePicturesVerification
                 if (fourBpp)
                     colour |= (vram[upper] >> shift & 1) << 2 | (vram[upper + 1] >> shift & 1) << 3;
                 int pixel = (picture.Sheet.Picture.Corner.Y + corner.Y + y) * image.Size.X + picture.Sheet.Picture.Corner.X + corner.X + x;
-                if (image.PaletteIndices[pixel] % (fourBpp ? 16 : 4) != colour)
+                if (image.Inks[pixel].PaletteIndex % (fourBpp ? 16 : 4) != colour)
                     return false;
             }
         }

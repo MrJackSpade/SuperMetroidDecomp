@@ -104,9 +104,7 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         foreach ((SpriteSheetFrame frame, int offset) in imageWords)
         {
             ReadOnlySpan<Rgba32> pixels = frame.Sheet.Pixels;
-            ReadOnlySpan<byte> indices = frame.Sheet.PaletteIndices;
-            ReadOnlySpan<byte> priorities = frame.Sheet.Priorities;
-            ReadOnlySpan<byte> partRows = frame.Sheet.PartRows;
+            ReadOnlySpan<SpriteImageInk> inks = frame.Sheet.Inks;
             bool indexed = recoloured.Contains(frame);
             int target = offset;
             for (int row = 0; row < frame.Size.Y; row++)
@@ -115,14 +113,15 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
                 for (int column = 0; column < frame.Size.X; column++, target++)
                 {
                     Rgba32 pixel = pixels[source + column];
+                    SpriteImageInk ink = inks[source + column];
                     // An index word keeps its priority and part row above the index; a colour word keeps the priority,
                     // plus one, in the alpha byte, whose zero stays transparent, plus four where the pixel's palette
                     // row takes part in colour math.
-                    uint priority = priorities[source + column];
+                    uint priority = (uint)ink.Priority;
                     byte alpha = pixel.A == 0 ? (byte)0
-                        : (byte)(priority + 1 + (indices[source + column] / 16 >= BlendingRow ? BlendingRow : 0));
+                        : (byte)(priority + 1 + (ink.PaletteIndex / 16 >= BlendingRow ? BlendingRow : 0));
                     upload[target] = indexed
-                        ? indices[source + column] | priority << 8 | (uint)partRows[source + column] << PartRowShift
+                        ? (uint)ink.PaletteIndex | priority << 8 | (uint)ink.PartRow << PartRowShift
                         : D3D11ConstantPacking.Bytes(pixel.R, pixel.G, pixel.B, alpha);
                 }
             }

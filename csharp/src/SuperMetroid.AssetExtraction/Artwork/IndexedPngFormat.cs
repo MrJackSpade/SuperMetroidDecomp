@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>PNG indexed-image wire values and bounded asset limits; no cartridge addresses.</summary>
 internal static class IndexedPngFormat

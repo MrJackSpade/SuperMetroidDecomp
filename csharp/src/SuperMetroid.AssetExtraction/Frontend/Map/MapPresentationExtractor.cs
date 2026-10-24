@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;

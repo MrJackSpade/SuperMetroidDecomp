@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Samus.Palettes;

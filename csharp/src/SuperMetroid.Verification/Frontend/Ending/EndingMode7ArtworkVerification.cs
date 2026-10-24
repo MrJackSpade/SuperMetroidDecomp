@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Frontend;
 using System.Text.Json;

@@ -3,7 +3,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO.Compression;
 using System.Text;
 
-namespace SuperMetroid.Core.Assets;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
+
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Indexed PNG asset codec preserving palette indexes instead of matching expanded RGB colors.</summary>
 /// <remarks>

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>PNG filter method zero's mutually exclusive scanline predictors.</summary>
 internal enum PngRowFilter : byte

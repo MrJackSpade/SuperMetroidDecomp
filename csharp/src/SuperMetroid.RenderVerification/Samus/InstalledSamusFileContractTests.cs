@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Tooling;
 using System.Security.Cryptography;
 using System.Text;

@@ -17,7 +17,7 @@ internal static class NativeArtworkAliasContractDefinitions
         new("SuperMetroid.Core.Samus.Artwork.GrappleTileAtlas", "native-GrappleTileAtlas-dma-aliases", ["TryResolve"],
             [new("csharp/src/SuperMetroid.Core/Samus/Artwork/GrappleTileAtlas.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/GrappleBeamTilePatterns.cs"),
-             new("csharp/src/SuperMetroid.Core/Assets/SnesPlanarTileEncoder.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Artwork/SnesPlanarTileEncoder.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/GrappleTileDefinitions.cs")]),
     ];
 }

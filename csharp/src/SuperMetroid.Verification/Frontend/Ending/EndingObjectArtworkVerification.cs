@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.Core.Frontend;

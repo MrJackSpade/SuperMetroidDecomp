@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
-namespace SuperMetroid.Core.Assets;
+
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Development-tool members of <see cref="SnesGraphics"/>; never linked by player hosts.</summary>
 internal static class SnesGraphicsTooling

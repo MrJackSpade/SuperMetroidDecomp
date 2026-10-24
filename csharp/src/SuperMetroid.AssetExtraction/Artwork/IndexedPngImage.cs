@@ -1,4 +1,7 @@
-namespace SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
+
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Decoded source indexes and palette, before any SNES tile encoding or palette assignment.</summary>
 /// <param name="Size">Image width and height in pixels.</param>

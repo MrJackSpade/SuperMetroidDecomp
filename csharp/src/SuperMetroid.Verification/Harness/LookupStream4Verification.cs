@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Samus.Palettes;

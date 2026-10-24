@@ -146,14 +146,13 @@ internal static class LookupStream1Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 world background")]
     private static byte LookupStream1WorldBackgroundRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Checks death atlas source-byte relations, edited page resolution, hashes, and five VRAM uploads.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
+    /// <summary>Checks death atlas source-byte relations, edited explosion characters, hashes, and the explosion's character order.</summary>
     internal static void VerifyLookupStream1DeathPixels(ISnesAddressSpace rom)
     {
-        var pages = SamusSpecialSequenceRomData.Death.TileSegments;
-        int pageBytes = SamusSpecialSequenceRomData.Death.TileSegmentByteCount;
+        // $9B:8000: the explosion's characters, in the order its spritemaps name them.
+        const int explosionCharacters = 0x9b8000;
         byte[] native = Enumerable.Range(0, SamusDeathTileAtlasFormat.TotalByteCount)
-            .Select(index => LookupStream1DeathPixelsRomByte(rom, pages[index / pageBytes].SourceAddress + index % pageBytes)).ToArray();
+            .Select(index => LookupStream1DeathPixelsRomByte(rom, explosionCharacters + SamusDeathTileAtlasFormat.ExplosionByte(index))).ToArray();
         SamusDeathTileAtlas Create(byte[] planar)
         {
             byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, 8, out Extent16<ImagePixels> size);
@@ -165,16 +164,17 @@ internal static class LookupStream1Verification
         Dictionary<int, byte> Stored(SamusDeathTileAtlas art) => art.sourceBytes;
         void Check(SamusDeathTileAtlas art, byte[] expected)
         {
-            for (int page = 0; page < pages.Count; page++)
-            {
-                AssertTrue(art.TryResolve(pages[page].SourceAddress, pageBytes, out var bytes), "Native death page resolved");
-                AssertTrue(bytes.Span.SequenceEqual(expected.AsSpan(page * pageBytes, pageBytes)), "Exact independent death page bytes");
-            }
+            ReadOnlySpan<byte> explosion = art.Explosion.Characters;
+            for (int index = 0; index < expected.Length; index++)
+                AssertEqual(expected[index], explosion[SamusDeathTileAtlasFormat.ExplosionByte(index)], "Exact independent explosion character bytes");
             AssertEqual(SelectedPresentationHash.Create(nameof(SamusDeathTileAtlas),
                 content => content.Append("death characters", expected)), art.ContentIdentity, "Exact pre-conversion death hash");
         }
         var stock = Create(native);
         Check(stock, native);
+        AssertTrue(stock.Explosion.Characters.SequenceEqual(Enumerable.Range(0, SamusDeathTileAtlasFormat.TotalByteCount)
+                .Select(offset => LookupStream1DeathPixelsRomByte(rom, explosionCharacters + offset)).ToArray()),
+            "Stock explosion characters equal the native characters in spritemap order");
         AssertEqual(151 * 32, Stored(stock).Count, "Exact151 source tiles, no stock padding/repetition overrides");
         var edits = new HashSet<int>();
         for (int index = 0; index < native.Length; index++)
@@ -189,18 +189,7 @@ internal static class LookupStream1Verification
             byte[] changed = (byte[])native.Clone(); changed[edit] ^= 255;
             Check(Create(changed), changed);
         }
-        for (int page = 0; page < pages.Count; page++)
-        {
-            var queue = new VramWriteQueue();
-            queue.Enqueue((ushort)pageBytes, pages[page].SourceAddress, pages[page].Destination);
-            var actual = new SnesVram(); var expected = new SnesVram();
-            expected.ExecuteQueuedAssetWrite(native.AsSpan(page * pageBytes, pageBytes).ToArray(), pages[page].Destination.Encoded);
-            queue.DrainTo(actual, new DeathTileAssetProvider(stock), null, BgArtworkFixtures.For(actual));
-            AssertTrue(actual.ImageEquals(expected), "Actual five-page NMI transport matches native");
-        }
-        AssertTrue(!stock.TryResolve(0, pageBytes, out _), "Unknown death source remains unresolved");
-        AssertThrows<InvalidDataException>(() => stock.TryResolve(pages[0].SourceAddress, pageBytes - 1, out _), "Exact death page size required");
-        Console.WriteLine($"Death atlas:5120 native bytes,151 exact source tiles,zero stock relation overrides,{edits.Count} independent source/derived-byte edits,canonical hashes and five actual uploads pass.");
+        Console.WriteLine($"Death atlas:5120 native bytes,151 exact source tiles,zero stock relation overrides,{edits.Count} independent source/derived-byte edits,canonical hashes and explosion character order pass.");
     }
 
     /// <summary>Reads a native Samus death tile byte for exact atlas comparison.</summary>
@@ -1075,7 +1064,7 @@ internal static class LookupStream1Verification
             AssertEqual(native[frame], offset, "Installed native byte including command slots");
             if (frame is 12 or 13 or 17 or 18 or 24 or 25 or 27 or 28 or 30 or 31) continue;
             var samus = new SamusState { Pose = SamusPoseId.DrainedCrouchingLeftPose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
-            samus.Presentation.TileTransfers.BindBodyFixture(stock);
+            samus.Presentation.BodyFrames.BindBodyFixture(stock);
             samus.Presentation.Draw(samus, new SpriteFrameBuffer(), new(0, 0));
             AssertEqual(unchecked((ushort)(128 + native[frame])), samus.Presentation.SpritemapPosition.Y,
                 "Actual drained drawing uses exact signed native correction");
@@ -1146,7 +1135,7 @@ internal static class LookupStream1Verification
             for (ushort frame = 0; frame < count; frame++)
             {
                 var samus = new SamusState { Pose = pose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
-                samus.Presentation.TileTransfers.BindBodyFixture(stock);
+                samus.Presentation.BodyFrames.BindBodyFixture(stock);
                 samus.Presentation.Draw(samus, new SpriteFrameBuffer(), new(0, 0));
                 AssertEqual(unchecked((ushort)(128 + native[((int)pose - 0x35) * 2 + frame])), samus.Presentation.SpritemapPosition.Y,
                     "Actual transition rendering preserves native support correction");
@@ -1227,7 +1216,7 @@ internal static class LookupStream1Verification
                 Pose = (SamusPoseId)(0xa4 + index / 4), AnimationFrame = (ushort)(index % 4),
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             };
-            samus.Presentation.TileTransfers.BindBodyFixture(stock);
+            samus.Presentation.BodyFrames.BindBodyFixture(stock);
             samus.Presentation.Draw(samus, new SpriteFrameBuffer(), layer1: new(0, 0));
             ushort nativeWord = SnesLittleEndian.Word(unchecked((byte)landing[index]), unchecked((byte)landing[index + 1]));
             AssertEqual(unchecked((ushort)(128 - nativeWord)), samus.Presentation.SpritemapPosition.Y, "Actual rendering preserves every bounded native landing word");
@@ -1639,7 +1628,7 @@ internal static class LookupStream1Verification
         })
         {
             var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
-            samus.Presentation.TileTransfers.BindBodyFixture(body);
+            samus.Presentation.BodyFrames.BindBodyFixture(body);
             int direction = LookupStream1FlarePlacementRomByte(rom, 0x91b629 + (int)pose * 8 + 3);
             bool running = pose is SamusPoseId.MovingRightNormalPose or SamusPoseId.MovingLeftNormalPose;
             short x = Word((running ? 0x90c1dc : 0x90c1a8) + direction * 2);
@@ -1942,24 +1931,23 @@ internal static class LookupStream1Verification
         AssertEqual(28, initialFrames.Length, "death retail movement domain");
         for (int movement = 0; movement < initialFrames.Length; movement++)
             AssertEqual(LookupStream1DeathDefinitionsRomByte(rom, 0x9bb420 + movement), initialFrames[movement], "native movement death phase");
-        var segments = SamusSpecialSequenceRomData.Death.TileSegments;
-        AssertEqual(5, segments.Length, "five death graphics transfers");
-        for (int index = 0; index < segments.Length; index++)
+        // The cartridge uploads the explosion as five pages; the atlas keeps them in that upload order.
+        for (int page = 0; page < SamusDeathTileAtlasFormat.SegmentCount; page++)
         {
-            AssertEqual(0x9b0000 | Word(0x9bb7bf + index * 2), segments[index].SourceAddress, "native death transfer source");
-            AssertEqual(Word(0x9bb7c9 + index * 2), segments[index].Destination.Encoded, "native death transfer destination");
+            int explosionPage = SamusDeathTileAtlasFormat.ExplosionPageOfAtlasPage(page);
+            AssertEqual(0x9b8000 + explosionPage * SamusDeathTileAtlasFormat.PageByteCount, 0x9b0000 | Word(0x9bb7bf + page * 2),
+                "native death page source is the atlas page's explosion page");
+            AssertEqual(0x6000 + explosionPage * SamusDeathTileAtlasFormat.PageByteCount / 2, (int)Word(0x9bb7c9 + page * 2),
+                "native death page destination is the atlas page's explosion page");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 28, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => _ = initialFrames[invalid], "death movement exact domain");
         foreach (int invalid in new[] { int.MinValue, -1, 5, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = segments[invalid], "death transfer exact domain");
-        int frameIndex = 0, segmentIndex = 0;
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = SamusDeathTileAtlasFormat.ExplosionPageOfAtlasPage(invalid), "death page exact domain");
+        int frameIndex = 0;
         foreach (byte frame in initialFrames)
             AssertEqual(initialFrames[frameIndex++], frame, "death frame enumeration preserves ordering");
-        foreach (var segment in segments)
-            AssertEqual(segments[segmentIndex++], segment, "death transfer enumeration preserves ordering");
         AssertEqual(initialFrames.Length, frameIndex, "death frame enumerable count");
-        AssertEqual(segments.Length, segmentIndex, "death transfer enumerable count");
     }
 
     /// <summary>Reads native Samus death-sequence selection data.</summary>
@@ -2916,7 +2904,7 @@ internal static class LookupStream1Verification
             for (ushort frame = 0; frame < count; frame++)
             {
                 var samus = new SamusState { Pose = pose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = HudItem.Missile };
-                samus.Presentation.TileTransfers.BindBodyFixture(body);
+                samus.Presentation.BodyFrames.BindBodyFixture(body);
                 var cannon = new SamusArmCannonState { Artwork = stock };
                 cannon.Update(samus); cannon.Update(samus);
                 int pointer = SnesLittleEndian.Word(LookupStream1CannonPlacementRomByte(rom, 0x90c7df + (int)pose * 2), LookupStream1CannonPlacementRomByte(rom, 0x90c7e0 + (int)pose * 2));
@@ -3195,27 +3183,34 @@ internal static class LookupStream1Verification
         int transfers = 0;
         foreach (var selected in new VerifyLookupStream1BodyTransfersCase[] { new VerifyLookupStream1BodyTransfersCase(SamusPoseId.FacingRightNormalPose, 0), new VerifyLookupStream1BodyTransfersCase(SamusPoseId.UnusedPose65, 6), new VerifyLookupStream1BodyTransfersCase(SamusPoseId.UnusedPose65, 7), new VerifyLookupStream1BodyTransfersCase(SamusPoseId.UnusedPose66, 8), new VerifyLookupStream1BodyTransfersCase(SamusPoseId.DeathSequenceLeftPose, 0) })
         {
-            var state = new SamusTileTransferState(); state.BindArtwork(body);
-            state.SelectForPoseFrame(selected.Pose, selected.Phase);
+            var state = new SamusBodyFrameState(); state.BindArtwork(body);
+            state.Select(selected.Pose, selected.Phase);
             int frameAddress = 0x920000 | (Word(0x92d94e + (int)selected.Pose * 2) + selected.Phase * 4);
             int topAddress = 0x920000 | (Word(0x92d91e + LookupStream1BodyTransfersRomByte(rom, frameAddress) * 2) + LookupStream1BodyTransfersRomByte(rom, frameAddress + 1) * 7);
             AssertEqual(topAddress, state.TopDefinitionAddress, "Native physical upper selection including cross-group position");
-            if (LookupStream1BodyTransfersRomByte(rom, frameAddress + 2) != 255)
-                AssertEqual(0x920000 | (Word(0x92d938 + LookupStream1BodyTransfersRomByte(rom, frameAddress + 2) * 2) + LookupStream1BodyTransfersRomByte(rom, frameAddress + 3) * 7),
+            bool namesBottom = LookupStream1BodyTransfersRomByte(rom, frameAddress + 2) != 255;
+            if (namesBottom)
+                AssertEqual((int?)(0x920000 | (Word(0x92d938 + LookupStream1BodyTransfersRomByte(rom, frameAddress + 2) * 2) + LookupStream1BodyTransfersRomByte(rom, frameAddress + 3) * 7)),
                     state.BottomDefinitionAddress, "Native physical lower selection including cross-group position");
-            var actual = new SnesVram(); var expected = new SnesVram();
-            void Copy(int address, int destination)
+            else
+                AssertEqual((int?)null, state.BottomDefinitionAddress, "A first selection naming no lower half shows none");
+            // The shown body characters equal the native split copies: each definition's first part fills a half row
+            // (top from character 0, bottom from character 8) and its second part the half row a full row below.
+            var expected = new byte[SamusBodyArtworkCatalog.BodyCharacterCount * SpriteArtwork.CharacterByteCount];
+            void Copy(int address, int firstCharacter)
             {
                 int source = (int)new SnesAddress(LookupStream1BodyTransfersRomByte(rom, address + 2), Word(address));
                 int first = Word(address + 3), second = Word(address + 5);
-                expected.LoadBytes(destination * 2, Enumerable.Range(0, first).Select(index => LookupStream1BodyTransfersRomByte(rom, source + index)).ToArray());
-                expected.LoadBytes((destination + 0x100) * 2, Enumerable.Range(0, second).Select(index => LookupStream1BodyTransfersRomByte(rom, source + first + index)).ToArray());
+                for (int index = 0; index < first; index++)
+                    expected[firstCharacter * SpriteArtwork.CharacterByteCount + index] = LookupStream1BodyTransfersRomByte(rom, source + index);
+                for (int index = 0; index < second; index++)
+                    expected[(firstCharacter + SpriteArtwork.CharactersPerRow) * SpriteArtwork.CharacterByteCount + index] =
+                        LookupStream1BodyTransfersRomByte(rom, source + first + index);
             }
-            Copy(state.TopDefinitionAddress, 0x6000);
-            if (state.BottomTransferEnabled) Copy(state.BottomDefinitionAddress, 0x6080);
-            state.TransferToVram(actual);
-            AssertTrue(expected.ImageEquals(actual), "Actual complete native split DMA and physical cross-group aliases");
-            AssertTrue(state.TopTransferEnabled, "Native NMI preserves transfer flags");
+            Copy(state.TopDefinitionAddress, 0);
+            if (state.BottomDefinitionAddress is int bottomAddress) Copy(bottomAddress, SpriteArtwork.CharactersPerRow / 2);
+            AssertTrue(body.BodyArtwork(state.Shown.Top, state.Shown.Bottom).Characters.SequenceEqual(expected),
+                "Shown body pictures match the native split copies and physical cross-group aliases");
             transfers++;
         }
         Console.WriteLine($"Body transfers:{records} direct native records,zero stock metadata overrides,independent metadata/empty-OAM edits,canonical hash and{transfers} actual split DMA/cross-group selections pass.");

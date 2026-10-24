@@ -121,8 +121,8 @@ internal sealed class InstalledSamusIsolationTests
             Samus = new() { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 363)),
                 EquippedItems = equipment, Health = 99, MaxHealth = 299,
                 Presentation = { SuitColors = Suits, FullBodyCycleColors = Cycles } };
-            Samus.Presentation.TileTransfers.BindBodyFixture(Body);
-            Samus.Presentation.TileTransfers.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
+            Samus.Presentation.BodyFrames.BindBodyFixture(Body);
+            Samus.Presentation.BodyFrames.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
             Samus.ArmCannon.Artwork = Body.ArmCannon;
             SamusPoseMetadata.RefreshCollisionRadii(Samus);
             Samus.Position = Samus.Position.WithWholeY((ushort)(FloorY - Samus.Kinematics.Radius.Y));
@@ -203,8 +203,8 @@ internal sealed class InstalledSamusIsolationTests
             bool visible = Stock.Samus.Presentation.Draw(Stock.Samus, aFrame, new(cameraX, cameraY), frame);
             Require(visible == Edited.Samus.Presentation.Draw(Edited.Samus, bFrame, new(cameraX, cameraY), frame),
                 context + ": visibility changed");
-            Stock.Samus.Presentation.TileTransfers.TransferToVram(Stock.Tiles);
-            Edited.Samus.Presentation.TileTransfers.TransferToVram(Edited.Tiles);
+            Stock.Samus.Presentation.BodyFrames.LoadShownInto(Stock.Tiles);
+            Edited.Samus.Presentation.BodyFrames.LoadShownInto(Edited.Tiles);
             beforeStock.RequireSame(new(Stock.Samus), context + ": stock draw mutated mechanics");
             beforeEdited.RequireSame(new(Edited.Samus), context + ": edited draw mutated mechanics");
             Check(context + " after draw");

@@ -19,7 +19,6 @@ internal static class VramDmaProducerContracts
             "SuperMetroid.Core.Enemies.Gunship.GunshipBehavior.QueueGunshipTakeoffTiles" => "gunship",
             "SuperMetroid.Core.Fx.RoomFxAnimatedTilesState.Step" => "fx",
             "SuperMetroid.Core.Samus.Drawing.SamusArmCannonState.Draw" => "arm",
-            "SuperMetroid.Core.Samus.Death.SamusDeathSequenceState.QueueSegment" => "death",
             "SuperMetroid.Core.Samus.Grapple.SamusGrappleMovement.DrawConnectedBeam" => "grapple-native",
             "SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.QueueBeamTilesAndLoadPalette" => "beam",
             "SuperMetroid.Core.World.TourianStatueSequence.StepTiles" => "statues",

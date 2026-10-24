@@ -7,7 +7,7 @@ public enum SamusDeathSequencePhase
     Inactive,
     /// <summary>Game state $16 advances the fatal pose for sixteen calls before flashing.</summary>
     PreFlashing,
-    /// <summary>Game state $17 alternates death palettes and queues the five graphics segments.</summary>
+    /// <summary>Game state $17 alternates death palettes before the suit explodes.</summary>
     Flashing,
     /// <summary>Game state $18 advances explosion spritemaps, palettes, and room whiteout.</summary>
     SuitExplosion,

@@ -66,10 +66,10 @@ internal sealed class SamusMechanicsSnapshot
         {
             // Host-bound catalogs are not simulation state. The only mutable
             // exceptions are body draw outputs: OAM selectors/origin, the definition
-            // records shown and pending split DMA. Animation/frame timers, radii, pose/history and all
+            // records shown and the body frame state. Animation/frame timers, radii, pose/history and all
             // movement/special-sequence children remain compared, including private fields.
             if (field.IsDefined(typeof(NonSerializedAttribute)) ||
-                field.FieldType == typeof(SamusTileTransferState) ||
+                field.FieldType == typeof(SamusBodyFrameState) ||
                 (owner == typeof(SamusPresentation) && field.Name is
                     "<TopSpritemapIndex>k__BackingField" or
                     "<BottomSpritemapIndex>k__BackingField" or

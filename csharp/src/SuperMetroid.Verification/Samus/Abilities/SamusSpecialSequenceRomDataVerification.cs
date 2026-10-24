@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Movement.SamusMovementRomDataVerification;
 using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Verification.Samus.Abilities;
 
@@ -20,9 +19,6 @@ internal static class SamusSpecialSequenceRomDataVerification
         AssertEqual(28, initialDeathFrames.Length,
             "death initial-frame table covers every retail movement type");
 
-        var deathSegments =
-            SamusSpecialSequenceRomData.Death.TileSegments;
-        AssertEqual(5, deathSegments.Length, "death sequence has five tile segments");
         AssertEqual(
             SamusSpecialSequenceRomData.PowerBomb.FirstYellowShape,
             SamusSpecialSequenceRomData.PowerBomb.WhiteShapeEnd,
@@ -46,12 +42,6 @@ internal static class SamusSpecialSequenceRomDataVerification
         }
 
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        foreach (SamusDeathTileSegment segment in deathSegments)
-        {
-            TouchRange(bus, segment.SourceAddress,
-                SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
-                $"death tile segment ${segment.SourceAddress:X6}");
-        }
         TouchRange(bus, SamusSpecialSequenceRomData.SuitPickup.BeamCurve,
             SamusSpecialSequenceRomData.SuitPickup.WindowScanlineCount / 2,
             "suit-pickup symmetric beam curve");

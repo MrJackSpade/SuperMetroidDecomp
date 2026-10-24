@@ -17,7 +17,7 @@ internal static class SamusBodyTransferClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseProjectileOriginDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyDefinitionLayout.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Drawing/SamusRenderingRomData.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Drawing/SamusTileTransferState.cs"),
+             new("csharp/src/SuperMetroid.Core/Samus/Drawing/SamusBodyFrameState.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyTransferDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusArmCannonPlacementDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusSpritemapArtworkCatalog.cs"),

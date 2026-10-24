@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -50,14 +49,14 @@ internal static class SamusBodySheetComposer
     {
         SamusSpritemapArtworkCatalog spritemaps = body.Spritemaps;
         int?[] inheritedBottoms = [null, .. Selections(body)
-            .Where(entry => entry.Selection.BottomSet != SamusRenderingRomData.TileTransfers.NoBottomTransferSet)
+            .Where(entry => entry.Selection.NamesBottom)
             .Select(entry => (int?)body.DefinitionRecord(SamusBodyHalf.Bottom, entry.Selection.BottomSet, entry.Selection.BottomPosition))
             .Distinct()];
         var names = new HashSet<string>(StringComparer.Ordinal);
         foreach ((SamusPoseId pose, int animationFrame, SamusBodyFrameSelection selection) in Selections(body))
         {
             int top = body.DefinitionRecord(SamusBodyHalf.Top, selection.TopSet, selection.TopPosition);
-            int?[] bottoms = selection.BottomSet == SamusRenderingRomData.TileTransfers.NoBottomTransferSet ? inheritedBottoms
+            int?[] bottoms = !selection.NamesBottom ? inheritedBottoms
                 : [body.DefinitionRecord(SamusBodyHalf.Bottom, selection.BottomSet, selection.BottomPosition)];
             foreach (int index in new[] { spritemaps.TopBase(pose) + animationFrame, spritemaps.BottomBase(pose) + animationFrame })
             {

@@ -186,9 +186,9 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         _player.Samus.Presentation.FullBodyCycleColors = MapPresentation?.SamusFullBodyCycleColors;
         _player.Samus.Presentation.ChargeColors = MapPresentation?.SamusChargeColors;
         // All Samus constructors call this rebind before priming the first visual DMA.
-        _player.Samus.Presentation.TileTransfers.BindArtwork(SamusBodyArt);
-        _player.Samus.Presentation.TileTransfers.BindStandardObjects(StandardObjects);
-        _player.Samus.Presentation.TileTransfers.BindSheets(SpriteSheets);
+        _player.Samus.Presentation.BodyFrames.BindArtwork(SamusBodyArt);
+        _player.Samus.Presentation.BodyFrames.BindStandardObjects(StandardObjects);
+        _player.Samus.Presentation.BodyFrames.BindSheets(SpriteSheets);
         _player.Samus.ArmCannon.Artwork = SamusBodyArt?.ArmCannon;
     }
 
@@ -220,8 +220,6 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         if (BeamArtwork?.TryResolve(sourceAddress, byteCount, out data) == true)
             return true;
         if (GrappleArtwork?.TryResolve(sourceAddress, byteCount, out data) == true)
-            return true;
-        if (SamusBodyArt?.DeathTiles.TryResolve(sourceAddress, byteCount, out data) == true)
             return true;
         if (SamusBodyArt?.ArmCannon.TryResolveTile(sourceAddress, byteCount, out data) == true)
             return true;
@@ -258,7 +256,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
             field = value;
             StandardObjects = value is null ? null
                 : ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.StandardObjects), value.Transfer.Span);
-            _player.Samus?.Presentation.TileTransfers.BindStandardObjects(StandardObjects);
+            _player.Samus?.Presentation.BodyFrames.BindStandardObjects(StandardObjects);
             BindProjectileObjects();
         }
     }
@@ -336,7 +334,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         {
             field = value;
             ProjectileSheets = value is null ? null : SuperMetroid.Core.Samus.Artwork.ProjectileSheets.Gameplay(value);
-            _player.Samus?.Presentation.TileTransfers.BindSheets(value);
+            _player.Samus?.Presentation.BodyFrames.BindSheets(value);
         }
     }
 
@@ -450,7 +448,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         set
         {
             field = value;
-            _player.Samus?.Presentation.TileTransfers.BindArtwork(value);
+            _player.Samus?.Presentation.BodyFrames.BindArtwork(value);
             if (_player.Samus is not null) _player.Samus.ArmCannon.Artwork = value?.ArmCannon;
         }
     }

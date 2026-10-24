@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
@@ -12,55 +11,21 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </remarks>
 public static class SamusSpecialSequenceRomData
 {
-    /// <summary>Fatal-damage graphics transfers and state boundaries.</summary>
+    /// <summary>Fatal-damage pose entry and state boundaries.</summary>
     public static class Death
     {
         /// <summary>Sixteen calls display the ordinary death pose before flashing.</summary>
         public const ushort PreFlashFrameCount = 16;
         /// <summary>Sixty calls alternate palettes before the suit explodes.</summary>
         public const ushort FlashFrameCount = 60;
-        /// <summary>Bytes copied by each of the five death graphics transfers.</summary>
-        public const int TileSegmentByteCount = 0x0400;
         /// <summary>Right-facing base index in Samus's death-explosion spritemap table.</summary>
         public const ushort RightExplosionSpritemap = 0x081c;
         /// <summary>Left-facing base index in Samus's death-explosion spritemap table.</summary>
         public const ushort LeftExplosionSpritemap = 0x0825;
 
-        /// <summary>$9B:B7BF/B7C9: cyclic $400-byte source pages and matching $200-word VRAM destinations.</summary>
-        public static TileSegmentSequence TileSegments => default;
         /// <summary>$9B:B420: ball, unused glitch-ball and ordinary movement select their death pose phase.</summary>
         public static InitialFrameSequence InitialFramesByMovementType => default;
 
-        /// <summary>Allocation-free view of the five $9B:B7BF/B7C9 death-artwork transfers in native queue order, with the first physical graphics page deliberately uploaded last.</summary>
-        public readonly struct TileSegmentSequence : IReadOnlyList<SamusDeathTileSegment>
-        {
-            /// <summary>Five native DMA source/destination pairs, each transferring $0400 bytes.</summary>
-            public int Count => 5;
-            /// <summary>Transfer-pair count, equivalent to <see cref="Count"/>, for array-style segment traversal.</summary>
-            public int Length => Count;
-            /// <summary>Returns the source and destination of one authored death-artwork upload without reordering its native schedule.</summary>
-            /// <param name="index">Zero-based queue-order segment index 0..4, selecting physical pages 1, 2, 3, 4, then 0.</param>
-            /// <returns>Bank-$9B source address and matching VRAM word destination for the selected $0400-byte transfer.</returns>
-            /// <exception cref="ArgumentOutOfRangeException">The segment index is outside 0..4.</exception>
-            public SamusDeathTileSegment this[int index]
-            {
-                get
-                {
-                    if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-                    int segment = (index + 1) % Count;
-                    return new(TileSourceBase + segment * TileSegmentByteCount,
-                        GameplayVram.ObjectCharactersDma(segment * (TileSegmentByteCount / 2)));
-                }
-            }
-            /// <summary>Enumerates all five death-artwork transfers in their original queue order.</summary>
-            /// <returns>An enumerator yielding physical graphics pages 1, 2, 3, 4, then 0 with their paired destinations.</returns>
-            public IEnumerator<SamusDeathTileSegment> GetEnumerator()
-            {
-                for (int index = 0; index < Count; index++) yield return this[index];
-            }
-            /// <summary>Exposes the native queue-order death-artwork transfers to non-generic enumeration.</summary>
-            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-        }
         /// <summary>Allocation-free view of $9B:B420's initial death-animation index selected by the movement type in effect before fatal-damage pose setup.</summary>
         public readonly struct InitialFrameSequence : IReadOnlyList<byte>
         {
@@ -104,8 +69,6 @@ public static class SamusSpecialSequenceRomData
             /// <summary>Exposes movement-type death-frame selection to non-generic enumeration.</summary>
             System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
         }
-        /// <summary>$9B:8000: first of five consecutive death-artwork pages, queued last by $9B:B7BF.</summary>
-        private const int TileSourceBase = 0x9b8000;
     }
     /// <summary>Varia/Gravity pickup HDMA curve and native 8.8 geometry.</summary>
     public static class SuitPickup

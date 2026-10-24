@@ -7,7 +7,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
@@ -217,33 +216,11 @@ internal static class SamusBodyArtworkVerification
         AssertTrue(nativeDeathOam.LastFinalizedSpriteCount > 0 &&
             nativeDeathOam.ImageEquals(installedDeathOam),
             "death explosion uses installed Samus OAM art with native parity");
-        foreach (SamusDeathTileSegment segment in SamusSpecialSequenceRomData.Death.TileSegments)
-        {
-            AssertTrue(stock.DeathTiles.TryResolve(segment.SourceAddress,
-                SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
-                out ReadOnlyMemory<byte> installedSegment),
-                $"death tile segment ${segment.SourceAddress:X6} is installed");
-            for (int offset = 0; offset < installedSegment.Length; offset++)
-                AssertEqual(bus.ReadCartridgeByte(segment.SourceAddress + offset), installedSegment.Span[offset],
-                    $"death tile segment ${segment.SourceAddress:X6} byte {offset:X3}");
-            var installedQueue = new VramWriteQueue();
-            installedQueue.Enqueue(SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
-                segment.SourceAddress, segment.Destination);
-            var nativeDeathVram = new SnesVram();
-            var installedDeathVram = new SnesVram();
-            nativeDeathVram.ExecuteQueuedAssetWrite(
-                Enumerable.Range(0, SamusSpecialSequenceRomData.Death.TileSegmentByteCount)
-                    .Select(offset => bus.ReadCartridgeByte(segment.SourceAddress + offset)).ToArray(),
-                segment.Destination.Encoded);
-            installedQueue.DrainTo(installedDeathVram, new DeathTileAssetProvider(stock.DeathTiles), null, BgArtworkFixtures.For(installedDeathVram));
-            AssertTrue(nativeDeathVram.ImageEquals(installedDeathVram),
-                $"death tile segment ${segment.SourceAddress:X6} NMI transfer parity");
-            int firstCharacter = (segment.Destination.Encoded - GameplayVramLayout.ObjectCharacters.Offset) /
-                (SpriteArtwork.CharacterByteCount / sizeof(ushort));
-            AssertTrue(stock.DeathTiles.Explosion.Characters.Slice(firstCharacter * SpriteArtwork.CharacterByteCount,
-                    SamusSpecialSequenceRomData.Death.TileSegmentByteCount).SequenceEqual(installedSegment.Span),
-                $"death tile segment ${segment.SourceAddress:X6} sits at its native characters in the explosion artwork");
-        }
+        // $9B:8000: the explosion's characters, in the order its spritemaps name them.
+        ReadOnlySpan<byte> deathCharacters = stock.DeathTiles.Explosion.Characters;
+        for (int offset = 0; offset < deathCharacters.Length; offset++)
+            AssertEqual(bus.ReadCartridgeByte(0x9b8000 + offset), deathCharacters[offset],
+                $"death explosion character byte {offset:X4} is the native character byte");
         for (int suit = 0; suit < SamusDeathPaletteArtworkCatalog.SuitCount; suit++)
         for (int palette = 0; palette < SamusPaletteRomData.Death.PaletteCount; palette++)
         {
@@ -321,22 +298,15 @@ internal static class SamusBodyArtworkVerification
         }
         for (int pose = 0; pose < SamusBodyArtworkCatalog.PoseCount; pose++)
         {
-            var nativeTransfer = new SamusTileTransferState();
-            var installedTransfer = new SamusTileTransferState();
-            nativeTransfer.BindArtwork(stock);
-            installedTransfer.BindArtwork(stock);
-            nativeTransfer.SelectForPoseFrame((SamusPoseId)pose, 0);
-            installedTransfer.SelectForPoseFrame((SamusPoseId)pose, 0);
-            AssertEqual(nativeTransfer.TopDefinitionAddress, installedTransfer.TopDefinitionAddress,
-                $"Samus pose {pose:X2} upper transfer pointer");
-            AssertEqual(nativeTransfer.BottomDefinitionAddress, installedTransfer.BottomDefinitionAddress,
-                $"Samus pose {pose:X2} lower transfer pointer");
-            var nativeVram = new SnesVram();
-            var installedVram = new SnesVram();
-            nativeTransfer.TransferToVram(nativeVram);
-            installedTransfer.TransferToVram(installedVram);
-            AssertTrue(nativeVram.ImageEquals(installedVram),
-                $"Samus pose {pose:X2} complete split VRAM transfer parity");
+            var frames = new SamusBodyFrameState();
+            frames.BindArtwork(stock);
+            frames.Select((SamusPoseId)pose, 0);
+            SamusBodyFrameSelection selection = stock.Frame((SamusPoseId)pose, 0);
+            AssertEqual(stock.DefinitionRecord(SamusBodyHalf.Top, selection.TopSet, selection.TopPosition),
+                frames.Shown.Top ?? -1, $"Samus pose {pose:X2} shows its frame-zero top definition");
+            AssertEqual(selection.NamesBottom
+                    ? stock.DefinitionRecord(SamusBodyHalf.Bottom, selection.BottomSet, selection.BottomPosition) : (int?)null,
+                frames.Shown.Bottom, $"Samus pose {pose:X2} shows its frame-zero bottom definition, or none before any is named");
         }
 
         // An override changes pixels and selector data without changing animation timing.
@@ -451,8 +421,8 @@ internal static class SamusBodyArtworkVerification
         {
             Pose = originalArmSamus.Pose, Position = FixedPosition<RoomPixels>.FromWhole(originalArmSamus.Position.Whole), SelectedHudItem = originalArmSamus.SelectedHudItem,
         };
-        originalArmSamus.Presentation.TileTransfers.BindBodyFixture(stock);
-        editedArmSamus.Presentation.TileTransfers.BindBodyFixture(replacement);
+        originalArmSamus.Presentation.BodyFrames.BindBodyFixture(stock);
+        editedArmSamus.Presentation.BodyFrames.BindBodyFixture(replacement);
         originalArmSamus.ArmCannon.Artwork = stock.ArmCannon;
         editedArmSamus.ArmCannon.Artwork = replacement.ArmCannon;
         for (int frame = 0; frame < 4; frame++)
@@ -531,19 +501,8 @@ internal static class SamusBodyArtworkVerification
         AssertEqual((ushort)(originalDeathColor + 1),
             editedDeathColors.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart],
             "edited death suit color reaches the production CGRAM write");
-        SamusDeathTileSegment firstDeathSegment = SamusSpecialSequenceRomData.Death.TileSegments[0];
-        var stockDeathTransfer = new VramWriteQueue();
-        var editedDeathTransfer = new VramWriteQueue();
-        stockDeathTransfer.Enqueue(SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
-            firstDeathSegment.SourceAddress, firstDeathSegment.Destination);
-        editedDeathTransfer.Enqueue(SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
-            firstDeathSegment.SourceAddress, firstDeathSegment.Destination);
-        var stockDeathTilesVram = new SnesVram();
-        var editedDeathTilesVram = new SnesVram();
-        stockDeathTransfer.DrainTo(stockDeathTilesVram, new DeathTileAssetProvider(stock.DeathTiles), null, BgArtworkFixtures.For(stockDeathTilesVram));
-        editedDeathTransfer.DrainTo(editedDeathTilesVram, new DeathTileAssetProvider(replacement.DeathTiles), null, BgArtworkFixtures.For(editedDeathTilesVram));
-        AssertTrue(!stockDeathTilesVram.ImageEquals(editedDeathTilesVram),
-            "edited death explosion PNG reaches the queued production VRAM transfer");
+        AssertTrue(!stock.DeathTiles.Explosion.Characters.SequenceEqual(replacement.DeathTiles.Explosion.Characters),
+            "edited death explosion PNG reaches the explosion characters its sheet is composed from");
         OamBuffer stockDeathOam = SpriteFrameBuffer.DrawnOam(frame =>
             deathSamus.DeathSequence.DrawExplosion(frame, SamusBodySheetFixtures.For(stock)));
         OamBuffer editedDeathOam = SpriteFrameBuffer.DrawnOam(frame =>
@@ -559,20 +518,20 @@ internal static class SamusBodyArtworkVerification
         {
             Pose = SamusPoseId.NormalLandingRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         };
-        stockLandingSamus.Presentation.TileTransfers.BindBodyFixture(stock);
-        editedLandingSamus.Presentation.TileTransfers.BindBodyFixture(replacement);
+        stockLandingSamus.Presentation.BodyFrames.BindBodyFixture(stock);
+        editedLandingSamus.Presentation.BodyFrames.BindBodyFixture(replacement);
         stockLandingSamus.Presentation.Draw(stockLandingSamus, new SpriteFrameBuffer(), layer1: new(0, 0));
         editedLandingSamus.Presentation.Draw(editedLandingSamus, new SpriteFrameBuffer(), layer1: new(0, 0));
         AssertEqual(unchecked((ushort)(stockLandingSamus.Presentation.SpritemapPosition.Y - 1)),
             editedLandingSamus.Presentation.SpritemapPosition.Y,
             "edited landing visual offset changes production OAM origin without a ROM read");
         var editedSamus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose };
-        editedSamus.Presentation.TileTransfers.BindBodyFixture(replacement);
+        editedSamus.Presentation.BodyFrames.BindBodyFixture(replacement);
         AssertEqual((sbyte)(originalYOffset + 1),
             SamusPoseMetadata.ReadGraphicsYOffset(editedSamus),
             "edited Samus visual Y offset is used without a cartridge read");
         var stockSamus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
-        stockSamus.Presentation.TileTransfers.BindBodyFixture(stock);
+        stockSamus.Presentation.BodyFrames.BindBodyFixture(stock);
         editedSamus.Position = editedSamus.Position.WithWhole(stockSamus.Position.Whole);
         stockSamus.Presentation.Draw(stockSamus, new SpriteFrameBuffer(), layer1: new(0, 0));
         editedSamus.Presentation.Draw(editedSamus, new SpriteFrameBuffer(), layer1: new(0, 0));
@@ -582,26 +541,23 @@ internal static class SamusBodyArtworkVerification
         AssertEqual(unchecked((byte)originalYOffset),
             SamusPoseProjectileOriginDefinitions.ReadYOffset(SamusPoseId.FacingRightNormalPose),
             "editing Samus art never changes the compiled projectile collision correction");
-        var originalSelector = new SamusTileTransferState();
-        var editedSelector = new SamusTileTransferState();
+        var originalSelector = new SamusBodyFrameState();
+        var editedSelector = new SamusBodyFrameState();
         originalSelector.BindArtwork(stock);
         editedSelector.BindArtwork(replacement);
-        originalSelector.SelectForPoseFrame(pose: SamusPoseId.FacingRightNormalPose, animationFrame: 0);
-        editedSelector.SelectForPoseFrame(pose: SamusPoseId.FacingRightNormalPose, animationFrame: 0);
+        originalSelector.Select(pose: SamusPoseId.FacingRightNormalPose, animationFrame: 0);
+        editedSelector.Select(pose: SamusPoseId.FacingRightNormalPose, animationFrame: 0);
         AssertTrue(originalSelector.TopDefinitionAddress != editedSelector.TopDefinitionAddress,
             "edited Samus body JSON changes the production pose-$01 frame selector");
-        var stockTransfer = new SamusTileTransferState();
-        var editedTransfer = new SamusTileTransferState();
-        stockTransfer.BindArtwork(stock);
-        editedTransfer.BindArtwork(replacement);
-        stockTransfer.SelectForPoseFrame(pose: SamusPoseId.MovingRightNormalPose, animationFrame: 0);
-        editedTransfer.SelectForPoseFrame(pose: SamusPoseId.MovingRightNormalPose, animationFrame: 0);
-        var stockPixels = new SnesVram();
-        var editedPixels = new SnesVram();
-        stockTransfer.TransferToVram(stockPixels);
-        editedTransfer.TransferToVram(editedPixels);
-        AssertTrue(!stockPixels.ImageEquals(editedPixels),
-            "edited Samus body PNG changes the production VRAM transfer for pose $09");
+        var stockFrames = new SamusBodyFrameState();
+        var editedFrames = new SamusBodyFrameState();
+        stockFrames.BindArtwork(stock);
+        editedFrames.BindArtwork(replacement);
+        stockFrames.Select(pose: SamusPoseId.MovingRightNormalPose, animationFrame: 0);
+        editedFrames.Select(pose: SamusPoseId.MovingRightNormalPose, animationFrame: 0);
+        AssertTrue(!stock.BodyArtwork(stockFrames.Shown.Top, stockFrames.Shown.Bottom).Characters.SequenceEqual(
+                replacement.BodyArtwork(editedFrames.Shown.Top, editedFrames.Shown.Bottom).Characters),
+            "edited Samus body PNG changes the picture production shows for pose $09");
         document.Required("topSetStarts")[0] = 1;
         File.WriteAllText(selectedManifest, document.ToJsonString());
         AssertThrows<InvalidDataException>(() => installation.LoadSamusBodyArt(),
@@ -686,8 +642,8 @@ internal static class SamusBodyArtworkVerification
         };
         // The imported bytes above are the independent stock oracle. Both runtime
         // owners must now receive the installed catalog; no ROM fallback remains.
-        nativeSamus.Presentation.TileTransfers.BindBodyFixture(body);
-        installedSamus.Presentation.TileTransfers.BindBodyFixture(body);
+        nativeSamus.Presentation.BodyFrames.BindBodyFixture(body);
+        installedSamus.Presentation.BodyFrames.BindBodyFixture(body);
         nativeSamus.BindArmCannonFixture(armCannon);
         installedSamus.BindArmCannonFixture(armCannon);
         for (int frame = 0; frame < 4; frame++)
@@ -728,18 +684,5 @@ internal static class SamusBodyArtworkVerification
                 CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(SnesAddressMath.AddWithinBank(partAddress, 3)), origin);
             partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);
         }
-    }
-
-    /// <summary>Supplies installed death-animation tiles to the fixture's VRAM transfer path.</summary>
-    internal sealed class DeathTileAssetProvider(SamusDeathTileAtlas tiles) :
-        IVramAssetProvider, IInstalledArtworkTransferSource
-    {
-        /// <summary>Finds a death tile span by its native source address and transfer size.</summary>
-        public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data) =>
-            tiles.TryResolve(sourceAddress, byteCount, out data);
-
-        /// <summary>Rejects typed assets because this fixture queues only native-address death tiles.</summary>
-        public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
-            throw new InvalidOperationException($"Death-tile fixture did not queue typed asset {asset}.");
     }
 }

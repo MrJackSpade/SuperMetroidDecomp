@@ -271,7 +271,7 @@ public sealed class SamusBodyArtworkCatalog
             throw new InvalidDataException($"Samus frame {index} is outside extracted visual selectors.");
         SamusBodyFrameSelection frame = FrameAt(index);
         GetDefinition(true, frame.TopSet, frame.TopPosition);
-        if (frame.BottomSet != SamusRenderingRomData.TileTransfers.NoBottomTransferSet)
+        if (frame.NamesBottom)
             GetDefinition(false, frame.BottomSet, frame.BottomPosition);
         return frame;
     }
@@ -310,7 +310,7 @@ public sealed class SamusBodyArtworkCatalog
             return false;
         frame = FrameAt(index);
         return HasDefinition(SamusBodyHalf.Top, frame.TopSet, frame.TopPosition) &&
-            (frame.BottomSet == SamusRenderingRomData.TileTransfers.NoBottomTransferSet || HasDefinition(SamusBodyHalf.Bottom, frame.BottomSet, frame.BottomPosition));
+            (!frame.NamesBottom || HasDefinition(SamusBodyHalf.Bottom, frame.BottomSet, frame.BottomPosition));
     }
 
     /// <summary>Whether a native set and position resolve to an installed definition.</summary>

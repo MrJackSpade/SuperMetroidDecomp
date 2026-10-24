@@ -238,7 +238,7 @@ internal static class ProjectileCompositionsVerification
         AssertTrue(restoredRuntime.Artwork.SpriteSheets is null, "Restored runtime requires external sheet rebind");
         roomAssets.Bind(restoredRuntime);
         restoredRuntime.Artwork.MapPresentation = maps;
-        restoredRuntime.Player.IntroducedSamus.Presentation.TileTransfers.BindBodyFixture(roomAssets.SamusBody);
+        restoredRuntime.Player.IntroducedSamus.Presentation.BodyFrames.BindBodyFixture(roomAssets.SamusBody);
         restoredRuntime.Player.IntroducedSamus.ArmCannon.Artwork = roomAssets.SamusBody.ArmCannon;
         restored.BindArtwork(restored.Artwork with { SpriteSheets = sheets });
         AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Restored graph draws the bound sheets after rebind");

@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
@@ -30,8 +29,6 @@ internal static class VramDmaOwnership
         if (GrappleTileDefinitions.Transfers.Any(frame => frame.SourceAddress == source && frame.ByteCount == count)) return true;
         if (source == GameplayHudDefinitions.TopRowAddress && count == GameplayHudDefinitions.TopRowByteCount) return true;
         if (source == StandardObjectArtworkAddresses.Source && count == StandardObjectArtworkFormat.TransferByteCount) return true;
-        if (SamusSpecialSequenceRomData.Death.TileSegments.Any(segment => segment.SourceAddress == source &&
-                count == SamusSpecialSequenceRomData.Death.TileSegmentByteCount)) return true;
         if ((SnesAddressMath.BankBase(source)) == SamusRenderingRomData.Banks.CharacterData &&
             SamusArmCannonArtworkFormat.CoverTileDmaSources.IndexOf((ushort)source) >= 0 &&
             count == SamusRenderingRomData.ArmCannon.TileUploadByteCount) return true;

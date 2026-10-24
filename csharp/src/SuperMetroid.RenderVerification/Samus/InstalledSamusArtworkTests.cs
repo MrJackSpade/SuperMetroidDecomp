@@ -2,7 +2,6 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -30,7 +29,7 @@ internal static class InstalledSamusArtworkTests
         int queued = CheckQueuedTransfers(fixture, check);
         Require(check.ChangedPixels > 0, "The artwork acceptance run changed no visible pixels.");
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {fixture.EditedPngCount} actual PNG overrides; " +
-            $"{transfers} split body transfers, {poses} pose draws, {queued} cannon/death uploads; " +
+            $"{transfers} body definitions, {poses} pose draws, {queued} cannon uploads; " +
             $"{check.Comparisons} exact software/GPU comparisons, {check.ChangedPixels} recolored pixels.");
     }
 
@@ -43,18 +42,18 @@ internal static class InstalledSamusArtworkTests
             var stock = new SamusState { Pose = (SamusPoseId)pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), Health = 99 };
             var edited = new SamusState { Pose = stock.Pose, Position = FixedPosition<RoomPixels>.FromWhole(stock.Position.Whole), Health = stock.Health };
             SamusPoseMetadata.RefreshCollisionRadii(stock); SamusPoseMetadata.RefreshCollisionRadii(edited);
-            stock.Presentation.TileTransfers.BindBodyFixture(fixture.Stock);
-            stock.Presentation.TileTransfers.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
-            edited.Presentation.TileTransfers.BindBodyFixture(fixture.Edited);
-            edited.Presentation.TileTransfers.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
+            stock.Presentation.BodyFrames.BindBodyFixture(fixture.Stock);
+            stock.Presentation.BodyFrames.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
+            edited.Presentation.BodyFrames.BindBodyFixture(fixture.Edited);
+            edited.Presentation.BodyFrames.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
             string before = PhysicalState(stock);
             var a = new SnesVram(); var b = new SnesVram();
             var oaFrame = new SpriteFrameBuffer(); var obFrame = new SpriteFrameBuffer();
             oaFrame.BeginFrame(); obFrame.BeginFrame();
             bool visible = stock.Presentation.Draw(stock, oaFrame, new(0, 0));
             Require(visible == edited.Presentation.Draw(edited, obFrame, new(0, 0)), $"pose {pose:X2}: visibility changed");
-            stock.Presentation.TileTransfers.TransferToVram(a);
-            edited.Presentation.TileTransfers.TransferToVram(b);
+            stock.Presentation.BodyFrames.LoadShownInto(a);
+            edited.Presentation.BodyFrames.LoadShownInto(b);
             OamBuffer oa = oaFrame.FinalizeAsOam(), ob = obFrame.FinalizeAsOam();
             Require(oa.ImageEquals(ob),
                 $"pose {pose:X2}: pixel-only edit changed OAM placement");
@@ -67,7 +66,7 @@ internal static class InstalledSamusArtworkTests
 
     /// <summary>
     /// Captures pose timing, collision radii, and fixed-point motion for artwork parity.
-    /// Derived spritemap indices and DMA flags are rendering outputs and are excluded.
+    /// Derived spritemap indices and shown body definitions are rendering outputs and are excluded.
     /// </summary>
     private static string PhysicalState(SamusState samus) => string.Join("|",
         samus.Pose, samus.Position.X.Whole, samus.Position.Y.Whole, samus.Health,
@@ -83,8 +82,8 @@ internal static class InstalledSamusArtworkTests
     private static void Require(bool condition, string message)
     { if (!condition) throw new InvalidOperationException(message); }
 
-    /// <summary>Checks split body-tile DMA, pending definition identity, neighboring VRAM, and rendered pixels.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
+    /// <summary>Checks each body definition's picture, as the body shows it alone, with stock and edited art.</summary>
+    [PpuLayoutBoundary("exact hardware test: pictures body characters through emulated sprite characters")]
     private static int CheckBodyTransfers(InstalledSamusArtworkFixture fixture,
         ArtworkPixelCheck check)
     {
@@ -93,8 +92,9 @@ internal static class InstalledSamusArtworkTests
         {
             bool upper = half == 0;
             int sets = upper ? SamusBodyArtworkCatalog.TopSetCount : SamusBodyArtworkCatalog.BottomSetCount;
-            var destinations = upper ? SamusRenderingRomData.TileTransfers.TopDestinations :
-                SamusRenderingRomData.TileTransfers.BottomDestinations;
+            // A definition's first part fills a half row (top from character 0, bottom from 8), its second the half row below.
+            int firstCharacter = upper ? 0 : SpriteArtwork.CharactersPerRow / 2;
+            int secondCharacter = firstCharacter + SpriteArtwork.CharactersPerRow;
             for (int set = 0; set < sets; set++)
             {
                 var stock = upper ? fixture.Stock.TopSet(set) : fixture.Stock.BottomSet(set);
@@ -104,24 +104,12 @@ internal static class InstalledSamusArtworkTests
                 {
                     SamusBodyTileDefinition a = stock[position], b = edited[position];
                     Require(a.SourceAddress == b.SourceAddress && a.FirstSize == b.FirstSize && a.SecondSize == b.SecondSize,
-                        "PNG changed transfer identity or split size");
-                    var va = new SnesVram(); var vb = new SnesVram();
-                    // A pending NMI retains the selected definition record. Rebind only
-                    // the installed catalog, exactly as a restored debugger state does.
-                    var transfer = new SamusTileTransferState();
+                        "PNG changed definition identity or split size");
                     int record = fixture.Stock.DefinitionRecord(upper ? SamusBodyHalf.Top : SamusBodyHalf.Bottom, (byte)set, (byte)position);
-                    SetPendingDefinition(transfer, upper, record);
-                    transfer.BindArtwork(fixture.Stock); transfer.TransferToVram(va);
-                    transfer.BindArtwork(fixture.Edited); transfer.TransferToVram(vb);
-                    Require(transfer.TopDefinitionRecord == (upper ? record : 0) &&
-                        transfer.BottomDefinitionRecord == (upper ? 0 : record),
-                        "Artwork rebind changed a pending DMA record");
-                    var expected = new SnesVram();
-                    expected.LoadBytes(destinations.First * 2, b.Planar.Span[..b.FirstSize]);
-                    if (b.SecondSize != 0)
-                        expected.LoadBytes(destinations.Second * 2, b.Planar.Span[b.FirstSize..]);
-                    Require(expected.ImageEquals(vb), "Split DMA changed neighboring VRAM");
-                    var oam = TileGallery(destinations.First, a.FirstSize, destinations.Second, a.SecondSize);
+                    var va = new SnesVram(); var vb = new SnesVram();
+                    va.LoadBytes(ObjectCharacterByte(0), fixture.Stock.BodyArtwork(upper ? record : null, upper ? null : record).Characters);
+                    vb.LoadBytes(ObjectCharacterByte(0), fixture.Edited.BodyArtwork(upper ? record : null, upper ? null : record).Characters);
+                    var oam = TileGallery(ObjectCharacterWord(firstCharacter), a.FirstSize, ObjectCharacterWord(secondCharacter), a.SecondSize);
                     check.Pair(va, vb, oam, $"{(upper ? "top" : "bottom")}/{set:X2}/{position:X2}");
                     count++;
                 }
@@ -130,23 +118,14 @@ internal static class InstalledSamusArtworkTests
         return count;
     }
 
-    /// <summary>Restores a pending top or bottom transfer record as a saved runtime state would.</summary>
-    private static void SetPendingDefinition(SamusTileTransferState transfer, bool upper, int record)
-    {
-        // Construct a faithful saved pending-transfer state without inventing a gameplay pose.
-        if (upper)
-        {
-            transfer.TopDefinitionRecord = record;
-            transfer.TopTransferEnabled = true;
-        }
-        else
-        {
-            transfer.BottomDefinitionRecord = record;
-            transfer.BottomTransferEnabled = true;
-        }
-    }
+    /// <summary>The emulated sprite-character word at which sprite character <paramref name="character"/> starts.</summary>
+    private static ushort ObjectCharacterWord(int character) =>
+        checked((ushort)(GameplayVramLayout.ObjectCharacters.Offset + character * SpriteArtwork.CharacterByteCount / sizeof(ushort)));
 
-    /// <summary>Checks queued arm-cannon and death-tile uploads across an installed-artwork rebind.</summary>
+    /// <summary>The emulated sprite-character byte at which sprite character <paramref name="character"/> starts.</summary>
+    private static int ObjectCharacterByte(int character) => ObjectCharacterWord(character) * sizeof(ushort);
+
+    /// <summary>Checks queued arm-cannon uploads across an installed-artwork rebind.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static int CheckQueuedTransfers(InstalledSamusArtworkFixture fixture, ArtworkPixelCheck check)
     {
@@ -156,12 +135,6 @@ internal static class InstalledSamusArtworkTests
             Check(SamusRenderingRomData.Banks.CharacterData | source,
                 SamusRenderingRomData.ArmCannon.TileUploadByteCount,
                 SamusRenderingRomDataArmCannonConstants.TileVramDestination, $"cannon {source:X4}");
-            count++;
-        }
-        foreach (SamusDeathTileSegment segment in SamusSpecialSequenceRomData.Death.TileSegments)
-        {
-            Check(segment.SourceAddress, SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
-                segment.Destination.Encoded, $"death {segment.SourceAddress:X6}");
             count++;
         }
         return count;
@@ -181,14 +154,13 @@ internal static class InstalledSamusArtworkTests
         }
     }
 
-    /// <summary>Supplies installed cannon and death tiles to the queued VRAM transfer path.</summary>
+    /// <summary>Supplies installed cannon tiles to the queued VRAM transfer path.</summary>
     private sealed class SamusQueuedArtwork(SamusBodyArtworkCatalog artwork) :
         IVramAssetProvider, IInstalledArtworkTransferSource
     {
-        /// <summary>Resolves a queued transfer from the installed cannon or death-tile catalog.</summary>
+        /// <summary>Resolves a queued transfer from the installed cannon catalog.</summary>
         public bool TryResolve(int source, int length, out ReadOnlyMemory<byte> data) =>
-            artwork.ArmCannon.TryResolveTile(source, length, out data) ||
-            artwork.DeathTiles.TryResolve(source, length, out data);
+            artwork.ArmCannon.TryResolveTile(source, length, out data);
         /// <summary>Rejects typed assets outside this fixture's address-based Samus uploads.</summary>
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
             throw new InvalidDataException($"Unexpected typed transfer {asset} in Samus upload fixture.");
@@ -205,7 +177,7 @@ internal static class InstalledSamusArtworkTests
         {
             for (int tile = 0; tile < bytes / RoomCharacterAtlasFormat.BytesPerTile; tile++, slot++)
             {
-                int character = (start - SamusRenderingRomData.TileTransfers.TopDestinations.First) / 16 + tile;
+                int character = (start - GameplayVramLayout.ObjectCharacters.Offset) / 16 + tile;
                 oam.AddOnScreenSpritePart(new SnesSpritemapXWord(0), new SnesSpritemapYByte(0),
                     SnesObjAttributeWord.Create(character, 4, 3),
                     new Position16<OamPixels>((ushort)(32 + slot % 8 * 16), (ushort)(32 + slot / 8 * 16)));

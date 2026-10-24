@@ -53,7 +53,6 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusArmCannonArtworkCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusComboMechanicsDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusComboRomData.cs"),
-        new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusDeathTileAtlas.cs"),
         new("csharp/src/SuperMetroid.Core/Fx/Artwork/RoomFxAnimatedTileAtlas.cs"),
         new("csharp/src/SuperMetroid.Core/Fx/Artwork/RoomFxAnimatedTileArtworkDefinitions.cs"),
         new("csharp/src/SuperMetroid.Core/Fx/Artwork/TourianStatueTileStripDefinitions.cs"),

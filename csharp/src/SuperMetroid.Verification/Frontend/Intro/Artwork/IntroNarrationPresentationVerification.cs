@@ -16,6 +16,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>Checks installed opening narration and font artwork through the cinematic's live tilemap and VRAM paths.</summary>
 internal static class IntroNarrationPresentationVerification
@@ -32,7 +33,7 @@ internal static class IntroNarrationPresentationVerification
         ISnesAddressSpace installedBus = NewIntroNarrationGuard(nativeBus);
 
         byte[] fontPng = SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(nativeBus);
-        IntroFontAtlas font = IntroFontAtlas.Load(new MemoryStream(fontPng, writable: false));
+        IntroFontCharacters font = IntroFontCharacters.Read(new MemoryStream(fontPng, writable: false));
         byte[] nativeFont = RomDataReader.Decompress(
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(nativeBus),
             IntroCinematicRomData.Assets.FontOne,
@@ -132,7 +133,7 @@ internal static class IntroNarrationPresentationVerification
         IndexedPng.Write(editedFontPng, new(editableFont.Size.X, editableFont.Size.Y),
             editableFont.Pixels, editableFont.Colours);
         editedFontPng.Position = 0;
-        IntroFontAtlas editedFont = IntroFontAtlas.Load(editedFontPng);
+        IntroFontCharacters editedFont = IntroFontCharacters.Read(editedFontPng);
         installedIntro.BindIntroFont(editedFont);
         AssertTrue(installedIntro.ShownVram().AsSpan(
             (IntroVramLayout.FontOne.Offset * 2),
@@ -239,8 +240,8 @@ internal static class IntroNarrationPresentationVerification
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         AreaMapPresentationCatalog edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
-        AssertTrue(!edited.IntroFont.Characters.Span.SequenceEqual(
-            stockCatalog.IntroFont.Characters.Span),
+        AssertTrue(!IntroFontCharacters.Of(edited.IntroFont).Characters.Span.SequenceEqual(
+            IntroFontCharacters.Of(stockCatalog.IntroFont).Characters.Span),
             "opening-font override changes installed VRAM bytes");
         AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
             "opening-font override changes catalog content identity");

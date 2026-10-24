@@ -19,6 +19,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -38,7 +39,7 @@ internal static class ScreenTileSheetComposer
         {
             SpriteSheetId.IntroSceneTiles => Compose(sources.Intro.BackgroundCharacters.Characters.Span[..IntroCinematicRomData.Transfers.BackgroundCharacterBytes],
                 BgBitDepth.FourBpp, IntroColours(sources.Intro)),
-            SpriteSheetId.IntroFontTiles => Compose(maps.IntroFont.Characters.Span, BgBitDepth.TwoBpp, IntroColours(sources.Intro)),
+            SpriteSheetId.IntroFontTiles => Compose(IntroFontCharacters.Of(maps.IntroFont).Characters.Span, BgBitDepth.TwoBpp, IntroColours(sources.Intro)),
             SpriteSheetId.CeresFlightObjectTiles => ComposeFlightObjects(sources.Intro.CeresFlight),
             SpriteSheetId.CeresIntroObjectTiles => Compose(sources.Intro.IntroObjectCharacters.Characters.Span[..CeresDestructionRomData.Transfers.SharedObjectCharacterBytes],
                 BgBitDepth.FourBpp, FlightColours(sources.Intro.CeresFlight)),

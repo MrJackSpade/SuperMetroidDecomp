@@ -142,7 +142,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     public void BindIntroFont(IntroFontAtlas? value)
     {
         if (value is not null)
-            RequireFont(value.Characters.Span);
+            RequireFont(value);
         IntroFont = value;
     }
     /// <summary>Rebinds installed BG and OBJ pixels after restoring emulated state.</summary>
@@ -309,7 +309,8 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         RequireMinimum(characterArtwork.BackgroundCharacters.Characters.Length, IntroCinematicRomData.Transfers.BackgroundCharacterBytes,
             "intro BG1/BG2 characters");
-        RequireMinimum(introFont.Characters.Length, IntroCinematicRomData.Transfers.FontOneBytes, "intro font one");
+        RequireMinimum(introFont.CharacterCount * (IntroFontAtlasFormat.ByteCount / IntroFontAtlasFormat.TileCount),
+            IntroCinematicRomData.Transfers.FontOneBytes, "intro font one");
         RequireMinimum(characterArtwork.PortraitTilemap.Length, IntroCinematicRomData.Transfers.SamusHeadTilemapBytes,
             "Samus-head BG2 tilemap");
         RequireMinimum(characterArtwork.BackgroundPages.Length, IntroCinematicRomData.Transfers.BackgroundPageTilemapBytes,
@@ -318,7 +319,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             "intro OBJ characters");
         RequireMinimum(characterArtwork.InitialNarrationTilemap.Length, IntroCinematicRomData.Transfers.NarrationTilemapBytes,
             "first narration BG3 tilemap");
-        RequireFont(introFont.Characters.Span);
+        RequireFont(introFont);
 
         // `$8B:A469-$A529` upload the characters, font, background pages and OBJ sheets the intro binds,
         // and the portrait and first narration card it keeps as its own tilemaps.
@@ -1463,10 +1464,10 @@ level, samus, FrameCounterWord(elapsedUpdates));
     }
 
     /// <summary>Rejects a font atlas that is not the installed font's size.</summary>
-    internal static void RequireFont(ReadOnlySpan<byte> font)
+    internal static void RequireFont(IntroFontAtlas font)
     {
-        if (font.Length != IntroFontAtlasFormat.ByteCount)
-            throw new InvalidDataException($"Opening font contains {font.Length} bytes; expected {IntroFontAtlasFormat.ByteCount}.");
+        if (Ensure.NotNull(font).CharacterCount != IntroFontAtlasFormat.TileCount)
+            throw new InvalidDataException($"Opening font contains {font.CharacterCount} characters; expected {IntroFontAtlasFormat.TileCount}.");
     }
 
     /// <summary>

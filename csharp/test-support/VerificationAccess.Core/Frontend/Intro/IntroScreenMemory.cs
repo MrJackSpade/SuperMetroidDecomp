@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -12,10 +13,11 @@ namespace SuperMetroid.Core.Frontend.Intro;
 [PpuLayoutBoundary("exact hardware test: the intro's characters, background pages and tilemaps at their native words")]
 internal static class IntroScreenMemory
 {
-    /// <summary>The character image of <paramref name="artwork"/> and <paramref name="font"/>, as `$8B:A469-$A529` upload them.</summary>
-    internal static byte[] Characters(IntroCinematicArtworkCatalog artwork, ReadOnlySpan<byte> font, bool japaneseGlyphsBlanked)
+    /// <summary>The character image of <paramref name="artwork"/> and <paramref name="installedFont"/>, as `$8B:A469-$A529` upload them.</summary>
+    internal static byte[] Characters(IntroCinematicArtworkCatalog artwork, IntroFontAtlas installedFont, bool japaneseGlyphsBlanked)
     {
-        IntroCinematicState.RequireFont(font);
+        IntroCinematicState.RequireFont(installedFont);
+        ReadOnlySpan<byte> font = IntroFontCharacters.Of(installedFont).Characters.Span;
         var vram = new SnesVram();
         var intro = new IntroVram(vram);
         intro.BackgroundCharacters.Load(artwork.BackgroundCharacters.Characters.Span[..IntroCinematicRomData.Transfers.BackgroundCharacterBytes]);
@@ -44,7 +46,7 @@ internal static class IntroScreenMemory
             "Opening cinematic rendering requires installed artwork.");
         IntroFontAtlas font = intro.IntroFont ?? throw new InvalidOperationException(
             "Opening cinematic rendering requires the installed font atlas.");
-        return Compose(Characters(artwork, font.Characters.Span, intro.JapaneseGlyphsBlanked), intro.tilemaps);
+        return Compose(Characters(artwork, font, intro.JapaneseGlyphsBlanked), intro.tilemaps);
     }
 
     /// <summary>The memory image of <paramref name="characters"/> with <paramref name="tilemaps"/> over them.</summary>

@@ -14,9 +14,11 @@ internal static class CrocomireMeltingSourceDefinitions
     internal const int SecondPassFirstChunk = 0xac7d;
     /// <summary>Bytes between consecutive graphics chunks of one pass in the cartridge.</summary>
     internal const int ChunkStride = 512;
+    /// <summary>The last word each chunk's copy moves, counted from its first: the cartridge's copy counts inclusively.</summary>
+    private const int CopyLastWord = 0x200;
     /// <summary>
-    /// Bytes each chunk's copy moves into the assembled image: one word more than the stride, as the cartridge's copy
-    /// counts its word total inclusively.
+    /// Bytes each chunk's copy moves into the assembled image: its own row, the next row and one word more, which the next
+    /// chunk's copy overwrites.
     /// </summary>
-    internal const int CopyByteCount = ChunkStride + sizeof(ushort);
+    internal const int CopyByteCount = (CopyLastWord + 1) * sizeof(ushort);
 }

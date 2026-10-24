@@ -231,7 +231,7 @@ internal static class EnemyTileArtworkVerification
                         out ReadOnlyMemory<byte> queued) && queued.Span.SequenceEqual(native),
                     $"enemy ${(int)pointer:X4} queued VRAM DMA resolves its installed PNG");
                 var vram = new SnesVram();
-                stock.Enemies.LoadTo(pointer, byteCount, new VramStore(vram).All, 0);
+                stock.Enemies.LoadTo(pointer, byteCount, new VramRegion(vram, PpuMemoryLayout.Vram), 0);
                 AssertTrue(vram.Bytes[..byteCount].SequenceEqual(native),
                     $"enemy ${(int)pointer:X4} PNG preserves every native tile byte");
                 SnesCgram nativeCgram = LoadNativeEnemyPalette(bus, pointer);
@@ -328,15 +328,15 @@ internal static class EnemyTileArtworkVerification
                 "Crocomire melt tilemap override survives catalog reload");
             var stockVram = new SnesVram();
             var editedVram = new SnesVram();
-            stock.Enemies.LoadTo(editedPointer, editedByteCount, new VramStore(stockVram).All, 0);
-            edited.Enemies.LoadTo(editedPointer, editedByteCount, new VramStore(editedVram).All, 0);
+            stock.Enemies.LoadTo(editedPointer, editedByteCount, new VramRegion(stockVram, PpuMemoryLayout.Vram), 0);
+            edited.Enemies.LoadTo(editedPointer, editedByteCount, new VramRegion(editedVram, PpuMemoryLayout.Vram), 0);
             AssertEqual((byte)(stockVram.ReadByte(0) ^ 0x80), editedVram.ReadByte(0),
                 "edited enemy PNG changes its first indexed pixel at the native tile location");
             AssertTrue(stockVram.Bytes[1..].SequenceEqual(editedVram.Bytes[1..]),
                 "enemy PNG edit leaves all neighboring VRAM bytes unchanged");
             var reloadedVram = new SnesVram();
             EnemyTileArtworkFiles.Load(directory, overrideDirectory)
-                .Enemies.LoadTo(editedPointer, editedByteCount, new VramStore(reloadedVram).All, 0);
+                .Enemies.LoadTo(editedPointer, editedByteCount, new VramRegion(reloadedVram, PpuMemoryLayout.Vram), 0);
             AssertTrue(reloadedVram.ImageEquals(editedVram),
                 "enemy override survives content reload without modifying stock PNG");
 

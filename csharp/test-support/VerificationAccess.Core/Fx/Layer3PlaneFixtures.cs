@@ -11,7 +11,7 @@ internal static class Layer3PlaneFixtures
     {
         var words = new ushort[Layer3Plane.Rows * Layer3Plane.Columns];
         for (int word = 0; word < words.Length; word++)
-            words[word] = vram.ReadWord(GameplayVramLayout.HudTilemapWord + word);
+            words[word] = vram.ReadWord(GameplayVramLayoutConstants.HudTilemapWord + word);
         return new Layer3Plane(words);
     }
 
@@ -24,7 +24,7 @@ internal static class Layer3PlaneFixtures
     {
         Layer3Plane plane = Layer3Plane.Compose(new ushort[Layer3Plane.HudRows * Layer3Plane.Columns], fx.EffectPageWords());
         vram.ExecuteWordTransfer(plane.Words[(Layer3Plane.HudRows * Layer3Plane.Columns)..].ToArray(),
-            checked(GameplayVramLayout.HudTilemapWord + Layer3Plane.HudRows * Layer3Plane.Columns), 1);
+            checked(GameplayVramLayoutConstants.HudTilemapWord + Layer3Plane.HudRows * Layer3Plane.Columns), 1);
     }
 
     /// <summary>The plane in a captured VRAM image's BG3 tilemap words.</summary>
@@ -34,7 +34,7 @@ internal static class Layer3PlaneFixtures
         var words = new ushort[Layer3Plane.Rows * Layer3Plane.Columns];
         for (int word = 0; word < words.Length; word++)
         {
-            int at = (GameplayVramLayout.HudTilemapWord + word) * 2;
+            int at = (GameplayVramLayoutConstants.HudTilemapWord + word) * 2;
             words[word] = SnesLittleEndian.Word(vram[at], vram[at + 1]);
         }
         return new Layer3Plane(words);

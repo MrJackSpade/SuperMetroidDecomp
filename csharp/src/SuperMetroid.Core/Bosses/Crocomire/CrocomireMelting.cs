@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
@@ -16,11 +17,13 @@ internal sealed class CrocomireMelting
     private readonly CrocomireEncounterAccess _access;
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
-
+    /// <summary>Sprite and background presentation, whose room's animation frames publish the picture each band shows.</summary>
+    private readonly EnemyPresentation _presentation;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CrocomireMelting(CrocomireBg2 bg2, CrocomireEncounterAccess access, BossArtworkBinding bossArtwork)
+    internal CrocomireMelting(EnemyPresentation presentation, CrocomireBg2 bg2, CrocomireEncounterAccess access, BossArtworkBinding bossArtwork)
     {
+        _presentation = presentation;
         _bossArtwork = bossArtwork;
         _bg2 = bg2;
         _access = access;
@@ -142,20 +145,24 @@ internal sealed class CrocomireMelting
 
     /// <summary>
     /// Selects, at this update, the picture <paramref name="band"/> shows (#1406): the pass's image after the columns erased
-    /// so far, which the band draws from the room's tile word sheet.
+    /// so far, which the band draws from the room's tile word sheet. A band keeps the picture until it is shown again.
     /// </summary>
-    private static void ShowMeltBand(CrocomireDeathState death, int band) =>
-        death.ShowMeltBand(band, new CrocomireMeltBandPicture(death.MeltPass, death.MeltColumnsErased));
+    private void ShowMeltBand(CrocomireDeathState death, int band) =>
+        _presentation.ArtworkFrames.Select(MeltBandFrame(new CrocomireMeltBandPicture(death.MeltPass, death.MeltColumnsErased), band));
 
-    /// <summary>The name every picture of a melt band starts with.</summary>
-    private const string MeltingCharactersName = "Crocomire melting characters";
+    /// <summary>The animation band <paramref name="band"/> of the melt image is, whose frames are its pictures (#1406).</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="band"/> is not a band of either melt image.</exception>
+    internal static ArtworkAnimation MeltBandAnimation(int band) =>
+        (uint)band < CrocomireMeltingDefinitions.SecondPassBandCount ? new($"Crocomire melt band {band}")
+            : throw new ArgumentOutOfRangeException(nameof(band), band, "Crocomire's melt images have no such band.");
 
     /// <summary>
-    /// The characters <paramref name="band"/> of the melt image shows as <paramref name="picture"/>, which the extraction
-    /// pictures his tile words over (#1392).
+    /// The frame of <paramref name="band"/>'s animation that shows <paramref name="picture"/>, which the extraction pictures
+    /// his tile words over (#1392, #1406).
     /// </summary>
-    internal static BgArtworkIdentity MeltingCharacters(CrocomireMeltBandPicture picture, int band) =>
-        new($"{MeltingCharactersName} {picture.Pass} step {picture.Step} band {band}");
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="band"/> is not a band of either melt image.</exception>
+    internal static ArtworkFrame MeltBandFrame(CrocomireMeltBandPicture picture, int band) =>
+        new(MeltBandAnimation(band), $"{picture.Pass} step {picture.Step}");
 
     /// <summary>Starts Crocomire's dissolve after installed graphics and tilemap data are ready.</summary>
     internal void BeginCrocomireMelting(CrocomireEnemyState state)

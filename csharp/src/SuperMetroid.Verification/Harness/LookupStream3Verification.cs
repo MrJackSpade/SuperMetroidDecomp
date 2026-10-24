@@ -730,7 +730,7 @@ internal static class LookupStream3Verification
         Confirm(stock);
         foreach (GameOverTextStream stream in GameOverRomData.Text.All)
         {
-            int cell = stream.DestinationByteOffset / sizeof(ushort);
+            int cell = stream.Origin.Y * GameOverRomData.TilemapWidth + stream.Origin.X;
             document.Tilemap[cell] = document.Tilemap[cell] with { Palette = 1, FlipY = true };
         }
         document.Tilemap[0] = document.Tilemap[0] with { TileColumn = 1 };
@@ -2323,8 +2323,8 @@ internal static class LookupStream3Verification
             {
                 int address = 0xadf3d3 - frame * 0x38 + color * 2;
                 ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-                int destination = color < 14 ? MotherBrainRoomColorRomData.RecoveryLightsFirstColor + color :
-                    MotherBrainRoomColorRomData.RecoveryLightsSecondColor + color - 14;
+                int destination = color < 14 ? MotherBrainRoomColorRomDataConstants.RecoveryLightsFirstColor + color :
+                    MotherBrainRoomColorRomDataConstants.RecoveryLightsSecondColor + color - 14;
                 AssertEqual(expected, actual.Colors[destination], "stream 3 all native recovery light words");
             }
         }
@@ -2347,8 +2347,8 @@ internal static class LookupStream3Verification
                             ushort expected = (ushort)(expectedRgb.Required("red").GetValue<int>() |
                                 expectedRgb.Required("green").GetValue<int>() << 5 |
                                 expectedRgb.Required("blue").GetValue<int>() << 10);
-                            int destination = checkColor < 14 ? MotherBrainRoomColorRomData.RecoveryLightsFirstColor + checkColor :
-                                MotherBrainRoomColorRomData.RecoveryLightsSecondColor + checkColor - 14;
+                            int destination = checkColor < 14 ? MotherBrainRoomColorRomDataConstants.RecoveryLightsFirstColor + checkColor :
+                                MotherBrainRoomColorRomDataConstants.RecoveryLightsSecondColor + checkColor - 14;
                             AssertEqual(expected, actual.Colors[destination], "stream 3 independent recovery light edit");
                         }
                     }

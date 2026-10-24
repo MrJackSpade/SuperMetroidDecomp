@@ -234,10 +234,10 @@ internal static void VerifyRoomEnemyLoading()
         "enemy tile overrides do not alter hitboxes");
     AssertThrows<InvalidDataException>(() =>
         EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })
-            .LoadTo(primaryDefinitionPointer, 0x40, new VramStore(new SnesVram()).All, 0xe000),
+            .LoadTo(primaryDefinitionPointer, 0x40, new VramRegion(new SnesVram(), PpuMemoryLayout.Vram), 0xe000),
         "missing installed enemy sheet fails at its actual upload");
     AssertThrows<InvalidDataException>(() =>
-        (installedEnemies.TileArtwork ?? throw new InvalidOperationException("Verification requires installed enemy artwork.")).LoadTo(primaryDefinitionPointer, 0x20, new VramStore(new SnesVram()).All, 0xe000),
+        (installedEnemies.TileArtwork ?? throw new InvalidOperationException("Verification requires installed enemy artwork.")).LoadTo(primaryDefinitionPointer, 0x20, new VramRegion(new SnesVram(), PpuMemoryLayout.Vram), 0xe000),
         "wrong-size enemy sheet cannot silently truncate its native transfer");
 
     // Load the next room's enemies, over the same session, with an empty population and a deliberately invalid

@@ -25,7 +25,6 @@ internal static class VramDmaOwnership
         if ((source == EscapeTimerTileRomData.FirstSourceAddress && count == EscapeTimerTileAtlasFormat.FirstByteCount) ||
             (source == EscapeTimerTileRomData.SecondSourceAddress && count == EscapeTimerTileAtlasFormat.SecondByteCount)) return true;
         if (GrappleTileDefinitions.Transfers.Any(frame => frame.SourceAddress == source && frame.ByteCount == count)) return true;
-        if (source == GameplayHudDefinitions.TopRowAddress && count == GameplayHudDefinitions.TopRowByteCount) return true;
         if ((SnesAddressMath.BankBase(source)) == SamusRenderingRomData.Banks.CharacterData &&
             SamusArmCannonArtworkFormat.CoverTileDmaSources.IndexOf((ushort)source) >= 0 &&
             count == SamusRenderingRomData.ArmCannon.TileUploadByteCount) return true;

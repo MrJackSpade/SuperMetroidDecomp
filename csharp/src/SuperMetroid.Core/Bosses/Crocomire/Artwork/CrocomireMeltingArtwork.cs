@@ -139,11 +139,11 @@ public sealed class CrocomireMeltingArtwork
     private const int RowByteCount = CrocomireMeltingDefinitions.BandRowCharacters * RoomCharacterAtlasFormat.BytesPerTile;
 
     /// <summary>
-    /// The bytes of <paramref name="illustration"/>'s image the cartridge assembles: a row per band, and the first two
-    /// bytes of the row after the last, which its assembly carries one word past the image.
+    /// The bytes of <paramref name="illustration"/>'s image the cartridge assembles: a row per band, and the row and word
+    /// after the last, which the last band's copy carries past the image.
     /// </summary>
     internal static int UsedByteCount(CrocomireMeltingIllustration illustration) =>
-        CrocomireMelting.BandCount(illustration) * RowByteCount + sizeof(ushort);
+        (CrocomireMelting.BandCount(illustration) + 1) * RowByteCount + sizeof(ushort);
 
     /// <summary>Rejects nonzero PNG data outside the bytes the cartridge assembles <paramref name="illustration"/>'s image from.</summary>
     private static void ValidatePadding(RoomCharacterAtlas atlas, CrocomireMeltingIllustration illustration)

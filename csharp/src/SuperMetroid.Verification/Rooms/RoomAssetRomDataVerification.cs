@@ -188,7 +188,7 @@ internal static class RoomAssetRomDataVerification
             AssertTrue(atlas.Transfer.Span.SequenceEqual(native),
                 $"room atlas {name} preserves every native character byte");
             var vram = new SnesVram();
-            atlas.LoadTo(new VramStore(vram).All);
+            atlas.LoadTo(new VramRegion(vram, PpuMemoryLayout.Vram));
             AssertTrue(vram.Bytes[..native.Length].SequenceEqual(native),
                 $"room atlas {name} uploads exactly the native character range");
         }

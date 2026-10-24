@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies;
 /// sand reuse. Each meaning is a view of the same buffer, so a write through one is visible through the others, as on
 /// the cartridge. The session's enemy binding owns one instance.
 /// </summary>
-public sealed class EnemyStagingSurfaces : IWorkRamStagingSource
+public sealed class EnemyStagingSurfaces
 {
     /// <summary>Group A, <c>$7E:2000-$2FFF</c>.</summary>
     internal readonly VramStagingBuffer Bg2 = new(EnemyStagingDefinitions.Bg2ByteCount);
@@ -37,17 +37,5 @@ public sealed class EnemyStagingSurfaces : IWorkRamStagingSource
         if (firstByte < 0 || firstByte + entryCount * CorpseRotTable.EntryByteCount > RottingHeap.Length)
             throw new InvalidDataException($"Corpse rot table at heap byte {firstByte} with {entryCount} entries lies outside the rotting heap.");
         return new(RottingHeap.ByteView(0, RottingHeap.Length), firstByte, entryCount);
-    }
-
-    /// <inheritdoc/>
-    public bool TryResolve(int nativeAddress, int byteCount, out VramStagingBuffer buffer, out int offset)
-    {
-        offset = nativeAddress - EnemyStagingDefinitions.Bg2NativeAddress;
-        buffer = Bg2;
-        if (offset >= 0 && offset + byteCount <= Bg2.Length)
-            return true;
-        offset = nativeAddress - EnemyStagingDefinitions.RottingHeapNativeAddress;
-        buffer = RottingHeap;
-        return offset >= 0 && offset + byteCount <= RottingHeap.Length;
     }
 }

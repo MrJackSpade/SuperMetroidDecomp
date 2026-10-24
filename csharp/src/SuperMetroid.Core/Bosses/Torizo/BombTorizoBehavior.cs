@@ -245,15 +245,15 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Selects, at this update, artwork swap <paramref name="swap"/> to show under <paramref name="state"/>'s poses (#1406),
-    /// after every swap it showed before; its frames draw the pictures of the swaps shown.
+    /// Shows artwork swap <paramref name="swap"/> under Torizo's poses at this update (#1406): from now on the frames drawn
+    /// over its characters picture it, over every swap shown there before.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed boss artwork has no Torizo artwork swaps.</exception>
-    private void ShowTorizoArtwork(TorizoEnemyState state, TorizoArtworkSwap swap)
+    private void ShowTorizoArtwork(TorizoArtworkSwap swap)
     {
         _ = _bossArtwork.Artwork?.TorizoInstructionVram ?? throw new InvalidDataException(
             "Torizo's artwork swaps require installed artwork.");
-        state.Artwork.Show(swap);
+        _presentation.ObjCharacters.Record(TorizoInstructionVramTransferDefinitions.Uploads[swap.Ordinal]);
     }
 
     /// <summary>
@@ -594,7 +594,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     walk.TableOffset);
 
             case TorizoCue.ShowArtwork showArtwork:
-                ShowTorizoArtwork(state, showArtwork.Swap);
+                ShowTorizoArtwork(showArtwork.Swap);
                 return null;
 
             default:

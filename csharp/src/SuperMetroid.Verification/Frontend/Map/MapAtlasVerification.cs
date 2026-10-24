@@ -24,7 +24,7 @@ internal static class MapAtlasVerification
     {
         byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount);
         var vram = new SnesVram();
-        original.Tiles.LoadTo(new VramStore(vram).All.Slice(0 / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
+        original.Tiles.LoadTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(0 / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
         for (int i = 0; i < source.Length; i++) AssertEqual(source[i], vram.ReadByte(i), "stock PNG recompiles exact map tile bytes");
         var guard = NewMapDataGuard(bus, rules);
         var system = new Bank80SystemState();
@@ -45,7 +45,7 @@ internal static class MapAtlasVerification
         byte[] replacementBytes = File.ReadAllBytes(replacement);
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "PNG edit changes selected catalog identity");
-        edited.Tiles.LoadTo(new VramStore(vram).All.Slice(0 / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
+        edited.Tiles.LoadTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(0 / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
         byte[] planar = Enumerable.Range(0, source.Length).Select(vram.ReadByte).ToArray();
         byte[] decoded = SnesGraphics.DecodePlanarTiles(planar, 4, MapTileAtlasFormat.TileColumns, out _);
         AssertTrue(decoded.SequenceEqual(image.Pixels), "every edited PNG pixel reaches compiled tile data");

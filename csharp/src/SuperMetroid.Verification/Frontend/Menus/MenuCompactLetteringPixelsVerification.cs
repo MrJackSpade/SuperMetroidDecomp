@@ -52,7 +52,7 @@ internal static class MenuCompactLetteringPixelsVerification
         }
         foreach (int destination in new[] { 0x4000, 0xc000 })
         {
-            var vram = new SnesVram(); stock.LoadArtworkTo(new VramStore(vram).All.Slice(destination / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
+            var vram = new SnesVram(); stock.LoadArtworkTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(destination / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
             AssertTrue(vram.Bytes.Slice(destination, native.Length).SequenceEqual(native), "whole original menu atlas upload");
         }
         foreach (int tile in tiles)
@@ -94,7 +94,7 @@ internal static class MenuCompactLetteringPixelsVerification
         {
             using var png = new MemoryStream(); IndexedPng.Write(png, new(128, 128), pixels, image.Colours); png.Position = 0;
             var edited = MapSpriteCatalog.Load(new MemoryStream(json), png);
-            var vram = new SnesVram(); edited.LoadArtworkTo(new VramStore(vram).All.Slice(0x4000 / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
+            var vram = new SnesVram(); edited.LoadArtworkTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(0x4000 / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
             byte[] expected = SnesPlanarTileEncoder.Encode(pixels, new(128, 128), 4);
             AssertTrue(vram.Bytes.Slice(0x4000, expected.Length).SequenceEqual(expected), "independent edits do not change neighboring shadows or glyphs");
         }

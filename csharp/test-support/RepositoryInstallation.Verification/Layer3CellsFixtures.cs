@@ -33,7 +33,7 @@ internal static class Layer3CellsFixtures
         var words = new ushort[Layer3Plane.Columns * Layer3Plane.Rows];
         for (int cell = 0; cell < words.Length; cell++)
         {
-            int at = SnesVramAddressingConstants.ByteOffsetOfWord(GameplayVramLayout.HudTilemapWord + cell);
+            int at = SnesVramAddressingConstants.ByteOffsetOfWord(GameplayVramLayoutConstants.HudTilemapWord + cell);
             words[cell] = SnesLittleEndian.Word(image[at], image[at + 1]);
         }
         return FromWords(words, image, palette, characterWord);

@@ -10,9 +10,6 @@ public sealed class ArtworkFrameSelections
     /// <summary>The frame each animation shows, by animation.</summary>
     private readonly Dictionary<ArtworkAnimation, ArtworkFrame> shown = [];
 
-    /// <summary>The animations that show a frame, with the frame each shows.</summary>
-    public IReadOnlyDictionary<ArtworkAnimation, ArtworkFrame> Shown => shown;
-
     /// <summary>Shows <paramref name="frame"/>: from now on its animation shows it, in place of any frame selected before.</summary>
     public void Select(ArtworkFrame frame)
     {
@@ -20,9 +17,6 @@ public sealed class ArtworkFrameSelections
         ArgumentException.ThrowIfNullOrEmpty(frame.Name);
         shown[frame.Animation] = frame;
     }
-
-    /// <summary>Stops <paramref name="animation"/> showing a frame: what was there before it first selected one shows again.</summary>
-    public void Clear(ArtworkAnimation animation) => shown.Remove(animation);
 
     /// <summary>The frame <paramref name="animation"/> shows, if it has selected one.</summary>
     public bool TryShown(ArtworkAnimation animation, out ArtworkFrame frame) => shown.TryGetValue(animation, out frame);

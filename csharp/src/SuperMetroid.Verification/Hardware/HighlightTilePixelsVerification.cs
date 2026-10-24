@@ -25,7 +25,7 @@ internal static class HighlightTilePixelsVerification
         for (int i = 0; i < native.Length; i++) native[i] = HighlightTilePixelsRomByte(rom, 0xb6c000 + i);
         foreach (int destination in new[] { 0x4000, 0xc000 })
         {
-            var vram = new SnesVram(); stock.LoadArtworkTo(new VramStore(vram).All.Slice(destination / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
+            var vram = new SnesVram(); stock.LoadArtworkTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(destination / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
             AssertTrue(vram.Bytes.Slice(destination, native.Length).SequenceEqual(native), "full original map OBJ upload bytes");
         }
         for (int tile = 0x5b; tile <= 0x5e; tile++)
@@ -80,7 +80,7 @@ internal static class HighlightTilePixelsVerification
             AssertThrows<ArgumentOutOfRangeException>(() => artwork.HighlightPixel(0x5b, new(0, unchecked((ushort)invalid))), "invalid highlight pixel Y");
         }
         var unchanged = new SnesVram();
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadArtworkTo(new VramStore(unchanged).All.Slice(0, 1)), "invalid full transfer destination");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadArtworkTo(new VramRegion(unchanged, PpuMemoryLayout.Vram).Slice(0, 1)), "invalid full transfer destination");
         AssertTrue(unchanged.Bytes.All(value => value == 0), "invalid transfer makes no partial writes");
 
         void CheckEdited(byte[] pixels, int expectedStored)
@@ -88,7 +88,7 @@ internal static class HighlightTilePixelsVerification
             using var png = new MemoryStream(); IndexedPng.Write(png, new(128, 128), pixels, image.Colours); png.Position = 0;
             var edited = MapSpriteCatalog.Load(new MemoryStream(json), png);
             AssertEqual(expectedStored, edited.StoredHighlightPixelCount, "exact independent pixel capture count");
-            var vram = new SnesVram(); edited.LoadArtworkTo(new VramStore(vram).All.Slice(0x4000 / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
+            var vram = new SnesVram(); edited.LoadArtworkTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(0x4000 / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
             byte[] expected = SnesPlanarTileEncoder.Encode(pixels, new(128, 128), 4);
             AssertTrue(vram.Bytes.Slice(0x4000, expected.Length).SequenceEqual(expected), "every authored and unchanged atlas pixel reaches VRAM");
         }

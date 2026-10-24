@@ -25,10 +25,6 @@ internal static class SamusCartridgeTables
     /// sequence uploads them as five $400-byte pages listed at $9B:B7BF (sources) and $9B:B7C9 (destinations).
     /// </summary>
     internal const int DeathExplosionCharacters = 0x9b8000;
-    /// <summary>$9B:B7BF: the five death-explosion page sources, bank-local, in upload order.</summary>
-    internal const int DeathExplosionPageSources = 0x9bb7bf;
-    /// <summary>$9B:B7C9: the five death-explosion page destination words, in upload order.</summary>
-    internal const int DeathExplosionPageDestinations = 0x9bb7c9;
     /// <summary>$9B:9B20: the Power Suit's first Speed Booster cycle shade.</summary>
     internal const ushort SpeedBoosterCyclePalettes = 0x9b20;
     /// <summary>$9B:9BA0: the Power Suit's first stored-shine cycle shade.</summary>

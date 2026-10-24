@@ -210,6 +210,10 @@ internal static class NativePlmListDefinitions
                         cursor = unchecked((ushort)(cursor + 4));
                         index++;
                         continue;
+                    case RoomPlmInstruction.CopyFromRamToVram:
+                        // A character load the typed programs picture instead (#1406): no step, no time.
+                        cursor = unchecked((ushort)(cursor + CopyFromRamToVramLength));
+                        continue;
                     case RoomPlmInstruction.SetGreyDoorPreInstruction:
                     case RoomPlmInstruction.InstallPreInstruction:
                     case RoomPlmInstruction.ClearPreInstruction:
@@ -217,10 +221,6 @@ internal static class NativePlmListDefinitions
                     case RoomPlmInstruction.GotoIfDoorBitSet:
                     case RoomPlmInstruction.IncrementDoorHitCounterAndGoto:
                     case RoomPlmInstruction.IncrementArgumentAndGotoIfGreaterOrEqual:
-                    case RoomPlmInstruction.CopyFromRamToVram:
-                        // A character load the typed programs picture instead (#1406): no step, no time.
-                        cursor = unchecked((ushort)(cursor + CopyFromRamToVramLength));
-                        continue;
                     case RoomPlmInstruction.GotoIfSamusNear:
                     case RoomPlmInstruction.GotoIfAreaBossBitSet:
                     case RoomPlmInstruction.GotoIfEventSet:

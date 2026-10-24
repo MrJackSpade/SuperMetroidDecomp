@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Assets;
 /// <param name="Frames">The frames the room's animations show.</param>
 public readonly record struct AnimatedCharacterView(AnimatedCharacters Characters, ArtworkFrameSelections Frames)
 {
-    /// <summary>A layer no animation paints.</summary>
-    public static AnimatedCharacterView None => new(AnimatedCharacters.None, new ArtworkFrameSelections());
 
     /// <summary>
     /// What <paramref name="character"/> shows if an animation that paints it shows a frame: the frame, and how far into

@@ -34,10 +34,6 @@ public static class MotherBrainRoomColorRomData
     public const int RecoveryLightsFirstSource = 0xadf3d3;
     /// <summary>Byte size of one $AD:F24B recovery image: two fourteen-word RGB5 slices, so playback subtracts 56 bytes between source rows.</summary>
     public const int RecoveryLightsByteStride = 0x38;
-    /// <summary>First room-light slice begins at CGRAM byte offset $0062.</summary>
-    public const int RecoveryLightsFirstColor = 0x0062 / sizeof(ushort);
-    /// <summary>Second room-light slice begins at CGRAM byte offset $00A2.</summary>
-    public const int RecoveryLightsSecondColor = 0x00a2 / sizeof(ushort);
 
     /// <summary>$A9:94B4-B8, Palette_MotherBrain_Attacks cyan ramp, three nontransparent slots.</summary>
     public const int AttackCyanFirst = 0, AttackCyanCount = 3;

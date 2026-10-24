@@ -37,15 +37,6 @@ public readonly struct StagingWordView
         }
     }
 
-    /// <summary>Copies every word out, in element order.</summary>
-    public ushort[] ToArray()
-    {
-        var values = new ushort[Count];
-        for (int index = 0; index < values.Length; index++)
-            values[index] = this[index];
-        return values;
-    }
-
     /// <summary>Checks an element index and locates its low byte.</summary>
     private int Offset(int index) => (uint)index < (uint)Count
         ? start + index * sizeof(ushort)

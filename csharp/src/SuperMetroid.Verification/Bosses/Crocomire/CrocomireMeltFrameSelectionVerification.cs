@@ -72,7 +72,8 @@ internal static class CrocomireMeltFrameSelectionVerification
         CrocomireMeltBandPicture?[] expected, string context)
     {
         for (int band = 0; band < expected.Length; band++)
-            AssertEqual(expected[band], fixture.Effect.MeltBand(band), $"{context}: band {band} picture");
+            AssertEqual(EnemyEffectsFixtureVerification.CrocomireEffectFixture.MeltBandFrame(expected[band], band), fixture.MeltBand(band),
+                $"{context}: band {band} picture");
     }
 
     /// <summary>Runs the Crocomire melt frame selection check.</summary>

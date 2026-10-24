@@ -89,7 +89,7 @@ internal static class EnemyTileArtworkPresentationContractChecks
             bytes.Length == overlay.WordCount * sizeof(ushort), "exact Ceres overlay source");
         var vram = new SnesVram();
         vram.LoadBytes(0, Enumerable.Repeat((byte)0xa5, first.ByteCount + 2).ToArray());
-        catalog.LoadTo(first.DefinitionId, first.ByteCount, new VramStore(vram).All, 1);
+        catalog.LoadTo(first.DefinitionId, first.ByteCount, new VramRegion(vram, PpuMemoryLayout.Vram), 1);
         Require(VramBytes.At(vram, 0) == 0xa5 && VramBytes.At(vram, first.ByteCount + 1) == 0xa5 &&
             Enumerable.Range(1, first.ByteCount).All(offset => VramBytes.At(vram, offset) == 0), "exact tile upload and unchanged neighbors");
         var cgram = new ScreenPalette();

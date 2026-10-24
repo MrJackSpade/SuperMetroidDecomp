@@ -40,7 +40,7 @@ internal static class PauseSnapshotTestsVerification
         var gameplayVram = new SnesVram();
         ushort[] hud = new ushort[128];
         for (int i = 0; i < hud.Length; i++) hud[i] = (ushort)(0x2000 | (i % 64));
-        gameplayVram.ExecuteWordTransfer(hud, GameplayVramLayout.HudTilemapWord, 1);
+        gameplayVram.ExecuteWordTransfer(hud, GameplayVramLayoutConstants.HudTilemapWord, 1);
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Maridia, RoomMapPosition = new(28, 1), GameplayLayer3 = Layer3PlaneFixtures.FromVram(gameplayVram) });
         var pages = new HashSet<PauseScreenMode>();
         var levels = new HashSet<int>();

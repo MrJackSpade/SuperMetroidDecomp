@@ -96,10 +96,6 @@ internal sealed class EnemyPresentation
     /// <summary>The rot step each region Mother Brain's rotting corpse uploads shows (#1392).</summary>
     internal CorpseRotUploads RotUploads { get; } = new();
 
-    /// <summary>Records Mother Brain's rotting corpse's upload of a row of its characters after rot step <paramref name="step"/> (#1392).</summary>
-    internal void ShowRot(VramDmaDestination destination, int byteCount, int step) =>
-        RotUploads.Show(destination, byteCount, step, ObjCharacters.Recorded);
-
     /// <summary>Records that a rotting corpse shows <paramref name="region"/> of its characters as rot step <paramref name="step"/> left them (#1406).</summary>
     internal void ShowRot(CharacterRegion region, int step) =>
         RotUploads.Show(Ensure.NotNull(region).FirstByte, region.ByteCount, step, ObjCharacters.Recorded);

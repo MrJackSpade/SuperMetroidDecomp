@@ -17,4 +17,8 @@ internal static class MotherBrainRoomColorRomDataConstants
     public const int InitialGlassShardColor = 0x0162 / sizeof(ushort);
     /// <summary>Tube-projectile colors initially occupy CGRAM byte offset $01E2.</summary>
     public const int InitialTubeProjectileColor = 0x01e2 / sizeof(ushort);
+    /// <summary>First room-light slice begins at CGRAM byte offset $0062.</summary>
+    public const int RecoveryLightsFirstColor = 0x0062 / sizeof(ushort);
+    /// <summary>Second room-light slice begins at CGRAM byte offset $00A2.</summary>
+    public const int RecoveryLightsSecondColor = 0x00a2 / sizeof(ushort);
 }

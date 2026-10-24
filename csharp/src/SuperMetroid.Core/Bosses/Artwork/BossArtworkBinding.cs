@@ -43,9 +43,4 @@ public sealed class BossArtworkBinding
     /// <summary>The installed boss artwork; a boss that needs it fails when none is installed.</summary>
     internal BossArtworkCatalog Installed =>
         Artwork ?? throw new InvalidOperationException("No boss artwork is installed.");
-
-    /// <summary>The installed Mother Brain corpse tiles; the bound artwork must provide them.</summary>
-    internal RoomCharacterAtlas MotherBrainCorpse =>
-        Artwork?.MotherBrainCorpse ?? throw new InvalidDataException(
-            "Installed boss artwork is missing mother-brain-corpse-tiles.png.");
 }

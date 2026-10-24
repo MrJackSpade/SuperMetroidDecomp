@@ -10,8 +10,6 @@ internal static class CrocomireSkeletonVisualDefinitions
     internal const int FrameCount = 33;
     /// <summary>The collapse poses at $A4:E46A..E53E contain thirteen OAM components, not eight.</summary>
     internal const int MaximumComponents = 13;
-    /// <summary>Character chunks the skeleton's frames draw over, shown one an update before he breaks through the wall.</summary>
-    internal const int ChunkCount = 6;
 
 
     /// <summary>The thirty-three skeleton frames the compiled programs select.</summary>

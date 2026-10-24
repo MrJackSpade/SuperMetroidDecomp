@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationFixtureVerification;
 using static SuperMetroid.Verification.Enemies.EnemyEffectsFixtureVerification;
@@ -50,7 +51,7 @@ internal static class EnemyEffectIsolationVerification
                 AssertEqual(band == bands ? phase.Next() : phase, baseline.Actor.DeathSequenceIndex,
                     "only the update after the last band advances the phase");
                 if (band < bands)
-                    AssertEqual(new CrocomireMeltBandPicture(pass, 0), baseline.Effect.MeltBand(band), "each band shows the unerased image on its own update");
+                    AssertEqual(CrocomireEffectFixture.MeltBandFrame(new CrocomireMeltBandPicture(pass, 0), band), baseline.MeltBand(band), "each band shows the unerased image on its own update");
             }
 
             baseline.Call(c => c.Melting.BeginCrocomireMelting); edited.Call(c => c.Melting.BeginCrocomireMelting);
@@ -69,7 +70,7 @@ internal static class EnemyEffectIsolationVerification
                 AssertEqual(initialSmokeObjects + (call + 5) / 6,
                     baseline.Enemies.RoomSpriteObjects.Count(slot => slot.IsActive), "fixed acid-smoke cadence");
                 if (call <= CrocomireMeltingDefinitions.ColumnCount)
-                    AssertEqual(new CrocomireMeltBandPicture(pass, call), baseline.Effect.MeltBand((call - 1) % bands), "each step shows the next band");
+                    AssertEqual(CrocomireEffectFixture.MeltBandFrame(new CrocomireMeltBandPicture(pass, call), (call - 1) % bands), baseline.MeltBand((call - 1) % bands), "each step shows the next band");
             }
             baseline.Call(c => c.Melting.FinishCrocomireMeltingPass); edited.Call(c => c.Melting.FinishCrocomireMeltingPass);
             AssertCrocomireEffectMechanics(baseline, edited, "finished melt pass");

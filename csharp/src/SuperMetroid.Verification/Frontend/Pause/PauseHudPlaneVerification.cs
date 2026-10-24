@@ -56,7 +56,7 @@ internal static class PauseHudPlaneVerification
         var words = new ushort[HudWordCount];
         for (int i = 0; i < words.Length; i++)
         {
-            int at = (GameplayVramLayout.HudTilemapWord + i) * 2;
+            int at = (GameplayVramLayoutConstants.HudTilemapWord + i) * 2;
             words[i] = SnesLittleEndian.Word(vram[at], vram[at + 1]);
         }
         return words;

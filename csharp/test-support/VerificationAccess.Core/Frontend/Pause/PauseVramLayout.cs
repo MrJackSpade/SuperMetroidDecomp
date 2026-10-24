@@ -36,7 +36,7 @@ internal static class PauseVramLayout
     /// rows <c>QueueClearingOfFxTilemap</c> ($80:A211) fills.
     /// </summary>
     public static readonly PpuLayoutCell Bg3Tilemap = new(nameof(Bg3Tilemap), PpuLayoutRegion.Vram,
-        GameplayVramLayout.HudTilemapWord, 0x0800, "BG3 tilemap words (32x64)", PpuMemoryLayout.Vram);
+        GameplayVramLayoutConstants.HudTilemapWord, 0x0800, "BG3 tilemap words (32x64)", PpuMemoryLayout.Vram);
 
     /// <summary>Pause OBSEL=$01 places the shared menu OBJ characters at VRAM byte $4000.</summary>
     internal const int MapSpriteByteAddress = 0x4000;

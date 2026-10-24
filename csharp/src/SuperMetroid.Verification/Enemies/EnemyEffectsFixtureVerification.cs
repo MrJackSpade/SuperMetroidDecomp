@@ -36,6 +36,14 @@ internal static class EnemyEffectsFixtureVerification
         /// <summary>Seeded melt phase with recognizable graphics and BG2 state.</summary>
         internal CrocomireDeathState Effect { get; } = new();
 
+        /// <summary>The frame band <paramref name="band"/>'s animation shows in the room, or null before any pass shows it.</summary>
+        internal ArtworkFrame? MeltBand(int band) =>
+            Enemies.Presentation.ArtworkFrames.TryShown(CrocomireMelting.MeltBandAnimation(band), out ArtworkFrame frame) ? frame : null;
+
+        /// <summary>The frame band <paramref name="band"/> shows <paramref name="picture"/> with, or null for no picture.</summary>
+        internal static ArtworkFrame? MeltBandFrame(CrocomireMeltBandPicture? picture, int band) =>
+            picture is { } shown ? CrocomireMelting.MeltBandFrame(shown, band) : null;
+
         /// <summary>Seeds a reproducible Crocomire melt state with optional validated artwork.</summary>
         internal CrocomireEffectFixture(CrocomireMeltingArtwork? art = null)
         {
@@ -92,7 +100,7 @@ internal static class EnemyEffectsFixtureVerification
         for (int slot = 0; slot < expected.Enemies.RoomSpriteObjects.Count; slot++)
             AssertAnimationValues(expected.Enemies.RoomSpriteObjects[slot], actual.Enemies.RoomSpriteObjects[slot], context);
         for (int band = 0; band < CrocomireMeltingDefinitions.SecondPassBandCount; band++)
-            AssertEqual(expected.Effect.MeltBand(band), actual.Effect.MeltBand(band), context + " band " + band + " picture");
+            AssertEqual(expected.MeltBand(band), actual.MeltBand(band), context + " band " + band + " picture");
         AssertTrue(expected.Effect.Bg2ScrollByScanline.SequenceEqual(actual.Effect.Bg2ScrollByScanline), context + " HDMA geometry");
         AssertSameBytes(expected.Memory.WorkRam, actual.Memory.WorkRam, context + " WRAM");
         AssertTrue(expected.Enemies.Audio.SoundRequests.SequenceEqual(actual.Enemies.Audio.SoundRequests), context + " audio");

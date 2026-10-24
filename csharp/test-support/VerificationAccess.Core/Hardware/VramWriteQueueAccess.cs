@@ -19,5 +19,16 @@ internal static class VramWriteQueueAccess
                 throw new ArgumentOutOfRangeException(nameof(offset), offset, $"Transfer {offset}+{sizeInBytes} exceeds the {staging.Length}-byte staging buffer.");
             self.Append(new VramWriteEntry(sizeInBytes, nativeSourceAddress, destination) { Staging = staging, StagingOffset = offset });
         }
+        /// <summary>
+        /// Queues a transfer of the first <paramref name="sizeInBytes"/> bytes of an owned word table that stands for the WRAM
+        /// at <paramref name="nativeSourceAddress"/>. The table is read when the queue drains, low byte first.
+        /// </summary>
+        public void EnqueueWords(ushort sizeInBytes, int nativeSourceAddress, ushort[] words, VramDmaDestination destination)
+        {
+            Ensure.NotNull(words);
+            if (sizeInBytes == 0 || (sizeInBytes & 1) != 0 || sizeInBytes > words.Length * sizeof(ushort))
+                throw new ArgumentOutOfRangeException(nameof(sizeInBytes), sizeInBytes, $"Transfer must be a nonzero whole number of the table's {words.Length} words.");
+            self.Append(new VramWriteEntry(sizeInBytes, nativeSourceAddress, destination) { StagingWords = words });
+        }
     }
 }

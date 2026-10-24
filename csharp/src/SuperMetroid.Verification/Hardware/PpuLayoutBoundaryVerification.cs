@@ -224,7 +224,7 @@ internal static class PpuLayoutBoundaryVerification
         AssertThrows<ArgumentOutOfRangeException>(() => PpuMemoryLayoutConstants.Colors("Past", 0xf8, 9, "colours"), "a CGRAM cell must fit in 256 colours");
         AssertThrows<ArgumentException>(() => new VramRegion(vram, PpuMemoryLayoutConstants.ObjectPaletteRows[0]), "a VRAM view rejects a CGRAM cell");
         AssertThrows<ArgumentException>(() => new CgramPalette(cgram, GameplayVramLayoutConstants.Bg1Tilemap), "a palette view rejects a VRAM cell");
-        AssertThrows<ArgumentOutOfRangeException>(() => VramDmaDestination.At(GameplayVramLayout.HudTilemap, GameplayVramLayout.HudTilemap.Count),
+        AssertThrows<ArgumentOutOfRangeException>(() => VramDmaDestination.At(GameplayVramLayoutConstants.HudTilemap, GameplayVramLayoutConstants.HudTilemap.Count),
             "a queued destination must start inside its cell");
         AssertThrows<ArgumentOutOfRangeException>(() => GameplayWindowRegisterLayout.ShadowAddress(PpuMemoryLayout.Cgram),
             "only window-cache registers have a WRAM shadow");

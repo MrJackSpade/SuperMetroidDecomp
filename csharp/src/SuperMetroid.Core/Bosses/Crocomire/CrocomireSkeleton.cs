@@ -254,17 +254,25 @@ internal sealed class CrocomireSkeleton
     }
 
     /// <summary>
-    /// Selects, at this update, one more of the skeleton's character chunks to show (#1406), in their fixed order, while
-    /// the skeleton waits behind the wall; once all are shown it selects nothing more. His frames draw the pictures of the
-    /// chunks shown.
+    /// Shows, at this update, one more of the skeleton's character chunks (#1406), in their fixed order, while the skeleton
+    /// waits behind the wall; once all are shown it shows nothing more. From then on his frames drawn over a chunk's
+    /// characters picture it.
     /// </summary>
-    /// <exception cref="InvalidDataException">The installed boss artwork has no skeleton characters.</exception>
+    /// <exception cref="InvalidDataException">
+    /// The installed boss artwork has no skeleton characters, or a chunk is not one chunk's characters long.
+    /// </exception>
     internal void ShowNextCrocomireSkeletonChunk(CrocomireDeathState death)
     {
-        _ = _bossArtwork.Artwork?.CrocomireSkeleton ?? throw new InvalidDataException(
+        var artwork = _bossArtwork.Artwork?.CrocomireSkeleton ?? throw new InvalidDataException(
             "Installed Crocomire artwork is missing its skeleton characters.");
-        if (death.SkeletonChunksShown < CrocomireSkeletonVisualDefinitions.ChunkCount)
-            death.SkeletonChunksShown++;
+        int chunk = death.SkeletonChunksShown;
+        if (chunk == CrocomireSkeletonTransferDefinitions.FrameCount)
+            return;
+        // Only character pixels are editable; the chunks' order and their place among the characters are not.
+        if (artwork.Chunk(chunk).Length != CrocomireSkeletonTransferDefinitions.ChunkByteCount)
+            throw new InvalidDataException($"Installed Crocomire skeleton chunk {chunk} is not one chunk's characters long.");
+        _presentation.ObjCharacters.Record(CrocomireSkeletonTransferDefinitions.Uploads[chunk]);
+        death.SkeletonChunksShown++;
     }
 
     /// <summary>

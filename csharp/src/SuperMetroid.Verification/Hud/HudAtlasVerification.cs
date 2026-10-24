@@ -126,8 +126,8 @@ internal static class HudAtlasVerification
             var shown = new SnesVram();
             shown.LoadBytes(0, runtime.ComposedVram());
             shown.ExecuteWordTransfer(runtime.FrameBoundary.CaptureLayer3Plane().Words[..(Layer3Plane.HudRows * Layer3Plane.Columns)],
-                GameplayVramLayout.HudTilemapWord, 1);
-            return SnesBgTilemapRenderer.Render2Bpp(shown, runtime.Cgram.AsPaletteColors(), GameplayVramLayout.HudTilemapWord, GameplayVramLayout.HudCharacterWord, 4);
+                GameplayVramLayoutConstants.HudTilemapWord, 1);
+            return SnesBgTilemapRenderer.Render2Bpp(shown, runtime.Cgram.AsPaletteColors(), GameplayVramLayoutConstants.HudTilemapWord, GameplayVramLayout.HudCharacterWord, 4);
         }
     }
 }

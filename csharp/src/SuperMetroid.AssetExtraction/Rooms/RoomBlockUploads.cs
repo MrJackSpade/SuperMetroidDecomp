@@ -62,6 +62,11 @@ internal static class RoomBlockUploads
                     throw new InvalidDataException($"Tileset {tileset} is loaded both inside and outside Ceres.");
                 foreach (BgCharacterUpload upload in Of(inputs, room, state).Where(Overlaps))
                     uploads.Add(upload);
+                if (state.EnemyPopulation.Records.Span.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Crocomire))
+                {
+                    foreach (AnimatedCharacterUpload frame in CrocomireMeltBandFrames(inputs))
+                        uploads.AddAnimated(frame);
+                }
                 foreach (BgCharacterUpload upload in LibraryUploads(inputs, state))
                     uploads.AddLibrary(upload);
                 RoomBackgroundCharacters characters = RoomScope.CharactersOf(new CartridgeRoomHeader(room, state));
@@ -143,11 +148,6 @@ internal static class RoomBlockUploads
                 }
             }
         }
-        if (state.EnemyPopulation.Records.Span.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Crocomire))
-        {
-            foreach (BgCharacterUpload upload in CrocomireMeltBandPictures(inputs))
-                yield return upload;
-        }
         if (state.EnemyPopulation.Records.Span.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Kraid))
         {
             yield return new BgCharacterUpload(KraidBehavior.KraidRoomBackgroundIdentity, BossVramLayout.KraidRoomBackgroundTiles.Offset,
@@ -158,9 +158,9 @@ internal static class RoomBlockUploads
 
     /// <summary>
     /// What Crocomire's melt shows over his characters (#1392, #1406): each band of each melt image after every number of
-    /// columns erased, under the identity of the picture the runtime selects for it.
+    /// columns erased, as the frame of the band's animation the runtime selects for it.
     /// </summary>
-    private static IEnumerable<BgCharacterUpload> CrocomireMeltBandPictures(RoomBlockSheetInputs inputs)
+    private static IEnumerable<AnimatedCharacterUpload> CrocomireMeltBandFrames(RoomBlockSheetInputs inputs)
     {
         CrocomireMeltingArtwork artwork = inputs.Bosses.CrocomireMelting
             ?? throw new InvalidDataException("Installed boss artwork has no Crocomire melting graphics.");
@@ -171,7 +171,7 @@ internal static class RoomBlockUploads
             {
                 for (int band = 0; band < CrocomireMelting.BandCount(illustration); band++)
                 {
-                    yield return new BgCharacterUpload(CrocomireMelting.MeltingCharacters(new CrocomireMeltBandPicture(illustration, step), band),
+                    yield return new AnimatedCharacterUpload(CrocomireMelting.MeltBandFrame(new CrocomireMeltBandPicture(illustration, step), band),
                         CrocomireMeltDissolve.BandFirstWord(band), CrocomireMeltDissolve.BandCharacters(image, band));
                 }
                 step++;
@@ -549,18 +549,6 @@ internal static class RoomBlockUploads
         {
             Add(Ensure.NotNull(frame).Upload);
             BlockRuns.Add(frame.RunFrom(RoomGraphicsLayout.AreaCharacters.Offset, RoomBlockPictureNames.CharacterWords));
-        }
-
-        /// <summary>
-        /// Adds a frame an animation of the tileset's rooms paints over BG3's characters: its BG3 words are pictured over it,
-        /// and the animation is declared to paint its characters (#1406).
-        /// </summary>
-        internal void AddBg3Animated(AnimatedCharacterUpload frame)
-        {
-            BgCharacterUpload upload = Ensure.NotNull(frame).Upload;
-            if (!Bg3Uploads.Any(known => known.Identity == upload.Identity && known.FirstWord == upload.FirstWord))
-                Bg3Uploads.Add(upload);
-            Bg3Runs.Add(frame.RunFrom(GameplayVramLayout.HudCharacterWord, TileWordSheet.CharacterWordsOf(TileWordLayer.Bg3)));
         }
     }
 

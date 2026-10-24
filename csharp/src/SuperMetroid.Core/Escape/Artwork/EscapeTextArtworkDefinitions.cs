@@ -20,10 +20,6 @@ public static class EscapeTextArtworkDefinitions
     public const int FirstDestinationWord = 0x7820;
     /// <summary>$A6:C4CB/$C4D2 copies two pages of timer-number characters before the text.</summary>
     public const int TimerPageCount = 2;
-    /// <summary>$B0:C000, the first timer-number character source in $A6:C4CB.</summary>
-    public const int TimerSourceAddress = 0xb0c000;
-    /// <summary>$A6:C4CB/$C4D2 copies $200 then $120 bytes, covering 25 number tiles.</summary>
-    public const int TimerByteCount = 0x320;
     /// <summary>$A6:C4CB starts the two timer-number pages at OBJ VRAM word $7E00.</summary>
     public const int TimerFirstDestinationWord = 0x7e00;
 

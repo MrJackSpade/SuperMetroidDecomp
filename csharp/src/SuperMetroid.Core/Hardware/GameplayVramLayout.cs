@@ -16,10 +16,6 @@ public static class GameplayVramLayout
     [PpuLayoutAccess]
     public const ushort Bg2TilemapWord = 0x4800;
 
-    /// <summary>VMADD of <see cref="HudTilemap"/>, for render packets and the PPU backend.</summary>
-    [PpuLayoutAccess]
-    public const ushort HudTilemapWord = 0x5800;
-
     /// <summary>VMADD of <see cref="HudCharacters"/>, for render packets and the PPU backend.</summary>
     [PpuLayoutAccess]
     public const ushort HudCharacterWord = 0x4000;
@@ -35,10 +31,6 @@ public static class GameplayVramLayout
     /// <summary>VMADD $4800-$4FFF: BG2's two horizontal 32x32 tilemap screens (BG2SC=$49).</summary>
     public static readonly PpuLayoutCell Bg2Tilemap = new(nameof(Bg2Tilemap), PpuLayoutRegion.Vram,
         Bg2TilemapWord, 0x0800, "BG tilemap words (64x32)", PpuMemoryLayout.Vram);
-
-    /// <summary>VMADD $5800-$5FFF: BG3's tilemap (BG3SC=$5A): the four HUD rows followed by the layer-3 FX screen.</summary>
-    public static readonly PpuLayoutCell HudTilemap = new(nameof(HudTilemap), PpuLayoutRegion.Vram,
-        HudTilemapWord, 0x0800, "BG3 tilemap words (32x64)", PpuMemoryLayout.Vram);
 
     /// <summary>
     /// VMADD $4000-$4FFF: the destination of the standard BG3 transfer at <c>$82:8318</c>, whose

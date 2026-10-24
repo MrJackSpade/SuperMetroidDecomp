@@ -231,11 +231,11 @@ internal static class MotherBrainRoomColorsVerification
             edited.MotherBrainRoomColors);
         stock.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(0);
         replacement.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(0);
-        AssertTrue(stockCgram.Colors[MotherBrainRoomColorRomData.RecoveryLightsFirstColor] !=
-            editedCgram.Colors[MotherBrainRoomColorRomData.RecoveryLightsFirstColor],
+        AssertTrue(stockCgram.Colors[MotherBrainRoomColorRomDataConstants.RecoveryLightsFirstColor] !=
+            editedCgram.Colors[MotherBrainRoomColorRomDataConstants.RecoveryLightsFirstColor],
             "first recovery-light slice edit reaches live CGRAM");
-        AssertTrue(stockCgram.Colors[MotherBrainRoomColorRomData.RecoveryLightsSecondColor] !=
-            editedCgram.Colors[MotherBrainRoomColorRomData.RecoveryLightsSecondColor],
+        AssertTrue(stockCgram.Colors[MotherBrainRoomColorRomDataConstants.RecoveryLightsSecondColor] !=
+            editedCgram.Colors[MotherBrainRoomColorRomDataConstants.RecoveryLightsSecondColor],
             "second recovery-light slice edit reaches live CGRAM");
         AssertEqual(2, stockCgram.Colors.CountDifferences(editedCgram.Colors),
             "recovery-light edits change only two selected CGRAM words");

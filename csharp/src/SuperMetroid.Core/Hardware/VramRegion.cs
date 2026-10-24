@@ -25,7 +25,7 @@ public readonly struct VramRegion
     }
 
     /// <summary>Creates a subview using an already validated physical word range.</summary>
-    private VramRegion(SnesVram vram, int first, int wordCount)
+    internal VramRegion(SnesVram vram, int first, int wordCount)
     {
         this.vram = vram;
         this.first = first;
@@ -37,13 +37,6 @@ public readonly struct VramRegion
 
     /// <summary>The region's size in bytes.</summary>
     public int ByteCount => WordCount * sizeof(ushort);
-
-    /// <summary>A sub-region of <paramref name="wordCount"/> words starting <paramref name="wordOffset"/> words in.</summary>
-    public VramRegion Slice(int wordOffset, int wordCount)
-    {
-        CheckWords(wordOffset, wordCount);
-        return new(vram, first + wordOffset, wordCount);
-    }
 
     /// <summary>Copies consecutive bytes in, as the VRAM-targeting decompressor or a byte DMA does.</summary>
     public void Load(ReadOnlySpan<byte> bytes, int byteOffset = 0)

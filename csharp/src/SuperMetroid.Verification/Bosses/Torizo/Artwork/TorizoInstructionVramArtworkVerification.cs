@@ -61,7 +61,7 @@ internal static class TorizoInstructionVramArtworkVerification
                 AssertEqual(rom.ReadCartridgeByte(transfer.SourceAddress + offset),
                     installed.Span[offset],
                     $"Torizo transfer $AA:{instruction:X4} byte {offset:X4}");
-            UploadTorizoTiles(installedEnemies, installedSlot, transferIndex);
+            ShowTorizoArtwork(installedEnemies, installedSlot, new TorizoArtworkSwap(transferIndex));
             ReadOnlySpan<byte> shown = new ObjCharacterTablePage().Page(installedEnemies.Room.Session.ObjCharacters,
                 new EnemyTileTransfers(stock)).Characters.Slice((transfer.DestinationWord - GameplayVramLayout.ObjectCharacters.Offset) * 2);
             for (int offset = 0; offset < transfer.ByteCount; offset++)
@@ -129,16 +129,11 @@ internal static class TorizoInstructionVramArtworkVerification
         int goldenUpload = goldenSwap.Ordinal;
         AssertEqual(golden.SourceAddress, TorizoInstructionVramTransferDefinitions.All[goldenUpload].SourceAddress,
             "Golden Torizo's initial swap shows its awakening sheet");
-        var goldenState = new TorizoEnemyState(editedSlot, isGolden: true);
-        ShowTorizoArtwork(editedEnemies, editedSlot, goldenState, goldenSwap);
-        AssertEqual((long?)1, goldenState.Artwork.LastShown(goldenSwap), "Golden Torizo's cue selects its awakening sheet first");
-        AssertEqual(0, editedEnemies.Room.Session.ObjCharacters.Uploads.Count, "the swap is a selection, not an upload");
-        // The awakening sheet as Golden Torizo's sheets picture it: the installed transfer where the cartridge copies it.
-        var shown = new ObjCharacterUploads();
-        shown.Record(TorizoInstructionVramTransferDefinitions.Uploads[goldenUpload]);
-        AssertEqual<ObjCharacterSource>(new TorizoTileTransferCharacters(goldenUpload), shown.Uploads.Single().Source,
-            "Golden Torizo's swap names its installed transfer by entry");
-        AssertEqual(editedBytes.Span[0], new ObjCharacterTablePage().Page(shown,
+        ShowTorizoArtwork(editedEnemies, editedSlot, goldenSwap);
+        AssertEqual<ObjCharacterSource>(new TorizoTileTransferCharacters(goldenUpload),
+            editedEnemies.Room.Session.ObjCharacters.Uploads.Single().Source,
+            "Golden Torizo's swap shows its installed transfer by entry");
+        AssertEqual(editedBytes.Span[0], new ObjCharacterTablePage().Page(editedEnemies.Room.Session.ObjCharacters,
                 new EnemyTileTransfers(edited)).Characters[(0x6d00 - GameplayVramLayout.ObjectCharacters.Offset) * 2],
             "edited Golden Torizo PNG changes the pictured awakening sheet");
         AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
@@ -157,8 +152,8 @@ internal static class TorizoInstructionVramArtworkVerification
     }
 
     /// <summary>Shows artwork swap <paramref name="swap"/> through Torizo's production cue.</summary>
-    private static void ShowTorizoArtwork(RoomEnemySystem enemies, RoomEnemySlot slot, TorizoEnemyState state, TorizoArtworkSwap swap) =>
-        AssertTrue(enemies.BombTorizoBehavior.ApplyTorizoCue(slot, state,
+    private static void ShowTorizoArtwork(RoomEnemySystem enemies, RoomEnemySlot slot, TorizoArtworkSwap swap) =>
+        AssertTrue(enemies.BombTorizoBehavior.ApplyTorizoCue(slot, new TorizoEnemyState(slot, isGolden: true),
                 new TorizoInstructionInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounterLow = 0 },
                 new TorizoCue.ShowArtwork(swap),
                 AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenInitial0)) is null,

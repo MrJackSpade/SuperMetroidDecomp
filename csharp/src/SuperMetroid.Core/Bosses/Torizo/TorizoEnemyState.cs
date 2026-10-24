@@ -22,9 +22,6 @@ public sealed class TorizoEnemyState
     /// <summary>The owning room enemy body slot, whose common position, health, properties, and instruction state this extension supplements.</summary>
     public RoomEnemySlot Slot { get; }
 
-    /// <summary>The artwork swaps Torizo's body programs have shown under its poses, in the order shown.</summary>
-    internal TorizoArtworkShown Artwork { get; } = new();
-
     /// <summary>Which way Torizo faces, which leg is forward and whether it is turning around.</summary>
     internal TorizoPostureFlags Posture { get; set; }
 

@@ -12,5 +12,11 @@ internal static class VramRegionAccess
             self.CheckWords(wordOffset, 1);
             return self.vram.ReadWord(self.first + wordOffset);
         }
+        /// <summary>A sub-region of <paramref name="wordCount"/> words starting <paramref name="wordOffset"/> words in.</summary>
+        public VramRegion Slice(int wordOffset, int wordCount)
+        {
+            self.CheckWords(wordOffset, wordCount);
+            return new(self.vram, self.first + wordOffset, wordCount);
+        }
     }
 }

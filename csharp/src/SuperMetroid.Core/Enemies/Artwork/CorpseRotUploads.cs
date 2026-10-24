@@ -13,15 +13,6 @@ internal sealed class CorpseRotUploads
     /// <summary>The rows uploaded, oldest first; a row a later one covers is dropped.</summary>
     private readonly List<CorpseRotRow> rows = [];
 
-    /// <summary>Records the upload of <paramref name="byteCount"/> bytes of a corpse's characters after rot step <paramref name="step"/>.</summary>
-    /// <param name="destination">The native destination the cartridge uploads the row to.</param>
-    /// <param name="byteCount">The row's bytes.</param>
-    /// <param name="step">The rot steps the corpse's characters had taken when uploaded.</param>
-    /// <param name="stamp">The place of the latest OBJ character upload when this one is made, which a later one shows over.</param>
-    [PpuLayoutBoundary("codec: a corpse row upload's native VRAM destination in the OBJ characters")]
-    internal void Show(VramDmaDestination destination, int byteCount, int step, long stamp) =>
-        Show(ObjCharacterUploads.TableByte(destination), byteCount, step, stamp);
-
     /// <summary>Records <paramref name="byteCount"/> bytes of a corpse's characters shown from table byte <paramref name="firstByte"/> after rot step <paramref name="step"/>.</summary>
     /// <param name="firstByte">The first sprite character table byte the row shows in.</param>
     /// <param name="byteCount">The row's bytes.</param>

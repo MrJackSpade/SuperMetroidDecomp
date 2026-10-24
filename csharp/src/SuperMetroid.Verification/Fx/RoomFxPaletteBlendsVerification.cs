@@ -167,7 +167,7 @@ internal static class RoomFxPaletteBlendsVerification
             CeresHazeBlue = new PaletteRgb5 { Red = 0, Green = 15, Blue = 0 },
         };
         File.WriteAllBytes(path, RoomFxPaletteBlendFile.Write(document));
-        AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "room-FX blend edit changes installed content identity");
         Bgr555 expected = edited.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava)[0];
@@ -190,7 +190,7 @@ internal static class RoomFxPaletteBlendsVerification
             },
         }), "invalid room-FX blend component fails loudly");
         File.Delete(path);
-        AreaMapPresentationCatalog restored = AreaMapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
             "removing room-FX blend override restores stock identity");
         Console.WriteLine("Room-FX blend override: edited color reaches CGRAM and removal restores stock.");

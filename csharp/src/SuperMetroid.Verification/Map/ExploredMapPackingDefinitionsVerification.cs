@@ -114,7 +114,7 @@ internal static class ExploredMapPackingDefinitionsVerification
             string stock = Path.Combine(root, "game", "maps");
             string edits = Directory.CreateDirectory(Path.Combine(root, "edits")).FullName;
             MapPresentationExtractor.Extract(native, stock, "test-provenance");
-            var original = AreaMapPresentationFiles.Load(stock, null);
+            var original = MapPresentationFiles.Load(stock, null);
             for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
             {
                 var document = new MapPresentationDocument
@@ -128,7 +128,7 @@ internal static class ExploredMapPackingDefinitionsVerification
                 File.WriteAllText(Path.Combine(edits, AreaMapCatalogFormat.FileName((AreaId)area)),
                     System.Text.Json.JsonSerializer.Serialize(document, ArtworkJson.Options));
             }
-            var edited = AreaMapPresentationFiles.Load(stock, edits);
+            var edited = MapPresentationFiles.Load(stock, edits);
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
             var snapshot = new SuperMetroidSaveSnapshot { ExploredMapBytes = explored };
             var unbound = new SaveSlotStore();

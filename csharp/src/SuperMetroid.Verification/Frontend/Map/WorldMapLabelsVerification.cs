@@ -50,7 +50,7 @@ internal static class WorldMapLabelsVerification
         string replacement = Path.Combine(overrides, WorldMapLabelFormat.FileName);
         using (var stream = File.Create(replacement)) WorldMapLabelLayout.Write(stream, document with { Areas = areas });
         byte[] bytes = File.ReadAllBytes(replacement);
-        var edited = AreaMapPresentationFiles.Load(stock, overrides);
+        var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "label edit invalidates content identity");
         installed.SelectArea(0); native.SelectArea(0);
         installed.BindLabels(edited.Labels);
@@ -65,13 +65,13 @@ internal static class WorldMapLabelsVerification
         AssertTrue(native.Render(used).SequenceEqual(installed.Render(used)), "rebind restores stock label pixels");
         string rebuilt = Path.Combine(overrides, "rebuilt");
         SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
-        AssertEqual(edited.ContentIdentity, AreaMapPresentationFiles.Load(rebuilt, overrides).ContentIdentity, "label override survives stock replacement");
+        AssertEqual(edited.ContentIdentity, MapPresentationFiles.Load(rebuilt, overrides).ContentIdentity, "label override survives stock replacement");
         AssertTrue(bytes.SequenceEqual(File.ReadAllBytes(replacement)), "label override bytes preserved");
         foreach (var invalid in new[] { document with { Version = 2 }, document with { Areas = new() },
             document with { Areas = areas.ToDictionary(pair => pair.Key, pair => pair.Value with { X = ushort.MaxValue }) } })
             AssertThrows<System.IO.InvalidDataException>(() => WorldMapLabelLayout.Write(new MemoryStream(), invalid), "invalid label schema/area/coordinate rejected");
         File.WriteAllText(replacement, "{bad labels");
-        AssertThrows<System.IO.InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "bad label override cannot silently fall back");
+        AssertThrows<System.IO.InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "bad label override cannot silently fall back");
         AssertEqual("{bad labels", File.ReadAllText(replacement), "bad label override remains for repair");
         Console.WriteLine("World-map labels: native pixels/window timing, blocked ROM reads, visible edits, availability isolation and override preservation pass.");
     }

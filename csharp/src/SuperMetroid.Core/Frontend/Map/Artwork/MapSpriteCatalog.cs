@@ -5,21 +5,23 @@ using SuperMetroid.Core.Frontend.Menus.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
-/// <summary>Indexed artwork and ordered compositions for map sprites; palette inheritance retains live animation.</summary>
-public sealed class MapSpriteCatalog
+/// <summary>
+/// The ordered compositions of the map and menu sprites (#1409); palette inheritance retains live animation. The installed
+/// menu OBJ sheet pictures them; its characters belong to the import pipeline that reads the installed artwork.
+/// </summary>
+public class MapSpriteCatalog
 {
     /// <summary>Selected map marker, elevator, indicator, and label compositions.</summary>
     private readonly FrameSet frames;
-    /// <summary>Shared 4-bpp map object characters loaded into the current menu's OBJ region.</summary>
-    internal readonly MapObjectTileArtwork characters;
-    /// <summary>Retains validated compositions and the decoded indexed character atlas.</summary>
-    private MapSpriteCatalog(FrameSet frames, MapObjectTileArtwork characters) { this.frames = frames; this.characters = characters; }
+    /// <summary>Retains validated compositions.</summary>
+    private MapSpriteCatalog(FrameSet frames) => this.frames = frames;
 
-    /// <summary>The shared menu OBJ page the catalog's compositions draw from (#1358).</summary>
-    public SpriteArtwork Page => field ??= characters.Page();
+    /// <summary>Shares <paramref name="compositions"/>' validated compositions.</summary>
+    /// <param name="compositions">The catalog whose compositions this one shows.</param>
+    internal MapSpriteCatalog(MapSpriteCatalog compositions) => frames = Ensure.NotNull(compositions).frames;
 
     /// <summary>
-    /// A named map marker, elevator, label, or indicator as a whole frame over <see cref="Page"/> (#1392): an area label,
+    /// A named map marker, elevator, label, or indicator as a whole frame over the menu OBJ page (#1392): an area label,
     /// an installed composition, or the native marker geometry, whose parts all take their draw's palette.
     /// </summary>
     internal SpriteFrame Frame(MapSpriteId id)
@@ -117,8 +119,9 @@ public sealed class MapSpriteCatalog
         WorldMapLabelComposition WorldMaridia,
         WorldMapLabelComposition WorldTourian);
 
-    /// <summary>Loads all 26 named sprite compositions and their indexed character atlas.</summary>
-    public static MapSpriteCatalog Load(Stream json, Stream png)
+    /// <summary>Loads all 26 named sprite compositions.</summary>
+    /// <exception cref="InvalidDataException">The document is invalid or misses a named composition.</exception>
+    public static MapSpriteCatalog Load(Stream json)
     {
         MapSpriteDocument document;
         try { document = JsonAssetDocument.Read<MapSpriteDocument>(json, ArtworkJson.Options)
@@ -164,7 +167,6 @@ public sealed class MapSpriteCatalog
                 throw new InvalidDataException($"Map sprite {name} requires an ordered array of at most 128 parts.");
             return WorldMapLabelComposition.Compile(id, parts, name);
         }
-        var image = IndexedPng.Read(png, new(MapSpriteFormat.Width, MapSpriteFormat.Height));
-        return new(frames, new MapObjectTileArtwork(image));
+        return new(frames);
     }
 }

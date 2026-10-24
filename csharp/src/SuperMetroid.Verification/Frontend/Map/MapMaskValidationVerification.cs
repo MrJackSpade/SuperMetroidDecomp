@@ -20,9 +20,9 @@ internal static class MapMaskValidationVerification
         try
         {
             File.Delete(maskPath);
-            AssertThrows<FileNotFoundException>(() => AreaMapPresentationFiles.Load(directory, null), "missing bundled mask fails loudly");
+            AssertThrows<FileNotFoundException>(() => MapPresentationFiles.Load(directory, null), "missing bundled mask fails loudly");
             File.WriteAllText(maskPath, "corrupt");
-            AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(directory, null), "corrupt mask fails hash check");
+            AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(directory, null), "corrupt mask fails hash check");
 
             void CheckInvalid(Action<Dictionary<string, int[]?>> change, string context)
             {
@@ -33,7 +33,7 @@ internal static class MapMaskValidationVerification
                 var manifest = RequiredJson.Deserialize<AreaMapCatalogManifest>(originalManifest, options);
                 manifest.Sha256[AreaMapCatalogFormat.StationRevealFile] = Convert.ToHexString(SHA256.HashData(bytes));
                 File.WriteAllBytes(manifestPath, JsonSerializer.SerializeToUtf8Bytes(manifest, options));
-                AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(directory, null), context);
+                AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(directory, null), context);
             }
 
             CheckInvalid(masks => masks["Crateria"] = [0, 0], "duplicate authored reveal cells rejected even with valid hash");
@@ -46,7 +46,7 @@ internal static class MapMaskValidationVerification
             File.WriteAllBytes(maskPath, originalMask);
             File.WriteAllBytes(manifestPath, originalManifest);
         }
-        _ = AreaMapPresentationFiles.Load(directory, null);
+        _ = MapPresentationFiles.Load(directory, null);
         Console.WriteLine("Bundled map masks: missing/corrupt/duplicate/out-of-range/incomplete data fail loudly.");
     }
 }

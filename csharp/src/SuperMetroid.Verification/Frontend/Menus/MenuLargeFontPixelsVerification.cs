@@ -6,6 +6,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Menus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Frontend.Menus;
 
 namespace SuperMetroid.Verification.Frontend.Menus;
 
@@ -39,7 +40,7 @@ internal static class MenuLargeFontPixelsVerification
         AssertEqual((byte)13, MenuEvidencePixel(image, 0x3f, new(4, 0)), "W lower shadow resumes on identical ink");
         AssertEqual((byte)13, MenuEvidencePixel(image, 0x11, new(3, 6)), "large T adds leftward terminal shadow");
         AssertEqual((byte)0, MenuEvidencePixel(image, 0x7d, new(2, 7)), "small T has no translated terminal addition");
-        var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
+        var stock = MapSpriteArtwork.Read(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
         AssertEqual(3360, stock.StoredArtworkByteCount, "font planar tiles absent from retained atlas");
         var native = new byte[8192];
         for (int index = 0; index < native.Length; index++) native[index] = rom.ReadCartridgeByte(0xb6c000 + index);
@@ -86,7 +87,7 @@ internal static class MenuLargeFontPixelsVerification
         void CheckEdited(byte[] pixels)
         {
             using var png = new MemoryStream(); IndexedPng.Write(png, new(128, 128), pixels, image.Colours); png.Position = 0;
-            var edited = MapSpriteCatalog.Load(new MemoryStream(json), png);
+            var edited = MapSpriteArtwork.Read(new MemoryStream(json), png);
             var vram = new SnesVram(); edited.LoadArtworkTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(0x4000 / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
             byte[] expected = SnesPlanarTileEncoder.Encode(pixels, new(128, 128), 4);
             AssertTrue(vram.Bytes.Slice(0x4000, expected.Length).SequenceEqual(expected), "independent edits do not change neighboring shadows or glyphs");

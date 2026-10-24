@@ -12,6 +12,7 @@ using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 
@@ -44,7 +45,7 @@ internal static class EnemyTileArtworkPresentationContractChecks
             IndexedPng.Write(png, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))), new byte[columns * rows * 64],
                 Enumerable.Range(0, EnemyPaletteSheet.ColorCount).Select(index => new Rgba32((byte)index, 0, 0)).ToArray());
             png.Position = 0;
-            RoomCharacterAtlas atlas = RoomCharacterAtlas.Load(png, bytes);
+            RoomCharacterAtlas atlas = RoomCharacterAtlasPng.Read(png, bytes);
             cached.Add(bytes, atlas);
             return atlas;
         }

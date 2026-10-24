@@ -43,7 +43,7 @@ internal static class MapArrowsVerification
         string path = Path.Combine(overrides, MapArrowFormat.FileName);
         using (var output = File.Create(path)) MapArrowPresentation.Write(output, document with { Arrows = entries });
         byte[] bytes = File.ReadAllBytes(path);
-        var edited = AreaMapPresentationFiles.Load(stock, overrides);
+        var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "arrow override affects selected content identity");
         var changed = new FileSelectMapAnimations(edited.Arrows);
         var control = new FileSelectMapAnimations(original.Arrows);
@@ -80,7 +80,7 @@ internal static class MapArrowsVerification
         entries.Remove("Down");
         AssertThrows<InvalidDataException>(() => MapArrowPresentation.Write(new MemoryStream(), document with { Arrows = entries }), "missing direction rejected");
         File.WriteAllText(path, "broken arrow override");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "broken arrow override fails loudly");
+        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "broken arrow override fails loudly");
         AssertEqual("broken arrow override", File.ReadAllText(path), "broken override never replaced");
         File.WriteAllBytes(path, bytes);
         string stockPath = Path.Combine(stock, MapArrowFormat.FileName);
@@ -88,7 +88,7 @@ internal static class MapArrowsVerification
         try
         {
             File.WriteAllText(stockPath, "corrupt stock");
-            AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "override does not hide stock arrow hash failure");
+            AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "override does not hide stock arrow hash failure");
         }
         finally { File.WriteAllBytes(stockPath, stockBytes); }
         Console.WriteLine("Map arrows: 600 native phase/OAM ticks, guarded whole-menu transitions, editable positions/durations, restore/rebind and validation pass.");

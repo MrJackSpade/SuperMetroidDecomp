@@ -40,18 +40,21 @@ public sealed class CrocomireMeltingArtwork
         this.secondTilemap = new(CrocomireMeltingIllustration.Second, secondTilemap);
     }
 
-    /// <summary>Compiles both PNG sheets and tile layouts into one installed snapshot.</summary>
-    public static CrocomireMeltingArtwork Load(Stream firstPng, Stream secondPng,
+    /// <summary>Combines both installed character sheets and tile layouts into one installed snapshot.</summary>
+    /// <param name="first">The first illustration's installed characters.</param>
+    /// <param name="second">The second illustration's installed characters.</param>
+    /// <param name="firstTilemapJson">The first illustration's tile layout.</param>
+    /// <param name="secondTilemapJson">The second illustration's tile layout.</param>
+    /// <exception cref="InvalidDataException">A sheet is not its illustration's length or holds pixels outside it, or a layout is invalid.</exception>
+    public static CrocomireMeltingArtwork Load(RoomCharacterAtlas first, RoomCharacterAtlas second,
         Stream firstTilemapJson, Stream secondTilemapJson)
     {
-        Ensure.NotNull(firstPng);
-        Ensure.NotNull(secondPng);
+        Ensure.NotNull(first);
+        Ensure.NotNull(second);
         Ensure.NotNull(firstTilemapJson);
         Ensure.NotNull(secondTilemapJson);
-        RoomCharacterAtlas first = RoomCharacterAtlas.Load(firstPng,
-            CrocomireMeltingArtworkFormat.FirstByteCount);
-        RoomCharacterAtlas second = RoomCharacterAtlas.Load(secondPng,
-            CrocomireMeltingArtworkFormat.SecondByteCount);
+        RequireLength(first, CrocomireMeltingArtworkFormat.FirstByteCount, CrocomireMeltingIllustration.First);
+        RequireLength(second, CrocomireMeltingArtworkFormat.SecondByteCount, CrocomireMeltingIllustration.Second);
         ValidatePadding(first, CrocomireMeltingIllustration.First);
         ValidatePadding(second, CrocomireMeltingIllustration.Second);
         return new(first, second, ReadTilemap(firstTilemapJson),
@@ -144,6 +147,13 @@ public sealed class CrocomireMeltingArtwork
     /// </summary>
     internal static int UsedByteCount(CrocomireMeltingIllustration illustration) =>
         (CrocomireMelting.BandCount(illustration) + 1) * RowByteCount + sizeof(ushort);
+
+    /// <summary>Rejects a sheet that is not <paramref name="illustration"/>'s installed length.</summary>
+    private static void RequireLength(RoomCharacterAtlas atlas, int byteCount, CrocomireMeltingIllustration illustration)
+    {
+        if (atlas.Characters.Length != byteCount)
+            throw new InvalidDataException($"Crocomire {illustration} melt sheet holds {atlas.Characters.Length} bytes; expected {byteCount}.");
+    }
 
     /// <summary>Rejects nonzero PNG data outside the bytes the cartridge assembles <paramref name="illustration"/>'s image from.</summary>
     private static void ValidatePadding(RoomCharacterAtlas atlas, CrocomireMeltingIllustration illustration)

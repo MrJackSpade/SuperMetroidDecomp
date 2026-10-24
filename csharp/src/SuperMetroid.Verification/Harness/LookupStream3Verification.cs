@@ -3074,7 +3074,7 @@ internal static class LookupStream3Verification
             IntroCinematicArtworkCatalog Copy(byte[] narration) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(stock.PortraitTilemap.ToArray()), InitialNarrationTilemap = Page(narration), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
             AssertTrue(stock.InitialNarrationTilemap.Span.SequenceEqual(native), "all 1024 initial narration words match native");
             AssertTrue(stock.suppliedInitialNarration is null, "stock initial narration stores no page array");
-            var font = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
+            var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
             var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
                 beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes) { Random = new CartridgeRandom() };
             byte[] nativeFont = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
@@ -3203,14 +3203,14 @@ internal static class LookupStream3Verification
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
             IntroCinematicRomData.Assets.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
-        var stock = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
+        var stock = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
         AssertTrue(stock.Characters.Span.SequenceEqual(native), "144 calculated font tiles match native 2304 bytes");
         AssertTrue(stock.suppliedCharacters is null, "native font retains no planar output array");
         for (int index = 0; index < native.Length; index++)
         {
             byte[] edit = native.ToArray();
             edit[index] ^= 0xff;
-            var selected = new IntroFontAtlas(edit.ToArray());
+            var selected = new IntroFontCharacters(edit.ToArray());
             AssertTrue(selected.Characters.Span.SequenceEqual(edit), "independent font planar-byte edit survives");
         }
         AssertTrue(stock.Characters.Span.SequenceEqual(native), "edited glyphs do not cross-couple stock or aliases");
@@ -3286,7 +3286,7 @@ internal static class LookupStream3Verification
             }
             AssertTrue(stock.BackgroundPages.Span.SequenceEqual(native), "background edits do not cross-couple pages");
             AssertEqual(hash, Copy(native).ContentIdentity, "equivalent backgrounds preserve canonical hash");
-            var font = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
+            var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
             var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
                 beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes) { Random = new CartridgeRandom() };
             AssertTrue(intro.ShownVram().AsSpan(
@@ -3423,7 +3423,7 @@ BranchesToSharedBody:true),
             }
             AssertTrue(stock.PortraitTilemap.Span.SequenceEqual(native), "portrait edits do not cross-mutate stock");
             AssertEqual(hash, Copy(native).ContentIdentity, "equivalent portrait preserves canonical hash");
-            var font = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
+            var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
             var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
                 beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes) { Random = new CartridgeRandom() };
             AssertTrue(intro.ShownVram().AsSpan(

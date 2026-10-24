@@ -5,6 +5,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Menus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Frontend.Menus;
 
 namespace SuperMetroid.Verification.Frontend.Menus;
 
@@ -26,7 +27,7 @@ internal static class MenuCompactLetteringPixelsVerification
         AssertTrue(font.HasPixelOverride(8, new(2, 2)), "the retained drawing pixel is Tourian's left T-cap corner");
         AssertTrue(!font.HasPixelOverride(0xb7, new(6, 2)), "EXIT's mirrored T-cap corner is calculated by the ordinary bevel");
         AssertTrue(!font.HasPixelOverride(0xaa, new(0, 4)), "START R's enclosed shadow gap is calculated without an override");
-        var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
+        var stock = MapSpriteArtwork.Read(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
         AssertEqual(3360, stock.StoredArtworkByteCount, "lettering planar tiles absent from retained atlas");
         var native = new byte[8192];
         for (int index = 0; index < native.Length; index++) native[index] = rom.ReadCartridgeByte(0xb6c000 + index);
@@ -94,7 +95,7 @@ internal static class MenuCompactLetteringPixelsVerification
         void CheckEdited(byte[] pixels)
         {
             using var png = new MemoryStream(); IndexedPng.Write(png, new(128, 128), pixels, image.Colours); png.Position = 0;
-            var edited = MapSpriteCatalog.Load(new MemoryStream(json), png);
+            var edited = MapSpriteArtwork.Read(new MemoryStream(json), png);
             var vram = new SnesVram(); edited.LoadArtworkTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(0x4000 / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
             byte[] expected = SnesPlanarTileEncoder.Encode(pixels, new(128, 128), 4);
             AssertTrue(vram.Bytes.Slice(0x4000, expected.Length).SequenceEqual(expected), "independent edits do not change neighboring shadows or glyphs");

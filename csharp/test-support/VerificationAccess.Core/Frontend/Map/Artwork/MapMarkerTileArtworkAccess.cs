@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Verification access to <see cref="MapMarkerTileArtwork"/> members production does not use.</summary>

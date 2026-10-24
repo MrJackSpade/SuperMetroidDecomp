@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Map.Artwork;
-
 namespace SuperMetroid.Core.Hud.Artwork;
 
 /// <summary>Standard 2-bpp HUD/minimap artwork, followed by the cleared half its setup shows over BG2's words.</summary>
@@ -38,19 +35,5 @@ public sealed class HudTileAtlas
         if (shown.WordOffset != 0)
             throw new InvalidDataException($"{shown.Artwork.Name} shows the HUD characters from word {shown.WordOffset} of its artwork, not its first.");
         backgrounds.Bind(shown.Artwork, set, 0, characters);
-    }
-
-    /// <summary>Compiles a 256-by-64 indexed PNG into 256 row-major 8-by-8 2-bpp HUD/minimap characters and appends the native zero-filled clearing half.</summary>
-    /// <param name="png">Readable PNG stream at its current position; it remains open and caller-owned. Pixel indices must be 0..3; PNG RGB palette colors do not replace runtime CGRAM.</param>
-    /// <returns>Independently owned artwork: $1000 bytes of planar characters followed by $1000 zero bytes.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="png"/> is null.</exception>
-    /// <exception cref="InvalidDataException">PNG is malformed, has unsupported features or incorrect dimensions, or uses a pixel index outside the 2-bpp range.</exception>
-    public static HudTileAtlas Load(Stream png)
-    {
-        var image = IndexedPng.Read(png, new(MapTileAtlasFormat.Width, MapTileAtlasFormat.Height));
-        byte[] planar = SnesPlanarTileEncoder.Encode(image.Pixels, image.Size, 2);
-        var bytes = new byte[HudTileAtlasFormat.ByteCount];
-        planar.CopyTo(bytes, 0);
-        return new(bytes);
     }
 }

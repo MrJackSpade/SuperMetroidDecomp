@@ -135,7 +135,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     Directory.CreateDirectory(overrideRoot);
     File.WriteAllBytes(Path.Combine(overrideRoot, FileSelectPresentationDefinitions.FileName),
         SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(addressSpace));
-    var fixturePresentation = AreaMapPresentationFiles.Load(
+    var fixturePresentation = MapPresentationFiles.Load(
         RepositoryInstallation.Installation.MapDirectory, overrideRoot);
     var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
     var menu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation, spriteSheets: MenuSheetFixtures.For(fixturePresentation));

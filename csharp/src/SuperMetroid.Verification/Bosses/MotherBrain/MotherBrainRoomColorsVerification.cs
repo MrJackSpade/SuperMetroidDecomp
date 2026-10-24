@@ -99,7 +99,7 @@ internal static class MotherBrainRoomColorsVerification
             Change(document.RecoveryLights[0][MotherBrainRoomColorRomData.RecoveryLightsSliceColors]);
         using (var file = File.Create(replacement))
             MotherBrainRoomColorFile.Write(file, document);
-        AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Mother Brain room-color override changes selected-content identity");
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
@@ -142,7 +142,7 @@ internal static class MotherBrainRoomColorsVerification
             RecoveryLights = null,
         }, ArtworkJson.Options);
         File.WriteAllBytes(replacement, previousVersion);
-        AreaMapPresentationCatalog migratedV2 = AreaMapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentationCatalog migratedV2 = MapPresentationFiles.Load(stock, overrides);
         var migratedRecovery = new SamusColourRig();
         var originalRecovery = new SamusColourRig();
         migratedV2.MotherBrainRoomColors.ApplyRecoveryLights(migratedRecovery.Gameplay, 0);
@@ -163,7 +163,7 @@ internal static class MotherBrainRoomColorsVerification
             RecoveryLights = null,
         }, ArtworkJson.Options);
         File.WriteAllBytes(replacement, legacy);
-        AreaMapPresentationCatalog migrated = AreaMapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentationCatalog migrated = MapPresentationFiles.Load(stock, overrides);
         var migratedFlash = new SamusColourRig();
         var originalFlash = new SamusColourRig();
         migrated.MotherBrainRoomColors.ApplyFlash(migratedFlash.Gameplay, 0);
@@ -177,12 +177,12 @@ internal static class MotherBrainRoomColorsVerification
         AssertTrue(new CgramPalettes(migratedEntry).ImageEquals(new CgramPalettes(originalEntry)),
             "version-one room-color override inherits only the new room-entry colors from verified stock");
         File.WriteAllText(replacement, "{ broken JSON");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides),
+        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides),
             "corrupt Mother Brain room override fails loudly");
         AssertEqual("{ broken JSON", File.ReadAllText(replacement),
             "corrupt Mother Brain override remains available for repair");
         File.Delete(replacement);
-        AssertEqual(original.ContentIdentity, AreaMapPresentationFiles.Load(stock, overrides)
+        AssertEqual(original.ContentIdentity, MapPresentationFiles.Load(stock, overrides)
             .ContentIdentity, "removing Mother Brain room override restores stock identity");
         Console.WriteLine("Mother Brain room colors: entry, 14 flash frames, final grey, phase-two and seven recovery-light palettes match native CGRAM; ROM-free production paths, isolated edits, legacy overrides and strict validation pass.");
 

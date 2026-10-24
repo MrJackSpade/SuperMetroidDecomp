@@ -18,6 +18,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Checks compiled ninja Space Pirate programs, frame selectors, and attack callbacks.</summary>
 internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
@@ -52,7 +53,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         tilePng.Position = 0;
         var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
             {
-                [EnemyDefinitionId.PirateGoldWall] = RoomCharacterAtlas.Load(tilePng, RoomCharacterAtlasFormat.BytesPerTile),
+                [EnemyDefinitionId.PirateGoldWall] = RoomCharacterAtlasPng.Read(tilePng, RoomCharacterAtlasFormat.BytesPerTile),
             }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
             {
                 [EnemyDefinitionId.PirateGoldWall] = EnemyPaletteSheetFile.Read(new MemoryStream(

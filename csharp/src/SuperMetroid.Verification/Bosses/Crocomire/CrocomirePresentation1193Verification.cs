@@ -183,7 +183,7 @@ internal static class CrocomirePresentation1193Verification
         using var legacyPng = new MemoryStream();
         IndexedPng.Write(legacyPng, new(checked((ushort)oldWidth), 8), pixels, SnesGraphics.DiagnosticPalette(4));
         legacyPng.Position = 0;
-        var migrated = RoomFxAnimatedTileAtlas.Load(legacyPng, stock);
+        var migrated = RoomFxAnimatedTileAtlasPng.Read(legacyPng, stock);
         int oldSource = RoomFxAnimatedTileArtworkDefinitions.MaridiaSandCeilingFirstSource;
         AssertTrue(stock.TryResolve(oldSource, 0x40, out var original) &&
             migrated.TryResolve(oldSource, 0x40, out var edited) && !original.Span.SequenceEqual(edited.Span),

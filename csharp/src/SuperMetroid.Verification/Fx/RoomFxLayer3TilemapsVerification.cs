@@ -80,7 +80,7 @@ internal static class RoomFxLayer3TilemapsVerification
         };
         using (var output = new FileStream(path, FileMode.CreateNew, FileAccess.Write))
             RoomFxLayer3TilemapCatalog.Write(output, document);
-        AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "room-FX BG3 edit changes installed content identity");
         AssertTrue(!edited.RoomFxLayer3Tilemaps.Resolve(RoomFxType.Lava).Span.SequenceEqual(
@@ -102,7 +102,7 @@ internal static class RoomFxLayer3TilemapsVerification
             RoomFxLayer3TilemapCatalog.Write(invalid, document);
         }, "invalid room-FX BG3 tile index fails loudly");
         File.Delete(path);
-        AreaMapPresentationCatalog restored = AreaMapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
             "removing room-FX BG3 override restores stock content identity");
         Console.WriteLine("Room-FX BG3 override: edited lava tile reaches the BG3 plane and removal restores stock.");

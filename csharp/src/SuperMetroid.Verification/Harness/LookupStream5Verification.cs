@@ -67,12 +67,13 @@ using SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
-using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Areas.Ceres;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Cartridge-oracle checks for Ceres, boss, projectile and map visual definitions in lookup stream five.</summary>
@@ -622,7 +623,7 @@ internal static class LookupStream5Verification
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Map.MapLandmarkExtractor.Extract(rom);
         MapLandmarkLayout layout = MapLandmarkLayout.Load(new MemoryStream(extracted));
         var artwork = SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteExtractor.Extract(rom);
-        MapSpriteCatalog sprites = MapSpriteCatalog.Load(new MemoryStream(artwork[MapSpriteFormat.JsonFile]), new MemoryStream(artwork[MapSpriteFormat.PngFile]));
+        MapSpriteCatalog sprites = MapSpriteArtwork.Read(new MemoryStream(artwork[MapSpriteFormat.JsonFile]), new MemoryStream(artwork[MapSpriteFormat.PngFile]));
         int Read(int pointer) => ReadVerificationWord(rom, FileSelectMapRomData.MenuObjectBank | pointer);
         int Root(int table, AreaId area) => ReadVerificationWord(rom, table + (int)area * 2);
         string[] expectedIds = ["Crateria.Elevator.0", "Crateria.Elevator.1", "Crateria.Elevator.2", "Crateria.Elevator.3", "Crateria.Elevator.4",
@@ -1470,7 +1471,7 @@ internal static class LookupStream5Verification
         using var png = new MemoryStream();
         IndexedPng.Write(png,size,pixels,SnesGraphics.DiagnosticPalette(16));
         png.Position=0;
-        RoomCharacterAtlas atlas = RoomCharacterAtlas.Load(png,planar.Length);
+        RoomCharacterAtlas atlas = RoomCharacterAtlasPng.Read(png,planar.Length);
         return EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas> { [EnemyDefinitionId.CorpseSidehopper] = atlas }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
             {
                 [EnemyDefinitionId.CorpseSidehopper] = EnemyPaletteSheetFile.Read(new MemoryStream(
@@ -1929,7 +1930,7 @@ internal static class LookupStream5Verification
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(SnesCgram.ColorCount), "Ceres palette upper bound");
         AssertThrows<ArgumentException>(() => stock.CopyColorWordsTo(new byte[CeresFlightPalette.ColorWordBytes - 1]), "Ceres palette output extent");
         IReadOnlyDictionary<string, byte[]> files = SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightArtworkExtractor.Extract(rom);
-        var catalog = CeresFlightArtworkCatalog.Load(Open(CeresFlightArtworkFormat.FloorFileName),
+        var catalog = CeresFlightCharacters.Read(Open(CeresFlightArtworkFormat.FloorFileName),
             Open(CeresFlightArtworkFormat.MapFileName), Open(CeresFlightArtworkFormat.ObjectFileName),
             CeresFlightPaletteFile.Read(Open(CeresFlightPaletteFormat.FileName)), Open(CeresFlightSpriteFormat.FileName), Open(CeresFlightActorLayoutFormat.FileName));
         byte[] nativeBytes = new byte[CgramPalettes.ByteCount];

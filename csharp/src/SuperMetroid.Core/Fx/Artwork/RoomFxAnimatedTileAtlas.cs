@@ -1,8 +1,9 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Fx.Artwork;
 
-/// <summary>Editable two-bit characters for simple room-FX and Wrecked Ship treadmill frames.</summary>
+/// <summary>
+/// The installed two-bit characters of the simple room-FX, Tourian statue and Wrecked Ship treadmill frames (#1409),
+/// compiled by the import pipeline. They remain bytes here because the Tourian statue's OBJ character source resolves them.
+/// </summary>
 public sealed class RoomFxAnimatedTileAtlas
 {
     /// <summary>Concatenated edited tile bytes in the native segment order.</summary>
@@ -18,48 +19,6 @@ public sealed class RoomFxAnimatedTileAtlas
         if (offset != characters.Length)
             throw new InvalidDataException(
                 $"Room-FX artwork has {characters.Length} bytes, expected {offset}.");
-    }
-
-    /// <summary>Compiles indexed pixels back into their ordered native 2-bpp DMA frames.</summary>
-    public static RoomFxAnimatedTileAtlas Load(Stream png,
-        RoomFxAnimatedTileAtlas? stockForLegacyOverride = null)
-    {
-        Ensure.NotNull(png);
-        long start = png.CanSeek ? png.Position : 0;
-        try
-        {
-            IndexedPngImage image = IndexedPng.Read(png,
-                new(RoomFxAnimatedTileAtlasFormat.Width, RoomFxAnimatedTileAtlasFormat.Height));
-            return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Size,
-                RoomFxAnimatedTileAtlasFormat.BitsPerPixel));
-        }
-        catch (InvalidDataException) when (stockForLegacyOverride is not null && png.CanSeek)
-        {
-            // Preserve previous user-edited PNGs from before the treadmill,
-            // statue, spores or spike extension; inherit only the newly introduced tail.
-            return TryLegacy(RoomFxAnimatedTileAtlasFormat.PreSpikesWidth)
-                ?? TryLegacy(RoomFxAnimatedTileAtlasFormat.PreSporesWidth)
-                ?? TryLegacy(RoomFxAnimatedTileAtlasFormat.PreStatueWidth)
-                ?? TryLegacy(RoomFxAnimatedTileAtlasFormat.LegacyWidth)
-                ?? throw new InvalidDataException("Room-FX PNG matches neither current nor supported legacy sheet geometry.");
-
-            RoomFxAnimatedTileAtlas? TryLegacy(int width)
-            {
-                png.Position = start;
-                try
-                {
-                    IndexedPngImage legacy = IndexedPng.Read(png, new(checked((ushort)width), RoomFxAnimatedTileAtlasFormat.Height));
-                    byte[] legacyPlanar = SnesPlanarTileEncoder.Encode(legacy.Pixels,
-                        legacy.Size, RoomFxAnimatedTileAtlasFormat.BitsPerPixel);
-                    var combined = new byte[RoomFxAnimatedTileAtlasFormat.TotalByteCount];
-                    legacyPlanar.CopyTo(combined, 0);
-                    stockForLegacyOverride.characters.AsSpan(legacyPlanar.Length).CopyTo(
-                        combined.AsSpan(legacyPlanar.Length));
-                    return new(combined);
-                }
-                catch (InvalidDataException) { return null; }
-            }
-        }
     }
 
     /// <summary>Returns one complete native frame, rejecting altered frame geometry.</summary>

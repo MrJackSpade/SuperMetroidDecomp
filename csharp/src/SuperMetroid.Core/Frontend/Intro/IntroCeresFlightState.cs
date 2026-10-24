@@ -81,11 +81,11 @@ internal sealed class IntroCeresFlightState
 
         CeresFlightArtworkCatalog content = artwork ?? throw new InvalidOperationException(
             "Ceres approach requires installed cinematic artwork.");
-        RequireMinimum(content.FloorCharacters.Length, CeresFlightRomData.Transfers.FloorCharacterByteCount,
+        RequireMinimum(content.FloorCharacterCount * CeresFlightArtworkFormat.FloorCharacterBytes, CeresFlightRomData.Transfers.FloorCharacterByteCount,
             "gunship/Ceres Mode 7 characters");
         RequireMinimum(content.FloorMaps.Length, CeresFlightRomData.Transfers.FloorMapByteCount,
             "gunship front/rear Mode 7 tilemaps");
-        RequireMinimum(content.ObjectCharacters.Length, CeresFlightRomData.Transfers.ObjectCharacterByteCount,
+        RequireMinimum(content.ObjectCharacterCount * CeresFlightArtworkFormat.ObjectCharacterBytes, CeresFlightRomData.Transfers.ObjectCharacterByteCount,
             "space/Ceres OBJ characters");
         Artwork = content;
 

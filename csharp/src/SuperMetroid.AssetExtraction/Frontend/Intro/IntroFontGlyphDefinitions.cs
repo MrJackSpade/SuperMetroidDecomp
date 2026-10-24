@@ -1,4 +1,7 @@
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Spatial;
+
+namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>$95:D089: 144 intro font tiles uploaded by $8B:A485-A491. Authored one-bit strokes and precise contour choices remain typography content; dilation and atlas packing calculate.</summary>
 internal static class IntroFontGlyphDefinitions

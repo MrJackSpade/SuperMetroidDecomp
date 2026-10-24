@@ -34,7 +34,7 @@ internal static class InstalledSporesTests
     internal static void Run(string installationRoot, string romPath, string nativeArtworkDirectory)
     {
         string maps = Path.Combine(Path.GetFullPath(installationRoot), "game", "maps");
-        AreaMapPresentationCatalog stock = AreaMapPresentationFiles.Load(maps, null);
+        AreaMapPresentationCatalog stock = MapPresentationFiles.Load(maps, null);
         CheckArtwork(stock.RoomFxAnimatedTiles, maps, romPath, nativeArtworkDirectory);
         var packets = new List<DisplayPacket>();
         using var overridesScratch = new TestScratchDirectory("installed-spores");
@@ -43,7 +43,7 @@ internal static class InstalledSporesTests
         {
             Directory.CreateDirectory(overrides);
             WriteOverrides(maps, overrides);
-            AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(maps, overrides);
+            AreaMapPresentationCatalog edited = MapPresentationFiles.Load(maps, overrides);
             Require(stock.ContentIdentity != edited.ContentIdentity, "Spore overrides did not affect selected content identity.");
             CheckOwners(stock, edited, packets);
             CheckPixels(packets);
@@ -60,7 +60,7 @@ internal static class InstalledSporesTests
             }
             CheckFileFailures(maps, overrides);
             foreach (string file in Directory.GetFiles(overrides)) File.Delete(file);
-            Require(AreaMapPresentationFiles.Load(maps, overrides).ContentIdentity == stock.ContentIdentity,
+            Require(MapPresentationFiles.Load(maps, overrides).ContentIdentity == stock.ContentIdentity,
                 "Removing the overrides did not restore stock content identity.");
         }
         finally
@@ -232,7 +232,7 @@ internal static class InstalledSporesTests
             using var legacyPng = new MemoryStream();
             IndexedPng.Write(legacyPng, new(checked((ushort)width), 8), pixels, image.Colours);
             legacyPng.Position = 0;
-            RoomFxAnimatedTileAtlas legacy = RoomFxAnimatedTileAtlas.Load(legacyPng, stock);
+            RoomFxAnimatedTileAtlas legacy = RoomFxAnimatedTileAtlasPng.Read(legacyPng, stock);
             byte[] expected = (byte[])planar.Clone();
             SnesPlanarTileEncoder.Encode(pixels, new(checked((ushort)width), 8), 2).CopyTo(expected, 0);
             int offset = 0;
@@ -328,7 +328,7 @@ internal static class InstalledSporesTests
         void Reject(string expectedPath)
         {
             bool rejected = false;
-            try { _ = AreaMapPresentationFiles.Load(maps, overrides); }
+            try { _ = MapPresentationFiles.Load(maps, overrides); }
             catch (Exception error) when (error is IOException or InvalidDataException)
             {
                 rejected = true;

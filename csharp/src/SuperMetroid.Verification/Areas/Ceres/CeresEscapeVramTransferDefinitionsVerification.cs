@@ -21,6 +21,7 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Checks Ceres escape VRAM descriptors and installed timer and Japanese overlay transfers.</summary>
 internal static class CeresEscapeVramTransferDefinitionsVerification
@@ -69,7 +70,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             services: japaneseOverlay.Services())
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresEscapeTiles = new CeresEscapeTileArtwork(escapePages), CeresEscapeOverlayTilemaps = overlay },
-            BossArtworkBinding = { EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng) },
+            BossArtworkBinding = { EscapeTimerArtwork = EscapeTimerCharacters.Read(timerPng) },
         };
         // The timer-sprite list shows exactly the ROM-checked records' characters over the OBJ characters, one an update.
         TileTransferDefinition[] spriteList = [.. records
@@ -140,7 +141,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
     [CpuBusBoundary("exact bus test: imports the Ceres escape tile pages from their retail ROM source addresses")]
     private static RoomCharacterAtlas[] ImportCeresEscapeTilePages(ISnesAddressSpace rom) =>
         CeresEscapeTileArtworkDefinitions.All.Select(page =>
-            RoomCharacterAtlas.Load(new MemoryStream(
+            RoomCharacterAtlasPng.Read(new MemoryStream(
                 IndexedTilePageExtractor.Extract(rom, page.SourceAddress,
                     page.ByteCount, page.FileName), writable: false),
                 page.ByteCount)).ToArray();

@@ -1,7 +1,9 @@
+using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Menus.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.Map.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Map OBJ sheet with procedural reserve bars and selector borders and independently authored pixel edits.</summary>
 internal sealed class MapObjectTileArtwork

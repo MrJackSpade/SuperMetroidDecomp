@@ -12,8 +12,8 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Areas.Ceres;
-using SuperMetroid.AssetExtraction.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
@@ -64,7 +64,7 @@ internal static class CeresRidleyMode7ColorsVerification
         }
         string replacement = Path.Combine(overrideDirectory, CeresRidleyMode7ColorFormat.FileName);
         File.WriteAllBytes(replacement, CeresRidleyMode7ColorFile.Write(document));
-        AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(stockDirectory, overrideDirectory);
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Ceres Mode-7 color edit changes installed identity");
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
@@ -112,14 +112,14 @@ internal static class CeresRidleyMode7ColorsVerification
             "ceres-mode7-reextract");
         byte[] overrideBeforeRepair = File.ReadAllBytes(replacement);
         SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(rom, replacementStock, "test-provenance");
-        AreaMapPresentationCatalog repaired = AreaMapPresentationFiles.Load(replacementStock, overrideDirectory);
+        AreaMapPresentationCatalog repaired = MapPresentationFiles.Load(replacementStock, overrideDirectory);
         AssertEqual(edited.ContentIdentity, repaired.ContentIdentity,
             "stock re-extraction preserves Ceres Mode-7 override");
         AssertTrue(overrideBeforeRepair.SequenceEqual(File.ReadAllBytes(replacement)),
             "stock re-extraction does not rewrite Ceres Mode-7 colors");
         File.Delete(replacement);
         AssertEqual(original.ContentIdentity,
-            AreaMapPresentationFiles.Load(stockDirectory, overrideDirectory).ContentIdentity,
+            MapPresentationFiles.Load(stockDirectory, overrideDirectory).ContentIdentity,
             "removing Ceres Mode-7 override restores stock identity");
         Console.WriteLine("Ceres Mode-7 colors: 135 stock words and all 112 getaway frames match, with every source color guarded and override repair preserved.");
     }

@@ -102,7 +102,7 @@ internal static class GameplayMessageNoticesVerification
             overrideDirectory, GameplayMessageNoticeDefinitions.FileName);
         File.WriteAllText(replacement,
             document.ToJsonString(ArtworkJson.Options));
-        AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
         var state = new GameplayMessageBoxState();
         state.BindPresentation(edited.GameplayMessageTitles, edited.GameplayMessagePanels,
@@ -116,7 +116,7 @@ internal static class GameplayMessageNoticesVerification
 
         File.WriteAllText(replacement, "{ broken gameplay-message notice");
         AssertThrows<InvalidDataException>(() =>
-            AreaMapPresentationFiles.Load(stockDirectory, overrideDirectory),
+            MapPresentationFiles.Load(stockDirectory, overrideDirectory),
             "corrupt gameplay-message notice override fails loudly");
         Console.WriteLine(
             "Gameplay-message notice catalog: deterministic stock, override selection/identity and corruption failure pass.");

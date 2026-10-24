@@ -245,7 +245,7 @@ public static class GameAssetInstaller
         new(GameInstallationLayout.MapDirectoryName,
             new InstallerStep("Extracting map presentation...",
                 (bus, d, cancellation) => MapPresentationExtractor.Extract(bus, d, SupportedCartridge.Sha256, cancellation),
-                AreaMapPresentationFiles.ValidateStock)),
+                MapPresentationFiles.ValidateStock)),
         new(GameInstallationLayout.GameplayBasePaletteDirectoryName,
             Step("Extracting gameplay base palettes...", (bus, d) => GameplayBasePaletteFiles.Extract(bus, d, SupportedCartridge.Sha256), GameplayBasePaletteFiles.ValidateStock)),
         new(GameInstallationLayout.SamusOverreadDirectoryName,

@@ -48,7 +48,7 @@ public static class RoomCharacterAtlasExtractor
             using var png = new MemoryStream();
             IndexedPng.Write(png, size, indexes, SnesGraphics.DiagnosticPalette(16));
             byte[] encoded = png.ToArray();
-            RoomCharacterAtlas loaded = RoomCharacterAtlas.Load(new MemoryStream(encoded), planar.Length);
+            RoomCharacterAtlas loaded = RoomCharacterAtlasPng.Read(new MemoryStream(encoded), planar.Length);
             if (!loaded.Characters.Span.SequenceEqual(planar))
                 throw new InvalidDataException(
                     $"Room character PNG {fileName} changed source ${sourceAddress:X6} ({tileCount} tiles).");

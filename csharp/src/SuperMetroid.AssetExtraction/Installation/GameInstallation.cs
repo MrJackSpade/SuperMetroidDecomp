@@ -418,7 +418,7 @@ public sealed record GameInstallation(string Root)
     public string MapOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.MapDirectoryName);
 
     /// <summary>Loads installed maps and stock exploration masks without a cartridge address space.</summary>
-    public AreaMapPresentationCatalog LoadMaps() => AreaMapPresentationFiles.Load(MapDirectory, MapOverrideDirectory);
+    public AreaMapPresentationCatalog LoadMaps() => MapPresentationFiles.Load(MapDirectory, MapOverrideDirectory);
 
     /// <summary>
     /// Loads every installed presentation catalog the frontend binds. Hosts pass the maps and projectile

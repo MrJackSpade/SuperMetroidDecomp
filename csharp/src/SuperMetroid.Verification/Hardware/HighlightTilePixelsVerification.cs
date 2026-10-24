@@ -19,7 +19,7 @@ internal static class HighlightTilePixelsVerification
         byte[] json = files[MapSpriteFormat.JsonFile];
         var image = IndexedPng.Read(new MemoryStream(files[MapSpriteFormat.PngFile]), new(128, 128));
         var artwork = new MapObjectTileArtwork(image);
-        var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
+        var stock = MapSpriteArtwork.Read(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
         AssertEqual(0, stock.StoredHighlightPixelCount, "stock highlight pixel table eliminated");
         AssertEqual(8192 - 151 * 32, stock.StoredArtworkByteCount, "highlight planar bytes absent from stored atlas");
         var native = new byte[8192];
@@ -87,7 +87,7 @@ internal static class HighlightTilePixelsVerification
         void CheckEdited(byte[] pixels, int expectedStored)
         {
             using var png = new MemoryStream(); IndexedPng.Write(png, new(128, 128), pixels, image.Colours); png.Position = 0;
-            var edited = MapSpriteCatalog.Load(new MemoryStream(json), png);
+            var edited = MapSpriteArtwork.Read(new MemoryStream(json), png);
             AssertEqual(expectedStored, edited.StoredHighlightPixelCount, "exact independent pixel capture count");
             var vram = new SnesVram(); edited.LoadArtworkTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(0x4000 / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
             byte[] expected = SnesPlanarTileEncoder.Encode(pixels, new(128, 128), 4);

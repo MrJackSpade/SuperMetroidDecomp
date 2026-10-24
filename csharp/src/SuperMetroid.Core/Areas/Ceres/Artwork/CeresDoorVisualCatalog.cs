@@ -57,19 +57,20 @@ public sealed class CeresDoorVisualCatalog
                 platformEdits.Add(frame * CeresDoorVisualRomData.Mode7FrameByteCount + index, mode7DoorFrames[frame][index]);
     }
 
-    /// <summary>Loads the indexed 4bpp door sheet, validating its native transfer length, and retains the door colours and Mode 7 strips the installed visual document supplied.</summary>
-    /// <param name="tilePng">Caller-owned <c>ceres-door-tiles.png</c> stream compiling to $0400 bytes.</param>
+    /// <summary>Retains the door sheet's characters, validating its native transfer length, and the door colours and Mode 7 strips the installed visual document supplied.</summary>
+    /// <param name="tiles">The installed <c>ceres-door-tiles.png</c> characters, $0400 bytes.</param>
     /// <param name="normal">Fifteen normal setup colours.</param>
     /// <param name="escape">Fifteen escape setup colours.</param>
     /// <param name="animation">Eight rows of six animation colours.</param>
     /// <param name="mode7DoorFrames">Two four-cell Mode 7 platform strips.</param>
-    /// <returns>The compiled visual snapshot; the stream is consumed from its current position and left open.</returns>
-    internal static CeresDoorVisualCatalog Load(Stream tilePng, Bgr555[] normal, Bgr555[] escape,
+    /// <returns>The compiled visual snapshot.</returns>
+    /// <exception cref="InvalidDataException">The characters are not the door transfer's length.</exception>
+    internal static CeresDoorVisualCatalog Load(RoomCharacterAtlas tiles, Bgr555[] normal, Bgr555[] escape,
         Bgr555[][] animation, byte[][] mode7DoorFrames)
     {
-        Ensure.NotNull(tilePng);
-        RoomCharacterAtlas tiles = RoomCharacterAtlas.Load(tilePng,
-            CeresDoorVisualRomData.TileByteCount);
+        Ensure.NotNull(tiles);
+        if (tiles.Characters.Length != CeresDoorVisualRomData.TileByteCount)
+            throw new InvalidDataException($"Ceres-door tiles hold {tiles.Characters.Length} bytes; expected {CeresDoorVisualRomData.TileByteCount}.");
         return new CeresDoorVisualCatalog(tiles, normal, escape, animation,
             mode7DoorFrames);
     }

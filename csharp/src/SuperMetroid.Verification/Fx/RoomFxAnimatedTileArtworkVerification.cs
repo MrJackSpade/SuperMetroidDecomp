@@ -29,7 +29,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
 
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         byte[] png = RoomFxAnimatedTileAtlasExtractor.Extract(rom);
-        RoomFxAnimatedTileAtlas atlas = RoomFxAnimatedTileAtlas.Load(new MemoryStream(png));
+        RoomFxAnimatedTileAtlas atlas = RoomFxAnimatedTileAtlasPng.Read(new MemoryStream(png));
         var guarded = NewRoomFxArtworkForbiddenBus(rom);
         var provider = new RoomFxArtworkTestProvider(atlas);
         int frameCount = 0;
@@ -95,7 +95,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
         AssertThrows<InvalidDataException>(() => atlas.TryResolve(
             RoomFxAnimatedTileArtworkDefinitions.LavaFirstSource, 1, out _),
             "artwork cannot change the native transfer byte count");
-        AssertThrows<InvalidDataException>(() => RoomFxAnimatedTileAtlas.Load(
+        AssertThrows<InvalidDataException>(() => RoomFxAnimatedTileAtlasPng.Read(
             new MemoryStream([1, 2, 3])), "corrupt room-FX PNG fails loudly");
         Console.WriteLine("  Room-FX animation artwork: 30 simple and four treadmill PNG frames match native bytes, each shown on its update.");
     }
@@ -121,7 +121,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
         using (var output = new FileStream(file, FileMode.CreateNew, FileAccess.Write))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), editedPixels,
                 SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFormat.ColorCount));
-        AreaMapPresentationCatalog changed = AreaMapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentationCatalog changed = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(changed.ContentIdentity != baseline.ContentIdentity,
             "room-FX PNG edit changes installed content identity");
         int sourceAddress = RoomFxAnimatedTileArtworkDefinitions.MaridiaSandCeilingFirstSource;
@@ -170,7 +170,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
             !editedStatue.Span.SequenceEqual(stockStatue.Span),
             "edited Tourian statue pixels compile to a distinct installed frame");
         File.Delete(file);
-        AreaMapPresentationCatalog restored = AreaMapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
             "removing room-FX override restores stock identity");
 
@@ -189,7 +189,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
             IndexedPng.Write(output, new(RoomFxAnimatedTileAtlasFormat.PreStatueWidth, RoomFxAnimatedTileAtlasFormat.Height), preStatuePixels,
                 SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFormat.ColorCount));
         AreaMapPresentationCatalog migratedPreStatue =
-            AreaMapPresentationFiles.Load(stock, overrides);
+            MapPresentationFiles.Load(stock, overrides);
         AssertTrue(migratedPreStatue.RoomFxAnimatedTiles.TryResolve(sourceAddress, 0x40,
                 out ReadOnlyMemory<byte> migratedPreStatueSimple) &&
             !migratedPreStatueSimple.Span.SequenceEqual(original.Span),
@@ -214,7 +214,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
         using (var output = new FileStream(file, FileMode.CreateNew, FileAccess.Write))
             IndexedPng.Write(output, new(RoomFxAnimatedTileAtlasFormat.LegacyWidth, RoomFxAnimatedTileAtlasFormat.Height), legacyPixels,
                 SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFormat.ColorCount));
-        AreaMapPresentationCatalog migrated = AreaMapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentationCatalog migrated = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(migrated.RoomFxAnimatedTiles.TryResolve(sourceAddress, 0x40,
                 out ReadOnlyMemory<byte> migratedSimple) &&
             !migratedSimple.Span.SequenceEqual(original.Span),

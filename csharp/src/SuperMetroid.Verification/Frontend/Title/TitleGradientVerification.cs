@@ -72,7 +72,7 @@ internal static class TitleGradientVerification
         var tracingBus = NewTitlePresentationReadBus(bus, cartridgeReads, forbidReads: false);
         IReadOnlyDictionary<string, byte[]> files =
             SuperMetroid.AssetExtraction.Frontend.Title.TitleGraphicsExtractor.Extract(tracingBus);
-        TitleGraphicsPresentation presentation = TitleGraphicsPresentation.Load(
+        TitleGraphicsPresentation presentation = TitleGraphicsCharacters.Read(
             new MemoryStream(files[TitleGraphicsFormat.FloorTilesFile]),
             new MemoryStream(files[TitleGraphicsFormat.FloorMapFile]),
             new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
@@ -159,7 +159,7 @@ internal static class TitleGradientVerification
         SpriteVisualPart originalPart = year.Parts[0];
         year.Parts[0] = originalPart with { OffsetX = originalPart.OffsetX + 8 };
         byte[] editedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, ArtworkJson.Options);
-        TitleGraphicsPresentation editedPresentation = TitleGraphicsPresentation.Load(
+        TitleGraphicsPresentation editedPresentation = TitleGraphicsCharacters.Read(
             new MemoryStream(files[TitleGraphicsFormat.FloorTilesFile]),
             new MemoryStream(editedMap),
             new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
@@ -196,7 +196,7 @@ internal static class TitleGradientVerification
             throw new InvalidDataException("Rebinding stock title composition failed to restore the frame.");
         year.Parts[0] = originalPart with { TileRow = TitleGraphicsFormat.ObjectTileRows };
         byte[] malformedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, ArtworkJson.Options);
-        AssertThrows<InvalidDataException>(() => TitleGraphicsPresentation.Load(
+        AssertThrows<InvalidDataException>(() => TitleGraphicsCharacters.Read(
             new MemoryStream(files[TitleGraphicsFormat.FloorTilesFile]),
             new MemoryStream(malformedMap),
             new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
@@ -209,7 +209,7 @@ internal static class TitleGradientVerification
         using var wrong = new MemoryStream();
         IndexedPng.Write(wrong, new(8, 8), new byte[64], mode7.Colours);
         wrong.Position = 0;
-        AssertThrows<InvalidDataException>(() => TitleGraphicsPresentation.Load(
+        AssertThrows<InvalidDataException>(() => TitleGraphicsCharacters.Read(
             wrong,
             new MemoryStream(files[TitleGraphicsFormat.FloorMapFile]),
             new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
@@ -428,7 +428,7 @@ internal static class TitleGradientVerification
         TitlePalettePresentation palette = TitlePaletteFile.Read(new MemoryStream(
             TitlePaletteExtractor.Extract(bus)));
         IReadOnlyDictionary<string, byte[]> graphicsFiles = TitleGraphicsExtractor.Extract(bus);
-        TitleGraphicsPresentation graphics = TitleGraphicsPresentation.Load(
+        TitleGraphicsPresentation graphics = TitleGraphicsCharacters.Read(
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.FloorTilesFile]),
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.FloorMapFile]),
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.ObjectTilesFile]),

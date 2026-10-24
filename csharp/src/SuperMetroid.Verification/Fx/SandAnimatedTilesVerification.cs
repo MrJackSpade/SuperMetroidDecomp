@@ -9,6 +9,7 @@ namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Checks Maridia sand animation selection, timing, NMI transfers, and room departure.</summary>
 internal static class SandAnimatedTilesVerification
@@ -40,7 +41,7 @@ internal static class SandAnimatedTilesVerification
                         definition.FrameByteCount).ToArray());
             }
         }
-        var atlas = RoomFxAnimatedTileAtlas.Load(new MemoryStream(
+        var atlas = RoomFxAnimatedTileAtlasPng.Read(new MemoryStream(
             SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTileAtlasExtractor.Extract(bus)));
         var provider = new RoomFxArtworkTestProvider(atlas);
         var guarded = NewRoomFxArtworkForbiddenBus(bus);

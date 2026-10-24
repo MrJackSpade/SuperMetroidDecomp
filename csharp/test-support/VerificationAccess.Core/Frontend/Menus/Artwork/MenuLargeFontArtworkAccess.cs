@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Menus;
 namespace SuperMetroid.Core.Frontend.Menus.Artwork;
 
 /// <summary>Verification access to <see cref="MenuLargeFontArtwork"/> members production does not use.</summary>

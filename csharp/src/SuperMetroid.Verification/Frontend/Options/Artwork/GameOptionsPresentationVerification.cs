@@ -92,7 +92,7 @@ internal static class GameOptionsPresentationVerification
             GameOptionsPresentationDefinitions.FileName);
         using (var output = File.Create(replacement))
             GameOptionsPresentation.Write(output, document);
-        AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "options override changes selected catalog identity");
 
@@ -126,7 +126,7 @@ internal static class GameOptionsPresentationVerification
             "editable options hides cursor during intro fade-out");
 
         File.WriteAllText(replacement, "{ broken options JSON");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides),
+        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides),
             "corrupt options override fails loudly");
         using (var output = File.Create(replacement))
             GameOptionsPresentation.Write(output, document);

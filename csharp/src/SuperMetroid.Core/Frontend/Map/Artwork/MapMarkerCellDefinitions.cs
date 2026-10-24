@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 /// <summary>Map-object cell runs in the menu atlas and the marker cells drawn by calculation (<see cref="MapMarkerCell"/>).</summary>
 internal static class MapMarkerCellDefinitions
 {
-    /// <summary>The calculated marker cells drawn by <see cref="MapMarkerTileArtwork"/>, in atlas order.</summary>
+    /// <summary>The calculated marker cells the import pipeline draws into the menu atlas, in atlas order.</summary>
     internal static readonly MapMarkerCell[] CalculatedCells =
         [MapMarkerCell.VerticalArrowHalf, MapMarkerCell.HorizontalArrowHalf, MapMarkerCell.DefeatedBossCorner, MapMarkerCell.IndicatorCorner];
 

@@ -19,7 +19,7 @@ internal static class ReserveTilePixelsVerification
         var files = MapSpriteExtractor.Extract(rom);
         byte[] json = files[MapSpriteFormat.JsonFile];
         var image = IndexedPng.Read(new MemoryStream(files[MapSpriteFormat.PngFile]), new(128, 128));
-        var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
+        var stock = MapSpriteArtwork.Read(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
         AssertEqual(0, stock.StoredReservePixelCount, "stock reserve pixel table eliminated");
         AssertEqual(8192 - 151 * 32, stock.StoredArtworkByteCount, "reserve planar bytes absent from stored atlas");
         var native = new byte[8192];
@@ -73,7 +73,7 @@ internal static class ReserveTilePixelsVerification
         void CheckEdited(byte[] pixels, int expectedStored)
         {
             using var png = new MemoryStream(); IndexedPng.Write(png, new(128, 128), pixels, image.Colours); png.Position = 0;
-            var edited = MapSpriteCatalog.Load(new MemoryStream(json), png);
+            var edited = MapSpriteArtwork.Read(new MemoryStream(json), png);
             AssertEqual(expectedStored, edited.StoredReservePixelCount, "exact independent pixel capture count");
             var vram = new SnesVram(); edited.LoadArtworkTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(0x4000 / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
             byte[] expected = SnesPlanarTileEncoder.Encode(pixels, new(128, 128), 4);

@@ -184,7 +184,7 @@ internal static class RoomAssetRomDataVerification
                     LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount)
                 : RomDataReader.Decompress(bus, sourceAddress);
             byte[] png = files[name];
-            RoomCharacterAtlas atlas = RoomCharacterAtlas.Load(new MemoryStream(png), native.Length);
+            RoomCharacterAtlas atlas = RoomCharacterAtlasPng.Read(new MemoryStream(png), native.Length);
             if (name == RoomCharacterAtlasFormat.CreFileName) compiledCre = atlas;
             else compiledBySource.Add(sourceAddress, atlas);
             AssertTrue(atlas.Characters.Span.SequenceEqual(native),
@@ -228,7 +228,7 @@ internal static class RoomAssetRomDataVerification
         using var paintedPng = new MemoryStream();
         IndexedPng.Write(paintedPng, new(landingImage.Size.X, landingImage.Size.Y), painted,
             landingImage.Colours);
-        compiledBySource[landingSource] = RoomCharacterAtlas.Load(
+        compiledBySource[landingSource] = RoomCharacterAtlasPng.Read(
             new MemoryStream(paintedPng.ToArray()), landingNative.Length);
         var editedCatalog = new RoomCharacterAtlasCatalog(compiledCre, compiledBySource.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.CharacterSetAt(pair.Key), pair => pair.Value));
         CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(landing, editedCatalog);
@@ -255,7 +255,7 @@ internal static class RoomAssetRomDataVerification
         edited[0] ^= 1;
         using var changedPng = new MemoryStream();
         IndexedPng.Write(changedPng, new(decoded.Size.X, decoded.Size.Y), edited, decoded.Colours);
-        AssertTrue(!RoomCharacterAtlas.Load(new MemoryStream(changedPng.ToArray()), partialNative.Length)
+        AssertTrue(!RoomCharacterAtlasPng.Read(new MemoryStream(changedPng.ToArray()), partialNative.Length)
                 .Characters.Span.SequenceEqual(partialNative),
             "painting a room PNG changes the compiled runtime character bytes");
         int firstPaddingTile = tileCount;
@@ -263,7 +263,7 @@ internal static class RoomAssetRomDataVerification
         edited[(firstPaddingTile / columns * 8) * decoded.Size.X + firstPaddingTile % columns * 8] = 1;
         using var invalidPng = new MemoryStream();
         IndexedPng.Write(invalidPng, new(decoded.Size.X, decoded.Size.Y), edited, decoded.Colours);
-        AssertThrows<InvalidDataException>(() => RoomCharacterAtlas.Load(
+        AssertThrows<InvalidDataException>(() => RoomCharacterAtlasPng.Read(
                 new MemoryStream(invalidPng.ToArray()), partialNative.Length),
             "room atlas rejects artwork in unused final-row cells");
 

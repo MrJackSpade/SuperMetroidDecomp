@@ -61,7 +61,7 @@ internal static class PauseEquipmentBaseAssetsVerification
             Palette = 3, Priority = true, FlipX = false, FlipY = false,
         };
         using (var output = File.Create(path)) PauseEquipmentBasePresentation.Write(output, document with { Cells = cells });
-        var edited = AreaMapPresentationFiles.Load(stock, overrides);
+        var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "equipment base override changes content identity");
         var stockPause = new PauseMenuState(new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         var editedPause = new PauseMenuState(new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = edited, SpriteSheets = MenuSheetFixtures.For(edited) });
@@ -106,16 +106,16 @@ internal static class PauseEquipmentBaseAssetsVerification
         invalidCells[0] = invalidCells[0] with { TileRow = 8 };
         Reject(document with { Cells = invalidCells });
         File.WriteAllText(path, "broken JSON");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides),
+        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides),
             "invalid equipment base override is never silently replaced");
         File.WriteAllBytes(path, stockBytes);
         try
         {
             File.Delete(stockPath);
-            AssertThrows<IOException>(() => AreaMapPresentationFiles.Load(stock, overrides),
+            AssertThrows<IOException>(() => MapPresentationFiles.Load(stock, overrides),
                 "equipment base override cannot conceal missing stock");
             File.WriteAllText(stockPath, "corrupt stock");
-            AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides),
+            AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides),
                 "equipment base override cannot conceal failed provenance");
         }
         finally { File.WriteAllBytes(stockPath, stockBytes); }

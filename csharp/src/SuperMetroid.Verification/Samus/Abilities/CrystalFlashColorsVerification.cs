@@ -11,8 +11,8 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Samus;
 
 namespace SuperMetroid.Verification.Samus.Abilities;
 
@@ -57,7 +57,7 @@ internal static class CrystalFlashColorsVerification
         Paint(document.Bubble[0]);
         string replacement = Path.Combine(overrideDirectory, CrystalFlashColorFormat.FileName);
         File.WriteAllBytes(replacement, CrystalFlashColorFile.Write(document));
-        AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(stockDirectory, overrideDirectory);
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Crystal Flash color edit changes installed-content identity");
         AssertTrue(edited.CrystalFlashColors.ResolveBody(0, 1) !=
@@ -121,7 +121,7 @@ internal static class CrystalFlashColorsVerification
             "crystal-color-reextract");
         byte[] overrideBeforeRepair = File.ReadAllBytes(replacement);
         SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(rom, replacementStock, "test-provenance");
-        AreaMapPresentationCatalog afterRepair = AreaMapPresentationFiles.Load(
+        AreaMapPresentationCatalog afterRepair = MapPresentationFiles.Load(
             replacementStock, overrideDirectory);
         AssertEqual(edited.ContentIdentity, afterRepair.ContentIdentity,
             "stock re-extraction preserves Crystal Flash override");
@@ -129,7 +129,7 @@ internal static class CrystalFlashColorsVerification
             "stock re-extraction never rewrites user Crystal Flash colors");
 
         File.Delete(replacement);
-        AreaMapPresentationCatalog restored = AreaMapPresentationFiles.Load(stockDirectory, overrideDirectory);
+        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing Crystal Flash override restores stock identity");
         Console.WriteLine("Crystal Flash colors: 136 stock words, 100 independent body/bubble calls, edited CGRAM, ROM guard, strict values and stock repair pass.");

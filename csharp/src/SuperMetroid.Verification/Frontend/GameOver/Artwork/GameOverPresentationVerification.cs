@@ -102,7 +102,7 @@ internal static class GameOverPresentationVerification
         string replacement = Path.Combine(overrides, GameOverPresentationDefinitions.FileName);
         using (var output = File.Create(replacement))
             GameOverPresentation.Write(output, document);
-        AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "game-over override changes selected catalog identity");
         AssertEqual(document.BabyAnchor, edited.GameOver.BabyAnchor,
@@ -139,7 +139,7 @@ internal static class GameOverPresentationVerification
             "game-over rebind applies edited Baby anchor without resetting live timing");
 
         File.WriteAllText(replacement, "{ broken game-over JSON");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides),
+        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides),
             "corrupt game-over override fails loudly");
         using (var output = File.Create(replacement))
             GameOverPresentation.Write(output, document);

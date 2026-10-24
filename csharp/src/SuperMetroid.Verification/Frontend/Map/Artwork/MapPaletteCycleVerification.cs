@@ -68,7 +68,7 @@ internal static class MapPaletteCycleVerification
         string replacement = Path.Combine(overrides, MapPaletteCycleFormat.FileName);
         using (var output = File.Create(replacement)) MapPaletteCycleFile.Write(output, replacementDocument);
         byte[] editedBytes = File.ReadAllBytes(replacement);
-        var edited = AreaMapPresentationFiles.Load(stock, overrides);
+        var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "palette edit invalidates selected content identity");
 
         var system = new Bank80SystemState();
@@ -154,7 +154,7 @@ internal static class MapPaletteCycleVerification
 
         string rebuilt = Path.Combine(overrides, "stock-rebuilt");
         SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
-        AssertEqual(edited.ContentIdentity, AreaMapPresentationFiles.Load(rebuilt, overrides).ContentIdentity, "palette override survives re-extraction and reload");
+        AssertEqual(edited.ContentIdentity, MapPresentationFiles.Load(rebuilt, overrides).ContentIdentity, "palette override survives re-extraction and reload");
         AssertTrue(editedBytes.SequenceEqual(File.ReadAllBytes(replacement)), "palette override never rewritten");
         foreach (string invalid in new[] { "null", "{}", "{\"version\":1,\"frames\":[]}", "{\"version\":1,\"frames\":null}" })
         {
@@ -172,7 +172,7 @@ internal static class MapPaletteCycleVerification
         using (var output = new MemoryStream())
             AssertThrows<InvalidDataException>(() => MapPaletteCycleFile.Write(output, document with { Frames = [document.Frames[0] with { Colors = badColors }] }), "palette RGB overflow rejected");
         File.WriteAllText(replacement, "broken palette JSON");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "invalid palette override never falls back to stock");
+        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "invalid palette override never falls back to stock");
         AssertEqual("broken palette JSON", File.ReadAllText(replacement), "invalid palette override retained for repair");
         Console.WriteLine("Map palette cycle: native colors/loop ticks, full pause pixels, edited restored animation, override preservation and strict validation pass.");
     }

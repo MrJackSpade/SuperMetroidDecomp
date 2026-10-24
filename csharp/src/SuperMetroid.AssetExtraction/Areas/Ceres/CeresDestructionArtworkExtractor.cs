@@ -135,7 +135,7 @@ internal static class CeresDestructionArtworkExtractor
         CeresDestructionArtworkCatalog compiled = CeresDestructionArtworkCatalog.Load(
             new MemoryStream(mapJson.ToArray(), writable: false),
             new MemoryStream(zebesMapJson, writable: false),
-            new MemoryStream(zebesPng, writable: false),
+            RoomCharacterAtlasPng.Read(new MemoryStream(zebesPng, writable: false), CeresDestructionArtworkFormat.ZebesCharacterByteCount),
             new MemoryStream(spritesFile, writable: false),
             new MemoryStream(actorsFile, writable: false),
             new MemoryStream(destructionActorsFile, writable: false));

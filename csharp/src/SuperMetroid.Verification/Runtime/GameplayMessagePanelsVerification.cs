@@ -95,7 +95,7 @@ internal static class GameplayMessagePanelsVerification
             overrideDirectory, GameplayMessagePanelDefinitions.FileName);
         File.WriteAllText(replacement,
             document.ToJsonString(ArtworkJson.Options));
-        AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
         var state = new GameplayMessageBoxState();
         state.BindPresentation(edited.GameplayMessageTitles, edited.GameplayMessagePanels);
@@ -108,7 +108,7 @@ internal static class GameplayMessagePanelsVerification
 
         File.WriteAllText(replacement, "{ broken gameplay-message panel");
         AssertThrows<InvalidDataException>(() =>
-            AreaMapPresentationFiles.Load(stockDirectory, overrideDirectory),
+            MapPresentationFiles.Load(stockDirectory, overrideDirectory),
             "corrupt gameplay-message panel override fails loudly");
         Console.WriteLine(
             "Gameplay-message panel catalog: deterministic stock, override selection/identity and corruption failure pass.");

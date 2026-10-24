@@ -1,37 +1,45 @@
+using System.Buffers.Binary;
 using System.Buffers;
 using System.Security.Cryptography;
-using System.Buffers.Binary;
 using System.Text.Json;
+using SuperMetroid.AssetExtraction.Areas.Escape;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
+using SuperMetroid.AssetExtraction.Bosses.Ridley;
+using SuperMetroid.AssetExtraction.Frontend.Ending;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Frontend.Pause;
+using SuperMetroid.AssetExtraction.Frontend.Title;
+using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.AssetExtraction.Hud;
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
-using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Map.Artwork;
-using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.AssetExtraction.Bosses.Ridley;
-using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.AssetExtraction.Fx;
-using SuperMetroid.AssetExtraction.Frontend.Title;
-using SuperMetroid.AssetExtraction.Frontend.Pause;
-using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
-/// <summary>Reads the installed map and shared presentation resources, verifying stock against its manifest and applying overrides.</summary>
-public static class AreaMapPresentationFiles
+/// <summary>
+/// Reads the installed map and menu presentation (#1409): the stock files their manifest verifies and the player's
+/// overrides, compiled into the presentation catalog the game binds. Overrides never alter stock provenance or
+/// exploration rules.
+/// </summary>
+public static class MapPresentationFiles
 {
     /// <summary>Reads all areas atomically into a new catalog; an invalid override is never replaced with stock.</summary>
     public static AreaMapPresentationCatalog Load(string stockDirectory, string? overrideDirectory)
@@ -75,8 +83,8 @@ public static class AreaMapPresentationFiles
             AppendFramed(selected);
         }
         // Each resource below is framed into the identity in this fixed order.
-        MapTileAtlas tiles = Resource(MapTileAtlasFormat.FileName, "map tile atlas", s => MapTileAtlas.Load(s));
-        HudTileAtlas hudTiles = Resource(HudTileAtlasFormat.FileName, "HUD tile atlas", s => HudTileAtlas.Load(s));
+        MapTileAtlas tiles = Resource(MapTileAtlasFormat.FileName, "map tile atlas", s => MapTileCharacters.Read(s));
+        HudTileAtlas hudTiles = Resource(HudTileAtlasFormat.FileName, "HUD tile atlas", s => HudTileAtlasPng.Read(s));
         MapPaletteCycle cycle = Resource(MapPaletteCycleFormat.FileName, "map highlight cycle", s => MapPaletteCycleFile.Read(s));
         MapStaticPalettes palettes = Resource(MapStaticPalettesFormat.FileName, "map palettes", s => MapStaticPalettesFile.Read(s));
         WorldMapLabelLayout labels = Resource(WorldMapLabelFormat.FileName, "world-map labels", s => WorldMapLabelLayout.Load(s));
@@ -86,10 +94,10 @@ public static class AreaMapPresentationFiles
         MapArrowPresentation arrows = Resource(MapArrowFormat.FileName, "map arrows", s => MapArrowPresentation.Load(s));
         MapScreenPresentation screens = Resource(MapScreenDefinitions.FileName, "map screens", s => MapScreenPresentation.Load(s));
         WorldMapArtwork artwork = MultiFileResource<WorldMapArtwork>([WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.BackgroundFile],
-            "world-map PNG artwork", (s, _) => WorldMapArtwork.Load(s[0], s[1]));
+            "world-map PNG artwork", (s, _) => WorldMapCharacters.Read(s[0], s[1]));
         MapSpriteCatalog sprites = MultiFileResource<MapSpriteCatalog>([MapSpriteFormat.JsonFile, MapSpriteFormat.PngFile],
-            "map sprites", (s, _) => MapSpriteCatalog.Load(s[0], s[1]));
-        MapTileAtlas pauseTiles = Resource(PauseTileAtlasFormat.FileName, "pause artwork", s => MapTileAtlas.Load(s));
+            "map sprites", (s, _) => MapSpriteArtwork.Read(s[0], s[1]));
+        MapTileAtlas pauseTiles = Resource(PauseTileAtlasFormat.FileName, "pause artwork", s => MapTileCharacters.Read(s));
         PauseBackdropPresentation pauseBackdrops = Resource(PauseBackdropDefinitions.FileName, "pause backdrop", s => PauseBackdropPresentation.Load(s));
         PauseSelectorPresentation pauseSelectors = Resource(PauseSelectorDefinitions.FileName, "pause selectors", s => PauseSelectorPresentation.Load(s));
         PauseWireframePresentation pauseWireframes = Resource(PauseWireframeDefinitions.FileName, "pause wireframes", s => PauseWireframePresentation.Load(s));
@@ -98,7 +106,7 @@ public static class AreaMapPresentationFiles
         PauseEquipmentBasePresentation pauseEquipmentBase = Resource(PauseEquipmentBaseDefinitions.FileName, "pause equipment base", s => PauseEquipmentBasePresentation.Load(s));
         PauseEquipmentLabelPresentation pauseEquipmentLabels = Resource(PauseEquipmentLabelDefinitions.FileName, "pause equipment labels", s => PauseEquipmentLabelPresentation.Load(s));
         EscapeTimerPresentation escapeTimer = Resource(EscapeTimerPresentationDefinitions.FileName, "escape timer presentation", s => EscapeTimerPresentation.Load(s));
-        EscapeTimerTileAtlas escapeTimerTiles = Resource(EscapeTimerTileAtlasFormat.FileName, "escape timer artwork", s => EscapeTimerTileAtlas.Load(s));
+        EscapeTimerTileAtlas escapeTimerTiles = Resource(EscapeTimerTileAtlasFormat.FileName, "escape timer artwork", s => EscapeTimerCharacters.Read(s));
         GameplayHudPresentation gameplayHud = Resource(GameplayHudDefinitions.FileName, "gameplay HUD presentation", s => GameplayHudPresentation.Load(s));
         GameOverPresentation gameOver = Resource(GameOverPresentationDefinitions.FileName, "game-over presentation", s => GameOverPresentation.Load(s));
         GameOptionsPresentation gameOptions = Resource(GameOptionsPresentationDefinitions.FileName, "options-menu presentation", s => GameOptionsPresentation.Load(s));
@@ -108,13 +116,13 @@ public static class AreaMapPresentationFiles
         GameplayMessageNoticePresentation gameplayMessageNotices = Resource(GameplayMessageNoticeDefinitions.FileName, "gameplay-message notices", s => GameplayMessageNoticePresentation.Load(s));
         EscapeTypewriterPresentation escapeTypewriter = Resource(EscapeTypewriterDefinitions.FileName, "escape typewriter", s => EscapeTypewriterPresentation.Load(s));
         IntroNarrationPresentation introNarration = Resource(IntroNarrationDefinitions.FileName, "intro narration", s => IntroNarrationPresentation.Load(s));
-        IntroFontAtlas introFont = Resource(IntroFontAtlasFormat.FileName, "intro font", s => IntroFontAtlas.Load(s));
+        IntroFontAtlas introFont = Resource(IntroFontAtlasFormat.FileName, "intro font", s => IntroFontCharacters.Read(s));
         EndingTextPresentation endingText = Resource(EndingTextDefinitions.FileName, "ending text", s => EndingTextPresentation.Load(s));
-        EndingFontAtlas endingFont = Resource(EndingFontAtlasFormat.FileName, "ending font", s => EndingFontAtlas.Load(s));
+        EndingFontAtlas endingFont = Resource(EndingFontAtlasFormat.FileName, "ending font", s => EndingFontCharacters.Read(s));
         CreditsPresentation staffCredits = Resource(CreditsPresentationDefinitions.FileName, "staff credits", s => CreditsPresentation.Load(s));
         TitleGraphicsPresentation titleGraphics = MultiFileResource<TitleGraphicsPresentation>(
             [TitleGraphicsFormat.FloorTilesFile, TitleGraphicsFormat.FloorMapFile, TitleGraphicsFormat.ObjectTilesFile, TitleGraphicsFormat.BabyTilesFile],
-            "title graphics", (s, _) => TitleGraphicsPresentation.Load(s[0], s[1], s[2], s[3]));
+            "title graphics", (s, _) => TitleGraphicsCharacters.Read(s[0], s[1], s[2], s[3]));
         TitlePalettePresentation titlePalette = Resource(TitlePaletteFormat.FileName, "title palette", s => TitlePaletteFile.Read(s));
         TitleGradientPresentation titleGradient = Resource(TitleGradientFormat.FileName, "title gradient", s => TitleGradientPresentation.Load(s));
         // Version-seventeen overrides predate the Samus-in-heat rows. Preserve
@@ -129,7 +137,7 @@ public static class AreaMapPresentationFiles
         MotherBrainRoomColorPresentation motherBrainRoomColors = MigratingResource<MotherBrainRoomColorPresentation>(MotherBrainRoomColorFormat.FileName,
             "Mother Brain room colors", (s, current) => MotherBrainRoomColorFile.Read(s, current), StockFingerprint.StockAndSelected);
         RoomFxAnimatedTileAtlas roomFxAnimatedTiles = MigratingResource<RoomFxAnimatedTileAtlas>(RoomFxAnimatedTileAtlasFormat.FileName,
-            "room-FX presentation", (s, current) => RoomFxAnimatedTileAtlas.Load(s, current), StockFingerprint.SelectedOnly);
+            "room-FX presentation", (s, current) => RoomFxAnimatedTileAtlasPng.Read(s, current), StockFingerprint.SelectedOnly);
         RoomFxLayer3TilemapCatalog roomFxLayer3Tilemaps = Resource(RoomFxLayer3TilemapFormat.FileName, "room-FX presentation", s => RoomFxLayer3TilemapCatalog.Load(s));
         RoomFxPaletteBlendCatalog roomFxPaletteBlends = Resource(RoomFxPaletteBlendDefinitions.FileName, "room-FX presentation", s => RoomFxPaletteBlendFile.Read(s));
         PowerBombFixedColorCatalog powerBombFixedColors = Resource(PowerBombFixedColorFormat.FileName, "Power Bomb fixed colors", s => PowerBombFixedColorFile.Read(s));
@@ -304,4 +312,14 @@ public static class AreaMapPresentationFiles
                 throw new InvalidDataException($"Map catalog manifest lists stock files the catalog never verifies: {string.Join(", ", unread)}.");
         }
     }
+}
+
+/// <summary>Whether a presentation resource's stock bytes join the catalog fingerprint as well as its selected bytes.</summary>
+internal enum StockFingerprint
+{
+    /// <summary>Only the selected bytes are fingerprinted.</summary>
+    SelectedOnly,
+
+    /// <summary>The stock bytes are fingerprinted before the selected bytes.</summary>
+    StockAndSelected,
 }

@@ -121,7 +121,7 @@ internal static class CreditsPresentationVerification
         File.WriteAllText(overridePath,
             document.ToJsonString(ArtworkJson.Options));
 
-        AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
         int textRow = CreditsPresentationDefinitions.InitialBlankRows;
         AssertTrue(!edited.StaffCredits.GetRow(textRow).SequenceEqual(
@@ -131,14 +131,14 @@ internal static class CreditsPresentationVerification
             "staff-credit override changes catalog identity");
 
         File.Delete(overridePath);
-        AreaMapPresentationCatalog restored = AreaMapPresentationFiles.Load(
+        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
         AssertTrue(restored.StaffCredits.GetRow(textRow).SequenceEqual(
             original.StaffCredits.GetRow(textRow)),
             "removing staff-credit override restores stock content");
 
         File.WriteAllText(overridePath, "{ bad credits");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(
+        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(
             stockDirectory, overrideDirectory),
             "corrupt staff-credit override fails without stock fallback");
     }

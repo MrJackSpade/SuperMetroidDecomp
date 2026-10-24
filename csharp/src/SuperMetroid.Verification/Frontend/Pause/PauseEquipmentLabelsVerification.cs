@@ -56,7 +56,7 @@ internal static class PauseEquipmentLabelsVerification
         var editedDocument = document with { Labels = labels };
         using (var output = File.Create(overridePath))
             PauseEquipmentLabelPresentation.Write(output, editedDocument);
-        AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
 
         var liveSamus = new SamusState { CollectedBeams = SamusBeamFlags.Charge,
             EquippedBeams = SamusBeamFlags.Charge };
@@ -110,7 +110,7 @@ internal static class PauseEquipmentLabelsVerification
         liveOwnerOverlap["Beam.Charge"] = liveOwnerOverlap["Beam.Charge"] with { Column = 12, Row = 16 };
         Reject(document with { Labels = liveOwnerOverlap }, "equipment labels cannot overlap wireframe/reserve owners");
         File.WriteAllText(overridePath, "{ broken JSON");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides),
+        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides),
             "corrupt equipment-label override fails loudly");
 
         Console.WriteLine("Pause equipment labels: native inventory/Hyper parity, blocked ROM sources, editable art/placement, VAR rebind and strict failures pass.");

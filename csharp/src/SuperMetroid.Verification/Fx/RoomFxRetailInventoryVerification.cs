@@ -48,7 +48,7 @@ internal static class RoomFxRetailInventoryVerification
                 SuperMetroid.AssetExtraction.Fx.RoomFxPaletteBlendExtractor.Extract(source))),
             RoomFxLayer3TilemapCatalog.Load(new MemoryStream(
                 SuperMetroid.AssetExtraction.Fx.RoomFxLayer3TilemapExtractor.Extract(source))),
-            RoomFxAnimatedTileAtlas.Load(new MemoryStream(
+            RoomFxAnimatedTileAtlasPng.Read(new MemoryStream(
                 SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTileAtlasExtractor.Extract(source)))));
         return new()
         {

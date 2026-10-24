@@ -122,7 +122,7 @@ internal static class PowerBombFixedColorsVerification
         PaletteRgb5 original = document.PreExplosion[0];
         document.PreExplosion[0] = original with { Red = (original.Red + 1) % 32 };
         File.WriteAllBytes(path, PowerBombFixedColorFile.Write(document));
-        AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "Power Bomb color edit changes installed content identity");
         AssertTrue(edited.PowerBombFixedColors.Resolve(PowerBombFixedColorSequence.PreExplosion, 0) !=
@@ -143,7 +143,7 @@ internal static class PowerBombFixedColorsVerification
             PreExplosion = [original with { Red = 32 }, .. document.PreExplosion.Skip(1)],
         }), "out-of-range Power Bomb color fails loudly");
         File.Delete(path);
-        AreaMapPresentationCatalog restored = AreaMapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
             "removing Power Bomb color override restores stock identity");
         Console.WriteLine("Power Bomb color override: edited component reaches explosion and removal restores stock.");

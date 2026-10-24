@@ -60,6 +60,8 @@ using SuperMetroid.Core.World;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Cartridge-oracle checks for the first group of compiled gameplay and presentation catalogs.</summary>
 internal static class LookupStream1Verification
@@ -100,7 +102,7 @@ internal static class LookupStream1Verification
             return png.ToArray();
         }
         byte[] frontPng = Png(frontPixels, size.Y, 16);
-        WorldMapArtwork Create(byte[] selected) => WorldMapArtwork.Load(new MemoryStream(frontPng), new MemoryStream(Png(selected, backSize.Y, 4)));
+        WorldMapCharacters Create(byte[] selected) => WorldMapCharacters.Read(new MemoryStream(frontPng), new MemoryStream(Png(selected, backSize.Y, 4)));
         var stock = Create(pixels);
         var stored = stock.background;
         var masks = stock.digitFill;
@@ -142,7 +144,7 @@ internal static class LookupStream1Verification
         }
         Check(Create(pixels.Select(p => (byte)(p ^ 3)).ToArray()), pixels.Select(p => (byte)(p ^ 3)).ToArray());
         byte[] invalid = (byte[])pixels.Clone(); invalid[0] = 4;
-        AssertThrows<InvalidDataException>(() => WorldMapArtwork.Load(new MemoryStream(frontPng),
+        AssertThrows<InvalidDataException>(() => WorldMapCharacters.Read(new MemoryStream(frontPng),
             new MemoryStream(Png(invalid, backSize.Y, 16))), "Invalid BG3 pen rejected during import, before upload");
         AssertThrows<ArgumentOutOfRangeException>(() => WorldMapTileDefinitions.TryBackgroundPixel(96, new(0, 0), out _), "Background tile bound");
         Console.WriteLine($"World BG3:6144 native pixels,{calculated} geometry/mask defaults,{stored.Count} exact source pixels/10footprints,96 independent tile edits/all-pixel inversion and actual full uploads pass.");
@@ -470,10 +472,10 @@ internal static class LookupStream1Verification
         byte[] png = EscapeTimerTileAtlasExtractor.Extract(rom);
         var image = IndexedPng.Read(new MemoryStream(png), new(200, 8));
         byte[] native = Enumerable.Range(0, 800).Select(index => LookupStream1TimerGlyphsRomByte(rom, 0xb0c000 + index)).ToArray();
-        var stock = EscapeTimerTileAtlas.Load(new MemoryStream(png));
-        HashSet<int> Fill(EscapeTimerTileAtlas value) => value.fillPixels;
-        Dictionary<int, byte> Overrides(EscapeTimerTileAtlas value) => value.pixelOverrides;
-        Dictionary<int, bool> FillOverrides(EscapeTimerTileAtlas value) => value.fillOverrides;
+        var stock = EscapeTimerCharacters.Read(new MemoryStream(png));
+        HashSet<int> Fill(EscapeTimerCharacters value) => value.fillPixels;
+        Dictionary<int, byte> Overrides(EscapeTimerCharacters value) => value.pixelOverrides;
+        Dictionary<int, bool> FillOverrides(EscapeTimerCharacters value) => value.fillOverrides;
         bool DefaultFill(int pixel, out bool fill)
         {
             int tile = pixel % 200 / 8, x = pixel % 8, y = pixel / 200 + (tile >= 10 ? 8 : 0);
@@ -564,7 +566,7 @@ internal static class LookupStream1Verification
             byte[] editedPixels = (byte[])image.Pixels.Clone(); editedPixels[index] ^= 15;
             using var stream = new MemoryStream();
             IndexedPng.Write(stream, new(200, 8), editedPixels, image.Colours); stream.Position = 0;
-            var edited = EscapeTimerTileAtlas.Load(stream);
+            var edited = EscapeTimerCharacters.Read(stream);
             for (int other = 0; other < 1600; other++)
             {
                 bool selectedFill = editedPixels[other] == Ink(other);
@@ -1397,7 +1399,7 @@ internal static class LookupStream1Verification
         byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
         var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        var tiles = RoomCharacterAtlas.Load(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Count * 32);
+        var tiles = RoomCharacterAtlasPng.Read(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Count * 32);
         SamusArmCannonArtworkCatalog Load(SamusArmCannonArtworkDocument value) => SamusArmCannonArtworkCatalog.FromPlacement(
             SamusArmCannonArtworkCatalog.LoadPlacement(new MemoryStream(SamusArmCannonArtworkCatalog.Write(value))), tiles);
         var stock = Load(document);
@@ -1504,7 +1506,7 @@ internal static class LookupStream1Verification
         foreach (EscapeTimerAnchor anchor in EscapeTimerPresentationDefinitions.Anchors)
             AssertEqual(new Offset16<OamPixels>(unchecked((short)Word(anchorImmediates[(int)anchor])), 0), EscapeTimerPresentationDefinitions.DefaultAnchor(anchor), "Timer centered anchor matches native renderer immediate");
         SpriteSheet sheet = EscapeTimerDrawChecks.Sheet(rom);
-        SpriteArtwork characters = EscapeTimerTileAtlas.Load(new MemoryStream(
+        SpriteArtwork characters = EscapeTimerCharacters.Read(new MemoryStream(
             SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerTileAtlasExtractor.Extract(rom))).Artwork;
         GameplayBasePaletteCatalog palettes = InstalledFixtures.GameplayBasePalettes;
         var timer = new EscapeTimer(); timer.Clear();
@@ -2223,7 +2225,7 @@ internal static class LookupStream1Verification
         byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
         var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        var tiles = RoomCharacterAtlas.Load(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Count * 32);
+        var tiles = RoomCharacterAtlasPng.Read(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Count * 32);
         SamusArmCannonArtworkCatalog Load(SamusArmCannonArtworkDocument value) => SamusArmCannonArtworkCatalog.FromPlacement(
             SamusArmCannonArtworkCatalog.LoadPlacement(new MemoryStream(SamusArmCannonArtworkCatalog.Write(value))), tiles);
         var stock = Load(document);
@@ -2589,7 +2591,7 @@ internal static class LookupStream1Verification
             return png.ToArray();
         }
         byte[] backPng = Png(backPixels, backSize.Y, 4);
-        WorldMapArtwork Create(byte[] selected) => WorldMapArtwork.Load(new MemoryStream(Png(selected, size.Y, 16)), new MemoryStream(backPng));
+        WorldMapCharacters Create(byte[] selected) => WorldMapCharacters.Read(new MemoryStream(Png(selected, size.Y, 16)), new MemoryStream(backPng));
         var stock = Create(pixels);
         var stored = stock.foreground;
         ulong NativeMask(int tile)
@@ -2844,7 +2846,7 @@ internal static class LookupStream1Verification
         byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
         var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        var tiles = RoomCharacterAtlas.Load(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Count * 32);
+        var tiles = RoomCharacterAtlasPng.Read(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Count * 32);
         SamusArmCannonArtworkCatalog Load(SamusArmCannonArtworkDocument value) => SamusArmCannonArtworkCatalog.FromPlacement(
             SamusArmCannonArtworkCatalog.LoadPlacement(new MemoryStream(SamusArmCannonArtworkCatalog.Write(value))), tiles);
         Dictionary<int, byte> Stored(SamusArmCannonArtworkCatalog value) => value.drawingData;

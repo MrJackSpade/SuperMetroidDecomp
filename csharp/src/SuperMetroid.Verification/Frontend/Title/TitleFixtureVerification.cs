@@ -14,7 +14,7 @@ internal static class TitleFixtureVerification
         CartridgeAudioState? audio = null, TitleGradientPresentation? titleGradientPresentation = null)
     {
         var files = TitleGraphicsExtractor.Extract(source);
-        var graphics = TitleGraphicsPresentation.Load(
+        var graphics = TitleGraphicsCharacters.Read(
             new MemoryStream(files[TitleGraphicsFormat.FloorTilesFile]),
             new MemoryStream(files[TitleGraphicsFormat.FloorMapFile]),
             new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),

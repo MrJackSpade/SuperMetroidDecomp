@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
@@ -20,7 +21,7 @@ internal static class CeresDestructionObjectPage
             switch (upload)
             {
                 case CeresDestructionUpload.CeresScene:
-                    artwork.CeresFlight.ObjectCharacters.Span[..CeresDestructionRomData.Transfers.FloorCharacterBytes].CopyTo(page);
+                    CeresFlightCharacters.Of(artwork.CeresFlight).ObjectCharacters.Span[..CeresDestructionRomData.Transfers.FloorCharacterBytes].CopyTo(page);
                     // The final C11B DMA overwrites the first $1A00 OBJ bytes with the standard cinematic sheet at $9A:D200.
                     artwork.IntroObjectCharacters.Characters.Span[..CeresDestructionRomData.Transfers.SharedObjectCharacterBytes].CopyTo(page);
                     break;

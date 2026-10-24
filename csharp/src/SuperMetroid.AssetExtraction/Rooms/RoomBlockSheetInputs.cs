@@ -39,7 +39,7 @@ internal sealed record RoomBlockSheetInputs(RoomCharacterAtlasCatalog Characters
     internal static RoomBlockSheetInputs Load(string content)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
-        AreaMapPresentationCatalog maps = AreaMapPresentationFiles.Load(Path.Combine(content, GameInstallationLayout.MapDirectoryName), null);
+        AreaMapPresentationCatalog maps = MapPresentationFiles.Load(Path.Combine(content, GameInstallationLayout.MapDirectoryName), null);
         EnemySheetInputs objects = EnemySheetInputs.Load(content);
         return new(
             RoomCharacterArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomCharacterDirectoryName), null),

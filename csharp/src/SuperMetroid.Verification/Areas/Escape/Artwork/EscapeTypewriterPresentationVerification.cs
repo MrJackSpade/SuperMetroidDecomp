@@ -116,7 +116,7 @@ internal static class EscapeTypewriterPresentationVerification
             "TEST!";
         string replacement = Path.Combine(overrideDirectory, EscapeTypewriterDefinitions.FileName);
         File.WriteAllText(replacement, document.ToJsonString(ArtworkJson.Options));
-        AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(stockDirectory, overrideDirectory);
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         var state = new EscapeTypewriterState(
             edited.EscapeTypewriter.Get(EscapeTypewriterProgramId.Zebes),
             EscapeTypewriterRomData.ZebesTileBase);
@@ -130,7 +130,7 @@ internal static class EscapeTypewriterPresentationVerification
 
         File.WriteAllText(replacement, "{ broken escape text");
         AssertThrows<InvalidDataException>(() =>
-            AreaMapPresentationFiles.Load(stockDirectory, overrideDirectory),
+            MapPresentationFiles.Load(stockDirectory, overrideDirectory),
             "corrupt escape text override fails loudly");
         Console.WriteLine(
             "Escape typewriter catalog: deterministic stock, override selection/identity and corruption failure pass.");

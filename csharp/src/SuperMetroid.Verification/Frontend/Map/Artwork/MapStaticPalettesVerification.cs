@@ -53,7 +53,7 @@ internal static class MapStaticPalettesVerification
         string path = Path.Combine(overrides, MapStaticPalettesFormat.FileName);
         using (var output = File.Create(path)) MapStaticPalettesFile.Write(output, replacementDocument);
         byte[] replacementBytes = File.ReadAllBytes(path);
-        var edited = AreaMapPresentationFiles.Load(stock, overrides);
+        var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "static palette edit changes content identity");
         world.BindFixtureArtwork(edited);
         AssertEqual(FileSelectMapRomData.AreaCount - 1, world.SelectedArea, "palette bind preserves selected world area");
@@ -88,7 +88,7 @@ internal static class MapStaticPalettesVerification
 
         string rebuilt = Path.Combine(overrides, "stock-rebuilt");
         SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
-        AssertEqual(edited.ContentIdentity, AreaMapPresentationFiles.Load(rebuilt, overrides).ContentIdentity, "static palette override survives stock replacement");
+        AssertEqual(edited.ContentIdentity, MapPresentationFiles.Load(rebuilt, overrides).ContentIdentity, "static palette override survives stock replacement");
         AssertTrue(replacementBytes.SequenceEqual(File.ReadAllBytes(path)), "static palette overrides are not rewritten");
         var badColor = document.Pause.ToArray(); badColor[0] = badColor[0] with { Blue = -1 };
         foreach (var invalid in new[] { document with { Version = 0 }, document with { Pause = [] }, document with { Pause = badColor },
@@ -98,7 +98,7 @@ internal static class MapStaticPalettesVerification
             AssertThrows<InvalidDataException>(() => MapStaticPalettesFile.Write(output, invalid), "invalid static palette schema/color/area rejected");
         }
         File.WriteAllText(path, "{broken static colors");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "corrupt static palette override fails without fallback");
+        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "corrupt static palette override fails without fallback");
         AssertEqual("{broken static colors", File.ReadAllText(path), "corrupt static override retained for repair");
         Console.WriteLine("Static map palettes: all six native world selections, pause/file-select colors, visible edits, state/fade rebind and override validation pass.");
     }

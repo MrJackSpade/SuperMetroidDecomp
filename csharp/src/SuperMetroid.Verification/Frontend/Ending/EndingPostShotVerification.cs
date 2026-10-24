@@ -2,10 +2,10 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.Ending.EndingLogoTablesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Ending;
-using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.AssetExtraction.Frontend.Ending;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 
@@ -30,7 +30,7 @@ internal static class EndingPostShotVerification
         byte[] font = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), 0x97e7de, 0x8000);
         using var fontPng = new MemoryStream(
             SuperMetroid.AssetExtraction.Frontend.Ending.EndingFontAtlasExtractor.Extract(bus), writable: false);
-        EndingFontAtlas fontAtlas = EndingFontAtlas.Load(fontPng);
+        EndingFontCharacters fontAtlas = EndingFontCharacters.Read(fontPng);
         var shot = new EndingPostShot(screen.Palette);
         var artwork = new EndingScreenArtwork(null, null, RepositoryInstallation.Installation.LoadEndingObjectArt(), fontAtlas, EndingReward.Armored);
         byte[] tiles = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), 0x99e089, 0x8000);

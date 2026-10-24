@@ -354,13 +354,13 @@ internal static class LookupStream4Verification
         byte[] native = decoded.AsSpan(0, 160 * 32).ToArray();
         byte[] png = EndingFontAtlasExtractor.Extract(rom);
         var image = IndexedPng.Read(new MemoryStream(png), new(128, 80));
-        var atlas = EndingFontAtlas.Load(new MemoryStream(png));
+        var atlas = EndingFontCharacters.Read(new MemoryStream(png));
         var stored = atlas.pixels;
         var footprint = atlas.glyphFootprint;
         AssertEqual(3875, stored.Count, "ending font stores exactly other artwork plus35 required deviations, without stock outline/space overrides");
         AssertEqual(2026, footprint.Count, "all2026 small/large-letter and digit footprint positions remain explicitly required");
         AssertTrue(native.SequenceEqual(atlas.Characters.Span), "all5120 original ending font bytes match");
-        AssertTrue(native.SequenceEqual(EndingFontAtlas.FromPlanarBytes(native).Characters.Span), "legacy native import uses same calculated representation");
+        AssertTrue(native.SequenceEqual(EndingFontCharacters.FromPlanarBytes(native).Characters.Span), "legacy native import uses same calculated representation");
         AssertEqual((ushort)0x4F, EndingTextDefinitions.CompileGlyph(' ', EndingTextStyle.ResultSmall), "native small text space selects blank tile4F");
         AssertEqual((ushort)0x7F, EndingTextDefinitions.CompileGlyph(' ', EndingTextStyle.CopyrightLarge), "native large text space selects blank tile7F");
         var largeDeviations = new HashSet<LargeDeviation>
@@ -402,17 +402,17 @@ internal static class LookupStream4Verification
             byte[] changedPixels = image.Pixels.ToArray(); changedPixels[pixel] ^= 1;
             using var changedPng = new MemoryStream();
             IndexedPng.Write(changedPng, new(128, 80), changedPixels, image.Colours); changedPng.Position = 0;
-            var changed = EndingFontAtlas.Load(changedPng);
+            var changed = EndingFontCharacters.Read(changedPng);
             int x = pixel % 128, y = pixel / 128, tile = y / 8 * 16 + x / 8;
             byte[] expected = native.ToArray();
             expected[tile * 32 + y % 8 * 2] ^= (byte)(1 << (7 - x % 8));
             AssertTrue(expected.SequenceEqual(changed.Characters.Span), "independent space/source edit changes exactly its native bitplane bit");
-            AssertTrue(expected.SequenceEqual(EndingFontAtlas.FromPlanarBytes(expected).Characters.Span), "edited legacy import preserves the same native bit");
+            AssertTrue(expected.SequenceEqual(EndingFontCharacters.FromPlanarBytes(expected).Characters.Span), "edited legacy import preserves the same native bit");
             AssertTrue(native.SequenceEqual(atlas.Characters.Span), "font edit leaves stock immutable");
         }
         foreach (int pixel in new[] { -1, 10240, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => EndingFontAtlasFormat.IsSpacePixel(pixel), "font pixel bounds");
-        AssertThrows<InvalidDataException>(() => EndingFontAtlas.FromPlanarBytes(new byte[5119]), "native font byte domain preserved");
+        AssertThrows<InvalidDataException>(() => EndingFontCharacters.FromPlanarBytes(new byte[5119]), "native font byte domain preserved");
         Console.WriteLine("Ending font:5120 native bytes,2026 required footprint positions,3875 required pixels including35 deviations,4339 derived outline/background/space sites and6401 independent native-bit edits pass.");
     }
 

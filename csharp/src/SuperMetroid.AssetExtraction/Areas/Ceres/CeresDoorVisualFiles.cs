@@ -12,6 +12,7 @@ using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
@@ -34,7 +35,7 @@ public static class CeresDoorVisualFiles
         using var image = new MemoryStream();
         IndexedPng.Write(image, size, pixels, SnesGraphics.DiagnosticPalette(16));
         byte[] tilePng = image.ToArray();
-        RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(
+        RoomCharacterAtlas roundtrip = RoomCharacterAtlasPng.Read(
             new MemoryStream(tilePng, writable: false), planar.Length);
         if (!roundtrip.Characters.Span.SequenceEqual(planar))
             throw new InvalidDataException("Ceres-door PNG changed the native tile DMA.");
@@ -107,7 +108,8 @@ public static class CeresDoorVisualFiles
             Compile(row, CeresDoorVisualRomData.AnimationColorCount,
                 $"animation row {index}")).ToArray();
         byte[][] mode7DoorFrames = CompileMode7Frames(document.Mode7DoorFrames);
-        return CeresDoorVisualFiles.Read(tilePng, normal, escape, animation,
+        RoomCharacterAtlas tiles = RoomCharacterAtlasPng.Read(tilePng, CeresDoorVisualRomData.TileByteCount);
+        return CeresDoorVisualCatalog.Load(tiles, normal, escape, animation,
             mode7DoorFrames);
     }
 

@@ -188,7 +188,7 @@ internal static class FileSelectRoomMapVerification
             spriteDocument.Frames[name] = [new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
                 TileColumn = 0, TileRow = 1, Size = 8, Priority = 3, Palette = null, FlipX = false, FlipY = false }];
         }
-        var sprites = MapSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(spriteDocument, options)),
+        var sprites = MapSpriteArtwork.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(spriteDocument, options)),
             new MemoryStream(artwork[MapSpriteFormat.PngFile]));
         int ArrowPhase(int index)
         {
@@ -260,7 +260,7 @@ internal static class FileSelectRoomMapVerification
                 TileColumn = (id == 0x59 ? 0x50 : id) % 16, TileRow = (id == 0x59 ? 0x50 : id) / 16, Size = 8, Priority = 3,
                 Palette = null, FlipX = false, FlipY = false }];
         }
-        var sprites = MapSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)),
+        var sprites = MapSpriteArtwork.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)),
             new MemoryStream(artwork[MapSpriteFormat.PngFile]));
         var icons = new FileSelectMapIcons(system, AreaId.Brinstar);
         icons.BindLandmarks(MapLandmarkLayout.Load(landmarkJson));
@@ -503,7 +503,7 @@ internal static class FileSelectRoomMapVerification
                 TileColumn = 1, TileRow = 0, Size = 8, Priority = 3, Palette = null,
                 FlipX = false, FlipY = false }];
         }
-        var sprites = MapSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)),
+        var sprites = MapSpriteArtwork.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)),
             new MemoryStream(artwork[MapSpriteFormat.PngFile]));
         var marker = new FileSelectStationMarker(AreaId.Crateria, 0, layout);
         int[] expectedFrames = [0x60, 0x61, 0x60, 0x5f, 0x60, 0x61, 0x60, 0x5f];

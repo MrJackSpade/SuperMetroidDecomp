@@ -64,7 +64,7 @@ internal static class MapSpritesVerification
         frames["Marker.Boss"] = [new SpriteVisualPart { OffsetX = 12, OffsetY = -4, TileColumn = 2, TileRow = 3,
             Size = 16, Priority = 3, Palette = 5, FlipX = true, FlipY = true }];
         File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, options));
-        var edited = AreaMapPresentationFiles.Load(stock, overrides);
+        var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity, "composition changes catalog identity");
         Suite(nameof(VerifyRenderedEdit), () => VerifyRenderedEdit(edited));
         for (int palette = 0; palette < 8; palette++)
@@ -81,18 +81,18 @@ internal static class MapSpritesVerification
         }
         frames["Marker.Boss"] = [];
         File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, options));
-        authored.BeginFrame(); MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(AreaMapPresentationFiles.Load(stock, overrides).Sprites), MapSpriteId.MarkerBoss, authored, new(0, 0), 0); authored.FinishFrame();
+        authored.BeginFrame(); MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(MapPresentationFiles.Load(stock, overrides).Sprites), MapSpriteId.MarkerBoss, authored, new(0, 0), 0); authored.FinishFrame();
         AssertEqual(0, authored.LastFinalizedSpriteCount, "authored empty visual frame is valid");
         frames.Remove("Marker.Boss");
         File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, options));
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "missing semantic sprite frame rejected");
+        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "missing semantic sprite frame rejected");
         foreach (var invalid in new[] { document.Frames["Marker.Boss"][0] with { OffsetX = 256 },
             document.Frames["Marker.Boss"][0] with { Size = 16, TileColumn = 15 },
             document.Frames["Marker.Boss"][0] with { Palette = 8 } })
         {
             frames["Marker.Boss"] = [invalid];
             File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, options));
-            AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "invalid sprite visual fields rejected");
+            AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "invalid sprite visual fields rejected");
         }
         File.WriteAllBytes(path, json);
         string pngPath = Path.Combine(overrides, MapSpriteFormat.PngFile);
@@ -101,11 +101,11 @@ internal static class MapSpritesVerification
             image = IndexedPng.Read(input, new(MapSpriteFormat.Width, MapSpriteFormat.Height));
         for (int pixel = 0; pixel < image.Pixels.Length; pixel++) image.Pixels[pixel] = (byte)((image.Pixels[pixel] + 1) % 16);
         using (var output = File.Create(pngPath)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        var pngEdit = AreaMapPresentationFiles.Load(stock, overrides);
+        var pngEdit = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(pngEdit.ContentIdentity != original.ContentIdentity, "PNG alone changes selected content identity");
         Suite(nameof(VerifyRenderedEdit), () => VerifyRenderedEdit(pngEdit));
         File.WriteAllText(pngPath, "invalid PNG");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "corrupt sprite PNG override rejected");
+        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "corrupt sprite PNG override rejected");
         File.WriteAllBytes(pngPath, File.ReadAllBytes(Path.Combine(stock, MapSpriteFormat.PngFile)));
         Console.WriteLine("Map sprites: 26 native compositions, clipping/capacity/palette parity, guarded file-select lifecycle and authored visual fields verified.");
 

@@ -108,7 +108,7 @@ internal static class GameplayHudPresentationVerification
         string replacement = Path.Combine(overrides, GameplayHudDefinitions.FileName);
         using (var output = File.Create(replacement))
             GameplayHudPresentation.Write(output, document);
-        var edited = AreaMapPresentationFiles.Load(stock, overrides);
+        var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "gameplay HUD override changes selected catalog identity");
         var editedTopRowRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
@@ -146,7 +146,7 @@ internal static class GameplayHudPresentationVerification
                 "HUD content rebind carries logical minimap cells to edited anchor");
 
         File.WriteAllText(replacement, "{ broken gameplay HUD JSON");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides),
+        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides),
             "corrupt gameplay HUD override fails loudly");
         using (var output = File.Create(replacement))
             GameplayHudPresentation.Write(output, document);

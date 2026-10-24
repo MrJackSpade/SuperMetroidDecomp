@@ -56,6 +56,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Cartridge-oracle checks for the second set of gameplay, artwork, and pause-screen catalogs.</summary>
@@ -1020,7 +1021,7 @@ internal static class LookupStream2Verification
         editedOam.AddEnemySpritemap(selectedDisplay, new Position16<OamPixels>(128, 128), 0, 0);
         AssertEqual(4, editedOam.NextByteOffset, "Edited display draws one small part instead of25stock parts");
         AssertEqual((byte)198, editedOam.LowTable[0], "Edited display origin reaches actual OAM");
-        var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas> { [EnemyDefinitionId.CorpseTorizo] = RoomCharacterAtlas.Load(png, planar.Length) }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
+        var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas> { [EnemyDefinitionId.CorpseTorizo] = RoomCharacterAtlasPng.Read(png, planar.Length) }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
             {
                 [EnemyDefinitionId.CorpseTorizo] = EnemyPaletteSheetFile.Read(new MemoryStream(
                     EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument
@@ -1185,7 +1186,7 @@ internal static class LookupStream2Verification
             using var png = new MemoryStream();
             IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
             png.Position = 0;
-            pages[ordinal++] = RoomCharacterAtlas.Load(png, page.ByteCount);
+            pages[ordinal++] = RoomCharacterAtlasPng.Read(png, page.ByteCount);
         }
         AssertEqual(8, ordinal, "Torizo page count");
         var artwork = new TorizoSwapArtwork(pages);

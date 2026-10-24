@@ -45,7 +45,7 @@ internal static class CeresEscapeTileArtworkVerification
 
         using var timerPng = new MemoryStream(EscapeTimerTileAtlasExtractor.Extract(rom),
             writable: false);
-        EscapeTimerTileAtlas timer = EscapeTimerTileAtlas.Load(timerPng);
+        EscapeTimerTileAtlas timer = EscapeTimerCharacters.Read(timerPng);
         var guarded = NewCeresEscapeArtworkReadGuard(rom);
         var installed = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {

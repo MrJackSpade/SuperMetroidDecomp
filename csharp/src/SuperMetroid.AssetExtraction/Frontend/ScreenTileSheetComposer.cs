@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -18,6 +19,10 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Frontend.Ending;
+using SuperMetroid.AssetExtraction.Frontend.Title;
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -37,17 +42,17 @@ internal static class ScreenTileSheetComposer
         {
             SpriteSheetId.IntroSceneTiles => Compose(sources.Intro.BackgroundCharacters.Characters.Span[..IntroCinematicRomData.Transfers.BackgroundCharacterBytes],
                 BgBitDepth.FourBpp, IntroColours(sources.Intro)),
-            SpriteSheetId.IntroFontTiles => Compose(maps.IntroFont.Characters.Span, BgBitDepth.TwoBpp, IntroColours(sources.Intro)),
+            SpriteSheetId.IntroFontTiles => Compose(IntroFontCharacters.Of(maps.IntroFont).Characters.Span, BgBitDepth.TwoBpp, IntroColours(sources.Intro)),
             SpriteSheetId.CeresFlightObjectTiles => ComposeFlightObjects(sources.Intro.CeresFlight),
             SpriteSheetId.CeresIntroObjectTiles => Compose(sources.Intro.IntroObjectCharacters.Characters.Span[..CeresDestructionRomData.Transfers.SharedObjectCharacterBytes],
                 BgBitDepth.FourBpp, FlightColours(sources.Intro.CeresFlight)),
             SpriteSheetId.ZebesRevealTiles => Compose(sources.Intro.CeresDestruction.ZebesCharacters.Characters.Span[..CeresDestructionRomData.Transfers.FloorCharacterBytes],
                 BgBitDepth.FourBpp, FlightColours(sources.Intro.CeresFlight)),
-            SpriteSheetId.EndingCreditsFontTiles => Compose(maps.EndingFont.Characters.Span[..EndingCreditsRomData.Rendering.FontCharacterBytes],
+            SpriteSheetId.EndingCreditsFontTiles => Compose(EndingFontCharacters.Of(maps.EndingFont).Characters.Span[..EndingCreditsRomData.Rendering.FontCharacterBytes],
                 BgBitDepth.FourBpp, EndingColours(sources, EndingPaletteId.Credits)),
-            SpriteSheetId.EndingTextFontTiles => Compose(maps.EndingFont.Characters.Span[..EndingCreditsRomData.Rendering.FontCharacterBytes],
+            SpriteSheetId.EndingTextFontTiles => Compose(EndingFontCharacters.Of(maps.EndingFont).Characters.Span[..EndingCreditsRomData.Rendering.FontCharacterBytes],
                 BgBitDepth.FourBpp, EndingColours(sources, EndingPaletteId.PostCredits)),
-            SpriteSheetId.EndingSubtitleTiles => Compose(maps.EndingFont.Characters.Span.Slice(EndingPostShotDefinitions.SubtitleFontOffset,
+            SpriteSheetId.EndingSubtitleTiles => Compose(EndingFontCharacters.Of(maps.EndingFont).Characters.Span.Slice(EndingPostShotDefinitions.SubtitleFontOffset,
                 EndingPostShotUploadDefinitions.SubtitleLength), BgBitDepth.FourBpp, EndingColours(sources, EndingPaletteId.PostCredits)),
             SpriteSheetId.EndingLogoTiles => Compose(sources.EndingObjects.PostShotLogoTiles.Characters.Span, BgBitDepth.FourBpp,
                 EndingColours(sources, EndingPaletteId.PostCredits)),
@@ -57,20 +62,20 @@ internal static class ScreenTileSheetComposer
                 BgBitDepth.TwoBpp, EndingColours(sources, EndingPaletteId.PostCredits)),
             SpriteSheetId.EndingExplosionTiles => Compose(sources.EndingObjects.Explosion.Characters.Span[..EndingCreditsRomData.Rendering.ExplosionObjectBytes],
                 BgBitDepth.FourBpp, EndingColours(sources, EndingPaletteId.Explosion)),
-            SpriteSheetId.MenuForegroundTiles => Compose(maps.WorldArtwork.ForegroundCharacters(), BgBitDepth.FourBpp, maps.Palettes.FileSelect),
-            SpriteSheetId.MenuMapTiles => Compose(maps.Tiles.Characters, BgBitDepth.FourBpp, maps.Palettes.FileSelect),
-            SpriteSheetId.PauseMapTiles => Compose(maps.Tiles.Characters, BgBitDepth.FourBpp, maps.Palettes.Pause),
-            SpriteSheetId.PauseInterfaceTiles => Compose(maps.PauseTiles.Characters, BgBitDepth.FourBpp, maps.Palettes.Pause),
+            SpriteSheetId.MenuForegroundTiles => Compose(WorldMapCharacters.Of(maps.WorldArtwork).ForegroundCharacters(), BgBitDepth.FourBpp, maps.Palettes.FileSelect),
+            SpriteSheetId.MenuMapTiles => Compose(MapTileCharacters.Of(maps.Tiles).Characters, BgBitDepth.FourBpp, maps.Palettes.FileSelect),
+            SpriteSheetId.PauseMapTiles => Compose(MapTileCharacters.Of(maps.Tiles).Characters, BgBitDepth.FourBpp, maps.Palettes.Pause),
+            SpriteSheetId.PauseInterfaceTiles => Compose(MapTileCharacters.Of(maps.PauseTiles).Characters, BgBitDepth.FourBpp, maps.Palettes.Pause),
             SpriteSheetId.PauseHudTiles => Compose(maps.HudTiles.Bytes.Span[..HudTileAtlasFormat.CharacterByteCount], BgBitDepth.TwoBpp,
                 maps.Palettes.Pause),
             SpriteSheetId.AreaMapForegroundTilesCrateria or SpriteSheetId.AreaMapForegroundTilesBrinstar or
                 SpriteSheetId.AreaMapForegroundTilesNorfair or SpriteSheetId.AreaMapForegroundTilesWreckedShip or
                 SpriteSheetId.AreaMapForegroundTilesMaridia or SpriteSheetId.AreaMapForegroundTilesTourian =>
-                Compose(maps.WorldArtwork.ForegroundCharacters(), BgBitDepth.FourBpp, maps.Palettes.World(AreaFor(ScreenTileSheetDefinitions.AreaMapForegrounds, sheet))),
+                Compose(WorldMapCharacters.Of(maps.WorldArtwork).ForegroundCharacters(), BgBitDepth.FourBpp, maps.Palettes.World(AreaFor(ScreenTileSheetDefinitions.AreaMapForegrounds, sheet))),
             SpriteSheetId.AreaMapBackgroundTilesCrateria or SpriteSheetId.AreaMapBackgroundTilesBrinstar or
                 SpriteSheetId.AreaMapBackgroundTilesNorfair or SpriteSheetId.AreaMapBackgroundTilesWreckedShip or
                 SpriteSheetId.AreaMapBackgroundTilesMaridia or SpriteSheetId.AreaMapBackgroundTilesTourian =>
-                Compose(maps.WorldArtwork.BackgroundCharacters(), BgBitDepth.TwoBpp, maps.Palettes.World(AreaFor(ScreenTileSheetDefinitions.AreaMapBackgrounds, sheet))),
+                Compose(WorldMapCharacters.Of(maps.WorldArtwork).BackgroundCharacters(), BgBitDepth.TwoBpp, maps.Palettes.World(AreaFor(ScreenTileSheetDefinitions.AreaMapBackgrounds, sheet))),
             SpriteSheetId.EscapeTimer or SpriteSheetId.Grapple or SpriteSheetId.SamusBodyTop or
                 SpriteSheetId.SamusBodyBottom or SpriteSheetId.SamusOverlays or SpriteSheetId.SamusAtmosphere or
                 SpriteSheetId.SamusDeath or SpriteSheetId.GameOver or SpriteSheetId.FileSelect or
@@ -143,13 +148,13 @@ internal static class ScreenTileSheetComposer
             SpriteSheetId.TitleMode7Tiles => ComposeTitleMode7(sources.Maps.TitleGraphics, sources.Maps.TitlePalette),
             SpriteSheetId.TitleBabyTiles => ComposeTitleBaby(sources.Maps.TitleGraphics, sources.Maps.TitlePalette),
             SpriteSheetId.CeresFlightMode7Tiles => ComposeFlightMode7(sources.Intro.CeresFlight),
-            SpriteSheetId.EndingEscapeAMode7Tiles => ComposeMode7Pixels(sources.EndingMode7[EndingFloorSceneId.EscapeA].Characters.Span,
+            SpriteSheetId.EndingEscapeAMode7Tiles => ComposeMode7Pixels(EndingFloorSceneCharacters.Of(sources.EndingMode7[EndingFloorSceneId.EscapeA]).Characters.Span,
                 EndingColours(sources.EndingPalettes, EndingPaletteId.Escape)),
-            SpriteSheetId.EndingEscapeBMode7Tiles => ComposeMode7Pixels(sources.EndingMode7[EndingFloorSceneId.EscapeB].Characters.Span,
+            SpriteSheetId.EndingEscapeBMode7Tiles => ComposeMode7Pixels(EndingFloorSceneCharacters.Of(sources.EndingMode7[EndingFloorSceneId.EscapeB]).Characters.Span,
                 EndingColours(sources.EndingPalettes, EndingPaletteId.Escape)),
-            SpriteSheetId.EndingPlanetExplosionMode7Tiles => ComposeMode7Pixels(sources.EndingMode7[EndingFloorSceneId.PlanetExplosion].Characters.Span,
+            SpriteSheetId.EndingPlanetExplosionMode7Tiles => ComposeMode7Pixels(EndingFloorSceneCharacters.Of(sources.EndingMode7[EndingFloorSceneId.PlanetExplosion]).Characters.Span,
                 EndingColours(sources.EndingPalettes, EndingPaletteId.Explosion)),
-            SpriteSheetId.EndingFlyawayMode7Tiles => ComposeMode7Pixels(sources.Intro.CeresFlight.FloorCharacters.Span[..EndingCreditsRomData.Rendering.FloorBytes],
+            SpriteSheetId.EndingFlyawayMode7Tiles => ComposeMode7Pixels(CeresFlightCharacters.Of(sources.Intro.CeresFlight).FloorCharacters.Span[..EndingCreditsRomData.Rendering.FloorBytes],
                 EndingColours(sources.EndingPalettes, EndingPaletteId.Escape)),
             SpriteSheetId.EndingRewardIconMode7Tiles => ComposeRewardIcon(sources.EndingMode7, sources.EndingPalettes),
             SpriteSheetId.EscapeTimer or SpriteSheetId.Grapple or SpriteSheetId.SamusBodyTop or
@@ -191,19 +196,19 @@ internal static class ScreenTileSheetComposer
 
     /// <summary>The title's Mode 7 characters under its palette.</summary>
     internal static ComposedSpriteSheet ComposeTitleMode7(TitleGraphicsPresentation graphics, TitlePalettePresentation palette) =>
-        ComposeMode7Pixels(Ensure.NotNull(graphics).FloorCharacters[..TitleSequenceRomData.Transfers.FloorCharacterByteCount], TitleColours(palette));
+        ComposeMode7Pixels(TitleGraphicsCharacters.Of(Ensure.NotNull(graphics)).FloorCharacters[..TitleSequenceRomData.Transfers.FloorCharacterByteCount], TitleColours(palette));
 
     /// <summary>The title's Baby Metroid animation pages under its palette.</summary>
     internal static ComposedSpriteSheet ComposeTitleBaby(TitleGraphicsPresentation graphics, TitlePalettePresentation palette) =>
-        ComposeMode7Pixels(Ensure.NotNull(graphics).BabyCharacters, TitleColours(palette));
+        ComposeMode7Pixels(TitleGraphicsCharacters.Of(Ensure.NotNull(graphics)).BabyCharacters, TitleColours(palette));
 
     /// <summary>The Ceres flight's Mode 7 characters under its palette.</summary>
     internal static ComposedSpriteSheet ComposeFlightMode7(CeresFlightArtworkCatalog flight) =>
-        ComposeMode7Pixels(Ensure.NotNull(flight).FloorCharacters.Span[..CeresFlightRomData.Transfers.FloorCharacterByteCount], FlightColours(flight));
+        ComposeMode7Pixels(CeresFlightCharacters.Of(Ensure.NotNull(flight)).FloorCharacters.Span[..CeresFlightRomData.Transfers.FloorCharacterByteCount], FlightColours(flight));
 
     /// <summary>The ending's reward icon's Mode 7 characters under the post-credits palette.</summary>
     private static ComposedSpriteSheet ComposeRewardIcon(EndingFloorArtworkCatalog mode7, EndingPaletteCatalog palettes) =>
-        ComposeMode7Pixels(HighBytes(mode7.RewardIcon.Bytes.Span), EndingColours(palettes, EndingPaletteId.PostCredits));
+        ComposeMode7Pixels(HighBytes(EndingRewardIconCharacters.Of(mode7.RewardIcon).Bytes.Span), EndingColours(palettes, EndingPaletteId.PostCredits));
 
     /// <summary>The sheet of Mode 7 characters whose pixels <paramref name="pixels"/> holds, one colour index each, coloured from <paramref name="palette"/>.</summary>
     /// <exception cref="InvalidDataException">The pixels are not whole characters.</exception>
@@ -259,7 +264,7 @@ internal static class ScreenTileSheetComposer
 
     /// <summary>The Ceres flight's object characters under its palette, which its caption shows.</summary>
     internal static ComposedSpriteSheet ComposeFlightObjects(CeresFlightArtworkCatalog flight) =>
-        Compose(Ensure.NotNull(flight).ObjectCharacters.Span[..CeresFlightRomData.Transfers.ObjectCharacterByteCount], BgBitDepth.FourBpp, FlightColours(flight));
+        Compose(CeresFlightCharacters.Of(Ensure.NotNull(flight)).ObjectCharacters.Span[..CeresFlightRomData.Transfers.ObjectCharacterByteCount], BgBitDepth.FourBpp, FlightColours(flight));
 
     /// <summary>The opening cinematic's palette.</summary>
     private static ReadOnlySpan<Bgr555> IntroColours(IntroCinematicArtworkCatalog intro)

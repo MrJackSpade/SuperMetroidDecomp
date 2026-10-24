@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Menus.Artwork;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.Menus.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Menus;
 
 /// <summary>Reviewed large menu glyph halves and transparent tile0F. Calculate index13 shadows one pixel down/right
 /// from authored index14 silhouettes, including the shared upper/lower boundary established

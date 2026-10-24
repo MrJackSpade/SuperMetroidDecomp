@@ -1198,7 +1198,7 @@ internal static void VerifyCeresRidleyRoomEntry()
             new byte[EscapeTimerTileAtlasFormat.Width * EscapeTimerTileAtlasFormat.Height],
             SnesGraphics.DiagnosticPalette(EscapeTimerTileAtlasFormat.ColorCount));
         timerPng.Position = 0;
-        enemies.BossArtworkBinding.EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng);
+        enemies.BossArtworkBinding.EscapeTimerArtwork = EscapeTimerCharacters.Read(timerPng);
     }
     AssertTrue(enemies.Audio.SoundRequests.Contains(
             new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x4e), MaximumQueued: 6)),

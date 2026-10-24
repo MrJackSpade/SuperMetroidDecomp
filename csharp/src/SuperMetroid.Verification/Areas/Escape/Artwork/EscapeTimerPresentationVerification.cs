@@ -42,7 +42,7 @@ internal static class EscapeTimerPresentationVerification
         AssertTrue(extractedTiles.SequenceEqual(File.ReadAllBytes(stockTilePath)),
             "installed timer PNG is the deterministic cartridge extraction");
 
-        var tileAtlas = EscapeTimerTileAtlas.Load(new MemoryStream(extractedTiles));
+        var tileAtlas = EscapeTimerCharacters.Read(new MemoryStream(extractedTiles));
         byte[] nativeFirstTiles = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             EscapeTimerTileRomData.FirstSourceAddress, EscapeTimerTileAtlasFormat.FirstByteCount);
         byte[] nativeSecondTiles = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),

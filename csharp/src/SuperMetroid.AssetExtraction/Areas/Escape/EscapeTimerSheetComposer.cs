@@ -24,7 +24,7 @@ internal static class EscapeTimerSheetComposer
     internal static ComposedSpriteSheet Compose(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        EscapeTimerTileAtlas tiles = EscapeTimerTileAtlas.Load(new MemoryStream(EscapeTimerTileAtlasExtractor.Extract(bus), writable: false));
+        EscapeTimerTileAtlas tiles = EscapeTimerCharacters.Read(new MemoryStream(EscapeTimerTileAtlasExtractor.Extract(bus), writable: false));
         var frames = new List<SheetFrameSource>();
         foreach (EscapeTimerGlyph glyph in EscapeTimerPresentationDefinitions.Glyphs)
         {

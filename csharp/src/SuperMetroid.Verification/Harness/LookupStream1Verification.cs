@@ -470,10 +470,10 @@ internal static class LookupStream1Verification
         byte[] png = EscapeTimerTileAtlasExtractor.Extract(rom);
         var image = IndexedPng.Read(new MemoryStream(png), new(200, 8));
         byte[] native = Enumerable.Range(0, 800).Select(index => LookupStream1TimerGlyphsRomByte(rom, 0xb0c000 + index)).ToArray();
-        var stock = EscapeTimerTileAtlas.Load(new MemoryStream(png));
-        HashSet<int> Fill(EscapeTimerTileAtlas value) => value.fillPixels;
-        Dictionary<int, byte> Overrides(EscapeTimerTileAtlas value) => value.pixelOverrides;
-        Dictionary<int, bool> FillOverrides(EscapeTimerTileAtlas value) => value.fillOverrides;
+        var stock = EscapeTimerCharacters.Read(new MemoryStream(png));
+        HashSet<int> Fill(EscapeTimerCharacters value) => value.fillPixels;
+        Dictionary<int, byte> Overrides(EscapeTimerCharacters value) => value.pixelOverrides;
+        Dictionary<int, bool> FillOverrides(EscapeTimerCharacters value) => value.fillOverrides;
         bool DefaultFill(int pixel, out bool fill)
         {
             int tile = pixel % 200 / 8, x = pixel % 8, y = pixel / 200 + (tile >= 10 ? 8 : 0);
@@ -564,7 +564,7 @@ internal static class LookupStream1Verification
             byte[] editedPixels = (byte[])image.Pixels.Clone(); editedPixels[index] ^= 15;
             using var stream = new MemoryStream();
             IndexedPng.Write(stream, new(200, 8), editedPixels, image.Colours); stream.Position = 0;
-            var edited = EscapeTimerTileAtlas.Load(stream);
+            var edited = EscapeTimerCharacters.Read(stream);
             for (int other = 0; other < 1600; other++)
             {
                 bool selectedFill = editedPixels[other] == Ink(other);
@@ -1504,7 +1504,7 @@ internal static class LookupStream1Verification
         foreach (EscapeTimerAnchor anchor in EscapeTimerPresentationDefinitions.Anchors)
             AssertEqual(new Offset16<OamPixels>(unchecked((short)Word(anchorImmediates[(int)anchor])), 0), EscapeTimerPresentationDefinitions.DefaultAnchor(anchor), "Timer centered anchor matches native renderer immediate");
         SpriteSheet sheet = EscapeTimerDrawChecks.Sheet(rom);
-        SpriteArtwork characters = EscapeTimerTileAtlas.Load(new MemoryStream(
+        SpriteArtwork characters = EscapeTimerCharacters.Read(new MemoryStream(
             SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerTileAtlasExtractor.Extract(rom))).Artwork;
         GameplayBasePaletteCatalog palettes = InstalledFixtures.GameplayBasePalettes;
         var timer = new EscapeTimer(); timer.Clear();

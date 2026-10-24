@@ -70,7 +70,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             services: japaneseOverlay.Services())
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresEscapeTiles = new CeresEscapeTileArtwork(escapePages), CeresEscapeOverlayTilemaps = overlay },
-            BossArtworkBinding = { EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng) },
+            BossArtworkBinding = { EscapeTimerArtwork = EscapeTimerCharacters.Read(timerPng) },
         };
         // The timer-sprite list shows exactly the ROM-checked records' characters over the OBJ characters, one an update.
         TileTransferDefinition[] spriteList = [.. records

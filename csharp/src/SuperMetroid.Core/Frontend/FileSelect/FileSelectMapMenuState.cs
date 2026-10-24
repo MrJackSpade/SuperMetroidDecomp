@@ -220,8 +220,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         if (!entry.IsComplete)
         {
             LayeredScene areaScene = Area();
-            Bgr555[] palette = areaScene.Paint.Colors.ToArray(); palette[0] = Bgr555.Black;
-            var black = new LayeredScene(new FramePaint(palette, []), [], FadeLevel.Full);
+            var black = new LayeredScene(new FramePaint(areaScene.Paint.Backgrounds.WithBackdrop(Bgr555.Black), []), [], FadeLevel.Full);
             return entry.Phase == FileSelectMapEntryPhase.Revealing
                 ? Insert(black, areaScene, entry.Left, entry.Top, entry.Right + 1, entry.Bottom) : black;
         }

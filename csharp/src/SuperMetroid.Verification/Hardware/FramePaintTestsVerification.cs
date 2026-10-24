@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
@@ -27,8 +28,8 @@ internal static class FramePaintTestsVerification
         FramePaint first = FramePaintConstants.Capture(cgram, sprites);
         FramePaint repeated = FramePaintConstants.Capture(cgram, sprites);
         AssertTrue(first.Colors.SequenceEqual(expectedPalette), "CGRAM capture changed native words");
-        AssertTrue(first.SpriteDraws.SequenceEqual(sprites.Draws), "capture keeps the frame's draws in emission order");
-        AssertTrue(repeated.Colors.SequenceEqual(first.Colors) && repeated.SpriteDraws.SequenceEqual(first.SpriteDraws),
+        AssertTrue(Order(first.SpriteDraws).SequenceEqual(Order(sprites.Draws)), "capture keeps the frame's draws in emission order");
+        AssertTrue(repeated.Colors.SequenceEqual(first.Colors) && Order(repeated.SpriteDraws).SequenceEqual(Order(first.SpriteDraws)),
             "repeat capture changed the paint");
         AssertTrue(cgram.Colors.SequenceEqual(expectedPalette), "capture mutated its source");
 
@@ -41,11 +42,15 @@ internal static class FramePaintTestsVerification
         var fromFixture = new FramePaint(expectedPalette, first.SpriteDraws);
         // Flip every color bit (the PPU stores fifteen).
         expectedPalette[0] = Bgr555.FromWord((ushort)(expectedPalette[0].ToWord() ^ 0x7fff));
-        AssertTrue(fromFixture.Colors.SequenceEqual(first.Colors) && fromFixture.SpriteDraws.SequenceEqual(first.SpriteDraws),
+        AssertTrue(fromFixture.Colors.SequenceEqual(first.Colors) && Order(fromFixture.SpriteDraws).SequenceEqual(Order(first.SpriteDraws)),
             "fixture arrays escaped into frame ownership");
 
         AssertThrows<ArgumentException>(() => new FramePaint(ToColors(new ushort[1]), []), "short CGRAM");
         AssertThrows<ArgumentException>(() => new FramePaint(expectedPalette, default), "missing draw list");
         Console.WriteLine("Frame paint: CGRAM parity, draw retention, ownership and size checks passed.");
+
+        // The paint resolves each draw's colours (#1405), so a draw is known by what it shows and where, in order.
+        static IEnumerable<(SpriteSource Source, Position16<ScreenPixels> Origin)> Order(ImmutableArray<SpriteDraw> draws) =>
+            draws.Select(draw => (draw.Source, draw.Origin));
     }
 }

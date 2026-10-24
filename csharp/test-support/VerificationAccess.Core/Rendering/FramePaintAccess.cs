@@ -28,6 +28,9 @@ internal static class FramePaintAccess
     /// <summary>Reads what a captured frame description shows.</summary>
     extension(FramePaint memory)
     {
+        /// <summary>The colour each ink shows, in ink order, for fixtures that compare or rebuild a frame's colours.</summary>
+        internal ReadOnlySpan<Bgr555> Colors => memory.Backgrounds.AllColours;
+
         /// <summary>Every sprite part the frame shows, frontmost first.</summary>
         internal PlacedSpritePart[] SpriteParts() => PlacedSpritePart.Of(memory.SpriteDraws);
     }

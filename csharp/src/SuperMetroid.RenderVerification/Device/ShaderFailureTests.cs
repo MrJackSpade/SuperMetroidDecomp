@@ -12,7 +12,7 @@ internal static class ShaderFailureTests
     internal static void Run(D3D11RenderDevice device)
     {
         foreach (string missing in new[] { D3D11ShaderLayout.SolidResourceName, D3D11ShaderLayout.TileResourceName,
-            D3D11ShaderLayout.TitleGradientResourceName,
+            D3D11ShaderLayout.TitleGradientResourceName, D3D11ShaderLayout.SpriteVertexResourceName, D3D11ShaderLayout.SpritePixelResourceName,
             D3D11ShaderLayout.DisplayVertexResourceName, D3D11ShaderLayout.DisplayPixelResourceName })
         {
             bool rejected = false;

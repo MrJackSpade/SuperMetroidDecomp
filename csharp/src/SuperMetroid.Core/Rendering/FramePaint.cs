@@ -15,29 +15,37 @@ namespace SuperMetroid.Core.Rendering;
 /// </remarks>
 public sealed class FramePaint
 {
-    /// <summary>The frame's colours, in palette order.</summary>
-    private readonly Bgr555[] colors;
-
     /// <summary>The draws as a plain array; debugger state (a captured frontend display) cannot hold immutable collections.</summary>
     private readonly SpriteDraw[] spriteDraws;
 
-    /// <summary>Copies the colours and keeps the frame's whole-frame sprite draws.</summary>
+    /// <summary>Keeps the colour each ink shows and the frame's whole-frame sprite draws.</summary>
+    /// <param name="colours">The colour each ink shows: the background art's, and the sprite rows' for draws no owner coloured.</param>
+    /// <param name="spriteDraws">The draws, frontmost first.</param>
     /// <exception cref="ArgumentException">There are not 256 colours, or the draw list is missing or holds a missing draw.</exception>
-    public FramePaint(ReadOnlySpan<Bgr555> colors, ImmutableArray<SpriteDraw> spriteDraws)
+    public FramePaint(ReadOnlySpan<Bgr555> colours, ImmutableArray<SpriteDraw> spriteDraws)
+        : this(new BackgroundColours(colours), spriteDraws)
     {
+    }
+
+    /// <summary>Keeps the background art's colours and the frame's whole-frame sprite draws.</summary>
+    /// <param name="backgrounds">The colour each ink shows: the background art's, and the sprite rows' for draws no owner coloured.</param>
+    /// <param name="spriteDraws">The draws, frontmost first.</param>
+    /// <exception cref="ArgumentException">The draw list is missing or holds a missing draw.</exception>
+    public FramePaint(BackgroundColours backgrounds, ImmutableArray<SpriteDraw> spriteDraws)
+    {
+        Ensure.NotNull(backgrounds);
         if (spriteDraws.IsDefault)
             throw new ArgumentException("A frame requires a draw list.", nameof(spriteDraws));
         foreach (SpriteDraw draw in spriteDraws)
             if (draw is null)
                 throw new ArgumentException("Each sprite draw needs an entry.", nameof(spriteDraws));
-        Ensure.LengthEqual(colors, ScreenPalette.ColorCount);
-        this.colors = colors.ToArray();
-        this.spriteDraws = ImmutableCollectionsMarshal.AsArray(DrawColours.ResolveAll(spriteDraws, colors)) ?? throw new ArgumentException(
-            "A frame requires a draw list.", nameof(spriteDraws));
+        Backgrounds = backgrounds;
+        this.spriteDraws = ImmutableCollectionsMarshal.AsArray(DrawColours.ResolveAll(spriteDraws, backgrounds.AllColours))
+            ?? throw new ArgumentException("A frame requires a draw list.", nameof(spriteDraws));
     }
 
-    /// <summary>The frame's 256 colours, in palette order; conversion to display colours is backend work.</summary>
-    public ReadOnlySpan<Bgr555> Colors => colors;
+    /// <summary>What the frame's background art shows: its backdrop and each ink's colour (#1408).</summary>
+    public BackgroundColours Backgrounds { get; }
 
     /// <summary>The displayed whole-frame sprite draws in emission order, frontmost first, each with its colours resolved.</summary>
     public ImmutableArray<SpriteDraw> SpriteDraws => ImmutableCollectionsMarshal.AsImmutableArray(spriteDraws);

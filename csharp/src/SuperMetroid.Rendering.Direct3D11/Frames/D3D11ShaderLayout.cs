@@ -1,8 +1,6 @@
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
 /// <summary>CPU/HLSL upload-layout identities; changes require matching shader and verification changes.</summary>
-[PpuLayoutBoundary("codec: GPU upload layout of the VRAM/CGRAM render snapshot")]
 internal static class D3D11ShaderLayout
 {
     /// <summary>Four control words precede the variable brightness-pass levels in the solid shader buffer.</summary>
@@ -15,7 +13,7 @@ internal static class D3D11ShaderLayout
     internal const int DispatchTileEdge = 8;
     /// <summary>Per-scanline shader parameters begin after the fixed dispatch header.</summary>
     internal const int ScanlineParametersWordOffset = 32;
-    /// <summary>The word after the scanline parameters: a subscreen's main coverage layer's character tile table (#1392).</summary>
+    /// <summary>The word after the line parameters: the tile table of the layer covering a layer added behind it (#1392).</summary>
     internal const int CoverageTableWord = ScanlineParametersWordOffset + 224 * 4;
     /// <summary>Embedded compute shader for solid color and brightness passes.</summary>
     internal const string SolidResourceName = "SuperMetroid.Shaders.Solid.cso";
@@ -23,10 +21,12 @@ internal static class D3D11ShaderLayout
     internal const string TileResourceName = "SuperMetroid.Shaders.Tiles.cso";
     /// <summary>Embedded shader for the title-screen gradient pass.</summary>
     internal const string TitleGradientResourceName = "SuperMetroid.Shaders.TitleGradient.cso";
+    /// <summary>Embedded vertex shader placing each sprite draw's quad (#1408).</summary>
+    internal const string SpriteVertexResourceName = "SuperMetroid.Shaders.SpriteVertex.cso";
+    /// <summary>Embedded pixel shader drawing each sprite draw's image into the sprite layer (#1408).</summary>
+    internal const string SpritePixelResourceName = "SuperMetroid.Shaders.SpritePixel.cso";
     /// <summary>Embedded vertex shader for presenting the composed frame.</summary>
     internal const string DisplayVertexResourceName = "SuperMetroid.Shaders.DisplayVertex.cso";
     /// <summary>Embedded pixel shader for presenting the composed frame.</summary>
     internal const string DisplayPixelResourceName = "SuperMetroid.Shaders.DisplayPixel.cso";
-    /// <summary>Upload words of the frame's palette: one per colour (#1403).</summary>
-    internal const int PaletteWords = Core.Hardware.SnesPpuLayout.CgramColorCount;
 }

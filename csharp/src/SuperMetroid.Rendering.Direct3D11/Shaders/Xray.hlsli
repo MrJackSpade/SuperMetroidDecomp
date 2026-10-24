@@ -1,11 +1,11 @@
-// Literal X-ray Mode-1 composition. Header/scanline packing is documented by
-// DispatchXrayGameplay; no CPU-colored pixels or priority raster are uploaded.
-// D3D11GameplaySubscreenKind header contract.
-static const uint SubscreenCapturedBg3 = 1;
-static const uint SubscreenGameplayBg2 = 2;
-static const uint SubscreenGameplayBg2AndCapturedBg3 = 3;
-// A room source (RoomTile), the BG3 plane from row `map`, or the VRAM tilemap at `map`; a room position the room
-// does not cover is transparent. Words written over BG2 cover it when roomSource carries RoomSourceBg2Overlay.
+// A room under the X-ray: its layers and sprites in their order, the reveal's window, the layers each line shows, and
+// the blend with the fixed colour or what lies behind. D3D11FrameRenderer.DispatchXrayRoom packs the header and lines;
+// D3D11XrayBehindLayers names what lies behind.
+static const uint BehindLayer3 = 1;
+static const uint BehindLayer2 = 2;
+static const uint BehindLayer2AndLayer3 = 3;
+// A room layer (RoomTile) or the layer-3 plane from row `map`; a position the room does not cover is transparent.
+// Words written over layer 2 cover it when roomSource carries SourceLayer2Overlay.
 uint2 XrayBackground(uint roomSource, uint map, uint2 size, uint2 position, bool opaqueZero)
 {
     uint entry = 0;
@@ -13,16 +13,16 @@ uint2 XrayBackground(uint roomSource, uint map, uint2 size, uint2 position, bool
     uint2 within = uint2(0, 0);
     bool shown = true;
     uint source = roomSource & 255;
-    bool overlaid = (roomSource & RoomSourceBg2Overlay) != 0 && Bg2OverlayPicture(position & 65535, size, picture, within);
+    bool overlaid = (roomSource & SourceLayer2Overlay) != 0 && Bg2OverlayPicture(position & 65535, size, picture, within);
     if (!overlaid)
     {
-        if (source == RoomSourceBg3)
+        if (source == SourceLayer3)
             shown = Bg3Picture(map, size.y, position & 65535, within, picture);
-        else if (source == RoomSourceBossBg2)
+        else if (source == SourceBossBody)
             BossBg2Picture(position, size, within, picture);
-        else if (source == RoomSourceXrayReveal)
+        else if (source == SourceXrayReveal)
             shown = RevealPicture(position & 65535, picture, within);
-        else if (source == RoomSourceBg2Image)
+        else if (source == SourceLibraryBackground)
             shown = Bg2ImagePicture(position & 65535, size, picture, within);
         else
             shown = RoomTile(source, position, entry, within, picture);
@@ -49,10 +49,10 @@ void XrayInsert(uint2 candidate, int candidateRank, uint candidateSource,
 
 uint XrayGameplay(uint2 screen)
 {
-    uint winner = Palette(0);
+    uint winner = Backdrop();
     if (screen.y < 32)
     {
-        uint2 hud = XrayBackground(RoomSourceBg3, 0, uint2(32,32), screen, true);
+        uint2 hud = XrayBackground(SourceLayer3, 0, uint2(32,32), screen, true);
         winner = hud.x;
     }
     else
@@ -71,24 +71,24 @@ uint XrayGameplay(uint2 screen)
     }
     if ((TransparentZero == 0 || !inside) && (mainScreen & 1) != 0)
     {
-        uint2 bg = XrayBackground(RoomSourceBg1, 0, uint2(64,32), screen + uint2(HorizontalScroll,VerticalScroll), false);
+        uint2 bg = XrayBackground(SourceLayer1, 0, uint2(64,32), screen + uint2(HorizontalScroll,VerticalScroll), false);
         XrayInsert(bg, bg.y != 0 ? 6 : 3, 1, winner, rank, source);
     }
     if ((mainScreen & 16) != 0)
     {
-        uint palette;
-        uint2 obj = ResolveObjectWithPalette(screen, palette);
+        bool blends;
+        uint2 obj = SpriteAt(screen, blends);
         int objRank = obj.y < 2 ? (int)obj.y : obj.y == 2 ? 4 : 7;
-        XrayInsert(obj, objRank, palette >= 4 ? 16 : 0, winner, rank, source);
+        if (obj.y != NoSprite) XrayInsert(uint2(obj.x, obj.y), objRank, blends ? 16 : 0, winner, rank, source);
     }
     if (!inside && (Level & source) != 0)
     {
         uint sub = 0;
-        if (OffsetX != 0 && (Reserved3 == SubscreenGameplayBg2 || Reserved3 == SubscreenGameplayBg2AndCapturedBg3))
+        if (OffsetX != 0 && (Reserved3 == BehindLayer2 || Reserved3 == BehindLayer2AndLayer3))
             sub = XrayBackground(RoomSource, (uint)MatrixA, uint2(MapWidth,MapHeight), bg2Screen + scan.xy, false).x;
-        if (OffsetX != 0 && (Reserved3 == SubscreenCapturedBg3 || Reserved3 == SubscreenGameplayBg2AndCapturedBg3) && screen.y >= (uint)CenterY)
+        if (OffsetX != 0 && (Reserved3 == BehindLayer3 || Reserved3 == BehindLayer2AndLayer3) && screen.y >= (uint)CenterY)
         {
-            uint2 bg3 = XrayBackground(RoomSourceBg3, (uint)MatrixC, uint2(32,(uint)CenterX),
+            uint2 bg3 = XrayBackground(SourceLayer3, (uint)MatrixC, uint2(32,(uint)CenterX),
                 screen + uint2(scan.w & 65535, scan.w >> 16), false);
             if ((bg3.x >> 24) != 0 && (bg3.y != 0 || (sub >> 24) == 0)) sub = bg3.x;
         }

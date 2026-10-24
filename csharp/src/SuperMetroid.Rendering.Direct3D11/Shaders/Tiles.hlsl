@@ -1,58 +1,70 @@
-// These operation IDs and the palette layout match D3D11ShaderLayout.cs: Memory holds the frame's 256 colours (#1403).
-static const uint OpBackdrop = 0, OpBg4 = 1, OpBg2 = 2, OpBrightness = 3, OpFixedAdd = 4;
-static const uint OpResolveObj = 5, OpInsertObj = 6;
-static const uint OpMode7 = 7;
-static const uint OpScanlineAdd = 8;
-static const uint OpBgAdd = 9, OpBgSubtract = 10;
-static const uint OpSubscreenAdd = 11;
-static const uint OpMessage = 12;
-static const uint OpXrayGameplay = 14;
+// These operation IDs match D3D11TileOperation.cs. Colours holds the scene's backdrop and each picture's colours (#1408).
+static const uint OpBackdrop = 0, OpLayer = 1, OpBrightness = 3, OpAddColour = 4;
+static const uint OpInsertSprites = 6;
+static const uint OpFloor = 7;
+static const uint OpLineColourAdd = 8;
+static const uint OpAddLayer = 9, OpSubtractLayer = 10;
+static const uint OpAddLayerBehind = 11;
+static const uint OpMessageText = 12;
+static const uint OpXrayRoom = 14;
 cbuffer TileParameters : register(b0)
 {
-    uint Operation, TilemapWord, CharacterWord, HorizontalScroll;
+    uint Operation, TilemapWord, Reserved1, HorizontalScroll;
     uint VerticalScroll, MapWidth, MapHeight, PriorityFilter;
     uint TransparentZero, Level, AddR, AddG;
-    uint AddB, MessageDarkIndex, RoomSource, Reserved3;
+    uint AddB, Reserved2, RoomSource, Reserved3;
     int MatrixA, MatrixB, MatrixC, MatrixD;
     int CenterX, CenterY, OffsetX, OffsetY;
     uint FillCharacterZero, FirstScanline, EndScanline;
     uint Reserved27;
     uint Reserved28, Reserved29, Reserved30, Reserved31;
     uint4 ScanlineParameters[224];
-    // A subscreen add's main coverage layer's character tile table (#1392), or zero while it reads VRAM's characters.
+    // The tile table of the layer covering a layer added behind it (#1392).
     uint CoverageTable;
 };
-StructuredBuffer<uint> Memory : register(t0);
-// Room level planes (D3D11RoomLevelBuffer): BG1, BG2 and door-source plane records, the door window, the BG1 overlay,
+// The scene's colours (D3D11SceneColourBuffer): the backdrop, then each colour slot's table's word, then the tables:
+// a word of one bit per sixteen-ink group still showing its image's own colours, then each ink's colour.
+StructuredBuffer<uint> Colours : register(t0);
+// Room level planes (D3D11RoomLevelBuffer): layer-1, layer-2 and door-source plane records, the door window, the layer-1 overlay,
 // and the pre-coloured block pictures the planes' definitions show (#1392).
 StructuredBuffer<uint> RoomLevels : register(t3);
-// RoomSource: 0 samples the VRAM tilemap; otherwise the room's BG1 or BG2 as level data shows it, the sky's rows,
-// the BG3 plane, or a boss body's BG2 tilemap. RoomSourceBg2Overlay added to it lays words written over BG2 on top.
-static const uint RoomSourceBg1 = 1, RoomSourceBg2 = 2, RoomSourceSky = 3, RoomSourceBg3 = 4, RoomSourceMode7Map = 5;
-static const uint RoomSourceBossBg2 = 6, RoomSourceXrayReveal = 7, RoomSourceBg2Image = 8;
-// A frontend layer's VRAM tilemap drawn from its characters' pre-coloured tiles (#1392), its table's word in RoomSource's
-// high half: three words a character index, the tile's picture (zero where no artwork shows the character), the corner
+// RoomSource: what a layer pass draws: the room's layer 1 or 2 as level data shows it, the sky's rows, the layer-3
+// plane, a boss body, the X-ray reveal, a library background or a frontend layer's cells. SourceLayer2Overlay added to it
+// lays words written over layer 2 on top.
+static const uint SourceLayer1 = 1, SourceLayer2 = 2, SourceSky = 3, SourceLayer3 = 4;
+static const uint SourceBossBody = 6, SourceXrayReveal = 7, SourceLibraryBackground = 8;
+// A frontend layer's cells drawn from their tiles' pre-coloured pictures (#1392), its table's word in RoomSource's
+// high half: three words a tile, the tile's picture (zero where no artwork shows it), the corner
 // of its palette row zero tile, x below y, and the pixels from one palette row's block to the next.
-static const uint RoomSourceScreenTiles = 9;
-static const uint RoomSourceBg2Overlay = 256;
+static const uint SourceScreenCells = 9;
+// A frontend layer's cell (D3D11RoomLevelBuffer.PackScreenMap): its tile in the low half, its colour variant above it,
+// then its priority and its mirroring.
+static const uint CellHigh = 1048576, CellFlipX = 2097152, CellFlipY = 4194304;
+static const uint SourceLayer2Overlay = 256;
 static const uint RoomRecordWords = 6, RoomDoorSlot = 2, RoomDoorWindowWord = 18, RoomOverlayWord = 19, RoomSkyWord = 20;
-static const uint RoomBg3Word = 21, RoomBg2OverlayWord = 22, RoomMode7MapWord = 23, RoomBossBg2Word = 24, RoomXrayRevealWord = 25;
+static const uint RoomBg3Word = 21, RoomBg2OverlayWord = 22, RoomFloorSheetsWord = 23, RoomBossBg2Word = 24, RoomXrayRevealWord = 25;
 // A library background (RoomBackgroundImagePlane): its image picture's offset, then each 16x16 cell's picture offset.
 static const uint RoomBg2ImageWord = 26;
 // The scrolling sky's image, laid out as a library background's: its image picture's offset, then each cell's.
 static const uint RoomSkyImageWord = 27;
 // The image of the message box the frame shows (#1392).
 static const uint RoomMessagePictureWord = 28;
-// The picture of a Ceres room's Mode 7 tiles (#1392), sixteen 8x8 tiles to a row, or zero while the map draws from VRAM.
-static const uint RoomMode7PictureWord = 29;
 // The X-ray reveal (XrayRevealPlane): 17 block columns by 16 rows, each its picture's offset with its arrangement in the
 // top four bits: as defined, mirrored horizontally, vertically or both, or its tile rows swapped.
 static const uint RevealColumns = 17, RevealRows = 16;
-// A picture (a block, or a background image): its sheet's standard colours' offset, its width, its pixel count, then
-// its colours, then each pixel's palette index and, above it, its tile priority.
-static const uint PictureColoursWord = 0, PictureWidthWord = 1, PictureCountWord = 2, PicturePixelsWord = 3;
+// A picture (a block, or a background image): its colour slot, its place in the image texture and its width and height,
+// x below y.
+static const uint PictureColoursWord = 0, PicturePlaceWord = 1, PictureSizeWord = 2;
+// The installed images (D3D11ImageAtlas), each texel the image's pre-coloured pixel, then its ink word: the ink, its
+// tile priority above it, and above that whether it is colour zero and whether it keeps its group.
+Texture2D<uint2> Images : register(t4);
+static const uint InkColourZero = 65536, InkKeepsGroup = 131072;
+// The perspective floor's image (D3D11FloorImage): the 1024-pixel floor, then its first tile's picture beside it. Each
+// texel's ink word keeps the index of the floor sheet it comes from, and marks a tile nothing pictures.
+Texture2D<uint2> Floor : register(t5);
+static const uint FloorSide = 1024, FloorSheetShift = 20, InkUnpictured = 524288;
 RWTexture2D<uint> Output : register(u0);
-RWTexture2D<uint2> Objects : register(u1);
+RWTexture2D<uint2> SpriteLayer : register(u1);
 
 // What a room plane shows at a scrolled position; false outside the room: its block's picture (#1392), mirrored by the
 // block's flips, with `within` the picture pixel. Each packed block is its definition with its horizontal and vertical
@@ -86,7 +98,7 @@ bool SkyPicture(uint2 scrolled, out uint2 within, out uint picture)
     within = cell != 0 ? (position & 15) : position;
     return RoomLevels[RoomLevels[RoomSkyWord] + (position.y >> 3)] != 0;
 }
-// The BG3 plane (Layer3Plane): 32 by 64 words. A window of `rows` rows from `firstRow` repeats every 256 pixels across.
+// The layer-3 plane (Layer3Plane): 32 by 64 cells. A window of `rows` rows from `firstRow` repeats every 256 pixels across.
 // Where the plane's pictures are resolved (#1392), `picture` is the word's picture and `within` its pixel in it.
 bool Bg3Picture(uint firstRow, uint rows, uint2 scrolled, out uint2 within, out uint picture)
 {
@@ -97,7 +109,7 @@ bool Bg3Picture(uint firstRow, uint rows, uint2 scrolled, out uint2 within, out 
     within = (scrolled & 7) + uint2(corner & 65535, corner >> 16);
     return picture != 0;
 }
-// The picture of a word written over BG2 (RoomOverlayPictures, #1403) at the tilemap word a `size` layout places the
+// The picture of a word written over layer 2 (RoomOverlayPictures, #1403) at the cell a `size` layout places the
 // scrolled position, laid out as a boss body's pictures with none where nothing was written; `within` its pixel in it.
 bool Bg2OverlayPicture(uint2 scrolled, uint2 size, out uint picture, out uint2 within)
 {
@@ -115,7 +127,7 @@ bool Bg2OverlayPicture(uint2 scrolled, uint2 size, out uint picture, out uint2 w
 }
 // A boss body's picture (BossBodyPictures, #1403) at a scrolled position of its tilemap in the hardware's screen order,
 // at the pass's map size, with `within` its pixel in it: two words per cell, its picture's offset, then its corner in the
-// picture, x below y. Every BG2 sampler reads the boss through this, so a color-math pass shows the same body as an
+// picture, x below y. Every layer-2 sampler reads the boss through this, so a color-math pass shows the same body as an
 // ordinary one (#1426).
 void BossBg2Picture(uint2 scrolled, uint2 size, out uint2 within, out uint picture)
 {
@@ -128,8 +140,8 @@ void BossBg2Picture(uint2 scrolled, uint2 size, out uint2 within, out uint pictu
     uint corner = RoomLevels[pictures + 2 * index + 1];
     within = (position & 7) + uint2(corner & 65535, corner >> 16);
 }
-// The X-ray reveal's block picture and pixel at a scrolled BG2 position (#1392); false past the blocks it builds, which
-// BG2's scroll never shows.
+// The X-ray reveal's block picture and pixel at a scrolled layer-2 position (#1392); false past the blocks it builds,
+// which layer 2's scroll never shows.
 bool RevealPicture(uint2 scrolled, out uint picture, out uint2 within)
 {
     uint2 position = uint2(scrolled.x & 511, scrolled.y & 255);
@@ -146,7 +158,7 @@ bool RevealPicture(uint2 scrolled, out uint picture, out uint2 within)
     // A block copied from beyond the room has no picture and shows nothing.
     return picture != 0;
 }
-// The picture and pixel a room's library background shows at a scrolled BG2 position through a `size` map (#1392): a
+// The picture and pixel a room's library background shows at a scrolled layer-2 position through a `size` map (#1392): a
 // rebound cell's picture, or the image of both pages; false on a page past the two the image pictures.
 bool Bg2ImagePicture(uint2 scrolled, uint2 size, out uint picture, out uint2 within)
 {
@@ -160,17 +172,17 @@ bool Bg2ImagePicture(uint2 scrolled, uint2 size, out uint picture, out uint2 wit
     within = cell != 0 ? (pagePixel & 15) : uint2(pagePixel.x, page * 256 + pagePixel.y);
     return page < 2;
 }
-// BG2 from the room's layer-2 plane or the sky's rows, or BG1 as RoomBackgrounds resolves it: a door's source
-// screen, then words written over BG1, then the level plane.
+// Layer 2 from the room's layer-2 plane or the sky's rows, or layer 1 as RoomBackgrounds resolves it: a door's source
+// screen, then words written over layer 1, then the level plane.
 bool RoomTile(uint source, uint2 scrolled, out uint entry, out uint2 within, out uint picture)
 {
     entry = 0;
     picture = 0;
     within = uint2(0, 0);
     scrolled &= 65535;
-    uint slot = source == RoomSourceBg2 ? 1 : 0;
+    uint slot = source == SourceLayer2 ? 1 : 0;
     bool overlaid = false;
-    if (source != RoomSourceBg2 && source != RoomSourceSky)
+    if (source != SourceLayer2 && source != SourceSky)
     {
         uint door = RoomLevels[RoomDoorWindowWord];
         uint2 doorWithin = (scrolled - uint2(door & 65535, door >> 16)) & 65535;
@@ -179,7 +191,7 @@ bool RoomTile(uint source, uint2 scrolled, out uint entry, out uint2 within, out
             slot = RoomDoorSlot;
         else if (overlay != 0)
         {
-            // A word written over BG1 draws from its picture (#1403); none where nothing was written.
+            // A word written over layer 1 draws from its picture (#1403); none where nothing was written.
             uint2 cell = uint2((scrolled.x >> 3) & 63, (scrolled.y >> 3) & 31);
             uint index = (cell.x >> 5) * 1024 + cell.y * 32 + (cell.x & 31);
             picture = RoomLevels[overlay + 2 * index];
@@ -193,7 +205,7 @@ bool RoomTile(uint source, uint2 scrolled, out uint entry, out uint2 within, out
         }
     }
     bool shown = overlaid;
-    if (source == RoomSourceSky)
+    if (source == SourceSky)
         shown = SkyPicture(scrolled, within, picture);
     else if (!overlaid)
         shown = RoomPlaneTile(slot, scrolled, entry, within, picture);
@@ -201,51 +213,52 @@ bool RoomTile(uint source, uint2 scrolled, out uint entry, out uint2 within, out
 }
 uint Pack(uint3 c, uint alpha) { return c.r | (c.g << 8) | (c.b << 16) | (alpha << 24); }
 uint3 Unpack(uint c) { return uint3(c & 255, (c >> 8) & 255, (c >> 16) & 255); }
-uint Palette(uint index)
+// The colour shown where nothing is drawn.
+uint Backdrop() { return Colours[0]; }
+// The colour an image texel shows when its image is coloured from colour slot `slot` (#1408): whether it shows a colour
+// other than colour zero (`index`), its tile priority, and its colour: the image's own while its ink's group shows its
+// image's own colours, else the ink's colour now. A colour-zero pixel shows nothing, or, where it keeps its group, that
+// group's colour zero when its layer shows it.
+uint TexelColour(uint2 texel, uint slot, out uint index, out bool high)
 {
-    uint word = Memory[index];
-    uint3 c = uint3(word & 31, (word >> 5) & 31, (word >> 10) & 31);
-    return Pack((c << 3) | (c >> 2), 255);
+    uint meta = texel.y;
+    uint ink = meta & 255;
+    high = ((meta >> 8) & 3) != 0;
+    uint table = Colours[1 + slot];
+    if ((meta & InkColourZero) != 0)
+    {
+        index = 0;
+        return (meta & InkKeepsGroup) != 0 ? Colours[table + 1 + ink] : 0;
+    }
+    index = 1;
+    bool own = ((Colours[table] >> (ink >> 4)) & 1) != 0;
+    return own ? texel.x : Colours[table + 1 + ink];
 }
-// A block picture's pixel (#1392): its background palette index (0 transparent), its tile priority, and its colour,
-// the picture's own while the pixel's palette row still holds its sheet's standard colours, else the row's live colour.
+// A picture's pixel (#1392, #1408), as TexelColour colours it from the picture's colour slot.
 uint PicturePixel(uint picture, uint2 pixel, out uint index, out bool high)
 {
-    uint width = RoomLevels[picture + PictureWidthWord];
-    uint at = pixel.y * (width & 65535) + pixel.x;
-    uint meta = RoomLevels[picture + PicturePixelsWord + RoomLevels[picture + PictureCountWord] + at];
-    uint full = meta & 255;
-    high = (meta >> 8) != 0;
-    // A two-bit picture (#1392) keeps colour zero's row: `index` is its colour, and colour zero shows that row's live
-    // colour where the layer shows colour zero, as the characters did.
-    bool twoBpp = (width >> 16) != 0;
-    index = twoBpp ? (full & 3) : full;
-    if (index == 0) return twoBpp ? Palette(full) : 0;
-    uint standard = RoomLevels[picture + PictureColoursWord];
-    uint row = full & ~15u;
-    bool same = true;
-    [loop] for (uint colour = 1; colour < 16; colour++)
-        same = same && (Memory[row + colour] & 32767) == RoomLevels[standard + row + colour];
-    return same ? RoomLevels[picture + PicturePixelsWord + at] : Palette(full);
+    uint place = RoomLevels[picture + PicturePlaceWord];
+    uint2 texel = Images.Load(int3(uint2(place & 65535, place >> 16) + pixel, 0));
+    return TexelColour(texel, RoomLevels[picture + PictureColoursWord], index, high);
 }
 
-#include "Objects.hlsli"
+#include "SpriteLayer.hlsli"
 #include "Xray.hlsli"
 
 // A frontend layer's cell at the scrolled position (#1403), packed row by row from room level word `TilemapWord`, drawn
-// from the pre-coloured tile of its character in `table` (#1392): `picture` is the tile's sheet picture, and `within` the
-// pixel in it under the cell's palette row, mirrored as the cell mirrors it.
+// from the pre-coloured picture of its tile in `table` (#1392): `picture` is the tile's sheet picture, and `within` the
+// pixel in it in the cell's colour variant, mirrored as the cell mirrors it.
 uint ScreenTile(uint2 sampleScreen, uint2 scroll, uint table, out uint2 within, out uint picture)
 {
     uint x = (sampleScreen.x + scroll.x) & (MapWidth * 8 - 1);
     uint y = (sampleScreen.y + scroll.y) & (MapHeight * 8 - 1);
     uint tileX = x >> 3, tileY = y >> 3;
     uint entry = RoomLevels[TilemapWord + tileY * MapWidth + tileX];
-    uint at = table + (entry & 1023) * 3;
+    uint at = table + (entry & 65535) * 3;
     picture = RoomLevels[at];
     uint corner = RoomLevels[at + 1];
-    uint2 pixel = uint2((entry & 16384) != 0 ? 7 - (x & 7) : x & 7, (entry & 32768) != 0 ? 7 - (y & 7) : y & 7);
-    within = pixel + uint2(corner & 65535, (corner >> 16) + ((entry >> 10) & 7) * RoomLevels[at + 2]);
+    uint2 pixel = uint2((entry & CellFlipX) != 0 ? 7 - (x & 7) : x & 7, (entry & CellFlipY) != 0 ? 7 - (y & 7) : y & 7);
+    within = pixel + uint2(corner & 65535, (corner >> 16) + ((entry >> 16) & 15) * RoomLevels[at + 2]);
     return entry;
 }
 
@@ -258,22 +271,22 @@ bool MainCoverage(uint2 screen)
     uint2 tile = position >> 3;
     // The coverage layer's cells, packed row by row from room level word map.x (#1403).
     uint entry = RoomLevels[map.x + tile.y * geometry.x + tile.x];
-    if (geometry.z != 0 && ((entry >> 13) & 1) != geometry.z - 1) return false;
-    uint px = (entry & 16384) != 0 ? 7 - (position.x & 7) : position.x & 7;
-    uint py = (entry & 32768) != 0 ? 7 - (position.y & 7) : position.y & 7;
-    // The coverage layer draws from its characters' pre-coloured tiles (#1392): an opaque pixel of its tile covers.
-    uint at = CoverageTable + (entry & 1023) * 3;
+    if (geometry.z != 0 && ((entry & CellHigh) != 0 ? 1u : 0u) != geometry.z - 1) return false;
+    uint px = (entry & CellFlipX) != 0 ? 7 - (position.x & 7) : position.x & 7;
+    uint py = (entry & CellFlipY) != 0 ? 7 - (position.y & 7) : position.y & 7;
+    // The covering layer draws from its tiles' pre-coloured pictures (#1392): an opaque pixel of its tile covers.
+    uint at = CoverageTable + (entry & 65535) * 3;
     uint corner = RoomLevels[at + 1];
     uint index;
     bool ignored;
     bool covered = RoomLevels[at] != 0 && PicturePixel(RoomLevels[at], uint2(px + (corner & 65535),
-        py + (corner >> 16) + ((entry >> 10) & 7) * RoomLevels[at + 2]), index, ignored) != 0 && index != 0;
+        py + (corner >> 16) + ((entry >> 16) & 15) * RoomLevels[at + 2]), index, ignored) != 0 && index != 0;
     if (AddG != 0)
     {
-        uint palette;
-        uint2 obj = ResolveObjectWithPalette(screen, palette);
-        if (obj.y != 255 && (!covered || obj.y >= ((entry & 8192) != 0 ? 3 : 2)))
-            return palette >= 4;
+        bool blends;
+        uint2 obj = SpriteAt(screen, blends);
+        if (obj.y != NoSprite && (!covered || obj.y >= ((entry & CellHigh) != 0 ? 3 : 2)))
+            return blends;
     }
     return covered;
 }
@@ -283,33 +296,21 @@ void Main(uint3 id : SV_DispatchThreadID)
 {
     if (id.x >= 256 || id.y >= 224) return;
     if (id.y < FirstScanline || id.y >= EndScanline) return;
-    if (Operation == OpXrayGameplay) { Output[id.xy] = XrayGameplay(id.xy); return; }
-    if (Operation == OpMessage)
+    if (Operation == OpXrayRoom) { Output[id.xy] = XrayGameplay(id.xy); return; }
+    if (Operation == OpMessageText)
     {
-        // The message's image (#1392) from its top scanline: colour zero shows nothing; the two colours bank $85
-        // installs show in their place; another colour shows the image's own where its row is standard, else the live one.
+        // The message's image (#1392) from its top scanline, in the message's text colours (#1408): colour zero shows
+        // nothing.
         uint picture = RoomLevels[RoomMessagePictureWord];
-        uint width = RoomLevels[picture + PictureWidthWord] & 65535;
-        uint height = RoomLevels[picture + PictureCountWord] / width;
+        uint height = RoomLevels[picture + PictureSizeWord] >> 16;
         if (picture == 0 || id.y < TilemapWord || id.y >= TilemapWord + height) return;
-        uint2 pixel = uint2(id.x, id.y - TilemapWord);
-        uint full = RoomLevels[picture + PicturePixelsWord + RoomLevels[picture + PictureCountWord] + pixel.y * width + pixel.x] & 255;
-        if ((full & 3) == 0) return;
-        if (full == AddB || full == MessageDarkIndex)
-        {
-            uint word = full == AddB ? AddR : AddG;
-            uint3 c = uint3(word & 31, (word >> 5) & 31, (word >> 10) & 31);
-            Output[id.xy] = Pack((c << 3) | (c >> 2), 255);
-        }
-        else
-        {
-            uint index;
-            bool high;
-            Output[id.xy] = PicturePixel(picture, pixel, index, high);
-        }
+        uint index;
+        bool high;
+        uint shown = PicturePixel(picture, uint2(id.x, id.y - TilemapWord), index, high);
+        if (index != 0) Output[id.xy] = shown;
         return;
     }
-    if (Operation == OpScanlineAdd)
+    if (Operation == OpLineColourAdd)
     {
         uint4 window = ScanlineParameters[id.y];
         uint left = window.x & 255, right = (window.x >> 8) & 255;
@@ -320,7 +321,7 @@ void Main(uint3 id : SV_DispatchThreadID)
         }
         return;
     }
-    if (Operation == OpMode7)
+    if (Operation == OpFloor)
     {
         int cx = (CenterX << 19) >> 19, cy = (CenterY << 19) >> 19;
         int h = ((OffsetX << 19) >> 19) - cx, v = ((OffsetY << 19) >> 19) - cy;
@@ -334,35 +335,28 @@ void Main(uint3 id : SV_DispatchThreadID)
         bool outside = (uint)x >= 1024 || (uint)y >= 1024;
         bool transparentOutside = outside && FillCharacterZero == 0;
         uint wrappedX = (uint)x & 1023, wrappedY = (uint)y & 1023;
-        // Policy 0: transparent overflow; 1: character zero; 2: ten-bit map wrap.
-        uint cell = (wrappedY >> 3) * 128 + (wrappedX >> 3);
-        // The floor's map lives in the room buffer, four tile numbers per word (#1403).
-        uint mapped = (RoomLevels[RoomLevels[RoomMode7MapWord] + (cell >> 2)] >> ((cell & 3) * 8)) & 255;
-        uint character = outside && FillCharacterZero == 1 ? 0 : mapped;
-        // The floor draws its tiles' pre-coloured pictures (#1392), each tile's picture and corner in a table; `shown` is
-        // the colour a nonzero pixel shows. A tile nothing pictured shows draws nothing.
-        uint tiles = RoomLevels[RoomMode7PictureWord];
+        // Outside the floor, it shows nothing, fills with its first tile, or repeats.
+        uint2 at = outside && FillCharacterZero == 1 ? uint2(FloorSide + (wrappedX & 7), wrappedY & 7) : uint2(wrappedX, wrappedY);
+        uint2 texel = Floor.Load(int3(at, 0));
+        // `shown` is the colour a nonzero pixel shows; a tile nothing pictures draws nothing.
         uint color = 0, shown = 0;
-        uint picture = RoomLevels[tiles + character * 2];
-        if (picture != 0)
+        if ((texel.y & InkUnpictured) == 0)
         {
-            uint corner = RoomLevels[tiles + character * 2 + 1];
             uint index;
             bool high;
-            shown = PicturePixel(picture, uint2((corner & 65535) + (wrappedX & 7), (corner >> 16) + (wrappedY & 7)), index, high);
+            shown = TexelColour(texel, RoomLevels[RoomLevels[RoomFloorSheetsWord] + (texel.y >> FloorSheetShift)], index, high);
             color = index;
         }
         if (transparentOutside) color = 0;
         if (Reserved27 == 2)
         {
-            // TM=BG1|OBJ, TS=BG1: select the main winner before adding BG1.
-            // Priority-zero OBJ is behind BG1; OBJ palettes zero through three
-            // are never eligible for SNES color arithmetic.
-            uint palette;
-            uint2 obj = ResolveObjectWithPalette(id.xy, palette);
-            bool objWins = obj.y != 255 && (obj.y != 0 || color == 0);
+            // The floor shows over sprites of priority zero; the frontmost of the two is then brightened by the
+            // floor's own colour, unless it is a sprite that does not blend.
+            bool blends;
+            uint2 obj = SpriteAt(id.xy, blends);
+            bool objWins = obj.y != NoSprite && (obj.y != 0 || color == 0);
             uint main = objWins ? obj.x : color != 0 ? shown : Output[id.xy];
-            if (color != 0 && (!objWins || palette >= 4))
+            if (color != 0 && (!objWins || blends))
             {
                 uint3 sum = min(31, (Unpack(main) >> 3) + (Unpack(shown) >> 3));
                 main = Pack((sum << 3) | (sum >> 2), 255);
@@ -373,8 +367,8 @@ void Main(uint3 id : SV_DispatchThreadID)
         if (color != 0)
         {
             uint main = shown;
-            uint2 sub = Objects[id.xy];
-            if (Reserved27 != 0 && sub.y != 255)
+            uint2 sub = SpriteAt(id.xy);
+            if (Reserved27 != 0 && sub.y != NoSprite)
             {
                 int3 difference = max(0, (int3)(Unpack(main) >> 3) - (int3)(Unpack(sub.x) >> 3));
                 uint3 result = (uint3)difference;
@@ -384,14 +378,13 @@ void Main(uint3 id : SV_DispatchThreadID)
         }
         return;
     }
-    if (Operation == OpResolveObj) { Objects[id.xy] = ResolveObject(id.xy); return; }
-    if (Operation == OpInsertObj)
+    if (Operation == OpInsertSprites)
     {
-        uint2 winner = Objects[id.xy];
-        if (winner.y != 255 && (PriorityFilter == 0 || PriorityFilter - 1 == winner.y))
+        bool blends;
+        uint2 winner = SpriteAt(id.xy, blends);
+        if (winner.y != NoSprite && (PriorityFilter == 0 || PriorityFilter - 1 == winner.y))
         {
-            // InsertObj's AddR flag selects OBJ on the additive subscreen. Arithmetic
-            // is in native five-bit components, before the final master-brightness pass.
+            // AddR adds the sprite's colour to the screen's; the sums are of five-bit channels, before brightness.
             if (AddR != 0)
             {
                 uint3 color = min(31, (Unpack(Output[id.xy]) >> 3) + (Unpack(winner.x) >> 3));
@@ -399,60 +392,58 @@ void Main(uint3 id : SV_DispatchThreadID)
             }
             else if (AddG != 0)
             {
-                uint palette;
-                ResolveObjectWithPalette(id.xy, palette);
                 uint3 fixedColor = uint3(AddB & 31, (AddB >> 5) & 31, (AddB >> 10) & 31);
                 uint3 color = min(31, (Unpack(winner.x) >> 3) + fixedColor);
-                Output[id.xy] = palette >= 4 ? Pack((color << 3) | (color >> 2), 255) : winner.x;
+                Output[id.xy] = blends ? Pack((color << 3) | (color >> 2), 255) : winner.x;
             }
             else Output[id.xy] = winner.x;
         }
         return;
     }
-    if (Operation == OpBackdrop) { Output[id.xy] = Palette(0); return; }
+    if (Operation == OpBackdrop) { Output[id.xy] = Backdrop(); return; }
     if (Operation == OpBrightness)
     {
         uint packed = Output[id.xy];
         if ((packed >> 24) != 0) Output[id.xy] = Pack(Unpack(packed) * Level / 15, packed >> 24);
         return;
     }
-    if (Operation == OpFixedAdd)
+    if (Operation == OpAddColour)
     {
         uint3 c = min(31, (Unpack(Output[id.xy]) * 31 + 127) / 255 + uint3(AddR, AddG, AddB));
         Output[id.xy] = Pack((c << 3) | (c >> 2), 255); return;
     }
-    bool backgroundMath = Operation == OpBgAdd || Operation == OpBgSubtract;
+    bool backgroundMath = Operation == OpAddLayer || Operation == OpSubtractLayer;
     uint2 scroll = (backgroundMath || Reserved3 != 0) ? ScanlineParameters[id.y].xy : uint2(HorizontalScroll, VerticalScroll);
-    // BG2-only grouping happens before the current scanline's HDMA scroll.
+    // The mosaic groups screen pixels before the line's own scroll.
     uint2 sampleScreen = id.xy;
-    if (Operation == OpBg4 && Reserved27 > 1) sampleScreen -= sampleScreen % Reserved27;
+    if (Operation == OpLayer && Reserved27 > 1) sampleScreen -= sampleScreen % Reserved27;
     uint entry = 0;
     uint picture = 0;
     uint2 within = uint2(0, 0);
     uint2 scrolled = (sampleScreen + scroll) & 65535;
     uint source = RoomSource & 255;
-    // A word written over BG2 shows its picture over whatever BG2 shows there (#1403).
-    bool overlaid = (RoomSource & RoomSourceBg2Overlay) != 0 && Bg2OverlayPicture(scrolled, uint2(MapWidth, MapHeight), picture, within);
+    // A word written over layer 2 shows its picture over whatever layer 2 shows there (#1403).
+    bool overlaid = (RoomSource & SourceLayer2Overlay) != 0 && Bg2OverlayPicture(scrolled, uint2(MapWidth, MapHeight), picture, within);
     if (!overlaid)
     {
-        if (source == RoomSourceBg3)
+        if (source == SourceLayer3)
         {
             if (!Bg3Picture(TilemapWord, MapHeight, scrolled, within, picture)) return;
         }
-        else if (source == RoomSourceBossBg2)
+        else if (source == SourceBossBody)
             BossBg2Picture(scrolled, uint2(MapWidth, MapHeight), within, picture);
-        else if (source == RoomSourceXrayReveal)
+        else if (source == SourceXrayReveal)
         {
             if (!RevealPicture(scrolled, picture, within)) return;
         }
-        else if (source == RoomSourceBg2Image)
+        else if (source == SourceLibraryBackground)
         {
             if (!Bg2ImagePicture(scrolled, uint2(MapWidth, MapHeight), picture, within)) return;
         }
-        else if (source == RoomSourceScreenTiles)
+        else if (source == SourceScreenCells)
         {
             entry = ScreenTile(sampleScreen, scroll, RoomSource >> 16, within, picture);
-            // A word naming a character no artwork the screen loads shows draws nothing.
+            // A cell naming a tile no artwork the screen loads shows draws nothing.
             if (picture == 0) return;
         }
         else
@@ -466,16 +457,16 @@ void Main(uint3 id : SV_DispatchThreadID)
     bool high;
     // A block picture keeps no row for its transparent pixels; room planes show colour zero as transparent.
     uint sampled = PicturePixel(picture, within, color, high);
-    // A frontend layer's tile takes its word's priority (#1392).
-    if (source == RoomSourceScreenTiles) high = (entry & 8192) != 0;
+    // A frontend layer's tile takes its cell's priority (#1392).
+    if (source == SourceScreenCells) high = (entry & CellHigh) != 0;
     if (PriorityFilter != 0 && (high ? 1u : 0u) != PriorityFilter - 1) return;
-    bool objectSubscreen = Operation == OpSubscreenAdd && AddR != 0;
-    uint2 subObject = objectSubscreen ? Objects[id.xy] : uint2(0, 255);
-    bool objectWins = objectSubscreen && subObject.y != 255 &&
+    bool objectSubscreen = Operation == OpAddLayerBehind && AddR != 0;
+    uint2 subObject = objectSubscreen ? SpriteAt(id.xy) : uint2(0, NoSprite);
+    bool objectWins = objectSubscreen && subObject.y != NoSprite &&
         (color == 0 || subObject.y >= (high ? 3u : 2u));
     if (color == 0 && TransparentZero != 0 && !objectWins) return;
     if (objectWins) sampled = subObject.x;
-    if (Operation == OpSubscreenAdd)
+    if (Operation == OpAddLayerBehind)
     {
         if (!MainCoverage(id.xy)) return;
         uint3 sum = min(31, (Unpack(Output[id.xy]) >> 3) + (Unpack(sampled) >> 3));
@@ -485,7 +476,7 @@ void Main(uint3 id : SV_DispatchThreadID)
     {
         uint pixel = Output[id.xy];
         int3 baseColor = int3(Unpack(pixel)), overlay = int3(Unpack(sampled));
-        int3 result = Operation == OpBgAdd ? min(255, baseColor + overlay) : max(0, baseColor - overlay);
+        int3 result = Operation == OpAddLayer ? min(255, baseColor + overlay) : max(0, baseColor - overlay);
         Output[id.xy] = Pack(uint3(result), pixel >> 24);
     }
     else Output[id.xy] = sampled;

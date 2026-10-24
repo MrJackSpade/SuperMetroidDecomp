@@ -44,6 +44,14 @@ public sealed record MessageBoxRenderLayer : RenderLayer
     /// <summary>The scanline after the last one the reveal window shows.</summary>
     public int EndScanline => GameplayMessageRomData.Layout.WindowCenterY + RadiusPixels;
 
+    /// <summary>
+    /// The colours the message's text shows in over <paramref name="room"/>, the frame's: the room's, with the box's light
+    /// and dark text colours in place of the two inks they replace while the box is open.
+    /// </summary>
+    public static BackgroundColours ShownIn(BackgroundColours room) => Ensure.NotNull(room)
+        .With(GameplayMessageRomData.Palette.TemporaryLightIndex, GameplayMessageRomData.Palette.TemporaryLightColor)
+        .With(GameplayMessageRomData.Palette.TemporaryDarkIndex, GameplayMessageRomData.Palette.TemporaryDarkColor);
+
     /// <summary>The layer showing the image <paramref name="sheet"/> pictures <paramref name="tilemap"/> with.</summary>
     /// <param name="tilemap">The message's packed tilemap words, 32 per row.</param>
     /// <param name="radiusPixels">The reveal half-height in pixels.</param>

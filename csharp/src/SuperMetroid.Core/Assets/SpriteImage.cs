@@ -96,6 +96,22 @@ public sealed class SpriteImage
     /// <summary>The CGRAM colour palette index zero names: 128 for a sprite image, 0 for a background one.</summary>
     public int FirstColour => Colours == SpriteImageColours.Sprite ? SpriteColourCount : 0;
 
+    /// <summary>
+    /// Whether a pixel inked <paramref name="ink"/> shows colour zero, which a layer either leaves transparent or, where
+    /// <see cref="ColourZeroKeepsGroup"/>, shows in its group's colour zero (#1408).
+    /// </summary>
+    public bool IsColourZero(SpriteImageInk ink) =>
+        Colours == SpriteImageColours.TwoBppBackground ? ink.PaletteIndex % TwoBppGroupColours == 0 : ink.PaletteIndex == 0;
+
+    /// <summary>
+    /// Whether the image's colour-zero pixels keep the ink of their group's colour zero, so a layer that shows colour zero
+    /// shows that ink's colour (#1408); otherwise a colour-zero pixel's ink is zero.
+    /// </summary>
+    public bool ColourZeroKeepsGroup => Colours == SpriteImageColours.TwoBppBackground;
+
+    /// <summary>The colours of one of the four-colour groups a HUD or room effect image is inked in.</summary>
+    private const int TwoBppGroupColours = 4;
+
     /// <summary>The pixels, row by row from the top; a pixel with zero alpha is transparent.</summary>
     public ReadOnlySpan<Rgba32> Pixels => pixels;
 

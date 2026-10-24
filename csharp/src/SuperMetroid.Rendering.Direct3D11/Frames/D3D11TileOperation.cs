@@ -1,34 +1,30 @@
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
-/// <summary>Exclusive compute operations shared with Tiles.hlsl.</summary>
+/// <summary>The composition passes Tiles.hlsl runs, one per dispatch; the values are the shader's Op constants.</summary>
 internal enum D3D11TileOperation : uint
 {
-    /// <summary>Initializes the output with the current backdrop color.</summary>
+    /// <summary>Fills the screen with the backdrop colour.</summary>
     Backdrop = 0,
-    /// <summary>Composes a four-bit background layer.</summary>
-    Bg4 = 1,
-    /// <summary>Composes a two-bit background layer.</summary>
-    Bg2 = 2,
-    /// <summary>Applies one requested brightness level.</summary>
+    /// <summary>Draws a tile layer over the screen, mosaic-grouped where the pass asks.</summary>
+    Layer = 1,
+    /// <summary>Applies one brightness level.</summary>
     Brightness = 3,
-    /// <summary>Adds a fixed color to the current composition.</summary>
-    FixedAdd = 4,
-    /// <summary>Decodes object pixels and priorities from the uploaded OAM snapshot.</summary>
-    ResolveObj = 5,
-    /// <summary>Inserts selected object pixels into the current layer order.</summary>
-    InsertObj = 6,
-    /// <summary>Composes the affine Mode 7 background.</summary>
-    Mode7 = 7,
-    /// <summary>Adds per-scanline color contributions.</summary>
-    ScanlineAdd = 8,
-    /// <summary>Adds the selected background colors to the current composition.</summary>
-    BgAdd = 9,
-    /// <summary>Subtracts the selected background colors from the current composition.</summary>
-    BgSubtract = 10,
-    /// <summary>Adds the subscreen contribution to the main-screen output.</summary>
-    SubscreenAdd = 11,
-    /// <summary>Composes the message-box tilemap over the scene.</summary>
-    Message = 12,
-    /// <summary>Composes the X-ray gameplay overlay.</summary>
-    XrayGameplay = 14
+    /// <summary>Adds a fixed colour to the screen.</summary>
+    AddColour = 4,
+    /// <summary>Inserts the sprite layer's pixels of one priority, or all of them, into the screen.</summary>
+    InsertSprites = 6,
+    /// <summary>Draws the perspective floor from its image.</summary>
+    Floor = 7,
+    /// <summary>Adds a colour within each line's window.</summary>
+    LineColourAdd = 8,
+    /// <summary>Adds a layer's colours to the screen.</summary>
+    AddLayer = 9,
+    /// <summary>Subtracts a layer's colours from the screen.</summary>
+    SubtractLayer = 10,
+    /// <summary>Adds a layer's colours where the layer that covers it shows.</summary>
+    AddLayerBehind = 11,
+    /// <summary>Draws the message box's text.</summary>
+    MessageText = 12,
+    /// <summary>Composes a room under the X-ray's reveal and blend.</summary>
+    XrayRoom = 14,
 }

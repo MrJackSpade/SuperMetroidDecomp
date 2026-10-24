@@ -19,7 +19,7 @@ internal sealed class SoftwarePpuSnapshotMemory
     {
         Ensure.NotNull(snapshot);
         for (int index = 0; index < SnesCgram.ColorCount; index++)
-            Cgram.SetColor(index, snapshot.Colors[index]);
+            Cgram.SetColor(index, snapshot.Backgrounds.Colour(index));
         Sprites.LoadDraws(snapshot.SpriteDraws);
     }
 }

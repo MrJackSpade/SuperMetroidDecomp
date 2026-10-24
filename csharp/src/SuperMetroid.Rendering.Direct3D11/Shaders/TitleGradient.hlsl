@@ -1,4 +1,4 @@
-// Share memory/OAM sampling definitions, but compile a separate entry point.
+// Shares Tiles.hlsl's resources and the sprite layer, but compiles a separate entry point.
 // Keeping this operation in Tiles.Main changed FXC /O3 output for unrelated
 // BG add/subtract dispatches; the color-window and native-title tests cover both.
 #include "Tiles.hlsl"
@@ -7,10 +7,10 @@
 void TitleGradientMain(uint3 id : SV_DispatchThreadID)
 {
     if (id.x >= 256 || id.y >= 224) return;
-    uint palette;
-    uint2 obj = ResolveObjectWithPalette(id.xy, palette);
+    bool blends;
+    uint2 obj = SpriteAt(id.xy, blends);
     uint4 band = ScanlineParameters[id.y];
-    bool enabled = palette == 255 ? (band.w & 1) != 0 : palette >= 4 && (band.w & 16) != 0;
+    bool enabled = obj.y == NoSprite ? (band.w & 1) != 0 : blends && (band.w & 16) != 0;
     if (enabled)
     {
         uint color = Output[id.xy];

@@ -52,9 +52,12 @@ internal static class WindowSceneSmokeTests
                 $"{device.Kind}: scene window {count}, edges {edges}, brightness {brightness}");
             var after = renderer.UploadStatistics;
             int children = edges.Left == edges.Right || edges.Top == edges.Bottom ? 0 : 2;
-            long memoryAndConstantBytes = (1 + children) * D3D11ShaderLayout.PaletteWords * sizeof(uint)
-                + (8 + children * 5) * D3D11ShaderLayout.SolidConstantWords * sizeof(uint);
-            long expectedCalls = (1 + children) * 2 + 8 + children * 5;
+            // Each scene uploads at least its backdrop colour (#1408).
+            long memoryAndConstantBytes = (1 + children) * sizeof(uint)
+                + (7 + children * 4) * D3D11ShaderLayout.SolidConstantWords * sizeof(uint);
+            // Each scene uploads its colours and sprite draws, then one constant buffer per composition pass; the sprite
+            // layer's quads draw without one (#1408).
+            long expectedCalls = (1 + children) * 2 + 7 + children * 4;
             long bytes = after.Bytes - before.Bytes;
             long firstBytes = bytesByChildren.TryGetValue(children, out long seen) ? seen : bytesByChildren[children] = bytes;
             if (after.Calls - before.Calls != expectedCalls || bytes <= memoryAndConstantBytes || bytes != firstBytes)

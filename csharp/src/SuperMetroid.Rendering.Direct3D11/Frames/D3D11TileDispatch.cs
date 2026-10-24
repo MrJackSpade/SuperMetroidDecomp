@@ -2,14 +2,12 @@ using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
-/// <summary>The tile shader's per-dispatch constants: BG map and character bases, scroll and map size, priority and transparency, brightness and fixed colour, OBJ selection and scanline range (#633).</summary>
+/// <summary>A layer pass's constants: what it draws and where, its scroll and map size, priority, transparency, brightness, colour and line range (#633).</summary>
 internal sealed record D3D11TileDispatch
 {
     /// <summary>Map.</summary>
     public uint Map { get; init; } = 0;
 
-    /// <summary>Characters.</summary>
-    public uint Characters { get; init; } = 0;
 
     /// <summary>Scroll.</summary>
     public Position16<BgPlanePixels> Scroll { get; init; } = default;
@@ -36,10 +34,10 @@ internal sealed record D3D11TileDispatch
     public uint Blue { get; init; } = 0;
 
 
-    /// <summary>Where a BG pass reads its tiles: the VRAM tilemap at <see cref="Map"/>, or the room's BG1 or BG2.</summary>
-    public D3D11RoomSource RoomSource { get; init; } = D3D11RoomSource.VramTilemap;
+    /// <summary>What a layer pass draws.</summary>
+    public D3D11RoomSource RoomSource { get; init; } = D3D11RoomSource.None;
 
-    /// <summary>The room level buffer word of a <see cref="D3D11RoomSource.ScreenTiles"/> layer's character tile table (#1392).</summary>
+    /// <summary>The room level buffer word of a <see cref="D3D11RoomSource.ScreenCells"/> layer's character tile table (#1392).</summary>
     public uint ScreenTable { get; init; } = 0;
 
     /// <summary>First scanline.</summary>

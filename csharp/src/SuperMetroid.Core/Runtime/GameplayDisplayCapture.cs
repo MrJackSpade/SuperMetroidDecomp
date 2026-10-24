@@ -327,10 +327,10 @@ public static class GameplayDisplayCapture
         // Phase five deletes the HDMA object but its blend bits have already been
         // published for this pass. Only its fixed color is cleared immediately.
         if (finishedThisFrame && mode != XrayRoomBlendMode.Fireflea) red = green = blue = 0;
-        var colors = basis.Paint.Colors.ToArray();
+        BackgroundColours colours = basis.Paint.Backgrounds;
         bool restoring = finishedThisFrame || xray.BeamPhase is XrayBeamPhase.RestoreSecondHalf or XrayBeamPhase.Finish;
-        if (!settingUp) colors[0] = restoring ? Bgr555.Black : XrayRoomDisplayRules.ActiveBackdrop;
-        var paint = new FramePaint(colors, basis.Paint.SpriteDraws);
+        if (!settingUp) colours = colours.WithBackdrop(restoring ? Bgr555.Black : XrayRoomDisplayRules.ActiveBackdrop);
+        var paint = new FramePaint(colours, basis.Paint.SpriteDraws);
         // Releasing Run merely advances the native dispatcher to phase three. That
         // phase closes the HDMA window on the NEXT call and clears the backdrop;
         // restoration keeps ownership until phase five finally unfreezes gameplay.

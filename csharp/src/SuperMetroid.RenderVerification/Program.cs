@@ -30,6 +30,11 @@ internal static class Program
         try
         {
             NativeConsoleErrors.DisableDialogs();
+            if (args is ["--packet-input"])
+            {
+                DisplayPacketInputTests.Run();
+                return;
+            }
             if (args is ["--ending-shooting-stars"])
             {
                 foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())

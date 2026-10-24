@@ -345,11 +345,11 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     internal int PendingBabyCryCount { get; set; }
 
-    /// <summary>Live bank-$88 rainbow-beam presentation state published by body AI.</summary>
-    public bool RainbowBeamHdmaActive { get; internal set; }
-    /// <summary>Native window/color state, advanced by emulation rather than host painting.</summary>
-    public MotherBrainRainbowBeamHdmaState RainbowBeamHdma { get; } = new();
-    /// <summary>Current native angular aim published from the beam's forced-movement owner and consumed by the bank-$88 HDMA presentation.</summary>
+    /// <summary>Whether body AI currently shows the rainbow beam.</summary>
+    public bool RainbowBeamActive { get; internal set; }
+    /// <summary>The rainbow beam's colour and cone, advanced by the simulation rather than by painting a frame.</summary>
+    public MotherBrainRainbowBeamEffect RainbowBeam { get; } = new();
+    /// <summary>Current native angular aim published from the beam's forced-movement owner and consumed by the rainbow beam effect.</summary>
     public SnesAngle RainbowBeamAngle { get; internal set; }
     /// <summary>Rainbow-beam angular width in 8.8 table units, published by body AI as the beam widens or narrows; independent of pixel width at a given scanline.</summary>
     public int RainbowBeamAngularWidth { get; internal set; }

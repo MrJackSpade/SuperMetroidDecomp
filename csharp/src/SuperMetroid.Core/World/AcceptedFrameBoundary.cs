@@ -345,7 +345,7 @@ internal sealed class AcceptedFrameBoundary
             _roomFx.FixedColors.Color,
             powerBomb,
             _suitPickup.FixedColor,
-            Displays?.MotherBrain?.RainbowBeamHdma.Color);
+            Displays?.MotherBrain?.RainbowBeam.Color);
     }
 
     /// <summary>

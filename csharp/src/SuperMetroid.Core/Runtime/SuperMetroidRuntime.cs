@@ -1040,7 +1040,7 @@ internal sealed class SuperMetroidRuntime
             crocomireDeath is { MeltingHdmaActive: true } melting
                 ? ImmutableArray.CreateRange(melting.Bg2ScrollByScanline) : null,
             motherBrain is { RisingHdmaActive: true },
-            motherBrain?.RainbowBeamHdma.RenderSnapshot,
+            motherBrain?.RainbowBeam.RenderSnapshot,
             CeresHazeRenderSnapshot.Capture(Room.LoadedScope.CeresHaze),
             Artwork.MapPresentation?.RoomFxPaletteBlends,
             PowerBombRenderSnapshot.Capture(Room.LoadedScope.BombProjectiles.PowerBombExplosion),

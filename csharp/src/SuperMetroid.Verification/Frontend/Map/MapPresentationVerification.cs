@@ -563,13 +563,13 @@ internal static class MapPresentationVerification
         AssertTrue(!original.MotherBrainRainbowPalette.TryReadBeamColor(
                 MotherBrainRainbowPaletteFormat.BeamCycleColorCount * MotherBrainBeamRomData.ColorStride, out _),
             "installed beam color loop retains its native signed terminator");
-        var nativeBeamSequence = new MotherBrainRainbowBeamHdmaState
+        var nativeBeamSequence = new MotherBrainRainbowBeamEffect
         {
             // Source words were compared independently against bank $88 above;
             // playback itself must use the installed catalog on both paths.
             PresentationColors = original.MotherBrainRainbowPalette,
         };
-        var installedBeamSequence = new MotherBrainRainbowBeamHdmaState
+        var installedBeamSequence = new MotherBrainRainbowBeamEffect
         {
             PresentationColors = original.MotherBrainRainbowPalette,
         };
@@ -673,11 +673,11 @@ internal static class MapPresentationVerification
         AssertTrue(stockOutput.Colors[MotherBrainRainbowPaletteRomDataConstants.BodyColor] !=
             editedOutput.Colors[MotherBrainRainbowPaletteRomDataConstants.BodyColor],
             "normal-restoration override reaches the native body destination");
-        var stockBeam = new MotherBrainRainbowBeamHdmaState
+        var stockBeam = new MotherBrainRainbowBeamEffect
         {
             PresentationColors = original.MotherBrainRainbowPalette,
         };
-        var editedBeam = new MotherBrainRainbowBeamHdmaState
+        var editedBeam = new MotherBrainRainbowBeamEffect
         {
             PresentationColors = runtime.BossArtwork.MotherBrainRainbowColors,
         };

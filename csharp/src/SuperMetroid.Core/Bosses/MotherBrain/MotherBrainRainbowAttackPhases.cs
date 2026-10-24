@@ -31,8 +31,8 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// <summary>Index of the offset pair the latest beam explosion used, cycling through the eight pairs.</summary>
     public int ExplosionIndex { get; private set; }
 
-    /// <summary>Host-readable equivalent of the spawned rainbow-beam HDMA object's enable.</summary>
-    public bool HdmaActive { get; internal set; }
+    /// <summary>Whether the rainbow attack has started its beam and not yet ended it.</summary>
+    public bool BeamActive { get; internal set; }
 
     /// <summary>Samus projectile cooldown written at beam shutdown.</summary>
     public WrappingCountdown SamusProjectileCooldownTimer { get; private set; }
@@ -50,7 +50,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         ExplosionTimer = WrappingCountdown.Start(0);
         SoundQueueCount = WrappingCountdown.Start(6);
         _state.RainbowBeamSoundPlaying = false;
-        HdmaActive = true;
+        BeamActive = true;
         _state.EarthquakeType = 0;
         _state.EarthquakeTimer = WrappingCountdown.Start(0);
         SamusProjectileCooldownTimer = WrappingCountdown.Start(0);
@@ -402,7 +402,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         {
             AngularWidth = 512;
             _movement.BeginFallingAfterRainbowBeam();
-            HdmaActive = false;
+            BeamActive = false;
             _state.EarthquakeTimer = WrappingCountdown.Start(0);
             _state.RainbowBeamSoundPlaying = false;
             samus.Control.Unlock(); // Samus command one at `$90:F117`.

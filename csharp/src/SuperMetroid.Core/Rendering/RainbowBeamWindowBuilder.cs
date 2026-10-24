@@ -7,14 +7,19 @@ namespace SuperMetroid.Core.Rendering;
 internal static class RainbowBeamWindowBuilder
 {
     /// <summary>
-    /// Returns one packed WH0/WH1 word per visible scanline: low byte is the inclusive left
-    /// endpoint, high byte the inclusive right endpoint, and an inverted word is empty. The HUD
-    /// lines stay empty, and a null geometry yields an entirely empty window.
+    /// The working edge word of a line the beam misses: the rasterization packs each line's left column in the low
+    /// byte and its right column in the high byte, and compares those words against its off-screen sentinels.
     /// </summary>
-    internal static ushort[] Build(MotherBrainRainbowBeamGeometry? geometry)
+    private static readonly ushort MissedLineWord = SnesLittleEndian.Word(MotherBrainBeamLine.None.Left, MotherBrainBeamLine.None.Right);
+
+    /// <summary>
+    /// Returns the screen columns the beam crosses on each visible scanline. The HUD lines and every line the beam
+    /// misses are <see cref="MotherBrainBeamLine.None"/>, and a null geometry misses every line.
+    /// </summary>
+    internal static MotherBrainBeamLine[] Build(MotherBrainRainbowBeamGeometry? geometry)
     {
-        var windows = new ushort[SnesPpuLayout.ScreenHeightPixels];
-        Array.Fill(windows, MotherBrainBeamRomData.EmptyWindow);
+        var windows = new MotherBrainBeamLine[SnesPpuLayout.ScreenHeightPixels];
+        Array.Fill(windows, MotherBrainBeamLine.None);
         if (geometry is not { } beam) return windows;
         bool right = beam.Direction == MotherBrainBeamRomData.Direction.Right;
         bool up = beam.Direction == MotherBrainBeamRomData.Direction.Up;
@@ -29,7 +34,7 @@ internal static class RainbowBeamWindowBuilder
                 "Rainbow-beam mouth Y is outside its native scanline work area.");
         int origin = SnesEightEight.FromWhole(beam.MouthScreenX);
         var data = new ushort[MotherBrainBeamRomData.EndLine];
-        Array.Fill(data, MotherBrainBeamRomData.EmptyWindow);
+        Array.Fill(data, MissedLineWord);
         int count = originY - MotherBrainBeamRomData.FirstLine;
         if (right)
         {
@@ -55,7 +60,7 @@ internal static class RainbowBeamWindowBuilder
                 // Down-left uses zero as its off-screen sentinel; the other routines
                 // test FFFF. Keep that asymmetry instead of normalizing the native edges.
                 bool empty = down && leftNegative && rightNegative ? word == 0 : word == ushort.MaxValue;
-                data[index] = empty ? MotherBrainBeamRomData.EmptyWindow : word;
+                data[index] = empty ? MissedLineWord : word;
             }
         }
 
@@ -67,7 +72,7 @@ internal static class RainbowBeamWindowBuilder
             if (!up && row >= MotherBrainBeamRomData.FirstRunLines)
                 index = row - MotherBrainBeamRomData.FirstRunLines + (right
                     ? MotherBrainBeamRomData.RightSecondRunWord : MotherBrainBeamRomData.DownSecondRunWord);
-            windows[y] = data[index];
+            windows[y] = new MotherBrainBeamLine(SnesLittleEndian.LowByte(data[index]), SnesLittleEndian.HighByte(data[index]));
         }
         return windows;
 

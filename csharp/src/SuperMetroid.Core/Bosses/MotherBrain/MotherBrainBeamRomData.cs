@@ -50,8 +50,6 @@ public static class MotherBrainBeamRomData
     public const int EndLine = 232;
     /// <summary>$7E:9D00 data table; first two words are reserved by the indirect header.</summary>
     public const int DataPrefixWords = 2;
-    /// <summary>$AD:DED4 inverted WH0/WH1 endpoints, the cartridge's empty-window word.</summary>
-    public const ushort EmptyWindow = 0x00ff;
     /// <summary>$AD:DF1E sets the right endpoint to the rightmost screen pixel.</summary>
     public const ushort RightScreenEdge = 0xff00;
     /// <summary>$AD:DEAA/$E1D1 first indirect data run uses $F0: 112 per-line transfers.</summary>

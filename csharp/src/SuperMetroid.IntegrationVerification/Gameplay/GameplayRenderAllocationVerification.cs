@@ -46,7 +46,7 @@ internal static class GameplayRenderAllocationVerification
         Console.WriteLine($"Reusable gameplay packet allocation: {allocated} bytes; identity and dirty-buffer parity passed.");
         var memory = FramePaintConstants.Capture(cgram, sprites);
         var xray = new LayeredScene(memory,
-            [new GameplayColorMathRenderLayer(new OrdinaryGameplayRenderLayer(registers, rooms), Enumerable.Repeat(new XrayWindowLine(40, 160), 224).ToArray(), true, new ColorMathRegisters { ColorMath = SnesColorMathControl.Bg1 | SnesColorMathControl.Backdrop | SnesColorMathControl.Half, AddSubscreen = false, FixedRed = 3, FixedGreen = 7, FixedBlue = 11 })], 15);
+            [new GameplayColorMathRenderLayer(new OrdinaryGameplayRenderLayer(registers, rooms), Enumerable.Repeat(new XrayWindowLine(40, 160), 224).ToArray(), true, new SceneBlend { Layers = ColorBlend.Bg1 | ColorBlend.Backdrop | ColorBlend.Half, BlendsWithSubscreen = false, FixedColor = new Bgr555(3, 7, 11) })], 15);
         var xrayReference = SoftwareLayeredSnapshotRenderer.Render(xray);
         SoftwareLayeredSnapshotRenderer.Render(xray, reusable); // Warm pooled scratch.
         Array.Fill(reusable, new SuperMetroid.Core.Hardware.Rgba32(255, 0, 255));

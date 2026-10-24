@@ -163,13 +163,13 @@ internal static class GameplayDisplayFrameTestsVerification
             "Fireflea blend selector waits for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var darkness = (GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertEqual(9, darkness.FixedRed, "Fireflea COLDATA publishes with its blend selector");
+        AssertEqual(9, darkness.Blend.FixedColor.Red, "Fireflea's fixed colour publishes with its blend");
         fixedColor.Color = fixedColor.Color.WithRed(4);
-        AssertEqual(9, ((GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).FixedRed,
-            "a main-loop COLDATA write waits for the next accepted NMI");
+        AssertEqual(9, ((GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.FixedColor.Red,
+            "a fixed colour chosen in the main loop waits for the next accepted frame");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(4, ((GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).FixedRed,
-            "the next accepted NMI publishes the COLDATA write");
+        AssertEqual(4, ((GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.FixedColor.Red,
+            "the next accepted frame publishes the chosen fixed colour");
         runtime.RoomLayer3Fx.Type = originalFx;
         fixedColor.Color = Bgr555.Black;
         runtime.FrameBoundary.BeginAcceptedFrame(0);

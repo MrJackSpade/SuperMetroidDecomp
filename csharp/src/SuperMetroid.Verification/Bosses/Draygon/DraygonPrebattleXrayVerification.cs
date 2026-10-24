@@ -84,7 +84,7 @@ internal static class DraygonPrebattleXrayVerification
         Rgba32[] RenderWithRegisters(OrdinaryGameplayView registers)
         {
             var gameplay = new OrdinaryGameplayRenderLayer(registers, math.Gameplay.Rooms, math.Gameplay.Bg2LineScrolls, math.Gameplay.MainScreenLayersByLine);
-            var changed = new GameplayColorMathRenderLayer(gameplay, math.Lines, math.RevealBlocks, new ColorMathRegisters { ColorMath = math.ColorMath, AddSubscreen = math.AddSubscreen, FixedRed = math.FixedRed, FixedGreen = math.FixedGreen, FixedBlue = math.FixedBlue }, math.Subscreen, math.SubscreenUsesBg2);
+            var changed = new GameplayColorMathRenderLayer(gameplay, math.Lines, math.RevealBlocks, math.Blend, math.Subscreen, math.SubscreenUsesBg2);
             return SoftwareLayeredSnapshotRenderer.Render(new(scene.Paint, new RenderLayer[] { changed }, scene.Brightness));
         }
     }

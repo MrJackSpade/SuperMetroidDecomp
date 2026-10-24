@@ -7,7 +7,7 @@ public static class WaterfallRoomDisplayRules
     public const ScreenLayers MainScreen = ScreenLayers.Bg1 | ScreenLayers.Sprites;
     /// <summary>The waterfall (layer 2) and the liquid (layer 3) are the layers the blend subtracts.</summary>
     public const ScreenLayers Subscreen = ScreenLayers.Bg2 | ScreenLayers.Bg3;
-    /// <summary>$88:80CA CGADSUB=$B1: subtract from BG1, eligible OBJ and backdrop without halving.</summary>
-    public const SnesColorMathControl ColorMath = SnesColorMathControl.Bg1 | SnesColorMathControl.Obj |
-        SnesColorMathControl.Backdrop | SnesColorMathControl.Subtract;
+    /// <summary>The waterfall and the liquid are subtracted from the foreground, the blending sprites and the backdrop, unhalved.</summary>
+    public const ColorBlend Blend = ColorBlend.Bg1 | ColorBlend.Sprites |
+        ColorBlend.Backdrop | ColorBlend.Subtract;
 }

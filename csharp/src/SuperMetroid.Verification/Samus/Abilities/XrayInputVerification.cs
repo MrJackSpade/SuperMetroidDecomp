@@ -92,7 +92,8 @@ internal static class XrayInputVerification
         AssertTrue(reveal.Lines.Any(line => line.Left <= line.Right), "full X-ray publishes a nonempty visible window");
         var pixels = SoftwareLayeredSnapshotRenderer.Render(captured);
         AssertTrue(reveal.RevealBlocks, "ordinary X-ray room selects terrain revelation");
-        AssertEqual((byte)0x73, (byte)reveal.ColorMath, "native reveal-room CGADSUB");
+        AssertEqual(ColorBlend.Bg1 | ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop | ColorBlend.Half, reveal.Blend.Layers,
+            "a reveal room halves its added blend over both backgrounds, the sprites and the backdrop");
         AssertEqual(XrayRoomDisplayRules.ActiveBackdrop, captured.Paint.Colors[0], "setup backdrop reaches the packet");
         // BG2 shows the setup-owned reveal map, as the blocks its words lay out (#1403).
         var frozenMap = XraySetupMemory.ReadReveal(runtime.Xray);
@@ -123,7 +124,7 @@ internal static class XrayInputVerification
         var finishFrame = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertTrue(finishFrame.Layers[0] is GameplayColorMathRenderLayer,
             "phase five still publishes X-ray blending before the next HDMA pass resets configuration");
-        AssertEqual(0, ((GameplayColorMathRenderLayer)finishFrame.Layers[0]).FixedRed,
+        AssertEqual(0, ((GameplayColorMathRenderLayer)finishFrame.Layers[0]).Blend.FixedColor.Red,
             "phase five clears the non-Fireflea fixed color");
         for (int frame = 0; frame < 26; frame++) runtime.StepFrame(0);
         AssertTrue(!samus.Xray.IsActive && !runtime.Freeze.TimeIsFrozen, "releasing Run restores ordinary gameplay");
@@ -152,7 +153,7 @@ internal static class XrayInputVerification
             var baseRooms = ((OrdinaryGameplayRenderLayer)baseFrame.Layers[0]).Rooms;
             AssertTrue(excluded.Gameplay.Rooms.XrayReveal is null && excluded.Gameplay.Rooms.Bg2 == baseRooms.Bg2
                     && excluded.Gameplay.Rooms.Bg2Image == baseRooms.Bg2Image, "excluded room retains the room's own BG2");
-            AssertTrue((excluded.ColorMath & SnesColorMathControl.Obj) == 0, "excluded-room CGADSUB leaves Samus color unchanged");
+            AssertTrue((excluded.Blend.Layers & ColorBlend.Sprites) == 0, "an excluded room's blend leaves Samus color unchanged");
             AssertEqual(excludedRoom != RoomHeaderDefinitions.GlassTunnel,
                 excluded.Gameplay.View.MainScreenLayers.HasFlag(ScreenLayers.Bg2), "CEFB alone removes BG2");
             for (int frame = 0; frame < 8; frame++) runtime.StepFrame(0);

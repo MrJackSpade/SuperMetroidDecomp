@@ -42,7 +42,8 @@ internal static class WaterfallRoomsVerification
             var math = snapshot.Layers[0] as GameplayColorMathRenderLayer
                 ?? throw new InvalidDataException("Waterfall room still captures an ordinary opaque background.");
             AssertTrue(math.SubscreenUsesBg2, "waterfall capture admits BG2 subscreen");
-            AssertEqual((byte)0xb1, (byte)math.ColorMath, "waterfall native CGADSUB");
+            AssertEqual(ColorBlend.Bg1 | ColorBlend.Sprites | ColorBlend.Backdrop | ColorBlend.Subtract, math.Blend.Layers,
+                "the waterfall subtracts from the foreground, the sprites and the backdrop, unhalved");
             AssertEqual(ScreenLayers.Bg1 | ScreenLayers.Sprites,
                 math.Gameplay.View.MainScreenLayers, "waterfall main excludes BG2");
             AssertTrue(!snapshot.Layers.Any(layer => layer is FxPlaneBlendRenderLayer),

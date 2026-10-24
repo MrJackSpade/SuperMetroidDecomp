@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Samus.Abilities.XrayExtensionsVerificatio
 using static SuperMetroid.Verification.Samus.Abilities.XrayOverlaysVerification;
 using static SuperMetroid.Verification.Samus.Abilities.XrayRevealVerification;
 using static SuperMetroid.Verification.Samus.Abilities.XrayTilemapVerification;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Verification.Samus.Abilities;
@@ -32,11 +33,13 @@ internal static class XrayRoomDisplayVerification
                 XrayRoomDisplayRules.Select(RoomHeaderDefinitions.GlassTunnel, (RoomFxType)0x24, (ushort)boss), "Fireflea mode takes precedence over exclusions");
         }
         AssertEqual(3171, XrayRoomDisplayRules.ActiveBackdrop, "native stage-eight backdrop");
-        AssertEqual((byte)0x73, (byte)XrayRoomDisplayRules.ColorMath(XrayRoomBlendMode.RevealBlocks, false), "reveal CGADSUB");
-        AssertEqual((byte)0xF3, (byte)XrayRoomDisplayRules.ColorMath(XrayRoomBlendMode.RevealBlocks, true), "subtractive reveal CGADSUB");
-        AssertEqual((byte)0x61, (byte)XrayRoomDisplayRules.ColorMath(XrayRoomBlendMode.PreserveBackgrounds, false), "excluded CGADSUB");
-        AssertEqual((byte)0xE1, (byte)XrayRoomDisplayRules.ColorMath(XrayRoomBlendMode.PreserveBackgrounds, true), "subtractive excluded CGADSUB");
-        AssertEqual((byte)0xB3, (byte)XrayRoomDisplayRules.ColorMath(XrayRoomBlendMode.Fireflea, false), "Fireflea forces subtraction without halving");
+        const ColorBlend revealLayers = ColorBlend.Bg1 | ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop;
+        const ColorBlend excludedLayers = ColorBlend.Bg1 | ColorBlend.Backdrop;
+        AssertEqual(revealLayers | ColorBlend.Half, XrayRoomDisplayRules.Blend(XrayRoomBlendMode.RevealBlocks, false), "reveal blend");
+        AssertEqual(revealLayers | ColorBlend.Half | ColorBlend.Subtract, XrayRoomDisplayRules.Blend(XrayRoomBlendMode.RevealBlocks, true), "subtractive reveal blend");
+        AssertEqual(excludedLayers | ColorBlend.Half, XrayRoomDisplayRules.Blend(XrayRoomBlendMode.PreserveBackgrounds, false), "excluded blend");
+        AssertEqual(excludedLayers | ColorBlend.Half | ColorBlend.Subtract, XrayRoomDisplayRules.Blend(XrayRoomBlendMode.PreserveBackgrounds, true), "subtractive excluded blend");
+        AssertEqual(revealLayers | ColorBlend.Subtract, XrayRoomDisplayRules.Blend(XrayRoomBlendMode.Fireflea, false), "Fireflea forces subtraction without halving");
         Console.WriteLine("  X-ray room rules: all room/boss words and Fireflea precedence agree with native comparisons.");
     }
 

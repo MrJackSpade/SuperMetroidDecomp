@@ -286,11 +286,11 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[4] = unchecked((ushort)(r.Bg1Scroll.Y + SnesPpuLayout.FirstVisibleBackgroundScanline));
         data[5] = r.Bg2MapSize.X; data[6] = r.Bg2MapSize.Y;
         data[7] = (uint)r.MainScreenLayers; data[8] = layer.RevealBlocks ? 1u : 0u;
-        data[9] = (uint)layer.ColorMath;
-        data[10] = (uint)layer.FixedRed; data[11] = (uint)layer.FixedGreen; data[12] = (uint)layer.FixedBlue;
+        data[9] = (uint)layer.Blend.Layers;
+        data[10] = (uint)layer.Blend.FixedColor.Red; data[11] = (uint)layer.Blend.FixedColor.Green; data[12] = (uint)layer.Blend.FixedColor.Blue;
         // BG1 is always the room's; BG2 is what the room publishes for it (#1403).
         data[14] = D3D11RoomSources.Bg2Of(layer.Gameplay.Rooms);
-        data[22] = layer.AddSubscreen ? 1u : 0u;
+        data[22] = layer.Blend.BlendsWithSubscreen ? 1u : 0u;
         data[26] = 224;
         data[27] = (uint)r.Bg2Mosaic.Size;
         // Subscreen descriptor: none, captured BG3, or gameplay BG2 registers.

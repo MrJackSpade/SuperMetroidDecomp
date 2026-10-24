@@ -40,7 +40,8 @@ internal static class FirefleaEyeVerification
         var memory = FramePaintConstants.Capture(runtime.Cgram.AsPaletteColors(), sprites);
         var source = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         var actualDarkness = (GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertEqual((byte)0xa2, (byte)actualDarkness.ColorMath, "reported room captures the native OBJ-excluding blend mask");
+        AssertEqual(ColorBlend.Bg2 | ColorBlend.Backdrop | ColorBlend.Subtract, actualDarkness.Blend.Layers,
+            "reported room darkens the background and backdrop, not the sprites");
         var baseLayer = (OrdinaryGameplayRenderLayer)source.Layers[0];
         // Isolate the actual room OBJ pixels on a black backdrop, retaining the
         // retail graphics/palette and the production source-aware color-math kernel.
@@ -52,7 +53,7 @@ internal static class FirefleaEyeVerification
         foreach (byte darkness in new byte[] { 0, 6, 12, 18, 24, 25, 31 })
         {
             var closed = Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray();
-            var layer = new GameplayColorMathRenderLayer(objects, closed, false, new ColorMathRegisters { ColorMath = actualDarkness.ColorMath, AddSubscreen = false, FixedRed = darkness, FixedGreen = darkness, FixedBlue = darkness });
+            var layer = new GameplayColorMathRenderLayer(objects, closed, false, new SceneBlend { Layers = actualDarkness.Blend.Layers, BlendsWithSubscreen = false, FixedColor = new Bgr555(darkness, darkness, darkness) });
             var pixels = SoftwareLayeredSnapshotRenderer.Render(new(memory, new RenderLayer[] { layer }, source.Brightness));
             bright ??= pixels;
             AssertTrue(pixels.SequenceEqual(bright), "native A2 darkness leaves retail eye OBJ colors unchanged");

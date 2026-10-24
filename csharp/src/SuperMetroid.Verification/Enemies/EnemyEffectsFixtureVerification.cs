@@ -14,6 +14,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Constructs cartridge-free enemy-effect artwork and Crocomire state fixtures.</summary>
 internal static class EnemyEffectsFixtureVerification
@@ -123,7 +124,7 @@ internal static class EnemyEffectsFixtureVerification
     }
 
     /// <summary>Compiles a patterned full-size Mother Brain corpse sheet through the PNG loader.</summary>
-    internal static RoomCharacterAtlas CorpseEffectArtwork(byte pattern) => RoomCharacterAtlas.Load(
+    internal static RoomCharacterAtlas CorpseEffectArtwork(byte pattern) => RoomCharacterAtlasPng.Read(
         EffectPng(MotherBrainCorpseArtworkDefinitions.ByteCount, MotherBrainCorpseArtworkDefinitions.ByteCount, pattern),
         MotherBrainCorpseArtworkDefinitions.ByteCount);
 
@@ -151,6 +152,7 @@ internal static class EnemyEffectsFixtureVerification
             CrocomireMeltingArtwork.UsedByteCount(CrocomireMeltingIllustration.Second), pattern);
         using var firstMap = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(firstJson ?? MeltEffectJson(seed)));
         using var secondMap = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(MeltEffectJson(seed)));
-        return CrocomireMeltingArtwork.Load(first, second, firstMap, secondMap);
+        return CrocomireMeltingArtwork.Load(RoomCharacterAtlasPng.Read(first, CrocomireMeltingArtworkFormat.FirstByteCount),
+            RoomCharacterAtlasPng.Read(second, CrocomireMeltingArtworkFormat.SecondByteCount), firstMap, secondMap);
     }
 }

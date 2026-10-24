@@ -60,15 +60,16 @@ public sealed class CeresDoorVisualCatalog
     }
 
     /// <summary>Loads the indexed 4bpp door sheet and version-1 visual JSON, validating native transfer lengths, RGB5 channels, and eight-bit Mode 7 character selectors without importing door timing or variant logic.</summary>
-    /// <param name="tilePng">Caller-owned <c>ceres-door-tiles.png</c> stream compiling to $0400 bytes.</param>
+    /// <param name="tiles">The installed <c>ceres-door-tiles.png</c> characters, $0400 bytes.</param>
     /// <param name="paletteJson">Caller-owned <c>ceres-door-colors.json</c> stream containing setup colors, animation rows, and Mode 7 strip cells.</param>
     /// <returns>The compiled visual snapshot; streams are consumed from their current positions and left open.</returns>
-    public static CeresDoorVisualCatalog Load(Stream tilePng, Stream paletteJson)
+    /// <exception cref="InvalidDataException">The characters are not the door transfer's length, or the document is invalid.</exception>
+    public static CeresDoorVisualCatalog Load(RoomCharacterAtlas tiles, Stream paletteJson)
     {
-        Ensure.NotNull(tilePng);
+        Ensure.NotNull(tiles);
         Ensure.NotNull(paletteJson);
-        RoomCharacterAtlas tiles = RoomCharacterAtlas.Load(tilePng,
-            CeresDoorVisualRomData.TileByteCount);
+        if (tiles.Characters.Length != CeresDoorVisualRomData.TileByteCount)
+            throw new InvalidDataException($"Ceres-door tiles hold {tiles.Characters.Length} bytes; expected {CeresDoorVisualRomData.TileByteCount}.");
         CeresDoorVisualDocument document;
         try
         {

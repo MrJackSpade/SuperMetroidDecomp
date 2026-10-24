@@ -35,6 +35,7 @@ using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.Verification.Enemies;
 
@@ -79,7 +80,7 @@ internal static class EnemyContentIdentityFixtureVerification
 
         /// <summary>Compiles fixture PNG pixels into a production room-character atlas.</summary>
         private RoomCharacterAtlas Characters(string name, int bytes, int seed = 0) =>
-            RoomCharacterAtlas.Load(Png(name, bytes, seed), bytes);
+            RoomCharacterAtlasPng.Read(Png(name, bytes, seed), bytes);
 
         /// <summary>Changes the final tilemap cell only when its named edit is selected.</summary>
         private RoomBackgroundTilemapCell[] Cells(string name, int count)
@@ -187,7 +188,7 @@ internal static class EnemyContentIdentityFixtureVerification
                 Characters("gunship-" + index, GunshipLiftoffTransferDefinitions.ByteCount, index)).ToArray();
             Register("gunship-order");
             if (edit == "gunship-order") Array.Reverse(gunship);
-            var door = CeresDoorVisualCatalog.Load(Png("ceres-door-tiles", CeresDoorVisualRomData.TileByteCount), Json(new CeresDoorVisualDocument
+            var door = CeresDoorVisualCatalog.Load(RoomCharacterAtlasPng.Read(Png("ceres-door-tiles", CeresDoorVisualRomData.TileByteCount), CeresDoorVisualRomData.TileByteCount), Json(new CeresDoorVisualDocument
             {
                 Version = 1, Normal = Colors("ceres-door-normal", CeresDoorVisualRomData.SetupColorCount),
                 Escape = Colors("ceres-door-escape", CeresDoorVisualRomData.SetupColorCount),
@@ -220,8 +221,8 @@ internal static class EnemyContentIdentityFixtureVerification
                     new EnemyContentIdentityFixtureField("lowerNorfair", 0, ChozoAndTubeColorRomData.ColorCount)), DachoraColors = ColorCatalog(DachoraColorCatalog.Load, new EnemyContentIdentityFixtureField("normal", 0, DachoraColorRomData.ColorsPerFrame),
                     new EnemyContentIdentityFixtureField("speed", DachoraColorRomData.AnimatedFrameCount, DachoraColorRomData.ColorsPerFrame),
                     new EnemyContentIdentityFixtureField("shine", DachoraColorRomData.AnimatedFrameCount, DachoraColorRomData.ColorsPerFrame)), AuxiliaryColors = auxiliary }),
-                new BossArtworkCatalog { CrocomireMelting = CrocomireMeltingArtwork.Load(Png("melt-first", CrocomireMeltingArtworkFormat.FirstByteCount),
-                    Png("melt-second", CrocomireMeltingArtworkFormat.SecondByteCount), Json(meltFirstMap), Json(meltSecondMap)), KraidBackground = new KraidBackgroundArtwork(Map("kraid-upper", KraidBackgroundRomData.DecompressedTilemapBytes),
+                new BossArtworkCatalog { CrocomireMelting = CrocomireMeltingArtwork.Load(RoomCharacterAtlasPng.Read(Png("melt-first", CrocomireMeltingArtworkFormat.FirstByteCount), CrocomireMeltingArtworkFormat.FirstByteCount),
+                    RoomCharacterAtlasPng.Read(Png("melt-second", CrocomireMeltingArtworkFormat.SecondByteCount), CrocomireMeltingArtworkFormat.SecondByteCount), Json(meltFirstMap), Json(meltSecondMap)), KraidBackground = new KraidBackgroundArtwork(Map("kraid-upper", KraidBackgroundRomData.DecompressedTilemapBytes),
                     Map("kraid-lower", KraidBackgroundRomData.DecompressedTilemapBytes), heads,
                     Characters("kraid-background", KraidBackgroundRomData.RoomBackgroundTileBytes)), KraidColors = ColorCatalog(KraidColorCatalog.Load,
                     new EnemyContentIdentityFixtureField("roomBackdrop", 0, KraidPaletteRomData.ColorCount(KraidPaletteSource.RoomBackdrop)),
@@ -253,7 +254,7 @@ internal static class EnemyContentIdentityFixtureVerification
                     new EnemyContentIdentityFixtureField("explodedDoor", 0, MotherBrainDeathRomData.BodyColorCount)), ZebetiteColors = ColorCatalog(ZebetiteColorCatalog.Load, new EnemyContentIdentityFixtureField("frames", ZebetiteColorFormat.FrameCount, ZebetiteColorFormat.ColorsPerFrame)), NorfairRidleyColors = ColorCatalog(NorfairRidleyColorCatalog.Load,
                     new EnemyContentIdentityFixtureField("initial", 0, NorfairRidleyPaletteRomData.InitialColorCount),
                     new EnemyContentIdentityFixtureField("reveal", NorfairRidleyPaletteRomData.RevealRowCount, NorfairRidleyPaletteRomData.RevealColorCount)), PhantoonBg2Frames = PhantoonBg2FrameCatalog.Load(Bg2("phantoon-bg2", PhantoonBg2FrameDefinitions.Frames)), DraygonBg2Frames = DraygonBg2FrameCatalog.Load(Bg2("draygon-bg2", DraygonBg2FrameDefinitions.Frames)), CrocomireBg2Frames = CrocomireBg2FrameCatalog.Load(Bg2("crocomire-bg2", CrocomireBg2FrameDefinitions.Frames)), MotherBrainBodyBg2Frames = motherBrainBodyBg2Frames ?? MotherBrainBodyBg2FrameCatalog.Load(
-                    Bg2("mother-brain-body-bg2", MotherBrainBodyVisualDefinitions.Bg2Frames)), MotherBrainCorpse = Characters("mother-brain-corpse", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainEscapeText = Characters("mother-brain-text", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainSpecialSprites = special, CrocomireSkeleton = CrocomireSkeletonArtwork.Load(Png("crocomire-skeleton", CrocomireSkeletonTransferDefinitions.TotalByteCount)), TorizoSwaps = torizo },
+                    Bg2("mother-brain-body-bg2", MotherBrainBodyVisualDefinitions.Bg2Frames)), MotherBrainCorpse = Characters("mother-brain-corpse", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainEscapeText = Characters("mother-brain-text", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainSpecialSprites = special, CrocomireSkeleton = CrocomireSkeletonArtwork.Load(RoomCharacterAtlasPng.Read(Png("crocomire-skeleton", CrocomireSkeletonTransferDefinitions.TotalByteCount), CrocomireSkeletonTransferDefinitions.TotalByteCount)), TorizoSwaps = torizo },
                 new AreaArtworkCatalog { CeresDoorVisual = door, TourianStatueColors = ColorCatalog(TourianStatueColorCatalog.Load,
                     new EnemyContentIdentityFixtureField("base", 0, TourianStatuePaletteRomData.BaseColorCount), new EnemyContentIdentityFixtureField("statue", 0, TourianStatuePaletteRomData.StatueColorCount),
                     new EnemyContentIdentityFixtureField("eye", TourianStatuePaletteRomData.EyeRowCount, TourianStatuePaletteRomData.EyeColorCount), new EnemyContentIdentityFixtureField("grey", 0, TourianStatuePaletteRomData.GreyColorCount)), CeresEscapeTiles = ceresTiles, CeresEscapeOverlayTilemaps = overlay });

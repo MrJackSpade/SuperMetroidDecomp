@@ -52,18 +52,18 @@ public sealed class CeresDestructionArtworkCatalog
     /// <summary>Loads the bounded destruction and Zebes-reveal presentation resources, validating each map, character sheet, sprite catalog, and actor layout without reading cartridge data.</summary>
     /// <param name="ceresMapJson">Version-1 three-view Mode 7 map JSON from <c>ceres-destruction-mode7-maps.json</c>.</param>
     /// <param name="zebesMapJson">One-page BG tilemap JSON from <c>zebes-reveal-tilemap.json</c>.</param>
-    /// <param name="zebesCharactersPng">Indexed 4bpp character artwork from <c>zebes-reveal-characters.png</c>, compiling to $4000 bytes.</param>
+    /// <param name="zebesCharacters">The installed 4bpp characters of <c>zebes-reveal-characters.png</c>, $4000 bytes.</param>
     /// <param name="spritesJson">Named station-blast and reveal OAM compositions.</param>
     /// <param name="revealActorsJson">Six ordered initial Zebes-reveal actor placements.</param>
     /// <param name="destructionActorsJson">Three ordered initial destruction-background actor placements.</param>
     /// <returns>The compiled presentation; all input streams are consumed from their current positions and remain caller-owned.</returns>
     public static CeresDestructionArtworkCatalog Load(Stream ceresMapJson,
-        Stream zebesMapJson, Stream zebesCharactersPng, Stream spritesJson,
+        Stream zebesMapJson, RoomCharacterAtlas zebesCharacters, Stream spritesJson,
         Stream revealActorsJson, Stream destructionActorsJson)
     {
         Ensure.NotNull(ceresMapJson);
         Ensure.NotNull(zebesMapJson);
-        Ensure.NotNull(zebesCharactersPng);
+        Ensure.NotNull(zebesCharacters);
         Ensure.NotNull(spritesJson);
         Ensure.NotNull(revealActorsJson);
         Ensure.NotNull(destructionActorsJson);
@@ -76,8 +76,8 @@ public sealed class CeresDestructionArtworkCatalog
         return new CeresDestructionArtworkCatalog(maps,
             RoomBackgroundTilemapAtlas.Load(zebesMapJson,
                 CeresDestructionArtworkFormat.ZebesMapByteCount),
-            RoomCharacterAtlas.Load(zebesCharactersPng,
-                CeresDestructionArtworkFormat.ZebesCharacterByteCount),
+            zebesCharacters.Characters.Length == CeresDestructionArtworkFormat.ZebesCharacterByteCount ? zebesCharacters
+                : throw new InvalidDataException($"Zebes reveal characters hold {zebesCharacters.Characters.Length} bytes; expected {CeresDestructionArtworkFormat.ZebesCharacterByteCount}."),
             CeresDestructionSpritePresentation.Load(spritesJson),
             CeresRevealActorLayout.Load(revealActorsJson),
             CeresDestructionActorLayout.Load(destructionActorsJson));

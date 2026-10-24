@@ -48,6 +48,7 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// Focused room-enemy loading and actor verifications that use cartridge-shaped
@@ -133,7 +134,7 @@ internal static void VerifyRoomEnemyLoading()
             out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
         IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
-        stockSheets.Add(pointer, RoomCharacterAtlas.Load(new MemoryStream(png.ToArray()), byteCount));
+        stockSheets.Add(pointer, RoomCharacterAtlasPng.Read(new MemoryStream(png.ToArray()), byteCount));
         var palette = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
         for (int color = 0; color < palette.Length; color++)
         {
@@ -877,7 +878,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     {
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
             {
-                [definitionPointer] = RoomCharacterAtlas.Load(
+                [definitionPointer] = RoomCharacterAtlasPng.Read(
                     new MemoryStream(fixtureTilePng.ToArray()), uploadPlanar.Length),
             }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
             {

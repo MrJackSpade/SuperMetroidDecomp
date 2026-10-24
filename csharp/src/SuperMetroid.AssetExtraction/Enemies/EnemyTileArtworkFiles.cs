@@ -88,7 +88,7 @@ public static class EnemyTileArtworkFiles
                 using var png = new MemoryStream();
                 IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
                 byte[] encoded = png.ToArray();
-                RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(
+                RoomCharacterAtlas roundtrip = RoomCharacterAtlasPng.Read(
                     new MemoryStream(encoded, writable: false), byteCount);
                 if (!roundtrip.Characters.Span.SequenceEqual(planar))
                     throw new InvalidDataException($"Enemy ${headerWord:X4} tile PNG changed native pixels.");
@@ -158,8 +158,8 @@ public static class EnemyTileArtworkFiles
         IndexedPng.Write(skeletonImage, skeletonSize,
             skeletonPixels, SnesGraphics.DiagnosticPalette(16));
         byte[] skeletonPng = skeletonImage.ToArray();
-        CrocomireSkeletonArtwork skeletonRoundtrip = CrocomireSkeletonArtwork.Load(
-            new MemoryStream(skeletonPng, writable: false));
+        CrocomireSkeletonArtwork skeletonRoundtrip = CrocomireSkeletonArtwork.Load(RoomCharacterAtlasPng.Read(
+            new MemoryStream(skeletonPng, writable: false), CrocomireSkeletonTransferDefinitions.TotalByteCount));
         for (int index = 0; index < CrocomireSkeletonTransferDefinitions.Frames.Length; index++)
         {
             ReadOnlySpan<byte> expected = skeletonPlanar.AsSpan(
@@ -228,7 +228,7 @@ public static class EnemyTileArtworkFiles
             IndexedPng.Write(image, size, pixels,
                 SnesGraphics.DiagnosticPalette(16));
             byte[] png = image.ToArray();
-            RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(
+            RoomCharacterAtlas roundtrip = RoomCharacterAtlasPng.Read(
                 new MemoryStream(png, writable: false), planar.Length);
             if (!roundtrip.Characters.Span.SequenceEqual(planar))
                 throw new InvalidDataException(
@@ -250,7 +250,7 @@ public static class EnemyTileArtworkFiles
         IndexedPng.Write(corpseStream, corpseSize, corpsePixels,
             SnesGraphics.DiagnosticPalette(16));
         byte[] corpsePng = corpseStream.ToArray();
-        RoomCharacterAtlas corpseRoundtrip = RoomCharacterAtlas.Load(
+        RoomCharacterAtlas corpseRoundtrip = RoomCharacterAtlasPng.Read(
             new MemoryStream(corpsePng, writable: false),
             MotherBrainCorpseArtworkDefinitions.ByteCount);
         if (!corpseRoundtrip.Characters.Span.SequenceEqual(corpsePlanar))
@@ -269,7 +269,7 @@ public static class EnemyTileArtworkFiles
         IndexedPng.Write(escapeTextStream, escapeTextSize,
             escapeTextPixels, SnesGraphics.DiagnosticPalette(16));
         byte[] escapeTextPng = escapeTextStream.ToArray();
-        RoomCharacterAtlas escapeTextRoundtrip = RoomCharacterAtlas.Load(
+        RoomCharacterAtlas escapeTextRoundtrip = RoomCharacterAtlasPng.Read(
             new MemoryStream(escapeTextPng, writable: false),
             EscapeTextArtworkDefinitions.ByteCount);
         if (!escapeTextRoundtrip.Characters.Span.SequenceEqual(escapeTextPlanar))
@@ -513,7 +513,7 @@ public static class EnemyTileArtworkFiles
             try
             {
                 byte[] selected = selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath);
-                sheets.Add(definitionPointer, RoomCharacterAtlas.Load(
+                sheets.Add(definitionPointer, RoomCharacterAtlasPng.Read(
                     new MemoryStream(selected, writable: false), entry.NativeByteCount));
             }
             catch (InvalidDataException error)
@@ -557,8 +557,8 @@ public static class EnemyTileArtworkFiles
         CrocomireSkeletonArtwork skeleton;
         try
         {
-            skeleton = CrocomireSkeletonArtwork.Load(
-                new MemoryStream(skeletonPng, writable: false));
+            skeleton = CrocomireSkeletonArtwork.Load(RoomCharacterAtlasPng.Read(
+                new MemoryStream(skeletonPng, writable: false), CrocomireSkeletonTransferDefinitions.TotalByteCount));
         }
         catch (InvalidDataException error)
         {
@@ -570,8 +570,8 @@ public static class EnemyTileArtworkFiles
         try
         {
             crocomire = CrocomireMeltingArtwork.Load(
-                new MemoryStream(first, writable: false),
-                new MemoryStream(second, writable: false),
+                RoomCharacterAtlasPng.Read(new MemoryStream(first, writable: false), CrocomireMeltingArtworkFormat.FirstByteCount),
+                RoomCharacterAtlasPng.Read(new MemoryStream(second, writable: false), CrocomireMeltingArtworkFormat.SecondByteCount),
                 new MemoryStream(firstTilemap, writable: false),
                 new MemoryStream(secondTilemap, writable: false));
         }
@@ -710,7 +710,7 @@ public static class EnemyTileArtworkFiles
             byte[] selected = ReadStockOrOverride(fileName, expectedHash);
             try
             {
-                gunshipFrames[index] = RoomCharacterAtlas.Load(
+                gunshipFrames[index] = RoomCharacterAtlasPng.Read(
                     new MemoryStream(selected, writable: false),
                     GunshipLiftoffTransferDefinitions.ByteCount);
             }
@@ -734,7 +734,7 @@ public static class EnemyTileArtworkFiles
             byte[] selected = ReadStockOrOverride(page.FileName, expectedHash);
             try
             {
-                torizoPages[index] = RoomCharacterAtlas.Load(
+                torizoPages[index] = RoomCharacterAtlasPng.Read(
                     new MemoryStream(selected, writable: false), page.ByteCount);
             }
             catch (InvalidDataException error)
@@ -758,7 +758,7 @@ public static class EnemyTileArtworkFiles
             byte[] selected = ReadStockOrOverride(page.FileName, expectedHash);
             try
             {
-                ceresEscapePages[index] = RoomCharacterAtlas.Load(
+                ceresEscapePages[index] = RoomCharacterAtlasPng.Read(
                     new MemoryStream(selected, writable: false), page.ByteCount);
             }
             catch (InvalidDataException error)
@@ -789,7 +789,7 @@ public static class EnemyTileArtworkFiles
             byte[] selected = ReadStockOrOverride(
                 MotherBrainCorpseArtworkDefinitions.FileName,
                 manifest.MotherBrainCorpseSha256);
-            motherBrainCorpse = RoomCharacterAtlas.Load(
+            motherBrainCorpse = RoomCharacterAtlasPng.Read(
                 new MemoryStream(selected, writable: false),
                 MotherBrainCorpseArtworkDefinitions.ByteCount);
         }
@@ -805,7 +805,7 @@ public static class EnemyTileArtworkFiles
             byte[] selected = ReadStockOrOverride(
                 EscapeTextArtworkDefinitions.FileName,
                 manifest.MotherBrainEscapeTextSha256);
-            motherBrainEscapeText = RoomCharacterAtlas.Load(
+            motherBrainEscapeText = RoomCharacterAtlasPng.Read(
                 new MemoryStream(selected, writable: false),
                 EscapeTextArtworkDefinitions.ByteCount);
         }
@@ -828,7 +828,7 @@ public static class EnemyTileArtworkFiles
             {
                 byte[] selected = ReadStockOrOverride(sheet.FileName, expectedHash);
                 motherBrainSpecialSheets.Add(sheet.SourceAddress,
-                    RoomCharacterAtlas.Load(
+                    RoomCharacterAtlasPng.Read(
                         new MemoryStream(selected, writable: false), sheet.ByteCount));
             }
             catch (InvalidDataException error)
@@ -866,7 +866,7 @@ public static class EnemyTileArtworkFiles
         RoomCharacterAtlas roomBackground;
         try
         {
-            roomBackground = RoomCharacterAtlas.Load(
+            roomBackground = RoomCharacterAtlasPng.Read(
                 new MemoryStream(roomBackgroundPng, writable: false),
                 KraidBackgroundRomData.RoomBackgroundTileBytes);
         }
@@ -1224,7 +1224,7 @@ public static class EnemyTileArtworkFiles
         using var png = new MemoryStream();
         IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         byte[] encoded = png.ToArray();
-        RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(
+        RoomCharacterAtlas roundtrip = RoomCharacterAtlasPng.Read(
             new MemoryStream(encoded, writable: false), encodedByteCount);
         if (!roundtrip.Characters.Span.SequenceEqual(planar))
             throw new InvalidDataException(
@@ -1253,7 +1253,7 @@ public static class EnemyTileArtworkFiles
         using var png = new MemoryStream();
         IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         byte[] encoded = png.ToArray();
-        RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(
+        RoomCharacterAtlas roundtrip = RoomCharacterAtlasPng.Read(
             new MemoryStream(encoded, writable: false),
             KraidBackgroundRomData.RoomBackgroundTileBytes);
         if (!roundtrip.Characters.Span.SequenceEqual(planar))
@@ -1273,7 +1273,7 @@ public static class EnemyTileArtworkFiles
         IndexedPng.Write(output, size, pixels,
             SnesGraphics.DiagnosticPalette(16));
         byte[] png = output.ToArray();
-        RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(
+        RoomCharacterAtlas roundtrip = RoomCharacterAtlasPng.Read(
             new MemoryStream(png, writable: false), sheet.ByteCount);
         if (!roundtrip.Characters.Span.SequenceEqual(native))
             throw new InvalidDataException(

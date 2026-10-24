@@ -104,7 +104,7 @@ public static class RoomCharacterArtworkFiles
             RoomCharacterAtlas atlas;
             try
             {
-                atlas = RoomCharacterAtlas.Load(new MemoryStream(selected, writable: false),
+                atlas = RoomCharacterAtlasPng.Read(new MemoryStream(selected, writable: false),
                     entry.NativeByteCount);
             }
             catch (InvalidDataException error)

@@ -109,7 +109,7 @@ public static class IntroCinematicArtworkFiles
             using var png = new MemoryStream();
             IndexedPng.Write(png, size, indexes, SnesGraphics.DiagnosticPalette(16));
             byte[] encoded = png.ToArray();
-            RoomCharacterAtlas roundTrip = RoomCharacterAtlas.Load(
+            RoomCharacterAtlas roundTrip = RoomCharacterAtlasPng.Read(
                 new MemoryStream(encoded, writable: false), expectedByteCount);
             if (!roundTrip.Characters.Span.SequenceEqual(planar))
                 throw new InvalidDataException($"Intro PNG {name} did not round-trip its cartridge tiles.");
@@ -435,7 +435,7 @@ public static class IntroCinematicArtworkFiles
             (string selectedPath, byte[] selected) = ReadSelected(name);
             try
             {
-                return RoomCharacterAtlas.Load(new MemoryStream(selected, writable: false), nativeByteCount);
+                return RoomCharacterAtlasPng.Read(new MemoryStream(selected, writable: false), nativeByteCount);
             }
             catch (InvalidDataException error)
             {
@@ -640,7 +640,7 @@ public static class IntroCinematicArtworkFiles
                 return CeresDestructionArtworkCatalog.Load(
                     new MemoryStream(ceres, writable: false),
                     new MemoryStream(zebesMap, writable: false),
-                    new MemoryStream(zebesPng, writable: false),
+                    RoomCharacterAtlasPng.Read(new MemoryStream(zebesPng, writable: false), CeresDestructionArtworkFormat.ZebesCharacterByteCount),
                     new MemoryStream(sprites, writable: false),
                     new MemoryStream(actors, writable: false),
                     new MemoryStream(destructionActors, writable: false));

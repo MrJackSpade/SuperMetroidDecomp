@@ -7,9 +7,9 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -138,7 +138,7 @@ public static class SamusArmCannonArtworkFiles
         static SamusArmCannonArtworkCatalog Compile(SamusArtworkFile json, SamusArtworkFile png)
         {
             var placement = json.Compile(SamusArmCannonArtworkCatalog.LoadPlacement);
-            var tiles = png.Compile(stream => RoomCharacterAtlas.Load(stream,
+            var tiles = png.Compile(stream => RoomCharacterAtlasPng.Read(stream,
                 SamusArmCannonArtworkFormat.CoverTileCount *
                     SamusDrawingDefinitions.ArmCannon.TileByteCount));
             return SamusArmCannonArtworkCatalog.FromPlacement(placement, tiles);

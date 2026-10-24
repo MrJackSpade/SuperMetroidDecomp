@@ -10,6 +10,7 @@ using SuperMetroid.Core.Rooms.Xray;
 using SuperMetroid.AssetExtraction.Installation;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Checks canonical hashes for shared gameplay palettes, sprite pixels, and X-ray visuals.</summary>
 internal static class GameplayContentIdentityVerification
@@ -92,7 +93,7 @@ internal static class GameplayContentIdentityVerification
         IndexedPng.Write(png, new(8, 8), pixels, [new Rgba32(0, 0, 0),
             edit == "png-colors" ? new Rgba32(255, 0, 0) : new Rgba32(255, 255, 255)]);
         png.Position = 0;
-        RoomCharacterAtlas sprites = RoomCharacterAtlas.Load(png, RoomCharacterAtlasFormat.BytesPerTile);
+        RoomCharacterAtlas sprites = RoomCharacterAtlasPng.Read(png, RoomCharacterAtlasFormat.BytesPerTile);
 
         var entries = new List<XrayRevealVisualDefinition>();
         bool editedOperands = false;

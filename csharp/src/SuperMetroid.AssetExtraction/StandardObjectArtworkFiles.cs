@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -32,7 +33,7 @@ public static class StandardObjectArtworkFiles
         using var png = new MemoryStream();
         IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         byte[] selected = png.ToArray();
-        RoomCharacterAtlas loaded = RoomCharacterAtlas.Load(
+        RoomCharacterAtlas loaded = RoomCharacterAtlasPng.Read(
             new MemoryStream(selected, writable: false), StandardObjectArtworkFormat.ByteCount);
         if (!loaded.Characters.Span.SequenceEqual(native))
             throw new InvalidDataException("Standard OBJ PNG changed native tile bytes during extraction.");
@@ -71,7 +72,7 @@ public static class StandardObjectArtworkFiles
         if (!string.Equals(manifest.PngSha256, Convert.ToHexString(SHA256.HashData(stock)),
             StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException($"Stock standard OBJ PNG {stockPath} failed its manifest hash.");
-        _ = RoomCharacterAtlas.Load(new MemoryStream(stock, writable: false),
+        _ = RoomCharacterAtlasPng.Read(new MemoryStream(stock, writable: false),
             StandardObjectArtworkFormat.ByteCount);
         string? overridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory,
             StandardObjectArtworkFormat.FileName);
@@ -79,7 +80,7 @@ public static class StandardObjectArtworkFiles
             ? File.ReadAllBytes(overridePath) : stock;
         try
         {
-            return RoomCharacterAtlas.Load(new MemoryStream(selected, writable: false),
+            return RoomCharacterAtlasPng.Read(new MemoryStream(selected, writable: false),
                 StandardObjectArtworkFormat.ByteCount);
         }
         catch (InvalidDataException error)

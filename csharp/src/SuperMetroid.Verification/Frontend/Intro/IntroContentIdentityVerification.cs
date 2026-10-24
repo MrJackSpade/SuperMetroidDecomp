@@ -11,6 +11,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
+using SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Checks the canonical selected-content digest for the opening and Ceres presentation bundle.</summary>
 internal static class IntroContentIdentityVerification
@@ -106,7 +107,7 @@ internal static class IntroContentIdentityVerification
         {
             int tiles = bytes / RoomCharacterAtlasFormat.BytesPerTile;
             int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tiles);
-            return RoomCharacterAtlas.Load(Png(name, columns * 8, (tiles + columns - 1) / columns * 8, 16), bytes);
+            return RoomCharacterAtlasPng.Read(Png(name, columns * 8, (tiles + columns - 1) / columns * 8, 16), bytes);
         }
         // Build a page of visual cells with an optional edit in its last tile column.
         RoomBackgroundTilemapCell[] Cells(string name, int count, int seed = 0) => Enumerable.Range(0, count)
@@ -204,7 +205,7 @@ internal static class IntroContentIdentityVerification
             Version = CeresDestructionArtworkFormat.Version, Width = CeresDestructionArtworkFormat.MapWidth,
             Height = CeresDestructionArtworkFormat.MapHeight, Views = views,
         }), MapJson("zebes-map"),
-            Png("zebes-characters", 256, 128, 16),
+            RoomCharacterAtlasPng.Read(Png("zebes-characters", 256, 128, 16), CeresDestructionArtworkFormat.ZebesCharacterByteCount),
             Sprites("destruction", CeresDestructionSpriteDefinitions.Frames.Select(frame => frame.Name)),
             Json(new CeresRevealActorLayoutDocument { Version = CeresRevealActorLayoutFormat.Version, Actors = revealActors }),
             Json(new CeresDestructionActorLayoutDocument { Version = CeresDestructionActorLayoutFormat.Version, Actors = destructionActors }));

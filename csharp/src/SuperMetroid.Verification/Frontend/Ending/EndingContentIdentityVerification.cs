@@ -10,6 +10,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Frontend.Ending;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Checks ending artwork role mapping and decoded-content identity behavior.</summary>
 internal static class EndingContentIdentityVerification
@@ -173,7 +174,7 @@ internal static class EndingContentIdentityVerification
             IndexedPng.Write(png, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))), pixels, Enumerable.Range(0, 16)
                 .Select(index => new Rgba32((byte)(edit == "png-colors" ? 255 - index : index), 0, 0)).ToArray());
             png.Position = 0;
-            return RoomCharacterAtlas.Load(png, bytes);
+            return RoomCharacterAtlasPng.Read(png, bytes);
         }
 
         RoomBackgroundTilemapAtlas Map(string name)

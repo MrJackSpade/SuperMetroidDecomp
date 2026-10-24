@@ -66,7 +66,7 @@ public static class EndingMode7ArtworkFiles
             IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(256));
             byte[] mapFile = mapJson.ToArray();
             byte[] pngFile = png.ToArray();
-            EndingFloorSceneArtwork compiled = EndingFloorSceneArtwork.Load(
+            EndingFloorSceneCharacters compiled = EndingFloorSceneCharacters.Read(
                 new MemoryStream(mapFile, writable: false),
                 new MemoryStream(pngFile, writable: false));
             if (!compiled.Map.Span.SequenceEqual(lowMap) ||
@@ -103,7 +103,7 @@ public static class EndingMode7ArtworkFiles
             SnesGraphics.DiagnosticPalette(256));
         byte[] rewardMapFile = rewardJson.ToArray();
         byte[] rewardCharacterFile = rewardPng.ToArray();
-        EndingRewardIconArtwork compiledReward = EndingRewardIconArtwork.Load(
+        EndingRewardIconCharacters compiledReward = EndingRewardIconCharacters.Read(
             new MemoryStream(rewardMapFile, writable: false),
             new MemoryStream(rewardCharacterFile, writable: false));
         if (!compiledReward.Bytes.Span.SequenceEqual(reward.AsSpan(0,
@@ -165,7 +165,7 @@ public static class EndingMode7ArtworkFiles
             names.Any(name => !manifest.StockSha256.ContainsKey(name)))
             throw new InvalidDataException($"Ending art manifest {manifestPath} does not describe this installation.");
 
-        return new EndingFloorArtworkCatalog(
+        return new EndingFloorCharacters(
             LoadScene(EndingFloorSceneId.EscapeA),
             LoadScene(EndingFloorSceneId.EscapeB),
             LoadScene(EndingFloorSceneId.PlanetExplosion),
@@ -177,7 +177,7 @@ public static class EndingMode7ArtworkFiles
             (string pngPath, byte[] png) = ReadSelected(EndingRewardIconArtworkFormat.CharacterFileName);
             try
             {
-                return EndingRewardIconArtwork.Load(
+                return EndingRewardIconCharacters.Read(
                     new MemoryStream(map, writable: false),
                     new MemoryStream(png, writable: false));
             }
@@ -194,7 +194,7 @@ public static class EndingMode7ArtworkFiles
             (string pngPath, byte[] png) = ReadSelected(EndingFloorArtworkFormat.CharacterFileName(id));
             try
             {
-                return EndingFloorSceneArtwork.Load(
+                return EndingFloorSceneCharacters.Read(
                     new MemoryStream(map, writable: false),
                     new MemoryStream(png, writable: false));
             }

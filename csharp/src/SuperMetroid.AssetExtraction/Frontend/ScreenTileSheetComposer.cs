@@ -148,11 +148,11 @@ internal static class ScreenTileSheetComposer
             SpriteSheetId.TitleMode7Tiles => ComposeTitleMode7(sources.Maps.TitleGraphics, sources.Maps.TitlePalette),
             SpriteSheetId.TitleBabyTiles => ComposeTitleBaby(sources.Maps.TitleGraphics, sources.Maps.TitlePalette),
             SpriteSheetId.CeresFlightMode7Tiles => ComposeFlightMode7(sources.Intro.CeresFlight),
-            SpriteSheetId.EndingEscapeAMode7Tiles => ComposeMode7Pixels(sources.EndingMode7[EndingFloorSceneId.EscapeA].Characters.Span,
+            SpriteSheetId.EndingEscapeAMode7Tiles => ComposeMode7Pixels(EndingFloorSceneCharacters.Of(sources.EndingMode7[EndingFloorSceneId.EscapeA]).Characters.Span,
                 EndingColours(sources.EndingPalettes, EndingPaletteId.Escape)),
-            SpriteSheetId.EndingEscapeBMode7Tiles => ComposeMode7Pixels(sources.EndingMode7[EndingFloorSceneId.EscapeB].Characters.Span,
+            SpriteSheetId.EndingEscapeBMode7Tiles => ComposeMode7Pixels(EndingFloorSceneCharacters.Of(sources.EndingMode7[EndingFloorSceneId.EscapeB]).Characters.Span,
                 EndingColours(sources.EndingPalettes, EndingPaletteId.Escape)),
-            SpriteSheetId.EndingPlanetExplosionMode7Tiles => ComposeMode7Pixels(sources.EndingMode7[EndingFloorSceneId.PlanetExplosion].Characters.Span,
+            SpriteSheetId.EndingPlanetExplosionMode7Tiles => ComposeMode7Pixels(EndingFloorSceneCharacters.Of(sources.EndingMode7[EndingFloorSceneId.PlanetExplosion]).Characters.Span,
                 EndingColours(sources.EndingPalettes, EndingPaletteId.Explosion)),
             SpriteSheetId.EndingFlyawayMode7Tiles => ComposeMode7Pixels(CeresFlightCharacters.Of(sources.Intro.CeresFlight).FloorCharacters.Span[..EndingCreditsRomData.Rendering.FloorBytes],
                 EndingColours(sources.EndingPalettes, EndingPaletteId.Escape)),
@@ -208,7 +208,7 @@ internal static class ScreenTileSheetComposer
 
     /// <summary>The ending's reward icon's Mode 7 characters under the post-credits palette.</summary>
     private static ComposedSpriteSheet ComposeRewardIcon(EndingFloorArtworkCatalog mode7, EndingPaletteCatalog palettes) =>
-        ComposeMode7Pixels(HighBytes(mode7.RewardIcon.Bytes.Span), EndingColours(palettes, EndingPaletteId.PostCredits));
+        ComposeMode7Pixels(HighBytes(EndingRewardIconCharacters.Of(mode7.RewardIcon).Bytes.Span), EndingColours(palettes, EndingPaletteId.PostCredits));
 
     /// <summary>The sheet of Mode 7 characters whose pixels <paramref name="pixels"/> holds, one colour index each, coloured from <paramref name="palette"/>.</summary>
     /// <exception cref="InvalidDataException">The pixels are not whole characters.</exception>

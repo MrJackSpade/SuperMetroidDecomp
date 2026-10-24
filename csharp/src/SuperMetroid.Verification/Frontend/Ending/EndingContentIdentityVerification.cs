@@ -61,12 +61,12 @@ internal static class EndingContentIdentityVerification
         {
             using var map = Map(64, i);
             using var png = Png(i);
-            supplied[i] = EndingFloorSceneArtwork.Load(map, png);
+            supplied[i] = EndingFloorSceneCharacters.Read(map, png);
         }
         using var rewardMap = Map(128, 3);
         using var rewardPng = Png(3);
-        EndingRewardIconArtwork reward = EndingRewardIconArtwork.Load(rewardMap, rewardPng);
-        var catalog = new EndingFloorArtworkCatalog(supplied[0], supplied[1], supplied[2], reward);
+        EndingRewardIconArtwork reward = EndingRewardIconCharacters.Read(rewardMap, rewardPng);
+        var catalog = new EndingFloorCharacters(supplied[0], supplied[1], supplied[2], reward);
         EndingFloorSceneId[] originalOrder = [EndingFloorSceneId.EscapeA, EndingFloorSceneId.EscapeB, EndingFloorSceneId.PlanetExplosion];
         for (int i = 0; i < originalOrder.Length; i++)
             AssertTrue(ReferenceEquals(supplied[i], catalog[originalOrder[i]]), "ending Mode7 supplied scene identity");
@@ -268,11 +268,11 @@ internal static class EndingContentIdentityVerification
             });
         }
         EndingFloorSceneArtwork[] scenes = Enum.GetValues<EndingFloorSceneId>().Select(id =>
-            EndingFloorSceneArtwork.Load(FloorMap(id.ToString(), EndingFloorArtworkFormat.MapHeight),
+            EndingFloorSceneCharacters.Read(FloorMap(id.ToString(), EndingFloorArtworkFormat.MapHeight),
                 Mode7Png(id.ToString(), (int)id))).ToArray();
         if (edit == "scene-order") Array.Reverse(scenes);
-        var mode7 = new EndingFloorArtworkCatalog(scenes[0], scenes[1], scenes[2],
-            EndingRewardIconArtwork.Load(FloorMap("reward", EndingRewardIconArtworkFormat.MapHeight), Mode7Png("reward", 0)));
+        var mode7 = new EndingFloorCharacters(scenes[0], scenes[1], scenes[2],
+            EndingRewardIconCharacters.Read(FloorMap("reward", EndingRewardIconArtworkFormat.MapHeight), Mode7Png("reward", 0)));
 
         EndingPalette[] colors = Enum.GetValues<EndingPaletteId>().Select(id => EndingPalette.Load(Json(new EndingPaletteDocument
         {

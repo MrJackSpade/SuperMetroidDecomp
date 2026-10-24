@@ -33,7 +33,7 @@ internal static class EndingScreenImage
                 var floor = new Mode7Vram(vram);
                 floor.LoadMap(scene.Map.Span);
                 floor.LoadMap(scene.Map.Span, cell: EndingFloorArtworkFormat.MapByteCount);
-                floor.LoadCharacters(scene.Characters.Span);
+                floor.LoadCharacters(EndingFloorSceneCharacters.Of(scene).Characters.Span);
                 break;
             case EndingUploadKind.FlyawayChunk:
                 ReplayFlyawayChunk(vram, upload.Key, artwork);
@@ -70,7 +70,7 @@ internal static class EndingScreenImage
                 // The queued transfer writes both VRAM ports with increment-after-high; the bytes are already interleaved.
                 int source = EndingRewardGraphicsUploadDefinitions.SourceWord(upload.Key);
                 vram.LoadBytes(EndingVramDestinations.RewardChunkWordOf(upload.Key) * sizeof(ushort),
-                    Mode7(artwork).RewardIcon.Bytes.Span.Slice(source - EndingRewardGraphicsUploadDefinitions.SourceBase,
+                    EndingRewardIconCharacters.Of(Mode7(artwork).RewardIcon).Bytes.Span.Slice(source - EndingRewardGraphicsUploadDefinitions.SourceBase,
                         EndingRewardGraphicsUploadDefinitions.ChunkBytes));
                 break;
             case EndingUploadKind.PostShotTransfer:

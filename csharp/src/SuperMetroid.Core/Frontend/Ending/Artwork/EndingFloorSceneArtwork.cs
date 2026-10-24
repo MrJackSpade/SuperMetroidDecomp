@@ -4,47 +4,31 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>
-/// One editable ending backdrop. The low-byte map is copied into both native
-/// $2000-word halves; the high-byte character lane supplies the Mode-7 pixels.
-/// The discarded odd bytes of the native packed map source never reach visible
-/// VRAM because the subsequent high-byte-only transfer overwrites them.
+/// One installed ending backdrop (#1409): its low-byte map, copied into both native $2000-word halves, and how many Mode 7
+/// characters its artwork holds. The installed ending floor sheets picture the characters; their pixels belong to the
+/// import pipeline that reads the installed artwork.
 /// </summary>
-public sealed class EndingFloorSceneArtwork
+public class EndingFloorSceneArtwork
 {
-    /// <summary>Retains the validated low-byte map and high-byte character lanes for one scene.</summary>
-    private EndingFloorSceneArtwork(byte[] map, byte[] characters)
+    /// <summary>Retains the validated low-byte map and the installed characters' count for one scene.</summary>
+    /// <param name="map">The row-ordered tile indices.</param>
+    /// <param name="characterCount">The installed Mode 7 characters.</param>
+    internal EndingFloorSceneArtwork(byte[] map, int characterCount)
     {
         Map = map;
-        Characters = characters;
+        CharacterCount = characterCount;
     }
 
     /// <summary>The $2000 row-ordered tile indices written to the low VRAM byte lane at words $0000 and $2000.</summary>
     public ReadOnlyMemory<byte> Map { get; }
-    /// <summary>The $4000 chunky pixel bytes for 256 ordered 8x8 tiles, written to the high VRAM byte lane.</summary>
-    public ReadOnlyMemory<byte> Characters { get; }
+    /// <summary>The installed Mode 7 characters.</summary>
+    public int CharacterCount { get; }
 
-    /// <summary>Validates a 128x64 map and a 128x128 indexed character atlas, then compiles their separate native Mode-7 lanes.</summary>
+    /// <summary>Reads and validates a 128x64 map's ordered tile indices.</summary>
     /// <param name="mapJson">Version-1 JSON containing 8192 ordered tile indices in the range 0..255.</param>
-    /// <param name="charactersPng">A 256-color indexed PNG whose 16x16 grid supplies the 256 character tiles; palette colors are not imported here.</param>
-    /// <returns>The decoded map lane and tile-ordered character lane.</returns>
-    /// <exception cref="ArgumentNullException">Either input stream is null.</exception>
-    /// <exception cref="InvalidDataException">The map schema, atlas format, palette length, or native transfer length is invalid.</exception>
-    public static EndingFloorSceneArtwork Load(Stream mapJson, Stream charactersPng)
-    {
-        Ensure.NotNull(mapJson);
-        Ensure.NotNull(charactersPng);
-        EndingFloorMapDocument document = ReadMap(mapJson);
-        IndexedPngImage image = IndexedPng.Read(charactersPng,
-            new(EndingFloorArtworkFormat.CharacterWidth, EndingFloorArtworkFormat.CharacterHeight));
-        if (image.Colours.Length != 256)
-            throw new InvalidDataException("Ending Mode-7 characters require a 256-color indexed PNG.");
-        byte[] characters = SnesMode7TileEncoder.Encode(image.Pixels,
-            image.Size);
-        if (characters.Length != EndingFloorArtworkFormat.CharacterByteCount)
-            throw new InvalidDataException("Ending Mode-7 PNG has the wrong native transfer length.");
-        return new EndingFloorSceneArtwork(
-            document.Tiles.Select(tile => checked((byte)tile)).ToArray(), characters);
-    }
+    /// <exception cref="InvalidDataException">The map schema is invalid.</exception>
+    internal static byte[] ReadMapCells(Stream mapJson) =>
+        ReadMap(Ensure.NotNull(mapJson)).Tiles.Select(tile => checked((byte)tile)).ToArray();
 
     /// <summary>Serializes an ending backdrop map, validating the complete encoded document before writing any bytes to the destination.</summary>
     /// <param name="json">Destination stream for the map JSON.</param>

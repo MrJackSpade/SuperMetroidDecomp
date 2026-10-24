@@ -9,24 +9,17 @@ public static class GameplayHudDefinitions
     public const string FileName = "gameplay-hud.json";
     /// <summary>Width of each BG3 HUD tilemap row in eight-pixel tile cells.</summary>
     public const int Width = 32;
-    /// <summary>Number of mutable HUD tilemap rows below the separately transferred static top row.</summary>
+    /// <summary>Number of mutable HUD tilemap rows below the separately supplied static top row.</summary>
     public const int Height = 3;
     /// <summary>Ninety-six native tilemap words in the three mutable rows; the separate static top row is excluded.</summary>
     public const int CellCount = Width * Height;
     /// <summary>The mutable HUD tilemap's size in cells.</summary>
     public static Extent16<TilemapCells> Size => new(Width, Height);
-    /// <summary>Immutable top row copied directly to BG3 from $80:988B.</summary>
+    /// <summary>The static top row's cartridge words at $80:988B, which extraction reads.</summary>
     public const int TopRowAddress = 0x80988b;
 
-    /// <summary>
-    /// <c>$7E:C608</c>, where the cartridge keeps the three mutable HUD tilemap rows that the
-    /// <c>$80:9CC3-$80:9CE9</c> VRAM queue entry uploads; the port's rows are <c>HudState</c>'s own.
-    /// </summary>
-    public const int MutableTilemapNativeAddress = 0x7ec608;
     /// <summary>Thirty-two tile cells in the static minimap-border row at $80:988B..98CA.</summary>
     public const int TopRowCellCount = Width;
-    /// <summary>Sixty-four little-endian bytes transferred for the thirty-two words of the static top row.</summary>
-    public const int TopRowByteCount = TopRowCellCount * sizeof(ushort);
 
     /// <summary>The three mutable HUD rows copied from <c>$80:98CB</c>.</summary>
     public const int TemplateAddress = 0x8098cb;

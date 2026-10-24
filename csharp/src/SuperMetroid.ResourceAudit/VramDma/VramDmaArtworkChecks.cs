@@ -2,17 +2,16 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.ResourceAudit.VramDma;
 
-/// <summary>Confirm only #1163's ten identified native aliases through the real queue/runtime resolver. No frames or ROM.</summary>
+/// <summary>Confirm only #1163's nine identified native aliases through the real queue/runtime resolver. No frames or ROM.</summary>
 internal static class VramDmaArtworkChecks
 {
-    /// <summary>Checks ten native DMA aliases through the runtime queue, including length rejection and pending Grapple art rebinding.</summary>
+    /// <summary>Checks nine native DMA aliases through the runtime queue, including length rejection and pending Grapple art rebinding.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void Run(string mapDirectory)
     {
@@ -25,7 +24,6 @@ internal static class VramDmaArtworkChecks
         runtime.Artwork.GrappleArtwork = Grapple(1);
         var pairs = new List<ArtworkTransfer>
         {
-            new ArtworkTransfer(HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.TransferByteCount, VramAssetId.StandardHudTiles),
             new ArtworkTransfer(EscapeTimerTileRomData.FirstSourceAddress, EscapeTimerTileAtlasFormat.FirstByteCount, VramAssetId.EscapeTimerFirstTiles),
             new ArtworkTransfer(EscapeTimerTileRomData.SecondSourceAddress, EscapeTimerTileAtlasFormat.SecondByteCount, VramAssetId.EscapeTimerSecondTiles),
         };
@@ -56,7 +54,7 @@ internal static class VramDmaArtworkChecks
         pending.DrainTo(runtime.Vram, runtime.Artwork);
         VramDmaContractChecks.Require(VramBytes.At(runtime.Vram, 0) == 0 && VramBytes.At(runtime.Vram, 1) == 255,
             "already-pending native record resolves newly rebound PNG pixels");
-        Console.WriteLine("Native DMA artwork: ten HUD/timer/Grapple aliases match typed bytes through the actual runtime/RAM-only queue; invalid lengths rejected; pending PNG rebinding passed.");
+        Console.WriteLine("Native DMA artwork: nine timer/Grapple aliases match typed bytes through the actual runtime/RAM-only queue; invalid lengths rejected; pending PNG rebinding passed.");
     }
 
     /// <summary>Builds a uniform indexed Grapple atlas to distinguish queued artwork before and after rebinding.</summary>

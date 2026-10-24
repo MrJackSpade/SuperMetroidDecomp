@@ -21,7 +21,7 @@ public static class GameplayMessageRomData
         public const int BankBase = 0x850000;
     }
 
-    /// <summary>Message tilemap dimensions, transfer offsets, and window placement.</summary>
+    /// <summary>Message tilemap dimensions, selection rows, and window placement.</summary>
     public static class Layout
     {
         /// <summary>Native byte width of one setup/draw/content definition triple.</summary>
@@ -36,8 +36,8 @@ public static class GameplayMessageRomData
         public const int MaximumRows = 6;
         /// <summary>Width and height of one BG tile in pixels.</summary>
         public const int TilePixels = 8;
-        /// <summary>Destination tilemap word index of the save-selection rows.</summary>
-        public const int SaveSelectionDestinationWord = 128;
+        /// <summary>The message row the save confirmation's YES/NO selection occupies, counted from the upper border.</summary>
+        public const int SaveSelectionRow = 4;
         /// <summary>Word count copied for one save-selection row.</summary>
         public const int SaveSelectionRowWords = 32;
         /// <summary>Source word index of the selected-YES row.</summary>

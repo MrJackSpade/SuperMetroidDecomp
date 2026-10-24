@@ -18,7 +18,7 @@ internal sealed class MessageBoxFlow
 {
     /// <summary>Provides gameplay freeze state for HUD counter refresh after a box closes.</summary>
     private readonly GameplayTimeFreeze _freeze;
-    /// <summary>Refreshes counters and queues uploads when message completion lacks a suspended frame tail.</summary>
+    /// <summary>Refreshes counters when message completion lacks a suspended frame tail.</summary>
     private readonly HudState _hud;
     /// <summary>Publishes the confirmation choice consumed by save-station and gunship flows.</summary>
     private readonly GameplayMessageBoxState _messageBox;
@@ -30,8 +30,6 @@ internal sealed class MessageBoxFlow
     private readonly SamusSuitPickupState _suitPickup;
     /// <summary>Marks accepted gunship and room station saves in area progression bits.</summary>
     private readonly Bank80SystemState _system;
-    /// <summary>Queues HUD graphics when message completion runs outside a suspended frame.</summary>
-    private readonly VramWriteQueue _vramWrites;
 
     /// <summary>Retains the runtime owners needed to resolve message outcomes after NMI-only execution.</summary>
     internal MessageBoxFlow(MessageBoxFlowDependencies dependencies)
@@ -43,7 +41,6 @@ internal sealed class MessageBoxFlow
         _room = dependencies.Room;
         _suitPickup = dependencies.SuitPickup;
         _system = dependencies.System;
-        _vramWrites = dependencies.VramWrites;
     }
     /// <summary>Suit transformation to start when its item message returns to the PLM.</summary>
     private SamusSuitPickupKind? _pendingSuitPickup;
@@ -159,8 +156,6 @@ internal sealed class MessageBoxFlow
         if (_player.Samus is not null && !frameSuspended)
             _hud.UpdateGameplayCounters(_player.Samus, _freeze.TimeIsFrozen,
                 soundSuppressed: bombProjectiles.PowerBombExplosion.IsActive);
-        if (!frameSuspended)
-            _hud.QueueUpload(_vramWrites);
 
         // The routine returns directly to the suspended item-PLM instruction list.
         // Varia/Gravity immediately call their shared setup routine; for other items the

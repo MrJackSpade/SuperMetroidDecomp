@@ -178,8 +178,8 @@ internal static class CorpseRotPicturesVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        // A session reaching Tourian has started on Zebes, whose game start uploads the standard characters again.
-        runtime.HudSetup.QueueStandardObjectTiles();
+        // A session reaching Tourian has started on Zebes, whose game start shows the standard characters again.
+        runtime.HudSetup.ShowStandardObjectCharacters();
         runtime.LoadCartridgeRoomForDebug(room);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         return runtime;

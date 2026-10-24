@@ -35,8 +35,8 @@ internal static class MotherBrainPicturesVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        // A session reaching Tourian has started on Zebes, whose game start uploads the standard characters again.
-        runtime.HudSetup.QueueStandardObjectTiles();
+        // A session reaching Tourian has started on Zebes, whose game start shows the standard characters again.
+        runtime.HudSetup.ShowStandardObjectCharacters();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         RoomEnemySlot head = (runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidOperationException("Mother Brain's room loads her.")).Head;

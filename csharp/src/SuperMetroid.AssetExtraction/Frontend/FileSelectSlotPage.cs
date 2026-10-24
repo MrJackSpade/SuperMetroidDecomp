@@ -1,7 +1,7 @@
-namespace SuperMetroid.Core.Frontend.FileSelect;
+namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>The file-select page whose slot field layout applies.</summary>
-public enum FileSelectSlotPage
+internal enum FileSelectSlotPage
 {
     /// <summary>The main page.</summary>
     Main,

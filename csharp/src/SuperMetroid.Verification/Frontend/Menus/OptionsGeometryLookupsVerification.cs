@@ -23,10 +23,11 @@ internal static class OptionsGeometryLookupsVerification
         Suite(nameof(VerifyOptionsGeometryWords), () => VerifyOptionsGeometryWords(rom, 0x82f341, 4, 3,
             GameOptionsRomData.Cursors.SpecialY, "special cursor Y"));
 
-    /// <summary>Checks seven destination words used by controller-label transfers.</summary>
+    /// <summary>Checks the seven controller-label boxes against the native byte offsets their labels are drawn at.</summary>
     internal static void VerifyOptionsLabelDestinations(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyOptionsGeometryWords), () => VerifyOptionsGeometryWords(rom, 0x82f639, 2, 7,
-            GameOptionsRomData.ControllerLabels.Destination, "controller label destination"));
+            action => checked((ushort)((GameOptionsRomData.ControllerLabels.Anchor(action).Y * GameOptionsRomData.MenuTilemapWidth
+                + GameOptionsRomData.ControllerLabels.Anchor(action).X) * sizeof(ushort))), "controller label box"));
 
     /// <summary>Checks seven source words used by controller-label transfers.</summary>
     internal static void VerifyOptionsLabelSources(ISnesAddressSpace rom) =>

@@ -326,14 +326,14 @@ internal sealed class AcceptedFrameBoundary
     private RevealedBlockIndex? _revealIndex;
 
     /// <summary>
-    /// The BG3 plane this NMI displays (#1348): the HUD's static top row and its three rows as this NMI uploads them,
-    /// over the room effect's area. A state import that resumes inside pause takes the plane gameplay would have latched
+    /// The BG3 plane this NMI displays (#1348): the HUD's static top row and its three rows as gameplay last wrote them,
+    /// which this NMI latches as the cartridge's NMI uploads them, over the room effect's area. A state import that resumes inside pause takes the plane gameplay would have latched
     /// from it (#1351).
     /// </summary>
     internal Layer3Plane CaptureLayer3Plane()
     {
         var hudRows = new ushort[Layer3Plane.HudRows * Layer3Plane.Columns];
-        // Without installed HUD artwork the HUD shows the stock top row, as the bus-sourced upload does.
+        // Without installed HUD artwork the HUD shows the stock top row.
         ushort[] topRow = _artwork.MapPresentation?.GameplayHud.TopRow() ?? GameplayHudDefinitions.StockTopRow();
         topRow.CopyTo(hudRows, 0);
         _hud.MutableRows.CopyTo(hudRows.AsSpan(Layer3Plane.Columns));

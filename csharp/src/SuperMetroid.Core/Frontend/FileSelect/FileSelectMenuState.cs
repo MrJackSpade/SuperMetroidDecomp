@@ -43,8 +43,6 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private readonly ControllerInputState controller = new();
     /// <summary>Host-owned file-select artwork rebound after debugger-state restoration.</summary>
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
-    /// <summary>Staging buffer for the complete 32-by-32 BG1 menu tilemap.</summary>
-    internal readonly ushort[] bg1Tilemap = new ushort[32 * 32];
     /// <summary>Decoded slots whose null entries failed or lacked native SRAM checksums.</summary>
     private readonly SuperMetroidSaveSlot?[] saveSlots = new SuperMetroidSaveSlot?[3];
     /// <summary>The selection missile's frame cycle.</summary>
@@ -79,7 +77,6 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         SelectedItem = FileSelectItemRows.ForSaveSlot(saves.ReadSelectedSlot());
 
         BuildSaveTilemap();
-        bg1Tilemap.CopyTo(screen.Tilemaps.Bg1);
 
         // Host-side loading above is atomic, but the native dispatches are not: indices
         // zero and two each wait for an NMI inside their dispatch before returning.
@@ -245,7 +242,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         }
         if (Phase == FileSelectPhase.CopyConfirm)
         {
-            (int shape, int y) = FileCopyArrowDefinitions.Select(operationSourceSlot, operationDestinationSlot);
+            (int shape, int y) = FileCopyArrowDefinitions.Select(operationSourceSlot, copyTargetSlot);
             sprites.AddImage(sheet.Frame(FileCopyArrowDefinitions.FrameName(shape)),
                 new Position16<OamPixels>(FileCopyArrowDefinitions.OriginX, checked((ushort)y)));
         }
@@ -290,7 +287,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>Source slot retained while choosing a copy destination or confirming a clear.</summary>
     private int operationSourceSlot;
     /// <summary>Copy target retained through confirmation and completion pages.</summary>
-    private int operationDestinationSlot;
+    private int copyTargetSlot;
     /// <summary>Yes or No row selected on the copy or clear confirmation page.</summary>
     private YesNoChoice confirmationSelection;
     /// <summary>Updates remaining before the copy arrow rotates its CGRAM colors.</summary>
@@ -392,7 +389,6 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             {
                 showDataManagementScreen = false;
                 BuildSaveTilemap();
-                UploadBg1Tilemap();
                 phaseAfterFadeIn = FileSelectPhase.Main;
             }
             Phase = FileSelectPhase.FadeInFromDataManagement;
@@ -409,7 +405,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     {
         submenuSelection = FileSelectItemRows.ForSaveSlot(FindFirstNonemptySlot());
         operationSourceSlot = 0;
-        operationDestinationSlot = 0;
+        copyTargetSlot = 0;
         confirmationSelection = YesNoChoice.Yes;
         if (pendingDataMode == FileSelectDataMode.Copy)
         {
@@ -421,7 +417,6 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             BuildClearSelectionTilemap();
             phaseAfterFadeIn = FileSelectPhase.ClearSelectSlot;
         }
-        UploadBg1Tilemap();
     }
 
     /// <summary>Dispatches Copy and Clear selection, confirmation, and completed-page input.</summary>
@@ -498,14 +493,12 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             submenuSelection = FileSelectItemRows.ForSaveSlot(Enumerable.Range(0, FileSelectLayout.SaveSlotCount)
                 .First(slot => slot != operationSourceSlot));
             BuildCopyDestinationTilemap();
-            UploadBg1Tilemap();
             Phase = FileSelectPhase.CopySelectDestination;
         }
         else
         {
             confirmationSelection = YesNoChoice.Yes;
             BuildClearConfirmationTilemap();
-            UploadBg1Tilemap();
             Phase = FileSelectPhase.ClearConfirm;
         }
     }
@@ -520,7 +513,6 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             QueueCursorSound();
             submenuSelection = FileSelectItemRows.ForSaveSlot(operationSourceSlot);
             BuildCopySourceTilemap();
-            UploadBg1Tilemap();
             Phase = FileSelectPhase.CopySelectSource;
             return;
         }
@@ -532,11 +524,10 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             Phase = FileSelectPhase.FadeOutToMain;
             return;
         }
-        operationDestinationSlot = FileSelectItemRows.SaveSlot(submenuSelection);
+        copyTargetSlot = FileSelectItemRows.SaveSlot(submenuSelection);
         confirmationSelection = YesNoChoice.Yes;
         copyArrowPaletteTimer = FileCopyArrowDefinitions.InitialPaletteDelay;
         BuildCopyConfirmationTilemap();
-        UploadBg1Tilemap();
         Phase = FileSelectPhase.CopyConfirm;
     }
 
@@ -582,8 +573,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
         if (mode == FileSelectDataMode.Copy)
         {
-            saves.CopySlot(operationSourceSlot, operationDestinationSlot);
-            saveSlots[operationDestinationSlot] = saves.ReadSlot(operationDestinationSlot)
+            saves.CopySlot(operationSourceSlot, copyTargetSlot);
+            saveSlots[copyTargetSlot] = saves.ReadSlot(copyTargetSlot)
                 ?? throw new InvalidDataException("Copied SRAM slot failed its copied checksums.");
             BuildCopyCompletedTilemap();
             Phase = FileSelectPhase.CopyCompleted;
@@ -595,14 +586,13 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             BuildClearCompletedTilemap();
             Phase = FileSelectPhase.ClearCompleted;
         }
-        UploadBg1Tilemap();
         SaveRamChangedThisFrame = true;
     }
 
     /// <summary>Restores the prior source or destination selection page after B or No.</summary>
     private void ReturnFromConfirmation(FileSelectDataMode mode)
     {
-        submenuSelection = FileSelectItemRows.ForSaveSlot(mode == FileSelectDataMode.Copy ? operationDestinationSlot : operationSourceSlot);
+        submenuSelection = FileSelectItemRows.ForSaveSlot(mode == FileSelectDataMode.Copy ? copyTargetSlot : operationSourceSlot);
         if (mode == FileSelectDataMode.Copy)
         {
             BuildCopyDestinationTilemap();
@@ -613,7 +603,6 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             BuildClearSelectionTilemap();
             Phase = FileSelectPhase.ClearSelectSlot;
         }
-        UploadBg1Tilemap();
     }
 
     /// <summary>Updates a changed submenu row and queues one cursor sound.</summary>
@@ -698,10 +687,6 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         return presentation.CursorPosition(page, row);
     }
 
-    /// <summary>Copies the staged BG1 menu page into menu VRAM.</summary>
-    private void UploadBg1Tilemap() =>
-        bg1Tilemap.CopyTo(screen.Tilemaps.Bg1);
-
     /// <summary>Queues the menu cursor sound with the native six-request limit.</summary>
     private void QueueCursorSound() =>
         audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
@@ -718,7 +703,6 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         screen.BindMapPalettes(catalog.Palettes);
         catalog.FileSelect.LoadBackground(screen.Tilemaps);
         RebuildInstalledPresentationPage();
-        UploadBg1Tilemap();
     }
 
     /// <summary>Copies the installed page and overlays live save data and dynamic source/destination letters.</summary>
@@ -726,6 +710,9 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     {
         FileSelectPresentation presentation = mapPresentation?.FileSelect ??
             throw new InvalidOperationException("File-select presentation is not bound.");
+        // The page shows from the moment it is selected: file select selects pages only where the cartridge also
+        // uploads them in the same dispatch.
+        Span<ushort> bg1Tilemap = screen.Tilemaps.Bg1;
         presentation.CopyPage(currentPresentationPage, bg1Tilemap);
         bool main = currentPresentationPage is
             FileSelectPage.MainWithData or
@@ -750,7 +737,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 presentation.WriteSlotLetter(bg1Tilemap,
                     presentation.DynamicAnchor(
                         FileSelectAnchor.CopyConfirmDestination),
-                    operationDestinationSlot);
+                    copyTargetSlot);
                 break;
             case FileSelectPage.ClearConfirm:
             case FileSelectPage.ClearCompleted:
@@ -776,6 +763,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     {
         FileSelectPresentation presentation = mapPresentation?.FileSelect ??
             throw new InvalidOperationException("File-select presentation is not bound.");
+        Span<ushort> bg1Tilemap = screen.Tilemaps.Bg1;
         if (slot is null)
         {
             presentation.ApplyPatch(bg1Tilemap,

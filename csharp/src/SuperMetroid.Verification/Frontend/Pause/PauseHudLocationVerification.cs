@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerifica
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
@@ -39,12 +40,12 @@ internal static class PauseHudLocationVerification
             AssertEqual(phase == 0 ? 0xbc26 : 0xa826, center, "independent native minimap capture");
             AssertEqual(phase == 0 ? 7 : 2, (center >> 10) & 7,
                 "native $90:AB4A blink selects palette seven only in its on phase");
-            runtime.Hud.QueueUpload(runtime.VramWrites);
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayLayer3 = runtime.AcceptedLayer3Plane });
             var nativeVram = new SnesVram();
             nativeVram.LoadBytes(0x8000, RomDataReader.ReadFixedBank(cart, 0x9ab200, 0x2000));
-            nativeVram.LoadBytes(0xb000, runtime.Vram.Bytes.Slice(0xb000, 0x100));
+            // The four HUD rows the accepted NMI latched, as the native BG3 tilemap's first rows.
+            nativeVram.ExecuteWordTransfer(runtime.AcceptedLayer3Plane.Words[..(Layer3Plane.HudRows * Layer3Plane.Columns)], 0x5800, 1);
             var native = SnesBgTilemapRenderer.Render2Bpp(nativeVram, expectedColors,
                 0x5800, 0x4000, 4, true, true);
             var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);

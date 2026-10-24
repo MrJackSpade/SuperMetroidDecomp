@@ -5,7 +5,7 @@ public sealed record GameplayHudPresentationDocument
 {
     /// <summary>Gets the gameplay-HUD document schema version.</summary>
     public required int Version { get; init; }
-    /// <summary>Gets the immutable 32-cell top row transferred at the HUD DMA boundary.</summary>
+    /// <summary>Gets the immutable 32-cell top row shown above the three mutable HUD rows.</summary>
     public required GameplayHudCell[] TopRow { get; init; }
     /// <summary>Gets the complete 32-by-3 mutable HUD tilemap template.</summary>
     public required GameplayHudCell[] Template { get; init; }

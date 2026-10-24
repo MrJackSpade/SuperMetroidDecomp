@@ -28,8 +28,8 @@ internal static class TorizoTransferPicturesVerification
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             // The fixture starts in Ceres, whose room leaves its door tiles over standard characters; a session reaching
-            // a Torizo has started on Zebes, whose game start uploads the standard characters again.
-            runtime.HudSetup.QueueStandardObjectTiles();
+            // a Torizo has started on Zebes, whose game start shows the standard characters again.
+            runtime.HudSetup.ShowStandardObjectCharacters();
             runtime.LoadCartridgeRoomForDebug(room);
             // The room load's uploads reach the OBJ characters when its first frame drains them.
             runtime.FrameBoundary.BeginAcceptedFrame(0);

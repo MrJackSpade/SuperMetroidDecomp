@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Kraid;
@@ -20,15 +19,13 @@ namespace SuperMetroid.ResourceAudit.VramDma;
 /// </summary>
 internal static class VramDmaOwnership
 {
-    /// <summary>Recognizes a source-address and byte-count pair only when it belongs to a reviewed native HUD, actor, PLM, room FX, or sky transfer.</summary>
+    /// <summary>Recognizes a source-address and byte-count pair only when it belongs to a reviewed native actor, PLM, room FX, or sky transfer.</summary>
     internal static bool OwnsNative(int source, int count)
     {
-        if (source == HudTileAtlasFormat.SourceAddress && count == HudTileAtlasFormat.TransferByteCount) return true;
         if ((source == EscapeTimerTileRomData.FirstSourceAddress && count == EscapeTimerTileAtlasFormat.FirstByteCount) ||
             (source == EscapeTimerTileRomData.SecondSourceAddress && count == EscapeTimerTileAtlasFormat.SecondByteCount)) return true;
         if (GrappleTileDefinitions.Transfers.Any(frame => frame.SourceAddress == source && frame.ByteCount == count)) return true;
         if (source == GameplayHudDefinitions.TopRowAddress && count == GameplayHudDefinitions.TopRowByteCount) return true;
-        if (source == StandardObjectArtworkAddresses.Source && count == StandardObjectArtworkFormat.TransferByteCount) return true;
         if ((SnesAddressMath.BankBase(source)) == SamusRenderingRomData.Banks.CharacterData &&
             SamusArmCannonArtworkFormat.CoverTileDmaSources.IndexOf((ushort)source) >= 0 &&
             count == SamusRenderingRomData.ArmCannon.TileUploadByteCount) return true;
@@ -48,8 +45,6 @@ internal static class VramDmaOwnership
     internal static bool OwnsTyped(VramAssetId asset, int count)
     {
         if (asset == VramAssetId.StandardHudTiles) return count == HudTileAtlasFormat.TransferByteCount;
-        if (asset == VramAssetId.StandardObjectTiles) return count == StandardObjectArtworkFormat.TransferByteCount;
-        if (asset == VramAssetId.HudTopRowTilemap) return count == GameplayHudDefinitions.TopRowByteCount;
         if (asset == VramAssetId.EscapeTimerFirstTiles) return count == EscapeTimerTileAtlasFormat.FirstByteCount;
         if (asset == VramAssetId.EscapeTimerSecondTiles) return count == EscapeTimerTileAtlasFormat.SecondByteCount;
         if (asset is >= VramAssetId.BeamPowerTiles and <= VramAssetId.BeamPlasmaIceWaveTiles or VramAssetId.BeamChainsawTiles or VramAssetId.BeamSpacetimeTiles)

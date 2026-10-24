@@ -76,8 +76,6 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     private readonly SamusFrameState _player;
     /// <summary>Receives animated tile, layer-three map, and blend-color catalogs for every room's FX.</summary>
     private readonly RoomFxSession _roomFx;
-    /// <summary>Destination for accepted-NMI artwork refresh transfers.</summary>
-    private readonly SnesVram _vram;
     /// <summary>Pending DMA records rebound from native source addresses to installed assets.</summary>
     private readonly VramWriteQueue _vramWrites;
 
@@ -107,7 +105,6 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         _messageBox = dependencies.MessageBox;
         _player = dependencies.Player;
         _roomFx = dependencies.RoomFx;
-        _vram = dependencies.Vram;
         _vramWrites = dependencies.VramWrites;
     }
     /// <summary>Installed colors used at construction and on each room-entry palette restore.</summary>
@@ -166,12 +163,6 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         _vramWrites.RebindBusSource(EscapeTimerTileRomData.SecondSourceAddress,
             EscapeTimerTileAtlasFormat.SecondByteCount,
             SuperMetroid.Core.Hardware.VramAssetId.EscapeTimerSecondTiles);
-        if (StandardObjectArt is not null)
-            _vramWrites.RebindBusSource(StandardObjectArtworkAddresses.Source, StandardObjectArtworkFormat.TransferByteCount,
-                VramAssetId.StandardObjectTiles);
-        if (MapPresentation is not null)
-            _vramWrites.RebindBusSource(GameplayHudDefinitions.TopRowAddress, GameplayHudDefinitions.TopRowByteCount,
-                VramAssetId.HudTopRowTilemap);
     }
 
     /// <summary>Rebinds current artwork when a saved or newly constructed Samus becomes active.</summary>
@@ -192,19 +183,18 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         _player.Samus.ArmCannon.Artwork = SamusBodyArt?.ArmCannon;
     }
 
-    /// <summary>Publishes rebound HUD characters at the active PPU character base on accepted NMI.</summary>
-    /// <param name="backgrounds">The background artwork bindings, which bind the HUD characters' load.</param>
+    /// <summary>Shows rebound HUD characters at the HUD's current character base from the accepted NMI.</summary>
+    /// <param name="backgrounds">The background artwork bindings, which show the HUD characters.</param>
     internal void PublishReboundHudArtwork(BgArtworkBindings backgrounds)
     {
         if (pendingHudTiles is not { } hudTiles) return;
         // Binding a restored session changes content ownership, not the already
         // published frame. Refresh at accepted NMI, before native queued writes.
-        // The original upload's padding may now contain live BG2 tilemaps.
-        // Kraid's room changes BG34NBA to place HUD characters at $2000 while
-        // his private BG2 tilemap occupies the ordinary $4000 HUD character
-        // address. A restored-state art rebind must honor the *current* PPU
-        // character base, or the next NMI paints HUD pixels across Kraid.
-        hudTiles.LoadCharactersTo(_display.HudCharactersAtCurrentBase(_vram), backgrounds);
+        // The original upload's clearing half may now lie under live BG2 words.
+        // Kraid's room moves the HUD characters to his base while his BG2 tilemap
+        // covers the ordinary one. A restored-state art rebind must honor the
+        // *current* character base, or the next NMI paints HUD pixels across Kraid.
+        hudTiles.ShowCharactersAgain(backgrounds, _display.GameplayHudCharacterBaseWord);
         pendingHudTiles = null;
     }
     /// <summary>Matches a native DMA source and exact length to the currently installed immutable visual data.</summary>
@@ -213,8 +203,6 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     {
         // Old pending native records and new typed records share the selected
         // artwork. Do not send these immutable sources to the RAM-only DMA path.
-        if (MapPresentation?.HudTiles.TryResolve(sourceAddress, byteCount, out data) == true)
-            return true;
         if (MapPresentation?.EscapeTimerTiles.TryResolve(sourceAddress, byteCount, out data) == true)
             return true;
         if (BeamArtwork?.TryResolve(sourceAddress, byteCount, out data) == true)
@@ -244,7 +232,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         return false;
     }
 
-    /// <summary>Complete installed standard OBJ sheet used by the queued gameplay DMA.</summary>
+    /// <summary>Complete installed standard OBJ sheet, which the standard object page is composed from.</summary>
     /// <remarks>Host content is rebound after restoring a graph; saved state must not freeze an old user override into
     /// the simulation. Only composition emission uses this.</remarks>
     [field: NonSerialized]
@@ -391,8 +379,6 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     internal ReadOnlyMemory<byte> ResolveVramAsset(VramAssetId asset) =>
         asset == VramAssetId.StandardObjectTiles
             ? (StandardObjectArt ?? throw new InvalidOperationException("Standard OBJ artwork is not bound.")).Transfer
-            : asset == VramAssetId.HudTopRowTilemap
-            ? (MapPresentation ?? throw new InvalidOperationException("Map presentation artwork is not bound.")).GameplayHud.TopRowTransfer
             : asset is VramAssetId.GunshipLiftoffFirstTiles or
             VramAssetId.GunshipLiftoffSecondTiles or
             VramAssetId.GunshipLiftoffThirdTiles or

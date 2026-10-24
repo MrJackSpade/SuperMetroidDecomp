@@ -77,15 +77,13 @@ public sealed class GameplayMessageNoticePresentation
                 $"Gameplay-message notice {messageId} has no YES selection row.")
             : notice.NoSelection ?? throw new InvalidDataException(
                 $"Gameplay-message notice {messageId} has no NO selection row.");
-        if (tilemap.Length < GameplayMessageRomData.Layout.SaveSelectionDestinationWord +
-            GameplayMessageRomData.Layout.SaveSelectionRowWords)
+        int firstCell = GameplayMessageRomData.Layout.SaveSelectionRow * GameplayMessageRomData.Layout.TilemapWidth;
+        if (tilemap.Length < firstCell + GameplayMessageRomData.Layout.SaveSelectionRowWords)
         {
             throw new InvalidDataException(
                 "Save confirmation tilemap is too short for its installed selection row.");
         }
-        source.CopyTo(tilemap.Slice(
-            GameplayMessageRomData.Layout.SaveSelectionDestinationWord,
-            GameplayMessageRomData.Layout.SaveSelectionRowWords));
+        source.CopyTo(tilemap.Slice(firstCell, GameplayMessageRomData.Layout.SaveSelectionRowWords));
     }
 
     /// <summary>Requires the exact supported notice set and dimensions, nonoverlapping bounded text regions, valid glyphs, and selection rows only for save confirmations.</summary>

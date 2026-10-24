@@ -12,11 +12,23 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Assets;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks installed standard OBJ characters and their override path through gameplay DMA.</summary>
+/// <summary>Checks installed standard OBJ characters and their override path through gameplay setup's selection.</summary>
 internal static class StandardObjectArtworkVerification
 {
-    /// <summary>Compares every native OBJ byte, then checks edited PNG transfer, provenance, and ROM-free queued DMA.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
+    /// <summary>The cartridge's standard sprite sheet at $9A:D200.</summary>
+    private const int NativeStandardObjects = 0x9ad200;
+
+    /// <summary>The bytes the OBJ character table shows over the standard sheet's span, as the session records them.</summary>
+    private static ReadOnlySpan<byte> ShownStandardObjects(SuperMetroidRuntime runtime)
+    {
+        ObjCharacterUpload shown = runtime.EnemySession.ObjCharacters.LastOver(0, StandardObjectArtworkFormat.TransferByteCount)
+            ?? throw new InvalidOperationException("Nothing is shown over the standard OBJ characters.");
+        AssertEqual(0, shown.FirstByte, "the standard OBJ characters start the table");
+        AssertEqual(StandardObjectArtworkFormat.TransferByteCount, shown.ByteCount, "the whole standard sheet is shown");
+        return shown.Source.Resolve(runtime.Artwork).Span;
+    }
+
+    /// <summary>Compares every native OBJ byte, then checks the edited PNG, provenance, and the ROM-free setup selection.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for standard object artwork")]
     internal static void VerifyStandardObjectArtwork(string sourceRom)
     {
@@ -33,18 +45,16 @@ internal static class StandardObjectArtworkVerification
             GameplayBasePaletteFiles.Extract(native, paletteDirectory, SupportedCartridge.Sha256);
             GameplayBasePaletteCatalog palettes = GameplayBasePaletteFiles.Load(paletteDirectory, null);
             for (int offset = 0; offset < StandardObjectArtworkFormat.TransferByteCount; offset++)
-                AssertEqual(native.ReadCartridgeByte(StandardObjectArtworkAddresses.Source + offset),
+                AssertEqual(native.ReadCartridgeByte(NativeStandardObjects + offset),
                     baseline.Transfer.Span[offset], $"standard OBJ native byte {offset:X4}");
 
             var guard = NewFrontendCartridgeReadGuard(
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom));
             var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: palettes);
             runtime.Artwork.StandardObjectArt = baseline;
-            runtime.HudSetup.QueueStandardObjectTiles();
-            runtime.VramWrites.DrainTo(runtime.Vram, runtime.Artwork, null, runtime.BgArtwork);
-            AssertTrue(runtime.Vram.Bytes.Slice(0xc000,
-                    StandardObjectArtworkFormat.TransferByteCount).SequenceEqual(baseline.Transfer.Span),
-                "actual queued gameplay DMA uses installed OBJ bytes without reading ROM");
+            runtime.HudSetup.ShowStandardObjectCharacters();
+            AssertTrue(ShownStandardObjects(runtime).SequenceEqual(baseline.Transfer.Span),
+                "gameplay setup selects the installed OBJ bytes without reading ROM");
 
             string stockPath = Path.Combine(stock, StandardObjectArtworkFormat.FileName);
             byte[] originalPng = File.ReadAllBytes(stockPath);
@@ -64,11 +74,9 @@ internal static class StandardObjectArtworkVerification
                 "selected indexed PNG changes the native standard OBJ transfer");
             var editedRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: palettes);
             editedRuntime.Artwork.StandardObjectArt = edited;
-            editedRuntime.HudSetup.QueueStandardObjectTiles();
-            editedRuntime.VramWrites.DrainTo(editedRuntime.Vram, editedRuntime.Artwork, null, BgArtworkFixtures.For(editedRuntime.Vram));
-            AssertTrue(editedRuntime.Vram.Bytes.Slice(0xc000,
-                    StandardObjectArtworkFormat.TransferByteCount).SequenceEqual(edited.Transfer.Span),
-                "edited OBJ tile reaches live VRAM through production DMA queue");
+            editedRuntime.HudSetup.ShowStandardObjectCharacters();
+            AssertTrue(ShownStandardObjects(editedRuntime).SequenceEqual(edited.Transfer.Span),
+                "edited OBJ tile is what gameplay setup selects over the OBJ characters");
             StandardObjectArtworkFiles.Extract(native, stock, SupportedCartridge.Sha256);
             AssertTrue(StandardObjectArtworkFiles.Load(stock, overrides).Transfer.Span
                 .SequenceEqual(edited.Transfer.Span),
@@ -84,7 +92,7 @@ internal static class StandardObjectArtworkVerification
             File.WriteAllText(stockPath, "damaged stock");
             AssertThrows<InvalidDataException>(() => StandardObjectArtworkFiles.Load(stock, overrides),
                 "damaged stock OBJ provenance fails loudly");
-            Console.WriteLine("Standard OBJ art: all $2E00 native bytes, guarded queued DMA, visible PNG edit, invalid override and stock provenance pass.");
+            Console.WriteLine("Standard OBJ art: all $2E00 native bytes, guarded setup selection, visible PNG edit, invalid override and stock provenance pass.");
         }
         finally
         {

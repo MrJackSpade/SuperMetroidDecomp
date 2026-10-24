@@ -10,6 +10,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Samus.Abilities;
 

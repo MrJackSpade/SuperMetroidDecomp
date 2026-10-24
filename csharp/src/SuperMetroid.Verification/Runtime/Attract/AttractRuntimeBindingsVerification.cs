@@ -8,6 +8,8 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Runtime.Attract;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Checks installed artwork, palette, random state, and cheat-option ownership in attract and selected play.</summary>
 internal static class AttractRuntimeBindingsVerification
@@ -16,7 +18,7 @@ internal static class AttractRuntimeBindingsVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyAttractRuntimeBindings()
     {
-        var palettes = GameplayBasePaletteCatalog.Load(new MemoryStream(GameplayBasePaletteCatalog.Write(
+        var palettes = GameplayBasePaletteFiles.Read(new MemoryStream(GameplayBasePaletteFiles.Write(
             new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
                 Enumerable.Range(0, SnesCgram.ColorCount).Select(index => new PaletteRgb5
                     { Red = index % 32, Green = (index / 8) % 32, Blue = (index / 4) % 32 }).ToArray(),

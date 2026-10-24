@@ -19,6 +19,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.Verification.Samus.Palettes;
 
 /// <summary>Checks extracted Samus charge palettes, editable overrides, native phase selection, and guarded runtime color updates.</summary>

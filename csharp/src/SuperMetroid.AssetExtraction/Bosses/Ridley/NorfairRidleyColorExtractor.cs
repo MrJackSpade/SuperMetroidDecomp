@@ -1,10 +1,10 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 
@@ -32,7 +32,7 @@ public static class NorfairRidleyColorExtractor
             EnemySourceDefinitions.RevealSourcePointers.AddWithinBank(reveal.Length * sizeof(ushort)));
         if (terminator != 0)
             throw new InvalidDataException("Norfair Ridley reveal has no zero pointer terminator.");
-        return NorfairRidleyColorCatalog.Write(new NorfairRidleyColorDocument
+        return NorfairRidleyColorFile.Write(new NorfairRidleyColorDocument
         {
             Version = NorfairRidleyColorFormat.Version,
             Initial = ReadColors(bus, NorfairRidleyPaletteRomData.InitialColors,

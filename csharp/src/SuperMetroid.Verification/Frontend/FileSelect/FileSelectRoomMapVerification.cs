@@ -22,6 +22,7 @@ using SuperMetroid.Core.Map;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Checks file-select room-map rendering, controls, animation, markers, and save loading against native behavior.</summary>
 internal static class FileSelectRoomMapVerification

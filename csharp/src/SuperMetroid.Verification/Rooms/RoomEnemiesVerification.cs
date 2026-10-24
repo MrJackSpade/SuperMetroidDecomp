@@ -48,6 +48,8 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Ridley;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
 /// Focused room-enemy loading and actor verifications that use cartridge-shaped
@@ -893,7 +895,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         {
             CeresRidleyColors = CeresRidleyColorCatalog.Load(new MemoryStream(
                 SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyColorExtractor.Extract(bus))),
-            CeresRidleyFloorColors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(
+            CeresRidleyFloorColors = CeresRidleyMode7ColorFile.Read(new MemoryStream(
                 SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorExtractor.Extract(bus))),
         },
     };

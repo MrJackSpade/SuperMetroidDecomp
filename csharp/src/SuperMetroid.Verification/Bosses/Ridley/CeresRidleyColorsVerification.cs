@@ -14,6 +14,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
 /// <summary>Checks Ceres and Norfair Ridley palette installation against native CGRAM rows.</summary>

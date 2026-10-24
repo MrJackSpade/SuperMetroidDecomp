@@ -18,6 +18,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Checks extracted room-FX blend colors, installed CGRAM writes, and Ceres haze color overrides.</summary>
 internal static class RoomFxPaletteBlendsVerification

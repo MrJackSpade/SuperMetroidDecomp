@@ -14,6 +14,7 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Checks installed Samus hurt and intro flash palettes against native CGRAM behavior.</summary>
 internal static class SamusHurtColorsVerification

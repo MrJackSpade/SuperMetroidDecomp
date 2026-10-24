@@ -12,6 +12,8 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.AssetExtraction.Bosses.Ridley;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
@@ -25,7 +27,7 @@ internal static class CeresRidleyMode7ColorsVerification
         GameplayBasePaletteCatalog initialPalettes)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorExtractor.Extract(rom);
-        CeresRidleyMode7ColorCatalog native = CeresRidleyMode7ColorCatalog.Load(
+        CeresRidleyMode7ColorCatalog native = CeresRidleyMode7ColorFile.Read(
             new MemoryStream(extracted, writable: false));
         var forbidden = new HashSet<int>();
         for (int row = 0; row < CeresRidleyPaletteRomData.Mode7ZoomRowCount; row++)
@@ -60,7 +62,7 @@ internal static class CeresRidleyMode7ColorsVerification
             };
         }
         string replacement = Path.Combine(overrideDirectory, CeresRidleyMode7ColorFormat.FileName);
-        File.WriteAllBytes(replacement, CeresRidleyMode7ColorCatalog.Write(document));
+        File.WriteAllBytes(replacement, CeresRidleyMode7ColorFile.Write(document));
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Ceres Mode-7 color edit changes installed identity");
@@ -102,7 +104,7 @@ internal static class CeresRidleyMode7ColorsVerification
         }
 
         document.ZoomRows[0][0] = document.ZoomRows[0][0] with { Green = 32 };
-        AssertThrows<InvalidDataException>(() => CeresRidleyMode7ColorCatalog.Write(document),
+        AssertThrows<InvalidDataException>(() => CeresRidleyMode7ColorFile.Write(document),
             "Ceres Mode-7 colors reject invalid RGB5 values");
         string replacementStock = Path.Combine(
             Path.GetDirectoryName(stockDirectory) ?? throw new InvalidOperationException("Stock maps have no parent."),

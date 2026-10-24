@@ -11,6 +11,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 /// <summary>Installed and edited Mother Brain room-color checks across entry, flash, phase two, and recovery-light CGRAM writes.</summary>

@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
 
-namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Defines editable RGB5 colors for Draygon's opening, combat, flash, and health states.</summary>
 public sealed record DraygonColorDocument

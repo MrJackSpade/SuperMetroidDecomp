@@ -16,6 +16,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Assets;
 
@@ -41,7 +43,7 @@ internal static class PaletteJsonContractsFixturesVerification
         yield return new("gameplay base", PaletteContractDocument(new GameplayBasePaletteDocument(
             GameplayBasePaletteFormat.Version, PaletteContractColors(SnesCgram.ColorCount),
             PaletteContractColors(GameplayBasePaletteFormat.SpriteColorCount))),
-            json => _ = GameplayBasePaletteCatalog.Load(json), CaseInsensitive: true);
+            json => _ = GameplayBasePaletteFiles.Read(json), CaseInsensitive: true);
         yield return new("map static", PaletteContractDocument(new MapStaticPalettesDocument
         {
             Version = MapStaticPalettesFormat.Version, Pause = PaletteContractColors(SnesCgram.ColorCount),

@@ -10,6 +10,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Checks the canonical selected-content digest for the opening and Ceres presentation bundle.</summary>
 internal static class IntroContentIdentityVerification

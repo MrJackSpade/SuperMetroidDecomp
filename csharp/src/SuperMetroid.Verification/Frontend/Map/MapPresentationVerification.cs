@@ -95,6 +95,7 @@ namespace SuperMetroid.Verification.Frontend.Map;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Checks editable map and related presentation assets while keeping exploration rules and live gameplay reads separate from artwork.</summary>
 internal static class MapPresentationVerification

@@ -1,11 +1,11 @@
 using SuperMetroid.Core;
 using System.Buffers.Binary;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 

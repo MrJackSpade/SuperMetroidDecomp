@@ -66,6 +66,11 @@ using SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Areas.Ceres;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
+using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Cartridge-oracle checks for Ceres, boss, projectile and map visual definitions in lookup stream five.</summary>
@@ -331,8 +336,8 @@ internal static class LookupStream5Verification
         using var png = new MemoryStream();
         IndexedPng.Write(png,size,pixels,SnesGraphics.DiagnosticPalette(16));
         byte[] pngBytes = png.ToArray();
-        CeresDoorVisualCatalog Load(CeresDoorVisualDocument value) => CeresDoorVisualCatalog.Load(
-            new MemoryStream(pngBytes),new MemoryStream(CeresDoorVisualCatalog.Write(value)));
+        CeresDoorVisualCatalog Load(CeresDoorVisualDocument value) => CeresDoorVisualFiles.Read(
+            new MemoryStream(pngBytes),new MemoryStream(CeresDoorVisualFiles.Write(value)));
         var stock = Load(document);
         CheckPlatformActor(stock, document);
         CheckHash(stock, document);
@@ -553,7 +558,7 @@ internal static class LookupStream5Verification
         CrocomireColorCatalog Check()
         {
             var document = new CrocomireColorDocument { Version = 1, FightBody = bands[0], InitialWall = bands[1], InitialProjectile = bands[2], SkeletonArm = bands[3], WallSpikes = bands[4] };
-            var result = CrocomireColorCatalog.Load(new MemoryStream(CrocomireColorCatalog.Write(document)));
+            var result = CrocomireColorFile.Read(new MemoryStream(CrocomireColorFile.Write(document)));
             Func<int, Bgr555>[] resolve = [result.ResolveFightBody, result.ResolveInitialWall, result.ResolveInitialProjectile, result.ResolveSkeletonArm, result.ResolveWallSpikes];
             var cgram = new GameplayColours(new SpriteColourSets()); result.ApplyInitial(cgram);
             for (int band = 1; band <= 2; band++)
@@ -843,7 +848,7 @@ internal static class LookupStream5Verification
 
         static PhantoonColorCatalog Check(PhantoonColorDocument source)
         {
-            PhantoonColorCatalog result = PhantoonColorCatalog.Load(new MemoryStream(PhantoonColorCatalog.Write(source), writable: false));
+            PhantoonColorCatalog result = PhantoonColorFile.Read(new MemoryStream(PhantoonColorFile.Write(source), writable: false));
             ushort[] Pack(PaletteRgb5[] colors) => colors.Select(c => (ushort)(c.Red | c.Green << 5 | c.Blue << 10)).ToArray();
             ushort[] fade = Pack(source.FadeOut);
             for (int color = 0; color < fade.Length; color++) AssertEqual(fade[color], result.ResolveFadeOut(color), "Independent fade input");
@@ -1042,7 +1047,7 @@ internal static class LookupStream5Verification
 
         static TourianStatueColorCatalog Check(TourianStatueColorDocument expected)
         {
-            var actual = TourianStatueColorCatalog.Load(new MemoryStream(TourianStatueColorCatalog.Write(expected), writable: false));
+            var actual = TourianStatueColorFile.Read(new MemoryStream(TourianStatueColorFile.Write(expected), writable: false));
             var cgram = new GameplayColours(new SpriteColourSets());
             actual.ApplyEntrance(cgram);
             for (int color = 0; color < expected.Base.Length; color++)
@@ -1193,7 +1198,7 @@ internal static class LookupStream5Verification
 
         static ZebetiteColorCatalog Check(ZebetiteColorDocument expected)
         {
-            var actual = ZebetiteColorCatalog.Load(new MemoryStream(ZebetiteColorCatalog.Write(expected), writable: false));
+            var actual = ZebetiteColorFile.Read(new MemoryStream(ZebetiteColorFile.Write(expected), writable: false));
             var cgram = new GameplayColours(new SpriteColourSets());
             ushort[][] packed = expected.Frames.Select(row => row.Select(rgb =>
                 (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10)).ToArray()).ToArray();
@@ -1575,8 +1580,8 @@ internal static class LookupStream5Verification
         using var png = new MemoryStream();
         IndexedPng.Write(png,size,pixels,SnesGraphics.DiagnosticPalette(16));
         byte[] pngBytes = png.ToArray();
-        CeresDoorVisualCatalog Load(CeresDoorVisualDocument value) => CeresDoorVisualCatalog.Load(
-            new MemoryStream(pngBytes),new MemoryStream(CeresDoorVisualCatalog.Write(value)));
+        CeresDoorVisualCatalog Load(CeresDoorVisualDocument value) => CeresDoorVisualFiles.Read(
+            new MemoryStream(pngBytes),new MemoryStream(CeresDoorVisualFiles.Write(value)));
         var stock = Load(document);
         Check(stock,document);
         var animation = stock.animation;
@@ -2004,7 +2009,7 @@ internal static class LookupStream5Verification
         {
             ushort Pack(PaletteRgb5 c) => (ushort)(c.Red | c.Green << 5 | c.Blue << 10);
             var basis = new CeresDoorNormalPaintDefinitions(ToColors(document.Normal.Select(Pack).ToArray()));
-            var visual = CeresDoorVisualCatalog.Load(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualCatalog.Write(document)));
+            var visual = CeresDoorVisualFiles.Read(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualFiles.Write(document)));
             for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Normal[color]), basis.ColorAt(color), "Every supplied normal channel remains independent");
             foreach (ushort variant in new ushort[] { 0, 3 })
             {
@@ -2070,7 +2075,7 @@ internal static class LookupStream5Verification
         {
             ushort Pack(PaletteRgb5 c) => (ushort)(c.Red | c.Green << 5 | c.Blue << 10);
             var basis = new CeresDoorEscapePaintDefinitions(ToColors(document.Escape.Select(Pack).ToArray()), new CeresDoorNormalPaintDefinitions(ToColors(document.Normal.Select(Pack).ToArray())));
-            var visual = CeresDoorVisualCatalog.Load(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualCatalog.Write(document)));
+            var visual = CeresDoorVisualFiles.Read(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualFiles.Write(document)));
             for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Escape[color]), basis.ColorAt(color), "Every supplied escape channel remains independent");
             foreach (ushort variant in new ushort[] { 0, 3 })
             {
@@ -2138,7 +2143,7 @@ internal static class LookupStream5Verification
         {
             ushort Pack(PaletteRgb5 c) => (ushort)(c.Red | c.Green << 5 | c.Blue << 10);
             var basis = new CeresDoorAnimationPaintDefinitions(ToColors(document.Animation.Select(row => row.Select(Pack).ToArray()).ToArray()), new CeresDoorNormalPaintDefinitions(ToColors(document.Normal.Select(Pack).ToArray())));
-            var visual = CeresDoorVisualCatalog.Load(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualCatalog.Write(document)));
+            var visual = CeresDoorVisualFiles.Read(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualFiles.Write(document)));
             for (int row = 0; row < 8; row++) for (int color = 0; color < 6; color++)
                 AssertEqual(Pack(document.Animation[row][color]), basis.ColorAt(row, color), "Every supplied beacon channel remains independent");
             var system = new RoomEnemySystem(new EnemySession(), services: new StandaloneRoomEnemyServices(() => 0) { FloorMap = new FloorMap(new byte[FloorMap.Cells], default, RoomBackgroundsFixtures.FloorTiles()) }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = visual } };

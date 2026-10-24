@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -110,7 +111,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             "Duplicate Zebetite color property fails loudly");
         var invalid = RequiredJson.Parse(stockBytes);
         invalid.Required("frames").Required(0).Required(0)["green"] = 32;
-        AssertThrows<InvalidDataException>(() => ZebetiteColorCatalog.Load(
+        AssertThrows<InvalidDataException>(() => ZebetiteColorFile.Read(
             new MemoryStream(System.Text.Encoding.UTF8.GetBytes(invalid.ToJsonString()))),
             "Out-of-range Zebetite RGB5 component rejected");
         File.Delete(overridePath);

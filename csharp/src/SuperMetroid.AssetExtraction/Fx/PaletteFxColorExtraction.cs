@@ -1,8 +1,8 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Fx;
 

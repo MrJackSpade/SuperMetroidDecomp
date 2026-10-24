@@ -22,6 +22,7 @@ namespace SuperMetroid.Verification.Samus.Palettes;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Checks extracted suit palettes and edited installed colors through Samus's normal palette paths.</summary>
 internal static class SamusSuitColorsVerification

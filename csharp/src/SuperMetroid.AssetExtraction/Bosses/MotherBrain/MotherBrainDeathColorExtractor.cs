@@ -1,9 +1,9 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
@@ -30,7 +30,7 @@ public static class MotherBrainDeathColorExtractor
         for (int frame = 0; frame < corpse.Length; frame++)
             corpse[frame] = Read(MotherBrainDeathRomData.CorpseFadeSource(frame),
                 MotherBrainDeathRomData.CorpseColorCount);
-        return MotherBrainDeathColorCatalog.Write(new MotherBrainDeathColorDocument
+        return MotherBrainDeathColorFile.Write(new MotherBrainDeathColorDocument
         {
             Version = MotherBrainDeathColorFormat.Version,
             BodyFade = body,

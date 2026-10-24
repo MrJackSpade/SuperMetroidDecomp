@@ -42,6 +42,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Checks installed opening and Ceres cinematic artwork, resource validation, and ROM-read guards.</summary>
 internal static class IntroCinematicArtworkVerification

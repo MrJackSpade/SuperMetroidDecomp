@@ -10,6 +10,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Frontend.Ending;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Checks ending artwork role mapping and decoded-content identity behavior.</summary>
 internal static class EndingContentIdentityVerification

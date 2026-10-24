@@ -15,6 +15,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Checks compiled ninja Space Pirate programs, frame selectors, and attack callbacks.</summary>
 internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification

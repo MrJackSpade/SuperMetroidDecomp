@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Checks canonical content identities for selected room art and their compatibility warnings.</summary>
 internal static class RoomContentIdentityVerification

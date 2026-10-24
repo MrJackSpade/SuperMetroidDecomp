@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
 
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Versioned editable RGB5 pulse and initialization-target images for the live Shitroid encounter, excluding timer, fade-destination, and sound behavior.</summary>
 public sealed record ShitroidColorDocument

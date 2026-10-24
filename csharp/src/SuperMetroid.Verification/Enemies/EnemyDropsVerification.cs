@@ -19,6 +19,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Exercises native enemy drop selection, pickup effects, collision timing, and death conversion.</summary>
 internal static class EnemyDropsVerification

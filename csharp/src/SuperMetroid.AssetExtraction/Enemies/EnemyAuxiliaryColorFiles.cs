@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 

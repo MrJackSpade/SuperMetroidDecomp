@@ -13,6 +13,8 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Audio;
 namespace SuperMetroid.IntegrationVerification.Installation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
 /// Installer acceptance for the source-inventoried presentation domains. Import is
@@ -224,7 +226,7 @@ internal static class InstallationOverrideLifecycleVerification
             File.ReadAllBytes(palettePath), GameplayBasePaletteFormat.JsonOptions);
         PaletteRgb5 color = palette.Initial[0];
         palette.Initial[0] = color with { Red = (color.Red + 1) % 32 };
-        File.WriteAllBytes(palettePath, GameplayBasePaletteCatalog.Write(palette));
+        File.WriteAllBytes(palettePath, GameplayBasePaletteFiles.Write(palette));
         ushort selectedColor = (ushort)(palette.Initial[0].Red | palette.Initial[0].Green << 5 | palette.Initial[0].Blue << 10);
 
         ClipAudioCatalog clips = installation.LoadAudioClips();

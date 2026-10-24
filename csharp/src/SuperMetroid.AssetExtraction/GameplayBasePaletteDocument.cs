@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
+
+namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Defines the editable gameplay starting and common-sprite RGB5 colors.</summary>
 /// <param name="Version">Document schema revision.</param>

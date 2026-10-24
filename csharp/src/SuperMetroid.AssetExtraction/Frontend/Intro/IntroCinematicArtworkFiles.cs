@@ -15,6 +15,7 @@ using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 

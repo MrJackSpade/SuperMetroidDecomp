@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Validates and packs rows of editable RGB5 colours, as every colour catalog stores them.</summary>
 internal static class Rgb5Rows

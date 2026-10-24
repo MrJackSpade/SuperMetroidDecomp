@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
 
-namespace SuperMetroid.Core.Bosses.Botwoon.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Editable JSON schema for Botwoon's eight health-dependent sprite-palette images.</summary>
 public sealed record BotwoonColorDocument

@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Editable RGB5 image schema for Mother Brain's body disappearance, detached-head gray transition, and escape-door explosion.</summary>
 public sealed record MotherBrainDeathColorDocument

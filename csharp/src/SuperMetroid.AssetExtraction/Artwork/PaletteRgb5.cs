@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Native-precision RGB components, not a packed hardware word.</summary>
 public sealed record PaletteRgb5

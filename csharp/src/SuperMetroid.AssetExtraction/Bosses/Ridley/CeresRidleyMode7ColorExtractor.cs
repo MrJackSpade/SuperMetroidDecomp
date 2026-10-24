@@ -1,9 +1,9 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 
@@ -36,7 +36,7 @@ public static class CeresRidleyMode7ColorExtractor
                 };
             }
         }
-        return CeresRidleyMode7ColorCatalog.Write(new CeresRidleyMode7ColorDocument
+        return CeresRidleyMode7ColorFile.Write(new CeresRidleyMode7ColorDocument
         {
             Version = CeresRidleyMode7ColorFormat.Version,
             ZoomRows = rows,

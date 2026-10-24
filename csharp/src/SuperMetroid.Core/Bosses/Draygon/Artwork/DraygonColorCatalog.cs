@@ -45,7 +45,7 @@ public sealed class DraygonColorCatalog
     internal readonly DraygonHealthPaintDefinitions healthBands;
 
     /// <summary>Retains validated colors and stores only flash entries that differ from stock white.</summary>
-    private DraygonColorCatalog(Bgr555[] intro, Bgr555[] background, Bgr555[] sprite,
+    internal DraygonColorCatalog(Bgr555[] intro, Bgr555[] background, Bgr555[] sprite,
         Bgr555[] whiteFlash, Bgr555[][] healthBands)
     {
         this.intro = new(intro);
@@ -112,31 +112,6 @@ public sealed class DraygonColorCatalog
                 ResolveHealthBand(band, color));
     }
 
-    /// <summary>Loads and validates the editable Draygon RGB5 color document.</summary>
-    public static DraygonColorCatalog Load(Stream json)
-    {
-        Ensure.NotNull(json);
-        DraygonColorDocument document;
-        document = JsonAssetDocument.Read<DraygonColorDocument>(json, ArtworkJson.Options, "Draygon color");
-        if (document.Version != DraygonColorFormat.Version)
-            throw new InvalidDataException("Draygon colors require the supported version.");
-        if (document.HealthBands is null ||
-            document.HealthBands.Length != DraygonColorRomData.HealthBandCount)
-            throw new InvalidDataException("Draygon colors require eight health bands.");
-        return new(
-            Compile(document.Intro, DraygonColorRomData.IntroCount, "intro"),
-            Compile(document.Background, DraygonColorRomData.BackgroundCount, "background"),
-            Compile(document.Sprite, DraygonColorRomData.SpriteCount, "sprite"),
-            Compile(document.WhiteFlash, DraygonColorRomData.WhiteFlashCount, "white flash"),
-            document.HealthBands.Select((band, index) =>
-                Compile(band, DraygonColorRomData.HealthBandColorCount,
-                    $"health band {index}")).ToArray());
-    }
-
-    /// <summary>Validates and serializes a Draygon color document as indented camel-case JSON.</summary>
-    public static byte[] Write(DraygonColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
-
     /// <summary>Validates a health palette row before resolving one of its colors.</summary>
     private static int CheckBand(int band) =>
         (uint)band < DraygonColorRomData.HealthBandCount
@@ -148,8 +123,4 @@ public sealed class DraygonColorCatalog
     {
         for (int color = 0; color < count; color++) destination.Write(color, resolve(color));
     }
-    /// <summary>Checks a named RGB5 array's required length and channel bounds before packing its colors.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name) =>
-        Rgb5Rows.Compile(source, count, $"Draygon {name}");
-
 }

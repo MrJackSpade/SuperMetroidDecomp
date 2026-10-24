@@ -9,6 +9,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Checks Bomb Torizo hand debris art from extraction through installed overrides.</summary>
 internal static class BombTorizoHandArtworkVerification
@@ -72,7 +74,7 @@ internal static class BombTorizoHandArtworkVerification
     /// <summary>Creates the minimal valid palette catalog for a ROM-free hand artwork fixture.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static GameplayBasePaletteCatalog BombTorizoHandFixturePalette() =>
-        GameplayBasePaletteCatalog.Load(new MemoryStream(GameplayBasePaletteCatalog.Write(
+        GameplayBasePaletteFiles.Read(new MemoryStream(GameplayBasePaletteFiles.Write(
             new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
                 Enumerable.Range(0, SnesCgram.ColorCount).Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray(),
                 Enumerable.Range(0, GameplayBasePaletteFormat.SpriteColorCount)

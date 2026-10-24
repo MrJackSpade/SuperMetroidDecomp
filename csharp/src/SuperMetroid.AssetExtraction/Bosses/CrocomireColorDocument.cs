@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
 
-namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Editable RGB5 payloads for Crocomire's five palette transfers; each channel must be 0–31, and the native seventeen-word initialization overlaps remain explicit inputs.</summary>
 public sealed record CrocomireColorDocument

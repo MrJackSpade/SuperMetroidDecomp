@@ -19,6 +19,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Diagnostics.SaveStates;
+using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.Verification.Frontend.Map.Artwork;
 
 /// <summary>Checks installed map highlight palettes in file-select arrows and pause and map screens.</summary>

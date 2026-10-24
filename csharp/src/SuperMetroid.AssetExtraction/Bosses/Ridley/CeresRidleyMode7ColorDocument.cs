@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
 
-namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 
 /// <summary>Editable Ceres Ridley getaway zoom shades corresponding to $A6:B107 onward, excluding each native row's unused sixteenth word.</summary>
 public sealed record CeresRidleyMode7ColorDocument

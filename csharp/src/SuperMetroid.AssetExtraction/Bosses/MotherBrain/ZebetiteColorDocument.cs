@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Editable JSON schema for Zebetite's two barrier-core inks across eight pulse steps; shared animation-counter ownership, update conditions, health, and collision remain engine behavior.</summary>
 public sealed record ZebetiteColorDocument

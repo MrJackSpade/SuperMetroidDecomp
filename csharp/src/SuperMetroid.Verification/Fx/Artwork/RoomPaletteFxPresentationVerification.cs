@@ -17,6 +17,7 @@ using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Fx.Artwork;
 using SuperMetroid.Verification.Fx.PaletteFx;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Compares extracted room palette-FX colors and installed playback against cartridge output.</summary>
 internal static class RoomPaletteFxPresentationVerification

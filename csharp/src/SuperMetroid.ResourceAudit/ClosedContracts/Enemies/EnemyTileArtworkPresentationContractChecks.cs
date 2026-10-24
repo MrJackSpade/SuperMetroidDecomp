@@ -9,6 +9,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 

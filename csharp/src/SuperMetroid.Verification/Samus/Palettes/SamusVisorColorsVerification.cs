@@ -25,6 +25,7 @@ namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Checks installed Samus visor RGB5 colors through room and X-ray palette cycles.</summary>
 internal static class SamusVisorColorsVerification

@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.LookupStream5Verification;
 using System.Text;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyExtendedFrameArtworkVerification;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
@@ -24,6 +23,7 @@ namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Checks statically identified enemy definition conversions against ROM and installed artwork.</summary>
 internal static class EnemyDefinitionBoundaryVerification

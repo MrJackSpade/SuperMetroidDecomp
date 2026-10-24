@@ -18,6 +18,7 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.Verification.Samus.Palettes;
 
 /// <summary>Checks installed full-body palette cycles and editable shade components against the retail color tables.</summary>

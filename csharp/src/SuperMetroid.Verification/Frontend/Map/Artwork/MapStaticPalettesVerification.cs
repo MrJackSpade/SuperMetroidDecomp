@@ -12,6 +12,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Diagnostics.SaveStates;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.Map.Artwork;
 

@@ -10,6 +10,8 @@ using SuperMetroid.Core.Rooms.Xray;
 using SuperMetroid.AssetExtraction.Installation;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Checks canonical hashes for shared gameplay palettes, sprite pixels, and X-ray visuals.</summary>
 internal static class GameplayContentIdentityVerification
@@ -83,7 +85,7 @@ internal static class GameplayContentIdentityVerification
         var paletteDocument = new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
             Colors(SnesCgram.ColorCount, edit == "initial"),
             Colors(GameplayBasePaletteFormat.SpriteColorCount, edit == "common"));
-        GameplayBasePaletteCatalog palettes = GameplayBasePaletteCatalog.Load(new MemoryStream(
+        GameplayBasePaletteCatalog palettes = GameplayBasePaletteFiles.Read(new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(paletteDocument,
                 (edit == "json-indent" ? IndentedJson : CompactJson))));
         using var png = new MemoryStream();

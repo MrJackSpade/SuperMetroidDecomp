@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction;
@@ -26,7 +27,7 @@ public static class GameplayBasePaletteFiles
             ReadColors(bus, GameplayBasePaletteFormat.InitialSourceAddress, CgramPalettes.ColorCount),
             ReadColors(bus, GameplayBasePaletteFormat.CommonSpriteSourceAddress,
                 GameplayBasePaletteFormat.SpriteColorCount));
-        byte[] bytes = GameplayBasePaletteCatalog.Write(document);
+        byte[] bytes = Write(document);
         File.WriteAllBytes(Path.Combine(directory, GameplayBasePaletteFormat.ArtworkFileName), bytes);
         File.WriteAllBytes(Path.Combine(directory, GameplayBasePaletteFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(new ArtworkManifest(
@@ -64,17 +65,59 @@ public static class GameplayBasePaletteFiles
         if (!string.Equals(manifest.ArtworkSha256, Convert.ToHexString(SHA256.HashData(stock)),
             StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException("Stock gameplay base palette failed its manifest hash.");
-        _ = GameplayBasePaletteCatalog.Load(new MemoryStream(stock, writable: false));
+        _ = Read(new MemoryStream(stock, writable: false));
         string? overridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory,
             GameplayBasePaletteFormat.ArtworkFileName);
         byte[] selected = overridePath is not null && File.Exists(overridePath)
             ? File.ReadAllBytes(overridePath) : stock;
-        return GameplayBasePaletteCatalog.Load(new MemoryStream(selected, writable: false));
+        return Read(new MemoryStream(selected, writable: false));
     }
 
     /// <summary>Checks stock manifest provenance and digest and validates the 256 initial and 16 common-sprite RGB5 colors, ignoring overrides.</summary>
     /// <param name="stockDirectory">Installed stock gameplay base-palette directory.</param>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
+
+    /// <summary>Reads and validates the full initial and common-sprite RGB5 palettes of an installed document.</summary>
+    /// <param name="json">The caller-owned stream holding the gameplay base-palette document.</param>
+    /// <returns>The selected colours, detached from the document.</returns>
+    /// <exception cref="InvalidDataException">The JSON, version, palette lengths or RGB5 channels are invalid.</exception>
+    public static GameplayBasePaletteCatalog Read(Stream json)
+    {
+        GameplayBasePaletteDocument document = JsonAssetDocument.Read<GameplayBasePaletteDocument>(
+            json, GameplayBasePaletteFormat.JsonOptions, "gameplay base palette");
+        if (document.Version != GameplayBasePaletteFormat.Version)
+            throw new InvalidDataException("Gameplay base palette has an unsupported version.");
+        return new GameplayBasePaletteCatalog(
+            Compile(document.Initial, CgramPalettes.ColorCount, "initial"),
+            Compile(document.CommonSprites, GameplayBasePaletteFormat.SpriteColorCount,
+                "commonSprites"));
+    }
+
+    /// <summary>Validates and serializes a gameplay base-palette document as JSON.</summary>
+    public static byte[] Write(GameplayBasePaletteDocument document)
+    {
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
+            GameplayBasePaletteFormat.JsonOptions);
+        _ = Read(new MemoryStream(bytes, writable: false));
+        return bytes;
+    }
+
+    /// <summary>Checks palette length and channel bounds before converting authoring colors to packed CGRAM values.</summary>
+    private static Bgr555[] Compile(PaletteRgb5[]? source, int expected, string name)
+    {
+        if (source is null || source.Length != expected)
+            throw new InvalidDataException($"Gameplay {name} palette requires {expected} RGB5 colors.");
+        var result = new Bgr555[expected];
+        for (int color = 0; color < expected; color++)
+        {
+            PaletteRgb5 entry = source[color] ??
+                throw new InvalidDataException($"Gameplay {name} color {color} is null.");
+            if ((uint)entry.Red > 31 || (uint)entry.Green > 31 || (uint)entry.Blue > 31)
+                throw new InvalidDataException($"Gameplay {name} color {color} exceeds RGB5.");
+            result[color] = entry.ToBgr555();
+        }
+        return result;
+    }
 
     /// <summary>Unpacks consecutive cartridge palette words into RGB5 channels for the exported base palettes.</summary>
     /// <summary>
@@ -86,7 +129,7 @@ public static class GameplayBasePaletteFiles
         var document = new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
             ReadColors(bus, GameplayBasePaletteFormat.InitialSourceAddress, CgramPalettes.ColorCount),
             ReadColors(bus, GameplayBasePaletteFormat.CommonSpriteSourceAddress, GameplayBasePaletteFormat.SpriteColorCount));
-        GameplayBasePaletteCatalog catalog = GameplayBasePaletteCatalog.Load(new MemoryStream(GameplayBasePaletteCatalog.Write(document), writable: false));
+        GameplayBasePaletteCatalog catalog = Read(new MemoryStream(Write(document), writable: false));
         int first = SuperMetroid.Core.World.RoomLoadingRomData.CommonGameplaySpritePaletteCgramIndex;
         Bgr555[] colours = catalog.initial.AsSpan(first, CgramPalettes.ColorCount - first).ToArray();
         catalog.commonSprites.CopyTo(colours, 0);

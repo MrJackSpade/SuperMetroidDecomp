@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Editable JSON artwork for the Mother Brain cutscene Baby's initial image and six displayed death-fade images; array references and RGB5 entries remain caller-owned and mutable.</summary>
 public sealed record BabyMetroidCutsceneColorDocument

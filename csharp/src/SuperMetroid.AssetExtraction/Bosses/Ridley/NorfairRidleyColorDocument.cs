@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
 
-namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 
 /// <summary>Editable JSON schema for Lower Norfair Ridley's initial OBJ palette and ordered arena-background reveal colors; reveal timing and the terminating step are not asset data.</summary>
 public sealed record NorfairRidleyColorDocument

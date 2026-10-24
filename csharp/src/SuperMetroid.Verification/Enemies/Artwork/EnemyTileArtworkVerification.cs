@@ -54,6 +54,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Coordinates retail tile and palette comparisons with installed enemy artwork and live edit checks.</summary>
 internal static class EnemyTileArtworkVerification

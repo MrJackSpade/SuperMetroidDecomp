@@ -22,6 +22,7 @@ namespace SuperMetroid.Verification.Samus.Palettes;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Retail and installed-artwork checks for Samus's ten-frame Hyper Beam rainbow palette.</summary>
 internal static class SamusHyperBeamColorsVerification

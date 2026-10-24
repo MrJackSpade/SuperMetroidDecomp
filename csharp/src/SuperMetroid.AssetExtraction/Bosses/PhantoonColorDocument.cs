@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 
-namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>JSON schema for Phantoon and Wrecked Ship power-transition colors.</summary>
 public sealed record PhantoonColorDocument

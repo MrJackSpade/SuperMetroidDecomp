@@ -1,6 +1,5 @@
 using System.Reflection;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus.Abilities;
@@ -14,6 +13,7 @@ namespace SuperMetroid.RenderVerification.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
 /// Finite production-owner tests of the source-identified color/lifetime coupling in

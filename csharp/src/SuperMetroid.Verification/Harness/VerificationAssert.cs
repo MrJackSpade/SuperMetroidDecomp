@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Enemies.Alcoon;
 using SuperMetroid.Verification.Enemies.Powamp;
@@ -301,6 +301,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Harness;
 

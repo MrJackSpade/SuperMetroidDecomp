@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
 
-namespace SuperMetroid.Core.Areas.Ceres.Artwork;
+namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>Editable door palette and Mode 7 platform-strip schema, separate from the indexed 4bpp character PNG and engine-owned door/escape timing.</summary>
 public sealed record CeresDoorVisualDocument

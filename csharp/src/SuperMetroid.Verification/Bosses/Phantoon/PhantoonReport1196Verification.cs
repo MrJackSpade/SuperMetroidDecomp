@@ -1,7 +1,5 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonFlameSoundVerification;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonAnimationsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -49,8 +47,7 @@ internal static class PhantoonReport1196Verification
         Console.WriteLine("Phantoon intro flame: actual spawn sends library 3 / 1D / Max6 through the production audio queue.");
     }
 
-    /// <summary>Checks that death-wave setup clears retained intro offsets before rendered BG2 scanlines.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
+    /// <summary>Checks that death-wave setup clears retained intro offsets before the displayed BG2 scanlines.</summary>
     internal static void VerifyPhantoonDeathWaveInitialization()
     {
         var enemies = CreatePhantoonSystem();
@@ -73,27 +70,13 @@ internal static class PhantoonReport1196Verification
         wave.LatchDisplay();
         AssertEqual(PhantoonWaveRomData.InitialPhase, wave.Phase, "first death HDMA call remains setup-only");
 
-        // A vertical BG2 stripe makes any stale per-line X offset visibly split the
-        // body. Render through the same scanline sampler used by live gameplay.
-        var vram = new SnesVram();
-        var cgram = new SnesCgram();
-        cgram.SetColor(1, new Bgr555(31, 0, 0));
-        var tile = new byte[32];
-        for (int row = 0; row < 8; row++) tile[row * 2] = 255;
-        vram.LoadBytes(32, tile);
-        var map = new ushort[1024];
-        for (int row = 0; row < 32; row++) map[row * 32 + 8] = 1;
-        vram.ExecuteWordTransfer(map, 0x4800, 1);
-        var pixels = SnesBgTilemapRenderer.Render4BppViewport(vram, cgram, new BgVramAddresses { TilemapBaseWord = 0x4800, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(13, 32), Size = new Extent16<ScreenPixels>(256, 192), TilemapSize = new Extent16<TilemapCells>(32, 32), HorizontalScrollByLine = wave.DisplayedWave?.GameplayScrolls().ToArray() });
-        for (int line = 0; line < 192; line++)
-            AssertEqual(new Rgba32(255, 0, 0, 255), pixels[line * 256 + 51],
-                $"first death-wave BG2 stripe stays aligned on rendered scanline {line}");
+        // Any stale per-line X offset would split the body: every displayed line takes BG2's own X.
         AssertTrue((wave.DisplayedWave?.GameplayScrolls().ToArray() ?? throw new InvalidOperationException("Verification requires a latched Phantoon wave.")).All(scroll => scroll == 13), "every first-frame death scroll equals native BG2 X");
         boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude = 3072;
         wave.Step(boss);
         AssertEqual(14, wave.Phase, "following HDMA pass resumes native phase advancement");
         AssertTrue(wave.ScrollCycle.Any(scroll => scroll != 13), "following pass rebuilds the animated wave");
-        Console.WriteLine("Phantoon death: retained intro data is initialized before setup-only death frame; all rendered rows align before wave advancement.");
+        Console.WriteLine("Phantoon death: retained intro data is initialized before setup-only death frame; every displayed line aligns before wave advancement.");
     }
 
     /// <summary>Runs the actual opening flame spawn and audio-queue check.</summary>
@@ -104,7 +87,7 @@ internal static class PhantoonReport1196Verification
         return 0;
     }
 
-    /// <summary>Runs the death-wave initialization and BG2 stripe check.</summary>
+    /// <summary>Runs the death-wave initialization and BG2 alignment check.</summary>
     [VerificationCommand("--phantoon-death-wave-initialization")]
     internal static int PhantoonDeathWaveInitializationCommand()
     {

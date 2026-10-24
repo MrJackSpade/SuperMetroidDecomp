@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Enemies.Callbacks;
 using SuperMetroid.Core.Hardware;
@@ -171,7 +172,7 @@ internal static class EnemyDefinitionsVerification
         byte bank = Byte(12);
         return new RoomEnemyDefinition(Word(0), Word(4), Word(6), new(Word(8), Word(10)), Byte(13), Word(14), Word(16),
             EnemyInteractionCallbacks.AiRoutine(bank, Word(18)), Word(20), Word(22), EnemyInteractionCallbacks.AiRoutine(bank, Word(24)),
-            ClosedNativeWords.Decode<GrappleAiRoutine>(Word(26), "grapple AI routine"), EnemyInteractionCallbacks.HurtRoutine(Word(28)),
+            SamusIdentityWords.GrappleAiRoutines.Decode(Word(26), "grapple AI routine"), EnemyInteractionCallbacks.HurtRoutine(Word(28)),
             Word(34), Word(36), Word(38),
             EnemyInteractionCallbacks.TryDecode(bank, Word(40)),
             EnemyInteractionCallbacks.Body(Word(40), EnemyInteractionCallbacks.IsLiteralNoOpPowerBomb(bank, Word(40))),

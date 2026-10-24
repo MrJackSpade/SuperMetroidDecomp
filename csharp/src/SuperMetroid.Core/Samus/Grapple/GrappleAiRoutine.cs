@@ -8,29 +8,29 @@ namespace SuperMetroid.Core.Samus.Grapple;
 public enum GrappleAiRoutine : ushort
 {
     /// <summary>No definition: the zero word of an empty enemy slot's default header.</summary>
-    None = 0,
+    None,
 
     /// <summary><c>Enemy_GrappleAI_NoInteraction</c> at $A0:8000.</summary>
-    NoInteraction = 0x8000,
+    NoInteraction,
 
     /// <summary><c>Enemy_GrappleAI_SamusLatchesOn</c> at $A0:8005.</summary>
-    Attach = 0x8005,
+    Attach,
 
     /// <summary><c>Enemy_GrappleAI_KillEnemy</c> at $A0:800A.</summary>
-    Kill = 0x800a,
+    Kill,
 
     /// <summary><c>Enemy_GrappleAI_CancelBeam</c> at $A0:800F.</summary>
-    Cancel = 0x800f,
+    Cancel,
 
     /// <summary><c>Enemy_GrappleAI_LatchWithoutInvincibility</c> at $A0:8014.</summary>
-    AttachWithoutInvincibility = 0x8014,
+    AttachWithoutInvincibility,
 
     /// <summary><c>Enemy_GrappleAI_LatchAndParalyse</c> at $A0:8019.</summary>
-    AttachAndParalyze = 0x8019,
+    AttachAndParalyze,
 
     /// <summary><c>Enemy_GrappleAI_HurtSamus</c> at $A0:801E.</summary>
-    HurtSamus = 0x801e,
+    HurtSamus,
 
     /// <summary><c>MainAI_GrappleAI_FrozenAI_Elevator</c> at $A3:952A, the elevator's main AI.</summary>
-    ElevatorMainAi = 0x952a,
+    ElevatorMainAi,
 }

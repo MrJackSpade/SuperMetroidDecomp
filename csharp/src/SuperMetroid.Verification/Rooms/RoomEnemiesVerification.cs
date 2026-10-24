@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Areas.Escape;
@@ -1498,7 +1499,7 @@ internal static void WriteEnemyDefinition(TestAddressSpace bus, EnemyDefinitionI
     WriteTestWord(bus, address + 16, fields.BossId);
     WriteTestWord(bus, address + 18, 0x804c); // Bank-local no-op initialization AI.
     WriteTestWord(bus, address + 24, 0x804c); // Bank-local no-op main AI.
-    WriteTestWord(bus, address + 26, (ushort)GrappleAiRoutine.Cancel); // Grapple AI must be a real routine.
+    WriteTestWord(bus, address + 26, SamusIdentityWords.GrappleAiRoutines.Word(GrappleAiRoutine.Cancel)); // Grapple AI must be a real routine.
     WriteTestLong(bus, address + 54, fields.TileDataAddress);
     WriteTestByte(bus, address + 57, 5);
     WriteTestWord(bus, address + 58, 0xf206); // Item-drop table 3, six bytes each from $F1F4.

@@ -4,17 +4,17 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public enum XrayRevealCommand : ushort
 {
     /// <summary>RevealedBlockCommand_VerticalExtension at $91:CE79.</summary>
-    VerticalExtension = 0xce79,
+    VerticalExtension,
     /// <summary>RevealedBlockCommand_HorizontalExtension at $91:CEBB.</summary>
-    HorizontalExtension = 0xcebb,
+    HorizontalExtension,
     /// <summary>RevealedBlockCommand_Copy1x1BlockToXrayBG2Tilemap at $91:CF36.</summary>
-    CopyOne = 0xcf36,
+    CopyOne,
     /// <summary>RevealedBlockCommand_Copy1x1BlockToXrayBG2TilemapIfBrinstar at $91:CF3E.</summary>
-    CopyBrinstar = 0xcf3e,
+    CopyBrinstar,
     /// <summary>RevealedBlockCommand_Copy2x1BlockToXrayBG2Tilemap at $91:CF4E.</summary>
-    CopyWide = 0xcf4e,
+    CopyWide,
     /// <summary>RevealedBlockCommand_Copy1x2BlockToXrayBG2Tilemap at $91:CF62.</summary>
-    CopyTall = 0xcf62,
+    CopyTall,
     /// <summary>RevealedBlockCommand_Copy2x2BlockToXrayBG2Tilemap at $91:CF6F.</summary>
-    CopySquare = 0xcf6f,
+    CopySquare,
 }

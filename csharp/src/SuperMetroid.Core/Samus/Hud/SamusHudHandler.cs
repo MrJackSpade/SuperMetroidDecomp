@@ -4,17 +4,17 @@ namespace SuperMetroid.Core.Samus.Hud;
 internal enum SamusHudHandler : ushort
 {
     /// <summary>$90:DD3D standard HUD handler.</summary>
-    Standard = 0xdd3d,
+    Standard,
     /// <summary>$90:BF9D HUDSelectionHandler_MorphBall: bomb/Power Bomb dispatch for ball movement.</summary>
-    MorphBall = 0xbf9d,
+    MorphBall,
     /// <summary>$90:DDB6 HUDSelectionHandler_SpinWallJump_Knockback_Shinespark_CF_etc: inactive Grapple preserves charge.</summary>
-    Jump = 0xddb6,
+    Jump,
     /// <summary>$90:DD6F Grapple HUD handler.</summary>
-    Grapple = 0xdd6f,
+    Grapple,
     /// <summary>$90:DDD8 Draygon-held HUD handler; all held poses use normal weapons.</summary>
-    DraygonHeld = 0xddd8,
+    DraygonHeld,
     /// <summary>$90:DD74 turning HUD handler.</summary>
-    Turning = 0xdd74,
+    Turning,
     /// <summary>$90:DD8C posture-transition HUD handler.</summary>
-    Transition = 0xdd8c,
+    Transition,
 }

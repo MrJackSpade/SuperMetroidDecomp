@@ -4,23 +4,23 @@ namespace SuperMetroid.Core.Samus.Grapple;
 public enum GrappleConnectionHandler : ushort
 {
     /// <summary>Bank-$9B clockwise swing-pose connection handler at $9B:B9D9.</summary>
-    SwingClockwise = 0xb9d9,
+    SwingClockwise,
     /// <summary>Bank-$9B anticlockwise swing-pose connection handler at $9B:B9E2.</summary>
-    SwingAnticlockwise = 0xb9e2,
+    SwingAnticlockwise,
     /// <summary>Bank-$9B standing up-right connection handler at $9B:B9EA.</summary>
-    StandingUpRight = 0xb9ea,
+    StandingUpRight,
     /// <summary>Bank-$9B standing right connection handler at $9B:B9F3.</summary>
-    StandingRight = 0xb9f3,
+    StandingRight,
     /// <summary>Bank-$9B standing down connection handler at $9B:B9FC.</summary>
-    StandingDown = 0xb9fc,
+    StandingDown,
     /// <summary>Bank-$9B standing up-left connection handler at $9B:BA05.</summary>
-    StandingUpLeft = 0xba05,
+    StandingUpLeft,
     /// <summary>Bank-$9B crouching up-right connection handler at $9B:BA0E.</summary>
-    CrouchingUpRight = 0xba0e,
+    CrouchingUpRight,
     /// <summary>Bank-$9B crouching right connection handler at $9B:BA17.</summary>
-    CrouchingRight = 0xba17,
+    CrouchingRight,
     /// <summary>Bank-$9B crouching down-left connection handler at $9B:BA20.</summary>
-    CrouchingDownLeft = 0xba20,
+    CrouchingDownLeft,
     /// <summary>Bank-$9B crouching up-left connection handler at $9B:BA29.</summary>
-    CrouchingUpLeft = 0xba29,
+    CrouchingUpLeft,
 }

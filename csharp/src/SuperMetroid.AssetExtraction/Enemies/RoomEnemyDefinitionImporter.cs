@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
@@ -36,7 +37,7 @@ public static class RoomEnemyDefinitionImporter
             PartCount: Word(20),
             Unused16: Word(22),
             MainAi: EnemyInteractionCallbacks.AiRoutine(bank, Word(24)),
-            GrappleAi: ClosedNativeWords.Decode<GrappleAiRoutine>(Word(26), "grapple AI routine"),
+            GrappleAi: SamusIdentityWords.GrappleAiRoutines.Decode(Word(26), "grapple AI routine"),
             HurtAi: EnemyInteractionCallbacks.HurtRoutine(Word(28)),
             DeathAnimation: Word(34),
             Unused24: Word(36),

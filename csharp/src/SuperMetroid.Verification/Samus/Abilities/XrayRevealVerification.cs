@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -52,7 +53,7 @@ internal static class XrayRevealVerification
                 if (value == XrayRevealTableWords.End) return null;
                 if (value != XrayRevealTableWords.AnyBts && value != bts) continue;
                 int commandPointer = ReadNativeXrayRevealWord(bus, match + 2);
-                XrayRevealCommand command = ClosedNativeWords.Decode<XrayRevealCommand>(
+                XrayRevealCommand command = SamusIdentityWords.XrayRevealCommands.Decode(
                     ReadNativeXrayRevealWord(bus, commandPointer), "native X-ray reveal command");
                 return command switch
                 {
@@ -75,7 +76,7 @@ internal static class XrayRevealVerification
                             ReadNativeXrayRevealWord(bus, commandPointer + 4),
                             ReadNativeXrayRevealWord(bus, commandPointer + 6),
                             ReadNativeXrayRevealWord(bus, commandPointer + 8)),
-                    _ => throw new InvalidOperationException($"Undefined {nameof(XrayRevealCommand)} {(int)command:X4}."),
+                    _ => throw new InvalidOperationException($"Undefined {nameof(XrayRevealCommand)} {command}."),
                 };
             }
         }

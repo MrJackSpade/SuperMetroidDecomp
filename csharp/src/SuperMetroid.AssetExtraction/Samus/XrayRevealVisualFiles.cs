@@ -242,8 +242,8 @@ public static class XrayRevealVisualFiles
         XrayRevealCommand.CopySquare => "square",
         XrayRevealCommand.CopyBrinstar => "brinstar-only",
         XrayRevealCommand.HorizontalExtension or XrayRevealCommand.VerticalExtension =>
-            throw new InvalidDataException($"X-ray command $91:{(int)command:X4} has no visual shape."),
-        _ => throw new InvalidOperationException($"Undefined {nameof(XrayRevealCommand)} {(int)command:X4}."),
+            throw new InvalidDataException($"X-ray command {command} has no visual shape."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(XrayRevealCommand)} {command}."),
     };
 
     /// <summary>Walks the bank-$91 type/BTS dispatch tables and decodes only the operands owned by the selected copy shape.</summary>
@@ -262,7 +262,7 @@ public static class XrayRevealVisualFiles
                 if (value == TableEnd) return null;
                 if (value != AnyBts && value != bts) continue;
                 int pointer = ReadWord(bus, match + 2);
-                XrayRevealCommand command = ClosedNativeWords.Decode<XrayRevealCommand>(
+                XrayRevealCommand command = SamusIdentityWords.XrayRevealCommands.Decode(
                     ReadWord(bus, pointer), "native X-ray reveal command");
                 return command switch
                 {
@@ -277,7 +277,7 @@ public static class XrayRevealVisualFiles
                     XrayRevealCommand.CopySquare =>
                         new(command, ReadWord(bus, pointer + 2), ReadWord(bus, pointer + 4),
                             ReadWord(bus, pointer + 6), ReadWord(bus, pointer + 8)),
-                    _ => throw new InvalidOperationException($"Undefined {nameof(XrayRevealCommand)} {(int)command:X4}."),
+                    _ => throw new InvalidOperationException($"Undefined {nameof(XrayRevealCommand)} {command}."),
                 };
             }
         }

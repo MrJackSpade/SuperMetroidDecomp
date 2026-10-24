@@ -43,7 +43,7 @@ internal static class GrappleConnectionDefinitionsVerification
             if (authored)
             {
                 var connection = GrappleConnectionDefinitions.ResolveConnection(kind, direction);
-                AssertEqual(new VerifyGrappleConnectionDefinitionsCase(Word(address), Word(address + 2)), new VerifyGrappleConnectionDefinitionsCase((ushort)connection.Function, (ushort)connection.Handler),
+                AssertEqual(new VerifyGrappleConnectionDefinitionsCase(Word(address), Word(address + 2)), new VerifyGrappleConnectionDefinitionsCase(SamusGrappleConnectionNative.Functions.Word(connection.Function), SamusGrappleConnectionNative.Handlers.Word(connection.Handler)),
                     "Both native connection words");
                 compiled++;
             }
@@ -134,7 +134,7 @@ internal static class GrappleConnectionDefinitionsVerification
             AssertEqual(0, Word(address + 2) >> 8, "Native special pose word has no discarded high byte");
             return new GrappleConnectionDefinitions.SpecialConnection(SnesAngle.FromRaw(checked(Word(address))), (SamusPoseId)Word(address + 2),
                 new Offset16<RoomPixels>(unchecked((short)Word(address + 4)), unchecked((short)Word(address + 6))),
-                (GrappleConnectionFunction)Word(address + 8));
+                SamusGrappleConnectionNative.Functions.Decode(Word(address + 8), "grapple connection function"));
         }).ToArray();
         AssertEqual(native.Length, GrappleConnectionDefinitions.SpecialAngleCount, "Native special-angle record count");
         for (int record = 0; record < native.Length; record++)

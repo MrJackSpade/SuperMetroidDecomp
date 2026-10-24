@@ -22,7 +22,7 @@ internal static class SamusGrappleHudInput
             SamusHudHandler.Turning => samus.PoseTransitionShotDirection != 0,
             SamusHudHandler.Transition => SamusHudInput.PostureTransitionAdmitsWeapons(samus.Pose, grappleActive: false, overreads),
             SamusHudHandler.MorphBall or SamusHudHandler.Jump => false,
-            _ => throw new InvalidOperationException($"Undefined {nameof(SamusHudHandler)} {(int)handler}."),
+            _ => throw new InvalidOperationException($"Undefined {nameof(SamusHudHandler)} {handler}."),
         };
     }
 }

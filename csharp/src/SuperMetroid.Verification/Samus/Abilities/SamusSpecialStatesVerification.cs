@@ -372,13 +372,13 @@ static void SeedXrayCartridge(TestAddressSpace bus)
     // 43FF/2F5A/1AB5. The normal-palette pointer is deliberately synthetic so teardown's
     // complete 16-color restoration cannot pass by leaving the previous visor word behind.
     ushort[] visorColors = [0x3be0, 0x5ff0, 0x7fff, 0x43ff, 0x2f5a, 0x1ab5];
-    WriteTestWords(bus, SamusXrayRomData.Palette.VisorWords, visorColors);
-    WriteTestWord(bus, SamusXrayRomData.Palette.NormalSuitPointers, 0x9400);
-    for (ushort index = 0; index < SamusXrayRomData.Palette.SuitColorCount; index++)
+    WriteTestWords(bus, XrayScopeDefinitions.Palette.VisorWords, visorColors);
+    WriteTestWord(bus, XrayScopeDefinitions.Palette.NormalSuitPointers, 0x9400);
+    for (ushort index = 0; index < XrayScopeDefinitions.Palette.SuitColorCount; index++)
     {
         WriteTestWord(
             bus,
-            SamusXrayRomData.Palette.PaletteBank | (0x9400 + index * 2),
+            XrayScopeDefinitions.Palette.PaletteBank | (0x9400 + index * 2),
             unchecked((ushort)(0x0100 + index)));
     }
 
@@ -386,8 +386,8 @@ static void SeedXrayCartridge(TestAddressSpace bus)
     // literal `$91:C9D4` absolute-tangent table are `$03FE`; seeding only those two words
     // makes the window test fail if production code invents trigonometry or reads a nearby
     // table entry. Ten scanlines from the origin, the 8.8 accumulator lands on X+39.
-    WriteTestWord(bus, SamusXrayRomData.Window.AbsoluteTangentTable + 0x36 * 2, 0x03fe);
-    WriteTestWord(bus, SamusXrayRomData.Window.AbsoluteTangentTable + 0x4a * 2, 0x03fe);
+    WriteTestWord(bus, XrayScopeDefinitions.Window.AbsoluteTangentTable + 0x36 * 2, 0x03fe);
+    WriteTestWord(bus, XrayScopeDefinitions.Window.AbsoluteTangentTable + 0x4a * 2, 0x03fe);
 }
 
 /// <summary>
@@ -446,7 +446,7 @@ internal static void VerifySamusXray()
         "X-ray widening palette writes first visor color");
     AssertEqual(0x3be0, cgram.Colors[196], "first widening visor color");
     AssertEqual(2, standing.Xray.SpecialPaletteFrame, "widening palette offset advances");
-    AssertEqual(SamusXrayRomData.Palette.FrameDelay, standing.Xray.CommonPaletteTimer.RawValue,
+    AssertEqual(XrayScopeDefinitions.Palette.FrameDelay, standing.Xray.CommonPaletteTimer.RawValue,
         "widening palette timer reload");
 
     // Eight instruction-list setup functions execute before the main bank-$88 preinstruction.
@@ -469,7 +469,7 @@ internal static void VerifySamusXray()
     const int wideningCalls = 26;
     AssertEqual(10, standing.Xray.AngularWidth, "call 26 whole width");
     AssertEqual(SnesSignedSixteenSixteen.FromRaw(wideningCalls * (wideningCalls + 1) / 2 *
-            checked((int)SamusXrayRomData.Window.WideningStep)), standing.Xray.AngularHalfWidth,
+            checked((int)XrayScopeDefinitions.Window.WideningStep)), standing.Xray.AngularHalfWidth,
         "call 26 width is 351 widening steps, carrying into whole units exactly");
     standing.Xray.StepBeam(standing, SnesButton.B);
     AssertEqual(XrayBeamPhase.Full, standing.Xray.BeamPhase, "call 27 reaches full beam");

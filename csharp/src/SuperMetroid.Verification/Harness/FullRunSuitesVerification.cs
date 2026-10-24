@@ -315,7 +315,7 @@ using static SuperMetroid.Verification.Samus.Palettes.SamusHurtColorsVerificatio
 using static SuperMetroid.Verification.Samus.Palettes.SamusHyperBeamColorsVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SamusMorphBallVerification;
 using static SuperMetroid.Verification.Samus.SamusMotionCoreVerification;
-using static SuperMetroid.Verification.Samus.Movement.SamusMovementRomDataVerification;
+using static SuperMetroid.Verification.Samus.Movement.SamusMovementDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Palettes.SamusPaletteRomDataVerification;
 using static SuperMetroid.Verification.Samus.Poses.SamusPoseHistoryVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.SamusProjectileRomDataVerification;
@@ -328,7 +328,7 @@ using static SuperMetroid.Verification.Samus.Abilities.SamusSpecialStatesVerific
 using static SuperMetroid.Verification.Samus.Movement.SamusTerrainMovementVerification;
 using static SuperMetroid.Verification.Samus.SamusTurnsAndKnockbackVerification;
 using static SuperMetroid.Verification.Samus.Palettes.SamusVisorColorsVerification;
-using static SuperMetroid.Verification.Samus.Abilities.SamusXrayRomDataVerification;
+using static SuperMetroid.Verification.Samus.Abilities.XrayScopeDefinitionsVerification;
 using static SuperMetroid.Verification.Fx.SandAnimatedTilesVerification;
 using static SuperMetroid.Verification.Rooms.Plms.SaveConfirmationCadenceVerification;
 using static SuperMetroid.Verification.Saves.SaveRamLayoutVerification;

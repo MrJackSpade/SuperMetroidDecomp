@@ -819,13 +819,13 @@ internal static void VerifySamusLiquidPhysics()
 
     var speed = sample.HorizontalSpeed;
     speed.SelectEnvironmentSpeedTable(SamusLiquidMedium.Air);
-    AssertEqual(SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable,
+    AssertEqual(SamusMovementDefinitions.HorizontalMotion.NormalAirSpeedTable,
         speed.ActiveSpeedTableBaseAddress, "air X table base");
     speed.SelectEnvironmentSpeedTable(SamusLiquidMedium.Water);
-    AssertEqual(SamusMovementRomData.HorizontalMotion.WaterSpeedTable,
+    AssertEqual(SamusMovementDefinitions.HorizontalMotion.WaterSpeedTable,
         speed.ActiveSpeedTableBaseAddress, "water X table base");
     speed.SelectEnvironmentSpeedTable(SamusLiquidMedium.LavaOrAcid);
-    AssertEqual(SamusMovementRomData.HorizontalMotion.LavaAcidSpeedTable,
+    AssertEqual(SamusMovementDefinitions.HorizontalMotion.LavaAcidSpeedTable,
         speed.ActiveSpeedTableBaseAddress, "lava X table base");
 
     // Submersion reaches `$90:9808` before the running/Dash test. It cannot establish new
@@ -1048,7 +1048,7 @@ internal static void VerifySamusAtmosphericEffects()
 {
     TestAddressSpace bus = CreateSamusAtmosphericEffectsCartridge();
     var atmosphericArt = new SamusAtmosphericArtworkCatalog(
-        new ushort[SamusMovementRomData.Environment.DirectAtmosphericFrameCount],
+        new ushort[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount],
         [0x2a48, 0x2a49, 0, 0]);
 
     var samus = new SamusState

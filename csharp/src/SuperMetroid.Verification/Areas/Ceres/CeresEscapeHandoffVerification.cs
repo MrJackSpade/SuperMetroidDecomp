@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -244,8 +245,8 @@ internal static class CeresEscapeHandoffVerification
     {
         WriteTestWords(
             bus,
-            SamusMovementRomData.Banks.Movement |
-                (SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable +
+            SamusCartridgeTables.MovementBank |
+                (SamusMovementDefinitions.HorizontalMotion.NormalAirSpeedTable +
                 0x0a * SpeedTableEntryConstants.ByteCount),
             1, 0, 1, 0, 0, 0);
     }

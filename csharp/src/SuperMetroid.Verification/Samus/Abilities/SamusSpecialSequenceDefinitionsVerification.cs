@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Samus.Movement.SamusMovementRomDataVerification;
+using static SuperMetroid.Verification.Samus.Movement.SamusMovementDefinitionsVerification;
 using SuperMetroid.Core.Samus.Abilities;
 
 namespace SuperMetroid.Verification.Samus.Abilities;

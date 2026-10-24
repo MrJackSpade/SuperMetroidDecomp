@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
@@ -16,8 +17,8 @@ internal static class PoseCollisionDefinitionsVerification
         var samus = new SamusState();
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
-            ushort expected = rom.ReadCartridgeByte(SamusMovementRomData.Poses.Definitions +
-                pose * SamusMovementRomData.Poses.DefinitionByteCount + 6);
+            ushort expected = rom.ReadCartridgeByte(SamusCartridgeTables.PoseDefinitions +
+                pose * SamusCartridgeTables.PoseDefinitionByteCount + 6);
             AssertEqual(expected, SamusPoseMetadata.ReadPoseYRadius((SamusPoseId)pose),
                 "Prospective collision radius matches native pose, without authored ROM reads");
             samus.Pose = (SamusPoseId)pose;

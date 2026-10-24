@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Movement;
@@ -6,7 +7,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Movement;
 
 /// <summary>Checks native address ranges for Samus pose, speed, liquid, and slope movement tables.</summary>
-internal static class SamusMovementRomDataVerification
+internal static class SamusMovementDefinitionsVerification
 {
     /// <summary>
     /// Walks the named movement tables through their last retail entry so an address typo,
@@ -27,17 +28,17 @@ internal static class SamusMovementRomDataVerification
 
         TouchRange(
             bus,
-            SamusMovementRomData.Poses.Definitions,
-            poseCount * SamusMovementRomData.Poses.DefinitionByteCount,
+            SamusCartridgeTables.PoseDefinitions,
+            poseCount * SamusCartridgeTables.PoseDefinitionByteCount,
             "pose definitions");
         TouchRange(
             bus,
-            SamusMovementRomData.Poses.AnimationDelayListPointers,
+            SamusMovementDefinitions.Poses.AnimationDelayListPointers,
             poseCount * sizeof(ushort),
             "animation-delay pointers");
         TouchRange(
             bus,
-            SamusMovementRomData.Poses.TransitionListPointers,
+            SamusMovementDefinitions.Poses.TransitionListPointers,
             poseCount * sizeof(ushort),
             "pose-transition pointers");
 
@@ -45,27 +46,27 @@ internal static class SamusMovementRomDataVerification
         // than merely proving that the pointer-table bytes themselves happen to be mapped.
         for (int pose = 0; pose < poseCount; pose++)
         {
-            ushort animationPointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusMovementRomData.Poses.AnimationDelayListPointers + pose * sizeof(ushort)));
-            ushort transitionPointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusMovementRomData.Poses.TransitionListPointers + pose * sizeof(ushort)));
+            ushort animationPointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusMovementDefinitions.Poses.AnimationDelayListPointers + pose * sizeof(ushort)));
+            ushort transitionPointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusMovementDefinitions.Poses.TransitionListPointers + pose * sizeof(ushort)));
             AssertTrue(animationPointer >= 0x8000,
                 $"pose ${pose:X2} animation list remains in bank $91 ROM");
             AssertTrue(transitionPointer >= 0x8000,
                 $"pose ${pose:X2} transition list remains in bank $91 ROM");
-            bus.ReadCartridgeByte(SamusMovementRomData.Banks.Pose | animationPointer);
-            bus.ReadCartridgeByte(SamusMovementRomData.Banks.Pose | transitionPointer);
+            bus.ReadCartridgeByte(SamusCartridgeTables.PoseBank | animationPointer);
+            bus.ReadCartridgeByte(SamusCartridgeTables.PoseBank | transitionPointer);
         }
 
         int movementTypeCount = (byte)SamusMovementType.Special + 1;
         foreach (ushort table in new[]
         {
-            SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable,
-            SamusMovementRomData.HorizontalMotion.WaterSpeedTable,
-            SamusMovementRomData.HorizontalMotion.LavaAcidSpeedTable,
+            SamusMovementDefinitions.HorizontalMotion.NormalAirSpeedTable,
+            SamusMovementDefinitions.HorizontalMotion.WaterSpeedTable,
+            SamusMovementDefinitions.HorizontalMotion.LavaAcidSpeedTable,
         })
         {
             TouchRange(
                 bus,
-                SamusMovementRomData.Banks.Movement | table,
+                SamusCartridgeTables.MovementBank | table,
                 movementTypeCount * SpeedTableEntryConstants.ByteCount,
                 $"horizontal speed table ${table:X4}");
         }
@@ -73,20 +74,20 @@ internal static class SamusMovementRomDataVerification
         int liquidTableByteCount = 3 * sizeof(ushort);
         foreach (int table in new[]
         {
-            SamusMovementRomDataVerticalMotionConstants.NormalJumpSpeeds,
-            SamusMovementRomDataVerticalMotionConstants.NormalJumpSubspeeds,
-            SamusMovementRomDataVerticalMotionConstants.HiJumpSpeeds,
-            SamusMovementRomDataVerticalMotionConstants.HiJumpSubspeeds,
-            SamusMovementRomDataVerticalMotionConstants.WallJumpSpeeds,
-            SamusMovementRomDataVerticalMotionConstants.WallJumpSubspeeds,
-            SamusMovementRomDataVerticalMotionConstants.HiWallJumpSpeeds,
-            SamusMovementRomDataVerticalMotionConstants.HiWallJumpSubspeeds,
-            SamusMovementRomDataVerticalMotionConstants.KnockbackSpeeds,
-            SamusMovementRomDataVerticalMotionConstants.KnockbackSubspeeds,
-            SamusMovementRomDataVerticalMotionConstants.BombJumpSpeeds,
-            SamusMovementRomDataVerticalMotionConstants.BombJumpSubspeeds,
-            SamusMovementRomDataVerticalMotionConstants.GravitySubaccelerations,
-            SamusMovementRomDataVerticalMotionConstants.GravityAccelerations,
+            SamusMovementDefinitionsVerticalMotionConstants.NormalJumpSpeeds,
+            SamusMovementDefinitionsVerticalMotionConstants.NormalJumpSubspeeds,
+            SamusMovementDefinitionsVerticalMotionConstants.HiJumpSpeeds,
+            SamusMovementDefinitionsVerticalMotionConstants.HiJumpSubspeeds,
+            SamusMovementDefinitionsVerticalMotionConstants.WallJumpSpeeds,
+            SamusMovementDefinitionsVerticalMotionConstants.WallJumpSubspeeds,
+            SamusMovementDefinitionsVerticalMotionConstants.HiWallJumpSpeeds,
+            SamusMovementDefinitionsVerticalMotionConstants.HiWallJumpSubspeeds,
+            SamusMovementDefinitionsVerticalMotionConstants.KnockbackSpeeds,
+            SamusMovementDefinitionsVerticalMotionConstants.KnockbackSubspeeds,
+            SamusMovementDefinitionsVerticalMotionConstants.BombJumpSpeeds,
+            SamusMovementDefinitionsVerticalMotionConstants.BombJumpSubspeeds,
+            SamusMovementDefinitionsVerticalMotionConstants.GravitySubaccelerations,
+            SamusMovementDefinitionsVerticalMotionConstants.GravityAccelerations,
         })
         {
             TouchRange(bus, table, liquidTableByteCount, $"liquid-indexed table ${table:X6}");
@@ -98,9 +99,9 @@ internal static class SamusMovementRomDataVerification
                 $"standalone speed record ${speedRecord:X6}");
         }
 
-        TouchRange(bus, SamusMovementRomDataSlopes.HorizontalMultipliers,
+        TouchRange(bus, SamusMovementDefinitionsSlopes.HorizontalMultipliers,
             32 * 2 * sizeof(ushort), "non-square slope multipliers");
-        TouchRange(bus, SamusMovementRomDataSlopes.AlignmentHeights,
+        TouchRange(bus, SamusMovementDefinitionsSlopes.AlignmentHeights,
             32 * 16, "non-square slope height profiles");
 
         Console.WriteLine(

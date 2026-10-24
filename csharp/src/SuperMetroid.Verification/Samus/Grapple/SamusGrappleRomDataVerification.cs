@@ -1,7 +1,7 @@
 using static SuperMetroid.Verification.Samus.Grapple.SamusGrappleVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Samus.Movement.SamusMovementRomDataVerification;
+using static SuperMetroid.Verification.Samus.Movement.SamusMovementDefinitionsVerification;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Grapple;

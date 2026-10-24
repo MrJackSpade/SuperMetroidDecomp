@@ -469,10 +469,10 @@ public static class SamusAerialMovement
         // Aimed falling poses have their own lists and do not enter this branch.
         if (samus.Pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose or
             SamusPoseId.FallingGunExtendedRightPose or SamusPoseId.FallingGunExtendedLeftPose &&
-            unchecked((short)(samus.Kinematics.YSpeed.Whole - SamusMovementRomData.FastFallAnimationSpeed)) >= 0 &&
-            unchecked((short)(samus.AnimationFrame - SamusMovementRomData.FastFallAnimationFrame)) < 0)
-            SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, SamusMovementRomData.FastFallAnimationFrame,
-                SamusMovementRomData.FastFallAnimationTimer);
+            unchecked((short)(samus.Kinematics.YSpeed.Whole - SamusMovementDefinitions.FastFallAnimationSpeed)) >= 0 &&
+            unchecked((short)(samus.AnimationFrame - SamusMovementDefinitions.FastFallAnimationFrame)) < 0)
+            SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, SamusMovementDefinitions.FastFallAnimationFrame,
+                SamusMovementDefinitions.FastFallAnimationTimer);
         return result;
     }
 

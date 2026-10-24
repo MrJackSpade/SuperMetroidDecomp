@@ -215,7 +215,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
             7 => shotHeld ? SamusPoseId.FiringLandingLeftPose : SamusPoseId.NormalLandingLeftPose,
             8 => SamusPoseId.LandingAimDiagonalUpLeftPose,
             9 => SamusPoseId.LandingAimUpLeftPose,
-            SamusMovementRomData.Poses.NoShotDirection => facingLeft ? SamusPoseId.NormalLandingLeftPose : SamusPoseId.NormalLandingRightPose,
+            SamusMovementDefinitions.Poses.NoShotDirection => facingLeft ? SamusPoseId.NormalLandingLeftPose : SamusPoseId.NormalLandingRightPose,
             // Directions four/five are consumed by TryApplyCompactAerialLanding,
             // because the 10 -> 21 expansion needs room collision data.
             byte shotDirection => throw new InvalidOperationException(

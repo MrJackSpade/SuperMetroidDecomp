@@ -536,7 +536,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
         // The cartridge tests the sign of a word subtraction, not an unsigned
         // magnitude. Moonfall's negative velocity therefore lands without a rebound.
         if (samus.MorphBallBounceState == SamusBallBounceState.None &&
-            unchecked((short)(samus.Kinematics.YSpeed.Whole - SamusMovementRomData.FirstBallBounceMinimumSpeed)) >= 0)
+            unchecked((short)(samus.Kinematics.YSpeed.Whole - SamusMovementDefinitions.FirstBallBounceMinimumSpeed)) >= 0)
         {
             samus.MorphBallBounceState = SamusBallBounceState.FirstRebound;
             samus.Kinematics.YDirection = SamusVerticalDirection.Up;
@@ -591,7 +591,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
         // $91:F26E dispatches on the low (rebound) byte only, so an ordinary-ball
         // rebound left over from a Spring Ball toggle selects the same rebound step.
         if (samus.MorphBallBounceState == SamusBallBounceState.None &&
-            unchecked((short)(samus.Kinematics.YSpeed.Whole - SamusMovementRomData.FirstBallBounceMinimumSpeed)) >= 0)
+            unchecked((short)(samus.Kinematics.YSpeed.Whole - SamusMovementDefinitions.FirstBallBounceMinimumSpeed)) >= 0)
         {
             samus.MorphBallBounceState = SamusBallBounceState.SpringBallFirstRebound;
             samus.Kinematics.YDirection = SamusVerticalDirection.Up;

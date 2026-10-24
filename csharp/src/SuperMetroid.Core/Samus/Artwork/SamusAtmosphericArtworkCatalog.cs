@@ -24,8 +24,8 @@ public sealed class SamusAtmosphericArtworkCatalog
     {
         Ensure.NotNull(typeOne);
         Ensure.NotNull(sharedTypeFour);
-        if (typeOne.Length != SamusMovementRomData.Environment.DirectAtmosphericFrameCount ||
-            sharedTypeFour.Length != SamusMovementRomData.Environment.DirectAtmosphericFrameCount)
+        if (typeOne.Length != SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount ||
+            sharedTypeFour.Length != SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount)
             throw new InvalidDataException("Samus atmospheric small-OBJ lists must each contain four frames.");
         for (int frame = 0; frame < typeOne.Length; frame++)
         {
@@ -34,8 +34,8 @@ public sealed class SamusAtmosphericArtworkCatalog
             if (sharedTypeFour[frame] != SamusAtmosphericArtworkDefinitions.Attributes(false, frame))
                 this.sharedTypeFour.Add(frame, sharedTypeFour[frame]);
         }
-        TypeOne = [.. Enumerable.Range(0, SamusMovementRomData.Environment.DirectAtmosphericFrameCount).Select(frame => Resolve(true, frame))];
-        SharedTypeFour = [.. Enumerable.Range(0, SamusMovementRomData.Environment.DirectAtmosphericFrameCount).Select(frame => Resolve(false, frame))];
+        TypeOne = [.. Enumerable.Range(0, SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount).Select(frame => Resolve(true, frame))];
+        SharedTypeFour = [.. Enumerable.Range(0, SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount).Select(frame => Resolve(false, frame))];
     }
 
     /// <summary>SHA-256 of both selected atmospheric small-OBJ lists.</summary>
@@ -57,7 +57,7 @@ public sealed class SamusAtmosphericArtworkCatalog
     /// <returns>True for a supported type and frame; false otherwise without reading cartridge or mutable memory.</returns>
     public bool TryResolve(byte type, int frame, out ushort attributes)
     {
-        if (type is not (1 or 4 or 6 or 7) || frame < 0 || frame >= SamusMovementRomData.Environment.DirectAtmosphericFrameCount)
+        if (type is not (1 or 4 or 6 or 7) || frame < 0 || frame >= SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount)
         {
             attributes = 0;
             return false;

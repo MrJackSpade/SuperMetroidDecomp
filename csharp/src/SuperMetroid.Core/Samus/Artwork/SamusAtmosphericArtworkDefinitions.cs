@@ -23,7 +23,7 @@ internal static class SamusAtmosphericArtworkDefinitions
     /// <summary>Builds one native OBJ attribute word from a bounded footstep or lava/dust frame, retaining palette and priority routing.</summary>
     internal static ushort Attributes(bool footstep, int frame)
     {
-        if ((uint)frame >= SamusMovementRomData.Environment.DirectAtmosphericFrameCount)
+        if ((uint)frame >= SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
         return SnesObjAttributeWord.Create((footstep ? FootstepFirstTile : LavaDustFirstTile) + frame,
             Palette, Priority).Raw;

@@ -72,7 +72,7 @@ internal static class SamusRenderingFixtureVerification
         sbyte[] offsets = stock.GraphicsYOffsets.ToArray();
         for (int pose = 0; pose < offsets.Length; pose++)
         {
-            int address = SamusMovementRomData.Poses.Definitions + pose * SamusMovementRomData.Poses.DefinitionByteCount + 4;
+            int address = SamusCartridgeTables.PoseDefinitions + pose * SamusCartridgeTables.PoseDefinitionByteCount + 4;
             if (bus.HasSeededByte(address)) offsets[pose] = unchecked((sbyte)bus.ReadByte(address));
         }
         SamusBodyFrameSelection[] frames = stock.Frames.ToArray();

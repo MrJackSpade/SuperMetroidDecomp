@@ -22,7 +22,7 @@ internal static class PoseInputDefinitionsVerification
         for (int poseIndex = 0; poseIndex < 253; poseIndex++)
         {
             SamusPoseId pose = (SamusPoseId)poseIndex;
-            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((SamusMovementRomData.Poses.TransitionListPointers + (int)pose * 2));
+            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((SamusMovementDefinitions.Poses.TransitionListPointers + (int)pose * 2));
             var native = new List<PoseInputDefinitionsNative>();
             for (int address = 0x910000 | pointer; CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address) != ushort.MaxValue; address += 6)
             {

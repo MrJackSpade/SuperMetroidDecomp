@@ -14,8 +14,8 @@ internal static class SamusBallBounceDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus ball bounce definitions")]
     internal static void VerifySamusBallBounceDefinitions(SuperMetroidAddressSpace rom)
     {
-        ushort whole = CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusMovementRomDataVerticalMotionConstants.BallBounceSpeed);
-        ushort fraction = CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusMovementRomDataVerticalMotionConstants.BallBounceSubspeed);
+        ushort whole = CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusMovementDefinitionsVerticalMotionConstants.BallBounceSpeed);
+        ushort fraction = CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusMovementDefinitionsVerticalMotionConstants.BallBounceSubspeed);
         AssertEqual(whole, SamusVerticalMotionDefinitions.BallBounceSpeed.Whole, "Native ball rebound whole definition");
         AssertEqual(fraction, SamusVerticalMotionDefinitions.BallBounceSpeed.Fraction, "Native ball rebound fraction definition");
         int cases = 0;

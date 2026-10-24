@@ -36,8 +36,8 @@ internal static class SamusBodyArtworkVerification
             int address = 0x92D94E + pose * 2;
             ushort native = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
             AssertEqual(native, stock.PosePointers[pose], $"Samus body pose pointer {pose:X2}");
-            int graphicsAddress = SamusMovementRomData.Poses.Definitions +
-                pose * SamusMovementRomData.Poses.DefinitionByteCount + 4;
+            int graphicsAddress = SamusCartridgeTables.PoseDefinitions +
+                pose * SamusCartridgeTables.PoseDefinitionByteCount + 4;
             AssertEqual(unchecked((sbyte)bus.ReadCartridgeByte(graphicsAddress)),
                 stock.GraphicsYOffset((SamusPoseId)pose), $"Samus pose {pose:X2} visual Y origin");
         }
@@ -170,12 +170,12 @@ internal static class SamusBodyArtworkVerification
                 $"atmospheric type {type} uses installed Samus OAM art with native parity");
         }
         foreach (byte type in new byte[] { 1, 4, 6, 7 })
-        for (byte frame = 0; frame < SamusMovementRomData.Environment.DirectAtmosphericFrameCount; frame++)
+        for (byte frame = 0; frame < SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount; frame++)
         {
             ushort pointer = type == 1
-                ? SamusMovementRomData.Environment.TypeOneAtmosphericAttributes
-                : SamusMovementRomData.Environment.SharedAtmosphericAttributes;
-            int source = SamusMovementRomData.Banks.Movement | (pointer + frame * sizeof(ushort));
+                ? SamusCartridgeTables.TypeOneAtmosphericAttributes
+                : SamusCartridgeTables.SharedAtmosphericAttributes;
+            int source = SamusCartridgeTables.MovementBank | (pointer + frame * sizeof(ushort));
             ushort expectedAttributes = CartridgeImportSource.Require(bus).ReadCartridgeWord(source);
             AssertTrue(stock.Atmosphere.TryResolve(type, frame, out ushort installedAttributes),
                 $"atmospheric type {type} frame {frame} has installed artwork");

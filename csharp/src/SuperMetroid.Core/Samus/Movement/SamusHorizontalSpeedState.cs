@@ -579,7 +579,7 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Adds the native 16.16 extra-run increment while retaining separate WRAM whole and fractional words.</summary>
     private void AddExtraRunAcceleration()
     {
-        uint accelerated = unchecked(ExtraRunSpeed.RawValue + SamusMovementRomData.HorizontalMotion.ExtraRunAcceleration);
+        uint accelerated = unchecked(ExtraRunSpeed.RawValue + SamusMovementDefinitions.HorizontalMotion.ExtraRunAcceleration);
         ExtraRunSpeed = SnesUnsignedSixteenSixteen.FromRaw(accelerated);
     }
 

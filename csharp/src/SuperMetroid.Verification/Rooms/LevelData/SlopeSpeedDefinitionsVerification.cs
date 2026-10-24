@@ -15,7 +15,7 @@ internal static class SlopeSpeedDefinitionsVerification
         var multipliers = new ushort[32];
         for (int shape = 0; shape < multipliers.Length; shape++)
         {
-            int address = SamusMovementRomDataSlopes.HorizontalMultipliers + shape * 4 + 2;
+            int address = SamusMovementDefinitionsSlopes.HorizontalMultipliers + shape * 4 + 2;
             multipliers[shape] = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(multipliers[shape], SlopeSpeedDefinitions.HorizontalMultiplier(shape), "All native horizontal slope multipliers");
         }

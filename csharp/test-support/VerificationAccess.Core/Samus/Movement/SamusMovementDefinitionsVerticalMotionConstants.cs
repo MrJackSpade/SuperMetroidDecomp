@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Vertical launch velocity and gravity table addresses in bank $90 that only verification reads.</summary>
-internal static class SamusMovementRomDataVerticalMotionConstants
+internal static class SamusMovementDefinitionsVerticalMotionConstants
 {
     /// <summary>$90:9EB5 YSpeedWhenBouncingInMorphBall; reference address for the shared ball rebound.</summary>
     public const int BallBounceSpeed = 0x909eb5;

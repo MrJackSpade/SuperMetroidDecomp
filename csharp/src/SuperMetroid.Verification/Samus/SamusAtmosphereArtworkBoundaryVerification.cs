@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -19,8 +20,8 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
     [CpuBusBoundary("exact bus test: seeds low WRAM that a null bank-$90 atmospheric pointer reads through the $90:0000 mirror")]
     private static void SeedNullAtmosphericPointerWram(SuperMetroidAddressSpace bus)
     {
-        bus.WriteByte(SamusMovementRomData.Banks.Movement, 0x5a);
-        bus.WriteByte(SamusMovementRomData.Banks.Movement + 1, 0x34);
+        bus.WriteByte(SamusCartridgeTables.MovementBank, 0x5a);
+        bus.WriteByte(SamusCartridgeTables.MovementBank + 1, 0x34);
     }
 
     /// <summary>Compares authored atmospheric frame attributes with cartridge words and checks missing-art rejection.</summary>
@@ -37,12 +38,12 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
             var runtimeBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
 
             foreach (byte type in new byte[] { 1, 4, 6, 7 })
-            for (byte frame = 0; frame < SamusMovementRomData.Environment.DirectAtmosphericFrameCount; frame++)
+            for (byte frame = 0; frame < SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount; frame++)
             {
                 ushort list = type == 1
-                    ? SamusMovementRomData.Environment.TypeOneAtmosphericAttributes
-                    : SamusMovementRomData.Environment.SharedAtmosphericAttributes;
-                int source = SamusMovementRomData.Banks.Movement | (list + frame * sizeof(ushort));
+                    ? SamusCartridgeTables.TypeOneAtmosphericAttributes
+                    : SamusCartridgeTables.SharedAtmosphericAttributes;
+                int source = SamusCartridgeTables.MovementBank | (list + frame * sizeof(ushort));
                 ushort expected = importBus.ReadCartridgeWord(source);
                 var effects = new SamusAtmosphericEffectsState();
                 effects.SetSlot(0, type, frame, 2, new(128, 128));

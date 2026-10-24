@@ -89,7 +89,7 @@ internal static class SamusContentIdentityVerification
             new([new SamusSpritePart(new SnesSpritemapXWord(1), new SnesSpritemapYByte(0), new SnesObjAttributeWord(1))]),
         ];
         var spritemaps = new SamusSpritemapArtworkCatalog(topBases, bottomBases, entries, definitions);
-        var one = new ushort[SamusMovementRomData.Environment.DirectAtmosphericFrameCount];
+        var one = new ushort[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount];
         var shared = new ushort[one.Length];
         if (edit == "atmosphere-one") one[0] = 1;
         if (edit == "atmosphere-shared") shared[0] = 1;

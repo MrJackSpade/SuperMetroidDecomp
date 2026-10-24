@@ -794,7 +794,7 @@ internal static class SamusPoseDispatchDefinitions
         SamusPoseId.StandingTransitionAimDiagonalUpRightPose or
         SamusPoseId.StandingTransitionAimDiagonalUpLeftPose or
         SamusPoseId.StandingTransitionAimDiagonalDownRightPose or
-        SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => SamusMovementRomData.Poses.RetainCurrentPoseFallback,
+        SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => SamusMovementDefinitions.Poses.RetainCurrentPoseFallback,
         // Bounded indices beyond FC observe Calc_Xray_HDMADataTable_OffScreen opcodes.
         SamusPoseId.AdjacentCodePoseFD => (SamusPoseId)75,
         SamusPoseId.AdjacentCodePoseFE => (SamusPoseId)255,

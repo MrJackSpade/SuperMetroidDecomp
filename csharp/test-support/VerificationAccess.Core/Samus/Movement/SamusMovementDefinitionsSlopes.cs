@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Bank-$94 slope response and alignment tables shared by movement/collision.</summary>
-internal static class SamusMovementRomDataSlopes
+internal static class SamusMovementDefinitionsSlopes
 {
     /// <summary>Non-square-slope horizontal velocity multipliers.</summary>
     public const int HorizontalMultipliers = 0x948586;

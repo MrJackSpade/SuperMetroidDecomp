@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -54,8 +55,8 @@ internal static class GrappleFlarePlacementVerification
             .Select(pose => new
             {
                 Pose = (SamusPoseId)pose,
-                Movement = CpuBusRegionRead.Read(rom, SamusMovementRomData.Poses.Definitions + pose * 8 + 1),
-                Direction = CpuBusRegionRead.Read(rom, SamusMovementRomData.Poses.Definitions + pose * 8 + 3),
+                Movement = CpuBusRegionRead.Read(rom, SamusCartridgeTables.PoseDefinitions + pose * 8 + 1),
+                Direction = CpuBusRegionRead.Read(rom, SamusCartridgeTables.PoseDefinitions + pose * 8 + 3),
             })
             .Where(row => row.Direction < 10)
             .GroupBy(row => new AuthoredPose(Running:row.Movement == (byte)SamusMovementType.Running, row.Direction))

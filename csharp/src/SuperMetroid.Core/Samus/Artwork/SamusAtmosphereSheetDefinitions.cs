@@ -35,8 +35,8 @@ public static class SamusAtmosphereSheetDefinitions
 
     /// <summary>Every frame the sheet holds.</summary>
     public static IEnumerable<string> Frames =>
-        Enumerable.Range(0, SamusMovementRomData.Environment.DirectAtmosphericFrameCount).Select(FootstepFrame)
-            .Concat(Enumerable.Range(0, SamusMovementRomData.Environment.DirectAtmosphericFrameCount).Select(LavaAndDustFrame))
+        Enumerable.Range(0, SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount).Select(FootstepFrame)
+            .Concat(Enumerable.Range(0, SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount).Select(LavaAndDustFrame))
             .Concat(Enumerable.Range(0, DivingSplashFrameCount).Select(DivingSplashFrame))
             .Concat(Enumerable.Range(0, BubblesFrameCount).Select(BubblesFrame));
 }

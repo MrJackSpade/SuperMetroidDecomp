@@ -400,14 +400,14 @@ public sealed class SamusXrayState
 
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         ushort frame = facingLeft
-            ? Angle.TableIndex < SamusXrayRomData.AnimationAngles.LeftFrameFour ? (ushort)4 :
-              Angle.TableIndex < SamusXrayRomData.AnimationAngles.LeftFrameThree ? (ushort)3 :
-              Angle.TableIndex < SamusXrayRomData.AnimationAngles.LeftFrameTwo ? (ushort)2 :
-              Angle.TableIndex < SamusXrayRomData.AnimationAngles.LeftFrameOne ? (ushort)1 : (ushort)0
-            : Angle.TableIndex < SamusXrayRomData.AnimationAngles.RightFrameOne ? (ushort)0 :
-              Angle.TableIndex < SamusXrayRomData.AnimationAngles.RightFrameTwo ? (ushort)1 :
-              Angle.TableIndex < SamusXrayRomData.AnimationAngles.RightFrameThree ? (ushort)2 :
-              Angle.TableIndex < SamusXrayRomData.AnimationAngles.RightFrameFour ? (ushort)3 : (ushort)4;
+            ? Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.LeftFrameFour ? (ushort)4 :
+              Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.LeftFrameThree ? (ushort)3 :
+              Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.LeftFrameTwo ? (ushort)2 :
+              Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.LeftFrameOne ? (ushort)1 : (ushort)0
+            : Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.RightFrameOne ? (ushort)0 :
+              Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.RightFrameTwo ? (ushort)1 :
+              Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.RightFrameThree ? (ushort)2 :
+              Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.RightFrameFour ? (ushort)3 : (ushort)4;
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame, timer: 15);
         return frame;
     }
@@ -453,7 +453,7 @@ public sealed class SamusXrayState
                 // speed gains the fixed fractional step per call, and both speed and width can
                 // carry into their whole parts before the ten-unit clamp.
                 AngularWideningSpeed += SnesSignedSixteenSixteen.FromRaw(
-                    checked((int)SamusXrayRomData.Window.WideningStep));
+                    checked((int)XrayScopeDefinitions.Window.WideningStep));
                 AngularHalfWidth += AngularWideningSpeed;
                 if (AngularHalfWidth.WholePixels >= 11)
                 {
@@ -529,7 +529,7 @@ public sealed class SamusXrayState
         if (VisorPaletteMode == XrayVisorPaletteMode.Widening && (ushort)BeamPhase >= (ushort)XrayBeamPhase.Full)
         {
             // `$91:DCEA` enters the full-beam three-color loop at byte offset six.
-            SpecialPaletteFrame = SamusXrayRomData.Palette.FullCycleFirstWordOffset;
+            SpecialPaletteFrame = XrayScopeDefinitions.Palette.FullCycleFirstWordOffset;
             CommonPaletteTimer = WrappingCountdown.Start(1);
             VisorPaletteMode = XrayVisorPaletteMode.FullBeam;
         }
@@ -539,7 +539,7 @@ public sealed class SamusXrayState
         if (!timer.IsZero && timer.IsNonNegative)
             return false;
 
-        CommonPaletteTimer = WrappingCountdown.Start(SamusXrayRomData.Palette.FrameDelay);
+        CommonPaletteTimer = WrappingCountdown.Start(XrayScopeDefinitions.Palette.FrameDelay);
         // Keep the cartridge read for non-catalog offsets reachable through externally
         // edited debugger state; ordinary widening/cycling uses installed artwork.
         if (PresentationColors is null ||
@@ -551,16 +551,16 @@ public sealed class SamusXrayState
         if (VisorPaletteMode == XrayVisorPaletteMode.Widening)
         {
             // Widening uses offsets 0,2,4 and then pins four until state two is observed.
-            if (SpecialPaletteFrame < SamusXrayRomData.Palette.WideningFinalWordOffset)
+            if (SpecialPaletteFrame < XrayScopeDefinitions.Palette.WideningFinalWordOffset)
                 SpecialPaletteFrame += sizeof(ushort);
         }
         else
         {
             // Full beam cycles offsets 6,8,10,6... with the comparison after increment.
             int next = SpecialPaletteFrame + sizeof(ushort);
-            SpecialPaletteFrame = next < SamusXrayRomData.Palette.FullCycleEndWordOffset
+            SpecialPaletteFrame = next < XrayScopeDefinitions.Palette.FullCycleEndWordOffset
                 ? next
-                : SamusXrayRomData.Palette.FullCycleFirstWordOffset;
+                : XrayScopeDefinitions.Palette.FullCycleFirstWordOffset;
         }
 
         return true;

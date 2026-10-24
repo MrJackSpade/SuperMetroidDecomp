@@ -49,7 +49,7 @@ internal static class IntroSamusDemoMovement
             else if (SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose))
             {
                 SamusPoseId noInputPose = SamusPoseMetadata.ReadNoInputFallbackPose(samus);
-                if (noInputPose != SamusMovementRomData.Poses.RetainCurrentPoseFallback && noInputPose != samus.Pose)
+                if (noInputPose != SamusMovementDefinitions.Poses.RetainCurrentPoseFallback && noInputPose != samus.Pose)
                     fallback = noInputPose;
             }
         }

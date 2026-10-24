@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Samus.Movement.SamusMovementRomDataVerification;
+using static SuperMetroid.Verification.Samus.Movement.SamusMovementDefinitionsVerification;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 

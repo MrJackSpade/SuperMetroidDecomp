@@ -56,8 +56,8 @@ internal static class SamusBodyTransferContractChecks
         var sprites = new SamusSpritemapArtworkCatalog(new ushort[SamusBodyArtworkCatalog.PoseCount],
             new ushort[SamusBodyArtworkCatalog.PoseCount], new SamusSpritemapId?[SamusSpritemapArtworkCatalog.PointerCount], []);
         var atmosphere = new SamusAtmosphericArtworkCatalog(
-            new ushort[SamusMovementRomData.Environment.DirectAtmosphericFrameCount],
-            new ushort[SamusMovementRomData.Environment.DirectAtmosphericFrameCount]);
+            new ushort[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount],
+            new ushort[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount]);
         Bgr555[][] Rows() => Enumerable.Range(0, SamusPaletteRomData.Death.PaletteCount)
             .Select(_ => new Bgr555[SamusDeathPaletteArtworkCatalog.ColorCount]).ToArray();
         var deathColors = new SamusDeathPaletteArtworkCatalog(

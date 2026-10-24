@@ -396,23 +396,23 @@ public static class SnesGameplayFrameRenderer
         // contains `$3C00` as a screen-sized infinity substitute, but using (±1,0) here is
         // the identical limiting ray and also preserves the dedicated zero-width line.
         if (wrappedAngle == SnesAngle.Zero.TableIndex)
-            return Direction(0, -SamusXrayRomData.Window.UnitVector);
+            return Direction(0, -XrayScopeDefinitions.Window.UnitVector);
         if (wrappedAngle == SnesAngle.QuarterTurn.TableIndex)
-            return Direction(SamusXrayRomData.Window.UnitVector, 0);
+            return Direction(XrayScopeDefinitions.Window.UnitVector, 0);
         if (wrappedAngle == SnesAngle.HalfTurn.TableIndex)
-            return Direction(0, SamusXrayRomData.Window.UnitVector);
+            return Direction(0, XrayScopeDefinitions.Window.UnitVector);
         if (wrappedAngle == SnesAngle.ThreeQuarterTurn.TableIndex)
-            return Direction(-SamusXrayRomData.Window.UnitVector, 0);
+            return Direction(-XrayScopeDefinitions.Window.UnitVector, 0);
 
         int tangentIndex = wrappedAngle & (SnesAngle.HalfTurn.TableIndex - 1);
         int tangent = AbsoluteTangentDefinitions.Sample(tangentIndex);
         if (wrappedAngle < SnesAngle.QuarterTurn.TableIndex)
-            return Direction(tangent, -SamusXrayRomData.Window.UnitVector);
+            return Direction(tangent, -XrayScopeDefinitions.Window.UnitVector);
         if (wrappedAngle < SnesAngle.HalfTurn.TableIndex)
-            return Direction(tangent, SamusXrayRomData.Window.UnitVector);
+            return Direction(tangent, XrayScopeDefinitions.Window.UnitVector);
         if (wrappedAngle < SnesAngle.ThreeQuarterTurn.TableIndex)
-            return Direction(-tangent, SamusXrayRomData.Window.UnitVector);
-        return Direction(-tangent, -SamusXrayRomData.Window.UnitVector);
+            return Direction(-tangent, XrayScopeDefinitions.Window.UnitVector);
+        return Direction(-tangent, -XrayScopeDefinitions.Window.UnitVector);
 
         // One screen-space ray direction; the table's largest tangent ($3C00) fits a signed word.
         static Offset16<ScreenPixels> Direction(int x, int y) => new(checked((short)x), checked((short)y));

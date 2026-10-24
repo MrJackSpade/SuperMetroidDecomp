@@ -40,7 +40,7 @@ internal static class TreadmillPhysicsVerification
             int expected = admitted ? SnesSixteenSixteen.FromWhole((behavior & 1) == 0 ? 2 : -2) : 0x71234;
             SamusInsideBlockReactions.PrepareFrame(level, samus, area, powered);
             AssertEqual(expected, body.ExtraDisplacement.X.RawValue, $"conveyor BTS {behavior}, area {area}, power {powered}, Y {verticalSpeed}");
-            AssertEqual(SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable,
+            AssertEqual(SamusMovementDefinitions.HorizontalMotion.NormalAirSpeedTable,
                 samus.HorizontalSpeed.ActiveSpeedTableBaseAddress, "conveyor inside handler restores normal speed pointer");
             if (admitted)
             {

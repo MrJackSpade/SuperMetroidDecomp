@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
@@ -34,7 +35,7 @@ internal static class SamusHorizontalSpeedStateAccess
     }
 
     /// <summary>The native table words.</summary>
-    extension(SamusMovementRomData.HorizontalMotion)
+    extension(SamusMovementDefinitions.HorizontalMotion)
     {
         /// <summary><c>$90:9F49 kSamusSpeedTable_Normal_X</c>.</summary>
         internal static ushort NormalSpeedTable => NormalSpeedTableWord;
@@ -58,7 +59,7 @@ internal static class SamusHorizontalSpeedStateAccess
         /// <summary>Resolves a movement-type record by its bank-$90 address.</summary>
         internal static bool TryResolveIndexed(int address, out SpeedTableEntry entry)
         {
-            int offset = address - (SamusMovementRomData.Banks.Movement | FirstRowWord);
+            int offset = address - (SamusCartridgeTables.MovementBank | FirstRowWord);
             if (offset < 0 || offset % SpeedTableEntryConstants.ByteCount != 0)
             {
                 entry = default;
@@ -106,7 +107,7 @@ internal static class SamusHorizontalSpeedStateAccess
 
         /// <summary>The bank-$90 address of the entry <paramref name="movementType"/> selects.</summary>
         internal int ResolveEntryAddress(SamusMovementType movementType) =>
-            SamusMovementRomData.Banks.Movement | RowWord(self.ResolveEntryRow(movementType));
+            SamusCartridgeTables.MovementBank | RowWord(self.ResolveEntryRow(movementType));
 
         /// <summary>Executes the base-speed calculation against the standalone record at <paramref name="address"/>.</summary>
         internal uint CalculateBaseSpeedAtAddress(int address)

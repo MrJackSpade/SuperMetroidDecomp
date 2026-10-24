@@ -124,7 +124,7 @@ public static class SamusGroundedMovement
     {
         if (samus.Pose is SamusPoseId.FacingRightNormalPose or SamusPoseId.FacingLeftNormalPose &&
             (controllerInput & SnesButton.X) != 0)
-            SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, 0, SamusMovementRomData.StandingShotAnimationTimer);
+            SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, 0, SamusMovementDefinitions.StandingShotAnimationTimer);
     }
 
     /// <summary>

@@ -2,12 +2,12 @@ using SuperMetroid.Core.Samus.Palettes;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>Immutable cartridge and fixed-layout definitions for the X-ray Scope.</summary>
+/// <summary>The X-ray Scope's definitions: its visor cycle, animation angle bands and window growth (#1411).</summary>
 /// <remarks>
 /// The room state's X-ray pointer remains room-authored data. This catalog owns the shared
 /// palette, angle bands, tangent table, and HDMA-window units used by every room.
 /// </remarks>
-public static class SamusXrayRomData
+public static class XrayScopeDefinitions
 {
     /// <summary>Palette words copied into Samus's visor colors while X-ray is active.</summary>
     public static class Palette

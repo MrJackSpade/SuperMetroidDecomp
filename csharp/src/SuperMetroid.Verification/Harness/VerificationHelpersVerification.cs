@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -148,7 +149,7 @@ internal static class VerificationHelpersVerification
         Ensure.LengthEqual(definition, 8);
 
         bus.WriteBytes(
-            SamusMovementRomData.Poses.Definitions + pose * SamusMovementRomData.Poses.DefinitionByteCount,
+            SamusCartridgeTables.PoseDefinitions + pose * SamusCartridgeTables.PoseDefinitionByteCount,
             definition);
     }
 
@@ -166,7 +167,7 @@ internal static class VerificationHelpersVerification
 
         WriteTestByte(
             bus,
-            SamusMovementRomData.Poses.Definitions + pose * SamusMovementRomData.Poses.DefinitionByteCount + byteOffset,
+            SamusCartridgeTables.PoseDefinitions + pose * SamusCartridgeTables.PoseDefinitionByteCount + byteOffset,
             value);
     }
 
@@ -183,7 +184,7 @@ internal static class VerificationHelpersVerification
     internal static void WriteAnimationDelayStream(TestAddressSpace bus, ushort stream, ReadOnlySpan<byte> delays)
     {
         Ensure.NotNull(bus);
-        bus.WriteBytes(SamusMovementRomData.Banks.Pose | stream, delays);
+        bus.WriteBytes(SamusCartridgeTables.PoseBank | stream, delays);
     }
 
     /// <summary>

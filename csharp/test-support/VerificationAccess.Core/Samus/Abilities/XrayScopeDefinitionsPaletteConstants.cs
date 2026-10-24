@@ -2,8 +2,8 @@ using SuperMetroid.Core.Samus.Palettes;
 namespace SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Palettes;
 
-/// <summary>Cartridge values of <see cref="SamusXrayRomData.Palette"/> that only verification reads.</summary>
-internal static class SamusXrayRomDataPaletteConstants
+/// <summary>Cartridge values of <see cref="XrayScopeDefinitions.Palette"/> that only verification reads.</summary>
+internal static class XrayScopeDefinitionsPaletteConstants
 {
     /// <summary><c>$91:D727</c>, suit-indexed normal Samus palette pointers.</summary>
     /// <remarks>Alias of <see cref="SamusPaletteRomDataCommonConstants.NormalSuitPointers"/>;
@@ -19,16 +19,16 @@ internal static class SamusXrayRomDataPaletteConstants
     public const int VisorWords = SamusPaletteRomData.Visor.Colors;
 
     /// <summary>Provides X-ray palette bank, normal suit pointers, visor words, and suit color count.</summary>
-    extension(SamusXrayRomData.Palette)
+    extension(XrayScopeDefinitions.Palette)
     {
-        /// <inheritdoc cref="SamusXrayRomDataPaletteConstants.NormalSuitPointers"/>
-        internal static int NormalSuitPointers => SamusXrayRomDataPaletteConstants.NormalSuitPointers;
-        /// <inheritdoc cref="SamusXrayRomDataPaletteConstants.PaletteBank"/>
-        internal static int PaletteBank => SamusXrayRomDataPaletteConstants.PaletteBank;
-        /// <inheritdoc cref="SamusXrayRomDataPaletteConstants.SuitColorCount"/>
-        internal static int SuitColorCount => SamusXrayRomDataPaletteConstants.SuitColorCount;
-        /// <inheritdoc cref="SamusXrayRomDataPaletteConstants.VisorWords"/>
-        internal static int VisorWords => SamusXrayRomDataPaletteConstants.VisorWords;
+        /// <inheritdoc cref="XrayScopeDefinitionsPaletteConstants.NormalSuitPointers"/>
+        internal static int NormalSuitPointers => XrayScopeDefinitionsPaletteConstants.NormalSuitPointers;
+        /// <inheritdoc cref="XrayScopeDefinitionsPaletteConstants.PaletteBank"/>
+        internal static int PaletteBank => XrayScopeDefinitionsPaletteConstants.PaletteBank;
+        /// <inheritdoc cref="XrayScopeDefinitionsPaletteConstants.SuitColorCount"/>
+        internal static int SuitColorCount => XrayScopeDefinitionsPaletteConstants.SuitColorCount;
+        /// <inheritdoc cref="XrayScopeDefinitionsPaletteConstants.VisorWords"/>
+        internal static int VisorWords => XrayScopeDefinitionsPaletteConstants.VisorWords;
     }
         /// <summary>First CGRAM color occupied by Samus's OBJ palette.</summary>
         public const int SamusCgramIndex = SamusPaletteRomData.Common.SamusObjPaletteStart;

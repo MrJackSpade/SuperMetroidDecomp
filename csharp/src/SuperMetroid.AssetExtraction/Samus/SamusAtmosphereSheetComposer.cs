@@ -34,7 +34,7 @@ internal static class SamusAtmosphereSheetComposer
         Ensure.NotNull(spritemaps);
         Ensure.NotNull(atmosphere);
         var frames = new List<SheetFrameSource>();
-        for (int frame = 0; frame < SamusMovementRomData.Environment.DirectAtmosphericFrameCount; frame++)
+        for (int frame = 0; frame < SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount; frame++)
         {
             frames.Add(Direct(inputs, atmosphere, SamusAtmosphereSheetDefinitions.FootstepFrame(frame), FootstepType, frame));
             frames.Add(Direct(inputs, atmosphere, SamusAtmosphereSheetDefinitions.LavaAndDustFrame(frame), LavaAndDustType, frame));

@@ -2,14 +2,14 @@
 
 namespace SuperMetroid.Core.Samus.Movement;
 
-/// <summary>Immutable cartridge definitions consumed by Samus movement and pose selection.</summary>
+/// <summary>The definitions Samus's movement and pose selection read: speeds, timers, frames and sentinels (#1411).</summary>
 /// <remarks>
 /// Addresses are grouped by their native subsystem rather than by the C# class that happens
 /// to read them. Full 24-bit addresses use <see cref="int"/>; values stored natively as
 /// same-bank pointers use <see cref="ushort"/> so callers must explicitly supply the bank.
 /// Runtime velocity, timers, and selected pointers do not belong in this catalog.
 /// </remarks>
-public static class SamusMovementRomData
+public static class SamusMovementDefinitions
 {
     /// <summary>$91:F1FC/$F25E ball-landing handlers: signed whole-speed threshold for the first automatic bounce.</summary>
     public const short FirstBallBounceMinimumSpeed = 3;
@@ -24,21 +24,10 @@ public static class SamusMovementRomData
     /// <summary>$90:A58D falling handler: fast-fall timer before the animation tick.</summary>
     public const ushort FastFallAnimationTimer = 8;
 
-    /// <summary>Native ROM banks shared by the movement table families.</summary>
-    public static class Banks
-    {
-        /// <summary>Bank containing physics constants, speed tables, and effects metadata.</summary>
-        public const int Movement = 0x900000;
-    }
 
     /// <summary>Pose definitions, animation lists, and controller-transition streams.</summary>
     public static class Poses
     {
-        /// <summary><c>$91:B629 Samus pose definitions</c>, eight bytes per pose.</summary>
-        public const int Definitions = 0x91b629;
-
-        /// <summary>Native byte width of one pose-definition record.</summary>
-        public const int DefinitionByteCount = 8;
 
         /// <summary>
         /// $FF in pose-definition byte two: $91:82F9 retains the current pose after
@@ -66,11 +55,5 @@ public static class SamusMovementRomData
 
         /// <summary>Four words per authored direct small-OBJ effect list at $90:8C0F/$90:8C17.</summary>
         public const int DirectAtmosphericFrameCount = 4;
-
-        /// <summary>Retail type-one direct small-OBJ attribute list at $90:8C0F.</summary>
-        public const ushort TypeOneAtmosphericAttributes = 0x8c0f;
-
-        /// <summary>Retail shared type-four/six/seven attribute list at $90:8C17.</summary>
-        public const ushort SharedAtmosphericAttributes = 0x8c17;
     }
 }

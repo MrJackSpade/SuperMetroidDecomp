@@ -47,14 +47,14 @@ public static class SamusAtmosphericArtworkFiles
         int table = SamusCartridgeTables.AtmosphericSpriteAttributeListPointers;
         // Only nonzero, authored pointers become extracted assets. Type two's zero
         // pointer is an intentional mutable-memory read, not a missing art record.
-        AssertPointer(bus, table, 1, SamusMovementRomData.Environment.TypeOneAtmosphericAttributes);
+        AssertPointer(bus, table, 1, SamusCartridgeTables.TypeOneAtmosphericAttributes);
         AssertPointer(bus, table, 2, 0);
         foreach (int type in new[] { 4, 6, 7 })
             AssertPointer(bus, table, type,
-                SamusMovementRomData.Environment.SharedAtmosphericAttributes);
+                SamusCartridgeTables.SharedAtmosphericAttributes);
         var document = new ArtworkDocument(FormatVersion,
-            ReadList(bus, SamusMovementRomData.Environment.TypeOneAtmosphericAttributes),
-            ReadList(bus, SamusMovementRomData.Environment.SharedAtmosphericAttributes));
+            ReadList(bus, SamusCartridgeTables.TypeOneAtmosphericAttributes),
+            ReadList(bus, SamusCartridgeTables.SharedAtmosphericAttributes));
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
         File.WriteAllBytes(Path.Combine(directory, ArtworkFileName), bytes);
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
@@ -101,9 +101,9 @@ public static class SamusAtmosphericArtworkFiles
     /// <summary>Imports the four packed attribute words of one native atmospheric list.</summary>
     private static ushort[] ReadList(ISnesAddressSpace bus, ushort pointer)
     {
-        var words = new ushort[SamusMovementRomData.Environment.DirectAtmosphericFrameCount];
+        var words = new ushort[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount];
         for (int frame = 0; frame < words.Length; frame++)
-            words[frame] = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusMovementRomData.Banks.Movement | pointer + frame * 2));
+            words[frame] = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusCartridgeTables.MovementBank | pointer + frame * 2));
         return words;
     }
 

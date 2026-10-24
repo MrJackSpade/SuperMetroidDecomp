@@ -12,7 +12,7 @@ internal static class PauseMomentumVerification
     internal static void VerifyPauseMomentumReconciliation()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        int counterAddress = SamusMovementRomData.HorizontalMotion.SpeedBoostCounterLowBytes;
+        int counterAddress = SamusMovementDefinitions.HorizontalMotion.SpeedBoostCounterLowBytes;
         ushort initialCounter = bus.ReadCartridgeWord(counterAddress);
         foreach (bool equipped in new[] { false, true })
         foreach (bool momentum in new[] { false, true })

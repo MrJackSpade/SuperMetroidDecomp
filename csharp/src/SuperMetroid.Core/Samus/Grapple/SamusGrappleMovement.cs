@@ -1161,7 +1161,7 @@ public static class SamusGrappleMovement
             // Its command-six table entry kills all X/run momentum and the pose-definition
             // byte selects the exact standing/crouching body that existed before locking.
             SamusPoseId fallback = SamusPoseMetadata.ReadNoInputFallbackPose(samus);
-            if (fallback == SamusMovementRomData.Poses.RetainCurrentPoseFallback)
+            if (fallback == SamusMovementDefinitions.Poses.RetainCurrentPoseFallback)
             {
                 throw new InvalidDataException(
                     $"Connected grapple pose ${(int)samus.Pose:X2} has no cancellation fallback.");

@@ -66,8 +66,8 @@ public static class SamusBodyArtworkFiles
         int[] poseFirstFrames = [.. posePointers.Select(BodyFrame)];
         sbyte[] graphicsYOffsets = Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount)
             .Select(pose => unchecked((sbyte)bus.ReadCartridgeByte(
-                SamusMovementRomData.Poses.Definitions +
-                pose * SamusMovementRomData.Poses.DefinitionByteCount + 4)))
+                SamusCartridgeTables.PoseDefinitions +
+                pose * SamusCartridgeTables.PoseDefinitionByteCount + 4)))
             .ToArray();
         var frames = new SamusBodyFrameSelection[SamusBodyArtworkCatalog.FrameCount];
         for (int index = 0; index < frames.Length; index++)

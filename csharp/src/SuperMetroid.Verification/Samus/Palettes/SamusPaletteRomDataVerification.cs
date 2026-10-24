@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Samus.Movement.SamusMovementRomDataVerification;
+using static SuperMetroid.Verification.Samus.Movement.SamusMovementDefinitionsVerification;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Palettes;
 
@@ -22,7 +22,7 @@ internal static class SamusPaletteRomDataVerification
         AssertEqual(
             SamusPaletteRomData.Common.SamusObjPaletteStart +
                 SamusPaletteRomData.Common.VisorColorOffset,
-            SamusXrayRomDataPaletteConstants.VisorCgramIndex,
+            XrayScopeDefinitionsPaletteConstants.VisorCgramIndex,
             "shared visor destination agrees with X-ray catalog");
         AssertEqual(
             SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteCount,

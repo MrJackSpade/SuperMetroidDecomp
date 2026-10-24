@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Samus.Poses.PoseCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Poses.PoseProjectileOriginVerification;
 using static SuperMetroid.Verification.Samus.Hud.SamusHudDefinitionsVerification;
@@ -23,7 +24,7 @@ internal static class PoseDispatchDefinitionsVerification
         Action<SamusState, ISnesAddressSpace> commit = (state, memory) => state.CommitPoseHistory();
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
-            int address = SamusMovementRomData.Poses.Definitions + pose * SamusMovementRomData.Poses.DefinitionByteCount;
+            int address = SamusCartridgeTables.PoseDefinitions + pose * SamusCartridgeTables.PoseDefinitionByteCount;
             byte facing = rom.ReadCartridgeByte(address), movement = rom.ReadCartridgeByte(address + 1), fallback = rom.ReadCartridgeByte(address + 2);
             ISnesAddressSpace source = forbidden;
             samus.Pose = (SamusPoseId)pose;

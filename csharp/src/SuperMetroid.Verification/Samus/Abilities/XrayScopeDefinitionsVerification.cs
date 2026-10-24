@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Samus.Movement.SamusMovementRomDataVerification;
+using static SuperMetroid.Verification.Samus.Movement.SamusMovementDefinitionsVerification;
 using SuperMetroid.Core.Samus.Abilities;
 
 namespace SuperMetroid.Verification.Samus.Abilities;
 
 /// <summary>Audits X-ray angle bands and retail data ranges used by Samus presentation.</summary>
-internal static class SamusXrayRomDataVerification
+internal static class XrayScopeDefinitionsVerification
 {
     /// <summary>
     /// Validates the shared X-ray palette and tangent ranges against the private retail
@@ -16,14 +16,14 @@ internal static class SamusXrayRomDataVerification
     {
         byte[] angleBands =
         [
-            SamusXrayRomData.AnimationAngles.RightFrameOne,
-            SamusXrayRomData.AnimationAngles.RightFrameTwo,
-            SamusXrayRomData.AnimationAngles.RightFrameThree,
-            SamusXrayRomData.AnimationAngles.RightFrameFour,
-            SamusXrayRomData.AnimationAngles.LeftFrameFour,
-            SamusXrayRomData.AnimationAngles.LeftFrameThree,
-            SamusXrayRomData.AnimationAngles.LeftFrameTwo,
-            SamusXrayRomData.AnimationAngles.LeftFrameOne,
+            XrayScopeDefinitions.AnimationAngles.RightFrameOne,
+            XrayScopeDefinitions.AnimationAngles.RightFrameTwo,
+            XrayScopeDefinitions.AnimationAngles.RightFrameThree,
+            XrayScopeDefinitions.AnimationAngles.RightFrameFour,
+            XrayScopeDefinitions.AnimationAngles.LeftFrameFour,
+            XrayScopeDefinitions.AnimationAngles.LeftFrameThree,
+            XrayScopeDefinitions.AnimationAngles.LeftFrameTwo,
+            XrayScopeDefinitions.AnimationAngles.LeftFrameOne,
         ];
         for (int index = 1; index < angleBands.Length; index++)
         {
@@ -32,10 +32,10 @@ internal static class SamusXrayRomDataVerification
         }
 
         AssertEqual(SnesAngle.HalfTurn.TableIndex + 1,
-            SamusXrayRomData.Window.AbsoluteTangentWordCount,
+            XrayScopeDefinitions.Window.AbsoluteTangentWordCount,
             "X-ray absolute tangent table includes both half-turn endpoints");
-        AssertEqual(SamusXrayRomDataPaletteConstants.SamusCgramIndex + 4,
-            SamusXrayRomDataPaletteConstants.VisorCgramIndex,
+        AssertEqual(XrayScopeDefinitionsPaletteConstants.SamusCgramIndex + 4,
+            XrayScopeDefinitionsPaletteConstants.VisorCgramIndex,
             "X-ray visor occupies Samus palette color four");
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -46,13 +46,13 @@ internal static class SamusXrayRomDataVerification
         }
 
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        TouchRange(bus, SamusXrayRomData.Palette.VisorWords,
-            SamusXrayRomData.Palette.FullCycleEndWordOffset,
+        TouchRange(bus, XrayScopeDefinitions.Palette.VisorWords,
+            XrayScopeDefinitions.Palette.FullCycleEndWordOffset,
             "X-ray visor palette words");
-        TouchRange(bus, SamusXrayRomData.Palette.NormalSuitPointers,
+        TouchRange(bus, XrayScopeDefinitions.Palette.NormalSuitPointers,
             3 * sizeof(ushort), "X-ray normal-suit palette pointers");
-        TouchRange(bus, SamusXrayRomData.Window.AbsoluteTangentTable,
-            SamusXrayRomData.Window.AbsoluteTangentWordCount * sizeof(ushort),
+        TouchRange(bus, XrayScopeDefinitions.Window.AbsoluteTangentTable,
+            XrayScopeDefinitions.Window.AbsoluteTangentWordCount * sizeof(ushort),
             "X-ray absolute tangent table");
 
         Console.WriteLine(

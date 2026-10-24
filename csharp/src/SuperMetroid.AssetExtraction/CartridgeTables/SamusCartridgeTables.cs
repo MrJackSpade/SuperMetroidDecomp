@@ -6,6 +6,21 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 [CpuBusBoundary("catalog: Samus cartridge tables")]
 internal static class SamusCartridgeTables
 {
+    /// <summary>Bank $90, which holds Samus's physics constants, speed tables and effects metadata.</summary>
+    internal const int MovementBank = 0x900000;
+
+    /// <summary><c>$91:B629</c>: Samus's pose definitions, eight bytes per pose.</summary>
+    internal const int PoseDefinitions = 0x91b629;
+
+    /// <summary>The bytes of one pose-definition record.</summary>
+    internal const int PoseDefinitionByteCount = 8;
+
+    /// <summary><c>$90:8C0F</c>: the retail type-one direct small-OBJ atmospheric attribute list, bank-local.</summary>
+    internal const ushort TypeOneAtmosphericAttributes = 0x8c0f;
+
+    /// <summary><c>$90:8C17</c>: the shared type-four/six/seven atmospheric attribute list, bank-local.</summary>
+    internal const ushort SharedAtmosphericAttributes = 0x8c17;
+
     /// <summary>
     /// $92:8000-$92:FFFF: Samus animation data — seven-byte body DMA definitions and Samus
     /// spritemaps addressed by bank-local pointers.

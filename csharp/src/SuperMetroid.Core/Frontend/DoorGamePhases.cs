@@ -42,17 +42,17 @@ internal sealed class DoorGamePhases(FrontendSession session)
         if (doorMovementType is
             SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {
-            session.audio.QueueSoundAndGetAccumulator(SoundEffectLibrary1Sounds.StopSpinJump,
+            session.audio.QueueSound(Library1Sound.SpinJumpEnd,
                 maximumQueued: 15, soundSuppressed: doorSoundsSuppressed);
         }
         // `$90:F48A` tests $8B against the shot binding; the action latch holds it as X.
         else if ((session.GameplayRuntime.Controller1.Current & SnesButton.X) == 0 &&
             session.GameplayRuntime.BeamCharge.FlareCounter < 16)
         {
-            session.audio.QueueSoundAndGetAccumulator(SoundEffectLibrary1Sounds.CancelAll,
+            session.audio.QueueSound(Library1Sound.Silence,
                 maximumQueued: 15, soundSuppressed: doorSoundsSuppressed);
         }
-        session.audio.QueueSoundAndGetAccumulator(SoundEffectLibrary2Sounds.CancelAll,
+        session.audio.QueueSound(Library2Sound.Silence,
             maximumQueued: 15, soundSuppressed: doorSoundsSuppressed);
         // $82:E279 follows both entry cancellation commands, not precedes them.
         session.audio.DoorTransitionSoundsDisabled = true;
@@ -77,7 +77,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
             // The cartridge resumes spin audio only after sound admission is
             // restored at the final fade boundary, not on each fade frame.
             if (SamusSpinSoundCommand.Select(session.GameplayRuntime.Player.IntroducedSamus) is { } spinSound)
-                session.audio.QueueSoundAndGetAccumulator(spinSound, maximumQueued: 9,
+                session.audio.QueueSound(spinSound, maximumQueued: 9,
                     soundSuppressed: session.GameplayRuntime.AttractDemo.IsAttractDemo || session.GameplayRuntime.PowerBombExplosionSuppressesSounds);
             session.GameState = SuperMetroidGameState.MainGameplay;
         }
@@ -89,7 +89,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
         if (source.AttractDemo.IsAttractDemo)
             return;
         foreach (var request in source.Room.LoadedScope.Layer3Fx.SoundRequests)
-            session.audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
+            session.audio.QueueSound(request.SoundEffect, request.MaximumQueued,
                 soundSuppressed: request.SoundSuppressed);
     }
 
@@ -99,13 +99,13 @@ internal sealed class DoorGamePhases(FrontendSession session)
         // This coroutine completes no ordinary gameplay publication. Only the
         // owners run by its enemy/draw pass may refill the rings before the test.
         foreach (SoundRequest request in source.Room.LoadedScope.Enemies.Audio.SoundRequests)
-            session.audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
+            session.audio.QueueSound(request.SoundEffect, request.MaximumQueued,
                 soundSuppressed: request.SoundSuppressed);
         foreach (DelayedMusicRequest request in source.Room.LoadedScope.Enemies.Audio.MusicRequests)
             session.audio.QueueMusicDelayed(request.Command, request.Delay);
         if (source.Player.Samus is { } samus)
             foreach (SoundRequest request in samus.LiquidPhysics.SoundRequests)
-                session.audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
+                session.audio.QueueSound(request.SoundEffect, request.MaximumQueued,
                     soundSuppressed: request.SoundSuppressed);
     }
 

@@ -41,9 +41,9 @@ internal sealed class DeathGamePhases(FrontendSession session)
         {
             // `$82:DCE0` cancels all three SFX libraries, then installs the death
             // music data and track through the ordinary delayed music queue.
-            session.audio.QueueSound(SoundEffectLibrary1Sounds.CancelAll, maximumQueued: 15);
-            session.audio.QueueSound(SoundEffectLibrary2Sounds.CancelAll, maximumQueued: 15);
-            session.audio.QueueSound(SoundEffectLibrary3Sounds.CancelAll, maximumQueued: 15);
+            session.audio.QueueSound(Library1Sound.Silence, maximumQueued: 15);
+            session.audio.QueueSound(Library2Sound.Silence, maximumQueued: 15);
+            session.audio.QueueSound(Library3Sound.Silence, maximumQueued: 15);
             session.audio.QueueMusicDelayed8(MusicCommand.Stop);
             session.audio.QueueMusicDelayed8(MusicCommand.LoadData(SamusDeathRomData.Music.DataIndex));
             session.audio.QueueMusicDelayed(MusicCommand.SelectTrack(SamusDeathRomData.Music.TrackIndex), MusicCommandDelay.FromDelayedYArgument(14));

@@ -710,7 +710,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         // C345 calls the ordinary bank-$88 explosion with screen-space coordinates,
         // before replacing the station tilemap. Keep its ROM curves/colors/lifetime.
         stationExplosion.Spawn(new(x, y));
-        audio?.QueueSound(SuperMetroid.Core.Audio.SoundEffectLibrary1Sounds.PowerBombExplosion,
+        audio?.QueueSound(SuperMetroid.Core.Audio.Library1Sound.PowerBombExplosion,
             maximumQueued: 15);
         var cinematicExplosion = new IntroDiscoverySprite(
             new(x, y),

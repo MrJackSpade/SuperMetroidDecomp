@@ -175,13 +175,13 @@ public static class IntroCinematicRomData
         public const byte MaximumQueuedSounds = 6;
         /// <summary>First baby Metroid cry sound.</summary>
         public static readonly SoundEffectId BabyCry1 =
-            new(SoundEffectLibrary.Library3, 0x23);
+            Library3Sound.BabyMetroidCry1;
         /// <summary>Typewriter sound used while narration characters appear.</summary>
         public static readonly SoundEffectId Typewriter =
-            new(SoundEffectLibrary.Library3, 0x0d);
+            Library3Sound.IntroTypewriter;
         /// <summary>Sound played when the baby Metroid hatches.</summary>
         public static readonly SoundEffectId EggHatch =
-            new(SoundEffectLibrary.Library2, 0x0b);
+            Library2Sound.ContactKill;
     }
 
     /// <summary>Record layout consumed by intro text/object streams.</summary>

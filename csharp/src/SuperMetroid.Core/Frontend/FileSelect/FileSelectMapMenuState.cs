@@ -146,20 +146,20 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         // that requests load/cancel and the following load fade.
         if (before is FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested)
         {
-            if (animations.StepPalette(roomGraphics.Palette)) Queue(SoundEffectLibrary3Sounds.MapPaletteLoop);
+            if (animations.StepPalette(roomGraphics.Palette)) Queue(Library3Sound.PauseBeep);
             marker.Step();
             markerDrawn = true;
         }
         if (before == FileSelectMapNavigationPhase.Room && Scroll.Step(input))
-            Queue(SoundEffectLibrary1Sounds.MapScroll);
+            Queue(Library1Sound.MapScroll);
         navigation.Step(input);
         if (Phase != before)
         {
             pendingFrames = 0;
             if (Phase is FileSelectMapNavigationPhase.PreparingWindow or FileSelectMapNavigationPhase.LoadRequested)
-                Queue(SoundEffectLibrary1Sounds.MenuConfirm);
-            if (Phase == FileSelectMapNavigationPhase.ExpandingWindow) Queue(SoundEffectLibrary1Sounds.MapExpand);
-            if (Phase == FileSelectMapNavigationPhase.AreaReturnRequested) Queue(SoundEffectLibrary1Sounds.MapReturn);
+                Queue(Library1Sound.MenuConfirm);
+            if (Phase == FileSelectMapNavigationPhase.ExpandingWindow) Queue(Library1Sound.MapExpand);
+            if (Phase == FileSelectMapNavigationPhase.AreaReturnRequested) Queue(Library1Sound.MapReturn);
             if (Phase == FileSelectMapNavigationPhase.Room)
             {
                 Scroll = CreateScrollForCurrentContent();
@@ -176,7 +176,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
                 if (returnWindow is null)
                 {
                     returnWindow = FileSelectMapWindow.CreateReturn(area, mapPresentation?.Labels);
-                    Queue(SoundEffectLibrary1Sounds.MapReturn);
+                    Queue(Library1Sound.MapReturn);
                 }
                 else if (returnWindow.Step())
                 {

@@ -82,13 +82,13 @@ public static class GameOverRomData
 
         /// <summary>Typed library-three sound $23 emitted by the first cry opcode, distinct from its bank-$82 instruction address.</summary>
         public static readonly SoundEffectId Cry23 =
-            new(SoundEffectLibrary.Library3, 0x23);
+            Library3Sound.BabyMetroidCry1;
         /// <summary>Typed library-three sound $26 emitted by the second cry opcode, distinct from its bank-$82 instruction address.</summary>
         public static readonly SoundEffectId Cry26 =
-            new(SoundEffectLibrary.Library3, 0x26);
+            Library3Sound.BabyMetroidCry2;
         /// <summary>Typed library-three sound $27 emitted by the third cry opcode, distinct from its bank-$82 instruction address.</summary>
         public static readonly SoundEffectId Cry27 =
-            new(SoundEffectLibrary.Library3, 0x27);
+            Library3Sound.BabyMetroidCry3;
     }
 
     /// <summary>Game-over music data set and track selected by the state machine.</summary>

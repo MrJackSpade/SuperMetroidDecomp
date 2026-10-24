@@ -342,7 +342,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
         if (FileSelectItemRows.TryGetSaveSlot(SelectedItem, out _))
         {
-            audio?.QueueSound(SoundEffectLibrary1Sounds.FileSelectSwoosh, maximumQueued: 6);
+            audio?.QueueSound(Library1Sound.FileSelected, maximumQueued: 6);
             // `menu_index += 27` enters index 31 and enables only the selected helmet.
             HelmetAnimationFrame = 0;
             helmetAnimationTimer = 1;
@@ -564,7 +564,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         if ((pressed & (SnesButton.Start | SnesButton.A)) == 0)
             return;
 
-        audio?.QueueSound(SoundEffectLibrary1Sounds.MenuConfirm, maximumQueued: 6);
+        audio?.QueueSound(Library1Sound.MenuConfirm, maximumQueued: 6);
         if (confirmationSelection != YesNoChoice.Yes)
         {
             ReturnFromConfirmation(mode);
@@ -689,7 +689,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
     /// <summary>Queues the menu cursor sound with the native six-request limit.</summary>
     private void QueueCursorSound() =>
-        audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
+        audio?.QueueSound(Library1Sound.MenuCursor, maximumQueued: 6);
 
     /// <summary>Rebinds host-owned file-select visuals after debugger-state restoration.</summary>
     public void BindMapPresentation([NotNull] AreaMapPresentationCatalog? catalog)

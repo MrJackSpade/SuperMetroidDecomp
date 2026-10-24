@@ -157,7 +157,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 // black and $81:8D1D blanks it and waits for NMI before configuring the menu.
                 if (brightness != 0)
                     throw new InvalidOperationException("Game-over menu must begin from a black screen.");
-                audio.QueueSound(SoundEffectLibrary3Sounds.CancelAll, maximumQueued: GameOverRomData.MaximumQueuedSounds);
+                audio.QueueSound(Library3Sound.Silence, maximumQueued: GameOverRomData.MaximumQueuedSounds);
                 ResumesAfterFrameWait = true;
                 break;
 
@@ -195,7 +195,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 if ((pressed & (SnesButton.Select | SnesButton.Up | SnesButton.Down)) != 0)
                 {
                     audio.QueueSound(
-                        SoundEffectLibrary1Sounds.MenuCursor,
+                        Library1Sound.MenuCursor,
                         maximumQueued: GameOverRomData.MaximumQueuedSounds);
                     SelectedItem = SelectedItem == YesNoChoice.Yes ? YesNoChoice.No : YesNoChoice.Yes;
                 }

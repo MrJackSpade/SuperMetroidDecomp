@@ -13,7 +13,7 @@ internal static class SuitPickupBeamWindowBuilder
     internal static ushort[] Build(SamusSuitPickupBeam beam)
     {
         int lines = SuitPickupBeamDefinitions.WindowScanlineCount;
-        ushort empty = SuitPickupBeamDefinitions.EmptyWindowEndpoints;
+        ushort empty = SuitPickupBeamDefinitions.EmptyWindow.Word;
         var windows = new ushort[lines];
         Array.Fill(windows, empty);
         // Window registers hold eight-bit columns; the beam's columns are always 0 through 255.

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
@@ -12,7 +13,7 @@ public static class MorphBallBombDefinitions
     public const ushort NormalBombType = 0x0500;
 
     /// <summary>Bomb-spread projectile type written by <c>BombSpread</c> at $90:D849.</summary>
-    public const ushort BombSpreadType = 0x8500;
+    public const ushort BombSpreadType = SamusProjectileTypeWord.LiveMarker | (ushort)SamusProjectileFamily.Bomb;
 
     /// <summary>Power-bomb projectile type formed from HUD item index three.</summary>
     public const ushort PowerBombType = 0x0300;

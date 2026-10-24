@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 
@@ -50,9 +51,9 @@ public static class PowerBombExplosionDefinitions
     /// <summary>Bytes occupied by one ellipse definition: 192 one-byte pixel-row widths.</summary>
     public const ushort ShapeStride = 192;
     /// <summary>Radius at which white pre-explosion becomes yellow.</summary>
-    public const ushort PreExplosionWhiteLimit = 0x9200;
+    public static readonly PowerBombRadius PreExplosionWhiteLimit = PowerBombRadius.FromWholePixels(146);
     /// <summary>Radius at which yellow explosion switches to white shapes.</summary>
-    public const ushort ExplosionYellowLimit = 0x8600;
+    public static readonly PowerBombRadius ExplosionYellowLimit = PowerBombRadius.FromWholePixels(134);
     /// <summary>Crystal Flash's shorter explosion radius limit.</summary>
     public const ushort CrystalFlashRadiusLimit = 0x2000;
     /// <summary>

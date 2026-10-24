@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
@@ -265,14 +266,14 @@ public sealed class SamusSuitPickupState
         // comparison with 128 is this ordinary one.
         _lightBeamScanlines += 8;
         Beam = new(SamusSuitPickupBeamShape.GrowingFromEdges,
-            ScreenColumn(SnesLittleEndian.LowByte(SuitPickupBeamDefinitions.NarrowBeamEndpoints)),
-            ScreenColumn(SnesLittleEndian.HighByte(SuitPickupBeamDefinitions.NarrowBeamEndpoints)),
+            ScreenColumn(SuitPickupBeamDefinitions.NarrowBeamEdges.Left),
+            ScreenColumn(SuitPickupBeamDefinitions.NarrowBeamEdges.Right),
             _lightBeamScanlines);
 
         if (_lightBeamScanlines >= 128)
         {
             Stage = SamusSuitPickupStage.UniformWidening;
-            SetLightBeamEdges(SuitPickupBeamDefinitions.NarrowBeamEndpoints);
+            SetLightBeamEdges(SuitPickupBeamDefinitions.NarrowBeamEdges);
         }
     }
 
@@ -321,7 +322,7 @@ public sealed class SamusSuitPickupState
         Beam = new(SamusSuitPickupBeamShape.CurvedColumn, _lightBeamLeft, _lightBeamRight, 0);
 
         LightBeamWideningVelocity += WideningVelocity(SuitPickupBeamDefinitions.WideningAcceleration);
-        if (SnesLittleEndian.Word(left, right) == SuitPickupBeamDefinitions.FullScreenEndpoints)
+        if (new WindowEdges(left, right) == SuitPickupBeamDefinitions.FullScreenWindow)
         {
             Stage = SamusSuitPickupStage.RevealSuit;
             // The unsigned speed halves, truncating its lowest fraction bit.
@@ -406,11 +407,11 @@ public sealed class SamusSuitPickupState
         IsActive = false;
     }
 
-    /// <summary>Starts a column stage at the authored edge pair: the left column in the low byte, the right in the high byte.</summary>
-    private void SetLightBeamEdges(ushort edgeColumns)
+    /// <summary>Starts a column stage at the authored edge pair.</summary>
+    private void SetLightBeamEdges(WindowEdges edges)
     {
-        _lightBeamLeft = ScreenColumn(SnesLittleEndian.LowByte(edgeColumns));
-        _lightBeamRight = ScreenColumn(SnesLittleEndian.HighByte(edgeColumns));
+        _lightBeamLeft = ScreenColumn(edges.Left);
+        _lightBeamRight = ScreenColumn(edges.Right);
     }
 
     /// <summary>The screen position of window column <paramref name="column"/>; only X is meaningful.</summary>

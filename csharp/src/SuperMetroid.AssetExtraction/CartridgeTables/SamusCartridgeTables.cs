@@ -6,6 +6,15 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 [CpuBusBoundary("catalog: Samus cartridge tables")]
 internal static class SamusCartridgeTables
 {
+    /// <summary>$9A:D900 contains OBJ tiles $38..$3F: ice and wave trail frames.</summary>
+    internal const int ProjectileTrailIceWaveTiles = 0x9ad900;
+
+    /// <summary>$9A:DB00 contains OBJ tiles $48..$4B: missile and Super Missile trail frames.</summary>
+    internal const int ProjectileTrailMissileTiles = 0x9adb00;
+
+    /// <summary>$94:B13D: immediate endpoint attributes in DrawGrappleBeamEnd_NotConnected.</summary>
+    internal const int GrappleEndpointAttributes = 0x94b13d;
+
     /// <summary>Bank <c>$9B</c>, which owns Samus BGR555 color data.</summary>
     internal const int PaletteBank = 0x9b0000;
 

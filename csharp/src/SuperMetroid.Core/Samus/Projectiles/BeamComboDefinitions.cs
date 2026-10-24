@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Native identities and definition tables for bank-$90 special beam attacks.</summary>
@@ -18,7 +19,7 @@ public static class BeamComboDefinitions
     /// <summary>ProjPreInstr_WaveSba ($90:DA08) library-one oscillator pulse request.</summary>
     public const ushort WavePulseSound = 0x28;
     /// <summary>FireSBA's charged, non-interacting projectile type tag.</summary>
-    public const ushort ProjectileTag = 0x8010;
+    public const ushort ProjectileTag = SamusProjectileTypeWord.LiveMarker | SamusProjectileTypeWord.ChargedBeamMarker;
     /// <summary>FireSpazerSBA's auxiliary trail projectile type.</summary>
-    public const ushort SpazerTrailType = 0x8024;
+    public const ushort SpazerTrailType = SamusProjectileTypeWord.LiveMarker | 0x24;
 }

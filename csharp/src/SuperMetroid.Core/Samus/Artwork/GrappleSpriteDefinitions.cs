@@ -9,8 +9,6 @@ public static class GrappleSpriteDefinitions
     public const string FileName = "grapple-sprites.json";
     /// <summary>Supported revision of the endpoint-plus-four-segment visual attribute schema.</summary>
     public const int Version = 1;
-    /// <summary>$94:B13D: immediate endpoint attributes in DrawGrappleBeamEnd_NotConnected.</summary>
-    public const int EndpointAttributeAddress = 0x94b13d;
     /// <summary>$94:B18D/B191/B195/B199: visual attribute words in the four timed segment records.</summary>
     public static SegmentAddressList SegmentAttributeAddresses => default;
 

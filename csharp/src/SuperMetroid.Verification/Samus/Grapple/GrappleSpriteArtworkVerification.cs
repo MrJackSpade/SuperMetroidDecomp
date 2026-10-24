@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -26,7 +27,7 @@ internal static class GrappleSpriteArtworkVerification
         byte[] json = GrappleSpriteExtractor.Extract(bus);
         byte[] png = GrappleTileExtractor.Extract(bus);
         var catalog = GrappleSpriteCatalog.Load(new MemoryStream(json));
-        AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GrappleSpriteDefinitions.EndpointAttributeAddress), catalog.Endpoint, "Extracted endpoint attributes match native immediate");
+        AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusCartridgeTables.GrappleEndpointAttributes), catalog.Endpoint, "Extracted endpoint attributes match native immediate");
         for (int i = 0; i < 4; i++)
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GrappleSpriteDefinitions.SegmentAttributeAddresses[i]), catalog.Segment(i), "Extracted segment attributes match timed native record");
         // The installed grapple sheet composes each frame from the installed appearances, which match the cartridge above:

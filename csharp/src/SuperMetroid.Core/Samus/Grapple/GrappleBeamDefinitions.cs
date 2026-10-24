@@ -72,8 +72,8 @@ public static class GrappleBeamDefinitions
         public const int FirstSegmentSlot = 15;
         /// <summary>$94:B016/B025, DrawGrappleBeam: center an eight-pixel character on its beam coordinate.</summary>
         public const int CharacterCenterOffset = 4;
-        /// <summary>$94:B07A, DrawGrappleBeam: reject a segment if either coordinate has any high-byte bits.</summary>
-        public const int SegmentOutsideViewportMask = 0xff00;
+        /// <summary>$94:B07A, DrawGrappleBeam: a segment is off screen when either whole coordinate reaches this extent.</summary>
+        public const int ViewportExtent = 256;
         /// <summary>$94:B18B-B197: each rope animation record lasts five visits to its slot.</summary>
         public const ushort SegmentAnimationDelay = 5;
         /// <summary>$94:B18B-B197: four successive rope animation records before the goto.</summary>

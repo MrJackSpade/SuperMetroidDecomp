@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Abilities;
@@ -6,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public static class ShinesparkEchoDefinitions
 {
     /// <summary>$90:D40D writes type $8029 before InitializeShinesparkEchoOrSpazerSba.</summary>
-    public const ushort EchoType = 0x8029;
+    public const ushort EchoType = SamusProjectileTypeWord.LiveMarker | 0x29;
     /// <summary>
     /// $90:D4C6..D4D1, indexed by (pose - $C9) * 2: the crash's two echo angle indices. The six
     /// crash poses select an axis and its opposite.

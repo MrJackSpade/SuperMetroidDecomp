@@ -245,7 +245,7 @@ public static class SamusGrappleBeamDrawing
             ushort screenY = SnesFixedPosition.WholeOf(screenYFixed);
             // Native ticks this slot before the visibility check, then abandons
             // the remaining rope slots entirely at the first off-screen segment.
-            if (((screenX | screenY) & GrappleBeamDefinitions.Rendering.SegmentOutsideViewportMask) != 0)
+            if ((screenX | screenY) >= GrappleBeamDefinitions.Rendering.ViewportExtent)
                 break;
             // `$94:AFDE`'s direction flips are ORed into the segment's own; the sheet holds each combination.
             SpriteSheetFrame image = installed.Frame(SuperMetroid.Core.Samus.Artwork.GrappleSheetDefinitions.RopeFrame(

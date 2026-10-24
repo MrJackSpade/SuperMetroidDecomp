@@ -291,7 +291,7 @@ public sealed class SamusPowerBombExplosionState
         // $88:90DF uses wrapping 16-bit addition. It subtracts acceleration only while
         // the newly computed radius is still below $9200.
         PreExplosionRadius = AdvanceRadiusWrapping(PreExplosionRadius);
-        if (PreExplosionRadius.RawValue < PowerBombExplosionDefinitions.PreExplosionWhiteLimit)
+        if (PreExplosionRadius.RawValue < PowerBombExplosionDefinitions.PreExplosionWhiteLimit.RawValue)
         {
             RadiusSpeed = RadiusSpeed.WrappingSubtract(PowerBombExplosionDefinitions.PreExplosionAcceleration);
             return;
@@ -369,7 +369,7 @@ public sealed class SamusPowerBombExplosionState
             ExplosionRadius.WholePixels >> 3);
 
         ExplosionRadius = AdvanceRadiusWrapping(ExplosionRadius);
-        if (ExplosionRadius.RawValue < PowerBombExplosionDefinitions.ExplosionYellowLimit)
+        if (ExplosionRadius.RawValue < PowerBombExplosionDefinitions.ExplosionYellowLimit.RawValue)
         {
             RadiusSpeed = RadiusSpeed.WrappingAdd(PowerBombExplosionDefinitions.ExplosionAcceleration);
             return;

@@ -43,6 +43,10 @@ public readonly record struct SnesAngle : IComparable<SnesAngle>
     public static SnesAngle FromTableIndex(byte tableIndex) =>
         new(unchecked((ushort)(tableIndex << 8)));
 
+    /// <summary>A 256-unit turn value with a fractional low byte, in 1/256 table units.</summary>
+    public static SnesAngle FromTableIndex(byte tableIndex, byte fraction) =>
+        new(unchecked((ushort)(tableIndex << 8 | fraction)));
+
     /// <summary>Normalizes an arbitrary raw angle through native 16-bit wraparound.</summary>
     public static SnesAngle NormalizeRaw(int rawValue) => new(unchecked((ushort)rawValue));
 

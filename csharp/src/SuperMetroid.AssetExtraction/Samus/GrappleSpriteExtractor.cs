@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -29,7 +30,7 @@ public static class GrappleSpriteExtractor
         return GrappleSpriteCatalog.Write(new()
         {
             Version = GrappleSpriteDefinitions.Version,
-            Endpoint = Read(GrappleSpriteDefinitions.EndpointAttributeAddress),
+            Endpoint = Read(SamusCartridgeTables.GrappleEndpointAttributes),
             Segments = GrappleSpriteDefinitions.SegmentAttributeAddresses.Select(Read).ToArray(),
         });
     }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Progression;
@@ -36,8 +37,8 @@ public sealed class RoomSandAnimatedTilesState
     }
 
     /// <summary>Advances the shared timed-list interpreter and queues the ROM-authored character frames for NMI.</summary>
-    public void Step(VramWriteQueue writes)
+    public void Step(ArtworkFrameSelections frames)
     {
-        foreach (var animation in objects) animation.Step(null, writes);
+        foreach (var animation in objects) animation.Step(frames);
     }
 }

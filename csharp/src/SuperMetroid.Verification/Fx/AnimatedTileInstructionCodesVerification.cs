@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Hardware;
@@ -120,26 +121,23 @@ internal static class AnimatedTileInstructionCodesVerification
             WreckedShipTreadmillMechanicsDefinitions.ForDirection(direction);
         var guarded = NewWreckedShipTreadmillMechanicsForbiddenBus(bus, definition, out StrongBox<int> guardedPresentationReads);
         var state = new WreckedShipTreadmillAnimatedTilesState();
-        var writes = new VramWriteQueue();
+        var frames = new ArtworkFrameSelections();
         state.Start(direction);
-        state.Step(areaBossDefeated: false, writes);
-        AssertEqual(0, writes.Entries.Count, $"{direction} retail boss wait");
+        state.Step(areaBossDefeated: false, frames);
+        AssertTrue(!frames.TryShown(AnimatedTileFrames.Of(definition.AnimatedObject), out _), $"{direction} retail boss wait");
 
         for (int frame = 0; frame < expectedSources.Length; frame++)
         {
-            state.Step(areaBossDefeated: true, writes);
-            VramWriteEntry entry = writes.Entries[frame];
-            AssertEqual(expectedSources[frame], entry.SourceAddress,
+            state.Step(areaBossDefeated: true, frames);
+            AssertEqual(expectedSources[frame], state.LastSourceAddress,
                 $"{direction} retail source frame {frame}");
-            AssertEqual(WreckedShipTreadmillRomData.TransferByteCount, entry.SizeInBytes,
-                $"{direction} retail transfer size {frame}");
-            AssertEqual(WreckedShipTreadmillRomData.EncodedVramDestination,
-                entry.Destination.Encoded,
-                $"{direction} retail VRAM destination {frame}");
+            AssertTrue(frames.TryShown(AnimatedTileFrames.Of(definition.AnimatedObject), out ArtworkFrame shown) &&
+                    shown == AnimatedTileFrames.Frame(definition.AnimatedObject, frame),
+                $"{direction} retail frame {frame} is the frame the treadmill shows");
         }
 
-        state.Step(areaBossDefeated: true, writes);
-        AssertEqual(expectedSources[0], writes.Entries[^1].SourceAddress,
+        state.Step(areaBossDefeated: true, frames);
+        AssertEqual(expectedSources[0], state.LastSourceAddress,
             $"{direction} compiled goto returns to frame zero");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"{direction} performs no treadmill mechanics ROM reads");

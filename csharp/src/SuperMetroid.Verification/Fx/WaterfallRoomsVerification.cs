@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rendering;
@@ -34,7 +35,7 @@ internal static class WaterfallRoomsVerification
             if (runtime.RoomLayer3Fx.LayerBlendConfiguration != LayerBlendingConfiguration.WaterfallSubtractive)
                 throw new InvalidDataException($"Reported waterfall room {room:X4} lost configuration $16.");
             runtime.GameplayWindows.PrepareGameplayWindowRegisters(runtime.Room.LoadedScope);
-            runtime.RoomLayer3Fx.Step(runtime.BgArtwork, new RoomLayer3FxFrame { Camera = runtime.Room.LoadedCamera.PixelPosition, TimeIsFrozen = false, MainGameLoopCarry = true });
+            runtime.RoomLayer3Fx.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomLayer3FxFrame { Camera = runtime.Room.LoadedCamera.PixelPosition, TimeIsFrozen = false, MainGameLoopCarry = true });
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             var registers = runtime.GameplayWindows.DisplayedGameplayWindowRegisters;
             AssertEqual(SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj, registers.MainScreen, "waterfall native TM");

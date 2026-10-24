@@ -87,7 +87,7 @@ internal static class InstalledSporesTests
             records++;
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
             byte[] initialRam = memory.WorkRam.ToArray();
-            var baselineVram = new SnesVram(); var editedVram = new SnesVram();
+            var baselineFrames = new ArtworkFrameSelections(); var editedFrames = new ArtworkFrameSelections();
             var colors = new GameplayColours(new SpriteColourSets()); var editedColors = new GameplayColours(new SpriteColourSets());
             RoomLayer3FxState baseline = RoomLayer3FxState.ForDefinition(Create(stock), colors, definition, 0);
             RoomLayer3FxState replacement = RoomLayer3FxState.ForDefinition(Create(edited), editedColors, definition, 0);
@@ -106,8 +106,8 @@ internal static class InstalledSporesTests
                 bool frozen = frame is >= 37 and < 45;
                 var camera = new Position16<RoomPixels>(unchecked((ushort)(frame * 79)), unchecked((ushort)(65520 + frame * 3)));
                 RoomLayer3FxRenderSnapshot before = (baseline.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires baseline.CaptureForDisplay()."));
-                baseline.Step(BgArtworkFixtures.For(baselineVram), new RoomLayer3FxFrame { Camera = camera, TimeIsFrozen = frozen, MainGameLoopCarry = false });
-                replacement.Step(BgArtworkFixtures.For(editedVram), new RoomLayer3FxFrame { Camera = camera, TimeIsFrozen = frozen, MainGameLoopCarry = false });
+                baseline.Step(baselineFrames, new RoomLayer3FxFrame { Camera = camera, TimeIsFrozen = frozen, MainGameLoopCarry = false });
+                replacement.Step(editedFrames, new RoomLayer3FxFrame { Camera = camera, TimeIsFrozen = frozen, MainGameLoopCarry = false });
                 var capture = (baseline.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires baseline.CaptureForDisplay()."));
                 if (frozen) Require(capture == before, "Frozen spores changed scroll or phase.");
                 else
@@ -119,11 +119,12 @@ internal static class InstalledSporesTests
                         mechanics.Frames[tick / 10 % 3].InstructionPointer);
                     Require(stock.RoomFxAnimatedTiles.TryResolve(source, 48, out var expected), "Missing stock spores frame.");
                     Require(edited.RoomFxAnimatedTiles.TryResolve(source, 48, out var altered), "Missing edited spores frame.");
-                    // Animated frames are bound over the background image rather than copied into VRAM.
-                    Require(BgArtworkFixtures.Composed(baselineVram).AsSpan(0x4280 * 2, 48).SequenceEqual(expected.Span),
-                        "Stock spore cadence/DMA differs.");
-                    Require(BgArtworkFixtures.Composed(editedVram).AsSpan(0x4280 * 2, 48).SequenceEqual(altered.Span),
-                        "Edited spore cadence/DMA differs.");
+                    // Animated frames are selected, and the room's BG3 pictures show the selected frame (#1406).
+                    ArtworkFrame cadence = AnimatedTileFrames.Frame(AnimatedTileObject.Spores, tick / 10 % 3);
+                    Require(baselineFrames.TryShown(AnimatedTileFrames.Of(AnimatedTileObject.Spores), out ArtworkFrame stockShown) && stockShown == cadence,
+                        "Stock spore cadence differs.");
+                    Require(editedFrames.TryShown(AnimatedTileFrames.Of(AnimatedTileObject.Spores), out ArtworkFrame editedShown) && editedShown == cadence,
+                        "Edited spore cadence differs.");
                     if (!expected.Span.SequenceEqual(altered.Span)) alteredTransfers++;
                     tick++;
                 }

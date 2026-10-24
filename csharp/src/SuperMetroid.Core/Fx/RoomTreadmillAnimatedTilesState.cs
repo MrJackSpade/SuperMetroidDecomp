@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Progression;
@@ -51,8 +52,8 @@ public sealed class RoomTreadmillAnimatedTilesState
     }
 
     /// <summary>Runs each selected native list; its boss wait gates graphics independently of floor collision.</summary>
-    public void Step(bool areaBossDefeated, VramWriteQueue writes)
+    public void Step(bool areaBossDefeated, ArtworkFrameSelections frames)
     {
-        foreach (var animation in objects) animation.Step(areaBossDefeated, writes);
+        foreach (var animation in objects) animation.Step(areaBossDefeated, frames);
     }
 }

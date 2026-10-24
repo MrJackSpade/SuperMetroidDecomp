@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Fx;
@@ -5,8 +6,8 @@ namespace SuperMetroid.Core.Fx;
 /// <summary>
 /// Runs the two animated-tile objects spawned by Wrecked Ship entrance door setup. The door
 /// chooses a direction; the object then waits for Phantoon's area-boss bit and afterwards
-/// shows its four treadmill frames in a loop, one frame per pass, each a transfer of the frame's
-/// art to the treadmill's tiles for the following NMI.
+/// shows its four treadmill frames in a loop, one frame per pass, each selected as the frame its treadmill's tiles show
+/// (#1406).
 /// </summary>
 [RoomLifetime]
 public sealed class WreckedShipTreadmillAnimatedTilesState
@@ -16,10 +17,6 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     /// <summary>Whether the object is still waiting for Phantoon's area-boss bit before its first frame.</summary>
     private bool _waitingForAreaBoss;
 
-    /// <summary>The queued-DMA destination the treadmill object's native word decodes to.</summary>
-    [PpuLayoutBoundary("codec: Wrecked Ship treadmill animated-tile object's native VRAM destination")]
-    private static VramDmaDestination Destination =>
-        VramDmaDestination.FromNative(WreckedShipTreadmillRomData.EncodedVramDestination);
     /// <summary>The selected direction's object definition, which names its frame art.</summary>
     private WreckedShipTreadmillObjectDefinition? _compiledMechanics;
 
@@ -76,9 +73,9 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     /// </summary>
     public void Step(
         bool areaBossDefeated,
-        VramWriteQueue writes)
+        ArtworkFrameSelections frames)
     {
-        Ensure.NotNull(writes);
+        Ensure.NotNull(frames);
         LastSourceAddress = null;
         if (!IsActive)
             return;
@@ -102,10 +99,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         _instructionTimer = WrappingCountdown.Start(WreckedShipTreadmillMechanicsDefinitions.FrameDuration);
         int source = definition.FrameSource(NextFrameIndex);
         LastSourceAddress = source;
-        writes.EnqueueBackground(
-            WreckedShipTreadmillRomData.TransferByteCount,
-            source,
-            Destination);
+        frames.Select(AnimatedTileFrames.Frame(definition.AnimatedObject, NextFrameIndex));
         NextFrameIndex = (NextFrameIndex + 1) % WreckedShipTreadmillMechanicsDefinitions.FrameCount;
     }
 }

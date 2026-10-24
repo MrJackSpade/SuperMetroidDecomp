@@ -62,6 +62,8 @@ internal static class RoomBlockUploads
                     throw new InvalidDataException($"Tileset {tileset} is loaded both inside and outside Ceres.");
                 foreach (BgCharacterUpload upload in Of(inputs, room, state).Where(Overlaps))
                     uploads.Add(upload);
+                foreach (AnimatedCharacterUpload frame in AnimatedFrames(inputs, room, state).Where(frame => Overlaps(frame.Upload)))
+                    uploads.AddAnimated(frame);
                 if (state.EnemyPopulation.Records.Span.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Crocomire))
                 {
                     foreach (AnimatedCharacterUpload frame in CrocomireMeltBandFrames(inputs))
@@ -122,9 +124,25 @@ internal static class RoomBlockUploads
         return tilesets;
     }
 
-    /// <summary>What one state of a room binds after it loads, collectibles aside.</summary>
-    [PpuLayoutBoundary("codec: the VRAM words a room's animated tiles, library backgrounds and Kraid's backdrop bind at")]
+    /// <summary>What one state of a room binds after it loads, collectibles and animations aside: Kraid's backdrop.</summary>
+    [PpuLayoutBoundary("codec: the VRAM words Kraid's backdrop binds at")]
     private static IEnumerable<BgCharacterUpload> Of(RoomBlockSheetInputs inputs, RoomHeaderDefinition room, CartridgeRoomState state)
+    {
+        if (state.EnemyPopulation.Records.Span.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Kraid))
+        {
+            yield return new BgCharacterUpload(KraidBehavior.KraidRoomBackgroundIdentity, BossVramLayout.KraidRoomBackgroundTiles.Offset,
+                (inputs.Bosses.KraidBackground ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters."))
+                    .RoomBackgroundTiles.Characters);
+        }
+    }
+
+    /// <summary>
+    /// The frames one state of a room's animations paint over the block characters (#1406): its room effects' animated
+    /// tiles and the Tourian statues' pictures.
+    /// </summary>
+    [PpuLayoutBoundary("codec: the VRAM words a room's animated tiles and the Tourian statues' pictures land on")]
+    private static IEnumerable<AnimatedCharacterUpload> AnimatedFrames(RoomBlockSheetInputs inputs, RoomHeaderDefinition room,
+        CartridgeRoomState state)
     {
         foreach (RoomFxRecordDefinition record in state.Fx?.Records ?? [])
         {
@@ -132,8 +150,8 @@ internal static class RoomBlockUploads
             {
                 if ((record.AnimatedTileBitset & (1 << bit)) == 0)
                     continue;
-                foreach (BgCharacterUpload upload in AnimatedTiles(inputs, AreaAnimatedTileObjectDefinitions.Read(room.AreaIndex, bit)))
-                    yield return upload;
+                foreach (AnimatedCharacterUpload frame in AnimatedTiles(inputs, AreaAnimatedTileObjectDefinitions.Read(room.AreaIndex, bit)))
+                    yield return frame;
             }
         }
         if (state.SetupCallback == RoomSetupCallback.RunStatueUnlockingAnimations)
@@ -142,17 +160,10 @@ internal static class RoomBlockUploads
             {
                 foreach (TourianStatueTilePicture picture in TourianStatueTileStripDefinitions.Pictures)
                 {
-                    var source = new TourianStatuePictureCharacters(statue.AnimatedObject, picture);
-                    yield return new BgCharacterUpload(new BgArtworkIdentity(source.ToString()), statue.Destination.Word,
+                    yield return new AnimatedCharacterUpload(AnimatedTileFrames.Picture(statue.AnimatedObject, picture), statue.Destination.Word,
                         Frame(inputs, TourianStatueTileStripDefinitions.SourceAddress(statue.AnimatedObject, picture), statue.TransferByteCount));
                 }
             }
-        }
-        if (state.EnemyPopulation.Records.Span.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Kraid))
-        {
-            yield return new BgCharacterUpload(KraidBehavior.KraidRoomBackgroundIdentity, BossVramLayout.KraidRoomBackgroundTiles.Offset,
-                (inputs.Bosses.KraidBackground ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters."))
-                    .RoomBackgroundTiles.Characters);
         }
     }
 
@@ -284,15 +295,16 @@ internal static class RoomBlockUploads
             .Where(RoomLayer3FxState.ShowsPage).Distinct();
 
     /// <summary>Each frame a room effect of <paramref name="type"/> animates over BG3's characters.</summary>
-    internal static IEnumerable<BgCharacterUpload> EffectCharacters(RoomBlockSheetInputs inputs, RoomFxType type)
+    [PpuLayoutBoundary("codec: the VRAM words a room effect's animated tiles land on")]
+    internal static IEnumerable<AnimatedCharacterUpload> EffectCharacters(RoomBlockSheetInputs inputs, RoomFxType type)
     {
         AnimatedTileObject animatedObject = RoomFxAnimatedTilesState.ObjectOf(type);
         if (animatedObject == AnimatedTileObject.None)
             yield break;
         RoomFxAnimatedTileObjectDefinition mechanics = RoomFxAnimatedTileMechanicsDefinitions.Require(animatedObject);
-        foreach (RoomFxAnimatedTileFrameDefinition frame in mechanics.Frames)
-            yield return Transfer(inputs, RoomFxAnimatedTileArtworkDefinitions.SourceAddress(mechanics, frame), mechanics.TransferByteCount,
-                VramDmaDestination.FromNative(mechanics.EncodedVramDestination).Word);
+        for (int frame = 0; frame < mechanics.Frames.Count; frame++)
+            yield return Animated(inputs, animatedObject, frame, RoomFxAnimatedTileArtworkDefinitions.SourceAddress(mechanics, mechanics.Frames[frame]),
+                mechanics.TransferByteCount, VramDmaDestination.FromNative(mechanics.EncodedVramDestination).Word);
     }
 
     /// <summary>
@@ -341,27 +353,29 @@ internal static class RoomBlockUploads
         return content;
     }
 
-    /// <summary>Each frame an animated-tile object the port runs uploads; none for an object it does not animate.</summary>
-    private static IEnumerable<BgCharacterUpload> AnimatedTiles(RoomBlockSheetInputs inputs, AnimatedTileObject animatedObject)
+    /// <summary>Each frame an animated-tile object the port runs shows; none for an object it does not animate.</summary>
+    [PpuLayoutBoundary("codec: the VRAM words an animated-tile object's frames land on")]
+    private static IEnumerable<AnimatedCharacterUpload> AnimatedTiles(RoomBlockSheetInputs inputs, AnimatedTileObject animatedObject)
     {
         if (WreckedShipTreadmillMechanicsDefinitions.TryResolve(animatedObject, out WreckedShipTreadmillObjectDefinition? treadmill))
         {
             for (int frame = 0; frame < WreckedShipTreadmillMechanicsDefinitions.FrameCount; frame++)
-                yield return Transfer(inputs, treadmill.FrameSource(frame), WreckedShipTreadmillRomData.TransferByteCount,
+                yield return Animated(inputs, animatedObject, frame, treadmill.FrameSource(frame), WreckedShipTreadmillRomData.TransferByteCount,
                     VramDmaDestination.FromNative(WreckedShipTreadmillRomData.EncodedVramDestination).Word);
             yield break;
         }
         if (animatedObject is not (AnimatedTileObject.HorizontalSpikes or AnimatedTileObject.MaridiaSandCeiling or AnimatedTileObject.MaridiaSandFalling))
             yield break;
         RoomFxAnimatedTileObjectDefinition mechanics = RoomFxAnimatedTileMechanicsDefinitions.Require(animatedObject);
-        foreach (RoomFxAnimatedTileFrameDefinition frame in mechanics.Frames)
-            yield return Transfer(inputs, RoomFxAnimatedTileArtworkDefinitions.SourceAddress(mechanics, frame), mechanics.TransferByteCount,
-                VramDmaDestination.FromNative(mechanics.EncodedVramDestination).Word);
+        for (int frame = 0; frame < mechanics.Frames.Count; frame++)
+            yield return Animated(inputs, animatedObject, frame, RoomFxAnimatedTileArtworkDefinitions.SourceAddress(mechanics, mechanics.Frames[frame]),
+                mechanics.TransferByteCount, VramDmaDestination.FromNative(mechanics.EncodedVramDestination).Word);
     }
 
-    /// <summary>A queued transfer of an animated tile frame, named as the queue names it when it binds.</summary>
-    private static BgCharacterUpload Transfer(RoomBlockSheetInputs inputs, int sourceAddress, int byteCount, int destination) =>
-        new(BgArtworkIdentity.Transfer(sourceAddress), destination, Frame(inputs, sourceAddress, byteCount));
+    /// <summary>Frame <paramref name="frame"/> of <paramref name="animatedObject"/>'s animation, pictured from its installed characters.</summary>
+    private static AnimatedCharacterUpload Animated(RoomBlockSheetInputs inputs, AnimatedTileObject animatedObject, int frame,
+        int sourceAddress, int byteCount, int firstWord) =>
+        new(AnimatedTileFrames.Frame(animatedObject, frame), firstWord, Frame(inputs, sourceAddress, byteCount));
 
     /// <summary>The installed bytes of an animated tile frame.</summary>
     private static ReadOnlyMemory<byte> Frame(RoomBlockSheetInputs inputs, int sourceAddress, int byteCount) =>
@@ -465,8 +479,10 @@ internal static class RoomBlockUploads
             Bg3CharacterBases.Add(characterBase);
             foreach (RoomFxType effect in effects)
             {
-                if (FxTypes.Add(effect))
-                    Bg3Uploads.AddRange(EffectCharacters(Inputs, effect));
+                if (!FxTypes.Add(effect))
+                    continue;
+                foreach (AnimatedCharacterUpload frame in EffectCharacters(Inputs, effect))
+                    AddBg3Animated(frame);
             }
             foreach (BgCharacterUpload upload in library)
             {
@@ -540,6 +556,18 @@ internal static class RoomBlockUploads
 
         /// <summary>The runs of BG3's characters its rooms' animations paint, from the HUD's character base (#1406).</summary>
         internal HashSet<AnimatedCharacterRun> Bg3Runs { get; } = [];
+
+        /// <summary>
+        /// Adds a frame an animation of the tileset's rooms paints over BG3's characters: its BG3 words are pictured over it,
+        /// and the animation is declared to paint its characters (#1406).
+        /// </summary>
+        private void AddBg3Animated(AnimatedCharacterUpload frame)
+        {
+            BgCharacterUpload upload = Ensure.NotNull(frame).Upload;
+            if (!Bg3Uploads.Any(known => known.Identity == upload.Identity && known.FirstWord == upload.FirstWord))
+                Bg3Uploads.Add(upload);
+            Bg3Runs.Add(frame.RunFrom(GameplayVramLayout.HudCharacterWord, TileWordSheet.CharacterWordsOf(TileWordLayer.Bg3)));
+        }
 
         /// <summary>
         /// Adds a frame an animation of the tileset's rooms paints over the BG1 and BG2 characters: its blocks and words are

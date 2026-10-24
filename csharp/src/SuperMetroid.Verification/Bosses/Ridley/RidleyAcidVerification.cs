@@ -57,7 +57,7 @@ internal static class RidleyAcidVerification
         AssertEqual((ushort)440, fx.TargetSurface.Y, "native reveal writes acid rise target to shared FX");
         AssertEqual(unchecked((ushort)-96), fx.YVelocity.RawValue, "native reveal writes rising velocity");
         AssertEqual((ushort)32, fx.Timer.RawValue, "native reveal writes rise delay once");
-        for (int frame = 0; frame < 400; frame++) fx.Step(runtime.BgArtwork, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 256), TimeIsFrozen = false, MainGameLoopCarry = true });
+        for (int frame = 0; frame < 400; frame++) fx.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 256), TimeIsFrozen = false, MainGameLoopCarry = true });
         AssertEqual((ushort)440, fx.BaseY.Whole, "acid reaches native visible battle height");
         AssertAcidVisible(true);
         state.Function = RidleyAiFunction.NorfairDeathExplosions;
@@ -66,7 +66,7 @@ internal static class RidleyAcidVerification
         AssertEqual((ushort)528, fx.TargetSurface.Y, "native death roar writes acid drain target");
         AssertEqual((ushort)64, fx.YVelocity.RawValue, "native death writes draining velocity");
         AssertEqual((ushort)1, fx.Timer.RawValue, "native death writes drain delay once");
-        for (int frame = 0; frame < 400; frame++) fx.Step(runtime.BgArtwork, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 256), TimeIsFrozen = false, MainGameLoopCarry = true });
+        for (int frame = 0; frame < 400; frame++) fx.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 256), TimeIsFrozen = false, MainGameLoopCarry = true });
         AssertEqual((ushort)528, fx.BaseY.Whole, "acid drains below arena after death");
         AssertAcidVisible(false);
         Console.WriteLine("Ridley acid: retail reveal raises 528 -> 440; death roar drains 440 -> 528 through shared FX.");

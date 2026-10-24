@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.Core.Fx;
@@ -31,10 +32,6 @@ internal sealed class RoomFxAnimatedTilesState
     /// <summary>The loaded object's definition; only an active slot has one.</summary>
     private RoomFxAnimatedTileObjectDefinition Mechanics =>
         compiledMechanics ?? throw new InvalidOperationException("Room-FX animation requires compiled mechanics.");
-
-    /// <summary>The queued-DMA destination the loaded animated-tile object's native word decodes to.</summary>
-    [PpuLayoutBoundary("codec: room-FX animated-tile object's native VRAM destination")]
-    private VramDmaDestination Destination => VramDmaDestination.FromNative(Mechanics.EncodedVramDestination);
 
     /// <summary>Whether a room-FX animated-tile object currently owns this slot.</summary>
     public bool IsActive { get; private set; }
@@ -85,12 +82,13 @@ internal sealed class RoomFxAnimatedTilesState
     }
 
     /// <summary>
-    /// Executes one <c>AnimtilesHandler</c> pass and performs the NMI-visible transfer. When the timer
-    /// expires the next frame is shown for its duration, and the loop returns from the last frame to the first.
+    /// Executes one <c>AnimtilesHandler</c> pass (#1406). When the timer expires the next frame is shown for its duration,
+    /// selected in <paramref name="frames"/> at this update, as the cartridge's copy at this update's NMI shows it; the loop
+    /// returns from the last frame to the first.
     /// </summary>
-    public void Step(BgArtworkBindings? backgrounds, VramWriteQueue? writes = null,
-        RoomFxAnimatedTileAtlas? artwork = null)
+    public void Step(ArtworkFrameSelections frames)
     {
+        Ensure.NotNull(frames);
         LastSourceAddress = null;
         if (!IsActive)
             return;
@@ -110,14 +108,6 @@ internal sealed class RoomFxAnimatedTilesState
         // The list's goto after the last frame returns to the first frame.
         nextFrame = shown + 1 < mechanics.Frames.Count ? shown + 1 : 0;
         LastSourceAddress = sourceAddress;
-        if (writes is not null)
-            writes.EnqueueBackground(mechanics.TransferByteCount, sourceAddress, Destination);
-        else if (artwork is not null)
-            (backgrounds ?? throw new InvalidOperationException("A direct room-FX frame needs background bindings."))
-                .Bind(BgArtworkIdentity.Transfer(sourceAddress), Destination.Word,
-                    artwork.Frame(sourceAddress, mechanics.TransferByteCount).Span);
-        else
-            throw new InvalidOperationException(
-                "Room-FX character transfers require installed animation artwork or a deferred artwork queue.");
+        frames.Select(AnimatedTileFrames.Frame(animatedObject, shown));
     }
 }

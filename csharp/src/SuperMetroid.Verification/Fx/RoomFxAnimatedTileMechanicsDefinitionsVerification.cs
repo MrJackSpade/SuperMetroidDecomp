@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Fx.RoomFxAnimatedTileArtworkVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Fx.LookupAnimatedArtworkSourcesVerification;
@@ -62,15 +63,14 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
             int presentationReadCount = 0;
             var guarded = NewRoomFxAnimatedTileMechanicsForbiddenBus(bus, definition, () => presentationReadCount++);
             var state = new RoomFxAnimatedTilesState();
-            var vram = new SnesVram();
-            var writes = new VramWriteQueue();
+            var frames = new ArtworkFrameSelections();
             state.LoadDefinition(definition.AnimatedObject);
 
             int steps = definition.Frames.Sum(frame => frame.Duration) + 1;
             int observedFrames = 0;
             for (int step = 0; step < steps; step++)
             {
-                state.Step(BgArtworkFixtures.For(vram), writes);
+                state.Step(frames);
                 if (state.LastSourceAddress.HasValue)
                     observedFrames++;
             }
@@ -135,13 +135,12 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
             }
 
             var state = new RoomFxAnimatedTilesState();
-            var vram = new SnesVram();
-            var writes = new VramWriteQueue();
+            var frames = new ArtworkFrameSelections();
             state.LoadDefinition(definition.AnimatedObject);
             var observed = new List<RoomFxAnimatedTileMechanicsDefinitionsExpected>();
             for (int step = 0; step <= expected[^1].Update; step++)
             {
-                state.Step(BgArtworkFixtures.For(vram), writes);
+                state.Step(frames);
                 if (state.LastSourceAddress is int source)
                     observed.Add(new RoomFxAnimatedTileMechanicsDefinitionsExpected(step, source));
             }

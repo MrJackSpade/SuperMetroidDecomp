@@ -196,10 +196,7 @@ public sealed class TourianStatueSequence
             {
                 case AnimationProgramAdvance<TourianStatueTilePicture>.Show shown:
                     tile.Show(cursor, shown.Duration);
-                    _vramWrites.EnqueueBackgroundSource(
-                        new TourianStatuePictureCharacters(definition.AnimatedObject, shown.Frame),
-                        checked((ushort)definition.TransferByteCount),
-                        definition.Destination);
+                    _room.LoadedScope.ArtworkFrames.Select(AnimatedTileFrames.Picture(definition.AnimatedObject, shown.Frame));
                     break;
                 case AnimationProgramAdvance<TourianStatueTilePicture>.Stop:
                     tile.Stop();

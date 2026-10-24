@@ -75,24 +75,19 @@ internal static class CrocomirePresentation1193Verification
         ushort previousScroll = 0;
         for (int frame = 0; frame < (spikes ? 34 : 6); frame++)
         {
+            ArtworkAnimation spikeTiles = AnimatedTileFrames.Of(AnimatedTileObject.HorizontalSpikes);
+            ArtworkFrame? before = runtime.Room.LoadedScope.ArtworkFrames.TryShown(spikeTiles, out ArtworkFrame previous) ? previous : null;
             var result = game.Step(0);
             if (spikes)
             {
-                var uploads = runtime.VramWrites.Entries.Where(write => write.Destination.Encoded == 0x3d60).ToArray();
-                AssertEqual(frame % 8 == 0 ? 1 : 0, uploads.Length,
-                    $"Crocomire spikes queue one native frame at tick {frame}");
-                if (uploads.Length != 0)
+                AssertTrue(runtime.Room.LoadedScope.ArtworkFrames.TryShown(spikeTiles, out ArtworkFrame shown),
+                    $"Crocomire spikes show a frame from tick {frame}");
+                AssertEqual(frame % 8 == 0, before != shown, $"Crocomire spikes show their next frame only at tick {frame} of each eight");
+                if (frame % 8 == 0)
                 {
-                    AssertEqual(sources[sourceIndex++], uploads[0].SourceAddress, "Spikes follow 0/1/2/1/0 ping-pong sequence");
-                    AssertEqual(0x80, uploads[0].SizeInBytes, "Spikes transfer four 4bpp characters");
-                }
-                if (frame != 0)
-                {
-                    int displayedSource = sources[(frame - 1) / 8];
-                    AssertTrue(maps.RoomFxAnimatedTiles.TryResolve(displayedSource, 0x80, out var bytes),
-                        "Installed spike frame exists");
-                    for (int i = 0; i < bytes.Length; i++)
-                        AssertEqual(bytes.Span[i], runtime.Vram.ReadByte(0x3d60 * 2 + i), "NMI displays exact spike artwork bytes");
+                    AssertEqual(sources[sourceIndex++], AnimatedTileFrameArtwork.SourceOf(shown), "Spikes follow 0/1/2/1/0 ping-pong sequence");
+                    AssertTrue(maps.RoomFxAnimatedTiles.TryResolve(AnimatedTileFrameArtwork.SourceOf(shown), 0x80, out _),
+                        "Installed spike frame of four 4bpp characters exists");
                 }
             }
             else
@@ -120,16 +115,18 @@ internal static class CrocomirePresentation1193Verification
             PlaceSamusInArena();
             samus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.AnimatedTiles;
             game.Step(0);
-            AssertEqual(false, runtime.VramWrites.Entries.Any(write => write.Destination.Encoded == 0x3d60),
+            ArtworkAnimation spikeTiles = AnimatedTileFrames.Of(AnimatedTileObject.HorizontalSpikes);
+            AssertEqual(false, runtime.Room.LoadedScope.ArtworkFrames.TryShown(spikeTiles, out _),
                 "X-ray's animation-disable word suspends spikes at the actual runtime seam");
             samus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.None;
             game.Step(0);
-            AssertEqual(0x879d84, runtime.VramWrites.Entries.Single(write => write.Destination.Encoded == 0x3d60).SourceAddress,
+            AssertTrue(runtime.Room.LoadedScope.ArtworkFrames.TryShown(spikeTiles, out ArtworkFrame resumed) &&
+                    resumed == AnimatedTileFrames.Frame(AnimatedTileObject.HorizontalSpikes, 0),
                 "Re-enabled spikes resume the pending first frame");
             var unselected = new RoomSpikeAnimatedTilesState(null, null, AreaId.Norfair);
-            var clearedWrites = new VramWriteQueue();
-            unselected.Step(clearedWrites);
-            AssertEqual(0, clearedWrites.Entries.Count, "A room without selected spikes builds an empty spike owner");
+            var cleared = new ArtworkFrameSelections();
+            unselected.Step(cleared);
+            AssertTrue(!cleared.TryShown(spikeTiles, out _), "A room without selected spikes builds an empty spike owner");
         }
         else
         {
@@ -196,13 +193,15 @@ internal static class CrocomirePresentation1193Verification
         DebuggerObjectGraphSerializer.Serialize(graph, runtime.RoomSpikes);
         graph.Position = 0;
         var restored = DebuggerObjectGraphSerializer.Deserialize<RoomSpikeAnimatedTilesState>(graph);
+        var expected = new ArtworkFrameSelections();
+        var actual = new ArtworkFrameSelections();
         for (int tick = 0; tick < 8; tick++)
         {
-            var expected = new VramWriteQueue();
-            var actual = new VramWriteQueue();
             runtime.RoomSpikes.Step(expected);
             restored.Step(actual);
-            AssertTrue(expected.Entries.SequenceEqual(actual.Entries), "Current debugger graph retains exact spike cadence");
+            ArtworkAnimation spikeAnimation = AnimatedTileFrames.Of(AnimatedTileObject.HorizontalSpikes);
+            AssertTrue(expected.TryShown(spikeAnimation, out ArtworkFrame expectedFrame) == actual.TryShown(spikeAnimation, out ArtworkFrame actualFrame) &&
+                expectedFrame == actualFrame, "Current debugger graph retains exact spike cadence");
         }
         // Debugger states are build-pinned (#1270); an older graph without spike state is rejected, not migrated.
     }

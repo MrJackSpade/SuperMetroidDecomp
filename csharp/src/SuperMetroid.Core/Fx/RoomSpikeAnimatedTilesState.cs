@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Progression;
@@ -29,6 +30,6 @@ public sealed class RoomSpikeAnimatedTilesState
     }
 
     /// <summary>Schedules the authored character transfer for the next accepted NMI.</summary>
-    public void Step(VramWriteQueue writes) =>
-        animation.Step(null, writes);
+    public void Step(ArtworkFrameSelections frames) =>
+        animation.Step(frames);
 }

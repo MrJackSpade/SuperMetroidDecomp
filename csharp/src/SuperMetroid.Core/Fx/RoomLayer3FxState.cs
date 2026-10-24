@@ -335,9 +335,9 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>Runs the active bank-$88 pre-instruction and rain animtile handler.</summary>
-    public void Step(BgArtworkBindings backgrounds, RoomLayer3FxFrame frame)
+    public void Step(ArtworkFrameSelections frames, RoomLayer3FxFrame frame)
     {
-        Ensure.NotNull(backgrounds);
+        Ensure.NotNull(frames);
         audioPowerBomb = frame.PowerBomb;
         if (!frame.LiquidMotionAlreadyAdvanced)
         {
@@ -356,7 +356,7 @@ public sealed class RoomLayer3FxState
         // The shared bank-$87 handler runs independently of the bank-$88 HDMA
         // pre-instruction. In particular, lava/acid need this transfer before their BG3
         // tilemap can name anything other than stale standard-HUD characters.
-        animatedTiles.Step(backgrounds, artwork: AnimatedTileArtwork);
+        animatedTiles.Step(frames);
 
         if (LiquidHdmaObjectsDeleted && MovesLiquidInHdmaPass)
             return;

@@ -34,7 +34,9 @@ different types; moving between spaces is always a named conversion.
 | `CharacterPixels` | Pixels inside one eight-by-eight character cell. |
 | `ImagePixels` | Host raster pixels: decoded images, artwork atlases and other host images. |
 | `DisplayPixels` | Host window/swapchain pixels after presentation scaling. |
-| `GamepadStick` | Normalized host analog-stick deflection (signed 16-bit axes, X right, Y down). |
+
+A host declares its own device spaces beside its adapter, outside Core: the Desktop gamepad's normalized analog
+stick is `SuperMetroid.Desktop.Input.GamepadStick`.
 
 Add a space only when values in it must not mix with an existing space; document it here and give it its own
 `csharp/src/SuperMetroid.Core/Spatial/<Space>.cs` file beside the others.

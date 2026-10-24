@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.Diagnostics.Android;
 using static SuperMetroid.Verification.Audio.QueuedPcmSinkVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Frontend;
@@ -30,26 +30,26 @@ internal static class AndroidHostVerification
         AssertEqual(SnesButton.A, defaults.Resolve("ButtonA", SnesButton.A), "editing preferences does not mutate active mapping before persistence");
         AssertThrows<System.IO.InvalidDataException>(() => changed.WithBinding("ButtonA", SnesButton.A | SnesButton.B), "combined gameplay bindings rejected");
         AssertThrows<System.IO.InvalidDataException>(() => SuperMetroid.Diagnostics.Android.AndroidControllerPreferences.Parse("{\"ButtonA\":\"bogus\"}"), "bad persisted binding fails visibly");
-        var stalled = HostFrameDeadline.AfterFrame(0, 0.060);
+        var stalled = AndroidFrameDeadline.AfterFrame(0, 0.060);
         AssertTrue(stalled.Rebased, "60ms audio stall must not retain catch-up debt indefinitely");
         AssertTrue(stalled.WaitSeconds > 0, "rebase must not immediately publish another catch-up frame");
-        AssertTrue(!HostFrameDeadline.AfterFrame(0, 0.025).Rebased, "ordinary scheduler jitter retains fractional deadline");
+        AssertTrue(!AndroidFrameDeadline.AfterFrame(0, 0.025).Rebased, "ordinary scheduler jitter retains fractional deadline");
         double deadline = 0, time = 0;
         for (int frame = 0; frame < 600; frame++)
         {
             time += 0.008;
-            var next = HostFrameDeadline.AfterFrame(deadline, time);
+            var next = AndroidFrameDeadline.AfterFrame(deadline, time);
             AssertTrue(!next.Rebased, "steady eight-millisecond work never rebases");
             time += next.WaitSeconds;
             deadline = next.NextDeadline;
         }
         AssertTrue(Math.Abs(time - 10) < 0.000001, "600 normal host frames retain exact ten-second cadence");
-        AssertEqual(new DisplayViewport(new(28, 172), new(1024, 896)), DisplayViewport.IntegerPixels(DisplayViewport.ClientSize(1080, 1240)), "Retroid upright integer viewport");
-        AssertEqual(new DisplayViewport(new(108, 92), new(1024, 896)), DisplayViewport.IntegerPixels(DisplayViewport.ClientSize(1240, 1080)), "Retroid rotated integer viewport");
-        AssertEqual(new DisplayViewport(new(28, 124), new(1024, 896)), DisplayViewport.IntegerPixels(DisplayViewport.ClientSize(1080, 1144)), "insets reduce usable surface before scaling");
-        AssertEqual(new DisplayViewport(new(0, 0), new(256, 224)), DisplayViewport.IntegerPixels(DisplayViewport.ClientSize(256, 224)), "native exact fit");
-        AssertEqual(0, DisplayViewport.IntegerPixels(DisplayViewport.ClientSize(255, 224)).Size.X, "too small never crops or stretches");
-        AssertThrows<ArgumentOutOfRangeException>(() => DisplayViewport.IntegerPixels(DisplayViewport.ClientSize(-1, 224)), "negative viewport rejected");
+        AssertEqual(new AndroidDisplayViewport(new(28, 172), new(1024, 896)), AndroidDisplayViewport.IntegerPixels(AndroidDisplayViewport.ClientSize(1080, 1240)), "Retroid upright integer viewport");
+        AssertEqual(new AndroidDisplayViewport(new(108, 92), new(1024, 896)), AndroidDisplayViewport.IntegerPixels(AndroidDisplayViewport.ClientSize(1240, 1080)), "Retroid rotated integer viewport");
+        AssertEqual(new AndroidDisplayViewport(new(28, 124), new(1024, 896)), AndroidDisplayViewport.IntegerPixels(AndroidDisplayViewport.ClientSize(1080, 1144)), "insets reduce usable surface before scaling");
+        AssertEqual(new AndroidDisplayViewport(new(0, 0), new(256, 224)), AndroidDisplayViewport.IntegerPixels(AndroidDisplayViewport.ClientSize(256, 224)), "native exact fit");
+        AssertEqual(0, AndroidDisplayViewport.IntegerPixels(AndroidDisplayViewport.ClientSize(255, 224)).Size.X, "too small never crops or stretches");
+        AssertThrows<ArgumentOutOfRangeException>(() => AndroidDisplayViewport.IntegerPixels(AndroidDisplayViewport.ClientSize(-1, 224)), "negative viewport rejected");
 
         var input = new FrameInputLatch();
         input.Set(1, SnesButton.A);

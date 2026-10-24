@@ -4,6 +4,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Diagnostics.Android;
+using SuperMetroid.Diagnostics.Configuration;
 
 namespace SuperMetroid.Android;
 
@@ -31,9 +32,9 @@ internal sealed class AndroidGameSession
     /// <summary>Thread-safe controller latch sampled once for each emulated frame.</summary>
     public FrameInputLatch Input { get; } = new();
     /// <summary>Last game options published for UI access without entering the worker.</summary>
-    private SuperMetroidGameOptions? effectiveOptions;
+    private HostOptions? effectiveOptions;
     /// <summary>Current merged game and Android audio options, read with volatile ordering.</summary>
-    public SuperMetroidGameOptions? EffectiveOptions => Volatile.Read(ref effectiveOptions);
+    public HostOptions? EffectiveOptions => Volatile.Read(ref effectiveOptions);
     /// <summary>Appends a timestamped controller event to the installation's input log.</summary>
     public void RecordInput(string description) =>
         File.AppendAllText(Path.Combine(root, "input-events.log"), $"{DateTimeOffset.UtcNow:O} {description}\n");
@@ -109,7 +110,7 @@ internal sealed class AndroidGameSession
             // Host-owned PCM storage; the session copies each update's samples into it.
             var samples = new short[CartridgeAudioSession.PcmSamplesPerFrame];
             RefreshEffectiveOptions(data);
-            SuperMetroidGameOptions options = data.Options;
+            HostOptions options = data.Options;
             long sequence = 0;
             var clock = Stopwatch.StartNew();
             double deadline = clock.Elapsed.TotalSeconds;
@@ -229,7 +230,7 @@ internal sealed class AndroidGameSession
                 }
                 view.Publish(pixels, status);
                 double completedAt = clock.Elapsed.TotalSeconds;
-                HostFrameDeadline nextFrame = HostFrameDeadline.AfterFrame(deadline, completedAt);
+                AndroidFrameDeadline nextFrame = AndroidFrameDeadline.AfterFrame(deadline, completedAt);
                 if (nextFrame.Rebased)
                 {
                     // Do not skip any emulated frame. Report a missed real-time deadline and
@@ -301,9 +302,5 @@ internal sealed class AndroidGameSession
 
     /// <summary>Publishes game options combined with Android audio controls for UI readers.</summary>
     private void RefreshEffectiveOptions(AndroidSessionData data) => Volatile.Write(ref effectiveOptions,
-        data.Game.ConfiguredOptions with
-        {
-            AudioEnabled = data.Options.AudioEnabled,
-            MasterVolumePercent = data.Options.MasterVolumePercent,
-        });
+        data.Options with { Game = data.Game.ConfiguredOptions });
 }

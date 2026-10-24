@@ -10,6 +10,7 @@ using Vortice.Direct3D;
 using Vortice.Mathematics;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Rendering.Direct3D11.Device;
+using SuperMetroid.Rendering.Direct3D11.Presentation;
 using SuperMetroid.Rendering.Direct3D11.Telemetry;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Fx;

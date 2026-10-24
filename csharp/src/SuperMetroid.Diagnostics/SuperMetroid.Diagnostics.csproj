@@ -7,6 +7,9 @@
     <ProjectReference Include="../SuperMetroid.AssetExtraction/SuperMetroid.AssetExtraction.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Configuration/SuperMetroid.defaults.ini" LogicalName="SuperMetroid.defaults.ini" />
+  </ItemGroup>
+  <ItemGroup>
     <Using Include="SuperMetroid.Core.Spatial" />
   </ItemGroup>
 </Project>

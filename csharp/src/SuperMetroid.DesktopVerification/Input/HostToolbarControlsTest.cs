@@ -1,6 +1,5 @@
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Desktop.Input;
 using SuperMetroid.DesktopVerification.Window;
 namespace SuperMetroid.DesktopVerification.Input;
@@ -16,7 +15,7 @@ internal static class HostToolbarControlsTest
         using var scratch = new TestScratchDirectory("toolbar");
         Directory.CreateDirectory(scratch.Root);
         using var host = DesktopAccess.CreateGameControl(rom,
-            new SuperMetroidGameOptions { AudioEnabled = false, Renderer = RendererSelection.Software },
+            new HostOptions { AudioEnabled = false, Renderer = RendererSelection.Software },
             dataDirectory: scratch.Root);
         host.Size = new(900, 760);
         var layout = host.Controls.OfType<TableLayoutPanel>().Single();

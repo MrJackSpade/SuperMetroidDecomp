@@ -1,6 +1,6 @@
 using SuperMetroid.Core;
 using System.Reflection;
-using SuperMetroid.Core.Frontend;
+using SuperMetroid.Diagnostics.Configuration;
 namespace SuperMetroid.DesktopVerification.Harness;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
@@ -13,9 +13,9 @@ internal static class GameConfigurationPackageVerification
     {
         string publish = (Path.GetDirectoryName(Path.GetFullPath(gameAssemblyPath)) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(Path.GetFullPath(gameAssemblyPath))."));
         string template = File.ReadAllText(Path.Combine((publish), "SuperMetroid.defaults.ini"));
-        if (template.Replace("\r\n", "\n") != SuperMetroidGameOptionsIni.DefaultFileContents.Replace("\r\n", "\n") ||
-            SuperMetroidGameOptionsIni.Parse(template) != new SuperMetroidGameOptions() ||
-            SuperMetroidGameOptionsIni.Parse("") != new SuperMetroidGameOptions())
+        if (template.Replace("\r\n", "\n") != HostOptionsIni.DefaultFileContents.Replace("\r\n", "\n") ||
+            HostOptionsIni.Parse(template) != new HostOptions() ||
+            HostOptionsIni.Parse("") != new HostOptions())
             throw new InvalidDataException("Published, embedded, parsed and programmatic INI defaults differ.");
 
         Assembly game = Assembly.LoadFrom(Path.GetFullPath(gameAssemblyPath));
@@ -28,28 +28,28 @@ internal static class GameConfigurationPackageVerification
         Directory.CreateDirectory(root);
         try
         {
-            SuperMetroidGameOptions Load(string data, string defaults, bool local = false)
+            HostOptions Load(string data, string defaults, bool local = false)
             {
                 Directory.CreateDirectory(data);
                 object result = ((loadInstalled ?? throw new InvalidOperationException("Verification requires loadInstalled.")).Invoke(null, [data, defaults]) ?? throw new InvalidOperationException("Verification requires (loadInstalled ?? throw new InvalidOperationException(\"Verification requires loadInstal...."));
                 if ((string)((config.GetProperty("Path") ?? throw new InvalidOperationException("Verification requires config.GetProperty(\"Path\").")).GetValue(result) ?? throw new InvalidOperationException("Verification requires (config.GetProperty(\"Path\") ?? throw new InvalidOperationException(\"Verification requir....")) != Path.Combine(local ? defaults : data, "SuperMetroid.ini"))
                     throw new InvalidDataException("Published host selected the wrong player INI path.");
-                return (SuperMetroidGameOptions)((config.GetProperty("Options") ?? throw new InvalidOperationException("Verification requires config.GetProperty(\"Options\").")).GetValue(result) ?? throw new InvalidOperationException("Verification requires (config.GetProperty(\"Options\") ?? throw new InvalidOperationException(\"Verification req...."));
+                return (HostOptions)((config.GetProperty("Options") ?? throw new InvalidOperationException("Verification requires config.GetProperty(\"Options\").")).GetValue(result) ?? throw new InvalidOperationException("Verification requires (config.GetProperty(\"Options\") ?? throw new InvalidOperationException(\"Verification req...."));
             }
             string data = Path.Combine(root, "player");
-            if (Load(data, publish) != new SuperMetroidGameOptions())
+            if (Load(data, publish) != new HostOptions())
                 throw new InvalidDataException("First launch did not load the shipped defaults.");
             string edited = template.Replace("MasterVolumePercent=100", "MasterVolumePercent=17")
                 .Replace("SkipOpeningCinematic=false", "SkipOpeningCinematic=true");
             string active = Path.Combine(data, "SuperMetroid.ini");
             File.WriteAllText(active, edited);
-            if (Load(data, publish) is not { MasterVolumePercent: 17, SkipOpeningCinematic: true } ||
+            if (Load(data, publish) is not { MasterVolumePercent: 17, Game.SkipOpeningCinematic: true } ||
                 File.ReadAllText(active) != edited)
                 throw new InvalidDataException("Relaunch ignored or overwrote edited player settings.");
             object installedResult = (loadInstalled.Invoke(null, [data, publish]) ?? throw new InvalidOperationException("Verification requires (loadInstalled ?? throw new InvalidOperationException(\"Verification requires loadInstal...."));
             if ((string)((config.GetProperty("Path") ?? throw new InvalidOperationException("Verification requires config.GetProperty(\"Path\").")).GetValue(installedResult) ?? throw new InvalidOperationException("Verification requires (config.GetProperty(\"Path\") ?? throw new InvalidOperationException(\"Verification requir....")) != active ||
-                (SuperMetroidGameOptions)((config.GetProperty("Options") ?? throw new InvalidOperationException("Verification requires config.GetProperty(\"Options\").")).GetValue(installedResult) ?? throw new InvalidOperationException("Verification requires (config.GetProperty(\"Options\") ?? throw new InvalidOperationException(\"Verification req....")) !=
-                SuperMetroidGameOptionsIni.Parse(edited))
+                (HostOptions)((config.GetProperty("Options") ?? throw new InvalidOperationException("Verification requires config.GetProperty(\"Options\").")).GetValue(installedResult) ?? throw new InvalidOperationException("Verification requires (config.GetProperty(\"Options\") ?? throw new InvalidOperationException(\"Verification req....")) !=
+                HostOptionsIni.Parse(edited))
                 throw new InvalidDataException(
                     "Normal installed-content startup did not load player settings without a ROM path.");
             string customized = Path.Combine(root, "customized-release");
@@ -66,7 +66,7 @@ internal static class GameConfigurationPackageVerification
             catch (TargetInvocationException error) when (error.InnerException is InvalidDataException) { rejected = true; }
             if (!rejected || File.Exists(Path.Combine(invalidData, "SuperMetroid.ini")))
                 throw new InvalidDataException("Invalid template created a broken active INI.");
-            if (Load(Path.Combine(root, "embedded-player"), Path.Combine(root, "no-template")) != new SuperMetroidGameOptions())
+            if (Load(Path.Combine(root, "embedded-player"), Path.Combine(root, "no-template")) != new HostOptions())
                 throw new InvalidDataException("Embedded default fallback differs from the release defaults.");
             string localPath = Path.Combine(customized, "SuperMetroid.ini");
             File.WriteAllText(localPath, "[Diagnostics]\nReportErrorsToGitHub=true\n[Audio]\nMasterVolumePercent=23\n");

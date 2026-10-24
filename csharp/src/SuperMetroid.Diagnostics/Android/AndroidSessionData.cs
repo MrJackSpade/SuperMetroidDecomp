@@ -4,6 +4,7 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Saves;
+using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Core.Progression;
@@ -48,8 +49,8 @@ internal sealed class AndroidSessionData : IDisposable
         var installation = new SuperMetroid.AssetExtraction.Installation.GameInstallation(root);
         savePath = Path.Combine(root, "SuperMetroid.save.json");
         string ini = Path.Combine(root, "SuperMetroid.ini");
-        if (!File.Exists(ini)) File.WriteAllText(ini, SuperMetroidGameOptionsIni.DefaultFileContents);
-        Options = SuperMetroidGameOptionsIni.Parse(File.ReadAllText(ini), ini);
+        if (!File.Exists(ini)) File.WriteAllText(ini, HostOptionsIni.DefaultFileContents);
+        Options = HostOptionsIni.Parse(File.ReadAllText(ini), ini);
         Bus = installation.OpenRuntimeAddressSpace();
         maps = installation.LoadMaps();
         SaveSlotStore saves = GameSaveFileStore.LoadOrMigrate(savePath, Path.Combine(root, "SuperMetroid.srm"), maps).Saves;
@@ -58,7 +59,7 @@ internal sealed class AndroidSessionData : IDisposable
         // the running session binds only the installed presentation catalog.
         projectiles = installation.LoadProjectiles();
         artwork = installation.LoadGameArtwork(maps, projectiles);
-        Game = GameSessionComposer.Create(saves, Options, artwork);
+        Game = GameSessionComposer.Create(saves, Options.Game, artwork);
         Console.WriteLine($"Projectile compositions: stock={projectiles.StockSha256}, selected={projectiles.SelectedSha256} ({root}).");
         Game.SaveRamChanged += PersistSave;
         assets = audioDirectory is null
@@ -76,14 +77,14 @@ internal sealed class AndroidSessionData : IDisposable
         Game.BindAudio(assets);
         states = DebuggerSaveStateStore.ForInstalledGame(
             root,
-            Options,
+            Options.Game,
             ContentIdentity);
         recorder = StartRecorder();
         WriteRecordingMetadata(seedFile: null);
     }
 
-    /// <summary>Parsed game options shared by runtime and debugger state store.</summary>
-    public SuperMetroidGameOptions Options { get; }
+    /// <summary>Parsed host options; their game values are shared by the runtime, the debugger state store and recordings.</summary>
+    public HostOptions Options { get; }
     /// <summary>Live RAM-only address space, replaced when a debugger state is loaded.</summary>
     public SuperMetroidAddressSpace Bus { get; private set; }
     /// <summary>Live game graph owned by the session worker.</summary>
@@ -169,7 +170,7 @@ internal sealed class AndroidSessionData : IDisposable
         ControllerInputRecorder.StartInstalled(
             root,
             SaveRamCodec.Encode(Game.Saves, maps),
-            Options,
+            Options.Game,
             ContentIdentity);
 
     /// <summary>Closes the active input recording and finishes queued state writes when the worker session ends.</summary>

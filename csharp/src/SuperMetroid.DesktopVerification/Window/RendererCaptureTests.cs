@@ -1,8 +1,9 @@
 using SuperMetroid.Core;
 using System.Reflection;
-using SuperMetroid.Core.Frontend;
+using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Rendering.Direct3D11.Presentation;
 using static SuperMetroid.DesktopVerification.Startup.AsyncLoadBoundaryTests;
 using static SuperMetroid.DesktopVerification.Harness.DesktopVerificationSupport;
 namespace SuperMetroid.DesktopVerification.Window;
@@ -21,7 +22,7 @@ internal static class RendererCaptureTests
         Directory.CreateDirectory(directory);
         string rom = PlaceInstalledRom(directory);
         using var form = new Form { ClientSize = new(900, 760), ShowInTaskbar = false };
-        using var control = DesktopAccess.CreateGameControl(rom, new SuperMetroidGameOptions { Renderer = renderer, AudioEnabled = false });
+        using var control = DesktopAccess.CreateGameControl(rom, new HostOptions { Renderer = renderer, AudioEnabled = false });
         form.Controls.Add(control);
         // Construct handles without Show/ShowDialog; the UI loop remains alive for DXGI.
         _ = form.Handle;

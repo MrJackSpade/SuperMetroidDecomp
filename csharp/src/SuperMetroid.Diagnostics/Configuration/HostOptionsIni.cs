@@ -1,11 +1,11 @@
-using System.Diagnostics.CodeAnalysis;
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Map;
 
-namespace SuperMetroid.Core.Frontend;
+namespace SuperMetroid.Diagnostics.Configuration;
 
-/// <summary>Strict reader and documented template for the playable executable's INI file.</summary>
-public static class SuperMetroidGameOptionsIni
+/// <summary>Strict reader and documented template for the hosts' shared INI options file.</summary>
+public static class HostOptionsIni
 {
     /// <summary>
     /// Documented defaults written when the host has no active <c>SuperMetroid.ini</c>.
@@ -19,7 +19,7 @@ public static class SuperMetroidGameOptionsIni
     /// <summary>Reads the embedded release INI template that supplies startup defaults.</summary>
     private static string ReadDefaultFile()
     {
-        using Stream stream = typeof(SuperMetroidGameOptionsIni).Assembly.GetManifestResourceStream(
+        using Stream stream = typeof(HostOptionsIni).Assembly.GetManifestResourceStream(
             "SuperMetroid.defaults.ini")
             ?? throw new InvalidDataException("The documented default INI resource is missing.");
         using var reader = new StreamReader(stream);
@@ -27,9 +27,7 @@ public static class SuperMetroidGameOptionsIni
     }
 
     /// <summary>Parses the supported INI surface and rejects misspelled or ambiguous keys.</summary>
-    [SuppressMessage("Design", "SME6433", Justification =
-        "The renderer value is player-authored INI text; this switch is the codec that turns it into RendererSelection, so the strings are the file format, not an internal identity.")]
-    public static SuperMetroidGameOptions Parse(
+    public static HostOptions Parse(
         string contents,
         string sourceName = "SuperMetroid.ini")
     {
@@ -88,7 +86,7 @@ public static class SuperMetroidGameOptionsIni
             string value = line[(equals + 1)..].Trim();
             if (currentSection.Equals("Video", StringComparison.OrdinalIgnoreCase))
             {
-                if (!key.Equals(nameof(SuperMetroidGameOptions.Renderer), StringComparison.OrdinalIgnoreCase))
+                if (!key.Equals(nameof(HostOptions.Renderer), StringComparison.OrdinalIgnoreCase))
                     throw Invalid(sourceName, lineNumber, $"unknown [Video] option '{key}'");
                 if (renderer.HasValue) throw Invalid(sourceName, lineNumber, "duplicate [Video] Renderer option");
                 renderer = value.ToUpperInvariant() switch
@@ -136,7 +134,7 @@ public static class SuperMetroidGameOptionsIni
                     grantAllEquipment = ParseBoolean(sourceName, lineNumber, key, value);
                     continue;
                 }
-                if (key.Equals(nameof(SuperMetroidGameOptions.DoorTransitionAutosave), StringComparison.OrdinalIgnoreCase))
+                if (key.Equals(nameof(HostOptions.DoorTransitionAutosave), StringComparison.OrdinalIgnoreCase))
                 {
                     if (doorTransitionAutosave.HasValue)
                         throw Invalid(sourceName, lineNumber, $"duplicate [Game] option '{key}'");
@@ -209,7 +207,7 @@ public static class SuperMetroidGameOptionsIni
                 audioEnabled = parsed;
             }
             else if (currentSection.Equals("Audio", StringComparison.OrdinalIgnoreCase) &&
-                     key.Equals(nameof(SuperMetroidGameOptions.MasterVolumePercent),
+                     key.Equals(nameof(HostOptions.MasterVolumePercent),
                          StringComparison.OrdinalIgnoreCase))
             {
                 if (masterVolumePercent.HasValue)
@@ -222,14 +220,14 @@ public static class SuperMetroidGameOptionsIni
             {
                 throw Invalid(sourceName, lineNumber, $"unknown [Audio] option '{key}'");
             }
-            else if (key.Equals(nameof(SuperMetroidGameOptions.ReportErrorsToGitHub),
+            else if (key.Equals(nameof(HostOptions.ReportErrorsToGitHub),
                          StringComparison.OrdinalIgnoreCase))
             {
                 if (reportErrorsToGitHub.HasValue)
                     throw Invalid(sourceName, lineNumber, $"duplicate [Diagnostics] option '{key}'");
                 reportErrorsToGitHub = ParseBoolean(sourceName, lineNumber, key, value);
             }
-            else if (key.Equals(nameof(SuperMetroidGameOptions.GitHubErrorRepository),
+            else if (key.Equals(nameof(HostOptions.GitHubErrorRepository),
                          StringComparison.OrdinalIgnoreCase))
             {
                 if (githubErrorRepository is not null)
@@ -249,20 +247,23 @@ public static class SuperMetroidGameOptionsIni
             }
         }
 
-        return new SuperMetroidGameOptions
+        return new HostOptions
         {
             // A missing key is deliberately equivalent to the retail path. This makes old
             // or empty local configuration files safe when a new host option is introduced.
-            SkipOpeningCinematic = skipOpeningCinematic ?? false,
-            Invincibility = invincibility ?? false,
-            InfiniteAmmo = infiniteAmmo ?? false,
-            GrantAllEquipment = grantAllEquipment ?? false,
-            UnlockTourian = unlockTourian ?? false,
-            ResetBossesOnLoad = resetBossesOnLoad ?? false,
+            Game = new SuperMetroidGameOptions
+            {
+                SkipOpeningCinematic = skipOpeningCinematic ?? false,
+                Invincibility = invincibility ?? false,
+                InfiniteAmmo = infiniteAmmo ?? false,
+                GrantAllEquipment = grantAllEquipment ?? false,
+                UnlockTourian = unlockTourian ?? false,
+                ResetBossesOnLoad = resetBossesOnLoad ?? false,
+                PreventEscapeTimeout = preventEscapeTimeout ?? false,
+                EndingTimeOverrideMinutes = endingTimeOverrideMinutes,
+                MapReveal = mapReveal ?? MapRevealMode.None,
+            },
             DoorTransitionAutosave = doorTransitionAutosave ?? true,
-            PreventEscapeTimeout = preventEscapeTimeout ?? false,
-            EndingTimeOverrideMinutes = endingTimeOverrideMinutes,
-            MapReveal = mapReveal ?? MapRevealMode.None,
             AudioEnabled = audioEnabled ?? true,
             Renderer = renderer ?? RendererSelection.Auto,
             MasterVolumePercent = masterVolumePercent ?? 100,

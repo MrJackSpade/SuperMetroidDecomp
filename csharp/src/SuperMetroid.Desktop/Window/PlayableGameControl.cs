@@ -19,10 +19,12 @@ using SuperMetroid.Desktop.Audio;
 using SuperMetroid.Desktop.Diagnostics;
 using SuperMetroid.Desktop.Input;
 using SuperMetroid.Desktop.Timing;
+using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.Rendering.Direct3D11.Presentation;
 using SuperMetroid.Rendering.Direct3D11.Telemetry;
 using SuperMetroid.Core.World.RoomStates;
 
@@ -44,7 +46,7 @@ public sealed class PlayableGameControl : UserControl
     /// <summary>Prior .srm path read only for one-time save migration.</summary>
     private readonly string legacySaveRamPath;
     /// <summary>Host options retained unchanged through in-window restarts.</summary>
-    private readonly SuperMetroidGameOptions gameOptions;
+    private readonly HostOptions hostOptions;
     /// <summary>Optional immutable controller recording driving frame input.</summary>
     private readonly ControllerInputRecording? replay;
     /// <summary>Recoverable error reporter installed by the desktop host.</summary>
@@ -113,7 +115,7 @@ public sealed class PlayableGameControl : UserControl
     /// <summary>Starts from validated installed assets without naming or opening a ROM file.</summary>
     public PlayableGameControl(
         GameInstallation installation,
-        SuperMetroidGameOptions gameOptions,
+        HostOptions hostOptions,
         ControllerInputRecording? replay = null,
         GitHubErrorReporter? errorReporter = null,
         string? audioDirectory = null)
@@ -126,7 +128,7 @@ public sealed class PlayableGameControl : UserControl
         string saveBase = Path.Combine(playerDataDirectory, GameInstallationLayout.RomFileName);
         saveFilePath = Path.ChangeExtension(saveBase, GameSaveJsonFormat.FileExtension);
         legacySaveRamPath = Path.ChangeExtension(saveBase, ".srm");
-        this.gameOptions = Ensure.NotNull(gameOptions);
+        this.hostOptions = Ensure.NotNull(hostOptions);
         this.replay = replay;
         this.errorReporter = errorReporter;
         Dock = DockStyle.Fill;
@@ -269,14 +271,14 @@ public sealed class PlayableGameControl : UserControl
         mapPresentation = installation.LoadMaps();
         ClipAudioCatalog selectedAudioAssets = LoadAudioAssets();
         audioAssets = selectedAudioAssets;
-        if (gameOptions.AudioEnabled)
+        if (hostOptions.AudioEnabled)
             audioDevice = CreateAudioDevice();
         SaveSlotStore saves = replay is null ? LoadSavesFromDisk() : LoadReplaySaves();
         projectilePresentation = installation.LoadProjectiles();
         artwork = installation.LoadGameArtwork(
             mapPresentation ?? throw new InvalidOperationException("Installed map identity is unavailable."),
             projectilePresentation);
-        game = GameSessionComposer.Create(saves, gameOptions, artwork);
+        game = GameSessionComposer.Create(saves, hostOptions.Game, artwork);
         // The session binds clips in every configuration so a debugger state always carries
         // its playback state; whether samples reach a device is the host's choice alone.
         game.BindAudio(selectedAudioAssets);
@@ -384,7 +386,7 @@ public sealed class PlayableGameControl : UserControl
         displayedRoom = null;
         pendingPlaybackFrames = 0;
 
-        if (gameOptions.AudioEnabled)
+        if (hostOptions.AudioEnabled)
             audioDevice = CreateAudioDevice();
 
         // Begin a new crash recorder at the restored boundary. The debugger state itself
@@ -436,7 +438,7 @@ public sealed class PlayableGameControl : UserControl
     {
         return DebuggerSaveStateStore.ForInstalledGame(
             playerDataDirectory,
-            gameOptions,
+            hostOptions.Game,
             installedContentIdentity ?? throw new InvalidOperationException(
                 "Installed desktop session has no content identity."));
     }
@@ -448,7 +450,7 @@ public sealed class PlayableGameControl : UserControl
             playerDataDirectory,
             SaveRamCodec.Encode(game.Saves,
                 mapPresentation ?? throw new InvalidOperationException("Recording saves requires installed maps.")),
-            gameOptions,
+            hostOptions.Game,
             installedContentIdentity ?? throw new InvalidOperationException(
                 "Installed desktop session has no content identity."));
     }
@@ -500,7 +502,7 @@ public sealed class PlayableGameControl : UserControl
         CartridgeAudioSession.SampleRate,
         CartridgeAudioSession.ChannelCount,
         CartridgeAudioSession.PcmSamplesPerFrame,
-        gameOptions.MasterVolumePercent));
+        hostOptions.MasterVolumePercent));
 
     /// <summary>Whether the audio device can take another frame; no device never blocks pacing.</summary>
     private bool CanAdvanceAudioFrame() => audioDevice is null || audioDevice.CanAcceptFrame;
@@ -567,7 +569,7 @@ public sealed class PlayableGameControl : UserControl
                         InputRecordingPath: inputRecorder?.Path)) ?? "audio failure (see console; GitHub reporting disabled)";
                 });
             }
-            DoorTransitionAutosave.TrySave(gameOptions.DoorTransitionAutosave, replay is not null,
+            DoorTransitionAutosave.TrySave(hostOptions.DoorTransitionAutosave, replay is not null,
                 previousGameState, stateStore, addressSpace, game);
             frameTimings.RecordEmulatedFrame(Stopwatch.GetTimestamp() - frameStarted);
             PublishGpuDisplay();
@@ -961,7 +963,7 @@ public sealed class PlayableGameControl : UserControl
         if (rendererStopping) throw new InvalidOperationException("Renderer has already been stopped.");
         if (rendererStarted) throw new InvalidOperationException("Renderer already initialized.");
         rendererStarted = true;
-        if (gameOptions.Renderer == RendererSelection.Software) return;
+        if (hostOptions.Renderer == RendererSelection.Software) return;
         var worker = createWorker(canvas.Handle,
             DisplayViewport.ClientSize(Math.Max(1, canvas.ClientSize.Width), Math.Max(1, canvas.ClientSize.Height)),
             displayGeneration);
@@ -978,7 +980,7 @@ public sealed class PlayableGameControl : UserControl
             catch (Exception stopError) { Console.Error.WriteLine(stopError); }
             gpuWorker = null;
             canvas.SetGpuOwned(false);
-            if (gameOptions.Renderer != RendererSelection.Auto || rendererStopping) throw;
+            if (hostOptions.Renderer != RendererSelection.Auto || rendererStopping) throw;
             Console.Error.WriteLine($"Direct3D11 startup failed; Auto selected software rendering.\n{error}");
             RefreshFrame(game.CurrentFrame);
             return;

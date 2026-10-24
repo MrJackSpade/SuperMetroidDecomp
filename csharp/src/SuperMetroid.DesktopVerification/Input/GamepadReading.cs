@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Input;
+using SuperMetroid.Desktop.Input;
 
 namespace SuperMetroid.DesktopVerification.Input;
 

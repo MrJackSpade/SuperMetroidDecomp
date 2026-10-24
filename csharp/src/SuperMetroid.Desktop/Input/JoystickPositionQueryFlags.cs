@@ -1,8 +1,8 @@
-namespace SuperMetroid.Core.Input;
+namespace SuperMetroid.Desktop.Input;
 
 /// <summary>Actual bit mask accepted by WinMM's JOYINFOEX query.</summary>
 [Flags]
-public enum JoystickPositionQueryFlags : uint
+internal enum JoystickPositionQueryFlags : uint
 {
     /// <summary><c>JOY_RETURNX</c>: requests valid X-axis data in <c>JOYINFOEX.dwXpos</c>, subsequently normalized by the desktop adapter for horizontal input.</summary>
     ReturnX = 0x00000001,

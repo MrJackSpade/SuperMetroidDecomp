@@ -1,7 +1,7 @@
-namespace SuperMetroid.Core.Input;
+namespace SuperMetroid.Desktop.Input;
 
 /// <summary>Typed Windows joystick/HID identifiers used by the desktop input adapter.</summary>
-public static class WindowsGamepadCodes
+internal static class WindowsGamepadCodes
 {
     /// <summary>The inexpensive SNES-style adapter whose buttons follow printed labels.</summary>
     public static readonly UsbGamepadIdentifier SnesUsbAdapter0079_0011 =

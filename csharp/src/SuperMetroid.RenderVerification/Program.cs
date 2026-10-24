@@ -149,6 +149,11 @@ internal static class Program
                 return;
             }
             if (args.Length == 1 && RetailSceneTests.TryRun(args[0])) return;
+            if (args is ["--presentation-handoff"])
+            {
+                PresentationHandoffTests.Run();
+                return;
+            }
             if (args.Length == 1 && args[0] == "--profile-simulation")
             {
                 SimulationProfile.Run();

@@ -1,4 +1,7 @@
-namespace SuperMetroid.Core.Rendering;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Rendering;
+
+namespace SuperMetroid.Rendering.Direct3D11.Presentation;
 
 /// <summary>Serializes the final presentation call with load/reset generation changes.</summary>
 /// <remarks>

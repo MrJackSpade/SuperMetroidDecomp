@@ -18,6 +18,11 @@ internal static class DesktopSmokeAuditCommands
             DesktopSessionLogSmokeTest.Run(loggedGameAssembly);
             return true;
         }
+        if (args is ["--generic-gamepad-input-audit"])
+        {
+            GenericGamepadInputTests.Verify();
+            return true;
+        }
         if (args is ["--gamepad-missing-axes-audit"])
         {
             LiveGamepadProbe.VerifyMissingAxes();

@@ -1,8 +1,8 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Text.Json;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Runtime;
 
@@ -31,9 +31,9 @@ internal static class DesktopTimerSoakTests
             // The installed host path writes player data and debugger slots into its root, so
             // each scene runs on a private copy of the repository installation.
             using var copy = InstalledFixtures.CreatePrivateCopy();
-            var options = new SuperMetroidGameOptions { Renderer = RendererSelection.Direct3D11,
-                SkipOpeningCinematic = true, Invincibility = true, MasterVolumePercent = 0 };
-            CreateDesktopSoakSeed(copy.Installation, options, paused);
+            var options = new HostOptions { Renderer = RendererSelection.Direct3D11, MasterVolumePercent = 0,
+                Game = new SuperMetroidGameOptions { SkipOpeningCinematic = true, Invincibility = true } };
+            CreateDesktopSoakSeed(copy.Installation, options.Game, paused);
             using var form = new GameForm(copy.Installation, options);
             var control = form.gameControl;
             _ = form.Handle; _ = control.Handle;

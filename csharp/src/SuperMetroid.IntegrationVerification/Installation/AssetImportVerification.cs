@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Frontend;
+using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -125,7 +125,7 @@ try
         "repeat Android-style stream import reuses complete content instead of replacing it");
 
     string settings = Path.Combine(root, "SuperMetroid.ini");
-    File.WriteAllText(settings, SuperMetroidGameOptionsIni.DefaultFileContents);
+    File.WriteAllText(settings, HostOptionsIni.DefaultFileContents);
     string save = Path.Combine(root, "SuperMetroid.save.json");
     GameSaveFileStore.WriteAtomic(new SuperMetroid.Core.Saves.SaveSlotStore(installed.LoadMaps()), save);
     byte[] saveBefore = File.ReadAllBytes(save);
@@ -148,7 +148,7 @@ try
     File.Delete(input);
     Check(GameAssetInstaller.EnsureInstalled(root) is not null, "repair works after the original selected document is gone");
     Check(File.ReadAllBytes(waveform).SequenceEqual(waveBefore), "damaged waveform is regenerated exactly");
-    Check(File.ReadAllBytes(save).SequenceEqual(saveBefore) && File.ReadAllText(settings) == SuperMetroidGameOptionsIni.DefaultFileContents,
+    Check(File.ReadAllBytes(save).SequenceEqual(saveBefore) && File.ReadAllText(settings) == HostOptionsIni.DefaultFileContents,
         "repair preserves saves and configuration outside content");
 
     byte[] wrong = (byte[])rom.Clone();

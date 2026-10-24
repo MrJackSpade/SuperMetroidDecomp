@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Frontend.GameConfigurationVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
@@ -19,10 +20,10 @@ internal static class BossResetOnLoadVerification
     {
         Suite(nameof(VerifyGameConfigurationIni), () => VerifyGameConfigurationIni());
         AssertTrue(!new SuperMetroidGameOptions().ResetBossesOnLoad &&
-            !SuperMetroidGameOptionsIni.Parse("").ResetBossesOnLoad &&
-            !SuperMetroidGameOptionsIni.Parse(SuperMetroidGameOptionsIni.DefaultFileContents).ResetBossesOnLoad,
+            !HostOptionsIni.Parse("").Game.ResetBossesOnLoad &&
+            !HostOptionsIni.Parse(HostOptionsIni.DefaultFileContents).Game.ResetBossesOnLoad,
             "boss reset is disabled in programmatic, legacy and shipped defaults");
-        AssertTrue(SuperMetroidGameOptionsIni.Parse("[Game]\nResetBossesOnLoad=true").ResetBossesOnLoad,
+        AssertTrue(HostOptionsIni.Parse("[Game]\nResetBossesOnLoad=true").Game.ResetBossesOnLoad,
             "INI enables boss reset");
         AssertInvalidGameConfiguration("[Game]\nResetBossesOnLoad=yes", "must be either true or false");
         AssertInvalidGameConfiguration("[Game]\nResetBossesOnLoad=true\nresetbossesonload=false", "duplicate");

@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Recording;
 using SuperMetroid.Desktop.Diagnostics;
 using SuperMetroid.Desktop.Window;
+using SuperMetroid.Diagnostics.Configuration;
 
 namespace SuperMetroid.Game;
 
@@ -63,17 +63,17 @@ internal static class Program
             GameConfigurationFile configuration = GameConfigurationFile.LoadInstalled(installation.Root);
             Console.WriteLine($"Configuration source: {configuration.Source}");
             Console.WriteLine($"Configuration file: {configuration.Path}");
-            SuperMetroidGameOptions gameOptions;
+            HostOptions hostOptions;
             if (replay is null)
             {
-                gameOptions = configuration.Options;
+                hostOptions = configuration.Options;
                 Console.WriteLine(
                     $"Loaded {GameConfigurationFile.FileName}: " +
-                    $"SkipOpeningCinematic={configuration.Options.SkipOpeningCinematic}, " +
-                    $"Invincibility={configuration.Options.Invincibility}, " +
-                    $"InfiniteAmmo={configuration.Options.InfiniteAmmo}, " +
-                    $"GrantAllEquipment={configuration.Options.GrantAllEquipment}, UnlockTourian={configuration.Options.UnlockTourian}, " +
-                    $"MapReveal={configuration.Options.MapReveal}, " +
+                    $"SkipOpeningCinematic={configuration.Options.Game.SkipOpeningCinematic}, " +
+                    $"Invincibility={configuration.Options.Game.Invincibility}, " +
+                    $"InfiniteAmmo={configuration.Options.Game.InfiniteAmmo}, " +
+                    $"GrantAllEquipment={configuration.Options.Game.GrantAllEquipment}, UnlockTourian={configuration.Options.Game.UnlockTourian}, " +
+                    $"MapReveal={configuration.Options.Game.MapReveal}, " +
                     $"AudioEnabled={configuration.Options.AudioEnabled}, " +
                     $"MasterVolumePercent={configuration.Options.MasterVolumePercent}, " +
                     $"ReportErrorsToGitHub={configuration.Options.ReportErrorsToGitHub}, " +
@@ -85,34 +85,35 @@ internal static class Program
                 // Gameplay-affecting options and SRAM belong to the deterministic replay seed.
                 // GitHub publication is a host-only diagnostic side channel, so the current INI may
                 // enable or redirect it without changing a single emulated frame.
-                gameOptions = replay.GameOptions with
+                hostOptions = new HostOptions
                 {
+                    Game = replay.GameOptions,
                     ReportErrorsToGitHub = configuration.Options.ReportErrorsToGitHub,
                     GitHubErrorRepository = configuration.Options.GitHubErrorRepository,
                 };
                 Console.WriteLine(
                     $"Replaying {Path.GetFullPath(args[1])}: {replay.ControllerInputs.Length} frames, " +
-                    $"SkipOpeningCinematic={gameOptions.SkipOpeningCinematic}, " +
-                    $"Invincibility={gameOptions.Invincibility}, " +
-                    $"InfiniteAmmo={gameOptions.InfiniteAmmo}, " +
-                    $"GrantAllEquipment={gameOptions.GrantAllEquipment}, UnlockTourian={gameOptions.UnlockTourian}, " +
-                    $"MapReveal={gameOptions.MapReveal}, " +
-                    $"ReportErrorsToGitHub={gameOptions.ReportErrorsToGitHub}, " +
+                    $"SkipOpeningCinematic={hostOptions.Game.SkipOpeningCinematic}, " +
+                    $"Invincibility={hostOptions.Game.Invincibility}, " +
+                    $"InfiniteAmmo={hostOptions.Game.InfiniteAmmo}, " +
+                    $"GrantAllEquipment={hostOptions.Game.GrantAllEquipment}, UnlockTourian={hostOptions.Game.UnlockTourian}, " +
+                    $"MapReveal={hostOptions.Game.MapReveal}, " +
+                    $"ReportErrorsToGitHub={hostOptions.ReportErrorsToGitHub}, " +
                     $"started {replay.StartedUtc:O}");
             }
 
-            if (gameOptions.ReportErrorsToGitHub)
+            if (hostOptions.ReportErrorsToGitHub)
             {
-                githubErrorReporter = new GitHubErrorReporter(gameOptions.GitHubErrorRepository);
+                githubErrorReporter = new GitHubErrorReporter(hostOptions.GitHubErrorRepository);
                 UnhandledExceptionConsole.SetRecoverableUiErrorReporter(exception =>
                     githubErrorReporter.Report(
                         exception,
                         new GitHubErrorContext("WinForms UI callback outside the emulated-frame boundary")));
                 Console.WriteLine(
                     $"Recoverable errors will be deduplicated and filed in " +
-                    $"{gameOptions.GitHubErrorRepository}; gameplay will attempt the next frame.");
+                    $"{hostOptions.GitHubErrorRepository}; gameplay will attempt the next frame.");
             }
-            Application.Run(new GameForm(installation, gameOptions, replay, githubErrorReporter));
+            Application.Run(new GameForm(installation, hostOptions, replay, githubErrorReporter));
         }
         catch (Exception exception)
         {

@@ -1,5 +1,4 @@
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.Diagnostics.Configuration;
 
 using static SuperMetroid.DesktopVerification.Harness.DesktopVerificationSupport;
 using SuperMetroid.Desktop.Window;
@@ -16,7 +15,7 @@ internal static class CloseDuringLoadTests
         string directory = directoryScratch.Root;
         Directory.CreateDirectory(directory);
         string rom = PlaceInstalledRom(directory);
-        using var form = new GameForm(DesktopAccess.InstallationFor(rom), new SuperMetroidGameOptions { Renderer = RendererSelection.Direct3D11, AudioEnabled = false });
+        using var form = new GameForm(DesktopAccess.InstallationFor(rom), new HostOptions { Renderer = RendererSelection.Direct3D11, AudioEnabled = false });
         _ = form.Handle;
         var control = form.gameControl;
         _ = control.Handle;

@@ -1,5 +1,4 @@
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Frontend.Recording;
 using SuperMetroid.Desktop.Window;
@@ -31,7 +30,7 @@ internal static class RomlessDesktopStartupTest
                 throw new InvalidOperationException(
                     "Windows startup did not accept valid extracted content without a ROM.");
             using var host = new PlayableGameControl(installation,
-                new SuperMetroidGameOptions
+                new HostOptions
                 {
                     AudioEnabled = false,
                     Renderer = RendererSelection.Software,
@@ -82,7 +81,7 @@ internal static class RomlessDesktopStartupTest
                 throw new InvalidOperationException(
                     "Windows host recording omitted the reset or six title frames.");
             using var replayHost = new PlayableGameControl(installation,
-                new SuperMetroidGameOptions
+                new HostOptions
                 {
                     AudioEnabled = false,
                     Renderer = RendererSelection.Software,

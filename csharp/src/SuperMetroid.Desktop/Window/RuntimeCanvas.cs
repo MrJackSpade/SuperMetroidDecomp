@@ -90,8 +90,8 @@ public sealed class RuntimeCanvas : Control
         // about 299 display pixels wide. Keep the vertical scale integral so tile edges
         // remain stable, then apply only this horizontal correction with nearest-neighbor
         // sampling; emulation and captured PNGs remain the untouched native raster.
-        var viewport = SuperMetroid.Core.Rendering.DisplayViewport.ForClient(
-            SuperMetroid.Core.Rendering.DisplayViewport.ClientSize(ClientSize.Width, ClientSize.Height));
+        var viewport = SuperMetroid.Rendering.Direct3D11.Presentation.DisplayViewport.ForClient(
+            SuperMetroid.Rendering.Direct3D11.Presentation.DisplayViewport.ClientSize(ClientSize.Width, ClientSize.Height));
 
         e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
         e.Graphics.PixelOffsetMode = PixelOffsetMode.Half;

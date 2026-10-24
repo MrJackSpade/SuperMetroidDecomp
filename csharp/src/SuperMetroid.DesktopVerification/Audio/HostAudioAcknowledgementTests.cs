@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.Diagnostics.Configuration;
 using static SuperMetroid.DesktopVerification.Harness.DesktopVerificationSupport;
 namespace SuperMetroid.DesktopVerification.Audio;
 using SuperMetroid.Core;
@@ -23,7 +23,7 @@ internal static class HostAudioAcknowledgementTests
         string directory = directoryScratch.Root;
         Directory.CreateDirectory(directory);
         string rom = PlaceInstalledRom(directory);
-        var options = new SuperMetroidGameOptions { AudioEnabled = false, Renderer = RendererSelection.Software };
+        var options = new HostOptions { AudioEnabled = false, Renderer = RendererSelection.Software };
         using var form = new Form { ClientSize = new(900, 760), ShowInTaskbar = false };
         using var control = DesktopAccess.CreateGameControl(rom, options);
         form.Controls.Add(control);

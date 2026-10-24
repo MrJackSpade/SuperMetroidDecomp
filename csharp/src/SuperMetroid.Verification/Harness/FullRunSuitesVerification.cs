@@ -139,7 +139,7 @@ using static SuperMetroid.Verification.Frontend.GameConfigurationVerification;
 using static SuperMetroid.Verification.Frontend.GameOver.GameOverRomDataVerification;
 using static SuperMetroid.Verification.Saves.GameSaveJsonVerification;
 using static SuperMetroid.Verification.Progression.GameTimeVerification;
-using static SuperMetroid.Verification.Frontend.GamepadInputVerification;
+using static SuperMetroid.Verification.Frontend.ControllerRepeatDelayVerification;
 using static SuperMetroid.Verification.Runtime.GameplayCaptureIntegrationTestsVerification;
 using static SuperMetroid.Verification.Runtime.GameplaySnapshotTestsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.GateBeamCollisionVerification;
@@ -274,7 +274,6 @@ using static SuperMetroid.Verification.Samus.Projectiles.RedTowerHeroVerificatio
 using static SuperMetroid.Verification.Rooms.Plms.RefillStationLockVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.ReleasedSamusFallsOffDraygonVerification;
 using static SuperMetroid.Verification.Rendering.RenderFrameHandoffTestsVerification;
-using static SuperMetroid.Verification.Rendering.RenderPresentationGateTestsVerification;
 using static SuperMetroid.Verification.Rendering.RenderingAndRoomsVerification;
 using static SuperMetroid.Verification.Harness.ReplayTraceCompactionVerification;
 using static SuperMetroid.Verification.Harness.ReplaySnapshotVerification;
@@ -426,7 +425,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyPauseBossMarkers), () => VerifyPauseBossMarkers()),
         new(nameof(VerifyFileMenuRenderSnapshots), () => VerifyFileMenuRenderSnapshots()),
         new(nameof(VerifyRenderFrameHandoff), () => VerifyRenderFrameHandoff()),
-        new(nameof(VerifyRenderPresentationGate), () => VerifyRenderPresentationGate()),
         new(nameof(VerifyFrontendRenderCapture), () => VerifyFrontendRenderCapture()),
         new(nameof(VerifyCinematicRenderSnapshots), () => VerifyCinematicRenderSnapshots()),
         new(nameof(VerifyGameplaySnapshots), () => VerifyGameplaySnapshots()),
@@ -519,7 +517,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyDoorOpeningTrajectories), () => VerifyDoorOpeningTrajectories()),
         new(nameof(VerifyCreditsObjectInterpreter), () => VerifyCreditsObjectInterpreter()),
         new(nameof(VerifyEndingCreditsState), () => VerifyEndingCreditsState()),
-        new(nameof(VerifyGenericGamepadInput), () => VerifyGenericGamepadInput()),
+        new(nameof(VerifyRepeatAndHeldInputDelays), () => VerifyRepeatAndHeldInputDelays()),
         new(nameof(VerifyDemoInputObject), () => VerifyDemoInputObject()),
         new(nameof(VerifyAttractDemoScene), () => VerifyAttractDemoScene()),
         new(nameof(VerifyAttractDemoControllerOverride), () => VerifyAttractDemoControllerOverride()),

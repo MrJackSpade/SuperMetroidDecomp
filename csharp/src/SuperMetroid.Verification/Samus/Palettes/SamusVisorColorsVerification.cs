@@ -25,6 +25,7 @@ namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Checks installed Samus visor RGB5 colors through room and X-ray palette cycles.</summary>
 internal static class SamusVisorColorsVerification
@@ -187,7 +188,7 @@ internal static class SamusVisorColorsVerification
         document.Colors[0] = originalXray with { Red = (originalXray.Red + 1) % 32 };
         document.Colors[3] = original with { Red = (original.Red + 1) % 32 };
         File.WriteAllBytes(path, SamusVisorColorCatalog.Write(document));
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "visor color override changes installed content identity");
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
@@ -223,7 +224,7 @@ internal static class SamusVisorColorsVerification
             Colors = [.. document.Colors.Take(3), original with { Red = 32 }, .. document.Colors.Skip(4)],
         }), "out-of-range visor color fails loudly");
         File.Delete(path);
-        AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
+        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
             "removing visor override restores stock content identity");
         Console.WriteLine("Samus visor override: edited room/X-ray colors reach CGRAM and stock restores.");

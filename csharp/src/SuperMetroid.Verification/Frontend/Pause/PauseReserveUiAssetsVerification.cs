@@ -13,6 +13,7 @@ using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
@@ -60,7 +61,7 @@ internal static class PauseReserveUiAssetsVerification
             Arrow = document.Arrow with { Frames = frames },
         };
         using (var output = File.Create(path)) PauseReserveUiPresentation.Write(output, editedDocument);
-        var edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "reserve UI override changes selected content identity");
         var stockPause = new PauseMenuState(new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         var editedPause = new PauseMenuState(new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = edited, SpriteSheets = MenuSheetFixtures.For(edited) });
@@ -95,16 +96,16 @@ internal static class PauseReserveUiAssetsVerification
         Reject(document with { Arrow = document.Arrow with { Cells = document.Arrow.Cells[..9] } });
         Reject(document with { Arrow = document.Arrow with { EnabledPalette = 8 } });
         File.WriteAllText(path, "broken JSON");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides),
+        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides),
             "invalid reserve UI override is never silently replaced");
         File.WriteAllBytes(path, stockBytes);
         try
         {
             File.Delete(stockPath);
-            AssertThrows<IOException>(() => AreaMapPresentationCatalog.Load(stock, overrides),
+            AssertThrows<IOException>(() => MapPresentationFiles.Load(stock, overrides),
                 "reserve UI override cannot conceal missing stock");
             File.WriteAllText(stockPath, "corrupt stock");
-            AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides),
+            AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides),
                 "reserve UI override cannot conceal failed provenance");
         }
         finally { File.WriteAllBytes(stockPath, stockBytes); }

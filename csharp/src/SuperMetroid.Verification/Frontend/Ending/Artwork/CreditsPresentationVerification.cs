@@ -10,6 +10,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 namespace SuperMetroid.Verification.Frontend.Ending.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Checks extracted staff-credit rows, playback cadence, and installed text overrides.</summary>
 internal static class CreditsPresentationVerification
@@ -120,7 +121,7 @@ internal static class CreditsPresentationVerification
         File.WriteAllText(overridePath,
             document.ToJsonString(ArtworkJson.Options));
 
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
         int textRow = CreditsPresentationDefinitions.InitialBlankRows;
         AssertTrue(!edited.StaffCredits.GetRow(textRow).SequenceEqual(
@@ -130,14 +131,14 @@ internal static class CreditsPresentationVerification
             "staff-credit override changes catalog identity");
 
         File.Delete(overridePath);
-        AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(
+        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
         AssertTrue(restored.StaffCredits.GetRow(textRow).SequenceEqual(
             original.StaffCredits.GetRow(textRow)),
             "removing staff-credit override restores stock content");
 
         File.WriteAllText(overridePath, "{ bad credits");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(
+        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(
             stockDirectory, overrideDirectory),
             "corrupt staff-credit override fails without stock fallback");
     }

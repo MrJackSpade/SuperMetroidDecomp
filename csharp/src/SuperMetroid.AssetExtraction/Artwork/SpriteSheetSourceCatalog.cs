@@ -9,6 +9,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 
@@ -40,7 +41,7 @@ internal sealed class SpriteSheetSourceCatalog
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
         samus = new(() => SamusSheetInputs.Load(content));
-        maps = new(() => AreaMapPresentationCatalog.Load(Path.Combine(content, GameInstallationLayout.MapDirectoryName), null));
+        maps = new(() => MapPresentationFiles.Load(Path.Combine(content, GameInstallationLayout.MapDirectoryName), null));
         intro = new(() => IntroCinematicArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName), null));
         ending = new(() => EndingObjectArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.EndingObjectDirectoryName), null));
         endingPalettes = new(() => EndingPaletteArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.EndingPaletteDirectoryName), null));

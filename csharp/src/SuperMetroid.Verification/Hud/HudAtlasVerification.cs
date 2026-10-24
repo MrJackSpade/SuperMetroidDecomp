@@ -18,6 +18,7 @@ using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.Verification.Hud;
 
 //// <summary>Checks installed HUD artwork against the native characters and rendered minimap pixels.</summary>
@@ -61,7 +62,7 @@ internal static class HudAtlasVerification
             image = IndexedPng.Read(input, new(MapTileAtlasFormat.Width, MapTileAtlasFormat.Height));
         for (int i = 0; i < image.Pixels.Length; i++) image.Pixels[i] = (byte)((image.Pixels[i] + 1) % 4);
         using (var output = File.Create(replacement)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        var edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        var edited = MapPresentationFiles.Load(stock, overrides);
         // This snapshot already shows the old HUD. Setup's cleared half now lies under room data.
         using var displayedSnapshot = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(displayedSnapshot, installed);
@@ -112,7 +113,7 @@ internal static class HudAtlasVerification
         reboundBeforeNmi.FrameBoundary.BeginAcceptedFrame(0);
         AssertTrue(Render(reboundBeforeNmi).SequenceEqual(modified), "artwork rebound before the first accepted NMI shows the current installed artwork");
         File.WriteAllText(replacement, "broken HUD PNG");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "broken HUD override has no silent fallback");
+        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "broken HUD override has no silent fallback");
         Console.WriteLine("HUD PNG: exact native character and pixel parity, visible minimap edit and current-content rebind pass.");
 
         void Initialize(SuperMetroidRuntime runtime)

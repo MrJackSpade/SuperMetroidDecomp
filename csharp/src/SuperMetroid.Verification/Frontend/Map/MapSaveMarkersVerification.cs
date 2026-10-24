@@ -18,6 +18,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
@@ -126,7 +127,7 @@ internal static class MapSaveMarkersVerification
         string path = Path.Combine(overrides, MapSaveMarkerFormat.FileName);
         using (var output = File.Create(path)) MapSaveMarkerLayout.Write(output, document with { Markers = points });
         byte[] bytes = File.ReadAllBytes(path);
-        var edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity, "save marker edit changes content identity");
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         var snapshot = new SuperMetroidSaveSnapshot { Area = (ushort)AreaId.Maridia, SaveStation = 0, Health = 99, MaxHealth = 99 };
@@ -161,19 +162,19 @@ internal static class MapSaveMarkersVerification
         AssertEqual(0, slot.SaveStation, "layout does not alter selected load station");
         string rebuilt = Path.Combine(overrides, "rebuilt");
         SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
-        AssertEqual(edited.ContentIdentity, AreaMapPresentationCatalog.Load(rebuilt, overrides).ContentIdentity, "save marker override survives stock replacement");
+        AssertEqual(edited.ContentIdentity, MapPresentationFiles.Load(rebuilt, overrides).ContentIdentity, "save marker override survives stock replacement");
         AssertTrue(bytes.SequenceEqual(File.ReadAllBytes(path)), "save marker override bytes preserved");
         foreach (var bad in new[] { document with { Version = 2 }, document with { Markers = new() },
             document with { Markers = points.ToDictionary(pair => pair.Key, pair => pair.Value with { X = ushort.MaxValue }) } })
             AssertThrows<InvalidDataException>(() => MapSaveMarkerLayout.Write(new MemoryStream(), bad), "invalid save marker layout rejected");
         File.WriteAllText(path, "{bad save markers");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "bad save marker override cannot fall back");
+        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "bad save marker override cannot fall back");
         AssertEqual("{bad save markers", File.ReadAllText(path), "bad save marker override preserved");
         string rebuiltPath = Path.Combine(rebuilt, MapSaveMarkerFormat.FileName);
         File.Delete(rebuiltPath);
-        AssertThrows<FileNotFoundException>(() => AreaMapPresentationCatalog.Load(rebuilt, null), "missing stock save markers rejected");
+        AssertThrows<FileNotFoundException>(() => MapPresentationFiles.Load(rebuilt, null), "missing stock save markers rejected");
         File.WriteAllText(rebuiltPath, "bad stock");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(rebuilt, null), "corrupt stock save markers rejected");
+        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(rebuilt, null), "corrupt stock save markers rejected");
         Console.WriteLine($"Save markers: {valid} coordinates/128-tick animations, unused indices, transitions with save-coordinate ROM reads blocked, edited pixels and restored load timing pass.");
 
         byte[] Draw(FileSelectStationMarker marker)

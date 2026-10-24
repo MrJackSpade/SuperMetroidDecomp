@@ -14,7 +14,6 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Runtime;
@@ -23,6 +22,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Frontend;
 
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Focused cartridge and rendering checks for frontend presentation and demo input.</summary>
 internal static class FrontendVerification
@@ -135,7 +135,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     Directory.CreateDirectory(overrideRoot);
     File.WriteAllBytes(Path.Combine(overrideRoot, FileSelectPresentationDefinitions.FileName),
         SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(addressSpace));
-    var fixturePresentation = AreaMapPresentationCatalog.Load(
+    var fixturePresentation = MapPresentationFiles.Load(
         RepositoryInstallation.Installation.MapDirectory, overrideRoot);
     var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
     var menu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation, spriteSheets: MenuSheetFixtures.For(fixturePresentation));

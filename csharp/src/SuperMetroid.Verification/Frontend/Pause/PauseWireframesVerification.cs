@@ -15,6 +15,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks imported pause equipment wireframes and isolated artwork replacement across menu states.</summary>
@@ -43,7 +44,7 @@ internal static class PauseWireframesVerification
             frames[kind.ToString()] = frames[kind.ToString()].Select(cell => cell with
                 { Atlas = PauseAtlas.Map, TileColumn = 4, TileRow = 0, Palette = 3, Priority = true, FlipX = true, FlipY = true }).ToArray();
             using (var output = File.Create(path)) PauseWireframePresentation.Write(output, document with { Frames = frames });
-            var edited = AreaMapPresentationCatalog.Load(stock, overrides);
+            var edited = MapPresentationFiles.Load(stock, overrides);
             AssertTrue(original.ContentIdentity != edited.ContentIdentity, "independent wireframe edit changes selected identity");
             foreach (PauseWireframeKind other in Enum.GetValues<PauseWireframeKind>())
             {
@@ -124,14 +125,14 @@ internal static class PauseWireframesVerification
         AssertThrows<ArgumentOutOfRangeException>(() => original.PauseWireframes.ApplyTo(new byte[2048], (PauseWireframeKind)4), "invalid compiled selector rejected");
         AssertThrows<ArgumentException>(() => original.PauseWireframes.ApplyTo(new byte[32], PauseWireframeKind.PowerSuit), "short patch target rejected before partial write");
         File.WriteAllText(path, "broken JSON");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "invalid wireframe override never silently replaced");
+        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "invalid wireframe override never silently replaced");
         File.WriteAllBytes(path, stockBytes);
         try
         {
             File.Delete(stockPath);
-            AssertThrows<IOException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "wireframe override cannot conceal missing stock");
+            AssertThrows<IOException>(() => MapPresentationFiles.Load(stock, overrides), "wireframe override cannot conceal missing stock");
             File.WriteAllText(stockPath, "corrupt stock");
-            AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "wireframe override cannot conceal failed provenance");
+            AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "wireframe override cannot conceal failed provenance");
         }
         finally { File.WriteAllBytes(stockPath, stockBytes); }
         Console.WriteLine("Pause wireframes: four exact patches/untouched surroundings, 576 guarded native transition frames, isolated visual edits, actual equipment toggles, current-content restore and strict failures pass.");

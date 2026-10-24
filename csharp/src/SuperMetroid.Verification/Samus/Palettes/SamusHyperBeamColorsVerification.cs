@@ -22,6 +22,7 @@ namespace SuperMetroid.Verification.Samus.Palettes;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Retail and installed-artwork checks for Samus's ten-frame Hyper Beam rainbow palette.</summary>
 internal static class SamusHyperBeamColorsVerification
@@ -412,7 +413,7 @@ internal static class SamusHyperBeamColorsVerification
         PaletteRgb5 original = document.Frames[4][7];
         document.Frames[4][7] = original with { Red = (original.Red + 1) % 32 };
         File.WriteAllBytes(path, SamusHyperBeamColorCatalog.Write(document));
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "Hyper Beam color override changes installed content identity");
 
@@ -444,7 +445,7 @@ internal static class SamusHyperBeamColorsVerification
                  .. document.Frames[4].Skip(8)], .. document.Frames.Skip(5)],
         }), "out-of-range Hyper Beam RGB5 fails loudly");
         File.Delete(path);
-        AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
+        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
             "removing Hyper Beam override restores stock content identity");
         Console.WriteLine("Hyper Beam override: edited frame reaches CGRAM and stock restores.");

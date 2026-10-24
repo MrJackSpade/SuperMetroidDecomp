@@ -14,6 +14,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
 /// <summary>Checks Ceres and Norfair Ridley palette installation against native CGRAM rows.</summary>
@@ -78,7 +79,7 @@ internal static class CeresRidleyColorsVerification
         Paint((document.Baby ?? throw new InvalidOperationException("Verification requires document.Baby."))[1]);
         string replacement = Path.Combine(overrideDirectory, CeresRidleyColorFormat.FileName);
         File.WriteAllBytes(replacement, CeresRidleyColorCatalog.Write(document));
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Ceres Ridley palette edit changes installed identity");
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
@@ -181,7 +182,7 @@ internal static class CeresRidleyColorsVerification
             ArtworkJson.Options);
         File.WriteAllBytes(replacement, legacyJson);
         AreaMapPresentationCatalog migrated =
-            AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
+            MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertEqual(edited.CeresRidleyColors.ResolveStart(1),
             migrated.CeresRidleyColors.ResolveStart(1),
             "version-one Ceres Ridley override retains an edited color");
@@ -196,7 +197,7 @@ internal static class CeresRidleyColorsVerification
             ArtworkJson.Options);
         File.WriteAllBytes(replacement, preAlarmJson);
         AreaMapPresentationCatalog preAlarm =
-            AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
+            MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertEqual(edited.CeresRidleyColors.ResolveBaby(1, 1),
             preAlarm.CeresRidleyColors.ResolveBaby(1, 1),
             "version-two Ridley override retains its edited Baby colors");
@@ -213,14 +214,14 @@ internal static class CeresRidleyColorsVerification
             "ceres-ridley-reextract");
         byte[] overrideBeforeRepair = File.ReadAllBytes(replacement);
         SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(rom, replacementStock, "test-provenance");
-        AreaMapPresentationCatalog repaired = AreaMapPresentationCatalog.Load(replacementStock, overrideDirectory);
+        AreaMapPresentationCatalog repaired = MapPresentationFiles.Load(replacementStock, overrideDirectory);
         AssertEqual(edited.ContentIdentity, repaired.ContentIdentity,
             "Ceres Ridley stock repair preserves override identity");
         AssertTrue(overrideBeforeRepair.SequenceEqual(File.ReadAllBytes(replacement)),
             "Ceres Ridley stock repair does not rewrite override");
         File.Delete(replacement);
         AssertEqual(original.ContentIdentity,
-            AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory).ContentIdentity,
+            MapPresentationFiles.Load(stockDirectory, overrideDirectory).ContentIdentity,
             "removing Ceres Ridley override restores stock identity");
         Console.WriteLine("Ceres/Ridley colors: 429 native words, Ceres initialization/fades/alarm/retreat/Baby, Norfair health thresholds, ROM guard and stock repair pass.");
 

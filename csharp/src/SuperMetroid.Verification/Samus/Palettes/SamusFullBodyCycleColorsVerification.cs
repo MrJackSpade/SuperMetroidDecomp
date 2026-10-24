@@ -18,6 +18,7 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.Verification.Samus.Palettes;
 
 /// <summary>Checks installed full-body palette cycles and editable shade components against the retail color tables.</summary>
@@ -427,7 +428,7 @@ internal static class SamusFullBodyCycleColorsVerification
         Paint(document.ActiveShinespark[0][1]);
         string replacement = Path.Combine(overrideDirectory, SamusFullBodyCycleColorFormat.FileName);
         File.WriteAllBytes(replacement, SamusFullBodyCycleColorCatalog.Write(document));
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "full-body cycle edit changes installed-content identity");
 
@@ -526,7 +527,7 @@ internal static class SamusFullBodyCycleColorsVerification
             "cycle-color-reextract");
         byte[] overrideBeforeRepair = File.ReadAllBytes(replacement);
         SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(rom, replacementStock, "test-provenance");
-        AreaMapPresentationCatalog afterRepair = AreaMapPresentationCatalog.Load(
+        AreaMapPresentationCatalog afterRepair = MapPresentationFiles.Load(
             replacementStock, overrideDirectory);
         AssertEqual(edited.ContentIdentity, afterRepair.ContentIdentity,
             "stock re-extraction preserves selected full-body cycle override");
@@ -534,7 +535,7 @@ internal static class SamusFullBodyCycleColorsVerification
             "stock re-extraction never rewrites the user's cycle colors");
 
         File.Delete(replacement);
-        AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
+        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing cycle-color override restores stock identity");
         Console.WriteLine("Samus full-body cycles: 768 native colors, four live families/three suits, attachment flash, ROM guard, rebind, strict values and override removal pass.");

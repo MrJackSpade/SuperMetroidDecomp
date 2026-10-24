@@ -18,6 +18,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Checks extracted room-FX blend colors, installed CGRAM writes, and Ceres haze color overrides.</summary>
 internal static class RoomFxPaletteBlendsVerification
@@ -165,7 +166,7 @@ internal static class RoomFxPaletteBlendsVerification
             CeresHazeBlue = new PaletteRgb5 { Red = 0, Green = 15, Blue = 0 },
         };
         File.WriteAllBytes(path, RoomFxPaletteBlendCatalog.Write(document));
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "room-FX blend edit changes installed content identity");
         Bgr555 expected = edited.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava)[0];
@@ -188,7 +189,7 @@ internal static class RoomFxPaletteBlendsVerification
             },
         }), "invalid room-FX blend component fails loudly");
         File.Delete(path);
-        AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
+        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
             "removing room-FX blend override restores stock identity");
         Console.WriteLine("Room-FX blend override: edited color reaches CGRAM and removal restores stock.");

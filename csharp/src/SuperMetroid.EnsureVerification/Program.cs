@@ -40,14 +40,8 @@ internal static class Program
                 VerifyMemberDocumentationAnalyzer();
                 return 0;
             }
-            string? only = args switch
-            {
-                [] => null,
-                ["--suite", string name] => name,
-                _ => throw new ArgumentException("Unknown verification arguments.", nameof(args)),
-            };
             // Every suite runs even after one fails, so a single run reports every failure in full.
-            AnalyzerSuite[] all =
+            AnalyzerSuite[] suites =
             [
                 new AnalyzerSuite(nameof(VerifyEnsure), VerifyEnsure),
                 new AnalyzerSuite(nameof(VerifyAnalyzer), VerifyAnalyzer),
@@ -78,6 +72,7 @@ internal static class Program
                 new AnalyzerSuite(nameof(DisplayPacketAnalyzerTests.VerifyDisplayPacketAnalyzer), DisplayPacketAnalyzerTests.VerifyDisplayPacketAnalyzer),
                 new AnalyzerSuite(nameof(PaletteLayoutAnalyzerTests.VerifyPaletteLayoutAnalyzer), PaletteLayoutAnalyzerTests.VerifyPaletteLayoutAnalyzer),
                 new AnalyzerSuite(nameof(TransferWordAnalyzerTests.VerifyTransferWordAnalyzer), TransferWordAnalyzerTests.VerifyTransferWordAnalyzer),
+                new AnalyzerSuite(nameof(HostConcernAnalyzerTests.VerifyHostConcernAnalyzer), HostConcernAnalyzerTests.VerifyHostConcernAnalyzer),
                 new AnalyzerSuite(nameof(VerifyKindTaggedRecordAnalyzer), VerifyKindTaggedRecordAnalyzer),
                 new AnalyzerSuite(nameof(VerifyStringIdentityAnalyzer), VerifyStringIdentityAnalyzer),
                 new AnalyzerSuite(nameof(VerifyDspRegisterAccessAnalyzer), VerifyDspRegisterAccessAnalyzer),
@@ -101,10 +96,18 @@ internal static class Program
                 new AnalyzerSuite(nameof(VerifyWordReadAnalyzer), VerifyWordReadAnalyzer),
                 new AnalyzerSuite(nameof(VerifyPaletteFxDependencyContract), VerifyPaletteFxDependencyContract),
             ];
-            // --suite runs the one suite of that name, so a change to one rule runs only that rule's cases.
-            AnalyzerSuite[] suites = only is null ? all : [.. all.Where(suite => suite.Name == only)];
-            if (suites.Length == 0)
-                throw new ArgumentException($"No verification suite is named '{only}'.", nameof(args));
+            // `--suite <name>...` runs only the named suites, so a change to one rule checks only that rule.
+            if (args is ["--suite", .. var names] && names.Length != 0)
+            {
+                string[] unknown = names.Where(name => !suites.Any(suite => suite.Name == name)).ToArray();
+                if (unknown.Length != 0)
+                    throw new ArgumentException($"Unknown verification suites: {string.Join(", ", unknown)}.", nameof(args));
+                suites = suites.Where(suite => names.Contains(suite.Name)).ToArray();
+            }
+            else if (args.Length != 0)
+            {
+                throw new ArgumentException("Unknown verification arguments.", nameof(args));
+            }
             var failed = new List<string>();
             foreach ((string name, Action run) in suites)
             {

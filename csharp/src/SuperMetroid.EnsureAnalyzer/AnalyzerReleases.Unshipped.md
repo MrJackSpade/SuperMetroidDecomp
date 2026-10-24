@@ -49,3 +49,4 @@ SME6442 | Design | Error | FrameCompositionAnalyzer
 SME6443 | Design | Error | DisplayPacketAnalyzer
 SME6444 | Design | Error | PaletteLayoutAnalyzer
 SME6445 | Design | Error | TransferWordAnalyzer
+SME6448 | Design | Error | HostConcernAnalyzer

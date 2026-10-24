@@ -11,8 +11,6 @@ public static class SoftwareGameplayColorMathRenderer
     internal static Rgba32[] Render(SoftwarePpuSnapshotMemory memory, GameplayColorMathRenderLayer layer,
         Rgba32[]? outputBuffer)
     {
-        if (layer.Gameplay.View.MainScreenWindowMask != SnesMainScreenLayers.None)
-            throw new NotSupportedException("Combining captured hardware windows with gameplay color math is not translated.");
         int count = SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels;
         if (outputBuffer is not null && outputBuffer.Length != count)
             throw new ArgumentException("Unexpected gameplay color-math output dimensions.", nameof(outputBuffer));

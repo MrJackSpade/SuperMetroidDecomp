@@ -82,4 +82,12 @@ internal static class GameplaySnapshotTestsVerification
             "gameplay packet survives complete live VRAM/CGRAM replacement");
         Console.WriteLine($"  Gameplay snapshots: {samples} priority/mask/HDMA/geometry cases and retained retail base match.");
     }
+
+    /// <summary>Runs gameplay snapshots.</summary>
+    [SuperMetroid.Verification.Harness.VerificationCommand("--gameplay-snapshots")]
+    internal static int GameplaySnapshotsCommand()
+    {
+        SuperMetroid.Verification.Harness.SuiteTimingVerification.Suite(nameof(VerifyGameplaySnapshots), () => VerifyGameplaySnapshots());
+        return 0;
+    }
 }

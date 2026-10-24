@@ -16,7 +16,6 @@ internal static class OrdinarySmokeTests
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
-        HardwareWindowTests.Run(device, renderer);
         var random = new Random(32115);
         var vram = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(vram);
         var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount]; random.NextBytes(oam);

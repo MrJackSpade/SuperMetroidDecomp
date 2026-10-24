@@ -1,9 +1,8 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
-/// <summary>The tile shader's per-dispatch constants: BG map and character bases, scroll and map size, priority and transparency, brightness and fixed colour, OBJ selection, scanline range and windows (#633).</summary>
+/// <summary>The tile shader's per-dispatch constants: BG map and character bases, scroll and map size, priority and transparency, brightness and fixed colour, OBJ selection and scanline range (#633).</summary>
 internal sealed record D3D11TileDispatch
 {
     /// <summary>Map.</summary>
@@ -48,13 +47,4 @@ internal sealed record D3D11TileDispatch
 
     /// <summary>End scanline.</summary>
     public uint EndScanline { get; init; } = 224;
-
-    /// <summary>Windows.</summary>
-    public SnesWindowRegisters Windows { get; init; } = default;
-
-    /// <summary>Window mask.</summary>
-    public SnesMainScreenLayers WindowMask { get; init; } = SnesMainScreenLayers.None;
-
-    /// <summary>Window target.</summary>
-    public SnesWindowTarget WindowTarget { get; init; } = SnesWindowTarget.Bg1;
 }

@@ -39,6 +39,19 @@ internal sealed class SelectedPresentationHash
             }
         });
 
+    /// <summary>Hashes shared bytes and name-keyed transfer payloads in ordinal name order.</summary>
+    public static string FromNamedTransfers<T>(string domain, IReadOnlyDictionary<string, T> sources,
+        Func<T, ReadOnlyMemory<byte>> transfer, ReadOnlyMemory<byte> shared = default) =>
+        Create(domain, content =>
+        {
+            content.Append("shared", shared.Span);
+            foreach ((string source, T selected) in sources.OrderBy(pair => pair.Key, StringComparer.Ordinal))
+            {
+                content.Append("source", Encoding.UTF8.GetBytes(source));
+                content.Append("transfer", transfer(selected).Span);
+            }
+        });
+
     /// <summary>Adds a UTF-8 field label and byte payload with explicit lengths to prevent boundary ambiguity.</summary>
     public void Append(string label, ReadOnlySpan<byte> bytes)
     {

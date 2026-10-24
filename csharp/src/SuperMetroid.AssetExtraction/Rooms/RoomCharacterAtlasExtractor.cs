@@ -23,19 +23,20 @@ public static class RoomCharacterAtlasExtractor
     {
         Ensure.NotNull(bus);
         var files = new Dictionary<string, byte[]>();
+        RoomTilesetSourceMap sources = RoomTilesetSources.Read(CartridgeImportSource.Require(bus));
         Add(RoomCharacterAtlasFormat.CreFileName,
-            RoomAssetRomData.Tilesets.CreCharactersAddress);
+            SnesAddress.FromBusAddress(RoomAssetRomData.Tilesets.CreCharactersAddress));
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
             RoomCharacterSet set = RoomTilesetDefinitions.Get(graphicsSet).Characters;
             string name = RoomCharacterAtlasFormat.FileName(set);
-            if (!files.ContainsKey(name)) Add(name, RoomTilesetSources.Characters[set]);
+            if (!files.ContainsKey(name)) Add(name, sources.Characters[set]);
         }
         Add(RoomCharacterAtlasFormat.FileName(RoomCharacterSet.TourianStatueGhost),
-            RoomTilesetSources.Characters[RoomCharacterSet.TourianStatueGhost], compressed: false);
+            sources.Characters[RoomCharacterSet.TourianStatueGhost], compressed: false);
         return files;
 
-        void Add(string fileName, int sourceAddress, bool compressed = true)
+        void Add(string fileName, SnesAddress sourceAddress, bool compressed = true)
         {
             byte[] planar = compressed
                 ? RomDataReader.Decompress(CartridgeImportSource.Require(bus), sourceAddress)

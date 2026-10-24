@@ -35,16 +35,17 @@ public static class RoomCharacterArtworkFiles
         Directory.CreateDirectory(directory);
 
         IReadOnlyDictionary<string, byte[]> pngs = RoomCharacterAtlasExtractor.Extract(bus);
-        Dictionary<string, RoomCharacterSource> sources = ExpectedSources();
+        RoomTilesetSourceMap tilesets = RoomTilesetSources.Read(CartridgeImportSource.Require(bus));
         var entries = new Dictionary<string, RoomCharacterFileEntry>();
-        foreach ((string name, RoomCharacterSource source) in sources)
+        foreach ((string name, RoomCharacterSource source) in ExpectedSources())
         {
-            int sourceAddress = source.Address;
             byte[] png = pngs[name];
-            int nativeByteCount = sourceAddress ==
-                RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress
+            // The ghost sheet is stored uncompressed, so its length is the library background's.
+            int nativeByteCount = source.Set == RoomCharacterSet.TourianStatueGhost
                 ? LibraryBackgroundRomData.TourianStatueGhostByteCount
-                : RomDataReader.Decompress(CartridgeImportSource.Require(bus), sourceAddress).Length;
+                : RomDataReader.Decompress(CartridgeImportSource.Require(bus), source.Set is { } set
+                    ? tilesets.Characters[set]
+                    : SnesAddress.FromBusAddress(RoomAssetRomData.Tilesets.CreCharactersAddress)).Length;
             RoomCharacterAtlasFormat.ValidateTileCount(nativeByteCount);
             using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(png);
@@ -120,27 +121,26 @@ public static class RoomCharacterArtworkFiles
     /// <summary>Used by installer completeness checks; overrides do not affect stock provenance.</summary>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
-    /// <summary>Maps the CRE, each distinct graphics-set sheet and the ghost sheet by file name to their sheet and source.</summary>
+    /// <summary>Maps the CRE, each distinct graphics-set sheet and the ghost sheet by file name to their sheet.</summary>
     private static Dictionary<string, RoomCharacterSource> ExpectedSources()
     {
         var sources = new Dictionary<string, RoomCharacterSource>
         {
-            [RoomCharacterAtlasFormat.CreFileName] = new(null, RoomAssetRomData.Tilesets.CreCharactersAddress),
+            [RoomCharacterAtlasFormat.CreFileName] = new(null),
         };
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
             RoomCharacterSet set = RoomTilesetDefinitions.Get(graphicsSet).Characters;
-            sources[RoomCharacterAtlasFormat.FileName(set)] = new(set, RoomTilesetSources.Characters[set]);
+            sources[RoomCharacterAtlasFormat.FileName(set)] = new(set);
         }
         sources[RoomCharacterAtlasFormat.FileName(RoomCharacterSet.TourianStatueGhost)] =
-            new(RoomCharacterSet.TourianStatueGhost, RoomTilesetSources.Characters[RoomCharacterSet.TourianStatueGhost]);
+            new(RoomCharacterSet.TourianStatueGhost);
         return sources;
     }
 
-    /// <summary>A character file's sheet (none for the common room elements) and cartridge source.</summary>
+    /// <summary>A character file's sheet: none for the common room elements.</summary>
     /// <param name="Set">The sheet, or null for the common room elements.</param>
-    /// <param name="Address">Where the sheet is stored on the cartridge.</param>
-    private readonly record struct RoomCharacterSource(RoomCharacterSet? Set, int Address);
+    private readonly record struct RoomCharacterSource(RoomCharacterSet? Set);
 
     /// <summary>Reads and writes manifest property names in their stable camel-case JSON form.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

@@ -6,14 +6,14 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal static class RoomTilesetFileNames
 {
     /// <summary>Each character sheet's old file name and its current name.</summary>
-    internal static IReadOnlyDictionary<string, string> LegacyCharacterNames() => RoomTilesetSources.Characters.ToDictionary(
-        pair => $"room-characters-{pair.Value:X6}.png", pair => RoomCharacterAtlasFormat.FileName(pair.Key));
+    internal static IReadOnlyDictionary<string, string> LegacyCharacterNames() => RoomTilesetLegacyFileNameDefinitions.Characters.ToDictionary(
+        pair => pair.Value, pair => RoomCharacterAtlasFormat.FileName(pair.Key));
 
     /// <summary>Each block table's old file name and its current name.</summary>
-    internal static IReadOnlyDictionary<string, string> LegacyBlockNames() => RoomTilesetSources.Blocks.ToDictionary(
-        pair => $"room-blocks-{pair.Value:X6}.json", pair => RoomMetatileFormat.FileName(pair.Key));
+    internal static IReadOnlyDictionary<string, string> LegacyBlockNames() => RoomTilesetLegacyFileNameDefinitions.Blocks.ToDictionary(
+        pair => pair.Value, pair => RoomMetatileFormat.FileName(pair.Key));
 
     /// <summary>Each room palette's old file name and its current name.</summary>
-    internal static IReadOnlyDictionary<string, string> LegacyPaletteNames() => RoomTilesetSources.Palettes.ToDictionary(
-        pair => $"room-palette-{pair.Value:X6}.json", pair => RoomStaticPaletteFormat.FileName(pair.Key));
+    internal static IReadOnlyDictionary<string, string> LegacyPaletteNames() => RoomTilesetLegacyFileNameDefinitions.Palettes.ToDictionary(
+        pair => pair.Value, pair => RoomStaticPaletteFormat.FileName(pair.Key));
 }

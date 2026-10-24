@@ -33,10 +33,12 @@ public static class RoomMetatileArtworkFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);
         IReadOnlyDictionary<string, byte[]> files = RoomMetatileExtractor.Extract(bus);
+        RoomTilesetSourceMap tilesets = RoomTilesetSources.Read(CartridgeImportSource.Require(bus));
         var entries = new Dictionary<string, RoomMetatileFileEntry>();
         foreach ((string name, RoomBlockSource source) in ExpectedSources())
         {
-            int address = source.Address;
+            SnesAddress address = source.Set is { } set ? tilesets.Blocks[set]
+                : SnesAddress.FromBusAddress(RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress);
             byte[] json = files[name];
             int nativeLength = RomDataReader.Decompress(CartridgeImportSource.Require(bus), address).Length;
             RoomMetatileFormat.ValidateBlockCount(nativeLength);
@@ -111,20 +113,19 @@ public static class RoomMetatileArtworkFiles
     {
         var sources = new Dictionary<string, RoomBlockSource>
         {
-            [RoomMetatileFormat.CreFileName] = new(null, RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress),
+            [RoomMetatileFormat.CreFileName] = new(null),
         };
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
             RoomBlockSet set = RoomTilesetDefinitions.Get(graphicsSet).Blocks;
-            sources[RoomMetatileFormat.FileName(set)] = new(set, RoomTilesetSources.Blocks[set]);
+            sources[RoomMetatileFormat.FileName(set)] = new(set);
         }
         return sources;
     }
 
-    /// <summary>A block file's table (none for the common room elements) and cartridge source.</summary>
+    /// <summary>A block file's table: none for the common room elements.</summary>
     /// <param name="Set">The table, or null for the common room elements.</param>
-    /// <param name="Address">Where the table is stored on the cartridge.</param>
-    private readonly record struct RoomBlockSource(RoomBlockSet? Set, int Address);
+    private readonly record struct RoomBlockSource(RoomBlockSet? Set);
 
     /// <summary>Strict camel-case serialization settings for the metatile provenance manifest.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

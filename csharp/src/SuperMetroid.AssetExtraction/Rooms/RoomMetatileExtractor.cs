@@ -22,17 +22,18 @@ public static class RoomMetatileExtractor
     {
         Ensure.NotNull(bus);
         var files = new Dictionary<string, byte[]>();
+        RoomTilesetSourceMap sources = RoomTilesetSources.Read(CartridgeImportSource.Require(bus));
         Add(RoomMetatileFormat.CreFileName,
-            RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress);
+            SnesAddress.FromBusAddress(RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress));
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
             RoomBlockSet set = RoomTilesetDefinitions.Get(graphicsSet).Blocks;
             string name = RoomMetatileFormat.FileName(set);
-            if (!files.ContainsKey(name)) Add(name, RoomTilesetSources.Blocks[set]);
+            if (!files.ContainsKey(name)) Add(name, sources.Blocks[set]);
         }
         return files;
 
-        void Add(string name, int source)
+        void Add(string name, SnesAddress source)
         {
             byte[] native = RomDataReader.Decompress(CartridgeImportSource.Require(bus), source);
             int count = RoomMetatileFormat.ValidateBlockCount(native.Length);

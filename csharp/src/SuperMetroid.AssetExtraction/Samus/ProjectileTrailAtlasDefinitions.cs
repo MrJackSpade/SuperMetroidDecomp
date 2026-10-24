@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Trail tile ownership within $82:8318's standard sprite transfer from Tiles_Standard_Sprite_0.</summary>
 public static class ProjectileTrailAtlasDefinitions

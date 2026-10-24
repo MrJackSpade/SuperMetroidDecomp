@@ -122,7 +122,6 @@ internal sealed class InstalledSamusIsolationTests
                 EquippedItems = equipment, Health = 99, MaxHealth = 299,
                 Presentation = { SuitColors = Suits, FullBodyCycleColors = Cycles } };
             Samus.Presentation.BodyFrames.BindBodyFixture(Body);
-            Samus.Presentation.BodyFrames.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
             Samus.ArmCannon.Artwork = Body.ArmCannon;
             SamusPoseMetadata.RefreshCollisionRadii(Samus);
             Samus.Position = Samus.Position.WithWholeY((ushort)(FloorY - Samus.Kinematics.Radius.Y));
@@ -621,7 +620,7 @@ internal sealed class InstalledSamusIsolationTests
                 pair.Check(context + " explosion draw");
                 draws++;
                 if (!a.LowTable.SequenceEqual(b.LowTable)) changedOam++;
-                if (!pair.Stock.Body.DeathTiles.Explosion.Characters.SequenceEqual(pair.Edited.Body.DeathTiles.Explosion.Characters)) changedTiles++;
+                if (pair.Stock.Body.DeathTilesContentIdentity != pair.Edited.Body.DeathTilesContentIdentity) changedTiles++;
             }
             frames++;
         }

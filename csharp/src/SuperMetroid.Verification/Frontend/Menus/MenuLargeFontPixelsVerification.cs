@@ -1,5 +1,5 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.Menus.MenuFontEvidenceVerification;
 using SuperMetroid.Core.Frontend.Map.Artwork;

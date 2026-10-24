@@ -28,6 +28,8 @@ public static class BeamPaletteDefinitions
     public const int Version = 1;
     /// <summary>Sixteen colors copied by the native beam loader, covering all entries of OBJ palette 6, including color zero.</summary>
     public const int ColorCount = 16;
+    /// <summary>$90:C3B1 contains twelve legal beam-combination pointers before palette data: one palette per retail combination.</summary>
+    public const int SelectionCount = 12;
     /// <summary>$90:C3C9..C3E0 selects Ice before Plasma before Wave before Spazer before Power; the first two colors alias the common Power inputs in all five rows.</summary>
     internal static SamusBeamCombination ColorSourceSelection(SamusBeamCombination selection, int color)
     {

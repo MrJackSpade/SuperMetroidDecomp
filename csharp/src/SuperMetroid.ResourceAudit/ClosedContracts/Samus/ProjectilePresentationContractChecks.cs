@@ -23,13 +23,10 @@ internal static class ProjectilePresentationContractChecks
             using SuperMetroid.Core.Samus.Artwork;
             using SuperMetroid.Core.Samus.Projectiles;
             class ProjectileConsumer {
-                void Inspect(BeamTileCatalog beams, ChargeFlarePlacementCatalog placement,
+                void Inspect(ChargeFlarePlacementCatalog placement,
                     ChargeFlareSpriteCatalog flare, ProjectileTrailCatalog trails,
                     ProjectileFrameBindingCatalog bindings, GrappleSpriteCatalog grapple,
                     GrappleSwingFrameCatalog swing, ProjectileSpriteCatalog sprites, SuperMetroid.Core.Assets.ScreenSprites oam) {
-                    beams.Resolve(VramAssetId.BeamPowerTiles);
-                    beams.Resolve(VramAssetId.BeamPlasmaIceWaveTiles);
-                    beams.Resolve(VramAssetId.StandardHudTiles);
                     placement.Resolve(false, 15);
                     placement.Resolve(true, 16);
                     flare.Frame(53);
@@ -48,7 +45,7 @@ internal static class ProjectilePresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("ProjectileProviderFixture", sources,
-            platforms.Append(typeof(BeamTileCatalog).Assembly.Location).Distinct()
+            platforms.Append(typeof(ProjectileTrailCatalog).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)
@@ -62,10 +59,10 @@ internal static class ProjectilePresentationContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 13 && before.MissingCount == 1,
-            "fourteen constructed calls must first expose absent adapters and the known missing composition (" + before.Describe() + ")");
-        Require(after.Classifications.Count == 8 && after.UnresolvedCount == 6 && after.MissingCount == 0 &&
-            after.Consumers.Count == 14, "complete sparse/ranged domains qualify, not neighboring frames or other asset types" + " (" + after.Describe() + ")");
+        Require(before.UnresolvedCount == 10 && before.MissingCount == 1,
+            "eleven constructed calls must first expose absent adapters and the known missing composition (" + before.Describe() + ")");
+        Require(after.Classifications.Count == 6 && after.UnresolvedCount == 5 && after.MissingCount == 0 &&
+            after.Consumers.Count == 11, "complete sparse/ranged domains qualify, not neighboring frames" + " (" + after.Describe() + ")");
 
         SyntaxTree partialFactory = CSharpSyntaxTree.ParseText("""
             using SuperMetroid.Core.Samus.Artwork;
@@ -74,7 +71,7 @@ internal static class ProjectilePresentationContractChecks
             }
             """, path: "fixture-external-projectile-factory.cs");
         AuditReport partial = Inspect(Compile(trees.Append(partialFactory)), true);
-        Require(partial.Classifications.Count == 7 && partial.UnresolvedCount == 7 &&
+        Require(partial.Classifications.Count == 5 && partial.UnresolvedCount == 6 &&
             partial.Findings.Count(item => item.Owner == "ProjectileSpriteCatalog.Frame" &&
                 item.Message.Contains("stale", StringComparison.Ordinal)) == 2,
             "external partial construction revokes ordinary coverage without revoking the private flare wrapper" + " (" + partial.Describe() + ")");

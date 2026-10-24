@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Assets;

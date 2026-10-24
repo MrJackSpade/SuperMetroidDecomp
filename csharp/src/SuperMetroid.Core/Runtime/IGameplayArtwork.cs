@@ -171,11 +171,17 @@ internal interface IGameplayArtwork
     /// <summary>Charge-flare sprite compositions.</summary>
     ChargeFlareSpriteCatalog? ChargeFlareCompositions { get; }
 
-    /// <summary>Grapple beam tiles.</summary>
-    GrappleTileAtlas? GrappleArtwork { get; }
+    /// <summary>The grapple flare's standing and running offsets.</summary>
+    ChargeFlarePlacementCatalog? GrappleFlarePlacement { get; }
 
-    /// <summary>Beam tiles.</summary>
-    BeamTileCatalog? BeamArtwork { get; }
+    /// <summary>The frame Samus's swing pose shows at each grapple angle.</summary>
+    GrappleSwingFrameCatalog? GrappleSwingFrames { get; }
+
+    /// <summary>The beam palettes, by beam combination.</summary>
+    BeamPaletteCatalog? BeamPalettes { get; }
+
+    /// <summary>The Hyper Beam palette effect's colour cycle.</summary>
+    HyperBeamFxColorCatalog? HyperBeamFxColors { get; }
 
     /// <summary>Enemy sprite sheets, palettes and enemy-projectile spritemaps.</summary>
     EnemyTileArtworkCatalog? EnemyTileArtwork { get; }

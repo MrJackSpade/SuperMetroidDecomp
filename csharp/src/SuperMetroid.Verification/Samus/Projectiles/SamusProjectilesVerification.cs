@@ -109,7 +109,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var beamArtwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(bus), beamPalettes);
     SamusProjectileSystem.LoadBeamPalette(beamCgram.Samus.Beam, equippedBeams: 0, beamPalettes);
     ReadOnlySpan<byte> beamPage = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, beamArtwork,
-        InstalledFixtures.Projectiles.Trails.Tiles ?? throw new InvalidOperationException("The installation has no trail characters."))
+        InstalledFixtures.Projectiles.TrailTiles)
         .For(SuperMetroid.Core.Progression.SamusBeamFlags.None).Characters;
     int beamFirstByte = ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount;
     AssertEqual(0x5a, beamPage[beamFirstByte],

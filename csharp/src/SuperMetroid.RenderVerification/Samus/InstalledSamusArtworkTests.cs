@@ -46,9 +46,7 @@ internal static class InstalledSamusArtworkTests
             var edited = new SamusState { Pose = stock.Pose, Position = FixedPosition<RoomPixels>.FromWhole(stock.Position.Whole), Health = stock.Health };
             SamusPoseMetadata.RefreshCollisionRadii(stock); SamusPoseMetadata.RefreshCollisionRadii(edited);
             stock.Presentation.BodyFrames.BindBodyFixture(fixture.Stock);
-            stock.Presentation.BodyFrames.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
             edited.Presentation.BodyFrames.BindBodyFixture(fixture.Edited);
-            edited.Presentation.BodyFrames.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
             string before = PhysicalState(stock);
             var a = new SnesVram(); var b = new SnesVram();
             var oaFrame = new SpriteFrameBuffer(); var obFrame = new SpriteFrameBuffer();

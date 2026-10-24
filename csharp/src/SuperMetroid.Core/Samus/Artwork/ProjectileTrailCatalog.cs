@@ -8,12 +8,9 @@ public sealed class ProjectileTrailCatalog
 {
     /// <summary>Only authored OBJ attribute words differing from the shared native tile progressions.</summary>
     internal readonly Dictionary<SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame, ushort> suppliedAttributes = [];
-    /// <summary>Optional installed twelve-tile trail artwork provider retained from loading; resolving appearances neither uploads nor replaces its pixels.</summary>
-    public ProjectileTrailAtlas? Tiles { get; }
-    /// <summary>Copies changed frame appearances while retaining an optional installed tile provider.</summary>
-    private ProjectileTrailCatalog(Dictionary<SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame, ushort> attributes, ProjectileTrailAtlas? tiles)
+    /// <summary>Copies the frame appearances that differ from the shared native tile progressions.</summary>
+    private ProjectileTrailCatalog(Dictionary<SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame, ushort> attributes)
     {
-        Tiles = tiles;
         for (int index = 0; index < ProjectileTrailVisualDefinitions.FrameCount; index++)
         {
             var frame = ProjectileTrailVisualDefinitions.Frames[index];
@@ -61,11 +58,10 @@ public sealed class ProjectileTrailCatalog
 
     /// <summary>Validates every native trail-frame appearance and compiles independent OBJ attributes, retaining only differences from the default appearances.</summary>
     /// <param name="json">Case-sensitive UTF-8 JSON read from its current position; the caller retains ownership of the stream.</param>
-    /// <param name="tiles">Optional tile provider associated with this catalog by reference, without uploading graphics or changing frame validation.</param>
     /// <returns>An immutable appearance catalog that does not retain the document's mutable frame dictionary.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     /// <exception cref="InvalidDataException">JSON is malformed, contains duplicate/unknown properties, lacks the exact 42 native frame keys or version 1, or has invalid tile, palette or priority values.</exception>
-    public static ProjectileTrailCatalog Load(Stream json, ProjectileTrailAtlas? tiles = null)
+    public static ProjectileTrailCatalog Load(Stream json)
     {
         ProjectileTrailDocument document;
         try
@@ -91,7 +87,7 @@ public sealed class ProjectileTrailCatalog
             attributes.Add(frame, SnesObjAttributeWord.Create(p.TileRow * ProjectileSpriteDefinitions.TileColumns + p.TileColumn,
                 p.Palette, p.Priority, (p.FlipX ? SnesTileFlipFlags.Horizontal : 0) | (p.FlipY ? SnesTileFlipFlags.Vertical : 0)).Raw);
         }
-        return new(attributes, tiles);
+        return new(attributes);
     }
     /// <summary>Serializes and validates all trail appearances using the same strict schema as <see cref="Load"/>.</summary>
     /// <param name="document">Authored frame dictionary read for serialization, not retained by the writer.</param>

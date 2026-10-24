@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Spatial;
+
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Compiles native-size indexed artwork into the PPU's 2/4-bpp character format, not a CPU memory image.</summary>
 public static class SnesPlanarTileEncoder

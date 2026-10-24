@@ -125,7 +125,8 @@ internal static class GrappleFlarePlacementVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         byte[] beforeBinding = GraphDigest(runtime.Player.IntroducedSamus);
         var swingFrames = GrappleSwingFrameCatalog.Load(new MemoryStream(GrappleSwingFrameExtractor.Extract(rom)));
-        runtime.Artwork.GrappleArtwork = GrappleTileAtlas.Load(new MemoryStream(GrappleTileExtractor.Extract(rom)), flarePlacement: edited, swingFrames: swingFrames);
+        runtime.Artwork.GrappleFlarePlacement = edited;
+        runtime.Artwork.GrappleSwingFrames = swingFrames;
         AssertTrue(ReferenceEquals(edited, runtime.Player.IntroducedSamus.Grapple.FlarePlacement), "Artwork rebinding reaches current Samus immediately");
         AssertTrue(ReferenceEquals(swingFrames, runtime.Player.IntroducedSamus.Grapple.SwingFrames), "Artwork rebinding reaches current swing-frame selection");
         AssertTrue(beforeBinding.SequenceEqual(GraphDigest(runtime.Player.IntroducedSamus)), "Presentation binding is excluded from Samus saved graph");

@@ -29,6 +29,6 @@ internal static class RetailGameFixtureVerification
     /// <summary>Creates an intro state with optionally supplied audio and installed visual catalogs.</summary>
     internal static IntroCinematicState CreateRetailIntroFixture(CartridgeAudioState? audio = null,
         IntroFontAtlas? introFont = null, IntroCinematicArtworkCatalog? characterArtwork = null,
-        BeamTileCatalog? beamArtwork = null, SamusBodyArtworkCatalog? samusBodyArtwork = null) =>
-        InstalledFixtures.CreateIntro(audio, introFont, characterArtwork, beamArtwork, samusBodyArtwork);
+        BeamPaletteCatalog? beamPalettes = null, SamusBodyArtworkCatalog? samusBodyArtwork = null) =>
+        InstalledFixtures.CreateIntro(audio, introFont, characterArtwork, beamPalettes, samusBodyArtwork);
 }

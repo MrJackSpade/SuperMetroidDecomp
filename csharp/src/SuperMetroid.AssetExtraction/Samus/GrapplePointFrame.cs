@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>The four Grapple endpoint animation frames, in reviewed visual order.</summary>
 internal enum GrapplePointFrame

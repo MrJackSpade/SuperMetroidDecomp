@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -35,7 +36,7 @@ internal static class ProjectileSheetComposer
         {
             IntroCinematicArtworkCatalog intro = inputs.Intro;
             cgram = new ScreenPalette();
-            basePage = intro.ObjectPage;
+            basePage = IntroObjectPage.Of(intro);
             beams = SamusBeamCombination.Power;
             // `$8B:A3AC` loads the beam palette, then the intro's whole palette over it.
             SamusProjectileSystem.LoadBeamPalette(cgram.SpriteRow(SamusColourDefinitions.BeamInkRow), beams, projectiles.BeamTiles.Palettes);
@@ -48,8 +49,7 @@ internal static class ProjectileSheetComposer
             beams = Combination(sheet);
             SamusProjectileSystem.LoadBeamPalette(cgram.SpriteRow(SamusColourDefinitions.BeamInkRow), beams, projectiles.BeamTiles.Palettes);
         }
-        SpriteArtwork page = new ProjectileObjectPages(basePage, projectiles.BeamTiles, projectiles.Trails.Tiles ??
-            throw new InvalidDataException("The installed projectile trails have no characters.")).For(beams);
+        SpriteArtwork page = new ProjectileObjectPages(basePage, projectiles.BeamTiles, projectiles.TrailTiles).For(beams);
 
         var frames = new List<SheetFrameSource>();
         foreach (ProjectileSpriteId composition in ProjectileSpriteDefinitions.All)

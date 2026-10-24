@@ -76,7 +76,6 @@ internal static class BeamPaletteArtworkVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyBeamPaletteOwnership(ISnesAddressSpace bus, BeamPaletteCatalog palettes)
     {
-        var artwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(bus), palettes);
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
@@ -85,14 +84,14 @@ internal static class BeamPaletteArtworkVerification
         var expected = new SamusColourRig();
         palettes.LoadTo(expected.Samus.Beam, 0);
         runtime.Cgram.AsPaletteColors().SetColor(SamusColourDefinitions.BeamFirstColour, new Bgr555(27, 3, 0));
-        runtime.Artwork.BeamArtwork = artwork;
+        runtime.Artwork.BeamPalettes = palettes;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertTrue(runtime.Cgram.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)), "Accepted NMI refreshes normal beam palette");
 
         var flash = runtime.Player.IntroducedSamus.CrystalFlash;
         flash.SpecialPaletteKind = SamusSpecialPaletteType.CrystalFlash;
         runtime.Cgram.AsPaletteColors().SetColor(224, new Bgr555(27, 3, 0));
-        runtime.Artwork.BeamArtwork = artwork;
+        runtime.Artwork.BeamPalettes = palettes;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(123, runtime.Cgram.Colors[224], "Rebind cannot erase active Crystal Flash palette");
         flash.SpecialPaletteTimer = WrappingCountdown.Start(ushort.MaxValue);
@@ -101,7 +100,7 @@ internal static class BeamPaletteArtworkVerification
         AssertEqual(SamusSpecialPaletteType.None, flash.SpecialPaletteKind, "Crystal Flash still clears its owner on completion");
         runtime.Player.IntroducedSamus.Drained.HyperBeamPaletteFx.Spawn();
         runtime.Cgram.AsPaletteColors().SetColor(224, new Bgr555(8, 14, 0));
-        runtime.Artwork.BeamArtwork = artwork;
+        runtime.Artwork.BeamPalettes = palettes;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(456, runtime.Cgram.Colors[224], "Rebind cannot erase active Hyper palette");
 
@@ -119,8 +118,7 @@ internal static class BeamPaletteArtworkVerification
         editedColor["red"] = editedColor.Required("red").GetValue<int>() ^ 1;
         var editedPalettes = BeamPaletteCatalog.Load(
             new MemoryStream(Encoding.UTF8.GetBytes(editedDocument.ToJsonString())));
-        var editedArtwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(bus), editedPalettes);
-        nativeRuntime.Artwork.BeamArtwork = editedArtwork;
+        nativeRuntime.Artwork.BeamPalettes = editedPalettes;
         nativeRuntime.LoadDebugGrapplePalette();
         editedPalettes.LoadTo(grappleExpected.Samus.Beam, SamusBeamCombination.Ice);
         AssertTrue(nativeRuntime.Cgram.Colors.Slice(224, 16).SequenceEqual(grappleExpected.Colors.Slice(224, 16)),

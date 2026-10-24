@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Samus.Palettes;
@@ -3202,8 +3203,7 @@ internal static class LookupStream4Verification
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90ac9f), expected.Length, "Bound beam characters span native immediate0100");
             int first = (CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90acb6) - 0x6000) / 16;
-            var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, selected, InstalledFixtures.Projectiles.Trails.Tiles
-                ?? throw new InvalidOperationException("The installation has no trail characters."));
+            var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, selected, InstalledFixtures.Projectiles.TrailTiles);
             ReadOnlySpan<byte> page = pages.For((SamusBeamFlags)((ushort)selection)).Characters;
             AssertTrue(expected.SequenceEqual(page.Slice(first * SpriteArtwork.CharacterByteCount, expected.Length).ToArray()),
                 "The bound page shows the current calculated pixels at native destination6300 without cartridge reads");

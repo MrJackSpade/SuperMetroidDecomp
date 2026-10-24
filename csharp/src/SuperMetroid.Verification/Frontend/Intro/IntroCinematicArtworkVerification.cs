@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
@@ -127,7 +129,7 @@ internal static class IntroCinematicArtworkVerification
             var completeInstalled = CreateRetailIntroFixture(
                 introFont: installation.LoadMaps().IntroFont,
                 characterArtwork: stock,
-                beamArtwork: installation.LoadProjectiles().BeamTiles);
+                beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes);
             var completeNativeMemory = native.CaptureTranslatedRenderSnapshot().Paint;
             var completeInstalledMemory = completeInstalled.CaptureTranslatedRenderSnapshot().Paint;
             AssertTrue(completeInstalled.ShownVram().SequenceEqual(native.ShownVram()) &&

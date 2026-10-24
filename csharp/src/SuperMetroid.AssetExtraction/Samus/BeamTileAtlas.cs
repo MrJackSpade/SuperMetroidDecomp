@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Progression;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>One immutable eight-tile beam sheet with calculated stock orientations and independently editable pixels.</summary>
 public sealed class BeamTileAtlas

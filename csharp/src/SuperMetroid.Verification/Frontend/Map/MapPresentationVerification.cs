@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Input;
@@ -219,9 +220,9 @@ internal static class MapPresentationVerification
         private readonly RoomBackgroundTilemapCatalog backgrounds;
         /// <summary>Installed sky tilemaps for rooms that use a scrolling sky.</summary>
         private readonly RoomSkyTilemapCatalog skies;
-        /// <summary>Installed beam art bound to Samus's projectile presentation.</summary>
-        private readonly BeamTileCatalog beamTiles;
-        /// <summary>Installed trail art composed into Samus's projectile page.</summary>
+        /// <summary>Installed beam palettes bound to Samus's projectile presentation.</summary>
+        private readonly BeamPaletteCatalog? beamPalettes;
+        /// <summary>Installed trail appearances.</summary>
         private readonly ProjectileTrailCatalog trails;
         /// <summary>Installed elevator platform art used by the room PLM owner.</summary>
         private readonly RoomPlmElevatorPlatformVisualCatalog elevatorPlatform;
@@ -248,7 +249,7 @@ internal static class MapPresentationVerification
             skies = installation.LoadRoomSkyTilemaps();
             EnemyTiles = installation.LoadEnemyTiles();
             var projectiles = installation.LoadProjectiles();
-            beamTiles = projectiles.BeamTiles;
+            beamPalettes = projectiles.BeamTiles.Palettes;
             trails = projectiles.Trails;
             SamusBody = installation.LoadSamusBodyArt();
             elevatorPlatform = installation.LoadRoomPlmElevatorPlatformVisuals();
@@ -270,7 +271,7 @@ internal static class MapPresentationVerification
             runtime.EnemySession.Sheets = SuperMetroid.TestSupport.RepositoryInstallation.Verification.EnemySheetFixtures.For(EnemyTiles.Enemies);
             runtime.BossArtwork.Artwork = EnemyTiles.Bosses;
             runtime.AreaArtwork.Artwork = EnemyTiles.Areas;
-            runtime.Artwork.BeamArtwork = beamTiles;
+            runtime.Artwork.BeamPalettes = beamPalettes;
             runtime.Artwork.TrailArtwork = trails;
             runtime.Artwork.SamusBodyArt = SamusBody;
             runtime.ShotBlockVisuals.RoomPlmElevatorPlatformVisuals = elevatorPlatform;

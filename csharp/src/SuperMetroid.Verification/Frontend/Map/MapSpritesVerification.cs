@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;

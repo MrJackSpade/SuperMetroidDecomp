@@ -159,7 +159,8 @@ internal static class GrappleFlarePresentationVerification
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: roomAssets.InitialPalettes, random: random);
         runtime.Artwork.MapPresentation = maps;
         roomAssets.Bind(runtime);
-        runtime.Artwork.GrappleArtwork = grappleArtwork;
+        runtime.Artwork.GrappleFlarePlacement = grappleArtwork.FlarePlacement;
+        runtime.Artwork.GrappleSwingFrames = grappleArtwork.SwingFrames;
         runtime.Artwork.SpriteSheets = InstalledFixtures.SpriteSheets;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         var samus = runtime.Player.IntroducedSamus;
@@ -188,7 +189,8 @@ internal static class GrappleFlarePresentationVerification
         var restoredRuntime = restored.Session.GameplayRuntime;
         roomAssets.Bind(restoredRuntime);
         restoredRuntime.Artwork.MapPresentation = maps;
-        restoredRuntime.Artwork.GrappleArtwork = grappleArtwork;
+        restoredRuntime.Artwork.GrappleFlarePlacement = grappleArtwork.FlarePlacement;
+        restoredRuntime.Artwork.GrappleSwingFrames = grappleArtwork.SwingFrames;
         restoredRuntime.Player.IntroducedSamus.Presentation.BodyFrames.BindBodyFixture(body);
         restoredRuntime.Player.IntroducedSamus.ArmCannon.Artwork = body.ArmCannon;
         restored.BindArtwork(restored.Artwork with { SpriteSheets = rebound });

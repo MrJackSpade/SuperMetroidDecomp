@@ -37,7 +37,7 @@ internal static class IntroSpriteSheetComposer
     internal static SpriteSheetSources Sources(IEnumerable<ICinematicSpriteFrames> families, IntroCinematicArtworkCatalog intro)
     {
         Ensure.NotNull(intro);
-        return Compose(families, intro.ObjectPage, intro.Palette.LoadTo);
+        return Compose(families, IntroObjectPage.Of(intro), intro.Palette.LoadTo);
     }
 
     /// <summary>What the Ceres flight sheet of <paramref name="flight"/> composes.</summary>

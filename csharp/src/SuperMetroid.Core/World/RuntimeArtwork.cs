@@ -141,7 +141,6 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IObjCharacterSourceRe
         _player.Samus.Presentation.AnimationWindows = SamusOverreads?.AnimationWindows;
         // All Samus constructors call this rebind before priming the first visual DMA.
         _player.Samus.Presentation.BodyFrames.BindArtwork(SamusBodyArt);
-        _player.Samus.Presentation.BodyFrames.BindStandardObjects(StandardObjects);
         _player.Samus.Presentation.BodyFrames.BindSheets(SpriteSheets);
         _player.Samus.ArmCannon.Artwork = SamusBodyArt?.ArmCannon;
     }
@@ -161,42 +160,11 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IObjCharacterSourceRe
         pendingHudTiles = null;
     }
 
-    /// <summary>Complete installed standard OBJ sheet, which the standard object page is composed from.</summary>
+    /// <summary>Complete installed standard OBJ sheet, which the standard OBJ character placement names.</summary>
     /// <remarks>Host content is rebound after restoring a graph; saved state must not freeze an old user override into
-    /// the simulation. Only composition emission uses this.</remarks>
+    /// the simulation.</remarks>
     [field: NonSerialized]
-    public RoomCharacterAtlas? StandardObjectArt
-    {
-        get;
-        set
-        {
-            field = value;
-            StandardObjects = value is null ? null
-                : ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.StandardObjects), value.Characters.Span);
-            _player.Samus?.Presentation.BodyFrames.BindStandardObjects(StandardObjects);
-            BindProjectileObjects();
-        }
-    }
-
-    /// <summary>
-    /// The installed standard OBJ sheet as a 512-character page. Characters past the sheet are blank, and a
-    /// further row plus one is blank overhang, so any nine-bit OBJ character a large part names stays inside it.
-    /// </summary>
-    [field: NonSerialized]
-    public SpriteArtwork? StandardObjects { get; private set; }
-
-    /// <summary>
-    /// The standard OBJ page with the equipped beam's and both trails' characters, which Samus's projectiles,
-    /// bombs, charge flare and trails draw from; null until the standard sheet, beam and trail artwork are all bound.
-    /// </summary>
-    [field: NonSerialized]
-    public ProjectileObjectPages? ProjectileObjects { get; private set; }
-
-    /// <summary>Recomposes <see cref="ProjectileObjects"/> from the currently bound sheets.</summary>
-    private void BindProjectileObjects() =>
-        ProjectileObjects = StandardObjects is { } page && BeamArtwork is { } beams && TrailArtwork?.Tiles is { } trails
-            ? new ProjectileObjectPages(page, beams, trails)
-            : null;
+    public RoomCharacterAtlas? StandardObjectArt { get; set; }
 
     /// <summary>Rebinds authored visual frame choices to both native projectile slot owners.</summary>
     [field: NonSerialized]     public ProjectileFrameBindingCatalog? ProjectileFrameBindings
@@ -211,28 +179,33 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IObjCharacterSourceRe
     [field: NonSerialized]
     public ChargeFlareSpriteCatalog? ChargeFlareCompositions { get; set; }
 
-    /// <summary>Current Grapple artwork and visual definitions.</summary>
-    [field: NonSerialized]     public GrappleTileAtlas? GrappleArtwork
+    /// <summary>Current Grapple flare offsets.</summary>
+    [field: NonSerialized]     public ChargeFlarePlacementCatalog? GrappleFlarePlacement
     {
         get;
         set { field = value; BindGrapplePresentation(); }
     }
+
+    /// <summary>Current frame Samus's swing pose shows at each grapple angle.</summary>
+    [field: NonSerialized]     public GrappleSwingFrameCatalog? GrappleSwingFrames
+    {
+        get;
+        set { field = value; BindGrapplePresentation(); }
+    }
+
     /// <summary>Rebinds current Grapple flare and swing visuals to an active Samus actor.</summary>
     internal void BindGrapplePresentation()
     {
         if (_player.Samus is not null)
         {
-            _player.Samus.Grapple.FlarePlacement = GrappleArtwork?.FlarePlacement;
-            _player.Samus.Grapple.SwingFrames = GrappleArtwork?.SwingFrames;
+            _player.Samus.Grapple.FlarePlacement = GrappleFlarePlacement;
+            _player.Samus.Grapple.SwingFrames = GrappleSwingFrames;
         }
     }
 
-    /// <summary>Current projectile-trail characters and visual compositions; the projectile pages bind them.</summary>
-    [field: NonSerialized]     public ProjectileTrailCatalog? TrailArtwork
-    {
-        get;
-        set { field = value; BindProjectileObjects(); }
-    }
+    /// <summary>Current projectile-trail appearances.</summary>
+    [field: NonSerialized]
+    public ProjectileTrailCatalog? TrailArtwork { get; set; }
 
     /// <summary>The installed cartridge bytes Samus's glitch paths read; the projectile system binds them.</summary>
     [field: NonSerialized]
@@ -264,40 +237,44 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IObjCharacterSourceRe
     [field: NonSerialized]
     public SuperMetroid.Core.Samus.Artwork.ProjectileSheets? ProjectileSheets { get; private set; }
 
-    /// <summary>Beam artwork bound since the last accepted NMI, whose palette that NMI publishes.</summary>
-    [NonSerialized] private BeamTileCatalog? pendingBeamPalette;
+    /// <summary>Beam palettes bound since the last accepted NMI, which that NMI publishes.</summary>
+    [NonSerialized] private BeamPaletteCatalog? pendingBeamPalette;
 
-    /// <summary>Current beam characters and palettes; the projectile pages bind the equipped beam's characters.</summary>
-    [field: NonSerialized]     public BeamTileCatalog? BeamArtwork
+    /// <summary>Current beam palettes.</summary>
+    [field: NonSerialized]     public BeamPaletteCatalog? BeamPalettes
     {
         get;
-        set { field = value; pendingBeamPalette = value; BindProjectileObjects(); }
+        set { field = value; pendingBeamPalette = value; }
     }
+
+    /// <summary>Current Hyper Beam palette effect colours.</summary>
+    [field: NonSerialized]
+    public HyperBeamFxColorCatalog? HyperBeamFxColors { get; set; }
 
     /// <summary>
     /// The equipped-beam word whose characters <c>Update_Beam_Tiles_and_Palette</c> ($90:AC8D) last loaded. The
-    /// projectile pages show this beam's characters until the next update, even when code changes the equipment in
+    /// projectile sheets show this beam's characters until the next update, even when code changes the equipment in
     /// between: the Golden Torizo code grants beams during room initialization, after the entering beam was loaded.
     /// </summary>
     public SuperMetroid.Core.Progression.SamusBeamFlags LoadedBeams { get; private set; }
 
     /// <summary>
-    /// Ports <c>Update_Beam_Tiles_and_Palette</c> at $90:AC8D: latches the beam whose characters the projectile pages
+    /// Ports <c>Update_Beam_Tiles_and_Palette</c> at $90:AC8D: latches the beam whose characters the projectile sheets
     /// show and loads its palette.
     /// </summary>
     internal void UpdateBeamTilesAndPalette(SamusColours colours, SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams)
     {
         LoadedBeams = equippedBeams;
-        SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(colours.Beam, equippedBeams, BeamArtwork?.Palettes);
+        SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(colours.Beam, equippedBeams, BeamPalettes);
     }
 
     /// <summary>
-    /// Loads a newly bound beam artwork's palette for the equipped beams at an accepted NMI. The characters need no
-    /// publication: the projectile pages bind them.
+    /// Loads newly bound beam palettes for the equipped beams at an accepted NMI. The characters need no
+    /// publication: the projectile sheets are pre-composed for every beam combination.
     /// </summary>
     internal void PublishReboundBeamPalette()
     {
-        if (pendingBeamPalette is not { } beamArtwork || _player.Samus is not { } samus) return;
+        if (pendingBeamPalette is not { } beamPalettes || _player.Samus is not { } samus) return;
         // Do not reinterpret invalid combination overreads as a legal replacement.
         if (new SuperMetroid.Core.Samus.Projectiles.SamusBeamLoadoutWord(samus.EquippedBeams).Combination is SuperMetroid.Core.Progression.SamusBeamCombination selection &&
             selection.IsRetail &&
@@ -305,11 +282,15 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IObjCharacterSourceRe
             // restores the selected normal palette; host rebind must not erase its phase.
             samus.CrystalFlash.SpecialPaletteKind != SuperMetroid.Core.Samus.Abilities.SamusSpecialPaletteType.CrystalFlash &&
             !samus.Drained.HyperBeamPaletteFx.IsActive)
-            beamArtwork.Palettes?.LoadTo(_player.Colours.Beam, selection);
+            beamPalettes.LoadTo(_player.Colours.Beam, selection);
         pendingBeamPalette = null;
     }
 
-    /// <summary>Dispatches a typed VRAM asset to its bound gunship, Grapple, trail, HUD, or beam catalog.</summary>
+    /// <summary>
+    /// Dispatches a typed VRAM asset to its bound standard OBJ, gunship or HUD catalog. Beam, trail and grapple
+    /// characters are composed into the installed projectile and grapple sheets, so the runtime holds none.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The runtime binds no characters for the asset.</exception>
     internal ReadOnlyMemory<byte> ResolveVramAsset(VramAssetId asset) =>
         asset == VramAssetId.StandardObjectTiles
             ? (StandardObjectArt ?? throw new InvalidOperationException("Standard OBJ artwork is not bound.")).Characters
@@ -320,18 +301,12 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IObjCharacterSourceRe
             VramAssetId.GunshipLiftoffFifthTiles
             ? (_enemySession.TileArtwork?.GunshipLiftoff ??
                 throw new InvalidOperationException("Gunship takeoff artwork is not bound.")).Resolve(asset)
-            : asset is VramAssetId.GrapplePointFirstTiles or VramAssetId.GrapplePointSecondTiles or
-            VramAssetId.GrapplePointThirdTiles or VramAssetId.GrapplePointFourthTiles or
-            VramAssetId.GrappleHorizontalSegmentTiles or VramAssetId.GrappleDiagonalSegmentTiles or VramAssetId.GrappleVerticalSegmentTiles
-            ? (GrappleArtwork ?? throw new InvalidOperationException("Grapple artwork is not bound.")).Resolve(asset)
-            : asset is VramAssetId.ProjectileIceWaveTrailTiles or VramAssetId.ProjectileMissileTrailTiles
-            ? (TrailArtwork?.Tiles ?? throw new InvalidOperationException("Trail artwork is not bound.")).Resolve(asset)
             : asset is VramAssetId.StandardHudTiles or
                 VramAssetId.KraidBg3RestoreQuarter0 or VramAssetId.KraidBg3RestoreQuarter1 or
                 VramAssetId.KraidBg3RestoreQuarter2 or VramAssetId.KraidBg3RestoreQuarter3 or
                 VramAssetId.EscapeTimerFirstTiles or VramAssetId.EscapeTimerSecondTiles
             ? (MapPresentation ?? throw new InvalidOperationException("Map presentation artwork is not bound.")).Resolve(asset)
-            : (BeamArtwork ?? throw new InvalidOperationException("Beam artwork is not bound.")).Resolve(asset);
+            : throw new ArgumentOutOfRangeException(nameof(asset), asset, "The runtime binds no characters for this asset.");
 
 
     /// <summary>Current external timed-projectile composition catalog, independent of mechanics.</summary>

@@ -1,11 +1,7 @@
-using SuperMetroid.Core.Runtime;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
-using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Artwork;
 
@@ -18,7 +14,6 @@ internal static class ProjectileTrailAtlasVerification
     {
         byte[] png = ProjectileTrailAtlasExtractor.Extract(bus);
         var atlas = ProjectileTrailAtlas.Load(new MemoryStream(png));
-        Suite(nameof(VerifyTrailAtlasBinding), () => VerifyTrailAtlasBinding(bus, png));
         // The bound projectile page places the trail characters where the standard upload holds them.
         SpriteArtwork standard = ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.StandardObjects),
             InstalledFixtures.StandardObjects.Characters.Span);
@@ -55,49 +50,5 @@ internal static class ProjectileTrailAtlasVerification
         AssertThrows<InvalidDataException>(() => ProjectileTrailAtlas.Load(invalidIndex), "Trail PNG indices exceeding four bits rejected");
         AssertThrows<InvalidDataException>(() => ProjectileTrailAtlas.Load(new MemoryStream(new byte[12])), "Malformed trail PNG rejected");
         Console.WriteLine("Trail PNG: native room/NMI parity and twelve edited pixels preserve every other VRAM byte, including the interleaved graphics gap.");
-    }
-
-    /// <summary>Checks edited trail artwork survives NMI upload, room reinitialization, and debugger restore.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyTrailAtlasBinding(ISnesAddressSpace bus, byte[] png)
-    {
-        var image = IndexedPng.Read(new MemoryStream(png), new(ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height));
-        image.Pixels[0] ^= 1;
-        image.Pixels[64] ^= 1;
-        using var stream = new MemoryStream();
-        IndexedPng.Write(stream, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        stream.Position = 0;
-        var atlas = ProjectileTrailAtlas.Load(stream);
-        var catalog = ProjectileTrailCatalog.Load(new MemoryStream(ProjectileTrailExtractor.Extract(bus)), atlas);
-        var runtime = CreateRetailRuntimeFixture();
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.FrameBoundary.BeginAcceptedFrame(0);
-        byte[] before = runtime.Vram.Bytes.ToArray();
-        runtime.Artwork.TrailArtwork = catalog;
-        runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertTrue(before.SequenceEqual(runtime.Vram.Bytes), "Trail rebind is a page binding, not a VRAM write");
-        Check(runtime);
-        // Room initialization reloads the standard OBJ sheet; the bound trail characters stay on the page.
-        runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.FrameBoundary.BeginAcceptedFrame(0);
-        Check(runtime);
-        runtime.RoomLoader.InitializeStartingCeresRoom();
-        using var saved = new MemoryStream();
-        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(saved, runtime);
-        saved.Position = 0;
-        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Runtime.SuperMetroidRuntime>(saved);
-        AssertTrue(restored.Artwork.TrailArtwork is null, "State does not embed selected trail PNGs");
-        BindRetailRuntimeFixture(restored);
-        restored.Artwork.TrailArtwork = catalog;
-        restored.FrameBoundary.BeginAcceptedFrame(0);
-        Check(restored);
-        void Check(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
-        {
-            ReadOnlySpan<byte> page = (target.Artwork.ProjectileObjects
-                ?? throw new InvalidOperationException("The runtime has no projectile page.")).For(SuperMetroid.Core.Progression.SamusBeamFlags.None).Characters;
-            AssertTrue(page.Slice(ProjectileObjectPageDefinitions.IceWaveTrailFirstCharacter * SpriteArtwork.CharacterByteCount, atlas.IceAndWave.Length).SequenceEqual(atlas.IceAndWave.Span), "The bound page shows the current ice/wave trail PNG");
-            AssertTrue(page.Slice(ProjectileObjectPageDefinitions.MissileTrailFirstCharacter * SpriteArtwork.CharacterByteCount, atlas.Missile.Length).SequenceEqual(atlas.Missile.Span), "The bound page shows the current missile trail PNG");
-        }
     }
 }

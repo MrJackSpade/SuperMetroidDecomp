@@ -136,8 +136,8 @@ public sealed class SamusProjectileSystem
 
     /// <summary>
     /// Executes the palette half of <c>Update_Beam_Tiles_and_Palette</c> at $90:AC8D for the equipped beam: sixteen
-    /// words into sprite palette six, CGRAM colors $E0-$EF. Its characters are not copied: the projectile OBJ
-    /// pages bind the equipped beam's characters (<see cref="SuperMetroid.Core.Samus.Artwork.ProjectileObjectPages"/>).
+    /// words into sprite palette six, CGRAM colors $E0-$EF. Its characters are not copied: the installed projectile
+    /// sheets are composed over every beam combination's characters.
     /// </summary>
     public static void LoadBeamPalette(
         ColourRun beam,

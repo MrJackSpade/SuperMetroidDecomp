@@ -1,13 +1,14 @@
 using System.Collections.Concurrent;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
-/// The OBJ pages Samus's projectiles, bombs, charge flare and trails draw from: a base OBJ page with the selected
-/// beam's characters and the trail characters where their uploads place them. The equipped beams choose which page is
-/// bound; no characters are copied into VRAM.
+/// The OBJ pages Samus's projectile sheets are composed over: a base OBJ page with a beam combination's characters and
+/// the trail characters where their uploads place them, one page per combination.
 /// </summary>
 public sealed class ProjectileObjectPages
 {

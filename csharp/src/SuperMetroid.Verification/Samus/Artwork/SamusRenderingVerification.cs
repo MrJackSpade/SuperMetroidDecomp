@@ -43,7 +43,6 @@ internal static void VerifySamusRenderingSlice()
         AnimationFrame = 0,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x0086)),
     };
-    samus.Presentation.BodyFrames.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
     var cgram = new SamusColourRig();
     var vram = new SnesVram();
     var oamFrame = new SpriteFrameBuffer();
@@ -544,7 +543,6 @@ internal static void VerifySamusArmCannon()
     };
 
     samus.Presentation.BodyFrames.BindBodyFixture(InstalledFixtures.SamusBody);
-    samus.Presentation.BodyFrames.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
     samus.BindArmCannonFixture(artwork);
 
     // The HUD producer requires two identical samples. Merely changing selection sets the

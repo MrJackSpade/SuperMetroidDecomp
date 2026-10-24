@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Artwork;
@@ -64,7 +65,7 @@ internal static class InvalidBeamGraphicsVerification
             SamusProjectileSystem.LoadBeamPalette(cgram.Samus.Beam, (SamusBeamFlags)0x000d, artwork.Palettes);
             // The page Chainsaw's equipped word binds shows the bytes its native DMA reads.
             var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, artwork,
-                InstalledFixtures.Projectiles.Trails.Tiles ?? throw new InvalidOperationException("The installation has no trail characters."));
+                InstalledFixtures.Projectiles.TrailTiles);
             ReadOnlySpan<byte> page = pages.For((SamusBeamFlags)0x000d).Characters;
             int first = ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount;
             for (int offset = 0; offset < 256; offset++)

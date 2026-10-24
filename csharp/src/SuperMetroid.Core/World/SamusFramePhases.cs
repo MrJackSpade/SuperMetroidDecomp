@@ -138,7 +138,7 @@ internal sealed class SamusFramePhases
         {
             // Native cancellation, drop, wall-jump and swing-release tails all
             // reload the equipped beam palette before returning to inactive.
-            (_artwork.BeamArtwork?.Palettes ?? throw new InvalidOperationException(
+            (_artwork.BeamPalettes ?? throw new InvalidOperationException(
                 "Grapple cleanup requires installed beam artwork."))
                 .LoadTo(_player.Colours.Beam, new SamusBeamLoadoutWord(_player.Samus.EquippedBeams).Combination ?? throw new InvalidOperationException(
                     "Equipped-beam index is outside the beam-combination tables."));
@@ -156,7 +156,7 @@ internal sealed class SamusFramePhases
     internal void LoadGrapplePalette()
     {
         // Both ordinary HUD firing and debug entry select the installed native palette.
-        (_artwork.BeamArtwork?.Palettes ?? throw new InvalidOperationException(
+        (_artwork.BeamPalettes ?? throw new InvalidOperationException(
             "Grapple palette requires installed beam artwork."))
             .LoadTo(_player.Colours.Beam, GrappleBeamDefinitions.Palettes.FiringSelection);
         _player.Colours.GrappleFlare.Write(0, GrappleBeamDefinitions.Palettes.FlareColor);

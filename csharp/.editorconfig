@@ -240,6 +240,7 @@ dotnet_diagnostic.SME6443.severity = none
 dotnet_diagnostic.SME6444.severity = none
 dotnet_diagnostic.SME6445.severity = none
 dotnet_diagnostic.SME6446.severity = none
+dotnet_diagnostic.SME6447.severity = none
 dotnet_diagnostic.SME6448.severity = none
 
 [{test-support,test-fixtures,tools}/**.cs]
@@ -343,4 +344,5 @@ dotnet_diagnostic.SME6443.severity = none
 dotnet_diagnostic.SME6444.severity = none
 dotnet_diagnostic.SME6445.severity = none
 dotnet_diagnostic.SME6446.severity = none
+dotnet_diagnostic.SME6447.severity = none
 dotnet_diagnostic.SME6448.severity = none

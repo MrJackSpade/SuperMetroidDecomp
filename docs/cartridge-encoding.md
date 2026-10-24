@@ -14,7 +14,7 @@ allowlist. Each finding is fixed, or carries its own reviewed justification at i
 
 | Rule | Reports |
 | --- | --- |
-| SME6340 | A hexadecimal literal in functional code. Files named as definition catalogs (`*Definitions.cs`, `*Definition.cs`, `*Catalog.cs`, `*CodePointers.cs`, ...) own their data and are exempt, as is an enum member's value: an enum is a named definition set wherever its file lives. The exemption is for data. A catalog-named file that contains `if`, `switch`, loops or decisions is functional code hiding behind its name; the logic moves out, and the file is never renamed to gain the exemption. |
+| SME6340 | A hexadecimal literal in functional code. Files named as definition catalogs (`*Definitions.cs`, `*Definition.cs`, `*Catalog.cs`, ...) own their data and are exempt, as is an enum member's value: an enum is a named definition set wherever its file lives. The exemption is for data. A catalog-named file that contains `if`, `switch`, loops or decisions is functional code hiding behind its name; the logic moves out, and the file is never renamed to gain the exemption. A name that says the file holds addresses, pointers, ROM data or tables (`*Addresses.cs`, `*CodePointers.cs`, `*Pointers.cs`, `*RomData.cs`, `*Tables.cs`) is not a catalog name (#1411, `docs/cartridge-addresses.md`). |
 | SME6341 | A primitive compared with, offset from or switched over an address-valued code or instruction constant: runtime interpretation of cartridge pointers, catalogs included. |
 | SME6342 | An integral array or collection literal of four or more elements holding hexadecimal words: opaque instruction or packed-table data, catalogs included. |
 | SME6345 | A shift by a byte, word or bank width, or a byte/word/bank mask, in functional code (#223). |

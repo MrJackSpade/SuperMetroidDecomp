@@ -65,22 +65,22 @@ public static class ManagedAudioRegressionSmokeTest
 
         RunSoundScenario(
             "library-1-power-beam",
-            [new ApuPortCommand(ApuPort.SoundLibrary1, checked((byte)SoundEffectLibrary1Sounds.PowerBeam.Value))],
+            [SoundEffectLibrary1Sounds.PowerBeam],
             tally);
         RunSoundScenario(
             "library-2-door",
-            [new ApuPortCommand(ApuPort.SoundLibrary2, checked((byte)SoundEffectLibrary2Sounds.DoorOpening.Value))],
+            [SoundEffectLibrary2Sounds.DoorOpening],
             tally);
         RunSoundScenario(
             "library-3-cinematic",
-            [new ApuPortCommand(ApuPort.SoundLibrary3, 0x23)],
+            [new SoundEffectId(SoundEffectLibrary.Library3, 0x23)],
             tally);
         RunSoundScenario(
             "three-library-overlap-and-cancel",
             [
-                new ApuPortCommand(ApuPort.SoundLibrary1, checked((byte)SoundEffectLibrary1Sounds.PowerBeam.Value)),
-                new ApuPortCommand(ApuPort.SoundLibrary2, checked((byte)SoundEffectLibrary2Sounds.DoorOpening.Value)),
-                new ApuPortCommand(ApuPort.SoundLibrary3, 0x23),
+                SoundEffectLibrary1Sounds.PowerBeam,
+                SoundEffectLibrary2Sounds.DoorOpening,
+                new SoundEffectId(SoundEffectLibrary.Library3, 0x23),
             ],
             tally,
             cancelHalfway: true);
@@ -118,14 +118,14 @@ public static class ManagedAudioRegressionSmokeTest
         var engine = DesktopAccess.CreateAudioSession();
         for (int frame = 0; frame < frameCount; frame++)
         {
-            IReadOnlyList<CartridgeAudioCommand> commands = frame == 0
+            IReadOnlyList<AudioRequest> commands = frame == 0
                 ?
                 [
-                    new CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.AudioSet),
-                    new CartridgeAudioCommand.Upload(bank.AudioSet),
-                    new CartridgeAudioCommand.WritePort(ApuPort.Music, 1),
+                    new AudioRequest.ChangeMusicDataSet(AudioAssetCatalogDefinitions.Common.AudioSet),
+                    new AudioRequest.ChangeMusicDataSet(bank.AudioSet),
+                    AudioRequest.ForTrack(MusicTrack.NumberedOrNone(1)),
                 ]
-                : Array.Empty<CartridgeAudioCommand>();
+                : Array.Empty<AudioRequest>();
             HashFrame(name, engine, commands, tally);
         }
         tally.Scenarios++;
@@ -134,28 +134,24 @@ public static class ManagedAudioRegressionSmokeTest
     /// <summary>Hashes a common-bank sound sequence, optionally issuing cancel commands to all three libraries halfway through.</summary>
     private static void RunSoundScenario(
         string name,
-        IReadOnlyList<ApuPortCommand> startCommands,
+        IReadOnlyList<SoundEffectId> startSounds,
         AudioCorpusTally tally,
         bool cancelHalfway = false)
     {
         var engine = DesktopAccess.CreateAudioSession();
         for (int frame = 0; frame < ShortScenarioFrames; frame++)
         {
-            List<CartridgeAudioCommand> commands = [];
+            List<AudioRequest> commands = [];
             if (frame == 0)
             {
-                commands.Add(new CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.AudioSet));
-                commands.AddRange(startCommands.Select(command =>
-                    new CartridgeAudioCommand.WritePort(command.Port, command.Command)));
+                commands.Add(new AudioRequest.ChangeMusicDataSet(AudioAssetCatalogDefinitions.Common.AudioSet));
+                commands.AddRange(startSounds.Select(sound => new AudioRequest.RequestSound(sound)));
             }
             if (cancelHalfway && frame == ShortScenarioFrames / 2)
             {
-                commands.Add(new CartridgeAudioCommand.WritePort(
-                    ApuPort.SoundLibrary1, SoundEffectLibrary1Sounds.CancelAll.Value));
-                commands.Add(new CartridgeAudioCommand.WritePort(
-                    ApuPort.SoundLibrary2, SoundEffectLibrary2Sounds.CancelAll.Value));
-                commands.Add(new CartridgeAudioCommand.WritePort(
-                    ApuPort.SoundLibrary3, SoundEffectLibrary3Sounds.CancelAll.Value));
+                commands.Add(AudioRequest.ForSound(SoundEffectLibrary.Library1, SoundEffectLibrary1Sounds.CancelAll.Value));
+                commands.Add(AudioRequest.ForSound(SoundEffectLibrary.Library2, SoundEffectLibrary2Sounds.CancelAll.Value));
+                commands.Add(AudioRequest.ForSound(SoundEffectLibrary.Library3, SoundEffectLibrary3Sounds.CancelAll.Value));
             }
             HashFrame(name, engine, commands, tally);
         }
@@ -171,39 +167,38 @@ public static class ManagedAudioRegressionSmokeTest
         var engine = DesktopAccess.CreateAudioSession();
         for (int frame = 0; frame < LifecycleScenarioFrames; frame++)
         {
-            List<CartridgeAudioCommand> commands = [];
+            List<AudioRequest> commands = [];
             if (frame == 0)
             {
-                commands.Add(new CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.AudioSet));
-                commands.Add(new CartridgeAudioCommand.Upload(first.AudioSet));
-                commands.Add(new CartridgeAudioCommand.WritePort(ApuPort.Music, 1));
+                commands.Add(new AudioRequest.ChangeMusicDataSet(AudioAssetCatalogDefinitions.Common.AudioSet));
+                commands.Add(new AudioRequest.ChangeMusicDataSet(first.AudioSet));
+                commands.Add(AudioRequest.ForTrack(MusicTrack.NumberedOrNone(1)));
             }
             else if (frame == 120)
             {
-                commands.Add(new CartridgeAudioCommand.WritePort(ApuPort.Music, 0));
+                commands.Add(new AudioRequest.StopMusic());
             }
             else if (frame == 150)
             {
-                commands.Add(new CartridgeAudioCommand.Upload(second.AudioSet));
-                commands.Add(new CartridgeAudioCommand.WritePort(ApuPort.Music, 1));
+                commands.Add(new AudioRequest.ChangeMusicDataSet(second.AudioSet));
+                commands.Add(AudioRequest.ForTrack(MusicTrack.NumberedOrNone(1)));
             }
             else if (frame == 270)
             {
-                commands.Add(new CartridgeAudioCommand.WritePort(
-                    ApuPort.Music, (byte)MusicPortCommand.Pause));
+                // The driver's pause and resume are no game request; write them to the emulated driver directly.
+                engine.PlayerForVerification.WriteMusicPort((byte)MusicPortCommand.Pause);
             }
             else if (frame == 330)
             {
-                commands.Add(new CartridgeAudioCommand.WritePort(
-                    ApuPort.Music, (byte)MusicPortCommand.Resume));
+                engine.PlayerForVerification.WriteMusicPort((byte)MusicPortCommand.Resume);
             }
             else if (frame == 390)
             {
-                commands.Add(new CartridgeAudioCommand.WritePort(ApuPort.Music, 2));
+                commands.Add(AudioRequest.ForTrack(MusicTrack.NumberedOrNone(2)));
             }
             else if (frame == 510)
             {
-                commands.Add(new CartridgeAudioCommand.WritePort(ApuPort.Music, 1));
+                commands.Add(AudioRequest.ForTrack(MusicTrack.NumberedOrNone(1)));
             }
             HashFrame(
                 "music-lifecycle", engine, commands, tally);
@@ -215,7 +210,7 @@ public static class ManagedAudioRegressionSmokeTest
     private static void HashFrame(
         string scenario,
         SynthesizingAudioSession engine,
-        IReadOnlyList<CartridgeAudioCommand> commands,
+        IReadOnlyList<AudioRequest> commands,
         AudioCorpusTally tally)
     {
         byte[] name = System.Text.Encoding.UTF8.GetBytes(scenario);
@@ -224,12 +219,13 @@ public static class ManagedAudioRegressionSmokeTest
         ReadOnlySpan<short> pcm = engine.RenderFrame(commands);
         tally.Pcm.AppendData(MemoryMarshal.AsBytes(pcm));
         SoundAcknowledgements acknowledgements = engine.Acknowledgements;
-        Span<byte> ports = stackalloc byte[Enum.GetValues<ApuPort>().Length];
+        // The corpus pinned four bytes per update: the sequencer's music echo, which the session never publishes, then
+        // each library's acknowledgement in library order.
+        Span<byte> reported = stackalloc byte[1 + SoundAcceptanceClock.LibraryCount];
+        reported[0] = checked((byte)engine.PlayerForVerification.Music.musicPortToSnes);
         for (int library = 0; library < SoundAcceptanceClock.LibraryCount; library++)
-            ports[(int)ApuPorts.ForSoundLibrary(library)] = checked((byte)acknowledgements[library]);
-        // The corpus pinned port zero as the sequencer's music echo, which the session never publishes.
-        ports[(int)ApuPort.Music] = checked((byte)engine.PlayerForVerification.Music.musicPortToSnes);
-        tally.Acknowledgements.AppendData(ports);
+            reported[1 + library] = checked((byte)acknowledgements[library]);
+        tally.Acknowledgements.AppendData(reported);
         tally.Frames++;
         tally.Samples += pcm.Length;
     }

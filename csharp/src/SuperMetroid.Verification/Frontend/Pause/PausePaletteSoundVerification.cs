@@ -33,8 +33,8 @@ internal static class PausePaletteSoundVerification
             bool expectedLoop = frame >= 39 && (frame - 39) % 54 == 0;
             AssertEqual(expectedLoop, audio.HasQueuedSounds, $"pause beep request cadence at frame {frame}");
             if (expectedLoop) requests++;
-            IReadOnlyList<CartridgeAudioCommand> commands = audio.AdvanceFrame(session.Acknowledgements);
-            AssertTrue(frame == 0 || commands.All(command => command is not CartridgeAudioCommand.Upload),
+            IReadOnlyList<AudioRequest> commands = audio.AdvanceFrame(session.Acknowledgements);
+            AssertTrue(frame == 0 || commands.All(command => command is not AudioRequest.ChangeMusicDataSet),
                 "only initial audio reset may upload during this pause probe");
             // SoundState_1 ($82:8A5E) rewrites the request until the APU acknowledges it, so one
             // beep can reach port three on consecutive frames; the driver starts it once.

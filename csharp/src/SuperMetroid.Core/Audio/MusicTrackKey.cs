@@ -1,7 +1,7 @@
 
 namespace SuperMetroid.Core.Audio;
 
-/// <summary>A music track within an audio bank.</summary>
-/// <param name="AudioSet">The bank.</param>
+/// <summary>A music track within its music data set.</summary>
+/// <param name="AudioSet">The data set.</param>
 /// <param name="Track">The track.</param>
-public readonly record struct MusicTrackKey(AudioBank AudioSet, int Track);
+public readonly record struct MusicTrackKey(MusicDataSet AudioSet, int Track);

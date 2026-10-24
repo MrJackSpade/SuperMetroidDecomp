@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 namespace SuperMetroid.AssetExtraction.Audio;
@@ -32,7 +33,7 @@ internal static class MusicTrackRendering
         short[] frame = new short[SpcAudioClipRenderer.NativeSamplesPerFrame];
         renderer.RenderFrame(frame);
         pcm.AddRange(frame);
-        renderer.WriteMusicPort(unchecked((byte)track.Track));
+        renderer.PlayTrack(new MusicTrack(track.Track));
         while (pcm.Count < length * 2)
         {
             renderer.RenderFrame(frame);

@@ -68,7 +68,7 @@ internal sealed record MusicTrackAnalysis(
         observer.Attach(renderer);
         QueueBanks(renderer, bank);
         renderer.AdvanceSequencerFrame();
-        renderer.WriteMusicPort(unchecked((byte)track));
+        renderer.PlayTrack(new MusicTrack(track));
         while (observer.Outcome is null)
             renderer.AdvanceSequencerFrame();
         return new MusicTrackAnalysis(

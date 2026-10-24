@@ -187,9 +187,9 @@ internal static class GameOptionsPresentationVerification
                 $"installed options frame {comparedFrames} matches cartridge pixels");
             native.Step(input);
             installed.Step(input);
-            IReadOnlyList<CartridgeAudioCommand> nativeCommands =
+            IReadOnlyList<AudioRequest> nativeCommands =
                 nativeAudio.AdvanceFrame(default);
-            IReadOnlyList<CartridgeAudioCommand> installedCommands =
+            IReadOnlyList<AudioRequest> installedCommands =
                 installedAudio.AdvanceFrame(default);
             AssertTrue(nativeCommands.SequenceEqual(installedCommands),
                 $"installed options audio matches cartridge frame {comparedFrames}");

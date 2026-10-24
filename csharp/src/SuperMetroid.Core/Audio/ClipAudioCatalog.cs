@@ -32,11 +32,11 @@ public sealed class ClipAudioCatalog
     private readonly string root;
     /// <summary>Music clips by (bank, track).</summary>
     private readonly Dictionary<MusicTrackKey, MusicClipEntry> music;
-    /// <summary>Sound-effect entries by (bank context, library, command).</summary>
+    /// <summary>Sound-effect entries by (data set, library, command).</summary>
     private readonly Dictionary<SoundEffectClipKey, SoundEffectClipEntry> soundEffects;
-    /// <summary>Each request's acceptance policy, the same in every bank context.</summary>
+    /// <summary>Each request's acceptance policy, the same in every data set.</summary>
     private readonly Dictionary<SoundEffectPolicyKey, SoundEffectClipPolicy> policies = [];
-    /// <summary>Effects with no clip in a context, by (bank context, library, command).</summary>
+    /// <summary>Effects with no clip in a context, by (data set, library, command).</summary>
     private readonly Dictionary<SoundEffectClipKey, UnrenderableSoundEffect> unrenderable;
     /// <summary>Each override replacement clip's absolute path; every other clip lives beneath <see cref="root"/>.</summary>
     private readonly IReadOnlyDictionary<AudioClipFile, string> overrideFiles;
@@ -161,15 +161,15 @@ public sealed class ClipAudioCatalog
 
     /// <summary>The music clip for <paramref name="track"/> in <paramref name="audioSet"/>.</summary>
     /// <exception cref="KeyNotFoundException">The bank has no such track.</exception>
-    public MusicClipEntry GetMusic(AudioBank audioSet, int track) =>
+    public MusicClipEntry GetMusic(MusicDataSet audioSet, int track) =>
         music.TryGetValue(new MusicTrackKey(audioSet, track), out MusicClipEntry? entry)
             ? entry
             : throw new KeyNotFoundException($"No music clip for {audioSet} track {track}.");
 
-    /// <summary>The sound effect's entry in <paramref name="context"/> (null for the common upload alone).</summary>
+    /// <summary>The sound effect's entry in <paramref name="context"/> (null for only the shared sounds).</summary>
     /// <exception cref="InvalidDataException">The effect keys sources the context does not upload, so it has no clip there.</exception>
     /// <exception cref="KeyNotFoundException">The library has no such effect.</exception>
-    public SoundEffectClipEntry GetSoundEffect(AudioBank? context, SoundEffectLibrary library, int command)
+    public SoundEffectClipEntry GetSoundEffect(MusicDataSet? context, SoundEffectLibrary library, int command)
     {
         if (soundEffects.TryGetValue(new SoundEffectClipKey(context, library, command), out SoundEffectClipEntry? entry))
             return entry;
@@ -182,12 +182,12 @@ public sealed class ClipAudioCatalog
         throw new KeyNotFoundException($"No sound effect {library} ${command:X2} in {ContextName(context)}.");
     }
 
-    /// <summary>The request's acceptance policy, which does not depend on the bank context.</summary>
+    /// <summary>The request's acceptance policy, which does not depend on the data set.</summary>
     /// <exception cref="KeyNotFoundException">No context renders the effect.</exception>
     public SoundEffectClipPolicy GetPolicy(SoundEffectLibrary library, int command) =>
         policies.TryGetValue(new SoundEffectPolicyKey(library, command), out SoundEffectClipPolicy? policy)
             ? policy
-            : throw new KeyNotFoundException($"No sound effect {library} ${command:X2} in any bank context.");
+            : throw new KeyNotFoundException($"No sound effect {library} ${command:X2} in any data set.");
 
     /// <summary>Reads a clip's interleaved stereo samples, verifying its SHA-256, rate and length.</summary>
     /// <exception cref="InvalidDataException">The file's hash, encoding, rate or length does not match the manifest.</exception>
@@ -231,6 +231,6 @@ public sealed class ClipAudioCatalog
         return path;
     }
 
-    /// <summary>A bank context's name in diagnostics.</summary>
-    private static string ContextName(AudioBank? context) => context?.ToString() ?? "the common upload";
+    /// <summary>A data set's name in diagnostics.</summary>
+    private static string ContextName(MusicDataSet? context) => context?.ToString() ?? "the shared sounds";
 }

@@ -186,11 +186,11 @@ public sealed class SuperMetroidGame
         bool prologueMusicDispatch = !resumesFrameWait && !messageWasActive &&
             (!doorAudioDispatch || phaseAudio != GamePhaseAudio.DoorTransitionSoundsDisabled ||
              startingDoorPhase is not (DoorTransitionPhase.WaitForDoorOpeningScroll or DoorTransitionPhase.FinishDoorLoading));
-        IReadOnlyList<CartridgeAudioCommand> prologueMusicCommands = prologueMusicDispatch
-            ? Session.audio.AdvanceMusicDispatch() : Array.Empty<CartridgeAudioCommand>();
-        // SendAPUData stalls a door dispatch while door IRQs keep NMIs accepted; nothing
-        // between this update's own NMI and the upload reads the counters.
-        if (doorAudioDispatch && prologueMusicCommands.Any(command => command is CartridgeAudioCommand.Upload))
+        IReadOnlyList<AudioRequest> prologueMusicRequests = prologueMusicDispatch
+            ? Session.audio.AdvanceMusicDispatch() : Array.Empty<AudioRequest>();
+        // Loading a new music data set stalls a door dispatch while door IRQs keep NMIs accepted;
+        // nothing between this update's own NMI and the load reads the counters.
+        if (doorAudioDispatch && prologueMusicRequests.Any(request => request is AudioRequest.ChangeMusicDataSet))
             Session.GameplayRuntime.Clock.AdvanceHardwareWaitFrames(Session.HostServices.DoorMusicLoadFrames.FramesCountedDuringMusicLoad(Session.audio.MusicDataIndex));
         var gameplayAudio = new GameplayAudioFramePublication(Session.audio);
         FrameNumber = WrappingCounter.IncrementWord(FrameNumber);
@@ -225,14 +225,14 @@ public sealed class SuperMetroidGame
             // The opening dispatch's HandleSounds runs only once the routine returns.
             soundHandlers = 0;
         }
-        IReadOnlyList<CartridgeAudioCommand> trailingAudioCommands = Session.audio.AdvanceFrame(Session.HostServices.SoundAcknowledgements.ForNextUpdate(Session.audioSession.Acknowledgements, Session.audio.SoundPortWrites),
+        IReadOnlyList<AudioRequest> trailingAudioRequests = Session.audio.AdvanceFrame(Session.HostServices.SoundAcknowledgements.ForNextUpdate(Session.audioSession.Acknowledgements, Session.audio.SentSoundRequests),
             advanceMusicQueue: musicHandler,
             soundEffectHandlerCalls: soundHandlers);
-        IReadOnlyList<CartridgeAudioCommand> audioCommands = prologueMusicCommands.Count == 0 ? trailingAudioCommands
-            : [.. prologueMusicCommands, .. trailingAudioCommands];
-        // The SPC acts on this update's port writes and uploads during the update's own DSP
-        // cycles; its echoes become visible to the next update's sound handlers.
-        Session.AdvanceAudio(audioCommands);
+        IReadOnlyList<AudioRequest> audioRequests = prologueMusicRequests.Count == 0 ? trailingAudioRequests
+            : [.. prologueMusicRequests, .. trailingAudioRequests];
+        // The sound acceptance clock acts on this update's requests during the update's own
+        // samples; its acknowledgements become visible to the next update's sound handlers.
+        Session.AdvanceAudio(audioRequests);
         // $82:8AB0 runs after the pause dispatcher returns, even though Samus's
         // draw-time epilogue did not run. Preserve its held-only publication;
         // updating the press edge or auto-jump timer here would invent gameplay.

@@ -41,8 +41,8 @@ internal static class AudioClipBackendVerification
     {
         ClipAudioCatalog clips = installation.LoadAudioClips();
         ExtractedAudioAssetCatalog extracted = installation.LoadAudio();
-        VerifyEquivalence(clips, extracted, new CartridgeAudioCommand.WritePort(ApuPort.Music, RoomTrack), MusicUpdates, "Green Brinstar room track");
-        VerifyEquivalence(clips, extracted, new CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary1, SoundEffectLibrary1Sounds.PowerBeam.Value), SoundUpdates, "Power Beam");
+        VerifyEquivalence(clips, extracted, AudioRequest.ForTrack(MusicTrack.NumberedOrNone(RoomTrack)), MusicUpdates, "Green Brinstar room track");
+        VerifyEquivalence(clips, extracted, AudioRequest.ForSound(SoundEffectLibrary.Library1, SoundEffectLibrary1Sounds.PowerBeam.Value), SoundUpdates, "Power Beam");
         VerifyMusicCommands(clips);
         VerifySoundCommands(clips);
         Console.WriteLine(
@@ -51,7 +51,7 @@ internal static class AudioClipBackendVerification
     }
 
     /// <summary>Feeds one event stream to both backends: uploads on update 0, <paramref name="request"/> on update 1.</summary>
-    private static void VerifyEquivalence(ClipAudioCatalog clips, ExtractedAudioAssetCatalog extracted, CartridgeAudioCommand request, int updates, string name)
+    private static void VerifyEquivalence(ClipAudioCatalog clips, ExtractedAudioAssetCatalog extracted, AudioRequest request, int updates, string name)
     {
         var source = new CartridgeAudioEventSource();
         var clipBackend = new ClipAudioBackend(clips);
@@ -61,9 +61,9 @@ internal static class AudioClipBackendVerification
         bool audible = false;
         for (int update = 0; update < updates; update++)
         {
-            IReadOnlyList<CartridgeAudioCommand> commands = update switch
+            IReadOnlyList<AudioRequest> commands = update switch
             {
-                0 => [new CartridgeAudioCommand.Upload(AudioBank.SpcEngine), new CartridgeAudioCommand.Upload(AudioBank.GreenBrinstar)],
+                0 => [new AudioRequest.ChangeMusicDataSet(AudioBank.SpcEngine), new AudioRequest.ChangeMusicDataSet(AudioBank.GreenBrinstar)],
                 1 => [request],
                 _ => [],
             };
@@ -80,29 +80,29 @@ internal static class AudioClipBackendVerification
     private static void VerifyMusicCommands(ClipAudioCatalog clips)
     {
         var script = new Script(clips);
-        script.Advance([new CartridgeAudioCommand.Upload(AudioBank.SpcEngine), new CartridgeAudioCommand.Upload(AudioBank.GreenBrinstar)]);
-        script.Advance([new CartridgeAudioCommand.WritePort(ApuPort.Music, RoomTrack)]);
+        script.Advance([new AudioRequest.ChangeMusicDataSet(AudioBank.SpcEngine), new AudioRequest.ChangeMusicDataSet(AudioBank.GreenBrinstar)]);
+        script.Advance([AudioRequest.ForTrack(MusicTrack.NumberedOrNone(RoomTrack))]);
         script.AdvanceUntil(() => script.State.Music is not null, MusicTickUpdates);
         long start = script.State.MusicStart;
         AssertEqual(clips.GetMusic(AudioBank.GreenBrinstar, RoomTrack), script.State.Music, "the room track's clip starts");
 
-        script.Advance([new CartridgeAudioCommand.WritePort(ApuPort.Music, RoomTrack)]);
+        script.Advance([AudioRequest.ForTrack(MusicTrack.NumberedOrNone(RoomTrack))]);
         script.Advance(60);
         AssertEqual(start, script.State.MusicStart, "writing the playing track does not restart it");
 
-        script.Advance([new CartridgeAudioCommand.WritePort(ApuPort.Music, 0)]);
+        script.Advance([new AudioRequest.StopMusic()]);
         script.AdvanceUntil(() => script.State.Music is null, MusicTickUpdates);
         AssertEqual(0, script.State.MusicPort, "stop returns the port to zero");
 
         MusicClipEntry ending = clips.GetMusic(AudioBank.GreenBrinstar, EndingTrack);
         AssertTrue(ending.LoopStart is null, "track 2 ends");
-        script.Advance([new CartridgeAudioCommand.WritePort(ApuPort.Music, EndingTrack)]);
+        script.Advance([AudioRequest.ForTrack(MusicTrack.NumberedOrNone(EndingTrack))]);
         script.AdvanceUntil(() => script.State.Music is not null, MusicTickUpdates);
         long firstStart = script.State.MusicStart;
         script.AdvanceUntil(() => script.State.Music is null, (int)(ending.Clip.Frames / ManagedSnesDsp.NativeStereoFramesPerVideoFrame) + 2);
         AssertEqual(0, script.State.MusicPort, "an ended track returns the port to zero");
         AssertTrue(script.State.Sample - firstStart >= ending.Clip.Frames, "the track ended after its whole clip");
-        script.Advance([new CartridgeAudioCommand.WritePort(ApuPort.Music, EndingTrack)]);
+        script.Advance([AudioRequest.ForTrack(MusicTrack.NumberedOrNone(EndingTrack))]);
         script.AdvanceUntil(() => script.State.Music is not null, MusicTickUpdates);
         AssertTrue(script.State.MusicStart > firstStart, "the same track restarts after it ended");
     }
@@ -118,34 +118,34 @@ internal static class AudioClipBackendVerification
             entry.Context == AudioBank.GreenBrinstar && entry.Library == SoundEffectLibrary.Library2 &&
             entry.Policy is { Priority: SoundEffectPriorityEffect.Low, IgnoresPriority: false } && entry.Command != high.Command);
         var script = new Script(clips);
-        script.Advance([new CartridgeAudioCommand.Upload(AudioBank.SpcEngine), new CartridgeAudioCommand.Upload(AudioBank.GreenBrinstar)]);
+        script.Advance([new AudioRequest.ChangeMusicDataSet(AudioBank.SpcEngine), new AudioRequest.ChangeMusicDataSet(AudioBank.GreenBrinstar)]);
         ClipLibraryState library2 = script.State.Libraries[1];
 
-        script.Advance([new CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary2, high.Command)]);
+        script.Advance([AudioRequest.ForSound(SoundEffectLibrary.Library2, high.Command)]);
         script.AdvanceUntil(() => library2.Sound is not null, SoundStartUpdates);
         AssertEqual(high, library2.Sound, "the high-priority sound starts");
         AssertEqual(script.LastStart(SoundEffectLibrary.Library2), library2.Start, "it starts at its accepting poll");
-        script.Advance([new CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary2, low.Command)]);
+        script.Advance([AudioRequest.ForSound(SoundEffectLibrary.Library2, low.Command)]);
         script.Advance(4);
         AssertEqual(high, library2.Sound, "a low-priority request is rejected while the high-priority sound holds the library");
-        script.Advance([new CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary2, SoundEffectLibrary2Sounds.CancelAll.Value)]);
+        script.Advance([AudioRequest.ForSound(SoundEffectLibrary.Library2, SoundEffectLibrary2Sounds.CancelAll.Value)]);
         AssertTrue(library2.Active && library2.HighPriority, "the high-priority sound still holds library 2");
         script.AdvanceUntil(() => library2.Sound?.Command == SoundEffectLibrary2Sounds.CancelAll.Value, SoundStartUpdates);
 
         ClipLibraryState library3 = script.State.Libraries[2];
-        script.Advance([new CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary3, SoundEffectLibrary3Sounds.LowHealthBeep.Value)]);
+        script.Advance([AudioRequest.ForSound(SoundEffectLibrary.Library3, SoundEffectLibrary3Sounds.LowHealthBeep.Value)]);
         script.AdvanceUntil(() => library3.Sound?.Command == SoundEffectLibrary3Sounds.LowHealthBeep.Value, SoundStartUpdates);
         AssertTrue(library3.InLowHealthMode, "the low-health beep enters low-health mode");
-        script.Advance([new CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary3, SoundEffectLibrary3Sounds.SpeedBoosterEcho.Value)]);
+        script.Advance([AudioRequest.ForSound(SoundEffectLibrary.Library3, SoundEffectLibrary3Sounds.SpeedBoosterEcho.Value)]);
         script.Advance(4);
         AssertEqual<int?>(SoundEffectLibrary3Sounds.LowHealthBeep.Value, library3.Sound?.Command, "low-health mode rejects another library-3 sound");
 
         long position = script.State.Sample - library3.Start;
-        script.Advance([new CartridgeAudioCommand.Upload(AudioBank.GreenBrinstar)]);
+        script.Advance([new AudioRequest.ChangeMusicDataSet(AudioBank.GreenBrinstar)]);
         SoundEffectClipLayer beep = library3.Sound?.Layers[0] ?? throw new InvalidOperationException("The beep has a layer.");
         AssertTrue(library3.SilencedUntil[0] > position && beep.KeyOnFrames.Count != 0, "an upload silences the looping beep until a later key-on");
 
-        script.Advance([new CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary3, SoundEffectLibrary3Sounds.CancelAll.Value)]);
+        script.Advance([AudioRequest.ForSound(SoundEffectLibrary.Library3, SoundEffectLibrary3Sounds.CancelAll.Value)]);
         script.AdvanceUntil(() => library3.Sound?.Command == SoundEffectLibrary3Sounds.CancelAll.Value, SoundStartUpdates);
         AssertTrue(!library3.InLowHealthMode, "$01 is accepted in low-health mode and clears it");
     }
@@ -170,14 +170,14 @@ internal static class AudioClipBackendVerification
         internal long LastStart(SoundEffectLibrary library) => lastStarts[SoundEffectLibraries.ToQueueIndex(library)];
 
         /// <summary>Advances one update with <paramref name="commands"/>.</summary>
-        internal void Advance(IReadOnlyList<CartridgeAudioCommand> commands)
+        internal void Advance(IReadOnlyList<AudioRequest> commands)
         {
             long frameStart = backend.State.Sample;
             AudioEvent[] events = source.Advance(commands);
             foreach (AudioEvent audioEvent in events)
             {
                 if (audioEvent is AudioEvent.StartSoundEffect started)
-                    lastStarts[SoundEffectLibraries.ToQueueIndex(started.SoundEffect.Library)] = frameStart + started.DspCycleOffset;
+                    lastStarts[SoundEffectLibraries.ToQueueIndex(started.SoundEffect.Library)] = frameStart + started.SampleOffset;
             }
             backend.Render(new AudioFrameEvents(events), pcm);
         }

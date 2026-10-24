@@ -46,15 +46,15 @@ internal static class SpcSoundLibrary2PointersVerification
 
         short[] pcm = new short[SpcDriverDefinitions.HostStereoFramesPerVideoFrame * 2];
         var zero = new PortDrivenSpcPlayer();
-        zero.WritePort(ApuPorts.ForSoundLibrary(library), 0);
+        zero.RequestSound(library, 0);
         zero.GenerateFrame(pcm);
-        AssertEqual((byte)0, zero.ReadPort(ApuPorts.ForSoundLibrary(library)),
+        AssertEqual((byte)0, zero.Acknowledgement(library),
             "zero sound command is a valid acknowledged no-sound sentinel");
 
         // #1269: the driver reads a request on one service and dispatches it on the next, so
         // the undefined command is rejected on the second frame, before its stream dispatch.
         var invalidPlayer = new PortDrivenSpcPlayer();
-        invalidPlayer.WritePort(ApuPorts.ForSoundLibrary(library), (byte)(count + 1));
+        invalidPlayer.RequestSound(library, (byte)(count + 1));
         invalidPlayer.GenerateFrame(pcm);
         AssertThrows<InvalidDataException>(() => invalidPlayer.GenerateFrame(pcm),
             "runtime rejects the first undefined sound command before stream dispatch");

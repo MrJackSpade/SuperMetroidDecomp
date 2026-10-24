@@ -1,14 +1,13 @@
 ﻿namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// One semantic audio instruction of a frame (#1304): a bank load, a music command, a driver tick, or a sound-effect
-/// start. Each is its own sealed record holding only what it carries.
+/// One semantic audio instruction of an update (#1304, #1410): a music data set change, a music track selection, a
+/// step of the sound acceptance clock, or a sound starting. Each is its own sealed record holding only what it carries.
 /// </summary>
 /// <remarks>
-/// The game session owns the SPC driver timer and port protocol, so these events already say
-/// when the driver acts: a sound effect starts only where a driver poll latches a changed
-/// nonzero request, never at the CPU's port write. Backends follow the events and never
-/// re-derive the timer.
+/// The session owns the <see cref="SoundAcceptanceClock"/>, so these events already say when each library acts: a
+/// sound starts only at a clock step that checks the requests and finds a changed request, never when the game asked.
+/// Backends follow the events and never re-derive the clock.
 /// </remarks>
 public abstract record AudioEvent
 {
@@ -17,41 +16,41 @@ public abstract record AudioEvent
     {
     }
 
-    /// <summary>Installs <see cref="AudioSet"/> before the frame's driver ticks run; the driver's music port then reads empty.</summary>
-    /// <param name="AudioSet">The bank installed.</param>
-    public sealed record LoadAudioBank(AudioBank AudioSet) : AudioEvent
+    /// <summary>Switches to <see cref="DataSet"/>'s clips before the update's clock steps run; the music stops.</summary>
+    /// <param name="DataSet">The music data set switched to, or null for only the shared sounds.</param>
+    public sealed record ChangeMusicDataSet(MusicDataSet? DataSet) : AudioEvent
     {
         /// <inheritdoc />
-        public override string ToString() => $"load:{AudioSet}";
+        public override string ToString() => $"data set:{DataSet?.ToString() ?? "shared"}";
     }
 
     /// <summary>
-    /// Latches <see cref="Music"/> for the sequencer before the frame's driver ticks run; the sequencer consumes it at
-    /// its next tempo tick.
+    /// Selects <see cref="Track"/> before the update's clock steps run; the music changes at the next music tick. A null
+    /// track stops the music.
     /// </summary>
-    /// <param name="Music">The music command latched.</param>
-    public sealed record WriteMusicPort(MusicCommand Music) : AudioEvent
+    /// <param name="Track">The track selected, or null to stop the music.</param>
+    public sealed record SelectMusicTrack(MusicTrack? Track) : AudioEvent
     {
         /// <inheritdoc />
-        public override string ToString() => $"music:{Music}";
+        public override string ToString() => Track is MusicTrack track ? $"music:{track.Number}" : "music:stop";
     }
 
-    /// <summary>One driver timer tick at its DSP-cycle offset within the frame.</summary>
-    /// <param name="DspCycleOffset">DSP cycles (native 32.04-kHz stereo samples) from the frame start at which the tick runs.</param>
-    /// <param name="Ticks">Elapsed timer periods the tick accounts for.</param>
-    /// <param name="SoundEffectsPolled">Whether the tick also services the three sound-effect libraries.</param>
-    public sealed record DriverTick(int DspCycleOffset, int Ticks, bool SoundEffectsPolled) : AudioEvent
+    /// <summary>One step of the sound acceptance clock at its sample offset within the update.</summary>
+    /// <param name="SampleOffset">Sound samples (32,040 per second) from the update's start at which the step runs.</param>
+    /// <param name="Steps">Elapsed step periods the step accounts for.</param>
+    /// <param name="ChecksRequests">Whether the step also checks the three sound libraries' requests.</param>
+    public sealed record ClockStep(int SampleOffset, int Steps, bool ChecksRequests) : AudioEvent
     {
         /// <inheritdoc />
-        public override string ToString() => $"tick@{DspCycleOffset}x{Ticks}{(SoundEffectsPolled ? "+poll" : "")}";
+        public override string ToString() => $"step@{SampleOffset}x{Steps}{(ChecksRequests ? "+check" : "")}";
     }
 
-    /// <summary>Starts <see cref="SoundEffect"/> at the sound-effect poll of the tick at <see cref="DspCycleOffset"/>.</summary>
+    /// <summary>Starts <see cref="SoundEffect"/> at the request check of the clock step at <see cref="SampleOffset"/>.</summary>
     /// <param name="SoundEffect">The sound effect started.</param>
-    /// <param name="DspCycleOffset">DSP cycles from the frame start of the polling tick.</param>
-    public sealed record StartSoundEffect(SoundEffectId SoundEffect, int DspCycleOffset) : AudioEvent
+    /// <param name="SampleOffset">Sound samples from the update's start of the checking step.</param>
+    public sealed record StartSoundEffect(SoundEffectId SoundEffect, int SampleOffset) : AudioEvent
     {
         /// <inheritdoc />
-        public override string ToString() => $"start@{DspCycleOffset}:{SoundEffect}";
+        public override string ToString() => $"start@{SampleOffset}:{SoundEffect}";
     }
 }

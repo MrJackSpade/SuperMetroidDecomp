@@ -73,7 +73,7 @@ internal static class BabyMetroidDeathCryVerification
         var audio = new CartridgeAudioState();
         var renderer = CartridgeAudioSessionAccess.CreateSynthesizing(installation.LoadAudio());
         renderer.RenderFrame(audio.AdvanceFrame(renderer.Acknowledgements));
-        renderer.RenderFrame([new CartridgeAudioCommand.Upload(AudioBank.MotherBrain)]);
+        renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(AudioBank.MotherBrain)]);
         audio.QueueSound(request.SoundEffect, request.MaximumQueued);
         // The CPU rewrites the port each update until the SPC echoes it ($82:8A55); the SPC starts a
         // sound only when its poll latches a changed value, so the starts it publishes are what it received.

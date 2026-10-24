@@ -2,43 +2,39 @@ using SuperMetroid.AssetExtraction.Audio.Synthesis;
 namespace SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>
-/// Drives a bare <see cref="ManagedSpcPlayer"/> by raw APU port writes for driver-level
+/// Drives a bare <see cref="ManagedSpcPlayer"/> by raw music-port writes and library requests for driver-level
 /// fixtures (#1304): the player's own <see cref="SoundAcceptanceClock"/> decides when each library
 /// accepts and acknowledges a request, exactly as the game session's clock does.
 /// </summary>
 internal sealed class PortDrivenSpcPlayer
 {
-    /// <summary>The port model that schedules this player's ticks and polls.</summary>
-    private readonly SoundAcceptanceClock ports = new();
+    /// <summary>The clock that schedules this player's ticks and request checks.</summary>
+    private readonly SoundAcceptanceClock clock = new();
 
     /// <summary>The emulated driver under test.</summary>
     internal ManagedSpcPlayer Player { get; } = new();
 
-    /// <summary>Writes one CPU-to-SPC port; the music port also reaches the sequencer's latch.</summary>
-    internal void WritePort(ApuPort port, byte value)
-    {
-        if (port == ApuPort.Music)
-            Player.WriteMusicPort(value);
-        else
-            ports.Request(ApuPorts.LibraryIndexAt(port), value);
-    }
+    /// <summary>Writes the driver's music port, reaching the sequencer's latch.</summary>
+    internal void WriteMusicPort(byte value) => Player.WriteMusicPort(value);
 
-    /// <summary>Applies an upload stream to the player and its port half to the port model.</summary>
+    /// <summary>Records the request to the library at zero-based <paramref name="library"/>.</summary>
+    internal void RequestSound(int library, byte value) => clock.Request(library, value);
+
+    /// <summary>Applies an upload stream to the player and the music load to the clock.</summary>
     internal void Upload(ReadOnlySpan<byte> stream)
     {
         Player.Uploads.Upload(stream);
-        ports.PauseForMusicLoad();
+        clock.PauseForMusicLoad();
     }
 
-    /// <summary>Runs one update: the port model walks the timer, then the player follows its schedule.</summary>
+    /// <summary>Runs one update: the clock walks its steps, then the player follows its schedule.</summary>
     internal void GenerateFrame(Span<short> pcm)
     {
         Span<SoundClockStep> schedule = stackalloc SoundClockStep[SoundAcceptanceClock.MaximumStepsPerUpdate];
-        int ticks = ports.Advance(schedule);
+        int ticks = clock.Advance(schedule);
         Player.GenerateFrame(schedule[..ticks], pcm);
     }
 
-    /// <summary>Reads one SPC-to-CPU port: the sequencer's music echo or a sound-effect acknowledgement.</summary>
-    internal byte ReadPort(ApuPort port) =>
-        port == ApuPort.Music ? checked((byte)Player.Music.musicPortToSnes) : checked((byte)ports.Acknowledgements[ApuPorts.LibraryIndexAt(port)]);
+    /// <summary>The acknowledgement the library at zero-based <paramref name="library"/> reports.</summary>
+    internal byte Acknowledgement(int library) => checked((byte)clock.Acknowledgements[library]);
 }

@@ -36,11 +36,11 @@ internal static class EndingTextPresentationVerification
         ISnesAddressSpace installedBus = NewEndingTextReadGuard(nativeBus);
 
         AssertTrue(presentation.BuildResultPanel().SequenceEqual(
-            ReadEndingWords(nativeBus, EndingCartridgeTables.EndingResultPanel,
+            ReadEndingWords(nativeBus, EndingSourceDefinitions.EndingResultPanel,
                 EndingTextDefinitions.ResultPanelRows * EndingTextDefinitions.TilemapWidth)),
             "installed producer panel matches native tilemap");
         AssertTrue(presentation.BuildCopyrightPanel().SequenceEqual(
-            ReadEndingWords(nativeBus, EndingCartridgeTables.EndingCopyrightPanel,
+            ReadEndingWords(nativeBus, EndingSourceDefinitions.EndingCopyrightPanel,
                 EndingTextDefinitions.CopyrightRows * EndingTextDefinitions.TilemapWidth)),
             "installed copyright panel matches native tilemap");
 
@@ -120,7 +120,7 @@ internal static class EndingTextPresentationVerification
     internal static ushort[] ReadEndingWords(ISnesAddressSpace bus, ushort pointer, int count)
     {
         var result = new ushort[count];
-        int address = (int)new SnesAddress(EndingCartridgeTables.EndingBank, pointer);
+        int address = (int)new SnesAddress(EndingSourceDefinitions.EndingBank, pointer);
         for (int index = 0; index < count; index++)
             result[index] = CartridgeImportSource.Require(bus).ReadCartridgeWord(address + index * 2);
         return result;
@@ -191,8 +191,8 @@ internal static class EndingTextPresentationVerification
     /// <summary>Forbids installed typewriter execution from rereading the bank-$8C text and panel source range.</summary>
     private static CartridgeReadGuard NewEndingTextReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
-            .Forbid(address => SnesAddressMath.BankNumber(address) == EndingCartridgeTables.EndingBank &&
-                    (SnesAddressMath.OffsetInBank(address)) is >= EndingCartridgeTables.EndingResultPanel and <= 0xe1e8,
+            .Forbid(address => SnesAddressMath.BankNumber(address) == EndingSourceDefinitions.EndingBank &&
+                    (SnesAddressMath.OffsetInBank(address)) is >= EndingSourceDefinitions.EndingResultPanel and <= 0xe1e8,
                 address => $"Installed ending text read cartridge address ${address:X6}.");
 
     /// <summary>Runs the retail-cartridge ending text and font presentation check.</summary>

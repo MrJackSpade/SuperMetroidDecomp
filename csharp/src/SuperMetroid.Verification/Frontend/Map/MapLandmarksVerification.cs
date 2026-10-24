@@ -132,7 +132,7 @@ internal static class MapLandmarksVerification
         // icon comparison can additionally block the shared gunship coordinate.
         if (blockGunship)
         {
-            int table = FrontendCartridgeTables.SavePointMapPointers;
+            int table = (int)FrontendSourceDefinitions.SavePointMapPointers;
             int pointer = RomDataReader.ReadWordFixedBank(cartridge, table);
             blocked.Add(table); blocked.Add(table + 1);
             for (int i = 0; i < 4; i++) blocked.Add(FileSelectMapRomData.MenuObjectBank | (pointer + i));

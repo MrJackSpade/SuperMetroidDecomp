@@ -104,7 +104,7 @@ public static class RoomPlmCollectibleVisualFiles
             ushort table = animation == 0
                 ? PlmDrawSourceDefinitions.CollectibleDynamicFrame0Table.Offset
                 : PlmDrawSourceDefinitions.CollectibleDynamicFrame1Table.Offset;
-            ushort native = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, (checked((ushort)(table + slot * 2)))));
+            ushort native = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, (checked((ushort)(table + slot * 2)))));
             ushort compiled = PlmDrawAddressCodec.Of(RoomPlmCollectibleDrawDefinitions.VisibleFrame(
                 InWorldCollectibleKind.Bombs, animation, slot));
             if (native != compiled)
@@ -116,9 +116,9 @@ public static class RoomPlmCollectibleVisualFiles
         foreach (RoomPlmCollectibleDrawFrame frame in RoomPlmCollectibleDrawDefinitions.All)
         {
             ushort address = PlmDrawAddressCodec.Of(PlmDraw.Of(frame.Draw));
-            if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, address)) != 1 ||
-                CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, (checked((ushort)(address + 2))))) != frame.LevelWord ||
-                CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, (checked((ushort)(address + 4))))) != 0)
+            if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, address)) != 1 ||
+                CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, (checked((ushort)(address + 2))))) != frame.LevelWord ||
+                CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, (checked((ushort)(address + 4))))) != 0)
                 throw new InvalidDataException(
                     $"Collectible draw {frame.Id} at $84:{address:X4} differs from compiled geometry or level word.");
             entries.Add(new RoomPlmVisualWordEntry(frame.Id,

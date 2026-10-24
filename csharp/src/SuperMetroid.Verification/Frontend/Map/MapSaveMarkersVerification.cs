@@ -31,7 +31,7 @@ internal static class MapSaveMarkersVerification
         var expectedIds = new List<string>();
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
-            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FrontendCartridgeTables.SavePointMapPointers + area * 2);
+            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), (int)FrontendSourceDefinitions.SavePointMapPointers + area * 2);
             int nativeMask = 0;
             var expectedIndices = new List<int>();
             for (int index = 0; index < MapSaveMarkerDefinitions.SlotsPerArea; index++)
@@ -193,7 +193,7 @@ internal static class MapSaveMarkersVerification
         var blocked = new HashSet<int>();
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
-            int entry = FrontendCartridgeTables.SavePointMapPointers + area * 2;
+            int entry = (int)FrontendSourceDefinitions.SavePointMapPointers + area * 2;
             int list = RomDataReader.ReadWordFixedBank(cartridge, entry);
             blocked.Add(entry); blocked.Add(entry + 1);
             for (int offset = 0; offset < MapSaveMarkerDefinitions.SlotsPerArea * 4; offset++)

@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Cartridge regions whose bank-local pointers room-PLM visual codecs resolve.</summary>
 [CpuBusBoundary("catalog: room PLM cartridge tables")]
-internal static class RoomPlmCartridgeTables
+internal static class RoomPlmSourceDefinitions
 {
     /// <summary>
     /// $84:8000-$84:FFFF: PLM headers, instruction lists and block-draw lists. PLM draw-list,

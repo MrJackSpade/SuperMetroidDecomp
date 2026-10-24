@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Frontend.FileSelect;
-
 namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>The control words of a file-select text stream; every other word is a tilemap cell.</summary>

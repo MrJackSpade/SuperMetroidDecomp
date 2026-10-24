@@ -132,7 +132,7 @@ internal static class PauseEquipmentRulesVerification
         {
             var pause = Create(new SamusState { EquippedItems = (SamusEquipmentFlags)items, CollectedItems = (SamusEquipmentFlags)items }); EnterPauseEquipment(pause);
             int variant = Array.IndexOf(wireframeMasks, (ushort)(items & 0x0101));
-            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuCartridgeTables.PauseWireframePointers + variant * 2);
+            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), (int)PauseMenuSourceDefinitions.PauseWireframePointers + variant * 2);
             var memory = pause.CaptureRenderSnapshot().Paint;
             byte[] vram = pause.ShownVram();
             for (int row = 0; row < 17; row++)

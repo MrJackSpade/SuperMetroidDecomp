@@ -61,7 +61,7 @@ internal static class GenericSpriteArtworkVerification
             title.PrepareRenderSprites();
             expected = new OamBuffer(); expected.BeginFrame();
             DrawImportedSpritemap(reference, expected,
-                (int)new SnesAddress(FrontendCartridgeTables.TitleSpritemapBank, spritemaps[frame.Sprite]), new(x, y), palette);
+                (int)new SnesAddress(FrontendSourceDefinitions.TitleSpritemapBank, spritemaps[frame.Sprite]), new(x, y), palette);
             expected.FinalizeFrame();
             EqualSprites(expected, title.objects, "title composition/coordinate/palette parity");
             titleCases++;
@@ -71,8 +71,8 @@ internal static class GenericSpriteArtworkVerification
         title.PrepareRenderSprites();
         expected = new OamBuffer(); expected.BeginFrame();
         DrawImportedSpritemap(reference, expected,
-            (int)new SnesAddress(FrontendCartridgeTables.TitleSpritemapBank,
-                FrontendCartridgeTables.TitleCopyrightSpritemap),
+            (int)new SnesAddress(FrontendSourceDefinitions.TitleSpritemapBank,
+                FrontendSourceDefinitions.TitleCopyrightSpritemap),
             new(TitleSequenceRomData.Sprites.CopyrightOrigin.X, TitleSequenceRomData.Sprites.CopyrightOrigin.Y),
             TitleSequenceRomData.Sprites.CopyrightPalette.Raw);
         expected.FinalizeFrame();

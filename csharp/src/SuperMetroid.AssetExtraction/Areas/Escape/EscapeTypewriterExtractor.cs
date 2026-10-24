@@ -3,7 +3,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
@@ -46,8 +45,8 @@ public static class EscapeTypewriterExtractor
     {
         int cursor = id switch
         {
-            EscapeTypewriterProgramId.Ceres => EscapeCartridgeTables.CeresWarningText,
-            EscapeTypewriterProgramId.Zebes => EscapeCartridgeTables.ZebesWarningText,
+            EscapeTypewriterProgramId.Ceres => (int)EscapeSourceDefinitions.CeresWarningText,
+            EscapeTypewriterProgramId.Zebes => (int)EscapeSourceDefinitions.ZebesWarningText,
             EscapeTypewriterProgramId.None => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
             _ => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
         };

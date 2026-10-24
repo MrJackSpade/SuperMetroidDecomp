@@ -5,7 +5,6 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Corpses;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.AssetExtraction.Enemies.Corpses;

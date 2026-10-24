@@ -25,8 +25,8 @@ public static class PauseEquipmentLabelExtractor
                 ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), definition.TilemapPointerTableAddress + item * 2);
                 labels.Add(PauseEquipmentLabelDefinitions.Key(category, item), new()
                 {
-                    Column = ((destination - PauseMenuCartridgeTables.EquipmentTilemapBase) / 2) % PauseEquipmentLabelDefinitions.TilemapColumns,
-                    Row = ((destination - PauseMenuCartridgeTables.EquipmentTilemapBase) / 2) / PauseEquipmentLabelDefinitions.TilemapColumns,
+                    Column = ((destination - PauseMenuSourceDefinitions.EquipmentTilemapBase) / 2) % PauseEquipmentLabelDefinitions.TilemapColumns,
+                    Row = ((destination - PauseMenuSourceDefinitions.EquipmentTilemapBase) / 2) / PauseEquipmentLabelDefinitions.TilemapColumns,
                     Cells = ReadCells(bus, source, definition.LabelWordCount,
                         PauseEquipmentLabelDefinitions.Key(category, item)),
                 });
@@ -68,6 +68,6 @@ public static class PauseEquipmentLabelExtractor
     private static PauseBackdropCell[] ReadCells(ISnesAddressSpace bus, ushort source, int count, string name) =>
         Enumerable.Range(0, count)
             .Select(index => PauseTileGrid.FromWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                CartridgeBankWindow.At(PauseMenuCartridgeTables.MenuBank, unchecked((ushort)(source + index * 2)))), $"{name}.{index}"))
+                CartridgeBankWindow.At(PauseMenuSourceDefinitions.MenuBank, unchecked((ushort)(source + index * 2)))), $"{name}.{index}"))
             .ToArray();
 }

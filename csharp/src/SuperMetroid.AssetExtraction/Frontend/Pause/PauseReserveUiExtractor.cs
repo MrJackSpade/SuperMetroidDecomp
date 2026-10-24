@@ -63,10 +63,10 @@ public static class PauseReserveUiExtractor
 
         PauseReserveLabelVisual Label(int index, int words)
         {
-            int destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuCartridgeTables.ReserveLabelPlacements + index * 2) -
-                PauseMenuCartridgeTables.EquipmentTilemapBase;
-            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuCartridgeTables.ReserveLabelSources + index * 2);
-            return DirectLabel(CartridgeBankWindow.At(PauseMenuCartridgeTables.MenuBank, pointer), destination / 2, words);
+            int destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveLabelPlacements.AddWithinBank(index * 2)) -
+                PauseMenuSourceDefinitions.EquipmentTilemapBase;
+            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveLabelSources.AddWithinBank(index * 2));
+            return DirectLabel(CartridgeBankWindow.At(PauseMenuSourceDefinitions.MenuBank, pointer), destination / 2, words);
         }
         PauseReserveLabelVisual DirectLabel(int address, int cell, int words) => new()
         {

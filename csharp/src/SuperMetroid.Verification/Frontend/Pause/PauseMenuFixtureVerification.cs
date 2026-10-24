@@ -46,7 +46,7 @@ internal static class PauseMenuFixtureVerification
         areas[AreaIds.ToIndex(AreaId.Crateria)] = AreaMapImporter.Load(bus, AreaId.Crateria);
         var backdrops = PauseBackdropPresentation.FromTilemaps(
             Enum.GetValues<AreaId>().Select(_ => Read(0xb6e000, 0x0800)).ToArray(),
-            Read(PauseMenuCartridgeTables.PauseButtonTilemap, PauseBackdropDefinitions.ButtonCells * 2));
+            Read((int)PauseMenuSourceDefinitions.PauseButtonTilemap, PauseBackdropDefinitions.ButtonCells * 2));
         var hud = new byte[HudTileAtlasFormat.ByteCount];
         Read(HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.CharacterByteCount).CopyTo(hud, 0);
 

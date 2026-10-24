@@ -116,12 +116,12 @@ public static class RoomPlmGrappleBlockVisualFiles
                  RoomPlmGrappleBlockDrawDefinitions.All.OrderBy(item => PlmDrawAddressCodec.Of(PlmDraw.Of(item.Frame))))
         {
             ushort pointer = PlmDrawAddressCodec.Of(PlmDraw.Of(draw.Frame));
-            if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, pointer)) !=
+            if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, pointer)) !=
                     RoomPlmGrappleBlockDrawDefinitions.DrawList.DirectionAndCount ||
-                CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, (unchecked((ushort)(pointer + 2))))) != draw.LevelWord ||
-                bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, unchecked((ushort)(pointer + 4)))) !=
+                CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, (unchecked((ushort)(pointer + 2))))) != draw.LevelWord ||
+                bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, unchecked((ushort)(pointer + 4)))) !=
                     RoomPlmGrappleBlockDrawDefinitions.DrawList.NextX ||
-                bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, unchecked((ushort)(pointer + 5)))) !=
+                bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, unchecked((ushort)(pointer + 5)))) !=
                     RoomPlmGrappleBlockDrawDefinitions.DrawList.NextY)
                 throw new InvalidDataException(
                     $"Grapple-block draw list ${pointer:X4} differs from compiled cartridge data.");

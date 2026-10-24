@@ -24,7 +24,7 @@ public static class MapLandmarkExtractor
         var points = new Dictionary<string, Position16<MapPixels>>();
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
-            int boss = Pointer(FileSelectMapIconRomData.BossLists, area);
+            int boss = Pointer(SnesAddress.FromBusAddress(FileSelectMapIconRomData.BossLists), area);
             var bosses = MapLandmarkDefinitions.Bosses(area);
             if (boss == 0 && !bosses.IsEmpty) throw new InvalidDataException($"Missing {area} boss list.");
             for (int i = 0; i < bosses.Length; i++)
@@ -40,7 +40,7 @@ public static class MapLandmarkExtractor
             if (boss != 0 && Read(boss + bosses.Length * 4) != ushort.MaxValue)
                 throw new InvalidDataException($"Unexpected {area} boss slots.");
             if (area == AreaId.Ceres) continue;
-            int elevator = Pointer(FileSelectMapIconRomData.ElevatorLists, area);
+            int elevator = Pointer(SnesAddress.FromBusAddress(FileSelectMapIconRomData.ElevatorLists), area);
             var elevators = MapLandmarkDefinitions.Elevators(area);
             for (int i = 0; i < elevators.Length; i++)
             {
@@ -52,13 +52,13 @@ public static class MapLandmarkExtractor
             if (Read(elevator + elevators.Length * 6) != ushort.MaxValue)
                 throw new InvalidDataException($"Unexpected {area} elevator labels.");
         }
-        int ship = Pointer(FrontendCartridgeTables.SavePointMapPointers, AreaId.Crateria);
+        int ship = Pointer(FrontendSourceDefinitions.SavePointMapPointers, AreaId.Crateria);
         points.Add(MapLandmarkDefinitions.Gunship, new(Read(ship), Read(ship + 2)));
         using var stream = new MemoryStream();
         MapLandmarkLayout.Write(stream, new() { Version = MapLandmarkFormat.Version, Markers = points });
         return stream.ToArray();
 
-        ushort Pointer(int table, AreaId area) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + AreaIds.ToIndex(area) * 2);
+        ushort Pointer(SnesAddress table, AreaId area) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table.AddWithinBank(AreaIds.ToIndex(area) * 2));
         ushort Read(int pointer) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.MenuObjectBank | pointer);
     }
 }

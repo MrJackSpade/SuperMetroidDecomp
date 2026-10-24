@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Frontend.Intro;
@@ -700,7 +699,7 @@ internal static class LookupStream5Verification
                 icons.DrawAfterMarker(actual, new(7, 9));
                 if (area == AreaId.Crateria)
                 {
-                    int ship = Root(FrontendCartridgeTables.SavePointMapPointers, area);
+                    int ship = Root((int)FrontendSourceDefinitions.SavePointMapPointers, area);
                     Draw(MapSpriteId.MarkerGunship, Read(ship), Read(ship + 2), FileSelectMapRomData.StationMarkerPalette);
                 }
                 if (downloaded)

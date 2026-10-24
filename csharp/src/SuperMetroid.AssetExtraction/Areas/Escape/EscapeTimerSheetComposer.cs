@@ -33,9 +33,9 @@ internal static class EscapeTimerSheetComposer
         {
             string name = EscapeTimerPresentationDefinitions.FrameName(glyph);
             int spritemap = glyph == EscapeTimerGlyph.Label
-                ? EscapeCartridgeTables.TimerLabelSpritemap
-                : EscapeCartridgeTables.TimerSpritemapBank | (EscapeCartridgeTables.FirstTimerDigitSpritemap +
-                    EscapeTimerPresentationDefinitions.DigitValue(glyph) * EscapeCartridgeTables.TimerDigitSpritemapStride);
+                ? (int)EscapeSourceDefinitions.TimerLabelSpritemap
+                : (int)EscapeSourceDefinitions.TimerSpritemapBank.AddWithinBank(EscapeSourceDefinitions.FirstTimerDigitSpritemap +
+                    EscapeTimerPresentationDefinitions.DigitValue(glyph) * EscapeSourceDefinitions.TimerDigitSpritemapStride);
             frames.Add(new(name, new SpriteFrame(name, ReadSpritemap(bus, spritemap)), tiles.Artwork));
         }
         return SpriteSheetComposer.Compose(new SpriteSheetSources(frames, GameplayBasePaletteFiles.RoomLoadSpriteColours(bus), ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection)), PaletteRow, 0);

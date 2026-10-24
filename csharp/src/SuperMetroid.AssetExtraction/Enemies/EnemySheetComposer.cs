@@ -1,10 +1,8 @@
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.World.Artwork;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
-using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;

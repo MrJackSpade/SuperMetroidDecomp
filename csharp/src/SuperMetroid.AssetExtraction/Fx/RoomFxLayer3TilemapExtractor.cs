@@ -27,7 +27,7 @@ public static class RoomFxLayer3TilemapExtractor
         {
             int source = RoomFxLayer3TilemapFormat.SourceAddress(type);
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                RoomFxCartridgeTables.Layer3TilemapPointers + (int)type);
+                RoomFxLayer3SourceDefinitions.Layer3TilemapPointers.AddWithinBank((int)type));
             if ((RoomFxRomData.Banks.Tilemaps | pointer) != source)
                 throw new InvalidDataException(
                     $"Room-FX {type} tilemap pointer ${pointer:X4} does not select ${source:X6}.");

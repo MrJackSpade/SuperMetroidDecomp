@@ -16,7 +16,7 @@ public static class TitleGradientDecoder
     /// <returns>The decoded title gradient scanlines.</returns>
     public static TitleGradientLine[] Decode(IImportCartridgeSource cartridge, ushort zoom)
     {
-        int pointer = FrontendCartridgeTables.FixedColorPointers + (zoom >> 4) % 16 * sizeof(ushort);
+        int pointer = (int)FrontendSourceDefinitions.FixedColorPointers.AddWithinBank((zoom >> 4) % 16 * sizeof(ushort));
         int table = TitleGradientRomData.FixedColorBank |
             cartridge.ReadCartridgeWord(pointer);
         byte[] fixedWrites = Expand(cartridge, table);

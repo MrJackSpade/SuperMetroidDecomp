@@ -5,7 +5,6 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Kraid;
@@ -23,7 +22,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.AssetExtraction.Rooms;

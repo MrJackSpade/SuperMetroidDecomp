@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;

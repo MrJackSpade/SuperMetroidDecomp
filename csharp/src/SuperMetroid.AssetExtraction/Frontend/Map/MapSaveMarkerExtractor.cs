@@ -25,7 +25,7 @@ public static class MapSaveMarkerExtractor
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
             var typedArea = (AreaId)area;
-            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FrontendCartridgeTables.SavePointMapPointers + area * 2);
+            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FrontendSourceDefinitions.SavePointMapPointers.AddWithinBank(area * 2));
             for (int index = 0; index < MapSaveMarkerDefinitions.SlotsPerArea; index++)
             {
                 int address = FileSelectMapRomData.MenuObjectBank | (pointer + index * 4);

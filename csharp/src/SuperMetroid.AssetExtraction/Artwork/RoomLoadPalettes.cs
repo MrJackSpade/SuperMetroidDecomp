@@ -2,8 +2,6 @@ using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.World;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 

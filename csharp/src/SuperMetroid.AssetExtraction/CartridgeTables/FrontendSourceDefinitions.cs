@@ -1,13 +1,14 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Where the cartridge stores the front-end tables the title and map extractors read.</summary>
-internal static class FrontendCartridgeTables
+internal static class FrontendSourceDefinitions
 {
     /// <summary><c>$82:C80B</c>, bank-$82 save-point map-coordinate-list pointers per area.</summary>
-    internal const int SavePointMapPointers = 0x82c80b;
+    internal static readonly SnesAddress SavePointMapPointers = new(0x82, 0xc80b);
 
     /// <summary>$8C:BC5D, TitleSequenceHDMATables: sixteen pointers indexed by zoom bits 4..7.</summary>
-    internal const int FixedColorPointers = 0x8cbc5d;
+    internal static readonly SnesAddress FixedColorPointers = new(0x8c, 0xbc5d);
 
     /// <summary>Bank $8C containing title-sequence spritemaps referenced by bank-relative list operands.</summary>
     internal const byte TitleSpritemapBank = 0x8c;
@@ -19,7 +20,7 @@ internal static class FrontendCartridgeTables
     internal const ushort TitleCopyrightSpritemap = 0x8103;
 
     /// <summary>$8B:A0C7 spritemap operand in the title-logo instruction list; stores the bank-$8C logo pointer rather than the spritemap itself.</summary>
-    internal const int TitleLogoSpritemapOperand = 0x8ba0c7;
+    internal static readonly SnesAddress TitleLogoSpritemapOperand = new(0x8b, 0xa0c7);
 
     /// <summary>$8C:D781, first of four 16-byte portrait-eye draw records, in <see cref="SuperMetroid.Core.Frontend.Intro.IntroEyeFrame"/> order.</summary>
     internal const ushort IntroEyeFrameRecords = 0xd781;

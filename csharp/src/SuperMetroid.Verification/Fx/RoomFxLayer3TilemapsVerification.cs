@@ -130,8 +130,8 @@ internal static class RoomFxLayer3TilemapsVerification
     private static CartridgeReadGuard NewForbiddenRoomFxTilemapBus(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address => (SnesAddressMath.BankNumber(address)) == 0x8a ||
-                address >= RoomFxCartridgeTables.Layer3TilemapPointers &&
-                address < RoomFxCartridgeTables.Layer3TilemapPointers + 14,
+                address >= (int)RoomFxLayer3SourceDefinitions.Layer3TilemapPointers &&
+                address < (int)RoomFxLayer3SourceDefinitions.Layer3TilemapPointers + 14,
             address => $"Installed room-FX BG3 tilemap read ROM ${address:X6}.");
 
     /// <summary>Runs the FX tilemap source lookup suite.</summary>

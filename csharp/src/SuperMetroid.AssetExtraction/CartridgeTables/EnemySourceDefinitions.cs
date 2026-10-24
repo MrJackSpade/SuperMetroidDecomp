@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Cartridge regions whose bank-local pointers enemy and enemy-projectile codecs resolve.</summary>
 [CpuBusBoundary("catalog: enemy cartridge tables")]
-internal static class EnemyCartridgeTables
+internal static class EnemySourceDefinitions
 {
     /// <summary>
     /// $86:8000-$86:FFFF: enemy-projectile instruction lists. A presentation frame's operand address
@@ -21,5 +21,5 @@ internal static class EnemyCartridgeTables
         "Ridley BGR555 color rows (u16 little-endian)");
 
     /// <summary>Fifteen nonzero fixed-bank source pointers and a zero terminator at $A6:A4EB.</summary>
-    internal const int RevealSourcePointers = 0xa6a4eb;
+    internal static readonly SnesAddress RevealSourcePointers = new(0xa6, 0xa4eb);
 }

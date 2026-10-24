@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Escape.Artwork;
@@ -21,7 +20,6 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Installation;
 

@@ -1159,7 +1159,7 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4EndingResultPanel(ISnesAddressSpace rom)
     {
         byte[] source = EndingTextExtractor.Extract(rom);
-        ushort[] native = ReadEndingWords(rom, EndingCartridgeTables.EndingResultPanel,
+        ushort[] native = ReadEndingWords(rom, EndingSourceDefinitions.EndingResultPanel,
             EndingTextDefinitions.ResultPanelRows * EndingTextDefinitions.TilemapWidth);
         var stock = EndingTextPresentation.Load(new MemoryStream(source));
         AssertTrue(native.SequenceEqual(stock.BuildResultPanel()), "Calculated credit lines preserve all288 original producer-panel cells");
@@ -1202,7 +1202,7 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4EndingSubtitle(ISnesAddressSpace rom)
     {
         byte[] source = EndingTextExtractor.Extract(rom);
-        ushort[] native = ReadEndingWords(rom, EndingCartridgeTables.EndingJapaneseSubtitle,
+        ushort[] native = ReadEndingWords(rom, EndingSourceDefinitions.EndingJapaneseSubtitle,
             EndingTextDefinitions.JapaneseSubtitleRows * EndingTextDefinitions.TilemapWidth);
         var stock = EndingTextPresentation.Load(new MemoryStream(source));
         var stockOverrides = stock.subtitleOverrides;

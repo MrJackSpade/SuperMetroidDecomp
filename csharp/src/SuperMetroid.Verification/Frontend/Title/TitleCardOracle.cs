@@ -48,13 +48,13 @@ internal static class TitleCardOracle
                     if (step.Sprite is { } sprite)
                         AssertEqual(nativeSpritemap, extracted[sprite], $"{at}: {sprite} is extracted from the listed spritemap");
                     else
-                        AssertEqual(FrontendCartridgeTables.TitleBlankSpritemap, nativeSpritemap, $"{at}: blank typed frame is a blank native entry");
+                        AssertEqual(FrontendSourceDefinitions.TitleBlankSpritemap, nativeSpritemap, $"{at}: blank typed frame is a blank native entry");
                     address += TitleSequenceRomData.TextSequences.TimedEntryByteCount;
                 }
                 compared++;
             }
         }
-        AssertEqual(cartridge.ReadCartridgeWord(FrontendCartridgeTables.TitleLogoSpritemapOperand),
+        AssertEqual(cartridge.ReadCartridgeWord((int)FrontendSourceDefinitions.TitleLogoSpritemapOperand),
             extracted[TitleSprite.SuperMetroidLogo], "title logo is extracted from the logo pointer");
         AssertEqual(TitleSpriteDefinitions.All.Count, extracted.Count, "extraction maps every title composition");
         AssertEqual(extracted.Count, extracted.Values.Distinct().Count(), "every title composition has its own spritemap");

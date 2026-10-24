@@ -117,7 +117,7 @@ internal static class TitleSequenceRomDataVerification
         // Valid constructed fixed-color/control streams; retail tests check the real
         // gradient bands separately. Every zoom index selects the same black run.
         for (int index = 0; index < 16; index++)
-            WriteRomWord(rom, FrontendCartridgeTables.FixedColorPointers + index * 2, 0xbc7d);
+            WriteRomWord(rom, (int)FrontendSourceDefinitions.FixedColorPointers + index * 2, 0xbc7d);
         WriteRomWord(rom, 0x8cbc7d, 0xe07f);
         WriteRomWord(rom, 0x8cbc7f, 0xe07f);
         WriteRomWord(rom, TitleGradientRomData.ControlTable, 0xa17a);
@@ -161,7 +161,7 @@ internal static class TitleSequenceRomDataVerification
             (ushort)TitleSequenceInstruction.TriggerScene3);
         WriteRomWord(
             rom,
-            FrontendCartridgeTables.TitleLogoSpritemapOperand,
+            (int)FrontendSourceDefinitions.TitleLogoSpritemapOperand,
             TitleSequenceRomDataSpritesConstants.SuperMetroidLogo);
         return rom;
     }
@@ -185,7 +185,7 @@ internal static class TitleSequenceRomDataVerification
             }
             WriteRomWord(rom, pointer, checked((ushort)step.Duration));
             WriteRomWord(rom, pointer + sizeof(ushort), step.Sprite is { } sprite
-                ? ConstructedSpritemap(sprite) : FrontendCartridgeTables.TitleBlankSpritemap);
+                ? ConstructedSpritemap(sprite) : FrontendSourceDefinitions.TitleBlankSpritemap);
             pointer += TitleSequenceRomData.TextSequences.TimedEntryByteCount;
         }
     }
@@ -199,6 +199,6 @@ internal static class TitleSequenceRomDataVerification
         int ordinal = TitleSpriteDefinitions.All.ToList().IndexOf(sprite);
         if (ordinal < 0)
             throw new ArgumentOutOfRangeException(nameof(sprite), sprite, "Undefined title composition.");
-        return checked((ushort)(FrontendCartridgeTables.TitleCopyrightSpritemap + sizeof(ushort) * (1 + ordinal)));
+        return checked((ushort)(FrontendSourceDefinitions.TitleCopyrightSpritemap + sizeof(ushort) * (1 + ordinal)));
     }
 }

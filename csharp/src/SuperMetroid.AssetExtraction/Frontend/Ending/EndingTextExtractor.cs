@@ -19,19 +19,19 @@ public static class EndingTextExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        EndingTextCell[] result = ReadCells(bus, EndingCartridgeTables.EndingResultPanel,
+        EndingTextCell[] result = ReadCells(bus, EndingSourceDefinitions.EndingResultPanel,
             EndingTextDefinitions.ResultPanelRows * EndingTextDefinitions.TilemapWidth);
         string producedBy = DecodeRow(result, EndingTextDefinitions.ResultProducedBy);
-        EndingTextCell[] copyright = ReadCells(bus, EndingCartridgeTables.EndingCopyrightPanel,
+        EndingTextCell[] copyright = ReadCells(bus, EndingSourceDefinitions.EndingCopyrightPanel,
             EndingTextDefinitions.CopyrightRows * EndingTextDefinitions.TilemapWidth);
         string year = DecodeRow(copyright, EndingTextDefinitions.CopyrightYear);
         string company = DecodeRow(copyright, EndingTextDefinitions.CopyrightCompany);
-        string percentage = ReadStream(bus, EndingCartridgeTables.EndingItemPercentage,
+        string percentage = ReadStream(bus, EndingSourceDefinitions.EndingItemPercentage,
             EndingTextSequence.ItemPercentage, out EndingTextCharacter[] percentageCharacters);
         int firstLineLength = EndingTextDefinitions.PercentageHeading.Width;
         if (percentageCharacters.Length != firstLineLength + EndingTextDefinitions.PercentageDetail.Width)
             throw new InvalidDataException("Native item-percentage stream has unexpected text dimensions.");
-        string final = ReadStream(bus, EndingCartridgeTables.EndingFinalMessage,
+        string final = ReadStream(bus, EndingSourceDefinitions.EndingFinalMessage,
             EndingTextSequence.FinalMessage, out _);
 
         using var output = new MemoryStream();
@@ -43,7 +43,7 @@ public static class EndingTextExtractor
             CopyrightCompany = company,
             PercentageHeading = percentage[..firstLineLength],
             PercentageDetail = percentage[firstLineLength..],
-            JapaneseSubtitle = ReadCells(bus, EndingCartridgeTables.EndingJapaneseSubtitle,
+            JapaneseSubtitle = ReadCells(bus, EndingSourceDefinitions.EndingJapaneseSubtitle,
                 EndingTextDefinitions.JapaneseSubtitleRows * EndingTextDefinitions.TilemapWidth),
             FinalMessage = final,
         });
@@ -62,29 +62,29 @@ public static class EndingTextExtractor
         EndingTextRegionDefinition expected = sequence == EndingTextSequence.ItemPercentage
             ? EndingTextDefinitions.PercentageHeading
             : EndingTextDefinitions.FinalMessage;
-        for (int record = 0; record < EndingCartridgeTables.EndingMaximumRecords; record++)
+        for (int record = 0; record < EndingSourceDefinitions.EndingMaximumRecords; record++)
         {
             ushort word = ReadWord(bus, cursor);
-            if ((word & EndingCartridgeTables.EndingCommandBit) != 0)
+            if ((word & EndingSourceDefinitions.EndingCommandBit) != 0)
             {
                 if (sequence == EndingTextSequence.ItemPercentage)
                 {
-                    RequireWord(word, EndingCartridgeTables.EndingDrawPercentageOpcode, "percentage count opcode");
+                    RequireWord(word, EndingSourceDefinitions.EndingDrawPercentageOpcode, "percentage count opcode");
                     cursor = Add(cursor, 2);
-                    RequireWord(ReadWord(bus, cursor), EndingCartridgeTables.EndingDrawSubtitleOpcode, "percentage subtitle opcode");
+                    RequireWord(ReadWord(bus, cursor), EndingSourceDefinitions.EndingDrawSubtitleOpcode, "percentage subtitle opcode");
                     cursor = Add(cursor, 2);
                     RequireMarker(bus, cursor, EndingTextDefinitions.PercentageHoldFrames);
                     cursor = Add(cursor, 6);
-                    RequireWord(ReadWord(bus, cursor), EndingCartridgeTables.EndingClearSubtitleOpcode, "percentage clear opcode");
+                    RequireWord(ReadWord(bus, cursor), EndingSourceDefinitions.EndingClearSubtitleOpcode, "percentage clear opcode");
                     cursor = Add(cursor, 2);
                 }
-                RequireWord(ReadWord(bus, cursor), EndingCartridgeTables.EndingDeleteOpcode, "ending-text delete opcode");
+                RequireWord(ReadWord(bus, cursor), EndingSourceDefinitions.EndingDeleteOpcode, "ending-text delete opcode");
                 characters = compiled.ToArray();
                 return new string(text.ToArray());
             }
             RequireWord(word, EndingTextDefinitions.CharacterDelayFrames, "ending-text character delay");
             ushort packed = ReadWord(bus, Add(cursor, 2));
-            int column = packed & EndingCartridgeTables.EndingPackedPositionXMask;
+            int column = packed & EndingSourceDefinitions.EndingPackedPositionXMask;
             int row = SnesLittleEndian.HighByte(packed);
             EndingTextStyle style = sequence == EndingTextSequence.ItemPercentage
                 ? EndingTextStyle.PercentageSmall : EndingTextStyle.FinalLarge;
@@ -95,9 +95,9 @@ public static class EndingTextExtractor
             if (row != expected.Row || column != expectedColumn)
                 throw new InvalidDataException($"Native {sequence} record {record} is at ({column},{row}), expected ({expectedColumn},{expected.Row}).");
             ushort data = ReadWord(bus, Add(cursor, 4));
-            RequireWord(ReadWord(bus, data), EndingCartridgeTables.EndingDrawFunction, "ending-text draw function");
+            RequireWord(ReadWord(bus, data), EndingSourceDefinitions.EndingDrawFunction, "ending-text draw function");
             int height = ReadByte(bus, Add(data, 3));
-            if (ReadByte(bus, Add(data, 2)) != EndingCartridgeTables.EndingGlyphWidth ||
+            if (ReadByte(bus, Add(data, 2)) != EndingSourceDefinitions.EndingGlyphWidth ||
                 height != (style == EndingTextStyle.FinalLarge
                     ? EndingTextDefinitions.LargeGlyphHeight
                     : EndingTextDefinitions.SmallGlyphHeight))
@@ -145,10 +145,10 @@ public static class EndingTextExtractor
     private static void RequireMarker(ISnesAddressSpace bus, ushort pointer, ushort duration)
     {
         RequireWord(ReadWord(bus, pointer), duration, "ending-text marker duration");
-        RequireWord(ReadWord(bus, Add(pointer, 2)), EndingCartridgeTables.EndingMarkerPackedPosition,
+        RequireWord(ReadWord(bus, Add(pointer, 2)), EndingSourceDefinitions.EndingMarkerPackedPosition,
             "ending-text marker position");
-        RequireWord(ReadWord(bus, Add(pointer, 4)), EndingCartridgeTables.EndingMarkerData, "ending-text marker payload");
-        RequireWord(ReadWord(bus, EndingCartridgeTables.EndingMarkerData), EndingCartridgeTables.EndingDoNothingFunction, "ending-text marker function");
+        RequireWord(ReadWord(bus, Add(pointer, 4)), EndingSourceDefinitions.EndingMarkerData, "ending-text marker payload");
+        RequireWord(ReadWord(bus, EndingSourceDefinitions.EndingMarkerData), EndingSourceDefinitions.EndingDoNothingFunction, "ending-text marker function");
     }
 
     /// <summary>Reports a native ending-text word that differs from its compiled control value.</summary>
@@ -160,10 +160,10 @@ public static class EndingTextExtractor
 
     /// <summary>Reads one bank-local glyph or stream byte from the import cartridge.</summary>
     private static byte ReadByte(ISnesAddressSpace bus, ushort pointer) =>
-        bus.ReadCartridgeByte((int)new SnesAddress(EndingCartridgeTables.EndingBank, pointer));
+        bus.ReadCartridgeByte((int)new SnesAddress(EndingSourceDefinitions.EndingBank, pointer));
     /// <summary>Reads one little-endian bank-local ending-text word from the import cartridge.</summary>
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
-        CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((int)new SnesAddress(EndingCartridgeTables.EndingBank, pointer));
+        CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((int)new SnesAddress(EndingSourceDefinitions.EndingBank, pointer));
     /// <summary>Advances a native 16-bit stream pointer by a byte count with cartridge wrap semantics.</summary>
     private static ushort Add(ushort pointer, int bytes) => unchecked((ushort)(pointer + bytes));
 }

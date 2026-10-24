@@ -204,8 +204,8 @@ public static class IntroCinematicArtworkFiles
             var native = new ushort[frames.Length][];
             for (int frame = 0; frame < frames.Length; frame++)
             {
-                ushort pointer = (ushort)(FrontendCartridgeTables.IntroEyeFrameRecords +
-                    frame * FrontendCartridgeTables.IntroEyeFrameRecordStride);
+                ushort pointer = (ushort)(FrontendSourceDefinitions.IntroEyeFrameRecords +
+                    frame * FrontendSourceDefinitions.IntroEyeFrameRecordStride);
                 int source = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, pointer);
                 ushort function = CartridgeImportSource.Require(bus).ReadCartridgeWord(source);
                 if ((CinematicIndirectInstructionFunction)function != CinematicIndirectInstructionFunction.DrawToPortraitTilemap ||

@@ -110,14 +110,14 @@ public static class RoomPlmStationVisualFiles
             var visuals = new List<ushort[]>();
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
             {
-                if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, cursor)) != run.DirectionAndCount)
+                if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, cursor)) != run.DirectionAndCount)
                     throw new InvalidDataException(
                         $"Station draw list {list.Draw} differs in source cartridge shape.");
                 cursor = unchecked((ushort)(cursor + 2));
                 var visualWords = new ushort[run.LevelWords.Length];
                 for (int index = 0; index < visualWords.Length; index++)
                 {
-                    ushort source = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, cursor));
+                    ushort source = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, cursor));
                     if (source != run.LevelWords.Span[index])
                         throw new InvalidDataException(
                             $"Station draw list {list.Draw} differs at ${cursor:X4}.");
@@ -125,8 +125,8 @@ public static class RoomPlmStationVisualFiles
                     cursor = unchecked((ushort)(cursor + 2));
                 }
 
-                if (bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, cursor)) != unchecked((byte)run.Next.X) ||
-                    bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, unchecked((ushort)(cursor + 1)))) !=
+                if (bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, cursor)) != unchecked((byte)run.Next.X) ||
+                    bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, unchecked((ushort)(cursor + 1)))) !=
                         unchecked((byte)run.Next.Y))
                     throw new InvalidDataException(
                         $"Station draw list {list.Draw} differs in next-record offset.");

@@ -158,7 +158,7 @@ public static class EndingPaletteArtworkFiles
             SnesAddress source = EndingLogoPalettePointerDefinitions.Source(step, palette)
                 .AddWithinBank(-(15 - color) * sizeof(ushort));
             ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                CartridgeBankWindow.At(EndingCartridgeTables.LogoPaletteBank, source.Offset));
+                CartridgeBankWindow.At(EndingSourceDefinitions.LogoPaletteBank, source.Offset));
             int index = (step * 2 + palette) * 16 + color;
             BinaryPrimitives.WriteUInt16LittleEndian(
                 native.AsSpan(index * sizeof(ushort)), word);

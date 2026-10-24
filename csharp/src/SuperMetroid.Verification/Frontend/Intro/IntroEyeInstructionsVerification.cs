@@ -119,10 +119,10 @@ internal static class IntroEyeInstructionsVerification
                         "native eye record draws at the portrait column");
                     AssertEqual((int)IntroEyeAnimationDefinitions.PortraitCell.Y, SnesLittleEndian.HighByte(checked((ushort)position)),
                         "native eye record draws at the portrait row");
-                    int record = Word(pointer + 4) - FrontendCartridgeTables.IntroEyeFrameRecords;
-                    AssertTrue(record >= 0 && record % FrontendCartridgeTables.IntroEyeFrameRecordStride == 0,
+                    int record = Word(pointer + 4) - FrontendSourceDefinitions.IntroEyeFrameRecords;
+                    AssertTrue(record >= 0 && record % FrontendSourceDefinitions.IntroEyeFrameRecordStride == 0,
                         "native eye record names a portrait-eye draw record");
-                    Frame = record / FrontendCartridgeTables.IntroEyeFrameRecordStride;
+                    Frame = record / FrontendSourceDefinitions.IntroEyeFrameRecordStride;
                     AssertTrue(Frame < IntroEyeAnimationDefinitionsConstants.FrameCount,
                         "native eye record names one of the four portrait-eye draw records");
                     Timer = word;

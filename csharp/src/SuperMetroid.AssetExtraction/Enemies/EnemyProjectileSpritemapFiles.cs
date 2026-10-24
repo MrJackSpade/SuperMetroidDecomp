@@ -29,7 +29,7 @@ public static class EnemyProjectileSpritemapFiles
         foreach (EnemyProjectilePresentationFrameDefinition frame in
                  EnemyProjectilePresentationFrameSets.All)
         {
-            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(EnemyCartridgeTables.ProjectileInstructionBank, frame.OperandAddress));
+            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(EnemySourceDefinitions.ProjectileInstructionBank, frame.OperandAddress));
             programFrames.Add(frame.Name, EnemySpritemapFiles.ExtractParts(bus, CartridgeFormatDefinitions.EnemyProjectileSpritemapBank, pointer));
         }
         return EnemyProjectileSpritemapCatalog.Write(new EnemyProjectileSpritemapDocument

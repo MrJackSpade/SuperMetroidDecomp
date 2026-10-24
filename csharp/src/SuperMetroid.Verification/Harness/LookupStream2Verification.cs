@@ -663,7 +663,7 @@ internal static class LookupStream2Verification
         int pieceCells = 0, stockOverrides = 0;
         foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
         {
-            int pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((PauseMenuCartridgeTables.PauseWireframePointers + (int)kind * 2)) | 0x820000;
+            int pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(((int)PauseMenuSourceDefinitions.PauseWireframePointers + (int)kind * 2)) | 0x820000;
             var native = new byte[PauseWireframeDefinitions.Cells * 2];
             for (int cell = 0; cell < PauseWireframeDefinitions.Cells; cell++)
                 System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(cell * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + cell * 2)));
@@ -1654,7 +1654,7 @@ internal static class LookupStream2Verification
             show(state);
             AssertEqual(phase == 1, state.ShowsOddHalf, "Dead Torizo phase advancement, including across the phase word's wrap");
             // The call selects the corpse's rot step, none yet taken, for the half it shows (#1406).
-            AssertEqual((int?)0, phase == 1 ? state.OddHalfStep : state.EvenHalfStep, "Dead Torizo shows its half at the step its rot has reached");
+            AssertEqual(0, phase == 1 ? state.OddHalfStep : state.EvenHalfStep, "Dead Torizo shows its half at the step its rot has reached");
             AssertThrows<ArgumentOutOfRangeException>(() => { _ = rows[-1]; }, "Dead Torizo negative row");
             AssertThrows<ArgumentOutOfRangeException>(() => { _ = rows[7]; }, "Dead Torizo past last row");
         }

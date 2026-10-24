@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Cartridge regions whose bank-local pointers ending codecs resolve.</summary>
 [CpuBusBoundary("catalog: ending cartridge tables")]
-internal static class EndingCartridgeTables
+internal static class EndingSourceDefinitions
 {
     /// <summary>
     /// $8C:8000-$8C:FFFF: cinematic data including the ending logo crossfade palettes. Logo palette

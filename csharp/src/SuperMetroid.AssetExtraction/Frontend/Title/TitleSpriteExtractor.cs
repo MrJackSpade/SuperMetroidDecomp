@@ -39,8 +39,8 @@ internal static class TitleSpriteExtractor
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         var spritemaps = new Dictionary<TitleSprite, ushort>
         {
-            [TitleSprite.SuperMetroidLogo] = RomDataReader.ReadWordFixedBank(cartridge, FrontendCartridgeTables.TitleLogoSpritemapOperand),
-            [TitleSprite.NintendoCopyright] = FrontendCartridgeTables.TitleCopyrightSpritemap,
+            [TitleSprite.SuperMetroidLogo] = RomDataReader.ReadWordFixedBank(cartridge, FrontendSourceDefinitions.TitleLogoSpritemapOperand),
+            [TitleSprite.NintendoCopyright] = FrontendSourceDefinitions.TitleCopyrightSpritemap,
         };
         foreach (TitleTextSequenceDefinition sequence in new[]
                  {
@@ -66,7 +66,7 @@ internal static class TitleSpriteExtractor
                 ushort spritemap = RomDataReader.ReadWordFixedBank(cartridge, entry + sizeof(ushort));
                 if (step.Sprite is not { } sprite)
                 {
-                    if (spritemap != FrontendCartridgeTables.TitleBlankSpritemap)
+                    if (spritemap != FrontendSourceDefinitions.TitleBlankSpritemap)
                         throw new InvalidDataException($"Title card {sequence.Phase} shows art where its typed step is blank.");
                 }
                 else if (!spritemaps.TryAdd(sprite, spritemap))
@@ -74,7 +74,7 @@ internal static class TitleSpriteExtractor
                     throw new InvalidDataException($"Title composition {sprite} appears twice in the title cards.");
                 }
                 entry += TitleSequenceRomData.TextSequences.TimedEntryByteCount;
-                if (SnesAddressMath.OffsetInBank(entry) >= SnesAddressMath.OffsetInBank(FrontendCartridgeTables.TitleLogoSpritemapOperand))
+                if (SnesAddressMath.OffsetInBank(entry) >= FrontendSourceDefinitions.TitleLogoSpritemapOperand.Offset)
                     throw new InvalidDataException("Title text list did not terminate before the logo pointer.");
             }
         }
@@ -89,7 +89,7 @@ internal static class TitleSpriteExtractor
     /// <summary>Decodes one bank-$8C title spritemap into bounded offsets, tile positions, and flip attributes.</summary>
     private static SpriteVisualPart[] ReadParts(ISnesAddressSpace bus, ushort pointer)
     {
-        int address = ((int)new SnesAddress(FrontendCartridgeTables.TitleSpritemapBank, pointer));
+        int address = ((int)new SnesAddress(FrontendSourceDefinitions.TitleSpritemapBank, pointer));
         int count = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
         if (count > TitleGraphicsFormat.MaximumSpriteParts)
             throw new InvalidDataException($"Title sprite $8C:{pointer:X4} exceeds OAM capacity.");

@@ -5,7 +5,6 @@ using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Menus;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;

@@ -166,10 +166,10 @@ internal static class SpacetimeBeamVerification
     private static void VerifySpacetimeCopySourceAgainstRetailRom(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
-        AssertEqual(SpacetimeBeamCopyDefinitions.LastSourceAddress - SpacetimeBeamCopyDefinitions.FirstSourceAddress + 1,
+        AssertEqual(SpacetimeBeamCopyDefinitionsConstants.LastSourceAddress - SuperMetroid.AssetExtraction.Samus.SamusOverreadSourceDefinitions.SpacetimeCopySource + 1,
             SamusOverreadDefinitions.SpacetimeCopySourceByteCount, "bounded native copy source size");
         for (int offset = 0; offset < SamusOverreadDefinitions.SpacetimeCopySourceByteCount; offset++)
-            AssertEqual(bus.ReadCartridgeByte(SpacetimeBeamCopyDefinitions.FirstSourceAddress + offset),
+            AssertEqual(bus.ReadCartridgeByte(SuperMetroid.AssetExtraction.Samus.SamusOverreadSourceDefinitions.SpacetimeCopySource + offset),
                 InstalledFixtures.SamusOverreads.SpacetimeCopySourceByte(offset),
                 "installed SpaceTime copy source agrees with supported cartridge");
     }

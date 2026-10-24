@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Hardware;
@@ -19,7 +20,7 @@ internal static class SamusProjectileProgramsVerification
     internal static void VerifySamusProjectilePrograms(SuperMetroidAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        ushort Word(int address) => cartridge.ReadCartridgeWord(SamusProjectileRomData.Banks.Projectile | (ushort)address);
+        ushort Word(int address) => cartridge.ReadCartridgeWord(SamusCartridgeTables.ProjectileDataBank | (ushort)address);
 
         Dictionary<ushort, SamusProjectileProgram> byEntry = Enum.GetValues<SamusProjectileProgram>()
             .ToDictionary(SamusProjectileProgramAddresses.Entry, program => program);
@@ -54,7 +55,7 @@ internal static class SamusProjectileProgramsVerification
                     AssertEqual(new Extent16<RoomPixels>(SnesLittleEndian.LowByte(radii), SnesLittleEndian.HighByte(radii)), record.Radius, $"{at}: radii");
                     AssertEqual(Word(cursor + 6), record.AnimationFrame, $"{at}: animation frame");
                     records.Add(cursor);
-                    cursor = unchecked((ushort)(cursor + SamusProjectileRomData.Instructions.AnimationRecordByteCount));
+                    cursor = unchecked((ushort)(cursor + SamusProjectileListLayout.TimedRecordByteCount));
                     continue;
                 }
                 switch ((SamusProjectileInstruction)word)

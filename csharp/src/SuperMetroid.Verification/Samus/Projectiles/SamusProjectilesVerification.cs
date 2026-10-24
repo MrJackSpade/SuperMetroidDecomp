@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileDrawEntriesVerification;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
@@ -349,7 +350,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var rejectedReleaseBombs = CreateSyntheticBombs();
     var rejectedReleaseProjectiles = CreateSyntheticProjectiles();
     for (int frame = 0;
-        frame < SamusProjectileRomData.Beams.ChargeSoundStartCounter;
+        frame < BeamChargeDefinitions.ChargeSoundStartCounter;
         frame++)
     {
         rejectedReleaseBombs.StepFrame(new SamusTerrain { Level = air }, rejectedReleaseSamus, 0, 0);
@@ -820,7 +821,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         pair.Right.Position = pair.Right.Position.WithY(120);
         var executingSide = executeOnLeft ? pair.Left : pair.Right;
         ushort commandAddress = unchecked((ushort)(list + 6 * 4));
-        AssertEqual(ProjectileTrailNative.InstructionAddress(command), ProjectileTrailProgramDefinitions.Read(SamusProjectileRomData.Banks.Movement | commandAddress),
+        AssertEqual(ProjectileTrailNative.InstructionAddress(command), ProjectileTrailProgramDefinitions.Read(SamusCartridgeTables.MovementBank | commandAddress),
             "the compiled ice list holds its fall command after six poses");
         executingSide.InstructionTimer = WrappingCountdown.Start(1);
         executingSide.InstructionPointer = commandAddress;

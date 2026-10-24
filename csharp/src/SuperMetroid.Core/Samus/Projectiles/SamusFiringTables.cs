@@ -7,6 +7,15 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 internal static class SamusFiringTables
 {
+    /// <summary>Number of projectile directions each direction-indexed table holds.</summary>
+    internal const int DirectionCount = 10;
+    /// <summary>Number of beam combinations each combination-indexed table holds.</summary>
+    internal const int CombinationCount = 12;
+    /// <summary>Offset from the uncharged delays to the charged-shot delay row.</summary>
+    internal const int ChargedRowOffset = 0x10;
+    /// <summary>The speed table holds two speed words per beam combination.</summary>
+    internal const int InitialSpeedRowBytes = 2 * sizeof(ushort);
+
     /// <summary>Ten direction-indexed X origins for non-running poses.</summary>
     internal const int DefaultXOrigins = 0x00;
     /// <summary>Ten direction-indexed Y origins for non-running poses.</summary>

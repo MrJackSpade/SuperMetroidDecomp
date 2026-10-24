@@ -34,6 +34,9 @@ internal static class SamusColourDefinitions
     /// <summary>The first beam colour the Crystal Flash's bubble shows.</summary>
     public const int CrystalFlashBubbleFirstColour = 10;
 
+    /// <summary>The colour index Samus's sixteen beam colours start at, in the sprite colours.</summary>
+    public const int BeamFirstColour = 0xe0;
+
     /// <summary>The first beam colour the Hyper Beam's cycle shows.</summary>
     public const int HyperBeamFirstColour = 1;
 

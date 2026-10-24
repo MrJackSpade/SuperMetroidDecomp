@@ -2,7 +2,6 @@
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Progression;
 
@@ -109,7 +108,7 @@ internal static class SamusAerialPoseTransitions
         // $91:F5CF publishes the newly installed pose's shot direction on the exact Fire
         // edge that selected this record. The projectile producer consumes it in alpha.
         if ((controllerNewInput & SnesButton.X) != 0)
-            samus.PoseTransitionShotDirection = unchecked((ushort)(SamusProjectileRomData.NormalJumpPoseHandoffTag | SamusPoseMetadata.ReadShotDirection(samus)));
+            samus.PoseTransitionShotDirection = unchecked((ushort)(SamusShotDirectionHandoff.NormalJumpTag | SamusPoseMetadata.ReadShotDirection(samus)));
 
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         return true;
@@ -911,7 +910,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
             // `$91:F5CF-$F5E6` runs only in the normal-jumping initializer. It reads the
             // newly installed pose's direction byte and adds `$8000`; spin-jump's separate
             // initializer never publishes this bridge even when Shoot and Jump share a frame.
-            samus.PoseTransitionShotDirection = unchecked((ushort)(SamusProjectileRomData.NormalJumpPoseHandoffTag | SamusPoseMetadata.ReadShotDirection(samus)));
+            samus.PoseTransitionShotDirection = unchecked((ushort)(SamusShotDirectionHandoff.NormalJumpTag | SamusPoseMetadata.ReadShotDirection(samus)));
         }
     }
 
@@ -948,7 +947,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
     {
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.NormalJumping &&
             (controllerNewInput & SnesButton.X) != 0)
-            samus.PoseTransitionShotDirection = unchecked((ushort)(SamusProjectileRomData.NormalJumpPoseHandoffTag | SamusPoseMetadata.ReadShotDirection(samus)));
+            samus.PoseTransitionShotDirection = unchecked((ushort)(SamusShotDirectionHandoff.NormalJumpTag | SamusPoseMetadata.ReadShotDirection(samus)));
     }
 
     /// <summary>

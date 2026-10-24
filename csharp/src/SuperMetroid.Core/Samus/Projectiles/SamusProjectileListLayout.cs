@@ -10,6 +10,9 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 public sealed class SamusProjectileListLayout
 {
+    /// <summary>Bytes in one timed record: its timer, spritemap, radii and animation frame.</summary>
+    internal const int TimedRecordByteCount = 8;
+
     /// <summary>Each step's instruction pointer, by program.</summary>
     private readonly Dictionary<SamusProjectileProgram, ushort[]> _stepAddresses;
     /// <summary>The cursor each instruction pointer stands for: a program's entry, else the one step at that pointer.</summary>
@@ -79,7 +82,7 @@ public sealed class SamusProjectileListLayout
             addresses[position] = step is AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.FallIntoStep fallInto
                 ? (ushort)Positions[fallInto.Target].Entry
                 : (ushort)address;
-            address += step is AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.ShowStep ? SamusProjectileRomData.Instructions.AnimationRecordByteCount : sizeof(ushort);
+            address += step is AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.ShowStep ? TimedRecordByteCount : sizeof(ushort);
         }
         return addresses;
     }

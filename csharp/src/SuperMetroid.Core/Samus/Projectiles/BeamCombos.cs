@@ -229,13 +229,13 @@ internal sealed class BeamCombos
     {
         ushort inheritedY = slot.Sprite is null
             ? unchecked((ushort)(slot.PackedType.BeamCombination.TableIndex *
-                SamusProjectileRomData.Beams.InitialSpeedRowBytes))
+                SamusFiringTables.InitialSpeedRowBytes))
             : unchecked((ushort)((overreads ?? throw new InvalidOperationException(
                 "The SpaceTime palette copy needs the installed Samus overread catalog.")).ProjectileLists.Address(slot.Cursor) -
-                SpacetimeBeamCorruptionLayout.AnimationRecordByteCount));
+                SamusProjectileListLayout.TimedRecordByteCount));
         ushort x = unchecked((ushort)(slot.NativeByteIndex + sizeof(ushort)));
         ushort y = unchecked((ushort)(inheritedY + sizeof(ushort)));
-        while (unchecked((short)(y - SpacetimeBeamCorruptionLayout.PaletteByteCount)) < 0)
+        while (unchecked((short)(y - SpacetimeBeamCopyDefinitions.PaletteByteCount)) < 0)
         {
             new SpacetimeBeamCorruptionMemory(
                 progression ?? throw new InvalidOperationException(

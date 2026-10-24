@@ -1,7 +1,6 @@
 ﻿using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Samus.Poses;
@@ -357,7 +356,7 @@ internal static class SamusGroundedPoseTransitions
         byte sourceShotDirection = SamusPoseMetadata.ReadShotDirection(samus);
         FoldExtraRunSpeedIntoBaseAndStartTurn(samus);
         ApplySimpleGroundedPoseChange(samus, samus.Pose, expectedTarget, "Moonwalk turn/jump");
-        samus.PoseTransitionShotDirection = unchecked((ushort)(SamusProjectileRomData.MoonwalkPoseHandoffTag | sourceShotDirection));
+        samus.PoseTransitionShotDirection = unchecked((ushort)(SamusShotDirectionHandoff.MoonwalkTag | sourceShotDirection));
     }
 
 
@@ -595,7 +594,7 @@ internal static class SamusGroundedPoseTransitions
             // The `$0100` tag makes HUD handler `$90:DD74` treat the one-frame turning
             // state as shooting. `$90:BA5F` later masks it away and consumes only this
             // source pose's direction byte when a beam slot can actually be initialized.
-            samus.PoseTransitionShotDirection = unchecked((ushort)(SamusProjectileRomData.MoonwalkPoseHandoffTag | moonwalkSourceShotDirection));
+            samus.PoseTransitionShotDirection = unchecked((ushort)(SamusShotDirectionHandoff.MoonwalkTag | moonwalkSourceShotDirection));
         }
     }
 

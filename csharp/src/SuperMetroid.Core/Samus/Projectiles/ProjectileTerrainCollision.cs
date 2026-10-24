@@ -541,7 +541,7 @@ internal sealed class ProjectileTerrainCollision
         {
             // The impact writes the shared room quake immediately; later native producers
             // can replace it before the frame's shake handler consumes the request.
-            _earthquakes.RequestSuperMissileEarthquake(SamusProjectileRomData.NonBeam.SuperMissileEarthquakeType);
+            _earthquakes.RequestSuperMissileEarthquake(SuperMissileDefinitions.EarthquakeType);
         }
 
         // Only cooldowns 21+ are shortened to 20. A normal missile begins at ten, so ordinary

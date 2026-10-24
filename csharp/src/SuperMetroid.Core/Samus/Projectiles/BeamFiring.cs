@@ -122,7 +122,7 @@ internal sealed class BeamFiring
             // transition installs new body art. Values below 60 release an ordinary beam;
             // values 60+ release the charged family through the same allocation gate.
             bool forcedChargedRelease =
-                _charge.FlareCounter >= SamusProjectileRomData.Beams.FullyChargedCounter;
+                _charge.FlareCounter >= BeamChargeDefinitions.FullyChargedCounter;
             _charge.FlareCounter = 0;
             _animation.ClearFlareAnimationState();
             return CompleteBeamRelease(TryFireBeam(
@@ -139,7 +139,7 @@ internal sealed class BeamFiring
             // `$90:B843` increments through 120 and fires one ordinary shot on the first
             // held frame. Charge Beam therefore changes sustained-fire semantics rather
             // than suppressing the familiar initial power shot.
-            if (_charge.FlareCounter < SamusProjectileRomData.Beams.SpecialAttackCounter)
+            if (_charge.FlareCounter < BeamChargeDefinitions.SpecialAttackCounter)
             {
                 _charge.FlareCounter++;
                 if (_charge.FlareCounter == 1)
@@ -159,7 +159,7 @@ internal sealed class BeamFiring
                 // queues library-one sequence `$08` exactly once at counter sixteen. The
                 // C# renderer is intentionally side-effect free, so publish the same command
                 // here, on the alpha pass that advances the counter to sixteen.
-                if (_charge.FlareCounter == SamusProjectileRomData.Beams.ChargeSoundStartCounter)
+                if (_charge.FlareCounter == BeamChargeDefinitions.ChargeSoundStartCounter)
                 {
                     return new(null, SoundEffectLibrary1Sounds.ChargeBeamStart, MaximumQueued: 9);
                 }
@@ -181,7 +181,7 @@ internal sealed class BeamFiring
             return new(null, null, 0);
 
         bool releaseCharged =
-            _charge.FlareCounter >= SamusProjectileRomData.Beams.FullyChargedCounter;
+            _charge.FlareCounter >= BeamChargeDefinitions.FullyChargedCounter;
         _charge.FlareCounter = 0;
         _animation.ClearFlareAnimationState();
         return CompleteBeamRelease(TryFireBeam(
@@ -211,7 +211,7 @@ internal sealed class BeamFiring
             return new(firing.Slot, firing.Sound, MaximumQueued: 15);
 
         return _charge.PreviousBeamChargeCounter >=
-            SamusProjectileRomData.Beams.ChargeSoundStartCounter
+            BeamChargeDefinitions.ChargeSoundStartCounter
             ? new(null, SoundEffectLibrary1Sounds.CancelAll, MaximumQueued: 15)
             : new(null, null, 0);
     }
@@ -301,7 +301,7 @@ internal sealed class BeamFiring
         byte cooldown = charged
             ? SamusProjectileCooldownDefinitions.ReadByte(
                 SamusFiringTables.UnchargedCooldowns +
-                SamusProjectileRomData.Beams.ChargedRowOffset + beamType.TableIndex)
+                SamusFiringTables.ChargedRowOffset + beamType.TableIndex)
             : samus.EquippedBeams.HasAny(SamusBeamFlags.Charge) || (controllerNewInput & shoot) != 0
                 ? SamusProjectileCooldownDefinitions.ReadByte(SamusFiringTables.UnchargedCooldowns + beamType.TableIndex)
                 : SamusProjectileCooldownDefinitions.ReadByte(SamusFiringTables.AutoFireCooldowns + beamType.TableIndex);
@@ -431,7 +431,7 @@ internal sealed class BeamFiring
         // slot rejection rolls back the native count, but does not undo its cooldown write.
         bool isSuperMissile = samus.SelectedHudItem == HudItem.SuperMissile;
         int ammo = isSuperMissile ? samus.SuperMissiles : samus.Missiles;
-        int admissionLimit = isSuperMissile ? SamusProjectileRomData.NonBeam.SuperMissileAdmissionLimit : SamusProjectileSystem.SlotCount;
+        int admissionLimit = isSuperMissile ? SuperMissileDefinitions.AdmissionLimit : SamusProjectileSystem.SlotCount;
         if (_slotTable.ProjectileCounter >= admissionLimit ||
             (SnesLittleEndian.LowByte(sharedProjectiles.CooldownTimer.RawValue)) != 0)
         {
@@ -522,7 +522,7 @@ internal sealed class BeamFiring
     {
         int direction = slot.PackedDirection.DirectionIndex;
         bool diagonal = direction is 1 or 3 or 6 or 8;
-        int rowOffset = slot.PackedType.BeamCombination.TableIndex * SamusProjectileRomData.Beams.InitialSpeedRowBytes;
+        int rowOffset = slot.PackedType.BeamCombination.TableIndex * SamusFiringTables.InitialSpeedRowBytes;
         short speed = unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
             (diagonal
                 ? SamusFiringTables.DiagonalSpeeds

@@ -18,7 +18,7 @@ internal static class SamusProjectileRomDataVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus projectile ROM data")]
     internal static void VerifySamusProjectileRomData()
     {
-        AssertEqual(12, SamusProjectileRomData.Beams.CombinationCount,
+        AssertEqual(12, SamusFiringTables.CombinationCount,
             "retail beam-combination table count");
         AssertEqual(39, SamusProjectileRomDataTrailsConstants.InstructionPointerCount,
             "retail trail pointer count");
@@ -45,57 +45,57 @@ internal static class SamusProjectileRomDataVerification
         })
         {
             TouchRange(bus, originTable,
-                SamusProjectileRomData.Origins.DirectionCount * sizeof(ushort),
+                SamusFiringTables.DirectionCount * sizeof(ushort),
                 $"projectile origin table ${originTable:X6}");
         }
 
         TouchRange(bus, SamusCartridgeTables.FiringTables + SamusFiringTables.UnchargedCooldowns,
-            SamusProjectileRomData.Beams.ChargedRowOffset +
-                SamusProjectileRomData.Beams.CombinationCount,
+            SamusFiringTables.ChargedRowOffset +
+                SamusFiringTables.CombinationCount,
             "uncharged beam cooldown rows");
         TouchRange(bus, SamusCartridgeTables.FiringTables + SamusFiringTables.AutoFireCooldowns,
-            SamusProjectileRomData.Beams.CombinationCount, "beam auto-fire cooldowns");
-        TouchRange(bus, SamusProjectileRomData.Beams.UnchargedSounds,
-            SamusProjectileRomData.Beams.CombinationCount * sizeof(ushort),
+            SamusFiringTables.CombinationCount, "beam auto-fire cooldowns");
+        TouchRange(bus, SamusProjectileBeamTables.UnchargedSounds,
+            SamusFiringTables.CombinationCount * sizeof(ushort),
             "uncharged beam sounds");
-        TouchRange(bus, SamusProjectileRomData.Beams.ChargedSounds,
-            SamusProjectileRomData.Beams.CombinationCount * sizeof(ushort),
+        TouchRange(bus, SamusProjectileBeamTables.ChargedSounds,
+            SamusFiringTables.CombinationCount * sizeof(ushort),
             "charged beam sounds");
         TouchRange(bus, SamusCartridgeTables.FiringTables + SamusFiringTables.BeamXAccelerations,
-            SamusProjectileRomData.Origins.DirectionCount * sizeof(ushort),
+            SamusFiringTables.DirectionCount * sizeof(ushort),
             "beam X accelerations");
         TouchRange(bus, SamusCartridgeTables.FiringTables + SamusFiringTables.BeamYAccelerations,
-            SamusProjectileRomData.Origins.DirectionCount * sizeof(ushort),
+            SamusFiringTables.DirectionCount * sizeof(ushort),
             "beam Y accelerations");
         TouchRange(bus, SamusCartridgeTables.TilePointers,
-            SamusProjectileRomData.Beams.CombinationCount * sizeof(ushort),
+            SamusFiringTables.CombinationCount * sizeof(ushort),
             "beam tile pointers");
         TouchRange(bus, SamusCartridgeTables.PalettePointers,
-            SamusProjectileRomData.Beams.CombinationCount * sizeof(ushort),
+            SamusFiringTables.CombinationCount * sizeof(ushort),
             "beam palette pointers");
 
         foreach (int dataPointerTable in new[]
         {
-            SamusProjectileRomData.Beams.UnchargedDataPointers,
-            SamusProjectileRomData.Beams.ChargedDataPointers,
+            SamusProjectileBeamTables.UnchargedDataPointers,
+            SamusProjectileBeamTables.ChargedDataPointers,
         })
         {
             TouchRange(bus, dataPointerTable,
-                SamusProjectileRomData.Beams.CombinationCount * sizeof(ushort),
+                SamusFiringTables.CombinationCount * sizeof(ushort),
                 $"beam data-pointer table ${dataPointerTable:X6}");
-            for (int beam = 0; beam < SamusProjectileRomData.Beams.CombinationCount; beam++)
+            for (int beam = 0; beam < SamusFiringTables.CombinationCount; beam++)
             {
                 ushort dataPointer = ReadProjectileWord(
                     bus,
                     dataPointerTable + beam * sizeof(ushort));
                 AssertTrue(dataPointer >= 0x8000,
                     $"beam {beam} data record remains in bank $93 ROM");
-                int dataAddress = SamusProjectileRomData.Banks.Projectile | dataPointer;
-                TouchRange(bus, dataAddress, SamusProjectileRomData.Beams.DataRecordByteCount,
+                int dataAddress = SamusCartridgeTables.ProjectileDataBank | dataPointer;
+                TouchRange(bus, dataAddress, SamusProjectileBeamTables.DataRecordByteCount,
                     $"beam {beam} data record");
 
                 for (int direction = 0;
-                    direction < SamusProjectileRomData.Origins.DirectionCount;
+                    direction < SamusFiringTables.DirectionCount;
                     direction++)
                 {
                     ushort instructionPointer = ReadProjectileWord(
@@ -105,24 +105,24 @@ internal static class SamusProjectileRomDataVerification
                         $"beam {beam} direction {direction} instruction remains in bank $93 ROM");
                     TouchRange(
                         bus,
-                        SamusProjectileRomData.Banks.Projectile | instructionPointer,
-                        SamusProjectileRomData.Beams.InstructionRecordByteCount,
+                        SamusCartridgeTables.ProjectileDataBank | instructionPointer,
+                        SamusProjectileBeamTables.InstructionRecordByteCount,
                         $"beam {beam} direction {direction} instruction record");
                 }
             }
         }
 
-        TouchRange(bus, SamusProjectileRomData.NonBeam.DataPointers,
-            (SamusProjectileRomData.NonBeam.SuperMissileLinkDataPointers -
-                SamusProjectileRomData.NonBeam.DataPointers),
+        TouchRange(bus, SamusProjectileNonBeamTables.DataPointers,
+            (SamusProjectileNonBeamTables.SuperMissileLinkDataPointers -
+                SamusProjectileNonBeamTables.DataPointers),
             "non-beam data-pointer table");
         TouchRange(bus, SamusCartridgeTables.FiringTables + SamusFiringTables.MissileAccelerations,
-            SamusProjectileRomData.Origins.DirectionCount *
-                SamusProjectileRomData.NonBeam.AccelerationRecordByteCount,
+            SamusFiringTables.DirectionCount *
+                SamusProjectileNonBeamTables.AccelerationRecordByteCount,
             "missile acceleration records");
         TouchRange(bus, SamusCartridgeTables.FiringTables + SamusFiringTables.SuperMissileAccelerations,
-            SamusProjectileRomData.Origins.DirectionCount *
-                SamusProjectileRomData.NonBeam.AccelerationRecordByteCount,
+            SamusFiringTables.DirectionCount *
+                SamusProjectileNonBeamTables.AccelerationRecordByteCount,
             "Super Missile acceleration records");
 
         TouchRange(bus, SamusProjectileRomDataTrailsConstants.LeftInstructionPointers,
@@ -139,7 +139,7 @@ internal static class SamusProjectileRomDataVerification
         })
         {
             TouchRange(bus, offsets,
-                SamusProjectileRomData.Beams.CombinationCount * sizeof(ushort),
+                SamusFiringTables.CombinationCount * sizeof(ushort),
                 $"trail offset-family table ${offsets:X6}");
         }
 
@@ -147,15 +147,15 @@ internal static class SamusProjectileRomDataVerification
             32 * 16, "projectile non-square slope profiles");
         TouchRange(bus, SamusProjectileRomDataCollision.SquareSlopeDefinitions,
             4, "projectile square-slope quadrants");
-        bus.ReadCartridgeByte(SamusProjectileRomData.Banks.Movement |
+        bus.ReadCartridgeByte(SamusCartridgeTables.MovementBank |
             ProjectileTrailNative.InstructionAddress(ProjectileTrailInstruction.MoveLeftDown));
-        bus.ReadCartridgeByte(SamusProjectileRomData.Banks.Movement |
+        bus.ReadCartridgeByte(SamusCartridgeTables.MovementBank |
             ProjectileTrailNative.InstructionAddress(ProjectileTrailInstruction.MoveRightDown));
-        bus.ReadCartridgeByte(SamusProjectileRomData.Banks.Movement |
+        bus.ReadCartridgeByte(SamusCartridgeTables.MovementBank |
             ProjectileTrailNative.InstructionAddress(ProjectileTrailInstruction.MoveLeftUp));
-        bus.ReadCartridgeByte(SamusProjectileRomData.Banks.Projectile |
+        bus.ReadCartridgeByte(SamusCartridgeTables.ProjectileDataBank |
             (ushort)SamusProjectileInstruction.Delete);
-        bus.ReadCartridgeByte(SamusProjectileRomData.Banks.Projectile |
+        bus.ReadCartridgeByte(SamusCartridgeTables.ProjectileDataBank |
             (ushort)SamusProjectileInstruction.GoTo);
 
         Console.WriteLine(

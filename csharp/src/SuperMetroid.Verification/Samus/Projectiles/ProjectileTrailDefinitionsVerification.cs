@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileTrailCoordinatesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -23,7 +24,7 @@ internal static class ProjectileTrailDefinitionsVerification
             if (ProjectileTrailDefinitions.ReadSelector(address) is { } selected)
                 AssertEqual(native, selected, "Trail selectors retain every reachable aligned native word");
             else
-                AssertTrue(!ProjectileTrailProgramDefinitions.TryRead(SamusProjectileRomData.Banks.Movement | native, out _),
+                AssertTrue(!ProjectileTrailProgramDefinitions.TryRead(SamusCartridgeTables.MovementBank | native, out _),
                     "A selector word past the right table names no trail step");
         }
         AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start - 2), "Trail selector rejects the preceding word");

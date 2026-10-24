@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
@@ -42,7 +43,7 @@ internal static class ProjectileTrailArtworkVerification
             ushort cursor = start;
             while (true)
             {
-                ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Banks.Movement | cursor);
+                ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusCartridgeTables.MovementBank | cursor);
                 if (word == 0) break;
                 if (word < 0x8000) { encountered.Add(cursor); cursor += 4; }
                 else { cursor += 2; }
@@ -97,7 +98,7 @@ internal static class ProjectileTrailArtworkVerification
         foreach (ushort coordinate in new ushort[] { 0, 1, 255, 256, 65535 })
         {
             ushort frame = ProjectileTrailNative.Address(pose);
-            ushort attributes = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Banks.Movement | (frame + 2));
+            ushort attributes = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusCartridgeTables.MovementBank | (frame + 2));
             var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
             var side = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
             side.InstructionPointer = (ushort)(frame + 4); side.InstructionTimer = WrappingCountdown.Start(3);

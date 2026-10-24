@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -60,7 +61,7 @@ internal static class ProjectileDamageVerification
             var samus = Samus(); samus.EquippedBeams = (SamusBeamFlags)beam;
             system.Firing.TryFireBeam(room, samus, SnesButton.X, new SamusBombProjectileSystem(), null, charged);
             var slot = system.Slots[0];
-            int table = charged ? SamusProjectileRomData.Beams.ChargedDataPointers : SamusProjectileRomData.Beams.UnchargedDataPointers;
+            int table = charged ? SamusProjectileBeamTables.ChargedDataPointers : SamusProjectileBeamTables.UnchargedDataPointers;
             Check(slot, table, beam, slot.Direction & 15);
             system.EnemyImpacts.ReflectFromEnemy(samus, 0);
             Check(slot, table, beam, slot.Direction & 15);
@@ -70,9 +71,9 @@ internal static class ProjectileDamageVerification
             var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None); var samus = Samus(); samus.SelectedHudItem = HudItems.Decode(item);
             var result = system.Firing.TryFireMissile(samus, SnesButton.X, 0, new SamusBombProjectileSystem());
             AssertEqual(0, result.Slot, "Missile allocation succeeds");
-            Check(system.Slots[0], SamusProjectileRomData.NonBeam.DataPointers, item, system.Slots[0].Direction & 15);
+            Check(system.Slots[0], SamusProjectileNonBeamTables.DataPointers, item, system.Slots[0].Direction & 15);
             system.EnemyImpacts.ReflectFromEnemy(samus, 0);
-            Check(system.Slots[0], SamusProjectileRomData.NonBeam.DataPointers, item, system.Slots[0].Direction & 15);
+            Check(system.Slots[0], SamusProjectileNonBeamTables.DataPointers, item, system.Slots[0].Direction & 15);
             if (item == 2)
             {
                 system.Motion.SpawnSuperMissileLink(samus, system.Slots[0]);
@@ -124,7 +125,7 @@ internal static class ProjectileDamageVerification
     internal static void VerifyComboPowerBombCostAlgorithm(Func<int, ushort> readWord)
     {
         for (int beam = 0; beam < 12; beam++)
-            AssertEqual(readWord(SamusArmCannonArtworkFormat.SpecialBeamAttackCosts + beam * 2),
+            AssertEqual(readWord(SamusCartridgeTables.SpecialBeamAttackCosts + beam * 2),
                 SamusComboMechanicsDefinitions.GetPowerBombCost(SamusBeamCombinations.FromTableIndex(beam)),
                 $"compiled combo Power Bomb cost {beam}");
         AssertThrows<ArgumentOutOfRangeException>(
@@ -285,7 +286,7 @@ internal static class ProjectileDamageVerification
     private static MutableCartridgeReadGuard NewComboMechanicsReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
-        guard.Forbid(address => address is >= SamusArmCannonArtworkFormat.SpecialBeamAttackCosts and < SamusArmCannonArtworkFormat.SpecialBeamAttackCosts + 24 or
+        guard.Forbid(address => address is >= SamusCartridgeTables.SpecialBeamAttackCosts and < SamusCartridgeTables.SpecialBeamAttackCosts + 24 or
                 >= BeamComboDefinitionsConstants.OriginAngles and < BeamComboDefinitionsConstants.OriginAngles + 8 or
                 >= BeamComboDefinitionsConstants.PositiveSine and < BeamComboDefinitionsConstants.PositiveSine + 512,
             address => $"Special beam mechanics still read compiled ROM byte ${address:X6}.");

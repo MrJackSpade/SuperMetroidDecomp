@@ -387,7 +387,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
     var resumeCharge = new SamusState
     {
         Pose = SamusPoseId.NormalJumpGunExtendedRightPose,
-        ProjectileFlareCounter = SamusProjectileRomData.Beams.ChargeSoundStartCounter,
+        ProjectileFlareCounter = BeamChargeDefinitions.ChargeSoundStartCounter,
     };
     SamusPostDrawAudio.Step(resumeCharge, SamusMovementType.SpinJumping, SnesButton.X);
     AssertEqual(ResumeChargingBeamSoundLatch.ResumeNextPass, resumeCharge.ResumeChargingBeamSound, "spin exit defers charge resume");

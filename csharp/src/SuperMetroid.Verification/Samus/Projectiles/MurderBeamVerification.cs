@@ -168,7 +168,7 @@ internal static class MurderBeamVerification
         SamusBombProjectileSystem shared,
         bool shootAlreadyHeld = false)
     {
-        for (int frame = 0; frame < SamusProjectileRomData.Beams.FullyChargedCounter; frame++)
+        for (int frame = 0; frame < BeamChargeDefinitions.FullyChargedCounter; frame++)
         {
             SnesButton newlyPressed = frame == 0 && !shootAlreadyHeld
                 ? SnesButton.X
@@ -176,7 +176,7 @@ internal static class MurderBeamVerification
             shared.StepFrame(new SamusTerrain { Level = level }, samus, SnesButton.X, newlyPressed);
             projectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = newlyPressed }, new(0, 0), shared);
         }
-        AssertEqual(SamusProjectileRomData.Beams.FullyChargedCounter,
+        AssertEqual(BeamChargeDefinitions.FullyChargedCounter,
             projectiles.Charge.FlareCounter, "pre-pause beam charge reaches charged threshold");
     }
 

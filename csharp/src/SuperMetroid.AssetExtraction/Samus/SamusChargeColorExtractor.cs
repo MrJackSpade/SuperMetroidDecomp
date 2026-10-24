@@ -56,7 +56,7 @@ public static class SamusChargeColorExtractor
             for (int phase = 0; phase < phases.Length; phase++)
             {
                 ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                    SamusProjectileRomData.Banks.Pose | (list + phase * sizeof(ushort)));
+                    SamusCartridgeTables.PoseBank | (list + phase * sizeof(ushort)));
                 phases[phase] = ReadColors(pointer);
             }
             return phases;
@@ -65,7 +65,7 @@ public static class SamusChargeColorExtractor
         PaletteRgb5[] ReadColors(ushort pointer)
         {
             byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                SamusProjectileRomData.Banks.PaletteAndTrailData | pointer,
+                SamusCartridgeTables.PaletteBank | pointer,
                 SamusChargeColorFormat.ColorsPerPalette * sizeof(ushort));
             var result = new PaletteRgb5[SamusChargeColorFormat.ColorsPerPalette];
             for (int index = 0; index < result.Length; index++)

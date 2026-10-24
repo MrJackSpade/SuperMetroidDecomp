@@ -21,7 +21,7 @@ internal static class ProjectileSpriteLocations
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         SamusProjectileListLayout lists = SamusProjectileListEntries.Read(cartridge);
         return [.. Enumerable.Range(0, SamusProjectileRecordDefinitions.Records.Length).Select(record => RomDataReader.ReadWordFixedBank(cartridge,
-            SamusProjectileRomData.Banks.Projectile | unchecked((ushort)(lists.RecordAddress(record) + 2))))];
+            SamusCartridgeTables.ProjectileDataBank | unchecked((ushort)(lists.RecordAddress(record) + 2))))];
     }
 
     /// <summary>The bank-$93 address of each projectile composition.</summary>

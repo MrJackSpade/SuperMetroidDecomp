@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 
@@ -62,7 +63,7 @@ internal static class ProjectileTrailNative
         internal static bool TryRead(int address, out ushort word)
         {
             word = 0;
-            if ((address & ~0xffff) != SamusProjectileRomData.Banks.Movement)
+            if ((address & ~0xffff) != SamusCartridgeTables.MovementBank)
                 return false;
             foreach ((ProjectileTrailProgram program, ProjectileTrailStep[] steps) in ProjectileTrailProgramDefinitions.Programs)
             for (int step = 0; step < steps.Length; step++)

@@ -28,7 +28,7 @@ internal sealed class ProjectileEarthquakes
     internal void RequestSuperMissileEarthquake(int earthquakeType)
     {
         EarthquakeType = earthquakeType;
-        EarthquakeTimer = SamusProjectileRomData.NonBeam.SuperMissileEarthquakeDuration;
+        EarthquakeTimer = SuperMissileDefinitions.EarthquakeDuration;
         if (_roomEarthquake is { } earthquake)
         {
             // Publish at the native collision call, not at frame end: later enemy/room

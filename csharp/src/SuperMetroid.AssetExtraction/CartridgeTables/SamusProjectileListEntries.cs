@@ -162,5 +162,5 @@ internal static class SamusProjectileListEntries
     internal static SamusProjectileListLayout Read(IImportCartridgeSource cartridge) => new(Entries.ToDictionary(
         entry => entry.Key,
         entry => new SamusProjectileListPosition(entry.Value, cartridge.ReadCartridgeWord(
-            SamusProjectileRomData.Banks.Projectile | unchecked((ushort)(entry.Value - sizeof(ushort)))))));
+            SamusCartridgeTables.ProjectileDataBank | unchecked((ushort)(entry.Value - sizeof(ushort)))))));
 }

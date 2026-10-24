@@ -63,9 +63,9 @@ internal sealed class ChainsawWindow
             "The chainsaw window store needs the installed Samus overread catalog.")).ProjectileLists;
         ushort inheritedY = slot.Sprite is null
             ? unchecked((ushort)(slot.PackedType.BeamCombination.TableIndex *
-                SamusProjectileRomData.Beams.InitialSpeedRowBytes))
+                SamusFiringTables.InitialSpeedRowBytes))
             : unchecked((ushort)(Lists().Address(slot.Cursor) -
-                SamusProjectileRomData.Instructions.AnimationRecordByteCount));
+                SamusProjectileListLayout.TimedRecordByteCount));
         ChainsawWindowRegisters.StoreProjectileIndexedWord(slot.NativeByteIndex, inheritedY);
 
         // The misaligned callback runs the Power Bomb fuse over the shot's multipurpose

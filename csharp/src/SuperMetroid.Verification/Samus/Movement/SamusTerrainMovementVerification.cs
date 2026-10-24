@@ -1740,7 +1740,7 @@ floor, walker, nmiFrameCounter: 0);
         turn.HorizontalSpeed.ExtraRunSpeed = turn.HorizontalSpeed.ExtraRunSpeed.WithFraction(0x4000);
         byte sourceMuzzleDirection = SamusPoseMetadata.ReadShotDirection(turn);
         SamusGroundedPoseTransitions.ApplyMoonwalkTurnJump(turn, target);
-        AssertEqual((ushort)(SamusProjectileRomData.MoonwalkPoseHandoffTag | sourceMuzzleDirection),
+        AssertEqual((ushort)(SamusShotDirectionHandoff.MoonwalkTag | sourceMuzzleDirection),
             turn.PoseTransitionShotDirection, "all six Moonwalk jump routes publish their original muzzle direction");
         AssertEqual(target, turn.Pose, $"moonwalk ${(int)source:X2} selects exact turn ${(int)target:X2}");
         AssertEqual(SamusAccelerationMode.Turning, turn.HorizontalSpeed.AccelerationMode,

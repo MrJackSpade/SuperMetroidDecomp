@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Palettes;
 
@@ -112,8 +111,8 @@ public sealed class SamusColours : IGameplayColourOwner, IInkRowColours
     {
         >= SamusPaletteDefinitions.Common.SamusObjPaletteStart and < SamusPaletteDefinitions.Common.SamusObjPaletteStart + SamusColourDefinitions.RowColours
             => new Place(suit, position - SamusPaletteDefinitions.Common.SamusObjPaletteStart),
-        >= SamusProjectileRomData.Palettes.BeamFirstColour and < SamusProjectileRomData.Palettes.BeamFirstColour + SamusColourDefinitions.RowColours
-            => new Place(beam, position - SamusProjectileRomData.Palettes.BeamFirstColour),
+        >= SamusColourDefinitions.BeamFirstColour and < SamusColourDefinitions.BeamFirstColour + SamusColourDefinitions.RowColours
+            => new Place(beam, position - SamusColourDefinitions.BeamFirstColour),
         _ => null,
     };
 

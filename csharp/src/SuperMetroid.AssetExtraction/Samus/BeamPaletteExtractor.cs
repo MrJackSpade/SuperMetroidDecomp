@@ -25,7 +25,7 @@ public static class BeamPaletteExtractor
             var colors = new PaletteRgb5[BeamPaletteDefinitions.ColorCount];
             for (int i = 0; i < colors.Length; i++)
             {
-                ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Banks.Movement | (pointer + i * 2));
+                ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusCartridgeTables.MovementBank | (pointer + i * 2));
                 colors[i] = PaletteRgb5.From(Bgr555.FromWord(word));
             }
             palettes.Add(BeamPaletteDefinitions.Key(selection), colors);

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;

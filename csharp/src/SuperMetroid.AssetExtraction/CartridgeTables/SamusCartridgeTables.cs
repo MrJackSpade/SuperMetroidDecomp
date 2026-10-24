@@ -6,6 +6,15 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 [CpuBusBoundary("catalog: Samus cartridge tables")]
 internal static class SamusCartridgeTables
 {
+    /// <summary>$90:CC21, CostOfSBAsInPowerBombs: twelve word costs by beam index, the arm cannon drawing window's last bytes.</summary>
+    internal const int SpecialBeamAttackCosts = 0x90cc21;
+
+    /// <summary>Bank <c>$91</c>, which holds the pose and projectile-driven suit-palette lists.</summary>
+    internal const int PoseBank = 0x910000;
+
+    /// <summary>Bank <c>$93</c>, which holds the projectile definitions and animation lists.</summary>
+    internal const int ProjectileDataBank = 0x930000;
+
     /// <summary>$91:B20A, where Samus's pose delay programs start, after the pose pointer table.</summary>
     internal const int PoseDelayPrograms = 0x91b20a;
 

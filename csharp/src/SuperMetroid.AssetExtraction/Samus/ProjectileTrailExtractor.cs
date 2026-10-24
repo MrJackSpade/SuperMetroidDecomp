@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
@@ -19,7 +20,7 @@ public static class ProjectileTrailExtractor
         for (int index = 0; index < ProjectileTrailVisualDefinitions.FrameCount; index++)
         {
             var a = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                SamusProjectileRomData.Banks.Movement | (ProjectileTrailSources.FrameAddress(ProjectileTrailVisualDefinitions.Frames[index]) + 2)));
+                SamusCartridgeTables.MovementBank | (ProjectileTrailSources.FrameAddress(ProjectileTrailVisualDefinitions.Frames[index]) + 2)));
             frames.Add(ProjectileTrailVisualDefinitions.FrameNames[index], new()
             {
                 TileColumn = a.TileNumber % ProjectileSpriteDefinitions.TileColumns,

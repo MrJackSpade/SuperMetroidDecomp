@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Core.Samus.Poses.SamusPoseInputList;
 
@@ -6,8 +7,53 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>Native pose-to-input dispatch and selected-condition diagnostics; no stored transition rows.</summary>
 internal static class SamusPoseInputDefinitions
 {
-    /// <summary>$91:A90C: first list in the later native graph section.</summary>
-    private const ushort LaterListsBegin = 0xa90c;
+    /// <summary>The lists in the later native graph section, whose rules <see cref="SamusPoseInputRulesLate"/> holds.</summary>
+    private static readonly FrozenSet<SamusPoseInputList> LaterLists = new[]
+    {
+        SamusPoseInputList.SpringBallGroundRightPoseList,
+        SamusPoseInputList.SpringBallGroundLeftPoseList,
+        SamusPoseInputList.SpringBallFallingRightPoseList,
+        SamusPoseInputList.SpringBallFallingLeftPoseList,
+        SamusPoseInputList.SpringBallJumpRightPoseList,
+        SamusPoseInputList.SpringBallJumpLeftPoseList,
+        SamusPoseInputList.UnusedPose63List,
+        SamusPoseInputList.UnusedPose64List,
+        SamusPoseInputList.UnusedPose65List,
+        SamusPoseInputList.UnusedPose66List,
+        SamusPoseInputList.WallJumpRightPoseList,
+        SamusPoseInputList.WallJumpLeftPoseList,
+        SamusPoseInputList.RanIntoWallRightPoseList,
+        SamusPoseInputList.RanIntoWallLeftPoseList,
+        SamusPoseInputList.NormalJumpGunExtendedRightPoseList,
+        SamusPoseInputList.NormalJumpGunExtendedLeftPoseList,
+        SamusPoseInputList.NormalJumpAimDownRightPoseList,
+        SamusPoseInputList.NormalJumpAimDownLeftPoseList,
+        SamusPoseInputList.UnmorphingTransitionRightPoseList,
+        SamusPoseInputList.UnmorphingTransitionLeftPoseList,
+        SamusPoseInputList.TurningRightToLeftPoseList,
+        SamusPoseInputList.TurningLeftToRightPoseList,
+        SamusPoseInputList.TurningRightToLeftAimUpPoseList,
+        SamusPoseInputList.TurningLeftToRightAimUpPoseList,
+        SamusPoseInputList.TurningRightToLeftAimDiagonalDownPoseList,
+        SamusPoseInputList.TurningLeftToRightAimDiagonalDownPoseList,
+        SamusPoseInputList.ShinesparkWindupRightPoseList,
+        SamusPoseInputList.ShinesparkWindupLeftPoseList,
+        SamusPoseInputList.FallingAimDownRightPoseList,
+        SamusPoseInputList.FallingAimDownLeftPoseList,
+        SamusPoseInputList.UnusedPoseDfList,
+        SamusPoseInputList.DraygonGrabbedNeutralLeftPoseList,
+        SamusPoseInputList.DraygonGrabbedNeutralRightPoseList,
+        SamusPoseInputList.MovingRightGunExtendedPoseList,
+        SamusPoseInputList.MovingLeftGunExtendedPoseList,
+        SamusPoseInputList.FallingGunExtendedRightPoseList,
+        SamusPoseInputList.FallingGunExtendedLeftPoseList,
+        SamusPoseInputList.MoonwalkTurnJumpLeftPoseList,
+        SamusPoseInputList.MoonwalkTurnJumpRightPoseList,
+        SamusPoseInputList.MoonwalkTurnJumpAimUpLeftPoseList,
+        SamusPoseInputList.MoonwalkTurnJumpAimUpRightPoseList,
+        SamusPoseInputList.MoonwalkTurnJumpAimDownLeftPoseList,
+        SamusPoseInputList.MoonwalkTurnJumpAimDownRightPoseList,
+    }.ToFrozenSet();
     /// <summary>Pose $45, UNUSED_TransitionTable_45_91A7CC: preserved unused transition target.</summary>
     internal const SamusPoseId UnusedPose45 = (SamusPoseId)0x45;
     /// <summary>Pose $46, UNUSED_TransitionTable_46_91A7E0: preserved unused transition target.</summary>
@@ -182,9 +228,9 @@ internal static class SamusPoseInputDefinitions
 
     /// <summary>Evaluates the selected transition list in its early or late native graph section using held and edge inputs.</summary>
     internal static SamusPoseInputMatch Match(SamusPoseInputList inputList, SnesButton held, SnesButton newlyPressed) =>
-        (ushort)inputList < LaterListsBegin
-            ? SamusPoseInputRulesEarly.Match(inputList, held, newlyPressed)
-            : SamusPoseInputRulesLate.Match(inputList, held, newlyPressed);
+        LaterLists.Contains(inputList)
+            ? SamusPoseInputRulesLate.Match(inputList, held, newlyPressed)
+            : SamusPoseInputRulesEarly.Match(inputList, held, newlyPressed);
 
     /// <summary>
     /// Exchanges Left and Right in <paramref name="input"/>. A left-facing list is its right-facing list read with the

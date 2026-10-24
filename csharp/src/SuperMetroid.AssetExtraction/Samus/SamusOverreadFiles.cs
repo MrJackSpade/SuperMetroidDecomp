@@ -28,6 +28,7 @@ public static class SamusOverreadFiles
         var document = new SamusOverreadDocument(
             SamusOverreadFormat.Version,
             Range(cartridge, SamusOverreadSourceDefinitions.SpacetimeCopySource, SamusOverreadDefinitions.SpacetimeCopySourceByteCount),
+            SamusOverreadSourceDefinitions.SpacetimeCopySource & ushort.MaxValue,
             Range(cartridge, SamusOverreadSourceDefinitions.SpeedBoosterGrappleCode,
                 SamusOverreadDefinitions.SpeedBoosterGrappleCodeColorCount * sizeof(ushort)),
             Range(cartridge, SamusOverreadSourceDefinitions.HudPrecedingPostureBytes, SamusOverreadDefinitions.HudPrecedingPostureByteCount),

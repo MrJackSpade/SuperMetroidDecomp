@@ -302,7 +302,7 @@ public sealed class SamusShinesparkState
         {
             _charge?.CancelForShinespark();
             samus.ProjectileFlareCounter = 0;
-            if (cancelledCharge >= SamusProjectileRomData.Beams.ChargeSoundStartCounter)
+            if (cancelledCharge >= BeamChargeDefinitions.ChargeSoundStartCounter)
             {
                 _chargeCancellationSoundRequested = true;
                 ChargeCancellationSoundSuppressed = _audioPowerBomb?.IsActive == true;

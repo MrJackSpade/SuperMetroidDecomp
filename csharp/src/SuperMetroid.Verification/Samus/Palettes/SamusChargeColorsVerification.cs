@@ -44,7 +44,7 @@ internal static class SamusChargeColorsVerification
             AssertEqual(pointer, compiledPointer, $"Hyper-shot frame {frame} pointer");
             for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
             {
-                int address = SamusProjectileRomData.Banks.PaletteAndTrailData |
+                int address = SamusCartridgeTables.PaletteBank |
                     (pointer + color * sizeof(ushort));
                 AssertEqual(BlockWord(address), native.ResolveHyper(frame, color),
                     $"Hyper-shot frame {frame} color {color}");

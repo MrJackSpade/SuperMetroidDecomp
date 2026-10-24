@@ -284,8 +284,8 @@ internal sealed class EnemyCollision
                 {
                     // The multibox prelude requests this earthquake before dispatching the
                     // hitbox callback, even when that callback is the no-op shell region.
-                    _earthquake.EarthquakeTimer = WrappingCountdown.Start(SamusProjectileRomData.NonBeam.SuperMissileEarthquakeDuration);
-                    _earthquake.EarthquakeType = SamusProjectileRomData.NonBeam.SuperMissileEnemyHitEarthquakeType;
+                    _earthquake.EarthquakeTimer = WrappingCountdown.Start(SuperMissileDefinitions.EarthquakeDuration);
+                    _earthquake.EarthquakeType = SuperMissileDefinitions.EnemyHitEarthquakeType;
                 }
 
                 if (RunShotStage(reaction.AfterSuperMissileQuake, shot))

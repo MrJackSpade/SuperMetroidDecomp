@@ -43,7 +43,7 @@ internal sealed class ProjectileEnemyImpacts
             // The collision walkers write the enemy-hit quake before dispatching the enemy's
             // shot callback. This remains observable even when gold Ninja armor ignores a
             // fresh, not-yet-linked Super Missile.
-            _earthquakes.RequestSuperMissileEarthquake(SamusProjectileRomData.NonBeam.SuperMissileEnemyHitEarthquakeType);
+            _earthquakes.RequestSuperMissileEarthquake(SuperMissileDefinitions.EnemyHitEarthquakeType);
         }
 
         if (markCollisionState)

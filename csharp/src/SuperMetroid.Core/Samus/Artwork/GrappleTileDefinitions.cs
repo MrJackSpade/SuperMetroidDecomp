@@ -17,12 +17,6 @@ public static class GrappleTileDefinitions
     private const VramAssetId Diagonal = VramAssetId.GrappleDiagonalSegmentTiles;
     /// <summary>Installed tile identity for vertical rope segments.</summary>
     private const VramAssetId Vertical = VramAssetId.GrappleVerticalSegmentTiles;
-    /// <summary>$9A:8200, Tiles_GrappleBeam_Horizontal_Beam, the first endpoint character.</summary>
-    private const int FirstPointSource = 0x9a8200;
-    /// <summary>Endpoint animation characters occupy $200-byte source strides.</summary>
-    private const int PointSourceStride = 0x200;
-    /// <summary>Horizontal, diagonal and vertical beam groups occupy $800-byte source strides.</summary>
-    private const int SegmentSourceStride = 0x800;
     /// <summary>Calculates the seven endpoint and rope upload descriptors in native order.</summary>
     private static readonly TransferList transfers = new();
     /// <summary>$9A:8200/8A00/9200 Tiles_GrappleBeam groups; only endpoint and segment-owned characters are extracted.</summary>
@@ -114,7 +108,7 @@ public static class GrappleTileDefinitions
     {
         /// <summary>Four endpoint transfers plus three four-tile segment transfers.</summary>
         public int Count => 7;
-        /// <summary>Calculates source address, atlas offset, and byte count for one native upload.</summary>
+        /// <summary>Calculates the atlas offset and byte count for one native upload.</summary>
         public GrappleTileTransfer this[int index]
         {
             get
@@ -122,8 +116,7 @@ public static class GrappleTileDefinitions
                 if ((uint)index >= Count)
                     throw new ArgumentOutOfRangeException(nameof(index));
                 if (index < 4)
-                    return new(PointAssetFor(index),
-                        FirstPointSource + PointSourceStride * index, 32 * index, 32);
+                    return new(PointAssetFor(index), 32 * index, 32);
                 int orientation = index - 4;
                 VramAssetId asset = orientation switch
                 {
@@ -131,8 +124,7 @@ public static class GrappleTileDefinitions
                     1 => Diagonal,
                     _ => Vertical,
                 };
-                return new(asset, FirstPointSource + 32 + SegmentSourceStride * orientation,
-                    128 * (orientation + 1), 128);
+                return new(asset, 128 * (orientation + 1), 128);
             }
         }
         /// <summary>Yields the native endpoint transfers before horizontal, diagonal, and vertical segments.</summary>

@@ -32,9 +32,9 @@ internal static class SamusProjectileCooldownDefinitions
         int index = offset - SamusFiringTables.UnchargedCooldowns;
         if ((uint)index < 32)
         {
-            bool charged = index >= SamusProjectileRomData.Beams.ChargedRowOffset;
+            bool charged = index >= SamusFiringTables.ChargedRowOffset;
             int combination = index & 0x0f;
-            if (combination >= SamusProjectileRomData.Beams.CombinationCount)
+            if (combination >= SamusFiringTables.CombinationCount)
                 return 0;
             return (byte)(charged ? 30 : combination == PlasmaIce ? 12 : 15);
         }
@@ -56,7 +56,7 @@ internal static class SamusProjectileCooldownDefinitions
                 _ => throw new InvalidOperationException($"Undefined {nameof(NonBeamKind)} {(int)kind}."),
             };
         }
-        if ((uint)(offset - SamusFiringTables.AutoFireCooldowns) < SamusProjectileRomData.Beams.CombinationCount)
+        if ((uint)(offset - SamusFiringTables.AutoFireCooldowns) < SamusFiringTables.CombinationCount)
             return 25;
         if (offset == SamusFiringTables.SpacetimeBeamCooldown)
             return 0x0D;

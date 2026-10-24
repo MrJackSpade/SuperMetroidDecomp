@@ -1402,7 +1402,7 @@ internal static class LookupStream2Verification
             ushort cursor = start;
             while (true)
             {
-                ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Banks.Movement | cursor);
+                ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusCartridgeTables.MovementBank | cursor);
                 if (word == 0) break;
                 if (word < 0x8000) { encountered.Add(cursor); cursor += 4; }
                 else { cursor += 2; }
@@ -1493,7 +1493,7 @@ internal static class LookupStream2Verification
             if (ProjectileTrailDefinitions.ReadSelector(address) is { } selected)
                 AssertEqual(native, selected, "Trail selectors retain every reachable aligned native word");
             else
-                AssertTrue(!ProjectileTrailProgramDefinitions.TryRead(SamusProjectileRomData.Banks.Movement | native, out _),
+                AssertTrue(!ProjectileTrailProgramDefinitions.TryRead(SamusCartridgeTables.MovementBank | native, out _),
                     "A selector word past the right table names no trail step");
         }
         AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start - 2), "Trail selector rejects the preceding word");

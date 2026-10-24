@@ -13,6 +13,8 @@ public sealed class SamusOverreadCatalog
 {
     /// <summary>The bytes the SpaceTime palette-copy overrun can read.</summary>
     private readonly byte[] _spacetimeCopySource;
+    /// <summary>The bank-$00 place of the first SpaceTime copy source byte.</summary>
+    private readonly int _spacetimeCopySourceStart;
     /// <summary>The grapple-handler code the Speed Booster palette overrun reads as colours, as little-endian words.</summary>
     private readonly byte[] _speedBoosterGrappleCode;
     /// <summary>The bytes before the HUD's posture-transition flags.</summary>
@@ -27,6 +29,9 @@ public sealed class SamusOverreadCatalog
     {
         _spacetimeCopySource = Decode(document.SpacetimeCopySource, SamusOverreadDefinitions.SpacetimeCopySourceByteCount,
             nameof(document.SpacetimeCopySource));
+        _spacetimeCopySourceStart = (uint)document.SpacetimeCopySourceStart <= ushort.MaxValue
+            ? document.SpacetimeCopySourceStart
+            : throw new InvalidDataException($"Samus overread SpaceTime copy source start {document.SpacetimeCopySourceStart} lies outside bank $00.");
         _speedBoosterGrappleCode = Decode(document.SpeedBoosterGrappleCode,
             SamusOverreadDefinitions.SpeedBoosterGrappleCodeColorCount * sizeof(ushort), nameof(document.SpeedBoosterGrappleCode));
         _hudPrecedingPostureBytes = Decode(document.HudPrecedingPostureBytes, SamusOverreadDefinitions.HudPrecedingPostureByteCount,
@@ -46,6 +51,9 @@ public sealed class SamusOverreadCatalog
 
     /// <summary>The SpaceTime palette-copy overrun's source byte <paramref name="offset"/> bytes past the first one it reads.</summary>
     internal byte SpacetimeCopySourceByte(int offset) => Read(_spacetimeCopySource, offset, "SpaceTime copy source");
+
+    /// <summary>The SpaceTime palette-copy overrun's source byte at bank-$00 place <paramref name="position"/>.</summary>
+    internal byte SpacetimeCopySourceAt(int position) => SpacetimeCopySourceByte(position - _spacetimeCopySourceStart);
 
     /// <summary>Colour word <paramref name="index"/> the Speed Booster palette overrun reads from the grapple handler's code.</summary>
     internal ushort SpeedBoosterGrappleCodeWord(int index) => ReadWord(_speedBoosterGrappleCode, index, "Speed Booster grapple-code colour");

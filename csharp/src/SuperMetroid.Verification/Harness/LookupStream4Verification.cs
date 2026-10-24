@@ -1787,7 +1787,7 @@ internal static class LookupStream4Verification
                 int pointer = 0x900000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3c9 + selection * 2));
                 for (int index = 0; index < SnesCgram.ColorCount; index++)
                 {
-                    int color = index - SamusProjectileRomData.Palettes.BeamFirstColour;
+                    int color = index - SamusColourDefinitions.BeamFirstColour;
                     ushort expected = color is >= 0 and < 16 ? CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + color * 2)) : (ushort)(index * 31);
                     if (edit >= 0 && selection * 16 + color == edit / 3 && color is >= 0 and < 16)
                         expected ^= (ushort)(1 << (edit % 3 * 5));

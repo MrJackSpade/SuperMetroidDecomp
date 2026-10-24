@@ -92,22 +92,4 @@ internal static class SamusProjectileHeaderNative
             SamusProjectileHeaderDefinitions.Program(At(0x930000 | header)
                 ?? throw new InvalidDataException($"$93:{header:X4} is not a Samus projectile header."), direction);
     }
-
-    /// <summary>The beam selector tables by bank-$93 address.</summary>
-    extension(SamusProjectileRomData.Beams)
-    {
-        /// <summary>$93:83C1: bank-$93 projectile-data pointers for uncharged combinations.</summary>
-        internal static int UnchargedDataPointers => 0x9383c1;
-        /// <summary>$93:83D9: bank-$93 projectile-data pointers for charged combinations.</summary>
-        internal static int ChargedDataPointers => 0x9383d9;
-    }
-
-    /// <summary>The non-beam selector tables by bank-$93 address.</summary>
-    extension(SamusProjectileRomData.NonBeam)
-    {
-        /// <summary>$93:83F1: bank-$93 data pointers for missiles, bombs, and special projectiles.</summary>
-        internal static int DataPointers => 0x9383f1;
-        /// <summary>$93:842B: bank-$93 definitions for Super Missile link projectiles.</summary>
-        internal static int SuperMissileLinkDataPointers => 0x93842b;
-    }
 }

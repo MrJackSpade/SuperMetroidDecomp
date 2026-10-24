@@ -104,7 +104,7 @@ internal static class ProjectileTrailCoordinatesVerification
         var afterFrame = Enumerable.Range(0, 22).Select(frame => SamusProjectileProgramAddresses.CursorAt(unchecked((ushort)(
             SamusProjectileProgramAddresses.RecordAddress(records.First(record =>
                 SamusProjectileRecordDefinitions.Get(new SamusProjectileFrame(record)).AnimationFrame == frame)) +
-            SamusProjectileRomData.Instructions.AnimationRecordByteCount)))).ToArray();
+            SamusProjectileListLayout.TimedRecordByteCount)))).ToArray();
         var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Overreads = InstalledFixtures.SamusOverreads };
         var spawn = new Action<SamusProjectileSlot>(system.Trails.SpawnTrail);
         int cases = 0;

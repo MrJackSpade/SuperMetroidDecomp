@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Frontend;
@@ -1123,14 +1124,15 @@ internal static class LookupStream3Verification
 
         GrappleTileTransfer[] expectedTransfers =
         [
-            new(VramAssetId.GrapplePointFirstTiles, 0x9a8200, 0, 32),
-            new(VramAssetId.GrapplePointSecondTiles, 0x9a8400, 32, 32),
-            new(VramAssetId.GrapplePointThirdTiles, 0x9a8600, 64, 32),
-            new(VramAssetId.GrapplePointFourthTiles, 0x9a8800, 96, 32),
-            new(VramAssetId.GrappleHorizontalSegmentTiles, 0x9a8220, 128, 128),
-            new(VramAssetId.GrappleDiagonalSegmentTiles, 0x9a8a20, 256, 128),
-            new(VramAssetId.GrappleVerticalSegmentTiles, 0x9a9220, 384, 128),
+            new(VramAssetId.GrapplePointFirstTiles, 0, 32),
+            new(VramAssetId.GrapplePointSecondTiles, 32, 32),
+            new(VramAssetId.GrapplePointThirdTiles, 64, 32),
+            new(VramAssetId.GrapplePointFourthTiles, 96, 32),
+            new(VramAssetId.GrappleHorizontalSegmentTiles, 128, 128),
+            new(VramAssetId.GrappleDiagonalSegmentTiles, 256, 128),
+            new(VramAssetId.GrappleVerticalSegmentTiles, 384, 128),
         ];
+        int[] expectedSources = [0x9a8200, 0x9a8400, 0x9a8600, 0x9a8800, 0x9a8220, 0x9a8a20, 0x9a9220];
         var actualTransfers = GrappleTileDefinitions.Transfers;
         AssertTrue(expectedTransfers.SequenceEqual(actualTransfers),
             "stream 3 grapple transfer enumeration and every field");
@@ -1140,6 +1142,7 @@ internal static class LookupStream3Verification
                 "stream 3 grapple transfer index");
             AssertEqual(expectedTransfers[index], GrappleTileDefinitions.TransferFor(expectedTransfers[index].Asset),
                 "stream 3 grapple transfer asset dispatch");
+            AssertEqual(expectedSources[index], actualTransfers[index].SourceAddress, "stream 3 grapple transfer cartridge source");
         }
         foreach (int invalid in new[] { -1, 7, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => _ = actualTransfers[invalid],
@@ -3579,13 +3582,13 @@ BranchesToSharedBody:true),
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             GrappleTileTransfer[] expectedTransfers =
             [
-                new(VramAssetId.GrapplePointFirstTiles, 0x9a8200, 0, 32),
-                new(VramAssetId.GrapplePointSecondTiles, 0x9a8400, 32, 32),
-                new(VramAssetId.GrapplePointThirdTiles, 0x9a8600, 64, 32),
-                new(VramAssetId.GrapplePointFourthTiles, 0x9a8800, 96, 32),
-                new(VramAssetId.GrappleHorizontalSegmentTiles, 0x9a8220, 128, 128),
-                new(VramAssetId.GrappleDiagonalSegmentTiles, 0x9a8a20, 256, 128),
-                new(VramAssetId.GrappleVerticalSegmentTiles, 0x9a9220, 384, 128),
+                new(VramAssetId.GrapplePointFirstTiles, 0, 32),
+                new(VramAssetId.GrapplePointSecondTiles, 32, 32),
+                new(VramAssetId.GrapplePointThirdTiles, 64, 32),
+                new(VramAssetId.GrapplePointFourthTiles, 96, 32),
+                new(VramAssetId.GrappleHorizontalSegmentTiles, 128, 128),
+                new(VramAssetId.GrappleDiagonalSegmentTiles, 256, 128),
+                new(VramAssetId.GrappleVerticalSegmentTiles, 384, 128),
             ];
             VerifyStream3GrappleTilePatterns(rom, expectedTransfers);
         Console.WriteLine("Grapple tiles:512 native bytes,64 plane edits,8 coverage edits and seven transfer bindings pass; only reviewed stroke masks and visual shape choices remain.");

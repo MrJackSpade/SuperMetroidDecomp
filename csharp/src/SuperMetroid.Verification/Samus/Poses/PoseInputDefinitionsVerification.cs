@@ -30,7 +30,7 @@ internal static class PoseInputDefinitionsVerification
                 native.Add(new PoseInputDefinitionsNative(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((address + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((address + 4))));
             }
             AssertTrue(SamusPoseInputDefinitions.TryGetInputList(pose, out SamusPoseInputList actualPointer), "Authored graph exists");
-            AssertEqual(pointer, (ushort)actualPointer, "Native transition-list diagnostic identity");
+            AssertEqual(pointer, SamusPoseInputListNative.Address(actualPointer), "Native transition-list diagnostic identity");
             AssertEqual(native.Count != 0, SamusPoseInputDefinitions.Match(actualPointer, (SnesButton)ushort.MaxValue, (SnesButton)ushort.MaxValue).HasConditions, "Native empty versus nonempty input program");
             for (int i = 0; i < native.Count; i++)
             {

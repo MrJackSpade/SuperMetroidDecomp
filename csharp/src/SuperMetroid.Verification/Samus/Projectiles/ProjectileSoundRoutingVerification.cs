@@ -17,8 +17,8 @@ internal static class ProjectileSoundRoutingVerification
         foreach (bool charged in new[] { false, true })
         {
             int table = charged
-                ? SamusProjectileRomData.Beams.ChargedSounds
-                : SamusProjectileRomData.Beams.UnchargedSounds;
+                ? SamusProjectileBeamTables.ChargedSounds
+                : SamusProjectileBeamTables.UnchargedSounds;
             for (int selector = 0;
                  selector < Enum.GetValues<SamusBeamCombination>().Length;
                  selector++)

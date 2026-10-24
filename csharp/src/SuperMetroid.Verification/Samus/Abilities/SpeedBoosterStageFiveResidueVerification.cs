@@ -34,8 +34,8 @@ internal static class SpeedBoosterStageFiveResidueVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         ushort stageFive = SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer(
             SamusRunningCadenceDefinitions.MaximumSoundQueueSelection);
-        int stageFiveQueueOffset = stageFive - SnesAddressMath.OffsetInBank(Mode7TransferQueueLayout.QueueStart);
-        var residue = new SuperMetroid.Core.Hardware.Mode7TransferQueueResidue();
+        int stageFiveQueueOffset = stageFive - SamusAnimationDelayDefinitions.FloorUpdateResidueOffset;
+        var residue = new SuperMetroid.Core.Compatibility.FloorUpdateResidue();
         for (int index = 0; index < CadenceBytes; index++)
         {
             AssertEqual((byte)0, SamusRunningCadenceDefinitions.ReadAnimationByte(residue, stageFive, (ushort)index),
@@ -83,12 +83,12 @@ internal static class SpeedBoosterStageFiveResidueVerification
     private static byte[] NativeQueueImage(ISnesAddressSpace bus, CeresMode7TransferList capsule, CeresMode7TransferList wing)
     {
         IImportCartridgeSource rom = CartridgeImportSource.Require(bus);
-        const int descriptorBytes = Mode7TransferQueueLayout.VramDescriptorByteCount;
-        var image = new byte[Mode7TransferQueueLayout.QueueByteCount];
+        const int descriptorBytes = 9;
+        var image = new byte[SuperMetroid.Core.Compatibility.FloorUpdateResidue.ByteCount];
         int offset = 0;
         foreach (CeresMode7TransferList list in new[] { capsule, wing })
         {
-            var source = new SnesAddress(Mode7TransferQueueLayout.CeresSourceBank, (ushort)list);
+            var source = new SnesAddress(0xa6, (ushort)list);
             for (int descriptor = 0; descriptor < CeresMode7TransferDefinitions.Get(list).Count; descriptor++, offset += descriptorBytes)
             {
                 for (int index = 0; index < descriptorBytes; index++)
@@ -102,7 +102,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
     }
 
     /// <summary>Requires the stage-five cadence bytes to equal the native queue residue.</summary>
-    private static void AssertStageFive(SuperMetroid.Core.Hardware.Mode7TransferQueueResidue residue, ushort stageFive, int queueOffset, byte[] expected, string context)
+    private static void AssertStageFive(SuperMetroid.Core.Compatibility.FloorUpdateResidue residue, ushort stageFive, int queueOffset, byte[] expected, string context)
     {
         for (int index = 0; index < CadenceBytes; index++)
         {

@@ -68,7 +68,7 @@ internal static class SamusRunningCadenceDefinitions
 
     /// <summary>Reads a cadence byte at its wrapped frame index.</summary>
     internal static byte ReadAnimationByte(
-        SuperMetroid.Core.Hardware.Mode7TransferQueueResidue? mode7Residue,
+        SuperMetroid.Core.Compatibility.IFloorUpdateResidue? mode7Residue,
         SamusRunningCadence cadence,
         int byteIndex)
     {
@@ -81,7 +81,8 @@ internal static class SamusRunningCadenceDefinitions
         SnesAddress sourceAddress = SnesAddress.FromBusAddress(address);
         if (sourceAddress.Bank == 0x91 && !sourceAddress.IsUpperLoRomWindow)
             return (mode7Residue ?? throw new InvalidOperationException(
-                "Running-cadence stage five reads the Mode 7 queue residue; bind the session's to this Samus.")).ReadNative(sourceAddress.Offset);
+                "Running-cadence stage five reads the floor update residue; bind the session's to this Samus."))
+                .ByteAt(sourceAddress.Offset - SuperMetroid.Core.Samus.Poses.SamusAnimationDelayDefinitions.FloorUpdateResidueOffset);
 
         throw new InvalidDataException(
             $"Samus running-cadence byte {sourceAddress} is not compiled cadence data " +

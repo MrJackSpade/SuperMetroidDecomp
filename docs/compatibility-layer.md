@@ -52,3 +52,4 @@ service only when it has its own timing contract; coherent responsibilities shar
 | `IDoorMusicLoadFrames` / `InstantDoorMusicLoad` | frames counted while a door's new music loads | once per door transition |
 | `IRoomLoadProgress` / `InstantRoomLoad` | how far room loading has progressed when each enemy initializes | each door-scroll update |
 | `WrappingCountdown`, `CountdownStep`, `LowByteCountdownStep`, `WrappingCounter` | timers and counters that wrap at their width, tested as the original tested them | where each timer is advanced |
+| `FloorUpdateResidue`, `FloorUpdate`, `IFloorUpdateResidue` | the descriptors the Ceres Ridley getaway's floor updates leave behind, which Samus's running stage five and the invalid poses read as delays (a bounded over-read, #1338) | recorded at each getaway update that changes the floor; read when Samus's animation reads past its tables |

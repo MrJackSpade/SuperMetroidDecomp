@@ -100,7 +100,7 @@ internal sealed class SuperMetroidRuntime
     internal GameplayActorDrawing ActorDrawing { get; }
 
     /// <summary>The session's Mode 7 transfer queue residue, bound into the enemies and every Samus this runtime creates.</summary>
-    internal SuperMetroid.Core.Hardware.Mode7TransferQueueResidue FloorQueueResidue { get; }
+    internal SuperMetroid.Core.Compatibility.FloorUpdateResidue FloorQueueResidue { get; }
 
     /// <summary>The <see cref="XrayReveal"/> owner of this SuperMetroidRuntime.</summary>
     internal XrayReveal Xray { get; }
@@ -131,7 +131,7 @@ internal sealed class SuperMetroidRuntime
     /// <param name="floorQueueResidue">The session's Mode 7 transfer queue residue, which outlives each runtime as WRAM does.</param>
     /// <param name="random">The session's random-number word, which outlives each runtime and is never copied.</param>
     internal SuperMetroidRuntime(HostGameplayOverrides overrides, IGameplayArtwork artwork,
-        FrameClock clock, SuperMetroid.Core.Hardware.Mode7TransferQueueResidue floorQueueResidue, CartridgeRandom random)
+        FrameClock clock, SuperMetroid.Core.Compatibility.FloorUpdateResidue floorQueueResidue, CartridgeRandom random)
     {
         Ensure.NotNull(artwork);
         System = new Bank80SystemState(random);

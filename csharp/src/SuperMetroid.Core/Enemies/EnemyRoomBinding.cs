@@ -50,7 +50,7 @@ internal sealed class EnemyRoomBinding
     internal EnemyStagingSurfaces Staging => Session.Staging;
 
     /// <summary>The session's Mode 7 transfer queue residue, which Ceres Ridley's getaway writes.</summary>
-    internal SuperMetroid.Core.Hardware.Mode7TransferQueueResidue? FloorQueueResidue => Session.FloorQueueResidue;
+    internal SuperMetroid.Core.Compatibility.FloorUpdateResidue? FloorQueueResidue => Session.FloorQueueResidue;
 
     /// <summary>The bound enemy definition source; enemy work requires a loaded room population.</summary>
     internal IRoomEnemyDefinitionSource LoadedDefinitions =>

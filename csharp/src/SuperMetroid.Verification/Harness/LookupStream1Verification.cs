@@ -1451,11 +1451,11 @@ internal static class LookupStream1Verification
             ushort expectedPointer = bus.ReadCartridgeWord(source);
             ushort pointer = SamusAnimationDelayDefinitions.PointerForPose((SamusPoseId)pose);
             AssertEqual(expectedPointer, pointer, $"animation alias ${pose:X2} reads its running-delay source");
-            var residue = new SuperMetroid.Core.Hardware.Mode7TransferQueueResidue();
+            var residue = new SuperMetroid.Core.Compatibility.RecordedFloorUpdateResidue();
             for (int change = 0; change < 2; change++)
             {
                 byte expected = (byte)(pose - 0xFD + change * 16);
-                residue.Write((0x7E0000 | pointer) - SuperMetroid.Core.Hardware.Mode7TransferQueueLayout.QueueStart, expected);
+                residue.Write(pointer - SamusAnimationDelayDefinitions.FloorUpdateResidueOffset, expected);
                 AssertEqual(expected, SamusAnimationDelayDefinitions.ReadAnimationByte(residue, pointer, 0),
                     $"animation alias ${pose:X2} observes queue residue mutation {change}");
             }

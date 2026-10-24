@@ -928,7 +928,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     overlayDoor.SetSpeciesState(overlayDoorState, overlayDoorState.ClearWithRecord);
     overlayDoor.Position = overlayDoor.Position.WithWhole(new(100, 80));
     enemies.RidleyEncounter.CeresStatus = CeresEscapeStatus.RidleyEscaped; // Skip the unrelated private Baby list in this draw fixture.
-    enemies.Room.Session.FloorQueueResidue = new SuperMetroid.Core.Hardware.Mode7TransferQueueResidue();
+    enemies.Room.Session.FloorQueueResidue = new SuperMetroid.Core.Compatibility.FloorUpdateResidue();
     short[] expectedDoorOffsets = [0, 0, -4, -1];
     for (ushort timer = 0; timer < expectedDoorOffsets.Length; timer++)
     {

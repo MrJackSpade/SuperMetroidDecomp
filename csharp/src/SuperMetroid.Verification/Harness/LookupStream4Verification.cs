@@ -1328,7 +1328,7 @@ internal static class LookupStream4Verification
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         enemies.Presentation.BindCgram(new GameplayColours(new SpriteColourSets()));
-        enemies.Room.Session.FloorQueueResidue = new SuperMetroid.Core.Hardware.Mode7TransferQueueResidue();
+        enemies.Room.Session.FloorQueueResidue = new SuperMetroid.Core.Compatibility.FloorUpdateResidue();
         Action<RidleyEnemyState, SamusState?, int> tick = enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyMode7Getaway;
         var state = new RidleyEnemyState { Mode7TableIndex = 1 };
         byte[] untouched = new byte[SnesVram.ByteCount];

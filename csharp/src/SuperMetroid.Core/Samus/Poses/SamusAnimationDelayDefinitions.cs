@@ -18,6 +18,12 @@ internal static class SamusAnimationDelayDefinitions
     /// <summary>Window positions below this read the Mode 7 transfer queue residue rather than compiled programs.</summary>
     private const ushort ResidueWindowEnd = 0x8000;
 
+    /// <summary>
+    /// The bank-$91 low-half offset the floor update residue starts at (#1338): the low half aliases WRAM, where the
+    /// residue's descriptors begin at <c>$02D0</c>.
+    /// </summary>
+    internal const int FloorUpdateResidueOffset = 0x02d0;
+
     /// <summary>Bit 7 of a delay-stream byte: set for an animation command (<c>$80-$FF</c>), clear for a frame delay.</summary>
     internal const byte CommandBit = 0x80;
 
@@ -690,7 +696,7 @@ internal static class SamusAnimationDelayDefinitions
 
     /// <summary>Read an immutable delay/command byte, retaining the reads that land in the transfer queue residue.</summary>
     /// <remarks>An index wraps within a 16-bit window, so a program index past its end reads the following programs.</remarks>
-    internal static byte ReadAnimationByte(SuperMetroid.Core.Hardware.Mode7TransferQueueResidue? mode7Residue,
+    internal static byte ReadAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? mode7Residue,
         SamusAnimationDelayList list, int byteIndex)
     {
         ushort position = unchecked((ushort)((list.Segment is { } segment
@@ -701,7 +707,8 @@ internal static class SamusAnimationDelayDefinitions
         // Invalid pose bytes $FD-$FF start their programs in the Mode 7 transfer queue's residue.
         if (position < ResidueWindowEnd)
             return (mode7Residue ?? throw new InvalidOperationException(
-                "An invalid pose's delay overread reads the Mode 7 queue residue; bind the session's to this Samus.")).ReadNative(position);
+                "An invalid pose's delay overread reads the floor update residue; bind the session's to this Samus."))
+                .ByteAt(position - FloorUpdateResidueOffset);
         throw new InvalidDataException(
             $"Samus animation delay read at window position ${position:X4} is outside the compiled pose programs.");
     }

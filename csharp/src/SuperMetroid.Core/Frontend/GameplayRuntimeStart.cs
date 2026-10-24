@@ -29,7 +29,7 @@ internal sealed record GameplayRuntimeStart
     public required FrameClock Clock { get; init; }
 
     /// <summary>The session's Mode 7 transfer queue residue, which outlives each runtime as WRAM does.</summary>
-    public required Mode7TransferQueueResidue FloorQueueResidue { get; init; }
+    public required SuperMetroid.Core.Compatibility.FloorUpdateResidue FloorQueueResidue { get; init; }
 
     /// <summary>The menu choices of a selected game; <see langword="null"/> for an attract demo.</summary>
     public required SelectedGameplayOptions? Selected { get; init; }

@@ -24,7 +24,7 @@ internal static class SamusRunningCadenceDefinitionsAccess
             Start(SamusRunningCadenceDefinitions.SpeedBoostCadence(selection));
 
         /// <summary>Reads a cadence byte from the cadence starting at bank-$91 <paramref name="pointer"/>.</summary>
-        internal static byte ReadAnimationByte(SuperMetroid.Core.Hardware.Mode7TransferQueueResidue? mode7Residue,
+        internal static byte ReadAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? mode7Residue,
             ushort pointer, int byteIndex) =>
             SamusRunningCadenceDefinitions.ReadAnimationByte(mode7Residue,
                 Enum.GetValues<SamusRunningCadence>().Single(cadence => Start(cadence) == pointer), byteIndex);

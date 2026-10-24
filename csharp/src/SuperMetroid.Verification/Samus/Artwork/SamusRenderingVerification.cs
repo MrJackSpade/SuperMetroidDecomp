@@ -99,7 +99,7 @@ internal static void VerifySamusRenderingSlice()
     // Advance through the production death-animation entry point, which shares the
     // delay interpreter but does not require valid gameplay movement metadata for $FD.
     const SamusPoseId unusedInstructionPose = (SamusPoseId)0xfd;
-    var unusedInstructionResidue = new SuperMetroid.Core.Hardware.Mode7TransferQueueResidue();
+    var unusedInstructionResidue = new SuperMetroid.Core.Compatibility.RecordedFloorUpdateResidue();
     var unusedInstructionSamus = new SamusState { Pose = unusedInstructionPose, FloorQueueResidue = unusedInstructionResidue };
 
     // `$FA gg aa` selects `gg` only when both vertical speed halves are zero.
@@ -1038,10 +1038,10 @@ static void SeedPoseNineSamusData(TestAddressSpace bus)
 /// Installs a delay stream at <c>$91:0302</c>, the Mode 7 transfer queue residue byte that pose
 /// <c>$FD</c>'s overread of the bank-$91 delay pointer table selects.
 /// </summary>
-static void WriteUnusedPoseDelayInstruction(SuperMetroid.Core.Hardware.Mode7TransferQueueResidue residue, ReadOnlySpan<byte> stream)
+static void WriteUnusedPoseDelayInstruction(SuperMetroid.Core.Compatibility.RecordedFloorUpdateResidue residue, ReadOnlySpan<byte> stream)
 {
     for (int index = 0; index < stream.Length; index++)
-        residue.Write(0x7e0302 - SuperMetroid.Core.Hardware.Mode7TransferQueueLayout.QueueStart + index, stream[index]);
+        residue.Write(0x0302 - SamusAnimationDelayDefinitions.FloorUpdateResidueOffset + index, stream[index]);
 }
 
 /// <summary>

@@ -51,7 +51,7 @@ public sealed class EnemySession
     internal EnemyStagingSurfaces Staging { get; } = new();
 
     /// <summary>The session's Mode 7 transfer queue residue, which Ceres Ridley's getaway writes; the runtime binds it.</summary>
-    internal Mode7TransferQueueResidue? FloorQueueResidue { get; set; }
+    internal SuperMetroid.Core.Compatibility.FloorUpdateResidue? FloorQueueResidue { get; set; }
 
     /// <summary>
     /// The gameplay OBJ character table's bindings, which enemy-format sprites draw from. Uploads that bypass the NMI

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Areas;
@@ -148,17 +149,17 @@ internal sealed class CeresRidleyGetaway
         state.FloorAngle = state.FloorAngle.AddRaw(48);
         UpdateCeresRidleyMode7Matrix(state);
 
-        // Both animations queue into this frame's Mode 7 transfer queue, the capsule first, so
-        // the wing descriptors start after the capsule's. Their bytes outlive the transfer.
-        var queue = new Mode7TransferQueue(_room.FloorQueueResidue ?? throw new InvalidOperationException(
-            "The Ceres Ridley getaway requires the session's Mode 7 transfer queue residue."));
+        // Both animations' floor updates leave their descriptors behind, the capsule's first, so the wing's follow it.
+        FloorUpdateResidue residue = _room.FloorQueueResidue ?? throw new InvalidOperationException(
+            "The Ceres Ridley getaway requires the session's floor update residue.");
+        var updates = new List<FloorUpdate>();
 
         // $A6:ACBC advances the Baby capsule on every fourth NMI using 0,1,2,1. The transfer
         // lists patch only the two two-byte rows occupied by that animation in the map.
         if ((nmiFrameCounter & 3) == 0)
         {
             state.Mode7BabyFrame = (state.Mode7BabyFrame + 1) % 4;
-            ApplyMode7TransferList(CeresMode7TransferDefinitions.BabyFrameForPhase(state.Mode7BabyFrame), ref queue);
+            ApplyMode7TransferList(CeresMode7TransferDefinitions.BabyFrameForPhase(state.Mode7BabyFrame), updates);
         }
 
         // $A6:AD27 alternates the six sparse wing rows on every eighth NMI.
@@ -167,9 +168,9 @@ internal sealed class CeresRidleyGetaway
             state.Mode7WingFrame = (state.Mode7WingFrame + 1) % 2;
             ApplyMode7TransferList(state.Mode7WingFrame == 0
                 ? CeresMode7TransferList.WingFrame0
-                : CeresMode7TransferList.WingFrame1, ref queue);
+                : CeresMode7TransferList.WingFrame1, updates);
         }
-        queue.CompleteTransfers();
+        residue.Record(updates);
     }
 
     /// <summary>
@@ -209,19 +210,16 @@ internal sealed class CeresRidleyGetaway
     }
 
     /// <summary>
-    /// Writes one compiled $80:8B4F Mode-7 transfer list into the room's Mode 7 map (#1349) and queues its native
-    /// descriptors. Its source bytes are immutable cartridge definitions, so gameplay needs no bank-$A6 read.
+    /// Writes one compiled $80:8B4F Mode-7 transfer list into the room's Mode 7 map (#1349) and adds its floor updates to
+    /// <paramref name="updates"/>, whose descriptors outlive the update. Its tile numbers are immutable definitions, so
+    /// gameplay needs no bank-$A6 read.
     /// </summary>
-    private void ApplyMode7TransferList(CeresMode7TransferList transferList, ref Mode7TransferQueue queue)
+    private void ApplyMode7TransferList(CeresMode7TransferList transferList, List<FloorUpdate> updates)
     {
         foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(transferList))
             _room.Services.DrawMode7Map(transfer.MapCell, [.. transfer.TileNumbers]);
         foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(transferList))
-        {
-            queue.QueueVramTilemapTransfer(
-                new SnesAddress(Mode7TransferQueueLayout.CeresSourceBank, checked((ushort)transfer.SourceOffset)),
-                (ushort)transfer.TileNumbers.Count, checked((ushort)transfer.MapCell));
-        }
+            updates.Add(new FloorUpdate(transfer.SourceOffset, transfer.TileNumbers.Count, transfer.MapCell));
     }
 
     /// <summary>

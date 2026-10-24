@@ -514,7 +514,7 @@ public sealed class SamusState
     /// The session's Mode 7 transfer queue residue, which her bank-$91 low-half delay reads alias. The room loader, attract
     /// driver and intro bind it when they create her; a detached Samus that reaches such a read fails loudly.
     /// </summary>
-    public SuperMetroid.Core.Hardware.Mode7TransferQueueResidue? FloorQueueResidue { get; set; }
+    public SuperMetroid.Core.Compatibility.IFloorUpdateResidue? FloorQueueResidue { get; set; }
 
     /// <summary>
     /// Room-dependent admission for spike-block BTS zero, populated by the alpha-phase

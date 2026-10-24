@@ -300,11 +300,11 @@ internal sealed class BeamFiring
         // conditions uses the longer held-fire delay.
         byte cooldown = charged
             ? SamusProjectileCooldownDefinitions.ReadByte(
-                SamusFiringTables.UnchargedCooldowns +
-                SamusFiringTables.ChargedRowOffset + beamType.TableIndex)
+                SamusFiringTableDefinitions.UnchargedCooldowns +
+                SamusFiringTableDefinitions.ChargedRowOffset + beamType.TableIndex)
             : samus.EquippedBeams.HasAny(SamusBeamFlags.Charge) || (controllerNewInput & shoot) != 0
-                ? SamusProjectileCooldownDefinitions.ReadByte(SamusFiringTables.UnchargedCooldowns + beamType.TableIndex)
-                : SamusProjectileCooldownDefinitions.ReadByte(SamusFiringTables.AutoFireCooldowns + beamType.TableIndex);
+                ? SamusProjectileCooldownDefinitions.ReadByte(SamusFiringTableDefinitions.UnchargedCooldowns + beamType.TableIndex)
+                : SamusProjectileCooldownDefinitions.ReadByte(SamusFiringTableDefinitions.AutoFireCooldowns + beamType.TableIndex);
         sharedProjectiles.SetSharedCooldown(cooldown);
 
         SoundEffectId? sound = LibraryOneRequest(SamusProjectileSoundRoutingDefinitions.Resolve(charged, beamType));
@@ -522,11 +522,11 @@ internal sealed class BeamFiring
     {
         int direction = slot.PackedDirection.DirectionIndex;
         bool diagonal = direction is 1 or 3 or 6 or 8;
-        int rowOffset = slot.PackedType.BeamCombination.TableIndex * SamusFiringTables.InitialSpeedRowBytes;
+        int rowOffset = slot.PackedType.BeamCombination.TableIndex * SamusFiringTableDefinitions.InitialSpeedRowBytes;
         short speed = unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
             (diagonal
-                ? SamusFiringTables.DiagonalSpeeds
-                : SamusFiringTables.HorizontalVerticalSpeeds) + rowOffset));
+                ? SamusFiringTableDefinitions.DiagonalSpeeds
+                : SamusFiringTableDefinitions.HorizontalVerticalSpeeds) + rowOffset));
 
         InitializeDirectionalVelocity(inheritance, slot, speed);
     }

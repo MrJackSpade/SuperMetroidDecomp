@@ -26,9 +26,9 @@ internal static class ProjectileCooldownsVerification
         for (int address = 0x90c254; address < 0x90c28f; address++)
             AssertEqual(retail.ReadCartridgeByte(address), SamusProjectileCooldownDefinitions.ReadByte(address - SamusSourceDefinitions.FiringTables.Value),
                 "Compiled cooldown byte matches native address identity");
-        AssertEqual(retail.ReadCartridgeByte(SamusSourceDefinitions.FiringTables.Value + SamusFiringTables.SpacetimeBeamCooldown),
+        AssertEqual(retail.ReadCartridgeByte(SamusSourceDefinitions.FiringTables.Value + SamusFiringTableDefinitions.SpacetimeBeamCooldown),
             SamusProjectileCooldownDefinitions.ReadByte(
-                SamusFiringTables.SpacetimeBeamCooldown),
+                SamusFiringTableDefinitions.SpacetimeBeamCooldown),
             "bounded SpaceTime setup retains its exact adjacent native cooldown observation");
         foreach (int address in new[] { 0x908000, 0x90c253, 0x90c28f, 0x90c290, 0x90c292, 0x90ffff })
             AssertThrows<InvalidDataException>(

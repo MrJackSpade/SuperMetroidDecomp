@@ -81,12 +81,12 @@ internal static class SamusRunningCadenceDefinitions
     };
 
     /// <summary>Reads a cadence byte at its frame index.</summary>
-    /// <param name="mode7Residue">The session's floor update residue, which a read wrapping into the bank's low half reads.</param>
+    /// <param name="floorUpdateResidue">The session's floor update residue, which a read wrapping into the bank's low half reads.</param>
     /// <param name="cadence">The cadence read.</param>
     /// <param name="byteIndex">The frame index, which wraps within sixteen bits.</param>
     /// <param name="windows">Where the region sits in its bank, which a read leaving the region needs; null when none can.</param>
     internal static byte ReadAnimationByte(
-        SuperMetroid.Core.Compatibility.IFloorUpdateResidue? mode7Residue,
+        SuperMetroid.Core.Compatibility.IFloorUpdateResidue? floorUpdateResidue,
         SamusRunningCadence cadence,
         int byteIndex,
         SamusAnimationWindows? windows)
@@ -95,12 +95,12 @@ internal static class SamusRunningCadenceDefinitions
         {
             // Stage five points at `$91:0303`. This is a genuine cartridge bug: the selected
             // delay comes from the Mode 7 transfer queue's residue (#1338), not cadence data.
-            return ReadWindow(mode7Residue, windows, unchecked((ushort)(SoundQueueClobberStart + byteIndex)));
+            return ReadWindow(floorUpdateResidue, windows, unchecked((ushort)(SoundQueueClobberStart + byteIndex)));
         }
         int offset = unchecked((ushort)(StreamOffset(cadence) + byteIndex));
         if (offset < RegionByteCount)
             return CompiledByte(offset, windows);
-        return ReadWindow(mode7Residue, windows, unchecked((ushort)(RequireWindows(windows).RunningCadences + offset)));
+        return ReadWindow(floorUpdateResidue, windows, unchecked((ushort)(RequireWindows(windows).RunningCadences + offset)));
     }
 
     /// <summary>
@@ -158,10 +158,10 @@ internal static class SamusRunningCadenceDefinitions
     }
 
     /// <summary>Reads window position <paramref name="position"/>: the floor update residue in the low half, else the region.</summary>
-    private static byte ReadWindow(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? mode7Residue, SamusAnimationWindows? windows, ushort position)
+    private static byte ReadWindow(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? floorUpdateResidue, SamusAnimationWindows? windows, ushort position)
     {
         if (position < SnesBusLayout.RomWindowStart)
-            return (mode7Residue ?? throw new InvalidOperationException(
+            return (floorUpdateResidue ?? throw new InvalidOperationException(
                 "Running-cadence stage five reads the floor update residue; bind the session's to this Samus."))
                 .ByteAt(position - SuperMetroid.Core.Samus.Poses.SamusAnimationDelayDefinitions.FloorUpdateResidueOffset);
         int offset = position - RequireWindows(windows).RunningCadences;

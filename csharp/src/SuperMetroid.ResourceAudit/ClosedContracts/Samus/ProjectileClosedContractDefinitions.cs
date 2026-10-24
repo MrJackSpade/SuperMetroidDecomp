@@ -17,7 +17,7 @@ internal static class ProjectileClosedContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Samus/Artwork/ChargeFlarePlacementCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/ChargeFlarePlacementDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileOriginDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusFiringTables.cs"),
+             new("csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusFiringTableDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Progression/SamusProjectileFamily.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileFamilies.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileDirection.cs"),

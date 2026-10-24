@@ -18,7 +18,7 @@ internal readonly struct SpacetimeBeamCorruptionMemory(Bank80SystemState progres
     /// </summary>
     internal void CopyPaletteWord(ushort destinationIndex, ushort sourceIndex)
     {
-        int source = SpacetimeBeamCopyDefinitions.SourceLongPointerValue + sourceIndex;
+        int source = SpacetimeBeamCopyDefinitions.SourceIndexBase + sourceIndex;
         for (int offset = 0; offset < sizeof(ushort); offset++)
         {
             int sliceOffset = destinationIndex + offset - SpacetimeBeamCopyDefinitions.ProgressionSliceDistance;

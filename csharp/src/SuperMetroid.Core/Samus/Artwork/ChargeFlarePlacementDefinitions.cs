@@ -38,9 +38,9 @@ public static class ChargeFlarePlacementDefinitions
     internal static Offset16<RoomPixels> BeamOffset(bool running, int direction)
     {
         if ((uint)direction >= DirectionCount) throw new ArgumentOutOfRangeException(nameof(direction));
-        if (running && direction >= SamusFiringTables.DirectionCount)
+        if (running && direction >= SamusFiringTableDefinitions.DirectionCount)
         {
-            int adjacent = direction - SamusFiringTables.DirectionCount;
+            int adjacent = direction - SamusFiringTableDefinitions.DirectionCount;
             return new() { X = BeamOffset(true, adjacent).Y,
                 Y = SamusProjectileOriginDefinitions.Read(false, (ushort)adjacent).X };
         }
@@ -49,7 +49,7 @@ public static class ChargeFlarePlacementDefinitions
             int adjacent = direction - StandingDirectionCount;
             return new() { X = BeamOffset(false, adjacent).Y, Y = BeamOffset(true, adjacent).X };
         }
-        if (!running && direction >= SamusFiringTables.DirectionCount)
+        if (!running && direction >= SamusFiringTableDefinitions.DirectionCount)
             return new()
             {
                 X = -4,

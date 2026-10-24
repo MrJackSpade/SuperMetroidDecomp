@@ -15,7 +15,7 @@ internal static class SpacetimeBeamCopyDefinitions
     /// not model. It has always read zero in the port, as the retail probe observed (<c>$00:0000</c>), so the inherited Y
     /// is the source's place in bank $00.
     /// </summary>
-    internal const int SourceLongPointerValue = 0;
+    internal const int SourceIndexBase = 0;
     /// <summary>
     /// The bytes from sprite palette six, where the interrupted <c>STA.l $7EC1C0,X</c> at $90:AD14 starts the copy, to the
     /// event bitset that starts the persistent-progress slice of the SRAM mirror. The inherited X runs the copy past the

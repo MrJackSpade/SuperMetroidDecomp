@@ -26,24 +26,24 @@ internal static class SamusProjectileCooldownDefinitions
     /// Plasma+Ice has its own 12-frame cadence. Held-fire repeats every 25 frames.
     /// Unused beam combinations, padding and unused non-beam kinds remain zero.
     /// </summary>
-    /// <param name="offset">The byte's offset from the start of <see cref="SamusFiringTables"/>.</param>
+    /// <param name="offset">The byte's offset from the start of <see cref="SamusFiringTableDefinitions"/>.</param>
     internal static byte ReadByte(int offset)
     {
-        int index = offset - SamusFiringTables.UnchargedCooldowns;
+        int index = offset - SamusFiringTableDefinitions.UnchargedCooldowns;
         if ((uint)index < 32)
         {
-            bool charged = index >= SamusFiringTables.ChargedRowOffset;
+            bool charged = index >= SamusFiringTableDefinitions.ChargedRowOffset;
             int combination = index & 0x0f;
-            if (combination >= SamusFiringTables.CombinationCount)
+            if (combination >= SamusFiringTableDefinitions.CombinationCount)
                 return 0;
             return (byte)(charged ? 30 : combination == PlasmaIce ? 12 : 15);
         }
-        if (offset is >= (SamusFiringTables.UnchargedCooldowns + 32) and < SamusFiringTables.NonBeamCooldowns)
+        if (offset is >= (SamusFiringTableDefinitions.UnchargedCooldowns + 32) and < SamusFiringTableDefinitions.NonBeamCooldowns)
             return 0;
-        if (offset is >= SamusFiringTables.NonBeamCooldowns and < SamusFiringTables.AutoFireCooldowns)
+        if (offset is >= SamusFiringTableDefinitions.NonBeamCooldowns and < SamusFiringTableDefinitions.AutoFireCooldowns)
         {
             // The table index is the non-beam projectile kind; kinds without a cooldown are zero.
-            int kindIndex = offset - SamusFiringTables.NonBeamCooldowns;
+            int kindIndex = offset - SamusFiringTableDefinitions.NonBeamCooldowns;
             if (!Enum.IsDefined((NonBeamKind)kindIndex))
                 return 0;
             var kind = (NonBeamKind)kindIndex;
@@ -56,9 +56,9 @@ internal static class SamusProjectileCooldownDefinitions
                 _ => throw new InvalidOperationException($"Undefined {nameof(NonBeamKind)} {(int)kind}."),
             };
         }
-        if ((uint)(offset - SamusFiringTables.AutoFireCooldowns) < SamusFiringTables.CombinationCount)
+        if ((uint)(offset - SamusFiringTableDefinitions.AutoFireCooldowns) < SamusFiringTableDefinitions.CombinationCount)
             return 25;
-        if (offset == SamusFiringTables.SpacetimeBeamCooldown)
+        if (offset == SamusFiringTableDefinitions.SpacetimeBeamCooldown)
             return 0x0D;
 
         throw new InvalidDataException(

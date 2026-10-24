@@ -53,10 +53,10 @@ internal sealed class ProjectileMotion
         int directionOffset = slot.PackedDirection.DirectionIndex * 2;
         slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                SamusFiringTables.BeamXAccelerations + directionOffset))))));
+                SamusFiringTableDefinitions.BeamXAccelerations + directionOffset))))));
         slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                SamusFiringTables.BeamYAccelerations + directionOffset))))));
+                SamusFiringTableDefinitions.BeamYAccelerations + directionOffset))))));
 
         SamusProjectileDirection direction = slot.PackedDirection.Direction;
         bool collided = direction switch
@@ -148,10 +148,10 @@ internal sealed class ProjectileMotion
         int direction = slot.PackedDirection.DirectionIndex;
         slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                SamusFiringTables.BeamXAccelerations + direction * 2))))));
+                SamusFiringTableDefinitions.BeamXAccelerations + direction * 2))))));
         slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                SamusFiringTables.BeamYAccelerations + direction * 2))))));
+                SamusFiringTableDefinitions.BeamYAccelerations + direction * 2))))));
 
         // `$94:A352/$A3E4` advance the same 16.16 positions and scan every block touched by
         // the projectile radii, but deliberately return carry clear unconditionally. That is
@@ -201,10 +201,10 @@ internal sealed class ProjectileMotion
         // so this addition is intentionally overwritten; subsequent frames retain it.
         slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                SamusFiringTables.BeamXAccelerations + direction * 2))))));
+                SamusFiringTableDefinitions.BeamXAccelerations + direction * 2))))));
         slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                SamusFiringTables.BeamYAccelerations + direction * 2))))));
+                SamusFiringTableDefinitions.BeamYAccelerations + direction * 2))))));
 
         if ((SnesLittleEndian.HighByteInPlace(slot.Variable)) == 0)
         {
@@ -217,7 +217,7 @@ internal sealed class ProjectileMotion
         }
         else
         {
-            int acceleration = SamusFiringTables.MissileAccelerations + direction * 4;
+            int acceleration = SamusFiringTableDefinitions.MissileAccelerations + direction * 4;
             slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
                 unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration))))));
             slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
@@ -286,7 +286,7 @@ internal sealed class ProjectileMotion
         else
         {
             int acceleration =
-                SamusFiringTables.SuperMissileAccelerations + direction * 4;
+                SamusFiringTableDefinitions.SuperMissileAccelerations + direction * 4;
             slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
                 unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration))))));
             slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +

@@ -44,9 +44,9 @@ internal static class BeamSpeedRowsVerification
             // The fire frame's beam pre-instruction adds one direction-indexed acceleration
             // word to the speed-row velocity before the slot is observable.
             short ax = unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                SamusFiringTables.BeamXAccelerations + direction * 2));
+                SamusFiringTableDefinitions.BeamXAccelerations + direction * 2));
             short ay = unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                SamusFiringTables.BeamYAccelerations + direction * 2));
+                SamusFiringTableDefinitions.BeamYAccelerations + direction * 2));
             AssertEqual(unchecked((short)(x + ax)), shot.Velocity.X.SignedRawValue, $"beam {combination} direction {direction} native speed-row X");
             AssertEqual(unchecked((short)(y + ay)), shot.Velocity.Y.SignedRawValue, $"beam {combination} direction {direction} native speed-row Y");
         }

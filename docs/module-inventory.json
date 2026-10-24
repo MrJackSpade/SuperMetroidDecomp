@@ -391,7 +391,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Samus",
       "role": "production",
-      "files": 556,
+      "files": 557,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets",
@@ -60346,6 +60346,16 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Samus/Artwork/ArmCannonDescriptorDefinitions.cs",
+      "module": "csharp/src/SuperMetroid.Core/Samus",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Samus.Artwork",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Samus/Artwork/AxialSuperMissileParts.cs",
       "module": "csharp/src/SuperMetroid.Core/Samus",
       "role": "production",
@@ -65433,7 +65443,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusFiringTables.cs",
+      "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusFiringTableDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Samus",
       "role": "production",
       "namespace": "SuperMetroid.Core.Samus.Projectiles",

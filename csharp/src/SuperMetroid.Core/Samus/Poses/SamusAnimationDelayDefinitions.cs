@@ -695,11 +695,11 @@ internal static class SamusAnimationDelayDefinitions
     /// An index wraps within sixteen bits, so a program index past its end reads the following programs. An invalid pose's
     /// program starts at a window position in the bank's low half, which aliases the floor update residue.
     /// </remarks>
-    /// <param name="mode7Residue">The session's floor update residue, which a read in the bank's low half reads.</param>
+    /// <param name="floorUpdateResidue">The session's floor update residue, which a read in the bank's low half reads.</param>
     /// <param name="list">The program read.</param>
     /// <param name="byteIndex">The index into the program, which wraps within sixteen bits.</param>
     /// <param name="windows">Where the programs sit in their bank, which a read leaving them needs; null when none can.</param>
-    internal static byte ReadAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? mode7Residue,
+    internal static byte ReadAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? floorUpdateResidue,
         SamusAnimationDelayList list, int byteIndex, SamusAnimationWindows? windows)
     {
         ushort position;
@@ -716,7 +716,7 @@ internal static class SamusAnimationDelayDefinitions
             position = unchecked((ushort)(list.ResidueStart + byteIndex));
         }
         if (position < SnesBusLayout.RomWindowStart)
-            return (mode7Residue ?? throw new InvalidOperationException(
+            return (floorUpdateResidue ?? throw new InvalidOperationException(
                 "An invalid pose's delay overread reads the floor update residue; bind the session's to this Samus."))
                 .ByteAt(position - FloorUpdateResidueOffset);
         int programOffset = position - RequireWindows(windows).PoseDelayPrograms;

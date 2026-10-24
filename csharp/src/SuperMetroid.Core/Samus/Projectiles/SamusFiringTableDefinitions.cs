@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// the accelerations, by byte offset from the region's start. Out-of-range directions and beam combinations read past
 /// one table into the next, so the readers address the region rather than each table.
 /// </summary>
-internal static class SamusFiringTables
+internal static class SamusFiringTableDefinitions
 {
     /// <summary>Number of projectile directions each direction-indexed table holds.</summary>
     internal const int DirectionCount = 10;

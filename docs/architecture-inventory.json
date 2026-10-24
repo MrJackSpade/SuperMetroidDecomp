@@ -99298,6 +99298,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Artwork.ArmCannonDescriptorDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Artwork/ArmCannonDescriptorDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Artwork.AxialSuperMissileParts",
       "kind": "struct",
       "scope": "product",
@@ -100865,19 +100878,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Artwork.SamusArmCannonArtworkFormat.ArmCannonDrawing",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusArmCannonArtworkFormat.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Samus.Artwork.SamusArmCannonArtworkFormat.TileOrientation",
@@ -107531,14 +107531,14 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Projectiles.SamusFiringTables",
+      "type": "SuperMetroid.Core.Samus.Projectiles.SamusFiringTableDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusFiringTables.cs"
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusFiringTableDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"

@@ -30,7 +30,7 @@ internal static class SamusSourceDefinitions
     /// <summary>$90:C487, where the charge flare's delay programs start.</summary>
     internal static readonly SnesAddress ChargeFlarePrograms = new(0x90, 0xc487);
 
-    /// <summary>$90:C204, where the firing tables <see cref="SuperMetroid.Core.Samus.Projectiles.SamusFiringTables"/> lays out start.</summary>
+    /// <summary>$90:C204, where the firing tables <see cref="SuperMetroid.Core.Samus.Projectiles.SamusFiringTableDefinitions"/> lays out start.</summary>
     internal static readonly SnesAddress FiringTables = new(0x90, 0xc204);
 
     /// <summary>$90:C1A8: the charge flare's DefaultX offsets, by direction.</summary>

@@ -33,15 +33,15 @@ internal static class SamusProjectileOriginDefinitions
     internal static Offset16<RoomPixels> Read(bool running, ushort direction)
     {
         int offset = (direction & 0x0f) * sizeof(ushort);
-        int x = running ? SamusFiringTables.RunningXOrigins : SamusFiringTables.DefaultXOrigins;
-        int y = running ? SamusFiringTables.RunningYOrigins : SamusFiringTables.DefaultYOrigins;
+        int x = running ? SamusFiringTableDefinitions.RunningXOrigins : SamusFiringTableDefinitions.DefaultXOrigins;
+        int y = running ? SamusFiringTableDefinitions.RunningYOrigins : SamusFiringTableDefinitions.DefaultYOrigins;
         return new Offset16<RoomPixels>(ReadWord(x + offset), ReadWord(y + offset));
     }
 
     /// <summary>Resolves authored muzzle words first, then reproduces adjacent cooldown bytes reached by out-of-range low-nibble directions.</summary>
     private static short ReadWord(int offset)
     {
-        int originOffset = offset - SamusFiringTables.DefaultXOrigins;
+        int originOffset = offset - SamusFiringTableDefinitions.DefaultXOrigins;
         if (originOffset >= 0 && originOffset < 40 * sizeof(ushort) && (originOffset & 1) == 0)
         {
             int word = originOffset / sizeof(ushort);

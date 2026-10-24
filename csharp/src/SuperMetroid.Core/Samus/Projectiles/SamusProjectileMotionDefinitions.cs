@@ -10,10 +10,10 @@ internal static class SamusProjectileMotionDefinitions
     /// <summary>$90:C301 MissileInitializedBitset: adjacent word reached by invalid beam combinations.</summary>
     private const ushort MissileInitialized = 0x0100;
     /// <summary>Resolves aligned native speed and acceleration words, including beam-selector overreads into missile data.</summary>
-    /// <param name="offset">The word's offset from the start of <see cref="SamusFiringTables"/>.</param>
+    /// <param name="offset">The word's offset from the start of <see cref="SamusFiringTableDefinitions"/>.</param>
     internal static ushort ReadWord(int offset)
     {
-        int speedOffset = offset - SamusFiringTables.HorizontalVerticalSpeeds;
+        int speedOffset = offset - SamusFiringTableDefinitions.HorizontalVerticalSpeeds;
         // Native data starts at an odd offset. Only aligned words in that layout
         // belong to this catalog; preserve all other reads through the offset space.
         if (speedOffset >= 0 && (speedOffset & 1) == 0)
@@ -22,15 +22,15 @@ internal static class SamusProjectileMotionDefinitions
             // Resolve physical offset before row ownership: combinations C..F
             // deliberately overread into ignition and missile acceleration data.
             if (speedOffset < 12 * 4) return (speedOffset & 2) == 0 ? CardinalSpeed : DiagonalSpeed;
-            if (offset == SamusFiringTables.MissileAccelerations - 2) return MissileInitialized;
-            int index = (offset - SamusFiringTables.MissileAccelerations) / 2;
-            if (offset >= SamusFiringTables.MissileAccelerations && index < 20)
+            if (offset == SamusFiringTableDefinitions.MissileAccelerations - 2) return MissileInitialized;
+            int index = (offset - SamusFiringTableDefinitions.MissileAccelerations) / 2;
+            if (offset >= SamusFiringTableDefinitions.MissileAccelerations && index < 20)
                 return Acceleration(index / 2, (index & 1) != 0, 64, 54);
-            index = (offset - SamusFiringTables.SuperMissileAccelerations) / 2;
-            if (offset >= SamusFiringTables.SuperMissileAccelerations && index < 20)
+            index = (offset - SamusFiringTableDefinitions.SuperMissileAccelerations) / 2;
+            if (offset >= SamusFiringTableDefinitions.SuperMissileAccelerations && index < 20)
                 return Acceleration(index / 2, (index & 1) != 0, 256, 182);
-            index = (offset - SamusFiringTables.BeamXAccelerations) / 2;
-            if (offset >= SamusFiringTables.BeamXAccelerations && index < 20)
+            index = (offset - SamusFiringTableDefinitions.BeamXAccelerations) / 2;
+            if (offset >= SamusFiringTableDefinitions.BeamXAccelerations && index < 20)
                 return Acceleration(index % 10, index >= 10, 16, 16);
         }
         throw new InvalidDataException(

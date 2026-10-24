@@ -6,7 +6,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.VerificationAssert;
 using SuperMetroid.Core.World;
@@ -14,44 +13,72 @@ using SuperMetroid.Core.World;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>
-/// Checks a picture drawn over characters an encounter uploads (#1392): it paints exactly what its frame's parts paint over
-/// the room's live OBJ characters, the path such frames drew through before pre-coloured sheets.
+/// Checks a picture drawn over characters an encounter uploads (#1392): it shows exactly the inks its frame's parts show
+/// over the room's live OBJ characters, the path such frames drew through before pre-coloured sheets.
 /// </summary>
 internal static class UploadedPictureChecks
 {
     /// <summary>
-    /// Asserts <paramref name="pictures"/> paint exactly what <paramref name="parts"/> paint in the runtime's live colours:
-    /// every pixel's colour, whether it blends, and its priority, with at least one pixel painted. A sprite pixel's row
-    /// decides only whether it blends (#1405), so that is what is compared.
+    /// Asserts <paramref name="pictures"/> show exactly the inks <paramref name="parts"/> show over their characters: at
+    /// every on-screen pixel the same palette entry, which decides the colour and whether it blends (#1405), and the same
+    /// priority, with at least one pixel inked.
     /// </summary>
-    internal static void AssertPaintsLikeParts(SuperMetroidRuntime runtime, ImmutableArray<SpriteDraw> pictures,
-        ImmutableArray<CharacterSpriteDraw> parts, string message)
+    internal static void AssertPaintsLikeParts(ImmutableArray<SpriteDraw> pictures, ImmutableArray<CharacterSpriteDraw> parts,
+        string message)
     {
         AssertTrue(pictures.Length > 0 && pictures.All(draw => draw is ImageSpriteDraw), $"{message}: draws from a sheet");
-        var cgram = new SnesCgram();
-        for (int colour = 0; colour < 256; colour++)
-            cgram.SetColor(colour, runtime.Cgram.Colors[colour]);
-        int count = SnesPpuLayout.ScreenSize.X * SnesPpuLayout.ScreenSize.Y;
-        var expected = new ObjRasterTargets(new Rgba32[count], new byte[count], new byte[count]);
-        var actual = new ObjRasterTargets(new Rgba32[count], new byte[count], new byte[count]);
-        CharacterSpriteRaster.RenderResolved(parts, cgram, expected);
-        SnesObjRenderer.RenderResolved(DrawColours.ResolveAll(pictures, cgram.Colors), actual);
-        int painted = 0;
-        for (int pixel = 0; pixel < count; pixel++)
-        {
-            if (expected.Pixels[pixel] != actual.Pixels[pixel] || expected.Priorities[pixel] != actual.Priorities[pixel] ||
-                Blending(expected.Palettes[pixel]) != Blending(actual.Palettes[pixel]))
-                throw new InvalidOperationException($"{message}: the picture differs from the frame over the live characters at screen pixel " +
-                    $"({pixel % SnesPpuLayout.ScreenSize.X},{pixel / SnesPpuLayout.ScreenSize.X}): colour {actual.Pixels[pixel]} for {expected.Pixels[pixel]}, " +
-                    $"row {actual.Palettes[pixel]} for {expected.Palettes[pixel]}, priority {actual.Priorities[pixel]} for {expected.Priorities[pixel]}.");
-            if (expected.Palettes[pixel] != 0)
-                painted++;
-        }
-        AssertTrue(painted > 0, $"{message}: paints pixels");
+        AssertSameInks([.. pictures.Cast<ImageSpriteDraw>()], parts, message);
     }
 
-    /// <summary>Whether a sprite pixel of row <paramref name="row"/> is drawn, and if so whether it blends.</summary>
-    private static int Blending(byte row) => row == SnesObjRenderer.TransparentPriority ? -1 : row >= 4 ? 1 : 0;
+    /// <summary>
+    /// Asserts <paramref name="images"/> show exactly the inks <paramref name="parts"/> show over their characters at every
+    /// on-screen pixel: the frontmost inked pixel's palette entry and priority, with at least one pixel inked.
+    /// </summary>
+    internal static void AssertSameInks(IReadOnlyList<ImageSpriteDraw> images, IReadOnlyList<CharacterSpriteDraw> parts, string message)
+    {
+        Dictionary<(int X, int Y), (int Entry, int Priority)> expected = [], actual = [];
+        foreach (CharacterSpriteDraw draw in parts)
+        {
+            for (int part = 0; part < draw.Frame.Parts.Count; part++)
+            {
+                SpriteScreenPart placed = draw.Place(part);
+                for (ushort y = 0; y < placed.Size.Y; y++)
+                for (ushort x = 0; x < placed.Size.X; x++)
+                {
+                    int character = placed.CharacterAt(new(x, y), out Position16<CharacterPixels> within);
+                    byte colour = draw.Artwork.ColorIndex(character, within);
+                    if (colour != 0)
+                        Ink(expected, placed.Position.X + x, placed.Position.Y + y, placed.Palette * 16 + colour, placed.Priority);
+                }
+            }
+        }
+        foreach (ImageSpriteDraw image in images)
+        {
+            for (ushort y = 0; y < image.Image.Size.Y; y++)
+            for (ushort x = 0; x < image.Image.Size.X; x++)
+            {
+                var cell = new Position16<ScreenPixels>(x, y);
+                int entry = image.PaletteIndexAt(cell);
+                if (entry != 0)
+                    Ink(actual, image.Corner.X + x, image.Corner.Y + y, entry, image.PriorityAt(cell));
+            }
+        }
+        foreach ((int X, int Y) pixel in expected.Keys.Union(actual.Keys))
+        {
+            (int Entry, int Priority)? want = expected.TryGetValue(pixel, out var e) ? e : null, got = actual.TryGetValue(pixel, out var g) ? g : null;
+            if (want != got)
+                throw new InvalidOperationException($"{message}: the picture differs from the frame over the live characters at screen pixel " +
+                    $"({pixel.X},{pixel.Y}): ink {got?.ToString() ?? "none"} for {want?.ToString() ?? "none"}.");
+        }
+        AssertTrue(expected.Count > 0, $"{message}: paints pixels");
+
+        // The frontmost ink at an on-screen pixel; a later, further-back draw does not replace it.
+        static void Ink(Dictionary<(int X, int Y), (int Entry, int Priority)> inks, int x, int y, int entry, int priority)
+        {
+            if (x is >= 0 and < SnesPpuLayout.ScreenWidthPixels && y is >= 0 and < SnesPpuLayout.ScreenHeightPixels)
+                inks.TryAdd((x, y), (entry, priority));
+        }
+    }
 
     /// <summary>
     /// Asserts each of <paramref name="pictures"/> paints exactly what its frame's parts paint over the runtime's live
@@ -60,7 +87,7 @@ internal static class UploadedPictureChecks
     internal static void AssertPicturesPaintOverLive(SuperMetroidRuntime runtime, ImmutableArray<SpriteDraw> pictures, string message)
     {
         SpriteArtwork live = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.SpriteCharacters);
-        AssertPaintsLikeParts(runtime, pictures,
+        AssertPaintsLikeParts(pictures,
             [.. pictures.Select(draw => SheetFrameSources.CharacterDraw(AssertIs<ImageSpriteDraw>(draw, $"{message}: draws from a sheet"), live))],
             message);
     }

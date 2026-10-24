@@ -91,7 +91,7 @@ internal static class DraygonEvirPicturesVerification
         CharacterSpriteDraw parted = EnemyPartComposition.Parts(live, drawn[0].Source, EnemySpriteFrames.Frame(parts, checked((ushort)evir.Attributes.TileNumber), paletteBits),
             drawn[0].Origin, paletteBits);
 
-        UploadedPictureChecks.AssertPaintsLikeParts(runtime, drawn, [parted], $"the Evir {when}");
+        UploadedPictureChecks.AssertPaintsLikeParts(drawn, [parted], $"the Evir {when}");
         return drawn;
     }
 

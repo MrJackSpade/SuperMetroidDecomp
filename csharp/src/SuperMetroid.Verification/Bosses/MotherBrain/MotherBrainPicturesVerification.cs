@@ -79,7 +79,7 @@ internal static class MotherBrainPicturesVerification
                     new MotherBrainWorldFrame(frame, head.Position.Whole, head.PaletteIndex, head.VramTilesIndex), camera);
                 sprites.FinalizeFrame();
                 ImmutableArray<SpriteDraw> pictures = [.. sprites.Draws];
-                UploadedPictureChecks.AssertPaintsLikeParts(runtime, pictures,
+                UploadedPictureChecks.AssertPaintsLikeParts(pictures,
                     [.. pictures.Select(draw => SheetFrameSources.CharacterDraw(AssertIs<ImageSpriteDraw>(draw, $"Mother Brain {frame} {context}: draws from a sheet"), rotted))],
                     $"Mother Brain {frame} {context}");
                 drawn++;

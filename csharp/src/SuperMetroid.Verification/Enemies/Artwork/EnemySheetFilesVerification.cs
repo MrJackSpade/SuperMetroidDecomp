@@ -6,7 +6,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Verification.Harness;
@@ -16,8 +15,8 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>
 /// Confirms the installed enemy sheets (#1392): extraction writes a sheet for every graphics-set member whose behaviour
-/// draws, loading names each set's sheet for each of its enemies, and every frame of every installed sheet paints
-/// exactly what its composition paints over the set's characters and colours, in its own and in altered colours.
+/// draws, loading names each set's sheet for each of its enemies, and every frame of every installed sheet shows
+/// exactly the inks its composition shows over the set's characters.
 /// </summary>
 internal static class EnemySheetFilesVerification
 {
@@ -52,7 +51,7 @@ internal static class EnemySheetFilesVerification
                     }
                 }
             }
-            Console.WriteLine($"Enemy sheets: {members} graphics-set members, {frames} frames pixel-exact against their compositions.");
+            Console.WriteLine($"Enemy sheets: {members} graphics-set members, {frames} frames ink-exact against their compositions.");
         }
         finally
         {
@@ -60,63 +59,19 @@ internal static class EnemySheetFilesVerification
         }
     }
 
-    /// <summary>
-    /// The sheet frame draws exactly what its composition draws: in the set's colours from the image, and in altered
-    /// colours through its palette map.
-    /// </summary>
+    /// <summary>The sheet frame shows exactly the inks its composition shows over the set's characters.</summary>
     private static void AssertSamePixels(SpriteSheetFrame frame, SheetFrameSource source, SpriteSheetSources sources, string label)
     {
-        foreach (bool altered in new[] { false, true })
-        {
-            var cgram = new SnesCgram();
-            for (int colour = 0; colour < sources.SpriteColours.Length; colour++)
-            {
-                cgram.SetColor(128 + colour, altered
-                    ? Bgr555.FromWord((ushort)((sources.SpriteColours[colour].ToWord() + 0x0421 * (colour % 7 + 1)) & 0x7fff))
-                    : sources.SpriteColours[colour]);
-            }
-            var origin = new Position16<ScreenPixels>(128, 112);
-            var image = new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.Enemy), frame, origin, SpriteMirror.None);
-            // The cartridge ORs the enemy's palette bits into each part's own row.
-            var ored = new SpriteFrame(source.Frame.Name, [.. source.Frame.Parts.Select(part => part with { Palette = (part.Palette ?? 0) | sources.PaletteBits })]);
-            var character = new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.Enemy), ored, source.Characters, origin,
-                SnesTileFlipFlags.None, 0, 0);
-            Raster expected = Render(character, cgram), actual = Render(image, cgram);
-            string colours = altered ? "altered" : "own";
-            for (int pixel = 0; pixel < expected.Pixels.Length; pixel++)
-            {
-                if (expected.Pixels[pixel] != actual.Pixels[pixel] || expected.Priorities[pixel] != actual.Priorities[pixel] ||
-                    expected.Palettes[pixel] != actual.Palettes[pixel])
-                    throw new InvalidOperationException($"{label} ({colours} colours) differs at screen pixel {pixel}.");
-            }
-        }
+        var origin = new Position16<ScreenPixels>(128, 112);
+        var image = new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.Enemy), frame, origin, SpriteMirror.None);
+        // The cartridge ORs the enemy's palette bits into each part's own row.
+        var ored = new SpriteFrame(source.Frame.Name, [.. source.Frame.Parts.Select(part => part with { Palette = (part.Palette ?? 0) | sources.PaletteBits })]);
+        var character = new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.Enemy), ored, source.Characters, origin,
+            SnesTileFlipFlags.None, 0, 0);
+        UploadedPictureChecks.AssertSameInks([image], [character], label);
     }
 
-    /// <summary>Renders one draw to a full screen's colours, priorities and palette rows.</summary>
-    private static Raster Render(SpriteDraw draw, SnesCgram cgram)
-    {
-        int count = SnesPpuLayout.ScreenSize.X * SnesPpuLayout.ScreenSize.Y;
-        var raster = new Raster(new Rgba32[count], new byte[count], new byte[count]);
-        SnesObjRenderer.RenderResolved(DrawColours.ResolveAll([draw], cgram.Colors), new ObjRasterTargets(raster.Pixels, raster.Priorities, raster.Palettes));
-        return raster;
-    }
-
-    /// <summary>Renders the cartridge's character composition alone.</summary>
-    private static Raster Render(CharacterSpriteDraw draw, SnesCgram cgram)
-    {
-        int count = SnesPpuLayout.ScreenSize.X * SnesPpuLayout.ScreenSize.Y;
-        var raster = new Raster(new Rgba32[count], new byte[count], new byte[count]);
-        CharacterSpriteRaster.RenderResolved([draw], cgram, new ObjRasterTargets(raster.Pixels, raster.Priorities, raster.Palettes));
-        return raster;
-    }
-
-    /// <summary>One rendered screen.</summary>
-    /// <param name="Pixels">Colours, row by row.</param>
-    /// <param name="Priorities">Each pixel's winning priority, or transparent.</param>
-    /// <param name="Palettes">Each pixel's palette row, or transparent.</param>
-    private sealed record Raster(Rgba32[] Pixels, byte[] Priorities, byte[] Palettes);
-
-    /// <summary>Runs the enemy sheet extraction and pixel comparison.</summary>
+    /// <summary>Runs the enemy sheet extraction and ink comparison.</summary>
     [VerificationCommand("--enemy-sheet-files")]
     internal static int EnemySheetFilesCommand()
     {

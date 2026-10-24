@@ -8,7 +8,7 @@ internal static class DownwardGatePlmRomData
     /// <summary>Native BTS behavior written to every block in the closed gate column.</summary>
     public const byte ClosedGateBts = 0x10;
     /// <summary>Library-two sound queued for a rejected non-blue gate trigger shot.</summary>
-    public const byte RejectedShotSound = 0x57;
+    public static readonly SoundEffectId RejectedShotSound = Library2Sound.DudShotOnDoor;
     /// <summary>Native sound byte embedded in the gate's movement instructions.</summary>
-    public const byte MovementSound = 0x0e;
+    public static readonly SoundEffectId MovementSound = Library3Sound.GateMoving;
 }

@@ -661,7 +661,7 @@ public sealed class RoomLayer3FxState
             EarthquakeSoundSequenceIndex = 0;
 
         soundRequests.Add(new SoundRequest(
-            SoundEffectLibrary2Sounds.Earthquake,
+            Library2Sound.Lavaquake,
             MaximumQueued: 6,
             SoundSuppressed: audioPowerBomb?.IsActive == true));
         EarthquakeSoundTimer = WrappingCountdown.FromRaw(unchecked((ushort)(

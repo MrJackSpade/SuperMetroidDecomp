@@ -400,9 +400,7 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
                 else if (family != SamusProjectileFamily.Missile)
                 {
                     _sounds.Queue(
-                        SoundEffectId.FromCartridge(
-                            SoundEffectLibrary.Library2,
-                            EyeDoorPlmRomData.RejectedShotSound),
+                        EyeDoorPlmRomData.RejectedShotSound,
                         MaximumQueued: 6);
                     return;
                 }
@@ -432,7 +430,7 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
     {
         SpawnEyeDoorProjectile(slot, EyeDoorProjectileDefinition.Projectile, parameter);
         _sounds.Queue(
-            SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EyeDoorPlmRomData.ProjectileSound),
+            EyeDoorPlmRomData.ProjectileSound,
             MaximumQueued: 6);
     }
 

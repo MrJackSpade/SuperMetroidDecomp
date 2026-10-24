@@ -38,7 +38,7 @@ internal sealed class DownwardGatePlmAnimation(DownwardGateProgram program)
                 context.Plms.Gates.WakeGateProjectile(slot);
                 break;
             case DownwardGateCue.QueueMovementSound:
-                context.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, DownwardGatePlmRomData.MovementSound),
+                context.QueueSound(DownwardGatePlmRomData.MovementSound,
                     DownwardGatePlmProgramDefinitions.MovementSoundMaximumQueued);
                 break;
             default:

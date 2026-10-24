@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal static class EyeDoorPlmProgramDefinitions
 {
     /// <summary>The library-2 sound each hit on the eye queues.</summary>
-    internal const byte HitSound = 9;
+    internal static readonly SoundEffectId HitSound = Library2Sound.EnemyKilled;
     /// <summary>The hit sound's queue cap.</summary>
     internal const byte HitSoundMaximumQueued = 6;
     /// <summary>The hits the eye takes before the door opens.</summary>

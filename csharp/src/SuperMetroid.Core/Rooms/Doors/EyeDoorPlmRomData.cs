@@ -4,10 +4,10 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal static class EyeDoorPlmRomData
 {
     /// <summary>Library-two firing sound queued by <c>$84:D77A</c>.</summary>
-    public const byte ProjectileSound = 0x4c;
+    public static readonly SoundEffectId ProjectileSound = Library2Sound.AcidSpit;
 
     /// <summary>Library-two rejected-shot sound queued by <c>$84:BD50</c>.</summary>
-    public const byte RejectedShotSound = 0x57;
+    public static readonly SoundEffectId RejectedShotSound = Library2Sound.DudShotOnDoor;
 
     /// <summary>Parameter consumed by each randomized pair smoke actor.</summary>
     public const ushort RandomizedSmokeParameter = 0x030a;

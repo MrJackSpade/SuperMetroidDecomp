@@ -121,9 +121,7 @@ internal sealed class GatePlms : IPlmFamilySource
                 not DownwardGateTriggerBehavior.BlueRight)
             {
                 _pendingDownwardGateSounds.Add(_sounds.CreateSoundRequest(
-                    SoundEffectId.FromCartridge(
-                        SoundEffectLibrary.Library2,
-                        DownwardGatePlmRomData.RejectedShotSound),
+                    DownwardGatePlmRomData.RejectedShotSound,
                     MaximumQueued: 6));
             }
             temporary.Clear();

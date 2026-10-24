@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class SpeedBoosterBlockPlmProgramDefinitions
 {
     /// <summary>The break sound, library 2.</summary>
-    internal const byte BreakSoundId = 0x06;
+    internal static readonly SoundEffectId BreakSoundId = Library2Sound.ContactBlockBreak;
     /// <summary>The break sound's native queue cap.</summary>
     internal const byte BreakSoundMaximumQueued = 1;
     /// <summary>How long each crumble image shows on Brinstar's slow blocks.</summary>

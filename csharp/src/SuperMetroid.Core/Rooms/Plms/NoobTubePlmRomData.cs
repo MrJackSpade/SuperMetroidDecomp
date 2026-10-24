@@ -17,10 +17,10 @@ public static class NoobTubePlmRomData
     public const EventNumber BrokenEvent = EventNumber.MaridiaNoobTubeBroken;
 
     /// <summary>Sound-library-two ID queued for an ineffective shot.</summary>
-    public const byte IneffectiveShotSound = 0x57;
+    public static readonly SoundEffectId IneffectiveShotSound = Library2Sound.DudShotOnDoor;
 
     /// <summary>Sound-library-two ID queued when the glass breaks.</summary>
-    public const byte BreakSound = 0x1a;
+    public static readonly SoundEffectId BreakSound = Library2Sound.GlassTubeShatter;
 
     /// <summary>Native earthquake type written by instruction $D536.</summary>
     public const ushort EarthquakeType = 0x000b;

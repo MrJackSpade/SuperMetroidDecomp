@@ -325,7 +325,7 @@ public sealed class RoomPaletteFxSystem
                 samus.Health > PaletteFxHeatData.DamageSoundEnergyThreshold)
             {
                 soundRequests.Add(new SoundRequest(
-                    SoundEffectLibrary3Sounds.EnvironmentalDamage,
+                    Library3Sound.IncrementalEnergy,
                     PaletteFxHeatData.DamageSoundMaximumQueued,
                     SoundSuppressed: audioPowerBomb?.IsActive == true));
             }

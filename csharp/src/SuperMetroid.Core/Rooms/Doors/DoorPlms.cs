@@ -172,7 +172,7 @@ internal sealed class DoorPlms : IPlmFamilySource
 
     /// <summary>Queues the library-two dud sound a rejected or premature shot makes.</summary>
     internal void QueueDudSound() =>
-        _sounds.Queue(SoundEffectLibrary2Sounds.DoorOpening, MaximumQueued: DudSoundMaximumQueued);
+        _sounds.Queue(Library2Sound.DudShotOnDoor, MaximumQueued: DudSoundMaximumQueued);
 
     /// <summary>The dud sound's native queue cap.</summary>
     private const int DudSoundMaximumQueued = 6;

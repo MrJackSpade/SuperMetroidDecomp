@@ -148,14 +148,12 @@ public static class RoomFxRomData
         /// <c>Lava_SoundEffects</c> ($88:B3A1): library-two sounds chosen by the low three
         /// RNG bits.
         /// </summary>
-        public static SoundEffectId AmbientSound(int randomIndex) => SoundEffectId.FromCartridge(
-            SoundEffectLibrary.Library2,
-            (randomIndex & 7) switch
-            {
-                0 or 3 or 6 => 0x12,
-                1 or 4 or 7 => 0x13,
-                _ => 0x14,
-            });
+        public static SoundEffectId AmbientSound(int randomIndex) => (randomIndex & 7) switch
+        {
+            0 or 3 or 6 => Library2Sound.LavaBubbling1,
+            1 or 4 or 7 => Library2Sound.LavaBubbling2,
+            _ => Library2Sound.LavaBubbling3,
+        };
 
         /// <summary>Calculates the vertical heat-haze displacement for index 0..15.</summary>
         /// <remarks>Native $88:B60A is independently verified as the same mirrored,

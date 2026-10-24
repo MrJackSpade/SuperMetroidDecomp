@@ -10,9 +10,9 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal static class BlueDoorPlmProgramDefinitions
 {
     /// <summary>The library-3 door-opening sound.</summary>
-    internal static readonly SoundEffectId OpenSound = new(SoundEffectLibrary.Library3, 7);
+    internal static readonly SoundEffectId OpenSound = Library3Sound.DoorOpened;
     /// <summary>The library-3 door-closing sound.</summary>
-    internal static readonly SoundEffectId CloseSound = new(SoundEffectLibrary.Library3, 8);
+    internal static readonly SoundEffectId CloseSound = Library3Sound.DoorClosed;
     /// <summary>The door sounds' native queue cap.</summary>
     internal const byte SoundMaximumQueued = 6;
     /// <summary>How long each opening image shows before the last.</summary>

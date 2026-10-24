@@ -55,7 +55,7 @@ internal sealed class EyeDoorPlmAnimation(EyeDoorOrientation orientation, EyeDoo
                 eyes.Shoot(slot, EyeDoorPlmProgramDefinitions.ShotParameterOf(Orientation));
                 return null;
             case EyeDoorPlmCue.QueueHitSound:
-                context.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EyeDoorPlmProgramDefinitions.HitSound),
+                context.QueueSound(EyeDoorPlmProgramDefinitions.HitSound,
                     EyeDoorPlmProgramDefinitions.HitSoundMaximumQueued);
                 return null;
             case EyeDoorPlmCue.SpawnTwoSmoke:

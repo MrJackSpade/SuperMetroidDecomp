@@ -12,8 +12,8 @@ internal static class AudioQueuesAccess
             $"t={self.MusicTimer.RawValue:X} d=" +
             string.Join(",", self.MusicDelays.Select(delay => $"{delay.Updates:X}"));
 
-        /// <summary>One entry of an SFX library's queue ($0643+).</summary>
-        internal byte SoundQueueEntryForVerification(int queue, int index) =>
+        /// <summary>One entry of an SFX library's queue ($0643+): the sound queued there, or none.</summary>
+        internal SoundEffectId? SoundQueueEntryForVerification(int queue, int index) =>
             self.SoundQueues[queue, index];
 
         /// <summary>Queue start/next indices and dispatcher state of one SFX library ($0643+/$0646+/$0649+).</summary>

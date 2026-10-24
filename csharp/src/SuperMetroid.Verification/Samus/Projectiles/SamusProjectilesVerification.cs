@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileDrawEntriesVerification;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -214,7 +215,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         AssertEqual(beamType == 10 ? (ushort)12 : (ushort)15, combinedBombs.CooldownTimer.RawValue,
             $"beam combination {beamType} indexes uncharged cooldown");
         AssertEqual(
-            (SoundEffectId?)SoundEffectId.FromCartridge(
+            (SoundEffectId?)SoundEffectCommands.Decode(
                 SoundEffectLibrary.Library1,
                 nativeUnchargedSounds[beamType]),
             combinedResult.QueuedSoundEffect,
@@ -615,7 +616,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         AssertEqual((ushort)30, combinedChargeBombs.CooldownTimer.RawValue,
             $"charged beam combination {beamType} indexes charged cooldown");
         AssertEqual(
-            (SoundEffectId?)SoundEffectId.FromCartridge(
+            (SoundEffectId?)SoundEffectCommands.Decode(
                 SoundEffectLibrary.Library1,
                 nativeChargedSounds[beamType]),
             combinedChargedRelease.QueuedSoundEffect,
@@ -655,7 +656,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(0, hyperSlot.TrailTimer.RawValue, "Hyper Beam does not arm a projectile trail");
     AssertEqual(21, hyperBombs.CooldownTimer.RawValue, "Hyper Beam installs literal cooldown 21");
     AssertEqual(
-        (SoundEffectId?)SoundEffectId.FromCartridge(
+        (SoundEffectId?)SoundEffectCommands.Decode(
             SoundEffectLibrary.Library1, nativeChargedSounds[8]),
         hyperResult.QueuedSoundEffect,
         "Hyper Beam indexes charged sound entry eight");

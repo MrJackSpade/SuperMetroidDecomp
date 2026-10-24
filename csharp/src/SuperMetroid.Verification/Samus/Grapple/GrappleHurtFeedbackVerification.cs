@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -69,11 +70,11 @@ internal static class GrappleHurtFeedbackVerification
         runtime.StepFrame(SnesButton.X);
         AssertEqual(3, samus.HurtFlashCounter, "active hurt feedback does not restart");
         AssertEqual(1, samus.LiquidPhysics.SoundRequests.Count(request =>
-            request.SoundEffect.Library == SoundEffectLibrary.Library1 && request.SoundEffect.Value == 0x35 && request.MaximumQueued.Requests == 6),
+            request.SoundEffect == Library1Sound.SamusDamaged && request.MaximumQueued.Requests == 6),
             "counter two queues exactly one native gasp with Max6");
         runtime.StepFrame(SnesButton.X);
         AssertEqual(0, samus.LiquidPhysics.SoundRequests.Count(request =>
-            request.SoundEffect.Library == SoundEffectLibrary.Library1 && request.SoundEffect.Value == 0x35),
+            request.SoundEffect == Library1Sound.SamusDamaged),
             "unchanged health does not repeat the gasp");
         Suite(nameof(VerifyHurtHealthHistoryRestoration), () => VerifyHurtHealthHistoryRestoration());
         Console.WriteLine("Grapple hurt feedback: real enemy contact retains hanging/no knockback and starts one native counter-two gasp.");

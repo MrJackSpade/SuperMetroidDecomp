@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -60,7 +61,7 @@ internal static class SoundAcceptanceClockVerification
                     uploadFrame = frame;
                 else if (command == AudioRequest.ForTrack(MusicTrack.NumberedOrNone(5)))
                     trackFrame = frame;
-                else if (command == AudioRequest.ForSound(SoundEffectLibrary.Library3, Library3Sound.SpeedBooster.Value))
+                else if (command == new AudioRequest.RequestSound(Library3Sound.SpeedBooster))
                     downtimeRequestFrame = frame;
             }
 
@@ -71,7 +72,7 @@ internal static class SoundAcceptanceClockVerification
             // Port zero is the sequencer's music echo, which gameplay never reads; the recording took it from the driver.
             acknowledgementBytes.Add(checked((byte)session.PlayerForVerification.Music.musicPortToSnes));
             for (int library = 0; library < SoundClockTiming.LibraryCount; library++)
-                acknowledgementBytes.Add(checked((byte)sessionAcknowledgements[library]));
+                acknowledgementBytes.Add(SoundEffectCommands.PortByte(sessionAcknowledgements[library]));
 
             List<AudioEvent> expected = ExpectedEvents(ports, commands, out modeledAcknowledgements);
             AssertSequenceEqual(expected, events, $"frame {frame} events equal the port model's writes, ticks and polls");
@@ -134,10 +135,10 @@ internal static class SoundAcceptanceClockVerification
                     expected.Add(new AudioEvent.SelectMusicTrack(null));
                     break;
                 case AudioRequest.RequestSound sound:
-                    ports.Request(SoundEffectLibraries.ToQueueIndex(sound.Sound.Library), sound.Sound.Value);
+                    ports.Request(SoundEffectLibraries.ToQueueIndex(sound.Sound.Library), sound.Sound);
                     break;
                 case AudioRequest.ClearSoundRequest clear:
-                    ports.Request(SoundEffectLibraries.ToQueueIndex(clear.Library), 0);
+                    ports.Request(SoundEffectLibraries.ToQueueIndex(clear.Library), null);
                     break;
                 default:
                     throw new InvalidOperationException($"Unknown audio request {command}.");
@@ -153,13 +154,14 @@ internal static class SoundAcceptanceClockVerification
             for (int library = 0; library < SoundEffectLibraries.Count; library++)
             {
                 SoundRequestCheck<SoundEffectId> poll = tick.Checks[library];
-                if (poll.Changed && poll.Request != 0)
-                    expected.Add(new AudioEvent.StartSoundEffect(new SoundEffectId(SoundEffectLibraries.FromQueueIndex(library), poll.Request), tick.SampleOffset));
+                if (poll.Changed && poll.Request is SoundEffectId started)
+                    expected.Add(new AudioEvent.StartSoundEffect(started, tick.SampleOffset));
             }
         }
         acknowledgements = ports.Acknowledgements;
         return expected;
     }
+
 
     /// <summary>
     /// The scripted sequence: a library-1 request, library 2's <c>$71</c> cancel, a Green

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend.GameOver;
@@ -37,7 +38,7 @@ internal static class GameOverMenuIndexesVerification
         byte read = audio.SoundReadPositions[library3];
         AssertEqual(1, audio.SoundWritePositions[library3] - read,
             "game-over index zero queues one library-three request");
-        AssertEqual(Library3Sound.Silence.Value, audio.SoundQueues[library3, read],
+        AssertEqual<SoundEffectId?>(Library3Sound.Silence, audio.SoundQueues[library3, read],
             "game-over index zero queues library-three cancel");
         int? babyStep = menu.BabyStep;
         int babyTimer = menu.BabyInstructionTimer.RawValue;

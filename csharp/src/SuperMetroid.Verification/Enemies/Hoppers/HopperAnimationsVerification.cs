@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using static SuperMetroid.Verification.Enemies.Hoppers.HopperNativeListAddresses;
 using SuperMetroid.Core.Enemies.Hoppers;
 using SuperMetroid.Core.Enemies.Hoppers.Artwork;
@@ -24,7 +25,7 @@ internal static class HopperAnimationsVerification
                     switch (instruction.Operands[index])
                     {
                         case 'V':
-                            AssertEqual((SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, operands[index]), cue.Sound,
+                            AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Library2, operands[index]), cue.Sound,
                                 $"{at}: library-two sound");
                             break;
                         default:

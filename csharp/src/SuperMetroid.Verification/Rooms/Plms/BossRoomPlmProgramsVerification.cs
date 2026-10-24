@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.SporeSpawn;
@@ -76,7 +77,7 @@ internal static class BossRoomPlmProgramsVerification
                 length = 3;
                 if (InstructionAt<RoomPlmInstruction>(cartridge, cursor) != RoomPlmInstruction.QueueSoundLibrary2Maximum6)
                     return false;
-                AssertEqual(SporeSpawnCeilingPlmProgramDefinitions.CrumbleSoundId, ReadOperandByte(cartridge, cursor + 2), "Spore Spawn ceiling sound");
+                AssertEqual(SporeSpawnCeilingPlmProgramDefinitions.CrumbleSoundId, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)), "Spore Spawn ceiling sound");
                 AssertEqual((byte)6, SporeSpawnCeilingPlmProgramDefinitions.CrumbleSoundMaximumQueued, "Spore Spawn ceiling sound queue cap");
                 return true;
             }, "Spore Spawn ceiling");
@@ -387,7 +388,7 @@ internal static class BossRoomPlmProgramsVerification
         if (InstructionAt<RoomPlmInstruction>(cartridge, cursor) == RoomPlmInstruction.QueueSoundLibrary2Maximum6)
         {
             AssertEqual(BotwoonWallPlmProgramDefinitions.CrumbleSound,
-                SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)),
+                SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)),
                 "Botwoon wall crumble sound");
             AssertEqual((byte)6, BotwoonWallPlmProgramDefinitions.CrumbleSoundMaximumQueued, "Botwoon wall crumble sound queue cap");
             cue = BotwoonWallCue.QueueCrumbleSound;

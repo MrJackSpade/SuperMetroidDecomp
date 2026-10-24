@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using System.Diagnostics;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Desktop;

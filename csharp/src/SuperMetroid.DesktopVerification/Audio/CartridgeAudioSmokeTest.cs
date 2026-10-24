@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 namespace SuperMetroid.DesktopVerification.Audio;
 
 /// <summary>Runs the real title music path without opening an audio device or game window.</summary>
@@ -57,9 +58,8 @@ public static class CartridgeAudioSmokeTest
         // music out of this pass means any nonzero output belongs to the cartridge's actual
         // library-one power-beam program instead of merely proving that the mixer is alive.
         var soundQueue = new AudioQueues();
-        soundQueue.QueueSound(
-            SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, powerBeamSound),
-            maximumQueued: 15);
+        SoundEffectId powerBeam = SoundEffectCommands.Decode(SoundEffectLibrary.Library1, powerBeamSound);
+        soundQueue.QueueSound(powerBeam, maximumQueued: 15);
         SoundAcknowledgements<SoundEffectId> acknowledgements = default;
         bool requestAcknowledged = false;
         bool clearAcknowledgedAfterRequest = false;
@@ -77,9 +77,9 @@ public static class CartridgeAudioSmokeTest
             }
 
             acknowledgements = soundEngine.Acknowledgements;
-            if (acknowledgements[0] == powerBeamSound)
+            if (acknowledgements[0].Acknowledges(powerBeam))
                 requestAcknowledged = true;
-            else if (requestAcknowledged && acknowledgements[0] == 0)
+            else if (requestAcknowledged && acknowledgements[0].IsNone)
                 clearAcknowledgedAfterRequest = true;
         }
 

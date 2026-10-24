@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
@@ -1094,8 +1095,7 @@ internal static void VerifySamusAtmosphericEffects()
     AssertEqual(SamusAtmosphericEffectType.Bubbles, bubble.Type, "128-frame submerged cadence creates bubbles");
     AssertEqual(94, bubble.Position.Y, "bubble origin is Samus top plus six");
     AssertTrue(samus.LiquidPhysics.SoundRequests.Any(request =>
-        request.SoundEffect.Library == SoundEffectLibrary.Library2 &&
-        request.SoundEffect.Value is 0x0f or 0x11),
+        (request.SoundEffect == Library2Sound.LowBubbles || request.SoundEffect == Library2Sound.HighBubbles)),
         "bubble RNG publishes one of the two native sounds");
 
     // Surface spray uses four type-four slots and exact asymmetric X positions. A half-unit

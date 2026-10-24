@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -42,7 +43,7 @@ internal static class AudioClipBackendVerification
         ClipAudioCatalog clips = installation.LoadAudioClips();
         ExtractedAudioAssetCatalog extracted = installation.LoadAudio();
         VerifyEquivalence(clips, extracted, AudioRequest.ForTrack(MusicTrack.NumberedOrNone(RoomTrack)), MusicUpdates, "Green Brinstar room track");
-        VerifyEquivalence(clips, extracted, AudioRequest.ForSound(SoundEffectLibrary.Library1, Library1Sound.UnchargedPowerBeam.Value), SoundUpdates, "Power Beam");
+        VerifyEquivalence(clips, extracted, new AudioRequest.RequestSound(Library1Sound.UnchargedPowerBeam), SoundUpdates, "Power Beam");
         VerifyMusicCommands(clips);
         VerifySoundCommands(clips);
         Console.WriteLine(
@@ -111,42 +112,42 @@ internal static class AudioClipBackendVerification
     private static void VerifySoundCommands(ClipAudioCatalog clips)
     {
         SoundEffectClipEntry high = clips.Manifest.SoundEffects.First(entry =>
-            entry.Context == MusicDataSet.GreenBrinstar && entry.Library == SoundEffectLibrary.Library2 &&
+            entry.Context == MusicDataSet.GreenBrinstar && entry.Sound.Library == SoundEffectLibrary.Library2 &&
             entry.Policy is { Priority: SoundEffectPriorityEffect.High, IgnoresPriority: false } &&
             entry.ActiveFrames > (SoundStartUpdates + 6) * ManagedSnesDsp.NativeStereoFramesPerVideoFrame);
         SoundEffectClipEntry low = clips.Manifest.SoundEffects.First(entry =>
-            entry.Context == MusicDataSet.GreenBrinstar && entry.Library == SoundEffectLibrary.Library2 &&
-            entry.Policy is { Priority: SoundEffectPriorityEffect.Low, IgnoresPriority: false } && entry.Command != high.Command);
+            entry.Context == MusicDataSet.GreenBrinstar && entry.Sound.Library == SoundEffectLibrary.Library2 &&
+            entry.Policy is { Priority: SoundEffectPriorityEffect.Low, IgnoresPriority: false } && entry.Sound != high.Sound);
         var script = new Script(clips);
         script.Advance([new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
         ClipLibraryState library2 = script.State.Libraries[1];
 
-        script.Advance([AudioRequest.ForSound(SoundEffectLibrary.Library2, high.Command)]);
+        script.Advance([new AudioRequest.RequestSound(high.Sound)]);
         script.AdvanceUntil(() => library2.Sound is not null, SoundStartUpdates);
         AssertEqual(high, library2.Sound, "the high-priority sound starts");
         AssertEqual(script.LastStart(SoundEffectLibrary.Library2), library2.Start, "it starts at its accepting poll");
-        script.Advance([AudioRequest.ForSound(SoundEffectLibrary.Library2, low.Command)]);
+        script.Advance([new AudioRequest.RequestSound(low.Sound)]);
         script.Advance(4);
         AssertEqual(high, library2.Sound, "a low-priority request is rejected while the high-priority sound holds the library");
-        script.Advance([AudioRequest.ForSound(SoundEffectLibrary.Library2, Library2Sound.Silence.Value)]);
+        script.Advance([new AudioRequest.RequestSound(Library2Sound.Silence)]);
         AssertTrue(library2.Active && library2.HighPriority, "the high-priority sound still holds library 2");
-        script.AdvanceUntil(() => library2.Sound?.Command == Library2Sound.Silence.Value, SoundStartUpdates);
+        script.AdvanceUntil(() => library2.Sound?.Sound == Library2Sound.Silence, SoundStartUpdates);
 
         ClipLibraryState library3 = script.State.Libraries[2];
-        script.Advance([AudioRequest.ForSound(SoundEffectLibrary.Library3, Library3Sound.LowHealthBeep.Value)]);
-        script.AdvanceUntil(() => library3.Sound?.Command == Library3Sound.LowHealthBeep.Value, SoundStartUpdates);
+        script.Advance([new AudioRequest.RequestSound(Library3Sound.LowHealthBeep)]);
+        script.AdvanceUntil(() => library3.Sound?.Sound == Library3Sound.LowHealthBeep, SoundStartUpdates);
         AssertTrue(library3.InLowHealthMode, "the low-health beep enters low-health mode");
-        script.Advance([AudioRequest.ForSound(SoundEffectLibrary.Library3, Library3Sound.SpeedBooster.Value)]);
+        script.Advance([new AudioRequest.RequestSound(Library3Sound.SpeedBooster)]);
         script.Advance(4);
-        AssertEqual<int?>(Library3Sound.LowHealthBeep.Value, library3.Sound?.Command, "low-health mode rejects another library-3 sound");
+        AssertEqual<SoundEffectId?>(Library3Sound.LowHealthBeep, library3.Sound?.Sound, "low-health mode rejects another library-3 sound");
 
         long position = script.State.Sample - library3.Start;
         script.Advance([new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
         SoundEffectClipLayer beep = library3.Sound?.Layers[0] ?? throw new InvalidOperationException("The beep has a layer.");
         AssertTrue(library3.SilencedUntil[0] > position && beep.KeyOnFrames.Count != 0, "an upload silences the looping beep until a later key-on");
 
-        script.Advance([AudioRequest.ForSound(SoundEffectLibrary.Library3, Library3Sound.Silence.Value)]);
-        script.AdvanceUntil(() => library3.Sound?.Command == Library3Sound.Silence.Value, SoundStartUpdates);
+        script.Advance([new AudioRequest.RequestSound(Library3Sound.Silence)]);
+        script.AdvanceUntil(() => library3.Sound?.Sound == Library3Sound.Silence, SoundStartUpdates);
         AssertTrue(!library3.InLowHealthMode, "$01 is accepted in low-health mode and clears it");
     }
 

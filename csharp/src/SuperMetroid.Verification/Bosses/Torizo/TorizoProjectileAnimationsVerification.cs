@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Torizo.TorizoNativeListAddresses;
@@ -217,7 +218,7 @@ internal static class TorizoProjectileAnimationsVerification
         if (SoundCommands.TryGetValue(instruction, out var sound))
         {
             var playSound = AssertIs<TorizoProjectileCue.PlaySound>(cue, $"{at}: cue");
-            AssertEqual(new SoundEffectId(sound.Library, OperandByte(cartridge, address + 2)), playSound.Sound, $"{at}: sound");
+            AssertEqual(SoundEffectCommands.Decode(sound.Library, OperandByte(cartridge, address + 2)), playSound.Sound, $"{at}: sound");
             AssertEqual(sound.MaximumQueued, playSound.MaximumQueued, $"{at}: sound queue limit");
             return 1;
         }

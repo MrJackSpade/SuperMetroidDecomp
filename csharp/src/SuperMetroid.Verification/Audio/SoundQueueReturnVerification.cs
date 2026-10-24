@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using System.Globalization;
 
 namespace SuperMetroid.Verification.Audio;
@@ -23,34 +24,44 @@ internal static class SoundQueueReturnVerification
             queue.AdvanceFrame(default);
             for (int index = 0; index < occupancy; index++)
                 queue.QueueSound(Library3Sound.CrocomireAcidDamage, 15);
-            ushort actual = queue.QueueSound(
+            SoundQueueAdmission actual = queue.QueueSound(
                 Library3Sound.SpeedBooster, 6, suppressed);
-            AssertEqual(expectedAccumulator, actual, $"native sound return {row}");
+            // The recorded accumulator holds the occupancy in its high byte and the request in its low byte when the
+            // threshold admits the request, and the two swapped when it rejects it; the check now asserts the outcome
+            // that word encodes instead of the word itself.
+            int high = expectedAccumulator >> 8;
+            int low = expectedAccumulator & 0xff;
+            AssertTrue(high == occupancy || low == occupancy, $"native sound return {row} carries the occupancy");
+            SoundQueueAdmission expected = occupancy < 6 && high == occupancy
+                ? SoundQueueAdmission.Admitted(occupancy)
+                : SoundQueueAdmission.Rejected(occupancy);
+            AssertEqual(expected, actual, $"native sound return {row}");
 
             // Observe queue mutation through real dequeue/acknowledge port writes,
-            // independently of the newly exposed accumulator calculation.
-            var sounds = new List<byte>();
-            byte acknowledgement = 0;
+            // independently of the queue call's outcome.
+            var sounds = new List<SoundEffectId>();
+            SoundEffectId? acknowledgement = null;
             for (int frame = 0; frame < 256; frame++)
             {
-                foreach (var command in queue.AdvanceFrame(new SoundAcknowledgements<SoundEffectId>(0, 0, acknowledgement)))
+                foreach (var command in queue.AdvanceFrame(SoundAcknowledgements<SoundEffectId>.Of(null, null, acknowledgement)))
                 {
-                    if (command == AudioRequest.ForSound(SoundEffectLibrary.Library3, 0)) acknowledgement = 0;
-                    else if (command == AudioRequest.ForSound(SoundEffectLibrary.Library3, 0x22))
+                    if (command == new AudioRequest.ClearSoundRequest(SoundEffectLibrary.Library3)) acknowledgement = null;
+                    else if (command == new AudioRequest.RequestSound(Library3Sound.CrocomireAcidDamage))
                     {
-                        acknowledgement = 0x22;
-                        sounds.Add(0x22);
+                        acknowledgement = Library3Sound.CrocomireAcidDamage;
+                        sounds.Add(Library3Sound.CrocomireAcidDamage);
                     }
-                    else if (command == AudioRequest.ForSound(SoundEffectLibrary.Library3, 3))
+                    else if (command == new AudioRequest.RequestSound(Library3Sound.SpeedBooster))
                     {
-                        acknowledgement = 3;
-                        sounds.Add(3);
+                        acknowledgement = Library3Sound.SpeedBooster;
+                        sounds.Add(Library3Sound.SpeedBooster);
                     }
                     else throw new InvalidDataException($"Unexpected sound-queue port command: {command}");
                 }
             }
             AssertEqual(expectedCount, sounds.Count, $"native queue write count {row}");
-            AssertEqual(expectedNewSound == 3 ? 1 : 0, sounds.Count(sound => sound == 3),
+            AssertEqual(expectedNewSound == SoundEffectCommands.Command(Library3Sound.SpeedBooster) ? 1 : 0,
+                sounds.Count(sound => sound == Library3Sound.SpeedBooster),
                 $"native queue accepted sound {row}");
         }
     }

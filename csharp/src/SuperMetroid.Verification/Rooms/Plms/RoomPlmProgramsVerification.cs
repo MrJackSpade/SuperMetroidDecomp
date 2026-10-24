@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using System.Diagnostics.CodeAnalysis;
@@ -281,7 +282,7 @@ internal static class RoomPlmProgramsVerification
         length = 3;
         if (InstructionAt<RoomPlmInstruction>(cartridge, cursor) != RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct)
             return false;
-        AssertEqual(SpeedBoosterBlockPlmProgramDefinitions.BreakSoundId, ReadOperandByte(cartridge, cursor + 2), "speed block break sound");
+        AssertEqual(SpeedBoosterBlockPlmProgramDefinitions.BreakSoundId, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)), "speed block break sound");
         AssertEqual((byte)1, SpeedBoosterBlockPlmProgramDefinitions.BreakSoundMaximumQueued, "speed block break sound queue cap");
         return true;
     }
@@ -413,7 +414,7 @@ internal static class RoomPlmProgramsVerification
             AssertEqual((ushort)RoomEnemyProjectileKind.DownwardGateMoving, operand, "downward gate moving projectile");
         if (cue == DownwardGateCue.QueueMovementSound)
         {
-            AssertEqual(DownwardGatePlmRomData.MovementSound, ReadOperandByte(cartridge, cursor + 2), "downward gate movement sound");
+            AssertEqual(DownwardGatePlmRomData.MovementSound, SoundEffectCommands.Decode(SoundEffectLibrary.Library3, ReadOperandByte(cartridge, cursor + 2)), "downward gate movement sound");
             AssertEqual((byte)6, DownwardGatePlmProgramDefinitions.MovementSoundMaximumQueued, "downward gate movement sound queue cap");
         }
         return true;
@@ -478,7 +479,7 @@ internal static class RoomPlmProgramsVerification
     {
         (bool known, cue, length) = InstructionAt<RoomPlmInstruction>(cartridge, cursor) switch
         {
-            RoomPlmInstruction.QueueSoundLibrary3Maximum6 => new BlueDoorCueAtCase(true, DoorSoundCue(Library3Sound(cartridge, cursor), BlueDoorCue.QueueOpenSound, BlueDoorCue.QueueCloseSound), 3),
+            RoomPlmInstruction.QueueSoundLibrary3Maximum6 => new BlueDoorCueAtCase(true, DoorSoundCue(QueuedLibrary3Sound(cartridge, cursor), BlueDoorCue.QueueOpenSound, BlueDoorCue.QueueCloseSound), 3),
             RoomPlmInstruction.SetPlmBtsFromByte => new BlueDoorCueAtCase(true, BlueDoorCue.RestoreBlueBts, 3),
             RoomPlmInstruction.SetGreyDoorPreInstruction or
                 RoomPlmInstruction.Sleep or
@@ -540,8 +541,8 @@ internal static class RoomPlmProgramsVerification
     }
 
     /// <summary>The library-3 sound a queue-sound instruction at <paramref name="cursor"/> names.</summary>
-    private static SoundEffectId Library3Sound(IImportCartridgeSource cartridge, int cursor) =>
-        new(SoundEffectLibrary.Library3, ReadOperandByte(cartridge, cursor + 2));
+    private static SoundEffectId QueuedLibrary3Sound(IImportCartridgeSource cartridge, int cursor) =>
+        SoundEffectCommands.Decode(SoundEffectLibrary.Library3, ReadOperandByte(cartridge, cursor + 2));
 
     /// <summary>A door sound as its cue: the open or the close sound.</summary>
     private static TCue DoorSoundCue<TCue>(SoundEffectId sound, TCue open, TCue close) =>
@@ -610,7 +611,7 @@ internal static class RoomPlmProgramsVerification
                 length = 5;
                 return true;
             case RoomPlmInstruction.QueueSoundLibrary3Maximum6:
-                SoundEffectId sound = Library3Sound(cartridge, cursor);
+                SoundEffectId sound = QueuedLibrary3Sound(cartridge, cursor);
                 cue = sound == ColoredDoorPlmProgramDefinitions.RedHitSound
                     ? ColoredDoorCue.QueueHitSound
                     : DoorSoundCue(sound, ColoredDoorCue.QueueOpenSound, ColoredDoorCue.QueueCloseSound);
@@ -736,7 +737,7 @@ internal static class RoomPlmProgramsVerification
                 length = 5;
                 return true;
             case RoomPlmInstruction.QueueSoundLibrary3Maximum6:
-                cue = DoorSoundCue(Library3Sound(cartridge, cursor), GreyDoorCue.QueueOpenSound, GreyDoorCue.QueueCloseSound);
+                cue = DoorSoundCue(QueuedLibrary3Sound(cartridge, cursor), GreyDoorCue.QueueOpenSound, GreyDoorCue.QueueCloseSound);
                 length = 3;
                 return true;
             case RoomPlmInstruction.GotoIfSamusHasNoBombs:
@@ -899,7 +900,7 @@ internal static class RoomPlmProgramsVerification
                 length = 4;
                 return true;
             case RoomPlmInstruction.QueueSoundLibrary2Maximum6:
-                AssertEqual(EyeDoorPlmProgramDefinitions.HitSound, ReadOperandByte(cartridge, cursor + 2), $"{at}: hit sound");
+                AssertEqual(EyeDoorPlmProgramDefinitions.HitSound, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)), $"{at}: hit sound");
                 cue = EyeDoorPlmCue.QueueHitSound;
                 length = 3;
                 return true;
@@ -1092,7 +1093,7 @@ internal static class RoomPlmProgramsVerification
             AssertEqual(SamusEaterPlmRomDataConstants.HoldPreInstruction, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "plant hold pre-instruction");
         if (cue == SamusEaterCue.QueueChewSound)
         {
-            AssertEqual(SamusEaterPlmRomData.ChewSound, ReadOperandByte(cartridge, cursor + 2), "plant chew sound");
+            AssertEqual(SamusEaterPlmRomData.ChewSound, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)), "plant chew sound");
             AssertEqual((byte)6, SamusEaterPlmProgramDefinitions.ChewSoundMaximumQueued, "plant chew sound queue cap");
         }
         return true;
@@ -1180,7 +1181,7 @@ internal static class RoomPlmProgramsVerification
                 AssertEqual((ushort)NoobTubePlmPreInstruction.WakeOnAcceptedInput, Operand(2), "n00b tube input wake");
                 break;
             case NoobTubeCue.QueueBreakSound:
-                AssertEqual(NoobTubePlmRomData.BreakSound, ReadOperandByte(cartridge, cursor + 2), "n00b tube break sound");
+                AssertEqual(NoobTubePlmRomData.BreakSound, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)), "n00b tube break sound");
                 AssertEqual((byte)6, NoobTubePlmProgramDefinitions.BreakSoundMaximumQueued, "n00b tube break sound queue cap");
                 break;
             case NoobTubeCue.SetBrokenEvent:

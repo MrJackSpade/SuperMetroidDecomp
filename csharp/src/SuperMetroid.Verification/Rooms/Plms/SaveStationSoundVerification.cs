@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -60,7 +61,7 @@ internal static class SaveStationSoundVerification
                 messageFrame = frame;
             for (int index = 0; index < audio.SoundWritePositions[0]; index++)
             {
-                if (audio.SoundQueues[0, index] == Library1Sound.Saving.Value)
+                if (audio.SoundQueues[0, index] == Library1Sound.Saving)
                     soundFrame = frame;
             }
         }

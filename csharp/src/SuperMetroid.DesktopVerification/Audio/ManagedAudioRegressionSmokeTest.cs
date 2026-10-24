@@ -150,9 +150,9 @@ public static class ManagedAudioRegressionSmokeTest
             }
             if (cancelHalfway && frame == ShortScenarioFrames / 2)
             {
-                commands.Add(AudioRequest.ForSound(SoundEffectLibrary.Library1, Library1Sound.Silence.Value));
-                commands.Add(AudioRequest.ForSound(SoundEffectLibrary.Library2, Library2Sound.Silence.Value));
-                commands.Add(AudioRequest.ForSound(SoundEffectLibrary.Library3, Library3Sound.Silence.Value));
+                commands.Add(new AudioRequest.RequestSound(Library1Sound.Silence));
+                commands.Add(new AudioRequest.RequestSound(Library2Sound.Silence));
+                commands.Add(new AudioRequest.RequestSound(Library3Sound.Silence));
             }
             HashFrame(name, engine, commands, tally);
         }
@@ -225,7 +225,7 @@ public static class ManagedAudioRegressionSmokeTest
         Span<byte> reported = stackalloc byte[1 + SoundClockTiming.LibraryCount];
         reported[0] = checked((byte)engine.PlayerForVerification.Music.musicPortToSnes);
         for (int library = 0; library < SoundClockTiming.LibraryCount; library++)
-            reported[1 + library] = checked((byte)acknowledgements[library]);
+            reported[1 + library] = SoundEffectCommands.PortByte(acknowledgements[library]);
         tally.Acknowledgements.AppendData(reported);
         tally.Frames++;
         tally.Samples += pcm.Length;

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>
@@ -33,8 +34,8 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementTimi
 
     /// <summary>Last captured APU_SoundStateLib values used to detect waiting-state exits.</summary>
     private readonly byte[] states = new byte[LibraryCount];
-    /// <summary>Last captured APU_CurrentSoundLib values compared with port echoes.</summary>
-    private readonly byte[] currents = new byte[LibraryCount];
+    /// <summary>Last captured APU_CurrentSoundLib values, decoded to the sounds each waiting state compares with port echoes.</summary>
+    private readonly SoundEffectId?[] currents = new SoundEffectId?[LibraryCount];
     /// <summary>False after an update without a native checkpoint, until the next capture.</summary>
     private bool captured;
     /// <summary>Native memory expected after the current update, captured once that update completes.</summary>
@@ -62,23 +63,39 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementTimi
     /// </summary>
     public SoundAcknowledgements<SoundEffectId> ForUpdate(SoundAcknowledgements<SoundEffectId> spc, NativeCheckpointMemory nativeAfter)
     {
-        int[] ports = [spc[0], spc[1], spc[2]];
+        SoundAcknowledgement<SoundEffectId>[] ports = [spc[0], spc[1], spc[2]];
         for (int library = 0; library < LibraryCount; library++)
         {
             byte before = states[library];
             // Other handler states send or clear requests without awaiting an echo.
             if (!Enum.IsDefined((WaitingState)before))
                 continue;
-            byte compared = currents[library];
+            SoundEffectId? compared = currents[library];
             bool echoed = nativeAfter[SoundStateLib1 + library] != before;
             if (echoed)
-                ports[library] = compared;
-            else if (ports[library] == compared)
-                // Any other byte reproduces the unmatched read; keep the SPC model's byte
-                // unless it already matches.
-                ports[library] = unchecked((byte)(compared + 1));
+                ports[library] = SoundAcknowledgement<SoundEffectId>.Of(compared);
+            else if (ports[library].Acknowledges(compared))
+                // Any other acknowledgement reproduces the unmatched read; keep the SPC model's
+                // acknowledgement unless it already matches.
+                ports[library] = Unmatched(library, compared);
         }
         return new SoundAcknowledgements<SoundEffectId>(ports[0], ports[1], ports[2]);
+    }
+
+    /// <summary>
+    /// An acknowledgement that does not match <paramref name="compared"/>: nothing while a sound is awaited, or the
+    /// library's silence while the withdrawal is awaited.
+    /// </summary>
+    private static SoundAcknowledgement<SoundEffectId> Unmatched(int library, SoundEffectId? compared) =>
+        compared is not null
+            ? SoundAcknowledgement<SoundEffectId>.None
+            : SoundAcknowledgement<SoundEffectId>.Of(library switch
+            {
+                0 => Library1Sound.Silence,
+                1 => Library2Sound.Silence,
+                2 => Library3Sound.Silence,
+                _ => throw new ArgumentOutOfRangeException(nameof(library), library, "Sound libraries are indexed 0 through 2."),
+            });
     }
 
     /// <summary>Records the native sound-handler state after an update.</summary>
@@ -87,7 +104,8 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementTimi
         for (int library = 0; library < LibraryCount; library++)
         {
             states[library] = nativeMemory[SoundStateLib1 + library];
-            currents[library] = nativeMemory[CurrentSoundLib1 + library];
+            currents[library] = SoundEffectCommands.DecodeOptional(
+                SoundEffectLibraries.FromQueueIndex(library), nativeMemory[CurrentSoundLib1 + library]);
         }
         captured = true;
     }

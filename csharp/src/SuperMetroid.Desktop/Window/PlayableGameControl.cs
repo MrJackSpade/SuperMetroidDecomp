@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Core.Input;
 using System.Diagnostics.CodeAnalysis;

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using static SuperMetroid.Verification.Samus.Grapple.GrapplePoseRefireVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
@@ -51,7 +52,7 @@ internal static class GrappleSoundsVerification
             var audio = new AudioQueues();
             audio.AdvanceFrame(default);
             audio.QueueSound(request.SoundEffect, request.MaximumQueued.Requests);
-            AssertEqual(AudioRequest.ForSound(SoundEffectLibrary.Library1, request.SoundEffect.Value),
+            AssertEqual(new AudioRequest.RequestSound(request.SoundEffect),
                 audio.AdvanceFrame(default).Single(), "grapple command reaches the actual APU sound port");
         }
     }

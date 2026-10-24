@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
@@ -53,7 +54,8 @@ internal static class TourianStatueProjectileAnimationsVerification
             switch (cue)
             {
                 case TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.PlayReleaseSound }:
-                    AssertEqual(Library2Sound.TourianStatueParticle.Value, (int)operands[0], $"{at}: sound");
+                    AssertEqual<SoundEffectId>(Library2Sound.TourianStatueParticle, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, operands[0]),
+                        $"{at}: the import decodes the native sound byte to the release sound");
                     break;
                 case TourianStatueProjectileCue.MoveDown moveDown:
                     AssertEqual((short)(operands[0] | operands[1] << 8), moveDown.Pixels, $"{at}: Y offset");

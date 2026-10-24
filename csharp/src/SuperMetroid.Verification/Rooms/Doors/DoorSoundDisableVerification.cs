@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 namespace SuperMetroid.Verification.Rooms.Doors;
 
 /// <summary>Checks sound admission during a door transition without suppressing queued audio or music.</summary>
@@ -11,9 +12,11 @@ internal static class DoorSoundDisableVerification
         audio.AdvanceFrame(default);
         audio.QueueSound(Library1Sound.SpinJumpEnd, 15);
         audio.DoorTransitionSoundsDisabled = true;
-        ushort rejected = audio.QueueSound(Library1Sound.Silence, 15);
-        AssertEqual((ushort)(0x0100 | Library1Sound.Silence.Value), rejected,
-            "Disabled queue retains the native post-threshold accumulator");
+        // The disabled queue still reports the threshold's outcome: admitted with one unread request
+        // (formerly asserted as the post-threshold accumulator word $0102).
+        SoundQueueAdmission admitted = audio.QueueSound(Library1Sound.Silence, 15);
+        AssertEqual(SoundQueueAdmission.Admitted(1), admitted,
+            "Disabled queue retains the native post-threshold outcome");
         var commands = audio.AdvanceFrame(default);
         AssertTrue(commands.Any(c => c == new AudioRequest.RequestSound(Library1Sound.SpinJumpEnd)),
             "Disabling new sounds still submits an already queued request");

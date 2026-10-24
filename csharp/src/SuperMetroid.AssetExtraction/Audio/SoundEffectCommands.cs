@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using System.Collections.Frozen;
 using SuperMetroid.Core.Audio;
 
@@ -49,6 +50,18 @@ internal static class SoundEffectCommands
             throw new InvalidDataException($"Sound word ${word:X4} for {library} does not fit a request byte.");
         return word == 0 ? null : Decode(library, word);
     }
+
+    /// <summary>The byte library one's port held while the original sound program loaded new music.</summary>
+    internal const byte MusicLoadPortByte = 187;
+
+    /// <summary>
+    /// The byte the original sound program's port held for <paramref name="acknowledgement"/>: the acknowledged sound's
+    /// request number, zero for nothing, or <see cref="MusicLoadPortByte"/> while music loads. Recordings of the
+    /// original's ports are compared through it.
+    /// </summary>
+    internal static byte PortByte(SoundAcknowledgement<SoundEffectId> acknowledgement) =>
+        acknowledgement.IsMusicLoading ? MusicLoadPortByte
+            : acknowledgement.Sound is SoundEffectId sound ? checked((byte)Command(sound)) : (byte)0;
 
     /// <summary>Indexes a library's sounds by request number, proving every request is distinct and nonzero.</summary>
     private static FrozenDictionary<int, TSound> Invert<TSound>(FrozenDictionary<TSound, byte> commands)

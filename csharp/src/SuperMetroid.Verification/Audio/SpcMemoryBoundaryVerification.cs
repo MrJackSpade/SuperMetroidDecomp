@@ -47,15 +47,17 @@ internal static class SpcMemoryBoundaryVerification
         AssertEqual(unchecked((sbyte)0xa5), player.Music.ReadFirCoefficient(1), "FIR preset byte 1 through its own view");
         AssertEqual(0xa5, panNext, "pan index 21's next entry aliases FIR preset byte 1");
 
-        // Requests are typed by library: a request outside 0 through 255, and a library index outside 0 through 2, are rejected.
+        // Requests are sounds of their library: a library index outside 0 through 2 is rejected, a sound asks its own
+        // library for it, none withdraws the library's request, and another library's sound is refused.
         var clock = new SoundAcceptanceClock<SoundEffectId>();
-        clock.Request(2, 0x42);
-        AssertThrows<ArgumentOutOfRangeException>(() => clock.Request(2, 0x100), "a sound request is 0 through 255");
-        AssertThrows<ArgumentOutOfRangeException>(() => clock.Request(SoundClockTiming.LibraryCount, 0), "a sound library index is 0 through 2");
+        clock.Request(2, Library3Sound.SpeedBooster);
+        AssertThrows<ArgumentOutOfRangeException>(() => clock.Request(SoundClockTiming.LibraryCount, null), "a sound library index is 0 through 2");
         AssertEqual(new AudioRequest.RequestSound(Library2Sound.SmallEnergyPickup),
-            AudioRequest.ForSound(SoundEffectLibrary.Library2, 1), "a nonzero sound number requests that sound of its library");
+            AudioRequest.ForSound(SoundEffectLibrary.Library2, Library2Sound.SmallEnergyPickup), "a sound requests that sound of its library");
         AssertEqual(new AudioRequest.ClearSoundRequest(SoundEffectLibrary.Library2),
-            AudioRequest.ForSound(SoundEffectLibrary.Library2, 0), "sound number zero withdraws the library's request");
+            AudioRequest.ForSound(SoundEffectLibrary.Library2, null), "no sound withdraws the library's request");
+        AssertThrows<ArgumentException>(() => AudioRequest.ForSound(SoundEffectLibrary.Library2, Library1Sound.Silence),
+            "another library's sound is refused");
     }
 
     /// <summary>Runs the focused SPC memory and APU port boundary check.</summary>

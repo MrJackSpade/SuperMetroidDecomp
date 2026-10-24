@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
@@ -60,7 +61,8 @@ internal static class KraidHeadCommandMappingVerification
                         _ => throw new InvalidDataException($"{at}: unknown native head command ${record.Opcode:X4}."),
                     };
                     AssertEqual(cue, cueStep.Cue, $"{at} cry");
-                    AssertEqual((byte)record.Sound, sound.Value, $"{at} cry sound");
+                    AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Library2, (byte)record.Sound), sound,
+                        $"{at} cry sound: the import decodes the native byte to the definition's sound");
                 }
 
                 KraidHeadCursorReads reads = KraidHeadAnimations.ReadsAt(record.Cursor);

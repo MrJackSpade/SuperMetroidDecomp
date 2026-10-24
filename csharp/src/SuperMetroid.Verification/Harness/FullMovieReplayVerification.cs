@@ -584,7 +584,8 @@ internal static class FullMovieReplayVerification
             int write = audio.SoundWritePositions[library2];
             for (int index = lastWrite; index != write; index = (index + 1) & AudioQueueDefinitions.SoundIndexMask)
             {
-                if (audio.SoundQueues[library2, index] is 0x6f or 0x7e)
+                if (audio.SoundQueues[library2, index] is SoundEffectId cry &&
+                    (cry == Library2Sound.MotherBrainLowCry || cry == Library2Sound.MotherBrainHighCry))
                     cries++;
             }
             lastWrite = write;

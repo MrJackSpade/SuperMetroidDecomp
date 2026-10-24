@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Audio;
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;

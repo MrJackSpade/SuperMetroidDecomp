@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
@@ -40,7 +41,7 @@ internal static class SpeedBoosterEchoStopVerification
         int starts = 0, stops = 0, stopRequests = 0, finalPeak = 0;
         // The queue rewrites a request every frame until the SPC echoes it ($82:8A55), so a request counts once,
         // when library three's port changes to its value.
-        int library3Port = 0;
+        SoundEffectId? library3Port = null;
         for (int frame = 0; frame < 90; frame++)
         {
             samus.LiquidPhysics.BeginFrameSoundRequests();
@@ -49,7 +50,7 @@ internal static class SpeedBoosterEchoStopVerification
             SamusPostDrawAudio.Step(samus, SamusMovementType.RanIntoWall, 0);
             foreach (var request in samus.LiquidPhysics.SoundRequests)
             {
-                if (request.SoundEffect.Library == SoundEffectLibrary.Library3 && request.SoundEffect.Value == 0x25)
+                if (request.SoundEffect == Library3Sound.SpeedBoosterEnd)
                 {
                     AssertEqual(40, frame, "echo stop occurs on the wall-cancellation frame");
                     AssertEqual(15, request.MaximumQueued.Requests, "echo stop uses native Max15");
@@ -60,16 +61,16 @@ internal static class SpeedBoosterEchoStopVerification
             var commands = queue.AdvanceFrame(renderer.Acknowledgements);
             foreach (AudioRequest command in commands)
             {
-                int? requested = command switch
+                (bool library3, SoundEffectId? value) = command switch
                 {
-                    AudioRequest.RequestSound { Sound.Library: SoundEffectLibrary.Library3 } sound => sound.Sound.Value,
-                    AudioRequest.ClearSoundRequest { Library: SoundEffectLibrary.Library3 } => 0,
-                    _ => null,
+                    AudioRequest.RequestSound { Sound.Library: SoundEffectLibrary.Library3 } sound => (true, (SoundEffectId?)sound.Sound),
+                    AudioRequest.ClearSoundRequest { Library: SoundEffectLibrary.Library3 } => (true, null),
+                    _ => (false, null),
                 };
-                if (requested is not int value)
+                if (!library3)
                     continue;
-                if (value != library3Port && value == 3) starts++;
-                if (value != library3Port && value == 0x25) stops++;
+                if (value != library3Port && value == Library3Sound.SpeedBooster) starts++;
+                if (value != library3Port && value == Library3Sound.SpeedBoosterEnd) stops++;
                 library3Port = value;
             }
             var pcm = renderer.RenderFrame(commands);

@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 internal interface ISpcDriverObserver
 {
     /// <summary>Called before the driver services <paramref name="tick"/>.</summary>
-    void TickStarting(SoundClockStep<SoundEffectId> tick);
+    void TickStarting(SoundClockStep<byte> tick);
 
     /// <summary>Called when the music sequencer is about to read its next top-level record (the native NextPhrase).</summary>
     void PhraseStarting();

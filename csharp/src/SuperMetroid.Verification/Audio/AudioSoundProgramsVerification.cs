@@ -101,7 +101,7 @@ internal static class AudioSoundProgramsVerification
                     $"edited SFX program live byte {offset}");
             }
 
-            AudioRequest trigger = AudioRequest.ForSound(SoundEffectLibrary.Library1, effect.Command);
+            AudioRequest trigger = new AudioRequest.RequestSound(SoundEffectCommands.Decode(SoundEffectLibrary.Library1, effect.Command));
             bool stockAudible = false;
             bool editedAudible = false;
             bool pcmDiffers = false;

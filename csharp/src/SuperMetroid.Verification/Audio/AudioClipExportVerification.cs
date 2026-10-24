@@ -43,10 +43,10 @@ internal static class AudioClipExportVerification
                     new AudioClipExporter.MusicKey(AudioBank.GreenBrinstar, GreenBrinstarPhaseExactTrack),
                 ],
                 [
-                    .. effects.Select(effect => new AudioClipExporter.SoundEffectKey(AudioBank.GreenBrinstar, effect.Library, checked((byte)effect.Value))),
-                    new AudioClipExporter.SoundEffectKey(AudioBank.EmptyCrateria, SoundEffectLibrary.Library2, checked((byte)Library2Sound.EtecoonTheme.Value)),
+                    .. effects.Select(effect => new AudioClipExporter.SoundEffectKey(AudioBank.GreenBrinstar, effect.Library, SoundEffectCommands.Command(effect))),
+                    new AudioClipExporter.SoundEffectKey(AudioBank.EmptyCrateria, SoundEffectLibrary.Library2, SoundEffectCommands.Command(Library2Sound.EtecoonTheme)),
                 ]);
-            ClipAudioCatalog clips = ClipAudioCatalog.Load(scratch.FullName);
+            ClipAudioCatalog clips = InstalledAudioClips.Load(scratch.FullName);
             AssertEqual(catalog.ContentIdentity, clips.Manifest.SourceContentIdentity, "clips name the catalog they were rendered from");
 
             VerifyMusic(catalog, clips, GreenBrinstarRoomTrack, loopRepeatsExactly: false);
@@ -54,7 +54,7 @@ internal static class AudioClipExportVerification
             foreach (SoundEffectId effect in effects)
                 VerifySoundEffect(catalog, clips, effect);
             AssertThrows<InvalidDataException>(
-                () => clips.GetSoundEffect(MusicDataSet.EmptyCrateria, SoundEffectLibrary.Library2, Library2Sound.EtecoonTheme.Value),
+                () => clips.GetSoundEffect(MusicDataSet.EmptyCrateria, Library2Sound.EtecoonTheme),
                 "an effect whose sample the bank context lacks fails loudly");
             VerifyLoaderRejections(scratch.FullName, clips);
             Console.WriteLine(
@@ -93,7 +93,7 @@ internal static class AudioClipExportVerification
     /// <summary>Each layer of an effect against the independent render of its voices, including the next pass of a looping layer.</summary>
     private static void VerifySoundEffect(ExtractedAudioAssetCatalog catalog, ClipAudioCatalog clips, SoundEffectId effect)
     {
-        SoundEffectClipEntry entry = clips.GetSoundEffect(MusicDataSet.GreenBrinstar, effect.Library, effect.Value);
+        SoundEffectClipEntry entry = clips.GetSoundEffect(MusicDataSet.GreenBrinstar, effect);
         int libraryIndex = SoundEffectLibraries.ToQueueIndex(effect.Library);
         foreach (SoundEffectClipLayer layer in entry.Layers)
         {
@@ -103,8 +103,8 @@ internal static class AudioClipExportVerification
             short[] independent = RenderIndependently(
                 catalog,
                 MusicDataSet.GreenBrinstar,
-                AudioRequest.ForSound(effect.Library, effect.Value),
-                player => player.soundLibraries[libraryIndex].CurrentSound == effect.Value,
+                new AudioRequest.RequestSound(effect),
+                player => player.soundLibraries[libraryIndex].CurrentSound == SoundEffectCommands.Command(effect),
                 layer.Voices.ToVoiceMask(),
                 rendered);
             AssertSequenceEqual(clip, independent[..(int)(frames * 2)], $"{effect} layer on voices ${layer.Voices.ToVoiceMask():X2} equals the independent render");
@@ -133,12 +133,12 @@ internal static class AudioClipExportVerification
         {
             Music = [clips.Manifest.Music[0] with { Clip = first with { Path = "../escaped.wav" } }],
         };
-        File.WriteAllText(manifestPath, JsonSerializer.Serialize(escaping, ClipAudioCatalog.JsonOptions));
-        AssertThrows<InvalidDataException>(() => ClipAudioCatalog.Load(directory), "a clip path outside the audio root is rejected");
+        File.WriteAllText(manifestPath, JsonSerializer.Serialize(escaping, InstalledAudioClips.ManifestOptions));
+        AssertThrows<InvalidDataException>(() => InstalledAudioClips.Load(directory), "a clip path outside the audio root is rejected");
 
         File.WriteAllText(manifestPath, JsonSerializer.Serialize(
-            clips.Manifest with { FormatVersion = AudioClipManifest.CurrentFormatVersion + 1 }, ClipAudioCatalog.JsonOptions));
-        AssertThrows<InvalidDataException>(() => ClipAudioCatalog.Load(directory), "another manifest format is rejected");
+            clips.Manifest with { FormatVersion = AudioClipManifest.CurrentFormatVersion + 1 }, InstalledAudioClips.ManifestOptions));
+        AssertThrows<InvalidDataException>(() => InstalledAudioClips.Load(directory), "another manifest format is rejected");
         File.WriteAllText(manifestPath, manifestText);
     }
 
@@ -195,7 +195,7 @@ internal static class AudioClipExportVerification
         internal long? StartSample { get; private set; }
 
         /// <inheritdoc />
-        public void TickStarting(SoundClockStep<SoundEffectId> tick) =>
+        public void TickStarting(SoundClockStep<byte> tick) =>
             tickSample = (long)Frame * ManagedSnesDsp.NativeStereoFramesPerVideoFrame + tick.SampleOffset;
 
         /// <inheritdoc />

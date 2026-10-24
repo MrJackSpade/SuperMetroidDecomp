@@ -1,17 +1,17 @@
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>SNES background map and scanout settings used across the ending explosion's display phases.</summary>
+/// <summary>Which explosion artwork each background plane of the ending's Zebes explosion shows, phase by phase.</summary>
 internal static class EndingExplosionDisplayDefinitions
 {
     /// <summary>Native visible scanout begins at physical line one. With BG VOFS=0, the first displayed BG row is source row one, while OBJ remains screen-relative.</summary>
     public const ushort FirstVisibleBackgroundRow = 1;
-    /// <summary>Func117's BG1SC=$70 map before F2FA changes it.</summary>
+    /// <summary>The explosion the first background plane shows from Func117 until the finale replaces it.</summary>
     public const EndingObjectFragmentId InitialMap = EndingObjectFragmentId.Segment70;
-    /// <summary>F2FA's BG1SC=$74 map.</summary>
+    /// <summary>The explosion the first background plane shows during the finale (F2FA).</summary>
     public const EndingObjectFragmentId FinaleMainMap = EndingObjectFragmentId.Segment74;
-    /// <summary>F2FA's BG2SC=$78 map, used on both screens.</summary>
+    /// <summary>The explosion the second background plane shows during the finale (F2FA), drawn and blended on both screens.</summary>
     public const EndingObjectFragmentId FinaleSubMap = EndingObjectFragmentId.Segment78;
-    /// <summary>F2B7's BG2SC=$7C map.</summary>
+    /// <summary>The burst the second background plane shows and adds over the first (F2B7).</summary>
     public const EndingObjectFragmentId BurstSubMap = EndingObjectFragmentId.Segment7C;
 }

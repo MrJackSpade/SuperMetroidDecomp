@@ -106,7 +106,7 @@ internal sealed class CeresRidleyFlight
         };
         StartRidleyProgram(_ridleyEncounter.Ridley, slot, RidleyBodyProgram.Initial);
         // `$A6:A280` ends Ceres Ridley's initialization by queuing music zero (stop).
-        _audio.QueueInitializationMusicDelayed8(MusicCommand.Stop);
+        _audio.QueueInitializationMusicDelayed8(MusicRequest.Stop);
 
         // WriteColorsToTargetPalette($140, $A6:E16F, $20) installs the Ceres door and Baby
         // Metroid container palettes. This runtime exposes the final target directly in

@@ -133,12 +133,6 @@ public static class IntroCinematicRomData
     /// <summary>Music operations performed by the intro's major scene handoffs.</summary>
     public static class Music
     {
-        /// <summary>Music-data index loaded for the opening narration.</summary>
-        public const byte OpeningDataIndex = 0x3f;
-        /// <summary>Music-data index loaded for the Mother Brain flashback.</summary>
-        public const byte MotherBrainDataIndex = 0x42;
-        /// <summary>Music-data index loaded for the Metroid discovery scene.</summary>
-        public const byte DiscoveryDataIndex = 0x36;
         /// <summary>Track selected within each loaded cinematic music data set.</summary>
         public const byte SceneTrack = 5;
         /// <summary>Native delay argument used when the cinematic scene track starts.</summary>

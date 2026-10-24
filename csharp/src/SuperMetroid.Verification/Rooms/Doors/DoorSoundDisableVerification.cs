@@ -18,7 +18,7 @@ internal static class DoorSoundDisableVerification
         AssertTrue(commands.Any(c => c == new AudioRequest.RequestSound(SoundEffectLibrary1Sounds.StopSpinJump)),
             "Disabling new sounds still submits an already queued request");
         AssertTrue(!audio.HasQueuedSounds, "Rejected request does not refill the drained ring");
-        audio.QueueMusicDelayed8(MusicCommand.Stop);
+        audio.QueueMusicDelayed8(MusicRequest.Stop);
         AssertTrue(audio.HasQueuedMusic, "Door disable flag does not reject music commands");
         audio.DoorTransitionSoundsDisabled = false;
         audio.QueueSound(SoundEffectLibrary1Sounds.CancelAll, 15);

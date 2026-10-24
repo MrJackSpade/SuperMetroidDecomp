@@ -10,7 +10,7 @@ internal static class CartridgeAudioStateQueueAccess
         internal string MusicQueueForVerification() =>
             $"{self.MusicReadPosition:X}/{self.MusicWritePosition:X} " +
             $"t={self.MusicTimer.RawValue:X} d=" +
-            string.Join(",", self.MusicDelays.Select(delay => $"{delay.Frames:X}"));
+            string.Join(",", self.MusicDelays.Select(delay => $"{delay.Updates:X}"));
 
         /// <summary>One entry of an SFX library's queue ($0643+).</summary>
         internal byte SoundQueueEntryForVerification(int queue, int index) =>

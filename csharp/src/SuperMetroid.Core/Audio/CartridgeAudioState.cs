@@ -15,8 +15,8 @@ public sealed class CartridgeAudioState
     private readonly MusicRequest[] _musicEntries =
         [.. Enumerable.Repeat(MusicRequest.Stop, AudioQueueDefinitions.MusicCapacity)];
     /// <summary>Per-entry frame delays paired with queued music requests.</summary>
-    internal readonly MusicCommandDelay[] MusicDelays =
-        new MusicCommandDelay[AudioQueueDefinitions.MusicCapacity];
+    internal readonly MusicQueueDelay[] MusicDelays =
+        new MusicQueueDelay[AudioQueueDefinitions.MusicCapacity];
     /// <summary>Three independent unread sound rings, one per sound library.</summary>
     internal readonly byte[,] SoundQueues = new byte[
         AudioQueueDefinitions.SoundLibraryCount,
@@ -73,7 +73,7 @@ public sealed class CartridgeAudioState
     public MusicTrack? PlayingTrack { get; private set; }
 
     /// <summary>Exact <c>HasQueuedMusic</c> result: any occupied delayed-command slot.</summary>
-    public bool HasQueuedMusic => MusicDelays.Any(delay => delay.Frames != 0);
+    public bool HasQueuedMusic => MusicDelays.Any(delay => delay.Updates != 0);
 
     /// <summary>
     /// Exact door-transition predicate at <c>$82:E2B5-$82:E2D7</c>: true while any of the
@@ -126,10 +126,10 @@ public sealed class CartridgeAudioState
 
     /// <summary>Implements <c>QueueMusic_Delayed8</c> at $80:8FC1.</summary>
     public void QueueMusicDelayed8(MusicRequest request) =>
-        QueueMusic(request, MusicCommandDelay.EightFrames, overflow: MusicQueueOverflow.SkipWhenFull);
+        QueueMusic(request, MusicQueueDelay.Shortest, overflow: MusicQueueOverflow.SkipWhenFull);
 
     /// <summary>Implements <c>QueueMusic_DelayedY</c>, including its minimum delay of eight.</summary>
-    public void QueueMusicDelayed(MusicRequest request, MusicCommandDelay delay) =>
+    public void QueueMusicDelayed(MusicRequest request, MusicQueueDelay delay) =>
         QueueMusic(request, delay, overflow: MusicQueueOverflow.Overwrite);
 
     /// <summary>Queues the data set and track requests performed by ordinary room loading.</summary>
@@ -149,7 +149,7 @@ public sealed class CartridgeAudioState
         // Landing Site requests the empty-Crateria set's track 5 and therefore must queue
         // track 5 again after the load instead of leaving only the gunship-engine sound.
         if (RoomTrackQueues(music.Track, changesMusicData))
-            QueueMusicDelayed(RoomTrackRequest(music.Track), MusicCommandDelay.FromDelayedYArgument(6));
+            QueueMusicDelayed(music.Track.Request, MusicQueueDelay.AtLeastShortest(6));
     }
 
     /// <summary>
@@ -161,7 +161,7 @@ public sealed class CartridgeAudioState
     {
         Ensure.NotNull(music);
         if (RoomTrackQueues(music.Track, music.DataSet != DataSet))
-            QueueMusicDelayed(RoomTrackRequest(music.Track), MusicCommandDelay.FromDelayedYArgument(6));
+            QueueMusicDelayed(music.Track.Request, MusicQueueDelay.AtLeastShortest(6));
     }
 
     /// <summary>
@@ -191,10 +191,6 @@ public sealed class CartridgeAudioState
         _ => throw new InvalidDataException($"Unknown room music track {track}."),
     };
 
-    /// <summary>The music request a queued room track choice makes: its track, or the stop of a silenced room.</summary>
-    private static MusicRequest RoomTrackRequest(RoomMusicTrack track) =>
-        track is RoomMusicTrack.Play play ? new MusicRequest.PlayTrack(play.Track) : MusicRequest.Stop;
-
     /// <summary>
     /// Executes the shared permanent-item music sequence from bank <c>$84</c>.
     /// </summary>
@@ -218,7 +214,7 @@ public sealed class CartridgeAudioState
         QueueMusicDelayed8(MusicRequest.SelectTrack(AudioQueueDefinitions.PermanentItemTrack));
         QueueMusicDelayed(
             MusicRequest.Stop,
-            MusicCommandDelay.FromDelayedYArgument(AudioQueueDefinitions.PermanentItemFanfareFrames));
+            MusicQueueDelay.AtLeastShortest(AudioQueueDefinitions.PermanentItemFanfareFrames));
         QueueMusicDelayed8(MusicRequest.SelectTrackOrStop(roomTrack));
     }
 
@@ -315,10 +311,10 @@ public sealed class CartridgeAudioState
     /// <summary>Enqueues a delayed music command, optionally dropping it when the native ring has no free slot.</summary>
     private void QueueMusic(
         MusicRequest request,
-        MusicCommandDelay delay,
+        MusicQueueDelay delay,
         MusicQueueOverflow overflow)
     {
-        if (delay.Frames < AudioQueueDefinitions.MinimumMusicDelayFrames)
+        if (delay.Updates < AudioQueueDefinitions.MinimumMusicDelayFrames)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(delay), delay, "Effective music queue delay must be at least eight frames.");
@@ -370,7 +366,7 @@ public sealed class CartridgeAudioState
         }
 
         _musicEntry = _musicEntries[MusicReadPosition];
-        MusicTimer = WrappingCountdown.Start(MusicDelays[MusicReadPosition].Frames);
+        MusicTimer = WrappingCountdown.Start(MusicDelays[MusicReadPosition].Updates);
     }
 
     /// <summary>Retires the processed music command and its delay before fetching the next entry.</summary>

@@ -146,10 +146,6 @@ public static class EndingCreditsRomData
     /// <summary>Native music data and track selectors queued at escape and ending sequence boundaries.</summary>
     public static class Music
     {
-        /// <summary>Music data selector $33 queued for the Zebes escape cinematic before its first scene becomes visible.</summary>
-        public const byte EscapeDataIndex = 0x33;
-        /// <summary>Music data selector $3C queued for the completion and credits sequence.</summary>
-        public const byte EndingDataIndex = 0x3c;
         /// <summary>Track command five used with both the escape and ending music data sets.</summary>
         public const byte Track = 5;
         /// <summary>Native delayed-music Y argument $000E, interpreted by the music queue's delay conversion rather than as a direct frame count.</summary>

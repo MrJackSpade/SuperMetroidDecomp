@@ -180,7 +180,7 @@ internal sealed class MotherBrainAscent
         state.Body.Properties = state.Body.Properties.Without(EnemyProperties.Invisible);
         state.Body.Position = state.Body.Position.WithWhole(new(59, 279));
         MotherBrainBody.PublishMotherBrainBg2Scroll(state, new(unchecked((ushort)-27), unchecked((ushort)-217)));
-        state.RequestMusic(MusicCommand.SelectTrack(5), MusicCommandDelay.EightFrames);
+        state.RequestMusic(MusicRequest.SelectTrack(5), MusicQueueDelay.Shortest);
         _earthquake.EarthquakeType = 2;
         _earthquake.EarthquakeTimer = WrappingCountdown.Start(256);
         state.NeckAngleDelta = 80;

@@ -272,7 +272,7 @@ internal sealed class DoorTransitionState
                     {
                         CartridgeRoomState state = runtime.Room.ActiveRoom?.State
                             ?? throw new InvalidOperationException("Door music requires the destination room.");
-                        audio.QueueRoomMusicTrack(state.MusicDataIndex, state.MusicTrackIndex);
+                        audio.QueueRoomMusicTrack(state.Music);
                     }
                 }
                 break;

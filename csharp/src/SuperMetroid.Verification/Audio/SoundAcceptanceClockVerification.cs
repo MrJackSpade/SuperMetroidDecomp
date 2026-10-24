@@ -25,9 +25,6 @@ internal static class SoundAcceptanceClockVerification
     private const string EmulatedPcmSha256 =
         "1EDAB958070306151583376ED9EE5E30BF1043ADE91AA6FD4011000FB2BD8CFF";
 
-    /// <summary>Audio data bank index of the Green Brinstar music upload.</summary>
-    private static byte GreenBrinstarDataIndex => AudioAssetCatalogDefinitions.Get(AudioBank.GreenBrinstar).DataIndex;
-
     /// <summary>
     /// Confirms the session's port model and its semantic events reproduce the emulated driver
     /// (#1304 stages 1 and 3). One scripted sequence runs through two dispatchers: one fed by the
@@ -100,7 +97,7 @@ internal static class SoundAcceptanceClockVerification
                 new SoundAcceptanceClockCase(39, SoundEffectLibrary3Sounds.HardLanding),
             }, starts.Select(start => new SoundAcceptanceClockCase(start.Frame, start.Start.SoundEffect)),
             "sound effects start only at the poll after the latch, and none during the music downtime");
-        AssertTrue(!starts.Any(start => start.Frame > trackFrame && start.Frame <= trackFrame + AudioRomData.Queues.MusicAndSfxDowntimeFrames),
+        AssertTrue(!starts.Any(start => start.Frame > trackFrame && start.Frame <= trackFrame + AudioQueueDefinitions.MusicChangeSoundDowntimeCalls),
             "a request queued during the music downtime starts nothing until the downtime ends");
         AssertEqual(EmulatedAcknowledgementsSha256,
             Convert.ToHexString(SHA256.HashData(acknowledgementBytes.ToArray())),
@@ -180,8 +177,8 @@ internal static class SoundAcceptanceClockVerification
                 audio.QueueSound(SoundEffectLibrary2Sounds.CancelAll, maximumQueued: 6);
                 break;
             case 10:
-                audio.QueueMusicDelayed8(MusicCommand.LoadData(GreenBrinstarDataIndex));
-                audio.QueueMusicDelayed8(MusicCommand.SelectTrack(5));
+                audio.QueueMusicDelayed8(MusicRequest.LoadDataSet(MusicDataSet.GreenBrinstar));
+                audio.QueueMusicDelayed8(MusicRequest.SelectTrack(5));
                 break;
             case 24:
                 // Sent on the first call after the upload's downtime, one call before the

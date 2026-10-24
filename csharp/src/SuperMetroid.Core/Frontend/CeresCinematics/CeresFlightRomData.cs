@@ -36,8 +36,6 @@ public static class CeresFlightRomData
     /// <summary>Music queued by $8B:BCA0 before $8B:BDE4 waits for the queue to drain.</summary>
     public static class Music
     {
-        /// <summary>$8B:BDD2: music-data index $2D, queued with the eight-frame delay.</summary>
-        public const byte DataIndex = 0x2d;
         /// <summary>$8B:BDD9: track five within that data.</summary>
         public const byte Track = 5;
         /// <summary>$8B:BDDC: the Y delay argument queued with the track.</summary>

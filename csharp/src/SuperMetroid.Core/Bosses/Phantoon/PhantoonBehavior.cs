@@ -439,7 +439,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacyMusic(EnemyAudioQueue audio)
     {
-        audio.QueueLegacyMusic(Combat.Phantoon?.MusicRequest, MusicCommandDelay.EightFrames);
+        audio.QueueLegacyMusic(Combat.Phantoon?.MusicRequest, MusicQueueDelay.Shortest);
     }
 
     /// <summary>Ports PhantoonBody's main AI.</summary>

@@ -24,6 +24,13 @@ public abstract record RoomMusicTrack
     /// </summary>
     public sealed record Silence : RoomMusicTrack;
 
+    /// <summary>
+    /// The music request that carries out the choice when it is queued: its track, or a stop. Room loading never queues
+    /// an inherited track; a saved game queues the room's choice directly, and an inherited track stops the music there,
+    /// as the original's zero track number did.
+    /// </summary>
+    internal MusicRequest Request => this is Play play ? new MusicRequest.PlayTrack(play.Track) : MusicRequest.Stop;
+
     /// <summary>The choice that keeps the playing track.</summary>
     public static RoomMusicTrack Inherited { get; } = new Inherit();
 

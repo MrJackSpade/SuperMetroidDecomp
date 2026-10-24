@@ -47,14 +47,13 @@ internal static class LookupRoomStateSettingsVerification
         0xDF71, 0xDF9F, 0xDFB9, 0xDFE9, 0xE003, 0xE033, 0xE04D, 0xE07D, 0xE097, 0xE0C7, 0xE0E1,
     ];
 
-    /// <summary>Compares 323 state identities and all sixteen native setting fields.</summary>
+    /// <summary>Compares 323 state identities and every native setting field, the two music bytes as the decoded room music.</summary>
     internal static void VerifyRoomStateSettings(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyRoomStateIdentities), () => VerifyRoomStateIdentities());
         Suite(nameof(VerifyRoomStateCompressedLevelDataAddress), () => VerifyRoomStateCompressedLevelDataAddress(rom));
         Suite(nameof(VerifyRoomStateGraphicsSet), () => VerifyRoomStateGraphicsSet(rom));
-        Suite(nameof(VerifyRoomStateMusicDataIndex), () => VerifyRoomStateMusicDataIndex(rom));
-        Suite(nameof(VerifyRoomStateMusicTrackIndex), () => VerifyRoomStateMusicTrackIndex(rom));
+        Suite(nameof(VerifyRoomStateMusic), () => VerifyRoomStateMusic(rom));
         Suite(nameof(VerifyRoomStateFxPointer), () => VerifyRoomStateFxPointer(rom));
         Suite(nameof(VerifyRoomStateEnemyPopulationPointer), () => VerifyRoomStateEnemyPopulationPointer(rom));
         Suite(nameof(VerifyRoomStateEnemyTilesetPointer), () => VerifyRoomStateEnemyTilesetPointer(rom));
@@ -99,10 +98,11 @@ internal static class LookupRoomStateSettingsVerification
     }
     /// <summary>Checks the selected room graphics-set identity for every state.</summary>
     private static void VerifyRoomStateGraphicsSet(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.GraphicsSet, "GraphicsSet");
-    /// <summary>Checks each room state's music data bank selection.</summary>
-    private static void VerifyRoomStateMusicDataIndex(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.MusicDataIndex, "MusicDataIndex");
-    /// <summary>Checks each room state's track selection within its music data.</summary>
-    private static void VerifyRoomStateMusicTrackIndex(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.MusicTrackIndex, "MusicTrackIndex");
+    /// <summary>
+    /// Checks each room state's music: its data set and track choice equal those the room-state import decodes from the
+    /// cartridge's music bytes (#1410), instead of comparing the two raw bytes.
+    /// </summary>
+    private static void VerifyRoomStateMusic(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.Music, "Music");
     /// <summary>Checks effect-header pointer selection for every state.</summary>
     private static void VerifyRoomStateFxPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.FxPointer, "FxPointer");
     /// <summary>Checks which native enemy population each state installs.</summary>

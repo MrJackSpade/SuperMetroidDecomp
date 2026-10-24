@@ -169,7 +169,7 @@ public sealed class DraygonEnemyState
     /// <summary>The library-three sound effect Draygon's programs requested this enemy frame (the dying cry), or null.</summary>
     public SoundEffectId? LastSoundLibrary3 { get; internal set; }
     /// <summary>Music command published when the dying body reaches its burial point; selects track three, or remains null before that transition.</summary>
-    public MusicCommand? MusicRequest { get; internal set; }
+    public MusicRequest? MusicRequest { get; internal set; }
     /// <summary>True after the terminal burial routine scatters sixteen physical pickups using the body's drop definition.</summary>
     public bool ItemDropRequested { get; internal set; }
     /// <summary>True after terminal burial invokes the persistent area-boss-defeated callback; prevents repeating that persistence write.</summary>

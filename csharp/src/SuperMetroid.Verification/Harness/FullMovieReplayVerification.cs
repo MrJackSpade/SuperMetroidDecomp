@@ -582,7 +582,7 @@ internal static class FullMovieReplayVerification
                 lastWrite = audio.SoundWritePositions[library2];
             }
             int write = audio.SoundWritePositions[library2];
-            for (int index = lastWrite; index != write; index = (index + 1) & AudioRomData.Queues.SoundIndexMask)
+            for (int index = lastWrite; index != write; index = (index + 1) & AudioQueueDefinitions.SoundIndexMask)
             {
                 if (audio.SoundQueues[library2, index] is 0x6f or 0x7e)
                     cries++;

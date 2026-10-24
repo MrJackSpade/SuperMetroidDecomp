@@ -21,10 +21,6 @@ public static class MotherBrainDeathRomData
     public const ushort Bg2LastByte = 710;
     /// <summary>$A9:AFEC empty enemy BG2 tile written after the body fade terminates.</summary>
     public const ushort EmptyBodyTile = 0x0338;
-    /// <summary>The fake-death descent loads music data index $21 through the delayed queue.</summary>
-    public const byte FakeDeathMusicData = 0x21;
-    /// <summary>$A9:B203 loads music data index $24 through the delayed queue.</summary>
-    public const byte EscapeMusicData = 0x24;
     /// <summary>$A9:B280 starts track seven through the eight-frame-delay music queue.</summary>
     public const byte EscapeMusicTrack = 7;
     /// <summary>$A9:9534 fourteen colors installed for the exploded escape door.</summary>

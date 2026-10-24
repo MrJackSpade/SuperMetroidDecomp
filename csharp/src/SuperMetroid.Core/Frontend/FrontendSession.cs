@@ -236,16 +236,16 @@ internal sealed class FrontendSession
             // $82:E071 loads data during door setup. $82:E664 selects the track
             // only after the opening scroll and this data queue have completed.
             if (GameState == SuperMetroidGameState.LoadingNextRoomB)
-                audio.QueueRoomMusicData(roomState.MusicDataIndex);
+                audio.QueueRoomMusicData(roomState.Music.DataSet);
             else
-                audio.QueueRoomMusic(roomState.MusicDataIndex, roomState.MusicTrackIndex);
+                audio.QueueRoomMusic(roomState.Music);
             LastAudioRoomState = roomState;
         }
         // Enemy initialization follows the room's music-data queueing in native loading. Before the first room load,
         // such as while a Ceres save starts its destruction cinematic, there are no enemies to initialize.
         if (runtime?.Room.Scope is { } scope)
-            foreach (MusicCommand command in scope.Enemies.Audio.ConsumeInitializationMusicDelayed8())
-                audio.QueueMusicDelayed8(command);
+            foreach (MusicRequest request in scope.Enemies.Audio.ConsumeInitializationMusicDelayed8())
+                audio.QueueMusicDelayed8(request);
 
         // The message-box selector is an NMI-only owner, not part of the gameplay
         // publication generation below. It has explicit consume semantics so its one-shot
@@ -347,7 +347,7 @@ internal sealed class FrontendSession
             audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
                 soundSuppressed: request.SoundSuppressed);
         foreach (DelayedMusicRequest request in runtime.Room.LoadedScope.Plms.BombTorizoHand.MusicRequests)
-            audio.QueueMusicDelayed(request.Command, request.Delay);
+            audio.QueueMusicDelayed(request.Request, request.Delay);
         if (runtime.Room.LoadedScope.Plms.CollectiblePlms.ConsumeCollectibleFanfareRequest())
             audio.QueuePermanentItemFanfare();
 
@@ -355,7 +355,7 @@ internal sealed class FrontendSession
             audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
                 soundSuppressed: request.SoundSuppressed);
         foreach (DelayedMusicRequest request in runtime.Room.LoadedScope.Enemies.Audio.MusicRequests)
-            audio.QueueMusicDelayed(request.Command, request.Delay);
+            audio.QueueMusicDelayed(request.Request, request.Delay);
     }
     /// <summary>
     /// Ports the state-publication half of <c>HandleSamusOutOfHealthAndGameTile</c>. Runtime
@@ -521,11 +521,11 @@ internal sealed class FrontendSession
             // Loading from file select still has the title's SPC song data installed.
             // Preserve the appearance track sequence, but upload the room's bank first
             // just as ordinary room loading does; track numbers alone are bank-local.
-            audio.QueueRoomMusicData(loadedState.MusicDataIndex);
-            audio.QueueMusicDelayed(MusicCommand.SelectTrack(1), MusicCommandDelay.FromDelayedYArgument(14));
+            audio.QueueRoomMusicData(loadedState.Music.DataSet);
+            audio.QueueMusicDelayed(MusicRequest.SelectTrack(1), MusicQueueDelay.AtLeastShortest(14));
             audio.QueueMusicDelayed(
-                MusicCommand.SelectTrackOrStop(loadedState.MusicTrackIndex),
-                MusicCommandDelay.FromDelayedYArgument(360 + 5));
+                loadedState.Music.Track.Request,
+                MusicQueueDelay.AtLeastShortest(360 + 5));
             LastAudioRoomState = loadedState;
             return false;
         }

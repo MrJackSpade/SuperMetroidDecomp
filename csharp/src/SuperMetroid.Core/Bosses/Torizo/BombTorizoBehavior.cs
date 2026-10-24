@@ -123,8 +123,8 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
 
                 LastBombTorizoMusicRequest = new DelayedMusicRequest(
-                    MusicCommand.SelectTrack(6),
-                    MusicCommandDelay.EightFrames);
+                    MusicRequest.SelectTrack(6),
+                    MusicQueueDelay.Shortest);
                 torizo.Properties = torizo.Properties.Without(EnemyProperties.SolidToSamus);
                 TorizoBody.StartTorizoBodyProgram(torizo, state, AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoAnimations.AfterSleep(state.BodyProgram.Program)));
                 state.AwakeningReleased = true;
@@ -193,8 +193,8 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             yMask: TorizoRandomDefinitions.DropYMask);
         state.ItemDropRequested = true;
         LastBombTorizoMusicRequest = new DelayedMusicRequest(
-            MusicCommand.SelectTrack(3),
-            MusicCommandDelay.EightFrames);
+            MusicRequest.SelectTrack(3),
+            MusicQueueDelay.Shortest);
     }
 
     /// <summary>Replaces Torizo's posture bits, keeping parameter 1's low thirteen bits.</summary>
@@ -319,8 +319,8 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case TorizoCue.Command { Kind: TorizoCueKind.StartBombTorizoFight }:
                 LastBombTorizoMusicRequest = new DelayedMusicRequest(
-                    MusicCommand.SelectTrack(5),
-                    MusicCommandDelay.EightFrames);
+                    MusicRequest.SelectTrack(5),
+                    MusicQueueDelay.Shortest);
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.NoOperation }:
@@ -476,8 +476,8 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case TorizoCue.Command { Kind: TorizoCueKind.StartGoldenTorizoFight }:
                 LastBombTorizoMusicRequest = new DelayedMusicRequest(
-                    MusicCommand.SelectTrack(5),
-                    MusicCommandDelay.EightFrames);
+                    MusicRequest.SelectTrack(5),
+                    MusicQueueDelay.Shortest);
                 torizo.Radius = new(18, 48);
                 return null;
 

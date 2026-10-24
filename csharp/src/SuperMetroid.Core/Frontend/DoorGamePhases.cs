@@ -102,7 +102,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
             session.audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
                 soundSuppressed: request.SoundSuppressed);
         foreach (DelayedMusicRequest request in source.Room.LoadedScope.Enemies.Audio.MusicRequests)
-            session.audio.QueueMusicDelayed(request.Command, request.Delay);
+            session.audio.QueueMusicDelayed(request.Request, request.Delay);
         if (source.Player.Samus is { } samus)
             foreach (SoundRequest request in samus.LiquidPhysics.SoundRequests)
                 session.audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,

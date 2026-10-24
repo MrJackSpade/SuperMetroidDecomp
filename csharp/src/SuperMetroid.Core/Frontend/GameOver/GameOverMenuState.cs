@@ -162,8 +162,8 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 break;
 
             case GameOverMenuPhase.Initialize:
-                audio.QueueMusicDelayed8(MusicCommand.Stop);
-                audio.QueueMusicDelayed8(MusicCommand.LoadData(GameOverRomData.Music.DataIndex));
+                audio.QueueMusicDelayed8(MusicRequest.Stop);
+                audio.QueueMusicDelayed8(MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
                 BabyStep = null;
                 BabyInstructionTimer = WrappingCountdown.Start(0);
                 StepBabyMetroid();
@@ -178,7 +178,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 if (!audio.HasQueuedMusic)
                 {
                     audio.QueueMusicDelayed8(
-                        MusicCommand.SelectTrack(GameOverRomData.Music.TrackIndex));
+                        MusicRequest.SelectTrack(GameOverRomData.Music.TrackIndex));
                     Phase = GameOverMenuPhase.FadeIn;
                 }
                 break;

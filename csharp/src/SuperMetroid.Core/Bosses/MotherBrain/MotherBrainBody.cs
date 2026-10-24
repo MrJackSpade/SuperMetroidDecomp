@@ -167,7 +167,7 @@ internal sealed class MotherBrainBody
                 // shared word before later enemy slots can keep drawing replaced tile art.
                 _roomActors.TerminateRinkas();
                 state.Form = MotherBrainForm.FakeDeath;
-                state.RequestMusic(MusicCommand.SelectTrack(6), MusicCommandDelay.EightFrames);
+                state.RequestMusic(MusicRequest.SelectTrack(6), MusicQueueDelay.Shortest);
 
                 // MotherBrain_SealWall at `$AD:E396` creates both dust puffs before its
                 // two identical hardcoded PLMs. Requests remain ordered because the bank

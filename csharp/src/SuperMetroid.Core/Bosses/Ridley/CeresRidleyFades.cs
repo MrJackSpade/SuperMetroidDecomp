@@ -76,6 +76,6 @@ internal sealed class CeresRidleyFades
         // `$A6:A449` queues track five immediately after the final body-palette row.
         // This is the Ceres battle/escape track; it intentionally continues after Ridley
         // retreats, so omitting this single publication silences both scenes.
-        state.MusicRequest = MusicCommand.SelectTrack(5);
+        state.MusicRequest = MusicRequest.SelectTrack(5);
     }
 }

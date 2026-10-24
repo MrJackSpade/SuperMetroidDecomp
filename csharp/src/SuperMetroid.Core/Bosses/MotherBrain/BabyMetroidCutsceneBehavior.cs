@@ -218,14 +218,14 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         {
             _audio.QueueEnemySound(SoundEffectLibrary3Sounds.BabyMetroidDeathCry, maximumQueued: 6);
             SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation.ApplyBabyMetroidDeathBlackout(_presentation.Cgram);
-            state.RequestMusic(MusicCommand.Stop, MusicCommandDelay.EightFrames);
+            state.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
         }
         if (step.SamusThemeStarted)
         {
-            state.RequestMusic(MusicCommand.LoadData(MotherBrainBabyMetroidDefinitions.SamusThemeMusicData),
-                MusicCommandDelay.EightFrames);
-            state.RequestMusic(MusicCommand.SelectTrack(MotherBrainBabyMetroidDefinitions.SamusThemeMusicTrack),
-                MusicCommandDelay.EightFrames);
+            state.RequestMusic(MusicRequest.LoadDataSet(MusicDataSet.SamusThemeUpperCrateria),
+                MusicQueueDelay.Shortest);
+            state.RequestMusic(MusicRequest.SelectTrack(MotherBrainBabyMetroidDefinitions.SamusThemeMusicTrack),
+                MusicQueueDelay.Shortest);
         }
         if (step.LatchSoundQueued)
             state.LastSoundEffectLibrary1 = MotherBrainSoundDefinitions.StartRainbowDrain;

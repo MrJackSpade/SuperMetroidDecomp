@@ -189,7 +189,8 @@ public sealed class SuperMetroidGame
         // Loading a new music data set stalls a door dispatch while door IRQs keep NMIs accepted;
         // nothing between this update's own NMI and the load reads the counters.
         if (doorAudioDispatch && prologueMusicRequests.Any(request => request is AudioRequest.ChangeMusicDataSet))
-            Session.GameplayRuntime.Clock.AdvanceHardwareWaitFrames(Session.HostServices.DoorMusicLoadFrames.FramesCountedDuringMusicLoad(Session.audio.MusicDataIndex));
+            Session.GameplayRuntime.Clock.AdvanceHardwareWaitFrames(Session.HostServices.DoorMusicLoadFrames.FramesCountedDuringMusicLoad(
+                Session.audio.DataSet ?? throw new InvalidOperationException("A dispatched music data set change left no data set loaded.")));
         var gameplayAudio = new GameplayAudioFramePublication(Session.audio);
         FrameNumber = WrappingCounter.IncrementWord(FrameNumber);
         if (Session.Runtime is null)

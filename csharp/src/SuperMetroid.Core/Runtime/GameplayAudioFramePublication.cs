@@ -37,7 +37,7 @@ internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
         while (paletteMusic < music.Count)
         {
             var request = music[paletteMusic++];
-            audio.QueueMusicDelayed(request.Command, request.Delay);
+            audio.QueueMusicDelayed(request.Request, request.Delay);
         }
         if (runtime.Player.Samus is not { } samus)
             return;

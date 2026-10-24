@@ -221,12 +221,11 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 EscapeScenes.StepSprites();
                 if (--Stage.PhaseTimer <= 0)
                 {
-                    audio.QueueMusicDelayed8(MusicCommand.Stop);
-                    audio.QueueMusicDelayed8(MusicCommand.LoadData(
-                        EndingCreditsRomData.Music.EndingDataIndex));
+                    audio.QueueMusicDelayed8(MusicRequest.Stop);
+                    audio.QueueMusicDelayed8(MusicRequest.LoadDataSet(MusicDataSet.Credits));
                     audio.QueueMusicDelayed(
-                        MusicCommand.SelectTrack(EndingCreditsRomData.Music.Track),
-                        MusicCommandDelay.FromDelayedYArgument(
+                        MusicRequest.SelectTrack(EndingCreditsRomData.Music.Track),
+                        MusicQueueDelay.AtLeastShortest(
                             EndingCreditsRomData.Music.DelayArgument));
                     Stage.Phase = EndingCreditsPhase.WaitForPlanetEscapeMusicQueue;
                 }

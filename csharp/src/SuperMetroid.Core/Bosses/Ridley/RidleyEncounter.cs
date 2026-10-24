@@ -105,6 +105,6 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus
     /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacyMusic(EnemyAudioQueue audio)
     {
-        audio.QueueLegacyMusic(Ridley?.MusicRequest, MusicCommandDelay.EightFrames);
+        audio.QueueLegacyMusic(Ridley?.MusicRequest, MusicQueueDelay.Shortest);
     }
 }

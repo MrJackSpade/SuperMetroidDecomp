@@ -147,9 +147,9 @@ public sealed class TitleSequenceState : IFrontendScreen
         if (openingMusic == TitleOpeningMusic.Queue)
         {
             audio?.QueueMusicDelayed8(
-                MusicCommand.LoadData(TitleSequenceRomData.Music.DataIndex));
+                MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
             audio?.QueueMusicDelayed8(
-                MusicCommand.SelectTrack(TitleSequenceRomData.Music.OpeningTrack));
+                MusicRequest.SelectTrack(TitleSequenceRomData.Music.OpeningTrack));
         }
 
         // `$8B:9B87` expands the four artwork streams and uploads them; the title binds that
@@ -307,7 +307,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                     // HandleCinematicsTransitions_1 at $8B:9A83 queues track six before
                     // rebuilding the immediate title objects.
                     audio?.QueueMusicDelayed8(
-                        MusicCommand.SelectTrack(TitleSequenceRomData.Music.ImmediateTitleTrack));
+                        MusicRequest.SelectTrack(TitleSequenceRomData.Music.ImmediateTitleTrack));
                     EnterImmediateTitleObjects();
                     rebuildConsolePaletteFxAfterStep = true;
                     Phase = TitleSequencePhase.TitleScreenFadeIn;

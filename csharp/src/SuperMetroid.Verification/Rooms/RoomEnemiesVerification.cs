@@ -989,8 +989,8 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertTrue(!ridley.Properties.HasAny(EnemyProperties.IgnoreSamusCollision),
         "Ceres Ridley becomes tangible after body fade");
     AssertTrue(enemies.Audio.MusicRequests.Contains(new DelayedMusicRequest(
-            MusicCommand.SelectTrack(5),
-            MusicCommandDelay.EightFrames)),
+            MusicRequest.SelectTrack(5),
+            MusicQueueDelay.Shortest)),
         "Ceres Ridley final body fade queues battle/escape track five");
 
     // Finish the 5-frame pre-roar and 253-frame pre-liftoff countdowns, then let the real

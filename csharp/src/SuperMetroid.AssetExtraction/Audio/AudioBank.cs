@@ -1,13 +1,14 @@
-namespace SuperMetroid.Core.Audio;
+namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>
-/// Stable identity of one retail SPC upload stream: the resident driver or one of the 24
-/// music-data banks (#1304). Members follow the cartridge's music-data pointer-table order.
+/// Identity of one retail SPC upload stream the import pipeline extracts and renders from: the resident driver or one
+/// of the 24 music-data banks (#1304). Members follow the cartridge's music-data pointer-table order.
 /// </summary>
 /// <remarks>
-/// The banks are mutually exclusive; an upload installs exactly one of them. Cartridge
-/// source addresses and room-header data indexes are mapped from this identity only by
-/// <see cref="AudioAssetCatalogDefinitions"/>, at the extraction boundary.
+/// The banks are mutually exclusive; an upload installs exactly one of them. The game knows only the
+/// <see cref="SuperMetroid.Core.Audio.MusicDataSet"/> a music bank holds (#1410); cartridge source addresses,
+/// room-header data indexes and the data set of each bank are mapped from this identity only by
+/// <see cref="AudioAssetCatalogDefinitions"/>.
 /// </remarks>
 public enum AudioBank : byte
 {

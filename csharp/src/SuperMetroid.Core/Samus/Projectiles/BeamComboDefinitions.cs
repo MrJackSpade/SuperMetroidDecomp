@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Native identities and definition tables for bank-$90 special beam attacks.</summary>
-public static class SamusComboRomData
+public static class BeamComboDefinitions
 {
     /// <summary>ProjPreInstr_PlasmaSba expansion/contraction step in pixels.</summary>
     public const int PlasmaRadiusStep = 4;
@@ -17,8 +17,6 @@ public static class SamusComboRomData
     public const ushort WaveRemovalSound = 0x29;
     /// <summary>ProjPreInstr_WaveSba ($90:DA08) library-one oscillator pulse request.</summary>
     public const ushort WavePulseSound = 0x28;
-    /// <summary>CostOfSBAsInPowerBombs at $90:CC21, twelve word costs by beam index.</summary>
-    public const int Costs = 0x90cc21;
     /// <summary>FireSBA's charged, non-interacting projectile type tag.</summary>
     public const ushort ProjectileTag = 0x8010;
     /// <summary>FireSpazerSBA's auxiliary trail projectile type.</summary>

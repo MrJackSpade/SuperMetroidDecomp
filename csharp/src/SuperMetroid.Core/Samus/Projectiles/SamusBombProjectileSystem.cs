@@ -30,13 +30,13 @@ public sealed class SamusBombProjectileSystem
     [field: NonSerialized]
     public SuperMetroid.Core.Samus.Artwork.ProjectileFrameBindingCatalog? FrameBindings { get; set; }
     /// <summary>Number of physical bomb slots at projectile byte indices $0A-$12.</summary>
-    public const int SlotCount = SamusBombSpreadRomData.SlotCount;
+    public const int SlotCount = MorphBallBombDefinitions.SlotCount;
 
     /// <summary>Normal-bomb projectile type written by $90:BF9D.</summary>
-    public const ushort NormalBombType = SamusBombSpreadRomData.NormalBombType;
+    public const ushort NormalBombType = MorphBallBombDefinitions.NormalBombType;
 
     /// <summary>Power-bomb projectile type formed from HUD item index three.</summary>
-    public const ushort PowerBombType = SamusBombSpreadRomData.PowerBombType;
+    public const ushort PowerBombType = MorphBallBombDefinitions.PowerBombType;
 
     /// <summary>Semantic views of native projectile indices five through nine, in their scan order.</summary>
     private readonly SamusBombProjectileSlot[] _slots =
@@ -415,11 +415,11 @@ public sealed class SamusBombProjectileSystem
         slot.Type = placingPowerBomb ? PowerBombType : NormalBombType;
         slot.Direction = 0;
         slot.Position = slot.Position.WithWhole(samus.Position.Whole);
-        slot.BombTimer = WrappingCountdown.Start(SamusBombSpreadRomData.InitialBombTimer);
+        slot.BombTimer = WrappingCountdown.Start(MorphBallBombDefinitions.InitialBombTimer);
         InitializeBombFromRom(slot);
         CooldownTimer = WrappingCountdown.FromRaw(placingPowerBomb
-            ? SamusBombSpreadRomData.PowerBombCooldown
-            : SamusBombSpreadRomData.NormalBombCooldown);
+            ? MorphBallBombDefinitions.PowerBombCooldown
+            : MorphBallBombDefinitions.NormalBombCooldown);
 
         if (placingPowerBomb)
         {
@@ -460,7 +460,7 @@ public sealed class SamusBombProjectileSystem
             return BombSpreadAdmission.NotApplicable;
 
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs) ||
-            samus.ProjectileFlareCounter < SamusBombSpreadRomData.RequiredChargeFrames ||
+            samus.ProjectileFlareCounter < MorphBallBombDefinitions.RequiredChargeFrames ||
             BombCounter != 0)
         {
             return BombSpreadAdmission.NotApplicable;
@@ -468,8 +468,8 @@ public sealed class SamusBombProjectileSystem
 
         if ((controllerInput & SnesButton.Down) != 0 &&
             (samus.BombSpreadChargeTimeoutCounter &
-                SamusBombSpreadRomData.DownChargeTimeoutMask) <
-                SamusBombSpreadRomData.DownChargeTimeoutMask)
+                MorphBallBombDefinitions.DownChargeTimeoutMask) <
+                MorphBallBombDefinitions.DownChargeTimeoutMask)
         {
             samus.BombSpreadChargeTimeoutCounter =
                 unchecked((ushort)(samus.BombSpreadChargeTimeoutCounter + 1));
@@ -489,7 +489,7 @@ public sealed class SamusBombProjectileSystem
         {
             SamusBombProjectileSlot slot = _slots[index];
             slot.ClearFields();
-            slot.Type = SamusBombSpreadRomData.BombSpreadType;
+            slot.Type = MorphBallBombDefinitions.BombSpreadType;
             slot.IsBombSpread = true;
             slot.Position = slot.Position.WithWhole(samus.Position.Whole);
             InitializeBombFromRom(slot);
@@ -505,7 +505,7 @@ public sealed class SamusBombProjectileSystem
         }
 
         BombCounter = SlotCount;
-        CooldownTimer = WrappingCountdown.Start(SamusBombSpreadRomData.NormalBombCooldown);
+        CooldownTimer = WrappingCountdown.Start(MorphBallBombDefinitions.NormalBombCooldown);
         samus.BombSpreadChargeTimeoutCounter = 0;
         samus.ProjectileFlareCounter = 0;
     }

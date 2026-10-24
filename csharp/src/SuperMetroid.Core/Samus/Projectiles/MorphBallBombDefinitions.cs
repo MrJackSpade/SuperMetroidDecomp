@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>
 /// Cartridge identities and tables owned by the Morph-Ball bomb producer in bank $90.
 /// </summary>
-public static class SamusBombSpreadRomData
+public static class MorphBallBombDefinitions
 {
     /// <summary>Five physical bomb slots at projectile byte indices $0A-$12.</summary>
     public const int SlotCount = 5;

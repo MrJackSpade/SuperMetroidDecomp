@@ -389,7 +389,7 @@ internal static class SamusArmCannonPlacementDefinitions
     {
         pose = 0; phase = 0; yComponent = false;
         if (address < SamusArmCannonArtworkFormat.DrawingDataStart ||
-            address >= (SamusComboRomData.Costs & 0xffff) ||
+            address >= (SamusArmCannonArtworkFormat.SpecialBeamAttackCosts & 0xffff) ||
             SamusArmCannonArtworkFormat.TryStockDrawingByte(address, out _)) return false;
         int start = -1;
         // Resolve allocation identity through the existing semantic pose dispatch.

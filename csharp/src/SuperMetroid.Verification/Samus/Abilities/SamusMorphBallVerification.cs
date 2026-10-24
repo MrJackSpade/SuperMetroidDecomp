@@ -721,7 +721,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         Pose = SamusPoseId.MorphBallGroundRightPose,
         EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
         Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)),
-        ProjectileFlareCounter = SamusBombSpreadRomData.RequiredChargeFrames,
+        ProjectileFlareCounter = MorphBallBombDefinitions.RequiredChargeFrames,
     };
     SamusPoseMetadata.RefreshCollisionRadii(spreadSamus);
     var spreadBombs = CreateBombFixture();
@@ -765,7 +765,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         SelectedHudItem = HudItem.PowerBomb,
         PowerBombs = 2,
         Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)),
-        ProjectileFlareCounter = SamusBombSpreadRomData.RequiredChargeFrames,
+        ProjectileFlareCounter = MorphBallBombDefinitions.RequiredChargeFrames,
     };
     SamusPoseMetadata.RefreshCollisionRadii(selectedPowerBombSpreadSamus);
     var selectedPowerBombSpreadBombs = CreateBombFixture();
@@ -784,7 +784,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     ushort[] expectedSpreadXSub = [0, 0x8000, 0, 0x8000, 0];
     ushort[] expectedSpreadY = [80, 79, 78, 79, 80];
     ushort[] expectedSpreadYSub = [0, 0, 0x8000, 0, 0];
-    for (int index = 0; index < SamusBombSpreadRomData.SlotCount; index++)
+    for (int index = 0; index < MorphBallBombDefinitions.SlotCount; index++)
     {
         SamusBombProjectileSlot slot = spreadBombs.Slots[index];
         AssertTrue(slot.IsBombSpread, $"spread slot {index} selects spread pre-instruction");
@@ -824,7 +824,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         Pose = SamusPoseId.MorphBallGroundRightPose,
         EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
         Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)),
-        ProjectileFlareCounter = SamusBombSpreadRomData.RequiredChargeFrames,
+        ProjectileFlareCounter = MorphBallBombDefinitions.RequiredChargeFrames,
         BombSpreadChargeTimeoutCounter = 0x00bf,
     };
     SamusPoseMetadata.RefreshCollisionRadii(timeoutSamus);
@@ -845,7 +845,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     {
         Pose = SamusPoseId.MorphBallGroundRightPose,
         EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
-        ProjectileFlareCounter = SamusBombSpreadRomData.RequiredChargeFrames,
+        ProjectileFlareCounter = MorphBallBombDefinitions.RequiredChargeFrames,
     };
     var cancelledSpreadBombs = CreateBombFixture();
     BombProjectileFrameResult cancelledSpread = cancelledSpreadBombs.StepFrame(new SamusTerrain { Level = empty }, cancelledSpreadSamus, 0, 0);

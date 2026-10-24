@@ -2061,11 +2061,11 @@ internal static class LookupStream1Verification
             // The six crash poses, and the drained-crouch poses a drained controller installs mid-crash, which read on past the table.
             if (pose is >= 0xc9 and <= 0xce or (int)SamusPoseId.DrainedCrouchingRightPose or (int)SamusPoseId.DrainedCrouchingLeftPose)
             {
-                var angles = SamusShinesparkProjectileRomData.DepartureAngles((SamusPoseId)pose);
+                var angles = ShinesparkEchoDefinitions.DepartureAngles((SamusPoseId)pose);
                 AssertEqual(LookupStream1SamusPolicyDomainsRomByte(rom, 0x90d4c6 + (pose - 0xc9) * 2), angles.First.TableIndex, "native crash first departure angle");
                 AssertEqual(LookupStream1SamusPolicyDomainsRomByte(rom, 0x90d4c7 + (pose - 0xc9) * 2), angles.Second.TableIndex, "native crash opposite departure angle");
             }
-            else AssertThrows<InvalidOperationException>(() => SamusShinesparkProjectileRomData.DepartureAngles((SamusPoseId)pose), "crash departure exact pose domain");
+            else AssertThrows<InvalidOperationException>(() => ShinesparkEchoDefinitions.DepartureAngles((SamusPoseId)pose), "crash departure exact pose domain");
         }
         foreach (byte invalid in new byte[] { 28, byte.MaxValue })
         {

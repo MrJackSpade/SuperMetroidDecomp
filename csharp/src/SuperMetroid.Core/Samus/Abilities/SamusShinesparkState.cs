@@ -921,7 +921,7 @@ false);
         SamusProjectileSystem? projectiles)
     {
         // Resolve the crash axis before publishing the standing pose.
-        var departureAngles = SamusShinesparkProjectileRomData.DepartureAngles(samus.Pose);
+        var departureAngles = ShinesparkEchoDefinitions.DepartureAngles(samus.Pose);
         samus.HorizontalSpeed.ResetSpeedEchoPositionsForShinespark();
 
         // Native reserves fixed projectile slots three and four. Its projectile counter

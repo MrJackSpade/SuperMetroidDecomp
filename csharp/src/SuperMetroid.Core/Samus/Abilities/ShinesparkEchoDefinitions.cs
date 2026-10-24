@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Native identities for the ordinary projectile slots used by crash echoes.</summary>
-public static class SamusShinesparkProjectileRomData
+public static class ShinesparkEchoDefinitions
 {
     /// <summary>$90:D40D writes type $8029 before InitializeShinesparkEchoOrSpazerSba.</summary>
     public const ushort EchoType = 0x8029;

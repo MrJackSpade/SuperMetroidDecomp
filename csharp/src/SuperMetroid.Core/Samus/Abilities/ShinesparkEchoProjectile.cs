@@ -25,7 +25,7 @@ internal sealed class ShinesparkEchoProjectile
         if (index is not (3 or 4)) throw new ArgumentOutOfRangeException(nameof(index));
         var slot = _slotTable.Slots[index];
         _slotTable.ProjectileCounter = unchecked((ushort)(_slotTable.ProjectileCounter + 1));
-        slot.Type = SamusShinesparkProjectileRomData.EchoType;
+        slot.Type = ShinesparkEchoDefinitions.EchoType;
         BeamCombos.InitializeComboData(slot, BeamComboData.Echo);
         slot.PreInstruction = SamusProjectilePreInstruction.ShinesparkEcho;
         slot.Variable = angle.TableIndex;

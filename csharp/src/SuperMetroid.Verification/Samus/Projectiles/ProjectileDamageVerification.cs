@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -123,7 +124,7 @@ internal static class ProjectileDamageVerification
     internal static void VerifyComboPowerBombCostAlgorithm(Func<int, ushort> readWord)
     {
         for (int beam = 0; beam < 12; beam++)
-            AssertEqual(readWord(SamusComboRomData.Costs + beam * 2),
+            AssertEqual(readWord(SamusArmCannonArtworkFormat.SpecialBeamAttackCosts + beam * 2),
                 SamusComboMechanicsDefinitions.GetPowerBombCost(SamusBeamCombinations.FromTableIndex(beam)),
                 $"compiled combo Power Bomb cost {beam}");
         AssertThrows<ArgumentOutOfRangeException>(
@@ -139,7 +140,7 @@ internal static class ProjectileDamageVerification
     internal static void VerifyComboOriginAngleAlgorithm(Func<int, ushort> readWord)
     {
         for (int slot = 0; slot < 4; slot++)
-            AssertEqual(readWord(SamusComboRomData.OriginAngles + slot * 2),
+            AssertEqual(readWord(BeamComboDefinitions.OriginAngles + slot * 2),
                 SamusComboMechanicsDefinitions.GetOriginAngle(slot),
                 $"compiled combo origin angle {slot}");
         AssertThrows<ArgumentOutOfRangeException>(
@@ -161,7 +162,7 @@ internal static class ProjectileDamageVerification
             {
                 bool negative = phase >= 128;
                 int index = negative ? unchecked((byte)(phase + 128)) : phase;
-                int address = SamusComboRomData.PositiveSine + index * 2;
+                int address = BeamComboDefinitions.PositiveSine + index * 2;
                 int magnitude = (SnesEightEight.Multiply(rom.ReadCartridgeByte(address), (byte)amplitude)) +
                     rom.ReadCartridgeByte(address + 1) * (byte)amplitude;
                 return unchecked((short)(negative ? -magnitude : magnitude));
@@ -284,9 +285,9 @@ internal static class ProjectileDamageVerification
     private static MutableCartridgeReadGuard NewComboMechanicsReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
-        guard.Forbid(address => address is >= SamusComboRomData.Costs and < SamusComboRomData.Costs + 24 or
-                >= SamusComboRomDataConstants.OriginAngles and < SamusComboRomDataConstants.OriginAngles + 8 or
-                >= SamusComboRomDataConstants.PositiveSine and < SamusComboRomDataConstants.PositiveSine + 512,
+        guard.Forbid(address => address is >= SamusArmCannonArtworkFormat.SpecialBeamAttackCosts and < SamusArmCannonArtworkFormat.SpecialBeamAttackCosts + 24 or
+                >= BeamComboDefinitionsConstants.OriginAngles and < BeamComboDefinitionsConstants.OriginAngles + 8 or
+                >= BeamComboDefinitionsConstants.PositiveSine and < BeamComboDefinitionsConstants.PositiveSine + 512,
             address => $"Special beam mechanics still read compiled ROM byte ${address:X6}.");
         return guard;
     }

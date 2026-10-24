@@ -13,10 +13,10 @@ internal static class BombSpreadLaunchDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb spread launch definitions")]
     internal static void VerifyBombSpreadLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
-        var reference = Enumerable.Range(0,SamusBombSpreadRomData.SlotCount).Select(i =>
-            new BombSpreadLaunchDefinition(CartridgeImportSource.Require(rom).ReadCartridgeWord((SamusBombSpreadRomData.FuseTimers+i*2)),
-                CartridgeImportSource.Require(rom).ReadCartridgeWord((SamusBombSpreadRomData.XVelocities+i*2)), new SnesUnsignedSixteenSixteen(CartridgeImportSource.Require(rom).ReadCartridgeWord((SamusBombSpreadRomData.YSpeeds+i*2)),
-                CartridgeImportSource.Require(rom).ReadCartridgeWord((SamusBombSpreadRomData.YSubspeeds+i*2))))).ToArray();
+        var reference = Enumerable.Range(0,MorphBallBombDefinitions.SlotCount).Select(i =>
+            new BombSpreadLaunchDefinition(CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.FuseTimers+i*2)),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.XVelocities+i*2)), new SnesUnsignedSixteenSixteen(CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.YSpeeds+i*2)),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.YSubspeeds+i*2))))).ToArray();
         for(int i=0;i<reference.Length;i++)
             AssertEqual(reference[i],SamusBombSpreadLaunchDefinitions.ForSlot(i),"All native Bomb Spread launch words");
         Action<SamusBombProjectileSystem,SamusState> spawn=(system,player)=>system.SpawnBombSpread(player);
@@ -26,7 +26,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
         for(int hold=0;hold<=ushort.MaxValue;hold++)
         {
             samus.BombSpreadChargeTimeoutCounter=(ushort)hold;
-            samus.ProjectileFlareCounter=SamusBombSpreadRomData.RequiredChargeFrames;
+            samus.ProjectileFlareCounter=MorphBallBombDefinitions.RequiredChargeFrames;
             samus.Position = samus.Position.WithWhole(new((ushort)hold, unchecked((ushort)~hold)));
             spawn(bombs,samus);
             for(int i=0;i<reference.Length;i++)
@@ -44,7 +44,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
                 AssertEqual(samus.Position.X.Whole,slot.Position.X.Whole,"Spread launch X wraps with Samus");
                 AssertEqual(samus.Position.Y.Whole,slot.Position.Y.Whole,"Spread launch Y wraps with Samus");
             }
-            AssertEqual(SamusBombSpreadRomData.SlotCount,bombs.BombCounter,"Spread allocates all five slots");
+            AssertEqual(MorphBallBombDefinitions.SlotCount,bombs.BombCounter,"Spread allocates all five slots");
             AssertEqual(0, samus.ProjectileFlareCounter,"Spread consumes charge");
             AssertEqual(0, samus.BombSpreadChargeTimeoutCounter,"Spread clears hold counter");
         }
@@ -60,7 +60,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
     private static void VerifyBombSpreadMotionWraps()
     {
         ushort[] boundaries = [0, 1, 0x7fff, 0x8000, 0xff00, 0xffff];
-        for (int slot = 0; slot < SamusBombSpreadRomData.SlotCount; slot++)
+        for (int slot = 0; slot < MorphBallBombDefinitions.SlotCount; slot++)
         {
             ushort launchWord = SamusBombSpreadLaunchDefinitions.ForSlot(slot).XVelocity;
             foreach (BombSpreadHorizontalVelocity velocity in new[] {
@@ -112,7 +112,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
     /// <summary>Forbids production reads across the migrated Bomb Spread launch tables.</summary>
     private static CartridgeReadGuard NewBombSpreadLaunchReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
-                address >= SamusBombSpreadRomData.FuseTimers &&
-                address < SamusBombSpreadRomData.YSubspeeds + SamusBombSpreadRomData.SlotCount * 2,
+                address >= MorphBallBombDefinitions.FuseTimers &&
+                address < MorphBallBombDefinitions.YSubspeeds + MorphBallBombDefinitions.SlotCount * 2,
             _ => new InvalidDataException("Bomb Spread still read its compiled launch data from ROM."));
 }

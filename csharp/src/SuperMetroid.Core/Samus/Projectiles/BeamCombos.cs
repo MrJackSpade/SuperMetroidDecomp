@@ -57,7 +57,7 @@ internal sealed class BeamCombos
             for (int i = 3; i >= 0; i--)
             {
                 var slot = _slotTable.Slots[i];
-                slot.Type = (ushort)((samus.EquippedBeams & SamusProjectileTypeWord.EquippedBeamBits).ToNativeWord() | SamusComboRomData.ProjectileTag);
+                slot.Type = (ushort)((samus.EquippedBeams & SamusProjectileTypeWord.EquippedBeamBits).ToNativeWord() | BeamComboDefinitions.ProjectileTag);
                 slot.Direction = kind == SamusComboKind.Spazer ? (ushort)5 : (ushort)0;
                 slot.PreInstruction = kind switch
                 {
@@ -84,7 +84,7 @@ internal sealed class BeamCombos
                 {
                     slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + (i < 2 ? 128 : -128))), unchecked((ushort)(samus.Position.Y.Whole + (i is 0 or 3 ? 128 : -128)))));
                 }
-                if (kind == SamusComboKind.Spazer && i >= 2) slot.Type = SamusComboRomData.SpazerTrailType;
+                if (kind == SamusComboKind.Spazer && i >= 2) slot.Type = BeamComboDefinitions.SpazerTrailType;
                 InitializeComboData(slot, kind == SamusComboKind.Ice ? BeamComboData.Charged
                     : kind == SamusComboKind.Spazer && i >= 2 ? BeamComboData.Echo : BeamComboData.Combo);
             }
@@ -196,12 +196,12 @@ internal sealed class BeamCombos
         switch (slot.Velocity.Y.SignedRawValue)
         {
             case 0:
-                slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((byte)(slot.Velocity.X.SignedRawValue + SamusComboRomData.PlasmaRadiusStep))));
-                if (slot.Velocity.X.SignedRawValue >= SamusComboRomData.PlasmaOuterRadius) slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(1));
+                slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((byte)(slot.Velocity.X.SignedRawValue + BeamComboDefinitions.PlasmaRadiusStep))));
+                if (slot.Velocity.X.SignedRawValue >= BeamComboDefinitions.PlasmaOuterRadius) slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(1));
                 break;
             case 1:
-                slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((byte)(slot.Velocity.X.SignedRawValue - SamusComboRomData.PlasmaRadiusStep))));
-                if (slot.Velocity.X.SignedRawValue < SamusComboRomData.PlasmaInnerThreshold) slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(2));
+                slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((byte)(slot.Velocity.X.SignedRawValue - BeamComboDefinitions.PlasmaRadiusStep))));
+                if (slot.Velocity.X.SignedRawValue < BeamComboDefinitions.PlasmaInnerThreshold) slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(2));
                 break;
             case 2:
                 // Only the final expansion checks visibility. The first two phases
@@ -211,7 +211,7 @@ internal sealed class BeamCombos
                     unchecked((short)(slot.Position.Y.Whole - camera.Y - 16)) < 0 ||
                     unchecked((short)(slot.Position.Y.Whole - camera.Y - 256)) >= 0)
                     _animation.ClearProjectile(slot);
-                else slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((byte)(slot.Velocity.X.SignedRawValue + SamusComboRomData.PlasmaRadiusStep))));
+                else slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((byte)(slot.Velocity.X.SignedRawValue + BeamComboDefinitions.PlasmaRadiusStep))));
                 break;
             default: throw new InvalidDataException("Plasma ring reached an invalid native phase.");
         }
@@ -341,7 +341,7 @@ internal sealed class BeamCombos
         slot.PreInstruction = SamusProjectilePreInstruction.SpazerComboFalling;
         if (slot.SlotIndex < 2)
         {
-            slot.Type = SamusComboRomData.SpazerTrailType;
+            slot.Type = BeamComboDefinitions.SpazerTrailType;
             InitializeComboData(slot, BeamComboData.Echo);
         }
     }
@@ -356,13 +356,13 @@ internal sealed class BeamCombos
         if ((slot.Direction & SamusProjectileDirectionWord.LifecycleBits) != 0)
         {
             _animation.ClearProjectile(slot);
-            return SamusComboRomData.WaveRemovalSound;
+            return BeamComboDefinitions.WaveRemovalSound;
         }
         slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue - 1))));
         if (slot.Velocity.Y.SignedRawValue <= 0)
         {
             _animation.ClearProjectile(slot);
-            return SamusComboRomData.WaveRemovalSound;
+            return BeamComboDefinitions.WaveRemovalSound;
         }
         short oldXSpeed = slot.Velocity.X.SignedRawValue;
         ushort oldTimer = slot.TrailTimer.RawValue;
@@ -381,16 +381,16 @@ internal sealed class BeamCombos
         slot.Position = slot.Position.WithWholeY(SnesFixedPosition.WholeOf(unchecked((int)y))).WithFractionY(unchecked((ushort)y));
         shared.SetSharedCooldown(2);
         _charge.FlareCounter = 0;
-        return slot.SlotIndex == 3 && (oldXSpeed < 0) != (slot.Velocity.X.SignedRawValue < 0) ? SamusComboRomData.WavePulseSound : (ushort)0;
+        return slot.SlotIndex == 3 && (oldXSpeed < 0) != (slot.Velocity.X.SignedRawValue < 0) ? BeamComboDefinitions.WavePulseSound : (ushort)0;
     }
 
     /// <summary>Moves one Wave velocity component toward Samus, respecting the native acceleration and signed speed bound.</summary>
     private static short AccelerateWaveAxis(short speed, short targetDelta)
     {
         if (targetDelta < 0)
-            return unchecked((short)(speed + SamusComboRomData.WaveSpeedLimit - 1)) >= 0 ?
-                unchecked((short)(speed - SamusComboRomData.WaveAcceleration)) : speed;
-        return unchecked((short)(speed - SamusComboRomData.WaveSpeedLimit)) < 0 ?
-            unchecked((short)(speed + SamusComboRomData.WaveAcceleration)) : speed;
+            return unchecked((short)(speed + BeamComboDefinitions.WaveSpeedLimit - 1)) >= 0 ?
+                unchecked((short)(speed - BeamComboDefinitions.WaveAcceleration)) : speed;
+        return unchecked((short)(speed - BeamComboDefinitions.WaveSpeedLimit)) < 0 ?
+            unchecked((short)(speed + BeamComboDefinitions.WaveAcceleration)) : speed;
     }
 }

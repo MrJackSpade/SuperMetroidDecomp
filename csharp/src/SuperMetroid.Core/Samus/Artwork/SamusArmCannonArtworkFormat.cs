@@ -418,7 +418,11 @@ public static class SamusArmCannonArtworkFormat
     /// <summary>$90:CA05 and vertical-aim descriptors: initial diagonal selector changes to the next direction word after frame zero.</summary>
     private const byte FrameDependentDirectionFlag = 1 << 7;
     /// <summary>$90:CC21, CostOfSBAsInPowerBombs: the final24 installed drawing-window bytes alias this independent mechanics owner.</summary>
-    private const int AdjacentCostStart = unchecked((ushort)SamusComboRomData.Costs);
+    /// <summary>CostOfSBAsInPowerBombs at $90:CC21, twelve word costs by beam index, which the arm cannon's over-read reaches.</summary>
+    internal const int SpecialBeamAttackCosts = 0x90cc21;
+
+    /// <summary>The bank offset of the special beam attacks' cost table.</summary>
+    private const int AdjacentCostStart = unchecked((ushort)SpecialBeamAttackCosts);
 
     /// <summary>The $90:C9D9-$CC20 pose descriptors, ordered by native address.</summary>
     private static readonly ArmCannonDrawing[] DrawingsByAddress = Enum.GetValues<ArmCannonDrawing>();

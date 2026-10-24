@@ -26,7 +26,7 @@ internal static class GroundedBombSpreadVerification
         {
             var samus = new SamusState { Pose = SamusPoseId.MorphBallGroundRightPose,
                 EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
-                Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)), ProjectileFlareCounter = SamusBombSpreadRomData.RequiredChargeFrames };
+                Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)), ProjectileFlareCounter = MorphBallBombDefinitions.RequiredChargeFrames };
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             samus.Kinematics.YAcceleration = new SnesUnsignedSixteenSixteen(0, 0x1c00);
             var bombs = CreateBombFixture();
@@ -35,7 +35,7 @@ internal static class GroundedBombSpreadVerification
             {
                 bombs.StepFrame(new SamusTerrain { Level = level }, samus, shootDown, 0);
                 AssertTrue(bombs.Slots.All(slot => !slot.IsActive) && bombs.BombCounter == 0, "Down+Shoot postpones grounded spread");
-                AssertEqual(SamusBombSpreadRomData.RequiredChargeFrames, samus.ProjectileFlareCounter, "retained spread charge is not consumed while holding Down");
+                AssertEqual(MorphBallBombDefinitions.RequiredChargeFrames, samus.ProjectileFlareCounter, "retained spread charge is not consumed while holding Down");
                 AssertEqual((ushort)(tick + 1), samus.BombSpreadChargeTimeoutCounter, "grounded spread hold counter advances once per tick");
             }
             var released = bombs.StepFrame(new SamusTerrain { Level = level }, samus, keepDown ? shootDown : SnesButton.X, 0);
@@ -52,8 +52,8 @@ internal static class GroundedBombSpreadVerification
                 {
                     var slot = bombs.Slots[slotIndex];
                     ushort Read(int address) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + slotIndex * 2);
-                    ushort encodedX = Read(SamusBombSpreadRomData.XVelocities);
-                    long initialY = -(Read(SamusBombSpreadRomData.YSpeeds) + (hold >> 6 & 3)) * 65536L + Read(SamusBombSpreadRomData.YSubspeeds);
+                    ushort encodedX = Read(MorphBallBombDefinitions.XVelocities);
+                    long initialY = -(Read(MorphBallBombDefinitions.YSpeeds) + (hold >> 6 & 3)) * 65536L + Read(MorphBallBombDefinitions.YSubspeeds);
                     long expectedX = 512L * 65536 + tick * (encodedX & 0x7fff) * 256L * ((encodedX & 0x8000) == 0 ? 1 : -1);
                     long expectedY = 512L * 65536 + tick * initialY + 0x1c00L * tick * (tick + 1) / 2;
                     string context = $"hold {hold}, down {keepDown}, tick {tick}, slot {slotIndex}";
@@ -61,7 +61,7 @@ internal static class GroundedBombSpreadVerification
                     AssertEqual((ushort)expectedX, slot.Position.X.Fraction, $"spread X fraction: {context}");
                     AssertEqual((ushort)SnesSixteenSixteen.WholeOf(unchecked((int)expectedY)), slot.Position.Y.Whole, $"spread Y: {context}");
                     AssertEqual((ushort)expectedY, slot.Position.Y.Fraction, $"spread Y fraction: {context}");
-                    AssertEqual((ushort)(Read(SamusBombSpreadRomData.FuseTimers) - tick), slot.BombTimer.RawValue, $"individual spread fuse: {context}");
+                    AssertEqual((ushort)(Read(MorphBallBombDefinitions.FuseTimers) - tick), slot.BombTimer.RawValue, $"individual spread fuse: {context}");
                 }
             }
         }

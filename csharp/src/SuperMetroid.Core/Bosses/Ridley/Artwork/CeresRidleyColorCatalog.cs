@@ -24,30 +24,22 @@ public sealed class CeresRidleyColorCatalog
     internal readonly CeresBabyPaintDefinitions baby;
 
     /// <summary>Builds the selected Ceres Ridley colours from their rows; a missing alarm or Baby family, which older overrides predate, is taken from <paramref name="stock"/>.</summary>
-    /// <param name="start">The startup colours.</param>
-    /// <param name="eyeFade">The eye fade rows.</param>
-    /// <param name="bodyFade">The body fade rows.</param>
-    /// <param name="health">The health rows.</param>
-    /// <param name="alarm">The alarm rows, or null to inherit the stock alarm colours.</param>
-    /// <param name="retreatBg">The retreat background colours.</param>
-    /// <param name="retreatShared">The retreat colours shared with the startup door paints.</param>
-    /// <param name="baby">The Baby Metroid rows, or null to inherit the stock Baby colours.</param>
+    /// <param name="rows">The selected colour rows.</param>
     /// <param name="stock">The current stock colours a missing family is inherited from.</param>
-    internal static CeresRidleyColorCatalog Create(Bgr555[] start, Bgr555[][] eyeFade, Bgr555[][] bodyFade,
-        Bgr555[][] health, Bgr555[][]? alarm, Bgr555[] retreatBg, Bgr555[] retreatShared, Bgr555[][]? baby,
-        CeresRidleyColorCatalog? stock)
+    internal static CeresRidleyColorCatalog Create(CeresRidleyColorRows rows, CeresRidleyColorCatalog? stock)
     {
-        var compiledBody = new CeresRidleyFadeColorDefinitions(CeresRidleyFadeKind.Body, bodyFade);
+        Ensure.NotNull(rows);
+        var compiledBody = new CeresRidleyFadeColorDefinitions(CeresRidleyFadeKind.Body, rows.BodyFade);
         return new(new CeresRidleyColorParts
         {
-            Start = start,
-            EyeFade = new CeresRidleyFadeColorDefinitions(CeresRidleyFadeKind.Eyes, eyeFade),
+            Start = rows.Start,
+            EyeFade = new CeresRidleyFadeColorDefinitions(CeresRidleyFadeKind.Eyes, rows.EyeFade),
             BodyFade = compiledBody,
-            Health = health,
-            Alarm = alarm is null ? Ensure.NotNull(stock).alarm : new CeresRidleyAlarmColorDefinitions(alarm),
-            RetreatBg = retreatBg,
-            RetreatShared = retreatShared,
-            Baby = baby is null ? Ensure.NotNull(stock).baby : new CeresBabyPaintDefinitions(baby, compiledBody),
+            Health = rows.Health,
+            Alarm = rows.Alarm is null ? Ensure.NotNull(stock).alarm : new CeresRidleyAlarmColorDefinitions(rows.Alarm),
+            RetreatBg = rows.RetreatBg,
+            RetreatShared = rows.RetreatShared,
+            Baby = rows.Baby is null ? Ensure.NotNull(stock).baby : new CeresBabyPaintDefinitions(rows.Baby, compiledBody),
         });
     }
 

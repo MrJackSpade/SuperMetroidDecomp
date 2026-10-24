@@ -167,24 +167,14 @@ public sealed class PauseReserveUiPresentation
     }
 
     /// <summary>Compiles the selected reserve labels, digit words, arrow placements and arrow colours into a presentation.</summary>
-    /// <param name="labelOffsets">Each label's byte anchor in the equipment tilemap.</param>
-    /// <param name="labelWords">Each label's little-endian tile words.</param>
-    /// <param name="digitOffset">Byte anchor of the three-place reserve supply.</param>
-    /// <param name="digits">Ten decimal glyph words.</param>
-    /// <param name="arrowOffsets">Ten distinct arrow-cell byte positions.</param>
-    /// <param name="enabledPalette">BG palette selector used when reserve control is enabled.</param>
-    /// <param name="disabledPalette">BG palette selector used when reserve control is unavailable.</param>
-    /// <param name="solidColor6">Static arrow bevel colour for palette slot six.</param>
-    /// <param name="solidColor11">Static arrow bevel colour for palette slot eleven.</param>
-    /// <param name="arrowFrames">The two bevel colours of each of the 32 pulse phases.</param>
-    internal static PauseReserveUiPresentation Create(Dictionary<PauseReserveLabel, int> labelOffsets,
-        Dictionary<PauseReserveLabel, byte[]> labelWords, int digitOffset, byte[][] digits, int[] arrowOffsets,
-        int enabledPalette, int disabledPalette, Bgr555 solidColor6, Bgr555 solidColor11, ReserveArrowColors[] arrowFrames)
+    /// <param name="selection">The selected labels, digits, arrow placements and arrow colours.</param>
+    internal static PauseReserveUiPresentation Create(PauseReserveUiSelection selection)
     {
+        Ensure.NotNull(selection);
         var labels = new Dictionary<PauseReserveLabel, ReserveLabel>();
-        foreach ((PauseReserveLabel name, int offset) in labelOffsets)
-            labels.Add(name, ReserveLabel.Load(name, offset, labelWords[name]));
-        return new(new PauseReserveUiParts { Labels = labels, DigitOffset = digitOffset, Digits = digits, ArrowOffsets = arrowOffsets, EnabledPalette = enabledPalette, DisabledPalette = disabledPalette, SolidColor6 = solidColor6, SolidColor11 = solidColor11, ArrowFrames = arrowFrames });
+        foreach (KeyValuePair<PauseReserveLabel, int> label in selection.LabelOffsets)
+            labels.Add(label.Key, ReserveLabel.Load(label.Key, label.Value, selection.LabelWords[label.Key]));
+        return new(new PauseReserveUiParts { Labels = labels, DigitOffset = selection.DigitOffset, Digits = selection.Digits, ArrowOffsets = selection.ArrowOffsets, EnabledPalette = selection.EnabledPalette, DisabledPalette = selection.DisabledPalette, SolidColor6 = selection.SolidColor6, SolidColor11 = selection.SolidColor11, ArrowFrames = selection.ArrowFrames });
     }
 
     /// <summary>Resolves unchanged reserve-label cells from stock and stores only edited placement or tile words.</summary>

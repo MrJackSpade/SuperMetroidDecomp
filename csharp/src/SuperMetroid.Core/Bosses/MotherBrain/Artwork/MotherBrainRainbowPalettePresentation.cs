@@ -21,23 +21,18 @@ public sealed class MotherBrainRainbowPalettePresentation
     internal readonly BeamColors beamCycle;
 
     /// <summary>Builds the selected rainbow, drain, revival, fake-death, restoration and beam-backdrop colours.</summary>
-    /// <param name="rainbow">The rainbow phases.</param>
-    /// <param name="toGrey">The drain phases.</param>
-    /// <param name="fromGrey">The revival phases.</param>
-    /// <param name="fakeDeathToGrey">The fake-death brain fade, or null to inherit it from <paramref name="currentStock"/>.</param>
-    /// <param name="normal">The restored normal phase.</param>
-    /// <param name="beamInitial">The beam backdrop's first colour.</param>
-    /// <param name="beamCycle">The beam backdrop's hue cycle.</param>
+    /// <param name="colours">The selected colours; a null fake-death fade is inherited from <paramref name="currentStock"/>.</param>
     /// <param name="currentStock">The current stock presentation a missing fake-death fade is inherited from.</param>
-    internal static MotherBrainRainbowPalettePresentation Create(MotherBrainPaletteFrameColours[] rainbow,
-        MotherBrainPaletteFrameColours[] toGrey, MotherBrainPaletteFrameColours[] fromGrey, Bgr555[][]? fakeDeathToGrey,
-        MotherBrainPaletteFrameColours normal, Bgr555 beamInitial, Bgr555[] beamCycle,
-        MotherBrainRainbowPalettePresentation? currentStock) =>
-        new(Frames(rainbow), Frames(toGrey), Frames(fromGrey),
-            fakeDeathToGrey is null
+    internal static MotherBrainRainbowPalettePresentation Create(MotherBrainRainbowPaletteColours colours,
+        MotherBrainRainbowPalettePresentation? currentStock)
+    {
+        Ensure.NotNull(colours);
+        return new(Frames(colours.Rainbow), Frames(colours.ToGrey), Frames(colours.FromGrey),
+            colours.FakeDeathToGrey is null
                 ? Ensure.NotNull(currentStock).fakeDeathToGrey
-                : new PaletteFade(fakeDeathToGrey.Select(brain => new PaletteFrame(brain, [], null)).ToArray()),
-            Frame(normal), beamInitial, beamCycle);
+                : new PaletteFade(colours.FakeDeathToGrey.Select(brain => new PaletteFrame(brain, [], null)).ToArray()),
+            Frame(colours.Normal), colours.BeamInitial, colours.BeamCycle);
+    }
 
     /// <summary>One selected phase as a palette frame.</summary>
     private static PaletteFrame Frame(MotherBrainPaletteFrameColours colours) =>

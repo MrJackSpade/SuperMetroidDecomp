@@ -42,23 +42,26 @@ public static class MotherBrainRoomColorFile
         Bgr555[] finalRoom = Compile(document.FinalRoom, MotherBrainRoomColorRomData.SliceColors * 2, "final room");
         // A legacy override inherits the families it predates from the current stock the
         // version check above required; a null family says so.
-        return MotherBrainRoomColorPresentation.Create(flash, finalRoom,
-            Compile(document.PhaseTwoAttack, MotherBrainRoomColorRomData.PhaseTwoColors,
+        return MotherBrainRoomColorPresentation.Create(new MotherBrainRoomColours
+        {
+            Flash = flash,
+            FinalRoom = finalRoom,
+            PhaseTwoAttack = Compile(document.PhaseTwoAttack, MotherBrainRoomColorRomData.PhaseTwoColors,
                 "phase-two attack"),
-            Compile(document.PhaseTwoRearLeg, MotherBrainRoomColorRomData.PhaseTwoColors,
+            PhaseTwoRearLeg = Compile(document.PhaseTwoRearLeg, MotherBrainRoomColorRomData.PhaseTwoColors,
                 "phase-two rear leg"),
-            inheritsRoomEntry
+            InitialGlassShard = inheritsRoomEntry
                 ? null
                 : Compile(document.InitialGlassShard, MotherBrainRoomColorRomData.InitialColors,
                     "room-entry glass shard"),
-            inheritsRoomEntry
+            InitialTubeProjectile = inheritsRoomEntry
                 ? null
                 : Compile(document.InitialTubeProjectile, MotherBrainRoomColorRomData.InitialColors,
                     "room-entry tube projectile"),
-            inheritsRecoveryLights
+            RecoveryLights = inheritsRecoveryLights
                 ? null
                 : CompileRecoveryLights(document.RecoveryLights),
-            currentStock);
+        }, currentStock);
     }
 
     /// <summary>Validates the seven recovery frames and compiles their RGB5 words.</summary>

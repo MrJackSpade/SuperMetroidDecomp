@@ -44,8 +44,11 @@ public static class CeresRidleyColorFile
             ? null
             : CompileRows(document.Baby, CeresRidleyPaletteRomData.BabyRowCount,
                 CeresRidleyPaletteRomData.BabyColorCount, "Baby");
-        return CeresRidleyColorCatalog.Create(start, eyeFade, bodyFade, health, alarm, retreatBg, retreatShared,
-            baby, stockForLegacyOverride);
+        return CeresRidleyColorCatalog.Create(new CeresRidleyColorRows
+        {
+            Start = start, EyeFade = eyeFade, BodyFade = bodyFade, Health = health, Alarm = alarm,
+            RetreatBg = retreatBg, RetreatShared = retreatShared, Baby = baby,
+        }, stockForLegacyOverride);
     }
 
     /// <summary>Serializes a complete current-version color document as indented camel-case UTF-8 JSON, then reloads it to enforce the same schema, dimension, and RGB5 validation as asset loading.</summary>

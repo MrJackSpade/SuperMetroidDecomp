@@ -21,23 +21,17 @@ public sealed class MotherBrainRoomColorPresentation
     internal readonly RecoveryLightFade recoveryLights;
 
     /// <summary>Builds the selected flash, room, phase-two, room-entry and recovery colours.</summary>
-    /// <param name="flash">The fourteen flash rows.</param>
-    /// <param name="finalRoom">The final room colours.</param>
-    /// <param name="phaseTwoAttack">The phase-two attack colours.</param>
-    /// <param name="phaseTwoRearLeg">The phase-two rear-leg colours.</param>
-    /// <param name="initialGlassShard">The room-entry glass shard colours, or null to inherit them from <paramref name="currentStock"/>.</param>
-    /// <param name="initialTubeProjectile">The room-entry tube projectile colours, or null to inherit them from <paramref name="currentStock"/>.</param>
-    /// <param name="recoveryLights">The room-light recovery frames, or null to inherit them from <paramref name="currentStock"/>.</param>
+    /// <param name="colours">The selected colours; a null family is inherited from <paramref name="currentStock"/>.</param>
     /// <param name="currentStock">The current stock presentation a missing family is inherited from.</param>
-    internal static MotherBrainRoomColorPresentation Create(Bgr555[][] flash, Bgr555[] finalRoom,
-        Bgr555[] phaseTwoAttack, Bgr555[] phaseTwoRearLeg, Bgr555[]? initialGlassShard, Bgr555[]? initialTubeProjectile,
-        Bgr555[][]? recoveryLights, MotherBrainRoomColorPresentation? currentStock)
+    internal static MotherBrainRoomColorPresentation Create(MotherBrainRoomColours colours,
+        MotherBrainRoomColorPresentation? currentStock)
     {
-        var room = new FinalRoomPalette(finalRoom);
-        return new(flash, room, phaseTwoAttack, phaseTwoRearLeg,
-            initialGlassShard is null ? Ensure.NotNull(currentStock).initialGlassShard : new GlassPalette(initialGlassShard, room),
-            initialTubeProjectile is null ? Ensure.NotNull(currentStock).initialTubeProjectile : new TubePalette(initialTubeProjectile, room),
-            recoveryLights is null ? Ensure.NotNull(currentStock).recoveryLights : new RecoveryLightFade(recoveryLights, room));
+        Ensure.NotNull(colours);
+        var room = new FinalRoomPalette(colours.FinalRoom);
+        return new(colours.Flash, room, colours.PhaseTwoAttack, colours.PhaseTwoRearLeg,
+            colours.InitialGlassShard is null ? Ensure.NotNull(currentStock).initialGlassShard : new GlassPalette(colours.InitialGlassShard, room),
+            colours.InitialTubeProjectile is null ? Ensure.NotNull(currentStock).initialTubeProjectile : new TubePalette(colours.InitialTubeProjectile, room),
+            colours.RecoveryLights is null ? Ensure.NotNull(currentStock).recoveryLights : new RecoveryLightFade(colours.RecoveryLights, room));
     }
 
     /// <summary>Retains independent color edits while keeping stock-derived relationships implicit.</summary>

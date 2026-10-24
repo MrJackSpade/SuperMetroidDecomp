@@ -23,25 +23,27 @@ public static class MotherBrainRainbowPaletteFile
         if (version != MotherBrainRainbowPaletteVersion.Current &&
             !(version == MotherBrainRainbowPaletteVersion.PreFakeDeath && currentStock is not null))
             throw new InvalidDataException("Unsupported Mother Brain rainbow palette version.");
-        return MotherBrainRainbowPalettePresentation.Create(
-            CompileFrames(document.Rainbow, MotherBrainRainbowPaletteFormat.RainbowFrameCount,
+        return MotherBrainRainbowPalettePresentation.Create(new MotherBrainRainbowPaletteColours
+        {
+            Rainbow = CompileFrames(document.Rainbow, MotherBrainRainbowPaletteFormat.RainbowFrameCount,
                 MotherBrainRainbowPaletteRomData.ColorCount,
                 MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainTrailingColor.Absent, nameof(document.Rainbow)),
-            CompileFrames(document.ToGrey, MotherBrainRainbowPaletteFormat.GreyFrameCount,
+            ToGrey = CompileFrames(document.ToGrey, MotherBrainRainbowPaletteFormat.GreyFrameCount,
                 MotherBrainDrainedPaletteRomData.DrainedColors,
                 MotherBrainDrainedPaletteRomData.BackLegCount, MotherBrainTrailingColor.Required, nameof(document.ToGrey)),
-            CompileFrames(document.FromGrey, MotherBrainRainbowPaletteFormat.GreyFrameCount,
+            FromGrey = CompileFrames(document.FromGrey, MotherBrainRainbowPaletteFormat.GreyFrameCount,
                 MotherBrainDrainedPaletteRomData.RevivalColors,
                 MotherBrainDrainedPaletteRomData.BackLegCount, MotherBrainTrailingColor.Required, nameof(document.FromGrey)),
             // A pre-fake-death override inherits that fade from the current stock the version check required.
-            version == MotherBrainRainbowPaletteVersion.PreFakeDeath
+            FakeDeathToGrey = version == MotherBrainRainbowPaletteVersion.PreFakeDeath
                 ? null
                 : CompileFakeDeathFrames(document.FakeDeathToGrey),
-            CompileFrames([document.Normal], 1, MotherBrainRainbowPaletteRomData.ColorCount,
+            Normal = CompileFrames([document.Normal], 1, MotherBrainRainbowPaletteRomData.ColorCount,
                 MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainTrailingColor.Absent, nameof(document.Normal))[0],
-            CompileColor(document.BeamInitial, nameof(document.BeamInitial)),
-            CompileColors(document.BeamCycle, MotherBrainRainbowPaletteFormat.BeamCycleColorCount,
-                nameof(document.BeamCycle)), currentStock);
+            BeamInitial = CompileColor(document.BeamInitial, nameof(document.BeamInitial)),
+            BeamCycle = CompileColors(document.BeamCycle, MotherBrainRainbowPaletteFormat.BeamCycleColorCount,
+                nameof(document.BeamCycle)),
+        }, currentStock);
     }
 
     /// <summary>Requires eight three-ink brain frames, with no rear-leg or trailing color.</summary>

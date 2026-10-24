@@ -47,8 +47,13 @@ public static class PauseReserveUiFile
         int digitOffset = Offset(document.Digits.Anchor, "Digits");
         Bgr555 solidColor6 = Color(document.Arrow.SolidColor6, "solid color 6");
         Bgr555 solidColor11 = Color(document.Arrow.SolidColor11, "solid color 11");
-        return PauseReserveUiPresentation.Create(labelOffsets, labelWords, digitOffset, digits, arrowOffsets,
-            document.Arrow.EnabledPalette, document.Arrow.DisabledPalette, solidColor6, solidColor11, frames);
+        return PauseReserveUiPresentation.Create(new PauseReserveUiSelection
+        {
+            LabelOffsets = labelOffsets, LabelWords = labelWords, DigitOffset = digitOffset, Digits = digits,
+            ArrowOffsets = arrowOffsets, EnabledPalette = document.Arrow.EnabledPalette,
+            DisabledPalette = document.Arrow.DisabledPalette, SolidColor6 = solidColor6, SolidColor11 = solidColor11,
+            ArrowFrames = frames,
+        });
 
         // Converts a bounded equipment-page cell coordinate to its little-endian byte offset.
         static int Offset(PauseGridPoint? point, string name)

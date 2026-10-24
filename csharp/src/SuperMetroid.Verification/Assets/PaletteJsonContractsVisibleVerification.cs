@@ -23,7 +23,7 @@ namespace SuperMetroid.Verification.Assets;
 /// <summary>Checks palette JSON edits change visible color while preserving FX clocks and live state.</summary>
 internal static class PaletteJsonContractsVisibleVerification
 {
-    /// <summary>Real compiled FX/animation and software pixels use only installed color data and live RAM.</summary>
+    /// <summary>Real compiled FX/animation and drawn pixels use only installed color data and live RAM.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyPaletteContractVisibleIsolation()
     {

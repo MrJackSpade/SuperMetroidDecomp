@@ -206,7 +206,7 @@ internal static class CeresEscapeHandoffVerification
 
         Rgba32[] pixel = [new Rgba32(255, 120, 60, 255)];
         departure.ApplyBrightness(pixel);
-        AssertEqual(new Rgba32(0, 0, 0, 255), pixel[0], "forced blank produces black software output");
+        AssertEqual(new Rgba32(0, 0, 0, 255), pixel[0], "forced blank darkens a pixel to black");
     }
 
     /// <summary>Synthetic cartridge with the knockback and falling poses the Ridley ejection handler installs.</summary>

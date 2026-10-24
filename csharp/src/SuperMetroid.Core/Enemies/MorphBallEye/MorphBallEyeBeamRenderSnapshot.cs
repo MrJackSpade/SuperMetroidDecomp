@@ -13,24 +13,10 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// <param name="WorldPosition">Eye body's origin in whole room pixels, before layer-one scroll is subtracted.</param>
 /// <param name="Angle">Latched beam aim, measured clockwise from up in 256 table units per turn.</param>
 /// <param name="AngularWidth">Whole angular half-width in table units, zero through four; fractional widening state is not included in this render snapshot.</param>
-/// <param name="Red">Raw SNES COLDATA red-selector/component byte, with selector bit <c>$20</c> and intensity in the low five bits.</param>
-/// <param name="Green">Raw SNES COLDATA green-selector/component byte, with selector bit <c>$40</c> and intensity in the low five bits.</param>
-/// <param name="Blue">Raw SNES COLDATA blue-selector/component byte, with selector bit <c>$80</c> and intensity in the low five bits.</param>
+/// <param name="Color">The colour the beam adds inside its cone, latched with the accepted NMI's actor image.</param>
 public readonly record struct MorphBallEyeBeamRenderSnapshot(
     MorphBallEyeBeamPhase Phase,
     Position16<RoomPixels> WorldPosition,
     SnesAngle Angle,
     int AngularWidth,
-    int Red,
-    int Green,
-    int Blue)
-{
-    /// <summary>The raw COLDATA red write, 0 through 255.</summary>
-    public int Red { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, Red);
-
-    /// <summary>The raw COLDATA green write, 0 through 255.</summary>
-    public int Green { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, Green);
-
-    /// <summary>The raw COLDATA blue write, 0 through 255.</summary>
-    public int Blue { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, Blue);
-}
+    Bgr555 Color);

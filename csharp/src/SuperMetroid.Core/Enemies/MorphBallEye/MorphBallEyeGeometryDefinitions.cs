@@ -18,14 +18,13 @@ internal static class MorphBallEyeGeometryDefinitions
     };
 
     /// <summary>
-    /// $88:EA8B interleaves red/green COLDATA bytes, zero blue intensity and padding.
-    /// Both active channels trace intensity16 down to8 and back to15 in sixteen steps.
-    /// Channel selector bits must remain present because the native fade decrements raw bytes.
+    /// $88:EA8B interleaves the red and green intensities, a dark blue and padding.
+    /// Red and green trace intensity 16 down to 8 and back to 15 in sixteen steps; blue stays dark.
     /// </summary>
-    internal static RedGreenLevels BeamColor(int phase)
+    internal static Bgr555 BeamColor(int phase)
     {
         if ((uint)phase >= 16) throw new ArgumentOutOfRangeException(nameof(phase));
         int intensity = 8 + Math.Abs(phase - 8);
-        return new RedGreenLevels((byte)(0x20 | intensity), (byte)(0x40 | intensity));
+        return new Bgr555(intensity, intensity, 0);
     }
 }

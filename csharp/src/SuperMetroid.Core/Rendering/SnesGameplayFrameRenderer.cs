@@ -444,7 +444,7 @@ public static class SnesGameplayFrameRenderer
         ushort[] nativeWindows = EyeBeamWindowBuilder.Build(origin, angle, angularWidth);
         var windows = new ColorAddWindow[Height];
         Array.Fill(windows, ColorAddWindow.Empty);
-        byte red = ExpandFiveBit(beam.Red), green = ExpandFiveBit(beam.Green), blue = ExpandFiveBit(beam.Blue);
+        byte red = ExpandFiveBit(beam.Color.Red), green = ExpandFiveBit(beam.Color.Green), blue = ExpandFiveBit(beam.Color.Blue);
         for (int y = HudHeight; y < Height; y++)
         {
             int left = SnesLittleEndian.LowByte(nativeWindows[y]), right = SnesLittleEndian.HighByte(nativeWindows[y]);

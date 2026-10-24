@@ -29,21 +29,12 @@ public sealed class MorphBallEyeBeamState
     public int ColorIndex { get; internal set; }
 
     /// <summary>
-    /// The red level of the added fixed colour, as the fixed-colour register takes it: the red selector with a five-bit
-    /// intensity, never below <see cref="MorphBallEyeBeamDefinitions.FadedRed"/>.
+    /// The colour the beam adds inside its cone: red and green only, never blue; black before the beam appears and once
+    /// it has faded.
     /// </summary>
-    public int Red { get; internal set; } = MorphBallEyeBeamDefinitions.FadedRed;
+    public Bgr555 Color { get; internal set; }
 
-    /// <summary>
-    /// The green level of the added fixed colour, as the fixed-colour register takes it: the green selector with a
-    /// five-bit intensity, never below <see cref="MorphBallEyeBeamDefinitions.FadedGreen"/>.
-    /// </summary>
-    public int Green { get; internal set; } = MorphBallEyeBeamDefinitions.FadedGreen;
-
-    /// <summary>The blue level of the added fixed colour: the blue selector with zero intensity, which the beam never changes.</summary>
-    public int Blue { get; internal set; } = MorphBallEyeBeamDefinitions.Blue;
-
-    /// <summary>Clears the HDMA beam lifetime and restores neutral COLDATA selector bytes.</summary>
+    /// <summary>Ends the beam's lifetime and returns its colour to black.</summary>
     internal void Reset()
     {
         Phase = MorphBallEyeBeamPhase.Inactive;
@@ -51,27 +42,9 @@ public sealed class MorphBallEyeBeamState
         AngularHalfWidth = SnesSignedSixteenSixteen.Zero;
         AngularHalfWidthGrowth = SnesSignedSixteenSixteen.Zero;
         ColorIndex = 0;
-        Red = MorphBallEyeBeamDefinitions.FadedRed;
-        Green = MorphBallEyeBeamDefinitions.FadedGreen;
-        Blue = MorphBallEyeBeamDefinitions.Blue;
+        Color = Bgr555.Black;
     }
 
-    /// <summary>Steps each colour level one intensity toward its faded level, leaving a level already there unchanged.</summary>
-    internal void FadeOneStep()
-    {
-        Red = FadeToward(Red, MorphBallEyeBeamDefinitions.FadedRed);
-        Green = FadeToward(Green, MorphBallEyeBeamDefinitions.FadedGreen);
-        Blue = FadeToward(Blue, MorphBallEyeBeamDefinitions.Blue);
-    }
-
-    /// <summary>
-    /// One intensity lower when <paramref name="level"/> is above <paramref name="faded"/>, or unchanged at it. A level
-    /// below its faded level is never produced, so reaching one is a defect rather than a wrap.
-    /// </summary>
-    private static int FadeToward(int level, int faded)
-    {
-        if (level < faded)
-            throw new InvalidOperationException($"Eye beam colour level {level} is below its faded level {faded}.");
-        return level == faded ? level : level - 1;
-    }
+    /// <summary>Darkens each colour channel by one intensity, leaving a channel already at zero unchanged.</summary>
+    internal void FadeOneStep() => Color = Color.Map(static (_, intensity) => intensity == 0 ? 0 : intensity - 1);
 }

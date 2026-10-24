@@ -1288,12 +1288,13 @@ internal static class LookupStream5Verification
         Action step = owner.MorphBallEyeBehavior.StepFullMorphBallEyeBeam;
         for (int phase = 0; phase < 16; phase++)
         {
-            var expected = new RedGreenLevels(rom.ReadCartridgeByte(0x88ea8b + phase * 4), rom.ReadCartridgeByte(0x88ea8c + phase * 4));
-            AssertEqual(expected, MorphBallEyeGeometryDefinitions.BeamColor(phase), "Native two-channel triangle");
+            // The cartridge's colour bytes carry each channel's intensity in their low five bits.
+            var expected = new Bgr555(rom.ReadCartridgeByte(0x88ea8b + phase * 4) & Bgr555.MaxChannel,
+                rom.ReadCartridgeByte(0x88ea8c + phase * 4) & Bgr555.MaxChannel,
+                rom.ReadCartridgeByte(0x88ea8d + phase * 4) & Bgr555.MaxChannel);
+            AssertEqual(expected, MorphBallEyeGeometryDefinitions.BeamColor(phase), "Native two-channel triangle intensities");
             step();
-            AssertEqual(expected.Red, owner.MorphBallEyeBehavior.MorphBallEyeBeam.Red, "Actual raw red COLDATA");
-            AssertEqual(expected.Green, owner.MorphBallEyeBehavior.MorphBallEyeBeam.Green, "Actual raw green COLDATA");
-            AssertEqual(rom.ReadCartridgeByte(0x88ea8d + phase * 4), owner.MorphBallEyeBehavior.MorphBallEyeBeam.Blue, "Actual zero blue intensity");
+            AssertEqual(expected, owner.MorphBallEyeBehavior.MorphBallEyeBeam.Color, "Actual beam colour, zero blue intensity included");
             AssertEqual((ushort)((phase + 1) & 15), owner.MorphBallEyeBehavior.MorphBallEyeBeam.ColorIndex, "Actual masked cycling and wrap");
         }
         AssertThrows<InvalidDataException>(() => MorphBallEyeGeometryDefinitions.Mount(4), "Unsupported mount direction");

@@ -41,7 +41,7 @@ internal static class RoomFxLayer3TilemapsVerification
         Suite(nameof(VerifySporeTilemapAttributes), () => VerifySporeTilemapAttributes(rom, catalog));
         Suite(nameof(VerifyAtmosphereTilemapFields), () => VerifyAtmosphereTilemapFields(rom, catalog));
         Suite(nameof(VerifyFxTilemapPageDispatch), () => VerifyFxTilemapPageDispatch(rom, catalog));
-        RoomFxPaletteBlendCatalog paletteColors = RoomFxPaletteBlendCatalog.Load(
+        RoomFxPaletteBlendCatalog paletteColors = RoomFxPaletteBlendFile.Read(
             new MemoryStream(RoomFxPaletteBlendExtractor.Extract(rom)));
         foreach (RoomFxType type in RoomFxLayer3TilemapFormat.Types)
         {

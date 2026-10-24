@@ -21,7 +21,7 @@ internal static class MapPaletteCycleExtractor
             if (duration == byte.MaxValue)
             {
                 using var json = new MemoryStream();
-                MapPaletteCycle.Write(json, new() { Version = MapPaletteCycleFormat.Version, Frames = frames.ToArray() });
+                MapPaletteCycleFile.Write(json, new() { Version = MapPaletteCycleFormat.Version, Frames = frames.ToArray() });
                 return json.ToArray();
             }
             if (frame == MapPaletteCycleFormat.MaximumFrames)

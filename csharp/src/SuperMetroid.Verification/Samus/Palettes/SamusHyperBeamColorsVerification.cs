@@ -40,7 +40,7 @@ internal static class SamusHyperBeamColorsVerification
 
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Hyper Beam color oracle revision");
-        SamusHyperBeamColorCatalog catalog = SamusHyperBeamColorCatalog.Load(
+        SamusHyperBeamColorCatalog catalog = SamusHyperBeamColorFile.Read(
             new MemoryStream(SamusHyperBeamColorExtractor.Extract(rom)));
         var stored = catalog.colors;
         AssertEqual(6, stored.Count, "Hyper Beam whole inputs after cyan shadow midpoint calculation");
@@ -257,7 +257,7 @@ internal static class SamusHyperBeamColorsVerification
             ushort original = ReadVerificationWord(rom, 0x9b0000 | (shadowPointer + 2 * ink));
             ushort changed = (ushort)((original & ~(31 << (channel * 5))) | intensity << (channel * 5));
             document.Frames[shadowFrame][ink] = new PaletteRgb5 { Red = changed & 31, Green = changed >> 5 & 31, Blue = changed >> 10 };
-            var editedCyan = SamusHyperBeamColorCatalog.Load(new MemoryStream(SamusHyperBeamColorCatalog.Write(document)));
+            var editedCyan = SamusHyperBeamColorFile.Read(new MemoryStream(SamusHyperBeamColorFile.Write(document)));
             for (int frame = 0; frame < 10; frame++)
             for (int color = 0; color < 16; color++)
             {
@@ -278,7 +278,7 @@ internal static class SamusHyperBeamColorsVerification
                 int word = 2000 + frame * 16 + color;
                 document.Frames[frame][color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
             }
-            var edited = SamusHyperBeamColorCatalog.Load(new MemoryStream(SamusHyperBeamColorCatalog.Write(document)));
+            var edited = SamusHyperBeamColorFile.Read(new MemoryStream(SamusHyperBeamColorFile.Write(document)));
             for (int frame = 0; frame < 10; frame++)
             for (int color = 0; color < 16; color++)
             {
@@ -295,7 +295,7 @@ internal static class SamusHyperBeamColorsVerification
         {
         var greenEdit = RequiredJson.Deserialize<SamusHyperBeamColorDocument>(originalJson, ArtworkJson.Options);
         for (int color = 0; color < 16; color++) greenEdit.Frames[sourceFrame][color] = new PaletteRgb5 { Red = color, Green = 31 - color, Blue = color + 1 };
-        var greenEdited = SamusHyperBeamColorCatalog.Load(new MemoryStream(SamusHyperBeamColorCatalog.Write(greenEdit)));
+        var greenEdited = SamusHyperBeamColorFile.Read(new MemoryStream(SamusHyperBeamColorFile.Write(greenEdit)));
         for (int frame = 0; frame < 10; frame++)
         for (int color = 0; color < 16; color++)
         {
@@ -307,7 +307,7 @@ internal static class SamusHyperBeamColorsVerification
 
         }
         byte[] chargeJson = SamusChargeColorExtractor.Extract(rom);
-        var shot = SamusChargeColorCatalog.Load(new MemoryStream(chargeJson));
+        var shot = SamusChargeColorFile.Read(new MemoryStream(chargeJson));
         AssertEqual(typeof(SamusHyperBeamColorCatalog), MetadataShape.FieldType(typeof(SamusChargeColorCatalog), "hyperShot", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic),
             "Hyper-shot owns the shared calculated representation, not another whole palette table");
         var shotCgram = new SamusColourRig();
@@ -341,7 +341,7 @@ internal static class SamusHyperBeamColorsVerification
                 int word = 1000 + frame * 16 + color;
                 document.HyperShot[frame][color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
             }
-            var edited = SamusChargeColorCatalog.Load(new MemoryStream(SamusChargeColorCatalog.Write(document)));
+            var edited = SamusChargeColorFile.Read(new MemoryStream(SamusChargeColorFile.Write(document)));
             for (int frame = 0; frame < 10; frame++)
             for (int color = 0; color < 16; color++)
             {
@@ -390,10 +390,10 @@ internal static class SamusHyperBeamColorsVerification
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed Hyper Beam cycle does not read pointer or palette ROM tables");
-        AssertThrows<InvalidDataException>(() => SamusHyperBeamColorCatalog.Load(
+        AssertThrows<InvalidDataException>(() => SamusHyperBeamColorFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))),
             "duplicate Hyper Beam JSON property fails loudly");
-        AssertThrows<InvalidDataException>(() => SamusHyperBeamColorCatalog.Load(
+        AssertThrows<InvalidDataException>(() => SamusHyperBeamColorFile.Read(
             new MemoryStream([1, 2, 3])), "corrupt Hyper Beam JSON fails loudly");
         Console.WriteLine("  Hyper Beam: both native palette views, independent edits and guarded runtime cycles pass.");
     }
@@ -412,7 +412,7 @@ internal static class SamusHyperBeamColorsVerification
             ?? throw new InvalidDataException("Stock Hyper Beam color document is null.");
         PaletteRgb5 original = document.Frames[4][7];
         document.Frames[4][7] = original with { Red = (original.Red + 1) % 32 };
-        File.WriteAllBytes(path, SamusHyperBeamColorCatalog.Write(document));
+        File.WriteAllBytes(path, SamusHyperBeamColorFile.Write(document));
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "Hyper Beam color override changes installed content identity");
@@ -438,7 +438,7 @@ internal static class SamusHyperBeamColorsVerification
             "edited Hyper Beam color reaches CGRAM on its selected frame");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "edited Hyper Beam colors avoid pointer and palette ROM tables");
-        AssertThrows<InvalidDataException>(() => SamusHyperBeamColorCatalog.Write(document with
+        AssertThrows<InvalidDataException>(() => SamusHyperBeamColorFile.Write(document with
         {
             Frames = [.. document.Frames.Take(4),
                 [.. document.Frames[4].Take(7), original with { Red = 32 },

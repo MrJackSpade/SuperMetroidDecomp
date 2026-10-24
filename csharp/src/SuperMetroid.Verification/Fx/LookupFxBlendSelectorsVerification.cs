@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Fx.LookupFxPairColorsVerification;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Fx;
 
 namespace SuperMetroid.Verification.Fx;
 
@@ -56,7 +57,7 @@ internal static class LookupFxBlendSelectorsVerification
         for (int index = 0; index < ids.Length; index++)
             document.Blends.Add($"blend-{ids[index]:X2}", Enumerable.Range(0, 3)
                 .Select(color => new PaletteRgb5 { Red = index, Green = color, Blue = 31 - index }).ToArray());
-        var edited = RoomFxPaletteBlendCatalog.Load(new MemoryStream(RoomFxPaletteBlendCatalog.Write(document)));
+        var edited = RoomFxPaletteBlendFile.Read(new MemoryStream(RoomFxPaletteBlendFile.Write(document)));
         foreach (bool useEdited in new[] { false, true })
         {
             var catalog = useEdited ? edited : stock;
@@ -102,7 +103,7 @@ internal static class LookupFxBlendSelectorsVerification
             var colors = document.Blends[key];
             document.Blends.Remove(key);
             document.Blends.Add("unknown", colors);
-            AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendCatalog.Write(document), "Each required name is independently validated");
+            AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendFile.Write(document), "Each required name is independently validated");
             document.Blends.Remove("unknown");
             document.Blends.Add(key, colors);
         }

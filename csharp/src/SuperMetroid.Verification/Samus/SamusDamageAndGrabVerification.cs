@@ -16,7 +16,6 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Verification.Samus;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies;
@@ -91,7 +90,7 @@ internal static void VerifySamusDrainedController()
     InstallHyperBeamProjectilePaletteProgramFixture(bus);
     var suitColors = SamusSuitColorFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
-    var rainbowColors = SamusHyperBeamColorCatalog.Load(new MemoryStream(
+    var rainbowColors = SamusHyperBeamColorFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.SamusHyperBeamColorExtractor.Extract(bus)));
     var projectileColors = HyperBeamFxColorFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.HyperBeamFxColorExtractor.Extract(bus)));

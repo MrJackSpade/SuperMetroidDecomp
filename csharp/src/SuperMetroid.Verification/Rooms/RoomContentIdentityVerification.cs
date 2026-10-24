@@ -72,7 +72,7 @@ internal static class RoomContentIdentityVerification
             png.Position = 0;
             return RoomCharacterAtlas.Load(png, RoomCharacterAtlasFormat.BytesPerTile);
         }
-        RoomStaticPalette Palette(bool change) => RoomStaticPalette.Load(Json(new RoomStaticPaletteDocument
+        RoomStaticPalette Palette(bool change) => RoomStaticPaletteFile.Read(Json(new RoomStaticPaletteDocument
         {
             Version = RoomStaticPaletteFormat.Version,
             Colors = Enumerable.Range(0, RoomStaticPaletteFormat.ColorCount).Select(index =>

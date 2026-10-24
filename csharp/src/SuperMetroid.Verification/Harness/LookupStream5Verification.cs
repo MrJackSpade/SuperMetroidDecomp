@@ -71,6 +71,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Cartridge-oracle checks for Ceres, boss, projectile and map visual definitions in lookup stream five.</summary>
@@ -1350,7 +1351,7 @@ internal static class LookupStream5Verification
         static MapPaletteCycle Check(MapPaletteCycleDocument document)
         {
             byte[] json = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-            var cycle = MapPaletteCycle.Load(new MemoryStream(json, writable: false));
+            var cycle = MapPaletteCycleFile.Read(new MemoryStream(json, writable: false));
             AssertEqual(document.Frames.Length, cycle.FrameCount, "Custom highlight frame count");
             var cgram = new ScreenPalette();
             for (int frame = 0; frame < cycle.FrameCount; frame++)
@@ -1929,7 +1930,7 @@ internal static class LookupStream5Verification
         IReadOnlyDictionary<string, byte[]> files = SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightArtworkExtractor.Extract(rom);
         var catalog = CeresFlightArtworkCatalog.Load(Open(CeresFlightArtworkFormat.FloorFileName),
             Open(CeresFlightArtworkFormat.MapFileName), Open(CeresFlightArtworkFormat.ObjectFileName),
-            Open(CeresFlightPaletteFormat.FileName), Open(CeresFlightSpriteFormat.FileName), Open(CeresFlightActorLayoutFormat.FileName));
+            CeresFlightPaletteFile.Read(Open(CeresFlightPaletteFormat.FileName)), Open(CeresFlightSpriteFormat.FileName), Open(CeresFlightActorLayoutFormat.FileName));
         byte[] nativeBytes = new byte[CgramPalettes.ByteCount];
         for (int index = 0; index < nativeBytes.Length; index++) nativeBytes[index] = rom.ReadCartridgeByte(CeresFlightRomData.Assets.Palette + index);
         string expectedHash = SelectedPresentationHash.Create(nameof(CeresFlightArtworkCatalog), content =>
@@ -1949,7 +1950,7 @@ internal static class LookupStream5Verification
         {
             var document = new CeresFlightPaletteDocument { Version = 1, Colors = colors };
             using var json = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
-            CeresFlightPalette actual = CeresFlightPalette.Load(json);
+            CeresFlightPalette actual = CeresFlightPaletteFile.Read(json);
             var cgram = new ScreenPalette(); actual.LoadTo(cgram);
             Span<byte> bytes = stackalloc byte[CeresFlightPalette.ColorWordBytes]; actual.CopyColorWordsTo(bytes);
             for (int index = 0; index < colors.Length; index++)

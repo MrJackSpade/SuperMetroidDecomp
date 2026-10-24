@@ -37,7 +37,7 @@ internal static class RoomStaticPalettesVerification
             int source = RoomTilesetDefinitions.Get(graphicsSet).PaletteAddress;
             string name = RoomStaticPaletteFormat.SourceFileName(source);
             if (compiled.ContainsKey(source)) continue;
-            RoomStaticPalette palette = RoomStaticPalette.Load(
+            RoomStaticPalette palette = RoomStaticPaletteFile.Read(
                 new MemoryStream(files[name], writable: false));
             byte[] native = RomDataReader.Decompress(bus, source);
             var expected = new SnesCgram();
@@ -72,7 +72,7 @@ internal static class RoomStaticPalettesVerification
         JsonNode color = edited.Required("colors").Required(0);
         int originalRed = color.Required("red").GetValue<int>();
         color["red"] = originalRed ^ 1;
-        RoomStaticPalette replacement = RoomStaticPalette.Load(
+        RoomStaticPalette replacement = RoomStaticPaletteFile.Read(
             new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(edited)));
         var stockCgram = new SnesCgram();
         var editedCgram = new SnesCgram();
@@ -92,7 +92,7 @@ internal static class RoomStaticPalettesVerification
 
         color["red"] = 32;
         byte[] invalid = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(edited);
-        AssertThrows<InvalidDataException>(() => RoomStaticPalette.Load(
+        AssertThrows<InvalidDataException>(() => RoomStaticPaletteFile.Read(
                 new MemoryStream(invalid, writable: false)),
             "room palette rejects out-of-range RGB5 components");
         Console.WriteLine($"  Room static palettes: {files.Count} distinct palettes cover all " +

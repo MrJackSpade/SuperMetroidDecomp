@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>Editable RGB5 color document for one externally selected ending palette role; the color array remains caller-mutable until compilation.</summary>
 public sealed record EndingPaletteDocument

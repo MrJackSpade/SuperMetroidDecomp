@@ -43,6 +43,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>Checks installed opening and Ceres cinematic artwork, resource validation, and ROM-read guards.</summary>
 internal static class IntroCinematicArtworkVerification
@@ -174,7 +175,7 @@ internal static class IntroCinematicArtworkVerification
                 Red = originalColor.Red == 31 ? 30 : originalColor.Red + 1,
             };
             using (var output = File.Create(paletteOverridePath))
-                IntroCinematicPalette.Write(output, paletteDocument);
+                IntroCinematicPaletteFile.Write(output, paletteDocument);
             IntroCinematicArtworkCatalog editedPalette = installation.LoadIntroCinematicArt();
             var editedPaletteState = CreateRetailIntroFixture(characterArtwork: editedPalette);
             var stockPaletteState = CreateRetailIntroFixture(characterArtwork: stock);
@@ -198,7 +199,7 @@ internal static class IntroCinematicArtworkVerification
             // hidden behind the first card's chosen palette indices. A broad color
             // edit proves the selected resource also reaches visible scene pixels.
             using (var output = File.Create(paletteOverridePath))
-                IntroCinematicPalette.Write(output, paletteDocument with
+                IntroCinematicPaletteFile.Write(output, paletteDocument with
                 {
                     Colors = paletteDocument.Colors.Select(color => color with
                     {
@@ -224,12 +225,12 @@ internal static class IntroCinematicArtworkVerification
             }
             AssertTrue(changedVisiblePixel,
                 "edited opening RGB5 colors change displayed narration pixels");
-            AssertThrows<InvalidDataException>(() => IntroCinematicPalette.Load(
+            AssertThrows<InvalidDataException>(() => IntroCinematicPaletteFile.Read(
                 new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(paletteDocument with
                 {
                     Colors = paletteDocument.Colors.Take(255).ToArray(),
                 }))), "opening palette rejects a truncated color table");
-            AssertThrows<InvalidDataException>(() => IntroCinematicPalette.Load(
+            AssertThrows<InvalidDataException>(() => IntroCinematicPaletteFile.Read(
                 new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(paletteDocument with
                 {
                     Colors = paletteDocument.Colors.Select((color, index) =>

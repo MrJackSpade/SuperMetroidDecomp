@@ -121,9 +121,9 @@ internal static class LookupStream3Verification
                 Colors = words.Select(word => new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 }).ToArray(),
             };
             using var json = new MemoryStream();
-            IntroCinematicPalette.Write(json, document);
+            IntroCinematicPaletteFile.Write(json, document);
             json.Position = 0;
-            return IntroCinematicPalette.Load(json);
+            return IntroCinematicPaletteFile.Read(json);
         }
     }
     /// <summary>Checks four eye rectangles against ROM and their actual portrait tilemap writes, including independent cell edits.</summary>

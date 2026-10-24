@@ -30,6 +30,6 @@ public static class BeamPaletteExtractor
             }
             palettes.Add(BeamPaletteDefinitions.Key(selection), colors);
         }
-        return BeamPaletteCatalog.Write(new() { Version = BeamPaletteDefinitions.Version, Palettes = palettes });
+        return BeamPaletteFile.Write(new() { Version = BeamPaletteDefinitions.Version, Palettes = palettes });
     }
 }

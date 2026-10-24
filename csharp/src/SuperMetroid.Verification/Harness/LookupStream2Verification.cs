@@ -748,8 +748,8 @@ internal static class LookupStream2Verification
                 var labels = document.Labels.ToDictionary(pair => pair.Key, pair => pair.Value);
                 labels[name] = label with { Cells = cells };
                 using var output = new MemoryStream();
-                PauseReserveUiPresentation.Write(output, document with { Labels = labels });
-                var selected = PauseReserveUiPresentation.Load(new MemoryStream(output.ToArray()));
+                PauseReserveUiFile.Write(output, document with { Labels = labels });
+                var selected = PauseReserveUiFile.Read(new MemoryStream(output.ToArray()));
                 byte[] selectedWords = PauseTileGrid.Compile(cells, "Edited reserve label");
                 foreach (bool preserve in new[] { false, true })
                 {
@@ -768,8 +768,8 @@ internal static class LookupStream2Verification
             var movedLabels = document.Labels.ToDictionary(pair => pair.Key, pair => pair.Value);
             movedLabels[name] = label with { Anchor = label.Anchor with { Column = label.Anchor.Column + 1 } };
             using var movedJson = new MemoryStream();
-            PauseReserveUiPresentation.Write(movedJson, document with { Labels = movedLabels });
-            var moved = PauseReserveUiPresentation.Load(new MemoryStream(movedJson.ToArray()));
+            PauseReserveUiFile.Write(movedJson, document with { Labels = movedLabels });
+            var moved = PauseReserveUiFile.Read(new MemoryStream(movedJson.ToArray()));
             byte[] movedActual = new byte[32 * 32 * 2];
             byte[] movedExpected = movedActual.ToArray();
             native.CopyTo(movedExpected, nativeOffset + 2);
@@ -777,7 +777,7 @@ internal static class LookupStream2Verification
             AssertTrue(movedExpected.SequenceEqual(movedActual), "Independent reserve label placement edit");
         }
         AssertEqual(22, words, "All native reserve label words");
-        var stock = PauseReserveUiPresentation.Load(new MemoryStream(json));
+        var stock = PauseReserveUiFile.Read(new MemoryStream(json));
         AssertThrows<InvalidDataException>(() => stock.ApplyLabel(new byte[2048], (PauseReserveLabel)byte.MaxValue), "Unknown reserve label rejected");
         AssertThrows<ArgumentException>(() => stock.ApplyLabel(new byte[1], PauseReserveLabel.Manual), "Short reserve destination rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => PauseReserveUiDefinitions.StockLabelWord(PauseReserveLabel.Auto, 4), "Reserve glyph upper bound rejected");
@@ -1699,7 +1699,7 @@ internal static class LookupStream2Verification
     {
         byte[] source = PauseReserveUiExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseReserveUiDocument>(source, ArtworkJson.Options);
-        var stock = PauseReserveUiPresentation.Load(new MemoryStream(source));
+        var stock = PauseReserveUiFile.Read(new MemoryStream(source));
         var edits = stock.arrowColorEdits;
         AssertEqual(0, edits.Count, "Native channel choices plus calculated ramps need no unexplained color overrides");
         var cgram = new ScreenPalette();
@@ -1725,9 +1725,9 @@ internal static class LookupStream2Verification
             frames[frame] = color == 0 ? frames[frame] with { Color6 = rgb } : frames[frame] with { Color11 = rgb };
             var changed = document with { Arrow = document.Arrow with { Frames = frames } };
             using var encoded = new MemoryStream();
-            PauseReserveUiPresentation.Write(encoded, changed);
+            PauseReserveUiFile.Write(encoded, changed);
             encoded.Position = 0;
-            Check(PauseReserveUiPresentation.Load(encoded), changed);
+            Check(PauseReserveUiFile.Read(encoded), changed);
         }
         for (int selected = 0; selected < 2; selected++)
         for (int channel = 0; channel < 3; channel++)
@@ -1737,8 +1737,8 @@ internal static class LookupStream2Verification
                 Green = channel == 1 ? original.Green ^ 31 : original.Green, Blue = channel == 2 ? original.Blue ^ 31 : original.Blue };
             var arrow = selected == 0 ? document.Arrow with { SolidColor6 = changedColor } : document.Arrow with { SolidColor11 = changedColor };
             var changed = document with { Arrow = arrow };
-            using var encoded = new MemoryStream(); PauseReserveUiPresentation.Write(encoded, changed); encoded.Position = 0;
-            Check(PauseReserveUiPresentation.Load(encoded), changed);
+            using var encoded = new MemoryStream(); PauseReserveUiFile.Write(encoded, changed); encoded.Position = 0;
+            Check(PauseReserveUiFile.Read(encoded), changed);
         }
         Console.WriteLine("Reserve arrow ramps: all64 native colors,192 independent frame-channel edits,6 solid-color edits,zero stock color overrides,actual CGRAM and wrapping pass; mixed source paint/hold disposition documented.");
 
@@ -1763,7 +1763,7 @@ internal static class LookupStream2Verification
     {
         byte[] source = PauseReserveUiExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseReserveUiDocument>(source, ArtworkJson.Options);
-        var stock = PauseReserveUiPresentation.Load(new MemoryStream(source));
+        var stock = PauseReserveUiFile.Read(new MemoryStream(source));
         AssertTrue(stock.digits is null, "Stock digits discard stored lookup");
         AssertTrue(stock.arrowOffsets is null, "Stock arrow discards stored offsets");
         Check(stock, document);
@@ -1773,16 +1773,16 @@ internal static class LookupStream2Verification
             digits[index] = digits[index] with { FlipY = !digits[index].FlipY };
             var changedDocument = document with { Digits = document.Digits with { Cells = digits, Anchor = new() { Column = 18, Row = 20 } } };
             using var encoded = new MemoryStream();
-            PauseReserveUiPresentation.Write(encoded, changedDocument);
+            PauseReserveUiFile.Write(encoded, changedDocument);
             encoded.Position = 0;
-            Check(PauseReserveUiPresentation.Load(encoded), changedDocument);
+            Check(PauseReserveUiFile.Read(encoded), changedDocument);
             var cells = document.Arrow.Cells.ToArray();
             cells[index] = new() { Column = 20 + index, Row = 22 };
             changedDocument = document with { Arrow = document.Arrow with { Cells = cells, EnabledPalette = 3, DisabledPalette = 4 } };
             encoded.SetLength(0);
-            PauseReserveUiPresentation.Write(encoded, changedDocument);
+            PauseReserveUiFile.Write(encoded, changedDocument);
             encoded.Position = 0;
-            Check(PauseReserveUiPresentation.Load(encoded), changedDocument);
+            Check(PauseReserveUiFile.Read(encoded), changedDocument);
         }
         Console.WriteLine("Reserve geometry: all10 stock digits/10 arrow cells, actual tilemap writes, all20 independent edits, supplied anchors/palettes and unrelated tile fields pass.");
 

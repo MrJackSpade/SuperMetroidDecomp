@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>Zero-based destination tile-cell coordinates on a 32-by-32 pause equipment page, distinct from character-atlas coordinates.</summary>
 public sealed record PauseGridPoint

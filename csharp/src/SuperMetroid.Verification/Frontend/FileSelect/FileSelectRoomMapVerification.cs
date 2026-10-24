@@ -23,6 +23,7 @@ namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Checks file-select room-map rendering, controls, animation, markers, and save loading against native behavior.</summary>
 internal static class FileSelectRoomMapVerification
@@ -174,9 +175,9 @@ internal static class FileSelectRoomMapVerification
             }).ToArray(),
         }).ToArray();
         using var paletteJson = new MemoryStream();
-        MapPaletteCycle.Write(paletteJson, new() { Version = 1, Frames = paletteFrames });
+        MapPaletteCycleFile.Write(paletteJson, new() { Version = 1, Frames = paletteFrames });
         paletteJson.Position = 0;
-        animations.BindPalette(MapPaletteCycle.Load(paletteJson));
+        animations.BindPalette(MapPaletteCycleFile.Read(paletteJson));
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var artwork = SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteExtractor.Extract(retail);
         var spriteDocument = RequiredJson.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options);

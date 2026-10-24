@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Editable map-highlight cycle schema, containing only authored durations and palette rows rather than an executable palette program.</summary>
 public sealed record MapPaletteCycleDocument

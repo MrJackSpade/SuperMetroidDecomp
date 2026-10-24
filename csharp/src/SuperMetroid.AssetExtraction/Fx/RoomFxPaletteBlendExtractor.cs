@@ -43,12 +43,12 @@ public static class RoomFxPaletteBlendExtractor
             }
             blends.Add(RoomFxPaletteBlendDefinitions.Key(id), colors);
         }
-        return RoomFxPaletteBlendCatalog.Write(new RoomFxPaletteBlendDocument
+        return RoomFxPaletteBlendFile.Write(new RoomFxPaletteBlendDocument
         {
             Version = RoomFxPaletteBlendDefinitions.Version,
             Blends = blends,
-            CeresHazeBlue = RoomFxPaletteBlendDefinitions.StockCeresHazeBlue,
-            CeresHazeRed = RoomFxPaletteBlendDefinitions.StockCeresHazeRed,
+            CeresHazeBlue = PaletteRgb5.From(RoomFxPaletteBlendDefinitions.StockCeresHazeBlue),
+            CeresHazeRed = PaletteRgb5.From(RoomFxPaletteBlendDefinitions.StockCeresHazeRed),
         });
     }
 }

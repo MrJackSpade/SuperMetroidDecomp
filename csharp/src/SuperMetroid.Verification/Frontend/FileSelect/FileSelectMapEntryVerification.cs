@@ -7,6 +7,7 @@ namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Checks the file-select map entry's palette fade, transfer boundaries, and opening window.</summary>
 internal static class FileSelectMapEntryVerification
@@ -26,9 +27,9 @@ internal static class FileSelectMapEntryVerification
                 .ToDictionary(area => area.ToString(), _ => white),
         };
         using var json = new MemoryStream();
-        MapStaticPalettes.Write(json, document);
+        MapStaticPalettesFile.Write(json, document);
         json.Position = 0;
-        MapStaticPalettes palettes = MapStaticPalettes.Load(json);
+        MapStaticPalettes palettes = MapStaticPalettesFile.Read(json);
         var entry = new FileSelectMapEntry(palettes);
         AssertEqual(0x7fff, entry.Palette.Colors[14], "entry setup does not prematurely fade palette");
         AssertEqual(FileSelectMapEntryPhase.PaletteFade, entry.Phase, "entry starts in its forced-black palette fade");

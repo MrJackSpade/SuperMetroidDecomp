@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>One pulse phase's two arrow bevel colors, each with red, green, and blue components from zero through 31.</summary>
 public sealed record PauseReserveArrowFrame

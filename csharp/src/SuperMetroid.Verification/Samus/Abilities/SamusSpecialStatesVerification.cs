@@ -104,7 +104,7 @@ internal static void VerifySamusCrystalFlash()
 
     var crystalColors = CrystalFlashColorFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.CrystalFlashColorExtractor.Extract(bus)));
-    var beamPalettes = BeamPaletteCatalog.Load(new MemoryStream(
+    var beamPalettes = BeamPaletteFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.BeamPaletteExtractor.Extract(bus)));
     const SnesButton chord = (SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
     var samus = new SamusState

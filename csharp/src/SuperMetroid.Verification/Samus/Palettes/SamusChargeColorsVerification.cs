@@ -20,6 +20,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Palettes;
 
 /// <summary>Checks extracted Samus charge palettes, editable overrides, native phase selection, and guarded runtime color updates.</summary>
@@ -32,7 +33,7 @@ internal static class SamusChargeColorsVerification
         string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusChargeColorExtractor.Extract(rom);
-        var native = SamusChargeColorCatalog.Load(new MemoryStream(extracted, writable: false));
+        var native = SamusChargeColorFile.Read(new MemoryStream(extracted, writable: false));
         var forbidden = new HashSet<int>();
         forbidden.UnionWith(VerifySamusChargeColorPhases(rom));
         for (int frame = 0; frame < SamusChargeColorFormat.HyperFrameCount; frame++)
@@ -60,7 +61,7 @@ internal static class SamusChargeColorsVerification
         Paint(document.PseudoScrew[0][0]);
         Paint(document.HyperShot[0]);
         string replacement = Path.Combine(overrideDirectory, SamusChargeColorFormat.FileName);
-        File.WriteAllBytes(replacement, SamusChargeColorCatalog.Write(document));
+        File.WriteAllBytes(replacement, SamusChargeColorFile.Write(document));
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "charge colors change installed content identity");
@@ -126,7 +127,7 @@ internal static class SamusChargeColorsVerification
             "installed charge and Hyper-shot avoid extracted source reads");
         PaletteRgb5 previous = document.HyperShot[0][1];
         document.HyperShot[0][1] = previous with { Blue = 32 };
-        AssertThrows<InvalidDataException>(() => SamusChargeColorCatalog.Write(document),
+        AssertThrows<InvalidDataException>(() => SamusChargeColorFile.Write(document),
             "charge colors reject invalid RGB5 channels");
 
         string replacementStock = Path.Combine(
@@ -164,7 +165,7 @@ internal static class SamusChargeColorsVerification
     internal static HashSet<int> VerifySamusChargeColorPhases(ISnesAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusChargeColorExtractor.Extract(rom);
-        var catalog = SamusChargeColorCatalog.Load(new MemoryStream(extracted));
+        var catalog = SamusChargeColorFile.Read(new MemoryStream(extracted));
         var forbidden = new HashSet<int>();
         var expected = new ushort[2, 3, 6, 16];
         var cgram = new SamusColourRig();
@@ -534,7 +535,7 @@ internal static class SamusChargeColorsVerification
                 rows[suit][phase][color] = new PaletteRgb5 { Red = ((value & 31) + delta) % 32,
                     Green = ((value >> 5 & 31) + delta) % 32, Blue = ((value >> 10 & 31) + delta) % 32 };
             }
-            var edited = SamusChargeColorCatalog.Load(new MemoryStream(SamusChargeColorCatalog.Write(document)));
+            var edited = SamusChargeColorFile.Read(new MemoryStream(SamusChargeColorFile.Write(document)));
             for (int family = 0; family < 2; family++)
             for (int suit = 0; suit < 3; suit++)
             for (int phase = 0; phase < 6; phase++)

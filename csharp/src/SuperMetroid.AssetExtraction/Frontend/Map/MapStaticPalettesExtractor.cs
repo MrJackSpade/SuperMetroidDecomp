@@ -45,7 +45,7 @@ internal static class MapStaticPalettesExtractor
             world.Add(((AreaId)selected).ToString(), ToRgb(colors));
         }
         using var json = new MemoryStream();
-        MapStaticPalettes.Write(json, new() { Version = MapStaticPalettesFormat.Version, Pause = ToRgb(pause), FileSelect = ToRgb(file), World = world });
+        MapStaticPalettesFile.Write(json, new() { Version = MapStaticPalettesFormat.Version, Pause = ToRgb(pause), FileSelect = ToRgb(file), World = world });
         return json.ToArray();
     }
     /// <summary>Converts all CGRAM words to RGB5 values for the installed palette document.</summary>

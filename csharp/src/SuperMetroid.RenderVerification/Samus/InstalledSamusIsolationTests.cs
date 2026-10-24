@@ -60,7 +60,7 @@ internal sealed class InstalledSamusIsolationTests
         crystal = SamusIsolationArtworkEdits.Colors(source, artwork.Installation,
             CrystalFlashColorFormat.FileName, CrystalFlashColorFile.Read);
         using var stream = File.OpenRead(Path.Combine(source.ProjectileDirectory, BeamPaletteDefinitions.FileName));
-        beams = BeamPaletteCatalog.Load(stream);
+        beams = BeamPaletteFile.Read(stream);
     }
 
     /// <summary>Checks stock and edited Samus state across movement, collision, and special sequences while requiring visible art differences.</summary>

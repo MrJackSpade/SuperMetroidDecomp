@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>One reserve label's equipment-page anchor and consecutive native BG tile references.</summary>
 public sealed record PauseReserveLabelVisual

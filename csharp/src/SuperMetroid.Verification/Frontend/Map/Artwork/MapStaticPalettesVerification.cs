@@ -13,6 +13,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Frontend.Map.Artwork;
 
@@ -50,7 +51,7 @@ internal static class MapStaticPalettesVerification
             World = document.World.ToDictionary(pair => pair.Key, pair => Invert(pair.Value)) };
         Directory.CreateDirectory(overrides);
         string path = Path.Combine(overrides, MapStaticPalettesFormat.FileName);
-        using (var output = File.Create(path)) MapStaticPalettes.Write(output, replacementDocument);
+        using (var output = File.Create(path)) MapStaticPalettesFile.Write(output, replacementDocument);
         byte[] replacementBytes = File.ReadAllBytes(path);
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "static palette edit changes content identity");
@@ -94,7 +95,7 @@ internal static class MapStaticPalettesVerification
             document with { World = new Dictionary<string, PaletteRgb5[]>() } })
         {
             using var output = new MemoryStream();
-            AssertThrows<InvalidDataException>(() => MapStaticPalettes.Write(output, invalid), "invalid static palette schema/color/area rejected");
+            AssertThrows<InvalidDataException>(() => MapStaticPalettesFile.Write(output, invalid), "invalid static palette schema/color/area rejected");
         }
         File.WriteAllText(path, "{broken static colors");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "corrupt static palette override fails without fallback");

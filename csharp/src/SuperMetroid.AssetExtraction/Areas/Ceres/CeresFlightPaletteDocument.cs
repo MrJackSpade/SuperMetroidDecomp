@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
-namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>Editable JSON schema for the complete Ceres approach palette, also reused by the destruction scene; PNG transport palettes do not supply these rendered colors.</summary>
 public sealed record CeresFlightPaletteDocument

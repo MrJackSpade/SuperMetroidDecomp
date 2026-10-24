@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Editable RGB5 body-palette rows for charge, pseudo-Screw, and Hyper-shot playback; each row contains sixteen native OBJ slots, including the nonvisible transparent slot.</summary>
 public sealed record SamusChargeColorDocument

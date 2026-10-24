@@ -83,7 +83,7 @@ internal static class EndingPaletteArtworkVerification
         {
             using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
                 new EndingPaletteDocument { Version = 1, Colors = supplied }, ArtworkJson.Options));
-            return EndingPalette.Load(json, EndingPaletteId.LogoCrossfade);
+            return EndingPaletteFile.Read(json, EndingPaletteId.LogoCrossfade);
         }
         EndingPalette loaded = Load(colors);
         int remaindersSeen = 0;
@@ -206,7 +206,7 @@ internal static class EndingPaletteArtworkVerification
                 Version = 1,
                 Colors = Enumerable.Range(0, 256).Select(_ => new PaletteRgb5 { Red = i, Green = 0, Blue = 0 }).ToArray(),
             }, ArtworkJson.Options));
-            supplied[i] = EndingPalette.Load(json, EndingPaletteId.Escape);
+            supplied[i] = EndingPaletteFile.Read(json, EndingPaletteId.Escape);
         }
         var catalog = new EndingPaletteCatalog(supplied[0], supplied[1], supplied[2], supplied[3], supplied[4], supplied[5], supplied[6]);
         EndingPaletteId[] originalOrder = [EndingPaletteId.Escape, EndingPaletteId.PostCredits, EndingPaletteId.Credits,
@@ -335,7 +335,7 @@ internal static class EndingPaletteArtworkVerification
                 Red = (document.Colors[changedColor].Red + 17) & 31,
             };
             using (var output = File.Create(overridePath))
-                EndingPalette.Write(output, id, document);
+                EndingPaletteFile.Write(output, id, document);
             EndingPaletteCatalog edited = installation.LoadEndingPalettes();
             ReadOnlySpan<byte> original = stock[id].Bytes.Span;
             ReadOnlySpan<byte> changed = edited[id].Bytes.Span;
@@ -409,7 +409,7 @@ internal static class EndingPaletteArtworkVerification
             Green = (persistent.Colors[0].Green + 1) & 31,
         };
         using (var output = File.Create(invalidPath))
-            EndingPalette.Write(output, EndingPaletteId.Escape, persistent);
+            EndingPaletteFile.Write(output, EndingPaletteId.Escape, persistent);
         byte[] selected = installation.LoadEndingPalettes()[EndingPaletteId.Escape].Bytes.ToArray();
         string stockCreditsPath = Path.Combine(installation.EndingPaletteDirectory,
             EndingPaletteDefinitions.FileName(EndingPaletteId.Credits));
@@ -546,7 +546,7 @@ internal static class EndingPaletteArtworkVerification
         for (int index = 0; index < document.Colors.Length; index++)
             document.Colors[index] = new PaletteRgb5 { Red = 31, Green = 0, Blue = 0 };
         using (var output = File.Create(overridePath))
-            EndingPalette.Write(output, EndingPaletteId.Credits, document);
+            EndingPaletteFile.Write(output, EndingPaletteId.Credits, document);
         EndingPaletteCatalog edited = installation.LoadEndingPalettes();
         var editedAudio = new CartridgeAudioState();
         var stockAudio = new CartridgeAudioState();
@@ -598,7 +598,7 @@ internal static class EndingPaletteArtworkVerification
         for (int index = 0; index < document.Colors.Length; index++)
             document.Colors[index] = new PaletteRgb5 { Red = 31, Green = 0, Blue = 0 };
         using (var output = File.Create(overridePath))
-            EndingPalette.Write(output, EndingPaletteId.LogoCrossfade, document);
+            EndingPaletteFile.Write(output, EndingPaletteId.LogoCrossfade, document);
         EndingPaletteCatalog edited = installation.LoadEndingPalettes();
         var editedAudio = new CartridgeAudioState();
         var stockAudio = new CartridgeAudioState();

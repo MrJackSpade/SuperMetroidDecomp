@@ -44,7 +44,7 @@ internal static class RoomFxRetailInventoryVerification
     internal static RoomFxSession CreateRetailFxSession(SuperMetroidAddressSpace bus)
     {
         RetailFxCatalogs catalogs = retailFxCatalogs.GetValue(bus, source => new(
-            RoomFxPaletteBlendCatalog.Load(new MemoryStream(
+            RoomFxPaletteBlendFile.Read(new MemoryStream(
                 SuperMetroid.AssetExtraction.Fx.RoomFxPaletteBlendExtractor.Extract(source))),
             RoomFxLayer3TilemapCatalog.Load(new MemoryStream(
                 SuperMetroid.AssetExtraction.Fx.RoomFxLayer3TilemapExtractor.Extract(source))),

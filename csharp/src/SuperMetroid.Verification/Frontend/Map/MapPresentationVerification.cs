@@ -96,6 +96,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Title;
 
 /// <summary>Checks editable map and related presentation assets while keeping exploration rules and live gameplay reads separate from artwork.</summary>
 internal static class MapPresentationVerification
@@ -1284,7 +1285,7 @@ internal static class MapPresentationVerification
 
         string replacement = Path.Combine(overrides, TitlePaletteFormat.FileName);
         using (var stream = File.Create(replacement))
-            TitlePalettePresentation.Write(stream, document);
+            TitlePaletteFile.Write(stream, document);
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "title palette override changes installed-content identity");

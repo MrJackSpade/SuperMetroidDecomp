@@ -51,13 +51,13 @@ public static class EndingPaletteArtworkFiles
                 };
             }
             using var json = new MemoryStream();
-            EndingPalette.Write(json, id, new EndingPaletteDocument
+            EndingPaletteFile.Write(json, id, new EndingPaletteDocument
             {
                 Version = EndingPaletteDefinitions.Version,
                 Colors = colors,
             });
             byte[] file = json.ToArray();
-            EndingPalette roundTrip = EndingPalette.Load(
+            EndingPalette roundTrip = EndingPaletteFile.Read(
                 new MemoryStream(file, writable: false), id);
             if (!roundTrip.Bytes.Span.SequenceEqual(native))
                 throw new InvalidDataException($"Ending {id} palette JSON changed native colors.");
@@ -123,7 +123,7 @@ public static class EndingPaletteArtworkFiles
                 ? overridePath : stockPath;
             try
             {
-                return EndingPalette.Load(new MemoryStream(selectedPath == stockPath
+                return EndingPaletteFile.Read(new MemoryStream(selectedPath == stockPath
                     ? stock : File.ReadAllBytes(selectedPath), writable: false), id);
             }
             catch (InvalidDataException error)

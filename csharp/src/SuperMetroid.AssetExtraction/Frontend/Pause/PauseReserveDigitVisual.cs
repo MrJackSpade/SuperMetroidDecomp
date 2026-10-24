@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>Editable decimal glyphs and placement for the reserve-supply display, independent of its numeric value.</summary>
 public sealed record PauseReserveDigitVisual

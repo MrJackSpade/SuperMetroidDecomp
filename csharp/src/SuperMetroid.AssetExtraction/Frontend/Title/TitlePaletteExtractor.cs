@@ -21,7 +21,7 @@ internal static class TitlePaletteExtractor
         CartridgePaletteImporter.LoadToCgram(source, bus, TitleSequenceRomData.Assets.PaletteAddress);
         PaletteRgb5[] colors = new CgramPalettes(source).Image.SelectToArray(PaletteRgb5.From);
         using var json = new MemoryStream();
-        TitlePalettePresentation.Write(json, new TitlePaletteDocument
+        TitlePaletteFile.Write(json, new TitlePaletteDocument
         {
             Version = TitlePaletteFormat.Version,
             Colors = colors,

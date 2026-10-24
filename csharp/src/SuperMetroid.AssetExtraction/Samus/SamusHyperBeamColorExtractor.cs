@@ -38,7 +38,7 @@ public static class SamusHyperBeamColorExtractor
                 };
             }
         }
-        return SamusHyperBeamColorCatalog.Write(new SamusHyperBeamColorDocument
+        return SamusHyperBeamColorFile.Write(new SamusHyperBeamColorDocument
         {
             Version = SamusHyperBeamColorFormat.Version,
             Frames = frames,

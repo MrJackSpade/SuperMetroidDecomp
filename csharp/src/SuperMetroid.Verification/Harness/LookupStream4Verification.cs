@@ -154,7 +154,7 @@ internal static class LookupStream4Verification
     {
         ushort Pack(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
         byte[] json = TitlePaletteExtractor.Extract(rom);
-        TitlePalettePresentation stock = TitlePalettePresentation.Load(new MemoryStream(json));
+        TitlePalettePresentation stock = TitlePaletteFile.Read(new MemoryStream(json));
         var native = new Dictionary<ushort, ushort>();
         foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
         for (int frame = 0; frame < program.FrameCount; frame++)
@@ -179,9 +179,9 @@ internal static class LookupStream4Verification
         document.BabyMetroidTubeLight[7][3] = document.BabyMetroidTubeLight[7][3] with { Blue = 9 };
         document.FlickeringDisplays[1][1] = document.FlickeringDisplays[1][1] with { Red = 17 };
         using var changedJson = new MemoryStream();
-        TitlePalettePresentation.Write(changedJson, document);
+        TitlePaletteFile.Write(changedJson, document);
         changedJson.Position = 0;
-        TitlePalettePresentation changed = TitlePalettePresentation.Load(changedJson);
+        TitlePalettePresentation changed = TitlePaletteFile.Read(changedJson);
         foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
         for (int frame = 0; frame < program.FrameCount; frame++)
         for (int index = 0; index < program.ColorsPerFrame; index++)
@@ -270,8 +270,8 @@ internal static class LookupStream4Verification
         static TitlePalettePresentation Load(TitlePaletteDocument document)
         {
             using var output = new MemoryStream();
-            TitlePalettePresentation.Write(output, document);
-            return TitlePalettePresentation.Load(new MemoryStream(output.ToArray()));
+            TitlePaletteFile.Write(output, document);
+            return TitlePaletteFile.Read(new MemoryStream(output.ToArray()));
         }
         void Confirm(TitlePaletteDocument document, TitlePalettePresentation selected)
         {
@@ -1758,7 +1758,7 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4BeamColorRelations(ISnesAddressSpace rom)
     {
         byte[] source = BeamPaletteExtractor.Extract(rom);
-        var stock = BeamPaletteCatalog.Load(new MemoryStream(source));
+        var stock = BeamPaletteFile.Read(new MemoryStream(source));
         var stored = stock.palettes;
         AssertEqual(0, stored.Count, "Every stock beam color calculates with zero overrides");
         var artwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(rom), stock);
@@ -1772,7 +1772,7 @@ internal static class LookupStream4Verification
                 var color = document.Required("palettes").Required(BeamPaletteDefinitions.Key(SamusBeamCombinations.FromTableIndex(word / 16))).Required(word % 16);
                 string component = channel switch { 0 => "red", 1 => "green", _ => "blue" };
                 color[component] = color.Required(component).GetValue<int>() ^ 1;
-                selected = BeamPaletteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
+                selected = BeamPaletteFile.Read(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
             }
             for (int selection = 0; selection < 12; selection++)
             {
@@ -3109,7 +3109,7 @@ internal static class LookupStream4Verification
         AssertEqual(16, SpazerCompositionGeometryDefinitions.DiagonalStripWidth, "two adjacent small cells form the strip width");
         AssertEqual(2, BeamTileAtlasDefinitions.SpazerRibbonThickness, "required horizontal artwork thickness stays explicit");
         var files = BeamTileExtractor.Extract(rom);
-        var palettes = BeamPaletteCatalog.Load(new MemoryStream(BeamPaletteExtractor.Extract(rom)));
+        var palettes = BeamPaletteFile.Read(new MemoryStream(BeamPaletteExtractor.Extract(rom)));
         var catalog = BeamTileCatalog.Load(files, palettes);
         int derivedTotal = 0;
         int runtimeBasisTotal = 0;

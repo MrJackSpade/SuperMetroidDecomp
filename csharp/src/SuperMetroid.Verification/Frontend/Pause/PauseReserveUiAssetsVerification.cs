@@ -13,6 +13,7 @@ using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Frontend.Pause;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
@@ -59,7 +60,7 @@ internal static class PauseReserveUiAssetsVerification
             Digits = document.Digits with { Cells = digitCells },
             Arrow = document.Arrow with { Frames = frames },
         };
-        using (var output = File.Create(path)) PauseReserveUiPresentation.Write(output, editedDocument);
+        using (var output = File.Create(path)) PauseReserveUiFile.Write(output, editedDocument);
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "reserve UI override changes selected content identity");
         var stockPause = new PauseMenuState(new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
@@ -88,7 +89,7 @@ internal static class PauseReserveUiAssetsVerification
             "restored reserve UI rebind reproduces the current stock presentation at the retained phase");
 
         void Reject(PauseReserveUiDocument invalid) => AssertThrows<InvalidDataException>(() =>
-            PauseReserveUiPresentation.Write(new MemoryStream(), invalid), "invalid reserve UI schema rejected");
+            PauseReserveUiFile.Write(new MemoryStream(), invalid), "invalid reserve UI schema rejected");
         Reject(document with { Version = 2 });
         Reject(document with { Labels = [] });
         Reject(document with { Digits = document.Digits with { Cells = document.Digits.Cells[..9] } });

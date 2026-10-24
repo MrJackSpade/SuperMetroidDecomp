@@ -49,13 +49,13 @@ public static class RoomStaticPaletteExtractor
                 };
             }
             using var json = new MemoryStream();
-            RoomStaticPalette.Write(json, new RoomStaticPaletteDocument
+            RoomStaticPaletteFile.Write(json, new RoomStaticPaletteDocument
             {
                 Version = RoomStaticPaletteFormat.Version,
                 Colors = colors,
             });
             byte[] serialized = json.ToArray();
-            RoomStaticPalette compiled = RoomStaticPalette.Load(
+            RoomStaticPalette compiled = RoomStaticPaletteFile.Read(
                 new MemoryStream(serialized, writable: false));
             var nativeCgram = new SnesCgram();
             var compiledCgram = new SnesCgram();

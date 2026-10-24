@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>Editable arrow placement and palette behavior corresponding to native reserve-arrow owner <c>$82:AD0A</c>.</summary>
 public sealed record PauseReserveArrowVisual

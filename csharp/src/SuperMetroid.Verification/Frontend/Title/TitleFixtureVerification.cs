@@ -19,7 +19,7 @@ internal static class TitleFixtureVerification
             new MemoryStream(files[TitleGraphicsFormat.FloorMapFile]),
             new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
             new MemoryStream(files[TitleGraphicsFormat.BabyTilesFile]));
-        var palette = TitlePalettePresentation.Load(new MemoryStream(TitlePaletteExtractor.Extract(source)));
+        var palette = TitlePaletteFile.Read(new MemoryStream(TitlePaletteExtractor.Extract(source)));
         var gradient = titleGradientPresentation ?? TitleGradientPresentation.Load(
             new MemoryStream(TitleGradientExtractor.Extract(source)));
         return new TitleSequenceState(audio, gradient, palette, graphics, MenuSheetFixtures.WithTitle(graphics));

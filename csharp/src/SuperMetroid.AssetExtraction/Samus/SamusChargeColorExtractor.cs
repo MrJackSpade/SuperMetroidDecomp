@@ -39,7 +39,7 @@ public static class SamusChargeColorExtractor
                 SamusSourceDefinitions.HyperBeamShotPointers.Value + tableOffset);
             hyper[frame] = ReadColors(pointer);
         }
-        return SamusChargeColorCatalog.Write(new SamusChargeColorDocument
+        return SamusChargeColorFile.Write(new SamusChargeColorDocument
         {
             Version = SamusChargeColorFormat.Version,
             ChargedBeam = charged,

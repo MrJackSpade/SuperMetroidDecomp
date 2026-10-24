@@ -60,7 +60,7 @@ internal static class ScreenTileSheetComposer
                 BgBitDepth.TwoBpp, EndingColours(sources, EndingPaletteId.PostCredits)),
             SpriteSheetId.EndingExplosionTiles => Compose(sources.EndingObjects.Explosion.Characters.Span[..EndingCreditsRomData.Rendering.ExplosionObjectBytes],
                 BgBitDepth.FourBpp, EndingColours(sources, EndingPaletteId.Explosion)),
-            SpriteSheetId.MenuForegroundTiles => Compose(maps.WorldArtwork.ForegroundCharacters(), BgBitDepth.FourBpp, maps.Palettes.FileSelect),
+            SpriteSheetId.MenuForegroundTiles => Compose(WorldMapCharacters.Of(maps.WorldArtwork).ForegroundCharacters(), BgBitDepth.FourBpp, maps.Palettes.FileSelect),
             SpriteSheetId.MenuMapTiles => Compose(MapTileCharacters.Of(maps.Tiles).Characters, BgBitDepth.FourBpp, maps.Palettes.FileSelect),
             SpriteSheetId.PauseMapTiles => Compose(MapTileCharacters.Of(maps.Tiles).Characters, BgBitDepth.FourBpp, maps.Palettes.Pause),
             SpriteSheetId.PauseInterfaceTiles => Compose(MapTileCharacters.Of(maps.PauseTiles).Characters, BgBitDepth.FourBpp, maps.Palettes.Pause),
@@ -69,11 +69,11 @@ internal static class ScreenTileSheetComposer
             SpriteSheetId.AreaMapForegroundTilesCrateria or SpriteSheetId.AreaMapForegroundTilesBrinstar or
                 SpriteSheetId.AreaMapForegroundTilesNorfair or SpriteSheetId.AreaMapForegroundTilesWreckedShip or
                 SpriteSheetId.AreaMapForegroundTilesMaridia or SpriteSheetId.AreaMapForegroundTilesTourian =>
-                Compose(maps.WorldArtwork.ForegroundCharacters(), BgBitDepth.FourBpp, maps.Palettes.World(AreaFor(ScreenTileSheetDefinitions.AreaMapForegrounds, sheet))),
+                Compose(WorldMapCharacters.Of(maps.WorldArtwork).ForegroundCharacters(), BgBitDepth.FourBpp, maps.Palettes.World(AreaFor(ScreenTileSheetDefinitions.AreaMapForegrounds, sheet))),
             SpriteSheetId.AreaMapBackgroundTilesCrateria or SpriteSheetId.AreaMapBackgroundTilesBrinstar or
                 SpriteSheetId.AreaMapBackgroundTilesNorfair or SpriteSheetId.AreaMapBackgroundTilesWreckedShip or
                 SpriteSheetId.AreaMapBackgroundTilesMaridia or SpriteSheetId.AreaMapBackgroundTilesTourian =>
-                Compose(maps.WorldArtwork.BackgroundCharacters(), BgBitDepth.TwoBpp, maps.Palettes.World(AreaFor(ScreenTileSheetDefinitions.AreaMapBackgrounds, sheet))),
+                Compose(WorldMapCharacters.Of(maps.WorldArtwork).BackgroundCharacters(), BgBitDepth.TwoBpp, maps.Palettes.World(AreaFor(ScreenTileSheetDefinitions.AreaMapBackgrounds, sheet))),
             SpriteSheetId.EscapeTimer or SpriteSheetId.Grapple or SpriteSheetId.SamusBodyTop or
                 SpriteSheetId.SamusBodyBottom or SpriteSheetId.SamusOverlays or SpriteSheetId.SamusAtmosphere or
                 SpriteSheetId.SamusDeath or SpriteSheetId.GameOver or SpriteSheetId.FileSelect or

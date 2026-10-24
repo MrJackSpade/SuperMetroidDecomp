@@ -58,6 +58,7 @@ using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Cartridge-oracle checks for the first group of compiled gameplay and presentation catalogs.</summary>
 internal static class LookupStream1Verification
@@ -98,7 +99,7 @@ internal static class LookupStream1Verification
             return png.ToArray();
         }
         byte[] frontPng = Png(frontPixels, size.Y, 16);
-        WorldMapArtwork Create(byte[] selected) => WorldMapArtwork.Load(new MemoryStream(frontPng), new MemoryStream(Png(selected, backSize.Y, 4)));
+        WorldMapCharacters Create(byte[] selected) => WorldMapCharacters.Read(new MemoryStream(frontPng), new MemoryStream(Png(selected, backSize.Y, 4)));
         var stock = Create(pixels);
         var stored = stock.background;
         var masks = stock.digitFill;
@@ -140,7 +141,7 @@ internal static class LookupStream1Verification
         }
         Check(Create(pixels.Select(p => (byte)(p ^ 3)).ToArray()), pixels.Select(p => (byte)(p ^ 3)).ToArray());
         byte[] invalid = (byte[])pixels.Clone(); invalid[0] = 4;
-        AssertThrows<InvalidDataException>(() => WorldMapArtwork.Load(new MemoryStream(frontPng),
+        AssertThrows<InvalidDataException>(() => WorldMapCharacters.Read(new MemoryStream(frontPng),
             new MemoryStream(Png(invalid, backSize.Y, 16))), "Invalid BG3 pen rejected during import, before upload");
         AssertThrows<ArgumentOutOfRangeException>(() => WorldMapTileDefinitions.TryBackgroundPixel(96, new(0, 0), out _), "Background tile bound");
         Console.WriteLine($"World BG3:6144 native pixels,{calculated} geometry/mask defaults,{stored.Count} exact source pixels/10footprints,96 independent tile edits/all-pixel inversion and actual full uploads pass.");
@@ -2587,7 +2588,7 @@ internal static class LookupStream1Verification
             return png.ToArray();
         }
         byte[] backPng = Png(backPixels, backSize.Y, 4);
-        WorldMapArtwork Create(byte[] selected) => WorldMapArtwork.Load(new MemoryStream(Png(selected, size.Y, 16)), new MemoryStream(backPng));
+        WorldMapCharacters Create(byte[] selected) => WorldMapCharacters.Read(new MemoryStream(Png(selected, size.Y, 16)), new MemoryStream(backPng));
         var stock = Create(pixels);
         var stored = stock.foreground;
         ulong NativeMask(int tile)

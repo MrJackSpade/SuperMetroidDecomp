@@ -85,7 +85,7 @@ public static class MapPresentationFiles
         MapArrowPresentation arrows = Resource(MapArrowFormat.FileName, "map arrows", s => MapArrowPresentation.Load(s));
         MapScreenPresentation screens = Resource(MapScreenDefinitions.FileName, "map screens", s => MapScreenPresentation.Load(s));
         WorldMapArtwork artwork = MultiFileResource<WorldMapArtwork>([WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.BackgroundFile],
-            "world-map PNG artwork", (s, _) => WorldMapArtwork.Load(s[0], s[1]));
+            "world-map PNG artwork", (s, _) => WorldMapCharacters.Read(s[0], s[1]));
         MapSpriteCatalog sprites = MultiFileResource<MapSpriteCatalog>([MapSpriteFormat.JsonFile, MapSpriteFormat.PngFile],
             "map sprites", (s, _) => MapSpriteCatalog.Load(s[0], s[1]));
         MapTileAtlas pauseTiles = Resource(PauseTileAtlasFormat.FileName, "pause artwork", s => MapTileCharacters.Read(s));

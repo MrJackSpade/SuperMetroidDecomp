@@ -86,7 +86,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         DeadTourianCorpseProfile profile =
             ProfileForDeadTourianCorpse(slot.DefinitionId);
-        if ((slot.Spawn.Population.Parameter1 & 1) != 0 || slot.Spawn.Population.Parameter1 / 2 >= profile.Variants.Length)
+        if ((slot.Spawn.Population.Parameter1 & 1) != 0 || slot.Spawn.Population.Parameter1 / 2 >= profile.VariantCount)
         {
             throw new InvalidDataException(
                 $"Dead {profile.Species} parameter 1 ${slot.Spawn.Population.Parameter1:X4} has no retail variant.");
@@ -105,7 +105,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             profile: profile)
         {
             RotTable = _room.Staging.RotTable(definition.RotTableOffset, definition.EntryCount),
-            Flesh = definition.VramTransfers,
+            Flesh = definition.Kind,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
@@ -162,7 +162,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             TriggerDeadTourianCorpseRotting(slot);
     }
 
-    /// <summary>Advances the rot table once and queues its art transfer, entering inert AI when it completes.</summary>
+    /// <summary>Advances the rot table once and selects the step as the rot its kind shows, entering inert AI when it completes.</summary>
     private void RunDeadTourianCorpseRotting(
         RoomEnemySlot slot,
         DeadTourianCorpseEnemyState state)
@@ -179,6 +179,10 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
 
+
+    /// <summary>The rot <paramref name="slot"/>'s frames show: its kind's (#1406).</summary>
+    internal CorpseRotView ShownDeadTourianRot(RoomEnemySlot slot) =>
+        _deadMonsters.Shown(RequireDeadTourianCorpseState(slot).Flesh);
 
     /// <summary>Spawns randomized dust for a completed rot row and gates its sound on the enemy counter.</summary>
     private void FinishDeadTourianCorpseRow(
@@ -201,22 +205,16 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         return state;
     }
 
-    /// <summary>Groups one corpse species' header rot-trigger callbacks with its tile-row layout and available art layouts.</summary>
+    /// <summary>Groups one corpse species' header rot-trigger callbacks with the number of its corpse variants.</summary>
+    /// <param name="Species">The corpse species.</param>
+    /// <param name="TouchAndShot">The callback its header names for touch and shot, which starts its rot.</param>
+    /// <param name="PowerBomb">The callback its header names for a power bomb, which starts its rot.</param>
+    /// <param name="VariantCount">How many corpse variants the species has; a population parameter selects one.</param>
     internal sealed record DeadTourianCorpseProfile(
         DeadTourianCorpseSpecies Species,
         EnemyInteractionCallback TouchAndShot,
         EnemyInteractionCallback PowerBomb,
-        DeadTourianCorpseVariant[] Variants,
-        CorpseRotationTable RowLayout);
-
-    /// <summary>Describes tile-column offsets and sheet copies for one corpse art variant.</summary>
-    /// <param name="MaximumY">First pixel row that no longer copies downward: the block height less two pixels (14 or 30).</param>
-    /// <param name="ColumnWordOffsets">Work-buffer word offset of each tile column of the corpse block.</param>
-    /// <param name="InitialGraphicsCopies">Sheet-to-work-buffer copies that stage the corpse's initial art.</param>
-    internal sealed record DeadTourianCorpseVariant(
-        int MaximumY,
-        ushort[] ColumnWordOffsets,
-        CorpseGraphicsCopy[] InitialGraphicsCopies);
+        int VariantCount);
 
     /// <summary>Routes bomb hits through the shared shot callback, which begins decomposition.</summary>
     internal static void RegisterDeadTourianBombReactions(EnemySharedReactions table)

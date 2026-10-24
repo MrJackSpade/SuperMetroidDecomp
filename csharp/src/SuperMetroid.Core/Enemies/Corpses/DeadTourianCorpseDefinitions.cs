@@ -22,7 +22,7 @@ internal static class DeadTourianCorpseDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, null),
     };
 
-    /// <summary>Calculates one Zoomer, Ripper, or Skree corpse's animation, rotting, DMA, movement, and rotation identities.</summary>
+    /// <summary>Calculates one Zoomer, Ripper, or Skree corpse's animation, rotting, kind, movement, and rotation identities.</summary>
     internal static DeadTourianCorpseDefinition For(DeadTourianCorpseSpecies species,int variantIndex)
     {
         int first = species switch
@@ -38,17 +38,17 @@ internal static class DeadTourianCorpseDefinitions
         bool skree = species == DeadTourianCorpseSpecies.Skree;
         int layout = skree ? variantIndex : ordinal;
         int rowTiles = skree ? 2 : 3;
-        CorpseRotationTable transfers = species switch
+        RottingCorpseSpecies kind = species switch
         {
-            DeadTourianCorpseSpecies.Zoomer => CorpseRotationTable.Zoomer,
-            DeadTourianCorpseSpecies.Ripper => CorpseRotationTable.Ripper,
-            DeadTourianCorpseSpecies.Skree => CorpseRotationTable.Skree,
+            DeadTourianCorpseSpecies.Zoomer => RottingCorpseSpecies.Zoomer,
+            DeadTourianCorpseSpecies.Ripper => RottingCorpseSpecies.Ripper,
+            DeadTourianCorpseSpecies.Skree => RottingCorpseSpecies.Skree,
             _ => throw new ArgumentOutOfRangeException(nameof(species), species, null),
         };
         return new(
             CorpseProgram(ordinal),
             (skree ? FirstSkreeRotTable : FirstWideRotTable) + (skree ? 128 : 64) * layout,
-            new CorpseTransferTable(transfers, variantIndex),
+            new RottingCorpseKind(kind, variantIndex),
             skree ? (ushort)32 : (ushort)16,
             (ushort)(32 * rowTiles - 12));
     }

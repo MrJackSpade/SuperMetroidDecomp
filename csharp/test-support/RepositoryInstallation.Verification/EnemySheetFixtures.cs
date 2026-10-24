@@ -77,6 +77,24 @@ internal static class EnemySheetFixtures
                 && frames.TryGetValue(frame, out CharacterRegion[][]? layers) ? layers : [];
         }
 
+        /// <inheritdoc/>
+        public string? RotCorpse(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame)
+        {
+            if (installed is not null && RoomEnemyGraphicsSetDefinitions.DrawnUnder.Contains(set))
+                return installed.RotCorpse(set, enemy, frame);
+            return sets.GetValue(set, Compose).RotPictures.TryGetValue(enemy, out IReadOnlyDictionary<string, string>? frames)
+                && frames.TryGetValue(frame, out string? corpse) ? corpse : null;
+        }
+
+        /// <inheritdoc/>
+        public string? SpawnedRotCorpse(RoomEnemyGraphicsSetDefinition set, int tileBase, string frame)
+        {
+            if (installed is not null && RoomEnemyGraphicsSetDefinitions.DrawnUnder.Contains(set))
+                return installed.SpawnedRotCorpse(set, tileBase, frame);
+            return sets.GetValue(set, Compose).SpawnedRotPictures.TryGetValue(tileBase, out IReadOnlyDictionary<string, string>? frames)
+                && frames.TryGetValue(frame, out string? corpse) ? corpse : null;
+        }
+
         /// <summary>Composes and registers one graphics set's sheets.</summary>
         private ComposedSet Compose(RoomEnemyGraphicsSetDefinition set)
         {
@@ -85,19 +103,25 @@ internal static class EnemySheetFixtures
             string owner = $"fixture-{RuntimeHelpers.GetHashCode(inputs.Enemies):X8}-{set.Name}-{RuntimeHelpers.GetHashCode(set):X8}";
             var enemies = new Dictionary<EnemyDefinitionId, SpriteSheet>();
             var pictures = new Dictionary<EnemyDefinitionId, IReadOnlyDictionary<string, CharacterRegion[][]>>();
-            foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources, IReadOnlyDictionary<string, CharacterRegion[][]> framePictures) in setSources.Enemies)
+            var rotPictures = new Dictionary<EnemyDefinitionId, IReadOnlyDictionary<string, string>>();
+            foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources, IReadOnlyDictionary<string, CharacterRegion[][]> framePictures,
+                         IReadOnlyDictionary<string, string> frameRots) in setSources.Enemies)
             {
                 enemies[enemy] = Load(sources, $"{enemy}-{owner}");
                 pictures[enemy] = framePictures;
+                rotPictures[enemy] = frameRots;
             }
             var spawned = new Dictionary<int, SpawnedObjectSheet>();
             var spawnedPictures = new Dictionary<int, IReadOnlyDictionary<string, CharacterRegion[][]>>();
-            foreach ((SpawnedObjectSheetPlan plan, SpriteSheetSources sources, IReadOnlyDictionary<string, CharacterRegion[][]> framePictures) in setSources.Spawned)
+            var spawnedRotPictures = new Dictionary<int, IReadOnlyDictionary<string, string>>();
+            foreach ((SpawnedObjectSheetPlan plan, SpriteSheetSources sources, IReadOnlyDictionary<string, CharacterRegion[][]> framePictures,
+                         IReadOnlyDictionary<string, string> frameRots) in setSources.Spawned)
             {
                 spawned[plan.TileBase] = new SpawnedObjectSheet(Load(sources, $"Spawned-{plan.TileBase:X3}-{owner}"), plan.Palette);
                 spawnedPictures[plan.TileBase] = framePictures;
+                spawnedRotPictures[plan.TileBase] = frameRots;
             }
-            return new ComposedSet(enemies, spawned, pictures, spawnedPictures);
+            return new ComposedSet(enemies, spawned, pictures, spawnedPictures, rotPictures, spawnedRotPictures);
         }
 
         /// <summary>Composes, loads and registers one sheet under <paramref name="name"/>.</summary>
@@ -116,8 +140,12 @@ internal static class EnemySheetFixtures
     /// <param name="Spawned">Each spawned-object sheet by tile base.</param>
     /// <param name="Pictures">Each enemy sheet's frames drawn over uploaded characters, and the regions they are drawn over.</param>
     /// <param name="SpawnedPictures">The same for each spawned-object sheet, by tile base.</param>
+    /// <param name="RotPictures">Each enemy sheet's frames drawn over a rotting corpse's rows, and the kind of corpse each shows.</param>
+    /// <param name="SpawnedRotPictures">The same for each spawned-object sheet, by tile base.</param>
     private sealed record ComposedSet(IReadOnlyDictionary<EnemyDefinitionId, SpriteSheet> Enemies,
         IReadOnlyDictionary<int, SpawnedObjectSheet> Spawned,
         IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyDictionary<string, CharacterRegion[][]>> Pictures,
-        IReadOnlyDictionary<int, IReadOnlyDictionary<string, CharacterRegion[][]>> SpawnedPictures);
+        IReadOnlyDictionary<int, IReadOnlyDictionary<string, CharacterRegion[][]>> SpawnedPictures,
+        IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyDictionary<string, string>> RotPictures,
+        IReadOnlyDictionary<int, IReadOnlyDictionary<string, string>> SpawnedRotPictures);
 }

@@ -1,15 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Artwork;
 
-/// <summary>Dead Torizo's editable 4bpp source sheet and its cartridge identity.</summary>
+/// <summary>The dead Torizo's artwork the game draws besides its ordinary frames.</summary>
 internal static class DeadTorizoArtworkDefinitions
 {
-
     /// <summary>The corpse hook frame drawn after the enemy queue.</summary>
     internal const EnemyFrameId HookFrame = EnemyFrameId.DeadTorizoCorpseA9D761;
-
-    /// <summary>$B7:A800, the 192-tile source sheet used both for the initial corpse and falling sand.</summary>
-    internal const int SourceAddress = 0xb7a800;
-
-    /// <summary>$1800 bytes, the full tile sheet named enemy-ed3f-tiles.png in the installation.</summary>
-    internal const int ByteCount = 0x1800;
 }

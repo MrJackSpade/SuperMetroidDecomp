@@ -12,4 +12,7 @@ internal static class DeadTorizoCorpseDefinitions
         RotTableOffset: 0,
         EntryCount: 0x0060,
         WrapOffset: 0x0134);
+
+    /// <summary>The dead Torizo's kind of rotting corpse, which its sheet's rot pictures are named for (#1406).</summary>
+    internal static readonly RottingCorpseKind Kind = new(RottingCorpseSpecies.Torizo, 0);
 }

@@ -606,7 +606,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         Projectiles.AddHandlerSource(this);
         GunshipBehavior = new GunshipBehavior(Audio, Projectiles, Room, SlotTable, FrameResults);
         Terrain = new EnemyTerrain();
-        DeadMonsters = new DeadMonsterFrame(Presentation);
+        DeadMonsters = new DeadMonsterFrame();
         MotherBrainEncounter = new MotherBrainEncounter(Presentation, Room, BossArtworkBinding);
         RidleyTail = new RidleyTail(FrameContext, Projectiles, RidleyEncounter, Room, SlotTable);
         DeathsAndDrops = new EnemyDeathsAndDrops(RoomStatus, Projectiles, Room, SlotTable, Dispatch);

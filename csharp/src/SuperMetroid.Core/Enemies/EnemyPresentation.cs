@@ -2,6 +2,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Corpses;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -82,10 +83,10 @@ internal sealed class EnemyPresentation
     /// </summary>
     internal ObjCharacterUploads ObjCharacters => _room.Session.ObjCharacters;
 
-    /// <summary>The rot step each region the room's rotting corpses upload shows (#1392).</summary>
+    /// <summary>The rot step each region Mother Brain's rotting corpse uploads shows (#1392).</summary>
     internal CorpseRotUploads RotUploads { get; } = new();
 
-    /// <summary>Records a rotting corpse's upload of a row of its characters after rot step <paramref name="step"/> (#1392).</summary>
+    /// <summary>Records Mother Brain's rotting corpse's upload of a row of its characters after rot step <paramref name="step"/> (#1392).</summary>
     internal void ShowRot(VramDmaDestination destination, int byteCount, int step) =>
         RotUploads.Show(destination, byteCount, step, ObjCharacters.Recorded);
 
@@ -107,9 +108,12 @@ internal sealed class EnemyPresentation
     /// <param name="origin">The frame origin on screen.</param>
     /// <param name="paletteBits">The draw's palette selection.</param>
     /// <param name="tileBase">The draw's packed tile base, which must be the one its sheet was composed at.</param>
-    /// <exception cref="InvalidDataException">The enemy draws at another tile base than its sheet's.</exception>
+    /// <param name="rot">The rot the enemy selected, which a frame drawn over a rotting corpse's rows shows; none for an enemy that shows none.</param>
+    /// <exception cref="InvalidDataException">
+    /// The enemy draws at another tile base than its sheet's, or a frame showing a corpse's rot is drawn without that rot.
+    /// </exception>
     internal void PublishSheetFrame(SpriteFrameBuffer sprites, SpriteSource source, EnemyDefinitionId enemy, string frame,
-        Position16<ScreenPixels> origin, int paletteBits, int tileBase)
+        Position16<ScreenPixels> origin, int paletteBits, int tileBase, CorpseRotView? rot = null)
     {
         EnemyGraphicsIndexes composed = _graphicsSet.DrawIndexes(enemy);
         if (tileBase != composed.TileIndex)
@@ -117,7 +121,7 @@ internal sealed class EnemyPresentation
         int loaded = SnesObjAttributeWord.FromPaletteBits(checked((ushort)composed.PaletteIndex)).PaletteIndex;
         int drawn = SnesObjAttributeWord.FromPaletteBits(checked((ushort)paletteBits)).PaletteIndex;
         SpriteSheet sheet = Sheets.For(LoadedSet, enemy);
-        foreach (string picture in Pictures(frame, Sheets.Layers(LoadedSet, enemy, frame)))
+        foreach (string picture in Pictures(frame, Sheets.Layers(LoadedSet, enemy, frame), Sheets.RotCorpse(LoadedSet, enemy, frame), rot))
             sprites.Add(new ImageSpriteDraw(source, sheet.Frame(picture), origin, SpriteMirror.None, drawn == loaded ? null : drawn));
     }
 
@@ -132,23 +136,37 @@ internal sealed class EnemyPresentation
     /// <param name="origin">The frame origin on screen.</param>
     /// <param name="tileBase">The packed tile base the object's parts draw at.</param>
     /// <param name="paletteBits">The draw's palette selection.</param>
-    /// <exception cref="InvalidDataException">The set has no sheet for that tile base.</exception>
+    /// <param name="rot">The rot the drawing encounter selected, which a frame drawn over a rotting corpse's rows shows; none for one that shows none.</param>
+    /// <exception cref="InvalidDataException">
+    /// The set has no sheet for that tile base, or a frame showing a corpse's rot is drawn without that rot.
+    /// </exception>
     internal void PublishSpawnedFrame(SpriteFrameBuffer sprites, SpriteSource source, string frame, Position16<ScreenPixels> origin,
-        int tileBase, ushort paletteBits)
+        int tileBase, ushort paletteBits, CorpseRotView? rot = null)
     {
         SpawnedObjectSheet sheet = Sheets.Spawned(LoadedSet, tileBase);
         int drawn = SnesObjAttributeWord.FromPaletteBits(paletteBits).PaletteIndex;
-        foreach (string picture in Pictures(frame, Sheets.SpawnedLayers(LoadedSet, tileBase, frame)))
+        foreach (string picture in Pictures(frame, Sheets.SpawnedLayers(LoadedSet, tileBase, frame),
+                     Sheets.SpawnedRotCorpse(LoadedSet, tileBase, frame), rot))
             sprites.Add(new ImageSpriteDraw(source, sheet.Sheet.Frame(picture), origin, SpriteMirror.None, drawn == sheet.Palette ? null : drawn));
     }
 
     /// <summary>
-    /// The pictures <paramref name="frame"/> draws as, front first: the frame whole, or, for a frame drawn over characters
-    /// the room's encounter uploads, the picture of each of its <paramref name="layers"/> showing what each region it reads
-    /// holds now, the upload made last over it or the graphics set's own characters.
+    /// The pictures <paramref name="frame"/> draws as, front first: the frame whole; for a frame drawn over a rotting
+    /// corpse's rows, its picture of the <paramref name="rot"/> its draw selected (#1406); or, for a frame drawn over
+    /// characters the room's encounter uploads, the picture of each of its <paramref name="layers"/> showing what each region
+    /// it reads holds now, the upload made last over it or the graphics set's own characters.
     /// </summary>
-    private IEnumerable<string> Pictures(string frame, IReadOnlyList<CharacterRegion[]> layers)
+    /// <exception cref="InvalidDataException">The frame shows a corpse's rot and the draw selects none, or another corpse's.</exception>
+    private IEnumerable<string> Pictures(string frame, IReadOnlyList<CharacterRegion[]> layers, string? rotCorpse, CorpseRotView? rot)
     {
+        if (rotCorpse is not null)
+        {
+            if (rot is null)
+                throw new InvalidDataException($"Sheet frame {frame} shows the rot of {rotCorpse}, but its draw selects no rot.");
+            if (rot.Corpse.Name != rotCorpse)
+                throw new InvalidDataException($"Sheet frame {frame} shows the rot of {rotCorpse}, but its draw selects the rot of {rot.Corpse.Name}.");
+            return [rot.PictureName(frame)];
+        }
         if (layers.Count == 0)
             return [frame];
         RuntimeCharacterUploadCatalog catalog = Sheets.Uploads;
@@ -168,9 +186,10 @@ internal sealed class EnemyPresentation
     /// <param name="frame">The frame.</param>
     /// <param name="origin">The frame origin on screen.</param>
     /// <param name="paletteBits">The draw's palette selection.</param>
+    /// <param name="rot">The rot the encounter selected, which a frame drawn over its rotting rows shows; none for one that shows none.</param>
     internal void PublishEncounterFrame(SpriteFrameBuffer sprites, SpriteSource source, EnemyFrameId frame,
-        Position16<ScreenPixels> origin, int paletteBits) =>
-        PublishSpawnedFrame(sprites, source, EnemySheetDefinitions.EncounterFrameName(frame), origin, 0, checked((ushort)paletteBits));
+        Position16<ScreenPixels> origin, int paletteBits, CorpseRotView? rot = null) =>
+        PublishSpawnedFrame(sprites, source, EnemySheetDefinitions.EncounterFrameName(frame), origin, 0, checked((ushort)paletteBits), rot);
 
     /// <summary>The installed enemy sheets.</summary>
     private IEnemySheetSource Sheets => _room.Session.Sheets ?? throw new InvalidOperationException(

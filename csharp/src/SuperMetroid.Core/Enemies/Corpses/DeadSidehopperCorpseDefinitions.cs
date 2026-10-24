@@ -9,7 +9,7 @@ internal static class DeadSidehopperCorpseDefinitions
     /// </summary>
     internal static readonly DeadSidehopperCorpseDefinition InitiallyAlive = new(
         RotTableOffset: 0,
-        VramTransfers: new(CorpseRotationTable.Sidehopper, 0),
+        Kind: new(RottingCorpseSpecies.Sidehopper, 0),
         EntryCount: 0x0028,
         WrapOffset: 0x0094);
 
@@ -19,7 +19,7 @@ internal static class DeadSidehopperCorpseDefinitions
     /// </summary>
     internal static readonly DeadSidehopperCorpseDefinition InitiallyDead = new(
         RotTableOffset: 0xa0,
-        VramTransfers: new(CorpseRotationTable.Sidehopper, 1),
+        Kind: new(RottingCorpseSpecies.Sidehopper, 1),
         EntryCount: 0x0028,
         WrapOffset: 0x0094);
 

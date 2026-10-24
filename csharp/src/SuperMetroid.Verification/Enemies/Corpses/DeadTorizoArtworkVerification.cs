@@ -28,7 +28,7 @@ internal static class DeadTorizoArtworkVerification
     internal static void VerifyInstalledDeadTorizoArtwork(
         string directory, InstalledEnemyArtwork stock)
     {
-        Suite(nameof(VerifyDeadTorizoVramTransferDefinitions), () => VerifyDeadTorizoVramTransferDefinitions(stock));
+        Suite(nameof(VerifyDeadTorizoRowUploads), () => VerifyDeadTorizoRowUploads(stock));
         Suite(nameof(VerifyDeadTorizoStationaryVisual), () => VerifyDeadTorizoStationaryVisual(stock.Enemies));
         // The extraction stages the corpse as its initializer does, from discontinuous portions of the ordinary ED3F sheet,
         // and drops sand words from that same sheet, to picture each step of its rot (#1392); the runtime stages nothing.
@@ -120,63 +120,52 @@ internal static class DeadTorizoArtworkVerification
         Console.WriteLine("  Dead Torizo stationary visual: compiled selector, editable 25-part OAM, and native composition parity pass.");
     }
 
-    /// <summary>Compares both corpse-animation transfer tables and their live queues with retail descriptors.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Torizo VRAM transfer definitions")]
-    private static void VerifyDeadTorizoVramTransferDefinitions(
+    /// <summary>
+    /// Compares the extraction's two row upload tables with the retail descriptors, and checks each main-AI call selects the
+    /// corpse's rot step for the half the cartridge uploads that call (#1406).
+    /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Torizo row upload definitions")]
+    private static void VerifyDeadTorizoRowUploads(
         InstalledEnemyArtwork stock)
     {
+        // DeadTorizo_VRAMWriteTable_Even at $A9:D549 and DeadTorizo_VRAMWriteTable_Odd at $A9:D583, four words per record.
+        const int recordByteCount = 8;
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         for (ushort phase = 0; phase < 2; phase++)
         {
-            ushort table = phase == 0
-                ? DeadTorizoVramTransferDefinitions.EvenTable
-                : DeadTorizoVramTransferDefinitions.OddTable;
-            DeadTorizoVramTransferDefinitions.PhaseRows records =
-                DeadTorizoVramTransferDefinitions.ForHalf(odd: phase == 1);
-            AssertEqual(7, records.Length,
+            ushort table = phase == 0 ? (ushort)0xd549 : (ushort)0xd583;
+            DeadTorizoRowUploadDefinitions.PhaseRows records =
+                DeadTorizoRowUploadDefinitions.ForHalf(odd: phase == 1);
+            AssertEqual(7, records.Count,
                 $"Dead Torizo phase {phase} compiled descriptor count");
-            for (int index = 0; index < records.Length; index++)
+            for (int index = 0; index < records.Count; index++)
             {
-                int address = 0xa90000 | unchecked((ushort)(table +
-                    index * DeadTorizoVramTransferDefinitions.RecordByteCount));
-                DeadTorizoVramTransferDefinition record = records[index];
+                int address = 0xa90000 | unchecked((ushort)(table + index * recordByteCount));
+                CorpseRowUpload record = records[index];
                 AssertEqual(record.SizeInBytes, rom.ReadCartridgeWord(address),
                     $"Dead Torizo phase {phase} transfer {index} size");
                 AssertEqual(record.SourceBankWord, rom.ReadCartridgeWord((address + 2)),
                     $"Dead Torizo phase {phase} transfer {index} source bank");
                 AssertEqual(record.SourceOffset, rom.ReadCartridgeWord((address + 4)),
                     $"Dead Torizo phase {phase} transfer {index} source offset");
-                AssertEqual(record.EncodedVramDestination, rom.ReadCartridgeWord((address + 6)),
+                AssertEqual(record.DestinationWord, rom.ReadCartridgeWord((address + 6)),
                     $"Dead Torizo phase {phase} transfer {index} VRAM destination");
             }
-            AssertEqual((ushort)0, rom.ReadCartridgeWord((0xa90000 | unchecked((ushort)(
-                table + records.Length *
-                DeadTorizoVramTransferDefinitions.RecordByteCount)))),
+            AssertEqual((ushort)0, rom.ReadCartridgeWord((0xa90000 | unchecked((ushort)(table + records.Count * recordByteCount)))),
                 $"Dead Torizo phase {phase} native zero terminator");
         }
 
         RoomEnemySystem installed = InitializeDeadTorizo(stock);
-        var nativeTransfers = new List<VramWriteEntry>();
-
-        Action<DeadTorizoEnemyState> buildInstalled =
-            new Action<DeadTorizoEnemyState>(installed.DeadTorizoBehavior.BuildDeadTorizoVramTransfers);
-        for (int phase = 0; phase < 2; phase++)
-        {
-            // $A9:D4CF increments the phase before selecting the raw descriptor table.
-            int address = phase == 0 ? 0xa9d583 : 0xa9d549;
-            for (int index = 0; index < 7; index++, address += 8)
-                nativeTransfers.Add(new VramWriteEntry(rom.ReadCartridgeWord(address),
-                    (int)new SnesAddress(SnesLittleEndian.HighByte(rom.ReadCartridgeWord(address + 2)), rom.ReadCartridgeWord(address + 4)),
-                    VramDmaDestination.FromNative(rom.ReadCartridgeWord((address + 6)))));
-            AssertEqual((ushort)0, rom.ReadCartridgeWord(address), "native corpse queue terminates after seven entries");
-            buildInstalled((installed.DeadTorizo ?? throw new InvalidOperationException("Verification requires installed.DeadTorizo.")));
-            // The corpse records the rot step each uploaded row shows, where its native descriptor uploads it (#1392).
-            foreach (VramWriteEntry transfer in nativeTransfers.Skip(phase * 7))
-                AssertTrue(installed.Presentation.RotUploads.TryShowing(
-                        new CharacterRegion(ObjCharacterUploads.TableByte(transfer.Destination), transfer.SizeInBytes), out int step, out _) && step == 0,
-                    $"Dead Torizo phase {phase} uploads each native descriptor's row");
-        }
-        Console.WriteLine("  Dead Torizo VRAM uploads: fourteen native descriptors and both real frame builders match.");
+        DeadTorizoEnemyState state = installed.DeadTorizo ?? throw new InvalidOperationException("Verification requires installed.DeadTorizo.");
+        Action<DeadTorizoEnemyState> showInstalled = installed.DeadTorizoBehavior.ShowNextRotHalf;
+        // $A9:D4CF increments the phase before selecting a table, so the first call uploads the odd half, the next the even.
+        showInstalled(state);
+        AssertTrue(state.ShowsOddHalf && state.OddHalfStep == 0 && state.EvenHalfStep is null,
+            "Dead Torizo's first call shows its odd half before its rot begins");
+        showInstalled(state);
+        AssertTrue(!state.ShowsOddHalf && state.OddHalfStep == 0 && state.EvenHalfStep == 0,
+            "Dead Torizo's second call shows its even half before its rot begins");
+        Console.WriteLine("  Dead Torizo row uploads: fourteen native descriptors match, and the halves both calls show alternate.");
     }
 
     /// <summary>
@@ -236,7 +225,7 @@ internal static class DeadTorizoArtworkVerification
 
     /// <summary>The installed dead-Torizo sheet.</summary>
     private static ReadOnlySpan<byte> Atlas(InstalledEnemyArtwork artwork) =>
-        artwork.Enemies.TryResolve(DeadTorizoArtworkDefinitions.SourceAddress, DeadTorizoArtworkDefinitions.ByteCount, out ReadOnlyMemory<byte> tiles)
+        artwork.Enemies.TryResolve(CorpseSheetDefinitions.DeadTorizoSheetAddress, CorpseSheetDefinitions.DeadTorizoSheetByteCount, out ReadOnlyMemory<byte> tiles)
             ? tiles.Span : throw new InvalidDataException("Installed dead-Torizo sheet enemy-ed3f-tiles.png is missing or has the wrong size.");
 
     /// <summary>The <paramref name="length"/> staged corpse bytes from <paramref name="offset"/>.</summary>

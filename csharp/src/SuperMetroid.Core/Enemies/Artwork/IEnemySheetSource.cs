@@ -25,4 +25,14 @@ public interface IEnemySheetSource
 
     /// <summary>The same for frame <paramref name="frame"/> of the set's spawned-object sheet for <paramref name="tileBase"/>.</summary>
     IReadOnlyList<CharacterRegion[]> SpawnedLayers(RoomEnemyGraphicsSetDefinition set, int tileBase, string frame);
+
+    /// <summary>
+    /// The name of the kind of rotting corpse whose rot frame <paramref name="frame"/> of <paramref name="enemy"/>'s sheet
+    /// under graphics set <paramref name="set"/> shows, when the frame is drawn over the corpse's rows: the sheet holds the
+    /// frame's picture of each rot the corpse can show (#1406). None for a frame that shows no rot.
+    /// </summary>
+    string? RotCorpse(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame);
+
+    /// <summary>The same for frame <paramref name="frame"/> of the set's spawned-object sheet for <paramref name="tileBase"/>.</summary>
+    string? SpawnedRotCorpse(RoomEnemyGraphicsSetDefinition set, int tileBase, string frame);
 }

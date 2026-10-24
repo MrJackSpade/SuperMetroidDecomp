@@ -4,6 +4,6 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 internal readonly record struct DeadTourianCorpseDefinition(
     DeadTourianProgram InitialProgram,
     int RotTableOffset,
-    CorpseTransferTable VramTransfers,
+    RottingCorpseKind Kind,
     ushort EntryCount,
     ushort WrapOffset);

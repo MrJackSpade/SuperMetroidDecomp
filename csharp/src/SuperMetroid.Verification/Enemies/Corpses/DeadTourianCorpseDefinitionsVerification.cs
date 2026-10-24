@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Harness.LookupStream5Verification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Enemies.Corpses;
 using SuperMetroid.Verification.Harness;
@@ -68,7 +69,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
     {
         int address = 0xa90000 | ConfigurationPointer(rom, species, variantIndex);
         ushort Word(int index) => CartridgeImportSource.Require(rom).ReadCartridgeWord(address + index * 2);
-        ushort[] actual = [definition.RottingTablePointer, definition.VramTransferPointer, definition.EntryCount];
+        ushort[] actual = [definition.RottingTablePointer, definition.RowUploadPointer, definition.EntryCount];
         AssertTrue(actual.SequenceEqual(new[] { Word(0), Word(1), Word(4) }),
             $"dead {species} variant {variantIndex} configuration words");
 
@@ -103,9 +104,9 @@ internal static class DeadTourianCorpseDefinitionsVerification
             $"dead {species} variant {variantIndex} started animation");
         CorpseRotTableChecks.AssertConfiguredRotTable(enemies, expected.RotTableOffset, expected.EntryCount,
             state.RotTable, $"dead {species} variant {variantIndex}");
-        AssertEqual(expected.VramTransfers, state.Flesh,
-            $"dead {species} variant {variantIndex} uploads the configured VRAM transfer list");
-        AssertEqual((ushort)state.Profile.RowLayout,
+        AssertEqual(expected.Kind, state.Flesh,
+            $"dead {species} variant {variantIndex} rots the configured kind of corpse");
+        AssertEqual(CorpseRowLayouts.TableAddress(DeadTourianCorpseStagingDefinitions.RowLayout(state.Species)),
             CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa90000 | (ConfigurationPointer(rom, species, variantIndex) + 12)),
             $"dead {species} variant {variantIndex} configuration names the tile-row layout production copies with");
         AssertEqual(expected.EntryCount - 1, state.YLimit,

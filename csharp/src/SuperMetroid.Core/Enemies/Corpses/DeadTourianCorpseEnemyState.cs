@@ -29,8 +29,8 @@ public sealed class DeadTourianCorpseEnemyState
     public int VariantIndex { get; }
     /// <summary>The corpse's (signed pixel Y, delay) entries in the shared rotting heap, one per corpse pixel row: 16 for Zoomer and Ripper, 32 for Skree.</summary>
     internal CorpseRotTable RotTable { get; init; }
-    /// <summary>The corpse tile uploads queued after every rotting call, including the call that finishes the corpse.</summary>
-    internal CorpseTransferTable Flesh { get; init; }
+    /// <summary>The kind of corpse whose staged characters this one rots, with every other corpse of the kind.</summary>
+    internal RottingCorpseKind Flesh { get; init; }
     /// <summary>Exclusive pixel-row Y limit and final entry index, equal to sprite height minus one; reaching it completes an entry.</summary>
     public int YLimit { get; }
     /// <summary>First entry index that uses destructive moves even during the last delay updates, equal to sprite height minus two.</summary>

@@ -1,13 +1,12 @@
-namespace SuperMetroid.Core.Enemies.Corpses;
+namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 
 /// <summary>
-/// The alternating bank-$A9 corpse VRAM queues at $A9:D549 and $A9:D583.
-/// These immutable descriptor words select mutable $7E staging bytes; the
-/// rotting algorithm, transfer phase, and pixels are not embedded here.
+/// The dead Torizo's alternating bank-$A9 row upload lists at $A9:D549 and $A9:D583 (#1406): the half of its rows it
+/// uploads from its staged characters each main-AI call. Only the extraction reads them, to picture the steps each half
+/// can show.
 /// </summary>
-internal static class DeadTorizoVramTransferDefinitions
+internal static class DeadTorizoRowUploadDefinitions
 {
-
     /// <summary>Twelve ten-tile body rows start at $7E:2000 and VRAM word$7060.</summary>
     private const ushort BodySource = 0x2000;
     /// <summary>First destination word for the clipped body rows in VRAM.</summary>
@@ -17,16 +16,16 @@ internal static class DeadTorizoVramTransferDefinitions
     /// <summary>First VRAM destination word for the alternating sand-strip upload.</summary>
     private const ushort SandDestination = 0x7000;
 
-    /// <summary>Selects the even or odd corpse-transfer half without copying the mutable WRAM source pixels.</summary>
+    /// <summary>The even or odd half's rows.</summary>
     internal static PhaseRows ForHalf(bool odd) => new(odd);
 
     /// <summary>Six body rows and one sand strip; body bounds clip unused tiles on each scanline.</summary>
-    internal readonly struct PhaseRows(bool odd) : IReadOnlyList<DeadTorizoVramTransferDefinition>
+    internal readonly struct PhaseRows(bool odd) : IReadOnlyList<CorpseRowUpload>
     {
-        /// <summary>Six clipped body-row transfers followed by one sand-strip transfer.</summary>
+        /// <summary>Six clipped body-row uploads followed by one sand-strip upload.</summary>
         public int Count => 7;
-        /// <summary>Calculates the phase's row-specific source, destination, and byte count, including the alternating sand strip.</summary>
-        public DeadTorizoVramTransferDefinition this[int index]
+        /// <summary>Calculates the half's row-specific source, destination, and byte count, including the alternating sand strip.</summary>
+        public CorpseRowUpload this[int index]
         {
             get
             {
@@ -43,12 +42,12 @@ internal static class DeadTorizoVramTransferDefinitions
                     (ushort)(BodyDestination + row * 256 + firstTile * 16));
             }
         }
-        /// <summary>Yields body rows in increasing row order, then the phase's sand strip.</summary>
-        public IEnumerator<DeadTorizoVramTransferDefinition> GetEnumerator()
+        /// <summary>Yields body rows in increasing row order, then the half's sand strip.</summary>
+        public IEnumerator<CorpseRowUpload> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
-        /// <summary>Preserves DMA descriptor order for non-generic collection consumers.</summary>
+        /// <summary>Preserves descriptor order for non-generic collection consumers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

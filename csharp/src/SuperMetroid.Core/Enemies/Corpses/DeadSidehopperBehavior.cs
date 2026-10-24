@@ -34,7 +34,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Applies normal touch damage before the corpse finishes transforming.</summary>
     private readonly EnemyCollision _collision;
 
-    /// <summary>Owns the mutable corpse tile buffer, DMA records, and dust sound request.</summary>
+    /// <summary>Owns each kind of corpse's rot and the dust sound request.</summary>
     private readonly DeadMonsterFrame _deadMonsters;
 
     /// <summary>Connects the corpse actor to room state, terrain, presentation, and interaction services.</summary>
@@ -154,7 +154,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             new CorpseRottingProgram { YLimit = yLimit, LateMoveEntryIndex = yLimit - 1, WrapOffset = definition.WrapOffset })
         {
             RotTable = _room.Staging.RotTable(definition.RotTableOffset, definition.EntryCount),
-            Flesh = definition.VramTransfers,
+            Flesh = definition.Kind,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
@@ -435,7 +435,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             EnemyProperties.ProcessOffScreen | EnemyProperties.IgnoreSamusCollision);
     }
 
-    /// <summary>Processes one rotation-table step, its dust callback, and the resulting VRAM records.</summary>
+    /// <summary>Processes one rotation-table step and its dust callback, and selects the step as the rot its kind shows.</summary>
     private void RunDeadSidehopperRotting(
         RoomEnemySlot slot,
         DeadSidehopperEnemyState state)
@@ -452,6 +452,10 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
 
+
+    /// <summary>The rot <paramref name="slot"/>'s frames show: its kind's (#1406).</summary>
+    internal CorpseRotView ShownDeadSidehopperRot(RoomEnemySlot slot) =>
+        _deadMonsters.Shown(RequireDeadSidehopperState(slot).Flesh);
 
     /// <summary>Records a completed row, spawns dust at its randomized X offset, and conditionally requests sound.</summary>
     private void FinishDeadSidehopperCorpseRow(

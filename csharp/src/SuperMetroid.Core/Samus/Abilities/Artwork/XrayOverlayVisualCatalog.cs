@@ -7,6 +7,9 @@ namespace SuperMetroid.Core.Samus.Abilities.Artwork;
 /// <summary>Installed item and room-specific X-ray presentation, independent of PLM state.</summary>
 public sealed class XrayOverlayVisualCatalog
 {
+    /// <summary>Item graphics slots that rotate with the room's items; the same number of fixed ammo and tank slots follow.</summary>
+    public const int DynamicGraphicsSlots = 4;
+
     /// <summary>Eight installed X-ray item metatiles indexed by graphics slot.</summary>
     /// <remarks>
     /// Issue #1038: native $84:839D..83AC holds eight little-endian draw
@@ -53,7 +56,7 @@ public sealed class XrayOverlayVisualCatalog
         Ensure.NotNull(itemMetatiles);
         Ensure.NotNull(rooms);
         this.itemMetatiles = itemMetatiles.ToArray();
-        if (this.itemMetatiles.Length != XrayOverlayRomData.DynamicGraphicsSlots * 2 ||
+        if (this.itemMetatiles.Length != DynamicGraphicsSlots * 2 ||
             this.itemMetatiles.Any(word => word > 0x0fff))
             throw new InvalidDataException("X-ray item visuals require eight valid metatiles.");
         this.rooms = new Dictionary<XrayRoomOverlayDefinition, XrayRoomOverlayVisual[]>();

@@ -195,7 +195,7 @@ internal static class SpikeShinesparkSuitVerification
 
         int centerBlock = (samus.Position.Y.Whole >> 4) * level.Size.X + (samus.Position.X.Whole >> 4);
         level.SetForegroundEntry(centerBlock, (ushort)RoomCollisionType.SpikeAir << 12);
-        level.SetBehavior(centerBlock, SamusTerrainHazardRomData.DamagingSpikeAirBehavior);
+        level.SetBehavior(centerBlock, SpikeHazardDefinitions.DamagingSpikeAirBehavior);
         if (underwater)
         {
             // The reserve technique requires persistent spike/electricity contact while
@@ -204,7 +204,7 @@ internal static class SpikeShinesparkSuitVerification
             for (int block = 0; block < level.Size.X * level.Size.Y; block++)
             {
                 level.SetForegroundEntry(block, (ushort)RoomCollisionType.SpikeAir << 12);
-                level.SetBehavior(block, SamusTerrainHazardRomData.DamagingSpikeAirBehavior);
+                level.SetBehavior(block, SpikeHazardDefinitions.DamagingSpikeAirBehavior);
             }
         }
         return runtime;

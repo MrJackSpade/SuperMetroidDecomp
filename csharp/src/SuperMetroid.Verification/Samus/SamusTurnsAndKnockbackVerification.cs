@@ -556,7 +556,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(96, 96)),
-        KnockbackTimer = WrappingCountdown.Start(SamusTerrainHazardRomData.KnockbackFrames),
+        KnockbackTimer = WrappingCountdown.Start(SpikeHazardDefinitions.KnockbackFrames),
         KnockbackXDirection = KnockbackHorizontalDirection.Left,
     };
     AssertTrue(
@@ -575,7 +575,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
             controllerInput: 0,
             timeIsFrozen: false),
         "active hit interruption consumes terrain request");
-    AssertEqual(SamusTerrainHazardRomData.KnockbackFrames,
+    AssertEqual(SpikeHazardDefinitions.KnockbackFrames,
         pendingTerrainHit.KnockbackTimer.RawValue,
         "terrain hit interruption preserves ten-frame producer timer");
     AssertEqual(SamusPoseId.KnockbackRightPose, pendingTerrainHit.Pose,

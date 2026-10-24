@@ -41,10 +41,10 @@ internal static class XrayRevealVisualInstallationVerification
             throw new InvalidDataException("Installed X-ray visuals omit item and room overlays.");
         var nativeBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(File.ReadAllBytes(installed.RomPath));
         ushort NativeWord(int address) => CartridgeImportSource.Require(nativeBus).ReadCartridgeWord(address);
-        for (int slot = 0; slot < XrayOverlayRomData.DynamicGraphicsSlots * 2; slot++)
+        for (int slot = 0; slot < XrayOverlayVisualCatalog.DynamicGraphicsSlots * 2; slot++)
         {
             ushort pointer = NativeWord(SamusCartridgeTables.ItemDrawPointers + slot * 2);
-            AssertEqual((ushort)(NativeWord(XrayOverlayRomData.ItemBank | (pointer + 2)) & 0x0fff),
+            AssertEqual((ushort)(NativeWord(SamusCartridgeTables.XrayItemDrawBank | (pointer + 2)) & 0x0fff),
                 overlays.ItemMetatile(slot), $"stock X-ray item graphics slot {slot}");
         }
         int specialRecords = 0;
@@ -53,13 +53,13 @@ internal static class XrayRevealVisualInstallationVerification
             IReadOnlyList<XrayRoomOverlayVisual> tiles = overlays.RoomTiles(XrayRoomOverlaySources.Overlay(pointer));
             for (int index = 0; index < tiles.Count; index++)
             {
-                ushort coordinates = NativeWord(XrayOverlayRomData.RoomBank | (pointer + index * 4));
-                AssertEqual(new XrayRoomOverlayVisual(new((byte)coordinates, SnesLittleEndian.HighByte(coordinates)), NativeWord(XrayOverlayRomData.RoomBank |
+                ushort coordinates = NativeWord(SamusCartridgeTables.XrayRoomOverlayBank | (pointer + index * 4));
+                AssertEqual(new XrayRoomOverlayVisual(new((byte)coordinates, SnesLittleEndian.HighByte(coordinates)), NativeWord(SamusCartridgeTables.XrayRoomOverlayBank |
                         (pointer + index * 4 + 2))), tiles[index],
                     $"stock X-ray room overlay ${pointer:X4} record {index}");
                 specialRecords++;
             }
-            AssertEqual((ushort)0, NativeWord(XrayOverlayRomData.RoomBank |
+            AssertEqual((ushort)0, NativeWord(SamusCartridgeTables.XrayRoomOverlayBank |
                 (pointer + tiles.Count * 4)), $"X-ray room overlay ${pointer:X4} terminator");
         }
 

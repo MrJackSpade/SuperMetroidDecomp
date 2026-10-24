@@ -307,11 +307,11 @@ internal static void VerifySamusBlockCollision()
     foreach ((byte spikeBehavior, ushort expectedDamage) in new SamusTerrainMovementVerifySamusBlockCollisionCase[]
     {
         new SamusTerrainMovementVerifySamusBlockCollisionCase((byte)SpikeBlockBehavior.Heavy,
-            SamusTerrainHazardRomData.HeavySpikeDamage),
+            SpikeHazardDefinitions.HeavySpikeDamage),
         new SamusTerrainMovementVerifySamusBlockCollisionCase((byte)SpikeBlockBehavior.Light,
-            SamusTerrainHazardRomData.LightSpikeDamage),
+            SpikeHazardDefinitions.LightSpikeDamage),
         new SamusTerrainMovementVerifySamusBlockCollisionCase((byte)SpikeBlockBehavior.AlternateLight,
-            SamusTerrainHazardRomData.LightSpikeDamage),
+            SpikeHazardDefinitions.LightSpikeDamage),
         new SamusTerrainMovementVerifySamusBlockCollisionCase(2, 0),
     })
     {
@@ -337,10 +337,10 @@ internal static void VerifySamusBlockCollision()
             $"spike-block BTS ${spikeBehavior:X2} retains solid collision");
         AssertEqual(expectedDamage, spikeSamus.LiquidPhysics.PeriodicDamage,
             $"spike-block BTS ${spikeBehavior:X2} publishes cartridge damage");
-        AssertEqual(expectedDamage == 0 ? 0 : SamusTerrainHazardRomData.InvincibilityFrames,
+        AssertEqual(expectedDamage == 0 ? 0 : SpikeHazardDefinitions.InvincibilityFrames,
             spikeSamus.InvincibilityTimer.RawValue,
             $"spike-block BTS ${spikeBehavior:X2} publishes invincibility timer");
-        AssertEqual(expectedDamage == 0 ? 0 : SamusTerrainHazardRomData.KnockbackFrames,
+        AssertEqual(expectedDamage == 0 ? 0 : SpikeHazardDefinitions.KnockbackFrames,
             spikeSamus.KnockbackTimer.RawValue,
             $"spike-block BTS ${spikeBehavior:X2} publishes knockback timer");
         AssertEqual(KnockbackHorizontalDirection.Left, spikeSamus.KnockbackXDirection,
@@ -352,7 +352,7 @@ internal static void VerifySamusBlockCollision()
     foreach ((bool bossDefeated, ushort expectedDamage) in new[]
     {
         new VerifySamusBlockCollisionCase(false, 0),
-        new VerifySamusBlockCollisionCase(true, SamusTerrainHazardRomData.HeavySpikeDamage),
+        new VerifySamusBlockCollisionCase(true, SpikeHazardDefinitions.HeavySpikeDamage),
     })
     {
         var spikeWords = new ushort[width * height];
@@ -384,7 +384,7 @@ internal static void VerifySamusBlockCollision()
         var spikeAirBehaviors = new byte[spikeAirWords.Length];
         spikeAirWords[spikeRow * width + 1] = 0x2000;
         spikeAirBehaviors[spikeRow * width + 1] =
-            SamusTerrainHazardRomData.DamagingSpikeAirBehavior;
+            SpikeHazardDefinitions.DamagingSpikeAirBehavior;
         RoomLevelData spikeAirLevel = CreateRoom(new(width, height),
             spikeAirWords,
             spikeAirBehaviors);
@@ -399,10 +399,10 @@ internal static void VerifySamusBlockCollision()
             spikeAirSamus,
             AreaId.Norfair,
             areaBossDefeated: false);
-        AssertEqual(SamusTerrainHazardRomData.LightSpikeDamage,
+        AssertEqual(SpikeHazardDefinitions.LightSpikeDamage,
             spikeAirSamus.LiquidPhysics.PeriodicDamage,
             $"inside-block spike-air damages at sampled row {spikeRow}");
-        AssertEqual(SamusTerrainHazardRomData.InvincibilityFrames,
+        AssertEqual(SpikeHazardDefinitions.InvincibilityFrames,
             spikeAirSamus.InvincibilityTimer.RawValue,
             $"inside-block spike-air starts invincibility at sampled row {spikeRow}");
     }
@@ -411,7 +411,7 @@ internal static void VerifySamusBlockCollision()
     var contactSafeBehaviors = new byte[contactSafeWords.Length];
     contactSafeWords[1 * width + 1] = 0x2000;
     contactSafeBehaviors[1 * width + 1] =
-        SamusTerrainHazardRomData.DamagingSpikeAirBehavior;
+        SpikeHazardDefinitions.DamagingSpikeAirBehavior;
     RoomLevelData contactSafeSpikeAir = CreateRoom(new(width, height),
         contactSafeWords,
         contactSafeBehaviors);

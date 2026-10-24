@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Frontend;
 using System.Text.Json;
 using SuperMetroid.Core.Rendering;
@@ -38,8 +39,8 @@ internal static class EndingFlyawayArtworkVerification
                 byte[] actualVram = installed.ShownVram();
                 AssertTrue(actualVram.SequenceEqual(expectedVram) &&
                         actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
-                        SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
-                            SoftwareLayeredSnapshotRenderer.Render(expected)),
+                        DisplayRendering.Render(actual).SequenceEqual(
+                            DisplayRendering.Render(expected)),
                     $"ending Mode-7 DMA and visible pixels match at upload {uploadedFrames}");
                 uploadedFrames++;
             }

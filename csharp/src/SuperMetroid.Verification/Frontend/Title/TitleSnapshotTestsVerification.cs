@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -44,14 +45,14 @@ internal static class TitleSnapshotTestsVerification
                     Rgba32[] expected = scene.Render();
                     FloorScene packet = scene.CaptureRenderSnapshot();
                     Array.Fill(reusable, new Rgba32(255, 0, 255));
-                    var reused = SoftwareFrameSnapshotRenderer.Render(
+                    var reused = DisplayRendering.Render(
                         new DisplayPacket(new(frame + 1, 1, (ushort)frame), packet), reusable);
                     AssertTrue(ReferenceEquals(reusable, reused), "title caller-owned output retained");
                     Match(expected, reused, frame, phase);
-                    Match(expected, SoftwareFrameSnapshotRenderer.Render(
+                    Match(expected, DisplayRendering.Render(
                         new DisplayPacket(new(frame + 1, 1, (ushort)frame), packet)), frame, phase);
-                    Match(expected, SoftwareMode7ObjSnapshotRenderer.Render(packet), frame, phase);
-                    Match(expected, SoftwareMode7ObjSnapshotRenderer.Render(packet), frame, phase);
+                    Match(expected, DisplayRendering.Render(packet), frame, phase);
+                    Match(expected, DisplayRendering.Render(packet), frame, phase);
                     FloorScene repeat = scene.CaptureRenderSnapshot();
                     AssertTrue(packet.Paint.SpriteParts().SequenceEqual(repeat.Paint.SpriteParts()), "repeat title OAM capture");
                     Match(control.Render(), expected, frame, phase);
@@ -61,7 +62,7 @@ internal static class TitleSnapshotTestsVerification
                     SnesButton input = phase == TitleSequencePhase.TitleScreen ? SnesButton.Start : 0;
                     scene.Step(input);
                     control.Step(input);
-                    Match(expected, SoftwareMode7ObjSnapshotRenderer.Render(packet), frame, phase);
+                    Match(expected, DisplayRendering.Render(packet), frame, phase);
                 }
                 else
                 {

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
@@ -69,7 +70,7 @@ internal static class EndingCloudPlacementVerification
             byte[] oamBytes = [.. oam.LowTable.ToArray(), .. oam.HighTable.ToArray()];
             var expectedMemory = FramePaint.FromOam(actualVram, actual.Paint.Colors,
                 oamBytes, oam.LastFinalizedSpriteCount, EndingCreditsPresentation.ObjectSelection(EndingCreditsPresentation.CurrentEscapeObjectSheet(ending)));
-            var expected = SoftwareLayeredSnapshotRenderer.Render(new(expectedMemory, actual.Layers, actual.Brightness));
+            var expected = DisplayRendering.Render(new(expectedMemory, actual.Layers, actual.Brightness));
             var pixels = ending.Render();
             int differs = pixels.ToArray().Zip(expected, (live, native) => live != native).ToList().IndexOf(true);
             AssertTrue(differs < 0, $"scene B cloud positions/motion frame {frame} ({ending.Stage.Phase})" + (differs < 0 ? ""
@@ -145,7 +146,7 @@ internal static class EndingCloudPlacementVerification
         if (checkWrapping)
         {
             // Isolate overflow from the independently missing main/subscreen math.
-            var projected = SoftwareLayeredSnapshotRenderer.Render(new(snapshot.Paint,
+            var projected = DisplayRendering.Render(new(snapshot.Paint,
                 new RenderLayer[] { new Mode7RenderLayer(registers, shown.Floor) }, 15));
             var wrapped = SnesLayerCompositor.CreateBackdrop(memory.Cgram, 256 * 224);
             SnesLayerCompositor.Composite(wrapped, wrappedBackground);

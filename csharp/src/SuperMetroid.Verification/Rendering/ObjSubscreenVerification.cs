@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -28,7 +29,7 @@ internal static class ObjSubscreenVerification
         var packet = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory,
             new RenderLayer[] { new ObjRenderLayer(true) }, 15));
 
-        var pixels = SoftwareFrameSnapshotRenderer.Render(packet);
+        var pixels = DisplayRendering.Render(packet);
         AssertEqual(new Rgba32(255, 0, 255), pixels[8 * 256 + 8], "OBJ subscreen adds blue to red backdrop");
         AssertEqual(new Rgba32(255, 0, 0), pixels[0], "transparent OBJ preserves backdrop");
         var ordinary = new DisplayPacket(new(2, 1, 0), new LayeredScene(memory,
@@ -54,7 +55,7 @@ internal static class ObjSubscreenVerification
             var memory = FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3);
             var packet = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory,
                 new RenderLayer[] { new Mode7RenderLayer(registers, AffineFloorFixtures.Floor(vram, ToColors(colors)), AddBg1Subscreen: true) }, 15));
-            var pixels = SoftwareFrameSnapshotRenderer.Render(packet);
+            var pixels = DisplayRendering.Render(packet);
             Rgba32 expected = opaqueBg && priority == 0 ? new(0, 132, 0)
                 : opaqueBg && palette == 4 ? new(99, 66, 0) : new(99, 0, 0);
             AssertEqual(expected, pixels[8 * 256 + 8], "Mode7 main priority and OBJ palette eligibility before addition");
@@ -80,7 +81,7 @@ internal static class ObjSubscreenVerification
         var memory = FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3);
         var packet = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory,
             new RenderLayer[] { new Mode7RenderLayer(new(256, 0, 0, 256, default, default), AffineFloorFixtures.Floor(vram, ToColors(colors)), true) }, 15));
-        var pixels = SoftwareFrameSnapshotRenderer.Render(packet);
+        var pixels = DisplayRendering.Render(packet);
         AssertEqual(new Rgba32(198, 99, 0), pixels[8 * 256 + 8], "Mode7 minus OBJ clamps each five-bit component without halving");
         AssertEqual(new Rgba32(255, 99, 0), pixels[0], "transparent OBJ leaves Mode7 color unchanged");
 
@@ -102,7 +103,7 @@ internal static class ObjSubscreenVerification
             var packet = new DisplayPacket(new(1, 1, 0), new LayeredScene(
                 FramePaint.FromOam(vram, ToColors(palette), oam, 1, 0),
                 new RenderLayer[] { new ObjRenderLayer(FixedColor: new(8, 4, 2)) }, 15));
-            var pixels = SoftwareFrameSnapshotRenderer.Render(packet);
+            var pixels = DisplayRendering.Render(packet);
             AssertEqual(objPalette == 4 ? new Rgba32(123, 33, 16) : new Rgba32(57, 0, 0), pixels[8 * 256 + 8],
                 "OBJ fixed RGB addition respects palette eligibility and five-bit expansion");
             AssertEqual(new Rgba32(0, 0, 255), pixels[0], "OBJ-only fixed color does not alter uncovered backdrop");
@@ -112,7 +113,7 @@ internal static class ObjSubscreenVerification
                 var filtered = new DisplayPacket(new(1, 1, 0), new LayeredScene(
                     FramePaint.FromOam(vram, ToColors(palette), oam, 1, 0),
                     new RenderLayer[] { new ObjPriorityRenderLayer(selectedPriority, new(8, 4, 2)) }, 15));
-                var filteredPixels = SoftwareFrameSnapshotRenderer.Render(filtered);
+                var filteredPixels = DisplayRendering.Render(filtered);
                 AssertEqual(selectedPriority == 0 ? pixels[8 * 256 + 8] : new Rgba32(0, 0, 255),
                     filteredPixels[8 * 256 + 8], "fixed OBJ color obeys both priority filtering and palette eligibility");
 
@@ -136,7 +137,7 @@ internal static class ObjSubscreenVerification
         var memory = new FramePaint(ToColors(colors), []);
         var packet = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory,
             new RenderLayer[] { new TileAddRenderLayer(Cells(0x7000)) }, 15));
-        AssertTrue(SoftwareFrameSnapshotRenderer.Render(packet).All(pixel => pixel == new Rgba32(255, 0, 255)),
+        AssertTrue(DisplayRendering.Render(packet).All(pixel => pixel == new Rgba32(255, 0, 255)),
             "four-bit subscreen resolves upper bitplanes and sixteen-color palette stride before addition");
 
         for (int row = 0; row < 8; row++) vram[0xc000 + row * 2] = 255;
@@ -151,7 +152,7 @@ internal static class ObjSubscreenVerification
                 FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3),
                 new RenderLayer[] { new ObjRenderLayer(), new TileAddRenderLayer(Cells(0x7000),
                     new TileRenderLayer(Cells(0x6800), new Position16<BgPlanePixels>(0, 0), null), MainObjects: true) }, 15));
-            var pixels = SoftwareFrameSnapshotRenderer.Render(masked);
+            var pixels = DisplayRendering.Render(masked);
             AssertEqual(new Rgba32(255, 0, 0), pixels[0], "masked subscreen does not add to backdrop");
             AssertEqual(palette == 4 ? new Rgba32(0, 255, 255) : new Rgba32(0, 255, 0), pixels[8 * 256 + 8],
                 "only winning OBJ palettes four through seven participate in main-screen color math");
@@ -168,7 +169,7 @@ internal static class ObjSubscreenVerification
                 new RenderLayer[] { new TileAddRenderLayer(Cells(0x7000), IncludeObjects: true) }, 15));
             bool objectWins = priority >= (highBackground ? 3 : 2);
             AssertEqual(objectWins ? new Rgba32(255, 255, 0) : new Rgba32(255, 0, 255),
-                SoftwareFrameSnapshotRenderer.Render(composite)[8 * 256 + 8],
+                DisplayRendering.Render(composite)[8 * 256 + 8],
                 "subscreen selects BG2 or OBJ by priority before addition, never sums both");
 
         }

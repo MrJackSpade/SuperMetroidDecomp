@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Assets;
-using System.Buffers;
-using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Fx;
@@ -12,191 +10,19 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>Composes the currently modeled gameplay PPU layers into one desktop frame.</summary>
-[PpuLayoutBoundary("backend: software PPU gameplay frame compositor")]
-public static class SnesGameplayFrameRenderer
+/// <summary>
+/// Captures each gameplay effect as the display model describes it, at the frame boundary (#1409): per-line scrolls for
+/// the liquids' waves, colour windows for beams, the Power Bomb and the Ceres haze, the X-ray's window lines, and the
+/// room effects' layer blends. The backend draws these descriptions; nothing here draws.
+/// </summary>
+public static class GameplayEffectCapture
 {
-
-    /// <summary>Visible SNES viewport width in pixels.</summary>
-    public const int Width = SnesPpuLayout.ScreenWidthPixels;
-    /// <summary>Visible SNES viewport height in physical scanlines.</summary>
-    public const int Height = SnesPpuLayout.ScreenHeightPixels;
-    /// <summary>Height in pixels of the fixed gameplay HUD above the room viewport.</summary>
-    public const int HudHeight = SnesPpuLayout.GameplayHudHeightPixels;
-
-    /// <summary>
-    /// Composes the ordinary gameplay PPU layout used by Ceres and most interior rooms,
-    /// including the priority bit of every BG tile and all four OBJ priority groups.
-    /// </summary>
-    public static Rgba32[] RenderHudOrdinaryBackgroundsAndObjs(
-        IPaletteColors cgram,
-        SpriteFrameBuffer sprites,
-        OrdinaryGameplayRenderLayer layer,
-        Rgba32[]? outputBuffer = null)
-    {
-        Ensure.NotNull(layer);
-        Rgba32[] output = CreateBackdrop(cgram, outputBuffer);
-        // BGMODE=$09 is Mode 1 with the BG3-priority flag. Below the HUD, BG3 is disabled
-        // by TM and the relevant back-to-front ladder is OBJ0, OBJ1, BG2-low, BG1-low,
-        // OBJ2, BG2-high, BG1-high, OBJ3. Samus's body entries use OBJ2, so cartridge-
-        // authored high-priority door frames, railings, and laboratory consoles cover her.
-        // Resolve OAM ownership once. Priority planes are a BG-compositor concern only;
-        // decoding all 128 sprite records independently for each of the four planes was
-        // both slower and easier to get subtly wrong at cross-priority overlaps.
-        int pixelCount = Width * Height;
-        Rgba32[] rentedObjectPixels = ArrayPool<Rgba32>.Shared.Rent(pixelCount);
-        byte[] rentedObjectPriorities = ArrayPool<byte>.Shared.Rent(pixelCount);
-        try
-        {
-            Span<Rgba32> objectPixels = rentedObjectPixels.AsSpan(0, pixelCount);
-            Span<byte> objectPriorities = rentedObjectPriorities.AsSpan(0, pixelCount);
-            SnesObjRenderer.RenderResolved(DrawColours.ResolveAll(sprites.Draws, cgram.Colors), new ObjRasterTargets(objectPixels, objectPriorities));
-            CompositeOrdinaryGameplayViewport(output, cgram, objectPixels, objectPriorities, layer);
-        }
-        finally
-        {
-            // Every opaque object pixel is overwritten before use and transparency is
-            // governed by the parallel priority sentinel, so clearing these private render
-            // buffers during return would spend frame time without changing observability.
-            ArrayPool<Rgba32>.Shared.Return(rentedObjectPixels, clearArray: false);
-            ArrayPool<byte>.Shared.Return(rentedObjectPriorities, clearArray: false);
-        }
-        DrawHud(output, cgram, layer.Rooms.ShownBg3);
-        return output;
-    }
-
-    /// <summary>Resolves the Mode-1 BG and OBJ priority ladder in one viewport scan, with tilemap and palette values cached for this frame.</summary>
-    /// <remarks>This pure PPU projection runs roughly 50,000 times per frame; optimized Debug JIT code keeps it inside the video-frame budget.</remarks>
-    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    private static void CompositeOrdinaryGameplayViewport(
-        Span<Rgba32> output,
-        IPaletteColors cgram,
-        ReadOnlySpan<Rgba32> objectPixels,
-        ReadOnlySpan<byte> objectPriorities,
-        OrdinaryGameplayRenderLayer layer)
-    {
-        if (objectPixels.Length != output.Length ||
-            objectPriorities.Length != output.Length)
-        {
-            throw new ArgumentException(
-                "A resolved gameplay OBJ raster must contain exactly 256x224 pixels.",
-                nameof(objectPixels));
-        }
-
-        // The layer validated its BG2 map size and every per-line table at construction.
-        OrdinaryGameplayView registers = layer.View;
-        Position16<RoomPixels> bg1Scroll = registers.Bg1Scroll;
-        Extent16<TilemapCells> bg2TilemapSize = registers.Bg2MapSize;
-        ScreenLayers mainScreenLayers = registers.MainScreenLayers;
-        int bg2FirstScanline = registers.Bg2FirstScanline;
-        int bg2EndScanline = registers.Bg2EndScanline;
-        BackgroundMosaicSampling bg2Mosaic = registers.Bg2Mosaic;
-        ReadOnlySpan<ScreenLayers> mainScreenLayersByLine = layer.MainScreenLayersByLine;
-
-        // Resolve the complete Mode-1 ladder in a single destination scan. The previous
-        // implementation walked the 256x192 viewport eight times (four BG insertions and
-        // four OBJ insertions), repeating tilemap address arithmetic and moving temporary
-        // RGBA planes through memory. Each candidate below receives its literal back-to-
-        // front rank from BGMODE=$09; the largest opaque rank owns the final pixel.
-        // Snapshot the hardware arrays once and expand the tiny 256-color CGRAM table once
-        // per frame. Going through bounds-checking object methods and decoding BGR555 for
-        // both background candidates at every pixel dominated Debug-host frame time while
-        // producing the same immutable values throughout this render pass.
-        Span<Rgba32> palette = stackalloc Rgba32[SnesCgram.ColorCount];
-        ExpandCgram(cgram, palette);
-
-        // BG1 comes from the room backgrounds; BG2 from the room's layer-2 plane or the sky's rows, or the
-        // tilemap its owner loaded when it has neither, under any words written over it (#1346, #1347, #1348).
-        IBgSource bg1 = layer.Rooms.Bg1Source;
-        IBgSource bg2 = layer.Rooms.Bg2Shown(bg2TilemapSize);
-        // Room blocks draw from their pre-coloured pictures (#1392), recoloured where a palette effect changed a row.
-        var pictures = new BgPicturePixels(cgram);
-        for (int screenY = HudHeight; screenY < Height; screenY++)
-        {
-            ScreenLayers activeLayers = mainScreenLayersByLine.IsEmpty ? mainScreenLayers
-                : mainScreenLayersByLine[screenY - HudHeight];
-            bool bg1Enabled = (activeLayers & ScreenLayers.Bg1) != 0;
-            bool bg2LayerEnabled = (activeLayers & ScreenLayers.Bg2) != 0;
-            bool objEnabled = (activeLayers & ScreenLayers.Sprites) != 0;
-            bool bg2Enabled = bg2LayerEnabled && screenY >= bg2FirstScanline && screenY < bg2EndScanline;
-            // Output rows are zero-based, while Mode-1 BG sampling starts on
-            // physical scanline one. OBJ's preceding-line evaluation is separate.
-            int physicalBackgroundY = screenY + SnesPpuLayout.FirstVisibleBackgroundScanline;
-            ushort bg1ScrolledY = unchecked((ushort)(bg1Scroll.Y + physicalBackgroundY));
-            Position16<Bg2Pixels> lineBg2Scroll = layer.Bg2ScrollAt(screenY - HudHeight);
-            ushort activeBg2HorizontalScroll = lineBg2Scroll.X;
-            ushort bg2ScrolledY = unchecked((ushort)bg2Mosaic.SourceY(screenY, lineBg2Scroll.Y));
-
-            for (int screenX = 0; screenX < Width; screenX++)
-            {
-                int destination = screenY * Width + screenX;
-                Rgba32 winner = output[destination];
-                int winnerRank = 0;
-
-                if (bg2Enabled &&
-                    bg2.TrySample(new Position16<BgPlanePixels>(
-                        unchecked((ushort)bg2Mosaic.SourceX(screenX, activeBg2HorizontalScroll)), bg2ScrolledY), out BgSample bg2Sample) &&
-                    pictures.TryDecode(bg2Sample, palette, ColorZero.Transparent, out Rgba32 bg2Color, out bool bg2High))
-                {
-                    winner = bg2Color;
-                    winnerRank = bg2High ? 6 : 3;
-                }
-
-                if (bg1Enabled &&
-                    bg1.TrySample(new Position16<BgPlanePixels>(
-                        unchecked((ushort)(bg1Scroll.X + screenX)), bg1ScrolledY), out BgSample bg1Sample) &&
-                    pictures.TryDecode(bg1Sample, palette, ColorZero.Transparent, out Rgba32 bg1Color, out bool bg1High))
-                {
-                    int bg1Rank = bg1High ? 7 : 4;
-                    if (bg1Rank > winnerRank)
-                    {
-                        winner = bg1Color;
-                        winnerRank = bg1Rank;
-                    }
-                }
-
-                byte objPriority = objectPriorities[destination];
-                if (objEnabled &&
-                    objPriority != SnesObjRenderer.TransparentPriority)
-                {
-                    int objRank = objPriority switch
-                    {
-                        0 => 1,
-                        1 => 2,
-                        2 => 5,
-                        3 => 8,
-                        _ => throw new InvalidDataException(
-                            $"Resolved OBJ priority {objPriority} is outside zero through three."),
-                    };
-                    if (objRank > winnerRank)
-                    {
-                        winner = objectPixels[destination];
-                        winnerRank = objRank;
-                    }
-                }
-
-                output[destination] = winner;
-            }
-        }
-    }
-
-    /// <summary>
-    /// Expands one frame-stable CGRAM snapshot into directly indexable host colors. The
-    /// 256-entry conversion is substantially cheaper than decoding the same palette word
-    /// independently for tens of thousands of background pixels.
-    /// </summary>
-    internal static void ExpandCgram(IPaletteColors cgram, Span<Rgba32> destination)
-    {
-        Ensure.LengthEqual<Rgba32>(destination, SnesCgram.ColorCount);
-
-        ReadOnlySpan<Bgr555> source = cgram.Colors;
-        for (int color = 0; color < destination.Length; color++)
-            destination[color] = source[color].ToRgba32();
-    }
-
-    /// <summary>Renders the four BG3 HUD rows from the BG3 plane's pictures (#1403).</summary>
-    internal static void DrawHud(Span<Rgba32> output, IPaletteColors cgram, Layer3Cells plane) =>
-        SnesBgTilemapRenderer.Render2Bpp(output[..(HudHeight * Width)], cgram, plane, Layer3Plane.HudRows);
+    /// <summary>The screen's width in pixels.</summary>
+    private const int Width = DisplayScreen.Width;
+    /// <summary>The screen's height in lines.</summary>
+    private const int Height = DisplayScreen.Height;
+    /// <summary>The lines the HUD fills at the top of the screen.</summary>
+    private const int HudHeight = DisplayScreen.HudHeight;
 
     /// <summary>
     /// Resolves water's optional per-scanline BG2 distortion from <c>$88:C5E4</c>. The
@@ -400,20 +226,6 @@ public static class SnesGameplayFrameRenderer
         static Offset16<ScreenPixels> Direction(int x, int y) => new(checked((short)x), checked((short)y));
     }
 
-    /// <summary>Fills a correctly sized gameplay frame with CGRAM color zero before any visible PPU layer is composed.</summary>
-    internal static Rgba32[] CreateBackdrop(IPaletteColors cgram, Rgba32[]? outputBuffer = null)
-    {
-        Ensure.NotNull(cgram);
-
-        // CGRAM color zero is the PPU backdrop. Starting with it (rather than transparent
-        // host pixels) matches every screen location no translated layer has covered yet.
-        var output = outputBuffer ?? new Rgba32[Width * Height];
-        if (output.Length != Width * Height)
-            throw new ArgumentException("Gameplay output must have native frame dimensions.", nameof(outputBuffer));
-        Array.Fill(output, cgram.GetRgba(0));
-        return output;
-    }
-
     /// <summary>Resolves the published eye cone and ROM tangent table into inclusive color windows.</summary>
     public static ScanlineColorAddRenderLayer? CaptureMorphBallEyeBeam(
         MorphBallEyeBeamRenderSnapshot beam, Position16<RoomPixels> layer1)
@@ -615,5 +427,19 @@ public static class SnesGameplayFrameRenderer
             if (left <= right) lines[y] = new((byte)left, (byte)right);
         }
         return lines;
+    }
+
+    /// <summary>The suit pickup's light beam as a colour added through its window, captured once; nothing later reads the pickup.</summary>
+    public static ScanlineColorAddRenderLayer? CaptureSuitPickup(SamusSuitPickupFlash? flash)
+    {
+        if (flash is not { } active) return null;
+        ushort[] endpoints = SuitPickupBeamWindowBuilder.Build(active.Beam);
+        var windows = new ColorAddWindow[Height];
+        byte red = ExpandFiveBit(active.Color.Red);
+        byte green = ExpandFiveBit(active.Color.Green);
+        byte blue = ExpandFiveBit(active.Color.Blue);
+        for (int y = 0; y < Height; y++)
+            windows[y] = new(SnesLittleEndian.LowByte(endpoints[y]), SnesLittleEndian.HighByte(endpoints[y]), red, green, blue);
+        return new(windows);
     }
 }

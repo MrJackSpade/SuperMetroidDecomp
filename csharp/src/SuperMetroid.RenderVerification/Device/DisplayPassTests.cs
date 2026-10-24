@@ -24,7 +24,7 @@ internal static class DisplayPassTests
         var packet = new DisplayPacket(new(1, 1, 0), new LayeredScene(new FramePaint(palette, []),
             [new TileRenderLayer(VramTileFixtures.Cells(vram, palette, 0x4000, 0x6000, BgBitDepth.FourBpp, new Extent16<TilemapCells>(32, 32)),
                 new Position16<BgPlanePixels>(3, 11), null)], 15));
-        var native = SoftwareFrameSnapshotRenderer.Render(packet);
+        var native = DisplayRendering.Render(packet);
         int count = 0;
         using var timer = new D3D11GpuTimer(device);
         foreach (var size in new[] { new DisplaySize(256,224), new DisplaySize(512,448), new DisplaySize(800,600), new DisplaySize(1920,1080), new DisplaySize(319,601), new DisplaySize(1,1), new DisplaySize(1,224), new DisplaySize(256,1) })

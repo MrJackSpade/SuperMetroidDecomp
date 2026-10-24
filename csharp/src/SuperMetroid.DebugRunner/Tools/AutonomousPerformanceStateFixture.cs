@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using System.Diagnostics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -27,10 +28,10 @@ internal static class AutonomousPerformanceStateFixture
             // Rendering observes immutable packets and is not needed to advance earlier frames.
             if (frame != targetFrame) continue;
             var packet = result.Snapshot;
-            for (int warm = 0; warm < 10; warm++) SoftwareFrameSnapshotRenderer.Render(packet, output);
+            for (int warm = 0; warm < 10; warm++) DisplayRendering.Render(packet, output);
             long start = Stopwatch.GetTimestamp();
             Rgba32[] pixels = output;
-            for (int sample = 0; sample < 100; sample++) pixels = SoftwareFrameSnapshotRenderer.Render(packet, output);
+            for (int sample = 0; sample < 100; sample++) pixels = DisplayRendering.Render(packet, output);
             Console.WriteLine($"Frame {frame}: {result.Frame.GameState}, room {data.Game.GameplayActiveRoomIdentity}, render={Stopwatch.GetElapsedTime(start).TotalMilliseconds / 100:F3}ms");
             if (packet.Layers is { } layers)
                 foreach (var layer in layers.Layers) Console.WriteLine($"Layer: {layer.GetType().Name}");

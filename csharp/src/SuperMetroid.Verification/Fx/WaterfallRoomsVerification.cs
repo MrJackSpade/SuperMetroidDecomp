@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rendering;
@@ -48,7 +49,7 @@ internal static class WaterfallRoomsVerification
                 math.Gameplay.View.MainScreenLayers, "waterfall main excludes BG2");
             AssertTrue(!snapshot.Layers.Any(layer => layer is FxPlaneBlendRenderLayer),
                 "waterfall has no second post-composition liquid overlay");
-            var pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
+            var pixels = DisplayRendering.Render(snapshot);
             AssertEqual(256 * 224, pixels.Length, "reported room composes full frame");
             Console.WriteLine($"Waterfall room {room:X4}: TM=11 TS=06 CGADSUB=B1, combined subscreen capture passed.");
         }

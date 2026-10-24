@@ -46,7 +46,7 @@ public static class HostOptionsIni
         bool endingTimeOverrideSeen = false;
         MapRevealMode? mapReveal = null;
         bool? audioEnabled = null;
-        RendererSelection? renderer = null;
+        bool rendererSeen = false;
         int? masterVolumePercent = null;
         bool? reportErrorsToGitHub = null;
         string? githubErrorRepository = null;
@@ -86,16 +86,16 @@ public static class HostOptionsIni
             string value = line[(equals + 1)..].Trim();
             if (currentSection.Equals("Video", StringComparison.OrdinalIgnoreCase))
             {
-                if (!key.Equals(nameof(HostOptions.Renderer), StringComparison.OrdinalIgnoreCase))
+                // Installed INIs were written with a renderer choice. Direct3D 11 is now the only renderer (#1409), so the
+                // choices that select it are read and kept; the software renderer is gone and naming it is an error.
+                if (!key.Equals("Renderer", StringComparison.OrdinalIgnoreCase))
                     throw Invalid(sourceName, lineNumber, $"unknown [Video] option '{key}'");
-                if (renderer.HasValue) throw Invalid(sourceName, lineNumber, "duplicate [Video] Renderer option");
-                renderer = value.ToUpperInvariant() switch
-                {
-                    "SOFTWARE" => RendererSelection.Software,
-                    "DIRECT3D11" => RendererSelection.Direct3D11,
-                    "AUTO" => RendererSelection.Auto,
-                    _ => throw Invalid(sourceName, lineNumber, "Renderer must be Software, Direct3D11 or Auto")
-                };
+                if (rendererSeen) throw Invalid(sourceName, lineNumber, "duplicate [Video] Renderer option");
+                rendererSeen = true;
+                if (value.ToUpperInvariant() is not ("DIRECT3D11" or "AUTO"))
+                    throw Invalid(sourceName, lineNumber, value.Equals("Software", StringComparison.OrdinalIgnoreCase)
+                        ? "the software renderer was removed; Direct3D 11 is the only renderer, so delete this line"
+                        : "Renderer must be Direct3D11 or Auto, which both select Direct3D 11");
                 continue;
             }
             if (currentSection.Equals("Game", StringComparison.OrdinalIgnoreCase))
@@ -265,7 +265,6 @@ public static class HostOptionsIni
             },
             DoorTransitionAutosave = doorTransitionAutosave ?? true,
             AudioEnabled = audioEnabled ?? true,
-            Renderer = renderer ?? RendererSelection.Auto,
             MasterVolumePercent = masterVolumePercent ?? 100,
             ReportErrorsToGitHub = reportErrorsToGitHub ?? false,
             GitHubErrorRepository = githubErrorRepository ?? "MrJackSpade/SuperMetroidDecomp",

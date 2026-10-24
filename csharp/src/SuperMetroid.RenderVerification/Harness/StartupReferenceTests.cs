@@ -91,7 +91,7 @@ internal static class StartupReferenceTests
         {
             Console.WriteLine($"Closest {scene}: managed tick {closestPacket.Identity.SimulationFrame}, {closestDifference} different pixels.");
             var gpu = renderer.RenderForReadback(closestPacket);
-            PixelComparison.Verify(closestPacket, SoftwareFrameSnapshotRenderer.Render(closestPacket), gpu, "closest native candidate GPU/software parity");
+            PixelComparison.Verify(closestPacket, DisplayRendering.Render(closestPacket), gpu, "closest native candidate GPU/software parity");
             PixelComparison.Verify(closestPacket, nativePixels, gpu, $"independent {scene}, closest candidate (not timing alignment proof)");
         }
         throw new InvalidOperationException($"Managed {scene} never matched the preserved independent Snes9x pixels. Maximum red during search: {maximumGlyphRed}.");

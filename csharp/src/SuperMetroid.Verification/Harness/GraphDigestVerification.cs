@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using SuperMetroid.Diagnostics.SaveStates;
@@ -87,9 +88,9 @@ internal static class GraphDigestVerification
 
     /// <summary>Renders a packet into shared scratch pixels for an immediate comparison.</summary>
     internal static SuperMetroid.Core.Hardware.Rgba32[] RenderForComparison(SuperMetroid.Core.Rendering.DisplayPacket frame) =>
-        SuperMetroid.Core.Rendering.SoftwareFrameSnapshotRenderer.Render(frame, comparisonRaster);
+        DisplayRendering.Render(frame, comparisonRaster);
 
     /// <summary>Renders a layered scene into shared scratch pixels for an immediate comparison.</summary>
     internal static SuperMetroid.Core.Hardware.Rgba32[] RenderForComparison(SuperMetroid.Core.Rendering.LayeredScene frame) =>
-        SuperMetroid.Core.Rendering.SoftwareLayeredSnapshotRenderer.Render(frame, comparisonRaster);
+        DisplayRendering.Render(frame, comparisonRaster);
 }

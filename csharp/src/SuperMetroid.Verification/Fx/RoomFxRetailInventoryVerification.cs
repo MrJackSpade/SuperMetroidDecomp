@@ -331,7 +331,7 @@ internal static class RoomFxRetailInventoryVerification
                     "published no render snapshot.");
             Layer3PlaneFixtures.WriteEffectPlane(vram, actual);
             var hiddenFrame = new Rgba32[
-                SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
+                DisplayScreen.Width * DisplayScreen.Height];
             SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
                 hiddenFrame,
                 vram,
@@ -365,7 +365,7 @@ internal static class RoomFxRetailInventoryVerification
                     "published no render snapshot.");
             Layer3PlaneFixtures.WriteEffectPlane(vram, actual);
             var visibleFrame = new Rgba32[
-                SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
+                DisplayScreen.Width * DisplayScreen.Height];
             SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
                 visibleFrame,
                 vram,
@@ -490,8 +490,8 @@ internal static class RoomFxRetailInventoryVerification
         Layer3Plane plane)
     {
         var frame = new Rgba32[
-            SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
-        if (SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(snapshot,
+            DisplayScreen.Width * DisplayScreen.Height];
+        if (GameplayEffectCapture.CaptureRoomLayer3Fx(snapshot,
                 Layer3CellsFixtures.FromWords(plane.Words, BgArtworkFixtures.ComposedVram(vram).Bytes, cgram.Colors)) is { } layer)
             SoftwareBgColorMathRenderer.Composite(frame, cgram.AsPaletteColors(), layer);
         return frame;
@@ -500,8 +500,8 @@ internal static class RoomFxRetailInventoryVerification
     /// <summary>Copies a vertical frame band so the audit can compare the animated liquid boundary.</summary>
     private static Rgba32[] ReadRows(Rgba32[] frame, int firstRow, int endRow) =>
         frame.AsSpan(
-            firstRow * SnesGameplayFrameRenderer.Width,
-            (endRow - firstRow) * SnesGameplayFrameRenderer.Width)
+            firstRow * DisplayScreen.Width,
+            (endRow - firstRow) * DisplayScreen.Width)
         .ToArray();
 
     /// <summary>Compares an animated FX object's instruction pointer, transfer size, destination, and first source with ROM.</summary>
@@ -643,7 +643,7 @@ internal static class RoomFxRetailInventoryVerification
         ushort cameraY = door.DestinationScreen.ToRoomPixels().Y;
         fx.PrimeViewport(new Position16<RoomPixels>(0, cameraY));
         AssertTrue((fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay().")).WaterSurfaceScreenY >=
-                SnesGameplayFrameRenderer.Height,
+                DisplayScreen.Height,
             $"room {definition.Room} entry lava begins below the viewport");
 
         int movingFrames = 0;
@@ -665,11 +665,11 @@ internal static class RoomFxRetailInventoryVerification
         RoomLayer3FxRenderSnapshot finalSnapshot = fx.CaptureForDisplay()
             ?? throw new InvalidDataException(
                 $"Room {definition.Room} rising lava published no final snapshot.");
-        AssertTrue(finalSnapshot.WaterSurfaceScreenY is >= SnesGameplayFrameRenderer.HudHeight and
-                < SnesGameplayFrameRenderer.Height,
+        AssertTrue(finalSnapshot.WaterSurfaceScreenY is >= DisplayScreen.HudHeight and
+                < DisplayScreen.Height,
             $"room {definition.Room} risen lava enters the gameplay viewport");
         var frame = new Rgba32[
-            SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
+            DisplayScreen.Width * DisplayScreen.Height];
         SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(frame, vram, cgram.AsPaletteColors(), finalSnapshot);
         AssertTrue(frame.Any(pixel => pixel != default),
             $"room {definition.Room} risen lava is visibly composed");
@@ -886,7 +886,7 @@ internal static class RoomFxRetailInventoryVerification
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
         fx.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
         var frame = new Rgba32[
-            SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
+            DisplayScreen.Width * DisplayScreen.Height];
         SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
             frame,
             vram,

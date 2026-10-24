@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -23,9 +24,9 @@ internal static class GameplayRenderAllocationVerification
             [new OrdinaryGameplayRenderLayer(registers, rooms)], 15);
         var expected = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(cgram, sprites,
             new OrdinaryGameplayRenderLayer(registers, rooms));
-        for (int i = 0; i < 10; i++) SoftwareLayeredSnapshotRenderer.Render(snapshot);
+        for (int i = 0; i < 10; i++) DisplayRendering.Render(snapshot);
         long before = GC.GetAllocatedBytesForCurrentThread();
-        var actual = SoftwareLayeredSnapshotRenderer.Render(snapshot);
+        var actual = DisplayRendering.Render(snapshot);
         long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
         if (!actual.SequenceEqual(expected)) throw new InvalidDataException("Fused gameplay pixels differ from direct renderer.");
         Console.WriteLine($"Gameplay packet allocation: {allocated} bytes; pixel parity passed.");
@@ -34,23 +35,23 @@ internal static class GameplayRenderAllocationVerification
         if (allocated >= 450000) throw new InvalidDataException("Gameplay packet allocates a redundant full-size backdrop.");
         var reusable = new SuperMetroid.Core.Hardware.Rgba32[expected.Length];
         before = GC.GetAllocatedBytesForCurrentThread();
-        var reused = SoftwareLayeredSnapshotRenderer.Render(snapshot, reusable);
+        var reused = DisplayRendering.Render(snapshot, reusable);
         allocated = GC.GetAllocatedBytesForCurrentThread() - before;
         if (!ReferenceEquals(reusable, reused) || !reused.SequenceEqual(expected))
             throw new InvalidDataException("Reusable gameplay output changed ownership or pixels.");
         if (allocated >= 100000) throw new InvalidDataException("Reusable gameplay rendering still allocates a full pixel buffer.");
         Array.Fill(reusable, new SuperMetroid.Core.Hardware.Rgba32(255, 0, 255));
-        if (!SoftwareLayeredSnapshotRenderer.Render(snapshot, reusable).SequenceEqual(expected))
+        if (!DisplayRendering.Render(snapshot, reusable).SequenceEqual(expected))
             throw new InvalidDataException("Reusable output retained previous frame pixels.");
         Console.WriteLine($"Reusable gameplay packet allocation: {allocated} bytes; identity and dirty-buffer parity passed.");
         var memory = FramePaintConstants.Capture(cgram, sprites);
         var xray = new LayeredScene(memory,
             [new GameplayColorMathRenderLayer(new OrdinaryGameplayRenderLayer(registers, rooms), Enumerable.Repeat(new XrayWindowLine(40, 160), 224).ToArray(), true, new SceneBlend { Layers = ColorBlend.Bg1 | ColorBlend.Backdrop | ColorBlend.Half, BlendsWithSubscreen = false, FixedColor = new Bgr555(3, 7, 11) })], 15);
-        var xrayReference = SoftwareLayeredSnapshotRenderer.Render(xray);
-        SoftwareLayeredSnapshotRenderer.Render(xray, reusable); // Warm pooled scratch.
+        var xrayReference = DisplayRendering.Render(xray);
+        DisplayRendering.Render(xray, reusable); // Warm pooled scratch.
         Array.Fill(reusable, new SuperMetroid.Core.Hardware.Rgba32(255, 0, 255));
         before = GC.GetAllocatedBytesForCurrentThread();
-        var xrayBorrowed = SoftwareLayeredSnapshotRenderer.Render(xray, reusable);
+        var xrayBorrowed = DisplayRendering.Render(xray, reusable);
         long xrayBytes = GC.GetAllocatedBytesForCurrentThread() - before;
         Console.WriteLine($"X-ray reused packet: {xrayBytes} bytes.");
         if (!ReferenceEquals(xrayBorrowed, reusable) || !xrayBorrowed.SequenceEqual(xrayReference))
@@ -66,13 +67,13 @@ internal static class GameplayRenderAllocationVerification
         ];
         foreach (var packet in packets)
         {
-            var reference = SoftwareFrameSnapshotRenderer.Render(packet);
+            var reference = DisplayRendering.Render(packet);
             Array.Fill(reusable, new SuperMetroid.Core.Hardware.Rgba32(255, 0, 255));
             before = GC.GetAllocatedBytesForCurrentThread();
-            SoftwareFrameSnapshotRenderer.Render(packet);
+            DisplayRendering.Render(packet);
             long freshBytes = GC.GetAllocatedBytesForCurrentThread() - before;
             before = GC.GetAllocatedBytesForCurrentThread();
-            var borrowed = SoftwareFrameSnapshotRenderer.Render(packet, reusable);
+            var borrowed = DisplayRendering.Render(packet, reusable);
             long reuseBytes = GC.GetAllocatedBytesForCurrentThread() - before;
             if (!ReferenceEquals(borrowed, reusable) || !borrowed.SequenceEqual(reference))
                 throw new InvalidDataException("Cinematic packet failed dirty-output reuse or pixel parity.");

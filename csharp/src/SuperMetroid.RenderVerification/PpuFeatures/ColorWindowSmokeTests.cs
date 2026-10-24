@@ -36,8 +36,8 @@ internal static class ColorWindowSmokeTests
                         (byte)random.Next(256), (byte)random.Next(256), (byte)random.Next(256)) };
             Check(new ScanlineColorAddRenderLayer(lines));
         }
-        Check(SnesGameplayFrameRenderer.CaptureCeresHaze(false));
-        Check(SnesGameplayFrameRenderer.CaptureCeresHaze(true));
+        Check(GameplayEffectCapture.CaptureCeresHaze(false));
+        Check(GameplayEffectCapture.CaptureCeresHaze(true));
         foreach (ushort height in new ushort[] { 32, 64 })
         foreach (int first in new[] { 0, 32, 223, 224 })
         foreach (ExpandedColorMathOperation operation in Enum.GetValues<ExpandedColorMathOperation>())
@@ -49,7 +49,7 @@ internal static class ColorWindowSmokeTests
             var math = new FxPlaneBlendRenderLayer(bg3, height == 32 ? 32 : 0, height, first, operation, scrolls);
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory,
                 new RenderLayer[] { background, math }, 15));
-            PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
+            PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: BG color math {count}, {operation}, height {height}, first {first}, offset {offset}");
         }
         foreach (ushort width in new ushort[] { 32, 64 })
@@ -62,7 +62,7 @@ internal static class ColorWindowSmokeTests
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory,
                 new RenderLayer[] { background,
                     new FixedColorAddRenderLayer(1, 2, 3), new TileAddRenderLayer(subscreen, coverage) }, 13));
-            PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
+            PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: subscreen {count}, masked {masked}, geometry {width}x{height}, priority {priority}");
         }
         for (int rows = 3; rows <= 6; rows++)
@@ -71,7 +71,7 @@ internal static class ColorWindowSmokeTests
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory,
                 new RenderLayer[] { background,
                     new MessageBoxRenderLayer(SuperMetroid.Core.Rooms.Backgrounds.RoomBackgroundsFixtures.SeededMessagePicture(random, palette, rows), radius) }, 13));
-            PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
+            PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: message {count}, rows {rows}, radius {radius}");
         }
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact color-effect/message comparisons passed.");
@@ -81,7 +81,7 @@ internal static class ColorWindowSmokeTests
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory,
                 new RenderLayer[] { background,
                     windows, new FixedColorAddRenderLayer(1, 2, 3), windows }, 13), [new FadeLevel(11)]);
-            PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
+            PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: color-window sample {count}");
         }
     }

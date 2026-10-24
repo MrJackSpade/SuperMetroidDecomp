@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core;
 using System.Reflection;
 using SuperMetroid.Diagnostics.Configuration;
@@ -35,7 +36,7 @@ internal static class RendererCaptureTests
             var before = control.pendingDisplay ?? throw new InvalidOperationException("Host has no pending display.");
             var game = control.game ?? throw new InvalidOperationException("Host has no game.");
             int frameNumber = game.FrameNumber;
-            var expected = SoftwareFrameSnapshotRenderer.Render(before);
+            var expected = DisplayRendering.Render(before);
             control.SaveDebuggerState(0);
             for (int i = 0; i < 10; i++) control.StepFrame(0);
             if (renderer != RendererSelection.Software)
@@ -45,7 +46,7 @@ internal static class RendererCaptureTests
             Check(restored.Identity.Generation > before.Identity.Generation, "load must advance host generation");
             Check(restored.Identity.Sequence > before.Identity.Sequence, "load must not rewind host sequence");
             Check(control.game.FrameNumber == frameNumber, "load must not step game");
-            Check(expected.SequenceEqual(SoftwareFrameSnapshotRenderer.Render(restored)), "loaded display must match saved pixels");
+            Check(expected.SequenceEqual(DisplayRendering.Render(restored)), "loaded display must match saved pixels");
             form.ClientSize = new(700, 500);
             if (renderer != RendererSelection.Software)
             {

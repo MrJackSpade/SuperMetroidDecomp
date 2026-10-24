@@ -38,7 +38,7 @@ internal static class MessageSnapshotTestsVerification
         {
             if (id == GameplayMessageId.None) continue;
             var state = CreateGameplayMessageFixture();
-            AssertTrue(GameplayMessageBoxRenderer.Capture(state, messages) is null, "inactive message has no overlay");
+            AssertTrue(MessageBoxRenderLayer.Capture(state, messages) is null, "inactive message has no overlay");
             state.Begin(id, 0);
             int previousRadius = -1;
             bool previousYes = true;
@@ -53,7 +53,7 @@ internal static class MessageSnapshotTestsVerification
                     previousYes = state.ConfirmationSelectionYes;
                     Rgba32[] expected = baseline.ToArray();
                     GameplayMessageBoxRendererConstants.Composite(expected, state, vram, cgram);
-                    MessageBoxRenderLayer? layer = GameplayMessageBoxRenderer.Capture(state, messages);
+                    MessageBoxRenderLayer? layer = MessageBoxRenderLayer.Capture(state, messages);
                     RenderLayer[] layers = layer is null ? [] : [layer];
                     var packet = new DisplayPacket(new(++samples, 1, (ushort)tick),
                         new LayeredScene(memory, layers, 15));

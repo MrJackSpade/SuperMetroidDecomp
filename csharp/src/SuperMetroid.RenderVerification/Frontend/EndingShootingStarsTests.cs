@@ -86,7 +86,7 @@ internal static class EndingShootingStarsTests
             var emptyMemory = new FramePaint(snapshot.Paint.Colors, []);
             var withoutStars = new LayeredScene(emptyMemory, snapshot.Layers.ToArray(), snapshot.Brightness);
             var pixels = scene.Render();
-            var noStars = SoftwareLayeredSnapshotRenderer.Render(withoutStars);
+            var noStars = DisplayRendering.Render(withoutStars);
             bool hidden = scene.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingSamus;
             Require(pixels.SequenceEqual(noStars) == hidden, "Stars are visible except behind the native text-only TM");
             var packet = new DisplayPacket(new(tick + 1, 1, (ushort)tick), snapshot);

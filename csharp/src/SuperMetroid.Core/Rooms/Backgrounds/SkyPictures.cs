@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// (#1392), the row a vertical position selects repeating every 2048 pixels down and 256 across, and nothing on a row that
 /// selects no sky page.
 /// </summary>
-public sealed class SkyPictures : IBgSource
+public sealed class SkyPictures
 {
     /// <summary>Holds the sky's image and which of <paramref name="rows"/>' rows select a page.</summary>
     public SkyPictures(RoomBackgroundImagePlane image, SkyTilemap rows)
@@ -24,20 +24,4 @@ public sealed class SkyPictures : IBgSource
 
     /// <summary>Whether each tile row selects a sky page; the ocean table's last chunks select none.</summary>
     public ImmutableArray<bool> RowsShown { get; }
-
-    /// <inheritdoc />
-    public bool TrySample(Position16<BgPlanePixels> scrolled, out BgSample sample)
-    {
-        const int tile = 8, cell = 16;
-        int y = scrolled.Y % (SkyTilemap.Rows * tile), x = scrolled.X % RoomBackgroundImage.PagePixels;
-        if (!RowsShown[y / tile])
-        {
-            sample = default;
-            return false;
-        }
-        sample = Image.Cell(y / cell * (RoomBackgroundImage.PageTiles / 2) + x / cell) is { } picture
-            ? BgSample.OfPicture(picture, new Position16<ImagePixels>((ushort)(x % cell), (ushort)(y % cell)))
-            : BgSample.OfPicture(Image.Picture, new Position16<ImagePixels>((ushort)x, (ushort)y));
-        return true;
-    }
 }

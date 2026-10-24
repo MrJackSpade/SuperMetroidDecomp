@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rendering;
@@ -15,7 +16,7 @@ internal static class FrontendScenePixelsAccess
 
     /// <summary>Rasterizes a layered snapshot.</summary>
     internal static Rgba32[] Pixels(LayeredScene snapshot) =>
-        SoftwareFrameSnapshotRenderer.Render(new DisplayPacket(Identity, snapshot));
+        DisplayRendering.Render(new DisplayPacket(Identity, snapshot));
 
     /// <summary>Rasterizes a published gameplay frame.</summary>
     /// <param name="frame">The published frame.</param>

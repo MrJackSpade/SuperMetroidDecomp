@@ -991,7 +991,7 @@ internal static void VerifyFourBitBackgroundRendering()
     gameplayCgram.SetColor(3 * 16 + 1, Bgr555.FromWord(0x7c00));
     gameplayVram.ExecuteWordTransfer([0x0801], destinationWord: 0x4800, wordIncrement: 1);
     gameplayVram.ExecuteWordTransfer([0x0801, 0x0c02], destinationWord: 0x4c00, wordIncrement: 1);
-    var horizontalByLine = new ushort[SnesGameplayFrameRenderer.Height - SnesGameplayFrameRenderer.HudHeight];
+    var horizontalByLine = new ushort[DisplayScreen.Height - DisplayScreen.HudHeight];
     horizontalByLine[0] = 8;
     Rgba32[] gameplayFrame = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(gameplayCgram,
         gameplaySprites,
@@ -1005,7 +1005,7 @@ internal static void VerifyFourBitBackgroundRendering()
             },
             new Bg2LineScrolls(horizontalByLine, default)));
     AssertEqual(new Rgba32(0, 0, 255),
-        gameplayFrame[SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width],
+        gameplayFrame[DisplayScreen.HudHeight * DisplayScreen.Width],
         "ordinary compositor consumes sky HOFS and vertical BGSC screen");
 
     // Kraid selects BG2SC=$43: a 64x64 map rooted at word $4000 instead of the normal
@@ -1013,7 +1013,7 @@ internal static void VerifyFourBitBackgroundRendering()
     // layout; accepting a 64x64 argument without using its base still leaves only Kraid's
     // ordinary OAM arm visible.
     const ushort kraidBg2BaseWord = 0x4000;
-    int firstGameplaySourceRow = SnesGameplayFrameRenderer.HudHeight / 8;
+    int firstGameplaySourceRow = DisplayScreen.HudHeight / 8;
     gameplayVram.ExecuteWordTransfer(
         [0x0801],
         destinationWord: unchecked((ushort)(kraidBg2BaseWord + firstGameplaySourceRow * 32)),
@@ -1030,7 +1030,7 @@ internal static void VerifyFourBitBackgroundRendering()
                     new Extent16<TilemapCells>(64, 64)),
             }));
     AssertEqual(new Rgba32(255, 0, 0),
-        gameplayFrame[SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width],
+        gameplayFrame[DisplayScreen.HudHeight * DisplayScreen.Width],
         "ordinary compositor consumes Kraid's 64x64 BG2 map at $4000");
 
     Console.WriteLine("  BG render: 4-bpp pixels and BGSC geometry agree.");
@@ -1069,11 +1069,11 @@ internal static void VerifyHostRoomViewportAlignment()
         new Position16<RoomPixels>(cameraX, cameraY));
 
     AssertEqual(
-        room[(cameraY + SnesGameplayFrameRenderer.HudHeight) * roomWidth + cameraX],
-        frame[SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width],
+        room[(cameraY + DisplayScreen.HudHeight) * roomWidth + cameraX],
+        frame[DisplayScreen.HudHeight * DisplayScreen.Width],
         "host terrain begins at physical scanline 32");
     AssertEqual(
-        room[(cameraY + SnesGameplayFrameRenderer.Height - 1) * roomWidth + cameraX + 255],
+        room[(cameraY + DisplayScreen.Height - 1) * roomWidth + cameraX + 255],
         frame[^1],
         "host terrain bottom-right physical coordinate");
 
@@ -1128,7 +1128,7 @@ internal static void VerifyPowerBombColorMathWindow()
     Rgba32[] spawnFrame = CreateOpaqueBlackGameplayFrame();
     SnesGameplayFrameRendererConstants.ApplyPowerBombColorMath(spawnFrame, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
     AssertEqual(new Rgba32(0, 0, 0, 255),
-        spawnFrame[centerY * SnesGameplayFrameRenderer.Width + centerX],
+        spawnFrame[centerY * DisplayScreen.Width + centerX],
         "power-bomb spawn frame has no premature HDMA window");
 
     explosion.StepFrame();
@@ -1147,13 +1147,13 @@ internal static void VerifyPowerBombColorMathWindow()
     SnesGameplayFrameRendererConstants.ApplyPowerBombColorMath(scaledFrame, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
     Rgba32 fixedColor = new(8, 16, 24, 255);
     AssertEqual(fixedColor,
-        scaledFrame[centerY * SnesGameplayFrameRenderer.Width + centerX + 3],
+        scaledFrame[centerY * DisplayScreen.Width + centerX + 3],
         "scaled power-bomb center uses truncated final horizontal sample");
     AssertEqual(new Rgba32(0, 0, 0, 255),
-        scaledFrame[centerY * SnesGameplayFrameRenderer.Width + centerX + 4],
+        scaledFrame[centerY * DisplayScreen.Width + centerX + 4],
         "scaled power-bomb center excludes first outside pixel");
     AssertEqual(new Rgba32(0, 0, 0, 255),
-        scaledFrame[(centerY + 3) * SnesGameplayFrameRenderer.Width + centerX],
+        scaledFrame[(centerY + 3) * DisplayScreen.Width + centerX],
         "scaled power-bomb vertical extent uses ROM boundary table");
 
     // A pre-scaled record is a center-outward half-profile. Native HDMA mirrors it around
@@ -1168,15 +1168,15 @@ internal static void VerifyPowerBombColorMathWindow()
     SnesGameplayFrameRendererConstants.ApplyPowerBombColorMath(shapeFrame, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
     AssertEqual<PowerBombShapeCursor?>(new PowerBombShapeCursor(PowerBombShapeStream.Yellow, 0), explosion.RenderedShape,
         "first yellow frame selects the native profile");
-    for (int y = 0; y < SnesGameplayFrameRenderer.Height; y++)
+    for (int y = 0; y < DisplayScreen.Height; y++)
     {
         int row = Math.Abs(y - centerY);
         int halfWidth = row < 192 ? ReadRetailPowerBombPreScaledHalfWidth(shapeReference, row) : 0;
-        for (int x = 0; x < SnesGameplayFrameRenderer.Width; x++)
+        for (int x = 0; x < DisplayScreen.Width; x++)
         {
-            bool inside = y >= SnesGameplayFrameRenderer.HudHeight && halfWidth != 0 && Math.Abs(x - centerX) <= halfWidth;
+            bool inside = y >= DisplayScreen.HudHeight && halfWidth != 0 && Math.Abs(x - centerX) <= halfWidth;
             AssertEqual(inside ? fixedColor : new Rgba32(0, 0, 0, 255),
-                shapeFrame[y * SnesGameplayFrameRenderer.Width + x],
+                shapeFrame[y * DisplayScreen.Width + x],
                 $"native pre-scaled profile pixel ({x},{y})");
         }
     }
@@ -1187,7 +1187,7 @@ internal static void VerifyPowerBombColorMathWindow()
 static Rgba32[] CreateOpaqueBlackGameplayFrame()
 {
     var frame = new Rgba32[
-        SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
+        DisplayScreen.Width * DisplayScreen.Height];
     Array.Fill(frame, new Rgba32(0, 0, 0, 255));
     return frame;
 }

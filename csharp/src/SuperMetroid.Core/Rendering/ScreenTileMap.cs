@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rendering;
 /// A frontend tile layer's cells (#1403), read from the screen's tilemap when the frame was captured: each cell shows one
 /// of the layer's tiles, row by row from the map's top-left corner. A scrolled position wraps at the map's edges.
 /// </summary>
-public sealed class ScreenTileMap : IBgSource, IEquatable<ScreenTileMap>
+public sealed class ScreenTileMap : IEquatable<ScreenTileMap>
 {
     /// <summary>Cells along each side of one screen of a tilemap; a larger map keeps whole screens one after another.</summary>
     private const int ScreenCells = 32;
@@ -57,15 +57,6 @@ public sealed class ScreenTileMap : IBgSource, IEquatable<ScreenTileMap>
             }
         }
         return new ScreenTileMap(tiles, size, cells.MoveToImmutable());
-    }
-
-    /// <inheritdoc />
-    public bool TrySample(Position16<BgPlanePixels> scrolled, out BgSample sample)
-    {
-        const int tile = ScreenTileSheet.TilePixels;
-        int x = scrolled.X % (Size.X * tile), y = scrolled.Y % (Size.Y * tile);
-        sample = Tiles.Sample(Cells[y / tile * Size.X + x / tile], new Position16<CharacterPixels>((ushort)(x % tile), (ushort)(y % tile)));
-        return true;
     }
 
     /// <inheritdoc />

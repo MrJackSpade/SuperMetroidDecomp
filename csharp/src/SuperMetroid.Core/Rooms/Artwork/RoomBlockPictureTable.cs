@@ -28,24 +28,4 @@ public sealed class RoomBlockPictureTable
 
     /// <summary>The picture definition <paramref name="definition"/> shows, or null when the planes do not use it.</summary>
     public SpriteSheetFrame? Picture(int definition) => pictures[definition];
-
-    /// <summary>The picture pixel <paramref name="blocks"/> show at a level pixel; false outside the room.</summary>
-    /// <exception cref="InvalidOperationException">The block there uses a definition the table was not resolved for.</exception>
-    public bool TrySample(RoomBlockCells blocks, Position16<BgPlanePixels> level, out BgSample sample)
-    {
-        Ensure.NotNull(blocks);
-        if (!blocks.TryCellAt(level, out RoomBlockCell cell, out Position16<BgPlanePixels> within))
-        {
-            sample = default;
-            return false;
-        }
-        SpriteSheetFrame picture = pictures[cell.Definition]
-            ?? throw new InvalidOperationException($"Block definition {cell.Definition} was not resolved for the plane showing it.");
-        LevelBlockFlipFlags flips = cell.Flips;
-        int x = within.X, y = within.Y;
-        sample = BgSample.OfPicture(picture, new Position16<ImagePixels>(
-            (ushort)((flips & LevelBlockFlipFlags.Horizontal) != 0 ? RoomLevelPlane.BlockPixels - 1 - x : x),
-            (ushort)((flips & LevelBlockFlipFlags.Vertical) != 0 ? RoomLevelPlane.BlockPixels - 1 - y : y)));
-        return true;
-    }
 }

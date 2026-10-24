@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -56,7 +57,7 @@ internal static class PauseHudLocationVerification
             {
                 game.StepCaptured(0, frame + 1, 1);
                 var actual = pause.Render();
-                var packet = SoftwareLayeredSnapshotRenderer.Render(pause.CaptureRenderSnapshot());
+                var packet = DisplayRendering.Render(pause.CaptureRenderSnapshot());
                 int opaque = 0;
                 for (int y = 0; y < 8; y++)
                 for (int x = 0; x < 8; x++)

@@ -46,7 +46,7 @@ internal static class NorfairGlowCaptureTests
             var foreground = new LayeredScene(memory,
                 [new OrdinaryGameplayRenderLayer(registers with { MainScreenLayers = ScreenLayers.Bg1 }, originalLayer.Rooms)], original.Brightness);
             var isolated = new DisplayPacket(new(tick + 1, 2, (ushort)tick), foreground);
-            var pixels = SoftwareFrameSnapshotRenderer.Render(isolated);
+            var pixels = DisplayRendering.Render(isolated);
             PixelComparison.Verify(isolated, pixels, renderer.RenderForReadback(isolated),
                 $"{device.Kind}: isolated Norfair foreground {tick}");
             initialPixels ??= pixels;

@@ -13,11 +13,5 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// resolves them.
 /// </param>
 public sealed record RoomBackgroundLayer(RoomBlockCells Blocks, Offset16<BgPlanePixels> ScrollOffset, RoomBlockPictureTable? Pictures)
-    : IBgSource
 {
-    /// <summary>What the plane shows at a scrolled position: its block's picture pixel.</summary>
-    /// <exception cref="InvalidOperationException">The plane's pictures are not yet resolved.</exception>
-    public bool TrySample(Position16<BgPlanePixels> scrolled, out BgSample sample) =>
-        (Pictures ?? throw new InvalidOperationException("A room plane is shown once the accepted NMI that latched it resolves its pictures."))
-            .TrySample(Blocks, scrolled - ScrollOffset, out sample);
 }

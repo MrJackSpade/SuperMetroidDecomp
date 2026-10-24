@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
@@ -92,7 +93,7 @@ internal static class MoatFirstEntryVerification
                 // transition step. Capture the IRQ scroll and palette fade too,
                 // not just the already-completed destination used by older probes.
                 var snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
-                var pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
+                var pixels = DisplayRendering.Render(snapshot);
                 if (!pauseBeforeEntry) unpausedTransitionFrames[new UnpausedFrame(source, frame)] = pixels;
                 else AssertTrue(pixels.SequenceEqual(unpausedTransitionFrames[new UnpausedFrame(source, frame)]),
                     $"pause/equipment history leaves identical transition pixels at {phase}, frame {frame}");
@@ -105,7 +106,7 @@ internal static class MoatFirstEntryVerification
             {
                 runtime.StepFrame(0);
                 var snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
-                var pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
+                var pixels = DisplayRendering.Render(snapshot);
                 if (!pauseBeforeEntry) unpausedFrames[new UnpausedFrame(source, frame)] = pixels;
                 else AssertTrue(pixels.SequenceEqual(unpausedFrames[new UnpausedFrame(source, frame)]),
                     "pause/equipment history leaves identical first-entry water and scene pixels");

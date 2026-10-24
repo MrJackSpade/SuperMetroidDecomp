@@ -72,7 +72,7 @@ internal static class Mode7SmokeTests
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact Mode 7 comparisons passed.");
 
         void Check(DisplayPacket frame) => PixelComparison.Verify(frame,
-            SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
+            DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
             $"{device.Kind}: Mode 7 sample {count}");
     }
 }

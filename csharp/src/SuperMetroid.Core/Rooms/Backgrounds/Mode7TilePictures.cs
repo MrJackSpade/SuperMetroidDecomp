@@ -42,17 +42,4 @@ public sealed class Mode7TilePictures
 
     /// <summary>The pictures the tiles come from, each once.</summary>
     public ImmutableArray<SpriteSheetFrame> Sheets { get; }
-
-    /// <summary>What tile <paramref name="tile"/> shows at <paramref name="pixel"/> of its character; false where its characters were never loaded.</summary>
-    /// <exception cref="InvalidDataException">The tile holds characters nothing pictures.</exception>
-    public bool TrySample(int tile, Position16<CharacterPixels> pixel, out BgSample sample)
-    {
-        if (Pictures[tile] is not { } picture)
-        {
-            sample = default;
-            return Unpictured[tile] ? throw new InvalidDataException($"The Mode 7 map names tile {tile}, whose characters nothing pictured shows.") : false;
-        }
-        sample = BgSample.OfPicture(picture.Picture, new Position16<ImagePixels>((ushort)(picture.Corner.X + pixel.X), (ushort)(picture.Corner.Y + pixel.Y)));
-        return true;
-    }
 }

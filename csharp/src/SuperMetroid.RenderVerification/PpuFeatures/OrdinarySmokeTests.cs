@@ -48,7 +48,7 @@ internal static class OrdinarySmokeTests
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory,
                 new RenderLayer[] { layer }, 15));
-            PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
+            PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, geometry {geometry}, layers {flags}, HDMA {hdma}");
             if (count == 96)
             {
@@ -74,7 +74,7 @@ internal static class OrdinarySmokeTests
             var layer = new OrdinaryGameplayRenderLayer(registers, pictured, new Bg2LineScrolls(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new RenderLayer[] { layer }, 15));
-            PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
+            PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, block pictures, layers {flags}, HDMA {hdma}");
         }
         // A library background drawn from its image and rebound cells' pictures (#1392), through each map size BG2 takes.
@@ -88,7 +88,7 @@ internal static class OrdinarySmokeTests
             var layer = new OrdinaryGameplayRenderLayer(registers, background, new Bg2LineScrolls(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new RenderLayer[] { layer }, 15));
-            PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
+            PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, background image, geometry {geometry}, HDMA {hdma}");
         }
         // A boss body (#1352) drawn from its pictures (#1403) at the 64x64 map its registers select, with and without HDMA
@@ -105,7 +105,7 @@ internal static class OrdinarySmokeTests
             var layer = new OrdinaryGameplayRenderLayer(registers, boss, new Bg2LineScrolls(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new RenderLayer[] { layer }, 15));
-            PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
+            PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, boss BG2 tilemap, HDMA {hdma}");
         }
         // The HUD drawn from two-bit pictures (#1392), colour zero opaque in its row's colour, some words from their characters.
@@ -117,7 +117,7 @@ internal static class OrdinarySmokeTests
             var layer = new OrdinaryGameplayRenderLayer(registers, hudPictured, new Bg2LineScrolls(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new RenderLayer[] { layer }, 15));
-            PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
+            PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, BG3 pictures, HDMA {hdma}");
         }
         // Words written over BG2 drawn from their pictures (#1392), some still from their characters, over each BG2 map size.
@@ -129,7 +129,7 @@ internal static class OrdinarySmokeTests
                 ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites);
             var layer = new OrdinaryGameplayRenderLayer(registers, typed, default);
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new RenderLayer[] { layer }, 15));
-            PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
+            PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, BG2 overlay pictures, geometry {geometry}");
         }
         // Words written over BG1 drawn from their pictures (#1392), as the Ceres escape's warning is, some still from their
@@ -140,7 +140,7 @@ internal static class OrdinarySmokeTests
                 new Extent16<TilemapCells>(64, 32), ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites);
             var layer = new OrdinaryGameplayRenderLayer(registers, warned, default);
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new RenderLayer[] { layer }, 15));
-            PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
+            PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, BG1 overlay pictures");
         }
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact ordinary gameplay comparisons passed.");

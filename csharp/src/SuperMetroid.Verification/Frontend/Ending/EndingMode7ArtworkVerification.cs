@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Frontend;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -62,8 +63,8 @@ internal static class EndingMode7ArtworkVerification
                 byte[] actualVram = installed.ShownVram();
                 AssertTrue(actualVram.SequenceEqual(expectedVram) &&
                         actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
-                        SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
-                            SoftwareLayeredSnapshotRenderer.Render(expected)),
+                        DisplayRendering.Render(actual).SequenceEqual(
+                            DisplayRendering.Render(expected)),
                     $"installed ending art preserves native VRAM and pixels at frame {frame}");
             }
             native.Step();
@@ -114,7 +115,7 @@ internal static class EndingMode7ArtworkVerification
             AssertTrue(baselineSnapshot.Brightness > 0,
                 $"ending {id} override fixture reaches a visible frame");
             byte[] baseline = baselineSnapshotVram.ToArray();
-            Rgba32[] baselinePixels = SoftwareLayeredSnapshotRenderer.Render(baselineSnapshot);
+            Rgba32[] baselinePixels = DisplayRendering.Render(baselineSnapshot);
 
             string mapName = EndingFloorArtworkFormat.MapFileName(id);
             string mapOverride = Path.Combine(installation.EndingMode7OverrideDirectory, mapName);
@@ -134,7 +135,7 @@ internal static class EndingMode7ArtworkVerification
             AssertTrue(!baseline.SequenceEqual(mapVram) &&
                     baseline.AsSpan(0x8000).SequenceEqual(mapVram.AsSpan(0x8000)) &&
                     !baselinePixels.SequenceEqual(
-                        SoftwareLayeredSnapshotRenderer.Render(mapSnapshot)),
+                        DisplayRendering.Render(mapSnapshot)),
                 $"edited ending {id} map changes visible pixels, but only its Mode-7 VRAM lanes");
             if (id == EndingFloorSceneId.PlanetExplosion)
             {
@@ -195,7 +196,7 @@ internal static class EndingMode7ArtworkVerification
             AssertTrue(!baseline.SequenceEqual(characterVram) &&
                     baseline.AsSpan(0x8000).SequenceEqual(characterVram.AsSpan(0x8000)) &&
                     !baselinePixels.SequenceEqual(
-                        SoftwareLayeredSnapshotRenderer.Render(characterSnapshot)),
+                        DisplayRendering.Render(characterSnapshot)),
                 $"edited ending {id} PNG changes visible pixels, but only its Mode-7 VRAM lanes");
             File.Delete(pngOverride);
             AssertEqual(0, sceneBus.ForbiddenReadAttempts,

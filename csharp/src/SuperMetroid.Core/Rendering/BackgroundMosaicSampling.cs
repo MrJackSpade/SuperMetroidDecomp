@@ -17,16 +17,4 @@ public readonly struct BackgroundMosaicSampling
         if (size is < 1 or > 16) throw new ArgumentOutOfRangeException(nameof(size));
         Size = size - 1;
     }
-
-    /// <summary>Output X is zero based; tilemap wrapping follows scroll addition in the BG sampler.</summary>
-    public int SourceX(int screenX, ushort horizontalScroll) => screenX - screenX % Size + horizontalScroll;
-
-    /// <summary>
-    /// For a frame-start MOSAIC write, physical scanline one begins the vertical
-    /// group. Output row zero is that line, so quantize the output row first and
-    /// then add the PPU's one-line origin and this scanline's vertical scroll.
-    /// This descriptor does not model active-display writes that reset the group.
-    /// </summary>
-    public int SourceY(int screenY, ushort verticalScroll) =>
-        screenY - screenY % Size + Hardware.SnesPpuLayout.FirstVisibleBackgroundScanline + verticalScroll;
 }

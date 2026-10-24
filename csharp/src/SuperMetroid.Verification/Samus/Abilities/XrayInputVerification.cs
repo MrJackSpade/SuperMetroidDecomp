@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
@@ -69,11 +70,11 @@ internal static class XrayInputVerification
         }
         AssertEqual(XrayBeamPhase.Full, samus.Xray.BeamPhase, "held Run widens the X-ray beam fully");
         var horizontal = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
-        var horizontalPixels = SoftwareLayeredSnapshotRenderer.Render(horizontal);
+        var horizontalPixels = DisplayRendering.Render(horizontal);
         var probe = runtime.Room.LoadedLevelData.GetPlmCollisionBlockByIndex(7 * runtime.Room.LoadedLevelData.Size.X + 12);
         AssertEqual((ushort)255, (XrayRevealTable.Find(probe.CollisionType, probe.Bts.Value) ?? throw new InvalidOperationException("Verification requires XrayRevealTable.Find(probe.CollisionType, probe.Bts.Value).")).TopLeft,
             "native air definition replaces decorative wall art with the blank metatile");
-        var ordinaryPixels = SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()));
+        var ordinaryPixels = DisplayRendering.Render(GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()));
         int revealedAirPixel = 120 * 256 + 200;
         AssertTrue(ordinaryPixels[revealedAirPixel] != new Rgba32(24, 24, 24, 255), "fixture starts with visible decorative wall art");
         AssertEqual(new Rgba32(24, 24, 24, 255), horizontalPixels[revealedAirPixel],
@@ -90,7 +91,7 @@ internal static class XrayInputVerification
         var captured = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var reveal = captured.LayersOf<GameplayColorMathRenderLayer>().Single();
         AssertTrue(reveal.Lines.Any(line => line.Left <= line.Right), "full X-ray publishes a nonempty visible window");
-        var pixels = SoftwareLayeredSnapshotRenderer.Render(captured);
+        var pixels = DisplayRendering.Render(captured);
         AssertTrue(reveal.RevealBlocks, "ordinary X-ray room selects terrain revelation");
         AssertEqual(ColorBlend.Bg1 | ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop | ColorBlend.Half, reveal.Blend.Layers,
             "a reveal room halves its added blend over both backgrounds, the sprites and the backdrop");

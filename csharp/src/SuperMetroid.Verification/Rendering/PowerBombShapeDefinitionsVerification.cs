@@ -90,7 +90,7 @@ internal static class PowerBombShapeDefinitionsVerification
             return result;
         }
         var explosion = new SamusPowerBombExplosionState();
-        var read = new Func<SamusPowerBombExplosionState, int, int>((state, y) => SnesGameplayFrameRenderer.ReadPowerBombHalfWidth(PowerBombRenderSnapshot.Capture(state), y));
+        var read = new Func<SamusPowerBombExplosionState, int, int>((state, y) => GameplayEffectCapture.ReadPowerBombHalfWidth(PowerBombRenderSnapshot.Capture(state), y));
         foreach (var phase in new[] { PowerBombExplosionPhase.PreExplosionWhite, PowerBombExplosionPhase.ExplosionYellow })
         {
             explosion.RenderedPhase = phase;
@@ -120,7 +120,7 @@ internal static class PowerBombShapeDefinitionsVerification
             {
                 int distance = Math.Abs(y - centerY);
                 int halfWidth = distance < profile.Length ? profile[distance] : -1;
-                bool lit = y >= SnesGameplayFrameRenderer.HudHeight && halfWidth >= 0 && Math.Abs(x - centerX) <= halfWidth;
+                bool lit = y >= DisplayScreen.HudHeight && halfWidth >= 0 && Math.Abs(x - centerX) <= halfWidth;
                 AssertEqual(new Rgba32(lit ? (byte)255 : (byte)0, 0, 0, 255), frame[y * 256 + x], "Power Bomb native-profile pixels and clipping");
             }
             frames++;

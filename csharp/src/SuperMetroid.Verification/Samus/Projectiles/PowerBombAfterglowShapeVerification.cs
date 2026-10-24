@@ -30,11 +30,11 @@ internal static class PowerBombAfterglowShapeVerification
         AssertEqual(new PowerBombShapeCursor(PowerBombShapeStream.White, 16), finalShape, "native final white profile");
         int finalShapeAddress = PowerBombShapeReferenceData.PreScaledWhite + finalShape.Index * 192;
         AssertEqual(0x889e46, finalShapeAddress, "the final white profile's bank-$88 table");
-        var last = SnesGameplayFrameRenderer.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
+        var last = GameplayEffectCapture.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
         int checkedFrames = 0;
         while (explosion.IsActive)
         {
-            var actual = SnesGameplayFrameRenderer.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
+            var actual = GameplayEffectCapture.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
             var pixels = Enumerable.Repeat(new Rgba32(0, 0, 0), 256 * 224).ToArray();
             SnesGameplayFrameRendererConstants.ApplyPowerBombColorMath(pixels, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
             for (int y = 32; y < 224; y++)

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 
@@ -10,6 +11,6 @@ internal static class SuperMetroidGamePixelsAccess
     extension(SuperMetroidGame game)
     {
         /// <summary>Renders the last published frame in software into a fresh array; call it between steps.</summary>
-        internal Rgba32[] PublishedPixels() => SoftwareFrameSnapshotRenderer.Render(game.GetRetainedDisplay(1, 1));
+        internal Rgba32[] PublishedPixels() => DisplayRendering.Render(game.GetRetainedDisplay(1, 1));
     }
 }

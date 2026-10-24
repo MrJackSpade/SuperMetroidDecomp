@@ -27,7 +27,7 @@ internal static class EyeBeamWindowBuilder
         if (b > turn) b -= turn;
         int ta = Tangent(a < half ? a : a - half);
         int tb = Tangent(b < half ? b : b - half);
-        bool offScreen = x is < 0 or >= SnesGameplayFrameRenderer.Width;
+        bool offScreen = x is < 0 or >= DisplayScreen.Width;
         int origin = unchecked((ushort)SnesEightEight.FromWhole(x));
         int apex = y - EyeWindowRenderDefinitions.ApexYOffset;
         int up = offScreen ? apex : apex - 1;

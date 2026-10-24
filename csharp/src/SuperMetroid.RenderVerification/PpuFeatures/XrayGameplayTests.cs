@@ -55,7 +55,7 @@ internal static class XrayGameplayTests
             var layer = new GameplayColorMathRenderLayer(new(registers, bg1), lines, reveal, new SceneBlend { Layers = controls, BlendsWithSubscreen = true, FixedColor = new Bgr555(7, 7, 7) }, bg3);
             var scene = new LayeredScene(memory, new RenderLayer[] { layer }, 15);
             var packet = new DisplayPacket(new(++count, 1, 0), scene);
-            var pixels = SoftwareLayeredSnapshotRenderer.Render(scene);
+            var pixels = DisplayRendering.Render(scene);
             // Independent scalar expectations, not just parity between two implementations.
             Rgba32 MathPixel(bool exempt)
             {
@@ -92,7 +92,7 @@ internal static class XrayGameplayTests
                     var bodyColors = cgram.Colors.ToArray();
                     if (blackBody) bodyColors[2] = Bgr555.Black;
                     var addScene = new LayeredScene(FramePaint.FromOam(vram.Bytes, bodyColors, oam, 1, 0), [additive], 15);
-                    var addPixels = SoftwareLayeredSnapshotRenderer.Render(addScene);
+                    var addPixels = DisplayRendering.Render(addScene);
                     var yellow = new Rgba32(255, blackBody ? (byte)0 : (byte)165, 0);
                     Check(addPixels[64 * 256 + 64], yellow, "BG2 additive color contribution / black identity");
                     Check(addPixels[64 * 256 + 16], palette < 4 ? new(255, 0, 0) : yellow, "BG2 subscreen OBJ palette eligibility");
@@ -109,7 +109,7 @@ internal static class XrayGameplayTests
                 vram.ExecuteWordTransfer(new ushort[] { 4 }, GameplayVramLayout.Bg2TilemapWord + 8 * 32 + 9, 1);
                 var dark = new GameplayColorMathRenderLayer(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1), new TilemapCell(8, 8, new(4)), new TilemapCell(9, 8, new(4))) with { Bg3 = Layer3CellsFixtures.FromVram(vram.Bytes, cgram.Colors, 0x1000) }), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new SceneBlend { Layers = ColorBlend.Bg2 | ColorBlend.Backdrop | ColorBlend.Subtract, BlendsWithSubscreen = false, FixedColor = new Bgr555(18, 18, 18) });
                 var darkScene = new LayeredScene(FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0), new RenderLayer[] { dark }, 15);
-                var darkPixels = SoftwareLayeredSnapshotRenderer.Render(darkScene);
+                var darkPixels = DisplayRendering.Render(darkScene);
                 Check(darkPixels[64 * 256 + 64], new(0, 16, 0, 255), "Fireflea BG2 subtraction");
                 Check(darkPixels[64 * 256 + 72], new(0, 0, 0, 255), "Fireflea backdrop subtraction");
                 Check(darkPixels[64 * 256 + 80], new(255, 0, 0, 255), "Fireflea foreground exemption");
@@ -146,7 +146,7 @@ internal static class XrayGameplayTests
             var memory = FramePaint.FromOam(bytes, colors, oam, 128, obsel);
             var scene = new LayeredScene(memory, new RenderLayer[] { layer }, (byte)(frame % 16));
             var packet = new DisplayPacket(new(++count, 1, 0), scene);
-            var expected = SoftwareLayeredSnapshotRenderer.Render(scene);
+            var expected = DisplayRendering.Render(scene);
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: patterned X-ray {frame}");
         }
         // The reveal on BG2 drawn from block pictures in every arrangement (#1392), at the fine scrolls X-ray gives BG2.
@@ -166,7 +166,7 @@ internal static class XrayGameplayTests
             var memory = FramePaint.FromOam(bytes, colors, oam, 128, 3);
             var scene = new LayeredScene(memory, new RenderLayer[] { layer }, 15);
             var packet = new DisplayPacket(new(++count, 1, 0), scene);
-            PixelComparison.Verify(packet, SoftwareLayeredSnapshotRenderer.Render(scene), renderer.RenderForReadback(packet),
+            PixelComparison.Verify(packet, DisplayRendering.Render(scene), renderer.RenderForReadback(packet),
                 $"{device.Kind}: X-ray reveal pictures {frame}");
         }
         Console.WriteLine($"{device.Kind}: {count} source-aware X-ray cases pass BG masking, OBJ palette exemptions, subscreen fallback, arithmetic, and priority/scroll/flip patterns.");

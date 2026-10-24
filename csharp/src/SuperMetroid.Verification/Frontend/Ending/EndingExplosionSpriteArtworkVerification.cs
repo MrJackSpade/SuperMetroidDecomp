@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using System.Text.Json;
@@ -236,8 +237,8 @@ internal static class EndingExplosionSpriteArtworkVerification
                 scene.InstalledArtwork.BindFixtureObjectArtwork(edited);
                 LayeredScene after = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                 visible = !before.Paint.SpriteParts().SequenceEqual(after.Paint.SpriteParts()) &&
-                    !SoftwareLayeredSnapshotRenderer.Render(before).SequenceEqual(
-                        SoftwareLayeredSnapshotRenderer.Render(after));
+                    !DisplayRendering.Render(before).SequenceEqual(
+                        DisplayRendering.Render(after));
                 if (!visible)
                 {
                     scene.Step();

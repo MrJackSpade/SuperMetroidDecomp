@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 
@@ -10,6 +11,6 @@ internal static class TitleSequenceStatePixelsAccess
     extension(TitleSequenceState scene)
     {
         /// <summary>Captures the scene and rasterizes its snapshot in software.</summary>
-        internal Rgba32[] Render() => SoftwareFrameSnapshotRenderer.Render(new DisplayPacket(new RenderFrameIdentity(1, 1, 0), scene.CaptureRenderSnapshot()));
+        internal Rgba32[] Render() => DisplayRendering.Render(new DisplayPacket(new RenderFrameIdentity(1, 1, 0), scene.CaptureRenderSnapshot()));
     }
 }

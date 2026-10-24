@@ -305,13 +305,13 @@ internal static class RoomFxRomDataVerification
         // room loader. Rain and fog use different main/subscreen ownership in hardware even
         // though both resolve to additive BG3 pixels, so neither pairing may be substituted.
         var frame = new Rgba32[
-            SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
+            DisplayScreen.Width * DisplayScreen.Height];
         SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
             frame, vram, cgram.AsPaletteColors(), snapshot);
         if (type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid)
         {
-            int above = 90 * SnesGameplayFrameRenderer.Width + 20;
-            int below = 110 * SnesGameplayFrameRenderer.Width + 20;
+            int above = 90 * DisplayScreen.Width + 20;
+            int below = 110 * DisplayScreen.Width + 20;
             AssertEqual(new Rgba32(0, 0, 0, 0), frame[above],
                 $"{type} leaves pixels above its surface untouched");
             AssertTrue(frame[below].B != 0,
@@ -335,24 +335,24 @@ internal static class RoomFxRomDataVerification
                 $"{type} $FFFF surface suppresses the complete BG3 liquid plane");
 
             ushort[] bg2Scroll = type == RoomFxType.Water
-                ? SnesGameplayFrameRenderer.BuildWaterBg2HorizontalScrolls(
+                ? GameplayEffectCapture.BuildWaterBg2HorizontalScrolls(
                     snapshot,
                     bg2Scroll: new Position16<Bg2Pixels>(0x0200, 0)) ?? throw new InvalidDataException(
                         "Wavy water did not publish a BG2 HDMA scroll table.")
-                : SnesGameplayFrameRenderer.BuildLavaAcidBg2VerticalScrolls(
+                : GameplayEffectCapture.BuildLavaAcidBg2VerticalScrolls(
                     snapshot,
                     bg2VerticalScroll: 0x0200) ?? throw new InvalidDataException(
                         $"{type} did not publish its BG2 HDMA scroll table.");
-            AssertEqual(SnesGameplayFrameRenderer.Height - SnesGameplayFrameRenderer.HudHeight,
+            AssertEqual(DisplayScreen.Height - DisplayScreen.HudHeight,
                 bg2Scroll.Length,
                 $"{type} BG2 wave table covers gameplay scanlines");
             if (type == RoomFxType.Water)
             {
                 AssertEqual((ushort)0x0200,
-                    bg2Scroll[90 - SnesGameplayFrameRenderer.HudHeight],
+                    bg2Scroll[90 - DisplayScreen.HudHeight],
                     "water leaves BG2 undistorted above the surface");
                 AssertTrue(
-                    bg2Scroll.Skip(101 - SnesGameplayFrameRenderer.HudHeight).Distinct().Count() > 1,
+                    bg2Scroll.Skip(101 - DisplayScreen.HudHeight).Distinct().Count() > 1,
                     "water distorts BG2 below the surface");
             }
             else
@@ -375,7 +375,7 @@ internal static class RoomFxRomDataVerification
         else
         {
             Rgba32 firstEffectPixel = frame[
-                SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width];
+                DisplayScreen.HudHeight * DisplayScreen.Width];
             AssertTrue(firstEffectPixel.B != 0 && firstEffectPixel.R == 0,
                 $"{type} samples the $5C00 effect page instead of the $5800 HUD page");
 
@@ -386,7 +386,7 @@ internal static class RoomFxRomDataVerification
                 cgram.AsPaletteColors(),
                 snapshot with { Scroll = snapshot.Scroll.WithY(0x0100) });
             Rgba32 wrappedEffectPixel = wrappedFrame[
-                SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width];
+                DisplayScreen.HudHeight * DisplayScreen.Width];
             AssertTrue(wrappedEffectPixel.B != 0 && wrappedEffectPixel.R == 0,
                 $"{type} wraps vertical scroll within its 32-row $5C00 page");
         }

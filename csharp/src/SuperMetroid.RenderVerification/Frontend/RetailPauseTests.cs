@@ -28,7 +28,7 @@ internal static class RetailPauseTests
         void Compare(string page)
         {
             var packet = new DisplayPacket(new(++samples, 1, 0), pause.CaptureRenderSnapshot());
-            PixelComparison.Verify(packet, SoftwareFrameSnapshotRenderer.Render(packet), renderer.RenderForReadback(packet), $"{device.Kind}: pause {page}");
+            PixelComparison.Verify(packet, DisplayRendering.Render(packet), renderer.RenderForReadback(packet), $"{device.Kind}: pause {page}");
         }
         Compare("map");
         pause.Step(SnesButton.R, SnesButton.R);

@@ -50,7 +50,7 @@ internal static class RetailLoadAppearanceTests
                 throw new InvalidOperationException("Capture changed load appearance timing.");
             if (sawMap)
             {
-                PixelComparison.Verify(actual.Snapshot, legacy.PublishedPixels(), SoftwareFrameSnapshotRenderer.Render(actual.Snapshot),
+                PixelComparison.Verify(actual.Snapshot, legacy.PublishedPixels(), DisplayRendering.Render(actual.Snapshot),
                     $"saved-file load software capture frame {tick}");
                 PixelComparison.Verify(actual.Snapshot, legacy.PublishedPixels(), renderer.RenderForReadback(actual.Snapshot),
                     $"{device.Kind}: saved-file load frame {tick}, {expected.GameState}");

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rendering;
@@ -87,7 +88,7 @@ internal static class AcidStatueFirstEntryVerification
             LayeredScene? snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
             if (snapshot is null)
                 continue;
-            Rgba32[] pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
+            Rgba32[] pixels = DisplayRendering.Render(snapshot);
             if (phase is DoorTransitionPhase.HandleTransition or DoorTransitionPhase.FadeInDestinationPalette)
             {
                 sawDestinationFade = true;

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
@@ -55,8 +56,8 @@ internal static class PostCreditsCharacterArtworkVerification
                     byte[] actualVram = installed.ShownVram();
                     AssertTrue(actualVram.SequenceEqual(expectedVram) &&
                             actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
-                            SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
-                                SoftwareLayeredSnapshotRenderer.Render(expected)),
+                            DisplayRendering.Render(actual).SequenceEqual(
+                                DisplayRendering.Render(expected)),
                         $"installed post-credits art preserves VRAM, palette, and pixels in {hours}h {native.Stage.Phase}");
                 }
                 native.Step();
@@ -90,8 +91,8 @@ internal static class PostCreditsCharacterArtworkVerification
                 byte[] actualVram = installed.ShownVram();
                 AssertTrue(actualVram.SequenceEqual(expectedVram) &&
                         actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
-                        SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
-                            SoftwareLayeredSnapshotRenderer.Render(expected)),
+                        DisplayRendering.Render(actual).SequenceEqual(
+                            DisplayRendering.Render(expected)),
                     $"installed post-shot logo preserves native VRAM/pixels in {hours}h frame {frame}");
             }
             if (hours == 2)
@@ -113,16 +114,16 @@ internal static class PostCreditsCharacterArtworkVerification
                         byte[] actualVram = installed.ShownVram();
                         AssertTrue(actualVram.SequenceEqual(expectedVram) &&
                                 actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
-                                SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
-                                    SoftwareLayeredSnapshotRenderer.Render(expected)),
+                                DisplayRendering.Render(actual).SequenceEqual(
+                                    DisplayRendering.Render(expected)),
                             $"installed logo pixels at frame {frame}");
                         if (native.Stage.Phase == EndingCreditsPhase.PostCreditsLogo)
                         {
                             installed.InstalledArtwork.BindFixtureObjectArtwork(editedLogo);
                             LayeredScene changed = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
                             visibleLogoEdit |= !actual.Paint.SpriteParts().SequenceEqual(changed.Paint.SpriteParts()) &&
-                                !SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
-                                    SoftwareLayeredSnapshotRenderer.Render(changed));
+                                !DisplayRendering.Render(actual).SequenceEqual(
+                                    DisplayRendering.Render(changed));
                             installed.InstalledArtwork.BindFixtureObjectArtwork(stock);
                         }
                     }
@@ -261,9 +262,9 @@ internal static class PostCreditsCharacterArtworkVerification
                                             changedVram[(destination + count)..]),
                                     $"edited {fileName} changes only its native fragment transfer range");
                             }
-                            visible = !SoftwareLayeredSnapshotRenderer.Render(original)
+                            visible = !DisplayRendering.Render(original)
                                 .SequenceEqual(
-                                    SoftwareLayeredSnapshotRenderer.Render(changed));
+                                    DisplayRendering.Render(changed));
                         }
                     }
                     stockState.Step();
@@ -285,8 +286,8 @@ internal static class PostCreditsCharacterArtworkVerification
                     LayeredScene expectedRebind = EndingCreditsPresentation.CaptureRenderSnapshot(editedState);
                     byte[] expectedRebindVram = editedState.ShownVram();
                     AssertTrue(reboundVram.SequenceEqual(expectedRebindVram) &&
-                            SoftwareLayeredSnapshotRenderer.Render(rebound).SequenceEqual(
-                                SoftwareLayeredSnapshotRenderer.Render(expectedRebind)),
+                            DisplayRendering.Render(rebound).SequenceEqual(
+                                DisplayRendering.Render(expectedRebind)),
                         $"rebind {fileName} immediately replaces already-uploaded logo art");
                 }
                 AssertEqual(0, stockBus.ForbiddenReadAttempts,

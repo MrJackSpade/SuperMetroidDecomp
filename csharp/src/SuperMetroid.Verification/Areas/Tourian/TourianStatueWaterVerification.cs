@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
@@ -58,8 +59,8 @@ internal static class TourianStatueWaterVerification
         var basis = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         var full = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertEqual(1, full.Layers.Count(layer => layer is FxPlaneBlendRenderLayer), "One BG3 water plane accompanies the statue");
-        var dryPixels = SoftwareLayeredSnapshotRenderer.Render(basis);
-        var wetPixels = SoftwareLayeredSnapshotRenderer.Render(full);
+        var dryPixels = DisplayRendering.Render(basis);
+        var wetPixels = DisplayRendering.Render(full);
         for (int y = 32; y < 169; y++)
             for (int x = 0; x < 256; x++)
                 AssertEqual(dryPixels[y * 256 + x], wetPixels[y * 256 + x], "BG3 water does not tint pixels above its native surface tile");
@@ -68,7 +69,7 @@ internal static class TourianStatueWaterVerification
         var direct = dryPixels.ToArray();
         SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(direct, runtime.Vram, runtime.Cgram.AsPaletteColors(), displayed);
         AssertTrue(direct.SequenceEqual(wetPixels), "Immediate and captured composition agree for the actual water room");
-        AssertEqual<ushort[]?>(null, SnesGameplayFrameRenderer.BuildWaterBg2HorizontalScrolls(displayed, new Position16<Bg2Pixels>(0, 0)),
+        AssertEqual<ushort[]?>(null, GameplayEffectCapture.BuildWaterBg2HorizontalScrolls(displayed, new Position16<Bg2Pixels>(0, 0)),
             "Special statue FX does not install ordinary-water BG2 X-wave HDMA");
         runtime.TourianStatues.Descent = 64 << 16;
         runtime.TourianStatues.LatchDisplay();

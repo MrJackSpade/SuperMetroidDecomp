@@ -196,9 +196,9 @@ internal static class Program
                     last = new(new(i + 1, 1, 0), new Rgba32((byte)i, 73, 129));
                     renderer.Render(last);
                 }
-                PixelComparison.Verify((last ?? throw new InvalidOperationException("Verification requires last.")), SoftwareFrameSnapshotRenderer.Render((last)), renderer.Readback(),
+                PixelComparison.Verify((last ?? throw new InvalidOperationException("Verification requires last.")), DisplayRendering.Render((last)), renderer.Readback(),
                     $"{kind}: 64 submissions with deferred readback");
-                PixelComparison.Verify(last, SoftwareFrameSnapshotRenderer.Render(last), renderer.Readback(),
+                PixelComparison.Verify(last, DisplayRendering.Render(last), renderer.Readback(),
                     $"{kind}: repeat deferred readback");
                 Console.WriteLine($"{kind}: deferred submission/readback and uninitialized readback guard passed.");
                 int samples = 0;
@@ -206,7 +206,7 @@ internal static class Program
                 for (byte brightness = 0; brightness <= 15; brightness++)
                 {
                     var frame = new DisplayPacket(new(++samples, 1, 0), new Rgba32(231, 123, 47, alpha), [new FadeLevel(brightness), new FadeLevel(11)]);
-                    Rgba32[] expected = SoftwareFrameSnapshotRenderer.Render(frame);
+                    Rgba32[] expected = DisplayRendering.Render(frame);
                     Rgba32[] actual = renderer.RenderForReadback(frame);
                     PixelComparison.Verify(frame, expected, actual, $"{kind}: solid compute sample {samples}");
                 }

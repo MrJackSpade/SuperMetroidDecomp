@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
@@ -75,8 +76,8 @@ internal static class CeresFlightSpriteArtworkVerification
                 original.Paint.Colors.SequenceEqual(replacement.Paint.Colors),
             "Ceres sprite composition edit does not change characters or palette");
         AssertTrue(!original.Paint.SpriteParts().SequenceEqual(replacement.Paint.SpriteParts()) &&
-                !SoftwareLayeredSnapshotRenderer.Render(original).SequenceEqual(
-                    SoftwareLayeredSnapshotRenderer.Render(replacement)),
+                !DisplayRendering.Render(original).SequenceEqual(
+                    DisplayRendering.Render(replacement)),
             "Ceres star composition edit changes production OAM and visible pixels");
 
         stockFlight.BindFixtureFlightArtwork(edited);

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Frontend.Ending.EndingSnapshotTestsVerification;
 using static SuperMetroid.Verification.Frontend.FrontendCompletionVerification;
@@ -114,7 +115,7 @@ internal static class CinematicSnapshotTestsVerification
         static void Compare(Rgba32[] expected, LayeredScene snapshot, int tick)
         {
             DisplayPacket roundTrip = new(new(tick + 1, 1, (ushort)tick), snapshot);
-            Rgba32[] pixels = SoftwareFrameSnapshotRenderer.Render(roundTrip);
+            Rgba32[] pixels = DisplayRendering.Render(roundTrip);
             AssertEqual(expected.Length, pixels.Length, "cinematic snapshot dimensions");
             for (int i = 0; i < pixels.Length; i++)
                 if (pixels[i] != expected[i])

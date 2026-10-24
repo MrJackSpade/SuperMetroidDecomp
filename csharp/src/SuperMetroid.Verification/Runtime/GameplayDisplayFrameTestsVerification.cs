@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hud;
@@ -56,10 +57,10 @@ internal static class GameplayDisplayFrameTestsVerification
     private static void VerifyRepaintAndImmutability(SuperMetroidRuntime runtime)
     {
         GameplayDisplayFrame frame = runtime.PublishDisplayFrame();
-        Rgba32[] pixels = SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.Capture(frame));
-        AssertTrue(pixels.SequenceEqual(SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.Capture(frame))),
+        Rgba32[] pixels = DisplayRendering.Render(GameplayDisplayCapture.Capture(frame));
+        AssertTrue(pixels.SequenceEqual(DisplayRendering.Render(GameplayDisplayCapture.Capture(frame))),
             "capturing one published frame twice is identical");
-        AssertTrue(pixels.SequenceEqual(SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()))),
+        AssertTrue(pixels.SequenceEqual(DisplayRendering.Render(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()))),
             "publishing again without stepping is identical");
 
         // Mutate frame-end sources, NMI-latched sources and PPU memory after publication.
@@ -79,7 +80,7 @@ internal static class GameplayDisplayFrameTestsVerification
             "a published frame keeps its own latch and frame-end inputs");
         AssertEqual(false, frame.FrameEnd.PowerBomb.IsActive, "published power bomb inputs are a value copy");
         AssertTrue(frame.FrameEnd.ScrollingSky is null, "published sky layer is not the live owner");
-        AssertTrue(pixels.SequenceEqual(SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.Capture(frame))),
+        AssertTrue(pixels.SequenceEqual(DisplayRendering.Render(GameplayDisplayCapture.Capture(frame))),
             "a published frame survives later simulation, latch and PPU memory changes");
 
         explosion.Reset();

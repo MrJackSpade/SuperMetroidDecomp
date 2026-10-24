@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// the cell's character shows (#1392), sampled with the tilemap's wrap.
 /// </summary>
 [PpuLayoutBoundary("backend: samples a boss body's cells in the hardware's screen order")]
-public sealed class BossBodyPictures : IBgSource
+public sealed class BossBodyPictures
 {
     /// <summary>The tilemap's screen arrangement.</summary>
     private readonly BgTilemapGeometry geometry;
@@ -32,15 +32,4 @@ public sealed class BossBodyPictures : IBgSource
 
     /// <summary>Each cell's picture in the hardware's screen order: each 32x32 screen's rows, screens left to right then down.</summary>
     public ImmutableArray<BgTilePicture> Pictures { get; }
-
-    /// <inheritdoc />
-    public bool TrySample(Position16<BgPlanePixels> scrolled, out BgSample sample)
-    {
-        int x = geometry.WrapX(scrolled.X), y = geometry.WrapY(scrolled.Y);
-        BgTilePicture picture = Pictures[geometry.EntryWordAddress(0,
-            new Position16<TilemapCells>((ushort)BgCharacterGrid.CharacterOf(x), (ushort)BgCharacterGrid.CharacterOf(y)))];
-        sample = BgSample.OfPicture(picture.Picture, new Position16<ImagePixels>(
-            (ushort)(picture.Corner.X + BgCharacterGrid.PixelWithinCharacter(x)), (ushort)(picture.Corner.Y + BgCharacterGrid.PixelWithinCharacter(y))));
-        return true;
-    }
 }

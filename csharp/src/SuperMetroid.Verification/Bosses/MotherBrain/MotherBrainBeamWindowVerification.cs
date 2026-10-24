@@ -67,14 +67,14 @@ internal static class MotherBrainBeamWindowVerification
         MotherBrainRainbowBeamRenderSnapshot snapshot = beam.RenderSnapshot;
         AssertEqual(new MotherBrainRainbowBeamRenderSnapshot(true, beam.Color, beam.Geometry), snapshot,
             "render snapshot carries the active flag, color and geometry by value");
-        var capture = SnesGameplayFrameRenderer.CaptureMotherBrainRainbowBeam(snapshot);
+        var capture = GameplayEffectCapture.CaptureMotherBrainRainbowBeam(snapshot);
         AssertEqual(new ColorAddWindow(115, 255, 255, 0, 0), (capture ?? throw new InvalidOperationException("Verification requires capture.")).Windows[100],
             "shared render packet includes beam geometry and native color");
         int cursor = beam.ColorCursor;
-        _ = SnesGameplayFrameRenderer.CaptureMotherBrainRainbowBeam(beam.RenderSnapshot);
+        _ = GameplayEffectCapture.CaptureMotherBrainRainbowBeam(beam.RenderSnapshot);
         AssertEqual(cursor, beam.ColorCursor, "repainting cannot advance beam simulation");
         beam.Step(false, new(0, 0), default, 0);
-        AssertTrue(SnesGameplayFrameRenderer.CaptureMotherBrainRainbowBeam(beam.RenderSnapshot) is null,
+        AssertTrue(GameplayEffectCapture.CaptureMotherBrainRainbowBeam(beam.RenderSnapshot) is null,
             "deleted HDMA object emits no render layer");
         AssertEqual(snapshot.Geometry, beam.Geometry, "deactivation keeps the last geometry");
         Step();

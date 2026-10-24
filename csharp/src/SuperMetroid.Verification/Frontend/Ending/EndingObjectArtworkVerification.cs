@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -219,8 +220,8 @@ internal static class EndingObjectArtworkVerification
                 byte[] actualVram = installed.ShownVram();
                 AssertTrue(actualVram.SequenceEqual(expectedVram) &&
                         actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
-                        SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
-                            SoftwareLayeredSnapshotRenderer.Render(expected)),
+                        DisplayRendering.Render(actual).SequenceEqual(
+                            DisplayRendering.Render(expected)),
                     $"ending OBJ PNGs preserve native VRAM/pixels at frame {frame}");
             }
             native.Step();
@@ -282,8 +283,8 @@ internal static class EndingObjectArtworkVerification
             LayeredScene afterCloudEdit = EndingCreditsPresentation.CaptureRenderSnapshot(cloudScene);
             visibleCloudEdit = !beforeCloudEdit.Paint.SpriteParts().SequenceEqual(
                     afterCloudEdit.Paint.SpriteParts()) &&
-                !SoftwareLayeredSnapshotRenderer.Render(beforeCloudEdit).SequenceEqual(
-                    SoftwareLayeredSnapshotRenderer.Render(afterCloudEdit));
+                !DisplayRendering.Render(beforeCloudEdit).SequenceEqual(
+                    DisplayRendering.Render(afterCloudEdit));
             if (!visibleCloudEdit)
             {
                 cloudScene.Step();
@@ -377,9 +378,9 @@ internal static class EndingObjectArtworkVerification
                     LayeredScene nativeArt = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                     scene.InstalledArtwork.BindFixtureObjectArtwork(edited);
                     LayeredScene editedArt = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                    visibleEdit = !SoftwareLayeredSnapshotRenderer.Render(nativeArt)
+                    visibleEdit = !DisplayRendering.Render(nativeArt)
                         .SequenceEqual(
-                            SoftwareLayeredSnapshotRenderer.Render(editedArt));
+                            DisplayRendering.Render(editedArt));
                 }
                 scene.Step();
                 audio.AdvanceFrame(default);

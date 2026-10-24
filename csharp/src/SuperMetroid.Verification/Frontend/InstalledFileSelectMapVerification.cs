@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -38,8 +39,8 @@ internal static class InstalledFileSelectMapVerification
             AssertTrue(control.Render().SequenceEqual(installed.Render()), "installed map navigation renders exact stock frame");
             if (verifyCapturedRendering)
             {
-                var nativePixels = SoftwareLayeredSnapshotRenderer.Render(control.CaptureRenderSnapshot(), nativeRaster);
-                var installedPixels = SoftwareLayeredSnapshotRenderer.Render(installed.CaptureRenderSnapshot(), installedRaster);
+                var nativePixels = DisplayRendering.Render(control.CaptureRenderSnapshot(), nativeRaster);
+                var installedPixels = DisplayRendering.Render(installed.CaptureRenderSnapshot(), installedRaster);
                 AssertTrue(nativePixels.SequenceEqual(installedPixels), "installed map render captures retain native pixels through every transition");
                 AssertTrue(installed.Render().SequenceEqual(installedPixels), "captured and direct map rendering agree");
             }

@@ -481,7 +481,7 @@ internal static void VerifySamusXray()
     // `$91:C5FF` advances `$03FE` once per scanline and publishes the high byte, making
     // X=142 the inclusive upper/lower boundary ten lines away. `$88:817B` keeps the cone
     // bright and applies add-seven-then-half color math everywhere outside it.
-    var xrayFrame = new Rgba32[SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
+    var xrayFrame = new Rgba32[DisplayScreen.Width * DisplayScreen.Height];
     Array.Fill(xrayFrame, new Rgba32(248, 248, 248, 255));
     SnesGameplayFrameRenderer.ApplyXrayWindowColorMath(
         xrayFrame,

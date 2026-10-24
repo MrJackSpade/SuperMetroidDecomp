@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
@@ -52,7 +53,7 @@ internal static class XrayNoFxDarkeningVerification
         // Native Clear_FX_Tilemap's $184E selects BG3 palette six, color three.
         runtime.Cgram.AsPaletteColors().SetColor(6 * 4 + 3, new Bgr555(0, 0, 0));
         var snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
-        var pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
+        var pixels = DisplayRendering.Render(snapshot);
         var expected = new Rgba32(99, 82, 66, 255); // RGB5(12,10,8)
         foreach (int index in new[] { 80 * 256 + 64, 120 * 256 + 128, 180 * 256 + 192 })
             AssertEqual(expected, pixels[index], "opaque black BG3 halves outside-beam foreground instead of brightening");
@@ -62,7 +63,7 @@ internal static class XrayNoFxDarkeningVerification
         // A transparent replacement must still take the hardware fixed-color fallback.
         runtime.Vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)0x006f, 0x780).ToArray(), 0x5880, 1);
         runtime.Vram.LoadBytes(runtime.Display.GameplayHudCharacterBaseWord * 2 + 0x6f * 16, new byte[16]);
-        var transparent = SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
+        var transparent = DisplayRendering.Render(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
         AssertEqual(new Rgba32(255, 222, 189, 255), transparent[80 * 256 + 64],
             "transparent BG3 preserves native fixed-color fallback without halving");
         runtime.RoomLayer3Fx.Type = RoomFxType.Fireflea;
@@ -72,7 +73,7 @@ internal static class XrayNoFxDarkeningVerification
         var firefleaMath = (GameplayColorMathRenderLayer)fireflea.Layers[0];
         AssertTrue(!firefleaMath.Blend.BlendsWithSubscreen && firefleaMath.Subscreen is null,
             "Fireflea retains fixed-color subtraction without a BG3 operand");
-        var darkPixels = SoftwareLayeredSnapshotRenderer.Render(fireflea);
+        var darkPixels = DisplayRendering.Render(fireflea);
         AssertEqual(new Rgba32(140, 107, 74, 255), darkPixels[80 * 256 + 64],
             "Fireflea subtracts seven without halving");
         Console.WriteLine("X-ray no-FX capture: opaque BG3 darkening, transparent fallback and Fireflea exception verified.");

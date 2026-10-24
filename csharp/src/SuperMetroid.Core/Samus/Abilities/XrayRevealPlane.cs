@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// each block's four tile words are one definition laid out one of the reveal's ways; a block copied from beyond the room
 /// lies below or right of anything BG2's scroll shows, and draws nothing.
 /// </summary>
-public sealed class XrayRevealPlane : IBgSource
+public sealed class XrayRevealPlane
 {
     /// <summary>Pixels along a block's side.</summary>
     private const int BlockPixels = RoomLevelPlane.BlockPixels;
@@ -59,39 +59,5 @@ public sealed class XrayRevealPlane : IBgSource
             }
         }
         return found;
-    }
-
-    /// <summary>
-    /// The picture pixel the reveal shows at a scrolled BG2 position; the reveal is BG2's two-screen tilemap, the
-    /// fine-scroll column the first block column of its second screen.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">
-    /// The position lies past the blocks the reveal builds, or on a block copied from beyond the room, neither of which BG2's
-    /// scroll shows.
-    /// </exception>
-    public bool TrySample(Position16<BgPlanePixels> scrolled, out BgSample sample)
-    {
-        int x = scrolled.X % XrayTilemapLayout.TilemapPixelWidth, y = scrolled.Y % XrayTilemapLayout.TilemapPixelHeight;
-        int column = x / BlockPixels, row = y / BlockPixels;
-        if (column >= XrayTilemapLayout.MetatileColumns || row >= XrayTilemapLayout.MetatileRows)
-            throw new InvalidOperationException($"BG2 shows reveal pixel ({x}, {y}), past the blocks X-ray builds.");
-        RevealedBlock block = blocks[row * XrayTilemapLayout.MetatileColumns + column]
-            ?? throw new InvalidOperationException($"BG2 shows reveal block ({column}, {row}), which was copied from beyond the room.");
-        SpriteSheetFrame picture = Pictures.Picture(block.Definition)
-            ?? throw new InvalidOperationException($"The X-ray reveal's block definition {block.Definition} has no picture.");
-        if (!Enum.IsDefined(block.Arrangement))
-            throw new InvalidDataException($"Unknown revealed block arrangement {block.Arrangement}.");
-        bool mirrorX = block.Arrangement is RevealedBlockArrangement.MirroredHorizontally or RevealedBlockArrangement.MirroredBoth;
-        bool mirrorY = block.Arrangement is RevealedBlockArrangement.MirroredVertically or RevealedBlockArrangement.MirroredBoth;
-        int px = x % BlockPixels, py = y % BlockPixels;
-        if (mirrorX)
-            px = BlockPixels - 1 - px;
-        if (mirrorY)
-            py = BlockPixels - 1 - py;
-        // Swapped rows show the lower tile row on top; neither row is flipped.
-        if (block.Arrangement == RevealedBlockArrangement.RowsSwapped)
-            py = (py + BlockPixels / 2) % BlockPixels;
-        sample = BgSample.OfPicture(picture, new Position16<ImagePixels>((ushort)px, (ushort)py));
-        return true;
     }
 }

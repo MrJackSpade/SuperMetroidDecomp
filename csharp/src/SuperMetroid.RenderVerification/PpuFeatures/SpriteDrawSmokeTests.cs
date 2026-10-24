@@ -144,7 +144,7 @@ internal static class SpriteDrawSmokeTests
         Rgba32[] Check(FramePaint memory, RenderLayer[] layers, string label)
         {
             var frame = new DisplayPacket(new(++cases, 1, 0), new LayeredScene(memory, layers, 15));
-            Rgba32[] expected = SoftwareFrameSnapshotRenderer.Render(frame);
+            Rgba32[] expected = DisplayRendering.Render(frame);
             PixelComparison.Verify(frame, expected, renderer.RenderForReadback(frame), $"{device.Kind}: {label}");
             return expected;
         }

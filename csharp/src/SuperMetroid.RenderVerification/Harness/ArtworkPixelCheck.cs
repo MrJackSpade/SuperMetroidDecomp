@@ -24,8 +24,8 @@ internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRend
     internal void Pair(SnesVram stock, SnesVram edited, OamBuffer oam, string context)
     {
         DisplayPacket a = Packet(stock), b = Packet(edited);
-        Rgba32[] first = SoftwareFrameSnapshotRenderer.Render(a);
-        Rgba32[] second = SoftwareFrameSnapshotRenderer.Render(b);
+        Rgba32[] first = DisplayRendering.Render(a);
+        Rgba32[] second = DisplayRendering.Render(b);
         var substitutions = Enumerable.Range(0, 16).ToDictionary(
             index => colors.GetRgba(index), index => colors.GetRgba(InstalledSamusArtworkFixture.Remap((byte)index)));
         for (int pixel = 0; pixel < first.Length; pixel++)

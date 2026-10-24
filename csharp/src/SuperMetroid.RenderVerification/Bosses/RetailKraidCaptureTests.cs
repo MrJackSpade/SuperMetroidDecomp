@@ -182,7 +182,7 @@ internal static class RetailKraidCaptureTests
         return packet =>
         {
             frame++;
-            if (!SoftwareFrameSnapshotRenderer.Render(packet).AsSpan(0, hudPixels).SequenceEqual(before))
+            if (!DisplayRendering.Render(packet).AsSpan(0, hudPixels).SequenceEqual(before))
                 throw new InvalidOperationException($"{context}: door frame {frame} changed the HUD.");
         };
     }

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Frontend.FileSelect.FileMapSnapshotTestsVerification;
 using static SuperMetroid.Verification.Frontend.FrontendCompletionVerification;
@@ -83,12 +84,12 @@ internal static class FileMenuSnapshotTestsVerification
         {
             Rgba32[] expected = legacy();
             LayeredScene snapshot = capture();
-            Match(expected, SoftwareFrameSnapshotRenderer.Render(
+            Match(expected, DisplayRendering.Render(
                 new DisplayPacket(new(comparisons + 1, 1, (ushort)comparisons), snapshot)));
-            Match(expected, SoftwareLayeredSnapshotRenderer.Render(snapshot));
-            Match(expected, SoftwareLayeredSnapshotRenderer.Render(capture()));
+            Match(expected, DisplayRendering.Render(snapshot));
+            Match(expected, DisplayRendering.Render(capture()));
             step();
-            Match(expected, SoftwareLayeredSnapshotRenderer.Render(snapshot));
+            Match(expected, DisplayRendering.Render(snapshot));
             comparisons++;
         }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -52,7 +53,7 @@ internal static class DraygonPrebattleXrayVerification
         AssertTrue(!math.RevealBlocks, "native boss exclusion preserves the original BG2 artwork");
         AssertEqual(32, r.Bg2FirstScanline, "native offscreen TM table begins below HUD");
         AssertEqual(32, r.Bg2EndScanline, "native offscreen TM table hides all Draygon BG2 lines");
-        var pixels = SoftwareLayeredSnapshotRenderer.Render(scene);
+        var pixels = DisplayRendering.Render(scene);
         var hidden = RenderWithRegisters(r with { MainScreenLayers = r.MainScreenLayers & ~ScreenLayers.Bg2 });
         var unmasked = RenderWithRegisters(r with { Bg2FirstScanline = 32, Bg2EndScanline = 224 });
         int exposed = pixels.Zip(hidden, (first, second) => first != second).Count(differs => differs);
@@ -77,7 +78,7 @@ internal static class DraygonPrebattleXrayVerification
         var combatWithoutBg2 = new LayeredScene(combat.Paint,
             new RenderLayer[] { new OrdinaryGameplayRenderLayer(ordinary.View with
                 { MainScreenLayers = ordinary.View.MainScreenLayers & ~ScreenLayers.Bg2 }, ordinary.Rooms, ordinary.Bg2LineScrolls) }, combat.Brightness);
-        int visible = SoftwareLayeredSnapshotRenderer.Render(combat).Zip(SoftwareLayeredSnapshotRenderer.Render(combatWithoutBg2), (first, second) => first != second).Count(differs => differs);
+        int visible = DisplayRendering.Render(combat).Zip(DisplayRendering.Render(combatWithoutBg2), (first, second) => first != second).Count(differs => differs);
         Console.WriteLine($"Battle-start Draygon body: {visible} visible pixels.");
         AssertTrue(visible > 0, "battle start still displays Draygon's body");
 
@@ -85,7 +86,7 @@ internal static class DraygonPrebattleXrayVerification
         {
             var gameplay = new OrdinaryGameplayRenderLayer(registers, math.Gameplay.Rooms, math.Gameplay.Bg2LineScrolls, math.Gameplay.MainScreenLayersByLine);
             var changed = new GameplayColorMathRenderLayer(gameplay, math.Lines, math.RevealBlocks, math.Blend, math.Subscreen, math.SubscreenUsesBg2);
-            return SoftwareLayeredSnapshotRenderer.Render(new(scene.Paint, new RenderLayer[] { changed }, scene.Brightness));
+            return DisplayRendering.Render(new(scene.Paint, new RenderLayer[] { changed }, scene.Brightness));
         }
     }
 

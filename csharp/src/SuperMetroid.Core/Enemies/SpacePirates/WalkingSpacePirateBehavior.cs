@@ -367,8 +367,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         if (projectile is null)
             return false;
 
-        LastSpacePirateSoundEffect = SoundEffectId.FromCartridge(
-            SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.PirateMotherBrainLaserSound);
+        LastSpacePirateSoundEffect = EnemySoundEffectDefinitions.PirateMotherBrainLaserSound;
         return true;
     }
 
@@ -639,8 +638,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             };
             c.Projectiles.EnemyImpacts.ReflectFromEnemy(c.Samus ?? throw new InvalidOperationException("A reflected beam reinherits Samus's movement and requires her."),
                 c.Projectile.SlotIndex);
-            LastSpacePirateSoundEffect = SoundEffectId.FromCartridge(
-                SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.WalkingPirateReflectSound);
+            LastSpacePirateSoundEffect = EnemySoundEffectDefinitions.WalkingPirateReflectSound;
             return true;
         }
         return false;

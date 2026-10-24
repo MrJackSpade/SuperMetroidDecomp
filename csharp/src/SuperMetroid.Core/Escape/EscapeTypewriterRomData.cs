@@ -10,8 +10,8 @@ public static class EscapeTypewriterRomData
     /// <summary>$A6:C310 exclamation mark is remapped to the glyph after Z.</summary>
     public const byte ExclamationGlyph = 91;
     /// <summary>$A6:C36D non-Ceres key click in sound library three.</summary>
-    public const ushort ZebesClick = 0x0d;
+    public static readonly SoundEffectId ZebesClick = Library3Sound.IntroTypewriter;
     /// <summary>$A6:C371 queues library-two $45 for every other Ceres typewriter glyph.</summary>
     public static readonly SoundEffectId CeresClick =
-        new(SoundEffectLibrary.Library2, 0x45);
+        Library2Sound.CeresTypewriter;
 }

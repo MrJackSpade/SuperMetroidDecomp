@@ -4,5 +4,5 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 internal static class MagdolliteSoundDefinitions
 {
     /// <summary>Library-2 sound $61, played by both throw programs as the hand rears back, while the hand is on screen.</summary>
-    internal static readonly SoundEffectId Throw = new(SoundEffectLibrary.Library2, 0x61);
+    internal static readonly SoundEffectId Throw = Library2Sound.FireSpit;
 }

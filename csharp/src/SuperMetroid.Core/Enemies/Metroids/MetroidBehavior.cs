@@ -286,7 +286,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Function != MetroidAiFunction.PowerBombEscape)
         {
             if ((_frameContext.RandomEnemyCounter & 7) == 7 && samus.Health >= 30)
-                _audio.QueueEnemySound(SoundEffectLibrary3Sounds.AttachedEnemyDrain, maximumQueued: 6);
+                _audio.QueueEnemySound(Library3Sound.IncrementalEnergy, maximumQueued: 6);
             DrainSamusWithMetroid(state, samus);
         }
 

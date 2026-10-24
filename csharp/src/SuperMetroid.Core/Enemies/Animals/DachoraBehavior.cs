@@ -63,22 +63,22 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Library-two sound queued when Samus wakes the tutorial Dachora.</summary>
     private static readonly SoundEffectId DachoraActivationSound =
-        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.DachoraActivationSound);
+        EnemySoundEffectDefinitions.DachoraActivationSound;
     /// <summary>Library-two sound queued at the scripted wall turn.</summary>
     private static readonly SoundEffectId DachoraWallImpactSound =
-        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.DachoraWallImpactSound);
+        EnemySoundEffectDefinitions.DachoraWallImpactSound;
     /// <summary>Library-two sound queued while Dachora stores its shinespark.</summary>
     private static readonly SoundEffectId DachoraChargeSound =
-        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.DachoraChargeSound);
+        EnemySoundEffectDefinitions.DachoraChargeSound;
     /// <summary>Library-two sound accompanying Dachora's Speed Booster run.</summary>
     private static readonly SoundEffectId DachoraSpeedBoosterSound =
-        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.DachoraSpeedBoosterSound);
+        EnemySoundEffectDefinitions.DachoraSpeedBoosterSound;
     /// <summary>Library-two sound queued when Dachora launches upward.</summary>
     private static readonly SoundEffectId DachoraLaunchSound =
-        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.DachoraLaunchSound);
+        EnemySoundEffectDefinitions.DachoraLaunchSound;
     /// <summary>Library-two sound queued on Dachora's ceiling contact.</summary>
     private static readonly SoundEffectId DachoraCeilingImpactSound =
-        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.DachoraCeilingImpactSound);
+        EnemySoundEffectDefinitions.DachoraCeilingImpactSound;
 
     /// <summary>Most recent library-two Dachora sound request during this frame.</summary>
     public SoundEffectId? LastDachoraSoundEffect { get; private set; }

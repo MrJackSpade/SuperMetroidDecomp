@@ -51,10 +51,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Library-two sound queued by a robot footstep.</summary>
     private static readonly SoundEffectId WorkRobotFootstepSound =
-        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.WorkRobotFootstepSound);
+        EnemySoundEffectDefinitions.WorkRobotFootstepSound;
     /// <summary>Library-two sound queued by a robot laser.</summary>
     private static readonly SoundEffectId WorkRobotLaserSound =
-        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.WorkRobotLaserSound);
+        EnemySoundEffectDefinitions.WorkRobotLaserSound;
     /// <summary>Pixels advanced by one robot walk instruction.</summary>
     private const int WorkRobotStepPixels = 4;
 

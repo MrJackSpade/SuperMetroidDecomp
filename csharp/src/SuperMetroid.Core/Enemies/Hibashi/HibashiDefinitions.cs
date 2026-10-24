@@ -7,7 +7,7 @@ internal static class HibashiDefinitions
 
 
     /// <summary>Sound effect $61 in library two, queued when an eruption begins.</summary>
-    internal const ushort EruptionSoundEffect = 0x0061;
+    internal static readonly SoundEffectId EruptionSoundEffect = Library2Sound.FireSpit;
 
     /// <summary>
     /// $A6:8DBB/$A6:8DE7, the 22 eruption Y offsets and collision half-heights.

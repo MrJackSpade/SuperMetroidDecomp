@@ -220,7 +220,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             MiscDustAnimation.CorpseDustCloud);
         state.DustSpawnCount++;
         if ((_frameContext.RandomEnemyCounter & 7) == 0)
-            LastDeadTorizoSoundEffect = SoundEffectLibrary2Sounds.DeadMonsterDust;
+            LastDeadTorizoSoundEffect = Library2Sound.LiquidDamage;
     }
 
 

@@ -40,7 +40,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The library-two sound the start-bounce cue queues.</summary>
     private static readonly SoundEffectId BoyonBounceSound =
-        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.BoyonBounceSound);
+        EnemySoundEffectDefinitions.BoyonBounceSound;
 
     /// <summary>Last library-two bounce sound requested during the current enemy frame.</summary>
     public SoundEffectId? LastBoyonSoundEffect { get; private set; }

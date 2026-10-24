@@ -35,11 +35,11 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The library-two sound queued when a falling or rolling boulder hits terrain.</summary>
     private static readonly SoundEffectId BoulderImpactSound =
-        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.BoulderImpactSound);
+        EnemySoundEffectDefinitions.BoulderImpactSound;
 
     /// <summary>The library-two sound that replaces the impact sound when the boulder breaks into dust.</summary>
     private static readonly SoundEffectId BoulderBreakSound =
-        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.BoulderBreakSound);
+        EnemySoundEffectDefinitions.BoulderBreakSound;
 
     /// <summary>Bounce-clock value the first rebound starts from: quadratic-speed record 32.</summary>
     private const int FirstReboundBounceSpeed = 8192;

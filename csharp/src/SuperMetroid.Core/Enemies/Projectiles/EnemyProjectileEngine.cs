@@ -203,7 +203,7 @@ internal sealed class EnemyProjectileEngine
 
                 if (enemyProjectile.CollisionOption == EnemyProjectileCollisionOption.IndestructibleDud)
                 {
-                    LastEnemyProjectileDudSoundEffect = SoundEffectLibrary1Sounds.DudShot;
+                    LastEnemyProjectileDudSoundEffect = Library1Sound.DudShot;
                 }
                 else
                 {
@@ -980,7 +980,7 @@ internal sealed class EnemyProjectileEngine
             projectile.Position.Whole,
             RoomSpriteObjectKind.EnemyProjectileDud,
             graphicsIndex: 0);
-        LastEnemyProjectileDudSoundEffect = SoundEffectLibrary1Sounds.DudShot;
+        LastEnemyProjectileDudSoundEffect = Library1Sound.DudShot;
         projectile.Direction = unchecked((ushort)(projectile.Direction | SamusProjectileDirectionMasks.Spent));
     }
 
@@ -1039,7 +1039,7 @@ internal sealed class EnemyProjectileEngine
                 ushort impactY = context.Projectile.Position.Y.Whole;
                 context.Projectile.Clear();
                 SpawnRoomGraphicsDustExplosion(new(impactX, impactY), MiscDustAnimation.SmallDustCloud);
-                _audio.QueueEnemySound(SoundEffectLibrary2Sounds.CeresFallingTileImpact, maximumQueued: 6);
+                _audio.QueueEnemySound(Library2Sound.CeresTileFall, maximumQueued: 6);
             }
         }, EnemyProjectilePreInstruction.CeresFallingTile);
     }

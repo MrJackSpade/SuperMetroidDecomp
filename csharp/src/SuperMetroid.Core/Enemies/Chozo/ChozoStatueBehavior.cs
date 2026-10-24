@@ -65,10 +65,10 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Library-two sound queued as the statue grabs Samus.</summary>
     private static readonly SoundEffectId ChozoGrabsSamusSound =
-        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.ChozoGrabsSamusSound);
+        EnemySoundEffectDefinitions.ChozoGrabsSamusSound;
     /// <summary>Library-two sound queued by the walking statue's footsteps.</summary>
     private static readonly SoundEffectId ChozoFootstepsSound =
-        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.ChozoFootstepsSound);
+        EnemySoundEffectDefinitions.ChozoFootstepsSound;
 
     /// <summary>Last library-two sound requested by either walking sequence.</summary>
     public SoundEffectId? LastChozoStatueSoundEffect { get; private set; }

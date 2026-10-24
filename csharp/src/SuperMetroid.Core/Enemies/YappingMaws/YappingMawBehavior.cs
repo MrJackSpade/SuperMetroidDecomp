@@ -505,7 +505,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     private void PlayYappingMawAttackSound(YappingMawEnemyState state)
     {
         if (!state.IsOffScreen)
-            LastYappingMawSoundEffect = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.YappingMawAttackSound);
+            LastYappingMawSoundEffect = EnemySoundEffectDefinitions.YappingMawAttackSound;
     }
 
     /// <summary>Moves one of the four required body-link projectiles to its solved point.</summary>

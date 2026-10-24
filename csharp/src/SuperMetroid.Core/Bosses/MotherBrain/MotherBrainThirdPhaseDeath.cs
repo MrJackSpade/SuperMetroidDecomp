@@ -232,7 +232,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         return new DustExplosionRequest(
             Position: position,
             Animation: animation,
-            SoundEffect: SoundEffectLibrary2Sounds.SmallExplosion);
+            SoundEffect: Library2Sound.SmallExplosion);
     }
 
     /// <summary>

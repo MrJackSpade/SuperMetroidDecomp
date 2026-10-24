@@ -5,7 +5,7 @@ internal static class NuclearWaffleDefinitions
 {
 
     /// <summary>Sound effect $5E in library two, queued when a joint makes its rising turn.</summary>
-    internal static readonly SoundEffectId TurnSoundEffect = new(SoundEffectLibrary.Library2, 0x5e);
+    internal static readonly SoundEffectId TurnSoundEffect = Library2Sound.SidehopperLanding;
 
     /// <summary>$A6:95F6 endpoint pairs mirror around angle $140.</summary>
     private const int SweepCenter = 0x140;

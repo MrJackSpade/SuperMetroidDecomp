@@ -214,8 +214,8 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
 
         // $A3:9548 issues both calls in this order before changing Samus's pose. Keeping
         // them as two requests matters because each library owns an independent SPC port.
-        _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, EnemySoundEffectDefinitions.ElevatorDepartureSoundLibrary3), maximumQueued: 6);
-        _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, EnemySoundEffectDefinitions.ElevatorDepartureSoundLibrary1), maximumQueued: 6);
+        _audio.QueueEnemySound(EnemySoundEffectDefinitions.ElevatorDepartureSoundLibrary3, maximumQueued: 6);
+        _audio.QueueEnemySound(EnemySoundEffectDefinitions.ElevatorDepartureSoundLibrary1, maximumQueued: 6);
         SamusPoseMetadata.SetupForElevator(samus);
         samusProjectiles?.Reset();
         _frameResults.ElevatorClearedProjectileData = true;
@@ -269,7 +269,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
 
         ElevatorStatus = ElevatorActorStatus.Inactive;
         ElevatorFlags = ElevatorJourneyFlag.None;
-        _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, EnemySoundEffectDefinitions.ElevatorArrivalSoundLibrary3), maximumQueued: 6);
+        _audio.QueueEnemySound(EnemySoundEffectDefinitions.ElevatorArrivalSoundLibrary3, maximumQueued: 6);
         slot.Position = slot.Position.WithWholeY(state.RestingHeight.Y);
         samus.Control.Unlock();
         PinSamusToElevator(slot, samus);

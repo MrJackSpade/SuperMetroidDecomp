@@ -385,7 +385,7 @@ internal sealed class MotherBrainHead
             head.Position.Whole + new Offset16<RoomPixels>(16, 4),
             direction: HorizontalDirection.Right);
         if (laser is not null)
-            _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.PirateMotherBrainLaserSound), maximumQueued: 6);
+            _audio.QueueEnemySound(EnemySoundEffectDefinitions.PirateMotherBrainLaserSound, maximumQueued: 6);
     }
 
     /// <summary>

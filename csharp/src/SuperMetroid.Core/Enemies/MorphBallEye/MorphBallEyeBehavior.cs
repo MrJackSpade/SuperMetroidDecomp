@@ -146,8 +146,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!timer.IsZero && timer.IsNonNegative)
             return;
 
-        LastMorphBallEyeSoundEffect = SoundEffectId.FromCartridge(
-            SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.EyeActivationSound);
+        LastMorphBallEyeSoundEffect = EnemySoundEffectDefinitions.EyeActivationSound;
         RequestMorphBallEyeBeam(eye);
         state.Function = MorphBallEyeAiFunction.Active;
         state.Angle = CalculateMorphBallEyeAngle(eye, samus);
@@ -164,8 +163,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyMath.IsWithinStrictModularDistance(samus.Position.X.Whole, eye.Position.X.Whole, EyeDeactivateXDistance);
         if (!inProximity)
         {
-            LastMorphBallEyeSoundEffect = SoundEffectId.FromCartridge(
-                SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.EyeDeactivationSound);
+            LastMorphBallEyeSoundEffect = EnemySoundEffectDefinitions.EyeDeactivationSound;
             state.IsActivated = false;
             state.FunctionTimer = WrappingCountdown.Start(EyeTransitionDuration);
             state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start((eye.Spawn.Population.Parameter1 & 1) == 0

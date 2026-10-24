@@ -74,7 +74,7 @@ public sealed class MotherBrainCorpseRottingState
                         16),
                     Animation: MiscDustAnimation.CorpseDustCloud,
                     SoundEffectQueued: (mainEnemyExecutionCounter & 7) == 0,
-                    SoundEffect: SoundEffectLibrary2Sounds.DeadMonsterDust));
+                    SoundEffect: Library2Sound.LiquidDamage));
             });
 
         // The final entry returns carry clear before the corpse's rows are shown again, so the

@@ -460,11 +460,11 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.PlayShotSound }:
-                PlayTorizoSound(SoundEffectLibrary2Sounds.ShotTorizo);
+                PlayTorizoSound(Library2Sound.ShotTorizo);
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.PlayFootstepSound }:
-                PlayTorizoSound(SoundEffectLibrary2Sounds.TorizoFootsteps);
+                PlayTorizoSound(Library2Sound.ChozoFootsteps);
                 return null;
 
             case TorizoCue.Branch { Kind: TorizoBranchKind.GoToIfAirborne } branch:
@@ -508,15 +508,15 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.PlayEggReleasedSound }:
-                PlayTorizoSound(SoundEffectLibrary2Sounds.GoldenTorizoEggReleased);
+                PlayTorizoSound(Library2Sound.CacatacSpikes);
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.PlayLaserSound }:
-                PlayTorizoSound(SoundEffectLibrary2Sounds.GoldenTorizoLaser);
+                PlayTorizoSound(Library2Sound.Laser);
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.PlaySonicBoomSound }:
-                PlayTorizoSound(SoundEffectLibrary2Sounds.TorizoSonicBoom);
+                PlayTorizoSound(Library2Sound.TorizoSonicBoom);
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.SpawnSuperMissile }:

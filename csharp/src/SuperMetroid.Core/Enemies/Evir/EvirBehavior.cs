@@ -60,7 +60,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The library-two sound the spit plays when it is launched or regenerates.</summary>
     private static readonly SoundEffectId EvirSpitSound =
-        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.EvirSpitSound);
+        EnemySoundEffectDefinitions.EvirSpitSound;
 
     /// <summary>The horizontal distance, in room pixels, from the mouth at which the regenerating spit starts.</summary>
     private const short RegenerationStartDistance = 8;

@@ -174,7 +174,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         if (step.PhaseBefore == BabyMetroidCutscenePhase.HealSamusToFullHealth &&
             target.Health >= MotherBrainHealthSounds.MinimumEnergy &&
             (_frameContext.RandomEnemyCounter & MotherBrainHealthSounds.EnemyClockMask) == 0)
-            _audio.QueueEnemySound(MotherBrainHealthSounds.IncrementalEnergy, maximumQueued: 3);
+            _audio.QueueEnemySound(Library3Sound.IncrementalEnergy, maximumQueued: 3);
 
         // `$A9:C879` writes the body enemy's instruction words from this later Baby slot.
         // The reusable sequence retains the requested list, but the physical body already
@@ -216,7 +216,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     {
         if (step.FatalBlowStarted)
         {
-            _audio.QueueEnemySound(SoundEffectLibrary3Sounds.BabyMetroidDeathCry, maximumQueued: 6);
+            _audio.QueueEnemySound(Library3Sound.BabyMetroidDeath, maximumQueued: 6);
             SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation.ApplyBabyMetroidDeathBlackout(_presentation.Cgram);
             state.RequestMusic(MusicCommand.Stop, MusicCommandDelay.EightFrames);
         }

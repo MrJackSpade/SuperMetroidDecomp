@@ -65,7 +65,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Health ceiling applied while an active Zebetite regenerates each update.</summary>
     private const ushort ZebetiteMaximumHealth = 1000;
     /// <summary>Library-3 sound $09, selected by the Zebetite shot reaction.</summary>
-    private static readonly SoundEffectId ZebetiteShotSound = SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 9);
+    private static readonly SoundEffectId ZebetiteShotSound = Library3Sound.MissileDoorHit;
 
     /// <summary>Most recent library-three sound requested by Zebetite shot AI.</summary>
     public SoundEffectId? LastZebetiteSoundEffect { get; private set; }

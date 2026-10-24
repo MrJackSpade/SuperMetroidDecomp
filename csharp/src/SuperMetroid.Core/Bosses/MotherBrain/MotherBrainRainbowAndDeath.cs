@@ -259,7 +259,7 @@ internal sealed class MotherBrainRainbowAndDeath
             typewriterFinished = text.Step(out EscapeTypewriterGlyph? glyph);
             if (glyph is { } typed)
                 WriteZebesTypewriterGlyph(typed);
-            if (text.ClickRequested) state.LastSoundEffectLibrary3 = SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, EscapeTypewriterRomData.ZebesClick);
+            if (text.ClickRequested) state.LastSoundEffectLibrary3 = EscapeTypewriterRomData.ZebesClick;
         }
         MotherBrainRainbowBeamAttackStepResult step = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, MainEnemyExecutionCounter = _frameContext.RandomEnemyCounter, PowerBombActive = sharedProjectiles?.PowerBombExplosion.Status != 0, RandomNumberSeed = MotherBrainRandomSample.FromGenerator(_room.Random.Read()), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _room.Session.JapaneseText, TypewriterFinished = typewriterFinished, GlobalEarthquakeTimer = _earthquake.EarthquakeTimer });
         _frameResults.MotherBrainDeathStep = step;
@@ -369,9 +369,9 @@ internal sealed class MotherBrainRainbowAndDeath
                 ? MotherBrainSoundDefinitions.StartRainbowDrain
                 : MotherBrainSoundDefinitions.StopRainbowDrain;
         if (current.ChargeSoundQueued || current.FinalBeamSoundQueued)
-            state.LastSoundEffect = SoundEffectLibrary2Sounds.CancelAll;
+            state.LastSoundEffect = Library2Sound.Silence;
         if (current.Explosion is not null)
-            state.LastSoundEffect = SoundEffectLibrary2Sounds.SmallExplosion;
+            state.LastSoundEffect = Library2Sound.SmallExplosion;
 
         // `$BA0F` seeds the short quake, `$BA27` replaces it with the full drain duration,
         // and `$BA93` clears it when the beam contracts below its minimum width.

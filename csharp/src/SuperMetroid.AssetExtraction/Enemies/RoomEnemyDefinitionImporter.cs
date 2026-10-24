@@ -29,7 +29,7 @@ public static class RoomEnemyDefinitionImporter
             Damage: Word(6),
             Radius: new Extent16<RoomPixels>(Word(8), Word(10)),
             HurtAiTime: Byte(13),
-            HurtSoundEffect: Word(14),
+            HurtSoundEffect: SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Library2, Word(14)),
             BossId: Word(16),
             InitializationAi: EnemyInteractionCallbacks.AiRoutine(bank, Word(18)),
             PartCount: Word(20),

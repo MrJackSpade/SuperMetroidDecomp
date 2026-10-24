@@ -181,7 +181,7 @@ internal sealed class NorfairRidleyDeath
         _ridleyProjectiles.SpawnRidleyDust(
             body.Position.Whole + RidleyExplosionDefinitions.DeathExplosionPlacement(state.DeathExplosionCount),
             variant: 3);
-        state.LastDeathSoundEffect = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, RidleySoundDefinitions.DeathExplosion);
+        state.LastDeathSoundEffect = RidleySoundDefinitions.DeathExplosion;
     }
 
     /// <summary>Allocates the body and tail pieces that continue moving after the intact body hides.</summary>

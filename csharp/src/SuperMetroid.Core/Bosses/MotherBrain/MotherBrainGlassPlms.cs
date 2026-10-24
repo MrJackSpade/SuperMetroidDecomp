@@ -117,7 +117,7 @@ internal sealed class MotherBrainGlassPlms
     /// </summary>
     internal void SpawnShards(PlmSlot slot, IReadOnlyList<MotherBrainGlassShard> shards)
     {
-        _sounds.Queue(RoomPlmSounds.MotherBrainGlassShattering, MaximumQueued: ShatterSoundMaximumQueued);
+        _sounds.Queue(Library3Sound.MotherBrainGlassShatter, MaximumQueued: ShatterSoundMaximumQueued);
         // The native fragment spawn carries both block coordinates as bytes.
         Position16<RoomBlocks> glassBlock = new(checked((byte)(slot.BlockIndex % _motherBrainGlassRoomWidth)),
             checked((byte)(slot.BlockIndex / _motherBrainGlassRoomWidth)));

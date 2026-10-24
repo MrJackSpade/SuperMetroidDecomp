@@ -463,7 +463,7 @@ internal sealed class MotherBrainBody
         // Form three additionally queues library-three sound $16. Phase two normally never
         // reaches that branch, but retaining it here makes the shared gait opcode complete.
         if (_motherBrainEncounter.MotherBrain?.Form == MotherBrainForm.DrainedByBabyMetroid)
-            _motherBrainEncounter.MotherBrain.LastSoundEffectLibrary3 = SoundEffectLibrary3Sounds.MotherBrainFormThreeFootstep;
+            _motherBrainEncounter.MotherBrain.LastSoundEffectLibrary3 = Library3Sound.MotherBrainFootstep;
     }
 
     /// <summary>Sets the BG2 offset placing her body for the current motion; the NMI publishes it with her body (#1356).</summary>

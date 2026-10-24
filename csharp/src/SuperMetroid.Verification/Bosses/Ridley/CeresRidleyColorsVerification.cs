@@ -158,7 +158,7 @@ internal static class CeresRidleyColorsVerification
         activeRidley.Function = RidleyAiFunction.CeresRetreatDelay;
         activeRidley.FunctionTimer = WrappingCountdown.Start(0);
         activeRidley.MovementAnimationEnabled = false;
-        enemies.CeresRidleyBehavior.RunCeresRidleyMain(slot, null, null);
+        enemies.CeresRidleyBehavior.RunCeresRidleyMain(slot, null);
         AssertEqual(RidleyAiFunction.CeresPublishEscapeHandoff, activeRidley.Function,
             "Ceres Ridley retreat publishes the Mode-7 handoff");
         CheckCgram(CeresRidleyPaletteRomData.RetreatBgColorCount,

@@ -6,19 +6,6 @@ namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 /// <param name="ByteCount">Bytes uploaded.</param>
 internal sealed record CeresEscapeTileCharacters(int Page, int Offset, int ByteCount) : ObjCharacterSource
 {
-    /// <summary>The page range a native escape transfer from <paramref name="sourceAddress"/> uploads, or null outside both pages.</summary>
-    /// <param name="sourceAddress">The transfer's native source.</param>
-    /// <param name="byteCount">Bytes the transfer moves.</param>
-    internal static CeresEscapeTileCharacters? ForTransfer(int sourceAddress, int byteCount)
-    {
-        for (int page = 0; page < CeresEscapeTileArtworkDefinitions.All.Length; page++)
-        {
-            int offset = sourceAddress - CeresEscapeTileArtworkDefinitions.All[page].SourceAddress;
-            if (offset >= 0 && byteCount > 0 && offset <= CeresEscapeTileArtworkDefinitions.All[page].ByteCount - byteCount)
-                return new CeresEscapeTileCharacters(page, offset, byteCount);
-        }
-        return null;
-    }
 
     /// <inheritdoc/>
     /// <exception cref="InvalidDataException">The installed Ceres escape artwork holds no such page.</exception>

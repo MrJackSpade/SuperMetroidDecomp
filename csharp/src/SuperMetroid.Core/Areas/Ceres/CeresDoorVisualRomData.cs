@@ -34,6 +34,6 @@ public static class CeresDoorVisualRomData
     public const int Mode7FrameCount = 2;
     /// <summary>Byte length of each Mode 7 map-strip transfer.</summary>
     public const int Mode7FrameByteCount = 4;
-    /// <summary>Native VRAM word destination for both Mode 7 map strips.</summary>
-    public const ushort Mode7DestinationWord = 0x060e;
+    /// <summary>The Mode 7 map cell both map strips are drawn at: row twelve, column fourteen.</summary>
+    public const int Mode7MapCell = 12 * 128 + 14;
 }

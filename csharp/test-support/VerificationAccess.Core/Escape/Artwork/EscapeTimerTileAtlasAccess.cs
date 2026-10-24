@@ -15,7 +15,8 @@ internal static class EscapeTimerTileAtlasAccess
             ushort destinationWord)
         {
             Ensure.NotNull(uploads);
-            if (!EscapeTimerTilePages.TryMatch(sourceAddress, byteCount, destinationWord, out EscapeTimerTilePage page))
+            if (!EscapeTimerTilePages.TryMatch(sourceAddress, byteCount, out EscapeTimerTilePage page) ||
+                ObjCharacterUploads.TableByte(VramDmaDestination.FromNative(destinationWord)) != EscapeTimerTilePages.FirstCharacterOf(page) * 32)
                 return false;
 
             VramAssetId asset = EscapeTimerTilePages.AssetOf(page);

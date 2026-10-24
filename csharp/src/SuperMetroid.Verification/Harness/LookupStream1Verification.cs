@@ -582,9 +582,6 @@ internal static class LookupStream1Verification
         AssertEqual(288, queue.Entries[1].SizeInBytes, "Second page size");
         AssertEqual((ushort)0x7f00, queue.Entries[1].Destination.Encoded, "Second page destination");
         AssertEqual(VramAssetId.EscapeTimerSecondTiles, queue.Entries[1].AssetId, "Second typed page identity");
-        var nativeQueue = new VramWriteQueue();
-        AssertTrue(stock.TryQueueNativeTransfer(nativeQueue, 0xb0c000, 512, 0x7e00) && stock.TryQueueNativeTransfer(nativeQueue, 0xb0c200, 288, 0x7f00), "Native queue descriptors accepted");
-        AssertTrue(nativeQueue.Entries.SequenceEqual(queue.Entries), "Native and typed queues preserve exact order and descriptors");
         var uploads = new ObjCharacterUploads();
         AssertTrue(stock.TryRecordNativeTransfer(uploads, 0xb0c000, 512, 0x7e00) && stock.TryRecordNativeTransfer(uploads, 0xb0c200, 288, 0x7f00), "Both synchronous native uploads accepted");
         AssertTrue(uploads.Uploads.Select(upload => upload.FirstByte).SequenceEqual([0x3c00, 0x3e00]) &&

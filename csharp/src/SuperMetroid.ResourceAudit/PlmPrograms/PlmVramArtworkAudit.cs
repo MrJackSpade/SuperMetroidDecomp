@@ -17,7 +17,7 @@ internal static class PlmVramArtworkAudit
         (EnemyTileSourceDefinitions.All.Any(page => page.SourceAddress == source && page.ByteCount == count) ||
          TorizoInstructionVramArtworkDefinitions.All.Any(page =>
              source >= page.SourceAddress && source - page.SourceAddress <= page.ByteCount - count) ||
-         CeresEscapeTileArtworkDefinitions.Contains(source, count) ||
+         CeresEscapeTileArtworkDefinitionsTooling.Contains(source, count) ||
          CeresEscapeOverlayTilemapDefinitionsTooling.IsSource(source, count));
 
 }

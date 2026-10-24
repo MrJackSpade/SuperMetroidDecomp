@@ -42,7 +42,7 @@ internal static class CeresRidleyPicturesVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley);
         // The room load's uploads reach the OBJ characters when its first frame drains them.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        UploadedPictureChecks.AssertRegionsFollowUploads(runtime, CeresEscapeCharacterUploads.All, "Ceres Ridley's getaway");
+        UploadedPictureChecks.AssertRegionsFollowUploads(runtime, CeresEscapePageDefinitions.ObjectPages, "Ceres Ridley's getaway");
 
         RoomEnemySlot ridley = runtime.Enemies.SlotTable.Slots[0];
         RoomEnemySlot door = runtime.Enemies.SlotTable.Slots[1];
@@ -94,7 +94,7 @@ internal static class CeresRidleyPicturesVerification
         // Each frame's uploads and words reach the display as the next accepted frame begins, which resolves their pictures.
         while (ridley.Function == RidleyAiFunction.CeresActivateSelfDestruct)
         {
-            runtime.Enemies.CeresRidleyBehavior.Getaway.TickCeresRidleySelfDestruct(ridley, runtime.VramWrites);
+            runtime.Enemies.CeresRidleyBehavior.Getaway.TickCeresRidleySelfDestruct(ridley);
             runtime.FrameBoundary.BeginAcceptedFrame(0);
         }
         RoomTilemapOverlay overlay = runtime.Room.LoadedScope.Bg1Overlay

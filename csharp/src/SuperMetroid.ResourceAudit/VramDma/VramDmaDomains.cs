@@ -27,9 +27,6 @@ internal static class VramDmaDomains
             pairs.Select(pair => new VramDmaTransfer(owner, 0, pair.Count, pair.Asset));
         switch (family)
         {
-            case "timer":
-                return Typed([new AssetTransfer(VramAssetId.EscapeTimerFirstTiles, EscapeTimerTileAtlasFormat.FirstByteCount),
-                    new AssetTransfer(VramAssetId.EscapeTimerSecondTiles, EscapeTimerTileAtlasFormat.SecondByteCount)]);
             case "grapple-point":
             case "grapple-segment":
                 return Typed(GrappleTileDefinitions.Transfers.Where(frame =>
@@ -42,8 +39,6 @@ internal static class VramDmaDomains
             case "trails":
                 return Typed([new AssetTransfer(VramAssetId.ProjectileIceWaveTrailTiles, ProjectileTrailAtlasDefinitions.IceWaveByteCount),
                     new AssetTransfer(VramAssetId.ProjectileMissileTrailTiles, ProjectileTrailAtlasDefinitions.MissileByteCount)]);
-            case "ceres":
-                return Native(CeresEscapeVramTransferDefinitionsTooling.All.Select(frame => new NativeTransfer(frame.SourceAddress, frame.ByteCount)));
             case "kraid":
                 return Typed(Enumerable.Range(0, KraidBackgroundRomData.StandardBg3TransferCount).Select(index =>
                     new AssetTransfer(KraidBackgroundRomData.StandardBg3AssetForQuarter(index), KraidBackgroundRomData.StandardBg3TransferBytes)));

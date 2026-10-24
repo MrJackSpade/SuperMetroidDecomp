@@ -38,15 +38,6 @@ public static class EscapeTimerTilePages
         _ => throw new InvalidOperationException($"Undefined {nameof(EscapeTimerTilePage)} {(int)page}."),
     };
 
-    /// <summary>True when a native source address is one of the pages' sources.</summary>
-    public static bool IsSource(int sourceAddress)
-    {
-        foreach (EscapeTimerTilePage page in Pages)
-            if (SourceAddressOf(page) == sourceAddress)
-                return true;
-        return false;
-    }
-
     /// <summary>Identifies the page a native source/size descriptor uploads.</summary>
     public static bool TryMatch(int sourceAddress, int byteCount, out EscapeTimerTilePage page)
     {
@@ -61,13 +52,4 @@ public static class EscapeTimerTilePages
         page = default;
         return false;
     }
-
-    /// <summary>Identifies the page a complete native transfer record uploads.</summary>
-    [PpuLayoutBoundary("codec: matches a native transfer record's VRAM destination to the page's first OBJ character")]
-    public static bool TryMatch(int sourceAddress, int byteCount, ushort destinationWord, out EscapeTimerTilePage page) =>
-        TryMatch(sourceAddress, byteCount, out page) &&
-        ObjCharacterUploads.TableByte(VramDmaDestination.FromNative(destinationWord)) == FirstCharacterOf(page) * CharacterBytes;
-
-    /// <summary>The bytes one four-bit OBJ character holds.</summary>
-    private const int CharacterBytes = 32;
 }

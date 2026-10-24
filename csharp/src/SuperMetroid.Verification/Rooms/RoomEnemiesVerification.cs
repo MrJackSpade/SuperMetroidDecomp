@@ -1228,54 +1228,49 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertTrue(state.Mode7Finished, "Ceres Ridley consumes the Mode-7 terminator");
     AssertEqual((ushort)RidleyAiFunction.CeresActivateSelfDestruct, (ushort)state.Function,
         "Ceres Ridley Mode-7 terminator installs shared self-destruct dispatcher");
-    AssertEqual(0, escapeWrites.Entries.Count,
+    AssertEqual(CeresEscapePageList.None, state.CeresEscapePages.List,
         "Mode-7 terminator does not run the new actor function in the same enemy frame");
 
     var spriteTransfers = ReadRetailCeresEscapeTransfers(nativeRidleyRom, 0xa6c4cb);
     var backgroundTransfers = ReadRetailCeresEscapeTransfers(nativeRidleyRom, 0xa6c4fe);
     AssertEqual(7, spriteTransfers.Count, "native Ceres sprite transfer count");
     AssertEqual(8, backgroundTransfers.Count, "native Ceres background transfer count");
+    ObjCharacterUploads shownPages = enemies.Presentation.ObjCharacters;
+    int pagesBefore = shownPages.Uploads.Count;
     for (int record = 0; record < spriteTransfers.Count; record++)
     {
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, VramWriteQueue = escapeWrites });
         bool finalSprite = record == spriteTransfers.Count - 1;
-        AssertEqual(record + 1 + (finalSprite ? 1 : 0), escapeWrites.Entries.Count,
-            "Ceres sprite transfers yield one per frame and fall through on the final record");
+        AssertEqual(pagesBefore + record + 1, shownPages.Uploads.Count,
+            "Ceres sprite pages show one per frame");
         AssertEqual(finalSprite ? 4 : 2, state.FunctionTimer.RawValue, "Ceres sprite/background phase handoff");
     }
     for (int record = 1; record < backgroundTransfers.Count; record++)
     {
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, VramWriteQueue = escapeWrites });
         bool finalBackground = record == backgroundTransfers.Count - 1;
-        AssertEqual(spriteTransfers.Count + record + 1, escapeWrites.Entries.Count, "Ceres background transfers yield one per frame");
+        AssertEqual(pagesBefore + spriteTransfers.Count, shownPages.Uploads.Count, "Ceres background pages show nothing over the OBJ characters");
         AssertEqual(finalBackground, ceresOverlay.Words.Any(word => word != RoomTilemapOverlay.Unwritten),
             "Ceres writes EMERGENCY over BG1 on the final background frame");
         AssertEqual(finalBackground ? 6 : 4, state.FunctionTimer.RawValue, "Ceres background/hold phase handoff");
     }
-    var nativeTransfers = spriteTransfers.Concat(backgroundTransfers).ToArray();
-    for (int index = 0; index < nativeTransfers.Length; index++)
+    for (int index = 0; index < spriteTransfers.Count; index++)
     {
-        VramWriteEntry expected = nativeTransfers[index];
-        VramWriteEntry actual = escapeWrites.Entries[index];
-        AssertEqual(expected.SizeInBytes, actual.SizeInBytes, $"Ceres transfer {index} native size");
+        VramWriteEntry expected = spriteTransfers[index];
+        ObjCharacterUpload actual = shownPages.Uploads[pagesBefore + index];
+        AssertEqual(expected.SizeInBytes, actual.ByteCount, $"Ceres page {index} native size");
+        AssertEqual(ObjCharacterUploads.TableByte(expected.Destination), actual.FirstByte, $"Ceres page {index} native place");
         if (index < 2)
         {
             AssertEqual(0xb0c000 + index * 0x200, expected.SourceAddress,
                 $"Ceres timer {index} native source mapped to installed asset");
-            AssertEqual(index == 0 ? VramAssetId.EscapeTimerFirstTiles : VramAssetId.EscapeTimerSecondTiles,
-                actual.AssetId, $"Ceres timer {index} installed source identity");
+            AssertEqual<ObjCharacterSource>(new AssetObjCharacters(index == 0 ? VramAssetId.EscapeTimerFirstTiles : VramAssetId.EscapeTimerSecondTiles),
+                actual.Source, $"Ceres timer {index} installed source identity");
         }
-        else if (CeresEscapeTileCharacters.ForTransfer(expected.SourceAddress, expected.SizeInBytes) is { } characters)
-            AssertEqual<ObjCharacterSource?>(characters, actual.OwnedSource, $"Ceres transfer {index} names its installed character page");
         else
-            AssertEqual(expected.SourceAddress, actual.SourceAddress, $"Ceres transfer {index} native source");
-        AssertEqual(expected.Destination.Encoded, actual.Destination.Encoded,
-            $"Ceres transfer {index} native destination");
+            AssertEqual<ObjCharacterSource?>(CeresEscapeTileCharactersConstants.ForTransfer(expected.SourceAddress, expected.SizeInBytes), actual.Source,
+                $"Ceres page {index} names its installed character page");
     }
-    AssertEqual(VramAssetId.EscapeTimerFirstTiles, escapeWrites.Entries[0].AssetId,
-        "Ceres first timer record selects installed artwork");
-    AssertEqual(VramAssetId.EscapeTimerSecondTiles, escapeWrites.Entries[1].AssetId,
-        "Ceres second timer record selects installed artwork");
     CeresEscapeOverlayTilemapDefinition emergency = CeresEscapeOverlayTilemapDefinitions.Emergency;
     AssertTrue((InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException(
             "Verification requires installed Ceres overlay tilemaps.")).TryResolve(0xa6c164, emergency.WordCount * sizeof(ushort),

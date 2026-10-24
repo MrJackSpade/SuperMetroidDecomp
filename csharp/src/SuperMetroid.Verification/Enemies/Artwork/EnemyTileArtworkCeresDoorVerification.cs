@@ -69,7 +69,7 @@ internal static class EnemyTileArtworkCeresDoorVerification
             AssertEqual(CeresDoorVisualRomData.Mode7FrameByteCount,
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 4),
                 $"Ceres-door Mode-7 transfer {frame} length");
-            AssertEqual(CeresDoorVisualRomData.Mode7DestinationWord,
+            AssertEqual(CeresDoorVisualRomData.Mode7MapCell,
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 6),
                 $"Ceres-door Mode-7 transfer {frame} destination");
             AssertEqual((byte)0, CpuBusRegionRead.Read(bus, record + 8),

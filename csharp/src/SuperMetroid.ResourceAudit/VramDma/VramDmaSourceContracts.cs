@@ -57,7 +57,6 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.Core/Fx/Artwork/RoomFxAnimatedTileArtworkDefinitions.cs"),
         new("csharp/src/SuperMetroid.Core/Fx/Artwork/TourianStatueTileStripDefinitions.cs"),
         new("csharp/src/SuperMetroid.Core/Rooms/Artwork/RoomSkyTilemapCatalog.cs"),
-        new("csharp/src/SuperMetroid.Core/Areas/Ceres/CeresEscapeVramTransferDefinitions.cs"),
         new("csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/DeadMonsterRowUploadDefinitions.cs"),
         new("csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/DeadTorizoRowUploadDefinitions.cs"),
         new("csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTourianBehavior.cs"),

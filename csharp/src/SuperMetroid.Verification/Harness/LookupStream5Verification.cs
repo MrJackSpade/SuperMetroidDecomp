@@ -365,7 +365,7 @@ internal static class LookupStream5Verification
                 TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = visual },
             };
             var vram = new SnesVram();
-            int destination = CeresDoorVisualRomData.Mode7DestinationWord;
+            int destination = CeresDoorVisualRomData.Mode7MapCell;
             byte[] initial = Enumerable.Range(0, 12).Select(index => (byte)(index % 2 == 0 ? 0x5d : 0xa7)).ToArray();
             vram.LoadBytes((destination - 1) * 2, initial);
             system.Presentation.BindVram(BgArtworkFixtures.For(vram));
@@ -590,12 +590,12 @@ internal static class LookupStream5Verification
         AssertTrue(tilePages.SequenceEqual(CeresEscapeTileArtworkDefinitions.All), "Original named character page order/source/extent/file");
         foreach (var page in tilePages)
         {
-            AssertTrue(CeresEscapeTileArtworkDefinitions.Contains(page.SourceAddress, page.ByteCount), "Whole page admitted");
-            AssertTrue(CeresEscapeTileArtworkDefinitions.Contains(page.SourceAddress + page.ByteCount - 1, 1), "Last byte admitted");
-            AssertTrue(!CeresEscapeTileArtworkDefinitions.Contains(page.SourceAddress - 1, 1) && !CeresEscapeTileArtworkDefinitions.Contains(page.SourceAddress + page.ByteCount, 1), "Outside page rejected");
-            AssertTrue(!CeresEscapeTileArtworkDefinitions.Contains(page.SourceAddress, 0), "Zero byte page rejected");
+            AssertTrue(CeresEscapeTileArtworkDefinitionsTooling.Contains(page.SourceAddress, page.ByteCount), "Whole page admitted");
+            AssertTrue(CeresEscapeTileArtworkDefinitionsTooling.Contains(page.SourceAddress + page.ByteCount - 1, 1), "Last byte admitted");
+            AssertTrue(!CeresEscapeTileArtworkDefinitionsTooling.Contains(page.SourceAddress - 1, 1) && !CeresEscapeTileArtworkDefinitionsTooling.Contains(page.SourceAddress + page.ByteCount, 1), "Outside page rejected");
+            AssertTrue(!CeresEscapeTileArtworkDefinitionsTooling.Contains(page.SourceAddress, 0), "Zero byte page rejected");
         }
-        CeresEscapeOverlayTilemapDefinition[] overlays = [new("emergency", 0xa6c164, 9), new("japanese_0", 0xa6c3f4, 12), new("japanese_1", 0xa6c40c, 12), new("japanese_2", 0xa6c424, 11), new("japanese_3", 0xa6c43a, 11)];
+        CeresEscapeOverlayTilemapDefinition[] overlays = [new("emergency", 0xa6c164, 9, 0x0cb), new("japanese_0", 0xa6c3f4, 12, 0x28a), new("japanese_1", 0xa6c40c, 12, 0x2aa), new("japanese_2", 0xa6c424, 11, 0x2ca), new("japanese_3", 0xa6c43a, 11, 0x2ea)];
         AssertTrue(overlays.SequenceEqual(CeresEscapeOverlayTilemapDefinitions.All), "Original named overlay order/source/extent");
         foreach (var page in overlays)
         {
@@ -1786,8 +1786,8 @@ internal static class LookupStream5Verification
         AssertThrows<InvalidDataException>(() => CeresSteamDefinitions.Initialization((CeresSteamVariant)ushort.MaxValue), "Ceres steam full-word rejection");
         AssertThrows<InvalidDataException>(() => MagdollitePhaseDefinitions.Phase(-1), "Magdollite lower bound");
         AssertThrows<InvalidDataException>(() => MagdollitePhaseDefinitions.Phase(9), "Magdollite upper bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => { _ = CeresEscapeVramTransferDefinitionsTooling.All[-1]; }, "Ceres DMA list lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => { _ = CeresEscapeVramTransferDefinitionsTooling.All[19]; }, "Ceres DMA list upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => { _ = CeresEscapeVramTransferDefinitions.All[-1]; }, "Ceres DMA list lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => { _ = CeresEscapeVramTransferDefinitions.All[19]; }, "Ceres DMA list upper bound");
         Console.WriteLine("Stream 5 initialization: all 53 native selector/phase words and rejected domains pass.");
     }
     /// <summary>Checks Ceres light and other palette entry identities against native definition/program pairs.</summary>

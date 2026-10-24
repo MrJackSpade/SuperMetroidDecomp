@@ -54,11 +54,11 @@ internal static class CeresEscapeOverlayTilemapsVerification
         RoomTilemapOverlay native = RoomTilemapOverlay.Empty;
         CeresEscapeOverlayTilemapDefinition title =
             CeresEscapeOverlayTilemapDefinitions.Emergency;
-        native = WithNativeWords(native, title.SourceAddress, title.WordCount * sizeof(ushort),
-            CeresEscapeOverlayTilemapDefinitions.EmergencyDestination);
+        // $A6:C136 writes the title at BG1 tilemap word $50CB.
+        native = WithNativeWords(native, title.SourceAddress, title.WordCount * sizeof(ushort), 0x50cb);
         int nativeTransfers = 1;
         foreach (TileTransferDefinition transfer in
-                 CeresEscapeVramTransferDefinitionsTooling.All)
+                 CeresEscapeVramTransferDefinitions.All)
         {
             if (transfer.Pointer >= CeresEscapeVramTransferDefinitions.TimerSprites)
                 break;
@@ -108,7 +108,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         var editedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: editedOverlay.Services()) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         editedEnemies.CeresRidleyBehavior.Getaway.DrawCeresEmergencyText();
-        int titleWord = CeresEscapeOverlayTilemapDefinitions.EmergencyDestination - GameplayVramLayout.Bg1TilemapWord;
+        int titleWord = CeresEscapeOverlayTilemapDefinitions.Emergency.Cell;
         AssertEqual(native.Words[titleWord] ^ 1, editedOverlay.Overlay.Words[titleWord],
             "edited Ceres title changes the word shown over BG1");
         AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)

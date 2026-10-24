@@ -62,8 +62,7 @@ internal sealed class CeresRidleyBehavior
     /// </summary>
     internal void RunCeresRidleyMain(
         RoomEnemySlot slot,
-        SamusState? samus,
-        VramWriteQueue? vramWriteQueue)
+        SamusState? samus)
     {
         RidleyEnemyState state = _ridleyEncounter.RequireCeresRidley(slot);
         slot.Health = short.MaxValue;
@@ -275,7 +274,7 @@ internal sealed class CeresRidleyBehavior
                 return;
 
             case RidleyAiFunction.CeresActivateSelfDestruct:
-                Getaway.TickCeresRidleySelfDestruct(state, vramWriteQueue);
+                Getaway.TickCeresRidleySelfDestruct(state);
                 return;
 
             case RidleyAiFunction.CeresSelfDestructPaletteOnly:
@@ -346,7 +345,7 @@ internal sealed class CeresRidleyBehavior
 
     /// <summary>Ports Ceres Ridley's main dispatcher.</summary>
     internal void RunCeresRidleyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
-        RunCeresRidleyMain(slot, frame.Samus, frame.VramWriteQueue);
+        RunCeresRidleyMain(slot, frame.Samus);
 
     /// <summary>Native wing frame deltas selected from Ridley's movement speed.</summary>
     internal static readonly ushort[] CeresRidleyWingAnimationDeltas =

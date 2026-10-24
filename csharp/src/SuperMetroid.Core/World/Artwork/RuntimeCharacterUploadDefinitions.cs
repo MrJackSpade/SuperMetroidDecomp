@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -26,7 +27,7 @@ internal static class RuntimeCharacterUploadDefinitions
         [EnemyDefinitionId.Crocomire] = CrocomireSkeletonTransferDefinitions.Uploads,
         [EnemyDefinitionId.BombTorizo] = TorizoInstructionVramTransferDefinitions.Uploads,
         [EnemyDefinitionId.GoldenTorizo] = TorizoInstructionVramTransferDefinitions.Uploads,
-        [EnemyDefinitionId.RidleyCeres] = CeresEscapeCharacterUploads.All,
+        [EnemyDefinitionId.RidleyCeres] = CeresEscapePageDefinitions.ObjectPages,
         [EnemyDefinitionId.MotherBrainHead] = MotherBrainCharacterUploads.All,
     });
 }

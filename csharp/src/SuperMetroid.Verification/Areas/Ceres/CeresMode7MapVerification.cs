@@ -35,12 +35,12 @@ internal static class CeresMode7MapVerification
             "the map is bound to the room's tileset");
 
         byte[] frame = [0x11, 0x22, 0x33, 0x44];
-        runtime.Enemies.Room.Services.DrawMode7Map(CeresDoorVisualRomData.Mode7DestinationWord, frame);
+        runtime.Enemies.Room.Services.DrawMode7Map(CeresDoorVisualRomData.Mode7MapCell, frame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AffineFloor second = Published(runtime);
-        AssertTrue(second.Cells.Slice(CeresDoorVisualRomData.Mode7DestinationWord, frame.Length).Select(cell => (byte)cell.Tile).SequenceEqual(frame),
+        AssertTrue(second.Cells.Slice(CeresDoorVisualRomData.Mode7MapCell, frame.Length).Select(cell => (byte)cell.Tile).SequenceEqual(frame),
             "a map write reaches the next NMI's map");
-        AssertTrue(!first.Cells.Slice(CeresDoorVisualRomData.Mode7DestinationWord, frame.Length).Select(cell => (byte)cell.Tile).SequenceEqual(frame),
+        AssertTrue(!first.Cells.Slice(CeresDoorVisualRomData.Mode7MapCell, frame.Length).Select(cell => (byte)cell.Tile).SequenceEqual(frame),
             "the earlier published map keeps its tiles");
 
         var getaway = runtime.Enemies.RidleyEncounter.CeresRidley ?? throw new InvalidOperationException("The Ceres Ridley room has a getaway state.");

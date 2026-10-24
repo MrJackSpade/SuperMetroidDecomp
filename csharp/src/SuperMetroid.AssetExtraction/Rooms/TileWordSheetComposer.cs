@@ -253,24 +253,19 @@ internal static class TileWordSheetComposer
 
     /// <summary>
     /// The warning Ceres Ridley's getaway writes over BG1: its EMERGENCY title, the Japanese subtitle's rows and its typed
-    /// text, each word at the BG1 tilemap word it is written to.
+    /// text, each word at the BG1 overlay cell it is written to.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed area artwork has no Ceres warning tilemaps.</exception>
-    [PpuLayoutBoundary("codec: Ceres warning tilemaps' native BG1 tilemap destinations")]
     private static IEnumerable<(string Name, BodyPart Part)> CeresWarningParts(RoomBlockSheetInputs inputs)
     {
         CeresEscapeOverlayTilemapCatalog overlays = inputs.Objects.Areas.CeresEscapeOverlayTilemaps
             ?? throw new InvalidDataException("The installed area artwork has no Ceres warning tilemaps.");
         CeresEscapeOverlayTilemapDefinition emergency = CeresEscapeOverlayTilemapDefinitions.Emergency;
-        yield return ("Emergency", new BodyPart([.. Runs(CeresEscapeOverlayTilemapDefinitions.EmergencyDestination - GameplayVramLayout.Bg1TilemapWord,
+        yield return ("Emergency", new BodyPart([.. Runs(emergency.Cell,
             OverlayWords(overlays, emergency.SourceAddress, emergency.WordCount * sizeof(ushort)))]));
         var subtitle = new List<BodyRun>();
-        for (int record = 0; record < CeresEscapeVramTransferDefinitions.JapaneseOverlayRecords; record++)
-        {
-            TileTransferDefinition transfer = CeresEscapeVramTransferDefinitions.Records[record];
-            subtitle.AddRange(Runs(transfer.DestinationWord - GameplayVramLayout.Bg1TilemapWord,
-                OverlayWords(overlays, transfer.SourceAddress, transfer.ByteCount)));
-        }
+        foreach (CeresEscapeOverlayTilemapDefinition row in CeresEscapeOverlayTilemapDefinitions.Japanese)
+            subtitle.AddRange(Runs(row.Cell, OverlayWords(overlays, row.SourceAddress, row.WordCount * sizeof(ushort))));
         yield return ("Subtitle", new BodyPart([.. subtitle]));
         yield return ("Typed", Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterProgramId.Ceres), EscapeTypewriterDefinitions.CeresTileBase));
     }

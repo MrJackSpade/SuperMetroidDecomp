@@ -28,7 +28,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
     internal static void VerifyCeresEscapeVramTransferDefinitions(ISnesAddressSpace rom)
     {
         IReadOnlyList<TileTransferDefinition> records =
-            CeresEscapeVramTransferDefinitionsTooling.All;
+            CeresEscapeVramTransferDefinitions.All;
         AssertEqual(19, records.Count, "Ceres transfer metadata record count");
         foreach (TileTransferDefinition record in records)
         {
@@ -69,50 +69,37 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresEscapeTiles = new CeresEscapeTileArtwork(escapePages), CeresEscapeOverlayTilemaps = overlay },
             BossArtworkBinding = { EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng) },
         };
-        // Each typed list must queue exactly the ROM-checked records from its native list start to its terminator.
-        foreach ((ushort start, CeresEscapeTransferCursor cursor) in new[]
-                 {
-                     new VerifyCeresEscapeVramTransferDefinitionsCase(CeresEscapeVramTransferDefinitions.TimerSprites, CeresEscapeTransferCursor.TimerSprites),
-                     new VerifyCeresEscapeVramTransferDefinitionsCase(CeresEscapeVramTransferDefinitions.TimerBackgrounds, CeresEscapeTransferCursor.TimerBackgrounds),
-                 })
+        // The timer-sprite list shows exactly the ROM-checked records' characters over the OBJ characters, one an update.
+        TileTransferDefinition[] spriteList = [.. records
+            .SkipWhile(record => record.Pointer != CeresEscapeVramTransferDefinitions.TimerSprites)
+            .TakeWhile(record => record.Pointer < 0xc4fc)];
+        AssertEqual(7, spriteList.Length, "Ceres timer-sprite list length");
+        ObjCharacterUploads shown = system.Presentation.ObjCharacters;
+        var state = new RidleyEnemyState { CeresEscapePages = CeresEscapePageCursor.Objects };
+        for (int index = 0; index < spriteList.Length; index++)
         {
-            var state = new RidleyEnemyState { CeresEscapeTransfers = cursor };
-            var queue = new VramWriteQueue();
-            TileTransferDefinition[] list = records
-                .SkipWhile(record => record.Pointer != start)
-                .TakeWhile(record => start == CeresEscapeVramTransferDefinitions.TimerSprites
-                    ? record.Pointer < 0xc4fc : record.Pointer < 0xc536)
-                .ToArray();
-            AssertTrue(list.Length is 7 or 8, "Ceres installed transfer list length");
-            for (int index = 0; index < list.Length; index++)
-            {
-                bool finished = system.CeresRidleyBehavior.Getaway.QueueNextCeresEscapeTransfer(state, queue);
-                TileTransferDefinition expected = list[index];
-                AssertEqual(index == list.Length - 1, finished,
-                    $"Ceres transfer ${expected.Pointer:X4} list completion");
-                AssertEqual(index + 1, queue.Entries.Count,
-                    $"Ceres transfer ${expected.Pointer:X4} one record per call");
-                VramWriteEntry entry = queue.Entries[index];
-                AssertEqual(expected.ByteCount, entry.SizeInBytes,
-                    $"Ceres transfer ${expected.Pointer:X4} queued byte count");
-                AssertEqual(expected.DestinationWord, entry.Destination.Encoded,
-                    $"Ceres transfer ${expected.Pointer:X4} queued destination");
-                if (expected.Pointer is 0xc4cb or 0xc4d2)
-                {
-                    AssertEqual(expected.Pointer == 0xc4cb
-                            ? VramAssetId.EscapeTimerFirstTiles
-                            : VramAssetId.EscapeTimerSecondTiles,
-                        entry.AssetId,
-                        $"Ceres transfer ${expected.Pointer:X4} editable timer page");
-                }
-                else if (CeresEscapeTileCharacters.ForTransfer(expected.SourceAddress, expected.ByteCount) is { } characters)
-                    AssertEqual<ObjCharacterSource?>(characters, entry.OwnedSource,
-                        $"Ceres transfer ${expected.Pointer:X4} names its installed character page");
-                else
-                    AssertEqual(expected.SourceAddress, entry.SourceAddress,
-                        $"Ceres transfer ${expected.Pointer:X4} queued source");
-            }
+            bool finished = system.CeresRidleyBehavior.Getaway.ShowNextCeresEscapePage(state);
+            TileTransferDefinition expected = spriteList[index];
+            AssertEqual(index == spriteList.Length - 1, finished, $"Ceres transfer ${expected.Pointer:X4} list completion");
+            AssertEqual(index + 1, shown.Uploads.Count, $"Ceres transfer ${expected.Pointer:X4} one page per update");
+            ObjCharacterUpload page = shown.Uploads[index];
+            AssertEqual(expected.ByteCount, page.ByteCount, $"Ceres transfer ${expected.Pointer:X4} page size");
+            AssertEqual(ObjCharacterUploads.TableByte(VramDmaDestination.FromNative(expected.DestinationWord)), page.FirstByte,
+                $"Ceres transfer ${expected.Pointer:X4} page's place among the OBJ characters");
+            AssertEqual<ObjCharacterSource?>(expected.Pointer is 0xc4cb or 0xc4d2
+                    ? new AssetObjCharacters(expected.Pointer == 0xc4cb ? VramAssetId.EscapeTimerFirstTiles : VramAssetId.EscapeTimerSecondTiles)
+                    : CeresEscapeTileCharactersConstants.ForTransfer(expected.SourceAddress, expected.ByteCount),
+                page.Source, $"Ceres transfer ${expected.Pointer:X4} names its installed page");
         }
+        // The background list's records land in characters the Ridley arena does not show: it takes one update for each.
+        TileTransferDefinition[] backgroundList = [.. records
+            .SkipWhile(record => record.Pointer != CeresEscapeVramTransferDefinitions.TimerBackgrounds)];
+        AssertEqual(8, backgroundList.Length, "Ceres timer-background list length");
+        state.CeresEscapePages = CeresEscapePageCursor.Backgrounds;
+        for (int index = 0; index < backgroundList.Length; index++)
+            AssertEqual(index == backgroundList.Length - 1, system.CeresRidleyBehavior.Getaway.ShowNextCeresEscapePage(state),
+                $"Ceres transfer ${backgroundList[index].Pointer:X4} update completes the list only last");
+        AssertEqual(spriteList.Length, shown.Uploads.Count, "the timer-background list shows nothing over the OBJ characters");
 
         // The Japanese subtitle rows are written over BG1 at exactly the four compiled records' destinations.
         system.CeresRidleyBehavior.Getaway.DrawCeresJapaneseOverlay();
@@ -130,10 +117,10 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         system.BossArtworkBinding.EscapeTimerArtwork = null;
         try
         {
-            system.CeresRidleyBehavior.Getaway.QueueNextCeresEscapeTransfer(new RidleyEnemyState
-                    {
-                        CeresEscapeTransfers = CeresEscapeTransferCursor.TimerSprites,
-                    }, new VramWriteQueue());
+            system.CeresRidleyBehavior.Getaway.ShowNextCeresEscapePage(new RidleyEnemyState
+            {
+                CeresEscapePages = CeresEscapePageCursor.Objects,
+            });
             throw new InvalidOperationException(
                 "Installed Ceres escape accepted missing timer PNG artwork.");
         }
@@ -143,7 +130,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         }
         Console.WriteLine(
             "Ceres escape transfers: 19 native records and three terminators match; " +
-            "both installed timer lists and Japanese overlay execute with descriptor reads blocked.");
+            "both installed timer lists show their pages and the Japanese overlay is written with descriptor reads blocked.");
     }
 
 

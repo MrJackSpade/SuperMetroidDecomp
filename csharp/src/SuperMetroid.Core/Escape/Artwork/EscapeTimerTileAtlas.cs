@@ -139,18 +139,4 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
         return false;
     }
 
-    /// <summary>Queues an installed page when a native transfer record identifies timer artwork.</summary>
-    [PpuLayoutBoundary("codec: queues a matched native escape-timer transfer record's encoded VRAM destination")]
-    public bool TryQueueNativeTransfer(VramWriteQueue queue, int sourceAddress, ushort byteCount,
-        ushort destinationWord)
-    {
-        Ensure.NotNull(queue);
-        if (!EscapeTimerTilePages.TryMatch(sourceAddress, byteCount, destinationWord, out EscapeTimerTilePage page))
-            return false;
-        VramAssetId asset = EscapeTimerTilePages.AssetOf(page);
-        if (Resolve(asset).Length != byteCount)
-            throw new InvalidDataException($"Escape timer {page} page no longer matches its native transfer record.");
-        queue.EnqueueAsset(asset, byteCount, VramDmaDestination.FromNative(destinationWord));
-        return true;
-    }
 }

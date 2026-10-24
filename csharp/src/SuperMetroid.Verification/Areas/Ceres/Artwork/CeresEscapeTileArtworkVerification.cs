@@ -51,30 +51,24 @@ internal static class CeresEscapeTileArtworkVerification
             AreaArtwork = stock.Areas,
             BossArtworkBinding = { EscapeTimerArtwork = timer },
         };
-        var installedQueue = new VramWriteQueue();
-        foreach (CeresEscapeTransferCursor start in new[]
-                 {
-                     CeresEscapeTransferCursor.TimerSprites,
-                     CeresEscapeTransferCursor.TimerBackgrounds,
-                 })
+        foreach (CeresEscapePageCursor start in new[] { CeresEscapePageCursor.Objects, CeresEscapePageCursor.Backgrounds })
         {
-            var state = new RidleyEnemyState { CeresEscapeTransfers = start };
-            bool finished;
-            do
+            var state = new RidleyEnemyState { CeresEscapePages = start };
+            while (!installed.CeresRidleyBehavior.Getaway.ShowNextCeresEscapePage(state))
             {
-                finished = installed.CeresRidleyBehavior.Getaway.QueueNextCeresEscapeTransfer(state, installedQueue);
-            } while (!finished);
+            }
         }
-        AssertEqual(15, installedQueue.Entries.Count,
-            "Ceres escape production queues both complete timer lists");
-        var installedVram = new SnesVram();
-        installedQueue.DrainTo(installedVram, new EnemyTileTransfers(stock, timer: timer), null, BgArtworkFixtures.For(installedVram));
+        ObjCharacterUploads shown = installed.Presentation.ObjCharacters;
+        AssertEqual(7, shown.Uploads.Count, "Ceres escape production shows the timer-sprite list's seven pages");
+        ReadOnlySpan<byte> installedPage = new ObjCharacterTablePage().Page(shown, new EnemyTileTransfers(stock, timer: timer)).Characters;
 
+        // The cartridge's timer-sprite records, read from its descriptors and source bytes.
         var nativeQueue = new VramWriteQueue();
         foreach (TileTransferDefinition transfer in
-                 CeresEscapeVramTransferDefinitionsTooling.All)
+                 CeresEscapeVramTransferDefinitions.All)
         {
-            if (transfer.Pointer < CeresEscapeVramTransferDefinitions.TimerSprites)
+            if (transfer.Pointer < CeresEscapeVramTransferDefinitions.TimerSprites ||
+                transfer.Pointer >= CeresEscapeVramTransferDefinitions.TimerBackgrounds)
                 continue;
             int descriptor = 0xa60000 | transfer.Pointer;
             ushort byteCount = CartridgeImportSource.Require(rom).ReadCartridgeWord(descriptor);
@@ -84,9 +78,10 @@ internal static class CeresEscapeTileArtworkVerification
         }
         var nativeVram = new SnesVram();
         ImportedVramOracle.Drain(nativeQueue, nativeVram, rom);
-        // Character pages landing outside the OBJ characters are bound as background artwork, which a capture composes (#1392).
-        AssertTrue(nativeVram.Bytes.SequenceEqual(BgArtworkFixtures.Composed(installedVram)),
-            "all Ceres timer and door VRAM bytes match the cartridge without source reads");
+        foreach (ObjCharacterUpload page in shown.Uploads)
+            AssertTrue(nativeVram.Bytes.Slice(GameplayVramLayout.ObjectCharacters.Offset * sizeof(ushort) + page.FirstByte, page.ByteCount)
+                    .SequenceEqual(installedPage.Slice(page.FirstByte, page.ByteCount)),
+                $"the Ceres page {page.Source} matches the cartridge's OBJ characters without source reads");
 
         TileSheetDefinition warning =
             CeresEscapeTileArtworkDefinitions.WarningText;
@@ -128,26 +123,22 @@ internal static class CeresEscapeTileArtworkVerification
             AreaArtwork = edited.Areas,
             BossArtworkBinding = { EscapeTimerArtwork = timer },
         };
-        // The cursor starts at the first warning-text record, part-way through the timer-sprite list.
-        var editedState = new RidleyEnemyState
-        {
-            CeresEscapeTransfers = CeresEscapeTransferCursor.TimerSprites with
-            {
-                Next = CeresEscapeVramTransferDefinitions.Records.ToList().FindIndex(record =>
-                    record.Pointer == CeresEscapeVramTransferDefinitions.WarningTextFirstTransfer),
-            },
-        };
-        var editedQueue = new VramWriteQueue();
-        _ = editedEnemies.CeresRidleyBehavior.Getaway.QueueNextCeresEscapeTransfer(editedState, editedQueue);
-        var editedVram = new SnesVram();
-        editedQueue.DrainTo(editedVram, new EnemyTileTransfers(edited, timer: timer), null, BgArtworkFixtures.For(editedVram));
+        // The cursor starts at the first warning-text page, part-way through the timer-sprite list.
+        int firstWarningPage = CeresEscapeVramTransferDefinitions.Records.ToList().FindIndex(record =>
+                record.Pointer == CeresEscapeVramTransferDefinitions.WarningTextFirstTransfer) -
+            CeresEscapeVramTransferDefinitions.Records.ToList().FindIndex(record =>
+                record.Pointer == CeresEscapeVramTransferDefinitions.TimerSprites);
+        var editedState = new RidleyEnemyState { CeresEscapePages = CeresEscapePageCursor.Objects with { Shown = firstWarningPage } };
+        _ = editedEnemies.CeresRidleyBehavior.Getaway.ShowNextCeresEscapePage(editedState);
+        ReadOnlySpan<byte> editedPage = new ObjCharacterTablePage().Page(editedEnemies.Presentation.ObjCharacters,
+            new EnemyTileTransfers(edited, timer: timer)).Characters;
         AssertTrue(CeresEscapeVramTransferDefinitions.TryGet(
                 CeresEscapeVramTransferDefinitions.WarningTextFirstTransfer,
                 out TileTransferDefinition warningTransfer),
             "first warning transfer is compiled");
         AssertEqual(editedChunk.Span[0],
-            editedVram.ReadByte(warningTransfer.DestinationWord * 2),
-            "edited Ceres warning PNG changes the production VRAM upload");
+            editedPage[ObjCharacterUploads.TableByte(VramDmaDestination.FromNative(warningTransfer.DestinationWord))],
+            "edited Ceres warning PNG changes the page production shows");
         AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Areas.CeresEscapeTiles ?? throw new InvalidOperationException("Verification requires the reloaded Ceres escape tiles.")).TryResolve(warning.SourceAddress, 0x0200,
                     out ReadOnlyMemory<byte> reloaded) &&
@@ -167,14 +158,10 @@ internal static class CeresEscapeTileArtworkVerification
         };
         try
         {
-            missing.CeresRidleyBehavior.Getaway.QueueNextCeresEscapeTransfer(new RidleyEnemyState
-                    {
-                        CeresEscapeTransfers = CeresEscapeTransferCursor.TimerSprites with
+            missing.CeresRidleyBehavior.Getaway.ShowNextCeresEscapePage(new RidleyEnemyState
             {
-                Next = CeresEscapeVramTransferDefinitions.Records.ToList().FindIndex(record =>
-                    record.Pointer == CeresEscapeVramTransferDefinitions.WarningTextFirstTransfer),
-            },
-                    }, new VramWriteQueue());
+                CeresEscapePages = CeresEscapePageCursor.Objects with { Shown = firstWarningPage },
+            });
             throw new InvalidOperationException(
                 "Installed Ceres transfer accepted missing character artwork.");
         }
@@ -183,8 +170,8 @@ internal static class CeresEscapeTileArtworkVerification
             // Missing installed art must not silently fall back to cartridge bytes.
         }
         Console.WriteLine(
-            "Ceres escape tiles: both indexed PNGs match native bytes; all 15 live " +
-            "transfers match VRAM without ROM art reads; edit, reload, and rejection pass.");
+            "Ceres escape tiles: both indexed PNGs match native bytes; the seven OBJ " +
+            "pages match the cartridge without ROM art reads; edit, reload, and rejection pass.");
     }
 
     /// <summary>Rejects live descriptor, overlay, warning-tile, and timer-tile source reads.</summary>
@@ -192,7 +179,7 @@ internal static class CeresEscapeTileArtworkVerification
         new CartridgeReadGuard(source)
             .Forbid(address => CeresEscapeVramTransferDefinitions.IsDescriptorByteAddress(address) ||
                 CeresEscapeOverlayTilemapDefinitions.ContainsByteAddress(address) ||
-                CeresEscapeTileArtworkDefinitions.Contains(address, 1) ||
+                CeresEscapeTileArtworkDefinitionsTooling.Contains(address, 1) ||
                 address >= EscapeTimerTileRomData.FirstSourceAddress &&
                 address < EscapeTimerTileRomData.FirstSourceAddress + EscapeTimerTileAtlasFormat.TotalByteCount,
                 address => $"Installed Ceres escape reread source ${address:X6}.");

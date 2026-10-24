@@ -17,16 +17,4 @@ internal static class CeresEscapeTileArtworkDefinitions
 
     /// <summary>The two fixed Ceres escape tile pages in native transfer order: the warning text, then the doors.</summary>
     internal static ImmutableArray<TileSheetDefinition> All { get; } = [WarningText, Doors];
-
-    /// <summary>Accepts only a positive byte range wholly inside one of the two Ceres escape DMA pages.</summary>
-    internal static bool Contains(int sourceAddress, int byteCount)
-    {
-        foreach (TileSheetDefinition page in All)
-        {
-            int offset = sourceAddress - page.SourceAddress;
-            if (offset >= 0 && byteCount > 0 && offset <= page.ByteCount - byteCount)
-                return true;
-        }
-        return false;
-    }
 }

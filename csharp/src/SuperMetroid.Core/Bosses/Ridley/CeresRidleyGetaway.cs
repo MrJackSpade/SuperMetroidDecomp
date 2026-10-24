@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Areas.Ceres;
@@ -215,12 +215,12 @@ internal sealed class CeresRidleyGetaway
     private void ApplyMode7TransferList(CeresMode7TransferList transferList, ref Mode7TransferQueue queue)
     {
         foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(transferList))
-            _room.Services.DrawMode7Map(transfer.DestinationWord, [.. transfer.TileNumbers]);
+            _room.Services.DrawMode7Map(transfer.MapCell, [.. transfer.TileNumbers]);
         foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(transferList))
         {
             queue.QueueVramTilemapTransfer(
                 new SnesAddress(Mode7TransferQueueLayout.CeresSourceBank, checked((ushort)transfer.SourceOffset)),
-                (ushort)transfer.TileNumbers.Count, checked((ushort)transfer.DestinationWord));
+                (ushort)transfer.TileNumbers.Count, checked((ushort)transfer.MapCell));
         }
     }
 
@@ -231,9 +231,7 @@ internal sealed class CeresRidleyGetaway
     /// enters phase ten to type the cartridge's three-line English warning. Japanese enters
     /// phase eight first, installs its subtitle tilemap, and then uses the same typewriter.
     /// </summary>
-    internal void TickCeresRidleySelfDestruct(
-        RidleyEnemyState state,
-        VramWriteQueue? vramWriteQueue)
+    internal void TickCeresRidleySelfDestruct(RidleyEnemyState state)
     {
         switch (state.FunctionTimer.RawValue)
         {
@@ -242,21 +240,21 @@ internal sealed class CeresRidleyGetaway
                 // replace their tiles. These are palette indices, not byte offsets.
                 CopyCeresWarningColors(_presentation.BackgroundSets.Set(0), _presentation.BackgroundSets.Set(6));
                 CopyCeresWarningColors(_presentation.BackgroundSets.Set(1), _presentation.BackgroundSets.Set(5));
-                state.CeresEscapeTransfers = CeresEscapeTransferCursor.TimerSprites;
+                state.CeresEscapePages = CeresEscapePageCursor.Objects;
                 state.FunctionTimer = WrappingCountdown.Start(2);
                 goto case 2;
 
             case 2:
-                if (QueueNextCeresEscapeTransfer(state, vramWriteQueue))
+                if (ShowNextCeresEscapePage(state))
                 {
-                    state.CeresEscapeTransfers = CeresEscapeTransferCursor.TimerBackgrounds;
+                    state.CeresEscapePages = CeresEscapePageCursor.Backgrounds;
                     state.FunctionTimer = WrappingCountdown.Start(4);
                     goto case 4;
                 }
                 return;
 
             case 4:
-                if (QueueNextCeresEscapeTransfer(state, vramWriteQueue))
+                if (ShowNextCeresEscapePage(state))
                 {
                     // `$A6:C0AA` calls DrawEmergencyText immediately after the final
                     // BG1/BG2 graphics record. The word was missing from the earlier
@@ -339,85 +337,65 @@ internal sealed class CeresRidleyGetaway
     /// <summary>Ports DrawEmergencyText at $A6:C136: the EMERGENCY title is written over the room's BG1.</summary>
     internal void DrawCeresEmergencyText()
     {
-        CeresEscapeOverlayTilemapDefinition page = CeresEscapeOverlayTilemapDefinitions.Emergency;
-        DrawCeresOverlay(page.SourceAddress, page.WordCount * sizeof(ushort),
-            CeresEscapeOverlayTilemapDefinitions.EmergencyDestination, "EMERGENCY");
+        DrawCeresOverlay(CeresEscapeOverlayTilemapDefinitions.Emergency);
     }
 
-    /// <summary>Writes one installed warning tilemap over the room's BG1 at its native tilemap destination.</summary>
-    [PpuLayoutBoundary("codec: Ceres warning tilemaps' native BG1 tilemap destinations")]
-    private void DrawCeresOverlay(int sourceAddress, int byteCount, ushort destinationWord, string page)
+    /// <summary>Writes one installed warning tilemap over the room's BG1 at its overlay cell.</summary>
+    private void DrawCeresOverlay(CeresEscapeOverlayTilemapDefinition page)
     {
         CeresEscapeOverlayTilemapCatalog overlays = _areaArtwork.Artwork?.CeresEscapeOverlayTilemaps
             ?? throw new InvalidDataException("The Ceres escape has no installed warning tilemaps.");
-        if (!overlays.TryResolve(sourceAddress, byteCount, out ReadOnlyMemory<byte> data))
-            throw new InvalidDataException($"Installed Ceres escape has no editable {page} tilemap.");
-        var words = new ushort[byteCount / sizeof(ushort)];
+        if (!overlays.TryResolve(page.SourceAddress, page.WordCount * sizeof(ushort), out ReadOnlyMemory<byte> data))
+            throw new InvalidDataException($"Installed Ceres escape has no editable {page.Name} tilemap.");
+        var words = new ushort[page.WordCount];
         for (int index = 0; index < words.Length; index++)
             words[index] = SnesLittleEndian.Word(data.Span[index * 2], data.Span[index * 2 + 1]);
-        _room.Services.DrawBg1Overlay(destinationWord - GameplayVramLayout.Bg1TilemapWord, words);
+        _room.Services.DrawBg1Overlay(page.Cell, words);
     }
 
-    /// <summary>Ports ProcessSpriteTilesTransfers at $A6:C26E one record per actor call.</summary>
-    [PpuLayoutBoundary("codec: Ceres escape VRAM transfer records' native destinations ($A6:C26E)")]
-    internal bool QueueNextCeresEscapeTransfer(
-        RidleyEnemyState state,
-        VramWriteQueue? vramWriteQueue)
+    /// <summary>
+    /// Ports ProcessSpriteTilesTransfers at $A6:C26E (#1406): shows the list's next page, one an update. A page of the
+    /// timer-sprite list shows over the OBJ characters from this update's frame, as the cartridge's copy, made at this
+    /// update's NMI, shows in it; the background list's pages show nowhere, so each of its updates shows nothing.
+    /// </summary>
+    /// <returns>True once every page of the list has been shown.</returns>
+    /// <exception cref="InvalidDataException">The cursor names no list, or a page's installed artwork is missing.</exception>
+    internal bool ShowNextCeresEscapePage(RidleyEnemyState state)
     {
-        CeresEscapeTransferCursor cursor = state.CeresEscapeTransfers;
-        ushort byteCount;
-        int sourceAddress;
-        ushort destination;
+        CeresEscapePageCursor cursor = state.CeresEscapePages;
         if (!cursor.IsStarted)
-            throw new InvalidDataException("The Ceres escape graphics dispatcher was never given a transfer list.");
+            throw new InvalidDataException("The Ceres escape graphics dispatcher was never given a page list.");
         if (cursor.IsFinished)
             return true;
-        TileTransferDefinition transfer = cursor.Current;
-        byteCount = transfer.ByteCount;
-        sourceAddress = transfer.SourceAddress;
-        destination = transfer.DestinationWord;
-        if (vramWriteQueue is null)
+        if (cursor.List == CeresEscapePageList.Objects)
         {
-            throw new InvalidOperationException(
-                "Ceres escape graphics require the runtime's native VRAM write queue.");
+            RuntimeCharacterUpload page = CeresEscapePageDefinitions.ObjectPages[cursor.Shown];
+            RequireInstalled(page.Source);
+            _presentation.ObjCharacters.Record(page);
         }
-        if (_room.Artwork is not null && _bossArtwork.EscapeTimerArtwork is null &&
-            EscapeTimerTilePages.IsSource(sourceAddress))
-            throw new InvalidDataException(
-                "Installed Ceres escape timer has no editable sprite tile artwork.");
-        if (_room.Artwork is not null &&
-            CeresEscapeTileArtworkDefinitions.Contains(sourceAddress, byteCount) &&
-            _areaArtwork.Artwork?.CeresEscapeTiles?.TryResolve(sourceAddress, byteCount, out _) != true)
-            throw new InvalidDataException(
-                $"Installed Ceres escape has no editable character page for ${sourceAddress:X6}.");
-
-        if (_bossArtwork.EscapeTimerArtwork?.TryQueueNativeTransfer(
-            vramWriteQueue, sourceAddress, byteCount, destination) != true)
-        {
-            // Character pages upload as named installed artwork, bound as background artwork where they land outside the
-            // OBJ characters (#1392); the overlay tilemaps are background words.
-            VramDmaDestination target = VramDmaDestination.FromNative(destination);
-            if (CeresEscapeTileCharacters.ForTransfer(sourceAddress, byteCount) is not { } characters)
-                vramWriteQueue.Enqueue(byteCount, sourceAddress, target);
-            else if (ObjCharacterUploads.Reaches(target))
-                vramWriteQueue.EnqueueSource(characters, byteCount, target);
-            else
-                vramWriteQueue.EnqueueBackgroundSource(characters, byteCount, target);
-        }
-
-        state.CeresEscapeTransfers = cursor.Advance();
-        return state.CeresEscapeTransfers.IsFinished;
+        state.CeresEscapePages = cursor.Advance();
+        return state.CeresEscapePages.IsFinished;
     }
 
-    /// <summary>Writes every record of the one-shot Japanese overlay list at $A6:C3B8 over the room's BG1.</summary>
-    [PpuLayoutBoundary("codec: Ceres Japanese overlay transfer records' native destinations ($A6:C3B8)")]
+    /// <summary>Requires the installed artwork a timer-sprite page shows, when the room is drawn from installed artwork.</summary>
+    /// <exception cref="InvalidDataException">The installed escape timer or Ceres escape character pages are missing.</exception>
+    private void RequireInstalled(ObjCharacterSource source)
+    {
+        if (_room.Artwork is null)
+            return;
+        if (source is AssetObjCharacters && _bossArtwork.EscapeTimerArtwork is null)
+            throw new InvalidDataException("Installed Ceres escape timer has no editable sprite tile artwork.");
+        if (source is CeresEscapeTileCharacters characters &&
+            _areaArtwork.Artwork?.CeresEscapeTiles?.TryResolve(
+                CeresEscapeTileArtworkDefinitions.All[characters.Page].SourceAddress + characters.Offset, characters.ByteCount, out _) != true)
+            throw new InvalidDataException($"Installed Ceres escape has no editable {characters}.");
+    }
+
+    /// <summary>Writes every row half of the one-shot Japanese overlay list at $A6:C3B8 over the room's BG1.</summary>
     internal void DrawCeresJapaneseOverlay()
     {
-        for (int record = 0; record < CeresEscapeVramTransferDefinitions.JapaneseOverlayRecords; record++)
-        {
-            TileTransferDefinition transfer = CeresEscapeVramTransferDefinitions.Records[record];
-            DrawCeresOverlay(transfer.SourceAddress, transfer.ByteCount, transfer.DestinationWord, $"Japanese overlay record {record}");
-        }
+        foreach (CeresEscapeOverlayTilemapDefinition page in CeresEscapeOverlayTilemapDefinitions.Japanese)
+            DrawCeresOverlay(page);
     }
 
     /// <summary>Ports the byte-oriented command stream consumed by $A6:C2A7.</summary>

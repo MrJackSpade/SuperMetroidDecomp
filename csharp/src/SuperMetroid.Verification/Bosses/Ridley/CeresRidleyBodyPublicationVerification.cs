@@ -55,7 +55,7 @@ internal static class CeresRidleyBodyPublicationVerification
             AffineFloor map = runtime.Display.Latched.Rooms?.Mode7
                 ?? throw new InvalidOperationException("The arena publishes its Mode 7 map.");
             foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(wings))
-                AssertTrue(map.Cells.Slice(transfer.DestinationWord, transfer.TileNumbers.Count).Select(cell => (byte)cell.Tile).SequenceEqual(transfer.TileNumbers),
+                AssertTrue(map.Cells.Slice(transfer.MapCell, transfer.TileNumbers.Count).Select(cell => (byte)cell.Tile).SequenceEqual(transfer.TileNumbers),
                     $"angle {ridley.FloorAngle} publishes his {wings} body frame");
             var mode7 = (Mode7GameplayRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
             AssertTrue(mode7.Map.Cells.SequenceEqual(map.Cells), $"angle {ridley.FloorAngle} draws his published body");

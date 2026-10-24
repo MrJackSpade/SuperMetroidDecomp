@@ -30,5 +30,15 @@ internal static class VramWriteQueueAccess
                 throw new ArgumentOutOfRangeException(nameof(sizeInBytes), sizeInBytes, $"Transfer must be a nonzero whole number of the table's {words.Length} words.");
             self.Append(new VramWriteEntry(sizeInBytes, nativeSourceAddress, destination) { StagingWords = words });
         }
+        /// <summary>Queues an upload of named owned artwork, resolved when the queue drains.</summary>
+        /// <param name="source">The owned artwork uploaded.</param>
+        /// <param name="sizeInBytes">Bytes uploaded.</param>
+        /// <param name="destination">Where the upload lands.</param>
+        public void EnqueueSource(ObjCharacterSource source, ushort sizeInBytes, VramDmaDestination destination)
+        {
+            Ensure.NotNull(source);
+            if (sizeInBytes == 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
+            self.Append(new VramWriteEntry(sizeInBytes, 0, destination) { OwnedSource = source });
+        }
     }
 }

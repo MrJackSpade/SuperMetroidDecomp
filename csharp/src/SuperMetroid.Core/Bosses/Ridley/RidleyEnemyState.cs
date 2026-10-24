@@ -203,8 +203,8 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the two-phase Ridley wing graphics-transfer animation index (zero or one) during the Mode-7 getaway.</summary>
     public int Mode7WingFrame { get; internal set; }
 
-    /// <summary>Where the Ceres self-destruct graphics dispatcher stands in its current transfer list, advanced as each record is queued.</summary>
-    internal CeresEscapeTransferCursor CeresEscapeTransfers { get; set; }
+    /// <summary>Where the Ceres self-destruct stands in its current page list, advanced as each page is shown (#1406).</summary>
+    internal CeresEscapePageCursor CeresEscapePages { get; set; }
     /// <summary>Gets the Ceres warning phase or glyph delay countdown, including the initial 128-frame wait.</summary>
     public WrappingCountdown CeresEscapeTextDelayTimer { get; internal set; }
     /// <summary>Gets the installed Ceres warning typewriter state, created after the initial delay when presentation data is available.</summary>

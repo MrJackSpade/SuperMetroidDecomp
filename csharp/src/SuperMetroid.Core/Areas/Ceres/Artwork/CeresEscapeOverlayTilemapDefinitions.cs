@@ -10,28 +10,28 @@ internal static class CeresEscapeOverlayTilemapDefinitions
     /// <summary>Installed JSON file containing all five Ceres warning tilemap pages.</summary>
     internal const string FileName = "ceres-escape-overlay-tilemaps.json";
 
-    /// <summary>English EMERGENCY title tilemap at $A6:C164.</summary>
+    /// <summary>English EMERGENCY title tilemap at $A6:C164, written at BG1 row six, column eleven.</summary>
     internal static readonly CeresEscapeOverlayTilemapDefinition Emergency =
-        new("emergency", 0xa6c164, EmergencyText.Length);
+        new("emergency", 0xa6c164, EmergencyText.Length, 6 * RowCells + 11);
 
-    /// <summary>English EMERGENCY tilemap's BG1 destination $50CB.</summary>
-    internal const ushort EmergencyDestination = 0x50cb;
-
-    /// <summary>First Japanese self-destruct subtitle row at $A6:C3F4.</summary>
+    /// <summary>First Japanese self-destruct subtitle row at $A6:C3F4, written at BG1 row twenty, column ten.</summary>
     internal static readonly CeresEscapeOverlayTilemapDefinition JapaneseFirst =
-        new("japanese_0", 0xa6c3f4, JapaneseFirstLine.Length);
+        new("japanese_0", 0xa6c3f4, JapaneseFirstLine.Length, 20 * RowCells + 10);
 
-    /// <summary>Second Japanese self-destruct subtitle row at $A6:C40C.</summary>
+    /// <summary>Second Japanese self-destruct subtitle row at $A6:C40C, the row below the first.</summary>
     internal static readonly CeresEscapeOverlayTilemapDefinition JapaneseSecond =
-        new("japanese_1", JapaneseFirst.SourceAddress + JapaneseFirst.WordCount * sizeof(ushort), JapaneseFirstLine.Length);
+        new("japanese_1", JapaneseFirst.SourceAddress + JapaneseFirst.WordCount * sizeof(ushort), JapaneseFirstLine.Length,
+            JapaneseFirst.Cell + RowCells);
 
-    /// <summary>Third Japanese self-destruct subtitle row at $A6:C424.</summary>
+    /// <summary>Third Japanese self-destruct subtitle row at $A6:C424, the row below the second.</summary>
     internal static readonly CeresEscapeOverlayTilemapDefinition JapaneseThird =
-        new("japanese_2", JapaneseSecond.SourceAddress + JapaneseSecond.WordCount * sizeof(ushort), JapaneseSecondLine.Length);
+        new("japanese_2", JapaneseSecond.SourceAddress + JapaneseSecond.WordCount * sizeof(ushort), JapaneseSecondLine.Length,
+            JapaneseSecond.Cell + RowCells);
 
-    /// <summary>Fourth Japanese self-destruct subtitle row at $A6:C43A.</summary>
+    /// <summary>Fourth Japanese self-destruct subtitle row at $A6:C43A, the row below the third.</summary>
     internal static readonly CeresEscapeOverlayTilemapDefinition JapaneseFourth =
-        new("japanese_3", JapaneseThird.SourceAddress + JapaneseThird.WordCount * sizeof(ushort), JapaneseSecondLine.Length);
+        new("japanese_3", JapaneseThird.SourceAddress + JapaneseThird.WordCount * sizeof(ushort), JapaneseSecondLine.Length,
+            JapaneseThird.Cell + RowCells);
 
     /// <summary>English warning title rendered from the Latin tile alphabet.</summary>
     /// <remarks>Authored warning wording and font ordering are categorical typography content. The selected two-half
@@ -44,8 +44,12 @@ internal static class CeresEscapeOverlayTilemapDefinitions
     private const string JapaneseSecondLine = "ただちに脱出して下さい";
     /// <summary>Distinct Japanese characters in the native warning font order used to calculate tile selectors.</summary>
     private const string JapaneseGlyphs = "自爆装置が、作動まただちに脱出して下さい";
-    /// <summary>$A6:C164 selects the Latin atlas beginning with A at BG tile $182.</summary>
-    private const int LatinFirstTile = CeresEscapeVramTransferDefinitions.WarningBackgroundDestination / (8 * 8 * 4 / 16);
+    /// <summary>The cells in one overlay row.</summary>
+    private const int RowCells = 32;
+    /// <summary>$A6:C4D9: the warning text's characters begin at character $182, where its Latin letters start.</summary>
+    internal const int WarningFirstCharacter = 0x182;
+    /// <summary>$A6:C164 selects the Latin atlas beginning with A at the warning's first character.</summary>
+    private const int LatinFirstTile = WarningFirstCharacter;
     /// <summary>$B7:DA00 source loaded at VRAM word $1820; Japanese upper/lower halves start at BG tiles $1A0/$1B0.</summary>
     private const int JapaneseUpperTile = (JapaneseTrailingUpperTile + MainGlyphCount - 1) / MainGlyphCount * MainGlyphCount,
         JapaneseLowerTile = JapaneseUpperTile + MainGlyphCount;
@@ -78,4 +82,7 @@ internal static class CeresEscapeOverlayTilemapDefinitions
     /// <summary>The five fixed overlays in transfer order: the English title, then the four Japanese row halves.</summary>
     internal static ImmutableArray<CeresEscapeOverlayTilemapDefinition> All { get; } =
         [Emergency, JapaneseFirst, JapaneseSecond, JapaneseThird, JapaneseFourth];
+    /// <summary>The Japanese subtitle's four row halves, in the order the one-shot list at $A6:C3B8 writes them.</summary>
+    internal static ImmutableArray<CeresEscapeOverlayTilemapDefinition> Japanese { get; } =
+        [JapaneseFirst, JapaneseSecond, JapaneseThird, JapaneseFourth];
 }

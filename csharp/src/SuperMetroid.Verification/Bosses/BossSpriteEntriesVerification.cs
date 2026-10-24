@@ -127,10 +127,10 @@ internal static class BossSpriteEntriesVerification
         AssertEqual(new Position16<ScreenPixels>(140, 138), sprites.Draws[0].Origin, "The tail tip sits at its segment's screen point");
 
         TileSheetDefinition warning = CeresEscapeTileArtworkDefinitions.WarningText;
-        CeresEscapeTileCharacters characters = CeresEscapeTileCharacters.ForTransfer(warning.SourceAddress + 64, 128)
+        CeresEscapeTileCharacters characters = CeresEscapeTileCharactersConstants.ForTransfer(warning.SourceAddress + 64, 128)
             ?? throw new InvalidOperationException("The warning page holds the transfer.");
         AssertEqual(new CeresEscapeTileCharacters(0, 64, 128), characters, "A warning-text transfer names its page range");
-        AssertTrue(CeresEscapeTileCharacters.ForTransfer(0x7e9000, 64) is null, "A transfer outside both pages names no page");
+        AssertTrue(CeresEscapeTileCharactersConstants.ForTransfer(0x7e9000, 64) is null, "A transfer outside both pages names no page");
         AssertTrue((artwork.Areas.CeresEscapeTiles ?? throw new InvalidOperationException("The installation has no Ceres escape pages."))
                 .TryResolve(warning.SourceAddress + 64, 128, out ReadOnlyMemory<byte> installed) &&
             characters.Resolve(new EnemyTileTransfers(artwork)).Span.SequenceEqual(installed.Span),

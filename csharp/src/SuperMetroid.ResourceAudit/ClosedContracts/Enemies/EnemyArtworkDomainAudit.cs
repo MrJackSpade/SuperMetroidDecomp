@@ -29,7 +29,7 @@ internal static class EnemyArtworkDomainAudit
         if (!ordinary && !ceres && !overlay && !torizo) return null; // Valid unowned-source false query.
         bool complete = EnemyTileSourceDefinitions.All.Any(definition =>
             definition.SourceAddress == source && definition.ByteCount == byteCount) ||
-            CeresEscapeTileArtworkDefinitions.Contains(source, byteCount) ||
+            CeresEscapeTileArtworkDefinitionsTooling.Contains(source, byteCount) ||
             CeresEscapeOverlayTilemapDefinitionsTooling.IsSource(source, byteCount) ||
             TorizoInstructionVramArtworkDefinitions.All.Any(page => byteCount > 0 &&
                 source >= page.SourceAddress && source - page.SourceAddress <= page.ByteCount - byteCount);

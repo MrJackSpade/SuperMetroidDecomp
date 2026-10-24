@@ -62,7 +62,7 @@ internal static class CeresRidleyGetawayDefinitionsVerification
                     "Ceres Mode 7 native VRAM increment mode");
                 AssertEqual(size, transfer.TileNumbers.Length,
                     "Ceres Mode 7 compiled byte count");
-                AssertEqual(destination, transfer.DestinationWord,
+                AssertEqual(destination, transfer.MapCell,
                     "Ceres Mode 7 compiled VRAM destination");
                 for (int index = 0; index < size; index++)
                 {
@@ -78,7 +78,7 @@ internal static class CeresRidleyGetawayDefinitionsVerification
                 "Ceres Mode 7 compiled list reaches native terminator");
             // Ridley writes each transfer into the room's Mode 7 map, in list order (#1349).
             foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(pointer))
-                actual.Write(transfer.DestinationWord, [.. transfer.TileNumbers]);
+                actual.Write(transfer.MapCell, [.. transfer.TileNumbers]);
             byte[] cells = [.. actual.Publish().Cells.Select(cell => (byte)cell.Tile)];
             bool matches = true;
             for (int cell = 0; cell < cells.Length; cell++)

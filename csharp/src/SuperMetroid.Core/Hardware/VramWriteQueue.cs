@@ -87,17 +87,6 @@ public sealed class VramWriteQueue
         Append(new VramWriteEntry(sizeInBytes, 0, destination) { AssetId = asset });
     }
 
-    /// <summary>Queues an upload of named owned artwork, resolved when the queue drains.</summary>
-    /// <param name="source">The owned artwork uploaded.</param>
-    /// <param name="sizeInBytes">Bytes uploaded.</param>
-    /// <param name="destination">Where the upload lands.</param>
-    public void EnqueueSource(ObjCharacterSource source, ushort sizeInBytes, VramDmaDestination destination)
-    {
-        Ensure.NotNull(source);
-        if (sizeInBytes == 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
-        Append(new VramWriteEntry(sizeInBytes, 0, destination) { OwnedSource = source });
-    }
-
     /// <summary>Adds one packed-size record only when the two-byte NMI terminator still fits.</summary>
     internal void Append(VramWriteEntry entry)
     {

@@ -1,11 +1,11 @@
-using SuperMetroid.Core.Assets;
+﻿using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// Fixed transfer metadata from the three bank-$A6 Ceres escape lists. These
-/// addresses describe DMA ordering and destinations; the source pixels remain
-/// presentation data, not compiled mechanics.
+/// The cartridge's three bank-$A6 Ceres escape transfer lists (#1406), as development audits and checks compare them:
+/// the game shows their pages through <see cref="CeresEscapePageDefinitions"/> and their overlays through the Ceres
+/// warning tilemaps' cells.
 /// </summary>
 internal static class CeresEscapeVramTransferDefinitions
 {
@@ -27,7 +27,7 @@ internal static class CeresEscapeVramTransferDefinitions
     /// <summary>$7820: first warning object character word.</summary>
     private const ushort WarningObjectDestination = 0x7820;
     /// <summary>$1820: first warning background character word.</summary>
-    internal const ushort WarningBackgroundDestination = 0x1820;
+    private const ushort WarningBackgroundDestination = 0x1820;
     /// <summary>$0D00: first door background character word.</summary>
     private const ushort DoorDestination = 0x0d00;
 
@@ -74,7 +74,10 @@ internal static class CeresEscapeVramTransferDefinitions
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
-    /// <summary>All fixed Ceres escape transfer records used by the graphics dispatcher.</summary>
+    /// <summary>All fixed Ceres escape transfer records, in the cartridge's list order.</summary>
     internal static readonly IReadOnlyList<TileTransferDefinition> Records = new TransferRecords();
+
+    /// <summary>Read-only view of the complete transfer sequence for development audits.</summary>
+    internal static IReadOnlyList<TileTransferDefinition> All => Records;
 
 }

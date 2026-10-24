@@ -11,10 +11,10 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.RenderVerification.Frontend;
 
-/// <summary>Compares the pause screen's GPU frames with the software renderer's (#1392).</summary>
+/// <summary>Compares the pause screen's frames on this device with the WARP reference device's (#1392).</summary>
 internal static class RetailPauseTests
 {
-    /// <summary>The pause map and equipment pages, drawn from their screen tiles, match the software renderer exactly.</summary>
+    /// <summary>The pause map and equipment pages, drawn from their screen tiles, match the WARP reference device exactly.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var system = new Bank80SystemState();
@@ -38,6 +38,6 @@ internal static class RetailPauseTests
         if (pause.ScreenMode != PauseScreenMode.Equipment)
             throw new InvalidOperationException($"Pressing R left pause on its {pause.ScreenMode} page, not the equipment page.");
         Compare("equipment");
-        Console.WriteLine($"{device.Kind}: the pause map and equipment pages match the software renderer.");
+        Console.WriteLine($"{device.Kind}: the pause map and equipment pages match the WARP reference device.");
     }
 }

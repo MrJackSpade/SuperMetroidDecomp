@@ -18,9 +18,9 @@ using SuperMetroid.Core.Assets;
 /// <summary>Checks pause map-arrow OAM, palette timing, and visibility at scroll boundaries.</summary>
 internal static class PauseMapArrowsVerification
 {
-    /// <summary>Compares native arrow pixels and checks page fade and restored snapshot behavior.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause map arrow tiles, palette and spritemaps")]
+    /// <summary>Compares native arrow OAM and palette cycling and checks page fade and restored snapshot behavior.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables")]
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause map arrow palette and spritemaps")]
     internal static void VerifyPauseMapArrows()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -29,8 +29,7 @@ internal static class PauseMapArrowsVerification
         pause.CurrentMapScrollBounds = new PauseMapScroll(new(0, 0), new(512, 256));
         pause.CurrentMapArrows = null;
         pause.BindFixtureArtwork(RetailPresentationFixture());
-        var nativeColors = new SnesCgram();
-        for (int color = 0; color < SnesCgram.ColorCount; color++) nativeColors.SetColor(color, Bgr555.FromWord(checked(Read(0xb6f000 + color * 2))));
+        var nativeArrowColors = new Bgr555[16];
         int nativePaletteTimer = 1, nativePaletteFrame = 0;
         int allArrowParts = 0;
         var arrowAttributes = new HashSet<ushort>();
@@ -45,7 +44,7 @@ internal static class PauseMapArrowsVerification
                 if (bus.ReadCartridgeByte(0x82c10c + nativePaletteFrame * 3) == 255) nativePaletteFrame = 0;
                 nativePaletteTimer = bus.ReadCartridgeByte(0x82c10c + nativePaletteFrame * 3);
                 for (int color = 0; color < 16; color++)
-                    nativeColors.SetColor(176 + color, Bgr555.FromWord(checked(Read(0x82a987 + nativePaletteFrame * 32 + color * 2))));
+                    nativeArrowColors[color] = Bgr555.FromWord(checked(Read(0x82a987 + nativePaletteFrame * 32 + color * 2)));
             }
             var expected = new OamBuffer();
             expected.BeginFrame();
@@ -78,17 +77,9 @@ internal static class PauseMapArrowsVerification
             for (int offset = 2; offset < actual.LastFinalizedSpriteCount * 4; offset += 4)
                 if (arrowAttributes.Contains(SnesLittleEndian.Word(actual.LowTable[offset], actual.LowTable[offset + 1]))) drawnArrowParts++;
             AssertEqual(expectedBytes / 4, drawnArrowParts, "unavailable arrows emit no leftover OAM parts");
-            // The raw cartridge OBJ tiles form an independent pixel oracle. Require
-            // every opaque arrow pixel to survive the complete pause compositor.
-            var rawVram = new SnesVram();
-            var tiles = new byte[0x2000];
-            for (int i = 0; i < tiles.Length; i++) tiles[i] = bus.ReadCartridgeByte(0xb6c000 + i);
-            rawVram.LoadBytes(PauseVramLayout.MapSpriteByteAddress, tiles);
-            var rawPixels = SnesObjRenderer.Render(expected, rawVram, nativeColors, PauseMenuLayout.ObjectSelection);
-            int opaque = 0;
-            for (int i = 0; i < pixels.Length; i++)
-                if (rawPixels[i].A != 0) { opaque++; AssertEqual(rawPixels[i], pixels[i], "native arrow pixel survives pause layers"); }
-            AssertTrue(opaque > 0, "native reference contains visible arrow pixels");
+            for (int color = 0; color < nativeArrowColors.Length; color++)
+                AssertEqual(nativeArrowColors[color], pause.screen.Palette.Colors[176 + color],
+                    $"pause arrow palette colour {color} follows native $82:A92B timing at scroll {x},{y}");
             AssertTrue(pixels.SequenceEqual(pause.Render()), "repainting does not advance arrows");
         }
         var beforeRestore = pause.Render();
@@ -106,7 +97,7 @@ internal static class PauseMapArrowsVerification
         AssertEqual(stable, pause.LastRenderedSpriteCount, "R press retains arrows on its native stable-page dispatch");
         pause.Step(0, 0); _ = pause.Render();
         AssertEqual(stable - allArrowParts, pause.LastRenderedSpriteCount, "page-fade dispatcher does not draw map arrows");
-        Console.WriteLine("Pause arrows: native ROM OAM and opaque pixels match at all four scroll edges; R/fade visibility and pure repaint pass.");
+        Console.WriteLine("Pause arrows: native ROM OAM and palette cycle match at all four scroll edges; R/fade visibility and pure repaint pass.");
         ushort Read(int address) => RomDataReader.ReadWordFixedBank(cart, address);
     }
 

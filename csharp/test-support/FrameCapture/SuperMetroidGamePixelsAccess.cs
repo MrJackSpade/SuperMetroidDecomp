@@ -10,7 +10,7 @@ internal static class SuperMetroidGamePixelsAccess
     /// <summary>The game's published picture.</summary>
     extension(SuperMetroidGame game)
     {
-        /// <summary>Renders the last published frame in software into a fresh array; call it between steps.</summary>
+        /// <summary>Draws the last published frame with the game's renderer into a fresh array; call it between steps.</summary>
         internal Rgba32[] PublishedPixels() => DisplayRendering.Render(game.GetRetainedDisplay(1, 1));
     }
 }

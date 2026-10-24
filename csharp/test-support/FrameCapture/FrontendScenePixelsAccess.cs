@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
 /// Verification access: a scene's or gameplay frame's pixels through the one published path, its render snapshot
-/// rasterized by the software backend, for checks that assert on pixels. Production has no other render path.
+/// drawn by the game's renderer (Direct3D 11 on the WARP device), for checks that assert on pixels.
 /// </summary>
 internal static class FrontendScenePixelsAccess
 {

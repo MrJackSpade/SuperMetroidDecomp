@@ -11,7 +11,7 @@ namespace SuperMetroid.RenderVerification.Frontend;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Progression;
 
-/// <summary>Compares captured title and frontend frames with their retail software renderings and state transitions.</summary>
+/// <summary>Compares captured title and frontend frames with the WARP reference device and checks their state transitions.</summary>
 internal static class RetailFrontendTests
 {
     /// <summary>Drives the title into file select, then compares frontend capture through the intro handoff.</summary>
@@ -64,7 +64,7 @@ internal static class RetailFrontendTests
             {
                 if (!states.Contains(SuperMetroidGameState.FileSelectMenus) || !states.Contains(SuperMetroidGameState.GameOptionsMenu))
                     throw new InvalidOperationException("Retail frontend did not visit file/options menus.");
-                Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {titleCount} natural title and {tick + 1} frontend frames match legacy pixels; frontend state/audio commands agree.");
+                Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {titleCount} natural title and {tick + 1} frontend frames match the WARP reference device; frontend state/audio commands agree.");
                 return;
             }
         }

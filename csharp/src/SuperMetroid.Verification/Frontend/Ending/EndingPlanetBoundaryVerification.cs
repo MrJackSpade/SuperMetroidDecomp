@@ -143,7 +143,7 @@ internal static class EndingPlanetBoundaryVerification
                     AffineFloorFixtures.Floor(nativeVram, snapshot.Paint.Colors)),
                 new ObjRenderLayer(AddToScreen: true)];
             var nativeMemory = new FramePaint(snapshot.Paint.Colors, snapshot.Paint.SpriteDraws);
-            var expected = DisplayRendering.Render(new(nativeMemory, nativeLayers, snapshot.Brightness));
+            var expected = DisplayRendering.Render(new LayeredScene(nativeMemory, nativeLayers, snapshot.Brightness));
             var actual = ending.Render();
             int changed = actual.Zip(expected, (first, second) => first != second).Count(differs => differs);
             differences += changed;
@@ -160,7 +160,7 @@ internal static class EndingPlanetBoundaryVerification
             // The frame carries no VRAM (#1403): the floor is drawn again from the native reconstruction.
             RenderLayer[] reconstructedLayers = [.. live.Layers.ToArray().Select(layer => layer is Mode7RenderLayer floor
                 ? (floor with { Floor = AffineFloorFixtures.Floor(reconstructed, live.Paint.Colors) }) : layer)];
-            var nativePixels = DisplayRendering.Render(new(live.Paint, reconstructedLayers, live.Brightness));
+            var nativePixels = DisplayRendering.Render(new LayeredScene(live.Paint, reconstructedLayers, live.Brightness));
             differences += ending.Render().Zip(nativePixels, (first, second) => first != second).Count(differs => differs);
             if (capture is not null && capture.Frames.Contains(frame))
             {

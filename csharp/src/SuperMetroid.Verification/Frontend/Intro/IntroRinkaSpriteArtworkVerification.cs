@@ -112,12 +112,12 @@ internal static class IntroRinkaSpriteArtworkVerification
             state.SetupMotherBrainFlashback();
             state.FlashbackRinkas = rinkas;
         }
-        Rgba32[] stockPixels = stockState.RenderMotherBrainFlashback();
-        Rgba32[] editedPixels = editedState.RenderMotherBrainFlashback();
+        Rgba32[] stockPixels = stockState.Render();
+        Rgba32[] editedPixels = editedState.Render();
         AssertTrue(!stockPixels.SequenceEqual(editedPixels),
             "intro Rinka override changes visible production flashback pixels");
         stockState.BindFixtureIntroArtwork(edited);
-        AssertTrue((stockState.RenderMotherBrainFlashback()).SequenceEqual(editedPixels),
+        AssertTrue(stockState.Render().SequenceEqual(editedPixels),
             "restored intro Rinka scene rebinds the selected visual composition");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production intro Rinkas never reread the three native compositions");

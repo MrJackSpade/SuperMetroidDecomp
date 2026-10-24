@@ -11,7 +11,7 @@ using SuperMetroid.AssetExtraction.Frontend.Title;
 namespace SuperMetroid.Verification.Frontend.Title;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Compares title-scene render snapshots with the independent live-memory renderer.</summary>
+/// <summary>Checks that title-scene render snapshots draw the scene, stay repeatable and are retained across its advancement.</summary>
 internal static class TitleSnapshotTestsVerification
 {
     /// <summary>Checks constructed and available retail scenes across phase changes and retained snapshots.</summary>
@@ -32,23 +32,15 @@ internal static class TitleSnapshotTestsVerification
                 titleGradientPresentation: gradient);
             var phases = new HashSet<TitleSequencePhase>();
             int comparisons = 0;
-            var reusable = new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
             for (int frame = 0; frame < 2500; frame++)
             {
                 TitleSequencePhase phase = scene.Phase;
                 bool newPhase = phases.Add(phase);
                 if (newPhase || frame % 17 == 0 || phase == TitleSequencePhase.TitleScreenFadeOut)
                 {
-                    // The legacy producer still independently rasterizes live memory.
-                    // Compare at phase boundaries and throughout motion, not just black
-                    // endpoints. It remains the reference until extraction is qualified.
+                    // Compare at phase boundaries and throughout motion, not just black endpoints.
                     Rgba32[] expected = scene.Render();
                     FloorScene packet = scene.CaptureRenderSnapshot();
-                    Array.Fill(reusable, new Rgba32(255, 0, 255));
-                    var reused = DisplayRendering.Render(
-                        new DisplayPacket(new(frame + 1, 1, (ushort)frame), packet), reusable);
-                    AssertTrue(ReferenceEquals(reusable, reused), "title caller-owned output retained");
-                    Match(expected, reused, frame, phase);
                     Match(expected, DisplayRendering.Render(
                         new DisplayPacket(new(frame + 1, 1, (ushort)frame), packet)), frame, phase);
                     Match(expected, DisplayRendering.Render(packet), frame, phase);

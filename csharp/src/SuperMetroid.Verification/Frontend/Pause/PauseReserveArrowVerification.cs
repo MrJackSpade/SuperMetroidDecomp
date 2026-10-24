@@ -78,7 +78,7 @@ internal static class PauseReserveArrowVerification
             colors[102] = Bgr555.FromWord(color6);
             colors[107] = Bgr555.FromWord(colorB);
             var memory = new FramePaint(colors, capture.Paint.SpriteDraws);
-            var expectedPixels = DisplayRendering.Render(new(memory, capture.Layers, capture.Brightness));
+            var expectedPixels = DisplayRendering.Render(new LayeredScene(memory, capture.Layers, capture.Brightness));
             AssertTrue(pause.Render().SequenceEqual(expectedPixels), context + " rendered arrow matches native tile/palette writes");
         }
     }

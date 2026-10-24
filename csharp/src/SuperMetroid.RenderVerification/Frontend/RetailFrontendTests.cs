@@ -64,7 +64,7 @@ internal static class RetailFrontendTests
             {
                 if (!states.Contains(SuperMetroidGameState.FileSelectMenus) || !states.Contains(SuperMetroidGameState.GameOptionsMenu))
                     throw new InvalidOperationException("Retail frontend did not visit file/options menus.");
-                Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {titleCount} natural title and {tick + 1} frontend frames match legacy pixels; frontend state/audio commands agree.");
+                Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {titleCount} natural title and {tick + 1} frontend frames match the WARP reference device; frontend state/audio commands agree.");
                 return;
             }
         }

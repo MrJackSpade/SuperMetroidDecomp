@@ -98,7 +98,7 @@ public sealed class ManagedSpcPlayer
     /// </summary>
     /// <exception cref="ArgumentException"><paramref name="destination"/> is too short.</exception>
     /// <exception cref="InvalidDataException">The schedule is out of order or outside the frame, or the driver state cannot be synthesized.</exception>
-    internal void GenerateNativeFrame(ReadOnlySpan<SoundClockStep> schedule, Span<short> destination)
+    internal void GenerateNativeFrame(ReadOnlySpan<SoundClockStep<SoundEffectId>> schedule, Span<short> destination)
     {
         RunFrame(schedule, synthesize: true);
         dsp.CopyNativeSamples(destination);
@@ -110,18 +110,18 @@ public sealed class ManagedSpcPlayer
     /// <see cref="GenerateNativeFrame"/>; the DSP only receives the register writes.
     /// </summary>
     /// <exception cref="InvalidDataException">The schedule is out of order or outside the frame.</exception>
-    internal void AdvanceSequencer(ReadOnlySpan<SoundClockStep> schedule) => RunFrame(schedule, synthesize: false);
+    internal void AdvanceSequencer(ReadOnlySpan<SoundClockStep<SoundEffectId>> schedule) => RunFrame(schedule, synthesize: false);
 
     /// <summary>Services the frame's driver ticks in order, clocking the DSP up to each tick when synthesizing.</summary>
-    private void RunFrame(ReadOnlySpan<SoundClockStep> schedule, bool synthesize)
+    private void RunFrame(ReadOnlySpan<SoundClockStep<SoundEffectId>> schedule, bool synthesize)
     {
         if (dsp.BufferedStereoFrameCount != 0)
             throw new InvalidDataException("S-DSP sample cursor is not at a frame boundary.");
 
         int cycle = 0;
-        foreach (SoundClockStep tick in schedule)
+        foreach (SoundClockStep<SoundEffectId> tick in schedule)
         {
-            if (tick.SampleOffset < cycle || tick.SampleOffset >= SoundAcceptanceClock.SamplesPerUpdate)
+            if (tick.SampleOffset < cycle || tick.SampleOffset >= SoundClockTiming.SamplesPerUpdate)
                 throw new InvalidDataException($"Driver tick at DSP cycle {tick.SampleOffset} is out of order or outside the frame.");
             for (; synthesize && cycle < tick.SampleOffset; cycle++)
                 dsp.Cycle();
@@ -130,7 +130,7 @@ public sealed class ManagedSpcPlayer
             LoopPartTwo(tick);
             LoopPartOne();
         }
-        for (; synthesize && cycle < SoundAcceptanceClock.SamplesPerUpdate; cycle++)
+        for (; synthesize && cycle < SoundClockTiming.SamplesPerUpdate; cycle++)
             dsp.Cycle();
     }
 
@@ -220,7 +220,7 @@ public sealed class ManagedSpcPlayer
     }
 
     /// <summary>Advances sound and music accumulators, servicing latched commands only on their native carry ticks.</summary>
-    private void LoopPartTwo(SoundClockStep tick)
+    private void LoopPartTwo(SoundClockStep<SoundEffectId> tick)
     {
         int ticks = tick.Steps;
         if (tick.ChecksRequests)

@@ -63,12 +63,12 @@ internal sealed class SoundEffectObserver(int libraryIndex, int command) : ISpcD
     internal void Attach(SpcAudioClipRenderer value) => renderer = value;
 
     /// <inheritdoc />
-    public void TickStarting(SoundClockStep tick)
+    public void TickStarting(SoundClockStep<SoundEffectId> tick)
     {
         tickSample = MusicTrackAnalysis.NativeSample(MusicTrackAnalysis.Required(renderer), tick);
         polled = tick.ChecksRequests;
-        SoundRequestCheck poll = tick.Checks[libraryIndex];
-        requested = polled && poll.Changed && poll.Request == command;
+        SoundRequestCheck<SoundEffectId> poll = tick.Checks[libraryIndex];
+        requested = polled && poll.Changed && poll.Request is SoundEffectId sound && SoundEffectCommands.Command(sound) == command;
     }
 
     /// <inheritdoc />

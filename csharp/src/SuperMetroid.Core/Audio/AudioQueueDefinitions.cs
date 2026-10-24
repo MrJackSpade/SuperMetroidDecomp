@@ -10,7 +10,7 @@ public static class AudioQueueDefinitions
     public const int MusicIndexMask = MusicCapacity - 1;
 
     /// <summary>The sound libraries, each with its own sound queue.</summary>
-    public const int SoundLibraryCount = SoundAcceptanceClock.LibraryCount;
+    public const int SoundLibraryCount = SoundClockTiming.LibraryCount;
 
     /// <summary>Positions in each sound queue's ring, including the one kept empty to tell a full ring from an empty one.</summary>
     public const int SoundCapacity = 16;

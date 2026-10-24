@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Audio;
 /// <summary>
 /// One thing the game's music and sound queues ask of the audio layer during an update (#1410): play or stop a music
 /// track, change the music data set, or set what a sound library is asked to play. The session applies an update's
-/// requests in order to its <see cref="SoundAcceptanceClock"/> and publishes them as <see cref="AudioEvent"/>s.
+/// requests in order to its <see cref="SoundAcceptanceClock{TSound}"/> and publishes them as <see cref="AudioEvent"/>s.
 /// </summary>
 internal abstract record AudioRequest
 {
@@ -21,7 +21,7 @@ internal abstract record AudioRequest
 
     /// <summary>
     /// Switches the clips the music and sounds play from to <paramref name="DataSet"/>'s. The switch stops the music and
-    /// drops every sound request not yet accepted (<see cref="SoundAcceptanceClock.PauseForMusicLoad"/>).
+    /// drops every sound request not yet accepted (<see cref="SoundAcceptanceClock{TSound}.PauseForMusicLoad"/>).
     /// </summary>
     /// <param name="DataSet">The music data set switched to, or null for only the shared sounds, as at power-on.</param>
     internal sealed record ChangeMusicDataSet(MusicDataSet? DataSet) : AudioRequest;
@@ -34,11 +34,18 @@ internal abstract record AudioRequest
     /// <param name="Library">The library whose request is withdrawn.</param>
     internal sealed record ClearSoundRequest(SoundEffectLibrary Library) : AudioRequest;
 
-    /// <summary>The request that asks <paramref name="library"/> for sound <paramref name="sound"/>, or withdraws its request for zero.</summary>
+    /// <summary>The request that asks <paramref name="library"/> for <paramref name="sound"/>, or withdraws its request for none.</summary>
     /// <param name="library">The library asked.</param>
-    /// <param name="sound">The library's sound number, or zero for none.</param>
-    internal static AudioRequest ForSound(SoundEffectLibrary library, int sound) =>
-        sound == 0 ? new ClearSoundRequest(library) : new RequestSound(new SoundEffectId(library, sound));
+    /// <param name="sound">One of the library's sounds, or none.</param>
+    /// <exception cref="ArgumentException"><paramref name="sound"/> belongs to another library.</exception>
+    internal static AudioRequest ForSound(SoundEffectLibrary library, SoundEffectId? sound)
+    {
+        if (sound is not SoundEffectId requested)
+            return new ClearSoundRequest(library);
+        if (requested.Library != library)
+            throw new ArgumentException($"{requested} does not belong to {library}.", nameof(sound));
+        return new RequestSound(requested);
+    }
 
     /// <summary>The request that plays <paramref name="track"/>, or stops the music for none.</summary>
     /// <param name="track">The track to play, or null to stop.</param>

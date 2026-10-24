@@ -5,7 +5,7 @@
 /// step of the sound acceptance clock, or a sound starting. Each is its own sealed record holding only what it carries.
 /// </summary>
 /// <remarks>
-/// The session owns the <see cref="SoundAcceptanceClock"/>, so these events already say when each library acts: a
+/// The session owns the <see cref="SoundAcceptanceClock{TSound}"/>, so these events already say when each library acts: a
 /// sound starts only at a clock step that checks the requests and finds a changed request, never when the game asked.
 /// Backends follow the events and never re-derive the clock.
 /// </remarks>

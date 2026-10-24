@@ -1,57 +1,31 @@
-using System.Runtime.CompilerServices;
-
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// The request each sound library reports back as acknowledged. The game's sound handlers compare it with the request
-/// they are waiting on, so it decides when a handler moves on to its next request (<see cref="SoundAcceptanceClock"/>).
+/// What each sound library reports back as acknowledged. The game's sound handlers compare it with the request they are
+/// waiting on, so it decides when a handler moves on to its next request (<see cref="SoundAcceptanceClock{TSound}"/>).
 /// </summary>
+/// <typeparam name="TSound">The sound a library is asked for.</typeparam>
+/// <param name="Library1">Library one's acknowledgement.</param>
+/// <param name="Library2">Library two's acknowledgement.</param>
+/// <param name="Library3">Library three's acknowledgement.</param>
 [CompatibilityService("the request each sound library reports back as acknowledged")]
-public readonly record struct SoundAcknowledgements
+public readonly record struct SoundAcknowledgements<TSound>(
+    SoundAcknowledgement<TSound> Library1,
+    SoundAcknowledgement<TSound> Library2,
+    SoundAcknowledgement<TSound> Library3)
+    where TSound : struct, IEquatable<TSound>
 {
-    /// <summary>Each library's acknowledged request, 0 through 255, indexed by zero-based library index.</summary>
-    private readonly PerLibrary requests;
+    /// <summary>Each library acknowledging the given request, or reporting nothing for none.</summary>
+    public static SoundAcknowledgements<TSound> Of(TSound? library1, TSound? library2, TSound? library3) => new(
+        SoundAcknowledgement<TSound>.Of(library1), SoundAcknowledgement<TSound>.Of(library2), SoundAcknowledgement<TSound>.Of(library3));
 
-    /// <summary>Records each library's acknowledged request, validated to the range a request can carry.</summary>
-    /// <param name="library1">Library one's acknowledged request.</param>
-    /// <param name="library2">Library two's acknowledged request.</param>
-    /// <param name="library3">Library three's acknowledged request.</param>
-    /// <exception cref="ArgumentOutOfRangeException">A request is outside 0 through 255.</exception>
-    public SoundAcknowledgements(int library1, int library2, int library3)
+    /// <summary>The acknowledgement of the library at zero-based <paramref name="library"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="library"/> is outside 0 through 2.</exception>
+    public SoundAcknowledgement<TSound> this[int library] => library switch
     {
-        int[] values = [library1, library2, library3];
-        for (int library = 0; library < SoundAcceptanceClock.LibraryCount; library++)
-            requests[library] = Ensure.BetweenInclusive(0, byte.MaxValue, values[library]);
-    }
-
-    /// <summary>The acknowledged request of the library at zero-based <paramref name="library"/>.</summary>
-    /// <exception cref="IndexOutOfRangeException"><paramref name="library"/> is outside 0 through 2.</exception>
-    public int this[int library] => requests[library];
-
-    /// <summary>One request per sound library; inline arrays have no built-in value equality, so it compares element by element.</summary>
-    [InlineArray(SoundAcceptanceClock.LibraryCount)]
-    private struct PerLibrary : IEquatable<PerLibrary>
-    {
-        /// <summary>Library one's request; the other libraries' follow it.</summary>
-        private int first;
-
-        /// <summary>Two request sets are equal when every library's request matches.</summary>
-        public readonly bool Equals(PerLibrary other)
-        {
-            for (int library = 0; library < SoundAcceptanceClock.LibraryCount; library++)
-                if (this[library] != other[library]) return false;
-            return true;
-        }
-
-        /// <summary>Compares with another boxed request set element by element.</summary>
-        public override readonly bool Equals(object? obj) => obj is PerLibrary other && Equals(other);
-
-        /// <summary>Combines every library's request in index order.</summary>
-        public override readonly int GetHashCode()
-        {
-            var hash = new HashCode();
-            for (int library = 0; library < SoundAcceptanceClock.LibraryCount; library++) hash.Add(this[library]);
-            return hash.ToHashCode();
-        }
-    }
+        0 => Library1,
+        1 => Library2,
+        2 => Library3,
+        _ => throw new ArgumentOutOfRangeException(nameof(library), library, "Sound libraries are indexed 0 through 2."),
+    };
 }

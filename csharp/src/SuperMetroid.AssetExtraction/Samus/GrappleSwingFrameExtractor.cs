@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Artwork;
@@ -18,6 +19,6 @@ public static class GrappleSwingFrameExtractor
         {
             Version = GrappleSwingFrameDefinitions.Version,
             Frames = Enumerable.Range(0, GrappleSwingFrameDefinitions.AngleCount)
-                .Select(angle => (int)bus.ReadCartridgeByte(SamusGrappleRomData.Rendering.SwingFrameByAngle + angle)).ToArray(),
+                .Select(angle => (int)bus.ReadCartridgeByte(SamusCartridgeTables.GrappleSwingFrameByAngle + angle)).ToArray(),
         });
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -23,9 +24,9 @@ public static class SamusSuitColorExtractor
         return SamusSuitColorCatalog.Write(new SamusSuitColorDocument
         {
             Version = SamusSuitColorFormat.Version,
-            Power = Read(SamusRenderingRomData.Body.PowerSuitPalette),
-            Varia = Read(SamusRenderingRomData.Body.VariaSuitPalette),
-            Gravity = Read(SamusRenderingRomData.Body.GravitySuitPalette),
+            Power = Read(SamusCartridgeTables.PowerSuitPalette),
+            Varia = Read(SamusCartridgeTables.VariaSuitPalette),
+            Gravity = Read(SamusCartridgeTables.GravitySuitPalette),
         });
 
         PaletteRgb5[] Read(int address)

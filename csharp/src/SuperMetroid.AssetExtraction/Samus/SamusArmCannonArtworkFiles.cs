@@ -46,19 +46,19 @@ public static class SamusArmCannonArtworkFiles
             .Select(pose => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 SamusCartridgeTables.PoseDrawingDataPointers + pose * 2) - SamusArmCannonArtworkFormat.DrawingDataStart).ToArray();
         int[] drawingData = Enumerable.Range(0, SamusArmCannonArtworkFormat.DrawingDataByteCount)
-            .Select(index => (int)bus.ReadCartridgeByte(SamusRenderingRomData.Banks.Movement |
+            .Select(index => (int)bus.ReadCartridgeByte(SamusCartridgeTables.MovementBank |
                 (SamusArmCannonArtworkFormat.DrawingDataStart + index))).ToArray();
-        int[] attributes = Enumerable.Range(0, SamusRenderingRomData.ArmCannon.DirectionCount)
+        int[] attributes = Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount)
             .Select(direction => (int)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                SamusRenderingRomData.ArmCannon.SpriteAttributes + direction * 2)).ToArray();
-        int[][] coverTiles = Enumerable.Range(0, SamusRenderingRomData.ArmCannon.DirectionCount)
+                SamusCartridgeTables.ArmCannonSpriteAttributes + direction * 2)).ToArray();
+        int[][] coverTiles = Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount)
             .Select(direction =>
             {
                 ushort list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     SamusCartridgeTables.TileListPointers + direction * 2);
                 ushort[] sources = [.. Enumerable.Range(0, SamusArmCannonArtworkFormat.FramesPerDirection)
                     .Select(frame => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                        SamusRenderingRomData.Banks.Movement | (list + frame * 2)))];
+                        SamusCartridgeTables.MovementBank | (list + frame * 2)))];
                 // The closed frame uploads nothing; each opening frame names one installed cover tile.
                 if (sources[0] != 0)
                     throw new InvalidDataException($"Arm-cannon direction {direction} uploads a closed-cover tile.");
@@ -75,11 +75,11 @@ public static class SamusArmCannonArtworkFiles
             CoverTiles = coverTiles,
         };
         byte[] planar = new byte[SamusArmCannonArtworkFormat.CoverTileCount *
-            SamusRenderingRomData.ArmCannon.TileByteCount];
+            SamusDrawingDefinitions.ArmCannon.TileByteCount];
         for (int tile = 0; tile < SamusArmCannonArtworkFormat.CoverTileCount; tile++)
-            for (int offset = 0; offset < SamusRenderingRomData.ArmCannon.TileByteCount; offset++)
-                planar[tile * SamusRenderingRomData.ArmCannon.TileByteCount + offset] =
-                    bus.ReadCartridgeByte(SamusRenderingRomData.Banks.CharacterData |
+            for (int offset = 0; offset < SamusDrawingDefinitions.ArmCannon.TileByteCount; offset++)
+                planar[tile * SamusDrawingDefinitions.ArmCannon.TileByteCount + offset] =
+                    bus.ReadCartridgeByte(SamusCartridgeTables.CharacterDataBank |
                         (SamusArmCannonArtworkFormat.CoverTileDmaSources[tile] + offset));
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
             SamusArmCannonArtworkFormat.CoverTileCount,
@@ -98,12 +98,12 @@ public static class SamusArmCannonArtworkFiles
         SamusArmCannonArtworkCatalog roundTrip = Load(directory, null);
         for (int tile = 0; tile < SamusArmCannonArtworkFormat.CoverTileCount; tile++)
         {
-            if (!roundTrip.TryResolveTile(SamusRenderingRomData.Banks.CharacterData |
+            if (!roundTrip.TryResolveTile(SamusCartridgeTables.CharacterDataBank |
                     SamusArmCannonArtworkFormat.CoverTileDmaSources[tile],
-                    SamusRenderingRomData.ArmCannon.TileByteCount, out var decoded) ||
+                    SamusDrawingDefinitions.ArmCannon.TileByteCount, out var decoded) ||
                 !decoded.Span.SequenceEqual(planar.AsSpan(
-                    tile * SamusRenderingRomData.ArmCannon.TileByteCount,
-                    SamusRenderingRomData.ArmCannon.TileByteCount)))
+                    tile * SamusDrawingDefinitions.ArmCannon.TileByteCount,
+                    SamusDrawingDefinitions.ArmCannon.TileByteCount)))
                 throw new InvalidDataException($"Arm-cannon tile {tile} changed in PNG round-trip.");
         }
     }
@@ -140,7 +140,7 @@ public static class SamusArmCannonArtworkFiles
             var placement = json.Compile(SamusArmCannonArtworkCatalog.LoadPlacement);
             var tiles = png.Compile(stream => RoomCharacterAtlas.Load(stream,
                 SamusArmCannonArtworkFormat.CoverTileCount *
-                    SamusRenderingRomData.ArmCannon.TileByteCount));
+                    SamusDrawingDefinitions.ArmCannon.TileByteCount));
             return SamusArmCannonArtworkCatalog.FromPlacement(placement, tiles);
         }
     }

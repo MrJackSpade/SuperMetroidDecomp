@@ -129,8 +129,8 @@ public static class SamusGrappleSwing
             if (HangsStraightDown(grapple) && grapple.AngularVelocity == 0)
                 grapple.AngularVelocity = 256;
             grapple.DirectionInputAcceleration = grapple.Submerged
-                ? (short)(SamusGrappleRomData.Physics.DirectionInputMagnitude / 2)
-                : SamusGrappleRomData.Physics.DirectionInputMagnitude;
+                ? (short)(GrappleBeamDefinitions.Physics.DirectionInputMagnitude / 2)
+                : GrappleBeamDefinitions.Physics.DirectionInputMagnitude;
             return;
         }
 
@@ -139,8 +139,8 @@ public static class SamusGrappleSwing
             if (HangsStraightDown(grapple) && grapple.AngularVelocity == 0)
                 grapple.AngularVelocity = -256;
             grapple.DirectionInputAcceleration = grapple.Submerged
-                ? (short)-(SamusGrappleRomData.Physics.DirectionInputMagnitude / 2)
-                : (short)-SamusGrappleRomData.Physics.DirectionInputMagnitude;
+                ? (short)-(GrappleBeamDefinitions.Physics.DirectionInputMagnitude / 2)
+                : (short)-GrappleBeamDefinitions.Physics.DirectionInputMagnitude;
             return;
         }
 
@@ -228,10 +228,10 @@ public static class SamusGrappleSwing
         if ((angle & 3 << 14) == 3 << 14)
         {
             grapple.VelocityCorrection = -(
-                SamusGrappleRomData.Physics.VelocityCorrectionMagnitude >> 2);
+                GrappleBeamDefinitions.Physics.VelocityCorrectionMagnitude >> 2);
             grapple.GravityAcceleration = grapple.Submerged
-                ? (short)-(SamusGrappleRomData.Physics.GravityMagnitude >> 3)
-                : (short)-(SamusGrappleRomData.Physics.GravityMagnitude >> 2);
+                ? (short)-(GrappleBeamDefinitions.Physics.GravityMagnitude >> 3)
+                : (short)-(GrappleBeamDefinitions.Physics.GravityMagnitude >> 2);
         }
         else if ((angle & 1 << 15) != 0)
         {
@@ -246,27 +246,27 @@ public static class SamusGrappleSwing
             else
             {
                 grapple.VelocityCorrection =
-                    -SamusGrappleRomData.Physics.VelocityCorrectionMagnitude;
+                    -GrappleBeamDefinitions.Physics.VelocityCorrectionMagnitude;
                 grapple.GravityAcceleration = grapple.Submerged
-                    ? (short)-(SamusGrappleRomData.Physics.GravityMagnitude >> 1)
-                    : (short)-SamusGrappleRomData.Physics.GravityMagnitude;
+                    ? (short)-(GrappleBeamDefinitions.Physics.GravityMagnitude >> 1)
+                    : (short)-GrappleBeamDefinitions.Physics.GravityMagnitude;
             }
         }
         else if ((angle & 1 << 14) != 0)
         {
             grapple.VelocityCorrection =
-                SamusGrappleRomData.Physics.VelocityCorrectionMagnitude;
+                GrappleBeamDefinitions.Physics.VelocityCorrectionMagnitude;
             grapple.GravityAcceleration = grapple.Submerged
-                ? (short)(SamusGrappleRomData.Physics.GravityMagnitude >> 1)
-                : SamusGrappleRomData.Physics.GravityMagnitude;
+                ? (short)(GrappleBeamDefinitions.Physics.GravityMagnitude >> 1)
+                : GrappleBeamDefinitions.Physics.GravityMagnitude;
         }
         else
         {
             grapple.VelocityCorrection =
-                SamusGrappleRomData.Physics.VelocityCorrectionMagnitude >> 2;
+                GrappleBeamDefinitions.Physics.VelocityCorrectionMagnitude >> 2;
             grapple.GravityAcceleration = grapple.Submerged
-                ? (short)(SamusGrappleRomData.Physics.GravityMagnitude >> 3)
-                : (short)(SamusGrappleRomData.Physics.GravityMagnitude >> 2);
+                ? (short)(GrappleBeamDefinitions.Physics.GravityMagnitude >> 3)
+                : (short)(GrappleBeamDefinitions.Physics.GravityMagnitude >> 2);
         }
     }
 
@@ -286,8 +286,8 @@ public static class SamusGrappleSwing
 
         grapple.AngularVelocity = unchecked((short)Math.Clamp(
             velocity,
-            -SamusGrappleRomData.Physics.MaximumAngularVelocity,
-            SamusGrappleRomData.Physics.MaximumAngularVelocity));
+            -GrappleBeamDefinitions.Physics.MaximumAngularVelocity,
+            GrappleBeamDefinitions.Physics.MaximumAngularVelocity));
     }
 
 
@@ -306,11 +306,11 @@ public static class SamusGrappleSwing
             grapple.JumpImpulse = grapple.AngularVelocity switch
             {
                 > 0 => grapple.Submerged
-                    ? (short)(SamusGrappleRomData.Physics.JumpImpulseMagnitude / 2)
-                    : SamusGrappleRomData.Physics.JumpImpulseMagnitude,
+                    ? (short)(GrappleBeamDefinitions.Physics.JumpImpulseMagnitude / 2)
+                    : GrappleBeamDefinitions.Physics.JumpImpulseMagnitude,
                 < 0 => grapple.Submerged
-                    ? (short)-(SamusGrappleRomData.Physics.JumpImpulseMagnitude / 2)
-                    : (short)-SamusGrappleRomData.Physics.JumpImpulseMagnitude,
+                    ? (short)-(GrappleBeamDefinitions.Physics.JumpImpulseMagnitude / 2)
+                    : (short)-GrappleBeamDefinitions.Physics.JumpImpulseMagnitude,
                 _ => 0,
             };
         }

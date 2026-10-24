@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json;
@@ -78,9 +79,9 @@ internal static class SamusSuitColorsVerification
         ];
         int[] sourceAddresses =
         [
-            SamusRenderingRomData.Body.PowerSuitPalette,
-            SamusRenderingRomData.Body.VariaSuitPalette,
-            SamusRenderingRomData.Body.GravitySuitPalette,
+            SamusCartridgeTables.PowerSuitPalette,
+            SamusCartridgeTables.VariaSuitPalette,
+            SamusCartridgeTables.GravitySuitPalette,
         ];
 
         for (int suit = 0; suit < equipment.Length; suit++)
@@ -125,9 +126,9 @@ internal static class SamusSuitColorsVerification
             new MemoryStream(extracted, writable: false));
         int[] sourceAddresses =
         [
-            SamusRenderingRomData.Body.PowerSuitPalette,
-            SamusRenderingRomData.Body.VariaSuitPalette,
-            SamusRenderingRomData.Body.GravitySuitPalette,
+            SamusCartridgeTables.PowerSuitPalette,
+            SamusCartridgeTables.VariaSuitPalette,
+            SamusCartridgeTables.GravitySuitPalette,
         ];
         ushort[] offsets = [0, 2, 4];
         for (int suit = 0; suit < offsets.Length; suit++)
@@ -233,9 +234,9 @@ internal static class SamusSuitColorsVerification
     /// <summary>Native addresses of Power, Varia, and Gravity palette words guarded during runtime checks.</summary>
     private static readonly int[] SuitColorSources =
     [
-        SamusRenderingRomData.Body.PowerSuitPalette,
-        SamusRenderingRomData.Body.VariaSuitPalette,
-        SamusRenderingRomData.Body.GravitySuitPalette,
+        SamusCartridgeTables.PowerSuitPalette,
+        SamusCartridgeTables.VariaSuitPalette,
+        SamusCartridgeTables.GravitySuitPalette,
     ];
 
     /// <summary>Rejects runtime reads from the three cartridge suit color tables.</summary>

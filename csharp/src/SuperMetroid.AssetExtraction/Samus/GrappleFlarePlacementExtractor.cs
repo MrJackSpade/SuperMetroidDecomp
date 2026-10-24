@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Artwork;
@@ -20,8 +21,8 @@ public static class GrappleFlarePlacementExtractor
         foreach (bool running in new[] { false, true })
         for (int direction = 0; direction < ChargeFlarePlacementDefinitions.DirectionCount; direction++)
         {
-            int x = running ? SamusGrappleRomData.Firing.RunningFlareX : SamusGrappleRomData.Firing.DefaultFlareX;
-            int y = running ? SamusGrappleRomData.Firing.RunningFlareY : SamusGrappleRomData.Firing.DefaultFlareY;
+            int x = running ? SamusCartridgeTables.GrappleRunningFlareX : SamusCartridgeTables.GrappleDefaultFlareX;
+            int y = running ? SamusCartridgeTables.GrappleRunningFlareY : SamusCartridgeTables.GrappleDefaultFlareY;
             offsets.Add(ChargeFlarePlacementDefinitions.Key(running, direction), new()
             {
                 X = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), x + direction * 2)),

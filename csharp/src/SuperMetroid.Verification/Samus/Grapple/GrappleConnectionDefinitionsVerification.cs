@@ -33,15 +33,16 @@ internal static class GrappleConnectionDefinitionsVerification
         // All three table bases and every serialized direction byte, including native
         // reads into the next authored table. Other addresses fail explicitly.
         int compiled = 0;
-        foreach (int table in new[] { 0x9bc3c6, 0x9bc3ee, 0x9bc416 })
+        // The three tables lie one after another, so a direction past a table's ten reads on into the next's records.
+        foreach ((GrappleConnectionTable kind, int table) in new[] { (GrappleConnectionTable.Default, 0x9bc3c6),
+                     (GrappleConnectionTable.MovingVertically, 0x9bc3ee), (GrappleConnectionTable.Crouching, 0x9bc416) })
         for (int direction = 0; direction <= byte.MaxValue; direction++)
-        for (int alignment = 0; alignment < 4; alignment++)
         {
-            int address = table + direction * 4 + alignment;
-            bool authored = address < 0x9bc43e && alignment == 0;
+            int address = table + direction * 4;
+            bool authored = address < 0x9bc43e;
             if (authored)
             {
-                var connection = GrappleConnectionDefinitions.ResolveConnection(address);
+                var connection = GrappleConnectionDefinitions.ResolveConnection(kind, direction);
                 AssertEqual(new VerifyGrappleConnectionDefinitionsCase(Word(address), Word(address + 2)), new VerifyGrappleConnectionDefinitionsCase((ushort)connection.Function, (ushort)connection.Handler),
                     "Both native connection words");
                 compiled++;
@@ -49,8 +50,8 @@ internal static class GrappleConnectionDefinitionsVerification
             else
             {
                 AssertThrows<InvalidDataException>(
-                    () => GrappleConnectionDefinitions.ResolveConnection(address),
-                    "Unknown or unaligned connection address fails instead of reading adjacent ROM");
+                    () => GrappleConnectionDefinitions.ResolveConnection(kind, direction),
+                    "A direction past the compiled records fails instead of reading adjacent ROM");
             }
         }
         AssertEqual(60, compiled, "Default 30 + vertical 20 + crouching 10 authored reads");

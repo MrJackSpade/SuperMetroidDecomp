@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text;
 using System.Text.Json;
@@ -91,7 +92,7 @@ internal static class SamusHurtColorsVerification
                 ? SamusHurtColorFormat.HurtSourceAddress
                 : cinematic
                     ? SamusHurtColorFormat.IntroSourceAddress
-                    : SamusRenderingRomData.Body.PowerSuitPalette;
+                    : SamusCartridgeTables.PowerSuitPalette;
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
                 AssertEqual((ushort)(ReadNativeHurtCycleColor(rom, expectedPaletteAddress, index) & 0x7fff),
                     cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + index],

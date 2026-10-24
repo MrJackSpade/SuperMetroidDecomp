@@ -202,9 +202,9 @@ public static class SamusGrappleBeamDrawing
         // Preserve the fractional word across segments. Rounding each individual
         // displacement shortens diagonals and rounds negative steps incorrectly.
         int stepX = SamusGrappleSwing.ReadSignedSine(drawAngle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex)
-            * SamusGrappleRomData.Rendering.SegmentSampleToFixedPoint;
+            * GrappleBeamDefinitions.Rendering.SegmentSampleToFixedPoint;
         int stepY = SamusGrappleSwing.ReadSignedSine(drawAngle.TableIndex)
-            * SamusGrappleRomData.Rendering.SegmentSampleToFixedPoint;
+            * GrappleBeamDefinitions.Rendering.SegmentSampleToFixedPoint;
 
         // $94:AFDE derives X/Y flip bits from the grapple angle while retaining the packed
         // palette-five/priority-three instruction word. Tile $20 is the connected endpoint.
@@ -213,12 +213,12 @@ public static class SamusGrappleBeamDrawing
         flipBits |= 2 * ((((angleHigh ^ flipBits) & 1 << 6) ^ 1 << 6));
         SpriteMirror mirror = ((flipBits & 1 << 6) != 0 ? SpriteMirror.Horizontal : SpriteMirror.None) |
             ((flipBits & 1 << 7) != 0 ? SpriteMirror.Vertical : SpriteMirror.None);
-        int screenXFixed = unchecked(SnesSixteenSixteen.FromWhole(grapple.BeamStart.X - layer1.X - SamusGrappleRomData.Rendering.CharacterCenterOffset));
-        int screenYFixed = unchecked(SnesSixteenSixteen.FromWhole(grapple.BeamStart.Y - layer1.Y - SamusGrappleRomData.Rendering.CharacterCenterOffset));
+        int screenXFixed = unchecked(SnesSixteenSixteen.FromWhole(grapple.BeamStart.X - layer1.X - GrappleBeamDefinitions.Rendering.CharacterCenterOffset));
+        int screenYFixed = unchecked(SnesSixteenSixteen.FromWhole(grapple.BeamStart.Y - layer1.Y - GrappleBeamDefinitions.Rendering.CharacterCenterOffset));
         // Native enters the loop before decrementing quotient-minus-one: even a
         // positive length whose masked quotient is zero visits one segment.
-        int segmentCount = Math.Max(1, (grapple.RopeLength / SamusGrappleRomData.Rendering.SegmentSpacing)
-            & SamusGrappleRomData.Rendering.SegmentCountMask);
+        int segmentCount = Math.Max(1, (grapple.RopeLength / GrappleBeamDefinitions.Rendering.SegmentSpacing)
+            & GrappleBeamDefinitions.Rendering.SegmentCountMask);
         for (int segment = 0; segment < segmentCount; segment++)
         {
             // $94:AFBA walks instruction slots from 15 downward regardless of rope length.
@@ -226,14 +226,14 @@ public static class SamusGrappleBeamDrawing
             // expiries advance through $21,$22,$23,$24 and $94:B0F4's goto back to $21.
             // Keeping the one-time first expiry explicit preserves the native five-draw
             // interval without pretending that all rope pieces share one animation frame.
-            int instructionSlot = SamusGrappleRomData.Rendering.FirstSegmentSlot - segment;
+            int instructionSlot = GrappleBeamDefinitions.Rendering.FirstSegmentSlot - segment;
             if ((grapple.SegmentAnimationTimers[instructionSlot] = grapple.SegmentAnimationTimers[instructionSlot].Decrement().Remaining).IsZero)
             {
-                grapple.SegmentAnimationTimers[instructionSlot] = WrappingCountdown.Start(SamusGrappleRomData.Rendering.SegmentAnimationDelay);
+                grapple.SegmentAnimationTimers[instructionSlot] = WrappingCountdown.Start(GrappleBeamDefinitions.Rendering.SegmentAnimationDelay);
                 if (grapple.SegmentAnimationStarted[instructionSlot])
                 {
                     grapple.SegmentAnimationFrames[instructionSlot] = unchecked((byte)(
-                        (grapple.SegmentAnimationFrames[instructionSlot] + 1) % SamusGrappleRomData.Rendering.SegmentAnimationFrameCount));
+                        (grapple.SegmentAnimationFrames[instructionSlot] + 1) % GrappleBeamDefinitions.Rendering.SegmentAnimationFrameCount));
                 }
                 else
                 {
@@ -245,7 +245,7 @@ public static class SamusGrappleBeamDrawing
             ushort screenY = SnesFixedPosition.WholeOf(screenYFixed);
             // Native ticks this slot before the visibility check, then abandons
             // the remaining rope slots entirely at the first off-screen segment.
-            if (((screenX | screenY) & SamusGrappleRomData.Rendering.SegmentOutsideViewportMask) != 0)
+            if (((screenX | screenY) & GrappleBeamDefinitions.Rendering.SegmentOutsideViewportMask) != 0)
                 break;
             // `$94:AFDE`'s direction flips are ORed into the segment's own; the sheet holds each combination.
             SpriteSheetFrame image = installed.Frame(SuperMetroid.Core.Samus.Artwork.GrappleSheetDefinitions.RopeFrame(
@@ -278,7 +278,7 @@ public static class SamusGrappleBeamDrawing
         int borrowX = swinging && grapple.Anchor.X < layer1.X ? 1 : 0;
         int borrowY = swinging && grapple.Anchor.Y < layer1.Y ? 1 : 0;
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleEndpoint), image,
-            new Position16<ScreenPixels>(unchecked((ushort)(grapple.Anchor.X - layer1.X - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowX)), unchecked((ushort)(relativeY - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowY))),
+            new Position16<ScreenPixels>(unchecked((ushort)(grapple.Anchor.X - layer1.X - GrappleBeamDefinitions.Rendering.CharacterCenterOffset - borrowX)), unchecked((ushort)(relativeY - GrappleBeamDefinitions.Rendering.CharacterCenterOffset - borrowY))),
             SpriteMirror.None));
     }
 

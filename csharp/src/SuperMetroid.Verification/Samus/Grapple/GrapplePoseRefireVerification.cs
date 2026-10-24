@@ -40,7 +40,7 @@ internal static class GrapplePoseRefireVerification
                 "refire uses current pose direction");
             AssertEqual(10, grapple.PoseChangeAutoFireTimer.RawValue, "refire resets native ten-frame timer");
             AssertTrue(samus.LiquidPhysics.SoundRequests.SequenceEqual(new[] {
-                SamusGrappleRomData.Sounds.RestartStop, SamusGrappleRomData.Sounds.Fire }), "refire publishes native stop/start sound order and queue limits");
+                GrappleBeamDefinitions.Sounds.RestartStop, GrappleBeamDefinitions.Sounds.Fire }), "refire publishes native stop/start sound order and queue limits");
             AssertEqual(0, grapple.RopeLength, "restart does not extend in same call");
             AssertEqual(0, grapple.EndpointOffset.X.RawValue, "restart clears old X endpoint displacement");
             AssertEqual(0, grapple.EndpointOffset.Y.RawValue, "restart clears old Y endpoint displacement");

@@ -137,15 +137,15 @@ internal static class SamusBodyArtworkVerification
             new Position16<ScreenPixels>(127, 131), SpriteFrameTestArtwork.Spritemaps(sprites), new SpriteSource(SpriteSourceKind.Samus));
         AssertEqual(0, zeroOam.LastFinalizedSpriteCount, "zero Samus pointer draws nothing");
         for (int i = 0; i < stock.LandingYOffsets.Length; i++)
-            AssertEqual(bus.ReadCartridgeByte(SamusRenderingRomData.Body.LandingVerticalOffsets + i),
+            AssertEqual(bus.ReadCartridgeByte(SamusCartridgeTables.LandingVerticalOffsets + i),
                 stock.LandingYOffsets[i], $"Samus landing visual byte {i}");
         for (int i = 0; i < stock.PostureYOffsets.Length; i++)
             AssertEqual(unchecked((sbyte)bus.ReadCartridgeByte(
-                SamusRenderingRomData.Body.PostureTransitionVerticalOffsets + i)),
+                SamusCartridgeTables.PostureTransitionVerticalOffsets + i)),
                 stock.PostureYOffsets[i], $"Samus posture visual byte {i}");
         for (int i = 0; i < stock.DrainedYOffsets.Length; i++)
             AssertEqual(unchecked((sbyte)bus.ReadCartridgeByte(
-                SamusRenderingRomData.Body.DrainedVerticalOffsets + i)),
+                SamusCartridgeTables.DrainedVerticalOffsets + i)),
                 stock.DrainedYOffsets[i], $"Samus drained visual byte {i}");
 
         // The installed selector and both VRAM halves must take the production path
@@ -403,11 +403,11 @@ internal static class SamusBodyArtworkVerification
             "edited arm-cannon JSON changes a pose OAM X offset");
         ReadOnlyMemory<byte> editedArmTile = default;
         AssertTrue(stock.ArmCannon.TryResolveTile(
-                SamusRenderingRomData.Banks.CharacterData |
+                SamusCartridgeTables.CharacterDataBank |
                     selectedArmTileSource, 32,
                 out var stockArmTile) &&
             replacement.ArmCannon.TryResolveTile(
-                SamusRenderingRomData.Banks.CharacterData |
+                SamusCartridgeTables.CharacterDataBank |
                     selectedArmTileSource, 32,
                 out editedArmTile) &&
             !stockArmTile.Span.SequenceEqual(editedArmTile.Span),
@@ -577,7 +577,7 @@ internal static class SamusBodyArtworkVerification
         SamusArmCannonArtworkCatalog reboundArm = repaired.LoadSamusBodyArt().ArmCannon;
         AssertTrue(reboundArm.ReadDrawingByteAt(armXAddress) != stock.ArmCannon.ReadDrawingByteAt(armXAddress),
             "repair preserves edited arm-cannon placement JSON");
-        AssertTrue(reboundArm.TryResolveTile(SamusRenderingRomData.Banks.CharacterData |
+        AssertTrue(reboundArm.TryResolveTile(SamusCartridgeTables.CharacterDataBank |
                 selectedArmTileSource, 32, out var reboundArmTile) &&
             reboundArmTile.Span.SequenceEqual(editedArmTile.Span),
             "repair preserves edited arm-cannon PNG pixels");
@@ -599,20 +599,20 @@ internal static class SamusBodyArtworkVerification
                 $"arm-cannon pose {pose:X2} drawing pointer");
         }
         for (int offset = 0; offset < SamusArmCannonArtworkFormat.DrawingDataByteCount; offset++)
-            AssertEqual(bus.ReadCartridgeByte(SamusRenderingRomData.Banks.Movement |
+            AssertEqual(bus.ReadCartridgeByte(SamusCartridgeTables.MovementBank |
                     (SamusArmCannonArtworkFormat.DrawingDataStart + offset)),
                 armCannon.ReadDrawingByteAt((ushort)(SamusArmCannonArtworkFormat.DrawingDataStart + offset)),
                 $"arm-cannon drawing byte {offset:X3}");
-        for (int direction = 0; direction < SamusRenderingRomData.ArmCannon.DirectionCount; direction++)
+        for (int direction = 0; direction < SamusDrawingDefinitions.ArmCannon.DirectionCount; direction++)
         {
-            int attrAddress = SamusRenderingRomData.ArmCannon.SpriteAttributes + direction * 2;
+            int attrAddress = SamusCartridgeTables.ArmCannonSpriteAttributes + direction * 2;
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(attrAddress),
                 armCannon.SpriteAttributes(direction), $"arm-cannon direction {direction} OAM");
             int listAddress = SamusCartridgeTables.TileListPointers + direction * 2;
             int list = CartridgeImportSource.Require(bus).ReadCartridgeWord(listAddress);
             for (int frame = 0; frame < SamusArmCannonArtworkFormat.FramesPerDirection; frame++)
             {
-                int word = SamusRenderingRomData.Banks.Movement | (list + frame * 2);
+                int word = SamusCartridgeTables.MovementBank | (list + frame * 2);
                 AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(word),
                     armCannon.TileSource(direction, frame),
                     $"arm-cannon direction {direction} frame {frame} tile source");
@@ -620,9 +620,9 @@ internal static class SamusBodyArtworkVerification
         }
         foreach (ushort pointer in SamusArmCannonArtworkFormat.TileSourcePointers)
         {
-            int source = SamusRenderingRomData.Banks.CharacterData | pointer;
+            int source = SamusCartridgeTables.CharacterDataBank | pointer;
             AssertTrue(armCannon.TryResolveTile(source,
-                SamusRenderingRomData.ArmCannon.TileByteCount, out var tile),
+                SamusDrawingDefinitions.ArmCannon.TileByteCount, out var tile),
                 $"arm-cannon character ${source:X6} installed");
             for (int offset = 0; offset < tile.Length; offset++)
                 AssertEqual(bus.ReadCartridgeByte(source + offset), tile.Span[offset],

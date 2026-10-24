@@ -117,8 +117,8 @@ internal static class SamusRenderingFixtureVerification
             Words(SamusSpritemapArtworkCatalog.BottomBaseAddress, SamusBodyArtworkCatalog.PoseCount), SamusSpritemapNative.Entries(spritePointers), maps);
         ushort[] landing = stock.LandingYOffsets.ToArray();
         for (int index = 0; index < landing.Length; index++)
-            if (bus.HasSeededByte(SamusRenderingRomData.Body.LandingVerticalOffsets + index))
-                landing[index] = bus.ReadByte(SamusRenderingRomData.Body.LandingVerticalOffsets + index);
-        samus.Presentation.BodyFrames.BindBodyFixture(new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopSetStarts = SamusBodyNative.Records(topPointers), BottomSetStarts = SamusBodyNative.Records(bottomPointers), PoseFirstFrames = SamusBodyNative.Frames(posePointers), GraphicsYOffsets = offsets, Frames = frames, Top = Groups(true, topPointers), Bottom = Groups(false, bottomPointers), Spritemaps = sprites, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTiles = stock.DeathTiles, ArmCannon = stock.ArmCannon, LandingYOffsets = landing, PostureYOffsets = OverrideBytes(SamusRenderingRomData.Body.PostureTransitionVerticalOffsets, stock.PostureYOffsets.ToArray()), DrainedYOffsets = OverrideBytes(SamusRenderingRomData.Body.DrainedVerticalOffsets, stock.DrainedYOffsets.ToArray()) }));
+            if (bus.HasSeededByte(SamusCartridgeTables.LandingVerticalOffsets + index))
+                landing[index] = bus.ReadByte(SamusCartridgeTables.LandingVerticalOffsets + index);
+        samus.Presentation.BodyFrames.BindBodyFixture(new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopSetStarts = SamusBodyNative.Records(topPointers), BottomSetStarts = SamusBodyNative.Records(bottomPointers), PoseFirstFrames = SamusBodyNative.Frames(posePointers), GraphicsYOffsets = offsets, Frames = frames, Top = Groups(true, topPointers), Bottom = Groups(false, bottomPointers), Spritemaps = sprites, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTiles = stock.DeathTiles, ArmCannon = stock.ArmCannon, LandingYOffsets = landing, PostureYOffsets = OverrideBytes(SamusCartridgeTables.PostureTransitionVerticalOffsets, stock.PostureYOffsets.ToArray()), DrainedYOffsets = OverrideBytes(SamusCartridgeTables.DrainedVerticalOffsets, stock.DrainedYOffsets.ToArray()) }));
     }
 }

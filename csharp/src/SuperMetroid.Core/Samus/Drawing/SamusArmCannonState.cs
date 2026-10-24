@@ -122,7 +122,7 @@ public sealed class SamusArmCannonState
         byte selector = frameDependentSelector && samus.AnimationFrame != 0
             ? unchecked((byte)(ReadDrawingByte(descriptor + 2) & sbyte.MaxValue))
             : unchecked((byte)(firstSelector & sbyte.MaxValue));
-        if (selector >= SamusRenderingRomData.ArmCannon.DirectionCount)
+        if (selector >= SamusDrawingDefinitions.ArmCannon.DirectionCount)
             throw new InvalidDataException($"Arm-cannon direction selector {selector} is outside 0..9.");
 
         int offsetsBase = descriptor + (frameDependentSelector ? 4 : 2);

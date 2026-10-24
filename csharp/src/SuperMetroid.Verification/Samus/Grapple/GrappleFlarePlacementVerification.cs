@@ -38,8 +38,8 @@ internal static class GrappleFlarePlacementVerification
         for (int direction = 0; direction < 16; direction++)
         {
             var offset = stock.Resolve(running, direction);
-            int x = running ? SamusGrappleRomData.Firing.RunningFlareX : SamusGrappleRomData.Firing.DefaultFlareX;
-            int y = running ? SamusGrappleRomData.Firing.RunningFlareY : SamusGrappleRomData.Firing.DefaultFlareY;
+            int x = running ? SamusCartridgeTables.GrappleRunningFlareX : SamusCartridgeTables.GrappleDefaultFlareX;
+            int y = running ? SamusCartridgeTables.GrappleRunningFlareY : SamusCartridgeTables.GrappleDefaultFlareY;
             AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), x + direction * 2)), offset.X, "Extracted Grapple flare X including adjacent rows");
             AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), y + direction * 2)), offset.Y, "Extracted Grapple flare Y including adjacent rows");
             var editedOffset = document.Required("offsets").Required(ChargeFlarePlacementDefinitions.Key(running, direction));

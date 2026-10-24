@@ -93,17 +93,17 @@ public static class SamusBodyArtworkFiles
         int?[] spritemapEntries = [.. spritemapPointers.Select(pointer =>
             pointer == 0 ? (int?)null : Array.BinarySearch(compositions, pointer))];
         ushort[] landingYOffsets = Enumerable.Range(0,
-            SamusRenderingRomData.Body.LandingVerticalOffsetByteCount)
+            SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount)
             .Select(index => (ushort)bus.ReadCartridgeByte(
-                SamusRenderingRomData.Body.LandingVerticalOffsets + index)).ToArray();
+                SamusCartridgeTables.LandingVerticalOffsets + index)).ToArray();
         sbyte[] postureYOffsets = Enumerable.Range(0,
-            SamusRenderingRomData.Body.PostureTransitionVerticalOffsetByteCount)
+            SamusDrawingDefinitions.BodyOffsets.PostureTransitionVerticalOffsetByteCount)
             .Select(index => unchecked((sbyte)bus.ReadCartridgeByte(
-                SamusRenderingRomData.Body.PostureTransitionVerticalOffsets + index))).ToArray();
+                SamusCartridgeTables.PostureTransitionVerticalOffsets + index))).ToArray();
         sbyte[] drainedYOffsets = Enumerable.Range(0,
-            SamusRenderingRomData.Body.DrainedVerticalOffsetByteCount)
+            SamusDrawingDefinitions.BodyOffsets.DrainedVerticalOffsetByteCount)
             .Select(index => unchecked((sbyte)bus.ReadCartridgeByte(
-                SamusRenderingRomData.Body.DrainedVerticalOffsets + index))).ToArray();
+                SamusCartridgeTables.DrainedVerticalOffsets + index))).ToArray();
         var manifest = new Manifest(FormatVersion, sourceCartridgeSha256,
             topSetStarts, bottomSetStarts, poseFirstFrames, graphicsYOffsets,
             frames, top, bottom, spritemapTopBases, spritemapBottomBases,

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -33,7 +34,7 @@ static void SeedStoredShinePalettes(TestAddressSpace bus)
         WriteTestWord(bus, SamusPaletteRomData.Banks.Palette | pointer,
             unchecked((ushort)(0x1100 + frame)));
     }
-    WriteTestWord(bus, SamusRenderingRomData.Body.PowerSuitPalette, 0x0321);
+    WriteTestWord(bus, SamusCartridgeTables.PowerSuitPalette, 0x0321);
 }
 
 /// <summary>Checks shine storage and palette selection through launch, movement, collision, crash, echoes, and return to standing.</summary>

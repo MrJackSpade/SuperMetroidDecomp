@@ -31,8 +31,8 @@ internal static class SamusGrappleMovementAccess
             Ensure.NotNull(samus);
             if (ropeLength is < 8 or > 63)
                 throw new ArgumentOutOfRangeException(nameof(ropeLength), "Retail connected rope length is 8..63 pixels.");
-            if (angularVelocity is < -SamusGrappleRomData.Physics.MaximumAngularVelocity or
-                > SamusGrappleRomData.Physics.MaximumAngularVelocity)
+            if (angularVelocity is < -GrappleBeamDefinitions.Physics.MaximumAngularVelocity or
+                > GrappleBeamDefinitions.Physics.MaximumAngularVelocity)
                 throw new ArgumentOutOfRangeException(nameof(angularVelocity));
             if (samus.Grapple.Phase != GrapplePhase.Inactive)
                 throw new InvalidOperationException("A grapple state is already active.");

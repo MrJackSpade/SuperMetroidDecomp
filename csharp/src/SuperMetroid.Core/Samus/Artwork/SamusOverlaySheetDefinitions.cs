@@ -25,7 +25,7 @@ public static class SamusOverlaySheetDefinitions
 
     /// <summary>Every frame the sheet holds.</summary>
     public static IEnumerable<string> Frames =>
-        Enumerable.Range(0, SamusRenderingRomData.ArmCannon.DirectionCount)
+        Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount)
             .SelectMany(direction => Enumerable.Range(FirstCoverFrame, LastCoverFrame - FirstCoverFrame + 1)
                 .Select(frame => ArmCannonFrame(direction, frame)))
             .Append(ChestCoverFrame);

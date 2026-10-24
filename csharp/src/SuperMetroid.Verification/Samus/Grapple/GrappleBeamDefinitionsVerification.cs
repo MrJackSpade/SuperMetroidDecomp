@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Samus.Grapple.SamusGrappleVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -8,7 +9,7 @@ namespace SuperMetroid.Verification.Samus.Grapple;
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks the cartridge ranges and catalogued callback identities used by Grapple firing, swing, and release.</summary>
-internal static class SamusGrappleRomDataVerification
+internal static class GrappleBeamDefinitionsVerification
 {
     /// <summary>
     /// Validates all Grapple direction tables, connection records, swing art, and tile
@@ -16,10 +17,10 @@ internal static class SamusGrappleRomDataVerification
     /// </summary>
     internal static void VerifySamusGrappleRomData()
     {
-        AssertTrue(SamusGrappleRomData.Physics.GravityMagnitude > 0,
+        AssertTrue(GrappleBeamDefinitions.Physics.GravityMagnitude > 0,
             "Grapple gravity magnitude is positive");
-        AssertTrue(SamusGrappleRomData.Physics.MaximumAngularVelocity >
-            SamusGrappleRomData.Physics.JumpImpulseMagnitude,
+        AssertTrue(GrappleBeamDefinitions.Physics.MaximumAngularVelocity >
+            GrappleBeamDefinitions.Physics.JumpImpulseMagnitude,
             "Grapple maximum angular velocity admits a jump impulse");
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -32,77 +33,77 @@ internal static class SamusGrappleRomDataVerification
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         foreach (int directionTable in new[]
         {
-            SamusGrappleRomData.Firing.XVelocities,
-            SamusGrappleRomData.Firing.YVelocities,
-            SamusGrappleRomData.Firing.Angles,
-            SamusGrappleRomData.Firing.DefaultOriginX,
-            SamusGrappleRomData.Firing.DefaultOriginY,
-            SamusGrappleRomData.Firing.DefaultFlareX,
-            SamusGrappleRomData.Firing.DefaultFlareY,
-            SamusGrappleRomData.Firing.RunningOriginX,
-            SamusGrappleRomData.Firing.RunningOriginY,
-            SamusGrappleRomData.Firing.RunningFlareX,
-            SamusGrappleRomData.Firing.RunningFlareY,
+            GrappleBeamDefinitions.Firing.XVelocities,
+            GrappleBeamDefinitions.Firing.YVelocities,
+            GrappleBeamDefinitions.Firing.Angles,
+            GrappleBeamDefinitions.Firing.DefaultOriginX,
+            GrappleBeamDefinitions.Firing.DefaultOriginY,
+            SamusCartridgeTables.GrappleDefaultFlareX,
+            SamusCartridgeTables.GrappleDefaultFlareY,
+            GrappleBeamDefinitions.Firing.RunningOriginX,
+            GrappleBeamDefinitions.Firing.RunningOriginY,
+            SamusCartridgeTables.GrappleRunningFlareX,
+            SamusCartridgeTables.GrappleRunningFlareY,
         })
         {
             TouchRange(bus, directionTable,
-                SamusGrappleRomData.Firing.DirectionCount * sizeof(ushort),
+                GrappleBeamDefinitions.Firing.DirectionCount * sizeof(ushort),
                 $"Grapple direction table ${directionTable:X6}");
         }
 
-        TouchRange(bus, SamusGrappleRomData.Firing.MainFlareAnimationDelays,
+        TouchRange(bus, GrappleBeamDefinitions.Firing.MainFlareAnimationDelays,
             6, "Grapple flare animation delays");
-        TouchRange(bus, SamusGrappleRomData.Firing.RightFlareSpritemapOffsets,
+        TouchRange(bus, GrappleBeamDefinitions.Firing.RightFlareSpritemapOffsets,
             6, "right Grapple flare spritemap offsets");
-        TouchRange(bus, SamusGrappleRomData.Firing.LeftFlareSpritemapOffsets,
+        TouchRange(bus, GrappleBeamDefinitions.Firing.LeftFlareSpritemapOffsets,
             6, "left Grapple flare spritemap offsets");
-        TouchRange(bus, SamusGrappleRomData.Physics.SignedSineTable,
+        TouchRange(bus, GrappleBeamDefinitions.Physics.SignedSineTable,
             256 * sizeof(ushort), "Grapple signed sine table");
 
-        TouchRange(bus, SamusGrappleRomData.Rendering.SwingFrameByAngle,
+        TouchRange(bus, SamusCartridgeTables.GrappleSwingFrameByAngle,
             256, "Grapple swing-frame table");
-        TouchRange(bus, SamusGrappleRomData.Rendering.LeftPoseOffsetsByFrame,
-            SamusGrappleRomData.Rendering.RightPoseOffsetsByFrame -
-                SamusGrappleRomData.Rendering.LeftPoseOffsetsByFrame,
+        TouchRange(bus, GrappleBeamDefinitions.Rendering.LeftPoseOffsetsByFrame,
+            GrappleBeamDefinitions.Rendering.RightPoseOffsetsByFrame -
+                GrappleBeamDefinitions.Rendering.LeftPoseOffsetsByFrame,
             "left Grapple pose offsets");
-        TouchRange(bus, SamusGrappleRomData.Rendering.RightPoseOffsetsByFrame,
-            SamusGrappleRomData.Rendering.PointTilePointers -
-                SamusGrappleRomData.Rendering.RightPoseOffsetsByFrame,
+        TouchRange(bus, GrappleBeamDefinitions.Rendering.RightPoseOffsetsByFrame,
+            GrappleBeamDefinitions.Rendering.PointTilePointers -
+                GrappleBeamDefinitions.Rendering.RightPoseOffsetsByFrame,
             "right Grapple pose offsets");
 
         // The point table contains two animation frames. The segment table contains one
         // pointer for each folded two-degree angle pair through the next connection table.
         for (int point = 0; point < 2; point++)
         {
-            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusGrappleRomData.Rendering.PointTilePointers + point * sizeof(ushort)));
+            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((GrappleBeamDefinitions.Rendering.PointTilePointers + point * sizeof(ushort)));
             TouchRange(bus, GrapplePointAnimationNative.CharacterDataBank | pointer,
-                SamusGrappleRomDataRenderingConstants.PointTileByteCount,
+                GrappleBeamDefinitionsRenderingConstants.PointTileByteCount,
                 $"Grapple point character frame {point}");
         }
 
         int segmentPointerCount =
-            (SamusGrappleRomData.Connections.DefaultTable -
-                SamusGrappleRomData.Rendering.SegmentTilePointers) / sizeof(ushort);
+            (GrappleBeamDefinitionsConnectionsConstants.DefaultTable -
+                GrappleBeamDefinitions.Rendering.SegmentTilePointers) / sizeof(ushort);
         for (int segment = 0; segment < segmentPointerCount; segment++)
         {
-            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusGrappleRomData.Rendering.SegmentTilePointers + segment * sizeof(ushort)));
+            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((GrappleBeamDefinitions.Rendering.SegmentTilePointers + segment * sizeof(ushort)));
             TouchRange(bus, GrapplePointAnimationNative.CharacterDataBank | pointer,
-                SamusGrappleRomData.Rendering.SegmentTileByteCount,
+                GrappleBeamDefinitions.Rendering.SegmentTileByteCount,
                 $"Grapple segment character set {segment}");
         }
 
         foreach (int connectionTable in new[]
         {
-            SamusGrappleRomData.Connections.DefaultTable,
-            SamusGrappleRomData.Connections.MovingVerticallyTable,
-            SamusGrappleRomData.Connections.CrouchingTable,
+            GrappleBeamDefinitionsConnectionsConstants.DefaultTable,
+            GrappleBeamDefinitionsConnectionsConstants.MovingVerticallyTable,
+            GrappleBeamDefinitionsConnectionsConstants.CrouchingTable,
         })
         {
             TouchRange(bus, connectionTable,
-                SamusGrappleRomData.Connections.DirectionCount * 4,
+                GrappleBeamDefinitionsConnectionsConstants.DirectionCount * 4,
                 $"Grapple connection table ${connectionTable:X6}");
             for (int direction = 0;
-                direction < SamusGrappleRomData.Connections.DirectionCount;
+                direction < GrappleBeamDefinitionsConnectionsConstants.DirectionCount;
                 direction++)
             {
                 ushort function = CartridgeImportSource.Require(bus).ReadCartridgeWord((connectionTable + direction * 4));
@@ -116,17 +117,17 @@ internal static class SamusGrappleRomDataVerification
             }
         }
 
-        TouchRange(bus, SamusGrappleRomData.Connections.SpecialAngleTable,
-            SamusGrappleRomData.Connections.SpecialAngleRecordCount *
-                SamusGrappleRomData.Connections.SpecialAngleRecordByteCount,
+        TouchRange(bus, GrappleBeamDefinitionsConnectionsConstants.SpecialAngleTable,
+            GrappleBeamDefinitionsConnectionsConstants.SpecialAngleRecordCount *
+                GrappleBeamDefinitionsConnectionsConstants.SpecialAngleRecordByteCount,
             "Grapple special-angle records");
-        TouchRange(bus, SamusGrappleRomDataRelease.StandingPoseTable,
-            SamusGrappleRomData.Firing.DirectionCount, "Grapple standing release poses");
-        TouchRange(bus, SamusGrappleRomDataRelease.CrouchingPoseTable,
-            SamusGrappleRomData.Firing.DirectionCount, "Grapple crouching release poses");
+        TouchRange(bus, GrappleBeamDefinitionsRelease.StandingPoseTable,
+            GrappleBeamDefinitions.Firing.DirectionCount, "Grapple standing release poses");
+        TouchRange(bus, GrappleBeamDefinitionsRelease.CrouchingPoseTable,
+            GrappleBeamDefinitions.Firing.DirectionCount, "Grapple crouching release poses");
 
         Console.WriteLine(
-            $"  Samus Grapple ROM data: {SamusGrappleRomData.Firing.DirectionCount} directions, " +
+            $"  Samus Grapple ROM data: {GrappleBeamDefinitions.Firing.DirectionCount} directions, " +
             $"{segmentPointerCount} segment sets, three connection tables, and special angles are in range.");
     }
 

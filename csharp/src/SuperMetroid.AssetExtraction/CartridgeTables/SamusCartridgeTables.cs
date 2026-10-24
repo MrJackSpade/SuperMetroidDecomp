@@ -6,6 +6,78 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 [CpuBusBoundary("catalog: Samus cartridge tables")]
 internal static class SamusCartridgeTables
 {
+    /// <summary>Bank $9A, which holds the decompressed-source characters the arm cannon's cover copies.</summary>
+    internal const int CharacterDataBank = 0x9a0000;
+
+        /// <summary>Non-running flare X origins.</summary>
+        internal const int GrappleDefaultFlareX = 0x9bc14a;
+
+        /// <summary>Non-running flare Y origins.</summary>
+        internal const int GrappleDefaultFlareY = 0x9bc15e;
+
+        /// <summary>Running flare X origins.</summary>
+        internal const int GrappleRunningFlareX = 0x9bc19a;
+
+        /// <summary>Running flare Y origins.</summary>
+        internal const int GrappleRunningFlareY = 0x9bc1ae;
+
+        /// <summary>Animation frame selected by each high byte of swing angle.</summary>
+        internal const int GrappleSwingFrameByAngle = 0x9bc1c2;
+
+        /// <summary><c>$9B:9400</c>, ordinary Power Suit palette.</summary>
+        /// <remarks>
+        /// Issue #860 / #625: sixteen authored BGR555 words in the pinned NTSC
+        /// J/U v1.0 ROM, indexed only by color 0..15 and copied unchanged to
+        /// Samus OBJ CGRAM 192..207. All sixteen match the normal row of the
+        /// Power loading palette-FX program (#856) and the duplicate bank-$9B
+        /// palettes at <c>$9C20</c> and <c>$9CA0</c>. Eleven color slots are
+        /// shared with the normal Varia and Gravity palettes; slots
+        /// 0, 2, 10, 11, 12 vary by suit. These deliberately selected colors
+        /// remain a palette table rather than a computed channel sequence.
+        /// </remarks>
+        internal const int PowerSuitPalette = 0x9b9400;
+
+        /// <summary><c>$9B:9520</c>, ordinary Varia Suit palette.</summary>
+        /// <remarks>
+        /// Issue #861 / #625: sixteen authored BGR555 words in the pinned NTSC
+        /// J/U v1.0 ROM, indexed only by color 0..15 and copied unchanged to
+        /// Samus OBJ CGRAM 192..207. All sixteen match the normal row of the
+        /// Varia loading palette-FX program (#857) and duplicate bank-$9B
+        /// palettes at <c>$9920</c>, <c>$9D20</c>, and <c>$9DA0</c>. Eleven
+        /// color slots are shared with normal Power and Gravity; slots
+        /// 0, 2, 10, 11, 12 vary by suit. These authored choices remain a
+        /// palette table rather than a computed channel sequence.
+        /// </remarks>
+        internal const int VariaSuitPalette = 0x9b9520;
+
+        /// <summary><c>$9B:9800</c>, ordinary Gravity Suit palette.</summary>
+        /// <remarks>
+        /// Issue #862 / #625: sixteen authored BGR555 words in the pinned NTSC
+        /// J/U v1.0 ROM, indexed only by color 0..15 and copied unchanged to
+        /// Samus OBJ CGRAM 192..207. All sixteen match the normal row of the
+        /// Gravity loading palette-FX program (#858). The nearby speed-boost
+        /// base <c>$9B:9F20</c> is not an alias: colors 0, 1, and 12 differ.
+        /// Eleven color slots are shared with normal Power and Varia; slots
+        /// 0, 2, 10, 11, 12 vary by suit. These authored choices remain a
+        /// palette table rather than a computed channel sequence.
+        /// </remarks>
+        internal const int GravitySuitPalette = 0x9b9800;
+
+        /// <summary><c>$90:8D28</c>, packed landing-frame vertical offsets.</summary>
+        internal const int LandingVerticalOffsets = 0x908d28;
+
+
+        /// <summary><c>$90:8D80</c>, crouch/morph transition vertical offsets.</summary>
+        internal const int PostureTransitionVerticalOffsets = 0x908d80;
+
+
+        /// <summary><c>$90:8DEF</c>, drained-body vertical offsets.</summary>
+        internal const int DrainedVerticalOffsets = 0x908def;
+
+
+        /// <summary><c>$90:C791</c>, packed OBJ attributes for ten directions.</summary>
+        internal const int ArmCannonSpriteAttributes = 0x90c791;
+
     /// <summary>Bank $90, which holds Samus's physics constants, speed tables and effects metadata.</summary>
     internal const int MovementBank = 0x900000;
 

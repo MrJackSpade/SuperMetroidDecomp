@@ -45,7 +45,7 @@ internal static class GrappleTileArtworkVerification
             "The grapple beam fails loudly without the installed grapple sheet");
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {
-            ushort expected = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusGrappleRomData.Rendering.SegmentTilePointers + ((angle >> 9) & 254));
+            ushort expected = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GrappleBeamDefinitions.Rendering.SegmentTilePointers + ((angle >> 9) & 254));
             int actual = GrappleTileDefinitions.TransferFor(GrappleTileDefinitions.SegmentAssetFor(SnesAngle.FromRaw((ushort)angle))).SourceAddress;
             AssertEqual(0x9a0000 | expected, actual, "Compiled Grapple sector selection matches all 65536 native angles");
         }

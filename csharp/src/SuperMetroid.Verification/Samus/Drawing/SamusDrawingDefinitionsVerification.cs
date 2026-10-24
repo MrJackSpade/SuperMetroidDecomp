@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Drawing;
 
 /// <summary>Audits pose-indexed Samus rendering tables and fixed artwork ranges against the retail ROM.</summary>
-internal static class SamusRenderingRomDataVerification
+internal static class SamusDrawingDefinitionsVerification
 {
     /// <summary>
     /// Validates complete pose-indexed rendering tables and every fixed suit/cannon
@@ -26,19 +26,19 @@ internal static class SamusRenderingRomDataVerification
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         int poseCount = SamusBodyArtworkCatalog.PoseCount;
 
-        TouchRange(bus, SamusRenderingRomData.Body.TopSpritemapBaseIndices,
+        TouchRange(bus, SamusDrawingDefinitionsBodyConstants.TopSpritemapBaseIndices,
             poseCount * sizeof(ushort), "top spritemap base-index table");
-        TouchRange(bus, SamusRenderingRomData.Body.BottomSpritemapBaseIndices,
+        TouchRange(bus, SamusDrawingDefinitionsBodyConstants.BottomSpritemapBaseIndices,
             poseCount * sizeof(ushort), "bottom spritemap base-index table");
         foreach (int palette in new[]
         {
-            SamusRenderingRomData.Body.PowerSuitPalette,
-            SamusRenderingRomData.Body.VariaSuitPalette,
-            SamusRenderingRomData.Body.GravitySuitPalette,
+            SamusCartridgeTables.PowerSuitPalette,
+            SamusCartridgeTables.VariaSuitPalette,
+            SamusCartridgeTables.GravitySuitPalette,
         })
         {
             TouchRange(bus, palette,
-                SamusRenderingRomData.Body.SuitPaletteColorCount * sizeof(ushort),
+                SamusDrawingDefinitionsBodyConstants.SuitPaletteColorCount * sizeof(ushort),
                 $"suit palette ${palette:X6}");
         }
 
@@ -61,18 +61,18 @@ internal static class SamusRenderingRomDataVerification
                 $"pose ${pose:X2} graphics selector remains in bank $92 ROM");
             TouchRange(
                 bus,
-                SamusRenderingRomDataBanksConstants.GraphicsDefinitions | pointer,
+                SamusDrawingDefinitionsBanksConstants.GraphicsDefinitions | pointer,
                 SamusBodyFrameTableConstants.AnimationRecordByteCount,
                 $"pose ${pose:X2} frame-zero graphics selector");
         }
 
         TouchRange(bus, SamusCartridgeTables.PoseDrawingDataPointers,
             poseCount * sizeof(ushort), "arm-cannon pose drawing pointers");
-        TouchRange(bus, SamusRenderingRomData.ArmCannon.SpriteAttributes,
-            SamusRenderingRomData.ArmCannon.DirectionCount * sizeof(ushort),
+        TouchRange(bus, SamusCartridgeTables.ArmCannonSpriteAttributes,
+            SamusDrawingDefinitions.ArmCannon.DirectionCount * sizeof(ushort),
             "arm-cannon sprite attributes");
         TouchRange(bus, SamusCartridgeTables.TileListPointers,
-            SamusRenderingRomData.ArmCannon.DirectionCount * sizeof(ushort),
+            SamusDrawingDefinitions.ArmCannon.DirectionCount * sizeof(ushort),
             "arm-cannon tile-list pointers");
 
         Console.WriteLine(

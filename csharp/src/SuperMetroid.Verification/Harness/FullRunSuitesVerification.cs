@@ -308,7 +308,7 @@ using static SuperMetroid.Verification.Samus.Movement.SamusAerialAndLiquidsVerif
 using static SuperMetroid.Verification.Samus.SamusAimVerification;
 using static SuperMetroid.Verification.Samus.SamusDamageAndGrabVerification;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterVisualsVerification;
-using static SuperMetroid.Verification.Samus.Grapple.SamusGrappleRomDataVerification;
+using static SuperMetroid.Verification.Samus.Grapple.GrappleBeamDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Grapple.SamusGrappleVerification;
 using static SuperMetroid.Verification.Samus.Hud.SamusHudSelectionVerification;
 using static SuperMetroid.Verification.Samus.Palettes.SamusHurtColorsVerification;
@@ -320,7 +320,7 @@ using static SuperMetroid.Verification.Samus.Palettes.SamusPaletteRomDataVerific
 using static SuperMetroid.Verification.Samus.Poses.SamusPoseHistoryVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.SamusProjectileRomDataVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.SamusProjectilesVerification;
-using static SuperMetroid.Verification.Samus.Drawing.SamusRenderingRomDataVerification;
+using static SuperMetroid.Verification.Samus.Drawing.SamusDrawingDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Artwork.SamusRenderingVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SamusShinesparkVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SamusSpecialSequenceDefinitionsVerification;

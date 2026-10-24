@@ -46,7 +46,7 @@ internal static class GrappleSoundsVerification
                 samus.LiquidPhysics.SoundRequests.Single(), $"{phase} emits native grapple stop command once");
         }
         Console.WriteLine("  Grapple sounds: fire, silent extension, attachment, cancellation, swing release and drop queues agree.");
-        foreach (SoundRequest request in new[] { SamusGrappleRomData.Sounds.Fire, SamusGrappleRomData.Sounds.Attach, SamusGrappleRomData.Sounds.Stop })
+        foreach (SoundRequest request in new[] { GrappleBeamDefinitions.Sounds.Fire, GrappleBeamDefinitions.Sounds.Attach, GrappleBeamDefinitions.Sounds.Stop })
         {
             var audio = new CartridgeAudioState();
             audio.AdvanceFrame(default);

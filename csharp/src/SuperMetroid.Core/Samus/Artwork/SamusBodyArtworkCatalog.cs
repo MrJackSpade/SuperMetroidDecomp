@@ -92,9 +92,9 @@ public sealed class SamusBodyArtworkCatalog
         Ensure.NotNull(parts.DrainedYOffsets);
         if (parts.TopSetStarts.Length != TopSetCount || parts.BottomSetStarts.Length != BottomSetCount ||
             parts.PoseFirstFrames.Length != PoseCount || parts.GraphicsYOffsets.Length != PoseCount ||
-            parts.LandingYOffsets.Length != SamusRenderingRomData.Body.LandingVerticalOffsetByteCount ||
-            parts.PostureYOffsets.Length != SamusRenderingRomData.Body.PostureTransitionVerticalOffsetByteCount ||
-            parts.DrainedYOffsets.Length != SamusRenderingRomData.Body.DrainedVerticalOffsetByteCount ||
+            parts.LandingYOffsets.Length != SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount ||
+            parts.PostureYOffsets.Length != SamusDrawingDefinitions.BodyOffsets.PostureTransitionVerticalOffsetByteCount ||
+            parts.DrainedYOffsets.Length != SamusDrawingDefinitions.BodyOffsets.DrainedVerticalOffsetByteCount ||
             parts.Frames.Length != FrameCount ||
             parts.Top.Length != TopSetCount || parts.Bottom.Length != BottomSetCount)
             throw new InvalidDataException("Samus body selector tables have an invalid length.");
@@ -183,11 +183,11 @@ public sealed class SamusBodyArtworkCatalog
     /// <summary>Gets the resolved signed art-origin offset for every pose.</summary>
     public ReadOnlySpan<sbyte> GraphicsYOffsets => Enumerable.Range(0, PoseCount).Select(index => GraphicsYOffset((SamusPoseId)index)).ToArray();
     /// <summary>Native landing table, including the one adjacent byte read by an unaligned word.</summary>
-    public ReadOnlySpan<ushort> LandingYOffsets => Enumerable.Range(0, SamusRenderingRomData.Body.LandingVerticalOffsetByteCount).Select(LandingByte).ToArray();
+    public ReadOnlySpan<ushort> LandingYOffsets => Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount).Select(LandingByte).ToArray();
     /// <summary>Gets the resolved posture-transition vertical-offset table.</summary>
-    public ReadOnlySpan<sbyte> PostureYOffsets => Enumerable.Range(0, SamusRenderingRomData.Body.PostureTransitionVerticalOffsetByteCount).Select(PostureByte).ToArray();
+    public ReadOnlySpan<sbyte> PostureYOffsets => Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.PostureTransitionVerticalOffsetByteCount).Select(PostureByte).ToArray();
     /// <summary>Gets the resolved drained-state vertical-offset table.</summary>
-    public ReadOnlySpan<sbyte> DrainedYOffsets => Enumerable.Range(0, SamusRenderingRomData.Body.DrainedVerticalOffsetByteCount).Select(DrainedByte).ToArray();
+    public ReadOnlySpan<sbyte> DrainedYOffsets => Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.DrainedVerticalOffsetByteCount).Select(DrainedByte).ToArray();
     /// <summary>Resolves an edited landing byte or its native shared-source alias.</summary>
     private ushort LandingByte(int index) => landingYOffsets.TryGetValue(index, out ushort value)
         ? value : SamusBodyPlacementDefinitions.LandingSourceIndex(index) == index
@@ -209,7 +209,7 @@ public sealed class SamusBodyArtworkCatalog
     /// <returns><see langword="true"/> when two bytes are available.</returns>
     public bool TryLandingYOffset(int index, out ushort value)
     {
-        if ((uint)index >= SamusRenderingRomData.Body.LandingVerticalOffsetByteCount - 1)
+        if ((uint)index >= SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount - 1)
         {
             value = 0;
             return false;
@@ -223,7 +223,7 @@ public sealed class SamusBodyArtworkCatalog
     /// <returns><see langword="true"/> when the index is in range.</returns>
     public bool TryPostureYOffset(int index, out sbyte value)
     {
-        if ((uint)index >= SamusRenderingRomData.Body.PostureTransitionVerticalOffsetByteCount) { value = 0; return false; }
+        if ((uint)index >= SamusDrawingDefinitions.BodyOffsets.PostureTransitionVerticalOffsetByteCount) { value = 0; return false; }
         value = PostureByte(index);
         return true;
     }
@@ -233,7 +233,7 @@ public sealed class SamusBodyArtworkCatalog
     /// <returns><see langword="true"/> when the index is in range.</returns>
     public bool TryDrainedYOffset(int index, out sbyte value)
     {
-        if ((uint)index >= SamusRenderingRomData.Body.DrainedVerticalOffsetByteCount) { value = 0; return false; }
+        if ((uint)index >= SamusDrawingDefinitions.BodyOffsets.DrainedVerticalOffsetByteCount) { value = 0; return false; }
         value = DrainedByte(index);
         return true;
     }

@@ -51,8 +51,8 @@ internal static class GrappleCompiledMathVerification
         // at doubled-velocity multiples of 512 and both signs at zero cosine.
         int releaseCount = 0;
         for (int angle = 0; angle < 256; angle++)
-        for (int velocity = -SamusGrappleRomData.Physics.MaximumAngularVelocity;
-             velocity <= SamusGrappleRomData.Physics.MaximumAngularVelocity; velocity++)
+        for (int velocity = -GrappleBeamDefinitions.Physics.MaximumAngularVelocity;
+             velocity <= GrappleBeamDefinitions.Physics.MaximumAngularVelocity; velocity++)
         {
             int doubled = 2 * Math.Abs(velocity);
             short vertical = native[angle + 64];

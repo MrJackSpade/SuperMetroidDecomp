@@ -36,7 +36,7 @@ internal static class GrappleFlarePresentationVerification
         var guard = NewGrappleFlarePresentationGuard(NewChargeFlareCompositionGuard(bus));
         var flarePlacement = ChargeFlarePlacementCatalog.Load(new MemoryStream(
             GrappleFlarePlacementExtractor.Extract(bus)));
-        foreach (int address in new[] { SamusGrappleRomData.Firing.RightFlareSpritemapOffsets, SamusGrappleRomData.Firing.LeftFlareSpritemapOffsets })
+        foreach (int address in new[] { GrappleBeamDefinitions.Firing.RightFlareSpritemapOffsets, GrappleBeamDefinitions.Firing.LeftFlareSpritemapOffsets })
             AssertEqual(ReadNativeGrappleFlareSpritemapOffset(bus, address), ChargeFlareSpriteDefinitions.MainFlareSelectorOffset, "Both native Grapple-facing rows select the same main flare");
         int cases = 0;
         foreach (GrapplePhase phase in Enum.GetValues<GrapplePhase>())
@@ -117,12 +117,12 @@ internal static class GrappleFlarePresentationVerification
                 if (expectedStep.IsNegative)
                 {
                     expectedFrame = unchecked((ushort)(expectedFrame + 1));
-                    byte delay = GrappleFlarePresentationRomByte(bus, SamusGrappleRomData.Firing.MainFlareAnimationDelays + expectedFrame);
+                    byte delay = GrappleFlarePresentationRomByte(bus, GrappleBeamDefinitions.Firing.MainFlareAnimationDelays + expectedFrame);
                     if (delay == 254)
                     {
-                        byte rewind = GrappleFlarePresentationRomByte(bus, SamusGrappleRomData.Firing.MainFlareAnimationDelays + unchecked((ushort)(expectedFrame + 1)));
+                        byte rewind = GrappleFlarePresentationRomByte(bus, GrappleBeamDefinitions.Firing.MainFlareAnimationDelays + unchecked((ushort)(expectedFrame + 1)));
                         expectedFrame = unchecked((ushort)(expectedFrame - rewind));
-                        delay = GrappleFlarePresentationRomByte(bus, SamusGrappleRomData.Firing.MainFlareAnimationDelays + expectedFrame);
+                        delay = GrappleFlarePresentationRomByte(bus, GrappleBeamDefinitions.Firing.MainFlareAnimationDelays + expectedFrame);
                     }
                     expectedTimer = delay;
                 }

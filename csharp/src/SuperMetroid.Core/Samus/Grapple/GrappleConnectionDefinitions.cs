@@ -1,4 +1,3 @@
-using static SuperMetroid.Core.Samus.Grapple.SamusGrappleRomData.Connections;
 using static SuperMetroid.Core.Samus.Grapple.GrappleConnectionHandler;
 using static SuperMetroid.Core.Samus.Poses.SamusPoseId;
 using SuperMetroid.Core.Samus.Movement;
@@ -93,14 +92,25 @@ internal static class GrappleConnectionDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(direction)),
     };
 
-    /// <summary>$9B:C3C6/$C3EE/$C416 default, vertical and crouching directional connection policies.</summary>
-    internal static GrappleConnection ResolveConnection(int address)
+    /// <summary>The connection records each table begins at; a direction past a table's ten reads on into the next's.</summary>
+    private static int FirstRecordOf(GrappleConnectionTable table) => table switch
     {
-        int offset = address - DefaultTable;
-        if (offset < 0 || offset >= 30 * 4 || (offset & 3) != 0)
-            throw new InvalidDataException(
-                $"Grapple connection record ${address:X6} is outside the compiled definitions.");
-        int record = offset / 4;
+        GrappleConnectionTable.Default => 0,
+        GrappleConnectionTable.MovingVertically => 10,
+        GrappleConnectionTable.Crouching => 20,
+        _ => throw new ArgumentOutOfRangeException(nameof(table), table, "Unknown grapple connection table."),
+    };
+
+    /// <summary>
+    /// The default, vertical and crouching directional connection policies ($9B:C3C6/$C3EE/$C416): the record
+    /// <paramref name="table"/>'s policy names for <paramref name="fireDirection"/>, the records lying one table after another.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The direction reaches past the last compiled record.</exception>
+    internal static GrappleConnection ResolveConnection(GrappleConnectionTable table, int fireDirection)
+    {
+        int record = FirstRecordOf(table) + fireDirection;
+        if (fireDirection < 0 || record >= 30)
+            throw new InvalidDataException($"Grapple connection {table} direction {fireDirection} is outside the compiled definitions.");
         int direction = record % 10;
         bool compact = record >= 20;
         GrappleConnectionHandler handler = record is >= 10 and < 20

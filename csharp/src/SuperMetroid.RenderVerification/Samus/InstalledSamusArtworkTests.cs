@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
@@ -133,9 +135,9 @@ internal static class InstalledSamusArtworkTests
         int count = 0;
         foreach (ushort source in SamusArmCannonArtworkFormat.CoverTileDmaSources)
         {
-            Check(SamusRenderingRomData.Banks.CharacterData | source,
-                SamusRenderingRomData.ArmCannon.TileByteCount,
-                SamusRenderingRomDataArmCannonConstants.TileVramDestination, $"cannon {source:X4}");
+            Check(SamusCartridgeTables.CharacterDataBank | source,
+                SamusDrawingDefinitions.ArmCannon.TileByteCount,
+                SamusDrawingDefinitionsArmCannonConstants.TileVramDestination, $"cannon {source:X4}");
             count++;
         }
         return count;

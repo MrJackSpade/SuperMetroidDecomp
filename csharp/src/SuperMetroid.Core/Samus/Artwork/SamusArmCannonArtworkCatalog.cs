@@ -12,7 +12,7 @@ public sealed class SamusArmCannonArtworkCatalog
 {
     /// <summary>Tile-source slots: one row per native aim direction, each holding every cover-art frame slot.</summary>
     private static readonly FixedGridShape CoverTileShape =
-        new(SamusRenderingRomData.ArmCannon.DirectionCount, OpeningFrames);
+        new(SamusDrawingDefinitions.ArmCannon.DirectionCount, OpeningFrames);
     /// <summary>Cover frames that show a tile: every frame but the closed one.</summary>
     private const int OpeningFrames = SamusArmCannonArtworkFormat.FramesPerDirection - 1;
     /// <summary>Pose descriptor offsets that differ from the native pose table.</summary>
@@ -70,8 +70,8 @@ public sealed class SamusArmCannonArtworkCatalog
     internal SamusArmCannonArtworkCatalog WithBodyGeometry(SamusBodyArtworkCatalog body) => new(
         Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount).Select(PoseDescriptor).ToArray(),
         Enumerable.Range(0, SamusArmCannonArtworkFormat.DrawingDataByteCount).Select(ReadDrawingByte).ToArray(),
-        Enumerable.Range(0, SamusRenderingRomData.ArmCannon.DirectionCount).Select(SpriteAttributes).ToArray(),
-        Enumerable.Range(0, SamusRenderingRomData.ArmCannon.DirectionCount).Select(direction =>
+        Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount).Select(SpriteAttributes).ToArray(),
+        Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount).Select(direction =>
             Enumerable.Range(1, OpeningFrames).Select(frame => OpeningTile(direction, frame)).ToArray()).ToArray(),
         tiles, body);
 
@@ -83,10 +83,10 @@ public sealed class SamusArmCannonArtworkCatalog
         for (int index = 0; index < selectedDrawing.Length; index++)
             selectedDrawing[index] = ReadDrawingByte(index);
         content.Append("drawing data", selectedDrawing);
-        Span<ushort> selectedAttributes = stackalloc ushort[SamusRenderingRomData.ArmCannon.DirectionCount];
+        Span<ushort> selectedAttributes = stackalloc ushort[SamusDrawingDefinitions.ArmCannon.DirectionCount];
         for (int direction = 0; direction < selectedAttributes.Length; direction++) selectedAttributes[direction] = SpriteAttributes(direction);
         content.AppendWords("attributes", selectedAttributes);
-        for (int direction = 0; direction < SamusRenderingRomData.ArmCannon.DirectionCount; direction++)
+        for (int direction = 0; direction < SamusDrawingDefinitions.ArmCannon.DirectionCount; direction++)
             for (int frame = 1; frame <= OpeningFrames; frame++)
                 content.Append("cover tile", OpeningTile(direction, frame));
         content.Append("characters", this.tiles.Characters.Span);
@@ -112,7 +112,7 @@ public sealed class SamusArmCannonArtworkCatalog
             document.DrawingData is null ||
             document.DrawingData.Length != SamusArmCannonArtworkFormat.DrawingDataByteCount ||
             document.SpriteAttributes is null ||
-            document.SpriteAttributes.Length != SamusRenderingRomData.ArmCannon.DirectionCount ||
+            document.SpriteAttributes.Length != SamusDrawingDefinitions.ArmCannon.DirectionCount ||
             !CoverTileShape.HasRows(document.CoverTiles))
             throw new InvalidDataException("Arm-cannon artwork has an invalid version or table geometry.");
 
@@ -178,7 +178,7 @@ public sealed class SamusArmCannonArtworkCatalog
     /// <summary>Gets the packed small-OBJ character, palette, priority, and flip attributes for native direction 0–9; supplied words override the stock $90:C791 table.</summary>
     public ushort SpriteAttributes(int direction)
     {
-        if ((uint)direction >= SamusRenderingRomData.ArmCannon.DirectionCount) throw new ArgumentOutOfRangeException(nameof(direction));
+        if ((uint)direction >= SamusDrawingDefinitions.ArmCannon.DirectionCount) throw new ArgumentOutOfRangeException(nameof(direction));
         return attributes.TryGetValue(direction, out ushort supplied) ? supplied
             : SamusArmCannonArtworkFormat.StockSpriteAttributes((SamusProjectileDirection)direction);
     }
@@ -186,7 +186,7 @@ public sealed class SamusArmCannonArtworkCatalog
     /// <summary>The installed cover tile native direction 0–9 shows at cover frame 0–3; the closed frame 0 shows none.</summary>
     public int? CoverTileIndex(int direction, int frame)
     {
-        if ((uint)direction >= SamusRenderingRomData.ArmCannon.DirectionCount)
+        if ((uint)direction >= SamusDrawingDefinitions.ArmCannon.DirectionCount)
             throw new ArgumentOutOfRangeException(nameof(direction));
         if ((uint)frame >= SamusArmCannonArtworkFormat.FramesPerDirection)
             throw new ArgumentOutOfRangeException(nameof(frame));
@@ -204,30 +204,17 @@ public sealed class SamusArmCannonArtworkCatalog
         int index = CoverTileIndex(direction, frame) ??
             throw new InvalidDataException($"Arm-cannon direction {direction} frame {frame} names no installed cover tile.");
         return coverTiles.GetOrAdd(index, key => new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.SamusArmCannonCover, key),
-            tiles.Characters.Span.Slice(key * SamusRenderingRomData.ArmCannon.TileByteCount, SamusRenderingRomData.ArmCannon.TileByteCount)));
+            tiles.Characters.Span.Slice(key * SamusDrawingDefinitions.ArmCannon.TileByteCount, SamusDrawingDefinitions.ArmCannon.TileByteCount)));
     }
 
     /// <summary>Cover characters already built, by installed tile index.</summary>
     private readonly System.Collections.Concurrent.ConcurrentDictionary<int, SpriteArtwork> coverTiles = new();
 
-    /// <summary>Resolves the queued 32-byte VRAM DMA from the editable indexed PNG.</summary>
-    public bool TryResolveTile(int sourceAddress, int byteCount,
-        out ReadOnlyMemory<byte> data)
-    {
-        if (byteCount == SamusRenderingRomData.ArmCannon.TileByteCount)
-        {
-            int source = SnesAddressMath.OffsetInBank(sourceAddress);
-            if ((SnesAddressMath.BankBase(sourceAddress)) == SamusRenderingRomData.Banks.CharacterData &&
-                SamusArmCannonArtworkFormat.CoverTileDmaSources.IndexOf(
-                    unchecked((ushort)source)) is int index and >= 0)
-            {
-                data = tiles.Characters.Slice(index * byteCount, byteCount);
-                return true;
-            }
-        }
-        data = default;
-        return false;
-    }
+    /// <summary>The bytes of installed cover tile <paramref name="index"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">No such cover tile is installed.</exception>
+    internal ReadOnlyMemory<byte> CoverTile(int index) => (uint)index < SamusArmCannonArtworkFormat.CoverTileCount
+        ? tiles.Characters.Slice(index * SamusDrawingDefinitions.ArmCannon.TileByteCount, SamusDrawingDefinitions.ArmCannon.TileByteCount)
+        : throw new ArgumentOutOfRangeException(nameof(index), index, "No such arm-cannon cover tile is installed.");
 
     /// <summary>Rejects an authored drawing value outside one unsigned byte.</summary>
     private static byte RequireByte(int value, string name) => (uint)value <= byte.MaxValue

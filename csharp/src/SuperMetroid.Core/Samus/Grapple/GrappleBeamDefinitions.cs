@@ -2,13 +2,13 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Grapple;
 
-/// <summary>Immutable cartridge definitions used by Samus's Grapple Beam subsystem.</summary>
+/// <summary>The Grapple Beam's definitions: its palette, sounds, swing physics, firing and rope drawing (#1411).</summary>
 /// <remarks>
 /// Grapple runtime state deliberately remains elsewhere. This type names the ROM tables,
 /// callback offsets, native physics coefficients, and fixed VRAM destinations that define
 /// the subsystem's data contract.
 /// </remarks>
-public static class SamusGrappleRomData
+public static class GrappleBeamDefinitions
 {
     /// <summary>Palette operands shared by grapple initialization and native cleanup tails.</summary>
     public static class Palettes
@@ -55,14 +55,6 @@ public static class SamusGrappleRomData
         public const ushort PoseChangeAutoFireFrames = 10;
         /// <summary>$9B:C51E uses a six-pixel graphics Y offset for moving Draygon-held poses.</summary>
         public const sbyte DraygonMovingGraphicsYOffset = 6;
-        /// <summary>Non-running flare X origins.</summary>
-        public const int DefaultFlareX = 0x9bc14a;
-        /// <summary>Non-running flare Y origins.</summary>
-        public const int DefaultFlareY = 0x9bc15e;
-        /// <summary>Running flare X origins.</summary>
-        public const int RunningFlareX = 0x9bc19a;
-        /// <summary>Running flare Y origins.</summary>
-        public const int RunningFlareY = 0x9bc1ae;
         /// <summary>Number of direction records represented by every firing table.</summary>
         public const int DirectionCount = 10;
     }
@@ -70,8 +62,6 @@ public static class SamusGrappleRomData
     /// <summary>Swing-frame, body-offset, rope-character, and fixed upload definitions.</summary>
     public static class Rendering
     {
-        /// <summary>Animation frame selected by each high byte of swing angle.</summary>
-        public const int SwingFrameByAngle = 0x9bc1c2;
         /// <summary>$94:B036, DrawGrappleBeam: distance between consecutive rope objects in pixels.</summary>
         public const int SegmentSpacing = 8;
         /// <summary>$94:AFD9-AFE4: convert a signed 8.8 sample into an eight-pixel 16.16 displacement.</summary>
@@ -94,14 +84,4 @@ public static class SamusGrappleRomData
         public const ushort EndpointAttributes = 0x3a20;
     }
 
-    /// <summary>Special connection-angle records and their native handler identities.</summary>
-    public static class Connections
-    {
-        /// <summary>Default pose/angle connection records.</summary>
-        public const int DefaultTable = 0x9bc3c6;
-        /// <summary>Connection records used while moving vertically.</summary>
-        public const int MovingVerticallyTable = 0x9bc3ee;
-        /// <summary>Connection records used while crouching.</summary>
-        public const int CrouchingTable = 0x9bc416;
-    }
 }

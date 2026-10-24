@@ -158,8 +158,8 @@ internal sealed class SamusFramePhases
         // Both ordinary HUD firing and debug entry select the installed native palette.
         (_artwork.BeamArtwork?.Palettes ?? throw new InvalidOperationException(
             "Grapple palette requires installed beam artwork."))
-            .LoadTo(_player.Colours.Beam, SamusGrappleRomData.Palettes.FiringSelection);
-        _player.Colours.GrappleFlare.Write(0, SamusGrappleRomData.Palettes.FlareColor);
+            .LoadTo(_player.Colours.Beam, GrappleBeamDefinitions.Palettes.FiringSelection);
+        _player.Colours.GrappleFlare.Write(0, GrappleBeamDefinitions.Palettes.FlareColor);
     }
 
     /// <summary>

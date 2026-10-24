@@ -23,7 +23,7 @@ internal static class SamusOverlaySheetComposer
         Ensure.NotNull(inputs);
         Ensure.NotNull(cannon);
         var frames = new List<SheetFrameSource>();
-        for (int direction = 0; direction < SamusRenderingRomData.ArmCannon.DirectionCount; direction++)
+        for (int direction = 0; direction < SamusDrawingDefinitions.ArmCannon.DirectionCount; direction++)
         {
             // `$90:C7DF` uploads the frame's cover to the character the direction's attributes name.
             var cover = new SnesObjAttributeWord(cannon.SpriteAttributes(direction));

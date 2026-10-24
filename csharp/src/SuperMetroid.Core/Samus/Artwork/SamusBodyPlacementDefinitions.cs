@@ -387,7 +387,7 @@ internal static class SamusBodyPlacementDefinitions
     /// <summary>$90:8DEF..8E0E: shared drained placement, indexed by byte position in the complete $91:B268 left-facing program.</summary>
     internal static bool TryDefaultDrainedByte(SamusBodyArtworkCatalog art, int index, out sbyte value)
     {
-        if ((uint)index >= SuperMetroid.Core.Samus.Drawing.SamusRenderingRomData.Body.DrainedVerticalOffsetByteCount)
+        if ((uint)index >= SuperMetroid.Core.Samus.Drawing.SamusDrawingDefinitions.BodyOffsets.DrainedVerticalOffsetByteCount)
             throw new ArgumentOutOfRangeException(nameof(index));
         value = 0;
         const SamusPoseId pose = SuperMetroid.Core.Samus.Poses.SamusPoseId.DrainedCrouchingLeftPose;

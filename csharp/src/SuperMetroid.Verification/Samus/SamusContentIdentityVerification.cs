@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
@@ -59,11 +60,11 @@ internal static class SamusContentIdentityVerification
         if (edit == "pose-pointer") poses[0] += 1;
         var graphics = new sbyte[SamusBodyArtworkCatalog.PoseCount];
         if (edit == "graphics-offset") graphics[0] = -1;
-        var landing = new ushort[SamusRenderingRomData.Body.LandingVerticalOffsetByteCount];
+        var landing = new ushort[SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount];
         if (edit == "landing-offset") landing[0] = 1;
-        var posture = new sbyte[SamusRenderingRomData.Body.PostureTransitionVerticalOffsetByteCount];
+        var posture = new sbyte[SamusDrawingDefinitions.BodyOffsets.PostureTransitionVerticalOffsetByteCount];
         if (edit == "posture-offset") posture[0] = -1;
-        var drained = new sbyte[SamusRenderingRomData.Body.DrainedVerticalOffsetByteCount];
+        var drained = new sbyte[SamusDrawingDefinitions.BodyOffsets.DrainedVerticalOffsetByteCount];
         if (edit == "drained-offset") drained[0] = 1;
         var frames = new SamusBodyFrameSelection[SamusBodyArtworkCatalog.FrameCount];
         if (edit == "frame-selector") frames[0] = new SamusBodyFrameSelection(1, 0, 0, 0);
@@ -112,8 +113,8 @@ internal static class SamusContentIdentityVerification
             Version = SamusArmCannonArtworkFormat.Version,
             PoseDescriptors = new int[SamusBodyArtworkCatalog.PoseCount],
             DrawingData = new int[SamusArmCannonArtworkFormat.DrawingDataByteCount],
-            SpriteAttributes = new int[SamusRenderingRomData.ArmCannon.DirectionCount],
-            CoverTiles = Enumerable.Range(0, SamusRenderingRomData.ArmCannon.DirectionCount)
+            SpriteAttributes = new int[SamusDrawingDefinitions.ArmCannon.DirectionCount],
+            CoverTiles = Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount)
                 .Select(_ => new int[SamusArmCannonArtworkFormat.FramesPerDirection - 1]).ToArray(),
         };
         if (edit == "cannon-pose") cannonDocument.PoseDescriptors[0]++;

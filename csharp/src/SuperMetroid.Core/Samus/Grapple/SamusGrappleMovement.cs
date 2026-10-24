@@ -58,7 +58,7 @@ public static class SamusGrappleMovement
 
         grapple.Phase = GrapplePhase.Firing;
         grapple.FireDirection = (SamusProjectileDirection)direction;
-        grapple.PoseChangeAutoFireTimer = WrappingCountdown.Start(SamusGrappleRomData.Firing.PoseChangeAutoFireFrames);
+        grapple.PoseChangeAutoFireTimer = WrappingCountdown.Start(GrappleBeamDefinitions.Firing.PoseChangeAutoFireFrames);
         var launch = GrappleFiringDefinitions.Launch(direction);
         grapple.ExtensionVelocity = launch.Velocity;
         grapple.Angle = launch.Angle;
@@ -70,8 +70,8 @@ public static class SamusGrappleMovement
         bool useRunOffsets = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running;
         var origin = GrappleFiringDefinitions.Origin(direction, useRunOffsets);
         var flare = ReadFlareOrigin(grapple, direction, useRunOffsets);
-        sbyte graphicsYOffset = movingHeld ? SamusGrappleRomData.Firing.DraygonMovingGraphicsYOffset : SamusPoseMetadata.ReadGraphicsYOffset(samus);
-        int physicalYOffset = movingHeld ? SamusGrappleRomData.Firing.DraygonMovingGraphicsYOffset :
+        sbyte graphicsYOffset = movingHeld ? GrappleBeamDefinitions.Firing.DraygonMovingGraphicsYOffset : SamusPoseMetadata.ReadGraphicsYOffset(samus);
+        int physicalYOffset = movingHeld ? GrappleBeamDefinitions.Firing.DraygonMovingGraphicsYOffset :
             SamusPoseProjectileOriginDefinitions.ReadYOffset(samus.Pose);
 
         grapple.OriginOffset = new(origin.X, unchecked((short)(origin.Y - physicalYOffset)));
@@ -98,7 +98,7 @@ public static class SamusGrappleMovement
         grapple.CancelFromConnectedPose = false;
         SamusGrappleBeamDrawing.InitializeBeamAnimation(grapple);
 
-        QueueGrappleSound(samus, SamusGrappleRomData.Sounds.Fire);
+        QueueGrappleSound(samus, GrappleBeamDefinitions.Sounds.Fire);
         // $9B:C6A3-C6AE: firing again ends the released-from-swing movement handler, so
         // Samus moves with ordinary physics from this same frame.
         grapple.ReleasedMovementActive = false;
@@ -594,7 +594,7 @@ public static class SamusGrappleMovement
         bool deferPoseChange)
     {
         SamusPoseId targetPose = SelectDroppedPose(samus);
-        QueueGrappleSound(samus, SamusGrappleRomData.Sounds.Stop);
+        QueueGrappleSound(samus, GrappleBeamDefinitions.Sounds.Stop);
         SamusBlockCollision.EjectAfterGrapple(level, samus.Kinematics);
         // C8C5 clears these words now, but publishes its pose to the transitional
         // slot. Normal beta movement still runs before that pose is committed.
@@ -912,7 +912,7 @@ public static class SamusGrappleMovement
         GrappleAnchorKind anchor,
         GrapplePoseChange poseChange)
     {
-        QueueGrappleSound(samus, SamusGrappleRomData.Sounds.Attach);
+        QueueGrappleSound(samus, GrappleBeamDefinitions.Sounds.Attach);
         // $9B:B98C bypasses ordinary connection pose/position setup while Draygon owns
         // Samus. Only the beam locks; the enemy continues to place the held body.
         SamusMovementType sourceMovementType = SamusPoseMetadata.ReadMovementType(samus);
@@ -923,19 +923,18 @@ public static class SamusGrappleMovement
             grapple.ValidateAnchorEnemy = anchor == GrappleAnchorKind.Enemy;
             grapple.CancelFromConnectedPose = false;
             // The helper clears delta, then its firing caller immediately writes -8.
-            grapple.RopeLengthDelta = SamusGrappleRomData.Physics.InitialConnectionRetraction;
+            grapple.RopeLengthDelta = GrappleBeamDefinitions.Physics.InitialConnectionRetraction;
             return new GrappleMovementResult(grapple.Phase, OwnsMovement: false);
         }
 
         bool movingVertically =
             samus.Kinematics.YSpeed.Whole != 0 || samus.Kinematics.YSpeed.Fraction != 0;
-        int connectionTable = movingVertically
-            ? SamusGrappleRomData.Connections.MovingVerticallyTable
+        GrappleConnectionTable connectionTable = movingVertically
+            ? GrappleConnectionTable.MovingVertically
             : sourceMovementType == SamusMovementType.Crouching
-                ? SamusGrappleRomData.Connections.CrouchingTable
-                : SamusGrappleRomData.Connections.DefaultTable;
-        int recordAddress = connectionTable + (int)grapple.FireDirection * 4;
-        var connection = GrappleConnectionDefinitions.ResolveConnection(recordAddress);
+                ? GrappleConnectionTable.Crouching
+                : GrappleConnectionTable.Default;
+        var connection = GrappleConnectionDefinitions.ResolveConnection(connectionTable, (int)grapple.FireDirection);
         GrappleConnectionFunction nextFunction = connection.Function;
         GrappleConnectionHandler handler = connection.Handler;
 
@@ -1012,7 +1011,7 @@ public static class SamusGrappleMovement
         // immediately starts automatic retraction. Omitting that caller tail leaves Samus
         // dangling unless the player explicitly supplies a fresh Up edge. Apply it for
         // both block and enemy connections, never for an arbitrary restored swing state.
-        grapple.RopeLengthDelta = SamusGrappleRomData.Physics.InitialConnectionRetraction;
+        grapple.RopeLengthDelta = GrappleBeamDefinitions.Physics.InitialConnectionRetraction;
 
         if (poseChange == GrapplePoseChange.Deferred)
         {
@@ -1150,7 +1149,7 @@ public static class SamusGrappleMovement
             throw new InvalidOperationException("A grapple firing cancellation is not queued.");
 
         bool cancelledConnectedPose = grapple.CancelFromConnectedPose;
-        QueueGrappleSound(samus, SamusGrappleRomData.Sounds.Stop);
+        QueueGrappleSound(samus, GrappleBeamDefinitions.Sounds.Stop);
         // The held route takes $90:F41E's no-op, not a connected-pose collision exit.
         // Draygon, rather than terrain ejection, still owns Samus's coordinates.
         if (!samus.DraygonGrabbed.IsActive)
@@ -1220,7 +1219,7 @@ public static class SamusGrappleMovement
                 // Native changes the function pointer before dispatch: restart from
                 // the current pose and hand position this frame, without extending.
                 // Do not steer an old endpoint or override the pose from held aim keys.
-                QueueGrappleSound(samus, SamusGrappleRomData.Sounds.RestartStop);
+                QueueGrappleSound(samus, GrappleBeamDefinitions.Sounds.RestartStop);
                 grapple.Phase = GrapplePhase.Inactive;
                 BeginFiring(samus, controllerInput);
                 return new GrappleMovementResult(GrapplePhase.Firing, Fired: true, OwnsMovement: false);
@@ -1246,7 +1245,7 @@ public static class SamusGrappleMovement
         SamusGrappleState grapple,
         bool deferPoseChange)
     {
-        QueueGrappleSound(samus, SamusGrappleRomData.Sounds.Stop);
+        QueueGrappleSound(samus, GrappleBeamDefinitions.Sounds.Stop);
         SamusBlockCollision.EjectAfterGrapple(level, samus.Kinematics);
         // $9B:CB8B bases facing on the angular-velocity word retained from the swing. A
         // nonnegative value selects left-facing $52; a negative value selects right $51.

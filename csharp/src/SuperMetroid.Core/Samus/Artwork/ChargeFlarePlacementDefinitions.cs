@@ -94,8 +94,8 @@ public static class ChargeFlarePlacementDefinitions
     internal static Offset16<RoomPixels> GrappleOffset(bool running, int direction)
     {
         if ((uint)direction >= DirectionCount) throw new ArgumentOutOfRangeException(nameof(direction));
-        if (direction < SamusGrappleRomData.Firing.DirectionCount) return BeamOffset(running, direction);
-        int adjacent = direction - SamusGrappleRomData.Firing.DirectionCount;
+        if (direction < GrappleBeamDefinitions.Firing.DirectionCount) return BeamOffset(running, direction);
+        int adjacent = direction - GrappleBeamDefinitions.Firing.DirectionCount;
         short y = running ? unchecked((short)(SwingSelectorByte(adjacent * 2) | SwingSelectorByte(adjacent * 2 + 1) << 8))
             : GrappleFiringDefinitions.Origin((byte)adjacent, true).X;
         return new() { X = BeamOffset(running, adjacent).Y, Y = y };

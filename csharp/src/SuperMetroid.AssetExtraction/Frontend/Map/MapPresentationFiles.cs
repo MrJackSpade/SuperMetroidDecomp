@@ -87,7 +87,7 @@ public static class MapPresentationFiles
         WorldMapArtwork artwork = MultiFileResource<WorldMapArtwork>([WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.BackgroundFile],
             "world-map PNG artwork", (s, _) => WorldMapCharacters.Read(s[0], s[1]));
         MapSpriteCatalog sprites = MultiFileResource<MapSpriteCatalog>([MapSpriteFormat.JsonFile, MapSpriteFormat.PngFile],
-            "map sprites", (s, _) => MapSpriteCatalog.Load(s[0], s[1]));
+            "map sprites", (s, _) => MapSpriteArtwork.Read(s[0], s[1]));
         MapTileAtlas pauseTiles = Resource(PauseTileAtlasFormat.FileName, "pause artwork", s => MapTileCharacters.Read(s));
         PauseBackdropPresentation pauseBackdrops = Resource(PauseBackdropDefinitions.FileName, "pause backdrop", s => PauseBackdropPresentation.Load(s));
         PauseSelectorPresentation pauseSelectors = Resource(PauseSelectorDefinitions.FileName, "pause selectors", s => PauseSelectorPresentation.Load(s));

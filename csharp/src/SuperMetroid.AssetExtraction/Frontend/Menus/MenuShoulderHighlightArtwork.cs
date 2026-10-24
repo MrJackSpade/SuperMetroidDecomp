@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Menus.Artwork;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.Menus.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Menus;
 
 /// <summary>Native82:C465 builds the32x16 L/R highlight from corner3C/51 and
 /// body3D/43, mirroring the right corners. The outer frame occupies X1..30,Y1..14.

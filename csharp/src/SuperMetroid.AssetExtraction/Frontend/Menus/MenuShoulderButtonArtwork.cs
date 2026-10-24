@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Menus.Artwork;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.Menus.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Menus;
 
 /// <summary>Pressed L/R buttons at82:C48F/C4A0 use left28, middle29/2E and right2A.
 /// The24x7 pill has radius-three caps rounded to nearest pixels. Index4 shades the

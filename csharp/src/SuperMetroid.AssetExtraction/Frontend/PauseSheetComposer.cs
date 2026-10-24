@@ -5,6 +5,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -32,7 +33,7 @@ internal static class PauseSheetComposer
         Ensure.NotNull(selectors);
         Ensure.NotNull(tanks);
         Ensure.NotNull(maps);
-        SpriteArtwork page = maps.Sprites.Page;
+        SpriteArtwork page = MapSpriteArtwork.Of(maps.Sprites).Page;
         List<SheetFrameSource> frames = [.. selectors.Visuals.Select(visual =>
         {
             string name = PauseSelectorDefinitions.SheetFrameName(visual.Name);

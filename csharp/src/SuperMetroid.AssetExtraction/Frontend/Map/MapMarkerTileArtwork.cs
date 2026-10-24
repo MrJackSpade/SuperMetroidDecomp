@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.Map.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Menu atlas9D/9E are transposed triangular arrow halves,9F is an
 /// outlined defeated-boss diagonal/frame corner, andAF is a three-line pulse corner.

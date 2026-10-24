@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Menus.Artwork;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.Menus.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Menus;
 
 /// <summary>Menu atlas cellsAD/AE atB6:D5A0..D5DF are a horizontal line and its
 /// left corner. Index6 covers row1; the corner also covers column0 below that row.

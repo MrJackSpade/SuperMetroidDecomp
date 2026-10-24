@@ -1,7 +1,8 @@
-using System.Numerics;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Menus.Artwork;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.Menus.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Menus;
 
 /// <summary>
 /// Seven elevator-label strips, selected by82:C4DB..C568, EXIT cells5F/B7,

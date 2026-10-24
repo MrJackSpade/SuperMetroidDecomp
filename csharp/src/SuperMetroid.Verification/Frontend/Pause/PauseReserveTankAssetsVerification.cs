@@ -77,7 +77,7 @@ internal static class PauseReserveTankAssetsVerification
         tankParts.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, true), new SnesSpritemapYByte(0),
             SnesObjAttributeWord.Create(50, 5, 3, SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical), new Position16<OamPixels>(132, 136));
         tankParts.FinalizeFrame();
-        PlacedSpritePart[] tank = PlacedSpritePart.OfOamObjects(tankParts, PauseMenuLayout.ObjectSelection, edited.Sprites.Page.Id);
+        PlacedSpritePart[] tank = PlacedSpritePart.OfOamObjects(tankParts, PauseMenuLayout.ObjectSelection, MapSpriteArtwork.Of(edited.Sprites).Page.Id);
         AssertTrue(snapshot.Paint.SpriteParts()[^tank.Length..].SequenceEqual(tank),
             "actual menu draws the custom tank's position, size, tile, palette, priority and flips");
         var editedPixels = menu.Render();

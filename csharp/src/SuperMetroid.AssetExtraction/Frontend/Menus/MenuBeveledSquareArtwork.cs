@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Menus.Artwork;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.Menus.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Menus;
 
 /// <summary>Menu atlas98/99 atB6:D300..D33F are two colorways of a6x6 beveled
 /// square inset one pixel in its8x8 cell. Bottom/right shading wins at their corners,

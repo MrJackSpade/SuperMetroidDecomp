@@ -27,8 +27,6 @@ internal static class InstalledFileSelectMapVerification
         var installed = new FileSelectMapMenuState(new CartridgeAudioState(), slot, 0, original, MenuSheetFixtures.For(original));
 
         // One raster per side: the two captured renders are compared with each other.
-        var nativeRaster = new Rgba32[256 * 224];
-        var installedRaster = new Rgba32[256 * 224];
         void StepBoth(SnesButton input)
         {
             control.Step(input);
@@ -39,8 +37,8 @@ internal static class InstalledFileSelectMapVerification
             AssertTrue(control.Render().SequenceEqual(installed.Render()), "installed map navigation renders exact stock frame");
             if (verifyCapturedRendering)
             {
-                var nativePixels = DisplayRendering.Render(control.CaptureRenderSnapshot(), nativeRaster);
-                var installedPixels = DisplayRendering.Render(installed.CaptureRenderSnapshot(), installedRaster);
+                var nativePixels = DisplayRendering.Render(control.CaptureRenderSnapshot());
+                var installedPixels = DisplayRendering.Render(installed.CaptureRenderSnapshot());
                 AssertTrue(nativePixels.SequenceEqual(installedPixels), "installed map render captures retain native pixels through every transition");
                 AssertTrue(installed.Render().SequenceEqual(installedPixels), "captured and direct map rendering agree");
             }

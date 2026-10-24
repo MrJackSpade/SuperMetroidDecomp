@@ -34,13 +34,11 @@ internal static class CeresEscapePageDefinitions
     /// The pages the timer-sprite list ($A6:C4CB) shows over the OBJ characters, one an update, in its order: the escape
     /// timer's two pages, then the warning text's five from its first character.
     /// </summary>
-    internal static IReadOnlyList<RuntimeCharacterUpload> ObjectPages { get; } =
+    internal static IReadOnlyList<ObjCharacterSource> ObjectPages { get; } =
     [
-        .. Enum.GetValues<EscapeTimerTilePage>().Select(page => new RuntimeCharacterUpload(new AssetObjCharacters(EscapeTimerTilePages.AssetOf(page)),
-            EscapeTimerTilePages.FirstCharacterOf(page) * CharacterBytes, EscapeTimerTilePages.ByteCountOf(page))),
-        .. Enumerable.Range(0, WarningPageCount).Select(page => new RuntimeCharacterUpload(
-            new CeresEscapeTileCharacters(WarningTextPage, page * PageCharacters * CharacterBytes, WarningPageByteCount(page)),
-            (CeresEscapeOverlayTilemapDefinitions.WarningFirstCharacter + page * PageCharacters) * CharacterBytes, WarningPageByteCount(page))),
+        .. Enum.GetValues<EscapeTimerTilePage>().Select(page => new AssetObjCharacters(EscapeTimerTilePages.AssetOf(page))),
+        .. Enumerable.Range(0, WarningPageCount).Select(page =>
+            new CeresEscapeTileCharacters(WarningTextPage, page * PageCharacters * CharacterBytes, WarningPageByteCount(page))),
     ];
 
     /// <summary>The bytes warning text page <paramref name="page"/> holds: a full page, or half of one for the last.</summary>

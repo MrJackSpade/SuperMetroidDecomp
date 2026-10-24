@@ -17,36 +17,20 @@ internal static class CrocomireSkeletonTransferDefinitions
     /// <summary>First source page at $AD:A600; subsequent pages are contiguous $0200-byte chunks.</summary>
     internal const int FirstGraphicsSourceAddress = 0xada600;
 
-    /// <summary>$A4:99CB: selected OBJ atlas allocation begins at tile $160.</summary>
-    private const int FirstAtlasTile = 0x160;
-    /// <summary>$A4:99CB..99D1 installs four rows at tiles $160..$19F.</summary>
-    private const int FirstRegionRows = 4;
-    /// <summary>$A4:99D3: second selected atlas allocation begins at tile $1E0.</summary>
-    private const int SecondAtlasTile = 0x1e0;
-    /// <summary>$A4:99D3..99D5 installs two rows at tiles $1E0..$1FF.</summary>
-    private const int SecondRegionRows = 2;
-    /// <summary>Planar bytes consumed by one four-bit OBJ character tile.</summary>
-    private const int TileByteCount = 32;
-    /// <summary>Atlas stride used to advance from one selected skeleton upload row to the next.</summary>
-    private const int TilesPerRow = 16;
-    /// <summary>Four first-region rows and two second-region rows before the native sentinel.</summary>
-    internal const int FrameCount = FirstRegionRows + SecondRegionRows;
+    /// <summary>The six chunks before the native sentinel: four rows of the first character region and two of the second.</summary>
+    internal const int FrameCount = 6;
 
     /// <summary>Calculated six-entry source and VRAM placement sequence in native upload order.</summary>
     internal static CrocomireSkeletonTransferSequence Frames => new(FrameCount);
 
-    /// <summary>The six skeleton uploads over the OBJ characters, in upload order (#1392, #1406).</summary>
-    internal static IReadOnlyList<RuntimeCharacterUpload> Uploads { get; } = [.. Enumerable.Range(0, FrameCount).Select(index =>
-        new RuntimeCharacterUpload(new CrocomireSkeletonChunkCharacters(index), Frame(index).FirstCharacter * TileByteCount, ChunkByteCount))];
+    /// <summary>The six skeleton chunks, in upload order (#1392, #1406).</summary>
+    internal static IReadOnlyList<ObjCharacterSource> Sources { get; } = [.. Enumerable.Range(0, FrameCount).Select(index => new CrocomireSkeletonChunkCharacters(index))];
 
-    /// <summary>Computes a contiguous bank-$AD source page and the discontinuous OBJ character it begins at for one upload.</summary>
+    /// <summary>Computes one chunk's contiguous bank-$AD source page.</summary>
     internal static CrocomireSkeletonTransferDefinition Frame(int index)
     {
         if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
-        int tile = index < FirstRegionRows
-            ? FirstAtlasTile + index * TilesPerRow
-            : SecondAtlasTile + (index - FirstRegionRows) * TilesPerRow;
-        return new(FirstGraphicsSourceAddress + index * ChunkByteCount, tile);
+        return new(FirstGraphicsSourceAddress + index * ChunkByteCount);
     }
 
     /// <summary>Returns false only for the native seventh-entry sentinel.</summary>

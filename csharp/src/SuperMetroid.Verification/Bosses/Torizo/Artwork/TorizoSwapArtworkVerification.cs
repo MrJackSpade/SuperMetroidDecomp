@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -51,7 +52,7 @@ internal static class TorizoSwapArtworkVerification
             int nativeSource = (CartridgeImportSource.Require(rom).ReadCartridgeLong(descriptor + 2));
             AssertEqual(transfer.SourceAddress, nativeSource,
                 $"Torizo transfer $AA:{instruction:X4} source");
-            AssertEqual(ObjCharacterNativeWords.Of(transfer.FirstCharacter), CartridgeImportSource.Require(rom).ReadCartridgeWord((descriptor + 5)),
+            AssertEqual(ObjCharacterNativeWords.Of(PlacedUploads.Of(new TorizoArtworkSwapCharacters(transferIndex)).FirstByte / 32), CartridgeImportSource.Require(rom).ReadCartridgeWord((descriptor + 5)),
                 $"Torizo transfer $AA:{instruction:X4} VRAM destination");
             AssertTrue((stock.Bosses.TorizoSwaps ?? throw new InvalidOperationException("Verification requires stock.TorizoSwaps.")).TryResolve(
                     transfer.SourceAddress, transfer.ByteCount,
@@ -63,7 +64,7 @@ internal static class TorizoSwapArtworkVerification
                     $"Torizo transfer $AA:{instruction:X4} byte {offset:X4}");
             ShowTorizoArtwork(installedEnemies, installedSlot, new TorizoArtworkSwap(transferIndex));
             ReadOnlySpan<byte> shown = new ObjCharacterTablePage().Page(installedEnemies.Room.Session.ObjCharacters,
-                new EnemyTileTransfers(stock)).Characters.Slice(transfer.FirstCharacter * 32);
+                new EnemyTileTransfers(stock)).Characters.Slice(PlacedUploads.Of(new TorizoArtworkSwapCharacters(transferIndex)).FirstByte);
             for (int offset = 0; offset < transfer.ByteCount; offset++)
                 AssertEqual(installed.Span[offset], shown[offset],
                     $"production Torizo upload $AA:{instruction:X4} byte {offset:X4}");

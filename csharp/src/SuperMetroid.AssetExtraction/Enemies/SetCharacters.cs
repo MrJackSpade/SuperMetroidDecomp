@@ -101,7 +101,7 @@ internal sealed class SetCharacters
             CharacterRegion[] layerRegions = read[first];
             var parts = new SpriteFrame($"{frame.Name}#{layer}", frame.Parts[first..end]);
             sources.AddRange(regions.Contents(layerRegions, showsRot).Select(contents => new SheetFrameSource(
-                RuntimeCharacterUploadDefinitions.Catalog.PictureName(name, layer, contents), parts, Page(contents))));
+                SuperMetroid.AssetExtraction.Enemies.RuntimeCharacterUploadPlacements.Catalog.PictureName(name, layer, contents), parts, Page(contents))));
             layers.Add(layerRegions);
             first = end;
         }
@@ -157,7 +157,7 @@ internal sealed class SetCharacters
     /// <summary>The characters with each upload <paramref name="contents"/> names shown over its region.</summary>
     private SpriteArtwork Page(IReadOnlyList<CharacterRegionContent> contents)
     {
-        string key = RuntimeCharacterUploadDefinitions.Catalog.PictureName("page", 0, contents);
+        string key = SuperMetroid.AssetExtraction.Enemies.RuntimeCharacterUploadPlacements.Catalog.PictureName("page", 0, contents);
         if (pages.TryGetValue(key, out SpriteArtwork? page))
             return page;
         byte[] shown = [.. table];

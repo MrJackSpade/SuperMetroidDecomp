@@ -530,14 +530,14 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     internal void ShowGunshipTakeoffPage(RoomEnemySlot top)
     {
         int page = Part(top).NextLiftoffPage;
-        if ((uint)page >= GunshipLiftoffTransferDefinitions.Uploads.Count)
+        if ((uint)page >= GunshipLiftoffTransferDefinitions.Pages.Count)
             throw new InvalidDataException("Gunship takeoff page escaped its five pages.");
         if (_room.Artwork?.GunshipLiftoff is null)
             throw new InvalidDataException("Gunship takeoff requires the installed liftoff artwork.");
-        _room.Session.ObjCharacters.Record(GunshipLiftoffTransferDefinitions.Uploads[page]);
+        _room.Session.ShowCharacters(GunshipLiftoffTransferDefinitions.Pages[page]);
 
         Part(top).NextLiftoffPage = page + 1;
-        if (Part(top).NextLiftoffPage >= GunshipLiftoffTransferDefinitions.Uploads.Count)
+        if (Part(top).NextLiftoffPage >= GunshipLiftoffTransferDefinitions.Pages.Count)
         {
             Part(top).Function = GunshipFunction.FireUpEngines;
             Part(top).NextLiftoffPage = 0;

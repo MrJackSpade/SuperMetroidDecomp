@@ -7,10 +7,6 @@ internal static class GunshipLiftoffTransferDefinitions
     internal const ushort ByteCount = 0x0400;
     /// <summary>$94:C800, first gunship takeoff character chunk selected by $A2:AC07.</summary>
     private const int FirstSourceAddress = 0x94c800;
-    /// <summary>The OBJ character the first takeoff page begins at, $160, from the destination list at $A2:AC11.</summary>
-    private const int FirstCharacter = 0x160;
-    /// <summary>The bytes one four-bit OBJ character holds.</summary>
-    private const int CharacterBytes = 32;
 
     /// <summary>$A2:AC07/$AC11 select five consecutive $400-byte source and VRAM regions.</summary>
     internal static GunshipLiftoffTransferDefinition Frame(int index)
@@ -23,9 +19,8 @@ internal static class GunshipLiftoffTransferDefinitions
     /// <summary>Calculated five-frame transfer sequence without a stored record table.</summary>
     internal static TransferSequence Frames => default;
 
-    /// <summary>The five takeoff pages over the OBJ characters, in takeoff order, each after the one before (#1392, #1406).</summary>
-    internal static IReadOnlyList<RuntimeCharacterUpload> Uploads { get; } = [.. Frames.Select((frame, index) =>
-        new RuntimeCharacterUpload(new AssetObjCharacters(frame.Asset), FirstCharacter * CharacterBytes + index * ByteCount, ByteCount))];
+    /// <summary>The five takeoff pages, in takeoff order (#1392, #1406).</summary>
+    internal static IReadOnlyList<ObjCharacterSource> Pages { get; } = [.. Frames.Select(frame => new AssetObjCharacters(frame.Asset))];
 
     /// <summary>Calculated view over the five contiguous character transfers; no records are cached.</summary>
     internal readonly struct TransferSequence : IReadOnlyList<GunshipLiftoffTransferDefinition>

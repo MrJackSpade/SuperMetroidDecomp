@@ -206,6 +206,8 @@ internal static class CrocomireBodyVisualsVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
             var vram = new SnesVram();
             enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
+            // His fight attaches the BG2 image his body frames draw into.
+            EnemyBg2Image image = EnemyBg2ImageFixtures.AttachBlank(enemies.Presentation);
             enemies.Drawing.Enqueue(0, 0);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Crocomire, slot.Definition);
@@ -224,7 +226,7 @@ internal static class CrocomireBodyVisualsVerification
             slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
             var oam = new OamBuffer();
             enemies.Drawing.DrawLayersAsOam(oam, new(0, 0), 0, 0);
-            return new DrawNativeResult(oam, vram.Bytes.ToArray());
+            return new DrawNativeResult(oam, EnemyBg2ImageFixtures.AsVram(image, EnemyBg2FrameLayout.VramBase, vram.Bytes.Length));
         }
 
         // The tile base and palette Crocomire's room draws him at.

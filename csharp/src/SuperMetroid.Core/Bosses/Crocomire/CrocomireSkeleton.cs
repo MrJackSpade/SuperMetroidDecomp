@@ -271,7 +271,7 @@ internal sealed class CrocomireSkeleton
         // Only character pixels are editable; the chunks' order and their place among the characters are not.
         if (artwork.Chunk(chunk).Length != CrocomireSkeletonTransferDefinitions.ChunkByteCount)
             throw new InvalidDataException($"Installed Crocomire skeleton chunk {chunk} is not one chunk's characters long.");
-        _presentation.ObjCharacters.Record(CrocomireSkeletonTransferDefinitions.Uploads[chunk]);
+        _presentation.ShowCharacters(CrocomireSkeletonTransferDefinitions.Sources[chunk]);
         death.SkeletonChunksShown++;
     }
 

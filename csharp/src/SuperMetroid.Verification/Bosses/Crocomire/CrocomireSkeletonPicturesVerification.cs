@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
@@ -31,8 +32,8 @@ internal static class CrocomireSkeletonPicturesVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Crocomire);
         // The room load's uploads reach the OBJ characters when its first frame drains them.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        UploadedPictureChecks.AssertRegionsFollowUploads(runtime, CrocomireSkeletonTransferDefinitions.Uploads, "Crocomire's skeleton");
-        Console.WriteLine($"Crocomire skeleton pictures: each region follows his {CrocomireSkeletonTransferDefinitions.Uploads.Count} skeleton uploads.");
+        UploadedPictureChecks.AssertRegionsFollowUploads(runtime, PlacedUploads.Of(CrocomireSkeletonTransferDefinitions.Sources), "Crocomire's skeleton");
+        Console.WriteLine($"Crocomire skeleton pictures: each region follows his {PlacedUploads.Of(CrocomireSkeletonTransferDefinitions.Sources).Count} skeleton uploads.");
     }
 
     /// <summary>Runs the Crocomire skeleton picture check.</summary>

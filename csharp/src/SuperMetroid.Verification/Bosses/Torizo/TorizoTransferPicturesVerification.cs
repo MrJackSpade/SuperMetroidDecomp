@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
@@ -33,9 +34,9 @@ internal static class TorizoTransferPicturesVerification
             runtime.LoadCartridgeRoomForDebug(room);
             // The room load's uploads reach the OBJ characters when its first frame drains them.
             runtime.FrameBoundary.BeginAcceptedFrame(0);
-            UploadedPictureChecks.AssertRegionsFollowUploads(runtime, TorizoArtworkSwapDefinitions.Uploads, $"{room.Name}'s transfers");
+            UploadedPictureChecks.AssertRegionsFollowUploads(runtime, PlacedUploads.Of(TorizoArtworkSwapDefinitions.Sources), $"{room.Name}'s transfers");
         }
-        Console.WriteLine($"Torizo transfer pictures: each region of both Torizos' rooms follows their {TorizoArtworkSwapDefinitions.Uploads.Count} instruction-time transfers.");
+        Console.WriteLine($"Torizo transfer pictures: each region of both Torizos' rooms follows their {PlacedUploads.Of(TorizoArtworkSwapDefinitions.Sources).Count} instruction-time transfers.");
     }
 
     /// <summary>Runs the Torizo transfer picture check.</summary>

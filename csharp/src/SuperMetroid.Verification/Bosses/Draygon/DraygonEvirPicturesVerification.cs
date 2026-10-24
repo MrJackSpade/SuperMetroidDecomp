@@ -60,11 +60,11 @@ internal static class DraygonEvirPicturesVerification
         AssertTrue(layers.Count > 0, $"the Evir's frame {frame} is drawn over characters Draygon's opening uploads");
         SpriteSheet sheet = sheets.Spawned(set, tileBase).Sheet;
         IReadOnlyList<string> setPictures = UploadedPictureChecks.ExpectedPictures(sheets, frame, layers, []);
-        IReadOnlyList<string> evirPictures = UploadedPictureChecks.ExpectedPictures(sheets, frame, layers, [DraygonIntroPresentationDefinitions.EvirUpload]);
+        IReadOnlyList<string> evirPictures = UploadedPictureChecks.ExpectedPictures(sheets, frame, layers, [PlacedUploads.Of(DraygonIntroPresentationDefinitions.EvirTiles)]);
 
         UploadedPictureChecks.AssertDrawnPictures(sheet, setPictures, AssertDrawnLikeParts(runtime, evir, "before the opening upload"),
             "an Evir drawn before the opening upload shows the pictures of the set's own characters");
-        runtime.EnemySession.ObjCharacters.Record(DraygonIntroPresentationDefinitions.EvirUpload);
+        runtime.EnemySession.ObjCharacters.Record(PlacedUploads.Of(DraygonIntroPresentationDefinitions.EvirTiles));
         UploadedPictureChecks.AssertDrawnPictures(sheet, evirPictures, AssertDrawnLikeParts(runtime, evir, "after the opening upload"),
             "an Evir drawn after the opening upload shows the pictures of the Evirs' tiles");
         Console.WriteLine($"Draygon Evir pictures: {string.Join(", ", setPictures)} before her opening upload and {string.Join(", ", evirPictures)} after, each painting its frame over the live characters.");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
@@ -76,7 +77,7 @@ internal static class TorizoAnimationsVerification
                 AssertEqual(cursor, TorizoArtworkSwapDefinitions.Sites[copy.Swap.Ordinal].Instruction, $"{at}: tile transfer descriptor");
                 AssertEqual(transfer.ByteCount, cartridge.ReadCartridgeWord(address + 2), $"{at}: tile transfer size");
                 AssertEqual(transfer.SourceAddress, cartridge.ReadCartridgeLongFixedBank(address + 4), $"{at}: tile transfer source");
-                AssertEqual(ObjCharacterNativeWords.Of(transfer.FirstCharacter), cartridge.ReadCartridgeWord(address + 7), $"{at}: tile transfer destination");
+                AssertEqual(ObjCharacterNativeWords.Of(PlacedUploads.Of(new TorizoArtworkSwapCharacters(copy.Swap.Ordinal)).FirstByte / 32), cartridge.ReadCartridgeWord(address + 7), $"{at}: tile transfer destination");
                 cursor = unchecked((ushort)(cursor + TileTransferBytes));
                 continue;
             }

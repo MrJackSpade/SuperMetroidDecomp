@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -123,7 +124,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             AssertEqual(ShownByte(baby.PageFirstCharacter(page)),
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 5) * 2,
                 $"Baby page {page} shows where the cartridge's record places it");
-            RuntimeCharacterUpload shown = MotherBrainCharacterUploads.Of(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.BabyMetroid, page));
+            RuntimeCharacterUpload shown = PlacedUploads.Of(MotherBrainCharacterUploads.Of(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.BabyMetroid, page)));
             AssertEqual(ShownByte(baby.PageFirstCharacter(page)) - ObjectCharactersByte, shown.FirstByte,
                 $"Baby page {page} selection shows at its record's characters");
             AssertEqual((int)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record), shown.ByteCount,

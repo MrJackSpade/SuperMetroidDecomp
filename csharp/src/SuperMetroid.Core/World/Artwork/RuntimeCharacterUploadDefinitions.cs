@@ -10,9 +10,10 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.World.Artwork;
 
 /// <summary>
-/// The uploads each enemy's encounter makes over the OBJ characters after its room loads (#1392), by the enemy whose
-/// graphics set loads the encounter. Pre-coloured frames drawn over them have a picture for each. The catalogue lives
-/// above the encounters' modules, which each own their uploads.
+/// The characters each enemy's encounter shows after its room loads (#1392, #1406), by the enemy whose graphics set loads
+/// the encounter. Pre-coloured frames drawn over them have a picture for each. Where each shows among the sprite
+/// characters is extraction's: the installed catalogue pairs each with its place. The list lives above the encounters'
+/// modules, which each own what they show.
 /// </summary>
 internal static class RuntimeCharacterUploadDefinitions
 {
@@ -21,15 +22,16 @@ internal static class RuntimeCharacterUploadDefinitions
     /// liftoff pictures, Crocomire's death his skeleton, a Torizo's instruction lists the characters of the poses it
     /// shows next, Ceres Ridley's getaway the escape timer and its warning, and the Ceres door's second variant its characters.
     /// </summary>
-    internal static RuntimeCharacterUploadCatalog Catalog { get; } = new(new Dictionary<EnemyDefinitionId, IReadOnlyList<RuntimeCharacterUpload>>
-    {
-        [EnemyDefinitionId.DraygonBody] = [DraygonIntroPresentationDefinitions.EvirUpload],
-        [EnemyDefinitionId.ShipTop] = GunshipLiftoffTransferDefinitions.Uploads,
-        [EnemyDefinitionId.Crocomire] = CrocomireSkeletonTransferDefinitions.Uploads,
-        [EnemyDefinitionId.BombTorizo] = TorizoArtworkSwapDefinitions.Uploads,
-        [EnemyDefinitionId.GoldenTorizo] = TorizoArtworkSwapDefinitions.Uploads,
-        [EnemyDefinitionId.RidleyCeres] = CeresEscapePageDefinitions.ObjectPages,
-        [EnemyDefinitionId.CeresDoor] = [CeresDoorCharacters.Upload],
-        [EnemyDefinitionId.MotherBrainHead] = MotherBrainCharacterUploads.All,
-    });
+    internal static IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<ObjCharacterSource>> Encounters { get; } =
+        new Dictionary<EnemyDefinitionId, IReadOnlyList<ObjCharacterSource>>
+        {
+            [EnemyDefinitionId.DraygonBody] = [DraygonIntroPresentationDefinitions.EvirTiles],
+            [EnemyDefinitionId.ShipTop] = GunshipLiftoffTransferDefinitions.Pages,
+            [EnemyDefinitionId.Crocomire] = CrocomireSkeletonTransferDefinitions.Sources,
+            [EnemyDefinitionId.BombTorizo] = TorizoArtworkSwapDefinitions.Sources,
+            [EnemyDefinitionId.GoldenTorizo] = TorizoArtworkSwapDefinitions.Sources,
+            [EnemyDefinitionId.RidleyCeres] = CeresEscapePageDefinitions.ObjectPages,
+            [EnemyDefinitionId.CeresDoor] = [CeresDoorCharacters.Shown],
+            [EnemyDefinitionId.MotherBrainHead] = MotherBrainCharacterUploads.All,
+        };
 }

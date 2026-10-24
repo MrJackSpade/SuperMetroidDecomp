@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Tooling;
 using System.Text.Json;
@@ -30,9 +31,9 @@ internal static class EnemyTileArtworkCeresDoorVerification
         AssertTrue(visual.Characters.Span.SequenceEqual(nativeTiles),
             "installed Ceres-door PNG preserves the complete direct tile DMA");
         // $A6:F739 copies the characters to VRAM byte $E000, word $7000: OBJ character $100.
-        AssertEqual(ObjCharacterUploads.TableByte(VramDmaDestination.FromNative(0x7000)), CeresDoorCharacters.Upload.FirstByte,
+        AssertEqual(ObjCharacterUploads.TableByte(VramDmaDestination.FromNative(0x7000)), PlacedUploads.Of(CeresDoorCharacters.Shown).FirstByte,
             "the door's characters show where the cartridge's DMA lands them among the OBJ characters");
-        AssertEqual(nativeTiles.Length, CeresDoorCharacters.Upload.ByteCount, "the door shows all its characters");
+        AssertEqual(nativeTiles.Length, PlacedUploads.Of(CeresDoorCharacters.Shown).ByteCount, "the door shows all its characters");
 
         var nativeColors = new SnesCgram();
         var compiledColors = new GameplayColours(new SpriteColourSets());

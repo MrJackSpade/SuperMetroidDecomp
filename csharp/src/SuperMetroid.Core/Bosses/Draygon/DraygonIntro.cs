@@ -49,7 +49,7 @@ internal sealed class DraygonIntro
                         DraygonIntroPresentationDefinitions.EvirTilesByteCount, out _) != true)
                     throw new InvalidDataException(
                         "Installed Evir graphics are missing for Draygon's opening transfer.");
-                _presentation.ObjCharacters.Record(DraygonIntroPresentationDefinitions.EvirUpload);
+                _presentation.ShowCharacters(DraygonIntroPresentationDefinitions.EvirTiles);
                 state.IntroEvirGraphicsLoaded = true;
 
                 // CreateSpriteAtPos searches descending, so these become native indexes

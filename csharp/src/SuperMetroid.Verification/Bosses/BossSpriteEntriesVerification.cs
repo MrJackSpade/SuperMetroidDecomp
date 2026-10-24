@@ -87,9 +87,9 @@ internal static class BossSpriteEntriesVerification
             new EnemyTileCharacters(EnemyDefinitionId.Evir).Resolve(resolver).Span.SequenceEqual(evirTiles.Span),
             "Evir's tiles resolve to its installed sheet");
         var uploads = new ObjCharacterUploads();
-        uploads.Record(DraygonIntroPresentationDefinitions.EvirUpload);
+        uploads.Record(PlacedUploads.Of(DraygonIntroPresentationDefinitions.EvirTiles));
         SpriteArtwork page = new ObjCharacterTablePage().Page(uploads, resolver);
-        int evirByte = DraygonIntroPresentationDefinitions.EvirUpload.FirstByte;
+        int evirByte = PlacedUploads.Of(DraygonIntroPresentationDefinitions.EvirTiles).FirstByte;
         AssertTrue(page.Characters.Slice(evirByte, evirTiles.Length).SequenceEqual(evirTiles.Span),
             "The page shows Evir's sheet where Draygon's opening upload lands");
         Console.WriteLine("Boss sprite entries stage 2: Draygon's Evir sheet binds Evir's installed tiles.");

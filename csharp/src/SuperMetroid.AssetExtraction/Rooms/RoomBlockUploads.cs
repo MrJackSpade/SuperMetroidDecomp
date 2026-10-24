@@ -282,7 +282,7 @@ internal static class RoomBlockUploads
     /// </summary>
     [PpuLayoutBoundary("codec: the VRAM words an encounter's OBJ character table uploads land on")]
     private static IEnumerable<BgCharacterUpload> EncounterObjectUploads(RoomBlockSheetInputs inputs, CartridgeRoomState state) =>
-        RuntimeCharacterUploadDefinitions.Catalog.Of(state.EnemyGraphicsSet).Select(upload => new BgCharacterUpload(
+        SuperMetroid.AssetExtraction.Enemies.RuntimeCharacterUploadPlacements.Catalog.Of(state.EnemyGraphicsSet).Select(upload => new BgCharacterUpload(
             new BgArtworkIdentity($"{upload.Source}"), GameplayVramLayout.ObjectCharacters.Offset + upload.FirstByte / sizeof(ushort),
             upload.Source.Resolve(inputs.Objects)));
 

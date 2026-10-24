@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Crocomire;
@@ -32,7 +33,7 @@ internal static class CrocomireSkeletonArtworkVerification
                 EnemyRomTablePointersCrocomire.DeathVramDestinationWords + index * 2);
             ushort source = ReadNativeCrocomireSkeletonWord(rom,
                 EnemyRomTablePointersCrocomire.DeathGraphicsSourceWords + index * 2);
-            AssertEqual(destination, frame.FirstCharacter * 16,
+            AssertEqual(destination, PlacedUploads.Of(new CrocomireSkeletonChunkCharacters(index)).FirstByte / 2,
                 $"Crocomire skeleton destination {index} matches the cartridge");
             AssertEqual(0xad0000 | source, frame.SourceAddress,
                 $"Crocomire skeleton source {index} matches the cartridge");
@@ -94,7 +95,7 @@ internal static class CrocomireSkeletonArtworkVerification
             stockDirectory, overrides);
         (byte[] editedCharacters, _, CartridgeReadGuard editedGuard) =
             RunInstalled(edited);
-        int firstDestination = frames[0].FirstCharacter * 32;
+        int firstDestination = PlacedUploads.Of(new CrocomireSkeletonChunkCharacters(0)).FirstByte;
         AssertEqual((byte)(installedCharacters[firstDestination] ^ 0x80),
             editedCharacters[firstDestination],
             "Crocomire skeleton PNG edit changes the actual uploaded planar pixel");
@@ -133,7 +134,7 @@ internal static class CrocomireSkeletonArtworkVerification
                 ShowNextChunk(system, state);
             // The skeleton's chunks as its sheets picture them: each installed chunk where the cartridge uploads it (#1406).
             var shown = new ObjCharacterUploads();
-            foreach (RuntimeCharacterUpload upload in CrocomireSkeletonTransferDefinitions.Uploads)
+            foreach (RuntimeCharacterUpload upload in PlacedUploads.Of(CrocomireSkeletonTransferDefinitions.Sources))
                 shown.Record(upload);
             return new RunInstalledResult(new ObjCharacterTablePage().Page(shown, new EnemyTileTransfers(art)).Characters[..ObjCharacterUploads.TableByteCount].ToArray(),
                 state, guard);

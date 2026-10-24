@@ -38,7 +38,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
                 EnemyRomTablePointersGunship.LiftoffVramDestinationWords + index * 2);
             AssertEqual(0x940000 | source, transfer.SourceAddress,
                 $"gunship frame {index} compiled source matches the cartridge");
-            AssertEqual(destination, ObjCharacterNativeWords.Of(GunshipLiftoffTransferDefinitions.Uploads[index].FirstByte / 32),
+            AssertEqual(destination, ObjCharacterNativeWords.Of(PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages)[index].FirstByte / 32),
                 $"gunship frame {index} compiled place among the OBJ characters matches the cartridge");
             ReadOnlySpan<byte> pixels = installed.Resolve(transfer.Asset).Span;
             AssertEqual(GunshipLiftoffTransferDefinitions.ByteCount, pixels.Length,
@@ -59,7 +59,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
             GunshipLiftoffTransferDefinition transfer = transfers[index];
             AssertEqual<ObjCharacterSource>(new AssetObjCharacters(transfer.Asset), stockPages.Uploads[index].Source,
                 $"takeoff frame {index} shows its installed page");
-            AssertEqual(GunshipLiftoffTransferDefinitions.Uploads[index].FirstByte, stockPages.Uploads[index].FirstByte,
+            AssertEqual(PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages)[index].FirstByte, stockPages.Uploads[index].FirstByte,
                 $"takeoff frame {index} keeps its compiled place among the OBJ characters");
             nativeQueue.Enqueue(GunshipLiftoffTransferDefinitions.ByteCount, transfer.SourceAddress,
                 VramDmaDestination.FromNative(ObjCharacterNativeWords.Of(stockPages.Uploads[index].FirstByte / 32)));

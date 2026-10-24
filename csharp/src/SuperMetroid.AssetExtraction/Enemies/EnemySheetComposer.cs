@@ -183,7 +183,7 @@ internal static class EnemySheetComposer
             .Except(members).Distinct().Order();
         EnemyDefinitionId[] drawn = [.. members, .. placed];
         IReadOnlyList<CorpseRotSimulation> corpses = CorpseRotSimulation.Of(inputs.Enemies, inputs.Bosses, drawn);
-        var regions = new SetRegions(RuntimeCharacterUploadDefinitions.Catalog.Of(set), [.. corpses.Where(corpse => corpse.Kind is null)]);
+        var regions = new SetRegions(SuperMetroid.AssetExtraction.Enemies.RuntimeCharacterUploadPlacements.Catalog.Of(set), [.. corpses.Where(corpse => corpse.Kind is null)]);
         return new LoadedGraphicsSet(graphics, new SetCharacters(Table(inputs, graphics), regions, inputs,
             [.. corpses.Where(corpse => corpse.Kind is not null)]), cgram.Colors[SpriteColours..].ToArray(), drawn);
     }

@@ -70,4 +70,10 @@ public sealed class EnemySession
     [field: NonSerialized]
     internal IEnemySheetSource? Sheets { get; set; }
 
+    /// <summary>Shows <paramref name="source"/> over the sprite characters where the installed catalogue places it (#1406).</summary>
+    /// <exception cref="InvalidOperationException">No enemy sheets are installed.</exception>
+    internal void ShowCharacters(ObjCharacterSource source) =>
+        ObjCharacters.Record((Sheets ?? throw new InvalidOperationException("Showing an encounter's characters requires installed enemy sheets."))
+            .Uploads.Upload(source));
+
 }

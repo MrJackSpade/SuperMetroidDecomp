@@ -23,6 +23,16 @@ public sealed class RuntimeCharacterUploadCatalog
         all = [.. byEnemy.OrderBy(entry => entry.Key).SelectMany(entry => entry.Value).Distinct()];
     }
 
+    /// <summary>The catalogued upload that shows <paramref name="source"/>.</summary>
+    /// <exception cref="InvalidDataException">No catalogued encounter shows the source, or several place it differently.</exception>
+    public RuntimeCharacterUpload Upload(ObjCharacterSource source)
+    {
+        Ensure.NotNull(source);
+        RuntimeCharacterUpload[] matches = [.. all.Where(upload => upload.Source == source)];
+        return matches.Length == 1 ? matches[0]
+            : throw new InvalidDataException(matches.Length == 0 ? $"No catalogued encounter shows {source}." : $"{source} is catalogued in {matches.Length} places.");
+    }
+
     /// <summary>The uploads the encounters of graphics set <paramref name="set"/>'s members make, in catalogue order.</summary>
     public IReadOnlyList<RuntimeCharacterUpload> Of(RoomEnemyGraphicsSetDefinition set) =>
         [.. Ensure.NotNull(set).Records.Span.SelectToArray(record => record.DefinitionId).Distinct()

@@ -13,21 +13,20 @@ internal static class MotherBrainCharacterUploads
     /// <summary>The bytes one sprite character holds.</summary>
     private const int CharacterBytes = 32;
 
-    /// <summary>Every page's placement, in the order <see cref="MotherBrainSpritePage.All"/> lists the pages, which the catalogue names them by.</summary>
-    internal static IReadOnlyList<RuntimeCharacterUpload> All { get; } = [.. MotherBrainSpritePage.All.Select(Of)];
+    /// <summary>Every page's artwork, in the order <see cref="MotherBrainSpritePage.All"/> lists the pages, which the catalogue names them by.</summary>
+    internal static IReadOnlyList<ObjCharacterSource> All { get; } = [.. MotherBrainSpritePage.All.Select(Of)];
 
-    /// <summary>The artwork <paramref name="page"/> shows and the characters it shows in.</summary>
+    /// <summary>The artwork <paramref name="page"/> shows.</summary>
     /// <exception cref="InvalidOperationException">The page's sheet is not one of Mother Brain's.</exception>
-    internal static RuntimeCharacterUpload Of(MotherBrainSpritePage page) => page.Sheet switch
+    internal static ObjCharacterSource Of(MotherBrainSpritePage page) => page.Sheet switch
     {
         MotherBrainSpritePageSheet.Legs => Special(0, page.Page),
         MotherBrainSpritePageSheet.BabyMetroid => Special(1, page.Page),
         MotherBrainSpritePageSheet.Attack => Special(2, page.Page),
         MotherBrainSpritePageSheet.ExplodedDoor => Special(3, page.Page),
-        MotherBrainSpritePageSheet.Corpse => new(new MotherBrainCorpseCharacters(page.Page),
-            MotherBrainCorpseArtworkDefinitions.PageFirstCharacter(page.Page) * CharacterBytes, MotherBrainCorpseArtworkDefinitions.PageByteCount),
-        MotherBrainSpritePageSheet.EscapeTimer => EscapeTimer(Enum.GetValues<EscapeTimerTilePage>()[page.Page]),
-        MotherBrainSpritePageSheet.EscapeText => EscapeText(page.Page),
+        MotherBrainSpritePageSheet.Corpse => new MotherBrainCorpseCharacters(page.Page),
+        MotherBrainSpritePageSheet.EscapeTimer => new AssetObjCharacters(EscapeTimerTilePages.AssetOf(Enum.GetValues<EscapeTimerTilePage>()[page.Page])),
+        MotherBrainSpritePageSheet.EscapeText => new MotherBrainEscapeTextCharacters(page.Page),
         _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainSpritePageSheet)} {(int)page.Sheet}."),
     };
 
@@ -35,20 +34,6 @@ internal static class MotherBrainCharacterUploads
     internal static CharacterRegion RotRegion(MotherBrainCorpseRotRow row) => new(row.FirstCharacter * CharacterBytes, row.ByteCount);
 
     /// <summary>Page <paramref name="page"/> of special sheet <paramref name="sheet"/>, by its place in <see cref="MotherBrainSpecialSpriteArtworkDefinitions.All"/>.</summary>
-    private static RuntimeCharacterUpload Special(int sheet, int page)
-    {
-        MotherBrainSpecialSpriteSheetDefinition definition = MotherBrainSpecialSpriteArtworkDefinitions.All[sheet];
-        return new(new MotherBrainSpecialSpriteCharacters(sheet, page, MotherBrainSpecialSpriteSheetDefinition.PageByteCount),
-            definition.PageFirstCharacter(page) * CharacterBytes, MotherBrainSpecialSpriteSheetDefinition.PageByteCount);
-    }
-
-    /// <summary>The escape timer's digit page <paramref name="page"/>, as its installed asset.</summary>
-    private static RuntimeCharacterUpload EscapeTimer(EscapeTimerTilePage page) =>
-        new(new AssetObjCharacters(EscapeTimerTilePages.AssetOf(page)), EscapeTimerTilePages.FirstCharacterOf(page) * CharacterBytes,
-            EscapeTimerTilePages.ByteCountOf(page));
-
-    /// <summary>The escape message's letter page <paramref name="page"/>.</summary>
-    private static RuntimeCharacterUpload EscapeText(int page) =>
-        new(new MotherBrainEscapeTextCharacters(page), EscapeTextArtworkDefinitions.PageFirstCharacter(page) * CharacterBytes,
-            EscapeTextArtworkDefinitions.PageByteCount(page));
+    private static MotherBrainSpecialSpriteCharacters Special(int sheet, int page) =>
+        new(sheet, page, MotherBrainSpecialSpriteSheetDefinition.PageByteCount);
 }

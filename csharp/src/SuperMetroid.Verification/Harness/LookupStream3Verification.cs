@@ -1400,7 +1400,7 @@ internal static class LookupStream3Verification
                 int address = start + index * 7;
                 int nativeSize = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
                 int nativeTableByte = (CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 5) - GameplayVramLayout.ObjectCharacters.Offset) * 2;
-                RuntimeCharacterUpload shown = MotherBrainCharacterUploads.Of(method());
+                RuntimeCharacterUpload shown = PlacedUploads.Of(MotherBrainCharacterUploads.Of(method()));
                 AssertEqual(nativeTableByte, shown.FirstByte, "stream 3 production escape page shows where the native record places it");
                 AssertEqual(nativeSize, shown.ByteCount, "stream 3 production escape page shows the native record's bytes");
                 AssertEqual(index + 1, timerList ? sequence.ThirdPhaseDeath.EscapePagesShown : sequence.ThirdPhaseDeath.ExplodedDoorPagesShown,
@@ -1454,7 +1454,7 @@ internal static class LookupStream3Verification
             int pageEntry = 0xa99003 + row * 7;
             uint source = (uint)(CartridgeImportSource.Require(rom).ReadCartridgeLong(pageEntry + 2));
             AssertEqual(source, MotherBrainCorpseArtworkDefinitions.PageSource(row), "stream 3 corpse source page");
-            RuntimeCharacterUpload page = MotherBrainCharacterUploads.Of(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, row));
+            RuntimeCharacterUpload page = PlacedUploads.Of(MotherBrainCharacterUploads.Of(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, row)));
             AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry + 5) - GameplayVramLayout.ObjectCharacters.Offset) * 2,
                 page.FirstByte, "stream 3 corpse page placement");
             AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry), page.ByteCount, "stream 3 corpse page bytes");

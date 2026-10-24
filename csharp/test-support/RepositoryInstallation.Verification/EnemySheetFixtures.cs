@@ -57,7 +57,7 @@ internal static class EnemySheetFixtures
         }
 
         /// <inheritdoc/>
-        public RuntimeCharacterUploadCatalog Uploads => SuperMetroid.Core.World.Artwork.RuntimeCharacterUploadDefinitions.Catalog;
+        public RuntimeCharacterUploadCatalog Uploads => SuperMetroid.AssetExtraction.Enemies.RuntimeCharacterUploadPlacements.Catalog;
 
         /// <inheritdoc/>
         public IReadOnlyList<CharacterRegion[]> Layers(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using System.Collections.Immutable;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Areas.Ceres;
@@ -42,7 +43,7 @@ internal static class CeresRidleyPicturesVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley);
         // The room load's uploads reach the OBJ characters when its first frame drains them.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        UploadedPictureChecks.AssertRegionsFollowUploads(runtime, CeresEscapePageDefinitions.ObjectPages, "Ceres Ridley's getaway");
+        UploadedPictureChecks.AssertRegionsFollowUploads(runtime, PlacedUploads.Of(CeresEscapePageDefinitions.ObjectPages), "Ceres Ridley's getaway");
 
         RoomEnemySlot ridley = runtime.Enemies.SlotTable.Slots[0];
         RoomEnemySlot door = runtime.Enemies.SlotTable.Slots[1];

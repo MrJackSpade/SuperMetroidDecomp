@@ -235,6 +235,8 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
         var vram = new SnesVram();
         enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
+        // His fight attaches the BG2 image his body frames draw into.
+        EnemyBg2Image image = EnemyBg2ImageFixtures.AttachBlank(enemies.Presentation);
         enemies.Drawing.Enqueue(0, 0);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.PhantoonBody, slot.Definition);
@@ -247,6 +249,6 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         slot.SpritemapPointer = pointer;
         slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         enemies.Drawing.DrawLayersAsOam(new OamBuffer(), new(0, 0), 0, 0);
-        return vram.Bytes.ToArray();
+        return EnemyBg2ImageFixtures.AsVram(image, PhantoonBg2FrameDefinitions.VramBase, vram.Bytes.Length);
     }
 }

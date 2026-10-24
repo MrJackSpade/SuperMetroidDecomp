@@ -93,6 +93,9 @@ internal sealed class EnemyPresentation
     /// </summary>
     internal ObjCharacterUploads ObjCharacters => _room.Session.ObjCharacters;
 
+    /// <summary>Shows an encounter's <paramref name="source"/> over the sprite characters (#1406).</summary>
+    internal void ShowCharacters(ObjCharacterSource source) => _room.Session.ShowCharacters(source);
+
     /// <summary>The rot step each region Mother Brain's rotting corpse uploads shows (#1392).</summary>
     internal CorpseRotUploads RotUploads { get; } = new();
 

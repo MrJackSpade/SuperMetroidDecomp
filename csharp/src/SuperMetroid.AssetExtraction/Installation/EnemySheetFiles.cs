@@ -71,7 +71,7 @@ public static class EnemySheetFiles
             // The corpses that rot in the set's rooms are pictured for the rot steps the extraction plays from their art.
             IReadOnlyList<CorpseRotSimulation> corpses = CorpseRotSimulation.Of(artwork.Value.Enemies, artwork.Value.Bosses, drawn);
             setCorpses[set] = [.. corpses.Where(corpse => corpse.Kind is not null)];
-            SetRegions regions = setRegions[set] = new SetRegions(RuntimeCharacterUploadDefinitions.Catalog.Of(RoomEnemyGraphicsSetDefinitions.DrawnUnder
+            SetRegions regions = setRegions[set] = new SetRegions(SuperMetroid.AssetExtraction.Enemies.RuntimeCharacterUploadPlacements.Catalog.Of(RoomEnemyGraphicsSetDefinitions.DrawnUnder
                 .FirstOrDefault(definition => definition.Name == set) ?? throw new InvalidDataException($"Enemy sheet manifest names unknown graphics set {set}.")),
                 [.. corpses.Where(corpse => corpse.Kind is null)]);
             foreach ((string enemyName, string name) in members)
@@ -115,7 +115,7 @@ public static class EnemySheetFiles
             }
         }
         return new InstalledEnemySheets(sheets, spawned, pictures, spawnedPictures, rotPictures, spawnedRotPictures,
-            RuntimeCharacterUploadDefinitions.Catalog);
+            SuperMetroid.AssetExtraction.Enemies.RuntimeCharacterUploadPlacements.Catalog);
     }
 
     /// <summary>

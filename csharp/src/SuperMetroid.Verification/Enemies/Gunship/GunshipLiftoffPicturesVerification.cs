@@ -50,11 +50,11 @@ internal static class GunshipLiftoffPicturesVerification
 
         var made = new List<RuntimeCharacterUpload>();
         int pictured = 0;
-        for (int step = 0; step <= GunshipLiftoffTransferDefinitions.Uploads.Count; step++)
+        for (int step = 0; step <= PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages).Count; step++)
         {
             if (step > 0)
             {
-                RuntimeCharacterUpload upload = GunshipLiftoffTransferDefinitions.Uploads[step - 1];
+                RuntimeCharacterUpload upload = PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages)[step - 1];
                 runtime.EnemySession.ObjCharacters.Record(upload);
                 made.Add(upload);
             }
@@ -87,7 +87,7 @@ internal static class GunshipLiftoffPicturesVerification
             }
         }
         AssertTrue(pictured > 0, "the ship is drawn over characters its takeoff uploads");
-        Console.WriteLine($"Gunship liftoff pictures: the ship's top shows the picture for each of the {GunshipLiftoffTransferDefinitions.Uploads.Count} liftoff uploads, each painting its frame over the live characters.");
+        Console.WriteLine($"Gunship liftoff pictures: the ship's top shows the picture for each of the {PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages).Count} liftoff uploads, each painting its frame over the live characters.");
     }
 
     /// <summary>Runs the gunship liftoff picture check.</summary>

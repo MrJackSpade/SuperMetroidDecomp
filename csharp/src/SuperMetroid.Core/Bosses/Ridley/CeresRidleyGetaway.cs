@@ -369,9 +369,9 @@ internal sealed class CeresRidleyGetaway
             return true;
         if (cursor.List == CeresEscapePageList.Objects)
         {
-            RuntimeCharacterUpload page = CeresEscapePageDefinitions.ObjectPages[cursor.Shown];
-            RequireInstalled(page.Source);
-            _presentation.ObjCharacters.Record(page);
+            ObjCharacterSource page = CeresEscapePageDefinitions.ObjectPages[cursor.Shown];
+            RequireInstalled(page);
+            _presentation.ShowCharacters(page);
         }
         state.CeresEscapePages = cursor.Advance();
         return state.CeresEscapePages.IsFinished;

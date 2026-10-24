@@ -28,8 +28,8 @@ public static class MotherBrainRoomColorRomData
 
     /// <summary>Seven phase-three room-light images, selected after the Baby cutscene.</summary>
     public const int RecoveryLightsFrames = 7;
-    /// <summary>Each $AD:F3D3-minus-index image is two fourteen-color source slices.</summary>
-    public const int RecoveryLightsColorsPerDestination = 14;
+    /// <summary>Each $AD:F3D3-minus-index image is two slices of fourteen colours.</summary>
+    public const int RecoveryLightsSliceColors = 14;
     /// <summary>The room-light source rows descend by $38 bytes in bank $AD.</summary>
     public const int RecoveryLightsFirstSource = 0xadf3d3;
     /// <summary>Byte size of one $AD:F24B recovery image: two fourteen-word RGB5 slices, so playback subtracts 56 bytes between source rows.</summary>

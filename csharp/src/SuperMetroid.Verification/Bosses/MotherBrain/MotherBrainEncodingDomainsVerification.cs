@@ -181,16 +181,16 @@ internal static class MotherBrainEncodingDomainsVerification
 
         AssertEqual(0, NativeSnapshotImportMotherBrainVerification.DecodeLegTilePage(0),
             "a leg-transfer list that is not running starts from the first page");
-        for (int page = 0; page < MotherBrainLegTileTransferDefinitions.PageCount; page++)
+        for (int page = 0; page < MotherBrainEnemyState.LegLoadPageCount; page++)
         {
-            ushort pointer = checked((ushort)(MotherBrainLegTileTransferDefinitionsConstants.NativeListPointer +
-                page * MotherBrainLegTileTransferDefinitionsConstants.RecordByteCount));
+            ushort pointer = checked((ushort)(MotherBrainLegLoadListConstants.NativeListPointer +
+                page * MotherBrainLegLoadListConstants.RecordByteCount));
             AssertEqual(page, NativeSnapshotImportMotherBrainVerification.DecodeLegTilePage(pointer),
                 $"leg-transfer record {page} decodes to its page");
         }
         AssertThrows<InvalidDataException>(() => NativeSnapshotImportMotherBrainVerification.DecodeLegTilePage(
-                checked(MotherBrainLegTileTransferDefinitionsConstants.NativeListPointer +
-                    MotherBrainLegTileTransferDefinitions.PageCount * MotherBrainLegTileTransferDefinitionsConstants.RecordByteCount)),
+                checked((ushort)(MotherBrainLegLoadListConstants.NativeListPointer +
+                    MotherBrainEnemyState.LegLoadPageCount * MotherBrainLegLoadListConstants.RecordByteCount))),
             "the leg-transfer terminator is not a page");
 
         AssertEqual(SnesObjPalettes.Palette(7), SnesObjAttributeWord.FromPaletteBits(SnesObjPalettes.Palette(7).PaletteBits),

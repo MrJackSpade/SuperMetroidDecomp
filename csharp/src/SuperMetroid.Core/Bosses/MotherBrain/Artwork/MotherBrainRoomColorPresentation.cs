@@ -98,7 +98,7 @@ public sealed class MotherBrainRoomColorPresentation
     public static void ApplyBabyMetroidDeathBlackout(GameplayColours cgram)
     {
         Ensure.NotNull(cgram);
-        for (int index = 0; index < MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination; index++)
+        for (int index = 0; index < MotherBrainRoomColorRomData.RecoveryLightsSliceColors; index++)
         {
             new MotherBrainColours(cgram).RecoveryLightsFirst.Write(index, Bgr555.Black);
             new MotherBrainColours(cgram).RecoveryLightsSecond.Write(index, Bgr555.Black);
@@ -116,13 +116,13 @@ public sealed class MotherBrainRoomColorPresentation
         if ((uint)frame >= MotherBrainRoomColorRomData.RecoveryLightsFrames)
             throw new InvalidDataException($"Mother Brain room-light recovery frame {frame} is not authored.");
 
-        for (int index = 0; index < MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination;
+        for (int index = 0; index < MotherBrainRoomColorRomData.RecoveryLightsSliceColors;
              index++)
         {
             new MotherBrainColours(cgram).RecoveryLightsFirst.Write(index,
                 recoveryLights.Color(frame, index));
             new MotherBrainColours(cgram).RecoveryLightsSecond.Write(index,
-                recoveryLights.Color(frame, MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination + index));
+                recoveryLights.Color(frame, MotherBrainRoomColorRomData.RecoveryLightsSliceColors + index));
         }
     }
 
@@ -476,7 +476,7 @@ public sealed class MotherBrainRoomColorPresentation
         var compiled = new Bgr555[frames.Length][];
         for (int frame = 0; frame < frames.Length; frame++)
             compiled[frame] = Compile(frames[frame],
-                MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination * 2,
+                MotherBrainRoomColorRomData.RecoveryLightsSliceColors * 2,
                 $"room-light recovery frame {frame}");
         return compiled;
     }

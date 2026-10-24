@@ -46,22 +46,20 @@ internal static class MotherBrainPicturesVerification
         var shown = new Dictionary<CorpseRotRow, int>();
         int drawn = 0;
         Draw("as her room loads them");
-        foreach (RuntimeCharacterUpload upload in MotherBrainCharacterUploads.All)
+        foreach (MotherBrainSpritePage page in MotherBrainSpritePage.All)
         {
-            runtime.EnemySession.ObjCharacters.Record(upload);
-            Draw($"after {upload.Source}");
+            runtime.Enemies.MotherBrainEncounter.ShowSpritePage(page);
+            Draw($"after {page}");
         }
         int steps = corpse.Shown(corpse.Rows).Max(state => state.Max() ?? 0);
         for (int step = 1; step <= steps; step++)
         {
-            foreach (MotherBrainSpriteTileTransferRequestRow transfer in MotherBrainCorpseArtworkDefinitions.RotTransfers.Select((transfer, row) => new MotherBrainSpriteTileTransferRequestRow(transfer, row)))
-            {
-                runtime.Enemies.MotherBrainEncounter.ShowMotherBrainCorpseRot(new MotherBrainCorpseRotUpload(transfer.Transfer, step));
-                shown[corpse.Rows[transfer.Row]] = step;
-            }
+            runtime.Enemies.MotherBrainEncounter.ShowCorpseRotStep(step);
+            foreach (CorpseRotRow row in corpse.Rows)
+                shown[row] = step;
             Draw($"after rot step {step}");
         }
-        Console.WriteLine($"Mother Brain pictures: {frames.Length} brain and neck frames draw their pictures after each of {MotherBrainCharacterUploads.All.Count} uploads and {steps} rot steps; {drawn} draws paint as the frames over the live characters.");
+        Console.WriteLine($"Mother Brain pictures: {frames.Length} brain and neck frames draw their pictures after each of {MotherBrainCharacterUploads.All.Count} pages and {steps} rot steps; {drawn} draws paint as the frames over the live characters.");
 
         void Draw(string context)
         {
@@ -87,9 +85,6 @@ internal static class MotherBrainPicturesVerification
             }
         }
     }
-
-    /// <summary>A corpse row's transfer with its place among the rows.</summary>
-    private sealed record MotherBrainSpriteTileTransferRequestRow(SuperMetroid.Core.Escape.MotherBrainSpriteTileTransferRequest Transfer, int Row);
 
     /// <summary>Runs the Mother Brain picture check.</summary>
     [VerificationCommand("--mother-brain-pictures")]

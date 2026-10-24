@@ -89,7 +89,7 @@ internal static class PaletteJsonContractsFixturesVerification
             InitialGlassShard = PaletteContractColors(MotherBrainRoomColorRomData.InitialColors),
             InitialTubeProjectile = PaletteContractColors(MotherBrainRoomColorRomData.InitialColors),
             RecoveryLights = PaletteContractRows(MotherBrainRoomColorRomData.RecoveryLightsFrames,
-                MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination * 2),
+                MotherBrainRoomColorRomData.RecoveryLightsSliceColors * 2),
         }), json => _ = MotherBrainRoomColorPresentation.Load(json));
         MotherBrainRainbowPaletteFrameDocument[] Frames(int count, int body, int legs, bool trailing) => Enumerable.Range(0, count)
             .Select(frame => new MotherBrainRainbowPaletteFrameDocument { Body = PaletteContractColors(body, frame),

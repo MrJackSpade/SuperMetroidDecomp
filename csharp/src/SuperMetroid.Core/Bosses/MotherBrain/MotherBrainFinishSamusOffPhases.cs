@@ -1,6 +1,6 @@
 ﻿using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -37,17 +37,15 @@ internal sealed class MotherBrainFinishSamusOffPhases
             : unchecked((ushort)(divided + 20));
     }
 
-    /// <summary>Consumes the next Baby Metroid sprite-tile page, rejecting calls after the native list ends.</summary>
-    private MotherBrainSpriteTileTransferRequest CreateNextBabyMetroidTileTransfer()
+    /// <summary>Selects the next Baby Metroid page, rejecting calls after its last page has shown.</summary>
+    private MotherBrainSpritePage NextBabyMetroidPage()
     {
-        int index = _state.BabyMetroidTileTransferIndex;
-        if ((uint)index >= MotherBrainTileTransferDefinitions.BabyTileCount)
-            throw new InvalidOperationException("Baby Metroid sprite-tile transfer list is already complete.");
+        int index = _state.BabyMetroidPagesShown;
+        if (index >= MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.BabyMetroid))
+            throw new InvalidOperationException("Every Baby Metroid page has already shown.");
 
-        MotherBrainSpriteTileTransferRequest request =
-            MotherBrainTileTransferDefinitions.BabyTileTransfer(index);
-        _state.BabyMetroidTileTransferIndex++;
-        return request;
+        _state.BabyMetroidPagesShown++;
+        return MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.BabyMetroid, index);
     }
 
     /// <summary>
@@ -156,8 +154,8 @@ internal sealed class MotherBrainFinishSamusOffPhases
         // `$A9:C5BE` processes exactly one seven-byte table entry per call. The
         // fourth entry sees the following zero terminator, clears its saved pointer,
         // and returns carry set on that same call.
-        requests.SpriteTileTransfer = CreateNextBabyMetroidTileTransfer();
-        if (_state.BabyMetroidTileTransferIndex == MotherBrainTileTransferDefinitions.BabyTileCount)
+        requests.SpritePage = NextBabyMetroidPage();
+        if (_state.BabyMetroidPagesShown == MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.BabyMetroid))
         {
             _state.RetractHead();
             _state.BabyMetroidSpawned = true;

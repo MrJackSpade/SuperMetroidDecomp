@@ -26,8 +26,6 @@ public static class EscapeTextArtworkDefinitions
     public const int TimerByteCount = 0x320;
     /// <summary>$A6:C4CB starts the two timer-number pages at OBJ VRAM word $7E00.</summary>
     public const int TimerFirstDestinationWord = 0x7e00;
-    /// <summary>The complete native escape list has two number pages followed by five text pages.</summary>
-    public const int TransferCount = TimerPageCount + PageCount;
 
     /// <summary>Five source pages from the native $A6:C4CB-$C4FC transfer list.</summary>
     public static uint PageSource(int page) => (uint)page < PageCount
@@ -40,19 +38,4 @@ public static class EscapeTextArtworkDefinitions
     /// <summary>OBJ VRAM word destinations from the same native transfer list.</summary>
     public static ushort PageDestination(int page) => (uint)page < PageCount
         ? (ushort)(FirstDestinationWord + page * PageBytes / 2) : throw new ArgumentOutOfRangeException(nameof(page));
-
-    /// <summary>$A6:C4CB-$C4FB selects timer-number tiles, then the escape message's five pages.</summary>
-    public static MotherBrainSpriteTileTransferRequest Transfer(int index)
-    {
-        if ((uint)index >= TransferCount) throw new ArgumentOutOfRangeException(nameof(index));
-        if (index < TimerPageCount)
-            return new((ushort)index, (ushort)Math.Min(PageBytes, TimerByteCount - index * PageBytes),
-                (uint)(TimerSourceAddress + index * PageBytes), (ushort)(TimerFirstDestinationWord + index * PageBytes / 2));
-        int page = index - TimerPageCount;
-        return new((ushort)index, PageByteCount(page), PageSource(page), PageDestination(page));
-    }
-
-    /// <summary>Whether a native transfer begins in this installed visual source range.</summary>
-    public static bool ContainsSource(uint sourceAddress) =>
-        sourceAddress is >= SourceAddress and < (SourceAddress + ByteCount);
 }

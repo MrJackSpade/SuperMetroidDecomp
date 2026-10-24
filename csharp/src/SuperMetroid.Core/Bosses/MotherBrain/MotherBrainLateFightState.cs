@@ -100,10 +100,10 @@ internal sealed class MotherBrainLateFightState
     public WrappingCountdown EarthquakeTimer { get; internal set; }
 
     /// <summary>
-    /// Zero-based index of the next Baby Metroid sprite-tile transfer. Four means the
-    /// terminating zero entry has been observed and the spawn handoff has run.
+    /// How many Baby Metroid pages have shown, which is also the next to show. Four means the
+    /// last page has shown and the spawn handoff has run.
     /// </summary>
-    public int BabyMetroidTileTransferIndex { get; internal set; }
+    public int BabyMetroidPagesShown { get; internal set; }
 
     /// <summary>True once `$A9:BE1B` has requested the cutscene Baby enemy population entry.</summary>
     public bool BabyMetroidSpawned { get; internal set; }

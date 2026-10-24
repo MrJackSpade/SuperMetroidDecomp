@@ -14,23 +14,23 @@ using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Escape.Artwork;
-using SuperMetroid.Core.Escape;
 
-/// <summary>Checks installed Mother Brain sprite transfers, native leg records and the refused corpse sources.</summary>
+/// <summary>Checks installed Mother Brain sprite pages, the native leg-loading records and the page selection bounds.</summary>
 internal static class MotherBrainSpecialSpriteArtworkVerification
 {
     /// <summary>
-    /// Refuses both the corpse's WRAM graphics buffer and its cartridge-bank alias as transfer sources: the rotting corpse's
-    /// rows show the extraction's rot pictures by step (#1392), and #549 removed the cartridge fallback.
+    /// Refuses a page none of Mother Brain's sheets has (#1406): the encounter selects pages by sheet and number, so a
+    /// selection past either end of a sheet fails where it is made.
     /// </summary>
-    internal static void VerifyMotherBrainSpriteTransferSources()
+    internal static void VerifyMotherBrainSpritePageBounds()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        AssertThrows<InvalidDataException>(() => enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(new MotherBrainSpriteTileTransferRequest(0, 1,
-            MotherBrainCorpseRottingStateConstants.GraphicsBufferAddress, 0x7000)),
-            "Mother Brain refuses the corpse staging as a transfer source");
-        AssertThrows<InvalidDataException>(() => enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(new MotherBrainSpriteTileTransferRequest(0, 1, 0xa0c000, 0x7001)),
-            "Mother Brain refuses a cartridge-source transfer with no installed artwork binding");
+        foreach (MotherBrainSpritePageSheet sheet in Enum.GetValues<MotherBrainSpritePageSheet>())
+        {
+            int pages = MotherBrainSpritePage.PageCount(sheet);
+            AssertEqual(pages - 1, MotherBrainSpritePage.Of(sheet, pages - 1).Page, $"{sheet}'s last page is selectable");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainSpritePage.Of(sheet, pages), $"{sheet} has no page past its last");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainSpritePage.Of(sheet, -1), $"{sheet} has no page before its first");
+        }
     }
 
     /// <summary>Compares installed legs, Baby, attack and exploded-door sheets with native records and guarded VRAM uploads.</summary>
@@ -50,15 +50,14 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
                 sheet.SourceAddress, sheet.ByteCount);
             AssertTrue(installed.Get(sheet.SourceAddress).Transfer.Span.SequenceEqual(native),
                 $"installed {sheet.FileName} preserves native characters");
-            SnesVram installedVram = TransferMotherBrainSpecialPages(stock,
+            SnesVram installedVram = ShowMotherBrainSpecialPages(stock,
                 sheet);
             SnesVram cartridgeVram = ReferenceMotherBrainSpecialPages(
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"), sheet);
             for (int page = 0; page < sheet.PageCount; page++)
             {
                 int sourceOffset = page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount;
-                int destinationOffset = (sheet.FirstDestinationWord +
-                    page * MotherBrainSpecialSpriteSheetDefinition.DestinationWordStride) * 2;
+                int destinationOffset = ShownByte(sheet.PageFirstCharacter(page));
                 int count = MotherBrainSpecialSpriteSheetDefinition.PageByteCount;
                 AssertTrue(installedVram.Bytes.Slice(destinationOffset, count)
                     .SequenceEqual(native.AsSpan(sourceOffset, count)),
@@ -82,9 +81,9 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             using (var output = File.Create(overridePath))
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
             InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
-            SnesVram editedVram = TransferMotherBrainSpecialPages(edited,
+            SnesVram editedVram = ShowMotherBrainSpecialPages(edited,
                 sheet);
-            int firstDestination = sheet.FirstDestinationWord * 2;
+            int firstDestination = ShownByte(sheet.FirstCharacter);
             AssertEqual((byte)(installedVram.ReadByte(firstDestination) ^ 0x80),
                 editedVram.ReadByte(firstDestination),
                 $"{sheet.FileName} PNG edit changes live OBJ VRAM");
@@ -111,8 +110,8 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             MotherBrainSpecialSpriteArtworkDefinitions.BabyMetroid;
         for (int page = 0; page < baby.PageCount; page++)
         {
-            int record = MotherBrainTileTransferDefinitions.BabyTileList +
-                page * MotherBrainTileTransferDefinitions.RecordSize;
+            int record = MotherBrainBabyPageListConstants.BabyTileList +
+                page * MotherBrainBabyPageListConstants.RecordSize;
             AssertEqual(MotherBrainSpecialSpriteSheetDefinition.PageByteCount,
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record),
                 $"Baby tile record {page} size");
@@ -121,31 +120,31 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             AssertEqual((uint)(baby.SourceAddress +
                 page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount), source,
                 $"Baby tile record {page} source");
-            AssertEqual((ushort)(baby.FirstDestinationWord +
-                page * MotherBrainSpecialSpriteSheetDefinition.DestinationWordStride),
-                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 5),
-                $"Baby tile record {page} destination");
-            AssertEqual(new MotherBrainSpriteTileTransferRequest(
-                    (ushort)page,
-                    RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record),
-                    source,
-                    RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 5)),
-                MotherBrainTileTransferDefinitions.BabyTileTransfer(page),
-                $"compiled Baby tile transfer {page} matches the source record");
+            AssertEqual(ShownByte(baby.PageFirstCharacter(page)),
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 5) * 2,
+                $"Baby page {page} shows where the cartridge's record places it");
+            RuntimeCharacterUpload shown = MotherBrainCharacterUploads.Of(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.BabyMetroid, page));
+            AssertEqual(ShownByte(baby.PageFirstCharacter(page)) - ObjectCharactersByte, shown.FirstByte,
+                $"Baby page {page} selection shows at its record's characters");
+            AssertEqual((int)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record), shown.ByteCount,
+                $"Baby page {page} selection shows its record's bytes");
         }
         AssertThrows<ArgumentOutOfRangeException>(
-            () => MotherBrainTileTransferDefinitions.BabyTileTransfer(baby.PageCount),
-            "compiled Baby tile transfer rejects a record past the terminator");
-        Suite(nameof(VerifyMotherBrainLegTileTransfers), () => VerifyMotherBrainLegTileTransfers(stock, rom));
-        Suite(nameof(VerifyMotherBrainInstalledTransferBoundary), () => VerifyMotherBrainInstalledTransferBoundary(stock, rom));
+            () => MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.BabyMetroid, baby.PageCount),
+            "the Baby Metroid has no page past the terminator");
+        Suite(nameof(VerifyMotherBrainLegLoadPages), () => VerifyMotherBrainLegLoadPages(stock, rom));
+        Suite(nameof(VerifyMotherBrainEscapeTimerPages), () => VerifyMotherBrainEscapeTimerPages(stock, rom));
         Console.WriteLine(
             "  Mother Brain special sprites: legs, Baby, attack and exploded-door pages match cartridge records, guarded live uploads, PNG edits, reload, invalid override and strict installed-source boundary pass.");
     }
 
-    /// <summary>Checks every compiled leg transfer request and produced VRAM bytes against the native list, including termination and pointer alignment.</summary>
+    /// <summary>
+    /// Checks every page the ascent shows against the native leg-loading list, one per call: where each shows, its bytes,
+    /// the call that completes the list and the produced characters.
+    /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain leg tile-transfer records and pixels")]
-    private static void VerifyMotherBrainLegTileTransfers(
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain leg-loading records and pixels")]
+    private static void VerifyMotherBrainLegLoadPages(
         InstalledEnemyArtwork stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas };
@@ -153,51 +152,49 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles, enemies.BossArtwork ?? InstalledFixtures.BossArtwork, enemies.AreaArtwork ?? InstalledFixtures.AreaArtwork)));
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
 
-        for (int page = 0; page < MotherBrainLegTileTransferDefinitions.PageCount; page++)
+        for (int page = 0; page < MotherBrainEnemyState.LegLoadPageCount; page++)
         {
-            int record = MotherBrainLegTileTransferDefinitions.NativeListAddress +
-                page * MotherBrainLegTileTransferDefinitionsConstants.RecordByteCount;
-            MotherBrainSpriteTileTransferRequest compiled =
-                MotherBrainLegTileTransferDefinitions.Get(page);
-            AssertEqual(compiled.Size, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record),
-                $"Mother Brain leg transfer {page} size");
-            uint nativeSource = (uint)(int)new SnesAddress(rom.ReadCartridgeByte(record + 4),
+            int record = MotherBrainLegLoadListConstants.NativeListAddress +
+                page * MotherBrainLegLoadListConstants.RecordByteCount;
+            int nativeSize = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record);
+            int nativeSource = (int)new SnesAddress(rom.ReadCartridgeByte(record + 4),
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 2));
-            AssertEqual(compiled.SourceAddress, nativeSource,
-                $"Mother Brain leg transfer {page} source");
-            AssertEqual(compiled.VramDestination,
-                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 5),
-                $"Mother Brain leg transfer {page} destination");
+            int nativeDestination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 5);
 
-            bool completed = enemies.MotherBrainBehavior.Ascent.ProcessMotherBrainSpriteTileTransfer(state);
-            AssertEqual(page + 1 == MotherBrainLegTileTransferDefinitions.PageCount,
-                completed, $"Mother Brain leg transfer {page} completion frame");
+            bool completed = enemies.MotherBrainBehavior.Ascent.ShowNextLegPage(state);
+            AssertEqual(page + 1 == MotherBrainEnemyState.LegLoadPageCount,
+                completed, $"Mother Brain leg-loading page {page} completion frame");
             AssertEqual(completed ? 0 : page + 1, state.NextLegTilePage,
-                $"Mother Brain leg transfer {page} next page, back to the first after the last");
-            byte[] nativePixels = RomDataReader.ReadFixedBank(rom,
-                checked((int)nativeSource), compiled.Size);
-            AssertTrue(ObjVram().Bytes.Slice(compiled.VramDestination * 2, compiled.Size)
+                $"Mother Brain leg-loading page {page} next page, back to the first after the last");
+            int nativeTableByte = nativeDestination * 2 - ObjectCharactersByte;
+            ObjCharacterUpload shown = enemies.Room.Session.ObjCharacters.LastOver(nativeTableByte, nativeSize)
+                ?? throw new InvalidOperationException($"Mother Brain leg-loading page {page} shows nothing.");
+            AssertEqual(nativeTableByte, shown.FirstByte,
+                $"Mother Brain leg-loading page {page} shows where the cartridge's record places it");
+            AssertEqual(nativeSize, shown.ByteCount, $"Mother Brain leg-loading page {page} shows its record's bytes");
+            byte[] nativePixels = RomDataReader.ReadFixedBank(rom, nativeSource, nativeSize);
+            AssertTrue(ObjVram().Bytes.Slice(nativeDestination * 2, nativeSize)
                 .SequenceEqual(nativePixels),
-                $"Mother Brain leg transfer {page} VRAM bytes match cartridge");
+                $"Mother Brain leg-loading page {page} characters match cartridge");
         }
-        int terminator = MotherBrainLegTileTransferDefinitions.NativeListAddress +
-            MotherBrainLegTileTransferDefinitions.PageCount *
-            MotherBrainLegTileTransferDefinitionsConstants.RecordByteCount;
+        int terminator = MotherBrainLegLoadListConstants.NativeListAddress +
+            MotherBrainEnemyState.LegLoadPageCount *
+            MotherBrainLegLoadListConstants.RecordByteCount;
         AssertEqual((ushort)0, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), terminator),
-            "Mother Brain leg transfer page eleven is followed by native zero terminator");
+            "Mother Brain leg-loading page eleven is followed by native zero terminator");
 
         AssertThrows<ArgumentOutOfRangeException>(
-            () => state.NextLegTilePage = MotherBrainLegTileTransferDefinitions.PageCount,
-            "Mother Brain has no leg-artwork page past the twelfth");
+            () => state.NextLegTilePage = MotherBrainEnemyState.LegLoadPageCount,
+            "Mother Brain's ascent has no page past the twelfth");
         AssertThrows<InvalidDataException>(
             () => NativeSnapshotImportMotherBrainVerification.DecodeLegTilePage(unchecked(
-                MotherBrainLegTileTransferDefinitionsConstants.NativeListPointer + 1)),
-            "a misaligned snapshot leg-transfer pointer is rejected at the import");
+                MotherBrainLegLoadListConstants.NativeListPointer + 1)),
+            "a misaligned snapshot leg-loading pointer is rejected at the import");
     }
 
-    /// <summary>Requires installed escape-timer sheets for cartridge-backed requests while retaining live corpse-WRAM transfers.</summary>
+    /// <summary>Shows both escape-timer digit pages and compares the characters they show with the cartridge's pages.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyMotherBrainInstalledTransferBoundary(
+    private static void VerifyMotherBrainEscapeTimerPages(
         InstalledEnemyArtwork stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
         EscapeTimerTileAtlas timer = EscapeTimerTileAtlas.Load(new MemoryStream(EscapeTimerTileAtlasExtractor.Extract(rom)));
@@ -208,60 +205,32 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         };
         SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.ObjCharacters, new EnemyTileTransfers(stock, timer: timer));
 
-        MotherBrainSpriteTileTransferRequest[] timerRequests =
-        [
-            new(0, EscapeTimerTileAtlasFormat.FirstByteCount,
-                EscapeTimerTileRomData.FirstSourceAddress,
-                EscapeTimerTileAtlasFormat.FirstDestinationWord),
-            new(1, EscapeTimerTileAtlasFormat.SecondByteCount,
-                EscapeTimerTileRomData.SecondSourceAddress,
-                EscapeTimerTileAtlasFormat.SecondDestinationWord),
-        ];
-        foreach (MotherBrainSpriteTileTransferRequest request in timerRequests)
+        EscapeTimerTilePage[] pages = Enum.GetValues<EscapeTimerTilePage>();
+        for (int page = 0; page < pages.Length; page++)
         {
-            enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(request);
-            byte[] native = ReadNativeMotherBrainTransferSource(rom, request);
-            AssertTrue(ObjVram().Bytes.Slice(request.VramDestination * 2, request.Size)
+            enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.EscapeTimer, page));
+            byte[] native = ReadNativeMotherBrainPageSource(rom, EscapeTimerTilePages.SourceAddressOf(pages[page]), EscapeTimerTilePages.ByteCountOf(pages[page]));
+            AssertTrue(ObjVram().Bytes.Slice(EscapeTimerTilePages.DestinationWordOf(pages[page]) * 2, native.Length)
                 .SequenceEqual(native),
                 "installed Mother Brain timer page matches cartridge without visual ROM reads");
         }
-
-        enemies.BossArtworkBinding.EscapeTimerArtwork = null;
-        AssertMotherBrainInstalledTransferRejected(enemies, timerRequests[0],
-            "missing installed timer art does not fall back to ROM");
-        AssertMotherBrainInstalledTransferRejected(enemies,
-            timerRequests[0] with { Size = 1 },
-            "malformed installed timer record does not fall back to ROM");
-        AssertMotherBrainInstalledTransferRejected(enemies,
-            new MotherBrainSpriteTileTransferRequest(0, 1, 0xa0c000, 0x7000),
-            "uncatalogued cartridge source does not fall back to ROM");
-
-        // The rotting corpse's rows show the extraction's rot pictures by step (#1392); no staging is copied to VRAM.
-        AssertMotherBrainInstalledTransferRejected(enemies,
-            new MotherBrainSpriteTileTransferRequest(0, 1, MotherBrainCorpseRottingStateConstants.GraphicsBufferAddress, 0x7000),
-            "corpse staging is not transferred as characters");
     }
 
-    /// <summary>Reads source bytes from retail data for independent VRAM transfer comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for a Mother Brain sprite tile-transfer source")]
-    private static byte[] ReadNativeMotherBrainTransferSource(
-        CartridgeImportAddressSpace rom, MotherBrainSpriteTileTransferRequest request) =>
-        RomDataReader.ReadFixedBank(rom, checked((int)request.SourceAddress), request.Size);
+    /// <summary>Reads source bytes from retail data for independent comparison with a shown page.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for a Mother Brain sprite page source")]
+    private static byte[] ReadNativeMotherBrainPageSource(
+        CartridgeImportAddressSpace rom, int sourceAddress, int byteCount) =>
+        RomDataReader.ReadFixedBank(rom, sourceAddress, byteCount);
 
-    /// <summary>Requires missing, malformed or uncatalogued artwork requests to fail without a ROM fallback.</summary>
-    private static void AssertMotherBrainInstalledTransferRejected(
-        RoomEnemySystem enemies, MotherBrainSpriteTileTransferRequest request, string label)
-    {
-        try
-        {
-            enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(request);
-        }
-        catch (InvalidDataException)
-        {
-            return;
-        }
-        throw new InvalidOperationException($"Expected InvalidDataException: {label}.");
-    }
+    /// <summary>The OBJ character table's first byte in the VRAM image the oracle compares.</summary>
+    private static int ObjectCharactersByte => GameplayVramLayout.ObjectCharacters.Offset * 2;
+
+    /// <summary>The VRAM image byte sprite character <paramref name="character"/> begins at.</summary>
+    private static int ShownByte(int character) => ObjectCharactersByte + character * RoomCharacterAtlasFormat.BytesPerTile;
+
+    /// <summary>The page sheet each of <see cref="MotherBrainSpecialSpriteArtworkDefinitions.All"/> is, in the same order.</summary>
+    private static readonly MotherBrainSpritePageSheet[] SpecialSheets =
+        [MotherBrainSpritePageSheet.Legs, MotherBrainSpritePageSheet.BabyMetroid, MotherBrainSpritePageSheet.Attack, MotherBrainSpritePageSheet.ExplodedDoor];
 
     /// <summary>Copies each native sheet page directly from retail data into its authored VRAM destination for the oracle.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
@@ -275,39 +244,30 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             byte[] bytes = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 sheet.SourceAddress + page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount,
                 MotherBrainSpecialSpriteSheetDefinition.PageByteCount);
-            int destination = (sheet.FirstDestinationWord +
-                page * MotherBrainSpecialSpriteSheetDefinition.DestinationWordStride) * 2;
+            int destination = ShownByte(sheet.PageFirstCharacter(page));
             vram.LoadBytes(destination, bytes);
         }
         return vram;
     }
-    /// <summary>Runs the same sheet-page requests through the installed artwork and production enemy transfer path.</summary>
-    private static SnesVram TransferMotherBrainSpecialPages(
+    /// <summary>Shows every page of <paramref name="sheet"/> through the installed artwork and the production encounter.</summary>
+    private static SnesVram ShowMotherBrainSpecialPages(
         InstalledEnemyArtwork artwork, MotherBrainSpecialSpriteSheetDefinition sheet)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.ObjCharacters,
             new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles, enemies.BossArtwork ?? InstalledFixtures.BossArtwork, enemies.AreaArtwork ?? InstalledFixtures.AreaArtwork)));
+        MotherBrainSpritePageSheet shown = SpecialSheets[MotherBrainSpecialSpriteArtworkDefinitions.All.ToList().IndexOf(sheet)];
         for (int page = 0; page < sheet.PageCount; page++)
-        {
-            var request = new MotherBrainSpriteTileTransferRequest(
-                (ushort)page,
-                MotherBrainSpecialSpriteSheetDefinition.PageByteCount,
-                unchecked((uint)(sheet.SourceAddress +
-                    page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount)),
-                unchecked((ushort)(sheet.FirstDestinationWord +
-                    page * MotherBrainSpecialSpriteSheetDefinition.DestinationWordStride)));
-            enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(request);
-        }
+            enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(shown, page));
         return ObjVram();
     }
 
 
-    /// <summary>Runs the Mother Brain sprite source-boundary check from the verification command.</summary>
+    /// <summary>Runs the Mother Brain sprite page bounds check from the verification command.</summary>
     [VerificationCommand("--mother-brain-transfer-sources")]
     internal static int MotherBrainTransferSourcesCommand()
     {
-        Suite(nameof(VerifyMotherBrainSpriteTransferSources), () => VerifyMotherBrainSpriteTransferSources());
+        Suite(nameof(VerifyMotherBrainSpritePageBounds), () => VerifyMotherBrainSpritePageBounds());
         return 0;
     }
 }

@@ -21,7 +21,6 @@ using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Escape;
 
 /// <summary>
 /// Checks #1344: boss and scripted-actor sprite parts publish whole-frame entries over the gameplay OBJ page, and their
@@ -139,30 +138,27 @@ internal static class BossSpriteEntriesVerification
         Console.WriteLine("Boss sprite entries stage 3: Ridley's tail and wings publish named entries in order; Ceres escape pages bind by range.");
     }
 
-    /// <summary>Stage 4: Mother Brain's tile transfers show installed pages, and her WRAM corpse buffer is never transferred.</summary>
+    /// <summary>Stage 4: Mother Brain's page selections show installed pages, and a page her sheets do not have is refused (#1406).</summary>
     internal static void VerifyBossSpriteEntriesStage4()
     {
         InstalledEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         ObjCharacterUploads uploads = enemies.Room.Session.ObjCharacters;
-        int corpseBytes = MotherBrainCorpseArtworkDefinitions.VramPageByteCount;
-        enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(new MotherBrainSpriteTileTransferRequest(0, corpseBytes,
-            MotherBrainCorpseArtworkDefinitions.VramPageSource(1), MotherBrainCorpseArtworkDefinitions.VramPageDestination(1)));
+        int corpseBytes = MotherBrainCorpseArtworkDefinitions.PageByteCount;
+        enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, 1));
         AssertEqual<ObjCharacterSource>(new MotherBrainCorpseCharacters(1), uploads.Uploads.Single().Source,
-            "A corpse page transfer binds its installed page");
-        AssertEqual((MotherBrainCorpseArtworkDefinitions.VramPageDestination(1) - GameplayVramLayout.ObjectCharacters.Offset) * 2,
-            uploads.Uploads.Single().FirstByte, "The corpse page lands at its native OBJ position");
+            "A corpse page selection shows its installed page");
+        AssertEqual(MotherBrainCorpseArtworkDefinitions.PageFirstCharacter(1) * 32,
+            uploads.Uploads.Single().FirstByte, "The corpse page shows from its sprite character");
         var resolver = new EnemyTileTransfers(artwork);
         AssertTrue((artwork.Bosses.MotherBrainCorpse ?? throw new InvalidOperationException("The installation has no Mother Brain corpse tiles."))
-                .Transfer.Span.Slice(checked((int)MotherBrainCorpseArtworkDefinitions.VramPageSource(1)) - MotherBrainCorpseArtworkDefinitions.SourceAddress, corpseBytes)
+                .Transfer.Span.Slice(checked((int)MotherBrainCorpseArtworkDefinitions.PageSource(1)) - MotherBrainCorpseArtworkDefinitions.SourceAddress, corpseBytes)
                 .SequenceEqual(new MotherBrainCorpseCharacters(1).Resolve(resolver).Span),
             "The corpse page resolves to the installed corpse tiles");
 
-        // The rotting corpse's rows show the extraction's rot pictures by step (#1392).
-        AssertThrows<InvalidDataException>(() => enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(new MotherBrainSpriteTileTransferRequest(0, 64,
-            MotherBrainCorpseArtworkDefinitions.StagingAddress, MotherBrainCorpseArtworkDefinitions.VramPageDestination(2))),
-            "The WRAM corpse buffer is never transferred as characters");
-        Console.WriteLine("Boss sprite entries stage 4: Mother Brain's transfers bind installed pages and refuse her corpse buffer.");
+        AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, MotherBrainCorpseArtworkDefinitions.RowCount),
+            "A corpse page past the last is refused");
+        Console.WriteLine("Boss sprite entries stage 4: Mother Brain's page selections show installed pages and refuse pages her sheets lack.");
     }
 
     /// <summary>Runs the #1344 confirmations.</summary>

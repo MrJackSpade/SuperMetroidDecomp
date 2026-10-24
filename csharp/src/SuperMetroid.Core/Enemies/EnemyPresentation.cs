@@ -89,6 +89,10 @@ internal sealed class EnemyPresentation
     internal void ShowRot(VramDmaDestination destination, int byteCount, int step) =>
         RotUploads.Show(destination, byteCount, step, ObjCharacters.Recorded);
 
+    /// <summary>Records that a rotting corpse shows <paramref name="region"/> of its characters as rot step <paramref name="step"/> left them (#1406).</summary>
+    internal void ShowRot(CharacterRegion region, int step) =>
+        RotUploads.Show(Ensure.NotNull(region).FirstByte, region.ByteCount, step, ObjCharacters.Recorded);
+
     /// <summary>
     /// The session's shared <c>PaletteChangeNumerator</c>. Enemies and the runtime's door and death
     /// fades advance this one counter, as the cartridge's fades all advance one WRAM word.

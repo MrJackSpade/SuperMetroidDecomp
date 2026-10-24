@@ -104,7 +104,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     public void StartAttackCycle()
     {
-        State.BabyMetroidTileTransferIndex = 0;
+        State.BabyMetroidPagesShown = 0;
         State.BabyMetroidSpawned = false;
         FinishSamusOff.RainbowBeamPaletteAnimationIndex = 0;
         RainbowAttack.BeginExtendingNeckForAttack();

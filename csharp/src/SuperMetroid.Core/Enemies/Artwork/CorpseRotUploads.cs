@@ -19,12 +19,20 @@ internal sealed class CorpseRotUploads
     /// <param name="step">The rot steps the corpse's characters had taken when uploaded.</param>
     /// <param name="stamp">The place of the latest OBJ character upload when this one is made, which a later one shows over.</param>
     [PpuLayoutBoundary("codec: a corpse row upload's native VRAM destination in the OBJ characters")]
-    internal void Show(VramDmaDestination destination, int byteCount, int step, long stamp)
+    internal void Show(VramDmaDestination destination, int byteCount, int step, long stamp) =>
+        Show(ObjCharacterUploads.TableByte(destination), byteCount, step, stamp);
+
+    /// <summary>Records <paramref name="byteCount"/> bytes of a corpse's characters shown from table byte <paramref name="firstByte"/> after rot step <paramref name="step"/>.</summary>
+    /// <param name="firstByte">The first sprite character table byte the row shows in.</param>
+    /// <param name="byteCount">The row's bytes.</param>
+    /// <param name="step">The rot steps the corpse's characters had taken when shown.</param>
+    /// <param name="stamp">The place of the latest OBJ character upload when this one is made, which a later one shows over.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The row does not lie inside the sprite characters.</exception>
+    internal void Show(int firstByte, int byteCount, int step, long stamp)
     {
-        int firstByte = ObjCharacterUploads.TableByte(destination);
         if (firstByte < 0 || byteCount <= 0 || firstByte + byteCount > ObjCharacterUploads.TableByteCount)
-            throw new ArgumentOutOfRangeException(nameof(destination), destination.Word,
-                $"{byteCount} corpse bytes at VRAM word ${destination.Word:X4} do not lie inside the OBJ characters.");
+            throw new ArgumentOutOfRangeException(nameof(firstByte), firstByte,
+                $"{byteCount} corpse bytes at table byte {firstByte} do not lie inside the sprite characters.");
         Ensure.AtLeastZero(step);
         // A row wholly covered by a later upload no longer shows anywhere.
         rows.RemoveAll(row => row.FirstByte >= firstByte && row.FirstByte + row.ByteCount <= firstByte + byteCount);

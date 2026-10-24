@@ -1,6 +1,3 @@
-using System.Collections;
-using SuperMetroid.Core.Escape;
-
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>Editable source characters for Mother Brain's row-by-row corpse decay.</summary>
@@ -15,8 +12,8 @@ public static class MotherBrainCorpseArtworkDefinitions
     /// <summary>Indexed four-bit tile sheet independent of the ordinary ED7F enemy sheet.</summary>
     public const string FileName = "mother-brain-corpse-tiles.png";
 
-    /// <summary>$A9:9003-$902E copies six $1C0-byte pages, skipping each source page's last two tile rows.</summary>
-    public const ushort VramPageByteCount = 0x01c0;
+    /// <summary>Each of the six corpse pages shows $1C0 bytes, leaving out its source page's last two tile rows ($A9:9003-$902E).</summary>
+    public const ushort PageByteCount = 0x01c0;
 
     /// <summary>$A9:E08B-$E130 extracts six tile rows of the right-hand corpse frame.</summary>
     public const int RowCount = 6;
@@ -30,12 +27,10 @@ public static class MotherBrainCorpseArtworkDefinitions
     public const int RightFrameColumn = 6;
     /// <summary>$A9:E08B source artwork advances one sixteen-tile ($200-byte) page per row.</summary>
     public const int SourcePageBytes = 16 * TileBytes;
-    /// <summary>$A9:E1F4 uploads corpse tiles from the staging buffer at $7E:9000.</summary>
-    public const int StagingAddress = 0x7e9000;
-    /// <summary>$A9:E1F4 addresses the first corpse OBJ page at VRAM word $7A00.</summary>
-    public const int FirstVramPage = 0x7a00;
-    /// <summary>Sixteen tiles advance $100 VRAM words between corpse OBJ pages.</summary>
-    public const int VramPageWords = SourcePageBytes / 2;
+    /// <summary>The sprite character the first corpse page shows from; each later page follows the one before.</summary>
+    public const int FirstPageCharacter = 416;
+    /// <summary>The sprite characters one corpse page spans.</summary>
+    public const int CharactersPerPage = SourcePageBytes / TileBytes;
 
     /// <summary>$A9:EA40/$EB0B skip absent upper pixels at the outline's outer columns.</summary>
     public static int ColumnMinimumY(int column) => column switch
@@ -54,47 +49,25 @@ public static class MotherBrainCorpseArtworkDefinitions
     public static int InitialCopyLength(int row) => (uint)row < RowCount
         ? (row < 4 ? ColumnCount - 1 : ColumnCount) * TileBytes : throw new ArgumentOutOfRangeException(nameof(row));
 
-    /// <summary>Calculated per-row corpse decay uploads exposed without a copied transfer table.</summary>
-    private static readonly RotTransferList rotTransfers = new();
-    /// <summary>$A9:E1F4-$E225: six transfers, recalculated from the visible tile columns per row.</summary>
-    public static IReadOnlyList<MotherBrainSpriteTileTransferRequest> RotTransfers => rotTransfers;
+    /// <summary>
+    /// The part of each corpse row that shows while the corpse rots, top row first ($A9:E1F4-$E225): a row's outer
+    /// transparent columns are left out, so each shows only the columns its outline reaches.
+    /// </summary>
+    public static IReadOnlyList<MotherBrainCorpseRotRow> RotRows { get; } =
+    [
+        new(Row: 0, FirstColumn: 2, ColumnCount: 3),
+        new(Row: 1, FirstColumn: 1, ColumnCount: 5),
+        new(Row: 2, FirstColumn: 0, ColumnCount: 6),
+        new(Row: 3, FirstColumn: 0, ColumnCount: 6),
+        new(Row: 4, FirstColumn: 0, ColumnCount: 7),
+        new(Row: 5, FirstColumn: 0, ColumnCount: 7),
+    ];
 
-    /// <summary>Projects six visible corpse rows into their changing staging and OBJ VRAM spans.</summary>
-    private sealed class RotTransferList : IReadOnlyList<MotherBrainSpriteTileTransferRequest>
-    {
-        /// <summary>One decay transfer is issued for each visible corpse row.</summary>
-        public int Count => RowCount;
-        /// <summary>Calculates the tile columns copied from a row after its outer transparent cells are skipped.</summary>
-        public MotherBrainSpriteTileTransferRequest this[int row]
-        {
-            get
-            {
-                if ((uint)row >= RowCount) throw new ArgumentOutOfRangeException(nameof(row));
-                int firstColumn = Math.Max(2 - row, 0);
-                int columns = row < 2 ? 3 + 2 * row : row < 4 ? 6 : 7;
-                return new((ushort)row, (ushort)(columns * TileBytes),
-                    (uint)(StagingAddress + row * RowBytes + firstColumn * TileBytes),
-                    (ushort)(FirstVramPage + row * VramPageWords + (RightFrameColumn + firstColumn) * TileBytes / 2));
-            }
-        }
-        /// <summary>Enumerates decay uploads in row order for the native VRAM transfer sequence.</summary>
-        public IEnumerator<MotherBrainSpriteTileTransferRequest> GetEnumerator()
-        {
-            for (int row = 0; row < Count; row++) yield return this[row];
-        }
-        /// <summary>Exposes the same row-order transfers to non-generic collection consumers.</summary>
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
-
-    /// <summary>The six bank-$B7 source pages consumed by Mother Brain's corpse VRAM transfer list.</summary>
-    public static uint VramPageSource(int page) => (uint)page < RowCount
+    /// <summary>Where corpse page <paramref name="page"/> begins in the cartridge's corpse source ($A9:9003-$902E).</summary>
+    public static uint PageSource(int page) => (uint)page < RowCount
         ? (uint)(SourceAddress + page * SourcePageBytes) : throw new ArgumentOutOfRangeException(nameof(page));
 
-    /// <summary>The corresponding OBJ VRAM word destinations from $A9:9003-$902E.</summary>
-    public static ushort VramPageDestination(int page) => (uint)page < RowCount
-        ? (ushort)(FirstVramPage + page * VramPageWords) : throw new ArgumentOutOfRangeException(nameof(page));
-
-    /// <summary>Whether a native transfer begins in this installed corpse source sheet.</summary>
-    public static bool ContainsSource(uint sourceAddress) =>
-        sourceAddress is >= SourceAddress and < (SourceAddress + ByteCount);
+    /// <summary>The sprite character corpse page <paramref name="page"/> shows from.</summary>
+    public static int PageFirstCharacter(int page) => (uint)page < RowCount
+        ? FirstPageCharacter + page * CharactersPerPage : throw new ArgumentOutOfRangeException(nameof(page));
 }

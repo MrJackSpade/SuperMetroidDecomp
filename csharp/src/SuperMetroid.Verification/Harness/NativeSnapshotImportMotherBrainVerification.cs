@@ -221,7 +221,7 @@ internal static class NativeSnapshotImportMotherBrainVerification
     /// is not running, which starts from the first page; any other pointer must name one of the twelve records.
     /// </summary>
     internal static int DecodeLegTilePage(ushort word) =>
-        word == 0 ? 0 : MotherBrainLegTileTransferDefinitionsConstants.IndexOf(word);
+        word == 0 ? 0 : MotherBrainLegLoadListConstants.IndexOf(word);
 
     /// <summary>
     /// The phase-two transition uploads her staged body screen and she owns the enemy BG2 image from then on (#1356). A

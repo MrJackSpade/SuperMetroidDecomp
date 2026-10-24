@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -116,7 +116,7 @@ internal sealed class MotherBrainAscent
         state.Function = MotherBrainBodyFunction.FakeDeathAscentLoadLegTiles;
         state.FunctionTimer = WrappingCountdown.Start(256);
 
-        // The first $0200-byte transfer is queued on the same frame as HDMA creation.
+        // The first leg page shows on the same frame as HDMA creation.
         LoadMotherBrainLegTiles(state);
     }
 
@@ -124,7 +124,7 @@ internal sealed class MotherBrainAscent
     internal void LoadMotherBrainLegTiles(
         MotherBrainEnemyState state)
     {
-        if (!ProcessMotherBrainSpriteTileTransfer(state))
+        if (!ShowNextLegPage(state))
         {
             return;
         }
@@ -136,17 +136,21 @@ internal sealed class MotherBrainAscent
         ContinueMotherBrainAscentPause(state);
     }
 
-    /// <summary>Drains the pending body sprite transfer and reports whether more VRAM work remains.</summary>
-    internal bool ProcessMotherBrainSpriteTileTransfer(MotherBrainEnemyState state)
+    /// <summary>
+    /// Shows the next of the leg-loading pages, one per call, and reports whether that was the last: the eight leg pages,
+    /// then the four attack pages the legs had covered.
+    /// </summary>
+    internal bool ShowNextLegPage(MotherBrainEnemyState state)
     {
         int index = state.NextLegTilePage;
-        MotherBrainSpriteTileTransferRequest transfer =
-            MotherBrainLegTileTransferDefinitions.Get(index);
-        _motherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(transfer);
+        int legPages = MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.Legs);
+        _motherBrainEncounter.ShowSpritePage(index < legPages
+            ? MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Legs, index)
+            : MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Attack, index - legPages));
 
         // Native checks the next record's zero terminator on the same call as
         // page eleven. Preserve that same-frame completion and list reset.
-        if (index + 1 == MotherBrainLegTileTransferDefinitions.PageCount)
+        if (index + 1 == MotherBrainEnemyState.LegLoadPageCount)
         {
             state.NextLegTilePage = 0;
             return true;

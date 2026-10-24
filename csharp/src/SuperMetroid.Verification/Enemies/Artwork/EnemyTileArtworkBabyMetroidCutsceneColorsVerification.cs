@@ -84,7 +84,8 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         Type type = typeof(RoomEnemySystem);
         enemies.Presentation.BindCgram(cgram.Gameplay);
-        int destination = BabyMetroidCutsceneColorRomData.DestinationByteIndex / 2;
+        // The Baby's colours are sprite palette seven from colour one, CGRAM byte $01E2.
+        int destination = 0x01e2 / 2;
         cgram.SetColor(destination - 1, Bgr555.FromWord(0x1234));
         enemies.BabyMetroidCutsceneBehavior.LoadBabyMetroidCutsceneInitialPalette();
         AssertEqual(0x1234, cgram.Colors[destination - 1],
@@ -96,12 +97,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
 
         for (int index = 1; index <= BabyMetroidCutsceneColorRomData.FadeFrameCount; index++)
         {
-            var transfer = new BabyMetroidPaletteTransferRequest(
-                (ushort)index,
-                (uint)BabyMetroidCutsceneColorRomData.FadeSource(index),
-                BabyMetroidCutsceneColorRomData.DestinationByteIndex,
-                BabyMetroidCutsceneColorRomData.FadeColorCount);
-            enemies.BabyMetroidCutsceneBehavior.LoadBabyMetroidCutsceneFadePalette(transfer);
+            enemies.BabyMetroidCutsceneBehavior.LoadBabyMetroidCutsceneFadePalette(index);
             for (int color = 0; color < BabyMetroidCutsceneColorRomData.FadeColorCount; color++)
                 AssertEqual(colors.FadeColor(index, color), cgram.Colors[destination + color],
                     $"live cutscene Baby fade {index} color {color}");

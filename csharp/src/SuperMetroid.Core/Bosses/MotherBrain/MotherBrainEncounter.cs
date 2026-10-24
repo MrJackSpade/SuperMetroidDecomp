@@ -1,135 +1,42 @@
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Escape.Artwork;
-using SuperMetroid.Core.Escape;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// Mother Brain encounter state shared across Tourian: the bank-$A9 state extension, the tube
-/// HDMA deletion the elevator observes, and the sprite tile transfers that both Mother Brain and
-/// the cutscene Baby request.
+/// HDMA deletion the elevator observes, and the pages of artwork both Mother Brain and the
+/// cutscene Baby show their sprites.
 /// </summary>
 [RoomLifetime]
 internal sealed class MotherBrainEncounter
 {
-    /// <summary>Sprite presentation owner whose OBJ character table shows encounter tile transfers.</summary>
+    /// <summary>Sprite presentation owner whose frames picture the pages the encounter shows.</summary>
     private readonly EnemyPresentation _presentation;
-    /// <summary>Room services supplying installed artwork and mutable memory for native transfers.</summary>
-    private readonly EnemyRoomBinding _room;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
 
-
-    /// <summary>Binds the encounter's sprite transfers to presentation and room asset owners.</summary>
-    internal MotherBrainEncounter(EnemyPresentation presentation, EnemyRoomBinding room, BossArtworkBinding bossArtwork)
-    {
-        _bossArtwork = bossArtwork;
-        _presentation = presentation;
-        _room = room;
-    }
+    /// <summary>Binds the encounter's page selections to sprite presentation.</summary>
+    internal MotherBrainEncounter(EnemyPresentation presentation) => _presentation = presentation;
 
     /// <summary>The typed multipart encounter while Mother Brain's retail population is loaded.</summary>
     public MotherBrainEnemyState? MotherBrain { get; internal set; }
 
-
     /// <summary>
-    /// Shows a sprite tile transfer in the OBJ character table: known cartridge artwork as its installed page, and the
-    /// mutable WRAM corpse buffer as the bytes it holds.
+    /// Shows <paramref name="page"/> to the sprites on this update (#1406): from now on the frames drawn over its characters
+    /// picture what it holds.
     /// </summary>
-    [PpuLayoutBoundary("codec: Mother Brain sprite tile transfer requests' native VRAM destinations")]
-    internal void ApplyMotherBrainRainbowTileTransfer(
-        MotherBrainSpriteTileTransferRequest transfer)
-    {
-        VramDmaDestination destination = VramDmaDestination.At(GameplayVramLayout.ObjectCharacters,
-            transfer.VramDestination - GameplayVramLayout.ObjectCharacters.Offset);
-        if (_room.Artwork is not null &&
-            MotherBrainSpecialSpriteArtworkDefinitions.TryForSource(
-                transfer.SourceAddress, out MotherBrainSpecialSpriteSheetDefinition sheet))
-        {
-            int page = sheet.ResolvePage(
-                transfer.SourceAddress, transfer.Size, transfer.VramDestination);
-            if (_bossArtwork.Artwork?.MotherBrainSpecialSprites is null)
-                throw new InvalidDataException(
-                    $"Installed enemy artwork is missing {sheet.FileName}.");
-            _presentation.ObjCharacters.RecordUpload(destination, transfer.Size, new MotherBrainSpecialSpriteCharacters(
-                Enumerable.Range(0, MotherBrainSpecialSpriteArtworkDefinitions.All.Count)
-                    .Single(index => MotherBrainSpecialSpriteArtworkDefinitions.All[index] == sheet), page, transfer.Size));
-            return;
-        }
-        if (EscapeTextArtworkDefinitions.ContainsSource(transfer.SourceAddress) &&
-            _room.Artwork is not null)
-        {
-            int page = -1;
-            for (int index = 0; index < EscapeTextArtworkDefinitions.PageCount;
-                 index++)
-            {
-                if (transfer.SourceAddress ==
-                    EscapeTextArtworkDefinitions.PageSource(index))
-                {
-                    page = index;
-                    break;
-                }
-            }
-            if (page < 0 ||
-                transfer.Size != EscapeTextArtworkDefinitions.PageByteCount(page) ||
-                transfer.VramDestination !=
-                    EscapeTextArtworkDefinitions.PageDestination(page))
-                throw new InvalidDataException(
-                    $"Invalid Mother Brain escape-text sprite transfer {transfer}.");
-
-            if (_bossArtwork.Artwork?.MotherBrainEscapeText is null)
-                throw new InvalidDataException(
-                    "Installed enemy artwork is missing mother-brain-escape-text-tiles.png.");
-            _presentation.ObjCharacters.RecordUpload(destination, transfer.Size, new MotherBrainEscapeTextCharacters(page));
-            return;
-        }
-        if (MotherBrainCorpseArtworkDefinitions.ContainsSource(transfer.SourceAddress) &&
-            _room.Artwork is not null)
-        {
-            // The native list supplies both the source page and its OBJ destination.
-            // Keep that scheduling intact, but source the transferred pixels from the
-            // installed sheet instead of making a visual read from cartridge ROM.
-            int page = -1;
-            for (int index = 0; index < MotherBrainCorpseArtworkDefinitions.RowCount;
-                 index++)
-            {
-                if (transfer.SourceAddress ==
-                    MotherBrainCorpseArtworkDefinitions.VramPageSource(index))
-                {
-                    page = index;
-                    break;
-                }
-            }
-            if (page < 0 ||
-                transfer.Size != MotherBrainCorpseArtworkDefinitions.VramPageByteCount ||
-                transfer.VramDestination !=
-                    MotherBrainCorpseArtworkDefinitions.VramPageDestination(page))
-                throw new InvalidDataException(
-                    $"Invalid Mother Brain corpse sprite transfer {transfer}.");
-
-            _ = _bossArtwork.MotherBrainCorpse;
-            _presentation.ObjCharacters.RecordUpload(destination, transfer.Size, new MotherBrainCorpseCharacters(page));
-            return;
-        }
-        if (_bossArtwork.EscapeTimerArtwork?.TryRecordNativeTransfer(
-            _presentation.ObjCharacters, unchecked((int)transfer.SourceAddress), checked((ushort)transfer.Size), checked((ushort)transfer.VramDestination)) == true)
-            return;
-        // Every source this encounter transfers has an installed art owner above; the rotting corpse's rows record their
-        // rot step instead (ShowMotherBrainCorpseRot).
-        throw new InvalidDataException($"Mother Brain sprite transfer {transfer} has no installed artwork binding.");
-    }
+    internal void ShowSpritePage(MotherBrainSpritePage page) =>
+        _presentation.ObjCharacters.Record(MotherBrainCharacterUploads.Of(page));
 
     /// <summary>
-    /// Records the upload of one row of the rotting corpse, after the rot step it shows (#1392): the corpse's sheet
+    /// Shows every row of the rotting corpse as rot step <paramref name="step"/> left it (#1392, #1406): the corpse's sheet
     /// pictures each step, so the room records only the step its rows show.
     /// </summary>
-    [PpuLayoutBoundary("codec: Mother Brain corpse row transfers' native VRAM destinations")]
-    internal void ShowMotherBrainCorpseRot(MotherBrainCorpseRotUpload upload) =>
-        _presentation.ShowRot(VramDmaDestination.At(GameplayVramLayout.ObjectCharacters,
-            upload.Transfer.VramDestination - GameplayVramLayout.ObjectCharacters.Offset), upload.Transfer.Size, upload.Step);
+    internal void ShowCorpseRotStep(int step)
+    {
+        foreach (MotherBrainCorpseRotRow row in MotherBrainCorpseArtworkDefinitions.RotRows)
+            _presentation.ShowRot(MotherBrainCharacterUploads.RotRegion(row), step);
+    }
 
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)

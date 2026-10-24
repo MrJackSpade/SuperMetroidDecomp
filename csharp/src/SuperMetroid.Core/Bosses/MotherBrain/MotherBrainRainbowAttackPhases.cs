@@ -470,7 +470,7 @@ internal sealed class MotherBrainRainbowAttackPhases
                 // body animation when Mother Brain is standing and left of `$80`.
                 requests.BodyWalkRequested = RequestWalkForwardReallySlow(
                     unchecked((ushort)(_state.Body.Position.X + 16))).Requested;
-                _state.BabyMetroidTileTransferIndex = 0;
+                _state.BabyMetroidPagesShown = 0;
                 _state.BabyMetroidSpawned = false;
                 _state.Phase = MotherBrainBodyFunction.SecondPhaseFinishSamusOff;
             }

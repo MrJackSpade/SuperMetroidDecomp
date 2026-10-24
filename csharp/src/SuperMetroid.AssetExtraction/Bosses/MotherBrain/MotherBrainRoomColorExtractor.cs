@@ -52,7 +52,7 @@ internal static class MotherBrainRoomColorExtractor
                 MotherBrainRoomColorRomData.InitialColors),
             RecoveryLights = Enumerable.Range(0, MotherBrainRoomColorRomData.RecoveryLightsFrames)
                 .Select(frame => ReadColors(MotherBrainRoomColorRomData.RecoveryLightsSource(frame),
-                    MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination * 2))
+                    MotherBrainRoomColorRomData.RecoveryLightsSliceColors * 2))
                 .ToArray(),
         });
         return json.ToArray();

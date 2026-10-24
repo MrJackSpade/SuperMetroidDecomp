@@ -34,7 +34,7 @@ public static class RoomRenderer
     {
         var vram = new byte[RoomAssetRomDataGraphicsLayoutTooling.BackgroundCharacterVramByteCount];
         areaTiles.CopyTo(vram, RoomGraphicsLayout.AreaCharacters.Offset * sizeof(ushort));
-        commonTiles.CopyTo(vram, RoomGraphicsLayout.CommonRoomElementCharacters.Offset * sizeof(ushort));
+        commonTiles.CopyTo(vram, RoomGraphicsToolingLayout.CommonRoomElementCharacters.Offset * sizeof(ushort));
         return vram;
     }
 

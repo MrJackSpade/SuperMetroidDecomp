@@ -9,7 +9,7 @@ internal static class SpriteCharactersAccess
     {
         /// <summary>The table byte an upload to <paramref name="destination"/> starts at, which lies outside the table for one that misses it.</summary>
         internal static int TableByte(VramDmaDestination destination) =>
-            (destination.Word - GameplayVramLayout.ObjectCharacters.Offset) * sizeof(ushort);
+            (destination.Word - GameplayVramLayoutConstants.ObjectCharacters.Offset) * sizeof(ushort);
     }
 
     extension(SpriteCharacters self)

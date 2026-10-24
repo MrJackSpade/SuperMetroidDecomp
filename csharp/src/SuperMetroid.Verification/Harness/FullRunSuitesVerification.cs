@@ -323,7 +323,7 @@ using static SuperMetroid.Verification.Samus.Projectiles.SamusProjectilesVerific
 using static SuperMetroid.Verification.Samus.Drawing.SamusRenderingRomDataVerification;
 using static SuperMetroid.Verification.Samus.Artwork.SamusRenderingVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SamusShinesparkVerification;
-using static SuperMetroid.Verification.Samus.Abilities.SamusSpecialSequenceRomDataVerification;
+using static SuperMetroid.Verification.Samus.Abilities.SamusSpecialSequenceDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SamusSpecialStatesVerification;
 using static SuperMetroid.Verification.Samus.Movement.SamusTerrainMovementVerification;
 using static SuperMetroid.Verification.Samus.SamusTurnsAndKnockbackVerification;
@@ -539,7 +539,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySamusMovementRomData), () => VerifySamusMovementRomData()),
         new(nameof(VerifySamusRenderingRomData), () => VerifySamusRenderingRomData()),
         new(nameof(VerifySamusPaletteRomData), () => VerifySamusPaletteRomData()),
-        new(nameof(VerifySamusSpecialSequenceRomData), () => VerifySamusSpecialSequenceRomData()),
+        new(nameof(VerifySamusSpecialSequenceDefinitions), () => VerifySamusSpecialSequenceDefinitions()),
         new(nameof(VerifySamusArmCannon), () => VerifySamusArmCannon()),
         new(nameof(VerifySamusProjectileRomData), () => VerifySamusProjectileRomData()),
         new(nameof(VerifySamusGrappleRomData), () => VerifySamusGrappleRomData()),

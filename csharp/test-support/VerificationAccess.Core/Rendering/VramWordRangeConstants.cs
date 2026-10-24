@@ -6,5 +6,5 @@ namespace SuperMetroid.Core.Rendering;
 internal static class VramWordRangeConstants
 {
     /// <summary>The last addressable VRAM word.</summary>
-    public const int MaximumWord = SnesPpuLayout.MaximumVramWord;
+    public const int MaximumWord = SnesPpuLayoutConstants.MaximumVramWord;
 }

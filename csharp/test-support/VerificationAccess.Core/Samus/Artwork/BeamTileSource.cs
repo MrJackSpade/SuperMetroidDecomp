@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+﻿namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>The beam character sheets <c>BeamTilesPointers</c> at $90:C3B1 can select, valued by long address.</summary>
 public enum BeamTileSource
@@ -14,7 +14,7 @@ public enum BeamTileSource
     /// <summary>$9A:FA00, Tiles_Spazer; shared native Spazer-combination character source.</summary>
     Spazer = 0x9afa00,
     /// <summary>The bounded Chainsaw sheet read from adjacent native data.</summary>
-    Chainsaw = SuperMetroid.Core.Samus.Projectiles.ChainsawBeamGraphicsDefinitions.TileSource,
+    Chainsaw = SuperMetroid.Core.Samus.Projectiles.ChainsawBeamGraphicsDefinitionsConstants.TileSource,
     /// <summary>The bounded SpaceTime sheet read from adjacent native data.</summary>
-    Spacetime = SuperMetroid.Core.Samus.Projectiles.SpacetimeBeamGraphicsDefinitions.TileSource,
+    Spacetime = SuperMetroid.Core.Samus.Projectiles.SpacetimeBeamGraphicsDefinitionsConstants.TileSource,
 }

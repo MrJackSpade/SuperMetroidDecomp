@@ -97,7 +97,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
         ISnesAddressSpace inner, RoomFxAnimatedTileObjectDefinition definition, Action presentationRead)
     {
         bool InAnimatedTileBank(int address) =>
-            SnesAddress.FromBusAddress(address).Bank == SnesLittleEndian.BankByte(RoomFxRomData.Banks.AnimatedTiles);
+            SnesAddress.FromBusAddress(address).Bank == SnesLittleEndianConstants.BankByte(RoomFxRomData.Banks.AnimatedTiles);
         return new CartridgeReadGuard(inner)
             .Forbid(address =>
                 {

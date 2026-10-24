@@ -14,7 +14,7 @@ internal static class EnemyProjectileNativeImportAccess
         projectile.Frame = EnemyProjectilePresentationFrameSetsTooling.Contains(operandAddress)
             ? EnemyProjectileSlotFrameAccess.ProgramFrameAt(operandAddress)
             : EnemyProjectileSlotFrameAccess.CompositionAt(
-                CompiledEnemyVisualSelectors.TryGet(SnesLittleEndian.BankByte(EnemyProjectileCodePointers.BankBase), operandAddress, out ushort selector)
+                CompiledEnemyVisualSelectors.TryGet(SnesLittleEndianConstants.BankByte(EnemyProjectileCodePointers.BankBase), operandAddress, out ushort selector)
                     ? selector
                     : throw new InvalidDataException($"Enemy projectile visual operand $86:{operandAddress:X4} has no compiled selector."));
 }

@@ -61,7 +61,7 @@ internal static class BeamTileArtworkVerification
             LoadNativeBeamFixture(bus, null, expectedPalette, nativeQueue, selection);
             SamusProjectileSystem.LoadBeamPalette(actualPalette.Samus.Beam, (SamusBeamFlags)selection, catalog.Palettes);
             var legacyVram = new SnesVram();
-            nativeQueue.DrainTo(legacyVram, catalog, null, BgArtworkFixtures.For(legacyVram));
+            nativeQueue.DrainTo(legacyVram, new BeamTileTransfers(catalog), null, BgArtworkFixtures.For(legacyVram));
             AssertTrue(legacyVram.ImageEquals(native), "Legacy beam source resolves exact native pixels without ROM DMA");
             // The page the selection binds shows the native beam characters at their DMA destination.
             var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, catalog,

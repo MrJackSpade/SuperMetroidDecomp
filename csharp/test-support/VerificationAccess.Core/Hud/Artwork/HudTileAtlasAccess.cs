@@ -13,6 +13,6 @@ internal static class HudTileAtlasAccess
     {
         /// <summary>Writes all $2000 bytes at the standard BG3 character base: the characters followed by the zero-filled BG2 tilemap-clearing half.</summary>
         /// <param name="vram">Destination VRAM whose existing bytes are overwritten.</param>
-        public void LoadTo(SnesVram vram) => new VramRegion(vram, GameplayVramLayout.HudCharacterUpload).Load(self.bytes);
+        public void LoadTo(SnesVram vram) => new VramRegion(vram, GameplayVramLayoutConstants.HudCharacterUpload).Load(self.bytes);
     }
 }

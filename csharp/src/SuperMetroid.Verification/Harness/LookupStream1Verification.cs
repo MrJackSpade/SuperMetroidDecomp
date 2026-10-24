@@ -1927,7 +1927,7 @@ internal static class LookupStream1Verification
     private static void VerifyLookupStream1DeathDefinitions(ISnesAddressSpace rom)
     {
         ushort Word(int address) => SnesLittleEndian.Word(LookupStream1DeathDefinitionsRomByte(rom, address), LookupStream1DeathDefinitionsRomByte(rom, address + 1));
-        var initialFrames = SamusSpecialSequenceRomData.Death.InitialFramesByMovementType;
+        var initialFrames = SamusDeathSequenceDefinitions.InitialFramesByMovementType;
         AssertEqual(28, initialFrames.Length, "death retail movement domain");
         for (int movement = 0; movement < initialFrames.Length; movement++)
             AssertEqual(LookupStream1DeathDefinitionsRomByte(rom, 0x9bb420 + movement), initialFrames[movement], "native movement death phase");

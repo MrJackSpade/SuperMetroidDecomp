@@ -51,18 +51,6 @@ public sealed class BeamTileCatalog : IVramAssetProvider
     public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
         sheets[BeamTileAtlasDefinitions.ArtworkOrdinal(SelectionFor(asset))].Characters;
 
-    /// <summary>Resolves restored native beam uploads through installed artwork, without ROM DMA.</summary>
-    public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
-    {
-        if (!Enum.IsDefined((BeamTileSource)sourceAddress) || byteCount != BeamTileAtlasDefinitions.ByteCount)
-        {
-            data = default;
-            return false;
-        }
-        data = Resolve(AssetFor(BeamTileAtlasDefinitions.LegacySelectionFor((BeamTileSource)sourceAddress)));
-        return true;
-    }
-
     /// <summary>Maps a supported native equipped-beam selection to its queued VRAM asset identity.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The combination has no artwork ($0C or $0F).</exception>
     public static VramAssetId AssetFor(SamusBeamCombination selection) => selection switch

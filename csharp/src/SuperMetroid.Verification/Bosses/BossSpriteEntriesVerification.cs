@@ -61,10 +61,10 @@ internal static class BossSpriteEntriesVerification
         var queue = new VramWriteQueue();
         var statue = new TourianStatuePictureCharacters(AnimatedTileObject.TourianStatuePhantoon, TourianStatueTilePicture.Released);
         ReadOnlyMemory<byte> picture = statue.Resolve(runtime.Artwork);
-        queue.EnqueueSource(statue, checked((ushort)picture.Length), VramDmaDestination.At(GameplayVramLayout.ObjectCharacters));
+        queue.EnqueueSource(statue, checked((ushort)picture.Length), VramDmaDestinationConstants.At(GameplayVramLayoutConstants.ObjectCharacters));
         var staging = new VramStagingBuffer(64);
         staging.ByteView(0, 64)[3] = 0x5a;
-        queue.EnqueueStaging(64, 0x7e9000, staging, 0, VramDmaDestination.At(GameplayVramLayout.ObjectCharacters, 0x400));
+        queue.EnqueueStaging(64, 0x7e9000, staging, 0, VramDmaDestinationConstants.At(GameplayVramLayoutConstants.ObjectCharacters, 0x400));
         queue.DrainTo(new SnesVram(), runtime.Artwork, uploads, BgArtworkFixtures.For(new SnesVram()));
         staging.ByteView(0, 64)[3] = 0;
         AssertEqual(2, uploads.Uploads.Count, "Both uploads reach the OBJ page");

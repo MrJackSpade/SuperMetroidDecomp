@@ -18,7 +18,7 @@ internal static class ObjCharacterVramImage
     internal static SnesVram Of(SpriteCharacters uploads, IObjCharacterSourceResolver resolver)
     {
         var vram = new SnesVram();
-        vram.LoadBytes(GameplayVramLayout.ObjectCharacters.Offset * 2,
+        vram.LoadBytes(GameplayVramLayoutConstants.ObjectCharacters.Offset * 2,
             new ObjCharacterTablePage().Page(uploads, resolver).Characters[..SpriteCharacters.TableByteCount]);
         return vram;
     }

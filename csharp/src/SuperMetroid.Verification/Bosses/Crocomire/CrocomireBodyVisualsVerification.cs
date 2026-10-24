@@ -226,7 +226,7 @@ internal static class CrocomireBodyVisualsVerification
             slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
             var oam = new OamBuffer();
             enemies.Drawing.DrawLayersAsOam(oam, new(0, 0), 0, 0);
-            return new DrawNativeResult(oam, EnemyBg2ImageFixtures.AsVram(image, EnemyBg2FrameLayout.VramBase, vram.Bytes.Length));
+            return new DrawNativeResult(oam, EnemyBg2ImageFixtures.AsVram(image, EnemyBg2FrameLayoutConstants.VramBase, vram.Bytes.Length));
         }
 
         // The tile base and palette Crocomire's room draws him at.

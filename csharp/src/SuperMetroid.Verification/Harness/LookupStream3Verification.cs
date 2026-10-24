@@ -1401,7 +1401,7 @@ internal static class LookupStream3Verification
             {
                 int address = start + index * 7;
                 int nativeSize = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-                int nativeTableByte = (CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 5) - GameplayVramLayout.ObjectCharacters.Offset) * 2;
+                int nativeTableByte = (CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 5) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2;
                 SpriteCharacterPlacement shown = PlacedUploads.Of(MotherBrainCharacterSources.Of(method()));
                 AssertEqual(nativeTableByte, shown.FirstByte, "stream 3 production escape page shows where the native record places it");
                 AssertEqual(nativeSize, shown.ByteCount, "stream 3 production escape page shows the native record's bytes");
@@ -1451,13 +1451,13 @@ internal static class LookupStream3Verification
             AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(entry), rotRow.ByteCount, "stream 3 native corpse rot row bytes");
             int nativeStaging = (int)new SnesAddress(SnesLittleEndian.HighByte(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 4));
             AssertEqual(nativeStaging, EnemyStagingDefinitions.RottingHeapNativeAddress + rotRow.RottingOffset, "stream 3 native corpse rot row source");
-            AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 6) - GameplayVramLayout.ObjectCharacters.Offset) * 2,
+            AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 6) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2,
                 rotRow.FirstCharacter * 32, "stream 3 native corpse rot row placement");
             int pageEntry = 0xa99003 + row * 7;
             uint source = (uint)(CartridgeImportSource.Require(rom).ReadCartridgeLong(pageEntry + 2));
             AssertEqual(source, MotherBrainCorpseArtworkDefinitions.PageSource(row), "stream 3 corpse source page");
             SpriteCharacterPlacement page = PlacedUploads.Of(MotherBrainCharacterSources.Of(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, row)));
-            AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry + 5) - GameplayVramLayout.ObjectCharacters.Offset) * 2,
+            AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry + 5) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2,
                 page.FirstByte, "stream 3 corpse page placement");
             AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry), page.ByteCount, "stream 3 corpse page bytes");
         }

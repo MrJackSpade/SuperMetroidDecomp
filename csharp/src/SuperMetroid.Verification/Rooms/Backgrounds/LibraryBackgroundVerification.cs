@@ -269,7 +269,7 @@ private static void WriteLibraryLong(byte[] rom, ushort pointer, int value)
 {
     WriteLibraryByte(rom, pointer, (byte)value);
     WriteLibraryByte(rom, unchecked((ushort)(pointer + 1)), SnesLittleEndian.HighByte(unchecked((ushort)value)));
-    WriteLibraryByte(rom, unchecked((ushort)(pointer + 2)), SnesLittleEndian.BankByte(value));
+    WriteLibraryByte(rom, unchecked((ushort)(pointer + 2)), SnesLittleEndianConstants.BankByte(value));
 }
 
 /// <summary>Places a fixture command byte at the LoROM offset addressed through bank $8F.</summary>

@@ -121,7 +121,7 @@ internal static class InstalledSamusArtworkTests
 
     /// <summary>The emulated sprite-character word at which sprite character <paramref name="character"/> starts.</summary>
     private static ushort ObjectCharacterWord(int character) =>
-        checked((ushort)(GameplayVramLayout.ObjectCharacters.Offset + character * SpriteArtwork.CharacterByteCount / sizeof(ushort)));
+        checked((ushort)(GameplayVramLayoutConstants.ObjectCharacters.Offset + character * SpriteArtwork.CharacterByteCount / sizeof(ushort)));
 
     /// <summary>The emulated sprite-character byte at which sprite character <paramref name="character"/> starts.</summary>
     private static int ObjectCharacterByte(int character) => ObjectCharacterWord(character) * sizeof(ushort);
@@ -178,7 +178,7 @@ internal static class InstalledSamusArtworkTests
         {
             for (int tile = 0; tile < bytes / RoomCharacterAtlasFormat.BytesPerTile; tile++, slot++)
             {
-                int character = (start - GameplayVramLayout.ObjectCharacters.Offset) / 16 + tile;
+                int character = (start - GameplayVramLayoutConstants.ObjectCharacters.Offset) / 16 + tile;
                 oam.AddOnScreenSpritePart(new SnesSpritemapXWord(0), new SnesSpritemapYByte(0),
                     SnesObjAttributeWord.Create(character, 4, 3),
                     new Position16<OamPixels>((ushort)(32 + slot % 8 * 16), (ushort)(32 + slot / 8 * 16)));

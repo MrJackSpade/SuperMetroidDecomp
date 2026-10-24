@@ -839,7 +839,7 @@ internal static class CollectiblesVerification
         AssertEqual(SuitBeam(SamusSuitPickupBeamShape.CurvedColumn, 0, 255, 0), curved[^1],
             "stage two ends at the full-screen column");
         ushort[] full = SuitPickupBeamWindowBuilder.Build(curved[^1]);
-        AssertTrue(full.All(word => word == SamusSpecialSequenceRomData.SuitPickup.FullScreenEndpoints),
+        AssertTrue(full.All(word => word == SuitPickupBeamDefinitions.FullScreenEndpoints),
             "the final curved column covers every scanline");
         ushort[] widening = SuitPickupBeamWindowBuilder.Build(curved[0]);
         AssertTrue(SnesLittleEndian.LowByte(widening[127]) < SnesLittleEndian.LowByte(widening[0])
@@ -855,10 +855,10 @@ internal static class CollectiblesVerification
         AssertTrue(closing[^1].Progress >= 128, "stage four ends once the wipe reaches the center");
         ushort[] wiped = SuitPickupBeamWindowBuilder.Build(closing[0]);
         int top = closing[0].Progress;
-        AssertEqual(SamusSpecialSequenceRomData.SuitPickup.EmptyWindowEndpoints, wiped[top - 1], "closing wipes the top progress scanlines");
-        AssertEqual(SamusSpecialSequenceRomData.SuitPickup.FullScreenEndpoints, wiped[top], "closing keeps the scanline below the top wipe");
-        AssertEqual(SamusSpecialSequenceRomData.SuitPickup.EmptyWindowEndpoints, wiped[256 - (top - 1)], "closing wipes one fewer bottom scanline");
-        AssertEqual(SamusSpecialSequenceRomData.SuitPickup.FullScreenEndpoints, wiped[255 - (top - 1)], "closing keeps the scanline above the bottom wipe");
+        AssertEqual(SuitPickupBeamDefinitions.EmptyWindowEndpoints, wiped[top - 1], "closing wipes the top progress scanlines");
+        AssertEqual(SuitPickupBeamDefinitions.FullScreenEndpoints, wiped[top], "closing keeps the scanline below the top wipe");
+        AssertEqual(SuitPickupBeamDefinitions.EmptyWindowEndpoints, wiped[256 - (top - 1)], "closing wipes one fewer bottom scanline");
+        AssertEqual(SuitPickupBeamDefinitions.FullScreenEndpoints, wiped[255 - (top - 1)], "closing keeps the scanline above the bottom wipe");
 
         SamusSuitPickupBeam[] line = [.. beams.Where(beam => beam.Shape == SamusSuitPickupBeamShape.CenterLine)];
         AssertEqual(SuitBeam(SamusSuitPickupBeamShape.CenterLine, 7, 240, 0), line[0],
@@ -869,7 +869,7 @@ internal static class CollectiblesVerification
         ushort[] center = SuitPickupBeamWindowBuilder.Build(line[0]);
         AssertTrue(center.Select((word, y) => new CollectiblesVerifySuitPickupBeamSequenceCase(word, y)).All(row => row.Y == 128
             ? row.Word == SnesLittleEndian.Word(7, 240)
-            : row.Word == SamusSpecialSequenceRomData.SuitPickup.EmptyWindowEndpoints),
+            : row.Word == SuitPickupBeamDefinitions.EmptyWindowEndpoints),
             "stage five lights only the center scanline");
 
         // Color: unchanged until the curved stage, white by the reveal, then toward Varia orange.

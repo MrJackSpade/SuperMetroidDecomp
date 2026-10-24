@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -103,6 +104,9 @@ internal static class EnemySheetFixtures
         private ComposedSet Compose(RoomEnemyGraphicsSetDefinition set)
         {
             GraphicsSetSheetSources setSources = EnemySheetComposer.Sources(inputs, set);
+            // The set's regions, as the installed sheets' loader divides them for the corpses its drawn enemies leave.
+            var regions = new SetRegions(EncounterCharacterPlacements.Catalog.Of(set), [.. CorpseRotSimulation.Of(inputs.Enemies, inputs.Bosses,
+                [.. setSources.Enemies.Select(source => source.Enemy)]).Where(corpse => corpse.Kind is null)]);
             // A name of its own keeps its frames apart from the installed sheets' in the frame-source registry.
             string owner = $"fixture-{RuntimeHelpers.GetHashCode(inputs.Enemies):X8}-{set.Name}-{RuntimeHelpers.GetHashCode(set):X8}";
             var enemies = new Dictionary<EnemyDefinitionId, SpriteSheet>();
@@ -112,7 +116,7 @@ internal static class EnemySheetFixtures
                          IReadOnlyDictionary<string, string> frameRots) in setSources.Enemies)
             {
                 enemies[enemy] = Load(sources, $"{enemy}-{owner}");
-                pictures[enemy] = SuperMetroid.AssetExtraction.Installation.EnemySheetFiles.Named(framePictures, setSources.Regions);
+                pictures[enemy] = SuperMetroid.AssetExtraction.Installation.EnemySheetFiles.Named(framePictures, regions);
                 rotPictures[enemy] = frameRots;
             }
             var spawned = new Dictionary<int, SpawnedObjectSheet>();
@@ -122,10 +126,10 @@ internal static class EnemySheetFixtures
                          IReadOnlyDictionary<string, string> frameRots) in setSources.Spawned)
             {
                 spawned[plan.TileBase] = new SpawnedObjectSheet(Load(sources, $"Spawned-{plan.TileBase:X3}-{owner}"), plan.Palette);
-                spawnedPictures[plan.TileBase] = SuperMetroid.AssetExtraction.Installation.EnemySheetFiles.Named(framePictures, setSources.Regions);
+                spawnedPictures[plan.TileBase] = SuperMetroid.AssetExtraction.Installation.EnemySheetFiles.Named(framePictures, regions);
                 spawnedRotPictures[plan.TileBase] = frameRots;
             }
-            return new ComposedSet(enemies, spawned, pictures, spawnedPictures, rotPictures, spawnedRotPictures, setSources.Regions.Coverage(set));
+            return new ComposedSet(enemies, spawned, pictures, spawnedPictures, rotPictures, spawnedRotPictures, regions.Coverage(set));
         }
 
         /// <summary>Composes, loads and registers one sheet under <paramref name="name"/>.</summary>

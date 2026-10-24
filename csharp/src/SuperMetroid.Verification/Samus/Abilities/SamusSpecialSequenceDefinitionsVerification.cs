@@ -5,33 +5,33 @@ using SuperMetroid.Core.Samus.Abilities;
 namespace SuperMetroid.Verification.Samus.Abilities;
 
 /// <summary>Checks extracted Samus death, suit-pickup, and Power Bomb sequence ranges before runtime consumption.</summary>
-internal static class SamusSpecialSequenceRomDataVerification
+internal static class SamusSpecialSequenceDefinitionsVerification
 {
     /// <summary>
     /// Validates every extracted special-sequence table and the structural boundaries that
     /// make its decoded records safe to consume. Behavioral sequence tests remain the
     /// authority for phase timing, movement, palette side effects, and completion.
     /// </summary>
-    internal static void VerifySamusSpecialSequenceRomData()
+    internal static void VerifySamusSpecialSequenceDefinitions()
     {
         var initialDeathFrames =
-            SamusSpecialSequenceRomData.Death.InitialFramesByMovementType;
+            SamusDeathSequenceDefinitions.InitialFramesByMovementType;
         AssertEqual(28, initialDeathFrames.Length,
             "death initial-frame table covers every retail movement type");
 
         AssertEqual(
-            SamusSpecialSequenceRomData.PowerBomb.FirstYellowShape,
-            SamusSpecialSequenceRomData.PowerBomb.WhiteShapeEnd,
+            PowerBombExplosionDefinitions.FirstYellowShape,
+            PowerBombExplosionDefinitions.WhiteShapeEnd,
             "Power Bomb white shapes end where yellow shapes begin");
         AssertEqual(0,
-            (SamusSpecialSequenceRomData.PowerBomb.YellowShapeEnd -
-                SamusSpecialSequenceRomData.PowerBomb.FirstYellowShape) %
-                    SamusSpecialSequenceRomData.PowerBomb.ShapeStride,
+            (PowerBombExplosionDefinitions.YellowShapeEnd -
+                PowerBombExplosionDefinitions.FirstYellowShape) %
+                    PowerBombExplosionDefinitions.ShapeStride,
             "yellow Power Bomb shapes occupy whole records");
         AssertEqual(0,
-            (SamusSpecialSequenceRomData.PowerBomb.WhiteShapeEnd -
-                SamusSpecialSequenceRomData.PowerBomb.FirstWhiteShape) %
-                    SamusSpecialSequenceRomData.PowerBomb.ShapeStride,
+            (PowerBombExplosionDefinitions.WhiteShapeEnd -
+                PowerBombExplosionDefinitions.FirstWhiteShape) %
+                    PowerBombExplosionDefinitions.ShapeStride,
             "white Power Bomb shapes occupy whole records");
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -42,18 +42,18 @@ internal static class SamusSpecialSequenceRomDataVerification
         }
 
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        TouchRange(bus, SamusSpecialSequenceRomData.SuitPickup.BeamCurve,
-            SamusSpecialSequenceRomData.SuitPickup.WindowScanlineCount / 2,
+        TouchRange(bus, SuitPickupBeamDefinitions.BeamCurve,
+            SuitPickupBeamDefinitions.WindowScanlineCount / 2,
             "suit-pickup symmetric beam curve");
         TouchRange(bus,
-            0x880000 | SamusSpecialSequenceRomData.PowerBomb.FirstWhiteShape,
-            SamusSpecialSequenceRomData.PowerBomb.WhiteShapeEnd -
-                SamusSpecialSequenceRomData.PowerBomb.FirstWhiteShape,
+            0x880000 | PowerBombExplosionDefinitions.FirstWhiteShape,
+            PowerBombExplosionDefinitions.WhiteShapeEnd -
+                PowerBombExplosionDefinitions.FirstWhiteShape,
             "Power Bomb white shape stream");
         TouchRange(bus,
-            0x880000 | SamusSpecialSequenceRomData.PowerBomb.FirstYellowShape,
-            SamusSpecialSequenceRomData.PowerBomb.YellowShapeEnd -
-                SamusSpecialSequenceRomData.PowerBomb.FirstYellowShape,
+            0x880000 | PowerBombExplosionDefinitions.FirstYellowShape,
+            PowerBombExplosionDefinitions.YellowShapeEnd -
+                PowerBombExplosionDefinitions.FirstYellowShape,
             "Power Bomb yellow shape stream");
 
         Console.WriteLine(

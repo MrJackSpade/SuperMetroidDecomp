@@ -7,8 +7,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <summary>What a room graphics set's pre-coloured sheets compose (#1392).</summary>
 /// <param name="Enemies">Each enemy sheet, by the enemy drawn under the set.</param>
 /// <param name="Spawned">Each spawned-object sheet, by its plan.</param>
-/// <param name="Regions">The set's regions, which name them by ordinal and know what covers each (#1406).</param>
-internal sealed record GraphicsSetSheetSources(IReadOnlyList<EnemySheetSource> Enemies, IReadOnlyList<SpawnedObjectSheetSource> Spawned, SetRegions Regions);
+internal sealed record GraphicsSetSheetSources(IReadOnlyList<EnemySheetSource> Enemies, IReadOnlyList<SpawnedObjectSheetSource> Spawned);
 
 /// <summary>What one enemy's sheet composes under a graphics set.</summary>
 /// <param name="Enemy">The enemy.</param>

@@ -4,6 +4,19 @@ namespace SuperMetroid.Core.Hardware;
 /// <summary>Cartridge values and helpers of <see cref="GameplayVramLayout"/> that only verification reads.</summary>
 internal static class GameplayVramLayoutConstants
 {
+    /// <summary>VMADD $4800-$4FFF: BG2's two horizontal 32x32 tilemap screens (BG2SC=$49).</summary>
+    public static readonly PpuLayoutCell Bg2Tilemap = new(nameof(Bg2Tilemap), PpuLayoutRegion.Vram,
+        GameplayVramLayout.Bg2TilemapWord, 0x0800, "BG tilemap words (64x32)", PpuMemoryLayout.Vram);
+    /// <summary>
+    /// VMADD $4000-$4FFF: the destination of the standard BG3 transfer at <c>$82:8318</c>, whose
+    /// second half clears the BG2 tilemap.
+    /// </summary>
+    public static readonly PpuLayoutCell HudCharacterUpload = new(nameof(HudCharacterUpload), PpuLayoutRegion.Vram,
+        GameplayVramLayout.HudCharacterWord, 0x1000, "2-bpp BG3 characters then zeroed BG2 tilemap words", PpuMemoryLayout.Vram);
+    /// <summary>VMADD $6000-$7FFF: the OBJ character table (OBSEL=$03), Samus, projectiles and enemies.</summary>
+    public static readonly PpuLayoutCell ObjectCharacters = new(nameof(ObjectCharacters), PpuLayoutRegion.Vram,
+        0x6000, 0x2000, "4-bpp OBJ characters (16 words each)", PpuMemoryLayout.Vram);
+
     /// <summary>BG1SC/BG2SC size bit 0 for rooms: two 32-by-32 screens side by side.</summary>
     public static Extent16<TilemapCells> RoomTilemapSize =>
         new(2 * SnesPpuLayout.TilemapPageWidthInTiles, SnesPpuLayout.TilemapPageWidthInTiles);

@@ -40,7 +40,7 @@ internal static class InvalidBeamGraphicsVerification
         string installedDirectory = scratch.Root;
         SuperMetroid.AssetExtraction.Samus.ProjectilePresentationFiles.Extract(bus, installedDirectory);
         var artwork = SuperMetroid.AssetExtraction.Samus.ProjectilePresentationFiles.Load(installedDirectory, null).BeamTiles;
-        AssertTrue(artwork.TryResolve(ChainsawBeamGraphicsDefinitions.TileSource, 256, out var legacyTiles),
+        AssertTrue(artwork.TryResolve(ChainsawBeamGraphicsDefinitionsConstants.TileSource, 256, out var legacyTiles),
             "restored native Chainsaw DMA resolves through installed artwork");
         AssertTrue(legacyTiles.Span.SequenceEqual(artwork.Resolve(VramAssetId.BeamChainsawTiles).Span),
             "native and typed Chainsaw transfers select the same installed sheet");

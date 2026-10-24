@@ -88,6 +88,6 @@ internal static class BossDisplayBindingsFixtureVerification
         /// <summary>Clears the boss BG2 tilemap before a presentation check.</summary>
         [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
         internal void ClearBg2() => Vram.ExecuteWordTransfer(
-            new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight], EnemyBg2FrameLayout.VramBase, 1);
+            new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight], EnemyBg2FrameLayoutConstants.VramBase, 1);
     }
 }

@@ -11,7 +11,7 @@ internal static class EscapeNativePageWords
     private const int CharacterWords = 16;
 
     /// <summary>The VRAM word the cartridge places OBJ character <paramref name="character"/> at.</summary>
-    internal static ushort Of(int character) => checked((ushort)(GameplayVramLayout.ObjectCharacters.Offset + character * CharacterWords));
+    internal static ushort Of(int character) => checked((ushort)(GameplayVramLayoutConstants.ObjectCharacters.Offset + character * CharacterWords));
 
     /// <summary>The VRAM word the cartridge copies the first timer page to.</summary>
     internal static ushort TimerFirst => Of(EscapeTimerTileAtlasFormat.FirstCharacter);

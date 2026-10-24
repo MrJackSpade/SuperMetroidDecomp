@@ -127,16 +127,4 @@ public sealed class EscapeTimerTileAtlas
         };
     }
 
-    /// <summary>Restored native queue descriptors resolve the same two installed pages as typed uploads.</summary>
-    public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
-    {
-        if (EscapeTimerTilePages.TryMatch(sourceAddress, byteCount, out EscapeTimerTilePage page))
-        {
-            data = Resolve(EscapeTimerTilePages.AssetOf(page));
-            return true;
-        }
-        data = default;
-        return false;
-    }
-
 }

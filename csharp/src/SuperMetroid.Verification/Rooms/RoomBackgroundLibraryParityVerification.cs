@@ -90,7 +90,7 @@ internal static class RoomBackgroundLibraryParityVerification
         WriteTestWord(bus, commandAddress, (ushort)LibraryBackgroundCommand.TransferToVram);
         WriteTestByte(bus, commandAddress + 2, unchecked((byte)sourceAddress));
         WriteTestByte(bus, commandAddress + 3, SnesLittleEndian.HighByte(unchecked((ushort)sourceAddress)));
-        WriteTestByte(bus, commandAddress + 4, SnesLittleEndian.BankByte(sourceAddress));
+        WriteTestByte(bus, commandAddress + 4, SnesLittleEndianConstants.BankByte(sourceAddress));
         WriteTestWord(bus, commandAddress + 5, 0x4800);
         WriteTestWord(bus, commandAddress + 7, byteCount);
         WriteTestWord(bus, commandAddress + 9, (ushort)LibraryBackgroundCommand.End);

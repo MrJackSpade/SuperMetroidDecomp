@@ -17,10 +17,10 @@ internal static class KraidBackgroundRomDataConstants
     extension(KraidBackgroundRomData)
     {
         /// <summary>First VRAM word restored by <c>$A7:C777</c>: the standard layer-3 characters' first.</summary>
-        internal static ushort StandardBg3VramWord => checked((ushort)BgCharacterWords.WordOf(BgCharacterSet.Layer3, 0));
+        internal static ushort StandardBg3VramWord => checked((ushort)BgCharacterWordsConstants.WordOf(BgCharacterSet.Layer3, 0));
 
         /// <summary>VRAM word destination computed by <c>$A7:ADCC-$ADD6</c> for BG1 base zero.</summary>
-        internal static ushort RoomBackgroundTileVramWord => checked((ushort)BgCharacterWords.WordOf(BgCharacterSet.Tiles, KraidBackgroundRomData.RoomBackgroundFirstCharacter));
+        internal static ushort RoomBackgroundTileVramWord => checked((ushort)BgCharacterWordsConstants.WordOf(BgCharacterSet.Tiles, KraidBackgroundRomData.RoomBackgroundFirstCharacter));
 
         /// <inheritdoc cref="KraidBackgroundRomDataConstants.PreservedLowerTailFirstWord"/>
         internal static int PreservedLowerTailFirstWord => KraidBackgroundRomDataConstants.PreservedLowerTailFirstWord;

@@ -1513,7 +1513,7 @@ static void WriteTestLong(TestAddressSpace bus, int address, int value)
 {
     WriteTestByte(bus, address, unchecked((byte)value));
     WriteTestByte(bus, address + 1, SnesLittleEndian.HighByte(unchecked((ushort)value)));
-    WriteTestByte(bus, address + 2, SnesLittleEndian.BankByte(value));
+    WriteTestByte(bus, address + 2, SnesLittleEndianConstants.BankByte(value));
 }
 
 /// <summary>

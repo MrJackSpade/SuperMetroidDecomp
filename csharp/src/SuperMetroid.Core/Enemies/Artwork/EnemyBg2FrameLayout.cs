@@ -5,8 +5,6 @@ internal static class EnemyBg2FrameLayout
 {
     /// <summary>$FFFE marks an extended spritemap component as a BG2 command stream.</summary>
     internal const ushort StreamMarker = 0xfffe;
-    /// <summary>First VRAM word of the enemy BG2 tilemap.</summary>
-    internal const ushort VramBase = 0x4800;
     /// <summary>First byte of the native $7E working tilemap.</summary>
     internal const ushort WorkingRamBase = 0x2000;
     /// <summary>Number of tile words across one enemy BG2 tilemap row.</summary>

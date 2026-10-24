@@ -29,13 +29,4 @@ internal static class BgCharacterWords
         return offset % characterWords == 0 ? new BgCharacterPlacement(identity, set, offset / characterWords, bytes)
             : throw new InvalidDataException($"{identity.Name} is copied to VRAM word ${firstWord:X4}, inside one of the {set} characters.");
     }
-
-    /// <summary>The VRAM word the cartridge keeps <paramref name="set"/>'s character <paramref name="character"/> from.</summary>
-    internal static int WordOf(BgCharacterSet set, int character) => set switch
-    {
-        BgCharacterSet.Tiles => RoomGraphicsLayout.AreaCharacters.Offset + character * (set.CharacterBytes() / sizeof(ushort)),
-        BgCharacterSet.Layer3 => GameplayVramLayout.HudCharacters.Offset + character * (set.CharacterBytes() / sizeof(ushort)),
-        BgCharacterSet.KraidLayer3 => Core.Rooms.RoomAssetRomData.LibraryBackground.KraidHudCharacterBaseWord + character * (set.CharacterBytes() / sizeof(ushort)),
-        _ => throw new ArgumentOutOfRangeException(nameof(set), set, "Unknown background character set."),
-    };
 }

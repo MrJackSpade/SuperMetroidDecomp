@@ -160,40 +160,6 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IObjCharacterSourceRe
         hudTiles.ShowCharactersAgain(backgrounds, _display.Layer3Characters);
         pendingHudTiles = null;
     }
-    /// <summary>Matches a native DMA source and exact length to the currently installed immutable visual data.</summary>
-    internal bool TryResolveInstalledArtwork(int sourceAddress, int byteCount,
-        out ReadOnlyMemory<byte> data)
-    {
-        // Old pending native records and new typed records share the selected
-        // artwork. Do not send these immutable sources to the RAM-only DMA path.
-        if (MapPresentation?.EscapeTimerTiles.TryResolve(sourceAddress, byteCount, out data) == true)
-            return true;
-        if (BeamArtwork?.TryResolve(sourceAddress, byteCount, out data) == true)
-            return true;
-        if (GrappleArtwork?.TryResolve(sourceAddress, byteCount, out data) == true)
-            return true;
-        if (SamusBodyArt?.ArmCannon.TryResolveTile(sourceAddress, byteCount, out data) == true)
-            return true;
-        if (_enemySession.TileArtwork?.GunshipLiftoff?.TryResolve(
-                sourceAddress, byteCount, out data) == true)
-            return true;
-        if (_enemySession.TileArtwork?.TryResolve(sourceAddress, byteCount, out data) == true)
-            return true;
-        if (_areaArtwork.Artwork?.CeresEscapeTiles?.TryResolve(sourceAddress, byteCount, out data) == true)
-            return true;
-        if (_areaArtwork.Artwork?.CeresEscapeOverlayTilemaps?.TryResolve(sourceAddress, byteCount, out data) == true)
-            return true;
-        // The hand PLM queues its fragment sheet through NMI, unlike the enemy
-        // instruction uploads that apply directly. Both use current installed art.
-        if (_bossArtwork.Artwork?.TorizoSwaps?.TryResolve(sourceAddress, byteCount, out data) == true)
-            return true;
-        if (MapPresentation?.RoomFxAnimatedTiles.TryResolve(sourceAddress, byteCount, out data) == true)
-            return true;
-        if (RoomSkyTilemapArt is not null)
-            return RoomSkyTilemapArt.TryResolve(sourceAddress, byteCount, out data);
-        data = default;
-        return false;
-    }
 
     /// <summary>Complete installed standard OBJ sheet, which the standard object page is composed from.</summary>
     /// <remarks>Host content is rebound after restoring a graph; saved state must not freeze an old user override into

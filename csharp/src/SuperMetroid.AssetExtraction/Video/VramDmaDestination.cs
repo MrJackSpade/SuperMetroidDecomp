@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// stays inside this type, the queue and the PPU backend.
 /// </summary>
 /// <remarks>
-/// This type is the codec of that word: <see cref="At(PpuLayoutCell, int, VramIncrement)"/> encodes it, and
+/// This type is the codec of that word: <c>At(PpuLayoutCell, int, VramIncrement)</c> encodes it, and
 /// <see cref="Word"/> and <see cref="WordIncrement"/> are the only decoders, so the word it stores is the encoding.
 /// </remarks>
 [SnesEncodingOwner]
@@ -17,30 +17,18 @@ namespace SuperMetroid.AssetExtraction.Video;
 public readonly record struct VramDmaDestination
 {
     /// <summary>Native DMA queue bit 15, selecting 32-word column increments.</summary>
-    private const ushort ColumnFlag = 1 << 15;
+    internal const ushort ColumnFlag = 1 << 15;
     /// <summary>Native fifteen-bit VMADD address field.</summary>
-    private const ushort WordMask = SnesPpuLayout.VramWordCount - 1;
+    internal const ushort WordMask = SnesPpuLayout.VramWordCount - 1;
     /// <summary>The words a column increment advances.</summary>
     private const int ColumnIncrementWords = 32;
 
     /// <summary>Preserves an already encoded native DMA destination word.</summary>
-    private VramDmaDestination(ushort encoded) => Encoded = encoded;
+    internal VramDmaDestination(ushort encoded) => Encoded = encoded;
 
     /// <summary>The native queue word: VMADD in bits 0-14, bit 15 set for the column increment.</summary>
     [PpuLayoutAccess]
     internal ushort Encoded { get; }
-
-    /// <summary>The destination <paramref name="wordOffset"/> words into the VRAM described by <paramref name="cell"/>.</summary>
-    [PpuLayoutAccess]
-    internal static VramDmaDestination At(PpuLayoutCell cell, int wordOffset = 0, VramIncrement increment = VramIncrement.Row)
-    {
-        Ensure.NotNull(cell);
-        if (cell.Region != PpuLayoutRegion.Vram)
-            throw new ArgumentException($"{cell} is not a VRAM region.", nameof(cell));
-        if ((uint)wordOffset >= (uint)cell.Count)
-            throw new ArgumentOutOfRangeException(nameof(wordOffset), wordOffset, $"{cell.Name} holds {cell.Count} words.");
-        return At(cell.Offset + wordOffset, increment);
-    }
 
     /// <summary>The VMADD word the transfer starts at.</summary>
     internal int Word => Encoded & WordMask;
@@ -51,10 +39,4 @@ public readonly record struct VramDmaDestination
     /// <summary>Decodes a native queue word read from cartridge or WRAM data.</summary>
     [PpuLayoutAccess]
     internal static VramDmaDestination FromNative(ushort encoded) => new(encoded);
-
-    /// <summary>The destination at physical VMADD <paramref name="word"/>.</summary>
-    internal static VramDmaDestination At(int word, VramIncrement increment) =>
-        (uint)word <= WordMask
-            ? new((ushort)(word | (increment == VramIncrement.Column ? ColumnFlag : 0)))
-            : throw new ArgumentOutOfRangeException(nameof(word), word, "VMADD holds 15 bits.");
 }

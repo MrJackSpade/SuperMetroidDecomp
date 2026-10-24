@@ -191,16 +191,16 @@ internal static class InstalledPowerBombIsolationTests
     {
         // The pinned $88:8D85 rows are (14,14,10), (15,15,9), (16,16,8),
         // (17,17,7). Check every reachable radius, not just the final row.
-        for (ushort radius = 0; radius < SamusSpecialSequenceRomData.PowerBomb.CrystalFlashRadiusLimit; radius++)
+        for (ushort radius = 0; radius < PowerBombExplosionDefinitions.CrystalFlashRadiusLimit; radius++)
         {
             var native = stock.Resolve(PowerBombFixedColorSequence.Explosion, radius >> 11);
-            Require(SamusSpecialSequenceRomData.PowerBomb.CrystalFlashAfterglowSteps(radius) ==
+            Require(PowerBombExplosionDefinitions.CrystalFlashAfterglowSteps(radius) ==
                 Math.Max(native.Red, Math.Max(native.Green, native.Blue)), $"Native fade operand differs at radius {radius}.");
         }
         try
         {
-            _ = SamusSpecialSequenceRomData.PowerBomb.CrystalFlashAfterglowSteps(
-                SamusSpecialSequenceRomData.PowerBomb.CrystalFlashRadiusLimit);
+            _ = PowerBombExplosionDefinitions.CrystalFlashAfterglowSteps(
+                PowerBombExplosionDefinitions.CrystalFlashRadiusLimit);
         }
         catch (ArgumentOutOfRangeException) { return; }
         throw new InvalidOperationException("The compiled Crystal Flash radius domain accepted its exclusive limit.");

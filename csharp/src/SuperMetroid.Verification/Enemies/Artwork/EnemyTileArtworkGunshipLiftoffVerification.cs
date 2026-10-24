@@ -69,7 +69,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         byte[] installedPage = new ObjCharacterTablePage().Page(stockPages, runtime.Artwork).Characters.ToArray();
         int pagesByte = stockPages.Uploads[0].FirstByte, pagesBytes = transfers.Length * GunshipLiftoffTransferDefinitions.ByteCount;
         AssertTrue(installedPage.AsSpan(pagesByte, pagesBytes).SequenceEqual(
-                nativeVram.Bytes.Slice(GameplayVramLayout.ObjectCharacters.Offset * sizeof(ushort) + pagesByte, pagesBytes)),
+                nativeVram.Bytes.Slice(GameplayVramLayoutConstants.ObjectCharacters.Offset * sizeof(ushort) + pagesByte, pagesBytes)),
             "all five installed takeoff pages match the native OBJ characters");
 
         string fileName = EnemyTileArtworkFormat.GunshipLiftoffFileName(0);

@@ -307,7 +307,7 @@ internal static class SpacetimeBeamVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var artwork = InstalledFixtures.Projectiles.BeamTiles;
         byte[] nativeTiles = ReadRetailSpacetimeGraphicsOracle(bus);
-        AssertTrue(artwork.TryResolve(SpacetimeBeamGraphicsDefinitions.TileSource, 256, out _),
+        AssertTrue(artwork.TryResolve(SpacetimeBeamGraphicsDefinitionsConstants.TileSource, 256, out _),
             "legacy SpaceTime graphics queue resolves through installed artwork");
         // The page SpaceTime's equipped word binds shows the bytes its native DMA reads.
         var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, artwork,
@@ -330,7 +330,7 @@ internal static class SpacetimeBeamVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for the SpaceTime adjacent-table graphics pointers and tiles")]
     private static byte[] ReadRetailSpacetimeGraphicsOracle(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
-        AssertEqual(SpacetimeBeamGraphicsDefinitions.TileSource & 0xffff,
+        AssertEqual(SpacetimeBeamGraphicsDefinitionsConstants.TileSource & 0xffff,
             bus.ReadCartridgeWord(0x90c3cd),
             "SpaceTime tile pointer comes from adjacent native palette table");
         var tiles = new byte[256];

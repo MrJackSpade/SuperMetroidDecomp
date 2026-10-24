@@ -61,9 +61,6 @@ internal sealed class SetCharacters
     /// <summary>The regions the uploads and the corpses' rows divide the characters into.</summary>
     internal IReadOnlyList<CharacterRange> Regions => regions.Regions;
 
-    /// <summary>The set's regions, which name them by ordinal and know what covers each.</summary>
-    internal SetRegions RegionSet => regions;
-
     /// <summary>
     /// The pictures of <paramref name="frame"/>, named for <paramref name="name"/>: the frame whole when it is drawn over no
     /// uploaded region, else its layers, each run of its parts in draw order reading the same uploaded regions, with a

@@ -133,7 +133,7 @@ internal static class EnemySheetComposer
         LoadedGraphicsSet loaded = Load(inputs, set);
         return new GraphicsSetSheetSources([.. EnemySources(inputs, loaded)],
             [.. SpawnedObjectSheetComposer.Plans(loaded.Graphics, loaded.Drawn).Select(plan =>
-                SpawnedObjectSheetComposer.Sources(inputs.Enemies, plan, loaded.Characters, loaded.Colours))], loaded.Characters.RegionSet);
+                SpawnedObjectSheetComposer.Sources(inputs.Enemies, plan, loaded.Characters, loaded.Colours))]);
     }
 
     /// <summary>What each enemy drawn under <paramref name="loaded"/> composes.</summary>

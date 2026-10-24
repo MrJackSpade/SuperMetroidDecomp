@@ -168,8 +168,8 @@ public sealed class SamusPowerBombExplosionState
         IsArmed = false;
         Position = position;
         Status = ActiveStatus;
-        PreExplosionRadius = PowerBombRadius.FromRaw(SamusSpecialSequenceRomData.PowerBomb.InitialRadius);
-        ExplosionRadius = PowerBombRadius.FromRaw(SamusSpecialSequenceRomData.PowerBomb.InitialRadius);
+        PreExplosionRadius = PowerBombRadius.FromRaw(PowerBombExplosionDefinitions.InitialRadius);
+        ExplosionRadius = PowerBombRadius.FromRaw(PowerBombExplosionDefinitions.InitialRadius);
         RadiusSpeed = PowerBombRadius.Zero;
         Shape = null;
         RenderedShape = null;
@@ -203,8 +203,8 @@ public sealed class SamusPowerBombExplosionState
         switch (Phase)
         {
             case PowerBombExplosionPhase.PendingPreExplosionSetup:
-                PreExplosionRadius = PowerBombRadius.FromRaw(SamusSpecialSequenceRomData.PowerBomb.InitialRadius);
-                RadiusSpeed = PowerBombRadius.FromRaw(SamusSpecialSequenceRomData.PowerBomb.InitialPreExplosionSpeed);
+                PreExplosionRadius = PowerBombRadius.FromRaw(PowerBombExplosionDefinitions.InitialRadius);
+                RadiusSpeed = PowerBombRadius.FromRaw(PowerBombExplosionDefinitions.InitialPreExplosionSpeed);
                 Phase = PowerBombExplosionPhase.PreExplosionWhite;
                 RenderedPhase = PowerBombExplosionPhase.Inactive;
                 return false;
@@ -291,9 +291,9 @@ public sealed class SamusPowerBombExplosionState
         // $88:90DF uses wrapping 16-bit addition. It subtracts acceleration only while
         // the newly computed radius is still below $9200.
         PreExplosionRadius = AdvanceRadiusWrapping(PreExplosionRadius);
-        if (PreExplosionRadius.RawValue < SamusSpecialSequenceRomData.PowerBomb.PreExplosionWhiteLimit)
+        if (PreExplosionRadius.RawValue < PowerBombExplosionDefinitions.PreExplosionWhiteLimit)
         {
-            RadiusSpeed = RadiusSpeed.WrappingSubtract(SamusSpecialSequenceRomData.PowerBomb.PreExplosionAcceleration);
+            RadiusSpeed = RadiusSpeed.WrappingSubtract(PowerBombExplosionDefinitions.PreExplosionAcceleration);
             return;
         }
 
@@ -347,7 +347,7 @@ public sealed class SamusPowerBombExplosionState
         if (TryAdvanceRadiusWithoutCarry(PreExplosionRadius, out PowerBombRadius nextRadius))
         {
             PreExplosionRadius = nextRadius;
-            RadiusSpeed = RadiusSpeed.WrappingSubtract(SamusSpecialSequenceRomData.PowerBomb.PreExplosionAcceleration);
+            RadiusSpeed = RadiusSpeed.WrappingSubtract(PowerBombExplosionDefinitions.PreExplosionAcceleration);
         }
 
         if (!finishedShapes)
@@ -355,7 +355,7 @@ public sealed class SamusPowerBombExplosionState
 
         // CallFar($8B39) initializes the actual damaging radius before the next frame's
         // ExplosionYellow pre-instruction. PreExplosionRadius remains debugger-visible.
-        ExplosionRadius = PowerBombRadius.FromRaw(SamusSpecialSequenceRomData.PowerBomb.InitialRadius);
+        ExplosionRadius = PowerBombRadius.FromRaw(PowerBombExplosionDefinitions.InitialRadius);
         RadiusSpeed = PowerBombRadius.Zero;
         Phase = PowerBombExplosionPhase.ExplosionYellow;
     }
@@ -369,9 +369,9 @@ public sealed class SamusPowerBombExplosionState
             ExplosionRadius.WholePixels >> 3);
 
         ExplosionRadius = AdvanceRadiusWrapping(ExplosionRadius);
-        if (ExplosionRadius.RawValue < SamusSpecialSequenceRomData.PowerBomb.ExplosionYellowLimit)
+        if (ExplosionRadius.RawValue < PowerBombExplosionDefinitions.ExplosionYellowLimit)
         {
-            RadiusSpeed = RadiusSpeed.WrappingAdd(SamusSpecialSequenceRomData.PowerBomb.ExplosionAcceleration);
+            RadiusSpeed = RadiusSpeed.WrappingAdd(PowerBombExplosionDefinitions.ExplosionAcceleration);
             return;
         }
 
@@ -395,7 +395,7 @@ public sealed class SamusPowerBombExplosionState
         if (TryAdvanceRadiusWithoutCarry(ExplosionRadius, out PowerBombRadius nextRadius))
         {
             ExplosionRadius = nextRadius;
-            RadiusSpeed = RadiusSpeed.WrappingAdd(SamusSpecialSequenceRomData.PowerBomb.ExplosionAcceleration);
+            RadiusSpeed = RadiusSpeed.WrappingAdd(PowerBombExplosionDefinitions.ExplosionAcceleration);
         }
 
         if (!finishedShapes)
@@ -455,9 +455,9 @@ public sealed class SamusPowerBombExplosionState
             ExplosionRadius.WholePixels >> 3);
 
         ExplosionRadius = AdvanceRadiusWrapping(ExplosionRadius);
-        if (ExplosionRadius.RawValue < SamusSpecialSequenceRomData.PowerBomb.CrystalFlashRadiusLimit)
+        if (ExplosionRadius.RawValue < PowerBombExplosionDefinitions.CrystalFlashRadiusLimit)
         {
-            RadiusSpeed = RadiusSpeed.WrappingAdd(SamusSpecialSequenceRomData.PowerBomb.ExplosionAcceleration);
+            RadiusSpeed = RadiusSpeed.WrappingAdd(PowerBombExplosionDefinitions.ExplosionAcceleration);
             return;
         }
 
@@ -465,7 +465,7 @@ public sealed class SamusPowerBombExplosionState
         // the ordinary afterglow, zero underflows on its first active pre-instruction.
         _afterglowTimer = WrappingCountdown.Start(0);
         _crystalFlashAfterglowStepsRemaining =
-            SamusSpecialSequenceRomData.PowerBomb.CrystalFlashAfterglowSteps(checked((ushort)RenderedExplosionRadius.RawValue));
+            PowerBombExplosionDefinitions.CrystalFlashAfterglowSteps(checked((ushort)RenderedExplosionRadius.RawValue));
         Phase = PowerBombExplosionPhase.CrystalFlashAfterglow;
     }
 
@@ -533,7 +533,7 @@ public sealed class SamusPowerBombExplosionState
         // Both $88:8BD5 and $88:A3A2 execute STA with an eight-bit accumulator.
         // DEC turned zero into FFFF; retaining FF is observable, not unused scratch.
         _afterglowTimer = WrappingCountdown.FromRaw((ushort)((SnesLittleEndian.HighByteInPlace(_afterglowTimer.RawValue)) |
-            SamusSpecialSequenceRomData.PowerBomb.AfterglowTimerReload));
+            PowerBombExplosionDefinitions.AfterglowTimerReload));
     }
 
     /// <summary>Loads the installed fixed-color triplet for a sequence and radius-derived index.</summary>

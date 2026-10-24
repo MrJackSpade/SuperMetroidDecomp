@@ -293,7 +293,7 @@ internal static class PauseMenuVerification
         int offset = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.ToRomOffset(snesAddress);
         rom[offset] = unchecked((byte)value);
         rom[offset + 1] = SnesLittleEndian.HighByte(unchecked((ushort)value));
-        rom[offset + 2] = SnesLittleEndian.BankByte(value);
+        rom[offset + 2] = SnesLittleEndianConstants.BankByte(value);
     }
 
     /// <summary>Seeds one cartridge byte at a mapped SNES address in the pause fixture.</summary>

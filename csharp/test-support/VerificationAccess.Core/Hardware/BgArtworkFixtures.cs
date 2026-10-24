@@ -43,7 +43,7 @@ internal static class BgArtworkFixtures
         {
             Ensure.LengthEqual(image, SnesVram.ByteCount);
             foreach (BgArtworkBinding binding in self.Bound)
-                binding.Bytes.Span.CopyTo(image[(BgCharacterWords.WordOf(binding.Set, binding.FirstCharacter) * sizeof(ushort))..]);
+                binding.Bytes.Span.CopyTo(image[(BgCharacterWordsConstants.WordOf(binding.Set, binding.FirstCharacter) * sizeof(ushort))..]);
         }
     }
 }

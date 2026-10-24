@@ -42,12 +42,6 @@ public static class RoomAssetRomData
             /// <summary><c>$87:AD64</c>, the 48 raw 4-bpp ghost characters named <c>kTileData_TourianEntranceStatueGhost</c>.</summary>
             public const int SourceAddress = 0x87ad64;
         }
-
-        /// <summary>
-        /// HUD BG3 character base selected by command eight's BG34NBA=$02 write while
-        /// Kraid occupies the ordinary $4000 character region with his private BG2 map.
-        /// </summary>
-        public const ushort KraidHudCharacterBaseWord = 0x2000;
     }
     /// <summary>$8A:B180: first of the seven contiguous 32x32 scrolling-sky tilemap pages.</summary>
     public const int ScrollingSkyTilemapPages = 0x8ab180;

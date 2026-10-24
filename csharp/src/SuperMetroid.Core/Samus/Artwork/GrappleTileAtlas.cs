@@ -112,18 +112,6 @@ public sealed class GrappleTileAtlas : IVramAssetProvider
     private ReadOnlyMemory<byte> SegmentBytes(int offset) => singleInk
         ? GrappleBeamTilePatterns.EncodeInk(independentTiles.AsSpan(offset / 4, 32))
         : independentTiles.AsMemory(offset, 128);
-    /// <summary>Resolves native endpoint/segment queue records without requiring an eager queue rewrite.</summary>
-    public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
-    {
-        foreach (var transfer in GrappleTileDefinitions.Transfers)
-            if (transfer.SourceAddress == sourceAddress && transfer.ByteCount == byteCount)
-            {
-                data = Resolve(transfer.Asset);
-                return true;
-            }
-        data = default;
-        return false;
-    }
     /// <summary>
     /// The endpoint character for animation <paramref name="pointFrame"/> followed by the four rope characters the
     /// rope <paramref name="orientation"/> selects: OBJ characters $20-$24 as the beam's sprites name them.

@@ -79,7 +79,7 @@ internal static class AreaAnimatedTileObjectDefinitionsVerification
         }
 
         SnesAddress source = SnesAddress.FromBusAddress(address);
-        if (source.Bank != SnesLittleEndian.BankByte(RoomFxRomDataBanksTooling.RoomDefinitions))
+        if (source.Bank != SnesLittleEndianConstants.BankByte(RoomFxRomDataBanksTooling.RoomDefinitions))
             return false;
 
         for (int areaIndex = 0;

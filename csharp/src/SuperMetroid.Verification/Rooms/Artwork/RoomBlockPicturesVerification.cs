@@ -289,7 +289,7 @@ internal static class RoomBlockPicturesVerification
             AssertTrue(latched.Rooms?.Bg3 is not null, $"{room.Name}: BG3 draws from its pictures");
             ReadOnlySpan<byte> vram = runtime.ComposedVram();
             BgCharacterSet layer3 = latched.Scene.Layer3Characters;
-            int characterBase = BgCharacterWords.WordOf(layer3, 0);
+            int characterBase = BgCharacterWordsConstants.WordOf(layer3, 0);
             var animated = new AnimatedCharacterView(RoomScopeOf(runtime).AnimatedCharacters.Bg3, RoomScopeOf(runtime).ArtworkFrames);
             ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver((runtime.Room.Scope
                 ?? throw new InvalidOperationException($"{room.Name} has no room scope.")).Bg3Pictures.Sheet).Resolve(plane, runtime.BgArtwork, layer3,
@@ -485,7 +485,7 @@ internal static class RoomBlockPicturesVerification
         // The Ceres Ridley arena's blocks read the OBJ character page its uploads compose; any other room's, the bound tiles.
         byte[] tiles = rooms.Characters == RoomBackgroundCharacters.ObjectCharacterPage
             ? runtime.Artwork.GameplayObjectPage(runtime.EnemySession.SpriteCharacters).Characters.ToArray()
-            : runtime.ComposedVram()[(BgCharacterWords.WordOf(BgCharacterSet.Tiles, 0) * sizeof(ushort))..];
+            : runtime.ComposedVram()[(BgCharacterWordsConstants.WordOf(BgCharacterSet.Tiles, 0) * sizeof(ushort))..];
         ReadOnlySpan<byte> definitions = runtime.Room.LoadedLevelData.ForegroundPlane.Definitions.AsSpan();
         int pictures = 0, uploaded = 0;
         for (int definition = 0; definition < table.Definitions; definition++)

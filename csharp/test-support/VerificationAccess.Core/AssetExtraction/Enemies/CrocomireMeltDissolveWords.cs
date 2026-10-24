@@ -10,6 +10,6 @@ internal static class CrocomireMeltDissolveWords
     extension(CrocomireMeltDissolve)
     {
         /// <summary>The first VRAM word the cartridge uploads <paramref name="band"/>'s characters to.</summary>
-        internal static int BandFirstWord(int band) => BgCharacterWords.WordOf(BgCharacterSet.Tiles, CrocomireMeltDissolve.BandFirstCharacter(band));
+        internal static int BandFirstWord(int band) => BgCharacterWordsConstants.WordOf(BgCharacterSet.Tiles, CrocomireMeltDissolve.BandFirstCharacter(band));
     }
 }

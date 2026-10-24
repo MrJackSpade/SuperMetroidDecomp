@@ -52,7 +52,7 @@ public static class PowerBombShapeDefinitions
     /// Only shapes inside their stream and rows 0..191 are accepted.</remarks>
     public static byte ReadPreScaledHalfWidth(PowerBombShapeCursor shape, int row)
     {
-        if ((uint)row >= SamusSpecialSequenceRomData.PowerBomb.ShapeStride)
+        if ((uint)row >= PowerBombExplosionDefinitions.ShapeStride)
             throw new ArgumentOutOfRangeException(nameof(row));
 
         int frame = shape.ProfileIndex;
@@ -62,7 +62,7 @@ public static class PowerBombShapeDefinitions
             ? Math.Min(255, 4 + 3 * n * (n - 1) / 32)
             : Math.Min(255, (16 + 192 * n - n * (n - 1)) / 4);
         int sourceRow = Math.Max(0, (256 * row - 1) / radius);
-        return sourceRow >= SamusSpecialSequenceRomData.PowerBomb.ShapeStride
+        return sourceRow >= PowerBombExplosionDefinitions.ShapeStride
             ? (byte)0
             : (byte)(PreScaledBasis(sourceRow) * radius / 256);
     }

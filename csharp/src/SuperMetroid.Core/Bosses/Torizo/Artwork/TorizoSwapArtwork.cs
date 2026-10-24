@@ -18,7 +18,7 @@ public sealed class TorizoSwapArtwork
         });
 
     /// <summary>Validated selected character transfers in tile-sheet definition order.</summary>
-    private readonly RoomCharacterAtlas[] pages;
+    internal readonly RoomCharacterAtlas[] pages;
 
     /// <summary>Copies and validates one installed character atlas for every required Torizo upload page.</summary>
     internal TorizoSwapArtwork(RoomCharacterAtlas[] pages)
@@ -40,23 +40,4 @@ public sealed class TorizoSwapArtwork
     /// <exception cref="ArgumentOutOfRangeException">The range leaves the page.</exception>
     internal ReadOnlyMemory<byte> Characters(TorizoTilePage page, int pageByte, int byteCount) =>
         pages[(int)page].Characters.Slice(pageByte, byteCount);
-
-    /// <summary>Finds the selected bytes for a native upload range wholly contained in one tile page.</summary>
-    internal bool TryResolve(int sourceAddress, int byteCount,
-        out ReadOnlyMemory<byte> characters)
-    {
-        for (int index = 0; index < pages.Length; index++)
-        {
-            TileSheetDefinition page =
-                TorizoSwapArtworkDefinitions.All[index];
-            int offset = sourceAddress - page.SourceAddress;
-            if (offset < 0 || byteCount <= 0 ||
-                offset > page.ByteCount - byteCount)
-                continue;
-            characters = pages[index].Characters.Slice(offset, byteCount);
-            return true;
-        }
-        characters = default;
-        return false;
-    }
 }

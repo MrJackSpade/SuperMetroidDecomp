@@ -81,7 +81,7 @@ internal static class ShotCallbackDefinitionsVerification
                 default(RoomEnemyDefinition) with { NoOpCallbackBody = EnemyInteractionCallbacks.NoOpCallbackBody(bank) },
                 EnemyInteractionCallbacks.TryDecode(bank, pointer)));
         foreach (int address in shotCallbacks)
-            AssertEqual(expectedShotNoOps.Contains(address), classifyShot(SnesLittleEndian.BankByte(address), (ushort)address), "real shot classifier native parity");
+            AssertEqual(expectedShotNoOps.Contains(address), classifyShot(SnesLittleEndianConstants.BankByte(address), (ushort)address), "real shot classifier native parity");
         for (int bank = 0; bank <= 255; bank++)
         for (int pointer = 0; pointer <= 65535; pointer++)
         {
@@ -116,7 +116,7 @@ internal static class ShotCallbackDefinitionsVerification
             var guard = NewEnemyCallbackOpcodeReadGuard(rom, forbidden);
             (RoomEnemySystem enemies, RoomEnemySlot enemy) =
                 CreateLiteralNoOpCombatSystem();
-            byte touchBank = SnesLittleEndian.BankByte(callback);
+            byte touchBank = SnesLittleEndianConstants.BankByte(callback);
             ushort touchWord = unchecked((ushort)callback);
             enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
             {
@@ -143,7 +143,7 @@ internal static class ShotCallbackDefinitionsVerification
             var guard = NewEnemyCallbackOpcodeReadGuard(rom, forbidden);
             (RoomEnemySystem enemies, RoomEnemySlot enemy) =
                 CreateLiteralNoOpCombatSystem();
-            byte shotBank = SnesLittleEndian.BankByte(callback);
+            byte shotBank = SnesLittleEndianConstants.BankByte(callback);
             ushort shotWord = unchecked((ushort)callback);
             enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
             {

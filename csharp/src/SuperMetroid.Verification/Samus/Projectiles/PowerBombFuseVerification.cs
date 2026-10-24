@@ -67,13 +67,13 @@ internal static class PowerBombFuseVerification
     private static void VerifyPowerBombRadiusWrap()
     {
         AssertEqual(PowerBombRadius.FromRaw(0xffc0),
-            PowerBombRadius.FromRaw(0x0040).WrappingSubtract(SuperMetroid.Core.Samus.Abilities.SamusSpecialSequenceRomData.PowerBomb.PreExplosionAcceleration),
+            PowerBombRadius.FromRaw(0x0040).WrappingSubtract(SuperMetroid.Core.Samus.Abilities.PowerBombExplosionDefinitions.PreExplosionAcceleration),
             "pre-explosion deceleration below zero wraps the speed to $FFC0");
         AssertEqual(PowerBombRadius.FromRaw(0x0010),
             PowerBombRadius.FromRaw(0xfff0).WrappingAdd(PowerBombRadius.FromRaw(0x0020)),
             "a radius advanced past $FFFF wraps to $0010");
         AssertEqual(PowerBombRadius.FromRaw(0x0020),
-            PowerBombRadius.FromRaw(0xfff0).WrappingAdd(SuperMetroid.Core.Samus.Abilities.SamusSpecialSequenceRomData.PowerBomb.ExplosionAcceleration),
+            PowerBombRadius.FromRaw(0xfff0).WrappingAdd(SuperMetroid.Core.Samus.Abilities.PowerBombExplosionDefinitions.ExplosionAcceleration),
             "explosion acceleration past $FFFF wraps the speed");
         AssertTrue(PowerBombRadius.FromRaw(0xff00).TryAddWithoutCarry(PowerBombRadius.FromRaw(0x00ff), out PowerBombRadius fits) &&
             fits == PowerBombRadius.FromRaw(0xffff), "a sum of exactly $FFFF does not carry");

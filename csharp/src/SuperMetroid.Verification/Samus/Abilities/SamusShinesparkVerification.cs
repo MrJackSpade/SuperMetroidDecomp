@@ -255,7 +255,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         };
         SamusPoseMetadata.RefreshCollisionRadii(invincible);
         SamusPresentation.InitializeAnimation(invincible);
-        invincible.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter));
+        invincible.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(ShinesparkDefinitions.ActiveSpeedBoostCounter));
         invincible.Shinespark.BeginWindup(invincible);
         invincible.Shinespark.BeginDirectionalLaunch(invincible, targetPose);
         invincible.Shinespark.Step(new SamusTerrain { Level = directionLevel }, invincible, new ShinesparkFrame { NmiFrameCounter = 0, PlayerInvincibilityEnabled = true });
@@ -476,7 +476,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         };
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        samus.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter));
+        samus.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(ShinesparkDefinitions.ActiveSpeedBoostCounter));
         samus.Shinespark.BeginWindup(samus);
         samus.Shinespark.BeginDirectionalLaunch(samus, SamusPoseId.ShinesparkHorizontalRightPose);
         samus.Kinematics.YAcceleration = default;

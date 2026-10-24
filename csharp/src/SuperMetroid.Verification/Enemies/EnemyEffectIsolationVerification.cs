@@ -75,8 +75,8 @@ internal static class EnemyEffectIsolationVerification
             baseline.Call(c => c.Melting.FinishCrocomireMeltingPass); edited.Call(c => c.Melting.FinishCrocomireMeltingPass);
             AssertCrocomireEffectMechanics(baseline, edited, "finished melt pass");
             AssertTrue(baseline.Effect.Bg2WorkingTilemap.SequenceEqual(edited.Effect.Bg2WorkingTilemap), "both visual variants clear the completed melt tilemap");
-            AssertTrue(baseline.Vram.Bytes.Slice(EnemyBg2FrameLayout.VramBase * 2, 2048)
-                .SequenceEqual(edited.Vram.Bytes.Slice(EnemyBg2FrameLayout.VramBase * 2, 2048)), "exact cleared BG2 upload");
+            AssertTrue(baseline.Vram.Bytes.Slice(EnemyBg2FrameLayoutConstants.VramBase * 2, 2048)
+                .SequenceEqual(edited.Vram.Bytes.Slice(EnemyBg2FrameLayoutConstants.VramBase * 2, 2048)), "exact cleared BG2 upload");
         }
         Console.WriteLine("  Crocomire replacement: both maps/images, band selection per update, 54 calls per dissolve, erase/HDMA/smoke/phase timing unchanged.");
     }

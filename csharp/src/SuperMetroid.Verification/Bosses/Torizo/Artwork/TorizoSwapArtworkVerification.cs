@@ -136,7 +136,7 @@ internal static class TorizoSwapArtworkVerification
             editedEnemies.Room.Session.SpriteCharacters.Uploads.Single().Source,
             "Golden Torizo's swap shows its installed transfer by entry");
         AssertEqual(editedBytes.Span[0], new ObjCharacterTablePage().Page(editedEnemies.Room.Session.SpriteCharacters,
-                new EnemyTileTransfers(edited)).Characters[(0x6d00 - GameplayVramLayout.ObjectCharacters.Offset) * 2],
+                new EnemyTileTransfers(edited)).Characters[(0x6d00 - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2],
             "edited Golden Torizo PNG changes the pictured awakening sheet");
         AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Bosses.TorizoSwaps ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory) .TorizoSwaps.")).TryResolve(golden.SourceAddress,

@@ -7,8 +7,6 @@ internal static class ChainsawBeamGraphicsDefinitions
 {
     /// <summary>$000D: Plasma/Spazer/Wave indexes two words beyond the twelve-entry tile table at $90:C3B1.</summary>
     internal const SamusBeamCombination Selection = SamusBeamCombination.SpazerPlasmaWave;
-    /// <summary>$9A:C421: $90:C3CB (the second palette-pointer word) reinterpreted by $90:AC8D as the tile pointer.</summary>
-    internal const int TileSource = 0x9ac421;
 
     /// <summary>
     /// The sixteen colours of the glitched Chainsaw beam palette, in colour order, as red, green and blue five-bit

@@ -324,7 +324,7 @@ public sealed class SamusShinesparkState
         samus.KnockbackDirection = Movement.SamusKnockbackDirection.None;
         samus.KnockbackActive = false;
         samus.HorizontalSpeed.SpeedBoostCounter =
-            new SamusSpeedBoostCounter(SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter);
+            new SamusSpeedBoostCounter(ShinesparkDefinitions.ActiveSpeedBoostCounter);
         samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(8, 0);
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.BombJumpDirection = 0;
@@ -714,7 +714,7 @@ false);
         bool collided = vertical?.Collided ?? horizontal?.Collided ?? false;
         // The host cheat bypasses only the energy exit. Terrain/enemy collision still
         // terminates all three launch directions through the ordinary crash handler.
-        bool hasNativeEnergy = samus.Health >= SamusSpecialSequenceRomData.Shinespark.MinimumSustainingEnergy;
+        bool hasNativeEnergy = samus.Health >= ShinesparkDefinitions.MinimumSustainingEnergy;
         bool lowEnergy = !frame.PlayerInvincibilityEnabled && !hasNativeEnergy;
         if (collided || lowEnergy)
             BeginCrash(samus);

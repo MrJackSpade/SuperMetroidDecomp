@@ -20,7 +20,7 @@ internal static class SamusBodyFrameStateAccess
             Ensure.NotNull(vram);
             SamusBodyArtworkCatalog installed = self.Artwork ?? throw new InvalidOperationException(
                 "Picturing Samus's body requires installed body artwork.");
-            vram.LoadBytes(GameplayVramLayout.ObjectCharacters.Offset * sizeof(ushort),
+            vram.LoadBytes(GameplayVramLayoutConstants.ObjectCharacters.Offset * sizeof(ushort),
                 installed.BodyArtwork(self.Shown.Top, self.Shown.Bottom).Characters);
         }
     }

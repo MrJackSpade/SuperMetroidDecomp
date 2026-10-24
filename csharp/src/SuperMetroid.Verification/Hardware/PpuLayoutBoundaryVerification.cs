@@ -203,7 +203,7 @@ internal static class PpuLayoutBoundaryVerification
     private static void VerifyPpuViewBounds()
     {
         var vram = new SnesVram();
-        VramRegion hud = new VramRegion(vram, GameplayVramLayout.Bg2Tilemap);
+        VramRegion hud = new VramRegion(vram, GameplayVramLayoutConstants.Bg2Tilemap);
         AssertThrows<ArgumentOutOfRangeException>(() => hud.ReadWord(hud.WordCount), "a region rejects the word past its end");
         AssertThrows<ArgumentOutOfRangeException>(() => hud.ReadWord(-1), "a region rejects a negative word");
         AssertThrows<ArgumentOutOfRangeException>(() => hud.Load(new byte[hud.ByteCount + 2]), "a load cannot run past the region");
@@ -225,7 +225,7 @@ internal static class PpuLayoutBoundaryVerification
         AssertThrows<ArgumentOutOfRangeException>(() => PpuMemoryLayoutConstants.Colors("Past", 0xf8, 9, "colours"), "a CGRAM cell must fit in 256 colours");
         AssertThrows<ArgumentException>(() => new VramRegion(vram, PpuMemoryLayoutConstants.ObjectPaletteRows[0]), "a VRAM view rejects a CGRAM cell");
         AssertThrows<ArgumentException>(() => new CgramPalette(cgram, GameplayVramLayoutConstants.Bg1Tilemap), "a palette view rejects a VRAM cell");
-        AssertThrows<ArgumentOutOfRangeException>(() => VramDmaDestination.At(GameplayVramLayoutConstants.HudTilemap, GameplayVramLayoutConstants.HudTilemap.Count),
+        AssertThrows<ArgumentOutOfRangeException>(() => VramDmaDestinationConstants.At(GameplayVramLayoutConstants.HudTilemap, GameplayVramLayoutConstants.HudTilemap.Count),
             "a queued destination must start inside its cell");
         AssertThrows<ArgumentOutOfRangeException>(() => GameplayWindowRegisterLayout.ShadowAddress(PpuMemoryLayout.Cgram),
             "only window-cache registers have a WRAM shadow");
@@ -236,7 +236,7 @@ internal static class PpuLayoutBoundaryVerification
     private static void VerifyVramIncrementAndWrap()
     {
         var vram = new SnesVram();
-        VramRegion bg2 = new VramRegion(vram, GameplayVramLayout.Bg2Tilemap);
+        VramRegion bg2 = new VramRegion(vram, GameplayVramLayoutConstants.Bg2Tilemap);
         ReadOnlySpan<ushort> column3 = [0x1111, 0x2222, 0x3333];
         bg2.Write(column3, wordOffset: 5, 32);
         AssertEqual((ushort)0x1111, bg2.ReadWord(5), "column increment: first word");
@@ -244,9 +244,9 @@ internal static class PpuLayoutBoundaryVerification
         AssertEqual((ushort)0x3333, bg2.ReadWord(5 + 64), "column increment: VMADD +64");
         AssertEqual((ushort)0, bg2.ReadWord(6), "column increment leaves the next row word alone");
 
-        VramDmaDestination column = VramDmaDestination.At(GameplayVramLayout.Bg2Tilemap, 7, VramIncrement.Column);
+        VramDmaDestination column = VramDmaDestinationConstants.At(GameplayVramLayoutConstants.Bg2Tilemap, 7, VramIncrement.Column);
         AssertEqual((ushort)(0x8000 | (GameplayVramLayout.Bg2TilemapWord + 7)), column.Encoded, "a column destination sets queue bit 15");
-        AssertEqual(GameplayVramLayout.Bg2TilemapWord, VramDmaDestination.At(GameplayVramLayout.Bg2Tilemap).Encoded,
+        AssertEqual(GameplayVramLayout.Bg2TilemapWord, VramDmaDestinationConstants.At(GameplayVramLayoutConstants.Bg2Tilemap).Encoded,
             "a row destination leaves queue bit 15 clear");
 
         vram.ExecuteQueuedAssetWrite([0xef, 0xbe, 0xfe, 0xca], column.Encoded);

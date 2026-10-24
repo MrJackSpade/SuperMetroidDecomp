@@ -10,6 +10,6 @@ internal static class GameplayLayer3CharacterWords
     extension(GameplayDisplayState self)
     {
         /// <summary>The VRAM word of the layer-3 characters BG3 reads.</summary>
-        internal int GameplayHudCharacterBaseWord => BgCharacterWords.WordOf(self.Layer3Characters, 0);
+        internal int GameplayHudCharacterBaseWord => BgCharacterWordsConstants.WordOf(self.Layer3Characters, 0);
     }
 }

@@ -16,7 +16,7 @@ internal static class EscapeTimerTileAtlasAccess
             ushort destinationWord)
         {
             Ensure.NotNull(uploads);
-            if (!EscapeTimerTilePages.TryMatch(sourceAddress, byteCount, out EscapeTimerTilePage page) ||
+            if (!EscapeTimerTilePagesConstants.TryMatch(sourceAddress, byteCount, out EscapeTimerTilePage page) ||
                 SpriteCharacters.TableByte(VramDmaDestination.FromNative(destinationWord)) != EscapeTimerTilePages.FirstCharacterOf(page) * 32)
                 return false;
 
@@ -25,6 +25,17 @@ internal static class EscapeTimerTileAtlasAccess
                 throw new InvalidDataException($"Escape timer {page} page no longer matches its native transfer record.");
             uploads.RecordUpload(VramDmaDestination.FromNative(destinationWord), byteCount, new AssetObjCharacters(asset));
             return true;
+        }
+        /// <summary>Restored native queue descriptors resolve the same two installed pages as typed uploads.</summary>
+        public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
+        {
+            if (EscapeTimerTilePagesConstants.TryMatch(sourceAddress, byteCount, out EscapeTimerTilePage page))
+            {
+                data = self.Resolve(EscapeTimerTilePages.AssetOf(page));
+                return true;
+            }
+            data = default;
+            return false;
         }
     }
 }

@@ -8,5 +8,5 @@ public static class VramWordRange
 
     /// <summary>Returns <paramref name="word"/> when it addresses VRAM, or throws.</summary>
     /// <param name="word">A VRAM word address, 0 through <c>MaximumWord</c>.</param>
-    public static int Require(int word) => SnesPpuLayout.RequireVramWord(word);
+    public static int Require(int word) => SnesPpuLayoutConstants.RequireVramWord(word);
 }

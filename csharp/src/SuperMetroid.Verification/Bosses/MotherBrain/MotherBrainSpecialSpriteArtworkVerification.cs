@@ -211,7 +211,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         for (int page = 0; page < pages.Length; page++)
         {
             enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.EscapeTimer, page));
-            byte[] native = ReadNativeMotherBrainPageSource(rom, EscapeTimerTilePages.SourceAddressOf(pages[page]), EscapeTimerTilePages.ByteCountOf(pages[page]));
+            byte[] native = ReadNativeMotherBrainPageSource(rom, EscapeTimerTilePagesConstants.SourceAddressOf(pages[page]), EscapeTimerTilePages.ByteCountOf(pages[page]));
             AssertTrue(ObjVram().Bytes.Slice(EscapeNativePageWords.Of(EscapeTimerTilePages.FirstCharacterOf(pages[page])) * 2, native.Length)
                 .SequenceEqual(native),
                 "installed Mother Brain timer page matches cartridge without visual ROM reads");
@@ -225,7 +225,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         RomDataReader.ReadFixedBank(rom, sourceAddress, byteCount);
 
     /// <summary>The OBJ character table's first byte in the VRAM image the oracle compares.</summary>
-    private static int ObjectCharactersByte => GameplayVramLayout.ObjectCharacters.Offset * 2;
+    private static int ObjectCharactersByte => GameplayVramLayoutConstants.ObjectCharacters.Offset * 2;
 
     /// <summary>The VRAM image byte sprite character <paramref name="character"/> begins at.</summary>
     private static int ShownByte(int character) => ObjectCharactersByte + character * RoomCharacterAtlasFormat.BytesPerTile;

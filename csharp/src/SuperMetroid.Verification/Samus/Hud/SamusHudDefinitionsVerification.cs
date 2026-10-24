@@ -24,7 +24,7 @@ internal static class SamusHudDefinitionsVerification
     {
         bool Transition(SamusPoseId pose, bool active) => pose >= SamusHudDefinitions.StandardTransitionStart ||
             (pose < SamusHudDefinitions.NonFiringTransitionStart &&
-                (rom.ReadCartridgeByte(SamusCartridgeTables.HudTransitionFlags + (int)pose -
+                (rom.ReadCartridgeByte(SamusCartridgeTablesConstants.HudTransitionFlags + (int)pose -
                     (int)SamusHudDefinitions.FirstTransitionPose) == 0 || active));
         SamusPoseId metadataPose = SamusPoseId.FacingRightNormalPose;
         var metadata = NewGrappleFiringReadGuard(rom, () => metadataPose);
@@ -33,7 +33,7 @@ internal static class SamusHudDefinitionsVerification
         foreach (bool active in new[] { false, true })
         {
             if (pose < (int)SamusHudDefinitions.NonFiringTransitionStart)
-                AssertEqual(rom.ReadCartridgeByte(SamusCartridgeTables.HudTransitionFlags + pose -
+                AssertEqual(rom.ReadCartridgeByte(SamusCartridgeTablesConstants.HudTransitionFlags + pose -
                         (int)SamusHudDefinitions.FirstTransitionPose),
                     SamusHudDefinitions.PostureObservation((SamusPoseId)pose, InstalledFixtures.SamusOverreads),
                     "Complete bounded posture-index observation");
@@ -99,13 +99,13 @@ internal static class SamusHudDefinitionsVerification
     /// <summary>Forbids converted movement-handler and posture-flag ROM reads during HUD policy checks.</summary>
     private static MutableCartridgeReadGuard NewHudPolicyReadGuard(ISnesAddressSpace source)
     {
-        int postureStart = SamusCartridgeTables.HudTransitionFlags -
+        int postureStart = SamusCartridgeTablesConstants.HudTransitionFlags -
             (int)SamusHudDefinitions.FirstTransitionPose;
-        int postureEnd = SamusCartridgeTables.HudTransitionFlags +
+        int postureEnd = SamusCartridgeTablesConstants.HudTransitionFlags +
             (int)SamusHudDefinitions.NonFiringTransitionStart -
             (int)SamusHudDefinitions.FirstTransitionPose;
         var guard = new MutableCartridgeReadGuard(source);
-        guard.Forbid(address => address >= SamusCartridgeTables.HudMovementHandlers && address < 0x90dd3d ||
+        guard.Forbid(address => address >= SamusCartridgeTablesConstants.HudMovementHandlers && address < 0x90dd3d ||
                 address >= postureStart && address < postureEnd,
             address => $"Compiled HUD policy read ROM ${address:X6}.");
         return guard;

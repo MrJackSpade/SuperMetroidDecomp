@@ -184,7 +184,7 @@ internal static class AnimatedTileInstructionCodesVerification
         var reads = new StrongBox<int>();
         presentationReads = reads;
         bool InTreadmillBank(int address) =>
-            SnesAddress.FromBusAddress(address).Bank == SnesLittleEndian.BankByte(RoomFxRomData.Banks.AnimatedTiles);
+            SnesAddress.FromBusAddress(address).Bank == SnesLittleEndianConstants.BankByte(RoomFxRomData.Banks.AnimatedTiles);
         return new CartridgeReadGuard(inner)
             .Forbid(address =>
                 {

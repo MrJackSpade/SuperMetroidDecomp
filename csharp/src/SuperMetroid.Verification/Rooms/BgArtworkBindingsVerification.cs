@@ -32,7 +32,7 @@ internal static class BgArtworkBindingsVerification
         // The room's characters are bound, not written: VRAM lacks them and the published image composes them in the
         // cartridge's transfer order, the area tileset over the CRE (Kraid's tileset covers the whole allocation).
         byte[] published = runtime.ComposedVram().ToArray();
-        int area = RoomGraphicsLayout.AreaCharacters.Offset * 2, cre = RoomGraphicsLayout.CommonRoomElementCharacters.Offset * 2;
+        int area = RoomGraphicsLayout.AreaCharacters.Offset * 2, cre = RoomGraphicsToolingLayout.CommonRoomElementCharacters.Offset * 2;
         var expected = new byte[RoomGraphicsLayout.AreaCharacters.Count * 2];
         assets.CreCharacters.CopyTo(expected.AsSpan(cre - area));
         assets.RoomCharacters.AsSpan(0, Math.Min(assets.RoomCharacters.Length, expected.Length)).CopyTo(expected);

@@ -45,7 +45,7 @@ internal static class EscapeTimerPresentationVerification
         byte[] nativeFirstTiles = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             EscapeTimerTileRomData.FirstSourceAddress, EscapeTimerTileAtlasFormat.FirstByteCount);
         byte[] nativeSecondTiles = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            EscapeTimerTileRomData.SecondSourceAddress, EscapeTimerTileAtlasFormat.SecondByteCount);
+            EscapeTimerTileRomDataConstants.SecondSourceAddress, EscapeTimerTileAtlasFormat.SecondByteCount);
         AssertTrue(nativeFirstTiles.SequenceEqual(tileAtlas.Resolve(VramAssetId.EscapeTimerFirstTiles).Span),
             "first timer PNG page compiles to exact native characters");
         AssertTrue(nativeSecondTiles.SequenceEqual(tileAtlas.Resolve(VramAssetId.EscapeTimerSecondTiles).Span),
@@ -58,16 +58,16 @@ internal static class EscapeTimerPresentationVerification
             EscapeNativePageWords.TimerFirst),
             "Mother Brain synchronous owner recognizes first timer record");
         AssertTrue(tileAtlas.TryRecordNativeTransfer(synchronous,
-            EscapeTimerTileRomData.SecondSourceAddress,
+            EscapeTimerTileRomDataConstants.SecondSourceAddress,
             EscapeTimerTileAtlasFormat.SecondByteCount,
             EscapeNativePageWords.TimerSecond),
             "Mother Brain synchronous owner recognizes second timer record");
         AssertEqual(new SpriteCharacterPlacement(new AssetObjCharacters(VramAssetId.EscapeTimerFirstTiles),
-                (EscapeNativePageWords.TimerFirst - GameplayVramLayout.ObjectCharacters.Offset) * 2 / SpriteCharacters.CharacterByteCount,
+                (EscapeNativePageWords.TimerFirst - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2 / SpriteCharacters.CharacterByteCount,
                 EscapeTimerTileAtlasFormat.FirstByteCount / SpriteCharacters.CharacterByteCount),
             synchronous.Uploads[0], "Mother Brain synchronous first timer transfer shows the installed first page");
         AssertEqual(new SpriteCharacterPlacement(new AssetObjCharacters(VramAssetId.EscapeTimerSecondTiles),
-                (EscapeNativePageWords.TimerSecond - GameplayVramLayout.ObjectCharacters.Offset) * 2 / SpriteCharacters.CharacterByteCount,
+                (EscapeNativePageWords.TimerSecond - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2 / SpriteCharacters.CharacterByteCount,
                 EscapeTimerTileAtlasFormat.SecondByteCount / SpriteCharacters.CharacterByteCount),
             synchronous.Uploads[1], "Mother Brain synchronous second timer transfer shows the installed second page");
         AssertTrue(nativeFirstTiles.SequenceEqual(tileAtlas.Resolve(VramAssetId.EscapeTimerFirstTiles).ToArray()) &&

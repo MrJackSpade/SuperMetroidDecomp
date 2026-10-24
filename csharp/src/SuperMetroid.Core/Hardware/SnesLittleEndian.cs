@@ -17,9 +17,6 @@ public static class SnesLittleEndian
     /// <summary>Bits in one storage byte, the distance between adjacent byte lanes.</summary>
     public const int BitsPerByte = 8;
 
-    /// <summary>Bits in one storage word, the distance from a long's low word to its bank byte.</summary>
-    public const int BitsPerWord = 16;
-
     /// <summary>The 16-bit word whose low byte is <paramref name="low"/> and high byte is <paramref name="high"/>.</summary>
     public static ushort Word(byte low, byte high) => (ushort)(low | high << BitsPerByte);
 
@@ -46,9 +43,6 @@ public static class SnesLittleEndian
 
     /// <summary>The word with its two bytes exchanged, as the 65816's <c>XBA</c> does.</summary>
     public static ushort SwapBytes(ushort word) => Word(HighByte(word), unchecked((byte)word));
-
-    /// <summary>The third byte of a 24-bit long: the bank byte of a long pointer.</summary>
-    public static byte BankByte(int value) => unchecked((byte)(value >> BitsPerWord));
 
     /// <summary>The low word of a 24-bit or wider value.</summary>
     public static ushort LowWord(int value) => unchecked((ushort)value);

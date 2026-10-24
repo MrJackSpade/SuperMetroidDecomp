@@ -49,13 +49,6 @@ public static class SnesPpuLayout
     [PpuLayoutAccess]
     public const int VramByteCount = VramWordCount * 2;
 
-    /// <summary>The last VRAM word a render layer may name as a tilemap or character base.</summary>
-    public const int MaximumVramWord = VramWordCount - 1;
-
-    /// <summary>Returns <paramref name="word"/> when it names a VRAM word, or throws.</summary>
-    /// <param name="word">A VRAM word address, 0 through <see cref="MaximumVramWord"/>.</param>
-    public static int RequireVramWord(int word) => Ensure.BetweenInclusive(0, MaximumVramWord, word);
-
     /// <summary>Number of native BGR555 entries in CGRAM.</summary>
     [PpuLayoutAccess]
     public const int CgramColorCount = 256;

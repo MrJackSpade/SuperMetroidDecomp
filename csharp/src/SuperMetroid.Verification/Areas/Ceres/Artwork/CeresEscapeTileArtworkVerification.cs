@@ -80,7 +80,7 @@ internal static class CeresEscapeTileArtworkVerification
         var nativeVram = new SnesVram();
         ImportedVramOracle.Drain(nativeQueue, nativeVram, rom);
         foreach (SpriteCharacterPlacement page in shown.Uploads)
-            AssertTrue(nativeVram.Bytes.Slice(GameplayVramLayout.ObjectCharacters.Offset * sizeof(ushort) + page.FirstByte, page.ByteCount)
+            AssertTrue(nativeVram.Bytes.Slice(GameplayVramLayoutConstants.ObjectCharacters.Offset * sizeof(ushort) + page.FirstByte, page.ByteCount)
                     .SequenceEqual(installedPage.Slice(page.FirstByte, page.ByteCount)),
                 $"the Ceres page {page.Source} matches the cartridge's OBJ characters without source reads");
 

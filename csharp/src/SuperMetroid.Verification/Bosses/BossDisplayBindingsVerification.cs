@@ -50,7 +50,7 @@ internal static class BossDisplayBindingsVerification
                     hitSamples++; if (physical.Hit) hits++;
                 }
                 replacement.SetFrame(frame.Pointer, fresh: false);
-                replacement.Vram.ExecuteWordTransfer(new ushort[] { 0xbeef }, EnemyBg2FrameLayout.VramBase, 1);
+                replacement.Vram.ExecuteWordTransfer(new ushort[] { 0xbeef }, EnemyBg2FrameLayoutConstants.VramBase, 1);
                 byte[] retained = replacement.Vram.Bytes.ToArray();
                 AssertBodyOam(replacement.Draw(), edits.Oam.Frames[selected], replacement.Actor);
                 AssertTrue(retained.SequenceEqual(replacement.Vram.Bytes), frame.Name + " retains native new-frame gate");
@@ -79,7 +79,7 @@ internal static class BossDisplayBindingsVerification
             for (int index = 0; index < write.Tiles.Length; index++)
                 expected[write.Y * EnemyBg2FrameLayout.TilemapWidth + write.X + index] = checked((ushort)write.Tiles[index]);
         for (int index = 0; index < expected.Length; index++)
-            AssertEqual(expected[index], actual.ReadWord(EnemyBg2FrameLayout.VramBase + index), "boss BG2 exact ordered destinations and payload");
+            AssertEqual(expected[index], actual.ReadWord(EnemyBg2FrameLayoutConstants.VramBase + index), "boss BG2 exact ordered destinations and payload");
     }
 
     /// <summary>Requires edited presentation to preserve actor animation, WRAM, SRAM, and audio requests.</summary>

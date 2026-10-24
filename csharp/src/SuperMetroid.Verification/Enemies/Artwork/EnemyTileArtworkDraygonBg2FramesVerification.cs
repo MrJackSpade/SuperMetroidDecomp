@@ -118,7 +118,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         AssertTrue((edited.Bosses.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires edited.DraygonBg2Frames.")).TryGet(editedIdentity.Frame,
                 out ReadOnlyMemory<EnemyBg2TilemapWrite> editedFrame),
             "edited Draygon BG2 frame is installed");
-        int vramByte = (EnemyBg2FrameLayout.VramBase +
+        int vramByte = (EnemyBg2FrameLayoutConstants.VramBase +
             editedFrame.Span[0].FirstCell) * 2;
         AssertEqual((ushort)changedTile,
             BitConverter.ToUInt16(DrawDraygonBg2(edited, editedIdentity.Pointer, true), vramByte),
@@ -244,6 +244,6 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         slot.SpritemapPointer = pointer;
         slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         enemies.Drawing.DrawLayersAsOam(new OamBuffer(), new(0, 0), 0, 0);
-        return EnemyBg2ImageFixtures.AsVram(image, EnemyBg2FrameLayout.VramBase, vram.Bytes.Length);
+        return EnemyBg2ImageFixtures.AsVram(image, EnemyBg2FrameLayoutConstants.VramBase, vram.Bytes.Length);
     }
 }

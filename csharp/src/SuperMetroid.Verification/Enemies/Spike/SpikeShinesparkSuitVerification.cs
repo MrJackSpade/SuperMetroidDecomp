@@ -190,7 +190,7 @@ internal static class SpikeShinesparkSuitVerification
         samus.PoseHistory.LastDifferentPose = 0;
         samus.PoseHistory.LastDifferentDirectionAndMovement = 0;
         AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(
-            SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter)),
+            ShinesparkDefinitions.ActiveSpeedBoostCounter)),
             "spike-suit fixture accepts stored Shinespark");
 
         int centerBlock = (samus.Position.Y.Whole >> 4) * level.Size.X + (samus.Position.X.Whole >> 4);

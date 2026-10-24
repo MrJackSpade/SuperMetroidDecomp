@@ -38,22 +38,4 @@ public sealed class GunshipLiftoffArtworkCatalog
                 "Not a gunship takeoff transfer.");
         return frames[index].Characters;
     }
-
-    /// <summary>Rebinds an older pending cartridge-source upload after debugger restore.</summary>
-    public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
-    {
-        for (int index = 0; index < frames.Length; index++)
-        {
-            if (GunshipLiftoffTransferDefinitions.Frames[index].SourceAddress != sourceAddress)
-                continue;
-            if (byteCount != GunshipLiftoffTransferDefinitions.ByteCount)
-                throw new InvalidDataException(
-                    $"Gunship takeoff upload ${sourceAddress:X6} requires " +
-                    $"${GunshipLiftoffTransferDefinitions.ByteCount:X} bytes, not ${byteCount:X}.");
-            data = frames[index].Characters;
-            return true;
-        }
-        data = default;
-        return false;
-    }
 }

@@ -24,10 +24,8 @@ public readonly record struct PowerBombShapeCursor(PowerBombShapeStream Stream, 
     /// <summary>Number of shapes in one authored stream.</summary>
     public static int CountOf(PowerBombShapeStream stream) => stream switch
     {
-        PowerBombShapeStream.Yellow => (SamusSpecialSequenceRomData.PowerBomb.YellowShapeEnd -
-            SamusSpecialSequenceRomData.PowerBomb.FirstYellowShape) / SamusSpecialSequenceRomData.PowerBomb.ShapeStride,
-        PowerBombShapeStream.White => (SamusSpecialSequenceRomData.PowerBomb.WhiteShapeEnd -
-            SamusSpecialSequenceRomData.PowerBomb.FirstWhiteShape) / SamusSpecialSequenceRomData.PowerBomb.ShapeStride,
+        PowerBombShapeStream.Yellow => PowerBombExplosionDefinitions.YellowShapeFrames,
+        PowerBombShapeStream.White => PowerBombExplosionDefinitions.WhiteShapeFrames,
         _ => throw new InvalidOperationException($"Undefined {nameof(PowerBombShapeStream)} {stream}."),
     };
 }

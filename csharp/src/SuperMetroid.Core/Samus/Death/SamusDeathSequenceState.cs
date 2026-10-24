@@ -79,7 +79,7 @@ public sealed class SamusDeathSequenceState
 
         SamusMovementType sourceMovementType = SamusPoseMetadata.ReadMovementType(samus);
         var initialFrames =
-            SamusSpecialSequenceRomData.Death.InitialFramesByMovementType;
+            SamusDeathSequenceDefinitions.InitialFramesByMovementType;
         if ((byte)sourceMovementType >= initialFrames.Length)
         {
             throw new InvalidDataException(
@@ -109,7 +109,7 @@ public sealed class SamusDeathSequenceState
         // screen-space pair here for the eventual explosion-spritemap path.
         ScreenPosition = samus.Position.Whole.ToScreen(layer1);
 
-        PreFlashingTimer = WrappingCountdown.Start(SamusSpecialSequenceRomData.Death.PreFlashFrameCount);
+        PreFlashingTimer = WrappingCountdown.Start(SamusDeathSequenceDefinitions.PreFlashFrameCount);
         AnimationTimer = WrappingCountdown.Start(3);
         AnimationIndex = 0;
         AnimationCounter = 0;
@@ -153,7 +153,7 @@ public sealed class SamusDeathSequenceState
 
             case SamusDeathSequencePhase.Flashing:
                 AnimationCounter++;
-                if (AnimationCounter >= SamusSpecialSequenceRomData.Death.FlashFrameCount)
+                if (AnimationCounter >= SamusDeathSequenceDefinitions.FlashFrameCount)
                 {
                     // `$9B:B498` loads palette pair zero, resets the reused counters, and immediately
                     // draws explosion spritemap zero in this very same game-state-17 call.

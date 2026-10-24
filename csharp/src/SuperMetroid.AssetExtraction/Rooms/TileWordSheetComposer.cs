@@ -409,11 +409,6 @@ internal static class TileWordSheetComposer
     /// <summary>The failure for a writer whose installed artwork is missing.</summary>
     private static InvalidDataException Missing(TileWordWriter writer) => new($"The installed enemy artwork has no {writer} body.");
 
-    /// <summary>The first VRAM word of the character <paramref name="word"/> names from <paramref name="characterBase"/>.</summary>
-    [PpuLayoutBoundary("codec: the BG characters written tile words name, from their layer's character base")]
-    private static int CharacterWord(int characterBase, ushort word, int characterWords) =>
-        characterBase + new SnesBgTilemapWord(word).CharacterIndex * characterWords;
-
     /// <summary>One part: the runs of words it writes, laid out at their tilemap positions.</summary>
     /// <param name="Runs">The runs.</param>
     private sealed record BodyPart(BodyRun[] Runs)

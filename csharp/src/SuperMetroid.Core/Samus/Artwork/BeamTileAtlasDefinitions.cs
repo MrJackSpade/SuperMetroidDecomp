@@ -40,22 +40,6 @@ public static class BeamTileAtlasDefinitions
             SamusBeamCombination.PlasmaIceWave => selection.TableIndex,
         _ => throw new ArgumentOutOfRangeException(nameof(selection), selection, "Undefined beam combination."),
     };
-    /// <summary>$90:C3B1, BeamTilesPointers; resolves a legacy source to its base selection.
-    /// Native shared sheets do not encode the independently editable combination identity.</summary>
-    public static SamusBeamCombination LegacySelectionFor(BeamTileSource source)
-    {
-        return source switch
-        {
-            BeamTileSource.Chainsaw => SuperMetroid.Core.Samus.Projectiles.ChainsawBeamGraphicsDefinitions.Selection,
-            BeamTileSource.Spacetime => SuperMetroid.Core.Samus.Projectiles.SpacetimeBeamGraphicsDefinitions.Selection,
-            BeamTileSource.Power => SamusBeamCombination.Power,
-            BeamTileSource.Wave => SamusBeamCombination.Wave,
-            BeamTileSource.Ice => SamusBeamCombination.Ice,
-            BeamTileSource.Spazer => SamusBeamCombination.Spazer,
-            BeamTileSource.Plasma => SamusBeamCombination.Plasma,
-            _ => throw new InvalidOperationException($"Undefined BeamTileSource {source}."),
-        };
-    }
 
     /// <summary>Creates a selection-keyed PNG filename, retaining separately editable combination identities even where native combinations share the same source sheet.</summary>
     /// <param name="selection">Native beam identity $00..$0B, Chainsaw $0D, or SpaceTime $0E; not an artwork-catalog ordinal.</param>

@@ -521,7 +521,7 @@ internal sealed class InstalledSamusIsolationTests
     {
         Pair pair = Create();
         Require(pair.Apply("stored shine admission", actor => actor.Samus.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(
-            SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter))),
+            ShinesparkDefinitions.ActiveSpeedBoostCounter))),
             "Stored shine was not admitted");
         for (int frame = 0; frame < 180; frame++)
             pair.Apply($"stored shine palette {frame}", actor => actor.Samus.Shinespark.UpdatePalette(
@@ -539,7 +539,7 @@ internal sealed class InstalledSamusIsolationTests
         pair.Apply(context + " admission", actor =>
         {
             Require(actor.Samus.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(
-                SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter)), "Spark charge rejected");
+                ShinesparkDefinitions.ActiveSpeedBoostCounter)), "Spark charge rejected");
             actor.Samus.Shinespark.BeginWindup(actor.Samus);
         });
         for (ushort frame = 0; frame < 29; frame++)

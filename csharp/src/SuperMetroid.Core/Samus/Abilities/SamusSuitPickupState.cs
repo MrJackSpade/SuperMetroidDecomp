@@ -133,7 +133,7 @@ public sealed class SamusSuitPickupState
         _lightBeamRight = Position16<ScreenPixels>.Zero;
         _preInstructionInstallCallsRemaining = 2;
         PublishSharedScratch(samus);
-        LightBeamWideningVelocity = WideningVelocity(SamusSpecialSequenceRomData.SuitPickup.InitialWideningSpeed);
+        LightBeamWideningVelocity = WideningVelocity(SuitPickupBeamDefinitions.InitialWideningSpeed);
         Beam = SamusSuitPickupBeam.None;
 
         // `$91:D4F7-$D53A/$D5CD-$D610` cancels every independent speed component before
@@ -265,14 +265,14 @@ public sealed class SamusSuitPickupState
         // comparison with 128 is this ordinary one.
         _lightBeamScanlines += 8;
         Beam = new(SamusSuitPickupBeamShape.GrowingFromEdges,
-            ScreenColumn(SnesLittleEndian.LowByte(SamusSpecialSequenceRomData.SuitPickup.NarrowBeamEndpoints)),
-            ScreenColumn(SnesLittleEndian.HighByte(SamusSpecialSequenceRomData.SuitPickup.NarrowBeamEndpoints)),
+            ScreenColumn(SnesLittleEndian.LowByte(SuitPickupBeamDefinitions.NarrowBeamEndpoints)),
+            ScreenColumn(SnesLittleEndian.HighByte(SuitPickupBeamDefinitions.NarrowBeamEndpoints)),
             _lightBeamScanlines);
 
         if (_lightBeamScanlines >= 128)
         {
             Stage = SamusSuitPickupStage.UniformWidening;
-            SetLightBeamEdges(SamusSpecialSequenceRomData.SuitPickup.NarrowBeamEndpoints);
+            SetLightBeamEdges(SuitPickupBeamDefinitions.NarrowBeamEndpoints);
         }
     }
 
@@ -290,7 +290,7 @@ public sealed class SamusSuitPickupState
         if (unchecked((sbyte)(left - 97)) < 0)
         {
             Stage = SamusSuitPickupStage.CurvedWidening;
-            SetLightBeamEdges(SamusSpecialSequenceRomData.SuitPickup.CurvedWideningStart);
+            SetLightBeamEdges(SuitPickupBeamDefinitions.CurvedWideningStart);
         }
     }
 
@@ -320,8 +320,8 @@ public sealed class SamusSuitPickupState
         // `$88:E13E-$E19C` widens this column by the authored curve on each scanline.
         Beam = new(SamusSuitPickupBeamShape.CurvedColumn, _lightBeamLeft, _lightBeamRight, 0);
 
-        LightBeamWideningVelocity += WideningVelocity(SamusSpecialSequenceRomData.SuitPickup.WideningAcceleration);
-        if (SnesLittleEndian.Word(left, right) == SamusSpecialSequenceRomData.SuitPickup.FullScreenEndpoints)
+        LightBeamWideningVelocity += WideningVelocity(SuitPickupBeamDefinitions.WideningAcceleration);
+        if (SnesLittleEndian.Word(left, right) == SuitPickupBeamDefinitions.FullScreenEndpoints)
         {
             Stage = SamusSuitPickupStage.RevealSuit;
             // The unsigned speed halves, truncating its lowest fraction bit.
@@ -364,14 +364,14 @@ public sealed class SamusSuitPickupState
         Beam = Beam with { Shape = SamusSuitPickupBeamShape.ClosingCurvedColumn, Progress = _lightBeamScanlines };
 
         ushort decelerated = unchecked((ushort)(
-            LightBeamWideningVelocity.X.RawValue - SamusSpecialSequenceRomData.SuitPickup.ShrinkingDeceleration));
+            LightBeamWideningVelocity.X.RawValue - SuitPickupBeamDefinitions.ShrinkingDeceleration));
         LightBeamWideningVelocity = WideningVelocity(decelerated);
-        if (unchecked((short)(decelerated - SamusSpecialSequenceRomData.SuitPickup.MinimumShrinkingSpeed)) < 0)
-            LightBeamWideningVelocity = WideningVelocity(SamusSpecialSequenceRomData.SuitPickup.MinimumShrinkingSpeed);
+        if (unchecked((short)(decelerated - SuitPickupBeamDefinitions.MinimumShrinkingSpeed)) < 0)
+            LightBeamWideningVelocity = WideningVelocity(SuitPickupBeamDefinitions.MinimumShrinkingSpeed);
         if (_lightBeamScanlines >= 128)
         {
             Stage = SamusSuitPickupStage.LightBeamDissipates;
-            SetLightBeamEdges(SamusSpecialSequenceRomData.SuitPickup.DissipationStart);
+            SetLightBeamEdges(SuitPickupBeamDefinitions.DissipationStart);
         }
     }
 

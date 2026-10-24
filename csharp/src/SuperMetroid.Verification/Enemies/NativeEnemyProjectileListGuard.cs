@@ -14,6 +14,6 @@ internal static class NativeEnemyProjectileListGuard
 
     /// <summary>Also rejects every byte of another family's bank-$86 list extent, for checks that run several families.</summary>
     internal static CartridgeReadGuard AlsoForbidding(this CartridgeReadGuard guard, MotherBrainEffectNativeListAddressesExtent extent, string family) =>
-        guard.ForbidRange((int)new SnesAddress(SnesLittleEndian.BankByte(EnemyProjectileCodePointers.BankBase), extent.First),
+        guard.ForbidRange((int)new SnesAddress(SnesLittleEndianConstants.BankByte(EnemyProjectileCodePointers.BankBase), extent.First),
             extent.End - extent.First, address => $"Production read {family} list byte ${address:X6}.");
 }

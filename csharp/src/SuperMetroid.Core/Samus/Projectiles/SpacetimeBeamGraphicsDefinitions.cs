@@ -8,8 +8,6 @@ internal static class SpacetimeBeamGraphicsDefinitions
 {
     /// <summary>$000E: Plasma/Spazer/Ice selects the bounded SpaceTime beam.</summary>
     internal const SamusBeamCombination Selection = SamusBeamCombination.SpazerPlasmaIce;
-    /// <summary>$9A:C401: $90:C3CD's palette pointer used as a tile pointer by $90:AC8D.</summary>
-    internal const int TileSource = 0x9ac401;
     /// <summary>
     /// Every colour of the SpaceTime beam palette. The cartridge's <c>$90:ACCD</c> reads its colours through
     /// <c>$90:C3E5</c>'s colour word used as a pointer, <c>$90:19FF</c>: live enemy-projectile timers and

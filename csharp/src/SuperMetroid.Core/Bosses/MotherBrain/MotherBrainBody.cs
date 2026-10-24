@@ -105,7 +105,7 @@ internal sealed class MotherBrainBody
 
         // Prepare the future body image without replacing the visible pipe background.
         // The phase-two transition owns the first transfer from staging into VRAM.
-        StagingWordView bg2 = _room.Staging.EnemyBg2Tilemap;
+        ushort[] bg2 = _room.Staging.EnemyBg2Tilemap;
         for (int index = 0; index < MotherBrainBg2Definitions.ClearWordCount; index++)
             bg2[index] = MotherBrainBg2Definitions.BlankTile;
 

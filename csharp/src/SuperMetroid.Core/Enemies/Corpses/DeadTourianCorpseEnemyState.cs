@@ -8,9 +8,10 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 public sealed class DeadTourianCorpseEnemyState
 {
     /// <summary>Captures the selected corpse variant's rot schedule and callback profile for one slot.</summary>
-    internal DeadTourianCorpseEnemyState(RoomEnemySlot slot, DeadTourianCorpseSpecies species, int variantIndex, CorpseRottingProgram rotting, DeadTourianBehavior.DeadTourianCorpseProfile profile)
+    internal DeadTourianCorpseEnemyState(RoomEnemySlot slot, DeadTourianCorpseSpecies species, int variantIndex, CorpseRottingProgram rotting, DeadTourianBehavior.DeadTourianCorpseProfile profile, CorpseRotTable rotTable)
     {
         Slot = slot;
+        RotTable = Ensure.NotNull(rotTable);
         Species = species;
         VariantIndex = variantIndex;
         YLimit = rotting.YLimit;
@@ -28,7 +29,7 @@ public sealed class DeadTourianCorpseEnemyState
     /// <summary>Zero-based variant within the species, obtained by dividing the even native parameter-1 table-byte offset by two; Rippers allow 0–1, Zoomers and Skrees 0–2.</summary>
     public int VariantIndex { get; }
     /// <summary>The corpse's (signed pixel Y, delay) entries in the shared rotting heap, one per corpse pixel row: 16 for Zoomer and Ripper, 32 for Skree.</summary>
-    internal CorpseRotTable RotTable { get; init; }
+    internal CorpseRotTable RotTable { get; }
     /// <summary>The kind of corpse whose staged characters this one rots, with every other corpse of the kind.</summary>
     internal RottingCorpseKind Flesh { get; init; }
     /// <summary>Exclusive pixel-row Y limit and final entry index, equal to sprite height minus one; reaching it completes an entry.</summary>

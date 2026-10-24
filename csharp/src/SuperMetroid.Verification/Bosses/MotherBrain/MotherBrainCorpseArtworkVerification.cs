@@ -62,8 +62,8 @@ internal static class MotherBrainCorpseArtworkVerification
                 $"installed Mother Brain corpse page {page} shows the native page's characters");
         }
 
-        var nativeStaging = new EnemyStagingSurfaces();
-        var installedStaging = new EnemyStagingSurfaces();
+        var nativeStaging = new NativeEnemyStaging();
+        var installedStaging = new NativeEnemyStaging();
         // Independent $A9:E08B oracle: copy each right-hand frame's seven-tile row,
         // omitting the transparent last tile in the first four rows. No runtime fallback.
         StagingByteView nativeTiles = nativeStaging.MotherBrainCorpseTiles;
@@ -80,15 +80,15 @@ internal static class MotherBrainCorpseArtworkVerification
             nativeRotTable.SetDelay(index, (ushort)(index * 2));
         }
         // The runtime builds only the rot table; the extraction stages the corpse frame the table rots (#1392).
-        new MotherBrainCorpseRottingState().Initialize(installedStaging);
+        new MotherBrainCorpseRottingState().Initialize(installedStaging.Surfaces);
         AssertMotherBrainRotTableParity(nativeStaging, installedStaging);
         CorpseStaging installedCorpse = CorpseStaging.MotherBrain(artwork.Characters.Span);
         AssertMotherBrainCorpseStagingParity(nativeStaging, installedCorpse);
 
         // The phase-three state machine owns a separate corpse processor. Verify
         // its explicit setup route as well as the room-entry processor above.
-        var sequenceStaging = new EnemyStagingSurfaces();
-        new MotherBrainRainbowBeamAttackSequence(sequenceStaging).ThirdPhaseDeath.InitializeCorpseRotting();
+        var sequenceStaging = new NativeEnemyStaging();
+        new MotherBrainRainbowBeamAttackSequence(sequenceStaging.Surfaces).ThirdPhaseDeath.InitializeCorpseRotting();
         AssertMotherBrainRotTableParity(nativeStaging, sequenceStaging);
 
         string fileName = MotherBrainCorpseArtworkDefinitions.FileName;
@@ -154,7 +154,7 @@ internal static class MotherBrainCorpseArtworkVerification
             MotherBrainCorpseArtworkDefinitions.InitialCopyLength(row), 0)))];
 
     /// <summary>Compares the extraction's staged corpse rows with an independent native copy.</summary>
-    private static void AssertMotherBrainCorpseStagingParity(EnemyStagingSurfaces expected, CorpseStaging actual)
+    private static void AssertMotherBrainCorpseStagingParity(NativeEnemyStaging expected, CorpseStaging actual)
     {
         StagingByteView expectedTiles = expected.MotherBrainCorpseTiles;
         for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
@@ -168,11 +168,11 @@ internal static class MotherBrainCorpseArtworkVerification
     }
 
     /// <summary>Compares all rotting-table entries with an independent native copy.</summary>
-    private static void AssertMotherBrainRotTableParity(EnemyStagingSurfaces expected, EnemyStagingSurfaces actual)
+    private static void AssertMotherBrainRotTableParity(NativeEnemyStaging expected, NativeEnemyStaging actual)
     {
         for (int index = 0; index < MotherBrainCorpseRottingState.EntryCount; index++)
-            AssertEqual(MotherBrainCorpseRottingState.ReadEntry(expected, index),
-                MotherBrainCorpseRottingState.ReadEntry(actual, index), "installed native rot-table initialization");
+            AssertEqual(MotherBrainCorpseRottingState.ReadEntry(expected.Surfaces, index),
+                MotherBrainCorpseRottingState.ReadEntry(actual.Surfaces, index), "installed native rot-table initialization");
     }
 
     /// <summary>Runs the installed Mother Brain corpse artwork verification command.</summary>

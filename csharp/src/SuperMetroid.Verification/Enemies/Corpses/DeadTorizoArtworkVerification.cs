@@ -33,7 +33,7 @@ internal static class DeadTorizoArtworkVerification
         // The extraction stages the corpse as its initializer does, from discontinuous portions of the ordinary ED3F sheet,
         // and drops sand words from that same sheet, to picture each step of its rot (#1392); the runtime stages nothing.
         var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        var nativeStaging = new EnemyStagingSurfaces();
+        var nativeStaging = new NativeEnemyStaging();
         ReferenceDeadTorizoCorpseGraphics(nativeBus, nativeStaging);
         CorpseStaging installed = StageDeadTorizoArtwork(stock);
         AssertDeadTorizoBufferParity(nativeStaging.CorpseTiles, Staged(installed, 0, 0x1000), 0x1000,
@@ -172,7 +172,7 @@ internal static class DeadTorizoArtworkVerification
     /// Independently transcribes <c>Torizo_CorpseRottingInitFunc</c> at $A9:DE18 from pinned
     /// <c>sm_a9.c</c>; expected copies must remain independent of runtime definitions.
     /// </summary>
-    private static void ReferenceDeadTorizoCorpseGraphics(SuperMetroidAddressSpace bus, EnemyStagingSurfaces staging)
+    private static void ReferenceDeadTorizoCorpseGraphics(SuperMetroidAddressSpace bus, NativeEnemyStaging staging)
     {
         StagingByteView tiles = staging.CorpseTiles;
         tiles.Fill(0);
@@ -191,7 +191,7 @@ internal static class DeadTorizoArtworkVerification
     }
 
     /// <summary>Copies eighteen sand words from the sheet using the two native $A9:D5EA offset tables.</summary>
-    private static void ReferenceDeadTorizoSandLine(SuperMetroidAddressSpace bus, EnemyStagingSurfaces staging, ushort line)
+    private static void ReferenceDeadTorizoSandLine(SuperMetroidAddressSpace bus, NativeEnemyStaging staging, ushort line)
     {
         (int destination, int source) = ReadNativeDeadTorizoSandLineOffsets(bus, line);
         StagingByteView sand = staging.DeadTorizoSand;

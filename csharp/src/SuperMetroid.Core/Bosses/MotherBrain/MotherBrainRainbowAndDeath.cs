@@ -95,7 +95,7 @@ internal sealed class MotherBrainRainbowAndDeath
             state.Body.Properties = sequence.ThirdPhaseDeath.BodyProperties;
             var words = new ushort[MotherBrainDeathRomData.Bg2LastByte / 2 + 1];
             Array.Fill(words, MotherBrainDeathRomData.EmptyBodyTile);
-            StagingWordView bg2 = _room.Staging.EnemyBg2Tilemap;
+            ushort[] bg2 = _room.Staging.EnemyBg2Tilemap;
             for (int i = 0; i < words.Length; i++)
                 bg2[i] = words[i];
             _presentation.RequireBg2Image().Write(0, words);

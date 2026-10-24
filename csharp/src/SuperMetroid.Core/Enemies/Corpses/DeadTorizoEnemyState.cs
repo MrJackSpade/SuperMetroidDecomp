@@ -8,9 +8,10 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 public sealed class DeadTorizoEnemyState
 {
     /// <summary>Captures the corpse's rot schedule for this actor.</summary>
-    internal DeadTorizoEnemyState(RoomEnemySlot slot, CorpseRottingProgram rotting)
+    internal DeadTorizoEnemyState(RoomEnemySlot slot, CorpseRottingProgram rotting, CorpseRotTable rotTable)
     {
         Slot = slot;
+        RotTable = Ensure.NotNull(rotTable);
         YLimit = rotting.YLimit;
         LateMoveEntryIndex = rotting.LateMoveEntryIndex;
         WrapOffset = rotting.WrapOffset;
@@ -19,7 +20,7 @@ public sealed class DeadTorizoEnemyState
     /// <summary>Physical enemy slot zero, owning the corpse's position and collision/instruction words.</summary>
     public RoomEnemySlot Slot { get; }
     /// <summary>The corpse's ninety-six (signed pixel Y, delay) entries in the shared rotting heap, one per corpse pixel row.</summary>
-    internal CorpseRotTable RotTable { get; init; }
+    internal CorpseRotTable RotTable { get; }
     /// <summary>Corpse height less one, 95: a moved row completes when its next pixel Y reaches this boundary, which also identifies the final entry.</summary>
     public int YLimit { get; }
     /// <summary>Corpse height less two, 94: this entry and the final entry use destructive moves even during their last three delay calls.</summary>

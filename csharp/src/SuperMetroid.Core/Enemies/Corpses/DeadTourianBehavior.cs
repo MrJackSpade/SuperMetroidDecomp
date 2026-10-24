@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Corpses.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
@@ -102,9 +102,8 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         int yLimit = definition.EntryCount - 1;
         var state = new DeadTourianCorpseEnemyState(slot, profile.Species, variantIndex,
             new CorpseRottingProgram { YLimit = yLimit, LateMoveEntryIndex = yLimit - 1, WrapOffset = definition.WrapOffset },
-            profile: profile)
+            profile: profile, rotTable: _room.Staging.RotTable(definition.RotTableOffset, definition.EntryCount))
         {
-            RotTable = _room.Staging.RotTable(definition.RotTableOffset, definition.EntryCount),
             Flesh = definition.Kind,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);

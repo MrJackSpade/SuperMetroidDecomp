@@ -34,7 +34,7 @@ internal static class DeadTourianCorpseArtworkVerification
         foreach (ushort parameter in new ushort[] { 0, 2 })
         {
             var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-            var native = new EnemyStagingSurfaces();
+            var native = new NativeEnemyStaging();
             DeadTorizoArtworkCopy[] copies = ReferenceDeadTourianCorpseGraphics(nativeBus, native, EnemyDefinitionId.CorpseSidehopper, parameter / 2);
             AssertStagedParity(native, InitializeDeadSidehopperArtwork(stock, parameter), copies,
                 $"dead-sidehopper parameter {parameter} installed corpse staging parity");
@@ -50,7 +50,7 @@ internal static class DeadTourianCorpseArtworkVerification
             for (int variant = 0; variant < variantCount; variant++)
             {
                 var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-                var native = new EnemyStagingSurfaces();
+                var native = new NativeEnemyStaging();
                 DeadTorizoArtworkCopy[] copies = ReferenceDeadTourianCorpseGraphics(nativeBus, native, definition, variant);
                 AssertStagedParity(native, InitializeDeadTourianCorpseArtwork(stock, definition, variant), copies,
                     $"dead ${(int)definition:X4} variant {variant} installed corpse staging parity");
@@ -75,7 +75,7 @@ internal static class DeadTourianCorpseArtworkVerification
         using (var output = File.Create(Path.Combine(overrideDirectory, fileName)))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         var nativeCopies = ReferenceDeadTourianCorpseGraphics(
-            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"), new EnemyStagingSurfaces(),
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"), new NativeEnemyStaging(),
             EnemyDefinitionId.CorpseSidehopper, 0);
         CorpseStaging stockStaging = InitializeDeadSidehopperArtwork(stock, 0);
         CorpseStaging editedStaging = InitializeDeadSidehopperArtwork(EnemyTileArtworkFiles.Load(directory, overrideDirectory), 0);
@@ -142,7 +142,7 @@ internal static class DeadTourianCorpseArtworkVerification
     /// <remarks>Independent copy spans from the pinned sm_a9.c corpse initializers $A9:DEC1-$E052. Keep these separate
     /// from the runtime's layout definitions.</remarks>
     private static DeadTorizoArtworkCopy[] ReferenceDeadTourianCorpseGraphics(
-        SuperMetroidAddressSpace bus, EnemyStagingSurfaces staging, EnemyDefinitionId definition, int variant)
+        SuperMetroidAddressSpace bus, NativeEnemyStaging staging, EnemyDefinitionId definition, int variant)
     {
         DeadTorizoArtworkCopy[] copies = new DeadTourianCorpseArtworkCopy(definition, variant) switch
         {
@@ -192,7 +192,7 @@ internal static class DeadTourianCorpseArtworkVerification
             : throw new InvalidDataException("Installed Tourian corpse sheet enemy-ed7f-tiles.png is missing or has the wrong size.");
 
     /// <summary>Compares each natively copied run of staged corpse characters with the extraction's.</summary>
-    private static void AssertStagedParity(EnemyStagingSurfaces native, CorpseStaging installed, DeadTorizoArtworkCopy[] copies, string context)
+    private static void AssertStagedParity(NativeEnemyStaging native, CorpseStaging installed, DeadTorizoArtworkCopy[] copies, string context)
     {
         foreach (DeadTorizoArtworkCopy copy in copies)
         {

@@ -8,9 +8,10 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 public sealed class DeadSidehopperEnemyState
 {
     /// <summary>Captures one corpse's silhouette and rot schedule.</summary>
-    internal DeadSidehopperEnemyState(RoomEnemySlot slot, ushort graphicsVariant, CorpseRottingProgram rotting)
+    internal DeadSidehopperEnemyState(RoomEnemySlot slot, ushort graphicsVariant, CorpseRottingProgram rotting, CorpseRotTable rotTable)
     {
         Slot = slot;
+        RotTable = Ensure.NotNull(rotTable);
         GraphicsVariant = graphicsVariant;
         YLimit = rotting.YLimit;
         LateMoveEntryIndex = rotting.LateMoveEntryIndex;
@@ -22,7 +23,7 @@ public sealed class DeadSidehopperEnemyState
     /// <summary>Silhouette selected by the population parameter: 0 for the initially living Shitroid victim or 2 for the already dead Tourian corpse, selecting initial graphics and row-copy column layouts.</summary>
     public int GraphicsVariant { get; }
     /// <summary>The corpse's (signed pixel Y, delay) entries in the shared rotting heap, one per corpse pixel row.</summary>
-    internal CorpseRotTable RotTable { get; init; }
+    internal CorpseRotTable RotTable { get; }
     /// <summary>The kind of corpse whose staged characters this one rots, with every other corpse of the kind.</summary>
     internal RottingCorpseKind Flesh { get; init; }
     /// <summary>Sprite height less one, 39: a moved pixel row completes when its next Y reaches this boundary; also identifies the final entry.</summary>

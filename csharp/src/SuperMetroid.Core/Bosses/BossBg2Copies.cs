@@ -22,7 +22,7 @@ internal sealed class BossBg2Copies(CrocomireBehavior crocomire, MotherBrainEnco
             words.CopyTo(death.MutableBg2WorkingTilemap.Slice(destinationWord, words.Length));
         if (StagesBody)
         {
-            StagingWordView bg2 = room.Staging.EnemyBg2Tilemap;
+            ushort[] bg2 = room.Staging.EnemyBg2Tilemap;
             for (int index = 0; index < words.Length; index++)
                 bg2[destinationWord + index] = words[index];
         }

@@ -54,7 +54,7 @@ internal sealed class MotherBrainAscent
         // room's pipe background before the articulated body becomes visible. Its one
         // 32x32 screen is the whole BG2 map she shows; she owns that image from here (#1356).
         var words = new ushort[state.EnemyBg2TilemapSize / 2];
-        StagingWordView bg2 = _room.Staging.EnemyBg2Tilemap;
+        ushort[] bg2 = _room.Staging.EnemyBg2Tilemap;
         for (int index = 0; index < words.Length; index++)
             words[index] = bg2[index];
         var image = new EnemyBg2Image(MotherBrainBg2Definitions.BlankTile);

@@ -151,9 +151,9 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
         int yLimit = definition.EntryCount - 1;
         var state = new DeadSidehopperEnemyState(slot, graphicsVariant,
-            new CorpseRottingProgram { YLimit = yLimit, LateMoveEntryIndex = yLimit - 1, WrapOffset = definition.WrapOffset })
+            new CorpseRottingProgram { YLimit = yLimit, LateMoveEntryIndex = yLimit - 1, WrapOffset = definition.WrapOffset },
+            _room.Staging.RotTable(definition.RotTableOffset, definition.EntryCount))
         {
-            RotTable = _room.Staging.RotTable(definition.RotTableOffset, definition.EntryCount),
             Flesh = definition.Kind,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);

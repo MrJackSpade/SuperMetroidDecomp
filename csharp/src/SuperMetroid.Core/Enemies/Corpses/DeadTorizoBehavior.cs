@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Corpses.Artwork;
+using SuperMetroid.Core.Enemies.Corpses.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
@@ -66,9 +66,9 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         DeadTorizoCorpseDefinition definition = DeadTorizoCorpseDefinitions.Corpse;
         int yLimit = definition.EntryCount - 1;
         DeadTorizo = new DeadTorizoEnemyState(slot,
-            new CorpseRottingProgram { YLimit = yLimit, LateMoveEntryIndex = yLimit - 1, WrapOffset = definition.WrapOffset })
+            new CorpseRottingProgram { YLimit = yLimit, LateMoveEntryIndex = yLimit - 1, WrapOffset = definition.WrapOffset },
+            _room.Staging.RotTable(definition.RotTableOffset, definition.EntryCount))
         {
-            RotTable = _room.Staging.RotTable(definition.RotTableOffset, definition.EntryCount),
             Function = DeadTorizoFunction.Wait,
             Velocity = new(default, new SnesSignedEightEight(8)),
         };

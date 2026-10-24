@@ -83,17 +83,17 @@ internal sealed class EnemyPresentation
     /// The session's gameplay OBJ character table bindings, which enemy-format sprites draw from. Uploads that bypass
     /// the NMI queue (Draygon's Evir sheet, Crocomire's skeleton chunks) record themselves here.
     /// </summary>
-    internal ObjCharacterUploads ObjCharacters => _room.Session.ObjCharacters;
+    internal SpriteCharacters SpriteCharacters => _room.Session.SpriteCharacters;
 
     /// <summary>Shows an encounter's <paramref name="source"/> over the sprite characters (#1406).</summary>
     internal void ShowCharacters(ObjCharacterSource source) => _room.Session.ShowCharacters(source);
 
     /// <summary>The rot step each region Mother Brain's rotting corpse uploads shows (#1392).</summary>
-    internal CorpseRotUploads RotUploads { get; } = new();
+    internal CorpseRotSteps RotSteps { get; } = new();
 
     /// <summary>Records that Mother Brain's corpse shows its row <paramref name="row"/> as rot step <paramref name="step"/> left it (#1406).</summary>
     internal void ShowRotRow(int row, int step) =>
-        RotUploads.Show(Sheets.Coverage(LoadedSet).RotRow(row), step, ObjCharacters.Recorded);
+        RotSteps.Show(Sheets.Coverage(LoadedSet).RotRow(row), step, SpriteCharacters.Recorded);
 
     /// <summary>
     /// The session's shared <c>PaletteChangeNumerator</c>. Enemies and the runtime's door and death
@@ -174,13 +174,13 @@ internal sealed class EnemyPresentation
         }
         if (layers.Count == 0)
             return [frame];
-        RuntimeCharacterUploadCatalog catalog = Sheets.Uploads;
-        IReadOnlyList<RuntimeCharacterUpload> uploads = catalog.Of(LoadedSet);
+        EncounterCharacterCatalog catalog = Sheets.Encounters;
+        IReadOnlyList<SpriteCharacterPlacement> uploads = catalog.Of(LoadedSet);
         SetCharacterCoverage coverage = Sheets.Coverage(LoadedSet);
         return layers.Select((regions, layer) => catalog.PictureName(frame, layer,
-            [.. regions.Select(region => RotUploads.TryShowing(region, out int step, out long stamp)
-                    && !ObjCharacters.NewestFirst.TakeWhile(shown => shown.Stamp > stamp).Any(shown => coverage.Covers(shown.Source, region))
-                ? new CharacterRegionContent(region, null, step) : catalog.Showing(ObjCharacters, uploads, region, ArtworkFrames, coverage))]));
+            [.. regions.Select(region => RotSteps.TryShowing(region, out int step, out long stamp)
+                    && !SpriteCharacters.NewestFirst.TakeWhile(shown => shown.Stamp > stamp).Any(shown => coverage.Covers(shown.Source, region))
+                ? new CharacterRegionContent(region, null, step) : catalog.Showing(SpriteCharacters, uploads, region, ArtworkFrames, coverage))]));
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core.Hardware;
 using System.Runtime.InteropServices;
 
 namespace SuperMetroid.Core.Assets;
@@ -13,11 +14,11 @@ internal static class ObjCharacterTablePageAccess
         /// <param name="uploads">The OBJ character table's uploads.</param>
         /// <param name="resolver">Resolves installed artwork identities to their current bytes.</param>
         /// <exception cref="InvalidDataException">An upload's source is shorter than the range it shows.</exception>
-        public SpriteArtwork Page(ObjCharacterUploads uploads, IObjCharacterSourceResolver resolver)
+        public SpriteArtwork Page(SpriteCharacters uploads, IObjCharacterSourceResolver resolver)
         {
             Ensure.NotNull(uploads);
             Ensure.NotNull(resolver);
-            ObjCharacterUpload[] current = [.. uploads.Uploads];
+            SpriteCharacterPlacement[] current = [.. uploads.Uploads];
             var resolved = new ReadOnlyMemory<byte>[current.Length];
             for (int index = 0; index < current.Length; index++)
                 resolved[index] = current[index].Source.Resolve(resolver);
@@ -25,15 +26,14 @@ internal static class ObjCharacterTablePageAccess
                 previous.Uploads.SequenceEqual(current) && ObjCharacterTablePageConstants.SameSources(previous.Sources, resolved))
                 return self.page;
 
-            var table = new byte[ObjCharacterUploads.TableByteCount];
+            var table = new byte[SpriteCharacters.TableByteCount];
             for (int index = 0; index < current.Length; index++)
             {
-                ObjCharacterUpload upload = current[index];
+                SpriteCharacterPlacement upload = current[index];
                 ReadOnlyMemory<byte> bytes = resolved[index];
-                if (upload.SourceOffset + upload.ByteCount > bytes.Length)
-                    throw new InvalidDataException(
-                        $"OBJ upload {upload.Source} has {bytes.Length} bytes; it shows {upload.ByteCount} from byte {upload.SourceOffset}.");
-                bytes.Span.Slice(upload.SourceOffset, upload.ByteCount).CopyTo(table.AsSpan(upload.FirstByte));
+                if (upload.ByteCount > bytes.Length)
+                    throw new InvalidDataException($"{upload.Source} has {bytes.Length} bytes; it shows {upload.ByteCount}.");
+                bytes.Span[..upload.ByteCount].CopyTo(table.AsSpan(upload.FirstByte));
             }
             self.page = ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.GameplayObjects), table);
             self.composedFrom = new ObjCharacterComposition(current, resolved);

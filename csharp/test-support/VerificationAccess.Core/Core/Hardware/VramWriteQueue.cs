@@ -131,7 +131,7 @@ public sealed class VramWriteQueue
     /// <param name="assets">Resolves installed artwork transfers and named owned sources.</param>
     /// <param name="objects">Records what each transfer that reaches the OBJ character table shows, when gameplay draws from it.</param>
     /// <param name="backgrounds">Binds the queued background character artwork (#1350); required when any is queued.</param>
-    public void DrainTo(SnesVram vram, IVramAssetProvider? assets = null, ObjCharacterUploads? objects = null,
+    public void DrainTo(SnesVram vram, IVramAssetProvider? assets = null, SpriteCharacters? objects = null,
         BgArtworkBindings? backgrounds = null)
     {
         Ensure.NotNull(vram);
@@ -211,7 +211,7 @@ public sealed class VramWriteQueue
     /// Writes staged bytes and records them where they reach the OBJ character table: a staged surface keeps changing,
     /// so the table shows the bytes the upload read.
     /// </summary>
-    private static void WriteStaged(SnesVram vram, ObjCharacterUploads? objects, VramWriteEntry entry, ReadOnlySpan<byte> bytes)
+    private static void WriteStaged(SnesVram vram, SpriteCharacters? objects, VramWriteEntry entry, ReadOnlySpan<byte> bytes)
     {
         vram.ExecuteQueuedAssetWrite(bytes, entry.Destination.Encoded);
         objects?.RecordUpload(entry.Destination, entry.SizeInBytes, new StagedObjCharacters(bytes));

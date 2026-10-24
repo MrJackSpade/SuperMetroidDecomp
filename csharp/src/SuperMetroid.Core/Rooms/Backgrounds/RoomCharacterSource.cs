@@ -17,7 +17,7 @@ public readonly record struct RoomCharacterSource(IBgCharacterArtwork Artwork, A
     /// <paramref name="backgrounds"/>, or the OBJ character table's, as <paramref name="objects"/> records its uploads;
     /// with what <paramref name="animations"/> declare the room's animations paint there, showing <paramref name="frames"/>.
     /// </summary>
-    public static RoomCharacterSource Of(RoomBackgroundCharacters characters, BgArtworkBindings backgrounds, ObjCharacterUploads objects,
+    public static RoomCharacterSource Of(RoomBackgroundCharacters characters, BgArtworkBindings backgrounds, SpriteCharacters objects,
         RoomAnimatedCharacters animations, ArtworkFrameSelections frames)
     {
         var animated = new AnimatedCharacterView(Ensure.NotNull(animations).Of(characters), Ensure.NotNull(frames));

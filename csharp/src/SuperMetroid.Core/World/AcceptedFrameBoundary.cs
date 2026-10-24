@@ -254,7 +254,7 @@ internal sealed class AcceptedFrameBoundary
             revealed = XrayRevealPlane.BlocksOf(words.AsSpan(), _revealIndex);
         }
         // The Ceres Ridley arena's backgrounds read the OBJ character table's uploads (#1392).
-        RoomCharacterSource characters = RoomCharacterSource.Of(rooms.Characters, _backgrounds, _enemySession.ObjCharacters,
+        RoomCharacterSource characters = RoomCharacterSource.Of(rooms.Characters, _backgrounds, _enemySession.SpriteCharacters,
             scope.AnimatedCharacters, scope.ArtworkFrames);
         // A background image's and the sky's tiles read the room tileset's characters, which its animations paint too (#1406).
         var animatedBlocks = new AnimatedCharacterView(scope.AnimatedCharacters.Blocks, scope.ArtworkFrames);

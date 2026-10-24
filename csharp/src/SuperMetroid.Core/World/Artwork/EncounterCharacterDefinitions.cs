@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.World.Artwork;
 /// characters is extraction's: the installed catalogue pairs each with its place. The list lives above the encounters'
 /// modules, which each own what they show.
 /// </summary>
-internal static class RuntimeCharacterUploadDefinitions
+internal static class EncounterCharacterDefinitions
 {
     /// <summary>
     /// Each enemy's encounter's uploads: Draygon's opening uploads the Evirs she releases, the gunship's takeoff its five
@@ -32,6 +32,6 @@ internal static class RuntimeCharacterUploadDefinitions
             [EnemyDefinitionId.GoldenTorizo] = TorizoArtworkSwapDefinitions.Sources,
             [EnemyDefinitionId.RidleyCeres] = CeresEscapePageDefinitions.ObjectPages,
             [EnemyDefinitionId.CeresDoor] = [CeresDoorCharacters.Shown],
-            [EnemyDefinitionId.MotherBrainHead] = MotherBrainCharacterUploads.All,
+            [EnemyDefinitionId.MotherBrainHead] = MotherBrainCharacterSources.All,
         };
 }

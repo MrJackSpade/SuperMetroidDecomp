@@ -27,7 +27,7 @@ internal static class RuntimeArtworkAccess
     {
         /// <summary>The gameplay OBJ character page enemy-format sprites draw from: the table's uploads over current artwork.</summary>
         /// <param name="uploads">The OBJ character table's uploads.</param>
-        internal SpriteArtwork GameplayObjectPage(ObjCharacterUploads uploads) =>
+        internal SpriteArtwork GameplayObjectPage(SpriteCharacters uploads) =>
             new ObjCharacterTablePage().Page(uploads, self);
     }
 }

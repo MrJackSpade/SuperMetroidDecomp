@@ -15,6 +15,6 @@ internal static class InstalledSetRegions
     {
         EnemyDefinitionId[] drawn = [.. set.Records.ToArray().Select(record => record.DefinitionId).Distinct()];
         IReadOnlyList<CorpseRotSimulation> corpses = CorpseRotSimulation.Of(InstalledFixtures.EnemyArtwork.Enemies, InstalledFixtures.EnemyArtwork.Bosses, drawn);
-        return new SetRegions(RuntimeCharacterUploadPlacements.Catalog.Of(set), [.. corpses.Where(corpse => corpse.Kind is null)]);
+        return new SetRegions(EncounterCharacterPlacements.Catalog.Of(set), [.. corpses.Where(corpse => corpse.Kind is null)]);
     }
 }

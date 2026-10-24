@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Input;
@@ -202,7 +203,7 @@ internal static class GunshipLandingVerification
         AssertEqual(GunshipFrameEvent.EscapeTakeoffCompleted, enemies.LastEnemyFrame.Gunship,
             "accelerating gunship publishes frontend state-$26 boundary");
         AssertEqual(PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages).Count, PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages).Count(page =>
-                enemies.Room.Session.ObjCharacters.Uploads.Any(shown => shown.Source == page.Source && shown.FirstByte == page.FirstByte)),
+                enemies.Room.Session.SpriteCharacters.Uploads.Any(shown => shown.Source == page.Source && shown.FirstByte == page.FirstByte)),
             "takeoff shows all five cartridge dust-cloud pages");
         AssertEqual(6, maximumLiftoffDustActors,
             "takeoff frame 64 spawns all six room-graphics dust actors");

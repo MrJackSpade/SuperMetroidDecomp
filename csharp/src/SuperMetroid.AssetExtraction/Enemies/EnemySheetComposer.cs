@@ -26,7 +26,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 internal static class EnemySheetComposer
 {
     /// <summary>The byte of the OBJ character table the enemy tile region begins at.</summary>
-    private const int EnemyRegionTableByte = EnemyGraphicsSet.EnemyTileAreaFirstByte;
+    private const int EnemyRegionTableByte = EnemyGraphicsSet.EnemyTileAreaFirstCharacter * SpriteCharacters.CharacterByteCount;
 
     /// <summary>CGRAM's first sprite colour.</summary>
     private const int SpriteColours = 128;
@@ -183,7 +183,7 @@ internal static class EnemySheetComposer
             .Except(members).Distinct().Order();
         EnemyDefinitionId[] drawn = [.. members, .. placed];
         IReadOnlyList<CorpseRotSimulation> corpses = CorpseRotSimulation.Of(inputs.Enemies, inputs.Bosses, drawn);
-        var regions = new SetRegions(SuperMetroid.AssetExtraction.Enemies.RuntimeCharacterUploadPlacements.Catalog.Of(set), [.. corpses.Where(corpse => corpse.Kind is null)]);
+        var regions = new SetRegions(SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog.Of(set), [.. corpses.Where(corpse => corpse.Kind is null)]);
         return new LoadedGraphicsSet(graphics, new SetCharacters(Table(inputs, graphics), regions, inputs,
             [.. corpses.Where(corpse => corpse.Kind is not null)]), cgram.Colors[SpriteColours..].ToArray(), drawn);
     }
@@ -198,7 +198,7 @@ internal static class EnemySheetComposer
     /// <summary>The OBJ character table as the set leaves it: the standard characters, then each member's tile upload.</summary>
     private static byte[] Table(EnemySheetInputs inputs, EnemyGraphicsSet graphics)
     {
-        var table = new byte[ObjCharacterUploads.TableByteCount];
+        var table = new byte[SpriteCharacters.TableByteCount];
         inputs.StandardObjects.Span.CopyTo(table);
         foreach (RoomEnemyGraphicsSetEntry entry in graphics.Entries)
         {

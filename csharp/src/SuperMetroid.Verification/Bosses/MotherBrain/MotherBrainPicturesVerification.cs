@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core;
@@ -59,12 +60,12 @@ internal static class MotherBrainPicturesVerification
                 shown[row] = step;
             Draw($"after rot step {step}");
         }
-        Console.WriteLine($"Mother Brain pictures: {frames.Length} brain and neck frames draw their pictures after each of {MotherBrainCharacterUploads.All.Count} pages and {steps} rot steps; {drawn} draws paint as the frames over the live characters.");
+        Console.WriteLine($"Mother Brain pictures: {frames.Length} brain and neck frames draw their pictures after each of {MotherBrainCharacterSources.All.Count} pages and {steps} rot steps; {drawn} draws paint as the frames over the live characters.");
 
         void Draw(string context)
         {
-            SpriteArtwork live = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.ObjCharacters);
-            byte[] characters = live.Characters[..ObjCharacterUploads.TableByteCount].ToArray();
+            SpriteArtwork live = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.SpriteCharacters);
+            byte[] characters = live.Characters[..SpriteCharacters.TableByteCount].ToArray();
             foreach ((CorpseRotRow row, int step) in shown)
                 corpse.RowBytes(row, step).CopyTo(characters.AsSpan(row.FirstByte));
             SpriteArtwork rotted = ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.GameplayObjects), characters);

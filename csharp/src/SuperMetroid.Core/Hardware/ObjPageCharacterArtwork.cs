@@ -6,17 +6,16 @@ namespace SuperMetroid.Core.Hardware;
 /// </summary>
 /// <param name="uploads">The table's uploads.</param>
 [PpuLayoutBoundary("codec: the OBJ character table's characters as background characters")]
-public sealed class ObjPageCharacterArtwork(ObjCharacterUploads uploads) : IBgCharacterArtwork
+public sealed class ObjPageCharacterArtwork(SpriteCharacters uploads) : IBgCharacterArtwork
 {
     /// <inheritdoc />
     public BgArtworkShown Showing(int firstCharacter, int characterCount)
     {
-        int firstByte = firstCharacter * ObjCharacterUploads.CharacterByteCount;
-        int byteCount = characterCount * ObjCharacterUploads.CharacterByteCount;
-        ObjCharacterUpload upload = Ensure.NotNull(uploads).LastOver(firstByte, byteCount)
-            ?? throw new InvalidDataException($"No OBJ characters are uploaded over characters {firstCharacter}..{firstCharacter + characterCount - 1}.");
-        if (upload.FirstByte > firstByte || upload.FirstByte + upload.ByteCount < firstByte + byteCount)
-            throw new InvalidDataException($"{upload.Source} shows over only some of characters {firstCharacter}..{firstCharacter + characterCount - 1}.");
-        return new BgArtworkShown(new BgArtworkIdentity($"{upload.Source}"), (firstByte - upload.FirstByte + upload.SourceOffset) / sizeof(ushort));
+        SpriteCharacterPlacement shown = Ensure.NotNull(uploads).LastOver(firstCharacter, characterCount)
+            ?? throw new InvalidDataException($"Nothing is shown over sprite characters {firstCharacter}..{firstCharacter + characterCount - 1}.");
+        if (!shown.Covers(firstCharacter, characterCount))
+            throw new InvalidDataException($"{shown.Source} shows over only some of sprite characters {firstCharacter}..{firstCharacter + characterCount - 1}.");
+        return new BgArtworkShown(new BgArtworkIdentity($"{shown.Source}"),
+            (firstCharacter - shown.FirstCharacter) * SpriteCharacters.CharacterByteCount / sizeof(ushort));
     }
 }

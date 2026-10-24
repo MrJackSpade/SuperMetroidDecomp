@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// page's artwork and the characters it shows in, for her frames' pictures to name. The encounter selects pages; this is
 /// the one place a page is placed among the characters.
 /// </summary>
-internal static class MotherBrainCharacterUploads
+internal static class MotherBrainCharacterSources
 {
     /// <summary>Every page's artwork, in the order <see cref="MotherBrainSpritePage.All"/> lists the pages, which the catalogue names them by.</summary>
     internal static IReadOnlyList<ObjCharacterSource> All { get; } = [.. MotherBrainSpritePage.All.Select(Of)];

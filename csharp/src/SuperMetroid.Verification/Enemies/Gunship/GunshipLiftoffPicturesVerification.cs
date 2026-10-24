@@ -48,18 +48,18 @@ internal static class GunshipLiftoffPicturesVerification
         IEnemySheetSource sheets = runtime.EnemySession.Sheets ?? throw new InvalidOperationException("The runtime loads the enemy sheets.");
         RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;
 
-        var made = new List<RuntimeCharacterUpload>();
+        var made = new List<SpriteCharacterPlacement>();
         int pictured = 0;
         for (int step = 0; step <= PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages).Count; step++)
         {
             if (step > 0)
             {
-                RuntimeCharacterUpload upload = PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages)[step - 1];
-                runtime.EnemySession.ObjCharacters.Record(upload);
+                SpriteCharacterPlacement upload = PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages)[step - 1];
+                runtime.EnemySession.SpriteCharacters.Record(upload);
                 made.Add(upload);
             }
             runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = camera, TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData });
-            SpriteArtwork live = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.ObjCharacters);
+            SpriteArtwork live = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.SpriteCharacters);
             var sprites = new SpriteFrameBuffer();
             sprites.BeginFrame();
             runtime.Enemies.Drawing.AdvanceLayers(camera, 0, 7);

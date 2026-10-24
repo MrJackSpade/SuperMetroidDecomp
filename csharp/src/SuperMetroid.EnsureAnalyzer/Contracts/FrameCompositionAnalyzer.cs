@@ -23,7 +23,7 @@ public sealed class FrameCompositionAnalyzer : DiagnosticAnalyzer
     internal static readonly ImmutableHashSet<string> CharacterPageTypes =
     [
         "SpriteArtwork", "ObjCharacterPage", "ObjCharacterTablePage", "ObjCharacterComposition", "ObjCharacterImage",
-        "ObjCharacterUpload", "ObjCharacterUploads", "StagedObjCharacters", "GraphicsSetTileCharacters", "AssetObjCharacters",
+        "SpriteCharacterPlacement", "SpriteCharacters", "StagedObjCharacters", "GraphicsSetTileCharacters", "AssetObjCharacters",
         "RoomCharacterAtlas", "BgCharacterGrid", "SnesCharacterGrid",
     ];
 

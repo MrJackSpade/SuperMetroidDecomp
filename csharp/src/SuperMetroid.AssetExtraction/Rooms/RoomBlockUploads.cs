@@ -272,7 +272,7 @@ internal static class RoomBlockUploads
         {
             ReadOnlyMemory<byte> tiles = inputs.Objects.Enemies.TilesOf(entry.DefinitionId);
             yield return new BgCharacterPlacement(new BgArtworkIdentity($"{new GraphicsSetTileCharacters(entry.DefinitionId)}"), BgCharacterSet.Tiles,
-                (EnemyGraphicsSet.EnemyTileAreaFirstByte + entry.StagingOffset) / ObjCharacterUploads.CharacterByteCount, tiles);
+                EnemyGraphicsSet.EnemyTileAreaFirstCharacter + entry.StagingOffset / SpriteCharacters.CharacterByteCount, tiles);
         }
     }
 
@@ -281,8 +281,8 @@ internal static class RoomBlockUploads
     /// they make them, each named as the table records it: Ceres Ridley's getaway its escape timer and its warning.
     /// </summary>
     private static IEnumerable<BgCharacterPlacement> EncounterObjectUploads(RoomBlockSheetInputs inputs, CartridgeRoomState state) =>
-        SuperMetroid.AssetExtraction.Enemies.RuntimeCharacterUploadPlacements.Catalog.Of(state.EnemyGraphicsSet).Select(upload => new BgCharacterPlacement(
-            new BgArtworkIdentity($"{upload.Source}"), BgCharacterSet.Tiles, upload.FirstByte / ObjCharacterUploads.CharacterByteCount,
+        SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog.Of(state.EnemyGraphicsSet).Select(upload => new BgCharacterPlacement(
+            new BgArtworkIdentity($"{upload.Source}"), BgCharacterSet.Tiles, upload.FirstCharacter,
             upload.Source.Resolve(inputs.Objects)));
 
     /// <summary>The HUD's characters as gameplay setup uploads them, before any room loads.</summary>

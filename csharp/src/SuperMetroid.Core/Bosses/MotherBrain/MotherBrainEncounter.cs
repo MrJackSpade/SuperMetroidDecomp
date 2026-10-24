@@ -26,7 +26,7 @@ internal sealed class MotherBrainEncounter
     /// picture what it holds.
     /// </summary>
     internal void ShowSpritePage(MotherBrainSpritePage page) =>
-        _presentation.ShowCharacters(MotherBrainCharacterUploads.Of(page));
+        _presentation.ShowCharacters(MotherBrainCharacterSources.Of(page));
 
     /// <summary>
     /// Shows every row of the rotting corpse as rot step <paramref name="step"/> left it (#1392, #1406): the corpse's sheet

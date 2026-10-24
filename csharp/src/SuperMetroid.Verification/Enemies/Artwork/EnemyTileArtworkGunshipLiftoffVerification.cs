@@ -52,7 +52,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         runtime.EnemySession.TileArtwork = stock.Enemies;
         runtime.BossArtwork.Artwork = stock.Bosses;
         runtime.AreaArtwork.Artwork = stock.Areas;
-        ObjCharacterUploads stockPages = ShowAllTakeoffPages(stock);
+        SpriteCharacters stockPages = ShowAllTakeoffPages(stock);
         var nativeQueue = new VramWriteQueue();
         for (int index = 0; index < transfers.Length; index++)
         {
@@ -111,7 +111,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
             "Gunship takeoff art: five compiled pages, installed PNG parity, " +
             "live/rebound page edit and strict resources pass.");
 
-        static ObjCharacterUploads ShowAllTakeoffPages(InstalledEnemyArtwork art)
+        static SpriteCharacters ShowAllTakeoffPages(InstalledEnemyArtwork art)
         {
             var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
@@ -120,8 +120,8 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
             for (int index = 0; index < GunshipLiftoffTransferDefinitions.Frames.Length; index++)
                 enemies.GunshipBehavior.ShowGunshipTakeoffPage(top);
             AssertEqual(GunshipLiftoffTransferDefinitions.Frames.Length,
-                enemies.Room.Session.ObjCharacters.Uploads.Count, "five native takeoff calls show five pages");
-            return enemies.Room.Session.ObjCharacters;
+                enemies.Room.Session.SpriteCharacters.Uploads.Count, "five native takeoff calls show five pages");
+            return enemies.Room.Session.SpriteCharacters;
         }
     }
 }

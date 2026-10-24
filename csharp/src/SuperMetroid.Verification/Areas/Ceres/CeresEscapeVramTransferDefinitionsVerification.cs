@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas;
@@ -75,7 +76,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             .SkipWhile(record => record.Pointer != CeresEscapeVramTransferDefinitions.TimerSprites)
             .TakeWhile(record => record.Pointer < 0xc4fc)];
         AssertEqual(7, spriteList.Length, "Ceres timer-sprite list length");
-        ObjCharacterUploads shown = system.Presentation.ObjCharacters;
+        SpriteCharacters shown = system.Presentation.SpriteCharacters;
         var state = new RidleyEnemyState { CeresEscapePages = CeresEscapePageCursor.Objects };
         for (int index = 0; index < spriteList.Length; index++)
         {
@@ -83,9 +84,9 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             TileTransferDefinition expected = spriteList[index];
             AssertEqual(index == spriteList.Length - 1, finished, $"Ceres transfer ${expected.Pointer:X4} list completion");
             AssertEqual(index + 1, shown.Uploads.Count, $"Ceres transfer ${expected.Pointer:X4} one page per update");
-            ObjCharacterUpload page = shown.Uploads[index];
+            SpriteCharacterPlacement page = shown.Uploads[index];
             AssertEqual(expected.ByteCount, page.ByteCount, $"Ceres transfer ${expected.Pointer:X4} page size");
-            AssertEqual(ObjCharacterUploads.TableByte(VramDmaDestination.FromNative(expected.DestinationWord)), page.FirstByte,
+            AssertEqual(SpriteCharacters.TableByte(VramDmaDestination.FromNative(expected.DestinationWord)), page.FirstByte,
                 $"Ceres transfer ${expected.Pointer:X4} page's place among the OBJ characters");
             AssertEqual<ObjCharacterSource?>(expected.Pointer is 0xc4cb or 0xc4d2
                     ? new AssetObjCharacters(expected.Pointer == 0xc4cb ? VramAssetId.EscapeTimerFirstTiles : VramAssetId.EscapeTimerSecondTiles)

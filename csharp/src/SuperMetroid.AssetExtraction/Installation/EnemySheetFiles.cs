@@ -74,7 +74,7 @@ public static class EnemySheetFiles
             setCorpses[set] = [.. corpses.Where(corpse => corpse.Kind is not null)];
             RoomEnemyGraphicsSetDefinition definition = RoomEnemyGraphicsSetDefinitions.DrawnUnder
                 .FirstOrDefault(known => known.Name == set) ?? throw new InvalidDataException($"Enemy sheet manifest names unknown graphics set {set}.");
-            SetRegions regions = setRegions[set] = new SetRegions(SuperMetroid.AssetExtraction.Enemies.RuntimeCharacterUploadPlacements.Catalog.Of(definition),
+            SetRegions regions = setRegions[set] = new SetRegions(SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog.Of(definition),
                 [.. corpses.Where(corpse => corpse.Kind is null)]);
             coverage.Add(set, regions.Coverage(definition));
             foreach ((string enemyName, string name) in members)
@@ -118,7 +118,7 @@ public static class EnemySheetFiles
             }
         }
         return new InstalledEnemySheets(sheets, spawned, pictures, spawnedPictures, rotPictures, spawnedRotPictures,
-            SuperMetroid.AssetExtraction.Enemies.RuntimeCharacterUploadPlacements.Catalog, coverage);
+            SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog, coverage);
     }
 
     /// <summary>Each frame's layers over the regions Core names by ordinal.</summary>

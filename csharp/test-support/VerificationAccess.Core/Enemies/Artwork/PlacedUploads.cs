@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal static class PlacedUploads
 {
     /// <summary>The upload of <paramref name="source"/> where the cartridge shows it.</summary>
-    internal static RuntimeCharacterUpload Of(ObjCharacterSource source) => RuntimeCharacterUploadPlacements.Placed(source);
+    internal static SpriteCharacterPlacement Of(ObjCharacterSource source) => EncounterCharacterPlacements.Placed(source);
 
     /// <summary>The uploads of <paramref name="sources"/>, in order, where the cartridge shows each.</summary>
-    internal static IReadOnlyList<RuntimeCharacterUpload> Of(IEnumerable<ObjCharacterSource> sources) => [.. sources.Select(Of)];
+    internal static IReadOnlyList<SpriteCharacterPlacement> Of(IEnumerable<ObjCharacterSource> sources) => [.. sources.Select(Of)];
 }

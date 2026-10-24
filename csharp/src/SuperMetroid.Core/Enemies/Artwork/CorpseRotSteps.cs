@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// only the step each region showed last, for its frames to name the picture they draw.
 /// </summary>
 [RoomLifetime]
-internal sealed class CorpseRotUploads
+internal sealed class CorpseRotSteps
 {
     /// <summary>Each region's last shown step, and the place of the latest character upload when it was shown.</summary>
     private readonly Dictionary<CharacterRegion, (int Step, long Stamp)> shown = [];

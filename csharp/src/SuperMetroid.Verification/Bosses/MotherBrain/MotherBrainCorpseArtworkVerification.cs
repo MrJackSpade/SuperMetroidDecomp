@@ -143,8 +143,8 @@ internal static class MotherBrainCorpseArtworkVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.RowCount; page++)
             enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, page));
-        return new ObjCharacterTablePage().Page(enemies.Room.Session.ObjCharacters, new EnemyTileTransfers(artwork))
-            .Characters[..ObjCharacterUploads.TableByteCount].ToArray();
+        return new ObjCharacterTablePage().Page(enemies.Room.Session.SpriteCharacters, new EnemyTileTransfers(artwork))
+            .Characters[..SpriteCharacters.TableByteCount].ToArray();
     }
 
     /// <summary>The six staged rows of the corpse frame, as the extraction stages them, in heap order.</summary>

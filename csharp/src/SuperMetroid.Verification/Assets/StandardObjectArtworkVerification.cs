@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
@@ -21,7 +22,7 @@ internal static class StandardObjectArtworkVerification
     /// <summary>The bytes the OBJ character table shows over the standard sheet's span, as the session records them.</summary>
     private static ReadOnlySpan<byte> ShownStandardObjects(SuperMetroidRuntime runtime)
     {
-        ObjCharacterUpload shown = runtime.EnemySession.ObjCharacters.LastOver(0, StandardObjectArtworkFormat.ByteCount)
+        SpriteCharacterPlacement shown = runtime.EnemySession.SpriteCharacters.LastOver(0, StandardObjectArtworkFormat.ByteCount)
             ?? throw new InvalidOperationException("Nothing is shown over the standard OBJ characters.");
         AssertEqual(0, shown.FirstByte, "the standard OBJ characters start the table");
         AssertEqual(StandardObjectArtworkFormat.ByteCount, shown.ByteCount, "the whole standard sheet is shown");

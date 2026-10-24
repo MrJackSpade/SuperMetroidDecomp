@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core;
@@ -67,7 +68,7 @@ internal static class CorpseRotPicturesVerification
             if (!rot.Rotting())
                 after++;
             rotted = Math.Max(rotted, checked((int)rot.Steps()));
-            SpriteArtwork rotting = Rotted(runtime.Artwork.GameplayObjectPage(runtime.EnemySession.ObjCharacters), simulation, expected,
+            SpriteArtwork rotting = Rotted(runtime.Artwork.GameplayObjectPage(runtime.EnemySession.SpriteCharacters), simulation, expected,
                 $"{context} after update {updates}");
             var sprites = new SpriteFrameBuffer();
             sprites.BeginFrame();
@@ -115,7 +116,7 @@ internal static class CorpseRotPicturesVerification
     /// </summary>
     private static SpriteArtwork Rotted(SpriteArtwork loaded, CorpseRotSimulation simulation, CorpseRotView rot, string context)
     {
-        byte[] characters = loaded.Characters[..ObjCharacterUploads.TableByteCount].ToArray();
+        byte[] characters = loaded.Characters[..SpriteCharacters.TableByteCount].ToArray();
         if (rot.Steps.Any(step => step is not null))
         {
             CorpseRotState state = simulation.States.SingleOrDefault(state => state.View.PictureName("frame") == rot.PictureName("frame"))

@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 /// A rotting corpse's staged characters, rotted as the cartridge rots them (#1392): the bytes of each row it uploads after
 /// each rot step, from which its sheet pictures every rot its frames can show, and the rots its rows can show together. A
 /// dead monster or the dead Torizo selects the rot its frames show by its kind (#1406); Mother Brain's corpse is pictured
-/// for the step each of its rows was uploaded at (<see cref="CorpseRotUploads"/>). Nothing rots pixels at run time.
+/// for the step each of its rows was uploaded at (<see cref="CorpseRotSteps"/>). Nothing rots pixels at run time.
 /// </summary>
 internal sealed class CorpseRotSimulation
 {

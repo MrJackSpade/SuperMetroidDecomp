@@ -104,7 +104,7 @@ internal sealed class SetCharacters
             CharacterRange[] layerRegions = read[first];
             var parts = new SpriteFrame($"{frame.Name}#{layer}", frame.Parts[first..end]);
             sources.AddRange(regions.Contents(layerRegions, showsRot).Select(contents => new SheetFrameSource(
-                SuperMetroid.AssetExtraction.Enemies.RuntimeCharacterUploadPlacements.Catalog.PictureName(name, layer, contents), parts, Page(contents))));
+                SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog.PictureName(name, layer, contents), parts, Page(contents))));
             layers.Add(layerRegions);
             first = end;
         }
@@ -149,7 +149,7 @@ internal sealed class SetCharacters
             {
                 // A character past the table reads the page's blank overhang.
                 int firstByte = (part.Character + row * SpriteArtwork.CharactersPerRow + column) * SpriteArtwork.CharacterByteCount;
-                if (firstByte < ObjCharacterUploads.TableByteCount && firstByte < region.FirstByte + region.ByteCount
+                if (firstByte < SpriteCharacters.TableByteCount && firstByte < region.FirstByte + region.ByteCount
                     && region.FirstByte < firstByte + SpriteArtwork.CharacterByteCount)
                     return true;
             }
@@ -160,7 +160,7 @@ internal sealed class SetCharacters
     /// <summary>The characters with each upload <paramref name="contents"/> names shown over its region.</summary>
     private SpriteArtwork Page(IReadOnlyList<CharacterRegionContent> contents)
     {
-        string key = SuperMetroid.AssetExtraction.Enemies.RuntimeCharacterUploadPlacements.Catalog.PictureName("page", 0, contents);
+        string key = SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog.PictureName("page", 0, contents);
         if (pages.TryGetValue(key, out SpriteArtwork? page))
             return page;
         byte[] shown = [.. table];
@@ -172,7 +172,7 @@ internal sealed class SetCharacters
                 regions.RotBytes(content).CopyTo(shown.AsSpan(range.FirstByte));
                 continue;
             }
-            if (content.Upload is not { } upload)
+            if (content.Placement is not { } upload)
                 continue;
             ReadOnlySpan<byte> bytes = upload.Source.Resolve(resolver).Span;
             int offset = range.FirstByte - upload.FirstByte;

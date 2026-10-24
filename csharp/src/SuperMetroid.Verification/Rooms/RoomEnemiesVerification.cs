@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.Core.Samus.Palettes;
@@ -169,8 +170,8 @@ internal static void VerifyRoomEnemyLoading()
     // Room load stages the tiles; they show over the OBJ characters as named transfers (#1406).
     enemies.GraphicsSet.ShowGraphics();
     var seededTiles = new SeededEnemyTileTransfers(enemies.TileArtwork ?? throw new InvalidOperationException("The fixture binds its seeded tiles."));
-    AssertEqual(2, enemies.Room.Session.ObjCharacters.Uploads.Count, "both enemy tile uploads are recorded for the OBJ page");
-    byte[] shown = new ObjCharacterTablePage().Page(enemies.Room.Session.ObjCharacters, seededTiles).Characters.ToArray();
+    AssertEqual(2, enemies.Room.Session.SpriteCharacters.Uploads.Count, "both enemy tile uploads are recorded for the OBJ page");
+    byte[] shown = new ObjCharacterTablePage().Page(enemies.Room.Session.SpriteCharacters, seededTiles).Characters.ToArray();
     AssertEqual(0x80, shown[0x2000], "ordinary enemy first tile byte");
     AssertEqual(0xbf, shown[0x203f], "ordinary enemy final tile byte");
     AssertEqual(0xc0, shown[0x1a00], "special enemy first tile byte");
@@ -217,7 +218,7 @@ internal static void VerifyRoomEnemyLoading()
     var installedCgram = new SamusColourRig();
     installedEnemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(installedVram), installedCgram.Gameplay));
     installedEnemies.GraphicsSet.ShowGraphics();
-    byte[] installedShown = new ObjCharacterTablePage().Page(installedEnemies.Room.Session.ObjCharacters, seededTiles).Characters.ToArray();
+    byte[] installedShown = new ObjCharacterTablePage().Page(installedEnemies.Room.Session.SpriteCharacters, seededTiles).Characters.ToArray();
     AssertTrue(shown.SequenceEqual(installedShown),
         "installed enemy PNGs preserve both native ordinary and high-bit OBJ placements");
     AssertTrue(new CgramPalettes(cgram).ImageEquals(new CgramPalettes(installedCgram)),
@@ -1229,7 +1230,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     var backgroundTransfers = ReadRetailCeresEscapeTransfers(nativeRidleyRom, 0xa6c4fe);
     AssertEqual(7, spriteTransfers.Count, "native Ceres sprite transfer count");
     AssertEqual(8, backgroundTransfers.Count, "native Ceres background transfer count");
-    ObjCharacterUploads shownPages = enemies.Presentation.ObjCharacters;
+    SpriteCharacters shownPages = enemies.Presentation.SpriteCharacters;
     int pagesBefore = shownPages.Uploads.Count;
     for (int record = 0; record < spriteTransfers.Count; record++)
     {
@@ -1251,9 +1252,9 @@ internal static void VerifyCeresRidleyRoomEntry()
     for (int index = 0; index < spriteTransfers.Count; index++)
     {
         VramWriteEntry expected = spriteTransfers[index];
-        ObjCharacterUpload actual = shownPages.Uploads[pagesBefore + index];
+        SpriteCharacterPlacement actual = shownPages.Uploads[pagesBefore + index];
         AssertEqual(expected.SizeInBytes, actual.ByteCount, $"Ceres page {index} native size");
-        AssertEqual(ObjCharacterUploads.TableByte(expected.Destination), actual.FirstByte, $"Ceres page {index} native place");
+        AssertEqual(SpriteCharacters.TableByte(expected.Destination), actual.FirstByte, $"Ceres page {index} native place");
         if (index < 2)
         {
             AssertEqual(0xb0c000 + index * 0x200, expected.SourceAddress,

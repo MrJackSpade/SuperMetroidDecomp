@@ -57,7 +57,7 @@ internal static class BossSpriteEntriesVerification
         }
 
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
-        var uploads = new ObjCharacterUploads();
+        var uploads = new SpriteCharacters();
         var queue = new VramWriteQueue();
         var statue = new TourianStatuePictureCharacters(AnimatedTileObject.TourianStatuePhantoon, TourianStatueTilePicture.Released);
         ReadOnlyMemory<byte> picture = statue.Resolve(runtime.Artwork);
@@ -86,7 +86,7 @@ internal static class BossSpriteEntriesVerification
         AssertTrue(artwork.Enemies.TryResolve(evir.TileDataAddress, evir.TileDataSize & short.MaxValue, out ReadOnlyMemory<byte> evirTiles) &&
             new EnemyTileCharacters(EnemyDefinitionId.Evir).Resolve(resolver).Span.SequenceEqual(evirTiles.Span),
             "Evir's tiles resolve to its installed sheet");
-        var uploads = new ObjCharacterUploads();
+        var uploads = new SpriteCharacters();
         uploads.Record(PlacedUploads.Of(DraygonIntroPresentationDefinitions.EvirTiles));
         SpriteArtwork page = new ObjCharacterTablePage().Page(uploads, resolver);
         int evirByte = PlacedUploads.Of(DraygonIntroPresentationDefinitions.EvirTiles).FirstByte;
@@ -145,7 +145,7 @@ internal static class BossSpriteEntriesVerification
     {
         InstalledEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
-        ObjCharacterUploads uploads = enemies.Room.Session.ObjCharacters;
+        SpriteCharacters uploads = enemies.Room.Session.SpriteCharacters;
         int corpseBytes = MotherBrainCorpseArtworkDefinitions.PageByteCount;
         enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, 1));
         AssertEqual<ObjCharacterSource>(new MotherBrainCorpseCharacters(1), uploads.Uploads.Single().Source,

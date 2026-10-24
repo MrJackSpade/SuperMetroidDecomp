@@ -8,33 +8,33 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// divide the characters into, and the picture of a frame drawn over them that shows (#1392). The encounters' own module
 /// supplies the uploads; the installed sheets carry the catalogue to the enemies drawing from them.
 /// </summary>
-public sealed class RuntimeCharacterUploadCatalog
+public sealed class EncounterCharacterCatalog
 {
     /// <summary>Each enemy's encounter's uploads, by the enemy whose graphics set loads the encounter.</summary>
-    private readonly IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<RuntimeCharacterUpload>> byEnemy;
+    private readonly IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<SpriteCharacterPlacement>> byEnemy;
 
     /// <summary>Every catalogued upload, once, in a fixed order whose index names it in picture names.</summary>
-    private readonly ImmutableArray<RuntimeCharacterUpload> all;
+    private readonly ImmutableArray<SpriteCharacterPlacement> all;
 
     /// <summary>Catalogues each enemy's encounter's uploads, by the enemy whose graphics set loads the encounter.</summary>
-    public RuntimeCharacterUploadCatalog(IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<RuntimeCharacterUpload>> byEnemy)
+    public EncounterCharacterCatalog(IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<SpriteCharacterPlacement>> byEnemy)
     {
         this.byEnemy = Ensure.NotNull(byEnemy);
         all = [.. byEnemy.OrderBy(entry => entry.Key).SelectMany(entry => entry.Value).Distinct()];
     }
 
-    /// <summary>The catalogued upload that shows <paramref name="source"/>.</summary>
+    /// <summary>The catalogued placement that shows <paramref name="source"/>.</summary>
     /// <exception cref="InvalidDataException">No catalogued encounter shows the source, or several place it differently.</exception>
-    public RuntimeCharacterUpload Upload(ObjCharacterSource source)
+    public SpriteCharacterPlacement Placement(ObjCharacterSource source)
     {
         Ensure.NotNull(source);
-        RuntimeCharacterUpload[] matches = [.. all.Where(upload => upload.Source == source)];
+        SpriteCharacterPlacement[] matches = [.. all.Where(upload => upload.Source == source)];
         return matches.Length == 1 ? matches[0]
             : throw new InvalidDataException(matches.Length == 0 ? $"No catalogued encounter shows {source}." : $"{source} is catalogued in {matches.Length} places.");
     }
 
     /// <summary>The uploads the encounters of graphics set <paramref name="set"/>'s members make, in catalogue order.</summary>
-    public IReadOnlyList<RuntimeCharacterUpload> Of(RoomEnemyGraphicsSetDefinition set) =>
+    public IReadOnlyList<SpriteCharacterPlacement> Of(RoomEnemyGraphicsSetDefinition set) =>
         [.. Ensure.NotNull(set).Records.Span.SelectToArray(record => record.DefinitionId).Distinct()
             .Where(byEnemy.ContainsKey).SelectMany(enemy => byEnemy[enemy]).Distinct().OrderBy(all.IndexOf)];
 
@@ -55,7 +55,7 @@ public sealed class RuntimeCharacterUploadCatalog
     {
         if (content.RotStep is int step)
             return $"rot{step}";
-        return content.Upload is { } upload ? $"u{all.IndexOf(upload)}" : "set";
+        return content.Placement is { } placement ? $"u{all.IndexOf(placement)}" : "set";
     }
 
     /// <summary>
@@ -68,7 +68,7 @@ public sealed class RuntimeCharacterUploadCatalog
     /// An upload the set's encounters do not make shows over its characters, or an animation shows a frame the set's
     /// encounters do not paint the region with.
     /// </exception>
-    public CharacterRegionContent Showing(ObjCharacterUploads uploads, IReadOnlyList<RuntimeCharacterUpload> setUploads,
+    public CharacterRegionContent Showing(SpriteCharacters uploads, IReadOnlyList<SpriteCharacterPlacement> setUploads,
         CharacterRegion region, ArtworkFrameSelections frames, SetCharacterCoverage coverage)
     {
         Ensure.NotNull(uploads);
@@ -76,12 +76,12 @@ public sealed class RuntimeCharacterUploadCatalog
         Ensure.NotNull(region);
         Ensure.NotNull(frames);
         Ensure.NotNull(coverage);
-        RuntimeCharacterUpload[] over = [.. setUploads.Where(upload => coverage.Covers(upload.Source, region))];
-        foreach (RuntimeCharacterUpload upload in over)
+        SpriteCharacterPlacement[] over = [.. setUploads.Where(upload => coverage.Covers(upload.Source, region))];
+        foreach (SpriteCharacterPlacement upload in over)
         {
             if (upload.Source is not ArtworkFrameCharacters painted || !frames.TryShown(painted.Frame.Animation, out ArtworkFrame shown))
                 continue;
-            RuntimeCharacterUpload selected = over.FirstOrDefault(candidate => candidate.Source is ArtworkFrameCharacters frame && frame.Frame == shown)
+            SpriteCharacterPlacement selected = over.FirstOrDefault(candidate => candidate.Source is ArtworkFrameCharacters frame && frame.Frame == shown)
                 ?? throw new InvalidDataException($"{shown} shows over region {region.Name}, which no encounter of this graphics set paints with it.");
             return new CharacterRegionContent(region, selected);
         }

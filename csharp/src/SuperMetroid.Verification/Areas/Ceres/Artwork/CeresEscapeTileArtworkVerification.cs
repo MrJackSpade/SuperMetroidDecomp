@@ -59,7 +59,7 @@ internal static class CeresEscapeTileArtworkVerification
             {
             }
         }
-        ObjCharacterUploads shown = installed.Presentation.ObjCharacters;
+        SpriteCharacters shown = installed.Presentation.SpriteCharacters;
         AssertEqual(7, shown.Uploads.Count, "Ceres escape production shows the timer-sprite list's seven pages");
         ReadOnlySpan<byte> installedPage = new ObjCharacterTablePage().Page(shown, new EnemyTileTransfers(stock, timer: timer)).Characters;
 
@@ -79,7 +79,7 @@ internal static class CeresEscapeTileArtworkVerification
         }
         var nativeVram = new SnesVram();
         ImportedVramOracle.Drain(nativeQueue, nativeVram, rom);
-        foreach (ObjCharacterUpload page in shown.Uploads)
+        foreach (SpriteCharacterPlacement page in shown.Uploads)
             AssertTrue(nativeVram.Bytes.Slice(GameplayVramLayout.ObjectCharacters.Offset * sizeof(ushort) + page.FirstByte, page.ByteCount)
                     .SequenceEqual(installedPage.Slice(page.FirstByte, page.ByteCount)),
                 $"the Ceres page {page.Source} matches the cartridge's OBJ characters without source reads");
@@ -131,14 +131,14 @@ internal static class CeresEscapeTileArtworkVerification
                 record.Pointer == CeresEscapeVramTransferDefinitions.TimerSprites);
         var editedState = new RidleyEnemyState { CeresEscapePages = CeresEscapePageCursor.Objects with { Shown = firstWarningPage } };
         _ = editedEnemies.CeresRidleyBehavior.Getaway.ShowNextCeresEscapePage(editedState);
-        ReadOnlySpan<byte> editedPage = new ObjCharacterTablePage().Page(editedEnemies.Presentation.ObjCharacters,
+        ReadOnlySpan<byte> editedPage = new ObjCharacterTablePage().Page(editedEnemies.Presentation.SpriteCharacters,
             new EnemyTileTransfers(edited, timer: timer)).Characters;
         AssertTrue(CeresEscapeVramTransferDefinitions.TryGet(
                 CeresEscapeVramTransferDefinitions.WarningTextFirstTransfer,
                 out TileTransferDefinition warningTransfer),
             "first warning transfer is compiled");
         AssertEqual(editedChunk.Span[0],
-            editedPage[ObjCharacterUploads.TableByte(VramDmaDestination.FromNative(warningTransfer.DestinationWord))],
+            editedPage[SpriteCharacters.TableByte(VramDmaDestination.FromNative(warningTransfer.DestinationWord))],
             "edited Ceres warning PNG changes the page production shows");
         AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Areas.CeresEscapeTiles ?? throw new InvalidOperationException("Verification requires the reloaded Ceres escape tiles.")).TryResolve(warning.SourceAddress, 0x0200,

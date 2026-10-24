@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core.World.Artwork;
@@ -1668,7 +1669,7 @@ internal static class LookupStream2Verification
         var slot = enemies.SlotTable.Slots[0];
         var part = new GunshipPartState();
         slot.SetSpeciesState(part, part.ClearWithRecord);
-        ObjCharacterUploads shown = enemies.Room.Session.ObjCharacters;
+        SpriteCharacters shown = enemies.Room.Session.SpriteCharacters;
         int enumerated = 0;
         foreach (var transfer in transfers)
         {

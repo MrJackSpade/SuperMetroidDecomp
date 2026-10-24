@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Verification.Areas.Escape.Artwork;
@@ -583,7 +584,7 @@ internal static class LookupStream1Verification
         AssertEqual(288, queue.Entries[1].SizeInBytes, "Second page size");
         AssertEqual((ushort)0x7f00, queue.Entries[1].Destination.Encoded, "Second page destination");
         AssertEqual(VramAssetId.EscapeTimerSecondTiles, queue.Entries[1].AssetId, "Second typed page identity");
-        var uploads = new ObjCharacterUploads();
+        var uploads = new SpriteCharacters();
         AssertTrue(stock.TryRecordNativeTransfer(uploads, 0xb0c000, 512, 0x7e00) && stock.TryRecordNativeTransfer(uploads, 0xb0c200, 288, 0x7f00), "Both synchronous native uploads accepted");
         AssertTrue(uploads.Uploads.Select(upload => upload.FirstByte).SequenceEqual([0x3c00, 0x3e00]) &&
             ((byte[])[.. stock.Resolve(VramAssetId.EscapeTimerFirstTiles).Span, .. stock.Resolve(VramAssetId.EscapeTimerSecondTiles).Span]).SequenceEqual(native),
@@ -591,7 +592,7 @@ internal static class LookupStream1Verification
         AssertTrue(stock.TryResolve(0xb0c000, 512, out var first) && first.Span.SequenceEqual(native.AsSpan(0, 512)), "First restored native page resolution");
         AssertTrue(stock.TryResolve(0xb0c200, 288, out var second) && second.Span.SequenceEqual(native.AsSpan(512)), "Second restored native page resolution");
         AssertTrue(!stock.TryResolve(0xb0c000, 511, out _), "Mismatched native page rejected");
-        AssertTrue(!stock.TryRecordNativeTransfer(new ObjCharacterUploads(), 0xb0c200, 288, 0x7e00), "Mismatched synchronous destination rejected");
+        AssertTrue(!stock.TryRecordNativeTransfer(new SpriteCharacters(), 0xb0c200, 288, 0x7e00), "Mismatched synchronous destination rejected");
         AssertTrue(Transfer(stock).SequenceEqual(native), "Stock timer remains immutable");
         Console.WriteLine("Timer font:836 direct outline pixels,312 shared/reflected pixels,275 retained fill positions/four deviations,173 calculated digit/T/I/E basis fill sites,1600 independent PNG edits,800 native planar bytes and exact two-page queue/VRAM uploads pass.");
     }

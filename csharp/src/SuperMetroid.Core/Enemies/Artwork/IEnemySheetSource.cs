@@ -14,7 +14,7 @@ public interface IEnemySheetSource
     SpawnedObjectSheet Spawned(RoomEnemyGraphicsSetDefinition set, int tileBase);
 
     /// <summary>The uploads each encounter makes over the characters, whose pictures the sheets hold.</summary>
-    RuntimeCharacterUploadCatalog Uploads { get; }
+    EncounterCharacterCatalog Encounters { get; }
 
     /// <summary>What covers each region of graphics set <paramref name="set"/>'s characters (#1406).</summary>
     SetCharacterCoverage Coverage(RoomEnemyGraphicsSetDefinition set);

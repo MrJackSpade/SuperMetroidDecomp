@@ -1259,7 +1259,7 @@ internal sealed class RoomLoader
     {
         RoomScope scope = _room.Scope ?? throw new InvalidOperationException("A door began with no room loaded.");
         return scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane, null,
-            RoomCharacterSource.Of(RoomScope.CharactersOf(_room.ActiveRoom), _backgrounds, _enemySession.ObjCharacters, scope.AnimatedCharacters,
+            RoomCharacterSource.Of(RoomScope.CharactersOf(_room.ActiveRoom), _backgrounds, _enemySession.SpriteCharacters, scope.AnimatedCharacters,
                 scope.ArtworkFrames), []);
     }
 

@@ -37,21 +37,22 @@ internal sealed class EnemyGraphicsSet
     /// them, as LoadEnemyTileData's copies follow the standard room graphics; the cartridge queues them before any enemy
     /// AI's own transfer, which these records also precede.
     /// </remarks>
-    /// <exception cref="InvalidDataException">An entry's tiles are not word-aligned or exceed one native copy.</exception>
+    /// <exception cref="InvalidDataException">An entry's tiles are not whole characters from a character's start.</exception>
     public void ShowGraphics()
     {
         _room.EnsureLoaded();
         foreach (RoomEnemyGraphicsSetEntry entry in Entries)
         {
-            if ((entry.StagingOffset & 1) != 0 || entry.TileByteCount > ushort.MaxValue)
-                throw new InvalidDataException("Enemy tiles are not word-aligned or exceed one native copy.");
-            _room.Session.ObjCharacters.Record(EnemyTileAreaFirstByte + entry.StagingOffset, entry.TileByteCount,
-                new GraphicsSetTileCharacters(entry.DefinitionId));
+            if (entry.StagingOffset % SpriteCharacters.CharacterByteCount != 0 || entry.TileByteCount % SpriteCharacters.CharacterByteCount != 0)
+                throw new InvalidDataException($"{entry.DefinitionId}'s tiles are not whole sprite characters from a character's start.");
+            _room.Session.SpriteCharacters.Show(new SpriteCharacterPlacement(new GraphicsSetTileCharacters(entry.DefinitionId),
+                EnemyTileAreaFirstCharacter + entry.StagingOffset / SpriteCharacters.CharacterByteCount,
+                entry.TileByteCount / SpriteCharacters.CharacterByteCount));
         }
     }
 
-    /// <summary>The OBJ character table byte the enemy tile area begins at, $1800: VRAM byte $D800 less the table's $C000.</summary>
-    internal const int EnemyTileAreaFirstByte = 0x1800;
+    /// <summary>The sprite character the enemy tile area begins at: the first after the standard sprites' area.</summary>
+    internal const int EnemyTileAreaFirstCharacter = 0xc0;
 
     /// <summary>The bytes of the enemy tile area: $2800, through the end of the OBJ character table.</summary>
     private const int EnemyTileAreaByteCount = 0x2800;

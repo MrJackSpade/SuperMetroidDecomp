@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -14,11 +15,11 @@ internal static class ObjCharacterVramImage
     /// <param name="uploads">The OBJ character table's uploads.</param>
     /// <param name="resolver">Resolves the uploads' named artwork.</param>
     [PpuLayoutBoundary("exact hardware test: places an OBJ page at the native OBJ character table")]
-    internal static SnesVram Of(ObjCharacterUploads uploads, IObjCharacterSourceResolver resolver)
+    internal static SnesVram Of(SpriteCharacters uploads, IObjCharacterSourceResolver resolver)
     {
         var vram = new SnesVram();
         vram.LoadBytes(GameplayVramLayout.ObjectCharacters.Offset * 2,
-            new ObjCharacterTablePage().Page(uploads, resolver).Characters[..ObjCharacterUploads.TableByteCount]);
+            new ObjCharacterTablePage().Page(uploads, resolver).Characters[..SpriteCharacters.TableByteCount]);
         return vram;
     }
 }

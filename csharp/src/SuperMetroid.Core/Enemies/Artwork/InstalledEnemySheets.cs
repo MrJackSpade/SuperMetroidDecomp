@@ -40,10 +40,10 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
         IReadOnlyDictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, CharacterRegion[][]>> spawnedPictures,
         IReadOnlyDictionary<EnemySheetKey, IReadOnlyDictionary<string, string>> rotPictures,
         IReadOnlyDictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, string>> spawnedRotPictures,
-        RuntimeCharacterUploadCatalog uploads, IReadOnlyDictionary<string, SetCharacterCoverage> coverage)
+        EncounterCharacterCatalog uploads, IReadOnlyDictionary<string, SetCharacterCoverage> coverage)
     {
         this.coverage = new Dictionary<string, SetCharacterCoverage>(Ensure.NotNull(coverage), StringComparer.Ordinal);
-        Uploads = Ensure.NotNull(uploads);
+        Encounters = Ensure.NotNull(uploads);
         this.sheets = new Dictionary<EnemySheetKey, SpriteSheet>(Ensure.NotNull(sheets));
         this.spawned = new Dictionary<SpawnedObjectSheetKey, SpawnedObjectSheet>(Ensure.NotNull(spawned));
         this.pictures = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, CharacterRegion[][]>>(Ensure.NotNull(pictures));
@@ -53,7 +53,7 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
     }
 
     /// <inheritdoc/>
-    public RuntimeCharacterUploadCatalog Uploads { get; }
+    public EncounterCharacterCatalog Encounters { get; }
 
     /// <inheritdoc/>
     public SetCharacterCoverage Coverage(RoomEnemyGraphicsSetDefinition set) =>

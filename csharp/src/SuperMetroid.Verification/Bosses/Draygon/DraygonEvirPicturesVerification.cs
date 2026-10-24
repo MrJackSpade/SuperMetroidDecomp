@@ -64,7 +64,7 @@ internal static class DraygonEvirPicturesVerification
 
         UploadedPictureChecks.AssertDrawnPictures(sheet, setPictures, AssertDrawnLikeParts(runtime, evir, "before the opening upload"),
             "an Evir drawn before the opening upload shows the pictures of the set's own characters");
-        runtime.EnemySession.ObjCharacters.Record(PlacedUploads.Of(DraygonIntroPresentationDefinitions.EvirTiles));
+        runtime.EnemySession.SpriteCharacters.Record(PlacedUploads.Of(DraygonIntroPresentationDefinitions.EvirTiles));
         UploadedPictureChecks.AssertDrawnPictures(sheet, evirPictures, AssertDrawnLikeParts(runtime, evir, "after the opening upload"),
             "an Evir drawn after the opening upload shows the pictures of the Evirs' tiles");
         Console.WriteLine($"Draygon Evir pictures: {string.Join(", ", setPictures)} before her opening upload and {string.Join(", ", evirPictures)} after, each painting its frame over the live characters.");
@@ -76,7 +76,7 @@ internal static class DraygonEvirPicturesVerification
     /// </summary>
     private static ImmutableArray<SpriteDraw> AssertDrawnLikeParts(SuperMetroidRuntime runtime, RoomSpriteObjectSlot evir, string when)
     {
-        SpriteArtwork live = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.ObjCharacters);
+        SpriteArtwork live = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.SpriteCharacters);
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
         runtime.Enemies.SpriteObjects.DrawRoomSpriteObjects(sprites, Position16<RoomPixels>.Zero);

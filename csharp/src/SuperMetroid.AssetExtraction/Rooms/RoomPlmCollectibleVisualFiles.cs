@@ -102,8 +102,8 @@ public static class RoomPlmCollectibleVisualFiles
         for (int animation = 0; animation < 2; animation++)
         {
             ushort table = animation == 0
-                ? PlmDrawAddresses.CollectibleDynamicFrame0Table
-                : PlmDrawAddresses.CollectibleDynamicFrame1Table;
+                ? PlmDrawSourceDefinitions.CollectibleDynamicFrame0Table.Offset
+                : PlmDrawSourceDefinitions.CollectibleDynamicFrame1Table.Offset;
             ushort native = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, (checked((ushort)(table + slot * 2)))));
             ushort compiled = PlmDrawAddressCodec.Of(RoomPlmCollectibleDrawDefinitions.VisibleFrame(
                 InWorldCollectibleKind.Bombs, animation, slot));

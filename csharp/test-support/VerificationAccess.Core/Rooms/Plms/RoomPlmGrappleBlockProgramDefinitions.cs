@@ -1,4 +1,4 @@
-﻿using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
@@ -39,7 +39,7 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
             Program program = ProgramAt(index);
             if (address == program.Start + 2)
             {
-                value = PlmDrawAddresses.GrappleBlockFirst;
+                value = PlmDrawSourceDefinitions.GrappleBlockFirst.Offset;
                 return true;
             }
             int drawOffset = address - program.Start - 9;
@@ -50,7 +50,7 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
                 // follows the Grapple record in that order.
                 const int drawRecordBytes = 6;
                 int pose = frame < 4 ? frame : 6 - frame;
-                value = (ushort)(PlmDrawAddresses.GrappleBlockFirst + drawRecordBytes * (pose + 1));
+                value = (ushort)(PlmDrawSourceDefinitions.GrappleBlockFirst.Offset + drawRecordBytes * (pose + 1));
                 return true;
             }
         }

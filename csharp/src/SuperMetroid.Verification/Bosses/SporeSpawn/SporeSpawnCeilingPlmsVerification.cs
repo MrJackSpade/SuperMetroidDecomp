@@ -166,8 +166,8 @@ internal static class SporeSpawnCeilingPlmsVerification
                 return (SnesAddressMath.BankNumber(address)) == 0x84 &&
                     ((pointer >= BossRoomPlmNativeListAddresses.SporeSpawnCeilingEntries[0].Entry &&
                       pointer < BossRoomPlmNativeListAddresses.SporeSpawnCeilingEntries[1].Entry + 6) ||
-                     (pointer >= PlmDrawAddresses.SporeSpawnCeiling[SporeSpawnCeilingDraw.Clear] &&
-                      pointer < PlmDrawAddresses.SporeSpawnCeiling[SporeSpawnCeilingDraw.CrumbleThird] + 16));
+                     (pointer >= PlmDrawSourceDefinitions.SporeSpawnCeiling[SporeSpawnCeilingDraw.Clear].Offset &&
+                      pointer < PlmDrawSourceDefinitions.SporeSpawnCeiling[SporeSpawnCeilingDraw.CrumbleThird].Offset + 16));
             },
             address => $"Spore Spawn ceiling reread migrated source ${address:X6}.");
 

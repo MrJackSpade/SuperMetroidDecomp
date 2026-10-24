@@ -40,7 +40,7 @@ internal static class EndingExplosionSpriteArtworkVerification
             ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
             int header = 0x8c0000 | pointer;
             int parts = CartridgeImportSource.Require(bus).ReadCartridgeWord(header);
-            AssertEqual(pointer, CinematicSpritemapAddresses.Of(frames[i].Pose), $"explosion catalog native pointer {i}");
+            AssertEqual(pointer, CinematicSpritemapSources.Of(frames[i].Pose), $"explosion catalog native pointer {i}");
             AssertEqual(frames[i].Pose, i < 10 ? EndingExplosionSpriteDefinitions.PlanetPose(i) :
                 EndingExplosionSpriteDefinitions.PoseOf((EndingExplosionSpriteDefinitions.Pose)i),
                 $"explosion shared pose {i}");
@@ -74,7 +74,7 @@ internal static class EndingExplosionSpriteArtworkVerification
         {
             ushort pointer = pose < 10 ? (ushort)(0xa396 + pose * 22) : pose == 10 ? (ushort)0xa472 : pose == 11 ? (ushort)0xa4b0 : pose == 12 ? (ushort)0xa516 : pose == 13 ? (ushort)0xa28b : pose == 14 ? (ushort)0xa5e2 : (ushort)0xa57c;
             CinematicSpritePose shown = EndingExplosionSpriteDefinitions.Frames
-                .Single(frame => CinematicSpritemapAddresses.Of(frame.Pose) == pointer).Pose;
+                .Single(frame => CinematicSpritemapSources.Of(frame.Pose) == pointer).Pose;
             int count = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x8c0000 | pointer);
             var visual = new SpriteVisualPart[count];
             for (int index = 0; index < count; index++)
@@ -175,7 +175,7 @@ internal static class EndingExplosionSpriteArtworkVerification
                 bool onScreen =
                     ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0;
                 int source = (int)new SnesAddress(
-                    IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapAddresses.Of(frame.Pose));
+                    IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapSources.Of(frame.Pose));
                 var nativeOam = new OamBuffer();
                 nativeOam.BeginFrame();
                 if (onScreen)

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
@@ -12,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// Resolves a PLM draw to where the cartridge stores it (#1402). Enumerated families look their draw up in
-/// <see cref="PlmDrawAddresses"/>; families whose draws the cartridge lays out at a fixed stride compute it from the
+/// <see cref="PlmDrawSourceDefinitions"/>; families whose draws the cartridge lays out at a fixed stride compute it from the
 /// family's first draw.
 /// </summary>
 internal static class PlmDrawAddressCodec
@@ -41,95 +42,98 @@ internal static class PlmDrawAddressCodec
     /// <summary>Bytes between successive eye frames of an eye door.</summary>
     private const int EyeStride = 8;
 
-    /// <summary>The cartridge address of <paramref name="draw"/>.</summary>
+    /// <summary>The bank-$84 pointer to <paramref name="draw"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="draw"/> belongs to no family the cartridge stores.</exception>
-    internal static ushort Of(PlmDraw draw) => draw switch
+    internal static ushort Of(PlmDraw draw) => Source(draw).Offset;
+
+    /// <summary>Where the cartridge stores <paramref name="draw"/>.</summary>
+    private static SnesAddress Source(PlmDraw draw) => draw switch
     {
-        PlmFrameDraw<BombBlockRestoreDraw> { Frame: var frame } => PlmDrawAddresses.BombBlockRestore[frame],
-        PlmFrameDraw<BombTorizoHandDraw> { Frame: var frame } => PlmDrawAddresses.BombTorizoHand[frame],
-        PlmFrameDraw<BotwoonWallDraw> { Frame: var frame } => PlmDrawAddresses.BotwoonWall[frame],
-        PlmFrameDraw<ChozoStatueDraw> { Frame: var frame } => PlmDrawAddresses.ChozoStatue[frame],
-        PlmFrameDraw<ContactCrumbleRestoreDraw> { Frame: var frame } => PlmDrawAddresses.ContactCrumbleRestore[frame],
-        PlmFrameDraw<CrocomireArenaDraw> { Frame: var frame } => PlmDrawAddresses.CrocomireArena[frame],
-        PlmFrameDraw<DownwardGateDraw> { Frame: var frame } => PlmDrawAddresses.DownwardGate[frame],
-        PlmFrameDraw<DraygonCannonDraw> { Frame: var frame } => PlmDrawAddresses.DraygonCannon[frame],
-        PlmFrameDraw<ElevatorPlatformDraw> { Frame: var frame } => PlmDrawAddresses.ElevatorPlatform[frame],
-        PlmFrameDraw<EscapeAnimalDraw> { Frame: var frame } => PlmDrawAddresses.EscapeAnimal[frame],
-        PlmFrameDraw<KraidRoomDraw> { Frame: var frame } => PlmDrawAddresses.KraidRoom[frame],
-        PlmFrameDraw<MotherBrainEscapeGateDraw> { Frame: var frame } => PlmDrawAddresses.MotherBrainEscapeGate[frame],
-        PlmFrameDraw<MotherBrainFakeDeathDraw> { Frame: var frame } => PlmDrawAddresses.MotherBrainFakeDeath[frame],
-        PlmFrameDraw<MotherBrainGlassDraw> { Frame: var frame } => PlmDrawAddresses.MotherBrainGlass[frame],
-        PlmFrameDraw<NoobTubeDraw> { Frame: var frame } => PlmDrawAddresses.NoobTube[frame],
-        PlmFrameDraw<RoomPlmBombedRevealDraw> { Frame: var frame } => PlmDrawAddresses.RoomPlmBombedReveal[frame],
-        PlmFrameDraw<SamusEaterDraw> { Frame: var frame } => PlmDrawAddresses.SamusEater[frame],
-        PlmFrameDraw<SporeSpawnCeilingDraw> { Frame: var frame } => PlmDrawAddresses.SporeSpawnCeiling[frame],
-        PlmFrameDraw<StationDraw> { Frame: var frame } => PlmDrawAddresses.Station[frame],
-        PlmFrameDraw<TourianAccessDraw> { Frame: var frame } => PlmDrawAddresses.TourianAccess[frame],
+        PlmFrameDraw<BombBlockRestoreDraw> { Frame: var frame } => PlmDrawSourceDefinitions.BombBlockRestore[frame],
+        PlmFrameDraw<BombTorizoHandDraw> { Frame: var frame } => PlmDrawSourceDefinitions.BombTorizoHand[frame],
+        PlmFrameDraw<BotwoonWallDraw> { Frame: var frame } => PlmDrawSourceDefinitions.BotwoonWall[frame],
+        PlmFrameDraw<ChozoStatueDraw> { Frame: var frame } => PlmDrawSourceDefinitions.ChozoStatue[frame],
+        PlmFrameDraw<ContactCrumbleRestoreDraw> { Frame: var frame } => PlmDrawSourceDefinitions.ContactCrumbleRestore[frame],
+        PlmFrameDraw<CrocomireArenaDraw> { Frame: var frame } => PlmDrawSourceDefinitions.CrocomireArena[frame],
+        PlmFrameDraw<DownwardGateDraw> { Frame: var frame } => PlmDrawSourceDefinitions.DownwardGate[frame],
+        PlmFrameDraw<DraygonCannonDraw> { Frame: var frame } => PlmDrawSourceDefinitions.DraygonCannon[frame],
+        PlmFrameDraw<ElevatorPlatformDraw> { Frame: var frame } => PlmDrawSourceDefinitions.ElevatorPlatform[frame],
+        PlmFrameDraw<EscapeAnimalDraw> { Frame: var frame } => PlmDrawSourceDefinitions.EscapeAnimal[frame],
+        PlmFrameDraw<KraidRoomDraw> { Frame: var frame } => PlmDrawSourceDefinitions.KraidRoom[frame],
+        PlmFrameDraw<MotherBrainEscapeGateDraw> { Frame: var frame } => PlmDrawSourceDefinitions.MotherBrainEscapeGate[frame],
+        PlmFrameDraw<MotherBrainFakeDeathDraw> { Frame: var frame } => PlmDrawSourceDefinitions.MotherBrainFakeDeath[frame],
+        PlmFrameDraw<MotherBrainGlassDraw> { Frame: var frame } => PlmDrawSourceDefinitions.MotherBrainGlass[frame],
+        PlmFrameDraw<NoobTubeDraw> { Frame: var frame } => PlmDrawSourceDefinitions.NoobTube[frame],
+        PlmFrameDraw<RoomPlmBombedRevealDraw> { Frame: var frame } => PlmDrawSourceDefinitions.RoomPlmBombedReveal[frame],
+        PlmFrameDraw<SamusEaterDraw> { Frame: var frame } => PlmDrawSourceDefinitions.SamusEater[frame],
+        PlmFrameDraw<SporeSpawnCeilingDraw> { Frame: var frame } => PlmDrawSourceDefinitions.SporeSpawnCeiling[frame],
+        PlmFrameDraw<StationDraw> { Frame: var frame } => PlmDrawSourceDefinitions.Station[frame],
+        PlmFrameDraw<TourianAccessDraw> { Frame: var frame } => PlmDrawSourceDefinitions.TourianAccess[frame],
         PlmFrameDraw<RoomPlmShotBlockDrawDefinitions.Draw> { Frame: var shot } => ShotBlock(shot),
-        PlmFrameDraw<GrappleBlockDraw> { Frame: var grapple } => Offset(PlmDrawAddresses.GrappleBlockFirst, GrappleIndex(grapple) * OneBlockStride),
+        PlmFrameDraw<GrappleBlockDraw> { Frame: var grapple } => Offset(PlmDrawSourceDefinitions.GrappleBlockFirst, GrappleIndex(grapple) * OneBlockStride),
         PlmFrameDraw<RoomPlmCollectibleDrawDefinitions.Draw> { Frame: var item } => Collectible(item),
-        PlmFrameDraw<BlueDoorPlmDrawDefinitions.Draw> { Frame: var blue } => Offset(PlmDrawAddresses.BlueDoorLeftAlias,
+        PlmFrameDraw<BlueDoorPlmDrawDefinitions.Draw> { Frame: var blue } => Offset(PlmDrawSourceDefinitions.BlueDoorLeftAlias,
             FacingIndex(blue.Orientation) * BlueFacingStride + (blue.Frame - BlueDoorPlmDrawDefinitions.AliasFrame) * CapStride),
         PlmFrameDraw<GreyDoorPlmDrawDefinitions.Draw> { Frame: { Frame: GreyDoorPlmDrawDefinitions.ClearFrame } clear } =>
-            Offset(PlmDrawAddresses.DoorClearLeft, FacingIndex(clear.Orientation) * CapStride),
-        PlmFrameDraw<GreyDoorPlmDrawDefinitions.Draw> { Frame: var grey } => Offset(PlmDrawAddresses.GreyDoorLeft,
+            Offset(PlmDrawSourceDefinitions.DoorClearLeft, FacingIndex(clear.Orientation) * CapStride),
+        PlmFrameDraw<GreyDoorPlmDrawDefinitions.Draw> { Frame: var grey } => Offset(PlmDrawSourceDefinitions.GreyDoorLeft,
             FacingIndex(grey.Orientation) * CapFacingStride + grey.Frame * CapStride),
-        PlmFrameDraw<ColoredDoorPlmDrawDefinitions.Draw> { Frame: var colored } => Offset(PlmDrawAddresses.ColoredDoorYellowLeft,
+        PlmFrameDraw<ColoredDoorPlmDrawDefinitions.Draw> { Frame: var colored } => Offset(PlmDrawSourceDefinitions.ColoredDoorYellowLeft,
             ColorIndex(colored.Color) * ColorStride + FacingIndex(colored.Orientation) * CapFacingStride + colored.Frame * CapStride),
         PlmFrameDraw<EyeDoorPlmDrawDefinitions.Draw> { Frame: var eye } => EyeDoor(eye),
-        PlmFrameDraw<CrateriaMainstreetEscapePassagePlmDefinitions.Draw> => PlmDrawAddresses.CrateriaPassageClearPair,
-        PlmFrameDraw<OldTourianEscapeShaftWallPlmDefinitions.Draw> => PlmDrawAddresses.OldTourianShaftWallOpen,
-        PlmFrameDraw<MaridiaElevatubePlmDefinitions.Draw> => PlmDrawAddresses.MaridiaElevatubeBlock,
-        PlmFrameDraw<SpeedBoosterBlockPlmDrawDefinitions.Draw> => PlmDrawAddresses.SpeedBoosterBombReveal,
+        PlmFrameDraw<CrateriaMainstreetEscapePassagePlmDefinitions.Draw> => PlmDrawSourceDefinitions.CrateriaPassageClearPair,
+        PlmFrameDraw<OldTourianEscapeShaftWallPlmDefinitions.Draw> => PlmDrawSourceDefinitions.OldTourianShaftWallOpen,
+        PlmFrameDraw<MaridiaElevatubePlmDefinitions.Draw> => PlmDrawSourceDefinitions.MaridiaElevatubeBlock,
+        PlmFrameDraw<SpeedBoosterBlockPlmDrawDefinitions.Draw> => PlmDrawSourceDefinitions.SpeedBoosterBombReveal,
         _ => throw new InvalidDataException($"{draw} has no cartridge address."),
     };
 
     /// <summary>A shot-block breakup frame at its shape's stride, or the shape's restoration.</summary>
-    private static ushort ShotBlock(RoomPlmShotBlockDrawDefinitions.Draw shot) =>
+    private static SnesAddress ShotBlock(RoomPlmShotBlockDrawDefinitions.Draw shot) =>
         shot.Restore ? ShotBlockRestoration(shot) : ShotBlockBreakup(shot);
 
     /// <summary>A shot-block breakup frame, at its shape's stride from the shape's first frame.</summary>
-    private static ushort ShotBlockBreakup(RoomPlmShotBlockDrawDefinitions.Draw shot) => shot.Layout switch
+    private static SnesAddress ShotBlockBreakup(RoomPlmShotBlockDrawDefinitions.Draw shot) => shot.Layout switch
     {
-        RoomPlmShotBlockDrawDefinitions.Shape.Single => Offset(PlmDrawAddresses.SingleBreakupFirst, shot.Frame * OneBlockStride),
-        RoomPlmShotBlockDrawDefinitions.Shape.Horizontal => Offset(PlmDrawAddresses.HorizontalBreakupFirst, shot.Frame * PairStride),
-        RoomPlmShotBlockDrawDefinitions.Shape.Vertical => Offset(PlmDrawAddresses.VerticalBreakupFirst, shot.Frame * PairStride),
-        RoomPlmShotBlockDrawDefinitions.Shape.Square => Offset(PlmDrawAddresses.SquareBreakupFirst, shot.Frame * SquareStride),
+        RoomPlmShotBlockDrawDefinitions.Shape.Single => Offset(PlmDrawSourceDefinitions.SingleBreakupFirst, shot.Frame * OneBlockStride),
+        RoomPlmShotBlockDrawDefinitions.Shape.Horizontal => Offset(PlmDrawSourceDefinitions.HorizontalBreakupFirst, shot.Frame * PairStride),
+        RoomPlmShotBlockDrawDefinitions.Shape.Vertical => Offset(PlmDrawSourceDefinitions.VerticalBreakupFirst, shot.Frame * PairStride),
+        RoomPlmShotBlockDrawDefinitions.Shape.Square => Offset(PlmDrawSourceDefinitions.SquareBreakupFirst, shot.Frame * SquareStride),
         _ => throw new InvalidDataException($"Shot-block draw {shot} has no cartridge address."),
     };
 
     /// <summary>A shot-block shape's restoration draw.</summary>
-    private static ushort ShotBlockRestoration(RoomPlmShotBlockDrawDefinitions.Draw shot) => shot.Layout switch
+    private static SnesAddress ShotBlockRestoration(RoomPlmShotBlockDrawDefinitions.Draw shot) => shot.Layout switch
     {
-        RoomPlmShotBlockDrawDefinitions.Shape.Horizontal => PlmDrawAddresses.ShotBlockRestoreHorizontal,
-        RoomPlmShotBlockDrawDefinitions.Shape.Vertical => PlmDrawAddresses.ShotBlockRestoreVertical,
-        RoomPlmShotBlockDrawDefinitions.Shape.Square => PlmDrawAddresses.ShotBlockRestoreSquare,
+        RoomPlmShotBlockDrawDefinitions.Shape.Horizontal => PlmDrawSourceDefinitions.ShotBlockRestoreHorizontal,
+        RoomPlmShotBlockDrawDefinitions.Shape.Vertical => PlmDrawSourceDefinitions.ShotBlockRestoreVertical,
+        RoomPlmShotBlockDrawDefinitions.Shape.Square => PlmDrawSourceDefinitions.ShotBlockRestoreSquare,
         RoomPlmShotBlockDrawDefinitions.Shape.Single => throw new InvalidDataException($"A single shot block has no restoration draw: {shot}."),
         _ => throw new InvalidDataException($"Shot-block draw {shot} has no cartridge address."),
     };
 
     /// <summary>A collectible draw: its group's first draw, then one six-byte record per frame.</summary>
-    private static ushort Collectible(RoomPlmCollectibleDrawDefinitions.Draw item) => item.Group switch
+    private static SnesAddress Collectible(RoomPlmCollectibleDrawDefinitions.Draw item) => item.Group switch
     {
-        RoomPlmCollectibleDrawDefinitions.DrawGroup.Empty => PlmDrawAddresses.CollectibleEmpty,
-        RoomPlmCollectibleDrawDefinitions.DrawGroup.Orb => Offset(PlmDrawAddresses.CollectibleOrbFirst, item.Index * OneBlockStride),
-        RoomPlmCollectibleDrawDefinitions.DrawGroup.OrbBurst => PlmDrawAddresses.CollectibleOrbBurst,
-        RoomPlmCollectibleDrawDefinitions.DrawGroup.Tank => Offset(PlmDrawAddresses.CollectibleTankFirst, item.Index * OneBlockStride),
-        RoomPlmCollectibleDrawDefinitions.DrawGroup.Dynamic => Offset(PlmDrawAddresses.CollectibleDynamicFirst, item.Index * OneBlockStride),
-        RoomPlmCollectibleDrawDefinitions.DrawGroup.ShotReveal => Offset(PlmDrawAddresses.CollectibleShotRevealFirst, item.Index * OneBlockStride),
+        RoomPlmCollectibleDrawDefinitions.DrawGroup.Empty => PlmDrawSourceDefinitions.CollectibleEmpty,
+        RoomPlmCollectibleDrawDefinitions.DrawGroup.Orb => Offset(PlmDrawSourceDefinitions.CollectibleOrbFirst, item.Index * OneBlockStride),
+        RoomPlmCollectibleDrawDefinitions.DrawGroup.OrbBurst => PlmDrawSourceDefinitions.CollectibleOrbBurst,
+        RoomPlmCollectibleDrawDefinitions.DrawGroup.Tank => Offset(PlmDrawSourceDefinitions.CollectibleTankFirst, item.Index * OneBlockStride),
+        RoomPlmCollectibleDrawDefinitions.DrawGroup.Dynamic => Offset(PlmDrawSourceDefinitions.CollectibleDynamicFirst, item.Index * OneBlockStride),
+        RoomPlmCollectibleDrawDefinitions.DrawGroup.ShotReveal => Offset(PlmDrawSourceDefinitions.CollectibleShotRevealFirst, item.Index * OneBlockStride),
         _ => throw new InvalidDataException($"Collectible draw {item} has no cartridge address."),
     };
 
     /// <summary>An eye-door draw: the right door's draws follow the left's at a fixed offset.</summary>
-    private static ushort EyeDoor(EyeDoorPlmDrawDefinitions.Draw eye)
+    private static SnesAddress EyeDoor(EyeDoorPlmDrawDefinitions.Draw eye)
     {
-        int side = eye.Left ? 0 : PlmDrawAddresses.EyeDoorRightOffset;
+        int side = eye.Left ? 0 : PlmDrawSourceDefinitions.EyeDoorRightOffset;
         return eye.Part switch
         {
-            EyeDoorPlmDrawDefinitions.Component.Clear => Offset(PlmDrawAddresses.EyeDoorMirroredOpeningClear, side),
-            EyeDoorPlmDrawDefinitions.Component.Eye => Offset(PlmDrawAddresses.EyeDoorLeftEyeFirst, side + eye.Frame * EyeStride),
-            EyeDoorPlmDrawDefinitions.Component.Middle => Offset(PlmDrawAddresses.EyeDoorLeftMiddleFirst, side + eye.Frame * OneBlockStride),
-            EyeDoorPlmDrawDefinitions.Component.Bottom => Offset(PlmDrawAddresses.EyeDoorLeftBottomFirst, side + eye.Frame * OneBlockStride),
+            EyeDoorPlmDrawDefinitions.Component.Clear => Offset(PlmDrawSourceDefinitions.EyeDoorMirroredOpeningClear, side),
+            EyeDoorPlmDrawDefinitions.Component.Eye => Offset(PlmDrawSourceDefinitions.EyeDoorLeftEyeFirst, side + eye.Frame * EyeStride),
+            EyeDoorPlmDrawDefinitions.Component.Middle => Offset(PlmDrawSourceDefinitions.EyeDoorLeftMiddleFirst, side + eye.Frame * OneBlockStride),
+            EyeDoorPlmDrawDefinitions.Component.Bottom => Offset(PlmDrawSourceDefinitions.EyeDoorLeftBottomFirst, side + eye.Frame * OneBlockStride),
             _ => throw new InvalidDataException($"Eye-door draw {eye} has no cartridge address."),
         };
     }
@@ -165,5 +169,5 @@ internal static class PlmDrawAddressCodec
     };
 
     /// <summary>An address <paramref name="bytes"/> past <paramref name="first"/>.</summary>
-    private static ushort Offset(ushort first, int bytes) => checked((ushort)(first + bytes));
+    private static SnesAddress Offset(SnesAddress first, int bytes) => new(first.Bank, checked((ushort)(first.Offset + bytes)));
 }

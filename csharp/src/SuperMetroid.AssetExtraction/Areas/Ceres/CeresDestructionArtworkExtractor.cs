@@ -66,7 +66,7 @@ internal static class CeresDestructionArtworkExtractor
         foreach (CeresDestructionSpriteFrameDefinition definition in
             CeresDestructionSpriteDefinitions.Frames)
             frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(
-                bus, CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name));
+                bus, CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
         using var spritesJson = new MemoryStream();
         CeresDestructionSpritePresentation.Write(spritesJson,
             new CeresDestructionSpriteDocument

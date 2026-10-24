@@ -197,15 +197,15 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         }
         AssertEqual(3, checkedLists.Count,
             "Phantoon uses the three compiled retail hitbox lists");
-        AssertEqual(EnemyAiCodePointers.BankA7.PhantoonShot.Offset,
+        AssertEqual(EnemyAiRoutineDefinitions.BankA7.PhantoonShot.Offset,
             FindPhantoonHitboxCallback(stock, (ushort)PhantoonCollisionFrame.BodyFullHitbox,
                 new(0x0080, 0x0080), selectShot: true),
             "Phantoon full-body frame selects native shot callback");
-        AssertEqual(EnemyAiCodePointers.BankA7.PhantoonShot.Offset,
+        AssertEqual(EnemyAiRoutineDefinitions.BankA7.PhantoonShot.Offset,
             FindPhantoonHitboxCallback(edited, (ushort)PhantoonCollisionFrame.BodyFullHitbox,
                 new(0x0080, 0x0080), selectShot: true),
             "Phantoon BG2 artwork edit does not move or replace hitbox callbacks");
-        AssertEqual(EnemyAiCodePointers.BankA7.PhantoonShot.Offset,
+        AssertEqual(EnemyAiRoutineDefinitions.BankA7.PhantoonShot.Offset,
             FindPhantoonHitboxCallback(edited, (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly,
                 new(0x0080, 0x0099), selectShot: true),
             "Phantoon eye-only frame selects native vulnerable eye callback");

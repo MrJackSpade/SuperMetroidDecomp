@@ -129,7 +129,7 @@ internal static class CollectibleVisualsVerification
                 SupportedCartridge.Sha256);
             RoomPlmCollectibleVisualFiles.ValidateStock(
                 installation.RoomPlmCollectibleVisualDirectory);
-            ushort pointer = PlmDrawAddresses.CollectibleTankFirst;
+            ushort pointer = PlmDrawSourceDefinitions.CollectibleTankFirst.Offset;
             VerifyCollectibleStockMapping(rom, installation.LoadRoomPlmCollectibleVisuals());
 
             string stockPath = Path.Combine(installation.RoomPlmCollectibleVisualDirectory,

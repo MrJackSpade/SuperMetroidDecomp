@@ -135,10 +135,10 @@ internal static class BotwoonWallPlmsVerification
                 int pointer = SnesAddressMath.OffsetInBank(address);
                 return (SnesAddressMath.BankNumber(address)) == 0x84 &&
                     (BossRoomPlmNativeListAddresses.IsTypedProgramByte(pointer) ||
-                     (pointer >= PlmDrawAddresses.BotwoonWall[BotwoonWallDraw.Clear] &&
+                     (pointer >= PlmDrawSourceDefinitions.BotwoonWall[BotwoonWallDraw.Clear].Offset &&
                       pointer < BotwoonWallPlmDrawDefinitions.EndExclusive) ||
-                     (pointer >= PlmDrawAddresses.SingleBreakupFirst &&
-                      pointer < PlmDrawAddresses.HorizontalBreakupFirst));
+                     (pointer >= PlmDrawSourceDefinitions.SingleBreakupFirst.Offset &&
+                      pointer < PlmDrawSourceDefinitions.HorizontalBreakupFirst.Offset));
             }, address => $"Botwoon wall reread migrated source ${address:X6}.");
 
     /// <summary>Runs Botwoon wall program, draw, and timed execution checks.</summary>

@@ -46,7 +46,7 @@ internal static class EndingCompletionTextInstructionsVerification
             int address = 0x8c0000 | map;
             int count = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
             AssertEqual(2 * (letter + 1), count, "original prefix sprite count");
-            AssertEqual((ushort)map, CinematicSpritemapAddresses.Of(catalog[catalogIndex].Pose), "completion prefix catalog pointer");
+            AssertEqual((ushort)map, CinematicSpritemapSources.Of(catalog[catalogIndex].Pose), "completion prefix catalog pointer");
             AssertEqual(count, catalog[catalogIndex].StockPartCount, "completion prefix catalog part count");
             catalogIndex++;
         }
@@ -56,7 +56,7 @@ internal static class EndingCompletionTextInstructionsVerification
             ushort map = CartridgeImportSource.Require(bus).ReadCartridgeWord(operand);
             int header = 0x8c0000 | map;
             int parts = CartridgeImportSource.Require(bus).ReadCartridgeWord(header);
-            AssertEqual(map, CinematicSpritemapAddresses.Of(catalog[catalogIndex].Pose), "completion glyph catalog pointer");
+            AssertEqual(map, CinematicSpritemapSources.Of(catalog[catalogIndex].Pose), "completion glyph catalog pointer");
             AssertEqual(parts, catalog[catalogIndex].StockPartCount, "completion glyph catalog part count");
         }
         for (int i = 0; i < expectedKeys.Length; i++)
@@ -72,7 +72,7 @@ internal static class EndingCompletionTextInstructionsVerification
     /// <summary>Checks calculated stock composition, on- and off-screen OAM, and retention of independent artwork edits.</summary>
     private static void VerifyEndingCompletionTextParts(ISnesAddressSpace bus, int frame, CinematicSpriteFrameDefinition definition)
     {
-        SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus, CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name);
+        SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus, CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name);
         SpriteComposition supplied = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
         var parts = new EndingCompletionTextParts(frame);
         SpriteComposition calculated = supplied.CalculateIfMatching(parts);
@@ -84,7 +84,7 @@ internal static class EndingCompletionTextInstructionsVerification
             var originalOam = new OamBuffer();
             var calculatedOam = new OamBuffer();
             originalOam.BeginFrame(); calculatedOam.BeginFrame();
-            DrawImportedSpritemap(bus, originalOam, 0x8c0000 | CinematicSpritemapAddresses.Of(definition.Pose), new(120, y), 0x0800, originIsOnScreen: y == 72);
+            DrawImportedSpritemap(bus, originalOam, 0x8c0000 | CinematicSpritemapSources.Of(definition.Pose), new(120, y), 0x0800, originIsOnScreen: y == 72);
             if (y == 72) calculated.DrawOnScreen(calculatedOam, new(120, y), 0x0800);
             else calculated.DrawOffScreen(calculatedOam, new(120, y), 0x0800);
             originalOam.FinalizeFrame(); calculatedOam.FinalizeFrame();

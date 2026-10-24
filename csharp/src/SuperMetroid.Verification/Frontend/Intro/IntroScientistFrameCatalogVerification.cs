@@ -20,7 +20,7 @@ internal static class IntroScientistFrameCatalogVerification
         for (int index = 0; index < 10; index++)
         {
             int count = SnesLittleEndian.Word(IntroScientistFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroScientistFrameCatalogRomByte(rom, 0x8c0001 + pointer));
-            AssertEqual((ushort)pointer, CinematicSpritemapAddresses.Of(frames[index].Pose), "scientist frame follows original record chain");
+            AssertEqual((ushort)pointer, CinematicSpritemapSources.Of(frames[index].Pose), "scientist frame follows original record chain");
             AssertEqual(count, frames[index].StockPartCount, "original scientist part count");
             AssertEqual(names[index], frames[index].Name, "published scientist asset key");
             pointer += 2 + 5 * count;

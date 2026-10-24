@@ -764,9 +764,9 @@ internal static class LookupStream5Verification
         }
         AssertEqual(25, componentCount, "All native components");
         AssertEqual(3, lists.Count, "All native hitbox lists");
-        AssertEqual(EnemyAiCodePointers.BankA7.PhantoonShot.Offset, FindPhantoonHitboxCallback(null, (ushort)PhantoonCollisionFrame.BodyFullHitbox, new(128, 128), true), "Actual full-body shot callback");
-        AssertEqual(EnemyAiCodePointers.BankA7.PhantoonTouch.Offset, FindPhantoonHitboxCallback(null, (ushort)PhantoonCollisionFrame.BodyFullHitbox, new(128, 128), false), "Actual full-body touch callback");
-        AssertEqual(EnemyAiCodePointers.BankA7.PhantoonShot.Offset, FindPhantoonHitboxCallback(null, (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly, new(128, 153), true), "Actual vulnerable eye callback");
+        AssertEqual(EnemyAiRoutineDefinitions.BankA7.PhantoonShot.Offset, FindPhantoonHitboxCallback(null, (ushort)PhantoonCollisionFrame.BodyFullHitbox, new(128, 128), true), "Actual full-body shot callback");
+        AssertEqual(EnemyAiRoutineDefinitions.BankA7.PhantoonTouch.Offset, FindPhantoonHitboxCallback(null, (ushort)PhantoonCollisionFrame.BodyFullHitbox, new(128, 128), false), "Actual full-body touch callback");
+        AssertEqual(EnemyAiRoutineDefinitions.BankA7.PhantoonShot.Offset, FindPhantoonHitboxCallback(null, (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly, new(128, 153), true), "Actual vulnerable eye callback");
         AssertEqual((ushort)0, FindPhantoonHitboxCallback(null, (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly, new(128, 128), true), "Eye-only frame excludes body collision");
         AssertThrows<InvalidDataException>(() => PhantoonCollisionDefinitions.ComponentsAt(0), "Frame domain");
         Console.WriteLine("Phantoon collision: 22 native frames, 25 components, all seven rectangles/callbacks, actual full-body/eye selection and bounds pass.");
@@ -924,7 +924,7 @@ internal static class LookupStream5Verification
         var frames = new Dictionary<string, SpriteVisualPart[]>();
         foreach (var definition in CeresDestructionSpriteDefinitions.Frames)
             frames.Add(definition.Name, SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicSpriteFrameExtractor.Extract(
-                rom, CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name));
+                rom, CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
         var document = new CeresDestructionSpriteDocument { Version = 1, Frames = frames };
         var stock = Load(document);
         int total = 0;
@@ -938,7 +938,7 @@ internal static class LookupStream5Verification
             AssertTrue(calculated.parts is ZebesStarGridParts, "Stock stars use calculated common fields");
             for (int index = 0; index < parts.Length; index++)
             {
-                int source = 0x8c0000 | CinematicSpritemapAddresses.Of(definition.Pose) + 2 + index * 5;
+                int source = 0x8c0000 | CinematicSpritemapSources.Of(definition.Pose) + 2 + index * 5;
                 CompiledSpritePart actual = calculated.Part(index);
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(source), actual.X.Raw, "Native star X/size");
                 AssertEqual(rom.ReadCartridgeByte(source + 2), actual.Y.Raw, "Native star Y");

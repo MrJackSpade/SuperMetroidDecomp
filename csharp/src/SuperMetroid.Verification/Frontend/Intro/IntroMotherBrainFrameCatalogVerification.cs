@@ -17,7 +17,7 @@ internal static class IntroMotherBrainFrameCatalogVerification
         {
             int operand = 0x8bcb07 + 4 * frame;
             ushort pointer = SnesLittleEndian.Word(IntroMotherBrainFrameCatalogRomByte(rom, operand), IntroMotherBrainFrameCatalogRomByte(rom, operand + 1));
-            AssertEqual(pointer, CinematicSpritemapAddresses.Of(frames[frame].Pose), "original Mother Brain frame operand");
+            AssertEqual(pointer, CinematicSpritemapSources.Of(frames[frame].Pose), "original Mother Brain frame operand");
             int count = SnesLittleEndian.Word(IntroMotherBrainFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroMotherBrainFrameCatalogRomByte(rom, 0x8c0001 + pointer));
             AssertEqual(count, IntroMotherBrainSpriteDefinitions.StockPartCount, "original nine-part frame");
             AssertEqual($"mother-brain-frame-{frame}", frames[frame].Name, "published frame key");

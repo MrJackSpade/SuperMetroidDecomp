@@ -46,7 +46,7 @@ internal static class EndingRewardInstructionsVerification
             ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(operand);
             int header = 0x8c0000 | pointer;
             int count = CartridgeImportSource.Require(bus).ReadCartridgeWord(header);
-            AssertEqual(pointer, CinematicSpritemapAddresses.Of(catalog[i].Pose), "reward original frame pointer");
+            AssertEqual(pointer, CinematicSpritemapSources.Of(catalog[i].Pose), "reward original frame pointer");
             AssertEqual(count, catalog[i].StockPartCount, "reward original OAM part count");
             AssertEqual(names[i], catalog[i].Name, "reward published artwork key");
             VerifyEndingRewardCalculatedParts(bus, catalog[i]);
@@ -63,7 +63,7 @@ internal static class EndingRewardInstructionsVerification
     private static void VerifyEndingRewardCalculatedParts(ISnesAddressSpace bus, CinematicSpriteFrameDefinition definition)
     {
         SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus,
-            CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name);
+            CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name);
         SpriteComposition supplied = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
         SpriteComposition Calculate(SpriteComposition value)
         {
@@ -159,7 +159,7 @@ internal static class EndingRewardInstructionsVerification
             var originalOam = new OamBuffer();
             var calculatedOam = new OamBuffer();
             originalOam.BeginFrame(); calculatedOam.BeginFrame();
-            DrawImportedSpritemap(bus, originalOam, 0x8c0000 | CinematicSpritemapAddresses.Of(definition.Pose), new(120, y), 0x0800, originIsOnScreen: y == 72);
+            DrawImportedSpritemap(bus, originalOam, 0x8c0000 | CinematicSpritemapSources.Of(definition.Pose), new(120, y), 0x0800, originIsOnScreen: y == 72);
             if (y == 72) calculated.DrawOnScreen(calculatedOam, new(120, y), 0x0800);
             else calculated.DrawOffScreen(calculatedOam, new(120, y), 0x0800);
             originalOam.FinalizeFrame(); calculatedOam.FinalizeFrame();

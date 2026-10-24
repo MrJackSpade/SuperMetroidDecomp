@@ -81,7 +81,7 @@ internal static class CeresFlightArtworkExtractor
         var spriteFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
         foreach (CinematicSpriteFrameDefinition definition in CeresFlightSpriteDefinitions.Frames)
             spriteFrames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(
-                bus, CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name));
+                bus, CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
         using var spritesJson = new MemoryStream();
         CeresFlightSpritePresentation.Write(spritesJson, new CeresFlightSpriteDocument
         {

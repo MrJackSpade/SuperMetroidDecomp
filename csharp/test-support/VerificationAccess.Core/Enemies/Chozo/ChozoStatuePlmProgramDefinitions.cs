@@ -1,4 +1,4 @@
-﻿using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;
@@ -118,7 +118,7 @@ internal static class ChozoStatuePlmProgramDefinitions
                 if (offset == 16) return (ushort)RoomPlmInstruction.Delete;
                 int frame = offset / 4;
                 return offset % 4 == 0 ? (ushort)(frame == 3 ? 1 : 4) :
-                    (ushort)(PlmDrawAddresses.SingleBreakupFirst + frame * 6);
+                    (ushort)(PlmDrawSourceDefinitions.SingleBreakupFirst.Offset + frame * 6);
             }
             case ProgramList.LowerNorfairHand:
                 return offset switch

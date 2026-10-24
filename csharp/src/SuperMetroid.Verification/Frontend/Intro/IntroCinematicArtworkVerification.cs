@@ -673,7 +673,7 @@ internal static class IntroCinematicArtworkVerification
             native.BeginFrame();
             DrawImportedSpritemap(bus, native,
                 (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                    CinematicSpritemapAddresses.Of(definition.Pose)), new(originX, originY), paletteBits);
+                    CinematicSpritemapSources.Of(definition.Pose)), new(originX, originY), paletteBits);
             native.FinalizeFrame();
             var installed = ScreenSpritesFixtures.Blank();
             installed.BeginFrame();
@@ -763,7 +763,7 @@ internal static class IntroCinematicArtworkVerification
         {
             nativeBlink.Step(0);
             installedBlink.Step(0);
-            ushort expected = (frame / 5) % 2 == 0 ? CinematicSpritemapAddresses.Of(IntroCaretSpriteDefinitions.Visible.Pose) : (ushort)0;
+            ushort expected = (frame / 5) % 2 == 0 ? CinematicSpritemapSources.Of(IntroCaretSpriteDefinitions.Visible.Pose) : (ushort)0;
             AssertEqual(expected, CinematicSpritePoseSpritemaps.Of(nativeBlink.CaretPose),
                 $"native caret blink selects visible/blank frame at frame {frame}");
             AssertEqual(expected, CinematicSpritePoseSpritemaps.Of(installedBlink.CaretPose),
@@ -810,7 +810,7 @@ internal static class IntroCinematicArtworkVerification
             native.BeginFrame();
             DrawImportedSpritemap(bus, native,
                 (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                    CinematicSpritemapAddresses.Of(definition.Pose)),
+                    CinematicSpritemapSources.Of(definition.Pose)),
                 new(IntroMotherBrainSpriteState.Position.X, IntroMotherBrainSpriteState.Position.Y),
                 IntroMotherBrainSpriteState.PaletteBits);
             native.FinalizeFrame();
@@ -892,7 +892,7 @@ internal static class IntroCinematicArtworkVerification
             native.BeginFrame();
             DrawImportedSpritemap(bus, native,
                 (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                    CinematicSpritemapAddresses.Of(definition.Pose)), new(x, y), palette);
+                    CinematicSpritemapSources.Of(definition.Pose)), new(x, y), palette);
             native.FinalizeFrame();
             var installed = ScreenSpritesFixtures.Blank();
             installed.BeginFrame();
@@ -984,7 +984,7 @@ internal static class IntroCinematicArtworkVerification
             foreach (CinematicSpriteFrameDefinition frame in CeresFlightSpriteDefinitions.Frames)
             {
                 int start = (int)new SnesAddress(
-                    IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapAddresses.Of(frame.Pose));
+                    IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapSources.Of(frame.Pose));
                 if (address >= start && address < start + 2 + frame.StockPartCount * 5)
                 {
                     return $"Ceres flight reread installed spritemap ${address:X6}.";
@@ -997,7 +997,7 @@ internal static class IntroCinematicArtworkVerification
                 CeresDestructionSpriteDefinitions.Frames)
             {
                 int start = (int)new SnesAddress(
-                    IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapAddresses.Of(frame.Pose));
+                    IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapSources.Of(frame.Pose));
                 if (address >= start && address < start + 2 + frame.StockPartCount * 5)
                 {
                     return $"Ceres destruction reread installed spritemap ${address:X6}.";
@@ -1050,7 +1050,7 @@ internal static class IntroCinematicArtworkVerification
         foreach (CinematicSpriteFrameDefinition caret in IntroCaretSpriteDefinitions.Frames)
         {
             int sourceAddress = (int)new SnesAddress(
-                IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapAddresses.Of(caret.Pose));
+                IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapSources.Of(caret.Pose));
             int byteCount = 2 + caret.StockPartCount * 5;
             if (address >= sourceAddress && address < sourceAddress + byteCount)
             {
@@ -1082,7 +1082,7 @@ internal static class IntroCinematicArtworkVerification
 
         // Whether the read lands inside one of the frames' stock spritemap records.
         bool RereadsFrame(IEnumerable<CinematicSpriteFrameDefinition> frames) => frames.Any(frame =>
-            (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapAddresses.Of(frame.Pose)) is var start &&
+            (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapSources.Of(frame.Pose)) is var start &&
             address >= start && address < start + 2 + frame.StockPartCount * 5);
     }
 

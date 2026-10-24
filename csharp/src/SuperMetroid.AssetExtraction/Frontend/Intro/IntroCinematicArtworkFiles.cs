@@ -258,7 +258,7 @@ public static class IntroCinematicArtworkFiles
             var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
             foreach (CinematicSpriteFrameDefinition definition in IntroCaretSpriteDefinitions.Frames)
                 frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name));
+                    CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
             using var json = new MemoryStream();
             IntroCaretSpritePresentation.Write(json, new IntroCaretSpriteDocument
             {
@@ -278,7 +278,7 @@ public static class IntroCinematicArtworkFiles
             foreach (CinematicSpriteFrameDefinition definition in
                 IntroMotherBrainSpriteDefinitions.Frames)
                 frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    CinematicSpritemapAddresses.Of(definition.Pose), IntroMotherBrainSpriteDefinitions.StockPartCount,
+                    CinematicSpritemapSources.Of(definition.Pose), IntroMotherBrainSpriteDefinitions.StockPartCount,
                     definition.Name));
             using var json = new MemoryStream();
             IntroMotherBrainSpritePresentation.Write(json, new IntroMotherBrainSpriteDocument
@@ -299,7 +299,7 @@ public static class IntroCinematicArtworkFiles
             foreach (CinematicSpriteFrameDefinition definition in
                 IntroMotherBrainExplosionSpriteDefinitions.Frames)
                 frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name));
+                    CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
             using var json = new MemoryStream();
             IntroMotherBrainExplosionSpritePresentation.Write(json,
                 new IntroMotherBrainExplosionSpriteDocument
@@ -320,7 +320,7 @@ public static class IntroCinematicArtworkFiles
             var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
             foreach (CinematicSpriteFrameDefinition definition in IntroRinkaSpriteDefinitions.Frames)
                 frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    CinematicSpritemapAddresses.Of(definition.Pose), IntroRinkaSpriteDefinitions.StockPartCount,
+                    CinematicSpritemapSources.Of(definition.Pose), IntroRinkaSpriteDefinitions.StockPartCount,
                     definition.Name));
             using var json = new MemoryStream();
             IntroRinkaSpritePresentation.Write(json, new IntroRinkaSpriteDocument
@@ -342,7 +342,7 @@ public static class IntroCinematicArtworkFiles
             foreach (CinematicSpriteFrameDefinition definition in
                 IntroEggEffectSpriteDefinitions.Frames)
                 frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    CinematicSpritemapAddresses.Of(definition.Pose), IntroEggEffectSpriteDefinitions.StockPartCount,
+                    CinematicSpritemapSources.Of(definition.Pose), IntroEggEffectSpriteDefinitions.StockPartCount,
                     definition.Name));
             using var json = new MemoryStream();
             IntroEggEffectSpritePresentation.Write(json, new IntroEggEffectSpriteDocument
@@ -364,7 +364,7 @@ public static class IntroCinematicArtworkFiles
             foreach (CinematicSpriteFrameDefinition definition in
                 IntroDiscoveryActorSpriteDefinitions.Frames)
                 frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name));
+                    CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
             using var json = new MemoryStream();
             IntroDiscoveryActorSpritePresentation.Write(json,
                 new IntroDiscoveryActorSpriteDocument
@@ -386,7 +386,7 @@ public static class IntroCinematicArtworkFiles
             foreach (CinematicSpriteFrameDefinition definition in
                 IntroScientistSpriteDefinitions.Frames)
                 frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name));
+                    CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
             using var json = new MemoryStream();
             IntroScientistSpritePresentation.Write(json, new IntroScientistSpriteDocument
             {

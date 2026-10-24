@@ -29,7 +29,7 @@ internal static class CeresDestructionFrameCatalogVerification
             int record = 0x8c0000 | pointer;
             int count = CartridgeImportSource.Require(rom).ReadCartridgeWord(record);
             string name = index < 7 ? backdropNames[index] : $"{(index < 13 ? "small" : index < 17 ? "large" : "station")}-blast-{frame}";
-            AssertEqual(pointer, CinematicSpritemapAddresses.Of(frames[index].Pose), "native destruction frame operand");
+            AssertEqual(pointer, CinematicSpritemapSources.Of(frames[index].Pose), "native destruction frame operand");
             AssertEqual(count, frames[index].StockPartCount, "native destruction part count");
             AssertEqual(name, frames[index].Name, "published destruction key");
             AssertEqual(frames[index], enumerated[index], "destruction enumeration order");

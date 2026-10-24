@@ -69,7 +69,7 @@ internal static class EndingObjectArtworkVerification
             ushort map = CartridgeImportSource.Require(bus).ReadCartridgeWord(operand);
             int header = 0x8c0000 | map;
             int count = CartridgeImportSource.Require(bus).ReadCartridgeWord(header);
-            AssertEqual(map, CinematicSpritemapAddresses.Of(catalog[index].Pose), "cloud native pointer operand");
+            AssertEqual(map, CinematicSpritemapSources.Of(catalog[index].Pose), "cloud native pointer operand");
             AssertEqual(count, catalog[index].StockPartCount, "cloud native OAM count");
             AssertEqual(names[index], catalog[index].Name, "cloud published asset key");
             SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus, map, count, names[index]);
@@ -173,7 +173,7 @@ internal static class EndingObjectArtworkVerification
                 bool onScreen =
                     ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0;
                 int source = (int)new SnesAddress(
-                    IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapAddresses.Of(definition.Pose));
+                    IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapSources.Of(definition.Pose));
                 var nativeOam = new OamBuffer();
                 nativeOam.BeginFrame();
                 if (onScreen)
@@ -453,35 +453,35 @@ internal static class EndingObjectArtworkVerification
         guard.Forbid(address => EndingCloudSpriteDefinitions.Frames.Any(frame =>
                 {
                     int start = (int)new SnesAddress(
-                        IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapAddresses.Of(frame.Pose));
+                        IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapSources.Of(frame.Pose));
                     return address >= start && address < start + 2 + frame.StockPartCount * 5;
                 }),
             address => $"Ending cloud reread installed spritemap ${address:X6}.");
         guard.Forbid(address => EndingExplosionSpriteDefinitions.Frames.Any(frame =>
                 {
                     int start = (int)new SnesAddress(
-                        IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapAddresses.Of(frame.Pose));
+                        IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapSources.Of(frame.Pose));
                     return address >= start && address < start + 2 + frame.StockPartCount * 5;
                 }),
             address => $"Ending explosion reread installed spritemap ${address:X6}.");
         guard.Forbid(address => EndingCompletionTextSpriteDefinitions.Frames.Any(frame =>
                 {
                     int start = (int)new SnesAddress(
-                        IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapAddresses.Of(frame.Pose));
+                        IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapSources.Of(frame.Pose));
                     return address >= start && address < start + 2 + frame.StockPartCount * 5;
                 }),
             address => $"Ending completion text reread installed spritemap ${address:X6}.");
         guard.Forbid(address => EndingRewardSpriteDefinitions.Frames.Any(frame =>
                 {
                     int start = (int)new SnesAddress(
-                        IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapAddresses.Of(frame.Pose));
+                        IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapSources.Of(frame.Pose));
                     return address >= start && address < start + 2 + frame.StockPartCount * 5;
                 }),
             address => $"Ending reward reread installed spritemap ${address:X6}.");
         guard.Forbid(address => EndingLogoSpriteDefinitions.Frames.Any(frame =>
                 {
                     int start = (int)new SnesAddress(
-                        IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapAddresses.Of(frame.Pose));
+                        IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapSources.Of(frame.Pose));
                     return address >= start && address < start + 2 + frame.StockPartCount * 5;
                 }),
             address => $"Ending logo reread installed spritemap ${address:X6}.");

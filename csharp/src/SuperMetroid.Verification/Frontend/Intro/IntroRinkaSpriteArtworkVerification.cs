@@ -44,7 +44,7 @@ internal static class IntroRinkaSpriteArtworkVerification
                 bool onScreen =
                     ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0;
                 int source = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                    CinematicSpritemapAddresses.Of(definition.Pose));
+                    CinematicSpritemapSources.Of(definition.Pose));
                 var native = new OamBuffer();
                 native.BeginFrame();
                 if (onScreen)

@@ -19,7 +19,7 @@ internal static class IntroEggEffectProgramsVerification
         {
             int operand = index < 7 ? 0x8bcd3b + 8 * index : 0x8bcd73 + 4 * (index - 7);
             ushort pointer = SnesLittleEndian.Word(IntroEggEffectFrameCatalogRomByte(rom, operand), IntroEggEffectFrameCatalogRomByte(rom, operand + 1));
-            AssertEqual(pointer, CinematicSpritemapAddresses.Of(frames[index].Pose), "original egg-effect frame operand");
+            AssertEqual(pointer, CinematicSpritemapSources.Of(frames[index].Pose), "original egg-effect frame operand");
             AssertEqual(names[index], frames[index].Name, "published egg-effect name");
             AssertEqual(IntroEggEffectSpriteDefinitions.StockPartCount,
                 SnesLittleEndian.Word(IntroEggEffectFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroEggEffectFrameCatalogRomByte(rom, 0x8c0001 + pointer)), "original one-part egg-effect record");

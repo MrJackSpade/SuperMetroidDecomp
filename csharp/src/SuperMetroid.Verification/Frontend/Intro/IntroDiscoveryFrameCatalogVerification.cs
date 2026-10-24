@@ -32,7 +32,7 @@ internal static class IntroDiscoveryFrameCatalogVerification
                 pointer = SnesLittleEndian.Word(IntroDiscoveryFrameCatalogRomByte(rom, 0x8bcc41), IntroDiscoveryFrameCatalogRomByte(rom, 0x8bcc42));
             }
             int count = SnesLittleEndian.Word(IntroDiscoveryFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroDiscoveryFrameCatalogRomByte(rom, 0x8c0001 + pointer));
-            AssertEqual((ushort)pointer, CinematicSpritemapAddresses.Of(frames[index].Pose), "discovery original record pointer");
+            AssertEqual((ushort)pointer, CinematicSpritemapSources.Of(frames[index].Pose), "discovery original record pointer");
             AssertEqual(count, frames[index].StockPartCount, "discovery original part count");
             AssertEqual(names[index], frames[index].Name, "discovery published asset key");
             pointer += 2 + 5 * count;

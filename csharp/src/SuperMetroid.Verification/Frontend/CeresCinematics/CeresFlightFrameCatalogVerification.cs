@@ -24,7 +24,7 @@ internal static class CeresFlightFrameCatalogVerification
             ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(operand);
             int record = 0x8c0000 | pointer;
             int count = CartridgeImportSource.Require(rom).ReadCartridgeWord(record);
-            AssertEqual(pointer, CinematicSpritemapAddresses.Of(frames[index].Pose), "native flight frame selection");
+            AssertEqual(pointer, CinematicSpritemapSources.Of(frames[index].Pose), "native flight frame selection");
             AssertEqual(count, frames[index].StockPartCount, "native flight OAM count");
             AssertEqual(names[index], frames[index].Name, "published flight frame key");
             AssertEqual(frames[index], enumerated[index], "flight catalog enumeration order");

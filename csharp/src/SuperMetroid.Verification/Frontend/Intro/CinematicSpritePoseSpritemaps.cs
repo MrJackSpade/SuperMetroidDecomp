@@ -14,5 +14,5 @@ internal static class CinematicSpritePoseSpritemaps
     /// holds, for the blank pose or when the actor has shown no pose yet or has been deleted.
     /// </summary>
     internal static ushort Of(CinematicSpritePose? pose) =>
-        pose is { } shown && shown != CinematicSpritePose.Blank ? CinematicSpritemapAddresses.Of(shown) : (ushort)0;
+        pose is { } shown && shown != CinematicSpritePose.Blank ? CinematicSpritemapSources.Of(shown) : (ushort)0;
 }

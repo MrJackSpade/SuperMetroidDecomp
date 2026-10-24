@@ -51,7 +51,7 @@ internal static class CinematicPresentationContractChecks
                     motherBrain.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(998), oam, default, 0);
                     explosions.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(67), oam, default, 0);
                     explosions.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(997), oam, default, 0);
-                    door.LoadTiles(vram);
+                    _ = door.Characters;
                     door.LoadNormalColors(screen.SpriteRow(2));
                     door.LoadEscapeColors(screen.SpriteRow(7));
                     door.LoadAnimationColors(backgrounds, CeresDoorVisualRomData.AnimationRowCount - 1);
@@ -83,9 +83,9 @@ internal static class CinematicPresentationContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 24, "twenty-four constructed calls must reproduce absent adapters first" + " (" + before.Describe() + ")");
-        Require(after.Classifications.Count == 16 && after.UnresolvedCount == 8 && after.MissingCount == 0 &&
-            after.Consumers.Count == 24, "supported sets and valid false membership queries qualify; unowned poses and bad array indices fail" + " (" + after.Describe() + ")");
+        Require(before.UnresolvedCount == 23, "twenty-three constructed calls must reproduce absent adapters first" + " (" + before.Describe() + ")");
+        Require(after.Classifications.Count == 15 && after.UnresolvedCount == 8 && after.MissingCount == 0 &&
+            after.Consumers.Count == 23, "supported sets and valid false membership queries qualify; unowned poses and bad array indices fail" + " (" + after.Describe() + ")");
         Require(after.Classifications.Count(item => item.Owner == "CeresEscapeOverlayTilemapCatalog.TryResolve") == 3,
             "unsupported overlay source/length queries validly return false, not demand nonexistent artwork");
         Require(after.Findings.Count(item => item.Owner == "TitleGraphicsPresentation.DrawSprite") == 2,

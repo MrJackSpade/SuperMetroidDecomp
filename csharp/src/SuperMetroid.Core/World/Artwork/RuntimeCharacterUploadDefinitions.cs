@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -18,7 +19,7 @@ internal static class RuntimeCharacterUploadDefinitions
     /// <summary>
     /// Each enemy's encounter's uploads: Draygon's opening uploads the Evirs she releases, the gunship's takeoff its five
     /// liftoff pictures, Crocomire's death his skeleton, a Torizo's instruction lists the characters of the poses it
-    /// shows next, and Ceres Ridley's getaway the escape timer and its warning.
+    /// shows next, Ceres Ridley's getaway the escape timer and its warning, and the Ceres door's second variant its characters.
     /// </summary>
     internal static RuntimeCharacterUploadCatalog Catalog { get; } = new(new Dictionary<EnemyDefinitionId, IReadOnlyList<RuntimeCharacterUpload>>
     {
@@ -28,6 +29,7 @@ internal static class RuntimeCharacterUploadDefinitions
         [EnemyDefinitionId.BombTorizo] = TorizoInstructionVramTransferDefinitions.Uploads,
         [EnemyDefinitionId.GoldenTorizo] = TorizoInstructionVramTransferDefinitions.Uploads,
         [EnemyDefinitionId.RidleyCeres] = CeresEscapePageDefinitions.ObjectPages,
+        [EnemyDefinitionId.CeresDoor] = [CeresDoorCharacters.Upload],
         [EnemyDefinitionId.MotherBrainHead] = MotherBrainCharacterUploads.All,
     });
 }

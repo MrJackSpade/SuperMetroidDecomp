@@ -167,14 +167,11 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state, state.ClearWithRecord);
         DoorPrograms[slot.SlotIndex] = AnimationProgramCursor<CeresDoorProgram>.Start(initialization.Program);
 
-        // CeresDoor_Func_1 performs this extra direct transfer only for variant two. The
-        // source/destination are the literal reconstructed DMA record at $A6:F739.
+        // CeresDoor_Func_1 copies the door's characters over the OBJ characters only for variant two (#1406).
         if (variant == 2)
         {
-            // The source register used bank $B0 with a 16-bit address that increments
-            // independently of the bank byte. Materialize that exact DMA source slice,
-            // then use SnesVram's range-checked consecutive transfer primitive.
-            SelectedCeresDoorVisual.LoadTiles(_presentation.Vram);
+            _ = SelectedCeresDoorVisual;
+            _presentation.ObjCharacters.Record(CeresDoorCharacters.Upload);
         }
 
         if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped && variant == 3)

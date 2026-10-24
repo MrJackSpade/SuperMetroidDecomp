@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 public sealed class RoomCharacterAtlas
 {
     /// <summary>Owned planar 4-bpp transfer bytes for the authored room characters.</summary>
-    private readonly byte[] planar;
+    internal readonly byte[] planar;
 
     /// <summary>Retains the newly compiled planar bytes without exposing a mutable document buffer.</summary>
     private RoomCharacterAtlas(byte[] planar) => this.planar = planar;
@@ -47,8 +47,4 @@ public sealed class RoomCharacterAtlas
         byte[] encoded = SnesPlanarTileEncoder.Encode(image.Pixels, image.Size, 4);
         return new(encoded.AsSpan(0, nativeByteCount).ToArray());
     }
-
-    /// <summary>Uploads the compiled characters to a fixed catalog destination.</summary>
-    /// <param name="destination">VRAM region receiving the complete character stream.</param>
-    public void LoadTo(VramRegion destination) => destination.Load(planar);
 }

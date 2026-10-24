@@ -7,8 +7,6 @@ public static class CeresDoorVisualRomData
     public const int TileSource = 0xb0c400;
     /// <summary>Byte length of the variant-two four-bit tile transfer.</summary>
     public const int TileByteCount = 0x0400;
-    /// <summary>Physical VRAM byte destination of the variant-two tile transfer.</summary>
-    public const int TileVramDestination = 0xe000;
 
     /// <summary>Fifteen normal Ceres-door colors at $A6:F4EE.</summary>
     public const int NormalColors = 0xa6f4ee;

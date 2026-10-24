@@ -24,13 +24,14 @@ internal static class EnemyTileArtworkCeresDoorVerification
     {
         CeresDoorVisualCatalog visual = stock.Areas.CeresDoorVisual
             ?? throw new InvalidDataException("Installed Ceres-door visuals are missing.");
-        var vram = new SnesVram();
-        visual.LoadTiles(vram);
         byte[] nativeTiles = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             CeresDoorVisualRomData.TileSource, CeresDoorVisualRomData.TileByteCount);
-        AssertTrue(vram.Bytes.Slice(CeresDoorVisualRomData.TileVramDestination,
-                CeresDoorVisualRomData.TileByteCount).SequenceEqual(nativeTiles),
+        AssertTrue(visual.Characters.Span.SequenceEqual(nativeTiles),
             "installed Ceres-door PNG preserves the complete direct tile DMA");
+        // $A6:F739 copies the characters to VRAM byte $E000, word $7000: OBJ character $100.
+        AssertEqual(ObjCharacterUploads.TableByte(VramDmaDestination.FromNative(0x7000)), CeresDoorCharacters.Upload.FirstByte,
+            "the door's characters show where the cartridge's DMA lands them among the OBJ characters");
+        AssertEqual(nativeTiles.Length, CeresDoorCharacters.Upload.ByteCount, "the door shows all its characters");
 
         var nativeColors = new SnesCgram();
         var compiledColors = new GameplayColours(new SpriteColourSets());
@@ -111,10 +112,7 @@ internal static class EnemyTileArtworkCeresDoorVerification
             CeresDoorVisualCatalog.Write(document));
         CeresDoorVisualCatalog edited = (EnemyTileArtworkFiles.Load(directory,
             overrides).Areas.CeresDoorVisual ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrides).CeresDoorVisual."));
-        var editedVram = new SnesVram();
-        edited.LoadTiles(editedVram);
-        AssertEqual((byte)(nativeTiles[0] ^ 0x80),
-            editedVram.Bytes[CeresDoorVisualRomData.TileVramDestination],
+        AssertEqual((byte)(nativeTiles[0] ^ 0x80), edited.Characters.Span[0],
             "Ceres-door PNG override changes the live first tile pixel");
         var editedCgram = new GameplayColours(new SpriteColourSets());
         edited.LoadNormalColors(CeresDoorColourDefinitions.Inactive.In(editedCgram));

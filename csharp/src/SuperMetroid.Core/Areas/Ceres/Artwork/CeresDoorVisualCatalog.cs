@@ -111,9 +111,8 @@ public sealed class CeresDoorVisualCatalog
         return json;
     }
 
-    /// <summary>Loads $0400 selected 4bpp bytes, or 32 characters, at VRAM byte $E000, replacing variant two's native $B0:C400 DMA source.</summary>
-    public void LoadTiles(SnesVram vram) =>
-        tiles.LoadTo(new CeresDoorVram(vram).Tiles);
+    /// <summary>The door's 32 four-bit characters, $0400 bytes, which variant two shows in place of its native $B0:C400 DMA source.</summary>
+    public ReadOnlyMemory<byte> Characters => tiles.Characters;
 
     /// <summary>Installs fifteen normal nontransparent inks corresponding to $A6:F4EE in current CGRAM, exposing the native completed setup-fade target directly.</summary>
     /// <param name="destination">The door's colours: an inactive door's, or the active door's.</param>

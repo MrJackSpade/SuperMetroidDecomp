@@ -152,7 +152,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("GunshipLiftoffArtworkCatalog", "Resolve", "asset") => new((int)VramAssetId.GunshipLiftoffFirstTiles,
             GunshipLiftoffTransferDefinitions.Frames.Length),
         ("AreaMapPresentationCatalog" or "IGameplayPresentationContent" or "IAreaMapSource", "Get", "area") => new(0, AreaIds.RetailCount),
-        ("XrayOverlayVisualCatalog", "ItemMetatile", "graphicsSlot") => new(0, XrayOverlayRomData.DynamicGraphicsSlots * 2),
+        ("XrayOverlayVisualCatalog", "ItemMetatile", "graphicsSlot") => new(0, SuperMetroid.Core.Samus.Abilities.Artwork.XrayOverlayVisualCatalog.DynamicGraphicsSlots * 2),
         ("RoomPlmDynamicCollectibleArtCatalog", "Resolve", "kind") => new((int)InWorldCollectibleKind.Bombs,
             (int)InWorldCollectibleKind.ReserveTank - (int)InWorldCollectibleKind.Bombs + 1),
         _ => null,

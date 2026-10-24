@@ -39,7 +39,7 @@ internal static class AirSpikeAlphaRadiusVerification
                 : RoomCollisionType.Air;
             level.SetForegroundEntry(index, RoomLevelWord.Create(0, 0, type).Raw);
             level.SetBehavior(index, type == RoomCollisionType.SpikeAir
-                ? SamusTerrainHazardRomData.DamagingSpikeAirBehavior : (byte)0);
+                ? SpikeHazardDefinitions.DamagingSpikeAirBehavior : (byte)0);
         }
 
         SamusState samus = runtime.Player.IntroducedSamus;

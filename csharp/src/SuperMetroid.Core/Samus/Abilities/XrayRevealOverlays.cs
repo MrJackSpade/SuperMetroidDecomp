@@ -25,8 +25,8 @@ public static class XrayRevealOverlays
             CollectiblePlmSnapshot item = items[i];
             if (unchecked((short)item.RoomArgument) < 0 || system.HasCollectedItemBit(item.RoomArgument)) continue;
             int graphics = item.Kind < InWorldCollectibleKind.Bombs
-                ? XrayOverlayRomData.DynamicGraphicsSlots + (int)item.Kind : item.GraphicsSlot;
-            if ((uint)graphics >= XrayOverlayRomData.DynamicGraphicsSlots * 2)
+                ? XrayOverlayVisualCatalog.DynamicGraphicsSlots + (int)item.Kind : item.GraphicsSlot;
+            if ((uint)graphics >= XrayOverlayVisualCatalog.DynamicGraphicsSlots * 2)
                 throw new InvalidDataException($"Item ${(int)item.Header:X4} has invalid X-ray graphics slot {graphics}.");
             var metatile = new RoomLevelWord(overlays.ItemMetatile(graphics));
             Write(level, tilemap, metatile, level.Size.CellAtRowMajorIndex(item.BlockIndex), layer1Position);

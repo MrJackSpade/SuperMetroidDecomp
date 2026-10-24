@@ -82,13 +82,13 @@ public static class XrayRevealVisualFiles
             .OrderBy(entry => entry.CollisionType)
             .ThenBy(entry => entry.BtsValues[0])
             .ToArray();
-        ushort[] itemMetatiles = Enumerable.Range(0, XrayOverlayRomData.DynamicGraphicsSlots * 2)
+        ushort[] itemMetatiles = Enumerable.Range(0, XrayOverlayVisualCatalog.DynamicGraphicsSlots * 2)
             .Select(slot =>
             {
                 ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusCartridgeTables.ItemDrawPointers + slot * sizeof(ushort)));
                 if (pointer is < SnesBusLayout.RomWindowStart or > ushort.MaxValue - 3)
                     throw new InvalidDataException($"X-ray item draw pointer ${pointer:X4} is invalid.");
-                return new RoomLevelWord(CartridgeImportSource.Require(bus).ReadCartridgeWord((XrayOverlayRomData.ItemBank | (pointer + 2)))).VisualWord;
+                return new RoomLevelWord(CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusCartridgeTables.XrayItemDrawBank | (pointer + 2)))).VisualWord;
             }).ToArray();
         XrayRoomOverlayEntry[] rooms = XrayRoomOverlaySources.Pointers
             .Select(pointer => ReadRoomOverlay(bus, pointer)).ToArray();
@@ -184,7 +184,7 @@ public static class XrayRevealVisualFiles
     {
         if (document.Version != FormatVersion || document.Entries is null ||
             document.ItemMetatiles is null || document.Rooms is null ||
-            document.ItemMetatiles.Length != XrayOverlayRomData.DynamicGraphicsSlots * 2 ||
+            document.ItemMetatiles.Length != XrayOverlayVisualCatalog.DynamicGraphicsSlots * 2 ||
             document.ItemMetatiles.Any(word => !RoomLevelWord.IsValidVisualWord(word)) ||
             document.Rooms.Any(room => room is null))
             throw new InvalidDataException($"X-ray visuals {path} have an incompatible format.");
@@ -303,14 +303,14 @@ public static class XrayRevealVisualFiles
         var tiles = new List<XrayRoomOverlayTileDocument>();
         for (int cursor = pointer; cursor <= ushort.MaxValue - 3; cursor += 4)
         {
-            ushort coordinate = CartridgeImportSource.Require(bus).ReadCartridgeWord((XrayOverlayRomData.RoomBank | cursor));
+            ushort coordinate = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusCartridgeTables.XrayRoomOverlayBank | cursor));
             if (coordinate == 0)
             {
                 if (tiles.Count == 0)
                     throw new InvalidDataException($"X-ray room overlay ${pointer:X4} is empty.");
                 return new XrayRoomOverlayEntry(pointer, tiles.ToArray());
             }
-            ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord((XrayOverlayRomData.RoomBank | (cursor + 2)));
+            ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusCartridgeTables.XrayRoomOverlayBank | (cursor + 2)));
             if (!RoomLevelWord.IsValidVisualWord(word))
                 throw new InvalidDataException(
                     $"X-ray room overlay ${pointer:X4} has nonvisual bits ${word:X4}.");

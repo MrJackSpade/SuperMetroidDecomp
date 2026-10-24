@@ -53,10 +53,10 @@ public static class SamusTerrainHazardCollision
         ushort damage = behavior switch
         {
             SpikeBlockBehavior.Heavy => samus.OrdinarySpikeBlockBtsZeroDamageEnabled
-                ? SamusTerrainHazardRomData.HeavySpikeDamage
+                ? SpikeHazardDefinitions.HeavySpikeDamage
                 : (ushort)0,
             SpikeBlockBehavior.Light or SpikeBlockBehavior.AlternateLight =>
-                SamusTerrainHazardRomData.LightSpikeDamage,
+                SpikeHazardDefinitions.LightSpikeDamage,
             _ => throw new InvalidOperationException($"Undefined SpikeBlockBehavior {behavior}."),
         };
         if (damage == 0)
@@ -75,7 +75,7 @@ public static class SamusTerrainHazardCollision
         if (block.Index < 0 || !SamusBlockCollision.TryResolveExtension(level, ref block))
             return;
         if (block.CollisionType != RoomCollisionType.SpikeAir ||
-            block.Bts.Value != SamusTerrainHazardRomData.DamagingSpikeAirBehavior)
+            block.Bts.Value != SpikeHazardDefinitions.DamagingSpikeAirBehavior)
         {
             return;
         }
@@ -87,7 +87,7 @@ public static class SamusTerrainHazardCollision
         if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None || !samus.InvincibilityTimer.IsZero)
             return;
 
-        PublishDamage(samus, SamusTerrainHazardRomData.LightSpikeDamage);
+        PublishDamage(samus, SpikeHazardDefinitions.LightSpikeDamage);
     }
 
     /// <summary>Applies spike damage and the native invincibility, knockback duration, and facing-dependent direction side effects.</summary>
@@ -96,8 +96,8 @@ public static class SamusTerrainHazardCollision
         ushort wholeDamage)
     {
         samus.LiquidPhysics.AccumulatePeriodicDamage(subDamage: 0, wholeDamage);
-        samus.InvincibilityTimer = WrappingCountdown.Start(SamusTerrainHazardRomData.InvincibilityFrames);
-        samus.KnockbackTimer = WrappingCountdown.Start(SamusTerrainHazardRomData.KnockbackFrames);
+        samus.InvincibilityTimer = WrappingCountdown.Start(SpikeHazardDefinitions.InvincibilityFrames);
+        samus.KnockbackTimer = WrappingCountdown.Start(SpikeHazardDefinitions.KnockbackFrames);
 
         // The native expression `((pose_x_dir ^ $0C) & $08) != 0` maps right-facing
         // records to leftward knockback and both left/front-special records to the other

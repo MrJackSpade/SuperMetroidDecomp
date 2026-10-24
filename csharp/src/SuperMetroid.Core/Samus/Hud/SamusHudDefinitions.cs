@@ -1,4 +1,3 @@
-using static SuperMetroid.Core.Samus.Hud.SamusHudRomData;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 
@@ -7,6 +6,15 @@ namespace SuperMetroid.Core.Samus.Hud;
 /// <summary>Compiled weapon-admission policy; HUD artwork and labels are separate assets.</summary>
 internal static class SamusHudDefinitions
 {
+    /// <summary>The first posture-transition pose; the transition admission indexes its flags from here.</summary>
+    internal const SamusPoseId FirstTransitionPose = SamusPoseId.CrouchingTransitionRightPose;
+
+    /// <summary>The first of the transition poses that never admit firing.</summary>
+    internal const SamusPoseId NonFiringTransitionStart = SamusPoseId.UnusedPoseDb;
+
+    /// <summary>The first transition pose that the standard weapon handler admits.</summary>
+    internal const SamusPoseId StandardTransitionStart = SamusPoseId.CrouchingTransitionAimUpRightPose;
+
     /// <summary>$90:DD05: movement-state HUD admission dispatch, preserving all 28 native handler identities.</summary>
     internal static SamusHudHandler MovementHandler(SamusMovementType movement)
     {

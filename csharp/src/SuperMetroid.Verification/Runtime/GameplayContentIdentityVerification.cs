@@ -116,7 +116,7 @@ internal static class GameplayContentIdentityVerification
             entries.Add(new(type, (byte)bts, visual));
         }
         AssertEqual(305, entries.Count, "complete compiled drawable rule fixture");
-        var items = new ushort[XrayOverlayRomData.DynamicGraphicsSlots * 2];
+        var items = new ushort[XrayOverlayVisualCatalog.DynamicGraphicsSlots * 2];
         if (edit == "xray-item") items[^1] = 1;
         XrayRoomOverlayVisual[] tiles =
         [

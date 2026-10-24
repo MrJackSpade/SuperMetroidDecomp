@@ -237,4 +237,16 @@ internal static class SamusCartridgeTables
     /// Investigation: #625 / #900.
     /// </remarks>
     internal const int PalettePointers = 0x90c3c9;
+
+    /// <summary>$90:DD05: the movement-type weapon-admission handler pointer table.</summary>
+    internal const int HudMovementHandlers = 0x90dd05;
+
+    /// <summary>$90:DDAA: the posture-transition admission flags; zero enters the standard handler.</summary>
+    internal const int HudTransitionFlags = 0x90ddaa;
+
+    /// <summary>Bank $84: the bank of the item draw instruction pointers the X-ray item overlay follows.</summary>
+    internal const int XrayItemDrawBank = 0x840000;
+
+    /// <summary>Bank $8F: the bank of the room-specific X-ray overlay records, four bytes per record.</summary>
+    internal const int XrayRoomOverlayBank = 0x8f0000;
 }

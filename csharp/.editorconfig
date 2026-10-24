@@ -1,4 +1,4 @@
-﻿[*.cs]
+[*.cs]
 
 # IDE0058: Expression value is never used
 dotnet_diagnostic.IDE0058.severity = silent
@@ -242,6 +242,7 @@ dotnet_diagnostic.SME6445.severity = none
 dotnet_diagnostic.SME6446.severity = none
 dotnet_diagnostic.SME6447.severity = none
 dotnet_diagnostic.SME6448.severity = none
+dotnet_diagnostic.SME6449.severity = none
 
 [{test-support,test-fixtures,tools}/**.cs]
 dotnet_diagnostic.SME6201.severity = none
@@ -346,3 +347,4 @@ dotnet_diagnostic.SME6445.severity = none
 dotnet_diagnostic.SME6446.severity = none
 dotnet_diagnostic.SME6447.severity = none
 dotnet_diagnostic.SME6448.severity = none
+dotnet_diagnostic.SME6449.severity = none

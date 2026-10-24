@@ -74,6 +74,7 @@ internal static class Program
                 new AnalyzerSuite(nameof(TransferWordAnalyzerTests.VerifyTransferWordAnalyzer), TransferWordAnalyzerTests.VerifyTransferWordAnalyzer),
                 new AnalyzerSuite(nameof(CartridgeAddressAnalyzerTests.VerifyCartridgeAddressAnalyzer), CartridgeAddressAnalyzerTests.VerifyCartridgeAddressAnalyzer),
                 new AnalyzerSuite(nameof(HostConcernAnalyzerTests.VerifyHostConcernAnalyzer), HostConcernAnalyzerTests.VerifyHostConcernAnalyzer),
+                new AnalyzerSuite(nameof(DisplayRegisterAnalyzerTests.VerifyDisplayRegisterAnalyzer), DisplayRegisterAnalyzerTests.VerifyDisplayRegisterAnalyzer),
                 new AnalyzerSuite(nameof(AudioRequestAnalyzerTests.VerifyAudioRequestAnalyzer), AudioRequestAnalyzerTests.VerifyAudioRequestAnalyzer),
                 new AnalyzerSuite(nameof(VerifyKindTaggedRecordAnalyzer), VerifyKindTaggedRecordAnalyzer),
                 new AnalyzerSuite(nameof(VerifyStringIdentityAnalyzer), VerifyStringIdentityAnalyzer),

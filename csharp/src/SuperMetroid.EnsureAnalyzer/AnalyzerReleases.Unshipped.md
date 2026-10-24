@@ -1,4 +1,4 @@
-﻿; Unshipped analyzer release
+; Unshipped analyzer release
 ; https://github.com/dotnet/roslyn/blob/main/src/RoslynAnalyzers/Microsoft.CodeAnalysis.Analyzers/ReleaseTrackingAnalyzers.Help.md
 
 ### New Rules
@@ -52,3 +52,4 @@ SME6445 | Design | Error | TransferWordAnalyzer
 SME6446 | Design | Error | AudioRequestAnalyzer
 SME6447 | Design | Error | CartridgeAddressAnalyzer
 SME6448 | Design | Error | HostConcernAnalyzer
+SME6449 | Design | Error | DisplayRegisterAnalyzer

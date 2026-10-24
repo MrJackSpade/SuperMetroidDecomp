@@ -204,9 +204,9 @@ internal static class SnesGameplayFrameRendererConstants
             .RelativeToCamera(layer1);
         int centerX = center.X;
         int centerY = center.Y;
-        byte addRed = SnesGameplayFrameRenderer.ExpandFiveBit(explosion.FixedColorRed);
-        byte addGreen = SnesGameplayFrameRenderer.ExpandFiveBit(explosion.FixedColorGreen);
-        byte addBlue = SnesGameplayFrameRenderer.ExpandFiveBit(explosion.FixedColorBlue);
+        byte addRed = SnesGameplayFrameRenderer.ExpandFiveBit(explosion.FixedColor.Red);
+        byte addGreen = SnesGameplayFrameRenderer.ExpandFiveBit(explosion.FixedColor.Green);
+        byte addBlue = SnesGameplayFrameRenderer.ExpandFiveBit(explosion.FixedColor.Blue);
 
         for (int screenY = SnesGameplayFrameRenderer.HudHeight; screenY < SnesGameplayFrameRenderer.Height; screenY++)
         {

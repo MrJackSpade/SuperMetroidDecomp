@@ -77,9 +77,9 @@ internal static class ChozoGrabAnimationVerification
                 AssertEqual(expectedExplosion.RenderedPhase, actual.RenderedPhase, $"carried Power Bomb rendered phase at frame {frames}");
                 AssertEqual(expectedExplosion.RenderedPreExplosionRadius, actual.RenderedPreExplosionRadius, "carried blast rendered pre-radius");
                 AssertEqual(expectedExplosion.RenderedExplosionRadius, actual.RenderedExplosionRadius, "carried blast rendered radius");
-                AssertEqual(expectedExplosion.FixedColorRed, actual.FixedColorRed, "carried blast red");
-                AssertEqual(expectedExplosion.FixedColorGreen, actual.FixedColorGreen, "carried blast green");
-                AssertEqual(expectedExplosion.FixedColorBlue, actual.FixedColorBlue, "carried blast blue");
+                AssertEqual(expectedExplosion.FixedColor.Red, actual.FixedColor.Red, "carried blast red");
+                AssertEqual(expectedExplosion.FixedColor.Green, actual.FixedColor.Green, "carried blast green");
+                AssertEqual(expectedExplosion.FixedColor.Blue, actual.FixedColor.Blue, "carried blast blue");
                 AssertEqual(expectedExplosion.Status, actual.Status, $"carried Power Bomb cleanup at frame {frames}");
             }
             if (samus.Control.Mode.Beta == SamusBetaHandler.ScriptLocked)
@@ -110,9 +110,9 @@ internal static class ChozoGrabAnimationVerification
                 AssertEqual(expectedExplosion.RenderedPhase, actual.RenderedPhase, $"carried Power Bomb rendered phase at frame {frames}");
                 AssertEqual(expectedExplosion.RenderedPreExplosionRadius, actual.RenderedPreExplosionRadius, "carried blast rendered pre-radius");
                 AssertEqual(expectedExplosion.RenderedExplosionRadius, actual.RenderedExplosionRadius, "carried blast rendered radius");
-                AssertEqual(expectedExplosion.FixedColorRed, actual.FixedColorRed, "carried blast red");
-                AssertEqual(expectedExplosion.FixedColorGreen, actual.FixedColorGreen, "carried blast green");
-                AssertEqual(expectedExplosion.FixedColorBlue, actual.FixedColorBlue, "carried blast blue");
+                AssertEqual(expectedExplosion.FixedColor.Red, actual.FixedColor.Red, "carried blast red");
+                AssertEqual(expectedExplosion.FixedColor.Green, actual.FixedColor.Green, "carried blast green");
+                AssertEqual(expectedExplosion.FixedColor.Blue, actual.FixedColor.Blue, "carried blast blue");
                 AssertEqual(expectedExplosion.Status, actual.Status, $"carried Power Bomb cleanup at frame {frames}");
             }
             animationResumed |= samus.AnimationFrame != 2 || samus.AnimationFrameTimer.RawValue != 3;

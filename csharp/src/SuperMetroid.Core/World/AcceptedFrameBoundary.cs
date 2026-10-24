@@ -51,7 +51,7 @@ internal sealed class AcceptedFrameBoundary
     private readonly SpriteFrameBuffer _sprites;
     /// <summary>Supplies Samus graphics DMA for accepted NMI transfers.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Supplies the session COLDATA shadows.</summary>
+    /// <summary>Supplies the room's fixed colour.</summary>
     private readonly RoomFxSession _roomFx;
     /// <summary>The HUD whose rows the BG3 plane shows.</summary>
     private readonly HudState _hud;
@@ -60,7 +60,7 @@ internal sealed class AcceptedFrameBoundary
 
     /// <summary>The background character bindings the room's block pictures are resolved over (#1392).</summary>
     private readonly BgArtworkBindings _backgrounds;
-    /// <summary>Supplies the suit pickup whose COLDATA color is latched.</summary>
+    /// <summary>Supplies the suit pickup whose colour is latched.</summary>
     private readonly SamusSuitPickupState _suitPickup;
     /// <summary>Supplies the frozen X-ray reveal map the publication latches.</summary>
     private readonly XrayReveal _xray;
@@ -335,17 +335,15 @@ internal sealed class AcceptedFrameBoundary
         return Layer3Plane.Compose(hudRows, _room.Layer3Fx?.EffectPageWords() ?? []);
     }
 
-    /// <summary>COLDATA shadows the HDMA pre-instructions wrote during the previous main loop.</summary>
+    /// <summary>The fixed colours effects chose during the previous main loop.</summary>
     private GameplayLatchedFixedColors CaptureFixedColors()
     {
-        // Before the first room exists there is no explosion; its COLDATA shadow is the cleared one.
-        FixedColorRegisterSnapshot powerBomb = _room.BombProjectiles?.PowerBombExplosion is { } explosion
-            ? new(explosion.FixedColorRed, explosion.FixedColorGreen, explosion.FixedColorBlue)
-            : default;
+        // Before the first room exists there is no explosion; its colour is black.
+        Bgr555 powerBomb = _room.BombProjectiles?.PowerBombExplosion.FixedColor ?? Bgr555.Black;
         return new(
-            _roomFx.FixedColors.Snapshot(),
+            _roomFx.FixedColors.Color,
             powerBomb,
-            new FixedColorRegisterSnapshot(_suitPickup.FixedColorRed, _suitPickup.FixedColorGreen, _suitPickup.FixedColorBlue),
+            _suitPickup.FixedColor,
             Displays?.MotherBrain?.RainbowBeamHdma.Color);
     }
 

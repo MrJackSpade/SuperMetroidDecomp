@@ -191,22 +191,17 @@ public static class GameplayDisplayCapture
         };
     }
 
-    /// <summary>The power bomb's live window inputs drawn in the NMI-latched COLDATA color.</summary>
+    /// <summary>The power bomb's live window inputs drawn in the colour the accepted frame latched.</summary>
     internal static PowerBombRenderSnapshot PowerBomb(GameplayDisplayFrame frame)
     {
-        FixedColorRegisterSnapshot color = frame.Latched.FixedColors.PowerBomb;
-        return frame.FrameEnd.PowerBomb with
-        {
-            FixedColorRed = color.Red, FixedColorGreen = color.Green, FixedColorBlue = color.Blue,
-        };
+        return frame.FrameEnd.PowerBomb with { FixedColor = frame.Latched.FixedColors.PowerBomb };
     }
 
-    /// <summary>The suit pickup's live light beam drawn in the NMI-latched COLDATA color, or null while inactive.</summary>
+    /// <summary>The suit pickup's live light beam drawn in the colour the accepted frame latched, or null while inactive.</summary>
     internal static SamusSuitPickupFlash? SuitPickup(GameplayDisplayFrame frame)
     {
         if (frame.FrameEnd.SuitPickupBeam is not { } beam) return null;
-        FixedColorRegisterSnapshot color = frame.Latched.FixedColors.SuitPickup;
-        return new(beam, color.Red, color.Green, color.Blue);
+        return new(beam, frame.Latched.FixedColors.SuitPickup);
     }
 
     /// <summary>Copies only gameplay scanlines from a published HDMA table and rejects coverage shorter than the viewport.</summary>
@@ -224,7 +219,7 @@ public static class GameplayDisplayCapture
     private static ushort Add(ushort scroll, short shake) => unchecked((ushort)(scroll + shake));
 
     /// <summary>Normal Fireflea blending ($88:80B0), before and after X-ray owns the window.</summary>
-    private static GameplayColorMathRenderLayer CaptureFirefleaDarkness(FixedColorRegisterSnapshot fixedColor, LayeredScene basis)
+    private static GameplayColorMathRenderLayer CaptureFirefleaDarkness(Bgr555 fixedColor, LayeredScene basis)
     {
         if (basis.Layers[0] is not OrdinaryGameplayRenderLayer ordinary)
             throw new InvalidOperationException("Fireflea darkness requires ordinary Mode-1 gameplay.");
@@ -232,7 +227,7 @@ public static class GameplayDisplayCapture
         // every pixel is eligible. Native CGADSUB enables only BG2 and the backdrop:
         // foreground and Samus must not be tinted by a whole-frame darkening overlay.
         var closed = Enumerable.Repeat(new XrayWindowLine(255, 0), SnesPpuLayout.ScreenHeightPixels).ToArray();
-        return new(ordinary, closed, revealBlocks: false, math: new ColorMathRegisters { ColorMath = SnesColorMathControl.Bg2 | SnesColorMathControl.Backdrop | SnesColorMathControl.Subtract, AddSubscreen = false, FixedRed = fixedColor.RedIntensity, FixedGreen = fixedColor.GreenIntensity, FixedBlue = fixedColor.BlueIntensity });
+        return new(ordinary, closed, revealBlocks: false, math: new ColorMathRegisters { ColorMath = SnesColorMathControl.Bg2 | SnesColorMathControl.Backdrop | SnesColorMathControl.Subtract, AddSubscreen = false, FixedRed = fixedColor.Red, FixedGreen = fixedColor.Green, FixedBlue = fixedColor.Blue });
     }
 
     /// <summary>Captures the Ceres shaft or Ridley Mode-7 matrix and HUD, adding the Mode-1 floor band during Ridley's getaway.</summary>
@@ -349,8 +344,8 @@ public static class GameplayDisplayCapture
         bool subtract = scene.LayerBlendConfiguration is
             LayerBlendingConfiguration.WaterSubtractive or LayerBlendingConfiguration.WaterfallSubtractive;
         var control = XrayRoomDisplayRules.ColorMath(mode, subtract);
-        FixedColorRegisterSnapshot fixedColor = latched.FixedColors.Shared;
-        int red = fixedColor.RedIntensity, green = fixedColor.GreenIntensity, blue = fixedColor.BlueIntensity;
+        Bgr555 fixedColor = latched.FixedColors.Shared;
+        int red = fixedColor.Red, green = fixedColor.Green, blue = fixedColor.Blue;
         if (reveal || mode == XrayRoomBlendMode.Fireflea && red < XrayWindowRenderDefinitions.FixedColorComponent)
             red = green = blue = XrayWindowRenderDefinitions.FixedColorComponent;
         // Phase five deletes the HDMA object but its blend bits have already been

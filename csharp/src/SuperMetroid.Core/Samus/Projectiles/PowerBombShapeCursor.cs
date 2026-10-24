@@ -9,16 +9,15 @@ public readonly record struct PowerBombShapeCursor(PowerBombShapeStream Stream, 
 {
     /// <summary>
     /// The shape's position among all 21 authored profiles: the seventeen white shapes first, then the four yellow
-    /// ones, as the cartridge lays them out.
+    /// ones, as the cartridge lays them out. A method, not a property: a cursor that has consumed its whole stream is a
+    /// valid state with no shape, and the record's printed form must not fail on it.
     /// </summary>
-    public int ProfileIndex
+    /// <exception cref="InvalidOperationException">The cursor has no shape left in its stream.</exception>
+    public int ProfileIndex()
     {
-        get
-        {
-            if (Index < 0 || Index >= CountOf(Stream))
-                throw new InvalidOperationException($"Power Bomb {Stream} shape {Index} is outside its stream.");
-            return Stream == PowerBombShapeStream.White ? Index : CountOf(PowerBombShapeStream.White) + Index;
-        }
+        if (Index < 0 || Index >= CountOf(Stream))
+            throw new InvalidOperationException($"Power Bomb {Stream} shape {Index} is outside its stream.");
+        return Stream == PowerBombShapeStream.White ? Index : CountOf(PowerBombShapeStream.White) + Index;
     }
 
     /// <summary>Number of shapes in one authored stream.</summary>

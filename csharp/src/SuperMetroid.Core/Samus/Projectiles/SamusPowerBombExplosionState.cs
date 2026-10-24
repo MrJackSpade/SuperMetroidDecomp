@@ -77,26 +77,8 @@ public sealed class SamusPowerBombExplosionState
     /// <summary>Explosion radius consumed before the native end-of-frame update.</summary>
     public PowerBombRadius RenderedExplosionRadius { get; internal set; }
 
-    /// <summary>Current fixed-color red component written through COLDATA, 0 through 255.</summary>
-    public int FixedColorRed
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
-    }
-
-    /// <summary>Current fixed-color green component written through COLDATA, 0 through 255.</summary>
-    public int FixedColorGreen
-    {
-        get;
-        private set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
-    }
-
-    /// <summary>Current fixed-color blue component written through COLDATA, 0 through 255.</summary>
-    public int FixedColorBlue
-    {
-        get;
-        private set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
-    }
+    /// <summary>The colour the explosion adds inside its window.</summary>
+    public Bgr555 FixedColor { get; internal set; }
 
     /// <summary>True from placement until cleanup releases the one-at-a-time Power Bomb lock.</summary>
     public bool IsArmed { get; private set; }
@@ -114,7 +96,7 @@ public sealed class SamusPowerBombExplosionState
     private int _afterglowStepsRemaining;
 
     /// <summary>
-    /// Native Crystal Flash completion count, kept separate from editable COLDATA so
+    /// Native Crystal Flash completion count, kept separate from the editable colour so
     /// rebinding colors cannot change the HDMA cleanup frame after restoration.
     /// </summary>
     private int _crystalFlashAfterglowStepsRemaining;
@@ -151,9 +133,7 @@ public sealed class SamusPowerBombExplosionState
         _afterglowTimer = WrappingCountdown.Start(0);
         _afterglowStepsRemaining = 0;
         _crystalFlashAfterglowStepsRemaining = 0;
-        FixedColorRed = 0;
-        FixedColorGreen = 0;
-        FixedColorBlue = 0;
+        FixedColor = Bgr555.Black;
     }
 
     /// <summary>
@@ -177,9 +157,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedPhase = PowerBombExplosionPhase.Inactive;
         RenderedPreExplosionRadius = PowerBombRadius.Zero;
         RenderedExplosionRadius = PowerBombRadius.Zero;
-        FixedColorRed = 0;
-        FixedColorGreen = 0;
-        FixedColorBlue = 0;
+        FixedColor = Bgr555.Black;
         _afterglowTimer = WrappingCountdown.Start(0);
         _afterglowStepsRemaining = 0;
         _crystalFlashAfterglowStepsRemaining = 0;
@@ -261,9 +239,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedPhase = PowerBombExplosionPhase.Inactive;
         RenderedPreExplosionRadius = PowerBombRadius.Zero;
         RenderedExplosionRadius = PowerBombRadius.Zero;
-        FixedColorRed = 0;
-        FixedColorGreen = 0;
-        FixedColorBlue = 0;
+        FixedColor = Bgr555.Black;
         _afterglowTimer = WrappingCountdown.Start(0);
         _afterglowStepsRemaining = 0;
         _crystalFlashAfterglowStepsRemaining = 0;
@@ -433,12 +409,7 @@ public sealed class SamusPowerBombExplosionState
             return true;
         }
 
-        if (FixedColorRed != 0)
-            FixedColorRed = WrappingCounter.DecrementByte(FixedColorRed);
-        if (FixedColorGreen != 0)
-            FixedColorGreen = WrappingCounter.DecrementByte(FixedColorGreen);
-        if (FixedColorBlue != 0)
-            FixedColorBlue = WrappingCounter.DecrementByte(FixedColorBlue);
+        FixedColor = FixedColor.Map((_, channel) => channel == 0 ? 0 : channel - 1);
 
         ReloadAfterglowTimerLowByte();
         return false;
@@ -483,12 +454,7 @@ public sealed class SamusPowerBombExplosionState
         if (_crystalFlashAfterglowStepsRemaining != 0)
         {
             _crystalFlashAfterglowStepsRemaining--;
-            if (FixedColorRed != 0)
-                FixedColorRed = WrappingCounter.DecrementByte(FixedColorRed);
-            if (FixedColorGreen != 0)
-                FixedColorGreen = WrappingCounter.DecrementByte(FixedColorGreen);
-            if (FixedColorBlue != 0)
-                FixedColorBlue = WrappingCounter.DecrementByte(FixedColorBlue);
+            FixedColor = FixedColor.Map((_, channel) => channel == 0 ? 0 : channel - 1);
             ReloadAfterglowTimerLowByte();
             return false;
         }
@@ -509,9 +475,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedExplosionRadius = PowerBombRadius.Zero;
         // Replacement colors may be brighter than the stock lifetime operand. Once
         // the HDMA window is released, do not retain their unused display remainder.
-        FixedColorRed = 0;
-        FixedColorGreen = 0;
-        FixedColorBlue = 0;
+        FixedColor = Bgr555.Black;
         return true;
     }
 
@@ -542,8 +506,6 @@ public sealed class SamusPowerBombExplosionState
         Bgr555 color = (PresentationColors ?? throw new InvalidOperationException(
                 "Power Bomb color requires installed fixed-color definitions."))
             .Resolve(sequence, colorIndex);
-        FixedColorRed = color.Red;
-        FixedColorGreen = color.Green;
-        FixedColorBlue = color.Blue;
+        FixedColor = color;
     }
 }

@@ -111,7 +111,7 @@ internal static class PowerBombShapeDefinitionsVerification
             explosion.Spawn(new(unchecked((ushort)centerX), unchecked((ushort)centerY)));
             explosion.RenderedPhase = PowerBombExplosionPhase.ExplosionYellow;
             explosion.RenderedExplosionRadius = PowerBombRadius.FromRaw(SnesEightEight.FromWhole(radius));
-            explosion.FixedColorRed = 31;
+            explosion.FixedColor = explosion.FixedColor.WithRed(31);
             var frame = Enumerable.Repeat(new Rgba32(0, 0, 0, 255), 256 * 224).ToArray();
             SnesGameplayFrameRendererConstants.ApplyPowerBombColorMath(frame, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
             int[] profile = Profile(radius);

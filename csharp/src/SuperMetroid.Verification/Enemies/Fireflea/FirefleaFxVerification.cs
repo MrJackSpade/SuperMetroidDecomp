@@ -31,7 +31,7 @@ internal static class FirefleaFxVerification
             address => $"Fireflea FX attempted migrated definition read ${address:X6}.");
         var fxSession = new RoomFxSession();
         var fx = new RoomLayer3FxState(fxSession);
-        FixedColorState fixedColor = fx.FixedColors;
+        RoomFixedColor fixedColor = fx.FixedColors;
         var vram = new SnesVram();
         RoomFxRecordDefinition record = RoomFxDefinitions.AllRecords.First(candidate => candidate.Type == (byte)RoomFxType.Fireflea && candidate.DoorPointer == 0);
         // Independent transcription of $88:B058/$88:B070. These are deliberately not
@@ -54,15 +54,15 @@ internal static class FirefleaFxVerification
             int expectedIndex = (frame / 6) % 12;
             int shade = SnesLittleEndian.HighByte(flash[expectedIndex]);
             AssertEqual(expectedIndex, fx.Fireflea.Index, $"Fireflea index frame {frame}");
-            AssertEqual(shade | 0x20, fixedColor.Red, $"Fireflea red frame {frame}");
-            AssertEqual(shade | 0x80, fixedColor.Green, $"Fireflea second COLDATA write frame {frame}");
-            AssertEqual(shade | 0x40, fixedColor.Blue, $"Fireflea third COLDATA write frame {frame}");
+            AssertEqual(shade, fixedColor.Color.Red, $"Fireflea red frame {frame}");
+            AssertEqual(shade, fixedColor.Color.Green, $"Fireflea second COLDATA write frame {frame}");
+            AssertEqual(shade, fixedColor.Color.Blue, $"Fireflea third COLDATA write frame {frame}");
         }
         WrappingCountdown timer = fx.Fireflea.Timer;
-        int red = fixedColor.Red;
+        int red = fixedColor.Color.Red;
         for (int frame = 0; frame < 100; frame++) fx.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, MainGameLoopCarry = true });
         AssertEqual(timer, fx.Fireflea.Timer, "X-ray frozen time retains flashing phase");
-        AssertEqual(red, fixedColor.Red, "X-ray frozen time retains fixed color");
+        AssertEqual(red, fixedColor.Color.Red, "X-ray frozen time retains fixed color");
         AssertEqual(LayerBlendingConfiguration.Fireflea, fx.LayerBlendConfiguration, "frozen Fireflea still selects blending");
         for (ushort level = 0; level <= 12; level += 2)
         {
@@ -72,21 +72,21 @@ internal static class FirefleaFxVerification
                 fx.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true, FirefleaDarknessLevel = level });
                 int index = level < 10 ? frame / 6 % 12 : frame < 6 ? 0 : 6;
                 byte shade = SnesLittleEndian.HighByte((ushort)(darkness[level / 2] + flash[index]));
-                AssertEqual(shade | 0x20, fixedColor.Red, $"death offset {level}, frame {frame}: red");
-                AssertEqual(shade | 0x80, fixedColor.Green, $"death offset {level}, frame {frame}: blue");
-                AssertEqual(shade | 0x40, fixedColor.Blue, $"death offset {level}, frame {frame}: green");
+                AssertEqual(shade & Bgr555.MaxChannel, fixedColor.Color.Red, $"death offset {level}, frame {frame}: red");
+                AssertEqual(shade & Bgr555.MaxChannel, fixedColor.Color.Green, $"death offset {level}, frame {frame}: blue");
+                AssertEqual(shade & Bgr555.MaxChannel, fixedColor.Color.Blue, $"death offset {level}, frame {frame}: green");
                 AssertEqual(level, fx.Fireflea.Darkness, "enemy death offset reaches the Fireflea FX state");
             }
-            int retained = fixedColor.Red;
+            int retained = fixedColor.Color.Red;
             fx.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, MainGameLoopCarry = true, FirefleaDarknessLevel = level });
-            AssertEqual(retained, fixedColor.Red, "frozen death level retains its exact shade");
+            AssertEqual(retained, fixedColor.Color.Red, "frozen death level retains its exact shade");
         }
         // Removing the effect must stop its producer, not let the old flashing timer
         // keep changing a subsequent room's fixed color.
         fx = RoomLayer3FxState.ForRoom(fxSession, new BackgroundColourSets(), null, null, 0);
-        fixedColor.Red = 0x25;
+        fixedColor.Color = new Bgr555(5, 5, 5);
         fx.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
-        AssertEqual(0x25, fixedColor.Red, "non-Fireflea room does not execute the old producer");
+        AssertEqual(5, fixedColor.Color.Red, "non-Fireflea room does not execute the old producer");
         if (includeXrayCapture) VerifyFirefleaXrayCapture();
         Console.WriteLine("  Fireflea FX: compiled native shades, ROM-read guard, initialization, flash cycles, all seven death offsets, COLDATA order and frozen-time retention agree.");
     }
@@ -116,7 +116,7 @@ internal static class FirefleaFxVerification
     private static void VerifyFirefleaFrozenDarkness()
     {
         var fireflea = new FirefleaFxState();
-        var fixedColor = new FixedColorState();
+        var fixedColor = new RoomFixedColor();
         fireflea.Initialize();
         for (int frame = 0; frame < 10; frame++) fireflea.Step(fixedColor, frozen: false, darkness: 0);
         WrappingCountdown timer = fireflea.Timer;
@@ -134,12 +134,12 @@ internal static class FirefleaFxVerification
     private static void VerifyFirefleaUninitializedTimerWrap()
     {
         var fireflea = new FirefleaFxState();
-        fireflea.Step(new FixedColorState(), frozen: false, darkness: 0);
+        fireflea.Step(new RoomFixedColor(), frozen: false, darkness: 0);
         AssertEqual(ushort.MaxValue, fireflea.Timer.RawValue, "a step from the cleared timer wraps");
         AssertEqual(0, fireflea.Index, "the wrapped step does not advance the index");
         fireflea.Initialize();
         for (int step = 0; step < FirefleaFxDefinitions.FlashDuration; step++)
-            fireflea.Step(new FixedColorState(), frozen: false, darkness: 0);
+            fireflea.Step(new RoomFixedColor(), frozen: false, darkness: 0);
         AssertEqual(1, fireflea.Index, "the timer reaching zero advances the index");
         AssertEqual(FirefleaFxDefinitions.FlashDuration, fireflea.Timer.RawValue, "the timer reaching zero restarts it");
     }
@@ -163,7 +163,7 @@ internal static class FirefleaFxVerification
         // the producer, so its display must preserve this value rather than substitute
         // ordinary X-ray's constant seven or restart the flash cycle.
         runtime.RoomLayer3Fx.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true, FirefleaDarknessLevel = 6 });
-        int shade = runtime.RoomLayer3Fx.FixedColors.Snapshot().RedIntensity;
+        int shade = runtime.RoomLayer3Fx.FixedColors.Color.Red;
         AssertEqual(18, shade, "retail darkness table seeds a shade above X-ray's minimum");
         // The blend selector and COLDATA shadows reach the PPU at the accepted NMI (#1307).
         runtime.FrameBoundary.BeginAcceptedFrame(0);

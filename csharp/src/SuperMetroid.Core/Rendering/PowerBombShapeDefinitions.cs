@@ -55,7 +55,7 @@ public static class PowerBombShapeDefinitions
         if ((uint)row >= PowerBombExplosionDefinitions.ShapeStride)
             throw new ArgumentOutOfRangeException(nameof(row));
 
-        int frame = shape.ProfileIndex;
+        int frame = shape.ProfileIndex();
 
         int n = frame < 17 ? frame + 37 : frame - 14;
         int radius = frame < 17

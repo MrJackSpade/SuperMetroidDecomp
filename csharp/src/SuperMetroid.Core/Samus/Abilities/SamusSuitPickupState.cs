@@ -82,26 +82,8 @@ public sealed class SamusSuitPickupState
     /// </summary>
     public EightEightVector<ScreenPixels> LightBeamWideningVelocity { get; private set; }
 
-    /// <summary>Raw COLDATA red byte, including its component-enable bit.</summary>
-    public int FixedColorRed
-    {
-        get;
-        private set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
-    }
-
-    /// <summary>Raw COLDATA green byte, including its component-enable bit.</summary>
-    public int FixedColorGreen
-    {
-        get;
-        private set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
-    }
-
-    /// <summary>Raw COLDATA blue byte, including its component-enable bit.</summary>
-    public int FixedColorBlue
-    {
-        get;
-        private set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
-    }
+    /// <summary>The colour the light beam adds inside its window.</summary>
+    public Bgr555 FixedColor { get; private set; }
 
     /// <summary>Light-beam outline and progress produced by the most recent stage.</summary>
     public SamusSuitPickupBeam Beam { get; private set; }
@@ -120,13 +102,9 @@ public sealed class SamusSuitPickupState
             throw new InvalidOperationException("A suit pickup transformation is already active.");
 
         Kind = kind;
-        FixedColorRed = SamusPaletteDefinitions.SuitPickup.InitialRed;
-        FixedColorGreen = kind == SamusSuitPickupKind.Varia
-            ? SamusPaletteDefinitions.SuitPickup.VariaGreen
-            : SamusPaletteDefinitions.SuitPickup.GravityGreen;
-        FixedColorBlue = kind == SamusSuitPickupKind.Varia
-            ? SamusPaletteDefinitions.SuitPickup.VariaBlue
-            : SamusPaletteDefinitions.SuitPickup.GravityBlue;
+        FixedColor = kind == SamusSuitPickupKind.Varia
+            ? new Bgr555(SamusPaletteDefinitions.SuitPickup.InitialRed, SamusPaletteDefinitions.SuitPickup.VariaGreen, SamusPaletteDefinitions.SuitPickup.VariaBlue)
+            : new Bgr555(SamusPaletteDefinitions.SuitPickup.InitialRed, SamusPaletteDefinitions.SuitPickup.GravityGreen, SamusPaletteDefinitions.SuitPickup.GravityBlue);
         Stage = SamusSuitPickupStage.LightBeamAppears;
         _lightBeamScanlines = 0;
         _lightBeamLeft = Position16<ScreenPixels>.Zero;
@@ -391,17 +369,14 @@ public sealed class SamusSuitPickupState
     /// <summary>Clears the window and fixed-color effect, then releases Samus input after the last HDMA stage.</summary>
     private void Finish(SamusState samus)
     {
-        FixedColorRed = SamusPaletteDefinitions.SuitPickup.ResetRed;
-        FixedColorGreen = SamusPaletteDefinitions.SuitPickup.ResetGreen;
-        FixedColorBlue = SamusPaletteDefinitions.SuitPickup.ResetBlue;
+        FixedColor = new Bgr555(SamusPaletteDefinitions.SuitPickup.ResetRed, SamusPaletteDefinitions.SuitPickup.ResetGreen,
+            SamusPaletteDefinitions.SuitPickup.ResetBlue);
         Beam = SamusSuitPickupBeam.None;
         Stage = SamusSuitPickupStage.LightBeamAppears;
         _lightBeamScanlines = 0;
         _lightBeamLeft = Position16<ScreenPixels>.Zero;
         _lightBeamRight = Position16<ScreenPixels>.Zero;
-        FixedColorRed = 0;
-        FixedColorGreen = 0;
-        FixedColorBlue = 0;
+        FixedColor = Bgr555.Black;
         samus.Control.Unlock();
         IsActive = false;
     }
@@ -420,13 +395,11 @@ public sealed class SamusSuitPickupState
     private static EightEightVector<ScreenPixels> WideningVelocity(ushort speed) =>
         new(new SnesSignedEightEight(speed), new SnesSignedEightEight(0));
 
-    /// <summary>Raises each COLDATA component by two toward the white reveal color.</summary>
-    private void AdvanceColorTowardWhite()
-    {
-        FixedColorRed = AddTwoAndClamp(FixedColorRed, SamusPaletteDefinitions.SuitPickup.WhiteRed);
-        FixedColorGreen = AddTwoAndClamp(FixedColorGreen, SamusPaletteDefinitions.SuitPickup.WhiteGreen);
-        FixedColorBlue = AddTwoAndClamp(FixedColorBlue, SamusPaletteDefinitions.SuitPickup.WhiteBlue);
-    }
+    /// <summary>Raises each channel by two toward the white reveal colour.</summary>
+    private void AdvanceColorTowardWhite() =>
+        FixedColor = new Bgr555(AddTwoAndClamp(FixedColor.Red, SamusPaletteDefinitions.SuitPickup.WhiteRed),
+            AddTwoAndClamp(FixedColor.Green, SamusPaletteDefinitions.SuitPickup.WhiteGreen),
+            AddTwoAndClamp(FixedColor.Blue, SamusPaletteDefinitions.SuitPickup.WhiteBlue));
 
     /// <summary>Returns the Varia beam's fixed color toward its orange target during the shrinking stage.</summary>
     private void AdvanceColorTowardOrange() => StepColorDownToward(
@@ -440,15 +413,12 @@ public sealed class SamusSuitPickupState
         SamusPaletteDefinitions.SuitPickup.GravityGreen,
         SamusPaletteDefinitions.SuitPickup.GravityBlue);
 
-    /// <summary>Decrements each fixed-color component by one until it reaches its target.</summary>
-    private void StepColorDownToward(int red, int green, int blue)
-    {
-        if (FixedColorRed != red) FixedColorRed = WrappingCounter.DecrementByte(FixedColorRed);
-        if (FixedColorGreen != green) FixedColorGreen = WrappingCounter.DecrementByte(FixedColorGreen);
-        if (FixedColorBlue != blue) FixedColorBlue = WrappingCounter.DecrementByte(FixedColorBlue);
-    }
+    /// <summary>Lowers each channel by one until it reaches its target.</summary>
+    private void StepColorDownToward(int red, int green, int blue) =>
+        FixedColor = new Bgr555(FixedColor.Red == red ? red : FixedColor.Red - 1, FixedColor.Green == green ? green : FixedColor.Green - 1,
+            FixedColor.Blue == blue ? blue : FixedColor.Blue - 1);
 
-    /// <summary>Advances a raw fixed-color component by two without overshooting its stage target.</summary>
+    /// <summary>Advances a channel by two without overshooting its stage target.</summary>
     private static int AddTwoAndClamp(int value, int target)
     {
         if (value == target)

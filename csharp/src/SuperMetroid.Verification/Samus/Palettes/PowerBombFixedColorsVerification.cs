@@ -98,9 +98,9 @@ internal static class PowerBombFixedColorsVerification
             AssertEqual(native.RenderedPhase, installed.RenderedPhase, $"{label} rendered phase");
             AssertEqual(native.PreExplosionRadius, installed.PreExplosionRadius, $"{label} pre-radius");
             AssertEqual(native.ExplosionRadius, installed.ExplosionRadius, $"{label} radius");
-            AssertEqual(native.FixedColorRed, installed.FixedColorRed, $"{label} fixed red");
-            AssertEqual(native.FixedColorGreen, installed.FixedColorGreen, $"{label} fixed green");
-            AssertEqual(native.FixedColorBlue, installed.FixedColorBlue, $"{label} fixed blue");
+            AssertEqual(native.FixedColor.Red, installed.FixedColor.Red, $"{label} fixed red");
+            AssertEqual(native.FixedColor.Green, installed.FixedColor.Green, $"{label} fixed green");
+            AssertEqual(native.FixedColor.Blue, installed.FixedColor.Blue, $"{label} fixed blue");
             frames++;
             AssertTrue(frames < 1000, $"{label} completes in bounded time");
         } while (native.IsActive);
@@ -132,7 +132,7 @@ internal static class PowerBombFixedColorsVerification
         var forbidden = NewForbiddenPowerBombColorBus(new TestAddressSpace());
         _ = state.StepFrame(); // Native setup precedes the first colored frame.
         _ = state.StepFrame();
-        AssertEqual(document.PreExplosion[0].Red, state.FixedColorRed,
+        AssertEqual(document.PreExplosion[0].Red, state.FixedColor.Red,
             "Power Bomb color override reaches the live explosion frame");
         AssertEqual(0, forbidden.ForbiddenReadAttempts,
             "edited Power Bomb color does not read the native table");

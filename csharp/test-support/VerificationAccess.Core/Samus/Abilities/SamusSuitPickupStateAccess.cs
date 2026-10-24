@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Samus.Abilities;
+namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Verification access to <see cref="SamusSuitPickupState"/> members production does not use.</summary>
 internal static class SamusSuitPickupStateAccess
@@ -8,7 +8,7 @@ internal static class SamusSuitPickupStateAccess
     {
         /// <summary>Value-only render input while the transformation is active; null once it ends.</summary>
         public SamusSuitPickupFlash? Flash => self.IsActive
-            ? new(self.Beam, self.FixedColorRed, self.FixedColorGreen, self.FixedColorBlue)
+            ? new(self.Beam, self.FixedColor)
             : null;
     }
 }

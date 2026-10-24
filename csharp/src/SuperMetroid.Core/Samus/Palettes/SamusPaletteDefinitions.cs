@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Samus.Abilities;
 namespace SuperMetroid.Core.Samus.Palettes;
@@ -202,41 +202,41 @@ public static class SamusPaletteDefinitions
         public const int BubbleColorCount = 6;
     }
 
-    /// <summary>Raw COLDATA endpoints used by the shared Varia/Gravity pickup sequence.</summary>
+    /// <summary>The light beam's colour endpoints in the shared Varia/Gravity pickup sequence, in five-bit channels.</summary>
     public static class SuitPickup
     {
-        /// <summary>Initial red byte shared by both transformations.</summary>
-        public const byte InitialRed = 48;
-        /// <summary>Initial/terminal Varia green byte.</summary>
-        public const byte VariaGreen = 80;
-        /// <summary>Initial/terminal Gravity green byte.</summary>
-        public const byte GravityGreen = 73;
-        /// <summary>Initial Varia blue component-enable byte.</summary>
-        public const byte VariaBlue = 0x80;
-        /// <summary>Initial/terminal Gravity blue component-enable byte.</summary>
-        public const byte GravityBlue = 0x90;
+        /// <summary>Initial red shared by both transformations.</summary>
+        public const int InitialRed = 16;
+        /// <summary>Initial/terminal Varia green.</summary>
+        public const int VariaGreen = 16;
+        /// <summary>Initial/terminal Gravity green.</summary>
+        public const int GravityGreen = 9;
+        /// <summary>Initial Varia blue.</summary>
+        public const int VariaBlue = 0;
+        /// <summary>Initial/terminal Gravity blue.</summary>
+        public const int GravityBlue = 16;
         /// <summary>White-ramp red endpoint.</summary>
-        public const byte WhiteRed = 63;
+        public const int WhiteRed = 31;
         /// <summary>White-ramp green endpoint.</summary>
-        public const byte WhiteGreen = 95;
-        /// <summary>White-ramp blue endpoint including component enable.</summary>
-        public const byte WhiteBlue = 0x9f;
+        public const int WhiteGreen = 31;
+        /// <summary>White-ramp blue endpoint.</summary>
+        public const int WhiteBlue = 31;
         /// <summary>Varia orange-ramp green endpoint.</summary>
-        public const byte VariaOrangeGreen = 77;
-        /// <summary>Varia orange-ramp blue endpoint including component enable.</summary>
-        public const byte VariaOrangeBlue = 0x83;
-        /// <summary>Final fixed-color register reset red byte.</summary>
-        public const byte ResetRed = 32;
-        /// <summary>Final fixed-color register reset green byte.</summary>
-        public const byte ResetGreen = 64;
-        /// <summary>Final fixed-color register reset blue byte.</summary>
-        public const byte ResetBlue = 0x80;
+        public const int VariaOrangeGreen = 13;
+        /// <summary>Varia orange-ramp blue endpoint.</summary>
+        public const int VariaOrangeBlue = 3;
+        /// <summary>Final reset red.</summary>
+        public const int ResetRed = 0;
+        /// <summary>Final reset green.</summary>
+        public const int ResetGreen = 0;
+        /// <summary>Final reset blue.</summary>
+        public const int ResetBlue = 0;
     }
 
     /// <summary>Fixed-color tables used by Power Bomb and Crystal Flash HDMA.</summary>
     public static class PowerBomb
     {
-        /// <summary>Five-bit component payload mask in a COLDATA byte.</summary>
+        /// <summary>The five-bit channel in each stored fixed-colour byte.</summary>
         public const byte ComponentMask = 0x1f;
         /// <summary>Number of pre-explosion fixed-color triplets.</summary>
         public const int PreExplosionColorCount = 16;

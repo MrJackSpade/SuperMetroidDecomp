@@ -23,14 +23,14 @@ public sealed class RoomLayer3FxState
     /// <summary>Tracks frame selection for the liquid, rain, fog, and spore tile animations.</summary>
     private readonly RoomFxAnimatedTilesState animatedTiles = new();
 
-    /// <summary>The Fireflea state, COLDATA shadows and installed FX artwork, which outlive each room.</summary>
+    /// <summary>The Fireflea state, fixed colour and installed FX artwork, which outlive each room.</summary>
     private readonly RoomFxSession _session;
 
     /// <summary>The Fireflea FX state. It is session-lived like the cartridge's WRAM, so a room load does not reset it.</summary>
     public FirefleaFxState Fireflea => _session.Fireflea;
 
-    /// <summary>The shared COLDATA shadows. They are session-lived, so they keep the last writer's values across rooms.</summary>
-    public FixedColorState FixedColors => _session.FixedColors;
+    /// <summary>The room's fixed colour. It is session-lived, so it keeps the last writer's colour across rooms.</summary>
+    public RoomFixedColor FixedColors => _session.FixedColors;
 
     /// <summary>Current host-owned BG3 effect tilemaps; never stored in debugger state.</summary>
     public RoomFxLayer3TilemapCatalog? Layer3Tilemaps => _session.Layer3Tilemaps;
@@ -177,7 +177,7 @@ public sealed class RoomLayer3FxState
     public RoomFxEarthquakeRequest? EarthquakeRequest { get; private set; }
 
     /// <summary>Builds one room's layer-3 FX from the current door's native FX record.</summary>
-    /// <param name="session">The Fireflea state, COLDATA shadows and installed FX artwork, which outlive each room.</param>
+    /// <param name="session">The Fireflea state, fixed colour and installed FX artwork, which outlive each room.</param>
     /// <param name="colours">The background colours receiving the record's palette blend.</param>
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the FX record.</param>
@@ -193,7 +193,7 @@ public sealed class RoomLayer3FxState
         ForRecord(session, colours, new RoomFxLoadSource { Fx = fx, Door = door, RandomNumber = randomNumber, Room = room, SuppliedDefinition = null });
 
     /// <summary>Builds one room's layer-3 FX from a load source, which may supply its record directly.</summary>
-    /// <param name="session">The Fireflea state, COLDATA shadows and installed FX artwork, which outlive each room.</param>
+    /// <param name="session">The Fireflea state, fixed colour and installed FX artwork, which outlive each room.</param>
     /// <param name="colours">The background colours receiving the record's palette blend.</param>
     /// <param name="source">The FX record's source.</param>
     internal static RoomLayer3FxState ForRecord(RoomFxSession session, BackgroundColourSets colours, RoomFxLoadSource source)
@@ -772,7 +772,7 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>Creates one room's effect state, with no FX record selected, over the session's carried state.</summary>
-    /// <param name="session">The Fireflea state, COLDATA shadows and installed FX artwork, which outlive each room.</param>
+    /// <param name="session">The Fireflea state, fixed colour and installed FX artwork, which outlive each room.</param>
     public RoomLayer3FxState(RoomFxSession session)
     {
         _session = Ensure.NotNull(session);

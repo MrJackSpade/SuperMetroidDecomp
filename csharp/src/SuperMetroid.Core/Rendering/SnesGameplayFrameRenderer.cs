@@ -581,9 +581,9 @@ public static class SnesGameplayFrameRenderer
             .RelativeToCamera(layer1);
         int centerX = center.X;
         int centerY = center.Y;
-        byte red = ExpandFiveBit(explosion.FixedColorRed);
-        byte green = ExpandFiveBit(explosion.FixedColorGreen);
-        byte blue = ExpandFiveBit(explosion.FixedColorBlue);
+        byte red = ExpandFiveBit(explosion.FixedColor.Red);
+        byte green = ExpandFiveBit(explosion.FixedColor.Green);
+        byte blue = ExpandFiveBit(explosion.FixedColor.Blue);
         // Gameplay protects its HUD; full-screen cinematics use the same native
         // window profile starting at scanline zero instead.
         for (int y = firstVisibleScanline; y < Height; y++)

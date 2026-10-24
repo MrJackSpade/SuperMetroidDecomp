@@ -156,22 +156,22 @@ internal static class GameplayDisplayFrameTestsVerification
     {
         // Fireflea darkness: FX selector and the shared COLDATA shadows.
         RoomFxType originalFx = runtime.RoomLayer3Fx.Type;
-        FixedColorState fixedColor = runtime.RoomLayer3Fx.FixedColors;
+        RoomFixedColor fixedColor = runtime.RoomLayer3Fx.FixedColors;
         runtime.RoomLayer3Fx.Type = RoomFxType.Fireflea;
-        fixedColor.Red = 32 + 9; fixedColor.Green = 64 + 9; fixedColor.Blue = 128 + 9;
+        fixedColor.Color = new Bgr555(9, 9, 9);
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is OrdinaryGameplayRenderLayer,
             "Fireflea blend selector waits for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var darkness = (GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual(9, darkness.FixedRed, "Fireflea COLDATA publishes with its blend selector");
-        fixedColor.Red = 32 + 4;
+        fixedColor.Color = fixedColor.Color.WithRed(4);
         AssertEqual(9, ((GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).FixedRed,
             "a main-loop COLDATA write waits for the next accepted NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(4, ((GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).FixedRed,
             "the next accepted NMI publishes the COLDATA write");
         runtime.RoomLayer3Fx.Type = originalFx;
-        fixedColor.Red = 32; fixedColor.Green = 64; fixedColor.Blue = 128;
+        fixedColor.Color = Bgr555.Black;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 
         // Power bomb: the window table is built during the main loop and read live; the
@@ -181,15 +181,15 @@ internal static class GameplayDisplayFrameTestsVerification
         explosion.Spawn(new(128, 120));
         for (int i = 0; i < 4; i++) explosion.StepFrame();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        int latchedRed = explosion.FixedColorRed;
+        int latchedRed = explosion.FixedColor.Red;
         int steps = 0;
-        while (explosion.FixedColorRed == latchedRed && steps++ < 64) explosion.StepFrame();
-        AssertTrue(explosion.FixedColorRed != latchedRed, "fixture reaches a power-bomb COLDATA change");
+        while (explosion.FixedColor.Red == latchedRed && steps++ < 64) explosion.StepFrame();
+        AssertTrue(explosion.FixedColor.Red != latchedRed, "fixture reaches a power-bomb COLDATA change");
         GameplayDisplayFrame pending = runtime.PublishDisplayFrame();
         AssertEqual(explosion.RenderedPhase, pending.FrameEnd.PowerBomb.RenderedPhase, "power-bomb window table is read live");
-        AssertEqual(latchedRed, GameplayDisplayCapture.PowerBomb(pending).FixedColorRed, "power-bomb COLDATA waits for the NMI");
+        AssertEqual(latchedRed, GameplayDisplayCapture.PowerBomb(pending).FixedColor.Red, "power-bomb COLDATA waits for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(explosion.FixedColorRed, GameplayDisplayCapture.PowerBomb(runtime.PublishDisplayFrame()).FixedColorRed,
+        AssertEqual(explosion.FixedColor.Red, GameplayDisplayCapture.PowerBomb(runtime.PublishDisplayFrame()).FixedColor.Red,
             "the accepted NMI publishes power-bomb COLDATA");
         explosion.Reset();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -198,12 +198,12 @@ internal static class GameplayDisplayFrameTestsVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         runtime.SuitPickup.Begin(samus, new(0, 0), SamusSuitPickupKind.Varia);
         runtime.SuitPickup.Step(samus, runtime.Player.Colours);
-        FixedColorRegisterSnapshot suitBefore = runtime.PublishDisplayFrame().Latched.FixedColors.SuitPickup;
+        Bgr555 suitBefore = runtime.PublishDisplayFrame().Latched.FixedColors.SuitPickup;
         AssertTrue(runtime.PublishDisplayFrame().FrameEnd.SuitPickupBeam is not null, "suit light beam window is read live");
         AssertEqual(suitBefore.Red, (GameplayDisplayCapture.SuitPickup(runtime.PublishDisplayFrame())
             ?? throw new InvalidOperationException("Active suit pickup has no flash.")).Color.Red, "suit COLDATA waits for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(runtime.SuitPickup.FixedColorRed, (GameplayDisplayCapture.SuitPickup(runtime.PublishDisplayFrame())
+        AssertEqual(runtime.SuitPickup.FixedColor.Red, (GameplayDisplayCapture.SuitPickup(runtime.PublishDisplayFrame())
             ?? throw new InvalidOperationException("Active suit pickup has no flash.")).Color.Red, "the accepted NMI publishes suit COLDATA");
     }
 

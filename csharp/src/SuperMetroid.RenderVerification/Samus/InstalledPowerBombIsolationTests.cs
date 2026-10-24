@@ -154,12 +154,11 @@ internal static class InstalledPowerBombIsolationTests
         SamusPowerBombExplosionState second, string context)
     {
         // Include private phase timers and every future serialized field. Only the
-        // three COLDATA presentation outputs and nonserialized host binding may differ.
+        // colour the explosion adds and nonserialized host binding may differ.
         foreach (FieldInfo field in MetadataShape.Fields(typeof(SamusPowerBombExplosionState), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
         {
             if (field.IsDefined(typeof(NonSerializedAttribute)) || field.Name is
-                "<FixedColorRed>k__BackingField" or "<FixedColorGreen>k__BackingField" or
-                "<FixedColorBlue>k__BackingField") continue;
+                "<FixedColor>k__BackingField") continue;
             Require(Equals(field.GetValue(first), field.GetValue(second)),
                 $"{context}: {field.Name} differs: stock={field.GetValue(first)}, edited={field.GetValue(second)}");
         }
@@ -178,7 +177,7 @@ internal static class InstalledPowerBombIsolationTests
 
     /// <summary>Captures the three live fixed-color outputs without including simulation state.</summary>
     internal static ExplosionColors Colors(SamusPowerBombExplosionState state) =>
-        new ExplosionColors(state.FixedColorRed, state.FixedColorGreen, state.FixedColorBlue);
+        new ExplosionColors(state.FixedColor.Red, state.FixedColor.Green, state.FixedColor.Blue);
 
     /// <summary>Fails the focused isolation check with its current edit/frame context.</summary>
     internal static void Require(bool condition, string context)
@@ -206,68 +205,47 @@ internal static class InstalledPowerBombIsolationTests
         throw new InvalidOperationException("The compiled Crystal Flash radius domain accepted its exclusive limit.");
     }
 
-    /// <summary>Round-trips current and prior debugger graphs at every active frame and compares their remaining stock lifetime.</summary>
+    /// <summary>Round-trips the debugger graph at every active frame and compares its remaining stock lifetime. Old layouts are
+    /// rejected, not migrated (#1270).</summary>
     private static void CheckStateRestoration(PowerBombFixedColorCatalog colors)
     {
-        int currentRestores = 0, legacyRestores = 0;
+        int restores = 0;
         foreach (bool crystalFlash in new[] { false, true })
         {
             var state = Create(colors, crystalFlash);
             do
             {
-                var current = Restore(state, legacy: false, out string currentWarning);
+                var current = Restore(state, out string currentWarning);
                 Require(currentWarning.Length == 0, "A current graph unexpectedly needed a migration.");
                 Require(current.PresentationColors is null, "A debugger graph retained a host catalog.");
                 current.PresentationColors = colors;
                 RequireSameMechanics(state, current, "Current graph restore");
                 Require(Colors(state) == Colors(current), "Current graph restore changed display colors.");
                 CompareRemainder(state, current, colors, "Current graph resume");
-                currentRestores++;
-
-                var legacy = Restore(state, legacy: true, out string legacyWarning);
-                Require(legacyWarning.Contains("Legacy Crystal Flash state", StringComparison.Ordinal),
-                    "A legacy graph migration did not warn.");
-                legacy.PresentationColors = colors;
-                RequireSameMechanics(state, legacy, "Legacy stock graph restore");
-                CompareRemainder(state, legacy, colors, "Legacy stock graph resume");
-                legacyRestores++;
+                restores++;
                 _ = state.StepFrame();
             } while (state.IsActive);
         }
-        Console.WriteLine($"Explosion state compatibility: {currentRestores} current and {legacyRestores} old-layout " +
-            "checkpoints resume with identical stock state, colors and cleanup; old layouts warn explicitly.");
+        Console.WriteLine($"Explosion state compatibility: {restores} checkpoints resume with identical stock state, colors and cleanup.");
     }
 
-    /// <summary>Checks edited current checkpoints rebind to stock while legacy modded captures retain their historical fade remainder.</summary>
+    /// <summary>Checks edited checkpoints rebind to the colours supplied after loading.</summary>
     private static void CheckEditedRestore(SamusPowerBombExplosionState edited,
         PowerBombFixedColorCatalog reboundColors, string context)
     {
-        var restored = Restore(edited, legacy: false, out string warning);
+        var restored = Restore(edited, out string warning);
         Require(warning.Length == 0, context + ": current edited capture warned");
         restored.PresentationColors = reboundColors;
         RequireSameMechanics(edited, restored, context + ": edited checkpoint restore");
         CompareRemainder(edited, restored, reboundColors, context + ": edited checkpoint rebind");
 
-        // A pre-separation modded capture genuinely lacks the stock control timeline.
-        // Migration retains its historical fade remainder once, warns, and must not
-        // recalculate it from whatever replacement catalog is rebound after loading.
-        var historical = Restore(edited, legacy: true, out string historicalWarning);
-        Require(historicalWarning.Contains("historical timing", StringComparison.Ordinal),
-            context + ": modded legacy timing loss was not explained");
-        historical.PresentationColors = reboundColors;
-        var color = Colors(edited);
-        int remaining = Math.Max(color.Red, Math.Max(color.Green, color.Blue)) + 1;
-        for (int frame = 1; frame <= remaining; frame++)
-            Require(historical.StepFrame() == (frame == remaining),
-                context + ": modded legacy capture did not preserve its historical cleanup frame");
-        Require(!historical.IsActive, context + ": modded legacy capture did not release HDMA");
     }
 
     /// <summary>Steps a restored pair through cleanup, comparing mechanics and display colors on each remaining frame.</summary>
     private static void CompareRemainder(SamusPowerBombExplosionState state,
         SamusPowerBombExplosionState restored, PowerBombFixedColorCatalog colors, string context)
     {
-        var baseline = Restore(state, legacy: false, out _);
+        var baseline = Restore(state, out _);
         baseline.PresentationColors = colors;
         int frames = 0;
         do
@@ -279,13 +257,11 @@ internal static class InstalledPowerBombIsolationTests
         } while (baseline.IsActive);
     }
 
-    /// <summary>Serializes a current or legacy graph, restores it through the production codec, and captures migration warnings.</summary>
-    private static SamusPowerBombExplosionState Restore(SamusPowerBombExplosionState state,
-        bool legacy, out string warning)
+    /// <summary>Serializes the graph, restores it through the production codec, and captures any warning.</summary>
+    private static SamusPowerBombExplosionState Restore(SamusPowerBombExplosionState state, out string warning)
     {
         using var data = new MemoryStream();
-        if (legacy) WriteLegacyGraph(data, state);
-        else DebuggerObjectGraphSerializer.Serialize(data, state);
+        DebuggerObjectGraphSerializer.Serialize(data, state);
         data.Position = 0;
         using var errors = new StringWriter();
         TextWriter previous = Console.Error;
@@ -297,28 +273,4 @@ internal static class InstalledPowerBombIsolationTests
         finally { Console.SetError(previous); warning = errors.ToString(); }
     }
 
-    /// <summary>Writes the prior field envelope without the new afterglow-steps field using production primitive serialization.</summary>
-    private static void WriteLegacyGraph(Stream destination, SamusPowerBombExplosionState state)
-    {
-        // Construct the exact prior field envelope while using the production codec
-        // for primitive values. No fixture changes the production serializer's API.
-        const byte newObjectMarker = 2, fieldPayloadKind = 5;
-        var fields = MetadataShape.Fields(typeof(SamusPowerBombExplosionState), BindingFlags.Instance |
-            BindingFlags.Public | BindingFlags.NonPublic).Where(field =>
-            !field.IsDefined(typeof(NonSerializedAttribute)) &&
-            field.Name != "_crystalFlashAfterglowStepsRemaining").ToArray();
-        using var writer = new BinaryWriter(destination, Encoding.UTF8, leaveOpen: true);
-        writer.Write(newObjectMarker);
-        writer.Write(1); // Root reference identity; remaining fields are primitive values.
-        writer.Write(DebuggerStateTypeIdentity.GetSerializedName(typeof(SamusPowerBombExplosionState)));
-        writer.Write(fieldPayloadKind);
-        writer.Write(fields.Length);
-        foreach (FieldInfo field in fields)
-        {
-            writer.Write(DebuggerStateTypeIdentity.GetSerializedName((field.DeclaringType ?? throw new InvalidOperationException("Verification requires field.DeclaringType."))));
-            writer.Write(field.Name);
-            writer.Flush();
-            DebuggerObjectGraphSerializer.Serialize(destination, (field.GetValue(state) ?? throw new InvalidOperationException("Verification requires field.GetValue(state).")));
-        }
-    }
 }

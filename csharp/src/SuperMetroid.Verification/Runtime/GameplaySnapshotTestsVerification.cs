@@ -11,12 +11,12 @@ namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
-/// <summary>Checks gameplay render snapshots retain VRAM, CGRAM, OAM, and
+/// <summary>Checks gameplay render snapshots retain their pictures, palette, sprites and
 /// per-line scroll independently of later live-memory changes.</summary>
 internal static class GameplaySnapshotTestsVerification
 {
-    /// <summary>Round-trips ordinary layered packets across geometry, priority,
-    /// and HDMA combinations, then compares a captured retail room frame.</summary>
+    /// <summary>Checks a gameplay packet's retained per-line scrolls and its layer rules, then that a captured retail
+    /// room frame's pixels do not follow later live-memory changes.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void VerifyGameplaySnapshots()
     {
@@ -28,41 +28,23 @@ internal static class GameplaySnapshotTestsVerification
         byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         random.NextBytes(oam);
         var memory = FramePaint.FromOam(bytes, ToColors(palette), oam, 128, 3);
-        var live = new SoftwarePpuSnapshotMemory(memory);
-        // Cases without horizontal HDMA show BG2 from a room plane, the others from a library background's image (#1403),
-        // which no 64x64 map shows, so a room plane there.
         var rooms = RoomBackgroundsFixtures.Seeded(random, new(511, 255), new(65535, 511), door: true, overlay: true);
-        var loaded = rooms with { Bg2 = null, Bg2Image = RoomBackgroundsFixtures.SeededBackground(random, ToColors(palette)) };
-        int samples = 0;
-        foreach (Extent16<TilemapCells> mapSize in new Extent16<TilemapCells>[] { new(64, 32), new(32, 64), new(64, 64) })
-        for (int mask = 0; mask < 8; mask++)
-        for (int hdma = 0; hdma < 4; hdma++)
-        {
-            ushort[] x = (hdma & 1) == 0 ? [] : Enumerable.Range(0, 192).Select(i => (ushort)(65535 - i * 7)).ToArray();
-            ushort[] y = (hdma & 2) == 0 ? [] : Enumerable.Range(0, 192).Select(i => (ushort)(i * 19)).ToArray();
-            ScreenLayers layers = (mask & 1) == 0 ? 0 : ScreenLayers.Bg1;
-            if ((mask & 2) != 0) layers |= ScreenLayers.Bg2;
-            if ((mask & 4) != 0) layers |= ScreenLayers.Sprites;
-            var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
-                mapSize, layers);
-            var layer = new OrdinaryGameplayRenderLayer(registers, (hdma & 1) == 0 || mapSize == new Extent16<TilemapCells>(64, 64) ? rooms : loaded,
-                new Bg2LineScrolls(x, y));
-            Rgba32[] expected = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(live.Cgram, live.Sprites, layer);
-            // Mutating both caller arrays after capture must not alter retained HDMA.
-            Array.Fill(x, (ushort)1234);
-            Array.Fill(y, (ushort)5678);
-            var packet = new DisplayPacket(new(++samples, 1, (ushort)samples),
-                new LayeredScene(memory, new RenderLayer[] { layer }, 15));
-            AssertTrue(expected.SequenceEqual(RenderForComparison(packet)),
-                $"gameplay snapshot {mapSize.X}x{mapSize.Y}, mask {mask}, HDMA {hdma}");
-            if (samples == 1)
-            {
-                AssertThrows<ArgumentException>(() => new Bg2LineScrolls(new ushort[1], default),
-                    "reject partial gameplay HDMA");
-                AssertThrows<ArgumentException>(() => new LayeredScene(memory,
-                    new RenderLayer[] { new ObjRenderLayer(), layer }, 15), "base cannot erase prior operations");
-            }
-        }
+        ushort[] x = Enumerable.Range(0, Bg2LineScrolls.GameplayLines).Select(i => (ushort)(65535 - i * 7)).ToArray();
+        ushort[] y = Enumerable.Range(0, Bg2LineScrolls.GameplayLines).Select(i => (ushort)(i * 19)).ToArray();
+        var scrolls = new Bg2LineScrolls(x, y);
+        // Mutating both caller arrays after capture must not alter the retained line scrolls.
+        Array.Fill(x, (ushort)1234);
+        Array.Fill(y, (ushort)5678);
+        for (int line = 0; line < Bg2LineScrolls.GameplayLines; line++)
+            AssertTrue(scrolls.At(line, default) == new Position16<Bg2Pixels>((ushort)(65535 - line * 7), (ushort)(line * 19)),
+                $"gameplay line {line} keeps its captured BG2 scroll");
+        var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
+            new Extent16<TilemapCells>(64, 64), ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites);
+        var layer = new OrdinaryGameplayRenderLayer(registers, rooms, scrolls);
+        AssertThrows<ArgumentException>(() => new Bg2LineScrolls(new ushort[1], default),
+            "reject partial gameplay HDMA");
+        AssertThrows<ArgumentException>(() => new LayeredScene(memory,
+            new RenderLayer[] { new ObjRenderLayer(), layer }, 15), "base cannot erase prior operations");
 
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture();
@@ -80,7 +62,7 @@ internal static class GameplaySnapshotTestsVerification
         for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Cgram.AsPaletteColors().SetColor(color, new Bgr555(0, 0, 0));
         AssertTrue(retail.SequenceEqual(RenderForComparison(captured)),
             "gameplay packet survives complete live VRAM/CGRAM replacement");
-        Console.WriteLine($"  Gameplay snapshots: {samples} priority/mask/HDMA/geometry cases and retained retail base match.");
+        Console.WriteLine("  Gameplay snapshots: retained line scrolls, layer rules and retained retail base match.");
     }
 
     /// <summary>Runs gameplay snapshots.</summary>

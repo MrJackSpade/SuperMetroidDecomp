@@ -1,7 +1,7 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Rendering;
@@ -15,7 +15,7 @@ internal static class RenderFrameHandoffTestsVerification
         ImmutableArray<FadeLevel> fades = [new(2), new(12)];
         var first = new DisplayPacket(new(1, 1, ushort.MaxValue),
             new Rgba32(198, 127, 63, 255), fades);
-        Rgba32[] pixels = SoftwareFrameSnapshotRenderer.Render(first);
+        Rgba32[] pixels = DisplayRendering.Render(first);
         AssertEqual(new Rgba32(20, 12, 6, 255), pixels[0], "ordered fade rounding and owned operations");
         AssertEqual(pixels[0], pixels[^1], "solid packet covers native frame");
         AssertTrue(pixels.SequenceEqual(RenderForComparison(first)),

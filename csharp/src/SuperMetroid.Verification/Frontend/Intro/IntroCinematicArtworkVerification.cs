@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using static SuperMetroid.Verification.Frontend.Intro.IntroArtworkPostSlicesVerification;
@@ -214,9 +215,9 @@ internal static class IntroCinematicArtworkVerification
                 editedVisualState.Step(0);
                 AssertEqual(stockVisualState.Phase, editedVisualState.Phase,
                     $"visible opening palette edit preserves cinematic phase at frame {frame}");
-                if (frame % 20 == 0 && !SoftwareLayeredSnapshotRenderer.Render(
+                if (frame % 20 == 0 && !DisplayRendering.Render(
                         stockVisualState.CaptureTranslatedRenderSnapshot()).SequenceEqual(
-                        SoftwareLayeredSnapshotRenderer.Render(
+                        DisplayRendering.Render(
                             editedVisualState.CaptureTranslatedRenderSnapshot())))
                     changedVisiblePixel = true;
             }
@@ -312,9 +313,9 @@ internal static class IntroCinematicArtworkVerification
             }
             AssertEqual(stockDividerVisual.Phase, editedDividerVisual.Phase,
                 "visual divider override leaves page phase unchanged");
-            AssertTrue(!SoftwareLayeredSnapshotRenderer.Render(
+            AssertTrue(!DisplayRendering.Render(
                     stockDividerVisual.CaptureTranslatedRenderSnapshot()).SequenceEqual(
-                    SoftwareLayeredSnapshotRenderer.Render(
+                    DisplayRendering.Render(
                         editedDividerVisual.CaptureTranslatedRenderSnapshot())),
                 "divider palette edits change displayed illustrated-page pixels");
             File.Delete(dividerOverridePath);
@@ -447,7 +448,7 @@ internal static class IntroCinematicArtworkVerification
                     // the already-composed layer to visible brightness for this probe.
                     stockScene.Brightness = ScreenBrightness.FullyLit;
                     editedScene.Brightness = ScreenBrightness.FullyLit;
-                    AssertTrue(!SoftwareLayeredSnapshotRenderer.Render(stockScene.CaptureTranslatedRenderSnapshot())
+                    AssertTrue(!DisplayRendering.Render(stockScene.CaptureTranslatedRenderSnapshot())
                             .SequenceEqual(RenderForComparison(
                                 editedScene.CaptureTranslatedRenderSnapshot())),
                         "edited opening BG page produces visible flashback pixels");
@@ -864,12 +865,12 @@ internal static class IntroCinematicArtworkVerification
             state.SetupMotherBrainFlashback();
             (state.CurrentFlashbackMotherBrain ?? throw new InvalidOperationException("Verification requires state.flashbackMotherBrain.")).Step();
         }
-        Rgba32[] stockPixels = stockState.RenderMotherBrainFlashback();
-        Rgba32[] editedPixels = editedState.RenderMotherBrainFlashback();
+        Rgba32[] stockPixels = stockState.RenderArtwork();
+        Rgba32[] editedPixels = editedState.RenderArtwork();
         AssertTrue(!editedPixels.SequenceEqual(stockPixels),
             "intro Mother Brain palette override changes visible production scene pixels");
         stockState.BindFixtureIntroArtwork(edited);
-        AssertTrue((stockState.RenderMotherBrainFlashback()).SequenceEqual(editedPixels),
+        AssertTrue(stockState.RenderArtwork().SequenceEqual(editedPixels),
             "restored intro Mother Brain scene rebinds the selected visual composition");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed intro Mother Brain rendering avoids all three native spritemap records");
@@ -946,12 +947,12 @@ internal static class IntroCinematicArtworkVerification
             state.SetupMotherBrainFlashback();
             state.FlashbackMotherBrainExplosions = explosions;
         }
-        Rgba32[] stockPixels = stockState.RenderMotherBrainFlashback();
-        Rgba32[] editedPixels = editedState.RenderMotherBrainFlashback();
+        Rgba32[] stockPixels = stockState.RenderArtwork();
+        Rgba32[] editedPixels = editedState.RenderArtwork();
         AssertTrue(!stockPixels.SequenceEqual(editedPixels),
             "intro explosion art override changes visible production flashback pixels");
         stockState.BindFixtureIntroArtwork(edited);
-        AssertTrue((stockState.RenderMotherBrainFlashback()).SequenceEqual(editedPixels),
+        AssertTrue(stockState.RenderArtwork().SequenceEqual(editedPixels),
             "restored intro explosion scene rebinds the selected visual composition");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production intro explosion render avoids all twelve native compositions");

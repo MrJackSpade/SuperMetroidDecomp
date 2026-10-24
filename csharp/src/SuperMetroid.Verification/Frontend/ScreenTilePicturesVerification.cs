@@ -1,8 +1,8 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.FileSelect;
@@ -23,7 +23,6 @@ using SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Harness.VerificationAssert;
 
 namespace SuperMetroid.Verification.Frontend;
 
@@ -144,8 +143,8 @@ internal static class ScreenTilePicturesVerification
             FloorScene scene = title.CaptureRenderSnapshot();
             if (scene.Floor is { } floor && sampled.Add($"{title.Phase} {floor.Tiles.GetHashCode()}"))
             {
-                Rgba32[] pictured = SoftwareMode7ObjSnapshotRenderer.Render(scene).ToArray();
-                Rgba32[] characters = SoftwareMode7ObjSnapshotRenderer.Render(new FloorScene(scene.Paint, scene.Background, scene.Brightness,
+                Rgba32[] pictured = DisplayRendering.Render(scene).ToArray();
+                Rgba32[] characters = DisplayRendering.Render(new FloorScene(scene.Paint, scene.Background, scene.Brightness,
                     scene.Gradient, AffineFloorFixtures.Floor(title.ShownVram(), scene.Paint.Colors))).ToArray();
                 AssertTrue(pictured.SequenceEqual(characters), $"title {title.Phase}: drawn from its pictures, the Mode 7 background matches its characters");
             }
@@ -219,7 +218,7 @@ internal static class ScreenTilePicturesVerification
         }
         AssertTrue(layers > 0, $"{name} draws backgrounds");
         Rgba32[] pictured = RenderNamed(scene, name);
-        Rgba32[] characters = SoftwareLayeredSnapshotRenderer.Render(new LayeredScene(scene.Paint, [.. fromCharacters], scene.Brightness)).ToArray();
+        Rgba32[] characters = DisplayRendering.Render(new LayeredScene(scene.Paint, [.. fromCharacters], scene.Brightness)).ToArray();
         int mismatch = -1;
         for (int pixel = 0; pixel < pictured.Length; pixel++)
         {
@@ -305,7 +304,7 @@ internal static class ScreenTilePicturesVerification
     {
         try
         {
-            return SoftwareLayeredSnapshotRenderer.Render(scene).ToArray();
+            return DisplayRendering.Render(scene).ToArray();
         }
         catch (InvalidDataException exception)
         {

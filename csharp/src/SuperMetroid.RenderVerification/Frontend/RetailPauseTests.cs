@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Frontend.Pause;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
@@ -11,10 +10,10 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.RenderVerification.Frontend;
 
-/// <summary>Compares the pause screen's GPU frames with the software renderer's (#1392).</summary>
+/// <summary>Compares the pause screen's frames on this device with the WARP reference device's (#1392).</summary>
 internal static class RetailPauseTests
 {
-    /// <summary>The pause map and equipment pages, drawn from their screen tiles, match the software renderer exactly.</summary>
+    /// <summary>The pause map and equipment pages, drawn from their screen tiles, match the WARP reference device exactly.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var system = new Bank80SystemState();
@@ -28,7 +27,7 @@ internal static class RetailPauseTests
         void Compare(string page)
         {
             var packet = new DisplayPacket(new(++samples, 1, 0), pause.CaptureRenderSnapshot());
-            PixelComparison.Verify(packet, SoftwareFrameSnapshotRenderer.Render(packet), renderer.RenderForReadback(packet), $"{device.Kind}: pause {page}");
+            PixelComparison.Verify(packet, DisplayRendering.Render(packet), renderer.RenderForReadback(packet), $"{device.Kind}: pause {page}");
         }
         Compare("map");
         pause.Step(SnesButton.R, SnesButton.R);
@@ -38,6 +37,6 @@ internal static class RetailPauseTests
         if (pause.ScreenMode != PauseScreenMode.Equipment)
             throw new InvalidOperationException($"Pressing R left pause on its {pause.ScreenMode} page, not the equipment page.");
         Compare("equipment");
-        Console.WriteLine($"{device.Kind}: the pause map and equipment pages match the software renderer.");
+        Console.WriteLine($"{device.Kind}: the pause map and equipment pages match the WARP reference device.");
     }
 }

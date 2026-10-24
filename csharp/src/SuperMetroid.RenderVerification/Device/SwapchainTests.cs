@@ -405,7 +405,7 @@ internal static partial class SwapchainTests
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.LastConsumedSequence == sequence; });
             if (blockConsumer && worker.MailboxMetrics.Replaced < 223) throw new InvalidOperationException("Blocked visuals were not superseded as expected.");
             CompareRuntimeGraphs("after GPU resumes");
-            Console.WriteLine($"{selection.Kind}: room {room.Name}, software/GPU/headless agree; deliberate GPU block={blockConsumer}; 160 room/pause + 64 movement/input frames; {positions.Count} positions, {poses.Count} poses; {pcmSamples} exact PCM samples ({nonzero} nonzero); latest frame consumed.");
+            Console.WriteLine($"{selection.Kind}: room {room.Name}, WARP/GPU/headless agree; deliberate GPU block={blockConsumer}; 160 room/pause + 64 movement/input frames; {positions.Count} positions, {poses.Count} poses; {pcmSamples} exact PCM samples ({nonzero} nonzero); latest frame consumed.");
         }
         finally
         {

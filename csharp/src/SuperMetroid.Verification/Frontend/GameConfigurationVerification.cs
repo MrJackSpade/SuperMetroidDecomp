@@ -11,23 +11,17 @@ internal static class GameConfigurationVerification
 /// <summary>Compares the INI template with programmatic defaults and checks parsing across game, video, audio, and diagnostics sections.</summary>
 internal static void VerifyGameConfigurationIni()
 {
-    AssertEqual(RendererSelection.Auto,
-        HostOptionsIni.Parse("").Renderer, "omitted renderer prefers hardware");
-    AssertEqual(RendererSelection.Auto,
-        new HostOptions().Renderer, "programmatic renderer prefers hardware");
-    AssertEqual(RendererSelection.Auto,
-        HostOptionsIni.Parse(HostOptionsIni.DefaultFileContents).Renderer,
-        "generated INI renderer prefers hardware");
-    foreach (var selection in Enum.GetValues<RendererSelection>())
-        AssertEqual(selection, HostOptionsIni.Parse($"[Video]\nRenderer={selection.ToString().ToLowerInvariant()}").Renderer,
-            "explicit renderer names parse case-insensitively");
-    foreach (string invalid in new[] { "0", "1", "Vulkan", "Software,Auto", "" })
+    // Installed INIs name a renderer; Direct3D 11 is the only one, so the names that select it are still read.
+    foreach (string selection in new[] { "direct3d11", "Direct3D11", "auto", "Auto" })
+        AssertEqual(new HostOptions(), HostOptionsIni.Parse($"[Video]\nRenderer={selection}"),
+            "renderer names that select Direct3D 11 parse case-insensitively and change no option");
+    foreach (string invalid in new[] { "Software", "software", "0", "1", "Vulkan", "Software,Auto", "" })
         AssertThrows<InvalidDataException>(() => HostOptionsIni.Parse($"[Video]\nRenderer={invalid}"),
-            "unknown or numeric renderer rejected");
-    AssertThrows<InvalidDataException>(() => HostOptionsIni.Parse("[Video]\nRenderer=Auto\nrenderer=Software"),
+            "the removed software renderer and unknown or numeric renderers are rejected");
+    AssertThrows<InvalidDataException>(() => HostOptionsIni.Parse("[Video]\nRenderer=Auto\nrenderer=Direct3D11"),
         "duplicate renderer rejected");
     AssertThrows<InvalidDataException>(() => HostOptionsIni.Parse("[Video]\nReportErrorsToGitHub=true"),
-        "wrong-section renderer key rejected");
+        "another section's option under [Video] rejected");
     HostOptions defaults =
         HostOptionsIni.Parse(HostOptionsIni.DefaultFileContents);
     AssertEqual(new HostOptions(), defaults,

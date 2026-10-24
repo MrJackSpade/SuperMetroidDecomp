@@ -16,7 +16,7 @@ Run:
 ```text
 ridley_capture.exe ROM MOVIE OUTPUT_DIRECTORY 0,10890
 python tools/convert-smv-updates.py MOVIE OUTPUT_DIRECTORY --rom ROM --output OUTPUT_DIRECTORY/updates.json
-dotnet csharp/src/SuperMetroid.Verification/bin/Release/net10.0/SuperMetroid.Verification.dll --compact-replay-trace OUTPUT_DIRECTORY csharp/test-fixtures/replay-traces/NAME
+dotnet csharp/src/SuperMetroid.Verification/bin/Release/net10.0-windows/SuperMetroid.Verification.dll --compact-replay-trace OUTPUT_DIRECTORY csharp/test-fixtures/replay-traces/NAME
 ```
 
 `OUTPUT_DIRECTORY` is the private full capture; keep it outside the repository or in an

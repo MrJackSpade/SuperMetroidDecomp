@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Diagnostics.Saves;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
@@ -5,7 +6,6 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Diagnostics.Recording;
@@ -77,7 +77,7 @@ internal static class AndroidBundleReplay
             for (int tick = 0; tick < recording.ControllerInputs.Length; tick++)
             {
                 var frame = game.StepCaptured(recording.InputAt(tick), tick + 1, 1);
-                var pixels = SoftwareFrameSnapshotRenderer.Render(frame.Snapshot);
+                var pixels = DisplayRendering.Render(frame.Snapshot);
                 game.CopyAudioFrame(samples);
                 videoHash.AppendData(MemoryMarshal.AsBytes(pixels.AsSpan()));
                 audioHash.AppendData(MemoryMarshal.AsBytes(samples.AsSpan()));

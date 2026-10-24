@@ -3,7 +3,6 @@ using System.Security.Cryptography;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Title;
-using SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.Harness;
@@ -20,7 +19,7 @@ internal static class StartupReferenceTests
     internal static void RunPan(D3D11RenderDevice device, D3D11FrameRenderer renderer) =>
         Verify(device, renderer, StartupReferenceData.PanRgbaSha256, "title-pan", yearOnly: false);
 
-    /// <summary>Finds the named scene within its hold phase and compares managed and GPU pixels to the native digest.</summary>
+    /// <summary>Finds the named scene within its hold phase and compares WARP and GPU pixels to the native digest.</summary>
     private static void Verify(D3D11RenderDevice device, D3D11FrameRenderer renderer, string referenceDigest, string scene, bool yearOnly)
     {
         var title = RenderRetailFixture.CreateTitle();
@@ -72,14 +71,6 @@ internal static class StartupReferenceTests
             if (digest == referenceDigest)
             {
                 var packet = new DisplayPacket(new(tick + 1, 1, (ushort)tick), title.CaptureRenderSnapshot());
-                if (!yearOnly)
-                {
-                    // The title's memory image, which the frame's floor is drawn from (#1403).
-                    if (!NativeMode7Probe.Render((packet.Mode7 ?? throw new InvalidOperationException("Verification requires packet.Mode7.")), title.ShownVram(), 1).SequenceEqual(pixels))
-                        throw new InvalidOperationException("Native Mode-7 reference calculation differs from matched frame.");
-                    if (NativeMode7Probe.Render(packet.Mode7, title.ShownVram(), 0).SequenceEqual(pixels))
-                        throw new InvalidOperationException("Title fixture no longer distinguishes the reported scanline-origin defect.");
-                }
                 PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet),
                     $"{device.Kind}: independent Snes9x {scene} reference at managed tick {tick}");
                 Console.WriteLine($"{device.Kind}: native Snes9x {scene} RGBA reference matches managed/GPU at tick {tick}, phase {title.Phase}.");
@@ -91,7 +82,7 @@ internal static class StartupReferenceTests
         {
             Console.WriteLine($"Closest {scene}: managed tick {closestPacket.Identity.SimulationFrame}, {closestDifference} different pixels.");
             var gpu = renderer.RenderForReadback(closestPacket);
-            PixelComparison.Verify(closestPacket, SoftwareFrameSnapshotRenderer.Render(closestPacket), gpu, "closest native candidate GPU/software parity");
+            PixelComparison.Verify(closestPacket, DisplayRendering.Render(closestPacket), gpu, "closest native candidate GPU/WARP parity");
             PixelComparison.Verify(closestPacket, nativePixels, gpu, $"independent {scene}, closest candidate (not timing alignment proof)");
         }
         throw new InvalidOperationException($"Managed {scene} never matched the preserved independent Snes9x pixels. Maximum red during search: {maximumGlyphRed}.");

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -78,7 +79,7 @@ internal static class PillarFirstEntryVerification
             var states = runtime.Enemies.NuclearWaffleStates.Where(state => state is not null).ToArray();
             if (frame % 8 != 0) continue;
             var snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
-            var pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
+            var pixels = DisplayRendering.Render(snapshot);
             // Remove all OBJ only from an immutable comparison frame. Keep the real
             // terrain, acid, color math and priority ladder: emitted OAM hidden behind
             // opaque scenery must not count as visible. Samus stays well above these
@@ -87,7 +88,7 @@ internal static class PillarFirstEntryVerification
             var withoutObjects = new LayeredScene(
                 new FramePaint(memory.Colors, []),
                 snapshot.Layers, snapshot.Brightness);
-            var background = SoftwareLayeredSnapshotRenderer.Render(withoutObjects);
+            var background = DisplayRendering.Render(withoutObjects);
             for (int actor = 0; actor < 2; actor++)
             {
                 int x = heads[actor].Position.X.Whole - runtime.Room.LoadedCamera.PixelPosition.X;

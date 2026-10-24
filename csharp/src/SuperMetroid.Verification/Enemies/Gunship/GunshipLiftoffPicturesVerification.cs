@@ -13,7 +13,6 @@ using SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Harness.VerificationAssert;
 
 namespace SuperMetroid.Verification.Enemies.Gunship;
 
@@ -83,7 +82,7 @@ internal static class GunshipLiftoffPicturesVerification
                 {
                     Frame = frame, Origin = new(drawn[0].Origin.X, drawn[0].Origin.Y), PaletteBits = part.PaletteIndex, BaseTileIndex = part.VramTilesIndex,
                 }) ?? throw new InvalidOperationException($"The ship's {part.DefinitionId} frame has parts.");
-                UploadedPictureChecks.AssertPaintsLikeParts(runtime, drawn, [parted], $"the ship's {part.DefinitionId} after {step} liftoff uploads");
+                UploadedPictureChecks.AssertPaintsLikeParts(drawn, [parted], $"the ship's {part.DefinitionId} after {step} liftoff uploads");
             }
         }
         AssertTrue(pictured > 0, "the ship is drawn over characters its takeoff uploads");

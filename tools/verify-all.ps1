@@ -24,7 +24,7 @@ Set-Content -LiteralPath $lastRunFile -Value $now.ToString('o', [Globalization.C
 
 $run = 'csharp/test-temp/verify-all'
 $projects = [ordered]@{
-    'SuperMetroid.Verification'            = 'net10.0'
+    'SuperMetroid.Verification'            = 'net10.0-windows'
     'SuperMetroid.IntegrationVerification' = 'net10.0'
     'SuperMetroid.RenderVerification'      = 'net10.0-windows'
     'SuperMetroid.DesktopVerification'     = 'net10.0-windows'

@@ -43,28 +43,28 @@ public static class GameplayDisplayCapture
                 {
                     if (layers[0] is not OrdinaryGameplayRenderLayer ordinary)
                         throw new NotSupportedException("Spore FX requires an ordinary Mode-1 gameplay base.");
-                    layers[0] = SnesGameplayFrameRenderer.CaptureSpores(ordinary, fx);
+                    layers[0] = GameplayEffectCapture.CaptureSpores(ordinary, fx);
                 }
                 else if (fx.LayerBlendConfiguration == LayerBlendingConfiguration.WaterfallSubtractive)
                 {
                     if (layers[0] is not OrdinaryGameplayRenderLayer ordinary)
                         throw new NotSupportedException("Waterfall FX requires an ordinary Mode-1 gameplay base.");
-                    layers[0] = SnesGameplayFrameRenderer.CaptureWaterfall(ordinary, fx);
+                    layers[0] = GameplayEffectCapture.CaptureWaterfall(ordinary, fx);
                 }
-                else AddLayer(SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(fx, Bg3(latched)));
+                else AddLayer(GameplayEffectCapture.CaptureRoomLayer3Fx(fx, Bg3(latched)));
             }
             if (live.CeresHaze is { } haze)
-                AddLayer(SnesGameplayFrameRenderer.CaptureCeresHaze(haze.IsRed, haze.Intensity, live.RoomFxPaletteBlends));
+                AddLayer(GameplayEffectCapture.CaptureCeresHaze(haze.IsRed, haze.Intensity, live.RoomFxPaletteBlends));
             if (latched.MorphBallEyeBeam is { } eye)
-                AddLayer(SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(eye, ppu.Layer1Position));
+                AddLayer(GameplayEffectCapture.CaptureMorphBallEyeBeam(eye, ppu.Layer1Position));
             if (rainbow is { } beam)
-                AddLayer(SnesGameplayFrameRenderer.CaptureMotherBrainRainbowBeam(beam));
+                AddLayer(GameplayEffectCapture.CaptureMotherBrainRainbowBeam(beam));
         }
         // Preserve the reference ordering, including the effects which remain enabled
         // during the door IRQ. Message glyphs precede the suit's final color window.
-        AddLayer(SnesGameplayFrameRenderer.CapturePowerBombColorMath(PowerBomb(frame), ppu.Layer1Position));
+        AddLayer(GameplayEffectCapture.CapturePowerBombColorMath(PowerBomb(frame), ppu.Layer1Position));
         AddLayer(live.MessageBox);
-        AddLayer(SamusSuitPickupRenderer.Capture(SuitPickup(frame)));
+        AddLayer(GameplayEffectCapture.CaptureSuitPickup(SuitPickup(frame)));
         return new(basis.Paint, layers.ToArray(), basis.Brightness);
 
         // Append active optional effects without introducing empty render layers.
@@ -103,11 +103,11 @@ public static class GameplayDisplayCapture
         ushort[]? skyX = SkyHorizontalScrolls(live, shake);
 
         ushort[]? waterX = fx is { } water
-            ? SnesGameplayFrameRenderer.BuildWaterBg2HorizontalScrolls(water, bg2Scroll) : null;
+            ? GameplayEffectCapture.BuildWaterBg2HorizontalScrolls(water, bg2Scroll) : null;
         ushort[]? lavaX = fx is { } lava
-            ? SnesGameplayFrameRenderer.BuildLavaAcidBg2HorizontalScrolls(lava, bg2Scroll) : null;
+            ? GameplayEffectCapture.BuildLavaAcidBg2HorizontalScrolls(lava, bg2Scroll) : null;
         ushort[]? lavaY = fx is { } vertical
-            ? SnesGameplayFrameRenderer.BuildLavaAcidBg2VerticalScrolls(vertical, bg2Scroll.Y) : null;
+            ? GameplayEffectCapture.BuildLavaAcidBg2VerticalScrolls(vertical, bg2Scroll.Y) : null;
         BossBg2Layer? kraidBody = bosses.KraidBody;
         // Draygon's body shows only on the scanlines around it ($88:DF94), placed against the frame's camera (#1354).
         DraygonBodyScanlines bg2Lines = bosses.DraygonBody?.VisibleLines(ppu.Layer1Position) ?? new DraygonBodyScanlines(32, 224);
@@ -302,7 +302,7 @@ public static class GameplayDisplayCapture
             ? new OrdinaryGameplayRenderLayer(registers, ordinary.Rooms with { Bg2 = null, Sky = null, XrayReveal = shownReveal })
             : new OrdinaryGameplayRenderLayer(registers, ordinary.Rooms, ordinary.Bg2LineScrolls);
         var sub = mode != XrayRoomBlendMode.Fireflea && latched.RoomLayer3Fx is { } fx
-            ? SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(fx, ordinary.Rooms.ShownBg3) : null;
+            ? GameplayEffectCapture.CaptureRoomLayer3Fx(fx, ordinary.Rooms.ShownBg3) : null;
         if (mode != XrayRoomBlendMode.Fireflea && sub is null)
         {
             // Clear_FX_Tilemap leaves an opaque BG3 plane even without a visible FX
@@ -336,7 +336,7 @@ public static class GameplayDisplayCapture
         // restoration keeps ownership until phase five finally unfreezes gameplay.
         bool closed = settingUp || restoring || xray.BeamPhase == XrayBeamPhase.NoBeam;
         var lines = closed ? Enumerable.Repeat(new XrayWindowLine(255, 0), SnesPpuLayout.ScreenHeightPixels).ToArray()
-            : SnesGameplayFrameRenderer.CaptureXrayWindowLines(xray, ppu.Layer1Position);
+            : GameplayEffectCapture.CaptureXrayWindowLines(xray, ppu.Layer1Position);
         var layer = new GameplayColorMathRenderLayer(gameplay, lines, reveal, new SceneBlend { Layers = control, BlendsWithSubscreen = mode != XrayRoomBlendMode.Fireflea, FixedColor = new Bgr555(red, green, blue) }, sub);
         return new(paint, new RenderLayer[] { layer }, basis.Brightness);
     }

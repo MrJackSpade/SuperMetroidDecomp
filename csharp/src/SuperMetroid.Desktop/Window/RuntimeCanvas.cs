@@ -1,22 +1,16 @@
-using System.Diagnostics;
-using System.Drawing.Drawing2D;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Desktop.Window;
 
-/// <summary>Nearest-neighbor display for one 256x224 SNES frame at the 4:3 TV aspect.</summary>
+/// <summary>The window the Direct3D 11 swapchain presents the game into, and the keyboard's focus target.</summary>
 public sealed class RuntimeCanvas : Control
 {
-    /// <summary>Retained software frame copied into GDI storage for WinForms presentation.</summary>
-    private Bitmap? frame;
     /// <summary>Whether the GPU swapchain currently owns the window's painting surface.</summary>
     internal bool gpuOwned;
 
-    /// <summary>Excludes GDI paint/erase from the swapchain-owned HWND.</summary>
+    /// <summary>Excludes GDI paint/erase from the swapchain-owned HWND once the swapchain presents into it.</summary>
     public void SetGpuOwned(bool value)
     {
         gpuOwned = value;
-        SetStyle(ControlStyles.OptimizedDoubleBuffer, !value);
         if (!value) Invalidate();
     }
 
@@ -26,19 +20,11 @@ public sealed class RuntimeCanvas : Control
         if (!gpuOwned) base.OnPaintBackground(e);
     }
 
-    /// <summary>
-    /// Reports the local cost of a completed canvas paint. This measures WinForms scaling
-    /// and presentation separately from the translated game frame that produced the bitmap.
-    /// </summary>
-    public event Action<long>? FramePainted;
-
-    /// <summary>Creates a black, user-painted canvas with GDI double buffering enabled until GPU ownership is selected.</summary>
+    /// <summary>Creates a black canvas that GDI only erases until the swapchain owns it.</summary>
     public RuntimeCanvas()
     {
         BackColor = Color.Black;
-        SetStyle(ControlStyles.AllPaintingInWmPaint |
-                 ControlStyles.OptimizedDoubleBuffer |
-                 ControlStyles.UserPaint, true);
+        SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
     }
 
     /// <summary>
@@ -58,66 +44,11 @@ public sealed class RuntimeCanvas : Control
     }
 
     /// <summary>
-    /// Copies a core raster into a persistent GDI surface. Gameplay frames never change
-    /// dimensions, so this avoids sixty Bitmap allocations and native disposals per second.
-    /// </summary>
-    public void ReplaceFrame(
-        Extent16<ScreenPixels> size,
-        ReadOnlySpan<SuperMetroid.Core.Hardware.Rgba32> pixels)
-    {
-        if (frame is null || frame.Width != size.X || frame.Height != size.Y)
-        {
-            frame?.Dispose();
-            frame = new Bitmap(size.X, size.Y, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-        }
-        RgbaBitmap.CopyTo(frame, size, pixels);
-        Invalidate();
-    }
-
-    /// <summary>Draws the retained software bitmap into the aspect-correct viewport and reports elapsed Stopwatch ticks; does nothing in GPU mode.</summary>
-    protected override void OnPaint(PaintEventArgs e)
-    {
-        if (gpuOwned) return;
-        base.OnPaint(e);
-        if (frame is null)
-            return;
-
-        long paintStarted = Stopwatch.GetTimestamp();
-
-        // The PPU framebuffer is 256x224, but the consumer display presents the complete
-        // picture at 4:3. Treating those samples as square host pixels produces the visibly
-        // too-tall, squeezed image reported during Ceres. A 224-line frame is therefore
-        // about 299 display pixels wide. Keep the vertical scale integral so tile edges
-        // remain stable, then apply only this horizontal correction with nearest-neighbor
-        // sampling; emulation and captured PNGs remain the untouched native raster.
-        var viewport = SuperMetroid.Rendering.Direct3D11.Presentation.DisplayViewport.ForClient(
-            SuperMetroid.Rendering.Direct3D11.Presentation.DisplayViewport.ClientSize(ClientSize.Width, ClientSize.Height));
-
-        e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
-        e.Graphics.PixelOffsetMode = PixelOffsetMode.Half;
-        e.Graphics.CompositingMode = CompositingMode.SourceOver;
-        e.Graphics.DrawImage(
-            frame,
-            new Rectangle(viewport.Offset.X, viewport.Offset.Y, viewport.Size.X, viewport.Size.Y),
-            new Rectangle(0, 0, frame.Width, frame.Height),
-            GraphicsUnit.Pixel);
-        FramePainted?.Invoke(Stopwatch.GetTimestamp() - paintStarted);
-    }
-
-    /// <summary>
     /// Clicking the picture is an explicit request to return keyboard control to gameplay.
     /// </summary>
     protected override void OnMouseDown(MouseEventArgs e)
     {
         Focus();
         base.OnMouseDown(e);
-    }
-
-    /// <summary>Releases the retained GDI bitmap during explicit disposal, then delegates control cleanup to the framework.</summary>
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing)
-            frame?.Dispose();
-        base.Dispose(disposing);
     }
 }

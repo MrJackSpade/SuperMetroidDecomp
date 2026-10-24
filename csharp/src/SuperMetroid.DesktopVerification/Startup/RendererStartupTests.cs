@@ -9,25 +9,25 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 /// <summary>Checks desktop behavior after an asynchronous D3D11 renderer startup failure.</summary>
 internal static class RendererStartupTests
 {
-    /// <summary>Confirms Auto logs and continues in software, explicit D3D11 reports failure, and neither path advances gameplay or permits a stopped worker restart.</summary>
-    internal static async Task VerifyRendererStartupFailure(RendererSelection selection)
+    /// <summary>
+    /// Confirms a Direct3D 11 startup failure surfaces as an error carrying the device's failure, never advances
+    /// gameplay, and leaves a stopped renderer that refuses a restart.
+    /// </summary>
+    internal static async Task VerifyRendererStartupFailure()
     {
         using var directoryScratch = new TestScratchDirectory("desktop-renderer");
         string directory = directoryScratch.Root;
         Directory.CreateDirectory(directory);
         string rom = PlaceInstalledRom(directory);
-        using var control = DesktopAccess.CreateGameControl(rom, new HostOptions { Renderer = selection, AudioEnabled = false });
+        using var control = DesktopAccess.CreateGameControl(rom, new HostOptions { AudioEnabled = false });
         _ = control.Handle;
         control.SetPlaying(false);
         var game = control.game;
         int frame = game.FrameNumber;
         D3D11RenderWorker? failedWorker = null;
-        using var diagnostic = new StringWriter();
-        TextWriter previousError = Console.Error;
         Exception? failure = null;
         try
         {
-            Console.SetError(diagnostic);
             try
             {
                 await control.InitializeRendererAsync((_, clientSize, generation) =>
@@ -37,17 +37,11 @@ internal static class RendererStartupTests
             Check(failedWorker is { Completion.IsFaulted: true }, "failed startup worker was not fully drained");
             Check(game.FrameNumber == frame, "startup failure advanced the game");
             Check(!control.canvas.gpuOwned, "failed startup left GDI disabled");
-            if (selection == RendererSelection.Auto)
-            {
-                Check(failure is null && diagnostic.ToString().Contains("Auto selected software rendering"), "Auto fallback was not explicit and logged");
-                control.StepFrame(0);
-                Check(game.FrameNumber == unchecked((ushort)(frame + 1)), "software fallback could not continue stepping");
-            }
-            else Check(failure is ArgumentException, "explicit Direct3D11 swallowed startup failure");
+            Check(failure is InvalidOperationException { InnerException: ArgumentException },
+                "Direct3D 11 startup failure was swallowed or lost the device's error");
         }
         finally
         {
-            Console.SetError(previousError);
             await control.StopRendererAsync();
         }
         bool restartRejected = false;
@@ -55,6 +49,6 @@ internal static class RendererStartupTests
         Check(restartRejected, "stopped renderer accepted new startup");
         control.Dispose();
         Directory.Delete(directory, recursive: true);
-        Console.WriteLine($"Renderer startup {selection}: real asynchronous failure, logged fallback/explicit error and stopped-lifecycle guard passed.");
+        Console.WriteLine("Renderer startup: real asynchronous Direct3D 11 failure surfaced as an error and the stopped-lifecycle guard passed.");
     }
 }

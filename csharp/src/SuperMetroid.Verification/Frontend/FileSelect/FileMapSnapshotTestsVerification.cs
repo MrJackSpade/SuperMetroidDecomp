@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -107,7 +108,7 @@ internal static class FileMapSnapshotTestsVerification
         var window = new WindowedSceneRenderLayer(child, 127, 111, 130, 113);
         var parent = new LayeredScene(red, new RenderLayer[] { window }, 15);
         var packet = new DisplayPacket(new(1, 1, 0), parent);
-        Rgba32[] pixels = SoftwareFrameSnapshotRenderer.Render(packet);
+        Rgba32[] pixels = DisplayRendering.Render(packet);
         for (int y = 0; y < 224; y++)
         for (int x = 0; x < 256; x++)
             AssertEqual(x >= 127 && x < 130 && y >= 111 && y < 113 ? new Rgba32(0, 0, 255) : new Rgba32(255, 0, 0),

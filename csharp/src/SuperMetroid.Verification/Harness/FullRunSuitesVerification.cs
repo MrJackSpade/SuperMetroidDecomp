@@ -371,7 +371,6 @@ using static SuperMetroid.Verification.Frontend.Pause.UnpauseReserveBlackoutVeri
 using static SuperMetroid.Verification.Frontend.Pause.UnpauseStationLockReleaseVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseRemappedShoulderVerification;
 using static SuperMetroid.Verification.Enemies.VerticalOffScreenDeletionVerification;
-using static SuperMetroid.Verification.Rooms.Scrolling.ViewportParityVerification;
 using static SuperMetroid.Verification.Samus.Movement.WallJumpDustVerification;
 using static SuperMetroid.Verification.Samus.Movement.WallJumpSpinExitVerification;
 using static SuperMetroid.Verification.Rooms.LevelData.WallProbeBombBlockVerification;
@@ -391,7 +390,6 @@ using static SuperMetroid.Verification.Samus.Abilities.XrayRoomDisplayVerificati
 using static SuperMetroid.Verification.Samus.Abilities.XraySetupStageDomainVerification;
 using static SuperMetroid.Verification.Samus.Abilities.XraySetupVerification;
 using static SuperMetroid.Verification.Samus.Abilities.XrayTilemapVerification;
-using static SuperMetroid.Verification.Samus.Abilities.XrayWindowGeometryVerification;
 using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawGrappleReleaseVerification;
 using static SuperMetroid.Verification.Areas.Escape.ZebesEscapeFadeVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.ZeroDistanceJumpContactVerification;
@@ -406,14 +404,13 @@ internal static class FullRunSuitesVerification
     internal sealed record RegisteredSuite(string Name, Action Body);
 
     /// <summary>
-    /// The portable render contract (<c>--render-contract</c>): every snapshot, codec, publication,
-    /// scene-capture and software parity check. It deliberately excludes unrelated gameplay audits,
-    /// and never loads the Windows desktop or a graphics backend.
+    /// The portable render contract (<c>--render-contract</c>): every snapshot, codec, publication
+    /// and scene-capture check, whose pixels are drawn on the WARP device. It deliberately excludes
+    /// unrelated gameplay audits, and never loads the Windows desktop.
     /// </summary>
     internal static RegisteredSuite[] RenderContractSuites() =>
     [
         new(nameof(VerifyGameConfigurationIni), () => VerifyGameConfigurationIni()),
-        new(nameof(VerifyViewportTileRowParity), () => VerifyViewportTileRowParity()),
         new(nameof(VerifyFramePaintOwnership), () => VerifyFramePaintOwnership()),
         new(nameof(VerifyTitleRenderSnapshots), () => VerifyTitleRenderSnapshots()),
         new(nameof(VerifyPauseRenderSnapshots), () => VerifyPauseRenderSnapshots()),
@@ -523,7 +520,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyTypedNativeWords), () => VerifyTypedNativeWords()),
         new(nameof(VerifySamusSpatialValues), () => VerifySamusSpatialValues()),
         new(nameof(VerifyPhantoonWaveLifecycle), () => VerifyPhantoonWaveLifecycle()),
-        new(nameof(VerifyBackgroundMosaicSampling), () => VerifyBackgroundMosaicSampling()),
+        new(nameof(VerifyBackgroundMosaicWidth), () => VerifyBackgroundMosaicWidth()),
         new(nameof(VerifyOamSpritemapPacking), () => VerifyOamSpritemapPacking()),
         new(nameof(VerifyCeresElevatorArrivalGraphicsIndex), () => VerifyCeresElevatorArrivalGraphicsIndex()),
         new(nameof(VerifySamusRenderingSlice), () => VerifySamusRenderingSlice()),
@@ -588,7 +585,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyXrayGameState), () => VerifyXrayGameState()),
         new(nameof(VerifySpeedBoosterStageFiveResidue), () => VerifySpeedBoosterStageFiveResidue()),
         new(nameof(VerifyDraygonPrebattleXray), () => VerifyDraygonPrebattleXray()),
-        new(nameof(VerifyXrayWindowGeometry), () => VerifyXrayWindowGeometry()),
         new(nameof(VerifyXraySetupBuffers), () => VerifyXraySetupBuffers()),
         new(nameof(VerifyFirefleaFx), () => VerifyFirefleaFx()),
         new(nameof(VerifyBombJumpWallContact), () => VerifyBombJumpWallContact()),
@@ -673,7 +669,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySamusMoonwalking), () => VerifySamusMoonwalking()),
         new(nameof(VerifySamusRanIntoWall), () => VerifySamusRanIntoWall()),
         new(nameof(VerifyObjRendering), () => VerifyObjRendering()),
-        new(nameof(VerifyHudStateAndBg3Rendering), () => VerifyHudStateAndBg3Rendering()),
+        new(nameof(VerifyHudState), () => VerifyHudState()),
         new(nameof(VerifyRoomScrollGridAndBoundaryCamera), () => VerifyRoomScrollGridAndBoundaryCamera()),
         new(nameof(VerifyRoomScrollPlms), () => VerifyRoomScrollPlms()),
         new(nameof(VerifyRoomPlmHeaderCatalog), () => VerifyRoomPlmHeaderCatalog()),
@@ -722,11 +718,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyReplayTraceCompaction), () => VerifyReplayTraceCompaction()),
         new(nameof(VerifyReplaySnapshotSaveRamSizes), () => VerifyReplaySnapshotSaveRamSizes()),
         .. MapPresentationSuites(),
-        new(nameof(VerifyFourBitBackgroundRendering), () => VerifyFourBitBackgroundRendering()),
+        new(nameof(VerifyBg2ScreenLayout), () => VerifyBg2ScreenLayout()),
         new(nameof(VerifyLoRomCrossBankCompressedData), () => VerifyLoRomCrossBankCompressedData()),
-        new(nameof(VerifyMode7Rendering), () => VerifyMode7Rendering()),
-        new(nameof(VerifyLayerCompositorBackdrop), () => VerifyLayerCompositorBackdrop()),
-        new(nameof(VerifyBgPriorityPlaneRendering), () => VerifyBgPriorityPlaneRendering()),
         new(nameof(VerifyLibraryBackgroundLoader), () => VerifyLibraryBackgroundLoader()),
         new(nameof(VerifyControllerInputRecording), () => VerifyControllerInputRecording()),
         new(nameof(VerifySaveRamLayout), () => VerifySaveRamLayout()),
@@ -749,7 +742,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyCeresFlightActorDefinitions), () => VerifyCeresFlightActorDefinitions()),
         new(nameof(VerifyCeresDestructionActorDefinitions), () => VerifyCeresDestructionActorDefinitions()),
         new(nameof(VerifyCinematicPaletteFader), () => VerifyCinematicPaletteFader()),
-        new(nameof(VerifyHostRoomViewportAlignment), () => VerifyHostRoomViewportAlignment()),
         new(nameof(VerifyPowerBombColorMathWindow), () => VerifyPowerBombColorMathWindow()),
         new(nameof(VerifyChainsawFiring), () => VerifyChainsawFiring()),
         new(nameof(VerifySpacetimeBeam), () => VerifySpacetimeBeam()),

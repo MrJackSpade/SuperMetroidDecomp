@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -59,7 +60,7 @@ internal static class FrontendRenderCaptureTestsVerification
                 AssertEqual(tick + 1L, packet.Identity.Sequence, "host sequence is not cartridge frame");
                 AssertEqual(7L, packet.Identity.Generation, "host generation preserved");
                 AssertEqual(expected.FrameNumber, packet.Identity.SimulationFrame, "snapshot tracks completed simulation call");
-                actualPixels = SoftwareFrameSnapshotRenderer.Render(packet);
+                actualPixels = DisplayRendering.Render(packet);
                 // Republish twice, as a paused host may attach/resize or load a new
                 // presentation generation. Neither operation may replay draw effects.
                 DisplayPacket retained = captured.GetRetainedDisplay(10000 + tick, 8);
@@ -83,7 +84,7 @@ internal static class FrontendRenderCaptureTestsVerification
                 AssertTrue(states.Contains(SuperMetroidGameState.FileSelectMenus), "capture path covers file menu");
                 AssertTrue(states.Contains(SuperMetroidGameState.GameOptionsMenu), "capture path covers options");
                 AssertTrue(held is not null && heldPixels is not null && heldPixels.SequenceEqual(
-                    SoftwareFrameSnapshotRenderer.Render(held)), "retained title packet survives scene handoffs");
+                    DisplayRendering.Render(held)), "retained title packet survives scene handoffs");
                 // Switching back to the compatibility entry point must also work.
                 legacy.Step(0);
                 captured.Step(0);

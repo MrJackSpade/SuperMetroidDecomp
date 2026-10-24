@@ -31,7 +31,7 @@ internal static class ShaderFailureTests
             // A fresh renderer must still execute correctly on the same owner/device.
             using var recovered = new D3D11FrameRenderer(device);
             var packet = new DisplayPacket(new(1, 1, 0), new Rgba32(13, 29, 71));
-            PixelComparison.Verify(packet, SoftwareFrameSnapshotRenderer.Render(packet), recovered.RenderForReadback(packet),
+            PixelComparison.Verify(packet, DisplayRendering.Render(packet), recovered.RenderForReadback(packet),
                 $"{device.Kind}: initialization after missing {missing}");
         }
         Console.WriteLine($"{device.Kind}: all five missing shaders fail with resource identity; subsequent initialization renders exactly.");

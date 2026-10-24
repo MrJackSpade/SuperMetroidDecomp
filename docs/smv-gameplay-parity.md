@@ -134,7 +134,7 @@ runs one alone. Produce or refresh a trace from its full capture
 (the destination must be absent or empty):
 
 ```text
-dotnet csharp/src/SuperMetroid.Verification/bin/Release/net10.0/SuperMetroid.Verification.dll --compact-replay-trace SOURCE_DIR DEST_DIR
+dotnet csharp/src/SuperMetroid.Verification/bin/Release/net10.0-windows/SuperMetroid.Verification.dll --compact-replay-trace SOURCE_DIR DEST_DIR
 ```
 
 The compactor selects the layout from the movie identity in `updates.json`, writes the trace,

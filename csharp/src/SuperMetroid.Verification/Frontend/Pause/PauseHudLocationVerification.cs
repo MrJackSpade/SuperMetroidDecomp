@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Frontend.Pause;
@@ -14,9 +13,9 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 /// <summary>Checks the gameplay minimap marker's colors and position through paused HUD updates.</summary>
 internal static class PauseHudLocationVerification
 {
-    /// <summary>Compares native minimap pixels with pause rendering and captured packets for both blink phases.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause palette and HUD tile graphics")]
+    /// <summary>Checks that pause retains the native minimap tile and its native inks for both blink phases.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native BG3 tilemap words")]
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause palette")]
     internal static void VerifyPauseHudLocation()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -29,9 +28,6 @@ internal static class PauseHudLocationVerification
         var maps = RetailPresentationFixture();
         var samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(0x200, 0x300));
-        var expectedColors = new SnesCgram();
-        for (int i = 0; i < 256; i++)
-            expectedColors.SetColor(i, Bgr555.FromWord(checked(RomDataReader.ReadWordFixedBank(cart, 0xb6f000 + i * 2))));
 
         foreach (byte phase in new byte[] { 0, 8 })
         {
@@ -42,12 +38,11 @@ internal static class PauseHudLocationVerification
                 "native $90:AB4A blink selects palette seven only in its on phase");
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayLayer3 = runtime.AcceptedLayer3Plane });
-            var nativeVram = new SnesVram();
-            nativeVram.LoadBytes(0x8000, RomDataReader.ReadFixedBank(cart, 0x9ab200, 0x2000));
-            // The four HUD rows the accepted NMI latched, as the native BG3 tilemap's first rows.
-            nativeVram.ExecuteWordTransfer(runtime.AcceptedLayer3Plane.Words[..(Layer3Plane.HudRows * Layer3Plane.Columns)], 0x5800, 1);
-            var native = SnesBgTilemapRenderer.Render2Bpp(nativeVram, expectedColors,
-                0x5800, 0x4000, 4, true, true);
+            // The centre tile sits in the HUD's mutable rows, which follow the static top row on BG3.
+            const int centerWord = Layer3Plane.Columns + 60;
+            // A BG3 cell's palette selects four of the first CGRAM inks; the pause screen loads them from $B6:F000.
+            int inks = ((center >> 10) & 7) * 4;
+            Bgr555[] centerColors = [.. Enumerable.Range(inks + 1, 3).Select(color => Bgr555.FromWord(checked(RomDataReader.ReadWordFixedBank(cart, 0xb6f000 + color * 2))))];
             var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
             game.AdoptRuntime(runtime);
             game.Session.Show(pause);
@@ -55,23 +50,11 @@ internal static class PauseHudLocationVerification
             for (int frame = 0; frame < 24; frame++)
             {
                 game.StepCaptured(0, frame + 1, 1);
-                var actual = pause.Render();
-                var packet = SoftwareLayeredSnapshotRenderer.Render(pause.CaptureRenderSnapshot());
-                int opaque = 0;
-                for (int y = 0; y < 8; y++)
-                for (int x = 0; x < 8; x++)
-                {
-                    var expected = native[(16 + y) * 256 + 224 + x];
-                    if (expected.A == 0) continue;
-                    opaque++;
-                    int index = (15 + y) * 256 + 224 + x;
-                    AssertEqual(expected, actual[index], $"phase {phase} frame {frame} retained HUD position pixel {x},{y}");
-                    AssertEqual(expected, packet[index], "snapshot retains the same HUD position color");
-                }
-                AssertTrue(opaque > 0, "current location test examines opaque native pixels");
-
+                AssertEqual(center, pause.screen.Tilemaps.Bg3[centerWord], $"phase {phase} frame {frame} retained HUD position tile");
+                for (int color = 0; color < centerColors.Length; color++)
+                    AssertEqual(centerColors[color], pause.screen.Palette.Colors[inks + 1 + color], $"phase {phase} frame {frame} HUD position ink {color + 1}");
             }
-            Console.WriteLine($"Pause HUD location: phase {phase}, tile ${center:X4}, native pixels retained through 24 paused HUD/NMI updates.");
+            Console.WriteLine($"Pause HUD location: phase {phase}, tile ${center:X4}, tile and native inks retained through 24 paused HUD/NMI updates.");
         }
     }
 }

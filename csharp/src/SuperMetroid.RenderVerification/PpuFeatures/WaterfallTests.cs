@@ -10,7 +10,7 @@ namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
-/// <summary>Checks waterfall subscreen priority and subtraction against software and GPU rendering.</summary>
+/// <summary>Checks waterfall subscreen priority and subtraction against the WARP reference and GPU rendering.</summary>
 internal static class WaterfallTests
 {
     /// <summary>Uses native TM=$11, TS=$06, CGADSUB=$B1 and distinct colors to expose priority and color-math errors.</summary>
@@ -51,7 +51,7 @@ internal static class WaterfallTests
             ExpandedColorMathOperation.Subtract, new Position16<BgPlanePixels>[224]);
         var layer = new GameplayColorMathRenderLayer(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1), new TilemapCell(14, 8, new(4))) with { Bg3 = plane }), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new SceneBlend { Layers = WaterfallRoomDisplayRules.Blend, BlendsWithSubscreen = true, FixedColor = Bgr555.Black }, bg3, subscreenUsesBg2: true);
         var scene = new LayeredScene(memory, [layer], 15);
-        var pixels = SoftwareLayeredSnapshotRenderer.Render(scene);
+        var pixels = DisplayRendering.Render(scene);
         Check(16, 19, 13, 7, "BG2 beats low BG3 and subtracts through foreground");
         Check(32, 22, 17, 12, "high BG3 beats BG2");
         Check(48, 22, 17, 12, "transparent BG2 exposes low BG3");

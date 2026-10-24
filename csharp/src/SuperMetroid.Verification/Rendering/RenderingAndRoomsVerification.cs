@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Rooms.Backgrounds.RoomSkyTilemapsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Buffers.Binary;
@@ -73,56 +73,47 @@ internal static void VerifyObjRendering()
     DrawImportedSpritemap(bus, oam, 0x818000, origin: new(10, 20), paletteBits: 0x0400);
     oam.FinalizeFrame();
 
-    var pixels = SnesObjRenderer.Render(oam, vram, cgram, obsel: 0);
+    // The frontend capture converts the screen's OAM storage into the sprite draw it stands for;
+    // the display renderer then shows that draw over the backdrop.
+    Rgba32[] backdrop = DisplayRendering.Render(new LayeredScene(
+        new FramePaint(cgram.Colors, []), new RenderLayer[] { new ObjRenderLayer() }, FadeLevel.Full));
+    Rgba32[] pixels = DisplayRendering.Render(new LayeredScene(
+        FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0), new RenderLayer[] { new ObjRenderLayer() }, FadeLevel.Full));
     AssertEqual(new SuperMetroid.Core.Hardware.Rgba32(255, 0, 0), pixels[20 * 256 + 10], "OBJ colored planar pixel");
-    AssertEqual(new SuperMetroid.Core.Hardware.Rgba32(0, 0, 0, 0), pixels[20 * 256 + 11], "OBJ color zero transparency");
+    AssertEqual(backdrop[20 * 256 + 11], pixels[20 * 256 + 11], "OBJ color zero shows the backdrop");
 
     // OBJ priority controls only the winning sprite pixel's position relative to BGs.
     // It does not override OAM order when two sprites overlap. Model the Ceres failure
-    // directly: an earlier Samus-like OBJ2 must exclude a later Ridley-like OBJ3 from the
-    // OBJ3 plane, otherwise the compositor paints the hidden boss over Samus at the end of
-    // its BG/OBJ ladder. Distinct palettes make the winner observable without private ROM
-    // art; both entries deliberately use the same one-pixel tile and screen coordinate.
+    // directly: an earlier Samus-like OBJ2 must hide a later Ridley-like OBJ3, otherwise
+    // the hidden boss is painted over Samus. Distinct palettes make the winner observable
+    // without private ROM art; both entries deliberately use the same one-pixel tile and
+    // screen coordinate.
     cgram.SetColor(128 + 3 * 16 + 1, Bgr555.FromWord(0x03e0));
     oam.BeginFrame();
     oam.AddRawSmallSprite(position: new Position16<OamPixels>(10, 20), attributes: 0x2400); // OAM 0: OBJ2, palette 2.
     oam.AddRawSmallSprite(position: new Position16<OamPixels>(10, 20), attributes: 0x3600); // OAM 1: OBJ3, palette 3.
     oam.FinalizeFrame();
-    Rgba32[] obj2Plane = SnesObjRenderer.Render(oam, vram, cgram, obsel: 0, priority: 2);
-    Rgba32[] obj3Plane = SnesObjRenderer.Render(oam, vram, cgram, obsel: 0, priority: 3);
-    ResolvedObjFrame resolvedObjects = SnesObjRenderer.RenderResolved(oam, vram, cgram, obsel: 0);
+    Rgba32[] overlap = DisplayRendering.Render(new LayeredScene(
+        FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0), new RenderLayer[] { new ObjRenderLayer() }, FadeLevel.Full));
     AssertEqual(
         new SuperMetroid.Core.Hardware.Rgba32(255, 0, 0),
-        obj2Plane[20 * 256 + 10],
+        overlap[20 * 256 + 10],
         "lower-OAM OBJ2 wins cross-priority overlap");
-    AssertEqual(
-        new SuperMetroid.Core.Hardware.Rgba32(0, 0, 0, 0),
-        obj3Plane[20 * 256 + 10],
-        "higher-OAM OBJ3 excluded by cross-priority overlap");
-    AssertEqual(
-        new SuperMetroid.Core.Hardware.Rgba32(255, 0, 0),
-        resolvedObjects.Pixels[20 * 256 + 10],
-        "single-pass resolved OBJ color");
-    AssertEqual((byte)2, resolvedObjects.Priorities[20 * 256 + 10], "single-pass resolved OBJ priority");
-    AssertEqual(
-        SnesObjRenderer.TransparentPriority,
-        resolvedObjects.Priorities[20 * 256 + 11],
-        "single-pass transparent OBJ priority sentinel");
 
     // The production timer's first tile is $1E0 under OBSEL=$03. This assertion fixes
     // the important reverse-engineered relationship: character data starts at word $7E00.
     AssertEqual(0xfc00, ObjCharacterImage.ResolveTileByteAddress(0x1e0, 0x03), "timer tile $1E0 VRAM byte address");
     AssertEqual(0xff00, ObjCharacterImage.ResolveTileByteAddress(0x1f8, 0x03), "timer tile $1F8 VRAM byte address");
 
-    Console.WriteLine("  OBJ: OBSEL addressing, planar pixels, CGRAM, transparency, and cross-priority OAM ownership agree.");
+    Console.WriteLine("  OBJ: OBSEL addressing, the drawn pixel, its colour, transparency, and cross-priority OAM ownership agree.");
 }
 
 /// <summary>
-/// Verifies the HUD ROM-template mutation, authentic WRAM queue source, 2-bpp tilemap
-/// interpretation, palette selection, and final pixel without relying on the private ROM.
+/// Verifies the HUD ROM-template mutation, authentic WRAM queue source, live counters, selection
+/// palettes and minimap words without relying on the private ROM.
 /// </summary>
-[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-internal static void VerifyHudStateAndBg3Rendering()
+[PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
+internal static void VerifyHudState()
 {
     var bus = new TestAddressSpace();
 
@@ -258,20 +249,7 @@ internal static void VerifyHudStateAndBg3Rendering()
     AssertEqual(HudState.MutableTileCount, hud.MutableRows.Length, "the HUD's three mutable rows");
     AssertEqual(0x2c0f, hud.MutableRows[0], "the HUD's first mutable cell is the blank word the latched BG3 plane shows");
 
-    var vram = new SnesVram();
-
-    // Isolate the BG3 renderer at a harmless tilemap base. Entry tile 2 / palette 1 points
-    // at a tile whose upper-left plane-0 bit is set; CGRAM 5 is maximum green.
-    SeedBg3TilemapEntry(bus);
-    ImportedVramOracle.ExecuteQueued(vram, bus, 0x818000, 2, encodedDestination: 0x0100);
-    SeedUpperLeftPixelTile(bus);
-    ImportedVramOracle.ExecuteQueued(vram, bus, 0x828000, 16, encodedDestination: 0x0010);
-    var cgram = new SnesCgram();
-    cgram.SetColor(5, Bgr555.FromWord(0x03e0));
-    var pixels = SnesBgTilemapRenderer.Render2Bpp(vram, cgram, tilemapBaseWord: 0x0100, characterBaseWord: 0, rowCount: 1);
-    AssertEqual(new SuperMetroid.Core.Hardware.Rgba32(0, 255, 0), pixels[0], "BG3 tile/palette pixel");
-
-    Console.WriteLine("  HUD: inventory, live minimap coordinates/blink, WRAM upload, and BG3 pixels agree.");
+    Console.WriteLine("  HUD: inventory, live minimap coordinates/blink and WRAM upload agree.");
 }
 
 /// <summary>Reads the synthetic Crateria map tile before a fixture temporarily replaces it.</summary>
@@ -348,11 +326,6 @@ static void SeedUpperLeftPixelTile(TestAddressSpace bus) =>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for a one-entry OBJ spritemap at $81:8000")]
 static void SeedSingleSmallObjSpritemap(TestAddressSpace bus) =>
     bus.WriteBytes(0x818000, [0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
-
-/// <summary>One BG3 tilemap entry at $81:8000 naming tile 2 with palette 1.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for one BG3 tilemap entry at $81:8000")]
-static void SeedBg3TilemapEntry(TestAddressSpace bus) =>
-    bus.WriteBytes(0x818000, [0x02, 0x04]);
 
 /// <summary>Seeds one bank-$A9 walk instruction stream with retail timing and harmless synthetic spritemap operands.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one Mother Brain bank-$A9 walk program")]
@@ -941,45 +914,18 @@ internal static void VerifyCartridgeRoomStateSelection()
         "  Room states: complete selector catalog, operands, priority, and failures agree.");
 }
 
-/// <summary>Checks Mode-1 4-bpp BG pixels, palette selection, transparency, and H flip.</summary>
+/// <summary>Checks that the gameplay layer shows BG2 through its map's real screen layout: the vertical second screen and Kraid's 64x64 map.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-internal static void VerifyFourBitBackgroundRendering()
+internal static void VerifyBg2ScreenLayout()
 {
-    var vram = new SnesVram();
-    var cgram = new SnesCgram();
-
-    // Character zero has only its top-left plane-zero bit set, producing color index one.
-    var character = new byte[32];
-    character[0] = 0x80;
-    vram.LoadBytes(0, character);
-    cgram.SetColor(2 * 16 + 1, Bgr555.FromWord(0x001f)); // Full SNES red in BG palette two.
-
-    ushort[] mapEntry = [0x0800]; // Character zero, palette two, no flips.
-    vram.ExecuteWordTransfer(mapEntry, destinationWord: 0x5000, wordIncrement: 1);
-    Rgba32[] pixels = SnesBgTilemapRenderer.Render4BppViewport(vram, cgram, new BgVramAddresses { TilemapBaseWord = 0x5000, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = new Extent16<ScreenPixels>(8, 8) });
-    AssertEqual(new Rgba32(255, 0, 0), pixels[0], "4-bpp BG palette pixel");
-    AssertEqual(0, pixels[1].A, "4-bpp BG color zero transparency");
-
-    mapEntry[0] |= 0x4000;
-    vram.ExecuteWordTransfer(mapEntry, destinationWord: 0x5000, wordIncrement: 1);
-    pixels = SnesBgTilemapRenderer.Render4BppViewport(vram, cgram, new BgVramAddresses { TilemapBaseWord = 0x5000, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = new Extent16<ScreenPixels>(8, 1) });
-    AssertEqual(0, pixels[0].A, "4-bpp H-flip old pixel becomes transparent");
-    AssertEqual(new Rgba32(255, 0, 0), pixels[7], "4-bpp H-flip mirrored pixel");
-
     // BG2SC=$4A means a 32x64-tile map rooted at word $4800. Once VOFS bit eight
     // is set, the PPU selects its second $400-word screen at $4C00 rather than wrapping
     // into the first screen. Landing Site relies on this exact vertical arrangement.
-    vram.ExecuteWordTransfer([0x0800], destinationWord: 0x4c00, wordIncrement: 1);
-    pixels = SnesBgTilemapRenderer.Render4BppViewport(vram, cgram, new BgVramAddresses { TilemapBaseWord = 0x4800, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0x0100), Size = new Extent16<ScreenPixels>(8, 1), TilemapSize = new Extent16<TilemapCells>(32, 64) });
-    AssertEqual(new Rgba32(255, 0, 0), pixels[0], "4-bpp BGSC vertical second screen");
-
-    // Exercise that same BGSC geometry through the production priority compositor. Its
-    // first gameplay output row is 32, physical scanline 33, so VOFS=$E0 selects
+    // The gameplay layer's first output row is 32, physical scanline 33, so VOFS=$E0 selects
     // source Y=$101. A per-line HOFS of eight selects tile one in the lower screen.
-    // Put its only pixel on character row one: old zero-based BG sampling fails.
+    // Put its only pixel on character row one: zero-based BG sampling fails.
     var gameplayVram = new SnesVram();
     var gameplayCgram = new SnesCgram();
-    var gameplaySprites = new SpriteFrameBuffer();
     var redCharacter = new byte[32];
     var blueCharacter = new byte[32];
     redCharacter[2] = 0x80;
@@ -991,10 +937,9 @@ internal static void VerifyFourBitBackgroundRendering()
     gameplayCgram.SetColor(3 * 16 + 1, Bgr555.FromWord(0x7c00));
     gameplayVram.ExecuteWordTransfer([0x0801], destinationWord: 0x4800, wordIncrement: 1);
     gameplayVram.ExecuteWordTransfer([0x0801, 0x0c02], destinationWord: 0x4c00, wordIncrement: 1);
-    var horizontalByLine = new ushort[SnesGameplayFrameRenderer.Height - SnesGameplayFrameRenderer.HudHeight];
+    var horizontalByLine = new ushort[DisplayScreen.Height - DisplayScreen.HudHeight];
     horizontalByLine[0] = 8;
-    Rgba32[] gameplayFrame = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(gameplayCgram,
-        gameplaySprites,
+    Rgba32[] gameplayFrame = RenderOrdinaryGameplay(gameplayCgram,
         new OrdinaryGameplayRenderLayer(
             new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0x00e0),
                 new Extent16<TilemapCells>(32, 64), ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites),
@@ -1005,7 +950,7 @@ internal static void VerifyFourBitBackgroundRendering()
             },
             new Bg2LineScrolls(horizontalByLine, default)));
     AssertEqual(new Rgba32(0, 0, 255),
-        gameplayFrame[SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width],
+        gameplayFrame[DisplayScreen.HudHeight * DisplayScreen.Width],
         "ordinary compositor consumes sky HOFS and vertical BGSC screen");
 
     // Kraid selects BG2SC=$43: a 64x64 map rooted at word $4000 instead of the normal
@@ -1013,13 +958,12 @@ internal static void VerifyFourBitBackgroundRendering()
     // layout; accepting a 64x64 argument without using its base still leaves only Kraid's
     // ordinary OAM arm visible.
     const ushort kraidBg2BaseWord = 0x4000;
-    int firstGameplaySourceRow = SnesGameplayFrameRenderer.HudHeight / 8;
+    int firstGameplaySourceRow = DisplayScreen.HudHeight / 8;
     gameplayVram.ExecuteWordTransfer(
         [0x0801],
         destinationWord: unchecked((ushort)(kraidBg2BaseWord + firstGameplaySourceRow * 32)),
         wordIncrement: 1);
-    gameplayFrame = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(gameplayCgram,
-        gameplaySprites,
+    gameplayFrame = RenderOrdinaryGameplay(gameplayCgram,
         new OrdinaryGameplayRenderLayer(
             new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0),
                 new Extent16<TilemapCells>(64, 64), ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites),
@@ -1030,54 +974,14 @@ internal static void VerifyFourBitBackgroundRendering()
                     new Extent16<TilemapCells>(64, 64)),
             }));
     AssertEqual(new Rgba32(255, 0, 0),
-        gameplayFrame[SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width],
+        gameplayFrame[DisplayScreen.HudHeight * DisplayScreen.Width],
         "ordinary compositor consumes Kraid's 64x64 BG2 map at $4000");
 
-    Console.WriteLine("  BG render: 4-bpp pixels and BGSC geometry agree.");
-}
+    Console.WriteLine("  BG render: BGSC geometry agrees.");
 
-/// <summary>
-/// Guards the physical-scanline relationship between the host-composited terrain and live
-/// Samus/OAM. The gameplay IRQ hides BG1 behind the HUD; it does not rewind BG1VOFS when
-/// BG1 becomes visible again on line 32.
-/// </summary>
-internal static void VerifyHostRoomViewportAlignment()
-{
-    const int roomWidth = 300;
-    const int roomHeight = 260;
-    const int cameraX = 7;
-    const int cameraY = 11;
-    var room = new Rgba32[roomWidth * roomHeight];
-
-    // Give every source row a unique red component. The first gameplay output pixel must
-    // come from world row cameraY+32; cameraY would expose the old 32-pixel alignment bug.
-    for (int y = 0; y < roomHeight; y++)
-    {
-        for (int x = 0; x < roomWidth; x++)
-            room[y * roomWidth + x] = new Rgba32((byte)y, (byte)x, 0);
-    }
-
-    var vram = new SnesVram();
-    var cgram = new SnesCgram();
-    var sprites = new SpriteFrameBuffer();
-    Rgba32[] frame = SnesGameplayFrameRenderer.RenderHudRoomAndObjs(
-        vram,
-        cgram,
-        sprites,
-        room,
-        new Extent16<RoomPixels>(roomWidth, roomHeight),
-        new Position16<RoomPixels>(cameraX, cameraY));
-
-    AssertEqual(
-        room[(cameraY + SnesGameplayFrameRenderer.HudHeight) * roomWidth + cameraX],
-        frame[SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width],
-        "host terrain begins at physical scanline 32");
-    AssertEqual(
-        room[(cameraY + SnesGameplayFrameRenderer.Height - 1) * roomWidth + cameraX + 255],
-        frame[^1],
-        "host terrain bottom-right physical coordinate");
-
-    Console.WriteLine("  Host terrain: room crop remains aligned with physical BG1 scanlines and live OAM.");
+    // The frame the display renderer draws of the gameplay layer alone, with no sprites.
+    static Rgba32[] RenderOrdinaryGameplay(SnesCgram cgram, OrdinaryGameplayRenderLayer layer) =>
+        DisplayRendering.Render(new LayeredScene(new FramePaint(cgram.Colors, []), new RenderLayer[] { layer }, FadeLevel.Full));
 }
 
 /// <summary>The native first pre-scaled power-bomb profile's half width for <paramref name="row"/> at $88:9F06.</summary>
@@ -1125,10 +1029,8 @@ internal static void VerifyPowerBombColorMathWindow()
 
     // Spawn happens after the native HDMA pass. Even though status is already `$8000`,
     // the host must not invent an explosion table on this frame.
-    Rgba32[] spawnFrame = CreateOpaqueBlackGameplayFrame();
-    SnesGameplayFrameRendererConstants.ApplyPowerBombColorMath(spawnFrame, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
-    AssertEqual(new Rgba32(0, 0, 0, 255),
-        spawnFrame[centerY * SnesGameplayFrameRenderer.Width + centerX],
+    ScanlineColorAddRenderLayer? spawnWindows = CaptureWindows();
+    AssertTrue(AddedColour(spawnWindows, centerX, centerY) is null,
         "power-bomb spawn frame has no premature HDMA window");
 
     explosion.StepFrame();
@@ -1143,17 +1045,14 @@ internal static void VerifyPowerBombColorMathWindow()
         "power-bomb renderer retains pre-update radius");
     AssertEqual(0x3400, explosion.PreExplosionRadius.RawValue,
         "power-bomb logic advances next-frame radius");
-    Rgba32[] scaledFrame = CreateOpaqueBlackGameplayFrame();
-    SnesGameplayFrameRendererConstants.ApplyPowerBombColorMath(scaledFrame, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
-    Rgba32 fixedColor = new(8, 16, 24, 255);
-    AssertEqual(fixedColor,
-        scaledFrame[centerY * SnesGameplayFrameRenderer.Width + centerX + 3],
+    ScanlineColorAddRenderLayer? scaledWindows = CaptureWindows();
+    (int Red, int Green, int Blue) fixedColor = (8, 16, 24);
+    AssertEqual<(int, int, int)?>(fixedColor,
+        AddedColour(scaledWindows, centerX + 3, centerY),
         "scaled power-bomb center uses truncated final horizontal sample");
-    AssertEqual(new Rgba32(0, 0, 0, 255),
-        scaledFrame[centerY * SnesGameplayFrameRenderer.Width + centerX + 4],
+    AssertTrue(AddedColour(scaledWindows, centerX + 4, centerY) is null,
         "scaled power-bomb center excludes first outside pixel");
-    AssertEqual(new Rgba32(0, 0, 0, 255),
-        scaledFrame[(centerY + 3) * SnesGameplayFrameRenderer.Width + centerX],
+    AssertTrue(AddedColour(scaledWindows, centerX, centerY + 3) is null,
         "scaled power-bomb vertical extent uses ROM boundary table");
 
     // A pre-scaled record is a center-outward half-profile. Native HDMA mirrors it around
@@ -1164,32 +1063,34 @@ internal static void VerifyPowerBombColorMathWindow()
     explosion.StepFrame();
     AssertEqual(PowerBombExplosionPhase.PreExplosionYellow, explosion.RenderedPhase,
         "first pre-scaled yellow frame is retained for composition");
-    Rgba32[] shapeFrame = CreateOpaqueBlackGameplayFrame();
-    SnesGameplayFrameRendererConstants.ApplyPowerBombColorMath(shapeFrame, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
+    ScanlineColorAddRenderLayer? shapeWindows = CaptureWindows();
     AssertEqual<PowerBombShapeCursor?>(new PowerBombShapeCursor(PowerBombShapeStream.Yellow, 0), explosion.RenderedShape,
         "first yellow frame selects the native profile");
-    for (int y = 0; y < SnesGameplayFrameRenderer.Height; y++)
+    for (int y = 0; y < DisplayScreen.Height; y++)
     {
         int row = Math.Abs(y - centerY);
         int halfWidth = row < 192 ? ReadRetailPowerBombPreScaledHalfWidth(shapeReference, row) : 0;
-        for (int x = 0; x < SnesGameplayFrameRenderer.Width; x++)
+        for (int x = 0; x < DisplayScreen.Width; x++)
         {
-            bool inside = y >= SnesGameplayFrameRenderer.HudHeight && halfWidth != 0 && Math.Abs(x - centerX) <= halfWidth;
-            AssertEqual(inside ? fixedColor : new Rgba32(0, 0, 0, 255),
-                shapeFrame[y * SnesGameplayFrameRenderer.Width + x],
+            bool inside = y >= DisplayScreen.HudHeight && halfWidth != 0 && Math.Abs(x - centerX) <= halfWidth;
+            AssertEqual<(int, int, int)?>(inside ? fixedColor : null,
+                AddedColour(shapeWindows, x, y),
                 $"native pre-scaled profile pixel ({x},{y})");
         }
     }
     Console.WriteLine("  Power bomb: ROM curve bands, rendered-frame timing, and center-outward shapes agree.");
+
+    // The colour windows the displayed frame adds for the explosion, as the gameplay capture takes them.
+    ScanlineColorAddRenderLayer? CaptureWindows() =>
+        GameplayEffectCapture.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
 }
 
-/// <summary>Provides a black gameplay raster that makes power-bomb color-window endpoints visible.</summary>
-static Rgba32[] CreateOpaqueBlackGameplayFrame()
+/// <summary>The colour <paramref name="windows"/> add at a screen pixel, or null where no window covers it.</summary>
+static (int Red, int Green, int Blue)? AddedColour(ScanlineColorAddRenderLayer? windows, int x, int y)
 {
-    var frame = new Rgba32[
-        SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
-    Array.Fill(frame, new Rgba32(0, 0, 0, 255));
-    return frame;
+    if (windows is null) return null;
+    ColorAddWindow window = windows.Windows[y];
+    return x >= window.Left && x <= window.Right ? (window.Red, window.Green, window.Blue) : null;
 }
 
 /// <summary>Checks bank-$88 sky fixed-point bands and four queued circular-map rows.</summary>
@@ -1238,11 +1139,11 @@ internal static void VerifyScrollingSkyState()
     Console.WriteLine("  Sky: HDMA bands, chunk wrap and the published layer agree.");
 }
 
-    /// <summary>Runs the HUD template, map reveal and BG3 rendering checks.</summary>
+    /// <summary>Runs the HUD template and map reveal checks.</summary>
     [VerificationCommand("--hud-state")]
     internal static int HudStateCommand()
     {
-        Suite(nameof(VerifyHudStateAndBg3Rendering), () => VerifyHudStateAndBg3Rendering());
+        Suite(nameof(VerifyHudState), () => VerifyHudState());
         return 0;
     }
 

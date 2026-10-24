@@ -41,7 +41,7 @@ internal static class AbsoluteTangentDefinitionsVerification
                 x = wrapped < 128 ? tangent : -tangent;
                 y = wrapped is < 64 or >= 192 ? -256 : 256;
             }
-            var actual = SnesGameplayFrameRenderer.ReadXrayDirection(angle);
+            var actual = GameplayEffectCapture.ReadXrayDirection(angle);
             AssertEqual(x, (int)actual.X, "X-ray wrapped/cardinal X direction");
             AssertEqual(y, (int)actual.Y, "X-ray wrapped/cardinal Y direction");
         }

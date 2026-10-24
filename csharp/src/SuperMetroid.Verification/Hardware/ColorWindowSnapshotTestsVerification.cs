@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Samus;
@@ -11,31 +10,23 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks retained scanline color windows for haze, suit pickup, and Power Bomb effects.</summary>
+/// <summary>Checks retained scanline color windows for suit pickup and Power Bomb effects.</summary>
 internal static class ColorWindowSnapshotTestsVerification
 {
-    /// <summary>Compares raster effects to captured window layers through phases and retained lifetimes.</summary>
+    /// <summary>Checks captured window layers keep their windows through later phases and own their input.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyColorWindowSnapshots()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var cgram = new SnesCgram();
         cgram.SetColor(0, Bgr555.FromWord(0x396b));
         var oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();
         var memory = FramePaintConstants.CaptureFrontend(new SnesVram(), cgram, oam, 3);
-        Rgba32[] baseline = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
         int samples = 0;
-        foreach (bool dead in new[] { false, true })
-        {
-            Rgba32[] expected = baseline.ToArray();
-            SnesGameplayFrameRendererConstants.ApplyCeresHaze(expected, dead);
-            Compare(expected, SnesGameplayFrameRenderer.CaptureCeresHaze(dead));
-        }
 
         foreach (SamusSuitPickupKind kind in new[] { SamusSuitPickupKind.Varia, SamusSuitPickupKind.Gravity })
         {
             var pickup = new SamusSuitPickupState();
-            AssertTrue(SamusSuitPickupRenderer.Capture(pickup.Flash) is null, "inactive suit emits no operation");
+            AssertTrue(GameplayEffectCapture.CaptureSuitPickup(pickup.Flash) is null, "inactive suit emits no operation");
             var samus = PrepareRetailSamusFixture(new SamusState { Pose = SamusPoseId.FacingRightNormalPose });
             pickup.Begin(samus, new(0, 0), kind);
             var phases = new HashSet<SamusSuitPickupStage>();
@@ -43,16 +34,15 @@ internal static class ColorWindowSnapshotTestsVerification
             {
                 bool sample = phases.Add(pickup.Stage) || tick % 7 == 0;
                 ScanlineColorAddRenderLayer? retained = null;
-                Rgba32[]? expected = null;
+                ColorAddWindow[]? captured = null;
                 if (sample)
                 {
-                    expected = baseline.ToArray();
-                    SamusSuitPickupRendererConstants.Composite(expected, pickup.Flash);
-                    retained = SamusSuitPickupRenderer.Capture(pickup.Flash);
-                    Compare(expected, (retained ?? throw new InvalidOperationException("Verification requires retained.")));
+                    retained = GameplayEffectCapture.CaptureSuitPickup(pickup.Flash)
+                        ?? throw new InvalidOperationException("An active suit pickup captures its windows.");
+                    captured = retained.Windows.ToArray();
                 }
                 pickup.Step(samus, new SamusColourRig().Samus);
-                if (retained is not null) Compare((expected ?? throw new InvalidOperationException("Verification requires expected.")), retained);
+                if (retained is not null) Compare(captured ?? throw new InvalidOperationException("Verification requires captured."), retained);
             }
             AssertTrue(!pickup.IsActive, "suit window fixture completes");
         }
@@ -60,7 +50,7 @@ internal static class ColorWindowSnapshotTestsVerification
         foreach (ushort centerX in new ushort[] { 128, 65500, 290 })
         {
             var explosion = new SamusPowerBombExplosionState { PresentationColors = RetailPresentationFixture().PowerBombFixedColors };
-            AssertTrue(SnesGameplayFrameRenderer.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0)) is null,
+            AssertTrue(GameplayEffectCapture.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0)) is null,
                 "inactive Power Bomb emits no operation");
             explosion.Arm(); explosion.Spawn(new(centerX, 120));
             var phases = new HashSet<PowerBombExplosionPhase>();
@@ -68,16 +58,15 @@ internal static class ColorWindowSnapshotTestsVerification
             {
                 bool sample = phases.Add(explosion.RenderedPhase) || tick % 13 == 0;
                 ScanlineColorAddRenderLayer? retained = null;
-                Rgba32[]? expected = null;
+                ColorAddWindow[]? captured = null;
                 if (sample)
                 {
-                    expected = baseline.ToArray();
-                    SnesGameplayFrameRendererConstants.ApplyPowerBombColorMath(expected, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
-                    retained = SnesGameplayFrameRenderer.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
-                    Compare(expected, (retained ?? throw new InvalidOperationException("Verification requires retained.")));
+                    retained = GameplayEffectCapture.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0))
+                        ?? throw new InvalidOperationException("Verification requires retained.");
+                    captured = retained.Windows.ToArray();
                 }
                 explosion.StepFrame();
-                if (retained is not null) Compare((expected ?? throw new InvalidOperationException("Verification requires expected.")), retained);
+                if (retained is not null) Compare(captured ?? throw new InvalidOperationException("Verification requires captured."), retained);
             }
             AssertTrue(!explosion.IsActive && phases.Contains(PowerBombExplosionPhase.Afterglow),
                 "Power Bomb fixture reaches afterglow and completes");
@@ -87,27 +76,23 @@ internal static class ColorWindowSnapshotTestsVerification
         Array.Fill(windows, new ColorAddWindow(0, 255, 200, 10, 255));
         var owned = new ScanlineColorAddRenderLayer(windows);
         Array.Fill(windows, ColorAddWindow.Empty);
-        Rgba32[] alpha = Enumerable.Repeat(new Rgba32(100, 40, 10, 17), 256 * 224).ToArray();
-        SoftwareScanlineColorRenderer.Composite(alpha, owned);
-        AssertTrue(alpha.All(p => p == new Rgba32(255, 50, 255, 17)), "windows own input, saturate bytes and preserve alpha");
+        AssertTrue(owned.Windows.ToArray().All(window => window == new ColorAddWindow(0, 255, 200, 10, 255)), "windows own input");
         AssertThrows<ArgumentException>(() => new ScanlineColorAddRenderLayer(new ColorAddWindow[223]),
             "window operation rejects incomplete scanline table");
-        var packet = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory, new RenderLayer[] { owned }, 15));
-        Console.WriteLine($"  Color window snapshots: {samples} suit/haze/Power Bomb comparisons, clipping and lifetime agree.");
+        _ = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory, new RenderLayer[] { owned }, 15));
+        Console.WriteLine($"  Color window snapshots: {samples} suit/Power Bomb retained windows and input ownership agree.");
 
-        void Compare(Rgba32[] expected, ScanlineColorAddRenderLayer layer)
+        void Compare(ColorAddWindow[] captured, ScanlineColorAddRenderLayer layer)
         {
-            var frame = new DisplayPacket(new(++samples, 1, (ushort)samples),
-                new LayeredScene(memory, new RenderLayer[] { layer }, 15));
-            AssertTrue(expected.SequenceEqual(RenderForComparison(frame)),
-                $"color window snapshot sample {samples}");
+            samples++;
+            AssertTrue(layer.Windows.SequenceEqual(captured), $"color window snapshot sample {samples}");
         }
     }
 
-    /// <summary>Runs the scanline color-window packet comparison.</summary>
+    /// <summary>Runs the scanline color-window retention checks.</summary>
     [VerificationCommand("--color-window-fixture")]
     internal static int ColorWindowFixtureCommand()
     {
-     VerifyColorWindowSnapshots(); return 0; 
+     VerifyColorWindowSnapshots(); return 0;
     }
 }

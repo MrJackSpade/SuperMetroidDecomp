@@ -217,7 +217,6 @@ public sealed class PlayableGameControl : UserControl
             canvas.Focus();
         };
         playbackTimer.Tick += (_, _) => AdvancePlaybackClock();
-        canvas.FramePainted += frameTimings.RecordPaint;
 
         // Keyboard messages are captured by ProcessKeyPreview below, above every child.
         // Keep the clear tied to the whole gameplay host rather than the canvas: moving
@@ -351,7 +350,7 @@ public sealed class PlayableGameControl : UserControl
                 return;
             }
             if (gpuWorker is not null && loaded.Game.GetRetainedDisplay(displaySequence + 1, displayGeneration + 1) is null)
-                throw new NotSupportedException("This debugger state contains legacy pixels, not a captured scene. Load it with Renderer=Software.");
+                throw new NotSupportedException("This debugger state contains legacy pixels, not a captured scene, which Direct3D 11 cannot draw.");
         }
         catch (Exception exception)
         {
@@ -685,7 +684,6 @@ public sealed class PlayableGameControl : UserControl
     /// <summary>Refreshes presentation, room caption, frame timing, and recovery status.</summary>
     private void RefreshFrame(FrontendFrame frame)
     {
-        RefreshDisplay();
         RefreshRoomIdentity();
         if (frameTimings.TryTakeSnapshot(Stopwatch.GetTimestamp(), out FrameTimingSnapshot timing))
         {
@@ -700,7 +698,7 @@ public sealed class PlayableGameControl : UserControl
                 ? string.Empty
                 : $"  |  replay {replayFrameIndex}/{replay.ControllerInputs.Length}");
         string timingStatus = latestFrameTiming?.ToToolbarText() ??
-            "emu --.- | paint --.- | step --.-/--.- ms | late --.-";
+            "emu --.- | step --.-/--.- ms | late --.-";
         statusLabel.Text = timingStatus + GpuTimingText;
         string errorStatus = lastRecoverableError is null
             ? string.Empty
@@ -946,7 +944,7 @@ public sealed class PlayableGameControl : UserControl
 
     /// <summary>
     /// Starts the window-owned renderer with the UI message pump free to service DXGI.
-    /// Call once after showing the form. Auto prefers hardware with logged startup fallback.
+    /// Call once after showing the form. A startup failure is the host's error: there is no other renderer (#1409).
     /// </summary>
     public Task InitializeRendererAsync() => InitializeRendererAsync(static (window, clientSize, generation) =>
         new D3D11RenderWorker(window, clientSize, generation, D3D11DeviceKind.Hardware));
@@ -959,7 +957,6 @@ public sealed class PlayableGameControl : UserControl
         if (rendererStopping) throw new InvalidOperationException("Renderer has already been stopped.");
         if (rendererStarted) throw new InvalidOperationException("Renderer already initialized.");
         rendererStarted = true;
-        if (hostOptions.Renderer == RendererSelection.Software) return;
         var worker = createWorker(canvas.Handle,
             DisplayViewport.ClientSize(Math.Max(1, canvas.ClientSize.Width), Math.Max(1, canvas.ClientSize.Height)),
             displayGeneration);
@@ -975,11 +972,8 @@ public sealed class PlayableGameControl : UserControl
             try { await worker.StopAsync(); }
             catch (Exception stopError) { Console.Error.WriteLine(stopError); }
             gpuWorker = null;
-            canvas.SetGpuOwned(false);
-            if (hostOptions.Renderer != RendererSelection.Auto || rendererStopping) throw;
-            Console.Error.WriteLine($"Direct3D11 startup failed; Auto selected software rendering.\n{error}");
-            RefreshFrame(game.CurrentFrame);
-            return;
+            if (rendererStopping) return;
+            throw new InvalidOperationException("Direct3D 11 could not start; the game has no other renderer.", error);
         }
         if (rendererStopping) return;
         canvas.SetGpuOwned(true);
@@ -989,7 +983,7 @@ public sealed class PlayableGameControl : UserControl
         ResizeGpu(this, EventArgs.Empty);
         // A publication may already have occurred during asynchronous startup.
         // Fresh identity makes this safe without advancing a paused game. Coverage or
-        // runtime failures are outside the Auto startup fallback boundary intentionally.
+        // runtime failures surface through the worker's health check.
         pendingDisplay = game.GetRetainedDisplay(++displaySequence, displayGeneration);
         PublishGpuDisplay();
         rendererHealthTimer.Tick += CheckRendererHealth;
@@ -1036,15 +1030,6 @@ public sealed class PlayableGameControl : UserControl
         if (pendingDisplay is not { } packet)
             throw new NotSupportedException("Direct3D11 requires a captured scene; legacy raster fallback is not permitted.");
         worker.Publish(packet);
-    }
-
-    /// <summary>Renders the retained scene into the software canvas.</summary>
-    private void RefreshDisplay()
-    {
-        if (gpuWorker is not null) return;
-        DisplayPacket packet = pendingDisplay
-            ?? throw new InvalidOperationException("The software canvas requires a captured scene.");
-        canvas.ReplaceFrame(new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height), SoftwareFrameSnapshotRenderer.Render(packet));
     }
 
     /// <summary>Await before destroying the form/child HWND; never synchronously wait on the UI thread.</summary>

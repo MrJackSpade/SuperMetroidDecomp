@@ -27,8 +27,8 @@ internal static class LookupHorizontalHeatWaveVerification
                 LayerBlendingConfiguration.WaterSubtractive, new Position16<Bg3Pixels>(baseScroll, 0),
                 Surface: new(0, 100), LiquidOptions: RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave)
                 { LavaAcidBg2WavePhase = phase };
-            ushort[] scrolls = (SnesGameplayFrameRenderer.BuildLavaAcidBg2HorizontalScrolls(fx,
-                new Position16<Bg2Pixels>(baseScroll, (ushort)cameraPhase)) ?? throw new InvalidOperationException("Verification requires SnesGameplayFrameRenderer.BuildLavaAcidBg2HorizontalScrolls(fx, new Position16<Bg2Pixel...."));
+            ushort[] scrolls = (GameplayEffectCapture.BuildLavaAcidBg2HorizontalScrolls(fx,
+                new Position16<Bg2Pixels>(baseScroll, (ushort)cameraPhase)) ?? throw new InvalidOperationException("Verification requires GameplayEffectCapture.BuildLavaAcidBg2HorizontalScrolls(fx, new Position16<Bg2Pixel...."));
             for (int line = 0; line < scrolls.Length; line++)
                 AssertEqual(unchecked((ushort)(baseScroll + Original((phase + cameraPhase + line) & 15))),
                     scrolls[line], "Production horizontal wave phase, camera nibble, signed addition and wrap");

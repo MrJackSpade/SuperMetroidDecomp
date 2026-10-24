@@ -16,7 +16,6 @@ using SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Harness.VerificationAssert;
 
 namespace SuperMetroid.Verification.Enemies.Corpses;
 
@@ -107,7 +106,7 @@ internal static class CorpseRotPicturesVerification
         CharacterSpriteDraw parted = EnemyPartComposition.Spritemap(rotting, source, runtime.EnemySession.TileArtwork?.Spritemaps
             ?? throw new InvalidOperationException("The runtime loads the enemy compositions."), frame with { Origin = new(drawn[0].Origin.X, drawn[0].Origin.Y) })
             ?? throw new InvalidOperationException($"{context}: the frame has parts.");
-        UploadedPictureChecks.AssertPaintsLikeParts(runtime, drawn, [parted], context);
+        UploadedPictureChecks.AssertPaintsLikeParts(drawn, [parted], context);
     }
 
     /// <summary>

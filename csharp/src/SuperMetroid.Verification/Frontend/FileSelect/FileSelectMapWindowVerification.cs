@@ -1,6 +1,5 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Frontend.FileSelect.FileSelectMapEntryVerification;
 using static SuperMetroid.Verification.Frontend.FileSelect.FileSelectRoomMapVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapWindowMotionDefinitionsVerification;
@@ -124,16 +123,10 @@ internal static class FileSelectMapWindowVerification
         AssertTrue(frameOnly.SequenceEqual(graphics.RenderFrameOnly()), "transition frame never samples room-map BG1 tiles");
     }
 
-    /// <summary>Checks active map colors, native BG3 tilemap transfers, backdrop rendering, and visited-station labels.</summary>
+    /// <summary>Checks active map colors, native BG3 tilemap transfers, an opaque drawn map, and visited-station labels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     private static void VerifyFileSelectAreaMapGraphics()
     {
-        Rgba32[] main = [new(255, 8, 0), new(0, 0, 8)];
-        Rgba32[] sub = [new(255, 8, 8), new(255, 255, 255, 0)];
-        SnesLayerCompositor.AddSubscreen(main, sub);
-        AssertEqual(new Rgba32(255, 16, 8), main[0], "subscreen uses saturated five-bit addition");
-        AssertEqual(new Rgba32(0, 0, 8), main[1], "keyed subscreen selects black fixed color");
-
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int[] indices = [86, 107, 102, 81, 97, 118];
         int[] activeColors = [0x01db, 0x0bb1, 0x0013, 0x7fe0, 0x6400, 0x6417];

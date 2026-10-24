@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
@@ -50,8 +49,8 @@ internal static class RetailLoadAppearanceTests
                 throw new InvalidOperationException("Capture changed load appearance timing.");
             if (sawMap)
             {
-                PixelComparison.Verify(actual.Snapshot, legacy.PublishedPixels(), SoftwareFrameSnapshotRenderer.Render(actual.Snapshot),
-                    $"saved-file load software capture frame {tick}");
+                PixelComparison.Verify(actual.Snapshot, legacy.PublishedPixels(), DisplayRendering.Render(actual.Snapshot),
+                    $"saved-file load WARP capture frame {tick}");
                 PixelComparison.Verify(actual.Snapshot, legacy.PublishedPixels(), renderer.RenderForReadback(actual.Snapshot),
                     $"{device.Kind}: saved-file load frame {tick}, {expected.GameState}");
                 samples++;

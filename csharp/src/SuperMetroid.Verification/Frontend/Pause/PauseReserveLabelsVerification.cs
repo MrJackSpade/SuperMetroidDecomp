@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -61,7 +62,7 @@ internal static class PauseReserveLabelsVerification
             }
             var expectedMemory = new FramePaint(snapshot.Paint.Colors,
                 snapshot.Paint.SpriteDraws);
-            var expectedPixels = SoftwareLayeredSnapshotRenderer.Render(new(expectedMemory, snapshot.Layers, snapshot.Brightness));
+            var expectedPixels = DisplayRendering.Render(new LayeredScene(expectedMemory, snapshot.Layers, snapshot.Brightness));
             var actualPixels = pause.Render();
 
             AssertTrue(actualPixels.SequenceEqual(expectedPixels),

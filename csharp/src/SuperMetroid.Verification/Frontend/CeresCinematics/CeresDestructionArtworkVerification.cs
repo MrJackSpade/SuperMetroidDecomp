@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
@@ -90,8 +91,8 @@ internal static class CeresDestructionArtworkVerification
                 AssertTrue(actual.Brightness == expected.Brightness &&
                         actualVram.SequenceEqual(expectedVram) &&
                         actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
-                        SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
-                            SoftwareLayeredSnapshotRenderer.Render(expected)),
+                        DisplayRendering.Render(actual).SequenceEqual(
+                            DisplayRendering.Render(expected)),
                     $"installed Ceres/Zebes art preserves native visible pixels at frame {frame}");
             }
             native.Step();
@@ -261,8 +262,8 @@ internal static class CeresDestructionArtworkVerification
         spriteState.BindFixtureDestructionArtwork(editedSprites);
         LayeredScene afterSprites = spriteState.CaptureRenderSnapshot();
         AssertTrue(!beforeSprites.Paint.SpriteParts().SequenceEqual(afterSprites.Paint.SpriteParts()) &&
-                !SoftwareLayeredSnapshotRenderer.Render(beforeSprites).SequenceEqual(
-                    SoftwareLayeredSnapshotRenderer.Render(afterSprites)),
+                !DisplayRendering.Render(beforeSprites).SequenceEqual(
+                    DisplayRendering.Render(afterSprites)),
             "edited Ceres destruction composition changes production OAM and visible pixels");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "rebound Ceres destruction actor never rereads installed spritemaps");
@@ -305,8 +306,8 @@ internal static class CeresDestructionArtworkVerification
         LayeredScene afterCeres = ceresState.CaptureRenderSnapshot();
         byte[] afterCeresVram = ceresState.ShownVram();
         AssertTrue(!beforeCeresVram.SequenceEqual(afterCeresVram) &&
-                !SoftwareLayeredSnapshotRenderer.Render(beforeCeres).SequenceEqual(
-                    SoftwareLayeredSnapshotRenderer.Render(afterCeres)),
+                !DisplayRendering.Render(beforeCeres).SequenceEqual(
+                    DisplayRendering.Render(afterCeres)),
             "restored Ceres destruction adopts edited map and changes visible pixels");
         File.Delete(ceresOverride);
 

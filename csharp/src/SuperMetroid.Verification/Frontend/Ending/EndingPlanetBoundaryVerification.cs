@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -38,7 +39,7 @@ internal static class EndingPlanetBoundaryVerification
             AssertEqual(256 * 224 * 4, bgra.Length, "native PPU raster length");
             var native = new Rgba32[256 * 224];
             for (int i = 0; i < native.Length; i++) native[i] = new(bgra[i * 4 + 2], bgra[i * 4 + 1], bgra[i * 4]);
-            var actual = SoftwareLayeredSnapshotRenderer.Render(capture.Snapshots[frame]);
+            var actual = DisplayRendering.Render(capture.Snapshots[frame]);
             int differences = actual.Zip(native, (first, second) => first != second).Count(differs => differs);
             Console.WriteLine($"Native PPU finale frame {frame}: {differences} pixels differ.");
             AssertEqual(0, differences, $"finale frame {frame} matches pinned native PPU with cartridge register setup");
@@ -142,7 +143,7 @@ internal static class EndingPlanetBoundaryVerification
                     AffineFloorFixtures.Floor(nativeVram, snapshot.Paint.Colors)),
                 new ObjRenderLayer(AddToScreen: true)];
             var nativeMemory = new FramePaint(snapshot.Paint.Colors, snapshot.Paint.SpriteDraws);
-            var expected = SoftwareLayeredSnapshotRenderer.Render(new(nativeMemory, nativeLayers, snapshot.Brightness));
+            var expected = DisplayRendering.Render(new LayeredScene(nativeMemory, nativeLayers, snapshot.Brightness));
             var actual = ending.Render();
             int changed = actual.Zip(expected, (first, second) => first != second).Count(differs => differs);
             differences += changed;
@@ -159,7 +160,7 @@ internal static class EndingPlanetBoundaryVerification
             // The frame carries no VRAM (#1403): the floor is drawn again from the native reconstruction.
             RenderLayer[] reconstructedLayers = [.. live.Layers.ToArray().Select(layer => layer is Mode7RenderLayer floor
                 ? (floor with { Floor = AffineFloorFixtures.Floor(reconstructed, live.Paint.Colors) }) : layer)];
-            var nativePixels = SoftwareLayeredSnapshotRenderer.Render(new(live.Paint, reconstructedLayers, live.Brightness));
+            var nativePixels = DisplayRendering.Render(new LayeredScene(live.Paint, reconstructedLayers, live.Brightness));
             differences += ending.Render().Zip(nativePixels, (first, second) => first != second).Count(differs => differs);
             if (capture is not null && capture.Frames.Contains(frame))
             {

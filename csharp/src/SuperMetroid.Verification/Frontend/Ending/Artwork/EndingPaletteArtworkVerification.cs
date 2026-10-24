@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Text.Json;
@@ -482,8 +483,8 @@ internal static class EndingPaletteArtworkVerification
             if (changed.Paint.Colors.SequenceEqual(original.Paint.Colors)) continue;
             AssertTrue(changedVram.SequenceEqual(originalVram),
                 "ending palette-FX edit does not change graphics or transfer timing");
-            if (!SoftwareLayeredSnapshotRenderer.Render(changed).SequenceEqual(
-                    SoftwareLayeredSnapshotRenderer.Render(original)))
+            if (!DisplayRendering.Render(changed).SequenceEqual(
+                    DisplayRendering.Render(original)))
             {
                 visibleDifference = true;
                 break;
@@ -572,8 +573,8 @@ internal static class EndingPaletteArtworkVerification
             byte[] originalVram = stockState.ShownVram();
             AssertTrue(changedVram.SequenceEqual(originalVram),
                 "credits palette edit does not alter graphics VRAM");
-            if (!SoftwareLayeredSnapshotRenderer.Render(changed).SequenceEqual(
-                    SoftwareLayeredSnapshotRenderer.Render(original)))
+            if (!DisplayRendering.Render(changed).SequenceEqual(
+                    DisplayRendering.Render(original)))
             {
                 visibleDifference = true;
                 break;
@@ -624,8 +625,8 @@ internal static class EndingPaletteArtworkVerification
             byte[] originalVram = stockState.ShownVram();
             AssertTrue(changedVram.SequenceEqual(originalVram),
                 "logo fade color edit does not alter graphics VRAM");
-            if (!SoftwareLayeredSnapshotRenderer.Render(changed).SequenceEqual(
-                    SoftwareLayeredSnapshotRenderer.Render(original)))
+            if (!DisplayRendering.Render(changed).SequenceEqual(
+                    DisplayRendering.Render(original)))
             {
                 visibleDifference = true;
                 break;

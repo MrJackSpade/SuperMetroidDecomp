@@ -8,7 +8,7 @@ using SuperMetroid.TestSupport.FrameCapture;
 /// <summary>Checks bounded GPU timestamp capture and the rolling render timing window.</summary>
 internal static class GpuTimingTests
 {
-    /// <summary>Checks FIFO timestamps and frame identity while comparing the timed render with software output.</summary>
+    /// <summary>Checks FIFO timestamps and frame identity while comparing the timed render with the WARP reference.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer, DisplayPacket frame)
     {
         VerifyTimingWindow();
@@ -27,7 +27,7 @@ internal static class GpuTimingTests
                 throw new InvalidOperationException("Full timestamp ring did not bound/record skipped telemetry.");
             // Only this diagnostic waits via readback. Production TryRead uses DoNotFlush
             // and returns immediately if the GPU has not finished the oldest sample.
-            PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.Readback(), "timed GPU composition");
+            PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.Readback(), "timed GPU composition");
             for (int i = 0; i < 2; i++)
             {
                 // The oldest pending slot (the ring tail) is the one TryRead consumes.

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
@@ -37,11 +38,11 @@ internal static class CrystalFlashVisualsVerification
                     $"runtime Crystal Flash bubble palette at frame {elapsed}");
         }
 
-        var pixels = SoftwareLayeredSnapshotRenderer.Render(packet);
+        var pixels = DisplayRendering.Render(packet);
         var colors = packet.Paint.Colors.ToArray();
         Array.Clear(colors, SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart, Common.ColorsPerObjPalette);
         var mutedMemory = new FramePaint(colors, packet.Paint.SpriteDraws);
-        var mutedBody = SoftwareLayeredSnapshotRenderer.Render(new LayeredScene(mutedMemory,
+        var mutedBody = DisplayRendering.Render(new LayeredScene(mutedMemory,
             packet.Layers, packet.Brightness));
         int centerX = samus.Position.X.Whole - runtime.Display.DisplayedGameplayPpu.Layer1Position.X;
         int centerY = samus.Position.Y.Whole - runtime.Display.DisplayedGameplayPpu.Layer1Position.Y;
@@ -55,7 +56,7 @@ internal static class CrystalFlashVisualsVerification
         {
             // Remove only the captured color window, retaining identical OAM,
             // palette, terrain and camera to isolate its actual visible contribution.
-            var withoutWindow = SoftwareLayeredSnapshotRenderer.Render(packet.Without<ScanlineColorAddRenderLayer>());
+            var withoutWindow = DisplayRendering.Render(packet.Without<ScanlineColorAddRenderLayer>());
             AssertTrue(pixels.AsSpan(0, 32 * 256).SequenceEqual(withoutWindow.AsSpan(0, 32 * 256)),
                 "Crystal Flash window preserves HUD pixels");
             windowVisible = !pixels.SequenceEqual(withoutWindow);

@@ -6,7 +6,7 @@ namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
-/// <summary>Compares software and Direct3D OBJ rendering across sprite sizes, counts, priorities, and overlap.</summary>
+/// <summary>Compares the WARP reference and the graphics device's Direct3D OBJ rendering across sprite sizes, counts, priorities, and overlap.</summary>
 internal static class ObjectSmokeTests
 {
     /// <summary>Renders seeded OAM and VRAM samples plus a transparent overlapping-sprite case on the given device.</summary>
@@ -54,7 +54,7 @@ internal static class ObjectSmokeTests
         {
             var frame = new DisplayPacket(new(++cases, 1, 0),
                 new LayeredScene(memory, layers, 15));
-            PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame),
+            PixelComparison.Verify(frame, DisplayRendering.Render(frame),
                 renderer.RenderForReadback(frame), $"{device.Kind}: OBJ sample {cases}, OBSEL {obsel}, parts {memory.SpriteParts().Length}");
         }
     }

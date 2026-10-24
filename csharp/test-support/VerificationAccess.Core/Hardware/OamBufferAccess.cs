@@ -128,9 +128,9 @@ internal static class OamBufferAccess
         /// <summary>Sprites appended since <see cref="OamBuffer.BeginFrame"/>, counted by the record cursor (a wrapped cursor counts from zero again).</summary>
         public int AppendedSpriteCount => self.NextByteOffset / OamBuffer.LowRecordByteCount;
         /// <summary>
-        /// Restores a complete physical OAM image for a software render consumer. The
-        /// physical image has no construction cursor. Retain the producer's modeled
-        /// sprite count because existing raster kernels deliberately stop at that count.
+        /// Restores a complete physical OAM image for a fixture. The physical image has no
+        /// construction cursor, so the producer's modeled sprite count is retained: it bounds
+        /// the sprites read from the image.
         /// </summary>
         [PpuLayoutAccess]
         public void LoadUploadPayload(ReadOnlySpan<byte> payload, int modeledSpriteCount)

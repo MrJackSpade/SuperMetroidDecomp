@@ -3,7 +3,6 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using System.Text;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Map.Artwork;
@@ -25,7 +24,7 @@ internal static class InstalledPowerBombIsolationTests
     /// <summary>JSON options: Camel-case property names.</summary>
     private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
-    /// <summary>Runs five installed palette edits through Power Bomb and Crystal Flash, comparing mechanics, color windows, cleanup, and software/D3D pixels.</summary>
+    /// <summary>Runs five installed palette edits through Power Bomb and Crystal Flash, comparing mechanics, color windows, cleanup, and WARP/D3D pixels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(string installationRoot)
     {
@@ -77,8 +76,8 @@ internal static class InstalledPowerBombIsolationTests
                         Require(expected == actual, context + ": cleanup result differs");
                         if (replacement.Phase == PowerBombExplosionPhase.CrystalFlashAfterglow)
                             CheckEditedRestore(replacement, stock.PowerBombFixedColors, context);
-                        var first = SnesGameplayFrameRenderer.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(baseline), new Position16<RoomPixels>(0, 0));
-                        var second = SnesGameplayFrameRenderer.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(replacement), new Position16<RoomPixels>(0, 0));
+                        var first = GameplayEffectCapture.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(baseline), new Position16<RoomPixels>(0, 0));
+                        var second = GameplayEffectCapture.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(replacement), new Position16<RoomPixels>(0, 0));
                         RequireSameGeometry(first, second, context);
                         if (Colors(baseline) != Colors(replacement)) changedColors++;
                         if (second is not null)
@@ -91,7 +90,7 @@ internal static class InstalledPowerBombIsolationTests
                             // selected expanded RGB, not merely different from stock.
                             ColorAddWindow center = second.Windows[112];
                             if (center.Left <= 128 && center.Right >= 128)
-                                Require(SoftwareFrameSnapshotRenderer.Render(packet)[112 * packet.Size.X + 128] ==
+                                Require(DisplayRendering.Render(packet)[112 * packet.Size.X + 128] ==
                                     new Rgba32(checked((byte)center.Red), checked((byte)center.Green), checked((byte)center.Blue)), context + ": edited RGB did not reach pixels");
                         }
                         comparisons++;
@@ -122,10 +121,10 @@ internal static class InstalledPowerBombIsolationTests
                 foreach (var sample in framesToRender)
                 {
                     var restored = sample.Frame;
-                    PixelComparison.Verify(restored, SoftwareFrameSnapshotRenderer.Render(restored),
+                    PixelComparison.Verify(restored, DisplayRendering.Render(restored),
                         renderer.RenderForReadback(restored), $"{kind}: {sample.Context}");
                 }
-                Console.WriteLine($"{kind}: {framesToRender.Count} edited explosion frames match software.");
+                Console.WriteLine($"{kind}: {framesToRender.Count} edited explosion frames match the WARP reference.");
             }
             Console.WriteLine($"Power Bomb/Crystal Flash isolation: {comparisons} full mutable-state/window comparisons, " +
                 $"{changedColors} changed color observations; disk selection/removal verified. No ROM or player data used.");

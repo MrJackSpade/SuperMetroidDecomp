@@ -11,6 +11,7 @@
     <ProjectReference Include="../SuperMetroid.Rendering.Direct3D11/SuperMetroid.Rendering.Direct3D11.csproj" />
   </ItemGroup>
   <Import Project="../../test-support/RepositoryInstallation.projitems" />
+  <Import Project="../../test-support/FrameCapture.projitems" />
   <Import Project="../../test-support/ScenarioFixtures.projitems" />
   <Import Project="../../test-support/CatalogInventories.projitems" />
 </Project>

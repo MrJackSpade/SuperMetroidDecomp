@@ -1,10 +1,10 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Hud;
@@ -124,7 +124,7 @@ internal static class ReserveAutoFrontendVerification
             else
                 AssertTrue(samus.Control.Mode.Beta != SamusBetaHandler.ScriptLocked,
                     "completion restores the normal animation handler on the same frame");
-            var pixels = SoftwareFrameSnapshotRenderer.Render(capture.Snapshot);
+            var pixels = DisplayRendering.Render(capture.Snapshot);
             foreach ((int index, int digit) in new[] { new VerifyReserveAutoFrontendCase(70, frame / 10), new VerifyReserveAutoFrontendCase(71, frame % 10) })
             {
                 AssertEqual(ReadRetailHudDigitTile(bus, digit), runtime.AcceptedLayer3Plane.Words[Layer3Plane.Columns + index],

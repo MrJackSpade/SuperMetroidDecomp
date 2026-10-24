@@ -1,7 +1,6 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Saves;
@@ -26,8 +25,6 @@ internal static class InstalledFileSelectMapVerification
         var installed = new FileSelectMapMenuState(new CartridgeAudioState(), slot, 0, original, MenuSheetFixtures.For(original));
 
         // One raster per side: the two captured renders are compared with each other.
-        var nativeRaster = new Rgba32[256 * 224];
-        var installedRaster = new Rgba32[256 * 224];
         void StepBoth(SnesButton input)
         {
             control.Step(input);
@@ -38,8 +35,8 @@ internal static class InstalledFileSelectMapVerification
             AssertTrue(control.Render().SequenceEqual(installed.Render()), "installed map navigation renders exact stock frame");
             if (verifyCapturedRendering)
             {
-                var nativePixels = SoftwareLayeredSnapshotRenderer.Render(control.CaptureRenderSnapshot(), nativeRaster);
-                var installedPixels = SoftwareLayeredSnapshotRenderer.Render(installed.CaptureRenderSnapshot(), installedRaster);
+                var nativePixels = DisplayRendering.Render(control.CaptureRenderSnapshot());
+                var installedPixels = DisplayRendering.Render(installed.CaptureRenderSnapshot());
                 AssertTrue(nativePixels.SequenceEqual(installedPixels), "installed map render captures retain native pixels through every transition");
                 AssertTrue(installed.Render().SequenceEqual(installedPixels), "captured and direct map rendering agree");
             }

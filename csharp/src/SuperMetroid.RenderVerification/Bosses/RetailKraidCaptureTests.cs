@@ -5,7 +5,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Poses;
@@ -140,32 +139,19 @@ internal static class RetailKraidCaptureTests
     }
 
     /// <summary>
-    /// Requires every BG2 tile the screen shows to be Kraid's blank tile. Once he has sunk, <c>$A7:C715</c> and
-    /// <c>$A7:C751</c> fill BG2's 32x32 map with <c>$0338</c>, so nothing of his body or the room's BG2 remains (#1427).
-    /// Where BG2 draws his body from its pictures (#1392, #1403), the words they picture are his latched body's.
+    /// Requires every BG2 tile to be Kraid's blank tile. Once he has sunk, <c>$A7:C715</c> and <c>$A7:C751</c> fill
+    /// BG2's 32x32 map with <c>$0338</c>, so nothing of his body or the room's BG2 remains (#1427). BG2 draws his body
+    /// from its pictures (#1392, #1403), so the frame must still show his body, and every word of his latched body must
+    /// be the blank tile.
     /// </summary>
     private static void RequireBlankBg2(SuperMetroidRuntime runtime, string context)
     {
         LayeredScene scene = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var gameplay = (OrdinaryGameplayRenderLayer)scene.Layers[0];
-        IBgSource bg2 = gameplay.Rooms.Bg2Shown(gameplay.View.Bg2MapSize);
-        var shown = new SortedSet<ushort>();
-        for (int line = 0; line < SnesPpuLayout.ScreenHeightPixels - SnesPpuLayout.GameplayHudHeightPixels; line += 4)
-        {
-            Position16<Bg2Pixels> scroll = gameplay.Bg2ScrollAt(line);
-            for (int x = 0; x < SnesPpuLayout.ScreenWidthPixels; x += 4)
-            {
-                var at = new Position16<BgPlanePixels>(unchecked((ushort)(scroll.X + x)),
-                    unchecked((ushort)(scroll.Y + SnesPpuLayout.GameplayHudHeightPixels + line)));
-                if (bg2.TrySample(at, out BgSample _))
-                {
-                    if (gameplay.Rooms.BossBg2 is null)
-                        throw new InvalidOperationException($"{context}: BG2 shows the room's own background where Kraid's tilemap was expected.");
-                    shown.UnionWith(runtime.Display.Latched.Bosses.KraidBody?.Tilemap.Words
-                        ?? throw new InvalidOperationException($"{context}: BG2 shows a boss body Kraid has not latched."));
-                }
-            }
-        }
+        if (gameplay.Rooms.BossBg2 is null)
+            throw new InvalidOperationException($"{context}: BG2 shows the room's own background where Kraid's tilemap was expected.");
+        var shown = new SortedSet<ushort>(runtime.Display.Latched.Bosses.KraidBody?.Tilemap.Words
+            ?? throw new InvalidOperationException($"{context}: BG2 shows a boss body Kraid has not latched."));
         if (shown.Any(word => word != KraidBackgroundRomData.BlankTile))
             throw new InvalidOperationException($"{context}: BG2 shows {string.Join(", ", shown.Select(word => $"${word:X4}"))}; only the blank tile ${KraidBackgroundRomData.BlankTile:X4} remains on the cartridge.");
     }
@@ -182,7 +168,7 @@ internal static class RetailKraidCaptureTests
         return packet =>
         {
             frame++;
-            if (!SoftwareFrameSnapshotRenderer.Render(packet).AsSpan(0, hudPixels).SequenceEqual(before))
+            if (!DisplayRendering.Render(packet).AsSpan(0, hudPixels).SequenceEqual(before))
                 throw new InvalidOperationException($"{context}: door frame {frame} changed the HUD.");
         };
     }

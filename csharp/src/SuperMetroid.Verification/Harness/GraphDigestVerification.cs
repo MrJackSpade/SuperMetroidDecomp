@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using SuperMetroid.Diagnostics.SaveStates;
@@ -80,16 +81,11 @@ internal static class GraphDigestVerification
             }
         return true;
     }
-    /// <summary>Scratch raster for immediate packet comparison; callers must not retain or cross-compare returned arrays.</summary>
-    private static readonly SuperMetroid.Core.Hardware.Rgba32[] comparisonRaster =
-        new SuperMetroid.Core.Hardware.Rgba32[SuperMetroid.Core.Hardware.SnesPpuLayout.ScreenWidthPixels *
-            SuperMetroid.Core.Hardware.SnesPpuLayout.ScreenHeightPixels];
-
-    /// <summary>Renders a packet into shared scratch pixels for an immediate comparison.</summary>
+    /// <summary>The pixels a packet shows, for a comparison.</summary>
     internal static SuperMetroid.Core.Hardware.Rgba32[] RenderForComparison(SuperMetroid.Core.Rendering.DisplayPacket frame) =>
-        SuperMetroid.Core.Rendering.SoftwareFrameSnapshotRenderer.Render(frame, comparisonRaster);
+        DisplayRendering.Render(frame);
 
-    /// <summary>Renders a layered scene into shared scratch pixels for an immediate comparison.</summary>
+    /// <summary>The pixels a layered scene shows, for a comparison.</summary>
     internal static SuperMetroid.Core.Hardware.Rgba32[] RenderForComparison(SuperMetroid.Core.Rendering.LayeredScene frame) =>
-        SuperMetroid.Core.Rendering.SoftwareLayeredSnapshotRenderer.Render(frame, comparisonRaster);
+        DisplayRendering.Render(frame);
 }

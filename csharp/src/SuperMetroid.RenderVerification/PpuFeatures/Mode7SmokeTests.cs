@@ -8,10 +8,10 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
-/// <summary>Checks D3D11 Mode 7 rendering against software output over native PPU geometry.</summary>
+/// <summary>Checks D3D11 Mode 7 rendering against the WARP reference over native PPU geometry.</summary>
 internal static class Mode7SmokeTests
 {
-    /// <summary>Compares scale, offset, overflow, ordered-layer, HUD, and floor-band cases with exact software pixels.</summary>
+    /// <summary>Compares scale, offset, overflow, ordered-layer, HUD, and floor-band cases with the WARP reference's exact pixels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
@@ -72,7 +72,7 @@ internal static class Mode7SmokeTests
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact Mode 7 comparisons passed.");
 
         void Check(DisplayPacket frame) => PixelComparison.Verify(frame,
-            SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
+            DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
             $"{device.Kind}: Mode 7 sample {count}");
     }
 }

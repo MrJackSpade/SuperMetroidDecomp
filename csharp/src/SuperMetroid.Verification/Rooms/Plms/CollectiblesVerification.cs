@@ -601,30 +601,13 @@ internal static class CollectiblesVerification
         AssertEqual((ushort)0x3ce1, message.Tilemap[0x12a / 2],
             "large item message patches configured shoot-button glyph");
 
-        // Exercise the resulting centered HDMA clip and temporary message palette. A
-        // palette-six/color-one character must use $0BB1 rather than gameplay CGRAM 25.
-        var vram = new SnesVram();
-        var character = new byte[16];
-        for (int row = 0; row < 8; row++)
-            character[row * 2] = 0xff;
-        vram.LoadBytes((0x4000 + 8) * 2, character);
-        var cgram = new SnesCgram();
-        cgram.SetColor(25, Bgr555.FromWord(0x7fff));
-        var frame = new SuperMetroid.Core.Hardware.Rgba32[256 * 224];
         message.Step(0); // radius 0
         message.Step(0); // radius 2: visible scanlines 122-125
-        GameplayMessageBoxRendererConstants.Composite(frame, message, vram, cgram);
-        AssertEqual(default(SuperMetroid.Core.Hardware.Rgba32), frame[121 * 256],
-            "message HDMA clip leaves scanline above radius untouched");
-        AssertEqual(
-            Bgr555.FromWord(0x0bb1).ToRgba32(),
-            frame[122 * 256],
-            "message renderer applies temporary CGRAM color 25 inside clip");
 
         // Retail message $14 is the map-station message. Its definition chooses the
         // small-border drawing routine but delimits three complete content rows. This
         // verifies the native variable-length copy instead of inferring height from the
-        // border routine's name, and exercises that shape through the compositor too.
+        // border routine's name.
         message = CreatePermanentMessageFixture();
         message.Begin(GameplayMessageIds.MapDataAccessCompleted, 0);
         for (int preparingFrame = 0; preparingFrame < 7; preparingFrame++)
@@ -637,8 +620,6 @@ internal static class CollectiblesVerification
             "map-station message copies the third variable-height content row");
         message.Step(0);
         message.Step(0);
-        Array.Clear(frame);
-        GameplayMessageBoxRendererConstants.Composite(frame, message, vram, cgram);
 
         // Completion notices $14/$15/$16/$18 use the short `$000A` wait at
         // `$85:847A`; item descriptions use `$0168`. Prove the map-station path reaches
@@ -695,6 +676,15 @@ internal static class CollectiblesVerification
             "unsupported message identifies numeric ID and source context");
     }
 
+    /// <summary>The colour the suit pickup's captured beam window adds at a screen pixel; nothing outside its window.</summary>
+    private static (int Red, int Green, int Blue) SuitAddition(SamusSuitPickupFlash? flash, int x, int y)
+    {
+        if (GameplayEffectCapture.CaptureSuitPickup(flash) is not { } layer)
+            return (0, 0, 0);
+        ColorAddWindow window = layer.Windows[y];
+        return x >= window.Left && x <= window.Right ? (window.Red, window.Green, window.Blue) : (0, 0, 0);
+    }
+
     /// <summary>Checks suit-pickup window staging, beam curve, palette reveal, input release, and Gravity priority.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifySuitPickupTransformation()
@@ -734,9 +724,7 @@ internal static class CollectiblesVerification
         // scanlines at each edge with the one-pixel `$7878` beam.
         MotherBrainBeamWindowVerification.AssertOwnsNoScanlineTable(typeof(SamusSuitPickupState));
         AssertEqual(SamusSuitPickupBeam.None, pickup.Beam, "suit setup publishes an empty beam");
-        var pixels = new SuperMetroid.Core.Hardware.Rgba32[256 * 224];
-        SamusSuitPickupRendererConstants.Composite(pixels, pickup.Flash);
-        AssertEqual(default(SuperMetroid.Core.Hardware.Rgba32), pixels[0],
+        AssertEqual((0, 0, 0), SuitAddition(pickup.Flash, 0, 0),
             "initial inverted suit window applies no fixed color");
         // The HDMA instruction list spends two handler calls before installing the
         // stage pre-instruction ($91:D5A2): neither changes the window table.
@@ -757,11 +745,10 @@ internal static class CollectiblesVerification
             "stage zero narrows first bottom scanline");
         AssertEqual((ushort)0x00ff, stageZero[8],
             "stage zero changes exactly eight top scanlines per frame");
-        Array.Clear(pixels);
-        SamusSuitPickupRendererConstants.Composite(pixels, pickup.Flash);
-        AssertTrue(pixels[120].R != 0 && pixels[120].G != 0,
+        (int Red, int Green, int Blue) beamPixel = SuitAddition(pickup.Flash, 120, 0);
+        AssertTrue(beamPixel.Red != 0 && beamPixel.Green != 0,
             "stage-zero one-pixel beam receives fixed color");
-        AssertEqual(default(SuperMetroid.Core.Hardware.Rgba32), pixels[119],
+        AssertEqual((0, 0, 0), SuitAddition(pickup.Flash, 119, 0),
             "pixel beside stage-zero beam remains outside color window");
 
         int transformationFrames = 1;

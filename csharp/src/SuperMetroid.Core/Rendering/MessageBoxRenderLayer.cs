@@ -52,6 +52,20 @@ public sealed record MessageBoxRenderLayer : RenderLayer
         .With(GameplayMessageRomData.Palette.TemporaryLightIndex, GameplayMessageRomData.Palette.TemporaryLightColor)
         .With(GameplayMessageRomData.Palette.TemporaryDarkIndex, GameplayMessageRomData.Palette.TemporaryDarkColor);
 
+    /// <summary>Publishes the image of the currently exposed message (#1392); inactive or zero-radius messages emit none.</summary>
+    /// <param name="messageBox">The message box state.</param>
+    /// <param name="messages">The room's message box images; required while a message is exposed.</param>
+    /// <exception cref="InvalidOperationException">A message is exposed with no room's message box images.</exception>
+    /// <exception cref="InvalidDataException">The images picture no message of the words shown.</exception>
+    public static MessageBoxRenderLayer? Capture(GameplayMessageBoxState messageBox, MessageBoxSheet? messages)
+    {
+        Ensure.NotNull(messageBox);
+        if (!messageBox.IsActive || messageBox.RadiusPixels == 0)
+            return null;
+        return FromTilemap(messageBox.Tilemap, messageBox.RadiusPixels, messages
+            ?? throw new InvalidOperationException("An exposed message box requires the room's message box images."));
+    }
+
     /// <summary>The layer showing the image <paramref name="sheet"/> pictures <paramref name="tilemap"/> with.</summary>
     /// <param name="tilemap">The message's packed tilemap words, 32 per row.</param>
     /// <param name="radiusPixels">The reveal half-height in pixels.</param>

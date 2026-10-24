@@ -7,7 +7,6 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
@@ -17,7 +16,6 @@ using SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Harness.VerificationAssert;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
@@ -79,7 +77,7 @@ internal static class MotherBrainPicturesVerification
                     new MotherBrainWorldFrame(frame, head.Position.Whole, head.PaletteIndex, head.VramTilesIndex), camera);
                 sprites.FinalizeFrame();
                 ImmutableArray<SpriteDraw> pictures = [.. sprites.Draws];
-                UploadedPictureChecks.AssertPaintsLikeParts(runtime, pictures,
+                UploadedPictureChecks.AssertPaintsLikeParts(pictures,
                     [.. pictures.Select(draw => SheetFrameSources.CharacterDraw(AssertIs<ImageSpriteDraw>(draw, $"Mother Brain {frame} {context}: draws from a sheet"), rotted))],
                     $"Mother Brain {frame} {context}");
                 drawn++;

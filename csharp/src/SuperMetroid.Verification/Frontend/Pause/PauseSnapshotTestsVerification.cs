@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using static SuperMetroid.Verification.Bosses.BossMapMarkersVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PausePaletteSoundVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveArrowRebindVerification;
@@ -48,10 +49,10 @@ internal static class PauseSnapshotTestsVerification
         {
             Rgba32[] expected = pause.Render();
             LayeredScene packet = pause.CaptureRenderSnapshot();
-            Match(expected, SoftwareFrameSnapshotRenderer.Render(
+            Match(expected, DisplayRendering.Render(
                 new DisplayPacket(new(frame + 1, 1, (ushort)frame), packet)), frame);
-            Match(expected, SoftwareLayeredSnapshotRenderer.Render(packet), frame);
-            Match(expected, SoftwareLayeredSnapshotRenderer.Render(packet), frame);
+            Match(expected, DisplayRendering.Render(packet), frame);
+            Match(expected, DisplayRendering.Render(packet), frame);
             LayeredScene repeated = pause.CaptureRenderSnapshot();
             AssertTrue(packet.Paint.SpriteParts().SequenceEqual(repeated.Paint.SpriteParts()), "repeat pause capture OAM");
             pages.Add(pause.ScreenMode);
@@ -59,7 +60,7 @@ internal static class PauseSnapshotTestsVerification
             SnesButton input = frame == 8 ? SnesButton.R
                 : frame == 80 ? SnesButton.L : 0;
             pause.Step(input, input);
-            Match(expected, SoftwareLayeredSnapshotRenderer.Render(packet), frame);
+            Match(expected, DisplayRendering.Render(packet), frame);
         }
         AssertEqual(2, pages.Count, "snapshot covers map and equipment");
         AssertEqual(16, levels.Count, "snapshot covers every page-fade brightness");

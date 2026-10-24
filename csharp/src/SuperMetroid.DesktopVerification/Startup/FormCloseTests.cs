@@ -10,25 +10,24 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 internal static class FormCloseTests
 {
     /// <summary>Closes during or after renderer startup and requires the worker to stop before HWND destruction.</summary>
-    internal static async Task VerifyFormClose(RendererSelection renderer, bool duringStartup)
+    internal static async Task VerifyFormClose(bool duringStartup)
     {
         using var directoryScratch = new TestScratchDirectory("desktop-renderer");
         string directory = directoryScratch.Root;
         Directory.CreateDirectory(directory);
         string rom = PlaceInstalledRom(directory);
-        using var form = new GameForm(DesktopAccess.InstallationFor(rom), new HostOptions { Renderer = renderer, AudioEnabled = false });
+        using var form = new GameForm(DesktopAccess.InstallationFor(rom), new HostOptions { AudioEnabled = false });
         _ = form.Handle;
         var control = form.gameControl;
         _ = control.Handle;
         control.SetPlaying(false);
         Task startup = control.InitializeRendererAsync();
-        D3D11RenderWorker? worker = renderer == RendererSelection.Direct3D11
-            ? control.gpuWorker : null;
+        D3D11RenderWorker worker = control.gpuWorker ?? throw new InvalidOperationException("Host has no GPU worker.");
         try
         {
             if (!duringStartup) await startup;
             bool destroyedBeforeWorkerStopped = false;
-            control.HandleDestroyed += (_, _) => destroyedBeforeWorkerStopped |= worker is { Completion.IsCompleted: false };
+            control.HandleDestroyed += (_, _) => destroyedBeforeWorkerStopped |= !worker.Completion.IsCompleted;
             form.Close();
             long deadline = Environment.TickCount64 + 10000;
             while (!form.IsDisposed)
@@ -38,7 +37,7 @@ internal static class FormCloseTests
             }
             await startup;
             Check(!destroyedBeforeWorkerStopped, "canvas HWND destroyed before GPU owner stopped");
-            Check(worker is null || worker.Completion.IsCompletedSuccessfully, "form close did not join GPU owner");
+            Check(worker.Completion.IsCompletedSuccessfully, "form close did not join GPU owner");
             Check(form.rendererStopped, "form did not complete its renderer shutdown path");
         }
         finally
@@ -46,6 +45,6 @@ internal static class FormCloseTests
             if (!control.IsDisposed) await control.StopRendererAsync();
         }
         Directory.Delete(directory, recursive: true);
-        Console.WriteLine($"  GameForm close: {renderer}, during startup={duringStartup}; HWND outlives worker.");
+        Console.WriteLine($"  GameForm close: during startup={duringStartup}; HWND outlives worker.");
     }
 }

@@ -7,7 +7,7 @@ namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
-/// <summary>Compares D3D11 and software windowed-scene rendering across native PPU geometry and brightness cases.</summary>
+/// <summary>Compares D3D11 on the graphics device and the WARP reference's windowed-scene rendering across native PPU geometry and brightness cases.</summary>
 internal static class WindowSceneSmokeTests
 {
     /// <summary>Checks parent/child window pixels and exact upload counts, including clipped empty windows and a child reused twice.</summary>
@@ -48,7 +48,7 @@ internal static class WindowSceneSmokeTests
                     background,
                     new ObjPriorityRenderLayer(3), window, new FixedColorAddRenderLayer(1,2,3) }, 13), [new FadeLevel(11)]);
             var before = renderer.UploadStatistics;
-            PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
+            PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: scene window {count}, edges {edges}, brightness {brightness}");
             var after = renderer.UploadStatistics;
             int children = edges.Left == edges.Right || edges.Top == edges.Bottom ? 0 : 2;

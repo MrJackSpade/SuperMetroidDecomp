@@ -16,7 +16,7 @@ using SuperMetroid.Core.Progression;
 /// <summary>Checks D3D11 output against production rendering during the retail Morph Ball eye-beam sequence.</summary>
 internal static class RetailEyeCaptureTests
 {
-    /// <summary>Advances 96 eye activation frames and compares captured, serialized render packets with software-rendered pixels, including first and full beam visibility.</summary>
+    /// <summary>Advances 96 eye activation frames and compares captured, serialized render packets with the WARP reference's pixels, including first and full beam visibility.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var runtime = RepositoryInstallation.CreateRuntime();

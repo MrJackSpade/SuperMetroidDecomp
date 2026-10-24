@@ -24,33 +24,4 @@ public sealed class Layer3Cells
 
     /// <summary>Each cell's picture, row-major.</summary>
     public ImmutableArray<BgTilePicture> Pictures { get; }
-
-    /// <summary>
-    /// A window of the plane as BG3 shows it: <paramref name="rows"/> rows from <paramref name="firstRow"/>, repeating
-    /// every 256 pixels across and every <paramref name="rows"/> rows down.
-    /// </summary>
-    /// <param name="firstRow">The first row: 0 for the whole plane or the HUD, 32 for an atmosphere's page.</param>
-    /// <param name="rows">32 or 64.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The rows are not a window of the plane.</exception>
-    public IBgSource Shown(int firstRow, int rows)
-    {
-        if (rows is not (32 or 64) || firstRow < 0 || firstRow + rows > Layer3Plane.Rows)
-            throw new ArgumentOutOfRangeException(nameof(rows), rows, $"Rows {firstRow}..{firstRow + rows - 1} are not a window of the plane.");
-        return new Window(this, firstRow, rows);
-    }
-
-    /// <summary>A window of the plane, each cell drawn from its picture.</summary>
-    private sealed class Window(Layer3Cells plane, int firstRow, int rows) : IBgSource
-    {
-        /// <inheritdoc />
-        public bool TrySample(Position16<BgPlanePixels> scrolled, out BgSample sample)
-        {
-            const int tile = 8;
-            int row = firstRow + scrolled.Y / tile % rows, column = scrolled.X / tile % Layer3Plane.Columns;
-            BgTilePicture picture = plane.Pictures[row * Layer3Plane.Columns + column];
-            sample = BgSample.OfPicture(picture.Picture, new Position16<ImagePixels>(
-                (ushort)(picture.Corner.X + scrolled.X % tile), (ushort)(picture.Corner.Y + scrolled.Y % tile)));
-            return true;
-        }
-    }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
@@ -6,7 +7,6 @@ using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Frontend.Ending;
 
@@ -48,7 +48,7 @@ internal static class EndingExplosionSlotOrderVerification
         AssertTrue(actual.SpriteParts().All(part => part.Part.Priority == 0), "live flyaway actors use native priority zero");
         var fixedWhite = snapshot.LayersOf<FixedColorAddRenderLayer>().Single();
         RenderLayer[] order = [fixedWhite, new ObjRenderLayer(FixedColor: fixedWhite), background];
-        var nativePixels = SoftwareLayeredSnapshotRenderer.Render(new(actual, order, snapshot.Brightness));
+        var nativePixels = DisplayRendering.Render(new LayeredScene(actual, order, snapshot.Brightness));
         var actualPixels = ending.Render();
 
         AssertTrue(actualPixels.SequenceEqual(nativePixels),

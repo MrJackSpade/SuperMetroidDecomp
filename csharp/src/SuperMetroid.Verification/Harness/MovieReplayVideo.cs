@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Frontend;
@@ -47,7 +48,7 @@ internal sealed class MovieReplayVideo : IDisposable
     {
         CapturedFrontendFrame captured = game.StepCaptured(input, ++sequence, 1);
         DisplayPacket snapshot = captured.Snapshot;
-        Rgba32[] pixels = SoftwareFrameSnapshotRenderer.Render(snapshot);
+        Rgba32[] pixels = DisplayRendering.Render(snapshot);
         if (encoder is null)
         {
             size = snapshot.Size;

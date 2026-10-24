@@ -51,10 +51,10 @@ internal static class InstalledSporesTests
                 using var renderer = new D3D11FrameRenderer(device);
                 foreach (DisplayPacket packet in packets)
                 {
-                    PixelComparison.Verify(packet, SoftwareFrameSnapshotRenderer.Render(packet),
+                    PixelComparison.Verify(packet, DisplayRendering.Render(packet),
                         renderer.RenderForReadback(packet), $"{kind}: spores case {packet.Identity}");
                 }
-                Console.WriteLine($"{kind}: {packets.Count} spore/source-priority frames match software exactly.");
+                Console.WriteLine($"{kind}: {packets.Count} spore/source-priority frames match the WARP reference exactly.");
             }
             CheckFileFailures(maps, overrides);
             foreach (string file in Directory.GetFiles(overrides)) File.Delete(file);
@@ -149,7 +149,7 @@ internal static class InstalledSporesTests
                             Bg3 = Layer3CellsFixtures.FromWords(Layer3Plane.Compose(new ushort[Layer3Plane.HudRows * Layer3Plane.Columns],
                                 replacement.EffectPageWords()).Words, new byte[SnesPpuLayout.VramByteCount], new Bgr555[SnesPpuLayout.CgramColorCount]),
                         });
-                    var layer = SnesGameplayFrameRenderer.CaptureSpores(gameplay, (replacement.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires replacement.CaptureForDisplay().")));
+                    var layer = GameplayEffectCapture.CaptureSpores(gameplay, (replacement.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires replacement.CaptureForDisplay().")));
                     Require(!layer.RevealBlocks && layer.Blend.Layers == (ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop) &&
                         layer.Lines.All(line => line.Left > line.Right) && layer.Subscreen is not null,
                         "Spore capture does not blend the background, the sprites and the backdrop with the spores.");
@@ -368,13 +368,13 @@ internal static class InstalledSporesTests
             var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
                 ScreenLayers.Sprites | ((enabled & 1) != 0 ? ScreenLayers.Bg1 : 0) |
                     ((enabled & 2) != 0 ? ScreenLayers.Bg2 : 0));
-            var layer = SnesGameplayFrameRenderer.CaptureSpores(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, colors.Colors, new((ushort)(1 | (bg1High ? 0x2000 : 0)))) with
+            var layer = GameplayEffectCapture.CaptureSpores(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, colors.Colors, new((ushort)(1 | (bg1High ? 0x2000 : 0)))) with
                 {
                     Bg3 = Layer3CellsFixtures.FromVram(vram.Bytes, colors.Colors, 0x4000),
                 }),
                 new(RoomFxType.Spores, LayerBlendingConfiguration.Spores, Position16<Bg3Pixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue)));
             var scene = new LayeredScene(FramePaint.FromOam(vram.Bytes, colors.Colors, oam, 1, 0), [layer], 15);
-            Rgba32[] pixels = SoftwareLayeredSnapshotRenderer.Render(scene);
+            Rgba32[] pixels = DisplayRendering.Render(scene);
             // Independent Mode-1 priority and integer BGR555 oracle. A color-only
             // post-process cannot distinguish excluded BG1/low OBJ from BG2 here.
             foreach (bool objectPixel in new[] { false, true })

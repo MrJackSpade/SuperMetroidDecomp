@@ -20,22 +20,4 @@ public sealed class RoomOverlayPictures
 
     /// <summary>Each tilemap position's picture, or null where nothing was written.</summary>
     public ImmutableArray<BgTilePicture?> Pictures { get; }
-
-    /// <summary>
-    /// What the overlay shows at a scrolled position of a tilemap laid out as <paramref name="mapSize"/>: its written
-    /// word's picture pixel; false where nothing was written.
-    /// </summary>
-    public bool TrySampleAt(Position16<BgPlanePixels> scrolled, Extent16<TilemapCells> mapSize, out BgSample sample)
-    {
-        int index = RoomTilemapOverlay.IndexAt(scrolled, mapSize);
-        if (index >= Pictures.Length || Pictures[index] is not { } picture)
-        {
-            sample = default;
-            return false;
-        }
-        const int tile = 8;
-        sample = BgSample.OfPicture(picture.Picture, new Position16<ImagePixels>(
-            (ushort)(picture.Corner.X + scrolled.X % tile), (ushort)(picture.Corner.Y + scrolled.Y % tile)));
-        return true;
-    }
 }

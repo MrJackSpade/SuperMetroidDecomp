@@ -15,9 +15,6 @@ public sealed record HostOptions
     /// <summary>The option values the game reads.</summary>
     public SuperMetroidGameOptions Game { get; init; } = new();
 
-    /// <summary>Prefer hardware rendering; report startup failure before selecting the software reference backend.</summary>
-    public RendererSelection Renderer { get; init; } = RendererSelection.Auto;
-
     /// <summary>Whether the host creates its audio output device and plays the game's audio frames.</summary>
     public bool AudioEnabled { get; init; } = true;
 

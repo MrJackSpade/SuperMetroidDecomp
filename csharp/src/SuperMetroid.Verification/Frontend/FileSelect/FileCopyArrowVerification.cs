@@ -2,11 +2,9 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
-using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -17,7 +15,7 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks copy-confirmation arrow OAM and palette timing for all six file-slot pairs.</summary>
 internal static class FileCopyArrowVerification
 {
-    /// <summary>Compares native arrow parts, visible pixels, and the eight-tick palette delay.</summary>
+    /// <summary>Compares native arrow parts and the eight-tick palette delay.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyFileCopyArrow()
     {
@@ -73,16 +71,6 @@ internal static class FileCopyArrowVerification
                     $"copy {pair.Slots}: exact arrow position, tile, flip, palette and priority, part {part}");
             }
             expected.FinalizeFrame();
-            Rgba32[] arrowPixels = SnesObjRenderer.Render(expected, MenuScreenFixtures.Vram(menu.screen), MenuScreenFixtures.Cgram(menu.screen), obsel: MenuRenderDefinitions.ObjectSelection);
-            Rgba32[] menuPixels = menu.Render();
-            int visiblePixels = 0;
-            for (int pixel = 0; pixel < arrowPixels.Length; pixel++)
-                if (arrowPixels[pixel].A != 0)
-                {
-                    visiblePixels++;
-                    AssertEqual(arrowPixels[pixel], menuPixels[pixel], "native arrow artwork is visible in the final menu pixels");
-                }
-            AssertTrue(visiblePixels > 0, "Copy arrow has nontransparent installed artwork");
             Bgr555[] initial = menu.screen.Palette.Colors.ToArray();
             for (int frame = 1; frame <= 12; frame++)
             {

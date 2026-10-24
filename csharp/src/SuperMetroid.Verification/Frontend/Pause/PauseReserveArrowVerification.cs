@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Frontend;
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveArrowRebindVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -77,7 +78,7 @@ internal static class PauseReserveArrowVerification
             colors[102] = Bgr555.FromWord(color6);
             colors[107] = Bgr555.FromWord(colorB);
             var memory = new FramePaint(colors, capture.Paint.SpriteDraws);
-            var expectedPixels = SoftwareLayeredSnapshotRenderer.Render(new(memory, capture.Layers, capture.Brightness));
+            var expectedPixels = DisplayRendering.Render(new LayeredScene(memory, capture.Layers, capture.Brightness));
             AssertTrue(pause.Render().SequenceEqual(expectedPixels), context + " rendered arrow matches native tile/palette writes");
         }
     }

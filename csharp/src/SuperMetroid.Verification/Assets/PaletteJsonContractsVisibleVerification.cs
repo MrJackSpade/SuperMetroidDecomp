@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Tooling;
 using System.Reflection;
@@ -22,7 +23,7 @@ namespace SuperMetroid.Verification.Assets;
 /// <summary>Checks palette JSON edits change visible color while preserving FX clocks and live state.</summary>
 internal static class PaletteJsonContractsVisibleVerification
 {
-    /// <summary>Real compiled FX/animation and software pixels use only installed color data and live RAM.</summary>
+    /// <summary>Real compiled FX/animation and drawn pixels use only installed color data and live RAM.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyPaletteContractVisibleIsolation()
     {
@@ -112,7 +113,10 @@ internal static class PaletteJsonContractsVisibleVerification
         }
     }
 
-    /// <summary>Renders a tile or sprite with one selected CGRAM color to observe the exact RGB5 replacement.</summary>
+    /// <summary>
+    /// Loads both palettes and observes the exact RGB5 replacement: a background colour as the loaded colour itself, a
+    /// sprite colour as the pixels the display renderer draws of a sprite whose characters select it.
+    /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     private static void AssertPaletteContractPixels(ScreenPalette stockColours, ScreenPalette editedColours, int color)
     {
@@ -120,33 +124,37 @@ internal static class PaletteJsonContractsVisibleVerification
         new CgramPalettes(stock).LoadImage(stockColours.Colors);
         var edited = new SnesCgram();
         new CgramPalettes(edited).LoadImage(editedColours.Colors);
-        var vram = new SnesVram();
         int index = color % 16;
         AssertTrue(index != 0, "visible fixture does not confuse transparent color zero with authored color");
+        if (color < SnesCgram.ColorCount / 2)
+        {
+            AssertTrue(stock.Colors[color] == stockColours.Colors[color], "the original background colour is loaded exactly");
+            AssertTrue(edited.Colors[color] == editedColours.Colors[color], "the edited background colour is loaded exactly");
+            AssertTrue(stock.Colors[color] != edited.Colors[color], "the loaded palette carries the installed visual edit");
+            return;
+        }
+        var vram = new SnesVram();
         byte[] tile = new byte[RoomCharacterAtlasFormat.BytesPerTile];
         for (int row = 0; row < 8; row++)
         for (int plane = 0; plane < 4; plane++)
             tile[(plane / 2) * 16 + row * 2 + plane % 2] = (index & 1 << plane) != 0 ? byte.MaxValue : (byte)0;
         vram.LoadBytes(0, tile);
-        Rgba32[] stockPixels, editedPixels;
-        if (color < SnesCgram.ColorCount / 2)
-        {
-            vram.ExecuteWordTransfer([SnesBgTilemapWord.Create(0, color / 16, priority: false)], 1024, 1);
-            stockPixels = SnesBgTilemapRenderer.Render4BppViewport(vram, stock, new BgVramAddresses { TilemapBaseWord = 1024, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = new Extent16<ScreenPixels>(8, 8), TilemapSize = new Extent16<TilemapCells>(32, 32) });
-            editedPixels = SnesBgTilemapRenderer.Render4BppViewport(vram, edited, new BgVramAddresses { TilemapBaseWord = 1024, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = new Extent16<ScreenPixels>(8, 8), TilemapSize = new Extent16<TilemapCells>(32, 32) });
-        }
-        else
-        {
-            var oam = new OamBuffer();
-            oam.BeginFrame();
-            oam.AddOnScreenSpritePart(new SnesSpritemapXWord(0), new SnesSpritemapYByte(0),
-                SnesObjAttributeWord.Create(0, (color - SnesCgram.ColorCount / 2) / 16, 0), new Position16<OamPixels>(0, 0));
-            oam.FinalizeFrame();
-            stockPixels = SnesObjRenderer.Render(oam, vram, stock, obsel: 0, size: new Extent16<ScreenPixels>(8, 8));
-            editedPixels = SnesObjRenderer.Render(oam, vram, edited, obsel: 0, size: new Extent16<ScreenPixels>(8, 8));
-        }
+        var oam = new OamBuffer();
+        oam.BeginFrame();
+        oam.AddOnScreenSpritePart(new SnesSpritemapXWord(0), new SnesSpritemapYByte(0),
+            SnesObjAttributeWord.Create(0, (color - SnesCgram.ColorCount / 2) / 16, 0), new Position16<OamPixels>(0, 0));
+        oam.FinalizeFrame();
+        Rgba32[] stockPixels = SpritePixels(FramePaintConstants.CaptureFrontend(vram, stock, oam, objectSelection: 0));
+        Rgba32[] editedPixels = SpritePixels(FramePaintConstants.CaptureFrontend(vram, edited, oam, objectSelection: 0));
         AssertTrue(stockPixels.All(pixel => pixel == stock.GetRgba(color)), "all original raster pixels have the exact selected RGB5 color");
         AssertTrue(editedPixels.All(pixel => pixel == edited.GetRgba(color)), "all edited raster pixels have the exact replacement RGB5 color");
         AssertTrue(!stockPixels.SequenceEqual(editedPixels), "the real renderer observes the installed visual edit");
+
+        // The 8x8 sprite's pixels at the screen's top-left corner, as the display renderer draws them.
+        static Rgba32[] SpritePixels(FramePaint paint)
+        {
+            Rgba32[] frame = DisplayRendering.Render(new LayeredScene(paint, new RenderLayer[] { new ObjRenderLayer() }, FadeLevel.Full));
+            return [.. Enumerable.Range(0, 64).Select(pixel => frame[pixel / 8 * SnesPpuLayout.ScreenSize.X + pixel % 8])];
+        }
     }
 }

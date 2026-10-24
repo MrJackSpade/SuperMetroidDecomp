@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
@@ -58,8 +59,8 @@ internal static class EndingRewardIconArtworkVerification
                 byte[] actualVram = installedScene.ShownVram();
                 AssertTrue(actualVram.SequenceEqual(expectedVram) &&
                         actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
-                        SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
-                            SoftwareLayeredSnapshotRenderer.Render(expected)),
+                        DisplayRendering.Render(actual).SequenceEqual(
+                            DisplayRendering.Render(expected)),
                     $"reward icon preserves native partial-upload VRAM and pixels at jump frame {jumpFrames}");
             }
             nativeScene.Step();
@@ -171,9 +172,9 @@ internal static class EndingRewardIconArtworkVerification
                     $"{name} supplies every final native upload byte");
                 LayeredScene baseline = EndingCreditsPresentation.CaptureRenderSnapshot(installedScene);
                 LayeredScene changed = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                AssertTrue(!SoftwareLayeredSnapshotRenderer.Render(baseline)
+                AssertTrue(!DisplayRendering.Render(baseline)
                         .SequenceEqual(
-                            SoftwareLayeredSnapshotRenderer.Render(changed)),
+                            DisplayRendering.Render(changed)),
                     $"edited {name} changes visible Mode-7 reward-shot pixels");
                 AssertEqual(0, sceneBus.ForbiddenReadAttempts,
                     $"edited {name} never rereads cartridge icon graphics");

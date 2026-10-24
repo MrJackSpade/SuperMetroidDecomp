@@ -24,14 +24,8 @@ public sealed class FrameTimingCounter
     private long emulationTicks;
     /// <summary>Longest single frame translation in this interval.</summary>
     private long worstEmulationTicks;
-    /// <summary>Total host ticks spent painting the canvas in this interval.</summary>
-    private long paintTicks;
-    /// <summary>Longest canvas paint in this interval.</summary>
-    private long worstPaintTicks;
     /// <summary>Completed translated frames in this interval.</summary>
     private int emulatedFrames;
-    /// <summary>Completed canvas paints in this interval.</summary>
-    private int paintedFrames;
     /// <summary>Wall-clock frame equivalents discarded by bounded catch-up in this interval.</summary>
     private double lateFrames;
 
@@ -70,15 +64,6 @@ public sealed class FrameTimingCounter
         worstEmulationTicks = Math.Max(worstEmulationTicks, elapsedTicks);
     }
 
-    /// <summary>Records one canvas paint, including scaling the native raster to the host.</summary>
-    public void RecordPaint(long elapsedTicks)
-    {
-        Ensure.AtLeastZero(elapsedTicks);
-        paintedFrames++;
-        paintTicks += elapsedTicks;
-        worstPaintTicks = Math.Max(worstPaintTicks, elapsedTicks);
-    }
-
     /// <summary>
     /// Records wall-clock frames deliberately discarded by the bounded catch-up policy.
     /// A nonzero value means the host stopped servicing gameplay long enough to fall behind.
@@ -106,11 +91,8 @@ public sealed class FrameTimingCounter
         double elapsedSeconds = (double)elapsedTicks / timestampFrequency;
         snapshot = new FrameTimingSnapshot(
             emulatedFrames / elapsedSeconds,
-            paintedFrames / elapsedSeconds,
             ToAverageMilliseconds(emulationTicks, emulatedFrames),
             ToMilliseconds(worstEmulationTicks),
-            ToAverageMilliseconds(paintTicks, paintedFrames),
-            ToMilliseconds(worstPaintTicks),
             lateFrames);
 
         intervalStarted = timestamp;
@@ -130,10 +112,7 @@ public sealed class FrameTimingCounter
     {
         emulationTicks = 0;
         worstEmulationTicks = 0;
-        paintTicks = 0;
-        worstPaintTicks = 0;
         emulatedFrames = 0;
-        paintedFrames = 0;
         lateFrames = 0;
     }
 }

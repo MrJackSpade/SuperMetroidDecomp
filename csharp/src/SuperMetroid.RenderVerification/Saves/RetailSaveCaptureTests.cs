@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -61,8 +60,8 @@ internal static class RetailSaveCaptureTests
                 var oam = new OamBuffer(); oam.BeginFrame();
                 runtime.Enemies.DrawEnemyProjectiles(oam, runtime.Room.LoadedCamera.PixelPosition);
                 oam.FinalizeFrame();
-                electricity = SnesObjRenderer.RenderResolved(oam, runtime.Vram, runtime.Cgram.AsPaletteColors(),
-                    GameplayRenderDefinitions.ObjectSelection).Pixels.Any(p => p.A != 0 && (p.R != 0 || p.G != 0 || p.B != 0));
+                // The electricity shows when it places sprites on screen; the frame comparison below checks how they draw.
+                electricity = oam.LastFinalizedSpriteCount > 0;
             }
             var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
             var packet = new DisplayPacket(new(frames + 1, 1, (ushort)frames), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));

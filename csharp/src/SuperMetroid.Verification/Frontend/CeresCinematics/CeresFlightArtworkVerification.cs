@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Text.Json;
@@ -83,8 +84,8 @@ internal static class CeresFlightArtworkVerification
                 AssertTrue(compiled.Brightness == original.Brightness &&
                         compiledVram.SequenceEqual(originalVram) &&
                         compiled.Paint.Colors.SequenceEqual(original.Paint.Colors) &&
-                        SoftwareLayeredSnapshotRenderer.Render(compiled).SequenceEqual(
-                            SoftwareLayeredSnapshotRenderer.Render(original)),
+                        DisplayRendering.Render(compiled).SequenceEqual(
+                            DisplayRendering.Render(original)),
                     $"installed Ceres flight matches native pixels and PPU state at tick {tick}");
             }
             native.StepFrame();
@@ -306,8 +307,8 @@ internal static class CeresFlightArtworkVerification
             "Ceres palette edit does not change graphics VRAM");
         AssertTrue(!stockFrame.Paint.Colors.SequenceEqual(editedFrame.Paint.Colors),
             "Ceres palette edit reaches active CGRAM");
-        AssertTrue(!SoftwareLayeredSnapshotRenderer.Render(stockFrame).SequenceEqual(
-                SoftwareLayeredSnapshotRenderer.Render(editedFrame)),
+        AssertTrue(!DisplayRendering.Render(stockFrame).SequenceEqual(
+                DisplayRendering.Render(editedFrame)),
             "Ceres palette edit changes visible approach pixels");
 
         var restored = new IntroCeresFlightState(new CartridgeAudioState(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
@@ -375,7 +376,7 @@ internal static class CeresFlightArtworkVerification
             }
             AssertEqual(IntroCeresFlightPhase.FlyingIntoCamera, stockFlight.Phase,
                 "visible Ceres edit fixture reaches the front flight phase");
-            AssertTrue(!SoftwareLayeredSnapshotRenderer.Render(stockFlight.CaptureRenderSnapshot())
+            AssertTrue(!DisplayRendering.Render(stockFlight.CaptureRenderSnapshot())
                     .SequenceEqual(RenderForComparison(
                         editedFlight.CaptureRenderSnapshot())),
                 $"edited {name} changes visible Ceres approach pixels");
@@ -406,7 +407,7 @@ internal static class CeresFlightArtworkVerification
             original.StepFrame();
             changed.StepFrame();
         }
-        AssertTrue(!SoftwareLayeredSnapshotRenderer.Render(original.CaptureRenderSnapshot())
+        AssertTrue(!DisplayRendering.Render(original.CaptureRenderSnapshot())
                 .SequenceEqual(RenderForComparison(
                     changed.CaptureRenderSnapshot())),
             "edited front Ceres Mode-7 map changes visible approach pixels");
@@ -425,7 +426,7 @@ internal static class CeresFlightArtworkVerification
             original.StepFrame();
             changed.StepFrame();
         }
-        AssertTrue(!SoftwareLayeredSnapshotRenderer.Render(original.CaptureRenderSnapshot())
+        AssertTrue(!DisplayRendering.Render(original.CaptureRenderSnapshot())
                 .SequenceEqual(RenderForComparison(
                     changed.CaptureRenderSnapshot())),
             "edited rear Ceres Mode-7 map changes visible approach pixels");

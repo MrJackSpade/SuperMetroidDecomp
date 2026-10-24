@@ -15,7 +15,7 @@ internal static class HostToolbarControlsTest
         using var scratch = new TestScratchDirectory("toolbar");
         Directory.CreateDirectory(scratch.Root);
         using var host = DesktopAccess.CreateGameControl(rom,
-            new HostOptions { AudioEnabled = false, Renderer = RendererSelection.Software },
+            new HostOptions { AudioEnabled = false },
             dataDirectory: scratch.Root);
         host.Size = new(900, 760);
         var layout = host.Controls.OfType<TableLayoutPanel>().Single();

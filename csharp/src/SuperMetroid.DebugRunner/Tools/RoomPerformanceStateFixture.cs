@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using System.Diagnostics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -52,7 +53,7 @@ internal static class RoomPerformanceStateFixture
             var result = data.Game.StepCaptured(0, frame, data.Generation);
             lastSnapshot = result.Snapshot;
             long stepped = Stopwatch.GetTimestamp();
-            pixels = SoftwareFrameSnapshotRenderer.Render(result.Snapshot);
+            pixels = DisplayRendering.Render(result.Snapshot);
             long rendered = Stopwatch.GetTimestamp();
             data.Game.CopyAudioFrame(pcm);
             long mixed = Stopwatch.GetTimestamp();
@@ -75,9 +76,9 @@ internal static class RoomPerformanceStateFixture
                 var isolated = new LayeredScene(layers.Paint, [layer], layers.Brightness);
                 // These isolated costs include snapshot-memory setup and backdrop
                 // creation, so they locate expensive operations but are not additive.
-                for (int i = 0; i < 10; i++) SoftwareLayeredSnapshotRenderer.Render(isolated);
+                for (int i = 0; i < 10; i++) DisplayRendering.Render(isolated);
                 long start = Stopwatch.GetTimestamp();
-                for (int i = 0; i < 100; i++) SoftwareLayeredSnapshotRenderer.Render(isolated);
+                for (int i = 0; i < 100; i++) DisplayRendering.Render(isolated);
                 Console.WriteLine($"  Isolated {layer.GetType().Name}: {Stopwatch.GetElapsedTime(start).TotalMilliseconds / 100:F3}ms");
             }
         }

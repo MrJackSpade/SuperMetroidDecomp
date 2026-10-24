@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -118,7 +119,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
             AssertEqual(expected.GameState, actual.Frame.GameState, "gameplay captured state cadence");
             AssertEqual(expected.Phase, actual.Frame.Phase, "gameplay captured phase");
             AssertSequenceEqual(legacy.AudioEventsForVerification, packets.AudioEventsForVerification, "gameplay capture audio event order");
-            AssertTrue(legacy.PublishedPixels().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(actual.Snapshot)),
+            AssertTrue(legacy.PublishedPixels().SequenceEqual(DisplayRendering.Render(actual.Snapshot)),
                 $"gameplay capture pixels in {expected.Phase}");
         }
     }

@@ -12,7 +12,7 @@ using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.SaveMapFixtures;
 
-/// <summary>Compares translated file-map scenes with direct rendering throughout map navigation.</summary>
+/// <summary>Compares file-map scenes drawn on this device with the WARP reference device throughout map navigation.</summary>
 internal static class RetailFileMapTests
 {
     /// <summary>Covers all areas, backdrop and scroll variants, then both load and cancel routes.</summary>

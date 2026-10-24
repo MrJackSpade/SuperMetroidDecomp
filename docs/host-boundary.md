@@ -49,9 +49,9 @@ timer is not the wall clock; the input latch's lock hands buttons between thread
 public readonly record struct HostFrameDeadline(double NextDeadline, double WaitSeconds, bool Rebased);
 public enum RendererSelection { Software, Direct3D11, Auto }
 
-// After: each lives with the host that uses it. The Android host's pacing is AndroidFrameDeadline in its host
-// support (SuperMetroid.Diagnostics/Android); renderer choice is in the hosts' options (SuperMetroid.Diagnostics/
-// Configuration). Core's options record holds
+// After: each lives with the host that uses it. The Android host's pacing is AndroidFrameDeadline in that dormant
+// host (SuperMetroid.Android/Diagnostics, #1408); the renderer choice is gone with the software renderer (#1409).
+// Core's options record holds
 // only the values the game reads, and each host reads its own file and hands Core that record.
 ```
 

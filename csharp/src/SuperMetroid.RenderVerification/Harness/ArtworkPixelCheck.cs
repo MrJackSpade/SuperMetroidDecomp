@@ -12,7 +12,7 @@ internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRend
 {
     /// <summary>Gives each stock or edited render packet a fresh frame identity.</summary>
     private long sequence;
-    /// <summary>Counts backend readbacks compared with the software pixel oracle.</summary>
+    /// <summary>Counts backend readbacks compared with the WARP reference's pixels.</summary>
     internal int Comparisons { get; private set; }
     /// <summary>Counts visible pixels changed by the indexed artwork substitution.</summary>
     internal long ChangedPixels { get; private set; }
@@ -24,8 +24,8 @@ internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRend
     internal void Pair(SnesVram stock, SnesVram edited, OamBuffer oam, string context)
     {
         DisplayPacket a = Packet(stock), b = Packet(edited);
-        Rgba32[] first = SoftwareFrameSnapshotRenderer.Render(a);
-        Rgba32[] second = SoftwareFrameSnapshotRenderer.Render(b);
+        Rgba32[] first = DisplayRendering.Render(a);
+        Rgba32[] second = DisplayRendering.Render(b);
         var substitutions = Enumerable.Range(0, 16).ToDictionary(
             index => colors.GetRgba(index), index => colors.GetRgba(InstalledSamusArtworkFixture.Remap((byte)index)));
         for (int pixel = 0; pixel < first.Length; pixel++)
@@ -49,7 +49,7 @@ internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRend
                 [new ObjRenderLayer()], 15));
     }
 
-    /// <summary>Reads a GPU frame and compares its pixels with the software renderer's expected output.</summary>
+    /// <summary>Reads a GPU frame and compares its pixels with the WARP reference's.</summary>
     private void Compare(DisplayPacket frame, Rgba32[] expected, string context)
     {
         PixelComparison.Verify(frame, expected, renderer.RenderForReadback(frame), $"{device.Kind}: {context}");

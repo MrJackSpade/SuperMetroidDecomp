@@ -19,8 +19,6 @@ public static class FrameTimingCounterSmokeTest
 
         for (int frame = 0; frame < 60; frame++)
             counter.RecordEmulatedFrame(elapsedTicks: frame == 59 ? 8 : 4);
-        for (int paint = 0; paint < 30; paint++)
-            counter.RecordPaint(elapsedTicks: paint == 29 ? 10 : 2);
         counter.RecordLateFrames(2.5);
 
         if (counter.TryTakeSnapshot(timestamp: 10_999, out _))
@@ -29,11 +27,8 @@ public static class FrameTimingCounterSmokeTest
             throw new InvalidDataException("Timing counter did not publish at its reporting interval.");
 
         AssertNear(snapshot.EmulatedFramesPerSecond, 60, "emulated FPS");
-        AssertNear(snapshot.PaintedFramesPerSecond, 30, "paint FPS");
         AssertNear(snapshot.AverageEmulationMilliseconds, 244.0 / 60.0, "average step time");
         AssertNear(snapshot.WorstEmulationMilliseconds, 8, "worst step time");
-        AssertNear(snapshot.AveragePaintMilliseconds, 68.0 / 30.0, "average paint time");
-        AssertNear(snapshot.WorstPaintMilliseconds, 10, "worst paint time");
         AssertNear(snapshot.LateFrames, 2.5, "late frames");
 
         // Publication starts a new interval instead of leaking the previous counts into the
@@ -41,13 +36,11 @@ public static class FrameTimingCounterSmokeTest
         if (!counter.TryTakeSnapshot(timestamp: 12_000, out FrameTimingSnapshot empty))
             throw new InvalidDataException("Timing counter did not start a second interval.");
         AssertNear(empty.EmulatedFramesPerSecond, 0, "cleared emulated FPS");
-        AssertNear(empty.PaintedFramesPerSecond, 0, "cleared paint FPS");
         AssertNear(empty.LateFrames, 0, "cleared late frames");
         AssertNear(observedDiscards, 2.5, "whole-run observer survives interval reset");
 
         return new FrameTimingCounterSmokeTestResult(
             snapshot.EmulatedFramesPerSecond,
-            snapshot.PaintedFramesPerSecond,
             snapshot.AverageEmulationMilliseconds,
             snapshot.WorstEmulationMilliseconds,
             snapshot.LateFrames);

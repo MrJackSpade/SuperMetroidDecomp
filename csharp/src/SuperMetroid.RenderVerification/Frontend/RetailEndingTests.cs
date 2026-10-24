@@ -11,7 +11,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 /// <summary>Checks D3D11 rendering of the retail ending across the three completion-time rewards.</summary>
 internal static class RetailEndingTests
 {
-    /// <summary>Compares sampled ending phases with software pixels and confirms repeated packet rendering leaves cinematic cadence unchanged.</summary>
+    /// <summary>Compares sampled ending phases with the WARP reference device and confirms repeated packet rendering leaves cinematic cadence unchanged.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");

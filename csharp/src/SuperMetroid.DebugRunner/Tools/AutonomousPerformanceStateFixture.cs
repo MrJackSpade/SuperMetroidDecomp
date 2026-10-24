@@ -20,7 +20,6 @@ internal static class AutonomousPerformanceStateFixture
         Directory.CreateDirectory(root);
         using var data = new InstalledGameSession(root, Path.GetFullPath("Super Metroid.smc"),
             Path.GetFullPath("standalone-assets/audio"));
-        var output = new Rgba32[FrontendFrame.Width * FrontendFrame.Height];
         for (int frame = 1; frame <= targetFrame; frame++)
         {
             data.Record(0);
@@ -28,10 +27,10 @@ internal static class AutonomousPerformanceStateFixture
             // Rendering observes immutable packets and is not needed to advance earlier frames.
             if (frame != targetFrame) continue;
             var packet = result.Snapshot;
-            for (int warm = 0; warm < 10; warm++) DisplayRendering.Render(packet, output);
+            for (int warm = 0; warm < 10; warm++) DisplayRendering.Render(packet);
             long start = Stopwatch.GetTimestamp();
-            Rgba32[] pixels = output;
-            for (int sample = 0; sample < 100; sample++) pixels = DisplayRendering.Render(packet, output);
+            Rgba32[] pixels = [];
+            for (int sample = 0; sample < 100; sample++) pixels = DisplayRendering.Render(packet);
             Console.WriteLine($"Frame {frame}: {result.Frame.GameState}, room {data.Game.GameplayActiveRoomIdentity}, render={Stopwatch.GetElapsedTime(start).TotalMilliseconds / 100:F3}ms");
             if (packet.Layers is { } layers)
                 foreach (var layer in layers.Layers) Console.WriteLine($"Layer: {layer.GetType().Name}");

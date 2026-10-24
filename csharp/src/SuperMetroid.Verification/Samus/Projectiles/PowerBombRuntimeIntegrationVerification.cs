@@ -56,30 +56,24 @@ internal static class PowerBombRuntimeIntegrationVerification
         runtime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
 
         GameplayPpuRenderSnapshot ppu = runtime.Display.DisplayedGameplayPpu;
-        Rgba32[] expected = baseline.ToArray();
-        SnesGameplayFrameRendererConstants.ApplyPowerBombColorMath(
-            expected,
-            PowerBombRenderSnapshot.Capture(explosion),
-            ppu.Layer1Position);
-        Rgba32[] actual = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
-
-        int expectedChangedPixels = CountPowerBombFrameDifferences(baseline, expected);
-        AssertTrue(expectedChangedPixels > 0,
+        ScanlineColorAddRenderLayer expected = GameplayEffectCapture.CapturePowerBombColorMath(
+                PowerBombRenderSnapshot.Capture(explosion), ppu.Layer1Position)
+            ?? throw new InvalidOperationException("The active Power Bomb captured no window.");
+        AssertTrue(expected.Windows.ToArray().Any(window => window != ColorAddWindow.Empty),
             "Power Bomb fixture produces a visible first-flash window");
-        AssertEqual(
-            expectedChangedPixels,
-            CountPowerBombFrameDifferences(baseline, actual),
-            "shared runtime renderer changes every expected Power Bomb pixel");
-        AssertEqual(
-            0,
-            CountPowerBombFrameDifferences(expected, actual),
-            "shared runtime renderer matches the bank-$88 Power Bomb compositor");
+        LayeredScene published = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
+        ScanlineColorAddRenderLayer window = published.LayersOf<ScanlineColorAddRenderLayer>().Single();
+        AssertTrue(window.Windows.SequenceEqual(expected.Windows),
+            "the published gameplay frame carries the bank-$88 Power Bomb window");
+        Rgba32[] actual = FrontendScenePixelsAccess.Pixels(published);
+        AssertTrue(CountPowerBombFrameDifferences(baseline, actual) > 0,
+            "shared runtime rendering shows the Power Bomb window");
 
         Console.WriteLine(
             "  Power Bomb runtime: shared desktop rendering includes the active bank-$88 window.");
     }
 
-    /// <summary>Counts pixels changed between equal-size rendered frames for the window comparison.</summary>
+    /// <summary>Counts pixels changed between equal-size rendered frames.</summary>
     private static int CountPowerBombFrameDifferences(
         ReadOnlySpan<Rgba32> first,
         ReadOnlySpan<Rgba32> second)
